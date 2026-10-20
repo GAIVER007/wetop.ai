@@ -16,7 +16,12 @@ export type VerticalCapability =
   | 'food.menu'
   | 'food.orders'
   | 'food.staff'
-  | 'food.stock';
+  | 'food.stock'
+  | 'branch.stock'
+  /** касса филиала (§35.2, §48): ресторан и салон */
+  | 'branch.cash'
+  /** зарплата сотрудников (§33.4, §19.2): ресторан и салон */
+  | 'branch.payroll';
 export interface VerticalDefinition {
   readonly id: BusinessVertical;
   readonly label: string;
@@ -44,6 +49,9 @@ const DEFINITIONS: Readonly<Record<BusinessVertical, VerticalDefinition>> = Obje
       'beauty.customers',
       'beauty.employees',
       'beauty.services',
+      'branch.stock',
+      'branch.cash',
+      'branch.payroll',
     ] as const),
   }),
   FOOD_SERVICE: Object.freeze({
@@ -58,6 +66,9 @@ const DEFINITIONS: Readonly<Record<BusinessVertical, VerticalDefinition>> = Obje
       'food.orders',
       'food.staff',
       'food.stock',
+      'branch.stock',
+      'branch.cash',
+      'branch.payroll',
     ] as const),
   }),
 });

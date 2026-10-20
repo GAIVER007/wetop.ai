@@ -1,0 +1,108 @@
+# Модульные (unit) · 18.10.2026 13:03 Алматы · <сервер>
+# коммит fb0e786 (fix/owner-report-period-20261018), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T08-03-57Z-unit-ad1a.json' 'apps/web/src/app/restaurant-finance/period-continuity.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-pr599-reconcile
+
+ ❯ |unit| apps/web/src/app/restaurant-finance/period-continuity.test.ts (5 tests | 3 failed) 19ms
+   ❯ restaurant finance date context (5)
+     ✓ preserves exact valid owner dates 4ms
+     × uses the first repeated date like the other Next routes 8ms
+     × invalid dates are an error, not a silently changed period: {"from":"2026-10-18","to":"2026-10-01"} 2ms
+     × invalid dates are an error, not a silently changed period: {"from":"2026-02-30","to":"2026-03-01"} 1ms
+     ✓ keeps the existing no-query month-to-date based on the restaurant clock 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/restaurant-finance/period-continuity.test.ts > restaurant finance date context > uses the first repeated date like the other Next routes
+AssertionError: expected "vi.fn()" to be called once with arguments: [ { from: '2026-10-03', …(1) } ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    {
+-     "from": "2026-10-03",
+-     "to": "2026-10-09",
++     "from": "2026-10-01",
++     "to": "2026-10-18",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ apps/web/src/app/restaurant-finance/period-continuity.test.ts:22:32
+     20|   it('uses the first repeated date like the other Next routes', async …
+     21|     await RestaurantFinancePage({ searchParams: Promise.resolve({ from…
+     22|     expect(restaurantApi.cash).toHaveBeenCalledExactlyOnceWith({ from:…
+       |                                ^
+     23|   });
+     24|   it.each([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/web/src/app/restaurant-finance/period-continuity.test.ts > restaurant finance date context > invalid dates are an error, not a silently changed period: {"from":"2026-10-18","to":"2026-10-01"}
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "from": "2026-10-01",
+        "to": "2026-10-01",
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ apps/web/src/app/restaurant-finance/period-continuity.test.ts:29:36
+     27|   ])('invalid dates are an error, not a silently changed period: %j', …
+     28|     const page = await RestaurantFinancePage({ searchParams: Promise.r…
+     29|     expect(restaurantApi.cash).not.toHaveBeenCalled();
+       |                                    ^
+     30|     const child = props(page).children;
+     31|     expect(isValidElement(child) && props(child).testId).toBe('restaur…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/app/restaurant-finance/period-continuity.test.ts > restaurant finance date context > invalid dates are an error, not a silently changed period: {"from":"2026-02-30","to":"2026-03-01"}
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "from": "2026-02-30",
+        "to": "2026-03-01",
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ apps/web/src/app/restaurant-finance/period-continuity.test.ts:29:36
+     27|   ])('invalid dates are an error, not a silently changed period: %j', …
+     28|     const page = await RestaurantFinancePage({ searchParams: Promise.r…
+     29|     expect(restaurantApi.cash).not.toHaveBeenCalled();
+       |                                    ^
+     30|     const child = props(page).children;
+     31|     expect(isValidElement(child) && props(child).testId).toBe('restaur…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 2 passed (5)
+   Start at  08:03:58
+   Duration  1.63s (transform 76%, import 23%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-18T08-03-57Z-unit-ad1a.json
+
+# код выхода 1 · 3 с

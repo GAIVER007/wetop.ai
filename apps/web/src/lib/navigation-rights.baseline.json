@@ -1,5 +1,5 @@
 {
-  "base": "main d96217c6a, before the menu links fix",
+  "base": "top menu 17.10.2026: labels only, rights unchanged",
   "paths": [
     "/",
     "/ai-agents",
@@ -288,8 +288,8 @@
     },
     "/bar/operations": {
       "rule": {
-        "href": "/bar",
-        "label": "Бар",
+        "href": "/bar/operations",
+        "label": "Движение товаров",
         "requires": "reports"
       },
       "gate": {
@@ -304,8 +304,8 @@
     },
     "/bar/products": {
       "rule": {
-        "href": "/bar",
-        "label": "Бар",
+        "href": "/bar/products",
+        "label": "Номенклатура",
         "requires": "reports"
       },
       "gate": {
@@ -320,8 +320,8 @@
     },
     "/bar/receipts": {
       "rule": {
-        "href": "/bar",
-        "label": "Бар",
+        "href": "/bar/receipts",
+        "label": "Приходы",
         "requires": "reports"
       },
       "gate": {
@@ -336,8 +336,8 @@
     },
     "/bar/receipts/new": {
       "rule": {
-        "href": "/bar",
-        "label": "Бар",
+        "href": "/bar/receipts",
+        "label": "Приходы",
         "requires": "reports"
       },
       "gate": {
@@ -352,8 +352,8 @@
     },
     "/bar/suppliers": {
       "rule": {
-        "href": "/bar",
-        "label": "Бар",
+        "href": "/bar/suppliers",
+        "label": "Поставщики",
         "requires": "reports"
       },
       "gate": {
@@ -401,7 +401,7 @@
     "/beauty/schedule": {
       "rule": {
         "href": "/beauty/schedule",
-        "label": "График",
+        "label": "График работы",
         "requires": "desk"
       },
       "gate": {
@@ -445,7 +445,7 @@
     "/calendar": {
       "rule": {
         "href": "/calendar",
-        "label": "Календарь",
+        "label": "Журнал",
         "requires": "desk"
       },
       "gate": {
@@ -641,7 +641,7 @@
     "/employees": {
       "rule": {
         "href": "/employees",
-        "label": "Мастера",
+        "label": "Специалисты",
         "requires": "desk"
       },
       "gate": {
@@ -829,7 +829,7 @@
     "/journal": {
       "rule": {
         "href": "/journal",
-        "label": "Журнал операций",
+        "label": "История действий",
         "requires": "journal"
       },
       "gate": {
@@ -1026,7 +1026,7 @@
       "rule": {
         "href": "/marketing",
         "label": "Продвижение",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1042,7 +1042,7 @@
       "rule": {
         "href": "/marketing/ads",
         "label": "Реклама",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1058,7 +1058,7 @@
       "rule": {
         "href": "/marketing/content",
         "label": "Контент",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1074,7 +1074,7 @@
       "rule": {
         "href": "/marketing",
         "label": "Продвижение",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1090,7 +1090,7 @@
       "rule": {
         "href": "/marketing",
         "label": "Продвижение",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1106,7 +1106,7 @@
       "rule": {
         "href": "/marketing",
         "label": "Продвижение",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1348,8 +1348,8 @@
     },
     "/reports/finance": {
       "rule": {
-        "href": "/reports",
-        "label": "Отчёты",
+        "href": "/reports/finance",
+        "label": "Финансовый отчёт",
         "requires": "reports"
       },
       "gate": {
@@ -1605,7 +1605,7 @@
     "/staff": {
       "rule": {
         "href": "/staff",
-        "label": "Сотрудники и доступ",
+        "label": "Сотрудники",
         "requires": "staff"
       },
       "gate": {
@@ -1681,7 +1681,7 @@
     "/team": {
       "rule": {
         "href": "/team",
-        "label": "Сотрудники и доступ",
+        "label": "Сотрудники",
         "requires": "staff"
       },
       "gate": {
@@ -1697,7 +1697,7 @@
     "/team/roles": {
       "rule": {
         "href": "/team",
-        "label": "Сотрудники и доступ",
+        "label": "Сотрудники",
         "requires": "staff"
       },
       "gate": {
@@ -1742,7 +1742,7 @@
       "rule": {
         "href": "/website",
         "label": "Сайт и онлайн-бронирование",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1758,7 +1758,7 @@
       "rule": {
         "href": "/website",
         "label": "Сайт и онлайн-бронирование",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1774,7 +1774,7 @@
       "rule": {
         "href": "/website",
         "label": "Сайт и онлайн-бронирование",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",
@@ -1790,7 +1790,7 @@
       "rule": {
         "href": "/website",
         "label": "Сайт и онлайн-бронирование",
-        "requires": "settings"
+        "requires": "marketing"
       },
       "gate": {
         "owner": "open",

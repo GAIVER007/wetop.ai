@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   TODAY_VERTICALS,
   anonymousHospitalityAllowed,
+  ownerSummaryClosed,
   todayScreen,
   unresolvedTarget,
 } from './dispatch';
+import { ApiError } from '../../lib/api-error';
 
 const me = (
   vertical: string | null,
@@ -87,5 +89,17 @@ describe('/today: один адрес, экран только по подтве
     expect(unresolvedTarget(false)).toBe('/scope/resolve?next=%2Ftoday');
     // указатель уже стоит, а направление не подтверждено: повторный автоматический выбор дал бы то же самое
     expect(unresolvedTarget(true)).toBe('/branches');
+  });
+});
+
+describe('общая Главная: отказ API по области доступа', () => {
+  // веб пускает по роли, API проверяет назначения филиала (owner-summary.ts): отказ значит «не ваша сводка»,
+  // и человек видит свой рабочий день, а не экран ошибки (аудит 17.10.2026, Д6)
+  it('403 от сводки: показываем рабочий день', () => {
+    expect(ownerSummaryClosed(new ApiError(403, 'Reports are not available in this scope'))).toBe(true);
+  });
+  it('сбой и другие ответы остаются ошибкой', () => {
+    expect(ownerSummaryClosed(new ApiError(503, 'down'))).toBe(false);
+    expect(ownerSummaryClosed(new Error('fetch failed'))).toBe(false);
   });
 });

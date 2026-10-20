@@ -1,0 +1,40 @@
+# Модульные (unit) · 17.10.2026 12:39 Алматы · <сервер>
+# коммит 782b605 (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T07-39-35Z-unit-2151.json' 'apps/web/src/app/my-work/profile-version.test.ts' 'apps/api/src/employee-portal/boundary.test.ts' 'apps/api/src/employee-portal/write-safety.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ✓  unit  apps/api/src/employee-portal/write-safety.test.ts (6 tests) 9ms
+ ✓  unit  apps/web/src/app/my-work/profile-version.test.ts (3 tests) 22ms
+ ❯  unit  apps/api/src/employee-portal/boundary.test.ts (4 tests | 1 failed) 20ms
+   ❯ employee portal input boundary (4)
+     ✓ denies mass assignment instead of ignoring it 5ms
+     × validates revision and public profile fields 5ms
+     ✓ never accepts truthy strings as consent or publication 2ms
+     ✓ accepts only the two approved Beauty percent bases 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   unit  apps/api/src/employee-portal/boundary.test.ts > employee portal input boundary > validates revision and public profile fields
+BadRequestException: expectedProfileRevision required: некорректная или отсутствующая версия профиля
+ ❯ employeeProfileRevision apps/api/src/employee-portal/employee-common.ts:12:11
+     10| export function employeeProfileRevision(value: unknown): string {
+     11|   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d…
+     12|     throw new BadRequestException('expectedProfileRevision required: н…
+       |           ^
+     13|   return value;
+     14| }
+ ❯ profileInput apps/api/src/employee-portal/boundary.ts:22:3
+ ❯ apps/api/src/employee-portal/boundary.test.ts:11:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 12 passed (13)
+   Start at  07:39:37
+   Duration  3.64s (transform 65%, import 33%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-17T07-39-35Z-unit-2151.json
+
+# код выхода 1 · 6 с

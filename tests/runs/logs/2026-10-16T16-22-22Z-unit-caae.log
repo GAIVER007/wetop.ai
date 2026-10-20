@@ -1,0 +1,585 @@
+# Модульные (unit) · 16.10.2026 21:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (claude/modest-lovelace-429ae7), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-22-22Z-unit-caae.json' 'apps/api/src/reservations/reservations.controller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/modest-lovelace-429ae7
+
+[Nest] 70521  - 09/09/2026, 11:00:00 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ❯ |unit| apps/api/src/reservations/reservations.controller.test.ts (56 tests | 28 failed) 324ms
+   ❯ manual reservation API (56)
+     × приложение само слушает 127.0.0.1: запрос supertest не уходит чужому серверу на том же порту (флейк 16.10.2026) 7ms
+     × ADR-021: отмена брони снимает блоки соседних ночей от раннего заезда и позднего выезда 28ms
+     ✓ Q-107: ячейка физически свободна, но категория продана бронями без ячейки → 409, как для канала 11ms
+     ✓ Б6: бронь записана, а дельта каналов не встала в очередь — ответ 201 с карточкой, не 500: иначе повтор создаст дубль 3ms
+     ✓ rejects invalid stay 2026-02-31 to 2026-03-03 before writes 1ms
+     ✓ rejects invalid stay 2026-02-28 to 2026-02-31 before writes 1ms
+     ✓ rejects invalid stay 2026-10-02 to 2026-10-01 before writes 1ms
+     ✓ rejects invalid stay 2026-10-01 to 2026-10-01 before writes 1ms
+     ✓ rejects invalid stay  to 2026-10-01 before writes 1ms
+     ✓ rejects invalid stay 2026-10-01 to  before writes 1ms
+     ✓ quotes the selected booking without writing a guest or reservation 13ms
+     × quote breaks the total down by night: one entry per night, sum equals total 3ms
+     × replays one creation key and rejects changed payload without duplicate guests 3ms
+     × rejects an outdated expected total before writes 3ms
+     × POST /reservations creates a CONFIRMED booking priced from DailyRate, assigns the unit, writes audit 3ms
+     × ADR-072: пока база не в Казахстане, гость со стойки записывается псевдонимом; имя не обязательно 1ms
+     × ADR-072: база в Казахстане (PII_STORAGE=real) — гость как введён, имя и фамилия обязательны 1ms
+     ✓ G6 (ТЗ «Гости v2» §33): guestId существующего гостя — бронь на него, нового гостя нет 1ms
+     × G6: гость не своей организации или несуществующий — 404, брони нет 2ms
+     × G6: guestId вместе с полями нового гостя — 400, чтобы не гадать, кого имели в виду 4ms
+     × ADR-071: OTA вручную — канал и номер брони в канале обязательны; номер без пробелов, канал каноническим именем 4ms
+     × ADR-071: номер брони в канале второй раз не заводится — ни вручную, ни когда бронь уже пришла из Channex 4ms
+     × ADR-071: номер брони в канале можно вписать и поправить на готовой брони OTA; у другой — 400 4ms
+     × rejects a missing/unknown source with 400 — no default (Q-089) 5ms
+     × 422 when a night has no price, the tariff is inactive or the unit belongs to another category 5ms
+     × 409 when the unit is blocked or already allocated for an overlapping night 4ms
+     × PATCH dates reprices and moves the allocation; cancel frees the unit; both audited 4ms
+     × отмена и незаезд берут замок брони раньше, чем читают её состояние 4ms
+     × предпросмотр действия замок брони не берёт — только читает 6ms
+     × Q-103: отмена заранее штрафа не даёт, незаезд даёт; даты меняются без повторного тарифа (Q-102) 10ms
+     × assign moves the guest to another unit from a date (переселение), 404 for unknown booking/item 19ms
+     × T1: переселение в другую категорию пересчитывает цену по её календарю и шлёт дельту по обеим категориям; частичное — запрещено 5ms
+     × предпросмотр называет цену переселения и продления, штраф отмены, и ничего не пишет 6ms
+     × T2: «+1 ночь» сдвигает выезд, пересчитывает цену и продлевает назначение; занятая ячейка — 409, выселенного продлить нельзя 3ms
+     × Д5 (срез 7.3): сумма в окне = начисление — предпросмотр переселения, продления, отмены и незаезда 1ms
+     × checkout on 2026-09-15 releases the unit and permits rebooking after inspection 5ms
+     × checkout on 2026-09-16 releases the unit and permits rebooking after inspection 3ms
+     × T3: выселить с непогашенным счётом можно только с подтверждением, и это попадает в журнал 1ms
+     ✓ ADR-020: ограничения продаж действуют на стойке — стоп-продажа, закрытый заезд/выезд, срок → 409 с датой и категорией; канал и другая категория не задеты 7ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в заметке брони маскируются — и при создании, и при правке 3ms
+     ✓ Q-169: база в Казахстане (PII_STORAGE=real) — заметка как введена 1ms
+     ✓ правка готовой брони: PATCH заметки и источник, PATCH гостей на проживании с проверкой вместимости; всё в журнале 7ms
+     ✓ цена проживания (план finance-payments-direct 07.10.2026): PATCH price переписывает цену и сумму брони, не число и ноль — 400, отменённое — 422 5ms
+     ✓ групповая бронь: quantity=3 → 3 проживания на трёх разных свободных ячейках по номеру; свободных меньше → 409 «свободно только K» 3ms
+     ✓ тариф брони по роли (Q-200, ADR-107) (7)
+       ✓ администратор меняет даты в том же тарифе; другой тариф — отказ словами, бронь не тронута 2ms
+       ✓ цену проживания вниз меняют владелец и управляющий, администратор — только вверх (ADR-107) 1ms
+       ✓ управляющий тариф меняет 1ms
+       ✓ продление и переселение в другую категорию — в тарифе брони; с другим тарифом — отказ 1ms
+       ✓ бронь из Legacy без тарифа: администратор назначает тариф со штрафом, без штрафа — отказ; тариф записывается (Q-201) 1ms
+       ✓ продление брони без тарифа записывает выбранный тариф: второе продление — уже в нём (Q-201) 1ms
+       ✓ управляющий назначает брони без тарифа любой тариф, и без штрафа тоже 1ms
+     ✓ GET /rate-plans lists only active tariffs 1ms
+     ✓ check-in needs an assigned unit; check-out frees the unit on early departure; no-show drops the allocation 6ms
+     ✓ каждая команда, меняющая остаток категории, ставит дельту доступности: создание, смена дат, отмена, незаезд, ранний выезд 5ms
+     ✓ перенос брони (live-тест Channex 02.10.2026): в канал уходят только освободившаяся и занятая ночь, ночи между ними — нет 1ms
+     ✓ заселение без гражданства и с гражданством из одних пробелов отклоняется одним и тем же сообщением 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 28 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > приложение само слушает 127.0.0.1: запрос supertest не уходит чужому серверу на том же порту (флейк 16.10.2026)
+AssertionError: expected null to match object { address: '127.0.0.1' }
+
+- Expected:
+{
+  "address": "127.0.0.1",
+}
+
++ Received:
+null
+
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:503:43
+    501|
+    502|   it('приложение само слушает 127.0.0.1: запрос supertest не уходит чу…
+    503|     expect(app.getHttpServer().address()).toMatchObject({ address: '12…
+       |                                           ^
+    504|   });
+    505|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > ADR-021: отмена брони снимает блоки соседних ночей от раннего заезда и позднего выезда
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:510:8
+    508|       .post('/reservations')
+    509|       .send(body())
+    510|       .expect(201);
+       |        ^
+    511|     const number = created.body.confirmationNumber as string;
+    512|     // как ставит финансовый модуль: блок на койку с причиной «…, брон…
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > quote breaks the total down by night: one entry per night, sum equals total
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:573:8
+    571|       .post('/reservations/quote')
+    572|       .send(body())
+    573|       .expect(201);
+       |        ^
+    574|     expect(q.body.nights).toEqual([
+    575|       { date: q.body.arrivalDate, priceMinor: '1100000' },
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > replays one creation key and rejects changed payload without duplicate guests
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:589:8
+    587|       .post('/reservations')
+    588|       .send(payload)
+    589|       .expect(201);
+       |        ^
+    590|     const repeat = await request(app.getHttpServer())
+    591|       .post('/reservations')
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > rejects an outdated expected total before writes
+Error: expected 409 "Conflict", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:606:8
+    604|       .post('/reservations')
+    605|       .send(body({ expectedTotalMinor: '1' }))
+    606|       .expect(409);
+       |        ^
+    607|     expect(fake.state.reservations.size).toBe(0);
+    608|     expect(fake.state.guests).toBe(0);
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > POST /reservations creates a CONFIRMED booking priced from DailyRate, assigns the unit, writes audit
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:612:87
+    610|
+    611|   it('POST /reservations creates a CONFIRMED booking priced from Daily…
+    612|     const res = await request(app.getHttpServer()).post('/reservations…
+       |                                                                                       ^
+    613|     expect(res.body.confirmationNumber).toMatch(/^\d{8}-[A-Z0-9]{6}$/);
+    614|     expect(res.body.status).toBe('CONFIRMED');
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > ADR-072: пока база не в Казахстане, гость со стойки записывается псевдонимом; имя не обязательно
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:648:10
+    646|           }),
+    647|         )
+    648|         .expect(201);
+       |          ^
+    649|       await request(app.getHttpServer())
+    650|         .post('/reservations')
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > ADR-072: база в Казахстане (PII_STORAGE=real) — гость как введён, имя и фамилия обязательны
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:671:10
+    669|         .post('/reservations')
+    670|         .send(body({ guest: { firstName: ' Иван ', lastName: 'Петров',…
+    671|         .expect(201);
+       |          ^
+    672|       expect(fake.state.createdGuests).toEqual([
+    673|         { firstName: 'Иван', lastName: 'Петров', middleName: null, pho…
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > G6: гость не своей организации или несуществующий — 404, брони нет
+Error: expected 404 "Not Found", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:715:10
+    713|         .post('/reservations')
+    714|         .send(body({ guest: undefined, guestId }))
+    715|         .expect(404);
+       |          ^
+    716|       expect(res.body.message).toBe('Гость не найден');
+    717|     }
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > G6: guestId вместе с полями нового гостя — 400, чтобы не гадать, кого имели в виду
+Error: expected 400 "Bad Request", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:725:8
+    723|       .post('/reservations')
+    724|       .send(body({ guestId: '7d6c5b4a-0000-4000-8000-000000000001' }))
+    725|       .expect(400);
+       |        ^
+    726|     expect(fake.state.reservations.size).toBe(0);
+    727|   });
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > ADR-071: OTA вручную — канал и номер брони в канале обязательны; номер без пробелов, канал каноническим именем
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:734:8
+    732|       .post('/reservations')
+    733|       .send(body({ source: 'OTA', channel: 'BookingCom', externalId: '…
+    734|       .expect(201);
+       |        ^
+    735|     expect(fake.state.reservations.get(r.body.confirmationNumber)).toM…
+    736|       source: 'OTA',
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > ADR-071: номер брони в канале второй раз не заводится — ни вручную, ни когда бронь уже пришла из Channex
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:772:8
+    770|       .post('/reservations')
+    771|       .send(night('15', { channel: 'Agoda', externalId: '555' }))
+    772|       .expect(201);
+       |        ^
+    773|     const dup = await request(app.getHttpServer())
+    774|       .post('/reservations')
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > ADR-071: номер брони в канале можно вписать и поправить на готовой брони OTA; у другой — 400
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:796:8
+    794|       .post('/reservations')
+    795|       .send(body({ source: 'OTA', channel: 'Hostelworld', externalId: …
+    796|       .expect(201);
+       |        ^
+    797|     const n = r.body.confirmationNumber;
+    798|     await request(app.getHttpServer())
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > rejects a missing/unknown source with 400 — no default (Q-089)
+Error: expected 400 "Bad Request", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:819:8
+    817|       .post('/reservations')
+    818|       .send(body({ source: undefined }))
+    819|       .expect(400);
+       |        ^
+    820|     await request(app.getHttpServer())
+    821|       .post('/reservations')
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > 422 when a night has no price, the tariff is inactive or the unit belongs to another category
+Error: expected 422 "Unprocessable Entity", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:829:8
+    827|       .post('/reservations')
+    828|       .send(body({ arrivalDate: '2026-09-18', departureDate: '2026-09-…
+    829|       .expect(422);
+       |        ^
+    830|     await request(app.getHttpServer())
+    831|       .post('/reservations')
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > 409 when the unit is blocked or already allocated for an overlapping night
+Error: expected 409 "Conflict", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:871:8
+    869|         }),
+    870|       )
+    871|       .expect(409);
+       |        ^
+    872|     await request(app.getHttpServer()).post('/reservations').send(body…
+    873|     await request(app.getHttpServer())
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > PATCH dates reprices and moves the allocation; cancel frees the unit; both audited
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:887:8
+    885|       .post('/reservations')
+    886|       .send(body())
+    887|       .expect(201);
+       |        ^
+    888|     const n = created.body.confirmationNumber as string;
+    889|     const moved = await request(app.getHttpServer())
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > отмена и незаезд берут замок брони раньше, чем читают её состояние
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:929:8
+    927|       .post('/reservations')
+    928|       .send(body())
+    929|       .expect(201);
+       |        ^
+    930|     const n = created.body.confirmationNumber as string;
+    931|     fake.state.events.length = 0;
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > предпросмотр действия замок брони не берёт — только читает
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:954:8
+    952|       .post('/reservations')
+    953|       .send(body())
+    954|       .expect(201);
+       |        ^
+    955|     const n = created.body.confirmationNumber as string;
+    956|     const itemId = created.body.items[0].id as string;
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > Q-103: отмена заранее штрафа не даёт, незаезд даёт; даты меняются без повторного тарифа (Q-102)
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:972:8
+    970|       .post('/reservations')
+    971|       .send(body())
+    972|       .expect(201);
+       |        ^
+    973|     const n = created.body.confirmationNumber as string;
+    974|     // Q-102: тариф лежит на проживании — ratePlanCode повторять не ну…
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > assign moves the guest to another unit from a date (переселение), 404 for unknown booking/item
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1017:8
+    1015|         }),
+    1016|       )
+    1017|       .expect(201);
+       |        ^
+    1018|     const n = created.body.confirmationNumber as string;
+    1019|     const itemId = created.body.items[0].id as string;
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > T1: переселение в другую категорию пересчитывает цену по её календарю и шлёт дельту по обеим категориям; частичное — запрещено
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1051:8
+    1049|       .post('/reservations')
+    1050|       .send(body())
+    1051|       .expect(201);
+       |        ^
+    1052|     const n = created.body.confirmationNumber as string;
+    1053|     const itemId = created.body.items[0].id as string;
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > предпросмотр называет цену переселения и продления, штраф отмены, и ничего не пишет
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1095:8
+    1093|       .post('/reservations')
+    1094|       .send(body({ arrivalDate: '2026-09-15', departureDate: '2026-09-…
+    1095|       .expect(201);
+       |        ^
+    1096|     const n = created.body.confirmationNumber as string;
+    1097|     const itemId = created.body.items[0].id as string;
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > T2: «+1 ночь» сдвигает выезд, пересчитывает цену и продлевает назначение; занятая ячейка — 409, выселенного продлить нельзя
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1151:8
+    1149|       .post('/reservations')
+    1150|       .send(body())
+    1151|       .expect(201);
+       |        ^
+    1152|     const n = created.body.confirmationNumber as string;
+    1153|     const itemId = created.body.items[0].id as string;
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > Д5 (срез 7.3): сумма в окне = начисление — предпросмотр переселения, продления, отмены и незаезда
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1221:57
+    1219|     const post = (path: string, payload: object = {}) =>
+    1220|       request(app.getHttpServer()).post(path).send(payload);
+    1221|     const created = await post('/reservations', body()).expect(201);
+       |                                                         ^
+    1222|     const n = created.body.confirmationNumber as string;
+    1223|     const itemId = created.body.items[0].id as string;
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > checkout on 2026-09-15 releases the unit and permits rebooking after inspection
+Error: expected 200 "OK", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1367:12
+    1365|           .post(`/reservations/${n}/items/${item}/check-in`)
+    1366|           .send({})
+    1367|           .expect(200);
+       |            ^
+    1368|         const out = await request(app.getHttpServer())
+    1369|           .post(`/reservations/${n}/items/${item}/check-out`)
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > checkout on 2026-09-16 releases the unit and permits rebooking after inspection
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1361:12
+    1359|           .post('/reservations')
+    1360|           .send(body())
+    1361|           .expect(201);
+       |            ^
+    1362|         const n = created.body.confirmationNumber;
+    1363|         const item = created.body.items[0].id;
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/28]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > T3: выселить с непогашенным счётом можно только с подтверждением, и это попадает в журнал
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1390:8
+    1388|       .post('/reservations')
+    1389|       .send(body())
+    1390|       .expect(201);
+       |        ^
+    1391|     const n = created.body.confirmationNumber as string;
+    1392|     const itemId = created.body.items[0].id as string;
+ ❯ Test._assertStatus ../../../node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/28]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  28 failed | 28 passed (56)
+   Start at  09:22:23
+   Duration  1.65s (transform 44%, import 35%, tests 21%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-22-22Z-unit-caae.json
+
+# код выхода 1 · 3 с

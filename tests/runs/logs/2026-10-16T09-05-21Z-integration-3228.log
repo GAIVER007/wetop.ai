@@ -1,0 +1,32 @@
+# Интеграционные (integration) · 16.10.2026 14:05 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 38
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T09-05-21Z-integration-3228.json' '--config' 'tests/hospitality-workload-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/hospitality-workload-isolated.test.ts (1 test | 1 failed) 11ms
+   × property-scoped service writer retains ROOM/BED and never claims complete prior history 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/hospitality-workload-isolated.test.ts > property-scoped service writer retains ROOM/BED and never claims complete prior history
+Error: Cannot find module '/apps/api/src/hospitality/workload' imported from /srv/hermes/workspace/wetop-unified-owner-data/tests/integration/hospitality-workload-isolated.test.ts
+ ❯ tests/integration/hospitality-workload-isolated.test.ts:11:39
+      9| afterAll(()=>pool.end());
+     10| it('property-scoped service writer retains ROOM/BED and never claims c…
+     11|  const { HospitalityWorkloadService }=await import('../../apps/api/src…
+       |                                       ^
+     12|  const org=(await pool.query('select id from organizations limit 1')).…
+     13|  const [business,location,property,building,floor,room,category,unit,b…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  09:05:22
+   Duration  1.69s (transform 78%, import 21%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T09-05-21Z-integration-3228.json
+
+# код выхода 1 · 3 с

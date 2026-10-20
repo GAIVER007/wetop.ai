@@ -1,0 +1,72 @@
+# Модульные (unit) · 16.10.2026 09:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bd4c21 (claude/bar-location-web), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T04-42-53Z-unit-edff.json' 'apps/web/src/lib/navigation-food.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ❯ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests | 2 failed) 14ms
+   ❯ Food workspace isolation (4)
+     × exposes exactly accepted Food menu 9ms
+     ✓ does not expose Food to existing verticals 1ms
+     ✓ uses canonical landings and verified scope 2ms
+     × identifies isolated routes before API access 1ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  21:43:03
+   Duration  2.82s (transform 84%, import 15%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T04-42-53Z-unit-edff.json
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > exposes exactly accepted Food menu
+AssertionError: expected [ '/today', '/floor-plan', …(29) ] to deeply equal [ '/today', '/floor-plan', …(30) ]
+
+- Expected
++ Received
+
+@@ -10,11 +10,10 @@
+    "/stock",
+    "/customers",
+    "/restaurant-finance",
+    "/cashbox",
+    "/finance",
+-   "/bar",
+    "/employees",
+    "/payroll",
+    "/team",
+    "/sales",
+    "/ai-agents",
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:10:7
+      8|     expect(
+      9|       menuSectionsFor(owner, 'FOOD_SERVICE').flatMap((s) => s.items.ma…
+     10|     ).toEqual([
+       |       ^
+     11|       // группы по выбору владельца 11.10.2026: Зал, Заказы, Команда (…
+     12|       '/today',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-food.test.ts > Food workspace isolation > identifies isolated routes before API access
+AssertionError: expected 'HOSPITALITY' to be null
+
+- Expected:
+null
+
++ Received:
+"HOSPITALITY"
+
+ ❯ apps/web/src/lib/navigation-food.test.ts:121:35
+    119|     expect(routeVertical('/customers')).toBeNull();
+    120|     // бар у всех направлений (ADR-178): страница сама зовёт requireVe…
+    121|     expect(routeVertical('/bar')).toBeNull();
+       |                                   ^
+    122|     expect(routeVertical('/today')).toBeNull();
+    123|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+# код выхода 1 · 13 с

@@ -30,6 +30,15 @@ export interface Mailer {
 export const MAILER = Symbol('MAILER');
 export const APP_URL = Symbol('APP_URL');
 
+/**
+ * Адрес стойки для ссылок во всех письмах (подтверждение, сброс, приглашение, ссылка владельцу): одно правило на все.
+ * `PUBLIC_APP_URL`, иначе `APP_URL` (её же читает стойка), иначе боевой адрес. Пустой адрес давал письма с ссылкой без
+ * домена (приглашение до 16.10.2026).
+ */
+export function appUrlFromEnv(env: Record<string, string | undefined> = process.env): string {
+  return env.PUBLIC_APP_URL?.trim() || env.APP_URL?.trim() || 'https://app.wetop.ai';
+}
+
 /** Не чаще одного письма на почту в пять минут: иначе ящик можно завалить чужими запросами. */
 const REPEAT_MINUTES = 5;
 
@@ -99,24 +108,43 @@ export class PasswordResetService {
     const policy = checkPassword(input.password);
     if (!policy.ok) throw new BadRequestException(`Пароль не годится: ${policy.reason}`);
 
-    await this.prisma.db.user.update({
-      where: { id: row.user.id },
-      data: {
-        passwordHash: await hashPasswordQueued(input.password),
-        status: 'ACTIVE',
-        failedAttempts: 0,
-        lockedUntil: null,
-        // Ссылка пришла на эту почту — значит, почта его. Приглашённый задаёт пароль этой же дорогой и без отметки
-        // упирался в «Почта не подтверждена» навсегда, вопреки ADR-060 (аудит 26.09, С-9)
-        emailVerifiedAt: row.user.emailVerifiedAt ?? now,
-      },
+    // Hash before taking database locks; the conditional claim decides the single winner.
+    const passwordHash = await hashPasswordQueued(input.password);
+    await this.prisma.db.$transaction(async (tx) => {
+      const claimed = await tx.passwordReset.updateMany({
+        where: { id: row.id, usedAt: null, expiresAt: { gt: now } },
+        data: { usedAt: now },
+      });
+      if (claimed.count !== 1)
+        throw new UnauthorizedException('Ссылка не годится: запросите новую');
+
+      const user = await tx.user.findUnique({ where: { id: row.userId } });
+      if (!user || user.status === 'BLOCKED')
+        throw new UnauthorizedException('Ссылка не годится: запросите новую');
+      const updated = await tx.user.updateMany({
+        where: { id: user.id, status: { not: 'BLOCKED' } },
+        data: {
+          passwordHash,
+          status: 'ACTIVE',
+          failedAttempts: 0,
+          lockedUntil: null,
+          // The invitation link also verifies the mailbox (ADR-060).
+          emailVerifiedAt: user.emailVerifiedAt ?? now,
+        },
+      });
+      if (updated.count !== 1)
+        throw new UnauthorizedException('Ссылка не годится: запросите новую');
+      const { count } = await tx.session.updateMany({
+        where: { userId: user.id, revokedAt: null },
+        data: { revokedAt: now },
+      });
+      await tx.auditLog.create({
+        data: {
+          userId: user.id, entityType: 'user', entityId: user.id,
+          action: 'user.password.changed', after: { by: 'link', sessionsRevoked: count },
+        },
+      });
     });
-    await this.prisma.db.passwordReset.update({ where: { id: row.id }, data: { usedAt: now } });
-    const { count } = await this.prisma.db.session.updateMany({
-      where: { userId: row.user.id, revokedAt: null },
-      data: { revokedAt: now },
-    });
-    await this.record(row.user.id, 'user.password.changed', { by: 'link', sessionsRevoked: count });
   }
 
   /** Новая ссылка гасит прежние неиспользованные: одна живая ссылка на человека. */
@@ -132,10 +160,4 @@ export class PasswordResetService {
     return resetLink(this.appUrl, token);
   }
 
-  private async record(userId: string, action: string, after: Record<string, unknown>): Promise<void> {
-    const json = JSON.parse(JSON.stringify(after));
-    await this.prisma.db.auditLog.create({
-      data: { userId, entityType: 'user', entityId: userId, action, after: json },
-    });
-  }
 }

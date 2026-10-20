@@ -1,0 +1,398 @@
+# Модульные (unit) · 16.10.2026 10:50 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2f4ef80 (claude/salon-cash)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-50-42Z-unit-2bf8.json' 'apps/api'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+[Nest] 85907  - 10/15/2026, 10:50:44 PM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 85907  - 10/15/2026, 10:50:44 PM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 85907  - 10/15/2026, 10:50:44 PM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+ ✓ |unit| apps/api/src/guard/guard.service.test.ts (36 tests) 51ms
+[Nest] 85901  - 09/09/2026, 11:00:00 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+[Nest] 85904  - 10/15/2026, 10:50:45 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-11-10 → 2026-11-12): очередь недоступна
+[Nest] 85904  - 10/15/2026, 10:50:45 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 85904  - 10/15/2026, 10:50:45 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 85904  - 10/15/2026, 10:50:45 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 85904  - 10/15/2026, 10:50:45 PM   ERROR [InboundBookingsService] Ревизия rev-fail-pii: Invalid value for notes: call <телефон>, write <почта>
+[Nest] 85904  - 10/15/2026, 10:50:45 PM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ❯ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests | 1 failed) 361ms
+   ❯ inbound bookings from Channex (contract on fakes) (24)
+     ✓ helpers: guarantee (card data) is stripped, decimal amounts become minor units exactly 3ms
+     ✓ pull: new revision → reservation with the first free unit (Q-094), event PROCESSED without card data, ack; same revision again → duplicate skipped but acked; no free unit → without unit and a warning 23ms
+     ✓ канал брони — одним именем по коду unique_id: BookingCom → Booking.com, новый канал Airbnb — именем из справочника кодов (ADR-140) 4ms
+     ✓ modified revision moves dates and re-dates an existing allocation; cancelled frees units and cancels 26ms
+     ✓ дельта доступности: новая, изменённая и отменённая ревизия ставят её после коммита; отмена — ещё и по снятым блокам соседних ночей 24ms
+     ✓ ревизия канала, которую стойка уже отразила: разница PMS пуста, но ночи брони уходят — Channex меняет свой остаток сам (allow_availability_autoupdate_*) 21ms
+     ✓ связывание брони стойки с ревизией канала: ночи и брони стойки, и комнат ревизии — Channex уменьшил остаток по своим 3ms
+     ✓ сбой постановки дельты после ACK не рвёт разбор ревизии и оставляет след для сторожа 2ms
+     ✓ перенесённая из Legacy бронь канала опознаётся по номеру брони OTA: модификация не создаёт дубль, отмена освобождает ячейку 8ms
+     ✓ ADR-071: бронь стойки с номером брони в канале при подключении канала СВЯЗЫВАЕТСЯ: гость, статус, ячейка и заметка стойки на месте, дубля нет 2ms
+     ✓ предупреждения разбора не теряются: записываются в журнал события (PROCESSED + текст) — и при webhook, где результат никто не читает 9ms
+     ✓ Q-086: бронь, оплаченную площадкой, счёт принимает предоплатой; оплату на месте — нет 4ms
+     ✓ после шести неудач ревизия ждёт человека, а «Обработать заново» разбирает её 14ms
+     ✓ ADR-018: в журнале события ревизия без заказчика, гостей, заметки и карты — пока база не в РК 2ms
+     ✓ PII_STORAGE=real (база в РК): ревизия хранится целиком, кроме карты 1ms
+     × ADR-018: событие не о брони — в журнале только идентификаторы, текст гостя не хранится 98ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в заметке канала маскируются 4ms
+     ✓ SECURITY.md §7: текст ошибки разбора ревизии пишется в last_error без почты и телефонов 2ms
+     ✓ ADR-018: настоящие имя, телефон и почта гостя канала в базу не попадают 3ms
+     ✓ Q-108: отмена предоплаченной OTA-брони снимает платёж канала — на счёте не остаётся минуса 3ms
+     ✓ одна упавшая ревизия не рвёт ленту: следующая обработана и подтверждена 3ms
+     ✓ Q-086: модификация пересчитывает предоплату канала, а смена payment_collect её снимает 5ms
+     ✓ unmapped room type → event FAILED with a reason, no reservation, no ack 2ms
+     ✓ webhook: wrong secret → 401, missing secret config → 503, booking event → the feed of its property is read, never the revision by ID 12ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ❯ |unit| apps/api/src/reservations/reservations.controller.test.ts (55 tests | 1 failed) 716ms
+   ❯ manual reservation API (55)
+     ✓ ADR-021: отмена брони снимает блоки соседних ночей от раннего заезда и позднего выезда 62ms
+     ✓ Q-107: ячейка физически свободна, но категория продана бронями без ячейки → 409, как для канала 4ms
+     ✓ Б6: бронь записана, а дельта каналов не встала в очередь — ответ 201 с карточкой, не 500: иначе повтор создаст дубль 4ms
+     ✓ rejects invalid stay 2026-02-31 to 2026-03-03 before writes 3ms
+     ✓ rejects invalid stay 2026-02-28 to 2026-02-31 before writes 1ms
+     ✓ rejects invalid stay 2026-10-02 to 2026-10-01 before writes 2ms
+     ✓ rejects invalid stay 2026-10-01 to 2026-10-01 before writes 2ms
+     ✓ rejects invalid stay  to 2026-10-01 before writes 3ms
+     ✓ rejects invalid stay 2026-10-01 to  before writes 3ms
+     ✓ quotes the selected booking without writing a guest or reservation 3ms
+     ✓ quote breaks the total down by night: one entry per night, sum equals total 2ms
+     ✓ replays one creation key and rejects changed payload without duplicate guests 8ms
+     ✓ rejects an outdated expected total before writes 3ms
+     ✓ POST /reservations creates a CONFIRMED booking priced from DailyRate, assigns the unit, writes audit 3ms
+     ✓ ADR-072: пока база не в Казахстане, гость со стойки записывается псевдонимом; имя не обязательно 4ms
+     ✓ ADR-072: база в Казахстане (PII_STORAGE=real) — гость как введён, имя и фамилия обязательны 4ms
+     ✓ G6 (ТЗ «Гости v2» §33): guestId существующего гостя — бронь на него, нового гостя нет 3ms
+     ✓ G6: гость не своей организации или несуществующий — 404, брони нет 5ms
+     × G6: guestId вместе с полями нового гостя — 400, чтобы не гадать, кого имели в виду 77ms
+     ✓ ADR-071: OTA вручную — канал и номер брони в канале обязательны; номер без пробелов, канал каноническим именем 30ms
+     ✓ ADR-071: номер брони в канале второй раз не заводится — ни вручную, ни когда бронь уже пришла из Channex 14ms
+     ✓ ADR-071: номер брони в канале можно вписать и поправить на готовой брони OTA; у другой — 400 5ms
+     ✓ rejects a missing/unknown source with 400 — no default (Q-089) 4ms
+     ✓ 422 when a night has no price, the tariff is inactive or the unit belongs to another category 4ms
+     ✓ 409 when the unit is blocked or already allocated for an overlapping night 33ms
+     ✓ PATCH dates reprices and moves the allocation; cancel frees the unit; both audited 14ms
+     ✓ отмена и незаезд берут замок брони раньше, чем читают её состояние 7ms
+     ✓ предпросмотр действия замок брони не берёт — только читает 6ms
+     ✓ Q-103: отмена заранее штрафа не даёт, незаезд даёт; даты меняются без повторного тарифа (Q-102) 7ms
+     ✓ assign moves the guest to another unit from a date (переселение), 404 for unknown booking/item 14ms
+     ✓ T1: переселение в другую категорию пересчитывает цену по её календарю и шлёт дельту по обеим категориям; частичное — запрещено 11ms
+     ✓ предпросмотр называет цену переселения и продления, штраф отмены, и ничего не пишет 9ms
+     ✓ T2: «+1 ночь» сдвигает выезд, пересчитывает цену и продлевает назначение; занятая ячейка — 409, выселенного продлить нельзя 14ms
+     ✓ Д5 (срез 7.3): сумма в окне = начисление — предпросмотр переселения, продления, отмены и незаезда 26ms
+     ✓ checkout on 2026-09-15 releases the unit and permits rebooking after inspection 12ms
+     ✓ checkout on 2026-09-16 releases the unit and permits rebooking after inspection 9ms
+     ✓ T3: выселить с непогашенным счётом можно только с подтверждением, и это попадает в журнал 22ms
+     ✓ ADR-020: ограничения продаж действуют на стойке — стоп-продажа, закрытый заезд/выезд, срок → 409 с датой и категорией; канал и другая категория не задеты 42ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в заметке брони маскируются — и при создании, и при правке 10ms
+     ✓ Q-169: база в Казахстане (PII_STORAGE=real) — заметка как введена 2ms
+     ✓ правка готовой брони: PATCH заметки и источник, PATCH гостей на проживании с проверкой вместимости; всё в журнале 18ms
+     ✓ цена проживания (план finance-payments-direct 07.10.2026): PATCH price переписывает цену и сумму брони, не число и ноль — 400, отменённое — 422 18ms
+     ✓ групповая бронь: quantity=3 → 3 проживания на трёх разных свободных ячейках по номеру; свободных меньше → 409 «свободно только K» 28ms
+     ✓ тариф брони по роли (Q-200, ADR-107) (7)
+       ✓ администратор меняет даты в том же тарифе; другой тариф — отказ словами, бронь не тронута 4ms
+       ✓ цену проживания вниз меняют владелец и управляющий, администратор — только вверх (ADR-107) 3ms
+       ✓ управляющий тариф меняет 1ms
+       ✓ продление и переселение в другую категорию — в тарифе брони; с другим тарифом — отказ 3ms
+       ✓ бронь из Legacy без тарифа: администратор назначает тариф со штрафом, без штрафа — отказ; тариф записывается (Q-201) 3ms
+       ✓ продление брони без тарифа записывает выбранный тариф: второе продление — уже в нём (Q-201) 3ms
+       ✓ управляющий назначает брони без тарифа любой тариф, и без штрафа тоже 3ms
+     ✓ GET /rate-plans lists only active tariffs 2ms
+     ✓ check-in needs an assigned unit; check-out frees the unit on early departure; no-show drops the allocation 14ms
+     ✓ каждая команда, меняющая остаток категории, ставит дельту доступности: создание, смена дат, отмена, незаезд, ранний выезд 13ms
+     ✓ перенос брони (live-тест Channex 02.10.2026): в канал уходят только освободившаяся и занятая ночь, ночи между ними — нет 5ms
+     ✓ заселение без гражданства и с гражданством из одних пробелов отклоняется одним и тем же сообщением 17ms
+ ✓ |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts (74 tests) 605ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (41 tests) 563ms
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (39 tests) 749ms
+ ✓ |unit| apps/api/src/channels/channels.controller.test.ts (11 tests) 404ms
+ ✓ |unit| apps/api/src/accounts/members.controller.test.ts (41 tests) 383ms
+ ✓ |unit| apps/api/src/platform/platform.controller.test.ts (35 tests) 366ms
+ ✓ |unit| apps/api/src/guests/guests.controller.test.ts (19 tests) 256ms
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (20 tests) 324ms
+ ✓ |unit| apps/api/src/auth/auth.guard.test.ts (37 tests) 18ms
+stderr | apps/api/src/sites-runtime/sites-runtime.controller.test.ts > ответ контракта > факты не загрузились: publicFacts null, сайт отвечает
+{"event":"sites_runtime.facts_failed","siteId":"3f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b","error":"db down"}
+
+ ✓ |unit| apps/api/src/hotel/reservation-directory.test.ts (18 tests) 36ms
+ ✓ |unit| apps/api/src/sites-runtime/sites-runtime.controller.test.ts (29 tests) 353ms
+ ✓ |unit| apps/api/src/database/property-ref.test.ts (21 tests) 9ms
+ ✓ |unit| apps/api/src/ai-seller/business-agents.controller.test.ts (32 tests) 317ms
+[Nest] 85936  - 10/15/2026, 10:50:47 PM   ERROR [OutboxWorker] Менеджер каналов отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+ ✓ |unit| apps/api/src/channels/outbox.test.ts (12 tests) 18ms
+ ✓ |unit| apps/api/src/ai-seller/seller-sync.service.test.ts (19 tests) 22ms
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (20 tests) 522ms
+   ✓ котировка продавца /bot/availability (7)
+     ✓ предел частоты на организацию — 429, ключ платформы в ответе не всплывает 342ms
+ ✓ |unit| apps/api/src/web-booking/turnstile.test.ts (27 tests) 35ms
+ ✓ |unit| apps/api/src/assistant/assistant.controller.test.ts (19 tests) 243ms
+[Nest] 85943  - 10/15/2026, 10:50:48 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 85943  - 10/15/2026, 10:50:48 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 85943  - 10/15/2026, 10:50:48 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 85943  - 10/15/2026, 10:50:48 PM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 85943  - 10/15/2026, 10:50:48 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 85943  - 10/15/2026, 10:50:48 PM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 85943  - 10/15/2026, 10:50:48 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 85943  - 10/15/2026, 10:50:48 PM    WARN [WebhookHealthService] в менеджере каналов зарегистрирован https://old-quick.trycloudflare.com/channels/channex/webhook, а постоянный адрес PMS — https://api.wetop.ai/channels/channex/webhook: перерегистрируйте webhook на /channels
+[Nest] 85943  - 10/15/2026, 10:50:48 PM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 85943  - 10/15/2026, 10:50:48 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 85943  - 10/15/2026, 10:50:48 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 85943  - 10/15/2026, 10:50:48 PM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 85943  - 10/15/2026, 10:50:48 PM     LOG [WebhookHealthService] адрес webhook https://api.wetop.test/channels/channex/webhook: отвечает
+[Nest] 85943  - 10/15/2026, 10:50:48 PM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 85943  - 10/15/2026, 10:50:48 PM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+ ✓ |unit| apps/api/src/channels/webhook-health.test.ts (13 tests) 33ms
+ ✓ |unit| apps/api/src/market/market.service.test.ts (11 tests) 8ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 59ms
+ ✓ |unit| apps/api/src/bar/bar.controller.test.ts (12 tests) 300ms
+[Nest] 85942  - 10/15/2026, 10:50:48 PM   ERROR [AccountsService] Не удалось отправить приглашение; ссылка отозвана
+ ✓ |unit| apps/api/src/accounts/invites.controller.test.ts (13 tests) 396ms
+ ✓ |unit| apps/api/src/auth/scope-enforcement.test.ts (25 tests) 140ms
+[Nest] 85949  - 10/15/2026, 10:50:49 PM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/apps/api/src/rates/rates.controller.test.ts:324:13)
+    at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/apps/api/src/rates/rates.service.ts:205:37
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at Proxy.applyChanges (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/apps/api/src/rates/rates.controller.test.ts:58:26)
+    at RatesService.bulk (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/apps/api/src/rates/rates.service.ts:194:20)
+    at file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ✓ |unit| apps/api/src/rates/rates.controller.test.ts (10 tests) 312ms
+ ✓ |unit| apps/api/src/analytics/analytics.controller.test.ts (15 tests) 286ms
+ ✓ |unit| apps/api/src/hotel/onboarding.test.ts (11 tests) 28ms
+ ✓ |unit| apps/api/src/channels/channels.test.ts (11 tests) 9ms
+ ✓ |unit| apps/api/src/channels/schedule.test.ts (26 tests) 8ms
+ ✓ |unit| apps/api/src/web-booking/bot-booking.controller.test.ts (10 tests) 200ms
+ ✓ |unit| apps/api/src/units/units.controller.test.ts (6 tests) 179ms
+ ✓ |unit| apps/api/src/marketing-site/site-facts.service.test.ts (9 tests) 10ms
+ ✓ |unit| apps/api/src/channels/ari-ranges.test.ts (18 tests) 14ms
+ ✓ |unit| apps/api/src/dashboard/dashboard.repository.test.ts (6 tests) 5ms
+ ✓ |unit| apps/api/src/platform/support-kb.controller.test.ts (10 tests) 216ms
+ ✓ |unit| apps/api/src/marketing-site/asset-image.test.ts (9 tests) 429ms
+ ✓ |unit| apps/api/src/assistant/actions.controller.test.ts (9 tests) 202ms
+ ✓ |unit| apps/api/src/dashboard/dashboard.controller.test.ts (6 tests) 225ms
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (62 tests) 5633ms
+   ✓ AuthService.login (14)
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 307ms
+ ✓ |unit| apps/api/src/database/integration-tables.guard.test.ts (5 tests) 47ms
+ ✓ |unit| apps/api/src/audit/audit.service.test.ts (12 tests) 8ms
+ ✓ |unit| apps/api/src/channels/catalog.test.ts (10 tests) 26ms
+ ✓ |unit| apps/api/src/chessboard/chessboard.controller.test.ts (8 tests) 221ms
+ ✓ |unit| apps/api/src/assistant/diagnostics.controller.test.ts (11 tests) 248ms
+ ✓ |unit| apps/api/src/auth/auth.controller.test.ts (7 tests) 53ms
+ ✓ |unit| apps/api/src/assistant/requester-context.controller.test.ts (12 tests) 230ms
+ ✓ |unit| apps/api/src/market/collector.controller.test.ts (8 tests) 209ms
+ ✓ |unit| apps/api/src/marketing-site/asset-fetch.test.ts (50 tests) 11ms
+ ✓ |unit| apps/api/src/hotel/settings-update.test.ts (11 tests) 10ms
+ ✓ |unit| apps/api/src/auth/password-reset.service.test.ts (16 tests) 1388ms
+ ✓ |unit| apps/api/src/rates/rate-plans.test.ts (6 tests) 9ms
+ ✓ |unit| apps/api/src/guard/api-error.filter.test.ts (9 tests) 421ms
+ ✓ |unit| apps/api/src/bar/bar-scan.test.ts (8 tests) 161ms
+ ✓ |unit| apps/api/src/ai-seller/seller-orgs.test.ts (8 tests) 18ms
+ ✓ |unit| apps/api/src/channels/webhook-register.test.ts (7 tests) 9ms
+ ✓ |unit| apps/api/src/hotel/branches.test.ts (13 tests) 13ms
+ ✓ |unit| apps/api/src/auth/request-context.test.ts (17 tests) 25ms
+ ✓ |unit| apps/api/src/finance/finance-audit-transaction.test.ts (4 tests) 4ms
+ ✓ |unit| apps/api/src/auth/author.interceptor.test.ts (11 tests) 5ms
+ ✓ |unit| apps/api/src/desk/desk.controller.test.ts (3 tests) 161ms
+ ✓ |unit| apps/api/src/accounts/sessions.controller.test.ts (6 tests) 279ms
+ ✓ |unit| apps/api/src/finance/payment-requests.controller.test.ts (11 tests) 406ms
+ ✓ |unit| apps/api/src/analytics/collect.controller.test.ts (15 tests) 426ms
+ ✓ |unit| apps/api/src/marketing-site/asset-storage.test.ts (8 tests) 28ms
+ ✓ |unit| apps/api/src/auth/scope.test.ts (12 tests) 5ms
+ ✓ |unit| apps/api/src/channels/content.test.ts (6 tests) 9ms
+ ✓ |unit| apps/api/src/hotel/property-media.test.ts (8 tests) 26ms
+ ✓ |unit| apps/api/src/channels/integration-property.test.ts (11 tests) 13ms
+ ❯ |unit| apps/api/src/hotel/hotel.controller.test.ts (12 tests | 1 failed) 230ms
+   ❯ Hotel read projections (12)
+     ✓ returns stored hotel settings without inventing defaults 36ms
+     ✓ настройки объекта читаются из базы один раз на окно кэша, а не на каждый запрос 11ms
+     ✓ aggregates by channel/source/currency with precise money and separate cancellations 22ms
+     ✓ один канал под двумя именами Channex — одна строка отчёта (plans/channel-name-canonical-2026-09-22.md) 6ms
+     ✓ filters by stored reservation status and returns a real empty report 6ms
+     ✓ rejects invalid query before touching the database: from=2026-02-30&to=2026-03-01 4ms
+     ✓ rejects invalid query before touching the database: from=2026-09-02&to=2026-09-01 3ms
+     × rejects invalid query before touching the database: from=2020-01-01&to=2026-09-01 103ms
+     ✓ rejects invalid query before touching the database: from=x&to=2026-09-01 4ms
+     ✓ rejects invalid query before touching the database: from=2026-09-01&to=2026-09-02&status=BOGUS 3ms
+     ✓ rejects invalid query before touching the database:  3ms
+     ✓ does not disguise an unconfigured property as a zero report 3ms
+ ✓ |unit| apps/api/src/hotel/services-catalog.test.ts (6 tests) 8ms
+ ✓ |unit| apps/api/src/inventory/inventory.controller.test.ts (6 tests) 278ms
+ ✓ |unit| apps/api/src/auth/registration-context.test.ts (6 tests) 8ms
+ ✓ |unit| apps/api/src/channels/operator-access.test.ts (6 tests) 9ms
+ ✓ |unit| apps/api/src/reservations/stay-offers.test.ts (7 tests) 168ms
+ ✓ |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts (8 tests) 33ms
+ ✓ |unit| apps/api/src/health/health.test.ts (8 tests) 303ms
+ ✓ |unit| apps/api/src/hotel/payment-methods.test.ts (5 tests) 16ms
+ ✓ |unit| apps/api/src/dashboard/dashboard.service.test.ts (4 tests) 4ms
+ ✓ |unit| apps/api/src/guard/incidents-exposure.test.ts (3 tests) 82ms
+ ✓ |unit| apps/api/src/ai-seller/vertical-tools.test.ts (14 tests) 12ms
+ ✓ |unit| apps/api/src/platform/support.queue.test.ts (20 tests) 5ms
+ ✓ |unit| apps/api/src/auth/role.guard.test.ts (9 tests) 8ms
+ ✓ |unit| apps/api/src/reservations/audit-card-redact.test.ts (2 tests) 3ms
+ ✓ |unit| apps/api/src/database/connection.test.ts (7 tests) 108ms
+ ✓ |unit| apps/api/src/web-booking/widget-cors.test.ts (3 tests) 15ms
+ ✓ |unit| apps/api/src/rate-window.test.ts (6 tests) 128ms
+ ✓ |unit| apps/api/src/beauty/scope.test.ts (7 tests) 10ms
+ ✓ |unit| apps/api/src/ai-seller/agent-instructions.test.ts (5 tests) 15ms
+ ✓ |unit| apps/api/src/hotel/organization-summary.test.ts (3 tests) 13ms
+ ✓ |unit| apps/api/src/ai-seller/business-agents.scope.test.ts (4 tests) 6ms
+ ✓ |unit| apps/api/src/channels/connection.test.ts (13 tests) 7ms
+ ✓ |unit| apps/api/src/tasks/tasks.controller.test.ts (3 tests) 320ms
+ ✓ |unit| apps/api/src/database/integration-tables.test.ts (4 tests) 6ms
+ ✓ |unit| apps/api/src/marketing-site/design-choice.test.ts (12 tests) 16ms
+ ✓ |unit| apps/api/src/database/location-ref.test.ts (4 tests) 7ms
+ ✓ |unit| apps/api/src/body-parsers.test.ts (5 tests) 207ms
+ ✓ |unit| apps/api/src/platform/overview.test.ts (4 tests) 11ms
+ ✓ |unit| apps/api/src/channels/ari-switch.test.ts (4 tests) 3ms
+ ✓ |unit| apps/api/src/auth/registration-access.test.ts (10 tests) 1331ms
+ ✓ |unit| apps/api/src/hotel/settings-concurrency.test.ts (3 tests) 6ms
+ ✓ |unit| apps/api/src/auth/attempt-limits.test.ts (9 tests) 3455ms
+   ✓ вход: предел попыток с одного адреса (2)
+     ✓ после 30 попыток с адреса — 429, а соседний адрес входит как прежде 1737ms
+     ✓ адреса IPv6 одной сети /64 делят один предел 1707ms
+ ✓ |unit| apps/api/src/analytics/collect.limits.test.ts (2 tests) 67ms
+ ✓ |unit| apps/api/src/channels/integration-command.test.ts (4 tests) 16ms
+ ✓ |unit| apps/api/src/accounts/cookie.test.ts (10 tests) 5ms
+[Nest] 86192  - 10/15/2026, 10:50:57 PM     LOG [WebRetentionService] счётчик сайта: удалено сессий 3, начатых до 2026-09-13 (хранение 13 мес.)
+ ✓ |unit| apps/api/src/analytics/retention.service.test.ts (4 tests) 16ms
+ ✓ |unit| apps/api/src/auth/accounts-public-routes.test.ts (10 tests) 5ms
+ ✓ |unit| apps/api/src/auth/me-access.test.ts (3 tests) 281ms
+ ✓ |unit| apps/api/src/accounts/actor.test.ts (5 tests) 7ms
+ ✓ |unit| apps/api/src/auth/capability-boundary.test.ts (5 tests) 116ms
+ ✓ |unit| apps/api/src/bar/bar-period.test.ts (3 tests) 6ms
+ ✓ |unit| apps/api/src/auth/capability-coverage.test.ts (1 test) 8ms
+ ✓ |unit| apps/api/src/ai-seller/agent-telegram.test.ts (4 tests) 7ms
+ ✓ |unit| apps/api/src/auth/business-vertical.test.ts (8 tests) 6ms
+[Nest] 86226  - 10/15/2026, 10:50:57 PM     LOG [UserErrorsRetentionService] журнал ошибок: удалено строк 3 старше 30 суток
+ ✓ |unit| apps/api/src/assistant/user-errors-retention.service.test.ts (2 tests) 10ms
+ ✓ |unit| apps/api/src/ai-seller/vertical-tools.controller.test.ts (4 tests) 256ms
+ ✓ |unit| apps/api/src/bar/bar-payment-methods.test.ts (5 tests) 8ms
+ ✓ |unit| apps/api/src/bar/bar.runtime.test.ts (1 test) 240ms
+ ✓ |unit| apps/api/src/bar/bar-folio-service-date.test.ts (1 test) 9ms
+ ✓ |unit| apps/api/src/freshness/freshness.test.ts (4 tests) 3ms
+ ✓ |unit| apps/api/src/inventory/inventory-insight.test.ts (8 tests) 5ms
+ ✓ |unit| apps/api/src/sales/sales-summary.test.ts (5 tests) 6ms
+ ✓ |unit| apps/api/src/onboarding/onboarding.test.ts (6 tests) 16ms
+ ✓ |unit| apps/api/src/channels/integration-scope.test.ts (4 tests) 9ms
+ ✓ |unit| apps/api/src/marketing-site/preview-token.test.ts (5 tests) 4ms
+ ✓ |unit| apps/api/src/channels/integration-owner.test.ts (5 tests) 10ms
+[Nest] 86273  - 10/15/2026, 10:50:58 PM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 86273  - 10/15/2026, 10:50:58 PM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+ ✓ |unit| apps/api/src/channels/sync-schedule.test.ts (5 tests) 7ms
+ ✓ |unit| apps/api/src/hotel/business-cards.test.ts (8 tests) 60ms
+ ✓ |unit| apps/api/src/channels/outbox-enqueue.test.ts (2 tests) 7ms
+ ✓ |unit| apps/api/src/inventory/inventory.repository.test.ts (1 test) 6ms
+[Nest] 86327  - 10/15/2026, 10:50:59 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): Connection terminated
+[Nest] 86327  - 10/15/2026, 10:50:59 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): очередь недоступна
+ ✓ |unit| apps/api/src/hotel/branch-context.test.ts (4 tests) 5ms
+[Nest] 86327  - 10/15/2026, 10:50:59 PM   ERROR [AriPublisher] След потерянной дельты не записан: и журнал недоступен
+ ✓ |unit| apps/api/src/channels/ari-delta-lost.test.ts (3 tests) 8ms
+ ✓ |unit| apps/api/src/guard/guard.controller.test.ts (4 tests) 11ms
+ ✓ |unit| apps/api/src/channels/gateway-failure.test.ts (4 tests) 4ms
+ ✓ |unit| apps/api/src/rates/restriction-merge.test.ts (5 tests) 3ms
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 10ms
+ ✓ |unit| apps/api/src/inventory/inventory-input.test.ts (4 tests) 9ms
+ ✓ |unit| apps/api/src/wizard/wizard-input.test.ts (4 tests) 20ms
+ ✓ |unit| apps/api/src/guard/backup-status.test.ts (3 tests) 6ms
+ ✓ |unit| apps/api/src/channels/revision-facts.test.ts (3 tests) 3ms
+ ✓ |unit| apps/api/src/wizard/wizard-generate.controller.test.ts (1 test) 235ms
+ ✓ |unit| apps/api/src/channels/outbox-rows.test.ts (3 tests) 4ms
+ ✓ |unit| apps/api/src/rates/rate-history.test.ts (3 tests) 11ms
+ ✓ |unit| apps/api/src/wizard/wizard-chat.controller.test.ts (1 test) 183ms
+ ✓ |unit| apps/api/src/chessboard/availability-checkout.test.ts (3 tests) 7ms
+ ✓ |unit| apps/api/src/wizard/wizard-scan.controller.test.ts (1 test) 211ms
+ ✓ |unit| apps/api/src/channels/inactive-rate.test.ts (2 tests) 27ms
+ ✓ |unit| apps/api/src/hotel/branch-lifecycle.test.ts (3 tests) 4ms
+ ✓ |unit| apps/api/src/hotel/first-steps.test.ts (2 tests) 31ms
+ ✓ |unit| apps/api/src/beauty/services-popularity.test.ts (1 test) 8ms
+ ✓ |unit| apps/api/src/listen-address.test.ts (5 tests) 5ms
+ ✓ |unit| apps/api/src/sales/sales.service.test.ts (2 tests) 7ms
+ ✓ |unit| apps/api/src/food-service/boundary.test.ts (2 tests) 41ms
+ ✓ |unit| apps/api/src/beauty/customers.test.ts (1 test) 32ms
+ ✓ |unit| apps/api/src/finance/cash-category-audit.test.ts (1 test) 4ms
+ ✓ |unit| apps/api/src/reservations/rate-plans-read.test.ts (1 test) 7ms
+ ✓ |unit| apps/api/src/security-headers.test.ts (2 tests) 4ms
+ ✓ |unit| apps/api/src/channels/mapped-properties.test.ts (2 tests) 4ms
+ ✓ |unit| apps/api/src/channels/multi-property-webhook-cache.test.ts (1 test) 4ms
+ ✓ |unit| apps/api/src/channels/multi-property-outbox.test.ts (1 test) 4ms
+ ✓ |unit| apps/api/src/chessboard/stay-facts.test.ts (2 tests) 3ms
+ ✓ |unit| apps/api/src/channels/multi-property-scope.test.ts (1 test) 5ms
+ ✓ |unit| apps/api/src/market/collector-selection.test.ts (2 tests) 3ms
+ ✓ |unit| apps/api/src/inventory/category-photos.test.ts (2 tests) 7ms
+ ✓ |unit| apps/api/src/reservations/early-checkout-availability.test.ts (1 test) 15ms
+ ✓ |unit| apps/api/src/ai-seller/agent-vertical.test.ts (1 test) 3ms
+ ✓ |unit| apps/api/src/audit/owner-access.test.ts (3 tests) 2ms
+ ✓ |unit| apps/api/src/wizard/wizard-turnstile.test.ts (1 test) 19ms
+ ✓ |unit| apps/api/src/auth/registration-contract.test.ts (1 test) 3ms
+ ✓ |unit| apps/api/src/inventory/empty-category.test.ts (1 test) 3ms
+ ✓ |unit| apps/api/src/app.module.test.ts (1 test) 28ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/inbound.controller.test.ts > inbound bookings from Channex (contract on fakes) > ADR-018: событие не о брони — в журнале только идентификаторы, текст гостя не хранится
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/channels/inbound.controller.test.ts:1154:8
+    1152|         },
+    1153|       })
+    1154|       .expect(200);
+       |        ^
+    1155|     await vi.waitFor(() =>
+    1156|       expect([...fakes.events.values()].some((e) => e.type === 'messag…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/hotel/hotel.controller.test.ts > Hotel read projections > rejects invalid query before touching the database: from=2020-01-01&to=2026-09-01
+Error: expected 400 "Bad Request", got 200 "OK"
+ ❯ apps/api/src/hotel/hotel.controller.test.ts:204:74
+    202|     '',
+    203|   ])('rejects invalid query before touching the database: %s', async (…
+    204|     await request(app.getHttpServer()).get(`/hotel/channel-report?${q}…
+       |                                                                          ^
+    205|     expect(findFirst).not.toHaveBeenCalled();
+    206|     expect(groupBy).not.toHaveBeenCalled();
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > G6: guestId вместе с полями нового гостя — 400, чтобы не гадать, кого имели в виду
+Error: expected 400 "Bad Request", got 403 "Forbidden"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:721:8
+    719|       .post('/reservations')
+    720|       .send(body({ guestId: '7d6c5b4a-0000-4000-8000-000000000001' }))
+    721|       .expect(400);
+       |        ^
+    722|     expect(fake.state.reservations.size).toBe(0);
+    723|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed | 170 passed (173)
+      Tests  3 failed | 1673 passed (1676)
+   Start at  22:50:43
+   Duration  18.10s (import 62%, tests 27%, transform 11%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-50-42Z-unit-2bf8.json
+
+# код выхода 1 · 19 с

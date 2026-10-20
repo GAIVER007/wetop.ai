@@ -1,0 +1,141 @@
+# Сквозные (e2e) · 16.10.2026 12:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2f3b7eb (claude/marketing-model-proposal), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/roles.spec.ts' 'tests/ui/marketing-budget.spec.ts' 'tests/ui/marketing.spec.ts' 'tests/ui/website.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 49 tests using 1 worker
+
+  ✓   1 tests/ui/marketing-budget.spec.ts:61:1 › хаб: карточка «Бюджет» живая и ведёт в раздел; пустой месяц честный (3.8s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓   2 tests/ui/marketing-budget.spec.ts:75:1 › первый расход и план месяца: суммы, остаток, прогноз и распределение оживают (4.2s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓   3 tests/ui/marketing-budget.spec.ts:105:1 › журнал: чужая валюта по курсу, фильтр чипами, правка и удаление (3.0s)
+  ✓   4 tests/ui/marketing-budget.spec.ts:142:1 › аналитика маркетинга: воронка, CPL, стоимость брони и ROMI из результатов каналов; реклама без кабинетов только расход (2.7s)
+  ✓   5 tests/ui/marketing-budget.spec.ts:211:1 › аналитика у филиала без броней гостиницы: только расходы и честное «Скоро» (912ms)
+  ✓   6 tests/ui/marketing-budget.spec.ts:224:1 › переключатель месяца: прошлый месяц показывает свои расходы и прогноз равен факту (868ms)
+  ✓   7 tests/ui/marketing-budget.spec.ts:250:1 › импорт CSV: файл с ошибкой отклоняется целиком со списком строк, исправленный из Excel загружается (1.7s)
+  ✓   8 tests/ui/marketing-budget.spec.ts:296:3 › снимки и доступность: light (4.7s)
+  ✓   9 tests/ui/marketing-budget.spec.ts:296:3 › снимки и доступность: dark (4.5s)
+  ✓  10 tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (3.8s)
+  ✓  11 tests/ui/marketing.spec.ts:77:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (3.0s)
+  ✓  12 tests/ui/marketing.spec.ts:97:1 › хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», из данных только бюджет месяца (1.9s)
+  ✓  13 tests/ui/marketing.spec.ts:190:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (6.1s)
+  ✘  14 tests/ui/marketing.spec.ts:248:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (5.0m)
+  ✓  15 tests/ui/marketing.spec.ts:274:3 › хаб на компьютере и телефоне, доступность: light (9.0s)
+  ✘  16 tests/ui/marketing.spec.ts:274:3 › хаб на компьютере и телефоне, доступность: dark (31.2m)
+  ✘  17 tests/ui/marketing.spec.ts:329:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен (45.8s)
+  ✓  18 tests/ui/roles.spec.ts:31:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (3.4s)
+  ✓  19 tests/ui/roles.spec.ts:62:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (10.7s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4189946272'
+[WebServer] }
+  ✓  20 tests/ui/roles.spec.ts:105:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (4.1s)
+  ✓  21 tests/ui/roles.spec.ts:122:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (3.0s)
+  ✓  22 tests/ui/roles.spec.ts:160:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (3.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '4189946272'
+[WebServer] }
+  ✓  23 tests/ui/roles.spec.ts:222:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (5.0s)
+  ✓  24 tests/ui/roles.spec.ts:278:1 › владелец: зовёт управляющего и администратора, меняет роль (2.1s)
+  ✓  25 tests/ui/roles.spec.ts:309:1 › администратор: сотрудниками ведают владелец и управляющий (1.7s)
+  ✓  26 tests/ui/roles.spec.ts:321:5 › доступность: сотрудники и отказ по роли, light, 1440px (3.5s)
+  ✓  27 tests/ui/roles.spec.ts:321:5 › доступность: сотрудники и отказ по роли, dark, 1440px (3.5s)
+  ✓  28 tests/ui/roles.spec.ts:321:5 › доступность: сотрудники и отказ по роли, light, 390px (3.4s)
+  ✓  29 tests/ui/roles.spec.ts:321:5 › доступность: сотрудники и отказ по роли, dark, 390px (3.3s)
+  ✓  30 tests/ui/website.spec.ts:29:1 › старые адреса ведут во вкладки модуля и сохраняют период (1.2s)
+  ✓  31 tests/ui/website.spec.ts:40:1 › одна точка входа в меню и четыре вкладки со своим адресом (1.1s)
+  ✓  32 tests/ui/website.spec.ts:78:1 › домен-заглушка — «Сайт ещё не подключён», а не зелёный сайт (1.3s)
+  ✓  33 tests/ui/website.spec.ts:101:1 › обзор подключённого сайта: домен, счётчик, бронирование, брони за месяц (1.4s)
+  ✓  34 tests/ui/website.spec.ts:132:1 › «Интеграции» больше не показывают сайт (1.3s)
+  ✓  35 tests/ui/website.spec.ts:140:1 › настройки: пауза и удаление — в «Опасной зоне», с подтверждением (776ms)
+  ✓  36 tests/ui/website.spec.ts:153:1 › MKT7: сайт WETOP в «Настройках» и «Бронировании» без формы правки, со ссылкой на публикацию; API отвечает 409 (991ms)
+  ✓  37 tests/ui/website.spec.ts:176:1 › четыре вкладки: доступность в двух темах, телефон без прокрутки вбок (12.3s)
+  ✓  38 tests/ui/website.spec.ts:207:1 › WEB2 · домены списком: заглушка уходит, неверный адрес словами, последний не убирается (1.3s)
+  ✓  39 tests/ui/website.spec.ts:250:1 › WEB2 · счётчик: состояние словами и одно действие (1.9s)
+  ✓  40 tests/ui/website.spec.ts:285:1 › WEB2 · окно установки: код, GTM, конструкторы; доступно, закрывается Escape (1.3s)
+  ✓  41 tests/ui/website.spec.ts:310:1 › снимки WEB2 (6.0s)
+  ✓  42 tests/ui/website.spec.ts:360:1 › WEB3 · бронирование: состояние, демо только у работающего, что увидит гость (1.5s)
+  ✓  43 tests/ui/website.spec.ts:392:1 › WEB3 · без адреса сайта демо не предлагается, код виджета — есть (671ms)
+  ✓  44 tests/ui/website.spec.ts:406:1 › WEB3 · тариф сайта: смена видна в состоянии и в «Что увидит гость» (2.0s)
+  ✓  45 tests/ui/website.spec.ts:424:1 › WEB3 · окно установки виджета: код, место и цвет, проверка; доступно, закрывается Escape (1.4s)
+  ✓  46 tests/ui/website.spec.ts:450:1 › снимки WEB3 (6.1s)
+  ✓  47 tests/ui/website.spec.ts:499:1 › WEB4 · брони с сайта: число, отменённые, начислено и ссылка в «Брони» с тем же отбором (1.1s)
+  ✓  48 tests/ui/website.spec.ts:522:1 › WEB4 · воронка: шаги по сессиям, проценты от предыдущего шага, конверсия (1.1s)
+  ✓  49 tests/ui/website.spec.ts:544:1 › снимки WEB4 (3.4s)
+
+
+  1) tests/ui/marketing.spec.ts:248:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/marketing-администратор-бе-e8e41-ямой-адрес-не-открывает-хаб/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-администратор-бе-e8e41-ямой-адрес-не-открывает-хаб/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-администратор-бе-e8e41-ямой-адрес-не-открывает-хаб/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/marketing.spec.ts:274:3 › хаб на компьютере и телефоне, доступность: dark ────────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error Context: test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/marketing.spec.ts:329:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/marketing-MKT3-салон-видит-e1e83-чный-конструктор-недоступен/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-MKT3-салон-видит-e1e83-чный-конструктор-недоступен/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-MKT3-салон-видит-e1e83-чный-конструктор-недоступен/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/marketing.spec.ts:248:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб 
+    tests/ui/marketing.spec.ts:274:3 › хаб на компьютере и телефоне, доступность: dark ─────────────
+    tests/ui/marketing.spec.ts:329:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен 
+  46 passed (39.9m)
+
+# код выхода 1 · 39 мин 57 с

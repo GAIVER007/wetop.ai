@@ -1,0 +1,686 @@
+# Сквозные (e2e) · 18.10.2026 22:39 Алматы · <сервер>
+# коммит 8a5ab94 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/salon-reports-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/salon-reports-ui/reports.spec.ts:33:3 › salon reports 1440 light: API values, reload, tabs, geometry (17.7s)
+  ✘  2 tests/salon-reports-ui/reports.spec.ts:33:3 › salon reports 1440 dark: API values, reload, tabs, geometry (7.5s)
+  ✓  3 tests/salon-reports-ui/reports.spec.ts:33:3 › salon reports 390 light: API values, reload, tabs, geometry (6.0s)
+  ✘  4 tests/salon-reports-ui/reports.spec.ts:33:3 › salon reports 390 dark: API values, reload, tabs, geometry (6.2s)
+
+
+  1) tests/salon-reports-ui/reports.spec.ts:33:3 › salon reports 1440 dark: API values, reload, tabs, geometry 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 303
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#8d8d8d",
+    +               "contrastRatio": 1.19,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#979ba3",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 1.19 (foreground color: #979ba3, background color: #8d8d8d, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<input type=\"date\" required=\"\" name=\"from\" value=\"2026-10-18\">",
+    +                 "target": Array [
+    +                   "input[name=\"from\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 1.19 (foreground color: #979ba3, background color: #8d8d8d, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<input type=\"date\" required=\"\" name=\"from\" value=\"2026-10-18\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "input[name=\"from\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#8d8d8d",
+    +               "contrastRatio": 1.19,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#979ba3",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 1.19 (foreground color: #979ba3, background color: #8d8d8d, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<input type=\"date\" required=\"\" name=\"to\" value=\"2026-10-18\">",
+    +                 "target": Array [
+    +                   "input[name=\"to\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 1.19 (foreground color: #979ba3, background color: #8d8d8d, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<input type=\"date\" required=\"\" name=\"to\" value=\"2026-10-18\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "input[name=\"to\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#e9f0f8",
+    +               "contrastRatio": 2.77,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#8591a4",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<body>",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<a href=\"/reports?from=2026-10-18&amp;to=2026-10-18&amp;view=overview\">Обзор</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "nav[aria-label=\"Вид отчёта\"] > a:nth-child(1)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#e9f0f8",
+    +               "contrastRatio": 2.77,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#8591a4",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<body>",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<a href=\"/reports?from=2026-10-18&amp;to=2026-10-18&amp;view=services\">Услуги</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "nav[aria-label=\"Вид отчёта\"] > a:nth-child(2)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#6b7f95",
+    +               "contrastRatio": 1.12,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#2d88e2",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 1.12 (foreground color: #2d88e2, background color: #6b7f95, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a aria-current=\"page\" href=\"/reports?from=2026-10-18&amp;to=2026-10-18&amp;view=team\">Специалисты</a>",
+    +                 "target": Array [
+    +                   "nav[aria-label=\"Вид отчёта\"] > a[aria-current=\"page\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 1.12 (foreground color: #2d88e2, background color: #6b7f95, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<a aria-current=\"page\" href=\"/reports?from=2026-10-18&amp;to=2026-10-18&amp;view=team\">Специалисты</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "nav[aria-label=\"Вид отчёта\"] > a[aria-current=\"page\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#e9f0f8",
+    +               "contrastRatio": 2.77,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#8591a4",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<body>",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<a href=\"/reports?from=2026-10-18&amp;to=2026-10-18&amp;view=statuses\">Статусы</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "nav[aria-label=\"Вид отчёта\"] > a:nth-child(4)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#e9f0f8",
+    +               "contrastRatio": 2.77,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#8591a4",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<body>",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<a href=\"/management/analytics?from=2026-10-18&amp;to=2026-10-18\">Аналитика филиалов</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "nav[aria-label=\"Связанные разделы\"] > a:nth-child(1)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#e9f0f8",
+    +               "contrastRatio": 2.77,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#8591a4",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<body>",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<a href=\"/appointments?from=2026-10-18&amp;to=2026-10-18\">Записи периода</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "nav[aria-label=\"Связанные разделы\"] > a:nth-child(2)",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      47 |     await expect(main.getByRole('table')).toContainText('Мастер Пример');
+      48 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+    > 49 |     expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
+         |                                                                                   ^
+      50 |     await page.screenshot({ path: info.outputPath(`salon-reports-${width}-${theme}.png`), fullPage: true });
+      51 |   });
+      52 | }
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/salon-reports-ui/reports.spec.ts:49:83
+
+    Error Context: test-results/reports-salon-reports-1440-ca68f-values-reload-tabs-geometry/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reports-salon-reports-1440-ca68f-values-reload-tabs-geometry/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reports-salon-reports-1440-ca68f-values-reload-tabs-geometry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/salon-reports-ui/reports.spec.ts:33:3 › salon reports 390 dark: API values, reload, tabs, geometry 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 303
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#8d8d8d",
+    +               "contrastRatio": 1.19,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#979ba3",
+    +               "fontSize": "12.8pt (17px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 1.19 (foreground color: #979ba3, background color: #8d8d8d, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<input type=\"date\" required=\"\" name=\"from\" value=\"2026-10-18\">",
+    +                 "target": Array [
+    +                   "input[name=\"from\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 1.19 (foreground color: #979ba3, background color: #8d8d8d, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<input type=\"date\" required=\"\" name=\"from\" value=\"2026-10-18\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "input[name=\"from\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#8d8d8d",
+    +               "contrastRatio": 1.19,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#979ba3",
+    +               "fontSize": "12.8pt (17px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 1.19 (foreground color: #979ba3, background color: #8d8d8d, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<input type=\"date\" required=\"\" name=\"to\" value=\"2026-10-18\">",
+    +                 "target": Array [
+    +                   "input[name=\"to\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 1.19 (foreground color: #979ba3, background color: #8d8d8d, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<input type=\"date\" required=\"\" name=\"to\" value=\"2026-10-18\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "input[name=\"to\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#e9f0f8",
+    +               "contrastRatio": 2.77,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#8591a4",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<body>",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<a href=\"/reports?from=2026-10-18&amp;to=2026-10-18&amp;view=overview\">Обзор</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "nav[aria-label=\"Вид отчёта\"] > a:nth-child(1)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#e9f0f8",
+    +               "contrastRatio": 2.77,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#8591a4",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<body>",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<a href=\"/reports?from=2026-10-18&amp;to=2026-10-18&amp;view=services\">Услуги</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "nav[aria-label=\"Вид отчёта\"] > a:nth-child(2)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#6b7f95",
+    +               "contrastRatio": 1.12,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#2d88e2",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 1.12 (foreground color: #2d88e2, background color: #6b7f95, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a aria-current=\"page\" href=\"/reports?from=2026-10-18&amp;to=2026-10-18&amp;view=team\">Специалисты</a>",
+    +                 "target": Array [
+    +                   "nav[aria-label=\"Вид отчёта\"] > a[aria-current=\"page\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 1.12 (foreground color: #2d88e2, background color: #6b7f95, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<a aria-current=\"page\" href=\"/reports?from=2026-10-18&amp;to=2026-10-18&amp;view=team\">Специалисты</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "nav[aria-label=\"Вид отчёта\"] > a[aria-current=\"page\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#e9f0f8",
+    +               "contrastRatio": 2.77,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#8591a4",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<body>",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<a href=\"/reports?from=2026-10-18&amp;to=2026-10-18&amp;view=statuses\">Статусы</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "nav[aria-label=\"Вид отчёта\"] > a:nth-child(4)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#e9f0f8",
+    +               "contrastRatio": 2.77,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#8591a4",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<body>",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<a href=\"/management/analytics?from=2026-10-18&amp;to=2026-10-18\">Аналитика филиалов</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "nav[aria-label=\"Связанные разделы\"] > a:nth-child(1)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#e9f0f8",
+    +               "contrastRatio": 2.77,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#8591a4",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<body>",
+    +                 "target": Array [
+    +                   "body",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.77 (foreground color: #8591a4, background color: #e9f0f8, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<a href=\"/appointments?from=2026-10-18&amp;to=2026-10-18\">Записи периода</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "nav[aria-label=\"Связанные разделы\"] > a:nth-child(2)",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      47 |     await expect(main.getByRole('table')).toContainText('Мастер Пример');
+      48 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+    > 49 |     expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
+         |                                                                                   ^
+      50 |     await page.screenshot({ path: info.outputPath(`salon-reports-${width}-${theme}.png`), fullPage: true });
+      51 |   });
+      52 | }
+        at /srv/hermes/workspace/wetop-all-release-20261017/tests/salon-reports-ui/reports.spec.ts:49:83
+
+    Error Context: test-results/reports-salon-reports-390--944e2-values-reload-tabs-geometry/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reports-salon-reports-390--944e2-values-reload-tabs-geometry/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reports-salon-reports-390--944e2-values-reload-tabs-geometry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/salon-reports-ui/reports.spec.ts:33:3 › salon reports 1440 dark: API values, reload, tabs, geometry 
+    tests/salon-reports-ui/reports.spec.ts:33:3 › salon reports 390 dark: API values, reload, tabs, geometry 
+  2 passed (45.5s)
+
+# код выхода 1 · 47 с

@@ -1,0 +1,55 @@
+# Сквозные (e2e) · 16.10.2026 14:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 823661d (claude/marketing-expense-files), незакоммиченных файлов набора: 19
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/marketing-budget.spec.ts' '--workers=1' '-g' 'чеки расхода'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✘  1 tests/ui/marketing-budget.spec.ts:297:1 › чеки расхода: приложить PDF, чужой формат отказ словами, счётчик в журнале, удаление с подтверждением (19.9s)
+
+
+  1) tests/ui/marketing-budget.spec.ts:297:1 › чеки расхода: приложить PDF, чужой формат отказ словами, счётчик в журнале, удаление с подтверждением 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('budget-table').getByRole('row', { name: /Meta Ads/ })
+    Expected substring: "1 файл"
+    Received string:    "16 окт.Meta AdsЛиды: КлиникаРеклама720 ₸720 ₸ДаИзменить"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('budget-table').getByRole('row', { name: /Meta Ads/ }) with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('budget-table').getByRole('row', { name: /Meta Ads/ })
+        34 × locator resolved to <tr>…</tr>
+           - unexpected value "16 окт.Meta AdsЛиды: КлиникаРеклама720 ₸720 ₸ДаИзменить"
+
+
+      337 |
+      338 |   const metaRow = main.getByTestId('budget-table').getByRole('row', { name: /Meta Ads/ });
+    > 339 |   await expect(metaRow).toContainText('1 файл');
+          |                         ^
+      340 |
+      341 |   await main.getByTestId('budget-table').getByRole('button', { name: /Изменить расход: Meta Ads/ }).click();
+      342 |   await page.getByRole('button', { name: 'Удалить файл schet-meta.pdf' }).click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-budget.spec.ts:339:25
+
+    Error Context: test-results/marketing-budget-чеки-расх-2a400-е-удаление-с-подтверждением/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-budget-чеки-расх-2a400-е-удаление-с-подтверждением/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-budget-чеки-расх-2a400-е-удаление-с-подтверждением/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/marketing-budget.spec.ts:297:1 › чеки расхода: приложить PDF, чужой формат отказ словами, счётчик в журнале, удаление с подтверждением 
+
+# код выхода 1 · 28 с

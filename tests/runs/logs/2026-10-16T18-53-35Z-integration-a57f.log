@@ -1,0 +1,60 @@
+# Интеграционные (integration) · 16.10.2026 23:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит c46ef1c (claude/marketing-ad-wizard), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T18-53-35Z-integration-a57f.json' 'tests/integration/marketing-ad-launch.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-ad-launch.test.ts (7 tests | 1 failed) 259ms
+   ❯ запуск рекламы (integration) (7)
+     ✓ креатив: JPEG в закрытое хранилище, тот же файл второй раз не ложится, не картинка отклоняется 20ms
+     ✓ запуск: шаги по порядку, ключ кабинета, номера Meta, кампания WETOP ACTIVE, журнал из пяти шагов 62ms
+     ✓ сбой на группе: кампания в Meta на паузе, запуск FAILED словами Meta, кампании WETOP нет 23ms
+     ✓ деньги: нет плана, остаток плана мал, кабинет в тенге: отказ словами до Meta, строки нет 12ms
+     × мастер: кабинет, страницы, запомненные страница и Instagram, сколько ещё можно в день; город 6ms
+     ✓ «Остановить» и «Включить»: сначала Meta, потом статус кампании WETOP и журнал 9ms
+     ✓ обрыв процесса: RUNNING старше 15 минут закрывается FAILED, созданная кампания на паузу 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-ad-launch.test.ts > запуск рекламы (integration) > мастер: кабинет, страницы, запомненные страница и Instagram, сколько ещё можно в день; город
+AssertionError: expected { connected: true, …(6) } to match object { connected: true, …(5) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+@@ -2,12 +2,12 @@
+    "cabinet": {
+      "currency": "USD",
+    },
+    "connected": true,
+    "defaults": {
+-     "instagramUserId": "777",
+-     "pageId": "555",
++     "instagramUserId": null,
++     "pageId": null,
+    },
+    "pages": [
+      {
+        "id": "555",
+        "instagramUserId": "777",
+
+ ❯ tests/integration/marketing-ad-launch.test.ts:347:15
+    345|     writer = new FakeWriter();
+    346|     const a = await as(() => service.assets());
+    347|     expect(a).toMatchObject({
+       |               ^
+    348|       connected: true,
+    349|       reportingCurrency: 'KZT',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  11:53:36
+   Duration  1.95s (import 40%, transform 40%, tests 19%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T18-53-35Z-integration-a57f.json
+
+# код выхода 1 · 3 с

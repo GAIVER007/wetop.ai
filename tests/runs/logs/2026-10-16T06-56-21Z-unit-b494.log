@@ -1,0 +1,48 @@
+# Модульные (unit) · 16.10.2026 11:56 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T06-56-21Z-unit-b494.json' 'apps/api/src/finance/owner-summary.test.ts' 'packages/domain/src/owner-summary/expenses.test.ts' 'apps/api/src/auth/route-access.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓ |unit| packages/domain/src/owner-summary/expenses.test.ts (5 tests) 357ms
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 2 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Failed to start forks worker for test files /srv/hermes/workspace/wetop-unified-owner-data/apps/api/src/auth/route-access.test.ts.
+ ❯ ../wetop-design-audit-runtime/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:11469:94
+ ❯ runNextTicks node:internal/process/task_queues:65:5
+ ❯ listOnTimeout node:internal/timers:644:9
+ ❯ processTimers node:internal/timers:618:7
+ ❯ Pool.schedule ../wetop-design-audit-runtime/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:11469:5
+
+Caused by: Error: [vitest-pool-runner]: Timeout waiting for worker to respond
+ ❯ Timeout.<anonymous> ../wetop-design-audit-runtime/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:10968:58
+ ❯ listOnTimeout node:internal/timers:685:17
+ ❯ processTimers node:internal/timers:618:7
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Failed to start forks worker for test files /srv/hermes/workspace/wetop-unified-owner-data/apps/api/src/finance/owner-summary.test.ts.
+ ❯ ../wetop-design-audit-runtime/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:11469:94
+ ❯ Pool.schedule ../wetop-design-audit-runtime/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:11469:5
+
+Caused by: Error: [vitest-pool-runner]: Timeout waiting for worker to respond
+ ❯ Timeout.<anonymous> ../wetop-design-audit-runtime/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:10968:58
+ ❯ listOnTimeout node:internal/timers:685:17
+ ❯ processTimers node:internal/timers:618:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+     Errors  2 errors
+   Start at  06:56:29
+   Duration  79.23s (transform 59%, import 22%, tests 15%, worker 5%)
+
+JSON report written to /tmp/pms-test-2026-10-16T06-56-21Z-unit-b494.json
+
+# код выхода 1 · 1 мин 29 с

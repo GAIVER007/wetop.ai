@@ -74,7 +74,9 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     await expect(page.getByRole('heading', { name: 'Организация', exact: true })).toBeVisible();
     await expect(page.locator('.org-card--HOSPITALITY')).toHaveCount(1);
     await expect(page.locator('.org-card--BEAUTY')).toHaveCount(1);
-    await expect(page.locator('.org-card--BEAUTY')).toContainText('Учёт оплат не подключён');
+    await expect(page.locator('.org-card--BEAUTY h2')).toHaveText('Тестовый салон');
+    await expect(page.locator('.org-card--BEAUTY .org-branch-rows')).toContainText('Тестовый салон');
+    await expect(page.locator('.org-card--BEAUTY')).not.toContainText('Учёт оплат не подключён');
     await expect(page.locator('.org-card--HOSPITALITY .org-branch-rows')).toContainText(
       'Тестовый отель',
     );
@@ -217,7 +219,8 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
   await expect(page).toHaveURL(/\/today$/);
   await expect(page.getByRole('main').getByTestId('beauty-today')).toBeVisible();
   await page.goto('/calendar');
-  await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
+  // журнал записей салона; заголовок страницы, не подпись навигации
+  await expect(page.getByRole('main').getByRole('heading', { name: 'Журнал', exact: true })).toBeVisible();
   await choose(page, 'Тестовый отель');
   await expect(page).toHaveURL(/\/today$/);
   // The accepted branch action preserves a safe Hospitality collection or falls back to the landing.

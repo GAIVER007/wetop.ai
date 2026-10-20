@@ -1,4 +1,4 @@
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import Link from 'next/link';
 import { countGuestNights, summarizeGuestStays } from '@pms/domain';
 import { Tabs } from '../../../components/tabs';
@@ -246,7 +246,7 @@ function GuestFinance({ stays }: { stays: Stay[] }) {
  * история), «Документы» и «Финансы» (G5, §22–§24) и «Данные гостя» — профиль для правки.
  */
 export default async function GuestPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/guests');
   const { id } = await params;
   const [g, piiStorage, today, { readOnly }] = await Promise.all([
     guestsApi.card(id).catch(notFoundOn404),

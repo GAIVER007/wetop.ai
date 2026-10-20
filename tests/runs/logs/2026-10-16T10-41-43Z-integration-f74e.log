@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 16.10.2026 15:41 Алматы · Noutbuk-Vyacheslav.local
+# коммит 60a7715 (claude/salon-refund), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-41-43Z-integration-f74e.json' 'tests/integration/beauty-appointment-payment.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+[pms_test] миграций применено 8; данные на месте
+ ✓ |integration| tests/integration/beauty-appointment-payment.test.ts (5 tests) 801ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  03:41:45
+   Duration  5.94s (transform 53%, import 29%, tests 18%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-41-43Z-integration-f74e.json
+
+# код выхода 0 · 9 с

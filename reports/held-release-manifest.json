@@ -1,0 +1,61 @@
+{
+  "mode": "OFFLINE_DRY_RUN_NO_DATABASE",
+  "runner": {
+    "path": "packages/database/prisma/migrations-hold/owner-home-release.sql",
+    "sha256": "1a66998d6bcd798dc377c86921d30644c9a5d838d5b9e7575ff3958f70fbb10c"
+  },
+  "apply": [
+    {
+      "order": 1,
+      "path": "packages/database/prisma/migrations-hold/20261016000114_expense_links/migration.sql",
+      "sha256": "c6e99245bd5cf6170106adeb0c79cc6f4715bc1dbaa1a123fd96980aa163edda"
+    },
+    {
+      "order": 2,
+      "path": "packages/database/prisma/migrations-hold/20261016000115_table_occupancy/migration.sql",
+      "sha256": "0b239ceac076f8b59e6b9e811fb56245f8c79845d08b3718150882cb2955f5f0"
+    },
+    {
+      "order": 3,
+      "path": "packages/database/prisma/migrations-hold/20261016000116_restaurant_capacity/migration.sql",
+      "sha256": "c690c3b10b2769a4d467062e1586c8eca314af5eff94524cdf71375c40fbf126"
+    },
+    {
+      "order": 4,
+      "path": "packages/database/prisma/migrations-hold/20261016000116_restaurant_capacity/opening.sql",
+      "sha256": "0aec03e996966fb4fd7457a7fd88ffea9b3e57f0941c9615afbb7b0a2b0f9e0d"
+    },
+    {
+      "order": 5,
+      "path": "packages/database/prisma/migrations-hold/20261016000117_beauty_workload/migration.sql",
+      "sha256": "b548a0ed47815c1691d6eed979e841776c14ea49f216126d785d2e626be683de"
+    },
+    {
+      "order": 6,
+      "path": "packages/database/prisma/migrations-hold/20261016000118_hospitality_workload/migration.sql",
+      "sha256": "ff907afcbc9fa15af78a1cfcf27b91b7d3ef402119a90f35401cca4f7900b117"
+    }
+  ],
+  "rollback": [
+    {
+      "path": "packages/database/prisma/migrations-hold/20261016000118_hospitality_workload/down.sql",
+      "sha256": "975d318beac98c45e5bba97e051bcbd90ece92fd6e754fa8880fa09ee24a6e55"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261016000117_beauty_workload/down.sql",
+      "sha256": "21832971a24fb1181632e887f924f818c937188d0e59d764d38c21e9f2618550"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261016000116_restaurant_capacity/down.sql",
+      "sha256": "6e2c8d070d85422dadbf610d7cce4176eabee9c75d36f6d342cf791f6e2da38c"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261016000115_table_occupancy/down.sql",
+      "sha256": "4d65042dbc295048dfd4d822e917d10b5ab133eb4bbdb466cd34d9fa2a6df228"
+    },
+    {
+      "path": "packages/database/prisma/migrations-hold/20261016000114_expense_links/down.sql",
+      "sha256": "eb24124896fa301c7ceee3f6cb0a3f4ad95cdf745ad38eb3c1869bccdda96bf5"
+    }
+  ]
+}

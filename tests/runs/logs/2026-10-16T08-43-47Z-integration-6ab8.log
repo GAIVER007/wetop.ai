@@ -1,0 +1,52 @@
+# Интеграционные (integration) · 16.10.2026 13:43 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 32
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T08-43-47Z-integration-6ab8.json' '--config' 'tests/opening-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/opening-isolated.test.ts (3 tests | 1 failed) 425ms
+   ✓ rejects nonexistent and ambiguous local times rather than choosing offsets 323ms
+   × confirmed writer materializes observed capacity; sessions project complete and earlier partial; edits preserve history 23ms
+   ✓ runtime tenant can confirm its schedule and materialize; foreign tenant cannot read or confirm 76ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/opening-isolated.test.ts > confirmed writer materializes observed capacity; sessions project complete and earlier partial; edits preserve history
+error: could not extend file "base/16384/18426_fsm": No space left on device
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/opening-isolated.test.ts:21:2
+     19|  const business=randomUUID(),location=randomUUID(),area=randomUUID(),t…
+     20|  await pool.query("insert into businesses(id,organization_id,name,vert…
+     21|  await pool.query("insert into locations(id,business_id,name,timezone,…
+       |  ^
+     22|  await pool.query("insert into dining_areas(id,location_id,name,update…
+     23|  await pool.query("insert into dining_tables(id,area_id,name,capacity,…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  08:43:50
+   Duration  5.11s (transform 69%, import 22%, tests 9%)
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: ENOSPC: no space left on device, write
+ ❯ write node:internal/fs/promises:1465:8
+ ❯ writeFileHandle node:internal/fs/promises:1153:7
+ ❯ JsonReporter.onTestRunEnd ../wetop-design-audit-runtime/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:17882:4
+ ❯ Vitest.report ../wetop-design-audit-runtime/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21457:3
+ ❯ TestRun.end ../wetop-design-audit-runtime/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:19981:3
+ ❯ ../wetop-design-audit-runtime/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21063:6
+ ❯ ../wetop-design-audit-runtime/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ ../wetop-design-audit-runtime/node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+ ❯ startVitest ../wetop-design-audit-runtime/node_modules/vitest/dist/chunks/cli-api.LUtK11-x.js:369:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errno: -28, code: 'ENOSPC', syscall: 'write' }
+
+
+
+
+# код выхода 1 · 8 с

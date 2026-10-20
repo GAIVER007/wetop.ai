@@ -1,0 +1,74 @@
+# Модульные (unit) · 16.10.2026 14:46 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 48
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T09-46-59Z-unit-f6be.json' 'packages/domain/src/owner-summary/daily.test.ts' 'apps/web/src/app/today/owner-daily-chart.test.ts' 'apps/api/src/finance/owner-money.test.ts' 'apps/api/src/finance/owner-summary.test.ts' 'apps/web/src/app/today/unified-owner.test.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓ |unit| apps/web/src/app/today/owner-daily-chart.test.ts (2 tests) 23ms
+ ✓ |unit| apps/web/src/app/today/unified-owner.test.ts (8 tests) 29ms
+ ✓ |unit| apps/api/src/finance/owner-summary.test.ts (7 tests) 20ms
+ ✓ |unit| packages/domain/src/owner-summary/daily.test.ts (2 tests) 11ms
+ ❯ |unit| apps/api/src/finance/owner-money.test.ts (3 tests | 3 failed) 33ms
+   ❯ owner source adapters (3)
+     × keeps CLOSED order revenue, bar sales and payments distinct; no cash duplicate 21ms
+     × beauty DONE snapshots are revenue, not payments 8ms
+     × hotel uses verified property, service dates and payment dates, with unknown cash explicit 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/owner-money.test.ts > owner source adapters > keeps CLOSED order revenue, bar sales and payments distinct; no cash duplicate
+AssertionError: expected undefined to be '130' // Object.is equality
+
+- Expected:
+"130"
+
++ Received:
+undefined
+
+ ❯ apps/api/src/finance/owner-money.test.ts:10:50
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/finance/owner-money.test.ts > owner source adapters > beauty DONE snapshots are revenue, not payments
+AssertionError: expected [] to deeply equal [ { currency: 'USD', …(1) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "amountMinor": "50",
+-     "currency": "USD",
+-   },
+- ]
++ []
+
+ ❯ apps/api/src/finance/owner-money.test.ts:17:32
+     15|   const db = { appointment: model([{id:'a',price:50n,currency:'USD'}])…
+     16|   const r = await readOwnerMoney(db as never, {...scope,vertical:'BEAU…
+     17|   expect(r.revenue.currencies).toEqual([{currency:'USD',amountMinor:'5…
+       |                                ^
+     18|   expect(r.receipts.reason).toBe('PAYMENT_LEDGER_NOT_AVAILABLE');
+     19|  });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/finance/owner-money.test.ts > owner source adapters > hotel uses verified property, service dates and payment dates, with unknown cash explicit
+TypeError: Cannot read properties of undefined (reading 'toISOString')
+ ❯ apps/api/src/finance/owner-money.ts:31:168
+
+ ❯ readOwnerMoney apps/api/src/finance/owner-money.ts:31:50
+ ❯ apps/api/src/finance/owner-money.test.ts:22:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  3 failed | 19 passed (22)
+   Start at  09:47:00
+   Duration  4.02s (transform 64%, import 31%, tests 3%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T09-46-59Z-unit-f6be.json
+
+# код выхода 1 · 6 с

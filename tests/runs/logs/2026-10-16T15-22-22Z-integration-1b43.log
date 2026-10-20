@@ -1,0 +1,20 @@
+# Интеграционные (integration) · 16.10.2026 20:22 Алматы · <сервер>
+# коммит 4cf28b7 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 98
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T15-22-22Z-integration-1b43.json' '--config' 'tests/expense-isolated.config.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓  integration  tests/integration/expense-documents-isolated.test.ts (12 tests) 6299ms
+   ✓ expense persistence, isolated PostgreSQL (12)
+     ✓ backfills supplier cash and atomically follows later legacy payments without a second debit 1945ms
+     ✓ supplier retries use persistent intents across connections, conflicts and pending claims 1631ms
+     ✓ binds real legacy marketing, syncs unpaid edits, links cash once and preserves voided history 1484ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  15:23:07
+   Duration  17.06s (transform 48%, tests 39%, import 13%)
+
+JSON report written to /tmp/pms-test-2026-10-16T15-22-22Z-integration-1b43.json
+
+# код выхода 0 · 1 мин 2 с

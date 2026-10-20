@@ -1,0 +1,56 @@
+# Сквозные (e2e) · 16.10.2026 17:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0d4d3f6 (claude/restaurant-refund), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/restaurant.spec.ts' '-g' 'заказы: создание с экрана'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] (node:71619) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают (20.6s)
+
+
+  1) tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('dialog').getByTestId('order-payment').getByRole('region', { name: 'Возврат по заказу' }).getByLabel('Сумма возврата, ₸')
+    Expected: "780"
+    Received: "0"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('dialog').getByTestId('order-payment').getByRole('region', { name: 'Возврат по заказу' }).getByLabel('Сумма возврата, ₸') with timeout 5000ms
+      - waiting for getByRole('dialog').getByTestId('order-payment').getByRole('region', { name: 'Возврат по заказу' }).getByLabel('Сумма возврата, ₸')
+        14 × locator resolved to <input value="0" class="inp" inputmode="numeric"/>
+           - unexpected value "0"
+
+
+      232 |   // возврат по закрытому заказу (§55): без причины подсказка, с причиной «Возвращено»
+      233 |   const refund = payment.getByRole('region', { name: 'Возврат по заказу' });
+    > 234 |   await expect(refund.getByLabel('Сумма возврата, ₸')).toHaveValue('780');
+          |                                                        ^
+      235 |   await refund.getByLabel('Сумма возврата, ₸').fill('200');
+      236 |   await refund.getByRole('button', { name: 'Оформить возврат' }).click();
+      237 |   await expect(payment.getByRole('alert')).toContainText('Укажите причину возврата');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/food-ui/restaurant.spec.ts:234:56
+
+    Error Context: test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-заказы-создание-d3904-ывает-заказ-вкладки-считают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают 
+
+# код выхода 1 · 1 мин 3 с

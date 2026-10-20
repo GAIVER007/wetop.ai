@@ -21,7 +21,7 @@ describe.skipIf(!process.env.DATABASE_URL)('inventory editing persistence and is
   it('commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically', async () => {
     const db = createPrismaClient(),
       marker = randomUUID();
-    const org = await db.organization.create({ data: { name: `TEST inventory ${marker}` } });
+    const org = await db.organization.create({ data: { name: `TEST inventory ${marker}`, status: 'ACTIVE' } });
     const user = await db.user.create({ data: { email: `inventory-${marker}@example.invalid` } });
     const property = await createPropertyInChain(db, org.id, {
       name: `TEST inventory ${marker}`,
@@ -35,17 +35,23 @@ describe.skipIf(!process.env.DATABASE_URL)('inventory editing persistence and is
       .overrideProvider(PrismaService)
       .useValue(provider)
       .compile();
+    const location = await db.location.findUniqueOrThrow({ where: { id: property.locationId } });
+    const actor = {
+      userId: user.id, organizationId: org.id, role: 'OWNER' as const,
+      scope: 'LOCATION' as const, businessId: location.businessId,
+      locationId: location.id, vertical: 'HOSPITALITY' as const,
+    };
     const app = module.createNestApplication();
     app.use((_req: unknown, _res: unknown, next: () => void) => {
-      void withSignedInUser({ userId: user.id, organizationId: org.id }, async () => next());
+      void withSignedInUser(actor, async () => next());
     });
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     const editor = app.get(InventoryEditor),
       service = app.get(InventoryService);
     expect(app.get(INVENTORY_REPOSITORY)).toBeDefined();
     let foreignId: string | undefined;
     try {
-      await withSignedInUser({ userId: user.id, organizationId: org.id }, async () => {
+      await withSignedInUser(actor, async () => {
         expect((await service.summary()).totalUnits).toBe(0);
         const created = await request(app.getHttpServer())
           .post('/inventory/categories')

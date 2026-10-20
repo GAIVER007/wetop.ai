@@ -4,16 +4,20 @@
 # нет: 03.10.2026 проверки там поднимали нагрузку до 85 при 2 ядрах и роняли стойку.
 #
 # Запуск (ADR-152, решение владельца 09.10.2026, автовыкладка): пуш кода в `main` (слияние PR), пуш в
-# `release-candidate` или кнопка Actions → release-checks → Run workflow. Зелёный гейт на `main` перематывает
+# `release-candidate`, кнопка Actions → release-checks → Run workflow и, с 19.10.2026 по разбору ментора, каждый
+# запрос на слияние в `main`: это обязательная проверка защиты ветки, вливаем только зелёное. На запросе фильтра
+# путей нет: проверка, которая не запустилась, держит обязательный статус в ожидании навсегда. Зелёный гейт на `main` перематывает
 # `release` сам (auto-release.yml), дальше сервер забирает и выкладывает (ADR-080). Документы гейт не гоняют
-# (paths-ignore): выкладки они не требуют. Один прогон стоит около 95 минут из 2000 бесплатных в месяц
-# (бюджет Actions $0 со «Stop usage»); вершины main встают в очередь concurrency ниже. Свои наборы
+# (paths-ignore) на пуше: выкладки они не требуют. Репозиторий открытый (решение владельца 19.10.2026), минуты
+# раннеров GitHub для него бесплатны; вершины main встают в очередь concurrency ниже. Свои наборы
 # сессии по-прежнему гоняют сами до слияния (TESTING.md).
 # Секретов здесь нет и не будет (SECURITY.md §3).
 name: release-checks
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
   push:
     branches: [release-candidate, main]
     paths-ignore:
@@ -59,6 +63,8 @@ jobs:
       - name: Chromium для проверок главной
         run: npx playwright install --with-deps chromium
       - run: npm run site:check
+      - name: Supplier payment source-component regressions (no database)
+        run: npm run test:record -- e2e --config tests/supplier-component/playwright.config.ts --workers=1
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -130,6 +136,23 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+      # Dedicated owned fixture required by all ten *-isolated integration specs. This is a separate
+      # ephemeral cluster, not the migration/E2E service above; never apply held SQL to a live database.
+      owner-home:
+        image: postgres:16
+        env:
+          POSTGRES_USER: owner_home_test
+          POSTGRES_DB: wetop_owner_home
+          # Disposable CI-only credential, shared with PGPASSWORD for fixed URLs without a password.
+          POSTGRES_PASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci
+          POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+          POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --encoding=UTF8
+        ports: ['127.0.0.1:55516:5432']
+        options: >-
+          --health-cmd "pg_isready -U owner_home_test -d wetop_owner_home"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - name: Клиент PostgreSQL 16 (psql, pg_dump той же мажорной версии, что сервер)
@@ -147,17 +170,84 @@ jobs:
       - name: Применение и откат каждой миграции, schema.prisma против базы из миграций
         env:
           MIGRATION_CHECK_URL: postgresql://pms:pms@127.0.0.1:5432/postgres
-        run: scripts/ops/check-migrations.sh
+        run: |
+          scripts/ops/check-migrations.sh
+          EMPLOYEE_PORTAL_RESTORE_TEST_URL="$MIGRATION_CHECK_URL" npx vitest run --config tests/restore/employee-portal-grants-restore.config.ts
       # Дальше тесты на пустой базе: схему pms_test и данные (сид) они создают сами (tests/README.md)
       - run: psql postgresql://pms:pms@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
+      - name: Owned isolated integration fixture (canonical baseline, seed, six held SQL files)
+        env:
+          # Both provider/planner URLs are scoped to this step. No Prisma push or fabricated ledger.
+          DATABASE_URL: postgresql://owner_home_test@127.0.0.1:55516/wetop_owner_home
+          DIRECT_URL: postgresql://owner_home_test@127.0.0.1:55516/wetop_owner_home
+          PGPASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci
+          TEST_DATA: seed
+          CI: 'true'
+          PMS_PORTAL_FIXTURE: owner-home-ci
+          EXPENSE_LINKS_ENABLED: '0'
+          BEAUTY_WORKLOAD_CAPTURE: 'false'
+          HOSPITALITY_WORKLOAD_CAPTURE: 'false'
+          RESTAURANT_CAPACITY_CAPTURE: 'false'
+          RESTAURANT_OCCUPANCY_CAPTURE: 'false'
+        run: |
+          set -euo pipefail
+          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA public'
+          npm run test:schema
+          # Real service/RLS acceptance on canonical schema BEFORE any held SQL is installed.
+          npx tsx --tsconfig apps/api/tsconfig.json scripts/ci/check-owner-home-baseline.ts
+          # Existing runner owns BEGIN/COMMIT and the exact order of all six apply files.
+          PGOPTIONS='-c search_path=pms_test,public' psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 \
+            -f packages/database/prisma/migrations-hold/owner-home-release.sql
+          # Direct RLS clients use wetop_app with no URL password and inherit PGPASSWORD too.
+          # This role change is confined to the disposable CI cluster; policies remain enabled.
+          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
+          \getenv fixture_password PGPASSWORD
+          SELECT format('ALTER ROLE wetop_app LOGIN PASSWORD %L', :'fixture_password') \gexec
+          SQL
       - name: Интеграционные тесты
         env:
+          # Explicit opt-in is scoped to the disposable canonical service, never arbitrary localhost.
+          PMS_PORTAL_FIXTURE: owner-home-ci
+          CI: 'true'
+          # Keep default clients, global setup and explicit isolated pg/Prisma clients on one fixture.
+          # The URL also carries the password for helpers that extract it to create local test roles.
+          DATABASE_URL: postgresql://owner_home_test:${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci@127.0.0.1:55516/wetop_owner_home
+          DATABASE_APP_URL: postgresql://wetop_app:${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci@127.0.0.1:55516/wetop_owner_home
+          DIRECT_URL: postgresql://owner_home_test:${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci@127.0.0.1:55516/wetop_owner_home
+          PGPASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-owner-home-ci
+        # Vitest project excludes override CLI --exclude, so select the tracked files explicitly.
+        # Portal fixtures run in the next step; no integration files are dropped.
+        run: |
+          set -euo pipefail
+          mapfile -t integration_files < <(git ls-files 'tests/integration/*.test.ts' ':!:tests/integration/employee-portal*.test.ts')
+          test "${#integration_files[@]}" -gt 0
+          npx vitest run --project integration --passWithNoTests=false "${integration_files[@]}"
+      - name: Интеграционные тесты портала на выделенной CI-базе
+        env:
           DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
-        run: npx vitest run --project integration
+          DIRECT_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+          PGPASSWORD: pms
+          TEST_DATA: seed
+        run: npx vitest run --project integration --passWithNoTests=false tests/integration/employee-portal
       - name: Сборка стойки и Chromium
         run: |
           npm run build -w apps/web
           npx playwright install --with-deps chromium
+      - name: Unified owner home activation on real HTTP and canonical database
+        env:
+          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+          APP_UNIFIED_OWNER_HOME: 'true'
+          EXPENSE_LINKS_ENABLED: '0'
+          BEAUTY_WORKLOAD_CAPTURE: 'false'
+          HOSPITALITY_WORKLOAD_CAPTURE: 'false'
+          RESTAURANT_CAPACITY_CAPTURE: 'false'
+          RESTAURANT_OCCUPANCY_CAPTURE: 'false'
+          PLAYWRIGHT_JSON_OUTPUT_FILE: owner-home-baseline-report.json
+        run: |
+          set -euo pipefail
+          npm run test:schema -- --refresh
+          npx playwright test tests/branches-ui/owner-home.spec.ts --config tests/branches-ui/playwright.config.ts --forbid-only --reporter=list,json
+          node scripts/ci/check-playwright-report.mjs owner-home-baseline-report.json 3
       # Интеграционные тесты оставляют в pms_test свои строки (reservation-create-retry заводит ячейку на каждый
       # прогон), а сквозные сверяют сид число в число (88 ячеек): перед ними сид заново
       - name: Свежий сид pms_test для сквозных
@@ -178,7 +268,9 @@ jobs:
         if: failure()
         with:
           name: e2e-results
-          path: test-results
+          path: |
+            test-results
+            owner-home-baseline-report.json
           if-no-files-found: ignore
 
   ui-shard:
@@ -216,6 +308,7 @@ jobs:
           # часть набора выбирает харнесс до раздачи файлов двум worker (tests/ui/worker-ports.ts, shardSpecs):
           # --shard Playwright отдавал первую часть целиком одному worker
           UI_SHARD: ${{ matrix.shard }}/5
+          UI_RUNTIME_WORKERS: '1'
         # вход с включённым замком гоняет своя задача ui-auth (два worker), второй раз в первой части не нужен.
         # Один worker на часть: с двумя одновременно работающими стойками раннер на 2 ядра дважды подряд получал
         # shutdown signal посреди части 3/3 (release-checks 38377601835, попытки 2 и 3); баланс частей даёт UI_SHARD
@@ -247,7 +340,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [beauty-ui, food-ui, branches-ui]
+        suite: [beauty-ui, food-ui, branches-ui, employee-portal-ui]
     services:
       postgres:
         image: postgres:16
@@ -316,6 +409,66 @@ jobs:
           path: test-results/auth
           if-no-files-found: ignore
 
+  onboarding-real:
+    # Путь первого салона (17.10.2026): кнопка сайта «Начать работу», регистрация, подтверждение почты, настройка
+    # салона, запись клиента и повторный вход на настоящих сайте, стойке, API и своей PostgreSQL с синтетическими
+    # данными. Почта перехватывается в API набора (только @example.invalid), секретов и внешних отправок нет.
+    # Серверы стенда поднимает конфиг набора из этого checkout (reuseExistingServer: false). Итог проверяется
+    # отчётом: ноль выполненных, пропуски и нестабильные тесты не считаются успехом.
+    name: путь первого салона на настоящих API и базе (tests/onboarding-real)
+    needs: fast
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: pms
+          POSTGRES_PASSWORD: pms
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U pms"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+      DIRECT_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+      DATABASE_APP_URL: postgresql://wetop_app@127.0.0.1:5432/pms_dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - name: База pms_dev и схема pms_test с миграциями
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-16
+          psql postgresql://pms:pms@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
+          npm run test:schema
+          # Canonical migrations supply schema grants/RLS; LOGIN is only for this isolated trust service.
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c 'ALTER ROLE wetop_app LOGIN NOSUPERUSER NOBYPASSRLS'
+      - run: npx playwright install --with-deps chromium
+      - name: Сайт, стойка, API и база одним стендом
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: ${{ github.workspace }}/onboarding-real-report.json
+        run: npx playwright test --config tests/onboarding-real/playwright.config.ts --forbid-only --reporter=list,json
+      - name: Выполнены все сценарии, без пропусков и повторов
+        run: node scripts/ci/check-playwright-report.mjs onboarding-real-report.json 24
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: onboarding-real-results
+          path: |
+            test-results
+            onboarding-real-report.json
+          if-no-files-found: ignore
+
   runtime-audit:
     # Обязательный runtime-аудит денег, входа и схемы (A2, A23, A26, A29): настоящие API и PostgreSQL 16.14,
     # штатные роли, AUTH_REQUIRED=1, независимая SQL-сверка. База, API и тесты в одном сетевом пространстве с
@@ -347,7 +500,7 @@ jobs:
         if: always()
         run: |
           mkdir -p tests/runs/runtime-audit/journal
-          git ls-files --others --exclude-standard -- tests/runs/entries tests/runs/logs | xargs -r cp -t tests/runs/runtime-audit/journal
+          git ls-files --others --ignored --exclude-standard -- tests/runs/entries tests/runs/logs | xargs -r cp -t tests/runs/runtime-audit/journal
           find test-results -name error-context.md -exec sh -c 'd="tests/runs/runtime-audit/failures/$(basename "$(dirname "$1")")"; mkdir -p "$d"; cp "$1" "$d/"' _ {} \; 2>/dev/null || true
       - uses: actions/upload-artifact@v4
         if: always()

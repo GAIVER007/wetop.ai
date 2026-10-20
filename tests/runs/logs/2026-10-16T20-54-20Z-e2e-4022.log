@@ -1,0 +1,20 @@
+# Сквозные (e2e) · 17.10.2026 01:54 Алматы · <сервер>
+# коммит d02dcbf (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--workers=1' '--config' '/srv/hermes/workspace/wetop-portal-release-evidence-61af/portal-a11y.config.mjs'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✓  1 ../wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:11:4 › synthetic manager: keyboard,320/390/1440,both themes,WCAG axe (30.1s)
+  ✓  2 ../wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:11:4 › synthetic master: keyboard,320/390/1440,both themes,WCAG axe (34.6s)
+  ✓  3 ../wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:11:4 › synthetic waiter: keyboard,320/390/1440,both themes,WCAG axe (33.7s)
+  ✓  4 ../wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:11:4 › synthetic public: keyboard,320/390/1440,both themes,WCAG axe (7.6s)
+
+  4 passed (2.0m)
+
+# код выхода 0 · 1 мин 59 с

@@ -1,0 +1,93 @@
+# Модульные (unit) · 17.10.2026 10:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит daf8a02 (claude/auth-identity-1016), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T05-08-46Z-unit-aef1.json' 'apps/api/src/auth/app-url.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ❯ |unit| apps/api/src/auth/app-url.test.ts (3 tests | 3 failed) 5ms
+   ❯ one app URL for every letter (3)
+     × { PUBLIC_APP_URL: '', …(1) } gives http://127.0.0.1:3461 to every letter 4ms
+     × { …(2) } gives https://desk.example.invalid to every letter 0ms
+     × { PUBLIC_APP_URL: '', APP_URL: '' } gives https://app.wetop.ai to every letter 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/app-url.test.ts > one app URL for every letter > { PUBLIC_APP_URL: '', …(1) } gives http://127.0.0.1:3461 to every letter
+AssertionError: expected [ 'https://app.wetop.ai', …(2) ] to deeply equal [ 'http://127.0.0.1:3461', …(2) ]
+
+- Expected
++ Received
+
+  [
+-   "http://127.0.0.1:3461",
+-   "http://127.0.0.1:3461",
++   "https://app.wetop.ai",
+    "http://127.0.0.1:3461",
++   "https://app.wetop.ai",
+  ]
+
+ ❯ apps/api/src/auth/app-url.test.ts:35:41
+     33|   ])('%o gives %s to every letter', (env, expected) => {
+     34|     for (const [key, value] of Object.entries(env)) vi.stubEnv(key, va…
+     35|     expect(factories().map((f) => f())).toEqual([expected, expected, e…
+       |                                         ^
+     36|   });
+     37| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/auth/app-url.test.ts > one app URL for every letter > { …(2) } gives https://desk.example.invalid to every letter
+AssertionError: expected [ Array(3) ] to deeply equal [ Array(3) ]
+
+- Expected
++ Received
+
+  [
+    "https://desk.example.invalid",
+-   "https://desk.example.invalid",
++   "",
+    "https://desk.example.invalid",
+  ]
+
+ ❯ apps/api/src/auth/app-url.test.ts:35:41
+     33|   ])('%o gives %s to every letter', (env, expected) => {
+     34|     for (const [key, value] of Object.entries(env)) vi.stubEnv(key, va…
+     35|     expect(factories().map((f) => f())).toEqual([expected, expected, e…
+       |                                         ^
+     36|   });
+     37| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/auth/app-url.test.ts > one app URL for every letter > { PUBLIC_APP_URL: '', APP_URL: '' } gives https://app.wetop.ai to every letter
+AssertionError: expected [ 'https://app.wetop.ai', '', …(1) ] to deeply equal [ 'https://app.wetop.ai', …(2) ]
+
+- Expected
++ Received
+
+  [
+    "https://app.wetop.ai",
+-   "https://app.wetop.ai",
++   "",
+    "https://app.wetop.ai",
+  ]
+
+ ❯ apps/api/src/auth/app-url.test.ts:35:41
+     33|   ])('%o gives %s to every letter', (env, expected) => {
+     34|     for (const [key, value] of Object.entries(env)) vi.stubEnv(key, va…
+     35|     expect(factories().map((f) => f())).toEqual([expected, expected, e…
+       |                                         ^
+     36|   });
+     37| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  22:08:46
+   Duration  1.12s (transform 51%, import 48%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T05-08-46Z-unit-aef1.json
+
+# код выхода 1 · 2 с

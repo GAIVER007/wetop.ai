@@ -39,6 +39,24 @@ async function hits(request: import('@playwright/test').APIRequestContext): Prom
   return (await res.json()) as Hits;
 }
 
+/**
+ * Счёт идёт с `__test/reset`, а счётчик фикстуры общий для всего стенда. Серверный рендер предыдущего спека
+ * в той же части набора мог ещё дописывать свои запросы, и они попадали в счёт этого экрана: /today идёт первым
+ * в файле и на main дважды поймал чужой `/hotel/settings` (39307259722, 39319485759), а отдельно, шесть раз
+ * подряд, был чист (ui-snapshots settings-diagnostic 39330975247). Перед сбросом ждём, пока стенд замолчит:
+ * правило «один запрос на путь» прежнее, из счёта уходят только чужие хвосты.
+ */
+async function quiet(request: import('@playwright/test').APIRequestContext): Promise<void> {
+  let last = (await hits(request)).total;
+  for (let i = 0; i < 20; i++) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const now = (await hits(request)).total;
+    if (now === last) return;
+    last = now;
+  }
+  throw new Error('подставной API не замолчал за 10 с: счёт экрана был бы чужим');
+}
+
 for (const screen of [
   '/today',
   '/chessboard',
@@ -86,6 +104,7 @@ for (const screen of [
   '/reservations/new?unit=M03',
 ]) {
   test(`экран ${screen}: данные берутся одним запросом на путь`, async ({ page, request }) => {
+    await quiet(request);
     await request.post(`${API}/__test/reset`);
     await page.goto(screen);
     await page.waitForLoadState('networkidle');

@@ -138,8 +138,8 @@ describe('statusChange', () => {
   });
 
   it('называет, что можно дальше', () => {
-    expect(nextStatuses('BOOKED')).toEqual(['CONFIRMED', 'DONE', 'NO_SHOW', 'CANCELLED']);
-    expect(nextStatuses('CONFIRMED')).toEqual(['DONE', 'NO_SHOW', 'CANCELLED']);
+    expect(nextStatuses('BOOKED')).toEqual(['CONFIRMED', 'IN_PROGRESS', 'DONE', 'NO_SHOW', 'CANCELLED']);
+    expect(nextStatuses('CONFIRMED')).toEqual(['IN_PROGRESS', 'DONE', 'NO_SHOW', 'CANCELLED']);
   });
 });
 
@@ -155,9 +155,18 @@ describe('parseAppointmentInput', () => {
     expect(r).toEqual({
       ok: true,
       value: {
-        employeeId: 'e1',
-        serviceId: 's1',
         startsAt: new Date('2026-10-12T05:00:00.000Z'),
+        items: [
+          {
+            employeeId: 'e1',
+            serviceId: 's1',
+            durationMinutes: null,
+            basePriceMinor: null,
+            discountMinor: 0n,
+            discountPercent: null,
+            surchargeMinor: 0n,
+          },
+        ],
         customer: { kind: 'existing', id: 'c1' },
         notes: 'первый визит',
       },
@@ -179,6 +188,86 @@ describe('parseAppointmentInput', () => {
       lastName: 'Сериковна',
       phone: '+7 701 000 00 00',
     });
+  });
+
+  it('принимает несколько последовательных услуг с ценой, длительностью и скидкой строки', () => {
+    const r = parseAppointmentInput({
+      startsAt: '2026-10-12T05:00:00.000Z',
+      customerId: 'c1',
+      items: [
+        {
+          employeeId: 'e1',
+          serviceId: 's1',
+          durationMinutes: 45,
+          basePriceMinor: '900000',
+          discountPercent: 10,
+        },
+        {
+          employeeId: 'e2',
+          serviceId: 's2',
+          discountMinor: '50000',
+          surchargeMinor: '10000',
+        },
+      ],
+    });
+    expect(r).toEqual({
+      ok: true,
+      value: {
+        startsAt: new Date('2026-10-12T05:00:00.000Z'),
+        items: [
+          {
+            employeeId: 'e1',
+            serviceId: 's1',
+            durationMinutes: 45,
+            basePriceMinor: 900000n,
+            discountMinor: 0n,
+            discountPercent: 10,
+            surchargeMinor: 0n,
+          },
+          {
+            employeeId: 'e2',
+            serviceId: 's2',
+            durationMinutes: null,
+            basePriceMinor: null,
+            discountMinor: 50000n,
+            discountPercent: null,
+            surchargeMinor: 10000n,
+          },
+        ],
+        customer: { kind: 'existing', id: 'c1' },
+        notes: null,
+      },
+    });
+  });
+
+  it('отвергает пустые строки, дробные деньги и две скидки одной строки', () => {
+    const base = {
+      startsAt: '2026-10-12T05:00:00.000Z',
+      customerId: 'c1',
+    };
+    expect(parseAppointmentInput({ ...base, items: [] })).toEqual({
+      ok: false,
+      reason: 'Добавьте хотя бы одну услугу',
+    });
+    expect(
+      parseAppointmentInput({
+        ...base,
+        items: [{ employeeId: 'e1', serviceId: 's1', basePriceMinor: '10.5' }],
+      }),
+    ).toEqual({ ok: false, reason: 'Цена услуги должна быть целым числом в минимальных единицах' });
+    expect(
+      parseAppointmentInput({
+        ...base,
+        items: [
+          {
+            employeeId: 'e1',
+            serviceId: 's1',
+            discountMinor: '100',
+            discountPercent: 10,
+          },
+        ],
+      }),
+    ).toEqual({ ok: false, reason: 'Укажите скидку суммой или процентом' });
   });
 
   it('требует клиента: без имени и без выбранного не записать', () => {
@@ -206,5 +295,15 @@ describe('parseAppointmentInput', () => {
     expect(
       parseAppointmentInput({ employeeId: 'e1', serviceId: 's1', startsAt: 'завтра', customerId: 'c1' }).ok,
     ).toBe(false);
+  });
+});
+
+describe('статус «В процессе» (§58)', () => {
+  it('начать можно из записанной и подтверждённой; из начатой только выполнить или отменить', () => {
+    expect(nextStatuses('BOOKED')).toContain('IN_PROGRESS');
+    expect(nextStatuses('CONFIRMED')).toContain('IN_PROGRESS');
+    expect(nextStatuses('IN_PROGRESS')).toEqual(['DONE', 'CANCELLED']);
+    expect(statusChange('IN_PROGRESS', 'NO_SHOW')).toEqual({ ok: false, reason: 'Из этого состояния запись так не меняют' });
+    expect(statusChange('DONE', 'IN_PROGRESS').ok).toBe(false);
   });
 });

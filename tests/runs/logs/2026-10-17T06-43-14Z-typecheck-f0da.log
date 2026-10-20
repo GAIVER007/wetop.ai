@@ -1,0 +1,24 @@
+# Типы (typecheck) · 17.10.2026 11:43 Алматы · <сервер>
+# коммит 0766123 (fix/tz21-working-time), незакоммиченных файлов набора: 15
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/beauty/schedule/board.tsx(214,3): error TS2322: Type '(employeeId: string) => Promise<{ data: BeautySchedule; error?: never; } | { error: string | undefined; data?: never; }>' is not assignable to type '(employeeId: string) => Promise<{ data?: { week: BeautyWeekDay[]; weekRevision?: string | null; location: { id: string; } | null; }; error?: string | null; }>'.
+  Type 'Promise<{ data: BeautySchedule; error?: never; } | { error: string | undefined; data?: never; }>' is not assignable to type 'Promise<{ data?: { week: BeautyWeekDay[]; weekRevision?: string | null; location: { id: string; } | null; }; error?: string | null; }>'.
+    Type '{ data: BeautySchedule; error?: never; } | { error: string | undefined; data?: never; }' is not assignable to type '{ data?: { week: BeautyWeekDay[]; weekRevision?: string | null; location: { id: string; } | null; }; error?: string | null; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Type '{ error: string | undefined; data?: never; }' is not assignable to type '{ data?: { week: BeautyWeekDay[]; weekRevision?: string | null; location: { id: string; } | null; }; error?: string | null; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+        Types of property 'error' are incompatible.
+          Type 'string | undefined' is not assignable to type 'string | null'.
+            Type 'undefined' is not assignable to type 'string | null'.
+
+# код выхода 1 · 1 мин 57 с

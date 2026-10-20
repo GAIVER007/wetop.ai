@@ -1,0 +1,18 @@
+# Модульные (unit) · 16.10.2026 16:52 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 86
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T11-52-35Z-unit-0a60.json' 'tests/unit/migrations-hold.test.ts' 'tests/unit/migrations-rollback.test.ts' 'tests/unit/held-rollback-security.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓ |unit| tests/unit/held-rollback-security.test.ts (5 tests) 13ms
+ ✓ |unit| tests/unit/migrations-hold.test.ts (4 tests) 98ms
+ ✓ |unit| tests/unit/migrations-rollback.test.ts (120 tests) 33ms
+
+ Test Files  3 passed (3)
+      Tests  129 passed (129)
+   Start at  11:52:41
+   Duration  1.37s (transform 46%, tests 30%, import 19%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-10-16T11-52-35Z-unit-0a60.json
+
+# код выхода 0 · 8 с

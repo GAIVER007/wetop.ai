@@ -1,0 +1,36 @@
+# Типы (typecheck) · 17.10.2026 12:44 Алматы · <сервер>
+# коммит 08f5f5b (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 29
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+<--- Last few GCs --->
+
+[18100:0xdaa0000]   179676 ms: Scavenge 1586.7 (1601.5) -> 1583.0 (1601.5) MB, pooled: 0.0 MB, 12.68 / 0.00 ms (average mu = 0.339, current mu = 0.323) allocation failure;
+[18100:0xdaa0000]   181863 ms: Incremental Mark-Compact (reduce) 1590.8 (1605.5) -> 1581.9 (1594.8) MB, pooled: 0.0 MB, 1159.31 / 0.00 ms (+ 820.6 ms in 123 steps since start of marking, biggest step 16.3 ms, walltime since start of marking 2187 ms) (aver
+FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 0x82153b node::OOMErrorHandler(char const*, v8::OOMDetails const&) [node]
+ 2: 0xc771eb  [node]
+ 3: 0xee8135  [node]
+ 4: 0xee633c  [node]
+ 5: 0xed93d4  [node]
+ 6: 0xed91fc  [node]
+ 7: 0xed8b8f  [node]
+ 8: 0xeb4d1d  [node]
+ 9: 0x1373391  [node]
+10: 0x1a89a76  [node]
+Aborted (core dumped)
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 4 мин 26 с

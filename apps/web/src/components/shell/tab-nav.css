@@ -1,0 +1,157 @@
+/* Строка разделов в шапке (решение владельца 17.10.2026): видна от 1280 px, уже работает выдвижное меню. */
+@layer sections {
+  .tabnav {
+    display: none;
+  }
+  @media (min-width: 1280px) {
+    .tabnav {
+      display: flex;
+      align-items: stretch;
+      align-self: stretch;
+      flex: 0 1 auto;
+      min-width: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    /* строка разделов заменяет кнопку ☰ (решение владельца 18.10.2026): кнопки нет, знак «W» с надписью WETOP.AI;
+       поиск значком, подписи профиля и филиала сжимаются первыми */
+    .sidenav {
+      display: none;
+    }
+    .workspace-search .workspace-search-full,
+    .workspace-search .workspace-search-short,
+    .workspace-search kbd {
+      display: none;
+    }
+    .workspace .workspace-header__row {
+      gap: var(--space-2);
+      padding: 0 var(--space-4);
+    }
+    .workspace .workspace-search {
+      flex: none;
+      width: var(--touch-target);
+      margin: 0 0 0 auto;
+      padding: 0;
+      justify-content: center;
+    }
+    /* разделы не сжимаются (самые длинные подписи у салона влезают от 1280 px); сжатие по весу у филиала и профиля:
+       на 1280 px у профиля остаётся аватар, шире появляются имя и роль */
+    .tabnav {
+      flex-shrink: 0;
+    }
+    .workspace-header__property {
+      flex: 0 40 auto;
+      min-width: 120px;
+      max-width: 200px;
+    }
+    .workspace .header-tools,
+    .header-tools .profile-menu {
+      flex: 0 20 auto;
+      min-width: 0;
+    }
+    .profile-trigger {
+      max-width: 100%;
+      min-width: 0;
+    }
+    .profile-caption {
+      min-width: 0;
+    }
+    .profile-caption strong,
+    .profile-caption small {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+  .tabnav::-webkit-scrollbar {
+    display: none;
+  }
+  .tabnav__group {
+    display: flex;
+    flex: none;
+  }
+  .tabnav__tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    padding: 0 calc(var(--space-1) * 1.5);
+    border: 0;
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-tight);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .tabnav__tab svg {
+    width: var(--icon-size);
+    height: var(--icon-size);
+  }
+  .tabnav__tab:hover,
+  .tabnav__tab[aria-expanded='true'] {
+    color: var(--primary);
+    text-decoration: none;
+  }
+  .tabnav__tab.is-current {
+    color: var(--primary);
+    border-top-color: var(--primary);
+  }
+  .tabnav__tab:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: calc(-1 * var(--space-1));
+    border-radius: var(--radius-sm);
+  }
+  .tabnav__list {
+    position: fixed;
+    top: var(--header-h);
+    left: var(--tabnav-left, 0);
+    z-index: var(--layer-sidebar);
+    display: grid;
+    min-width: 240px;
+    padding: var(--space-2) 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-solid);
+    box-shadow: var(--shadow-floating);
+  }
+  .tabnav__list[hidden] {
+    display: none;
+  }
+  .tabnav__link {
+    display: block;
+    padding: var(--space-2) var(--space-6);
+    min-height: var(--touch-target);
+    align-content: center;
+    color: var(--text);
+    font-size: var(--text-md);
+    white-space: nowrap;
+  }
+  .tabnav__link:hover,
+  .tabnav__link:focus-visible {
+    background: var(--row-hover);
+    text-decoration: none;
+    outline: none;
+  }
+  .tabnav__link.is-active {
+    color: var(--primary);
+    font-weight: var(--weight-semibold);
+  }
+  /* строки состояния в меню под именем: пробный период и свежесть данных гостиницы (18.10.2026) */
+  .profile-dropdown__note {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .profile-dropdown__note--status:empty {
+    display: none;
+  }
+}

@@ -1,0 +1,152 @@
+# Сквозные (e2e) · 18.10.2026 10:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит 330f488 (codex/calendar-quick-report), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/beauty-journal.spec.ts' 'tests/ui/system-screens.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--grep' 'быстрый отчёт календаря|вход и профиль'
+[WebServer] (node:58372) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58412) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58413) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58426) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58473) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58474) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+(node:58483) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58519) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/beauty-journal.spec.ts:290:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон (31.8s)
+(node:59132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:59165) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/beauty-journal.spec.ts:339:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня (27.7s)
+(node:59239) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:59281) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:59356) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (48.1s)
+
+
+  1) tests/ui/beauty-journal.spec.ts:290:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Календарь"
+    Received: "Журнал"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        33 × locator resolved to <h1 class="page__title">Журнал</h1>
+           - unexpected value "Журнал"
+
+
+      87 | async function openDay(page: Page) {
+      88 |   await page.goto(`/beauty?date=${DAY}`);
+    > 89 |   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Календарь');
+         |                                                                           ^
+      90 | }
+      91 |
+      92 | async function book(page: Page, time: string, name: string) {
+        at openDay (/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/tests/ui/beauty-journal.spec.ts:89:75)
+        at /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/tests/ui/beauty-journal.spec.ts:296:3
+
+    Error Context: test-results/beauty-journal-быстрый-отч-bbe84-ндарь-месяца-темы-и-телефон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-быстрый-отч-bbe84-ндарь-месяца-темы-и-телефон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-быстрый-отч-bbe84-ндарь-месяца-темы-и-телефон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-journal.spec.ts:339:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Календарь"
+    Received: "Журнал"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        33 × locator resolved to <h1 class="page__title">Журнал</h1>
+           - unexpected value "Журнал"
+
+
+      87 | async function openDay(page: Page) {
+      88 |   await page.goto(`/beauty?date=${DAY}`);
+    > 89 |   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Календарь');
+         |                                                                           ^
+      90 | }
+      91 |
+      92 | async function book(page: Page, time: string, name: string) {
+        at openDay (/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/tests/ui/beauty-journal.spec.ts:89:75)
+        at /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/tests/ui/beauty-journal.spec.ts:385:3
+
+    Error Context: test-results/beauty-journal-быстрый-отч-48565-р-сохраняется-при-смене-дня/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-быстрый-отч-48565-р-сохраняется-при-смене-дня/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-быстрый-отч-48565-р-сохраняется-при-смене-дня/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3147/invite/fixture-invite-token", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/tests/ui/fixtures.ts:166:30)
+        at /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/tests/ui/system-screens.spec.ts:327:3
+
+    Error Context: test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/beauty-journal.spec.ts:290:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон 
+    tests/ui/beauty-journal.spec.ts:339:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня 
+    tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+
+# код выхода 1 · 2 мин 18 с

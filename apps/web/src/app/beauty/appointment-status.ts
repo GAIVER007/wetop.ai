@@ -3,6 +3,7 @@ import type { BeautyAppointmentRow } from '../../lib/api';
 export const ACTION_WORD: Record<BeautyAppointmentRow['status'], string> = {
   BOOKED: 'Вернуть в записанные',
   CONFIRMED: 'Подтвердить',
+  IN_PROGRESS: 'Начать',
   DONE: 'Завершить',
   NO_SHOW: 'Не пришёл',
   CANCELLED: 'Отменить запись',

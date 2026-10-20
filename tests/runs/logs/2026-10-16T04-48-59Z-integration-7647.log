@@ -1,0 +1,20 @@
+# Интеграционные (integration) · 16.10.2026 09:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bd4c21 (claude/bar-location-web), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T04-48-59Z-integration-7647.json' 'tests/integration/bar-restaurant-cash.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+(node:53094) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-restaurant-cash.test.ts (3 tests) 1129ms
+   ✓ бар: деньги по направлению филиала (integration) (3)
+     ✓ ресторан: продажа приходом кассы ресторана, оплата поставщику не больше остатка, отмена аннулирует приход 377ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  21:49:03
+   Duration  5.46s (import 38%, transform 32%, tests 30%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T04-48-59Z-integration-7647.json
+
+# код выхода 0 · 10 с

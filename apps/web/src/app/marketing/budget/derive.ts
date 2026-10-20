@@ -44,10 +44,24 @@ const counted = (expenses: BudgetExpense[]): BudgetExpense[] =>
 
 const pct = (part: bigint, whole: bigint): number => Number((part * 100n + whole / 2n) / whole);
 
+/** Строка разбивки плана по каналам (§52) в ответе API */
+export interface BudgetLine {
+  platform: string;
+  amount: string;
+}
+
+/** План месяца по правилу §52: общий план главный, без него план это сумма каналов; ни того ни другого: null */
+const effectivePlan = (plan: string | null, lines: BudgetLine[] | undefined): bigint | null => {
+  if (plan !== null) return BigInt(plan);
+  const sum = (lines ?? []).reduce((s, l) => s + BigInt(l.amount), 0n);
+  return sum > 0n ? sum : null;
+};
+
 export function summarize(view: {
   month: string;
   today: string;
   plan: string | null;
+  lines?: BudgetLine[] | undefined;
   expenses: BudgetExpense[];
 }): BudgetTotals {
   const daysInMonth = daysIn(view.month);
@@ -56,7 +70,7 @@ export function summarize(view: {
     view.month < todayMonth ? daysInMonth : view.month > todayMonth ? 0 : Number(view.today.slice(8, 10));
   const daysLeft = daysInMonth - daysPassed;
   const spent = counted(view.expenses).reduce((s, e) => s + BigInt(e.baseAmount), 0n);
-  const plan = view.plan === null ? null : BigInt(view.plan);
+  const plan = effectivePlan(view.plan, view.lines);
   const forecast =
     view.month > todayMonth
       ? null
@@ -72,6 +86,73 @@ export function summarize(view: {
     daysLeft,
     planUsedPct: plan === null || plan === 0n ? null : pct(spent, plan),
     onTrack: plan === null || forecast === null ? null : forecast <= plan,
+  };
+}
+
+export interface ChannelPlanRow {
+  platform: string;
+  /** План канала; null: расход есть, а канала в разбивке нет */
+  plan: bigint | null;
+  spent: bigint;
+  remainder: bigint | null;
+  /** Прогноз конца месяца канала тем же правилом, что у месяца; будущий месяц: null */
+  forecast: bigint | null;
+  /** Прогноз выше плана канала */
+  over: boolean;
+}
+
+export interface ChannelPlan {
+  /** Сначала каналы с планом (по убыванию плана), затем каналы с расходом без плана (по убыванию расхода) */
+  rows: ChannelPlanRow[];
+  /** Сумма планов каналов */
+  allocated: bigint;
+  /** Общий план минус разбивка; null: общего плана нет (план месяца это сама разбивка) */
+  unallocated: bigint | null;
+  /** Каналы расписали больше общего плана: предупреждение, ввод не запрещён (ADR-MKT-B7) */
+  overAllocated: boolean;
+}
+
+/** План против факта по каналам (DATA_MODEL §52): из разбивки плана и учтённых расходов месяца */
+export function channelPlan(view: {
+  month: string;
+  today: string;
+  plan: string | null;
+  lines: BudgetLine[];
+  expenses: BudgetExpense[];
+}): ChannelPlan {
+  const t = summarize({ ...view, lines: [] });
+  const scale = (v: bigint): bigint | null =>
+    t.forecast === null ? null : t.daysPassed === 0 || t.daysPassed === t.daysInMonth ? v : (v * BigInt(t.daysInMonth)) / BigInt(t.daysPassed);
+  const spentBy = new Map<string, bigint>();
+  for (const e of counted(view.expenses))
+    spentBy.set(e.platform, (spentBy.get(e.platform) ?? 0n) + BigInt(e.baseAmount));
+  const row = (platform: string, plan: bigint | null): ChannelPlanRow => {
+    const spent = spentBy.get(platform) ?? 0n;
+    const forecast = scale(spent);
+    return {
+      platform,
+      plan,
+      spent,
+      remainder: plan === null ? null : plan - spent,
+      forecast,
+      over: plan !== null && forecast !== null && forecast > plan,
+    };
+  };
+  const desc = (a: bigint, b: bigint) => (a === b ? 0 : a > b ? -1 : 1);
+  const planned = view.lines
+    .map((l) => row(l.platform, BigInt(l.amount)))
+    .sort((a, b) => desc(a.plan!, b.plan!));
+  const unplanned = [...spentBy.keys()]
+    .filter((p) => !view.lines.some((l) => l.platform === p))
+    .map((p) => row(p, null))
+    .sort((a, b) => desc(a.spent, b.spent));
+  const allocated = view.lines.reduce((s, l) => s + BigInt(l.amount), 0n);
+  const plan = view.plan === null ? null : BigInt(view.plan);
+  return {
+    rows: [...planned, ...unplanned],
+    allocated,
+    unallocated: plan === null ? null : plan - allocated,
+    overAllocated: plan !== null && allocated > plan,
   };
 }
 

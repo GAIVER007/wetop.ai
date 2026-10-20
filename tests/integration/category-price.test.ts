@@ -20,7 +20,7 @@ describe.skipIf(!process.env.DATABASE_URL)('category price and removal', () => {
   it('sets one price for a year and every occupancy, shows it, deletes empty and archives used', async () => {
     const db = createPrismaClient(),
       marker = randomUUID();
-    const org = await db.organization.create({ data: { name: `TEST price ${marker}` } });
+    const org = await db.organization.create({ data: { name: `TEST price ${marker}`, status: 'ACTIVE' } });
     const user = await db.user.create({ data: { email: `price-${marker}@example.invalid` } });
     const property = await createPropertyInChain(db, org.id, {
       name: `TEST price ${marker}`,
@@ -33,13 +33,19 @@ describe.skipIf(!process.env.DATABASE_URL)('category price and removal', () => {
       .overrideProvider(PrismaService)
       .useValue({ db } as PrismaService)
       .compile();
+    const location = await db.location.findUniqueOrThrow({ where: { id: property.locationId } });
+    const actor = {
+      userId: user.id, organizationId: org.id, role: 'OWNER' as const,
+      scope: 'LOCATION' as const, businessId: location.businessId,
+      locationId: location.id, vertical: 'HOSPITALITY' as const,
+    };
     const app = module.createNestApplication();
     app.use((_req: unknown, _res: unknown, next: () => void) => {
-      void withSignedInUser({ userId: user.id, organizationId: org.id }, async () => next());
+      void withSignedInUser(actor, async () => next());
     });
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     try {
-      await withSignedInUser({ userId: user.id, organizationId: org.id }, async () => {
+      await withSignedInUser(actor, async () => {
         const http = () => request(app.getHttpServer());
         // создание с ценой: тариф выбирать не нужно, «Базовый тариф» заводится сам
         const created = await http()

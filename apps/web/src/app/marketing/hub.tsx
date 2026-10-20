@@ -14,7 +14,7 @@ import type { WebVertical } from '../../lib/vertical-landing';
  * «Открыть» ведёт на его экран: сайт в конструктор, реклама и контент на свои экраны, где пока пустые состояния
  * («Скоро», а не «Подключено»). Прочие разделы сайта в меню «⋯». Своих запросов к API у страницы нет (ADR-149): числа
  * результатов хаб не читает, и вместо выдуманных нулей стоит «Нет данных» с причиной. Направление берётся из
- * `/auth/me` через `requireVertical`, право `settings` проверяет общий `AccessGate`.
+ * `/auth/me` через `requireVertical`, право `marketing` проверяет общий `AccessGate`.
  */
 interface Module {
   key: 'site' | 'budget' | 'ads' | 'content' | 'competitors';

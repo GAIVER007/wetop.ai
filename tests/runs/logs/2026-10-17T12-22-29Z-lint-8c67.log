@@ -1,0 +1,5 @@
+# Линтер (lint) · 17.10.2026 17:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит 62ff581 (claude/fix-employee-card-late-close), незакоммиченных файлов набора: 1
+# npx eslint .
+
+# код выхода 0 · 43 с

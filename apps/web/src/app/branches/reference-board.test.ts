@@ -41,6 +41,15 @@ const render = (items: BranchItem[], businesses: BusinessCardView[]) =>
     }),
   );
 describe('organization workspace states', () => {
+  it('does not reserve an empty cover or repeat business financial widgets', () => {
+    const html = render([item], [card]);
+    expect(html).toContain('class="org-card-footer"');
+    expect(html).not.toContain('org-cards--workspace');
+    expect(html).not.toContain('class="org-cover ');
+    expect(html).not.toContain('Добавьте описание бизнеса');
+    expect(html).not.toContain('Учёт оплат не подключён');
+  });
+
   it('shows all businesses without filter tools and keeps archive in heading', () => {
     const html = render(
       [item, { ...item, id: 'second-object', location: { businessId: 'second-project' } }],

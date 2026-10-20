@@ -210,6 +210,8 @@ test('«Платформа → Организации»: главный адми
   await list.getByTestId('platform-site-builder-form').nth(1).getByTestId('platform-site-builder-trial').click();
   await expect(list.getByTestId('platform-site-builder-form').nth(1).getByTestId('platform-site-builder-result')).toContainText('Marina» действует');
   await expect(list.getByTestId('platform-site-builder-form').nth(1)).toContainText('пробный');
+  // После server action текст успеха появляется раньше повторного применения metadata.
+  await expect(page).toHaveTitle('WETOP: рабочее пространство');
   await clean(page);
   await shot(page, 'platform-licenses-light-1440');
   await list.getByTestId('platform-site-builder-form').nth(0).getByTestId('platform-site-builder-off').click();

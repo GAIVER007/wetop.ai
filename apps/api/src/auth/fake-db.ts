@@ -242,7 +242,13 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         );
         if (!found) return null;
         if (!include?.memberships) return { ...found };
-        return { ...found, memberships: memberships.filter((m) => m.userId === found.id) };
+        // членства с организацией: вход выбирает первую неархивную (как include { organization } в базе)
+        return {
+          ...found,
+          memberships: memberships
+            .filter((m) => m.userId === found.id)
+            .map((m) => ({ ...m, organization: organizations.find((o) => o.id === m.organizationId) ?? null })),
+        };
       },
       async update({
         where,
@@ -268,7 +274,7 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         where,
         data,
       }: {
-        where: { id: string; lockedUntil?: LockFilter; OR?: Array<{ lockedUntil?: LockFilter }> };
+        where: { id: string; passwordHash?: string; status?: string | { not: string }; lockedUntil?: LockFilter; OR?: Array<{ lockedUntil?: LockFilter }> };
         data: Partial<FakeUser>;
       }) {
         const lockMatches = (u: FakeUser, f: LockFilter | undefined) =>
@@ -279,6 +285,9 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         const hit = users.filter(
           (u) =>
             u.id === where.id &&
+            (where.passwordHash === undefined || u.passwordHash === where.passwordHash) &&
+            (where.status === undefined || (typeof where.status === 'string'
+              ? u.status === where.status : u.status !== where.status.not)) &&
             lockMatches(u, where.lockedUntil) &&
             (where.OR === undefined || where.OR.some((o) => lockMatches(u, o.lockedUntil))),
         );
@@ -344,10 +353,14 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         where,
         data,
       }: {
-        where: { userId: string; usedAt: null };
+        where: { userId?: string; id?: string; usedAt: null; expiresAt?: { gt: Date } };
         data: Partial<FakeReset>;
       }) {
-        const hit = resets.filter((r) => r.userId === where.userId && r.usedAt === null);
+        const hit = resets.filter((r) =>
+          (where.userId === undefined || r.userId === where.userId) &&
+          (where.id === undefined || r.id === where.id) && r.usedAt === null &&
+          (where.expiresAt === undefined || r.expiresAt > where.expiresAt.gt),
+        );
         hit.forEach((r) => Object.assign(r, data));
         return { count: hit.length };
       },
@@ -374,7 +387,16 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         if (!user) return { ...row, user: null };
         return {
           ...row,
-          user: { ...user, memberships: memberships.filter((m) => m.userId === user.id) },
+          // как where в подтверждении: действующее членство в неархивной организации
+          user: {
+            ...user,
+            memberships: memberships.filter(
+              (m) =>
+                m.userId === user.id &&
+                m.status === 'ACTIVE' &&
+                organizations.find((o) => o.id === m.organizationId)?.status !== 'SUSPENDED',
+            ),
+          },
         };
       },
       /** Последняя выданная ссылка человека: строки в массиве идут в порядке выдачи, как `created_at` в базе */
@@ -510,7 +532,7 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
    * Транзакция у подставной базы. Откат нужен по-настоящему: регистрация заводит организацию раньше
    * человека, и если почта занята, снаружи не должно остаться пустой организации. Подставная база
    * без отката показала бы зелёное там, где настоящая база права, — поэтому откат здесь есть:
-   * запоминаем длины таблиц до вызова и обрезаем их обратно, если внутри бросили.
+   * запоминаем строки до вызова и восстанавливаем их, если внутри бросили.
    * Присваивается после объявления: внутри собственного литерала `db` сослаться на себя не может.
    */
   Object.assign(db, {
@@ -526,7 +548,7 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         resets,
         verifications,
         audit,
-      ].map((t) => t.length);
+      ].map((t) => structuredClone(t));
       try {
         return await fn(db);
       } catch (e) {
@@ -541,7 +563,14 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
           resets,
           verifications,
           audit,
-        ].forEach((table, i) => table.splice(before[i]!));
+        ].forEach((table, i) => {
+          const snapshot = before[i]!;
+          // Keep fixture row references intact while restoring updates and removing inserts.
+          snapshot.forEach((row, index) => {
+            if (table[index]) Object.assign(table[index]!, row);
+          });
+          table.splice(snapshot.length);
+        });
         throw e;
       }
     },

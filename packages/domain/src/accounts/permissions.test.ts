@@ -18,7 +18,7 @@ import {
 describe('права ролей', () => {
   const all = Object.keys(PERMISSIONS) as Permission[];
 
-  it('двенадцать прав и своё; у каждого — название', () => {
+  it('четырнадцать прав и своё; у каждого название', () => {
     expect(all).toEqual([
       'self',
       'desk',
@@ -29,6 +29,8 @@ describe('права ролей', () => {
       'rates',
       'channels',
       'settings',
+      'marketing',
+      'ads_launch',
       'journal',
       'seller',
       'staff',
@@ -49,6 +51,12 @@ describe('права ролей', () => {
     expect(permissionsOf('STAFF')).toEqual(['self', 'desk', 'dialogs', 'reports']);
   });
 
+  it('запуск и остановка рекламы: владелец и управляющий, не администратор (ADR-MKT-LAUNCH, §57)', () => {
+    expect(can('OWNER', 'ads_launch')).toBe(true);
+    expect(can('MANAGER', 'ads_launch')).toBe(true);
+    expect(can('STAFF', 'ads_launch')).toBe(false);
+  });
+
   it('возврат и сторно — владелец и управляющий, не администратор (Q-024)', () => {
     expect(can('OWNER', 'refunds')).toBe(true);
     expect(can('MANAGER', 'refunds')).toBe(true);
@@ -61,12 +69,20 @@ describe('права ролей', () => {
       'rates',
       'channels',
       'settings',
+      'marketing',
+      'ads_launch',
       'journal',
       'seller',
       'staff',
       'owner',
     ] as const)
       expect(can('STAFF', p)).toBe(false);
+  });
+
+  it('маркетинг (ADR-MKT-B7): своё право у владельца и управляющего, не у администратора', () => {
+    expect(can('OWNER', 'marketing')).toBe(true);
+    expect(can('MANAGER', 'marketing')).toBe(true);
+    expect(can('STAFF', 'marketing')).toBe(false);
   });
 
   it('неизвестная роль не открывает ничего — даже своё', () => {

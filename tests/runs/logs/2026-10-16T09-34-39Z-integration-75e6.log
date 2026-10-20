@@ -1,0 +1,51 @@
+# Интеграционные (integration) · 16.10.2026 14:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 823661d (claude/marketing-expense-files), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T09-34-39Z-integration-75e6.json' 'tests/integration/marketing-expense-files.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-expense-files.test.ts (2 tests | 1 failed) 412ms
+   ❯ чеки расходов маркетинга (integration) (2)
+     ✓ фото WebP без EXIF и PDF как есть; повтор не дублирует; чужое и поддельное отвергается 96ms
+     × не больше 10 файлов; удаление в журнал; расход уносит файлы, объект в хранилище остаётся 65ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-expense-files.test.ts > чеки расходов маркетинга (integration) > не больше 10 файлов; удаление в журнал; расход уносит файлы, объект в хранилище остаётся
+AssertionError: promise resolved "{ file: { …(5) }, created: true }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "created": true,
++   "file": {
++     "byteSize": 98,
++     "fileName": "Чек",
++     "id": "45362f32-c3b3-44f0-bdd0-f7dd20931983",
++     "mimeType": "image/webp",
++     "url": "https://assets.storage.test/marketing-expense-files/cabbfb2e-6c34-4f02-bd1d-e99e7073f593/45362f32-c3b3-44f0-bdd0-f7dd20931983/ee11d66bb03e413b705fcb1c7cf3ca2f71ea6a996ab3585e34c7085f5961639b.webp?X-Expires=1792146884&X-Signature=a0e0253acf45b13d922373aca79707e3d0522c96896131d03993c9b888bd4aaa",
++   },
+  }
+
+ ❯ tests/integration/marketing-expense-files.test.ts:113:93
+    111|     for (let i = live; i < EXPENSE_FILES_MAX; i += 1)
+    112|       await as('own', async () => files.upload(expenseId, { buffer: aw…
+    113|     await expect(as('own', async () => files.upload(expenseId, { buffe…
+       |                                                                                             ^
+    114|
+    115|     const one = await db.marketingExpenseFile.findFirstOrThrow({ where…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  02:34:41
+   Duration  3.28s (transform 44%, import 40%, tests 16%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T09-34-39Z-integration-75e6.json
+
+# код выхода 1 · 5 с

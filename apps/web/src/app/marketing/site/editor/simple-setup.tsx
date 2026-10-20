@@ -52,6 +52,7 @@ export function SimpleSiteSetup({
   facts,
   assets: initialAssets,
   readOnly,
+  publish: publishTo = { href: '/marketing/site' },
 }: {
   vertical: WebVertical;
   base: Base;
@@ -61,6 +62,8 @@ export function SimpleSiteSetup({
   facts: SiteFacts | null;
   assets: SiteAssetView[];
   readOnly: boolean;
+  /** Можно ли публиковать (аудит 17.10.2026, Д10, `publishTarget`): у салона и ресторана пока причина */
+  publish?: { href: string } | { reason: string };
 }) {
   const templates = useMemo(() => siteTemplatesFor(vertical), [vertical]);
   const [base, setBase] = useState<Base>(initialBase);
@@ -436,9 +439,20 @@ export function SimpleSiteSetup({
               </a>
             </p>
           )}
-          <Button type="button" disabled={readOnly || !!busy || live} onClick={() => void publish()} data-testid="setup-publish-btn">
+          <Button
+            type="button"
+            disabled={readOnly || !!busy || live || 'reason' in publishTo}
+            aria-describedby={'reason' in publishTo ? 'setup-publish-reason' : undefined}
+            onClick={() => void publish()}
+            data-testid="setup-publish-btn"
+          >
             {busy === 'publish' ? 'Публикуем…' : live ? 'Опубликовано' : publishedId ? 'Обновить сайт' : 'Опубликовать сайт'}
           </Button>
+          {'reason' in publishTo && (
+            <p className="muted" id="setup-publish-reason" data-testid="setup-publish-reason">
+              {publishTo.reason}
+            </p>
+          )}
           <ul className="setup__more">
             <li>
               <Link href="/marketing/site">Публикация и домен</Link>

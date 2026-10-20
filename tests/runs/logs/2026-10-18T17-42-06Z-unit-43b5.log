@@ -1,0 +1,51 @@
+# Модульные (unit) · 18.10.2026 22:42 Алматы · <сервер>
+# коммит 8a5ab94 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T17-42-06Z-unit-43b5.json' 'apps/web/src/app/reports/salon-report-data.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ❯ |unit| apps/web/src/app/reports/salon-report-data.test.ts (7 tests | 2 failed) 35ms
+   ❯ salon reports from guarded day snapshots (7)
+     ✓ keeps all services, exact integer totals and historical currencies separate 11ms
+     ✓ counts a multi-service visit once per master and each service line separately 1ms
+     ✓ rejects duplicate visits, invalid prices, and inconsistent line totals 1ms
+     ✓ loads sequentially and rejects wrong branch, timezone, date and local appointment day 11ms
+     × attributes overlapping calendar visits to their local start date exactly once 4ms
+     × keeps the historical line employee name when absent from calendar columns 3ms
+     ✓ does not return partial totals after a day API error 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/reports/salon-report-data.test.ts > salon reports from guarded day snapshots > attributes overlapping calendar visits to their local start date exactly once
+Error: Контекст отчёта изменился. Обновите страницу.
+ ❯ Module.loadSalonReport apps/web/src/app/reports/salon-report-data.ts:55:13
+     53|         !Array.isArray(day.columns) || !Array.isArray(day.appointments…
+     54|         day.appointments.some(row => localInput(row.startsAt, branch.t…
+     55|       throw new Error('Контекст отчёта изменился. Обновите страницу.');
+       |             ^
+     56|     days.push(day);
+     57|   }
+ ❯ apps/web/src/app/reports/salon-report-data.test.ts:47:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/reports/salon-report-data.test.ts > salon reports from guarded day snapshots > keeps the historical line employee name when absent from calendar columns
+AssertionError: expected 'Мастер' to be 'Исторический мастер' // Object.is equality
+
+Expected: "Исторический мастер"
+Received: "Мастер"
+
+ ❯ apps/web/src/app/reports/salon-report-data.test.ts:54:37
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 5 passed (7)
+   Start at  17:42:07
+   Duration  287ms (transform 54%, tests 22%, import 20%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-18T17-42-06Z-unit-43b5.json
+
+# код выхода 1 · 1 с

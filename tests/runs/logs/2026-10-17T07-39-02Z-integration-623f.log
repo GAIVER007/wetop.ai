@@ -1,0 +1,30 @@
+# Интеграционные (integration) · 17.10.2026 12:39 Алматы · <сервер>
+# коммит 782b605 (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T07-39-02Z-integration-623f.json' 'tests/integration/employee-common-writer.test.ts' 'tests/integration/employee-workspace.test.ts' 'tests/integration/employee-portal.test.ts' 'tests/integration/employee-portal-payroll-scope.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ✓  integration  tests/integration/employee-workspace.test.ts (9 tests) 2038ms
+ ✓  integration  tests/integration/employee-portal-payroll-scope.test.ts (6 tests) 2061ms
+   ✓ Food portal payroll uses an authorized viewing branch, not invented UTC money (6)
+     ✓ matches actual manager payroll for the same employee/month in each viewing timezone and every legacy model 776ms
+ ✓  integration  tests/integration/employee-portal.test.ts (6 tests) 1521ms
+   ✓ employee portal real persistence and authorization (6)
+     ✓ persists actual processed bytes, enforces work ownership and truthful storage off 328ms
+ ✓  integration  tests/integration/employee-common-writer.test.ts (19 tests) 4562ms
+   ✓ TZ2.1 common Employee original-version writer, PostgreSQL RLS (19)
+     ✓ runs as wetop_app without bypass or ownership 409ms
+     ✓ BEAUTY: basic winner then stale portal must conflict 405ms
+     ✓ BEAUTY: portal winner then stale basic must conflict 333ms
+     ✓ BEAUTY: simultaneous basic and portal saves have one winner 386ms
+     ✓ FOOD_SERVICE: forbidden fields and foreign employee cannot alter either source 381ms
+     ✓ FOOD_SERVICE: source microseconds survive reads and rapid saves; identity and consent survive 345ms
+
+ Test Files  4 passed (4)
+      Tests  40 passed (40)
+   Start at  07:39:04
+   Duration  18.89s (tests 65%, import 23%, transform 12%)
+
+JSON report written to /tmp/pms-test-2026-10-17T07-39-02Z-integration-623f.json
+
+# код выхода 0 · 22 с

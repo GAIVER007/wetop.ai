@@ -1,12 +1,17 @@
 'use client';
 import Link from 'next/link';
 import { useActionState, useEffect, useState, useTransition } from 'react';
-import { parseTimeOffInput, parseWorkingHoursWeek } from '@pms/domain';
-import { useConfirm } from '../../../components/use-confirm';
+import { parseWorkingHoursWeek } from '@pms/domain';
 import { Overlay } from '../../../components/overlay';
+import { Switch } from '../../../components/switch';
 import { Alert, Button, Field, Input, Select, Table } from '../../../components/ui';
-import { pluralRu } from '../../../lib/plural';
-import type { BeautySchedule, BeautyWorkingInterval } from '../../../lib/api';
+import type {
+  BeautySchedule,
+  BeautyTimeOff,
+  BeautyWeekDay,
+  BeautyWorkingInterval,
+} from '../../../lib/api';
+import { DEFAULT_SLOT, shiftWeek, weekDates } from './week';
 import {
   addBeautyTimeOff,
   removeBeautyTimeOff,
@@ -16,11 +21,16 @@ import {
 } from '../actions';
 
 /**
- * График мастера (срез B4, Q-251): неделя в этом филиале, отсутствия и филиалы мастера.
+ * График мастеров (поручение владельца 17.10.2026): сетка недели, строки мастера, колонки даты.
+ *
+ * Переключатель меняет только эту дату (решение по поручению владельца, Q-SCHED-1): выключить рабочий по
+ * шаблону день значит однодневное отсутствие (модель отсутствий §19, без миграций), включить снова значит
+ * снять это отсутствие. Дня сверх недельного шаблона в модели нет, поэтому выходной по графику ведёт в окно
+ * часов мастера: шаблон правится только там. Отсутствие на несколько дней видно только для чтения.
+ * Уже созданные записи выключение дня не отменяет: число таких записей показывается предупреждением.
  *
  * Неделя уходит на сервер одним списком интервалов: он заменяет прежний график, поэтому убранная строка
- * убирается, а не копится. Проверка перед отправкой идёт тем же разбором домена, что и на сервере, чтобы
- * ввод не стирался отказом (так же сделано в срезах SET3 и B3).
+ * убирается, а не копится. Проверка перед отправкой идёт тем же разбором домена, что и на сервере.
  */
 
 const DAYS: Record<number, string> = {
@@ -32,172 +42,251 @@ const DAYS: Record<number, string> = {
   6: 'Суббота',
   0: 'Воскресенье',
 };
+/** «изменится каждый понедельник / каждую среду / каждое воскресенье» */
+const EVERY: Record<number, string> = {
+  1: 'каждый понедельник',
+  2: 'каждый вторник',
+  3: 'каждую среду',
+  4: 'каждый четверг',
+  5: 'каждую пятницу',
+  6: 'каждую субботу',
+  0: 'каждое воскресенье',
+};
 
 type Slot = { timeFrom: string; timeTo: string };
 
-export function ScheduleBoard({ data, canEdit }: { data: BeautySchedule; canEdit: boolean }) {
-  const [editing, setEditing] = useState<'week' | 'timeOff' | 'locations' | null>(null);
-  const master = data.employee;
+export interface GridMaster {
+  id: string;
+  name: string;
+  week: BeautyWeekDay[];
+  weekRevision: string | null;
+  timeOffs: BeautyTimeOff[];
+}
 
-  if (!master)
-    return (
-      <section className="beauty-section" data-testid="beauty-schedule-empty">
-        <div className="beauty-bar">
-          <h2>Неделя</h2>
-          {canEdit && (
-            <Link className="btn btn--secondary" href="/employees">
-              Добавить мастера
-            </Link>
-          )}
-        </div>
-        <p className="beauty-note">Выберите или добавьте мастера, чтобы настроить рабочие часы.</p>
-        <Table className="beauty-week-table">
-          <thead>
-            <tr>
-              <th>День</th>
-              <th>Работает</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[1, 2, 3, 4, 5, 6, 0].map((weekday) => (
-              <tr key={weekday}>
-                <td>{DAYS[weekday]}</td>
-                <td>Не настроено</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </section>
-    );
+export interface WeekGridData {
+  location: { id: string; name: string | null } | null;
+  /** Понедельник показанной недели, YYYY-MM-DD */
+  monday: string;
+  masters: GridMaster[];
+  /** Мастера бизнеса, которые в этом филиале не работают: в сетке их нет */
+  elsewhere: number;
+  /** Профессии для отбора: группы услуг, назначенных мастерам филиала (Q-SCHED-2) */
+  groups?: string[];
+  group?: string | null;
+}
 
-  const hours = data.week.reduce((sum, day) => sum + minutesOf(day.intervals), 0);
+const dayMonth = new Intl.DateTimeFormat('ru-RU', {
+  day: 'numeric',
+  month: 'long',
+  timeZone: 'UTC',
+});
+const shortDay = new Intl.DateTimeFormat('ru-RU', { weekday: 'short', timeZone: 'UTC' });
+const label = (date: string) => dayMonth.format(new Date(`${date}T12:00:00Z`));
+
+export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: boolean }) {
+  const [editing, setEditing] = useState<{ master: GridMaster; weekday?: number } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [busy, start] = useTransition();
+  // переключатель отзывается сразу; после ответа сервера правду показывает свежий график страницы
+  const [optimistic, setOptimistic] = useState<Record<string, boolean>>({});
+  const days = weekDates(data.monday);
+  const shift = (n: number) =>
+    `?week=${shiftWeek(data.monday, n)}${data.group ? `&group=${encodeURIComponent(data.group)}` : ''}`;
+
+  const toggle = (master: GridMaster, date: string, on: boolean, dayOff?: BeautyTimeOff) => {
+    const key = `${master.id}:${date}`;
+    // вне перехода: обновление внутри async-перехода React показывает только после его конца
+    setOptimistic((prev) => ({ ...prev, [key]: on }));
+    start(async () => {
+      let result: { error?: string; message?: string };
+      if (on && dayOff) result = await removeBeautyTimeOff(master.id, dayOff.id);
+      else {
+        const form = new FormData();
+        form.set('id', master.id);
+        form.set('dateFrom', date);
+        form.set('dateTo', date);
+        result = await addBeautyTimeOff(null, form);
+      }
+      setError(result.error ? `${master.name}: ${result.error}` : null);
+      setNotice(
+        result.error
+          ? null
+          : on
+            ? `${master.name}, ${label(date)}: снова рабочий день`
+            : `${master.name}, ${label(date)}: ${result.message ?? 'день выключен'}`,
+      );
+      setOptimistic((prev) => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+    });
+  };
+
   return (
     <>
-      <form className="beauty-pick" method="get" action="/beauty/schedule">
-        <Field label="Мастер">
-          <Select name="employee" defaultValue={master.id} data-testid="beauty-schedule-master">
-            {data.employees.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.name}
-                {e.active ? '' : ' (в архиве)'}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <Button type="submit" tone="secondary">
-          Показать
-        </Button>
-      </form>
-
-      <p role="status" data-testid="beauty-schedule-summary">
-        {master.worksHere
-          ? hours === 0
-            ? 'График в этом филиале не задан: мастер здесь не принимает'
-            : `В неделю ${weekText(hours)} в этом филиале`
-          : 'Мастер в этом филиале не работает: поставьте его в филиал, тогда появится график'}
+      <nav className="beauty-week-nav" aria-label="Неделя">
+        <Link className="btn btn--secondary btn--sm" href={shift(-7)}>
+          Прошлая неделя
+        </Link>
+        <span data-testid="beauty-week-range">
+          {label(days[0]!.date)} – {label(days[6]!.date)}
+        </span>
+        <Link className="btn btn--secondary btn--sm" href={shift(7)}>
+          Следующая неделя
+        </Link>
+      </nav>
+      {(data.groups?.length ?? 0) > 0 && (
+        <form className="beauty-pick" method="get" action="/beauty/schedule">
+          <input type="hidden" name="week" value={data.monday} />
+          <Field label="Профессия">
+            <Select name="group" defaultValue={data.group ?? ''}>
+              <option value="">Все специалисты</option>
+              {data.groups!.map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Button type="submit" tone="secondary">
+            Показать
+          </Button>
+        </form>
+      )}
+      <p className="beauty-note">
+        Переключатель меняет только эту дату. Выходной по графику и часы работы меняются в окне
+        специалиста: нажмите на его имя.
       </p>
-
-      <section className="beauty-section">
-        <div className="beauty-bar">
-          <h2>Неделя</h2>
-          {canEdit && master.worksHere && (
-            <Button type="button" onClick={() => setEditing('week')}>
-              Изменить график
-            </Button>
-          )}
-        </div>
-        <Table className="beauty-week-table">
-          <thead>
-            <tr>
-              <th>День</th>
-              <th>Работает</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.week.map((day) => (
-              <tr key={day.weekday}>
-                <td>{DAYS[day.weekday]}</td>
-                <td>
-                  {day.intervals.length === 0
-                    ? 'Выходной'
-                    : day.intervals.map((i) => `${i.timeFrom} до ${i.timeTo}`).join(', ')}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </section>
-
-      <section className="beauty-section">
-        <div className="beauty-bar">
-          <h2>Отсутствия</h2>
-          {canEdit && (
-            <Button type="button" tone="secondary" onClick={() => setEditing('timeOff')}>
-              Добавить отсутствие
-            </Button>
-          )}
-        </div>
-        <p className="beauty-note">
-          Отсутствие ставится на всю сеть: мастера нет ни в одном филиале. Уже созданные записи оно
-          не отменяет, их показывает отдельно.
-        </p>
-        {data.timeOffs.length === 0 ? (
-          <p data-testid="beauty-timeoffs-empty">Отсутствий впереди нет</p>
+      {error && <Alert>{error}</Alert>}
+      {/* записи в выключенный день не отменяются: тогда это предупреждение, а не просто отметка */}
+      {notice &&
+        (notice.includes('никто не отменил') ? (
+          <Alert tone="warning">{notice}</Alert>
         ) : (
-          <TimeOffTable employeeId={master.id} rows={data.timeOffs} canEdit={canEdit} />
-        )}
-      </section>
-
-      <section className="beauty-section">
-        <div className="beauty-bar">
-          <h2>Филиалы мастера</h2>
-          {canEdit && data.locations.length > 0 && (
-            <Button type="button" tone="secondary" onClick={() => setEditing('locations')}>
-              Изменить филиалы
-            </Button>
+          <p role="status">{notice}</p>
+        ))}
+      <Table className="beauty-week-grid" aria-busy={busy}>
+        <thead>
+          <tr>
+            <th scope="col">Специалисты</th>
+            {days.map((d) => (
+              <th key={d.date} scope="col">
+                {label(d.date)}, {shortDay.format(new Date(`${d.date}T12:00:00Z`))}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.masters.map((m) => (
+            <tr key={m.id}>
+              <th scope="row">
+                {canEdit ? (
+                  <Button type="button" tone="ghost" size="sm" onClick={() => setEditing({ master: m })}>
+                    {m.name}
+                  </Button>
+                ) : (
+                  <span>{m.name}</span>
+                )}
+              </th>
+              {days.map((d) => {
+                const hours = m.week.find((w) => w.weekday === d.weekday)?.intervals ?? [];
+                const absent = m.timeOffs.find((t) => t.dateFrom <= d.date && d.date <= t.dateTo);
+                // однодневное отсутствие это выключенная дата: её переключатель включает обратно
+                const dayOff = absent && absent.dateFrom === absent.dateTo ? absent : undefined;
+                const templateOff = hours.length === 0;
+                const works = optimistic[`${m.id}:${d.date}`] ?? (!templateOff && !absent);
+                const text = templateOff
+                  ? 'Выходной по графику'
+                  : absent && !dayOff
+                    ? 'Отсутствует'
+                    : works
+                      ? 'Работает'
+                      : 'Не работает';
+                return (
+                  <td
+                    key={d.date}
+                    className={works ? 'is-on' : 'is-off'}
+                    data-label={label(d.date)}
+                  >
+                    {canEdit && !templateOff && (!absent || dayOff) ? (
+                      <Switch
+                        name={`works-${m.id}-${d.date}`}
+                        label={
+                          <>
+                            {text}
+                            <span className="sr-only">
+                              : {m.name}, {label(d.date)}
+                            </span>
+                          </>
+                        }
+                        checked={works}
+                        disabled={busy}
+                        onChange={(on) => toggle(m, d.date, on, dayOff)}
+                      />
+                    ) : (
+                      <span>{text}</span>
+                    )}
+                    {works && (
+                      <small className="beauty-note">
+                        {hours.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ')}
+                      </small>
+                    )}
+                    {absent?.reason && <small className="beauty-note">{absent.reason}</small>}
+                    {canEdit && templateOff && (
+                      <Button
+                        type="button"
+                        tone="ghost"
+                        size="sm"
+                        onClick={() => setEditing({ master: m, weekday: d.weekday })}
+                      >
+                        Изменить график<span className="sr-only">: {m.name}, {label(d.date)}</span>
+                      </Button>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+          {data.masters.length === 0 && (
+            <tr>
+              <td colSpan={8} data-testid="beauty-schedule-empty">
+                {data.group ? 'Специалистов этой профессии в филиале нет.' : 'В этом филиале пока нет специалистов.'}{' '}
+                {canEdit && <Link href="/employees">Добавить специалиста</Link>}
+              </td>
+            </tr>
           )}
-        </div>
-        <p data-testid="beauty-schedule-locations">
-          {data.locations.filter((l) => l.assigned).length === 0
-            ? 'Мастер пока не поставлен ни в один филиал'
-            : data.locations
-                .filter((l) => l.assigned)
-                .map((l) => l.name)
-                .join(', ')}
+        </tbody>
+      </Table>
+      {data.elsewhere > 0 && (
+        <p className="beauty-note">
+          Специалистов из других филиалов здесь не видно: {data.elsewhere}. Поставить специалиста в этот
+          филиал можно в его карточке, раздел «Филиалы».
         </p>
-      </section>
-
+      )}
       <Overlay
-        open={editing === 'week'}
+        open={canEdit && editing !== null}
         onClose={() => setEditing(null)}
-        title={`График: ${master.name}`}
+        title={editing ? `Часы работы: ${editing.master.name}` : ''}
         drawer
       >
-        {editing === 'week' && (
-          <WeekForm
-            employeeId={master.id}
-            week={data.week}
-            expectedRevision={data.weekRevision ?? undefined}
-            scopeKey={data.location?.id ?? ''}
-          />
-        )}
-      </Overlay>
-      <Overlay
-        open={editing === 'timeOff'}
-        onClose={() => setEditing(null)}
-        title={`Отсутствие: ${master.name}`}
-        drawer
-      >
-        {editing === 'timeOff' && <TimeOffForm employeeId={master.id} />}
-      </Overlay>
-      <Overlay
-        open={editing === 'locations'}
-        onClose={() => setEditing(null)}
-        title={`Филиалы: ${master.name}`}
-        drawer
-      >
-        {editing === 'locations' && (
-          <LocationsForm employeeId={master.id} locations={data.locations} />
+        {canEdit && editing && (
+          <>
+            {editing.weekday !== undefined && (
+              <p className="beauty-note" data-testid="beauty-week-hint">
+                Это обычная неделя специалиста: {DAYS[editing.weekday]?.toLowerCase()} изменится{' '}
+                {EVERY[editing.weekday]}, а не одна дата.
+              </p>
+            )}
+            <WeekForm
+              key={editing.master.id}
+              employeeId={editing.master.id}
+              week={editing.master.week}
+              expectedRevision={editing.master.weekRevision ?? undefined}
+              scopeKey={data.location?.id ?? ''}
+            />
+          </>
         )}
       </Overlay>
     </>
@@ -211,6 +300,7 @@ export function WeekForm({
   save = saveBeautyWorkingHours,
   expectedRevision,
   scopeKey = '',
+  loadCurrent = loadBeautySchedule,
 }: {
   scopeKey?: string | undefined;
   employeeId: string;
@@ -219,6 +309,16 @@ export function WeekForm({
   week: BeautySchedule['week'];
   /** Действие сохранения недели: салонное по умолчанию, ресторан передаёт своё (Q-REST-11) */
   save?: typeof saveBeautyWorkingHours;
+  loadCurrent?: (
+    employeeId: string,
+  ) => Promise<{
+    data?: {
+      week: BeautySchedule['week'];
+      weekRevision?: string | null;
+      location: { id: string } | null;
+    };
+    error?: string | null;
+  }>;
 }) {
   const [state, action, pending] = useActionState(
     async (prev: Awaited<ReturnType<typeof saveBeautyWorkingHours>> | null, form: FormData) => {
@@ -229,7 +329,10 @@ export function WeekForm({
     null,
   );
   const [originalRevision, setOriginalRevision] = useState(expectedRevision);
-  const [comparison, setComparison] = useState<BeautySchedule | null>(null);
+  const [comparison, setComparison] = useState<{
+    week: BeautySchedule['week'];
+    weekRevision?: string | null;
+  } | null>(null);
   const [checking, check] = useTransition();
   useEffect(() => {
     if (state?.revision) setOriginalRevision(state.revision);
@@ -272,6 +375,10 @@ export function WeekForm({
       {(originalRevision ?? state?.revision) && (
         <input type="hidden" name="expectedRevision" value={originalRevision ?? state?.revision} />
       )}
+      <p className="beauty-note">
+        Это обычный недельный график: он повторяется каждую неделю. Дни без интервалов: регулярные
+        выходные. Новый рабочий день получает часы первого рабочего дня, их можно поправить.
+      </p>
       {week.map((day) => {
         const rows = slots[day.weekday] ?? [];
         return (
@@ -286,20 +393,19 @@ export function WeekForm({
               {rows.length === 0 && <span className="beauty-note">Выходной</span>}
               {rows.map((slot, index) => (
                 <span key={index} className="beauty-week-slot">
+                  <span aria-hidden="true">С</span>
                   <Input
                     className="beauty-time"
                     value={slot.timeFrom}
                     inputMode="numeric"
-                    placeholder="09:00"
                     aria-label={`${DAYS[day.weekday]}: начало`}
                     onChange={(e) => change(day.weekday, index, { timeFrom: e.target.value })}
                   />
-                  <span aria-hidden="true">до</span>
+                  <span aria-hidden="true">До</span>
                   <Input
                     className="beauty-time"
                     value={slot.timeTo}
                     inputMode="numeric"
-                    placeholder="18:00"
                     aria-label={`${DAYS[day.weekday]}: конец`}
                     onChange={(e) => change(day.weekday, index, { timeTo: e.target.value })}
                   />
@@ -326,7 +432,14 @@ export function WeekForm({
                 onClick={() =>
                   setSlots((prev) => ({
                     ...prev,
-                    [day.weekday]: [...(prev[day.weekday] ?? []), { timeFrom: '', timeTo: '' }],
+                    // новый рабочий день сразу с часами: пустые поля с подсказкой «09:00» выглядели
+                    // заполненными, при сохранении отбрасывались, и день не сохранялся (приёмка 17.10.2026)
+                    [day.weekday]: [
+                      ...(prev[day.weekday] ?? []),
+                      (prev[day.weekday] ?? []).length === 0
+                        ? { ...(Object.values(prev).find((d) => d.length)?.[0] ?? DEFAULT_SLOT) }
+                        : { timeFrom: '', timeTo: '' },
+                    ],
                   }))
                 }
               >
@@ -345,7 +458,11 @@ export function WeekForm({
           disabled={checking}
           onClick={() =>
             check(async () => {
-              const result = await loadBeautySchedule(employeeId);
+              const result = await loadCurrent(employeeId);
+              if (result.error) {
+                setError(result.error);
+                return;
+              }
               if (result.data?.location?.id !== scopeKey) return;
               setComparison(result.data);
             })
@@ -391,151 +508,6 @@ export function WeekForm({
   );
 }
 
-export function TimeOffForm({
-  employeeId,
-  onSaved,
-}: {
-  employeeId: string;
-  onSaved?: () => Promise<void>;
-}) {
-  const [state, action, pending] = useActionState(
-    async (prev: Awaited<ReturnType<typeof addBeautyTimeOff>> | null, form: FormData) => {
-      const result = await addBeautyTimeOff(prev, form);
-      if (!result.error) await onSaved?.();
-      return result;
-    },
-    null,
-  );
-  const [error, setError] = useState<string | null>(null);
-  return (
-    <form
-      action={action}
-      className="beauty-form"
-      onSubmit={(event) => {
-        const data = new FormData(event.currentTarget);
-        const parsed = parseTimeOffInput({
-          dateFrom: String(data.get('dateFrom') ?? ''),
-          dateTo: String(data.get('dateTo') ?? ''),
-          reason: String(data.get('reason') ?? ''),
-        });
-        if (!parsed.ok) {
-          event.preventDefault();
-          setError(parsed.reason);
-          return;
-        }
-        setError(null);
-      }}
-    >
-      <input type="hidden" name="id" value={employeeId} />
-      <Field label="С какого дня">
-        <Input name="dateFrom" type="date" required />
-      </Field>
-      <Field label="По какой день включительно">
-        <Input name="dateTo" type="date" required />
-      </Field>
-      <Field
-        label={
-          <span>
-            Причина <small className="beauty-note">необязательно</small>
-          </span>
-        }
-      >
-        <Input name="reason" maxLength={200} placeholder="отпуск, учёба, больничный" />
-      </Field>
-      {(error ?? state?.error) && <Alert>{error ?? state?.error}</Alert>}
-      {!error && state?.message && <p role="status">{state.message}</p>}
-      <Button type="submit" disabled={pending}>
-        {pending ? 'Сохраняем…' : 'Добавить отсутствие'}
-      </Button>
-    </form>
-  );
-}
-
-export function TimeOffTable({
-  employeeId,
-  rows,
-  canEdit,
-  onSaved,
-}: {
-  employeeId: string;
-  rows: BeautySchedule['timeOffs'];
-  canEdit: boolean;
-  onSaved?: () => Promise<void>;
-}) {
-  const { ask, dialog } = useConfirm();
-  const [pending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
-
-  const remove = async (id: string, label: string) => {
-    const ok = await ask({
-      title: `Снять отсутствие ${label}?`,
-      body: 'Мастер снова будет считаться работающим в эти дни.',
-      confirmLabel: 'Снять отсутствие',
-      tone: 'danger',
-    });
-    if (!ok) return;
-    startTransition(async () => {
-      const result = await removeBeautyTimeOff(employeeId, id);
-      setError(result.error ?? null);
-      if (!result.error) await onSaved?.();
-    });
-  };
-
-  return (
-    <>
-      <Table>
-        <thead>
-          <tr>
-            <th>Когда</th>
-            <th>Причина</th>
-            <th>Записи в эти дни</th>
-            {canEdit && <th className="sr-only">Действия</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.id}>
-              <td>
-                {row.dateFrom === row.dateTo
-                  ? dayText(row.dateFrom)
-                  : `${dayText(row.dateFrom)} до ${dayText(row.dateTo)}`}
-              </td>
-              <td>{row.reason ?? 'Не указана'}</td>
-              <td>
-                {row.appointments === 0
-                  ? 'Записей нет'
-                  : pluralRu(row.appointments, ['запись', 'записи', 'записей'])}
-              </td>
-              {canEdit && (
-                <td>
-                  <Button
-                    type="button"
-                    size="sm"
-                    tone="secondary"
-                    disabled={pending}
-                    onClick={() =>
-                      void remove(
-                        row.id,
-                        row.dateFrom === row.dateTo
-                          ? dayText(row.dateFrom)
-                          : `${dayText(row.dateFrom)} до ${dayText(row.dateTo)}`,
-                      )
-                    }
-                  >
-                    Убрать
-                  </Button>
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-      {error && <Alert>{error}</Alert>}
-      {dialog}
-    </>
-  );
-}
-
 export function LocationsForm({
   employeeId,
   onSaved,
@@ -560,7 +532,7 @@ export function LocationsForm({
     <form action={action} className="beauty-form">
       <input type="hidden" name="id" value={employeeId} />
       <fieldset className="beauty-skills">
-        <legend>Где мастер работает</legend>
+        <legend>Где специалист работает</legend>
         {locations.map((location) => (
           <label key={location.id} className="beauty-check">
             <input
@@ -574,7 +546,7 @@ export function LocationsForm({
         ))}
       </fieldset>
       <p className="beauty-note">
-        Снятый филиал забирает и график мастера в нём. Если там остались будущие записи, филиал не
+        Снятый филиал забирает и график специалиста в нём. Если там остались будущие записи, филиал не
         снимется: сначала разберитесь с записями.
       </p>
       {state?.error && <Alert>{state.error}</Alert>}
@@ -584,29 +556,4 @@ export function LocationsForm({
       </Button>
     </form>
   );
-}
-
-/** «9 часов», «9 часов 30 минут»: округлять до часов нельзя, полчаса смены это полчаса смены */
-function weekText(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  const hours = pluralRu(h, ['час', 'часа', 'часов']);
-  const rest = pluralRu(m, ['минута', 'минуты', 'минут']);
-  if (h === 0) return rest;
-  return m === 0 ? hours : `${hours} ${rest}`;
-}
-
-function minutesOf(intervals: Array<{ timeFrom: string; timeTo: string }>): number {
-  return intervals.reduce((sum, i) => sum + Math.max(0, clock(i.timeTo) - clock(i.timeFrom)), 0);
-}
-
-function clock(value: string): number {
-  const [hh, mm] = value.split(':');
-  return Number(hh) * 60 + Number(mm);
-}
-
-/** «2026-10-12» в «12.10.2026»: даты человеку всегда в его виде (DESIGN.md) */
-function dayText(date: string): string {
-  const [y, m, d] = date.split('-');
-  return `${d}.${m}.${y}`;
 }

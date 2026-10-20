@@ -1,0 +1,115 @@
+# Модульные (unit) · 16.10.2026 19:09 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 88
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T14-09-05Z-unit-1edd.json' 'apps/web/src/app/today/unified-owner.test.ts' 'apps/web/src/app/today/owner-daily-chart.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯  unit  apps/web/src/app/today/unified-owner.test.ts (12 tests | 3 failed) 113ms
+   ❯ unified owner actual DTO (12)
+     × provides the skip-link main landmark in supported and unsupported views 49ms
+     × explains missing money without exposing a raw reason code or invented totals 13ms
+     × passes actual previous daily money to the always-open chart 8ms
+     ✓ renders linked category names safely and minute units without claiming disconnected 11ms
+     ✓ today 8ms
+     ✓ week 3ms
+     ✓ month 5ms
+     ✓ renders exact signed comparable money and basis point rate, never previous workload 4ms
+     ✓ formats big minor units without float loss 1ms
+     ✓ normalizes query, not rolling 30 days 0ms
+     ✓ unknown vertical is explicit unsupported 0ms
+     ✓ keeps room and bed separate without invented percent 6ms
+ ❯  unit  apps/web/src/app/today/owner-daily-chart.test.ts (4 tests | 2 failed) 51ms
+   ✓ renders one real daily point with exact huge amount and no interpolated path 29ms
+   ✓ unsupported receipts are unavailable not a zero series 1ms
+   × keeps chart visible, switches metrics with labelled tabs, and compares the same metric only 15ms
+   × does not replace a missing day currency with an invented zero point 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   unit  apps/web/src/app/today/owner-daily-chart.test.ts > keeps chart visible, switches metrics with labelled tabs, and compares the same metric only
+AssertionError: expected '<div><p>По дням в часовом поясе филиа…' to contain 'role="tablist"'
+
+Expected: "role="tablist""
+Received: "<div><p>По дням в часовом поясе филиала. Текущий день неполный. Валюты раздельно.</p><details name="owner-chart-currency" open=""><summary>Валюта: KZT</summary><p>Относительная шкала, точные суммы в таблице. Максимум: 999,99 KZT.</p><svg viewBox="0 0 640 200" width="100%" aria-hidden="true" focusable="false"><g fill="none" stroke="var(--chart-1, currentColor)" stroke-width="2"><path d="M8,191.82 L632,191.63"></path><circle cx="8" cy="191.816" r="3"></circle><circle cx="632" cy="191.632" r="3"></circle></g><g fill="none" stroke="var(--chart-2, currentColor)" stroke-width="2" stroke-dasharray="6 4"><path d="M8,8 L632,28.46"></path><circle cx="8" cy="8" r="3"></circle><circle cx="632" cy="28.460800000000006" r="3"></circle></g></svg><ul><li>Выручка: 1,00 KZT</li><li>Поступления: 1,00 KZT</li></ul><div class="owner-chart-table"><table><caption>Дневные суммы, KZT</caption><thead><tr><th scope="col">Дата</th><th scope="col">Выручка</th><th scope="col">Поступления</th></tr></thead><tbody><tr><th scope="row">2026-10-01</th><td>1,00 KZT</td><td>999,99 KZT</td></tr><tr><th scope="row">2026-10-02</th><td>2,00 KZT</td><td>888,88 KZT</td></tr></tbody></table></div></details></div>"
+
+ ❯ apps/web/src/app/today/owner-daily-chart.test.ts:18:15
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL   unit  apps/web/src/app/today/owner-daily-chart.test.ts > does not replace a missing day currency with an invented zero point
+AssertionError: expected 3 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ apps/web/src/app/today/owner-daily-chart.test.ts:25:46
+     23| it('does not replace a missing day currency with an invented zero poin…
+     24|  const html=renderToStaticMarkup(createElement(OwnerDailyChart,{metric…
+     25|  expect((html.match(/<circle/g)||[]).length).toBe(2);expect(html).not.…
+       |                                              ^
+     26| });
+     27|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL   unit  apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > provides the skip-link main landmark in supported and unsupported views
+AssertionError: expected '<div class="owner-home"><header class…' to contain '<main id="main-content"'
+
+Expected: "<main id="main-content""
+Received: "<div class="owner-home"><header class="owner-heading"><div><p>Обзор бизнеса</p><h1>Главная</h1><p>Обновлено 16 окт. 2026 г., 14:00 </p><p>Часовой пояс: Asia/Almaty</p></div><a class="btn btn--secondary" href="/appointments">Рабочее место</a></header><div class="owner-toolbar"><nav class="seg" aria-label="Период отчёта"><a class="seg__item is-on" aria-current="page" href="/today?period=today">Сегодня</a><a class="seg__item" href="/today?period=week">7 дней</a><a class="seg__item" href="/today?period=month" title="С начала календарного месяца">Месяц</a></nav><p><time dateTime="2026-10-01">2026-10-01</time> – <time dateTime="2026-10-16">2026-10-16</time></p><p>Текущий день неполный</p></div><section class="owner-kpis" aria-label="Показатели руководителя"><article><h2>Выручка</h2><div class="owner-value"><div>9 007 199 254 740 993,01 KZT</div><div>123,45 USD</div></div><p>Сравнение недоступно: Данные недоступны: COMPARABLE_PROJECTION_NOT_CONNECTED</p><p>Начисления, не полученные оплаты</p></article><article><h2>Загрузка сегодня</h2><div class="owner-value">Нет данных</div><p>Неполное покрытие периода</p><p>Записанное время мастеров / сохранённое расписание</p><p>Учтено 0 из 0 минут мастеров. Итоговый процент периода недоступен.</p></article><article><h2>Поступления</h2><div class="owner-value">Нет данных</div><p>Реестр оплат не подключён</p><p>Сравнение недоступно: Данные недоступны: COMPARABLE_PROJECTION_NOT_CONNECTED</p><p>Полученные оплаты, не выручка</p></article><article><h2>Оплаченные расходы</h2><div class="owner-value">Нет данных</div><p>Валюта части операций неизвестна. Показана только известная часть.</p><p>Сравнение недоступно: Данные недоступны: COMPARABLE_PROJECTION_NOT_CONNECTED</p><p>Только завершённые расходные операции</p></article></section><div class="owner-body"><section class="owner-panel"><div class="owner-panel-heading"><h2>Динамика показателей</h2><a href="/finance">Финансовый отчёт</a></div><div><p>По дням в часовом поясе филиала. Текущий день неполный. Валюты раздельно.</p><p role="status">Выручка: Временной ряд не подключён</p><p role="status">Поступления: Временной ряд не подключён</p><p role="status">Оплаченные расходы: Временной ряд не подключён</p><p role="status">Нет операций с подтверждённой валютой за период. Недоступные источники не означают ноль.</p></div><p>Сравнение с предыдущим периодом недоступно.</p></section><section class="owner-panel"><h2>Требуют решения</h2><h3>Данные периода неполные</h3><p>Неполное покрытие периода</p><p>Классификация расходов не подключена. Автоматические задачи и отклонения API не передаёт.</p><a href="/finance">Открыть операции</a><p><a href="/today/operations">Операционные инструменты дня</a></p></section></div><section class="owner-panel"><div class="owner-panel-heading"><h2>Куда уходят деньги</h2><a href="/finance">Оплаченные расходы</a></div><p>Связи с документами расходов в сводку пока не подключены. Без статьи: назначение операции не подтверждено. Это не «Прочее».</p><div class="owner-expenses"></div><p>Нет классифицированных сумм. Отсутствие данных не означает нулевые расходы.</p></section><footer><p>Выбран один филиал. Валюты показаны раздельно, без общего итога.</p></footer></div>"
+
+ ❯ apps/web/src/app/today/unified-owner.test.ts:56:82
+     54|     for (const vertical of ['BEAUTY', 'UNKNOWN']) {
+     55|       const d = dto(); d.scope.vertical = vertical;
+     56|       expect(renderToStaticMarkup(createElement(OwnerSummaryView, {sum…
+       |                                                                                  ^
+     57|     }
+     58|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL   unit  apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > explains missing money without exposing a raw reason code or invented totals
+AssertionError: expected '<div class="owner-home"><header class…' to contain 'Нет денежных операций за выбранный пе…'
+
+Expected: "Нет денежных операций за выбранный период"
+Received: "<div class="owner-home"><header class="owner-heading"><div><p>Обзор бизнеса</p><h1>Главная</h1><p>Обновлено 16 окт. 2026 г., 14:00 </p><p>Часовой пояс: Asia/Almaty</p></div><a class="btn btn--secondary" href="/appointments">Рабочее место</a></header><div class="owner-toolbar"><nav class="seg" aria-label="Период отчёта"><a class="seg__item is-on" aria-current="page" href="/today?period=today">Сегодня</a><a class="seg__item" href="/today?period=week">7 дней</a><a class="seg__item" href="/today?period=month" title="С начала календарного месяца">Месяц</a></nav><p><time dateTime="2026-10-01">2026-10-01</time> – <time dateTime="2026-10-16">2026-10-16</time></p><p>Текущий день неполный</p></div><section class="owner-kpis" aria-label="Показатели руководителя"><article><h2>Выручка</h2><div class="owner-value">Нет данных</div><p>Данные недоступны: NO_MONEY_DATA</p><p>Сравнение недоступно: Данные недоступны: COMPARABLE_PROJECTION_NOT_CONNECTED</p><p>Начисления, не полученные оплаты</p></article><article><h2>Загрузка сегодня</h2><div class="owner-value">Нет данных</div><p>Неполное покрытие периода</p><p>Записанное время мастеров / сохранённое расписание</p><p>Учтено 0 из 0 минут мастеров. Итоговый процент периода недоступен.</p></article><article><h2>Поступления</h2><div class="owner-value">Нет данных</div><p>Реестр оплат не подключён</p><p>Сравнение недоступно: Данные недоступны: COMPARABLE_PROJECTION_NOT_CONNECTED</p><p>Полученные оплаты, не выручка</p></article><article><h2>Оплаченные расходы</h2><div class="owner-value">Нет данных</div><p>Валюта части операций неизвестна. Показана только известная часть.</p><p>Сравнение недоступно: Данные недоступны: COMPARABLE_PROJECTION_NOT_CONNECTED</p><p>Только завершённые расходные операции</p></article></section><div class="owner-body"><section class="owner-panel"><div class="owner-panel-heading"><h2>Динамика показателей</h2><a href="/finance">Финансовый отчёт</a></div><div><p>По дням в часовом поясе филиала. Текущий день неполный. Валюты раздельно.</p><p role="status">Выручка: Временной ряд не подключён</p><p role="status">Поступления: Временной ряд не подключён</p><p role="status">Оплаченные расходы: Временной ряд не подключён</p><p role="status">Нет операций с подтверждённой валютой за период. Недоступные источники не означают ноль.</p></div><p>Сравнение с предыдущим периодом недоступно.</p></section><section class="owner-panel"><h2>Требуют решения</h2><h3>Данные периода неполные</h3><p>Неполное покрытие периода</p><p>Классификация расходов не подключена. Автоматические задачи и отклонения API не передаёт.</p><a href="/finance">Открыть операции</a><p><a href="/today/operations">Операционные инструменты дня</a></p></section></div><section class="owner-panel"><div class="owner-panel-heading"><h2>Куда уходят деньги</h2><a href="/finance">Оплаченные расходы</a></div><p>Связи с документами расходов в сводку пока не подключены. Без статьи: назначение операции не подтверждено. Это не «Прочее».</p><div class="owner-expenses"></div><p>Нет классифицированных сумм. Отсутствие данных не означает нулевые расходы.</p></section><footer><p>Выбран один филиал. Валюты показаны раздельно, без общего итога.</p></footer></div>"
+
+ ❯ apps/web/src/app/today/unified-owner.test.ts:62:18
+     60|     const d = dto(); d.current.revenue = {state:'UNAVAILABLE', reason:…
+     61|     const html = renderToStaticMarkup(createElement(OwnerSummaryView, …
+     62|     expect(html).toContain('Нет денежных операций за выбранный период'…
+       |                  ^
+     63|     expect(html).not.toContain('NO_MONEY_DATA');
+     64|     expect(html).not.toContain('0,00 KZT');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL   unit  apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > passes actual previous daily money to the always-open chart
+AssertionError: expected '<div class="owner-home"><header class…' to contain 'data-series="previous"'
+
+Expected: "data-series="previous""
+Received: "<div class="owner-home"><header class="owner-heading"><div><p>Обзор бизнеса</p><h1>Главная</h1><p>Обновлено 16 окт. 2026 г., 14:00 </p><p>Часовой пояс: Asia/Almaty</p></div><a class="btn btn--secondary" href="/appointments">Рабочее место</a></header><div class="owner-toolbar"><nav class="seg" aria-label="Период отчёта"><a class="seg__item is-on" aria-current="page" href="/today?period=today">Сегодня</a><a class="seg__item" href="/today?period=week">7 дней</a><a class="seg__item" href="/today?period=month" title="С начала календарного месяца">Месяц</a></nav><p><time dateTime="2026-10-01">2026-10-01</time> – <time dateTime="2026-10-16">2026-10-16</time></p><p>Текущий день неполный</p></div><section class="owner-kpis" aria-label="Показатели руководителя"><article><h2>Выручка</h2><div class="owner-value"><div>9 007 199 254 740 993,01 KZT</div><div>123,45 USD</div></div><p>Сравнение недоступно: Данные недоступны: COMPARABLE_PROJECTION_NOT_CONNECTED</p><p>Начисления, не полученные оплаты</p></article><article><h2>Загрузка сегодня</h2><div class="owner-value">Нет данных</div><p>Неполное покрытие периода</p><p>Записанное время мастеров / сохранённое расписание</p><p>Учтено 0 из 0 минут мастеров. Итоговый процент периода недоступен.</p></article><article><h2>Поступления</h2><div class="owner-value">Нет данных</div><p>Реестр оплат не подключён</p><p>Сравнение недоступно: Данные недоступны: COMPARABLE_PROJECTION_NOT_CONNECTED</p><p>Полученные оплаты, не выручка</p></article><article><h2>Оплаченные расходы</h2><div class="owner-value">Нет данных</div><p>Валюта части операций неизвестна. Показана только известная часть.</p><p>Сравнение недоступно: Данные недоступны: COMPARABLE_PROJECTION_NOT_CONNECTED</p><p>Только завершённые расходные операции</p></article></section><div class="owner-body"><section class="owner-panel"><div class="owner-panel-heading"><h2>Динамика показателей</h2><a href="/finance">Финансовый отчёт</a></div><div><p>По дням в часовом поясе филиала. Текущий день неполный. Валюты раздельно.</p><p role="status">Поступления: Временной ряд не подключён</p><p role="status">Оплаченные расходы: Временной ряд не подключён</p><details name="owner-chart-currency" open=""><summary>Валюта: KZT</summary><p>Относительная шкала, точные суммы в таблице. Максимум: 123,45 KZT.</p><svg viewBox="0 0 640 200" width="100%" aria-hidden="true" focusable="false"><g fill="none" stroke="var(--chart-1, currentColor)" stroke-width="2"><circle cx="320" cy="8" r="3"></circle></g></svg><ul><li>Выручка: 123,45 KZT</li></ul><div class="owner-chart-table"><table><caption>Дневные суммы, KZT</caption><thead><tr><th scope="col">Дата</th><th scope="col">Выручка</th></tr></thead><tbody><tr><th scope="row">2026-10-16</th><td>123,45 KZT</td></tr></tbody></table></div></details></div><p>Предыдущий период: 2026-10-01 – 2026-10-16, до того же местного времени. Только деньги, без сравнения загрузки.</p></section><section class="owner-panel"><h2>Требуют решения</h2><h3>Данные периода неполные</h3><p>Неполное покрытие периода</p><p>Классификация расходов не подключена. Автоматические задачи и отклонения API не передаёт.</p><a href="/finance">Открыть операции</a><p><a href="/today/operations">Операционные инструменты дня</a></p></section></div><section class="owner-panel"><div class="owner-panel-heading"><h2>Куда уходят деньги</h2><a href="/finance">Оплаченные расходы</a></div><p>Связи с документами расходов в сводку пока не подключены. Без статьи: назначение операции не подтверждено. Это не «Прочее».</p><div class="owner-expenses"></div><p>Нет классифицированных сумм. Отсутствие данных не означает нулевые расходы.</p></section><footer><p>Выбран один филиал. Валюты показаны раздельно, без общего итога.</p></footer></div>"
+
+ ❯ apps/web/src/app/today/unified-owner.test.ts:72:18
+     70|     d.previous = {period:{...d.period,policy:'SAME_LOCAL_WALL_CLOCK'},…
+     71|     const html = renderToStaticMarkup(createElement(OwnerSummaryView, …
+     72|     expect(html).toContain('data-series="previous"');
+       |                  ^
+     73|     expect(html).toContain('67,89 KZT');
+     74|     expect(html).toContain('role="tablist"');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  5 failed | 11 passed (16)
+   Start at  14:09:08
+   Duration  824ms (transform 38%, tests 36%, import 24%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-16T14-09-05Z-unit-1edd.json
+
+# код выхода 1 · 4 с

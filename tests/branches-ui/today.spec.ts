@@ -154,7 +154,8 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await setScope(page, f.salon);
     const from = await callCount(request);
     await page.goto('/today');
-    await expect(page.getByRole('heading', { name: 'Сегодня', exact: true })).toBeVisible();
+    // «Главная» салона, как раздел меню (решение владельца 18.10.2026)
+    await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
     await expect(page.getByRole('main').getByTestId('beauty-today')).toBeVisible();
     const { day, m } = await expectedBeauty(request, f.salon);
     expect(m.masters).toBe(2);
@@ -173,14 +174,14 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(value(page, 'today-revenue')).toHaveText(m.revenue.length
       ? formatMoney(m.revenue[0]!.minor, m.revenue[0]!.currency)
       : formatMoney('0', day.location.currency));
-    await expect(page.getByText('Мастера на смене', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText('Специалисты на смене', { exact: true }).first()).toBeVisible();
     const rows = page.getByTestId('today-upcoming').locator('li');
     await expect(rows).toHaveCount(m.upcoming.length);
     if (m.upcoming.some((u) => u.master === UNAVAILABLE_MASTER))
       await expect(page.getByTestId('today-upcoming')).toContainText(UNAVAILABLE_MASTER);
-    // меню салона: «Сегодня» первым пунктом и текущим
+    // меню салона: «Главная» первым пунктом и текущим (верхнее меню 17.10.2026)
     // левая навигация (ADR-161): текущий раздел показывает кнопка колонки, а не ссылка с aria-current
-    await expect(page.locator('.sidenav__current')).toContainText('Сегодня');
+    await expect(page.locator('.sidenav__current')).toContainText('Главная');
     const calls = await callsSince(request, from);
     expect(calls.filter((c) => c.startsWith('/beauty/'))).toEqual(
       calls.filter((c) => c === '/beauty/appointments'),
@@ -215,11 +216,11 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     await expect(page.getByTestId('today-attention-no-table')).toContainText(
       String(m.withoutTable),
     );
-    // Скрытое меню UI3.1 держит разделы в панели: открыть «Зал» и найти «Бронирования».
-    const nav = page.getByRole('navigation', { name: 'Разделы' });
-    await nav.locator('.sidenav__current').click();
-    await nav.getByRole('button', { name: 'Зал', exact: true }).click();
-    await expect(nav.getByRole('link', { name: 'Бронирования', exact: true }).first()).toBeVisible();
+    // Скрытое меню UI3.1 держит разделы в панели: брони столов это «Записи» раздела «Клиенты» (17.10.2026).
+    // от 1280 px разделы строкой в шапке (18.10.2026): «Клиенты» раскрывает свой список
+    const nav = page.getByRole('navigation', { name: 'Главное меню' });
+    await nav.getByRole('button', { name: 'Клиенты', exact: true }).click();
+    await expect(nav.getByRole('link', { name: 'Записи', exact: true }).first()).toBeVisible();
     const calls = await callsSince(request, from);
     expect(calls.some((c) => /^\/(beauty|desk|hotel|chessboard|finance)\b/.test(c))).toBe(false);
     expect(calls.filter((c) => c === '/food-service/reservations').length).toBeGreaterThanOrEqual(
@@ -347,8 +348,9 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
     // выбора филиала уходит POST на текущий адрес «Главной» `/today`
     await page.goto('/today');
     await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
-    await page.locator('.sidenav__current').click();
-    await expect(page.getByTestId('data-freshness')).toBeVisible();
+    // свежесть данных на широком экране в меню под именем (18.10.2026)
+    await page.locator('.profile-trigger').click();
+    await expect(page.locator('#profile-dropdown').getByTestId('data-freshness')).toBeVisible();
     await page.keyboard.press('Escape');
     await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
     await expect(page.getByRole('region', { name: 'Выбор филиала' })).toBeVisible();
@@ -519,7 +521,7 @@ test.describe('MV8: «Сегодня» салона и ресторана на �
           });
           if (vertical !== 'hospitality') {
             const action = page.getByRole('link', {
-              name: vertical === 'beauty' ? 'Открыть календарь' : 'Открыть план зала',
+              name: vertical === 'beauty' ? '+ Новая запись' : 'Открыть план зала',
               exact: true,
             });
             // с клавиатуры до главного действия экрана доходит Tab, Enter открывает раздел

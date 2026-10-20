@@ -69,7 +69,8 @@ describe('свой раннер CI', () => {
       // свой раннер на боевом сервере 03.10.2026 поднимал нагрузку до 85 и ронял стойку
       expect(run, file).not.toContain('self-hosted');
       const on = /\non:\n([\s\S]*?)\n(?=\S)/.exec(run)?.[1] ?? '';
-      expect(on, file).not.toMatch(/pull_request/);
+      // запрос на слияние гоняет только гейт: обязательная проверка защиты main (разбор ментора 19.10.2026)
+      if (file !== 'release-checks.yml') expect(on, file).not.toMatch(/pull_request/);
       // автовыкладка (ADR-152, решение владельца 09.10.2026): пуш в main гонит ровно один workflow, гейт;
       // остальным на каждый пуш нельзя, бесплатных минут GitHub хватало на неделю (21.09.2026)
       if (file !== 'release-checks.yml') expect(on, file).not.toMatch(/branches: \[[^\]]*\bmain\b/);
@@ -87,6 +88,8 @@ describe('свой раннер CI', () => {
     expect(triggers).toContain('workflow_dispatch:');
     // c 09.10.2026 (ADR-152) гейт идёт и на пуш кода в main: зелёный гейт перематывает release сам
     expect(triggers).toMatch(/push:\n\s+branches: \[release-candidate, main\]/);
+    // c 19.10.2026 и на запросах в main, без фильтра путей: иначе обязательный статус ждёт вечно
+    expect(triggers).toMatch(/pull_request:\n\s+branches: \[main\]\n\s+push:/);
     for (const name of ['fast', 'bot', 'db', 'ui-shard', 'ui-vertical', 'ui-auth', 'ui'])
       expect(job(name), name).toMatch(/runs-on: ubuntu-24\.04/);
     const fast = withoutComments(job('fast'));
@@ -118,6 +121,32 @@ describe('свой раннер CI', () => {
     expect(withoutComments(RELEASE)).toMatch(/permissions:\n\s+contents: read/);
   });
 
+  it('путь первого салона на настоящих API и базе обязателен в гейте, ноль тестов не успех (17.10.2026)', () => {
+    const onboarding = withoutComments(job('onboarding-real'));
+    expect(onboarding).toMatch(/runs-on: ubuntu-24\.04/);
+    expect(onboarding).toMatch(/needs: fast/);
+    expect(onboarding).toMatch(/image: postgres:16/);
+    expect(onboarding).toContain('npm run test:schema');
+    expect(onboarding).toContain('npx playwright test --config tests/onboarding-real/playwright.config.ts --forbid-only');
+    expect(onboarding).toContain('node scripts/ci/check-playwright-report.mjs onboarding-real-report.json 24');
+    expect(onboarding).not.toMatch(/continue-on-error|--retries|--pass-with-no-tests/);
+  });
+
+  it('onboarding API inherits the canonical restricted tenant role and verifies it at runtime', () => {
+    const onboarding = withoutComments(job('onboarding-real'));
+    expect(onboarding).toContain('DATABASE_APP_URL: postgresql://wetop_app@127.0.0.1:5432/pms_dev');
+    expect(onboarding).toContain('POSTGRES_HOST_AUTH_METHOD: trust');
+    const provision = 'ALTER ROLE wetop_app LOGIN NOSUPERUSER NOBYPASSRLS';
+    expect(onboarding).toContain(provision);
+    expect(onboarding.indexOf(provision)).toBeGreaterThan(onboarding.indexOf('npm run test:schema'));
+    const config = read('tests/onboarding-real/playwright.config.ts');
+    expect(config).toContain('tests/onboarding-real/api.ts');
+    expect(config).not.toContain('DATABASE_APP_URL:'); // Playwright inherits the job env; no owner override.
+    const recovery = read('tests/onboarding-real/recovery-real.spec.ts');
+    expect(recovery).toContain('/__onboarding-test/runtime-role');
+    expect(recovery).toContain("{ role: 'wetop_app', rolsuper: false, rolbypassrls: false, owned: 0 }");
+  });
+
   it('база и UI ждут быстрые проверки: при красном lint или unit минуты на них не тратятся', () => {
     for (const name of ['db', 'ui-shard']) expect(withoutComments(job(name)), name).toMatch(/needs: fast/);
   });
@@ -126,7 +155,7 @@ describe('свой раннер CI', () => {
     const vertical = withoutComments(job('ui-vertical'));
     expect(vertical).toMatch(/runs-on: ubuntu-24\.04/);
     expect(vertical).toMatch(/needs: fast/);
-    expect(vertical).toMatch(/suite: \[beauty-ui, food-ui, branches-ui\]/);
+    expect(vertical).toMatch(/suite: \[beauty-ui, food-ui, branches-ui, employee-portal-ui\]/);
     expect(vertical).toMatch(/fail-fast: false/);
     expect(vertical).toMatch(/timeout-minutes: \d+/);
     // подставные API трёх наборов читают схему pms_test локальной базы
@@ -208,6 +237,9 @@ describe('свой раннер CI', () => {
       const run = withoutComments(AUTO);
       expect(run).toContain("github.event.workflow_run.conclusion == 'success'");
       expect(run).toContain("github.event.workflow_run.head_branch == 'main'");
+      // зелёный запрос на слияние release не двигает: только прогон от пуша в main
+      expect(run).toContain("github.event.workflow_run.event == 'push'");
+      expect(run).toContain('&event=push&');
       expect(run).toContain('release-checks.yml/runs?head_sha=');
       expect(run).toContain('merge-base --is-ancestor "$target" origin/main');
       expect(run).toContain('merge-base --is-ancestor "$release" "$target"');
@@ -229,7 +261,28 @@ describe('свой раннер CI', () => {
     expect(text, '.github/workflows/ui-snapshots.yml').not.toBe('');
     const run = withoutComments(text);
     const triggers = /\non:\n([\s\S]*?)\n(?=\S)/.exec(run)?.[1] ?? '';
-    expect(triggers.trim()).toBe('workflow_dispatch:');
+    expect([...triggers.matchAll(/^ {2}([\w-]+):/gm)].map((m) => m[1])).toEqual(['workflow_dispatch']);
+    expect([...triggers.matchAll(/^ {6}([\w-]+):/gm)].map((m) => m[1])).toEqual(['mode']);
+    expect(triggers).toMatch(/^ {8}type: choice$/m);
+    expect(triggers).toMatch(/^ {8}default: snapshots$/m);
+    expect(triggers).not.toMatch(/required:\s*true/);
+    expect([...triggers.matchAll(/^ {10}- (.+)$/gm)].map((m) => m[1])).toEqual(['snapshots', 'settings-diagnostic']);
+    const kit = /^ {2}kit:\n([\s\S]*?)(?=^ {2}[\w-]+:|$(?![\s\S]))/m.exec(run)?.[1] ?? '';
+    const diagnostic = /^ {2}settings-diagnostic:\n([\s\S]*)/m.exec(run)?.[1] ?? '';
+    const permissions = (block: string, indent: number) =>
+      new RegExp(`^ {${indent}}permissions:\\n((?: {${indent + 2}}[^\\n]*\\n)+)`, 'm').exec(block)?.[1]?.trim();
+    expect(permissions(run, 0)).toBe('contents: read');
+    expect(permissions(kit, 4)).toBe('contents: write');
+    expect(permissions(diagnostic, 4)).toBe('contents: read');
+    const kitCondition = "${{ (inputs.mode || 'snapshots') == 'snapshots' }}";
+    const diagnosticCondition = "${{ inputs.mode == 'settings-diagnostic' }}";
+    expect(/^ {4}if: (.+)$/m.exec(kit)?.[1]).toBe(kitCondition);
+    expect(/^ {4}if: (.+)$/m.exec(diagnostic)?.[1]).toBe(diagnosticCondition);
+    for (const [mode, expected] of [[undefined, [true, false]], ['', [true, false]], ['snapshots', [true, false]], ['settings-diagnostic', [false, true]], ['unknown', [false, false]]] as const) {
+      expect([(mode || 'snapshots') === 'snapshots', mode === 'settings-diagnostic']).toEqual(expected);
+    }
+    expect(diagnostic).toContain('persist-credentials: false');
+    expect(diagnostic).not.toMatch(/contents: write|git\s+(push|commit)|--update-snapshots/);
     // запись в репозиторий только у задачи со снимками, по умолчанию чтение
     expect(/\npermissions:\n\s+contents: read/.test(run)).toBe(true);
     expect(run).toContain('--update-snapshots=changed');

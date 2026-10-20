@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 18.10.2026 23:25 Алматы · <сервер>
+# коммит 5b409d1 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T18-25-44Z-integration-3f18.json' 'tests/integration/beauty-customers.test.ts' 'tests/integration/beauty-schedule.test.ts' 'tests/integration/customers-create.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ✓ |integration| tests/integration/beauty-schedule.test.ts (12 tests) 930ms
+ ✓ |integration| tests/integration/beauty-customers.test.ts (4 tests) 871ms
+ ✓ |integration| tests/integration/customers-create.test.ts (4 tests) 669ms
+
+ Test Files  3 passed (3)
+      Tests  20 passed (20)
+   Start at  18:25:45
+   Duration  7.01s (tests 48%, transform 26%, import 26%)
+
+JSON report written to /tmp/pms-test-2026-10-18T18-25-44Z-integration-3f18.json
+
+# код выхода 0 · 8 с

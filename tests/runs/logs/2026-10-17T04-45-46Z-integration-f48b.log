@@ -1,0 +1,107 @@
+# Интеграционные (integration) · 17.10.2026 09:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит a68e9c5 (claude/auth-identity-1016)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-45-46Z-integration-f48b.json' 'tests/integration/reset-token-http.test.ts' 'tests/integration/manager-role.test.ts' 'tests/integration/invites.test.ts' 'tests/integration/member-scopes.test.ts' 'tests/integration/member-suspension.test.ts' 'tests/integration/sessions.test.ts' 'tests/integration/platform-organization-create.test.ts' 'tests/integration/platform-extensions.test.ts' 'tests/integration/mv2-registration.test.ts' 'tests/integration/core-security'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ✓ |integration| tests/integration/manager-role.test.ts (8 tests) 592ms
+ ✓ |integration| tests/integration/reset-token-http.test.ts (12 tests) 5185ms
+   ✓ password reset over real AuthModule HTTP and PostgreSQL (12)
+     ✓ concurrent same-token HTTP confirms have exactly one winner, one password and one audit 750ms
+     ✓ success revokes every live session across organizations, not another user or already-revoked time 881ms
+     ✓ PostgreSQL failure in sessions rolls back password, token, sessions and audit; token remains retryable 856ms
+     ✓ PostgreSQL failure in audit_logs rolls back password, token, sessions and audit; token remains retryable 427ms
+ ✓ |integration| tests/integration/core-security/scope-fail-closed.test.ts (39 tests) 7463ms
+   ✓ F4a / O4=A: отклонённый указатель области даёт 403 (HTTP + настоящая база + RLS) (39)
+     ✓ T13 OWNER (без назначений): каждый отклонённый указатель даёт 403 на маршрутах с capability и без неё 333ms
+     ✓ восстановление указателя в вебе не ломается (OWNER): /auth/me, выбор филиала и личные маршруты отвечают 200 при любом отклонённом указателе 688ms
+     ✓ восстановление указателя в вебе не ломается (ORG_MGR): /auth/me, выбор филиала и личные маршруты отвечают 200 при любом отклонённом указателе 751ms
+     ✓ восстановление указателя в вебе не ломается (ORG_STAFF): /auth/me, выбор филиала и личные маршруты отвечают 200 при любом отклонённом указателе 594ms
+     ✓ восстановление указателя в вебе не ломается (H1_MGR): /auth/me, выбор филиала и личные маршруты отвечают 200 при любом отклонённом указателе 616ms
+     ✓ восстановление указателя в вебе не ломается (H1_STAFF): /auth/me, выбор филиала и личные маршруты отвечают 200 при любом отклонённом указателе 538ms
+     ✓ восстановление указателя в вебе не ломается (FOO_MGR): /auth/me, выбор филиала и личные маршруты отвечают 200 при любом отклонённом указателе 620ms
+     ✓ восстановление указателя в вебе не ломается (HOT2_MGR): /auth/me, выбор филиала и личные маршруты отвечают 200 при любом отклонённом указателе 554ms
+ ❯ |integration| tests/integration/core-security/scope-ai-seller.test.ts (22 tests | 1 failed) 7271ms
+   ❯ O2=A: ИИ-продавец закрыт ограниченным сотрудникам (HTTP + настоящая база + RLS) (22)
+     ✓ в списке все 29 маршрутов основного контроллера 1ms
+     ✓ BEA_MGR (ограничен): каждый маршрут продавца и агентов даёт 403 со своим указателем и без него, бот не вызывается 415ms
+     ✓ BEA_LOC_STAFF (ограничен): каждый маршрут продавца и агентов даёт 403 со своим указателем и без него, бот не вызывается 377ms
+     ✓ FOO_MGR (ограничен): каждый маршрут продавца и агентов даёт 403 со своим указателем и без него, бот не вызывается 576ms
+     ✓ H1_STAFF (ограничен): каждый маршрут продавца и агентов даёт 403 со своим указателем и без него, бот не вызывается 814ms
+     ✓ H1_MGR (ограничен): каждый маршрут продавца и агентов даёт 403 со своим указателем и без него, бот не вызывается 983ms
+     ✓ H2_MGR (ограничен): каждый маршрут продавца и агентов даёт 403 со своим указателем и без него, бот не вызывается 877ms
+     ✓ H2_STAFF (ограничен): каждый маршрут продавца и агентов даёт 403 со своим указателем и без него, бот не вызывается 407ms
+     ✓ HOT_MGR (ограничен): каждый маршрут продавца и агентов даёт 403 со своим указателем и без него, бот не вызывается 331ms
+     ✓ HOT2_MGR (ограничен): каждый маршрут продавца и агентов даёт 403 со своим указателем и без него, бот не вызывается 724ms
+     ✓ T08/S1 менеджер САЛОНА не видит каталог продавца гостиницы (и ни одного вызова бота) 4ms
+     ✓ T09 менеджер САЛОНА не меняет приветствие рабочего продавца: 403 и ни одного вызова бота 4ms
+     ✓ T10/S3 менеджер филиала H2 не меняет настройки продавца и не переключает чужой диалог 7ms
+     × S2/S5 STAFF салона не отвечает гостю от имени продавца, менеджер салона не подменяет ключ модели и WhatsApp 79ms
+     ✓ 403 несёт понятный русский текст (то же сообщение, что у других организационных разделов) 5ms
+     ✓ контроль: OWNER (без назначений) по-прежнему открывает каталог, статус и агентов (владелец и менеджер: настройки) 167ms
+     ✓ контроль: ORG_MGR (без назначений) по-прежнему открывает каталог, статус и агентов (владелец и менеджер: настройки) 23ms
+     ✓ контроль: ORG_STAFF (без назначений) по-прежнему открывает каталог, статус и агентов (владелец и менеджер: настройки) 18ms
+     ✓ контроль: владелец достигает бота (подделка подключена правильно) и меняет профиль 121ms
+     ✓ контроль: менеджер без назначений видит черновики мастера (/seller-agents за флагом) и настройки 24ms
+     ✓ контроль: администратор без назначений читает диалоги, но не настройки (права ролей не менялись) 15ms
+     ✓ чужая организация: расширения у неё нет, данных организации A в ответе нет 15ms
+(node:48648) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/core-security-fix.test.ts (6 tests) 634ms
+ ✓ |integration| tests/integration/core-security/scope-guest.test.ts (23 tests) 5240ms
+   ✓ O3=A: гости организационные, ограниченному закрыты (HTTP + настоящая база + RLS) (23)
+     ✓ BEA_MGR (ограничен): список, поиск, справочник, дни рождения, карточка, превью, правка и документы любого гостя дают 403 641ms
+ ✓ |integration| tests/integration/platform-extensions.test.ts (8 tests) 646ms
+ ✓ |integration| tests/integration/core-security/beauty-employee-locations.test.ts (14 tests) 1101ms
+ ✓ |integration| tests/integration/core-security/scope-self.test.ts (50 tests) 3089ms
+(node:48810) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/core-security/customer-explicit-id.test.ts (12 tests) 936ms
+ ✓ |integration| tests/integration/core-security/beauty-appointment-concurrency.test.ts (8 tests) 1565ms
+ ✓ |integration| tests/integration/core-security/system-connection.test.ts (8 tests) 783ms
+ ✓ |integration| tests/integration/core-security/auth-token-source.test.ts (1 test) 1719ms
+ ✓ |integration| tests/integration/core-security/auth-session-revival.test.ts (2 tests) 1252ms
+ ✓ |integration| tests/integration/mv2-registration.test.ts (6 tests) 705ms
+ ✓ |integration| tests/integration/member-suspension.test.ts (1 test) 359ms
+   ✓ приостановка доступа (integration, DATABASE_URL required) (1)
+     ✓ приостановка гасит сессии, закрывает вход и возвращается одним действием 311ms
+ ✓ |integration| tests/integration/platform-organization-create.test.ts (6 tests) 440ms
+ ✓ |integration| tests/integration/sessions.test.ts (2 tests) 325ms
+ ✓ |integration| tests/integration/member-scopes.test.ts (3 tests) 329ms
+ ✓ |integration| tests/integration/invites.test.ts (4 tests) 408ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/core-security/scope-ai-seller.test.ts > O2=A: ИИ-продавец закрыт ограниченным сотрудникам (HTTP + настоящая база + RLS) > S2/S5 STAFF салона не отвечает гостю от имени продавца, менеджер салона не подменяет ключ модели и WhatsApp
+AssertionError: expected { reply: 403, key: 400, wa: 403, …(1) } to deeply equal { reply: 403, key: 403, wa: 403, …(1) }
+
+- Expected
++ Received
+
+  {
+    "bot": [],
+-   "key": 403,
++   "key": 400,
+    "reply": 403,
+    "wa": 403,
+  }
+
+ ❯ tests/integration/core-security/scope-ai-seller.test.ts:196:10
+    194|         wa: wa.status,
+    195|         bot: seller.calls.map((c) => c.op),
+    196|       }).toEqual({
+       |          ^
+    197|         reply: 403,
+    198|         key: 403,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 19 passed (20)
+      Tests  1 failed | 234 passed (235)
+   Start at  21:45:48
+   Duration  79.78s (tests 54%, import 37%, transform 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-45-46Z-integration-f48b.json
+
+# код выхода 1 · 1 мин 22 с

@@ -1,0 +1,17 @@
+# Модульные (unit) · 18.10.2026 22:50 Алматы · <сервер>
+# коммит 8a5ab94 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T17-50-43Z-unit-56a0.json' 'apps/api/src/beauty/live-membership-authorization.test.ts' 'apps/api/src/beauty/mutation-response-access.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ✓ |unit| apps/api/src/beauty/live-membership-authorization.test.ts (6 tests) 17ms
+ ✓ |unit| apps/api/src/beauty/mutation-response-access.test.ts (2 tests) 10ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  17:50:44
+   Duration  2.15s (transform 75%, import 24%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-18T17-50-43Z-unit-56a0.json
+
+# код выхода 0 · 3 с

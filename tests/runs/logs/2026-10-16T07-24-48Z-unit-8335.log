@@ -1,0 +1,30 @@
+# Модульные (unit) · 16.10.2026 12:24 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T07-24-48Z-unit-8335.json' 'packages/domain/src/owner-summary/money.test.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| packages/domain/src/owner-summary/money.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/owner-summary/money.test.ts [ packages/domain/src/owner-summary/money.test.ts ]
+Error: Cannot find module './money' imported from /srv/hermes/workspace/wetop-unified-owner-data/packages/domain/src/owner-summary/money.test.ts
+ ❯ packages/domain/src/owner-summary/money.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { summarizeOwnerMoney } from './money';
+       | ^
+      3| describe('canonical owner money', () => {
+      4|   it('preserves bigint, separates currencies and deduplicates source g…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  07:24:49
+   Duration  167ms (worker 95%, environment 5%)
+
+JSON report written to /tmp/pms-test-2026-10-16T07-24-48Z-unit-8335.json
+
+# код выхода 1 · 1 с

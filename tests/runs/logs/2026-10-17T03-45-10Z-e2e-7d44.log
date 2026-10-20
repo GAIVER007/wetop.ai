@@ -1,0 +1,73 @@
+# Сквозные (e2e) · 17.10.2026 08:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит c46ef1c (claude/marketing-ad-wizard), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/marketing-ad-launch.spec.ts' 'tests/ui/marketing-campaigns.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/ui/marketing-ad-launch.spec.ts:30:1 › мастер: ИИ заполняет текст, запуск с подтверждением, шаги, затем «Остановить» и «Включить» (31.4s)
+  ✓  2 tests/ui/marketing-ad-launch.spec.ts:95:1 › мастер на телефоне: без горизонтальной прокрутки (14.8s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✘  3 tests/ui/marketing-campaigns.spec.ts:20:1 › кампания: создать, день вручную и CSV, расход из бюджета, показатели площадки (46.2s)
+  ✓  4 tests/ui/marketing-campaigns.spec.ts:89:1 › кабинет Meta: одна кнопка в окно Facebook, выбор из отмеченных кабинетов, обновление, отключение; подделка отклонена (11.5s)
+
+
+  1) tests/ui/marketing-ad-launch.spec.ts:30:1 › мастер: ИИ заполняет текст, запуск с подтверждением, шаги, затем «Остановить» и «Включить» 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('ad-wizard').getByTestId('ad-proposed')
+    Expected substring: "ИИ подготовил"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('ad-wizard').getByTestId('ad-proposed') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('ad-wizard').getByTestId('ad-proposed')
+
+
+      55 |   await wizard.getByTestId('ad-offer').fill('Осенние выходные, завтрак включён');
+      56 |   await wizard.getByTestId('ad-propose').click();
+    > 57 |   await expect(wizard.getByTestId('ad-proposed')).toContainText('ИИ подготовил');
+         |                                                   ^
+      58 |   await expect(wizard.getByTestId('ad-headline')).toHaveValue('Осень у гор');
+      59 |   await expect(wizard.getByTestId('ad-age-min')).toHaveValue('25');
+      60 |   await expect(wizard.getByLabel('Приветствие в WhatsApp')).toHaveValue('Здравствуйте! Подскажем свободные даты');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-ad-launch.spec.ts:57:51
+
+    Error Context: test-results/marketing-ad-launch-мастер-20955-м-«Остановить»-и-«Включить»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-ad-launch-мастер-20955-м-«Остановить»-и-«Включить»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-ad-launch-мастер-20955-м-«Остановить»-и-«Включить»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/marketing-campaigns.spec.ts:20:1 › кампания: создать, день вручную и CSV, расход из бюджета, показатели площадки 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/marketing-campaigns-кампан-2dc49-бюджета-показатели-площадки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-campaigns-кампан-2dc49-бюджета-показатели-площадки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-campaigns-кампан-2dc49-бюджета-показатели-площадки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/marketing-ad-launch.spec.ts:30:1 › мастер: ИИ заполняет текст, запуск с подтверждением, шаги, затем «Остановить» и «Включить» 
+    tests/ui/marketing-campaigns.spec.ts:20:1 › кампания: создать, день вручную и CSV, расход из бюджета, показатели площадки 
+  2 passed (2.8m)
+
+# код выхода 1 · 2 мин 52 с

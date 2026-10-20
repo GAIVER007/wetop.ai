@@ -4,6 +4,7 @@
  * `formatMinor` из lib/api.ts печатает копейки всегда и остаётся для счёта; здесь — для плашек,
  * таблиц и показателей, где тиыны только шумят.
  */
+import { parseMoney } from '../../../../packages/domain/src/finance/finance';
 export function formatMoney(minor: string | bigint, currency = 'KZT'): string {
   const v = typeof minor === 'bigint' ? minor : BigInt(minor);
   const neg = v < 0n;
@@ -24,6 +25,21 @@ export function minorToInput(minor: string): string {
   const whole = digits.slice(0, -2);
   const fraction = digits.slice(-2);
   return `${negative ? '-' : ''}${whole}${fraction === '00' ? '' : `.${fraction}`}`;
+}
+
+/**
+ * Обратное `minorToInput`: «8000», «8 000», «1234,5» → тиыны строкой. Пусто → ''. Не сумма → null.
+ * Человек вводит цену в тенге (или выбранной валюте); в базе по-прежнему целые тиыны (ADR-008).
+ */
+export function inputToMinor(text: string): string | null {
+  const clean = text.replace(/\s/g, '');
+  if (!clean) return '';
+  try {
+    const minor = parseMoney(clean);
+    return minor < 0n ? null : minor.toString();
+  } catch {
+    return null;
+  }
 }
 
 /** Печатные формы: тиыны показываются всегда, без float-арифметики. */

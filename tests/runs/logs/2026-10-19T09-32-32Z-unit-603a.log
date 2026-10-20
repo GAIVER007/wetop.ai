@@ -1,0 +1,70 @@
+# Модульные (unit) · 19.10.2026 14:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит 91f21c4 (fix/salon-migrations-133-137), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-32-32Z-unit-603a.json' 'tests/unit/migrations-hold.test.ts' 'tests/unit/auto-deploy.test.ts' 'tests/unit/employee-portal-restore-profile.test.ts' 'tests/unit/marketing-reserved-slugs.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+ ✓ |unit| tests/unit/employee-portal-restore-profile.test.ts (3 tests) 2ms
+ ❯ |unit| tests/unit/migrations-hold.test.ts (4 tests | 1 failed) 10ms
+   ❯ миграции отдельного релиза ждут вне общей цепочки (ADR-137) (4)
+     × в migrations/ метка «ОТДЕЛЬНЫЙ РЕЛИЗ» только у выпущенных: новая такая миграция лежит в migrations-hold/ 8ms
+     ✓ список выпущенных не врёт: каждая из них есть в migrations/ и несёт метку 0ms
+     ✓ у ждущей миграции есть migration.sql с меткой и down.sql (AGENTS.md §14), и её нет в общей цепочке 1ms
+     ✓ Prisma берёт миграции только из prisma/migrations: ждущие не применяются 0ms
+ ✓ |unit| tests/unit/marketing-reserved-slugs.test.ts (1 test) 2ms
+ ✓ |unit| tests/unit/auto-deploy.test.ts (18 tests) 9674ms
+   ✓ scripts/ops/auto-deploy.sh (18)
+     ✓ checked-out source stays readable by the container user under a private caller umask 415ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 409ms
+     ✓ после выкладки остаётся один образ отката, старые убираются (16.10.2026: пять по 2 ГБ заполнили диск) 369ms
+     ✓ мало места на диске: убирает кэш, не трогает клон, говорит один раз и выкладывает, когда место есть 573ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 393ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 609ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 512ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 369ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 525ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 453ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 659ms
+     ✓ локальные правки в клоне — не затирает их 315ms
+     ✓ историю ветки переписали — не выкладывает поверх 517ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 448ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 502ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 401ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 342ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/migrations-hold.test.ts > миграции отдельного релиза ждут вне общей цепочки (ADR-137) > в migrations/ метка «ОТДЕЛЬНЫЙ РЕЛИЗ» только у выпущенных: новая такая миграция лежит в migrations-hold/
+AssertionError: перенести в packages/database/prisma/migrations-hold/ до релиза: expected [ …(5) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "20261018000133_beauty_appointment_lines",
++   "20261018000134_beauty_reviews",
++   "20261018000135_beauty_materials",
++   "20261018000136_beauty_positions",
++   "20261018000137_beauty_location_hours",
++ ]
+
+ ❯ tests/unit/migrations-hold.test.ts:44:91
+     42|       (name) => marked(MIGRATIONS, name) && !RELEASED_SEPARATELY.has(n…
+     43|     );
+     44|     expect(unreleased, 'перенести в packages/database/prisma/migration…
+       |                                                                                           ^
+     45|   });
+     46|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 25 passed (26)
+   Start at  02:32:33
+   Duration  9.76s (tests 96%, transform 3%, import 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-32-32Z-unit-603a.json
+
+# код выхода 1 · 10 с

@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import {
+  lockOpenFolios,
   ensureFolioWithAccommodation,
   recordExternalPayment,
   isOverlapViolation,
@@ -1157,11 +1158,11 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       this.db.inventoryUnit.count({ where: { accommodationTypeId: typeId, active: true } }),
       this.db.inventoryBlock.findMany({
         where: {
-          inventoryUnit: { accommodationTypeId: typeId },
+          inventoryUnit: { accommodationTypeId: typeId, active: true },
           dateFrom: { lt: asDate(toExclusive) },
           dateTo: { gt: asDate(from) },
         },
-        select: { dateFrom: true, dateTo: true },
+        select: { inventoryUnitId: true, dateFrom: true, dateTo: true },
       }),
       this.db.reservationItem.findMany({
         where: {
@@ -1181,7 +1182,11 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     ]);
     let left = Number.POSITIVE_INFINITY;
     for (let d = from; d < toExclusive;) {
-      const blocked = blocks.filter((b) => iso(b.dateFrom) <= d && d < iso(b.dateTo)).length;
+      const blocked = new Set(
+        blocks
+          .filter((b) => iso(b.dateFrom) <= d && d < iso(b.dateTo))
+          .map((b) => b.inventoryUnitId),
+      ).size;
       const taken = sold.filter((s) => {
         const end = soldDeparture({
           status: s.status,
@@ -1200,8 +1205,19 @@ export class PrismaReservationsRepository implements ReservationsRepository {
   async releaseStayExtraBlocks(
     confirmationNumber: string,
   ): Promise<Array<{ categoryCode: string; from: string; toExclusive: string }>> {
+    const { id: propertyId } = await this.property();
     const blocks = await this.db.inventoryBlock.findMany({
-      where: { type: 'OTHER', reason: { endsWith: `, бронь ${confirmationNumber}` } },
+      where: {
+        inventoryUnit: { propertyId },
+        type: 'OTHER',
+        // ADR-021: только точные причины доплат, не произвольный текст с номером брони.
+        reason: {
+          in: [
+            `Ранний заезд, бронь ${confirmationNumber}`,
+            `Поздний выезд, бронь ${confirmationNumber}`,
+          ],
+        },
+      },
       select: {
         id: true,
         dateFrom: true,
@@ -1322,6 +1338,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       select: { id: true },
     });
     if (!folio) return;
+    await lockOpenFolios(this.db, [folio.id]);
     const charge = await this.db.charge.create({
       data: {
         folioId: folio.id,

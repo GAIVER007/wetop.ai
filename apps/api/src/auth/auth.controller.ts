@@ -11,6 +11,7 @@ import {
   Inject,
   Ip,
   Post,
+  Optional,
   Query,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -26,6 +27,14 @@ import { Public } from './public.decorator';
 import { visitorKey } from './attempt-limits';
 import { Access } from './access.decorator';
 import { scopeView } from './request-context';
+import { PrismaService } from '../database/prisma.provider';
+import { currentBeautyPositionAccess } from '../beauty/access';
+
+/** Подпись устройства для списка «Где вы вошли»: браузер и система словами, строку агента целиком не храним */
+function sessionDevice(userAgent: string | undefined): string | null {
+  const d = deviceFromUserAgent(userAgent ?? null, null);
+  return d.browser ? [d.browser, d.os].filter(Boolean).join(', ') : null;
+}
 
 const text = (value: unknown, field: string, max = 200): string => {
   if (typeof value !== 'string' || value.trim() === '')
@@ -65,6 +74,7 @@ export class AuthController {
     @Inject(PasswordResetService) private readonly reset: PasswordResetService,
     @Inject(EmailVerificationService) private readonly verification: EmailVerificationService,
     @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
+    @Optional() @Inject(PrismaService) private readonly prisma?: PrismaService,
   ) {}
 
   /** Окна лимитов по адресу; адрес нигде не сохраняется — только ключ окна в памяти */
@@ -103,7 +113,7 @@ export class AuthController {
       email: text(body?.email, 'email'),
       password: text(body?.password, 'password', 200),
       // семейство браузера — тем же разбором, что в аналитике сайта; полный User-Agent не храним (ADR-018)
-      userAgentFamily: deviceFromUserAgent(userAgent ?? null, null).browser,
+      userAgentFamily: sessionDevice(userAgent),
     });
   }
 
@@ -161,7 +171,7 @@ export class AuthController {
     return this.auth.startSession({
       userId: confirmed.userId,
       organizationId: confirmed.organizationId,
-      userAgentFamily: deviceFromUserAgent(userAgent ?? null, null).browser,
+      userAgentFamily: sessionDevice(userAgent),
     });
   }
 
@@ -198,9 +208,12 @@ export class AuthController {
         : null;
     // указатель на место без назначения не подтверждаем: любой маршрут ответил бы ему 403, а стойка по пустому
     // context.businessId видит устаревший выбор и ведёт на выбор филиала (CORE-SECURITY-FIX-01, восстановление указателя)
-    const unassigned = restricted && ctx.businessId !== null && place === null;
+    const beautyAccess = this.prisma && signedIn.user.role !== 'OWNER' && ctx.vertical === 'BEAUTY' && ctx.businessId
+      ? await currentBeautyPositionAccess(this.prisma.db) : undefined;
+    const unassigned = (restricted && ctx.businessId !== null && place === null) || (beautyAccess?.mode === 'ASSIGNED' && !beautyAccess.assigned);
     return {
       ...signedIn,
+      ...(beautyAccess ? { beautyAccess } : {}),
       user: restricted
         ? { ...signedIn.user, role: place ?? signedIn.user.role, restricted: true }
         : signedIn.user,
@@ -238,6 +251,30 @@ export class AuthController {
     const token = tokenFromHeaders(headers);
     if (token) await this.auth.logout(token);
     return { ok: true };
+  }
+
+  /** Свои организации для перехода между ними (один аккаунт в нескольких организациях, §13.3, §13.5) */
+  @Access('self')
+  @Get('organizations')
+  async organizations(@Headers() headers: Record<string, string>) {
+    const token = tokenFromHeaders(headers);
+    if (!token) throw new UnauthorizedException('Войдите заново: сессия не годится');
+    return { organizations: await this.auth.organizations(token) };
+  }
+
+  /** Перейти в другую свою организацию: новый ключ сессии, прежний гаснет. Номер из тела — выбор, а не право. */
+  @Access('self')
+  @Post('organization')
+  async switchOrganization(
+    @Headers() headers: Record<string, string>,
+    @Body() body: Record<string, unknown>,
+    @Headers('user-agent') userAgent?: string,
+  ) {
+    const token = tokenFromHeaders(headers);
+    if (!token) throw new UnauthorizedException('Войдите заново: сессия не годится');
+    return this.auth.switchOrganization(token, body?.organizationId, {
+      userAgentFamily: sessionDevice(userAgent),
+    });
   }
 
   /**

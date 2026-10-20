@@ -1,0 +1,64 @@
+# Типы (typecheck) · 16.10.2026 12:18 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 11
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/food-service/food.module.ts(219,29): error TS2345: Argument of type '"branch.cash"' is not assignable to parameter of type 'VerticalCapability'.
+apps/api/src/marketing-budget/marketing-budget.repository.ts(5,8): error TS2305: Module '"@pms/domain"' has no exported member 'ChannelResult'.
+apps/api/src/marketing-budget/marketing-budget.repository.ts(6,8): error TS2305: Module '"@pms/domain"' has no exported member 'DayResult'.
+apps/api/src/marketing-budget/marketing-budget.service.ts(7,3): error TS2724: '"@pms/domain"' has no exported member named 'parseMarketingExpensesCsv'. Did you mean 'parseMarketingExpenseInput'?
+apps/api/src/marketing-budget/marketing-budget.service.ts(185,19): error TS7031: Binding element 'line' implicitly has an 'any' type.
+apps/api/src/marketing-budget/marketing-budget.service.ts(201,36): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+apps/api/src/marketing-budget/marketing-budget.service.ts(201,41): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/database/src/folio.ts(5,29): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/database/src/index.ts(8,43): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/database/src/index.ts(14,15): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/database/src/pool-timeouts.test.ts(3,35): error TS2459: Module '"./index"' declares 'PrismaClient' locally, but it is not exported.
+packages/database/src/pool-timeouts.test.ts(69,32): error TS7006: Parameter 't' implicitly has an 'any' type.
+packages/database/src/property-chain.ts(1,29): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/domain/src/owner-summary/expenses.test.ts(26,12): error TS2532: Object is possibly 'undefined'.
+packages/domain/src/owner-summary/expenses.test.ts(27,12): error TS2532: Object is possibly 'undefined'.
+scripts/preview/fixture-api.ts(109,3): error TS2724: '"@pms/domain"' has no exported member named 'parseMarketingExpensesCsv'. Did you mean 'parseMarketingExpenseInput'?
+scripts/preview/fixture-api.ts(5046,38): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+scripts/preview/fixture-api.ts(5046,43): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/integration/auth-timezone-matrix-a26.test.ts(90,40): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/auth-timezone-matrix-a26.test.ts(91,38): error TS2347: Untyped function calls may not accept type arguments.
+tests/integration/auth-timezone-matrix-a26.test.ts(102,45): error TS7006: Parameter 'x' implicitly has an 'any' type.
+tests/integration/auth-timezone-matrix-a26.test.ts(105,34): error TS7006: Parameter 'x' implicitly has an 'any' type.
+tests/integration/auth-timezone-matrix-a26.test.ts(107,42): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/auth-timezone-matrix-a26.test.ts(112,38): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/bar-inventory-surplus.test.ts(61,88): error TS2322: Type 'null' is not assignable to type 'string | UuidFilter<"BarStockLot"> | undefined'.
+tests/integration/bar-inventory-surplus.test.ts(94,54): error TS2322: Type 'null' is not assignable to type 'string'.
+tests/integration/connection-schema-a29.test.ts(240,34): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/connection-schema-a29.test.ts(241,32): error TS2347: Untyped function calls may not accept type arguments.
+tests/integration/connection-schema-a29.test.ts(250,39): error TS7006: Parameter 'row' implicitly has an 'any' type.
+tests/integration/connection-schema-a29.test.ts(259,36): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/connection-schema-a29.test.ts(267,32): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+tests/integration/marketing-import.test.ts(4,10): error TS2724: '"@pms/domain"' has no exported member named 'parseMarketingExpensesCsv'. Did you mean 'parseMarketingExpenseInput'?
+tests/integration/marketing-import.test.ts(58,31): error TS7031: Binding element 'line' implicitly has an 'any' type.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/finance/owner-summary.test.ts(20,12): error TS2532: Object is possibly 'undefined'.
+apps/api/src/food-service/food.module.ts(219,29): error TS2345: Argument of type '"branch.cash"' is not assignable to parameter of type 'VerticalCapability'.
+apps/api/src/marketing-budget/marketing-budget.repository.ts(5,8): error TS2305: Module '"@pms/domain"' has no exported member 'ChannelResult'.
+apps/api/src/marketing-budget/marketing-budget.repository.ts(6,8): error TS2305: Module '"@pms/domain"' has no exported member 'DayResult'.
+apps/api/src/marketing-budget/marketing-budget.service.ts(7,3): error TS2724: '"@pms/domain"' has no exported member named 'parseMarketingExpensesCsv'. Did you mean 'parseMarketingExpenseInput'?
+apps/api/src/marketing-budget/marketing-budget.service.ts(185,19): error TS7031: Binding element 'line' implicitly has an 'any' type.
+apps/api/src/marketing-budget/marketing-budget.service.ts(201,36): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+apps/api/src/marketing-budget/marketing-budget.service.ts(201,41): error TS7006: Parameter 'r' implicitly has an 'any' type.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/marketing/analytics/page.tsx(2,10): error TS2305: Module '"@pms/domain"' has no exported member 'buildMarketingDays'.
+apps/web/src/app/marketing/analytics/page.tsx(2,30): error TS2305: Module '"@pms/domain"' has no exported member 'buildMarketingFunnel'.
+apps/web/src/app/marketing/analytics/page.tsx(2,57): error TS2305: Module '"@pms/domain"' has no exported member 'ChannelResult'.
+apps/web/src/app/marketing/analytics/page.tsx(240,37): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/web/src/app/marketing/analytics/page.tsx(324,39): error TS7006: Parameter 'd' implicitly has an 'any' type.
+apps/web/src/app/marketing/budget/parts.tsx(2,10): error TS2724: '"@pms/domain"' has no exported member named 'MARKETING_PLATFORM_LABELS'. Did you mean 'MARKETING_PLATFORMS'?
+
+# код выхода 1 · 1 мин 17 с

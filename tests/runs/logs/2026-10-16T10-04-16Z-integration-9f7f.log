@@ -1,0 +1,54 @@
+# Интеграционные (integration) · 16.10.2026 15:04 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 44
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T10-04-16Z-integration-9f7f.json' '--config' 'tests/owner-money-isolated.config.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/owner-money-isolated.test.ts (8 tests | 1 failed) 1191ms
+   ❯ owner money actual isolated PostgreSQL queries (8)
+     ✓ feature OFF uses only legacy adapter without querying held currency column 8ms
+     ✓ hotel supplier repository writes snapshot and settlement as runtime role; foreign tenant sees no receipt 855ms
+     ✓ daily series reconciles actual authorized service totals across today, week and calendar month 101ms
+     ✓ classifies real partially-paid document without changing cash totals, including void and missing links 56ms
+     ✓ executes DONE beauty snapshot reads without inventing a payment ledger 19ms
+     ✓ reads CLOSED snapshots and POSTED sales once, excluding future and unclosed orders 12ms
+     ✓ does not borrow another branch or its present EUR currency 5ms
+     × executes hotel service-date/folio and payment scope queries against the real schema 56ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/owner-money-isolated.test.ts > owner money actual isolated PostgreSQL queries > executes hotel service-date/folio and payment scope queries against the real schema
+AssertionError: expected [ { date: '2040-01-03', …(2) } ] to deeply equal [ { date: '2040-01-03', …(1) } ]
+
+- Expected
++ Received
+
+@@ -5,7 +5,8 @@
+          "amountMinor": "303",
+          "currency": "USD",
+        },
+      ],
+      "date": "2040-01-03",
++     "unresolvedSources": 0,
+    },
+  ]
+
+ ❯ tests/integration/owner-money-isolated.test.ts:128:41
+    126|   const hotelMoney=await readOwnerMoney(db,{locationId,organizationId,…
+    127|   expect(hotelMoney.revenue.currencies).toEqual([{currency:'USD',amoun…
+    128|   expect(hotelMoney.revenue.daily.days).toEqual([{date:'2040-01-03',cu…
+       |                                         ^
+    129|   const payment=randomUUID();
+    130|   await pool.query(`INSERT INTO payments(id,property_id,method,amount,…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  10:04:17
+   Duration  3.31s (transform 51%, tests 38%, import 11%)
+
+JSON report written to /tmp/pms-test-2026-10-16T10-04-16Z-integration-9f7f.json
+
+# код выхода 1 · 4 с

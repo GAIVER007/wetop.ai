@@ -1,0 +1,67 @@
+# Модульные (unit) · 16.10.2026 11:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит bb70067 (claude/marketing-attribution), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-03-53Z-unit-d55c.json' 'packages/domain/src/marketing/funnel.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| packages/domain/src/marketing/funnel.test.ts (10 tests | 3 failed) 12ms
+   ✓ воронка маркетинга: расходы → обращения → брони → выручка (МКТ-В5a, Q-MKT-ATTR) (7)
+     ✓ канал со своим расходом и результатом: CPL, стоимость брони и ROMI по выручке 1ms
+     ✓ реклама без кабинетов показывает только расход: результаты не выдумываются 0ms
+     ✓ органический канал без расхода показывает результат, но CPL и ROMI не считаются 0ms
+     ✓ итог: все расходы против всех результатов каналов; деление на ноль не случается 7ms
+     ✓ разные валюты выручки и отчётности: ROMI не считается, выручка не смешивается с расходом 0ms
+     ✓ округление к ближайшему, отрицательный ROMI честный 0ms
+     ✓ порядок строк: сначала каналы с результатом, затем реклама; по расходу внутри 0ms
+   ❯ календарь маркетинга по дням: день, расход, лиды, CPL, брони, новые гости, выручка, ROMI (3)
+     × каждый день месяца до последнего показанного, пустые дни нулями; CPL и ROMI по дню 2ms
+     × итог календаря равен сумме дней; без lastDay показывается весь месяц 0ms
+     × разные валюты: ROMI по дням не считается 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/funnel.test.ts > календарь маркетинга по дням: день, расход, лиды, CPL, брони, новые гости, выручка, ROMI > каждый день месяца до последнего показанного, пустые дни нулями; CPL и ROMI по дню
+TypeError: buildMarketingDays is not a function
+ ❯ packages/domain/src/marketing/funnel.test.ts:138:15
+    136|
+    137|   it('каждый день месяца до последнего показанного, пустые дни нулями;…
+    138|     const d = buildMarketingDays({
+       |               ^
+    139|       month: '2026-10',
+    140|       lastDay: 5,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/funnel.test.ts > календарь маркетинга по дням: день, расход, лиды, CPL, брони, новые гости, выручка, ROMI > итог календаря равен сумме дней; без lastDay показывается весь месяц
+TypeError: buildMarketingDays is not a function
+ ❯ packages/domain/src/marketing/funnel.test.ts:168:15
+    166|
+    167|   it('итог календаря равен сумме дней; без lastDay показывается весь м…
+    168|     const d = buildMarketingDays({
+       |               ^
+    169|       month: '2026-02',
+    170|       days: [day('2026-02-10', 3, 2, 1, 500000n), day('2026-02-20', 1,…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/funnel.test.ts > календарь маркетинга по дням: день, расход, лиды, CPL, брони, новые гости, выручка, ROMI > разные валюты: ROMI по дням не считается
+TypeError: buildMarketingDays is not a function
+ ❯ packages/domain/src/marketing/funnel.test.ts:182:15
+    180|
+    181|   it('разные валюты: ROMI по дням не считается', () => {
+    182|     const d = buildMarketingDays({
+       |               ^
+    183|       month: '2026-10',
+    184|       lastDay: 1,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 7 passed (10)
+   Start at  23:03:55
+   Duration  140ms (transform 51%, import 21%, tests 20%, worker 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-03-53Z-unit-d55c.json
+
+# код выхода 1 · 3 с

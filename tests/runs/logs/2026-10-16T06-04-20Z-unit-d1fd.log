@@ -1,0 +1,16 @@
+# Модульные (unit) · 16.10.2026 11:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит bb70067 (claude/marketing-attribution), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-04-20Z-unit-d1fd.json' 'packages/domain/src/marketing/funnel.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| packages/domain/src/marketing/funnel.test.ts (10 tests) 12ms
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  23:04:22
+   Duration  133ms (transform 54%, tests 24%, import 16%, worker 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-04-20Z-unit-d1fd.json
+
+# код выхода 0 · 2 с

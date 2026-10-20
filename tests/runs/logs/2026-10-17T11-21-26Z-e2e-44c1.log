@@ -1,0 +1,36 @@
+# Сквозные (e2e) · 17.10.2026 16:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит fd92955 (claude/u1-feature-registry), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'tests/branches-ui/ui31-shell.spec.ts' 'tests/branches-ui/hotel-only-routes.spec.ts' 'tests/branches-ui/site-assets.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/branches-ui/hotel-only-routes.spec.ts:48:1 › F1: гостиница открывает свои экраны по прямому адресу (4.6s)
+[WebServer] (node:37934) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   2 tests/branches-ui/hotel-only-routes.spec.ts:61:3 › F1: beauty не открывает гостиничные экраны по прямому адресу (5.3s)
+  ✓   3 tests/branches-ui/hotel-only-routes.spec.ts:61:3 › F1: food не открывает гостиничные экраны по прямому адресу (4.4s)
+  ✓   4 tests/branches-ui/hotel-only-routes.spec.ts:92:3 › У1: beauty не открывает брони, печать и старые адреса гостиницы (10.8s)
+  ✓   5 tests/branches-ui/hotel-only-routes.spec.ts:92:3 › У1: food не открывает брони, печать и старые адреса гостиницы (6.2s)
+  ✓   6 tests/branches-ui/hotel-only-routes.spec.ts:109:1 › У1: гостиница не открывает профиль сотрудника салона по прямому адресу (4.7s)
+  ✓   7 tests/branches-ui/site-assets.spec.ts:11:3 › Д10: hotel открывает изображения сайта (2.5s)
+  ✓   8 tests/branches-ui/site-assets.spec.ts:11:3 › Д10: beauty открывает изображения сайта (925ms)
+  ✓   9 tests/branches-ui/site-assets.spec.ts:11:3 › Д10: food открывает изображения сайта (817ms)
+  ✓  10 tests/branches-ui/ui31-shell.spec.ts:21:3 › UI3.1: hotel shared shell desktop/mobile (5.3s)
+  ✓  11 tests/branches-ui/ui31-shell.spec.ts:21:3 › UI3.1: beauty shared shell desktop/mobile (2.5s)
+  ✓  12 tests/branches-ui/ui31-shell.spec.ts:21:3 › UI3.1: food shared shell desktop/mobile (2.4s)
+  ✓  13 tests/branches-ui/ui31-shell.spec.ts:83:3 › Д3: hotel поиск открывает быстрый поиск по своему меню (1.9s)
+  ✓  14 tests/branches-ui/ui31-shell.spec.ts:83:3 › Д3: beauty поиск открывает быстрый поиск по своему меню (897ms)
+  ✓  15 tests/branches-ui/ui31-shell.spec.ts:83:3 › Д3: food поиск открывает быстрый поиск по своему меню (900ms)
+  ✓  16 tests/branches-ui/ui31-shell.spec.ts:115:3 › Д4: hotel меню профиля с «Профилем» и «Помощью» (886ms)
+  ✓  17 tests/branches-ui/ui31-shell.spec.ts:115:3 › Д4: beauty меню профиля с «Профилем» и «Помощью» (968ms)
+  ✓  18 tests/branches-ui/ui31-shell.spec.ts:115:3 › Д4: food меню профиля с «Профилем» и «Помощью» (1.1s)
+
+  18 passed (1.1m)
+
+# код выхода 0 · 1 мин 8 с

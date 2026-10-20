@@ -34,6 +34,11 @@ type OrderCommand =
       body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string };
     }
   | { kind: 'void-payment'; id: string; reason: string }
+  | {
+      kind: 'refund';
+      id: string;
+      body: { method: FoodPaymentMethod; amount: number; reason: string; idempotencyKey: string };
+    }
   | { kind: 'rate'; id: string; body: { stars: number; comment: string | null } };
 type CashCommand =
   | { kind: 'operation'; body: FoodCashOperationInput }
@@ -44,11 +49,11 @@ type StaffCommand =
   | {
       kind: 'edit';
       id: string;
-      body: { name?: string; phone?: string | null; email?: string | null; status?: string };
+      body: { name?: string; phone?: string | null; email?: string | null; status?: string; expectedProfileRevision: string };
     }
   | { kind: 'pay-settings'; id: string; body: { model: PayModel; fixedMinor: number; percent: number } }
   | { kind: 'adjustment'; id: string; body: { period: string; amountMinor: number; reason: string } }
-  | { kind: 'payout'; id: string; body: { period: string; method: FoodPaymentMethod; amount: number } };
+  | { kind: 'payout'; id: string; body: { period: string; method: FoodPaymentMethod; amount: number; idempotencyKey: string } };
 
 async function scope(key: string) {
   const { context } = await currentMe();
@@ -114,6 +119,9 @@ export async function mutateOrder(
       case 'void-payment':
         order = await restaurantApi.voidPayment(command.id, command.reason);
         break;
+      case 'refund':
+        order = await restaurantApi.refundOrder(command.id, command.body);
+        break;
       case 'rate':
         order = await restaurantApi.rateOrder(command.id, command.body);
         break;
@@ -178,16 +186,9 @@ export async function mutateCash(
   scopeKey: string,
   command: CashCommand,
 ): Promise<{ error: string | null }> {
-  try {
-    await scope(scopeKey);
-    if (command.kind === 'operation') await restaurantApi.cashOperation(command.body);
-    else if (command.kind === 'void') await restaurantApi.voidCashOperation(command.id);
-    else await restaurantApi.cashReconciliation(command.body);
-    revalidatePath('/cashbox');
-    return { error: null };
-  } catch (error) {
-    return failure(error);
-  }
+  // Compatibility adapter for existing imports; cash does not grant other restaurant actions.
+  const { mutateCash: branchCash } = await import('../cashbox/actions');
+  return branchCash(scopeKey, command);
 }
 
 /** VIP-метка и дата рождения клиента (§36, ADR-166) */
@@ -230,9 +231,9 @@ export async function dishPhoto(
 /** График смен сотрудника (Q-REST-11): форма недели салона, `scopeKey` привязан заранее */
 export async function saveFoodShifts(
   scopeKey: string,
-  _prev: { error?: string; message?: string } | null,
+  _prev: { error?: string; message?: string; revision?: string } | null,
   form: FormData,
-): Promise<{ error?: string; message?: string }> {
+): Promise<{ error?: string; message?: string; revision?: string }> {
   let intervals: Array<{ weekday: number; timeFrom: string; timeTo: string }>;
   try {
     intervals = JSON.parse(String(form.get('intervals') ?? '[]'));
@@ -241,9 +242,9 @@ export async function saveFoodShifts(
   }
   try {
     await scope(scopeKey);
-    await restaurantApi.setShifts(String(form.get('id') ?? ''), intervals);
+    const saved = await restaurantApi.setShifts(String(form.get('id') ?? ''), intervals, String(form.get('expectedRevision') ?? ''));
     for (const path of ['/employees', '/employees/shifts', '/today']) revalidatePath(path);
-    return { message: 'График сохранён' };
+    return { message: 'График сохранён', revision: saved.weekRevision };
   } catch (error) {
     const { error: message } = failure(error);
     return { error: message ?? 'Не удалось сохранить график' };
@@ -266,3 +267,14 @@ export async function saveFloorLayout(
   }
 }
 
+
+/** Explicit reread, never a silent rebase of the editor's original token. */
+export async function loadFoodShift(scopeKey: string, employeeId: string) {
+  try {
+    await scope(scopeKey);
+    const row = (await restaurantApi.shifts()).employees.find(e => e.id === employeeId);
+    return row ? { data: { week: row.week, weekRevision: row.weekRevision, location: { id: scopeKey } } } : { error: 'Сотрудник не найден' };
+  } catch (error) {
+    return failure(error);
+  }
+}

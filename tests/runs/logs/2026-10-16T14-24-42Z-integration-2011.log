@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 16.10.2026 19:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9f59cf6 (claude/marketing-ai-targetolog-design), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T14-24-42Z-integration-2011.json' 'tests/integration/marketing-ad-launches-db.test.ts' 'tests/integration/marketing-budget-db.test.ts' 'tests/integration/marketing-meta.test.ts' 'tests/integration/marketing-campaigns.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |integration| tests/integration/marketing-meta.test.ts (5 tests) 206ms
+ ✓ |integration| tests/integration/marketing-ad-launches-db.test.ts (4 tests) 38ms
+ ✓ |integration| tests/integration/marketing-campaigns.test.ts (3 tests) 198ms
+ ✓ |integration| tests/integration/marketing-budget-db.test.ts (8 tests) 57ms
+
+ Test Files  4 passed (4)
+      Tests  20 passed (20)
+   Start at  07:24:42
+   Duration  2.58s (import 48%, tests 26%, transform 25%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T14-24-42Z-integration-2011.json
+
+# код выхода 0 · 3 с

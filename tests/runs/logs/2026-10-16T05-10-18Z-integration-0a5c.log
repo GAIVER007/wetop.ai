@@ -1,0 +1,46 @@
+# Интеграционные (integration) · 16.10.2026 10:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bd4c21 (claude/marketing-attribution), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-10-18Z-integration-0a5c.json' 'tests/integration/marketing-results.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-results.test.ts (2 tests | 1 failed) 2603ms
+   ❯ результаты маркетинга по каналам (integration) (2)
+     × октябрь филиала: каналы по правилу Q-MKT-ATTR 363ms
+     ✓ филиал без объекта размещения: результатов нет, а не ошибка 118ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-results.test.ts > результаты маркетинга по каналам (integration) > октябрь филиала: каналы по правилу Q-MKT-ATTR
+AssertionError: expected { channel: 'WHATSAPP', leads: 5, …(2) } to deeply equal { channel: 'WHATSAPP', leads: 4, …(2) }
+
+- Expected
++ Received
+
+  {
+    "bookings": 2,
+    "channel": "WHATSAPP",
+-   "leads": 4,
++   "leads": 5,
+    "revenueMinor": 550000n,
+  }
+
+ ❯ tests/integration/marketing-results.test.ts:200:25
+    198|     expect(by.SITE).toEqual({ channel: 'SITE', leads: 6, bookings: 2, …
+    199|     // WhatsApp: обращения = 2 диалога + 2 брони без ИИ (незаезд и пря…
+    200|     expect(by.WHATSAPP).toEqual({ channel: 'WHATSAPP', leads: 4, booki…
+       |                         ^
+    201|     expect(by.INSTAGRAM).toEqual({ channel: 'INSTAGRAM', leads: 1, boo…
+    202|     expect(by.PHONE).toEqual({ channel: 'PHONE', leads: 1, bookings: 1…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  22:10:30
+   Duration  11.99s (transform 52%, tests 31%, import 18%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-10-18Z-integration-0a5c.json
+
+# код выхода 1 · 26 с

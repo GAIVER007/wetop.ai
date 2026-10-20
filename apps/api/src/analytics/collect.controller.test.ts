@@ -41,7 +41,7 @@ describe('приёмник счётчика POST /a/hit и скрипт GET /a/p
       .useValue({})
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     collect = app.get(CollectService);
   });
   afterAll(async () => {

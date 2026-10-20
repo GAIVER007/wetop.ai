@@ -18,19 +18,26 @@ import { formatMoney } from '../../lib/money';
 export interface DayFlow {
   date: string;
   income: bigint;
+  /** Combined cash outflow: refunds plus cash expenses, not the expenses KPI. */
   expense: bigint;
+  cashExpense: bigint;
 }
 
 /** Деньги по дням из ленты операций: проведённые оплаты и поступления против возвратов и расходов */
 export function dailyFlow(rows: PeriodOperations['rows'], from: string, to: string): DayFlow[] {
-  const days = new Map<string, { income: bigint; expense: bigint }>();
-  for (let d = from; d <= to; d = nextDay(d)) days.set(d, { income: 0n, expense: 0n });
+  const days = new Map<string, { income: bigint; expense: bigint; cashExpense: bigint }>();
+  for (let d = from; d <= to; d = nextDay(d)) {
+    days.set(d, { income: 0n, expense: 0n, cashExpense: 0n });
+  }
   for (const row of rows) {
     if (row.status !== 'COMPLETED' || row.kind === 'TRANSFER') continue;
     const day = days.get(row.localAt.slice(0, 10));
     if (!day) continue;
     if (row.kind === 'PAYMENT' || row.kind === 'INCOME') day.income += BigInt(row.amountMinor);
-    else day.expense += BigInt(row.amountMinor);
+    else {
+      day.expense += BigInt(row.amountMinor);
+      if (row.kind === 'EXPENSE') day.cashExpense += BigInt(row.amountMinor);
+    }
   }
   return [...days.entries()].map(([date, v]) => ({ date, ...v }));
 }
@@ -109,11 +116,12 @@ export function FinanceKpis({
   };
   const inc = flow.map((d) => Number(d.income));
   const exp = flow.map((d) => Number(d.expense));
+  const cashExp = flow.map((d) => Number(d.cashExpense));
   return (
     <section className="fin-kpis" aria-label="Деньги за период">
       {tile('charged', 'Общий доход', 'receipt', 'info', charged, prevCharged, [], 'primary')}
       {tile('income', 'Поступления', 'money', 'success', income, prevIncome, inc, 'success')}
-      {tile('expense', 'Расходы', 'coins', 'danger', expense, prevExpense, exp, 'danger')}
+      {tile('expense', 'Расходы', 'coins', 'danger', expense, prevExpense, cashExp, 'danger')}
       {tile(
         'profit',
         'Чистая прибыль',
@@ -135,19 +143,19 @@ export function FinanceDynamics({ flow, currency }: { flow: DayFlow[]; currency:
   const sum = (key: 'income' | 'expense') => flow.reduce((a, d) => a + d[key], 0n).toString();
   return (
     <section className="fin-card fin-dynamics" aria-labelledby="fin-dynamics-title">
-      <h2 id="fin-dynamics-title">Динамика доходов и расходов</h2>
+      <h2 id="fin-dynamics-title">Динамика поступлений, возвратов и расходов</h2>
       <LineChart
         testId="fin-dynamics"
         labels={labels}
         format={(v) => formatMoney(String(Math.round(v)), currency)}
         series={[
           {
-            name: 'Доходы',
+            name: 'Поступления',
             values: flow.map((d) => Number(d.income)),
             summary: formatMoney(sum('income'), currency),
           },
           {
-            name: 'Расходы',
+            name: 'Возвраты и расходы',
             values: flow.map((d) => Number(d.expense)),
             dashed: true,
             summary: formatMoney(sum('expense'), currency),

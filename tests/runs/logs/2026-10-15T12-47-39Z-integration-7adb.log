@@ -1,0 +1,91 @@
+# Интеграционные (integration) · 15.10.2026 17:47 Алматы · <сервер>
+# коммит 6dfe1f6 (fix/audit-reset-closed-folio), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T12-47-39Z-integration-7adb.json' 'tests/integration/reset-token-http.test.ts' '--testTimeout=60000' '--hookTimeout=120000' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-critical-fixes
+
+ ❯ |integration| tests/integration/reset-token-http.test.ts (10 tests | 4 failed) 4810ms
+   ❯ password reset over real AuthModule HTTP and PostgreSQL (10)
+     × concurrent same-token HTTP confirms have exactly one winner, one password and one audit 772ms
+     ✓ success revokes every live session across organizations, not another user or already-revoked time 1431ms
+     × PostgreSQL failure in sessions rolls back password, token, sessions and audit; token remains retryable 325ms
+     × PostgreSQL failure in audit_logs rolls back password, token, sessions and audit; token remains retryable 214ms
+     ✓ sequential reuse cannot overwrite a successful password or add another audit 163ms
+     ✓ expired confirmation leaves password, token and sessions unchanged 178ms
+     ✓ blocked confirmation leaves password, token and sessions unchanged 214ms
+     ✓ unknown confirmation leaves password, token and sessions unchanged 160ms
+     ✓ weak confirmation leaves password, token and sessions unchanged 145ms
+     × blocking an account after the token read cannot reactivate it 125ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/reset-token-http.test.ts > password reset over real AuthModule HTTP and PostgreSQL > concurrent same-token HTTP confirms have exactly one winner, one password and one audit
+AssertionError: expected [ 201, 201 ] to deeply equal [ 201, 401 ]
+
+- Expected
++ Received
+
+  [
+    201,
+-   401,
++   201,
+  ]
+
+ ❯ tests/integration/reset-token-http.test.ts:114:48
+    112|     try { await gate.ready; } finally { gate.release(); }
+    113|     const result = await responses;
+    114|     expect(result.map((r) => r.status).sort()).toEqual([201, 401]);
+       |                                                ^
+    115|     const user = await db.user.findUniqueOrThrow({ where: { id: f.id }…
+    116|     const winner = result.findIndex((r) => r.status === 201);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |integration| tests/integration/reset-token-http.test.ts > password reset over real AuthModule HTTP and PostgreSQL > PostgreSQL failure in sessions rolls back password, token, sessions and audit; token remains retryable
+ FAIL  |integration| tests/integration/reset-token-http.test.ts > password reset over real AuthModule HTTP and PostgreSQL > PostgreSQL failure in audit_logs rolls back password, token, sessions and audit; token remains retryable
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/integration/reset-token-http.test.ts:161:56
+    159|     }
+    160|     const after = await db.user.findUniqueOrThrow({ where: { id: f.id …
+    161|     expect(after.passwordHash === before.passwordHash).toBe(true);
+       |                                                        ^
+    162|     expect(after.emailVerifiedAt).toEqual(before.emailVerifiedAt);
+    163|     expect(after.status).toBe(before.status);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |integration| tests/integration/reset-token-http.test.ts > password reset over real AuthModule HTTP and PostgreSQL > blocking an account after the token read cannot reactivate it
+AssertionError: expected 201 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 201
+
+ ❯ tests/integration/reset-token-http.test.ts:209:37
+    207|       await db.user.update({ where: { id: f.id }, data: { status: 'BLO…
+    208|     } finally { gate.release(); }
+    209|     expect((await response).status).toBe(401);
+       |                                     ^
+    210|     const after = await db.user.findUniqueOrThrow({ where: { id: f.id …
+    211|     expect(after.status).toBe('BLOCKED');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 6 passed (10)
+   Start at  12:47:41
+   Duration  11.03s (tests 56%, transform 23%, import 21%)
+
+JSON report written to /tmp/pms-test-2026-10-15T12-47-39Z-integration-7adb.json
+
+# код выхода 1 · 14 с

@@ -28,7 +28,7 @@ test('журнал: выборка словами, разделы чипами, 
     /T08:30:00/,
   );
   // раздел — чипом с текущим состоянием, выборка пересчитана
-  const filters = main.getByRole('navigation', { name: 'Раздел журнала' });
+  const filters = main.getByRole('navigation', { name: 'Раздел истории' });
   await filters.getByRole('link', { name: 'сотрудники', exact: true }).click();
   await expect(page).toHaveURL(/type=user/);
   await expect(filters.getByRole('link', { name: 'сотрудники', exact: true })).toHaveAttribute(
@@ -50,8 +50,8 @@ test('журнал: выборка словами, разделы чипами, 
   // отказ API: поиск и раздел на месте, повтор возвращает строки с теми же условиями
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/audit' } });
   await page.goto('/journal?q=TEST&type=Reservation');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Журнал операций');
-  await expect(main.getByLabel('Поиск в журнале')).toHaveValue('TEST');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('История действий');
+  await expect(main.getByLabel('Поиск в истории')).toHaveValue('TEST');
   const failure = main.getByTestId('journal-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
   await expect(main.getByTestId('journal-table')).toHaveCount(0);
@@ -315,7 +315,10 @@ test('вход и профиль: «Вы вошли» без точек, при�
   // иначе следующий переход обрывается на середине второго (ERR_ABORTED, гейт 12.10.2026)
   await expect(page).toHaveURL(/\/today/);
   await page.goto('/profile/access');
-  await expect(main).toContainText('как Дана Тестова, admin@wetop.test');
+  await expect(main.getByText('Вы вошли', { exact: true })).toBeVisible();
+  const fact = (label: string) => main.locator('.fact__label').filter({ hasText: new RegExp(`^${label}$`) }).locator('..').locator('.fact__value');
+  await expect(fact('Имя')).toHaveText('Дана Тестова');
+  await expect(fact('Почта')).toHaveText('admin@wetop.test');
   await expect(main).not.toContainText(' · ');
   // приглашение: API не ответил — сбой с повтором, повтор открывает приглашение
   await request.post(`${fixture}/__test/control`, {

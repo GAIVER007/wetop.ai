@@ -1,0 +1,21 @@
+# Модульные (unit) · 16.10.2026 18:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит e765b27 (claude/fix-no-hardcode), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-34-36Z-unit-9b4c.json' 'apps/api/src/marketing-budget' 'tests/unit/no-hardcoded-utc5.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| tests/unit/no-hardcoded-utc5.test.ts (2 tests) 1883ms
+   ✓ С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет (2)
+     ✓ API: ни сдвига на пять часов, ни строки +05:00, ни зашитого Asia/Almaty 729ms
+     ✓ стойка: даты и моменты — по поясу объекта из /hotel/settings, а не по UTC+5 1152ms
+ ✓ |unit| apps/api/src/marketing-budget/meta-nightly.test.ts (1 test) 7ms
+ ✓ |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts (17 tests) 39ms
+
+ Test Files  3 passed (3)
+      Tests  20 passed (20)
+   Start at  06:34:42
+   Duration  8.38s (import 43%, transform 43%, tests 13%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-34-36Z-unit-9b4c.json
+
+# код выхода 0 · 15 с

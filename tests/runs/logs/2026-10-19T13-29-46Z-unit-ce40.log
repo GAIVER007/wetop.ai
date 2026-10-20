@@ -1,0 +1,16 @@
+# Модульные (unit) · 19.10.2026 18:29 Алматы · Noutbuk-Vyacheslav.local
+# коммит b19e9e9 (claude/salon-zapis-p0), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-29-46Z-unit-ce40.json' 'apps/web/src/lib/ai-seller.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/eaddd23c-190d-4f0e-994d-e1a1f6c746f9/scratchpad/wt-rel
+
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (32 tests) 5ms
+
+ Test Files  1 passed (1)
+      Tests  32 passed (32)
+   Start at  06:29:47
+   Duration  434ms (transform 80%, import 18%, tests 1%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-29-46Z-unit-ce40.json
+
+# код выхода 0 · 1 с

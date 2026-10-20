@@ -1,0 +1,27 @@
+# Интеграционные (integration) · 17.10.2026 13:51 Алматы · <сервер>
+# коммит a8d957a (integrate/tz21-5417daa6), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T08-51-12Z-integration-3204.json' 'tests/integration/tz21-working-time.test.ts' 'tests/integration/employee-portal.test.ts' '--maxWorkers=1' '--testTimeout=15000'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ✓  integration  tests/integration/employee-portal.test.ts (6 tests) 2098ms
+   ✓ employee portal real persistence and authorization (6)
+     ✓ persists private profile and requires manager reapproval after self edits 360ms
+     ✓ persists own skills/week/absence without changing appointments 301ms
+ ✓  integration  tests/integration/tz21-working-time.test.ts (12 tests) 11787ms
+   ✓ TZ2.1 D real PostgreSQL consumers and CAS (12)
+     ✓ portal and Beauty expose one source revision and reject a stale cross-writer save 573ms
+     ✓ BEAUTY: two empty saves from one empty source accept exactly one 700ms
+     ✓ BEAUTY: portal response is its committed week, not a post-commit writer token 2235ms
+     ✓ FOOD_SERVICE: two empty saves from one empty source accept exactly one 1990ms
+     ✓ FOOD_SERVICE: empty -> populated -> empty cannot resurrect the original token 3186ms
+     ✓ absence counts branch-local dates and preserves existing accepted appointment IDs 314ms
+
+ Test Files  2 passed (2)
+      Tests  18 passed (18)
+   Start at  08:51:14
+   Duration  21.66s (tests 74%, import 14%, transform 12%)
+
+JSON report written to /tmp/pms-test-2026-10-17T08-51-12Z-integration-3204.json
+
+# код выхода 0 · 24 с

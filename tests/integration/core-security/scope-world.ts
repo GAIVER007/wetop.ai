@@ -360,7 +360,7 @@ export async function buildScopeWorld(
       .useClass(NoopAriPublisher),
   ).compile();
   const app = module.createNestApplication({ logger: false });
-  await app.init();
+  await app.listen(0, '127.0.0.1');
 
   const tokens = {} as Record<UserKey, string>;
   for (const [key] of spec) {

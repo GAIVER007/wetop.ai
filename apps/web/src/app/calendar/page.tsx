@@ -1,6 +1,6 @@
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import Screen from '../beauty/page';
 export default async function GuardedPage(props: Parameters<typeof Screen>[0]) {
-  await requireVertical(['BEAUTY']);
+  await requireFeature('/calendar');
   return Screen(props);
 }

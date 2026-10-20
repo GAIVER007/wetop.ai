@@ -34,7 +34,12 @@ test('«Финансы» показывают блоки, пока настро�
     await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible({
       timeout: 5000,
     });
-    await expect(page.getByTestId('owner-risks')).toBeVisible({ timeout: 5000 });
+    // RSC retains hidden streamed nodes while hotel settings are held. Require one
+    // accessible region, not one raw DOM copy; do not wait for the held stream.
+    const attention = page.getByRole('region', { name: 'Что требует внимания', exact: true });
+    await expect(attention).toHaveCount(1, { timeout: 5000 });
+    await expect(attention).toBeVisible({ timeout: 5000 });
+    await expect(attention).toHaveAttribute('data-testid', 'owner-risks');
     await expect(page.locator('.workspace-header .workspace-property')).toContainText(
       'Объект не загружен',
     );

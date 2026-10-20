@@ -1,0 +1,16 @@
+# Модульные (unit) · 17.10.2026 00:55 Алматы · <сервер>
+# коммит c46ef1c (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 49
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T19-55-38Z-unit-5b51.json' 'tests/unit/employee-portal-portability.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-portal-release-61af7b90
+
+ ✓ |unit| tests/unit/employee-portal-portability.test.ts (8 tests) 12ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  19:55:39
+   Duration  180ms (transform 44%, import 27%, tests 20%, worker 8%)
+
+JSON report written to /tmp/pms-test-2026-10-16T19-55-38Z-unit-5b51.json
+
+# код выхода 0 · 1 с

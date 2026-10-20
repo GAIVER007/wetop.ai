@@ -1,0 +1,54 @@
+# Интеграционные (integration) · 16.10.2026 14:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 823661d (claude/marketing-expense-files), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T09-34-04Z-integration-229b.json' 'tests/integration/marketing-expense-files.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-expense-files.test.ts (2 tests | 2 failed) 371ms
+   ❯ чеки расходов маркетинга (integration) (2)
+     × фото WebP без EXIF и PDF как есть; повтор не дублирует; чужое и поддельное отвергается 54ms
+     × не больше 10 файлов; удаление в журнал; расход уносит файлы, объект в хранилище остаётся 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-expense-files.test.ts > чеки расходов маркетинга (integration) > фото WebP без EXIF и PDF как есть; повтор не дублирует; чужое и поддельное отвергается
+ForbiddenException: Организация доступна только для чтения
+ ❯ PrismaMarketingBudgetRepository.assertWritable apps/api/src/marketing-budget/marketing-budget.repository.ts:218:13
+    216|     });
+    217|     if (!org || !canWrite(org.status, org.trialEndsAt, new Date()))
+    218|       throw new ForbiddenException('Организация доступна только для чт…
+       |             ^
+    219|   }
+    220|
+ ❯ ExpenseFilesService.expenseOf apps/api/src/marketing-budget/expense-files.ts:83:5
+ ❯ ExpenseFilesService.upload apps/api/src/marketing-budget/expense-files.ts:133:21
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/marketing-expense-files.test.ts:83:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/marketing-expense-files.test.ts > чеки расходов маркетинга (integration) > не больше 10 файлов; удаление в журнал; расход уносит файлы, объект в хранилище остаётся
+ForbiddenException: Организация доступна только для чтения
+ ❯ PrismaMarketingBudgetRepository.assertWritable apps/api/src/marketing-budget/marketing-budget.repository.ts:218:13
+    216|     });
+    217|     if (!org || !canWrite(org.status, org.trialEndsAt, new Date()))
+    218|       throw new ForbiddenException('Организация доступна только для чт…
+       |             ^
+    219|   }
+    220|
+ ❯ ExpenseFilesService.expenseOf apps/api/src/marketing-budget/expense-files.ts:83:5
+ ❯ ExpenseFilesService.upload apps/api/src/marketing-budget/expense-files.ts:133:21
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/marketing-expense-files.test.ts:112:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  02:34:13
+   Duration  13.74s (import 48%, transform 39%, tests 13%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T09-34-04Z-integration-229b.json
+
+# код выхода 1 · 22 с

@@ -1,0 +1,50 @@
+# Интеграционные (integration) · 16.10.2026 14:56 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 44
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T09-56-04Z-integration-512a.json' '--config' 'tests/owner-money-isolated.config.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/owner-money-isolated.test.ts (6 tests | 1 failed) 1749ms
+   ❯ owner money actual isolated PostgreSQL queries (6)
+     ✓ daily series reconciles actual authorized service totals across today, week and calendar month 1339ms
+     ✓ classifies real partially-paid document without changing cash totals, including void and missing links 128ms
+     ✓ executes DONE beauty snapshot reads without inventing a payment ledger 23ms
+     ✓ reads CLOSED snapshots and POSTED sales once, excluding future and unclosed orders 3ms
+     ✓ does not borrow another branch or its present EUR currency 4ms
+     × executes hotel service-date/folio and payment scope queries against the real schema 148ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/owner-money-isolated.test.ts > owner money actual isolated PostgreSQL queries > executes hotel service-date/folio and payment scope queries against the real schema
+AssertionError: expected [ { kind: 'INCOME', …(1) }, …(1) ] to deeply equal [ { kind: 'EXPENSE', …(1) }, …(1) ]
+
+- Expected
++ Received
+
+  [
+    {
+      "currency_snapshot": "EUR",
+-     "kind": "EXPENSE",
++     "kind": "INCOME",
+    },
+    {
+      "currency_snapshot": "EUR",
+-     "kind": "INCOME",
++     "kind": "EXPENSE",
+    },
+  ]
+
+ ❯ tests/integration/owner-money-isolated.test.ts:112:21
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  09:56:07
+   Duration  4.01s (tests 46%, transform 43%, import 11%)
+
+JSON report written to /tmp/pms-test-2026-10-16T09-56-04Z-integration-512a.json
+
+# код выхода 1 · 6 с

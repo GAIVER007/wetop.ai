@@ -1,0 +1,52 @@
+# Модульные (unit) · 17.10.2026 09:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит e15c977 (claude/beauty-in-progress), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-04-59Z-unit-e4b8.json' 'packages/domain/src/beauty/appointments.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ❯ |unit| packages/domain/src/beauty/appointments.test.ts (17 tests | 1 failed) 16ms
+   ✓ planAppointment (7)
+     ✓ считает окно и снимок цены по действующей цене филиала 12ms
+     ✓ берёт цену и длительность филиала, когда он их задал 0ms
+     ✓ не пускает запись на услугу, которую филиал не оказывает 0ms
+     ✓ не пускает запись в валюте, которой филиал не знает 0ms
+     ✓ не пускает запись мимо графика мастера 0ms
+     ✓ не пускает запись в день отсутствия мастера 0ms
+     ✓ не пускает запись на услугу в архиве 0ms
+   ✓ statusChange (5)
+     ✓ ведёт запись по жизни: принята, подтверждена, выполнена 0ms
+     ✓ позволяет отменить и отметить незаезд до выполнения 0ms
+     ✓ из выполненной, отменённой и незаезда дороги нет 0ms
+     ✓ тот же статус не перевод 0ms
+     ✓ называет, что можно дальше 0ms
+   ✓ parseAppointmentInput (4)
+     ✓ принимает запись к существующему клиенту 0ms
+     ✓ принимает запись новому клиенту по имени и телефону 0ms
+     ✓ требует клиента: без имени и без выбранного не записать 0ms
+     ✓ не пускает запись без мастера, услуги и времени 0ms
+   ❯ статус «В процессе» (§58) (1)
+     × начать можно из записанной и подтверждённой; из начатой только выполнить или отменить 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/beauty/appointments.test.ts > статус «В процессе» (§58) > начать можно из записанной и подтверждённой; из начатой только выполнить или отменить
+AssertionError: expected [ Array(4) ] to include 'IN_PROGRESS'
+ ❯ packages/domain/src/beauty/appointments.test.ts:214:36
+    212| describe('статус «В процессе» (§58)', () => {
+    213|   it('начать можно из записанной и подтверждённой; из начатой только в…
+    214|     expect(nextStatuses('BOOKED')).toContain('IN_PROGRESS');
+       |                                    ^
+    215|     expect(nextStatuses('CONFIRMED')).toContain('IN_PROGRESS');
+    216|     expect(nextStatuses('IN_PROGRESS')).toEqual(['DONE', 'CANCELLED']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 16 passed (17)
+   Start at  21:05:01
+   Duration  121ms (transform 47%, tests 35%, import 13%, worker 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-04-59Z-unit-e4b8.json
+
+# код выхода 1 · 2 с

@@ -1,0 +1,158 @@
+# Интеграционные (integration) · 15.10.2026 17:49 Алматы · <сервер>
+# коммит 6dfe1f6 (fix/audit-closed-folio-isolated), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T12-49-04Z-integration-5366.json' 'tests/integration/closed-folio-http.test.ts' '--testTimeout=60000' '--hookTimeout=120000' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-folio-fix
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects PATCH price after closing a paid folio and rolls back all writes
+paid folio closed via HTTP {
+  folioId: 'c26b49c1-eb09-4d00-8b21-9c9285dfd142',
+  status: 200,
+  balanceMinor: '0'
+}
+
+(node:4118868) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects PATCH price after closing a paid folio and rolls back all writes
+closed folio PATCH price {
+  status: 200,
+  body: {
+    confirmationNumber: 'FOLIO-895fd86e-08d1-47af-91a2-7b3c7bbd2c0d',
+    source: 'WALK_IN',
+    channel: null,
+    externalId: null,
+    status: 'CONFIRMED',
+    arrivalDate: '2026-10-20',
+    departureDate: '2026-10-22',
+    adults: 2,
+    children: 0,
+    currency: 'KZT',
+    totalAmountMinor: '2500000',
+    notes: null,
+    primaryGuest: {
+      id: '04b8fcf0-b2f9-41b3-a714-9c77799bdd4c',
+      label: 'Test Synthetic',
+      citizenship: null,
+      phone: '<телефон>'
+    },
+    items: [ [Object] ]
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects cancellation without changing the closed folio, stay or audit
+paid folio closed via HTTP {
+  folioId: '1a1d2836-e51b-461b-aae4-ef71f6a411ca',
+  status: 200,
+  balanceMinor: '0'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects direct penalty creation against a closed folio inside the reservation transaction
+paid folio closed via HTTP {
+  folioId: '5a449d1e-a84f-43a8-aaf1-e76a665f8d4f',
+  status: 200,
+  balanceMinor: '0'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows an unchanged accommodation sync on a closed folio
+paid folio closed via HTTP {
+  folioId: 'f8fc56fc-aee0-4799-9535-324f04ecee1a',
+  status: 200,
+  balanceMinor: '0'
+}
+
+ ❯ |integration| tests/integration/closed-folio-http.test.ts (7 tests | 5 failed) 3047ms
+   ❯ closed folio charge mutations through HTTP (7)
+     × rejects PATCH price after closing a paid folio and rolls back all writes 822ms
+     ✓ still updates an open folio using storno plus a replacement charge 99ms
+     × rejects cancellation without changing the closed folio, stay or audit 142ms
+     × rejects direct penalty creation against a closed folio inside the reservation transaction 268ms
+     × rejects closed folio bar reversal over HTTP 82ms
+     × allows open folio bar reversal over HTTP 42ms
+     ✓ allows an unchanged accommodation sync on a closed folio 221ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects PATCH price after closing a paid folio and rolls back all writes
+AssertionError: {"confirmationNumber":"FOLIO-895fd86e-08d1-47af-91a2-7b3c7bbd2c0d","source":"WALK_IN","channel":null,"externalId":null,"status":"CONFIRMED","arrivalDate":"2026-10-20","departureDate":"2026-10-22","adults":2,"children":0,"currency":"KZT","totalAmountMinor":"2500000","notes":null,"primaryGuest":{"id":"04b8fcf0-b2f9-41b3-a714-9c77799bdd4c","label":"Test Synthetic","citizenship":null,"phone":"<телефон>"},"items":[{"id":"0d4efd68-1059-470b-804f-dda88e2e2779","accommodationTypeCode":"T-DBL","accommodationTypeName":"Double","arrivalDate":"2026-10-20","departureDate":"2026-10-22","status":"CONFIRMED","priceMinor":"2500000","ratePlanCode":"T-BASE","ratePlanName":"Base","adults":2,"children":0,"unitCode":null,"unitHousekeepingStatus":null,"guests":[{"id":"04b8fcf0-b2f9-41b3-a714-9c77799bdd4c","label":"Test Synthetic","isPrimary":true}]}]}: expected 200 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 200
+
+ ❯ tests/integration/closed-folio-http.test.ts:97:44
+     95|     const response = await http('PATCH', itemPath(s), { price: '25000'…
+     96|     console.log('closed folio PATCH price', { status: response.status,…
+     97|     expect(response.status, response.text).toBe(409);
+       |                                            ^
+     98|     expect(response.text).toContain('закрыт');
+     99|     expect(await snapshot(s)).toEqual(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |integration| tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects cancellation without changing the closed folio, stay or audit
+AssertionError: {"confirmationNumber":"FOLIO-297eab14-cbf2-4059-85b4-74f66992ccda","source":"WALK_IN","channel":null,"externalId":null,"status":"CANCELLED","arrivalDate":"2026-10-20","departureDate":"2026-10-22","adults":1,"children":0,"currency":"KZT","totalAmountMinor":"2000000","notes":null,"primaryGuest":{"id":"06c2d208-0a03-489e-900b-ceaafbd57703","label":"Test Synthetic","citizenship":null,"phone":"<телефон>"},"items":[{"id":"e2b88322-b26e-4728-9e76-d4ee1f4e01cf","accommodationTypeCode":"T-DBL","accommodationTypeName":"Double","arrivalDate":"2026-10-20","departureDate":"2026-10-22","status":"CANCELLED","priceMinor":"2000000","ratePlanCode":"T-BASE","ratePlanName":"Base","adults":1,"children":0,"unitCode":null,"unitHousekeepingStatus":null,"guests":[{"id":"06c2d208-0a03-489e-900b-ceaafbd57703","label":"Test Synthetic","isPrimary":true}]}]}: expected 200 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 200
+
+ ❯ tests/integration/closed-folio-http.test.ts:117:44
+    115|     const before = await snapshot(s);
+    116|     const response = await http('POST', `/reservations/${s.confirmatio…
+    117|     expect(response.status, response.text).toBe(409);
+       |                                            ^
+    118|     expect(await snapshot(s)).toEqual(before);
+    119|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |integration| tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects direct penalty creation against a closed folio inside the reservation transaction
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/integration/closed-folio-http.test.ts:124:132
+    122|     const s = await fixture(true);
+    123|     const before = await snapshot(s);
+    124|     await expect(db.$transaction(tx => new PrismaReservationsRepositor…
+       |                                                                                                                                    ^
+    125|     expect(await snapshot(s)).toEqual(before);
+    126|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |integration| tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects closed folio bar reversal over HTTP
+ FAIL  |integration| tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows open folio bar reversal over HTTP
+PrismaClientKnownRequestError: 
+Invalid `prisma.barSale.create()` invocation:
+
+
+Database error. Code: `23514`. Message: `new row for relation "bar_sales" violates check constraint "bar_sales_values_valid"`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/closed-folio-http.test.ts:131:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 2 passed (7)
+   Start at  12:49:06
+   Duration  9.62s (tests 44%, transform 43%, import 13%)
+
+JSON report written to /tmp/pms-test-2026-10-15T12-49-04Z-integration-5366.json
+
+# код выхода 1 · 12 с

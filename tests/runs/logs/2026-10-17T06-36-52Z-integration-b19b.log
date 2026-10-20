@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 17.10.2026 11:36 Алматы · <сервер>
+# коммит 0766123 (fix/tz21-working-time), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T06-36-52Z-integration-b19b.json' 'tests/integration/tz21-working-time.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-working-time/tree
+
+ ✓ |integration| tests/integration/tz21-working-time.test.ts (6 tests) 900ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  06:36:52
+   Duration  5.61s (transform 46%, import 28%, tests 26%)
+
+JSON report written to /tmp/pms-test-2026-10-17T06-36-52Z-integration-b19b.json
+
+# код выхода 0 · 7 с

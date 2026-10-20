@@ -1,4 +1,5 @@
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
+import { SalonReportsScreen } from './salon-reports';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
@@ -32,16 +33,15 @@ export default async function ReportsHubPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireFeature('/reports');
   // Ресторан: перенаправление на финансы ресторана (выручка, расходы — основной отчёт)
   if (me.context?.vertical === 'FOOD_SERVICE') {
     const { redirect } = await import('next/navigation');
     redirect('/restaurant-finance');
   }
-  // Салон: упрощённый хаб отчётов
+  // Отчёты салона используют собственный защищённый источник, не гостиничные итоги.
   if (me.context?.vertical === 'BEAUTY') {
-    const { redirect } = await import('next/navigation');
-    redirect('/management/analytics');
+    return <SalonReportsScreen searchParams={await searchParams} />;
   }
   const sp = normalizeSearchParams(await searchParams);
   const cal = periods(await hotelToday());

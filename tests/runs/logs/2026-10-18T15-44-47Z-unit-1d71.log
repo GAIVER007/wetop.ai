@@ -1,0 +1,135 @@
+# Модульные (unit) · 18.10.2026 20:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6b97be5 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 22
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T15-44-47Z-unit-1d71.json' 'apps/api/src/beauty/customer-import.test.ts' 'apps/api/src/beauty/customer-import.worker.test.ts' 'apps/api/src/auth/route-access.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 57ms
+   ❯ права маршрутов API (ADR-107) (3)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 40ms
+     ✓ MKT4, MKT7: у рантайма сайтов два пути, только GET (текущая версия и превью по токену); чтения версии по id нет 16ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+ ❯ |unit| apps/api/src/beauty/customer-import.worker.test.ts (8 tests | 1 failed) 9ms
+   ❯ CustomerImportWorker (8)
+     ✓ claims one queued job with a fresh lease token and no parent locks 2ms
+     ✓ revalidates active owner, organization and salon for every processing batch 1ms
+     ✓ fences every checkpoint update by the lease token 0ms
+     ✓ clears retained input and baselines only for expired terminal jobs 0ms
+     ✓ runs bounded retention even while import jobs remain queued 0ms
+     ✓ records a safe terminal audit when an abandoned upload expires 0ms
+     × selects and clears an expired terminal job that retains only receipt hashes 4ms
+     ✓ rechecks customer status after the ordered customer lock 1ms
+ ❯ |unit| apps/api/src/beauty/customer-import.test.ts (9 tests | 1 failed) 11ms
+   ❯ CustomerImportService (9)
+     ✓ starts an owner import in the server-derived organization and business 3ms
+     ✓ returns the same job for the same start request and rejects a changed request 1ms
+     ✓ rechecks idempotency inside the locked transaction before create 0ms
+     ✓ stores one ordered chunk and repeats the same digest as a no-op 1ms
+     × returns the same receipt after the import has completed 3ms
+     ✓ rejects a changed repeat chunk without changing rows 0ms
+     ✓ submits only a complete upload and keeps aggregate DTO free of row PII 0ms
+     ✓ keeps every management and report endpoint owner-only 0ms
+     ✓ checks the undo deadline with fresh time after database locks 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(550) } to deeply equal { …(544) }
+
+- Expected
++ Received
+
+@@ -74,10 +74,13 @@
+    "GET /bar/report": "desk",
+    "GET /bar/sales": "desk",
+    "GET /bar/stock": "desk",
+    "GET /bar/suppliers": "desk",
+    "GET /beauty/appointments": "desk",
++   "GET /beauty/customer-imports": "owner",
++   "GET /beauty/customer-imports/:id": "owner",
++   "GET /beauty/customer-imports/:id/rows": "owner",
+    "GET /beauty/customers": "desk",
+    "GET /beauty/employees": "desk",
+    "GET /beauty/schedule": "desk",
+    "GET /beauty/services": "desk",
+    "GET /bot/agent-context": "public",
+@@ -336,10 +339,13 @@
+    "POST /bar/write-offs": "desk",
+    "POST /beauty/appointments": "desk",
+    "POST /beauty/appointments/:id/payments": "desk",
+    "POST /beauty/appointments/:id/refunds": "refunds",
+    "POST /beauty/appointments/:id/status": "desk",
++   "POST /beauty/customer-imports": "owner",
++   "POST /beauty/customer-imports/:id/submit": "owner",
++   "POST /beauty/customer-imports/:id/undo": "owner",
+    "POST /beauty/customers": "desk",
+    "POST /beauty/employees": "property",
+    "POST /beauty/employees/:id/time-offs": "property",
+    "POST /beauty/services": "rates",
+    "POST /bot/booking-intents": "public",
+@@ -504,10 +510,11 @@
+    "PUT /ai-seller/llm-key": "seller",
+    "PUT /ai-seller/profile": "seller",
+    "PUT /ai-seller/prompt": "seller",
+    "PUT /ai-seller/whatsapp": "seller",
+    "PUT /auth/members/:userId/scopes": "staff",
++   "PUT /beauty/customer-imports/:id/rows": "owner",
+    "PUT /beauty/employees/:id/locations": "property",
+    "PUT /beauty/employees/:id/services": "property",
+    "PUT /beauty/employees/:id/working-hours": "property",
+    "PUT /beauty/services/:id/location": "rates",
+    "PUT /employee-portal/employees/:id/account": "staff",
+
+ ❯ apps/api/src/auth/route-access.test.ts:678:20
+    676|       .map(([key]) => key);
+    677|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    678|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    679|   });
+    680|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.test.ts > CustomerImportService > returns the same receipt after the import has completed
+AssertionError: promise rejected "ConflictException: Загрузка уже закрыта { …(4) }" instead of resolving
+ ❯ apps/api/src/beauty/customer-import.test.ts:172:68
+    170|       }),
+    171|     );
+    172|     await expect(asActor(() => service.uploadRows(row().id, body))).re…
+       |                                                                    ^
+    173|       state: 'COMPLETED',
+    174|       uploadedRows: 1,
+
+Caused by: ConflictException: Загрузка уже закрыта
+ ❯ apps/api/src/beauty/customer-import.ts:201:44
+ ❯ prisma.db.$transaction.maxWait apps/api/src/beauty/scope.ts:112:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { response: { message: 'Загрузка уже закрыта', error: 'Conflict', statusCode: 409 }, status: 409, options: {}, errorCode: undefined, initCause: 'Function<initCause>', initErrorCode: 'Function<initErrorCode>', initMessage: 'Function<initMessage>', initName: 'Function<initName>', getResponse: 'Function<getResponse>', getStatus: 'Function<getStatus>' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.worker.test.ts > CustomerImportWorker > selects and clears an expired terminal job that retains only receipt hashes
+AssertionError: expected 'SELECT id,state,organization_id AS "o…' to contain 'upload_receipts'
+
+Expected: "upload_receipts"
+Received: "SELECT id,state,organization_id AS "organizationId",created_by AS "createdBy",total_rows AS "totalRows",uploaded_rows AS "uploadedRows",processed_rows AS "processedRows" FROM customer_imports WHERE contents_expire_at<=  AND (state='UPLOADING' OR (state IN ('COMPLETED','FAILED','UNDONE') AND EXISTS(SELECT 1 FROM customer_import_rows r WHERE r.import_id=customer_imports.id AND (r.input IS NOT NULL OR r.customer_baseline IS NOT NULL OR r.link_baseline IS NOT NULL)))) ORDER BY contents_expire_at,id LIMIT 20 FOR UPDATE SKIP LOCKED"
+
+ ❯ apps/api/src/beauty/customer-import.worker.test.ts:185:23
+    183|     await expect(worker.purgeExpiredContents()).resolves.toBe(1);
+    184|     const queryText = (db.$queryRaw.mock.calls[0]?.[0] as readonly str…
+    185|     expect(queryText).toContain('upload_receipts');
+       |                       ^
+    186|     expect(db.customerImport.update).toHaveBeenCalledWith({
+    187|       where: { id: claim.id },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  3 failed | 17 passed (20)
+   Start at  08:44:50
+   Duration  3.58s (transform 57%, import 40%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T15-44-47Z-unit-1d71.json
+
+# код выхода 1 · 6 с

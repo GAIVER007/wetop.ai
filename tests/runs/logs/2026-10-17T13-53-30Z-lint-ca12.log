@@ -1,0 +1,5 @@
+# Линтер (lint) · 17.10.2026 18:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (codex/calendar-quick-report), незакоммиченных файлов набора: 17
+# npx eslint . 'apps/web/src/components/employee-filter.tsx' 'apps/web/src/components/quick-report-data.ts' 'apps/web/src/components/quick-report.test.ts' 'apps/web/src/components/quick-report.tsx' 'apps/web/src/components/date-bar.tsx' 'apps/web/src/components/icon.tsx' 'apps/web/src/app/beauty/date-bar.tsx' 'apps/web/src/app/beauty/journal.tsx' 'apps/web/src/app/beauty/page.tsx' 'apps/web/src/app/beauty/week-calendar.tsx' 'apps/web/src/app/beauty/empty-workspaces.test.ts' 'apps/web/src/app/food/day-toolbar.tsx' 'apps/web/src/app/food/orders-board.tsx' 'apps/web/src/app/food/workspace-board.tsx' 'apps/web/src/app/orders/page.tsx' 'tests/ui/beauty-journal.spec.ts'
+
+# код выхода 0 · 2 мин 13 с

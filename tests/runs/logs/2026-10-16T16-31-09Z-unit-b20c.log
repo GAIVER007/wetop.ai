@@ -1,0 +1,249 @@
+# Модульные (unit) · 16.10.2026 21:31 Алматы · Noutbuk-Vyacheslav.local
+# коммит f0d80f7 (claude/modest-lovelace-429ae7), незакоммиченных файлов набора: 49
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-31-09Z-unit-b20c.json' 'apps/api'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/modest-lovelace-429ae7
+
+[Nest] 59033  - 10/16/2026, 9:31:12 AM   ERROR [AccountsService] Не удалось отправить приглашение; ссылка отозвана
+ ✓ |unit| apps/api/src/accounts/invites.controller.test.ts (13 tests) 261ms
+ ✓ |unit| apps/api/src/platform/platform.controller.test.ts (35 tests) 365ms
+ ✓ |unit| apps/api/src/assistant/assistant.controller.test.ts (19 tests) 281ms
+ ✓ |unit| apps/api/src/auth/registration-access.test.ts (10 tests) 1133ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts (74 tests) 842ms
+ ✓ |unit| apps/api/src/tasks/tasks.controller.test.ts (3 tests) 232ms
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (39 tests) 895ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (41 tests) 667ms
+stderr | apps/api/src/sites-runtime/sites-runtime.controller.test.ts > ответ контракта > факты не загрузились: publicFacts null, сайт отвечает
+{"event":"sites_runtime.facts_failed","siteId":"3f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b","error":"db down"}
+
+ ✓ |unit| apps/api/src/sites-runtime/sites-runtime.controller.test.ts (29 tests) 686ms
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (20 tests) 818ms
+   ✓ котировка продавца /bot/availability (7)
+     ✓ предел частоты на организацию — 429, ключ платформы в ответе не всплывает 508ms
+ ✓ |unit| apps/api/src/analytics/analytics.controller.test.ts (15 tests) 514ms
+ ✓ |unit| apps/api/src/assistant/diagnostics.controller.test.ts (11 tests) 290ms
+ ✓ |unit| apps/api/src/ai-seller/business-agents.controller.test.ts (32 tests) 524ms
+ ✓ |unit| apps/api/src/dashboard/dashboard.controller.test.ts (6 tests) 312ms
+ ✓ |unit| apps/api/src/assistant/actions.controller.test.ts (9 tests) 330ms
+ ✓ |unit| apps/api/src/reservations/stay-offers.test.ts (7 tests) 179ms
+ ✓ |unit| apps/api/src/chessboard/chessboard.controller.test.ts (8 tests) 247ms
+ ✓ |unit| apps/api/src/assistant/requester-context.controller.test.ts (12 tests) 279ms
+ ✓ |unit| apps/api/src/channels/channels.controller.test.ts (11 tests) 434ms
+ ✓ |unit| apps/api/src/auth/me-access.test.ts (3 tests) 203ms
+ ✓ |unit| apps/api/src/bar/bar.controller.test.ts (12 tests) 341ms
+ ✓ |unit| apps/api/src/market/collector.controller.test.ts (8 tests) 250ms
+ ✓ |unit| apps/api/src/analytics/collect.controller.test.ts (15 tests) 354ms
+ ✓ |unit| apps/api/src/platform/support-kb.controller.test.ts (10 tests) 244ms
+ ✓ |unit| apps/api/src/marketing-ads/ad-proposal.test.ts (4 tests) 237ms
+[Nest] 59058  - 10/16/2026, 9:31:17 AM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/modest-lovelace-429ae7/apps/api/src/rates/rates.controller.test.ts:324:13)
+    at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/modest-lovelace-429ae7/apps/api/src/rates/rates.service.ts:205:37
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at Proxy.applyChanges (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/modest-lovelace-429ae7/apps/api/src/rates/rates.controller.test.ts:58:26)
+    at RatesService.bulk (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/modest-lovelace-429ae7/apps/api/src/rates/rates.service.ts:194:20)
+    at file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ✓ |unit| apps/api/src/rates/rates.controller.test.ts (10 tests) 247ms
+ ✓ |unit| apps/api/src/guard/api-error.filter.test.ts (9 tests) 415ms
+ ✓ |unit| apps/api/src/bar/bar-scan.test.ts (8 tests) 245ms
+ ✓ |unit| apps/api/src/accounts/sessions.controller.test.ts (6 tests) 221ms
+ ✓ |unit| apps/api/src/body-parsers.test.ts (6 tests) 302ms
+ ✓ |unit| apps/api/src/web-booking/bot-booking.controller.test.ts (10 tests) 245ms
+ ✓ |unit| apps/api/src/inventory/inventory.controller.test.ts (6 tests) 243ms
+ ✓ |unit| apps/api/src/wizard/wizard-scan.controller.test.ts (1 test) 231ms
+ ✓ |unit| apps/api/src/units/units.controller.test.ts (6 tests) 320ms
+ ✓ |unit| apps/api/src/bar/bar.runtime.test.ts (1 test) 186ms
+ ✓ |unit| apps/api/src/hotel/hotel.controller.test.ts (12 tests) 94ms
+ ✓ |unit| apps/api/src/desk/desk.controller.test.ts (3 tests) 238ms
+ ✓ |unit| apps/api/src/wizard/wizard-generate.controller.test.ts (1 test) 181ms
+ ✓ |unit| apps/api/src/auth/attempt-limits.test.ts (9 tests) 3298ms
+   ✓ вход: предел попыток с одного адреса (2)
+     ✓ после 30 попыток с адреса — 429, а соседний адрес входит как прежде 1817ms
+     ✓ адреса IPv6 одной сети /64 делят один предел 1460ms
+ ✓ |unit| apps/api/src/ai-seller/vertical-tools.controller.test.ts (4 tests) 296ms
+ ✓ |unit| apps/api/src/health/health.test.ts (8 tests) 295ms
+[Nest] 59077  - 09/09/2026, 11:00:00 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ✓ |unit| apps/api/src/accounts/members.controller.test.ts (41 tests) 524ms
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (56 tests) 704ms
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (20 tests) 366ms
+[Nest] 59080  - 10/16/2026, 9:31:21 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-11-10 → 2026-11-12): очередь недоступна
+[Nest] 59080  - 10/16/2026, 9:31:21 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 59080  - 10/16/2026, 9:31:21 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 59080  - 10/16/2026, 9:31:21 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 59080  - 10/16/2026, 9:31:21 AM   ERROR [InboundBookingsService] Ревизия rev-fail-pii: Invalid value for notes: call <телефон>, write <почта>
+[Nest] 59080  - 10/16/2026, 9:31:21 AM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/guests/guests.controller.test.ts (19 tests) 533ms
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests) 484ms
+ ✓ |unit| apps/api/src/auth/password-reset.service.test.ts (16 tests) 1716ms
+ ✓ |unit| apps/api/src/wizard/wizard-input.test.ts (4 tests) 5ms
+ ✓ |unit| apps/api/src/marketing-site/asset-image.test.ts (9 tests) 384ms
+ ✓ |unit| apps/api/src/rate-window.test.ts (6 tests) 169ms
+ ✓ |unit| apps/api/src/wizard/wizard-chat.controller.test.ts (1 test) 225ms
+[Nest] 59088  - 10/16/2026, 9:31:22 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 59088  - 10/16/2026, 9:31:22 AM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 59088  - 10/16/2026, 9:31:22 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+ ✓ |unit| apps/api/src/guard/guard.service.test.ts (36 tests) 94ms
+ ✓ |unit| apps/api/src/finance/payment-requests.controller.test.ts (11 tests) 301ms
+ ✓ |unit| apps/api/src/database/connection.test.ts (7 tests) 197ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 208ms
+ ✓ |unit| apps/api/src/chessboard/availability-checkout.test.ts (3 tests) 34ms
+ ✓ |unit| apps/api/src/dashboard/dashboard.service.test.ts (4 tests) 9ms
+ ✓ |unit| apps/api/src/guard/incidents-exposure.test.ts (3 tests) 97ms
+ ✓ |unit| apps/api/src/ai-seller/seller-sync.service.test.ts (19 tests) 75ms
+ ✓ |unit| apps/api/src/analytics/collect.limits.test.ts (2 tests) 93ms
+ ✓ |unit| apps/api/src/dashboard/dashboard.repository.test.ts (6 tests) 7ms
+ ✓ |unit| apps/api/src/wizard/wizard-turnstile.test.ts (1 test) 15ms
+ ✓ |unit| apps/api/src/web-booking/turnstile.test.ts (27 tests) 39ms
+ ✓ |unit| apps/api/src/sales/sales.service.test.ts (2 tests) 3ms
+ ✓ |unit| apps/api/src/auth/scope-enforcement.test.ts (25 tests) 112ms
+ ✓ |unit| apps/api/src/market/market.service.test.ts (11 tests) 61ms
+ ✓ |unit| apps/api/src/ai-seller/agent-instructions.test.ts (5 tests) 5ms
+ ✓ |unit| apps/api/src/database/integration-tables.guard.test.ts (5 tests) 51ms
+ ✓ |unit| apps/api/src/marketing-site/asset-storage.test.ts (8 tests) 25ms
+ ✓ |unit| apps/api/src/app.module.test.ts (1 test) 39ms
+ ✓ |unit| apps/api/src/auth/auth.controller.test.ts (7 tests) 40ms
+ ✓ |unit| apps/api/src/bar/bar-folio-service-date.test.ts (1 test) 11ms
+ ✓ |unit| apps/api/src/ai-seller/vertical-tools.test.ts (14 tests) 18ms
+[Nest] 59111  - 10/16/2026, 9:31:24 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 59111  - 10/16/2026, 9:31:24 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 59111  - 10/16/2026, 9:31:24 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 59111  - 10/16/2026, 9:31:24 AM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 59111  - 10/16/2026, 9:31:24 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 59111  - 10/16/2026, 9:31:24 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 59111  - 10/16/2026, 9:31:24 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 59111  - 10/16/2026, 9:31:24 AM    WARN [WebhookHealthService] в менеджере каналов зарегистрирован https://old-quick.trycloudflare.com/channels/channex/webhook, а постоянный адрес PMS — https://api.wetop.ai/channels/channex/webhook: перерегистрируйте webhook на /channels
+[Nest] 59111  - 10/16/2026, 9:31:24 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 59111  - 10/16/2026, 9:31:24 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 59111  - 10/16/2026, 9:31:24 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 59111  - 10/16/2026, 9:31:24 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 59111  - 10/16/2026, 9:31:24 AM     LOG [WebhookHealthService] адрес webhook https://api.wetop.test/channels/channex/webhook: отвечает
+[Nest] 59111  - 10/16/2026, 9:31:24 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 59111  - 10/16/2026, 9:31:24 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+ ✓ |unit| apps/api/src/channels/webhook-health.test.ts (13 tests) 16ms
+ ✓ |unit| apps/api/src/channels/gateway-failure.test.ts (4 tests) 3ms
+ ✓ |unit| apps/api/src/hotel/branches.test.ts (13 tests) 83ms
+ ✓ |unit| apps/api/src/hotel/services-catalog.test.ts (6 tests) 19ms
+ ✓ |unit| apps/api/src/onboarding/onboarding.test.ts (6 tests) 37ms
+ ✓ |unit| apps/api/src/ai-seller/agent-telegram.test.ts (4 tests) 6ms
+ ✓ |unit| apps/api/src/hotel/payment-methods.test.ts (5 tests) 20ms
+ ✓ |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts (17 tests) 16ms
+ ✓ |unit| apps/api/src/ai-seller/seller-orgs.test.ts (8 tests) 32ms
+ ✓ |unit| apps/api/src/hotel/organization-summary.test.ts (3 tests) 4ms
+ ✓ |unit| apps/api/src/auth/scope.test.ts (12 tests) 14ms
+ ✓ |unit| apps/api/src/auth/role.guard.test.ts (9 tests) 34ms
+ ✓ |unit| apps/api/src/bar/bar-payment-methods.test.ts (5 tests) 10ms
+ ✓ |unit| apps/api/src/auth/auth.guard.test.ts (37 tests) 12ms
+[Nest] 59124  - 10/16/2026, 9:31:26 AM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 59124  - 10/16/2026, 9:31:26 AM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+ ✓ |unit| apps/api/src/channels/sync-schedule.test.ts (5 tests) 11ms
+ ✓ |unit| apps/api/src/auth/request-context.test.ts (17 tests) 11ms
+ ✓ |unit| apps/api/src/inventory/inventory-input.test.ts (4 tests) 5ms
+ ✓ |unit| apps/api/src/hotel/property-media.test.ts (8 tests) 66ms
+ ✓ |unit| apps/api/src/rates/rate-plans.test.ts (6 tests) 7ms
+ ✓ |unit| apps/api/src/database/property-ref.test.ts (21 tests) 12ms
+[Nest] 59129  - 10/16/2026, 9:31:26 AM   ERROR [OutboxWorker] Менеджер каналов отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+ ✓ |unit| apps/api/src/channels/outbox.test.ts (12 tests) 43ms
+ ✓ |unit| apps/api/src/guard/backup-status.test.ts (3 tests) 5ms
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (62 tests) 7004ms
+   ✓ AuthService.login (14)
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 501ms
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 333ms
+ ✓ |unit| apps/api/src/hotel/reservation-directory.test.ts (18 tests) 45ms
+ ✓ |unit| apps/api/src/marketing-site/asset-fetch.test.ts (50 tests) 15ms
+ ✓ |unit| apps/api/src/audit/audit.service.test.ts (12 tests) 14ms
+ ✓ |unit| apps/api/src/channels/connection.test.ts (13 tests) 8ms
+ ✓ |unit| apps/api/src/channels/catalog.test.ts (10 tests) 10ms
+ ✓ |unit| apps/api/src/hotel/branch-lifecycle.test.ts (3 tests) 4ms
+ ✓ |unit| apps/api/src/platform/overview.test.ts (4 tests) 6ms
+ ✓ |unit| apps/api/src/auth/author.interceptor.test.ts (11 tests) 22ms
+ ✓ |unit| apps/api/src/channels/ari-ranges.test.ts (18 tests) 11ms
+ ✓ |unit| apps/api/src/marketing-budget/meta-nightly.test.ts (1 test) 3ms
+ ✓ |unit| apps/api/src/channels/integration-scope.test.ts (4 tests) 5ms
+ ✓ |unit| apps/api/src/rates/rate-history.test.ts (3 tests) 14ms
+ ✓ |unit| apps/api/src/auth/business-vertical.test.ts (8 tests) 5ms
+ ✓ |unit| apps/api/src/hotel/settings-update.test.ts (11 tests) 12ms
+ ✓ |unit| apps/api/src/hotel/branch-context.test.ts (4 tests) 5ms
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 10ms
+ ✓ |unit| apps/api/src/channels/integration-property.test.ts (11 tests) 7ms
+ ✓ |unit| apps/api/src/accounts/actor.test.ts (5 tests) 10ms
+ ✓ |unit| apps/api/src/marketing-site/site-facts.service.test.ts (9 tests) 8ms
+ ✓ |unit| apps/api/src/hotel/business-cards.test.ts (8 tests) 14ms
+ ✓ |unit| apps/api/src/guard/guard.controller.test.ts (4 tests) 4ms
+ ✓ |unit| apps/api/src/listen-address.test.ts (5 tests) 4ms
+ ✓ |unit| apps/api/src/channels/integration-command.test.ts (4 tests) 12ms
+[Nest] 59158  - 10/16/2026, 9:31:28 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): Connection terminated
+[Nest] 59158  - 10/16/2026, 9:31:28 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): очередь недоступна
+[Nest] 59158  - 10/16/2026, 9:31:28 AM   ERROR [AriPublisher] След потерянной дельты не записан: и журнал недоступен
+ ✓ |unit| apps/api/src/channels/ari-delta-lost.test.ts (3 tests) 11ms
+ ✓ |unit| apps/api/src/marketing-site/design-choice.test.ts (12 tests) 5ms
+ ✓ |unit| apps/api/src/channels/channels.test.ts (11 tests) 9ms
+ ✓ |unit| apps/api/src/channels/integration-owner.test.ts (5 tests) 8ms
+ ✓ |unit| apps/api/src/accounts/cookie.test.ts (10 tests) 6ms
+ ✓ |unit| apps/api/src/beauty/scope.test.ts (7 tests) 5ms
+ ✓ |unit| apps/api/src/database/integration-tables.test.ts (4 tests) 2ms
+ ✓ |unit| apps/api/src/hotel/onboarding.test.ts (11 tests) 27ms
+ ✓ |unit| apps/api/src/platform/support.queue.test.ts (20 tests) 5ms
+ ✓ |unit| apps/api/src/channels/schedule.test.ts (26 tests) 26ms
+ ✓ |unit| apps/api/src/hotel/settings-concurrency.test.ts (3 tests) 5ms
+[Nest] 59167  - 10/16/2026, 9:31:29 AM     LOG [UserErrorsRetentionService] журнал ошибок: удалено строк 3 старше 30 суток
+ ✓ |unit| apps/api/src/assistant/user-errors-retention.service.test.ts (2 tests) 18ms
+ ✓ |unit| apps/api/src/beauty/customers.test.ts (1 test) 8ms
+ ✓ |unit| apps/api/src/ai-seller/business-agents.scope.test.ts (4 tests) 13ms
+ ✓ |unit| apps/api/src/auth/accounts-public-routes.test.ts (10 tests) 52ms
+[Nest] 59176  - 10/16/2026, 9:31:29 AM     LOG [WebRetentionService] счётчик сайта: удалено сессий 3, начатых до 2026-09-13 (хранение 13 мес.)
+ ✓ |unit| apps/api/src/analytics/retention.service.test.ts (4 tests) 12ms
+ ✓ |unit| apps/api/src/auth/capability-boundary.test.ts (5 tests) 10ms
+ ✓ |unit| apps/api/src/sales/sales-summary.test.ts (5 tests) 9ms
+ ✓ |unit| apps/api/src/channels/outbox-enqueue.test.ts (2 tests) 4ms
+ ✓ |unit| apps/api/src/channels/webhook-register.test.ts (7 tests) 7ms
+ ✓ |unit| apps/api/src/channels/inactive-rate.test.ts (2 tests) 5ms
+ ✓ |unit| apps/api/src/market/collector-selection.test.ts (2 tests) 14ms
+ ✓ |unit| apps/api/src/inventory/category-photos.test.ts (2 tests) 3ms
+ ✓ |unit| apps/api/src/web-booking/widget-cors.test.ts (3 tests) 7ms
+ ✓ |unit| apps/api/src/channels/mapped-properties.test.ts (2 tests) 4ms
+ ✓ |unit| apps/api/src/freshness/freshness.test.ts (4 tests) 13ms
+ ✓ |unit| apps/api/src/marketing-site/preview-token.test.ts (5 tests) 3ms
+ ✓ |unit| apps/api/src/inventory/empty-category.test.ts (1 test) 2ms
+ ✓ |unit| apps/api/src/reservations/audit-card-redact.test.ts (2 tests) 6ms
+ ✓ |unit| apps/api/src/channels/ari-switch.test.ts (4 tests) 4ms
+ ✓ |unit| apps/api/src/hotel/first-steps.test.ts (2 tests) 3ms
+ ✓ |unit| apps/api/src/database/location-ref.test.ts (4 tests) 4ms
+ ✓ |unit| apps/api/src/beauty/services-popularity.test.ts (1 test) 15ms
+ ✓ |unit| apps/api/src/finance/cash-category-audit.test.ts (1 test) 4ms
+ ✓ |unit| apps/api/src/finance/finance-audit-transaction.test.ts (4 tests) 4ms
+ ✓ |unit| apps/api/src/auth/registration-context.test.ts (6 tests) 4ms
+ ✓ |unit| apps/api/src/security-headers.test.ts (2 tests) 6ms
+ ✓ |unit| apps/api/src/channels/revision-facts.test.ts (3 tests) 2ms
+ ✓ |unit| apps/api/src/inventory/inventory-insight.test.ts (8 tests) 13ms
+ ✓ |unit| apps/api/src/rates/restriction-merge.test.ts (5 tests) 2ms
+ ✓ |unit| apps/api/src/bar/bar-period.test.ts (3 tests) 3ms
+ ✓ |unit| apps/api/src/channels/multi-property-scope.test.ts (1 test) 3ms
+ ✓ |unit| apps/api/src/channels/content.test.ts (6 tests) 5ms
+ ✓ |unit| apps/api/src/channels/operator-access.test.ts (6 tests) 11ms
+ ✓ |unit| apps/api/src/audit/owner-access.test.ts (3 tests) 6ms
+ ✓ |unit| apps/api/src/ai-seller/agent-vertical.test.ts (1 test) 9ms
+ ✓ |unit| apps/api/src/inventory/inventory.repository.test.ts (1 test) 7ms
+ ✓ |unit| apps/api/src/chessboard/stay-facts.test.ts (2 tests) 2ms
+ ✓ |unit| apps/api/src/auth/capability-coverage.test.ts (1 test) 11ms
+ ✓ |unit| apps/api/src/auth/registration-contract.test.ts (1 test) 3ms
+ ✓ |unit| apps/api/src/channels/outbox-rows.test.ts (3 tests) 3ms
+ ✓ |unit| apps/api/src/reservations/rate-plans-read.test.ts (1 test) 4ms
+ ✓ |unit| apps/api/src/channels/multi-property-outbox.test.ts (1 test) 3ms
+ ✓ |unit| apps/api/src/reservations/early-checkout-availability.test.ts (1 test) 2ms
+ ✓ |unit| apps/api/src/food-service/boundary.test.ts (2 tests) 3ms
+ ✓ |unit| apps/api/src/channels/multi-property-webhook-cache.test.ts (1 test) 3ms
+
+ Test Files  175 passed (175)
+      Tests  1692 passed (1692)
+   Start at  09:31:10
+   Duration  21.73s (import 62%, tests 25%, transform 12%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-31-09Z-unit-b20c.json
+
+# код выхода 0 · 22 с

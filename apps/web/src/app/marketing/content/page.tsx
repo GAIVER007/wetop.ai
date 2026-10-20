@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { verticalCopy, type VerticalCopy } from '../../../lib/vertical-copy';
 import '../marketing.css';
 import { Icon, type IconName } from '../../../components/icon';
@@ -12,7 +12,7 @@ import { BackToModules, ModuleSoon, WeekPlan } from '../parts';
  * Модуль «Контент» (макет Marketing 2.0 владельца 09.10.2026, экран 3 «генерация и планирование»; MKT10.7–10.8 в
  * plans/mkt10-marketing-2-audit-2026-10-09.md). Генерации и плана публикаций ещё нет, поэтому экран показывает
  * форматы и пустую неделю, без выдуманных постов. Живое здесь одно: медиатека ведёт в изображения сайта (MKT8).
- * Своих запросов к API у страницы нет, право `settings` как у хаба.
+ * Своих запросов к API у страницы нет, право `marketing` как у хаба.
  */
 const formats = (c: VerticalCopy): Array<{ title: string; text: string; icon: IconName }> => [
   { title: `Фото ${c.photoSubject}`, text: 'Снимок в нужном стиле', icon: c.photoIcon },
@@ -61,7 +61,7 @@ function Ideas({ copy }: { copy: VerticalCopy }) {
 }
 
 export default async function MarketingContentPage() {
-  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireFeature('/marketing/content');
   const copy = verticalCopy(me.context?.vertical);
   return (
     <Page

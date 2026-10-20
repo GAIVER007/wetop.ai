@@ -1,0 +1,59 @@
+# Модульные (unit) · 16.10.2026 16:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит 60a7715 (claude/calendar-polish), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T11-15-32Z-unit-1b8b.json' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design
+
+ ❯ |unit| scripts/design/build-tokens.test.ts (15 tests | 1 failed) 278ms
+   ❯ tokens.css генерируется из design/tokens.json (4)
+     ✓ контрастная тема задаёт светлый фон даже внутри тёмной темы 3ms
+     ✓ файл на диске совпадает с выводом генератора (ручная правка — красный тест) 1ms
+     ✓ design/contrast.md совпадает с расчётом 5ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 254ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 1ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 0ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 1ms
+     ✓ шрифт не мельче 12 px 0ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 1ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 1ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 3ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 1ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 0ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 5ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 1ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+AssertionError: expected [ '--space-3' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--space-3",
++ ]
+
+ ❯ scripts/design/build-tokens.test.ts:121:21
+    119|     ]);
+    120|     const missing = [...used].filter((v) => !defined.has(v) && !local.…
+    121|     expect(missing).toEqual([]);
+       |                     ^
+    122|   });
+    123| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 32 passed (33)
+   Start at  04:15:36
+   Duration  846ms (import 58%, tests 31%, transform 10%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T11-15-32Z-unit-1b8b.json
+
+# код выхода 1 · 4 с

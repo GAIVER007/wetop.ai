@@ -1,0 +1,20 @@
+# Интеграционные (integration) · 17.10.2026 00:41 Алматы · <сервер>
+# коммит c46ef1c (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 24
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T19-41-54Z-integration-7e43.json' '--config' 'tests/employee-portal-ui/spec-fixes.config.ts' 'tests/integration/employee-portal-schedule-conflicts.test.ts' 'tests/integration/employee-portal.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-portal-release-61af7b90
+
+ ✓ |integration| tests/integration/employee-portal-schedule-conflicts.test.ts (3 tests) 1204ms
+ ✓ |integration| tests/integration/employee-portal.test.ts (6 tests) 1991ms
+   ✓ employee portal real persistence and authorization (6)
+     ✓ persists private profile and requires manager reapproval after self edits 420ms
+     ✓ persists actual processed bytes, enforces work ownership and truthful storage off 315ms
+
+ Test Files  2 passed (2)
+      Tests  9 passed (9)
+   Start at  19:41:55
+   Duration  7.76s (tests 43%, transform 32%, import 25%)
+
+JSON report written to /tmp/pms-test-2026-10-16T19-41-54Z-integration-7e43.json
+
+# код выхода 0 · 9 с

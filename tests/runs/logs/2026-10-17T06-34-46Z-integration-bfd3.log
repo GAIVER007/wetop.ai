@@ -1,0 +1,34 @@
+# Интеграционные (integration) · 17.10.2026 11:34 Алматы · <сервер>
+# коммит 0766123 (fix/tz21-working-time), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T06-34-46Z-integration-bfd3.json' 'tests/integration/tz21-working-time.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-working-time/tree
+
+[pms_test] миграций применено 134; данные на месте
+[pms_test] роли wetop_app включён вход (локальная база)
+ ❯ |integration| tests/integration/tz21-working-time.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/tz21-working-time.test.ts [ tests/integration/tz21-working-time.test.ts ]
+Error: Portal fixtures require an owned loopback cluster or the dedicated GitHub job database
+ ❯ assertPortalDatabase tests/employee-portal-ui/fixture-support.ts:19:11
+     17|     && u.port === '5432' && u.pathname === '/pms_dev';
+     18|   if (u.protocol !== 'postgresql:' || u.hostname !== '127.0.0.1' || u.…
+     19|     throw new Error('Portal fixtures require an owned loopback cluster…
+       |           ^
+     20|   return raw;
+     21| }
+ ❯ tests/integration/tz21-working-time.test.ts:10:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  06:34:57
+   Duration  20.63s (worker 97%, environment 3%)
+
+JSON report written to /tmp/pms-test-2026-10-17T06-34-46Z-integration-bfd3.json
+
+# код выхода 1 · 32 с

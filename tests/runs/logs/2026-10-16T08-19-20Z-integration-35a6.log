@@ -1,0 +1,138 @@
+# Интеграционные (integration) · 16.10.2026 13:19 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 23
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T08-19-20Z-integration-35a6.json' '--config' 'tests/occupancy-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+(node:1659871) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/occupancy-isolated.test.ts (6 tests | 2 failed) 770ms
+   ✓ real FoodService commands synchronize reservation, assignment and legacy hooks atomically 530ms
+   ✓ runtime role successfully seats, moves and releases its own tenant 53ms
+   ✓ runtime tenant isolation hides other branches and rejects writes 5ms
+   ✓ walk-in persists one actual session, retries replay, competing seats fail, move and release are atomic 45ms
+   × retained history rejects parent scope changes and session relinking but permits business edits 30ms
+   × history pages equal timestamps without duplicates and validates cursor scope 53ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/occupancy-isolated.test.ts > retained history rejects parent scope changes and session relinking but permits business edits
+AssertionError: promise resolved "Result{ command: 'UPDATE', …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ Result {
++   "RowCtor": null,
++   "_parsers": undefined,
++   "_prebuiltEmptyResultObject": null,
++   "_types": TypeOverrides {
++     "_types": {
++       "arrayParser": {
++         "create": [Function create],
++       },
++       "builtins": {
++         "ABSTIME": 702,
++         "ACLITEM": 1033,
++         "BIT": 1560,
++         "BOOL": 16,
++         "BPCHAR": 1042,
++         "BYTEA": 17,
++         "CHAR": 18,
++         "CID": 29,
++         "CIDR": 650,
++         "CIRCLE": 718,
++         "DATE": 1082,
++         "FLOAT4": 700,
++         "FLOAT8": 701,
++         "GTSVECTOR": 3642,
++         "INET": 869,
++         "INT2": 21,
++         "INT4": 23,
++         "INT8": 20,
++         "INTERVAL": 1186,
++         "JSON": 114,
++         "JSONB": 3802,
++         "MACADDR": 829,
++         "MACADDR8": 774,
++         "MONEY": 790,
++         "NUMERIC": 1700,
++         "OID": 26,
++         "PATH": 602,
++         "PG_DEPENDENCIES": 3402,
++         "PG_LSN": 3220,
++         "PG_NDISTINCT": 3361,
++         "PG_NODE_TREE": 194,
++         "POLYGON": 604,
++         "REFCURSOR": 1790,
++         "REGCLASS": 2205,
++         "REGCONFIG": 3734,
++         "REGDICTIONARY": 3769,
++         "REGNAMESPACE": 4089,
++         "REGOPER": 2203,
++         "REGOPERATOR": 2204,
++         "REGPROC": 24,
++         "REGPROCEDURE": 2202,
++         "REGROLE": 4096,
++         "REGTYPE": 2206,
++         "RELTIME": 703,
++         "SMGR": 210,
++         "TEXT": 25,
++         "TID": 27,
++         "TIME": 1083,
++         "TIMESTAMP": 1114,
++         "TIMESTAMPTZ": 1184,
++         "TIMETZ": 1266,
++         "TINTERVAL": 704,
++         "TSQUERY": 3615,
++         "TSVECTOR": 3614,
++         "TXID_SNAPSHOT": 2970,
++         "UUID": 2950,
++         "VARBIT": 1562,
++         "VARCHAR": 1043,
++         "XID": 28,
++         "XML": 142,
++       },
++       "getTypeParser": [Function getTypeParser],
++       "setTypeParser": [Function setTypeParser],
++     },
++     "binary": {},
++     "text": {},
++   },
++   "command": "UPDATE",
++   "fields": [],
++   "oid": null,
++   "rowAsArray": false,
++   "rowCount": 1,
++   "rows": [],
+  }
+
+ ❯ tests/integration/occupancy-isolated.test.ts:95:96
+     93|  const id=await command('history-seat','SEAT',t); await command('histo…
+     94|  await expect(pool.query('update dining_tables set area_id=$2 where id…
+     95|  await expect(pool.query('update table_occupancy_sessions set table_id…
+       |                                                                                                ^
+     96|  await expect(pool.query('update dining_areas set location_id=$2 where…
+     97|  await expect(pool.query('update locations set business_id=$2 where id…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/occupancy-isolated.test.ts > history pages equal timestamps without duplicates and validates cursor scope
+error: inconsistent types deduced for parameter $1
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/occupancy-isolated.test.ts:104:23
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  08:19:22
+   Duration  3.12s (transform 54%, tests 26%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-10-16T08-19-20Z-integration-35a6.json
+
+# код выхода 1 · 5 с

@@ -1,0 +1,21 @@
+# Интеграционные (integration) · 16.10.2026 10:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит b6e59e0 (claude/bar-surplus), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-25-54Z-integration-b042.json' 'tests/integration/bar-inventory-surplus.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+[pms_test] миграций применено 1; данные на месте
+(node:69878) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-inventory-surplus.test.ts (3 tests) 1542ms
+   ✓ бар: излишек при инвентаризации (integration) (3)
+     ✓ излишек при остатке: партия по средней себестоимости, без строки прихода, продаётся последней 464ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  22:25:59
+   Duration  11.98s (transform 65%, tests 17%, import 17%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-25-54Z-integration-b042.json
+
+# код выхода 0 · 19 с

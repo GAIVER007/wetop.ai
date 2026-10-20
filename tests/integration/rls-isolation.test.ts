@@ -10,12 +10,23 @@ loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
 class Rollback extends Error {}
 
+// Explicit tenant inventory for the locally installed held package, not RLS exceptions.
+const HELD_TENANT_TABLES = [
+  'expense_categories', 'expense_documents', 'expense_settlements', 'payment_write_intents',
+  'table_occupancy_sessions', 'table_occupancy_commands',
+  'workload_tracking_coverage', 'resource_capacity_revisions', 'resource_capacity_intervals', 'workload_coverage_segments',
+  'restaurant_opening_schedules', 'restaurant_opening_intervals', 'restaurant_opening_closures',
+  'beauty_schedule_versions', 'beauty_capacity_intervals', 'appointment_workload_revisions',
+  'hospitality_workload_versions', 'hospitality_workload_sources',
+] as const;
+let TENANT_TABLES: readonly string[] = RLS_TENANT_TABLES;
+
 /**
  * Row Level Security (план `plans/rls-2026-09-27.md` шаг 1, DATA_MODEL §17, ADR-103). Замок в приложении (ADR-061)
  * обходится любым запросом мимо резолвера объекта; здесь проверяется замок в самой базе.
  *
- * Как: в транзакции, которая откатывается, заводятся две организации — «своя» получает объект тестовой базы со всеми
- * его бронями, гостями и счетами, «чужая» — свой пустой объект и одного гостя. Затем под ролью `wetop_app` с переменной
+ * Как: в транзакции, которая откатывается, заводятся две организации — «своя» получает новый объект с номером,
+ * бронью, гостем и счётом, «чужая» — свой пустой объект и одного гостя. Seed/history не перепривязываются. Затем под ролью `wetop_app` с переменной
  * `app.org_id`:
  * - чужая организация видит 0 строк объекта в КАЖДОЙ таблице арендатора;
  * - своя — видит свои строки и не видит гостя чужой;
@@ -31,6 +42,13 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
     const schema = process.env.DATABASE_SCHEMA?.trim() || 'public';
     client = new pg.Client({ connectionString: url, options: `-c search_path=${schema},public` });
     await client.connect();
+    const installedHeld = await client.query<{ tablename: string }>(
+      'SELECT tablename FROM pg_tables WHERE schemaname=current_schema() AND tablename=ANY($1::text[])',
+      [HELD_TENANT_TABLES],
+    );
+    // Baseline CI has none of this opt-in package. Partial installation must fail, not waive any table.
+    expect([0, HELD_TENANT_TABLES.length], 'held tenant schema must be wholly absent or wholly installed').toContain(installedHeld.rows.length);
+    TENANT_TABLES = [...RLS_TENANT_TABLES, ...(installedHeld.rows.length ? HELD_TENANT_TABLES : [])];
   });
   afterAll(async () => {
     await client?.end();
@@ -64,18 +82,25 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
   async function seedTwoOrganizations(): Promise<{ own: string; other: string; otherGuest: string; property: string }> {
     const own = randomUUID();
     const other = randomUUID();
-    const property = (await client.query<{ id: string }>(`SELECT id FROM properties ORDER BY created_at LIMIT 1`)).rows[0]!.id;
+    const property = randomUUID(), business = randomUUID(), location = randomUUID();
+    const building = randomUUID(), floor = randomUUID(), room = randomUUID(), category = randomUUID();
+    const unit = randomUUID(), guest = randomUUID(), reservation = randomUUID(), item = randomUUID();
     await client.query(`INSERT INTO organizations (id, name) VALUES ($1, 'RLS own'), ($2, 'RLS other')`, [own, other]);
-    await client.query(`UPDATE properties SET organization_id = $1 WHERE id = $2`, [own, property]);
-    // Platform P1 (ADR-104 §18): бизнес тестовой базы — «своей» организации; его филиал виден через
-    // родителя-Business, что и проверяет обход таблиц под wetop_app ниже
-    await client.query(`UPDATE businesses SET organization_id = $1`, [own]);
-    // все гости и записи журнала тестовой базы — объекта «своей» организации
-    await client.query(`UPDATE guests SET organization_id = $1`, [own]);
-    // журнал только дописывается; в откатываемой транзакции триггер выключается, как в миграции …27
-    await client.query(`ALTER TABLE audit_logs DISABLE TRIGGER audit_logs_immutable`);
-    await client.query(`UPDATE audit_logs SET organization_id = $1`, [own]);
-    await client.query(`ALTER TABLE audit_logs ENABLE TRIGGER audit_logs_immutable`);
+    // Never reparent seeded rows: retained occupancy/workload history pins its parents.
+    // Build a fresh complete chain, leaving every existing tenant and audit row untouched.
+    await client.query(`INSERT INTO businesses(id,organization_id,name,vertical,updated_at) VALUES($1,$2,'RLS own','HOSPITALITY',now())`, [business,own]);
+    await client.query(`INSERT INTO locations(id,business_id,name,timezone,currency,updated_at) VALUES($1,$2,'RLS own','Asia/Almaty','KZT',now())`, [location,business]);
+    await client.query(`INSERT INTO properties(id,organization_id,location_id,name,timezone,currency,check_in_time,check_out_time,updated_at) VALUES($1,$2,$3,'RLS own','Asia/Almaty','KZT','14:00','12:00',now())`, [property,own,location]);
+    await client.query(`INSERT INTO buildings(id,property_id,name) VALUES($1,$2,'RLS own')`, [building,property]);
+    await client.query(`INSERT INTO floors(id,building_id,name) VALUES($1,$2,'RLS own')`, [floor,building]);
+    await client.query(`INSERT INTO physical_rooms(id,floor_id,room_number,capacity,updated_at) VALUES($1,$2,'RLS own',1,now())`, [room,floor]);
+    await client.query(`INSERT INTO accommodation_types(id,property_id,code,name,kind,capacity_adults,updated_at) VALUES($1,$2,'RLS','RLS own','PRIVATE_ROOM',1,now())`, [category,property]);
+    await client.query(`INSERT INTO inventory_units(id,property_id,physical_room_id,accommodation_type_id,kind,code,updated_at) VALUES($1,$2,$3,$4,'ROOM','RLS',now())`, [unit,property,room,category]);
+    await client.query(`INSERT INTO guests(id,organization_id,first_name,last_name,updated_at) VALUES($1,$2,'Synthetic','RLS own',now())`, [guest,own]);
+    await client.query(`INSERT INTO reservations(id,property_id,confirmation_number,status,source,arrival_date,departure_date,adults,currency,total_amount,updated_at) VALUES($1::uuid,$2,$1::text,'CONFIRMED','DESK','2040-01-01','2040-01-02',1,'KZT',100,now())`, [reservation,property]);
+    await client.query(`INSERT INTO reservation_items(id,reservation_id,accommodation_type_id,arrival_date,departure_date,price,status,updated_at) VALUES($1,$2,$3,'2040-01-01','2040-01-02',100,'CONFIRMED',now())`, [item,reservation,category]);
+    await client.query(`INSERT INTO allocations(id,reservation_item_id,inventory_unit_id,start_date,end_date) VALUES($1,$2,$3,'2040-01-01','2040-01-02')`, [randomUUID(),item,unit]);
+    await client.query(`INSERT INTO folios(id,reservation_item_id,currency) VALUES($1,$2,'KZT')`, [randomUUID(),item]);
     // у чужого объекта своя цепочка Business → Location (Platform P1, DATA_MODEL v2.6: location_id NOT NULL)
     const otherBusiness = randomUUID();
     const otherLocation = randomUUID();
@@ -108,13 +133,25 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
         WHERE table_schema = current_schema() AND table_type = 'BASE TABLE'
           AND table_name NOT IN ('_prisma_migrations', '_test_migrations', '_test_meta')`,
     );
-    const known = new Set([...RLS_TENANT_TABLES, ...RLS_NO_TENANT_TABLES]);
+    const known = new Set([...TENANT_TABLES, ...RLS_NO_TENANT_TABLES]);
     expect(res.rows.map((r) => r.table_name).filter((t) => !known.has(t)).sort()).toEqual([]);
     const rls = await client.query<{ relname: string; relforcerowsecurity: boolean }>(
       `SELECT c.relname, c.relforcerowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
         WHERE n.nspname = current_schema() AND c.relkind = 'r' AND c.relrowsecurity`,
     );
-    expect(rls.rows.map((r) => r.relname).sort()).toEqual([...RLS_TENANT_TABLES].sort());
+    expect(rls.rows.map((r) => r.relname).sort()).toEqual([...TENANT_TABLES].sort());
+    expect(rls.rows.filter((r) => (HELD_TENANT_TABLES as readonly string[]).includes(r.relname) && !r.relforcerowsecurity).map((r) => r.relname), 'held tenant tables require FORCE RLS').toEqual([]);
+    const beautyTables = [
+      'appointment_lines', 'employee_service_prices',
+      'beauty_appointment_reviews', 'beauty_review_invitations',
+      'beauty_service_materials', 'beauty_service_material_revisions',
+      'beauty_positions', 'beauty_position_permissions', 'beauty_position_assignments',
+      'beauty_location_hours',
+    ];
+    expect(
+      rls.rows.filter((row) => beautyTables.includes(row.relname) && !row.relforcerowsecurity).map((row) => row.relname).sort(),
+      'ordinary Beauty tenant tables require FORCE RLS',
+    ).toEqual([]);
     const barTables = RLS_TENANT_TABLES.filter((table) => table.startsWith('bar_'));
     expect(
       rls.rows.filter((row) => barTables.includes(row.relname) && !row.relforcerowsecurity).map((row) => row.relname).sort(),
@@ -127,17 +164,18 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
       const { own, other } = await seedTwoOrganizations();
       const leaks: string[] = [];
       let ownSeen = 0;
-      for (const table of RLS_TENANT_TABLES) {
+      for (const table of TENANT_TABLES) {
         const all = Number((await client.query(`SELECT count(*) FROM "${table}"`)).rows[0].count);
         const asOther = await visible(table, other);
         const asOwn = await visible(table, own);
         // у «чужой» — только её организация, её бизнес, филиал, объект и гость; строки тестовой базы ей не видны
         const otherOwn = ['organizations', 'businesses', 'locations', 'properties', 'guests'].includes(table) ? 1 : 0;
         if (asOther !== otherOwn) leaks.push(`${table}: чужой видно ${asOther} из ${all}`);
+        if (['organizations', 'businesses', 'locations', 'properties', 'buildings', 'floors', 'physical_rooms', 'accommodation_types', 'inventory_units', 'guests', 'reservations', 'reservation_items', 'allocations', 'folios'].includes(table)) expect(asOwn, `own fixture: ${table}`).toBe(1);
         if (asOwn > 0) ownSeen += 1;
       }
       expect(leaks).toEqual([]);
-      // у своей организации строки есть хотя бы в брони, объекте, гостях и счетах тестовой базы
+      // Свежая цепочка гарантирует положительный контроль, не изменяя строки тестовой базы.
       expect(ownSeen).toBeGreaterThanOrEqual(5);
     });
   });
@@ -151,7 +189,7 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
       const found = await client.query(`SELECT id FROM guests WHERE id = $1`, [otherGuest]);
       expect(found.rowCount).toBe(0);
       await client.query('ROLLBACK TO SAVEPOINT look');
-      for (const table of ['reservations', 'guests', 'properties', 'folios', 'audit_logs']) {
+      for (const table of TENANT_TABLES) {
         expect(await visible(table, '')).toBe(0);
       }
     });

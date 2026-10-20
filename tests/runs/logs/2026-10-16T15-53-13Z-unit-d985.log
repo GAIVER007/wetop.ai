@@ -1,0 +1,78 @@
+# Модульные (unit) · 16.10.2026 20:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 73d2b26 (claude/marketing-ad-proposal), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-53-13Z-unit-d985.json' 'apps/api/src/marketing-ads'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| apps/api/src/marketing-ads/ad-proposal.test.ts (4 tests | 2 failed) 104ms
+   ❯ реклама: предложение ИИ (4)
+     × шлёт боту контракт ad-proposal/0 с данными филиала и отдаёт предложение по правилам домена 19ms
+     ✓ видео: 2–4 кадра JPEG; фото: одна картинка; иначе 400 до бота 8ms
+     ✓ Messenger и Instagram Direct пока не запускаются: 400 словами до бота 1ms
+     × ИИ недоступен: 503 с подсказкой заполнить руками; ответ не по схеме: 422 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/marketing-ads/ad-proposal.test.ts > реклама: предложение ИИ > шлёт боту контракт ad-proposal/0 с данными филиала и отдаёт предложение по правилам домена
+AssertionError: expected { headline: 'Осень у моря', …(9) } to deeply equal { headline: 'Осень у моря', …(8) }
+
+- Expected
++ Received
+
+  {
+    "ageMax": 54,
+    "ageMin": 25,
++   "autofill": "Хочу узнать цены",
+    "description": null,
+    "genders": [],
+    "headline": "Осень у моря",
+    "interests": [
+      "путешествия",
+    ],
+    "notes": [],
+    "primaryText": "Номер с видом на горы. Напишите, подберём даты.",
+-   "welcome": {
+-     "autofill": "Хочу узнать цены",
+-     "text": "Здравствуйте!",
+-   },
++   "welcomeMessage": "Здравствуйте!",
+  }
+
+ ❯ apps/api/src/marketing-ads/ad-proposal.test.ts:100:22
+     98|     expect(typeof last!.requestId).toBe('string');
+     99|     expect(last!.budgetRemainingTokens).toBeGreaterThan(0);
+    100|     expect(res.body).toEqual({
+       |                      ^
+    101|       headline: 'Осень у моря',
+    102|       primaryText: 'Номер с видом на горы. Напишите, подберём даты.',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/marketing-ads/ad-proposal.test.ts > реклама: предложение ИИ > ИИ недоступен: 503 с подсказкой заполнить руками; ответ не по схеме: 422
+AssertionError: expected 200 to be 422 // Object.is equality
+
+- Expected
++ Received
+
+- 422
++ 200
+
+ ❯ apps/api/src/marketing-ads/ad-proposal.test.ts:152:41
+    150|     expect((await post(body())).status).toBe(422);
+    151|     reply = { status: 'ok', spec: { headline: '', primaryText: 'x' } };
+    152|     expect((await post(body())).status).toBe(422);
+       |                                         ^
+    153|   });
+    154| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  08:53:14
+   Duration  937ms (transform 51%, import 37%, tests 12%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-53-13Z-unit-d985.json
+
+# код выхода 1 · 2 с

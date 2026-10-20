@@ -1,0 +1,100 @@
+# Модульные (unit) · 16.10.2026 12:12 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T07-12-03Z-unit-6d10.json' 'apps/api/src/finance/expense-documents.test.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| apps/api/src/finance/expense-documents.test.ts (7 tests | 6 failed) 581ms
+   ❯ expense persistence, isolated PostgreSQL (7)
+     × applies held migration and persists document without cash debit 108ms
+     × links existing partial cash once, rejects duplicate and overpayment 39ms
+     × rejects wrong currency and non-completed sources 149ms
+     × serializes concurrent links and rejects overpayment 102ms
+     × void retains link/history, freezes amount, permits recomputed balance 54ms
+     × rejects supplier cash linked to a generic document 25ms
+     ✓ enables FORCE RLS and both policy predicates 25ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/expense-documents.test.ts > expense persistence, isolated PostgreSQL > applies held migration and persists document without cash debit
+error: inconsistent types deduced for parameter $1
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ apps/api/src/finance/expense-documents.test.ts:28:5
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| apps/api/src/finance/expense-documents.test.ts > expense persistence, isolated PostgreSQL > links existing partial cash once, rejects duplicate and overpayment
+error: expense not active in scope
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ apps/api/src/finance/expense-documents.test.ts:34:32
+     32|   });
+     33|   it('links existing partial cash once, rejects duplicate and overpaym…
+     34|     const id = await source(); await link(id);
+       |                                ^
+     35|     await expect(link(id)).rejects.toThrow();
+     36|     await expect(link(await source('70000'))).rejects.toThrow(/overpay…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |unit| apps/api/src/finance/expense-documents.test.ts > expense persistence, isolated PostgreSQL > rejects wrong currency and non-completed sources
+error: new row for relation "restaurant_cash_operations" violates check constraint "restaurant_cash_operations_values"
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ apps/api/src/finance/expense-documents.test.ts:41:35
+     39|   it('rejects wrong currency and non-completed sources', async () => {
+     40|     await expect(link(await source('1','USD'))).rejects.toThrow();
+     41|     const id = await source('1'); await pool.query(`UPDATE restaurant_…
+       |                                   ^
+     42|     await expect(link(id)).rejects.toThrow();
+     43|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| apps/api/src/finance/expense-documents.test.ts > expense persistence, isolated PostgreSQL > serializes concurrent links and rejects overpayment
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ apps/api/src/finance/expense-documents.test.ts:47:59
+     45|     const ids = await Promise.all([source('40000'),source('40000')]);
+     46|     const results = await Promise.allSettled(ids.map(id => link(id)));
+     47|     expect(results.filter(r => r.status === 'fulfilled')).toHaveLength…
+       |                                                           ^
+     48|     expect((await pool.query('SELECT expense_paid_minor($1) AS paid',[…
+     49|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| apps/api/src/finance/expense-documents.test.ts > expense persistence, isolated PostgreSQL > void retains link/history, freezes amount, permits recomputed balance
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ apps/api/src/finance/expense-documents.test.ts:51:161
+     49|   });
+     50|   it('void retains link/history, freezes amount, permits recomputed ba…
+     51|     const id = (await pool.query('SELECT restaurant_cash_operation_id …
+       |                                                                                                                                                                 ^
+     52|     await pool.query(`UPDATE restaurant_cash_operations SET status='VO…
+     53|     expect((await pool.query('SELECT expense_paid_minor($1) AS paid',[…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |unit| apps/api/src/finance/expense-documents.test.ts > expense persistence, isolated PostgreSQL > rejects supplier cash linked to a generic document
+error: inconsistent types deduced for parameter $1
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ apps/api/src/finance/expense-documents.test.ts:62:5
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 1 passed (7)
+   Start at  07:12:07
+   Duration  995ms (tests 78%, transform 12%, import 8%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-16T07-12-03Z-unit-6d10.json
+
+# код выхода 1 · 5 с

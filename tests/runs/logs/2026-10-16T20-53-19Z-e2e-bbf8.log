@@ -1,0 +1,47 @@
+# Сквозные (e2e) · 17.10.2026 01:53 Алматы · <сервер>
+# коммит d02dcbf (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--workers=1' '--config' 'tests/employee-portal-ui/playwright.config.ts' '--grep' 'personal finance'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/employee-portal-ui/portal.spec.mjs:163:1 › personal finance shows real server amounts and never invents unavailable earnings (6.2s)
+
+
+  1) tests/employee-portal-ui/portal.spec.mjs:163:1 › personal finance shows real server amounts and never invents unavailable earnings 
+
+    Error: finance month form fits narrow mobile
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 320
+    Received:    341
+
+      170 |   for(const theme of ['light','dark']){await page.evaluate(t=>{document.documentElement.dataset.theme=t;window.scrollTo(0,0);},theme);await page.screenshot({path:`${dir}/finance-${vertical.toLowerCase()}-${theme}.png`,fullPage:false,animations:'disabled',timeout:20000});}
+      171 |   await page.getByLabel('Месяц расчёта',{exact:true}).fill('2026-09');await page.getByTestId('portal-pay').getByRole('button',{name:'Показать',exact:true}).click();await expect(page.getByTestId('personal-finance')).toHaveAttribute('data-month','2026-09');await expect(page.getByRole('tab',{name:'Оплата труда',exact:true})).toHaveAttribute('aria-selected','true');
+    > 172 |   for(const width of [320,390]){await page.setViewportSize({width,height:1000});expect(await page.evaluate(()=>document.documentElement.scrollWidth),'finance month form fits narrow mobile').toBeLessThanOrEqual(width);await expect(page.getByLabel('Месяц расчёта',{exact:true})).toBeVisible();await expect(page.getByTestId('portal-pay').getByRole('button',{name:'Показать',exact:true})).toBeVisible();}
+          |                                                                                                                                                                                               ^
+      173 |   await c.close();
+      174 |  }
+      175 | });
+        at /srv/hermes/workspace/wetop-portal-release-61af7b90/tests/employee-portal-ui/portal.spec.mjs:172:191
+
+    Error Context: test-results/portal-personal-finance-sh-399cd-nvents-unavailable-earnings/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/portal-personal-finance-sh-399cd-nvents-unavailable-earnings/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/portal-personal-finance-sh-399cd-nvents-unavailable-earnings/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/employee-portal-ui/portal.spec.mjs:163:1 › personal finance shows real server amounts and never invents unavailable earnings 
+
+# код выхода 1 · 19 с

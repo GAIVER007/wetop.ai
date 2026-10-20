@@ -1,0 +1,154 @@
+# Сквозные (e2e) · 17.10.2026 19:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит 880bca9 (claude/salon-setup-schedule-grid), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/beauty-schedule.spec.ts' 'tests/ui/beauty-journal.spec.ts' '--config=tests/ui/playwright.alt.config.ts' '--workers=1' '-g' 'доступен|занятое|вне графика|состояния записи|отмена спрашивает|перенос меняет'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 364ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✘  1 tests/ui/beauty-journal.spec.ts:155:1 › занятое время мастера не предлагается и отказ приходит словами (51.5s)
+  ✓  2 tests/ui/beauty-journal.spec.ts:168:1 › вне графика мастера клетки нерабочие (40.6s)
+  ✓  3 tests/ui/beauty-journal.spec.ts:175:1 › состояния записи идут по жизни, из выполненной дороги нет (37.3s)
+  ✘  4 tests/ui/beauty-journal.spec.ts:199:1 › отмена спрашивает и освобождает время мастера (49.7s)
+  ✘  5 tests/ui/beauty-journal.spec.ts:221:1 › перенос меняет время записи (51.6s)
+  ✓  6 tests/ui/beauty-journal.spec.ts:252:3 › журнал доступен в светлой теме (30.9s)
+  ✓  7 tests/ui/beauty-journal.spec.ts:252:3 › журнал доступен в тёмной теме (30.7s)
+  ✓  8 tests/ui/beauty-schedule.spec.ts:227:3 › график доступен в светлой теме (14.3s)
+  ✘  9 tests/ui/beauty-schedule.spec.ts:227:3 › график доступен в тёмной теме (53.2s)
+
+
+  1) tests/ui/beauty-journal.spec.ts:155:1 › занятое время мастера не предлагается и отказ приходит словами 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.reload: Target page, context or browser has been closed
+
+       at fixtures.ts:175
+
+      173 |     page.reload = async (options) => {
+      174 |       await settleNextRedirect(page, 'commit');
+    > 175 |       const response = await reload(options);
+          |                              ^
+      176 |       const until = options?.waitUntil ?? 'load';
+      177 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      178 |       await settleStreaming(page);
+        at _Page.page.reload (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/fixtures.ts:175:30)
+        at openSalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-journal.spec.ts:30:3)
+        at readySalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-journal.spec.ts:39:3)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-journal.spec.ts:159:3
+
+    Error Context: test-results/beauty-journal-занятое-вре-608ef-ся-и-отказ-приходит-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-занятое-вре-608ef-ся-и-отказ-приходит-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-занятое-вре-608ef-ся-и-отказ-приходит-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-journal.spec.ts:199:1 › отмена спрашивает и освобождает время мастера ─────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3108/calendar", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/fixtures.ts:166:30)
+        at openSalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-journal.spec.ts:34:3)
+        at readySalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-journal.spec.ts:39:3)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-journal.spec.ts:200:3
+
+    Error Context: test-results/beauty-journal-отмена-спрашивает-и-освобождает-время-мастера/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-отмена-спрашивает-и-освобождает-время-мастера/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-отмена-спрашивает-и-освобождает-время-мастера/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/beauty-journal.spec.ts:221:1 › перенос меняет время записи ───────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Target page, context or browser has been closed
+
+      53 |     .filter({ hasText: 'Маникюр' })
+      54 |     .getByRole('button', { name: 'Изменить' })
+    > 55 |     .click();
+         |      ^
+      56 |   panel = page.getByRole('dialog');
+      57 |   await panel.getByLabel('Филиал оказывает эту услугу').check();
+      58 |   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
+        at readySalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-journal.spec.ts:55:6)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-journal.spec.ts:222:3
+
+    Error Context: test-results/beauty-journal-перенос-меняет-время-записи/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-перенос-меняет-время-записи/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-перенос-меняет-время-записи/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/beauty-schedule.spec.ts:227:3 › график доступен в тёмной теме ────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3108/calendar", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/fixtures.ts:166:30)
+        at openSalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:55:3)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:231:5
+
+    Error Context: test-results/beauty-schedule-график-доступен-в-тёмной-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-график-доступен-в-тёмной-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-график-доступен-в-тёмной-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/beauty-journal.spec.ts:155:1 › занятое время мастера не предлагается и отказ приходит словами 
+    tests/ui/beauty-journal.spec.ts:199:1 › отмена спрашивает и освобождает время мастера ──────────
+    tests/ui/beauty-journal.spec.ts:221:1 › перенос меняет время записи ────────────────────────────
+    tests/ui/beauty-schedule.spec.ts:227:3 › график доступен в тёмной теме ─────────────────────────
+  5 passed (7.6m)
+
+# код выхода 1 · 7 мин 45 с

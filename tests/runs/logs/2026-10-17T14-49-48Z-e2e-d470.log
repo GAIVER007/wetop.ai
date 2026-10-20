@@ -1,0 +1,265 @@
+# Сквозные (e2e) · 17.10.2026 19:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 046a0af (claude/salon-setup-schedule-grid), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/beauty-schedule.spec.ts' '--config=tests/ui/playwright.alt.config.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1457ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✘  1 tests/ui/beauty-schedule.spec.ts:101:1 › «Сделать рабочим» и «Сохранить» сохраняют день без ручного ввода часов (приёмка 17.10) (1.4m)
+  ✘  2 tests/ui/beauty-schedule.spec.ts:140:1 › сетка: выходной по графику ведёт в окно недели, переключатель меняет только дату (Q-SCHED-1) (53.0s)
+  ✘  3 tests/ui/beauty-schedule.spec.ts:194:1 › отбор «Профессия» по группам услуг мастера, отбора «Роль» нет (Q-SCHED-2) (50.5s)
+  ✘  4 tests/ui/beauty-schedule.spec.ts:223:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод (47.8s)
+  ✘  5 tests/ui/beauty-schedule.spec.ts:249:1 › два интервала через перерыв сохраняются (55.3s)
+  ✘  6 tests/ui/beauty-schedule.spec.ts:267:1 › отсутствие на несколько дней видно в ячейке только для чтения, раздела «Нерабочие дни» нет (1.2m)
+  ✘  7 tests/ui/beauty-schedule.spec.ts:303:1 › график на телефоне: страница без прокрутки вбок (57.2s)
+  ✘  8 tests/ui/beauty-schedule.spec.ts:314:3 › график доступен в светлой теме (53.6s)
+  ✘  9 tests/ui/beauty-schedule.spec.ts:314:3 › график доступен в тёмной теме (46.7s)
+
+
+  1) tests/ui/beauty-schedule.spec.ts:101:1 › «Сделать рабочим» и «Сохранить» сохраняют день без ручного ввода часов (приёмка 17.10) 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Target page, context or browser has been closed
+
+      43 |   await request.post(`${FIXTURE_API}/__test/reset`);
+      44 |   await page.goto('/auth/fallback');
+    > 45 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+         |                                                   ^
+      46 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      47 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      48 |   await page.waitForURL('**/today');
+        at openSalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:45:51)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:105:3
+
+    Error Context: test-results/beauty-schedule-«Сделать-р-0fa50--ввода-часов-приёмка-17-10-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-«Сделать-р-0fa50--ввода-часов-приёмка-17-10-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-«Сделать-р-0fa50--ввода-часов-приёмка-17-10-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-schedule.spec.ts:140:1 › сетка: выходной по графику ведёт в окно недели, переключатель меняет только дату (Q-SCHED-1) 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/today" until "load"
+    ============================================================
+
+      46 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      47 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 48 |   await page.waitForURL('**/today');
+         |              ^
+      49 |   await addBranch(page, 'Студия Айна');
+      50 |   if (second) await addBranch(page, 'Студия на Абая', 'Студия Айна');
+      51 |   await page.reload();
+        at openSalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:48:14)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:144:3
+
+    Error Context: test-results/beauty-schedule-сетка-выхо-0bcfd-няет-только-дату-Q-SCHED-1-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-сетка-выхо-0bcfd-няет-только-дату-Q-SCHED-1-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-сетка-выхо-0bcfd-няет-только-дату-Q-SCHED-1-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/beauty-schedule.spec.ts:194:1 › отбор «Профессия» по группам услуг мастера, отбора «Роль» нет (Q-SCHED-2) 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Target page, context or browser has been closed
+
+      24 |   await page.goto('/branches');
+      25 |   const main = page.getByRole('main');
+    > 26 |   await main.getByRole('button', { name: 'Добавить', exact: true }).click();
+         |                                                                     ^
+      27 |   const creation = page.getByRole('dialog', { name: 'Добавить бизнес или филиал' });
+      28 |   if (business) {
+      29 |     await creation.getByLabel('Филиал существующего бизнеса').check();
+        at addBranch (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:26:69)
+        at openSalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:49:3)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:198:3
+
+    Error Context: test-results/beauty-schedule-отбор-«Про-99917-тбора-«Роль»-нет-Q-SCHED-2-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-отбор-«Про-99917-тбора-«Роль»-нет-Q-SCHED-2-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-отбор-«Про-99917-тбора-«Роль»-нет-Q-SCHED-2-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/beauty-schedule.spec.ts:223:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод 
+
+    Test timeout of 45000ms exceeded while setting up "request".
+
+    Error Context: test-results/beauty-schedule-наложение--4e90c-на-сервер-и-не-стирает-ввод/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-наложение--4e90c-на-сервер-и-не-стирает-ввод/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-наложение--4e90c-на-сервер-и-не-стирает-ввод/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/beauty-schedule.spec.ts:249:1 › два интервала через перерыв сохраняются ──────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Пароль', { exact: true })
+        - locator resolved to <input required="" name="password" type="password" autocomplete="current-password"/>
+        - fill("ui-test-parol")
+      - attempting fill action
+        - waiting for element to be visible, enabled and editable
+
+
+      44 |   await page.goto('/auth/fallback');
+      45 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+    > 46 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+         |                                                    ^
+      47 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      48 |   await page.waitForURL('**/today');
+      49 |   await addBranch(page, 'Студия Айна');
+        at openSalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:46:52)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:250:3
+
+    Error Context: test-results/beauty-schedule-два-интервала-через-перерыв-сохраняются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-два-интервала-через-перерыв-сохраняются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-два-интервала-через-перерыв-сохраняются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/beauty-schedule.spec.ts:267:1 › отсутствие на несколько дней видно в ячейке только для чтения, раздела «Нерабочие дни» нет 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Target page, context or browser has been closed
+
+      43 |   await request.post(`${FIXTURE_API}/__test/reset`);
+      44 |   await page.goto('/auth/fallback');
+    > 45 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+         |                                                   ^
+      46 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      47 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      48 |   await page.waitForURL('**/today');
+        at openSalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:45:51)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:268:3
+
+    Error Context: test-results/beauty-schedule-отсутствие-04b65-раздела-«Нерабочие-дни»-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-отсутствие-04b65-раздела-«Нерабочие-дни»-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-отсутствие-04b65-раздела-«Нерабочие-дни»-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/beauty-schedule.spec.ts:303:1 › график на телефоне: страница без прокрутки вбок ──────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Email', { exact: true })
+        - locator resolved to <input value="" required="" name="email" type="email" maxlength="254" autocomplete="username"/>
+
+
+      43 |   await request.post(`${FIXTURE_API}/__test/reset`);
+      44 |   await page.goto('/auth/fallback');
+    > 45 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+         |                                                   ^
+      46 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      47 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      48 |   await page.waitForURL('**/today');
+        at openSalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:45:51)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:304:3
+
+    Error Context: test-results/beauty-schedule-график-на--a9220-страница-без-прокрутки-вбок/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-график-на--a9220-страница-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-график-на--a9220-страница-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/beauty-schedule.spec.ts:314:3 › график доступен в светлой теме ───────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/today" until "load"
+    ============================================================
+
+      46 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      47 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 48 |   await page.waitForURL('**/today');
+         |              ^
+      49 |   await addBranch(page, 'Студия Айна');
+      50 |   if (second) await addBranch(page, 'Студия на Абая', 'Студия Айна');
+      51 |   await page.reload();
+        at openSalon (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:48:14)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/028d603b-f1f7-468e-a2ac-7276e2045f8b/scratchpad/wt/tests/ui/beauty-schedule.spec.ts:318:5
+
+    Error Context: test-results/beauty-schedule-график-доступен-в-светлой-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-график-доступен-в-светлой-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-график-доступен-в-светлой-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/beauty-schedule.spec.ts:314:3 › график доступен в тёмной теме ────────────────────────
+
+    Test timeout of 45000ms exceeded while setting up "page".
+
+    Error Context: test-results/beauty-schedule-график-доступен-в-тёмной-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-schedule-график-доступен-в-тёмной-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-schedule-график-доступен-в-тёмной-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9 failed
+    tests/ui/beauty-schedule.spec.ts:101:1 › «Сделать рабочим» и «Сохранить» сохраняют день без ручного ввода часов (приёмка 17.10) 
+    tests/ui/beauty-schedule.spec.ts:140:1 › сетка: выходной по графику ведёт в окно недели, переключатель меняет только дату (Q-SCHED-1) 
+    tests/ui/beauty-schedule.spec.ts:194:1 › отбор «Профессия» по группам услуг мастера, отбора «Роль» нет (Q-SCHED-2) 
+    tests/ui/beauty-schedule.spec.ts:223:1 › наложение интервалов в одном дне не уходит на сервер и не стирает ввод 
+    tests/ui/beauty-schedule.spec.ts:249:1 › два интервала через перерыв сохраняются ───────────────
+    tests/ui/beauty-schedule.spec.ts:267:1 › отсутствие на несколько дней видно в ячейке только для чтения, раздела «Нерабочие дни» нет 
+    tests/ui/beauty-schedule.spec.ts:303:1 › график на телефоне: страница без прокрутки вбок ───────
+    tests/ui/beauty-schedule.spec.ts:314:3 › график доступен в светлой теме ────────────────────────
+    tests/ui/beauty-schedule.spec.ts:314:3 › график доступен в тёмной теме ─────────────────────────
+
+# код выхода 1 · 19 мин 44 с

@@ -9,23 +9,22 @@ import { describe, expect, it } from 'vitest';
  */
 const ROOT = resolve(import.meta.dirname, '../..');
 
-function section2(text: string): string {
-  const start = text.indexOf('\n## 2. ');
-  const end = text.indexOf('\n## 3. ', start);
-  return text.slice(start, end);
-}
+describe('записи статуса: файлами в docs/status, не абзацами в CLAUDE.md и AGENTS.md', () => {
+  it('CLAUDE.md подключает AGENTS.md первой строкой: Codex и Hermes читают только AGENTS.md (19.10.2026)', () => {
+    expect(readFileSync(resolve(ROOT, 'CLAUDE.md'), 'utf8').split('\n')[0]).toBe('@AGENTS.md');
+  });
 
-describe('записи статуса: файлами в docs/status, не абзацами в CLAUDE.md', () => {
-  it('в CLAUDE.md §2 нет записей дня (абзацев, начинающихся с даты)', () => {
-    const entries = section2(readFileSync(resolve(ROOT, 'CLAUDE.md'), 'utf8'))
-      .split('\n')
+  it('в CLAUDE.md и AGENTS.md нет записей дня (абзацев, начинающихся с даты)', () => {
+    const entries = ['CLAUDE.md', 'AGENTS.md']
+      .flatMap((f) => readFileSync(resolve(ROOT, f), 'utf8').split('\n'))
       .filter((l) => /^\*\*\d\d\.\d\d\.\d{4}/.test(l))
       .map((l) => l.slice(0, 80));
     expect(entries, 'перенесите запись в docs/status/ГГГГ-ММ-ДД-<ветка>.md').toEqual([]);
   });
 
-  it('файлы docs/status называются ГГГГ-ММ-ДД-<ветка>.md и не пустые', () => {
-    const dir = resolve(ROOT, 'docs/status');
+  // решения тем же приёмом с 19.10.2026 (AGENTS.md §21): DECISIONS.md менялся 365 раз и стал архивом
+  it.each(['docs/status', 'docs/decisions'])('файлы %s называются ГГГГ-ММ-ДД-<ветка>.md и не пустые', (folder) => {
+    const dir = resolve(ROOT, folder);
     const files = readdirSync(dir);
     expect(files.length).toBeGreaterThan(0);
     expect(files.filter((f) => !/^\d{4}-\d\d-\d\d-[a-z0-9-]+\.md$/.test(f))).toEqual([]);

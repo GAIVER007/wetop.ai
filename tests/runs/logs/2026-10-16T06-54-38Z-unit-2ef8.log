@@ -1,0 +1,26 @@
+# Модульные (unit) · 16.10.2026 11:54 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T06-54-38Z-unit-2ef8.json' 'apps/api/src/finance/owner-summary.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| apps/api/src/finance/owner-summary.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/owner-summary.test.ts [ apps/api/src/finance/owner-summary.test.ts ]
+Error: Cannot find module './owner-summary' imported from /srv/hermes/workspace/wetop-unified-owner-data/apps/api/src/finance/owner-summary.test.ts
+ ❯ apps/api/src/finance/owner-summary.test.ts:2:1
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  06:54:42
+   Duration  983ms (worker 99%, environment 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T06-54-38Z-unit-2ef8.json
+
+# код выхода 1 · 5 с

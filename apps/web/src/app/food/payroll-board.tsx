@@ -15,7 +15,8 @@ import {
 } from '../../components/ui';
 import { Tabs } from '../../components/tabs';
 import { Segmented } from '../../components/segmented';
-import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
+import { METHOD_RU } from '../../lib/dashboard-format';
+import { formatMoney, inputToMinor, minorToInput } from '../../lib/money';
 import {
   FOOD_PAYMENT_METHODS,
   type FoodPaymentMethod,
@@ -25,34 +26,66 @@ import {
 } from '../../lib/food-types';
 import { mutateStaff } from './restaurant-actions';
 
-const MODEL_LABEL: Record<PayModel, string> = {
-  FIXED: 'Оклад',
-  PERCENT: 'Процент от заказов',
-  FIXED_PLUS_PERCENT: 'Оклад + процент',
-  BONUS_ONLY: 'Только премии',
-};
+/** База процента: у ресторана закрытые заказы, у салона выполненные записи (§19.2) */
+export type PayBasis = 'orders' | 'visits';
+const BASIS = {
+  orders: { of: 'заказов', column: 'Продажи' },
+  visits: { of: 'записей', column: 'Услуги' },
+} as const;
+const modelLabel = (model: PayModel, basis: PayBasis): string =>
+  ({ FIXED: 'Оклад', PERCENT: `Процент от ${BASIS[basis].of}`, FIXED_PLUS_PERCENT: 'Оклад + процент', BONUS_ONLY: 'Только премии' })[model];
+const MODELS: PayModel[] = ['FIXED', 'PERCENT', 'FIXED_PLUS_PERCENT', 'BONUS_ONLY'];
+
+const currencyLabel = (currency: string): string => currency === 'KZT' ? '₸' : currency;
+
+function payrollInputToMinor(value: string, currency: string, allowZero: boolean): number {
+  const parsed = inputToMinor(value);
+  if (parsed === null || parsed === '') throw new Error(`Укажите сумму в ${currencyLabel(currency)}`);
+  const minor = BigInt(parsed);
+  if (!allowZero && minor === 0n) throw new Error('Сумма должна быть больше нуля');
+  if (minor > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error('Сумма слишком большая');
+  return Number(minor);
+}
+
+export const payrollSalaryInputToMinor = (value: string, currency: string): number =>
+  payrollInputToMinor(value, currency, true);
+
+export const payrollPositiveInputToMinor = (value: string, currency: string): number =>
+  payrollInputToMinor(value, currency, false);
+
+export const payrollMinorToInput = minorToInput;
 
 function PayDrawer({
   scopeKey,
   row,
+  basis,
+  currency,
   close,
 }: {
   scopeKey: string;
   row: PayrollRow;
+  basis: PayBasis;
+  currency: string;
   close: () => void;
 }) {
   const router = useRouter();
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
   const [model, setModel] = useState<PayModel>(row.model);
-  const [fixed, setFixed] = useState(String(BigInt(row.fixedMinor) / 100n));
+  const [fixed, setFixed] = useState(payrollMinorToInput(row.fixedMinor));
   const [percent, setPercent] = useState(String(row.percent));
   function submit() {
     setError('');
-    const fixedMinor = Math.round(Number(fixed)) * 100;
     const pct = Math.round(Number(percent));
-    if (!Number.isFinite(fixedMinor) || fixedMinor < 0 || !Number.isFinite(pct) || pct < 0 || pct > 100) {
-      setError('Оклад — целое число, процент 0..100');
+    let fixedMinor: number;
+    try {
+      fixedMinor = payrollSalaryInputToMinor(fixed, currency);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Некорректная сумма');
+      return;
+    }
+    if (!Number.isFinite(pct) || pct < 0 || pct > 100) {
+      setError('Процент должен быть целым числом от 0 до 100');
       return;
     }
     start(async () => {
@@ -74,7 +107,7 @@ function PayDrawer({
         {error && <Alert>{error}</Alert>}
         <Field label="Модель оплаты">
           <Select value={model} onChange={(e) => setModel(e.target.value as PayModel)}>
-            {Object.entries(MODEL_LABEL).map(([value, label]) => (
+            {MODELS.map((value) => [value, modelLabel(value, basis)] as const).map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
               </option>
@@ -82,10 +115,10 @@ function PayDrawer({
           </Select>
         </Field>
         <div className="food-form-row">
-          <Field label="Оклад за месяц, ₸">
-            <Input type="number" min={0} value={fixed} onChange={(e) => setFixed(e.target.value)} />
+          <Field label={`Оклад за месяц, ${currencyLabel(currency)}`}>
+            <Input type="number" inputMode="decimal" min={0} step="0.01" value={fixed} onChange={(e) => setFixed(e.target.value)} />
           </Field>
-          <Field label="Процент от заказов">
+          <Field label={`Процент от ${BASIS[basis].of}`}>
             <Input
               type="number"
               min={0}
@@ -111,11 +144,13 @@ function PayDrawer({
 function AdjustmentDrawer({
   scopeKey,
   month,
+  currency,
   row,
   close,
 }: {
   scopeKey: string;
   month: string;
+  currency: string;
   row: PayrollRow;
   close: () => void;
 }) {
@@ -127,8 +162,14 @@ function AdjustmentDrawer({
   const [reason, setReason] = useState('');
   function submit() {
     setError('');
-    const tenge = Math.round(Number(amount));
-    if (!Number.isFinite(tenge) || tenge <= 0 || !reason.trim()) {
+    let amountMinor: number;
+    try {
+      amountMinor = payrollPositiveInputToMinor(amount, currency);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Некорректная сумма');
+      return;
+    }
+    if (!reason.trim()) {
       setError('Нужны сумма больше нуля и причина');
       return;
     }
@@ -138,7 +179,7 @@ function AdjustmentDrawer({
         id: row.employeeId,
         body: {
           period: month,
-          amountMinor: (kind === 'bonus' ? 1 : -1) * tenge * 100,
+          amountMinor: (kind === 'bonus' ? 1 : -1) * amountMinor,
           reason: reason.trim(),
         },
       });
@@ -162,8 +203,8 @@ function AdjustmentDrawer({
           ]}
           onChange={setKind}
         />
-        <Field label="Сумма, ₸">
-          <Input type="number" min={1} value={amount} onChange={(e) => setAmount(e.target.value)} />
+        <Field label={`Сумма, ${currencyLabel(currency)}`}>
+          <Input type="number" inputMode="decimal" min={0.01} step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} />
         </Field>
         <Field label="Причина">
           <Input value={reason} onChange={(e) => setReason(e.target.value)} />
@@ -199,15 +240,22 @@ function PayoutDrawer({
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
   const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
-  const [amount, setAmount] = useState(String(BigInt(row.remainingMinor) / 100n));
+  const [amount, setAmount] = useState(payrollMinorToInput(row.remainingMinor));
+  // One drawer is one payment intent; failures keep the same key.
+  const [idempotencyKey] = useState(() => crypto.randomUUID());
   function submit() {
-    const tenge = Number(amount);
-    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма в тенге, целое число больше нуля');
+    let amountMinor: number;
+    try {
+      amountMinor = payrollPositiveInputToMinor(amount, currency);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Некорректная сумма');
+      return;
+    }
     start(async () => {
       const result = await mutateStaff(scopeKey, {
         kind: 'payout',
         id: row.employeeId,
-        body: { period: month, method, amount: tenge * 100 },
+        body: { period: month, method, amount: amountMinor, idempotencyKey },
       });
       if (result.error) setError(result.error);
       else {
@@ -221,8 +269,8 @@ function PayoutDrawer({
       <div className="food-form" data-testid="payout">
         {error && <Alert>{error}</Alert>}
         <p className="muted">
-          К выплате за месяц {wholeTenge(row.totalMinor, currency)}, выплачено{' '}
-          {wholeTenge(row.paidMinor, currency)}. Деньги уйдут расходом из кассы.
+          К выплате за месяц {formatMoney(row.totalMinor, currency)}, выплачено{' '}
+          {formatMoney(row.paidMinor, currency)}. Деньги уйдут расходом из кассы.
         </p>
         <Field label="Способ">
           <Select value={method} onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}>
@@ -233,8 +281,8 @@ function PayoutDrawer({
             ))}
           </Select>
         </Field>
-        <Field label="Сумма, ₸">
-          <Input inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))} />
+        <Field label={`Сумма, ${currencyLabel(currency)}`}>
+          <Input type="number" inputMode="decimal" min={0.01} step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} />
         </Field>
         <div className="food-actions">
           <Button disabled={pending} onClick={submit}>
@@ -254,10 +302,12 @@ export function PayrollBoard({
   scopeKey,
   write,
   payroll,
+  basis = 'orders',
 }: {
   scopeKey: string;
   write: boolean;
   payroll: PayrollView;
+  basis?: PayBasis;
 }) {
   const router = useRouter();
   const [settings, setSettings] = useState<PayrollRow | null>(null);
@@ -270,7 +320,7 @@ export function PayrollBoard({
     <Table>
       <thead>
         <tr>
-          {['Сотрудник', 'Модель', 'Ставка', 'Продажи', 'Премии', 'Штрафы', 'К выплате', 'Выплачено', 'Осталось'].map(
+          {['Сотрудник', 'Модель', 'Ставка', BASIS[basis].column, 'Премии', 'Штрафы', 'К выплате', 'Выплачено', 'Осталось'].map(
             (h) => (
               <th key={h}>{h}</th>
             ),
@@ -285,18 +335,18 @@ export function PayrollBoard({
           <tr key={r.employeeId}>
             <td>{r.name}</td>
             <td className="rest-pay-model">
-              {MODEL_LABEL[r.model]}
-              {r.percent > 0 && <small>{r.percent} % от заказов</small>}
+              {modelLabel(r.model, basis)}
+              {r.percent > 0 && <small>{r.percent} % от {BASIS[basis].of}</small>}
             </td>
-            <td>{wholeTenge(r.fixedMinor, payroll.currency)}</td>
-            <td>{wholeTenge(r.salesMinor, payroll.currency)}</td>
-            <td>{wholeTenge(r.bonusMinor, payroll.currency)}</td>
-            <td>{wholeTenge(r.penaltyMinor, payroll.currency)}</td>
+            <td>{formatMoney(r.fixedMinor, payroll.currency)}</td>
+            <td>{formatMoney(r.salesMinor, payroll.currency)}</td>
+            <td>{formatMoney(r.bonusMinor, payroll.currency)}</td>
+            <td>{formatMoney(r.penaltyMinor, payroll.currency)}</td>
             <td>
-              <strong>{wholeTenge(r.totalMinor, payroll.currency)}</strong>
+              <strong>{formatMoney(r.totalMinor, payroll.currency)}</strong>
             </td>
-            <td>{wholeTenge(r.paidMinor, payroll.currency)}</td>
-            <td data-testid="payroll-remaining">{wholeTenge(r.remainingMinor, payroll.currency)}</td>
+            <td>{formatMoney(r.paidMinor, payroll.currency)}</td>
+            <td data-testid="payroll-remaining">{formatMoney(r.remainingMinor, payroll.currency)}</td>
             <td>
               {write && (
                 <span className="food-inline-actions">
@@ -335,7 +385,7 @@ export function PayrollBoard({
           {payroll.adjustments.map((a) => (
             <tr key={a.id}>
               <td>{names.get(a.employeeId) ?? '—'}</td>
-              <td>{wholeTenge(a.amountMinor, payroll.currency)}</td>
+              <td>{formatMoney(a.amountMinor, payroll.currency)}</td>
               <td>{a.reason}</td>
             </tr>
           ))}
@@ -358,31 +408,31 @@ export function PayrollBoard({
       <Stats min={190}>
         <Stat
           label="Фонд ЗП"
-          value={wholeTenge(payroll.totals.fundMinor, payroll.currency)}
+          value={formatMoney(payroll.totals.fundMinor, payroll.currency)}
           hint="оклады и проценты"
           testId="payroll-fund"
         />
         <Stat
           label="Премии"
-          value={wholeTenge(payroll.totals.bonusMinor, payroll.currency)}
+          value={formatMoney(payroll.totals.bonusMinor, payroll.currency)}
           tone="success"
           testId="payroll-bonus"
         />
         <Stat
           label="Штрафы"
-          value={wholeTenge(payroll.totals.penaltyMinor, payroll.currency)}
+          value={formatMoney(payroll.totals.penaltyMinor, payroll.currency)}
           tone="danger"
           testId="payroll-penalty"
         />
         <Stat
           label="К выплате"
-          value={wholeTenge(payroll.totals.payoutMinor, payroll.currency)}
+          value={formatMoney(payroll.totals.payoutMinor, payroll.currency)}
           tone="info"
           testId="payroll-total"
         />
         <Stat
           label="Выплачено"
-          value={wholeTenge(payroll.totals.paidMinor, payroll.currency)}
+          value={formatMoney(payroll.totals.paidMinor, payroll.currency)}
           hint="из кассы за месяц"
           testId="payroll-paid"
         />
@@ -394,7 +444,7 @@ export function PayrollBoard({
           { id: 'adjustments', label: 'Начисления', content: adjustments },
         ]}
       />
-      {settings && <PayDrawer scopeKey={scopeKey} row={settings} close={() => setSettings(null)} />}
+      {settings && <PayDrawer scopeKey={scopeKey} row={settings} basis={basis} currency={payroll.currency} close={() => setSettings(null)} />}
       {payout && (
         <PayoutDrawer
           scopeKey={scopeKey}
@@ -408,6 +458,7 @@ export function PayrollBoard({
         <AdjustmentDrawer
           scopeKey={scopeKey}
           month={payroll.month}
+          currency={payroll.currency}
           row={adjust}
           close={() => setAdjust(null)}
         />

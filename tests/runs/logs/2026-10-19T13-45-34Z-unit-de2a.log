@@ -1,0 +1,65 @@
+# Модульные (unit) · 19.10.2026 18:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1e1074b (claude/salon-zapis-p0), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-45-34Z-unit-de2a.json' 'apps/api/src/beauty/day-bounds.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/eaddd23c-190d-4f0e-994d-e1a1f6c746f9/scratchpad/wt-rel
+
+ ❯ |unit| apps/api/src/beauty/day-bounds.test.ts (3 tests | 2 failed) 6ms
+   ❯ B4 (паритет с zapis.kz): границы сетки журнала от часов салона (3)
+     × при заданном режиме дня сетка идёт по нему, а не по жёстким 08-20 5ms
+     ✓ без настроенного режима остаются прежние 08-20 0ms
+     × запись за пределами режима расширяет сетку, чтобы её было видно 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/beauty/day-bounds.test.ts > B4 (паритет с zapis.kz): границы сетки журнала от часов салона > при заданном режиме дня сетка идёт по нему, а не по жёстким 08-20
+AssertionError: expected { fromMinutes: 480, toMinutes: 1200 } to deeply equal { fromMinutes: 600, toMinutes: 1320 }
+
+- Expected
++ Received
+
+  {
+-   "fromMinutes": 600,
+-   "toMinutes": 1320,
++   "fromMinutes": 480,
++   "toMinutes": 1200,
+  }
+
+ ❯ apps/api/src/beauty/day-bounds.test.ts:33:24
+     31|     const f = fixture({ intervals: [{ weekday: 0, timeFrom: '10:00', t…
+     32|     const day = await f.run(() => f.service.day('2026-10-18'));
+     33|     expect(day.bounds).toEqual({ fromMinutes: 600, toMinutes: 1320 });
+       |                        ^
+     34|   });
+     35|   it('без настроенного режима остаются прежние 08-20', async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/beauty/day-bounds.test.ts > B4 (паритет с zapis.kz): границы сетки журнала от часов салона > запись за пределами режима расширяет сетку, чтобы её было видно
+AssertionError: expected 1200 to be 1320 // Object.is equality
+
+- Expected
++ Received
+
+- 1320
++ 1200
+
+ ❯ apps/api/src/beauty/day-bounds.test.ts:53:34
+     51|     const day = await f.run(() => f.service.day('2026-10-18'));
+     52|     expect(day.bounds.fromMinutes).toBe(480);
+     53|     expect(day.bounds.toMinutes).toBe(1320);
+       |                                  ^
+     54|   });
+     55| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  06:45:35
+   Duration  702ms (transform 68%, import 31%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-45-34Z-unit-de2a.json
+
+# код выхода 1 · 2 с

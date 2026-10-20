@@ -1,0 +1,32 @@
+# Интеграционные (integration) · 17.10.2026 00:39 Алматы · <сервер>
+# коммит c46ef1c (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 24
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T19-39-09Z-integration-fedc.json' 'tests/integration/employee-portal-schedule-conflicts.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-portal-release-61af7b90
+
+[pms_test] миграций применено 1; данные скопированы
+ ❯ |integration| tests/integration/employee-portal-schedule-conflicts.test.ts (3 tests | 3 skipped) 688ms
+   ❯ portal schedule warnings and anonymous cache revocation (3)
+     ↓ shows a booked own appointment outside a replacement week, not only the selected date
+     ↓ checks own absence across assigned branches in each appointment timezone and clears on delete
+     ↓ serves public JSON and unpublish 404 with explicit no-store
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/employee-portal-schedule-conflicts.test.ts > portal schedule warnings and anonymous cache revocation
+TypeError: Cannot read properties of undefined (reading 'findMany')
+ ❯ snapshot tests/integration/employee-portal-schedule-conflicts.test.ts:23:189
+
+ ❯ tests/integration/employee-portal-schedule-conflicts.test.ts:36:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 skipped (3)
+   Start at  19:39:10
+   Duration  8.50s (transform 48%, import 36%, tests 17%)
+
+JSON report written to /tmp/pms-test-2026-10-16T19-39-09Z-integration-fedc.json
+
+# код выхода 1 · 10 с

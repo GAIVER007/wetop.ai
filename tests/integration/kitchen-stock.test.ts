@@ -113,15 +113,23 @@ describe.skipIf(!url)('Kitchen stock: RLS, ownership, append-only ledger', () =>
       });
     }));
 
-  it('принадлежность: чужой продукт, чужая партия, не ресторан и смена родителя отклоняются', async () =>
+  it('принадлежность: склад доступен Food и Beauty, но отклоняет Hospitality и чужие связи', async () =>
     rollback(async () => {
       const own = await seed(),
         other = await seed();
       const beauty = await seed('BEAUTY');
+      const hospitality = await seed('HOSPITALITY');
       await savepoint(async () => {
-        await expect(
-          db.query(`INSERT INTO kitchen_products(id,business_id,name,unit,updated_at) VALUES($1,$2,'Соль','г',now())`, [randomUUID(), beauty.biz]),
-        ).rejects.toThrow(/Food business required/);
+        await expect(db.query(
+          `INSERT INTO kitchen_products(id,business_id,name,unit,updated_at) VALUES($1,$2,'Соль','г',now())`,
+          [randomUUID(), beauty.biz],
+        )).resolves.toMatchObject({ rowCount: 1 });
+      });
+      await savepoint(async () => {
+        await expect(db.query(
+          `INSERT INTO kitchen_products(id,business_id,name,unit,updated_at) VALUES($1,$2,'Соль','г',now())`,
+          [randomUUID(), hospitality.biz],
+        )).rejects.toThrow(/Food or Beauty business required/);
       });
       await savepoint(async () => {
         await expect(
@@ -166,6 +174,10 @@ describe.skipIf(!url)('Kitchen stock: RLS, ownership, append-only ledger', () =>
   it('охраняемый откат: с данными отказывает, на пустых таблицах убирает их', async () =>
     rollback(async () => {
       const down = readFileSync(resolve(process.cwd(), 'packages/database/prisma/migrations/20261012000089_kitchen_stock/down.sql'), 'utf8');
+      const downBeautyMaterials = readFileSync(
+        resolve(process.cwd(), 'packages/database/prisma/migrations/20261018000135_beauty_materials/down.sql'),
+        'utf8',
+      ).replace(/^BEGIN;\s*/, '').replace(/\s*COMMIT;\s*$/, '');
       await seed();
       await savepoint(async () => {
         await expect(db.query(down)).rejects.toThrow(/Kitchen stock data present/);
@@ -174,14 +186,17 @@ describe.skipIf(!url)('Kitchen stock: RLS, ownership, append-only ledger', () =>
       await db.query('DELETE FROM kitchen_stock_movements');
       // §38: строки техкарт ссылаются на ингредиенты (в общей схеме могут лежать с других прогонов)
       await db.query('UPDATE menu_item_ingredients SET product_id = NULL WHERE product_id IS NOT NULL');
+      await db.query('DELETE FROM beauty_service_materials');
+      await db.query('DELETE FROM beauty_service_material_revisions');
       await db.query('DELETE FROM kitchen_stock_lots');
       await db.query('DELETE FROM kitchen_products');
-      // откат идёт в обратном порядке: сначала §38 (093 ссылается на ингредиенты склада), потом сам склад
+      // Откат идёт в обратном порядке: Beauty materials, затем §38, затем сам склад.
       const downConsumption = readFileSync(
         resolve(process.cwd(), 'packages/database/prisma/migrations/20261012000093_kitchen_consumption/down.sql'),
         'utf8',
       );
       await savepoint(async () => {
+        await db.query(downBeautyMaterials);
         await db.query(downConsumption);
         await db.query(down);
         for (const table of tables)

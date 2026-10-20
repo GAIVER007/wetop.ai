@@ -1,0 +1,17 @@
+# Модульные (unit) · 16.10.2026 21:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (claude/modest-lovelace-429ae7), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-22-48Z-unit-1216.json' 'apps/api/src/reservations/reservations.controller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/modest-lovelace-429ae7
+
+[Nest] 71462  - 09/09/2026, 11:00:00 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (56 tests) 232ms
+
+ Test Files  1 passed (1)
+      Tests  56 passed (56)
+   Start at  09:22:49
+   Duration  1.41s (transform 58%, import 24%, tests 17%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-22-48Z-unit-1216.json
+
+# код выхода 0 · 2 с

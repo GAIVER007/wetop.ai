@@ -1,0 +1,21 @@
+# Модульные (unit) · 17.10.2026 14:46 Алматы · <сервер>
+# коммит 1d006bc (integrate/tz21-5417daa6), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T09-46-50Z-unit-5dfe.json' 'apps/web/src/components/dialog-focus.test.ts' 'apps/web/src/components/primitives.test.ts' 'apps/web/src/components/primitives-ds1c.test.ts' 'apps/web/src/design-rules.test.ts' 'tests/unit/design-guards.test.ts' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ✓  unit  apps/web/src/components/dialog-focus.test.ts (17 tests) 17ms
+ ✓  unit  apps/web/src/design-rules.test.ts (17 tests) 266ms
+ ✓  unit  apps/web/src/components/primitives-ds1c.test.ts (37 tests) 68ms
+ ✓  unit  tests/unit/design-slop.test.ts (18 tests) 7ms
+ ✓  unit  tests/unit/design-guards.test.ts (15 tests) 12ms
+ ✓  unit  apps/web/src/components/primitives.test.ts (19 tests) 11ms
+
+ Test Files  6 passed (6)
+      Tests  123 passed (123)
+   Start at  09:46:51
+   Duration  3.15s (transform 47%, import 36%, tests 16%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-17T09-46-50Z-unit-5dfe.json
+
+# код выхода 0 · 4 с

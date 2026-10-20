@@ -1,0 +1,63 @@
+# Сквозные (e2e) · 16.10.2026 21:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (claude/plate-menu-hover), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-card.spec.ts' 'tests/ui/chessboard-grid.spec.ts' 'tests/ui/chessboard-extend.spec.ts' 'tests/ui/chessboard-gate-pr3.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 25 tests using 1 worker
+
+  ✓   1 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-card.spec.ts:17:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (3.6s)
+  ✓   2 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-card.spec.ts:45:1 › двойной клик открывает полную карточку брони (2.9s)
+  ✓   3 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-card.spec.ts:51:1 › живой двойной щелчок по самой правой плашке открывает полную карточку, хотя первый щелчок сужает сетку (1.9s)
+  ✓   4 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-card.spec.ts:77:1 › действия по статусу: подтверждённой: заселить, проживающему: выселить (1.6s)
+  ✓   5 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-card.spec.ts:99:1 › повторный щелчок по той же плашке закрывает панель, по другой переключает её (1.8s)
+  ✓   6 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-card.spec.ts:119:1 › панель брони не висит всегда: нет при загрузке, закрывается щелчком мимо и сменой периода (2.1s)
+  ✓   7 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-card.spec.ts:153:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (3.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2650575746'
+[WebServer] }
+  ✓   8 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-card.spec.ts:199:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (6.1s)
+  ✓   9 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-card.spec.ts:233:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке (5.7s)
+  ✓  10 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-card.spec.ts:261:1 › узкая плашка: вторая строка (источник, ночи) спрятана целиком, имя не теснится (7.4s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  11 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-card.spec.ts:276:1 › служебный код скрыт на плашке, источник не повторяется, бронь открывается (9.0s)
+  ✓  12 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-card.spec.ts:305:3 › 14 дней: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы (5.6s)
+  ✓  13 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-card.spec.ts:305:3 › 30 дней: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы (6.3s)
+  ✓  14 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-card.spec.ts:305:3 › Текущий месяц: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы (4.0s)
+  ✓  15 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-card.spec.ts:333:1 › 30 дней: плашка в две ночи без «⋯» и с «Имя Ф.», а не с инициалами (4.2s)
+  ✓  16 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-extend.spec.ts:27:1 › правый край брони: продление на несколько ночей с подтверждением и отменой (1.9s)
+  ✓  17 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-extend.spec.ts:46:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload (5.2s)
+  ✓  18 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-extend.spec.ts:85:1 › отказ сохранения не удлиняет плашку, а отсутствие цены не открывает подтверждение (2.6s)
+  ✓  19 [main-ui-0] › ../.wetop-main-ui-cZ6V6w/worker-0/tests/ui/chessboard-extend.spec.ts:118:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину (2.8s)
+  ✓  20 [main-ui-1] › ../.wetop-main-ui-cZ6V6w/worker-1/tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: light (7.8s)
+  ✓  21 [main-ui-1] › ../.wetop-main-ui-cZ6V6w/worker-1/tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: dark (7.8s)
+  ✓  22 [main-ui-1] › ../.wetop-main-ui-cZ6V6w/worker-1/tests/ui/chessboard-grid.spec.ts:12:1 › колонка места объясняет себя подсказкой: вид, код и состояние уборки (2.2s)
+  ✓  23 [main-ui-1] › ../.wetop-main-ui-cZ6V6w/worker-1/tests/ui/chessboard-grid.spec.ts:23:1 › свёрнутая категория переживает перезагрузку страницы (3.9s)
+  ✓  24 [main-ui-1] › ../.wetop-main-ui-cZ6V6w/worker-1/tests/ui/chessboard-grid.spec.ts:39:1 › строка категории прилипает под шапкой дат при вертикальной прокрутке (1.4s)
+  ✓  25 [main-ui-1] › ../.wetop-main-ui-cZ6V6w/worker-1/tests/ui/chessboard-grid.spec.ts:58:1 › 30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается (3.1s)
+
+  25 passed (2.3m)
+
+# код выхода 0 · 2 мин 17 с

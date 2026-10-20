@@ -9,7 +9,7 @@ import { StaffTabs } from '../food/staff-tabs';
 import '../food/food.css';
 import '../food/restaurant.css';
 
-/** «Зарплата и финансы» ресторана (ADR-159, §33.4); выплаты из кассы филиала (§35.3, ADR-165) */
+/** «Зарплата и финансы» ресторана и салона (ADR-159, §33.4, §19.2); выплаты из кассы филиала (§35.3, ADR-165) */
 export default async function PayrollPage({
   searchParams,
 }: {
@@ -17,21 +17,24 @@ export default async function PayrollPage({
 }) {
   const { month } = await searchParams;
   try {
-    const shell = await restaurantShell();
+    const shell = await restaurantShell(undefined, ['FOOD_SERVICE', 'BEAUTY']);
+    const salon = shell.vertical === 'BEAUTY';
     const chosen =
       month && /^\d{4}-(0[1-9]|1[0-2])$/.test(month) ? month : shell.date.slice(0, 7);
     const payroll = await restaurantApi.payroll(chosen);
     return (
       <Page
-        title="Зарплата и финансы"
-        subtitle="Оклады, процент от заказов, премии и штрафы. Выплата уходит расходом из кассы"
+        title="Зарплата"
+        subtitle={`Оклады, процент от ${salon ? 'выполненных записей' : 'заказов'}, премии и штрафы. Выплата уходит расходом из кассы`}
       >
-        <StaffTabs current="payroll" />
+        {/* вкладки сотрудников ресторана ведут на его экраны (график смен): у салона их нет */}
+        {!salon && <StaffTabs current="payroll" />}
         <div key={shell.scopeKey}>
           <PayrollBoard
             scopeKey={shell.scopeKey}
             write={shell.canStaff && !shell.readOnly}
             payroll={payroll}
+            basis={salon ? 'visits' : 'orders'}
           />
         </div>
       </Page>
@@ -39,7 +42,7 @@ export default async function PayrollPage({
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Зарплата и финансы">
+      <Page title="Зарплата">
         <LoadError testId="payroll-load-error" {...loadErrorProps(error)} />
       </Page>
     );

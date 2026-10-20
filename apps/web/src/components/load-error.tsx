@@ -10,18 +10,17 @@ import { ErrorState } from './error-state';
  */
 export function LoadError({
   status,
-  message,
   testId,
   title,
 }: {
   status: number | undefined;
-  message: string;
   testId: string;
   /** заголовок ошибки для экрана (передаётся в `ErrorState`) */
   title?: string;
 }) {
   const router = useRouter();
-  const error: Error & { digest?: string } = new Error(message);
+  // текста сбоя здесь нет (Д11): `ErrorState` советует по коду статуса
+  const error: Error & { digest?: string } = new Error('load failed');
   if (status) error.digest = `API_${status}`;
   return (
     <div data-testid={testId}>

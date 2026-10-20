@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useState, useTransition } from 'react';
+import { useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { Alert, Button, Field, Input, Select } from '../../components/ui';
 import { Icon, type IconName } from '../../components/icon';
@@ -27,12 +27,12 @@ type NavItem = { label: string; icon: IconName } & (
 );
 const NAV: NavItem[] = [
   { label: 'Основное', icon: 'inventory', href: '/branches' },
-  { label: 'Часы работы', icon: 'clock', section: 'hours' },
+  { label: 'Часы работы зала', icon: 'clock', section: 'hours' },
   { label: 'Бронирования', icon: 'booking', section: 'bookings' },
   { label: 'Залы и столы', icon: 'board', href: '/dining-areas' },
   { label: 'Уведомления', icon: 'mail', section: 'notifications' },
-  { label: 'Интеграции', icon: 'channels', href: '/connections' },
-  { label: 'Публичный сайт', icon: 'globe', href: '/website' },
+  // `/website` гостиничный раздел; сайт ресторана собирается в «Продвижении» (аудит 17.10.2026, Д1)
+  { label: 'Публичный сайт', icon: 'globe', href: '/marketing/site/editor' },
 ];
 
 const minutes = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
@@ -52,10 +52,12 @@ export function RestaurantSettings({
   data,
   section,
   booking,
+  physicalOpening,
 }: {
   data: FoodWorkspace;
   section: SettingsSection;
   booking?: BookingSettings | undefined;
+  physicalOpening?: ReactNode;
 }) {
   const write = data.canProperty && !data.readOnly;
   return (
@@ -79,20 +81,17 @@ export function RestaurantSettings({
           ),
         )}
       </nav>
-      <section className="rest-settings__body" aria-labelledby="rest-settings-title">
-        {section === 'hours' && <Hours data={data} write={write} />}
+      <section className="rest-settings__body" aria-labelledby={section === 'hours' ? 'physical-opening-title' : 'rest-settings-title'}>
+        {section === 'hours' && physicalOpening}
+        {section === 'bookings' && <Hours data={data} write={write} />}
         {section === 'bookings' && <Bookings data={data} write={write} />}
         {section === 'bookings' && booking && <BookingRulesForm data={data} write={write} booking={booking} />}
         {section === 'notifications' && (
           <>
             <h2 id="rest-settings-title">Уведомления</h2>
             <p className="muted">
-              Подтверждения, напоминания и отмены уходят гостю через подключённые каналы. Каналы
-              подключаются в разделе «Подключения».
+              Подтверждения, напоминания и отмены уходят гостю через подключённые каналы.
             </p>
-            <Link className="btn btn--secondary" href="/connections">
-              Открыть подключения
-            </Link>
           </>
         )}
       </section>
@@ -117,9 +116,10 @@ function Hours({ data, write }: { data: FoodWorkspace; write: boolean }) {
   const { pending, error, save } = useSave(data);
   return (
     <>
-      <h2 id="rest-settings-title">Часы работы</h2>
+      <h2 id="rest-settings-title">Периоды приёма броней</h2>
+      <p className="muted">Эти периоды не определяют физические часы работы зала.</p>
       {error && <Alert>{error}</Alert>}
-      <ul className="rest-hours" aria-busy={pending}>
+      <ul className="rest-hours rest-hours--editable" aria-busy={pending}>
         {WEEK.map(([weekday, name]) => {
           const day = data.periods
             .filter((p) => p.weekday === weekday)
@@ -141,7 +141,7 @@ function Hours({ data, write }: { data: FoodWorkspace; write: boolean }) {
           return (
             <li key={weekday} data-on={on || undefined}>
               <span className="rest-hours__day">{name}</span>
-              <Field label={<span className="sr-only">{name}, начало</span>}>
+              <Field className="rest-hours__from" label={<><span aria-hidden="true">С</span><span className="sr-only">{name}, начало</span></>}>
                 <Input
                   type="time"
                   disabled={!write || !p}
@@ -155,7 +155,7 @@ function Hours({ data, write }: { data: FoodWorkspace; write: boolean }) {
                 />
               </Field>
               <span aria-hidden="true">–</span>
-              <Field label={<span className="sr-only">{name}, конец</span>}>
+              <Field className="rest-hours__to" label={<><span aria-hidden="true">До</span><span className="sr-only">{name}, конец</span></>}>
                 <Input
                   type="time"
                   disabled={!write || !p}
@@ -217,11 +217,11 @@ function Bookings({ data, write }: { data: FoodWorkspace; write: boolean }) {
   const dayName = (w: number) => WEEK.find(([d]) => d === w)?.[1] ?? '';
   return (
     <>
-      <h2 id="rest-settings-title">Бронирования</h2>
+      <h3>Длительность бронирований</h3>
       <p className="muted">Длительность брони по умолчанию для каждого периода обслуживания.</p>
       {error && <Alert>{error}</Alert>}
       {periods.length === 0 ? (
-        <p className="muted">Сначала включите дни в разделе «Часы работы».</p>
+        <p className="muted">Сначала настройте периоды приёма броней выше.</p>
       ) : (
         <ul className="rest-hours" aria-busy={pending}>
           {periods.map((p) => {

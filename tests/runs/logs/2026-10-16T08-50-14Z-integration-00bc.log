@@ -1,0 +1,44 @@
+# Интеграционные (integration) · 16.10.2026 13:50 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 35
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T08-50-14Z-integration-00bc.json' '--config' 'tests/beauty-workload-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/beauty-workload-isolated.test.ts (1 test | 1 failed) 440ms
+   × real schedule writer captures normalized historical capacity atomically, never backdates observation 438ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-workload-isolated.test.ts > real schedule writer captures normalized historical capacity atomically, never backdates observation
+PrismaClientKnownRequestError: 
+Invalid `prisma.$queryRaw()` invocation:
+
+
+Raw query failed. Code: `N/A`. Message: `Failed to deserialize column of type 'void'. If you're using $queryRaw and this column is explicitly marked as `Unsupported` in your Prisma schema, try casting this column to any supported Prisma type such as `String`.`
+ ❯ vn.handleRequestError ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ prisma.db.$transaction.maxWait apps/api/src/beauty/scope.ts:116:13
+    114|           const locations = await tx.location.findMany({ where: { busi…
+    115|           for (const location of locations.sort((a,b)=>a.id.localeComp…
+    116|             await tx.$queryRaw`SELECT capture_beauty_schedule(${locati…
+       |             ^
+    117|         }
+    118|         return result;
+ ❯ Proxy._transactionWithCallback ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ beautyTransaction apps/api/src/beauty/scope.ts:102:12
+ ❯ BeautyScheduleService.setWorkingHours apps/api/src/beauty/schedule.ts:153:22
+ ❯ apps/api/src/auth/request-context.ts:67:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  08:50:15
+   Duration  2.29s (transform 63%, tests 21%, import 16%)
+
+JSON report written to /tmp/pms-test-2026-10-16T08-50-14Z-integration-00bc.json
+
+# код выхода 1 · 3 с

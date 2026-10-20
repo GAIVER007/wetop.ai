@@ -68,6 +68,7 @@ export function PaymentRequestsPanel({
   requests,
   folios,
   paymentMethods,
+  canMutate,
 }: {
   number: string;
   propertyName: string;
@@ -75,6 +76,7 @@ export function PaymentRequestsPanel({
   /** включённые способы объекта (DATA_MODEL §21.6); нет поля, значит старый API: все четыре */
   paymentMethods?: string[] | undefined;
   folios: FinanceFolio[];
+  canMutate: boolean;
 }) {
   const openFolios = folios.filter((f) => f.status === 'OPEN');
   const [folioId, setFolioId] = useState(openFolios[0]?.id ?? '');
@@ -178,7 +180,7 @@ export function PaymentRequestsPanel({
                   <b className="num">{formatMoney(r.amountMinor, r.currency)}</b>
                   <span>{METHOD_SHORT[r.method]}</span>
                   <Badge tone={STATUS[r.status].tone}>{STATUS[r.status].label}</Badge>
-                  {r.status === 'PENDING' && (
+                  {canMutate && r.status === 'PENDING' && (
                     <span className="ml-auto">
                       <Row>
                         <Button
@@ -234,7 +236,7 @@ export function PaymentRequestsPanel({
         </Stack>
       )}
 
-      {openFolios.length === 0 ? (
+      {!canMutate ? null : openFolios.length === 0 ? (
         <p className="hint">Открытых счетов нет: запрос оплаты выставлять не на что.</p>
       ) : (
         <form action={formAction} className="stack stack--sm" data-testid="payment-request-form">

@@ -62,7 +62,7 @@ test('пункт «Конкуренты» в «Продвижении» ведё
   page,
 }) => {
   await page.goto('/finance');
-  await goViaMenu(page, 'Продвижение', 'Конкуренты');
+  await goViaMenu(page, 'Продвижение', 'Анализ конкурентов');
   await page.waitForURL('**/market');
   const main = page.getByRole('main');
   const grid = page.getByTestId('market-table');

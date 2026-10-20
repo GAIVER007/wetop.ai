@@ -1,0 +1,30 @@
+# Интеграционные (integration) · 16.10.2026 13:08 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 22
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T08-08-44Z-integration-98f0.json' '--config' 'tests/occupancy-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/occupancy-isolated.test.ts (3 tests | 1 failed) 172ms
+   × real FoodService commands synchronize reservation, assignment and legacy hooks atomically 17ms
+   ✓ runtime tenant isolation hides other branches and rejects writes 20ms
+   ✓ walk-in persists one actual session, retries replay, competing seats fail, move and release are atomic 88ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/occupancy-isolated.test.ts > real FoodService commands synchronize reservation, assignment and legacy hooks atomically
+error: inconsistent types deduced for parameter $1
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/occupancy-isolated.test.ts:25:2
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  08:08:45
+   Duration  2.02s (transform 72%, import 19%, tests 9%)
+
+JSON report written to /tmp/pms-test-2026-10-16T08-08-44Z-integration-98f0.json
+
+# код выхода 1 · 3 с

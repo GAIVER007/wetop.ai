@@ -1,0 +1,103 @@
+# Модульные (unit) · 18.10.2026 23:37 Алматы · <сервер>
+# коммит 71c5716 (feat/salon-draft-implementation-20261018)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T18-37-55Z-unit-078d.json' 'apps/web/src/app/bar/actions.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ❯ |unit| apps/web/src/app/bar/actions.test.ts (28 tests | 3 failed) 55ms
+   ✓ retail recovery server authorization boundary (9)
+     ✓ refuses organization scope before the real action sends any sale 25ms
+     ✓ refuses business scope before the real action sends any sale 1ms
+     ✓ refuses location scope before the real action sends any sale 0ms
+     ✓ refuses user scope before the real action sends any sale 0ms
+     ✓ refuses property scope before the real action sends any sale 0ms
+     ✓ refuses currency scope before the real action sends any sale 0ms
+     ✓ refuses session scope before the real action sends any sale 0ms
+     ✓ refuses missing scope before the real action sends any sale 0ms
+     ✓ refuses expired scope before the real action sends any sale 1ms
+   ❯ форма прихода бара (15)
+     ✓ переводит тенге и процент в целые младшие единицы 2ms
+     ✓ строка «новый товар» сначала создаёт карточку с ценой по наценке, вверх до 10 тенге 1ms
+     ✓ объект не в тенге: новый товар получает цену вверх до целой единицы, приход уходит в API (ADR-187) 1ms
+     ✓ строка без товара и без названия не уходит в API 1ms
+     ✓ не пропускает float и не отправляет запрос 0ms
+     × передает розничную продажу с ключом повтора 7ms
+     ✓ переводит частичную оплату поставщику в minor units 1ms
+     ✓ передает продажу в счет гостя с ключом повтора 1ms
+     ✓ передает фактический остаток без float 1ms
+     ✓ излишек: цена вручную уходит в тиынах, ответ называет принятый излишек (ADR-175) 1ms
+     ✓ хранит наценку категории в basis points 0ms
+     ✓ скан: принимает только картинки и отдаёт разобранный документ 1ms
+     ✓ скан: PDF и пустой файл не уходят в API 0ms
+     ✓ карточка товара: поля уходят в PATCH, цена отдельным маршрутом в minor units 1ms
+     ✓ сохраняет свою цену продажи в minor units 0ms
+   ❯ Bar scope/currency/replay regressions (4)
+     ✓ sends verified USD instead of substituting KZT 1ms
+     ✓ rejects a draft from another property before mutation 0ms
+     × preserves the submitted sale key across retries 3ms
+     × does not announce REVERSED replay as a new sale 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/bar/actions.test.ts > форма прихода бара > передает розничную продажу с ключом повтора
+AssertionError: expected 'Объект формы изменился. Обновите стра…' to be null
+
+- Expected:
+null
+
++ Received:
+"Объект формы изменился. Обновите страницу и восстановите исходный контекст."
+
+ ❯ apps/web/src/app/bar/actions.test.ts:172:26
+    170|     );
+    171|     const result = await sellBarRetailAction({ error: null, ok: 0 }, f…
+    172|     expect(result.error).toBeNull();
+       |                          ^
+    173|     expect(barApi.sellRetail).toHaveBeenCalledWith(
+    174|       expect.objectContaining({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/web/src/app/bar/actions.test.ts > Bar scope/currency/replay regressions > preserves the submitted sale key across retries
+AssertionError: expected [] to deeply equal [ …(2) ]
+
+- Expected
++ Received
+
+- [
+-   "00000000-0000-4000-8000-000000000025",
+-   "00000000-0000-4000-8000-000000000025",
+- ]
++ []
+
+ ❯ apps/web/src/app/bar/actions.test.ts:426:7
+    424|         .mocked(barApi.sellRetail)
+    425|         .mock.calls.map(([x]) => (x as { idempotencyKey: string }).ide…
+    426|     ).toEqual([fd.get('idempotencyKey'), fd.get('idempotencyKey')]);
+       |       ^
+    427|   });
+    428|   it('does not announce REVERSED replay as a new sale', async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/app/bar/actions.test.ts > Bar scope/currency/replay regressions > does not announce REVERSED replay as a new sale
+AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+ ❯ apps/web/src/app/bar/actions.test.ts:435:81
+    433|       costMinor: '10000',
+    434|     } as never);
+    435|     expect((await sellBarRetailAction({ error: null, ok: 0 }, form()))…
+       |                                                                                 ^
+    436|       'отменена',
+    437|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 25 passed (28)
+   Start at  18:37:56
+   Duration  1.56s (transform 82%, import 14%, tests 4%)
+
+JSON report written to /tmp/pms-test-2026-10-18T18-37-55Z-unit-078d.json
+
+# код выхода 1 · 3 с

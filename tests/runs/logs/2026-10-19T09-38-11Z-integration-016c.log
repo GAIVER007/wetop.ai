@@ -1,0 +1,181 @@
+# Интеграционные (integration) · 19.10.2026 14:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 91f21c4 (fix/salon-migrations-133-137), незакоммиченных файлов набора: 23
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-38-11Z-integration-016c.json' 'tests/integration/beauty-appointment-history.test.ts' 'tests/integration/beauty-appointment-lines.test.ts' 'tests/integration/beauty-appointment-payment.test.ts' 'tests/integration/beauty-appointments.test.ts' 'tests/integration/beauty-branch.test.ts' 'tests/integration/beauty-catalog.test.ts' 'tests/integration/beauty-customer-marks.test.ts' 'tests/integration/beauty-customers.test.ts' 'tests/integration/beauty-domain.test.ts' 'tests/integration/beauty-position-storage.test.ts' 'tests/integration/beauty-positions-api.test.ts' 'tests/integration/beauty-release-schema.test.ts' 'tests/integration/beauty-schedule.test.ts' 'tests/integration/customer-import-race.test.ts' 'tests/integration/customer-import-runtime.test.ts' 'tests/integration/customer-import-storage.test.ts' 'tests/integration/customer-phone.test.ts' 'tests/integration/customers-create.test.ts' 'tests/integration/kitchen-stock.test.ts' 'tests/integration/rls-credential-grants.test.ts' 'tests/integration/rls-isolation.test.ts' 'tests/integration/site-forms.test.ts' 'tests/integration/mv4-beauty.test.ts' 'tests/integration/salon-payroll.test.ts' 'tests/integration/onboarding-beauty-readiness.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+ ✓ |integration| tests/integration/customer-import-runtime.test.ts (13 tests | 1 skipped) 801ms
+ ✓ |integration| tests/integration/customer-import-race.test.ts (6 tests) 452ms
+ ❯ |integration| tests/integration/customer-import-storage.test.ts (6 tests | 1 failed) 51ms
+   ✓ M4-B2: durable tenant storage (5)
+     ✓ has both tables with forced tenant RLS 1ms
+     ✓ retains audit journal by denying tenant DELETE 0ms
+     ✓ keeps row source identity and run immutable even to a service writer 2ms
+     ✓ cannot forge tenant or use a foreign parent through wetop_app 1ms
+     ✓ has no FK on a deletable customer and no cascade to business data 0ms
+   ❯ M4-B2 migration rollback in an isolated synthetic schema (1)
+     × preserves old customers, refuses nonempty rollback, removes only empty journal 22ms
+(node:84784) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/beauty-appointment-lines.test.ts (27 tests | 1 failed) 1807ms
+   ❯ Beauty: строки услуг записи и совместимость старых writers (27)
+     ✓ создаёт две последовательные строки, сумму визита и сегменты календаря по каждому мастеру 105ms
+     ✓ читает период одним срезом филиала, включая пересечение границы в его часовом поясе 24ms
+     ✓ RLS скрывает строки услуг и цены мастера другой организации 14ms
+     ✓ кабинет второго мастера показывает только его строку, цену и интервал 58ms
+     ✓ проверяет занятость каждого сегмента, но разрешает ту же услугу другому мастеру 57ms
+     ✓ не принимает мастера или услугу другого бизнеса внутри строки 7ms
+     ✓ гонка двух созданий одного слота оставляет ровно одну строку 42ms
+     ✓ старый INSERT и UPDATE поддерживают одну строку, а поля строк многострочного визита меняются только через API 45ms
+     ✓ legacy перенос первой строки сохраняет остальные строки и все снимки цены 88ms
+     ✓ не даёт администратору сбросить скидку и ручную длительность заменой items без права rates 21ms
+     ✓ перечитывает цену услуги после получения транзакционных замков 16ms
+     ✓ не создаёт новую строку после архивации мастера между планом и транзакцией 7ms
+     ✓ legacy writer не создаёт новую строку для архивного мастера или услуги 12ms
+     ✓ явно отклоняет перенос старой записи в валюте, отличной от текущей валюты филиала 30ms
+     ✓ отмена освобождает интервалы, но реактивация не создаёт пересечение 55ms
+     ✓ гонка двух правок принимает одну и отклоняет zero-row optimistic update 57ms
+     ✓ переиспользует канонический телефон без перезаписи имени и не восстанавливает архивную карточку 86ms
+     ✓ задаёт цену мастера в валюте филиала и отдаёт effective price форме записи 51ms
+     ✓ хранит один отзыв мастеру за DONE-визит и показывает только отзывы выбранного мастера 225ms
+     ✓ выдаёт ссылку на 30 дней от первого DONE, не хранит raw token и ротирует только неотправленную ссылку 104ms
+     ✓ отклоняет истёкший DONE и атомарно принимает выбранных мастеров только один раз 75ms
+     ✓ сохраняет техкарту по revision, считает FIFO и списывает материалы только при первом DONE 166ms
+     ✓ new bookings respect salon breaks while existing visits remain unchanged 55ms
+     ✓ salon hours configuration rejects lost updates, checks rights and reports existing conflicts 31ms
+     × salon hours RLS hides another organization and the rollback refuses saved configuration 14ms
+     ✓ authorized salon hours writes work through the real restricted application role 83ms
+     ✓ authorized private review links work through the real restricted application role 107ms
+(node:84844) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/site-forms.test.ts (24 tests) 4674ms
+   ✓ формы сайта салона и ресторана, заявки без слота (SITE-3/4/5, integration) (24)
+     ✓ SITE-4: запись к мастеру с сайта (12)
+       ✓ свободные окна по графику мастеров; занятое время пропадает 339ms
+       ✓ «любой мастер»: первый свободный по имени; оба заняты: 409 311ms
+       ✓ одновременная двойная отправка (тот же ключ): одна запись, оба ответа об одной записи 552ms
+     ✓ SITE-4: бронь стола с сайта (4)
+       ✓ правила брони филиала: больше 6 гостей 409; вне периода 409; закрытый день 409 421ms
+     ✓ SITE-5: заявка без слота и «Входящие» (4)
+       ✓ заявка с любого сайта: строка NEW в филиале сайта, метки перехода; повтор без дубля 432ms
+(node:85198) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/mv4-beauty.test.ts (23 tests) 8051ms
+   ✓ MV4 Beauty acceptance on PostgreSQL (23)
+     ✓ READ_ONLY blocks every mutation and leaves audit and rows unchanged 311ms
+     ✓ eligibility rejects disabled or archived service, archived employee and foreign customer 777ms
+     ✓ CANCELLED releases the employee slot across branches 521ms
+     ✓ NO_SHOW releases the employee slot across branches 521ms
+     ✓ minor-unit override and duration are snapshots; catalog edits do not rewrite appointments 563ms
+     ✓ local Monday early morning is Sunday UTC and appears on the Location day only 338ms
+     ✓ successful catalog, employee, schedule and appointment changes are audited 721ms
+     ✓ real HTTP applies verified scope, vertical capabilities and permissions before Beauty handlers 775ms
+(node:85601) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/onboarding-beauty-readiness.test.ts (23 tests) 5971ms
+   ✓ Beauty v2 real database (23)
+     ✓ O04: an empty pilot must not complete as ready 777ms
+     ✓ O07: concurrent create retries return one resource and original receipt 529ms
+     ✓ O09/O11/O24: linked future weekly configuration is ready; completion creates no appointment 681ms
+(node:85651) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/beauty-appointment-payment.test.ts (6 tests) 2685ms
+   ✓ оплата записи салона (integration, §49) (6)
+     ✓ частями и разными способами до цены; повтор ключа не создаёт второй приход; больше остатка нельзя 391ms
+     ✓ база: со ссылкой на запись только приход и возврат, только своего филиала, и после вставки не меняется 359ms
+     ✓ возврат (§54): только после «Выполнено», с причиной, не больше чистой оплаты и остатка способа, повтор по ключу 359ms
+(node:85724) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/beauty-appointments.test.ts (14 tests) 3995ms
+ ✓ |integration| tests/integration/beauty-positions-api.test.ts (8 tests) 2655ms
+   ✓ Beauty positions API: persisted matrix, assignments and strict revocation (8)
+     ✓ rejects a narrowed current membership through the real restricted tenant role before a write 1526ms
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 1190ms
+   ✓ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 381ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 353ms
+ ✓ |integration| tests/integration/beauty-schedule.test.ts (12 tests) 1987ms
+ ✓ |integration| tests/integration/kitchen-stock.test.ts (5 tests) 2155ms
+   ✓ Kitchen stock: RLS, ownership, append-only ledger (5)
+     ✓ три таблицы: свои строки видны, чужой и пустой арендатор не видят, сервис видит всех 845ms
+ ✓ |integration| tests/integration/customers-create.test.ts (4 tests) 2874ms
+   ✓ M4-A: создание клиента через настоящую RLS-роль (4)
+     ✓ создаёт клиента и audit без Appointment и не принимает scope из тела 675ms
+ ✓ |integration| tests/integration/beauty-catalog.test.ts (9 tests) 563ms
+ ✓ |integration| tests/integration/beauty-customers.test.ts (4 tests) 1434ms
+ ✓ |integration| tests/integration/salon-payroll.test.ts (2 tests) 2594ms
+   ✓ зарплата мастеров салона (integration, §19.2) (2)
+     ✓ процент от выполненных записей месяца, выплата из кассы салона не больше остатка и наличия 758ms
+ ✓ |integration| tests/integration/beauty-appointment-history.test.ts (2 tests) 2458ms
+ ✓ |integration| tests/integration/beauty-branch.test.ts (6 tests) 1309ms
+ ✓ |integration| tests/integration/beauty-domain.test.ts (11 tests) 463ms
+ ✓ |integration| tests/integration/beauty-customer-marks.test.ts (1 test) 524ms
+ ✓ |integration| tests/integration/beauty-position-storage.test.ts (10 tests) 156ms
+ ❯ |integration| tests/integration/beauty-release-schema.test.ts (9 tests | 9 skipped) 5ms
+   ❯ Beauty schema release on a separate owned canonical database (9)
+     ↓ backfills one position-zero line with the exact legacy money and interval snapshots
+     ↓ matches Prisma declarations exactly on the real ordinary-chain public schema
+     ↓ keeps all ten new tables under FORCE RLS and hides a foreign tenant line
+     ↓ refuses location-hours down when saved configuration exists
+     ↓ refuses positions down when a position exists
+     ↓ refuses materials down when a retained card revision exists
+     ↓ refuses reviews down when a retained invitation exists
+     ↓ refuses lines down when a retained employee price exists
+     ↓ reverses the unused new models in dependency order without losing the legacy appointment
+ ✓ |integration| tests/integration/customer-phone.test.ts (9 tests) 188ms
+ ✓ |integration| tests/integration/rls-credential-grants.test.ts (9 tests) 34ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-release-schema.test.ts > Beauty schema release on a separate owned canonical database
+Error: Beauty release proof requires the exact owned local or dedicated ephemeral CI fixture
+ ❯ beautyReleaseFixtureUrl tests/tools/beauty-release-fixture.ts:10:37
+      8|   const dedicatedCi = ci && portalFixture === 'owner-home-ci'
+      9|     && url.hostname === '127.0.0.1' && url.port === '55516' && url.use…
+     10|   if (!local && !dedicatedCi) throw new Error('Beauty release proof re…
+       |                                     ^
+     11|   return url;
+     12| }
+ ❯ tests/integration/beauty-release-schema.test.ts:53:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-appointment-lines.test.ts > Beauty: строки услуг записи и совместимость старых writers > salon hours RLS hides another organization and the rollback refuses saved configuration
+Error: ENOENT: no such file or directory, open '/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/packages/database/prisma/migrations-hold/20261018000135_beauty_location_hours/down.sql'
+ ❯ tests/integration/beauty-appointment-lines.test.ts:1291:20
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/customer-import-storage.test.ts > M4-B2 migration rollback in an isolated synthetic schema > preserves old customers, refuses nonempty rollback, removes only empty journal
+AssertionError: expected 'customer_imports' to be null
+
+- Expected:
+null
+
++ Received:
+"customer_imports"
+
+ ❯ tests/integration/customer-import-storage.test.ts:90:95
+     88|       await client.query(readFileSync(resolve(folder,'down.sql'),'utf8…
+     89|       expect((await client.query('SELECT * FROM customers')).rows).toE…
+     90|       expect((await client.query("SELECT to_regclass('customer_imports…
+       |                                                                                               ^
+     91|     } finally {
+     92|       await client.query('ROLLBACK');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed | 22 passed (25)
+      Tests  2 failed | 237 passed | 10 skipped (249)
+   Start at  02:38:12
+   Duration  123.39s (tests 49%, import 38%, transform 13%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-38-11Z-integration-016c.json
+
+# код выхода 1 · 2 мин 5 с

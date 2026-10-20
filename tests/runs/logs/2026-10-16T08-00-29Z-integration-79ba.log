@@ -1,0 +1,33 @@
+# Интеграционные (integration) · 16.10.2026 13:00 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 18
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T08-00-29Z-integration-79ba.json' '--config' 'tests/occupancy-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/occupancy-isolated.test.ts (1 test | 1 skipped) 104ms
+   ↓ walk-in persists one actual session, retries replay, competing seats fail, move and release are atomic
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/occupancy-isolated.test.ts [ tests/integration/occupancy-isolated.test.ts ]
+error: null value in column "timezone" of relation "locations" violates not-null constraint
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/occupancy-isolated.test.ts:9:2
+      7|  const org=(await pool.query('select id from organizations limit 1')).…
+      8|  await pool.query(`insert into businesses(id,organization_id,name,vert…
+      9|  await pool.query(`insert into locations(id,business_id,name,updated_a…
+       |  ^
+     10|  await pool.query(`insert into dining_areas(id,location_id,name,update…
+     11|  await pool.query(`insert into dining_tables(id,area_id,name,capacity,…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 skipped (1)
+   Start at  08:00:31
+   Duration  419ms (tests 48%, import 29%, transform 21%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-16T08-00-29Z-integration-79ba.json
+
+# код выхода 1 · 2 с

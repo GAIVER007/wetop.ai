@@ -1,0 +1,23 @@
+# Типы (typecheck) · 18.10.2026 13:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит ef17fbd (codex/salons-tz4-m4b), незакоммиченных файлов набора: 5
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+packages/domain/src/customer-import.ts(89,96): error TS2412: Type 'number | undefined' is not assignable to type 'number' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'number'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+packages/domain/src/customer-import.ts(89,96): error TS2412: Type 'number | undefined' is not assignable to type 'number' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'number'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+packages/domain/src/customer-import.ts(89,96): error TS2412: Type 'number | undefined' is not assignable to type 'number' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'number'.
+
+# код выхода 1 · 1 мин 9 с

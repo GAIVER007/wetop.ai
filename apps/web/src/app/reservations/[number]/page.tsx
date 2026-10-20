@@ -1,3 +1,4 @@
+import { requireFeature } from '../../../lib/vertical-guard';
 import Link from 'next/link';
 import { Tabs } from '../../../components/tabs';
 import { hotelToday } from '../../../lib/hotel-api';
@@ -17,6 +18,8 @@ import { FinancePanel } from './finance-panel';
 import { PaymentRequestsPanel } from './payment-requests';
 import { maskPhone } from './phone-mask';
 import { OpenFullCard } from './open-full-card';
+import { BookingGuestEditor } from './guest-editor';
+import { bookingGuestEditable } from './guest-editor-access';
 import { FinanceLine } from '../finance-line';
 import '../../directory.css';
 import { sourceStatus } from '../../../lib/status/source';
@@ -38,6 +41,8 @@ export default async function ReservationPage({
    */
   preview?: boolean;
 }) {
+  // раздел направления по реестру функций (У1): по прямой ссылке чужое направление уходит на свою стартовую
+  await requireFeature('/reservations');
   const { number } = await params;
   const r = await chessboardApi.reservation(decodeURIComponent(number)).catch(notFoundOn404);
   const today = await hotelToday();
@@ -73,6 +78,7 @@ export default async function ReservationPage({
       financeApi.paymentRequests(r.confirmationNumber).catch(() => null),
     ]);
   const desk = await access;
+  const canMutate = mayAccess(desk.access, 'desk') && !desk.readOnly;
   const availabilityByPeriod = new Map(
     [...periods.keys()].map((key, i) => [key, periodResults[i]]),
   );
@@ -128,6 +134,11 @@ export default async function ReservationPage({
               </Link>
             ) : (
               'Гость без имени'
+            )}
+            {r.primaryGuest && !desk.access.restricted && !desk.access.unknown && (
+              <BookingGuestEditor key={`${desk.scopeKey}:${r.primaryGuest.id}:${canMutate}`}
+                id={r.primaryGuest.id} scopeKey={desk.scopeKey ?? ''}
+                canEdit={canMutate && bookingGuestEditable(desk)} piiStorage={piiStorage} />
             )}
             {r.primaryGuest && (
               <span
@@ -360,6 +371,7 @@ export default async function ReservationPage({
                       finance={finance}
                       services={services}
                       today={today}
+                      canMutate={canMutate}
                     />
                     <PaymentRequestsPanel
                       number={r.confirmationNumber}
@@ -367,6 +379,7 @@ export default async function ReservationPage({
                       paymentMethods={finance?.paymentMethods}
                       requests={paymentRequests?.requests ?? null}
                       folios={finance.folios}
+                      canMutate={canMutate}
                     />
                   </>
                 ) : (
@@ -411,7 +424,7 @@ export default async function ReservationPage({
                     Сводка фонда не загрузилась: категории в переселении показаны кодами.
                   </Alert>
                 )}
-                <ReservationActions
+                {canMutate && <ReservationActions
                   number={r.confirmationNumber}
                   status={r.status}
                   source={r.source}
@@ -464,7 +477,7 @@ export default async function ReservationPage({
                       availableGroups: groups,
                     };
                   })}
-                />
+                />}
               </>
             ),
           },

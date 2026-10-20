@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 16.10.2026 13:57 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7ebf981 (claude/marketing-channel-plan), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/marketing-budget.spec.ts' '--workers=1' '-g' 'план по каналам'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/marketing-budget.spec.ts:237:1 › план по каналам: разбивка прошлого месяца, копирование, превышение общего плана предупреждает, план против факта (50.9s)
+
+
+  1) tests/ui/marketing-budget.spec.ts:237:1 › план по каналам: разбивка прошлого месяца, копирование, превышение общего плана предупреждает, план против факта 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('План по каналам сохранён')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('План по каналам сохранён') with timeout 15000ms
+      - waiting for getByText('План по каналам сохранён')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      272 |   expect(audit.violations).toEqual([]);
+      273 |   await form.getByTestId('budget-lines-save').click();
+    > 274 |   await expect(page.getByText('План по каналам сохранён')).toBeVisible();
+          |                                                            ^
+      275 |
+      276 |   await expect(main.getByTestId('budget-lines-summary')).toContainText('Распределено 3 400 ₸ из 3 000 ₸');
+      277 |   await expect(main.getByTestId('budget-lines-over')).toContainText('Каналы больше плана на 400 ₸');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-budget.spec.ts:274:60
+
+    Error Context: test-results/marketing-budget-план-по-к-4eb27-упреждает-план-против-факта/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-budget-план-по-к-4eb27-упреждает-план-против-факта/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-budget-план-по-к-4eb27-упреждает-план-против-факта/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/marketing-budget.spec.ts:237:1 › план по каналам: разбивка прошлого месяца, копирование, превышение общего плана предупреждает, план против факта 
+
+# код выхода 1 · 1 мин 53 с

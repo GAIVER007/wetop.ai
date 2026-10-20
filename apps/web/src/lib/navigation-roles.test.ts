@@ -36,40 +36,35 @@ describe('меню по ролям', () => {
   });
 
   it('администратор: работа с гостями, продавец (диалоги), финансы и статистика, неисправности', () => {
-    expect(hrefs(access('STAFF'))).toEqual([
-      // «Главная» первой (ADR-180), дальше порядок #501: календарь, гости, затем «Финансы» с «Баром»
-      '/today',
-      '/chessboard',
-      '/guests',
-      '/finance',
-      '/bar',
-      // загрузка конкурентов (ADR-142): администратор смотрит, как все отчёты; вносить не может (право `rates`)
-      '/sales',
-      '/ai-agents',
-      // «Конкуренты» с ADR-184 в «Продвижении»: администратор смотрит их, как все отчёты (право `reports`),
-      // остальное «Продвижение» ему закрыто
-      '/market',
-      '/reports',
-      '/management/analytics',
-      '/incidents',
-    ]);
-    expect(menuSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
-      'today',
-      'chessboard',
-      'guests',
-      'finance',
-      'sales',
-      'marketing',
-      'reports',
-      'settings',
+    // верхнее меню 17.10.2026: те же права, новая группировка разделов
+    expect(menuSectionsFor(access('STAFF')).map((s) => [s.id, s.items.map((i) => i.href)])).toEqual([
+      ['today', ['/today']],
+      ['journal', ['/chessboard']],
+      ['clients', ['/guests', '/reservations']],
+      ['stats', ['/management/analytics', '/reports']],
+      // склад на экранах бара: администратор смотрит, как все отчёты (право `reports`)
+      ['stock', ['/bar', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
+      ['money', ['/finance', '/reports/finance']],
+      // право `desk`: неисправности; остальные настройки ему закрыты
+      ['settings', ['/incidents']],
+      // «Продвижение» по праву marketing закрыто, а продавец (диалоги) и конкуренты (право `reports`) открыты
+      ['marketing', ['/ai-agents', '/market', '/sales']],
+      ['help', ['/help']],
     ]);
   });
 
-  it('«Бар»: пункт группы «Финансы», своей вкладки нет (ADR-157)', () => {
-    const finance = menuSectionsFor(access('STAFF')).find((s) => s.id === 'finance');
-    expect(finance?.label).toBe('Финансы');
-    expect(finance?.direct).toBeUndefined();
-    expect(finance?.items.map((i) => i.href)).toEqual(['/finance', '/bar']);
+  it('«Бар»: экраны раздела «Склад», своей вкладки нет (ADR-157, верхнее меню 17.10.2026)', () => {
+    const stock = menuSectionsFor(access('STAFF')).find((s) => s.id === 'stock');
+    expect(stock?.label).toBe('Склад');
+    expect(stock?.direct).toBeUndefined();
+    expect(stock?.items.map((i) => [i.href, i.label])).toEqual([
+      // в порядке вкладок экрана склада (19.10.2026)
+      ['/bar', 'Обзор склада'],
+      ['/bar/receipts', 'Приходы'],
+      ['/bar/products', 'Номенклатура'],
+      ['/bar/suppliers', 'Поставщики'],
+      ['/bar/operations', 'Движение товаров'],
+    ]);
   });
 
   it('управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора', () => {
@@ -99,12 +94,13 @@ describe('меню по ролям', () => {
       expect(menuSectionsFor(access(role)).map((s) => s.id)).toContain('marketing');
       expect(hrefs(access(role))).toContain('/marketing');
     }
-    // у администратора в группе только «Конкуренты» (право `reports`), хаба и бюджета нет
+    // у администратора в группе только продавец, конкуренты и обзор продаж (бывшие «Продажи», верхнее меню
+    // 17.10.2026); хаба, рекламы и бюджета нет
     expect(
       menuSectionsFor(access('STAFF'))
         .find((s) => s.id === 'marketing')
         ?.items.map((i) => i.href),
-    ).toEqual(['/market']);
+    ).toEqual(['/ai-agents', '/market', '/sales']);
     // адрес без пункта меню не открывает страницу: право то же, что у пункта
     expect(pageOpen(access('STAFF'), routeRule('/marketing')!.requires as 'settings')).toBe(false);
     expect(pageOpen(access('STAFF'), routeRule('/website/booking')!.requires as 'settings')).toBe(

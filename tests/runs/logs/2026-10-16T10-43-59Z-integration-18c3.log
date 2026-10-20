@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 16.10.2026 15:43 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 49
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T10-43-59Z-integration-18c3.json' '--config' 'tests/hotel-cash-isolated.config.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓ |integration| tests/integration/hotel-cash-intent-isolated.test.ts (4 tests) 1290ms
+   ✓ repository direct guard replays, rejects changes and missing key, concurrent fee once, transfer remains transfer 351ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  10:44:05
+   Duration  6.01s (transform 55%, tests 23%, import 22%)
+
+JSON report written to /tmp/pms-test-2026-10-16T10-43-59Z-integration-18c3.json
+
+# код выхода 0 · 12 с

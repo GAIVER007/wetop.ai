@@ -30,6 +30,8 @@ import { TimelineBoard } from './timeline-board';
 import { TablePanel, KIND_LABEL, type TableKind } from './table-panel';
 import { FloorLayoutEditor, SHAPE_CSS, spotStyle } from './floor-layout-editor';
 import { layoutSpots, tableShapeOf } from '@pms/domain';
+import { QuickReport } from '../../components/quick-report';
+import { foodQuickReport } from '../../components/quick-report-data';
 
 
 const ACTIVE = ['BOOKED', 'CONFIRMED', 'SEATED'];
@@ -189,6 +191,12 @@ export function WorkspaceBoard({
         />
         <div className="rest-bar__controls" role="group" aria-label="День и отборы">
           <DayToolbar data={data} floor={floor} period={period} setPeriod={setPeriod} />
+          <QuickReport
+            key={`${data.scopeKey}:${data.date}`}
+            date={data.date}
+            scope={['Бронирования столов', period ? data.periods.find((p) => p.id === period)?.name ?? 'Период' : 'Все периоды', ...(area || status || search ? ['С учётом фильтров'] : [])]}
+            build={() => foodQuickReport(filtered.filter(onDay))}
+          />
           {!floor && (
             <>
               <Segmented

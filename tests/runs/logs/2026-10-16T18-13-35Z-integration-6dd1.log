@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 16.10.2026 23:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит 05b0ad8 (claude/fix-rls-registry), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T18-13-35Z-integration-6dd1.json' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design
+
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 270ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  11:13:36
+   Duration  1.20s (transform 48%, tests 37%, import 15%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T18-13-35Z-integration-6dd1.json
+
+# код выхода 0 · 2 с

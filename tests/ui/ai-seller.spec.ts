@@ -73,9 +73,10 @@ test('раздел в меню «Продажи», четыре вкладки, 
   await page.goto('/ai-seller');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
   // текущий раздел на кнопке левого меню, пункт помечен текущим (ADR-161)
-  await expect(sideNav(page).locator('.sidenav__current')).toHaveText('Продажи');
+  // верхнее меню 17.10.2026: «ИИ-продавец» в «Продвижении»
+  await expect(sideNav(page).locator('.sidenav__current')).toHaveText('Продвижение');
   await expect(sideNav(page).locator('.sidenav__items [aria-current="page"]')).toHaveText(
-    'ИИ-продавцы',
+    'ИИ-продавец',
   );
   const tabs = page.getByRole('navigation', { name: 'ИИ-продавец' }).getByRole('link');
   await expect(tabs).toHaveText([
@@ -476,7 +477,7 @@ test('Все агенты возвращает в единый каталог, �
   const back = page.getByRole('link', { name: 'Все агенты', exact: true });
   await expect(back).toHaveAttribute('href', '/ai-agents');
   await back.click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавцы');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
   await expect(page.getByTestId('agent-seller')).toBeVisible();
 });
 

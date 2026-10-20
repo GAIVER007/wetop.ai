@@ -1,3 +1,5 @@
+import { MarketingSiteModule } from '../../apps/api/src/marketing-site/marketing-site.module';
+import { FinanceModule } from '../../apps/api/src/finance/finance.module';
 import { AiSellerModule } from '../../apps/api/src/ai-seller/ai-seller.module';
 import { SELLER_CONNECTION } from '../../apps/api/src/ai-seller/seller.connection';
 /** Local synthetic identity; real Food and Beauty HTTP guards/controllers/services/database. */
@@ -91,7 +93,9 @@ for (const [name, path, method] of [
 }
 Body()(FixtureController.prototype, 'save', 0);
 const module = await Test.createTestingModule({
-  imports: [AiSellerModule, FoodModule, BeautyModule, HotelModule, DeskModule, ChessboardModule],
+  // FinanceModule: настоящий `GET /owner-summary` общей Главной (аудит платформы 17.10.2026, Д6)
+  // MarketingSiteModule: медиатека сайта салона и ресторана (аудит платформы 17.10.2026, Д10)
+  imports: [AiSellerModule, FoodModule, BeautyModule, HotelModule, DeskModule, ChessboardModule, FinanceModule, MarketingSiteModule],
   controllers: [FixtureController],
 })
   .overrideProvider(SELLER_CONNECTION)
@@ -496,6 +500,8 @@ app.use(
                 await tx.diningTable.deleteMany({ where: { area: { location: { business: b } } } });
                 await tx.diningArea.deleteMany({ where: { location: { business: b } } });
                 await tx.servicePeriod.deleteMany({ where: { location: { business: b } } });
+                // строки услуг записи держат запись RESTRICT (appointment_lines_appointment_fkey): сначала они
+                await tx.appointmentLine.deleteMany({ where: { appointment: { location: { business: b } } } });
                 await tx.appointment.deleteMany({ where: { location: { business: b } } });
                 await tx.timeOff.deleteMany({ where: { employee: { business: b } } });
                 await tx.workingHours.deleteMany({ where: { employee: { business: b } } });

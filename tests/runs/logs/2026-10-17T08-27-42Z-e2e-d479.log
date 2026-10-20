@@ -1,0 +1,240 @@
+# Сквозные (e2e) · 17.10.2026 13:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 05b91c9 (claude/d11-honesty-fixes)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/ai-seller.spec.ts' 'tests/ui/ai-seller-overview.spec.ts' 'tests/ui/bar.spec.ts' 'tests/ui/owner-dashboard.spec.ts' 'tests/ui/owner-dashboard-interactions.spec.ts' 'tests/ui/system-screens.spec.ts' 'tests/ui/today-attention.spec.ts' 'tests/ui/today-layout.spec.ts' 'tests/ui/today-operations.spec.ts' 'tests/ui/website.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 102 tests using 1 worker
+
+  ✓    1 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:24:1 › вкладки по макету: обзор, настройка, диалоги, знания, подключения, сценарии, аналитика (3.0s)
+  ✓    2 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:31:1 › обзор: восемь плиток, числа из бота и из сводки продаж (1.7s)
+  ✓    3 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:48:1 › обзор: диалог, которому нужен человек, виден списком и ведёт в диалоги (1.3s)
+  ✓    4 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:60:1 › сводка продаж не посчиталась: сказано словами, плитки бота живы (896ms)
+  ✓    5 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:68:1 › аналитика: таблица периода и прошлого такого же, период переключается (1.1s)
+  ✓    6 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:83:1 › подключения: сводка каналов называет состояние каждого и не придумывает подключённого (1.2s)
+  ✓    7 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:101:1 › аналитика: работа продавца за сутки, доля без человека, передачи и время первого ответа (716ms)
+  ✓    8 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:109:1 › аналитика: сводка недоступна, сказано словами (674ms)
+  ✓    9 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: overview, light, 1440px (2.4s)
+  ✓   10 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: overview, light, 390px (2.3s)
+  ✓   11 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: overview, dark, 1440px (2.2s)
+  ✓   12 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: overview, dark, 390px (2.1s)
+  ✓   13 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: scenarios, light, 1440px (2.2s)
+  ✓   14 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: scenarios, light, 390px (2.2s)
+  ✓   15 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: scenarios, dark, 1440px (2.2s)
+  ✓   16 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: scenarios, dark, 390px (2.1s)
+  ✓   17 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: analytics, light, 1440px (2.3s)
+  ✓   18 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: analytics, light, 390px (2.0s)
+  ✓   19 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: analytics, dark, 1440px (2.1s)
+  ✓   20 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:118:7 › доступность и снимки: analytics, dark, 390px (2.3s)
+  ✓   21 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/ai-seller-overview.spec.ts:133:1 › сценарии: работает «Продажи», «Поддержка сайта» помечена «скоро», конструктор честно назван будущим (2.9s)
+  ✓   22 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/owner-dashboard.spec.ts:10:1 › owner blocks: operational widgets on home, money on finance (ADR-180) (4.1s)
+  ✓   23 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/owner-dashboard.spec.ts:38:1 › period changes through cash presets and mobile retains content (4.2s)
+  ✓   24 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/owner-dashboard.spec.ts:52:1 › attention stays available when dashboard API fails; cash on finance (2.4s)
+  ✓   25 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/owner-dashboard.spec.ts:64:1 › owner blocks dark desktop and mobile remain usable (4.9s)
+  ✓   26 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/owner-dashboard.spec.ts:95:1 › owner mobile summary fits the first screen and omits removed metrics (5.2s)
+  ✓   27 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/owner-dashboard.spec.ts:114:1 › owner summary stays usable at narrow widths and custom dates remain accessible (5.3s)
+  ✓   28 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/owner-dashboard.spec.ts:134:1 › approved owner concept groups forecast with occupancy and matches attention count (2.5s)
+  ✓   29 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/today-attention.spec.ts:77:1 › очередь: каждое событие дня с числом, важностью и одним действием; порядок Critical → Warning → Info (1.4s)
+  ✓   30 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/today-attention.spec.ts:118:1 › незаезд ведёт в бронь, долг — в счёт; брони строками с именем и номером (938ms)
+  ✓   31 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/today-attention.spec.ts:137:1 › сторож не ответил — строк инцидентов нет, остальная очередь на месте (1.3s)
+  ✓   32 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/today-attention.spec.ts:151:1 › финансовый период в будущем не скрывает текущие задачи гостиницы (3.2s)
+  ✓   33 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/today-attention.spec.ts:166:1 › снимки панелей Главной (6.9s)
+  ✓   34 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/today-operations.spec.ts:30:1 › операционные карточки убраны, а риски дня остались (1.7s)
+  ✓   35 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/today-operations.spec.ts:39:1 › события дня совпадают с /desk/today и не зависят от периода кассы (1.9s)
+  ✓   36 [main-ui-0] › ../.wetop-main-ui-sslFd2/worker-0/tests/ui/today-operations.spec.ts:58:1 › сбой сторожа не скрывает показатели и действия (1.0s)
+  ✓   37 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:64:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (4.4s)
+  ✓   38 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:108:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (1.9s)
+  ✓   39 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:139:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (1.0s)
+  ✓   40 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:169:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (1.3s)
+  ✓   41 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:186:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (3.3s)
+  ✓   42 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:223:1 › продавец недоступен — метка, причина и обещание повтора (1.4s)
+  ✓   43 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:234:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (884ms)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '2587204292'
+[WebServer] }
+  ✓   44 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:253:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (5.2s)
+  ✓   45 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:267:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (1.3s)
+  ✓   46 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:304:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (1.9s)
+  ✓   47 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:347:1 › карточка диалога по неизвестному id не падает, а говорит словами (944ms)
+  ✓   48 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:353:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (3.5s)
+  ✓   49 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:381:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (4.1s)
+  ✓   50 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:396:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (3.0s)
+  ✓   51 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:414:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (7.1s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   52 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:446:1 › снимки экранов раздела (12.8s)
+  ✓   53 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:474:1 › Все агенты возвращает в единый каталог, а не только к черновикам (19.3s)
+  ✓   54 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/ai-seller.spec.ts:483:1 › закрытое расширение: администратор видит действие для управления доступом (5.5s)
+  ✓   55 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/bar.spec.ts:23:1 › обзор как на макете: пять KPI, графики, компактная доска и подробности (5.2s)
+  ✓   56 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/bar.spec.ts:75:1 › быстрая продажа одной строкой и фильтры доски (3.4s)
+  ✓   57 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/bar.spec.ts:100:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (3.1s)
+  ✓   58 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/bar.spec.ts:133:1 › N6: товар в архивной категории сохраняет её при правке карточки (ADR-186) (1.8s)
+  ✓   59 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/bar.spec.ts:174:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (1.6s)
+  ✓   60 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/bar.spec.ts:191:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (1.3s)
+  ✓   61 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/bar.spec.ts:205:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (1.9s)
+  ✓   62 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/bar.spec.ts:217:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (2.9s)
+  ✓   63 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/bar.spec.ts:246:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (1.1s)
+  ✓   64 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/bar.spec.ts:258:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (3.5s)
+  ✓   65 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/bar.spec.ts:284:1 › операции: списание с причиной, журнал продаж и лента движений (5.8s)
+  ✓   66 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/bar.spec.ts:310:3 › доступность и телефон: light (4.7s)
+  ✓   67 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/bar.spec.ts:310:3 › доступность и телефон: dark (5.0s)
+  ✓   68 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/owner-dashboard-interactions.spec.ts:11:1 › forecast details expose availability and open the selected calendar day (4.0s)
+  ✓   69 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/owner-dashboard-interactions.spec.ts:40:1 › forecast can recover in place after a temporary API failure (3.4s)
+  ✓   70 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/owner-dashboard-interactions.spec.ts:54:1 › unavailable inventory stays explicit and can be retried (1.6s)
+  ✓   71 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/owner-dashboard-interactions.spec.ts:65:3 › slow inventory keeps daily events usable and shows a stable loading card at 390 px (8.2s)
+  ✘   72 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/owner-dashboard-interactions.spec.ts:65:3 › slow inventory keeps daily events usable and shows a stable loading card at 1440 px (2.5s)
+  ✓   73 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/owner-dashboard-interactions.spec.ts:100:3 › forecast drawer stays accessible at 320 px in light theme (3.7s)
+  ✓   74 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/owner-dashboard-interactions.spec.ts:100:3 › forecast drawer stays accessible at 320 px in dark theme (3.3s)
+  ✓   75 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/owner-dashboard-interactions.spec.ts:125:1 › weekly outlook opens a calendar day directly (2.7s)
+  ✓   76 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/owner-dashboard-interactions.spec.ts:139:1 › compact owner summary fits a 360 by 800 phone first screen (1.5s)
+  ✓   77 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной (14.6s)
+  ✓   78 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/system-screens.spec.ts:84:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон (12.9s)
+  ✘   79 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом (52.7s)
+  ✓   80 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/system-screens.spec.ts:253:1 › настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом (29.8s)
+  ✓   81 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (21.6s)
+  ✓   82 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/today-layout.spec.ts:3:1 › главная: компактные блоки и единая очередь проблем (4.6s)
+  ✓   83 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:29:1 › старые адреса ведут во вкладки модуля и сохраняют период (13.2s)
+  ✓   84 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:40:1 › одна точка входа в меню и четыре вкладки со своим адресом (13.5s)
+  ✓   85 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:78:1 › домен-заглушка — «Сайт ещё не подключён», а не зелёный сайт (6.9s)
+  ✓   86 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:101:1 › обзор подключённого сайта: домен, счётчик, бронирование, брони за месяц (5.6s)
+  ✓   87 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:132:1 › «Интеграции» больше не показывают сайт (10.5s)
+  ✓   88 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:140:1 › настройки: пауза и удаление — в «Опасной зоне», с подтверждением (5.3s)
+  ✓   89 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:153:1 › MKT7: сайт WETOP в «Настройках» и «Бронировании» без формы правки, со ссылкой на публикацию; API отвечает 409 (3.7s)
+  ✘   90 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:176:1 › четыре вкладки: доступность в двух темах, телефон без прокрутки вбок (45.7s)
+  ✓   91 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:207:1 › WEB2 · домены списком: заглушка уходит, неверный адрес словами, последний не убирается (4.8s)
+  ✓   92 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:250:1 › WEB2 · счётчик: состояние словами и одно действие (6.9s)
+  ✓   93 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:285:1 › WEB2 · окно установки: код, GTM, конструкторы; доступно, закрывается Escape (11.9s)
+  ✓   94 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:310:1 › снимки WEB2 (16.7s)
+  ✓   95 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:360:1 › WEB3 · бронирование: состояние, демо только у работающего, что увидит гость (4.0s)
+  ✓   96 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:392:1 › WEB3 · без адреса сайта демо не предлагается, код виджета — есть (2.9s)
+  ✓   97 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:406:1 › WEB3 · тариф сайта: смена видна в состоянии и в «Что увидит гость» (3.2s)
+  ✓   98 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:424:1 › WEB3 · окно установки виджета: код, место и цвет, проверка; доступно, закрывается Escape (3.0s)
+  ✓   99 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:450:1 › снимки WEB3 (9.8s)
+  ✓  100 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:499:1 › WEB4 · брони с сайта: число, отменённые, начислено и ссылка в «Брони» с тем же отбором (4.0s)
+  ✓  101 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:522:1 › WEB4 · воронка: шаги по сессиям, проценты от предыдущего шага, конверсия (5.6s)
+  ✓  102 [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:544:1 › снимки WEB4 (44.2s)
+
+
+  1) [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/owner-dashboard-interactions.spec.ts:65:3 › slow inventory keeps daily events usable and shows a stable loading card at 1440 px 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('owner-dashboard')
+    Expected: visible
+    Error: strict mode violation: getByTestId('owner-dashboard') resolved to 2 elements:
+        1) <div data-testid="owner-dashboard" class="biz-overview hospitality-home">…</div> aka getByRole('main').getByTestId('owner-dashboard')
+        2) <div data-testid="owner-dashboard" class="biz-overview hospitality-home">…</div> aka getByText('Загружаем загрузку…Загружаем события дня…Проверяем события…')
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('owner-dashboard') with timeout 15000ms
+      - waiting for getByTestId('owner-dashboard')
+        2 × locator resolved to <div data-testid="owner-dashboard" class="biz-overview hospitality-home">…</div>
+          - unexpected value "hidden"
+
+
+      76 |     });
+      77 |     await page.goto('/today', { waitUntil: 'commit' });
+    > 78 |     await expect(page.getByTestId('owner-dashboard')).toBeVisible();
+         |                                                       ^
+      79 |     const loading = page.getByRole('status', { name: 'Загружаем загрузку…', exact: true });
+      80 |     await expect(loading).toBeVisible({ timeout: 2000 });
+      81 |     // слот карточки измеряем сам по себе: заглушку может успеть сменить настоящая карточка
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/.wetop-main-ui-sslFd2/worker-1/tests/ui/owner-dashboard-interactions.spec.ts:78:55
+
+    Error Context: test-results/owner-dashboard-interactio-0d1b5-ble-loading-card-at-1440-px-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-dashboard-interactio-0d1b5-ble-loading-card-at-1440-px-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-dashboard-interactio-0d1b5-ble-loading-card-at-1440-px-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:27201/management/statistics?date=2026-09-25", waiting until "load"
+
+
+       at ../../../.wetop-main-ui-sslFd2/worker-1/tests/ui/fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/.wetop-main-ui-sslFd2/worker-1/tests/ui/fixtures.ts:166:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/.wetop-main-ui-sslFd2/worker-1/tests/ui/system-screens.spec.ts:198:3
+
+    Error Context: test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:176:1 › четыре вкладки: доступность в двух темах, телефон без прокрутки вбок 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 45000ms exceeded.
+     Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md
+
+      195 |           `${path} шире экрана ${width}`,
+      196 |         ).toBe(true);
+    > 197 |         const audit = await new AxeBuilder({ page })
+          |                       ^
+      198 |           .include('main')
+      199 |           .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+      200 |           .analyze();
+        at AxeBuilder.analyze (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d11/node_modules/@axe-core/playwright/dist/index.mjs:218:13)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:197:23
+
+    Error Context: test-results/website-четыре-вкладки-дос-17d52--телефон-без-прокрутки-вбок-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/website-четыре-вкладки-дос-17d52--телефон-без-прокрутки-вбок-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/website-четыре-вкладки-дос-17d52--телефон-без-прокрутки-вбок-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/owner-dashboard-interactions.spec.ts:65:3 › slow inventory keeps daily events usable and shows a stable loading card at 1440 px 
+    [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом 
+    [main-ui-1] › ../.wetop-main-ui-sslFd2/worker-1/tests/ui/website.spec.ts:176:1 › четыре вкладки: доступность в двух темах, телефон без прокрутки вбок 
+  99 passed (10.7m)
+
+# код выхода 1 · 10 мин 47 с

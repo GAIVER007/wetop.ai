@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 17.10.2026 09:59 Алматы · Noutbuk-Vyacheslav.local
+# коммит daf8a02 (claude/auth-identity-1016), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-59-09Z-integration-53a0.json' 'tests/integration/auth-identity-chains.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ✓ |integration| tests/integration/auth-identity-chains.test.ts (9 tests) 1100ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  21:59:10
+   Duration  2.48s (tests 58%, transform 24%, import 17%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-59-09Z-integration-53a0.json
+
+# код выхода 0 · 4 с

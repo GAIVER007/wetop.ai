@@ -20,27 +20,31 @@ describe('сайт в меню — одно место (ADR-117)', () => {
     expect(marketing?.label).toBe('Продвижение');
     expect(marketing?.direct).toBeUndefined();
     expect(marketing?.items.map((item) => [item.href, item.label])).toEqual([
+      // верхнее меню 17.10.2026: «Маркетинг» и «Продажи» одним разделом
       ['/marketing', 'Обзор'],
-      ['/marketing/ads', 'Реклама'],
-      ['/market', 'Конкуренты'],
+      ['/marketing/ads', 'ИИ-таргетолог'],
       ['/marketing/content', 'Контент'],
+      ['/ai-agents', 'ИИ-продавец'],
+      ['/market', 'Анализ конкурентов'],
+      ['/sales', 'Обзор продаж'],
       // МКТ-В1 (ADR-MKT-B1): учёт бюджета и расходов маркетинга
       ['/marketing/budget', 'Бюджет'],
       // «Аналитика маркетинга» (10.10.2026): эффективность источников
-      ['/marketing/analytics', 'Аналитика'],
+      ['/marketing/analytics', 'Аналитика маркетинга'],
     ]);
   });
 
-  it('в «Продажах» сайта больше нет', () => {
-    const sales = sections.find((section) => section.id === 'sales');
-    expect(sales?.items.map((item) => item.href)).not.toContain('/website');
-    expect(sales?.items.map((item) => item.label)).not.toContain('Сайт и онлайн-бронирование');
+  it('отдельных «Продаж» нет, и сайт пунктом меню не стоит', () => {
+    expect(sections.find((section) => section.id === 'sales')).toBeUndefined();
+    const items = sections.flatMap((section) => section.items);
+    expect(items.map((item) => item.href)).not.toContain('/website');
+    expect(items.map((item) => item.label)).not.toContain('Сайт и онлайн-бронирование');
   });
 
-  it('хаб и сайт открыты тем же правом, что и раньше сайт (settings), своего права нет', () => {
-    expect(routeRule('/marketing')?.requires).toBe('settings');
+  it('хаб и сайт открыты правом раздела «Маркетинг» (ADR-MKT-B7: `marketing` вместо прежнего `settings`)', () => {
+    expect(routeRule('/marketing')?.requires).toBe('marketing');
     for (const path of ['/website', '/website/booking', '/website/analytics', '/website/settings'])
-      expect(routeRule(path)?.requires).toBe('settings');
+      expect(routeRule(path)?.requires).toBe('marketing');
   });
 
   it('отдельных «Аналитики сайта» и «Настроек сайта» больше нет', () => {

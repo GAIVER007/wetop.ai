@@ -16,7 +16,7 @@ describe.skipIf(!process.env.DATABASE_URL)('новые места уходят �
   it('комната в сопоставленной категории ставит в очередь остаток, в несопоставленной — нет', async () => {
     const db = createPrismaClient(),
       marker = randomUUID();
-    const org = await db.organization.create({ data: { name: `TEST room-ari ${marker}` } });
+    const org = await db.organization.create({ data: { name: `TEST room-ari ${marker}`, status: 'ACTIVE' } });
     const user = await db.user.create({ data: { email: `room-ari-${marker}@example.invalid` } });
     const property = await createPropertyInChain(db, org.id, {
       name: `TEST room-ari ${marker}`,
@@ -29,13 +29,19 @@ describe.skipIf(!process.env.DATABASE_URL)('новые места уходят �
       .overrideProvider(PrismaService)
       .useValue({ db } as PrismaService)
       .compile();
+    const location = await db.location.findUniqueOrThrow({ where: { id: property.locationId } });
+    const actor = {
+      userId: user.id, organizationId: org.id, role: 'OWNER' as const,
+      scope: 'LOCATION' as const, businessId: location.businessId,
+      locationId: location.id, vertical: 'HOSPITALITY' as const,
+    };
     const app = module.createNestApplication();
     app.use((_req: unknown, _res: unknown, next: () => void) => {
-      void withSignedInUser({ userId: user.id, organizationId: org.id }, async () => next());
+      void withSignedInUser(actor, async () => next());
     });
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     try {
-      await withSignedInUser({ userId: user.id, organizationId: org.id }, async () => {
+      await withSignedInUser(actor, async () => {
         const make = async (name: string) =>
           (
             await request(app.getHttpServer())

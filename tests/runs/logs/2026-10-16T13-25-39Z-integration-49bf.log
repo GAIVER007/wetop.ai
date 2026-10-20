@@ -1,0 +1,20 @@
+# Интеграционные (integration) · 16.10.2026 18:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит 51365c2 (claude/restaurant-refund), незакоммиченных файлов набора: 27
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-25-39Z-integration-49bf.json' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 887ms
+   ✓ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 490ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 308ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  06:25:42
+   Duration  3.26s (transform 45%, tests 44%, import 11%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-25-39Z-integration-49bf.json
+
+# код выхода 0 · 6 с

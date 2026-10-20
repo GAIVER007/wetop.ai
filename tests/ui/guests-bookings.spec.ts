@@ -313,18 +313,44 @@ test('гости и бронирования: пустые состояния, �
 });
 
 test('гости и бронирования: одна вкладка меню, ссылка в классический список и новая бронь', async ({ page }) => {
+  // панель кнопки ☰ живёт до 1280 px (решение владельца 18.10.2026)
+  await page.setViewportSize({ width: 1024, height: 900 });
   await page.goto('/guests');
   // подразделы левого меню (ADR-161) в панели, она закрыта: ищем с учётом скрытых
   const menu = page.locator('.sidenav__panel');
-  const tab = menu.locator('.sidenav__sections a[href="/guests"]');
+  // одно меню у всех направлений (17.10.2026): раздел «Клиенты», пункты «Клиенты» и «Записи»
+  const tab = menu.locator('.sidenav__items a[href="/guests"]');
   await expect(tab).toHaveAttribute('aria-current', 'page');
+  const guestsGroup = menu.getByRole('button', { name: 'Клиенты', exact: true, includeHidden: true });
+  await expect(guestsGroup).toHaveCount(1);
+  await expect(guestsGroup).toHaveClass(/\bhas-current-page\b/);
+  await expect(guestsGroup).toHaveAttribute('aria-expanded', 'false');
+  await expect(menu.getByRole('link', { name: 'Клиенты', exact: true, includeHidden: true })).toHaveCount(1);
+  await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
+  await expect(guestsGroup).toHaveAttribute('aria-expanded', 'true');
+  await expect(tab).toBeVisible();
+  await expect(tab).toHaveAccessibleName('Клиенты');
+  await guestsGroup.click();
+  await expect(guestsGroup).toHaveAttribute('aria-expanded', 'false');
+  await page.getByRole('button', { name: 'Закрыть меню', exact: true }).click();
+  await expect(menu.getByRole('link', { name: 'Записи', exact: true, includeHidden: true })).toHaveCount(1);
+  await expect(menu.locator('.sidenav__section.has-current-page')).toHaveCount(1);
   await expect(menu.getByRole('link', { name: 'Гости', exact: true, includeHidden: true })).toHaveCount(0);
   await expect(menu.getByRole('link', { name: 'Брони', exact: true, includeHidden: true })).toHaveCount(0);
 
-  // классический список броней живёт по прежнему адресу, и меню там подсвечивает ту же вкладку
+  // классический список броней — отдельный текущий пункт той же группы «Клиенты»
   await page.getByRole('main').getByRole('link', { name: 'Список броней', exact: true }).click();
-  await expect(page).toHaveURL(/\/reservations$/);
-  await expect(tab).toHaveAttribute('aria-current', 'page');
+  await expect(page).toHaveURL(new URL('/reservations', page.url()).href);
+  const reservations = menu.getByRole('link', {
+    name: 'Записи', exact: true, includeHidden: true,
+  });
+  await expect(reservations).toHaveAttribute('href', '/reservations');
+  await expect(reservations).toHaveAttribute('aria-current', 'page');
+  await expect(tab).not.toHaveAttribute('aria-current', 'page');
+  await expect(guestsGroup).toHaveCount(1);
+  await expect(guestsGroup).toHaveClass(/\bhas-current-page\b/);
+  await expect(guestsGroup).toHaveAttribute('aria-expanded', 'false');
+  await expect(menu.locator('.sidenav__section.has-current-page')).toHaveCount(1);
   await page.goto('/guests');
   await page.getByRole('main').getByRole('link', { name: 'Новая бронь', exact: true }).first().click();
   await expect(page).toHaveURL(/\/reservations\/new/);

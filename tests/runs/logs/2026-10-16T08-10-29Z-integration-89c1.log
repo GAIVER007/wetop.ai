@@ -1,0 +1,59 @@
+# Интеграционные (integration) · 16.10.2026 13:10 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 22
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T08-10-29Z-integration-89c1.json' '--config' 'tests/occupancy-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/occupancy-isolated.test.ts (3 tests | 2 failed) 642ms
+   × real FoodService commands synchronize reservation, assignment and legacy hooks atomically 463ms
+   ✓ runtime tenant isolation hides other branches and rejects writes 20ms
+   × walk-in persists one actual session, retries replay, competing seats fail, move and release are atomic 126ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/occupancy-isolated.test.ts > real FoodService commands synchronize reservation, assignment and legacy hooks atomically
+AssertionError: expected 'BOOKED' to be 'SEATED' // Object.is equality
+
+Expected: "SEATED"
+Received: "BOOKED"
+
+ ❯ tests/integration/occupancy-isolated.test.ts:33:22
+     31|   const seated=await service.occupancy('service-seat',{tableId:c,reser…
+     32|   const row=await db.restaurantReservation.findUniqueOrThrow({where:{i…
+     33|   expect(row.status).toBe('SEATED'); expect(row.tableAssignment?.table…
+       |                      ^
+     34|   expect(await service.occupancy('service-seat',{tableId:c,reservation…
+     35|   await service.occupancy('service-move',{tableId:d},'MOVE',seated.id);
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/occupancy-isolated.test.ts:30:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/occupancy-isolated.test.ts > walk-in persists one actual session, retries replay, competing seats fail, move and release are atomic
+AssertionError: expected [ { …(10) }, { …(10) }, { …(10) } ] to have a length of 2 but got 3
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ tests/integration/occupancy-isolated.test.ts:63:15
+     61|  expect(await command('move','MOVE',b,winner.value)).toBe(moved);
+     62|  const rows=(await pool.query('select * from table_occupancy_sessions …
+     63|  expect(rows).toHaveLength(2); expect(rows[0].ended_at).toEqual(rows[1…
+       |               ^
+     64|  await expect(command('bad-move','MOVE',randomUUID(),moved)).rejects.t…
+     65|  expect((await pool.query('select ended_at from table_occupancy_sessio…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  08:10:30
+   Duration  2.56s (transform 58%, tests 27%, import 15%)
+
+JSON report written to /tmp/pms-test-2026-10-16T08-10-29Z-integration-89c1.json
+
+# код выхода 1 · 4 с

@@ -1,4 +1,4 @@
-import { requireVertical } from '../../../../lib/vertical-guard';
+import { requireFeature } from '../../../../lib/vertical-guard';
 import { Suspense } from 'react';
 import { normalizeSearchParams, type SearchParams } from '../../../../lib/search-params';
 import { hotelToday } from '../../../../lib/hotel-api';
@@ -21,7 +21,7 @@ export default async function OccupancyPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/management/analytics/occupancy');
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const query = parseAnalyticsQuery(sp, today, 'occupancy');

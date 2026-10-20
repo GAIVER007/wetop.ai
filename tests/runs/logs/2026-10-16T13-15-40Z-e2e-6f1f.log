@@ -1,0 +1,153 @@
+# Сквозные (e2e) · 16.10.2026 18:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит 886cda1 (claude/marketing-meta-simple-login), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/marketing-campaigns.spec.ts' 'tests/ui/marketing.spec.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1112ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+  ✘   1 tests/ui/marketing-campaigns.spec.ts:20:1 › кампания: создать, день вручную и CSV, расход из бюджета, показатели площадки (47.2s)
+  ✘   2 tests/ui/marketing-campaigns.spec.ts:89:1 › кабинет Meta: одна кнопка в окно Facebook, выбор из отмеченных кабинетов, обновление, отключение; подделка отклонена (1.0m)
+  ✓   3 tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (40.8s)
+  ✓   4 tests/ui/marketing.spec.ts:77:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (20.7s)
+  ✓   5 tests/ui/marketing.spec.ts:97:1 › хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», из данных только бюджет месяца (40.9s)
+  ✘   6 tests/ui/marketing.spec.ts:190:1 › экраны «Реклама» и «Контент»: вкладки как в макете; кампании живые (ADR-MKT-B3), кабинет и контент пока пустые (39.4s)
+  ✓   7 tests/ui/marketing.spec.ts:244:1 › администратор (без права marketing): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (22.4s)
+  ✓   8 tests/ui/marketing.spec.ts:270:3 › хаб на компьютере и телефоне, доступность: light (59.8s)
+  ✓   9 tests/ui/marketing.spec.ts:270:3 › хаб на компьютере и телефоне, доступность: dark (1.7m)
+  ✘  10 tests/ui/marketing.spec.ts:325:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен (46.1s)
+
+
+  1) tests/ui/marketing-campaigns.spec.ts:20:1 › кампания: создать, день вручную и CSV, расход из бюджета, показатели площадки 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Target page, context or browser has been closed
+
+      64 |   // расход привязывается к кампании в «Бюджете»
+      65 |   await page.goto('/marketing/budget/expenses');
+    > 66 |   await main.getByTestId('budget-add').first().click();
+         |                                                ^
+      67 |   const expense = page.getByTestId('budget-expense-form');
+      68 |   await expense.getByTestId('budget-campaign-id').selectOption({ label: 'Meta Ads: Осень: лиды' });
+      69 |   await expense.getByTestId('budget-amount').fill('10000');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-campaigns.spec.ts:66:48
+
+    Error Context: test-results/marketing-campaigns-кампан-2dc49-бюджета-показатели-площадки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-campaigns-кампан-2dc49-бюджета-показатели-площадки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-campaigns-кампан-2dc49-бюджета-показатели-площадки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/marketing-campaigns.spec.ts:89:1 › кабинет Meta: одна кнопка в окно Facebook, выбор из отмеченных кабинетов, обновление, отключение; подделка отклонена 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('meta-choose')
+    Expected substring: "Отель на Абая"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('meta-choose') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('meta-choose')
+
+
+      116 |   await page.waitForURL(/\/marketing\/ads\?meta=choose/);
+      117 |   const choose = main.getByTestId('meta-choose');
+    > 118 |   await expect(choose).toContainText('Отель на Абая');
+          |                        ^
+      119 |   await expect(choose).toContainText('Отель на Сатпаева');
+      120 |   const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      121 |   expect(audit.violations).toEqual([]);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-campaigns.spec.ts:118:24
+
+    Error Context: test-results/marketing-campaigns-кабине-a372b-ключение-подделка-отклонена/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-campaigns-кабине-a372b-ключение-подделка-отклонена/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-campaigns-кабине-a372b-ключение-подделка-отклонена/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/marketing.spec.ts:190:1 › экраны «Реклама» и «Контент»: вкладки как в макете; кампании живые (ADR-MKT-B3), кабинет и контент пока пустые 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/marketing\/content$/
+    Received string:  "http://127.0.0.1:3121/marketing"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        26 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__ZO6gzq__variable">…</html>
+           - unexpected value "http://127.0.0.1:3121/marketing"
+
+
+      212 |
+      213 |   await main(page).getByRole('link', { name: 'Открыть: Контент', exact: true }).click();
+    > 214 |   await expect(page).toHaveURL(/\/marketing\/content$/);
+          |                      ^
+      215 |   const content = main(page);
+      216 |   await expect(content.getByRole('heading', { level: 1 })).toHaveText('Контент');
+      217 |   await expect(content.getByRole('tab')).toHaveText(['Идеи', 'Генерация', 'Медиатека', 'План публикаций', 'Статистика']);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing.spec.ts:214:22
+
+    Error Context: test-results/marketing-экраны-«Реклама»-cee1e-бинет-и-контент-пока-пустые/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-экраны-«Реклама»-cee1e-бинет-и-контент-пока-пустые/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-экраны-«Реклама»-cee1e-бинет-и-контент-пока-пустые/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/marketing.spec.ts:325:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "**/today" until "load"
+    ============================================================
+
+      341 |   await main(page).getByRole('button', { name: 'Открыть объект: Студия MKT3', exact: true }).click();
+      342 |   // салон (BEAUTY) и после слияния 09.10 садится на свой `/today`; на `/finance` едет только гостиница
+    > 343 |   await page.waitForURL('**/today');
+          |              ^
+      344 |   await expect(page.getByTestId('beauty-today')).toBeVisible();
+      345 |   await page.goto('/marketing');
+      346 |   await expect(page).toHaveURL(/\/marketing$/);
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing.spec.ts:343:14
+
+    Error Context: test-results/marketing-MKT3-салон-видит-e1e83-чный-конструктор-недоступен/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-MKT3-салон-видит-e1e83-чный-конструктор-недоступен/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-MKT3-салон-видит-e1e83-чный-конструктор-недоступен/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/marketing-campaigns.spec.ts:20:1 › кампания: создать, день вручную и CSV, расход из бюджета, показатели площадки 
+    tests/ui/marketing-campaigns.spec.ts:89:1 › кабинет Meta: одна кнопка в окно Facebook, выбор из отмеченных кабинетов, обновление, отключение; подделка отклонена 
+    tests/ui/marketing.spec.ts:190:1 › экраны «Реклама» и «Контент»: вкладки как в макете; кампании живые (ADR-MKT-B3), кабинет и контент пока пустые 
+    tests/ui/marketing.spec.ts:325:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен 
+  6 passed (9.2m)
+
+# код выхода 1 · 9 мин 18 с

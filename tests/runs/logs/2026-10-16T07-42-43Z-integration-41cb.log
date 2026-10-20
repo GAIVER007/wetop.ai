@@ -1,0 +1,38 @@
+# Интеграционные (integration) · 16.10.2026 12:42 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 15
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T07-42-43Z-integration-41cb.json' '--config' 'tests/expense-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/expense-documents-isolated.test.ts (10 tests | 1 failed) 272ms
+   ❯ expense persistence, isolated PostgreSQL (10)
+     ✓ applies held migration and persists document without cash debit 14ms
+     ✓ links existing partial cash once, rejects duplicate and overpayment 44ms
+     ✓ rejects wrong currency and non-completed sources 22ms
+     ✓ serializes concurrent links and rejects overpayment 25ms
+     ✓ void retains link/history, freezes amount, permits recomputed balance 25ms
+     × backfills supplier cash and atomically follows later legacy payments without a second debit 32ms
+     ✓ replays identical intents, rejects changed payload, never creates cash 24ms
+     ✓ links proven hotel cash without inferring unknown historical currency 45ms
+     ✓ enforces tenant isolation under the actual runtime role 14ms
+     ✓ enables FORCE RLS and both policy predicates 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/expense-documents-isolated.test.ts > expense persistence, isolated PostgreSQL > backfills supplier cash and atomically follows later legacy payments without a second debit
+error: supplier linking unavailable: legacy payment backfill and writer hook incomplete
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/expense-documents-isolated.test.ts:67:5
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  07:42:43
+   Duration  492ms (tests 72%, transform 18%, import 9%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T07-42-43Z-integration-41cb.json
+
+# код выхода 1 · 1 с

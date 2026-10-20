@@ -35,7 +35,7 @@ describe('бар: приходы (BAR2)', () => {
     async report() { return { purchasesMinor: '180000', supplierPaidMinor: '80000', revenueMinor: '70000', costMinor: '15000', grossProfitMinor: '55000', writeOffMinor: '0', stockCostMinor: '165000', supplierDebtMinor: '100000' }; },
     async enabledPaymentMethods() { return null; },
     async inventoryCount(input) {
-      if (input.actualUnits > 12n) return { kind: 'surplus_requires_cost', systemUnits: 12n };
+      if (input.actualUnits > 12n && input.unitCostMinor === null) return { kind: 'surplus_requires_cost', systemUnits: 12n };
       return { kind: 'adjusted', id: '92000000-0000-4000-8000-000000000001', systemUnits: '12', actualUnits: input.actualUnits.toString(), differenceUnits: (input.actualUnits - 12n).toString(), costMinor: '15000' };
     },
     async sellRetail(input) {
@@ -72,7 +72,7 @@ describe('бар: приходы (BAR2)', () => {
       .overrideProvider(PrismaService).useValue({})
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   afterAll(async () => app.close());
 
@@ -151,9 +151,11 @@ describe('бар: приходы (BAR2)', () => {
 
   it('принимает частичную оплату поставщику и запрещает переплату', async () => {
     const id = '10000000-0000-4000-8000-000000000001';
-    const paid = await request(app.getHttpServer()).post(`/bar/receipts/${id}/payments`).send({ amountMinor: '80000', method: 'BANK_TRANSFER_LEGAL' }).expect(201);
+    const paid = await request(app.getHttpServer()).post(`/bar/receipts/${id}/payments`).send({ amountMinor: '80000', method: 'BANK_TRANSFER_LEGAL', idempotencyKey: '00000000-0000-4000-8000-0000000000b1' }).expect(201);
     expect(paid.body).toMatchObject({ paidAmount: '80000', dueAmount: '100000' });
-    await request(app.getHttpServer()).post(`/bar/receipts/${id}/payments`).send({ amountMinor: '180001', method: 'CASH' }).expect(409);
+    await request(app.getHttpServer()).post(`/bar/receipts/${id}/payments`).send({ amountMinor: '180001', method: 'CASH', idempotencyKey: '00000000-0000-4000-8000-0000000000b2' }).expect(409);
+    // ключ повтора обязателен (§50, ADR-186 M6)
+    await request(app.getHttpServer()).post(`/bar/receipts/${id}/payments`).send({ amountMinor: '100', method: 'CASH' }).expect(400);
   });
 
   it('добавляет товар в открытый счет гостя', async () => {
@@ -162,11 +164,16 @@ describe('бар: приходы (BAR2)', () => {
     expect(sold.body).toMatchObject({ status: 'POSTED', chargeId: '91000000-0000-4000-8000-000000000001' });
   });
 
-  it('фиксирует недостачу и блокирует излишек без цены', async () => {
+  it('фиксирует недостачу, излишек на пустом складе принимает только с ценой', async () => {
     const productId = '30000000-0000-4000-8000-000000000001';
     const adjusted = await request(app.getHttpServer()).post('/bar/inventory-counts').send({ productId, actualUnits: '10', reason: 'Пересчет смены' }).expect(201);
     expect(adjusted.body.differenceUnits).toBe('-2');
-    await request(app.getHttpServer()).post('/bar/inventory-counts').send({ productId, actualUnits: '13', reason: 'Найден излишек' }).expect(409);
+    const denied = await request(app.getHttpServer()).post('/bar/inventory-counts').send({ productId, actualUnits: '13', reason: 'Найден излишек' }).expect(409);
+    expect(denied.body.message).toContain('укажите цену излишка');
+    // цена излишка вручную (ADR-175): целое число тиын больше нуля
+    const priced = await request(app.getHttpServer()).post('/bar/inventory-counts').send({ productId, actualUnits: '13', reason: 'Найден излишек', unitCostMinor: '25000' }).expect(201);
+    expect(priced.body.differenceUnits).toBe('1');
+    await request(app.getHttpServer()).post('/bar/inventory-counts').send({ productId, actualUnits: '13', reason: 'Найден излишек', unitCostMinor: '0' }).expect(400);
   });
 });
 
@@ -202,7 +209,9 @@ describe('бар: права на сторно (FOOD-FIX-01)', () => {
     const { RoleGuard } = await import('../auth/role.guard');
     const { Reflector } = await import('@nestjs/core');
     app.useGlobalGuards(new RoleGuard(new Reflector()));
-    await app.init();
+    const { AuthorInterceptor } = await import('../auth/author.interceptor');
+    app.useGlobalInterceptors(new AuthorInterceptor());
+    await app.listen(0, '127.0.0.1');
   });
   afterAll(async () => app.close());
 

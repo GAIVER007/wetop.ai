@@ -1,0 +1,43 @@
+# Интеграционные (integration) · 16.10.2026 15:54 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 49
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T10-54-04Z-integration-45fd.json' '--config' 'tests/hotel-cash-isolated.config.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/hotel-cash-intent-isolated.test.ts (5 tests | 1 failed) 759ms
+   ✓ actual controller returns original CashView after void and subsequent reconciliation 281ms
+   × repository direct guard replays, rejects changes and missing key, concurrent fee once, transfer remains transfer 32ms
+   ✓ audit failure rolls back main fee and intent, same key can retry 21ms
+   ✓ reconciliation adjustment replays once despite changed derived balance 18ms
+   ✓ feature off accepts missing key and bypasses held SQL in legacy adapter 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/hotel-cash-intent-isolated.test.ts > repository direct guard replays, rejects changes and missing key, concurrent fee once, transfer remains transfer
+AssertionError: expected 7 to be 3 // Object.is equality
+
+- Expected
++ Received
+
+- 3
++ 7
+
+ ❯ tests/integration/hotel-cash-intent-isolated.test.ts:45:61
+     43|  const fee={...body(),commission:{amountMinor:5n,categoryId:null}};
+     44|  const pair=await Promise.all([scoped(()=>repo.createCashOperation(fee…
+     45|  expect(await db.cashOperation.count({where:{propertyId}})).toBe(3);
+       |                                                             ^
+     46|  const transfer={...body(),kind:'TRANSFER' as const,methodTo:'KASPI' a…
+     47|  expect(await db.cashOperation.count({where:{propertyId,kind:'EXPENSE'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  10:54:06
+   Duration  3.83s (transform 58%, import 21%, tests 21%)
+
+JSON report written to /tmp/pms-test-2026-10-16T10-54-04Z-integration-45fd.json
+
+# код выхода 1 · 6 с

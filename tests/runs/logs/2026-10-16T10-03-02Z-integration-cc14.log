@@ -1,0 +1,34 @@
+# Интеграционные (integration) · 16.10.2026 15:03 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 44
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T10-03-02Z-integration-cc14.json' '--config' 'tests/owner-money-isolated.config.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/owner-money-isolated.test.ts (6 tests | 1 failed) 1747ms
+   ❯ owner money actual isolated PostgreSQL queries (6)
+     ✓ daily series reconciles actual authorized service totals across today, week and calendar month 968ms
+     ✓ classifies real partially-paid document without changing cash totals, including void and missing links 445ms
+     ✓ executes DONE beauty snapshot reads without inventing a payment ledger 92ms
+     ✓ reads CLOSED snapshots and POSTED sales once, excluding future and unclosed orders 45ms
+     ✓ does not borrow another branch or its present EUR currency 24ms
+     × executes hotel service-date/folio and payment scope queries against the real schema 41ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/owner-money-isolated.test.ts > owner money actual isolated PostgreSQL queries > executes hotel service-date/folio and payment scope queries against the real schema
+error: invalid input value for enum "ReservationSource": "DIRECT"
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/owner-money-isolated.test.ts:89:3
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  10:03:04
+   Duration  4.77s (transform 48%, tests 38%, import 13%)
+
+JSON report written to /tmp/pms-test-2026-10-16T10-03-02Z-integration-cc14.json
+
+# код выхода 1 · 7 с

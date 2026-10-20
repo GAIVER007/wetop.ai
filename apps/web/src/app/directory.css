@@ -7,6 +7,43 @@
  * и к оплате; у гостей — телефон с WhatsApp, место, проживание, статус, бронь.
  */
 @layer sections {
+  /* Direct date/edit forms: intrinsic select widths must not expand the panel's grid track. */
+  .reservation-actions > form.panel {
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .reservation-actions > form.panel > .row {
+    min-width: 0;
+    max-width: 100%;
+  }
+  /* Stay occupancy: bound the panel's grid track and native number inputs, not the viewport. */
+  .stay-guests-form {
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .stay-guests-form > .row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+    align-items: end;
+    min-width: 0;
+  }
+  .stay-guests-form .field,
+  .stay-guests-form .inp {
+    min-width: 0;
+    width: 100%;
+  }
+  .stay-guests-form .inp,
+  .stay-guests-form .btn {
+    min-height: var(--touch-target);
+  }
+  @media (max-width: 600px) {
+    .stay-guests-form > .row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .stay-guests-form .btn {
+      width: 100%;
+    }
+  }
   .dir-table td {
     padding: 9px 12px;
     vertical-align: middle;

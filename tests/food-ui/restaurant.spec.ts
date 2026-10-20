@@ -229,6 +229,15 @@ test('заказы: создание с экрана, оплата частям�
   await rating.getByRole('button', { name: 'Отправить оценку' }).click();
   await expect(rating.getByLabel('Оценка 4 из 5')).toBeVisible();
   await expect(rating).toContainText('Вкусно, но долго');
+  // возврат по закрытому заказу (§56): без причины подсказка, с причиной «Возвращено»
+  const refund = payment.getByRole('region', { name: 'Возврат по заказу' });
+  await expect(refund.getByLabel('Сумма возврата, ₸')).toHaveValue('780');
+  await refund.getByLabel('Сумма возврата, ₸').fill('200');
+  await refund.getByRole('button', { name: 'Оформить возврат' }).click();
+  await expect(payment.getByRole('alert')).toContainText('Укажите причину возврата');
+  await refund.getByLabel('Причина возврата').fill('Блюдо остыло');
+  await refund.getByRole('button', { name: 'Оформить возврат' }).click();
+  await expect(payment.getByTestId('order-refunded')).toContainText('200 ₸');
   expect((await new AxeBuilder({ page }).include('[data-testid="order-drawer"]').analyze()).violations).toEqual([]);
   await page.keyboard.press('Escape');
   // вкладки: закрытый заказ в «Закрыты», счётчики совпадают
@@ -258,6 +267,14 @@ test('заказы: создание с экрана, оплата частям�
   await expect(
     page.locator('tbody tr', { hasText: waiter.name }).getByTestId('employee-rating'),
   ).toContainText('4 ★, 1 оценка');
+  // «Финансы»: возврат гостю своей вкладкой, в «Расходах» его нет (§56, как ADR-176)
+  await page.goto('/restaurant-finance');
+  const board = page.getByTestId('finance-board');
+  await board.getByRole('button', { name: 'Возвраты' }).click();
+  await expect(board.locator('tbody')).toContainText('Возврат по заказу');
+  await expect(page.getByTestId('finance-total')).toContainText('200 ₸');
+  await board.getByRole('button', { name: 'Расходы' }).click();
+  await expect(board).not.toContainText('Возврат по заказу');
 });
 
 test('кухня: колонки KDS и переходы кнопками', async ({ page, request }) => {
@@ -739,6 +756,86 @@ test('схема зала (Q-REST-8): расстановка зоны стрел
   expect(tables.find((t) => t.id === foreign.id)!.posX).toBeNull();
 });
 
+test('бар филиала (ADR-178): ресторан и салон продают в кассу своего филиала', async ({ page, request }) => {
+  const { f, headers } = await seed(page, request);
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+  const stockUp = async (h: Record<string, string>, code: string) => {
+    const supplier = await post(request, h, '/bar/suppliers', { name: `Поставщик ${code}` });
+    const product = await post(request, h, '/bar/products', {
+      code, name: `Кола ${code}`, categoryId: null, barcode: null, unitsPerPackage: 1, markupBasis: null,
+      salePriceMinor: '60000', minimumStockUnits: '0',
+    });
+    const receipt = await post(request, h, '/bar/receipts', {
+      supplierId: supplier.id, documentNumber: `Н-${code}`, documentDate: day, receivedDate: day, currency: 'KZT',
+      lines: [{ productId: product.id, quantityUnits: '10', unitCostMinor: '30000', markupBasis: '10000' }],
+    });
+    await post(request, h, `/bar/receipts/${receipt.id}/post`, {});
+    return product;
+  };
+  await stockUp(headers, 'R1');
+  await page.goto('/bar#bar-quick-sale');
+  const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { name: 'Склад', level: 1 })).toBeVisible();
+  // «в счёт гостя» только у гостиницы
+  await expect(main.getByText('Продажа напрямую', { exact: true }).first()).toBeVisible();
+  await expect(main.getByRole('tab', { name: 'В счёт гостя' })).toHaveCount(0);
+  const sale = main.locator('#bar-quick-sale');
+  await sale.getByLabel('Товар').selectOption({ label: 'Кола R1, остаток 10 шт.' });
+  await sale.getByLabel('Количество, шт.').fill('2');
+  await sale.getByRole('button', { name: 'Продать' }).click();
+  await expect
+    .poll(async () => {
+      const cash = await (await request.get(`${api}/food-service/cash`, { headers })).json();
+      return cash.balances.find((b: { method: string }) => b.method === 'CASH')?.balanceMinor;
+    })
+    .toBe('120000');
+  const axe = await new AxeBuilder({ page }).include('main').analyze();
+  expect(axe.violations).toEqual([]);
+
+  // салон: продаёт в кассу филиала салона (§48), у кассы нет вкладки оплат заказов
+  const beauty = { 'x-wetop-scope': pointer(f.beauty, f.locations[3]!) };
+  await stockUp(beauty, 'B1');
+  await scope(page, f.beauty, f.locations[3]!);
+  // тот же адрес с якорем браузер не перезагружает: салон открывается заново через другой адрес
+  await page.goto('/today');
+  await page.goto('/bar#bar-quick-sale');
+  await expect(main.getByRole('tab', { name: 'В счёт гостя' })).toHaveCount(0);
+  const salonSale = main.locator('#bar-quick-sale');
+  await salonSale.getByLabel('Товар').selectOption({ label: 'Кола B1, остаток 10 шт.' });
+  await salonSale.getByLabel('Количество, шт.').fill('1');
+  await salonSale.getByRole('button', { name: 'Продать' }).click();
+  await expect
+    .poll(async () => {
+      const cash = await (await request.get(`${api}/food-service/cash`, { headers: beauty })).json();
+      return cash.balances?.find((b: { method: string }) => b.method === 'CASH')?.balanceMinor;
+    })
+    .toBe('60000');
+  await page.goto('/cashbox');
+  await expect(main.getByRole('heading', { name: 'Касса', level: 1 })).toBeVisible();
+  await expect(main).toContainText('Деньги салона по способам оплаты');
+  await expect(main.getByRole('tab', { name: 'Оплаты заказов' })).toHaveCount(0);
+  await expect(main.getByRole('tab', { name: 'Операции' })).toBeVisible();
+  const salonAxe = await new AxeBuilder({ page }).include('main').analyze();
+  expect(salonAxe.violations).toEqual([]);
+});
+
+test('зарплата салона (§19.2): та же доска, процент от выполненных записей, без вкладок ресторана', async ({ page, request }) => {
+  const { f } = await seed(page, request);
+  const beauty = { 'x-wetop-scope': pointer(f.beauty, f.locations[3]!) };
+  await post(request, beauty, '/beauty/employees', { name: 'Мастер Дина' });
+  await scope(page, f.beauty, f.locations[3]!);
+  await page.goto('/today');
+  await page.goto('/payroll');
+  await expect(page.getByRole('main').getByRole('cell', { name: 'Мастер Дина' })).toBeVisible();
+  const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { name: 'Зарплата', level: 1 })).toBeVisible();
+  await expect(main).toContainText('процент от выполненных записей');
+  await expect(main.getByRole('columnheader', { name: 'Услуги' })).toBeVisible();
+  await expect(main.getByRole('columnheader', { name: 'Продажи' })).toHaveCount(0);
+  await expect(main.getByRole('link', { name: 'График смен' })).toHaveCount(0);
+  expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
+});
+
 test('касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование', async ({
   page,
   request,
@@ -942,9 +1039,9 @@ test('бар, финансы и настройки ресторана по ма�
   await expect(board.locator('tbody')).toContainText('Закупка продуктов');
   await expect(board.locator('tbody td[data-negative]')).toContainText('−125 ₸');
   expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
-  // настройки: включённый день создаёт период, время сохраняется
-  await page.goto('/restaurant-settings');
-  await expect(page.getByRole('heading', { name: 'Часы работы' })).toBeVisible();
+  // Периоды приёма броней отделены от физического расписания зала; проверяем прежний ServicePeriod workflow.
+  await page.goto('/restaurant-settings?section=bookings');
+  await expect(page.getByRole('heading', { name: 'Периоды приёма броней', exact: true })).toBeVisible();
   await page.getByRole('switch', { name: 'Понедельник: работаем' }).click();
   // создание периода идёт через серверное действие и обновление страницы: под нагрузкой дольше 5 с
   await expect(page.getByRole('switch', { name: 'Понедельник: работаем' })).toBeChecked({

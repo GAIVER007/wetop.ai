@@ -1,0 +1,50 @@
+# Интеграционные (integration) · 15.10.2026 17:52 Алматы · <сервер>
+# коммит 6dfe1f6 (fix/audit-reset-closed-folio), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T12-52-55Z-integration-dfa0.json' 'tests/integration/reset-token-http.test.ts' '--testTimeout=60000' '--hookTimeout=120000' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-critical-fixes
+
+ ❯ |integration| tests/integration/reset-token-http.test.ts (11 tests | 1 failed) 5354ms
+   ❯ password reset over real AuthModule HTTP and PostgreSQL (11)
+     ✓ concurrent same-token HTTP confirms have exactly one winner, one password and one audit 1401ms
+     ✓ success revokes every live session across organizations, not another user or already-revoked time 757ms
+     ✓ PostgreSQL failure in sessions rolls back password, token, sessions and audit; token remains retryable 309ms
+     ✓ PostgreSQL failure in audit_logs rolls back password, token, sessions and audit; token remains retryable 423ms
+     ✓ sequential reuse cannot overwrite a successful password or add another audit 214ms
+     ✓ expired confirmation leaves password, token and sessions unchanged 158ms
+     ✓ blocked confirmation leaves password, token and sessions unchanged 119ms
+     ✓ unknown confirmation leaves password, token and sessions unchanged 137ms
+     ✓ weak confirmation leaves password, token and sessions unchanged 160ms
+     ✓ blocking an account after the token read cannot reactivate it 134ms
+     × a login verified with the old password cannot issue a live session after reset 182ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/reset-token-http.test.ts > password reset over real AuthModule HTTP and PostgreSQL > a login verified with the old password cannot issue a live session after reset
+AssertionError: expected 201 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 201
+
+ ❯ tests/integration/reset-token-http.test.ts:248:29
+    246|     } finally { release(); }
+    247|     const response = await pending;
+    248|     expect(response.status).toBe(401);
+       |                             ^
+    249|     expect(await db.session.count({ where: { userId: f.id, revokedAt: …
+    250|   }, 60_000);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  12:52:56
+   Duration  42.51s (transform 75%, tests 13%, import 11%)
+
+JSON report written to /tmp/pms-test-2026-10-15T12-52-55Z-integration-dfa0.json
+
+# код выхода 1 · 44 с

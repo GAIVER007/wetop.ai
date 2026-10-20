@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 /**
  * scripts/ops/guard/run.sh, дежурный агент на сервере: чем он платит и сколько (ADR-137, замечание ментора 02.10.2026).
@@ -14,6 +14,10 @@ import { afterEach, describe, expect, it } from 'vitest';
  *
  * Настоящий здесь только скрипт и node. git, curl, timeout и claude подменены; подменённый `sleep` завершает
  * бесконечный цикл после первого круга (код 99).
+ *
+ * Подмены пишутся один раз на файл и запускаются один раз в beforeAll: macOS проверяет каждый новый исполняемый файл
+ * при первом запуске (170 мс в покое, больше секунды под полным прогоном), и пять свежих подмен на тест упирали его
+ * в 5 с (флейк 16.10.2026). Своё у теста только папка: журнал вызовов и состояние, подмены берут её из $AUDIT.
  */
 const SCRIPT = resolve('scripts/ops/guard/run.sh');
 const WORK_INCIDENTS = '[{"class":"B","kind":"outbox_stuck"}]';
@@ -23,13 +27,9 @@ afterEach(() => {
 });
 const today = () => new Date().toISOString().slice(0, 10);
 
-function sandbox() {
-  const dir = mkdtempSync(join(tmpdir(), 'wetop-guard-run-'));
-  dirs.push(dir);
-  const bin = join(dir, 'bin');
-  const state = join(dir, 'state');
-  mkdirSync(bin);
-  mkdirSync(state);
+let bin: string;
+beforeAll(() => {
+  bin = mkdtempSync(join(tmpdir(), 'wetop-guard-bin-'));
   const stub = (name: string, body: string) =>
     writeFileSync(join(bin, name), `#!/bin/sh\n${body}\n`, { mode: 0o755 });
   stub(
@@ -60,6 +60,19 @@ function sandbox() {
     ].join('\n'),
   );
   stub('sleep', 'exit 99');
+  // первый запуск каждой подмены здесь, а не в тесте; их журнал уходит в отдельную папку и сразу удаляется
+  const warm = mkdtempSync(join(tmpdir(), 'wetop-guard-warm-'));
+  for (const name of ['git', 'curl', 'timeout', 'claude', 'sleep'])
+    spawnSync(join(bin, name), [], { env: { ...process.env, AUDIT: warm } });
+  rmSync(warm, { recursive: true, force: true });
+}, 60_000);
+afterAll(() => rmSync(bin, { recursive: true, force: true }));
+
+function sandbox() {
+  const dir = mkdtempSync(join(tmpdir(), 'wetop-guard-run-'));
+  dirs.push(dir);
+  const state = join(dir, 'state');
+  mkdirSync(state);
   const run = (env: Record<string, string>, incidents = WORK_INCIDENTS) => {
     const inherited = { ...process.env };
     for (const k of Object.keys(inherited))

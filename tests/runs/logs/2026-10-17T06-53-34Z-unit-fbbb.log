@@ -1,0 +1,18 @@
+# Модульные (unit) · 17.10.2026 11:53 Алматы · <сервер>
+# коммит 0766123 (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T06-53-34Z-unit-fbbb.json' 'tests/unit/branch-cash-actions.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ✓  unit  tests/unit/branch-cash-actions.test.ts (9 tests) 993ms
+   ✓ branch cash server actions use verified capability context (9)
+     ✓ accepts shared branch cash for BEAUTY without rewriting the monetary command 985ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  06:53:36
+   Duration  1.46s (tests 74%, transform 22%, import 4%)
+
+JSON report written to /tmp/pms-test-2026-10-17T06-53-34Z-unit-fbbb.json
+
+# код выхода 0 · 4 с

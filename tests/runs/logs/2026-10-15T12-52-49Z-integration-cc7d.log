@@ -1,0 +1,84 @@
+# Интеграционные (integration) · 15.10.2026 17:52 Алматы · <сервер>
+# коммит 6dfe1f6 (fix/audit-closed-folio-isolated), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T12-52-49Z-integration-cc7d.json' 'tests/integration/closed-folio-http.test.ts' '--testTimeout=60000' '--hookTimeout=120000' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-folio-fix
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects PATCH price after closing a paid folio and rolls back all writes
+paid folio closed via HTTP {
+  folioId: '134a1ba5-6212-4434-8ce6-a045a9305ecd',
+  status: 200,
+  balanceMinor: '0'
+}
+
+(node:4125329) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects PATCH price after closing a paid folio and rolls back all writes
+closed folio PATCH price {
+  status: 409,
+  body: {
+    message: 'Счёт 134a1ba5-6212-4434-8ce6-a045a9305ecd закрыт',
+    error: 'Conflict',
+    statusCode: 409
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects cancellation without changing the closed folio, stay or audit
+paid folio closed via HTTP {
+  folioId: 'e2903da9-5bf0-492a-b60f-da12b64ae0b3',
+  status: 200,
+  balanceMinor: '0'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects direct penalty creation against a closed folio inside the reservation transaction
+paid folio closed via HTTP {
+  folioId: 'c12da56e-0c6b-476e-8141-f50ced23e3c3',
+  status: 200,
+  balanceMinor: '0'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects closed folio bar reversal over HTTP
+bar reversal {
+  closed: true,
+  status: 409,
+  body: {
+    message: 'Счёт 8f932932-af8a-4382-9e55-db8030c7b7cf закрыт',
+    error: 'Conflict',
+    statusCode: 409
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows open folio bar reversal over HTTP
+bar reversal {
+  closed: false,
+  status: 201,
+  body: {
+    kind: 'reversed',
+    id: '539c436e-591f-48c8-b165-d6e5e82f1df9',
+    status: 'REVERSED',
+    restocked: false
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows an unchanged accommodation sync on a closed folio
+paid folio closed via HTTP {
+  folioId: 'd4a2d029-383e-44a2-9d17-9112af908fc5',
+  status: 200,
+  balanceMinor: '0'
+}
+
+ ✓ |integration| tests/integration/closed-folio-http.test.ts (7 tests) 33771ms
+   ✓ closed folio charge mutations through HTTP (7)
+     ✓ rejects PATCH price after closing a paid folio and rolls back all writes 28945ms
+     ✓ rejects cancellation without changing the closed folio, stay or audit 467ms
+     ✓ rejects direct penalty creation against a closed folio inside the reservation transaction 620ms
+     ✓ rejects closed folio bar reversal over HTTP 614ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  12:52:53
+   Duration  42.52s (tests 86%, transform 9%, import 5%)
+
+JSON report written to /tmp/pms-test-2026-10-15T12-52-49Z-integration-cc7d.json
+
+# код выхода 0 · 47 с

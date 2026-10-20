@@ -1,0 +1,39 @@
+# Интеграционные (integration) · 16.10.2026 15:35 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 47
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T10-35-37Z-integration-b475.json' '--config' 'tests/cash-isolated.config.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/cash-intent-isolated.test.ts (2 tests | 1 failed) 1404ms
+   × real branch writer replays exact intent, conflicts on change, serializes concurrency and preserves transfers 215ms
+   ✓ feature off retains legacy contract without intent rows 262ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/cash-intent-isolated.test.ts > real branch writer replays exact intent, conflicts on change, serializes concurrency and preserves transfers
+BadRequestException: Неизвестное поле запроса
+ ❯ parsed apps/api/src/food-service/restaurant.service.ts:70:11
+     68|     return fn();
+     69|   } catch (e) {
+     70|     throw new BadRequestException(e instanceof Error ? e.message : 'Не…
+       |           ^
+     71|   }
+     72| }
+ ❯ apps/api/src/food-service/restaurant.service.ts:1240:17
+ ❯ apps/api/src/food-service/scope.ts:87:14
+ ❯ Proxy._transactionWithCallback ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ foodTransaction apps/api/src/food-service/scope.ts:78:12
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/cash-intent-isolated.test.ts:22:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  10:35:40
+   Duration  8.31s (transform 54%, import 27%, tests 18%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T10-35-37Z-integration-b475.json
+
+# код выхода 1 · 12 с

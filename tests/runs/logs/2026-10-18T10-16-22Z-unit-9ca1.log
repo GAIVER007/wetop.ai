@@ -1,0 +1,132 @@
+# Модульные (unit) · 18.10.2026 15:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4594bd0 (codex/salons-tz4-m4b2), незакоммиченных файлов набора: 21
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T10-16-22Z-unit-9ca1.json' 'apps/api/src/beauty/customer-import.test.ts' 'apps/api/src/beauty/customer-import.worker.test.ts' 'packages/domain/src/customer-import.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ❯ |unit| apps/api/src/beauty/customer-import.test.ts (7 tests | 1 failed) 48ms
+   ❯ CustomerImportService (7)
+     ✓ starts an owner import in the server-derived organization and business 12ms
+     ✓ returns the same job for the same start request and rejects a changed request 3ms
+     ✓ stores one ordered chunk and repeats the same digest as a no-op 5ms
+     ✓ rejects a changed repeat chunk without changing rows 2ms
+     ✓ submits only a complete upload and keeps aggregate DTO free of row PII 1ms
+     ✓ keeps every management and report endpoint owner-only 1ms
+     × checks the undo deadline with fresh time after database locks 20ms
+ ❯ |unit| packages/domain/src/customer-import.test.ts (13 tests | 1 failed) 449ms
+   ❯ M4-B1 CSV: проверка без записи (13)
+     ✓ BOM/CRLF и разделитель ; 8ms
+     ✓ BOM/CRLF и разделитель , 1ms
+     ✓ BOM/CRLF и разделитель 	 1ms
+     ✓ кавычки, разделитель и перенос внутри поля 1ms
+     × повтор канонического номера, отсутствие номера, пустая строка и плохой телефон 24ms
+     ✓ ручное сопоставление и отсутствие обязательных колонок 2ms
+     ✓ повреждённые кавычки отклоняются 2ms
+     ✓ повреждённые кавычки отклоняются 0ms
+     ✓ повреждённые кавычки отклоняются 0ms
+     ✓ не принимает строки с лишними ячейками и слишком длинными полями 0ms
+     ✓ пустые конечные ячейки можно опустить; сохраняются физические номера строк 0ms
+     ✓ ограничивает количество строк 50 000 335ms
+     ✓ не утрачивает нулевой индекс колонки и отвергает поддельные индексы 61ms
+ ❯ |unit| apps/api/src/beauty/customer-import.worker.test.ts (5 tests | 1 failed) 112ms
+   ❯ CustomerImportWorker (5)
+     ✓ claims one queued job with a fresh lease token and no parent locks 45ms
+     ✓ revalidates active owner, organization and salon for every processing batch 31ms
+     ✓ fences every checkpoint update by the lease token 3ms
+     ✓ clears retained input and baselines only for expired terminal jobs 2ms
+     × rechecks customer status after the ordered customer lock 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/customer-import.test.ts > M4-B1 CSV: проверка без записи > повтор канонического номера, отсутствие номера, пустая строка и плохой телефон
+AssertionError: expected 'Нет имени: потребуется решение перед …' to be 'Имя не указано: при импорте будет «Кл…' // Object.is equality
+
+Expected: "Имя не указано: при импорте будет «Клиент»"
+Received: "Нет имени: потребуется решение перед переносом"
+
+ ❯ packages/domain/src/customer-import.test.ts:21:36
+     19|     expect(result.rows[1]).toMatchObject({ status: 'duplicate', duplic…
+     20|     expect(result.rows[3]).toMatchObject({ status: 'skipped', line: 5 …
+     21|     expect(result.rows[5]?.reason).toBe('Имя не указано: при импорте б…
+       |                                    ^
+     22|   });
+     23|   it('ручное сопоставление и отсутствие обязательных колонок', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.test.ts > CustomerImportService > checks the undo deadline with fresh time after database locks
+AssertionError: promise resolved "{ …(14) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "completedAt": null,
++   "contentsExpired": false,
++   "createdAt": "2026-10-18T12:00:00.000Z",
++   "createdCount": 0,
++   "errorCode": null,
++   "id": "00000000-0000-4000-8000-000000000015",
++   "linkedCount": 0,
++   "processedRows": 0,
++   "skippedCount": 0,
++   "state": "UNDONE",
++   "totalRows": 2,
++   "unchangedCount": 0,
++   "undoDeadline": null,
++   "uploadedRows": 0,
+  }
+
+ ❯ apps/api/src/beauty/customer-import.test.ts:174:56
+    172|       return [];
+    173|     });
+    174|     await expect(asActor(() => service.undo(row().id))).rejects.toBeIn…
+       |                                                        ^
+    175|     expect(db.customerImport.update).not.toHaveBeenCalledWith(expect.o…
+    176|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/beauty/customer-import.worker.test.ts > CustomerImportWorker > rechecks customer status after the ordered customer lock
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "data": Array [
+          Object {
+            "businessId": "00000000-0000-4000-8000-000000000023",
+            "customerId": "customer-1",
+          },
+        ],
+        "skipDuplicates": true,
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ apps/api/src/beauty/customer-import.worker.test.ts:128:48
+    126|     }]);
+    127|     await worker.process(claim);
+    128|     expect(db.customerBusiness.createMany).not.toHaveBeenCalled();
+       |                                                ^
+    129|     expect(db.customerImportRow.update).toHaveBeenCalledWith(expect.ob…
+    130|       data: expect.objectContaining({ outcome: 'SKIPPED', errorCode: '…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  3 failed | 22 passed (25)
+   Start at  03:16:27
+   Duration  21.64s (import 49%, transform 47%, tests 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T10-16-22Z-unit-9ca1.json
+
+# код выхода 1 · 27 с

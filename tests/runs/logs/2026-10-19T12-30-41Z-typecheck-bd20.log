@@ -1,0 +1,8 @@
+# Типы (typecheck) · 19.10.2026 17:30 Алматы · Noutbuk-Vyacheslav.local
+# коммит e072a4e (claude/salon-cash-rights), незакоммиченных файлов набора: 2
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+apps/web/src/app/finance/export-appointments/route.ts(40,29): error TS2345: Argument of type '{ id: string; items?: BeautyAppointmentLine[]; employeeId: string; serviceId: string; serviceName: string; customer: { id: string; name: string; phone: string | null; }; ... 12 more ...; notes: string | null; }' is not assignable to parameter of type 'never'.
+apps/web/src/app/finance/export-appointments/route.ts(41,28): error TS2345: Argument of type 'BeautyDay | { location: { id: string; name: string | null; timezone: string; currency: string; }; date: string; columns: never[]; appointments: never[]; }' is not assignable to parameter of type 'BeautyDay'.
+  Type '{ location: { id: string; name: string | null; timezone: string; currency: string; }; date: string; columns: never[]; appointments: never[]; }' is missing the following properties from type 'BeautyDay': services, bounds
+
+# код выхода 1 · 31 с

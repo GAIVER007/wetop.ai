@@ -1,0 +1,911 @@
+# Сквозные (e2e) · 17.10.2026 11:30 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0766123 (claude/d6-owner-home-gate), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'tests/branches-ui/owner-home.spec.ts' 'tests/branches-ui/today.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 25 tests using 1 worker
+
+  ✘   1 tests/branches-ui/owner-home.spec.ts:16:3 › Д6: hotel с общей Главной есть путь к рабочему дню (6.1s)
+[WebServer] (node:22514) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘   2 tests/branches-ui/owner-home.spec.ts:16:3 › Д6: beauty с общей Главной есть путь к рабочему дню (5.6s)
+  ✘   3 tests/branches-ui/owner-home.spec.ts:16:3 › Д6: food с общей Главной есть путь к рабочему дню (5.5s)
+  ✘   4 tests/branches-ui/today.spec.ts:149:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня (5.7s)
+  ✘   5 tests/branches-ui/today.spec.ts:193:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони (5.7s)
+  ✘   6 tests/branches-ui/today.spec.ts:232:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC (5.6s)
+  ✘   7 tests/branches-ui/today.spec.ts:249:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы (5.7s)
+  ✘   8 tests/branches-ui/today.spec.ts:289:3 › MV8: «Сегодня» салона и ресторана на настоящем API › во время переключения старые данные дня скрыты до ответа настоящего server action (5.7s)
+  ✘   9 tests/branches-ui/today.spec.ts:339:3 › MV8: «Сегодня» салона и ресторана на настоящем API › pending Hospitality selection stops previous branch freshness polling (5.6s)
+  ✘  10 tests/branches-ui/today.spec.ts:392:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же (5.7s)
+  ✘  11 tests/branches-ui/today.spec.ts:414:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиница: блоки владельца в «Финансах», без запросов салона и ресторана (5.6s)
+  ✓  12 tests/branches-ui/today.spec.ts:426:3 › MV8: «Сегодня» салона и ресторана на настоящем API › без подтверждённого направления гостиница не угадывается: выбор через /scope/resolve или /branches (1.9s)
+  ✘  13 tests/branches-ui/today.spec.ts:458:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет (5.6s)
+  ✘  14 tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 light: axe, клавиатура, без прокрутки вбок (5.7s)
+  ✘  15 tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 dark: axe, клавиатура, без прокрутки вбок (5.7s)
+  ✘  16 tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 light: axe, клавиатура, без прокрутки вбок (5.7s)
+  ✘  17 tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 dark: axe, клавиатура, без прокрутки вбок (5.6s)
+  ✘  18 tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 light: axe, клавиатура, без прокрутки вбок (5.6s)
+  ✘  19 tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 dark: axe, клавиатура, без прокрутки вбок (5.6s)
+  ✘  20 tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 light: axe, клавиатура, без прокрутки вбок (5.7s)
+  ✘  21 tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 dark: axe, клавиатура, без прокрутки вбок (5.6s)
+  ✘  22 tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 light: axe, клавиатура, без прокрутки вбок (5.7s)
+  ✘  23 tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 dark: axe, клавиатура, без прокрутки вбок (5.7s)
+  ✘  24 tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 light: axe, клавиатура, без прокрутки вбок (5.7s)
+  ✘  25 tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 dark: axe, клавиатура, без прокрутки вбок (5.6s)
+
+
+  1) tests/branches-ui/owner-home.spec.ts:16:3 › Д6: hotel с общей Главной есть путь к рабочему дню 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('main#main-content').getByText('Обзор бизнеса')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('main#main-content').getByText('Обзор бизнеса') with timeout 5000ms
+      - waiting for locator('main#main-content').getByText('Обзор бизнеса')
+
+
+      26 |     await page.goto('/today');
+      27 |     const main = page.locator('main#main-content');
+    > 28 |     await expect(main.getByText('Обзор бизнеса')).toBeVisible();
+         |                                                   ^
+      29 |     await main.getByRole('link', { name: 'Рабочий день' }).click();
+      30 |     await expect(page).toHaveURL(/\/today\/operations$/);
+      31 |     await expect(page.locator('main#main-content h1')).toBeVisible();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/owner-home.spec.ts:28:51
+
+    Error Context: test-results/owner-home-Д6-hotel-с-общей-Главной-есть-путь-к-рабочему-дню/error-context.md
+
+    Error Context: test-results/owner-home-Д6-hotel-с-общей-Главной-есть-путь-к-рабочему-дню/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-home-Д6-hotel-с-общей-Главной-есть-путь-к-рабочему-дню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-home-Д6-hotel-с-общей-Главной-есть-путь-к-рабочему-дню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/branches-ui/owner-home.spec.ts:16:3 › Д6: beauty с общей Главной есть путь к рабочему дню 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('main#main-content').getByText('Обзор бизнеса')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('main#main-content').getByText('Обзор бизнеса') with timeout 5000ms
+      - waiting for locator('main#main-content').getByText('Обзор бизнеса')
+
+
+      26 |     await page.goto('/today');
+      27 |     const main = page.locator('main#main-content');
+    > 28 |     await expect(main.getByText('Обзор бизнеса')).toBeVisible();
+         |                                                   ^
+      29 |     await main.getByRole('link', { name: 'Рабочий день' }).click();
+      30 |     await expect(page).toHaveURL(/\/today\/operations$/);
+      31 |     await expect(page.locator('main#main-content h1')).toBeVisible();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/owner-home.spec.ts:28:51
+
+    Error Context: test-results/owner-home-Д6-beauty-с-общ-0a92c-ой-есть-путь-к-рабочему-дню/error-context.md
+
+    Error Context: test-results/owner-home-Д6-beauty-с-общ-0a92c-ой-есть-путь-к-рабочему-дню/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-home-Д6-beauty-с-общ-0a92c-ой-есть-путь-к-рабочему-дню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-home-Д6-beauty-с-общ-0a92c-ой-есть-путь-к-рабочему-дню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/branches-ui/owner-home.spec.ts:16:3 › Д6: food с общей Главной есть путь к рабочему дню ─
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('main#main-content').getByText('Обзор бизнеса')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('main#main-content').getByText('Обзор бизнеса') with timeout 5000ms
+      - waiting for locator('main#main-content').getByText('Обзор бизнеса')
+
+
+      26 |     await page.goto('/today');
+      27 |     const main = page.locator('main#main-content');
+    > 28 |     await expect(main.getByText('Обзор бизнеса')).toBeVisible();
+         |                                                   ^
+      29 |     await main.getByRole('link', { name: 'Рабочий день' }).click();
+      30 |     await expect(page).toHaveURL(/\/today\/operations$/);
+      31 |     await expect(page.locator('main#main-content h1')).toBeVisible();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/owner-home.spec.ts:28:51
+
+    Error Context: test-results/owner-home-Д6-food-с-общей-Главной-есть-путь-к-рабочему-дню/error-context.md
+
+    Error Context: test-results/owner-home-Д6-food-с-общей-Главной-есть-путь-к-рабочему-дню/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-home-Д6-food-с-общей-Главной-есть-путь-к-рабочему-дню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-home-Д6-food-с-общей-Главной-есть-путь-к-рабочему-дню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/branches-ui/today.spec.ts:149:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Сегодня', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Сегодня', exact: true }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Сегодня', exact: true })
+
+
+      155 |     const from = await callCount(request);
+      156 |     await page.goto('/today');
+    > 157 |     await expect(page.getByRole('heading', { name: 'Сегодня', exact: true })).toBeVisible();
+          |                                                                               ^
+      158 |     await expect(page.getByRole('main').getByTestId('beauty-today')).toBeVisible();
+      159 |     const { day, m } = await expectedBeauty(request, f.salon);
+      160 |     expect(m.masters).toBe(2);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:157:79
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-d5f75-ца-назван-только-запрос-дня/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/branches-ui/today.spec.ts:193:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('food-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('food-today') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('food-today')
+
+
+      199 |     const from = await callCount(request);
+      200 |     await page.goto('/today');
+    > 201 |     await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
+          |                                                                    ^
+      202 |     const m = await expectedFood(request, f.food, f.localDay, f.timezone);
+      203 |     expect(m.planned).toBeGreaterThan(100);
+      204 |     expect(m.seatedNow).toBeGreaterThanOrEqual(2);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:201:68
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-ae295-ы-только-залы-столы-и-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/branches-ui/today.spec.ts:232:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('food-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('food-today') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('food-today')
+
+
+      237 |     await setScope(page, f.food);
+      238 |     await page.goto('/today');
+    > 239 |     await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
+          |                                                                    ^
+      240 |     const local = new Intl.DateTimeFormat('en-CA', { timeZone: 'Pacific/Kiritimati' }).format(
+      241 |       new Date(),
+      242 |     );
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:239:68
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d736f-ся-по-его-поясу-а-не-по-UTC/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d736f-ся-по-его-поясу-а-не-по-UTC/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-d736f-ся-по-его-поясу-а-не-по-UTC/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-d736f-ся-по-его-поясу-а-не-по-UTC/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/branches-ui/today.spec.ts:249:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('beauty-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('beauty-today') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('beauty-today')
+
+
+      254 |     await setScope(page, f.salon);
+      255 |     await page.goto('/today');
+    > 256 |     await expect(page.getByRole('main').getByTestId('beauty-today')).toBeVisible();
+          |                                                                      ^
+      257 |     await choose(page, 'Тестовый филиал Центр');
+      258 |     await expect(page).toHaveURL(/\/today$/);
+      259 |     await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:256:70
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-e89a4-чение-и-обновление-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/branches-ui/today.spec.ts:289:3 › MV8: «Сегодня» салона и ресторана на настоящем API › во время переключения старые данные дня скрыты до ответа настоящего server action 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('beauty-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('beauty-today') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('beauty-today')
+
+
+      294 |     await setScope(page, f.salon);
+      295 |     await page.goto('/today');
+    > 296 |     await expect(page.getByRole('main').getByTestId('beauty-today')).toBeVisible();
+          |                                                                      ^
+      297 |     await page.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
+      298 |     await expect(page.getByRole('region', { name: 'Выбор филиала' })).toBeVisible();
+      299 |     let release!: () => void;
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:296:70
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-5c395-та-настоящего-server-action/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-5c395-та-настоящего-server-action/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-5c395-та-настоящего-server-action/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-5c395-та-настоящего-server-action/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/branches-ui/today.spec.ts:339:3 › MV8: «Сегодня» салона и ресторана на настоящем API › pending Hospitality selection stops previous branch freshness polling 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('owner-dashboard')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('owner-dashboard') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('owner-dashboard')
+
+
+      347 |     // выбора филиала уходит POST на текущий адрес «Главной» `/today`
+      348 |     await page.goto('/today');
+    > 349 |     await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
+          |                                                                         ^
+      350 |     await page.locator('.sidenav__current').click();
+      351 |     await expect(page.getByTestId('data-freshness')).toBeVisible();
+      352 |     await page.keyboard.press('Escape');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:349:73
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-dc843-us-branch-freshness-polling/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-dc843-us-branch-freshness-polling/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-dc843-us-branch-freshness-polling/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-dc843-us-branch-freshness-polling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/branches-ui/today.spec.ts:392:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же 
+
+    Error: {"readOnly":true}
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('food-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - {"readOnly":true} getByRole('main').getByTestId('food-today') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('food-today')
+
+
+      405 |         // Экран дня ищем в <main>: на медленном раннере `next dev` оставляет вне <main> скрытую копию потокового
+      406 |         // фрагмента той же страницы (release-checks #188 и #189), и строгий поиск по всей странице находил два элемента
+    > 407 |         await expect(page.getByRole('main').getByTestId(testId), JSON.stringify(control)).toBeVisible();
+          |                                                                                           ^
+      408 |         await expect(page.getByTestId('today-error')).toHaveCount(0);
+      409 |       }
+      410 |     }
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:407:91
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-457e2-кран-дня-открыт-числа-те-же/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-457e2-кран-дня-открыт-числа-те-же/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-457e2-кран-дня-открыт-числа-те-же/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-457e2-кран-дня-открыт-числа-те-же/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/branches-ui/today.spec.ts:414:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиница: блоки владельца в «Финансах», без запросов салона и ресторана 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('owner-dashboard')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('owner-dashboard') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('owner-dashboard')
+
+
+      417 |     const from = await callCount(request);
+      418 |     await page.goto('/today');
+    > 419 |     await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
+          |                                                                         ^
+      420 |     await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
+      421 |     await expect(page.getByTestId('beauty-today')).toHaveCount(0);
+      422 |     const calls = await callsSince(request, from);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:419:73
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-7e5c8-запросов-салона-и-ресторана/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-7e5c8-запросов-салона-и-ресторана/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-7e5c8-запросов-салона-и-ресторана/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-7e5c8-запросов-салона-и-ресторана/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/branches-ui/today.spec.ts:458:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('owner-dashboard')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('owner-dashboard') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('owner-dashboard')
+
+
+      464 |     await page.goto('/today');
+      465 |     await expect(page).toHaveURL(/\/today$/);
+    > 466 |     await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
+          |                                                                         ^
+      467 |     await expect(page.getByRole('dialog')).toBeVisible();
+      468 |     for (const [scope, testId] of [
+      469 |       [f.salon, 'beauty-today'],
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:466:73
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-4d8a7-цы-у-салона-и-ресторана-нет/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-4d8a7-цы-у-салона-и-ресторана-нет/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-4d8a7-цы-у-салона-и-ресторана-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-4d8a7-цы-у-салона-и-ресторана-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 light: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('beauty-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('beauty-today') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('beauty-today')
+
+
+      500 |           await page.emulateMedia({ colorScheme: theme });
+      501 |           await page.goto('/today');
+    > 502 |           await expect(page.getByRole('main').getByTestId(testId)).toBeVisible();
+          |                                                                    ^
+      503 |           await expect(page.getByRole('dialog')).toHaveCount(0);
+      504 |           await page.evaluate(async () => {
+      505 |             await Promise.all(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:502:68
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-c1e78-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-c1e78-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-c1e78-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-c1e78-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 dark: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('beauty-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('beauty-today') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('beauty-today')
+
+
+      500 |           await page.emulateMedia({ colorScheme: theme });
+      501 |           await page.goto('/today');
+    > 502 |           await expect(page.getByRole('main').getByTestId(testId)).toBeVisible();
+          |                                                                    ^
+      503 |           await expect(page.getByRole('dialog')).toHaveCount(0);
+      504 |           await page.evaluate(async () => {
+      505 |             await Promise.all(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:502:68
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-58fd1-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-58fd1-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-58fd1-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-58fd1-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 light: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('beauty-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('beauty-today') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('beauty-today')
+
+
+      500 |           await page.emulateMedia({ colorScheme: theme });
+      501 |           await page.goto('/today');
+    > 502 |           await expect(page.getByRole('main').getByTestId(testId)).toBeVisible();
+          |                                                                    ^
+      503 |           await expect(page.getByRole('dialog')).toHaveCount(0);
+      504 |           await page.evaluate(async () => {
+      505 |             await Promise.all(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:502:68
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-070e6-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-070e6-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-070e6-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-070e6-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 dark: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('beauty-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('beauty-today') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('beauty-today')
+
+
+      500 |           await page.emulateMedia({ colorScheme: theme });
+      501 |           await page.goto('/today');
+    > 502 |           await expect(page.getByRole('main').getByTestId(testId)).toBeVisible();
+          |                                                                    ^
+      503 |           await expect(page.getByRole('dialog')).toHaveCount(0);
+      504 |           await page.evaluate(async () => {
+      505 |             await Promise.all(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:502:68
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-3ee16-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-3ee16-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-3ee16-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-3ee16-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 light: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('food-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('food-today') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('food-today')
+
+
+      500 |           await page.emulateMedia({ colorScheme: theme });
+      501 |           await page.goto('/today');
+    > 502 |           await expect(page.getByRole('main').getByTestId(testId)).toBeVisible();
+          |                                                                    ^
+      503 |           await expect(page.getByRole('dialog')).toHaveCount(0);
+      504 |           await page.evaluate(async () => {
+      505 |             await Promise.all(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:502:68
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-e4430-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-e4430-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-e4430-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-e4430-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 dark: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('food-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('food-today') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('food-today')
+
+
+      500 |           await page.emulateMedia({ colorScheme: theme });
+      501 |           await page.goto('/today');
+    > 502 |           await expect(page.getByRole('main').getByTestId(testId)).toBeVisible();
+          |                                                                    ^
+      503 |           await expect(page.getByRole('dialog')).toHaveCount(0);
+      504 |           await page.evaluate(async () => {
+      505 |             await Promise.all(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:502:68
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d3da5-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-d3da5-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-d3da5-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-d3da5-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 light: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('food-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('food-today') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('food-today')
+
+
+      500 |           await page.emulateMedia({ colorScheme: theme });
+      501 |           await page.goto('/today');
+    > 502 |           await expect(page.getByRole('main').getByTestId(testId)).toBeVisible();
+          |                                                                    ^
+      503 |           await expect(page.getByRole('dialog')).toHaveCount(0);
+      504 |           await page.evaluate(async () => {
+      505 |             await Promise.all(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:502:68
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-71e30-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-71e30-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-71e30-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-71e30-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 dark: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('food-today')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('food-today') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('food-today')
+
+
+      500 |           await page.emulateMedia({ colorScheme: theme });
+      501 |           await page.goto('/today');
+    > 502 |           await expect(page.getByRole('main').getByTestId(testId)).toBeVisible();
+          |                                                                    ^
+      503 |           await expect(page.getByRole('dialog')).toHaveCount(0);
+      504 |           await page.evaluate(async () => {
+      505 |             await Promise.all(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:502:68
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-1c997-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-1c997-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-1c997-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-1c997-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 light: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('owner-dashboard')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('owner-dashboard') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('owner-dashboard')
+
+
+      500 |           await page.emulateMedia({ colorScheme: theme });
+      501 |           await page.goto('/today');
+    > 502 |           await expect(page.getByRole('main').getByTestId(testId)).toBeVisible();
+          |                                                                    ^
+      503 |           await expect(page.getByRole('dialog')).toHaveCount(0);
+      504 |           await page.evaluate(async () => {
+      505 |             await Promise.all(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:502:68
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-be929-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-be929-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-be929-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-be929-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 dark: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('owner-dashboard')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('owner-dashboard') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('owner-dashboard')
+
+
+      500 |           await page.emulateMedia({ colorScheme: theme });
+      501 |           await page.goto('/today');
+    > 502 |           await expect(page.getByRole('main').getByTestId(testId)).toBeVisible();
+          |                                                                    ^
+      503 |           await expect(page.getByRole('dialog')).toHaveCount(0);
+      504 |           await page.evaluate(async () => {
+      505 |             await Promise.all(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:502:68
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-57e82-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-57e82-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-57e82-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-57e82-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 light: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('owner-dashboard')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('owner-dashboard') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('owner-dashboard')
+
+
+      500 |           await page.emulateMedia({ colorScheme: theme });
+      501 |           await page.goto('/today');
+    > 502 |           await expect(page.getByRole('main').getByTestId(testId)).toBeVisible();
+          |                                                                    ^
+      503 |           await expect(page.getByRole('dialog')).toHaveCount(0);
+      504 |           await page.evaluate(async () => {
+      505 |             await Promise.all(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:502:68
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-9aa99-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-9aa99-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-9aa99-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-9aa99-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 dark: axe, клавиатура, без прокрутки вбок 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('owner-dashboard')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('owner-dashboard') with timeout 5000ms
+      - waiting for getByRole('main').getByTestId('owner-dashboard')
+
+
+      500 |           await page.emulateMedia({ colorScheme: theme });
+      501 |           await page.goto('/today');
+    > 502 |           await expect(page.getByRole('main').getByTestId(testId)).toBeVisible();
+          |                                                                    ^
+      503 |           await expect(page.getByRole('dialog')).toHaveCount(0);
+      504 |           await page.evaluate(async () => {
+      505 |             await Promise.all(
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6/tests/branches-ui/today.spec.ts:502:68
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-549d6-авиатура-без-прокрутки-вбок/error-context.md
+
+    Error Context: test-results/today-MV8-«Сегодня»-салона-549d6-авиатура-без-прокрутки-вбок/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-MV8-«Сегодня»-салона-549d6-авиатура-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-MV8-«Сегодня»-салона-549d6-авиатура-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24 failed
+    tests/branches-ui/owner-home.spec.ts:16:3 › Д6: hotel с общей Главной есть путь к рабочему дню ─
+    tests/branches-ui/owner-home.spec.ts:16:3 › Д6: beauty с общей Главной есть путь к рабочему дню 
+    tests/branches-ui/owner-home.spec.ts:16:3 › Д6: food с общей Главной есть путь к рабочему дню ──
+    tests/branches-ui/today.spec.ts:149:3 › MV8: «Сегодня» салона и ресторана на настоящем API › салон: числа экрана равны ответу API дня, мастер без столбца назван, только запрос дня 
+    tests/branches-ui/today.spec.ts:193:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони 
+    tests/branches-ui/today.spec.ts:232:3 › MV8: «Сегодня» салона и ресторана на настоящем API › граница суток: день ресторана берётся по его поясу, а не по UTC 
+    tests/branches-ui/today.spec.ts:249:3 › MV8: «Сегодня» салона и ресторана на настоящем API › переключения Салон → Ресторан → Гостиница → Салон, быстрое переключение и обновление страницы 
+    tests/branches-ui/today.spec.ts:289:3 › MV8: «Сегодня» салона и ресторана на настоящем API › во время переключения старые данные дня скрыты до ответа настоящего server action 
+    tests/branches-ui/today.spec.ts:339:3 › MV8: «Сегодня» салона и ресторана на настоящем API › pending Hospitality selection stops previous branch freshness polling 
+    tests/branches-ui/today.spec.ts:392:3 › MV8: «Сегодня» салона и ресторана на настоящем API › только чтение и администратор смены: экран дня открыт, числа те же 
+    tests/branches-ui/today.spec.ts:414:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиница: блоки владельца в «Финансах», без запросов салона и ресторана 
+    tests/branches-ui/today.spec.ts:458:3 › MV8: «Сегодня» салона и ресторана на настоящем API › гостиничное обучение само открывается только у гостиницы, у салона и ресторана нет 
+    tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 light: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 1440 dark: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 light: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок beauty 390 dark: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 light: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 1440 dark: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 light: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок food 390 dark: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 light: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 1440 dark: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 light: axe, клавиатура, без прокрутки вбок 
+    tests/branches-ui/today.spec.ts:490:9 › MV8: «Сегодня» салона и ресторана на настоящем API › снимок hospitality 390 dark: axe, клавиатура, без прокрутки вбок 
+  1 passed (2.6m)
+
+# код выхода 1 · 2 мин 36 с

@@ -1,0 +1,36 @@
+# Сквозные (e2e) · 18.10.2026 09:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит b2965e9 (codex/calendar-quick-report), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/beauty-journal.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--grep' 'быстрый отчёт календаря'
+[WebServer] (node:10179) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10785) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12043) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12597) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12685) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:14287) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23123) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/beauty-journal.spec.ts:290:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон (26.6s)
+[WebServer] (node:34268) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/ui/beauty-journal.spec.ts:339:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня (35.4s)
+
+  2 passed (1.4m)
+
+# код выхода 0 · 1 мин 27 с

@@ -1,0 +1,44 @@
+# Модульные (unit) · 16.10.2026 14:26 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 44
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T09-26-22Z-unit-26d9.json' 'apps/web/src/app/today/unified-owner.test.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| apps/web/src/app/today/unified-owner.test.ts (8 tests | 1 failed) 42ms
+   ❯ unified owner actual DTO (8)
+     × renders linked category names safely and minute units without claiming disconnected 31ms
+     ✓ today 3ms
+     ✓ week 2ms
+     ✓ month 2ms
+     ✓ formats big minor units without float loss 0ms
+     ✓ normalizes query, not rolling 30 days 0ms
+     ✓ unknown vertical is explicit unsupported 1ms
+     ✓ keeps room and bed separate without invented percent 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > renders linked category names safely and minute units without claiming disconnected
+AssertionError: expected '<div class="owner-home"><header class…' to contain '&lt;Закупки&gt;'
+
+Expected: "&lt;Закупки&gt;"
+Received: "<div class="owner-home"><header class="owner-heading"><div><p>Обзор бизнеса</p><h1>Главная</h1><p>Обновлено 16 окт. 2026 г., 14:00 · Asia/Almaty</p></div><a class="btn btn--secondary" href="/appointments">Рабочее место</a></header><div class="owner-toolbar"><nav class="seg" aria-label="Период отчёта"><a class="seg__item is-on" aria-current="page" href="/today?period=today">Сегодня</a><a class="seg__item" href="/today?period=week">7 дней</a><a class="seg__item" href="/today?period=month" title="С начала календарного месяца">Месяц</a></nav><p>2026-10-01 – 2026-10-16 · текущий день неполный</p></div><section class="owner-kpis" aria-label="Показатели руководителя"><article><h2>Выручка</h2><div class="owner-value"><div>9 007 199 254 740 993,01 KZT</div><div>123,45 USD</div></div><p>Начисления, не полученные оплаты</p></article><article><h2>Загрузка сегодня</h2><div class="owner-value">Нет данных</div><p>Неполное покрытие периода</p><p>Записанное время мастеров / сохранённое расписание</p><p>Учтено 3600000 из 7200000 миллисекунд мастеров. Итоговый процент периода недоступен.</p></article><article><h2>Поступления</h2><div class="owner-value">Нет данных</div><p>Реестр оплат не подключён</p><p>Полученные оплаты, не выручка</p></article><article><h2>Оплаченные расходы</h2><div class="owner-value"><div>400,00 KZT</div></div><p>Только завершённые расходные операции</p></article></section><div class="owner-body"><section class="owner-panel"><div class="owner-panel-heading"><h2>Динамика показателей</h2><a href="/finance">Финансовый отчёт</a></div><div class="owner-chart-empty" role="status"><strong>Временной ряд не подключён</strong><p>API передаёт только итог за выбранный период. График по часам и дням пока недоступен.</p></div><p>Сравнение с предыдущим периодом недоступно.</p></section><section class="owner-panel"><h2>Требуют решения</h2><h3>Данные периода неполные</h3><p>Неполное покрытие периода</p><p>Классификация расходов не подключена. Автоматические задачи и отклонения API не передаёт.</p><a href="/finance">Открыть операции</a><p><a href="/today/operations">Операционные инструменты дня</a></p></section></div><section class="owner-panel"><div class="owner-panel-heading"><h2>Куда уходят деньги</h2><a href="/finance">Оплаченные расходы</a></div><p>Без категории: связи с документами расходов в сводку пока не подключены. Это не категория «Прочее».</p><div class="owner-expenses"><div><h3>Без категории · KZT</h3><strong>400,00 KZT</strong></div></div></section><footer><p>Выбран один филиал. Валюты показаны раздельно, без общего итога.</p></footer></div>"
+
+ ❯ apps/web/src/app/today/unified-owner.test.ts:59:18
+     57|     d.workload.numerator = '3600000'; d.workload.denominator = '720000…
+     58|     const html = renderToStaticMarkup(createElement(OwnerSummaryView, …
+     59|     expect(html).toContain('&lt;Закупки&gt;');
+       |                  ^
+     60|     expect(html).toContain('400,00 KZT');
+     61|     expect(html).not.toContain('Классификация расходов не подключена');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  09:26:23
+   Duration  391ms (transform 61%, import 20%, tests 16%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-16T09-26-22Z-unit-26d9.json
+
+# код выхода 1 · 1 с

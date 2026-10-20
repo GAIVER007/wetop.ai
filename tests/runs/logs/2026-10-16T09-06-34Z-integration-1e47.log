@@ -1,0 +1,28 @@
+# Интеграционные (integration) · 16.10.2026 14:06 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 40
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T09-06-34Z-integration-1e47.json' '--config' 'tests/hospitality-workload-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/hospitality-workload-isolated.test.ts (1 test | 1 failed) 33ms
+   × property-scoped service writer retains ROOM/BED and never claims complete prior history 31ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/hospitality-workload-isolated.test.ts > property-scoped service writer retains ROOM/BED and never claims complete prior history
+error: null value in column "updated_at" of relation "physical_rooms" violates not-null constraint
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/hospitality-workload-isolated.test.ts:19:2
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  09:06:35
+   Duration  1.73s (transform 75%, import 22%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-16T09-06-34Z-integration-1e47.json
+
+# код выхода 1 · 3 с

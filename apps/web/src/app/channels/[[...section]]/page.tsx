@@ -1,4 +1,4 @@
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { ChannelConnectionSetup } from '../connection-setup';
 import Link from 'next/link';
 import { notFound, redirect, unstable_rethrow } from 'next/navigation';
@@ -39,6 +39,8 @@ import { categoryMappings, planMappings } from '../mapping';
 import { Icon } from '../../../components/icon';
 import '../../directory.css';
 import '../channels.css';
+import { deskShell } from '../../../lib/desk-shell';
+import { mayAccess } from '../../../lib/navigation';
 import { CHANNEL_TABS, ChannelTabs } from '../tabs';
 
 /**
@@ -83,7 +85,7 @@ export default async function ChannelSalesPage({
   params: Promise<{ section?: string[] }>;
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/channels');
   const { section = [] } = await params;
   if (section.length > 1) notFound();
   const view = section[0] ?? '';
@@ -98,6 +100,8 @@ export default async function ChannelSalesPage({
   }
   const tab = CHANNEL_TABS.find((item) => item.view === view);
   if (!tab) notFound();
+  const shell = await deskShell();
+  const canMutate = mayAccess(shell.access, 'channels') && !shell.readOnly;
   return (
     <Page
       title={view ? tab.label : 'Каналы продаж'}
@@ -106,12 +110,12 @@ export default async function ChannelSalesPage({
       actions={view === 'connections' ? <RefreshButton label="Проверить соединение" /> : undefined}
     >
       <ChannelTabs current={view} />
-      {view === '' && <Overview sp={sp} />}
+      {view === '' && <Overview sp={sp} canMutate={canMutate} />}
       {view === 'list' && <ChannelList sp={sp} />}
-      {view === 'connections' && <ChannelConnectionSetup />}
+      {view === 'connections' && <ChannelConnectionSetup canMutate={canMutate} />}
       {view === 'mapping' && <Mapping />}
-      {view === 'sync' && <Sync queue={queueFilter(sp.queue)} />}
-      {view === 'events' && <Events sp={sp} />}
+      {view === 'sync' && <Sync queue={queueFilter(sp.queue)} canMutate={canMutate} />}
+      {view === 'events' && <Events sp={sp} canMutate={canMutate} />}
     </Page>
   );
 }
@@ -121,7 +125,13 @@ const queueFilter = (raw: string | undefined): OutboxRowStatus | '' =>
 
 /* ── Обзор: работает ли обмен и что каналы принесли ── */
 
-async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
+async function Overview({
+  sp,
+  canMutate,
+}: {
+  sp: Record<string, string | undefined>;
+  canMutate: boolean;
+}) {
   const clock = await hotelClock();
   const [
     connection,
@@ -370,7 +380,9 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
               </p>
             ))}
         </section>
-        <ChannelButtons group="exchange" connected={!!connection?.propertyAccessible} />
+        {canMutate && (
+          <ChannelButtons group="exchange" connected={!!connection?.propertyAccessible} canMutate />
+        )}
       </details>
       <details className="context-help" data-testid="channels-tech">
         <summary>Технические детали</summary>
@@ -640,7 +652,7 @@ const SYNC_KINDS = [
   ['RESTRICTIONS', 'Цены и ограничения'],
 ] as const;
 
-async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
+async function Sync({ queue, canMutate }: { queue: OutboxRowStatus | ''; canMutate: boolean }) {
   const clock = await hotelClock();
   const [loadedOutbox, allRows, filteredRows, connection, failedEvents, summary] =
     await Promise.all([
@@ -822,7 +834,9 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
           </tr>
         </tbody>
       </Table>
-      <ChannelButtons group="exchange" connected={!!connection?.propertyAccessible} />
+      {canMutate && (
+        <ChannelButtons group="exchange" connected={!!connection?.propertyAccessible} canMutate />
+      )}
       <details className="context-help" open={queue ? true : undefined} data-testid="sync-tech">
         <summary>Технические детали</summary>
         <section className="stack stack--sm" aria-labelledby="outbox-title">
@@ -841,7 +855,13 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
 
 /* ── События: журнал входящих ревизий с фильтрами ── */
 
-async function Events({ sp }: { sp: Record<string, string | undefined> }) {
+async function Events({
+  sp,
+  canMutate,
+}: {
+  sp: Record<string, string | undefined>;
+  canMutate: boolean;
+}) {
   const filter: EventsFilter = {
     status: sp.status ?? '',
     type: sp.type ?? '',
@@ -870,7 +890,7 @@ async function Events({ sp }: { sp: Record<string, string | undefined> }) {
   return (
     <section className="stack stack--sm" aria-labelledby="events-title">
       <SectionTitle id="events-title">Входящие события</SectionTitle>
-      <EventsTable data={data} filter={filter} hrefFor={href} />
+      <EventsTable data={data} filter={filter} hrefFor={href} canRetry={canMutate} />
     </section>
   );
 }

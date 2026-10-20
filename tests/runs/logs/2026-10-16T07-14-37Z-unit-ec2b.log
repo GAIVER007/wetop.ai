@@ -1,0 +1,30 @@
+# Модульные (unit) · 16.10.2026 12:14 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T07-14-37Z-unit-ec2b.json' 'apps/api/src/finance/expense-documents-api.test.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| apps/api/src/finance/expense-documents-api.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/expense-documents-api.test.ts [ apps/api/src/finance/expense-documents-api.test.ts ]
+Error: Cannot find module './expense-documents' imported from /srv/hermes/workspace/wetop-unified-owner-data/apps/api/src/finance/expense-documents-api.test.ts
+ ❯ apps/api/src/finance/expense-documents-api.test.ts:2:1
+      1| import { describe,it,expect } from 'vitest';
+      2| import { ExpenseDocumentsController } from './expense-documents';
+       | ^
+      3| import type { PrismaService } from '../database/prisma.provider';
+      4| describe('expense API safe defaults',()=>{
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  07:14:38
+   Duration  168ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-10-16T07-14-37Z-unit-ec2b.json
+
+# код выхода 1 · 1 с

@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 16.10.2026 22:56 Алматы · <сервер>
+# коммит 61af7b9 (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 34
+# npx playwright test --workers=2 --reporter=list,json '--workers=1' '--config' 'tests/employee-portal-ui/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/employee-portal-ui/portal.spec.mjs:40:1 › HTTP actor boundaries and public whitelist (567ms)
+  ✓  2 tests/employee-portal-ui/portal.spec.mjs:56:1 › real browser avatar/profile persistence, work approval and three views (16.1s)
+  ✓  3 tests/employee-portal-ui/portal.spec.mjs:85:1 › waiter owns orders and existing payroll without salon controls (2.4s)
+  ✓  4 tests/employee-portal-ui/portal.spec.mjs:92:1 › compact week saves real hours without deleting existing dated exceptions (5.4s)
+  ✓  5 tests/employee-portal-ui/portal.spec.mjs:104:1 › compact schedule fits one screen without dated-exceptions block (14.0s)
+  ✓  6 tests/employee-portal-ui/portal.spec.mjs:135:1 › schedule add-time action stays next to hours and persists a split day (6.4s)
+  ✓  7 tests/employee-portal-ui/portal.spec.mjs:145:1 › my services add button opens catalog and persists selection (5.3s)
+  ✓  8 tests/employee-portal-ui/portal.spec.mjs:153:1 › personal finance shows real server amounts and never invents unavailable earnings (10.8s)
+  ✓  9 tests/employee-portal-ui/portal.spec.mjs:165:1 › public missing profile uses not-found handling (1.7s)
+
+  9 passed (1.3m)
+
+# код выхода 0 · 1 мин 19 с

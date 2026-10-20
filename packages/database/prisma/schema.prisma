@@ -43,6 +43,7 @@ enum LocationStatus {
 /// Направление/бренд партнёра (Platform P1, ADR-104, DATA_MODEL §18.1): «Luxx Hotels», «Alma Beauty».
 /// У организации N бизнесов; вертикаль — здесь. Тёзки внутри организации допустимы (§18.1).
 model Business {
+  customerImports CustomerImport[]
   id             String           @id @default(uuid()) @db.Uuid
   organizationId String           @map("organization_id") @db.Uuid
   name           String           @db.VarChar(200)
@@ -62,6 +63,9 @@ model Business {
   menuCategories   MenuCategory[]
   menuItems        MenuItem[]
   kitchenProducts  KitchenProduct[]
+  beautyPayrollPolicy BeautyPayrollPolicy?
+  beautyPositions BeautyPosition[]
+  beautyPositionAssignments BeautyPositionAssignment[]
 
   @@index([organizationId])
   @@map("businesses")
@@ -116,10 +120,19 @@ model Location {
   services               LocationService[]
   workingHours           WorkingHours[]
   appointments           Appointment[]
+  employeeServicePrices  EmployeeServicePrice[]
+  beautyOpeningHours     BeautyLocationHours?
+  beautyPositionAssignments BeautyPositionAssignment[]
   /// MKT9.2: один филиал, один сайт навсегда (полный UNIQUE location_id, архив не освобождает филиал)
   marketingSite          MarketingSite?
   marketingExpenses      MarketingExpense[]
   marketingBudgets       MarketingBudget[]
+  marketingBudgetLines   MarketingBudgetLine[]
+  marketingExpenseFiles  MarketingExpenseFile[]
+  marketingCampaigns     MarketingCampaign[]
+  marketingAdConnections MarketingAdConnection[]
+  marketingAdCreatives   MarketingAdCreative[]
+  marketingAdLaunches    MarketingAdLaunch[]
   siteAssets             SiteAsset[]
   /// MKT9.2: лицензия конструктора сайта филиала; выдаёт только главный администратор платформы
   siteBuilderEntitlement SiteBuilderEntitlement?
@@ -191,12 +204,260 @@ model MarketingExpense {
   createdById     String?           @map("created_by_id") @db.Uuid
   createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  /// §53 (v2.36): кампания расхода; деньги кампании это её расходы
+  campaignId      String?           @map("campaign_id") @db.Uuid
 
-  location  Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  createdBy User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  location       Location               @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  createdBy      User?                  @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  files          MarketingExpenseFile[]
+  campaignEntity MarketingCampaign?     @relation(fields: [campaignId], references: [id], onDelete: SetNull)
 
   @@index([locationId, date])
+  @@index([campaignId])
   @@map("marketing_expenses")
+}
+
+enum MarketingCampaignStatus {
+  ACTIVE
+  PAUSED
+  FINISHED
+}
+
+/// §53 (v2.36, ADR-MKT-B3): рекламная кампания филиала; не удаляется, завершается статусом
+model MarketingCampaign {
+  id         String                  @id @default(uuid()) @db.Uuid
+  locationId String                  @map("location_id") @db.Uuid
+  platform   MarketingPlatform
+  name       String                  @db.VarChar(200)
+  status     MarketingCampaignStatus @default(ACTIVE)
+  startsOn   DateTime?               @map("starts_on") @db.Date
+  endsOn     DateTime?               @map("ends_on") @db.Date
+  createdAt  DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  /// §55 (v2.38): номер кампании в кабинете; у ручных пусто. Уникальность имени только у ручных (частичный индекс в SQL)
+  externalId String?                 @map("external_id") @db.VarChar(64)
+
+  location Location                 @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  stats    MarketingCampaignStat[]
+  expenses MarketingExpense[]
+  launches MarketingAdLaunch[]
+
+  @@unique([locationId, platform, externalId])
+  @@map("marketing_campaigns")
+}
+
+enum MarketingStatSource {
+  MANUAL
+  META
+}
+
+enum MarketingConnectionStatus {
+  ACTIVE
+  FAILED
+  DISCONNECTED
+}
+
+/// §55 (v2.38, ADR-MKT-META): рекламный кабинет филиала; ключ только зашифрованным
+model MarketingAdConnection {
+  id              String                    @id @default(uuid()) @db.Uuid
+  locationId      String                    @map("location_id") @db.Uuid
+  platform        MarketingPlatform
+  adAccountId     String                    @map("ad_account_id") @db.VarChar(40)
+  accountName     String?                   @map("account_name") @db.VarChar(200)
+  currency        String                    @db.Char(3)
+  timezone        String                    @db.VarChar(64)
+  tokenCiphertext String                    @map("token_ciphertext")
+  status          MarketingConnectionStatus @default(ACTIVE)
+  lastSyncedAt    DateTime?                 @map("last_synced_at") @db.Timestamptz(6)
+  lastError       String?                   @map("last_error") @db.VarChar(500)
+  connectedById   String?                   @map("connected_by_id") @db.Uuid
+  /// §57 (v2.40): страница, Instagram и пиксель по умолчанию для мастера запуска; не ключи
+  pageId          String?                   @map("page_id") @db.VarChar(40)
+  instagramUserId String?                   @map("instagram_user_id") @db.VarChar(40)
+  pixelId         String?                   @map("pixel_id") @db.VarChar(40)
+  createdAt       DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location    Location            @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  connectedBy User?               @relation(fields: [connectedById], references: [id], onDelete: SetNull)
+  runs        MarketingSyncRun[]
+  launches    MarketingAdLaunch[]
+
+  @@unique([locationId, platform])
+  @@map("marketing_ad_connections")
+}
+
+/// §55: след каждой сверки кабинета (ADR-007)
+model MarketingSyncRun {
+  id           String    @id @default(uuid()) @db.Uuid
+  connectionId String    @map("connection_id") @db.Uuid
+  trigger      String    @db.VarChar(10)
+  since        DateTime  @db.Date
+  until        DateTime  @db.Date
+  status       String    @db.VarChar(10)
+  campaigns    Int?
+  days         Int?
+  error        String?   @db.VarChar(500)
+  startedAt    DateTime  @default(now()) @map("started_at") @db.Timestamptz(6)
+  finishedAt   DateTime? @map("finished_at") @db.Timestamptz(6)
+
+  connection MarketingAdConnection @relation(fields: [connectionId], references: [id], onDelete: Restrict)
+
+  @@index([connectionId, startedAt])
+  @@map("marketing_sync_runs")
+}
+
+enum MarketingCreativeKind {
+  IMAGE
+  VIDEO
+}
+
+enum MarketingAdGoal {
+  LEADS
+  MESSAGES
+  WEBSITE
+}
+
+enum MarketingAdDestination {
+  LEAD_FORM
+  WHATSAPP
+  MESSENGER
+  INSTAGRAM_DIRECT
+  WEBSITE
+}
+
+enum MarketingLaunchStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+/// §57 (v2.40, ADR-MKT-LAUNCH): файл креатива рекламы в закрытом хранилище; не меняется и не удаляется
+model MarketingAdCreative {
+  id          String                @id @default(uuid()) @db.Uuid
+  locationId  String                @map("location_id") @db.Uuid
+  kind        MarketingCreativeKind
+  fileName    String                @map("file_name") @db.VarChar(200)
+  mimeType    String                @map("mime_type") @db.VarChar(40)
+  storageRef  String                @unique @map("storage_ref") @db.VarChar(500)
+  byteSize    Int                   @map("byte_size")
+  width       Int?
+  height      Int?
+  durationMs  Int?                  @map("duration_ms")
+  sha256      String                @db.Char(64)
+  createdById String?               @map("created_by_id") @db.Uuid
+  createdAt   DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  location  Location            @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  createdBy User?               @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  launches  MarketingAdLaunch[]
+
+  @@unique([locationId, sha256])
+  @@map("marketing_ad_creatives")
+}
+
+/// §57: запуск кампании в кабинете (ADR-007: номера в Meta, шаги, ошибка); завершённый не меняется
+model MarketingAdLaunch {
+  id                   String                 @id @default(uuid()) @db.Uuid
+  locationId           String                 @map("location_id") @db.Uuid
+  connectionId         String                 @map("connection_id") @db.Uuid
+  requestKey           String                 @unique @map("request_key") @db.Uuid
+  source               String                 @db.VarChar(10)
+  goal                 MarketingAdGoal
+  destination          MarketingAdDestination
+  dailyBudgetMinor     BigInt                 @map("daily_budget_minor")
+  currency             String                 @db.Char(3)
+  fxRate               Decimal                @map("fx_rate") @db.Decimal(14, 6)
+  dailyBudgetBaseMinor BigInt                 @map("daily_budget_base_minor")
+  settings             Json
+  proposal             Json?
+  creativeId           String?                @map("creative_id") @db.Uuid
+  status               MarketingLaunchStatus  @default(RUNNING)
+  step                 String                 @default("MEDIA") @db.VarChar(10)
+  externalCampaignId   String?                @map("external_campaign_id") @db.VarChar(64)
+  externalAdsetId      String?                @map("external_adset_id") @db.VarChar(64)
+  externalCreativeId   String?                @map("external_creative_id") @db.VarChar(64)
+  externalAdId         String?                @map("external_ad_id") @db.VarChar(64)
+  campaignId           String?                @map("campaign_id") @db.Uuid
+  error                String?                @db.VarChar(500)
+  createdById          String?                @map("created_by_id") @db.Uuid
+  createdAt            DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  finishedAt           DateTime?              @map("finished_at") @db.Timestamptz(6)
+
+  location   Location                @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  connection MarketingAdConnection   @relation(fields: [connectionId], references: [id], onDelete: Restrict)
+  creative   MarketingAdCreative?    @relation(fields: [creativeId], references: [id], onDelete: Restrict)
+  campaign   MarketingCampaign?      @relation(fields: [campaignId], references: [id], onDelete: Restrict)
+  createdBy  User?                   @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  steps      MarketingAdLaunchStep[]
+
+  @@index([locationId, createdAt])
+  @@index([connectionId, status])
+  @@map("marketing_ad_launches")
+}
+
+/// §57: журнал шагов запуска в Meta; только дописывается
+model MarketingAdLaunchStep {
+  id         String   @id @default(uuid()) @db.Uuid
+  launchId   String   @map("launch_id") @db.Uuid
+  step       String   @db.VarChar(10)
+  attempt    Int      @db.SmallInt
+  status     String   @db.VarChar(12)
+  externalId String?  @map("external_id") @db.VarChar(64)
+  errorCode  Int?     @map("error_code")
+  error      String?  @db.VarChar(500)
+  at         DateTime @default(now()) @db.Timestamptz(6)
+
+  launch MarketingAdLaunch @relation(fields: [launchId], references: [id], onDelete: Restrict)
+
+  @@index([launchId, at])
+  @@map("marketing_ad_launch_steps")
+}
+
+/// §53: показы, клики и лиды площадки за день (вручную, позже кабинеты)
+model MarketingCampaignStat {
+  id          String   @id @default(uuid()) @db.Uuid
+  campaignId  String   @map("campaign_id") @db.Uuid
+  date        DateTime @db.Date
+  impressions Int
+  clicks      Int
+  leads       Int
+  /// §55: MANUAL ввод или день из кабинета (только для чтения на экране)
+  source        MarketingStatSource @default(MANUAL)
+  /// §55: расход кабинета в его валюте, minor units; у ручных дней пусто
+  spendMinor    BigInt?             @map("spend_minor")
+  spendCurrency String?             @map("spend_currency") @db.Char(3)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  campaign MarketingCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, date])
+  @@map("marketing_campaign_stats")
+}
+
+/// §51 (v2.35, ADR-MKT-B7): чеки и файлы расхода маркетинга; хранилище и обработка как у property_media (§32.3)
+model MarketingExpenseFile {
+  id          String   @id @default(uuid()) @db.Uuid
+  expenseId   String   @map("expense_id") @db.Uuid
+  locationId  String   @map("location_id") @db.Uuid
+  fileName    String   @map("file_name") @db.VarChar(200)
+  mimeType    String   @map("mime_type") @db.VarChar(40)
+  storageRef  String   @unique @map("storage_ref") @db.VarChar(500)
+  byteSize    Int      @map("byte_size")
+  width       Int?
+  height      Int?
+  sha256      String   @db.Char(64)
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  expense   MarketingExpense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  location  Location         @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  createdBy User?            @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([expenseId, sha256])
+  @@map("marketing_expense_files")
 }
 
 /// §41.2 (v2.24, ADR-MKT-B1): план бюджета маркетинга филиала на месяц, в валюте отчётности организации.
@@ -212,6 +473,22 @@ model MarketingBudget {
 
   @@unique([locationId, month])
   @@map("marketing_budgets")
+}
+
+/// План бюджета маркетинга по каналам: разбивка общего плана месяца (DATA_MODEL §52, ADR-MKT-B7)
+model MarketingBudgetLine {
+  id         String            @id @default(uuid()) @db.Uuid
+  locationId String            @map("location_id") @db.Uuid
+  month      DateTime          @db.Date
+  platform   MarketingPlatform
+  amount     BigInt
+  createdAt  DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@unique([locationId, month, platform])
+  @@map("marketing_budget_lines")
 }
 
 model Property {
@@ -1251,7 +1528,8 @@ model BarStockLot {
   locationId     String    @map("location_id") @db.Uuid
   propertyId     String?   @map("property_id") @db.Uuid
   productId      String    @map("product_id") @db.Uuid
-  receiptLineId  String    @unique @map("receipt_line_id") @db.Uuid
+  /// NULL только у партии излишка инвентаризации (§47)
+  receiptLineId  String?   @unique @map("receipt_line_id") @db.Uuid
   receivedUnits  BigInt    @map("received_units")
   remainingUnits BigInt    @map("remaining_units")
   unitCost       BigInt    @map("unit_cost")
@@ -1261,7 +1539,7 @@ model BarStockLot {
   property    Property?          @relation(fields: [propertyId], references: [id], onDelete: Restrict)
   location    Location           @relation(fields: [locationId], references: [id], onDelete: Restrict)
   product     BarProduct         @relation(fields: [productId], references: [id], onDelete: Restrict)
-  receiptLine BarReceiptLine     @relation(fields: [receiptLineId], references: [id], onDelete: Restrict)
+  receiptLine BarReceiptLine?    @relation(fields: [receiptLineId], references: [id], onDelete: Restrict)
   movements   BarStockMovement[]
 
   @@index([locationId, productId, receivedAt])
@@ -1302,6 +1580,8 @@ model BarSupplierPayment {
   cashOperationId           String?  @unique @map("cash_operation_id") @db.Uuid
   amount                    BigInt
   paidAt                    DateTime @map("paid_at") @db.Timestamptz(6)
+  /// ключ повтора (§50, ADR-186 M6): тот же ключ у прихода возвращает первую оплату; у прежних оплат пусто
+  idempotencyKey            String?  @map("idempotency_key") @db.VarChar(120)
   createdById               String?  @map("created_by_id") @db.Uuid
   createdAt                 DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
@@ -1309,6 +1589,7 @@ model BarSupplierPayment {
   cashOperation           CashOperation?           @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
   restaurantCashOperation RestaurantCashOperation? @relation(fields: [restaurantCashOperationId], references: [id], onDelete: Restrict)
 
+  @@unique([receiptId, idempotencyKey])
   @@index([receiptId, paidAt])
   @@map("bar_supplier_payments")
 }
@@ -2228,6 +2509,7 @@ enum UserStatus {
 /// Арендатор: одна организация — один клиент платформы (DATA_MODEL §13, ADR-046).
 /// Разделения данных объекта по организациям в срезе 13 нет: пробный период пускает в демо-объект.
 model Organization {
+  customerImports CustomerImport[]
   id                String             @id @default(uuid()) @db.Uuid
   name              String             @db.VarChar(200)
   status            OrganizationStatus @default(TRIAL)
@@ -2265,6 +2547,7 @@ model Organization {
 /// Человек. Почта в нижнем регистре — за этим следит CHECK в миграции, Prisma такого не описывает.
 /// Паролей нет намеренно (ADR-046): вход по одноразовому коду на почту.
 model User {
+  customerImports CustomerImport[]
   id              String     @id @default(uuid()) @db.Uuid
   email           String     @unique @db.VarChar(320)
   name            String?    @db.VarChar(200)
@@ -2332,6 +2615,10 @@ model User {
   siteAssetsCreated            SiteAsset[]
   propertyMedia                PropertyMedia[]
   marketingExpensesCreated     MarketingExpense[]
+  marketingExpenseFilesCreated MarketingExpenseFile[]
+  marketingAdConnectionsMade   MarketingAdConnection[]
+  marketingAdCreativesMade     MarketingAdCreative[]
+  marketingAdLaunchesMade      MarketingAdLaunch[]
   siteAiRunsRequested          SiteAiRun[]
   siteBookmarksCreated         MarketingSiteVersionBookmark[]
   siteBuilderEntitlementEdits  SiteBuilderEntitlement[]
@@ -2395,6 +2682,7 @@ model Membership {
 
   user         User         @relation(fields: [userId], references: [id])
   organization Organization @relation(fields: [organizationId], references: [id])
+  beautyPositionAssignments BeautyPositionAssignment[]
 
   @@id([userId, organizationId])
   @@index([organizationId])
@@ -2810,6 +3098,8 @@ enum EmployeeStatus {
 enum AppointmentStatus {
   BOOKED
   CONFIRMED
+  /// клиент пришёл, мастер работает (§58)
+  IN_PROGRESS
   DONE
   NO_SHOW
   CANCELLED
@@ -2821,6 +3111,13 @@ enum AppointmentSource {
   WEBSITE
 }
 
+enum EmployeeServicePriceType {
+  FIXED
+  RANGE
+  FREE
+  UNFIXED
+}
+
 /// Клиент сети: канонический на организацию (freeze-решение №2, закрыло Q-198). Гость §3 не меняется.
 /// Телефон уникален внутри организации, частичным индексом в миграции (без телефона клиентов много).
 model Customer {
@@ -2829,6 +3126,8 @@ model Customer {
   firstName      String         @map("first_name") @db.VarChar(100)
   lastName       String?        @map("last_name") @db.VarChar(100)
   phone          String?        @db.VarChar(32)
+  /// SL4-M4A: производный ключ, вычисляется DB trigger; исходный phone сохраняется.
+  phoneNormalized String?        @map("phone_normalized") @db.VarChar(16)
   email          String?        @db.VarChar(320)
   notes          String?
   status         CustomerStatus @default(ACTIVE)
@@ -2879,17 +3178,135 @@ model Employee {
   user             User?                     @relation(fields: [userId], references: [id])
   locations        EmployeeLocation[]
   services         EmployeeService[]
+  servicePrices    EmployeeServicePrice[]
   workingHours     WorkingHours[]
   timeOffs         TimeOff[]
   appointments     Appointment[]
+  appointmentLines AppointmentLine[]
+  beautyReviews    BeautyAppointmentReview[]
   restaurantOrders RestaurantOrder[]
   paySetting       EmployeePaySetting?
   payAdjustments   EmployeePayAdjustment[]
   cashPayouts      RestaurantCashOperation[]
   guestRatings     RestaurantOrderRating[]
+  publicProfile    EmployeePublicProfile?
+  portalMedia      EmployeeMedia[]
+  portfolio        EmployeePortfolioItem[]
 
   @@index([businessId])
   @@map("employees")
+}
+
+// Additive portal models, prepared migration128. Production application requires the owner-admin release step.
+model EmployeePublicProfile {
+  employeeId String @id @map("employee_id") @db.Uuid
+  slug String @unique @db.VarChar(200)
+  headline String @default("") @db.VarChar(200)
+  biography String @default("") @db.VarChar(5000)
+  practiceSinceYear Int? @map("practice_since_year")
+  published Boolean @default(false)
+  publicationConsent Boolean @default(false) @map("publication_consent")
+  revision Int @default(1)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  @@map("employee_public_profiles")
+}
+
+model EmployeeMedia {
+  id String @id @default(uuid()) @db.Uuid
+  employeeId String @map("employee_id") @db.Uuid
+  kind String @db.VarChar(20)
+  storageRef String @unique @map("storage_ref")
+  mimeType String @map("mime_type") @db.VarChar(100)
+  width Int
+  height Int
+  byteSize Int @map("byte_size")
+  sha256 String @db.Char(64)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  work EmployeePortfolioItem?
+  @@index([employeeId, kind])
+  @@map("employee_media")
+}
+
+model EmployeePortfolioItem {
+  id String @id @default(uuid()) @db.Uuid
+  employeeId String @map("employee_id") @db.Uuid
+  mediaId String @unique @map("media_id") @db.Uuid
+  title String @db.VarChar(200)
+  description String @default("") @db.VarChar(2000)
+  serviceId String? @map("service_id") @db.Uuid
+  published Boolean @default(false)
+  publicationConsent Boolean @default(false) @map("publication_consent")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  media EmployeeMedia @relation(fields: [mediaId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  service BeautyService? @relation(fields: [serviceId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  @@index([employeeId])
+  @@map("employee_portfolio_items")
+}
+
+model BeautyPayrollPolicy {
+  businessId String @id @map("business_id") @db.Uuid
+  percentBasis String @map("percent_basis") @db.VarChar(40)
+  revision Int @default(1)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  @@map("beauty_payroll_policies")
+}
+
+/// BEAUTY-ACCESS-20261018: редактируемая должность салонного бизнеса. Название само по себе прав не даёт.
+model BeautyPosition {
+  id         String    @id @default(uuid()) @db.Uuid
+  businessId String    @map("business_id") @db.Uuid
+  name       String    @db.VarChar(100)
+  revision   Int       @default(1)
+  archivedAt DateTime? @map("archived_at") @db.Timestamptz(6)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  business    Business                     @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  permissions BeautyPositionPermission[]
+  assignments BeautyPositionAssignment[]
+
+  @@unique([businessId, name])
+  @@index([businessId, archivedAt])
+  @@map("beauty_positions")
+}
+
+/// Явное право должности. Допустимые сочетания раздела, действия и области дополнительно ограничены SQL CHECK.
+model BeautyPositionPermission {
+  positionId String @map("position_id") @db.Uuid
+  section    String @db.VarChar(20)
+  action     String @db.VarChar(10)
+  scope      String @db.VarChar(8)
+
+  position BeautyPosition @relation(fields: [positionId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@id([positionId, section, action])
+  @@map("beauty_position_permissions")
+}
+
+/// Назначение должности членству. Отзыв сохраняет строку, чтобы старая роль не вернула широкий доступ.
+model BeautyPositionAssignment {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  organizationId String    @map("organization_id") @db.Uuid
+  businessId     String    @map("business_id") @db.Uuid
+  positionId     String    @map("position_id") @db.Uuid
+  locationId     String?   @map("location_id") @db.Uuid
+  revision       Int       @default(1)
+  revokedAt      DateTime? @map("revoked_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  membership Membership     @relation(fields: [userId, organizationId], references: [userId, organizationId], map: "beauty_position_assignments_membership_fkey", onDelete: Restrict, onUpdate: NoAction)
+  business   Business       @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  position   BeautyPosition @relation(fields: [positionId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  location   Location?      @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([organizationId, userId])
+  @@index([businessId, locationId])
+  @@index([positionId])
+  @@map("beauty_position_assignments")
 }
 
 /// Один мастер работает в нескольких салонах. Филиал своего бизнеса, проверяет триггер
@@ -2923,7 +3340,12 @@ model BeautyService {
   business     Business          @relation(fields: [businessId], references: [id])
   locations    LocationService[]
   employees    EmployeeService[]
+  employeePrices EmployeeServicePrice[]
   appointments Appointment[]
+  appointmentLines AppointmentLine[]
+  materials        BeautyServiceMaterial[]
+  materialRevision BeautyServiceMaterialRevision?
+  portfolioItems EmployeePortfolioItem[]
 
   @@index([businessId])
   @@map("beauty_services")
@@ -2959,6 +3381,55 @@ model EmployeeService {
   @@id([employeeId, serviceId])
   @@index([serviceId])
   @@map("employee_services")
+}
+
+/// BEAUTY-ZAPIS-20261017 E2: цена и длительность конкретного мастера для услуги в филиале.
+model EmployeeServicePrice {
+  employeeId      String                   @map("employee_id") @db.Uuid
+  serviceId       String                   @map("service_id") @db.Uuid
+  locationId      String                   @map("location_id") @db.Uuid
+  priceType       EmployeeServicePriceType @map("price_type")
+  priceMinMinor   BigInt?                  @map("price_min_minor")
+  priceMaxMinor   BigInt?                  @map("price_max_minor")
+  durationMinutes Int?                     @map("duration_minutes")
+  currency        String                   @db.VarChar(3)
+  revision        Int                      @default(1)
+  createdAt       DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime                 @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  employee Employee      @relation(fields: [employeeId], references: [id], map: "employee_service_prices_employee_fkey", onDelete: Restrict)
+  service  BeautyService @relation(fields: [serviceId], references: [id], map: "employee_service_prices_service_fkey", onDelete: Restrict)
+  location Location      @relation(fields: [locationId], references: [id], map: "employee_service_prices_location_fkey", onDelete: Restrict)
+
+  @@id([employeeId, serviceId, locationId])
+  @@index([locationId, serviceId], map: "employee_service_prices_location_service_idx")
+  @@map("employee_service_prices")
+}
+
+/// BEAUTY-MATERIALS-20261018: норма складского материала на одну услугу.
+model BeautyServiceMaterial {
+  serviceId String  @map("service_id") @db.Uuid
+  productId String  @map("product_id") @db.Uuid
+  normQty   Decimal @map("norm_qty") @db.Decimal(14, 3)
+  unit      String  @db.VarChar(8)
+
+  service BeautyService  @relation(fields: [serviceId], references: [id], map: "beauty_service_materials_service_fkey", onDelete: Restrict, onUpdate: NoAction)
+  product KitchenProduct @relation(fields: [productId], references: [id], map: "beauty_service_materials_product_fkey", onDelete: Restrict, onUpdate: NoAction)
+
+  @@id([serviceId, productId])
+  @@index([productId], map: "beauty_service_materials_product_idx")
+  @@map("beauty_service_materials")
+}
+
+/// Optimistic revision состава техкарты, включая пустой состав.
+model BeautyServiceMaterialRevision {
+  serviceId String   @id @map("service_id") @db.Uuid
+  revision  Int      @default(1)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  service BeautyService @relation(fields: [serviceId], references: [id], map: "beauty_service_material_revisions_service_fkey", onDelete: Restrict, onUpdate: NoAction)
+
+  @@map("beauty_service_material_revisions")
 }
 
 /// График мастера всегда в контексте филиала (в каком салоне он стоит в этот день).
@@ -3025,12 +3496,73 @@ model Appointment {
   employee  Employee      @relation(fields: [employeeId], references: [id])
   service   BeautyService @relation(fields: [serviceId], references: [id])
   createdBy User?         @relation(fields: [createdById], references: [id])
+  payments  RestaurantCashOperation[]
+  lines     AppointmentLine[]
+  reviews   BeautyAppointmentReview[]
+  reviewInvitation BeautyReviewInvitation?
 
   @@unique([locationId, creationKey])
   @@index([locationId, startsAt])
   @@index([employeeId, startsAt])
   @@index([customerId])
   @@map("appointments")
+}
+
+/// BEAUTY-ZAPIS-20261017 A1/A2/A3: последовательная услуга внутри визита.
+model AppointmentLine {
+  id              String   @id @default(uuid()) @db.Uuid
+  appointmentId   String   @map("appointment_id") @db.Uuid
+  position        Int
+  serviceId       String   @map("service_id") @db.Uuid
+  employeeId      String   @map("employee_id") @db.Uuid
+  startsAt        DateTime @map("starts_at") @db.Timestamptz(6)
+  endsAt          DateTime @map("ends_at") @db.Timestamptz(6)
+  basePriceMinor  BigInt   @map("base_price_minor")
+  discountMinor   BigInt   @default(0) @map("discount_minor")
+  surchargeMinor  BigInt   @default(0) @map("surcharge_minor")
+  priceMinor      BigInt   @map("price_minor")
+  currency        String   @db.VarChar(3)
+  discountPercent Int?     @map("discount_percent")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  appointment Appointment  @relation(fields: [appointmentId], references: [id], map: "appointment_lines_appointment_fkey", onDelete: Restrict)
+  service     BeautyService @relation(fields: [serviceId], references: [id], map: "appointment_lines_service_fkey", onDelete: Restrict)
+  employee    Employee      @relation(fields: [employeeId], references: [id], map: "appointment_lines_employee_fkey", onDelete: Restrict)
+  stockMovements KitchenStockMovement[]
+
+  @@unique([appointmentId, position], map: "appointment_lines_appointment_position_key")
+  @@index([employeeId, startsAt], map: "appointment_lines_employee_starts_idx")
+  @@index([serviceId], map: "appointment_lines_service_idx")
+  @@map("appointment_lines")
+}
+
+/// BEAUTY-REVIEWS-20261018: один неизменяемый отзыв мастеру за выполненный визит.
+model BeautyAppointmentReview {
+  appointmentId String   @map("appointment_id") @db.Uuid
+  employeeId    String   @map("employee_id") @db.Uuid
+  stars         Int      @db.SmallInt
+  comment       String?
+  submittedAt   DateTime @default(now()) @map("submitted_at") @db.Timestamptz(6)
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], map: "beauty_appointment_reviews_appointment_fkey", onDelete: Restrict, onUpdate: NoAction)
+  employee    Employee    @relation(fields: [employeeId], references: [id], map: "beauty_appointment_reviews_employee_fkey", onDelete: Restrict, onUpdate: NoAction)
+
+  @@id([appointmentId, employeeId])
+  @@index([employeeId, submittedAt], map: "beauty_appointment_reviews_employee_submitted_idx")
+  @@map("beauty_appointment_reviews")
+}
+
+/// Одно приглашение на отзыв для визита. Срок задаёт будущий узкий writer, без неявного default.
+model BeautyReviewInvitation {
+  appointmentId String    @id @map("appointment_id") @db.Uuid
+  tokenHash     String    @unique @map("token_hash") @db.Char(64)
+  expiresAt     DateTime  @map("expires_at") @db.Timestamptz(6)
+  submittedAt   DateTime? @map("submitted_at") @db.Timestamptz(6)
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], map: "beauty_review_invitations_appointment_fkey", onDelete: Restrict, onUpdate: NoAction)
+
+  @@map("beauty_review_invitations")
 }
 
 /// MV3 server resume, approved 04.10.2026. Vertical is derived from Location.Business.
@@ -3302,6 +3834,8 @@ model RestaurantOrder {
   createdBy            User?                  @relation(fields: [createdById], references: [id])
   items                RestaurantOrderItem[]
   payments             RestaurantPayment[]
+  /// возвраты после закрытия (§56)
+  refunds              RestaurantCashOperation[]
   stockMovements       KitchenStockMovement[]
   rating               RestaurantOrderRating?
 
@@ -3393,6 +3927,7 @@ model KitchenProduct {
   lots         KitchenStockLot[]
   movements    KitchenStockMovement[]
   techCardRows MenuItemIngredient[]
+  beautyMaterials BeautyServiceMaterial[]
 
   @@unique([businessId, name])
   @@map("kitchen_products")
@@ -3436,6 +3971,7 @@ model KitchenStockMovement {
   reason      String?             @db.VarChar(500)
   /// §38: заказ, по которому списано или возвращено
   orderId     String?             @map("order_id") @db.Uuid
+  appointmentLineId String?       @map("appointment_line_id") @db.Uuid
   createdById String?             @map("created_by_id") @db.Uuid
   createdAt   DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
 
@@ -3443,10 +3979,12 @@ model KitchenStockMovement {
   product   KitchenProduct   @relation(fields: [productId], references: [id])
   lot       KitchenStockLot? @relation(fields: [lotId], references: [id])
   order     RestaurantOrder? @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  appointmentLine AppointmentLine? @relation(fields: [appointmentLineId], references: [id], map: "kitchen_stock_movements_appointment_line_fkey", onDelete: Restrict, onUpdate: NoAction)
   createdBy User?            @relation(fields: [createdById], references: [id])
 
   @@index([locationId, createdAt])
   @@index([orderId])
+  @@index([appointmentLineId], map: "kitchen_stock_movements_appointment_line_idx")
   @@index([productId])
   @@index([lotId])
   @@map("kitchen_stock_movements")
@@ -3503,16 +4041,27 @@ model RestaurantCashOperation {
   voidedAt    DateTime?         @map("voided_at") @db.Timestamptz(6)
   voidedById  String?           @map("voided_by_id") @db.Uuid
   createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  /// оплата записи салона (§49): только приход без сотрудника
+  appointmentId  String?        @map("appointment_id") @db.Uuid
+  /// повтор того же нажатия оплаты записи (§49)
+  idempotencyKey String?        @map("idempotency_key") @db.VarChar(100)
+  /// возврат по закрытому заказу ресторана (§56): только расход
+  orderId        String?        @map("order_id") @db.Uuid
 
   location           Location            @relation(fields: [locationId], references: [id])
   employee           Employee?           @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  appointment        Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
+  order              RestaurantOrder?    @relation(fields: [orderId], references: [id], onDelete: Restrict)
   createdBy          User?               @relation("RestaurantCashOpCreatedBy", fields: [createdById], references: [id])
   barSale            BarSale?
   barSupplierPayment BarSupplierPayment?
   voidedBy           User?               @relation("RestaurantCashOpVoidedBy", fields: [voidedById], references: [id])
 
   @@index([locationId, occurredAt])
+  @@unique([locationId, idempotencyKey])
   @@index([employeeId, period])
+  @@index([appointmentId])
+  @@index([orderId])
   @@map("restaurant_cash_operations")
 }
 
@@ -3612,4 +4161,76 @@ enum SiteLeadStatus {
   IN_PROGRESS
   DONE
   SPAM
+}
+
+/// BEAUTY-LOCATION-HOURS-20261018, owner-approved salon hours, prepared release137 (not production-applied).
+model BeautyLocationHours {
+  locationId String @id @map("location_id") @db.Uuid
+  intervals Json
+  revision Int @default(1)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  @@map("beauty_location_hours")
+}
+
+/// SL4-M4B2: durable import journal, owner-only API, 30 day contents TTL.
+model CustomerImport {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String   @map("organization_id") @db.Uuid
+  businessId        String   @map("business_id") @db.Uuid
+  createdBy         String   @map("created_by") @db.Uuid
+  clientRequestId   String   @map("client_request_id") @db.Uuid
+  requestDigest     String   @map("request_digest") @db.VarChar(64)
+  state             String   @default("UPLOADING") @db.VarChar(16)
+  totalRows         Int      @map("total_rows")
+  uploadedRows      Int      @default(0) @map("uploaded_rows")
+  processedRows     Int      @default(0) @map("processed_rows")
+  createdCount      Int      @default(0) @map("created_count")
+  linkedCount       Int      @default(0) @map("linked_count")
+  unchangedCount    Int      @default(0) @map("unchanged_count")
+  skippedCount      Int      @default(0) @map("skipped_count")
+  uploadReceipts    Json     @default("{}") @map("upload_receipts")
+  leaseToken        String?  @map("lease_token") @db.Uuid
+  leaseExpiresAt    DateTime? @map("lease_expires_at") @db.Timestamptz(6)
+  attempts          Int      @default(0)
+  nextAttemptAt     DateTime @default(now()) @map("next_attempt_at") @db.Timestamptz(6)
+  errorCode         String?  @map("error_code") @db.VarChar(64)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  completedAt       DateTime? @map("completed_at") @db.Timestamptz(6)
+  undoDeadline      DateTime? @map("undo_deadline") @db.Timestamptz(6)
+  contentsExpireAt  DateTime @map("contents_expire_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  actor User @relation(fields: [createdBy], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  rows CustomerImportRow[]
+
+  @@unique([organizationId, clientRequestId])
+  @@unique([id, organizationId])
+  @@index([state, nextAttemptAt, leaseExpiresAt])
+  @@index([organizationId, businessId, createdAt])
+  @@map("customer_imports")
+}
+
+model CustomerImportRow {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String   @map("organization_id") @db.Uuid
+  importId         String   @map("import_id") @db.Uuid
+  ordinal          Int
+  sourceLine       Int      @map("source_line")
+  input            Json?
+  outcome          String   @default("PENDING") @db.VarChar(16)
+  errorCode        String?  @map("error_code") @db.VarChar(64)
+  customerId       String?  @map("customer_id") @db.Uuid
+  customerBaseline Json?    @map("customer_baseline")
+  linkBaseline     DateTime? @map("link_baseline") @db.Timestamptz(6)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  run CustomerImport @relation(fields: [importId, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: NoAction, map: "customer_import_rows_tenant_fkey")
+
+  @@unique([importId, ordinal])
+  @@index([organizationId])
+  @@index([customerId])
+  @@map("customer_import_rows")
 }

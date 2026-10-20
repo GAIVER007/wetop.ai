@@ -1,0 +1,198 @@
+# Модульные (unit) · 16.10.2026 19:56 Алматы · <сервер>
+# коммит 4cf28b7 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 167
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T14-56-37Z-unit-7356.json' 'apps/api/src/finance/owner-money.test.ts' 'apps/api/src/finance/owner-summary.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯  unit  apps/api/src/finance/owner-money.test.ts (3 tests | 1 failed) 94ms
+   ❯ owner source adapters (3)
+     ✓ keeps CLOSED order revenue, bar sales and payments distinct; no cash duplicate 52ms
+     × beauty DONE snapshots are revenue, not payments 34ms
+     ✓ hotel uses verified property, service dates and payment dates, with unknown cash explicit 3ms
+ ❯  unit  apps/api/src/finance/owner-summary.test.ts (11 tests | 5 failed) 203ms
+   ❯ owner summary real cash source (11)
+     × held settlement guard rejects structurally linked customer refunds 41ms
+     × excludes both refund links and VOIDED expenses for BEAUTY, current and previous 13ms
+     × excludes both refund links and VOIDED expenses for FOOD_SERVICE, current and previous 6ms
+     × beauty gross ledger keeps currencies and local daily/current/previous cutoffs without refund netting 28ms
+     ✓ feature off never queries absent held tables 5ms
+     ✓ joins hotel source identity without inventing historical currency 3ms
+     ✓ requires a signed-in verified location and never selects the first branch 4ms
+     × reads only completed branch expense cash within local period, with no budget/receipt addition 51ms
+     ✓ refuses foreign scope and invalid periods before cash reads 4ms
+     ✓ does not silently use present property currency for historical hospitality cash 30ms
+     ✓ enforces report permission inside the service 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   unit  apps/api/src/finance/owner-money.test.ts > owner source adapters > beauty DONE snapshots are revenue, not payments
+AssertionError: expected null to deeply equal [ { currency: 'USD', …(1) } ]
+
+- Expected:
+[
+  {
+    "amountMinor": "20",
+    "currency": "USD",
+  },
+]
+
++ Received:
+null
+
+ ❯ apps/api/src/finance/owner-money.test.ts:18:33
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL   unit  apps/api/src/finance/owner-summary.test.ts > owner summary real cash source > held settlement guard rejects structurally linked customer refunds
+AssertionError: expected ' RETURNS trigger LANGUAGE plpgsql AS …' to match /appointment_id IS NOT NULL OR order_i…/
+
+- Expected:
+/appointment_id IS NOT NULL OR order_id IS NOT NULL/
+
++ Received:
+" RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE d record; c record; supplier uuid;
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'settlement history immutable'; END IF;
+ -- NO KEY UPDATE serializes intents but remains compatible with relocation's location FK KEY SHARE.
+ PERFORM 1 FROM locations WHERE id=NEW.location_id FOR NO KEY UPDATE;
+ SELECT * INTO d FROM expense_documents WHERE id=NEW.expense_document_id FOR UPDATE;
+ IF d.id IS NULL OR d.location_id<>NEW.location_id OR d.state<>'ACTIVE' THEN RAISE EXCEPTION 'expense not active in scope'; END IF;
+ IF NEW.cash_operation_id IS NOT NULL THEN
+ -- Freeze Property scope before taking cash locks; old cash inserts only take compatible FK KEY SHARE.
+ PERFORM p.id FROM properties p JOIN cash_operations hc ON hc.property_id=p.id WHERE hc.id=NEW.cash_operation_id FOR SHARE OF p;
+ SELECT hc.amount,hc.kind,hc.status,hc.currency_snapshot AS currency,p.location_id INTO c FROM cash_operations hc JOIN properties p ON p.id=hc.property_id WHERE hc.id=NEW.cash_operation_id FOR UPDATE OF hc;
+ ELSE
+ SELECT amount,kind,status,currency,location_id INTO c FROM restaurant_cash_operations WHERE id=NEW.restaurant_cash_operation_id FOR UPDATE;
+ END IF;
+ IF c.amount IS NULL OR c.location_id IS DISTINCT FROM d.location_id OR c.currency IS DISTINCT FROM d.currency OR c.kind<>'EXPENSE' THEN RAISE EXCEPTION 'invalid canonical expense source'; END IF;
+ SELECT receipt_id INTO supplier FROM bar_supplier_payments WHERE amount=c.amount AND
+ ((NEW.cash_operation_id IS NOT NULL AND cash_operation_id=NEW.cash_operation_id) OR
+ (NEW.restaurant_cash_operation_id IS NOT NULL AND restaurant_cash_operation_id=NEW.restaurant_cash_operation_id));
+ IF c.status<>'COMPLETED' AND NOT(c.status='VOIDED' AND supplier IS NOT NULL AND supplier=d.supplier_receipt_id) THEN RAISE EXCEPTION 'invalid canonical expense source'; END IF;
+ IF supplier IS DISTINCT FROM d.supplier_receipt_id THEN RAISE EXCEPTION 'supplier payment required for this receipt'; END IF;
+ IF c.status='COMPLETED' AND expense_paid_minor(d.id)+c.amount>d.amount_minor THEN RAISE EXCEPTION 'expense overpayment'; END IF;
+ RETURN NEW;
+END $$;
+"
+
+ ❯ apps/api/src/finance/owner-summary.test.ts:15:19
+     13|     const sql = readFileSync('packages/database/prisma/migrations-hold…
+     14|     const guard = sql.split('CREATE FUNCTION expense_settlement_guard(…
+     15|     expect(guard).toMatch(/appointment_id IS NOT NULL OR order_id IS N…
+       |                   ^
+     16|     expect(guard).toMatch(/RAISE EXCEPTION 'customer refund is not an …
+     17|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL   unit  apps/api/src/finance/owner-summary.test.ts > owner summary real cash source > excludes both refund links and VOIDED expenses for BEAUTY, current and previous
+ FAIL   unit  apps/api/src/finance/owner-summary.test.ts > owner summary real cash source > excludes both refund links and VOIDED expenses for FOOD_SERVICE, current and previous
+AssertionError: expected '57' to be '40' // Object.is equality
+
+Expected: "40"
+Received: "57"
+
+ ❯ apps/api/src/finance/owner-summary.test.ts:30:68
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL   unit  apps/api/src/finance/owner-summary.test.ts > owner summary real cash source > beauty gross ledger keeps currencies and local daily/current/previous cutoffs without refund netting
+AssertionError: expected null to deeply equal [ { currency: 'KZT', …(1) }, …(1) ]
+
+- Expected:
+[
+  {
+    "amountMinor": "30",
+    "currency": "KZT",
+  },
+  {
+    "amountMinor": "20",
+    "currency": "USD",
+  },
+]
+
++ Received:
+null
+
+ ❯ apps/api/src/finance/owner-summary.test.ts:50:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL   unit  apps/api/src/finance/owner-summary.test.ts > owner summary real cash source > reads only completed branch expense cash within local period, with no budget/receipt addition
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+-   ObjectContaining {
++   {
++     "select": {
++       "amount": true,
++       "currency": true,
++       "id": true,
++       "occurredAt": true,
++     },
+      "where": {
+-       "appointmentId": null,
+        "kind": "EXPENSE",
+        "locationId": "branch",
+        "occurredAt": {
+          "gte": 2026-10-09T19:00:00.000Z,
+          "lte": 2026-10-16T03:00:00.000Z,
+        },
+-       "orderId": null,
+        "status": "COMPLETED",
+      },
+    },
+  ]
+
+  2nd vi.fn() call:
+
+  [
+-   ObjectContaining {
++   {
++     "select": {
++       "amount": true,
++       "currency": true,
++       "id": true,
++       "occurredAt": true,
++     },
+      "where": {
+-       "appointmentId": null,
+        "kind": "EXPENSE",
+        "locationId": "branch",
+        "occurredAt": {
+-         "gte": 2026-10-09T19:00:00.000Z,
+-         "lte": 2026-10-16T03:00:00.000Z,
++         "gte": 2026-10-02T19:00:00.000Z,
++         "lte": 2026-10-09T03:00:00.000Z,
+        },
+-       "orderId": null,
+        "status": "COMPLETED",
+      },
+    },
+  ]
+
+
+Number of calls: 2
+
+ ❯ apps/api/src/finance/owner-summary.test.ts:91:49
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  6 failed | 8 passed (14)
+   Start at  14:56:47
+   Duration  14.55s (transform 70%, import 27%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-16T14-56-37Z-unit-7356.json
+
+# код выхода 1 · 26 с

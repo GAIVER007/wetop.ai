@@ -1,4 +1,4 @@
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import { FoodCustomers } from '../food/customers';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
@@ -6,21 +6,46 @@ import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { beautyApi } from '../../lib/api';
 import { BeautyCustomersTable } from './beauty-table';
+import { deskShell } from '../../lib/desk-shell';
+import { mayBeautyAccess } from '../../lib/navigation';
+import { BeautyCustomerTools } from './customer-tools';
+import { ImportCustomers } from './import-customers';
 import '../beauty/beauty.css';
 
 /** Клиенты салона по макету ТЗ (09.10.2026): сегменты, визиты и средний чек считает API по DONE */
 export default async function CustomersPage() {
-  const me = await requireVertical(['BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireFeature('/customers');
   if (me.context?.vertical === 'FOOD_SERVICE') return <FoodCustomers />;
   try {
-    const { items } = await beautyApi.customers();
+    const [{ items }, shell] = await Promise.all([beautyApi.customers(), deskShell()]);
+    const canCreate = !shell.readOnly
+      && mayBeautyAccess(shell.access, 'customers', 'create', { legacy: 'desk' });
+    const canUpdate = !shell.readOnly
+      && mayBeautyAccess(shell.access, 'customers', 'update', { legacy: 'desk' });
+    const canImport = canCreate && shell.access.role === 'OWNER';
     return (
       <Page
         className="beauty-page"
         title="Клиенты"
-        subtitle="Клиенты этого бизнеса. Новый клиент добавляется при создании записи."
+        subtitle="Клиенты этого бизнеса, их визиты и средний чек."
       >
-        <BeautyCustomersTable items={items} />
+        <BeautyCustomerTools
+          canEdit={canCreate}
+          canImport={canImport}
+          scopeKey={shell.scopeKey ?? ''}
+          showCreate={false}
+          importHistory={canCreate ? (
+            <ImportCustomers businessId={me.context?.businessId ?? ''} canImport={canImport} />
+          ) : undefined}
+        />
+        <BeautyCustomersTable
+          key={me.context?.businessId}
+          items={items}
+          businessId={me.context?.businessId ?? ''}
+          canCreate={canCreate}
+          canEdit={canUpdate}
+          scopeKey={shell.scopeKey ?? ''}
+        />
       </Page>
     );
   } catch (error) {

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
-import { requireVertical } from '../../../../lib/vertical-guard';
+import { requireFeature } from '../../../../lib/vertical-guard';
 import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
 import { Alert } from '../../../../components/ui';
@@ -24,6 +24,7 @@ import { SiteEditor } from './editor';
 import { CreateSite } from './create-site';
 import { SimpleSiteEditor } from './simple-editor';
 import { SimpleSiteSetup } from './simple-setup';
+import { publishTarget } from './vertical-status';
 import '../../marketing.css';
 
 /**
@@ -58,7 +59,7 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
   const params = await searchParams;
   const full = params?.full === '1';
   const chat = params?.chat === '1';
-  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireFeature('/marketing/site/editor');
   const vertical: WebVertical = me.context?.vertical ?? 'HOSPITALITY';
   const locationId = me.context?.locationId ?? null;
   const shell = await deskShell();
@@ -174,6 +175,7 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
           facts={facts.ok ? facts.data : null}
           assets={loaded.assets}
           readOnly={readOnly}
+          publish={publishTarget(vertical)}
         />
       </Page>
     );
@@ -220,6 +222,7 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
         categories={loaded.brief?.input.accommodations.map((a) => ({ code: a.categoryCode, name: a.name })) ?? []}
         assets={loaded.assets}
         readOnly={readOnly}
+        publish={publishTarget(vertical)}
       />
     </Page>
   );

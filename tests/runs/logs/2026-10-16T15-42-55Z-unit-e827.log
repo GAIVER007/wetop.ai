@@ -1,0 +1,31 @@
+# Модульные (unit) · 16.10.2026 20:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит dd44824 (claude/marketing-meta-writer), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-42-55Z-unit-e827.json' 'packages/integrations/src/meta/writer.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| packages/integrations/src/meta/writer.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/integrations/src/meta/writer.test.ts [ packages/integrations/src/meta/writer.test.ts ]
+Error: Cannot find module './writer' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/packages/integrations/src/meta/writer.test.ts
+ ❯ packages/integrations/src/meta/writer.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { MetaApiError } from './client';
+      3| import { MetaAdsWriter, metaBudgetUnits } from './writer';
+       | ^
+      4|
+      5| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  08:42:57
+   Duration  98ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-42-55Z-unit-e827.json
+
+# код выхода 1 · 2 с

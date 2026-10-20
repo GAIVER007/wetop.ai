@@ -1,6 +1,13 @@
 'use client';
 import { useEffect, useRef, type ReactNode } from 'react';
-export function SaleDisclosure({ children }: { children: ReactNode }) {
+/** Подпись по направлению (ADR-178): «в счёт гостя» есть только у гостиницы */
+export function SaleDisclosure({
+  children,
+  label,
+}: {
+  children: ReactNode;
+  label?: string | undefined;
+}) {
   const ref = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     const sync = () => {
@@ -12,7 +19,7 @@ export function SaleDisclosure({ children }: { children: ReactNode }) {
   }, []);
   return (
     <details ref={ref} className="bar-details bar-sale-disclosure" id="bar-quick-sale">
-      <summary>Продажа напрямую или в счёт гостя</summary>
+      <summary>{label ?? 'Продажа напрямую или в счёт гостя'}</summary>
       {children}
     </details>
   );

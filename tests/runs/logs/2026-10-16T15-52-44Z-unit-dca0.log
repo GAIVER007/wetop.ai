@@ -1,0 +1,128 @@
+# Модульные (unit) · 16.10.2026 20:52 Алматы · <сервер>
+# коммит 4cf28b7 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 176
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T15-52-44Z-unit-dca0.json' '--shard=5/8' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓  unit  tests/unit/repo-sync.test.ts (25 tests) 12998ms
+   ✓ repo-sync.sh: связь папки с репозиторием (18)
+     ✓ проверка: называет remote, отставание от origin/main, службы в другой папке; код выхода 1 438ms
+     ✓ --pull подтягивает origin/main только fast-forward и потом отставания нет 393ms
+     ✓ --pull не трогает дерево с незакоммиченными правками 373ms
+     ✓ --pull с локальными коммитами не сливает, а просит отправить их 352ms
+     ✓ --relink переводит службы launchd на эту папку через uninstall.sh + install.sh 961ms
+     ✓ --from переносит то, чего нет в git (.env, выгрузки), и не перезаписывает существующее 498ms
+     ✓ без .env говорит, что его нет, но содержимое не читает и не печатает 329ms
+     ✓ при постоянном адресе быстрый туннель не переустанавливается, а снимается; нужен domain 759ms
+     ✓ быстрый туннель не переустанавливается ни на какой машине: без wetop.yml тоже снимается 1078ms
+     ✓ esbuild не той платформы: API и скрипты падали бы на старте — просит npm ci 360ms
+     ✓ --fix при битом esbuild: npm ci, клиент Prisma и перезапуск API — сам, без диктовки команд 698ms
+     ✓ webhook Channex не на постоянном адресе: проверка называет, --fix перерегистрирует 669ms
+     ✓ next-env.d.ts переписан сборкой — это не работа для человека, а строка «сборка» 488ms
+   ✓ repo-sync.sh: папка бота, перенесённая внутрь рабочей (7)
+     ✓ находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает 500ms
+     ✓ --archive-nested переносит папку целиком в архив рядом: .env и заметки с ней, рабочая чистая 451ms
+     ✓ копия с неотправленной работой остаётся на месте: названы коммиты и правки, команда отправки 555ms
+     ✓ чужой репозиторий внутри папки назван, но не переносится 446ms
+     ✓ рабочие копии сессий и node_modules копиями не считаются 494ms
+     ✓ файлы из старой папки поверх apps/ai-seller названы; --fix возвращает версию main и подтягивает 829ms
+     ✓ настоящая правка в apps/ai-seller копией не считается, и --fix её не трогает 940ms
+ ✓  unit  apps/api/src/auth/auth.service.test.ts (62 tests) 8731ms
+   ✓ AuthService.login (14)
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 475ms
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 403ms
+     ✓ одновременные неверные попытки считаются все, а не как одна (аудит 26.09, С-6) 390ms
+     ✓ попытка, ждавшая в очереди, пока учётку заперли, уже не входит — даже с верным паролем 308ms
+     ✓ пачка ошибок на истёкшем замке запирает снова, а не сбрасывает счёт каждой попыткой 391ms
+   ✓ AuthService.whoami (9)
+     ✓ вход приостановленного закрыт с причиной словами, а не общим «неверный пароль» 348ms
+   ✓ AuthService.changePassword (4)
+     ✓ верный текущий пароль меняет пароль и гасит остальные сессии 496ms
+ ✓  unit  apps/web/src/app/team/session-navigation-a27.test.ts (2 tests) 3361ms
+   ✓ team navigation preserves the common session redirect 1983ms
+   ✓ a non-session API failure retains the existing safe team fallback 1375ms
+ ✓  unit  apps/api/src/units/units.controller.test.ts (6 tests) 594ms
+ ✓  unit  apps/api/src/guests/guests.controller.test.ts (19 tests) 766ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓  unit  apps/api/src/web-booking/web-booking.controller.test.ts (41 tests) 1940ms
+ ✓  unit  apps/api/src/marketing-site/asset-image.test.ts (9 tests) 752ms
+   ✓ MKT8: обработка изображения сайта (9)
+     ✓ картинка: длинная сторона до 2400 без увеличения; логотип до 1600 с прозрачностью 524ms
+ ✓  unit  apps/api/src/wizard/wizard-generate.controller.test.ts (1 test) 227ms
+ ✓  unit  apps/api/src/inventory/inventory.controller.test.ts (6 tests) 228ms
+ ✓  unit  apps/web/src/app/today/owner-daily-chart.test.ts (6 tests) 53ms
+ ✓  unit  tests/unit/shift-check-wrapper.test.ts (4 tests) 133ms
+ ✓  unit  scripts/ops/watch/watch-logic.test.ts (8 tests) 110ms
+ ✓  unit  packages/domain/src/rates/discounts.test.ts (16 tests) 17ms
+ ✓  unit  packages/integrations/src/meta/auth.test.ts (6 tests) 37ms
+ ✓  unit  apps/web/src/lib/integrations.test.ts (18 tests) 10ms
+ ✓  unit  apps/web/src/app/management/analytics/vertical/metrics.test.ts (5 tests) 29ms
+ ✓  unit  apps/api/src/auth/scope.test.ts (12 tests) 9ms
+ ✓  unit  apps/web/src/app/reservations/actions.test.ts (8 tests) 43ms
+ ✓  unit  scripts/market/collect.test.ts (9 tests) 67ms
+ ✓  unit  packages/domain/src/finance/finance.test.ts (26 tests) 16ms
+ ✓  unit  apps/web/src/app/today/vertical-load.test.ts (6 tests) 41ms
+ ✓  unit  packages/domain/src/guests/citizenship.test.ts (3 tests) 5ms
+ ✓  unit  packages/database/src/rls-startup.test.ts (10 tests) 15ms
+ ✓  unit  apps/api/src/hotel/branches.test.ts (13 tests) 21ms
+ ✓  unit  apps/api/src/database/property-ref.test.ts (21 tests) 16ms
+ ✓  unit  packages/domain/src/beauty/catalog.test.ts (15 tests) 22ms
+ ✓  unit  apps/api/src/auth/auth.controller.test.ts (7 tests) 21ms
+ ✓  unit  tests/unit/bar-replay-conflict-fixes.test.ts (3 tests) 7ms
+ ✓  unit  packages/domain/src/web-analytics/hit.test.ts (15 tests) 10ms
+ ✓  unit  packages/domain/src/ai-agents/create.test.ts (15 tests) 13ms
+ ✓  unit  apps/web/src/app/bar/actions.test.ts (19 tests) 21ms
+ ✓  unit  apps/api/src/ai-seller/business-agents.scope.test.ts (4 tests) 14ms
+ ✓  unit  apps/api/src/hotel/settings-update.test.ts (11 tests) 18ms
+ ✓  unit  apps/web/src/lib/navigation-place.test.ts (23 tests) 8ms
+ ✓  unit  tests/unit/marketing-reserved-slugs.test.ts (1 test) 17ms
+ ✓  unit  apps/web/src/app/branches/form.test.ts (1 test) 11ms
+ ✓  unit  packages/domain/src/ai-seller/profile.test.ts (15 tests) 12ms
+ ✓  unit  apps/web/src/lib/navigation-beauty.test.ts (8 tests) 12ms
+ ✓  unit  apps/site/src/lib/phone-countries.test.ts (2 tests) 5ms
+ ✓  unit  apps/web/src/app/management/analytics/channels/query.test.ts (7 tests) 8ms
+ ✓  unit  apps/api/src/web-booking/client-ip.test.ts (4 tests) 13ms
+ ✓  unit  apps/api/src/rates/rate-history.test.ts (3 tests) 35ms
+ ✓  unit  packages/domain/src/onboarding/beauty-readiness.test.ts (13 tests) 21ms
+ ✓  unit  apps/api/src/channels/integration-property.test.ts (11 tests) 25ms
+ ✓  unit  apps/web/src/app/market/chart-data.test.ts (10 tests) 20ms
+ ✓  unit  apps/web/src/app/today/dispatch.test.ts (10 tests) 7ms
+ ✓  unit  apps/api/src/finance/finance-audit-transaction.test.ts (4 tests) 10ms
+ ✓  unit  packages/database/src/rls.test.ts (5 tests) 5ms
+ ✓  unit  scripts/ops/slow-report.test.ts (9 tests) 20ms
+ ✓  unit  apps/api/src/marketing-site/design-choice.test.ts (12 tests) 19ms
+ ✓  unit  apps/web/src/app/login/verify-registration.test.ts (4 tests) 7ms
+ ✓  unit  scripts/reconciliation/src/morning-report.test.ts (7 tests) 13ms
+ ✓  unit  apps/web/src/app/today/owner-metrics.test.ts (2 tests) 4ms
+ ✓  unit  scripts/ops/rates-shift.test.ts (5 tests) 7ms
+ ✓  unit  apps/web/src/next-rethrow.test.ts (3 tests) 6ms
+ ✓  unit  apps/api/src/bar/bar-period.test.ts (3 tests) 6ms
+ ✓  unit  packages/domain/src/beauty/payment.test.ts (5 tests) 5ms
+ ✓  unit  apps/web/src/app/journal/journal-view.test.ts (7 tests) 6ms
+ ✓  unit  apps/web/src/app/chessboard/month-period.test.ts (7 tests) 7ms
+ ✓  unit  apps/web/src/lib/seller-navigation.test.ts (2 tests) 23ms
+ ✓  unit  tests/unit/held-rollback-security.test.ts (5 tests) 7ms
+ ✓  unit  apps/web/src/lib/security-headers.test.ts (4 tests) 9ms
+ ✓  unit  packages/domain/src/dashboard/channels.test.ts (4 tests) 15ms
+ ✓  unit  apps/web/src/app/market/derive.test.ts (4 tests) 16ms
+ ✓  unit  apps/web/src/lib/block-types.test.ts (2 tests) 6ms
+ ✓  unit  apps/web/src/app/chessboard/week-period.test.ts (9 tests) 6ms
+ ✓  unit  apps/web/src/lib/action-preview.test.ts (8 tests) 5ms
+ ✓  unit  apps/web/src/app/finance/services-csv.test.ts (2 tests) 4ms
+ ✓  unit  packages/database/src/vertical-contract.test.ts (1 test) 6ms
+ ✓  unit  apps/web/src/app/reservations/new/summary.test.ts (3 tests) 6ms
+ ✓  unit  tests/unit/auth-deploy-health.test.ts (1 test) 3ms
+
+ Test Files  71 passed (71)
+      Tests  657 passed (657)
+   Start at  15:52:46
+   Duration  69.32s (tests 54%, import 30%, transform 15%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T15-52-44Z-unit-dca0.json
+
+# код выхода 0 · 1 мин 12 с

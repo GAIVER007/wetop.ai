@@ -1,0 +1,11 @@
+# Линтер (lint) · 17.10.2026 14:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 29cc63d (claude/u1-feature-registry), незакоммиченных файлов набора: 81
+# npx eslint .
+
+/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/u1/apps/web/src/app/today/operations/page.tsx
+  6:10  error  'TODAY_VERTICALS' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 19 с

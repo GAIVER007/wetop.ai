@@ -1,0 +1,34 @@
+import { mkdirSync } from 'node:fs';
+import { FIXTURE_API, test, expect } from './fixtures';
+const phase = process.env.UI_FIX_01_VISUAL;
+test.skip(!phase, 'Explicit UI-FIX-01 evidence capture only');
+for (const theme of ['light', 'dark'] as const) for (const width of [1440, 390]) {
+  test(`UI-FIX-01 ${theme} ${width}`, async ({ page, request }) => {
+    test.setTimeout(180_000);
+    const out = `reports/ui-fix-01-2026-10-12/${phase}`;
+    mkdirSync(out, { recursive: true });
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    await request.post(`${FIXTURE_API}/__test/reset`);
+    await page.goto('/auth/fallback');
+    await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+    await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+    await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    await page.waitForURL('**/finance');
+    await request.post(`${FIXTURE_API}/__test/control`, { data: { failPath: '/auth/access-structure', failStatus: 503 } });
+    await page.goto('/team');
+    await page.screenshot({ path: `${out}/team-${width}-${theme}.png`, fullPage: true });
+    await request.post(`${FIXTURE_API}/__test/control`, { data: { failPath: '', platformAdmin: true } });
+    await page.goto('/platform/support/base?status=DRAFT');
+    await page.getByTestId('kb-catalog').getByRole('link', { name: /только чтение/ }).click();
+    await page.getByLabel('Текст знания').fill('Synthetic unsaved version B');
+    await page.screenshot({ path: `${out}/kb-${width}-${theme}.png`, fullPage: true });
+    await request.post(`${FIXTURE_API}/__test/control`, { data: { orgTrialDays: 'ended' } });
+    for (const route of ['/inventory', '/rooms/categories', '/chessboard', '/reservations/new', '/reservations/20260913-TEST1', '/units/R02', '/bar', '/bar/products', '/bar/operations', '/bar/receipts', '/bar/receipts/new', '/bar/suppliers', '/channels/sync', '/channels/events', '/help']) {
+      await page.goto(route);
+      await expect(page.getByRole('main').filter({ visible: true })).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.screenshot({ path: `${out}/${route.slice(1).replaceAll('/', '_')}-${width}-${theme}.png`, fullPage: true });
+    }
+  });
+}

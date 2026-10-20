@@ -1,0 +1,16 @@
+# Модульные (unit) · 16.10.2026 17:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит fd9ab85 (claude/restaurant-refund), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T12-04-11Z-unit-48b6.json' 'packages/domain/src/food/cash.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| packages/domain/src/food/cash.test.ts (11 tests) 5ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  05:04:24
+   Duration  324ms (transform 63%, import 20%, worker 12%, tests 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T12-04-11Z-unit-48b6.json
+
+# код выхода 0 · 14 с

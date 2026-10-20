@@ -1,5 +1,13 @@
 import { FIXTURE_API, expect, test } from './fixtures';
 const fixture = FIXTURE_API;
+
+// Failure injection is process-global: restore it even when a negative case fails.
+test.afterEach(async ({ request }) => {
+  const response = await request.post(`${fixture}/__test/reset`, {
+    headers: { 'x-wetop-test-client': '1' },
+  });
+  expect(response.ok()).toBe(true);
+});
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
@@ -24,7 +32,7 @@ test('повторяющиеся параметры поиска не обруш
   await page.goto('/guests?q=Тест&q=Другой');
   await expect(page.getByRole('heading', { name: 'Гости и бронирования', exact: true })).toBeVisible();
   await page.goto('/journal?q=TEST&q=OTHER');
-  await expect(page.getByRole('heading', { name: 'Журнал операций', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'История действий', exact: true })).toBeVisible();
 });
 
 test('операция проживания блокирует повторное нажатие до ответа сервера', async ({ page }) => {

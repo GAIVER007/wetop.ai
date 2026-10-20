@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 18.10.2026 13:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит a1c5d36 (codex/salons-tz4-m4a), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-03-23Z-integration-4e18.json' 'tests/integration/customer-phone.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+[pms_test] миграций применено 1; данные на месте
+ ✓ |integration| tests/integration/customer-phone.test.ts (5 tests) 20ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  01:03:24
+   Duration  651ms (tests 53%, import 33%, transform 7%, worker 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-03-23Z-integration-4e18.json
+
+# код выхода 0 · 2 с

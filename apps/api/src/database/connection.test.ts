@@ -25,7 +25,7 @@ describe('Database connection through the real API application', () => {
       .useValue({ db: { property: { findFirst, findUnique }, inventoryUnit: { count } } })
       .compile();
     app = module.createNestApplication({ logger: false });
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   beforeEach(() => {
     vi.clearAllMocks();

@@ -1,0 +1,19 @@
+# Типы (typecheck) · 16.10.2026 11:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит bb70067 (claude/marketing-attribution), незакоммиченных файлов набора: 10
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/bar-inventory-surplus.test.ts(61,88): error TS2322: Type 'null' is not assignable to type 'string | UuidFilter<"BarStockLot"> | undefined'.
+tests/integration/bar-inventory-surplus.test.ts(94,54): error TS2322: Type 'null' is not assignable to type 'string'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 31 с

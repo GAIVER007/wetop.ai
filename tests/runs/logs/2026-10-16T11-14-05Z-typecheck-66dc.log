@@ -1,0 +1,72 @@
+# Типы (typecheck) · 16.10.2026 16:14 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 96
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/finance/finance.repository.ts(1328,54): error TS2375: Type '{ entityId: string; action: string | undefined; }' is not assignable to type 'AuditLogWhereInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'action' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string | StringFilter<"AuditLog">'.
+      Type 'undefined' is not assignable to type 'string | StringFilter<"AuditLog">'.
+tests/integration/hospitality-workload-isolated.test.ts(51,21): error TS2345: Argument of type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/hospitality-workload-isolated.test.ts(52,32): error TS2345: Argument of type '{ role: "STAFF"; locationId: `${string}-${string}-${string}-${string}-${string}` | undefined; userId: any; organizationId: any; scope: "LOCATION"; businessId: string; vertical: "HOSPITALITY"; }' is not assignable to parameter of type 'string | RequestActor | null'.
+  Type '{ role: "STAFF"; locationId: `${string}-${string}-${string}-${string}-${string}` | undefined; userId: any; organizationId: any; scope: "LOCATION"; businessId: string; vertical: "HOSPITALITY"; }' is not assignable to type 'RequestActor' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'locationId' are incompatible.
+      Type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+tests/integration/hospitality-workload-isolated.test.ts(53,21): error TS2345: Argument of type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/hospitality-workload-isolated.test.ts(54,32): error TS2345: Argument of type '{ organizationId: `${string}-${string}-${string}-${string}-${string}`; locationId: `${string}-${string}-${string}-${string}-${string}` | undefined; userId: any; role: "OWNER"; scope: "LOCATION"; businessId: string; vertical: "HOSPITALITY"; }' is not assignable to parameter of type 'string | RequestActor | null'.
+  Type '{ organizationId: `${string}-${string}-${string}-${string}-${string}`; locationId: `${string}-${string}-${string}-${string}-${string}` | undefined; userId: any; role: "OWNER"; scope: "LOCATION"; businessId: string; vertical: "HOSPITALITY"; }' is not assignable to type 'RequestActor' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'locationId' are incompatible.
+      Type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+tests/integration/hospitality-workload-isolated.test.ts(55,21): error TS2345: Argument of type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/hospitality-workload-isolated.test.ts(57,25): error TS2345: Argument of type '{ locationId: `${string}-${string}-${string}-${string}-${string}` | undefined; userId: any; organizationId: any; role: "OWNER"; scope: "LOCATION"; businessId: string; vertical: "HOSPITALITY"; }' is not assignable to parameter of type 'string | RequestActor | null'.
+  Type '{ locationId: `${string}-${string}-${string}-${string}-${string}` | undefined; userId: any; organizationId: any; role: "OWNER"; scope: "LOCATION"; businessId: string; vertical: "HOSPITALITY"; }' is not assignable to type 'RequestActor' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'locationId' are incompatible.
+      Type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+tests/integration/hospitality-workload-isolated.test.ts(59,38): error TS2345: Argument of type '{ locationId: `${string}-${string}-${string}-${string}-${string}` | undefined; userId: any; organizationId: any; role: "OWNER"; scope: "LOCATION"; businessId: string; vertical: "HOSPITALITY"; }' is not assignable to parameter of type 'string | RequestActor | null'.
+  Type '{ locationId: `${string}-${string}-${string}-${string}-${string}` | undefined; userId: any; organizationId: any; role: "OWNER"; scope: "LOCATION"; businessId: string; vertical: "HOSPITALITY"; }' is not assignable to type 'RequestActor' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'locationId' are incompatible.
+      Type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+tests/integration/hospitality-workload-isolated.test.ts(63,34): error TS2345: Argument of type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/hospitality-workload-isolated.test.ts(64,32): error TS2345: Argument of type '{ locationId: `${string}-${string}-${string}-${string}-${string}` | undefined; userId: any; organizationId: any; role: "OWNER"; scope: "LOCATION"; businessId: string; vertical: "HOSPITALITY"; }' is not assignable to parameter of type 'string | RequestActor | null'.
+  Type '{ locationId: `${string}-${string}-${string}-${string}-${string}` | undefined; userId: any; organizationId: any; role: "OWNER"; scope: "LOCATION"; businessId: string; vertical: "HOSPITALITY"; }' is not assignable to type 'RequestActor' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'locationId' are incompatible.
+      Type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+tests/integration/hospitality-workload-isolated.test.ts(65,21): error TS2345: Argument of type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/hospitality-workload-isolated.test.ts(75,35): error TS2345: Argument of type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/hospitality-workload-isolated.test.ts(76,25): error TS2345: Argument of type '{ locationId: `${string}-${string}-${string}-${string}-${string}` | undefined; userId: any; organizationId: any; role: "OWNER"; scope: "LOCATION"; businessId: string; vertical: "HOSPITALITY"; }' is not assignable to parameter of type 'string | RequestActor | null'.
+  Type '{ locationId: `${string}-${string}-${string}-${string}-${string}` | undefined; userId: any; organizationId: any; role: "OWNER"; scope: "LOCATION"; businessId: string; vertical: "HOSPITALITY"; }' is not assignable to type 'RequestActor' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'locationId' are incompatible.
+      Type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+tests/integration/hospitality-workload-isolated.test.ts(77,21): error TS2345: Argument of type '`${string}-${string}-${string}-${string}-${string}` | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/hotel-cash-intent-isolated.test.ts(66,46): error TS2339: Property 'mockResolvedValue' does not exist on type 'never'.
+tests/integration/owner-money-isolated.test.ts(109,41): error TS2339: Property 'daily' does not exist on type '{ daily: { days: { date: string; unresolvedSources: number; currencies: { currency: string; amountMinor: string; }[]; }[]; state: "READY" | "PARTIAL"; reason: "UNKNOWN_SOURCE_CURRENCY" | null; unresolvedSources: number; currencies: { ...; }[]; }; state: "READY" | "PARTIAL"; reason: "UNKNOWN_SOURCE_CURRENCY" | null; ...'.
+  Property 'daily' does not exist on type '{ state: "UNAVAILABLE"; reason: string; currencies: null; }'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/finance/finance.repository.ts(1328,54): error TS2375: Type '{ entityId: string; action: string | undefined; }' is not assignable to type 'AuditLogWhereInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'action' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string | StringFilter<"AuditLog">'.
+      Type 'undefined' is not assignable to type 'string | StringFilter<"AuditLog">'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 1 мин 45 с

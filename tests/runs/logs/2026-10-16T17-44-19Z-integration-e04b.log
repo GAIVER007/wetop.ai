@@ -1,0 +1,174 @@
+# Интеграционные (integration) · 16.10.2026 22:44 Алматы · <сервер>
+# коммит eb65955 (private-verified-candidate)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T17-44-19Z-integration-e04b.json' 'tests/integration/rls-isolation.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-owner-dependency-patch-20261016
+
+[pms_test] миграций применено 129; данные на месте
+ ❯  integration  tests/integration/rls-isolation.test.ts (6 tests | 3 failed) 1059ms
+   ❯ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     × каждая таблица схемы названа: арендаторская под RLS или осознанно без него 27ms
+     × чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 406ms
+     × гость чужой организации не виден своей; без переменной не видно ничего 157ms
+     ✓ записать бронь в объект чужой организации нельзя — отказ базы 13ms
+     ✓ служебная роль видит объект целиком — фоновые циклы и вебхуки работают как раньше 8ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 401ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   integration  tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > каждая таблица схемы названа: арендаторская под RLS или осознанно без него
+AssertionError: expected [ 'accommodation_type_photos', …(119) ] to deeply equal [ 'accommodation_type_photos', …(137) ]
+
+- Expected
++ Received
+
+@@ -1,10 +1,9 @@
+  [
+    "accommodation_type_photos",
+    "accommodation_types",
+    "allocations",
+-   "appointment_workload_revisions",
+    "appointments",
+    "audit_logs",
+    "bar_categories",
+    "bar_products",
+    "bar_receipt_lines",
+@@ -13,12 +12,10 @@
+    "bar_sales",
+    "bar_stock_lots",
+    "bar_stock_movements",
+    "bar_supplier_payments",
+    "bar_suppliers",
+-   "beauty_capacity_intervals",
+-   "beauty_schedule_versions",
+    "beauty_services",
+    "buildings",
+    "businesses",
+    "cash_categories",
+    "cash_operations",
+@@ -37,23 +34,18 @@
+    "employee_locations",
+    "employee_pay_adjustments",
+    "employee_pay_settings",
+    "employee_services",
+    "employees",
+-   "expense_categories",
+-   "expense_documents",
+-   "expense_settlements",
+    "fiscal_receipts",
+    "floors",
+    "folios",
+    "food_booking_rules",
+    "food_closed_days",
+    "generation_runs",
+    "guest_documents",
+    "guests",
+-   "hospitality_workload_sources",
+-   "hospitality_workload_versions",
+    "housekeeping_events",
+    "inventory_blocks",
+    "inventory_units",
+    "invites",
+    "kitchen_products",
+@@ -83,28 +75,22 @@
+    "organization_extensions",
+    "organizations",
+    "payment_allocations",
+    "payment_method_settings",
+    "payment_requests",
+-   "payment_write_intents",
+    "payments",
+    "physical_rooms",
+    "promo_codes",
+    "properties",
+    "property_media",
+    "rate_plan_accommodation_types",
+    "rate_plans",
+    "refunds",
+    "reservation_items",
+    "reservations",
+-   "resource_capacity_intervals",
+-   "resource_capacity_revisions",
+    "restaurant_cash_operations",
+    "restaurant_cash_reconciliations",
+-   "restaurant_opening_closures",
+-   "restaurant_opening_intervals",
+-   "restaurant_opening_schedules",
+    "restaurant_order_items",
+    "restaurant_order_ratings",
+    "restaurant_orders",
+    "restaurant_payments",
+    "restaurant_reservations",
+@@ -121,20 +107,16 @@
+    "site_builder_entitlements",
+    "site_domains",
+    "site_leads",
+    "stay_guests",
+    "table_assignments",
+-   "table_occupancy_commands",
+-   "table_occupancy_sessions",
+    "time_offs",
+    "tracked_sites",
+    "user_errors",
+    "web_events",
+    "web_pageviews",
+    "web_sessions",
+    "wizard_drafts",
+    "wizard_jobs",
+    "wizard_messages",
+    "working_hours",
+-   "workload_coverage_segments",
+-   "workload_tracking_coverage",
+  ]
+
+ ❯ tests/integration/rls-isolation.test.ts:135:51
+    133|         WHERE n.nspname = current_schema() AND c.relkind = 'r' AND c.r…
+    134|     );
+    135|     expect(rls.rows.map((r) => r.relname).sort()).toEqual([...TENANT_T…
+       |                                                   ^
+    136|     expect(rls.rows.filter((r) => (HELD_TENANT_TABLES as readonly stri…
+    137|     const barTables = RLS_TENANT_TABLES.filter((table) => table.starts…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL   integration  tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои
+error: relation "expense_categories" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/rls-isolation.test.ts:150:29
+    148|       let ownSeen = 0;
+    149|       for (const table of TENANT_TABLES) {
+    150|         const all = Number((await client.query(`SELECT count(*) FROM "…
+       |                             ^
+    151|         const asOther = await visible(table, other);
+    152|         const asOwn = await visible(table, own);
+ ❯ inRollback tests/integration/rls-isolation.test.ts:54:7
+ ❯ tests/integration/rls-isolation.test.ts:145:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL   integration  tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > гость чужой организации не виден своей; без переменной не видно ничего
+error: relation "expense_categories" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ visible tests/integration/rls-isolation.test.ts:68:19
+     66|       await client.query('SET LOCAL ROLE wetop_app');
+     67|       await client.query(`SELECT set_config('app.org_id', $1, true)`, …
+     68|       const res = await client.query<{ n: string }>(`SELECT count(*)::…
+       |                   ^
+     69|       return Number(res.rows[0]!.n);
+     70|     } finally {
+ ❯ tests/integration/rls-isolation.test.ts:175:16
+ ❯ inRollback tests/integration/rls-isolation.test.ts:54:7
+ ❯ tests/integration/rls-isolation.test.ts:166:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 3 passed (6)
+   Start at  17:44:20
+   Duration  9.34s (transform 50%, tests 37%, import 12%)
+
+JSON report written to /tmp/pms-test-2026-10-16T17-44-19Z-integration-e04b.json
+
+# код выхода 1 · 11 с

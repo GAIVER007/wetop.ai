@@ -1,0 +1,64 @@
+# Модульные (unit) · 17.10.2026 12:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит b532b26 (claude/d11-honesty-fixes), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T07-44-58Z-unit-ab96.json' 'apps/web/src/lib/load-error.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d11
+
+ ❯ |unit| apps/web/src/lib/load-error.test.ts (2 tests | 2 failed) 6ms
+   ❯ loadErrorProps (2)
+     × отдаёт только код статуса 5ms
+     × внутренний адрес и текст сбоя в клиент не уходят 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/load-error.test.ts > loadErrorProps > отдаёт только код статуса
+AssertionError: expected { status: 404, message: 'Not found' } to deeply equal { status: 404 }
+
+- Expected
++ Received
+
+  {
++   "message": "Not found",
+    "status": 404,
+  }
+
+ ❯ apps/web/src/lib/load-error.test.ts:11:60
+      9| describe('loadErrorProps', () => {
+     10|   it('отдаёт только код статуса', () => {
+     11|     expect(loadErrorProps(new ApiError(404, 'Not found'))).toEqual({ s…
+       |                                                            ^
+     12|   });
+     13|   it('внутренний адрес и текст сбоя в клиент не уходят', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/lib/load-error.test.ts > loadErrorProps > внутренний адрес и текст сбоя в клиент не уходят
+AssertionError: expected { status: undefined, …(1) } to deeply equal { status: undefined }
+
+- Expected
++ Received
+
+  {
++   "message": "connect ECONNREFUSED 10.0.0.5:4311",
+    "status": undefined,
+  }
+
+ ❯ apps/web/src/lib/load-error.test.ts:15:19
+     13|   it('внутренний адрес и текст сбоя в клиент не уходят', () => {
+     14|     const props = loadErrorProps(new Error('connect ECONNREFUSED 10.0.…
+     15|     expect(props).toEqual({ status: undefined });
+       |                   ^
+     16|     expect(JSON.stringify(props)).not.toContain('ECONNREFUSED');
+     17|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  00:45:02
+   Duration  304ms (transform 59%, import 28%, worker 7%, tests 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T07-44-58Z-unit-ab96.json
+
+# код выхода 1 · 5 с

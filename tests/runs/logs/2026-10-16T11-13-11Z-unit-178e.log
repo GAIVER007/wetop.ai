@@ -1,0 +1,40 @@
+# Модульные (unit) · 16.10.2026 16:13 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 76
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T11-13-11Z-unit-178e.json' 'apps/web/src/app/today/unified-owner.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| apps/web/src/app/today/unified-owner.test.ts (9 tests | 1 failed) 66ms
+   ❯ unified owner actual DTO (9)
+     ✓ renders linked category names safely and minute units without claiming disconnected 34ms
+     ✓ today 3ms
+     ✓ week 3ms
+     ✓ month 3ms
+     × renders exact signed comparable money and basis point rate, never previous workload 12ms
+     ✓ formats big minor units without float loss 1ms
+     ✓ normalizes query, not rolling 30 days 0ms
+     ✓ unknown vertical is explicit unsupported 1ms
+     ✓ keeps room and bed separate without invented percent 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > renders exact signed comparable money and basis point rate, never previous workload
+AssertionError: expected '<div class="owner-home"><header class…' to contain '+1,00 USD'
+
+Expected: "+1,00 USD"
+Received: "<div class="owner-home"><header class="owner-heading"><div><p>Обзор бизнеса</p><h1>Главная</h1><p>Обновлено 16 окт. 2026 г., 14:00 · Asia/Almaty</p></div><a class="btn btn--secondary" href="/appointments">Рабочее место</a></header><div class="owner-toolbar"><nav class="seg" aria-label="Период отчёта"><a class="seg__item is-on" aria-current="page" href="/today?period=today">Сегодня</a><a class="seg__item" href="/today?period=week">7 дней</a><a class="seg__item" href="/today?period=month" title="С начала календарного месяца">Месяц</a></nav><p>2026-10-01 – 2026-10-16 · текущий день неполный</p></div><section class="owner-kpis" aria-label="Показатели руководителя"><article><h2>Выручка</h2><div class="owner-value"><div>9 007 199 254 740 993,01 KZT</div><div>123,45 USD</div></div><p>Начисления, не полученные оплаты</p></article><article><h2>Загрузка сегодня</h2><div class="owner-value">Нет данных</div><p>Неполное покрытие периода</p><p>Записанное время мастеров / сохранённое расписание</p><p>Учтено 0 из 0 минут мастеров. Итоговый процент периода недоступен.</p></article><article><h2>Поступления</h2><div class="owner-value">Нет данных</div><p>Реестр оплат не подключён</p><p>Полученные оплаты, не выручка</p></article><article><h2>Оплаченные расходы</h2><div class="owner-value">Нет данных</div><p>Валюта части операций неизвестна. Показана только известная часть.</p><p>Только завершённые расходные операции</p></article></section><div class="owner-body"><section class="owner-panel"><div class="owner-panel-heading"><h2>Динамика показателей</h2><a href="/finance">Финансовый отчёт</a></div><div><p>По дням в часовом поясе филиала. Текущий день неполный. Валюты раздельно.</p><p role="status">Выручка: Временной ряд не подключён</p><p role="status">Поступления: Временной ряд не подключён</p><p role="status">Оплаченные расходы: Временной ряд не подключён</p><p role="status">Нет операций с подтверждённой валютой за период. Недоступные источники не означают ноль.</p></div><p>Сравнение с предыдущим периодом недоступно.</p></section><section class="owner-panel"><h2>Требуют решения</h2><h3>Данные периода неполные</h3><p>Неполное покрытие периода</p><p>Классификация расходов не подключена. Автоматические задачи и отклонения API не передаёт.</p><a href="/finance">Открыть операции</a><p><a href="/today/operations">Операционные инструменты дня</a></p></section></div><section class="owner-panel"><div class="owner-panel-heading"><h2>Куда уходят деньги</h2><a href="/finance">Оплаченные расходы</a></div><p>Связи с документами расходов в сводку пока не подключены. Без статьи: назначение операции не подтверждено. Это не «Прочее».</p><div class="owner-expenses"></div><p>Нет классифицированных сумм. Отсутствие данных не означает нулевые расходы.</p></section><footer><p>Выбран один филиал. Валюты показаны раздельно, без общего итога.</p></footer></div>"
+
+ ❯ apps/web/src/app/today/unified-owner.test.ts:86:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  11:13:11
+   Duration  418ms (transform 57%, tests 23%, import 19%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T11-13-11Z-unit-178e.json
+
+# код выхода 1 · 1 с

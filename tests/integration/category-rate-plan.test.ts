@@ -35,11 +35,17 @@ describe.skipIf(!process.env.DATABASE_URL)('category without a rate plan, rate p
       .overrideProvider(PrismaService)
       .useValue(provider)
       .compile();
+    const location = await db.location.findUniqueOrThrow({ where: { id: property.locationId } });
+    const actor = {
+      userId: user.id, organizationId: org.id, role: 'OWNER' as const,
+      scope: 'LOCATION' as const, businessId: location.businessId,
+      locationId: location.id, vertical: 'HOSPITALITY' as const,
+    };
     const app = module.createNestApplication();
     app.use((_req: unknown, _res: unknown, next: () => void) => {
-      void withSignedInUser({ userId: user.id, organizationId: org.id }, async () => next());
+      void withSignedInUser(actor, async () => next());
     });
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     const editor = app.get(InventoryEditor);
     const links = (categoryCode?: string) =>
       db.ratePlanAccommodationType.count({
@@ -48,7 +54,7 @@ describe.skipIf(!process.env.DATABASE_URL)('category without a rate plan, rate p
         },
       });
     try {
-      await withSignedInUser({ userId: user.id, organizationId: org.id }, async () => {
+      await withSignedInUser(actor, async () => {
         const http = () => request(app.getHttpServer());
         // без выбора тарифа категория молча не создаётся
         await http()

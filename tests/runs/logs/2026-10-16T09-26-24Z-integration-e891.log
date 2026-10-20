@@ -1,0 +1,45 @@
+# Интеграционные (integration) · 16.10.2026 14:26 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 40
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T09-26-24Z-integration-e891.json' '--config' 'tests/owner-money-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/owner-money-isolated.test.ts (5 tests | 1 failed) 1914ms
+   ❯ owner money actual isolated PostgreSQL queries (5)
+     × classifies real partially-paid document without changing cash totals, including void and missing links 1650ms
+     ✓ executes DONE beauty snapshot reads without inventing a payment ledger 72ms
+     ✓ reads CLOSED snapshots and POSTED sales once, excluding future and unclosed orders 10ms
+     ✓ does not borrow another branch or its present EUR currency 5ms
+     ✓ executes hotel service-date/folio and payment scope queries against the real schema 48ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/owner-money-isolated.test.ts > owner money actual isolated PostgreSQL queries > classifies real partially-paid document without changing cash totals, including void and missing links
+AssertionError: expected [ { categoryId: null, …(1) } ] to deeply equal [ { …(3) } ]
+
+- Expected
++ Received
+
+  [
+    {
+-     "categoryId": "c61956a1-4461-4d7d-86f4-18fdb2b93dc9",
+-     "categoryName": "Synthetic archived category",
++     "categoryId": null,
+      "paidMinor": "40000",
+    },
+  ]
+
+ ❯ tests/integration/owner-money-isolated.test.ts:37:66
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  09:26:25
+   Duration  2.90s (tests 70%, transform 23%, import 7%)
+
+JSON report written to /tmp/pms-test-2026-10-16T09-26-24Z-integration-e891.json
+
+# код выхода 1 · 4 с

@@ -40,9 +40,9 @@ import {
   BUSY,
   clockOf,
   employeeBusy,
-  findOrCreateCustomer,
   planBeautyAppointment,
 } from '../beauty/appointments';
+import { findOrCreateCustomer } from '../customers/identity';
 import { TurnstileService, turnstileFailureError } from '../web-booking/turnstile';
 import type { RequestContext } from '../web-booking/web-booking.service';
 
@@ -170,9 +170,18 @@ export class SiteFormsService {
       });
       const own = service?.locations[0] ?? null;
       if (!service || !own?.enabled) throw new NotFoundException('Услуга в этом филиале не оказывается');
-      if (own.priceOverride === null && service.currency !== fs.currency)
-        throw new NotFoundException('Услуга в этом филиале не оказывается');
-      const durationMinutes = own.durationOverride ?? service.durationMinutes;
+      const masterPrice = q.employeeId ? await db.employeeServicePrice.findUnique({
+        where: { employeeId_serviceId_locationId: { employeeId: q.employeeId, serviceId: service.id, locationId: fs.locationId } },
+      }) : null;
+      if (masterPrice && masterPrice.currency !== fs.currency)
+        throw new ConflictException('Валюта цены мастера не совпадает с валютой филиала');
+      if (masterPrice?.priceType === 'RANGE' || masterPrice?.priceType === 'UNFIXED')
+        throw new ConflictException('Укажите конечную цену услуги мастера');
+      const priceMinor = masterPrice
+        ? masterPrice.priceType === 'FREE' ? 0n : masterPrice.priceMinMinor
+        : own.priceOverride ?? (service.currency === fs.currency ? service.price : null);
+      if (priceMinor === null) throw new NotFoundException('Услуга в этом филиале не оказывается');
+      const durationMinutes = masterPrice?.durationMinutes ?? own.durationOverride ?? service.durationMinutes;
       const window = timeOffWindow({ dateFrom: q.date, dateTo: q.date, timezone: fs.timezone });
       const masters = await db.employee.findMany({
         where: {
@@ -188,9 +197,9 @@ export class SiteFormsService {
           name: true,
           workingHours: { where: { locationId: fs.locationId }, select: { weekday: true, timeFrom: true, timeTo: true } },
           timeOffs: { select: { dateFrom: true, dateTo: true } },
-          appointments: {
+          appointmentLines: {
             where: {
-              status: { in: BUSY },
+              appointment: { status: { in: BUSY } },
               // запись мастера в любом филиале занимает его время; окно суток с запасом в длительность
               startsAt: { lt: new Date(window.toUtcExclusive.getTime() + durationMinutes * 60_000) },
               endsAt: { gt: new Date(window.fromUtc.getTime() - durationMinutes * 60_000) },
@@ -209,7 +218,7 @@ export class SiteFormsService {
           id: m.id,
           workingHours: m.workingHours.map((h) => ({ weekday: h.weekday, timeFrom: clockOf(h.timeFrom), timeTo: clockOf(h.timeTo) })),
           timeOffs: m.timeOffs.map((t) => ({ dateFrom: t.dateFrom.toISOString().slice(0, 10), dateTo: t.dateTo.toISOString().slice(0, 10) })),
-          busy: m.appointments,
+          busy: m.appointmentLines,
         })),
       });
       return {
@@ -219,8 +228,8 @@ export class SiteFormsService {
           id: service.id,
           name: service.name,
           durationMinutes,
-          priceMinor: (own.priceOverride ?? service.price).toString(),
-          currency: own.priceOverride === null ? service.currency : fs.currency,
+          priceMinor: priceMinor.toString(),
+          currency: fs.currency,
         },
         employees: masters.map((m) => ({ id: m.id, name: m.name })),
         slots: slots.map((s) => ({ startsAt: s.startsAt.toISOString(), endsAt: s.endsAt.toISOString(), time: s.time, employeeIds: s.employeeIds })),
@@ -275,7 +284,7 @@ export class SiteFormsService {
           const plan = await planBeautyAppointment(tx, scope, employeeId, req.serviceId, req.startsAt);
           if (await employeeBusy(tx, employeeId, plan.startsAt, plan.endsAt, null))
             throw new ConflictException('Это время уже занято, выберите другое');
-          const customerId = await findOrCreateCustomer(
+          const { id: customerId } = await findOrCreateCustomer(
             tx,
             fs.organizationId,
             { firstName: req.name, lastName: null, phone: req.phone },
@@ -477,7 +486,7 @@ export class SiteFormsService {
           closed: closed !== null,
         });
         if (violation) throw new ConflictException(violation);
-        const customerId = await findOrCreateCustomer(
+        const { id: customerId } = await findOrCreateCustomer(
           tx,
           fs.organizationId,
           { firstName: req.name, lastName: null, phone: req.phone },

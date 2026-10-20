@@ -1,0 +1,55 @@
+# Модульные (unit) · 16.10.2026 20:02 Алматы · <сервер>
+# коммит 4cf28b7 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 171
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T15-02-12Z-unit-ba4a.json' 'apps/web/src/app/today/owner-daily-chart.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯  unit  apps/web/src/app/today/owner-daily-chart.test.ts (6 tests | 2 failed) 365ms
+   ✓ renders one real daily point with exact huge amount and no interpolated path 141ms
+   ✓ unsupported receipts are unavailable not a zero series 5ms
+   ✓ keeps chart visible, switches metrics with labelled tabs, and compares the same metric only 16ms
+   × labels the partial previous series rather than presenting it as complete 125ms
+   × keeps huge axis labels compact and the exact amounts accessible 41ms
+   ✓ does not replace a missing day currency with an invented zero point 29ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   unit  apps/web/src/app/today/owner-daily-chart.test.ts > labels the partial previous series rather than presenting it as complete
+AssertionError: expected '<div class="owner-chart"><div class="…' to contain 'Предыдущий период: данные неполные'
+
+Expected: "Предыдущий период: данные неполные"
+Received: "<div class="owner-chart"><div class="owner-chart-toolbar"><div class="owner-chart-tabs" role="tablist" aria-label="Данные графика"><button type="button" role="tab" id="_R_0_-tab-0" aria-controls="_R_0_-panel" aria-selected="true" tabindex="0">Выручка</button></div><div class="owner-chart-legend"><span>Текущий период</span><span class="owner-chart-previous">Предыдущий</span></div></div><div role="tabpanel" id="_R_0_-panel" aria-labelledby="_R_0_-tab-0" tabindex="0"><svg class="owner-chart-plot" viewBox="0 0 800 230" width="100%" role="img" aria-label="Выручка по дням, KZT"><g class="owner-chart-grid"><line x1="100" x2="782" y1="198" y2="198"></line><text x="90" y="202" text-anchor="end">0,00 KZT</text></g><g class="owner-chart-grid"><line x1="100" x2="782" y1="152" y2="152"></line><text x="90" y="156" text-anchor="end">0,50 KZT</text></g><g class="owner-chart-grid"><line x1="100" x2="782" y1="106" y2="106"></line><text x="90" y="110" text-anchor="end">1,00 KZT</text></g><g class="owner-chart-grid"><line x1="100" x2="782" y1="60" y2="60"></line><text x="90" y="64" text-anchor="end">1,50 KZT</text></g><g class="owner-chart-grid"><line x1="100" x2="782" y1="14" y2="14"></line><text x="90" y="18" text-anchor="end">2,00 KZT</text></g><g data-series="current" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="441" cy="106" r="3" fill="var(--surface)"><title>2026-10-01: 1,00 KZT</title></circle></g><g data-series="previous" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 5"><circle cx="441" cy="14" r="3" fill="var(--surface)"><title>2026-09-01: 2,00 KZT</title></circle></g><text class="owner-chart-date" x="441" y="224" text-anchor="start">2026-10-01</text></svg><details class="owner-chart-table"><summary>Точные дневные суммы · KZT</summary><table><caption>Выручка, KZT. Дни периодов сопоставлены по порядку.</caption><thead><tr><th scope="col">Дата</th><th scope="col">Текущий период</th><th scope="col">Дата сравнения</th><th scope="col">Предыдущий период</th></tr></thead><tbody><tr><th scope="row">2026-10-01</th><td>1,00 KZT</td><td>2026-09-01</td><td>2,00 KZT</td></tr></tbody></table></details><p class="owner-chart-foot">По дням в часовом поясе филиала · текущий день неполный</p></div></div>"
+
+ ❯ apps/web/src/app/today/owner-daily-chart.test.ts:25:15
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL   unit  apps/web/src/app/today/owner-daily-chart.test.ts > keeps huge axis labels compact and the exact amounts accessible
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ apps/web/src/app/today/owner-daily-chart.test.ts:30:75
+     28|  const html=renderToStaticMarkup(createElement(OwnerDailyChart,{metric…
+     29|  const axis=Array.from(html.matchAll(/<text x="90"[^>]*>([\s\S]*?)<\/t…
+     30|  expect(axis).toHaveLength(5);expect(axis.every(label=>label.length<=1…
+       |                                                                           ^
+     31|  expect(html).toContain('9 007 199 254 740 993,01 KZT');
+     32| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  15:02:27
+   Duration  2.03s (transform 45%, tests 28%, import 22%, worker 5%, environment 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T15-02-12Z-unit-ba4a.json
+
+# код выхода 1 · 16 с

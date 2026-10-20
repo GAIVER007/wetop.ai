@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -36,6 +38,15 @@ async function resolvePage(params: Props['params']): Promise<Page> {
   return { kind: 'post', post };
 }
 
+/*
+ * Картинка ссылки статьи: обрезка 1200×630 её первого фото (`public/og`, те же файлы, что у лендингов).
+ * Нет обрезки, остаётся общая `og.png`. Считается при сборке, сайт статический.
+ */
+function postImage(body: string): string | undefined {
+  const name = body.match(/\]\(\/photos\/([\w.-]+\.jpg)\)/)?.[1];
+  return name && existsSync(join(process.cwd(), 'public/og', name)) ? `/og/${name}` : undefined;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = getDictionary();
   const page = await resolvePage(params);
@@ -44,6 +55,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   const { post } = page;
   const path = `/blog/${post.slug}/`;
+  const image = postImage(post.body);
   return {
     title: post.title,
     description: post.description,
@@ -53,7 +65,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: post.title,
       description: post.description,
       publishedTime: post.date,
+      ...(image ? { image } : {}),
     }),
+    ...(image ? { twitter: { card: 'summary_large_image', images: [image] } } : {}),
   };
 }
 
@@ -105,7 +119,7 @@ function BlogArticle({ post }: { post: Post }) {
               datePublished: post.date,
               dateModified: post.date,
               inLanguage: 'ru',
-              image: absoluteUrl('/og.png'),
+              image: absoluteUrl(postImage(post.body) ?? '/og.png'),
               mainEntityOfPage: absoluteUrl(`/blog/${post.slug}/`),
               author: { '@id': absoluteUrl('/#organization') },
               publisher: { '@id': absoluteUrl('/#organization') },

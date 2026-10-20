@@ -1,0 +1,17 @@
+# Модульные (unit) · 16.10.2026 19:57 Алматы · <сервер>
+# коммит 4cf28b7 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 170
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T14-57-59Z-unit-9737.json' 'apps/api/src/finance/owner-money.test.ts' 'apps/api/src/finance/owner-summary.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓  unit  apps/api/src/finance/owner-summary.test.ts (11 tests) 35ms
+ ✓  unit  apps/api/src/finance/owner-money.test.ts (3 tests) 44ms
+
+ Test Files  2 passed (2)
+      Tests  14 passed (14)
+   Start at  14:58:04
+   Duration  4.60s (transform 75%, import 23%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-16T14-57-59Z-unit-9737.json
+
+# код выхода 0 · 9 с

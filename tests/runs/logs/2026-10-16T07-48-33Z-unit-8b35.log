@@ -1,0 +1,300 @@
+# Модульные (unit) · 16.10.2026 12:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2f3b7eb (claude/marketing-model-proposal), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-48-33Z-unit-8b35.json' 'packages/domain/src/accounts/permissions.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| packages/domain/src/accounts/permissions.test.ts (14 tests | 2 failed) 6ms
+   ❯ права ролей (10)
+     × тринадцать прав и своё; у каждого — название 3ms
+     ✓ владельцу — всё 0ms
+     ✓ управляющему — всё, кроме владельческого 0ms
+     ✓ администратору — своё, работа с гостями, диалоги продавца и отчёты на просмотр 0ms
+     ✓ возврат и сторно — владелец и управляющий, не администратор (Q-024) 0ms
+     ✓ администратор не видит тарифы, каналы, настройки, журнал, сотрудников и настройки продавца 0ms
+     × маркетинг (ADR-MKT-B7): своё право у владельца и управляющего, не у администратора 1ms
+     ✓ неизвестная роль не открывает ничего — даже своё 0ms
+     ✓ у кого право — по порядку ролей 0ms
+     ✓ отказ называет раздел и у кого доступ 0ms
+   ✓ тариф брони без тарифа у администратора (Q-201) (4)
+     ✓ назначить можно тариф со штрафом «первые сутки» или «всё проживание», без штрафа — нет 0ms
+     ✓ владелец и управляющий выбирают любой тариф — и у брони с тарифом, и без 0ms
+     ✓ администратору у брони с тарифом выбирать нечего, у брони без тарифа — только со штрафом 0ms
+     ✓ тариф без правила штрафа (старый ответ API) администратору не предлагается 0ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 48ms
+   ❯ права маршрутов API (ADR-107) (3)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 30ms
+     ✓ MKT4, MKT7: у рантайма сайтов два пути, только GET (текущая версия и превью по токену); чтения версии по id нет 18ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(475) } to deeply equal { 'GET /onboarding': 'self', …(475) }
+
+- Expected
++ Received
+
+@@ -1,20 +1,20 @@
+  {
+-   "DELETE /analytics/sites/:id": "marketing",
++   "DELETE /analytics/sites/:id": "settings",
+    "DELETE /auth/invites/:id": "staff",
+    "DELETE /auth/members/:userId": "staff",
+    "DELETE /beauty/employees/:id/time-offs/:timeOffId": "property",
+    "DELETE /food-service/closed-days/:id": "property",
+    "DELETE /food-service/menu/items/:id/photo": "property",
+    "DELETE /food-service/reservations/:id/table": "desk",
+    "DELETE /guests/:id/documents/:documentId": "desk",
+    "DELETE /hotel/media/contract": "settings",
+    "DELETE /hotel/media/photos/:id": "settings",
+    "DELETE /inventory/categories/:code": "property",
+-   "DELETE /marketing/expenses/:id": "marketing",
+-   "DELETE /marketing/site/assets/:id": "marketing",
+-   "DELETE /marketing/site/versions/:id/bookmark": "marketing",
++   "DELETE /marketing/expenses/:id": "settings",
++   "DELETE /marketing/site/assets/:id": "settings",
++   "DELETE /marketing/site/versions/:id/bookmark": "settings",
+    "DELETE /units/:code/blocks/:blockId": "desk",
+    "GET /a/demo": "public",
+    "GET /a/pms.js": "public",
+    "GET /ai-seller/agents/:id": "dialogs",
+    "GET /ai-seller/agents/:id/instruction": "seller",
+@@ -31,13 +31,13 @@
+    "GET /ai-seller/prompt": "seller",
+    "GET /ai-seller/prompt/versions": "seller",
+    "GET /ai-seller/status": "dialogs",
+    "GET /ai-seller/summary": "dialogs",
+    "GET /ai-seller/whatsapp": "seller",
+-   "GET /analytics/sites": "marketing",
+-   "GET /analytics/sites/:id": "marketing",
+-   "GET /analytics/sites/:id/report": "marketing",
++   "GET /analytics/sites": "settings",
++   "GET /analytics/sites/:id": "settings",
++   "GET /analytics/sites/:id/report": "settings",
+    "GET /assistant/errors": "service",
+    "GET /assistant/identity": "self",
+    "GET /assistant/integrations": "service",
+    "GET /assistant/organization": "service",
+    "GET /assistant/requester": "service",
+@@ -149,29 +149,29 @@
+    "GET /inventory/units": "desk",
+    "GET /market/collector/competitors": "service",
+    "GET /market/night": "reports",
+    "GET /market/occupancy": "reports",
+    "GET /market/rates": "reports",
+-   "GET /marketing/budget": "marketing",
+-   "GET /marketing/results": "marketing",
+-   "GET /marketing/site": "marketing",
+-   "GET /marketing/site/assets": "marketing",
+-   "GET /marketing/site/assets/channex": "marketing",
+-   "GET /marketing/site/assistant/:id": "marketing",
+-   "GET /marketing/site/booking-source": "marketing",
+-   "GET /marketing/site/brief": "marketing",
+-   "GET /marketing/site/context": "marketing",
+-   "GET /marketing/site/conversation": "marketing",
+-   "GET /marketing/site/draft": "marketing",
+-   "GET /marketing/site/facts": "marketing",
+-   "GET /marketing/site/generations/:id": "marketing",
++   "GET /marketing/budget": "settings",
++   "GET /marketing/results": "settings",
++   "GET /marketing/site": "settings",
++   "GET /marketing/site/assets": "settings",
++   "GET /marketing/site/assets/channex": "settings",
++   "GET /marketing/site/assistant/:id": "settings",
++   "GET /marketing/site/booking-source": "settings",
++   "GET /marketing/site/brief": "settings",
++   "GET /marketing/site/context": "settings",
++   "GET /marketing/site/conversation": "settings",
++   "GET /marketing/site/draft": "settings",
++   "GET /marketing/site/facts": "settings",
++   "GET /marketing/site/generations/:id": "settings",
+    "GET /marketing/site/leads": "dialogs",
+-   "GET /marketing/site/locations": "marketing",
+-   "GET /marketing/site/publications": "marketing",
+-   "GET /marketing/site/versions": "marketing",
+-   "GET /marketing/site/versions/:id": "marketing",
+-   "GET /marketing/site/versions/:id/diff": "marketing",
++   "GET /marketing/site/locations": "settings",
++   "GET /marketing/site/publications": "settings",
++   "GET /marketing/site/versions": "settings",
++   "GET /marketing/site/versions/:id": "settings",
++   "GET /marketing/site/versions/:id/diff": "settings",
+    "GET /onboarding": "self",
+    "GET /platform/organizations": "platform",
+    "GET /platform/organizations/:id/site-builder": "platform",
+    "GET /platform/overview": "platform",
+    "GET /platform/support/conversations": "platform",
+@@ -216,11 +216,11 @@
+    "GET /w/widget.js": "public",
+    "GET /wizard/quota": "public",
+    "GET /wizard/scan": "public",
+    "GET /wizard/status": "public",
+    "PATCH /ai-seller/conversations/:id/handling": "dialogs",
+-   "PATCH /analytics/sites/:id": "marketing",
++   "PATCH /analytics/sites/:id": "settings",
+    "PATCH /auth/members/:userId": "owner",
+    "PATCH /auth/members/:userId/details": "staff",
+    "PATCH /bar/categories/:id/active": "settings",
+    "PATCH /bar/products/:id": "settings",
+    "PATCH /bar/products/:id/active": "settings",
+@@ -244,13 +244,13 @@
+    "PATCH /hotel/services/:code": "settings",
+    "PATCH /hotel/settings": "settings",
+    "PATCH /inventory/categories/:code": "property",
+    "PATCH /inventory/rooms/:code": "property",
+    "PATCH /market/competitors/:id": "rates",
+-   "PATCH /marketing/expenses/:id": "marketing",
+-   "PATCH /marketing/site/assets/:id": "marketing",
+-   "PATCH /marketing/site/context": "marketing",
++   "PATCH /marketing/expenses/:id": "settings",
++   "PATCH /marketing/site/assets/:id": "settings",
++   "PATCH /marketing/site/context": "settings",
+    "PATCH /marketing/site/leads/:id": "dialogs",
+    "PATCH /platform/organizations/:id": "platform",
+    "PATCH /rates/plans/:code": "rates",
+    "PATCH /rates/plans/:code/derived": "rates",
+    "PATCH /rates/promo-codes/:code": "rates",
+@@ -274,11 +274,11 @@
+    "POST /ai-seller/knowledge": "seller",
+    "POST /ai-seller/llm-key/check": "seller",
+    "POST /ai-seller/prompt/versions/:id/restore": "seller",
+    "POST /ai-seller/sandbox": "seller",
+    "POST /ai-seller/whatsapp/check": "seller",
+-   "POST /analytics/sites": "marketing",
++   "POST /analytics/sites": "settings",
+    "POST /assistant/actions/channel-pull": "service",
+    "POST /assistant/actions/channel-sync": "service",
+    "POST /auth/email/resend": "public",
+    "POST /auth/email/verify": "public",
+    "POST /auth/invites": "staff",
+@@ -383,27 +383,27 @@
+    "POST /hotel/services": "settings",
+    "POST /inventory/categories": "property",
+    "POST /inventory/categories/:code/rate-plan": "property",
+    "POST /inventory/rooms": "property",
+    "POST /market/competitors": "rates",
+-   "POST /marketing/expenses": "marketing",
+-   "POST /marketing/expenses/import": "marketing",
+-   "POST /marketing/site/archive": "marketing",
+-   "POST /marketing/site/assets": "marketing",
+-   "POST /marketing/site/assets/channex/import": "marketing",
+-   "POST /marketing/site/assistant": "marketing",
+-   "POST /marketing/site/assistant/:id/approve": "marketing",
+-   "POST /marketing/site/bootstrap": "marketing",
+-   "POST /marketing/site/from-template": "marketing",
+-   "POST /marketing/site/generations": "marketing",
+-   "POST /marketing/site/pause": "marketing",
+-   "POST /marketing/site/preview": "marketing",
+-   "POST /marketing/site/publish": "marketing",
+-   "POST /marketing/site/resume": "marketing",
+-   "POST /marketing/site/rollback": "marketing",
+-   "POST /marketing/site/versions": "marketing",
+-   "POST /marketing/site/versions/:id/restore": "marketing",
++   "POST /marketing/expenses": "settings",
++   "POST /marketing/expenses/import": "settings",
++   "POST /marketing/site/archive": "settings",
++   "POST /marketing/site/assets": "settings",
++   "POST /marketing/site/assets/channex/import": "settings",
++   "POST /marketing/site/assistant": "settings",
++   "POST /marketing/site/assistant/:id/approve": "settings",
++   "POST /marketing/site/bootstrap": "settings",
++   "POST /marketing/site/from-template": "settings",
++   "POST /marketing/site/generations": "settings",
++   "POST /marketing/site/pause": "settings",
++   "POST /marketing/site/preview": "settings",
++   "POST /marketing/site/publish": "settings",
++   "POST /marketing/site/resume": "settings",
++   "POST /marketing/site/rollback": "settings",
++   "POST /marketing/site/versions": "settings",
++   "POST /marketing/site/versions/:id/restore": "settings",
+    "POST /onboarding": "settings",
+    "POST /platform/organizations": "platform",
+    "POST /platform/organizations/:id/archive": "platform",
+    "POST /platform/organizations/:id/owner-link": "platform",
+    "POST /platform/organizations/:id/restore": "platform",
+@@ -464,13 +464,13 @@
+    "PUT /hotel/payment-methods": "settings",
+    "PUT /inventory/categories/:code/photos": "property",
+    "PUT /market/collector/competitors/:id/occupancy": "service",
+    "PUT /market/competitors/:id/occupancy": "rates",
+    "PUT /market/competitors/:id/rates": "rates",
+-   "PUT /marketing/budget": "marketing",
+-   "PUT /marketing/site/booking-source": "marketing",
+-   "PUT /marketing/site/versions/:id/bookmark": "marketing",
++   "PUT /marketing/budget": "settings",
++   "PUT /marketing/site/booking-source": "settings",
++   "PUT /marketing/site/versions/:id/bookmark": "settings",
+    "PUT /platform/organizations/:id/extensions/ai-seller": "platform",
+    "PUT /platform/organizations/:id/site-builder/:locationId": "platform",
+    "PUT /platform/organizations/:id/status": "platform",
+    "PUT /platform/support/kb/:id": "platform",
+    "PUT /platform/support/prompt": "platform",
+
+ ❯ apps/api/src/auth/route-access.test.ts:602:20
+    600|       .map(([key]) => key);
+    601|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    602|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    603|   });
+    604|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/permissions.test.ts > права ролей > тринадцать прав и своё; у каждого — название
+AssertionError: expected [ 'self', 'desk', 'dialogs', …(10) ] to deeply equal [ 'self', 'desk', 'dialogs', …(11) ]
+
+- Expected
++ Received
+
+@@ -6,11 +6,10 @@
+    "refunds",
+    "property",
+    "rates",
+    "channels",
+    "settings",
+-   "marketing",
+    "journal",
+    "seller",
+    "staff",
+    "owner",
+  ]
+
+ ❯ packages/domain/src/accounts/permissions.test.ts:22:17
+     20|
+     21|   it('тринадцать прав и своё; у каждого — название', () => {
+     22|     expect(all).toEqual([
+       |                 ^
+     23|       'self',
+     24|       'desk',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/permissions.test.ts > права ролей > маркетинг (ADR-MKT-B7): своё право у владельца и управляющего, не у администратора
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ packages/domain/src/accounts/permissions.test.ts:75:39
+     73|
+     74|   it('маркетинг (ADR-MKT-B7): своё право у владельца и управляющего, н…
+     75|     expect(can('OWNER', 'marketing')).toBe(true);
+       |                                       ^
+     76|     expect(can('MANAGER', 'marketing')).toBe(true);
+     77|     expect(can('STAFF', 'marketing')).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 14 passed (17)
+   Start at  00:48:35
+   Duration  2.41s (transform 52%, import 45%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-48-33Z-unit-8b35.json
+
+# код выхода 1 · 4 с

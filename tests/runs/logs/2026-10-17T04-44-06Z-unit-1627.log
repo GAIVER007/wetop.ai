@@ -1,0 +1,147 @@
+# Модульные (unit) · 17.10.2026 09:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит f5380e8 (claude/auth-identity-1016), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-44-06Z-unit-1627.json' 'apps/api/src/auth' 'apps/api/src/accounts' 'apps/api/src/platform'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ✓ |unit| apps/api/src/auth/password-reset.service.test.ts (16 tests) 1928ms
+   ✓ почтовая служба отказала (1)
+     ✓ сброс пароля: живой ссылки не остаётся, и следующая попытка не упирается в ожидание 369ms
+ ✓ |unit| apps/api/src/platform/platform.controller.test.ts (35 tests) 1526ms
+   ✓ организация: название, архив и возврат (10)
+     ✓ пустое, слишком длинное и не строка: 400, ничего не записано 396ms
+ ✓ |unit| apps/api/src/accounts/members.controller.test.ts (41 tests) 2106ms
+   ✓ приглашение с ролью (7)
+     ✓ владелец зовёт управляющего: роль в приглашении, в ответе и в письме 424ms
+   ✓ телефон и должность сотрудника (6)
+     ✓ владелец записывает администратору телефон и должность; в журнал: должность, телефон только отметкой 393ms
+ ✓ |unit| apps/api/src/auth/registration-access.test.ts (10 tests) 1998ms
+   ✓ единая настройка самостоятельной регистрации (ADR-055) (10)
+     ✓ настройка 0: прямой HTTP-запрос получает 403 без записей 1098ms
+ ✓ |unit| apps/api/src/auth/attempt-limits.test.ts (9 tests) 4033ms
+   ✓ вход: предел попыток с одного адреса (2)
+     ✓ после 30 попыток с адреса — 429, а соседний адрес входит как прежде 2132ms
+     ✓ адреса IPv6 одной сети /64 делят один предел 1856ms
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (20 tests) 2159ms
+   ✓ только главный администратор (2)
+     ✓ владелец организации получает 403 на всё, помощника не спрашиваем 643ms
+   ✓ диалоги (4)
+     ✓ карточка анонимного посетителя wetop.ai — «кто пишет» пусто, организацию не ищем 379ms
+ ❯ |unit| apps/api/src/auth/auth.service.test.ts (62 tests | 1 failed) 6821ms
+   ✓ AuthService.login (14)
+     ✓ верный пароль выдаёт токен, открывает сессию на 12 часов и пишет вход в журнал 159ms
+     ✓ почта с пробелами и в верхнем регистре — тот же человек 58ms
+     ✓ неверный пароль: общий текст, попытка посчитана, сессии нет, пароль в журнал не попал 65ms
+     ✓ два одновременных промаха дают счётчик 2: параллельные попытки не съедают локаут (С-5) 68ms
+     ✓ пятый промах ставит запрет по счётчику из базы, а не по прочитанному до записи (С-5) 78ms
+     ✓ неизвестная почта отвечает тем же текстом, что и неверный пароль 84ms
+     ✓ мусор вместо почты не пускает 119ms
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 406ms
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 385ms
+     ✓ одновременные неверные попытки считаются все, а не как одна (аудит 26.09, С-6) 483ms
+     ✓ попытка, ждавшая в очереди, пока учётку заперли, уже не входит — даже с верным паролем 293ms
+     ✓ пачка ошибок на истёкшем замке запирает снова, а не сбрасывает счёт каждой попыткой 229ms
+     ✓ опоздавшая ошибка не снимает свежий замок 112ms
+     ✓ заблокированного сотрудника не пускает 79ms
+   ✓ AuthService.whoami (9)
+     ✓ живая сессия возвращает сотрудника и продлевает отметку активности 168ms
+     ✓ неизвестный, просроченный и отозванный токен — никто 75ms
+     ✓ сессия заблокированного сотрудника больше не годится 61ms
+     ✓ называет организацию сессии: имя, состояние и пробный период — их показывает экран входа 91ms
+     ✓ роль — из членства в организации сессии, отметка главного администратора — пока не отозвана (ADR-083) 75ms
+     ✓ сессия человека, которого исключили из организации, больше не годится (аудит 26.09, С-10) 71ms
+     ✓ сессия приостановленного члена не годится, а после возобновления снова действует (DATA_MODEL §31.2) 64ms
+     ✓ вход приостановленного закрыт с причиной словами, а не общим «неверный пароль» 98ms
+     ✓ сессия приостановленной организации не годится (ADR-046, аудит 26.09, С-4) 75ms
+   ✓ AuthService.logout (1)
+     ✓ отзывает сессию, пишет выход в журнал и повторный вызов не падает 55ms
+   ✓ AuthService.changePassword (4)
+     ✓ верный текущий пароль меняет пароль и гасит остальные сессии 177ms
+     ✓ неверный текущий пароль ничего не меняет 82ms
+     ✓ слабый новый пароль отклоняется с объяснением 86ms
+     ✓ без годной сессии пароль не сменить 27ms
+   ❯ AuthService.register (23)
+     ✓ явный REGISTRATION_OPEN=0 закрывает регистрацию без записи в базу 110ms
+     × регистрация не останавливает главный поток на время scrypt 229ms
+     ✓ название объекта, который уже есть в WETOP, не занимает — без учёта регистра и пробелов 31ms
+     ✓ заводит организацию, человека и членство — но сессию не открывает: почта не подтверждена 58ms
+     ✓ без согласия с политикой организация не заводится 45ms
+     ✓ телефон, не похожий на номер, — отказ словами, без записи в базу 34ms
+     ✓ сохраняет страну организации из выбранной страны и язык интерфейса человека 58ms
+     ✓ без языка в форме человек получает русский; чужой код языка — отказ без записи 53ms
+     ✓ до подтверждения почты вход закрыт — и говорит, что делать 111ms
+     ✓ по ссылке из письма человек подтверждается и входит той же парой почта-пароль 103ms
+     ✓ ссылка одноразовая: второй заход по ней уже подтверждённого человека не ломает вход 82ms
+     ✓ повтор по ссылке позже 10 минут не впускает, а просит войти паролем 296ms
+     ✓ погашенная повторной отправкой ссылка не впускает и после подтверждения почты новой 72ms
+     ✓ повтор по ссылке заблокированного человека не впускает 59ms
+     ✓ вход по ссылке пишется в журнал, а заблокированному сессию не открыть 58ms
+     ✓ через 10 минут использованная ссылка больше не впускает — зовёт войти паролем 56ms
+     ✓ использованная ссылка не впускает заблокированного даже в свежем окне 74ms
+     ✓ окно повтора не продлевает срок самой ссылки 66ms
+     ✓ письмо просит не переходить по ссылке, если учётную запись заводили не вы (аудит 26.09, С-8) 58ms
+     ✓ негодная ссылка отвечает отказом и никого не впускает 29ms
+     ✓ занятый адрес назван прямо — иначе человеку нечего ответить на вторую попытку 67ms
+     ✓ короткий пароль не принимается, и организация от такой попытки не остаётся 42ms
+     ✓ пустое имя и строка, не похожая на почту, — отказ с понятным текстом 28ms
+   ✓ AuthService: учётные данные читаются служебной ролью базы (SEC-1b) (3)
+     ✓ whoami внутри запроса организации: сессия с пользователем и отметка администратора — служебной ролью 76ms
+     ✓ смена пароля внутри запроса организации: чтение и запись пользователя — служебной ролью 239ms
+     ✓ служебный путь не теряет автора: журнал по-прежнему знает пользователя и организацию запроса 200ms
+   ✓ MV2 registration vertical validation (6)
+     ✓ rejects explicit invalid vertical UNKNOWN before writes 75ms
+     ✓ rejects explicit invalid vertical  before writes 68ms
+     ✓ rejects explicit invalid vertical null before writes 27ms
+     ✓ rejects explicit invalid vertical 42 before writes 34ms
+     ✓ registers BEAUTY without any allowlist (Q-UI-TRIAL, ADR-172) 90ms
+     ✓ registers FOOD_SERVICE without any allowlist (Q-UI-TRIAL, ADR-172) 71ms
+   ✓ MV2 first chain for every vertical (2)
+     ✓ persists BEAUTY without creating a hotel 93ms
+     ✓ persists FOOD_SERVICE without creating a hotel 160ms
+ ✓ |unit| apps/api/src/auth/auth.guard.test.ts (37 tests) 23ms
+ ✓ |unit| apps/api/src/auth/me-access.test.ts (3 tests) 287ms
+ ✓ |unit| apps/api/src/platform/support-kb.controller.test.ts (10 tests) 131ms
+ ✓ |unit| apps/api/src/accounts/sessions.controller.test.ts (6 tests) 422ms
+[Nest] 46865  - 10/16/2026, 9:44:26 PM   ERROR [AccountsService] Не удалось отправить приглашение; ссылка отозвана
+ ✓ |unit| apps/api/src/accounts/invites.controller.test.ts (13 tests) 442ms
+ ✓ |unit| apps/api/src/auth/request-context.test.ts (17 tests) 13ms
+ ✓ |unit| apps/api/src/accounts/actor.test.ts (5 tests) 8ms
+ ✓ |unit| apps/api/src/platform/overview.test.ts (4 tests) 12ms
+ ✓ |unit| apps/api/src/auth/scope.test.ts (12 tests) 4ms
+ ✓ |unit| apps/api/src/platform/support.queue.test.ts (20 tests) 22ms
+ ✓ |unit| apps/api/src/auth/author.interceptor.test.ts (11 tests) 21ms
+ ✓ |unit| apps/api/src/auth/auth.controller.test.ts (7 tests) 47ms
+ ✓ |unit| apps/api/src/auth/role.guard.test.ts (9 tests) 14ms
+ ✓ |unit| apps/api/src/auth/scope-enforcement.test.ts (25 tests) 90ms
+ ✓ |unit| apps/api/src/auth/capability-boundary.test.ts (5 tests) 11ms
+ ✓ |unit| apps/api/src/auth/accounts-public-routes.test.ts (10 tests) 9ms
+ ✓ |unit| apps/api/src/auth/registration-contract.test.ts (1 test) 4ms
+ ✓ |unit| apps/api/src/auth/registration-context.test.ts (6 tests) 6ms
+ ✓ |unit| apps/api/src/accounts/cookie.test.ts (10 tests) 5ms
+ ✓ |unit| apps/api/src/auth/business-vertical.test.ts (8 tests) 5ms
+ ✓ |unit| apps/api/src/auth/capability-coverage.test.ts (1 test) 2ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 97ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.register > регистрация не останавливает главный поток на время scrypt
+AssertionError: expected 64.12824999999975 to be less than 25
+ ❯ apps/api/src/auth/auth.service.test.ts:425:21
+    423|       clearInterval(tick);
+    424|     }
+    425|     expect(longest).toBeLessThan(25);
+       |                     ^
+    426|   });
+    427|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 28 passed (29)
+      Tests  1 failed | 415 passed (416)
+   Start at  21:44:10
+   Duration  19.81s (import 46%, transform 33%, tests 21%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-44-06Z-unit-1627.json
+
+# код выхода 1 · 25 с

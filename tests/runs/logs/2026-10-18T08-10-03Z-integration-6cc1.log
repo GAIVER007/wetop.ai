@@ -1,0 +1,27 @@
+# Интеграционные (integration) · 18.10.2026 13:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит a1c5d36 (codex/salons-tz4-m4a), незакоммиченных файлов набора: 18
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-10-03Z-integration-6cc1.json' 'tests/integration/customers-create.test.ts' 'tests/integration/customer-phone.test.ts' 'tests/integration/beauty-appointments.test.ts' 'tests/integration/site-forms.test.ts' 'tests/integration/mv6-food.test.ts' 'tests/integration/function-search-path.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+(node:9703) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/mv6-food.test.ts (19 tests) 2212ms
+   ✓ MV6 real PostgreSQL (19)
+     ✓ HTTP reload and every route enforce vertical, scope, permissions and READ_ONLY 680ms
+(node:9715) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/site-forms.test.ts (23 tests) 910ms
+ ✓ |integration| tests/integration/beauty-appointments.test.ts (14 tests) 564ms
+ ✓ |integration| tests/integration/customers-create.test.ts (4 tests) 341ms
+ ✓ |integration| tests/integration/function-search-path.test.ts (2 tests) 120ms
+ ✓ |integration| tests/integration/customer-phone.test.ts (9 tests) 35ms
+
+ Test Files  6 passed (6)
+      Tests  71 passed (71)
+   Start at  01:10:04
+   Duration  8.00s (tests 60%, import 25%, transform 14%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-10-03Z-integration-6cc1.json
+
+# код выхода 0 · 9 с

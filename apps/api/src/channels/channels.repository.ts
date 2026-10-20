@@ -82,7 +82,9 @@ export interface ChannelsRepository {
   categoryBlocks(
     from: string,
     toExclusive: string,
-  ): Promise<Array<{ accommodationTypeCode: string; dateFrom: string; dateTo: string }>>;
+  ): Promise<
+    Array<{ unitId?: string; accommodationTypeCode: string; dateFrom: string; dateTo: string }>
+  >;
   soldItems(
     from: string,
     toExclusive: string,
@@ -441,13 +443,14 @@ export class PrismaChannelsRepository implements ChannelsRepository {
   async categoryBlocks(from: string, toExclusive: string) {
     const rows = await this.prisma.db.inventoryBlock.findMany({
       where: {
-        inventoryUnit: { propertyId: await this.scopedPropertyId() },
+        inventoryUnit: { propertyId: await this.scopedPropertyId(), active: true },
         dateFrom: { lt: asDate(toExclusive) },
         dateTo: { gt: asDate(from) },
       },
       include: { inventoryUnit: { select: { accommodationType: { select: { code: true } } } } },
     });
     return rows.map((b) => ({
+      unitId: b.inventoryUnitId,
       accommodationTypeCode: b.inventoryUnit.accommodationType.code,
       dateFrom: iso(b.dateFrom),
       dateTo: iso(b.dateTo),

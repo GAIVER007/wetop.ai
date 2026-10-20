@@ -1,0 +1,16 @@
+# Модульные (unit) · 17.10.2026 12:42 Алматы · <сервер>
+# коммит 782b605 (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T07-42-28Z-unit-c929.json' 'apps/api/src/employee-portal/boundary.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ✓  unit  apps/api/src/employee-portal/boundary.test.ts (4 tests) 13ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  07:42:31
+   Duration  378ms (import 79%, transform 15%, tests 5%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-17T07-42-28Z-unit-c929.json
+
+# код выхода 0 · 4 с

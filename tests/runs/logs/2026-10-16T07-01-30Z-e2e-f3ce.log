@@ -1,0 +1,34 @@
+# Сквозные (e2e) · 16.10.2026 12:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит c9e8346 (claude/marketing-analytics-export), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/marketing-budget.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/ui/marketing-budget.spec.ts:61:1 › хаб: карточка «Бюджет» живая и ведёт в раздел; пустой месяц честный (4.7s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓  2 tests/ui/marketing-budget.spec.ts:75:1 › первый расход и план месяца: суммы, остаток, прогноз и распределение оживают (2.5s)
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+[WebServer] [browser] Invalid prop `id` supplied to `React.Fragment`. React.Fragment can only have `key`, `ref`, and `children` props. 
+  ✓  3 tests/ui/marketing-budget.spec.ts:105:1 › журнал: чужая валюта по курсу, фильтр чипами, правка и удаление (2.9s)
+  ✓  4 tests/ui/marketing-budget.spec.ts:142:1 › аналитика маркетинга: воронка, CPL, стоимость брони и ROMI из результатов каналов; реклама без кабинетов только расход (3.4s)
+  ✓  5 tests/ui/marketing-budget.spec.ts:211:1 › аналитика у филиала без броней гостиницы: только расходы и честное «Скоро» (1.4s)
+  ✓  6 tests/ui/marketing-budget.spec.ts:224:1 › переключатель месяца: прошлый месяц показывает свои расходы и прогноз равен факту (1.5s)
+  ✓  7 tests/ui/marketing-budget.spec.ts:250:1 › импорт CSV: файл с ошибкой отклоняется целиком со списком строк, исправленный из Excel загружается (2.5s)
+  ✓  8 tests/ui/marketing-budget.spec.ts:296:3 › снимки и доступность: light (9.0s)
+  ✓  9 tests/ui/marketing-budget.spec.ts:296:3 › снимки и доступность: dark (8.4s)
+
+  9 passed (42.7s)
+
+# код выхода 0 · 44 с

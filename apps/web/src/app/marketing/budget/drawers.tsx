@@ -1,7 +1,8 @@
 'use client';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import type { MarketingExpenseRow } from '../../../lib/api';
-import { minorToInput } from '../../../lib/money';
+import { formatMoney, minorToInput } from '../../../lib/money';
+import { csvField } from '../../finance/csv';
 import { Icon } from '../../../components/icon';
 import { Overlay } from '../../../components/overlay';
 import { useToast } from '../../../components/toast';
@@ -10,7 +11,11 @@ import { Switch } from '../../../components/switch';
 import { Alert, Button, Field, Input, Select, Textarea } from '../../../components/ui';
 import {
   deleteExpenseAction,
+  removeExpenseFileAction,
+  uploadExpenseFileAction,
+  importExpensesAction,
   saveExpenseAction,
+  saveLinesAction,
   savePlanAction,
   type BudgetActionResult,
 } from './actions';
@@ -19,7 +24,7 @@ import { CATEGORY_HINTS, PLATFORM_LABELS, monthTitle, platformLabel } from './pa
 const NONE: BudgetActionResult = { error: null, ok: 0 };
 
 /** То же устройство, что у /market: уведомление сразу по ответу, панель закрывается эффектом */
-function useBudgetAction(
+export function useBudgetAction(
   serverAction: (prev: BudgetActionResult, fd: FormData) => Promise<BudgetActionResult>,
   close: () => void,
 ) {
@@ -41,6 +46,14 @@ function useBudgetAction(
   return [state, action, pending] as const;
 }
 
+/** Умолчания формы расхода; `campaigns`: кампании филиала для выбора (§53), без них поле выбора не показывается */
+export interface ExpenseDefaults {
+  today: string;
+  reportingCurrency: string;
+  locationCurrency: string;
+  campaigns?: Array<{ id: string; name: string; platform: string; status: string }> | undefined;
+}
+
 /** «Добавить расход» и «Изменить»: одна форма (экран 4 макета); при правке внизу «Удалить» */
 export function ExpenseButton({
   expense,
@@ -48,7 +61,7 @@ export function ExpenseButton({
   primary,
 }: {
   expense?: MarketingExpenseRow | undefined;
-  defaults: { today: string; reportingCurrency: string; locationCurrency: string };
+  defaults: ExpenseDefaults;
   primary?: boolean | undefined;
 }) {
   const [open, setOpen] = useState(false);
@@ -86,7 +99,7 @@ function ExpenseForm({
   onClose,
 }: {
   expense?: MarketingExpenseRow | undefined;
-  defaults: { today: string; reportingCurrency: string; locationCurrency: string };
+  defaults: ExpenseDefaults;
   onClose: () => void;
 }) {
   const [state, action, pending] = useBudgetAction(saveExpenseAction, onClose);
@@ -127,6 +140,20 @@ function ExpenseForm({
             ))}
           </Select>
         </Field>
+        {(defaults.campaigns?.length ?? 0) > 0 && (
+          <Field label="Кампания из «Рекламы»" controlId="budget-campaign-id" hint="Расход войдёт в расход кампании; её имя запишется в поле ниже">
+            <Select id="budget-campaign-id" name="campaignId" defaultValue={v('campaignId', expense?.campaignId)} data-testid="budget-campaign-id">
+              <option value="">Без кампании</option>
+              {defaults.campaigns!
+                .filter((c) => c.status !== 'FINISHED' || c.id === expense?.campaignId)
+                .map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {platformLabel(c.platform)}: {c.name}
+                  </option>
+                ))}
+            </Select>
+          </Field>
+        )}
         <Field label="Кампания" controlId="budget-campaign-input" hint="Необязательно: название кампании или поста">
           <Input name="campaign" maxLength={200} defaultValue={v('campaign', expense?.campaign)} data-testid="budget-campaign" />
         </Field>
@@ -203,6 +230,13 @@ function ExpenseForm({
           </Button>
         </div>
       </form>
+      {expense ? (
+        <ExpenseFiles expense={expense} />
+      ) : (
+        <p className="settings-note" data-testid="budget-files-later">
+          Чек или файл можно приложить после сохранения расхода.
+        </p>
+      )}
       {expense && (
         <form ref={deleteForm} action={remove} className="budget-delete">
           <input type="hidden" name="id" value={expense.id} />
@@ -233,7 +267,222 @@ function ExpenseForm({
   );
 }
 
+/** Те же действия, что у форм раздела, но панель не закрывается: файлы прикладывают по одному подряд */
+export function useFileAction(serverAction: (prev: BudgetActionResult, fd: FormData) => Promise<BudgetActionResult>) {
+  const { toast } = useToast();
+  return useActionState(async (prev: BudgetActionResult, fd: FormData) => {
+    const next = await serverAction(prev, fd);
+    if (next.ok) toast({ text: next.message ?? 'Сохранено', tone: 'success' });
+    return next;
+  }, NONE);
+}
+
+const sizeText = (bytes: number) =>
+  bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} КБ` : `${(bytes / 1024 / 1024).toFixed(1).replace('.', ',')} МБ`;
+
+/** «Чеки и файлы» расхода (DATA_MODEL §51, ADR-MKT-B7): фото чека или PDF до 10 МиБ, до 10 файлов, удаление в журнал */
+function ExpenseFiles({ expense }: { expense: MarketingExpenseRow }) {
+  const [uploaded, upload, uploading] = useFileAction(uploadExpenseFileAction);
+  const [removed, remove, removing] = useFileAction(removeExpenseFileAction);
+  const { ask, dialog } = useConfirm();
+  const files = expense.files ?? [];
+  const error = uploaded.error ?? removed.error;
+  return (
+    <section className="budget-files" aria-labelledby={`budget-files-${expense.id}`} data-testid="budget-files">
+      <h3 id={`budget-files-${expense.id}`} className="budget-files__title">
+        Чеки и файлы
+      </h3>
+      {error && <Alert boxed>{error}</Alert>}
+      {files.length === 0 ? (
+        <p className="settings-note">Чеков пока нет: приложите фото чека, скриншот или PDF.</p>
+      ) : (
+        <ul className="budget-files__list" data-testid="budget-files-list">
+          {files.map((f) => (
+            <li key={f.id} className="budget-files__item">
+              <Icon name="receipt" width={16} aria-hidden="true" />
+              {f.url ? (
+                <a href={f.url} target="_blank" rel="noopener noreferrer" className="budget-files__name">
+                  {f.fileName}
+                </a>
+              ) : (
+                <span className="budget-files__name">{f.fileName}</span>
+              )}
+              <span className="budget-files__size">{sizeText(f.byteSize)}</span>
+              <form action={remove}>
+                <input type="hidden" name="expenseId" value={expense.id} />
+                <input type="hidden" name="fileId" value={f.id} />
+                <Button
+                  type="button"
+                  tone="ghost"
+                  size="xs"
+                  disabled={removing}
+                  aria-label={`Удалить файл ${f.fileName}`}
+                  onClick={async (e) => {
+                    const form = e.currentTarget.form;
+                    const yes = await ask({
+                      title: 'Удалить файл?',
+                      body: 'Файл исчезнет из расхода; запись об удалении останется в журнале организации.',
+                      confirmLabel: 'Удалить',
+                      tone: 'danger',
+                    });
+                    if (yes) form?.requestSubmit();
+                  }}
+                >
+                  Удалить
+                </Button>
+              </form>
+            </li>
+          ))}
+        </ul>
+      )}
+      {files.length < 10 && (
+        <form action={upload} className="budget-files__add" key={files.length}>
+          <input type="hidden" name="expenseId" value={expense.id} />
+          <Field label="Фото чека или PDF, до 10 МБ">
+            <Input
+              type="file"
+              name="file"
+              accept="image/jpeg,image/png,image/webp,application/pdf"
+              required
+              data-testid="budget-file-input"
+            />
+          </Field>
+          <Button type="submit" tone="secondary" size="sm" disabled={uploading} aria-busy={uploading} data-testid="budget-file-upload">
+            {uploading ? 'Загружаю…' : 'Приложить файл'}
+          </Button>
+        </form>
+      )}
+      {dialog}
+    </section>
+  );
+}
+
 /** План месяца: одна сумма в валюте отчётности (экран 2, вкладка «Планы») */
+/**
+ * «Распределить план» (DATA_MODEL §52, ADR-MKT-B7): поле суммы на каждый канал, пустое значит «канала в плане нет».
+ * Сумма каналов больше общего плана не запрещается: форма показывает «распределено N из M» и предупреждает.
+ */
+export function LinesButton({
+  month,
+  plan,
+  lines,
+  prevLines,
+  currency,
+}: {
+  month: string;
+  plan: string | null;
+  lines: Array<{ platform: string; amount: string }>;
+  prevLines: Array<{ platform: string; amount: string }>;
+  currency: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button type="button" tone="secondary" size="sm" onClick={() => setOpen(true)} data-testid="budget-lines-edit">
+        {lines.length === 0 ? 'Распределить план' : 'Изменить план по каналам'}
+      </Button>
+      {open && (
+        <Overlay
+          open
+          drawer
+          className="settings-service-drawer"
+          title={`План по каналам на ${monthTitle(month).toLowerCase()}`}
+          onClose={() => setOpen(false)}
+        >
+          <LinesForm
+            month={month}
+            plan={plan}
+            lines={lines}
+            prevLines={prevLines}
+            currency={currency}
+            onClose={() => setOpen(false)}
+          />
+        </Overlay>
+      )}
+    </>
+  );
+}
+
+/** Тиыны строкой → тиыны bigint из поля ввода («120 000,5»); неразборчивое считается нулём, отказ даст сервер */
+const inputMinor = (v: string): bigint => {
+  const m = /^(\d+)(?:[.,](\d{1,2}))?$/.exec(v.replace(/\s/g, ''));
+  return m ? BigInt(m[1]!) * 100n + BigInt((m[2] ?? '').padEnd(2, '0')) : 0n;
+};
+
+function LinesForm({
+  month,
+  plan,
+  lines,
+  prevLines,
+  currency,
+  onClose,
+}: {
+  month: string;
+  plan: string | null;
+  lines: Array<{ platform: string; amount: string }>;
+  prevLines: Array<{ platform: string; amount: string }>;
+  currency: string;
+  onClose: () => void;
+}) {
+  const [state, action, pending] = useBudgetAction(saveLinesAction, onClose);
+  const fill = (source: Array<{ platform: string; amount: string }>) =>
+    Object.fromEntries(Object.keys(PLATFORM_LABELS).map((p) => {
+      const line = source.find((l) => l.platform === p);
+      return [p, line ? minorToInput(line.amount) : ''];
+    }));
+  const [values, setValues] = useState<Record<string, string>>(() =>
+    state.values
+      ? Object.fromEntries(Object.keys(PLATFORM_LABELS).map((p) => [p, state.values?.[`amount-${p}`] ?? '']))
+      : fill(lines),
+  );
+  const allocated = Object.values(values).reduce((sum, v) => sum + inputMinor(v), 0n);
+  const total = plan === null ? null : BigInt(plan);
+  return (
+    <form action={action} className="settings-service-form" data-testid="budget-lines-form">
+      {state.error && <Alert boxed>{state.error}</Alert>}
+      <input type="hidden" name="month" value={month} />
+      <p className="settings-note">
+        Разбивка общего плана месяца по каналам в {currency}. Пустое поле: канала в плане нет. Без общего плана
+        сумма каналов и есть план месяца.
+      </p>
+      {prevLines.length > 0 && (
+        <Button type="button" tone="secondary" size="sm" onClick={() => setValues(fill(prevLines))} data-testid="budget-lines-copy">
+          Взять из прошлого месяца
+        </Button>
+      )}
+      {Object.entries(PLATFORM_LABELS).map(([platform, label]) => (
+        <Field key={platform} label={label}>
+          <Input
+            name={`amount-${platform}`}
+            inputMode="decimal"
+            value={values[platform] ?? ''}
+            onChange={(e) => setValues((prev) => ({ ...prev, [platform]: e.target.value }))}
+            data-testid={`budget-line-${platform}`}
+          />
+        </Field>
+      ))}
+      <p className="settings-note" aria-live="polite" data-testid="budget-lines-allocated">
+        {total === null
+          ? `Сумма каналов: ${formatMoney(allocated, currency)}`
+          : `Распределено ${formatMoney(allocated, currency)} из ${formatMoney(total, currency)}`}
+      </p>
+      {total !== null && allocated > total && (
+        <Alert tone="warning" data-testid="budget-lines-over">
+          Каналы расписаны больше общего плана на {formatMoney(allocated - total, currency)}. Сохранить можно.
+        </Alert>
+      )}
+      <div className="settings-service-actions">
+        <Button type="button" tone="secondary" onClick={onClose}>
+          Отмена
+        </Button>
+        <Button type="submit" disabled={pending} aria-busy={pending} data-testid="budget-lines-save">
+          {pending ? 'Сохраняю…' : 'Сохранить'}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 export function PlanButton({
   month,
   plan,
@@ -306,6 +555,60 @@ function PlanForm({
   );
 }
 
+/**
+ * «Загрузить CSV» (МКТ-В2, импорт данных): файл формата выгрузки, колонки по заголовку. Ошибка в любой
+ * строке отклоняет весь файл, поэтому после правки его можно загрузить снова без дублей.
+ */
+export function ImportCsvButton({ reportingCurrency }: { reportingCurrency: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button type="button" tone="secondary" size="sm" onClick={() => setOpen(true)} data-testid="budget-import">
+        Загрузить CSV
+      </Button>
+      {open && (
+        <Overlay open drawer className="settings-service-drawer" title="Загрузка расходов" onClose={() => setOpen(false)}>
+          <ImportForm reportingCurrency={reportingCurrency} onClose={() => setOpen(false)} />
+        </Overlay>
+      )}
+    </>
+  );
+}
+
+function ImportForm({ reportingCurrency, onClose }: { reportingCurrency: string; onClose: () => void }) {
+  const [state, action, pending] = useBudgetAction(importExpensesAction, onClose);
+  return (
+    <form action={action} className="settings-service-form" data-testid="budget-import-form">
+      {state.error && (
+        <Alert boxed className="budget-import-error" data-testid="budget-import-error">
+          {state.error}
+        </Alert>
+      )}
+      <input type="hidden" name="currency" value={reportingCurrency} />
+      <p className="settings-note">
+        Таблица в формате выгрузки «Выгрузить CSV»: обязательны колонки «Дата», «Платформа», «Статья» и «Сумма»,
+        остальные по желанию. Дата ГГГГ-ММ-ДД или ДД.ММ.ГГГГ, платформа подписью или кодом, валюта по умолчанию{' '}
+        {reportingCurrency}, для другой валюты нужен курс. До 1000 строк за раз.
+      </p>
+      <p className="settings-note">
+        Если в строке ошибка, файл не загружается целиком и ничего не записывается: исправьте строки из списка и
+        загрузите снова.
+      </p>
+      <Field label="Файл CSV">
+        <Input type="file" name="file" accept=".csv,text/csv" required data-testid="budget-import-file" />
+      </Field>
+      <div className="settings-service-actions">
+        <Button type="button" tone="secondary" onClick={onClose}>
+          Отмена
+        </Button>
+        <Button type="submit" disabled={pending} aria-busy={pending} data-testid="budget-import-save">
+          {pending ? 'Загружаю…' : 'Загрузить'}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 /** Выгрузка журнала месяца в CSV: файл собирается из уже загруженных строк, без запроса */
 export function ExportCsvButton({
   rows,
@@ -320,7 +623,7 @@ export function ExportCsvButton({
     const head = ['Дата', 'Платформа', 'Кампания', 'Статья', 'Описание', 'Сумма', 'Валюта', 'Курс', `Сумма, ${reportingCurrency}`, 'В бюджете'];
     const line = (r: MarketingExpenseRow) =>
       [r.date, platformLabel(r.platform), r.campaign ?? '', r.category, r.description ?? '', minorToInput(r.amount), r.currency, r.fxRate, minorToInput(r.baseAmount), r.countedInBudget ? 'да' : 'нет']
-        .map((c) => `"${String(c).replaceAll('"', '""')}"`)
+        .map((c) => csvField(String(c)))
         .join(';');
     const csv = '﻿' + [head.join(';'), ...rows.map(line)].join('\r\n');
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));

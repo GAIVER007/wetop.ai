@@ -26,12 +26,14 @@ export function CategoryPreview({
   onClose,
   onEdit,
   onAdd,
+  canMutate,
 }: {
   category: InventoryCategory;
   units: InventoryUnit[];
   onClose: () => void;
   onEdit: () => void;
   onAdd: () => void;
+  canMutate: boolean;
 }) {
   const members = units
     .filter((u) => u.accommodationTypeCode === c.code)
@@ -88,9 +90,11 @@ export function CategoryPreview({
                 Открыть весь состав
               </Link>
             )}
-            <Button tone="secondary" onClick={onAdd}>
-              {addWord(c)}
-            </Button>
+            {canMutate && (
+              <Button tone="secondary" onClick={onAdd}>
+                {addWord(c)}
+              </Button>
+            )}
           </div>
         </section>
         <section aria-label="Цена">
@@ -120,9 +124,11 @@ export function CategoryPreview({
           <Link href={`/rooms/availability?category=${code}`} prefetch={false}>
             Посмотреть доступность
           </Link>
-          <Button tone="ghost" onClick={onEdit}>
-            Редактировать
-          </Button>
+          {canMutate && (
+            <Button tone="ghost" onClick={onEdit}>
+              Редактировать
+            </Button>
+          )}
         </div>
       </div>
     </Overlay>

@@ -1,0 +1,50 @@
+# Интеграционные (integration) · 16.10.2026 13:39 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 29
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T08-39-19Z-integration-1797.json' '--config' 'tests/opening-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/opening-isolated.test.ts (2 tests | 2 failed) 54ms
+   × rejects nonexistent and ambiguous local times rather than choosing offsets 26ms
+   × confirmed writer materializes observed capacity; sessions project complete and earlier partial; edits preserve history 25ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/opening-isolated.test.ts > rejects nonexistent and ambiguous local times rather than choosing offsets
+AssertionError: expected [Function] to throw error including 'LOCAL_TIME_NONEXISTENT_OR_AMBIGUOUS' but got 'function restaurant_local_instant(unk…'
+
+Expected: "LOCAL_TIME_NONEXISTENT_OR_AMBIGUOUS"
+Received: "function restaurant_local_instant(unknown, unknown) does not exist"
+
+ ❯ tests/integration/opening-isolated.test.ts:10:100
+      8| afterAll(()=>pool.end());
+      9| it('rejects nonexistent and ambiguous local times rather than choosing…
+     10|  await expect(pool.query("select restaurant_local_instant('2026-03-08 …
+       |                                                                                                    ^
+     11|  await expect(pool.query("select restaurant_local_instant('2026-11-01 …
+     12| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/opening-isolated.test.ts > confirmed writer materializes observed capacity; sessions project complete and earlier partial; edits preserve history
+error: function confirm_restaurant_opening(unknown, jsonb, unknown) does not exist
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/opening-isolated.test.ts:22:2
+     20|  const day=new Date().toISOString().slice(0,10), weekday=new Date().ge…
+     21|  const input={effectiveFrom:day,effectiveTo:day,intervals:[{weekday,lo…
+     22|  await pool.query('select confirm_restaurant_opening($1,$2::jsonb,null…
+       |  ^
+     23|  const revision=(await pool.query('select * from resource_capacity_rev…
+     24|  const start=revision.valid_from;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  08:39:20
+   Duration  991ms (transform 74%, import 19%, tests 6%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T08-39-19Z-integration-1797.json
+
+# код выхода 1 · 2 с

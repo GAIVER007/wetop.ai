@@ -1,4 +1,5 @@
 import { FIXTURE_API, expect, test, type Page, sideNav, openSection } from './fixtures';
+import { signInForBar } from './bar-auth';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -25,7 +26,7 @@ test('обзор как на макете: пять KPI, графики, ком�
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
   const m = main(page);
-  await expect(m.getByRole('heading', { level: 1 })).toHaveText('Бар');
+  await expect(m.getByRole('heading', { level: 1 })).toHaveText('Склад');
   // Приход, продажа, инвентаризация в шапке; добавление товара у списка.
   await expect(m.getByRole('button', { name: 'Добавить товар', exact: true })).toBeVisible();
   await expect(m.getByRole('link', { name: 'Приход', exact: true })).toHaveAttribute('href', '/bar/receipts/new');
@@ -73,6 +74,7 @@ test('обзор как на макете: пять KPI, графики, ком�
 });
 
 test('быстрая продажа одной строкой и фильтры доски', async ({ page }) => {
+  await signInForBar(page);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
   const m = main(page);
@@ -81,7 +83,7 @@ test('быстрая продажа одной строкой и фильтры 
   await expect(sale.getByLabel('Количество, шт.')).toHaveValue('1');
   await sale.getByLabel('Товар').selectOption({ index: 1 });
   await sale.getByRole('button', { name: 'Продать' }).click();
-  await expect(sale.getByRole('status')).toContainText('Продажа записана');
+  await expect(sale.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
   const board = m.getByRole('region', { name: 'Товары и остатки бара' });
   await m.getByLabel('Поиск товара').fill('red');
   await expect(board.locator('tbody tr')).toHaveCount(1);
@@ -130,6 +132,47 @@ test('карточка товара: «Изменить цены» пересч�
   await expect(cola.locator('.bar-history')).toContainText('Приход');
 });
 
+test('N6: товар в архивной категории сохраняет её при правке карточки (ADR-186)', async ({
+  page,
+  request,
+}) => {
+  const { token } = await (
+    await request.post(`${fixture}/auth/login`, {
+      data: { email: 'admin@wetop.test', password: 'ui-test-parol' },
+      headers: { 'x-wetop-test-client': '1' },
+    })
+  ).json();
+  const headers = { authorization: `Bearer ${token}`, 'x-wetop-test-client': '1' };
+  const categories = (await (
+    await request.get(`${fixture}/bar/categories`, { headers })
+  ).json()) as Array<{ id: string; name: string }>;
+  const juices = categories.find((c) => c.name === 'Соки')!;
+  expect(
+    (
+      await request.patch(`${fixture}/bar/categories/${juices.id}/active`, {
+        headers,
+        data: { active: false },
+      })
+    ).ok(),
+  ).toBe(true);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/bar');
+  const m = main(page);
+  const board = m.getByRole('region', { name: 'Товары и остатки бара' });
+  await board.getByRole('button', { name: 'Изменить Сок Rich 0.2' }).click();
+  const card = m.getByRole('complementary', { name: 'Карточка товара Сок Rich 0.2' });
+  const select = card.getByLabel('Категория', { exact: true });
+  await expect(select).toHaveValue(juices.id);
+  await expect(select.locator('option:checked')).toHaveText('Соки (в архиве)');
+  await card.getByLabel('Мин. остаток').fill('6');
+  await card.getByRole('button', { name: 'Сохранить' }).click();
+  await expect(card.getByRole('status').last()).toContainText('Карточка товара сохранена');
+  const products = (await (
+    await request.get(`${fixture}/bar/products`, { headers })
+  ).json()) as Array<{ name: string; categoryId: string | null }>;
+  expect(products.find((p) => p.name === 'Сок Rich 0.2')?.categoryId).toBe(juices.id);
+});
+
 test('«Удалить» уводит товар в архив после вопроса; флажки отмечают строки', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
@@ -161,16 +204,21 @@ test('«Добавить товар» открывает карточку нов
   await expect(card.getByRole('status').last()).toContainText('Товар добавлен');
 });
 
-test('меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её', async ({ page }) => {
+// верхнее меню 17.10.2026: экраны бара стали разделом «Склад»
+test('меню: экраны бара в разделе «Склад», адреса бара подсвечивают его', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar/products');
-  // левое меню (ADR-161): на кнопке раздел «Финансы», «Бар» его подраздел, а не свой раздел
   const nav = sideNav(page);
-  await expect(nav.locator('.sidenav__current')).toHaveText('Финансы');
+  await expect(nav.locator('.sidenav__current')).toHaveText('Склад');
   await expect(nav.locator('.sidenav__section', { hasText: /^Бар$/ })).toHaveCount(0);
-  await openSection(page, 'Финансы');
-  await expect(nav.locator('.sidenav__items').getByRole('link', { name: 'Оплаты и касса', exact: true })).toBeVisible();
-  await expect(nav.locator('.sidenav__items').getByRole('link', { name: 'Бар', exact: true })).toHaveAttribute('aria-current', 'page');
+  const items = await openSection(page, 'Склад');
+  // пункты в порядке вкладок экрана склада (19.10.2026)
+  await expect(items.locator('a')).toHaveText(['Обзор склада', 'Приходы', 'Номенклатура', 'Поставщики', 'Движение товаров']);
+  await expect(items.getByRole('link', { name: 'Номенклатура', exact: true })).toHaveAttribute('aria-current', 'page');
+  // у приходов свой пункт
+  await page.goto('/bar/receipts');
+  await expect(nav.locator('.sidenav__current')).toHaveText('Склад');
+  await expect(nav.locator('.sidenav__items [aria-current="page"]')).toHaveText('Приходы');
 });
 
 test('новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом', async ({ page }) => {

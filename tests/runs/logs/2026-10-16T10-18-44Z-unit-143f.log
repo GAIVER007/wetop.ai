@@ -1,0 +1,133 @@
+# Модульные (unit) · 16.10.2026 15:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5e43de1 (claude/marketing-campaigns-proposal), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-18-44Z-unit-143f.json' 'packages/domain/src/marketing/campaigns.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| packages/domain/src/marketing/campaigns.test.ts (7 tests | 7 failed) 5ms
+   ❯ кампания: разбор ввода (DATA_MODEL §53, ADR-MKT-B3) (2)
+     × имя без лишних пробелов, статус по умолчанию «идёт», даты необязательны 2ms
+     × отказы словами 1ms
+   ❯ статистика кампании за день (3)
+     × целые не меньше нуля, пробелы в тысячах допустимы, пустое это ноль 0ms
+     × кликов больше показов не бывает; дробь и минус отвергаются 0ms
+     × CSV статистики: колонки по заголовку, дата из Excel, ошибки строк одним отказом 0ms
+   ❯ показатели кампании (2)
+     × CTR в сотых долях процента, CPC, CPM и CPL площадки в тиынах с округлением к ближайшему 0ms
+     × делить не на что: пусто, а не ноль 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/campaigns.test.ts > кампания: разбор ввода (DATA_MODEL §53, ADR-MKT-B3) > имя без лишних пробелов, статус по умолчанию «идёт», даты необязательны
+TypeError: parseCampaignInput is not a function
+ ❯ packages/domain/src/marketing/campaigns.test.ts:12:12
+     10| describe('кампания: разбор ввода (DATA_MODEL §53, ADR-MKT-B3)', () => {
+     11|   it('имя без лишних пробелов, статус по умолчанию «идёт», даты необяз…
+     12|     expect(parseCampaignInput({ platform: 'META', name: '  Осень: лиды…
+       |            ^
+     13|       platform: 'META',
+     14|       name: 'Осень: лиды',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/campaigns.test.ts > кампания: разбор ввода (DATA_MODEL §53, ADR-MKT-B3) > отказы словами
+AssertionError: expected error to be instance of MarketingBudgetError
+
+- Expected:
+[Function MarketingBudgetError]
+
++ Received:
+TypeError {
+  "message": "(0 , __vite_ssr_import_2__.parseCampaignInput) is not a function",
+}
+
+ ❯ fails packages/domain/src/marketing/campaigns.test.ts:6:14
+      4|
+      5| const fails = (fn: () => unknown, word: string) => {
+      6|   expect(fn).toThrow(MarketingBudgetError);
+       |              ^
+      7|   expect(fn).toThrow(word);
+      8| };
+ ❯ packages/domain/src/marketing/campaigns.test.ts:27:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/campaigns.test.ts > статистика кампании за день > целые не меньше нуля, пробелы в тысячах допустимы, пустое это ноль
+TypeError: parseCampaignStatsInput is not a function
+ ❯ packages/domain/src/marketing/campaigns.test.ts:36:12
+     34| describe('статистика кампании за день', () => {
+     35|   it('целые не меньше нуля, пробелы в тысячах допустимы, пустое это но…
+     36|     expect(parseCampaignStatsInput({ date: '2026-10-05', impressions: …
+       |            ^
+     37|       date: '2026-10-05',
+     38|       impressions: 12000,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/campaigns.test.ts > статистика кампании за день > кликов больше показов не бывает; дробь и минус отвергаются
+AssertionError: expected error to be instance of MarketingBudgetError
+
+- Expected:
+[Function MarketingBudgetError]
+
++ Received:
+TypeError {
+  "message": "(0 , __vite_ssr_import_2__.parseCampaignStatsInput) is not a function",
+}
+
+ ❯ fails packages/domain/src/marketing/campaigns.test.ts:6:14
+      4|
+      5| const fails = (fn: () => unknown, word: string) => {
+      6|   expect(fn).toThrow(MarketingBudgetError);
+       |              ^
+      7|   expect(fn).toThrow(word);
+      8| };
+ ❯ packages/domain/src/marketing/campaigns.test.ts:45:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/campaigns.test.ts > статистика кампании за день > CSV статистики: колонки по заголовку, дата из Excel, ошибки строк одним отказом
+TypeError: parseCampaignStatsCsv is not a function
+ ❯ packages/domain/src/marketing/campaigns.test.ts:52:18
+     50|
+     51|   it('CSV статистики: колонки по заголовку, дата из Excel, ошибки стро…
+     52|     const rows = parseCampaignStatsCsv('﻿Дата;Показы;Клики;Лиды\r\n05.…
+       |                  ^
+     53|     expect(rows).toEqual([
+     54|       { line: 2, date: '2026-10-05', impressions: 1000, clicks: 20, le…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/campaigns.test.ts > показатели кампании > CTR в сотых долях процента, CPC, CPM и CPL площадки в тиынах с округлением к ближайшему
+TypeError: campaignMetrics is not a function
+ ❯ packages/domain/src/marketing/campaigns.test.ts:66:12
+     64|   it('CTR в сотых долях процента, CPC, CPM и CPL площадки в тиынах с о…
+     65|     // расход 10 000 ₸, 25 000 показов, 300 кликов, 12 лидов
+     66|     expect(campaignMetrics({ spendMinor: 1000000n, impressions: 25000,…
+       |            ^
+     67|       ctrBp: 120, // 1,20 %
+     68|       cpcMinor: 3333n, // 33,33 ₸
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/campaigns.test.ts > показатели кампании > делить не на что: пусто, а не ноль
+TypeError: campaignMetrics is not a function
+ ❯ packages/domain/src/marketing/campaigns.test.ts:75:12
+     73|
+     74|   it('делить не на что: пусто, а не ноль', () => {
+     75|     expect(campaignMetrics({ spendMinor: 0n, impressions: 0, clicks: 0…
+       |            ^
+     76|       ctrBp: null,
+     77|       cpcMinor: null,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed (7)
+   Start at  03:18:45
+   Duration  114ms (transform 67%, import 17%, tests 10%, worker 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-18-44Z-unit-143f.json
+
+# код выхода 1 · 1 с

@@ -2618,6 +2618,22 @@ button {
 :root[data-theme='dark'] .public-intro::before {
   --hero-art: url('/hero/dark.jpg');
 }
+/* Телефон (17.10.2026): та же картинка шириной 960 px. Фон декоративный, но Lighthouse считал его LCP первого экрана. */
+@media (max-width: 40rem) {
+  .public-intro::before {
+    --hero-art: url('/hero/light-960.jpg');
+  }
+}
+@media (max-width: 40rem) and (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .public-intro::before {
+    --hero-art: url('/hero/dark-960.jpg');
+  }
+}
+@media (max-width: 40rem) {
+  :root[data-theme='dark'] .public-intro::before {
+    --hero-art: url('/hero/dark-960.jpg');
+  }
+}
 /* Текст над мокапом (уже 1200 px): ленты уходят под текст, поэтому фон приглушён и сдвинут вниз. */
 @media (max-width: 74.99rem) {
   .public-intro::before {

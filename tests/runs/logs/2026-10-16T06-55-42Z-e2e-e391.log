@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 16.10.2026 11:55 Алматы · Noutbuk-Vyacheslav.local
+# коммит d995c44 (claude/bar-o4-decisions-20261016), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/bar.spec.ts' 'tests/ui/bar-reference.spec.ts' 'tests/ui/bar-reference-accessibility.spec.ts' 'tests/ui/bar-payment-methods.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 32 tests using 1 worker
+
+  ✓   1 tests/ui/bar-payment-methods.spec.ts:25:1 › быстрая продажа: Halyk первым, Kaspi выключен и не предлагается (4.2s)
+  ✓   2 tests/ui/bar-payment-methods.spec.ts:36:1 › оплата поставщику: список по настройке, счёт организации остаётся умолчанием, пока включён (1.3s)
+  ✓   3 tests/ui/bar-payment-methods.spec.ts:45:1 › объект оставил только депозит и гарантию: форма говорит словами, кнопки продажи нет (1.3s)
+  ✓   4 tests/ui/bar-reference-accessibility.spec.ts:3:47 › bar pages readable and accessible light (8.4s)
+  ✓   5 tests/ui/bar-reference-accessibility.spec.ts:3:47 › bar pages readable and accessible dark (6.9s)
+  ✓   6 tests/ui/bar-reference.spec.ts:2:32 › bar reference layout 1333 (906ms)
+  ✓   7 tests/ui/bar-reference.spec.ts:2:32 › bar reference layout 390 (900ms)
+  ✓   8 tests/ui/bar-reference.spec.ts:15:1 › inventory direct entry and existing handler (903ms)
+  ✓   9 tests/ui/bar-reference.spec.ts:21:1 › inventory uses the existing stock and action (894ms)
+  ✓  10 tests/ui/bar-reference.spec.ts:30:1 › sort stock preserves the loaded quantities (888ms)
+  ✓  11 tests/ui/bar-reference.spec.ts:38:1 › mobile quick actions open the existing forms (1.0s)
+  ✓  12 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 1333 light (2.0s)
+  ✓  13 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 1333 dark (2.0s)
+  ✓  14 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 960 light (2.0s)
+  ✓  15 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 960 dark (2.0s)
+  ✓  16 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 390 light (2.0s)
+  ✓  17 tests/ui/bar-reference.spec.ts:47:82 › clear KPI 390 dark (2.0s)
+  ✓  18 tests/ui/bar-reference.spec.ts:62:33 › direct sale visible labels and journal 1333 (1.4s)
+  ✓  19 tests/ui/bar-reference.spec.ts:62:33 › direct sale visible labels and journal 390 (1.6s)
+  ✓  20 tests/ui/bar.spec.ts:23:1 › обзор как на макете: пять KPI, графики, компактная доска и подробности (1.3s)
+  ✓  21 tests/ui/bar.spec.ts:75:1 › быстрая продажа одной строкой и фильтры доски (1.1s)
+  ✓  22 tests/ui/bar.spec.ts:100:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (1.6s)
+  ✓  23 tests/ui/bar.spec.ts:133:1 › N6: товар в архивной категории сохраняет её при правке карточки (ADR-185) (1.1s)
+  ✓  24 tests/ui/bar.spec.ts:174:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (1.3s)
+  ✓  25 tests/ui/bar.spec.ts:191:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (1.0s)
+  ✓  26 tests/ui/bar.spec.ts:205:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (1.0s)
+  ✓  27 tests/ui/bar.spec.ts:217:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (1.8s)
+  ✓  28 tests/ui/bar.spec.ts:246:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (813ms)
+  ✓  29 tests/ui/bar.spec.ts:258:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (2.0s)
+  ✓  30 tests/ui/bar.spec.ts:284:1 › операции: списание с причиной, журнал продаж и лента движений (1.2s)
+  ✓  31 tests/ui/bar.spec.ts:310:3 › доступность и телефон: light (3.0s)
+  ✓  32 tests/ui/bar.spec.ts:310:3 › доступность и телефон: dark (3.0s)
+
+  32 passed (1.1m)
+
+# код выхода 0 · 1 мин 8 с

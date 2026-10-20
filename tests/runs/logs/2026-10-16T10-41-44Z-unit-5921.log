@@ -1,0 +1,86 @@
+# Модульные (unit) · 16.10.2026 15:41 Алматы · Noutbuk-Vyacheslav.local
+# коммит 60a7715 (claude/auto-deploy-disk-guard), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-41-44Z-unit-5921.json' 'tests/unit/auto-deploy.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main
+
+ ❯ |unit| tests/unit/auto-deploy.test.ts (18 tests | 2 failed) 22049ms
+   ❯ scripts/ops/auto-deploy.sh (18)
+     ✓ checked-out source stays readable by the container user under a private caller umask 2993ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 619ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 1561ms
+     × после выкладки остаётся один образ отката, старые убираются (16.10.2026: пять по 2 ГБ заполнили диск) 950ms
+     × мало места на диске — убирает кэш, не трогает клон, говорит один раз и выкладывает, когда место есть 976ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 794ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 1417ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 1183ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 861ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 1155ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 1473ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 1357ms
+     ✓ локальные правки в клоне — не затирает их 716ms
+     ✓ историю ветки переписали — не выкладывает поверх 1135ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 1067ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 1263ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 1456ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 1069ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > после выкладки остаётся один образ отката, старые убираются (16.10.2026: пять по 2 ГБ заполнили диск)
+AssertionError: expected 'docker ps -q --filter label=com.docke…' to contain 'docker image rm pms-lux:rollback-aaaa…'
+
+- Expected
++ Received
+
+- docker image rm pms-lux:rollback-aaaa1111
++ docker ps -q --filter label=com.docker.compose.project=pms-lux-ci
++ docker top ci1
++ docker image tag pms-lux:latest pms-lux:rollback-b34207e3
++ docker compose -f deploy/compose.yml up -d --build api web
++ docker compose -f deploy/compose.yml exec -T api wget -qO- http://127.0.0.1:3001/health
++ docker compose -f deploy/compose.yml exec -T web node -e 
++         const pages = ['/auth/fallback', '/today', '/chessboard', '/reservations'];
++         Promise.all(pages.map((p) => fetch('http://127.0.0.1:3000' + p, { redirect: 'manual' }).then((r) => [p, r.status])))
++           .then((all) => process.exit(all[0][1] === 200 && all.every(([, s]) => s < 500) ? 0 : 1))
++           .catch(() => process.exit(1));
++
+
+ ❯ tests/unit/auto-deploy.test.ts:168:27
+    166|     const r = run({ FAKE_ROLLBACK_TAGS: `rollback-aaaa1111 rollback-bb…
+    167|     expect(r.code, r.out).toBe(0);
+    168|     expect(dockerCalls()).toContain('docker image rm pms-lux:rollback-…
+       |                           ^
+    169|     expect(dockerCalls()).toContain('docker image rm pms-lux:rollback-…
+    170|     expect(dockerCalls()).not.toContain(`docker image rm pms-lux:${kee…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > мало места на диске — убирает кэш, не трогает клон, говорит один раз и выкладывает, когда место есть
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/unit/auto-deploy.test.ts:180:22
+    178|     chmodSync(join(bin, 'df'), 0o755);
+    179|     const low = run({ FAKE_DF_AVAIL_KB: String(1024 * 1024) });
+    180|     expect(low.code).toBe(1);
+       |                      ^
+    181|     expect(low.out).toContain('меньше 6 ГБ');
+    182|     expect(dockerCalls()).toContain('docker builder prune -f');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 16 passed (18)
+   Start at  03:41:47
+   Duration  22.34s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-41-44Z-unit-5921.json
+
+# код выхода 1 · 27 с

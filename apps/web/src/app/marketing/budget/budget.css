@@ -7,6 +7,11 @@
     gap: var(--space-6);
   }
 
+  /* ошибки импорта CSV: каждая строка файла с новой строки */
+  .budget-import-error {
+    white-space: pre-line;
+  }
+
   .budget-head {
     display: flex;
     align-items: center;
@@ -159,19 +164,115 @@
     display: block;
   }
 
+  /* «Чеки и файлы» расхода в панели правки (§51) */
+  .budget-files {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border);
+  }
+
+  .budget-files__title {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+
+  .budget-files__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .budget-files__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  .budget-files__name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .budget-files__size {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  .budget-files__add {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    align-items: flex-start;
+  }
+
+  .budget-files__count {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  /* остаток канала ушёл в минус: план против факта (§52) */
+  .budget-td-danger {
+    color: var(--danger);
+  }
+
   .budget-cell-sub {
     display: block;
     color: var(--muted);
     font-size: var(--text-sm);
   }
 
-  /* «Эффективность источников»: полоса доли в ячейке таблицы не схлопывается */
-  .man-share {
-    min-width: 160px;
+  /* «Аналитика маркетинга»: восемь плиток ровно 4 + 4 на компьютере, без сироты во втором ряду */
+  @media (min-width: 961px) {
+    .man-stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
   }
 
-  .man-share .share-bar {
-    width: 100%;
+  /* «Воронка маркетинга» (МКТ-В5a): шаги в ряд на компьютере, столбиком на телефоне */
+  .man-funnel {
+    list-style: none;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+
+  .man-funnel__step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .man-funnel__name {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+
+  .man-funnel__value {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 960px) {
+    .man-funnel {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 600px) {
+    .man-funnel {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   .budget-delete {

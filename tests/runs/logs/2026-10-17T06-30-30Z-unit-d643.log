@@ -1,0 +1,60 @@
+# Модульные (unit) · 17.10.2026 11:30 Алматы · <сервер>
+# коммит 0766123 (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T06-30-30Z-unit-d643.json' 'tests/unit/branch-cash-actions.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ❯  unit  tests/unit/branch-cash-actions.test.ts (9 tests | 2 failed) 42ms
+   ❯ branch cash server actions use verified capability context (9)
+     × accepts shared branch cash for BEAUTY without rewriting the monetary command 22ms
+     ✓ accepts shared branch cash for FOOD_SERVICE without rewriting the monetary command 5ms
+     ✓ rejects changed form context other-business:synthetic-location before API 2ms
+     ✓ rejects changed form context synthetic-business:other-location before API 1ms
+     ✓ does not open restaurant menu operations to beauty 1ms
+     ✓ does not move hotel folio cash into the branch ledger 0ms
+     ✓ fails closed for an unrecognized role 0ms
+     ✓ keeps API denial as failure, never a false success 3ms
+     × rejects organization read-only state before monetary API 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   unit  tests/unit/branch-cash-actions.test.ts > branch cash server actions use verified capability context > accepts shared branch cash for BEAUTY without rewriting the monetary command
+AssertionError: expected { …(2) } to deeply equal { error: null }
+
+- Expected
++ Received
+
+  {
+-   "error": null,
++   "error": "Выбран другой ресторан. Откройте форму заново.",
++   "stale": false,
+  }
+
+ ❯ tests/unit/branch-cash-actions.test.ts:12:328
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL   unit  tests/unit/branch-cash-actions.test.ts > branch cash server actions use verified capability context > rejects organization read-only state before monetary API
+AssertionError: expected null to be truthy
+
+- Expected:
+true
+
++ Received:
+null
+
+ ❯ tests/unit/branch-cash-actions.test.ts:18:298
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 7 passed (9)
+   Start at  06:30:35
+   Duration  1.05s (transform 75%, import 17%, tests 5%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-17T06-30-30Z-unit-d643.json
+
+# код выхода 1 · 7 с

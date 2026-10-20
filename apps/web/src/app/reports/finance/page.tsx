@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { hotelToday } from '../../../lib/hotel-api';
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { Page } from '../../../components/page';
 import { Alert } from '../../../components/ui';
 import { AnalyticsToolbar } from '../../management/analytics/toolbar';
@@ -19,7 +19,7 @@ export default async function ReportsFinancePage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/reports/finance');
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const query = parseAnalyticsQuery(sp, today, 'finance', '/reports');

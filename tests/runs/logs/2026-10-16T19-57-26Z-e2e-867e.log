@@ -1,0 +1,38 @@
+# Сквозные (e2e) · 17.10.2026 00:57 Алматы · <сервер>
+# коммит c46ef1c (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 43
+# npx playwright test --workers=2 --reporter=list,json '--workers=1' '--config' 'tests/employee-portal-ui/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 22 tests using 1 worker
+
+  ✓   1 tests/employee-portal-ui/portal.spec.mjs:40:1 › HTTP actor boundaries and public whitelist (493ms)
+  ✓   2 tests/employee-portal-ui/portal.spec.mjs:56:1 › real browser avatar/profile persistence, work approval and three views (16.4s)
+  ✓   3 tests/employee-portal-ui/portal.spec.mjs:85:1 › waiter owns orders and existing payroll without salon controls (2.6s)
+  ✓   4 tests/employee-portal-ui/portal.spec.mjs:92:1 › absence controls create, persist and delete own dated exceptions (6.4s)
+  ✓   5 tests/employee-portal-ui/portal.spec.mjs:102:1 › compact week saves real hours without deleting existing dated exceptions (5.6s)
+  ✓   6 tests/employee-portal-ui/portal.spec.mjs:114:1 › compact schedule fits one screen without dated-exceptions block (13.3s)
+  ✓   7 tests/employee-portal-ui/portal.spec.mjs:145:1 › schedule add-time action stays next to hours and persists a split day (5.8s)
+  ✓   8 tests/employee-portal-ui/portal.spec.mjs:155:1 › my services add button opens catalog and persists selection (5.6s)
+  ✓   9 tests/employee-portal-ui/portal.spec.mjs:163:1 › personal finance shows real server amounts and never invents unavailable earnings (10.5s)
+  ✓  10 tests/employee-portal-ui/portal.spec.mjs:175:1 › public missing profile uses not-found handling (1.7s)
+  ✓  11 tests/employee-portal-ui/site-booking.spec.ts:107:3 › generated public form in a real DOM (intercepted HTTP only) › prefills profile IDs, queries an explicit master, renders only canonical slots/timezone/price and posts a backend-accepted ISO (651ms)
+  ✓  12 tests/employee-portal-ui/site-booking.spec.ts:131:3 › generated public form in a real DOM (intercepted HTTP only) › populates a missing service/staff from canonical response without silently changing profile target (489ms)
+  ✓  13 tests/employee-portal-ui/site-booking.spec.ts:142:3 › generated public form in a real DOM (intercepted HTTP only) › clears selected slots immediately on date/service/master changes; any master requires a visible choice (711ms)
+  ✓  14 tests/employee-portal-ui/site-booking.spec.ts:166:3 › generated public form in a real DOM (intercepted HTTP only) › fails closed on empty/error/ineligible responses and retains unavailable URL master (never any fallback) (433ms)
+  ✓  15 tests/employee-portal-ui/site-booking.spec.ts:183:3 › generated public form in a real DOM (intercepted HTTP only) › reuses request UUID, captcha, honeypot on network retry and clears stale slots on conflict without success (980ms)
+  ✓  16 tests/employee-portal-ui/site-booking.spec.ts:205:5 › generated public form in a real DOM (intercepted HTTP only) › recovers from definitive 409 with a fresh CAPTCHA and the same request key (848ms)
+  ✓  17 tests/employee-portal-ui/site-booking.spec.ts:205:5 › generated public form in a real DOM (intercepted HTTP only) › recovers from definitive 403 with a fresh CAPTCHA and the same request key (821ms)
+  ✓  18 tests/employee-portal-ui/site-booking.spec.ts:235:3 › generated public form in a real DOM (intercepted HTTP only) › does not claim a booking on an empty successful HTTP response and retries with the same key (632ms)
+  ✓  19 tests/employee-portal-ui/site-booking.spec.ts:250:3 › generated public form in a real DOM (intercepted HTTP only) › retains invalid URL master until an explicit visible alternative is chosen (435ms)
+  ✓  20 tests/employee-portal-ui/site-booking.spec.ts:264:3 › generated public form in a real DOM (intercepted HTTP only) › preserves an offset ISO verbatim and rejects slots for a different master or without a zone (613ms)
+  ✓  21 tests/employee-portal-ui/site-booking.spec.ts:288:5 › generated public form in a real DOM (intercepted HTTP only) › preserves CALLBACK submission and does not fetch Beauty slots or apply URL targeting (545ms)
+  ✓  22 tests/employee-portal-ui/site-booking.spec.ts:288:5 › generated public form in a real DOM (intercepted HTTP only) › preserves TABLE_RESERVATION submission and does not fetch Beauty slots or apply URL targeting (473ms)
+
+  22 passed (1.5m)
+
+# код выхода 0 · 1 мин 31 с

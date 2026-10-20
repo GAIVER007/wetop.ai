@@ -34,6 +34,8 @@ export interface MarketingExpenseInput {
   /** Сумма в валюте отчётности, minor units, по курсу на дату операции */
   baseAmount: bigint;
   countedInBudget: boolean;
+  /** Кампания расхода (§53); её филиал проверяет API */
+  campaignId: string | null;
 }
 
 const fail = (msg: string): never => {
@@ -49,7 +51,8 @@ const optional = (v: unknown, max: number, name: string): string | null => {
   return s;
 };
 
-const isoDate = (v: unknown, name: string): string => {
+/** Дата ГГГГ-ММ-ДД, которая существует; отказ словами с названием поля */
+export const isoDate = (v: unknown, name: string): string => {
   const s = str(v);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) fail(`${name}: дата в виде ГГГГ-ММ-ДД`);
   const d = new Date(`${s}T00:00:00Z`);
@@ -89,6 +92,14 @@ const rateString = (micros: bigint): string => {
 const toBase = (amount: bigint, rateMicros: bigint): bigint =>
   (amount * rateMicros + RATE_SCALE / 2n) / RATE_SCALE;
 
+/** Кампания расхода: пусто или uuid */
+const campaignIdOf = (v: unknown): string | null => {
+  const s = str(v);
+  if (s === '') return null;
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)) fail('Кампания: выберите из списка');
+  return s.toLowerCase();
+};
+
 export function parseMarketingExpenseInput(
   body: Record<string, unknown>,
   ctx: { reportingCurrency: string },
@@ -123,6 +134,7 @@ export function parseMarketingExpenseInput(
     fxRate: rateString(micros),
     baseAmount: toBase(amount, micros),
     countedInBudget: body.countedInBudget === undefined ? true : body.countedInBudget === true,
+    campaignId: campaignIdOf(body.campaignId),
   };
 }
 
@@ -133,11 +145,44 @@ export interface MarketingBudgetInput {
   amount: bigint;
 }
 
-export function parseMarketingBudgetInput(body: Record<string, unknown>): MarketingBudgetInput {
-  const s = str(body.month);
-  const m = /^(\d{4})-(\d{2})(?:-\d{2})?$/.exec(s);
+/** «2026-10» или полная дата → первое число месяца */
+const firstOfMonth = (v: unknown): string => {
+  const m = /^(\d{4})-(\d{2})(?:-\d{2})?$/.exec(str(v));
   if (!m) fail('Месяц: в виде ГГГГ-ММ');
   const mm = Number(m![2]);
   if (mm < 1 || mm > 12) fail('Месяц: такого месяца нет');
-  return { month: `${m![1]}-${m![2]}-01`, amount: money(body.amount, 'План') };
+  return `${m![1]}-${m![2]}-01`;
+};
+
+export function parseMarketingBudgetInput(body: Record<string, unknown>): MarketingBudgetInput {
+  return { month: firstOfMonth(body.month), amount: money(body.amount, 'План') };
+}
+
+export interface MarketingBudgetLinesInput {
+  /** Первое число месяца, ГГГГ-ММ-01 */
+  month: string;
+  /** Разбивка общего плана по каналам (§52); пустой список убирает разбивку месяца */
+  lines: Array<{ platform: MarketingPlatform; amount: bigint }>;
+}
+
+/**
+ * Разбивка плана месяца по каналам (DATA_MODEL §52, ADR-MKT-B7): вся разбивка месяца одним вводом, пустая сумма
+ * значит «канала в плане нет». Сумма каналов больше общего плана не запрещается: это предупреждение на экране.
+ */
+export function parseMarketingBudgetLinesInput(body: Record<string, unknown>): MarketingBudgetLinesInput {
+  const month = firstOfMonth(body.month);
+  if (!Array.isArray(body.lines)) fail('Каналы: нужен список');
+  const seen = new Set<string>();
+  const lines: MarketingBudgetLinesInput['lines'] = [];
+  for (const raw of body.lines as unknown[]) {
+    const line = (raw ?? {}) as Record<string, unknown>;
+    const platform = MARKETING_PLATFORMS.find((p) => p === str(line.platform));
+    if (!platform) fail('Канал: выберите из списка каналов');
+    if (seen.has(platform!)) fail(`Канал ${platform} указан дважды`);
+    seen.add(platform!);
+    const amount = str(line.amount).replace(/\s/g, '');
+    if (amount === '') continue;
+    lines.push({ platform: platform!, amount: money(amount, `План канала ${platform}`) });
+  }
+  return { month, lines };
 }

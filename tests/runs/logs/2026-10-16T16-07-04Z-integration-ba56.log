@@ -1,0 +1,76 @@
+# Интеграционные (integration) · 16.10.2026 21:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (claude/marketing-ad-launch), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-07-04Z-integration-ba56.json' 'tests/integration/marketing-ad-launch.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-ad-launch.test.ts (6 tests | 2 failed) 350ms
+   ❯ запуск рекламы (integration) (6)
+     ✓ креатив: JPEG в закрытое хранилище, тот же файл второй раз не ложится, не картинка отклоняется 19ms
+     ✓ запуск: шаги по порядку, ключ кабинета, номера Meta, кампания WETOP ACTIVE, журнал из пяти шагов 59ms
+     × сбой на группе: кампания в Meta на паузе, запуск FAILED словами Meta, кампании WETOP нет 22ms
+     ✓ деньги: нет плана, остаток плана мал, кабинет в тенге: отказ словами до Meta, строки нет 57ms
+     ✓ «Остановить» и «Включить»: сначала Meta, потом статус кампании WETOP и журнал 21ms
+     × обрыв процесса: RUNNING старше 15 минут закрывается FAILED, созданная кампания на паузу 17ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-ad-launch.test.ts > запуск рекламы (integration) > сбой на группе: кампания в Meta на паузе, запуск FAILED словами Meta, кампании WETOP нет
+AssertionError: expected [ 'uploadImage', …(2) ] to deeply equal [ 'uploadImage', …(3) ]
+
+- Expected
++ Received
+
+  [
+    "uploadImage",
+    "createCampaign",
+    "createAdSet",
+-   "setStatus",
+  ]
+
+ ❯ tests/integration/marketing-ad-launch.test.ts:289:28
+    287|     const { id } = await as(() => service.start(input()));
+    288|     await service.idle();
+    289|     expect(writer.names()).toEqual(['uploadImage', 'createCampaign', '…
+       |                            ^
+    290|     expect(writer.calls[3]![1]).toEqual(['120000000000001', 'PAUSED']);
+    291|     const l = await db.marketingAdLaunch.findUniqueOrThrow({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/marketing-ad-launch.test.ts > запуск рекламы (integration) > обрыв процесса: RUNNING старше 15 минут закрывается FAILED, созданная кампания на паузу
+AssertionError: expected [] to deeply equal [ [ 'setStatus', …(1) ] ]
+
+- Expected
++ Received
+
+- [
+-   [
+-     "setStatus",
+-     [
+-       "120000000009999",
+-       "PAUSED",
+-     ],
+-   ],
+- ]
++ []
+
+ ❯ tests/integration/marketing-ad-launch.test.ts:376:26
+    374|     });
+    375|     expect(await service.recoverStale()).toBe(1);
+    376|     expect(writer.calls).toEqual([['setStatus', ['120000000009999', 'P…
+       |                          ^
+    377|     const l = await db.marketingAdLaunch.findUniqueOrThrow({ where: { …
+    378|     expect(l).toMatchObject({ status: 'FAILED', error: 'Запуск прерван…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  09:07:05
+   Duration  1.93s (import 38%, transform 38%, tests 24%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-07-04Z-integration-ba56.json
+
+# код выхода 1 · 3 с

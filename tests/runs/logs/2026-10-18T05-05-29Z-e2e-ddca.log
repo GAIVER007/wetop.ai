@@ -1,0 +1,477 @@
+# Сквозные (e2e) · 18.10.2026 10:05 Алматы · Noutbuk-Vyacheslav.local
+# коммит e009632 (claude/salon-blocks-edit), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/navigation.spec.ts' 'tests/ui/side-nav.spec.ts' 'tests/ui/ui31-shell.spec.ts' 'tests/ui/beauty-branch.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/ux-retention.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/settings-simplification.spec.ts' 'tests/ui/bar.spec.ts' 'tests/ui/marketing.spec.ts' 'tests/ui/workspace.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 145 tests using 1 worker
+
+  ✓    1 tests/ui/bar.spec.ts:23:1 › обзор как на макете: пять KPI, графики, компактная доска и подробности (6.8s)
+  ✓    2 tests/ui/bar.spec.ts:75:1 › быстрая продажа одной строкой и фильтры доски (4.3s)
+  ✓    3 tests/ui/bar.spec.ts:100:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (12.0s)
+  ✓    4 tests/ui/bar.spec.ts:133:1 › N6: товар в архивной категории сохраняет её при правке карточки (ADR-186) (13.8s)
+  ✓    5 tests/ui/bar.spec.ts:174:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (6.6s)
+  ✓    6 tests/ui/bar.spec.ts:191:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (8.3s)
+  ✓    7 tests/ui/bar.spec.ts:206:1 › меню: экраны бара в разделе «Склад», адреса бара подсвечивают его (36.3s)
+  ✓    8 tests/ui/bar.spec.ts:221:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (28.7s)
+  ✓    9 tests/ui/bar.spec.ts:250:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (14.7s)
+  ✓   10 tests/ui/bar.spec.ts:262:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (18.8s)
+  ✓   11 tests/ui/bar.spec.ts:288:1 › операции: списание с причиной, журнал продаж и лента движений (10.1s)
+  ✓   12 tests/ui/bar.spec.ts:314:3 › доступность и телефон: light (34.6s)
+  ✓   13 tests/ui/bar.spec.ts:314:3 › доступность и телефон: dark (26.2s)
+  ✘   14 tests/ui/beauty-branch.spec.ts:44:1 › салон заводится той же формой и открывается своим рабочим местом (54.2s)
+  ✘   15 tests/ui/beauty-branch.spec.ts:58:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет (51.8s)
+  ✓   16 tests/ui/beauty-branch.spec.ts:85:1 › карточка объекта показывает имя салона, а не «объект не загружен» (25.4s)
+  ✓   17 tests/ui/beauty-branch.spec.ts:97:1 › салон на телефоне: нижняя панель своих разделов, без горизонтальной прокрутки (13.6s)
+  ✘   18 tests/ui/beauty-branch.spec.ts:111:3 › салон доступен и в светлой теме (49.8s)
+  ✘   19 tests/ui/beauty-branch.spec.ts:111:3 › салон доступен и в тёмной теме (54.0s)
+  ✓   20 tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (40.8s)
+  ✓   21 tests/ui/marketing.spec.ts:85:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (6.3s)
+  ✓   22 tests/ui/marketing.spec.ts:105:1 › хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», из данных только бюджет месяца (3.2s)
+  ✓   23 tests/ui/marketing.spec.ts:198:1 › экраны «Реклама» и «Контент»: вкладки как в макете; кампании живые (ADR-MKT-B3), кабинет и контент пока пустые (5.8s)
+  ✓   24 tests/ui/marketing.spec.ts:252:1 › администратор (без права marketing): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (5.6s)
+  ✓   25 tests/ui/marketing.spec.ts:277:3 › хаб на компьютере и телефоне, доступность: light (1.1m)
+  ✘   26 tests/ui/marketing.spec.ts:277:3 › хаб на компьютере и телефоне, доступность: dark (2.0m)
+  ✓   27 tests/ui/marketing.spec.ts:332:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен (15.6s)
+  ✓   28 tests/ui/navigation.spec.ts:62:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (23.2s)
+  ✓   29 tests/ui/navigation.spec.ts:106:1 › меню телефона: вложенные адреса подсвечивают свой пункт, «Каталог» в «Услугах» (18.5s)
+  ✓   30 tests/ui/navigation.spec.ts:134:1 › все пункты меню открывают существующие страницы (58.2s)
+  ✓   31 tests/ui/navigation.spec.ts:178:3 › меню телефона и планшета ровное и доступное: light (5.0s)
+  ✓   32 tests/ui/navigation.spec.ts:178:3 › меню телефона и планшета ровное и доступное: dark (4.3s)
+  ✓   33 tests/ui/navigation.spec.ts:232:1 › «Гости и бронирования»: одна вкладка меню, список броней её пунктом (1.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '221989473'
+[WebServer] }
+  ✓   34 tests/ui/platform-access.spec.ts:33:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (4.9s)
+  ✓   35 tests/ui/platform-access.spec.ts:77:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (3.3s)
+  ✓   36 tests/ui/platform-access.spec.ts:99:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (3.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '221989473'
+[WebServer] }
+  ✓   37 tests/ui/platform-access.spec.ts:140:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (3.1s)
+  ✓   38 tests/ui/platform-access.spec.ts:168:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (1.6s)
+  ✓   39 tests/ui/platform-access.spec.ts:189:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (2.6s)
+  ✓   40 tests/ui/platform-access.spec.ts:212:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (5.5s)
+  ✓   41 tests/ui/platform-access.spec.ts:269:5 › доступность: «Организации» и состояния расширения, light, 1440px (16.5s)
+  ✓   42 tests/ui/platform-access.spec.ts:269:5 › доступность: «Организации» и состояния расширения, dark, 1440px (9.7s)
+  ✓   43 tests/ui/platform-access.spec.ts:269:5 › доступность: «Организации» и состояния расширения, light, 390px (7.6s)
+  ✓   44 tests/ui/platform-access.spec.ts:269:5 › доступность: «Организации» и состояния расширения, dark, 390px (7.5s)
+  ✓   45 tests/ui/roles.spec.ts:31:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (1.8s)
+  ✓   46 tests/ui/roles.spec.ts:67:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (5.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '221989473'
+[WebServer] }
+  ✓   47 tests/ui/roles.spec.ts:110:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (3.6s)
+  ✓   48 tests/ui/roles.spec.ts:127:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (2.8s)
+  ✓   49 tests/ui/roles.spec.ts:165:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (3.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '221989473'
+[WebServer] }
+  ✓   50 tests/ui/roles.spec.ts:227:1 › управляющий: журнал и платформа закрыты; зовёт только администраторов и отключает только их (4.3s)
+  ✓   51 tests/ui/roles.spec.ts:283:1 › владелец: зовёт управляющего и администратора, меняет роль (3.1s)
+  ✓   52 tests/ui/roles.spec.ts:314:1 › администратор: сотрудниками ведают владелец и управляющий (3.2s)
+  ✓   53 tests/ui/roles.spec.ts:326:5 › доступность: сотрудники и отказ по роли, light, 1440px (6.9s)
+  ✓   54 tests/ui/roles.spec.ts:326:5 › доступность: сотрудники и отказ по роли, dark, 1440px (22.3s)
+  ✓   55 tests/ui/roles.spec.ts:326:5 › доступность: сотрудники и отказ по роли, light, 390px (36.5s)
+  ✓   56 tests/ui/roles.spec.ts:326:5 › доступность: сотрудники и отказ по роли, dark, 390px (1.1m)
+  ✓   57 tests/ui/settings-simplification.spec.ts:10:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами (8.0s)
+  ✓   58 tests/ui/settings-simplification.spec.ts:41:1 › старые страницы контента ведут в интеграции без чтения зеркала Channex (8.2s)
+  ✓   59 tests/ui/settings-simplification.spec.ts:62:1 › поиск услуг работает без повторной загрузки каталога (2.1s)
+  ✓   60 tests/ui/settings-simplification.spec.ts:78:1 › ошибка каталога сохраняет навигацию и исправляется повтором (2.9s)
+  ✓   61 tests/ui/settings-simplification.spec.ts:92:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: light (16.5s)
+  ✓   62 tests/ui/settings-simplification.spec.ts:92:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: dark (18.3s)
+  ✓   63 tests/ui/settings-simplification.spec.ts:160:1 › на телефоне услуга и цена видны одновременно без прокрутки таблицы (1.7s)
+  ✓   64 tests/ui/side-nav.spec.ts:61:1 › UI3.1: кнопка открывает разделы, наведение раскрывает подразделы, ссылка ведёт на страницу (5.1s)
+  ✓   65 tests/ui/side-nav.spec.ts:116:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (2.8s)
+  ✓   66 tests/ui/side-nav.spec.ts:155:1 › вложенные адреса показывают свой раздел (19.0s)
+  ✓   67 tests/ui/side-nav.spec.ts:186:1 › касание раздела на планшете раскрывает подразделы, а не уводит со страницы (3.0s)
+  ✓   68 tests/ui/side-nav.spec.ts:200:3 › меню без прокрутки вбок и доступное: light (6.3s)
+  ✓   69 tests/ui/side-nav.spec.ts:200:3 › меню без прокрутки вбок и доступное: dark (7.6s)
+  ✓   70 tests/ui/side-nav.spec.ts:255:1 › кнопка текущего раздела находится в шапке и доступна после гидрации (5.1s)
+  ✓   71 tests/ui/side-nav.spec.ts:267:1 › menu panel offers an explicit close action and restores trigger focus (3.5s)
+  ✓   72 tests/ui/ui31-shell.spec.ts:10:1 › UI3.1: одна кнопка, стабильная ширина и клавиатурное меню (4.0s)
+  ✓   73 tests/ui/ui31-shell.spec.ts:43:1 › UI3.1: mobile освобождает низ и возвращает фокус (3.9s)
+  ✓   74 tests/ui/ui31-shell.spec.ts:63:1 › UI3.1: переход закрывает меню, active route сохраняется (4.1s)
+  ✓   75 tests/ui/ui31-shell.spec.ts:81:1 › UI3.1: граница desktop/mobile и узкий экран (5.5s)
+  ✓   76 tests/ui/ui31-shell.spec.ts:115:1 › UI3.1: размеры целей шапки и мобильной поверхности (4.1s)
+  ✓   77 tests/ui/ui31-shell.spec.ts:150:3 › UI3.1: история периода закрывает меню 1440 (2.5s)
+  ✓   78 tests/ui/ui31-shell.spec.ts:150:3 › UI3.1: история периода закрывает меню 390 (2.2s)
+  ✓   79 tests/ui/ui31-shell.spec.ts:173:1 › UI3.1: мобильный переход фокусирует готовое содержимое (5.9s)
+  ✓   80 tests/ui/ux-retention.spec.ts:25:1 › пробный период виден в меню на рабочих экранах, у оплаченной организации строки нет (п. 2.7) (17.1s)
+  ✓   81 tests/ui/ux-retention.spec.ts:45:1 › пустые экраны без «Legacy» и «импорта», с действием и без круговой ссылки на онбординг (пп. 1.2, 1.3) (14.2s)
+  ✓   82 tests/ui/ux-retention.spec.ts:66:1 › новая бронь: источник по умолчанию «стойка» — на один выбор меньше (п. 1.4) (15.3s)
+  ✓   83 tests/ui/ux-retention.spec.ts:73:1 › меню телефона сохраняет порядок основных разделов (п. 1.6) (7.2s)
+  ✓   84 tests/ui/ux-retention.spec.ts:89:1 › подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7) (17.0s)
+  ✓   85 tests/ui/ux-retention.spec.ts:102:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) (30.7s)
+  ✓   86 tests/ui/workspace.spec.ts:33:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (1.2m)
+  ✓   87 tests/ui/workspace.spec.ts:127:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (5.3s)
+  ✓   88 tests/ui/workspace.spec.ts:167:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (3.5s)
+  ✓   89 tests/ui/workspace.spec.ts:190:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (3.3s)
+  ✓   90 tests/ui/workspace.spec.ts:215:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (3.0s)
+  ✓   91 tests/ui/workspace.spec.ts:244:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки (3.6s)
+  ✓   92 tests/ui/workspace.spec.ts:296:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (2.6s)
+  ✓   93 tests/ui/workspace.spec.ts:330:1 › шахматка: подсказка внутри окошка «Фильтры», Escape закрывает окошко целиком (1.6s)
+  ✓   94 tests/ui/workspace.spec.ts:351:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (2.4s)
+  ✓   95 tests/ui/workspace.spec.ts:388:1 › карточка: профиль гостя и заселение проходят через server actions (3.2s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:202:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:25:72)
+[WebServer]   200 |         /* тело не JSON */
+[WebServer]   201 |       }
+[WebServer] > 202 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   203 |   }
+[WebServer]   204 |   return (await res.json()) as T;
+[WebServer]   205 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:202:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:25:72)
+[WebServer]   200 |         /* тело не JSON */
+[WebServer]   201 |       }
+[WebServer] > 202 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   203 |   }
+[WebServer]   204 |   return (await res.json()) as T;
+[WebServer]   205 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   96 tests/ui/workspace.spec.ts:433:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (2.6s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:202:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:47:13)
+[WebServer]   200 |         /* тело не JSON */
+[WebServer]   201 |       }
+[WebServer] > 202 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   203 |   }
+[WebServer]   204 |   return (await res.json()) as T;
+[WebServer]   205 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   97 tests/ui/workspace.spec.ts:450:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (4.3s)
+  ✓   98 tests/ui/workspace.spec.ts:467:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (1.9s)
+  ✓   99 tests/ui/workspace.spec.ts:487:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (1.8s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:202:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:25:72)
+[WebServer]   200 |         /* тело не JSON */
+[WebServer]   201 |       }
+[WebServer] > 202 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   203 |   }
+[WebServer]   204 |   return (await res.json()) as T;
+[WebServer]   205 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  100 tests/ui/workspace.spec.ts:513:1 › сбой API показывает ошибку, повтор восстанавливает страницу (1.6s)
+  ✓  101 tests/ui/workspace.spec.ts:522:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (2.2s)
+  ✓  102 tests/ui/workspace.spec.ts:537:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (844ms)
+  ✓  103 tests/ui/workspace.spec.ts:549:1 › неверная дата в ссылке оставляет доступную форму для исправления (841ms)
+  ✓  104 tests/ui/workspace.spec.ts:558:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (3.6s)
+  ✓  105 tests/ui/workspace.spec.ts:567:1 › групповая бронь: разные категории сохраняются при конфликте (1.6s)
+  ✓  106 tests/ui/workspace.spec.ts:598:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (1.5s)
+  ✓  107 tests/ui/workspace.spec.ts:627:1 › обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия (1.7s)
+  ✓  108 tests/ui/workspace.spec.ts:659:1 › ошибка буфера обмена видна, код остаётся доступен (1.1s)
+  ✓  109 tests/ui/workspace.spec.ts:677:1 › финансы: неверные даты можно исправить без падения страницы (2.0s)
+  ✓  110 tests/ui/workspace.spec.ts:693:1 › ошибка загрузки тарифов не позволяет включить виджет (924ms)
+  ✓  111 tests/ui/workspace.spec.ts:702:1 › номера: статус уборки, блокировка и снятие сохраняются (1.6s)
+  ✓  112 tests/ui/workspace.spec.ts:732:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (1.3s)
+  ✓  113 tests/ui/workspace.spec.ts:759:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (729ms)
+  ✓  114 tests/ui/workspace.spec.ts:771:1 › групповая бронь: три места показывают трёх гостей в итогах (1.0s)
+  ✓  115 tests/ui/workspace.spec.ts:795:1 › неисправности: когда история обрезана, это написано (1.6s)
+  ✓  116 tests/ui/workspace.spec.ts:803:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (1.7s)
+  ✓  117 tests/ui/workspace.spec.ts:815:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (3.0s)
+  ✓  118 tests/ui/workspace.spec.ts:860:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (4.0s)
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:202:11)
+[WebServer]     at async Object.me (src/lib/api.ts:625:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   200 |         /* тело не JSON */
+[WebServer]   201 |       }
+[WebServer] > 202 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   203 |   }
+[WebServer]   204 |   return (await res.json()) as T;
+[WebServer]   205 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:202:11)
+[WebServer]     at async Object.me (src/lib/api.ts:625:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   200 |         /* тело не JSON */
+[WebServer]   201 |       }
+[WebServer] > 202 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   203 |   }
+[WebServer]   204 |   return (await res.json()) as T;
+[WebServer]   205 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:202:11)
+[WebServer]     at async Object.me (src/lib/api.ts:625:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   200 |         /* тело не JSON */
+[WebServer]   201 |       }
+[WebServer] > 202 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   203 |   }
+[WebServer]   204 |   return (await res.json()) as T;
+[WebServer]   205 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:202:11)
+[WebServer]     at async Object.me (src/lib/api.ts:625:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   200 |         /* тело не JSON */
+[WebServer]   201 |       }
+[WebServer] > 202 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   203 |   }
+[WebServer]   204 |   return (await res.json()) as T;
+[WebServer]   205 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:202:11)
+[WebServer]     at async Object.me (src/lib/api.ts:625:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   200 |         /* тело не JSON */
+[WebServer]   201 |       }
+[WebServer] > 202 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   203 |   }
+[WebServer]   204 |   return (await res.json()) as T;
+[WebServer]   205 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:202:11)
+[WebServer]     at async Object.me (src/lib/api.ts:625:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   200 |         /* тело не JSON */
+[WebServer]   201 |       }
+[WebServer] > 202 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   203 |   }
+[WebServer]   204 |   return (await res.json()) as T;
+[WebServer]   205 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:202:11)
+[WebServer]     at async Object.me (src/lib/api.ts:625:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   200 |         /* тело не JSON */
+[WebServer]   201 |       }
+[WebServer] > 202 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   203 |   }
+[WebServer]   204 |   return (await res.json()) as T;
+[WebServer]   205 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /auth/me: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:202:11)
+[WebServer]     at async Object.me (src/lib/api.ts:625:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   200 |         /* тело не JSON */
+[WebServer]   201 |       }
+[WebServer] > 202 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   203 |   }
+[WebServer]   204 |   return (await res.json()) as T;
+[WebServer]   205 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  119 tests/ui/workspace.spec.ts:916:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (8.3s)
+  ✓  120 tests/ui/workspace.spec.ts:1016:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (1.3s)
+  ✓  121 tests/ui/workspace.spec.ts:1045:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (1.2s)
+  ✓  122 tests/ui/workspace.spec.ts:1069:1 › гости на сегодня: в списке все, а не первые двадцать пять (1.0s)
+  ✓  123 tests/ui/workspace.spec.ts:1088:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (1.9s)
+  ✓  124 tests/ui/workspace.spec.ts:1101:1 › общие настройки показывают адрес PMS без дублирования контента Channex (1.3s)
+  ✓  125 tests/ui/workspace.spec.ts:1112:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (2.2s)
+  ✓  126 tests/ui/workspace.spec.ts:1142:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (1.1s)
+[WebServer] ⨯ Error: API /inventory/categories: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:202:11)
+[WebServer]     at async RoomsPage (src/app/rooms/[[...section]]/page.tsx:30:35)
+[WebServer]   200 |         /* тело не JSON */
+[WebServer]   201 |       }
+[WebServer] > 202 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   203 |   }
+[WebServer]   204 |   return (await res.json()) as T;
+[WebServer]   205 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  127 tests/ui/workspace.spec.ts:1164:1 › фонд и категории открываются независимо от сбоя шахматки (3.0s)
+  ✓  128 tests/ui/workspace.spec.ts:1185:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (930ms)
+  ✓  129 tests/ui/workspace.spec.ts:1201:1 › подключения каналов: время события — по Алматы, а не сырой UTC (788ms)
+  ✓  130 tests/ui/workspace.spec.ts:1220:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (1.5s)
+  ✓  131 tests/ui/workspace.spec.ts:1235:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (837ms)
+  ✓  132 tests/ui/workspace.spec.ts:1248:1 › счета: приём оплаты подтверждается суммой на экране (1.5s)
+  ✓  133 tests/ui/workspace.spec.ts:1266:1 › деньги за период: период длиннее года объясняется на странице (866ms)
+  ✓  134 tests/ui/workspace.spec.ts:1285:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (1.4s)
+  ✓  135 tests/ui/workspace.spec.ts:1305:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (1.6s)
+  ✓  136 tests/ui/workspace.spec.ts:1336:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (1.4s)
+  ✓  137 tests/ui/workspace.spec.ts:1356:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (880ms)
+  ✓  138 tests/ui/workspace.spec.ts:1372:1 › каналы: входящая бронь ведёт на карточку брони (1.1s)
+  ✓  139 tests/ui/workspace.spec.ts:1390:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (1.1s)
+  ✓  140 tests/ui/workspace.spec.ts:1409:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (1.2s)
+  ✓  141 tests/ui/workspace.spec.ts:1447:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (1.5s)
+  ✓  142 tests/ui/workspace.spec.ts:1512:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (3.3s)
+  ✓  143 tests/ui/workspace.spec.ts:1591:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями (2.7s)
+  ✓  144 tests/ui/workspace.spec.ts:1652:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (2.9s)
+  ✓  145 tests/ui/workspace.spec.ts:1679:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (980ms)
+
+
+  1) tests/ui/beauty-branch.spec.ts:44:1 › салон заводится той же формой и открывается своим рабочим местом 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3158/calendar", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/fixtures.ts:166:30)
+        at createAndOpenSalon (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-branch.spec.ts:41:3)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-branch.spec.ts:49:3
+
+    Error Context: test-results/beauty-branch-салон-заводи-64777-вается-своим-рабочим-местом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-салон-заводи-64777-вается-своим-рабочим-местом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-салон-заводи-64777-вается-своим-рабочим-местом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/beauty-branch.spec.ts:58:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Target page, context or browser has been closed
+
+      13 |   await request.post(`${FIXTURE_API}/__test/reset`);
+      14 |   await page.goto('/auth/fallback');
+    > 15 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+         |                                                   ^
+      16 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      17 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      18 |   await page.waitForURL('**/today');
+        at signIn (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-branch.spec.ts:15:51)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-branch.spec.ts:62:3
+
+    Error Context: test-results/beauty-branch-в-салоне-мен-f36a7-хматки-и-тарифов-у-него-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-в-салоне-мен-f36a7-хматки-и-тарифов-у-него-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-в-салоне-мен-f36a7-хматки-и-тарифов-у-него-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/beauty-branch.spec.ts:111:3 › салон доступен и в светлой теме ────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/beauty-branch-салон-доступен-и-в-светлой-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-салон-доступен-и-в-светлой-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-салон-доступен-и-в-светлой-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/beauty-branch.spec.ts:111:3 › салон доступен и в тёмной теме ─────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: visible
+    Received: undefined
+
+
+      117 |     await page.emulateMedia({ colorScheme: theme });
+      118 |     await page.reload();
+    > 119 |     await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible();
+          |                                                                             ^
+      120 |     const audit = await new AxeBuilder({ page })
+      121 |       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      122 |       .analyze();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/tests/ui/beauty-branch.spec.ts:119:77
+
+    Error Context: test-results/beauty-branch-салон-доступен-и-в-тёмной-теме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-branch-салон-доступен-и-в-тёмной-теме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-branch-салон-доступен-и-в-тёмной-теме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/marketing.spec.ts:277:3 › хаб на компьютере и телефоне, доступность: dark ────────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error Context: test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-хаб-на-компьютере-и-телефоне-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/beauty-branch.spec.ts:44:1 › салон заводится той же формой и открывается своим рабочим местом 
+    tests/ui/beauty-branch.spec.ts:58:1 › в салоне меню без гостиничных разделов: шахматки и тарифов у него нет 
+    tests/ui/beauty-branch.spec.ts:111:3 › салон доступен и в светлой теме ─────────────────────────
+    tests/ui/beauty-branch.spec.ts:111:3 › салон доступен и в тёмной теме ──────────────────────────
+    tests/ui/marketing.spec.ts:277:3 › хаб на компьютере и телефоне, доступность: dark ─────────────
+  140 passed (27.2m)
+
+# код выхода 1 · 27 мин 16 с

@@ -1,0 +1,53 @@
+# Модульные (unit) · 18.10.2026 13:10 Алматы · <сервер>
+# коммит fb0e786 (fix/owner-report-period-20261018), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T08-10-04Z-unit-5893.json' 'apps/web/src/app/restaurant-finance/period-continuity.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-pr599-reconcile
+
+ ❯ |unit| apps/web/src/app/restaurant-finance/period-continuity.test.ts (6 tests | 1 failed) 13ms
+   ❯ restaurant finance date context (6)
+     ✓ preserves exact valid owner dates 3ms
+     ✓ uses the first repeated date like the other Next routes 1ms
+     ✓ invalid dates are an error, not a silently changed period: {"from":"2026-10-18","to":"2026-10-01"} 1ms
+     ✓ invalid dates are an error, not a silently changed period: {"from":"2026-02-30","to":"2026-03-01"} 0ms
+     × invalid dates are an error, not a silently changed period: {"from":"2026-07-01","to":"2026-10-18"} 5ms
+     ✓ keeps the existing no-query month-to-date based on the restaurant clock 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/restaurant-finance/period-continuity.test.ts > restaurant finance date context > invalid dates are an error, not a silently changed period: {"from":"2026-07-01","to":"2026-10-18"}
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "from": "2026-07-01",
+        "to": "2026-10-18",
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ apps/web/src/app/restaurant-finance/period-continuity.test.ts:30:36
+     28|   ])('invalid dates are an error, not a silently changed period: %j', …
+     29|     const page = await RestaurantFinancePage({ searchParams: Promise.r…
+     30|     expect(restaurantApi.cash).not.toHaveBeenCalled();
+       |                                    ^
+     31|     const child = props(page).children;
+     32|     expect(isValidElement(child) && props(child).testId).toBe('restaur…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  08:10:05
+   Duration  1.53s (transform 77%, import 22%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-18T08-10-04Z-unit-5893.json
+
+# код выхода 1 · 3 с

@@ -65,6 +65,8 @@ export const SESSION_ENDED_MESSAGE = 'Сеанс закончился. Войд�
 export function describeUserAgent(userAgent: string | null | undefined): string {
   const ua = userAgent?.trim() ?? '';
   if (!ua) return 'неизвестное устройство';
+  // Вход пишет в сессию уже готовую подпись («Chrome, macOS»), а не строку агента: у подписи нет «/»
+  if (!ua.includes('/')) return ua;
   const browser = /Edg\//.test(ua)
     ? 'Edge'
     : /Firefox\//.test(ua)

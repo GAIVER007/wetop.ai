@@ -1,0 +1,41 @@
+# Модульные (unit) · 16.10.2026 18:09 Алматы · Noutbuk-Vyacheslav.local
+# коммит 886cda1 (claude/marketing-meta-simple-login), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-09-07Z-unit-dfd7.json' 'packages/integrations/src/meta/auth.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| packages/integrations/src/meta/auth.test.ts (6 tests | 1 failed) 38ms
+   ✓ окно входа Facebook Login for Business (1)
+     ✓ код авторизации для SUAT, конфигурация вместо scope, state и адрес возврата как есть 4ms
+   ✓ обмен кода на ключ (2)
+     ✓ сервером: тот же адрес возврата, секрет только в запросе к Graph API; ответ: ключ 25ms
+     ✓ отказ Meta: ошибка без секрета и кода в тексте 1ms
+   ✓ кабинет по номеру (2)
+     ✓ название, валюта, пояс и статус; номер без приставки act_ 1ms
+     ✓ закрытый или неактивный кабинет помечается 1ms
+   ❯ кабинеты, выбранные в окне входа (1)
+     × /me даёт системного пользователя, его assigned_ad_accounts по всем страницам; закрытые помечены 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/integrations/src/meta/auth.test.ts > кабинеты, выбранные в окне входа > /me даёт системного пользователя, его assigned_ad_accounts по всем страницам; закрытые помечены
+TypeError: (intermediate value).assignedAdAccounts is not a function
+ ❯ packages/integrations/src/meta/auth.test.ts:92:79
+     90|       return new Response(JSON.stringify(pages.shift()), { status: 200…
+     91|     }) as typeof fetch;
+     92|     const accounts = await new MetaAdsClient({ accessToken: 't', fetch…
+       |                                                                               ^
+     93|     expect(urls[0]!.pathname).toBe('/v25.0/me');
+     94|     expect(urls[0]!.searchParams.get('fields')).toBe('id,client_busine…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  06:09:12
+   Duration  284ms (transform 50%, tests 33%, import 13%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-09-07Z-unit-dfd7.json
+
+# код выхода 1 · 5 с

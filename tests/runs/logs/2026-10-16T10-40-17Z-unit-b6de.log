@@ -1,0 +1,16 @@
+# Модульные (unit) · 16.10.2026 15:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит 60a7715 (claude/salon-refund), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-40-17Z-unit-b6de.json' 'packages/domain/src/beauty/payment.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| packages/domain/src/beauty/payment.test.ts (5 tests) 4ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  03:40:19
+   Duration  145ms (transform 56%, import 26%, tests 11%, worker 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-40-17Z-unit-b6de.json
+
+# код выхода 0 · 2 с

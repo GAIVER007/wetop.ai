@@ -25,11 +25,13 @@ import {
   weekTemplate,
   type WorkingInterval,
 } from '@pms/domain';
-import { assertRevision, hoursRevision, canonicalRevision } from './write-contract';
+import { readEmployeeWeekSource, touchEmployeeSourceRevision } from '../employee-portal/employee-common';
+import { assertWeekRevision, hoursRevision, hoursRowsRevision } from './write-contract';
 import type { DbTx } from '@pms/database';
 import { currentAssignments, currentRole, currentUserId } from '../auth/request-context';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
+import { BeautyAccess } from './access.decorator';
 import { PrismaService } from '../database/prisma.provider';
 import {
   beautyScope,
@@ -54,7 +56,7 @@ import {
  */
 
 /** Записи этих состояний место мастера не занимают: так же считает exclusion constraint в §19.1 */
-const BUSY_STATUSES = ['BOOKED', 'CONFIRMED', 'DONE'] as const;
+const BUSY_STATUSES = ['BOOKED', 'CONFIRMED', 'IN_PROGRESS', 'DONE'] as const;
 
 @Injectable()
 export class BeautyScheduleService {
@@ -151,7 +153,8 @@ export class BeautyScheduleService {
 
     const locationId = scope.locationId;
     const snapshot = await beautyTransaction(this.prisma, scope, async (tx) => {
-      await assertRevision(raw, await hoursRevision(tx, id, locationId));
+      await tx.$queryRaw`SELECT id FROM employees WHERE id=${id}::uuid FOR UPDATE`;
+      assertWeekRevision(raw, await hoursRevision(tx, id, locationId));
       const stillAssigned = await tx.employeeLocation.findFirst({
         where: { employeeId: id, locationId },
       });
@@ -181,6 +184,7 @@ export class BeautyScheduleService {
           },
         },
       });
+      await touchEmployeeSourceRevision(tx, id);
       return this.weekSnapshot(tx, id, locationId);
     });
     return { week: weekTemplate(snapshot.intervals), weekRevision: snapshot.revision };
@@ -192,16 +196,7 @@ export class BeautyScheduleService {
     const scope = await this.employeeScope(id);
     const parsed = parseTimeOffInput(raw);
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
-    const timezone = scope.locationTimezone ?? 'UTC';
-
-    const window = timeOffWindow({ ...parsed.value, timezone });
-    const affected = await this.prisma.db.appointment.count({
-      where: {
-        employeeId: id,
-        status: { in: [...BUSY_STATUSES] },
-        startsAt: { gte: window.fromUtc, lt: window.toUtcExclusive },
-      },
-    });
+    const affected = await this.countAbsenceAppointments(id, parsed.value.dateFrom, parsed.value.dateTo);
 
     const timeOffId = randomUUID();
     await beautyTransaction(this.prisma, scope, async (tx) => {
@@ -305,11 +300,13 @@ export class BeautyScheduleService {
 
     const removed = current.filter((row) => inArea(row.locationId) && !wantedInArea.includes(row.locationId));
     for (const row of removed) {
-      const booked = await this.prisma.db.appointment.count({
+      const booked = await this.prisma.db.appointmentLine.count({
         where: {
           employeeId: id,
-          locationId: row.locationId,
-          status: { in: [...BUSY_STATUSES] },
+          appointment: {
+            locationId: row.locationId,
+            status: { in: [...BUSY_STATUSES] },
+          },
           startsAt: { gte: new Date() },
         },
       });
@@ -381,24 +378,18 @@ export class BeautyScheduleService {
   }
 
   private async weekSnapshot(
-    db: Pick<DbTx, 'workingHours'>,
+    db: Pick<DbTx, '$queryRaw'>,
     employeeId: string,
     locationId: string,
   ) {
-    const rows = await db.workingHours.findMany({
-      where: { employeeId, locationId },
-      orderBy: [{ weekday: 'asc' }, { timeFrom: 'asc' }],
-      select: { id: true, weekday: true, timeFrom: true, timeTo: true },
-    });
+    const { rows, sourceRevision } = await readEmployeeWeekSource(db, employeeId, locationId);
     return {
       intervals: rows.map((r) => ({
         weekday: r.weekday,
         timeFrom: dateToClock(r.timeFrom),
         timeTo: dateToClock(r.timeTo),
       })),
-      revision: canonicalRevision(
-        rows.map((r) => [r.id, r.weekday, r.timeFrom.toISOString(), r.timeTo.toISOString()]),
-      ),
+      revision: hoursRowsRevision(rows, sourceRevision),
     };
   }
 
@@ -413,42 +404,33 @@ export class BeautyScheduleService {
     });
     if (!rows.length) return [];
 
-    // одна выборка на все отсутствия: записи считаются по окну каждого уже в памяти
-    const windows = rows.map((row) => ({
-      row,
-      window: timeOffWindow({
-        dateFrom: utcToDate(row.dateFrom),
-        dateTo: utcToDate(row.dateTo),
-        timezone,
-      }),
-    }));
-    const appointments = await this.prisma.db.appointment.findMany({
-      where: {
-        employeeId,
-        status: { in: [...BUSY_STATUSES] },
-        startsAt: {
-          gte: windows.reduce(
-            (min, w) => (w.window.fromUtc < min ? w.window.fromUtc : min),
-            windows[0]!.window.fromUtc,
-          ),
-          lt: windows.reduce(
-            (max, w) => (w.window.toUtcExclusive > max ? w.window.toUtcExclusive : max),
-            windows[0]!.window.toUtcExclusive,
-          ),
-        },
-      },
-      select: { startsAt: true },
-    });
-
-    return windows.map(({ row, window }) => ({
+    return Promise.all(rows.map(async row => ({
       id: row.id,
       dateFrom: utcToDate(row.dateFrom),
       dateTo: utcToDate(row.dateTo),
       reason: row.reason,
-      appointments: appointments.filter(
-        (a) => a.startsAt >= window.fromUtc && a.startsAt < window.toUtcExclusive,
-      ).length,
+      appointments: await this.countAbsenceAppointments(employeeId, utcToDate(row.dateFrom), utcToDate(row.dateTo)),
+    })));
+  }
+
+  private async countAbsenceAppointments(employeeId: string, dateFrom: string, dateTo: string) {
+    // Appointment's own branch is authoritative, including historical branch assignments.
+    const branches = await this.prisma.db.appointment.findMany({
+      where: { status: { in: [...BUSY_STATUSES] }, lines: { some: { employeeId } } },
+      distinct: ['locationId'],
+      select: { locationId: true, location: { select: { timezone: true } } },
+    });
+    const counts = await Promise.all(branches.map((branch) => {
+      const window = timeOffWindow({ dateFrom, dateTo, timezone: branch.location.timezone });
+      return this.prisma.db.appointmentLine.count({
+        where: {
+          employeeId,
+          appointment: { locationId: branch.locationId, status: { in: [...BUSY_STATUSES] } },
+          startsAt: { gte: window.fromUtc, lt: window.toUtcExclusive },
+        },
+      });
     }));
+    return counts.reduce((sum, count) => sum + count, 0);
   }
 }
 
@@ -488,27 +470,32 @@ function todayIn(timezone: string): string {
 export class BeautyScheduleController {
   constructor(@Inject(BeautyScheduleService) private readonly service: BeautyScheduleService) {}
 
+  @BeautyAccess('journal', 'view')
   @Get('schedule') schedule(@Query('employee') employee?: string) {
     return this.service.overview(employee);
   }
+  @BeautyAccess('journal', 'update')
   @Access('property') @Put('employees/:id/working-hours') setWorkingHours(
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
     return this.service.setWorkingHours(id, body);
   }
+  @BeautyAccess('journal', 'update')
   @Access('property') @Post('employees/:id/time-offs') addTimeOff(
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
     return this.service.addTimeOff(id, body);
   }
+  @BeautyAccess('journal', 'update')
   @Access('property') @Delete('employees/:id/time-offs/:timeOffId') removeTimeOff(
     @Param('id') id: string,
     @Param('timeOffId') timeOffId: string,
   ) {
     return this.service.removeTimeOff(id, timeOffId);
   }
+  @BeautyAccess('employees', 'update')
   @Access('property') @Put('employees/:id/locations') setLocations(
     @Param('id') id: string,
     @Body() body: unknown,

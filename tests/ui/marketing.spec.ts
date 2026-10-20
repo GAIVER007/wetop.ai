@@ -24,6 +24,8 @@ test.beforeEach(async ({ request }) => {
 test('меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп', async ({
   page,
 }) => {
+  // клавиатура панели кнопки ☰: она живёт до 1280 px (решение владельца 18.10.2026)
+  await page.setViewportSize({ width: 1024, height: 900 });
   await page.goto('/finance');
   const menu = menuOf(page);
   const trigger = menu.locator('.sidenav__current');
@@ -43,13 +45,22 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   await expect(item).toHaveAttribute('aria-expanded', 'true');
   await expect(siteLink).toBeFocused();
   await expect(siteLink).toHaveAttribute('href', '/marketing');
-  // ADR-184: «Продвижение» — обзор, реклама, конкуренты, контент, бюджет, аналитика
-  await expect(menu.locator('.sidenav__items:not([hidden]) a')).toHaveText(['Обзор', 'Реклама', 'Конкуренты', 'Контент', 'Бюджет', 'Аналитика']);
+  // ADR-184 и верхнее меню 17.10.2026: «Продвижение» вместе с бывшими «Продажами»
+  await expect(menu.locator('.sidenav__items:not([hidden]) a')).toHaveText([
+    'Обзор',
+    'ИИ-таргетолог',
+    'Контент',
+    'ИИ-продавец',
+    'Анализ конкурентов',
+    'Обзор продаж',
+    'Бюджет',
+    'Аналитика маркетинга',
+  ]);
   await expect(items.getByRole('link', { name: 'Бюджет', exact: true })).toHaveAttribute(
     'href',
     '/marketing/budget',
   );
-  await expect(items.getByRole('link', { name: 'Аналитика', exact: true })).toHaveAttribute(
+  await expect(items.getByRole('link', { name: 'Аналитика маркетинга', exact: true })).toHaveAttribute(
     'href',
     '/marketing/analytics',
   );
@@ -66,9 +77,8 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   await expect(page).toHaveURL(/\/marketing$/);
   await expect(trigger).toHaveText('Продвижение');
   await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Обзор');
-  // «Продажи» без сайта
-  const salesList = await openSection(page, 'Продажи');
-  await expect(salesList.locator('a')).toHaveText(['Обзор продаж', 'Каналы продаж', 'ИИ-продавцы']);
+  // отдельных «Продаж» нет, сайт пунктом меню не стоит
+  await expect(menu.locator('.sidenav__section', { hasText: /^Продажи$/ })).toHaveCount(0);
   await expect(
     menu.getByRole('link', { name: 'Сайт и онлайн-бронирование', includeHidden: true }),
   ).toHaveCount(0);
@@ -187,7 +197,7 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   await expect(menuOf(page).locator('.sidenav__current')).toHaveText('Продвижение');
 });
 
-test('экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных', async ({
+test('экраны «Реклама» и «Контент»: вкладки как в макете; кампании живые (ADR-MKT-B3), кабинет и контент пока пустые', async ({
   page,
   request,
 }) => {
@@ -195,20 +205,16 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   await main(page).getByRole('link', { name: 'Открыть: Реклама', exact: true }).click();
   await expect(page).toHaveURL(/\/marketing\/ads$/);
   const ads = main(page);
-  await expect(ads.getByRole('heading', { level: 1 })).toHaveText('Реклама');
+  await expect(ads.getByRole('heading', { level: 1 })).toHaveText('ИИ-таргетолог');
   await expect(menuOf(page).locator('.sidenav__current')).toHaveText('Продвижение');
   await expect(ads.getByTestId('marketing-ads-soon')).toContainText('Скоро');
   await expect(ads.getByRole('tab')).toHaveText(['Кампании', 'Аудитории', 'Креативы', 'Аналитика', 'Настройки']);
   const metrics = ads.getByTestId('marketing-ads-metrics');
-  await expect(metrics.locator('.stat__label')).toHaveText(['Потрачено', 'Заявки', 'Стоимость заявки', 'Доход с рекламы']);
-  await expect(metrics.locator('.stat__value')).toHaveText(Array(4).fill('Нет данных'));
-  await expect(metrics).not.toContainText(/\d/);
-  await expect(ads.getByTestId('marketing-ads-campaigns').locator('tbody')).toContainText('Кампаний пока нет');
-  for (const name of ['Подключить кабинет', 'Создать кампанию']) {
-    const button = ads.getByRole('button', { name, exact: true });
-    await expect(button).toBeDisabled();
-    await expect(button).toHaveAttribute('aria-describedby', 'marketing-ads-soon');
-  }
+  await expect(metrics.locator('.stat__label')).toHaveText(['Расход кампаний', 'Показы', 'Клики', 'Лиды площадки']);
+  await expect(ads.getByTestId('ads-empty')).toContainText('Кампаний пока нет');
+  // кабинет Meta подключается (ADR-MKT-META), кампанию можно создать и вручную (МКТ-В3)
+  await expect(ads.getByRole('button', { name: 'Подключить кабинет через Facebook', exact: true })).toBeEnabled();
+  await expect(ads.getByRole('button', { name: 'Создать кампанию', exact: true })).toBeEnabled();
   await ads.getByRole('tab', { name: 'Аудитории', exact: true }).click();
   await expect(ads.getByRole('tabpanel')).toContainText('Пока пусто');
   await ads.getByRole('link', { name: 'Назад к модулям', exact: true }).click();
@@ -233,7 +239,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
     '/marketing/site/assets',
   );
 
-  // ни один экран не спрашивает данных, кроме запросов оболочки
+  // «Контент» не спрашивает данных, кроме запросов оболочки; «Реклама» спрашивает кампании и последние запуски ИИ-таргетолога
   await request.post(`${fixture}/__test/reset`);
   for (const path of ['/marketing/ads', '/marketing/content']) {
     await page.goto(path);
@@ -242,10 +248,10 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   const hits = (await (await request.get(`${fixture}/__test/hits`)).json()) as {
     byPath: Record<string, number>;
   };
-  expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path))).toEqual([]);
+  expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path)).sort()).toEqual(['/marketing/ad-connections/meta', '/marketing/ads/launches', '/marketing/campaigns']);
 });
 
-test('администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб', async ({
+test('администратор (без права marketing): вкладки «Маркетинг» нет, прямой адрес не открывает хаб', async ({
   page,
   request,
 }) => {
@@ -257,11 +263,10 @@ test('администратор (без права settings): вкладки «
   await request.post(`${fixture}/__test/control`, { data: { role: 'STAFF' } });
   await page.goto('/finance');
   const menu = menuOf(page);
-  await expect(menu.locator('.sidenav__section', { hasText: /^Продажи$/ })).toHaveCount(1);
-  // ADR-184: в «Продвижении» администратору виден только пункт «Конкуренты» (право `reports`)
+  // верхнее меню 17.10.2026: в «Продвижении» администратору видны продавец, конкуренты (право `reports`) и обзор продаж
   await expect(menu.locator('.sidenav__section', { hasText: /^Продвижение$/ })).toHaveCount(1);
   const promo = await openSection(page, 'Продвижение');
-  await expect(promo.locator('a')).toHaveText(['Конкуренты']);
+  await expect(promo.locator('a')).toHaveText(['ИИ-продавец', 'Анализ конкурентов', 'Обзор продаж']);
   await page.keyboard.press('Escape');
   for (const path of ['/marketing', '/website', '/marketing/ads', '/marketing/content']) {
     await page.goto(path);

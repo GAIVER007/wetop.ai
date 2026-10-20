@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { AuthAccessStructure, AuthScope } from '../../lib/api';
-import { fromScopes, hasChoice, scopeSummary, toScopes } from './scope-model';
+import {
+  fromScopes,
+  hasChoice,
+  scopeSelectionValid,
+  validAccessStructure,
+  scopeSummary,
+  toScopes,
+} from './scope-model';
 
 const structure: AuthAccessStructure = {
   businesses: [
@@ -69,5 +76,18 @@ describe('модель области доступа на экране', () => {
         structure,
       ),
     ).toBe('Центр, Север и ещё 1');
+  });
+});
+
+describe('C-P1-1 structure readiness', () => {
+  it('distinguishes an empty valid response from failure and malformed payload', () => {
+    expect(validAccessStructure({ businesses: [] })).toBe(true);
+    for (const payload of [null, {}, { businesses: null }, { businesses: [{}] }])
+      expect(validAccessStructure(payload)).toBe(false);
+    expect(validAccessStructure(structure)).toBe(true);
+  });
+  it('does not silently drop removed restricted assignments', () => {
+    expect(scopeSelectionValid(structure, { 'l:l1': 'STAFF' })).toBe(true);
+    expect(scopeSelectionValid(structure, { 'l:foreign': 'STAFF' })).toBe(false);
   });
 });

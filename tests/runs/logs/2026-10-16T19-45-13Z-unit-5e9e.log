@@ -1,0 +1,19 @@
+# Модульные (unit) · 17.10.2026 00:45 Алматы · <сервер>
+# коммит c46ef1c (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 49
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T19-45-13Z-unit-5e9e.json' 'tests/unit/employee-portal-web.test.ts' 'tests/unit/employee-portal-restore-profile.test.ts' 'apps/api/src/employee-portal/boundary.test.ts' 'apps/api/src/employee-portal/write-safety.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-portal-release-61af7b90
+
+ ✓ |unit| tests/unit/employee-portal-restore-profile.test.ts (3 tests) 6ms
+ ✓ |unit| apps/api/src/employee-portal/write-safety.test.ts (6 tests) 13ms
+ ✓ |unit| apps/api/src/employee-portal/boundary.test.ts (4 tests) 8ms
+ ✓ |unit| tests/unit/employee-portal-web.test.ts (7 tests) 6ms
+
+ Test Files  4 passed (4)
+      Tests  20 passed (20)
+   Start at  19:45:14
+   Duration  2.91s (transform 67%, import 31%, tests 1%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T19-45-13Z-unit-5e9e.json
+
+# код выхода 0 · 4 с

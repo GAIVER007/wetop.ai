@@ -5,7 +5,6 @@ import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { SubtypeLinks } from '../../../components/landing/subtype-links';
 import { Breadcrumbs } from '../../../components/breadcrumbs';
-import { JsonLd, faqLd } from '../../../components/json-ld';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -15,7 +14,7 @@ import { registerLink } from '../../../lib/site';
  * Лендинг «Для салонов красоты» (ТЗ владельца 10.10.2026, план plans/salon-landing-2026-10-10.md):
  * герой с мокапом записей, полоса фактов, восемь возможностей, блок роста, вопросы и призыв.
  * Текст только из продукта (§19.9): чисел клиентов, кейсов и тарифов из макета здесь нет
- * (Q-SALON-1, Q-SALON-2); «14 дней» макета заменено на «7 дней» (ADR-098); фото заменены
+ * (Q-SALON-1, Q-SALON-2); «14 дней» макета снято, условий trial нет (ADR-147); фото заменены
  * мокапом и рисунком на SVG, появятся свои фото — меняются мокап героя и SalonArt (Q-SALON-3).
  */
 export const metadata: Metadata = pageMetadata({
@@ -164,7 +163,6 @@ export default function SalonLandingPage() {
 
           <SubtypeLinks direction="salons" title={t.segments.typesTitle.salons} />
 
-          {s.faq.length ? <JsonLd data={faqLd(s.faq)} /> : null}
           <MarketingBlock
             id="marketing"
             copy={t.marketing.salon}

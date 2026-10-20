@@ -2,6 +2,7 @@
 import type { InputHTMLAttributes } from 'react';
 import { Icon } from './icon';
 import { Button, Field, Input } from './ui';
+import { DateInput } from './date-field';
 
 /**
  * Переход по дням (MV8.5 DS1c, DESIGN.md §8.2): «Сегодня» по желанию, предыдущий день, поле «Дата»,
@@ -17,6 +18,7 @@ export function DateBar({
   inputProps,
   className,
   compact = false,
+  calendar = false,
 }: {
   date: string;
   onDateChange: (date: string) => void;
@@ -30,7 +32,9 @@ export function DateBar({
   className?: string;
   /** подпись «Дата» только для программы чтения: полоса дня одной строкой в панели экрана */
   compact?: boolean;
+  calendar?: boolean;
 }) {
+  const DateControl = calendar ? DateInput : Input;
   return (
     <div className={className ? `date-bar ${className}` : 'date-bar'}>
       {onToday && (
@@ -42,7 +46,7 @@ export function DateBar({
         <Icon name="back" />
       </Button>
       <Field label={compact ? <span className="sr-only">Дата</span> : 'Дата'}>
-        <Input
+        <DateControl
           {...inputProps}
           type="date"
           value={date}

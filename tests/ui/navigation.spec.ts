@@ -7,50 +7,52 @@ import { mkdirSync } from 'node:fs';
 // отметке главного администратора (ADR-083, tests/ui/platform-access.spec.ts).
 // С 10.10.2026 (ADR-161) на компьютере разделы в левом меню с панелью (tests/ui/side-nav.spec.ts),
 // здесь: меню телефона и планшета «Навигация» из того же реестра и обход всех пунктов по страницам.
+// верхнее меню по решению владельца 17.10.2026 (ADR-TOPNAV-20261017): одна строка разделов у всех направлений,
+// «Продажи» и «Маркетинг» в «Продвижении», экраны бара в «Складе», «Помощь» своим разделом
 const routes = [
-  // «Главная» (ADR-180, 13.10.2026)
   '/today',
-  '/ai-agents',
   '/chessboard',
-  // «Гости и бронирования» с 09.10.2026: один пункт на месте «Броней» и «Гостей», список броней открывается кнопкой
+  '/team',
   '/guests',
+  '/reservations',
   '/inventory',
-  '/sales',
-  '/market',
+  '/reports',
+  '/management/analytics',
+  '/bar/products',
+  '/bar/receipts',
+  '/bar',
+  '/bar/operations',
+  '/bar/suppliers',
+  '/finance',
+  '/reports/finance',
+  '/hotel-settings',
   '/channels',
-  // MKT2: вход в сайт через хаб «Маркетинг» (ADR-149)
+  '/connections',
+  '/incidents',
+  '/journal',
   '/marketing',
-  // МКТ-В1/В2: «Бюджет» и «Аналитика» в группе «Маркетинг»
-  '/marketing/budget',
-  '/marketing/analytics',
-  // ADR-184: «Реклама» и «Контент» пунктами «Продвижения»
   '/marketing/ads',
   '/marketing/content',
-  // «Показатели за период» (A1) с AN2 перенаправляют на «Аналитику → Обзор» (ADR-114): в меню их нет
-  '/reports',
-  '/finance',
-  '/bar',
-  '/management/analytics',
-  '/hotel-settings',
-  // «Сотрудники» — видимый раздел команды (TEAM1, план settings-hub-2026-10-02)
-  '/team',
-  '/connections',
-  '/journal',
-  '/incidents',
+  '/ai-agents',
+  '/market',
+  '/sales',
+  '/marketing/budget',
+  '/marketing/analytics',
+  '/help',
 ];
 
-// «Главная» первой (ADR-180, 13.10.2026), дальше прежний порядок (plans/finance-home-merge-2026-10-09.md)
 const SECTIONS = [
-  // «Главная» первой (ADR-180, 13.10.2026), дальше порядок владельца 13.10 (#501)
   'Главная',
-  'Календарь',
-  'Гости и бронирования',
-  'Номерной фонд',
+  'Журнал',
+  'Персонал',
+  'Клиенты',
+  'Услуги',
+  'Статистика',
+  'Склад',
   'Финансы',
-  'Продажи',
-  'Продвижение',
-  'Отчёты',
   'Настройки',
+  'Продвижение',
+  'Помощь',
 ];
 
 const fixture = FIXTURE_API;
@@ -71,17 +73,17 @@ test('меню телефона: работа смены прямыми ссыл
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
   expect([...links].sort()).toEqual([...routes].sort());
   expect(new Set(links).size).toBe(links.length);
-  // активная отметка на пункте группы «Финансы» (ADR-157)
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Оплаты и касса');
-  // «Календарь» больше не спрятан в группе: прямая ссылка с подписью
-  const board = menu.getByRole('link', { name: 'Календарь', exact: true });
+  // активная отметка на пункте группы «Финансы»
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Обзор финансов');
+  // «Журнал» не спрятан в группе: прямая ссылка с подписью
+  const board = menu.getByRole('link', { name: 'Журнал', exact: true });
   await expect(board.locator('span')).toBeVisible();
   await board.click();
   await expect(page).toHaveURL(/\/chessboard$/);
   await expect(menu).not.toBeVisible();
   // группа: раскрывается с клавиатуры, открыт один раздел
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
-  const sales = menu.getByRole('button', { name: 'Продажи', exact: true });
+  const sales = menu.getByRole('button', { name: 'Настройки', exact: true });
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
   await sales.focus();
   await page.keyboard.press('Space');
@@ -89,7 +91,7 @@ test('меню телефона: работа смены прямыми ссыл
   await expect(menu.locator('.sidebar-section-toggle[aria-expanded="true"]')).toHaveCount(1);
   await expect(menu.getByRole('link', { name: 'Каналы продаж', exact: true })).toBeVisible();
   await page.keyboard.press('Tab');
-  await expect(menu.getByRole('link', { name: 'Обзор продаж', exact: true })).toBeFocused();
+  await expect(menu.getByRole('link', { name: 'Объект', exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(menu.getByRole('link', { name: 'Каналы продаж', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
@@ -102,7 +104,7 @@ test('меню телефона: работа смены прямыми ссыл
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
 });
 
-test('меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд»', async ({
+test('меню телефона: вложенные адреса подсвечивают свой пункт, «Каталог» в «Услугах»', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -114,8 +116,9 @@ test('меню телефона: вложенные адреса подсвеч�
     'true',
   );
   await expect(menu.locator('[aria-current="page"]')).toHaveText('Объект');
-  // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108): один пункт вместо трёх
-  await menu.getByRole('link', { name: 'Номерной фонд', exact: true }).click();
+  // номерной фонд гостиницы это «Каталог» раздела «Услуги» (одно меню у всех направлений, 17.10.2026)
+  await menu.getByRole('button', { name: 'Услуги', exact: true }).click();
+  await menu.getByRole('link', { name: 'Каталог', exact: true }).click();
   await expect(page).toHaveURL(/\/inventory$/);
   await expect(
     page
@@ -125,7 +128,7 @@ test('меню телефона: вложенные адреса подсвеч�
       .filter({ visible: true }),
   ).toHaveText('Номерной фонд');
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Каталог');
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
 });
 
@@ -226,20 +229,19 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
-// «Гости и бронирования» (поручение владельца 09.10.2026): в шапке один пункт, классический список броней
-// открывается кнопкой на экране и оставляет подсвеченным тот же пункт.
-test('«Гости и бронирования»: один пункт меню, список броней под той же вкладкой', async ({
+// «Гости и бронирования» (09.10.2026) в разделе «Клиенты»; список броней его пункт «Записи» (17.10.2026)
+test('«Гости и бронирования»: одна вкладка меню, список броней её пунктом', async ({
   page,
 }) => {
   await page.goto('/guests');
   const main = page.getByRole('main');
   // подразделы левого меню (ADR-161): каждый адрес один раз, текущий помечен
   const menu = page.locator('.sidenav__nav');
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Гости и бронирования');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Клиенты');
   await main.getByRole('link', { name: 'Список броней', exact: true }).click();
   await expect(page).toHaveURL(/\/reservations$/);
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Брони');
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Гости и бронирования');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Записи');
   // обратно: кнопка на списке броней ведёт на экран гостей
   await main.getByRole('link', { name: 'Гости', exact: true }).click();
   await expect(page).toHaveURL(/\/guests$/);

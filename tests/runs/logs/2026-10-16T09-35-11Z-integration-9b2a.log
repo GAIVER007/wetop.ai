@@ -1,0 +1,73 @@
+# Интеграционные (integration) · 16.10.2026 14:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит 823661d (claude/marketing-expense-files), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T09-35-11Z-integration-9b2a.json' 'tests/integration/marketing-expense-files.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |integration| tests/integration/marketing-expense-files.test.ts (2 tests | 2 failed) 254ms
+   ❯ чеки расходов маркетинга (integration) (2)
+     × фото WebP без EXIF и PDF как есть; повтор не дублирует; чужое и поддельное отвергается 84ms
+     × не больше 10 файлов; удаление в журнал; расход уносит файлы, объект в хранилище остаётся 62ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/marketing-expense-files.test.ts > чеки расходов маркетинга (integration) > фото WebP без EXIF и PDF как есть; повтор не дублирует; чужое и поддельное отвергается
+AssertionError: promise resolved "{ file: { …(5) }, created: true }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "created": true,
++   "file": {
++     "byteSize": 47,
++     "fileName": "Чек.pdf",
++     "id": "3d144f08-4686-4cad-9dca-b3e62fdd8958",
++     "mimeType": "application/pdf",
++     "url": "https://assets.storage.test/marketing-expense-files/7d1aed0d-a42d-456d-ad24-a72f2ecacbac/3d144f08-4686-4cad-9dca-b3e62fdd8958/08e2880a101193fa93824f51b14e19a4c0e984aeb4aa94694d97b4c81f212436.pdf?X-Expires=1792146913&X-Signature=8e5b9d710d7a956ee85cfebd97a78a4fcab69e0c178a6b7043108eb7d598ce1a",
++   },
+  }
+
+ ❯ tests/integration/marketing-expense-files.test.ts:100:81
+     98|     await expect(as('own', () => files.upload(expenseId, { buffer: Buf…
+     99|     // расход другого филиала из этого филиала не виден: как несуществ…
+    100|     await expect(as('own', () => files.upload(otherExpenseId, { buffer…
+       |                                                                                 ^
+    101|     await expect(as('own', () => files.upload(randomUUID(), { buffer: …
+    102|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/marketing-expense-files.test.ts > чеки расходов маркетинга (integration) > не больше 10 файлов; удаление в журнал; расход уносит файлы, объект в хранилище остаётся
+AssertionError: promise resolved "{ deleted: true }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "deleted": true,
+  }
+
+ ❯ tests/integration/marketing-expense-files.test.ts:117:69
+    115|
+    116|     const one = await db.marketingExpenseFile.findFirstOrThrow({ where…
+    117|     await expect(as('other', () => files.remove(expenseId, one.id))).r…
+       |                                                                     ^
+    118|     await as('own', () => files.remove(expenseId, one.id));
+    119|     expect(await db.marketingExpenseFile.count({ where: { id: one.id }…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  02:35:11
+   Duration  1.60s (import 39%, transform 38%, tests 22%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T09-35-11Z-integration-9b2a.json
+
+# код выхода 1 · 2 с

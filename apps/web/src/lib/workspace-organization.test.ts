@@ -1,73 +1,46 @@
 import { expect, it } from 'vitest';
 import { activeMenuRoute, menuSections, phoneNavigation } from './navigation';
 // Строка вкладок (ADR-134): работа смены одним щелчком, группы только там, где экранов несколько
-it('organizes the menu by tasks: desk screens first, groups only for multi-screen areas', () => {
-  expect(menuSections.map((s) => s.id)).toEqual([
-    // «Главная» первой (ADR-180, 13.10.2026); дальше порядок #501
-    'today',
-    'chessboard',
-    'guests',
-    'inventory',
-    'finance',
-    'sales',
-    'marketing',
-    'reports',
-    'settings',
+// верхнее меню по решению владельца 17.10.2026 (черновик `plans/top-nav-draft-2026-10-17.html`): одна строка
+// разделов у всех направлений, слова гостиницы «Шахматка», «Гости», «Номера»
+it('organizes the menu by tasks: one row of sections shared by all verticals', () => {
+  expect(menuSections.map((s) => [s.label, s.items.map((i) => i.href)])).toEqual([
+    ['Главная', ['/today']],
+    ['Журнал', ['/chessboard']],
+    ['Персонал', ['/team']],
+    ['Клиенты', ['/guests', '/reservations']],
+    ['Услуги', ['/inventory']],
+    ['Статистика', ['/management/analytics', '/reports']],
+    // «Бар» (ADR-157) стал разделом «Склад»
+    ['Склад', ['/bar', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
+    ['Финансы', ['/finance', '/reports/finance']],
+    ['Настройки', ['/hotel-settings', '/channels', '/connections', '/incidents', '/journal', '/platform']],
+    // «Продвижение» (ADR-184) вместе с бывшими «Продажами»
+    [
+      'Продвижение',
+      ['/marketing', '/marketing/ads', '/marketing/content', '/ai-agents', '/market', '/sales', '/marketing/budget', '/marketing/analytics'],
+    ],
+    ['Помощь', ['/help']],
   ]);
-  // «Отчёты»: группа, хаб REP1 и «Аналитика» вместе (поручение владельца 03.10);
-  // «Финансы»: группа с 09.10 (ADR-157), «Оплаты и касса» и «Бар» вместе
-  expect(menuSections.filter((s) => !s.direct).map((s) => s.id)).toEqual([
-    'finance',
-    'sales',
-    'marketing',
-    'reports',
-    'settings',
-  ]);
-  expect(menuSections.find((s) => s.id === 'finance')?.items.map((i) => i.href)).toEqual([
-    '/finance',
-    '/bar',
-  ]);
-  expect(menuSections.find((s) => s.id === 'sales')?.items.map((i) => i.href)).toEqual([
-    '/sales',
-    '/channels',
-    '/ai-agents',
-  ]);
-  // «Продвижение» (ADR-184): тот же состав у всех направлений, «Конкуренты» переехали из «Продаж»
-  expect(menuSections.find((s) => s.id === 'marketing')?.items.map((i) => i.href)).toEqual([
-    '/marketing',
-    '/marketing/ads',
-    '/market',
-    '/marketing/content',
-    '/marketing/budget',
-    '/marketing/analytics',
-  ]);
-  expect(
-    menuSections.find((s) => s.id === 'settings')?.items.some((i) => i.href === '/journal'),
-  ).toBe(true);
   // «Организации» главного администратора лежат в «Настройках» последним пунктом (ADR-ORG-PAGE)
   expect(menuSections.find((s) => s.id === 'settings')?.items.at(-1)?.href).toBe('/platform');
 });
 it('phone bottom bar: the four leading tabs; a group tab opens its first item under the group name', () => {
-  expect(phoneNavigation.map((i) => i.href)).toEqual([
-    '/today',
-    '/chessboard',
-    '/guests',
-    '/inventory',
+  expect(phoneNavigation.map((i) => [i.href, i.label])).toEqual([
+    ['/today', 'Главная'],
+    ['/chessboard', 'Журнал'],
+    ['/guests', 'Клиенты'],
+    ['/inventory', 'Услуги'],
   ]);
-  // «Главная» первой (ADR-180); группы на панели зовутся именем группы (ADR-157)
-  expect(phoneNavigation[0]!.label).toBe('Главная');
-  expect(phoneNavigation[1]!.label).toBe('Календарь');
 });
 
-// «Гости и бронирования» (поручение владельца 09.10.2026): вместо вкладок «Брони» и «Гости» одна вкладка меню,
-// классический список броней открывается кнопкой на экране и подсвечивает ту же вкладку
-it('guests and bookings are one menu tab: the reservations list has no tab of its own', () => {
-  const hrefs = menuSections.flatMap((s) => s.items.map((i) => i.href));
-  expect(hrefs).toContain('/guests');
-  expect(hrefs).not.toContain('/reservations');
+// «Гости и бронирования» (09.10.2026) одной вкладкой; с верхним меню 17.10.2026 список броней пункт той же вкладки
+it('guests and bookings are one menu tab: the reservations list is an item of it', () => {
+  const guests = menuSections.find((s) => s.id === 'clients');
+  expect(guests?.items.map((i) => i.href)).toEqual(['/guests', '/reservations']);
   expect(activeMenuRoute('/guests')).toBe('/guests');
   expect(activeMenuRoute('/guests/birthdays')).toBe('/guests');
   expect(activeMenuRoute('/guests/42')).toBe('/guests');
-  expect(activeMenuRoute('/reservations')).toBe('/guests');
-  expect(activeMenuRoute('/reservations/20260927-ABC123')).toBe('/guests');
+  expect(activeMenuRoute('/reservations')).toBe('/reservations');
+  expect(activeMenuRoute('/reservations/20260927-ABC123')).toBe('/reservations');
 });

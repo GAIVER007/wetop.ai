@@ -1,0 +1,38 @@
+# Интеграционные (integration) · 16.10.2026 14:30 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 40
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T09-30-47Z-integration-6cfd.json' '--config' 'tests/owner-money-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/owner-money-isolated.test.ts (5 tests | 1 failed) 8289ms
+   ❯ owner money actual isolated PostgreSQL queries (5)
+     × classifies real partially-paid document without changing cash totals, including void and missing links 5187ms
+     ✓ executes DONE beauty snapshot reads without inventing a payment ledger 1398ms
+     ✓ reads CLOSED snapshots and POSTED sales once, excluding future and unclosed orders 255ms
+     ✓ does not borrow another branch or its present EUR currency 109ms
+     ✓ executes hotel service-date/folio and payment scope queries against the real schema 404ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/owner-money-isolated.test.ts > owner money actual isolated PostgreSQL queries > classifies real partially-paid document without changing cash totals, including void and missing links
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/owner-money-isolated.test.ts:22:2
+     20| afterAll(async()=>{await db.$disconnect();await pool.end();});
+     21| describe('owner money actual isolated PostgreSQL queries',()=>{
+     22|  it('classifies real partially-paid document without changing cash tot…
+       |  ^
+     23|   const { OwnerSummaryService } = await import('../../apps/api/src/fin…
+     24|   const { withSignedInUser } = await import('../../apps/api/src/auth/r…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  09:30:50
+   Duration  77.97s (import 82%, tests 11%, transform 8%)
+
+JSON report written to /tmp/pms-test-2026-10-16T09-30-47Z-integration-6cfd.json
+
+# код выхода 1 · 1 мин 22 с

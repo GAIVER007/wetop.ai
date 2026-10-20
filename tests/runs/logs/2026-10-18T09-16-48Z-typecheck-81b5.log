@@ -1,0 +1,29 @@
+# Типы (typecheck) · 18.10.2026 14:16 Алматы · <сервер>
+# коммит e4b56fb (fix/owner-report-period-20261018)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/components/quick-report-reference.tsx(38,10): error TS2375: Type '{ values: Record<string, string> | undefined; }' is not assignable to type '{ values?: Record<string, string>; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'values' are incompatible.
+    Type 'Record<string, string> | undefined' is not assignable to type 'Record<string, string>'.
+      Type 'undefined' is not assignable to type 'Record<string, string>'.
+apps/web/src/components/quick-report-reference.tsx(144,14): error TS2375: Type '{ key: "Оплата наличными" | "Оплата безналом" | "Средний чек" | "Выручка (за один день)"; label: "Оплата наличными" | "Оплата безналом" | "Средний чек" | "Выручка (за один день)"; values: Record<...> | undefined; hint: string; }' is not assignable to type '{ label: string; values?: Record<string, string>; hint: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'values' are incompatible.
+    Type 'Record<string, string> | undefined' is not assignable to type 'Record<string, string>'.
+      Type 'undefined' is not assignable to type 'Record<string, string>'.
+apps/web/src/components/quick-report-reference.tsx(155,14): error TS2375: Type '{ label: string; values: Record<string, string> | undefined; hint: string; }' is not assignable to type '{ label: string; values?: Record<string, string>; hint: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'values' are incompatible.
+    Type 'Record<string, string> | undefined' is not assignable to type 'Record<string, string>'.
+      Type 'undefined' is not assignable to type 'Record<string, string>'.
+
+# код выхода 1 · 1 мин 19 с

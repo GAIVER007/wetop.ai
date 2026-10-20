@@ -1,0 +1,41 @@
+# Интеграционные (integration) · 16.10.2026 13:24 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 23
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T08-24-06Z-integration-323e.json' '--config' 'tests/occupancy-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+(node:1667691) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/occupancy-isolated.test.ts (7 tests | 1 failed) 1079ms
+   ✓ real FoodService commands synchronize reservation, assignment and legacy hooks atomically 688ms
+   ✓ runtime role successfully seats, moves and releases its own tenant 80ms
+   ✓ runtime tenant isolation hides other branches and rejects writes 4ms
+   ✓ walk-in persists one actual session, retries replay, competing seats fail, move and release are atomic 53ms
+   ✓ retained history rejects parent scope changes and session relinking but permits business edits 55ms
+   ✓ history pages equal timestamps without duplicates and validates cursor scope 139ms
+   × two connections serialize retained linking against parent scope update (observed blocker) 31ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/occupancy-isolated.test.ts > two connections serialize retained linking against parent scope update (observed blocker)
+error: Food parent is immutable
+ ❯ ../wetop-design-audit-runtime/node_modules/pg/lib/client.js:694:17
+ ❯ tests/integration/occupancy-isolated.test.ts:135:2
+    133|  // Same-location area move and other business edits remain allowed.
+    134|  const same=randomUUID(); await observer.query("insert into dining_are…
+    135|  await observer.query('update dining_tables set area_id=$2 where id=$1…
+       |  ^
+    136|  const res=(await observer.query('select reservation_id from table_occ…
+    137|  await expect(observer.query('update restaurant_reservations set locat…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  08:24:07
+   Duration  3.06s (transform 49%, tests 37%, import 13%)
+
+JSON report written to /tmp/pms-test-2026-10-16T08-24-06Z-integration-323e.json
+
+# код выхода 1 · 4 с

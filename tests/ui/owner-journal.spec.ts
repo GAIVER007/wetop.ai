@@ -14,9 +14,9 @@ test.beforeEach(async ({ request, page }) => {
 test('владелец: вкладка, суммы, было/стало, фильтры и вся история', async ({ page, request }) => {
   await request.post(`${FIXTURE_API}/__test/control`, { data: { journalFinance: true } });
   await page.goto('/team');
-  await page.getByRole('main').getByRole('link', { name: 'Журнал операций', exact: true }).click();
+  await page.getByRole('main').getByRole('link', { name: 'История действий', exact: true }).click();
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Журнал операций');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('История действий');
   await expect(main.getByTestId('journal-row')).toHaveCount(50);
   const first = main.getByTestId('journal-row').first();
   await expect(first).toContainText('Тестовый кассир');
@@ -29,7 +29,7 @@ test('владелец: вкладка, суммы, было/стало, фил�
   await main.getByRole('link', { name: 'Более ранние операции' }).click();
   await expect(main.getByTestId('journal-row')).toHaveCount(15);
   await main.getByRole('link', { name: 'К новым операциям' }).click();
-  await main.getByText('Фильтры журнала', { exact: true }).click();
+  await main.getByText('Фильтры истории', { exact: true }).click();
   await main.getByLabel('Действие', { exact: true }).selectOption('finance.cash.operation.void');
   await main
     .getByLabel('Сотрудник', { exact: true })
@@ -61,7 +61,7 @@ for (const role of ['MANAGER', 'STAFF'] as const) {
     await request.post(`${FIXTURE_API}/__test/control`, { data: { role } });
     await page.goto('/team');
     await expect(
-      page.getByRole('main').getByRole('link', { name: 'Журнал операций', exact: true }),
+      page.getByRole('main').getByRole('link', { name: 'История действий', exact: true }),
     ).toHaveCount(0);
     await page.goto('/journal');
     await expect(page.getByRole('main').getByTestId('journal-table')).toHaveCount(0);

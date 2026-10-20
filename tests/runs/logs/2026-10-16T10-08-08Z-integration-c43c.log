@@ -1,0 +1,51 @@
+# Интеграционные (integration) · 16.10.2026 15:08 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 44
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T10-08-08Z-integration-c43c.json' '--config' 'tests/expense-isolated.config.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/expense-documents-isolated.test.ts (12 tests | 1 failed) 1520ms
+   ❯ expense persistence, isolated PostgreSQL (12)
+     ✓ applies held migration and persists document without cash debit 17ms
+     ✓ links existing partial cash once, rejects duplicate and overpayment 53ms
+     ✓ rejects wrong currency and non-completed sources 32ms
+     ✓ serializes concurrent links and rejects overpayment 32ms
+     ✓ void retains link/history, freezes amount, permits recomputed balance 31ms
+     ✓ backfills supplier cash and atomically follows later legacy payments without a second debit 621ms
+     ✓ supplier retries use persistent intents across connections, conflicts and pending claims 488ms
+     ✓ replays identical intents, rejects changed payload, never creates cash 10ms
+     ✓ links proven hotel cash without inferring unknown historical currency 27ms
+     × binds real legacy marketing, syncs unpaid edits, links cash once and preserves voided history 162ms
+     ✓ enforces tenant isolation under the actual runtime role 15ms
+     ✓ enables FORCE RLS and both policy predicates 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/expense-documents-isolated.test.ts > expense persistence, isolated PostgreSQL > binds real legacy marketing, syncs unpaid edits, links cash once and preserves voided history
+AssertionError: expected null to be 'c5331c5b-606a-43e2-a83e-a9eca52940de' // Object.is equality
+
+- Expected:
+"c5331c5b-606a-43e2-a83e-a9eca52940de"
+
++ Received:
+null
+
+ ❯ tests/integration/expense-documents-isolated.test.ts:199:136
+    197|       const key=randomUUID(), payload={categoryId:cat,title:'Marketing…
+    198|       const d=await store.create(location,null,key,payload);
+    199|       expect((await pool.query('SELECT marketing_expense_id FROM expen…
+       |                                                                                                                                        ^
+    200|       expect(await store.create(location,null,key,payload)).toEqual(d);
+    201|       await expect(store.create(location,null,randomUUID(),payload)).r…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  10:08:09
+   Duration  3.84s (transform 46%, tests 41%, import 13%)
+
+JSON report written to /tmp/pms-test-2026-10-16T10-08-08Z-integration-c43c.json
+
+# код выхода 1 · 5 с

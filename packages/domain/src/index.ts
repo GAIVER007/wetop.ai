@@ -1,4 +1,5 @@
 /** @pms/domain — бизнес-логика PMS. Не знает про Channex/eQonaq/HTTP/Prisma. */
+export type * from './employee-portal/types';
 export * from './property/index';
 export * from './inventory/index';
 export * from './chessboard/index';
@@ -33,3 +34,9 @@ export * from "./food/customer-marks";
 export * from "./food/layout";
 export * from "./food/booking-rules";
 export * from './marketing/index';
+export * from './regions';
+
+export * from './customers';
+export { readCustomerCsv, previewCustomerCsv, CUSTOMER_CSV_MAX_ROWS, CUSTOMER_CSV_MAX_BYTES } from './customer-import';
+export type { CustomerCsvFile, CustomerCsvMapping, CustomerCsvRow, CustomerCsvStatus } from './customer-import';
+export * from './customer-import-job';

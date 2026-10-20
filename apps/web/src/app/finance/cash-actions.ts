@@ -51,6 +51,7 @@ export async function cashOperationAction(
 ): Promise<CashActionResult> {
   try {
     await financeApi.createCashOperation({
+      ...(s(fd, 'idempotencyKey') ? {idempotencyKey:s(fd, 'idempotencyKey')} : {}),
       kind: s(fd, 'kind'),
       method: s(fd, 'method'),
       amount: s(fd, 'amount'),
@@ -70,6 +71,7 @@ export async function cashTransferAction(
 ): Promise<CashActionResult> {
   try {
     await financeApi.createCashTransfer({
+      ...(s(fd, 'idempotencyKey') ? {idempotencyKey:s(fd, 'idempotencyKey')} : {}),
       from: s(fd, 'from'),
       to: s(fd, 'to'),
       amount: s(fd, 'amount'),
@@ -89,6 +91,7 @@ export async function cashReconcileAction(
 ): Promise<CashActionResult> {
   try {
     await financeApi.createCashReconciliation({
+      ...(s(fd, 'idempotencyKey') ? {idempotencyKey:s(fd, 'idempotencyKey')} : {}),
       method: s(fd, 'method'),
       counted: s(fd, 'counted'),
       note: s(fd, 'note') ?? null,

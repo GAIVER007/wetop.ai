@@ -1,0 +1,17 @@
+# Модульные (unit) · 16.10.2026 21:09 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (claude/marketing-ad-launch), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-09-43Z-unit-00b4.json' 'apps/api/src/reservations/reservations.controller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+[Nest] 66609  - 09/09/2026, 11:00:00 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (55 tests) 188ms
+
+ Test Files  1 passed (1)
+      Tests  55 passed (55)
+   Start at  09:09:43
+   Duration  1.03s (transform 56%, import 25%, tests 19%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-09-43Z-unit-00b4.json
+
+# код выхода 0 · 2 с

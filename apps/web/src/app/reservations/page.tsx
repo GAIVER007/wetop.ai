@@ -1,4 +1,4 @@
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { redirect, unstable_rethrow } from 'next/navigation';
@@ -50,7 +50,7 @@ export default async function ReservationsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/reservations');
   const sp = normalizeSearchParams(await searchParams);
   // Форма шлёт и пустые поля, и умолчания: адрес после «Показать» чистится одним переходом (R2, ADR-106)
   if (needsCleanup(sp)) redirect(cleanHref(sp));

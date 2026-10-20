@@ -1,0 +1,22 @@
+# Сквозные (e2e) · 19.10.2026 18:20 Алматы · Noutbuk-Vyacheslav.local
+# коммит b19e9e9 (claude/pwa1), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config=tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/pwa-install.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 [main-ui-0] › ../.wetop-main-ui-zibexk/worker-0/tests/ui/pwa-install.spec.ts:15:1 › манифест отдаётся без входа и ведёт на «Сегодня» (561ms)
+  ✓  2 [main-ui-0] › ../.wetop-main-ui-zibexk/worker-0/tests/ui/pwa-install.spec.ts:28:3 › значок /pwa-icon/192: PNG 192×192 без входа (719ms)
+  ✓  3 [main-ui-0] › ../.wetop-main-ui-zibexk/worker-0/tests/ui/pwa-install.spec.ts:28:3 › значок /pwa-icon/512: PNG 512×512 без входа (34ms)
+  ✓  4 [main-ui-0] › ../.wetop-main-ui-zibexk/worker-0/tests/ui/pwa-install.spec.ts:28:3 › значок /pwa-icon/maskable: PNG 512×512 без входа (24ms)
+  ✓  5 [main-ui-0] › ../.wetop-main-ui-zibexk/worker-0/tests/ui/pwa-install.spec.ts:35:1 › чужой размер значка: 404 (14ms)
+  ✓  6 [main-ui-0] › ../.wetop-main-ui-zibexk/worker-0/tests/ui/pwa-install.spec.ts:39:1 › ссылки на манифест и значок iPhone, цвет строки состояния (2.3s)
+
+  6 passed (16.0s)
+
+# код выхода 0 · 17 с

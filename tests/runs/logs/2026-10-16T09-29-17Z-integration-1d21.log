@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 16.10.2026 14:29 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 40
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T09-29-17Z-integration-1d21.json' '--config' 'tests/owner-money-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓ |integration| tests/integration/owner-money-isolated.test.ts (5 tests) 3584ms
+   ✓ owner money actual isolated PostgreSQL queries (5)
+     ✓ classifies real partially-paid document without changing cash totals, including void and missing links 2694ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  09:29:19
+   Duration  6.03s (tests 61%, transform 29%, import 10%)
+
+JSON report written to /tmp/pms-test-2026-10-16T09-29-17Z-integration-1d21.json
+
+# код выхода 0 · 8 с

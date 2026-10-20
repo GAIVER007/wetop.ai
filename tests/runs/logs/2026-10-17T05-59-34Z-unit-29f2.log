@@ -1,0 +1,218 @@
+# Модульные (unit) · 17.10.2026 10:59 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0766123 (claude/d5-journal-labels), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T05-59-34Z-unit-29f2.json' 'apps/web/src/app/journal/labels.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/p0
+
+ ❯ |unit| apps/web/src/app/journal/labels.test.ts (3 tests | 3 failed) 9ms
+   ❯ подписи журнала операций (3)
+     × у каждого кода действия из API есть подпись 6ms
+     × у каждого типа объекта из API есть подпись 1ms
+     × незнакомый код показывается разделом, а не сырой строкой 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/journal/labels.test.ts > подписи журнала операций > у каждого кода действия из API есть подпись
+AssertionError: expected [ 'agent.created', …(95) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "agent.created",
++   "agent.updated",
++   "analytics.site.booking",
++   "bar.category.active_changed",
++   "bar.category.created",
++   "bar.product.active_changed",
++   "bar.product.created",
++   "bar.product.updated",
++   "bar.supplier.active_changed",
++   "bar.supplier.created",
++   "beauty.appointment.created",
++   "beauty.appointment.moved",
++   "beauty.appointment.paid",
++   "beauty.appointment.refunded",
++   "beauty.appointment.status",
++   "beauty.customer.marks",
++   "beauty.employee.created",
++   "beauty.employee.locations.set",
++   "beauty.employee.services.set",
++   "beauty.employee.time_off.added",
++   "beauty.employee.time_off.removed",
++   "beauty.employee.updated",
++   "beauty.employee.working_hours.set",
++   "beauty.location_service.set",
++   "beauty.service.created",
++   "beauty.service.updated",
++   "business.card_updated",
++   "business.created",
++   "channex.booking.linked",
++   "desk.task.created",
++   "folio.channelPrepayment",
++   "folio.channelPrepayment.void",
++   "folio.penalty",
++   "food.menu.photo.removed",
++   "food.order.rated",
++   "food.reservation.created",
++   "hotel.onboarding",
++   "hotel.service.created",
++   "hotel.service.updated",
++   "hotel.settings.updated",
++   "inventory.category.created",
++   "inventory.category.photos_set",
++   "inventory.category.rate_plan_linked",
++   "inventory.category.updated",
++   "inventory.room.created",
++   "inventory.room.updated",
++   "market.competitor.created",
++   "market.occupancy.collected",
++   "market.occupancy.recorded",
++   "market.rates.recorded",
++   "marketing.site.booking_source.changed",
++   "marketing.site.generation.requested",
++   "marketing_ad_connection.connected",
++   "marketing_ad_connection.disconnected",
++   "marketing_ad_launch.failed",
++   "marketing_ad_launch.started",
++   "marketing_ad_launch.succeeded",
++   "marketing_budget.lines_set",
++   "marketing_budget.set",
++   "marketing_expense.created",
++   "marketing_expense.deleted",
++   "marketing_expense.file_added",
++   "marketing_expense.file_removed",
++   "marketing_expense.imported",
++   "marketing_expense.updated",
++   "membership.scope.updated",
++   "onboarding.beauty.complete",
++   "onboarding.beauty.profile",
++   "onboarding.complete",
++   "organization.archived",
++   "organization.created",
++   "organization.renamed",
++   "organization.restored",
++   "organization.status_changed",
++   "promo_code.created",
++   "promo_code.updated",
++   "property.branch_created",
++   "rate_plan.cancellation_penalty.updated",
++   "rate_plan.derived.created",
++   "rate_plan.derived.updated",
++   "seller.conversation.handling",
++   "seller.conversation.note",
++   "seller.conversation.reply",
++   "seller.knowledge.uploaded",
++   "seller.profile.updated",
++   "seller.prompt.restored",
++   "seller.prompt.updated",
++   "site.lead.created",
++   "site.lead.status",
++   "site_builder.entitlement_updated",
++   "support.conversation.close",
++   "support.conversation.reply",
++   "support.knowledge.uploaded",
++   "support.model.changed",
++   "support.prompt.updated",
++   "user.email.verified",
++ ]
+
+ ❯ apps/web/src/app/journal/labels.test.ts:27:54
+     25|     const codes = literals('action', '[a-z_]+(?:\\.[a-zA-Z_]+)+');
+     26|     expect(codes.length).toBeGreaterThan(100);
+     27|     expect(codes.filter((code) => !ACTION_RU[code])).toEqual([]);
+       |                                                      ^
+     28|   });
+     29|   it('у каждого типа объекта из API есть подпись', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/web/src/app/journal/labels.test.ts > подписи журнала операций > у каждого типа объекта из API есть подпись
+AssertionError: expected [ 'Competitor', 'Location', …(41) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "Competitor",
++   "Location",
++   "PaymentRequest",
++   "PromoCode",
++   "RatePlan",
++   "SellerConversation",
++   "SellerKnowledge",
++   "SellerProfile",
++   "Service",
++   "SupportAssistant",
++   "SupportConversation",
++   "SupportKnowledge",
++   "accommodation_type",
++   "appointment",
++   "bar_category",
++   "bar_inventory_count",
++   "bar_product",
++   "bar_receipt",
++   "bar_sale",
++   "bar_supplier",
++   "bar_supplier_payment",
++   "bar_write_off",
++   "beauty_service",
++   "business",
++   "customer",
++   "desk_task",
++   "employee",
++   "kitchen_stock",
++   "location_service",
++   "marketing_ad_connection",
++   "marketing_ad_launch",
++   "marketing_budget",
++   "marketing_campaign",
++   "marketing_expense",
++   "marketing_site",
++   "menu_item",
++   "physical_room",
++   "property",
++   "restaurant_order",
++   "restaurant_reservation",
++   "seller-agent",
++   "site_asset",
++   "site_lead",
++ ]
+
+ ❯ apps/web/src/app/journal/labels.test.ts:31:54
+     29|   it('у каждого типа объекта из API есть подпись', () => {
+     30|     const types = literals('entityType', '[A-Za-z_-]+');
+     31|     expect(types.filter((type) => !ENTITY_RU[type])).toEqual([]);
+       |                                                      ^
+     32|   });
+     33|   it('незнакомый код показывается разделом, а не сырой строкой', () =>…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/app/journal/labels.test.ts > подписи журнала операций > незнакомый код показывается разделом, а не сырой строкой
+AssertionError: expected 'beauty.something.new' to be 'Действие: салон' // Object.is equality
+
+Expected: "Действие: салон"
+Received: "beauty.something.new"
+
+ ❯ apps/web/src/app/journal/labels.test.ts:34:49
+     32|   });
+     33|   it('незнакомый код показывается разделом, а не сырой строкой', () =>…
+     34|     expect(actionLabel('beauty.something.new')).toBe('Действие: салон'…
+       |                                                 ^
+     35|     expect(actionLabel('food.something.new')).toBe('Действие: ресторан…
+     36|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  22:59:35
+   Duration  110ms (import 41%, transform 34%, tests 20%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T05-59-34Z-unit-29f2.json
+
+# код выхода 1 · 1 с

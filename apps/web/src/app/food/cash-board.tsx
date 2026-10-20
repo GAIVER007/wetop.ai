@@ -17,7 +17,7 @@ import { Segmented } from '../../components/segmented';
 import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
 import { FOOD_PAYMENT_METHODS, type FoodCashView, type FoodPaymentMethod } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
-import { mutateCash } from './restaurant-actions';
+import { mutateCash } from '../cashbox/actions';
 import { useConfirm } from '../../components/use-confirm';
 
 type Kind = 'INCOME' | 'EXPENSE' | 'TRANSFER';
@@ -54,12 +54,15 @@ export function CashBoard({
   write,
   refunds,
   cash,
+  orders = true,
 }: {
   scopeKey: string;
   timezone: string;
   write: boolean;
   refunds: boolean;
   cash: FoodCashView;
+  /** Вкладка «Оплаты заказов»: у салона заказов нет (§48) */
+  orders?: boolean;
 }) {
   const router = useRouter();
   const { ask, dialog } = useConfirm();
@@ -86,19 +89,27 @@ export function CashBoard({
   function operation() {
     const minor = tenge(amount);
     if (minor === null) return setError('Сумма в тенге, целое число больше нуля');
+    let storageKey = '';
     run(
-      () =>
-        mutateCash(scopeKey, {
-          kind: 'operation',
-          body: {
-            kind,
-            method,
-            ...(kind === 'TRANSFER' ? { methodTo } : {}),
-            amount: minor,
-            note: note.trim() || null,
-          },
-        }),
+      async () => {
+        try {
+          const payload = JSON.stringify(['BRANCH_CASH',scopeKey,cash.currency,kind,method,kind === 'TRANSFER' ? methodTo : null,minor,note.trim() || null]);
+          const digest = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(payload));
+          const hash = Array.from(new Uint8Array(digest),v=>v.toString(16).padStart(2,'0')).join('');
+          // Only an opaque draft digest and random key are persisted, never the note or PII.
+          storageKey = `wetop:branch-cash:${scopeKey}:${hash}`;
+          const idempotencyKey = sessionStorage.getItem(storageKey) || crypto.randomUUID();
+          sessionStorage.setItem(storageKey,idempotencyKey);
+          return await mutateCash(scopeKey, {
+            kind: 'operation',
+            body: {kind,method,...(kind === 'TRANSFER' ? {methodTo} : {}),amount:minor,note:note.trim() || null,idempotencyKey,},
+          });
+        } catch {
+          return {error:'Не удалось подтвердить операцию. Повторите с тем же черновиком.'};
+        }
+      },
       () => {
+        sessionStorage.removeItem(storageKey);
         setAmount('');
         setNote('');
       },
@@ -131,7 +142,7 @@ export function CashBoard({
           {cash.operations.map((o) => (
             <tr key={o.id} data-status={o.status}>
               <td>{when(o.occurredAt)}</td>
-              <td>{o.employee ? 'Зарплата' : KIND_LABEL[o.kind]}</td>
+              <td>{o.employee ? 'Зарплата' : o.refund ? 'Возврат' : KIND_LABEL[o.kind]}</td>
               <td>
                 {methodName(o.method)}
                 {o.methodTo ? ` → ${methodName(o.methodTo)}` : ''}
@@ -139,6 +150,16 @@ export function CashBoard({
               <td>{wholeTenge(o.amountMinor, cash.currency)}</td>
               <td>
                 {o.employee ? `${o.employee}, ${o.period}` : (o.note ?? '')}
+                {o.appointmentId && o.appointmentStartsAt && (
+                  <>
+                    {' '}
+                    <a
+                      href={`/appointments?from=${localInput(o.appointmentStartsAt, timezone).slice(0, 10)}&to=${localInput(o.appointmentStartsAt, timezone).slice(0, 10)}&appointment=${o.appointmentId}`}
+                    >
+                      Запись
+                    </a>
+                  </>
+                )}
                 {o.status === 'VOIDED' && <small> (аннулирована)</small>}
               </td>
               <td>
@@ -282,7 +303,7 @@ export function CashBoard({
         label="Касса"
         panels={[
           { id: 'operations', label: 'Операции', content: operations },
-          { id: 'payments', label: 'Оплаты заказов', content: payments },
+          ...(orders ? [{ id: 'payments', label: 'Оплаты заказов', content: payments }] : []),
           { id: 'checks', label: 'Сверки', content: checks },
         ]}
       />

@@ -1,0 +1,1366 @@
+# Модульные (unit) · 17.10.2026 19:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит e4e574b (claude/salon-blocks-edit), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T14-46-44Z-unit-a24d.json'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks
+
+[Nest] 32988  - 10/17/2026, 7:47:29 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-11-10 → 2026-11-12): очередь недоступна
+[Nest] 32988  - 10/17/2026, 7:47:29 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 32988  - 10/17/2026, 7:47:29 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 32988  - 10/17/2026, 7:47:29 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 32985  - 09/09/2026, 11:00:00 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+[Nest] 32988  - 10/17/2026, 7:47:29 AM   ERROR [InboundBookingsService] Ревизия rev-fail-pii: Invalid value for notes: call <телефон>, write <почта>
+[Nest] 32988  - 10/17/2026, 7:47:29 AM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests) 1813ms
+   ✓ inbound bookings from Channex (contract on fakes) (24)
+     ✓ pull: new revision → reservation with the first free unit (Q-094), event PROCESSED without card data, ack; same revision again → duplicate skipped but acked; no free unit → without unit and a warning 555ms
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (56 tests) 3470ms
+   ✓ manual reservation API (56)
+     ✓ ADR-021: отмена брони снимает блоки соседних ночей от раннего заезда и позднего выезда 841ms
+     ✓ replays one creation key and rejects changed payload without duplicate guests 322ms
+ ✓ |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts (74 tests) 3079ms
+   ✓ состояние раздела (4)
+     ✓ без адреса и ключа продавца — «не подключён» 389ms
+   ✓ часовые пределы на платные вызовы модели (аудит 30.09.2026) (3)
+     ✓ песочница: не больше SELLER_LLM_LIMITS.sandbox в час на человека, сверх — 429 без хода к продавцу 794ms
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (39 tests) 3713ms
+   ✓ finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) (25)
+     ✓ id не UUID — 400 до базы, а не 500 из-за ошибки типа в запросе (аудит 29.09.2026) 326ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > письмо гостю с подтверждением (ADR-144) > почта не ушла: гость всё равно получает номер брони, в журнале «failed»
+[web-booking] бронь 20260912-ABC123 записана, письмо гостю не ушло: заглушка: отправка отклонена намеренно
+
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (41 tests) 3547ms
+   ✓ виджет бронирования /w/* (41)
+     ✓ неудачные попытки не расходуют лимит сайта 563ms
+     ✓ цены: больше 60 запросов в минуту с одного адреса — 429 906ms
+[Nest] 33085  - 10/17/2026, 7:47:37 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 33085  - 10/17/2026, 7:47:37 AM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 33085  - 10/17/2026, 7:47:37 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+ ✓ |unit| apps/api/src/guard/guard.service.test.ts (36 tests) 1392ms
+   ✓ GuardService: стойка и остатки в канале (7)
+     ✓ остатки у Channex читаются раз в сутки, а не раз в час (письмо Channex 03.10.2026) 549ms
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (62 tests) 15167ms
+   ✓ AuthService.login (14)
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 351ms
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 331ms
+   ✓ AuthService.whoami (9)
+     ✓ вход приостановленного закрыт с причиной словами, а не общим «неверный пароль» 514ms
+   ✓ AuthService.changePassword (4)
+     ✓ верный текущий пароль меняет пароль и гасит остальные сессии 654ms
+     ✓ неверный текущий пароль ничего не меняет 324ms
+     ✓ слабый новый пароль отклоняется с объяснением 519ms
+   ✓ AuthService.register (23)
+     ✓ заводит организацию, человека и членство — но сессию не открывает: почта не подтверждена 653ms
+     ✓ без согласия с политикой организация не заводится 322ms
+     ✓ телефон, не похожий на номер, — отказ словами, без записи в базу 346ms
+     ✓ сохраняет страну организации из выбранной страны и язык интерфейса человека 347ms
+     ✓ без языка в форме человек получает русский; чужой код языка — отказ без записи 384ms
+     ✓ до подтверждения почты вход закрыт — и говорит, что делать 760ms
+     ✓ по ссылке из письма человек подтверждается и входит той же парой почта-пароль 830ms
+     ✓ ссылка одноразовая: второй заход по ней уже подтверждённого человека не ломает вход 657ms
+     ✓ повтор по ссылке позже 10 минут не впускает, а просит войти паролем 334ms
+     ✓ повтор по ссылке заблокированного человека не впускает 425ms
+     ✓ вход по ссылке пишется в журнал, а заблокированному сессию не открыть 574ms
+     ✓ использованная ссылка не впускает заблокированного даже в свежем окне 304ms
+   ✓ MV2 registration vertical validation (6)
+     ✓ registers BEAUTY without any allowlist (Q-UI-TRIAL, ADR-172) 338ms
+ ✓ |unit| apps/api/src/channels/channels.controller.test.ts (11 tests) 2045ms
+ ✓ |unit| tests/unit/deploy-server.test.ts (41 tests) 4674ms
+   ✓ deploy/compose.yml (26)
+     ✓ стойка получает только свои переменные (INFRA-ENV) (4)
+       ✓ всё, что стойка читает в production, названо в команде — иначе на сервере переменная молча пустая 1583ms
+       ✓ корень Turbopack применяется только при явном разрешении тестовых данных 1510ms
+       ✓ лишнего в процесс стойки не уходит: ни ключей API, ни строки базы, ни того, что код не читает 1244ms
+ ✓ |unit| apps/api/src/accounts/members.controller.test.ts (41 tests) 1681ms
+ ✓ |unit| scripts/reconciliation/src/shift-check.test.ts (29 tests) 284ms
+ ✓ |unit| packages/integrations/src/channex/client.test.ts (18 tests) 836ms
+   ✓ ChannexClient (6)
+     ✓ signs every request with user-api-key and wraps POST bodies by entity type (api-reference.md) 747ms
+ ✓ |unit| apps/sites/src/worker.test.ts (36 tests) 253ms
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (20 tests) 1020ms
+ ✓ |unit| apps/api/src/platform/platform.controller.test.ts (35 tests) 2445ms
+   ✓ раздел «Платформа» — только главный администратор (4)
+     ✓ владелец организации получает 403 и на список, и на изменение 443ms
+   ✓ создание организации (8)
+     ✓ пустое, слишком длинное и не строка: 400 словами названия, ничего не создано 430ms
+ ✓ |unit| tests/unit/ci-runner.test.ts (26 tests) 2738ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 1191ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 635ms
+ ✓ |unit| apps/api/src/guests/guests.controller.test.ts (19 tests) 2173ms
+   ✓ guests API (19)
+     ✓ дни рождения: гости с днём рождения в окне, по порядку дат, с возрастом (Q-249 T0) 472ms
+ ✓ |unit| packages/integrations/src/assistant/bot-panel-client.test.ts (26 tests) 123ms
+ ✓ |unit| packages/domain/src/marketing/brief.test.ts (28 tests) 57ms
+ ✓ |unit| packages/domain/src/market/occupancy.test.ts (27 tests) 23ms
+ ✓ |unit| tests/unit/test-journal.test.ts (23 tests) 146ms
+ ✓ |unit| apps/api/src/auth/auth.guard.test.ts (37 tests) 33ms
+stderr | apps/api/src/sites-runtime/sites-runtime.controller.test.ts > ответ контракта > факты не загрузились: publicFacts null, сайт отвечает
+{"event":"sites_runtime.facts_failed","siteId":"3f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b","error":"db down"}
+
+ ✓ |unit| apps/api/src/sites-runtime/sites-runtime.controller.test.ts (29 tests) 1355ms
+ ✓ |unit| apps/web/src/components/primitives-ds1c.test.ts (37 tests) 372ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (30 tests) 102ms
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (20 tests) 1448ms
+   ✓ котировка продавца /bot/availability (7)
+     ✓ предел частоты на организацию — 429, ключ платформы в ответе не всплывает 507ms
+ ✓ |unit| apps/web/src/app/bar/actions.test.ts (19 tests) 79ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 713ms
+   ✓ права маршрутов API (ADR-107) (3)
+     ✓ у каждого маршрута — право из таблицы, и в таблице нет лишних строк 623ms
+ ✓ |unit| apps/api/src/ai-seller/business-agents.controller.test.ts (32 tests) 1848ms
+ ✓ |unit| apps/api/src/database/property-ref.test.ts (21 tests) 60ms
+ ✓ |unit| apps/api/src/hotel/reservation-directory.test.ts (18 tests) 493ms
+   ✓ reservation directory is a bounded read projection (9)
+     ✓ rejects invalid dates, statuses and pagination before querying records 385ms
+ ✓ |unit| packages/integrations/src/meta/writer.test.ts (20 tests) 575ms
+   ✓ Meta: запуск по шагам (10)
+     ✓ кампания: цель по назначению, сразу ACTIVE, обязательные special_ad_categories и бюджет на группе 492ms
+ ✓ |unit| packages/domain/src/marketing/generation.test.ts (18 tests) 326ms
+ ✓ |unit| apps/api/src/ai-seller/seller-sync.service.test.ts (19 tests) 609ms
+[Nest] 38236  - 10/17/2026, 7:48:24 AM   ERROR [OutboxWorker] Менеджер каналов отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+ ✓ |unit| apps/api/src/channels/outbox.test.ts (12 tests) 45ms
+ ✓ |unit| packages/domain/src/marketing/site-spec.test.ts (40 tests) 470ms
+ ✓ |unit| apps/web/src/app/today/vertical-metrics.test.ts (22 tests) 1520ms
+   ✓ сутки филиала (3)
+     ✓ Алматы UTC+5: 23:30 UTC это 04:30 следующего дня 941ms
+   ✓ Food Today: утверждённый набор показателей (7)
+     ✓ Запланировано = BOOKED + CONFIRMED дня, Завершено = COMPLETED дня 365ms
+ ✓ |unit| packages/domain/src/dashboard/metrics.test.ts (16 tests) 120ms
+ ✓ |unit| apps/api/src/assistant/assistant.controller.test.ts (19 tests) 2111ms
+   ✓ GET /assistant/identity — подпись вошедшего (ТЗ П1) (7)
+     ✓ вошедшему отдаёт токен, который сходится с общим секретом и несёт поля сессии 326ms
+ ✓ |unit| apps/api/src/web-booking/turnstile.test.ts (27 tests) 449ms
+   ✓ Turnstile: проверка токена у Cloudflare (11)
+     ✓ успех: запрос к siteverify с секретом, токеном и адресом посетителя 397ms
+[Nest] 39664  - 10/17/2026, 7:48:38 AM   ERROR [AccountsService] Не удалось отправить приглашение; ссылка отозвана
+ ✓ |unit| apps/api/src/bar/bar.controller.test.ts (12 tests) 688ms
+ ✓ |unit| apps/api/src/accounts/invites.controller.test.ts (13 tests) 554ms
+ ✓ |unit| packages/domain/src/marketing/builder.test.ts (18 tests) 40ms
+ ✓ |unit| packages/domain/src/marketing/site-spec-v1.test.ts (17 tests) 45ms
+ ✓ |unit| apps/api/src/market/market.service.test.ts (11 tests) 74ms
+[Nest] 40263  - 10/17/2026, 7:48:44 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 40263  - 10/17/2026, 7:48:44 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 40263  - 10/17/2026, 7:48:44 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 40263  - 10/17/2026, 7:48:44 AM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 40263  - 10/17/2026, 7:48:44 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 40263  - 10/17/2026, 7:48:44 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 40263  - 10/17/2026, 7:48:44 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 40263  - 10/17/2026, 7:48:44 AM    WARN [WebhookHealthService] в менеджере каналов зарегистрирован https://old-quick.trycloudflare.com/channels/channex/webhook, а постоянный адрес PMS — https://api.wetop.ai/channels/channex/webhook: перерегистрируйте webhook на /channels
+[Nest] 40263  - 10/17/2026, 7:48:44 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 40263  - 10/17/2026, 7:48:44 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 40263  - 10/17/2026, 7:48:44 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 40263  - 10/17/2026, 7:48:44 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 40263  - 10/17/2026, 7:48:44 AM     LOG [WebhookHealthService] адрес webhook https://api.wetop.test/channels/channex/webhook: отвечает
+[Nest] 40263  - 10/17/2026, 7:48:44 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+[Nest] 40263  - 10/17/2026, 7:48:44 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+ ✓ |unit| apps/api/src/channels/webhook-health.test.ts (13 tests) 72ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 1803ms
+   ✓ tokens.css генерируется из design/tokens.json (4)
+     ✓ имена переменных прежние: ни одна var(--…) стойки не осталась без определения 1670ms
+ ✓ |unit| apps/api/src/web-booking/bot-booking.controller.test.ts (14 tests) 1381ms
+   ✓ бронь из чата продавца /bot/booking-intents (DATA_MODEL §25) (14)
+     ✓ котировка: сумма из расчёта сайта, срок 30 минут, организация, объект и тариф из агента 441ms
+[Nest] 41317  - 10/17/2026, 7:48:50 AM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/apps/api/src/rates/rates.controller.test.ts:324:13)
+    at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/apps/api/src/rates/rates.service.ts:205:37
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at Proxy.applyChanges (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/apps/api/src/rates/rates.controller.test.ts:58:26)
+    at RatesService.bulk (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/salon-blocks/apps/api/src/rates/rates.service.ts:194:20)
+    at file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/salon-blocks/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/.claude/worktrees/salon-blocks/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ✓ |unit| apps/api/src/rates/rates.controller.test.ts (10 tests) 815ms
+ ✓ |unit| apps/api/src/analytics/analytics.controller.test.ts (15 tests) 1496ms
+   ✓ сайты и отчёты /analytics (15)
+     ✓ создание сайта: ключ pms_ + 12 hex, домены нормализованы, код для вставки содержит ключ 538ms
+ ✓ |unit| apps/api/src/auth/scope-enforcement.test.ts (25 tests) 74ms
+ ✓ |unit| packages/database/src/pool-timeouts.test.ts (5 tests) 4594ms
+   ✓ пул соединений: мёртвое соединение не вешает процесс (5)
+     ✓ запрос без ответа завершается ошибкой в срок, а следующий идёт по новому соединению 962ms
+     ✓ запрос без ответа внутри транзакции: транзакция падает в срок, соединение не возвращается в пул 1177ms
+     ✓ все места пула заняты зависшими запросами — ожидание места ограничено сроком 646ms
+     ✓ сервер принял TCP-соединение и молчит — подключение завершается ошибкой в срок 553ms
+     ✓ срок не трогает живое соединение: ответ до срока приходит, простой в пуле дольше срока соединение не закрывает 1252ms
+ ✓ |unit| packages/shared/src/pii-residency.test.ts (30 tests) 64ms
+ ✓ |unit| scripts/reconciliation/src/shift-check-sources.test.ts (5 tests) 546ms
+   ✓ сбор данных сверки смены (5)
+     ✓ часы объекта: Алматы UTC+5 469ms
+ ✓ |unit| apps/api/src/units/units.controller.test.ts (6 tests) 525ms
+ ✓ |unit| apps/api/src/hotel/onboarding.test.ts (11 tests) 164ms
+ ✓ |unit| packages/domain/src/ai-seller/profile.test.ts (15 tests) 5ms
+ ✓ |unit| packages/domain/src/chessboard/build.test.ts (15 tests) 735ms
+   ✓ dateRange (2)
+     ✓ ends on the last representable date instead of looping forever 567ms
+ ✓ |unit| tests/unit/site-design.test.ts (6 tests) 146ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (17 tests) 5665ms
+   ✓ DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) (9)
+     ✓ стрелок в конце текста ссылок нет — ссылка названа словом (§14) 1167ms
+     ✓ « · » как разделитель в TSX не размножается (потолок 70 строк на 20.09; было 104 на 18.09) 1190ms
+     ✓ деньги на экранах — formatMoney; formatMinor остался только счёту и печатным формам 1120ms
+   ✓ DESIGN.md §15: системных окон подтверждения на экранах нет (1)
+     ✓ ни один экран не зовёт window.confirm — вопрос задаёт ConfirmDialog 614ms
+   ✓ план дизайн-системы §10: попутные дефекты не возвращаются (3)
+     ✓ мёртвых классов .topbar и .record-nav в CSS стойки нет 377ms
+ ✓ |unit| packages/domain/src/accounts/scopes.test.ts (22 tests) 68ms
+ ✓ |unit| apps/web/src/components/primitives.test.ts (19 tests) 37ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (17 tests) 395ms
+ ✓ |unit| packages/domain/src/ai-seller/facts.test.ts (13 tests) 642ms
+   ✓ sellerFactsWindow — окно цен от сегодняшнего дня объекта (1)
+     ✓ 60 дней, день — по поясу объекта 522ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 5020ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 475ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 397ms
+ ✓ |unit| tests/unit/db-backup.test.ts (14 tests) 28264ms
+   ✓ db-backup.sh: ночная копия рабочей базы (14)
+     ✓ снимает копию схемы public по DIRECT_URL из .env, проверяет её и кладёт с правами 600; пароль не печатается 1435ms
+     ✓ адрес из BACKUP_DATABASE_URL важнее .env 691ms
+     ✓ работает вне клона, как в контейнере postgres:17: скрипт и .env смонтированы отдельными файлами 1739ms
+     ✓ адрес для копии можно задать в .env: BACKUP_DATABASE_URL важнее DIRECT_URL 5251ms
+     ✓ параметры Prisma из адреса срезаются: pg_dump их не понимает и падает 1982ms
+     ✓ пароль с %-кодированием уходит в PGPASSWORD раскодированным, в аргументах его нет 2913ms
+     ✓ обратная косая в пароле остаётся сама собой 2922ms
+     ✓ pg_dump старше базы — отказ до съёмки: 16 не снимет базу 17 2215ms
+     ✓ копия без таблиц с данными не принимается и недописанной не остаётся 1938ms
+     ✓ pg_dump упал — копии нет, код ненулевой, пароль из его сообщения замаскирован 711ms
+     ✓ после проверенной копии пишет статус для сторожа: его читает разбор домена, права 644, папка 755 1460ms
+     ✓ упавшая или отвергнутая копия статус не трогает: сторож видит последнюю удачную 3079ms
+     ✓ копии старше срока удаляются, свежие и чужие файлы остаются 1865ms
+ ✓ |unit| scripts/market/collect.test.ts (9 tests) 883ms
+   ✓ блок номеров со страницы (1)
+     ✓ Ostrovok: только «Заезд»…«Расположение»; без границ текст обрезается до отзывов с именами гостей 838ms
+ ✓ |unit| packages/domain/src/assistant/diagnostics.test.ts (12 tests) 30ms
+ ✓ |unit| tests/unit/db-backup-offsite.test.ts (12 tests | 1 skipped) 22472ms
+   ✓ вторая копия вне сервера: наружу только шифротекст (ADR-137) (3)
+     ✓ последняя копия шифруется ключом владельца, уходит в R2, размер сверен, статус записан 3876ms
+     ✓ шифрование без заголовка age (сломанный инструмент): выгрузки нет, дежурным сообщение 4150ms
+     ✓ закрытый ключ age в настройке: отказ до шифрования, закрытому ключу не место на сервере 1072ms
+   ✓ вторая копия вне сервера: ключи R2 не светятся (ADR-137) (3)
+     ✓ ключи уходят в rclone переменными окружения, не аргументами; в журнале их нет 1944ms
+     ✓ настройки читаются из .env клона, как у db-backup.sh 2364ms
+     ✓ Telegram: токен в адресе через stdin, а не аргументом 2305ms
+   ✓ вторая копия вне сервера: сбой виден (ADR-137) (5)
+     ✓ не настроено: перечислены недостающие переменные, код 2 360ms
+     ✓ ночная копия старше 26 часов: наружу не несём, сообщаем 1129ms
+     ✓ R2 отказал: код 1, текст ошибки в сообщении, статус не тронут 1457ms
+     ✓ размер в R2 не совпал: сбой, статус не тронут 2137ms
+     ✓ rclone старше 1.59: отказ с подсказкой (Cloudflare: иначе 401) 1660ms
+ ✓ |unit| tests/unit/ari-switch-server.test.ts (8 tests) 5687ms
+   ✓ ari.sh на сервере (Docker) (8)
+     ✓ stop кладёт выключатель файлом, пересоздаёт контейнер API и подтверждает ответом самого API 595ms
+     ✓ start убирает файл, пересоздаёт контейнер и проверяет, что API выключателя больше не видит 782ms
+     ✓ файл записан, а процесс выключателя не увидел — это ОШИБКА, а не успех 699ms
+     ✓ start не рапортует успех, если API всё ещё видит off 502ms
+     ✓ status показывает и файл, и то, что видит запущенный API 992ms
+     ✓ с хоста к API не ходит: портов наружу нет, всё через compose exec 570ms
+     ✓ ходит в API со служебным ключом из окружения контейнера api, самого ключа в командах нет 481ms
+     ✓ на сервере с наложением Hostinger пересоздаёт API с ним, как автовыкладка 1053ms
+ ✓ |unit| packages/domain/src/ai-agents/create.test.ts (15 tests) 23ms
+ ✓ |unit| packages/domain/src/assistant/user-errors.test.ts (38 tests) 74ms
+ ✓ |unit| packages/domain/src/accounts/permissions.test.ts (15 tests) 12ms
+ ✓ |unit| packages/database/src/connection-timezone.test.ts (18 tests) 15ms
+ ✓ |unit| tests/unit/launchd-install.test.ts (8 tests) 18522ms
+   ✓ launchd install.sh (8)
+     ✓ задачи legacy-sync больше нет: Legacy перестал быть источником (ADR-052) 607ms
+     ✓ службам пул не урезаем: у API он свой 804ms
+     ✓ сборщик market: раз в сутки в 06:00, не держится постоянно и не стартует при входе, ключей в plist нет 405ms
+     ✓ постоянные службы по-прежнему без расписания: держатся и стартуют при входе 600ms
+     ✓ проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» 5455ms
+     ✓ переустановка работающей задачи ждёт, пока старый процесс освободит порт 4732ms
+     ✓ переустановка ждёт, пока launchd снимет прежний экземпляр, и только потом загружает 5692ms
+ ✓ |unit| tests/unit/design-primitive-owner.test.ts (4 tests) 602ms
+   ✓ примитив определён один раз (DS0b) (4)
+     ✓ в живом коде стойки каждый примитив определён один раз и только в components.css 563ms
+ ✓ |unit| apps/sites/src/seo.test.ts (13 tests) 138ms
+ ✓ |unit| apps/sites/src/contract.test.ts (14 tests) 221ms
+ ↓ |unit| tests/unit/server-bootstrap.test.ts (3 tests | 3 skipped)
+ ✓ |unit| tests/unit/design-guards.test.ts (15 tests) 21ms
+ ✓ |unit| scripts/ops/accounts-args.test.ts (13 tests) 41ms
+ ✓ |unit| scripts/lib/desk-page.test.ts (11 tests) 23ms
+ ✓ |unit| tests/unit/shift-check-cli.test.ts (4 tests) 18148ms
+   ✓ cli-shift-check.ts (4)
+     ✓ расхождение по деньгам: строка журнала с заголовком в stdout, сводка в stderr, код 1, только GET со служебным ключом 3641ms
+     ✓ то же расхождение уже открыто в журнале: stdout пуст, номер в «ещё не сошлись» 3397ms
+     ✓ API не принял служебный ключ: код 2 и понятная причина, журнал не трогается 5348ms
+     ✓ пустая таблица: код 2 до обращения к API 5709ms
+ ✓ |unit| tests/unit/shift-check-wrapper.test.ts (4 tests) 8874ms
+   ✓ scripts/ops/shift-check.sh (4)
+     ✓ таблица из файла: один вход в контейнер, аргументы как есть, новые строки в журнал вне клона 4295ms
+     ✓ повторный срез: журнал целиком уходит в контейнер после разделителя, без новых строк файл не меняется 1866ms
+     ✓ пустая таблица и незнакомый ключ: код 2, контейнер не зовётся 1300ms
+     ✓ без --date день смены сегодняшний по Алматы 1390ms
+ ❯ |unit| tests/unit/test-journal-merge.test.ts (44 tests | 1 failed) 17219ms
+   ❯ журнал прогонов: две ветки сливаются без конфликта (1)
+     × у каждой ветки свой прогон от одного предка, merge-tree чистый 7541ms
+   ✓ журнал из записей: test:status видит то же, что видел по общему файлу (43)
+     ✓ весь нынешний архив, ограниченные порции файлового ввода-вывода (42)
+       ✓ архив содержит историю без повторов id 197ms
+       ✓ порция 0 сохраняет каждую запись 429ms
+       ✓ порция 1 сохраняет каждую запись 95ms
+       ✓ порция 2 сохраняет каждую запись 114ms
+       ✓ порция 3 сохраняет каждую запись 607ms
+       ✓ порция 4 сохраняет каждую запись 259ms
+       ✓ порция 5 сохраняет каждую запись 49ms
+       ✓ порция 6 сохраняет каждую запись 56ms
+       ✓ порция 7 сохраняет каждую запись 165ms
+       ✓ порция 8 сохраняет каждую запись 58ms
+       ✓ порция 9 сохраняет каждую запись 57ms
+       ✓ порция 10 сохраняет каждую запись 111ms
+       ✓ порция 11 сохраняет каждую запись 93ms
+       ✓ порция 12 сохраняет каждую запись 128ms
+       ✓ порция 13 сохраняет каждую запись 277ms
+       ✓ порция 14 сохраняет каждую запись 214ms
+       ✓ порция 15 сохраняет каждую запись 173ms
+       ✓ порция 16 сохраняет каждую запись 179ms
+       ✓ порция 17 сохраняет каждую запись 1597ms
+       ✓ порция 18 сохраняет каждую запись 129ms
+       ✓ порция 19 сохраняет каждую запись 96ms
+       ✓ порция 20 сохраняет каждую запись 78ms
+       ✓ порция 21 сохраняет каждую запись 90ms
+       ✓ порция 22 сохраняет каждую запись 85ms
+       ✓ порция 23 сохраняет каждую запись 115ms
+       ✓ порция 24 сохраняет каждую запись 394ms
+       ✓ порция 25 сохраняет каждую запись 156ms
+       ✓ порция 26 сохраняет каждую запись 182ms
+       ✓ порция 27 сохраняет каждую запись 206ms
+       ✓ порция 28 сохраняет каждую запись 234ms
+       ✓ порция 29 сохраняет каждую запись 212ms
+       ✓ порция 30 сохраняет каждую запись 185ms
+       ✓ порция 31 сохраняет каждую запись 203ms
+       ✓ порция 32 сохраняет каждую запись 222ms
+       ✓ порция 33 сохраняет каждую запись 305ms
+       ✓ порция 34 сохраняет каждую запись 371ms
+       ✓ порция 35 сохраняет каждую запись 183ms
+       ✓ порция 36 сохраняет каждую запись 283ms
+       ✓ порция 37 сохраняет каждую запись 289ms
+       ✓ порция 38 сохраняет каждую запись 102ms
+       ✓ порция 39 сохраняет каждую запись 89ms
+       ✓ порция 40 сохраняет каждую запись 40ms
+     ✓ архив и записи вместе: старое из архива, новое из записи, порядок по времени 2ms
+ ✓ |unit| tests/unit/test-schema-plan.test.ts (8 tests) 13ms
+ ✓ |unit| apps/api/src/body-parsers.test.ts (6 tests) 739ms
+   ✓ разбор тела API (6)
+     ✓ скан накладной бара принимает фото в base64, а больше 12 МБ отклоняет 413 377ms
+ ✓ |unit| tests/unit/employee-portal-portability.test.ts (9 tests) 109ms
+ ✓ |unit| tests/unit/launchd-domain-guard.test.ts (4 tests) 4319ms
+   ✓ install.sh domain: две проверки до установки (4)
+     ✓ не поднимает вторую копию, когда туннель уже держит другой cloudflared 791ms
+     ✓ с заполненным конфигом и молчащим адресом обе проверки пропускают 1650ms
+     ✓ ALLOW_SECOND_TUNNEL=1 — осознанный обход 1672ms
+ ✓ |unit| tests/unit/design-scale.test.ts (5 tests) 11ms
+ ✓ |unit| scripts/reconciliation/src/day-selfcheck.test.ts (8 tests) 9ms
+ ✓ |unit| tests/unit/e2e-auth-config.test.ts (4 tests) 1327ms
+   ✓ конфиг e2e и замок API (4)
+     ✓ изолированный API проверяет сессии без рабочего SESSION_SECRET 1312ms
+ ✓ |unit| packages/database/src/rls-startup.test.ts (10 tests) 19ms
+ ✓ |unit| apps/sites/src/draft-preview.test.ts (8 tests) 27ms
+ ✓ |unit| scripts/ops/slow-report.test.ts (9 tests) 61ms
+ ✓ |unit| tests/unit/chessboard-active-readonly.test.ts (2 tests) 129ms
+ ❯ |unit| scripts/ops/watch/watch-logic.test.ts (8 tests | 1 failed) 8978ms
+   ✓ parseBeat (2)
+     ✓ берёт только числа и время; любые строки, заголовки, ФИО отбрасываются 2ms
+     ✓ мусор — не сигнал 1ms
+   ✓ authorized (1)
+     ✓ Bearer с верным секретом — да; без секрета на сервере — никогда 0ms
+   ✓ onTimer / onBeat (4)
+     ✓ сигналы идут — тишина; пропал на 5 минут — одна тревога, повтор через 30 минут 6ms
+     ✓ сигнал вернулся после тревоги — «снова на связи» с длительностью тишины; без тревоги — молча 0ms
+     ✓ с запуска сервера ни одного сигнала — тревога тоже, но не раньше 5 минут 0ms
+     ✓ в сигнале есть срочные неисправности — сервер сообщает сам, раз в 30 минут (на случай, если Telegram с Mac не уходит) 0ms
+   ❯ запуск без сборки (1)
+     × Node 24 загружает модуль как есть (в контейнер едут .ts файлы без компиляции) 8965ms
+ ❯ |unit| tests/unit/db-restore-prod.test.ts (7 tests | 5 failed) 63326ms
+   ❯ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ без --yes-replace-production ничего не делает 16ms
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 2930ms
+     × смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 5355ms
+     × схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 15870ms
+     × пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 9781ms
+     × транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 12767ms
+     × после восстановления wetop_app читает users целиком: отказ, API не запускать 16579ms
+ ❯ |unit| tests/unit/launchd-status.test.ts (4 tests | 2 failed) 27008ms
+   ❯ status.sh: состояние туннеля (4)
+     ✓ ни tunnel, ни domain не загружены, но адрес отвечает — говорит, что туннель работает 2137ms
+     ✓ адрес молчит и задача не загружена — говорит, что туннеля нет 1432ms
+     × задача загружена и адрес отвечает — обычная строка без предупреждения 6160ms
+     × задача загружена, а снаружи молчит — называет это расхождением 17251ms
+ ✓ |unit| packages/database/src/rls.test.ts (5 tests) 4ms
+ ✓ |unit| apps/api/src/rate-window.test.ts (6 tests) 80ms
+ ✓ |unit| tests/unit/channex-booking-receiving.test.ts (6 tests) 780ms
+   ✓ Channex: брони только из ленты и webhook (сценарий 11 сертификации) (6)
+     ✓ нет вызова: список ревизий Channex (GET /booking_revisions?…) 682ms
+ ✓ |unit| tests/unit/ari-server.test.ts (5 tests) 499ms
+ ✓ |unit| tests/unit/desk-glass.test.ts (4 tests) 339ms
+ ✓ |unit| tests/unit/test-data-source.test.ts (9 tests) 785ms
+   ✓ seedIsStale (2)
+     ✓ сид не с сегодняшнего дня (по Алматы) — устарел 770ms
+ ✓ |unit| tests/unit/no-hardcoded-utc5.test.ts (2 tests) 5121ms
+   ✓ С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет (2)
+     ✓ API: ни сдвига на пять часов, ни строки +05:00, ни зашитого Asia/Almaty 746ms
+     ✓ стойка: даты и моменты — по поясу объекта из /hotel/settings, а не по UTC+5 4371ms
+ ✓ |unit| tests/unit/employee-portal-fixture-guard.test.ts (26 tests) 31ms
+ ✓ |unit| tests/unit/run-lock.test.ts (8 tests) 67ms
+ ❯ |unit| tests/unit/auto-deploy.test.ts (18 tests | 6 failed) 150160ms
+   ❯ scripts/ops/auto-deploy.sh (18)
+     ✓ checked-out source stays readable by the container user under a private caller umask 4922ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 2548ms
+     × новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 15018ms
+     × после выкладки остаётся один образ отката, старые убираются (16.10.2026: пять по 2 ГБ заполнили диск) 14212ms
+     ✓ мало места на диске: убирает кэш, не трогает клон, говорит один раз и выкладывает, когда место есть 11473ms
+     × в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 7988ms
+     × владелец применил миграции и назвал вершину — выкладывает ровно её 13441ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 5336ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 2207ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 2198ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 2659ms
+     × release перемотали после отказа — флаг со старой вершиной не выкладывает новую 15944ms
+     ✓ локальные правки в клоне — не затирает их 6351ms
+     ✓ историю ветки переписали — не выкладывает поверх 5389ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 6497ms
+     × CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 25220ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 3903ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 2584ms
+ ✓ |unit| scripts/market/pages.test.ts (4 tests) 70ms
+ ✓ |unit| tests/unit/employee-portal-web.test.ts (7 tests) 47ms
+ ✓ |unit| tests/unit/migrations-hold.test.ts (4 tests) 1040ms
+   ✓ миграции отдельного релиза ждут вне общей цепочки (ADR-137) (4)
+     ✓ в migrations/ метка «ОТДЕЛЬНЫЙ РЕЛИЗ» только у выпущенных: новая такая миграция лежит в migrations-hold/ 593ms
+     ✓ у ждущей миграции есть migration.sql с меткой и down.sql (AGENTS.md §14), и её нет в общей цепочке 440ms
+ ✓ |unit| tests/unit/status-dictionary-guard.test.ts (2 tests) 3587ms
+   ✓ вне lib/status нет своих словарей статусов 3550ms
+ ✓ |unit| scripts/lib/service-api.test.ts (8 tests) 122ms
+ ✓ |unit| tests/unit/seed-local.test.ts (6 tests) 9ms
+ ✓ |unit| tests/unit/branch-cash-actions.test.ts (9 tests) 100ms
+ ✓ |unit| tests/unit/e2e-windows.test.ts (3 tests) 54ms
+ ✓ |unit| scripts/preview/real-config.test.ts (24 tests) 41ms
+ ✓ |unit| tests/unit/ui-profile-menu.test.ts (4 tests) 435ms
+   ✓ меню профиля в спеках UI открывается после оживления кнопки (4)
+     ✓ название кнопки встречается только в помощнике openProfileMenu, не в спеках 409ms
+ ✓ |unit| tests/unit/ui-fixture-address.test.ts (3 tests) 263ms
+ ✓ |unit| scripts/reconciliation/src/cancellations.test.ts (6 tests) 8ms
+ ✓ |unit| scripts/ops/rates-shift.test.ts (5 tests) 110ms
+ ✓ |unit| tests/unit/ui-worker-ports.test.ts (6 tests) 13ms
+ ✓ |unit| apps/sites/src/headers.test.ts (14 tests) 6ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 1582ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 1473ms
+ ✓ |unit| apps/web/src/next-rethrow.test.ts (3 tests) 16ms
+ ✓ |unit| tests/unit/site-calculator.test.ts (6 tests) 8ms
+stdout | tests/unit/desk-health.test.ts > стенд стойки перед e2e > пятисотка не от сборки прогон не останавливает, но называется
+[стенд] 500 на страницах: /finance — причина в журнале стойки
+
+ ✓ |unit| tests/unit/desk-health.test.ts (5 tests) 27ms
+ ✓ |unit| packages/shared/src/auth-hash.test.ts (11 tests) 83ms
+ ✓ |unit| tests/unit/no-vendor-name.test.ts (1 test) 2822ms
+   ✓ название поставщика менеджера каналов не видно пользователю (1)
+     ✓ нет слова «Channex» в текстах стойки, главной, API и бота 2767ms
+ ✓ |unit| tests/unit/local-db-migrate-target.test.ts (1 test) 3297ms
+   ✓ local-db start migrates the local database even when .env carries DIRECT_URL 3281ms
+ ✓ |unit| tests/unit/food-customer-update.test.ts (1 test) 117ms
+ ✓ |unit| tests/unit/channex-tunnel-guard.test.ts (7 tests) 77713ms
+   ✓ scripts/ops/channex-tunnel.sh: постоянный адрес важнее быстрого туннеля (7)
+     ✓ отказывается запускаться, когда у PMS задан постоянный адрес 316ms
+     ✓ в Channex записан одноразовый туннель — работаем как прежде 20505ms
+     ✓ осознанный запуск с ALLOW_QUICK_TUNNEL=1 проходит защиту 21726ms
+     ✓ без постоянного адреса работает как прежде 22610ms
+     ✓ API ещё не поднялся — ждёт статус, не дождавшись, отказывается, а не считает адрес свободным 6106ms
+     ✓ API отвечает ошибкой на статус (Channex молчит) — тоже отказ 6306ms
+ ✓ |unit| packages/database/src/pool.test.ts (4 tests) 3ms
+ ✓ |unit| tests/unit/migrations-rollback.test.ts (137 tests) 12ms
+ ✓ |unit| apps/web/src/lib/site-auth.test.ts (14 tests) 85ms
+ ✓ |unit| tests/unit/nest-http-adapter.test.ts (2 tests) 15ms
+ ✓ |unit| tests/unit/tz21-week-editors.test.ts (4 tests) 60ms
+ ✓ |unit| apps/web/src/lib/workspace-session-a27.test.ts (8 tests) 1686ms
+   ✓ workspace session boundary (8)
+     ✓ redirects an API 401 using the existing login contract 1683ms
+ ✓ |unit| tests/unit/vertical-guard-auth.test.ts (5 tests) 5ms
+ ✓ |unit| tests/unit/launchd-web-start.test.ts (1 test) 2480ms
+   ✓ exit-with-parent (1)
+     ✓ дочерний процесс завершается сам, когда родителя убили SIGKILL 2479ms
+ ✓ |unit| tests/unit/site-headers.test.ts (3 tests) 5ms
+ ✓ |unit| tests/unit/local-db-start.test.ts (1 test) 2259ms
+   ✓ local-db start does not add a second set of stays to the populated test schema 2258ms
+ ✓ |unit| tests/unit/desk-auth.test.ts (5 tests) 8ms
+ ✓ |unit| tests/unit/bar-replay-conflict-fixes.test.ts (3 tests) 44ms
+ ✓ |unit| tests/unit/bar-nested-json.test.ts (2 tests) 20ms
+ ✓ |unit| tests/unit/claude-md-status.test.ts (2 tests) 330ms
+ ✓ |unit| tests/unit/bar-money-boundaries-audit.test.ts (5 tests) 12ms
+ ✓ |unit| tests/unit/test-database-guard.test.ts (3 tests) 15ms
+ ✓ |unit| tests/unit/fixture-incident-kinds.test.ts (1 test) 22ms
+ ✓ |unit| packages/database/src/schema.test.ts (4 tests) 3ms
+ ✓ |unit| tests/unit/food-hooks-order.test.ts (1 test) 7ms
+ ✓ |unit| apps/api/src/listen-address.test.ts (5 tests) 3ms
+ ✓ |unit| apps/web/src/lib/bounded-body.test.ts (6 tests) 219ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 153ms
+ ✓ |unit| apps/web/src/lib/branch-report-api.test.ts (2 tests) 23ms
+ ✓ |unit| apps/web/src/lib/ai-agents.test.ts (13 tests) 5ms
+ ✓ |unit| tests/unit/supertest-loopback.test.ts (1 test) 1987ms
+   ✓ supertest ходит в приложение, которое само слушает 127.0.0.1 (1)
+     ✓ ни один тест с supertest или getHttpServer() не поднимает приложение без listen на 127.0.0.1 1979ms
+ ✓ |unit| scripts/reconciliation/src/morning-report.test.ts (7 tests) 18ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (11 tests) 63ms
+ ✓ |unit| apps/web/src/components/dialog-focus.test.ts (17 tests) 18ms
+ ✓ |unit| scripts/reconciliation/src/e2e-cleanup-rules.test.ts (12 tests) 18ms
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 238ms
+ ✓ |unit| apps/site/src/lib/site.test.ts (15 tests) 8ms
+ ✓ |unit| apps/site/src/lib/posts.test.ts (10 tests) 218ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (9 tests) 281ms
+ ✓ |unit| apps/web/src/lib/registration-context-client.test.ts (1 test) 26ms
+ ✓ |unit| apps/web/src/lib/features.test.ts (105 tests) 1285ms
+   ✓ реестр функций (105)
+     ✓ /marketing/site/assets: страница пускает те направления, что в реестре 337ms
+ ✓ |unit| apps/web/src/lib/menu-routes.test.ts (3 tests) 6ms
+ ✓ |unit| apps/web/src/lib/navigation-rights.test.ts (2 tests) 31ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (6 tests) 21ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 34ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 3ms
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests) 17ms
+ ✓ |unit| apps/web/src/lib/stay-date.test.ts (11 tests) 17ms
+ ✓ |unit| apps/web/src/lib/unit-now.test.ts (5 tests) 15ms
+ ✓ |unit| apps/web/src/lib/navigation-registry.test.ts (6 tests) 9ms
+ ✓ |unit| apps/web/src/lib/site-preview-spec.test.ts (5 tests) 968ms
+   ✓ previewSpec: превью шаблона сегмента (5)
+     ✓ рендер салона: название, услуги с ценой в тенге, мастер, кнопка записи 942ms
+ ✓ |unit| apps/web/src/lib/navigation-place.test.ts (23 tests) 4ms
+ ✓ |unit| apps/web/src/lib/menu-duplicates.test.ts (6 tests) 11ms
+ ✓ |unit| apps/web/src/lib/occupancy-kinds.test.ts (4 tests) 3ms
+ ✓ |unit| apps/web/src/lib/owner-summary-api.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (20 tests) 5ms
+ ✓ |unit| apps/sites/src/render/sections-vertical.test.ts (19 tests) 10ms
+ ✓ |unit| apps/api/src/channels/channels.test.ts (11 tests) 7ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 16ms
+ ✓ |unit| packages/domain/src/incidents/signals.test.ts (15 tests) 9ms
+ ✓ |unit| packages/domain/src/finance/finance.test.ts (26 tests) 12ms
+ ✓ |unit| packages/domain/src/marketing/starter.test.ts (14 tests) 26ms
+ ✓ |unit| apps/api/src/channels/schedule.test.ts (26 tests) 4ms
+ ✓ |unit| packages/domain/src/web-analytics/metrics.test.ts (18 tests) 50ms
+ ✓ |unit| apps/api/src/channels/ari-ranges.test.ts (18 tests) 27ms
+ ✓ |unit| apps/api/src/marketing-site/site-facts.service.test.ts (9 tests) 21ms
+ ✓ |unit| apps/api/src/assistant/actions.controller.test.ts (9 tests) 948ms
+ ✓ |unit| apps/api/src/platform/support-kb.controller.test.ts (10 tests) 244ms
+ ✓ |unit| apps/api/src/dashboard/dashboard.controller.test.ts (6 tests) 1276ms
+ ✓ |unit| apps/api/src/marketing-site/asset-image.test.ts (9 tests) 507ms
+ ✓ |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts (17 tests) 44ms
+ ✓ |unit| packages/domain/src/reservations/reservations.test.ts (16 tests) 57ms
+ ✓ |unit| apps/web/src/lib/integrations.test.ts (18 tests) 18ms
+ ✓ |unit| packages/integrations/src/channex/channel-names.test.ts (14 tests) 8ms
+ ✓ |unit| apps/api/src/dashboard/dashboard.repository.test.ts (6 tests) 33ms
+ ✓ |unit| apps/api/src/auth/password-reset.service.test.ts (16 tests) 2291ms
+   ✓ PasswordResetService.confirm (10)
+     ✓ ставит новый пароль, включает учётную запись и гасит прежние сессии 341ms
+ ✓ |unit| apps/api/src/finance/owner-summary.test.ts (11 tests) 300ms
+ ✓ |unit| apps/api/src/audit/audit.service.test.ts (12 tests) 43ms
+ ✓ |unit| packages/domain/src/marketing/edit.test.ts (30 tests) 68ms
+ ✓ |unit| apps/api/src/channels/catalog.test.ts (10 tests) 73ms
+ ✓ |unit| packages/domain/src/guests/directory.test.ts (11 tests) 23ms
+ ✓ |unit| apps/api/src/database/integration-tables.guard.test.ts (5 tests) 994ms
+   ✓ ворота к данным интеграции: обращений мимо них нет (5)
+     ✓ каждое обращение к трём моделям — через integrationTables, кроме поимённых исключений 942ms
+ ✓ |unit| apps/api/src/assistant/diagnostics.controller.test.ts (11 tests) 3369ms
+   ✓ GET /assistant/integrations (S5) (6)
+     ✓ организация без подключённых каналов — channex: null, а не «всё сломано» 870ms
+ ✓ |unit| apps/api/src/chessboard/chessboard.controller.test.ts (8 tests) 4418ms
+   ✓ GET /chessboard, GET /reservations/:number (8)
+     ✓ Q-107: остаток категории на стойке учитывает брони без ячейки — как канал 1279ms
+ ✓ |unit| packages/domain/src/marketing/funnel.test.ts (12 tests) 294ms
+ ✓ |unit| apps/web/src/app/guests/guest-stay.test.ts (17 tests) 92ms
+ ✓ |unit| apps/api/src/market/collector.controller.test.ts (8 tests) 1459ms
+ ✓ |unit| apps/api/src/assistant/requester-context.controller.test.ts (12 tests) 1788ms
+   ✓ GET /assistant/requester — матрица изоляции (S4) (12)
+     ✓ человек организации А получает только А: свои названия, роль и права 457ms
+ ✓ |unit| apps/api/src/auth/auth.controller.test.ts (7 tests) 155ms
+ ✓ |unit| apps/api/src/guard/api-error.filter.test.ts (9 tests) 1047ms
+ ✓ |unit| apps/web/src/app/today/unified-owner.test.ts (15 tests) 151ms
+ ✓ |unit| packages/domain/src/beauty/schedule.test.ts (22 tests) 70ms
+ ✓ |unit| apps/api/src/marketing-site/asset-fetch.test.ts (50 tests) 25ms
+ ✓ |unit| packages/domain/src/web-booking/request.test.ts (38 tests) 6ms
+ ✓ |unit| packages/domain/src/beauty/appointments.test.ts (17 tests) 20ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (15 tests) 8ms
+ ✓ |unit| apps/api/src/rates/rate-plans.test.ts (6 tests) 533ms
+   ✓ «Тарифные планы»: правило отмены (6)
+     ✓ не отключает производный тариф с будущими бронями 332ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 14ms
+ ✓ |unit| apps/web/src/lib/sales.test.ts (5 tests) 7ms
+ ✓ |unit| apps/api/src/hotel/settings-update.test.ts (11 tests) 75ms
+ ✓ |unit| apps/api/src/bar/bar-scan.test.ts (8 tests) 2482ms
+ ✓ |unit| apps/web/src/lib/website.test.ts (31 tests) 12ms
+ ✓ |unit| apps/web/src/lib/report-query.test.ts (12 tests) 35ms
+ ✓ |unit| packages/integrations/src/mail/resend.test.ts (15 tests) 113ms
+ ✓ |unit| apps/web/src/app/chessboard/board-filters.test.ts (12 tests) 46ms
+ ✓ |unit| packages/domain/src/beauty/beauty.test.ts (17 tests) 39ms
+ ✓ |unit| packages/domain/src/incidents/incidents.test.ts (17 tests) 15ms
+ ✓ |unit| apps/sites/src/render/sections.test.ts (30 tests) 28ms
+ ✓ |unit| apps/api/src/ai-seller/seller-orgs.test.ts (8 tests) 50ms
+ ✓ |unit| apps/api/src/channels/webhook-register.test.ts (7 tests) 21ms
+ ✓ |unit| apps/api/src/hotel/branches.test.ts (13 tests) 464ms
+ ✓ |unit| packages/domain/src/marketing/editor.test.ts (14 tests) 338ms
+ ✓ |unit| apps/api/src/analytics/collect.controller.test.ts (15 tests) 1395ms
+ ✓ |unit| apps/api/src/accounts/sessions.controller.test.ts (6 tests) 2053ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/print/forms.test.ts (8 tests) 23ms
+ ✓ |unit| apps/sites/src/render/from-price.test.ts (22 tests) 521ms
+   ✓ подпись цены: ru, kk, en (11)
+     ✓ ru 450ms
+ ✓ |unit| tests/unit/repo-sync.test.ts (25 tests) 226535ms
+   ✓ repo-sync.sh: связь папки с репозиторием (18)
+     ✓ проверка: называет remote, отставание от origin/main, службы в другой папке; код выхода 1 5566ms
+     ✓ --pull подтягивает origin/main только fast-forward и потом отставания нет 3907ms
+     ✓ --pull не трогает дерево с незакоммиченными правками 5194ms
+     ✓ --pull с локальными коммитами не сливает, а просит отправить их 4873ms
+     ✓ --relink переводит службы launchd на эту папку через uninstall.sh + install.sh 8677ms
+     ✓ --from переносит то, чего нет в git (.env, выгрузки), и не перезаписывает существующее 16941ms
+     ✓ без .env говорит, что его нет, но содержимое не читает и не печатает 8787ms
+     ✓ чужой remote или папка не под git — код 2 и ни одного действия 14062ms
+     ✓ аргументы после # — комментарий: zsh без INTERACTIVE_COMMENTS передаёт их скрипту 3066ms
+     ✓ при постоянном адресе быстрый туннель не переустанавливается, а снимается; нужен domain 15335ms
+     ✓ быстрый туннель не переустанавливается ни на какой машине: без wetop.yml тоже снимается 12705ms
+     ✓ esbuild не той платформы: API и скрипты падали бы на старте — просит npm ci 2967ms
+     ✓ --fix при битом esbuild: npm ci, клиент Prisma и перезапуск API — сам, без диктовки команд 5732ms
+     ✓ webhook Channex не на постоянном адресе: проверка называет, --fix перерегистрирует 19995ms
+     ✓ next-env.d.ts переписан сборкой — это не работа для человека, а строка «сборка» 3995ms
+     ✓ настоящая правка рядом со сгенерированным файлом по-прежнему пункт к исполнению 4645ms
+     ✓ --pull возвращает сгенерированный файл и подтягивает: из-за него fast-forward не отменяется 24205ms
+     ✓ находит вторую копию репозитория рядом с папкой 6392ms
+   ✓ repo-sync.sh: папка бота, перенесённая внутрь рабочей (7)
+     ✓ находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает 6356ms
+     ✓ --archive-nested переносит папку целиком в архив рядом: .env и заметки с ней, рабочая чистая 7784ms
+     ✓ копия с неотправленной работой остаётся на месте: названы коммиты и правки, команда отправки 8702ms
+     ✓ чужой репозиторий внутри папки назван, но не переносится 6161ms
+     ✓ рабочие копии сессий и node_modules копиями не считаются 8346ms
+     ✓ файлы из старой папки поверх apps/ai-seller названы; --fix возвращает версию main и подтягивает 13363ms
+     ✓ настоящая правка в apps/ai-seller копией не считается, и --fix её не трогает 8278ms
+ ✓ |unit| apps/api/src/desk/desk.controller.test.ts (3 tests) 1909ms
+   ✓ desk day API (3)
+     ✓ делит сутки на заезды, выезды и живущих; называет, что мешает заселить; считает долг уезжающих 822ms
+ ✓ |unit| apps/api/src/auth/author.interceptor.test.ts (11 tests) 100ms
+ ✓ |unit| apps/api/src/finance/finance-audit-transaction.test.ts (4 tests) 63ms
+ ✓ |unit| apps/api/src/finance/payment-requests.controller.test.ts (11 tests) 2303ms
+   ✓ запросы оплаты /finance/*payment-requests (DATA_MODEL §24) (11)
+     ✓ выключенный в настройках объекта способ не принимает запрос оплаты (DATA_MODEL §21.6) 1290ms
+ ✓ |unit| apps/web/src/app/reservations/actions.test.ts (8 tests) 633ms
+   ✓ поля существующего API из форм стойки (7)
+     ✓ создаёт группу из разных категорий и сохраняет все позиции после отказа 524ms
+ ✓ |unit| apps/web/src/app/management/analytics/params.test.ts (12 tests) 174ms
+ ✓ |unit| packages/domain/src/finance/cash.test.ts (12 tests) 53ms
+ ✓ |unit| packages/domain/src/marketing/budget.test.ts (32 tests) 185ms
+ ✓ |unit| apps/api/src/auth/request-context.test.ts (17 tests) 19ms
+ ✓ |unit| apps/api/src/channels/content.test.ts (6 tests) 78ms
+ ✓ |unit| packages/domain/src/food/restaurant.test.ts (17 tests) 8ms
+ ✓ |unit| apps/web/src/lib/status/status.test.ts (13 tests) 14ms
+ ✓ |unit| packages/integrations/src/channex/channel-connections.test.ts (8 tests) 44ms
+ ✓ |unit| apps/web/src/app/marketing/budget/derive.test.ts (12 tests) 5ms
+ ✓ |unit| apps/api/src/hotel/property-media.test.ts (8 tests) 401ms
+   ✓ фото объекта (4)
+     ✓ владелец загружает фото: обработанная копия в хранилище, строка и журнал 309ms
+ ✓ |unit| apps/api/src/hotel/hotel.controller.test.ts (12 tests) 297ms
+ ✓ |unit| apps/api/src/marketing-site/asset-storage.test.ts (8 tests) 43ms
+ ✓ |unit| apps/api/src/auth/scope.test.ts (12 tests) 17ms
+ ✓ |unit| packages/domain/src/accounts/accounts.test.ts (24 tests) 811ms
+ ✓ |unit| apps/web/src/app/chessboard/unassigned-plan.test.ts (8 tests) 13ms
+ ✓ |unit| apps/api/src/channels/integration-property.test.ts (11 tests) 40ms
+ ✓ |unit| apps/api/src/inventory/inventory.controller.test.ts (6 tests) 1000ms
+   ✓ GET /inventory (6)
+     ✓ /inventory/units lists every unit with its category name and live state 441ms
+ ✓ |unit| packages/domain/src/marketing/assets.test.ts (10 tests) 24ms
+ ✓ |unit| packages/integrations/src/telegram/client.test.ts (8 tests) 114ms
+ ✓ |unit| apps/web/src/app/guests/filters.test.ts (11 tests) 21ms
+ ✓ |unit| packages/domain/src/rates/discounts.test.ts (16 tests) 12ms
+ ✓ |unit| packages/domain/src/incidents/redact.test.ts (11 tests) 14ms
+ ✓ |unit| packages/domain/src/marketing/conversation.test.ts (9 tests) 7ms
+ ✓ |unit| apps/api/src/auth/attempt-limits.test.ts (9 tests) 4814ms
+   ✓ вход: предел попыток с одного адреса (2)
+     ✓ после 30 попыток с адреса — 429, а соседний адрес входит как прежде 2376ms
+     ✓ адреса IPv6 одной сети /64 делят один предел 2403ms
+ ✓ |unit| packages/integrations/src/meta/client.test.ts (9 tests) 82ms
+ ✓ |unit| apps/web/src/app/growth/business-screen.test.ts (7 tests) 236ms
+ ✓ |unit| apps/api/src/hotel/services-catalog.test.ts (6 tests) 83ms
+ ✓ |unit| packages/domain/src/marketing/ad-launch.test.ts (9 tests) 20ms
+ ✓ |unit| packages/domain/src/accounts/trial.test.ts (21 tests) 27ms
+ ✓ |unit| packages/domain/src/marketing/site-lead.test.ts (9 tests) 29ms
+ ✓ |unit| packages/domain/src/food/stock.test.ts (12 tests) 193ms
+ ✓ |unit| packages/domain/src/property/card.test.ts (11 tests) 18ms
+ ✓ |unit| packages/domain/src/market/rates.test.ts (8 tests) 6ms
+ ✓ |unit| packages/domain/src/beauty/catalog.test.ts (15 tests) 27ms
+ ✓ |unit| apps/web/src/lib/website-navigation.test.ts (9 tests) 9ms
+ ✓ |unit| apps/web/src/app/market/chart-data.test.ts (10 tests) 42ms
+ ✓ |unit| apps/api/src/auth/registration-context.test.ts (6 tests) 25ms
+ ✓ |unit| apps/api/src/channels/operator-access.test.ts (6 tests) 42ms
+ ✓ |unit| apps/api/src/reservations/stay-offers.test.ts (7 tests) 954ms
+ ✓ |unit| apps/api/src/hotel/payment-methods.test.ts (5 tests) 129ms
+ ✓ |unit| apps/api/src/marketing-ads/ad-proposal.test.ts (4 tests) 572ms
+ ✓ |unit| apps/web/src/app/incidents/incident-view.test.ts (17 tests) 16ms
+ ✓ |unit| apps/api/src/health/health.test.ts (8 tests) 1848ms
+ ✓ |unit| packages/domain/src/marketing/site-templates.test.ts (7 tests) 26ms
+ ✓ |unit| packages/integrations/src/meta/auth.test.ts (6 tests) 236ms
+ ✓ |unit| packages/domain/src/onboarding/plan.test.ts (15 tests) 8ms
+ ✓ |unit| packages/domain/src/incidents/alerts.test.ts (10 tests) 6ms
+ ✓ |unit| apps/web/src/app/growth/business-sales.test.ts (8 tests) 125ms
+ ✓ |unit| apps/web/src/app/today/vertical-load.test.ts (6 tests) 166ms
+ ✓ |unit| packages/domain/src/accounts/extensions.test.ts (10 tests) 159ms
+ ✓ |unit| packages/domain/src/food/cash.test.ts (11 tests) 14ms
+ ✓ |unit| packages/domain/src/accounts/roles.test.ts (9 tests) 7ms
+ ✓ |unit| apps/web/src/app/today/dispatch.test.ts (12 tests) 9ms
+ ✓ |unit| packages/integrations/src/assistant/identity.test.ts (11 tests) 10ms
+ ✓ |unit| packages/domain/src/web-analytics/source.test.ts (11 tests) 13ms
+ ✓ |unit| apps/web/src/app/beauty/masters/address.test.ts (3 tests) 52ms
+ ✓ |unit| packages/domain/src/marketing/diff.test.ts (9 tests) 24ms
+ ✓ |unit| apps/web/src/lib/support-queue.test.ts (9 tests) 5ms
+ ✓ |unit| apps/web/src/app/platform/support/kb-forms.test.ts (8 tests) 12ms
+ ✓ |unit| apps/api/src/dashboard/dashboard.service.test.ts (4 tests) 357ms
+ ✓ |unit| apps/api/src/ai-seller/vertical-tools.test.ts (14 tests) 458ms
+ ✓ |unit| apps/api/src/auth/role.guard.test.ts (9 tests) 45ms
+ ✓ |unit| apps/api/src/guard/incidents-exposure.test.ts (3 tests) 1329ms
+   ✓ инциденты сторожа не доходят до обычной организации (3)
+     ✓ таблицу читают только сторож и ворота служебной роли, из бронирования с сайта — одна запись 1315ms
+ ✓ |unit| apps/api/src/web-booking/widget-cors.test.ts (3 tests) 31ms
+ ✓ |unit| packages/domain/src/dashboard/nightly.test.ts (7 tests) 44ms
+ ✓ |unit| packages/domain/src/finance/cashflow.test.ts (7 tests) 38ms
+ ✓ |unit| apps/web/src/app/beauty/empty-workspaces.test.ts (5 tests) 141ms
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (7 tests) 94ms
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (12 tests) 19ms
+ ✓ |unit| packages/domain/src/accounts/requester-context.test.ts (11 tests) 65ms
+ ✓ |unit| packages/domain/src/dashboard/sellable.test.ts (6 tests) 201ms
+ ✓ |unit| packages/domain/src/marketing/design-presets.test.ts (10 tests) 187ms
+ ✓ |unit| apps/api/src/auth/registration-access.test.ts (10 tests) 6890ms
+   ✓ единая настройка самостоятельной регистрации (ADR-055) (10)
+     ✓ настройка 0: прямой HTTP-запрос получает 403 без записей 3980ms
+     ✓ настройка undefined: регистрация и повторный вход доступны 601ms
+     ✓ настройка : регистрация и повторный вход доступны 995ms
+     ✓ настройка  : регистрация и повторный вход доступны 320ms
+ ✓ |unit| apps/api/src/database/connection.test.ts (7 tests) 808ms
+   ✓ Database connection through the real API application (7)
+     ✓ reads stored property/counts and identifies Supabase without returning credentials or IDs 359ms
+ ✓ |unit| apps/web/src/app/branches/reference-board.test.ts (8 tests) 50ms
+ ✓ |unit| packages/domain/src/property/services.test.ts (9 tests) 9ms
+ ✓ |unit| packages/domain/src/dashboard/channels.test.ts (4 tests) 8ms
+ ✓ |unit| packages/domain/src/finance/payment-methods.test.ts (5 tests) 27ms
+ ✓ |unit| apps/api/src/platform/support.queue.test.ts (20 tests) 60ms
+ ✓ |unit| apps/web/src/app/reservations/filters.test.ts (8 tests) 42ms
+ ✓ |unit| apps/api/src/reservations/audit-card-redact.test.ts (2 tests) 22ms
+ ✓ |unit| apps/api/src/beauty/scope.test.ts (7 tests) 22ms
+ ✓ |unit| apps/web/src/app/chessboard/range-plan.test.ts (8 tests) 35ms
+ ✓ |unit| apps/web/src/app/beauty/actions.test.ts (6 tests) 197ms
+ ✓ |unit| packages/domain/src/availability/stay-offer.test.ts (7 tests) 585ms
+   ✓ stayOffer — цена «от» (Q-204) (7)
+     ✓ номер: полная стоимость по самому дешёвому допустимому тарифу, число тарифов и цена ночи 510ms
+ ✓ |unit| apps/web/src/app/restaurant-settings/opening.test.ts (6 tests) 47ms
+ ✓ |unit| apps/api/src/ai-seller/agent-instructions.test.ts (5 tests) 69ms
+ ✓ |unit| apps/api/src/hotel/organization-summary.test.ts (3 tests) 181ms
+ ✓ |unit| apps/api/src/ai-seller/business-agents.scope.test.ts (4 tests) 39ms
+ ✓ |unit| apps/api/src/channels/connection.test.ts (13 tests) 17ms
+ ✓ |unit| apps/api/src/tasks/tasks.controller.test.ts (3 tests) 1463ms
+   ✓ задачи стойки (DATA_MODEL §22) (3)
+     ✓ создаёт задачу, список раскладывает по срокам и считает 691ms
+ ✓ |unit| packages/domain/src/web-booking/from-price.test.ts (8 tests) 132ms
+ ✓ |unit| packages/domain/src/availability/nearest.test.ts (5 tests) 104ms
+ ✓ |unit| packages/domain/src/marketing/campaigns.test.ts (7 tests) 111ms
+ ✓ |unit| packages/domain/src/availability/availability.test.ts (4 tests) 108ms
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (15 tests) 422ms
+   ✓ переключение сохраняет безопасный раздел /chessboard 407ms
+ ✓ |unit| apps/web/src/app/website/actions.test.ts (8 tests) 6ms
+ ✓ |unit| packages/domain/src/marketing/ad-proposal.test.ts (6 tests) 8ms
+ ✓ |unit| packages/domain/src/dashboard/granularity.test.ts (7 tests) 22ms
+ ✓ |unit| apps/web/src/app/beauty/employee-workspace.test.ts (4 tests) 85ms
+ ✓ |unit| apps/api/src/database/integration-tables.test.ts (4 tests) 7ms
+ ✓ |unit| apps/web/src/app/marketing/analytics/report.test.ts (3 tests) 6ms
+ ✓ |unit| apps/api/src/marketing-site/design-choice.test.ts (12 tests) 5ms
+ ✓ |unit| apps/api/src/hotel/settings-concurrency.test.ts (3 tests) 8ms
+ ✓ |unit| packages/domain/src/accounts/registration-contact.test.ts (13 tests) 9ms
+ ✓ |unit| packages/domain/src/dashboard/metrics-category.test.ts (5 tests) 15ms
+ ✓ |unit| apps/api/src/database/location-ref.test.ts (4 tests) 4ms
+ ✓ |unit| apps/api/src/platform/overview.test.ts (4 tests) 14ms
+ ✓ |unit| apps/web/src/app/management/analytics/channels/query.test.ts (7 tests) 7ms
+ ✓ |unit| apps/api/src/bar/bar-payment-methods.test.ts (5 tests) 6ms
+ ✓ |unit| apps/api/src/freshness/freshness.test.ts (4 tests) 3ms
+ ✓ |unit| packages/domain/src/web-analytics/hit.test.ts (15 tests) 10ms
+ ✓ |unit| apps/web/src/components/shell/tour-steps.test.ts (8 tests) 11ms
+ ✓ |unit| packages/domain/src/finance/payment-request.test.ts (14 tests) 10ms
+ ✓ |unit| apps/web/src/app/scope/resolve/route.test.ts (5 tests) 117ms
+ ✓ |unit| apps/api/src/onboarding/onboarding.test.ts (6 tests) 190ms
+ ✓ |unit| packages/domain/src/property/settings.test.ts (5 tests) 4ms
+ ✓ |unit| apps/web/src/app/channels/mapping.test.ts (5 tests) 4ms
+ ✓ |unit| apps/api/src/auth/me-access.test.ts (3 tests) 520ms
+ ✓ |unit| apps/web/src/app/today/owner-daily-chart.test.ts (6 tests) 217ms
+ ✓ |unit| apps/web/src/app/finance/operations-csv.test.ts (5 tests) 2ms
+ ✓ |unit| apps/api/src/hotel/business-cards.test.ts (8 tests) 12ms
+ ✓ |unit| packages/domain/src/tasks/tasks.test.ts (6 tests) 42ms
+ ✓ |unit| packages/domain/src/marketing/expense-import.test.ts (5 tests) 47ms
+ ✓ |unit| apps/web/src/app/team/scope-model.test.ts (7 tests) 4ms
+ ✓ |unit| apps/web/src/app/market/derive.test.ts (4 tests) 3ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/finance-actions.test.ts (3 tests) 181ms
+ ✓ |unit| apps/api/src/channels/ari-switch.test.ts (4 tests) 12ms
+ ✓ |unit| packages/domain/src/ai-agents/catalog.test.ts (7 tests) 5ms
+ ✓ |unit| apps/api/src/inventory/inventory-insight.test.ts (8 tests) 278ms
+ ✓ |unit| apps/api/src/channels/integration-scope.test.ts (4 tests) 10ms
+ ✓ |unit| apps/web/src/app/login/verify-registration.test.ts (4 tests) 18ms
+ ✓ |unit| apps/api/src/channels/integration-owner.test.ts (5 tests) 22ms
+ ✓ |unit| apps/api/src/sales/sales-summary.test.ts (5 tests) 13ms
+ ✓ |unit| apps/api/src/channels/integration-command.test.ts (4 tests) 10ms
+ ✓ |unit| apps/web/src/app/reservations/finance-state.test.ts (8 tests) 5ms
+ ✓ |unit| packages/domain/src/accounts/registration.test.ts (11 tests) 7ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/load.test.ts (3 tests) 300ms
+ ✓ |unit| packages/domain/src/beauty/slots.test.ts (6 tests) 536ms
+   ✓ freeBeautySlots: окна записи для формы сайта (SITE-4) (6)
+     ✓ окна от начала интервала с шагом, запись целиком внутри интервала 523ms
+[Nest] 73575  - 10/17/2026, 7:53:22 AM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 73575  - 10/17/2026, 7:53:22 AM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+ ✓ |unit| apps/api/src/channels/sync-schedule.test.ts (5 tests) 308ms
+ ✓ |unit| apps/api/src/analytics/collect.limits.test.ts (2 tests) 370ms
+   ✓ приёмник счётчика и случайные ключи (2)
+     ✓ поисков неизвестных ключей в базе — не больше предела в минуту, память кэша ограничена 306ms
+ ✓ |unit| packages/domain/src/web-analytics/device.test.ts (18 tests) 24ms
+ ✓ |unit| apps/api/src/bar/bar-folio-service-date.test.ts (1 test) 314ms
+   ✓ бар на счёт: дата услуги начисления (1)
+     ✓ начисление создаётся с сегодняшней датой объекта 308ms
+ ✓ |unit| apps/api/src/channels/outbox-enqueue.test.ts (2 tests) 34ms
+ ✓ |unit| packages/domain/src/onboarding/beauty-readiness.test.ts (13 tests) 5ms
+ ✓ |unit| packages/integrations/src/mail/stub.test.ts (8 tests) 5ms
+ ✓ |unit| apps/api/src/hotel/branch-context.test.ts (4 tests) 19ms
+ ✓ |unit| packages/domain/src/food/booking-rules.test.ts (5 tests) 14ms
+ ✓ |unit| apps/web/src/app/chessboard/extend-plan.test.ts (8 tests) 98ms
+ ✓ |unit| packages/domain/src/dashboard/period.test.ts (4 tests) 18ms
+ ✓ |unit| apps/api/src/marketing-site/preview-token.test.ts (5 tests) 7ms
+ ✓ |unit| packages/domain/src/food/food.test.ts (6 tests) 266ms
+ ❯ |unit| packages/domain/src/property/property.test.ts (3 tests | 1 failed) 6282ms
+   ❯ реквизиты объекта (3)
+     ✓ значения те же, что в OBJECT.md §1 7ms
+     × ИИН/БИН объекта в коде не держим 5750ms
+     ✓ API не тянет объект из @pms/imports 519ms
+ ✓ |unit| apps/web/src/lib/workspace-organization.test.ts (3 tests) 7ms
+ ✓ |unit| packages/domain/src/accounts/reset.test.ts (9 tests) 7ms
+ ✓ |unit| packages/domain/src/accounts/members.test.ts (5 tests) 3ms
+ ✓ |unit| packages/domain/src/marketing/runtime.test.ts (20 tests) 10ms
+[Nest] 73637  - 10/17/2026, 7:53:30 AM     LOG [WebRetentionService] счётчик сайта: удалено сессий 3, начатых до 2026-09-13 (хранение 13 мес.)
+ ✓ |unit| apps/api/src/analytics/retention.service.test.ts (4 tests) 13ms
+ ✓ |unit| apps/api/src/finance/expense-documents-api.test.ts (11 tests) 17ms
+ ✓ |unit| apps/api/src/auth/accounts-public-routes.test.ts (10 tests) 9ms
+ ✓ |unit| apps/api/src/guard/guard.controller.test.ts (4 tests) 6ms
+ ✓ |unit| packages/domain/src/bar/payment-methods.test.ts (5 tests) 7ms
+ ✓ |unit| apps/web/src/lib/line-geometry.test.ts (5 tests) 7ms
+ ✓ |unit| packages/domain/src/accounts/invite.test.ts (5 tests) 9ms
+ ✓ |unit| packages/domain/src/bar/bar.test.ts (6 tests) 10ms
+ ✓ |unit| packages/domain/src/availability/overlapping-blocks.test.ts (11 tests) 16ms
+ ✓ |unit| apps/web/src/lib/rate-rule-text.test.ts (4 tests) 4ms
+ ✓ |unit| apps/api/src/auth/capability-boundary.test.ts (5 tests) 6ms
+ ✓ |unit| packages/domain/src/availability/category.test.ts (1 test) 8ms
+ ✓ |unit| packages/domain/src/accounts/session.test.ts (6 tests) 10ms
+ ✓ |unit| packages/domain/src/accounts/session-renew.test.ts (4 tests) 11ms
+ ✓ |unit| packages/domain/src/accounts/session-device.test.ts (2 tests) 22ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 6ms
+ ✓ |unit| apps/web/src/lib/site-facts.test.ts (12 tests) 41ms
+ ✓ |unit| apps/web/src/lib/navigation-growth.test.ts (4 tests) 15ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 15ms
+ ✓ |unit| apps/web/src/lib/scope-resolve.test.ts (11 tests) 8ms
+ ✓ |unit| apps/web/src/lib/booking-link.test.ts (5 tests) 17ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 132ms
+ ✓ |unit| apps/web/src/lib/onboarding-later.test.ts (9 tests) 87ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 13ms
+ ✓ |unit| apps/web/src/lib/food-data.test.ts (4 tests) 23ms
+ ✓ |unit| apps/web/src/components/property-time.test.ts (2 tests) 72ms
+ ✓ |unit| scripts/reconciliation/src/ui-smoke.test.ts (3 tests) 9ms
+ ✓ |unit| apps/web/src/components/date-range-popover.test.ts (3 tests) 94ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 24ms
+ ✓ |unit| apps/web/src/app/form-retention.test.ts (4 tests) 203ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 105ms
+ ✓ |unit| apps/web/src/lib/ai-seller-data-links.test.ts (2 tests) 7ms
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 8ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 30ms
+ ✓ |unit| apps/web/src/lib/donut.test.ts (4 tests) 4ms
+ ✓ |unit| apps/web/src/lib/food-api.test.ts (1 test) 4ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 7ms
+ ✓ |unit| apps/web/src/lib/branch-summary.test.ts (2 tests) 5ms
+ ✓ |unit| scripts/design/dead-css.test.ts (2 tests) 52ms
+ ✓ |unit| apps/api/src/security-headers.test.ts (2 tests) 9ms
+ ✓ |unit| scripts/reconciliation/src/chunk.test.ts (3 tests) 9ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 5ms
+ ✓ |unit| tests/unit/employee-portal-restore-profile.test.ts (3 tests) 11ms
+ ✓ |unit| apps/web/src/lib/auth-aliases.test.ts (3 tests) 14ms
+ ✓ |unit| packages/domain/src/availability/sold-period.test.ts (2 tests) 23ms
+ ✓ |unit| tests/unit/employee-portal-booking-url.test.ts (6 tests) 133ms
+ ✓ |unit| tests/unit/marketing-reserved-slugs.test.ts (1 test) 10ms
+ ✓ |unit| apps/web/src/lib/load-error.test.ts (2 tests) 5ms
+ ✓ |unit| packages/shared/src/pii-crypto.test.ts (3 tests) 86ms
+ ✓ |unit| apps/web/src/lib/support-kb.test.ts (5 tests) 89ms
+ ✓ |unit| tests/unit/guard-drill-staging.test.ts (1 test) 1597ms
+   ✓ guard-drill outbox refuses a production Channex address before touching the API 1592ms
+ ✓ |unit| apps/web/src/lib/security-headers.test.ts (4 tests) 8ms
+ ✓ |unit| packages/integrations/src/mail/booking-letter.test.ts (6 tests) 8ms
+ ✓ |unit| packages/domain/src/dashboard/units.test.ts (4 tests) 166ms
+ ✓ |unit| packages/domain/src/food/consumption.test.ts (5 tests) 22ms
+ ✓ |unit| apps/api/src/finance/owner-money.test.ts (3 tests) 120ms
+ ✓ |unit| apps/sites/src/render/variants.test.ts (33 tests) 99ms
+[Nest] 73772  - 10/17/2026, 7:53:42 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): Connection terminated
+[Nest] 73772  - 10/17/2026, 7:53:42 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): очередь недоступна
+[Nest] 73772  - 10/17/2026, 7:53:42 AM   ERROR [AriPublisher] След потерянной дельты не записан: и журнал недоступен
+ ✓ |unit| apps/api/src/channels/ari-delta-lost.test.ts (3 tests) 36ms
+ ✓ |unit| apps/api/src/inventory/inventory.repository.test.ts (1 test) 58ms
+ ❯ |unit| tests/unit/fixture-demo.test.ts (1 test | 1 failed) 5143ms
+   ❯ local demo preview (1)
+     × starts its synthetic API without a database or providers 5136ms
+ ✓ |unit| packages/domain/src/beauty/payment.test.ts (5 tests) 4ms
+ ✓ |unit| apps/api/src/wizard/wizard-generate.controller.test.ts (1 test) 828ms
+   ✓ requires configured rollout, session and captcha before enqueuing 826ms
+ ✓ |unit| apps/api/src/wizard/wizard-chat.controller.test.ts (1 test) 811ms
+   ✓ requires configured rollout, session and captcha before enqueuing 809ms
+ ✓ |unit| packages/domain/src/beauty/working-time.test.ts (4 tests) 245ms
+ ✓ |unit| packages/domain/src/food/layout.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/app/reservations/new/summary.test.ts (3 tests) 2ms
+ ✓ |unit| apps/api/src/rates/restriction-merge.test.ts (5 tests) 5ms
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 12ms
+ ✓ |unit| packages/domain/src/owner-summary/expenses.test.ts (5 tests) 237ms
+ ✓ |unit| apps/api/src/inventory/inventory-input.test.ts (4 tests) 25ms
+ ✓ |unit| apps/api/src/channels/gateway-failure.test.ts (4 tests) 27ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/metrics.test.ts (5 tests) 137ms
+ ✓ |unit| apps/api/src/app.module.test.ts (1 test) 185ms
+ ✓ |unit| apps/web/src/app/channels/channel-list.test.ts (3 tests) 8ms
+ ✓ |unit| apps/web/src/app/bar/load-context.test.ts (3 tests) 7ms
+ ✓ |unit| apps/api/src/wizard/wizard-input.test.ts (4 tests) 4ms
+ ✓ |unit| apps/api/src/accounts/cookie.test.ts (10 tests) 3ms
+ ✓ |unit| packages/domain/src/owner-summary/previous.test.ts (5 tests) 62ms
+ ✓ |unit| apps/api/src/wizard/wizard-scan.controller.test.ts (1 test) 1208ms
+   ✓ requires configured rollout, session and captcha before enqueuing 1206ms
+ ✓ |unit| apps/api/src/auth/capability-coverage.test.ts (1 test) 49ms
+ ✓ |unit| packages/integrations/src/mail/invite-letter.test.ts (5 tests) 3ms
+ ✓ |unit| apps/api/src/guard/backup-status.test.ts (3 tests) 36ms
+ ✓ |unit| apps/api/src/food-service/workload.test.ts (5 tests) 17ms
+ ✓ |unit| apps/web/src/app/journal/journal-view.test.ts (7 tests) 8ms
+ ✓ |unit| apps/api/src/employee-portal/write-safety.test.ts (6 tests) 36ms
+ ✓ |unit| apps/api/src/channels/revision-facts.test.ts (3 tests) 21ms
+ ✓ |unit| packages/domain/src/housekeeping/flow.test.ts (5 tests) 9ms
+ ✓ |unit| apps/api/src/hotel/first-steps.test.ts (2 tests) 98ms
+ ✓ |unit| apps/web/src/app/channels/format.test.ts (5 tests) 12ms
+ ❯ |unit| apps/web/src/app/team/session-navigation-a27.test.ts (2 tests | 2 failed) 10502ms
+   × team navigation preserves the common session redirect 5391ms
+   × a non-session API failure retains the existing safe team fallback 5091ms
+ ✓ |unit| apps/web/src/app/today/hospitality-today.test.ts (2 tests) 139ms
+ ✓ |unit| apps/api/src/channels/outbox-rows.test.ts (3 tests) 5ms
+ ✓ |unit| apps/sites/src/render/theme.test.ts (29 tests) 23ms
+ ✓ |unit| apps/api/src/rates/rate-history.test.ts (3 tests) 111ms
+ ✓ |unit| packages/domain/src/marketing/host.test.ts (26 tests) 77ms
+ ✓ |unit| apps/api/src/chessboard/availability-checkout.test.ts (3 tests) 10ms
+ ✓ |unit| apps/web/src/app/beauty/page.test.ts (2 tests) 40ms
+ ✓ |unit| apps/api/src/accounts/actor.test.ts (5 tests) 6ms
+ ✓ |unit| apps/api/src/ai-seller/vertical-tools.controller.test.ts (4 tests) 2121ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/public-entry.test.ts (1 test) 15ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (6 tests) 6ms
+ ✓ |unit| apps/web/src/app/journal/labels.test.ts (3 tests) 23ms
+ ✓ |unit| apps/web/src/app/my-work/profile-version.test.ts (3 tests) 121ms
+ ✓ |unit| apps/api/src/channels/inactive-rate.test.ts (2 tests) 17ms
+ ✓ |unit| apps/web/src/lib/session.test.ts (2 tests) 4ms
+ ✓ |unit| apps/api/src/ai-seller/agent-telegram.test.ts (4 tests) 16ms
+ ✓ |unit| packages/domain/src/incidents/public-status.test.ts (5 tests) 9ms
+ ✓ |unit| apps/web/src/app/branches/financial-widgets.test.ts (2 tests) 15ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/status-completeness.test.ts (4 tests) 5ms
+ ✓ |unit| packages/domain/src/food/customer-marks.test.ts (5 tests) 16ms
+ ✓ |unit| apps/api/src/hospitality/inventory-history.test.ts (3 tests) 24ms
+ ✓ |unit| apps/api/src/employee-portal/boundary.test.ts (4 tests) 80ms
+ ✓ |unit| apps/api/src/auth/app-url.test.ts (3 tests) 26ms
+ ✓ |unit| apps/web/src/app/bar/stock-status.test.ts (4 tests) 6ms
+ ✓ |unit| apps/api/src/hotel/branch-lifecycle.test.ts (3 tests) 66ms
+ ✓ |unit| apps/web/src/app/finance/csv.test.ts (10 tests) 4ms
+ ✓ |unit| packages/domain/src/incidents/kinds-doc.test.ts (1 test) 27ms
+ ✓ |unit| packages/domain/src/inventory/summarize.test.ts (1 test) 5ms
+ ✓ |unit| apps/web/src/app/finance/appointments-csv.test.ts (1 test) 13ms
+ ✓ |unit| apps/api/src/bar/bar.runtime.test.ts (1 test) 708ms
+   ✓ loads every empty Bar section without compiler-emitted constructor metadata, as in tsx production 706ms
+ ✓ |unit| apps/api/src/beauty/services-popularity.test.ts (1 test) 737ms
+   ✓ Популярность услуг по решению Q-BS-7 (1)
+     ✓ считает только DONE за 30 местных дней выбранного филиала 706ms
+ ✓ |unit| apps/api/src/food-service/boundary.test.ts (2 tests) 73ms
+[Nest] 73876  - 10/17/2026, 7:54:06 AM     LOG [UserErrorsRetentionService] журнал ошибок: удалено строк 3 старше 30 суток
+ ✓ |unit| apps/api/src/assistant/user-errors-retention.service.test.ts (2 tests) 185ms
+ ✓ |unit| packages/domain/src/owner-summary/daily.test.ts (2 tests) 75ms
+ ✓ |unit| apps/web/src/app/marketing/site/site-routes.test.ts (2 tests) 10ms
+ ✓ |unit| apps/web/src/app/reservations/reservations-csv.test.ts (2 tests) 22ms
+ ✓ |unit| apps/api/src/reservations/rate-plans-read.test.ts (1 test) 8ms
+ ✓ |unit| apps/api/src/sales/sales.service.test.ts (2 tests) 20ms
+ ✓ |unit| apps/api/src/beauty/customers.test.ts (1 test) 13ms
+ ✓ |unit| packages/domain/src/guests/birthdays.test.ts (6 tests) 7ms
+ ✓ |unit| apps/web/src/app/beauty/schedule/week.test.ts (4 tests) 22ms
+ ✓ |unit| apps/api/src/bar/bar-period.test.ts (3 tests) 22ms
+ ✓ |unit| apps/web/src/app/finance/debts-csv.test.ts (3 tests) 7ms
+ ✓ |unit| apps/web/src/app/channels/actions.test.ts (2 tests) 55ms
+ ✓ |unit| packages/domain/src/finance/form910.test.ts (2 tests) 31ms
+ ✓ |unit| apps/api/src/auth/business-vertical.test.ts (8 tests) 73ms
+ ✓ |unit| apps/api/src/finance/cash-category-audit.test.ts (1 test) 31ms
+ ✓ |unit| apps/web/src/app/login/signed-in.test.ts (8 tests) 14ms
+ ✓ |unit| packages/domain/src/onboarding/registry.test.ts (4 tests) 9ms
+ ✓ |unit| apps/web/src/app/market/competitor-status.test.ts (4 tests) 12ms
+ ✓ |unit| apps/api/src/channels/mapped-properties.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/app/branches/business-groups.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/phone-mask.test.ts (3 tests) 8ms
+ ✓ |unit| apps/web/src/app/help/help.test.ts (4 tests) 295ms
+ ✓ |unit| apps/api/src/channels/multi-property-outbox.test.ts (1 test) 10ms
+ ✓ |unit| apps/api/src/chessboard/stay-facts.test.ts (2 tests) 11ms
+ ✓ |unit| apps/api/src/channels/multi-property-webhook-cache.test.ts (1 test) 5ms
+ ✓ |unit| apps/api/src/market/collector-selection.test.ts (2 tests) 5ms
+ ✓ |unit| apps/web/src/app/beauty/services/popularity.test.ts (2 tests) 147ms
+ ✓ |unit| apps/api/src/food-service/occupancy.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/app/website/website-routes.test.ts (4 tests) 16ms
+ ✓ |unit| packages/domain/src/guests/citizenship.test.ts (3 tests) 20ms
+ ✓ |unit| apps/web/src/app/create/regional.test.ts (3 tests) 9ms
+ ✓ |unit| packages/domain/src/verticals/registry.test.ts (12 tests) 21ms
+ ✓ |unit| apps/web/src/app/finance/cash-draft-intent.test.ts (2 tests) 689ms
+   ✓ same draft survives transport failure/remount, isolates scopes, clears on acknowledged success without storing PII 684ms
+ ✓ |unit| apps/web/src/app/finance/services-csv.test.ts (2 tests) 7ms
+ ✓ |unit| apps/api/src/food-service/opening.test.ts (2 tests) 153ms
+ ✓ |unit| apps/web/src/app/today/owner-daily-chart.review.test.ts (1 test) 49ms
+ ✓ |unit| tests/unit/held-rollback-security.test.ts (5 tests) 17ms
+ ✓ |unit| apps/api/src/channels/multi-property-scope.test.ts (1 test) 36ms
+ ✓ |unit| packages/domain/src/food/stock-tracing.test.ts (1 test) 145ms
+ ✓ |unit| packages/domain/src/regions.test.ts (3 tests) 85ms
+ ✓ |unit| packages/database/src/client-errors.test.ts (1 test) 263ms
+ ✓ |unit| apps/site/src/lib/phone-countries.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 9ms
+ ❯ |unit| apps/web/src/components/shell/search.test.ts (3 tests | 2 failed) 30ms
+   ❯ быстрый переход поиска (3)
+     × салон: «Календарь» это календарь записей, шахматки нет 23ms
+     ✓ ресторан: свои разделы, гостиничных нет 3ms
+     × гостиница: как прежде 1ms
+ ✓ |unit| apps/web/src/lib/invite-token.test.ts (3 tests) 7ms
+ ✓ |unit| packages/domain/src/owner-summary/money.test.ts (2 tests) 15ms
+ ✓ |unit| apps/web/src/app/ai-agents/[id]/telegram-panel.test.ts (3 tests) 52ms
+ ✓ |unit| apps/web/src/app/today/owner-metrics.test.ts (2 tests) 14ms
+ ✓ |unit| packages/domain/src/food/ratings.test.ts (2 tests) 6ms
+ ✓ |unit| packages/domain/src/finance/fiscal-receipt.test.ts (3 tests) 5ms
+ ✓ |unit| packages/domain/src/web-analytics/retention.test.ts (3 tests) 9ms
+ ✓ |unit| apps/web/src/app/finance/cash-actions.test.ts (3 tests) 287ms
+ ✓ |unit| apps/web/src/app/customers/beauty-table.test.ts (1 test) 92ms
+ ✓ |unit| apps/api/src/inventory/category-photos.test.ts (2 tests) 25ms
+ ✓ |unit| apps/web/src/app/ai-seller/actions.test.ts (2 tests) 119ms
+ ✓ |unit| apps/api/src/reservations/early-checkout-availability.test.ts (1 test) 35ms
+ ✓ |unit| scripts/ops/reset-to-onboarding.test.ts (2 tests) 97ms
+ ✓ |unit| tests/unit/scaffold.test.ts (1 test) 36ms
+ ✓ |unit| apps/api/src/audit/owner-access.test.ts (3 tests) 30ms
+ ✓ |unit| apps/api/src/ai-seller/agent-vertical.test.ts (1 test) 7ms
+ ✓ |unit| apps/api/src/wizard/wizard-turnstile.test.ts (1 test) 279ms
+ ✓ |unit| apps/web/src/app/branches/form.test.ts (1 test) 31ms
+ ✓ |unit| tests/unit/local-app-login.test.ts (3 tests) 13ms
+ ✓ |unit| apps/web/src/app/today/home-currency.test.ts (2 tests) 8ms
+ ✓ |unit| packages/database/src/vertical-contract.test.ts (1 test) 25ms
+ ✓ |unit| packages/shared/src/text.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/app/today/owner-layout.test.ts (1 test) 8ms
+ ✓ |unit| apps/web/src/app/chessboard/week-period.test.ts (9 tests) 114ms
+ ✓ |unit| apps/web/src/app/chessboard/month-period.test.ts (7 tests) 113ms
+ ✓ |unit| tests/unit/organization-migration-order.test.ts (1 test) 16ms
+ ✓ |unit| apps/api/src/inventory/empty-category.test.ts (1 test) 2ms
+ ✓ |unit| apps/web/src/app/food/cash-intent.test.ts (1 test) 8ms
+ ✓ |unit| tests/unit/auth-deploy-health.test.ts (1 test) 24ms
+ ✓ |unit| apps/web/src/app/food/guest-marks.test.ts (2 tests) 9ms
+ ✓ |unit| apps/api/src/auth/registration-contract.test.ts (1 test) 13ms
+ ✓ |unit| apps/api/src/marketing-budget/meta-nightly.test.ts (1 test) 30ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 21 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:162:3
+    160|   });
+    161|
+    162|   it('новый коммит без миграций — выкладывает, проверяет и сообщает, т…
+       |   ^
+    163|     const before = head();
+    164|     const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/21]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > после выкладки остаётся один образ отката, старые убираются (16.10.2026: пять по 2 ГБ заполнили диск)
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:181:3
+    179|   });
+    180|
+    181|   it('после выкладки остаётся один образ отката, старые убираются (16.…
+       |   ^
+    182|     const before = head();
+    183|     commit('apps/web/page.txt', 'v2\n', 'new page');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/21]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:210:3
+    208|   });
+    209|
+    210|   it('в обновлении миграция — не выкладывает, говорит один раз и ждёт …
+       |   ^
+    211|     const before = head();
+    212|     commit('packages/database/prisma/migrations/0002_more/migration.sq…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/21]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > владелец применил миграции и назвал вершину — выкладывает ровно её
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:227:3
+    225|   });
+    226|
+    227|   it('владелец применил миграции и назвал вершину — выкладывает ровно …
+       |   ^
+    228|     const target = commit('packages/database/prisma/migrations/0002_mo…
+    229|     const refusal = run();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/21]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > release перемотали после отказа — флаг со старой вершиной не выкладывает новую
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:294:3
+    292|   });
+    293|
+    294|   it('release перемотали после отказа — флаг со старой вершиной не вык…
+       |   ^
+    295|     const applied = commit('packages/database/prisma/migrations/0002_m…
+    296|     expect(run().code).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/21]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:350:3
+    348|   // Сбой 03.10.2026 (plans/deploy-build-outage-2026-10-03.md): сборка…
+    349|   // сервере, памяти не хватило обоим, туннель 4–7 минут отвечал 530
+    350|   it('CI-раннер выполняет задачу — сборку откладывает без отказа, осво…
+       |   ^
+    351|     const before = head();
+    352|     const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/21]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > смешанная schema-миграция с GRANT не выполняется второй раз после восстановления
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:117:3
+    115|   });
+    116|
+    117|   it('смешанная schema-миграция с GRANT не выполняется второй раз посл…
+       |   ^
+    118|     const s = sandbox();
+    119|     const r = s.run([s.dump, '--yes-replace-production']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/21]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления
+AssertionError: expected null to be +0 // Object.is equality
+
+- Expected:
+0
+
++ Received:
+null
+
+ ❯ tests/unit/db-restore-prod.test.ts:128:62
+    126|   it('схема public из копии не пересоздаётся: её записи вычеркнуты из …
+    127|     const s = sandbox();
+    128|     expect(s.run([s.dump, '--yes-replace-production']).code).toBe(0);
+       |                                                              ^
+    129|     const used = s.read('used-list');
+    130|     expect(used).toContain('TABLE DATA public reservations');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/21]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:135:3
+    133|   });
+    134|
+    135|   it('пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma среза…
+       |   ^
+    136|     const s = sandbox();
+    137|     expect(s.run([s.dump, '--yes-replace-production']).code).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/21]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/db-restore-prod.test.ts:144:3
+    142|   });
+    143|
+    144|   it('транзакция упала: код 1 и прямое «откатилось целиком», пароль в …
+       |   ^
+    145|     const s = sandbox({ psqlFails: true });
+    146|     const r = s.run([s.dump, '--yes-replace-production']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/21]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > после восстановления wetop_app читает users целиком: отказ, API не запускать
+AssertionError: expected null to be 1 // Object.is equality
+
+- Expected:
+1
+
++ Received:
+null
+
+ ❯ tests/unit/db-restore-prod.test.ts:155:20
+    153|     const s = sandbox({ check: 'открыто' });
+    154|     const r = s.run([s.dump, '--yes-replace-production']);
+    155|     expect(r.code).toBe(1);
+       |                    ^
+    156|     expect(r.out).toContain('API не запускать');
+    157|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/21]⎯
+
+ FAIL  |unit| tests/unit/fixture-demo.test.ts > local demo preview > starts its synthetic API without a database or providers
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/fixture-demo.test.ts:14:3
+     12|
+     13| describe('local demo preview', () => {
+     14|   it('starts its synthetic API without a database or providers', async…
+       |   ^
+     15|     const port = 44_000 + (process.pid % 1_000);
+     16|     let stderr = '';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/21]⎯
+
+ FAIL  |unit| tests/unit/launchd-status.test.ts > status.sh: состояние туннеля > задача загружена и адрес отвечает — обычная строка без предупреждения
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/launchd-status.test.ts:82:3
+     80|   });
+     81|
+     82|   it('задача загружена и адрес отвечает — обычная строка без предупреж…
+       |   ^
+     83|     const out = run({ loaded: ['api', 'web', 'domain'], httpCode: '200…
+     84|     expect(out).toContain('domain  running');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/21]⎯
+
+ FAIL  |unit| tests/unit/launchd-status.test.ts > status.sh: состояние туннеля > задача загружена, а снаружи молчит — называет это расхождением
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/launchd-status.test.ts:89:3
+     87|   });
+     88|
+     89|   it('задача загружена, а снаружи молчит — называет это расхождением',…
+       |   ^
+     90|     const out = run({ loaded: ['api', 'web', 'domain'], httpCode: '000…
+     91|     expect(out).toMatch(/туннель.*не отвечает/s);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/21]⎯
+
+ FAIL  |unit| tests/unit/test-journal-merge.test.ts > журнал прогонов: две ветки сливаются без конфликта > у каждой ветки свой прогон от одного предка, merge-tree чистый
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/test-journal-merge.test.ts:61:3
+     59|
+     60| describe('журнал прогонов: две ветки сливаются без конфликта', () => {
+     61|   it('у каждой ветки свой прогон от одного предка, merge-tree чистый',…
+       |   ^
+     62|     const repo = mkdtempSync(join(tmpdir(), 'journal-merge-'));
+     63|     dirs.push(repo);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/21]⎯
+
+ FAIL  |unit| scripts/ops/watch/watch-logic.test.ts > запуск без сборки > Node 24 загружает модуль как есть (в контейнер едут .ts файлы без компиляции)
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ scripts/ops/watch/watch-logic.test.ts:88:3
+     86|
+     87| describe('запуск без сборки', () => {
+     88|   it('Node 24 загружает модуль как есть (в контейнер едут .ts файлы бе…
+       |   ^
+     89|     const file = resolve(import.meta.dirname, 'watch-logic.ts');
+     90|     const out = execFileSync(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/21]⎯
+
+ FAIL  |unit| packages/domain/src/property/property.test.ts > реквизиты объекта > ИИН/БИН объекта в коде не держим
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ packages/domain/src/property/property.test.ts:37:3
+     35|    * из `/hotel/settings`. Сторож ищет присваивание двенадцати цифр по…
+     36|    */
+     37|   it('ИИН/БИН объекта в коде не держим', () => {
+       |   ^
+     38|     expect(Object.keys(LUXX_APARTS_PROPERTY)).not.toContain('bin');
+     39|     const sources = (dir: string): string[] =>
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/21]⎯
+
+ FAIL  |unit| apps/web/src/app/team/session-navigation-a27.test.ts > team navigation preserves the common session redirect
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ apps/web/src/app/team/session-navigation-a27.test.ts:58:1
+     56| }
+     57|
+     58| it('team navigation preserves the common session redirect', async () =…
+       | ^
+     59|   expect(await renderTeam(401)).toBe('TEAM_REDIRECT');
+     60| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/21]⎯
+
+ FAIL  |unit| apps/web/src/app/team/session-navigation-a27.test.ts > a non-session API failure retains the existing safe team fallback
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ apps/web/src/app/team/session-navigation-a27.test.ts:61:1
+     59|   expect(await renderTeam(401)).toBe('TEAM_REDIRECT');
+     60| });
+     61| it('a non-session API failure retains the existing safe team fallback'…
+       | ^
+     62|   expect(await renderTeam(503)).toBe('TEAM_RENDERED');
+     63| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/21]⎯
+
+ FAIL  |unit| apps/web/src/components/shell/search.test.ts > быстрый переход поиска > салон: «Календарь» это календарь записей, шахматки нет
+AssertionError: expected [] to deeply equal [ '/calendar' ]
+
+- Expected
++ Received
+
+- [
+-   "/calendar",
+- ]
++ []
+
+ ❯ apps/web/src/components/shell/search.test.ts:12:36
+     10| describe('быстрый переход поиска', () => {
+     11|   it('салон: «Календарь» это календарь записей, шахматки нет', () => {
+     12|     expect(hrefs('BEAUTY', 'кал')).toEqual(['/calendar']);
+       |                                    ^
+     13|   });
+     14|   it('ресторан: свои разделы, гостиничных нет', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/21]⎯
+
+ FAIL  |unit| apps/web/src/components/shell/search.test.ts > быстрый переход поиска > гостиница: как прежде
+AssertionError: expected [] to deeply equal [ '/chessboard' ]
+
+- Expected
++ Received
+
+- [
+-   "/chessboard",
+- ]
++ []
+
+ ❯ apps/web/src/components/shell/search.test.ts:19:41
+     17|   });
+     18|   it('гостиница: как прежде', () => {
+     19|     expect(hrefs('HOSPITALITY', 'кал')).toEqual(['/chessboard']);
+       |                                         ^
+     20|   });
+     21| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/21]⎯
+
+
+ Test Files  9 failed | 595 passed | 1 skipped (605)
+      Tests  21 failed | 5589 passed | 4 skipped (5614)
+   Start at  07:47:15
+   Duration  439.07s (tests 42%, import 36%, transform 22%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T14-46-44Z-unit-a24d.json
+
+# код выхода 1 · 7 мин 55 с

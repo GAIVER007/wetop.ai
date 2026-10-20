@@ -1,0 +1,17 @@
+# Модульные (unit) · 17.10.2026 10:21 Алматы · <сервер>
+# коммит a6c7381 (fix/supplier-payment-retry-20261017), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T05-21-18Z-unit-3783.json' 'apps/web/src/app/bar/actions.test.ts' 'apps/api/src/bar/bar-payment-methods.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-supplier-retry-release
+
+ ✓ |unit| apps/web/src/app/bar/actions.test.ts (19 tests) 35ms
+ ✓ |unit| apps/api/src/bar/bar-payment-methods.test.ts (5 tests) 20ms
+
+ Test Files  2 passed (2)
+      Tests  24 passed (24)
+   Start at  05:21:20
+   Duration  4.58s (transform 64%, import 34%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-17T05-21-18Z-unit-3783.json
+
+# код выхода 0 · 6 с

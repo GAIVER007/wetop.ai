@@ -1,0 +1,147 @@
+# Сквозные (e2e) · 16.10.2026 18:44 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 85
+# npx playwright test --workers=2 --reporter=list,json '--workers=1'
+[pms_test] миграций применено 0 из 117; данные от 2026-10-16T12:46:26.906Z (сид)
+
+Running 62 tests using 1 worker
+
+  ✓   1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (347ms)
+  ✓   2 [auth] › tests/e2e/_auth.setup.ts:21:1 › вход сотрудника автотестов: замок включён, сессия и филиал в cookie стойки (3.5s)
+  -   3 [isolated] › tests/e2e/a25-bar-money.spec.ts:263:1 › UI-02 currency comes from real USD report
+  -   4 [isolated] › tests/e2e/a25-bar-money.spec.ts:273:1 › UI-01 real KZT user flow and expected/API/SQL/DOM reconciliation
+  -   5 [isolated] › tests/e2e/a25-bar-money.spec.ts:342:1 › UI-02 real compatible USD retail, stock, history and cash
+  -   6 [isolated] › tests/e2e/a25-bar-money.spec.ts:383:1 › UI-03 branch switching clears drafts, including controlled delay and focus
+  -   7 [isolated] › tests/e2e/a25-bar-money.spec.ts:421:1 › UI-04 real mixed-history guard is explicit, not zero success
+  -   8 [isolated] › tests/e2e/a25-bar-money.spec.ts:441:1 › UI-05 non-KZT auto price refusal preserves editable input
+  -   9 [isolated] › tests/e2e/a25-bar-money.spec.ts:461:1 › UI-07 unavailable stock and cross-property draft have no partial effect
+  -  10 [isolated] › tests/e2e/a25-bar-money.spec.ts:479:1 › UI-09 exact large minor price stays exact in input and DOM
+  -  11 [isolated] › tests/e2e/a25-bar-money.spec.ts:497:5 › UI-visual 390 light real USD
+  -  12 [isolated] › tests/e2e/a25-bar-money.spec.ts:497:5 › UI-visual 390 dark real USD
+  -  13 [isolated] › tests/e2e/a25-bar-money.spec.ts:497:5 › UI-visual 1440 light real USD
+  -  14 [isolated] › tests/e2e/a25-bar-money.spec.ts:497:5 › UI-visual 1440 dark real USD
+  -  15 [isolated] › tests/e2e/a25-bar-money.spec.ts:525:1 › UI-08 duplicate command, fresh command and REVERSED replay
+  -  16 [isolated] › tests/e2e/a25-bar-money.spec.ts:568:1 › UI-06 supplier void restores cash and debt
+  -  17 [isolated] › tests/e2e/a25-bar-money.spec.ts:629:1 › UI-07 server validation retains draft and has no receipt effects
+  -  18 [isolated] › tests/e2e/a25-bar-money.spec.ts:678:1 › UI-10 empty scope and actual read failure never become successful zeros
+  -  19 [isolated] › tests/e2e/a25-bar-money.spec.ts:698:1 › UI-09 negative fractional profit and zero stock remain exact
+  -  20 [isolated] › tests/e2e/a25-bar-money.spec.ts:725:1 › UI-10 normal STAFF read and settings permission refusal
+  -  21 [isolated] › tests/e2e/a26-auth.spec.ts:15:1 › real browser login, protected page, logout and expired session with LA database
+  -  22 [isolated] › tests/e2e/a27-web-auth.spec.ts:483:3 › original anonymous /today redirects to canonical site login
+  -  23 [isolated] › tests/e2e/a27-web-auth.spec.ts:483:3 › original anonymous /chessboard redirects to canonical site login
+  -  24 [isolated] › tests/e2e/a27-web-auth.spec.ts:483:3 › original anonymous /reservations redirects to canonical site login
+  -  25 [isolated] › tests/e2e/a27-web-auth.spec.ts:496:1 › original logout revokes browser session and protects the next request
+  -  26 [isolated] › tests/e2e/a27-web-auth.spec.ts:516:1 › anonymous document DOM and RSC responses contain no protected fixture markers
+  -  27 [isolated] › tests/e2e/a27-web-auth.spec.ts:541:1 › expired revoked unknown and damaged sessions are denied without protected data
+  -  28 [isolated] › tests/e2e/a27-web-auth.spec.ts:593:1 › revoked owner query-only request receives no fresh protected data
+  -  29 [isolated] › tests/e2e/a27-web-auth.spec.ts:762:1 › owner tab query-only request after STAFF login cannot query owner tenant or permissions
+  -  30 [isolated] › tests/e2e/a27-web-auth.spec.ts:1029:1 › logout denies reload history existing tab new tab and old API session
+  -  31 [isolated] › tests/e2e/a27-web-auth.spec.ts:1128:1 › owner can open and reload protected routes through the real branch and navbar
+  -  32 [isolated] › tests/e2e/a27-web-auth.spec.ts:1213:1 › same browser switches from owner scope to fresh STAFF without restoring owner data
+  -  33 [isolated] › tests/e2e/a27-web-auth.spec.ts:1291:1 › mounted owner tab refreshes identity and permissions on client navigation after account switch
+  -  34 [isolated] › tests/e2e/a27-web-auth.spec.ts:1466:1 › public login rejects an external return target
+  -  35 [isolated] › tests/e2e/a27-web-auth.spec.ts:1492:5 › real light login and logout remains focused and readable at 1440px
+  -  36 [isolated] › tests/e2e/a27-web-auth.spec.ts:1492:5 › real dark login and logout remains focused and readable at 1440px
+  -  37 [isolated] › tests/e2e/a27-web-auth.spec.ts:1492:5 › real light login and logout remains focused and readable at 390px
+  -  38 [isolated] › tests/e2e/a27-web-auth.spec.ts:1492:5 › real dark login and logout remains focused and readable at 390px
+  ✘  39 [isolated] › tests/e2e/cancellation-penalty.spec.ts:27:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять (2.0m)
+  ✘  40 [isolated] › tests/e2e/check-in-out.spec.ts:21:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку (1.2m)
+[уборка e2e] Броней автотестов с активными проживаниями: 0 (кандидатов по фамилии было 0)
+Освобождено броней: 0
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+
+  1) [isolated] › tests/e2e/cancellation-penalty.spec.ts:27:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('new-reservation-form').locator('select[name="accommodationTypeCode"]')
+        - locator resolved to <select class="inp" name="accommodationTypeCode">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        225 × waiting for element to be visible and enabled
+            - did not find some options
+          - retrying select option action
+            - waiting 500ms
+
+
+      39 |   await form
+      40 |     .locator('select[name="accommodationTypeCode"]')
+    > 41 |     .selectOption(await roomiestCategory(request, plus(20), plus(23)));
+         |      ^
+      42 |   await form.locator('input[name="firstName"]').fill('Гость');
+      43 |   await form.locator('input[name="lastName"]').fill('Тест-штраф');
+      44 |   await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
+        at /srv/hermes/workspace/wetop-unified-owner-data/tests/e2e/cancellation-penalty.spec.ts:41:6
+
+    Error Context: test-results/cancellation-penalty-отмен-d962c-ночь-стойка-может-его-снять-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cancellation-penalty-отмен-d962c-ночь-стойка-может-его-снять-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cancellation-penalty-отмен-d962c-ночь-стойка-может-его-снять-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [isolated] › tests/e2e/check-in-out.spec.ts:21:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку 
+
+    Test was interrupted.
+
+    Error: locator.selectOption: Test ended.
+    Call log:
+      - waiting for getByRole('main').getByTestId('new-reservation-form').locator('select[name="accommodationTypeCode"]')
+        - locator resolved to <select class="inp" name="accommodationTypeCode">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        133 × waiting for element to be visible and enabled
+            - did not find some options
+          - retrying select option action
+            - waiting 500ms
+
+
+      34 |   await form
+      35 |     .locator('select[name="accommodationTypeCode"]')
+    > 36 |     .selectOption(await roomiestCategory(request, plus(3), plus(4)));
+         |      ^
+      37 |   const unitSelect = form.locator('select[name="unitCode"]');
+      38 |   const unitCode = await unitOption(unitSelect);
+      39 |   await unitSelect.selectOption(unitCode);
+        at /srv/hermes/workspace/wetop-unified-owner-data/tests/e2e/check-in-out.spec.ts:36:6
+
+    Error Context: test-results/check-in-out-заселить-→-ка-38086--незаезд-освобождает-ячейку-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/check-in-out-заселить-→-ка-38086--незаезд-освобождает-ячейку-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/check-in-out-заселить-→-ка-38086--незаезд-освобождает-ячейку-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [isolated] › tests/e2e/cancellation-penalty.spec.ts:27:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять 
+  1 interrupted
+    [isolated] › tests/e2e/check-in-out.spec.ts:21:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку 
+  36 skipped
+  22 did not run
+  2 passed (3.6m)
+
+# код выхода 130 · 3 мин 37 с

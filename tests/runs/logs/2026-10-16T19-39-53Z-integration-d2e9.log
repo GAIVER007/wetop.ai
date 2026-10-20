@@ -1,0 +1,61 @@
+# Интеграционные (integration) · 17.10.2026 00:39 Алматы · <сервер>
+# коммит c46ef1c (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 24
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T19-39-53Z-integration-d2e9.json' '--config' 'tests/employee-portal-ui/spec-fixes.config.ts' 'tests/integration/employee-portal-schedule-conflicts.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-portal-release-61af7b90
+
+ ❯ |integration| tests/integration/employee-portal-schedule-conflicts.test.ts (3 tests | 3 failed) 1007ms
+   ❯ portal schedule warnings and anonymous cache revocation (3)
+     × shows a booked own appointment outside a replacement week, not only the selected date 130ms
+     × checks own absence across assigned branches in each appointment timezone and clears on delete 79ms
+     × serves public JSON and unpublish 404 with explicit no-store 142ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/employee-portal-schedule-conflicts.test.ts > portal schedule warnings and anonymous cache revocation > shows a booked own appointment outside a replacement week, not only the selected date
+TypeError: Cannot read properties of undefined (reading 'items')
+ ❯ tests/integration/employee-portal-schedule-conflicts.test.ts:45:34
+     43|     let dto = await self(() => service.get(null, { date: '2034-01-01' …
+     44|     const old = dto.weekRevision;
+     45|     expect(dto.scheduleConflicts.items).toEqual([]);
+       |                                  ^
+     46|     dto = await self(() => service.mutate(null, 'week', { intervals: […
+     47|     expect(dto.scheduleConflicts.items.map(a => a.id)).toEqual([own]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |integration| tests/integration/employee-portal-schedule-conflicts.test.ts > portal schedule warnings and anonymous cache revocation > checks own absence across assigned branches in each appointment timezone and clears on delete
+TypeError: Cannot read properties of undefined (reading 'items')
+ ❯ tests/integration/employee-portal-schedule-conflicts.test.ts:58:34
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/employee-portal-schedule-conflicts.test.ts > portal schedule warnings and anonymous cache revocation > serves public JSON and unpublish 404 with explicit no-store
+AssertionError: expected null to be 'no-store' // Object.is equality
+
+- Expected:
+"no-store"
+
++ Received:
+null
+
+ ❯ tests/integration/employee-portal-schedule-conflicts.test.ts:74:52
+     72|     const published = await fetch(`${base}/employee-portal/public/${dt…
+     73|     expect(published.status).toBe(200);
+     74|     expect(published.headers.get('cache-control')).toBe('no-store');
+       |                                                    ^
+     75|     await owner(() => service.mutate(f.employeeA, 'publication', { pub…
+     76|     const hidden = await fetch(`${base}/employee-portal/public/${dto.p…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  19:39:54
+   Duration  4.54s (transform 50%, import 26%, tests 23%)
+
+JSON report written to /tmp/pms-test-2026-10-16T19-39-53Z-integration-d2e9.json
+
+# код выхода 1 · 6 с

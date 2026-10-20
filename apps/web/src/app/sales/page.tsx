@@ -13,7 +13,7 @@ import {
   type MarketView,
 } from '../../lib/api';
 import { deltaPoints, type Delta } from '../../lib/dashboard-format';
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import { sellerConnected } from '../../lib/ai-seller';
 import { conversionText, competitorsFreshness, salesPeriod } from '../../lib/sales';
 import { Page } from '../../components/page';
@@ -45,7 +45,7 @@ const minusDays = (iso: string, n: number) =>
   new Date(Date.parse(`${iso}T00:00:00Z`) - n * 86_400_000).toISOString().slice(0, 10);
 
 export default async function SalesHubPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireFeature('/sales');
   if (me.context?.vertical === 'BEAUTY' || me.context?.vertical === 'FOOD_SERVICE') {
     const data = await loadBusinessSales(normalizeSearchParams(await searchParams));
     return <BusinessGrowthScreen vertical={me.context.vertical} mode="sales" data={data} />;
@@ -88,7 +88,7 @@ export default async function SalesHubPage({ searchParams }: { searchParams: Pro
 
   return (
     <Page
-      title="Продажи"
+      title="Обзор продаж"
       subtitle="Инструменты роста, анализа рынка и ИИ-продаж в одном разделе."
       actions={
         <nav className="chips sales-chips" aria-label="Период броней и конверсии" data-testid="sales-period">

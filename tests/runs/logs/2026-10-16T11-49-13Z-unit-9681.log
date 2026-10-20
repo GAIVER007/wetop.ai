@@ -1,0 +1,466 @@
+# Модульные (unit) · 16.10.2026 16:49 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 85
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T11-49-13Z-unit-9681.json' 'tests/unit/held-rollback-security.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| tests/unit/held-rollback-security.test.ts (5 tests | 5 failed) 81ms
+   ❯ held rollback security boundaries (5)
+     × 20261016000114_expense_links pins teardown to the locked schema without public fallback 46ms
+     × 20261016000115_table_occupancy pins teardown to the locked schema without public fallback 16ms
+     × 20261016000116_restaurant_capacity pins teardown to the locked schema without public fallback 7ms
+     × 20261016000117_beauty_workload pins teardown to the locked schema without public fallback 6ms
+     × 20261016000118_hospitality_workload pins teardown to the locked schema without public fallback 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/held-rollback-security.test.ts > held rollback security boundaries > 20261016000114_expense_links pins teardown to the locked schema without public fallback
+AssertionError: expected '-- EMPTY, NEVER-OBSERVED rollback onl…' to contain 'set_config(\'search_path\',format(\'%…'
+
+- Expected
++ Received
+
+- set_config('search_path',format('%I,pg_catalog',current_schema()),true)
++ -- EMPTY, NEVER-OBSERVED rollback only. Populated state requires forward repair.
++ -- Strict contract: missing owned/source relations REFUSE; not an idempotent repair script.
++ BEGIN;
++ SET LOCAL lock_timeout='5s';
++ SET LOCAL statement_timeout='60s';
++ SET LOCAL row_security=off;
++ SELECT pg_advisory_xact_lock(16000114);
++ DO $$ DECLARE t text; found boolean; BEGIN
++ IF current_schema() IS NULL THEN RAISE EXCEPTION 'ROLLBACK_SCHEMA_REQUIRED'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'bar_receipts')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: bar_receipts'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'bar_receipts');
++ IF to_regclass(format('%I.%I',current_schema(),'bar_supplier_payments')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: bar_supplier_payments'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'bar_supplier_payments');
++ IF to_regclass(format('%I.%I',current_schema(),'cash_operations')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: cash_operations'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'cash_operations');
++ IF to_regclass(format('%I.%I',current_schema(),'expense_categories')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: expense_categories'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'expense_categories');
++ IF to_regclass(format('%I.%I',current_schema(),'expense_documents')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: expense_documents'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'expense_documents');
++ IF to_regclass(format('%I.%I',current_schema(),'expense_settlements')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: expense_settlements'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'expense_settlements');
++ IF to_regclass(format('%I.%I',current_schema(),'marketing_expenses')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: marketing_expenses'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'marketing_expenses');
++ IF to_regclass(format('%I.%I',current_schema(),'payment_write_intents')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: payment_write_intents'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'payment_write_intents');
++ IF to_regclass(format('%I.%I',current_schema(),'properties')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: properties'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'properties');
++ IF to_regclass(format('%I.%I',current_schema(),'restaurant_cash_operations')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: restaurant_cash_operations'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'restaurant_cash_operations');
++ IF to_regclass(format('%I.%I',current_schema(),'table_occupancy_sessions')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: table_occupancy_sessions'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'table_occupancy_commands')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: table_occupancy_commands'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'workload_tracking_coverage')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: workload_tracking_coverage'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'resource_capacity_revisions')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: resource_capacity_revisions'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'resource_capacity_intervals')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: resource_capacity_intervals'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'workload_coverage_segments')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: workload_coverage_segments'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'restaurant_opening_schedules')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: restaurant_opening_schedules'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'restaurant_opening_intervals')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: restaurant_opening_intervals'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'restaurant_opening_closures')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: restaurant_opening_closures'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'beauty_schedule_versions')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: beauty_schedule_versions'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'beauty_capacity_intervals')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: beauty_capacity_intervals'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'appointment_workload_revisions')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: appointment_workload_revisions'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'hospitality_workload_versions')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: hospitality_workload_versions'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'hospitality_workload_sources')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: hospitality_workload_sources'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'expense_categories') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: expense_categories (including voided/cancelled history)'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'expense_documents') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: expense_documents (including voided/cancelled history)'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'expense_settlements') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: expense_settlements (including voided/cancelled history)'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'payment_write_intents') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: payment_write_intents (including voided/cancelled history)'; END IF;
++ IF EXISTS(SELECT 1 FROM cash_operations WHERE currency_snapshot IS NOT NULL) THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: currency_snapshot'; END IF;
++ END $$;
++ DROP TRIGGER IF EXISTS hotel_cash_currency_guard ON cash_operations;
++ DROP TRIGGER IF EXISTS expense_document_guard ON expense_documents;
++ DROP TRIGGER IF EXISTS expense_settlement_guard ON expense_settlements;
++ DROP TRIGGER IF EXISTS expense_supplier_backfill ON expense_documents;
++ DROP TRIGGER IF EXISTS expense_supplier_payment_sync ON bar_supplier_payments;
++ DROP TRIGGER IF EXISTS expense_supplier_payment_guard ON bar_supplier_payments;
++ DROP TRIGGER IF EXISTS expense_cash_guard ON cash_operations;
++ DROP TRIGGER IF EXISTS expense_cash_guard ON restaurant_cash_operations;
++ DROP TRIGGER IF EXISTS expense_receipt_guard ON bar_receipts;
++ DROP TRIGGER IF EXISTS expense_property_guard ON properties;
++ DROP TRIGGER IF EXISTS expense_marketing_guard ON marketing_expenses;
++ DROP TRIGGER IF EXISTS expense_marketing_sync ON marketing_expenses;
++ DROP TRIGGER IF EXISTS expense_marketing_audit ON expense_documents;
++ DROP POLICY rls_tenant ON expense_categories;
++ DROP POLICY rls_tenant ON expense_documents;
++ DROP POLICY rls_tenant ON expense_settlements;
++ DROP POLICY rls_tenant ON payment_write_intents;
++ DROP INDEX expense_documents_period;
++ DROP INDEX expense_settlements_document;
++ DROP FUNCTION expense_marketing_audit();
++ DROP FUNCTION expense_marketing_sync();
++ DROP FUNCTION expense_marketing_guard();
++ DROP FUNCTION expense_property_guard();
++ DROP FUNCTION expense_receipt_guard();
++ DROP FUNCTION expense_cash_guard();
++ DROP FUNCTION expense_supplier_payment_guard();
++ DROP FUNCTION expense_supplier_sync();
++ DROP FUNCTION expense_settlement_guard();
++ DROP FUNCTION expense_document_guard();
++ DROP FUNCTION expense_paid_minor(uuid);
++ DROP FUNCTION hotel_cash_currency_guard();
++ DROP TABLE payment_write_intents;
++ DROP TABLE expense_settlements;
++ DROP TABLE expense_documents;
++ DROP TABLE expense_categories;
++ ALTER TABLE cash_operations DROP COLUMN currency_snapshot;
++ -- Table-owned constraints and identity sequences leave with their owning empty table.
++ -- Shared btree_gist extension, business sources and their RLS remain installed.
++ COMMIT;
++
+
+ ❯ tests/unit/held-rollback-security.test.ts:9:17
+      7|   it.each(dirs)('%s pins teardown to the locked schema without public …
+      8|     const sql = readFileSync(resolve(root, d, 'down.sql'), 'utf8');
+      9|     expect(sql).toContain("set_config('search_path',format('%I,pg_cata…
+       |                 ^
+     10|     expect(sql).not.toMatch(/\bCASCADE\b/);
+     11|     const tables = [...sql.matchAll(/DROP TABLE (\w+);/g)].map(x => x[…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| tests/unit/held-rollback-security.test.ts > held rollback security boundaries > 20261016000115_table_occupancy pins teardown to the locked schema without public fallback
+AssertionError: expected '-- EMPTY, NEVER-OBSERVED rollback onl…' to contain 'set_config(\'search_path\',format(\'%…'
+
+- Expected
++ Received
+
+- set_config('search_path',format('%I,pg_catalog',current_schema()),true)
++ -- EMPTY, NEVER-OBSERVED rollback only. Populated state requires forward repair.
++ -- Strict contract: missing owned/source relations REFUSE; not an idempotent repair script.
++ BEGIN;
++ SET LOCAL lock_timeout='5s';
++ SET LOCAL statement_timeout='60s';
++ SET LOCAL row_security=off;
++ SELECT pg_advisory_xact_lock(16000114);
++ DO $$ DECLARE t text; found boolean; BEGIN
++ IF current_schema() IS NULL THEN RAISE EXCEPTION 'ROLLBACK_SCHEMA_REQUIRED'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'businesses')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: businesses'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'businesses');
++ IF to_regclass(format('%I.%I',current_schema(),'dining_areas')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: dining_areas'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'dining_areas');
++ IF to_regclass(format('%I.%I',current_schema(),'dining_tables')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: dining_tables'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'dining_tables');
++ IF to_regclass(format('%I.%I',current_schema(),'locations')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: locations'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'locations');
++ IF to_regclass(format('%I.%I',current_schema(),'restaurant_orders')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: restaurant_orders'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'restaurant_orders');
++ IF to_regclass(format('%I.%I',current_schema(),'restaurant_reservations')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: restaurant_reservations'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'restaurant_reservations');
++ IF to_regclass(format('%I.%I',current_schema(),'table_occupancy_commands')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: table_occupancy_commands'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'table_occupancy_commands');
++ IF to_regclass(format('%I.%I',current_schema(),'table_occupancy_sessions')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: table_occupancy_sessions'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'table_occupancy_sessions');
++ IF to_regclass(format('%I.%I',current_schema(),'workload_tracking_coverage')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: workload_tracking_coverage'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'resource_capacity_revisions')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: resource_capacity_revisions'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'resource_capacity_intervals')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: resource_capacity_intervals'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'workload_coverage_segments')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: workload_coverage_segments'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'restaurant_opening_schedules')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: restaurant_opening_schedules'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'restaurant_opening_intervals')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: restaurant_opening_intervals'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'restaurant_opening_closures')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: restaurant_opening_closures'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'beauty_schedule_versions')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: beauty_schedule_versions'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'beauty_capacity_intervals')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: beauty_capacity_intervals'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'appointment_workload_revisions')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: appointment_workload_revisions'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'hospitality_workload_versions')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: hospitality_workload_versions'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'hospitality_workload_sources')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: hospitality_workload_sources'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'table_occupancy_sessions') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: table_occupancy_sessions (including voided/cancelled history)'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'table_occupancy_commands') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: table_occupancy_commands (including voided/cancelled history)'; END IF;
++ END $$;
++ DROP TRIGGER IF EXISTS occupancy_scope ON table_occupancy_sessions;
++ DROP TRIGGER IF EXISTS occupancy_command_scope ON table_occupancy_commands;
++ DROP TRIGGER IF EXISTS occupancy_parent ON dining_tables;
++ DROP TRIGGER IF EXISTS occupancy_parent ON dining_areas;
++ DROP TRIGGER IF EXISTS occupancy_parent ON restaurant_reservations;
++ DROP TRIGGER IF EXISTS occupancy_parent ON restaurant_orders;
++ DROP TRIGGER IF EXISTS occupancy_parent ON locations;
++ DROP TRIGGER IF EXISTS occupancy_parent ON businesses;
++ DROP POLICY rls_tenant ON table_occupancy_sessions;
++ DROP POLICY rls_tenant ON table_occupancy_commands;
++ DROP INDEX occupancy_one_active;
++ DROP INDEX occupancy_one_reservation;
++ DROP INDEX occupancy_one_order;
++ DROP INDEX occupancy_history_page;
++ DROP FUNCTION occupancy_command(uuid,text,text,uuid,uuid,uuid,uuid,uuid);
++ DROP FUNCTION occupancy_parent_guard();
++ DROP FUNCTION occupancy_scope_guard();
++ DROP TABLE table_occupancy_commands;
++ DROP TABLE table_occupancy_sessions;
++ -- Table-owned constraints and identity sequences leave with their owning empty table.
++ -- Shared btree_gist extension, business sources and their RLS remain installed.
++ COMMIT;
++
+
+ ❯ tests/unit/held-rollback-security.test.ts:9:17
+      7|   it.each(dirs)('%s pins teardown to the locked schema without public …
+      8|     const sql = readFileSync(resolve(root, d, 'down.sql'), 'utf8');
+      9|     expect(sql).toContain("set_config('search_path',format('%I,pg_cata…
+       |                 ^
+     10|     expect(sql).not.toMatch(/\bCASCADE\b/);
+     11|     const tables = [...sql.matchAll(/DROP TABLE (\w+);/g)].map(x => x[…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| tests/unit/held-rollback-security.test.ts > held rollback security boundaries > 20261016000116_restaurant_capacity pins teardown to the locked schema without public fallback
+AssertionError: expected '-- EMPTY, NEVER-OBSERVED rollback onl…' to contain 'set_config(\'search_path\',format(\'%…'
+
+- Expected
++ Received
+
+- set_config('search_path',format('%I,pg_catalog',current_schema()),true)
++ -- EMPTY, NEVER-OBSERVED rollback only. Populated state requires forward repair.
++ -- Strict contract: missing owned/source relations REFUSE; not an idempotent repair script.
++ BEGIN;
++ SET LOCAL lock_timeout='5s';
++ SET LOCAL statement_timeout='60s';
++ SET LOCAL row_security=off;
++ SELECT pg_advisory_xact_lock(16000114);
++ DO $$ DECLARE t text; found boolean; BEGIN
++ IF current_schema() IS NULL THEN RAISE EXCEPTION 'ROLLBACK_SCHEMA_REQUIRED'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'dining_areas')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: dining_areas'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'dining_areas');
++ IF to_regclass(format('%I.%I',current_schema(),'dining_tables')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: dining_tables'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'dining_tables');
++ IF to_regclass(format('%I.%I',current_schema(),'food_closed_days')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: food_closed_days'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'food_closed_days');
++ IF to_regclass(format('%I.%I',current_schema(),'locations')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: locations'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'locations');
++ IF to_regclass(format('%I.%I',current_schema(),'resource_capacity_intervals')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: resource_capacity_intervals'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'resource_capacity_intervals');
++ IF to_regclass(format('%I.%I',current_schema(),'resource_capacity_revisions')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: resource_capacity_revisions'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'resource_capacity_revisions');
++ IF to_regclass(format('%I.%I',current_schema(),'restaurant_opening_closures')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: restaurant_opening_closures'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'restaurant_opening_closures');
++ IF to_regclass(format('%I.%I',current_schema(),'restaurant_opening_intervals')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: restaurant_opening_intervals'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'restaurant_opening_intervals');
++ IF to_regclass(format('%I.%I',current_schema(),'restaurant_opening_schedules')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: restaurant_opening_schedules'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'restaurant_opening_schedules');
++ IF to_regclass(format('%I.%I',current_schema(),'service_periods')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: service_periods'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'service_periods');
++ IF to_regclass(format('%I.%I',current_schema(),'workload_coverage_segments')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: workload_coverage_segments'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'workload_coverage_segments');
++ IF to_regclass(format('%I.%I',current_schema(),'workload_tracking_coverage')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: workload_tracking_coverage'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'workload_tracking_coverage');
++ IF to_regclass(format('%I.%I',current_schema(),'beauty_schedule_versions')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: beauty_schedule_versions'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'beauty_capacity_intervals')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: beauty_capacity_intervals'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'appointment_workload_revisions')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: appointment_workload_revisions'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'hospitality_workload_versions')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: hospitality_workload_versions'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'hospitality_workload_sources')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: hospitality_workload_sources'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'workload_tracking_coverage') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: workload_tracking_coverage (including voided/cancelled history)'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'resource_capacity_revisions') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: resource_capacity_revisions (including voided/cancelled history)'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'resource_capacity_intervals') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: resource_capacity_intervals (including voided/cancelled history)'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'workload_coverage_segments') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: workload_coverage_segments (including voided/cancelled history)'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'restaurant_opening_schedules') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: restaurant_opening_schedules (including voided/cancelled history)'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'restaurant_opening_intervals') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: restaurant_opening_intervals (including voided/cancelled history)'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'restaurant_opening_closures') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: restaurant_opening_closures (including voided/cancelled history)'; END IF;
++ END $$;
++ DROP TRIGGER IF EXISTS capacity_table_change ON dining_tables;
++ DROP TRIGGER IF EXISTS capacity_area_change ON dining_areas;
++ DROP TRIGGER IF EXISTS capacity_period_change ON service_periods;
++ DROP TRIGGER IF EXISTS capacity_closed_day_change ON food_closed_days;
++ DROP TRIGGER IF EXISTS capacity_timezone_change ON locations;
++ DROP POLICY rls_tenant ON workload_tracking_coverage;
++ DROP POLICY rls_tenant ON resource_capacity_revisions;
++ DROP POLICY rls_tenant ON resource_capacity_intervals;
++ DROP POLICY rls_tenant ON workload_coverage_segments;
++ DROP POLICY rls_tenant ON restaurant_opening_schedules;
++ DROP POLICY rls_tenant ON restaurant_opening_intervals;
++ DROP POLICY rls_tenant ON restaurant_opening_closures;
++ DROP INDEX capacity_current;
++ DROP INDEX capacity_intervals_window;
++ DROP INDEX coverage_window;
++ DROP INDEX opening_current;
++ DROP FUNCTION confirm_restaurant_opening(uuid,jsonb,uuid);
++ DROP FUNCTION restaurant_local_instant(timestamp,text);
++ DROP FUNCTION capacity_setting_changed();
++ DROP FUNCTION capture_restaurant_capacity(uuid);
++ DROP TABLE restaurant_opening_closures;
++ DROP TABLE restaurant_opening_intervals;
++ DROP TABLE restaurant_opening_schedules;
++ DROP TABLE workload_coverage_segments;
++ DROP TABLE resource_capacity_intervals;
++ DROP TABLE resource_capacity_revisions;
++ DROP TABLE workload_tracking_coverage;
++ -- Table-owned constraints and identity sequences leave with their owning empty table.
++ -- Shared btree_gist extension, business sources and their RLS remain installed.
++ COMMIT;
++
+
+ ❯ tests/unit/held-rollback-security.test.ts:9:17
+      7|   it.each(dirs)('%s pins teardown to the locked schema without public …
+      8|     const sql = readFileSync(resolve(root, d, 'down.sql'), 'utf8');
+      9|     expect(sql).toContain("set_config('search_path',format('%I,pg_cata…
+       |                 ^
+     10|     expect(sql).not.toMatch(/\bCASCADE\b/);
+     11|     const tables = [...sql.matchAll(/DROP TABLE (\w+);/g)].map(x => x[…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| tests/unit/held-rollback-security.test.ts > held rollback security boundaries > 20261016000117_beauty_workload pins teardown to the locked schema without public fallback
+AssertionError: expected '-- EMPTY, NEVER-OBSERVED rollback onl…' to contain 'set_config(\'search_path\',format(\'%…'
+
+- Expected
++ Received
+
+- set_config('search_path',format('%I,pg_catalog',current_schema()),true)
++ -- EMPTY, NEVER-OBSERVED rollback only. Populated state requires forward repair.
++ -- Strict contract: missing owned/source relations REFUSE; not an idempotent repair script.
++ BEGIN;
++ SET LOCAL lock_timeout='5s';
++ SET LOCAL statement_timeout='60s';
++ SET LOCAL row_security=off;
++ SELECT pg_advisory_xact_lock(16000114);
++ DO $$ DECLARE t text; found boolean; BEGIN
++ IF current_schema() IS NULL THEN RAISE EXCEPTION 'ROLLBACK_SCHEMA_REQUIRED'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'appointment_workload_revisions')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: appointment_workload_revisions'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'appointment_workload_revisions');
++ IF to_regclass(format('%I.%I',current_schema(),'appointments')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: appointments'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'appointments');
++ IF to_regclass(format('%I.%I',current_schema(),'beauty_capacity_intervals')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: beauty_capacity_intervals'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'beauty_capacity_intervals');
++ IF to_regclass(format('%I.%I',current_schema(),'beauty_schedule_versions')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: beauty_schedule_versions'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'beauty_schedule_versions');
++ IF to_regclass(format('%I.%I',current_schema(),'employee_locations')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: employee_locations'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'employee_locations');
++ IF to_regclass(format('%I.%I',current_schema(),'employees')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: employees'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'employees');
++ IF to_regclass(format('%I.%I',current_schema(),'locations')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: locations'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'locations');
++ IF to_regclass(format('%I.%I',current_schema(),'time_offs')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: time_offs'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'time_offs');
++ IF to_regclass(format('%I.%I',current_schema(),'working_hours')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: working_hours'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'working_hours');
++ IF to_regclass(format('%I.%I',current_schema(),'hospitality_workload_versions')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: hospitality_workload_versions'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'hospitality_workload_sources')) IS NOT NULL THEN RAISE EXCEPTION 'ROLLBACK_NEWER_RELEASE_INSTALLED: hospitality_workload_sources'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'beauty_schedule_versions') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: beauty_schedule_versions (including voided/cancelled history)'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'beauty_capacity_intervals') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: beauty_capacity_intervals (including voided/cancelled history)'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'appointment_workload_revisions') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: appointment_workload_revisions (including voided/cancelled history)'; END IF;
++ END $$;
++ DROP TRIGGER IF EXISTS beauty_appointment_history ON appointments;
++ DROP TRIGGER IF EXISTS beauty_hours_history ON working_hours;
++ DROP TRIGGER IF EXISTS beauty_absence_history ON time_offs;
++ DROP TRIGGER IF EXISTS beauty_assignment_history ON employee_locations;
++ DROP TRIGGER IF EXISTS beauty_employee_history ON employees;
++ DROP TRIGGER IF EXISTS beauty_zone_history ON locations;
++ DROP TRIGGER beauty_history_guard ON beauty_schedule_versions;
++ DROP POLICY rls_tenant ON beauty_schedule_versions;
++ DROP TRIGGER beauty_history_guard ON beauty_capacity_intervals;
++ DROP POLICY rls_tenant ON beauty_capacity_intervals;
++ DROP TRIGGER beauty_history_guard ON appointment_workload_revisions;
++ DROP POLICY rls_tenant ON appointment_workload_revisions;
++ DROP INDEX beauty_capacity_window;
++ DROP INDEX beauty_appointment_history;
++ DROP FUNCTION beauty_history_tenant_guard();
++ DROP FUNCTION beauty_capacity_changed();
++ DROP FUNCTION beauty_appointment_changed();
++ DROP FUNCTION capture_beauty_schedule(uuid);
++ DROP TABLE appointment_workload_revisions;
++ DROP TABLE beauty_capacity_intervals;
++ DROP TABLE beauty_schedule_versions;
++ -- Table-owned constraints and identity sequences leave with their owning empty table.
++ -- Shared btree_gist extension, business sources and their RLS remain installed.
++ COMMIT;
++
+
+ ❯ tests/unit/held-rollback-security.test.ts:9:17
+      7|   it.each(dirs)('%s pins teardown to the locked schema without public …
+      8|     const sql = readFileSync(resolve(root, d, 'down.sql'), 'utf8');
+      9|     expect(sql).toContain("set_config('search_path',format('%I,pg_cata…
+       |                 ^
+     10|     expect(sql).not.toMatch(/\bCASCADE\b/);
+     11|     const tables = [...sql.matchAll(/DROP TABLE (\w+);/g)].map(x => x[…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| tests/unit/held-rollback-security.test.ts > held rollback security boundaries > 20261016000118_hospitality_workload pins teardown to the locked schema without public fallback
+AssertionError: expected '-- EMPTY, NEVER-OBSERVED rollback onl…' to contain 'set_config(\'search_path\',format(\'%…'
+
+- Expected
++ Received
+
+- set_config('search_path',format('%I,pg_catalog',current_schema()),true)
++ -- EMPTY, NEVER-OBSERVED rollback only. Populated state requires forward repair.
++ -- Strict contract: missing owned/source relations REFUSE; not an idempotent repair script.
++ BEGIN;
++ SET LOCAL lock_timeout='5s';
++ SET LOCAL statement_timeout='60s';
++ SET LOCAL row_security=off;
++ SELECT pg_advisory_xact_lock(16000114);
++ DO $$ DECLARE t text; found boolean; BEGIN
++ IF current_schema() IS NULL THEN RAISE EXCEPTION 'ROLLBACK_SCHEMA_REQUIRED'; END IF;
++ IF to_regclass(format('%I.%I',current_schema(),'allocations')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: allocations'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'allocations');
++ IF to_regclass(format('%I.%I',current_schema(),'hospitality_workload_sources')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: hospitality_workload_sources'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'hospitality_workload_sources');
++ IF to_regclass(format('%I.%I',current_schema(),'hospitality_workload_versions')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: hospitality_workload_versions'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'hospitality_workload_versions');
++ IF to_regclass(format('%I.%I',current_schema(),'inventory_blocks')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: inventory_blocks'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'inventory_blocks');
++ IF to_regclass(format('%I.%I',current_schema(),'inventory_units')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: inventory_units'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'inventory_units');
++ IF to_regclass(format('%I.%I',current_schema(),'properties')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: properties'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'properties');
++ IF to_regclass(format('%I.%I',current_schema(),'reservation_items')) IS NULL THEN RAISE EXCEPTION 'ROLLBACK_MISSING_RELATION: reservation_items'; END IF;
++ EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE',current_schema(),'reservation_items');
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'hospitality_workload_versions') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: hospitality_workload_versions (including voided/cancelled history)'; END IF;
++ EXECUTE format('SELECT EXISTS(SELECT 1 FROM %I.%I)',current_schema(),'hospitality_workload_sources') INTO found;
++ IF found THEN RAISE EXCEPTION 'ROLLBACK_RETAINED_DATA: hospitality_workload_sources (including voided/cancelled history)'; END IF;
++ END $$;
++ DROP TRIGGER IF EXISTS hospitality_units ON inventory_units;
++ DROP TRIGGER IF EXISTS hospitality_allocations ON allocations;
++ DROP TRIGGER IF EXISTS hospitality_blocks ON inventory_blocks;
++ DROP TRIGGER IF EXISTS hospitality_stays ON reservation_items;
++ DROP TRIGGER IF EXISTS hospitality_zone ON properties;
++ DROP TRIGGER hospitality_immutable ON hospitality_workload_versions;
++ DROP POLICY rls_tenant ON hospitality_workload_versions;
++ DROP TRIGGER hospitality_immutable ON hospitality_workload_sources;
++ DROP POLICY rls_tenant ON hospitality_workload_sources;
++ DROP INDEX hospitality_history_scope;
++ DROP INDEX hospitality_source_version;
++ DROP FUNCTION hospitality_history_guard();
++ DROP FUNCTION hospitality_workload_changed();
++ DROP FUNCTION capture_hospitality_workload(uuid);
++ DROP TABLE hospitality_workload_sources;
++ DROP TABLE hospitality_workload_versions;
++ -- Table-owned constraints and identity sequences leave with their owning empty table.
++ -- Shared btree_gist extension, business sources and their RLS remain installed.
++ COMMIT;
++
+
+ ❯ tests/unit/held-rollback-security.test.ts:9:17
+      7|   it.each(dirs)('%s pins teardown to the locked schema without public …
+      8|     const sql = readFileSync(resolve(root, d, 'down.sql'), 'utf8');
+      9|     expect(sql).toContain("set_config('search_path',format('%I,pg_cata…
+       |                 ^
+     10|     expect(sql).not.toMatch(/\bCASCADE\b/);
+     11|     const tables = [...sql.matchAll(/DROP TABLE (\w+);/g)].map(x => x[…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  11:49:16
+   Duration  377ms (tests 61%, transform 23%, import 10%, worker 6%)
+
+JSON report written to /tmp/pms-test-2026-10-16T11-49-13Z-unit-9681.json
+
+# код выхода 1 · 3 с

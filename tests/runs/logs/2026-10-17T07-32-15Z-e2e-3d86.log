@@ -1,0 +1,99 @@
+# Сквозные (e2e) · 17.10.2026 12:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит b532b26 (claude/d10-site-assets), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/marketing-site.spec.ts' 'tests/ui/site-assets.spec.ts' 'tests/ui/site-builder-licensed.spec.ts' 'tests/ui/site-editor.spec.ts' 'tests/ui/site-start.spec.ts' 'tests/ui/website.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 77 tests using 1 worker
+
+  ✓   1 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-assets.spec.ts:25:1 › библиотека: карточки с картинкой, назначением, размером и источником; ключей хранилища на странице нет (10.2s)
+  ✓   2 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-assets.spec.ts:42:1 › загрузка: новый файл в библиотеке; SVG отклоняется словами; больше 10 МиБ не уходит на сервер (8.2s)
+  ✓   3 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-assets.spec.ts:69:1 › подпись ALT сохраняется; удаление с вопросом: опубликованная картинка удерживается, черновая удаляется (7.3s)
+  ✓   4 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-assets.spec.ts:90:1 › импорт из менеджера каналов: фото по выбору, итог словами; без подключения состояние словами (8.3s)
+  ✓   5 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-assets.spec.ts:110:1 › хранилище выключено: библиотека читается, загрузка и импорт недоступны (5.5s)
+  ✓   6 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-assets.spec.ts:120:1 › пустая библиотека и переход со страницы публикации (6.5s)
+  ✓   7 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: light (9.4s)
+  ✓   8 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-assets.spec.ts:129:3 › страница на компьютере и телефоне, доступность: dark (6.9s)
+  ✓   9 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:38:1 › открыть голову: щелчок по блоку на сайте, правка видна сразу, сохранить; история и разница словами (8.7s)
+  ✓  10 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:90:1 › просмотр: ссылка подвала на страницу сайта переключает страницу, скрипты сайта не выполняются, наружу не уходит (5.7s)
+  ✓  11 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:108:1 › открыть в новой вкладке: с несохранёнными правками просит сохранить, без них открывает ссылку (5.1s)
+  ✓  12 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:123:1 › восстановить старую версию как новый черновик (4.2s)
+  ✓  13 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:136:1 › выбор картинки: только готовые нужного вида из библиотеки, URL руками не вводится; ALT отдельно (7.8s)
+  ✓  14 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:154:1 › галерея: добавить, переставить, подписать и убрать; сохраняется (8.9s)
+  ✓  15 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:172:1 › ошибка проверки: ввод на месте, сводка ведёт к полю (7.5s)
+  ✓  16 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:191:1 › конфликт 409: правки остаются, сравнение, продолжить со своими и сохранить (8.2s)
+  ✓  17 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:209:1 › удаление: страницу, на которую ссылается подвал, удалить нельзя; ссылки показаны (7.6s)
+  ✓  18 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:219:1 › добавить секцию, переставить и сделать копию с клавиатуры (10.4s)
+  ✓  19 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:241:1 › уход со страницы с правками спрашивает; отказ оставляет на месте (5.8s)
+  ✓  20 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:254:1 › ИИ всего сайта: запрос в ленте, в очереди → готово, сайт справа обновился, разница, вернуть как было (23.6s)
+  ✓  21 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:280:1 › ИИ одного блока: щелчок по блоку на сайте, «Изменить этот блок с ИИ», метка блока, команда необязательна (11.2s)
+  ✓  22 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:298:1 › ИИ с несохранёнными правками: «Сохранить и отправить» сохраняет версию, ошибка ИИ словами, «Повторить запрос» (8.0s)
+  ✓  23 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:315:1 › первый экран MKT9.2 + SITE-1: «Сайт для …», без названия и адреса сайта; факты филиала; сайт создаётся и открывается редактор (7.4s)
+  ✓  24 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:337:1 › первый экран: сайт есть без версий; ошибка ИИ словами, текст на месте (5.7s)
+  ✓  25 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:350:3 › окно «Создать сайт»: снимки и доступность, light (6.8s)
+  ✓  26 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:350:3 › окно «Создать сайт»: снимки и доступность, dark (5.1s)
+  ✓  27 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:370:3 › редактор на компьютере, доступность и снимки: light (10.3s)
+  ✓  28 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:425:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: light (4.0s)
+  ✓  29 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:370:3 › редактор на компьютере, доступность и снимки: dark (3.2s)
+  ✓  30 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:425:3 › редактор на телефоне 390: вкладки, просмотр отдельной вкладкой, без вылета вбок, доступность: dark (3.5s)
+  ✓  31 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:473:1 › MKT10.3: отмена и повтор несохранённой правки, кнопками и с клавиатуры, сервер не трогают (1.0s)
+  ✓  32 [main-ui-0] › ../.wetop-main-ui-TctuWP/worker-0/tests/ui/site-editor.spec.ts:504:1 › MKT10.3: просмотр на ширине планшета (852ms)
+  ✓  33 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/marketing-site.spec.ts:21:1 › черновик: ревизия, «Не опубликован», будущий адрес; источник брони не выбран и не подставлен (2.9s)
+  ✓  34 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/marketing-site.spec.ts:38:1 › предпросмотр открывается в новой вкладке, токен на странице не виден (1.3s)
+  ✓  35 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/marketing-site.spec.ts:51:1 › публикация, пауза, возобновление, новая ревизия и откат; журнал без документа (2.4s)
+  ✓  36 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/marketing-site.spec.ts:98:1 › без тарифа брони публикация отказывает словами; с выбранным тарифом проходит (1.9s)
+  ✓  37 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/marketing-site.spec.ts:114:1 › источник брони выбирается явно; архив с вопросом (1.3s)
+  ✓  38 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/marketing-site.spec.ts:127:3 › страница на компьютере и телефоне, доступность: light (4.1s)
+  ✓  39 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/marketing-site.spec.ts:127:3 › страница на компьютере и телефоне, доступность: dark (3.5s)
+  ✓  40 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-builder-licensed.spec.ts:29:1 › лицензии нет: всё видно, правка, ИИ, «Текст» и сохранение закрыты; полоса проекта говорит почему (2.4s)
+  ✓  41 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-builder-licensed.spec.ts:49:1 › срок лицензии вышел: та же закрытая правка, слова «Срок лицензии вышел»; первый экран без лицензии (1.3s)
+  ✓  42 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-builder-licensed.spec.ts:62:1 › режим «Чат»: ответ словами без новой версии, «Перейти в сборку»; разговор на сервере переживает обновление (4.9s)
+  ✓  43 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-builder-licensed.spec.ts:78:1 › режим «План»: вопросы с вариантами, план с шагами, правка текста сборки, «Собрать по плану» один раз (13.2s)
+  ✓  44 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-builder-licensed.spec.ts:106:1 › «Собрать с ИИ по описанию» на первом экране: первая сборка ИИ с выбранным шаблоном как оформлением (5.3s)
+  ✓  45 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-builder-licensed.spec.ts:126:1 › «Выбор / Текст»: T включает правку текста, Enter применяет в черновике, Escape отменяет; сохранение без ИИ (2.4s)
+  ✓  46 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-builder-licensed.spec.ts:158:1 › закладки: звёздочка с подписью, закреплённый список сверху, снять закладку (2.4s)
+  ✓  47 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-builder-licensed.spec.ts:174:1 › знания проекта: сохраняются отдельно от черновика и переживают обновление (1.8s)
+  ✓  48 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-builder-licensed.spec.ts:195:1 › «Платформа → Организации»: главный администратор выдаёт, продлевает и выключает конструктор филиала (9.0s)
+  ✓  49 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-builder-licensed.spec.ts:223:3 › снимки и доступность ключевых состояний: light (26.2s)
+  ✓  50 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-builder-licensed.spec.ts:223:3 › снимки и доступность ключевых состояний: dark (14.9s)
+  ✓  51 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-start.spec.ts:48:1 › гостиница: филиал → факты → чип → три шаблона гостиницы → создать по шаблону → редактор (2.7s)
+  ✓  52 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-start.spec.ts:105:1 › диктовка: фраза дописывается в запрос, язык выбирается; без поддержки браузера кнопки нет (1.6s)
+  ✓  53 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-start.spec.ts:130:1 › факты без эндпоинта API: карточка собрана из брифа гостиницы, экран работает (992ms)
+  ✓  54 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-start.spec.ts:142:1 › салон: выбор филиала переключает стойку, свои три шаблона, создание по шаблону открывает редактор (4.2s)
+  ✓  55 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-start.spec.ts:190:1 › ресторан: меню с ценами, чипы и три шаблона ресторана; создание по шаблону открывает редактор (4.8s)
+  ✓  56 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-start.spec.ts:219:3 › снимки и доступность первого экрана гостиницы: light, 1440 и 390 (6.8s)
+  ✓  57 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/site-start.spec.ts:219:3 › снимки и доступность первого экрана гостиницы: dark, 1440 и 390 (5.2s)
+  ✓  58 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:29:1 › старые адреса ведут во вкладки модуля и сохраняют период (5.3s)
+  ✓  59 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:40:1 › одна точка входа в меню и четыре вкладки со своим адресом (3.3s)
+  ✓  60 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:78:1 › домен-заглушка — «Сайт ещё не подключён», а не зелёный сайт (2.5s)
+  ✓  61 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:101:1 › обзор подключённого сайта: домен, счётчик, бронирование, брони за месяц (2.4s)
+  ✓  62 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:132:1 › «Интеграции» больше не показывают сайт (1.6s)
+  ✓  63 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:140:1 › настройки: пауза и удаление — в «Опасной зоне», с подтверждением (1.4s)
+  ✓  64 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:153:1 › MKT7: сайт WETOP в «Настройках» и «Бронировании» без формы правки, со ссылкой на публикацию; API отвечает 409 (1.8s)
+  ✓  65 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:176:1 › четыре вкладки: доступность в двух темах, телефон без прокрутки вбок (17.3s)
+  ✓  66 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:207:1 › WEB2 · домены списком: заглушка уходит, неверный адрес словами, последний не убирается (2.0s)
+  ✓  67 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:250:1 › WEB2 · счётчик: состояние словами и одно действие (4.1s)
+  ✓  68 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:285:1 › WEB2 · окно установки: код, GTM, конструкторы; доступно, закрывается Escape (8.9s)
+  ✓  69 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:310:1 › снимки WEB2 (38.3s)
+  ✓  70 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:360:1 › WEB3 · бронирование: состояние, демо только у работающего, что увидит гость (15.5s)
+  ✓  71 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:392:1 › WEB3 · без адреса сайта демо не предлагается, код виджета — есть (4.4s)
+  ✓  72 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:406:1 › WEB3 · тариф сайта: смена видна в состоянии и в «Что увидит гость» (3.9s)
+  ✓  73 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:424:1 › WEB3 · окно установки виджета: код, место и цвет, проверка; доступно, закрывается Escape (4.1s)
+  ✓  74 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:450:1 › снимки WEB3 (12.4s)
+  ✓  75 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:499:1 › WEB4 · брони с сайта: число, отменённые, начислено и ссылка в «Брони» с тем же отбором (4.2s)
+  ✓  76 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:522:1 › WEB4 · воронка: шаги по сессиям, проценты от предыдущего шага, конверсия (3.4s)
+  ✓  77 [main-ui-1] › ../.wetop-main-ui-TctuWP/worker-1/tests/ui/website.spec.ts:544:1 › снимки WEB4 (8.4s)
+
+  77 passed (9.2m)
+
+# код выхода 0 · 9 мин 13 с

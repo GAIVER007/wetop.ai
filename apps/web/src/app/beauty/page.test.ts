@@ -3,8 +3,16 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { day } = vi.hoisted(() => ({ day: vi.fn() }));
-vi.mock('../../lib/vertical-guard', () => ({ requireVertical: async () => ({}) }));
-vi.mock('../../lib/desk-shell', () => ({ deskShell: async () => ({ readOnly: false }) }));
+vi.mock('../../lib/vertical-guard', () => ({ requireVertical: async () => ({}), requireFeature: async () => ({}) }));
+vi.mock('next/navigation', () => ({ useRouter: () => ({ replace() {} }), useSearchParams: () => new URLSearchParams() }));
+// оболочка как у настоящей: права нужны странице (возврат по записи, §54)
+vi.mock('../../lib/desk-shell', async () => {
+  const { UNKNOWN_SHELL } = await import('../../lib/desk-person');
+  return {
+    deskShell: async () => ({ ...UNKNOWN_SHELL, readOnly: false }),
+    currentMe: async () => ({ user: { organizationId: 'synthetic-org' }, context: { businessId: 'synthetic-salon', locationId: 'salon' } }),
+  };
+});
 vi.mock('../../lib/api', () => ({ beautyApi: {
   day, customers: async () => ({ items: [] }), employees: async () => ({ items: [] }),
 } }));

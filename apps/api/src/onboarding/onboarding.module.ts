@@ -1,3 +1,4 @@
+import { filterBeautyLocations } from '../beauty/access';
 import 'reflect-metadata';
 import {
   BadRequestException,
@@ -71,7 +72,7 @@ function validateShared(draft: SharedDraft) {
 @Injectable()
 export class SharedOnboardingService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
-  private async context(db: Pick<DbTx, 'location'> = this.prisma.db) {
+  private async context(db: Pick<DbTx, 'location' | 'beautyPositionAssignment'> = this.prisma.db) {
     const organizationId = currentOrganizationId();
     const businessId = currentBusinessId();
     const locationId = currentLocationId();
@@ -104,12 +105,13 @@ export class SharedOnboardingService {
           select: {
             name: true,
             vertical: true,
-            organization: { select: { status: true, trialEndsAt: true } },
+            organization: { select: { status: true, trialEndsAt: true, countryCode: true } },
           },
         },
       },
     });
     if (!location) throw new ForbiddenException('Филиал недоступен');
+    if (!(await filterBeautyLocations(db, [{id:location.id,businessId:location.businessId,vertical:location.business.vertical}])).length) throw new ForbiddenException('Нет назначения в этот салон или филиал');
     return location;
   }
   async status() {
@@ -257,7 +259,18 @@ export class SharedOnboardingService {
             where: { id: current.id },
             select: {
               property: { select: { id: true } },
-              _count: { select: { services: true, appointments: true, workingHours: true } },
+              // проведённые документы бара в старой валюте (ADR-186): без курса пересчёт невозможен
+              _count: {
+                select: {
+                  services: true,
+                  appointments: true,
+                  workingHours: true,
+                  barStockMovements: true,
+                  // деньги ресторана и кассы филиала в старой валюте (ADR-187): пересчёт без курса невозможен
+                  restaurantPayments: true,
+                  restaurantCashOps: true,
+                },
+              },
             },
           });
           if (used?.property || Object.values(used?._count ?? {}).some((n) => n > 0))
@@ -360,6 +373,8 @@ export class SharedOnboardingService {
       storedFlowVersion: saved?.flowVersion ?? null,
       currentStep,
       draft,
+      // страна организации из регистрации: от неё настройка подставляет пояс и валюту (Q-SCHED-3)
+      organizationCountry: location.business.organization.countryCode,
       profileApplied,
       completedFlowVersion,
       readiness,
@@ -437,6 +452,11 @@ export class SharedOnboardingService {
                     appointments: true,
                     workingHours: true,
                     employees: true,
+                    // проведённые документы бара в старой валюте (ADR-186): без курса пересчёт невозможен
+                    barStockMovements: true,
+                    // деньги ресторана и кассы филиала в старой валюте (ADR-187): пересчёт без курса невозможен
+                    restaurantPayments: true,
+                    restaurantCashOps: true,
                   },
                 },
               },

@@ -1,0 +1,18 @@
+# Линтер (lint) · 17.10.2026 13:26 Алматы · <сервер>
+# коммит 08f5f5b (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 29
+# npx eslint .
+
+/srv/hermes/workspace/wetop-tz21-local/tree/packages/domain/src/beauty/beauty.ts
+  168:10  error  'localParts' is defined but never used    @typescript-eslint/no-unused-vars
+  183:10  error  'dayDiff' is defined but never used       @typescript-eslint/no-unused-vars
+  188:10  error  'clockMinutes' is defined but never used  @typescript-eslint/no-unused-vars
+  197:10  error  'coversDate' is defined but never used    @typescript-eslint/no-unused-vars
+
+/srv/hermes/workspace/wetop-tz21-local/tree/tests/integration/tz21-working-time.test.ts
+  79:9  error  'state' is never reassigned. Use 'const' instead  prefer-const
+
+✖ 5 problems (5 errors, 0 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+
+
+# код выхода 1 · 1 мин 47 с

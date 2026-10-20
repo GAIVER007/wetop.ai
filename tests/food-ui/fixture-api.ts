@@ -9,6 +9,7 @@ import { createPrismaClient } from '@pms/database';
 import type { MembershipRole } from '@pms/domain';
 import { FoodModule } from '../../apps/api/src/food-service/food.module';
 import { BeautyModule } from '../../apps/api/src/beauty/beauty.module';
+import { BarModule } from '../../apps/api/src/bar/bar.module';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import {
   MemorySiteAssetStorage,
@@ -35,23 +36,31 @@ const org = randomUUID(),
 let role: MembershipRole = 'OWNER';
 const calls: string[] = [];
 const creationKeys: string[] = [];
+const sessionExpiresAt = new Date(Date.now() + 24 * 3600_000).toISOString();
+// Как настоящий /auth/me (#719): время выдачи сессии не меняется при продлении, по нему бар узнаёт ту же сессию
+const sessionIssuedAt = new Date().toISOString();
 let unavailable = false;
 let failCreate = false;
 await db.organization.create({ data: { id: org, name: `MV7-browser-${org}`, status: 'ACTIVE' } });
 await db.user.create({
   data: { id: user, name: 'Тестовый владелец', email: `mv7-${user}@example.invalid` },
 });
+// Real Beauty writers revalidate live membership, not only the synthetic HTTP identity.
+await db.membership.create({ data: { userId: user, organizationId: org, role: 'OWNER' } });
 
 class FixtureController {
   async me() {
     return {
       user: {
         id: user,
+        organizationId: org,
         name: 'Тестовый владелец',
         email: 'owner@example.invalid',
         role,
         organization: await db.organization.findUniqueOrThrow({ where: { id: org } }),
       },
+      expiresAt: sessionExpiresAt,
+      sessionIssuedAt,
       context: {
         businessId: currentBusinessId(),
         locationId: currentLocationId(),
@@ -97,7 +106,8 @@ for (const [name, path, method] of [
 }
 Body()(FixtureController.prototype, 'save', 0);
 const module = await Test.createTestingModule({
-  imports: [FoodModule, BeautyModule],
+  // бар филиала (ADR-178): ресторан и салон пользуются баром наравне с гостиницей
+  imports: [FoodModule, BeautyModule, BarModule],
   controllers: [FixtureController],
 })
   .overrideProvider(PrismaService)
@@ -154,6 +164,11 @@ app.use(
                 create: { id: user, name: 'Тестовый владелец', email: `mv7-${user}@example.invalid` },
                 update: {},
               });
+              await db.membership.upsert({
+                where: { userId_organizationId: { userId: user, organizationId: org } },
+                create: { userId: user, organizationId: org, role: 'OWNER' },
+                update: { role: 'OWNER', status: 'ACTIVE' },
+              });
               const b1 = await db.business.create({
                 data: {
                   organizationId: org,
@@ -202,6 +217,10 @@ app.use(
             }
             if (req.path === '/__test/control') {
               role = body.role === 'STAFF' ? 'STAFF' : 'OWNER';
+              await db.membership.update({
+                where: { userId_organizationId: { userId: user, organizationId: org } },
+                data: { role },
+              });
               unavailable = body.unavailable === true;
               failCreate = body.failCreate === true;
               await db.organization.update({
@@ -215,9 +234,23 @@ app.use(
               if (marker.name !== `MV7-browser-${org}`) throw new Error('Marker mismatch');
               const b = { organizationId: org };
               await db.$transaction(async (tx) => {
+                // бар филиала (ADR-178): строки бара держат филиал и кассу ресторана, уходят первыми
+                const bl = { location: { business: b } };
+                await tx.barSaleLine.deleteMany({ where: { sale: bl } });
+                await tx.barStockMovement.deleteMany({ where: bl });
+                await tx.barSupplierPayment.deleteMany({ where: { receipt: bl } });
+                await tx.barSale.deleteMany({ where: bl });
+                await tx.barStockLot.deleteMany({ where: bl });
+                await tx.barReceiptLine.deleteMany({ where: { receipt: bl } });
+                await tx.barReceipt.deleteMany({ where: bl });
+                await tx.barProduct.deleteMany({ where: bl });
+                await tx.barCategory.deleteMany({ where: bl });
+                await tx.barSupplier.deleteMany({ where: bl });
                 await tx.restaurantOrderItem.deleteMany({
                   where: { order: { location: { business: b } } },
                 });
+                await tx.restaurantPayment.deleteMany({ where: bl });
+                await tx.restaurantCashOperation.deleteMany({ where: bl });
                 await tx.restaurantOrder.deleteMany({ where: { location: { business: b } } });
                 await tx.menuItemIngredient.deleteMany({ where: { menuItem: { business: b } } });
                 await tx.menuItem.deleteMany({ where: { business: b } });
@@ -233,7 +266,9 @@ app.use(
                 await tx.servicePeriod.deleteMany({ where: { location: { business: b } } });
                 await tx.foodBookingRules.deleteMany({ where: { location: { business: b } } });
                 await tx.foodClosedDay.deleteMany({ where: { location: { business: b } } });
+                await tx.appointmentLine.deleteMany({ where: { appointment: bl } });
                 await tx.appointment.deleteMany({ where: { location: { business: b } } });
+                await tx.employeeServicePrice.deleteMany({ where: { employee: { business: b } } });
                 await tx.timeOff.deleteMany({ where: { employee: { business: b } } });
                 await tx.workingHours.deleteMany({ where: { employee: { business: b } } });
                 await tx.employeeService.deleteMany({ where: { employee: { business: b } } });
@@ -252,6 +287,7 @@ app.use(
                 await tx.onboardingProgress.deleteMany({ where: { location: { business: b } } });
                 await tx.location.deleteMany({ where: { business: b } });
                 await tx.business.deleteMany({ where: b });
+                await tx.membership.deleteMany({ where: { organizationId: org, userId: user } });
                 await tx.organization.delete({ where: { id: org } });
                 await tx.user.delete({ where: { id: user } });
               });

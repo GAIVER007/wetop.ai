@@ -1,0 +1,107 @@
+# Интеграционные (integration) · 15.10.2026 17:39 Алматы · <сервер>
+# коммит 6dfe1f6 (fix/audit-reset-closed-folio), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T12-39-43Z-integration-5074.json' 'tests/integration/reset-token-http.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-critical-fixes
+
+ ❯ |integration| tests/integration/reset-token-http.test.ts (10 tests | 8 failed) 121591ms
+   ❯ password reset over real AuthModule HTTP and PostgreSQL (10)
+     × concurrent same-token HTTP confirms have exactly one winner, one password and one audit 6005ms
+     × success revokes every live session across organizations, not another user or already-revoked time 7651ms
+     × PostgreSQL failure in sessions rolls back password, token, sessions and audit; token remains retryable 18976ms
+     × PostgreSQL failure in audit_logs rolls back password, token, sessions and audit; token remains retryable 38972ms
+     × sequential reuse cannot overwrite a successful password or add another audit 39512ms
+     × expired confirmation leaves password, token and sessions unchanged 1625ms
+     ✓ blocked confirmation leaves password, token and sessions unchanged 3205ms
+     ✓ unknown confirmation leaves password, token and sessions unchanged 873ms
+     × weak confirmation leaves password, token and sessions unchanged 677ms
+     × blocking an account after the token read cannot reactivate it 152ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/reset-token-http.test.ts > password reset over real AuthModule HTTP and PostgreSQL > concurrent same-token HTTP confirms have exactly one winner, one password and one audit
+AssertionError: expected [ 201, 201 ] to deeply equal [ 201, 401 ]
+
+- Expected
++ Received
+
+  [
+    201,
+-   401,
++   201,
+  ]
+
+ ❯ tests/integration/reset-token-http.test.ts:114:48
+    112|     try { await gate.ready; } finally { gate.release(); }
+    113|     const result = await responses;
+    114|     expect(result.map((r) => r.status).sort()).toEqual([201, 401]);
+       |                                                ^
+    115|     const user = await db.user.findUniqueOrThrow({ where: { id: f.id }…
+    116|     const winner = result.findIndex((r) => r.status === 201);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  |integration| tests/integration/reset-token-http.test.ts > password reset over real AuthModule HTTP and PostgreSQL > success revokes every live session across organizations, not another user or already-revoked time
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/reset-token-http.test.ts:124:3
+    122|   }, 15_000);
+    123|
+    124|   it('success revokes every live session across organizations, not ano…
+       |   ^
+    125|     const f = await fixture();
+    126|     const other = await fixture();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  |integration| tests/integration/reset-token-http.test.ts > password reset over real AuthModule HTTP and PostgreSQL > PostgreSQL failure in sessions rolls back password, token, sessions and audit; token remains retryable
+ FAIL  |integration| tests/integration/reset-token-http.test.ts > password reset over real AuthModule HTTP and PostgreSQL > PostgreSQL failure in audit_logs rolls back password, token, sessions and audit; token remains retryable
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/reset-token-http.test.ts:146:47
+    144|   });
+    145|
+    146|   it.each(['sessions', 'audit_logs'] as const)('PostgreSQL failure in …
+       |                                               ^
+    147|     const f = await fixture();
+    148|     const session = await login(f);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  |integration| tests/integration/reset-token-http.test.ts > password reset over real AuthModule HTTP and PostgreSQL > sequential reuse cannot overwrite a successful password or add another audit
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/reset-token-http.test.ts:174:3
+    172|   });
+    173|
+    174|   it('sequential reuse cannot overwrite a successful password or add a…
+       |   ^
+    175|     const f = await fixture();
+    176|     const value = password();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  |integration| tests/integration/reset-token-http.test.ts > password reset over real AuthModule HTTP and PostgreSQL > expired confirmation leaves password, token and sessions unchanged
+ FAIL  |integration| tests/integration/reset-token-http.test.ts > password reset over real AuthModule HTTP and PostgreSQL > weak confirmation leaves password, token and sessions unchanged
+Error: read ECONNRESET
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  |integration| tests/integration/reset-token-http.test.ts > password reset over real AuthModule HTTP and PostgreSQL > blocking an account after the token read cannot reactivate it
+Error: ECONNRESET: Connection reset by peer
+ ❯ Test.assert node_modules/supertest/lib/test.js:187:20
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ node_modules/supertest/lib/test.js:156:7
+ ❯ fn node_modules/superagent/src/node/index.js:904:3
+ ❯ callback node_modules/superagent/src/node/index.js:817:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 2 passed (10)
+   Start at  12:39:49
+   Duration  365.20s (transform 41%, tests 39%, import 21%)
+
+JSON report written to /tmp/pms-test-2026-10-15T12-39-43Z-integration-5074.json
+
+# код выхода 1 · 6 мин 11 с

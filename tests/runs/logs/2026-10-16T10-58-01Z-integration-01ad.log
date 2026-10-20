@@ -1,0 +1,36 @@
+# Интеграционные (integration) · 16.10.2026 15:58 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 49
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T10-58-01Z-integration-01ad.json' '--config' 'tests/hospitality-workload-isolated.config.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/hospitality-workload-isolated.test.ts (1 test | 1 failed) 1148ms
+   × property-scoped service writer retains ROOM/BED and never claims complete prior history 1145ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/hospitality-workload-isolated.test.ts > property-scoped service writer retains ROOM/BED and never claims complete prior history
+NotFoundException: Место не найдено
+ ❯ apps/api/src/inventory/inventory-editor.ts:443:26
+    441|           include: { physicalRoom: true },
+    442|         });
+    443|         if (!unit) throw new NotFoundException('Место не найдено');
+       |                          ^
+    444|         await tx.physicalRoom.update({ where: { id: unit.physicalRoomI…
+    445|         await tx.auditLog.create({
+ ❯ Proxy._transactionWithCallback ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ InventoryEditor.renameRoom apps/api/src/inventory/inventory-editor.ts:438:22
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/hospitality-workload-isolated.test.ts:26:2
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  10:58:03
+   Duration  3.95s (transform 49%, tests 31%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-10-16T10-58-01Z-integration-01ad.json
+
+# код выхода 1 · 7 с

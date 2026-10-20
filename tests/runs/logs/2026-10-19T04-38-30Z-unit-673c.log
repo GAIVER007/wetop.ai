@@ -1,0 +1,18 @@
+# Модульные (unit) · 19.10.2026 09:38 Алматы · <сервер>
+# коммит 61bb689 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-19T04-38-30Z-unit-673c.json' 'apps/api/src/site-forms' 'apps/api/src/employee-portal/public-service-pricing.test.ts' 'apps/web/src/app/specialists/[slug]/page.test.ts' 'tests/unit/employee-portal-web.test.ts' 'apps/web/src/lib/employee-portal-booking.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ✓ |unit| apps/web/src/app/specialists/[slug]/page.test.ts (4 tests) 16ms
+ ✓ |unit| apps/api/src/employee-portal/public-service-pricing.test.ts (8 tests) 12ms
+ ✓ |unit| tests/unit/employee-portal-web.test.ts (7 tests) 8ms
+
+ Test Files  3 passed (3)
+      Tests  19 passed (19)
+   Start at  04:38:31
+   Duration  3.07s (transform 70%, import 28%, tests 1%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-19T04-38-30Z-unit-673c.json
+
+# код выхода 0 · 5 с

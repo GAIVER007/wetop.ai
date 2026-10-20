@@ -32,6 +32,11 @@ describe('describeUserAgent', () => {
 
   it('пустое и незнакомое — «неизвестное устройство», без сырой строки', () => {
     expect(describeUserAgent(null)).toBe('неизвестное устройство');
+  });
+  it('сохранённая при входе подпись (не полная строка браузера) показывается как есть', () => {
+    // вход пишет в сессию короткую подпись, а не строку агента: до 17.10.2026 список её не узнавал
+    expect(describeUserAgent('Chrome')).toBe('Chrome');
+    expect(describeUserAgent('Chrome, macOS')).toBe('Chrome, macOS');
     expect(describeUserAgent('')).toBe('неизвестное устройство');
     expect(describeUserAgent('curl/8.4.0')).toBe('неизвестное устройство');
   });

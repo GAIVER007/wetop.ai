@@ -21,7 +21,7 @@ const routes: Record<WebVertical, string[]> = {
     '/rooms',
     '/rates',
     '/channels',
-    '/bar',
+    // `/bar` общий для всех направлений (ADR-178): бар филиала, страница сама зовёт requireVertical
     '/hotel-settings',
     '/finance',
     '/management/analytics/occupancy',
@@ -38,8 +38,8 @@ const routes: Record<WebVertical, string[]> = {
     '/kitchen',
     '/menu',
     '/stock',
-    '/payroll',
-    '/cashbox',
+    // `/payroll` общий для ресторана и салона (зарплата §19.2): страница сама зовёт requireVertical
+    // `/cashbox` общий для ресторана и салона (касса филиала §48): страница сама зовёт requireVertical
     '/drinks',
     '/restaurant-finance',
     '/restaurant-settings',

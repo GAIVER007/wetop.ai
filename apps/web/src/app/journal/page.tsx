@@ -30,6 +30,7 @@ import {
 import { Icon } from '../../components/icon';
 import { unstable_rethrow } from 'next/navigation';
 import '../directory.css';
+import { ACTION_RU, actionLabel, entityLabel } from './labels';
 
 interface AuditRow {
   id: string;
@@ -47,81 +48,7 @@ interface AuditRow {
   before?: Record<string, unknown>;
   after?: Record<string, unknown>;
 }
-const ACTION_RU: Record<string, string> = {
-  'finance.cash.operation': 'Кассовая операция',
-  'finance.cash.transfer': 'Перевод между счетами',
-  'finance.cash.operation.void': 'Кассовая операция аннулирована',
-  'finance.cash.category.created': 'Статья кассы создана',
-  'finance.cash.category.updated': 'Статья кассы изменена',
-  'hotel.payment_methods.updated': 'Способы оплаты объекта изменены',
-  'finance.cash.reconciliation': 'Касса пересчитана',
-  'finance.payment': 'Оплата принята',
-  'finance.refund': 'Возврат оплаты',
-  'finance.payment.void': 'Оплата аннулирована',
-  'finance.payment.replaced': 'Оплата изменена',
-  'finance.charge': 'Начисление добавлено',
-  'finance.stayExtra': 'Дополнительное проживание начислено',
-  'finance.charge.void': 'Начисление аннулировано',
-  'finance.folio.close': 'Счёт закрыт',
-  'finance.receipt.issued': 'Квитанция выдана',
-  'finance.payment_request.created': 'Счёт на оплату создан',
-  'finance.payment_request.paid': 'Счёт на оплату оплачен',
-  'finance.payment_request.cancelled': 'Счёт на оплату отменён',
-  'invite.created': 'Приглашение создано',
-  'invite.revoked': 'Приглашение отозвано',
-  'invite.accepted': 'Приглашение принято',
-  'membership.details.updated': 'Данные сотрудника изменены',
-  'bar.sale.posted': 'Продажа в баре',
-  'bar.sale.folio_posted': 'Продажа бара начислена в счёт',
-  'bar.sale.reversed': 'Продажа бара отменена',
-  'bar.supplier_payment.created': 'Оплата поставщику',
-  'bar.product.price_changed': 'Цена товара изменена',
-  'bar.receipt.posted': 'Приход товара проведён',
-  'bar.stock.written_off': 'Товар списан',
-  'bar.inventory.counted': 'Остатки пересчитаны',
-  'reservation.update': 'бронь изменена',
-  'reservation.updateItem': 'размещение изменено',
-  'reservation.item.price': 'цена проживания изменена',
-  'reservation.extend': 'проживание продлено',
-  'reservation.checkOut.withDebt': 'выезд с задолженностью',
-  'reservation.create': 'бронь создана',
-  'reservation.changeDates': 'даты изменены',
-  'reservation.cancel': 'бронь отменена',
-  'reservation.assign': 'ячейка назначена / переселение',
-  'reservation.checkIn': 'заселение',
-  'reservation.checkOut': 'выезд',
-  'reservation.noShow': 'незаезд',
-  'channex.booking.new': 'бронь из канала',
-  'channex.booking.modified': 'бронь из канала изменена',
-  'channex.booking.cancelled': 'бронь из канала отменена',
-  'channex.setup': 'Менеджер каналов: объект и категории',
-  'channex.fullSync': 'Менеджер каналов: полная выгрузка',
-  'channex.availabilityRead': 'Остатки в каналах проверены',
-  'location.salon_created': 'Салон создан',
-  'location.restaurant_created': 'Ресторан создан',
-  'rates.bulk': 'цены / ограничения изменены',
-  'unit.block': 'ячейка заблокирована',
-  'unit.unblock': 'блокировка снята',
-  'unit.housekeeping': 'статус уборки',
-  'guest.update': 'карточка гостя изменена',
-  'guest.document.add': 'документ гостя добавлен',
-  'guest.document.delete': 'документ гостя удалён',
-  'reservations.import': 'импорт броней',
-  'analytics.site.create': 'сайт со счётчиком добавлен',
-  'analytics.site.update': 'сайт со счётчиком изменён',
-  'analytics.site.delete': 'сайт со счётчиком удалён',
-  'user.login': 'вход в систему',
-  'user.logout': 'выход из системы',
-  'user.password.changed': 'пароль изменён',
-  'user.invited': 'сотрудник приглашён',
-  'user.created': 'сотрудник добавлен',
-  'user.blocked': 'сотрудник заблокирован',
-  'user.unblocked': 'сотрудник разблокирован',
-  // сотрудники и расширения организации (ADR-107, ADR-083): строки пишутся на организацию
-  'membership.removed': 'сотрудник отключён',
-  'membership.role.updated': 'роль сотрудника изменена',
-  'extension.updated': 'расширение изменено',
-};
+
 const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
   [null, 'все'],
   ['Reservation', 'брони'],
@@ -149,8 +76,8 @@ export default async function JournalPage({
   const desk = await deskShell();
   if (!mayAccess(desk.access, 'journal'))
     return (
-      <Page title="Журнал операций">
-        <Notice>Журнал операций доступен только владельцу.</Notice>
+      <Page title="История действий">
+        <Notice>История действий доступна только владельцу.</Notice>
       </Page>
     );
   const { type, q, system, actor, from, to, group, action, cursor } = normalizeSearchParams(
@@ -215,11 +142,11 @@ export default async function JournalPage({
     from ? `с ${from}` : '',
     to ? `по ${to}` : '',
     group === 'finance' ? 'касса и финансы' : group === 'staff' ? 'действия сотрудников' : '',
-    action ? (ACTION_RU[action] ?? action) : '',
+    action ? actionLabel(action) : '',
   ].filter(Boolean);
   return (
     <Page
-      title="Журнал операций"
+      title="История действий"
       subtitle={`Действия сотрудников и изменения денег. Время: ${clock.timezone}.`}
       actions={<RefreshButton />}
     >
@@ -231,14 +158,16 @@ export default async function JournalPage({
         </Notice>
       )}
       <details className="journal-filter-panel">
-        <summary>Фильтры журнала</summary>
+        <summary>Фильтры истории</summary>
         <form method="get" className="control-toolbar control-journal-search">
-          <Field label="Поиск в журнале">
+          <Field label="Поиск в истории">
             <Input
               key={`q-${needle}`}
               name="q"
-              aria-label="Поиск в журнале"
-              placeholder={desk.vertical === 'HOSPITALITY' ? 'Номер брони' : 'Действие или сотрудник'}
+              aria-label="Поиск в истории"
+              placeholder={
+                desk.vertical === 'HOSPITALITY' ? 'Номер брони' : 'Действие или сотрудник'
+              }
               defaultValue={needle}
             />
           </Field>
@@ -289,7 +218,7 @@ export default async function JournalPage({
             >
               <option value="">Все разделы</option>
               <option value="finance">Касса и финансы</option>
-              <option value="staff">Сотрудники и доступ</option>
+              <option value="staff">Сотрудники</option>
             </Select>
           </Field>
           <Field label="Действие">
@@ -325,7 +254,7 @@ export default async function JournalPage({
           )}
         </form>
       </details>
-      <nav className="chips" aria-label="Раздел журнала">
+      <nav className="chips" aria-label="Раздел истории">
         {filters.map(([t, label]) => (
           <Link
             key={label}
@@ -357,24 +286,6 @@ export default async function JournalPage({
     </Page>
   );
 }
-
-const ENTITY_RU: Record<string, string> = {
-  Reservation: 'Бронь',
-  InventoryUnit: 'Номер / койка',
-  Guest: 'Гость',
-  Property: 'Гостиница',
-  TrackedSite: 'Сайт',
-  CashOperation: 'Касса',
-  CashCategory: 'Статья кассы',
-  CashReconciliation: 'Сверка кассы',
-  Payment: 'Оплата',
-  Refund: 'Возврат',
-  Charge: 'Начисление',
-  Folio: 'Счёт',
-  organization: 'Организация',
-  location: 'Филиал',
-  user: 'Сотрудник',
-};
 
 async function JournalEntries({
   query,
@@ -455,7 +366,7 @@ async function JournalEntries({
                       )}
                     </td>
                     <td>
-                      <div>{ACTION_RU[r.action] ?? r.action}</div>
+                      <div>{actionLabel(r.action)}</div>
                       {(r.after?.amountMinor ?? r.before?.amountMinor) !== undefined && (
                         <strong>
                           {auditValue('amountMinor', r.after?.amountMinor ?? r.before?.amountMinor)}
@@ -467,7 +378,7 @@ async function JournalEntries({
                       />
                     </td>
                     <td>
-                      <span className="muted-2">{ENTITY_RU[r.entityType] ?? r.entityType}</span>
+                      <span className="muted-2">{entityLabel(r.entityType)}</span>
                       {r.subject && ' '}
                       {r.subject &&
                         (r.entityType === 'Reservation' && r.targetAvailable !== false ? (
@@ -489,7 +400,7 @@ async function JournalEntries({
         </Table>
       )}
       {rows && (hasMore || older) && (
-        <nav className="journal-pagination" aria-label="Страницы журнала">
+        <nav className="journal-pagination" aria-label="Страницы истории">
           {older && (
             <Link href={pageHref} className="btn btn--secondary">
               К новым операциям

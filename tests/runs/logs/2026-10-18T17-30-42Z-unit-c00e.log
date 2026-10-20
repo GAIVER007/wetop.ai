@@ -1,0 +1,45 @@
+# Модульные (unit) · 18.10.2026 22:30 Алматы · <сервер>
+# коммит 8a5ab94 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T17-30-42Z-unit-c00e.json' 'apps/web/src/app/reports/salon-reports.test.ts' 'apps/web/src/app/reports/salon-report-data.test.ts' 'apps/web/src/app/reports/salon-route.test.ts' 'apps/web/src/app/management/analytics/vertical/metrics.test.ts' 'apps/web/src/app/management/analytics/vertical/load.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ✓ |unit| apps/web/src/app/reports/salon-report-data.test.ts (5 tests) 29ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/load.test.ts (3 tests) 23ms
+ ✓ |unit| apps/web/src/app/management/analytics/vertical/metrics.test.ts (5 tests) 25ms
+ ❯ |unit| apps/web/src/app/reports/salon-reports.test.ts (5 tests | 1 failed) 72ms
+   ❯ salon report server permission boundary (5)
+     ✓ renders actual service and employee breakdowns without payment claims 23ms
+     × does not fetch report data for denied role STAFF 41ms
+     ✓ does not fetch report data for denied role RECEPTIONIST 1ms
+     ✓ does not fetch or substitute an invalid period 3ms
+     ✓ fails closed without partial values after API failure 1ms
+ ✓ |unit| apps/web/src/app/reports/salon-route.test.ts (2 tests) 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/reports/salon-reports.test.ts > salon report server permission boundary > does not fetch report data for denied role STAFF
+AssertionError: expected '<main id="main-content" tabindex="-1"…' to contain 'Нет доступа к отчётам'
+
+Expected: "Нет доступа к отчётам"
+Received: "<main id="main-content" tabindex="-1" class="page"><header class="page__head"><div class="page__heading"><h1 class="page__title">Отчёты</h1><div class="page__subtitle">Салон Пример</div></div></header><div class="salon-reports" data-testid="salon-reports"><form class="salon-reports__period" aria-label="Период отчёта" action="/reports"><label>С даты<input type="date" required="" name="from" value="2026-10-18"/></label><label>По дату<input type="date" required="" name="to" value="2026-10-18"/></label><input type="hidden" name="view" value="overview"/><button class="btn btn--primary" type="submit">Показать</button></form><p class="muted">18 окт.: 18 окт. включительно, по времени филиала. Период до 31 дня.</p><nav class="chips" aria-label="Вид отчёта"><a aria-current="page" href="/reports?from=2026-10-18&amp;to=2026-10-18&amp;view=overview">Обзор</a><a href="/reports?from=2026-10-18&amp;to=2026-10-18&amp;view=services">Услуги</a><a href="/reports?from=2026-10-18&amp;to=2026-10-18&amp;view=team">Специалисты</a><a href="/reports?from=2026-10-18&amp;to=2026-10-18&amp;view=statuses">Статусы</a></nav><section aria-label="Итоги KZT"><h2>KZT</h2><div class="salon-reports__kpis"><div class="kpi-tile"><span class="kpi-tile__head"><span class="kpi-tile__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wallet" aria-hidden="true"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path></svg></span><span class="kpi-tile__label">Стоимость оказанных услуг</span></span><span class="kpi-tile__row"><span class="kpi-tile__value" data-testid="salon-report-cost-KZT">16 000 ₸</span></span><span class="kpi-tile__caption">Снимки цен завершённых записей, не поступления</span></div><div class="kpi-tile"><span class="kpi-tile__head"><span class="kpi-tile__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span><span class="kpi-tile__label">Завершённые записи</span></span><span class="kpi-tile__row"><span class="kpi-tile__value">1</span></span><span class="kpi-tile__caption">Один визит считается один раз</span></div><div class="kpi-tile"><span class="kpi-tile__head"><span class="kpi-tile__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-receipt" aria-hidden="true"><path d="M12 17V7"></path><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8"></path><path d="M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z"></path></svg></span><span class="kpi-tile__label">Средняя стоимость записи</span></span><span class="kpi-tile__row"><span class="kpi-tile__value">16 000 ₸</span></span><span class="kpi-tile__caption">По завершённым записям</span></div><div class="kpi-tile"><span class="kpi-tile__head"><span class="kpi-tile__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg></span><span class="kpi-tile__label">Специалисты</span></span><span class="kpi-tile__row"><span class="kpi-tile__value">1</span></span><span class="kpi-tile__caption">Участвовали в завершённых записях</span></div></div></section><p class="muted">Валюты считаются отдельно, пересчёт не выполняется. Стоимость услуг не равна полученным оплатам, прибыли или зарплате.</p><section class="panel"><b class="panel__title">По услугам</b><div class="table-scroll" tabindex="0" role="region" aria-label="Завершённые услуги"><table class="tbl tbl--compact tbl--stack"><caption class="tbl__caption">Завершённые услуги</caption><thead><tr><th scope="col">Услуга</th><th scope="col">Записи</th><th scope="col">Услуги</th><th scope="col">Стоимость</th><th scope="col">Валюта</th></tr></thead><tbody><tr><td data-label="Услуга">Услуга Пример</td><td data-label="Записи">1</td><td data-label="Услуги">2</td><td data-label="Стоимость">16 000 ₸</td><td data-label="Валюта">KZT</td></tr></tbody></table></div></section><section class="panel"><b class="panel__title">Статусы записей</b><div class="table-scroll" tabindex="0" role="region" aria-label="Количество записей по статусам"><table class="tbl tbl--compact tbl--stack"><caption class="tbl__caption">Количество записей по статусам</caption><thead><tr><th scope="col">Статус</th><th scope="col">Записи</th></tr></thead><tbody><tr><td data-label="Статус">Запланировано</td><td data-label="Записи">0</td></tr><tr><td data-label="Статус">Подтверждено</td><td data-label="Записи">0</td></tr><tr><td data-label="Статус">В процессе</td><td data-label="Записи">0</td></tr><tr><td data-label="Статус">Завершено</td><td data-label="Записи">1</td></tr><tr><td data-label="Статус">Не пришли</td><td data-label="Записи">0</td></tr><tr><td data-label="Статус">Отменено</td><td data-label="Записи">0</td></tr></tbody></table></div></section><nav class="chips" aria-label="Связанные разделы"><a href="/management/analytics?from=2026-10-18&amp;to=2026-10-18">Аналитика филиалов</a><a href="/appointments?from=2026-10-18&amp;to=2026-10-18">Записи периода</a></nav></div></main>"
+
+ ❯ apps/web/src/app/reports/salon-reports.test.ts:29:18
+     27|     state.role = role;
+     28|     const html = renderToStaticMarkup(await SalonReportsScreen({ searc…
+     29|     expect(html).toContain('Нет доступа к отчётам');
+       |                  ^
+     30|     expect(select).not.toHaveBeenCalled();
+     31|     expect(load).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 19 passed (20)
+   Start at  17:30:43
+   Duration  2.18s (transform 70%, import 25%, tests 4%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-18T17-30-42Z-unit-c00e.json
+
+# код выхода 1 · 3 с

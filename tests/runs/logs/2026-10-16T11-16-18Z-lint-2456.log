@@ -1,0 +1,22 @@
+# Линтер (lint) · 16.10.2026 16:16 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 96
+# npx eslint .
+
+/srv/hermes/workspace/wetop-unified-owner-data/apps/api/src/finance/owner-money.ts
+  9:18  error  '_days' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/srv/hermes/workspace/wetop-unified-owner-data/apps/api/src/hospitality/inventory-history.test.ts
+  11:22  error  '_locationId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/srv/hermes/workspace/wetop-unified-owner-data/tests/integration/bar-location-children.test.ts
+  19:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/srv/hermes/workspace/wetop-unified-owner-data/tests/integration/occupancy-isolated.test.ts
+  108:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  110:82  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  112:63  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 6 problems (6 errors, 0 warnings)
+
+
+# код выхода 1 · 2 мин 13 с

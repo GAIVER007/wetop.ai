@@ -1,0 +1,456 @@
+# Сквозные (e2e) · 16.10.2026 16:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 38508b1 (claude/salon-refund), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' '--workers=1' 'tests/beauty-ui/beauty.spec.ts' 'tests/beauty-ui/employee-workspace.spec.ts' 'tests/beauty-ui/unified-growth.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 27 tests using 1 worker
+
+[WebServer] (node:10010) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '156259883'
+[WebServer] }
+  ✘   1 tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete (1.6m)
+  ✓   2 tests/beauty-ui/beauty.spec.ts:238:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (47.0s)
+  ✓   3 tests/beauty-ui/beauty.spec.ts:275:1 › existing customer can be selected for another appointment without duplication (12.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '156259883'
+[WebServer] }
+  ✘   4 tests/beauty-ui/beauty.spec.ts:303:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (29.2s)
+  ✘   5 tests/beauty-ui/beauty.spec.ts:303:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (1.6m)
+  ✘   6 tests/beauty-ui/beauty.spec.ts:303:5 › calendar and drawer 390 light, keyboard, axe, no overflow (1.6m)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '156259883'
+[WebServer] }
+  ✘   7 tests/beauty-ui/beauty.spec.ts:303:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (50.1s)
+  ✓   8 tests/beauty-ui/beauty.spec.ts:384:1 › archived service and employee preserve historical calendar appointments (9.3s)
+  ✘   9 tests/beauty-ui/beauty.spec.ts:418:1 › TimeOff from employee drawer, server denial and timezone persisted (53.5s)
+  ✓  10 tests/beauty-ui/beauty.spec.ts:470:1 › DS1c: day navigation keeps the previous addresses (11.6s)
+  ✘  11 tests/beauty-ui/beauty.spec.ts:485:1 › Beauty onboarding v2 completes a ready branch and resumes Today (39.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '156259883'
+[WebServer] }
+  ✘  12 tests/beauty-ui/employee-workspace.spec.ts:69:1 › minimal create, saved ID, reload and actual desktop/mobile themes (27.5s)
+  ✓  13 tests/beauty-ui/employee-workspace.spec.ts:106:1 › two stale forms keep the second draft and show the current profile (26.3s)
+  ✓  14 tests/beauty-ui/employee-workspace.spec.ts:134:1 › dirty stay, discard and save before tabs/close; failed save keeps draft (10.4s)
+  ✓  15 tests/beauty-ui/employee-workspace.spec.ts:178:1 › Back/Forward and keyboard tabs retain a consistent employee URL (7.9s)
+  ✓  16 tests/beauty-ui/employee-workspace.spec.ts:209:1 › inaccessible deep link is neutral and old Beauty entry remains compatible (35.0s)
+  ✓  17 tests/beauty-ui/employee-workspace.spec.ts:221:1 › lost create response is recovered on reload using one persistent operation (40.4s)
+  ✓  18 tests/beauty-ui/employee-workspace.spec.ts:284:1 › late schedule A cannot populate employee B or a new employee (35.0s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  19 tests/beauty-ui/employee-workspace.spec.ts:333:1 › a scope-switch event invalidates an in-flight profile response (14.4s)
+  ✓  20 tests/beauty-ui/employee-workspace.spec.ts:380:1 › services cannot restore a stale name and profile cannot restore stale services (17.9s)
+  ✓  21 tests/beauty-ui/employee-workspace.spec.ts:424:1 › native beforeunload protects reload and preserves draft when dismissed (16.9s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '2587204292'
+[WebServer] }
+  ✓  22 tests/beauty-ui/employee-workspace.spec.ts:449:1 › dirty internal navigation asks before leaving and stays on failure (11.4s)
+  ✓  23 tests/beauty-ui/employee-workspace.spec.ts:469:1 › profile fields, keyboard focus and contrast pass an axe audit (25.4s)
+  ✓  24 tests/beauty-ui/employee-workspace.spec.ts:486:1 › pending services save cannot mark a later checkbox edit as saved (18.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '156259883'
+[WebServer] }
+  ✘  25 tests/beauty-ui/employee-workspace.spec.ts:534:1 › saving dirty creation before close leaves one saved employee and a closed card (35.9s)
+  ✘  26 tests/beauty-ui/employee-workspace.spec.ts:553:1 › a later week edit stays dirty after the submitted week is saved (1.1m)
+  ✘  27 tests/beauty-ui/unified-growth.spec.ts:130:1 › салон: продажи, финансы и маркетинг на данных филиала (1.8m)
+
+
+  1) tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: apiRequestContext.get: Request context disposed.
+    Call log:
+      - → GET http://127.0.0.1:26844/__test/calls
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+
+      227 |   await page.goto('/customers');
+      228 |   await expect(page.getByRole('main')).toContainText('Тестовая клиентка');
+    > 229 |   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
+          |                                                ^
+      230 |   expect(
+      231 |     calls.filter(
+      232 |       (p) =>
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/beauty-ui/beauty.spec.ts:229:48
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/beauty-ui/beauty.spec.ts:303:5 › calendar and drawer 1440 light, keyboard, axe, no overflow 
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  getByRole('dialog')
+    Expected: hidden
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeHidden" getByRole('dialog') with timeout 5000ms
+      - waiting for getByRole('dialog')
+        13 × locator resolved to <dialog open="" class="ui-overlay ui-drawer  " aria-labelledby="_R_8n5esndklmlb_">…</dialog>
+           - unexpected value "visible"
+
+
+      340 |       await page.emulateMedia({ colorScheme: theme });
+      341 |       await page.goto(`/calendar?date=${day}`);
+    > 342 |       await expect(await book(page)).toBeHidden();
+          |                                      ^
+      343 |       await page.reload();
+      344 |       if (width === 390) {
+      345 |         await expect(page.getByTestId('beauty-mobile-calendar')).toBeVisible();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/beauty-ui/beauty.spec.ts:342:38
+
+    Error Context: test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-6d7b8-ht-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/beauty-ui/beauty.spec.ts:303:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: page.screenshot: Test timeout of 90000ms exceeded.
+    Call log:
+      - taking page screenshot
+      - waiting for fonts to load...
+      - fonts loaded
+
+
+      374 |         ).toBeLessThanOrEqual(1);
+      375 |         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    > 376 |         await page.screenshot({
+          |                    ^
+      377 |           path: `${shots}/${path.split('?')[0]!.slice(1)}-${width}-${theme}.png`,
+      378 |           fullPage: true,
+      379 |         });
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/beauty-ui/beauty.spec.ts:376:20
+
+    Error Context: test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-84dea-rk-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/beauty-ui/beauty.spec.ts:303:5 › calendar and drawer 390 light, keyboard, axe, no overflow 
+
+    Test timeout of 90000ms exceeded.
+
+    Error Context: test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-cb917-ht-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/beauty-ui/beauty.spec.ts:303:5 › calendar and drawer 390 dark, keyboard, axe, no overflow 
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  getByRole('dialog')
+    Expected: hidden
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeHidden" getByRole('dialog') with timeout 5000ms
+      - waiting for getByRole('dialog')
+        8 × locator resolved to <dialog open="" class="ui-overlay ui-drawer  " aria-labelledby="_R_8n5esndklmlb_">…</dialog>
+          - unexpected value "visible"
+
+
+      340 |       await page.emulateMedia({ colorScheme: theme });
+      341 |       await page.goto(`/calendar?date=${day}`);
+    > 342 |       await expect(await book(page)).toBeHidden();
+          |                                      ^
+      343 |       await page.reload();
+      344 |       if (width === 390) {
+      345 |         await expect(page.getByTestId('beauty-mobile-calendar')).toBeVisible();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/beauty-ui/beauty.spec.ts:342:38
+
+    Error Context: test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/error-context.md
+
+    Error Context: test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-calendar-and-drawer-390-dark-keyboard-axe-no-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/beauty-ui/beauty.spec.ts:418:1 › TimeOff from employee drawer, server denial and timezone persisted 
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  getByRole('dialog')
+    Expected: hidden
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeHidden" getByRole('dialog') with timeout 5000ms
+      - waiting for getByRole('dialog')
+        12 × locator resolved to <dialog open="" class="ui-overlay ui-drawer  " aria-labelledby="_R_8n5esndklmlb_">…</dialog>
+           - unexpected value "visible"
+
+
+      451 |   ).toBe(true);
+      452 |   await page.reload();
+    > 453 |   await expect(await book(page)).toBeHidden();
+          |                                  ^
+      454 |   const data = await (
+      455 |     await request.get(`${api}/beauty/appointments?date=${day}`, { headers: f.headers })
+      456 |   ).json();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/beauty-ui/beauty.spec.ts:453:34
+
+    Error Context: test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/error-context.md
+
+    Error Context: test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-TimeOff-from-employ-f5856-nial-and-timezone-persisted/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/beauty-ui/beauty.spec.ts:485:1 › Beauty onboarding v2 completes a ready branch and resumes Today 
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator: getByRole('main').getByRole('button', { name: 'Завершить настройку' })
+    Expected: disabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeDisabled" getByRole('main').getByRole('button', { name: 'Завершить настройку' }) with timeout 5000ms
+      - waiting for getByRole('main').getByRole('button', { name: 'Завершить настройку' })
+
+
+      491 |   await main.getByLabel('Название филиала').fill('Тестовый филиал');
+      492 |   await main.getByRole('button', { name: 'Сохранить и продолжить', exact: true }).click();
+    > 493 |   await expect(main.getByRole('button', { name: 'Завершить настройку' })).toBeDisabled();
+          |                                                                           ^
+      494 |   await seed(page, request, f);
+      495 |   await main.getByRole('button', { name: 'Обновить проверку', exact: true }).click();
+      496 |   await expect(main.getByRole('status').filter({ hasText: 'Выполнено' })).toContainText('Выполнено 4 из 4');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/beauty-ui/beauty.spec.ts:493:75
+
+    Error Context: test-results/beauty-Beauty-onboarding-v-b36e7-dy-branch-and-resumes-Today/error-context.md
+
+    Error Context: test-results/beauty-Beauty-onboarding-v-b36e7-dy-branch-and-resumes-Today/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-Beauty-onboarding-v-b36e7-dy-branch-and-resumes-Today/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-Beauty-onboarding-v-b36e7-dy-branch-and-resumes-Today/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/beauty-ui/employee-workspace.spec.ts:69:1 › minimal create, saved ID, reload and actual desktop/mobile themes 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('status').filter({ hasText: 'Мастер создан' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('status').filter({ hasText: 'Мастер создан' }) with timeout 5000ms
+      - waiting for getByRole('status').filter({ hasText: 'Мастер создан' })
+
+
+      81 |     .fill('Тестовый мастер с длинным именем для проверки переноса');
+      82 |   await panel.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+    > 83 |   await expect(page.getByRole('status').filter({ hasText: 'Мастер создан' })).toBeVisible();
+         |                                                                               ^
+      84 |   await expect(page).toHaveURL(/employee=[0-9a-f-]+#profile/);
+      85 |   const id = new URL(page.url()).searchParams.get('employee');
+      86 |   const rows = await read(request, f.headers);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/beauty-ui/employee-workspace.spec.ts:83:79
+
+    Error Context: test-results/employee-workspace-minimal-5efbc-ctual-desktop-mobile-themes/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/employee-workspace-minimal-5efbc-ctual-desktop-mobile-themes/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/employee-workspace-minimal-5efbc-ctual-desktop-mobile-themes/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/beauty-ui/employee-workspace.spec.ts:534:1 › saving dirty creation before close leaves one saved employee and a closed card 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('dialog').visible()
+    Expected: 0
+    Received: 2
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('dialog').visible() with timeout 5000ms
+      - waiting for getByRole('dialog').visible()
+        14 × locator resolved to 2 elements
+           - unexpected value "2"
+
+
+      544 |   await confirm(page).getByRole('button', { name: 'Сохранить и перейти' }).click();
+      545 |   await expect(page).toHaveURL(/\/employees$/);
+    > 546 |   await expect(page.getByRole('dialog').filter({ visible: true })).toHaveCount(0);
+          |                                                                    ^
+      547 |   expect(await read(request, f.headers)).toHaveLength(1);
+      548 |   await page.reload();
+      549 |   await expect(page).toHaveURL(/\/employees$/);
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/beauty-ui/employee-workspace.spec.ts:546:68
+
+    Error Context: test-results/employee-workspace-saving--30679--employee-and-a-closed-card/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/employee-workspace-saving--30679--employee-and-a-closed-card/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/employee-workspace-saving--30679--employee-and-a-closed-card/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/beauty-ui/employee-workspace.spec.ts:553:1 › a later week edit stays dirty after the submitted week is saved 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Мастер', exact: true }).visible().getByRole('status').filter({ hasText: 'График сохранён' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Мастер', exact: true }).visible().getByRole('status').filter({ hasText: 'График сохранён' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Мастер', exact: true }).visible().getByRole('status').filter({ hasText: 'График сохранён' })
+
+
+      585 |   await expect(
+      586 |     dialog(page).getByRole('status').filter({ hasText: 'График сохранён' }),
+    > 587 |   ).toBeVisible();
+          |     ^
+      588 |   await expect(end).toHaveValue('19:00');
+      589 |   const saved = await (
+      590 |     await request.get(`${api}/beauty/schedule?employee=${f.employee.id}`, { headers: f.headers })
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/beauty-ui/employee-workspace.spec.ts:587:5
+
+    Error Context: test-results/employee-workspace-a-later-f953b-the-submitted-week-is-saved/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/employee-workspace-a-later-f953b-the-submitted-week-is-saved/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/employee-workspace-a-later-f953b-the-submitted-week-is-saved/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/beauty-ui/unified-growth.spec.ts:130:1 › салон: продажи, финансы и маркетинг на данных филиала 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: page.goto: Test timeout of 90000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:26843/marketing/budget", waiting until "load"
+
+
+       at ../ui/fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/ui/fixtures.ts:166:30)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/beauty-ui/unified-growth.spec.ts:166:3
+
+    Error Context: test-results/unified-growth-салон-прода-510cd-маркетинг-на-данных-филиала/error-context.md
+
+    Error Context: test-results/unified-growth-салон-прода-510cd-маркетинг-на-данных-филиала/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-growth-салон-прода-510cd-маркетинг-на-данных-филиала/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-growth-салон-прода-510cd-маркетинг-на-данных-филиала/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11 failed
+    tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+    tests/beauty-ui/beauty.spec.ts:303:5 › calendar and drawer 1440 light, keyboard, axe, no overflow 
+    tests/beauty-ui/beauty.spec.ts:303:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow 
+    tests/beauty-ui/beauty.spec.ts:303:5 › calendar and drawer 390 light, keyboard, axe, no overflow 
+    tests/beauty-ui/beauty.spec.ts:303:5 › calendar and drawer 390 dark, keyboard, axe, no overflow 
+    tests/beauty-ui/beauty.spec.ts:418:1 › TimeOff from employee drawer, server denial and timezone persisted 
+    tests/beauty-ui/beauty.spec.ts:485:1 › Beauty onboarding v2 completes a ready branch and resumes Today 
+    tests/beauty-ui/employee-workspace.spec.ts:69:1 › minimal create, saved ID, reload and actual desktop/mobile themes 
+    tests/beauty-ui/employee-workspace.spec.ts:534:1 › saving dirty creation before close leaves one saved employee and a closed card 
+    tests/beauty-ui/employee-workspace.spec.ts:553:1 › a later week edit stays dirty after the submitted week is saved 
+    tests/beauty-ui/unified-growth.spec.ts:130:1 › салон: продажи, финансы и маркетинг на данных филиала 
+  16 passed (19.6m)
+
+# код выхода 1 · 19 мин 42 с

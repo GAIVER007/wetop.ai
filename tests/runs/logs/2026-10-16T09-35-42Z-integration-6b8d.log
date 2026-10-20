@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 16.10.2026 14:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит 823661d (claude/marketing-expense-files), незакоммиченных файлов набора: 14
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T09-35-42Z-integration-6b8d.json' 'tests/integration/marketing-budget-db.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |integration| tests/integration/marketing-budget-db.test.ts (6 tests) 45ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  02:35:44
+   Duration  3.99s (transform 83%, import 14%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T09-35-42Z-integration-6b8d.json
+
+# код выхода 0 · 5 с

@@ -1,0 +1,66 @@
+# Интеграционные (integration) · 16.10.2026 15:41 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 48
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T10-41-33Z-integration-02a5.json' '--config' 'tests/hotel-cash-isolated.config.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/hotel-cash-intent-isolated.test.ts (4 tests | 3 failed) 1130ms
+   × repository direct guard replays, rejects changes and missing key, concurrent fee once, transfer remains transfer 128ms
+   ✓ audit failure rolls back main fee and intent, same key can retry 50ms
+   × reconciliation adjustment replays once despite changed derived balance 48ms
+   × feature off accepts missing key and bypasses held SQL in legacy adapter 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/hotel-cash-intent-isolated.test.ts > repository direct guard replays, rejects changes and missing key, concurrent fee once, transfer remains transfer
+AssertionError: expected '9ad05ca6-7f36-4d0d-bec9-d32658d79a1e' to be '169457c2-33c3-40bb-8643-5eca1ddaaf4c' // Object.is equality
+
+Expected: "169457c2-33c3-40bb-8643-5eca1ddaaf4c"
+Received: "9ad05ca6-7f36-4d0d-bec9-d32658d79a1e"
+
+ ❯ tests/integration/hotel-cash-intent-isolated.test.ts:22:56
+     20| it('repository direct guard replays, rejects changes and missing key, …
+     21|  const p=body();const first=await scoped(()=>repo.createCashOperation(…
+     22|  expect(await scoped(()=>repo.createCashOperation(p))).toBe(first);
+       |                                                        ^
+     23|  await expect(scoped(()=>repo.createCashOperation({...p,amountMinor:10…
+     24|  await expect(scoped(()=>repo.createCashOperation({...p,idempotencyKey…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |integration| tests/integration/hotel-cash-intent-isolated.test.ts > reconciliation adjustment replays once despite changed derived balance
+AssertionError: expected 'efe58c9a-daa8-4461-aa42-56fefe27f41e' to be '38518bcc-00a6-463c-962f-f190aa94e503' // Object.is equality
+
+Expected: "38518bcc-00a6-463c-962f-f190aa94e503"
+Received: "efe58c9a-daa8-4461-aa42-56fefe27f41e"
+
+ ❯ tests/integration/hotel-cash-intent-isolated.test.ts:39:160
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/hotel-cash-intent-isolated.test.ts > feature off accepts missing key and bypasses held SQL in legacy adapter
+TypeError: Cannot read properties of undefined (reading 'create')
+ ❯ createHotelCash apps/api/src/finance/hotel-cash.ts:5:74
+      3| /** Default-off compatibility: no held column is referenced before cut…
+      4| export async function createHotelCash(tx: DbTx, data: Prisma.CashOpera…
+      5|   if (process.env.EXPENSE_LINKS_ENABLED !== '1') return tx.cashOperati…
+       |                                                                          ^
+      6|   // Lock the verified property's currency until the event commits; ne…
+      7|   const [property] = await tx.$queryRaw<Array<{currency:string}>>`SELE…
+ ❯ apps/api/src/finance/finance.repository.ts:1312:26
+ ❯ PrismaFinanceRepository.withAudit apps/api/src/finance/finance.repository.ts:867:24
+ ❯ PrismaFinanceRepository.createCashOperation apps/api/src/finance/finance.repository.ts:1311:28
+ ❯ tests/integration/hotel-cash-intent-isolated.test.ts:47:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 1 passed (4)
+   Start at  10:41:37
+   Duration  7.48s (transform 61%, import 23%, tests 16%)
+
+JSON report written to /tmp/pms-test-2026-10-16T10-41-33Z-integration-02a5.json
+
+# код выхода 1 · 12 с

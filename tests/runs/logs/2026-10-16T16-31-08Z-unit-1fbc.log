@@ -1,0 +1,16 @@
+# Модульные (unit) · 16.10.2026 21:31 Алматы · Noutbuk-Vyacheslav.local
+# коммит f0d80f7 (claude/modest-lovelace-429ae7), незакоммиченных файлов набора: 49
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-31-08Z-unit-1fbc.json' 'tests/unit/supertest-loopback.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/modest-lovelace-429ae7
+
+ ✓ |unit| tests/unit/supertest-loopback.test.ts (1 test) 63ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  09:31:09
+   Duration  147ms (tests 78%, transform 13%, import 7%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-31-08Z-unit-1fbc.json
+
+# код выхода 0 · 1 с

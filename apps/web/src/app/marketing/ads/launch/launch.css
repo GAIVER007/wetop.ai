@@ -1,0 +1,43 @@
+/* Мастер «Новая кампания с ИИ» и экран шагов запуска (DATA_MODEL §57, ADR-MKT-LAUNCH). Только токены; примитивы
+   (.panel, .field, .seg, .switch) живут в components.css, здесь свои классы раздела. */
+@layer sections {
+  .ad-wizard__preview {
+    display: block;
+    max-width: 100%;
+    max-height: 240px;
+    object-fit: contain;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  .ad-wizard__find {
+    display: flex;
+    align-items: flex-end;
+  }
+  .ad-wizard__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ad-steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ad-steps__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-md);
+    color: var(--text-2);
+  }
+  .ad-steps__item[data-state='done'] {
+    color: var(--text);
+  }
+}

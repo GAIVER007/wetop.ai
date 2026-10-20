@@ -1,0 +1,208 @@
+# Интеграционные (integration) · 17.10.2026 01:19 Алматы · <сервер>
+# коммит d02dcbf (feat/employee-portal-release-20261016)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T20-19-08Z-integration-246e.json' 'tests/integration/closed-folio-http.test.ts' 'tests/integration/reset-token-http.test.ts' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-portal-release-61af7b90
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects PATCH price after closing a paid folio and rolls back all writes
+paid folio closed via HTTP {
+  folioId: 'f844d16d-ba02-4ab8-882a-35b437ebecea',
+  status: 200,
+  balanceMinor: '0'
+}
+
+(node:3256785) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects PATCH price after closing a paid folio and rolls back all writes
+closed folio PATCH price {
+  status: 409,
+  body: {
+    message: 'Счёт f844d16d-ba02-4ab8-882a-35b437ebecea закрыт',
+    error: 'Conflict',
+    statusCode: 409
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects cancellation without changing the closed folio, stay or audit
+paid folio closed via HTTP {
+  folioId: '14ec3c43-ff91-461e-b3a9-e0044ab0dd0d',
+  status: 200,
+  balanceMinor: '0'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects direct penalty creation against a closed folio inside the reservation transaction
+paid folio closed via HTTP {
+  folioId: '28dbda72-1276-4b38-b9fb-dfda9d0f6d29',
+  status: 200,
+  balanceMinor: '0'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects closed folio real-stock bar reversal over HTTP (restock=true)
+real-stock bar reversal {
+  closed: true,
+  restock: true,
+  saleId: '84d1154d-7b09-4992-b295-04f04afcf5a9',
+  folioId: '99259d26-f900-4a3f-a59e-f58a30be2a45',
+  status: 409,
+  body: {
+    message: 'Счёт 99259d26-f900-4a3f-a59e-f58a30be2a45 закрыт',
+    error: 'Conflict',
+    statusCode: 409
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects closed folio real-stock bar reversal over HTTP (restock=true)
+real-stock invariant evidence {
+  closed: true,
+  restock: true,
+  saleId: '84d1154d-7b09-4992-b295-04f04afcf5a9',
+  initialUnits: '7',
+  soldUnits: '4',
+  remainingUnits: [ '0', '3' ],
+  movements: 4,
+  balanceMinor: '0',
+  retries: 'same and opposite flag: 409, unchanged'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects closed folio real-stock bar reversal over HTTP (restock=false)
+real-stock bar reversal {
+  closed: true,
+  restock: false,
+  saleId: '1d1170e8-f4dc-4e77-98ef-97b661b44f28',
+  folioId: '3c9dad2a-93db-45c4-abe1-ee8eedda59c7',
+  status: 409,
+  body: {
+    message: 'Счёт 3c9dad2a-93db-45c4-abe1-ee8eedda59c7 закрыт',
+    error: 'Conflict',
+    statusCode: 409
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects closed folio real-stock bar reversal over HTTP (restock=false)
+real-stock invariant evidence {
+  closed: true,
+  restock: false,
+  saleId: '1d1170e8-f4dc-4e77-98ef-97b661b44f28',
+  initialUnits: '7',
+  soldUnits: '4',
+  remainingUnits: [ '0', '3' ],
+  movements: 4,
+  balanceMinor: '0',
+  retries: 'same and opposite flag: 409, unchanged'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows open folio real-stock bar reversal over HTTP (restock=true)
+real-stock bar reversal {
+  closed: false,
+  restock: true,
+  saleId: '3685963a-80f7-4e5d-832c-42baa263489b',
+  folioId: '159db852-abf8-4005-8554-ed8950ae1147',
+  status: 201,
+  body: {
+    kind: 'reversed',
+    id: '3685963a-80f7-4e5d-832c-42baa263489b',
+    status: 'REVERSED',
+    restocked: true
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows open folio real-stock bar reversal over HTTP (restock=true)
+real-stock invariant evidence {
+  closed: false,
+  restock: true,
+  saleId: '3685963a-80f7-4e5d-832c-42baa263489b',
+  initialUnits: '7',
+  soldUnits: '4',
+  remainingUnits: [ '3', '4' ],
+  movements: 6,
+  balanceMinor: '-400',
+  retries: 'same and opposite flag: 409, unchanged'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows open folio real-stock bar reversal over HTTP (restock=false)
+real-stock bar reversal {
+  closed: false,
+  restock: false,
+  saleId: '36c96d04-b30c-4392-be82-dd36823fc113',
+  folioId: 'd370370c-b7eb-4aa5-805f-6325968a3123',
+  status: 201,
+  body: {
+    kind: 'reversed',
+    id: '36c96d04-b30c-4392-be82-dd36823fc113',
+    status: 'REVERSED',
+    restocked: false
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows open folio real-stock bar reversal over HTTP (restock=false)
+real-stock invariant evidence {
+  closed: false,
+  restock: false,
+  saleId: '36c96d04-b30c-4392-be82-dd36823fc113',
+  initialUnits: '7',
+  soldUnits: '4',
+  remainingUnits: [ '0', '3' ],
+  movements: 4,
+  balanceMinor: '-400',
+  retries: 'same and opposite flag: 409, unchanged'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows an unchanged accommodation sync on a closed folio
+paid folio closed via HTTP {
+  folioId: '3abfc12b-77ed-4ef3-9f79-92027a2bc4ae',
+  status: 200,
+  balanceMinor: '0'
+}
+
+ ✓ |integration| tests/integration/closed-folio-http.test.ts (13 tests) 2604ms
+   ✓ closed folio charge mutations through HTTP (13)
+     ✓ rejects closed folio real-stock bar reversal over HTTP (restock=true) 341ms
+ ✓ |integration| tests/integration/reset-token-http.test.ts (12 tests) 3087ms
+   ✓ password reset over real AuthModule HTTP and PostgreSQL (12)
+     ✓ concurrent same-token HTTP confirms have exactly one winner, one password and one audit 455ms
+     ✓ success revokes every live session across organizations, not another user or already-revoked time 476ms
+ ❯ |integration| tests/integration/rls-isolation.test.ts (6 tests | 1 failed) 1041ms
+   ❯ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     × каждая таблица схемы названа: арендаторская под RLS или осознанно без него 15ms
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 534ms
+     ✓ гость чужой организации не виден своей; без переменной не видно ничего 41ms
+     ✓ записать бронь в объект чужой организации нельзя — отказ базы 38ms
+     ✓ служебная роль видит объект целиком — фоновые циклы и вебхуки работают как раньше 34ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 336ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > каждая таблица схемы названа: арендаторская под RLS или осознанно без него
+AssertionError: expected [ 'beauty_payroll_policies', …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "beauty_payroll_policies",
++   "employee_media",
++   "employee_portfolio_items",
++   "employee_public_profiles",
++ ]
+
+ ❯ tests/integration/rls-isolation.test.ts:112:83
+    110|     );
+    111|     const known = new Set([...RLS_TENANT_TABLES, ...RLS_NO_TENANT_TABL…
+    112|     expect(res.rows.map((r) => r.table_name).filter((t) => !known.has(…
+       |                                                                                   ^
+    113|     const rls = await client.query<{ relname: string; relforcerowsecur…
+    114|       `SELECT c.relname, c.relforcerowsecurity FROM pg_class c JOIN pg…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 30 passed (31)
+   Start at  20:19:09
+   Duration  12.54s (tests 64%, transform 20%, import 15%)
+
+JSON report written to /tmp/pms-test-2026-10-16T20-19-08Z-integration-246e.json
+
+# код выхода 1 · 14 с

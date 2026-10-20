@@ -1,0 +1,74 @@
+# Модульные (unit) · 19.10.2026 17:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8344c59 (claude/salon-cash-rights), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T12-23-55Z-unit-4b39.json' 'tests/unit/branch-cash-actions.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/eaddd23c-190d-4f0e-994d-e1a1f6c746f9/scratchpad/wt-rel
+
+ ❯ |unit| tests/unit/branch-cash-actions.test.ts (13 tests | 2 failed) 409ms
+   ✓ branch cash server actions use verified capability context (9)
+     ✓ accepts shared branch cash for BEAUTY without rewriting the monetary command 403ms
+     ✓ accepts shared branch cash for FOOD_SERVICE without rewriting the monetary command 0ms
+     ✓ rejects changed form context other-business:synthetic-location before API 0ms
+     ✓ rejects changed form context synthetic-business:other-location before API 0ms
+     ✓ does not open restaurant menu operations to beauty 0ms
+     ✓ does not move hotel folio cash into the branch ledger 0ms
+     ✓ fails closed for an unrecognized role 0ms
+     ✓ keeps API denial as failure, never a false success 0ms
+     ✓ rejects organization read-only state before monetary API 0ms
+   ❯ salon positions decide branch cash rights in ASSIGNED mode (4)
+     × lets STAFF with finance.refund void an operation 3ms
+     × blocks STAFF without finance.create before the API 0ms
+     ✓ lets STAFF with finance.update reconcile the register 0ms
+     ✓ keeps the legacy role rule in a restaurant: STAFF cannot void 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/branch-cash-actions.test.ts > salon positions decide branch cash rights in ASSIGNED mode > lets STAFF with finance.refund void an operation
+AssertionError: expected { Object (error) } to deeply equal { error: null }
+
+- Expected
++ Received
+
+  {
+-   "error": null,
++   "error": "Нет права на эту кассовую операцию.",
+  }
+
+ ❯ tests/unit/branch-cash-actions.test.ts:132:101
+    130|   it('lets STAFF with finance.refund void an operation', async () => {
+    131|     m.me.mockResolvedValue(staff([{ section: 'finance', action: 'refun…
+    132|     expect(await mutateCash('synthetic-business:synthetic-location', {…
+       |                                                                                                     ^
+    133|       error: null,
+    134|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/branch-cash-actions.test.ts > salon positions decide branch cash rights in ASSIGNED mode > blocks STAFF without finance.create before the API
+AssertionError: expected null to be truthy
+
+- Expected:
+true
+
++ Received:
+null
+
+ ❯ tests/unit/branch-cash-actions.test.ts:139:88
+    137|   it('blocks STAFF without finance.create before the API', async () =>…
+    138|     m.me.mockResolvedValue(staff([{ section: 'finance', action: 'refun…
+    139|     expect((await mutateCash('synthetic-business:synthetic-location', …
+       |                                                                                        ^
+    140|     expect(m.operation).not.toHaveBeenCalled();
+    141|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 11 passed (13)
+   Start at  05:23:57
+   Duration  564ms (tests 82%, transform 14%, import 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T12-23-55Z-unit-4b39.json
+
+# код выхода 1 · 2 с

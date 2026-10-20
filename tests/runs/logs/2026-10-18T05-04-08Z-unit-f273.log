@@ -1,0 +1,62 @@
+# Модульные (unit) · 18.10.2026 10:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1321d10 (claude/hermes-cache-prune), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T05-04-08Z-unit-f273.json' 'tests/unit/hermes-workspace-prune.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+ ❯ |unit| tests/unit/hermes-workspace-prune.test.ts (2 tests | 2 failed) 15ms
+   ❯ scripts/ops/hermes-workspace-prune.sh (2)
+     × убирает только кэши давно стоящей копии; свежая копия, исходники, .git и отчёты остаются 9ms
+     × --dry-run ничего не удаляет и не трогает docker 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/hermes-workspace-prune.test.ts > scripts/ops/hermes-workspace-prune.sh > убирает только кэши давно стоящей копии; свежая копия, исходники, .git и отчёты остаются
+AssertionError: bash: /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/scripts/ops/hermes-workspace-prune.sh: No such file or directory
+: expected 127 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 127
+
+ ❯ tests/unit/hermes-workspace-prune.test.ts:62:27
+     60|   it('убирает только кэши давно стоящей копии; свежая копия, исходники…
+     61|     const r = run();
+     62|     expect(r.code, r.out).toBe(0);
+       |                           ^
+     63|     expect(existsSync(join(root, 'old/node_modules'))).toBe(false);
+     64|     expect(existsSync(join(root, 'old/apps/web/.next'))).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/hermes-workspace-prune.test.ts > scripts/ops/hermes-workspace-prune.sh > --dry-run ничего не удаляет и не трогает docker
+AssertionError: bash: /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2/scripts/ops/hermes-workspace-prune.sh: No such file or directory
+: expected 127 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 127
+
+ ❯ tests/unit/hermes-workspace-prune.test.ts:76:27
+     74|   it('--dry-run ничего не удаляет и не трогает docker', () => {
+     75|     const r = run(['--dry-run']);
+     76|     expect(r.code, r.out).toBe(0);
+       |                           ^
+     77|     expect(r.out).toContain('убралось бы: ./old/node_modules');
+     78|     expect(existsSync(join(root, 'old/node_modules/pkg/index.js'))).to…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  22:04:10
+   Duration  101ms (tests 44%, transform 34%, import 15%, worker 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T05-04-08Z-unit-f273.json
+
+# код выхода 1 · 1 с

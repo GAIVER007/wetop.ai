@@ -1,0 +1,52 @@
+# Сквозные (e2e) · 17.10.2026 17:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 62ff581 (claude/fix-employee-card-late-close)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' 'tests/beauty-ui/employee-workspace.spec.ts:284' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/beauty-ui/employee-workspace.spec.ts:284:1 › late schedule A cannot populate employee B or a new employee (7.0s)
+
+
+  1) tests/beauty-ui/employee-workspace.spec.ts:284:1 › late schedule A cannot populate employee B or a new employee 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /employee=8a2acbb8-f818-41ef-8684-b401dc6a1e96/
+    Received string:  "http://127.0.0.1:26983/employees#schedule"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        14 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__ZO6gzq__variable">…</html>
+           - unexpected value "http://127.0.0.1:26983/employees#schedule"
+
+
+      328 |   await dialog(page).getByRole('tab', { name: 'График' }).click();
+      329 |   await expect(dialog(page).getByText('Тестовая причина только А', { exact: true })).toHaveCount(0);
+    > 330 |   await expect(page).toHaveURL(new RegExp(`employee=${b.id}`));
+          |                      ^
+      331 | });
+      332 |
+      333 | test('a scope-switch event invalidates an in-flight profile response', async ({
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/m663/tests/beauty-ui/employee-workspace.spec.ts:330:22
+
+    Error Context: test-results/employee-workspace-late-sc-6cf0e-mployee-B-or-a-new-employee/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/employee-workspace-late-sc-6cf0e-mployee-B-or-a-new-employee/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/employee-workspace-late-sc-6cf0e-mployee-B-or-a-new-employee/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/beauty-ui/employee-workspace.spec.ts:284:1 › late schedule A cannot populate employee B or a new employee 
+
+# код выхода 1 · 13 с

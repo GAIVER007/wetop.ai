@@ -10,6 +10,8 @@ import {
 } from '../auth/request-context';
 import { isOverlapViolation, type DbTx } from '@pms/database';
 import type { PrismaService } from '../database/prisma.provider';
+import { currentBeautyOperation, withVerifiedBeautyOperation } from '../auth/request-context';
+import { assertCurrentBeautyMembership, authorizeBeautyRequirement, currentBeautyPositionAccess } from './access';
 
 /** Общее для модулей салона: где мы находимся и можно ли (DATA_MODEL §19, срезы B3 и B4) */
 
@@ -106,8 +108,23 @@ export async function beautyTransaction<T>(
         if (scope.locationId)
           await tx.$queryRaw`SELECT id FROM locations WHERE id = ${scope.locationId}::uuid FOR UPDATE`;
         await assertWritable(tx);
+        const operation = currentBeautyOperation();
+        if (operation) {
+          await assertCurrentBeautyMembership(tx);
+          await authorizeBeautyRequirement(tx, operation, operation.legacy);
+        }
         await beautyScope({ db: tx }, scope.locationId !== null);
-        return fn(tx);
+        if (process.env.BEAUTY_WORKLOAD_CAPTURE === 'true')
+          await tx.$queryRaw`SELECT set_config('app.beauty_capture','true',true)`;
+        const result = operation
+          ? await withVerifiedBeautyOperation(operation, () => fn(tx), await currentBeautyPositionAccess(tx))
+          : await fn(tx);
+        if (process.env.BEAUTY_WORKLOAD_CAPTURE === 'true') {
+          const locations = await tx.location.findMany({ where: { businessId: scope.businessId }, select: { id: true } });
+          for (const location of locations.sort((a,b)=>a.id.localeCompare(b.id)))
+            await tx.$queryRaw`SELECT capture_beauty_schedule(${location.id}::uuid)::text`;
+        }
+        return result;
       },
       { maxWait: 5000, timeout: 10000 },
     );

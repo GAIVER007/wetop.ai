@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 16.10.2026 15:05 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 44
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T10-05-46Z-integration-7a93.json' '--config' 'tests/owner-money-isolated.config.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓ |integration| tests/integration/owner-money-isolated.test.ts (9 tests) 1731ms
+   ✓ owner money actual isolated PostgreSQL queries (9)
+     ✓ hotel supplier repository writes snapshot and settlement as runtime role; foreign tenant sees no receipt 738ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  10:05:47
+   Duration  4.37s (transform 48%, tests 41%, import 11%)
+
+JSON report written to /tmp/pms-test-2026-10-16T10-05-46Z-integration-7a93.json
+
+# код выхода 0 · 6 с

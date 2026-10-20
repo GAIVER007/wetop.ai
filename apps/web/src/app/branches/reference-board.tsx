@@ -1,5 +1,5 @@
 'use client';
-import { FinancialWidgets, BusinessFinancialWidgets } from './financial-widgets';
+import { FinancialWidgets } from './financial-widgets';
 import { useState, type ReactNode } from 'react';
 import { Icon, type IconName } from '../../components/icon';
 import type { BranchItem } from '../../lib/api';
@@ -109,18 +109,13 @@ export function ReferenceBoard({
               ? { backgroundImage: `url(${JSON.stringify(group.card.coverUrl)})` }
               : undefined;
             return (
-              <article key={group.id} className={`org-card org-card--${group.vertical}`}>
-                <div
-                  className={`org-cover ${group.card.coverUrl ? 'org-cover--custom' : ''}`}
-                  style={coverStyle} /* slop-allow: inline-style cover */
-                >
-                  {!group.card.coverUrl ? <Icon name="image" /> : null}
-                  <span className="org-count">
-                    {group.branches.length === 1
-                      ? 'Один объект'
-                      : `Объектов: ${group.branches.length}`}
-                  </span>
-                </div>
+              <article key={group.id} className={`org-card org-card--${group.vertical} ${!group.card.coverUrl ? 'org-card--no-cover' : ''}`}>
+                {group.card.coverUrl && (
+                  <div
+                    className="org-cover org-cover--custom"
+                    style={coverStyle} /* slop-allow: inline-style cover */
+                  />
+                )}
                 <div className="org-card-body">
                   <span className="org-business-icon">
                     <Icon name={businessIcons[group.vertical]} />
@@ -131,10 +126,11 @@ export function ReferenceBoard({
                     <Icon name="pin" />
                     {group.branches[0]?.address || 'Адрес не указан'}
                   </p>
-                  <p className="org-description" title={group.card.description ?? ''}>
-                    {group.card.description || 'Добавьте описание бизнеса в настройках карточки.'}
-                  </p>
-                  <BusinessFinancialWidgets summary={financial} businessId={group.id} />
+                  {group.card.description && (
+                    <p className="org-description" title={group.card.description}>
+                      {group.card.description}
+                    </p>
+                  )}
                   <div className="org-branches-heading">
                     <strong>
                       {group.branches.length === 1

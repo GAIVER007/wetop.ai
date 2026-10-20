@@ -1,7 +1,7 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { INVITE_ROLE_MESSAGE } from '@pms/domain';
 import { authApi } from '../../lib/api';
-import { inviteAction, signOut, signIn } from './actions';
+import { inviteAction, setMemberScopesAction, signOut, signIn } from './actions';
 import { redirect } from 'next/navigation';
 import { clearScopeCookie } from '../../lib/session';
 
@@ -68,4 +68,59 @@ it('роль из формы уходит в API как есть', async () => {
     // имя, телефон и область не переданы: пустой объект (DATA_MODEL §31.3)
     {},
   );
+});
+
+it('устаревшая или неизвестная организация блокирует приглашение до POST', async () => {
+  const invite = vi
+    .spyOn(authApi, 'invite')
+    .mockResolvedValue({ email: 'novyj@example.invalid' } as never);
+  const me = vi.spyOn(authApi, 'me');
+
+  me.mockResolvedValueOnce({ user: { organizationId: 'org-new' } } as never);
+  expect(await inviteAction('novyj@example.invalid', 'STAFF', {}, 'org-old')).toMatchObject({
+    error: expect.any(String),
+    email: null,
+  });
+
+  me.mockResolvedValueOnce({ user: null } as never);
+  expect(await inviteAction('novyj@example.invalid', 'STAFF', {}, 'org-old')).toMatchObject({
+    error: expect.any(String),
+    email: null,
+  });
+
+  expect(invite).not.toHaveBeenCalled();
+});
+
+it('подтверждённая организация сохраняет явный доступ ко всей организации', async () => {
+  vi.spyOn(authApi, 'me').mockResolvedValue({ user: { organizationId: 'org-current' } } as never);
+  const invite = vi.spyOn(authApi, 'invite').mockResolvedValue({
+    id: 'i-2',
+    email: 'novyj@example.invalid',
+    expiresAt: '',
+    acceptedAt: null,
+    createdAt: '',
+  });
+
+  expect(
+    await inviteAction('novyj@example.invalid', 'STAFF', { scopes: [] }, 'org-current'),
+  ).toEqual({ error: null, email: 'novyj@example.invalid' });
+  expect(invite).toHaveBeenCalledWith(
+    'ui-session',
+    'novyj@example.invalid',
+    'STAFF',
+    expect.anything(),
+    { scopes: [] },
+  );
+});
+
+it('устаревшая организация блокирует изменение областей до PATCH', async () => {
+  vi.spyOn(authApi, 'me').mockResolvedValue({
+    user: { organizationId: 'org-new' },
+  } as never);
+  const setScopes = vi.spyOn(authApi, 'setMemberScopes').mockResolvedValue(undefined as never);
+
+  expect(await setMemberScopesAction('member-1', [], 'org-old')).toMatchObject({
+    error: expect.any(String),
+  });
+  expect(setScopes).not.toHaveBeenCalled();
 });

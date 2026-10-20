@@ -1,0 +1,23 @@
+# Модульные (unit) · 16.10.2026 11:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3db7343 (claude/salon-cash)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-11-10Z-unit-292a.json' 'apps/web/src/lib/desk-shell.test.ts' 'apps/web/src/lib/hotel-time.test.ts' 'apps/web/src/lib/workspace-session-a27.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| apps/web/src/lib/workspace-session-a27.test.ts (8 tests) 1947ms
+   ✓ workspace session boundary (8)
+     ✓ redirects an API 401 using the existing login contract 1938ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (9 tests) 1954ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 1941ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 2116ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 2065ms
+
+ Test Files  3 passed (3)
+      Tests  20 passed (20)
+   Start at  23:11:12
+   Duration  2.55s (tests 92%, transform 6%, import 1%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-11-10Z-unit-292a.json
+
+# код выхода 0 · 5 с

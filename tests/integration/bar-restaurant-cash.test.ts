@@ -72,10 +72,10 @@ describe('бар: деньги по направлению филиала (integ
     expect([barSale.propertyId, barSale.cashOperationId, barSale.restaurantCashOperationId]).toEqual([null, null, income[0]!.id]);
     // в кассе 1 200 ₸ наличными: оплатить 3 000 ₸ нельзя, 1 000 ₸ можно
     expect(
-      await as('FOOD_SERVICE', () => repo.payReceipt(receipt, { amountMinor: 300000n, method: 'CASH', note: null })),
+      await as('FOOD_SERVICE', () => repo.payReceipt(receipt, { amountMinor: 300000n, method: 'CASH', note: null , idempotencyKey: randomUUID() })),
     ).toEqual({ kind: 'insufficient_cash', available: 120000n });
     expect(
-      await as('FOOD_SERVICE', () => repo.payReceipt(receipt, { amountMinor: 100000n, method: 'CASH', note: null })),
+      await as('FOOD_SERVICE', () => repo.payReceipt(receipt, { amountMinor: 100000n, method: 'CASH', note: null , idempotencyKey: randomUUID() })),
     ).toMatchObject({ kind: 'paid', paidAmount: '100000' });
     const expense = await prisma.db.restaurantCashOperation.findFirstOrThrow({ where: { locationId: location, kind: 'EXPENSE' } });
     expect(expense.amount).toBe(100000n);
@@ -94,6 +94,9 @@ describe('бар: деньги по направлению филиала (integ
         repo.sellToFolio({ folioId: randomUUID(), productId: product, quantityUnits: 1n, idempotencyKey: `folio-${tag}` }),
       ),
     ).toEqual({ kind: 'no_folio' });
+    // ответы журналов уходят в JSON целиком: вложенный товар не должен нести BigInt (иначе HTTP 500 на /bar/sales и /bar/movements)
+    for (const rows of [await as('FOOD_SERVICE', () => repo.sales()), await as('FOOD_SERVICE', () => repo.movements())])
+      expect(() => JSON.stringify(rows)).not.toThrow();
     expect(await as('FOOD_SERVICE', () => repo.reverseSale(barSale.id, true, 'Ошибка кассира'))).toMatchObject({ kind: 'reversed' });
     const voided = await prisma.db.restaurantCashOperation.findUniqueOrThrow({ where: { id: income[0]!.id } });
     expect(voided.status).toBe('VOIDED');
@@ -103,16 +106,38 @@ describe('бар: деньги по направлению филиала (integ
     ).toMatchObject({ kind: 'posted', id: barSale.id, status: 'REVERSED' });
   });
 
-  it('салон: склад работает, продажа и оплата закрыты до кассы салона', async () => {
+  it('салон: продажа и оплата поставщику через кассу филиала салона (§48), счёт гостя закрыт', async () => {
     const { product, receipt } = await stocked('BEAUTY');
     const stock = (await as('BEAUTY', () => repo.stock())) as Array<{ id: string; availableUnits: string }>;
     expect(stock.find((row) => row.id === product)?.availableUnits).toBe('10');
     expect(
       await as('BEAUTY', () => repo.sellRetail({ productId: product, quantityUnits: 1n, method: 'CASH', idempotencyKey: `b-${tag}` })),
-    ).toEqual({ kind: 'no_cash' });
-    expect(await as('BEAUTY', () => repo.payReceipt(receipt, { amountMinor: 1000n, method: 'CASH', note: null }))).toEqual({
-      kind: 'no_cash',
+    ).toMatchObject({ kind: 'posted', revenueMinor: '60000' });
+    const location = branches.BEAUTY.location;
+    const income = await prisma.db.restaurantCashOperation.findFirstOrThrow({ where: { locationId: location, kind: 'INCOME' } });
+    expect([income.method, income.amount]).toEqual(['CASH', 60000n]);
+    expect(await as('BEAUTY', () => repo.payReceipt(receipt, { amountMinor: 70000n, method: 'CASH', note: null , idempotencyKey: randomUUID() }))).toEqual({
+      kind: 'insufficient_cash',
+      available: 60000n,
     });
+    expect(await as('BEAUTY', () => repo.payReceipt(receipt, { amountMinor: 50000n, method: 'CASH', note: null , idempotencyKey: randomUUID() }))).toMatchObject({
+      kind: 'paid',
+    });
+    expect(
+      await as('BEAUTY', () => repo.sellToFolio({ folioId: randomUUID(), productId: product, quantityUnits: 1n, idempotencyKey: `bf-${tag}` })),
+    ).toEqual({ kind: 'no_folio' });
+  });
+
+  it('касса филиала: салон да, гостиница нет; платёж заказа только у ресторана', async () => {
+    const hotel = await prisma.db.location.findFirst({ where: { business: { vertical: 'HOSPITALITY' } } });
+    if (hotel)
+      await expect(
+        prisma.db.restaurantCashOperation.create({ data: { locationId: hotel.id, kind: 'INCOME', method: 'CASH', amount: 100n, currency: 'KZT' } }),
+      ).rejects.toThrow(/Branch cash location required/);
+    const op = await prisma.db.restaurantCashOperation.create({
+      data: { locationId: branches.BEAUTY.location, kind: 'INCOME', method: 'CARD_TERMINAL', amount: 100n, currency: 'KZT', note: 'Синтетика' },
+    });
+    expect(op.locationId).toBe(branches.BEAUTY.location);
   });
 
   it('филиал ресторана не видит бар салона и наоборот', async () => {

@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 17.10.2026 09:43 Алматы · Noutbuk-Vyacheslav.local
+# коммит f5380e8 (claude/auth-identity-1016), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-43-20Z-integration-3bf4.json' 'tests/integration/auth-identity-chains.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ✓ |integration| tests/integration/auth-identity-chains.test.ts (2 tests) 485ms
+   ✓ auth identity chains (integration) (2)
+     ✓ profile password change that checked the old password before a reset does not overwrite the reset 307ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  21:43:21
+   Duration  2.16s (transform 39%, tests 33%, import 28%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-43-20Z-integration-3bf4.json
+
+# код выхода 0 · 3 с

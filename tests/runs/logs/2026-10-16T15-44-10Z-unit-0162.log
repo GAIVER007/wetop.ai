@@ -1,0 +1,31 @@
+# Модульные (unit) · 16.10.2026 20:44 Алматы · <сервер>
+# коммит 4cf28b7 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 176
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T15-44-10Z-unit-0162.json' 'tests/unit/design-slop.test.ts' 'apps/web/src/design-rules.test.ts' 'apps/web/src/app/today/unified-owner.test.ts' 'apps/web/src/app/today/owner-daily-chart.test.ts' 'apps/web/src/app/today/owner-layout.test.ts' 'apps/api/src/finance/owner-summary.test.ts' 'packages/database/src/pool-timeouts.test.ts' 'apps/api/src/auth/auth.service.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓  unit  apps/api/src/auth/auth.service.test.ts (62 tests) 5765ms
+   ✓ AuthService.login (14)
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 303ms
+ ✓  unit  packages/database/src/pool-timeouts.test.ts (5 tests) 3718ms
+   ✓ пул соединений: мёртвое соединение не вешает процесс (5)
+     ✓ запрос без ответа завершается ошибкой в срок, а следующий идёт по новому соединению 957ms
+     ✓ запрос без ответа внутри транзакции: транзакция падает в срок, соединение не возвращается в пул 698ms
+     ✓ все места пула заняты зависшими запросами — ожидание места ограничено сроком 373ms
+     ✓ сервер принял TCP-соединение и молчит — подключение завершается ошибкой в срок 431ms
+     ✓ срок не трогает живое соединение: ответ до срока приходит, простой в пуле дольше срока соединение не закрывает 1254ms
+ ✓  unit  tests/unit/design-slop.test.ts (18 tests) 9ms
+ ✓  unit  apps/web/src/design-rules.test.ts (17 tests) 556ms
+ ✓  unit  apps/web/src/app/today/unified-owner.test.ts (14 tests) 266ms
+ ✓  unit  apps/web/src/app/today/owner-daily-chart.test.ts (6 tests) 200ms
+ ✓  unit  apps/api/src/finance/owner-summary.test.ts (11 tests) 101ms
+ ✓  unit  apps/web/src/app/today/owner-layout.test.ts (1 test) 18ms
+
+ Test Files  8 passed (8)
+      Tests  134 passed (134)
+   Start at  15:44:12
+   Duration  20.09s (tests 61%, import 23%, transform 16%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T15-44-10Z-unit-0162.json
+
+# код выхода 0 · 23 с

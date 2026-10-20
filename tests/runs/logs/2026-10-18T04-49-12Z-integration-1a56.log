@@ -1,0 +1,72 @@
+# Интеграционные (integration) · 18.10.2026 09:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 33b587c (claude/bar-money-currency-rules), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T04-49-12Z-integration-1a56.json' 'tests/integration/bar-currency-rules.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+ ❯ |integration| tests/integration/bar-currency-rules.test.ts (2 tests | 2 failed) 995ms
+   ❯ бар и ресторан: правила валюты филиала (integration) (2)
+     × приход в долларах проводится, цена продажи вверх до целого доллара 136ms
+     × деньги кассы филиала без документов бара: валюту филиала не сменить 265ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-currency-rules.test.ts > бар и ресторан: правила валюты филиала (integration) > приход в долларах проводится, цена продажи вверх до целого доллара
+ConflictException: Автоматическая цена для этой валюты еще не утверждена. Используйте операции с заданной ценой.
+ ❯ apps/api/src/bar/bar.repository.ts:542:35
+    540|     if (!supplier.active) throw new ConflictException('Поставщик в арх…
+    541|     this.compatible(input.currency, currency);
+    542|     if (currency !== 'KZT') throw new ConflictException({ code: 'BAR_A…
+       |                                   ^
+    543|     const totalAmount = input.lines.reduce((s, l) => s + l.quantityUni…
+    544|     const row = await (tx as any).barReceipt.create({
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/bar-currency-rules.test.ts:56:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/bar-currency-rules.test.ts > бар и ресторан: правила валюты филиала (integration) > деньги кассы филиала без документов бара: валюту филиала не сменить
+AssertionError: promise resolved "{ vertical: 'FOOD_SERVICE', …(8) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "businessId": "cb626719-702e-4326-bf67-1fc5d7520bf7",
++   "canEdit": true,
++   "completedAt": "2026-10-18T04:49:22.689Z",
++   "currentStep": "review",
++   "draft": {
++     "businessName": "Валюта e04c0a6d",
++     "currency": "USD",
++     "locationName": "Касса e04c0a6d",
++     "timezone": "Asia/Almaty",
++   },
++   "flowVersion": 1,
++   "locationId": "472dc9ab-132b-46f8-a451-0bbbf0d91527",
++   "updatedAt": "2026-10-18T04:49:22.689Z",
++   "vertical": "FOOD_SERVICE",
+  }
+
+ ❯ tests/integration/bar-currency-rules.test.ts:80:6
+     78|     await expect(
+     79|       as(() => onboarding.save({ action: 'complete', draft: { ...draft…
+     80|     ).rejects.toThrow(/рабочие данные/);
+       |      ^
+     81|     expect((await prisma.db.location.findUniqueOrThrow({ where: { id: …
+     82|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  21:49:17
+   Duration  5.33s (transform 50%, import 26%, tests 24%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T04-49-12Z-integration-1a56.json
+
+# код выхода 1 · 10 с

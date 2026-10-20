@@ -11,7 +11,7 @@ import {
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { marketApi, type MarketRates, type MarketView } from '../../lib/api';
 import { hotelToday, validDate } from '../../lib/hotel-api';
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import { displayDate, displayDay } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
 import { deskShell } from '../../lib/desk-shell';
@@ -85,7 +85,7 @@ export default async function MarketPage({
   searchParams: Promise<SearchParams>;
 }) {
   // мониторинг конкурентов считает загрузку гостиниц: салону и ресторану его нет, они уходят на свой «Сегодня»
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/market');
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const from = sp.from && validDate(sp.from) ? sp.from : today;

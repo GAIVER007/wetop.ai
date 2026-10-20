@@ -1,0 +1,103 @@
+# Сквозные (e2e) · 17.10.2026 01:51 Алматы · <сервер>
+# коммит d02dcbf (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--workers=1' '--config' '/srv/hermes/workspace/wetop-portal-release-evidence-61af/portal-a11y.config.mjs'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✘  1 ../wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:11:4 › synthetic manager: keyboard,320/390/1440,both themes,WCAG axe (8.4s)
+  ✘  2 ../wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:11:4 › synthetic master: keyboard,320/390/1440,both themes,WCAG axe (7.8s)
+  ✘  3 ../wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:11:4 › synthetic waiter: keyboard,320/390/1440,both themes,WCAG axe (7.2s)
+  ✓  4 ../wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:11:4 › synthetic public: keyboard,320/390/1440,both themes,WCAG axe (7.8s)
+
+
+  1) ../wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:11:4 › synthetic manager: keyboard,320/390/1440,both themes,WCAG axe 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 320
+    Received:    341
+
+      47 |         await page.screenshot({path:`/srv/hermes/workspace/wetop-portal-release-evidence-61af/overflow-${c.role}.png`,fullPage:true});
+      48 |       }
+    > 49 |       expect(overflow.scroll).toBeLessThanOrEqual(overflow.width);
+         |                               ^
+      50 |       const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
+      51 |       const failures=result.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>n.target)}));
+      52 |       appendFileSync(evidence,JSON.stringify({role:c.role,width,theme,tab,overflow,violations:failures})+'\n');
+        at /srv/hermes/workspace/wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:49:31
+
+    Error Context: ../wetop-portal-release-evidence-61af/a11y-results-diagnostics/portal-a11y-synthetic-mana-b58ff-0-1440-both-themes-WCAG-axe/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../wetop-portal-release-evidence-61af/a11y-results-diagnostics/portal-a11y-synthetic-mana-b58ff-0-1440-both-themes-WCAG-axe/trace.zip
+    Usage:
+
+        npx playwright show-trace ../wetop-portal-release-evidence-61af/a11y-results-diagnostics/portal-a11y-synthetic-mana-b58ff-0-1440-both-themes-WCAG-axe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) ../wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:11:4 › synthetic master: keyboard,320/390/1440,both themes,WCAG axe 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 320
+    Received:    341
+
+      47 |         await page.screenshot({path:`/srv/hermes/workspace/wetop-portal-release-evidence-61af/overflow-${c.role}.png`,fullPage:true});
+      48 |       }
+    > 49 |       expect(overflow.scroll).toBeLessThanOrEqual(overflow.width);
+         |                               ^
+      50 |       const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
+      51 |       const failures=result.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>n.target)}));
+      52 |       appendFileSync(evidence,JSON.stringify({role:c.role,width,theme,tab,overflow,violations:failures})+'\n');
+        at /srv/hermes/workspace/wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:49:31
+
+    Error Context: ../wetop-portal-release-evidence-61af/a11y-results-diagnostics/portal-a11y-synthetic-mast-d7147-0-1440-both-themes-WCAG-axe/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../wetop-portal-release-evidence-61af/a11y-results-diagnostics/portal-a11y-synthetic-mast-d7147-0-1440-both-themes-WCAG-axe/trace.zip
+    Usage:
+
+        npx playwright show-trace ../wetop-portal-release-evidence-61af/a11y-results-diagnostics/portal-a11y-synthetic-mast-d7147-0-1440-both-themes-WCAG-axe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) ../wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:11:4 › synthetic waiter: keyboard,320/390/1440,both themes,WCAG axe 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 320
+    Received:    341
+
+      47 |         await page.screenshot({path:`/srv/hermes/workspace/wetop-portal-release-evidence-61af/overflow-${c.role}.png`,fullPage:true});
+      48 |       }
+    > 49 |       expect(overflow.scroll).toBeLessThanOrEqual(overflow.width);
+         |                               ^
+      50 |       const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
+      51 |       const failures=result.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>n.target)}));
+      52 |       appendFileSync(evidence,JSON.stringify({role:c.role,width,theme,tab,overflow,violations:failures})+'\n');
+        at /srv/hermes/workspace/wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:49:31
+
+    Error Context: ../wetop-portal-release-evidence-61af/a11y-results-diagnostics/portal-a11y-synthetic-wait-37e99-0-1440-both-themes-WCAG-axe/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../wetop-portal-release-evidence-61af/a11y-results-diagnostics/portal-a11y-synthetic-wait-37e99-0-1440-both-themes-WCAG-axe/trace.zip
+    Usage:
+
+        npx playwright show-trace ../wetop-portal-release-evidence-61af/a11y-results-diagnostics/portal-a11y-synthetic-wait-37e99-0-1440-both-themes-WCAG-axe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    ../wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:11:4 › synthetic manager: keyboard,320/390/1440,both themes,WCAG axe 
+    ../wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:11:4 › synthetic master: keyboard,320/390/1440,both themes,WCAG axe 
+    ../wetop-portal-release-evidence-61af/portal-a11y.spec.mjs:11:4 › synthetic waiter: keyboard,320/390/1440,both themes,WCAG axe 
+  1 passed (49.7s)
+
+# код выхода 1 · 51 с

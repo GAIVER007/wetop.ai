@@ -1,0 +1,38 @@
+# Сквозные (e2e) · 17.10.2026 16:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1842a14 (claude/salon-e2e-check)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-real/playwright.config.ts' '-g' 'O07c'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] (node:38912) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07c: a closed employee card leaves the router on the list, so later actions cannot restore it (4.4s)
+
+
+  1) tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07c: a closed employee card leaves the router on the list, so later actions cannot restore it 
+
+    Error: expect(received).toBeNull()
+
+    Received: "be378b44-3631-4404-9fa0-a15aa3729934"
+
+      285 |   await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+      286 |   // действие уходит на тот адрес, который маршрутизатор считает текущим: это список, а не закрытая карточка
+    > 287 |   expect(new URL((await action).url()).searchParams.get('employee')).toBeNull();
+          |                                                                      ^
+      288 |   const headers = await apiHeaders(page);
+      289 |   await expect
+      290 |     .poll(async () => (await (await page.request.get(`${api}/beauty/employees`, { headers })).json()).items.length)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/onboarding-real/beauty-onboarding.spec.ts:287:70
+
+    Error Context: test-results/beauty-onboarding-O07c-a-c-673d1-r-actions-cannot-restore-it/error-context.md
+
+  1 failed
+    tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07c: a closed employee card leaves the router on the list, so later actions cannot restore it 
+
+# код выхода 1 · 12 с

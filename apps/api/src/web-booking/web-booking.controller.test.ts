@@ -247,7 +247,7 @@ describe('виджет бронирования /w/*', () => {
       .useValue(mailer)
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     service = app.get(WebBookingService);
     vi.useFakeTimers({ now: TODAY, toFake: ['Date'] });
   });

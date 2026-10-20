@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 16.10.2026 17:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит 76f989f (claude/marketing-meta-connect), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T12-40-18Z-integration-da3d.json' 'tests/integration/marketing-meta.test.ts' 'tests/integration/marketing-campaigns.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |integration| tests/integration/marketing-meta.test.ts (4 tests) 1375ms
+ ✓ |integration| tests/integration/marketing-campaigns.test.ts (3 tests) 728ms
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  05:40:29
+   Duration  31.87s (import 51%, transform 41%, tests 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T12-40-18Z-integration-da3d.json
+
+# код выхода 0 · 44 с

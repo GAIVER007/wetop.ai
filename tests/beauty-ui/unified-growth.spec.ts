@@ -63,7 +63,7 @@ async function seed(page: Page, request: APIRequestContext) {
     await ok(
       await request.put(`${api}/beauty/employees/${e.id}/working-hours`, {
         headers,
-        data: { intervals: [0, 1, 2, 3, 4, 5, 6].map((weekday) => ({ weekday, timeFrom: '09:00', timeTo: '21:00' })) },
+        data: { expectedRevision: (await (await request.get(`${api}/beauty/schedule?employee=${e.id}`, { headers })).json()).weekRevision, intervals: [0, 1, 2, 3, 4, 5, 6].map((weekday) => ({ weekday, timeFrom: '09:00', timeTo: '21:00' })) },
       }),
       'hours',
     );

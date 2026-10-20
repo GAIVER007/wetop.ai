@@ -1,0 +1,15 @@
+# Expense documents: текущий bounded DTO
+
+Feature `EXPENSE_LINKS_ENABLED=1` включается только после отдельного выпуска held migration и совместимого supplier writer. По умолчанию выключено.
+
+POST /expenses: Idempotency-Key; categoryId UUID (явно выбранная статья), title, documentDate YYYY-MM-DD, amountMinor строка bigint, currency ISO, supplierReceiptId UUID опционально. Supplier документ обязан совпадать с receipt по location, amount и currency. В той же транзакции AFTER trigger связывает все существующие BarSupplierPayment, включая VOIDED историю. При неизвестной historical hotel currency или конфликте любого source вся операция откатывается. Marketing reference и создание новой оплаты этим endpoint запрещены.
+
+POST /expenses/:id/settlements связывает только существующий canonical source. Для supplier документа source должен принадлежать BarSupplierPayment именно этого receipt и совпадать по сумме. Новые выплаты делаются прежним payReceipt с прежними проверками лимита кассы/долга. AFTER INSERT BarSupplierPayment создаёт settlement в его исходной транзакции, без повторного cash debit. Ошибка связи откатывает cash, supplier payment и audit вместе.
+
+GET /expenses возвращает paidMinor и remainingMinor из действующих COMPLETED canonical cash; VOIDED связи сохраняются. Категория берётся явно из документа, маркетинг по тексту не угадывается.
+
+Повтор CREATE с тем же ключом возвращает прежний document. POST /bar/receipts/:id/payments при EXPENSE_LINKS_ENABLED=1 требует body.idempotencyKey (printable ASCII без пробелов, 1–200). Repository проверяет ключ независимо от caller. Хеш включает SUPPLIER_PAYMENT, receipt, bigint amount, scope currency, method, note. Pending same-key получает409; committed same-key возвращает исходный id/paidAmount/dueAmount из сохранённого audit результата, изменённый payload409. Intent, cash, supplier payment и audit атомарны. Разные ключи — разные ручные намерения. Default-off сохраняет старое поведение без intent table. Единственная найденная caller-цепочка: SupplierPaymentForm → payBarSupplierAction → barApi → controller → service → repository. Форма сохраняет ключ в sessionStorage для того же draft в текущей вкладке; подтверждённый успех освобождает ключ для следующего ручного ввода. Browser lifecycle/e2e этой формы пока НЕ доказан. Общий rollout остальных cash writers не выполнен.
+
+Доказано на собственной локальной БД: backfill 40000/100000 без изменения cash sum, реальный PrismaBarRepository.payReceipt на20000, paid60000/remaining40000, void первой выплаты сохраняет две связи и paid20000; конкурентные create/pay с одним итоговым settlement; повтор CREATE; отказ amount/currency mismatch. Scope resolver в тесте подменён синтетическим разрешённым location, сама транзакция/repository/Prisma/PostgreSQL настоящие.
+
+Ограничения: supplier-specific RLS write matrix, hotel supplier writer runtime, historical VOIDED-before-link coverage, принудительные оба порядка конкурентного ожидания и общая матрица legacy locks ещё не доказаны. Default-off/hold сохраняются; это не разрешение выпуска.

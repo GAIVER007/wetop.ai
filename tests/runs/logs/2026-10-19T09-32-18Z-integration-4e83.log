@@ -1,0 +1,166 @@
+# Интеграционные (integration) · 19.10.2026 14:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит 91f21c4 (fix/salon-migrations-133-137), незакоммиченных файлов набора: 16
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-32-18Z-integration-4e83.json' 'tests/integration/beauty-appointment-history.test.ts' 'tests/integration/beauty-appointment-lines.test.ts' 'tests/integration/beauty-appointment-payment.test.ts' 'tests/integration/beauty-appointments.test.ts' 'tests/integration/beauty-branch.test.ts' 'tests/integration/beauty-catalog.test.ts' 'tests/integration/beauty-customer-marks.test.ts' 'tests/integration/beauty-customers.test.ts' 'tests/integration/beauty-domain.test.ts' 'tests/integration/beauty-position-storage.test.ts' 'tests/integration/beauty-positions-api.test.ts' 'tests/integration/beauty-schedule.test.ts' 'tests/integration/rls-credential-grants.test.ts' 'tests/integration/rls-isolation.test.ts' 'tests/integration/mv4-beauty.test.ts' 'tests/integration/salon-payroll.test.ts' 'tests/integration/onboarding-beauty-readiness.test.ts' 'tests/integration/customer-import-race.test.ts' 'tests/integration/customer-import-runtime.test.ts' 'tests/integration/customer-import-storage.test.ts' 'tests/integration/customer-phone.test.ts' 'tests/integration/customers-create.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+(node:69187) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/onboarding-beauty-readiness.test.ts (23 tests) 740ms
+(node:69193) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/beauty-appointments.test.ts (14 tests) 395ms
+(node:69203) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/beauty-appointment-lines.test.ts (27 tests) 1071ms
+(node:69230) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/mv4-beauty.test.ts (23 tests) 772ms
+ ❯ |integration| tests/integration/customer-import-runtime.test.ts (13 tests | 1 skipped) 603ms
+   ❯ M4-B2: durable customer import, real RLS and transactions (13)
+     ✓ exposes an owner-only real HTTP endpoint with dependency injection 110ms
+     ✓ stages without customers, repeats requests/chunks, rejects changed payload and incomplete submit 32ms
+     ✓ creates, reuses canonical phone, defaults name, skips bad rows and atomically undoes 55ms
+     ✓ links a sibling identity without changing it; undo removes only the imported link 26ms
+     ✓ rejects the whole undo if its last customer changed 23ms
+     ✓ keeps cancelled beauty history when undo is requested 28ms
+     ✓ keeps cancelled food history when undo is requested 20ms
+     ✓ denies every management read/write to staff, and hides sibling-business jobs 4ms
+     ✓ rejects a stale worker token and recovers the expired lease without double creation 17ms
+     ✓ rolls back a failed batch, schedules a safe retry and creates only once 20ms
+     ✓ rechecks the owner between batches and allows safe undo of partial failure 98ms
+     ✓ clears expired terminal input/baselines, retaining customer, totals and outcome 17ms
+     ↓ 50 000 synthetic rows: durable upload, process and atomic undo budget
+(node:69242) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/beauty-appointment-payment.test.ts (6 tests) 496ms
+ ✓ |integration| tests/integration/beauty-customers.test.ts (4 tests) 214ms
+ ✓ |integration| tests/integration/salon-payroll.test.ts (2 tests) 208ms
+ ✓ |integration| tests/integration/beauty-catalog.test.ts (9 tests) 220ms
+ ✓ |integration| tests/integration/beauty-branch.test.ts (6 tests) 177ms
+ ✓ |integration| tests/integration/beauty-schedule.test.ts (12 tests) 300ms
+ ✓ |integration| tests/integration/beauty-appointment-history.test.ts (2 tests) 205ms
+ ✓ |integration| tests/integration/beauty-customer-marks.test.ts (1 test) 157ms
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 333ms
+ ✓ |integration| tests/integration/beauty-positions-api.test.ts (8 tests) 353ms
+ ✓ |integration| tests/integration/beauty-domain.test.ts (11 tests) 169ms
+ ✓ |integration| tests/integration/rls-credential-grants.test.ts (9 tests) 24ms
+ ✓ |integration| tests/integration/beauty-position-storage.test.ts (10 tests) 86ms
+ ❯ |integration| tests/integration/customer-import-race.test.ts (6 tests | 1 failed) 381ms
+   ❯ M4-B2: customer import undo FK races (6)
+     ✓ undo wins against a concurrent customer-business insert, so the FK insert fails 86ms
+     ✓ undo wins against a concurrent beauty insert, so the FK insert fails 34ms
+     ✓ undo wins against a concurrent food insert, so the FK insert fails 36ms
+     ✓ customer-business insert wins before undo, so undo sees the dependency and deletes nothing 24ms
+     × beauty insert wins before undo, so undo sees the dependency and deletes nothing 27ms
+     ✓ food insert wins before undo, so undo sees the dependency and deletes nothing 33ms
+ ❯ |integration| tests/integration/customer-import-storage.test.ts (6 tests | 1 failed) 44ms
+   ✓ M4-B2: durable tenant storage (5)
+     ✓ has both tables with forced tenant RLS 1ms
+     ✓ retains audit journal by denying tenant DELETE 0ms
+     ✓ keeps row source identity and run immutable even to a service writer 1ms
+     ✓ cannot forge tenant or use a foreign parent through wetop_app 1ms
+     ✓ has no FK on a deletable customer and no cascade to business data 0ms
+   ❯ M4-B2 migration rollback in an isolated synthetic schema (1)
+     × preserves old customers, refuses nonempty rollback, removes only empty journal 20ms
+ ✓ |integration| tests/integration/customer-phone.test.ts (9 tests) 31ms
+ ✓ |integration| tests/integration/customers-create.test.ts (4 tests) 241ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/customer-import-race.test.ts > M4-B2: customer import undo FK races
+PrismaClientKnownRequestError: 
+Invalid `prisma.appointment.deleteMany()` invocation:
+
+
+Foreign key constraint violated on the constraint: `appointment_lines_appointment_fkey`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ admin.$transaction.timeout tests/integration/customer-import-race.test.ts:88:9
+     86|       await admin.$transaction(async (tx) => {
+     87|         await tx.$queryRaw`SELECT set_config('wetop.audit_purge','on',…
+     88|         await tx.appointment.deleteMany({ where: { locationId: scope.b…
+       |         ^
+     89|         await tx.restaurantReservation.deleteMany({ where: { locationI…
+     90|         await tx.customerImportRow.deleteMany({ where: { organizationI…
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ tests/integration/customer-import-race.test.ts:86:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |integration| tests/integration/customer-import-runtime.test.ts > M4-B2: durable customer import, real RLS and transactions
+PrismaClientKnownRequestError: 
+Invalid `prisma.appointment.deleteMany()` invocation:
+
+
+Foreign key constraint violated on the constraint: `appointment_lines_appointment_fkey`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ admin.$transaction.timeout tests/integration/customer-import-runtime.test.ts:77:7
+     75|     await admin.$transaction(async (tx) => {
+     76|       await tx.$queryRaw`SELECT set_config('wetop.audit_purge','on',tr…
+     77|       await tx.appointment.deleteMany({ where: { locationId: own.locat…
+       |       ^
+     78|       await tx.restaurantReservation.deleteMany({ where: { locationId:…
+     79|       await tx.customerImportRow.deleteMany({ where: { organizationId:…
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ tests/integration/customer-import-runtime.test.ts:75:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/customer-import-race.test.ts > M4-B2: customer import undo FK races > beauty insert wins before undo, so undo sees the dependency and deletes nothing
+PrismaClientKnownRequestError: 
+Invalid `prisma.appointment.deleteMany()` invocation:
+
+
+Foreign key constraint violated on the constraint: `appointment_lines_appointment_fkey`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ cleanupRace tests/integration/customer-import-race.test.ts:206:5
+    204|
+    205|   async function cleanupRace(fixture: RaceFixture): Promise<void> {
+    206|     await admin.appointment.deleteMany({ where: { customerId: fixture.…
+       |     ^
+    207|     await admin.restaurantReservation.deleteMany({ where: { customerId…
+    208|     await admin.customerImportRow.deleteMany({ where: { importId: fixt…
+ ❯ tests/integration/customer-import-race.test.ts:312:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |integration| tests/integration/customer-import-storage.test.ts > M4-B2 migration rollback in an isolated synthetic schema > preserves old customers, refuses nonempty rollback, removes only empty journal
+AssertionError: expected 'customer_imports' to be null
+
+- Expected:
+null
+
++ Received:
+"customer_imports"
+
+ ❯ tests/integration/customer-import-storage.test.ts:90:95
+     88|       await client.query(readFileSync(resolve(folder,'down.sql'),'utf8…
+     89|       expect((await client.query('SELECT * FROM customers')).rows).toE…
+     90|       expect((await client.query("SELECT to_regclass('customer_imports…
+       |                                                                                               ^
+     91|     } finally {
+     92|       await client.query('ROLLBACK');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  3 failed | 19 passed (22)
+      Tests  2 failed | 208 passed | 1 skipped (211)
+   Start at  02:32:19
+   Duration  12.97s (tests 64%, import 29%, transform 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-32-18Z-integration-4e83.json
+
+# код выхода 1 · 14 с

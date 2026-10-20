@@ -1,0 +1,118 @@
+# Модульные (unit) · 16.10.2026 13:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7ebf981 (claude/marketing-channel-plan), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T08-42-12Z-unit-050c.json' 'apps/api/src/marketing-budget' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts (16 tests | 3 failed) 13ms
+   ❯ сервис бюджета маркетинга (МКТ-В1/В2) (16)
+     ✓ view: месяц из запроса, границы окна и сериализация денег строками 4ms
+     ✓ view: границы декабря и января считаются без сдвига 0ms
+     ✓ view: без месяца берётся текущий месяц филиала, в ответе есть today 0ms
+     ✓ view: кривой месяц: отказ словами 1ms
+     ✓ создание: кривой ввод → 400, корректный → строка и журнал 1ms
+     ✓ правка несуществующего: 404 0ms
+     ✓ удаление несуществующего: 404, существующего: журнал 0ms
+     ✓ план: месяц нормализуется, сумма в тиынах, журнал пишется 0ms
+     ✓ results: окно месяца как у бюджета, деньги строками, валюта выручки отдельно 0ms
+     ✓ results: кривой месяц: отказ словами 0ms
+     ✓ импорт CSV: все строки одной пачкой, у каждой своя запись журнала, итог в валюте отчётности 1ms
+     ✓ импорт CSV: ошибка в любой строке или не текст: 400, в базу ничего 0ms
+     ✓ импорт CSV: организация только для чтения: отказ до разбора 0ms
+     × план по каналам: разбивка месяца и прошлого месяца строками в ответе бюджета 4ms
+     × план по каналам: разбивка месяца заменяется целиком, в журнал суммы строками 0ms
+     × план по каналам: организация только для чтения: отказ 0ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (3 tests | 1 failed) 155ms
+   ❯ права маршрутов API (ADR-107) (3)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 94ms
+     ✓ MKT4, MKT7: у рантайма сайтов два пути, только GET (текущая версия и превью по токену); чтения версии по id нет 60ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(475) } to deeply equal { 'GET /onboarding': 'self', …(476) }
+
+- Expected
++ Received
+
+@@ -465,11 +465,10 @@
+    "PUT /inventory/categories/:code/photos": "property",
+    "PUT /market/collector/competitors/:id/occupancy": "service",
+    "PUT /market/competitors/:id/occupancy": "rates",
+    "PUT /market/competitors/:id/rates": "rates",
+    "PUT /marketing/budget": "marketing",
+-   "PUT /marketing/budget/lines": "marketing",
+    "PUT /marketing/site/booking-source": "marketing",
+    "PUT /marketing/site/versions/:id/bookmark": "marketing",
+    "PUT /platform/organizations/:id/extensions/ai-seller": "platform",
+    "PUT /platform/organizations/:id/site-builder/:locationId": "platform",
+    "PUT /platform/organizations/:id/status": "platform",
+
+ ❯ apps/api/src/auth/route-access.test.ts:603:20
+    601|       .map(([key]) => key);
+    602|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    603|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    604|   });
+    605|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts > сервис бюджета маркетинга (МКТ-В1/В2) > план по каналам: разбивка месяца и прошлого месяца строками в ответе бюджета
+AssertionError: expected undefined to deeply equal [ { platform: 'META', …(1) } ]
+
+- Expected:
+[
+  {
+    "amount": "200000",
+    "platform": "META",
+  },
+]
+
++ Received:
+undefined
+
+ ❯ apps/api/src/marketing-budget/marketing-budget.service.test.ts:223:21
+    221|   it('план по каналам: разбивка месяца и прошлого месяца строками в от…
+    222|     const v = await service.view('2026-10');
+    223|     expect(v.lines).toEqual([{ platform: 'META', amount: '200000' }]);
+       |                     ^
+    224|     expect(v.prevLines).toEqual([{ platform: 'GOOGLE', amount: '50000'…
+    225|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts > сервис бюджета маркетинга (МКТ-В1/В2) > план по каналам: разбивка месяца заменяется целиком, в журнал суммы строками
+TypeError: service.setLines is not a function
+ ❯ apps/api/src/marketing-budget/marketing-budget.service.test.ts:228:29
+    226|
+    227|   it('план по каналам: разбивка месяца заменяется целиком, в журнал су…
+    228|     const r = await service.setLines({ month: '2026-10', lines: [{ pla…
+       |                             ^
+    229|     expect(r).toEqual({ month: '2026-10', lines: [{ platform: 'META', …
+    230|     expect(repo.linesSet).toEqual({ month: '2026-10-01', lines: [{ pla…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts > сервис бюджета маркетинга (МКТ-В1/В2) > план по каналам: организация только для чтения: отказ
+TypeError: service.setLines is not a function
+ ❯ apps/api/src/marketing-budget/marketing-budget.service.test.ts:241:26
+    239|   it('план по каналам: организация только для чтения: отказ', async ()…
+    240|     repo.writable = false;
+    241|     await expect(service.setLines({ month: '2026-10', lines: [] })).re…
+       |                          ^
+    242|   });
+    243| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 15 passed (19)
+   Start at  01:42:13
+   Duration  7.56s (transform 66%, import 32%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T08-42-12Z-unit-050c.json
+
+# код выхода 1 · 9 с

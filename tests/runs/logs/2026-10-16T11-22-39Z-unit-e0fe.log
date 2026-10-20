@@ -1,0 +1,25 @@
+# Модульные (unit) · 16.10.2026 16:22 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 76
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T11-22-39Z-unit-e0fe.json' 'apps/api/src/finance/owner-money.test.ts' 'apps/api/src/finance/owner-summary.test.ts' 'apps/api/src/hospitality/inventory-history.test.ts' 'packages/domain/src/owner-summary' 'apps/web/src/app/today/unified-owner.test.ts' 'apps/web/src/app/today/owner-daily-chart.test.ts' 'apps/web/src/lib/owner-summary-api.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓ |unit| apps/web/src/app/today/unified-owner.test.ts (9 tests) 50ms
+ ✓ |unit| packages/domain/src/owner-summary/previous.test.ts (5 tests) 28ms
+ ✓ |unit| apps/web/src/app/today/owner-daily-chart.test.ts (2 tests) 28ms
+ ✓ |unit| packages/domain/src/owner-summary/daily.test.ts (2 tests) 21ms
+ ✓ |unit| packages/domain/src/owner-summary/money.test.ts (2 tests) 10ms
+ ✓ |unit| apps/api/src/finance/owner-money.test.ts (3 tests) 21ms
+ ✓ |unit| apps/api/src/finance/owner-summary.test.ts (7 tests) 18ms
+ ✓ |unit| packages/domain/src/owner-summary/expenses.test.ts (5 tests) 15ms
+ ✓ |unit| apps/web/src/lib/owner-summary-api.test.ts (2 tests) 6ms
+ ✓ |unit| apps/api/src/hospitality/inventory-history.test.ts (3 tests) 7ms
+
+ Test Files  10 passed (10)
+      Tests  40 passed (40)
+   Start at  11:22:40
+   Duration  4.39s (transform 59%, import 33%, tests 6%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-16T11-22-39Z-unit-e0fe.json
+
+# код выхода 0 · 5 с

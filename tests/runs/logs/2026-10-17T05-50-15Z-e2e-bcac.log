@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 17.10.2026 10:50 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7f309bb (claude/d3-search), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'tests/branches-ui/ui31-shell.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/branches-ui/ui31-shell.spec.ts:21:3 › UI3.1: hotel shared shell desktop/mobile (2.7s)
+[WebServer] (node:10546) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  2 tests/branches-ui/ui31-shell.spec.ts:21:3 › UI3.1: beauty shared shell desktop/mobile (1.7s)
+  ✓  3 tests/branches-ui/ui31-shell.spec.ts:21:3 › UI3.1: food shared shell desktop/mobile (1.6s)
+  ✓  4 tests/branches-ui/ui31-shell.spec.ts:83:3 › Д3: hotel поиск открывает быстрый поиск по своему меню (833ms)
+  ✓  5 tests/branches-ui/ui31-shell.spec.ts:83:3 › Д3: beauty поиск открывает быстрый поиск по своему меню (659ms)
+  ✓  6 tests/branches-ui/ui31-shell.spec.ts:83:3 › Д3: food поиск открывает быстрый поиск по своему меню (659ms)
+
+  6 passed (13.2s)
+
+# код выхода 0 · 14 с

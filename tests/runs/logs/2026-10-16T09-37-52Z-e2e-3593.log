@@ -1,0 +1,52 @@
+# Сквозные (e2e) · 16.10.2026 14:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 62d6474 (claude/fix-kb-saved-notice), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/support-kb.spec.ts' '-g' 'создание записи'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/support-kb.spec.ts:117:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик (37.7s)
+
+
+  1) tests/ui/support-kb.spec.ts:117:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('kb-result')
+    Expected substring: "Сохранено"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('kb-result') with timeout 15000ms
+      - waiting for getByTestId('kb-result')
+
+
+      131 |   // (на раннере переход успевал раньше проверки, и «Сохранено» пропадало вместе с прежней формой)
+      132 |   await expect(page).toHaveURL(/[?&]id=[0-9a-f-]{36}/);
+    > 133 |   await expect(page.getByTestId('kb-result')).toContainText('Сохранено');
+          |                                               ^
+      134 |   await expect(page.getByTestId('kb-entry')).toContainText('Черновик');
+      135 | });
+      136 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/ui/support-kb.spec.ts:133:47
+
+    Error Context: test-results/support-kb-создание-записи-7ab3d--остаётся-верное-—-черновик/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-kb-создание-записи-7ab3d--остаётся-верное-—-черновик/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-kb-создание-записи-7ab3d--остаётся-верное-—-черновик/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/support-kb.spec.ts:117:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик 
+
+# код выхода 1 · 1 мин 24 с

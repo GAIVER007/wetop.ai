@@ -1,4 +1,4 @@
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { notFound, redirect } from 'next/navigation';
 import { api, inventoryEditorApi, reservationsApi } from '../../../lib/api';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
@@ -12,6 +12,8 @@ import { FundEditor } from '../../inventory/fund-editor';
 import { AvailabilityFinder } from '../availability-finder';
 import '../../inventory/inventory.css';
 import '../../inventory/fund.css';
+import { deskShell } from '../../../lib/desk-shell';
+import { mayAccess } from '../../../lib/navigation';
 export default async function RoomsPage({
   params,
   searchParams,
@@ -19,16 +21,18 @@ export default async function RoomsPage({
   params: Promise<{ section?: string[] }>;
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/rooms');
   const { section = [] } = await params;
   if (!section.length) redirect('/inventory');
   if (section.length !== 1 || !['categories', 'availability'].includes(section[0]!)) notFound();
   const categories = section[0] === 'categories';
   if (categories) {
-    const [types, units] = await Promise.all([
+    const [types, units, shell] = await Promise.all([
       inventoryEditorApi.categories(),
       api.inventoryUnits(),
+      deskShell(),
     ]);
+    const canMutate = mayAccess(shell.access, 'property') && !shell.readOnly;
     const rooms = units.filter((u) => u.kind === 'ROOM').length;
     const beds = units.length - rooms;
     // разделитель — запятая, а не точка-разделитель: сторож ИИ-слопа, DESIGN.md §14
@@ -47,10 +51,10 @@ export default async function RoomsPage({
             ? summary
             : 'Категория объединяет номера или койки с одинаковым типом размещения и вместимостью.'
         }
-        actions={<FundEditor categories={types} mode="category" />}
+        actions={canMutate ? <FundEditor categories={types} mode="category" /> : undefined}
       >
         <FundTabs active="categories" />
-        <CategoryCatalog categories={types} units={units} />
+        <CategoryCatalog categories={types} units={units} canMutate={canMutate} />
       </Page>
     );
   }

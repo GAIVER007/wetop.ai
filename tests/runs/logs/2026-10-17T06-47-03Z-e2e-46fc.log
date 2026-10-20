@@ -1,0 +1,62 @@
+# Сквозные (e2e) · 17.10.2026 11:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0766123 (claude/d7-romi-no-source), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/marketing-budget.spec.ts' '--workers=1' '-g' 'без броней гостиницы'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1630ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/.wetop-main-ui-iLX35c/worker-1/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 [main-ui-1] › ../.wetop-main-ui-iLX35c/worker-1/tests/ui/marketing-budget.spec.ts:211:1 › аналитика у филиала без броней гостиницы: только расходы и честное «Скоро» (25.8s)
+
+
+  1) [main-ui-1] › ../.wetop-main-ui-iLX35c/worker-1/tests/ui/marketing-budget.spec.ts:211:1 › аналитика у филиала без броней гостиницы: только расходы и честное «Скоро» 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('man-romi')
+    Expected substring: "–"
+    Received string:    "-100 %"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('man-romi') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('man-romi')
+        33 × locator resolved to <div class="stat__value" data-testid="man-romi">-100 %</div>
+           - unexpected value "-100 %"
+
+
+      221 |   await expect(main.getByTestId('man-spent')).toContainText('51 200');
+      222 |   // выручки нет, а не ноль: ROMI прочерком, не «−100 %» (аудит платформы 17.10.2026, Д7)
+    > 223 |   await expect(main.getByTestId('man-romi')).toContainText('–');
+          |                                              ^
+      224 |   await expect(main.getByTestId('man-romi')).not.toContainText('%');
+      225 | });
+      226 |
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/.wetop-main-ui-iLX35c/worker-1/tests/ui/marketing-budget.spec.ts:223:46
+
+    Error Context: test-results/marketing-budget-аналитика-f218c-о-расходы-и-честное-«Скоро»-main-ui-1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-budget-аналитика-f218c-о-расходы-и-честное-«Скоро»-main-ui-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-budget-аналитика-f218c-о-расходы-и-честное-«Скоро»-main-ui-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [main-ui-1] › ../.wetop-main-ui-iLX35c/worker-1/tests/ui/marketing-budget.spec.ts:211:1 › аналитика у филиала без броней гостиницы: только расходы и честное «Скоро» 
+
+# код выхода 1 · 2 мин 31 с

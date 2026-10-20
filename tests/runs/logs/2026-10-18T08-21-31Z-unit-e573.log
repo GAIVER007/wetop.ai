@@ -1,0 +1,30 @@
+# Модульные (unit) · 18.10.2026 13:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит ef17fbd (codex/salons-tz4-m4b), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-21-31Z-unit-e573.json' 'packages/domain/src/customer-import.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP
+
+ ❯ |unit| packages/domain/src/customer-import.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/customer-import.test.ts [ packages/domain/src/customer-import.test.ts ]
+Error: Cannot find module './customer-import' imported from /Users/vyacheslav/.codex/worktrees/salons-tz4/WETOP/packages/domain/src/customer-import.test.ts
+ ❯ packages/domain/src/customer-import.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { readCustomerCsv, previewCustomerCsv } from './customer-import…
+       | ^
+      3|
+      4| describe('M4-B1 CSV: проверка без записи', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  01:21:32
+   Duration  96ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-18T08-21-31Z-unit-e573.json
+
+# код выхода 1 · 1 с

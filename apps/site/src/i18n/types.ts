@@ -148,6 +148,8 @@ export type Dictionary = {
       text: string;
       points: string[];
       action: string;
+      /** Что подключается отдельно, рядом с кнопкой: обещание без условий не печатаем. */
+      note: string;
       feed: {
         label: string;
         title: string;
@@ -270,7 +272,7 @@ export type Dictionary = {
     lead: string;
     primary: string;
     secondary: string;
-    /** Чипы под кнопками героя: «7 дней бесплатно» и т.п. (ADR-098). */
+    /** Чипы под кнопками героя: факты о работе, без условий trial (ADR-147). */
     chips: string[];
     /** Снимок настоящего дня салона с демо-данными (светлая и тёмная темы). */
     shot: { eyebrow: string; title: string; lead: string; alt: string; note: string };
@@ -378,6 +380,11 @@ export type Dictionary = {
   };
   segments: {
     eyebrow: string;
+    /**
+     * Подписи на рисунке первого экрана для типов, где общий рисунок вертикали показал бы чужие услуги:
+     * подпись дня и ровно шесть услуг по порядку блоков рисунка (`app/previews/[file]/route.ts`).
+     */
+    previews: Partial<Record<SegmentSlug, { day: string; services: string[] }>>;
     featuresTitle: string;
     ctaTitle: string;
     ctaText: string;

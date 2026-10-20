@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 16.10.2026 12:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит c9e8346 (claude/marketing-analytics-export), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-08-10Z-integration-81f9.json' 'tests/integration/bar-location-children.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+(node:70142) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-location-children.test.ts (6 tests) 272ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  00:08:11
+   Duration  1.50s (transform 44%, tests 30%, import 26%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-08-10Z-integration-81f9.json
+
+# код выхода 0 · 2 с

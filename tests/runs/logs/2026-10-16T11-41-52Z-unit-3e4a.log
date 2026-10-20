@@ -1,0 +1,44 @@
+# Модульные (unit) · 16.10.2026 16:41 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 77
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T11-41-52Z-unit-3e4a.json' 'tests/unit/migrations-hold.test.ts' 'tests/unit/migrations-rollback.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| tests/unit/migrations-hold.test.ts (4 tests | 1 failed) 56ms
+   ❯ миграции отдельного релиза ждут вне общей цепочки (ADR-137) (4)
+     ✓ в migrations/ метка «ОТДЕЛЬНЫЙ РЕЛИЗ» только у выпущенных: новая такая миграция лежит в migrations-hold/ 22ms
+     ✓ список выпущенных не врёт: каждая из них есть в migrations/ и несёт метку 5ms
+     × у ждущей миграции есть migration.sql с меткой и down.sql (AGENTS.md §14), и её нет в общей цепочке 21ms
+     ✓ Prisma берёт миграции только из prisma/migrations: ждущие не применяются 1ms
+ ✓ |unit| tests/unit/migrations-rollback.test.ts (120 tests) 29ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/migrations-hold.test.ts > миграции отдельного релиза ждут вне общей цепочки (ADR-137) > у ждущей миграции есть migration.sql с меткой и down.sql (AGENTS.md §14), и её нет в общей цепочке
+AssertionError: 20261016000114_expense_links: migration.sql с меткой «ОТДЕЛЬНЫЙ РЕЛИЗ»: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/unit/migrations-hold.test.ts:55:79
+     53|     const chain = new Set(migrationDirs(MIGRATIONS));
+     54|     for (const name of migrationDirs(HOLD)) {
+     55|       expect(marked(HOLD, name), `${name}: migration.sql с меткой «${M…
+       |                                                                               ^
+     56|       expect(existsSync(resolve(HOLD, name, 'down.sql')), `${name}: do…
+     57|       expect(chain.has(name), `${name} лежит и в migrations/`).toBe(fa…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 123 passed (124)
+   Start at  11:41:55
+   Duration  913ms (transform 39%, tests 32%, import 23%, worker 6%)
+
+JSON report written to /tmp/pms-test-2026-10-16T11-41-52Z-unit-3e4a.json
+
+# код выхода 1 · 4 с

@@ -1,0 +1,57 @@
+# Интеграционные (integration) · 16.10.2026 12:49 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 16
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T07-49-48Z-integration-cf60.json' '--config' 'tests/expense-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/expense-documents-isolated.test.ts (11 tests | 1 failed) 1129ms
+   ❯ expense persistence, isolated PostgreSQL (11)
+     ✓ applies held migration and persists document without cash debit 12ms
+     ✓ links existing partial cash once, rejects duplicate and overpayment 40ms
+     ✓ rejects wrong currency and non-completed sources 20ms
+     ✓ serializes concurrent links and rejects overpayment 27ms
+     ✓ void retains link/history, freezes amount, permits recomputed balance 22ms
+     ✓ backfills supplier cash and atomically follows later legacy payments without a second debit 490ms
+     × supplier retries use persistent intents across connections, conflicts and pending claims 415ms
+     ✓ replays identical intents, rejects changed payload, never creates cash 14ms
+     ✓ links proven hotel cash without inferring unknown historical currency 43ms
+     ✓ enforces tenant isolation under the actual runtime role 15ms
+     ✓ enables FORCE RLS and both policy predicates 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/expense-documents-isolated.test.ts > expense persistence, isolated PostgreSQL > supplier retries use persistent intents across connections, conflicts and pending claims
+AssertionError: expected { kind: 'paid', …(4) } to deeply equal { kind: 'paid', …(4) }
+
+- Expected
++ Received
+
+  {
+-   "dueAmount": "999000",
+-   "id": "d32f05ef-39ec-4957-886b-63113c5c8bb5",
++   "dueAmount": "998000",
++   "id": "20d1fa37-121c-4cfc-a27c-d59aa4f20c42",
+    "kind": "paid",
+    "paidAmount": "1000",
+    "receiptId": "1692c0c1-14a8-459c-b2b8-baf296d532e0",
+  }
+
+ ❯ tests/integration/expense-documents-isolated.test.ts:114:56
+    112|     try {
+    113|       const first=await repos[0].payReceipt(receipt,input);
+    114|       expect(await repos[1].payReceipt(receipt,input)).toEqual(first);
+       |                                                        ^
+    115|       await expect(repos[0].payReceipt(receipt,{...input,amountMinor:1…
+    116|       await expect(repos[0].payReceipt(receipt,{...input,idempotencyKe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  07:49:50
+   Duration  3.05s (transform 44%, tests 39%, import 17%)
+
+JSON report written to /tmp/pms-test-2026-10-16T07-49-48Z-integration-cf60.json
+
+# код выхода 1 · 5 с

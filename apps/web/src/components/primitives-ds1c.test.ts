@@ -4,6 +4,7 @@ import { createElement as h, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { DateBar } from './date-bar';
+import { DeskAccessProvider } from './desk-access';
 import { ErrorState } from './error-state';
 import { FormGrid } from './form-grid';
 import { Overlay } from './overlay';
@@ -364,6 +365,19 @@ describe('ErrorState поверх EmptyState', () => {
     expect(markup).toContain('Сервер отклонил запрос (код 404)');
     expect(markup).not.toContain('Подключения API');
     expect(markup).toContain('Повторить загрузку');
+  });
+  it('салон и ресторан: без «Подключения API», у них нет этой страницы', () => {
+    for (const vertical of ['BEAUTY', 'FOOD_SERVICE'] as const) {
+      const desk = Object.assign(Promise.resolve({ vertical }), { status: 'fulfilled', value: { vertical } });
+      const markup = html(
+        h(DeskAccessProvider, {
+          desk: desk as never,
+          children: h(ErrorState, { error: err('API_503'), retry: noop }),
+        }),
+      );
+      expect(markup).toContain('Повторить загрузку');
+      expect(markup).not.toContain('Подключения API');
+    }
   });
   it('исходник ErrorState не держит своей разметки empty-state', () => {
     const source = readFileSync(resolve(import.meta.dirname, 'error-state.tsx'), 'utf8');

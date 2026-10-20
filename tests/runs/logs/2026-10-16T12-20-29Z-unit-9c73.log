@@ -1,0 +1,44 @@
+# Модульные (unit) · 16.10.2026 17:20 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 88
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T12-20-29Z-unit-9c73.json' 'tests/unit/stock-build-tracing.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯  unit  tests/unit/stock-build-tracing.test.ts (1 test | 1 failed) 623ms
+   × traces guarded surplus BigInt division without evaluating the pre-loop zero balance 621ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   unit  tests/unit/stock-build-tracing.test.ts > traces guarded surplus BigInt division without evaluating the pre-loop zero balance
+AssertionError: promise rejected "RangeError: Division by zero" instead of resolving
+ ❯ tests/unit/stock-build-tracing.test.ts:21:61
+     19|       compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.Mo…
+     20|     }).outputText);
+     21|     await expect(nodeFileTrace([file], { base: directory })).resolves.…
+       |                                                             ^
+     22|   } finally {
+     23|     await rm(directory, { recursive: true, force: true });
+
+Caused by: RangeError: Division by zero
+ ❯ Object.BinaryExpression ../wetop-design-audit-runtime/node_modules/next/dist/compiled/@vercel/nft/index.js:1:68776
+ ❯ computePureStaticValue ../wetop-design-audit-runtime/node_modules/next/dist/compiled/@vercel/nft/index.js:1:20353
+ ❯ Object.enter ../wetop-design-audit-runtime/node_modules/next/dist/compiled/@vercel/nft/index.js:1:28093
+ ❯ AsyncWalker.visit ../wetop-design-audit-runtime/node_modules/next/dist/compiled/@vercel/nft/index.js:1:144587
+ ❯ AsyncWalker.visit ../wetop-design-audit-runtime/node_modules/next/dist/compiled/@vercel/nft/index.js:1:145045
+ ❯ AsyncWalker.visit ../wetop-design-audit-runtime/node_modules/next/dist/compiled/@vercel/nft/index.js:1:145126
+ ❯ AsyncWalker.visit ../wetop-design-audit-runtime/node_modules/next/dist/compiled/@vercel/nft/index.js:1:145126
+ ❯ AsyncWalker.visit ../wetop-design-audit-runtime/node_modules/next/dist/compiled/@vercel/nft/index.js:1:145045
+ ❯ asyncWalk ../wetop-design-audit-runtime/node_modules/next/dist/compiled/@vercel/nft/index.js:1:145681
+ ❯ analyze ../wetop-design-audit-runtime/node_modules/next/dist/compiled/@vercel/nft/index.js:1:22325
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  12:20:31
+   Duration  2.42s (import 52%, tests 31%, transform 15%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T12-20-29Z-unit-9c73.json
+
+# код выхода 1 · 5 с

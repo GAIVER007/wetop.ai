@@ -1,0 +1,23 @@
+# Интеграционные (integration) · 16.10.2026 21:39 Алматы · <сервер>
+# коммит eaf0b57 (fix/calendar-release-20261016)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T16-39-59Z-integration-bacf.json' 'tests/integration/beauty-appointment-payment.test.ts' 'tests/integration/beauty-appointments.test.ts' 'tests/integration/beauty-branch.test.ts' 'tests/integration/beauty-catalog.test.ts' 'tests/integration/beauty-domain.test.ts' 'tests/integration/beauty-schedule.test.ts' 'tests/integration/employee-workspace.test.ts' 'tests/integration/mv4-beauty.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-calendar-release-eaf0b57a
+
+ ✓ |integration| tests/integration/mv4-beauty.test.ts (23 tests) 2366ms
+ ✓ |integration| tests/integration/beauty-appointments.test.ts (14 tests) 1159ms
+ ✓ |integration| tests/integration/beauty-schedule.test.ts (12 tests) 987ms
+ ✓ |integration| tests/integration/beauty-domain.test.ts (11 tests) 571ms
+ ✓ |integration| tests/integration/beauty-appointment-payment.test.ts (5 tests) 1481ms
+ ✓ |integration| tests/integration/beauty-catalog.test.ts (9 tests) 634ms
+ ✓ |integration| tests/integration/employee-workspace.test.ts (9 tests) 956ms
+ ✓ |integration| tests/integration/beauty-branch.test.ts (6 tests) 507ms
+
+ Test Files  8 passed (8)
+      Tests  89 passed (89)
+   Start at  16:40:00
+   Duration  17.51s (tests 61%, import 23%, transform 15%)
+
+JSON report written to /tmp/pms-test-2026-10-16T16-39-59Z-integration-bacf.json
+
+# код выхода 0 · 19 с

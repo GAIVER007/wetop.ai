@@ -7,12 +7,14 @@ import './tokens.css';
 import './premium.css';
 import '../components/shell/sidebar.css';
 import '../components/shell/side-nav.css';
+import '../components/shell/tab-nav.css';
 import { headers } from 'next/headers';
 import { unstable_rethrow } from 'next/navigation';
 import { Suspense, type ReactNode } from 'react';
 import { ThemeProvider, themeScript } from '../components/theme-provider';
 import { ToastProvider } from '../components/toast';
 import { TopNav } from '../components/top-nav';
+import { supportContacts } from '../lib/support-contacts';
 import { AccountMenu } from '../components/shell/account-menu';
 import { AssistantWidget } from '../components/shell/assistant-widget';
 import { ClearAssistantOnPublicEntry } from '../components/shell/assistant-widget-script';
@@ -32,13 +34,19 @@ import { Page } from '../components/page';
 import { ApiError } from '../lib/api';
 import { selectedWorkspaceBranch, workspaceTimezone } from '../lib/workspace-context';
 import { isPublicEntryPath } from '../lib/public-entry';
-import { WorkspaceSessionBoundary } from '../components/workspace-session-boundary';
+import {
+  PublicEntryExit,
+  WorkspaceSessionBoundary,
+} from '../components/workspace-session-boundary';
 import { DevAgentation } from '../components/dev-agentation';
 import { inter } from './fonts';
+import { PWA_THEME } from '../lib/pwa';
 
 export const metadata = {
   title: 'WETOP: рабочее пространство',
   description: 'Рабочее пространство вашего бизнеса.',
+  // запуск с экрана iPhone без адресной строки (PWA1); манифест и значки Next подключает сам по app/manifest.ts
+  appleWebApp: { capable: true, title: 'WETOP', statusBarStyle: 'default' as const },
 };
 
 // Без viewport-fit=cover env(safe-area-inset-*) на iPhone равны нулю, и нижняя навигация (ADR-050)
@@ -47,6 +55,11 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover' as const,
+  // цвет строки состояния телефона: главный цвет стойки своей темы (PWA1)
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: PWA_THEME.light },
+    { media: '(prefers-color-scheme: dark)', color: PWA_THEME.dark },
+  ],
 };
 
 async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
@@ -90,7 +103,9 @@ export default async function RootLayout({
         <body>
           <ClearAssistantOnPublicEntry />
           <ThemeProvider>
-            <ToastProvider>{children}</ToastProvider>
+            <ToastProvider>
+              <PublicEntryExit>{children}</PublicEntryExit>
+            </ToastProvider>
           </ThemeProvider>
           {process.env.APP_UI_TEST !== '1' && <DevAgentation />}
         </body>
@@ -186,6 +201,7 @@ export default async function RootLayout({
                       process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'
                     }
                     desk={desk}
+                    support={supportContacts(process.env) !== null}
                     property={{
                       name: (
                         <Suspense fallback="Объект не загружен">

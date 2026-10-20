@@ -1,0 +1,55 @@
+# Модульные (unit) · 16.10.2026 14:56 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 50
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T09-56-41Z-unit-f5e6.json' 'apps/api/src/finance/owner-money.test.ts' 'apps/api/src/finance/owner-summary.test.ts' 'packages/domain/src/owner-summary' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓ |unit| apps/api/src/finance/owner-money.test.ts (3 tests) 25ms
+ ❯ |unit| apps/api/src/finance/owner-summary.test.ts (7 tests | 2 failed) 18ms
+   ❯ owner summary real cash source (7)
+     ✓ feature off never queries absent held tables 6ms
+     × joins hotel source identity without inventing historical currency 5ms
+     ✓ requires a signed-in verified location and never selects the first branch 2ms
+     ✓ reads only completed branch expense cash within local period, with no budget/receipt addition 2ms
+     ✓ refuses foreign scope and invalid periods before cash reads 1ms
+     × does not silently use present property currency for historical hospitality cash 1ms
+     ✓ enforces report permission inside the service 1ms
+ ✓ |unit| packages/domain/src/owner-summary/expenses.test.ts (5 tests) 13ms
+ ✓ |unit| packages/domain/src/owner-summary/daily.test.ts (2 tests) 19ms
+ ✓ |unit| packages/domain/src/owner-summary/money.test.ts (2 tests) 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/owner-summary.test.ts > owner summary real cash source > joins hotel source identity without inventing historical currency
+Error: Invalid expense amount
+ ❯ summarizePaidExpenses packages/domain/src/owner-summary/expenses.ts:29:77
+     27|   for (const row of sources) {
+     28|     if (row.locationId !== locationId) throw new Error('Expense scope …
+     29|     if (typeof row.amountMinor !== 'bigint' || row.amountMinor <= 0n) …
+       |                                                                             ^
+     30|     if (row.currency !== null && !/^[A-Z]{3}$/.test(row.currency)) thr…
+     31|     const key = `${row.sourceType}:${row.sourceId}`;
+ ❯ OwnerSummaryService.report apps/api/src/finance/owner-summary.ts:72:92
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ apps/api/src/finance/owner-summary.test.ts:25:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/finance/owner-summary.test.ts > owner summary real cash source > does not silently use present property currency for historical hospitality cash
+TypeError: this.prisma.db.$queryRaw is not a function
+ ❯ OwnerSummaryService.report apps/api/src/finance/owner-summary.ts:43:121
+
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ apps/api/src/finance/owner-summary.test.ts:58:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  2 failed | 17 passed (19)
+   Start at  09:56:42
+   Duration  3.11s (transform 65%, import 30%, tests 4%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T09-56-41Z-unit-f5e6.json
+
+# код выхода 1 · 5 с

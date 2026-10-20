@@ -20,6 +20,7 @@ import { Alert, Button, EmptyState, Input, Select, cx } from '../../components/u
 import { messengerLinks } from '../../lib/format';
 import { guestNames, isGuestPseudonym, sourceBadge, stayLabels } from './stay-labels';
 import { StayPreview, type PreviewCommand, type PreviewTarget } from './stay-preview';
+import { useCaptionFit } from './board-caption-fit';
 import { StayResize } from './stay-resize';
 import { FreeMenuPopover } from './free-menu';
 import { useBoardPosition, type BoardSelection } from './board-position';
@@ -280,6 +281,7 @@ export function ChessboardGrid({
     setFilters(saved.filters);
   }, []);
   useBoardPosition(wrapRef, searchParams.toString(), { query, filters }, restoreSelection);
+  useCaptionFit(wrapRef, [board, filters, query, collapsed]);
   useEffect(() => {
     const wrap = wrapRef.current;
     const head = wrap?.querySelector('thead');
@@ -500,6 +502,7 @@ export function ChessboardGrid({
   };
   const freeCellHandlers = (row: ChessboardRow, index: number): FreeCellHandlers => ({
     onPointerDown: (e) => {
+      if (readOnly) return;
       // касание оставляем прокрутке; с клавишей — ссылка как ссылка (новая вкладка)
       if (e.button !== 0 || e.pointerType === 'touch') return;
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
@@ -513,6 +516,7 @@ export function ChessboardGrid({
       setRange({ unitCode: row.unit.code, from: index, to: index });
     },
     onPointerMove: (e) => {
+      if (readOnly) return;
       const s = sweeping.current;
       if (!s) return;
       const td = document
@@ -527,6 +531,7 @@ export function ChessboardGrid({
       setRange({ unitCode: s.row.unit.code, ...next });
     },
     onPointerUp: (e) => {
+      if (readOnly) return;
       const s = sweeping.current;
       if (!s) return;
       sweeping.current = null;
@@ -543,6 +548,7 @@ export function ChessboardGrid({
       setRange(null);
     },
     onClick: (e) => {
+      if (readOnly) return;
       if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       e.preventDefault();
       if (swept.current) {
@@ -566,6 +572,10 @@ export function ChessboardGrid({
       : checkDrop(source, dropRow(row));
   };
   const onDragStart = (source: DragSource) => (e: React.DragEvent) => {
+    if (readOnly) {
+      e.preventDefault();
+      return;
+    }
     if (previewEdit.current.dirty || previewEdit.current.pending || busy.current) {
       e.preventDefault();
       void allowPreviewChange().then((allowed) => {
@@ -591,6 +601,7 @@ export function ChessboardGrid({
   const isOurs = (e: React.DragEvent) =>
     dragging.current !== null || e.dataTransfer.types.includes(DRAG_MIME);
   const onDragOver = (row: ChessboardRow) => (e: React.DragEvent) => {
+    if (readOnly) return;
     if (!isOurs(e)) return;
     if (overUnit !== row.unit.code) setOverUnit(row.unit.code);
     // Закрытая строка drop не принимает (§26): без preventDefault браузер бросок не отдаст
@@ -607,6 +618,7 @@ export function ChessboardGrid({
     setOverUnit(null);
   };
   const onDrop = (row: ChessboardRow) => async (e: React.DragEvent) => {
+    if (readOnly) return;
     if (!isOurs(e)) return;
     e.preventDefault();
     const source = dragging.current;
@@ -658,6 +670,7 @@ export function ChessboardGrid({
   const router = useRouter();
   const extending = useRef(false);
   const extendStay = async (p: StayMenuPayload, addedNights = 1) => {
+    if (readOnly) return;
     if (pending || extending.current) return;
     extending.current = true;
     setError(null);
@@ -694,6 +707,7 @@ export function ChessboardGrid({
     });
   };
   const cancelStay = async (p: StayMenuPayload) => {
+    if (readOnly) return;
     const preview = await cancelPreviewAction(p.number, 'cancel');
     if (
       !(await ask({
@@ -722,6 +736,7 @@ export function ChessboardGrid({
   const busy = useRef(false);
   const [previewBusy, setPreviewBusy] = useState(false);
   const runCommand = async (command: PreviewCommand, t: PreviewTarget) => {
+    if (readOnly) return;
     const stay: StayMenuPayload = {
       number: t.number,
       itemId: t.itemId,
@@ -1308,8 +1323,8 @@ export function ChessboardGrid({
                           data-unit-code={row.unit.code}
                           // §26: пока бронь в руке, строка говорит, можно ли на неё бросить
                           data-drop={verdict && verdict.kind !== 'noop' ? verdict.kind : undefined}
-                          onDragOver={onDragOver(row)}
-                          onDrop={onDrop(row)}
+                          onDragOver={readOnly ? undefined : onDragOver(row)}
+                          onDrop={readOnly ? undefined : onDrop(row)}
                           className={overUnit === row.unit.code ? 'is-over' : undefined}
                         >
                           <td
@@ -1331,7 +1346,7 @@ export function ChessboardGrid({
                             <span className="muted-2">
                               {row.unit.kind === 'BED' ? 'койка' : 'номер'}
                             </span>
-                            {needsHousekeeping(row.unit.housekeepingStatus) && (
+                            {!readOnly && needsHousekeeping(row.unit.housekeepingStatus) && (
                               <HousekeepingMenu
                                 code={row.unit.code}
                                 status={row.unit.housekeepingStatus}
@@ -1365,9 +1380,19 @@ export function ChessboardGrid({
                               unitCode={row.unit.code}
                               today={today}
                               month={fitMonth}
+                              dayWidth={fitMonth || fitWeek ? null : dayWidth}
                               ghost={ghost?.date === c.date ? ghost : undefined}
                               match={stayMatch(c, row.unit, filters, today, needle)}
-                              free={c.state === 'FREE' ? freeCellHandlers(row, index) : undefined}
+                              free={
+                                !readOnly && c.state === 'FREE'
+                                  ? freeCellHandlers(row, index)
+                                  : undefined
+                              }
+                              onViewFree={
+                                readOnly && c.state === 'FREE'
+                                  ? (anchor) => openFreeMenu(row, index, index, anchor)
+                                  : undefined
+                              }
                               lifted={
                                 !!drag &&
                                 drag.source.unitCode === row.unit.code &&
@@ -1382,6 +1407,7 @@ export function ChessboardGrid({
                               onRefuse={setError}
                               pending={pending}
                               onCancel={cancelStay}
+                              readOnly={readOnly}
                             />
                           ))}
                         </tr>
@@ -1474,9 +1500,11 @@ function Cell({
   unitCode,
   today,
   month,
+  dayWidth,
   ghost,
   match,
   free,
+  onViewFree,
   lifted,
   selected,
   onPreview,
@@ -1487,6 +1515,7 @@ function Cell({
   onRefuse,
   onCancel,
   pending,
+  readOnly,
 }: {
   cell: ChessboardCell;
   label: PlateLabel | undefined;
@@ -1496,10 +1525,13 @@ function Cell({
   unitCode: string;
   today: string;
   month: boolean;
+  /** ширина дня в px, если колонки фиксированы (7–30 дней); null, когда сетка вписана в экран */
+  dayWidth: number | null;
   ghost: Ghost | undefined;
   /** §41: плашка подходит под поиск (подсвечена) или не подходит под поиск и условия (приглушена) */
   match: Match;
   free: FreeCellHandlers | undefined;
+  onViewFree: ((anchor: HTMLElement) => void) | undefined;
   /** Эту бронь сейчас тянут: плашка на старом месте бледнеет */
   lifted: boolean;
   /** Бронь открыта в правой панели: плашка обведена */
@@ -1511,6 +1543,7 @@ function Cell({
   onExtend: (payload: StayMenuPayload, nights?: number) => void;
   onRefuse: (message: string) => void;
   pending: boolean;
+  readOnly: boolean;
   onCancel: (payload: StayMenuPayload) => void;
 }) {
   const tooltipId = useId();
@@ -1558,6 +1591,7 @@ function Cell({
         : 'Свободно — щелчок: новая бронь или блокировка; протяните по датам, чтобы выбрать период';
   const radius = `${cell.isArrival ? 8 : 0}px ${cell.isLastNight ? 8 : 0}px ${cell.isLastNight ? 8 : 0}px ${cell.isArrival ? 8 : 0}px`;
   const draggable =
+    !readOnly &&
     cell.state === 'OCCUPIED' &&
     !!cell.confirmationNumber &&
     !!cell.itemId &&
@@ -1567,9 +1601,13 @@ function Cell({
   const arrivalToday = !!label && !label.continues && cell.date === today;
   const departureToday = !!label && label.ends && nextDay(label.lastDate) === today;
   // Однодневная плашка: «⋯» уступает место имени — те же действия в предпросмотре по щелчку (ТЗ §58).
+  // Так же и любая плашка уже 200 px (две ночи в «30 днях»): «⋯» с запасом съедал 40 px, и вместо
+  // «Посетитель Д.» оставались инициалы (владелец 16.10.2026).
   // Ручка продления остаётся (это перетаскивание, PR 4): ей нужно место, если последняя ночь в окне.
-  const withMenu = !!label && label.span > 1;
-  const withResize = !!label && label.ends && DRAGGABLE.has(cell.itemStatus ?? '') && !month;
+  const withMenu =
+    !readOnly && !!label && label.span > 1 && (dayWidth == null || label.span * dayWidth >= 200);
+  const withResize =
+    !readOnly && !!label && label.ends && DRAGGABLE.has(cell.itemStatus ?? '') && !month;
   const captionEnd = withMenu
     ? 'var(--board-caption-end, 40px)'
     : withResize
@@ -1676,6 +1714,8 @@ function Cell({
             aria-haspopup="dialog"
             className={cx('board__stay', lifted && 'is-lifted')}
             aria-label={title}
+            // подсказка мышью: на узкой плашке месяца видны только инициалы, полное имя и даты здесь
+            title={title}
             style={{
               backgroundColor: bg,
               borderRadius: radius,
@@ -1826,6 +1866,17 @@ function Cell({
             </a>
           )}
         </>
+      ) : cell.state === 'FREE' && readOnly ? (
+        <button
+          type="button"
+          className="board__free board__free--link board__free--view"
+          data-testid="free-cell"
+          tabIndex={-1}
+          aria-label={`Свободно: ${unitCode}, ${cell.date}`}
+          onClick={(event) =>
+            onViewFree?.(event.currentTarget.closest('td') ?? event.currentTarget)
+          }
+        />
       ) : cell.state === 'FREE' ? (
         /*
          * Пустая клетка (ТЗ v2 §31–32): щелчок — окошко «Свободен» с «Новая бронь» и «Блокировка»,

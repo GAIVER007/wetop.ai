@@ -1,0 +1,122 @@
+# Интеграционные (integration) · 17.10.2026 12:44 Алматы · <сервер>
+# коммит 08f5f5b (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 14
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T07-44-43Z-integration-8f59.json' 'tests/integration/tz21-working-time.test.ts' 'tests/integration/beauty-schedule.test.ts' 'tests/integration/beauty-appointments.test.ts' 'tests/integration/employee-portal-schedule-conflicts.test.ts' 'tests/integration/employee-common-writer.test.ts' 'tests/integration/employee-workspace.test.ts' 'tests/integration/employee-portal.test.ts' 'tests/integration/employee-portal-payroll-scope.test.ts' 'tests/integration/restaurant-cash-database.test.ts' 'tests/integration/cash-operations.test.ts' 'tests/integration/finance-operations.test.ts' 'tests/integration/bar-restaurant-cash.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ✓  integration  tests/integration/beauty-appointments.test.ts (14 tests) 1314ms
+ ✓  integration  tests/integration/beauty-schedule.test.ts (12 tests) 930ms
+ ✓  integration  tests/integration/cash-operations.test.ts (4 tests) 1230ms
+(node:18008) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓  integration  tests/integration/bar-restaurant-cash.test.ts (4 tests) 1050ms
+   ✓ бар: деньги по направлению филиала (integration) (4)
+     ✓ ресторан: продажа приходом кассы ресторана, оплата поставщику не больше остатка, отмена аннулирует приход 571ms
+ ✓  integration  tests/integration/restaurant-cash-database.test.ts (6 tests) 155ms
+ ❯  integration  tests/integration/employee-common-writer.test.ts (19 tests | 2 failed) 85240ms
+   ❯ TZ2.1 common Employee original-version writer, PostgreSQL RLS (19)
+     ✓ runs as wetop_app without bypass or ownership 952ms
+     × BEAUTY: basic winner then stale portal must conflict 65533ms
+     × BEAUTY: portal winner then stale basic must conflict 5081ms
+     ✓ BEAUTY: simultaneous basic and portal saves have one winner 2162ms
+     ✓ BEAUTY: both original revisions are checked, including a profile-only competing change 2767ms
+     ✓ BEAUTY: simultaneous portal saves cannot lose public profile edits 609ms
+     ✓ BEAUTY: missing, malformed and millisecond-only versions fail closed for both writers 937ms
+     ✓ BEAUTY: forbidden fields and foreign employee cannot alter either source 557ms
+     ✓ BEAUTY: source microseconds survive reads and rapid saves; identity and consent survive 576ms
+     ✓ BEAUTY: SELF profile edits retain the existing unpublish policy 294ms
+     ✓ FOOD_SERVICE: basic winner then stale portal must conflict 189ms
+     ✓ FOOD_SERVICE: portal winner then stale basic must conflict 210ms
+     ✓ FOOD_SERVICE: simultaneous basic and portal saves have one winner 218ms
+     ✓ FOOD_SERVICE: both original revisions are checked, including a profile-only competing change 341ms
+     ✓ FOOD_SERVICE: simultaneous portal saves cannot lose public profile edits 516ms
+     ✓ FOOD_SERVICE: missing, malformed and millisecond-only versions fail closed for both writers 322ms
+     ✓ FOOD_SERVICE: forbidden fields and foreign employee cannot alter either source 1000ms
+     ✓ FOOD_SERVICE: source microseconds survive reads and rapid saves; identity and consent survive 1773ms
+     ✓ FOOD_SERVICE: SELF profile edits retain the existing unpublish policy 988ms
+ ✓  integration  tests/integration/finance-operations.test.ts (2 tests) 3624ms
+ ✓  integration  tests/integration/employee-portal-payroll-scope.test.ts (6 tests) 7925ms
+   ✓ Food portal payroll uses an authorized viewing branch, not invented UTC money (6)
+     ✓ staffA: branchless multi-assigned Food keeps profile and terms but no money totals 969ms
+     ✓ branchless self profile remains editable without fabricating a pay calculation 696ms
+     ✓ matches actual manager payroll for the same employee/month in each viewing timezone and every legacy model 2959ms
+ ✓  integration  tests/integration/employee-workspace.test.ts (9 tests) 3442ms
+   ✓ PEOPLE profile CAS on real PostgreSQL with RLS (9)
+     ✓ foreign Employee and STAFF writes are rejected 456ms
+ ✓  integration  tests/integration/employee-portal.test.ts (6 tests) 1803ms
+   ✓ employee portal real persistence and authorization (6)
+     ✓ persists private profile and requires manager reapproval after self edits 364ms
+ ✓  integration  tests/integration/employee-portal-schedule-conflicts.test.ts (4 tests) 2336ms
+   ✓ portal schedule warnings and anonymous cache revocation (4)
+     ✓ bounds the upcoming read and marks incomplete checks rather than claiming all-clear 687ms
+     ✓ serves public JSON and unpublish 404 with explicit no-store 494ms
+ ✓  integration  tests/integration/tz21-working-time.test.ts (6 tests) 2965ms
+   ✓ TZ2.1 D real PostgreSQL consumers and CAS (6)
+     ✓ portal and Beauty expose one source revision and reject a stale cross-writer save 614ms
+     ✓ absence counts branch-local dates and preserves existing accepted appointment IDs 407ms
+     ✓ Food real employee consumer uses both intervals, absence, assignment and status 305ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   integration  tests/integration/employee-common-writer.test.ts > TZ2.1 common Employee original-version writer, PostgreSQL RLS > BEAUTY: basic winner then stale portal must conflict
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/employee-common-writer.test.ts:59:5
+     57|   });
+     58|   for(const vertical of ['BEAUTY','FOOD_SERVICE'] as const) {
+     59|     it(`${vertical}: basic winner then stale portal must conflict`,asy…
+       |     ^
+     60|       const f=await fixture(vertical), d=await dto(f);
+     61|       await basic(f,{name:'Basic winner',expectedProfileRevision:d.emp…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL   integration  tests/integration/employee-common-writer.test.ts > TZ2.1 common Employee original-version writer, PostgreSQL RLS > BEAUTY: portal winner then stale basic must conflict
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/employee-common-writer.test.ts:67:5
+     65|       expect(before.employee.name).toBe('Basic winner');
+     66|     });
+     67|     it(`${vertical}: portal winner then stale basic must conflict`,asy…
+       |     ^
+     68|       const f=await fixture(vertical), d=await dto(f);
+     69|       await profile(f,d,{name:'Portal winner'});
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: Database did not answer for 30000 ms; connection closed
+ ❯ Socket.<anonymous> packages/database/src/pool.ts:75:26
+     73|           // простой свободного соединения в пуле — не повод его закры…
+     74|           if ((this as unknown as { readyForQuery: boolean }).readyFor…
+     75|           socket.destroy(new Error(`Database did not answer for ${dead…
+       |                          ^
+     76|         });
+     77|       });
+ ❯ Socket.emit node:events:514:20
+ ❯ Socket._onTimeout node:net:822:8
+ ❯ Timeout.onStreamTimeout [as _onTimeout] node:internal/stream_base_commons:237:10
+ ❯ listOnTimeout node:internal/timers:687:11
+ ❯ processTimers node:internal/timers:618:7
+
+This error originated in "tests/integration/employee-common-writer.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "BEAUTY: portal winner then stale basic must conflict". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 failed | 11 passed (12)
+      Tests  2 failed | 90 passed (92)
+     Errors  1 error
+   Start at  07:44:45
+   Duration  142.40s (tests 83%, import 15%, transform 3%)
+
+JSON report written to /tmp/pms-test-2026-10-17T07-44-43Z-integration-8f59.json
+
+# код выхода 1 · 2 мин 25 с

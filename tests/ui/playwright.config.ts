@@ -2,9 +2,11 @@ import { defineConfig } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { prepareIsolatedUiWorkers } from './isolated-workers';
+import { selectUiRuntimes } from './runtime-selection';
 
 const repoRoot = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const isolated = prepareIsolatedUiWorkers(repoRoot);
+const selectedWorkers = selectUiRuntimes(isolated.workers, process.env.UI_RUNTIME_WORKERS);
 const uiExecutable = process.env.UI_BROWSER_EXECUTABLE || process.env.CHROMIUM_PATH;
 const fontResponses = process.env.NEXT_FONT_GOOGLE_MOCKED_RESPONSES;
 type WebServer = {
@@ -14,6 +16,7 @@ type WebServer = {
   url: string;
   reuseExistingServer: boolean;
   timeout?: number;
+  stdout?: 'pipe' | 'ignore';
 };
 
 const browserUse = {
@@ -24,7 +27,7 @@ const browserUse = {
   trace: 'retain-on-failure' as const,
 };
 
-const webServers = isolated.workers.flatMap((worker): WebServer[] => [
+const webServers = selectedWorkers.flatMap((worker): WebServer[] => [
   {
     command: 'npx tsx tests/ui/fixture-api.ts',
     cwd: worker.root,
@@ -35,11 +38,17 @@ const webServers = isolated.workers.flatMap((worker): WebServer[] => [
   {
     command: `npm exec -w apps/web -- next dev --port ${worker.webPort} --hostname 127.0.0.1`,
     cwd: worker.root,
+    // Playwright ignores stdout by default; expose only the opt-in CI correlation run.
+    stdout: process.env.CI === 'true' && process.env.WETOP_DIAG_HOTEL_SETTINGS === '1' ? 'pipe' : 'ignore',
     env: {
       APP_UI_TEST: '1',
       APP_DEMO_MODE: '',
       APP_API_URL: worker.fixtureOrigin,
       APP_ALLOW_TEST_DATA: '1',
+      // вымышленные контакты поддержки (SUP1): блок «Связаться с поддержкой» виден стенду
+      SUPPORT_WHATSAPP: '77000000000',
+      SUPPORT_TELEGRAM: 'wetop_support_test',
+      SUPPORT_HOURS: 'Ежедневно 9:00–21:00 по Алматы',
       APP_URL: worker.webOrigin,
       WETOP_SITE_URL: worker.siteOrigin,
       SITE_ORIGINS: worker.siteOrigin,
@@ -80,7 +89,7 @@ export default defineConfig({
   timeout: 45_000,
   expect: { timeout: 15_000 },
   snapshotPathTemplate: resolve(repoRoot, 'design/reference/kit/{arg}{ext}'),
-  projects: isolated.workers.map((worker) => ({
+  projects: selectedWorkers.map((worker) => ({
     name: `main-ui-${worker.index}`,
     testDir: worker.uiDir,
     testMatch: worker.testMatch,

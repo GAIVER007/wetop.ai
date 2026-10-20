@@ -4,9 +4,12 @@ import { TRIAL_DAYS, canWrite, daysLeft, statusAfterTrial, trialEndsAt, writeBlo
 const t = (iso: string) => new Date(iso);
 
 describe('trialEndsAt', () => {
-  it('четырнадцать суток от создания (решение владельца 27.09.2026, ADR-102)', () => {
-    expect(trialEndsAt(t('2026-09-15T12:00:00Z')).toISOString()).toBe('2026-09-29T12:00:00.000Z');
-    expect(TRIAL_DAYS).toBe(14);
+  it('семь суток от создания (решение владельца 17.10.2026, ADR-TRIAL-7-DAYS-20261017)', () => {
+    expect(trialEndsAt(t('2026-09-15T12:00:00Z')).toISOString()).toBe('2026-09-22T12:00:00.000Z');
+    expect(TRIAL_DAYS).toBe(7);
+  });
+  it('ровно 7 × 24 часа в UTC: переход через полночь Алматы и конец месяца не сдвигают срок', () => {
+    expect(trialEndsAt(t('2026-10-28T19:30:00Z')).toISOString()).toBe('2026-11-04T19:30:00.000Z');
   });
 });
 
@@ -16,6 +19,13 @@ describe('daysLeft', () => {
   });
   it('за час до конца показывает один день, а не ноль', () => {
     expect(daysLeft(t('2026-09-22T12:00:00Z'), t('2026-09-22T11:00:00Z'))).toBe(1);
+  });
+  it('новый срок: сразу после регистрации семь дней, в момент конца ноль', () => {
+    const start = t('2026-10-17T08:00:00Z');
+    const end = trialEndsAt(start);
+    expect(daysLeft(end, start)).toBe(7);
+    expect(daysLeft(end, new Date(end.getTime() - 1))).toBe(1);
+    expect(daysLeft(end, end)).toBe(0);
   });
   it('после конца — ноль, отрицательных дней не бывает', () => {
     expect(daysLeft(t('2026-09-22T12:00:00Z'), t('2026-09-25T00:00:00Z'))).toBe(0);
@@ -29,6 +39,15 @@ describe('canWrite', () => {
   });
   it('после конца пробного периода писать нельзя', () => {
     expect(canWrite('TRIAL', end, t('2026-09-23T00:00:00Z'))).toBe(false);
+  });
+  it('граница: за миллисекунду до конца писать можно, в момент конца и после уже нельзя', () => {
+    expect(canWrite('TRIAL', end, new Date(end.getTime() - 1))).toBe(true);
+    expect(canWrite('TRIAL', end, end)).toBe(false);
+    expect(canWrite('TRIAL', end, new Date(end.getTime() + 1))).toBe(false);
+    expect(statusAfterTrial('TRIAL', end, end)).toBe('READ_ONLY');
+  });
+  it('оплаченная организация пишет и после конца пробного срока', () => {
+    expect(canWrite('ACTIVE', end, t('2027-01-01T00:00:00Z'))).toBe(true);
   });
   it('TRIAL без срока не даёт писать: пустое поле это не бессрочный доступ', () => {
     expect(canWrite('TRIAL', null, t('2026-09-20T00:00:00Z'))).toBe(false);

@@ -51,7 +51,7 @@ describe('задачи стойки (DATA_MODEL §22)', () => {
       .overrideProvider(PrismaService).useValue({})
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
   });
   afterAll(async () => { await app.close(); });
   beforeEach(() => f.rows.clear());

@@ -1,0 +1,80 @@
+# Сквозные (e2e) · 17.10.2026 19:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (codex/calendar-quick-report), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/beauty-journal.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--grep' 'быстрый отчёт календаря'
+[WebServer] (node:23339) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23362) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23363) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23366) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23392) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23393) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:23399) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23437) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/beauty-journal.spec.ts:290:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон (28.2s)
+(node:23675) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23774) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '2253553453'
+[WebServer] }
+  ✓  2 tests/ui/beauty-journal.spec.ts:339:1 › быстрый отчёт календаря: выбранный мастер сохраняется при смене дня (21.5s)
+
+
+  1) tests/ui/beauty-journal.spec.ts:290:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog', { name: /Статистика за/ }).locator('.context-help')
+    Expected substring: "Снимки цен всех записей"
+    Received string:    "Как считаются показателиСумма завершённых услуг. Стоимость записей со статусом «Завершена», как в аналитике салона. Это не сумма принятых оплат.Стоимость всех записей. Стоимость, указанная при записи, по выбранным фильтрам, включая отменённые.Средняя стоимость завершённой записи. Сумма завершённых услуг / число завершённых записей в каждой валюте. Остаток тиына отбрасывается, как в статистике клиентов."
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog', { name: /Статистика за/ }).locator('.context-help') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: /Статистика за/ }).locator('.context-help')
+        33 × locator resolved to <details open="" class="context-help">…</details>
+           - unexpected value "Как считаются показателиСумма завершённых услуг. Стоимость записей со статусом «Завершена», как в аналитике салона. Это не сумма принятых оплат.Стоимость всех записей. Стоимость, указанная при записи, по выбранным фильтрам, включая отменённые.Средняя стоимость завершённой записи. Сумма завершённых услуг / число завершённых записей в каждой валюте. Остаток тиына отбрасывается, как в статистике клиентов."
+
+
+      320 |       await expect(report.locator('.context-help summary')).toBeFocused();
+      321 |       await page.keyboard.press('Enter');
+    > 322 |       await expect(report.locator('.context-help')).toContainText('Стоимость, указанная при записи');
+          |                                                     ^
+      323 |       await page.keyboard.press('Enter');
+      324 |       await page.keyboard.press('Tab');
+      325 |       await expect(report.getByRole('button', { name: /Закрыть/ })).toBeFocused();
+        at /private/tmp/wetop-calendar-quick-report/tests/ui/beauty-journal.spec.ts:322:53
+
+    Error Context: test-results/beauty-journal-быстрый-отч-bbe84-ндарь-месяца-темы-и-телефон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-journal-быстрый-отч-bbe84-ндарь-месяца-темы-и-телефон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-journal-быстрый-отч-bbe84-ндарь-месяца-темы-и-телефон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/beauty-journal.spec.ts:290:1 › быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон 
+  1 passed (1.0m)
+
+# код выхода 1 · 1 мин 4 с

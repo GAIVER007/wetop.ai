@@ -1,0 +1,23 @@
+# Модульные (unit) · 17.10.2026 12:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит eb6da15 (claude/auth-identity-1016)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T07-42-25Z-unit-998f.json' 'tests/unit/db-restore-prod.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ✓ |unit| tests/unit/db-restore-prod.test.ts (7 tests) 5144ms
+   ✓ восстановление рабочей базы из копии (ADR-137) (7)
+     ✓ данные и все миграции прав одной транзакцией, права после данных и по порядку 890ms
+     ✓ смешанная schema-миграция с GRANT не выполняется второй раз после восстановления 855ms
+     ✓ схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 889ms
+     ✓ пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 865ms
+     ✓ транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 781ms
+     ✓ после восстановления wetop_app читает users целиком: отказ, API не запускать 851ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  00:42:26
+   Duration  5.26s (tests 99%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T07-42-25Z-unit-998f.json
+
+# код выхода 0 · 6 с

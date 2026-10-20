@@ -24,10 +24,12 @@ export async function EventsTable({
   data,
   filter,
   hrefFor,
+  canRetry,
 }: {
   data: { rows: InboundEvent[]; total: number } | null;
   filter: EventsFilter;
   hrefFor: (f: Partial<EventsFilter>) => string;
+  canRetry: boolean;
 }) {
   const clock = await hotelClock();
   const shown = data?.rows.length ?? 0;
@@ -81,7 +83,7 @@ export async function EventsTable({
             <b>Входящая бронь требует разбора.</b> {failed.lastError} Порядок разбора — CUTOVER.md,
             «Процедура на канал».
           </span>
-          <RetryEventButton revisionId={failed.externalEventId} />
+          {canRetry && <RetryEventButton revisionId={failed.externalEventId} canMutate />}
         </div>
       )}
       <Table size="sm" className="dir-table dir-table--events" data-testid="events-table">
@@ -151,7 +153,7 @@ export async function EventsTable({
                 )}
               </td>
               <td>
-                {e.status === 'FAILED' && <RetryEventButton revisionId={e.externalEventId} />}
+                {canRetry && e.status === 'FAILED' && <RetryEventButton revisionId={e.externalEventId} canMutate />}
               </td>
             </tr>
           ))}

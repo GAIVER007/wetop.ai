@@ -1,0 +1,69 @@
+# Сквозные (e2e) · 17.10.2026 00:54 Алматы · <сервер>
+# коммит c46ef1c (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 43
+# npx playwright test --workers=2 --reporter=list,json '--config' '/srv/hermes/workspace/wetop-portal-release-evidence-61af/quality-playwright.config.cjs' '--workers=1' '--grep' 'recovers from definitive'
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/employee-portal-ui/site-booking.spec.ts:205:5 › generated public form in a real DOM (intercepted HTTP only) › recovers from definitive 409 with a fresh CAPTCHA and the same request key (5.8s)
+  ✘  2 tests/employee-portal-ui/site-booking.spec.ts:205:5 › generated public form in a real DOM (intercepted HTTP only) › recovers from definitive 403 with a fresh CAPTCHA and the same request key (5.7s)
+
+
+  1) tests/employee-portal-ui/site-booking.spec.ts:205:5 › generated public form in a real DOM (intercepted HTTP only) › recovers from definitive 409 with a fresh CAPTCHA and the same request key 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('form[data-lead-form]').locator('[data-lead-status]')
+    Expected: "Ð—Ð°ÑÐ²ÐºÐ° Ð¿Ñ€Ð¸Ð½ÑÑ‚Ð°. ÐœÑ‹ ÑÐ²ÑÐ¶ÐµÐ¼ÑÑ Ñ Ð²Ð°Ð¼Ð¸."
+    Received: "Captcha expired or invalid"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" locator('form[data-lead-form]').locator('[data-lead-status]') with timeout 5000ms
+      - waiting for locator('form[data-lead-form]').locator('[data-lead-status]')
+        14 × locator resolved to <p role="status" aria-live="polite" class="lead-status" data-lead-status="">Captcha expired or invalid</p>
+           - unexpected value "Captcha expired or invalid"
+
+
+      225 |         }
+      226 |         await h.form.locator('button[type=submit]').click();
+    > 227 |         await expect(h.form.locator('[data-lead-status]')).toHaveText((await h.form.getAttribute('data-done'))!);
+          |                                                            ^
+      228 |         expect(h.bodies).toHaveLength(2);
+      229 |         expect(h.bodies[1]).toMatchObject({ requestKey: h.bodies[0]!.requestKey, turnstileToken: 'captcha-token-2',
+      230 |           startsAt: status === 409 ? '2026-10-20T11:30:00.000Z' : ISO });
+        at /srv/hermes/workspace/wetop-portal-release-61af7b90/tests/employee-portal-ui/site-booking.spec.ts:227:60
+
+    Error Context: ../wetop-portal-release-evidence-61af/quality-browser-artifacts/site-booking-generated-pub-da160-HA-and-the-same-request-key/error-context.md
+
+  2) tests/employee-portal-ui/site-booking.spec.ts:205:5 › generated public form in a real DOM (intercepted HTTP only) › recovers from definitive 403 with a fresh CAPTCHA and the same request key 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('form[data-lead-form]').locator('[data-lead-status]')
+    Expected: "Ð—Ð°ÑÐ²ÐºÐ° Ð¿Ñ€Ð¸Ð½ÑÑ‚Ð°. ÐœÑ‹ ÑÐ²ÑÐ¶ÐµÐ¼ÑÑ Ñ Ð²Ð°Ð¼Ð¸."
+    Received: "Captcha expired or invalid"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" locator('form[data-lead-form]').locator('[data-lead-status]') with timeout 5000ms
+      - waiting for locator('form[data-lead-form]').locator('[data-lead-status]')
+        14 × locator resolved to <p role="status" aria-live="polite" class="lead-status" data-lead-status="">Captcha expired or invalid</p>
+           - unexpected value "Captcha expired or invalid"
+
+
+      225 |         }
+      226 |         await h.form.locator('button[type=submit]').click();
+    > 227 |         await expect(h.form.locator('[data-lead-status]')).toHaveText((await h.form.getAttribute('data-done'))!);
+          |                                                            ^
+      228 |         expect(h.bodies).toHaveLength(2);
+      229 |         expect(h.bodies[1]).toMatchObject({ requestKey: h.bodies[0]!.requestKey, turnstileToken: 'captcha-token-2',
+      230 |           startsAt: status === 409 ? '2026-10-20T11:30:00.000Z' : ISO });
+        at /srv/hermes/workspace/wetop-portal-release-61af7b90/tests/employee-portal-ui/site-booking.spec.ts:227:60
+
+    Error Context: ../wetop-portal-release-evidence-61af/quality-browser-artifacts/site-booking-generated-pub-7e0de-HA-and-the-same-request-key/error-context.md
+
+  2 failed
+    tests/employee-portal-ui/site-booking.spec.ts:205:5 › generated public form in a real DOM (intercepted HTTP only) › recovers from definitive 409 with a fresh CAPTCHA and the same request key 
+    tests/employee-portal-ui/site-booking.spec.ts:205:5 › generated public form in a real DOM (intercepted HTTP only) › recovers from definitive 403 with a fresh CAPTCHA and the same request key 
+
+# код выхода 1 · 15 с

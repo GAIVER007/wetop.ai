@@ -1,0 +1,36 @@
+pages 66, sitemap 63, problems 38
+
+## og (3)
+  /404/ :: og:title != title: «WETOP.AI: платформа для управления сервисным бизнесом»
+  /404/ :: og:title != title: «WETOP.AI: платформа для управления сервисным бизнесом»
+  /_not-found/ :: og:title != title: «WETOP.AI: платформа для управления сервисным бизнесом»
+
+## title длинный (1)
+  /blog/kak-vesti-zapisi-massazhnogo-salona/ :: title длинный (67): Как вести записи массажного салона: кушетка без простоев | WETOP.AI
+
+## нет входящих ссылок (3)
+  /404/ :: нет входящих ссылок
+  /404/ :: нет входящих ссылок
+  /_not-found/ :: нет входящих ссылок
+
+## одинаковый title (1)
+  /404/, /404/, /_not-found/ :: одинаковый title: Страница не найдена | WETOP.AI
+
+## одинаковый description (1)
+  /404/, /404/, /_not-found/, / :: одинаковый description: Клиенты, брони и записи, команда и филиалы в одном окне. Для гостиниц, салонов к
+
+## одинаковый ogImage (29)
+  /404/, /404/, /_not-found/, /blog/, /calculator/, /, /privacy/, /terms/ :: одинаковый ogImage: /og.png
+  /blog/kak-prinimat-broni-stolov-v-restorane/, /for/restaurants/ :: одинаковый ogImage: /og/restaurant.jpg
+  /blog/kak-sdavat-kvartiry-posutochno/, /for/daily-rentals/ :: одинаковый ogImage: /og/daily-rentals.jpg
+  /blog/kak-upravlyat-mini-otelem/, /for/mini-hotels/ :: одинаковый ogImage: /og/minihotel.jpg
+  /blog/kak-vesti-apart-otel/, /for/apart-hotels/ :: одинаковый ogImage: /og/aparthotel.jpg
+  /blog/kak-vesti-bazu-otdyha/, /for/resorts/ :: одинаковый ogImage: /og/resorts.jpg
+  /blog/kak-vesti-broni-banketnogo-zala/, /for/banquet-halls/ :: одинаковый ogImage: /og/banquet-halls.jpg
+  /blog/kak-vesti-broni-komnat-v-karaoke/, /for/karaoke/ :: одинаковый ogImage: /og/karaoke.jpg
+  /blog/kak-vesti-broni-v-kalyannoy/, /for/hookah-lounges/ :: одинаковый ogImage: /og/hookah-lounges.jpg
+  /blog/kak-vesti-glemping/, /for/glamping/ :: одинаковый ogImage: /og/glamping.jpg
+  /blog/kak-vesti-gostevoy-dom/, /for/guest-houses/ :: одинаковый ogImage: /og/guest-houses.jpg
+  /blog/kak-vesti-kapsulnyy-otel/, /for/capsule-hotels/ :: одинаковый ogImage: /og/capsule-hotels.jpg
+
+без lastmod в sitemap: 34

@@ -1,0 +1,39 @@
+# Интеграционные (integration) · 17.10.2026 13:37 Алматы · <сервер>
+# коммит 08f5f5b (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 15
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T08-37-51Z-integration-7989.json' 'tests/integration/tz21-working-time.test.ts' 'tests/integration/beauty-schedule.test.ts' 'tests/integration/beauty-appointments.test.ts' 'tests/integration/employee-portal-schedule-conflicts.test.ts' 'tests/integration/employee-common-writer.test.ts' 'tests/integration/employee-workspace.test.ts' 'tests/integration/employee-portal.test.ts' 'tests/integration/employee-portal-payroll-scope.test.ts' 'tests/integration/restaurant-cash-database.test.ts' 'tests/integration/cash-operations.test.ts' 'tests/integration/finance-operations.test.ts' 'tests/integration/bar-restaurant-cash.test.ts' '--maxWorkers=1' '--testTimeout=15000'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ✓  integration  tests/integration/employee-common-writer.test.ts (19 tests) 2907ms
+   ✓ TZ2.1 common Employee original-version writer, PostgreSQL RLS (19)
+     ✓ runs as wetop_app without bypass or ownership 311ms
+     ✓ FOOD_SERVICE: source microseconds survive reads and rapid saves; identity and consent survive 492ms
+ ✓  integration  tests/integration/beauty-appointments.test.ts (14 tests) 1391ms
+ ✓  integration  tests/integration/tz21-working-time.test.ts (12 tests) 1531ms
+ ✓  integration  tests/integration/employee-portal.test.ts (6 tests) 1857ms
+   ✓ employee portal real persistence and authorization (6)
+     ✓ persists private profile and requires manager reapproval after self edits 556ms
+     ✓ persists own skills/week/absence without changing appointments 481ms
+ ✓  integration  tests/integration/employee-portal-schedule-conflicts.test.ts (4 tests) 1171ms
+   ✓ portal schedule warnings and anonymous cache revocation (4)
+     ✓ bounds the upcoming read and marks incomplete checks rather than claiming all-clear 363ms
+ ✓  integration  tests/integration/employee-workspace.test.ts (9 tests) 941ms
+(node:131421) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓  integration  tests/integration/bar-restaurant-cash.test.ts (4 tests) 978ms
+   ✓ бар: деньги по направлению филиала (integration) (4)
+     ✓ ресторан: продажа приходом кассы ресторана, оплата поставщику не больше остатка, отмена аннулирует приход 505ms
+ ✓  integration  tests/integration/beauty-schedule.test.ts (12 tests) 2397ms
+ ✓  integration  tests/integration/cash-operations.test.ts (4 tests) 843ms
+ ✓  integration  tests/integration/employee-portal-payroll-scope.test.ts (6 tests) 951ms
+ ✓  integration  tests/integration/finance-operations.test.ts (2 tests) 616ms
+ ✓  integration  tests/integration/restaurant-cash-database.test.ts (6 tests) 124ms
+
+ Test Files  12 passed (12)
+      Tests  98 passed (98)
+   Start at  08:37:52
+   Duration  26.63s (tests 66%, import 27%, transform 7%)
+
+JSON report written to /tmp/pms-test-2026-10-17T08-37-51Z-integration-7989.json
+
+# код выхода 0 · 28 с

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { securityHeaders } from './lib/security-headers';
 import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS } from './lib/session-cookie';
+import { diagnosticsEnabled, incomingEvent, SETTINGS_DIAGNOSTIC_HEADER } from './lib/settings-request-diagnostics';
 
 /**
  * Продление сессии при активности (DATA_MODEL §13.5) со стороны браузера. API двигает срок в базе
@@ -19,6 +20,16 @@ export function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-wetop-path', request.nextUrl.pathname);
   requestHeaders.set('x-wetop-return', request.nextUrl.pathname + request.nextUrl.search);
+  if (diagnosticsEnabled(process.env)) {
+    // Fresh per incoming request; never trust a client-provided diagnostic identifier.
+    const id = crypto.randomUUID();
+    requestHeaders.set(SETTINGS_DIAGNOSTIC_HEADER, id);
+    try {
+      console.info(JSON.stringify(incomingEvent(id, request.nextUrl.pathname,
+        request.headers.get('rsc') === '1',
+        request.headers.get('next-router-prefetch') === '1' || request.headers.get('purpose') === 'prefetch')));
+    } catch { /* Observation must not affect request handling. */ }
+  }
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   // Заголовки безопасности (аудит 29.09.2026, SEC-4): запрет фрейма, nosniff, referrer; полная CSP — report-only
   for (const [name, value] of Object.entries(

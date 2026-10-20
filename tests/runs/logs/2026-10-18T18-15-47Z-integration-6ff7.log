@@ -1,0 +1,62 @@
+# Интеграционные (integration) · 18.10.2026 23:15 Алматы · <сервер>
+# коммит 5b409d1 (feat/salon-draft-implementation-20261018), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T18-15-47Z-integration-6ff7.json' 'tests/integration/beauty-customers.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+ ❯ |integration| tests/integration/beauty-customers.test.ts (4 tests | 4 failed) 603ms
+   ❯ Beauty: canonical customer across businesses (4)
+     × serializes two businesses and reuses one exact name plus normalized phone 114ms
+     × rejects a conflicting name atomically without creating the other CSV row 35ms
+     × opens a shared customer but returns history only from the selected business 7ms
+     × returns not found for a customer outside the selected business or organization 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-customers.test.ts > Beauty: canonical customer across businesses > serializes two businesses and reuses one exact name plus normalized phone
+ FAIL  |integration| tests/integration/beauty-customers.test.ts > Beauty: canonical customer across businesses > opens a shared customer but returns history only from the selected business
+ FAIL  |integration| tests/integration/beauty-customers.test.ts > Beauty: canonical customer across businesses > returns not found for a customer outside the selected business or organization
+PrismaClientKnownRequestError: 
+Invalid `prisma.customer.create()` invocation:
+
+
+Database error. Code: `54000`. Message: `requested character too large for encoding: 8239`
+ ❯ vn.handleRequestError ../wetop-audit-main/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError ../wetop-audit-main/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request ../wetop-audit-main/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a ../wetop-audit-main/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ findOrCreateCustomer apps/api/src/customers/identity.ts:24:5
+     22|   const id = randomUUID();
+     23|   try {
+     24|     await tx.customer.create({ data: {
+       |     ^
+     25|       id, organizationId, firstName: customer.firstName, lastName: cus…
+     26|     } });
+ ❯ apps/api/src/beauty/beauty.module.ts:289:22
+ ❯ prisma.db.$transaction.maxWait apps/api/src/beauty/scope.ts:121:13
+ ❯ Proxy._transactionWithCallback ../wetop-audit-main/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ beautyTransaction apps/api/src/beauty/scope.ts:104:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |integration| tests/integration/beauty-customers.test.ts > Beauty: canonical customer across businesses > rejects a conflicting name atomically without creating the other CSV row
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of ConflictException
+ ❯ tests/integration/beauty-customers.test.ts:142:71
+    140|     const csv = 'Имя;Телефон\nНовый Клиент;<телефон>\nДругое Имя;+7…
+    141|
+    142|     await expect(asBusiness(businessB, () => importer.apply({ csv })))…
+       |                                                                       ^
+    143|       ConflictException,
+    144|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  18:15:48
+   Duration  4.84s (transform 57%, tests 23%, import 19%)
+
+JSON report written to /tmp/pms-test-2026-10-18T18-15-47Z-integration-6ff7.json
+
+# код выхода 1 · 6 с

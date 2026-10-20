@@ -1,0 +1,25 @@
+# Интеграционные (integration) · 16.10.2026 17:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит e494ce2 (claude/marketing-meta-plan), незакоммиченных файлов набора: 17
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T12-14-44Z-integration-ce0f.json' 'tests/integration/marketing-budget-db.test.ts' 'tests/integration/marketing-campaigns.test.ts' 'tests/integration/marketing-expense-files.test.ts' 'tests/integration/marketing-budget-lines.test.ts' 'tests/integration/marketing-import.test.ts' 'tests/integration/marketing-results.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |integration| tests/integration/marketing-campaigns.test.ts (3 tests) 1583ms
+   ✓ рекламные кампании (integration) (3)
+     ✓ кампания, расход к ней, статистика дня, CSV и сводка месяца 676ms
+ ✓ |integration| tests/integration/marketing-results.test.ts (3 tests) 630ms
+ ✓ |integration| tests/integration/marketing-budget-lines.test.ts (1 test) 506ms
+ ✓ |integration| tests/integration/marketing-expense-files.test.ts (2 tests) 1018ms
+   ✓ чеки расходов маркетинга (integration) (2)
+     ✓ фото WebP без EXIF и PDF как есть; повтор не дублирует; чужое и поддельное отвергается 351ms
+ ✓ |integration| tests/integration/marketing-import.test.ts (1 test) 328ms
+ ✓ |integration| tests/integration/marketing-budget-db.test.ts (8 tests) 62ms
+
+ Test Files  6 passed (6)
+      Tests  18 passed (18)
+   Start at  05:14:50
+   Duration  18.70s (import 53%, tests 29%, transform 17%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T12-14-44Z-integration-ce0f.json
+
+# код выхода 0 · 24 с

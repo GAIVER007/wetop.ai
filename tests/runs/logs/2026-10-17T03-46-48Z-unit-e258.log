@@ -1,0 +1,17 @@
+# Модульные (unit) · 17.10.2026 08:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит f314cc3 (claude/modest-lovelace-429ae7), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T03-46-48Z-unit-e258.json' 'tests/unit/local-db-start.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/modest-lovelace-429ae7
+
+ ✓ |unit| tests/unit/local-db-start.test.ts (1 test) 6524ms
+   ✓ local-db start does not add a second set of stays to the populated test schema 6518ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  20:47:05
+   Duration  11.04s (tests 83%, transform 14%, import 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T03-46-48Z-unit-e258.json
+
+# код выхода 0 · 28 с

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   FOOD_PAYMENT_METHODS,
+  orderRefund,
   foodCashBalances,
   orderPayment,
   payoutCheck,
@@ -94,5 +95,14 @@ describe('разбор запросов кассы', () => {
       amount: 30000n,
     });
     expect(() => parseFoodPayout({ period: '2026-13', method: 'CASH', amount: 1 })).toThrow();
+  });
+});
+
+describe('возврат по закрытому заказу (§56)', () => {
+  it('только у закрытого, больше нуля и не больше чистой оплаты', () => {
+    expect(() => orderRefund('SERVED', 100n, 1n)).toThrow('Возврат оформляют по закрытому заказу');
+    expect(() => orderRefund('CLOSED', 100n, 0n)).toThrow('Сумма больше нуля');
+    expect(() => orderRefund('CLOSED', 100n, 101n)).toThrow('Сумма больше оплаченного по заказу');
+    expect(() => orderRefund('CLOSED', 100n, 100n)).not.toThrow();
   });
 });

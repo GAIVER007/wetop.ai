@@ -1,9 +1,11 @@
+import { findOrCreateCustomer } from '../customers/identity';
 import {
   BadRequestException,
   ConflictException,
   Inject,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import {
   FOOD_STATUSES,
@@ -35,6 +37,7 @@ import type { DbTx, Prisma, DiningArea, DiningTable, ServicePeriod } from '@pms/
 import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } from './scope';
+import { occupancyCommand, occupancyEnabled, reservationOccupancy } from './occupancy';
 
 /** Сегодня по часовому поясу филиала, `ГГГГ-ММ-ДД` */
 const localToday = (timezone: string) =>
@@ -465,7 +468,11 @@ export class FoodService {
         { isVip: row.isVip, birthDateChanged: b.birthDate !== undefined },
         { isVip: found.isVip },
       );
-      return { id, isVip: row.isVip, birthDate: b.birthDate ?? found.birthDate?.toISOString().slice(0, 10) ?? null };
+      return {
+        id,
+        isVip: row.isVip,
+        birthDate: row.birthDate ? row.birthDate.toISOString().slice(0, 10) : null,
+      };
     });
   }
   async reservations(query: unknown) {
@@ -590,9 +597,7 @@ export class FoodService {
         )
           throw new NotFoundException('Клиент недоступен');
       } else
-        customerId = (
-          await tx.customer.create({ data: { organizationId: s.organizationId, ...b.customer! } })
-        ).id;
+        customerId = (await findOrCreateCustomer(tx, s.organizationId, b.customer!)).id;
       await tx.customerBusiness.upsert({
         where: { customerId_businessId: { customerId, businessId: s.businessId } },
         create: { customerId, businessId: s.businessId },
@@ -620,6 +625,7 @@ export class FoodService {
         });
         await this.audit(tx, s, r.id, 'food.table.assigned', { tableId: b.tableId });
       }
+      if (r.status === 'SEATED' && b.tableId) await reservationOccupancy(tx,s.locationId,r.id,b.tableId,'SEAT',`walk-in:${key}`,currentUserId());
       await this.audit(tx, s, r.id, 'food.reservation.created', {
         locationId: s.locationId,
         customerId,
@@ -715,16 +721,21 @@ export class FoodService {
       return view(result);
     });
   }
+  private async checkStatus(tx: DbTx, s: FoodScope, r: Row, status: FoodStatus, tableId?: string|null) {
+    if (!foodNext(r.status).includes(status)) throw new ConflictException('Переход статуса недоступен');
+    if (status==='SEATED') {
+      const target=tableId ?? r.tableAssignment?.tableId;
+      if(!target) throw new ConflictException('Сначала назначьте стол');
+      await this.table(tx,s,target,r);
+    }
+  }
   async status(id: string, raw: unknown) {
     return this.write('desk', async (tx, s) => {
       const b = parsed(() => foodObject(raw, ['expectedStatus', 'expectedUpdatedAt', 'status']));
       const r = await this.locked(tx, s, id, b);
-      if (!foodNext(r.status).includes(b.status as FoodStatus))
-        throw new ConflictException('Переход статуса недоступен');
-      if (b.status === 'SEATED') {
-        if (!r.tableAssignment) throw new ConflictException('Сначала назначьте стол');
-        await this.table(tx, s, r.tableAssignment.tableId, r);
-      }
+      await this.checkStatus(tx,s,r,b.status as FoodStatus);
+      if (b.status === 'SEATED') await reservationOccupancy(tx,s.locationId,r.id,r.tableAssignment!.tableId,'SEAT',`seat:${r.id}:${r.updatedAt.toISOString()}`,currentUserId());
+      if (r.status === 'SEATED' && b.status === 'COMPLETED') await reservationOccupancy(tx,s.locationId,r.id,null,'RELEASE',`release:${r.id}:${r.updatedAt.toISOString()}`,currentUserId());
       const result = await tx.restaurantReservation.update({
         where: { id: r.id },
         data: { status: b.status as FoodStatus, updatedAt: this.changed(r) },
@@ -747,6 +758,7 @@ export class FoodService {
       const r = await this.locked(tx, s, id, b),
         tableId = parsed(() => foodId(b.tableId));
       await this.table(tx, s, tableId, r);
+      if (r.status === 'SEATED') await reservationOccupancy(tx,s.locationId,r.id,tableId,'MOVE',`move:${r.id}:${r.updatedAt.toISOString()}`,currentUserId());
       await tx.tableAssignment.upsert({
         where: { reservationId: r.id },
         create: { reservationId: r.id, tableId, assignedById: currentUserId() },
@@ -767,6 +779,65 @@ export class FoodService {
       );
       return view(result);
     });
+  }
+  async occupancy(keyRaw: unknown, raw: unknown, action: 'SEAT'|'MOVE'|'RELEASE', id?: string) {
+    foodMay('desk');
+    if (!occupancyEnabled()) throw new ServiceUnavailableException('История посадки ещё не включена');
+    return this.write('desk',async(tx,s)=>{
+      const b=parsed(()=>foodObject(raw,['tableId','reservationId','orderId']));
+      const key=parsed(()=>foodText(keyRaw,200));
+      const tableId=b.tableId==null?null:parsed(()=>foodId(b.tableId));
+      if(action!=='RELEASE' && !tableId) throw new ConflictException('Укажите стол');
+      const sessionId=id?parsed(()=>foodId(id)):null;
+      const reservationId=b.reservationId==null?null:parsed(()=>foodId(b.reservationId));
+      const orderId=b.orderId==null?null:parsed(()=>foodId(b.orderId));
+      // Replay before business checks: a successful release may now be terminal.
+      const replay=await tx.$queryRaw<{result_id:string}[]>`SELECT result_id FROM table_occupancy_commands WHERE location_id=${s.locationId}::uuid AND intent_key=${key}`;
+      if(replay.length) return occupancyCommand(tx,s.locationId,key,action,tableId,sessionId,reservationId,orderId,currentUserId());
+      const sessions=sessionId ? await tx.$queryRaw<{reservation_id:string|null}[]>`SELECT reservation_id FROM table_occupancy_sessions WHERE id=${sessionId}::uuid AND location_id=${s.locationId}::uuid AND ended_at IS NULL FOR UPDATE` : [];
+      const linked=action==='SEAT'?reservationId:sessions[0]?.reservation_id;
+      let r: Row | null=null;
+      if(linked){
+        const existing=await tx.restaurantReservation.findFirst({where:{id:linked,locationId:s.locationId},include});
+        if(!existing) throw new NotFoundException('Бронь не найдена');
+        r=await this.locked(tx,s,linked,{expectedStatus:existing.status,expectedUpdatedAt:existing.updatedAt.toISOString()});
+        if(action==='SEAT' || action==='RELEASE') await this.checkStatus(tx,s,r,action==='SEAT'?'SEATED':'COMPLETED',tableId);
+        if(action==='MOVE') {
+          if(r.status!=='SEATED') throw new ConflictException('Гости не посажены');
+          await this.table(tx,s,tableId!,r);
+        }
+      }
+      const result=await occupancyCommand(tx,s.locationId,key,action,tableId,sessionId,reservationId,orderId,currentUserId());
+      if(r){
+        if(action!=='RELEASE') await tx.tableAssignment.upsert({where:{reservationId:r.id},create:{reservationId:r.id,tableId:tableId!,assignedById:currentUserId()},update:{tableId:tableId!,assignedAt:new Date(),assignedById:currentUserId()}});
+        await tx.restaurantReservation.update({where:{id:r.id},data:{status:action==='RELEASE'?'COMPLETED':'SEATED',updatedAt:this.changed(r)}});
+        await this.audit(tx,s,r.id,'food.occupancy.'+action.toLowerCase(),{sessionId:result.id,tableId},{status:r.status,tableId:r.tableAssignment?.tableId??null});
+      }
+      return result;
+    });
+  }
+  async occupancySessions(q: Record<string,unknown>) {
+    foodMay('desk');
+    const s=await foodScope(this.prisma.db);
+    if(!occupancyEnabled()) return {status:'UNAVAILABLE',reason:'CAPTURE_DISABLED',sessions:[]};
+    const from=new Date(parsed(()=>foodInstant(q.from))),to=new Date(parsed(()=>foodInstant(q.to)));
+    if(to<=from || to.getTime()-from.getTime()>31*86400000) throw new ConflictException('Период до 31 дня');
+    const limit=q.limit===undefined?100:Number(q.limit);
+    if(typeof q.limit!=='undefined' && typeof q.limit!=='string' || !Number.isInteger(limit) || limit<1 || limit>500) throw new ConflictException('Размер страницы от 1 до 500');
+    let after: string|null=null;
+    if(q.cursor!==undefined){
+      try {
+        if(typeof q.cursor!=='string' || q.cursor.length>1024 || !/^[A-Za-z0-9_-]+$/.test(q.cursor)) throw new Error();
+        const c=JSON.parse(Buffer.from(q.cursor,'base64url').toString('utf8'));
+        if(c.v!==1 || c.locationId!==s.locationId || c.from!==from.toISOString() || c.to!==to.toISOString()) throw new Error();
+        after=foodId(c.after);
+      } catch {throw new ConflictException('Недействительный cursor для выбранного периода и филиала');}
+    }
+    // UUID keyset avoids timestamptz microsecond truncation through JavaScript Date.
+    const rows=await this.prisma.db.$queryRaw<{id:string;tableId:string;reservationId:string|null;orderId:string|null;startedAt:Date;endedAt:Date|null}[]>`SELECT id,table_id AS "tableId",reservation_id AS "reservationId",order_id AS "orderId",started_at AS "startedAt",ended_at AS "endedAt" FROM table_occupancy_sessions WHERE location_id=${s.locationId}::uuid AND started_at<${to} AND (ended_at IS NULL OR ended_at>${from}) AND (${after}::uuid IS NULL OR id>${after}::uuid) ORDER BY id LIMIT ${limit+1}`;
+    const hasMore=rows.length>limit, sessions=rows.slice(0,limit), last=sessions.at(-1);
+    const nextCursor=hasMore&&last?Buffer.from(JSON.stringify({v:1,locationId:s.locationId,from:from.toISOString(),to:to.toISOString(),after:last.id})).toString('base64url'):null;
+    return {status:'PARTIAL',reason:'CAPACITY_AND_COVERAGE_NOT_AVAILABLE',coverage:'UNAVAILABLE',sessions,hasMore,nextCursor};
   }
   async unassign(id: string, raw: unknown) {
     return this.write('desk', async (tx, s) => {

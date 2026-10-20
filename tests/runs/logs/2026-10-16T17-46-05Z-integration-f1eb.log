@@ -1,0 +1,21 @@
+# Интеграционные (integration) · 16.10.2026 22:46 Алматы · <сервер>
+# коммит eb65955 (private-verified-candidate), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T17-46-05Z-integration-f1eb.json' 'tests/integration/rls-isolation.test.ts' 'tests/integration/mv4-beauty.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-owner-dependency-patch-20261016
+
+ ✓  integration  tests/integration/mv4-beauty.test.ts (23 tests) 2768ms
+ ✓  integration  tests/integration/rls-isolation.test.ts (6 tests) 1086ms
+   ✓ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 478ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 375ms
+
+ Test Files  2 passed (2)
+      Tests  29 passed (29)
+   Start at  17:46:06
+   Duration  8.93s (tests 63%, transform 22%, import 15%)
+
+JSON report written to /tmp/pms-test-2026-10-16T17-46-05Z-integration-f1eb.json
+
+# код выхода 0 · 10 с

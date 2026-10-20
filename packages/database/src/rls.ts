@@ -76,12 +76,30 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   // Beauty-домен (DATA_MODEL §19.1): клиент несёт организацию в строке, остальное через родителя
   // (бизнес, филиал, мастер), как у locations. Политики, в миграции 20261003000044_beauty_domain
   'customers',
+  'customer_imports',
+  'customer_import_rows',
   'customer_businesses',
   'employees',
   'employee_locations',
   'beauty_services',
   'location_services',
   'employee_services',
+  // Ordinary Beauty release133-137: mandatory tenant tables, never optional RLS exceptions.
+  'appointment_lines',
+  'employee_service_prices',
+  'beauty_appointment_reviews',
+  'beauty_review_invitations',
+  'beauty_service_materials',
+  'beauty_service_material_revisions',
+  'beauty_positions',
+  'beauty_position_permissions',
+  'beauty_position_assignments',
+  'beauty_location_hours',
+  // Approved portal tables: tenant policies already installed by migration128.
+  'employee_public_profiles',
+  'employee_media',
+  'employee_portfolio_items',
+  'beauty_payroll_policies',
   'working_hours',
   'time_offs',
   'appointments',
@@ -141,6 +159,18 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   // МКТ-В1/В2: учёт бюджета и расходов маркетинга, через Location → Business (DATA_MODEL §41, миграция …097)
   'marketing_expenses',
   'marketing_budgets',
+  // МКТ: план по каналам, файлы расходов, кампании и их статистика, кабинет рекламы и его сверки, через Location →
+  // Business (DATA_MODEL §51–§53, §55; миграции …116, …118, …120, …123): RLS, FORCE и rls_tenant в своих миграциях
+  'marketing_budget_lines',
+  'marketing_expense_files',
+  'marketing_campaigns',
+  'marketing_campaign_stats',
+  'marketing_ad_connections',
+  'marketing_sync_runs',
+  // МКТ: запуск рекламы в кабинете, его шаги и креативы (миграция …126): RLS, FORCE и rls_tenant в своей миграции
+  'marketing_ad_launches',
+  'marketing_ad_launch_steps',
+  'marketing_ad_creatives',
   // Existing policies from 20261004000051_bar_inventory.
   'bar_categories',
   'bar_products',

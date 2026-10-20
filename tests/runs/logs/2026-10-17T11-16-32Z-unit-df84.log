@@ -1,0 +1,19 @@
+# Модульные (unit) · 17.10.2026 16:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит 59b5349 (claude/salon-e2e-check), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T11-16-32Z-unit-df84.json' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e
+
+ ✓ |unit| tests/unit/ci-runner.test.ts (26 tests) 1275ms
+   ✓ скрипт запуска раннера: регистрация (4)
+     ✓ настоящий токен: регистрация с меткой wetop, затем работа 799ms
+     ✓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется 351ms
+
+ Test Files  1 passed (1)
+      Tests  26 passed (26)
+   Start at  04:16:36
+   Duration  1.56s (tests 94%, transform 4%, import 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T11-16-32Z-unit-df84.json
+
+# код выхода 0 · 6 с

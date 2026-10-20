@@ -1,6 +1,37 @@
 'use client';
-import { useEffect, useId, useRef, type ReactNode } from 'react';
+import {
+  useEffect,
+  useId,
+  useRef,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
+} from 'react';
 import { Icon } from './icon';
+
+export function trapDialogFocus(e: ReactKeyboardEvent<HTMLDialogElement>) {
+  if (e.key !== 'Tab') return;
+  const element = e.currentTarget;
+  if ((e.target as HTMLElement).closest('dialog') !== element) return;
+  const controls = [
+    ...element.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], summary, [tabindex]:not([tabindex="-1"])',
+    ),
+  ].filter((control) => control.getClientRects().length > 0 && !control.closest('[inert]'));
+  const first = controls[0];
+  const last = controls.at(-1);
+  if (!first || !last) {
+    e.preventDefault();
+    return;
+  }
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+}
+
 export function Overlay({
   open,
   onClose,
@@ -42,27 +73,7 @@ export function Overlay({
       className={`ui-overlay ${drawer ? 'ui-drawer' : ''} ${size === 'md' ? '' : `ui-overlay--${size}`} ${className}`}
       aria-labelledby={titleId}
       onKeyDown={(e) => {
-        if (!trapFocus || e.key !== 'Tab') return;
-        const element = e.currentTarget;
-        if ((e.target as HTMLElement).closest('dialog') !== element) return;
-        const controls = [
-          ...element.querySelectorAll<HTMLElement>(
-            'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
-          ),
-        ].filter((control) => control.getClientRects().length > 0 && !control.closest('[inert]'));
-        const first = controls[0];
-        const last = controls.at(-1);
-        if (!first || !last) {
-          e.preventDefault();
-          return;
-        }
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
+        if (trapFocus) trapDialogFocus(e);
       }}
       onCancel={(e) => {
         // Нативный cancel не всплывает, но React доставляет его и родителям по дереву компонентов:

@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import { requireVertical } from '../../../lib/vertical-guard';
+import { requireFeature } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
-import { beautyApi } from '../../../lib/api';
+import { beautyApi, type BeautyDay } from '../../../lib/api';
 import { deskShell } from '../../../lib/desk-shell';
-import { mayAccess } from '../../../lib/navigation';
+import { mayBeautyAccess } from '../../../lib/navigation';
 import { MastersBoard } from './board';
 import '../beauty.css';
 
@@ -17,7 +17,7 @@ import '../beauty.css';
 export default async function BeautyMastersPage({
   searchParams,
 }: { searchParams?: Promise<{ employee?: string | string[] }> } = {}) {
-  await requireVertical(['BEAUTY']);
+  await requireFeature('/beauty/masters');
   const params = await searchParams;
   const requested = typeof params?.employee === 'string' ? params.employee : '';
   const employeeId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
@@ -26,11 +26,15 @@ export default async function BeautyMastersPage({
     ? requested
     : '';
   const shell = await deskShell();
+  const canReadServices = mayBeautyAccess(shell.access, 'services', 'view', { legacy: 'rates' });
+  const canReadJournal = mayBeautyAccess(shell.access, 'journal', 'view', { legacy: 'desk' });
   const loaded = await Promise.all([
     beautyApi.employees(),
-    beautyApi.services(),
-    beautyApi.day(),
-    beautyApi.schedule(),
+    canReadServices
+      ? beautyApi.services()
+      : Promise.resolve({ locationId: null, locationCurrency: null, items: [] }),
+    canReadJournal ? beautyApi.day() : Promise.resolve(null),
+    canReadJournal ? beautyApi.schedule() : Promise.resolve(null),
   ]).then(
     (value) => ({ ok: true as const, value }),
     (error: unknown) => {
@@ -40,31 +44,46 @@ export default async function BeautyMastersPage({
   );
   if (!loaded.ok)
     return (
-      <Page title="Мастера">
+      <Page title="Специалисты">
         <LoadError testId="beauty-masters-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
-  const [employees, services, today, schedule] = loaded.value;
-  const canEdit = mayAccess(shell.access, 'property') && !shell.readOnly;
+  const [employees, services, loadedToday, loadedSchedule] = loaded.value;
+  const today: BeautyDay = loadedToday ?? {
+    location: { id: employees.locationId ?? '', name: null, timezone: 'UTC', currency: '' },
+    date: '', columns: [], appointments: [], services: [], bounds: { fromMinutes: 480, toMinutes: 1200 },
+  };
+  const may = (section: 'employees' | 'services', action: 'create' | 'update') =>
+    !shell.readOnly &&
+    mayBeautyAccess(shell.access, section, action, {
+      legacy: section === 'services' ? 'rates' : 'property',
+    });
   return (
     <Page
       className="beauty-page"
-      title="Мастера"
-      subtitle="Мастер работает в сети: его можно поставить в несколько филиалов."
+      title="Специалисты"
+      subtitle="Специалист работает в сети: его можно поставить в несколько филиалов."
     >
       <p>
         <Link href="/register/setup">Вернуться к настройке салона</Link>
       </p>
       <MastersBoard
         key={employees.locationId ?? 'business'}
-        {...(schedule.businessName !== undefined ? { businessName: schedule.businessName } : {})}
-        {...(typeof schedule.location?.name === 'string' ? { locationName: schedule.location.name } : {})}
+        {...(loadedSchedule?.businessName !== undefined
+          ? { businessName: loadedSchedule.businessName }
+          : {})}
+        {...(typeof loadedSchedule?.location?.name === 'string'
+          ? { locationName: loadedSchedule.location.name }
+          : {})}
         scopeKey={employees.locationId ?? ''}
         items={employees.items}
         services={services.items}
         today={today}
-        locations={schedule.locations}
-        canEdit={canEdit}
+        scheduleAvailable={loadedToday !== null}
+        locations={loadedSchedule?.locations ?? []}
+        canCreate={may('employees', 'create')}
+        canUpdate={may('employees', 'update')}
+        canManagePrices={may('services', 'update')}
         initialEmployeeId={employeeId}
         unavailable={Boolean(requested) && !employees.items.some((row) => row.id === employeeId)}
       />

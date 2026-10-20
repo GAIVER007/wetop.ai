@@ -1,0 +1,28 @@
+# Модульные (unit) · 17.10.2026 13:24 Алматы · <сервер>
+# коммит 08f5f5b (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 16
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T08-24-05Z-unit-78e3.json' 'tests/unit/branch-cash-actions.test.ts' 'apps/web/src/app/management/analytics/vertical/metrics.test.ts' 'apps/web/src/app/management/analytics/vertical/load.test.ts' 'apps/web/src/app/management/analytics/vertical/status-completeness.test.ts' 'apps/web/src/app/my-work/profile-version.test.ts' 'apps/api/src/employee-portal/boundary.test.ts' 'apps/api/src/employee-portal/write-safety.test.ts' 'packages/domain/src/beauty/working-time.test.ts' 'packages/domain/src/beauty/beauty.test.ts' 'packages/domain/src/beauty/slots.test.ts' 'tests/unit/tz21-week-editors.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ✓  unit  tests/unit/branch-cash-actions.test.ts (9 tests) 1239ms
+   ✓ branch cash server actions use verified capability context (9)
+     ✓ accepts shared branch cash for BEAUTY without rewriting the monetary command 1228ms
+ ✓  unit  apps/web/src/app/management/analytics/vertical/load.test.ts (3 tests) 21ms
+ ✓  unit  apps/web/src/app/management/analytics/vertical/metrics.test.ts (5 tests) 21ms
+ ✓  unit  packages/domain/src/beauty/beauty.test.ts (17 tests) 23ms
+ ✓  unit  packages/domain/src/beauty/slots.test.ts (6 tests) 19ms
+ ✓  unit  apps/web/src/app/management/analytics/vertical/status-completeness.test.ts (4 tests) 11ms
+ ✓  unit  apps/web/src/app/my-work/profile-version.test.ts (3 tests) 18ms
+ ✓  unit  packages/domain/src/beauty/working-time.test.ts (4 tests) 21ms
+ ✓  unit  apps/api/src/employee-portal/boundary.test.ts (4 tests) 8ms
+ ✓  unit  apps/api/src/employee-portal/write-safety.test.ts (6 tests) 8ms
+ ✓  unit  tests/unit/tz21-week-editors.test.ts (4 tests) 4ms
+
+ Test Files  11 passed (11)
+      Tests  65 passed (65)
+   Start at  08:24:07
+   Duration  5.00s (tests 38%, import 34%, transform 27%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-17T08-24-05Z-unit-78e3.json
+
+# код выхода 0 · 8 с

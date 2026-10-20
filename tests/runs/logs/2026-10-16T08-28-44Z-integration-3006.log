@@ -1,0 +1,47 @@
+# Интеграционные (integration) · 16.10.2026 13:28 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 26
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T08-28-44Z-integration-3006.json' '--config' 'tests/capacity-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/capacity-isolated.test.ts (2 tests | 2 failed) 58ms
+   × starts only at observation, snapshots table edits atomically without inventing schedule 6ms
+   × rolls revision writes back with actual setting edit 19ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/capacity-isolated.test.ts > starts only at observation, snapshots table edits atomically without inventing schedule
+error: function capture_restaurant_capacity(unknown) does not exist
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/capacity-isolated.test.ts:15:2
+     13| afterAll(()=>pool.end());
+     14| it('starts only at observation, snapshots table edits atomically witho…
+     15|  await pool.query('select capture_restaurant_capacity($1)',[location]);
+       |  ^
+     16|  const old=(await pool.query('select * from resource_capacity_revision…
+     17|  expect(old.table_id).toBe(table);expect(old.active).toBe(true);expect…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/capacity-isolated.test.ts > rolls revision writes back with actual setting edit
+error: relation "resource_capacity_revisions" does not exist
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/capacity-isolated.test.ts:27:10
+     25|  const client=await pool.connect();try{
+     26|  await client.query('begin');await client.query('update dining_tables …
+     27|  expect((await pool.query('select count(*) from resource_capacity_revi…
+       |          ^
+     28|  }finally{client.release();}
+     29| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  08:28:45
+   Duration  258ms (tests 46%, import 27%, transform 23%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-10-16T08-28-44Z-integration-3006.json
+
+# код выхода 1 · 1 с

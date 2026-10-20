@@ -1,0 +1,249 @@
+# Сквозные (e2e) · 17.10.2026 16:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1842a14 (claude/salon-e2e-check)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 46 tests using 2 workers
+
+[WebServer] (node:41108) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   1 tests/beauty-ui/calendar-master-selection.spec.ts:29:1 › mobile master filter and visible calendar select the same master (2.4s)
+  ✓   3 tests/beauty-ui/calendar-master-selection.spec.ts:45:1 › new appointment defaults to the master selected in the desktop filter (2.4s)
+  -   4 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 1440
+  -   5 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация light 390
+  -   6 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 1440
+  -   7 tests/beauty-ui/ds1c-capture.spec.ts:16:5 › салон: дневная навигация dark 390
+  ✓   8 tests/beauty-ui/employee-workspace.spec.ts:69:1 › minimal create, saved ID, reload and actual desktop/mobile themes (5.9s)
+  ✓   9 tests/beauty-ui/employee-workspace.spec.ts:106:1 › two stale forms keep the second draft and show the current profile (6.0s)
+  ✓  10 tests/beauty-ui/employee-workspace.spec.ts:134:1 › dirty stay, discard and save before tabs/close; failed save keeps draft (4.8s)
+  ✓  11 tests/beauty-ui/employee-workspace.spec.ts:178:1 › Back/Forward and keyboard tabs retain a consistent employee URL (2.0s)
+  ✓  12 tests/beauty-ui/employee-workspace.spec.ts:209:1 › inaccessible deep link is neutral and old Beauty entry remains compatible (2.8s)
+  ✘  13 tests/beauty-ui/employee-workspace.spec.ts:221:1 › lost create response is recovered on reload using one persistent operation (1.2s)
+  ✘   2 tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete (27.2s)
+  ✘  15 tests/beauty-ui/beauty.spec.ts:274:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY (203ms)
+[WebServer] ⨯ Error: Выбранный бизнес или филиал недоступен. Выберите филиал заново.
+[WebServer]     at getJson (src/lib/api.ts:201:11)
+[WebServer]     at async Object.me (src/lib/api.ts:623:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   199 |         /* тело не JSON */
+[WebServer]   200 |       }
+[WebServer] > 201 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   202 |   }
+[WebServer]   203 |   return (await res.json()) as T;
+[WebServer]   204 | } {
+[WebServer]   status: 403,
+[WebServer]   digest: 'API_403'
+[WebServer] }
+  ✓  16 tests/beauty-ui/beauty.spec.ts:311:1 › existing customer can be selected for another appointment without duplication (5.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+  ✓  17 tests/beauty-ui/beauty.spec.ts:339:5 › calendar and drawer 1440 light, keyboard, axe, no overflow (13.8s)
+  ✓  18 tests/beauty-ui/beauty.spec.ts:339:5 › calendar and drawer 1440 dark, keyboard, axe, no overflow (10.8s)
+  ✓  19 tests/beauty-ui/beauty.spec.ts:339:5 › calendar and drawer 390 light, keyboard, axe, no overflow (9.2s)
+  ✓  20 tests/beauty-ui/beauty.spec.ts:339:5 › calendar and drawer 390 dark, keyboard, axe, no overflow (9.5s)
+  ✘  21 tests/beauty-ui/beauty.spec.ts:420:1 › archived service and employee preserve historical calendar appointments (1.8s)
+  ✓  22 tests/beauty-ui/beauty.spec.ts:458:1 › TimeOff from employee drawer, server denial and timezone persisted (5.0s)
+  ✓  23 tests/beauty-ui/beauty.spec.ts:510:1 › DS1c: day navigation keeps the previous addresses (1.3s)
+  ✓  24 tests/beauty-ui/beauty.spec.ts:525:1 › Beauty onboarding v2 completes a ready branch and resumes Today (3.7s)
+  -  25 tests/beauty-ui/ref-capture.spec.ts:14:1 › салон: календарь на ширинах и темах
+  -  26 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /today
+  -  27 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /beauty/schedule
+  -  28 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /appointments
+  -  29 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /services
+  -  30 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees
+  -  31 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /employees/shifts
+  -  32 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /customers
+  -  33 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /finance
+  -  34 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /team
+  -  35 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /help
+  -  36 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /branches
+  -  37 tests/beauty-ui/ui5-audit.spec.ts:28:5 › аудит beauty /reports
+  ✓  38 tests/beauty-ui/unified-growth.spec.ts:130:1 › салон: продажи, финансы и маркетинг на данных филиала (10.1s)
+  ✘  14 tests/beauty-ui/employee-workspace.spec.ts:284:1 › late schedule A cannot populate employee B or a new employee (1.5m)
+  ✓  39 tests/beauty-ui/employee-workspace.spec.ts:333:1 › a scope-switch event invalidates an in-flight profile response (2.0s)
+  ✓  40 tests/beauty-ui/employee-workspace.spec.ts:380:1 › services cannot restore a stale name and profile cannot restore stale services (2.3s)
+  ✓  41 tests/beauty-ui/employee-workspace.spec.ts:424:1 › native beforeunload protects reload and preserves draft when dismissed (2.5s)
+  ✓  42 tests/beauty-ui/employee-workspace.spec.ts:449:1 › dirty internal navigation asks before leaving and stays on failure (1.8s)
+  ✓  43 tests/beauty-ui/employee-workspace.spec.ts:469:1 › profile fields, keyboard focus and contrast pass an axe audit (1.7s)
+  ✓  44 tests/beauty-ui/employee-workspace.spec.ts:486:1 › pending services save cannot mark a later checkbox edit as saved (1.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+  ✓  45 tests/beauty-ui/employee-workspace.spec.ts:534:1 › saving dirty creation before close leaves one saved employee and a closed card (1.7s)
+  ✓  46 tests/beauty-ui/employee-workspace.spec.ts:553:1 › a later week edit stays dirty after the submitted week is saved (1.5s)
+
+
+  1) tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  getByRole('dialog')
+    Expected: hidden
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeHidden" getByRole('dialog') with timeout 5000ms
+      - waiting for getByRole('dialog')
+        14 × locator resolved to <dialog open="" class="ui-overlay ui-drawer  " aria-labelledby="_R_8n5esndklmlb_">…</dialog>
+           - unexpected value "visible"
+
+
+      187 |   await expect(page.getByRole('dialog').getByRole('button', { name: 'Не пришёл', exact: true })).toBeVisible();
+      188 |   await page.getByRole('dialog').getByRole('button', { name: 'Начать', exact: true }).click();
+    > 189 |   await expect(page.getByRole('dialog')).toBeHidden();
+          |                                          ^
+      190 |   await page.reload();
+      191 |   await expect(tile).toContainText('В процессе');
+      192 |   await tile.click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/beauty-ui/beauty.spec.ts:189:42
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    Error Context: test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-empty-setup-through-2111c-tment-move-confirm-complete/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/beauty-ui/beauty.spec.ts:274:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 | async function reset(page: Page, request: APIRequestContext) {
+      29 |   const response = await request.post(`${api}/__test/reset`);
+    > 30 |   expect(response.ok()).toBe(true);
+         |                         ^
+      31 |   const f: Fixture = await response.json();
+      32 |   await scope(page, f.business, f.locations[0]!);
+      33 |   return f;
+        at reset (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/beauty-ui/beauty.spec.ts:30:25)
+        at seed (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/beauty-ui/beauty.spec.ts:54:24)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/beauty-ui/beauty.spec.ts:278:13
+
+    Error Context: test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/error-context.md
+
+    Error Context: test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-overlap-stays-inlin-6eaf1-cations-STAFF-and-READ-ONLY/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/beauty-ui/beauty.spec.ts:420:1 › archived service and employee preserve historical calendar appointments 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      440 |       })
+      441 |     ).ok(),
+    > 442 |   ).toBe(true);
+          |     ^
+      443 |   await page.reload();
+      444 |   await expect(page.locator('.beauty-grid-day .beauty-tile')).toContainText('Тестовая клиентка');
+      445 |   await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/beauty-ui/beauty.spec.ts:442:5
+
+    Error Context: test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/error-context.md
+
+    Error Context: test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/beauty-archived-service-an-2af1b-rical-calendar-appointments/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/beauty-ui/employee-workspace.spec.ts:221:1 › lost create response is recovered on reload using one persistent operation 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      57 | async function read(request: APIRequestContext, headers: Record<string, string>) {
+      58 |   const response = await request.get(`${api}/beauty/employees`, { headers });
+    > 59 |   expect(response.ok()).toBe(true);
+         |                         ^
+      60 |   return (await response.json()).items as Array<{
+      61 |     id: string;
+      62 |     name: string;
+        at read (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/beauty-ui/employee-workspace.spec.ts:59:25)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/beauty-ui/employee-workspace.spec.ts:256:34
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/beauty-ui/employee-workspace.spec.ts:256:3
+
+    Error Context: test-results/employee-workspace-lost-cr-2c5d4-ng-one-persistent-operation/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/employee-workspace-lost-cr-2c5d4-ng-one-persistent-operation/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/employee-workspace-lost-cr-2c5d4-ng-one-persistent-operation/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/beauty-ui/employee-workspace.spec.ts:284:1 › late schedule A cannot populate employee B or a new employee 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('listitem').filter({ hasText: 'Тестовый мастер' }).filter({ hasNotText: 'Тестовый мастер Б' }).getByRole('button', { name: 'Открыть' })
+
+
+      316 |     .filter({ hasNotText: 'Тестовый мастер Б' })
+      317 |     .getByRole('button', { name: 'Открыть' })
+    > 318 |     .click();
+          |      ^
+      319 |   await ready;
+      320 |   await dialog(page).getByRole('button', { name: 'Закрыть: Мастер' }).click();
+      321 |   await page
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/beauty-ui/employee-workspace.spec.ts:318:6
+
+    Error Context: test-results/employee-workspace-late-sc-6cf0e-mployee-B-or-a-new-employee/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/employee-workspace-late-sc-6cf0e-mployee-B-or-a-new-employee/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/employee-workspace-late-sc-6cf0e-mployee-B-or-a-new-employee/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/beauty-ui/beauty.spec.ts:112:1 › empty setup through real UI, persisted appointment, move, confirm, complete 
+    tests/beauty-ui/beauty.spec.ts:274:1 › overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY 
+    tests/beauty-ui/beauty.spec.ts:420:1 › archived service and employee preserve historical calendar appointments 
+    tests/beauty-ui/employee-workspace.spec.ts:221:1 › lost create response is recovered on reload using one persistent operation 
+    tests/beauty-ui/employee-workspace.spec.ts:284:1 › late schedule A cannot populate employee B or a new employee 
+  17 skipped
+  24 passed (2.4m)
+
+# код выхода 1 · 2 мин 23 с

@@ -1,0 +1,130 @@
+# Модульные (unit) · 17.10.2026 00:40 Алматы · <сервер>
+# коммит c46ef1c (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 49
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T19-40-12Z-unit-8a31.json' 'tests/unit/employee-portal-web.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-portal-release-61af7b90
+
+ ❯ |unit| tests/unit/employee-portal-web.test.ts (7 tests | 1 failed) 45ms
+   ❯ employee portal frontend boundaries (4)
+     ✓ has independent self, manager and anonymous pages 3ms
+     ✓ uses server-only authenticated transport and anonymous public allowlist 1ms
+     × offers absence create/list/delete and affected own appointments in the week tab 35ms
+     ✓ keeps self pay read-only and separates waiter orders from beauty services 1ms
+   ✓ salon terminology regression (3)
+     ✓ does not represent service snapshots as cash receipts or loss 1ms
+     ✓ explains exceptions versus weekly weekends and labels start/end visibly 2ms
+     ✓ exposes useful service search and category 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/employee-portal-web.test.ts > employee portal frontend boundaries > offers absence create/list/delete and affected own appointments in the week tab
+AssertionError: expected '\'use client\';\nimport { useState } …' to contain 'data-testid="portal-time-offs"'
+
+- Expected
++ Received
+
+- data-testid="portal-time-offs"
++ 'use client';
++ import { useState } from 'react';
++ import type { AppointmentStatus, EmployeePortalDto, OrderStatus } from '@pms/domain';
++ import { Badge, Field, Input } from '../ui';
++ import { formatMoney } from '../../lib/money';
++ import { PortalForm, PortalWeek, type PortalContext } from './forms';
++ import { PortalMedia } from './media';
++ import { PortalManagement } from './management';
++ import { Tabs } from '../tabs';
++ import { beautyStatus } from '../../lib/status/beauty';
++ import { foodOrderStatus } from '../../lib/status/food';
++ export function EmployeeCabinet({ initial, target, scope }: { initial: EmployeePortalDto; target: { employeeId: string | null }; scope: string }) {
++   const [data, setData] = useState(initial);
++   const context: PortalContext = { target, scope, onSaved: setData };
++   const beauty = data.business.vertical === 'BEAUTY';
++   const manager = data.access === 'MANAGER';
++   return <div className="employee-portal" data-testid={manager ? 'employee-manager' : beauty ? 'employee-self-master' : 'employee-self-waiter'}>
++     <header className="panel portal-section portal-heading">
++       <div><div className="portal-identity-line"><Badge>{manager ? 'Управление сотрудником' : 'Мой кабинет'}</Badge><h2>{data.employee.name}</h2></div>
++         <ul className="portal-identity-meta" aria-label="Место работы и статус"><li>{data.business.name}</li><li>{data.location?.name ?? 'Филиал не выбран'}</li><li>{beauty ? 'Мастер' : 'Сотрудник ресторана'}</li><li>{data.employee.active ? 'Работает' : 'В архиве'}</li></ul>
++       </div>
++       {data.avatar && <img className="portal-avatar" src={data.avatar.url} alt={`Фото: ${data.employee.name}`} width={96} height={96} />}
++     </header>
++     <Tabs label="Разделы кабинета" className="portal-tabs" panels={[
++       { id: 'professional', label: 'Профиль', content: <section className="panel portal-section"><h2>Профессиональный профиль</h2>
++
++       <PortalForm context={context} command="profile" revision={data.profile.revision} label="Сохранить профиль">
++         <Field label="Имя в карточке"><Input name="name" required maxLength={200} defaultValue={data.employee.name} /></Field>
++         <Field label="Телефон для связи"><Input name="phone" type="tel" maxLength={32} defaultValue={data.employee.phone ?? ''} /></Field>
++         <Field label="Почта для связи"><Input name="email" type="email" maxLength={320} defaultValue={data.employee.email ?? ''} /></Field>
++
++         <Field label="Специализация"><Input name="headline" maxLength={200} defaultValue={data.profile.headline} /></Field>
++         <Field label="О себе"><textarea name="biography" rows={5} maxLength={5000} defaultValue={data.profile.biography} /></Field>
++         <Field label="Год начала практики"><Input name="practiceSinceYear" type="number" min={1900} max={new Date().getUTCFullYear()} defaultValue={data.profile.practiceSinceYear ?? ''} /></Field>
++       </PortalForm>
++       <p>Контакты не публикуются. Почта для входа не изменится.</p>
++       <p>{data.profile.published ? 'Профиль опубликован' : 'Профиль не опубликован / ожидает одобрения'}</p>
++       {data.profile.published && <a href={`/specialists/${encodeURIComponent(data.profile.slug)}`} target="_blank" rel="noreferrer">Открыть публичную страницу</a>}
++     </section> },
++       { id: 'work', label: beauty ? 'Записи' : 'Заказы', content: <section className="panel portal-section" data-testid="portal-own-work"><h2>{beauty ? 'Мои записи' : 'Мои заказы'}</h2>
++       <form className="portal-filters" method="get"><Field label="Дата записей"><Input name="date" type="date" /></Field><Field label="Месяц оплаты труда"><Input name="month" type="month" defaultValue={data.pay.month} /></Field><button className="btn btn--secondary" type="submit">Показать</button></form>
++       {beauty ? data.appointments.length ? <ul className="portal-list">{data.appointments.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{a.date}</span><span>{new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: data.location?.timezone ?? 'UTC' }).format(new Date(a.startsAt))}</span><span>{a.customerName}</span><span>{beautyStatus[a.status as AppointmentStatus]?.label ?? 'Неизвестный статус'}</span><span>{formatMoney(a.priceMinor, a.currency)}</span></li>)}</ul> : <p>На выбранную дату записей нет</p>
++         : data.orders.length ? <ul className="portal-list">{data.orders.map(order => <li key={order.id}><strong>Заказ №{order.number}</strong><span>{order.tableName ?? 'Стол не указан'}</span><span>{foodOrderStatus[order.status as OrderStatus]?.label ?? 'Неизвестный статус'}</span><span>{formatMoney(order.totalMinor, order.currency)}</span></li>)}</ul> : <p>Собственных заказов за выбранный период нет</p>}
++     </section> },
++       ...(data.business.vertical === 'BEAUTY' ? [{ id: 'services', label: 'Услуги', content: <section className="panel portal-section" data-testid="portal-services"><h2>Мои услуги</h2>
++       <p>Услуги, на которые к вам могут записаться. Цены устанавливает руководитель.</p>
++       <ul className="portal-list" data-testid="portal-assigned-services">{data.services.filter(service=>service.assigned).map(service=><li key={service.id}><strong>{service.name}</strong><span>{service.durationMinutes} мин</span><span>{service.available ? formatMoney(service.priceMinor,service.currency) : 'В этом филиале недоступна'}</span></li>)}</ul>
++       {!data.services.some(service=>service.assigned) && <p>Услуги пока не выбраны</p>}
++       {!data.location ? <p>Выберите филиал, чтобы увидеть действующие цены и назначить услуги.</p> : <details className="portal-service-picker"><summary role="button" className="btn btn--secondary">Добавить услугу</summary><p>Отметьте услуги из каталога салона. Чтобы убрать услугу, снимите отметку.</p><PortalForm context={context} command="services" revision={data.servicesRevision} label="Сохранить услуги">
++         {!data.services.length && <p>В каталоге пока нет услуг</p>}
++         {data.services.map(service => <label className="portal-service" key={service.id}><input type="checkbox" name="serviceIds" value={service.id} defaultChecked={service.assigned} /><span><strong>{service.name}</strong><small className="portal-service-meta"><span>{service.durationMinutes} мин</span><span>{service.available ? formatMoney(service.priceMinor, service.currency) : 'В этом филиале недоступна'}</span></small></span></label>)}
++       </PortalForm></details>}
++     </section> }] : []),
++       { id: 'week', label: 'График', content: <div className="portal-schedule"><section className="panel portal-section" data-testid="portal-week"><h2>Обычная неделя</h2>
++       {data.location ? <PortalWeek context={context} week={data.week} revision={data.weekRevision} /> : <p>Выберите филиал для недельного графика.</p>}
++     </section>
++     </div> },
++       { id: 'pay', label: 'Оплата труда', content: <section className="panel portal-section" data-testid="portal-pay"><div data-testid="personal-finance" data-month={data.pay.month}>
++       <div className="portal-finance-top"><div><h2>Мои финансы</h2><p>Оплата труда за выбранный месяц</p></div><form className="portal-finance-period" method="get" action="#pay"><Field label="Месяц расчёта"><Input name="month" type="month" defaultValue={data.pay.month} required /></Field><button className="btn btn--secondary" type="submit">Показать</button></form></div>
++       <div className="portal-finance-kpis">{([
++         ['finance-earned','Начислено',data.pay.status==='AVAILABLE'?data.pay.earnedMinor:null,'Заработок по расчёту за месяц'],
++         ['finance-paid','Выплачено',data.pay.paidMinor,'Выплаты, учтённые руководителем'],
++         ['finance-remaining','Осталось к выплате',data.pay.status==='AVAILABLE'?data.pay.remainingMinor:null,'Остаток по данным расчёта'],
++       ] as const).map(([key,label,amount,hint])=><article key={key} data-testid={key} data-amount={amount??undefined}><span>{label}</span><strong>{amount===null?(key==='finance-paid'?'Нет данных':'Нет расчёта'):formatMoney(amount,data.pay.currency)}</strong><small>{hint}</small></article>)}</div>
++       <p role="status" className="portal-finance-notice">{data.pay.status==='AVAILABLE'?'Суммы получены из расчёта оплаты труда.':data.pay.status==='SELECT_LOCATION'?'Выберите филиал в общем переключателе филиалов, чтобы увидеть начисления, выплаты и остаток за месяц.':data.pay.status==='NOT_CONFIGURED'?'Условия оплаты ещё не настроены. Подтверждённые выплаты отображаются отдельно.':'Автоматический расчёт для салона пока недоступен. Выплаты и условия оплаты доступны ниже.'}</p>
++       <div className="portal-finance-extras"><p><span>Бонусы</span><strong>{data.pay.bonusMinor===null?'Не указаны':formatMoney(data.pay.bonusMinor,data.pay.currency)}</strong></p><p><span>Удержания</span><strong>{data.pay.penaltyMinor===null?'Не указаны':formatMoney(data.pay.penaltyMinor,data.pay.currency)}</strong></p></div>
++       <details className="portal-finance-conditions"><summary>Условия оплаты</summary>
++       <dl className="portal-pay-grid">
++         <dt>Модель</dt><dd>{data.pay.model ? ({ FIXED: 'Фиксированная', PERCENT: 'Процент', FIXED_PLUS_PERCENT: 'Фиксированная + процент', BONUS_ONLY: 'Только бонусы' }[data.pay.model]) : 'Не настроена'}</dd>
++         <dt>Ставка</dt><dd>{data.pay.fixedMinor === null ? 'Не настроена' : formatMoney(data.pay.fixedMinor, data.pay.currency)}</dd>
++         <dt>Процент</dt><dd>{data.pay.percent === null ? 'Не настроен' : `${data.pay.percent}%`}</dd>
++         <dt>База процента</dt><dd>{data.pay.percentBasis === 'COMPLETED_SERVICES' ? 'Стоимость оказанных услуг' : data.pay.percentBasis === 'PAID_COMPLETED_SERVICES' ? 'Оплаченные оказанные услуги' : beauty ? 'Не настроена' : 'По закрытым заказам, расчёт сервера'}</dd>
++       </dl>
++       <p>{data.pay.explanation}</p></details>
++       {!!data.pay.adjustments.length && <><h3>Бонусы и удержания: подробности</h3><ul className="portal-list">{data.pay.adjustments.map(item => <li key={item.id}><strong>{item.reason}</strong><span>{formatMoney(item.amountMinor, data.pay.currency)}</span></li>)}</ul></>}
++       <p className="portal-finance-footer">Условия и выплаты меняет руководитель. Здесь вы видите свои данные.</p>
++       </div>
++     </section> },
++       { id: 'media', label: 'Фото и работы', content: <PortalMedia data={data} context={context} /> },
++       ...(manager ? [{ id: 'management', label: 'Управление', content: <PortalManagement data={data} context={context} /> }] : []),
++     ]} />
++   </div>;
++ }
++
+
+ ❯ tests/unit/employee-portal-web.test.ts:27:16
+     25|   it('offers absence create/list/delete and affected own appointments …
+     26|     const ui = source('components/employee-portal/cabinet.tsx');
+     27|     expect(ui).toContain('data-testid="portal-time-offs"');
+       |                ^
+     28|     expect(ui).toContain('command="time-off"');
+     29|     expect(ui).toContain('name="dateFrom"');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  19:40:13
+   Duration  276ms (transform 41%, tests 39%, import 13%, worker 7%)
+
+JSON report written to /tmp/pms-test-2026-10-16T19-40-12Z-unit-8a31.json
+
+# код выхода 1 · 2 с

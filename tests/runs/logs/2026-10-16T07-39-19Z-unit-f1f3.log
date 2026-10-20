@@ -1,0 +1,17 @@
+# Модульные (unit) · 16.10.2026 12:39 Алматы · Noutbuk-Vyacheslav.local
+# коммит c8d5ddf (claude/combined-279-port)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-39-19Z-unit-f1f3.json' 'apps/api/src/accounts/members.controller.test.ts' 'apps/api/src/channels/channels.controller.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-279
+
+ ✓ |unit| apps/api/src/accounts/members.controller.test.ts (41 tests) 147ms
+ ✓ |unit| apps/api/src/channels/channels.controller.test.ts (11 tests) 150ms
+
+ Test Files  2 passed (2)
+      Tests  52 passed (52)
+   Start at  00:39:20
+   Duration  1.12s (transform 48%, import 37%, tests 15%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-39-19Z-unit-f1f3.json
+
+# код выхода 0 · 2 с

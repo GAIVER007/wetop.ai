@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 13.10.2026 19:04 Алматы · Noutbuk-Vyacheslav.local
+# коммит bc2defd (codex/ui-fix-01-20261012), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T14-04-03Z-integration-7a9c.json' 'tests/integration/platform-p1-backfill.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/ui-fix-01/WETOP
+
+ ✓ |integration| tests/integration/platform-p1-backfill.test.ts (3 tests) 134ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  07:04:03
+   Duration  1.13s (transform 48%, import 31%, tests 21%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-13T14-04-03Z-integration-7a9c.json
+
+# код выхода 0 · 2 с

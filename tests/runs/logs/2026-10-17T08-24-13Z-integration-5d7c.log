@@ -1,0 +1,47 @@
+# Интеграционные (integration) · 17.10.2026 13:24 Алматы · <сервер>
+# коммит 08f5f5b (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 14
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T08-24-13Z-integration-5d7c.json' 'tests/integration/tz21-working-time.test.ts' 'tests/integration/beauty-schedule.test.ts' 'tests/integration/beauty-appointments.test.ts' 'tests/integration/employee-portal-schedule-conflicts.test.ts' 'tests/integration/employee-common-writer.test.ts' 'tests/integration/employee-workspace.test.ts' 'tests/integration/employee-portal.test.ts' 'tests/integration/employee-portal-payroll-scope.test.ts' 'tests/integration/restaurant-cash-database.test.ts' 'tests/integration/cash-operations.test.ts' 'tests/integration/finance-operations.test.ts' 'tests/integration/bar-restaurant-cash.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ✓  integration  tests/integration/employee-common-writer.test.ts (19 tests) 3629ms
+   ✓ TZ2.1 common Employee original-version writer, PostgreSQL RLS (19)
+     ✓ runs as wetop_app without bypass or ownership 452ms
+     ✓ BEAUTY: basic winner then stale portal must conflict 391ms
+ ✓  integration  tests/integration/employee-portal-payroll-scope.test.ts (6 tests) 1649ms
+   ✓ Food portal payroll uses an authorized viewing branch, not invented UTC money (6)
+     ✓ matches actual manager payroll for the same employee/month in each viewing timezone and every legacy model 533ms
+ ✓  integration  tests/integration/finance-operations.test.ts (2 tests) 1348ms
+ ✓  integration  tests/integration/employee-workspace.test.ts (9 tests) 2176ms
+   ✓ PEOPLE profile CAS on real PostgreSQL with RLS (9)
+     ✓ stale profile does not overwrite a newer phone 355ms
+ ✓  integration  tests/integration/tz21-working-time.test.ts (6 tests) 1730ms
+ ✓  integration  tests/integration/employee-portal-schedule-conflicts.test.ts (4 tests) 2225ms
+   ✓ portal schedule warnings and anonymous cache revocation (4)
+     ✓ shows a booked own appointment outside a replacement week, not only the selected date 383ms
+     ✓ checks own absence across assigned branches in each appointment timezone and clears on delete 302ms
+     ✓ bounds the upcoming read and marks incomplete checks rather than claiming all-clear 638ms
+ ✓  integration  tests/integration/employee-portal.test.ts (6 tests) 2795ms
+   ✓ employee portal real persistence and authorization (6)
+     ✓ persists private profile and requires manager reapproval after self edits 647ms
+     ✓ persists own skills/week/absence without changing appointments 355ms
+     ✓ persists actual processed bytes, enforces work ownership and truthful storage off 377ms
+ ✓  integration  tests/integration/beauty-appointments.test.ts (14 tests) 3001ms
+ ✓  integration  tests/integration/cash-operations.test.ts (4 tests) 1757ms
+(node:96248) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓  integration  tests/integration/bar-restaurant-cash.test.ts (4 tests) 2066ms
+   ✓ бар: деньги по направлению филиала (integration) (4)
+     ✓ ресторан: продажа приходом кассы ресторана, оплата поставщику не больше остатка, отмена аннулирует приход 1093ms
+     ✓ салон: продажа и оплата поставщику через кассу филиала салона (§48), счёт гостя закрыт 406ms
+ ✓  integration  tests/integration/beauty-schedule.test.ts (12 tests) 1992ms
+ ✓  integration  tests/integration/restaurant-cash-database.test.ts (6 tests) 240ms
+
+ Test Files  12 passed (12)
+      Tests  92 passed (92)
+   Start at  08:24:15
+   Duration  43.82s (tests 63%, import 30%, transform 7%)
+
+JSON report written to /tmp/pms-test-2026-10-17T08-24-13Z-integration-5d7c.json
+
+# код выхода 0 · 45 с

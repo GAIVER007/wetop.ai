@@ -1,0 +1,30 @@
+# Модульные (unit) · 16.10.2026 11:53 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T06-53-19Z-unit-4e46.json' 'packages/domain/src/owner-summary/expenses.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| packages/domain/src/owner-summary/expenses.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/owner-summary/expenses.test.ts [ packages/domain/src/owner-summary/expenses.test.ts ]
+Error: Cannot find module './expenses' imported from /srv/hermes/workspace/wetop-unified-owner-data/packages/domain/src/owner-summary/expenses.test.ts
+ ❯ packages/domain/src/owner-summary/expenses.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { summarizePaidExpenses, type ExpenseSource } from './expenses';
+       | ^
+      3| const source = (overrides: Partial<ExpenseSource> = {}): ExpenseSource…
+      4|   sourceType: 'RESTAURANT_CASH', sourceId: 'one', locationId: 'branch'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  06:53:21
+   Duration  224ms (worker 97%, environment 3%)
+
+JSON report written to /tmp/pms-test-2026-10-16T06-53-19Z-unit-4e46.json
+
+# код выхода 1 · 2 с

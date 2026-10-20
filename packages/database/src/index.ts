@@ -104,6 +104,8 @@ export function isOverlapViolation(e: unknown): boolean {
 }
 
 export {
+  FolioClosedError,
+  lockOpenFolios,
   ensureFolioWithAccommodation,
   ensureSingleActiveCharge,
   recordExternalPayment,

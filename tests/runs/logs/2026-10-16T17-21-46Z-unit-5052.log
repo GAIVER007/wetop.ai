@@ -1,0 +1,16 @@
+# Модульные (unit) · 16.10.2026 22:21 Алматы · <сервер>
+# коммит eb65955 (private-verified-candidate)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T17-21-46Z-unit-5052.json' 'apps/web/src/lib/auth-fallback.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-owner-dependency-patch-20261016
+
+ ✓  unit  apps/web/src/lib/auth-fallback.test.ts (4 tests) 35ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  17:21:47
+   Duration  1.48s (transform 85%, import 13%, tests 3%)
+
+JSON report written to /tmp/pms-test-2026-10-16T17-21-46Z-unit-5052.json
+
+# код выхода 0 · 2 с

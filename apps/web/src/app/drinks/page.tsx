@@ -18,7 +18,7 @@ import type { OrderContext } from '../food/order-drawer';
 import '../food/food.css';
 import '../food/restaurant.css';
 
-/** «Бар» ресторана по макету владельца (экран 7): текущие заказы с напитками и витрина напитков меню */
+/** «Напитки» (бар) ресторана по макету владельца (экран 7): текущие заказы с напитками и витрина напитков меню */
 export default async function DrinksPage() {
   try {
     const shell = await restaurantShell();
@@ -42,7 +42,7 @@ export default async function DrinksPage() {
       menuItems,
     };
     return (
-      <Page title="Бар">
+      <Page title="Напитки">
         <div key={shell.scopeKey}>
           <BarBoard ctx={ctx} orders={open} />
         </div>
@@ -51,7 +51,7 @@ export default async function DrinksPage() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Бар">
+      <Page title="Напитки">
         <LoadError testId="drinks-load-error" {...loadErrorProps(error)} />
       </Page>
     );

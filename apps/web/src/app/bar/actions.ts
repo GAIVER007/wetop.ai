@@ -1,7 +1,9 @@
 'use server';
+import { salePriceFromMarkup } from '@pms/domain';
 import { revalidatePath } from 'next/cache';
 import { ApiError, barApi, type BarScanResult } from '../../lib/api';
 import { loadBarContext } from './load-context';
+import { currentMe } from '../../lib/desk-shell';
 
 export interface BarActionResult { error: string | null; ok: number; message?: string }
 /** Результат скана накладной: те же поля обратной связи плюс разобранный документ */
@@ -22,10 +24,10 @@ async function verifyContext(fd: FormData) {
     throw new Error('Валюта формы не совпадает с выбранным объектом. Обновите данные.');
   return current;
 }
-const saleKey = (fd: FormData) => {
+const saleKey = (fd: FormData, what = 'продажи') => {
   const key = value(fd, 'idempotencyKey');
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key))
-    throw new Error('Ключ продажи отсутствует. Обновите форму.');
+    throw new Error(`Ключ ${what} отсутствует. Обновите форму.`);
   return key;
 };
 const minor = (raw: string, field: string) => {
@@ -41,12 +43,9 @@ const basis = (raw: string) => {
   if (!match) throw new Error('Наценка: укажите процент');
   return Number(BigInt(match[1]!) * 100n + BigInt((match[2] ?? '').padEnd(2, '0') || '0'));
 };
-/** Цена продажи новой карточки: закупка плюс наценка, вверх до 10 тенге (Q-BAR-2) */
-const salePriceOf = (unitCostMinor: string, markupBasis: number) => {
-  const raw = BigInt(unitCostMinor) * (10_000n + BigInt(markupBasis));
-  const exact = (raw + 9_999n) / 10_000n;
-  return (((exact + 999n) / 1_000n) * 1_000n).toString();
-};
+/** Цена продажи новой карточки: закупка плюс наценка в валюте филиала (Q-BAR-2, ADR-187) */
+const salePriceOf = (unitCostMinor: string, markupBasis: number, currency: string) =>
+  salePriceFromMarkup(BigInt(unitCostMinor), BigInt(markupBasis), currency).toString();
 /** Раздел живёт на пяти подстраницах (ADR-157): после записи обновляются все */
 const BAR_PATHS = ['/bar', '/bar/receipts', '/bar/receipts/new', '/bar/products', '/bar/suppliers', '/bar/operations'];
 const revalidateBar = () => { for (const path of BAR_PATHS) revalidatePath(path); };
@@ -82,12 +81,6 @@ export async function createBarReceiptAction(
   try {
     const context = await verifyContext(fd);
     const count = Number(value(fd, 'lineCount'));
-    // D-CUR: цена по наценке есть только для тенге, приход в другой валюте отклоняет API. Строки «новый товар»
-    // создают карточку до прихода, поэтому отказ проверяется здесь, до первой записи: иначе в каталоге оставался
-    // товар без прихода. Приход только из существующих товаров уходит в API, и отказ даёт сервер
-    const hasNewProduct = Array.from({ length: Number.isSafeInteger(count) ? count : 0 }, (_, index) => !value(fd, `productId.${index}`)).some(Boolean);
-    if (context.currency !== 'KZT' && hasNewProduct)
-      throw new Error('Автоматическая цена для этой валюты еще не утверждена. Используйте свою цену продажи');
     if (!Number.isSafeInteger(count) || count < 1)
       throw new Error('Цена: проверьте строки прихода');
     // строка прихода: товар из справочника или новая карточка, которую заводим перед документом
@@ -103,7 +96,7 @@ export async function createBarReceiptAction(
         if (!name || !code) throw new Error(`Строка ${index + 1}: выберите товар или заполните название и код новой карточки`);
         const product = await barApi.createProduct({
           code, name, categoryId: null, barcode: value(fd, `newBarcode.${index}`) || null,
-          unitsPerPackage: 1, markupBasis, salePriceMinor: salePriceOf(unitCostMinor, markupBasis),
+          unitsPerPackage: 1, markupBasis, salePriceMinor: salePriceOf(unitCostMinor, markupBasis, context.currency),
           minimumStockUnits: '0',
         });
         productId = product.id;
@@ -143,7 +136,11 @@ export async function sellBarRetailAction(
   fd: FormData,
 ): Promise<BarActionResult> {
   try {
-    await verifyContext(fd);
+    const context = await verifyContext(fd);
+    const me = await currentMe();
+    const expected = [me.user?.organizationId ?? '', me.context?.businessId ?? '', me.context?.locationId ?? '', me.user?.id ?? '', context.propertyId, context.currency, me.sessionIssuedAt ?? ''];
+    if (expected.some(part => !part) || value(fd, 'retailRecoveryScope') !== JSON.stringify(expected) || !Number.isFinite(Date.parse(me.expiresAt ?? '')) || Date.parse(me.expiresAt ?? '') <= Date.now())
+      throw new Error('Объект формы изменился. Обновите страницу и восстановите исходный контекст.');
     const sale = await barApi.sellRetail({
       productId: value(fd, 'productId'),
       quantityUnits: value(fd, 'quantityUnits'),
@@ -222,7 +219,7 @@ export async function payBarSupplierAction(
 ): Promise<BarActionResult> {
   try {
     await verifyContext(fd);
-    await barApi.payReceipt(value(fd, 'receiptId'), { amountMinor: minor(value(fd, 'amount'), 'Сумма'), method: value(fd, 'method'), note: value(fd, 'note') || null });
+    await barApi.payReceipt(value(fd, 'receiptId'), { amountMinor: minor(value(fd, 'amount'), 'Сумма'), method: value(fd, 'method'), note: value(fd, 'note') || null, idempotencyKey: saleKey(fd, 'оплаты') });
     revalidateBar();
     return { error: null, ok: Date.now(), message: 'Оплата поставщику записана в кассе' };
   } catch (error) {
@@ -236,9 +233,20 @@ export async function inventoryBarAction(
 ): Promise<BarActionResult> {
   try {
     await verifyContext(fd);
-    const result = await barApi.inventoryCount({ productId: value(fd, 'productId'), actualUnits: value(fd, 'actualUnits'), reason: value(fd, 'reason') });
+    const surplusCost = value(fd, 'surplusCost');
+    const result = await barApi.inventoryCount({
+      productId: value(fd, 'productId'),
+      actualUnits: value(fd, 'actualUnits'),
+      reason: value(fd, 'reason'),
+      unitCostMinor: surplusCost ? minor(surplusCost, 'Цена излишка') : null,
+    });
     revalidateBar();
-    return { error: null, ok: Date.now(), message: result.differenceUnits === '0' ? 'Остаток сошелся' : `Недостача ${result.differenceUnits.replace('-', '')} шт. зафиксирована` };
+    const diff = result.differenceUnits;
+    return {
+      error: null,
+      ok: Date.now(),
+      message: diff === '0' ? 'Остаток сошелся' : diff.startsWith('-') ? `Недостача ${diff.slice(1)} шт. зафиксирована` : `Излишек ${diff} шт. принят на склад`,
+    };
   } catch (error) {
     return { error: describe(error), ok: _previous.ok };
   }

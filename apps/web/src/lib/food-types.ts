@@ -195,6 +195,8 @@ export interface OrderView {
   totalMinor: string;
   /** Сумма действующих платежей (§35.1) */
   paidMinor: string;
+  /** Сумма действующих возвратов после закрытия (§56) */
+  refundedMinor: string;
   currency: string;
   openedAt: string;
   cookingAt: string | null;
@@ -206,6 +208,8 @@ export interface OrderView {
   nextStatuses: OrderStatus[];
   items: OrderItemView[];
   payments: OrderPaymentView[];
+  /** §56: возвраты после закрытия, операции кассы */
+  refunds: OrderRefundView[];
   /** §39: оценка гостя после оплаты */
   rating?: { stars: number; comment: string | null; createdAt: string } | null;
 }
@@ -232,6 +236,15 @@ export interface OrderPaymentView {
   paidAt: string;
   voidReason: string | null;
 }
+/** Возврат по закрытому заказу (§56): расход кассы филиала */
+export interface OrderRefundView {
+  id: string;
+  method: FoodPaymentMethod;
+  amountMinor: string;
+  status: 'COMPLETED' | 'VOIDED';
+  note: string | null;
+  occurredAt: string;
+}
 /** Касса филиала (§35.2) */
 export interface FoodCashView {
   currency: string;
@@ -245,8 +258,13 @@ export interface FoodCashView {
     note: string | null;
     employee: string | null;
     period: string | null;
+    /** возврат гостю по записи или заказу (§54, §56) */
+    refund?: boolean;
     status: 'COMPLETED' | 'VOIDED';
     occurredAt: string;
+    /** H1 (паритет с zapis.kz): операция оплаты или возврата записи ссылается на неё */
+    appointmentId?: string | null;
+    appointmentStartsAt?: string | null;
   }>;
   payments: Array<{
     id: string;
@@ -266,6 +284,7 @@ export interface FoodCashView {
   }>;
 }
 export interface FoodCashOperationInput {
+  idempotencyKey?: string;
   kind: 'INCOME' | 'EXPENSE' | 'TRANSFER';
   method: FoodPaymentMethod;
   methodTo?: FoodPaymentMethod;
@@ -310,6 +329,7 @@ export interface FoodReport {
   latestOrders: OrderView[];
 }
 export interface FoodEmployee {
+  profileRevision: string;
   id: string;
   name: string;
   phone: string | null;
@@ -330,6 +350,7 @@ export interface FoodShiftRow {
   id: string;
   name: string;
   week: FoodShiftWeekDay[];
+  weekRevision: string;
 }
 export type PayModel = 'FIXED' | 'PERCENT' | 'FIXED_PLUS_PERCENT' | 'BONUS_ONLY';
 export interface PayrollRow {

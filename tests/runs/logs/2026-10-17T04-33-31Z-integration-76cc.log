@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 17.10.2026 09:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1f9f39c (claude/salon-vip), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-33-31Z-integration-76cc.json' 'tests/integration/beauty-customer-marks.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |integration| tests/integration/beauty-customer-marks.test.ts (1 test) 439ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  21:33:34
+   Duration  3.33s (import 42%, transform 35%, tests 22%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-33-31Z-integration-76cc.json
+
+# код выхода 0 · 6 с

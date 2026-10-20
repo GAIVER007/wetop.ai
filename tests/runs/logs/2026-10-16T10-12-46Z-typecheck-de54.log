@@ -1,0 +1,56 @@
+# Типы (typecheck) · 16.10.2026 15:12 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 64
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+<--- Last few GCs --->
+
+[1877285:0x771c000]     9770 ms: Mark-Compact 509.4 (515.1) -> 508.5 (515.8) MB, pooled: 0.0 MB, 258.94 / 0.00 ms (average mu = 0.103, current mu = 0.029) allocation failure; scavenge might not succeed
+[1877285:0x771c000]    10145 ms: Mark-Compact 508.5 (515.8) -> 508.5 (515.6) MB, pooled: 0.5 MB, 374.83 / 0.00 ms (average mu = 0.051, current mu = 0.000) allocation failure; scavenge might not succeed
+
+FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 0x82153b node::OOMErrorHandler(char const*, v8::OOMDetails const&) [node]
+ 2: 0xc771eb  [node]
+ 3: 0xee8135  [node]
+ 4: 0xee633c  [node]
+ 5: 0xed9401  [node]
+ 6: 0xed91fc  [node]
+ 7: 0xed8b8f  [node]
+ 8: 0xeb4d1d  [node]
+ 9: 0x1373391  [node]
+10: 0x1a89a76  [node]
+Aborted (core dumped)
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+<--- Last few GCs --->
+
+[1877572:0x19563000]     8338 ms: Incremental Mark-Compact (reduce) 509.3 (513.5) -> 508.7 (512.8) MB, pooled: 0.0 MB, 396.54 / 0.00 ms (+ 11.7 ms in 3 steps since start of marking, biggest step 6.0 ms, walltime since start of marking 413 ms) (average mu [1877572:0x19563000]     8760 ms: Mark-Compact 509.9 (513.0) -> 509.4 (513.3) MB, pooled: 0.0 MB, 402.25 / 0.00 ms (average mu = 0.119, current mu = 0.049) allocation failure; scavenge might not succeed
+
+FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 0x82153b node::OOMErrorHandler(char const*, v8::OOMDetails const&) [node]
+ 2: 0xc771eb  [node]
+ 3: 0xee8135  [node]
+ 4: 0xee633c  [node]
+ 5: 0xed93d4  [node]
+ 6: 0xed91fc  [node]
+ 7: 0xed8b8f  [node]
+ 8: 0xeb4d1d  [node]
+ 9: 0x1373391  [node]
+10: 0x1a89a76  [node]
+Aborted (core dumped)
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 27 с

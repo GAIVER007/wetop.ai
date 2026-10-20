@@ -1,0 +1,158 @@
+# Интеграционные (integration) · 18.10.2026 23:15 Алматы · <сервер>
+# коммит 5b409d1 (feat/salon-draft-implementation-20261018)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T18-15-00Z-integration-5a92.json' 'tests/integration/beauty-customers.test.ts' 'tests/integration/beauty-schedule.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-all-release-20261017
+
+[pms_test] роли wetop_app включён вход (локальная база)
+ ❯ |integration| tests/integration/beauty-schedule.test.ts (12 tests | 3 failed) 1057ms
+   ❯ график мастера (integration, DATA_MODEL §19.1) (12)
+     ✓ неделя мастера сохраняется и читается по филиалу 53ms
+     ✓ повторная отправка заменяет неделю, а не копит интервалы 25ms
+     ✓ наложение интервалов в одном дне не проходит 19ms
+     ✓ в филиале, где мастер не работает, график не поставить 13ms
+     ✓ без права property график не меняется, а читается 25ms
+     × отсутствие считает наложенные записи, но их не отменяет 19ms
+     × отсутствие снимается 25ms
+     ✓ прошлое отсутствие в списке не висит 55ms
+     ✓ мастер ставится во второй филиал и работает в обоих 42ms
+     ✓ снятый филиал уносит свой график, график другого остаётся 80ms
+     × филиал с будущими записями у мастера не снять 48ms
+     ✓ чужой филиал и чужой мастер не проходят 31ms
+ ❯ |integration| tests/integration/beauty-customers.test.ts (4 tests | 4 failed) 500ms
+   ❯ Beauty: canonical customer across businesses (4)
+     × serializes two businesses and reuses one exact name plus normalized phone 30ms
+     × rejects a conflicting name atomically without creating the other CSV row 95ms
+     × opens a shared customer but returns history only from the selected business 1ms
+     × returns not found for a customer outside the selected business or organization 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/beauty-customers.test.ts > Beauty: canonical customer across businesses > serializes two businesses and reuses one exact name plus normalized phone
+TypeError: service.create is not a function
+ ❯ tests/integration/beauty-customers.test.ts:123:17
+    121|     const [first, second] = await Promise.all([
+    122|       asBusiness(businessA, () =>
+    123|         service.create({ firstName: 'Тестовый', lastName: 'Клиент', ph…
+       |                 ^
+    124|       ),
+    125|       asBusiness(businessB, () =>
+ ❯ apps/api/src/auth/request-context.ts:76:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:76:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:86:10
+ ❯ asBusiness tests/integration/beauty-customers.test.ts:27:5
+ ❯ tests/integration/beauty-customers.test.ts:122:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |integration| tests/integration/beauty-customers.test.ts > Beauty: canonical customer across businesses > rejects a conflicting name atomically without creating the other CSV row
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of ConflictException
+ ❯ tests/integration/beauty-customers.test.ts:139:70
+    137|     const csv = 'Имя;Телефон\nНовый Клиент;<телефон>\nДругое Имя;+7…
+    138|
+    139|     await expect(asBusiness(businessB, () => service.apply({ csv }))).…
+       |                                                                      ^
+    140|       ConflictException,
+    141|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |integration| tests/integration/beauty-customers.test.ts > Beauty: canonical customer across businesses > opens a shared customer but returns history only from the selected business
+TypeError: service.create is not a function
+ ❯ tests/integration/beauty-customers.test.ts:150:15
+    148|   it('opens a shared customer but returns history only from the select…
+    149|     const customer = await asBusiness(businessA, () =>
+    150|       service.create({
+       |               ^
+    151|         firstName: 'История',
+    152|         lastName: 'Клиента',
+ ❯ apps/api/src/auth/request-context.ts:76:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:76:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:86:10
+ ❯ asBusiness tests/integration/beauty-customers.test.ts:27:5
+ ❯ tests/integration/beauty-customers.test.ts:149:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |integration| tests/integration/beauty-customers.test.ts > Beauty: canonical customer across businesses > returns not found for a customer outside the selected business or organization
+TypeError: service.create is not a function
+ ❯ tests/integration/beauty-customers.test.ts:230:15
+    228|   it('returns not found for a customer outside the selected business o…
+    229|     const onlyBusinessB = await asBusiness(businessB, () =>
+    230|       service.create({
+       |               ^
+    231|         firstName: 'Только',
+    232|         lastName: 'Другой салон',
+ ❯ apps/api/src/auth/request-context.ts:76:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:76:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:86:10
+ ❯ asBusiness tests/integration/beauty-customers.test.ts:27:5
+ ❯ tests/integration/beauty-customers.test.ts:229:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |integration| tests/integration/beauty-schedule.test.ts > график мастера (integration, DATA_MODEL §19.1) > отсутствие считает наложенные записи, но их не отменяет
+PrismaClientKnownRequestError: 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `P0001`. Message: `Appointment line requires an active assigned master and active enabled service of the branch`
+ ❯ vn.handleRequestError ../wetop-audit-main/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError ../wetop-audit-main/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request ../wetop-audit-main/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a ../wetop-audit-main/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ seedAppointment tests/integration/beauty-schedule.test.ts:140:5
+    138|   async function seedAppointment(startsAt: string, locationId = own.lo…
+    139|     const id = randomUUID();
+    140|     await db.$executeRawUnsafe(
+       |     ^
+    141|       `INSERT INTO "appointments"
+    142|          ("id", "location_id", "customer_id", "employee_id", "service_…
+ ❯ tests/integration/beauty-schedule.test.ts:212:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |integration| tests/integration/beauty-schedule.test.ts > график мастера (integration, DATA_MODEL §19.1) > отсутствие снимается
+NotFoundException: Отсутствие не найдено
+ ❯ BeautyScheduleService.removeTimeOff apps/api/src/beauty/schedule.ts:235:38
+    233|     await mayBeautyWrite(this.prisma, 'property');
+    234|     const scope = await this.employeeScope(id);
+    235|     if (!UUID.test(timeOffId)) throw new NotFoundException('Отсутствие…
+       |                                      ^
+    236|     const row = await this.prisma.db.timeOff.findFirst({
+    237|       where: { id: timeOffId, employeeId: id },
+ ❯ apps/api/src/auth/request-context.ts:76:41
+ ❯ tests/integration/beauty-schedule.test.ts:229:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |integration| tests/integration/beauty-schedule.test.ts > график мастера (integration, DATA_MODEL §19.1) > филиал с будущими записями у мастера не снять
+PrismaClientKnownRequestError: 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `P0001`. Message: `Appointment line requires an active assigned master and active enabled service of the branch`
+ ❯ vn.handleRequestError ../wetop-audit-main/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError ../wetop-audit-main/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request ../wetop-audit-main/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a ../wetop-audit-main/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ seedAppointment tests/integration/beauty-schedule.test.ts:140:5
+    138|   async function seedAppointment(startsAt: string, locationId = own.lo…
+    139|     const id = randomUUID();
+    140|     await db.$executeRawUnsafe(
+       |     ^
+    141|       `INSERT INTO "appointments"
+    142|          ("id", "location_id", "customer_id", "employee_id", "service_…
+ ❯ tests/integration/beauty-schedule.test.ts:264:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  7 failed | 9 passed (16)
+   Start at  18:15:02
+   Duration  5.73s (tests 41%, transform 38%, import 21%)
+
+JSON report written to /tmp/pms-test-2026-10-18T18-15-00Z-integration-5a92.json
+
+# код выхода 1 · 7 с

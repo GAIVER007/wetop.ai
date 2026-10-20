@@ -17,6 +17,37 @@ const REASON_LIMIT = 200;
 const INTERVALS_PER_DAY = 4;
 const MAX_TIME_OFF_DAYS = 366;
 
+export type WorkingTimeMiss = 'UNSUPPORTED' | 'EMPLOYEE_INACTIVE' | 'NOT_ASSIGNED' | 'NO_SCHEDULE' | 'TIME_OFF' | 'OUTSIDE_WORKING_HOURS';
+
+/** Общий расчёт для присутствия сейчас и полного окна услуги. Конец интервала невключительный. */
+export function resolveWorkingTime(input: {
+  startsAt: Date;
+  endsAt?: Date;
+  timezone: string;
+  supported: boolean;
+  employeeActive: boolean;
+  worksHere: boolean;
+  workingHours: readonly WorkingInterval[];
+  timeOffs: ReadonlyArray<{ dateFrom: string; dateTo: string }>;
+}): { ok: true } | { ok: false; reason: WorkingTimeMiss } {
+  if (!input.supported) return { ok: false, reason: 'UNSUPPORTED' };
+  if (!input.employeeActive) return { ok: false, reason: 'EMPLOYEE_INACTIVE' };
+  if (!input.worksHere) return { ok: false, reason: 'NOT_ASSIGNED' };
+  const local = (at: Date) => {
+    const p = new Map(fmt(input.timezone).formatToParts(at).map(part => [part.type, part.value]));
+    const date = `${p.get('year')}-${p.get('month')}-${p.get('day')}`;
+    return { date, weekday: new Date(`${date}T00:00:00Z`).getUTCDay(), minute: Number(p.get('hour')) * 60 + Number(p.get('minute')) + Number(p.get('second')) / 60 + at.getUTCMilliseconds() / 60000 };
+  };
+  const start = local(input.startsAt);
+  const end = input.endsAt ? local(input.endsAt) : start;
+  if (input.timeOffs.some(off => (off.dateFrom <= start.date && start.date <= off.dateTo) || (off.dateFrom <= end.date && end.date <= off.dateTo)))
+    return { ok: false, reason: 'TIME_OFF' };
+  if (!input.workingHours.length) return { ok: false, reason: 'NO_SCHEDULE' };
+  const fits = (!input.endsAt || input.endsAt > input.startsAt) && start.date === end.date && input.workingHours.some(h =>
+    h.weekday === start.weekday && minutes(h.timeFrom) <= start.minute && start.minute < minutes(h.timeTo) && end.minute <= minutes(h.timeTo));
+  return fits ? { ok: true } : { ok: false, reason: 'OUTSIDE_WORKING_HOURS' };
+}
+
 /** Интервал недельного шаблона: день недели и местное время филиала */
 export interface WorkingInterval {
   weekday: number;

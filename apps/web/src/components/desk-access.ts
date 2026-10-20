@@ -1,8 +1,9 @@
 'use client';
 import { createContext, createElement, use, useContext, type ReactNode } from 'react';
-import type { Permission } from '@pms/domain';
+import type { BeautyAction, BeautySection, Permission } from '@pms/domain';
 import type { DeskShell } from '../lib/desk-person';
-import { CLOSED_ACCESS, mayAccess, type NavigationAccess } from '../lib/navigation';
+import type { WebVertical } from '../lib/vertical-landing';
+import { CLOSED_ACCESS, mayAccess, mayBeautyAccess, type NavigationAccess } from '../lib/navigation';
 
 /**
  * Кто вошёл — для клиентских компонентов (ADR-107): кнопки, которых нет у роли, стойка не рисует. Макет кладёт в контекст
@@ -38,4 +39,19 @@ export function useDeskAccessWhen(needed: boolean): NavigationAccess | null {
 /** Есть ли у вошедшего право (DATA_MODEL §16.5) */
 export function useMay(permission: Permission): boolean {
   return mayAccess(useDeskAccess(), permission);
+}
+
+/** Exact action in the selected salon; assigned positions never inherit broad legacy role rights. */
+export function useMayBeauty(
+  section: BeautySection,
+  action: BeautyAction,
+  options: { legacy: Permission; own?: boolean },
+): boolean {
+  return mayBeautyAccess(useDeskAccess(), section, action, options);
+}
+
+/** Направление выбранного филиала; вне макета гостиница, как `CLOSED_SHELL` */
+export function useDeskVertical(): WebVertical {
+  const desk = useContext(DeskAccess);
+  return desk ? use(desk).vertical : 'HOSPITALITY';
 }

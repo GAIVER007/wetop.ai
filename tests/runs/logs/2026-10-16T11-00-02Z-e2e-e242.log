@@ -1,0 +1,64 @@
+# Сквозные (e2e) · 16.10.2026 16:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит 60a7715 (claude/calendar-polish), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-card.spec.ts' '-g' 'подпись'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1102ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-sx2jOk/worker-0/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 422ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-sx2jOk/worker-1/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✘  1 [main-ui-0] › ../.wetop-main-ui-sx2jOk/worker-0/tests/ui/chessboard-card.spec.ts:198:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (49.8s)
+  ✓  2 [main-ui-0] › ../.wetop-main-ui-sx2jOk/worker-0/tests/ui/chessboard-card.spec.ts:304:3 › 14 дней: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы (6.8s)
+  ✓  3 [main-ui-0] › ../.wetop-main-ui-sx2jOk/worker-0/tests/ui/chessboard-card.spec.ts:304:3 › 30 дней: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы (29.9s)
+  ✓  4 [main-ui-0] › ../.wetop-main-ui-sx2jOk/worker-0/tests/ui/chessboard-card.spec.ts:304:3 › Текущий месяц: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы (33.3s)
+
+
+  1) [main-ui-0] › ../.wetop-main-ui-sx2jOk/worker-0/tests/ui/chessboard-card.spec.ts:198:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('.board-nav .date-range').getByRole('button', { name: '30 дней', exact: true })
+
+
+       at ../../../.wetop-main-ui-sx2jOk/worker-0/tests/ui/fixtures.ts:235
+
+      233 |   await page.getByTestId('board-period-button').click();
+      234 |   const menu = page.locator('.board-nav .date-range');
+    > 235 |   await menu.getByRole('button', { name: preset, exact: true }).click();
+          |                                                                 ^
+      236 |   await menu.getByRole('button', { name: 'Применить', exact: true }).click();
+      237 | }
+      238 |
+        at chooseBoardPeriod (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-sx2jOk/worker-0/tests/ui/fixtures.ts:235:65)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/.wetop-main-ui-sx2jOk/worker-0/tests/ui/chessboard-card.spec.ts:212:3
+
+    Error Context: test-results/chessboard-card-подпись-по-d63e8-ициалы-долг-точкой-на-узкой-main-ui-0/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-подпись-по-d63e8-ициалы-долг-точкой-на-узкой-main-ui-0/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-подпись-по-d63e8-ициалы-долг-точкой-на-узкой-main-ui-0/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [main-ui-0] › ../.wetop-main-ui-sx2jOk/worker-0/tests/ui/chessboard-card.spec.ts:198:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой 
+  3 passed (5.6m)
+
+# код выхода 1 · 5 мин 54 с

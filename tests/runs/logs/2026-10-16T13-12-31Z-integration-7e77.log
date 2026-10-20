@@ -1,0 +1,57 @@
+# Интеграционные (integration) · 16.10.2026 18:12 Алматы · Noutbuk-Vyacheslav.local
+# коммит 51365c2 (claude/restaurant-refund), незакоммиченных файлов набора: 26
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-12-31Z-integration-7e77.json' 'tests/integration/restaurant-order-refund.test.ts' 'tests/integration/beauty-appointment-payment.test.ts' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ❯ |integration| tests/integration/rls-isolation.test.ts (6 tests | 1 failed) 1292ms
+   ❯ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     × каждая таблица схемы названа: арендаторская под RLS или осознанно без него 70ms
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 446ms
+     ✓ гость чужой организации не виден своей; без переменной не видно ничего 10ms
+     ✓ записать бронь в объект чужой организации нельзя — отказ базы 94ms
+     ✓ служебная роль видит объект целиком — фоновые циклы и вебхуки работают как раньше 4ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 587ms
+(node:89021) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/restaurant-order-refund.test.ts (2 tests) 404ms
+ ✓ |integration| tests/integration/beauty-appointment-payment.test.ts (5 tests) 564ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > каждая таблица схемы названа: арендаторская под RLS или осознанно без него
+AssertionError: expected [ 'marketing_ad_connections', …(5) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "marketing_ad_connections",
++   "marketing_budget_lines",
++   "marketing_campaign_stats",
++   "marketing_campaigns",
++   "marketing_expense_files",
++   "marketing_sync_runs",
++ ]
+
+ ❯ tests/integration/rls-isolation.test.ts:112:83
+    110|     );
+    111|     const known = new Set([...RLS_TENANT_TABLES, ...RLS_NO_TENANT_TABL…
+    112|     expect(res.rows.map((r) => r.table_name).filter((t) => !known.has(…
+       |                                                                                   ^
+    113|     const rls = await client.query<{ relname: string; relforcerowsecur…
+    114|       `SELECT c.relname, c.relforcerowsecurity FROM pg_class c JOIN pg…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 12 passed (13)
+   Start at  06:12:37
+   Duration  7.39s (tests 40%, transform 37%, import 23%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-12-31Z-integration-7e77.json
+
+# код выхода 1 · 14 с

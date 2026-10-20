@@ -1,3 +1,4 @@
+import { ApiError } from '../../lib/api-error';
 import { scopeResolvePath } from '../../lib/scope-pointer';
 import type { WebVertical } from '../../lib/vertical-landing';
 
@@ -46,4 +47,12 @@ export function todayScreen(
 
 export function unresolvedTarget(hasPointer: boolean): string {
   return hasPointer ? '/branches' : scopeResolvePath('/today');
+}
+
+/**
+ * Сводка руководителя закрыта этому человеку в этом филиале: веб пускает по роли, API проверяет назначения
+ * филиала (`owner-summary.ts`, `canAt`). Тогда показываем рабочий день, а не экран ошибки (аудит 17.10.2026, Д6).
+ */
+export function ownerSummaryClosed(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 403;
 }

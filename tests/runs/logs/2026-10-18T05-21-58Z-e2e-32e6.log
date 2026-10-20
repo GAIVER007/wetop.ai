@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 18.10.2026 10:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит 330f488 (codex/calendar-quick-report)
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/system-screens.spec.ts' '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--grep' 'вход и профиль'
+[WebServer] (node:57799) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57839) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57842) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57885) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57889) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:57901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57955) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (23.7s)
+
+
+  1) tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main')
+    Expected substring: "как Дана Тестова, <email>"
+    Received string:    "Управление доступомВаш вход, организация и сеансыОткрыть рабочее местоВы вошлиИмяДана ТестоваПочта<email>ОрганизацияLuxx ApartsРольВладелецСмена закончена?ВыйтиГде вы вошлиChrome, macOS вход 18 окт.этот сеансSafari, iPhone вход 16 окт.Завершить все сеансыСотрудникиПриглашения, роли и отключение.Открыть «Сотрудников»"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main') with timeout 15000ms
+      - waiting for getByRole('main')
+        33 × locator resolved to <main tabindex="-1" id="main-content" class="page page--narrow">…</main>
+           - unexpected value "Управление доступомВаш вход, организация и сеансыОткрыть рабочее местоВы вошлиИмяДана ТестоваПочта<email>ОрганизацияLuxx ApartsРольВладелецСмена закончена?ВыйтиГде вы вошлиChrome, macOS вход 18 окт.этот сеансSafari, iPhone вход 16 окт.Завершить все сеансыСотрудникиПриглашения, роли и отключение.Открыть «Сотрудников»"
+
+
+      316 |   await expect(page).toHaveURL(/\/today/);
+      317 |   await page.goto('/profile/access');
+    > 318 |   await expect(main).toContainText('как Дана Тестова, <email>');
+          |                      ^
+      319 |   await expect(main).not.toContainText(' · ');
+      320 |   // приглашение: API не ответил — сбой с повтором, повтор открывает приглашение
+      321 |   await request.post(`${fixture}/__test/control`, {
+        at /Users/vyacheslav/.codex/worktrees/calendar-quick-report/WETOP/tests/ui/system-screens.spec.ts:318:22
+
+    Error Context: test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+
+# код выхода 1 · 33 с

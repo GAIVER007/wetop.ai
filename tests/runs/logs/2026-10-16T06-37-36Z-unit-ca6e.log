@@ -1,0 +1,83 @@
+# Модульные (unit) · 16.10.2026 11:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4114ad6 (claude/marketing-calendar), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-37-36Z-unit-ca6e.json' 'apps/api/src/marketing-budget' 'apps/api/src/body-parsers.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| apps/api/src/body-parsers.test.ts (6 tests | 1 failed) 93ms
+   ❯ разбор тела API (6)
+     ✓ большой предел только у POST /marketing/site/versions 1ms
+     ✓ сохранение версии принимает 200 КБ, а больше 300 КБ отклоняет 413 16ms
+     ✓ скан накладной бара принимает фото в base64, а больше 12 МБ отклоняет 413 60ms
+     × импорт расходов маркетинга принимает CSV до 1 МБ, больше отклоняет 413 6ms
+     ✓ другие маршруты и методы по-прежнему режутся на 100 КБ, и JSON, и urlencoded 9ms
+     ✓ main.ts выключает встроенные парсеры Nest и ставит свои 0ms
+ ❯ |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts (13 tests | 1 failed) 10ms
+   ❯ сервис бюджета маркетинга (МКТ-В1/В2) (13)
+     ✓ view: месяц из запроса, границы окна и сериализация денег строками 3ms
+     ✓ view: границы декабря и января считаются без сдвига 0ms
+     ✓ view: без месяца берётся текущий месяц филиала, в ответе есть today 0ms
+     ✓ view: кривой месяц: отказ словами 0ms
+     ✓ создание: кривой ввод → 400, корректный → строка и журнал 0ms
+     ✓ правка несуществующего: 404 0ms
+     ✓ удаление несуществующего: 404, существующего: журнал 0ms
+     ✓ план: месяц нормализуется, сумма в тиынах, журнал пишется 0ms
+     ✓ results: окно месяца как у бюджета, деньги строками, валюта выручки отдельно 0ms
+     ✓ results: кривой месяц: отказ словами 0ms
+     × импорт CSV: все строки одной пачкой, у каждой своя запись журнала, итог в валюте отчётности 3ms
+     ✓ импорт CSV: ошибка в любой строке или не текст: 400, в базу ничего 0ms
+     ✓ импорт CSV: организация только для чтения: отказ до разбора 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/body-parsers.test.ts > разбор тела API > импорт расходов маркетинга принимает CSV до 1 МБ, больше отклоняет 413
+AssertionError: expected 413 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 413
+
+ ❯ apps/api/src/body-parsers.test.ts:56:23
+     54|     expect(isMarketingImport({ method: 'GET', path: '/marketing/expens…
+     55|     const ok = await request(app()).post('/marketing/expenses/import')…
+     56|     expect(ok.status).toBe(200);
+       |                       ^
+     57|     const big = await request(app()).post('/marketing/expenses/import'…
+     58|     expect(big.status).toBe(413);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts > сервис бюджета маркетинга (МКТ-В1/В2) > импорт CSV: все строки одной пачкой, у каждой своя запись журнала, итог в валюте отчётности
+AssertionError: expected [ 'marketing_expense.created', …(1) ] to deeply equal [ 'marketing_expense.imported', …(1) ]
+
+- Expected
++ Received
+
+  [
+-   "marketing_expense.imported",
+-   "marketing_expense.imported",
++   "marketing_expense.created",
++   "marketing_expense.created",
+  ]
+
+ ❯ apps/api/src/marketing-budget/marketing-budget.service.test.ts:195:54
+    193|     expect(r).toEqual({ imported: 2, baseTotal: '510000' });
+    194|     expect(repo.imported.map((i) => i.input.platform)).toEqual(['META'…
+    195|     expect(repo.imported.map((i) => i.audit.action)).toEqual(['marketi…
+       |                                                      ^
+    196|     expect(repo.imported[1]!.audit.after).toMatchObject({ source: 'csv…
+    197|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 17 passed (19)
+   Start at  23:37:36
+   Duration  692ms (transform 51%, import 36%, tests 12%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-37-36Z-unit-ca6e.json
+
+# код выхода 1 · 2 с

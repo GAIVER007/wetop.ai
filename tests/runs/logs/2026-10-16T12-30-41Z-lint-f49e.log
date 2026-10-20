@@ -1,0 +1,21 @@
+# Линтер (lint) · 16.10.2026 17:30 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 109
+# npx eslint .
+
+/srv/hermes/workspace/wetop-unified-owner-data/tests/tools/held-release-manifest.mjs
+  14:8  error  'process' is not defined  no-undef
+  18:1  error  'console' is not defined  no-undef
+
+/srv/hermes/workspace/wetop-unified-owner-data/tests/tools/held-rollback-rehearsal.mjs
+  16:37  error  'process' is not defined  no-undef
+  25:2   error  'console' is not defined  no-undef
+  36:3   error  'console' is not defined  no-undef
+  61:16  error  'console' is not defined  no-undef
+  70:4   error  'console' is not defined  no-undef
+  80:3   error  'console' is not defined  no-undef
+  84:2   error  'console' is not defined  no-undef
+
+✖ 9 problems (9 errors, 0 warnings)
+
+
+# код выхода 1 · 48 с

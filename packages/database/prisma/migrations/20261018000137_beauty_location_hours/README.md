@@ -1,0 +1,13 @@
+# PREPARED ordinary137, former HELD 135, Beauty location hours
+
+Подготовка одобрена18.10.2026; в production НЕ применено. Точные десять SQL SHA и отдельные обязательные cutover-допуски: `packages/database/prisma/beauty-release-preparation.json`, `docs/ops/beauty-zapis-release.md`.
+
+Модель BEAUTY-LOCATION-HOURS-20261018 утверждена владельцем 18.10.2026.
+
+Зависит от Beauty appointment lines. Для текущей вершины предварительное release-имя: `20261018000137_beauty_location_hours`, после appointment lines, reviews, materials и positions. Итоговый порядок фиксируется в `docs/ops/beauty-zapis-release.md`.
+
+До применения владелец делает свежую резервную копию и проверяет восстановление. Beauty writers останавливаются. `migration.sql` выполняется в собственной транзакции на старом совместимом API. После validation запускается новый API/UI. Проверяются RLS, вертикаль, перерыв, выходной и создание/перенос через все writers. Отсутствие настройки сохраняет прежнее поведение. Пустой сохранённый график закрывает новые записи.
+
+Существующие визиты не переписываются. Перед запуском проверить возвращаемые API конфликты будущих визитов с новым режимом. Не применять автоматически в production.
+
+Rollback empty-only и только при остановленных writers. `down.sql` блокирует `beauty_location_hours` и `appointment_lines` до проверки и teardown. Он допустим, пока настройки часов естественно пусты. После первой настройки down обязан отказать; настройки не удаляют ради принудительного отката. Дальше применяют compatible forward repair или восстанавливают проверенную резервную копию со старым приложением в отдельно согласованное окно.

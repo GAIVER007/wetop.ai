@@ -1,3 +1,5 @@
+import { currentBeautyAssignments, filterBeautyLocations } from '../beauty/access';
+import { currentOrganizationId, currentUserId } from './request-context';
 import { parseBusinessVertical } from '@pms/domain';
 import { registrationBusiness } from './registration-contract';
 import 'reflect-metadata';
@@ -82,6 +84,8 @@ interface WhoAmI {
   user: SignedInUser;
   organization: SignedInOrganization | null;
   expiresAt: string;
+  /** Когда выдана сессия: не меняется при продлении, по нему стойка узнаёт ту же сессию (бар, восстановление продажи) */
+  sessionIssuedAt: string;
 }
 
 export interface LoginResult {
@@ -223,6 +227,14 @@ export class AuthService {
     options?: { unambiguous?: boolean },
   ) {
     const assignments = access?.scopes ?? [];
+    if (access && access.role !== 'OWNER' && currentUserId() && currentOrganizationId() === organizationId && (await currentBeautyAssignments(this.prisma.db)).length) {
+      const businesses = await this.prisma.db.business.findMany({where:{organizationId,status:'ACTIVE'},orderBy:{createdAt:'asc'},select:{id:true,name:true,vertical:true,locations:{where:{status:'ACTIVE'},orderBy:{createdAt:'asc'},select:{id:true,name:true}}}});
+      const candidates = businesses.flatMap(business => visibleLocations(access.role, assignments, business.locations.map(location=>({...location,businessId:business.id,vertical:business.vertical,businessName:business.name}))));
+      const visible = await filterBeautyLocations(this.prisma.db, candidates);
+      if (options?.unambiguous && visible.length !== 1) return null;
+      const first=visible[0];
+      return first ? {businessId:first.businessId,locationId:first.id,vertical:parseBusinessVertical(first.vertical)!,businessName:first.businessName,locationName:first.name} : null;
+    }
     if (access && isRestricted(access.role, assignments))
       return this.restrictedRegistrationContext(organizationId, access.role, assignments);
     const business = await this.prisma.db.business.findFirst({
@@ -316,7 +328,12 @@ export class AuthService {
     const user = email
       ? await this.prisma.db.user.findUnique({
           where: { email },
-          include: { memberships: { orderBy: { createdAt: 'asc' } } },
+          include: {
+            memberships: {
+              orderBy: { createdAt: 'asc' },
+              include: { organization: { select: { status: true } } },
+            },
+          },
         })
       : null;
 
@@ -358,29 +375,46 @@ export class AuthService {
 
     // Сессия открывается под организацией: без членства человеку нечего открывать (§13.3, §13.5)
     // приостановленный член в организацию не входит (DATA_MODEL §31.2): пароль он назвал верно, поэтому говорим причину
-    const active = user.memberships.find((m) => m.status === 'ACTIVE');
-    if (!active && user.memberships.length > 0)
+    const active = user.memberships.filter((m) => m.status === 'ACTIVE');
+    if (active.length === 0 && user.memberships.length > 0)
       throw new ForbiddenException(ACCESS_SUSPENDED_MESSAGE);
-    const organizationId = active?.organizationId;
+    // Архивная (приостановленная) организация не отнимает доступ к другой: сессия открывается в первой открытой.
+    // До 16.10.2026 бралось самое раннее членство, и архив организации А запирал человеку вход и в Б.
+    const open = active.find((m) => m.organization.status !== 'SUSPENDED');
+    if (!open && active.length > 0) throw new ForbiddenException(ORGANIZATION_SUSPENDED_MESSAGE);
+    const organizationId = open?.organizationId;
     if (!organizationId) throw new UnauthorizedException(WRONG);
     await this.assertOrganizationOpen(organizationId);
 
     const token = newSessionToken();
-    await this.prisma.db.user.update({
-      where: { id: user.id },
-      data: { failedAttempts: 0, lockedUntil: null, lastLoginAt: now },
-    });
     const expiresAt = sessionExpiry(now);
-    await this.prisma.db.session.create({
-      data: {
-        userId: user.id,
-        organizationId,
-        tokenHash: hashSessionToken(token),
-        userAgent: input.userAgentFamily ?? null,
-        expiresAt,
-      },
+    await this.prisma.db.$transaction(async (tx) => {
+      // The conditional update locks the same user row as reset until session issuance commits.
+      // A password verified before reset must not create a session after reset's revocation.
+      const current = await tx.user.updateMany({
+        where: {
+          id: user.id, passwordHash: user.passwordHash, status: 'ACTIVE',
+          OR: [{ lockedUntil: null }, { lockedUntil: { lte: now } }],
+        },
+        data: { failedAttempts: 0, lockedUntil: null, lastLoginAt: now },
+      });
+      if (current.count !== 1) throw new UnauthorizedException(WRONG);
+      await tx.session.create({
+        data: {
+          userId: user.id,
+          organizationId,
+          tokenHash: hashSessionToken(token),
+          userAgent: input.userAgentFamily ?? null,
+          expiresAt,
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          userId: user.id, entityType: 'user', entityId: user.id,
+          action: 'user.login', after: { via: 'password' },
+        },
+      });
     });
-    await this.record(user.id, 'user.login', { via: 'password' });
 
     return {
       token,
@@ -572,15 +606,14 @@ export class AuthService {
   private async readWhoAmI(token: string, now: Date): Promise<WhoAmI | null> {
     const found = await this.session(token, now);
     if (!found) return null;
-    // Продление сессии при работе (§13.5, PR #29) касалось только входа по коду: смена по паролю
-    // кончается через 12 часов намеренно (ADR-049). Вход по коду снят 20.09.2026 — продлевать стало
-    // нечего, и ветка убрана, чтобы не выглядеть работающей. Продлевать ли смену по паролю — вопрос
-    // к владельцу (Q-152), а не решение правки-сноса: `shouldRenewSession` в домене остался на месте.
+    // Q-153 (б), владелец 19.10.2026: смена по паролю продлевается работой. Каждое действие сдвигает срок на
+    // 12 часов от себя, 12 часов простоя смену обрывают (ADR-049 про забытый ноутбук остаётся в силе: оборвёт простой).
+    // Запись та же, что отмечает активность, лишнего обращения к базе нет.
+    const expiresAt = sessionExpiry(now);
     await this.prisma.db.session.update({
       where: { id: found.session.id },
-      data: { lastSeenAt: now },
+      data: { lastSeenAt: now, expiresAt },
     });
-    const expiresAt = found.session.expiresAt;
     const org = found.session.organization;
     return {
       user: visible(
@@ -596,6 +629,7 @@ export class AuthService {
           }
         : null,
       expiresAt: expiresAt.toISOString(),
+      sessionIssuedAt: found.session.issuedAt.toISOString(),
     };
   }
 
@@ -605,6 +639,94 @@ export class AuthService {
     if (!found || found.row.revokedAt !== null) return;
     await this.prisma.db.session.update({ where: { id: found.row.id }, data: { revokedAt: now } });
     await this.record(found.row.userId, 'user.logout', {});
+  }
+
+  /**
+   * Организации, в которые человек может войти: действующее членство в неархивной организации (§13.3, §31.2). Нужна,
+   * когда один аккаунт работает в нескольких организациях: сессия открыта в одной (`sessions.organization_id`, §13.5),
+   * перейти можно в любую из этого списка. Номера организаций служат выбором, а не доказательством права.
+   */
+  organizations(
+    token: string,
+    now = new Date(),
+  ): Promise<Array<{ id: string; name: string; role: string; current: boolean }>> {
+    return withServiceDatabase(async () => {
+      const found = await this.session(token, now);
+      if (!found) throw new UnauthorizedException('Войдите заново: сессия не годится');
+      const rows = await this.prisma.db.membership.findMany({
+        where: { userId: found.user.id, status: 'ACTIVE', organization: { status: { not: 'SUSPENDED' } } },
+        orderBy: { createdAt: 'asc' },
+        select: { organizationId: true, role: true, organization: { select: { name: true } } },
+      });
+      return rows.map((m) => ({
+        id: m.organizationId,
+        name: m.organization.name,
+        role: m.role,
+        current: m.organizationId === found.session.organizationId,
+      }));
+    });
+  }
+
+  /**
+   * Перейти в другую свою организацию. Сервер заново проверяет членство и состояние организации; прежний ключ гаснет,
+   * новый выдаётся с тем же сроком (смена не продлевается, ADR-049). Чужой, архивный или битый номер: 403, ничего не
+   * меняется.
+   */
+  switchOrganization(
+    token: string,
+    organizationId: unknown,
+    input: { userAgentFamily?: string | null } = {},
+    now = new Date(),
+  ): Promise<LoginResult> {
+    return withServiceDatabase(async () => {
+      const found = await this.session(token, now);
+      if (!found) throw new UnauthorizedException('Войдите заново: сессия не годится');
+      const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const target = typeof organizationId === 'string' && UUID.test(organizationId) ? organizationId : null;
+      const membership = target
+        ? await this.prisma.db.membership.findUnique({
+            where: { userId_organizationId: { userId: found.user.id, organizationId: target } },
+            select: { status: true, organization: { select: { status: true } } },
+          })
+        : null;
+      if (!target || membership?.status !== 'ACTIVE' || membership.organization.status === 'SUSPENDED')
+        throw new ForbiddenException('Эта организация вам недоступна');
+
+      const next = newSessionToken();
+      const expiresAt = found.session.expiresAt;
+      await this.prisma.db.$transaction(async (tx) => {
+        const revoked = await tx.session.updateMany({
+          where: { id: found.session.id, revokedAt: null },
+          data: { revokedAt: now },
+        });
+        // параллельный переход тем же ключом: выигрывает один, второй не получает сессию
+        if (revoked.count !== 1) throw new UnauthorizedException('Войдите заново: сессия не годится');
+        await tx.session.create({
+          data: {
+            userId: found.user.id,
+            organizationId: target,
+            tokenHash: hashSessionToken(next),
+            userAgent: input.userAgentFamily ?? found.session.userAgent ?? null,
+            issuedAt: now,
+            expiresAt,
+          },
+        });
+        await tx.auditLog.create({
+          data: {
+            organizationId: target,
+            userId: found.user.id, entityType: 'user', entityId: found.user.id,
+            action: 'user.organization.switched',
+            before: { organizationId: found.session.organizationId },
+            after: { organizationId: target },
+          },
+        });
+      });
+      return {
+        token: next,
+        expiresAt: expiresAt.toISOString(),
+        user: visible(found.user, target, await this.access(found.user.id, target)),
+      };
+    });
   }
 
   /**
@@ -632,15 +754,26 @@ export class AuthService {
     const policy = checkPassword(input.newPassword);
     if (!policy.ok) throw new BadRequestException(`Пароль не годится: ${policy.reason}`);
 
-    await this.prisma.db.user.update({
-      where: { id: full.id },
-      data: { passwordHash: await hashPasswordQueued(input.newPassword) },
+    const passwordHash = await hashPasswordQueued(input.newPassword);
+    // Пароль, отзыв прочих сессий и журнал одной транзакцией. Запись условная: если за время проверки старого пароля
+    // его сменили (сброс по ссылке) или учётку заблокировали, новый пароль не ложится поверх (как вход, §13.8).
+    await this.prisma.db.$transaction(async (tx) => {
+      const updated = await tx.user.updateMany({
+        where: { id: full.id, passwordHash: full.passwordHash, status: 'ACTIVE' },
+        data: { passwordHash },
+      });
+      if (updated.count !== 1) throw new UnauthorizedException('Войдите заново: сессия не годится');
+      const { count } = await tx.session.updateMany({
+        where: { userId: full.id, revokedAt: null, id: { not: found.session.id } },
+        data: { revokedAt: now },
+      });
+      await tx.auditLog.create({
+        data: {
+          userId: full.id, entityType: 'user', entityId: full.id,
+          action: 'user.password.changed', after: { sessionsRevoked: count },
+        },
+      });
     });
-    const { count } = await this.prisma.db.session.updateMany({
-      where: { userId: full.id, revokedAt: null, id: { not: found.session.id } },
-      data: { revokedAt: now },
-    });
-    await this.record(full.id, 'user.password.changed', { sessionsRevoked: count });
   }
 
   /**

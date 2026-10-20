@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 16.10.2026 13:50 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 35
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T08-50-36Z-integration-c0ee.json' '--config' 'tests/beauty-workload-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓ |integration| tests/integration/beauty-workload-isolated.test.ts (1 test) 535ms
+   ✓ real schedule writer captures normalized historical capacity atomically, never backdates observation 533ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  08:50:37
+   Duration  2.25s (transform 59%, tests 25%, import 15%)
+
+JSON report written to /tmp/pms-test-2026-10-16T08-50-36Z-integration-c0ee.json
+
+# код выхода 0 · 3 с

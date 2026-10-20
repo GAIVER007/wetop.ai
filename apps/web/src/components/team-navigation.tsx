@@ -25,7 +25,7 @@ export function TeamNavigation({
           prefetch={false}
           aria-current={current === 'journal' ? 'page' : undefined}
         >
-          Журнал операций
+          История действий
         </Link>
       )}
     </nav>

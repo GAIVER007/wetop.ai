@@ -1,0 +1,69 @@
+# Сквозные (e2e) · 16.10.2026 13:59 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7ebf981 (claude/marketing-channel-plan), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/marketing-budget.spec.ts' '--workers=1' '-g' 'план по каналам'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (src/lib/api.ts:152:11)
+[WebServer]     at async getJson (src/lib/api.ts:190:15)
+[WebServer]     at async Object.me (src/lib/api.ts:623:20)
+[WebServer]     at async (src/lib/desk-shell.ts:15:10)
+[WebServer]   150 |       throw error;
+[WebServer]   151 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 152 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   153 |       503,
+[WebServer]   154 |       options.method && options.method !== 'GET'
+[WebServer]   155 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  1 tests/ui/marketing-budget.spec.ts:237:1 › план по каналам: разбивка прошлого месяца, копирование, превышение общего плана предупреждает, план против факта (23.9m)
+
+
+  1) tests/ui/marketing-budget.spec.ts:237:1 › план по каналам: разбивка прошлого месяца, копирование, превышение общего плана предупреждает, план против факта 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_NETWORK_IO_SUSPENDED at http://127.0.0.1:3121/marketing/budget?month=2026-09
+    Call log:
+      - navigating to "http://127.0.0.1:3121/marketing/budget?month=2026-09", waiting until "load"
+
+
+       at fixtures.ts:166
+
+      164 |       // до своего перехода отложенному достаточно зафиксироваться: тогда он наш `goto` уже не оборвёт
+      165 |       await settleNextRedirect(page, 'commit');
+    > 166 |       const response = await goto(url, options);
+          |                              ^
+      167 |       const until = options?.waitUntil ?? 'load';
+      168 |       await settleNextRedirect(page, until === 'networkidle' ? 'load' : until);
+      169 |       await settleStreaming(page);
+        at _Page.page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/fixtures.ts:166:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-budget.spec.ts:246:3
+
+    Tearing down "context" exceeded the test timeout of 45000ms.
+
+    Error Context: test-results/marketing-budget-план-по-к-4eb27-упреждает-план-против-факта/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-budget-план-по-к-4eb27-упреждает-план-против-факта/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-budget-план-по-к-4eb27-упреждает-план-против-факта/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: tests/ui/marketing-budget.spec.ts (23.9m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  1 failed
+    tests/ui/marketing-budget.spec.ts:237:1 › план по каналам: разбивка прошлого месяца, копирование, превышение общего плана предупреждает, план против факта 
+
+# код выхода 1 · 25 мин 8 с

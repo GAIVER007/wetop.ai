@@ -17,7 +17,7 @@ test('герой: заголовок, регистрация с направле
   );
   const hero = page.locator('.hotel-hero');
   await expect(hero).toContainText('Для ресторанов');
-  await expect(hero.getByRole('link', { name: /Попробовать бесплатно/ })).toHaveAttribute(
+  await expect(hero.getByRole('link', { name: /Начать работу/ })).toHaveAttribute(
     'href',
     'https://wetop.ai/?vertical=FOOD_SERVICE#register',
   );

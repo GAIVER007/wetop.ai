@@ -195,6 +195,9 @@ for (const width of [1440, 390]) {
       await page.getByRole('link', { name: 'Сводка дня', exact: true }).click();
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Күн бойынша жиынтық');
       await page.getByRole('link', { name: 'RU', exact: true }).click();
+      // как после KZ: дождаться перехода на RU, иначе следующий щелчок теряется в идущем переходе (гейт 15.10.2026)
+      await expect(page).toHaveURL(/[?&]lang=ru(&|$)/);
+      await settleStreaming(page);
       await page.getByRole('link', { name: 'Список проживающих', exact: true }).click();
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Список проживающих');
       expect(new URL(page.url()).searchParams.get('lang')).toBe('ru');

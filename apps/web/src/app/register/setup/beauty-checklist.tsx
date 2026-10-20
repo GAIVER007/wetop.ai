@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useRef, useState, useTransition } from 'react';
+import { SUPPORTED_COUNTRIES, countryOf, currencyOptions, timezoneOptions } from '@pms/domain';
 import { Alert, Button, Field, Input, Select } from '../../../components/ui';
 import type { SharedOnboardingState } from '../../../lib/api';
 import { reloadOnboarding, saveOnboarding } from './actions';
@@ -23,22 +24,10 @@ const COUNTS: Record<string, string> = {
   skills: 'Назначений услуг',
   schedule: 'Пригодных сочетаний услуги и графика',
 };
-const ZONES = [
-  'Asia/Almaty', // tz-allow: вариант в списке поясов, не вычисление времени объекта
-  'Asia/Astana',
-  'Asia/Tashkent',
-  'Asia/Bishkek',
-  'Asia/Dubai',
-  'Asia/Tbilisi',
-  'Europe/Moscow',
-  'Europe/Istanbul',
-  'Europe/London',
-  'UTC',
-];
-
 export function BeautyChecklist({ initial }: { initial: SharedOnboardingState }) {
   const [state, setState] = useState(initial);
-  const [draft, setDraft] = useState(initial.draft);
+  // страна организации из регистрации подставляет пояс и валюту, если пояс филиала ещё не из списка (Q-SCHED-3)
+  const [draft, setDraft] = useState(() => withCountry(initial.draft, initial.organizationCountry));
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState('');
   const [latest, setLatest] = useState<SharedOnboardingState | null>(null);
@@ -188,52 +177,47 @@ export function BeautyChecklist({ initial }: { initial: SharedOnboardingState })
               Изменение названия салона относится ко всем филиалам этого бизнеса.
             </p>
             {field('locationName', 'Название филиала')}
+            <Field label="Страна" required>
+              <Select
+                value={countryOf({ zone: String(draft.timezone ?? '') })?.code ?? ''}
+                disabled={pending || !state.canEdit}
+                onChange={(e) => {
+                  const country = countryOf({ code: e.target.value });
+                  if (country)
+                    setDraft({ ...draft, timezone: country.zone, currency: country.currency });
+                }}
+              >
+                {!countryOf({ zone: String(draft.timezone ?? '') }) && (
+                  <option value="">Выберите страну</option>
+                )}
+                {SUPPORTED_COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.label}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Часовой пояс">
+              <Input
+                readOnly
+                value={
+                  timezoneOptions(String(draft.timezone ?? '')).find(
+                    (o) => o.value === draft.timezone,
+                  )?.label ?? ''
+                }
+              />
+            </Field>
             <Field label="Валюта" required>
               <Select
                 value={String(draft.currency ?? '')}
                 disabled={pending || !state.canEdit}
                 onChange={(e) => setDraft({ ...draft, currency: e.target.value })}
               >
-                {Array.from(
-                  new Set([String(draft.currency ?? ''), ...Intl.supportedValuesOf('currency')]),
-                )
-                  .filter(Boolean)
-                  .map((code) => (
-                    <option key={code}>{code}</option>
-                  ))}
-              </Select>
-            </Field>
-            <Field label="Часовой пояс" required>
-              <Select
-                value={String(draft.timezone ?? '')}
-                disabled={pending || !state.canEdit}
-                onChange={(e) => setDraft({ ...draft, timezone: e.target.value })}
-              >
-                {Array.from(
-                  new Set([
-                    String(draft.timezone ?? ''),
-                    ...ZONES.filter((z) => {
-                      try {
-                        new Intl.DateTimeFormat('ru', { timeZone: z });
-                        return true;
-                      } catch {
-                        return false;
-                      }
-                    }),
-                    ...Intl.supportedValuesOf('timeZone'),
-                  ]),
-                )
-                  .filter(Boolean)
-                  .map((zone) => (
-                    <option key={zone} value={zone}>
-                      {/* tz-allow: подпись варианта выбора, время берётся из сохранённого Location */}
-                      {zone === 'Asia/Almaty'
-                        ? 'Алматы (Казахстан)'
-                        : zone === 'Europe/Moscow'
-                          ? 'Москва'
-                          : zone.replaceAll('_', ' ')}
-                    </option>
-                  ))}
+                {currencyOptions(String(draft.currency ?? '')).map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
               </Select>
             </Field>
             {state.canEdit && (
@@ -291,7 +275,7 @@ export function BeautyChecklist({ initial }: { initial: SharedOnboardingState })
                         : step.id === 'services'
                           ? 'Добавить услугу'
                           : step.id === 'masters'
-                            ? 'Добавить мастера'
+                            ? 'Добавить специалиста'
                             : step.id === 'skills'
                               ? 'Назначить услуги'
                               : 'Настроить график'}
@@ -392,4 +376,17 @@ export function BeautyChecklist({ initial }: { initial: SharedOnboardingState })
       </aside>
     </main>
   );
+}
+
+/** Страна заполняет только отсутствующие значения; сохранённый ввод остаётся для действующей проверки. */
+function withCountry(draft: Record<string, unknown>, code: string | null | undefined) {
+  const country = countryOf({ code });
+  // An existing timezone does not establish the organization's country/currency.
+  // Preserve invalid input too: validation must reject it, not silently repair it.
+  if (!country || (draft.timezone != null && draft.timezone !== '')) return draft;
+  return {
+    ...draft,
+    timezone: country.zone,
+    currency: draft.currency == null || draft.currency === '' ? country.currency : draft.currency,
+  };
 }

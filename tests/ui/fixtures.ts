@@ -259,8 +259,28 @@ export const menuLinks = (page: Page) =>
     .locator('.sidenav__panel a')
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
 
+/**
+ * Строка разделов в шапке (от 1280 px, решение владельца 18.10.2026): кнопки ☰ там нет, панель `.sidenav` в разметке
+ * остаётся скрытой. Проверки текста и атрибутов по ней работают и дальше, а щелчки идут в строку разделов.
+ */
+export const tabNav = (page: Page) => page.locator('.tabnav');
+const tabOf = (page: Page, section: string) =>
+  tabNav(page).locator('.tabnav__tab', { hasText: new RegExp(`^${section}$`) });
+
 /** Открывает панель разделов наведением на кнопку текущего раздела и показывает подразделы `section` */
 export async function openSection(page: Page, section: string) {
+  if (await tabNav(page).isVisible()) {
+    const tab = tabOf(page, section);
+    // раздел из одного пункта это ссылка: списка у него нет
+    if ((await tab.evaluate((el) => el.tagName)) === 'A') return tabNav(page).locator('.tabnav__list--none');
+    const list = page.locator(`[id="${await tab.getAttribute('aria-controls')}"]`);
+    // шапка клиентская: до гидрации щелчок без обработчика, поэтому повтор
+    await expect(async () => {
+      if ((await tab.getAttribute('aria-expanded')) !== 'true') await tab.click();
+      await expect(list).toBeVisible({ timeout: 1_000 });
+    }).toPass({ timeout: 15_000 });
+    return list;
+  }
   const nav = sideNav(page);
   // шапка клиентская: до гидрации наведение без обработчика, поэтому повтор. Мышь сперва уводим: после перехода
   // панель закрывается по смене адреса, а курсор, уже стоящий на кнопке, нового pointerenter не даёт
@@ -284,6 +304,7 @@ export async function openSection(page: Page, section: string) {
 export async function goViaMenu(page: Page, section: string, item: string) {
   const items = await openSection(page, section);
   if (await items.count()) await items.getByRole('link', { name: item, exact: true }).click();
+  else if (await tabNav(page).isVisible()) await tabOf(page, section).click();
   else
     await sideNav(page)
       .locator('.sidenav__section', { hasText: new RegExp(`^${section}$`) })

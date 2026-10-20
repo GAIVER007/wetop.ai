@@ -1,5 +1,5 @@
 import { unstable_rethrow } from 'next/navigation';
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import { marketingBudgetApi } from '../../lib/api';
 import { summarize } from './budget/derive';
 import { MarketingHub, type HubSpend } from './hub';
@@ -21,6 +21,6 @@ async function loadSpend(): Promise<HubSpend | null> {
 }
 
 export default async function MarketingPage() {
-  const me = await requireVertical(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE']);
+  const me = await requireFeature('/marketing');
   return <MarketingHub vertical={me.context?.vertical ?? 'HOSPITALITY'} spend={await loadSpend()} />;
 }

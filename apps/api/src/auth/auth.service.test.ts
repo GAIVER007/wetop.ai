@@ -221,6 +221,21 @@ describe('AuthService.whoami', () => {
     expect(sessions[0]!.lastSeenAt).toEqual(later);
   });
 
+  it('Q-153 (б): работа продлевает смену на 12 часов от последнего действия, 12 часов простоя её обрывают', async () => {
+    const { auth, sessions } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    const hours = (h: number) => new Date(NOW.getTime() + h * 3_600_000);
+
+    // работа на 11-м часу сдвигает срок: на 22-м часу смена жива, хотя от входа прошло больше 12 часов
+    await expect(auth.whoami(token, hours(11))).resolves.toMatchObject({
+      expiresAt: hours(11 + SESSION_HOURS).toISOString(),
+    });
+    expect(sessions[0]!.expiresAt).toEqual(hours(11 + SESSION_HOURS));
+    await expect(auth.whoami(token, hours(22))).resolves.not.toBeNull();
+    // после этого 12 с лишним часов тишины: смена кончилась, и продлить её уже нельзя
+    await expect(auth.whoami(token, hours(22 + SESSION_HOURS + 1))).resolves.toBeNull();
+  });
+
   it('неизвестный, просроченный и отозванный токен — никто', async () => {
     const { auth, sessions } = service();
     const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
@@ -744,6 +759,7 @@ describe('AuthService: учётные данные читаются служеб
     spy('session', 'findUnique');
     spy('user', 'findUnique');
     spy('user', 'update');
+    spy('user', 'updateMany');
     spy('platformAdmin', 'findUnique');
     return { ...world, seen };
   }
@@ -772,7 +788,8 @@ describe('AuthService: учётные данные читаются служеб
       ),
     );
     expect(seen.map((s) => s.call)).toEqual(
-      expect.arrayContaining(['user.findUnique', 'user.update']),
+      // запись пароля условная (updateMany): сброс, прошедший во время проверки старого пароля, она не перезапишет
+      expect.arrayContaining(['user.findUnique', 'user.updateMany']),
     );
     expect(seen.filter((s) => s.tenant !== null)).toEqual([]);
   });

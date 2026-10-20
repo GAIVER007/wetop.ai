@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { membershipRoleFor, type MembershipRole, type ScopeAssignment } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import type {
@@ -566,10 +566,18 @@ export class PrismaAccountsRepository implements AccountsRepository {
       const role = await lockedRole(tx, input.organizationId, input.userId);
       if (!role) return { outcome: 'missing', role: null };
       if (!input.roles.includes(role)) return { outcome: 'role', role };
+      if (await tx.beautyPositionAssignment.count({where:{organizationId:input.organizationId,userId:input.userId}}))
+        throw new ConflictException('У сотрудника сохранена история должностей салона. Приостановите доступ вместо удаления.');
       await tx.membership.delete({
         where: {
           userId_organizationId: { userId: input.userId, organizationId: input.organizationId },
         },
+      });
+      // сессии этой организации гаснут строкой, а не только проверкой членства: иначе повторное приглашение того же
+      // человека оживило бы старые ключи (как приостановка ниже, §31.2)
+      await tx.session.updateMany({
+        where: { userId: input.userId, organizationId: input.organizationId, revokedAt: null },
+        data: { revokedAt: new Date() },
       });
       // в журнале организации: строка о человеке ушла бы из виду вместе с его членством
       await tx.auditLog.create({

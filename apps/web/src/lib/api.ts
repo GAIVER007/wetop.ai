@@ -1,6 +1,11 @@
 import type { WebVertical } from './vertical-landing';
 import type { ActionPreview } from './action-preview';
-import type { GuestMainStay } from '@pms/domain';
+import type {
+  CustomerImportChunkInput,
+  CustomerImportStartInput,
+  CustomerImportView,
+  GuestMainStay,
+} from '@pms/domain';
 export type { ActionPreview } from './action-preview';
 export type { GuestMainStay, GuestMainStayKind, GuestStayMoney } from '@pms/domain';
 
@@ -18,9 +23,12 @@ import type {
   InviteRole,
   MembershipRole,
   BusinessVertical,
+  BeautyPositionAccess,
+  BeautyPermission,
   UnitStats,
 } from '@pms/domain';
 import { ApiError } from './api-error';
+import { callerFrames, diagnosticId, diagnosticsEnabled, settingsRequest, SETTINGS_DIAGNOSTIC_HEADER, transportEvent } from './settings-request-diagnostics';
 import type {
   SupportLastMessage,
   SupportPriority,
@@ -110,6 +118,7 @@ async function backendFetch(
   path: string,
   options: RequestInit = {},
   reportScope?: string,
+  preserveUnauthorized = false,
 ): Promise<Response> {
   const endpoint = process.env.APP_API_URL?.trim() || 'http://127.0.0.1:3001';
   const demo =
@@ -121,6 +130,16 @@ async function backendFetch(
   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
   if (!testing && new URL(endpoint).port === '4311') {
     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.');
+  }
+  let diagnostic: { id: string; callers: string[] } | undefined;
+  if (diagnosticsEnabled(process.env) && settingsRequest(path, options.method)) {
+    diagnostic = { id: 'unbound', callers: callerFrames(new Error().stack) };
+    try {
+      const { headers } = await import('next/headers');
+      diagnostic.id = diagnosticId((await headers()).get(SETTINGS_DIAGNOSTIC_HEADER));
+    } catch { /* No request context: label unbound, never intercept business fetch failures. */ }
+    try { console.info(JSON.stringify(transportEvent(diagnostic.id, 'start', diagnostic.callers))); }
+    catch { /* Diagnostics are best effort. */ }
   }
   let response: Response;
   try {
@@ -141,6 +160,10 @@ async function backendFetch(
       signal: AbortSignal.timeout(60_000),
     });
   } catch (error) {
+    if (diagnostic) {
+      try { console.info(JSON.stringify(transportEvent(diagnostic.id, 'throw', diagnostic.callers))); }
+      catch { /* Never replace a business or framework exception with a logging error. */ }
+    }
     // Next.js also throws here to switch static prerendering to request-time rendering.
     // Only translate actual fetch failures; framework control flow must propagate unchanged.
     if (!(
@@ -156,10 +179,14 @@ async function backendFetch(
         : 'Нет связи с API. Проверьте подключение.',
     );
   }
+  if (diagnostic) {
+    try { console.info(JSON.stringify(transportEvent(diagnostic.id, 'end', diagnostic.callers, response.status))); }
+    catch { /* Diagnostics are best effort. */ }
+  }
   // Сессия кончилась: при включённом замке человека ведём на вход. Ответы самого входа исключены —
   // иначе неверный пароль отправлял бы на ту же страницу без объяснения (ADR-046). Подпись помощника
   // тоже: её просит макет на каждой странице, включая сам экран входа, и 401 там значит «чат анонимный».
-  if (response.status === 401 && !QUIET_401_PATHS.some((p) => path.startsWith(p))) {
+  if (!preserveUnauthorized && response.status === 401 && !QUIET_401_PATHS.some((p) => path.startsWith(p))) {
     const { redirectToLoginIfRequired } = await import('./session');
     await redirectToLoginIfRequired();
   }
@@ -186,8 +213,8 @@ async function sessionHeader(): Promise<Record<string, string>> {
   }
 }
 
-async function getJson<T>(path: string, headers: Record<string, string> = {}): Promise<T> {
-  const res = await backendFetch(path, { headers });
+async function getJson<T>(path: string, headers: Record<string, string> = {}, preserveUnauthorized = false): Promise<T> {
+  const res = await backendFetch(path, { headers }, undefined, preserveUnauthorized);
   if (!res.ok) {
     // Текст отказа NestJS (400/404/422) — администратору нужен он, а не «HTTP 400» (волна 3)
     let message = `API ${path}: HTTP ${res.status}`;
@@ -502,13 +529,14 @@ export async function sendJson<T>(
   path: string,
   body: unknown,
   headers: Record<string, string> = {},
+  preserveUnauthorized = false,
 ): Promise<T> {
   const res = await backendFetch(path, {
     method,
     headers: { 'content-type': 'application/json', ...headers },
     body: JSON.stringify(body),
     cache: 'no-store',
-  });
+  }, undefined, preserveUnauthorized);
   if (!res.ok) {
     let message = `HTTP ${res.status}`;
     try {
@@ -624,7 +652,10 @@ export const authApi = {
       user: SignedIn | null;
       organization?: SignedInOrganization | null;
       expiresAt?: string;
+      /** Когда выдана сессия; срок `expiresAt` сдвигается работой (Q-153 б), это время нет */
+      sessionIssuedAt?: string;
       access?: DeskAccessView;
+      beautyAccess?: BeautyPositionAccess;
       /** Контекст запроса (Platform P2 К1): какой филиал выбран и какое у него направление (Q-254) */
       context?: {
         scope?: string | null;
@@ -841,6 +872,26 @@ export const authApi = {
     const res = await backendFetch('/auth/sessions', { headers: authHeaders(info, token) });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthSessionRow[];
+  },
+  /** Организации, куда человек может перейти (действующее членство, организация не в архиве); своя помечена. */
+  organizations: async (token: string, info: AuthClientInfo): Promise<AuthOrganizationRow[]> => {
+    const res = await backendFetch('/auth/organizations', { headers: authHeaders(info, token) });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return ((await res.json()) as { organizations: AuthOrganizationRow[] }).organizations;
+  },
+  /** Перейти в другую свою организацию: новый ключ сессии, прежний погашен. 403 — организация недоступна. */
+  switchOrganization: async (
+    token: string,
+    organizationId: string,
+    info: AuthClientInfo,
+  ): Promise<{ token: string; expiresAt: string }> => {
+    const res = await backendFetch('/auth/organization', {
+      method: 'POST',
+      headers: authHeaders(info, token),
+      body: JSON.stringify({ organizationId }),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as { token: string; expiresAt: string };
   },
   /** 204 всегда: все сессии человека отозваны, включая эту; мёртвый ключ — не ошибка. */
   logoutAll: async (token: string, info: AuthClientInfo): Promise<void> => {
@@ -3345,6 +3396,14 @@ export const guardApi = {
 };
 
 /** Строка «Где вы вошли» (`GET /auth/sessions`): ни ключа, ни отпечатка, ни сырой строки агента. */
+/** Своя организация в списке перехода (§13.3, §13.5) */
+export interface AuthOrganizationRow {
+  id: string;
+  name: string;
+  role: string;
+  current: boolean;
+}
+
 export interface AuthSessionRow {
   id: string;
   issuedAt: string;
@@ -3631,6 +3690,20 @@ export interface BeautyEmployeeRow {
   profileRevision?: string;
 }
 
+export interface BeautyEmployeeServicePriceRow {
+  employeeId: string;
+  serviceId: string;
+  serviceName: string;
+  priceType: 'FIXED' | 'RANGE' | 'FREE' | 'UNFIXED';
+  priceMinMinor: string | null;
+  priceMaxMinor: string | null;
+  durationMinutes: number;
+  currency: string;
+  source: 'MASTER' | 'LOCATION' | 'CATALOG';
+  revision: number | null;
+  sellable: boolean;
+}
+
 export interface BeautyWorkingInterval {
   weekday: number;
   timeFrom: string;
@@ -3679,8 +3752,29 @@ export interface BeautyDayColumn {
   serviceIds: string[];
 }
 
+export interface BeautyAppointmentLine {
+  id: string;
+  position: number;
+  employeeId: string;
+  employeeName: string;
+  serviceId: string;
+  serviceName: string;
+  startsAt: string;
+  endsAt: string;
+  startMinutes: number;
+  endMinutes: number;
+  durationMinutes: number;
+  basePriceMinor: string;
+  discountMinor: string;
+  surchargeMinor: string;
+  priceMinor: string;
+  currency: string;
+  discountPercent: number | null;
+}
+
 export interface BeautyAppointmentRow {
   id: string;
+  items?: BeautyAppointmentLine[];
   employeeId: string;
   serviceId: string;
   serviceName: string;
@@ -3690,11 +3784,22 @@ export interface BeautyAppointmentRow {
   /** минуты от начала суток филиала: по ним плитка встаёт в сетку */
   startMinutes: number;
   endMinutes: number;
-  status: 'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
-  next: Array<'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED'>;
+  status: 'BOOKED' | 'CONFIRMED' | 'IN_PROGRESS' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
+  next: Array<'BOOKED' | 'CONFIRMED' | 'IN_PROGRESS' | 'DONE' | 'NO_SHOW' | 'CANCELLED'>;
   priceMinor: string;
+  /** оплачено в кассу филиала (§49), действующие приходы */
+  paidMinor: string;
+  paidCashMinor?: string;
+  paidNonCashMinor?: string;
+  /** возвращено по выполненной записи (§54), действующие расходы */
+  refundedMinor: string;
   currency: string;
   notes: string | null;
+  /** C2 (паритет с zapis.kz): откуда пришла запись и кто её создал; у старых записей автора нет */
+  source?: 'DESK' | 'WEBSITE';
+  createdByName?: string | null;
+  /** A4: платежи записи списком (операции кассы, только завершённые) */
+  payments?: Array<{ id: string; kind: 'INCOME' | 'EXPENSE'; method: string; amountMinor: string; at: string }>;
 }
 
 export interface BeautyDay {
@@ -3710,6 +3815,16 @@ export interface BeautyDay {
     durationMinutes: number;
     priceMinor: string;
     currency: string;
+    masterPrices?: Array<{
+      employeeId: string;
+      priceType: 'FIXED' | 'RANGE' | 'FREE' | 'UNFIXED';
+      priceMinMinor: string | null;
+      priceMaxMinor: string | null;
+      durationMinutes: number;
+      currency: string;
+      source: 'MASTER' | 'LOCATION' | 'CATALOG';
+      revision: number | null;
+    }>;
   }>;
   bounds: { fromMinutes: number; toMinutes: number };
 }
@@ -3728,10 +3843,259 @@ export interface BeautyCustomerRow {
   /** средний чек в тиынах по валюте с наибольшим числом визитов; null, пока визитов нет */
   avgCheckMinor: string | null;
   avgCheckCurrency: string | null;
+  /** §36: ручная метка и дата рождения, общие с рестораном */
+  isVip: boolean;
+  birthDate: string | null;
+  /** через сколько дней ближайший день рождения по дате филиала, 0 сегодня */
+  birthdayInDays: number | null;
+}
+
+export interface BeautyCustomerDetail {
+  customer: {
+    id: string;
+    firstName: string;
+    lastName: string | null;
+    phone: string | null;
+    email: string | null;
+    notes: string | null;
+    status: string;
+    isVip: boolean;
+    birthDate: string | null;
+  };
+  visits: Array<{
+    id: string;
+    startsAt: string;
+    endsAt: string;
+    status: string;
+    priceMinor: string;
+    currency: string;
+    source: string;
+    location: { id: string; name: string; timezone: string };
+    service: { id: string; name: string };
+    employee: { id: string; name: string };
+    lines: Array<{
+      position: number;
+      startsAt: string;
+      endsAt: string;
+      priceMinor: string;
+      currency: string;
+      service: { id: string; name: string };
+      employee: { id: string; name: string };
+    }>;
+  }>;
+  historyTruncated: boolean;
+}
+
+export type BeautyMaterialUnit = 'г' | 'мл' | 'шт';
+export interface BeautyServiceMaterials {
+  serviceId: string;
+  revision: number;
+  locationId: string;
+  currency: string;
+  totalCostMinor: string | null;
+  missingCost: boolean;
+  items: Array<{
+    productId: string;
+    productName: string;
+    unit: BeautyMaterialUnit;
+    normQty: string;
+    onHand: string;
+    costMinor: string | null;
+    active: boolean;
+  }>;
+  products: Array<{
+    id: string;
+    name: string;
+    unit: BeautyMaterialUnit;
+    onHand: string;
+    active: boolean;
+  }>;
+}
+
+export type BeautyCustomerImportStatus = 'CREATE' | 'ALREADY_EXISTS' | 'CONFLICT' | 'DUPLICATE_IN_FILE';
+export interface BeautyCustomerImportPreview {
+  rows: Array<{
+    line: number;
+    name: string;
+    phone: string;
+    status: BeautyCustomerImportStatus;
+  }>;
+  totals: { create: number; alreadyExists: number; conflicts: number; duplicatesInFile: number };
+}
+
+export const BEAUTY_APPOINTMENT_HISTORY_ACTIONS = [
+  'beauty.appointment.created',
+  'beauty.appointment.moved',
+  'beauty.appointment.status',
+  'beauty.appointment.paid',
+  'beauty.appointment.refunded',
+] as const;
+
+export type BeautyAppointmentHistoryAction = (typeof BEAUTY_APPOINTMENT_HISTORY_ACTIONS)[number];
+
+export interface BeautyAppointmentHistorySnapshot {
+  startsAt?: string;
+  endsAt?: string;
+  employee?: { id: string; name: string };
+  service?: { id: string; name: string };
+  priceMinor?: string;
+  status?: string;
+  method?: string;
+  amountMinor?: string;
+  paidMinor?: string;
+  reason?: string;
+  items?: Array<{
+    position: number;
+    startsAt: string;
+    endsAt?: string;
+    priceMinor: string;
+    basePriceMinor?: string;
+    discountMinor?: string;
+    surchargeMinor?: string;
+    discountPercent?: number | null;
+    currency?: string;
+    employee: { id: string; name: string };
+    service: { id: string; name: string };
+  }>;
+}
+
+export interface BeautyAppointmentHistoryResponse {
+  timezone: string;
+  currency: string;
+  items: Array<{
+    id: string;
+    at: string;
+    action: BeautyAppointmentHistoryAction;
+    author: { id: string; name: string } | null;
+    before: BeautyAppointmentHistorySnapshot;
+    after: BeautyAppointmentHistorySnapshot;
+  }>;
+  truncated: boolean;
+}
+
+export interface BeautyLocationHoursResponse {
+  location: { id: string; name: string | null; timezone: string };
+  configured: boolean;
+  revision: number;
+  intervals: Array<{ weekday: number; timeFrom: string; timeTo: string }>;
+  conflicts: Array<{ id: string; startsAt: string; endsAt: string; customerName: string }>;
+  conflictsTruncated: boolean;
+}
+
+export interface BeautyPositionRow {
+  id: string;
+  name: string;
+  revision: number;
+  archivedAt: string | null;
+  permissions: BeautyPermission[];
+}
+
+export interface BeautyPositionAssignmentRow {
+  id: string;
+  userId: string;
+  locationId: string | null;
+  positionId: string;
+  revision: number;
+  revokedAt: string | null;
+}
+
+export interface BeautyPositionsWorkspace {
+  businessId: string;
+  positions: BeautyPositionRow[];
+  assignments: BeautyPositionAssignmentRow[];
+  members: Array<{
+    userId: string;
+    name: string | null;
+    email: string;
+    businessWide: boolean;
+    locationIds: string[];
+  }>;
+  locations: Array<{ id: string; name: string }>;
+}
+
+function beautyPeriodPath(path: string, from?: string, to?: string): string {
+  const params = new URLSearchParams();
+  if (from !== undefined) params.set('from', from);
+  if (to !== undefined) params.set('to', to);
+  const query = params.toString();
+  return query ? `${path}?${query}` : path;
 }
 
 export const beautyApi = {
+  positions: () => getJson<BeautyPositionsWorkspace>('/beauty/positions'),
+  createPosition: (body: { name: string; permissions: BeautyPermission[] }) =>
+    sendJson<BeautyPositionRow>('POST', '/beauty/positions', body),
+  updatePosition: (
+    id: string,
+    body: { name: string; permissions: BeautyPermission[]; expectedRevision: number },
+  ) => sendJson<BeautyPositionRow>(
+    'PATCH',
+    `/beauty/positions/${encodeURIComponent(id)}`,
+    body,
+  ),
+  archivePosition: (id: string, expectedRevision: number) =>
+    sendJson<BeautyPositionRow>(
+      'POST',
+      `/beauty/positions/${encodeURIComponent(id)}/archive`,
+      { expectedRevision },
+    ),
+  assignPosition: (body: {
+    userId: string;
+    positionId: string;
+    locationId: string | null;
+    expectedRevision: number;
+  }) => sendJson<BeautyPositionAssignmentRow>('PUT', '/beauty/positions/assignments', body),
+  revokePosition: (id: string, expectedRevision: number) =>
+    sendJson<BeautyPositionAssignmentRow>(
+      'POST',
+      `/beauty/positions/assignments/${encodeURIComponent(id)}/revoke`,
+      { expectedRevision },
+    ),
+  locationHours: () => getJson<BeautyLocationHoursResponse>('/beauty/location-hours'),
+  saveLocationHours: (body: { expectedRevision: number; intervals: BeautyLocationHoursResponse['intervals'] }) => sendJson<BeautyLocationHoursResponse>('PUT', '/beauty/location-hours', body),
+  appointmentHistory: (id: string) => getJson<BeautyAppointmentHistoryResponse>(`/beauty/appointments/${encodeURIComponent(id)}/history`),
+  issueReviewInvitation: (id: string) => sendJson<{ reviewPath: string; expiresAt: string; masterCount: number }>(
+    'POST', `/beauty/appointments/${encodeURIComponent(id)}/review-invitation`, {},
+  ),
   customers: () => getJson<{ items: BeautyCustomerRow[] }>('/beauty/customers'),
+  customer: (id: string) => getJson<BeautyCustomerDetail>(`/beauty/customers/${encodeURIComponent(id)}`),
+  createCustomer: (body: { firstName: string; lastName: string; phone: string }) =>
+    sendJson<{ id: string; created: boolean }>('POST', '/beauty/customers', body),
+  previewCustomerImport: (csv: string) =>
+    sendJson<BeautyCustomerImportPreview>('POST', '/beauty/customers/import/preview', { csv }),
+  importCustomers: (csv: string) =>
+    sendJson<{ created: number; linked: number; alreadyExists: number }>(
+      'POST',
+      '/beauty/customers/import',
+      { csv },
+    ),
+  /** VIP и день рождения клиента салона (§36) */
+  updateCustomer: (id: string, body: { isVip: boolean; birthDate: string | null }) =>
+    sendJson<unknown>('PATCH', `/beauty/customers/${encodeURIComponent(id)}`, body),
+  listCustomerImports: () =>
+    getJson<{ items: CustomerImportView[] }>('/beauty/customer-imports'),
+  getCustomerImport: (id: string) =>
+    getJson<CustomerImportView>(`/beauty/customer-imports/${encodeURIComponent(id)}`),
+  startCustomerImport: (body: CustomerImportStartInput) =>
+    sendJson<CustomerImportView>('POST', '/beauty/customer-imports', body),
+  uploadCustomerImportRows: (id: string, body: CustomerImportChunkInput) =>
+    sendJson<CustomerImportView>(
+      'PUT',
+      `/beauty/customer-imports/${encodeURIComponent(id)}/rows`,
+      body,
+    ),
+  submitCustomerImport: (id: string) =>
+    sendJson<CustomerImportView>(
+      'POST',
+      `/beauty/customer-imports/${encodeURIComponent(id)}/submit`,
+      {},
+    ),
+  undoCustomerImport: (id: string) =>
+    sendJson<CustomerImportView>(
+      'POST',
+      `/beauty/customer-imports/${encodeURIComponent(id)}/undo`,
+      {},
+    ),
   services: () =>
     getJson<{
       locationId: string | null;
@@ -3741,6 +4105,19 @@ export const beautyApi = {
   createService: (body: unknown) => sendJson<BeautyServiceRow>('POST', '/beauty/services', body),
   updateService: (id: string, body: unknown) =>
     sendJson<BeautyServiceRow>('PATCH', `/beauty/services/${encodeURIComponent(id)}`, body),
+  serviceMaterials: (id: string) =>
+    getJson<BeautyServiceMaterials>(`/beauty/services/${encodeURIComponent(id)}/materials`),
+  saveServiceMaterials: (
+    id: string,
+    body: {
+      expectedRevision: number;
+      items: Array<{ productId: string; normQty: string; unit: BeautyMaterialUnit }>;
+    },
+  ) => sendJson<BeautyServiceMaterials>(
+    'PUT',
+    `/beauty/services/${encodeURIComponent(id)}/materials`,
+    body,
+  ),
   setLocationService: (id: string, body: unknown) =>
     sendJson<{ items: BeautyServiceRow[] }>(
       'PUT',
@@ -3757,6 +4134,32 @@ export const beautyApi = {
       serviceIds,
       ...(expectedRevision ? { expectedRevision } : {}),
     }),
+  employeeServicePrices: (id: string) =>
+    getJson<BeautyEmployeeServicePriceRow[]>(
+      `/beauty/employees/${encodeURIComponent(id)}/service-prices`,
+    ),
+  setEmployeeServicePrice: (
+    id: string,
+    serviceId: string,
+    body: {
+      expectedRevision: number;
+      priceType: BeautyEmployeeServicePriceRow['priceType'];
+      priceMinMinor: string | null;
+      priceMaxMinor: string | null;
+      durationMinutes: number;
+      currency: string;
+    },
+  ) => sendJson<BeautyEmployeeServicePriceRow[]>(
+    'PUT',
+    `/beauty/employees/${encodeURIComponent(id)}/service-prices/${encodeURIComponent(serviceId)}`,
+    body,
+  ),
+  removeEmployeeServicePrice: (id: string, serviceId: string, body: { expectedRevision: number }) =>
+    sendJson<BeautyEmployeeServicePriceRow[]>(
+      'DELETE',
+      `/beauty/employees/${encodeURIComponent(id)}/service-prices/${encodeURIComponent(serviceId)}`,
+      body,
+    ),
   schedule: (employee?: string) =>
     getJson<BeautySchedule>(
       employee ? `/beauty/schedule?employee=${encodeURIComponent(employee)}` : '/beauty/schedule',
@@ -3787,6 +4190,20 @@ export const beautyApi = {
     getJson<BeautyDay>(
       date ? `/beauty/appointments?date=${encodeURIComponent(date)}` : '/beauty/appointments',
     ),
+  period: (from?: string, to?: string) => getJson<{
+    location: BeautyDay['location'];
+    period: { from: string; to: string };
+    appointments: Array<BeautyAppointmentRow & { localDate: string }>;
+  }>(beautyPeriodPath('/beauty/appointments/period', from, to)),
+  financeDay: (date?: string) =>
+    getJson<BeautyDay>(
+      date ? `/beauty/finance/day?date=${encodeURIComponent(date)}` : '/beauty/finance/day',
+    ),
+  financePeriod: (from: string, to: string) => getJson<{
+    location: BeautyDay['location'];
+    period: { from: string; to: string };
+    appointments: Array<BeautyAppointmentRow & { localDate: string }>;
+  }>(`/beauty/finance/appointments?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`),
   createAppointment: (body: unknown) => sendJson<BeautyDay>('POST', '/beauty/appointments', body),
   moveAppointment: (id: string, body: unknown) =>
     sendJson<BeautyDay>('PATCH', `/beauty/appointments/${encodeURIComponent(id)}`, body),
@@ -3794,6 +4211,12 @@ export const beautyApi = {
     sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/status`, {
       status,
     }),
+  /** Оплата записи в кассу филиала (§49) */
+  payAppointment: (id: string, body: { method: string; amount: number; idempotencyKey: string }) =>
+    sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/payments`, body),
+  /** Возврат по выполненной записи (§54) */
+  refundAppointment: (id: string, body: { method: string; amount: number; reason: string; idempotencyKey: string }) =>
+    sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/refunds`, body),
 };
 
 // ── Загрузка конкурентов (ADR-142, DATA_MODEL §23) ─────────────────────────────────────────────
@@ -3974,6 +4397,14 @@ export const marketApi = {
 };
 
 /** Расход маркетинга (МКТ-В1/В2, DATA_MODEL §41.1). Деньги строками тиынов: float в деньгах запрещён (ADR-008) */
+/** Чек или файл расхода маркетинга (DATA_MODEL §51); url null: хранилище не включено */
+export interface MarketingExpenseFile {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  byteSize: number;
+  url: string | null;
+}
 export interface MarketingExpenseRow {
   id: string;
   date: string;
@@ -3988,6 +4419,10 @@ export interface MarketingExpenseRow {
   /** Сумма в валюте отчётности организации, minor units, по курсу на дату операции */
   baseAmount: string;
   countedInBudget: boolean;
+  /** Кампания расхода (§53) */
+  campaignId?: string | null;
+  /** Чеки и файлы (§51) с подписанными адресами на время; есть в ответе месяца */
+  files?: MarketingExpenseFile[];
 }
 
 export interface MarketingBudgetView {
@@ -3997,8 +4432,153 @@ export interface MarketingBudgetView {
   locationCurrency: string;
   plan: string | null;
   prevSpent: string;
+  /** Разбивка плана по каналам (§52, ADR-MKT-B7), суммы строками тиынов в валюте отчётности */
+  lines: Array<{ platform: string; amount: string }>;
+  /** Разбивка прошлого месяца: «взять из прошлого месяца» */
+  prevLines: Array<{ platform: string; amount: string }>;
   expenses: MarketingExpenseRow[];
 }
+
+/** Рекламная кампания филиала за месяц (DATA_MODEL §53, ADR-MKT-B3): расход строкой тиынов, статистика площадки */
+export interface MarketingCampaignView {
+  id: string;
+  platform: string;
+  name: string;
+  status: 'ACTIVE' | 'PAUSED' | 'FINISHED';
+  startsOn: string | null;
+  endsOn: string | null;
+  spend: string;
+  impressions: number;
+  clicks: number;
+  leads: number;
+  /** Кампания из рекламного кабинета (§55): правит только сверка */
+  fromCabinet?: boolean;
+  /** Расход по кабинету за месяц, тиыны валюты кабинета; null у ручных */
+  cabinetSpend?: string | null;
+  cabinetCurrency?: string | null;
+  days: Array<{ date: string; impressions: number; clicks: number; leads: number }>;
+}
+export interface MarketingCampaignsView {
+  month: string;
+  /** Сегодня в поясе филиала */
+  today: string;
+  reportingCurrency: string;
+  campaigns: MarketingCampaignView[];
+}
+
+/** Кабинет Meta филиала (DATA_MODEL §55, ADR-MKT-META); ключ наружу не отдаётся никогда */
+export interface MetaConnectionView {
+  /** false: владелец платформы ещё не вписал ключи приложения Meta */
+  configured: boolean;
+  connection: {
+    adAccountId: string;
+    accountName: string | null;
+    currency: string;
+    timezone: string;
+    status: 'ACTIVE' | 'FAILED';
+    lastSyncedAt: string | null;
+    lastError: string | null;
+  } | null;
+}
+
+export type MetaCompleteResult =
+  | { connected: true; accountName: string }
+  | { connected: false; pending: string; accounts: Array<{ adAccountId: string; name: string; currency: string }> };
+
+export const metaConnectionApi = {
+  view: () => getJson<MetaConnectionView>('/marketing/ad-connections/meta'),
+  /** Окно входа Facebook; кабинет человек отмечает в самом окне */
+  start: () => sendJson<{ url: string }>('POST', '/marketing/ad-connections/meta/start', {}),
+  complete: (code: string, state: string) =>
+    sendJson<MetaCompleteResult>('POST', '/marketing/ad-connections/meta/complete', { code, state }),
+  /** Выбор одного из нескольких отмеченных кабинетов; `pending` это шифрованная заготовка входа на 10 минут */
+  choose: (pending: string, adAccountId: string) =>
+    sendJson<MetaCompleteResult>('POST', '/marketing/ad-connections/meta/choose', { pending, adAccountId }),
+  sync: () =>
+    sendJson<{ ok: boolean; days: number; campaigns: number; error: string | null }>('POST', '/marketing/ad-connections/meta/sync', {}),
+  disconnect: () => sendJson<{ disconnected: true }>('POST', '/marketing/ad-connections/meta/disconnect', {}),
+};
+
+/** Мастер запуска рекламы (DATA_MODEL §57, ADR-MKT-LAUNCH): кабинет, страницы, сколько ещё можно в день */
+export type MarketingAdAssets =
+  | { connected: false; reportingCurrency: string; roomDailyMinor: string | null }
+  | {
+      connected: true;
+      reportingCurrency: string;
+      /** Сколько ещё можно новой кампании в день, minor units валюты отчётности; null: плана Meta на месяц нет */
+      roomDailyMinor: string | null;
+      cabinet: { name: string; currency: string };
+      pages: Array<{ id: string; name: string; canAdvertise: boolean; instagramUserId: string | null }>;
+      pagesError: string | null;
+      defaults: { pageId: string | null; instagramUserId: string | null };
+    };
+
+/** Предложение ИИ-таргетолога после правил домена (`ad-proposal/0`) */
+export interface MarketingAdProposal {
+  headline: string;
+  primaryText: string;
+  description: string | null;
+  ageMin: number;
+  ageMax: number;
+  genders: number[];
+  interests: string[];
+  welcome: { text: string; autofill: string } | null;
+  notes: string[];
+}
+
+export interface MarketingAdLaunchView {
+  id: string;
+  status: 'RUNNING' | 'SUCCEEDED' | 'FAILED';
+  step: 'MEDIA' | 'CAMPAIGN' | 'ADSET' | 'CREATIVE' | 'AD' | 'DONE';
+  destination: string;
+  headline: string;
+  dailyBudgetMinor: string;
+  currency: string;
+  campaignId: string | null;
+  externalCampaignId: string | null;
+  error: string | null;
+  createdAt: string;
+  finishedAt: string | null;
+}
+
+export const marketingAdsApi = {
+  assets: () => getJson<MarketingAdAssets>('/marketing/ads/assets'),
+  geo: (q: string, country: string) =>
+    getJson<Array<{ key: string; name: string; region: string }>>(
+      `/marketing/ads/geo?q=${encodeURIComponent(q)}&country=${encodeURIComponent(country)}`,
+    ),
+  /** Креатив картинками (фото base64) и оффер: ИИ предлагает текст и аудиторию, ничего не создаёт */
+  proposal: (body: unknown) => sendJson<MarketingAdProposal>('POST', '/marketing/ads/proposal', body),
+  /** Фото креатива: multipart, поле `file`, в закрытое хранилище */
+  uploadCreative: async (file: File): Promise<{ id: string; fileName: string; url: string }> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch('/marketing/ads/creatives', { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as { id: string; fileName: string; url: string };
+  },
+  start: (body: unknown) => sendJson<{ id: string }>('POST', '/marketing/ads/launches', body),
+  launch: (id: string) => getJson<MarketingAdLaunchView>(`/marketing/ads/launches/${encodeURIComponent(id)}`),
+  launches: () => getJson<MarketingAdLaunchView[]>('/marketing/ads/launches'),
+  pause: (campaignId: string) =>
+    sendJson<{ status: string }>('POST', `/marketing/ads/campaigns/${encodeURIComponent(campaignId)}/pause`, {}),
+  resume: (campaignId: string) =>
+    sendJson<{ status: string }>('POST', `/marketing/ads/campaigns/${encodeURIComponent(campaignId)}/resume`, {}),
+};
+
+export const marketingCampaignsApi = {
+  list: (month?: string) =>
+    getJson<MarketingCampaignsView>(`/marketing/campaigns${month ? `?month=${encodeURIComponent(month)}` : ''}`),
+  create: (body: unknown) => sendJson<{ id: string }>('POST', '/marketing/campaigns', body),
+  update: (id: string, body: unknown) =>
+    sendJson<{ id: string }>('PATCH', `/marketing/campaigns/${encodeURIComponent(id)}`, body),
+  setDay: (id: string, body: unknown) =>
+    sendJson<unknown>('PUT', `/marketing/campaigns/${encodeURIComponent(id)}/stats`, body),
+  importDays: (id: string, csv: string) =>
+    sendJson<{ imported: number }>('POST', `/marketing/campaigns/${encodeURIComponent(id)}/stats/import`, { csv }),
+  removeDay: (id: string, date: string) =>
+    deleteJson<{ deleted: true }>(`/marketing/campaigns/${encodeURIComponent(id)}/stats/${encodeURIComponent(date)}`),
+};
 
 export const marketingBudgetApi = {
   view: (month?: string) =>
@@ -4007,13 +4587,46 @@ export const marketingBudgetApi = {
     ),
   setPlan: (body: unknown) =>
     sendJson<{ month: string; amount: string }>('PUT', '/marketing/budget', body),
+  /** Разбивка плана месяца по каналам заменяется целиком (§52) */
+  setLines: (body: unknown) =>
+    sendJson<{ month: string; lines: Array<{ platform: string; amount: string }> }>('PUT', '/marketing/budget/lines', body),
   createExpense: (body: unknown) =>
     sendJson<MarketingExpenseRow>('POST', '/marketing/expenses', body),
   updateExpense: (id: string, body: unknown) =>
     sendJson<MarketingExpenseRow>('PATCH', `/marketing/expenses/${encodeURIComponent(id)}`, body),
   deleteExpense: (id: string) =>
     deleteJson<{ ok: true }>(`/marketing/expenses/${encodeURIComponent(id)}`),
+  /** Импорт из CSV формата выгрузки: всё или ничего; итог в валюте отчётности строкой тиынов */
+  importExpenses: (csv: string) =>
+    sendJson<{ imported: number; baseTotal: string }>('POST', '/marketing/expenses/import', { csv }),
+  /** Чек или файл к расходу (§51): фото или PDF до 10 МиБ, файл идёт в API, оттуда в закрытое хранилище */
+  uploadFile: async (expenseId: string, file: File): Promise<void> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch(`/marketing/expenses/${encodeURIComponent(expenseId)}/files`, { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  removeFile: (expenseId: string, fileId: string) =>
+    deleteJson<{ deleted: true }>(
+      `/marketing/expenses/${encodeURIComponent(expenseId)}/files/${encodeURIComponent(fileId)}`,
+    ),
+  results: (month?: string) =>
+    getJson<MarketingResultsView>(
+      `/marketing/results${month ? `?month=${encodeURIComponent(month)}` : ''}`,
+    ),
 };
+
+/** Результаты маркетинговых каналов за месяц (МКТ-В5a, Q-MKT-ATTR); выручка строкой тиынов в валюте объекта */
+export interface MarketingResultsView {
+  month: string;
+  reportingCurrency: string;
+  revenueCurrency: string | null;
+  /** false: у филиала нет броней гостиницы (салон, ресторан) */
+  supported: boolean;
+  channels: Array<{ channel: 'SITE' | 'WHATSAPP' | 'INSTAGRAM' | 'PHONE'; leads: number; bookings: number; revenue: string }>;
+  /** Дни с активностью: обращения, живые брони, из них новые гости, выручка; сумма дней равна месяцу */
+  days: Array<{ date: string; leads: number; bookings: number; newGuests: number; revenue: string }>;
+}
 
 export interface SharedOnboardingState {
   vertical: BusinessVertical;
@@ -4025,6 +4638,8 @@ export interface SharedOnboardingState {
   completedAt: string | null;
   updatedAt: string | null;
   canEdit: boolean;
+  /** Страна организации из регистрации (ISO 3166-1), если указана */
+  organizationCountry?: string | null;
   profileApplied?: boolean;
   storedFlowVersion?: number | null;
   completedFlowVersion?: number | null;
@@ -4039,12 +4654,12 @@ export interface SharedOnboardingState {
   >;
 }
 export const sharedOnboardingApi = {
-  status: () => getJson<SharedOnboardingState>('/onboarding'),
+  status: (options?: { preserveUnauthorized?: boolean }) => getJson<SharedOnboardingState>('/onboarding', {}, options?.preserveUnauthorized),
   save: (body: {
     action: 'save' | 'next' | 'back' | 'complete' | 'apply-profile';
     draft: Record<string, unknown>;
     updatedAt: string | null;
-  }) => sendJson<SharedOnboardingState>('POST', '/onboarding', body),
+  }, options?: { preserveUnauthorized?: boolean }) => sendJson<SharedOnboardingState>('POST', '/onboarding', body, {}, options?.preserveUnauthorized),
 };
 
 export interface BarCategoryRow {
@@ -4328,6 +4943,19 @@ export const orderRatingApi = {
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
 };
+
+/** Employee portal: reuse the private session/scope transport without exposing its endpoint to the browser. */
+export async function portalTransport<T>(path: string, method = 'GET', body?: unknown): Promise<T> {
+  if (!path.startsWith('/employee-portal/')) throw new Error('Invalid portal path');
+  const multipart = body instanceof FormData;
+  const res = await backendFetch(path, {
+    method,
+    ...(body === undefined ? {} : { body: multipart ? body : JSON.stringify(body) }),
+    ...(body === undefined || multipart ? {} : { headers: { 'Content-Type': 'application/json' } }),
+  });
+  if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  return res.json() as Promise<T>;
+}
 
 /** Cards belong to businesses inside the current organization. */
 export interface BusinessCardView {

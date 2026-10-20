@@ -1,0 +1,18 @@
+# Модульные (unit) · 17.10.2026 12:21 Алматы · <сервер>
+# коммит 9d89428 (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T07-21-17Z-unit-3e23.json' 'apps/web/src/app/management/analytics/vertical/metrics.test.ts' 'apps/web/src/app/management/analytics/vertical/load.test.ts' 'apps/web/src/app/management/analytics/vertical/status-completeness.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ✓  unit  apps/web/src/app/management/analytics/vertical/load.test.ts (3 tests) 234ms
+ ✓  unit  apps/web/src/app/management/analytics/vertical/metrics.test.ts (5 tests) 200ms
+ ✓  unit  apps/web/src/app/management/analytics/vertical/status-completeness.test.ts (4 tests) 25ms
+
+ Test Files  3 passed (3)
+      Tests  12 passed (12)
+   Start at  07:22:36
+   Duration  6.16s (transform 67%, tests 18%, import 12%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-17T07-21-17Z-unit-3e23.json
+
+# код выхода 0 · 1 мин 26 с

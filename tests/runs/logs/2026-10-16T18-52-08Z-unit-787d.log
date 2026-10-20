@@ -1,0 +1,283 @@
+# Модульные (unit) · 16.10.2026 23:52 Алматы · Noutbuk-Vyacheslav.local
+# коммит f314cc3 (claude/modest-lovelace-429ae7)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T18-52-08Z-unit-787d.json' 'tests/unit/guard-run.test.ts' 'tests/unit/auto-deploy.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/modest-lovelace-429ae7
+
+ ❯ |unit| tests/unit/guard-run.test.ts (8 tests | 6 failed) 53258ms
+   ❯ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ только токен подписки: отказ до первого круга, модель не зовётся 12ms
+     ✓ ни ключа, ни токена: отказ с подсказкой про ключ 6ms
+     × заданы оба: платит ключ, токен подписки процессу агента не достаётся 7937ms
+     × подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 7692ms
+   ❯ дежурный агент: дневной потолок денег (ADR-137) (4)
+     × каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 9193ms
+     × предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 7846ms
+     × вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 12450ms
+     × тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 8120ms
+ ❯ |unit| tests/unit/auto-deploy.test.ts (18 tests | 12 failed) 111843ms
+   ❯ scripts/ops/auto-deploy.sh (18)
+     ✓ checked-out source stays readable by the container user under a private caller umask 3771ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 1804ms
+     × новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 5255ms
+     ✓ после выкладки остаётся один образ отката, старые убираются (16.10.2026: пять по 2 ГБ заполнили диск) 5137ms
+     × мало места на диске: убирает кэш, не трогает клон, говорит один раз и выкладывает, когда место есть 7481ms
+     × в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 5567ms
+     × владелец применил миграции и назвал вершину — выкладывает ровно её 8364ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 5138ms
+     × --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 5586ms
+     × --migrations-applied с номером вершины выкладывает ровно её, другую — нет 7692ms
+     × прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 7898ms
+     × release перемотали после отказа — флаг со старой вершиной не выкладывает новую 7941ms
+     ✓ локальные правки в клоне — не затирает их 4754ms
+     × историю ветки переписали — не выкладывает поверх 7719ms
+     × после сборки не отвечает — возвращает прежний коммит и прежний образ 7231ms
+     × CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 8274ms
+     × раннер занят дольше предела — выкладывает всё равно и говорит об этом 8012ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 4219ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:143:3
+    141|   });
+    142|
+    143|   it('новый коммит без миграций — выкладывает, проверяет и сообщает, т…
+       |   ^
+    144|     const before = head();
+    145|     const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/18]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > мало места на диске: убирает кэш, не трогает клон, говорит один раз и выкладывает, когда место есть
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:173:3
+    171|   });
+    172|
+    173|   it('мало места на диске: убирает кэш, не трогает клон, говорит один …
+       |   ^
+    174|     const before = head();
+    175|     const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/18]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:194:3
+    192|   });
+    193|
+    194|   it('в обновлении миграция — не выкладывает, говорит один раз и ждёт …
+       |   ^
+    195|     const before = head();
+    196|     commit('packages/database/prisma/migrations/0002_more/migration.sq…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/18]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > владелец применил миграции и назвал вершину — выкладывает ровно её
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:211:3
+    209|   });
+    210|
+    211|   it('владелец применил миграции и назвал вершину — выкладывает ровно …
+       |   ^
+    212|     const target = commit('packages/database/prisma/migrations/0002_mo…
+    213|     const refusal = run();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/18]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > --migrations-applied без вершины — отказ с подсказкой, ничего не выложено
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:244:3
+    242|   // ТЗ аудита 25.09.2026, С-1: флаг без вершины разрешал бы ту вершин…
+    243|   // чьи миграции применял владелец, — release могли перемотать между …
+    244|   it('--migrations-applied без вершины — отказ с подсказкой, ничего не…
+       |   ^
+    245|     commit('packages/database/prisma/migrations/0002_more/migration.sq…
+    246|     expect(run().code).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/18]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > --migrations-applied с номером вершины выкладывает ровно её, другую — нет
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:255:3
+    253|   });
+    254|
+    255|   it('--migrations-applied с номером вершины выкладывает ровно её, дру…
+       |   ^
+    256|     const target = commit('packages/database/prisma/migrations/0002_mo…
+    257|     expect(run().code).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/18]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:267:3
+    265|   // Аудит 26.09, С-67: клон переключался на новую вершину до сборки. …
+    266|   // оставлял клон на новой вершине с прежними контейнерами, и следующ…
+    267|   it('прерванная выкладка: клон уже на новой вершине, но она не выложе…
+       |   ^
+    268|     expect(run().code).toBe(0); // первый запуск запоминает выложенное
+    269|     const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/18]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > release перемотали после отказа — флаг со старой вершиной не выкладывает новую
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:278:3
+    276|   });
+    277|
+    278|   it('release перемотали после отказа — флаг со старой вершиной не вык…
+       |   ^
+    279|     const applied = commit('packages/database/prisma/migrations/0002_m…
+    280|     expect(run().code).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/18]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > историю ветки переписали — не выкладывает поверх
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:306:3
+    304|   });
+    305|
+    306|   it('историю ветки переписали — не выкладывает поверх', () => {
+       |   ^
+    307|     commit('apps/web/page.txt', 'v2\n', 'v2');
+    308|     expect(run().code).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/18]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > после сборки не отвечает — возвращает прежний коммит и прежний образ
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:318:3
+    316|   });
+    317|
+    318|   it('после сборки не отвечает — возвращает прежний коммит и прежний о…
+       |   ^
+    319|     const before = head();
+    320|     const target = commit('apps/web/page.txt', 'broken\n', 'broken');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/18]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:334:3
+    332|   // Сбой 03.10.2026 (plans/deploy-build-outage-2026-10-03.md): сборка…
+    333|   // сервере, памяти не хватило обоим, туннель 4–7 минут отвечал 530
+    334|   it('CI-раннер выполняет задачу — сборку откладывает без отказа, осво…
+       |   ^
+    335|     const before = head();
+    336|     const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/18]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > раннер занят дольше предела — выкладывает всё равно и говорит об этом
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:351:3
+    349|   });
+    350|
+    351|   it('раннер занят дольше предела — выкладывает всё равно и говорит об…
+       |   ^
+    352|     const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+    353|     const r = run({ FAKE_CI_BUSY: '1', DEPLOY_CI_MAX_WAIT: '0' });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/18]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: платит ключ API, подписка только явно (ADR-137) > заданы оба: платит ключ, токен подписки процессу агента не достаётся
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:109:3
+    107|   });
+    108|
+    109|   it('заданы оба: платит ключ, токен подписки процессу агента не доста…
+       |   ^
+    110|     const s = sandbox();
+    111|     const r = s.run({ ANTHROPIC_API_KEY: '<скрыто>', CLAUDE_CODE_OAUTH_…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/18]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: платит ключ API, подписка только явно (ADR-137) > подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:122:3
+    120|   });
+    121|
+    122|   it('подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет …
+       |   ^
+    123|     const s = sandbox();
+    124|     const r = s.run({ CLAUDE_CODE_OAUTH_TOKEN: 'subscription-token', G…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/18]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: дневной потолок денег (ADR-137) > каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:132:3
+    130|
+    131| describe('дежурный агент: дневной потолок денег (ADR-137)', () => {
+    132|   it('каждый запуск с потолком --max-budget-usd и счётчиком за сутки U…
+       |   ^
+    133|     const s = sandbox();
+    134|     const r = s.run({ ANTHROPIC_API_KEY: '<скрыто>', GUARD_RUN_BUDGET_U…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/18]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: дневной потолок денег (ADR-137) > предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:141:3
+    139|   });
+    140|
+    141|   it('предел запусков исчерпан: модель не зовётся, дежурным одно сообщ…
+       |   ^
+    142|     const s = sandbox();
+    143|     writeFileSync(s.runsFile, `${today()} 4\n`);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/18]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: дневной потолок денег (ADR-137) > вчерашний счётчик не мешает: новые сутки начинаются с первого запуска
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:156:3
+    154|   });
+    155|
+    156|   it('вчерашний счётчик не мешает: новые сутки начинаются с первого за…
+       |   ^
+    157|     const s = sandbox();
+    158|     writeFileSync(s.runsFile, '2000-01-01 4\n');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/18]⎯
+
+ FAIL  |unit| tests/unit/guard-run.test.ts > дежурный агент: дневной потолок денег (ADR-137) > тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/guard-run.test.ts:165:3
+    163|   });
+    164|
+    165|   it('тихий час: нет неисправностей класса Б и В, модель не зовётся и …
+       |   ^
+    166|     const s = sandbox();
+    167|     const r = s.run({ ANTHROPIC_API_KEY: '<скрыто>' }, '[{"class":"A"}]…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/18]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  18 failed | 8 passed (26)
+   Start at  11:52:09
+   Duration  111.98s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T18-52-08Z-unit-787d.json
+
+# код выхода 1 · 1 мин 53 с

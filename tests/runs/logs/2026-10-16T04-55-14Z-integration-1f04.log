@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 16.10.2026 09:55 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bd4c21 (claude/bar-location-web), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T04-55-14Z-integration-1f04.json' 'tests/integration/restaurant-cash-database.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |integration| tests/integration/restaurant-cash-database.test.ts (6 tests) 2353ms
+   ✓ restaurant cash: database guards, grants and RLS (6)
+     ✓ guards reject foreign parents, edits of money and resurrection of voided rows 1022ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  21:55:25
+   Duration  20.07s (transform 45%, tests 34%, import 21%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T04-55-14Z-integration-1f04.json
+
+# код выхода 0 · 32 с

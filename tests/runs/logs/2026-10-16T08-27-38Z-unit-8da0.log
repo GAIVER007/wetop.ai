@@ -1,0 +1,30 @@
+# Модульные (unit) · 16.10.2026 13:27 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 24
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T08-27-38Z-unit-8da0.json' 'apps/api/src/food-service/workload.test.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| apps/api/src/food-service/workload.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/food-service/workload.test.ts [ apps/api/src/food-service/workload.test.ts ]
+Error: Cannot find module './workload' imported from /srv/hermes/workspace/wetop-unified-owner-data/apps/api/src/food-service/workload.test.ts
+ ❯ apps/api/src/food-service/workload.test.ts:2:1
+      1| import { expect, it } from 'vitest';
+      2| import { projectRestaurantWorkload } from './workload';
+       | ^
+      3| const t=(s:string)=>new Date(s);
+      4| const from=t('2026-10-01T00:00:00Z'), now=t('2026-10-01T04:00:00Z');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  08:27:39
+   Duration  186ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-10-16T08-27-38Z-unit-8da0.json
+
+# код выхода 1 · 1 с

@@ -1,0 +1,26 @@
+# Сквозные (e2e) · 17.10.2026 10:21 Алматы · <сервер>
+# коммит a6c7381 (fix/supplier-payment-retry-20261017), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/supplier-component/playwright.config.ts' '--workers=1'
+
+Running 16 tests using 1 worker
+
+  ✓   1 tests/supplier-component/supplier-payment.spec.ts:410:3 › same-tick repeated submits dispatch only once and unlock after completion (972ms)
+  ✓   2 tests/supplier-component/supplier-payment.spec.ts:410:3 › equivalent accepted formats after uncertain failure and remount reuse key (1.2s)
+  ✓   3 tests/supplier-component/supplier-payment.spec.ts:410:3 › legacy raw-format intent is reused across formatting and cleaned only after success (831ms)
+  ✓   4 tests/supplier-component/supplier-payment.spec.ts:410:3 › conflicting legacy keys block dispatch and preserve evidence (732ms)
+  ✓   5 tests/supplier-component/supplier-payment.spec.ts:410:3 › getItem failure is visible, failclosed, recoverable with stable draft (700ms)
+  ✓   6 tests/supplier-component/supplier-payment.spec.ts:410:3 › setItem failure is visible, failclosed, recoverable with stable draft (711ms)
+  ✓   7 tests/supplier-component/supplier-payment.spec.ts:410:3 › removeItem failure preserves success and locks mounted form (683ms)
+  ✓   8 tests/supplier-component/supplier-payment.spec.ts:410:3 › network rejection and remount retain key then success clears slot (944ms)
+  ✓   9 tests/supplier-component/supplier-payment.spec.ts:410:3 › normal success permits a new payment with new key (701ms)
+  ✓  10 tests/supplier-component/supplier-payment.spec.ts:410:3 › changed amount retains separate unresolved slots (929ms)
+  ✓  11 tests/supplier-component/supplier-payment.spec.ts:410:3 › decimal-safe identity 70.25 equals 070,25 (784ms)
+  ✓  12 tests/supplier-component/supplier-payment.spec.ts:410:3 › decimal-safe identity 9007199254740993.99 equals 09007199254740993,99 (1.1s)
+  ✓  13 tests/supplier-component/supplier-payment.spec.ts:410:3 › invalid amount 70.250 never dispatches (569ms)
+  ✓  14 tests/supplier-component/supplier-payment.spec.ts:410:3 › invalid amount 1e2 never dispatches (731ms)
+  ✓  15 tests/supplier-component/supplier-payment.spec.ts:410:3 › invalid amount -70 never dispatches (576ms)
+  ✓  16 tests/supplier-component/supplier-payment.spec.ts:410:3 › invalid amount not-money never dispatches (661ms)
+
+  16 passed (14.4s)
+
+# код выхода 0 · 16 с

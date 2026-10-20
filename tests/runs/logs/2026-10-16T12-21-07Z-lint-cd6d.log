@@ -1,0 +1,5 @@
+# Линтер (lint) · 16.10.2026 17:21 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 110
+# npx eslint . 'packages/domain/src/food/stock.ts' 'packages/domain/src/food/stock-tracing.test.ts'
+
+# код выхода —, сигнал SIGTERM · 1 мин

@@ -1,0 +1,35 @@
+# Интеграционные (integration) · 16.10.2026 15:23 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 45
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T10-23-21Z-integration-e3ee.json' '--config' 'tests/payroll-isolated.config.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/payroll-intent-isolated.test.ts (1 test | 1 failed) 554ms
+   × actual payroll writer replays sequential and concurrent intents and rejects changed payload 32ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/payroll-intent-isolated.test.ts > actual payroll writer replays sequential and concurrent intents and rejects changed payload
+BadRequestException: Неизвестное поле запроса
+ ❯ parsed apps/api/src/food-service/restaurant.service.ts:69:11
+     67|     return fn();
+     68|   } catch (e) {
+     69|     throw new BadRequestException(e instanceof Error ? e.message : 'Не…
+       |           ^
+     70|   }
+     71| }
+ ❯ apps/api/src/food-service/restaurant.service.ts:1306:17
+ ❯ tests/integration/payroll-intent-isolated.test.ts:21:10
+ ❯ Proxy._transactionWithCallback ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  10:23:23
+   Duration  3.89s (transform 60%, import 25%, tests 16%)
+
+JSON report written to /tmp/pms-test-2026-10-16T10-23-21Z-integration-e3ee.json
+
+# код выхода 1 · 6 с

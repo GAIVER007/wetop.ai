@@ -1,4 +1,4 @@
-import { requireVertical } from '../../../../lib/vertical-guard';
+import { requireFeature } from '../../../../lib/vertical-guard';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { api, channelsApi, type RevisionPage } from '../../../../lib/api';
@@ -19,6 +19,8 @@ import {
   eventTimeFull,
 } from '../../format';
 import { hotelClock } from '../../../../lib/hotel-api';
+import { deskShell } from '../../../../lib/desk-shell';
+import { mayAccess } from '../../../../lib/navigation';
 
 /** Сумма канала приходит десятичной строкой («16000.00») — в тиыны без float (ADR-008) */
 function decimalToMinor(amount: string): string | null {
@@ -42,8 +44,9 @@ export default async function RevisionPageView({
 }: {
   params: Promise<{ revisionId: string }>;
 }) {
-  await requireVertical(['HOSPITALITY']);
-  const clock = await hotelClock();
+  await requireFeature('/channels/events');
+  const [clock, shell] = await Promise.all([hotelClock(), deskShell()]);
+  const canMutate = mayAccess(shell.access, 'channels') && !shell.readOnly;
   // Next не декодирует сегменты адреса: у ревизии Channex вида `test:<время>:<хеш>` сюда приходит
   // `test%3A…`, и повторное кодирование в клиенте API давало 404 на существующую запись
   const revisionId = decodeRouteParam((await params).revisionId);
@@ -140,7 +143,7 @@ export default async function RevisionPageView({
             <div className="callout callout--warn">
               <Icon name="incidents" width={16} height={16} />
               <span>{event.lastError ?? 'ревизия не обработана'}</span>
-              <RetryEventButton revisionId={event.externalEventId} />
+              {canMutate && <RetryEventButton revisionId={event.externalEventId} canMutate />}
             </div>
           )}
         </section>

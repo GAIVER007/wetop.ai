@@ -1,0 +1,16 @@
+# Модульные (unit) · 16.10.2026 15:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит 60a7715 (claude/marketing-meta-plan), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-45-16Z-unit-59dc.json' 'packages/integrations/src/meta'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| packages/integrations/src/meta/client.test.ts (9 tests) 21ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  03:45:18
+   Duration  315ms (transform 56%, tests 21%, import 15%, worker 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T10-45-16Z-unit-59dc.json
+
+# код выхода 0 · 3 с

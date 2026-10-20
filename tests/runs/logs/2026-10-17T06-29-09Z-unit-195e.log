@@ -1,0 +1,99 @@
+# Модульные (unit) · 17.10.2026 11:29 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0766123 (claude/d6-owner-home-gate), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T06-29-09Z-unit-195e.json' 'apps/web/src/app/today'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d6
+
+ ✓ |unit| apps/web/src/app/today/owner-metrics.test.ts (2 tests) 3ms
+ ❯ |unit| apps/web/src/app/today/dispatch.test.ts (12 tests | 2 failed) 6ms
+   ✓ /today: один адрес, экран только по подтверждённому направлению (10)
+     ✓ пускает все три направления: ни одно не уводится на другой адрес 1ms
+     ✓ гостиница: прежняя Главная 0ms
+     ✓ салон и ресторан с подтверждёнными Business и филиалом: свой экран, ключ по ним 0ms
+     ✓ направление не подтверждено: гостиница не угадывается (SCOPE-HARDENING) 0ms
+     ✓ салон и ресторан без филиала или без Business: не свой экран, а выбор 0ms
+     ✓ аноним при включённом замке входа: не гостиница 0ms
+     ✓ аноним на открытом стенде разработки (не production, замок выключен): гостиница стенда, как до MV8 0ms
+     ✓ production с выключенным замком (APP_AUTH_REQUIRED=0): аноним не получает гостиницу 0ms
+     ✓ вошедший без подтверждённого направления: UNRESOLVED в любом окружении 0ms
+     ✓ куда вести без выбора: без указателя тот же выбор, что после входа; с указателем к явному выбору 0ms
+   ❯ общая Главная: отказ API по области доступа (2)
+     × 403 от сводки: показываем рабочий день 2ms
+     × сбой и другие ответы остаются ошибкой 0ms
+ ✓ |unit| apps/web/src/app/today/vertical-metrics.test.ts (22 tests) 16ms
+ ✓ |unit| apps/web/src/app/today/vertical-load.test.ts (6 tests) 19ms
+ ✓ |unit| apps/web/src/app/today/owner-daily-chart.test.ts (6 tests) 31ms
+ ✓ |unit| apps/web/src/app/today/owner-layout.test.ts (1 test) 2ms
+ ❯ |unit| apps/web/src/app/today/unified-owner.test.ts (15 tests | 1 failed) 40ms
+   ❯ unified owner actual DTO (15)
+     ✓ provides the skip-link main landmark in supported and unsupported views 18ms
+     ✓ explains missing money without exposing a raw reason code or invented totals 1ms
+     ✓ passes actual previous daily money to the always-open chart 3ms
+     ✓ shows category bars only for a complete reconciled currency breakdown 4ms
+     ✓ renders linked category names safely and minute units without claiming disconnected 2ms
+     ✓ today 1ms
+     ✓ week 1ms
+     ✓ month 1ms
+     ✓ renders exact signed comparable money and basis point rate, never previous workload 1ms
+     ✓ formats big minor units without float loss 0ms
+     ✓ normalizes query, not rolling 30 days 0ms
+     ✓ unknown vertical is explicit unsupported 0ms
+     ✓ keeps room and bed separate without invented percent 1ms
+     ✓ keeps the approved home free of developer diagnostics and extra pseudo-tasks 1ms
+     × ведёт к рабочему дню: экраны дня живут на /today/operations (аудит 17.10.2026, Д6) 3ms
+ ✓ |unit| apps/web/src/app/today/owner-daily-chart.review.test.ts (1 test) 16ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/today/dispatch.test.ts > общая Главная: отказ API по области доступа > 403 от сводки: показываем рабочий день
+TypeError: ownerSummaryClosed is not a function
+ ❯ apps/web/src/app/today/dispatch.test.ts:99:12
+     97|   // и человек видит свой рабочий день, а не экран ошибки (аудит 17.10…
+     98|   it('403 от сводки: показываем рабочий день', () => {
+     99|     expect(ownerSummaryClosed(new ApiError(403, 'Reports are not avail…
+       |            ^
+    100|   });
+    101|   it('сбой и другие ответы остаются ошибкой', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/web/src/app/today/dispatch.test.ts > общая Главная: отказ API по области доступа > сбой и другие ответы остаются ошибкой
+TypeError: ownerSummaryClosed is not a function
+ ❯ apps/web/src/app/today/dispatch.test.ts:102:12
+    100|   });
+    101|   it('сбой и другие ответы остаются ошибкой', () => {
+    102|     expect(ownerSummaryClosed(new ApiError(503, 'down'))).toBe(false);
+       |            ^
+    103|     expect(ownerSummaryClosed(new Error('fetch failed'))).toBe(false);
+    104|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > ведёт к рабочему дню: экраны дня живут на /today/operations (аудит 17.10.2026, Д6)
+AssertionError: expected '<main id="main-content" class="owner-…' to match /<a[^>]*href="\/today\/operation…/today\
+
+- Expected:
+/<a[^>]*href="\/today\/operations"[^>]*>Рабочий день<\/a>/
+
++ Received:
+"<main id=\"main-content\" class=\"owner-home\" tabindex=\"-1\"><header class=\"owner-heading\"><div><p class=\"owner-eyebrow\">Обзор бизнеса</p><h1>Главная</h1><p>Обновлено 16 окт. 2026 г., 14:00, Asia/Almaty</p></div><a class=\"btn btn--secondary\" href=\"/finance\">Отчёт за период</a></header><div class=\"owner-toolbar\"><nav class=\"seg\" aria-label=\"Период отчёта\"><a class=\"seg__item is-on\" aria-current=\"page\" href=\"/today?period=today\">Сегодня</a><a class=\"seg__item\" href=\"/today?period=week\">7 дней</a><a class=\"seg__item\" href=\"/today?period=month\" title=\"С начала календарного месяца\">Месяц</a></nav><p><time dateTime=\"2026-10-01\">2026-10-01</time> – <time dateTime=\"2026-10-16\">2026-10-16</time></p></div><section class=\"owner-kpis\" aria-label=\"Показатели руководителя\"><article><h2>Выручка</h2><div class=\"owner-value\"><div>9 007 199 254 740 993,01 KZT</div><div>123,45 USD</div></div><p title=\"Нет сопоставимых данных\">Нет данных для сравнения</p><p>Начисления, не полученные оплаты</p></article><article><h2>Загрузка сегодня</h2><div class=\"owner-value\">Нет данных</div><p>Неполное покрытие периода</p><p>Учтено 0 из 0 минут мастеров. Итоговый процент периода недоступен.</p></article><article><h2>Поступления</h2><div class=\"owner-value\">Нет данных</div><p>Реестр оплат не подключён</p><p title=\"Нет сопоставимых данных\">Нет данных для сравнения</p><p>Полученные оплаты, не выручка</p></article><article><h2>Оплаченные расходы</h2><div class=\"owner-value\">Нет данных</div><p>Валюта части операций неизвестна. Показана только известная часть.</p><p title=\"Нет сопоставимых данных\">Нет данных для сравнения</p><p>Только завершённые расходные операции</p></article></section><div class=\"owner-body\"><section class=\"owner-panel owner-dynamics\"><div class=\"owner-panel-heading\"><div><h2>Динамика по дням</h2><p>2026-10-01 – 2026-10-16</p></div><a href=\"/finance\">Финансовый отчёт</a></div><div class=\"owner-chart\"><div class=\"owner-chart-toolbar\"><div class=\"owner-chart-tabs\" role=\"tablist\" aria-label=\"Данные графика\"><button type=\"button\" role=\"tab\" id=\"_R_2c_-tab-0\" aria-controls=\"_R_2c_-panel\" aria-selected=\"true\" tabindex=\"0\">Выручка</button><button type=\"button\" role=\"tab\" id=\"_R_2c_-tab-1\" aria-controls=\"_R_2c_-panel\" aria-selected=\"false\" tabindex=\"-1\">Поступления</button><button type=\"button\" role=\"tab\" id=\"_R_2c_-tab-2\" aria-controls=\"_R_2c_-panel\" aria-selected=\"false\" tabindex=\"-1\">Оплаченные расходы</button></div><div class=\"owner-chart-legend\"><span>Текущий период</span></div></div><div role=\"tabpanel\" id=\"_R_2c_-panel\" aria-labelledby=\"_R_2c_-tab-0\" tabindex=\"0\"><p role=\"status\">Выручка: Временной ряд не подключён</p><div class=\"owner-chart-empty\" role=\"status\"><strong>Нет данных для графика</strong><p>Нет операций с подтверждённой валютой за период. Недоступные источники не означают ноль.</p></div><p class=\"owner-chart-foot\">По дням в часовом поясе филиала, текущий день неполный, сравнение недоступно</p></div></div><p></p></section><aside class=\"owner-panel owner-attention\" aria-labelledby=\"owner-attention-title\"><div class=\"owner-panel-heading\"><h2 id=\"owner-attention-title\">Требуют решения</h2></div><div class=\"owner-decision\"><h3>Загрузка</h3><p>Для расчёта загрузки не хватает данных.</p><a href=\"/appointments\">Проверить загрузку</a></div><div class=\"owner-decision\"><h3>Учёт расходов</h3><p>Статьи расходов пока недоступны.</p><a href=\"/finance\">Открыть операции</a></div></aside></div><section class=\"owner-panel owner-expense-panel\"><div class=\"owner-panel-heading\"><div><h2>Куда уходят деньги</h2><p>За выбранный период</p></div><a href=\"/finance\">Оплаченные расходы</a></div><div class=\"owner-expenses\"></div><p>Связи с документами расходов пока не подключены. Без статьи: назначение не подтверждено, не «Прочее».</p><p class=\"owner-expense-empty\">Валюта части операций неизвестна. Показана только известная часть.</p></section><footer><p>Выбран один филиал. Валюты показаны раздельно, без общего итога.</p></footer></main>"
+
+ ❯ apps/web/src/app/today/unified-owner.test.ts:169:18
+    167|   it('ведёт к рабочему дню: экраны дня живут на /today/operations (ауд…
+    168|     const html = renderToStaticMarkup(createElement(OwnerSummaryView, …
+    169|     expect(html).toMatch(/<a[^>]*href="\/today\/operations"[^>]*>Рабоч…
+       |                  ^
+    170|   });
+    171| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed | 6 passed (8)
+      Tests  3 failed | 62 passed (65)
+   Start at  23:29:11
+   Duration  478ms (transform 67%, import 17%, tests 14%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T06-29-09Z-unit-195e.json
+
+# код выхода 1 · 2 с

@@ -1,0 +1,60 @@
+# Сквозные (e2e) · 16.10.2026 09:56 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bd4c21 (claude/bar-location-web), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' '-g' 'бар филиала|marker guarded cleanup'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1733ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/apps/web/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/food-ui/food.spec.ts:737:1 › marker guarded cleanup (3.5s)
+[WebServer] (node:57565) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  2 tests/food-ui/restaurant.spec.ts:742:1 › бар филиала (ADR-178): ресторан продаёт в кассу ресторана, у салона только склад (58.4s)
+
+
+  1) tests/food-ui/restaurant.spec.ts:742:1 › бар филиала (ADR-178): ресторан продаёт в кассу ресторана, у салона только склад 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main')
+    Expected substring: "Продажи бара салона откроются вместе с кассой салона"
+    Received string:    "БарТовары, остатки и продажи Приход Продажа Инвентаризацияоктябрь 2026 г.ПриходПродажаПересчётОбзорПриходыТоварыПоставщикиОперацииСумма закупок3 000 ₸За текущий месяцВыручка бара1 200 ₸За текущий месяцПрибыль от продаж600 ₸Текущий месяц, без прочих расходовДолг поставщикам3 000 ₸Осталось оплатитьЗаканчиваются0Нет предупрежденийАналитика и топ товаровПродажи по днямПо записям журнала116.10Загруженные продажи, без возвратовПродажи по категориям2шт.Без категории100%По популярным товарам за 30 днейТоп товаровВсеККола R12 шт.За последние 30 днейПродажа напрямуюПродажа напрямуюТоварВыберите товарКола R1, остаток 8 шт.Количество, шт.Способ оплатыНаличныеКартаKaspiHalykПеревод ПродатьПродажа записана, остаток и касса обновленыВсе товарыДобавить товарТовары и остаткиВсе категорииВсе поставщикиПоставщик R1Все статусыВ нормеЗаканчиваетсяНет в наличииЗа все времяЗа 30 днейЗа 7 днейСбросить фильтрыТовар ↕КатегорияОстаток ↕Ед.Цена продажиЦена закупкиСтатусДействияККола R1нет8шт.600 ₸300 ₸В нормеИзменитьСписатьУдалитьПриходы и популярные товарыПриходы от поставщиковВсе приходы ДатаПоставщик№ документаТоваровСуммаСтатус16.10.2026Поставщик R1Н-R113 000 ₸Не оплаченПопулярные товарыЗа последний месяц1Кола R12 шт."
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main') with timeout 5000ms
+      - waiting for getByRole('main')
+        10 × locator resolved to <main tabindex="-1" id="main-content" class="page page--full bar-page">…</main>
+           - unexpected value "БарТовары, остатки и продажи Приход Продажа Инвентаризацияоктябрь 2026 г.ПриходПродажаПересчётОбзорПриходыТоварыПоставщикиОперацииСумма закупок3 000 ₸За текущий месяцВыручка бара1 200 ₸За текущий месяцПрибыль от продаж600 ₸Текущий месяц, без прочих расходовДолг поставщикам3 000 ₸Осталось оплатитьЗаканчиваются0Нет предупрежденийАналитика и топ товаровПродажи по днямПо записям журнала116.10Загруженные продажи, без возвратовПродажи по категориям2шт.Без категории100%По популярным товарам за 30 днейТоп товаровВсеККола R12 шт.За последние 30 днейПродажа напрямуюПродажа напрямуюТоварВыберите товарКола R1, остаток 8 шт.Количество, шт.Способ оплатыНаличныеКартаKaspiHalykПеревод ПродатьПродажа записана, остаток и касса обновленыВсе товарыДобавить товарТовары и остаткиВсе категорииВсе поставщикиПоставщик R1Все статусыВ нормеЗаканчиваетсяНет в наличииЗа все времяЗа 30 днейЗа 7 днейСбросить фильтрыТовар ↕КатегорияОстаток ↕Ед.Цена продажиЦена закупкиСтатусДействияККола R1нет8шт.600 ₸300 ₸В нормеИзменитьСписатьУдалитьПриходы и популярные товарыПриходы от поставщиковВсе приходы ДатаПоставщик№ документаТоваровСуммаСтатус16.10.2026Поставщик R1Н-R113 000 ₸Не оплаченПопулярные товарыЗа последний месяц1Кола R12 шт."
+
+
+      781 |   await scope(page, f.beauty, f.locations[3]!);
+      782 |   await page.goto('/bar#bar-quick-sale');
+    > 783 |   await expect(main).toContainText('Продажи бара салона откроются вместе с кассой салона');
+          |                      ^
+      784 |   await expect(main.locator('#bar-quick-sale').getByRole('button', { name: 'Продать' })).toHaveCount(0);
+      785 |   const refused = await request.post(`${api}/bar/sales/retail`, {
+      786 |     headers: beauty,
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk/tests/food-ui/restaurant.spec.ts:783:22
+
+    Error Context: test-results/restaurant-бар-филиала-ADR-f4c32-орана-у-салона-только-склад/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-бар-филиала-ADR-f4c32-орана-у-салона-только-склад/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-бар-филиала-ADR-f4c32-орана-у-салона-только-склад/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/food-ui/restaurant.spec.ts:742:1 › бар филиала (ADR-178): ресторан продаёт в кассу ресторана, у салона только склад 
+  1 passed (2.3m)
+
+# код выхода 1 · 2 мин 38 с

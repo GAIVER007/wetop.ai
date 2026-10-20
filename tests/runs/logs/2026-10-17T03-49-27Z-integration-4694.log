@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 17.10.2026 08:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит c46ef1c (claude/salon-payroll), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T03-49-27Z-integration-4694.json' 'tests/integration/salon-payroll.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |integration| tests/integration/salon-payroll.test.ts (1 test) 1587ms
+   ✓ зарплата мастеров салона (integration, §19.2) (1)
+     ✓ процент от выполненных записей месяца, выплата из кассы салона не больше остатка и наличия 409ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  20:49:33
+   Duration  10.10s (transform 50%, import 26%, tests 24%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T03-49-27Z-integration-4694.json
+
+# код выхода 0 · 17 с

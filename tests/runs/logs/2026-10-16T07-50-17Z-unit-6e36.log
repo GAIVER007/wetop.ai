@@ -1,0 +1,71 @@
+# Модульные (unit) · 16.10.2026 12:50 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T07-50-17Z-unit-6e36.json' 'apps/web/src/app/bar/actions.test.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| apps/web/src/app/bar/actions.test.ts (19 tests | 1 failed) 28ms
+   ❯ форма прихода бара (15)
+     ✓ переводит тенге и процент в целые младшие единицы 5ms
+     ✓ строка «новый товар» сначала создаёт карточку с ценой по наценке, вверх до 10 тенге 1ms
+     ✓ объект не в тенге: приход отклоняется до записи, карточка нового товара не создаётся (D-CUR) 1ms
+     ✓ строка без товара и без названия не уходит в API 1ms
+     ✓ не пропускает float и не отправляет запрос 0ms
+     ✓ передает розничную продажу с ключом повтора 1ms
+     × переводит частичную оплату поставщику в minor units 11ms
+     ✓ передает продажу в счет гостя с ключом повтора 1ms
+     ✓ передает фактический остаток без float 1ms
+     ✓ излишек: цена вручную уходит в тиынах, ответ называет принятый излишек (ADR-175) 1ms
+     ✓ хранит наценку категории в basis points 0ms
+     ✓ скан: принимает только картинки и отдаёт разобранный документ 1ms
+     ✓ скан: PDF и пустой файл не уходят в API 0ms
+     ✓ карточка товара: поля уходят в PATCH, цена отдельным маршрутом в minor units 1ms
+     ✓ сохраняет свою цену продажи в minor units 1ms
+   ✓ Bar scope/currency/replay regressions (4)
+     ✓ sends verified USD instead of substituting KZT 0ms
+     ✓ rejects a draft from another property before mutation 0ms
+     ✓ preserves the submitted sale key across retries 0ms
+     ✓ does not announce REVERSED replay as a new sale 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/bar/actions.test.ts > форма прихода бара > переводит частичную оплату поставщику в minor units
+AssertionError: expected "vi.fn()" to be called with arguments: [ 'receipt-1', ObjectContaining{…} ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    "receipt-1",
+-   ObjectContaining {
++   {
+      "amountMinor": "8050",
+-     "idempotencyKey": "00000000-0000-4000-8000-000000000025",
+      "method": "BANK_TRANSFER_LEGAL",
++     "note": null,
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ apps/web/src/app/bar/actions.test.ts:169:31
+    167|     const result = await payBarSupplierAction({ error: null, ok: 0 }, …
+    168|     expect(result.error).toBeNull();
+    169|     expect(barApi.payReceipt).toHaveBeenCalledWith(
+       |                               ^
+    170|       'receipt-1',
+    171|       expect.objectContaining({ amountMinor: '8050', method: 'BANK_TRA…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 18 passed (19)
+   Start at  07:50:18
+   Duration  1.48s (transform 78%, import 19%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-16T07-50-17Z-unit-6e36.json
+
+# код выхода 1 · 3 с

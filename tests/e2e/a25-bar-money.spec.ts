@@ -60,7 +60,7 @@ async function enter(page: Page, currency: string, path = '/bar') {
 }
 async function overview(page: Page, currency: string) {
   await enter(page, currency);
-  await expect(page.getByRole('heading', { name: 'Бар', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Склад', exact: true })).toBeVisible();
 }
 // Next на время перехода держит в DOM и уходящую страницу: после goto и reload ждём, пока скрытая копия уйдёт,
 // иначе строгий режим находит поле формы дважды (тот же приём в tests/branches-ui/branches.spec.ts)
@@ -222,7 +222,12 @@ async function openSaleForm(page: Page) {
 }
 async function readySaleForm(page: Page) {
   const form = await openSaleForm(page);
-  await expect(form.getByRole('button', { name: 'Продать' })).toBeEnabled();
+  const fresh = form.getByRole('button', { name: 'Новая продажа', exact: true });
+  const sell = form.getByRole('button', { name: 'Продать', exact: true });
+  await expect.poll(async () => await fresh.isVisible() || await sell.isEnabled()).toBe(true);
+  // A fresh key requires the explicit UI action, only after confirmed recovery.
+  if (await fresh.isVisible()) await fresh.click();
+  await expect(sell).toBeEnabled();
   return form;
 }
 async function sell(page: Page, name: string, qty: string) {
@@ -233,7 +238,7 @@ async function sell(page: Page, name: string, qty: string) {
     .selectOption({ label: await form.locator('option').filter({ hasText: name }).innerText() });
   await form.locator('input[name=quantityUnits]').fill(qty);
   await form.getByRole('button', { name: 'Продать' }).click();
-  await expect(form.getByRole('status')).toContainText('Продажа записана');
+  await expect(form.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
 }
 async function legacyStock(currency: string, name: string, units = '3', cost = '1000', price = '2000', receiptCurrency = currency) {
   const product = await call(currency, '/bar/products', 'POST', {
@@ -358,7 +363,9 @@ test('UI-02 real compatible USD retail, stock, history and cash', async ({ page 
   await page.goto('/bar/products');
   await expect(page.locator('.bar-price-form input[name=salePrice]').first()).toHaveAttribute('aria-label', 'Своя цена продажи в USD');
   await page.goto('/bar/receipts/new');
-  await expect(page.locator('.bar-receipt-form')).toContainText('Автоматическая цена для этой валюты');
+  // ADR-187: автоцена не в тенге утверждена (вверх до целой единицы), форма прихода больше не отказывает
+  await expect(page.locator('.bar-receipt-form')).toContainText('Рекомендованная продажа');
+  await expect(page.locator('.bar-receipt-form')).not.toContainText('еще не утверждена');
   const SQL = (
     await query(
       `SELECT (SELECT sum(total_revenue)::text FROM bar_sales WHERE property_id=$1 AND status='POSTED') revenue,(SELECT sum(total_cost)::text FROM bar_sales WHERE property_id=$1 AND status='POSTED') cost,(SELECT sum(remaining_units*unit_cost)::text FROM bar_stock_lots WHERE property_id=$1) stock,(SELECT sum(CASE WHEN kind='INCOME' THEN amount ELSE -amount END)::text FROM cash_operations WHERE property_id=$1 AND status='COMPLETED') cash`,
@@ -438,35 +445,70 @@ test('UI-04 real mixed-history guard is explicit, not zero success', async ({ pa
   }
 });
 
-test('UI-05 non-KZT auto price refusal preserves editable input', async ({ page }) => {
+test('UI-05 invalid USD purchase price preserves editable input without partial writes', async ({ page }) => {
   await enter(page, 'USD');
-  const form = await fillReceipt(page, 'A25 USD goods', 'A25-USD-DRAFT', '1', '10');
+  // ADR-187 allows USD auto pricing. Invalid money still fails before any
+  // receipt/product mutation, for both existing and newly entered products.
+  const form = await fillReceipt(page, 'A25 USD goods', 'A25-USD-DRAFT', '1', '10.123');
   const before = await query('SELECT count(*)::int n FROM bar_receipts WHERE property_id=$1', [scope('USD').property]);
   const products = await query('SELECT count(*)::int n FROM bar_products WHERE property_id=$1', [scope('USD').property]);
   await form.getByRole('button', { name: 'Сохранить приход' }).click();
-  await expect(form.getByRole('alert')).toContainText('Автоматическая цена');
+  await expect(form.getByRole('alert')).toHaveText('Цена закупки: укажите сумму в валюте операции, не более двух знаков после запятой');
   await expect(form.locator('input[name=documentNumber]')).toHaveValue('A25-USD-DRAFT');
   await expect(form.getByRole('status')).toHaveCount(0);
   expect(await query('SELECT count(*)::int n FROM bar_receipts WHERE property_id=$1', [scope('USD').property])).toEqual(before);
-  // строка «новый товар» в объекте не в тенге: отказ до создания карточки, каталог не растёт (частичный эффект Бар-2)
+  // Start a fresh form so the first refusal cannot satisfy the second assertion.
+  await fillReceipt(page, 'A25 USD goods', 'A25-USD-DRAFT', '1', '10.123');
+  await expect(form.getByRole('alert')).toHaveCount(0);
+  // Invalid purchase precision must also reject a new product before creating its card.
   await form.getByRole('button', { name: 'Нет в списке' }).click();
   await form.locator('input[name="newName.0"]').fill('A25 USD new goods');
   await form.getByRole('button', { name: 'Сохранить приход' }).click();
-  await expect(form.getByRole('alert')).toContainText('Автоматическая цена');
+  await expect(form.getByRole('alert')).toHaveText('Цена закупки: укажите сумму в валюте операции, не более двух знаков после запятой');
   await expect(form.locator('input[name=documentNumber]')).toHaveValue('A25-USD-DRAFT');
   expect(await query('SELECT count(*)::int n FROM bar_products WHERE property_id=$1', [scope('USD').property])).toEqual(products);
   expect(await query('SELECT count(*)::int n FROM bar_receipts WHERE property_id=$1', [scope('USD').property])).toEqual(before);
 });
 
-test('UI-07 unavailable stock and cross-property draft have no partial effect', async ({ page }) => {
+test('UI-05 non-KZT receipt: new product price rounds up to a whole unit and the receipt is saved (ADR-187)', async ({ page }) => {
+  await enter(page, 'USD');
+  const property = scope('USD').property;
+  const receipts = async () => (await query('SELECT count(*)::int n FROM bar_receipts WHERE property_id=$1', [property]))[0].n;
+  const before = await receipts();
+  // ADR-187 (18.10.2026): строка «новый товар» в объекте не в тенге больше не отклоняется:
+  // 10,20 USD без наценки → цена продажи вверх до целого доллара, 11,00 USD
+  const form = await fillReceipt(page, 'A25 USD goods', 'A25-USD-AUTO', '1', '10.20');
+  await form.getByRole('button', { name: 'Нет в списке' }).click();
+  await form.locator('input[name="newName.0"]').fill('A25 USD new goods');
+  await form.locator('input[name="unitCost.0"]').fill('10.20');
+  await form.locator('input[name="markup.0"]').fill('0');
+  await expect(form).not.toContainText('еще не утверждена');
+  await form.getByRole('button', { name: 'Сохранить приход' }).click();
+  await expect(form.getByRole('status')).toContainText(/Приход проведен|Черновик прихода сохранен/);
+  expect(await receipts()).toBe(before + 1);
+  expect(await query('SELECT sale_price::text p FROM bar_products WHERE property_id=$1 AND name=$2', [property, 'A25 USD new goods'])).toEqual([{ p: '1100' }]);
+});
+
+test('UI-07 unavailable stock retains the original intent without partial effect', async ({ page }) => {
   await overview(page, 'KZT');
   const sale = await readySaleForm(page);
+  const before = await call('KZT', '/bar/report');
   await sale.locator('select[name=productId]').selectOption({ label: 'A25 KZT goods, остаток 1 шт.' });
   await sale.locator('input[name=quantityUnits]').fill('2');
   await sale.getByRole('button', { name: 'Продать' }).click();
   await expect(sale.getByRole('alert')).toBeVisible();
   await expect(sale.locator('input[name=quantityUnits]')).toHaveValue('2');
+  await expect(sale.locator('input[name=quantityUnits]')).toBeDisabled();
+  await expect(sale.getByRole('button', { name: 'Повторить с тем же ключом', exact: true })).toBeEnabled();
+  expect(await call('KZT', '/bar/report')).toEqual(before);
+});
+
+test('UI-07 cross-property draft has no partial effect', async ({ page }) => {
+  // A separate browser context must not erase an unresolved sale's retained payload.
+  await overview(page, 'KZT');
+  const sale = await readySaleForm(page);
   const before = await call('KZT', '/bar/report');
+  await sale.locator('select[name=productId]').selectOption({ label: 'A25 KZT goods, остаток 1 шт.' });
   await sale.locator('input[name=quantityUnits]').fill('1');
   await sale.locator('input[name=barPropertyId]').evaluate((node: HTMLInputElement) => {
     node.value = '00000000-0000-4000-8000-000000000000';
@@ -537,7 +579,7 @@ test('UI-08 duplicate command, fresh command and REVERSED replay', async ({ page
   await form.getByRole('button', { name: 'Продать' }).dblclick();
   const command = await posted;
   const replay = () => page.request.post(command.url(), { headers: command.headers(), data: command.postDataBuffer()! });
-  await expect(form.getByRole('status')).toContainText('Продажа записана');
+  await expect(form.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
   expect((await call('KZT', '/bar/sales')).length).toBe(1);
   expect((await replay()).status()).toBe(200);
   expect((await call('KZT', '/bar/sales')).length).toBe(1);
@@ -558,7 +600,7 @@ test('UI-08 duplicate command, fresh command and REVERSED replay', async ({ page
   const completed = page.waitForResponse((r) => r.request().method() === 'POST' && new URL(r.url()).pathname === '/bar');
   await form.getByRole('button', { name: 'Продать' }).click();
   await completed;
-  await expect(form.getByRole('status')).toContainText('Продажа записана');
+  await expect(form.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
   await expect.poll(async () => (await call('KZT', '/bar/sales')).length).toBe(2);
   writeFileSync(evidence + '/replay-ui.json', JSON.stringify({ sameKeyCount: 1, newKeyCount: 2, reversedReplayUnchanged: true }));
   privateData.scopes.KZT = previous;
@@ -729,17 +771,23 @@ test('UI-10 normal STAFF read and settings permission refusal', async ({ page })
     expect(report.revenueMinor).toBe('60000');
     await overview(page, 'KZT');
     await expect(stat(page, 'Выручка бара')).toHaveText('600 ₸');
+    // UI-FIX-01: без права settings формы цены нет, цена видна текстом; сервер отказывает и прямому запросу
     await page.goto('/bar/products');
-    const form = page.locator('.bar-price-form').first();
-    const price = (await call('KZT', '/bar/stock'))[0].salePrice;
-    await form.locator('input[name=salePrice]').fill('200');
-    await form.getByRole('button', { name: 'Сохранить', exact: true }).click();
-    await expect(form.getByRole('alert')).toBeVisible();
-    await expect(form.getByRole('status')).toHaveCount(0);
-    expect((await call('KZT', '/bar/stock'))[0].salePrice).toBe(price);
+    await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.locator('.bar-price-form')).toHaveCount(0);
+    const item = (await call('KZT', '/bar/stock'))[0];
+    const s = scope('KZT');
+    const refused = await fetch(`${api}/bar/products/${item.id}/price`, {
+      method: 'PATCH',
+      headers: { authorization: `Bearer ${token}`, 'x-wetop-scope': `business=${s.business};location=${s.location}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ salePriceMinor: '20000' }),
+    });
+    const error = (await refused.json()) as { message?: string };
+    expect(refused.status).toBe(403);
+    expect((await call('KZT', '/bar/stock'))[0].salePrice).toBe(item.salePrice);
     writeFileSync(
       evidence + '/staff-permission.json',
-      JSON.stringify({ role: 'STAFF', readAllowed: true, revenueMinor: report.revenueMinor, settingsRejected: true, priceUnchanged: true, error: await form.getByRole('alert').innerText() }),
+      JSON.stringify({ role: 'STAFF', readAllowed: true, revenueMinor: report.revenueMinor, settingsRejected: true, priceUnchanged: true, priceFormShown: false, error: error.message ?? null }),
     );
   } finally {
     await query("UPDATE memberships SET role='OWNER' WHERE user_id=$1 AND organization_id=$2", [privateData.user, privateData.org]);

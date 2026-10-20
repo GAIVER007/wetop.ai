@@ -1,0 +1,85 @@
+# Интеграционные (integration) · 17.10.2026 13:34 Алматы · <сервер>
+# коммит 08f5f5b (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 14
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T08-34-58Z-integration-a791.json' 'tests/integration/tz21-working-time.test.ts' '--maxWorkers=1' '--testTimeout=15000'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ❯  integration  tests/integration/tz21-working-time.test.ts (12 tests | 6 failed) 2688ms
+   ❯ TZ2.1 D real PostgreSQL consumers and CAS (12)
+     ✓ Beauty missing original version is refused without changing rows 84ms
+     ✓ Beauty two writers with the same original version yield one success and unchanged refused write 121ms
+     ✓ portal and Beauty expose one source revision and reject a stale cross-writer save 318ms
+     × BEAUTY: two empty saves from one empty source accept exactly one 168ms
+     × BEAUTY: empty -> populated -> empty cannot resurrect the original token 170ms
+     × BEAUTY: portal response is its committed week, not a post-commit writer token 242ms
+     × FOOD_SERVICE: two empty saves from one empty source accept exactly one 113ms
+     × FOOD_SERVICE: empty -> populated -> empty cannot resurrect the original token 48ms
+     × FOOD_SERVICE: portal response is its committed week, not a post-commit writer token 193ms
+     ✓ absence counts branch-local dates and preserves existing accepted appointment IDs 222ms
+     ✓ Food missing revision is refused, two writers cannot overwrite one original week 234ms
+     ✓ Food real employee consumer uses both intervals, absence, assignment and status 146ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   integration  tests/integration/tz21-working-time.test.ts > TZ2.1 D real PostgreSQL consumers and CAS > BEAUTY: two empty saves from one empty source accept exactly one
+ FAIL   integration  tests/integration/tz21-working-time.test.ts > TZ2.1 D real PostgreSQL consumers and CAS > FOOD_SERVICE: two empty saves from one empty source accept exactly one
+AssertionError: expected [ { status: 'fulfilled', …(1) }, …(1) ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ tests/integration/tz21-working-time.test.ts:60:61
+     58|       expect((await run(() => portal.get(f.employeeA, {}), vertical)).…
+     59|       const results = await Promise.allSettled([save([], original), sa…
+     60|       expect(results.filter(r => r.status === 'fulfilled')).toHaveLeng…
+       |                                                             ^
+     61|       expect(results.filter(r => r.status === 'rejected')).toHaveLengt…
+     62|       expect((await read()).weekRevision).not.toBe(original);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL   integration  tests/integration/tz21-working-time.test.ts > TZ2.1 D real PostgreSQL consumers and CAS > BEAUTY: empty -> populated -> empty cannot resurrect the original token
+ FAIL   integration  tests/integration/tz21-working-time.test.ts > TZ2.1 D real PostgreSQL consumers and CAS > FOOD_SERVICE: empty -> populated -> empty cannot resurrect the original token
+AssertionError: expected '4f53cda18c2baa0c0354bb5f9a3ecbe5ed12a…' not to be '4f53cda18c2baa0c0354bb5f9a3ecbe5ed12a…' // Object.is equality
+ ❯ tests/integration/tz21-working-time.test.ts:71:40
+     69|       const populated = await save(hours, original);
+     70|       const cleared = await save([], populated.weekRevision);
+     71|       expect(cleared.weekRevision).not.toBe(original);
+       |                                        ^
+     72|       await expect(save(hours, original)).rejects.toThrow();
+     73|       expect(await stored()).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL   integration  tests/integration/tz21-working-time.test.ts > TZ2.1 D real PostgreSQL consumers and CAS > BEAUTY: portal response is its committed week, not a post-commit writer token
+ FAIL   integration  tests/integration/tz21-working-time.test.ts > TZ2.1 D real PostgreSQL consumers and CAS > FOOD_SERVICE: portal response is its committed week, not a post-commit writer token
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/integration/tz21-working-time.test.ts:90:70
+     88|         const response = await run(() => portal.mutate(f.employeeA, 'w…
+     89|         expect(seam).toHaveBeenCalledTimes(1);
+     90|         expect(response.week.filter(d => d.intervals.length).length).t…
+       |                                                                      ^
+     91|         expect(response.weekRevision).not.toBe(writerRevision);
+     92|         await expect(run(() => portal.mutate(f.employeeA, 'week', { in…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 6 passed (12)
+   Start at  08:35:02
+   Duration  8.58s (tests 43%, transform 31%, import 25%)
+
+JSON report written to /tmp/pms-test-2026-10-17T08-34-58Z-integration-a791.json
+
+# код выхода 1 · 13 с

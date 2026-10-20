@@ -1,20 +1,23 @@
 'use client';
 import { landingForVertical } from '../lib/vertical-landing';
+import { PENDING_ACCESS, allowedItem, routeRule } from '../lib/navigation';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Suspense, use, useEffect, useRef, useState, type ReactNode, type MouseEvent } from 'react';
 import { Icon } from './icon';
 import { Sidebar } from './shell/sidebar';
 import { GrantedProperty, PropertyBlock, type PropertyIdentity } from './shell/property-block';
 import { SideNav } from './shell/side-nav';
+import { TabNav } from './shell/tab-nav';
 import { GlobalSearch } from './shell/search';
 import styles from './top-nav.module.css';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
 import type { DeskPerson, DeskShell } from '../lib/desk-person';
-import { DataFreshnessProvider } from './data-freshness';
+import { DataFreshness, DataFreshnessProvider } from './data-freshness';
 import { ProductTour } from './shell/product-tour';
 import { TOUR_RESTART_EVENT } from './shell/tour-steps';
+import { WhatsNewLink } from './shell/whats-new-link';
 
 /** UI3.1: одна строка шапки, скрытое меню и отдельная мобильная поверхность. */
 export function TopNav({
@@ -23,6 +26,7 @@ export function TopNav({
   property = null,
   account = null,
   desk,
+  support = false,
 }: {
   children: ReactNode;
   demo?: boolean;
@@ -31,11 +35,12 @@ export function TopNav({
   account?: ReactNode;
   /** Кто вошёл и что ему открыто (ADR-083) — из `lib/desk-shell.ts`; макет его не ждёт */
   desk?: Promise<DeskShell>;
+  /** Заданы ли контакты поддержки (SUP1): без них пункта «Связаться с поддержкой» нет */
+  support?: boolean;
 }) {
   const path = usePathname() ?? '';
   const menuDestination = useRef<string | null>(null);
   const cancelMenuFocus = useRef<(() => void) | null>(null);
-  const router = useRouter();
   const shell = desk ? use(desk) : null;
   const scopeKey = shell?.scopeKey ?? 'unresolved';
   const [blockedScope, setBlockedScope] = useState<string | null>(null);
@@ -106,9 +111,8 @@ export function TopNav({
           local.select();
           return;
         }
-        if (food) router.push('/table-reservations');
-        else if (beauty) router.push('/appointments');
-        else setSearch((s) => !s);
+        // один быстрый поиск у всех направлений (аудит платформы 17.10.2026, Д3)
+        setSearch((s) => !s);
       }
       if (e.key === 'Escape' && profileMenu.current) {
         setProfile(false);
@@ -117,7 +121,7 @@ export function TopNav({
     };
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
-  }, [path, beauty, food, router]);
+  }, [path]);
   useEffect(() => {
     setProfile(false);
     setMenu(false);
@@ -204,36 +208,18 @@ export function TopNav({
               </span>
             </Link>
 
-            {/* объект и филиал: переехали сюда из бокового меню (ADR-134); до 960 px они вверху меню телефона */}
-            <div className="workspace-header__property">
-              <Suspense
-                fallback={<PropertyBlock property={property} settings={false} close={undefined} />}
-              >
-                <GrantedProperty desk={desk} property={property} close={undefined} path={path} />
-              </Suspense>
-            </div>
+            {/* строка разделов (решение владельца 17.10.2026): от 1280 px, уже выдвижное меню слева */}
+            <TabNav path={path} desk={desk} />
             {path !== '/chessboard' && (
               <button
                 className="workspace-search"
                 data-tour="search"
-                aria-label={
-                  food ? 'Найти бронирование' : beauty ? 'Найти запись' : 'Найти гостя или бронь'
-                }
-                onClick={() =>
-                  food
-                    ? router.push('/table-reservations')
-                    : beauty
-                      ? router.push('/appointments')
-                      : setSearch(true)
-                }
+                aria-label={beauty || food ? 'Найти раздел' : 'Найти гостя или бронь'}
+                onClick={() => setSearch(true)}
               >
                 <Icon name="search" />
                 <span className="workspace-search-full">
-                  {food
-                    ? 'Поиск бронирования или гостя'
-                    : beauty
-                      ? 'Поиск записи или клиента'
-                      : 'Поиск гостя, брони, номера...'}
+                  {beauty || food ? 'Поиск раздела' : 'Поиск гостя, брони, номера...'}
                 </span>
                 <span className="workspace-search-short" aria-hidden="true">
                   Поиск
@@ -241,6 +227,14 @@ export function TopNav({
                 <kbd>{searchKey}</kbd>
               </button>
             )}
+            {/* филиал справа, рядом с профилем (верхнее меню 17.10.2026); до 960 px он вверху меню телефона */}
+            <div className="workspace-header__property">
+              <Suspense
+                fallback={<PropertyBlock property={property} settings={false} close={undefined} />}
+              >
+                <GrantedProperty desk={desk} property={property} close={undefined} path={path} />
+              </Suspense>
+            </div>
             <div className="header-tools">
               {demo && (
                 <span
@@ -307,6 +301,37 @@ export function TopNav({
                         moveInProfile(event.key);
                       }}
                     >
+                      {/* одинаково у трёх направлений (аудит платформы 17.10.2026, Д4): раньше у гостиницы
+                          не было пути к профилю, помощи и филиалам на компьютере, а салону и ресторану
+                          «Помощь» и «Профиль» стояли отдельными пунктами меню */}
+                      <Link href="/profile" onClick={() => setProfile(false)}>
+                        <Icon name="person" />
+                        Профиль
+                      </Link>
+                      <Link href="/help" onClick={() => setProfile(false)}>
+                        <Icon name="help" />
+                        Помощь
+                      </Link>
+                      {support && (
+                        <Link href="/help#support" onClick={() => setProfile(false)}>
+                          <Icon name="chat" />
+                          Связаться с поддержкой
+                        </Link>
+                      )}
+                      <WhatsNewLink vertical={shell?.vertical ?? 'HOSPITALITY'} onClick={() => setProfile(false)} />
+                      {/* «Моя работа» (личный экран сотрудника) здесь, не в разделах (17.10.2026) */}
+                      {(beauty || food) && (
+                        <Link href="/my-work" onClick={() => setProfile(false)}>
+                          <Icon name="person" />
+                          Моя работа
+                        </Link>
+                      )}
+                      {allowedItem(routeRule('/branches') ?? {}, shell?.access ?? PENDING_ACCESS) && (
+                        <Link href="/branches" onClick={() => setProfile(false)}>
+                          <Icon name="hotel" />
+                          Филиалы
+                        </Link>
+                      )}
                       {hospitality && (
                         <button
                           data-testid="tour-restart"
@@ -319,6 +344,16 @@ export function TopNav({
                           Обучение работе в WETOP
                         </button>
                       )}
+                      {/* пробный период и свежесть данных: на широком экране панели ☰ нет (18.10.2026), строки здесь */}
+                      {shell?.trial && (
+                        <span className="profile-dropdown__note" data-testid="profile-trial">
+                          <Icon name="clock" />
+                          {shell.trial}
+                        </span>
+                      )}
+                      <span className="profile-dropdown__note profile-dropdown__note--status">
+                        <DataFreshness />
+                      </span>
                       {account ?? (
                         <Link href="/login">
                           <Icon name="departure" />
@@ -362,7 +397,7 @@ export function TopNav({
           <Sidebar property={property} path={path} close={() => setMenu(false)} desk={desk} />
         </Overlay>
         <Suspense fallback={null}>
-          {hospitality && (
+          {!scopeSwitching && !shell?.access.unknown && (
             <GrantedSearch desk={desk} open={search} close={() => setSearch(false)} />
           )}
         </Suspense>
@@ -445,7 +480,7 @@ function GrantedSearch({
   close: () => void;
 }) {
   const shell = desk ? use(desk) : null;
-  return <GlobalSearch {...props} access={shell?.access} />;
+  return <GlobalSearch {...props} access={shell?.access} vertical={shell?.vertical} />;
 }
 
 /**

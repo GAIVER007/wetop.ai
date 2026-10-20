@@ -1,0 +1,50 @@
+# Типы (typecheck) · 17.10.2026 09:51 Алматы · Noutbuk-Vyacheslav.local
+# коммит a68e9c5 (claude/auth-identity-1016), незакоммиченных файлов набора: 9
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/core-security/auth-org-switch-http.test.ts(34,36): error TS2375: Type '{ userId: string; organizationId: string | undefined; role: "STAFF"; }' is not assignable to type '((Without<MembershipCreateInput, MembershipUncheckedCreateInput> & MembershipUncheckedCreateInput) | (Without<...> & MembershipCreateInput)) & object' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'organizationId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+tests/integration/core-security/auth-session-revival.test.ts(37,36): error TS2375: Type '{ userId: string; organizationId: string | undefined; role: "STAFF"; }' is not assignable to type '((Without<MembershipCreateInput, MembershipUncheckedCreateInput> & MembershipUncheckedCreateInput) | (Without<...> & MembershipCreateInput)) & object' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'organizationId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+tests/integration/core-security/auth-session-revival.test.ts(45,26): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/core-security/auth-session-revival.test.ts(47,26): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/core-security/auth-token-source.test.ts(21,70): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/core-security/auth-token-source.test.ts(21,82): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/core-security/auth-token-source.test.ts(22,42): error TS2375: Type '{ organizationId: string | undefined; role: "MANAGER"; }' is not assignable to type 'MembershipWhereInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'organizationId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string | UuidFilter<"Membership">'.
+      Type 'undefined' is not assignable to type 'string | UuidFilter<"Membership">'.
+tests/integration/core-security/auth-token-source.test.ts(30,36): error TS2375: Type '{ userId: string; organizationId: string | undefined; role: "MANAGER"; }' is not assignable to type '((Without<MembershipCreateInput, MembershipUncheckedCreateInput> & MembershipUncheckedCreateInput) | (Without<...> & MembershipCreateInput)) & object' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'organizationId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+tests/integration/core-security/auth-token-source.test.ts(33,7): error TS2375: Type '{ userId: string; organizationId: string | undefined; tokenHash: string; expiresAt: Date; }' is not assignable to type '((Without<SessionCreateInput, SessionUncheckedCreateInput> & SessionUncheckedCreateInput) | (Without<...> & SessionCreateInput)) & object' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'organizationId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+tests/integration/core-security/auth-token-source.test.ts(49,38): error TS2375: Type '{ organizationId: string | undefined; email: string; }' is not assignable to type 'InviteWhereInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'organizationId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string | UuidFilter<"Invite">'.
+      Type 'undefined' is not assignable to type 'string | UuidFilter<"Invite">'.
+tests/integration/payroll-intent-isolated.test.ts(21,2): error TS2741: Property 'vertical' is missing in type '{ organizationId: string; businessId: string; locationId: string; timezone: string; currency: string; }' but required in type 'FoodScope'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 2 мин 10 с

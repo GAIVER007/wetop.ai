@@ -1,0 +1,179 @@
+# Интеграционные (integration) · 17.10.2026 01:19 Алматы · <сервер>
+# коммит d02dcbf (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T20-19-55Z-integration-83af.json' 'tests/integration/closed-folio-http.test.ts' 'tests/integration/reset-token-http.test.ts' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-portal-release-61af7b90
+
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 990ms
+   ✓ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 494ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 335ms
+ ✓ |integration| tests/integration/reset-token-http.test.ts (12 tests) 4029ms
+   ✓ password reset over real AuthModule HTTP and PostgreSQL (12)
+     ✓ concurrent same-token HTTP confirms have exactly one winner, one password and one audit 713ms
+     ✓ success revokes every live session across organizations, not another user or already-revoked time 705ms
+     ✓ reset waits for an already-locked login issuance then revokes its session 315ms
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects PATCH price after closing a paid folio and rolls back all writes
+paid folio closed via HTTP {
+  folioId: '0418d599-e721-4e50-955e-9740840439d2',
+  status: 200,
+  balanceMinor: '0'
+}
+
+(node:3258249) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects PATCH price after closing a paid folio and rolls back all writes
+closed folio PATCH price {
+  status: 409,
+  body: {
+    message: 'Счёт 0418d599-e721-4e50-955e-9740840439d2 закрыт',
+    error: 'Conflict',
+    statusCode: 409
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects cancellation without changing the closed folio, stay or audit
+paid folio closed via HTTP {
+  folioId: 'b9c23284-7d50-4e76-af0b-11d6d8c949f7',
+  status: 200,
+  balanceMinor: '0'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects direct penalty creation against a closed folio inside the reservation transaction
+paid folio closed via HTTP {
+  folioId: 'ebb8e171-a914-4aa4-baa0-9561192d6a56',
+  status: 200,
+  balanceMinor: '0'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects closed folio real-stock bar reversal over HTTP (restock=true)
+real-stock bar reversal {
+  closed: true,
+  restock: true,
+  saleId: 'e9875e3c-bb42-441d-ae1f-ca5a37a200e5',
+  folioId: '9cd8b045-826d-46dc-af7c-63f61449ec33',
+  status: 409,
+  body: {
+    message: 'Счёт 9cd8b045-826d-46dc-af7c-63f61449ec33 закрыт',
+    error: 'Conflict',
+    statusCode: 409
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects closed folio real-stock bar reversal over HTTP (restock=true)
+real-stock invariant evidence {
+  closed: true,
+  restock: true,
+  saleId: 'e9875e3c-bb42-441d-ae1f-ca5a37a200e5',
+  initialUnits: '7',
+  soldUnits: '4',
+  remainingUnits: [ '0', '3' ],
+  movements: 4,
+  balanceMinor: '0',
+  retries: 'same and opposite flag: 409, unchanged'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects closed folio real-stock bar reversal over HTTP (restock=false)
+real-stock bar reversal {
+  closed: true,
+  restock: false,
+  saleId: '045a7556-8322-4848-98a9-fcf26dad0a94',
+  folioId: 'cd6dbe65-ef54-48e6-a327-7d17e1984eb4',
+  status: 409,
+  body: {
+    message: 'Счёт cd6dbe65-ef54-48e6-a327-7d17e1984eb4 закрыт',
+    error: 'Conflict',
+    statusCode: 409
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects closed folio real-stock bar reversal over HTTP (restock=false)
+real-stock invariant evidence {
+  closed: true,
+  restock: false,
+  saleId: '045a7556-8322-4848-98a9-fcf26dad0a94',
+  initialUnits: '7',
+  soldUnits: '4',
+  remainingUnits: [ '0', '3' ],
+  movements: 4,
+  balanceMinor: '0',
+  retries: 'same and opposite flag: 409, unchanged'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows open folio real-stock bar reversal over HTTP (restock=true)
+real-stock bar reversal {
+  closed: false,
+  restock: true,
+  saleId: 'ad3a1820-7696-4d5d-bac0-00a2a8176b2a',
+  folioId: '9cafb60a-8beb-43e9-827d-5ddf79221951',
+  status: 201,
+  body: {
+    kind: 'reversed',
+    id: 'ad3a1820-7696-4d5d-bac0-00a2a8176b2a',
+    status: 'REVERSED',
+    restocked: true
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows open folio real-stock bar reversal over HTTP (restock=true)
+real-stock invariant evidence {
+  closed: false,
+  restock: true,
+  saleId: 'ad3a1820-7696-4d5d-bac0-00a2a8176b2a',
+  initialUnits: '7',
+  soldUnits: '4',
+  remainingUnits: [ '3', '4' ],
+  movements: 6,
+  balanceMinor: '-400',
+  retries: 'same and opposite flag: 409, unchanged'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows open folio real-stock bar reversal over HTTP (restock=false)
+real-stock bar reversal {
+  closed: false,
+  restock: false,
+  saleId: 'b17015c1-713b-497c-9052-459a85d5c248',
+  folioId: '959ccdd4-df02-467f-aff5-e917b590e381',
+  status: 201,
+  body: {
+    kind: 'reversed',
+    id: 'b17015c1-713b-497c-9052-459a85d5c248',
+    status: 'REVERSED',
+    restocked: false
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows open folio real-stock bar reversal over HTTP (restock=false)
+real-stock invariant evidence {
+  closed: false,
+  restock: false,
+  saleId: 'b17015c1-713b-497c-9052-459a85d5c248',
+  initialUnits: '7',
+  soldUnits: '4',
+  remainingUnits: [ '0', '3' ],
+  movements: 4,
+  balanceMinor: '-400',
+  retries: 'same and opposite flag: 409, unchanged'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows an unchanged accommodation sync on a closed folio
+paid folio closed via HTTP {
+  folioId: '6d5a76d6-1722-4f65-981b-7d54cdf530d4',
+  status: 200,
+  balanceMinor: '0'
+}
+
+ ✓ |integration| tests/integration/closed-folio-http.test.ts (13 tests) 2900ms
+   ✓ closed folio charge mutations through HTTP (13)
+     ✓ rejects closed folio real-stock bar reversal over HTTP (restock=true) 423ms
+     ✓ rejects closed folio real-stock bar reversal over HTTP (restock=false) 316ms
+
+ Test Files  3 passed (3)
+      Tests  31 passed (31)
+   Start at  20:19:55
+   Duration  14.25s (tests 64%, transform 21%, import 15%)
+
+JSON report written to /tmp/pms-test-2026-10-16T20-19-55Z-integration-83af.json
+
+# код выхода 0 · 15 с

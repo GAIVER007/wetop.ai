@@ -1,0 +1,20 @@
+# Интеграционные (integration) · 16.10.2026 21:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (claude/marketing-ad-launch), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-07-19Z-integration-e59c.json' 'tests/integration/marketing-ad-launch.test.ts' 'tests/integration/marketing-ad-launches-db.test.ts' 'tests/integration/marketing-meta.test.ts' 'tests/integration/marketing-campaigns.test.ts' 'tests/integration/marketing-budget-db.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |integration| tests/integration/marketing-ad-launch.test.ts (6 tests) 222ms
+ ✓ |integration| tests/integration/marketing-meta.test.ts (5 tests) 186ms
+ ✓ |integration| tests/integration/marketing-campaigns.test.ts (3 tests) 198ms
+ ✓ |integration| tests/integration/marketing-budget-db.test.ts (8 tests) 53ms
+ ✓ |integration| tests/integration/marketing-ad-launches-db.test.ts (4 tests) 40ms
+
+ Test Files  5 passed (5)
+      Tests  26 passed (26)
+   Start at  09:07:20
+   Duration  3.02s (import 47%, tests 30%, transform 22%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-07-19Z-integration-e59c.json
+
+# код выхода 0 · 4 с

@@ -1,0 +1,172 @@
+# Модульные (unit) · 16.10.2026 11:09 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3db7343 (claude/salon-cash)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-09-43Z-unit-1f3e.json' 'apps/web/src/lib' 'packages/domain/src/verticals' 'apps/api/src/food-service' 'apps/api/src/bar'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 80ms
+ ✓ |unit| apps/web/src/lib/registration-context-client.test.ts (1 test) 182ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 154ms
+ ✓ |unit| apps/web/src/lib/bounded-body.test.ts (6 tests) 135ms
+ ✓ |unit| apps/web/src/lib/session.test.ts (2 tests) 18ms
+ ❯ |unit| apps/web/src/lib/workspace-session-a27.test.ts (8 tests | 2 failed) 8454ms
+   ❯ workspace session boundary (8)
+     × redirects an API 401 using the existing login contract 5037ms
+     × rejects a successful anonymous identity when the lock is enabled 3400ms
+     ✓ preserves API 403 without redirecting or clearing cookies 2ms
+     ✓ preserves API 500 without redirecting or clearing cookies 1ms
+     ✓ preserves API 503 without redirecting or clearing cookies 0ms
+     ✓ preserves non-API framework control flow 1ms
+     ✓ retains the explicit open development stand 3ms
+     ✓ returns the verified user and scope unchanged 4ms
+ ❯ |unit| apps/web/src/lib/desk-shell.test.ts (9 tests | 1 failed) 8482ms
+   ❯ оболочка стойки: кто вошёл (3)
+     × никто не вошёл — роли нет, разделы не прячутся 5029ms
+     ✓ вошедший управляющий — его роль 3414ms
+     ✓ `/auth/me` не ответил — меню как у администратора, «Платформы» нет, а роль помечена неизвестной 5ms
+   ✓ verified shell scope before domain reads (6)
+     ✓ unresolved context suppresses domain reads and retains branch recovery: null 1ms
+     ✓ unresolved context suppresses domain reads and retains branch recovery: {"vertical":"UNKNOWN","businessId":"b","locationId":"l"} 1ms
+     ✓ unresolved context suppresses domain reads and retains branch recovery: {"vertical":"HOSPITALITY","businessId":"b","locationId":null} 1ms
+     ✓ unresolved context suppresses domain reads and retains branch recovery: {"vertical":"BEAUTY","businessId":null,"locationId":"l"} 0ms
+     ✓ valid scope provides the Business/Location identity 2ms
+     ✓ anonymous production with disabled lock still suppresses Hospitality domain reads 26ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 279ms
+ ❯ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests | 1 failed) 9332ms
+   × «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 5016ms
+   ✓ API не ответил — пояс платформы, страница не падает 4052ms
+   ✓ настройки не ответили в срок — пояс платформы, страница не ждёт 262ms
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 14ms
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 453ms
+   ✓ assistantApi.identity — подпись с сервера стойки (4)
+     ✓ отдаёт подпись и срок 404ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (17 tests) 544ms
+   ✓ сохраняет HTTP-статус, чтобы отличить отсутствующую бронь от сбоя API 388ms
+ ✓ |unit| apps/web/src/lib/site-auth.test.ts (14 tests) 485ms
+ ✓ |unit| apps/api/src/bar/bar-scan.test.ts (8 tests) 2204ms
+   ✓ бар: скан накладной (7)
+     ✓ сопоставляет строки по штрихкоду и названию, деньги переводит в тиыны 504ms
+ ✓ |unit| apps/web/src/lib/branch-report-api.test.ts (2 tests) 215ms
+ ✓ |unit| apps/api/src/bar/bar.runtime.test.ts (1 test) 1515ms
+   ✓ loads every empty Bar section without compiler-emitted constructor metadata, as in tsx production 1513ms
+ ✓ |unit| apps/api/src/bar/bar.controller.test.ts (12 tests) 2705ms
+   ✓ бар: приходы (BAR2) (10)
+     ✓ создает черновик и проводит его один раз 375ms
+ ✓ |unit| apps/web/src/lib/booking-link.test.ts (5 tests) 15ms
+ ✓ |unit| apps/web/src/lib/navigation-rights.test.ts (2 tests) 115ms
+ ✓ |unit| apps/web/src/lib/unit-now.test.ts (5 tests) 36ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (11 tests) 21ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 30ms
+ ✓ |unit| apps/web/src/lib/site-preview-spec.test.ts (5 tests) 95ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (20 tests) 128ms
+ ✓ |unit| apps/web/src/lib/food-data.test.ts (4 tests) 29ms
+ ✓ |unit| apps/web/src/lib/website-navigation.test.ts (9 tests) 48ms
+ ✓ |unit| apps/web/src/lib/support-kb.test.ts (5 tests) 89ms
+ ✓ |unit| apps/web/src/lib/navigation-place.test.ts (23 tests) 13ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (6 tests) 165ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 32ms
+ ✓ |unit| apps/web/src/lib/report-query.test.ts (12 tests) 57ms
+ ✓ |unit| apps/web/src/lib/site-facts.test.ts (12 tests) 143ms
+ ✓ |unit| apps/web/src/lib/sales.test.ts (5 tests) 98ms
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests) 40ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (30 tests) 69ms
+ ✓ |unit| apps/web/src/lib/workspace-organization.test.ts (3 tests) 157ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 10ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 70ms
+ ✓ |unit| apps/web/src/lib/status/status.test.ts (13 tests) 76ms
+ ✓ |unit| apps/web/src/lib/scope-resolve.test.ts (11 tests) 23ms
+ ✓ |unit| apps/web/src/lib/integrations.test.ts (18 tests) 150ms
+ ✓ |unit| apps/web/src/lib/website.test.ts (31 tests) 40ms
+ ✓ |unit| apps/web/src/lib/line-geometry.test.ts (5 tests) 21ms
+ ✓ |unit| apps/web/src/lib/support-queue.test.ts (9 tests) 30ms
+ ✓ |unit| apps/web/src/lib/ai-agents.test.ts (13 tests) 117ms
+ ✓ |unit| apps/web/src/lib/navigation-growth.test.ts (4 tests) 23ms
+ ✓ |unit| apps/api/src/food-service/boundary.test.ts (2 tests) 43ms
+ ✓ |unit| apps/api/src/bar/bar-folio-service-date.test.ts (1 test) 45ms
+ ✓ |unit| apps/web/src/lib/food-api.test.ts (1 test) 135ms
+ ✓ |unit| apps/web/src/lib/onboarding-later.test.ts (9 tests) 19ms
+ ✓ |unit| apps/api/src/bar/bar-payment-methods.test.ts (5 tests) 131ms
+ ✓ |unit| apps/web/src/lib/navigation-registry.test.ts (6 tests) 334ms
+ ✓ |unit| apps/api/src/bar/bar-period.test.ts (3 tests) 150ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 11ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 8ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 140ms
+ ✓ |unit| apps/web/src/lib/donut.test.ts (4 tests) 29ms
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 46ms
+ ✓ |unit| apps/web/src/lib/auth-aliases.test.ts (3 tests) 23ms
+ ✓ |unit| apps/web/src/lib/occupancy-kinds.test.ts (4 tests) 8ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 242ms
+ ✓ |unit| apps/web/src/lib/branch-summary.test.ts (2 tests) 65ms
+ ✓ |unit| apps/web/src/lib/stay-date.test.ts (11 tests) 257ms
+ ✓ |unit| packages/domain/src/verticals/registry.test.ts (12 tests) 13ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 5ms
+ ✓ |unit| apps/web/src/lib/security-headers.test.ts (4 tests) 7ms
+ ✓ |unit| apps/web/src/lib/public-entry.test.ts (1 test) 14ms
+ ✓ |unit| apps/web/src/lib/invite-token.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 6ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 9ms
+ ✓ |unit| apps/web/src/lib/rate-rule-text.test.ts (4 tests) 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/desk-shell.test.ts > оболочка стойки: кто вошёл > никто не вошёл — роли нет, разделы не прячутся
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ apps/web/src/lib/desk-shell.test.ts:20:3
+     18|   });
+     19|
+     20|   it('никто не вошёл — роли нет, разделы не прячутся', async () => {
+       |   ^
+     21|     me.mockResolvedValue({ user: null });
+     22|     const { deskShell } = await import('./desk-shell');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/hotel-time.test.ts > «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ apps/web/src/lib/hotel-time.test.ts:34:1
+     32| const NOW = new Date('2026-09-30T19:30:00Z');
+     33|
+     34| it('«сегодня» стойки — по поясу объекта из /hotel/settings, а не по UT…
+       | ^
+     35|   // таймер предела тоже поддельный: под нагрузкой ответ настроек мог …
+     36|   // и тест проигрывал `TIMEZONE_WAIT_MS` (падал 28.09 в полном unit д…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/workspace-session-a27.test.ts > workspace session boundary > redirects an API 401 using the existing login contract
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ apps/web/src/lib/workspace-session-a27.test.ts:26:3
+     24|   });
+     25|
+     26|   it('redirects an API 401 using the existing login contract', async (…
+       |   ^
+     27|     me.mockRejectedValue(new ApiError(401, 'Synthetic expired session'…
+     28|     const { currentMe } = await import('./desk-shell');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/workspace-session-a27.test.ts > workspace session boundary > rejects a successful anonymous identity when the lock is enabled
+AssertionError: expected "vi.fn()" to be called once, but got 2 times
+ ❯ apps/web/src/lib/workspace-session-a27.test.ts:36:27
+     34|     const { currentMe } = await import('./desk-shell');
+     35|     await expect(currentMe()).rejects.toBe(redirect);
+     36|     expect(redirectLogin).toHaveBeenCalledOnce();
+       |                           ^
+     37|   });
+     38|   it.each([403, 500, 503])('preserves API %i without redirecting or cl…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  3 failed | 69 passed (72)
+      Tests  4 failed | 515 passed (519)
+   Start at  23:09:45
+   Duration  31.01s (import 39%, transform 32%, tests 28%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-09-43Z-unit-1f3e.json
+
+# код выхода 1 · 33 с

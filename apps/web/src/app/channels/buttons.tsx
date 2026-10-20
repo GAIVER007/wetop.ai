@@ -21,18 +21,20 @@ export function ChannelButtons({
   configured = false,
   connected,
   ratePlans = [],
+  canMutate,
 }: {
   group?: 'exchange' | 'setup' | 'all';
   webhookReady?: boolean;
   configured?: boolean;
   connected: boolean;
   ratePlans?: Array<{ code: string; name: string }>;
+  canMutate: boolean;
 }) {
   const [result, setResult] = useState<ChannelActionResult | null>(null);
   const [pending, start] = useTransition();
   const [ratePlanCode, setRatePlanCode] = useState('');
   const run = (kind: 'setup' | 'sync' | 'pull' | 'flush' | 'webhook-register' | 'webhook-test') =>
-    start(async () =>
+    canMutate && start(async () =>
       setResult(await channelAction(kind, kind === 'setup' ? ratePlanCode : undefined)),
     );
   // Одна причина на группу: без соединения не работает ничего, без ключа — настройка, без адреса — webhook
@@ -49,7 +51,7 @@ export function ChannelButtons({
               type="button"
               data-testid="channel-flush"
               onClick={() => run('flush')}
-              disabled={pending || !connected}
+              disabled={!canMutate || pending || !connected}
             >
               Отправить очередь сейчас
             </Button>
@@ -58,7 +60,7 @@ export function ChannelButtons({
               type="button"
               data-testid="channel-pull"
               onClick={() => run('pull')}
-              disabled={pending || !connected}
+              disabled={!canMutate || pending || !connected}
             >
               Забрать брони из каналов
             </Button>
@@ -86,7 +88,7 @@ export function ChannelButtons({
               tone="secondary"
               data-testid="channel-setup"
               onClick={() => run('setup')}
-              disabled={pending || !configured || !ratePlanCode}
+              disabled={!canMutate || pending || !configured || !ratePlanCode}
             >
               Создать объект и категории
             </Button>
@@ -95,7 +97,7 @@ export function ChannelButtons({
               tone="secondary"
               data-testid="channel-webhook-register"
               onClick={() => run('webhook-register')}
-              disabled={pending || !connected || !webhookReady}
+              disabled={!canMutate || pending || !connected || !webhookReady}
             >
               Зарегистрировать webhook
             </Button>
@@ -104,7 +106,7 @@ export function ChannelButtons({
               tone="secondary"
               data-testid="channel-webhook-test"
               onClick={() => run('webhook-test')}
-              disabled={pending || !connected || !webhookReady}
+              disabled={!canMutate || pending || !connected || !webhookReady}
             >
               Проверить webhook
             </Button>
@@ -113,7 +115,7 @@ export function ChannelButtons({
               tone="secondary"
               data-testid="channel-sync"
               onClick={() => run('sync')}
-              disabled={pending || !connected}
+              disabled={!canMutate || pending || !connected}
             >
               Полная выгрузка (500 дней)
             </Button>
@@ -138,7 +140,7 @@ export function ChannelButtons({
  * Кнопка у неудачного события. После шести попыток PMS сама больше не пробует — иначе ревизия,
  * которую мы не умеем разобрать, падала бы на каждом опросе, а человек ничего бы не заметил.
  */
-export function RetryEventButton({ revisionId }: { revisionId: string }) {
+export function RetryEventButton({ revisionId, canMutate }: { revisionId: string; canMutate: boolean }) {
   const [result, setResult] = useState<ChannelActionResult | null>(null);
   const [pending, start] = useTransition();
   return (
@@ -148,8 +150,8 @@ export function RetryEventButton({ revisionId }: { revisionId: string }) {
         tone="secondary"
         size="xs"
         data-testid={`retry-event-${revisionId}`}
-        onClick={() => start(async () => setResult(await retryEventAction(revisionId)))}
-        disabled={pending}
+        onClick={() => canMutate && start(async () => setResult(await retryEventAction(revisionId)))}
+        disabled={!canMutate || pending}
       >
         Обработать заново
       </Button>

@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 16.10.2026 11:52 Алматы · Noutbuk-Vyacheslav.local
+# коммит c9e8346 (claude/salon-appointment-payment), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-52-51Z-integration-8fed.json' 'tests/integration/beauty-appointment-payment.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+[pms_test] миграций применено 1; данные на месте
+ ✓ |integration| tests/integration/beauty-appointment-payment.test.ts (4 tests) 443ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  23:52:52
+   Duration  1.97s (transform 38%, tests 34%, import 27%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-52-51Z-integration-8fed.json
+
+# код выхода 0 · 3 с

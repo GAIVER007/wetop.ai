@@ -46,7 +46,11 @@ test('финансы: четыре плитки эталона из тех же 
   await expect(kpis.getByTestId('fin-profit')).toHaveText(formatMoney(profit.toString(), 'KZT'));
 
   // блоки эталона на месте, числа из данных
-  await expect(board.getByRole('heading', { name: 'Динамика доходов и расходов' })).toBeVisible();
+  await expect(board.getByRole('heading', { name: 'Динамика поступлений, возвратов и расходов' })).toBeVisible();
+  await expect(board.getByTestId('fin-dynamics').locator('.line__legend')).toContainText('Возвраты и расходы');
+  await expect(board.getByTestId('fin-dynamics').locator('.line__legend')).toContainText(
+    formatMoney((BigInt(ops.refundedMinor) + BigInt(ops.expenseMinor)).toString(), 'KZT'),
+  );
   await expect(board.getByTestId('fin-dynamics')).toContainText(
     formatMoney(income.toString(), 'KZT'),
   );
@@ -124,14 +128,15 @@ test('очередь «Требуют внимания» открывается 
   await expect(page.locator('#day-attention')).toHaveCount(1);
 });
 
-test('меню: «Главная» первой вкладкой, «Финансы» группой после фонда (#501)', async ({ page }) => {
+// верхнее меню 17.10.2026: Главная, Журнал, ..., «Финансы» восьмым разделом
+test('меню: «Главная» первой вкладкой, «Финансы» группой после склада', async ({ page }) => {
   await page.goto('/finance');
   const menu = sideNav(page);
   await expect(menu.locator('.sidenav__section').first()).toHaveText('Главная');
-  await expect(menu.locator('.sidenav__section').nth(1)).toHaveText('Календарь');
-  await expect(menu.locator('.sidenav__section').nth(4)).toHaveText('Финансы');
-  // активная отметка живёт на пункте группы (ADR-157): на /finance это «Оплаты и касса»
-  await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Оплаты и касса');
+  await expect(menu.locator('.sidenav__section').nth(1)).toHaveText('Журнал');
+  await expect(menu.locator('.sidenav__section').nth(7)).toHaveText('Финансы');
+  // активная отметка живёт на пункте группы: на /finance это «Обзор финансов»
+  await expect(menu.locator('.sidenav__items [aria-current="page"]')).toHaveText('Обзор финансов');
   await page.goto('/today');
   await expect(sideNav(page).locator('.sidenav__section').first()).toHaveText('Главная');
 });

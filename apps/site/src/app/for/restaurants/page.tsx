@@ -5,7 +5,6 @@ import { LandingFinal } from '../../../components/landing/landing-final';
 import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { SubtypeLinks } from '../../../components/landing/subtype-links';
 import { Breadcrumbs } from '../../../components/breadcrumbs';
-import { JsonLd, faqLd } from '../../../components/json-ld';
 import { typo } from '../../../components/typo';
 import { getDictionary } from '../../../i18n';
 import { pageMetadata } from '../../../lib/metadata';
@@ -15,7 +14,7 @@ import { registerLink } from '../../../lib/site';
  * Лендинг «Для ресторанов» (10.10.2026): каркас гостиничного (`app/for/hotels/page.tsx`) в базовой
  * палитре; в герое цветное фото зала (сгенерировано через KIE по решению владельца, свой файл) вместо
  * мокапа. Возможности — ресторанный модуль (ADR-159, DATA_MODEL §33): зал, брони, заказы и кухня,
- * меню с техкартами, смены и зарплата. Текст по §19.9; «7 дней» по ADR-098, один раз на экран.
+ * меню с техкартами, смены и зарплата. Текст по §19.9; условий trial нет (ADR-147).
  * Блоки переиспользуют классы `.hotel-*` групповыми селекторами (реестр §19.5, строка `.restaurant-*`).
  */
 export const metadata: Metadata = pageMetadata({
@@ -174,7 +173,6 @@ export default function RestaurantLandingPage() {
 
           <SubtypeLinks direction="restaurants" title={t.segments.typesTitle.restaurants} />
 
-          {s.faq.length ? <JsonLd data={faqLd(s.faq)} /> : null}
           <MarketingBlock
             id="marketing"
             copy={t.marketing.restaurant}

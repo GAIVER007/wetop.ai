@@ -1,4 +1,4 @@
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import './fund.css';
 import Link from 'next/link';
 import { api, inventoryEditorApi } from '../../lib/api';
@@ -10,6 +10,8 @@ import { channelMarks } from './channel-marks';
 import { InventoryCatalog } from './inventory-catalog';
 import { InventoryPeriodSelect, InventorySummaryTiles } from './summary-tiles';
 import './inventory.css';
+import { deskShell } from '../../lib/desk-shell';
+import { mayAccess } from '../../lib/navigation';
 
 /** Состав фонда из API; занятость и команды остаются в календаре и карточке места. */
 export default async function InventoryPage({
@@ -17,17 +19,20 @@ export default async function InventoryPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/inventory');
   const period = Number((await searchParams).period);
   const days = period === 7 || period === 90 ? period : 30;
-  const [summary, units, categories, trend, occupancy, marks] = await Promise.all([
+  const [summary, units, categories, trend, occupancy, marks, shell] = await Promise.all([
     api.inventorySummary(),
     api.inventoryUnits(),
     inventoryEditorApi.categories(),
     api.inventoryTrend(days).catch(() => null),
     api.inventoryOccupancy().catch(() => []),
     channelMarks(),
+    deskShell(),
   ]);
+  const canEditCatalog = mayAccess(shell.access, 'property') && !shell.readOnly;
+  const canHousekeeping = mayAccess(shell.access, 'desk') && !shell.readOnly;
   return (
     <Page
       title="Номерной фонд"
@@ -39,7 +44,7 @@ export default async function InventoryPage({
       actions={
         <>
           <InventoryPeriodSelect days={days} />
-          <AddMenu categories={categories} />
+          {canEditCatalog && <AddMenu categories={categories} />}
           <Link href="/rooms/categories" className="btn btn--secondary">
             <Icon name="rates" />
             Категории
@@ -69,6 +74,8 @@ export default async function InventoryPage({
         occupancy={occupancy}
         channels={marks.channels}
         channelCategories={marks.mapped}
+        canEditCatalog={canEditCatalog}
+        canHousekeeping={canHousekeeping}
       />
     </Page>
   );

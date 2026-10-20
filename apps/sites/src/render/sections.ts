@@ -344,17 +344,22 @@ const leadForm: Renderer = (s, ctx, { h1 }) => {
       .flatMap((x) => list<Record<string, unknown>>(x['items']))
       .map((i) => `<option value="${esc(String(i['employeeId']))}">${t(i['name'], ctx)}</option>`)
       .join('');
-    controls.push(field(id('service'), strings.formService, `<select id="${esc(id('service'))}" name="serviceCode" required>${serviceOptions}</select>`));
-    if (staffOptions)
-      controls.push(field(id('master'), strings.formMaster, `<select id="${esc(id('master'))}" name="employeeId"><option value="">${esc(strings.formAnyMaster)}</option>${staffOptions}</select>`));
+    // SiteSpec keeps the existing serviceCode catalog field; the public booking wire calls that UUID serviceId.
+    controls.push(field(id('service'), strings.formService, `<select id="${esc(id('service'))}" name="serviceId" required>${serviceOptions}</select>`));
+    controls.push(field(id('master'), strings.formMaster, `<select id="${esc(id('master'))}" name="employeeId"><option value="">${esc(strings.formAnyMaster)}</option>${staffOptions}</select>`));
   }
   if (mode === 'BEAUTY_APPOINTMENT' || mode === 'TABLE_RESERVATION') {
     controls.push(field(id('date'), strings.formDate, `<input id="${esc(id('date'))}" name="date" type="date" required>`));
-    controls.push(field(id('time'), strings.formTime, `<input id="${esc(id('time'))}" name="time" type="time" step="900" required>`));
+    if (mode === 'TABLE_RESERVATION')
+      controls.push(field(id('time'), strings.formTime, `<input id="${esc(id('time'))}" name="time" type="time" step="900" required>`));
+    else {
+      controls.push(field(id('time'), strings.formTime, `<select id="${esc(id('time'))}" name="startsAt" required disabled><option value=""></option></select>`));
+      controls.push('<p data-beauty-details aria-live="polite"></p><p><button type="button" data-beauty-refresh></button></p>');
+    }
   }
   if (mode === 'TABLE_RESERVATION')
     controls.push(field(id('party'), strings.formParty, `<input id="${esc(id('party'))}" name="partySize" type="number" min="1" max="50" value="2" inputmode="numeric" required>`));
-  controls.push(field(id('name'), strings.formName, `<input id="${esc(id('name'))}" name="name" type="text" maxlength="120" autocomplete="name" required>`));
+  controls.push(field(id('name'), strings.formName, `<input id="${esc(id('name'))}" name="name" type="text" maxlength="${mode === 'BEAUTY_APPOINTMENT' ? 100 : 120}" autocomplete="name" required>`));
   controls.push(field(id('phone'), strings.formPhone, `<input id="${esc(id('phone'))}" name="phone" type="tel" maxlength="32" autocomplete="tel" inputmode="tel" required>`));
   if (s['showComment'] === true)
     controls.push(field(id('comment'), strings.formComment, `<textarea id="${esc(id('comment'))}" name="comment" rows="3" maxlength="1000"></textarea>`));

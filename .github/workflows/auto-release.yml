@@ -33,7 +33,7 @@ concurrency:
 jobs:
   promote:
     name: перемотка release на проверенную вершину
-    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -55,7 +55,7 @@ jobs:
             target="${INPUT_SHA:-$(git rev-parse origin/main)}"
             target="$(git rev-parse --verify "${target}^{commit}")"
             # ADR-139: перемотка только на вершину с зелёным гейтом; по кнопке это сверяется через API
-            green="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/release-checks.yml/runs?head_sha=${target}&per_page=100" \
+            green="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/release-checks.yml/runs?head_sha=${target}&event=push&per_page=100" \
               --jq '[.workflow_runs[] | select(.conclusion == "success")] | length')"
             if [ "$green" = 0 ]; then
               echo "у вершины ${target} нет зелёного release-checks (ADR-139): сначала гейт" >&2

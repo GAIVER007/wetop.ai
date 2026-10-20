@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 19.10.2026 14:31 Алматы · Noutbuk-Vyacheslav.local
+# коммит 91f21c4 (fix/salon-migrations-133-137), незакоммиченных файлов набора: 16
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-31-59Z-integration-63d2.json' 'tests/integration/beauty-appointment-lines.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/w2
+
+(node:68842) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/beauty-appointment-lines.test.ts (27 tests) 1043ms
+
+ Test Files  1 passed (1)
+      Tests  27 passed (27)
+   Start at  02:32:00
+   Duration  2.36s (tests 57%, transform 26%, import 16%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T09-31-59Z-integration-63d2.json
+
+# код выхода 0 · 3 с

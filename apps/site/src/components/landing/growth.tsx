@@ -34,10 +34,17 @@ export function Growth() {
             tone="sales"
             {...growth.sales}
             action={
-              <a className="btn btn--primary growth__action" href={registerLink().href} data-auth="register">
-                {growth.sales.action}
-                <Icon name="arrowRight" size={16} />
-              </a>
+              <>
+                <a
+                  className="btn btn--primary growth__action"
+                  href={registerLink().href}
+                  data-auth="register"
+                >
+                  {growth.sales.action}
+                  <Icon name="arrowRight" size={16} />
+                </a>
+                <p className="growth__note">{typo(growth.sales.note)}</p>
+              </>
             }
           >
             <SalesFeed />
@@ -92,7 +99,10 @@ type ModuleProps = {
 /** Витрина: метка направления, заголовок, текст, пункты и кнопка; справа (или слева) пример экрана. */
 function Module({ id, tone, kicker, icon, title, text, points, action, children }: ModuleProps) {
   return (
-    <article id={id} className={`card glass growth__module growth__module--${tone} ${tone === 'marketing' ? marketStyles.module : tone === 'ai' ? aiStyles.module : ''}`}>
+    <article
+      id={id}
+      className={`card glass growth__module growth__module--${tone} ${tone === 'marketing' ? marketStyles.module : tone === 'ai' ? aiStyles.module : ''}`}
+    >
       <div className="growth__module-copy">
         <span className="growth__kicker">
           <Icon name={icon} size={16} />
@@ -168,9 +178,22 @@ function MarketPreview() {
       </ul>
       <div className={`growth__chart ${marketStyles.chart}`}>
         <svg viewBox={`0 -14 ${w} ${h + 28}`} role="img" aria-label={preview.label}>
-          <polyline points={points} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+          <polyline
+            points={points}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
           {chart.map((y, i) => (
-            <circle key={i} cx={i * step} cy={y} r={i === markerIndex ? 4.5 : 3} fill="currentColor" />
+            <circle
+              key={i}
+              cx={i * step}
+              cy={y}
+              r={i === markerIndex ? 4.5 : 3}
+              fill="currentColor"
+            />
           ))}
         </svg>
         <span className="growth__marker">{preview.marker}</span>

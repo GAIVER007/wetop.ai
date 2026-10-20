@@ -1,0 +1,145 @@
+# Интеграционные (integration) · 15.10.2026 17:39 Алматы · <сервер>
+# коммит 6dfe1f6 (fix/audit-closed-folio-isolated), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T12-39-42Z-integration-c426.json' 'tests/integration/closed-folio-http.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-folio-fix
+
+(node:4106963) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows an unchanged accommodation sync on a closed folio
+paid folio closed via HTTP {
+  folioId: 'f6c57ffc-eba2-4b67-bac4-b3b555ef97f8',
+  status: 200,
+  balanceMinor: '0'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows an unchanged accommodation sync on a closed folio
+paid folio closed via HTTP {
+  folioId: '1c125dc8-546c-4080-b06f-89333e34e136',
+  status: 200,
+  balanceMinor: '0'
+}
+
+ ❯ |integration| tests/integration/closed-folio-http.test.ts (5 tests | 4 failed) 119942ms
+   ❯ closed folio charge mutations through HTTP (5)
+     × rejects PATCH price after closing a paid folio and rolls back all writes 25825ms
+     × still updates an open folio using storno plus a replacement charge 26586ms
+     × rejects cancellation without changing the closed folio, stay or audit 49508ms
+     × rejects direct penalty creation against a closed folio inside the reservation transaction 5015ms
+     ✓ allows an unchanged accommodation sync on a closed folio 2991ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP
+PrismaClientKnownRequestError: 
+Invalid `prisma.property.delete()` invocation:
+
+
+Foreign key constraint violated on the constraint: `buildings_property_id_fkey`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/closed-folio-http.test.ts:51:7
+     49|       await tx.user.delete({ where: { id: userId } });
+     50|       await tx.dailyRate.deleteMany({ where: { ratePlanId: hotel.rateP…
+     51|       await tx.property.delete({ where: { id: hotel.propertyId } });
+       |       ^
+     52|       await tx.location.delete({ where: { id: hotel.locationId } });
+     53|       await tx.business.delete({ where: { id: hotel.businessId } });
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ tests/integration/closed-folio-http.test.ts:36:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects PATCH price after closing a paid folio and rolls back all writes
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/closed-folio-http.test.ts:84:3
+     82|   }
+     83|
+     84|   it('rejects PATCH price after closing a paid folio and rolls back al…
+       |   ^
+     85|     const s = await fixture(true);
+     86|     const before = await snapshot(s);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |integration| tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > still updates an open folio using storno plus a replacement charge
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/closed-folio-http.test.ts:94:3
+     92|   });
+     93|
+     94|   it('still updates an open folio using storno plus a replacement char…
+       |   ^
+     95|     const s = await fixture(false);
+     96|     const response = await http('PATCH', itemPath(s), { price: '25000'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |integration| tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects cancellation without changing the closed folio, stay or audit
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/closed-folio-http.test.ts:105:3
+    103|   });
+    104|
+    105|   it('rejects cancellation without changing the closed folio, stay or …
+       |   ^
+    106|     const s = await fixture(true);
+    107|     const before = await snapshot(s);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |integration| tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects direct penalty creation against a closed folio inside the reservation transaction
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/closed-folio-http.test.ts:113:3
+    111|   });
+    112|
+    113|   it('rejects direct penalty creation against a closed folio inside th…
+       |   ^
+    114|     const s = await fixture(true);
+    115|     const before = await snapshot(s);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: Database did not answer for 30000 ms; connection closed
+ ❯ Socket.<anonymous> packages/database/src/pool.ts:75:26
+     73|           // простой свободного соединения в пуле — не повод его закры…
+     74|           if ((this as unknown as { readyForQuery: boolean }).readyFor…
+     75|           socket.destroy(new Error(`Database did not answer for ${dead…
+       |                          ^
+     76|         });
+     77|       });
+ ❯ Socket.emit node:events:514:20
+ ❯ Socket._onTimeout node:net:822:8
+ ❯ Timeout.onStreamTimeout [as _onTimeout] node:internal/stream_base_commons:237:10
+ ❯ listOnTimeout node:internal/timers:687:11
+ ❯ processTimers node:internal/timers:618:7
+
+This error originated in "tests/integration/closed-folio-http.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "rejects direct penalty creation against a closed folio inside the reservation transaction". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+     Errors  1 error
+   Start at  12:39:49
+   Duration  364.44s (transform 60%, tests 38%, import 2%)
+
+JSON report written to /tmp/pms-test-2026-10-15T12-39-42Z-integration-c426.json
+
+# код выхода 1 · 6 мин 12 с

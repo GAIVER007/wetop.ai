@@ -1,0 +1,46 @@
+# Интеграционные (integration) · 17.10.2026 09:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит f5380e8 (claude/auth-identity-1016), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-40-56Z-integration-a82e.json' 'tests/integration/core-security/auth-session-revival.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ❯ |integration| tests/integration/core-security/auth-session-revival.test.ts (2 tests | 2 failed) 1244ms
+   ❯ revoked access stays revoked after re-grant (2)
+     × removed member re-invited: the old session key does not come back 62ms
+     × organization archived and restored: sessions issued before the archive stay dead 14ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/core-security/auth-session-revival.test.ts > revoked access stays revoked after re-grant > removed member re-invited: the old session key does not come back
+AssertionError: expected null not to be null
+ ❯ tests/integration/core-security/auth-session-revival.test.ts:34:51
+     32|     const removed = await w.call('OWNER', 'delete', `/auth/members/${s…
+     33|     expect(removed.status, removed.text.slice(0, 160)).toBe(200);
+     34|     expect((await sessionRow(old)).revokedAt).not.toBeNull();
+       |                                                   ^
+     35|
+     36|     // повторное приглашение принято: членство снова есть (как его зав…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/core-security/auth-session-revival.test.ts > revoked access stays revoked after re-grant > organization archived and restored: sessions issued before the archive stay dead
+AssertionError: expected null not to be null
+ ❯ tests/integration/core-security/auth-session-revival.test.ts:46:51
+     44|     const repo = new PrismaExtensionsRepository({ db: w.db } as never);
+     45|     await repo.archive({ organizationId: w.ids.orgB, by: null, now: ne…
+     46|     expect((await sessionRow(old)).revokedAt).not.toBeNull();
+       |                                                   ^
+     47|     await repo.restore({ organizationId: w.ids.orgB, by: null, now: ne…
+     48|     expect((await me(old)).body.user ?? null).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  21:40:58
+   Duration  4.89s (transform 40%, tests 32%, import 28%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-40-56Z-integration-a82e.json
+
+# код выхода 1 · 7 с

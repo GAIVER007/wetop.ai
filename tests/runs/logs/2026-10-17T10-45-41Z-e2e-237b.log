@@ -1,0 +1,198 @@
+# Сквозные (e2e) · 17.10.2026 15:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит dd899e4 (claude/u1-feature-registry)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 65 tests using 1 worker
+
+  -   1 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони light 1440
+  -   2 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони light 390
+  -   3 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони dark 1440
+  -   4 tests/food-ui/ds1c-capture.spec.ts:17:5 › ресторан: дневная навигация и форма брони dark 390
+  ✓   5 tests/food-ui/ds1c-date-bar.spec.ts:10:1 › ресторан: день по прежним адресам, форма брони с обязательными датой и временем (2.6s)
+[WebServer] (node:83461) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   6 tests/food-ui/food.spec.ts:118:1 › empty restaurant catalog and complete persisted desk flow (11.3s)
+  ✓   7 tests/food-ui/food.spec.ts:147:1 › walk-in is seated immediately and persisted after reload (5.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1848077344'
+[WebServer] }
+  ✓   8 tests/food-ui/food.spec.ts:162:1 › real API screenshots, keyboard and axe (59.8s)
+  ✓   9 tests/food-ui/food.spec.ts:227:1 › overlap and archived catalog preserve creation draft and idempotency key (3.6s)
+  ✓  10 tests/food-ui/food.spec.ts:283:1 › правила брони (Q-REST-10): буфер, предел гостей, горизонт, закрытый день; правка заметки им не подчиняется (935ms)
+  ✓  11 tests/food-ui/food.spec.ts:349:1 › правила брони: экран настроек сохраняет правила, закрывает и открывает день (8.9s)
+  ✓  12 tests/food-ui/food.spec.ts:372:1 › stale token refreshes drawer without automatic mutation retry (3.7s)
+  ✓  13 tests/food-ui/food.spec.ts:396:1 › READ_ONLY and STAFF permissions on real API (2.1s)
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:201:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:46:52)
+[WebServer]   199 |         /* тело не JSON */
+[WebServer]   200 |       }
+[WebServer] > 201 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   202 |   }
+[WebServer]   203 |   return (await res.json()) as T;
+[WebServer]   204 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: Cannot GET /hotel/onboarding
+[WebServer]     at getJson (src/lib/api.ts:201:11)
+[WebServer]     at async SetupPage (src/app/register/setup/page.tsx:46:52)
+[WebServer]   199 |         /* тело не JSON */
+[WebServer]   200 |       }
+[WebServer] > 201 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   202 |   }
+[WebServer]   203 |   return (await res.json()) as T;
+[WebServer]   204 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+  ✓  14 tests/food-ui/food.spec.ts:423:1 › server branch switch isolates Food businesses and locations and other verticals (19.3s)
+  ✓  15 tests/food-ui/food.spec.ts:474:1 › pagination beyond 100 and previous local day keep table occupied after reload (6.6s)
+  ✓  16 tests/food-ui/food.spec.ts:542:1 › assignment reassign unassign edit and capacity conflicts stay in drawer (17.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1848077344'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1848077344'
+[WebServer] }
+  ✓  17 tests/food-ui/food.spec.ts:644:1 › API unavailable renders LoadError instead of free tables (5.1s)
+  ✓  18 tests/food-ui/food.spec.ts:652:1 › creation 503 keeps the draft and retry key; invalid period stays inline (6.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1848077344'
+[WebServer] }
+  ✓  19 tests/food-ui/food.spec.ts:682:1 › чужой маршрут с потоковым редиректом: goto отдаёт /today, следующий goto не обрывается (4.8s)
+  ✓  20 tests/food-ui/food.spec.ts:694:1 › Food excludes every registered foreign workspace route before API requests (26.9s)
+  ✓  21 tests/food-ui/food.spec.ts:737:1 › marker guarded cleanup (273ms)
+  -  22 tests/food-ui/ref-capture.spec.ts:15:1 › ресторан: зал на ширинах и темах
+  ✓  23 tests/food-ui/restaurant.spec.ts:100:1 › меню: категория и блюдо с экрана, переключатель «в меню», техкарта считает деньги (8.6s)
+  ✓  24 tests/food-ui/restaurant.spec.ts:152:1 › фото блюда: загрузка в карточке блюда, превью в меню, замена и удаление (4.6s)
+  ✓  25 tests/food-ui/restaurant.spec.ts:191:1 › заказы: создание с экрана, оплата частями закрывает заказ, вкладки считают (41.2s)
+  ✓  26 tests/food-ui/restaurant.spec.ts:280:1 › кухня: колонки KDS и переходы кнопками (36.0s)
+  ✓  27 tests/food-ui/restaurant.spec.ts:304:1 › главная: плитки, последние заказы и выручка после закрытия (6.2s)
+  ✓  28 tests/food-ui/restaurant.spec.ts:325:1 › бронирования: шкала по столам, бронь полосой, щелчок по пустому времени открывает новую бронь на стол (6.1s)
+  ✓  29 tests/food-ui/restaurant.spec.ts:390:1 › план зала: заказ занимает стол, уборка включается и видна легенда (5.4s)
+  ✓  30 tests/food-ui/restaurant.spec.ts:429:1 › сотрудники: список с продажами, добавление и правка (4.2s)
+  ✓  31 tests/food-ui/restaurant.spec.ts:451:1 › зарплата: оклад + процент, премия и штраф, плитки месяца (29.3s)
+  ✓  32 tests/food-ui/restaurant.spec.ts:516:1 › отчёт за период: выручка, средний чек, оплаты по способам, блюда и официанты (13.8s)
+  ✓  33 tests/food-ui/restaurant.spec.ts:579:1 › оценка по QR (§40): ссылка смены, страница гостя без входа, одна оценка, замена ссылки, лимит (13.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1848077344'
+[WebServer] }
+  ✘  34 tests/food-ui/restaurant.spec.ts:660:1 › график смен (Q-REST-11): неделя сотрудника, правка часов, проверка ввода (11.5s)
+  ✓  35 tests/food-ui/restaurant.spec.ts:693:1 › схема зала (Q-REST-8): расстановка зоны стрелками и мышью, форма и размер, отказы API (22.0s)
+  ✘  36 tests/food-ui/restaurant.spec.ts:759:1 › бар филиала (ADR-178): ресторан и салон продают в кассу своего филиала (1.7m)
+  ✓  37 tests/food-ui/restaurant.spec.ts:822:1 › зарплата салона (§19.2): та же доска, процент от выполненных записей, без вкладок ресторана (14.4s)
+  ✓  38 tests/food-ui/restaurant.spec.ts:839:1 › касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование (17.3s)
+  ✓  39 tests/food-ui/restaurant.spec.ts:900:1 › клиенты: вкладки, «Постоянный гость» от двух визитов, VIP и день рождения (11.7s)
+  ✓  40 tests/food-ui/restaurant.spec.ts:987:1 › навигация ресторана: пункты макета на месте и ведут на экраны (2.6s)
+  ✓  41 tests/food-ui/restaurant.spec.ts:1001:1 › бар, финансы и настройки ресторана по макету (экраны 7, 12, 13) (52.7s)
+  ✓  42 tests/food-ui/stock.spec.ts:49:1 › пустой склад, ингредиент и приход с экрана, остаток и стоимость (7.7s)
+  ✓  43 tests/food-ui/stock.spec.ts:76:1 › списание по FIFO: сначала ранняя партия, ниже нуля нельзя (2.1s)
+  ✓  44 tests/food-ui/stock.spec.ts:104:1 › инвентаризация: недостача списывается FIFO, излишек приходуется по средней (Q-KITCHEN-9) (2.0s)
+  ✓  45 tests/food-ui/stock.spec.ts:133:1 › инвентаризация пустого склада: излишек только с ценой, введённой вручную (1.2s)
+  ✓  46 tests/food-ui/stock.spec.ts:148:1 › сторно: нетронутая партия сторнируется, начатая нет (1.4s)
+  ✓  47 tests/food-ui/stock.spec.ts:164:1 › роли: администратор работает со складом, но не правит справочник; только чтение (1.8s)
+  ✓  48 tests/food-ui/stock.spec.ts:184:1 › снимки и axe в двух темах на 1440 и 390 (10.5s)
+  ✓  49 tests/food-ui/stock.spec.ts:213:1 › списание по заказу: «Готово» списывает по техкарте FIFO, нехватка в недостачу, отмена возвращает (6.4s)
+  -  50 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /today
+  -  51 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /floor-plan
+  -  52 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /dining-areas
+  -  53 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /table-reservations
+  -  54 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /orders
+  -  55 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /kitchen
+  -  56 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /menu
+  -  57 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /stock
+  -  58 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /drinks
+  -  59 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /customers
+  -  60 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /restaurant-finance
+  -  61 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /restaurant-settings
+  -  62 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /payroll
+  -  63 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /help
+  -  64 tests/food-ui/ui5-audit.spec.ts:28:5 › аудит food /reports
+  ✓  65 tests/food-ui/unified-growth.spec.ts:73:1 › ресторан: продажи и маркетинг на данных филиала (14.9s)
+
+
+  1) tests/food-ui/restaurant.spec.ts:660:1 › график смен (Q-REST-11): неделя сотрудника, правка часов, проверка ввода 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/employees\/shifts$/
+    Received string:  "http://127.0.0.1:26993/employees"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        13 × locator resolved to <html lang="ru" data-theme="light" class="inter_5bd4dcbe-module__ZO6gzq__variable">…</html>
+           - unexpected value "http://127.0.0.1:26993/employees"
+
+
+      672 |   await page.goto('/employees');
+      673 |   await page.getByRole('link', { name: 'График смен' }).click();
+    > 674 |   await expect(page).toHaveURL(/\/employees\/shifts$/);
+          |                      ^
+      675 |   const line = page.locator('tbody tr', { hasText: waiter.name });
+      676 |   await expect(line).toContainText('Выходной');
+      677 |   await line.getByRole('button', { name: 'Изменить график' }).click();
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/u1/tests/food-ui/restaurant.spec.ts:674:22
+
+    Error Context: test-results/restaurant-график-смен-Q-R-f9109-правка-часов-проверка-ввода/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-график-смен-Q-R-f9109-правка-часов-проверка-ввода/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-график-смен-Q-R-f9109-правка-часов-проверка-ввода/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/food-ui/restaurant.spec.ts:759:1 › бар филиала (ADR-178): ресторан и салон продают в кассу своего филиала 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:26993/cashbox", waiting until "load"
+
+
+       at ../tools/next-redirect.ts:38
+
+      36 |   page.goto = async (url, options) => {
+      37 |     await settleNextRedirect(page, 'commit');
+    > 38 |     const response = await goto(url, options);
+         |                            ^
+      39 |     await settleNextRedirect(page, until(options?.waitUntil));
+      40 |     return response;
+      41 |   };
+        at _Page.page.goto (/private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/u1/tests/tools/next-redirect.ts:38:28)
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/u1/tests/food-ui/restaurant.spec.ts:813:3
+
+    Error Context: test-results/restaurant-бар-филиала-ADR-f8cfe-дают-в-кассу-своего-филиала/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/restaurant-бар-филиала-ADR-f8cfe-дают-в-кассу-своего-филиала/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/restaurant-бар-филиала-ADR-f8cfe-дают-в-кассу-своего-филиала/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/food-ui/restaurant.spec.ts:660:1 › график смен (Q-REST-11): неделя сотрудника, правка часов, проверка ввода 
+    tests/food-ui/restaurant.spec.ts:759:1 › бар филиала (ADR-178): ресторан и салон продают в кассу своего филиала 
+  20 skipped
+  43 passed (11.1m)
+
+# код выхода 1 · 11 мин 15 с

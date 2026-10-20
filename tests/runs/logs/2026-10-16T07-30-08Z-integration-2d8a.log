@@ -1,0 +1,32 @@
+# Интеграционные (integration) · 16.10.2026 12:30 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 15
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T07-30-08Z-integration-2d8a.json' '--config' 'tests/owner-money-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/owner-money-isolated.test.ts (4 tests | 1 failed) 347ms
+   ❯ owner money actual isolated PostgreSQL queries (4)
+     × executes DONE beauty snapshot reads without inventing a payment ledger 19ms
+     ✓ reads CLOSED snapshots and POSTED sales once, excluding future and unclosed orders 203ms
+     ✓ does not borrow another branch or its present EUR currency 4ms
+     ✓ executes hotel service-date/folio and payment scope queries against the real schema 34ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/owner-money-isolated.test.ts > owner money actual isolated PostgreSQL queries > executes DONE beauty snapshot reads without inventing a payment ledger
+error: Мастер в этом филиале не работает
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/owner-money-isolated.test.ts:27:3
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  07:30:10
+   Duration  1.32s (transform 53%, tests 30%, import 17%)
+
+JSON report written to /tmp/pms-test-2026-10-16T07-30-08Z-integration-2d8a.json
+
+# код выхода 1 · 3 с

@@ -2,7 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect } from 'vitest';
 import { actor, legacyStocked, auditCase, blockedPair, catalog, db, designGap, folio, note, ok, post, receipt, reconciliation, request, snapshot, start, stocked, stop, type Actor, type Row } from './bar-money-fixes.harness';
 const sell = (a: Actor, productId: string, quantityUnits = '1', idempotencyKey: string = randomUUID(), method = 'CASH') => request(a, '/bar/sales/retail', 'POST', { productId, quantityUnits, idempotencyKey, method });
-const pay = (a: Actor, id: string, amountMinor: string) => request(a, `/bar/receipts/${id}/payments`, 'POST', { amountMinor, method: 'CASH' });
+// ключ повтора оплаты поставщику обязателен с ADR-186 M6: новый на каждый законный платёж
+const pay = (a: Actor, id: string, amountMinor: string, idempotencyKey: string = randomUUID()) => request(a, `/bar/receipts/${id}/payments`, 'POST', { amountMinor, method: 'CASH', idempotencyKey });
 const reverse = (a: Actor, id: unknown, restock: boolean) => request(a, `/bar/sales/${id}/reverse`, 'POST', { restock, reason: 'A3 synthetic return' });
 const folioSell = (a: Actor, productId: string, folioId: string, idempotencyKey: string = randomUUID()) => request(a, '/bar/sales/folio', 'POST', { productId, folioId, quantityUnits: '1', idempotencyKey });
 const payment = (a: Actor, folioId: string, amount = '150.00') => request(a, '/finance/payments', 'POST', { method: 'CASH', currency: 'KZT', amount, allocations: [{ folioId, amount }] });
@@ -84,7 +85,8 @@ describe.skipIf(process.env.A23_RUNTIME_AUDIT !== '1')('A3 approved money audit 
     const a = await actor('USD'); const c = await legacyStocked(a, '2', '1000', '2000'); const sold = await sell(a, c.product); expect(sold.status).toBe(201);
     const s = await snapshot(a, 'USD property retail and cash'); const cash = await ok(a, '/finance/cash'); note('property currency path', { propertyCurrency: a.currency, cash, sale: s.state.sales[0] });
     expect(s.state.sales[0]!.currency, 'A retail sale cannot relabel USD property prices as KZT').toBe('USD'); expect(cash.currency).toBe('USD'); expect(cash.totalMinor).toBe('2000');
-    const before=await snapshot(a,'USD explicit price operations'); const auto=await request(a,'/bar/receipts','POST',{supplierId:c.supplier,documentNumber:randomUUID(),documentDate:'2026-10-07',receivedDate:'2026-10-07',currency:'USD',lines:[{productId:c.product,quantityUnits:'1',unitCostMinor:'1000',markupBasis:0}]});expect(auto.status).toBe(409);expect((await snapshot(a,'USD auto price rejected')).state).toEqual(before.state);
+    // ADR-187 (18.10.2026): автоцена не в тенге утверждена, вверх до целой единицы валюты филиала: 10,20 USD → 11,00 USD
+    const auto=await request(a,'/bar/receipts','POST',{supplierId:c.supplier,documentNumber:randomUUID(),documentDate:'2026-10-07',receivedDate:'2026-10-07',currency:'USD',lines:[{productId:c.product,quantityUnits:'1',unitCostMinor:'1020',markupBasis:0}]});expect(auto.status).toBe(201);expect((auto.body as {lines:Array<{calculatedPrice:string}>}).lines[0]!.calculatedPrice).toBe('1100');
   });
 
   auditCase('D-CUR legacy cash sources never produce a false scalar total', 'Approved D-CUR existing historical settlement guard', async () => {
@@ -176,9 +178,11 @@ describe.skipIf(process.env.A23_RUNTIME_AUDIT !== '1')('A3 approved money audit 
     const final = await snapshot(a, 'void pay serialized result'); const finalReport = await ok(a, '/bar/report'); const finalList = rows((await request(a, '/bar/receipts')).body); expect(finalReport.supplierDebtMinor).toBe(final.metrics.settledDebt); expect(finalList.find(r => r.id === c.receipt)?.dueAmount).toBe(final.metrics.settledDebt);
   });
 
-  auditCase('M6: payment replay has no operation identity contract', 'Q-BAR-4; TZ2.2 M6 explicitly distinguishes legal partial payments', async () => {
-    const a = await actor(); const c = await stocked(a); const first = await pay(a, c.receipt, '10000'); const second = await pay(a, c.receipt, '10000'); expect(first.status).toBe(201); expect(second.status).toBe(201); const s = await snapshot(a, 'two identical legitimate partial bodies'); expect(s.state.supplierPayments).toHaveLength(2); expect(s.metrics.paid).toBe('20000');
-    designGap('Supplier payment request has no idempotencyKey/payment identity. A lost-response retry cannot be distinguished from a new legal partial payment. No deduplication rule was invented.');
+  auditCase('M6: payment replay key separates a retry from a new legal partial payment', 'Q-BAR-4; TZ2.2 M6; ADR-186 M6 (owner-approved 16.10.2026)', async () => {
+    const a = await actor(); const c = await stocked(a); const key = randomUUID();
+    const first = await pay(a, c.receipt, '10000', key); const retry = await pay(a, c.receipt, '10000', key); expect(first.status).toBe(201); expect(retry.status).toBe(201); expect(retry.body.id).toBe(first.body.id);
+    const once = await snapshot(a, 'same key retried'); expect(once.state.supplierPayments).toHaveLength(1); expect(once.metrics.paid).toBe('10000');
+    expect((await pay(a, c.receipt, '10000')).status).toBe(201); const twice = await snapshot(a, 'second legal partial payment'); expect(twice.state.supplierPayments).toHaveLength(2); expect(twice.metrics.paid).toBe('20000');
   });
 
   auditCase('M7: Folio Charge, real guest payment, no duplicate cash/sale', 'DATA_MODEL §§6/21; Q-BAR-5', async () => {
@@ -274,17 +278,16 @@ describe.skipIf(process.env.A23_RUNTIME_AUDIT !== '1')('A3 approved money audit 
     const a = await actor(); const c = await catalog(a); const price = '9007199254740993'; const changed = await ok(a, `/bar/products/${c.product}/price`, 'PATCH', { salePriceMinor: price }); expect(changed.salePrice).toBe(price); expect((await snapshot(a, 'large exact price')).state.products[0]!.sale_price).toBe(price);
   });
 
-  auditCase('N4/5: writeoff FIFO, inventory shortage, no-op and denied surplus', 'Q-BAR-1/8/9; audit/physical ledger DATA_MODEL §27', async () => {
+  auditCase('N4/5: writeoff FIFO, inventory shortage, no-op and surplus at average cost', 'Q-BAR-1/8/9, ADR-175; audit/physical ledger DATA_MODEL §27, §47', async () => {
     const a = await actor(); const c = await catalog(a); const r1 = await receipt(a, c, '3', '10000'); await post(a, r1.id); await new Promise(yes => setTimeout(yes, 5)); const r2 = await receipt(a, c, '2', '12000'); await post(a, r2.id);
     const written = await ok(a, '/bar/write-offs', 'POST', { productId: c.product, quantityUnits: '4', reason: 'A3 synthetic loss' }); expect(written.costMinor).toBe('42000'); const afterLoss = await snapshot(a, 'FIFO writeoff'); expect(afterLoss.metrics).toMatchObject({ units: '1', stockCost: '12000', movementUnits: '1' }); expect(await ok(a, '/bar/report')).toMatchObject({ writeOffMinor: '42000' });
     const noop = await ok(a, '/bar/inventory-counts', 'POST', { productId: c.product, actualUnits: '1', reason: 'A3 exact count' }); expect(noop.differenceUnits).toBe('0'); const afterNoop = await snapshot(a, 'zero discrepancy'); expect(afterNoop.state.movements).toEqual(afterLoss.state.movements); expect(afterNoop.state.audit.length).toBe(afterLoss.state.audit.length + 1);
-    const surplus = await request(a, '/bar/inventory-counts', 'POST', { productId: c.product, actualUnits: '2', reason: 'A3 unapproved surplus' }); expect(surplus.status).toBe(409); expect((await snapshot(a, 'surplus denied')).state).toEqual(afterNoop.state);
-    const shortage = await ok(a, '/bar/inventory-counts', 'POST', { productId: c.product, actualUnits: '0', reason: 'A3 synthetic shortage' }); expect(shortage.costMinor).toBe('12000'); const final = await snapshot(a, 'inventory shortage'); expect(final.metrics).toMatchObject({ units: '0', movementUnits: '0', stockCost: '0' }); expect(final.state.movements.find(m => m.kind === 'INVENTORY_ADJUSTMENT')).toMatchObject({ units: '-1', unit_cost: '12000', created_by_id: a.user });
+    const surplus = await ok(a, '/bar/inventory-counts', 'POST', { productId: c.product, actualUnits: '2', reason: 'A3 synthetic surplus' }); expect(surplus).toMatchObject({ differenceUnits: '1', costMinor: '12000' }); expect((await snapshot(a, 'surplus at average cost')).metrics).toMatchObject({ units: '2', movementUnits: '2' });
+    const shortage = await ok(a, '/bar/inventory-counts', 'POST', { productId: c.product, actualUnits: '0', reason: 'A3 synthetic shortage' }); expect(shortage.costMinor).toBe('24000'); const final = await snapshot(a, 'inventory shortage'); expect(final.metrics).toMatchObject({ units: '0', movementUnits: '0', stockCost: '0' }); expect(final.state.movements.find(m => m.kind === 'INVENTORY_ADJUSTMENT' && m.units === '-1')).toMatchObject({ units: '-1', unit_cost: '12000', created_by_id: a.user });
   });
 
-  auditCase('N6: archived product rejected; category/supplier historical boundary explicit', 'existing active contract without inventing historical restrictions', async () => {
+  auditCase('N6: archived product rejected; archived supplier takes no new receipt, stocked product still sells', 'ADR-186 N6 (owner-approved 16.10.2026)', async () => {
     const a = await actor(); const c = await stocked(a); await ok(a, `/bar/products/${c.product}/active`, 'PATCH', { active: false }); const before = await snapshot(a, 'inactive product'); expect((await sell(a, c.product)).status).toBe(404); expect((await snapshot(a, 'inactive sale rejected')).state).toEqual(before.state);
-    await ok(a, `/bar/products/${c.product}/active`, 'PATCH', { active: true }); await ok(a, `/bar/categories/${c.category}/active`, 'PATCH', { active: false }); await ok(a, `/bar/suppliers/${c.supplier}/active`, 'PATCH', { active: false }); const r = await receipt(a, c, '1', '10000'); await post(a, r.id); expect((await sell(a, c.product)).status).toBe(201); await snapshot(a, 'inactive supplier/category observed');
-    designGap('Product.active explicitly gates sales. API permits a new receipt with archived supplier/category and sale of an active product in an inactive category. An approved distinction between historical completion and new operations is not documented; no extra prohibition was inferred from active alone.');
+    await ok(a, `/bar/products/${c.product}/active`, 'PATCH', { active: true }); await ok(a, `/bar/categories/${c.category}/active`, 'PATCH', { active: false }); await ok(a, `/bar/suppliers/${c.supplier}/active`, 'PATCH', { active: false }); const archived = await snapshot(a, 'archived supplier/category'); const refused = await request(a, '/bar/receipts', 'POST', { supplierId: c.supplier, documentNumber: randomUUID(), documentDate: '2026-10-07', receivedDate: '2026-10-07', currency: a.currency, lines: [{ productId: c.product, quantityUnits: '1', unitCostMinor: '10000', markupBasis: 0 }] }); expect(refused.status).toBe(409); expect(JSON.stringify(refused.body)).toContain('Поставщик в архиве'); expect((await snapshot(a, 'archived supplier receipt refused')).state).toEqual(archived.state); expect((await sell(a, c.product)).status).toBe(201); await snapshot(a, 'stocked product in archived category still sells');
   });
 });

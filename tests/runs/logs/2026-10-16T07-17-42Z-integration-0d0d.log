@@ -1,0 +1,38 @@
+# Интеграционные (integration) · 16.10.2026 12:17 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T07-17-42Z-integration-0d0d.json' '--config' 'tests/expense-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/expense-documents-isolated.test.ts (10 tests | 1 failed) 226ms
+   ❯ expense persistence, isolated PostgreSQL (10)
+     ✓ applies held migration and persists document without cash debit 11ms
+     ✓ links existing partial cash once, rejects duplicate and overpayment 36ms
+     ✓ rejects wrong currency and non-completed sources 19ms
+     ✓ serializes concurrent links and rejects overpayment 22ms
+     ✓ void retains link/history, freezes amount, permits recomputed balance 24ms
+     ✓ rejects supplier cash linked to a generic document 25ms
+     ✓ replays identical intents, rejects changed payload, never creates cash 21ms
+     × links proven hotel cash without inferring unknown historical currency 19ms
+     ✓ enforces tenant isolation under the actual runtime role 24ms
+     ✓ enables FORCE RLS and both policy predicates 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/expense-documents-isolated.test.ts > expense persistence, isolated PostgreSQL > links proven hotel cash without inferring unknown historical currency
+error: record "c" is not assigned yet
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/expense-documents-isolated.test.ts:90:5
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  07:17:43
+   Duration  423ms (tests 73%, transform 17%, import 9%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T07-17-42Z-integration-0d0d.json
+
+# код выхода 1 · 1 с

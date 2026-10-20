@@ -10,7 +10,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { chmodSync, statSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 const SCRIPT = resolve(import.meta.dirname, '../../scripts/ops/auto-deploy.sh');
 const TOKEN = 'tg-secret-token-123';
@@ -58,22 +58,11 @@ function run(env: Record<string, string> = {}, args: string[] = [], restrictiveM
 const dockerCalls = () => (existsSync(calls) ? readFileSync(calls, 'utf8') : '');
 const head = () => git(server, 'rev-parse', 'HEAD');
 
-beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'auto-deploy-'));
-  origin = join(dir, 'origin.git');
-  server = join(dir, 'server');
-  dev = join(dir, 'dev');
-  bin = join(dir, 'bin');
-  state = join(dir, 'state');
-  calls = join(dir, 'calls.log');
-  mkdirSync(bin);
-  git(dir, 'init', '-q', '--bare', origin);
-  git(dir, 'clone', '-q', origin, dev);
-  git(dev, 'config', 'user.email', 't@example.test');
-  git(dev, 'config', 'user.name', 'test');
-  commit('deploy/compose.yml', 'services: {}\n', 'init');
-  commit('packages/database/prisma/migrations/0001_init/migration.sql', 'select 1;\n', 'first migration');
-  git(dir, 'clone', '-q', '--branch', 'release', origin, server);
+// Подмены пишутся один раз на файл и запускаются один раз в beforeAll: macOS проверяет каждый новый исполняемый файл
+// при первом запуске (170 мс в покое, больше секунды под полным прогоном), и свежие подмены в каждом тесте упирали
+// его в 5 с (флейк 16.10.2026). Своё у теста только папка: журналы вызовов в FAKE_CALLS, клоны, состояние.
+beforeAll(() => {
+  bin = mkdtempSync(join(tmpdir(), 'auto-deploy-bin-'));
   // Подставной docker: пишет вызовы; «больна» сборка, когда в клоне стоит коммит из FAKE_BAD_SHA
   writeFileSync(
     join(bin, 'docker'),
@@ -81,6 +70,8 @@ beforeEach(() => {
 echo "docker $*" >> "$FAKE_CALLS"
 # Контейнер CI-раннера есть всегда; задачу он выполняет, когда задан FAKE_CI_BUSY (процесс Runner.Worker)
 if [ "$1" = ps ]; then echo ci1; exit 0; fi
+# Образы отката на «сервере»: теги из FAKE_ROLLBACK_TAGS
+if [ "$1" = images ]; then for t in \${FAKE_ROLLBACK_TAGS:-}; do echo "$t"; done; exit 0; fi
 if [ "$1" = top ]; then
   echo "UID PID CMD"
   echo "runner 10 /home/runner/actions-runner/bin/Runner.Listener run"
@@ -104,6 +95,13 @@ exit 0
   // auto-deploy runs on Linux, where util-linux provides flock. The test suite also runs on macOS,
   // so keep the server dependency inside the fake PATH instead of silently skipping every scenario.
   writeFileSync(join(bin, 'flock'), '#!/usr/bin/env bash\nexit 0\n');
+  // Подставной df: свободно столько килобайт, сколько в FAKE_DF_AVAIL_KB; без него настоящий df
+  writeFileSync(
+    join(bin, 'df'),
+    '#!/usr/bin/env bash\n[ -n "${FAKE_DF_AVAIL_KB:-}" ] || exec /bin/df "$@"\n' +
+      'echo "Filesystem 1024-blocks Used Available Capacity Mounted"\n' +
+      'echo "/dev/sda1 100000000 99000000 $FAKE_DF_AVAIL_KB 99% /"\n',
+  );
   // Keep retry/deadline logic real, but advance a synthetic shell clock instead of waiting.
   // Unsetting SECONDS removes Bash's wall-clock behavior; sleep advances this fixture's clock.
   writeFileSync(
@@ -119,6 +117,29 @@ sleep() {
   chmodSync(join(bin, 'docker'), 0o755);
   chmodSync(join(bin, 'curl'), 0o755);
   chmodSync(join(bin, 'flock'), 0o755);
+  chmodSync(join(bin, 'df'), 0o755);
+  // первый запуск каждой подмены здесь, а не в тесте; их журнал уходит в отдельную папку и сразу удаляется
+  const warm = mkdtempSync(join(tmpdir(), 'auto-deploy-warm-'));
+  for (const name of ['docker', 'curl', 'flock', 'df'])
+    spawnSync(join(bin, name), [], { env: { ...process.env, FAKE_CALLS: join(warm, 'calls.log'), FAKE_DF_AVAIL_KB: '1' } });
+  rmSync(warm, { recursive: true, force: true });
+}, 60_000);
+afterAll(() => rmSync(bin, { recursive: true, force: true }));
+
+beforeEach(() => {
+  dir = mkdtempSync(join(tmpdir(), 'auto-deploy-'));
+  origin = join(dir, 'origin.git');
+  server = join(dir, 'server');
+  dev = join(dir, 'dev');
+  state = join(dir, 'state');
+  calls = join(dir, 'calls.log');
+  git(dir, 'init', '-q', '--bare', origin);
+  git(dir, 'clone', '-q', origin, dev);
+  git(dev, 'config', 'user.email', 't@example.test');
+  git(dev, 'config', 'user.name', 'test');
+  commit('deploy/compose.yml', 'services: {}\n', 'init');
+  commit('packages/database/prisma/migrations/0001_init/migration.sql', 'select 1;\n', 'first migration');
+  git(dir, 'clone', '-q', '--branch', 'release', origin, server);
 });
 
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
@@ -155,6 +176,35 @@ describe('scripts/ops/auto-deploy.sh', () => {
     expect(readFileSync(`${calls}.curl`, 'utf8')).not.toContain(TOKEN);
     // второй запуск — выкладывать нечего
     expect(run().out).toBe('');
+  });
+
+  it('после выкладки остаётся один образ отката, старые убираются (16.10.2026: пять по 2 ГБ заполнили диск)', () => {
+    const before = head();
+    commit('apps/web/page.txt', 'v2\n', 'new page');
+    const keep = `rollback-${before.slice(0, 8)}`;
+    const r = run({ FAKE_ROLLBACK_TAGS: `rollback-aaaa1111 rollback-bbbb2222 ${keep}` });
+    expect(r.code, r.out).toBe(0);
+    expect(dockerCalls()).toContain('docker image rm pms-lux:rollback-aaaa1111');
+    expect(dockerCalls()).toContain('docker image rm pms-lux:rollback-bbbb2222');
+    expect(dockerCalls()).not.toContain(`docker image rm pms-lux:${keep}`);
+  });
+
+  it('мало места на диске: убирает кэш, не трогает клон, говорит один раз и выкладывает, когда место есть', () => {
+    const before = head();
+    const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+    const low = run({ FAKE_DF_AVAIL_KB: String(1024 * 1024) });
+    expect(low.code).toBe(1);
+    expect(low.out).toContain('меньше 6 ГБ');
+    expect(dockerCalls()).toContain('docker builder prune -f');
+    expect(dockerCalls()).not.toContain('up -d');
+    expect(head()).toBe(before);
+    expect(git(server, 'status', '--porcelain', '--untracked-files=no')).toBe('');
+    // пока места нет: без повторной тревоги
+    expect(run({ FAKE_DF_AVAIL_KB: String(1024 * 1024) }).out).toBe('');
+    // место освободили: следующий запуск выкладывает сам, без отметки refused
+    const ok = run({ FAKE_DF_AVAIL_KB: String(50 * 1024 * 1024) });
+    expect(ok.code, ok.out).toBe(0);
+    expect(head()).toBe(target);
   });
 
   it('в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца', () => {

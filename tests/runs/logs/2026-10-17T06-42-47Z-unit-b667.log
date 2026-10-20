@@ -1,0 +1,755 @@
+# Модульные (unit) · 17.10.2026 11:42 Алматы · <сервер>
+# коммит 0766123 (fix/tz21-working-time), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T06-42-47Z-unit-b667.json' 'tests/unit/tz21-week-editors.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-working-time/tree
+
+ ❯ |unit| tests/unit/tz21-week-editors.test.ts (2 tests | 2 failed) 40ms
+   ❯ TZ2.1 weekly editor wire contract (2)
+     × Food carries the original read token through form, action and client, and uses its own reread 32ms
+     × shared form never replaces a draft or revision on refusal and offers explicit comparison 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/tz21-week-editors.test.ts > TZ2.1 weekly editor wire contract > Food carries the original read token through form, action and client, and uses its own reread
+AssertionError: expected '\'use client\';\nimport { useState } …' to contain 'expectedRevision={editing.weekRevisio…'
+
+- Expected
++ Received
+
+- expectedRevision={editing.weekRevision}
++ 'use client';
++ import { useState } from 'react';
++ import { useRouter } from 'next/navigation';
++ import { Overlay } from '../../components/overlay';
++ import { Button, Table } from '../../components/ui';
++ import type { FoodShiftRow } from '../../lib/food-types';
++ import { WeekForm } from '../beauty/schedule/board';
++ import { saveFoodShifts } from './restaurant-actions';
++
++ const DAYS: Record<number, string> = { 1: 'Пн', 2: 'Вт', 3: 'Ср', 4: 'Чт', 5: 'Пт', 6: 'Сб', 0: 'Вс' };
++
++ /** График смен ресторана (Q-REST-11): неделя каждого сотрудника, правка той же формой недели, что у салона */
++ export function ShiftsBoard({
++   scopeKey,
++   write,
++   employees,
++ }: {
++   scopeKey: string;
++   write: boolean;
++   employees: FoodShiftRow[];
++ }) {
++   const router = useRouter();
++   const [editing, setEditing] = useState<FoodShiftRow | null>(null);
++   const days = employees[0]?.week.map((d) => d.weekday) ?? [1, 2, 3, 4, 5, 6, 0];
++   if (!employees.length) return <p className="muted">Добавьте сотрудников на вкладке «Сотрудники».</p>;
++   return (
++     <>
++       <Table>
++         <thead>
++           <tr>
++             <th scope="col">Сотрудник</th>
++             {days.map((d) => (
++               <th scope="col" key={d}>
++                 {DAYS[d]}
++               </th>
++             ))}
++             {write && (
++               <th scope="col">
++                 <span className="sr-only">Действия</span>
++               </th>
++             )}
++           </tr>
++         </thead>
++         <tbody>
++           {employees.map((e) => (
++             <tr key={e.id}>
++               <th scope="row">{e.name}</th>
++               {e.week.map((day) => (
++                 <td key={day.weekday}>
++                   {day.intervals.length ? (
++                     day.intervals.map((i) => <div key={i.timeFrom}>{`${i.timeFrom}–${i.timeTo}`}</div>)
++                   ) : (
++                     <span className="muted">Выходной</span>
++                   )}
++                 </td>
++               ))}
++               {write && (
++                 <td>
++                   <Button size="sm" tone="secondary" onClick={() => setEditing(e)}>
++                     Изменить график
++                   </Button>
++                 </td>
++               )}
++             </tr>
++           ))}
++         </tbody>
++       </Table>
++       <Overlay open={editing !== null} onClose={() => setEditing(null)} title={`График: ${editing?.name ?? ''}`} drawer>
++         {editing && (
++           <WeekForm
++             employeeId={editing.id}
++             week={editing.week}
++             save={saveFoodShifts.bind(null, scopeKey)}
++             onSaved={async () => router.refresh()}
++           />
++         )}
++       </Overlay>
++     </>
++   );
++ }
++
+
+ ❯ tests/unit/tz21-week-editors.test.ts:6:62
+      4| describe('TZ2.1 weekly editor wire contract', () => {
+      5|   it('Food carries the original read token through form, action and cl…
+      6|     expect(source('apps/web/src/app/food/shifts-board.tsx')).toContain…
+       |                                                              ^
+      7|     expect(source('apps/web/src/app/food/shifts-board.tsx')).toContain…
+      8|     expect(source('apps/web/src/app/food/restaurant-actions.ts')).toCo…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/tz21-week-editors.test.ts > TZ2.1 weekly editor wire contract > shared form never replaces a draft or revision on refusal and offers explicit comparison
+AssertionError: expected '\'use client\';\nimport Link from \'n…' to contain 'loadCurrent'
+
+- Expected
++ Received
+
+- loadCurrent
++ 'use client';
++ import Link from 'next/link';
++ import { useActionState, useEffect, useState, useTransition } from 'react';
++ import { parseTimeOffInput, parseWorkingHoursWeek } from '@pms/domain';
++ import { useConfirm } from '../../../components/use-confirm';
++ import { Overlay } from '../../../components/overlay';
++ import { Alert, Button, Field, Input, Select, Table } from '../../../components/ui';
++ import { pluralRu } from '../../../lib/plural';
++ import type { BeautySchedule, BeautyWorkingInterval } from '../../../lib/api';
++ import {
++   addBeautyTimeOff,
++   removeBeautyTimeOff,
++   saveBeautyEmployeeLocations,
++   saveBeautyWorkingHours,
++   loadBeautySchedule,
++ } from '../actions';
++
++ /**
++  * График мастера (срез B4, Q-251): неделя в этом филиале, отсутствия и филиалы мастера.
++  *
++  * Неделя уходит на сервер одним списком интервалов: он заменяет прежний график, поэтому убранная строка
++  * убирается, а не копится. Проверка перед отправкой идёт тем же разбором домена, что и на сервере, чтобы
++  * ввод не стирался отказом (так же сделано в срезах SET3 и B3).
++  */
++
++ const DAYS: Record<number, string> = {
++   1: 'Понедельник',
++   2: 'Вторник',
++   3: 'Среда',
++   4: 'Четверг',
++   5: 'Пятница',
++   6: 'Суббота',
++   0: 'Воскресенье',
++ };
++
++ type Slot = { timeFrom: string; timeTo: string };
++
++ export function ScheduleBoard({ data, canEdit }: { data: BeautySchedule; canEdit: boolean }) {
++   const [editing, setEditing] = useState<'week' | 'timeOff' | 'locations' | null>(null);
++   const master = data.employee;
++
++   if (!master)
++     return (
++       <section className="beauty-section" data-testid="beauty-schedule-empty">
++         <div className="beauty-bar">
++           <h2>Неделя</h2>
++           {canEdit && (
++             <Link className="btn btn--secondary" href="/employees">
++               Добавить мастера
++             </Link>
++           )}
++         </div>
++         <p className="beauty-note">Выберите или добавьте мастера, чтобы настроить рабочие часы.</p>
++         <Table className="beauty-week-table">
++           <thead>
++             <tr>
++               <th>День</th>
++               <th>Работает</th>
++             </tr>
++           </thead>
++           <tbody>
++             {[1, 2, 3, 4, 5, 6, 0].map((weekday) => (
++               <tr key={weekday}>
++                 <td>{DAYS[weekday]}</td>
++                 <td>Не настроено</td>
++               </tr>
++             ))}
++           </tbody>
++         </Table>
++       </section>
++     );
++
++   const hours = data.week.reduce((sum, day) => sum + minutesOf(day.intervals), 0);
++   return (
++     <>
++       <form className="beauty-pick" method="get" action="/beauty/schedule">
++         <Field label="Мастер">
++           <Select name="employee" defaultValue={master.id} data-testid="beauty-schedule-master">
++             {data.employees.map((e) => (
++               <option key={e.id} value={e.id}>
++                 {e.name}
++                 {e.active ? '' : ' (в архиве)'}
++               </option>
++             ))}
++           </Select>
++         </Field>
++         <Button type="submit" tone="secondary">
++           Показать
++         </Button>
++       </form>
++
++       <p role="status" data-testid="beauty-schedule-summary">
++         {master.worksHere
++           ? hours === 0
++             ? 'График в этом филиале не задан: мастер здесь не принимает'
++             : `В неделю ${weekText(hours)} в этом филиале`
++           : 'Мастер в этом филиале не работает: поставьте его в филиал, тогда появится график'}
++       </p>
++
++       <section className="beauty-section">
++         <div className="beauty-bar">
++           <h2>Неделя</h2>
++           {canEdit && master.worksHere && (
++             <Button type="button" onClick={() => setEditing('week')}>
++               Изменить график
++             </Button>
++           )}
++         </div>
++         <Table className="beauty-week-table">
++           <thead>
++             <tr>
++               <th>День</th>
++               <th>Работает</th>
++             </tr>
++           </thead>
++           <tbody>
++             {data.week.map((day) => (
++               <tr key={day.weekday}>
++                 <td>{DAYS[day.weekday]}</td>
++                 <td>
++                   {day.intervals.length === 0
++                     ? 'Выходной'
++                     : day.intervals.map((i) => `${i.timeFrom} до ${i.timeTo}`).join(', ')}
++                 </td>
++               </tr>
++             ))}
++           </tbody>
++         </Table>
++       </section>
++
++       <section className="beauty-section">
++         <div className="beauty-bar">
++           <h2>Нерабочие дни</h2>
++           {canEdit && (
++             <Button type="button" tone="secondary" onClick={() => setEditing('timeOff')}>
++               Добавить нерабочие дни
++             </Button>
++           )}
++         </div>
++         <p className="beauty-note">
++           Исключения на даты: отпуск, больничный, обучение. Действуют во всех филиалах.
++           Регулярные выходные задаются в разделе «График». Уже созданные записи не отменяются автоматически.
++         </p>
++         {data.timeOffs.length === 0 ? (
++           <p data-testid="beauty-timeoffs-empty">Нерабочих периодов впереди нет</p>
++         ) : (
++           <TimeOffTable employeeId={master.id} rows={data.timeOffs} canEdit={canEdit} />
++         )}
++       </section>
++
++       <section className="beauty-section">
++         <div className="beauty-bar">
++           <h2>Филиалы мастера</h2>
++           {canEdit && data.locations.length > 0 && (
++             <Button type="button" tone="secondary" onClick={() => setEditing('locations')}>
++               Изменить филиалы
++             </Button>
++           )}
++         </div>
++         <p data-testid="beauty-schedule-locations">
++           {data.locations.filter((l) => l.assigned).length === 0
++             ? 'Мастер пока не поставлен ни в один филиал'
++             : data.locations
++                 .filter((l) => l.assigned)
++                 .map((l) => l.name)
++                 .join(', ')}
++         </p>
++       </section>
++
++       <Overlay
++         open={editing === 'week'}
++         onClose={() => setEditing(null)}
++         title={`График: ${master.name}`}
++         drawer
++       >
++         {editing === 'week' && (
++           <WeekForm
++             employeeId={master.id}
++             week={data.week}
++             expectedRevision={data.weekRevision ?? undefined}
++             scopeKey={data.location?.id ?? ''}
++           />
++         )}
++       </Overlay>
++       <Overlay
++         open={editing === 'timeOff'}
++         onClose={() => setEditing(null)}
++         title={`Нерабочие дни: ${master.name}`}
++         drawer
++       >
++         {editing === 'timeOff' && <TimeOffForm employeeId={master.id} />}
++       </Overlay>
++       <Overlay
++         open={editing === 'locations'}
++         onClose={() => setEditing(null)}
++         title={`Филиалы: ${master.name}`}
++         drawer
++       >
++         {editing === 'locations' && (
++           <LocationsForm employeeId={master.id} locations={data.locations} />
++         )}
++       </Overlay>
++     </>
++   );
++ }
++
++ export function WeekForm({
++   employeeId,
++   onSaved,
++   week,
++   save = saveBeautyWorkingHours,
++   expectedRevision,
++   scopeKey = '',
++ }: {
++   scopeKey?: string | undefined;
++   employeeId: string;
++   expectedRevision?: string | undefined;
++   onSaved?: () => Promise<void>;
++   week: BeautySchedule['week'];
++   /** Действие сохранения недели: салонное по умолчанию, ресторан передаёт своё (Q-REST-11) */
++   save?: typeof saveBeautyWorkingHours;
++ }) {
++   const [state, action, pending] = useActionState(
++     async (prev: Awaited<ReturnType<typeof saveBeautyWorkingHours>> | null, form: FormData) => {
++       const result = await save(prev, form);
++       if (!result.error) await onSaved?.();
++       return result;
++     },
++     null,
++   );
++   const [originalRevision, setOriginalRevision] = useState(expectedRevision);
++   const [comparison, setComparison] = useState<BeautySchedule | null>(null);
++   const [checking, check] = useTransition();
++   useEffect(() => {
++     if (state?.revision) setOriginalRevision(state.revision);
++   }, [state?.revision]);
++   const [error, setError] = useState<string | null>(null);
++   const [slots, setSlots] = useState<Record<number, Slot[]>>(() =>
++     Object.fromEntries(week.map((day) => [day.weekday, day.intervals.map((i) => ({ ...i }))])),
++   );
++
++   const intervals: BeautyWorkingInterval[] = week.flatMap((day) =>
++     (slots[day.weekday] ?? [])
++       .filter((s) => s.timeFrom || s.timeTo)
++       .map((s) => ({ weekday: day.weekday, timeFrom: s.timeFrom, timeTo: s.timeTo })),
++   );
++
++   const change = (weekday: number, index: number, patch: Partial<Slot>) =>
++     setSlots((prev) => ({
++       ...prev,
++       [weekday]: (prev[weekday] ?? []).map((s, i) => (i === index ? { ...s, ...patch } : s)),
++     }));
++
++   return (
++     <form
++       action={action}
++       className="beauty-form"
++       onSubmit={(event) => {
++         // тем же разбором, что на сервере: отказ не должен стирать уже набранную неделю
++         const parsed = parseWorkingHoursWeek({ intervals });
++         if (!parsed.ok) {
++           event.preventDefault();
++           setError(parsed.reason);
++           return;
++         }
++         setError(null);
++       }}
++     >
++       <input type="hidden" name="id" value={employeeId} />
++       <input type="hidden" name="intervals" value={JSON.stringify(intervals)} />
++       <input type="hidden" name="scopeKey" value={scopeKey} />
++       {(originalRevision ?? state?.revision) && (
++         <input type="hidden" name="expectedRevision" value={originalRevision ?? state?.revision} />
++       )}
++       <p className="beauty-note">Это обычный недельный график: он повторяется каждую неделю. Дни без интервалов: регулярные выходные. Отпуск и другие исключения на даты задайте в разделе «Нерабочие дни».</p>
++       {week.map((day) => {
++         const rows = slots[day.weekday] ?? [];
++         return (
++           <div
++             key={day.weekday}
++             role="group"
++             aria-label={DAYS[day.weekday]}
++             className="beauty-week-row"
++           >
++             <span className="beauty-week-name">{DAYS[day.weekday]}</span>
++             <div className="beauty-week-slots">
++               {rows.length === 0 && <span className="beauty-note">Выходной</span>}
++               {rows.map((slot, index) => (
++                 <span key={index} className="beauty-week-slot">
++                   <span aria-hidden="true">С</span>
++                   <Input
++                     className="beauty-time"
++                     value={slot.timeFrom}
++                     inputMode="numeric"
++                     placeholder="09:00"
++                     aria-label={`${DAYS[day.weekday]}: начало`}
++                     onChange={(e) => change(day.weekday, index, { timeFrom: e.target.value })}
++                   />
++                   <span aria-hidden="true">До</span>
++                   <Input
++                     className="beauty-time"
++                     value={slot.timeTo}
++                     inputMode="numeric"
++                     placeholder="18:00"
++                     aria-label={`${DAYS[day.weekday]}: конец`}
++                     onChange={(e) => change(day.weekday, index, { timeTo: e.target.value })}
++                   />
++                   <Button
++                     type="button"
++                     size="sm"
++                     tone="secondary"
++                     aria-label={`${DAYS[day.weekday]}: убрать интервал`}
++                     onClick={() =>
++                       setSlots((prev) => ({
++                         ...prev,
++                         [day.weekday]: (prev[day.weekday] ?? []).filter((_, i) => i !== index),
++                       }))
++                     }
++                   >
++                     Убрать
++                   </Button>
++                 </span>
++               ))}
++               <Button
++                 type="button"
++                 size="sm"
++                 tone="secondary"
++                 onClick={() =>
++                   setSlots((prev) => ({
++                     ...prev,
++                     [day.weekday]: [...(prev[day.weekday] ?? []), { timeFrom: '', timeTo: '' }],
++                   }))
++                 }
++               >
++                 {rows.length === 0 ? 'Сделать рабочим' : 'Ещё интервал'}
++               </Button>
++             </div>
++           </div>
++         );
++       })}
++       {(error ?? state?.error) && <Alert>{error ?? state?.error}</Alert>}
++       {!error && state?.message && <p role="status">{state.message}</p>}
++       {state?.error && scopeKey && (
++         <Button
++           type="button"
++           tone="secondary"
++           disabled={checking}
++           onClick={() =>
++             check(async () => {
++               const result = await loadBeautySchedule(employeeId);
++               if (result.data?.location?.id !== scopeKey) return;
++               setComparison(result.data);
++             })
++           }
++         >
++           Сравнить с актуальным графиком
++         </Button>
++       )}
++       {comparison && (
++         <section className="panel">
++           <h3>Сохранено на сервере</h3>
++           <ul>
++             {comparison.week.map((day) => (
++               <li key={day.weekday}>
++                 {DAYS[day.weekday]}:{' '}
++                 {day.intervals.map((i) => `${i.timeFrom} до ${i.timeTo}`).join(', ') || 'Выходной'}
++               </li>
++             ))}
++           </ul>
++           <p>Ваш ввод остаётся в форме; он не отправлен поверх чужих изменений.</p>
++           <Button
++             type="button"
++             tone="secondary"
++             onClick={() => {
++               setSlots(
++                 Object.fromEntries(
++                   comparison.week.map((d) => [d.weekday, d.intervals.map((i) => ({ ...i }))]),
++                 ),
++               );
++               setOriginalRevision(comparison.weekRevision ?? undefined);
++               setComparison(null);
++             }}
++           >
++             Принять сохранённый график
++           </Button>
++         </section>
++       )}
++
++       <Button type="submit" disabled={pending}>
++         {pending ? 'Сохраняем…' : 'Сохранить график'}
++       </Button>
++     </form>
++   );
++ }
++
++ export function TimeOffForm({
++   employeeId,
++   onSaved,
++ }: {
++   employeeId: string;
++   onSaved?: () => Promise<void>;
++ }) {
++   const [state, action, pending] = useActionState(
++     async (prev: Awaited<ReturnType<typeof addBeautyTimeOff>> | null, form: FormData) => {
++       const result = await addBeautyTimeOff(prev, form);
++       if (!result.error) await onSaved?.();
++       return result;
++     },
++     null,
++   );
++   const [error, setError] = useState<string | null>(null);
++   return (
++     <form
++       action={action}
++       className="beauty-form"
++       onSubmit={(event) => {
++         const data = new FormData(event.currentTarget);
++         const parsed = parseTimeOffInput({
++           dateFrom: String(data.get('dateFrom') ?? ''),
++           dateTo: String(data.get('dateTo') ?? ''),
++           reason: String(data.get('reason') ?? ''),
++         });
++         if (!parsed.ok) {
++           event.preventDefault();
++           setError(parsed.reason);
++           return;
++         }
++         setError(null);
++       }}
++     >
++       <p className="beauty-note">Исключения на даты: отпуск, больничный, обучение. Регулярные выходные: в разделе «График». Уже созданные записи не отменяются автоматически. После удаления исключения обычный недельный график продолжает действовать.</p>
++       <input type="hidden" name="id" value={employeeId} />
++       <Field label="С какого дня">
++         <Input name="dateFrom" type="date" required />
++       </Field>
++       <Field label="По какой день включительно">
++         <Input name="dateTo" type="date" required />
++       </Field>
++       <Field
++         label={
++           <span>
++             Причина <small className="beauty-note">необязательно</small>
++           </span>
++         }
++       >
++         <Input name="reason" maxLength={200} placeholder="отпуск, учёба, больничный" />
++       </Field>
++       {(error ?? state?.error) && <Alert>{error ?? state?.error}</Alert>}
++       {!error && state?.message && <p role="status">{state.message}</p>}
++       <Button type="submit" disabled={pending}>
++         {pending ? 'Сохраняем…' : 'Добавить отсутствие'}
++       </Button>
++     </form>
++   );
++ }
++
++ export function TimeOffTable({
++   employeeId,
++   rows,
++   canEdit,
++   onSaved,
++ }: {
++   employeeId: string;
++   rows: BeautySchedule['timeOffs'];
++   canEdit: boolean;
++   onSaved?: () => Promise<void>;
++ }) {
++   const { ask, dialog } = useConfirm();
++   const [pending, startTransition] = useTransition();
++   const [error, setError] = useState<string | null>(null);
++
++   const remove = async (id: string, label: string) => {
++     const ok = await ask({
++       title: `Снять отсутствие ${label}?`,
++       body: 'Мастер снова будет считаться работающим в эти дни.',
++       confirmLabel: 'Снять отсутствие',
++       tone: 'danger',
++     });
++     if (!ok) return;
++     startTransition(async () => {
++       const result = await removeBeautyTimeOff(employeeId, id);
++       setError(result.error ?? null);
++       if (!result.error) await onSaved?.();
++     });
++   };
++
++   return (
++     <>
++       <Table>
++         <thead>
++           <tr>
++             <th>Когда</th>
++             <th>Причина</th>
++             <th>Записи в эти дни</th>
++             {canEdit && <th className="sr-only">Действия</th>}
++           </tr>
++         </thead>
++         <tbody>
++           {rows.map((row) => (
++             <tr key={row.id}>
++               <td>
++                 {row.dateFrom === row.dateTo
++                   ? dayText(row.dateFrom)
++                   : `${dayText(row.dateFrom)} до ${dayText(row.dateTo)}`}
++               </td>
++               <td>{row.reason ?? 'Не указана'}</td>
++               <td>
++                 {row.appointments === 0
++                   ? 'Записей нет'
++                   : pluralRu(row.appointments, ['запись', 'записи', 'записей'])}
++               </td>
++               {canEdit && (
++                 <td>
++                   <Button
++                     type="button"
++                     size="sm"
++                     tone="secondary"
++                     disabled={pending}
++                     onClick={() =>
++                       void remove(
++                         row.id,
++                         row.dateFrom === row.dateTo
++                           ? dayText(row.dateFrom)
++                           : `${dayText(row.dateFrom)} до ${dayText(row.dateTo)}`,
++                       )
++                     }
++                   >
++                     Убрать
++                   </Button>
++                 </td>
++               )}
++             </tr>
++           ))}
++         </tbody>
++       </Table>
++       {error && <Alert>{error}</Alert>}
++       {dialog}
++     </>
++   );
++ }
++
++ export function LocationsForm({
++   employeeId,
++   onSaved,
++   locations,
++ }: {
++   employeeId: string;
++   onSaved?: () => Promise<void>;
++   locations: BeautySchedule['locations'];
++ }) {
++   const [state, action, pending] = useActionState(
++     async (
++       prev: Awaited<ReturnType<typeof saveBeautyEmployeeLocations>> | null,
++       form: FormData,
++     ) => {
++       const result = await saveBeautyEmployeeLocations(prev, form);
++       if (!result.error) await onSaved?.();
++       return result;
++     },
++     null,
++   );
++   return (
++     <form action={action} className="beauty-form">
++       <input type="hidden" name="id" value={employeeId} />
++       <fieldset className="beauty-skills">
++         <legend>Где мастер работает</legend>
++         {locations.map((location) => (
++           <label key={location.id} className="beauty-check">
++             <input
++               type="checkbox"
++               name="locationIds"
++               value={location.id}
++               defaultChecked={location.assigned}
++             />
++             {location.name}
++           </label>
++         ))}
++       </fieldset>
++       <p className="beauty-note">
++         Снятый филиал забирает и график мастера в нём. Если там остались будущие записи, филиал не
++         снимется: сначала разберитесь с записями.
++       </p>
++       {state?.error && <Alert>{state.error}</Alert>}
++       {state?.message && <p role="status">{state.message}</p>}
++       <Button type="submit" disabled={pending}>
++         {pending ? 'Сохраняем…' : 'Сохранить филиалы'}
++       </Button>
++     </form>
++   );
++ }
++
++ /** «9 часов», «9 часов 30 минут»: округлять до часов нельзя, полчаса смены это полчаса смены */
++ function weekText(minutes: number): string {
++   const h = Math.floor(minutes / 60);
++   const m = minutes % 60;
++   const hours = pluralRu(h, ['час', 'часа', 'часов']);
++   const rest = pluralRu(m, ['минута', 'минуты', 'минут']);
++   if (h === 0) return rest;
++   return m === 0 ? hours : `${hours} ${rest}`;
++ }
++
++ function minutesOf(intervals: Array<{ timeFrom: string; timeTo: string }>): number {
++   return intervals.reduce((sum, i) => sum + Math.max(0, clock(i.timeTo) - clock(i.timeFrom)), 0);
++ }
++
++ function clock(value: string): number {
++   const [hh, mm] = value.split(':');
++   return Number(hh) * 60 + Number(mm);
++ }
++
++ /** «2026-10-12» в «12.10.2026»: даты человеку всегда в его виде (DESIGN.md) */
++ function dayText(date: string): string {
++   const [y, m, d] = date.split('-');
++   return `${d}.${m}.${y}`;
++ }
++
+
+ ❯ tests/unit/tz21-week-editors.test.ts:13:18
+     11|   it('shared form never replaces a draft or revision on refusal and of…
+     12|     const form = source('apps/web/src/app/beauty/schedule/board.tsx');
+     13|     expect(form).toContain('loadCurrent');
+       |                  ^
+     14|     expect(form).toContain('Сравнить с актуальным графиком');
+     15|     expect(form).toContain('Принять сохранённый график');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  06:42:49
+   Duration  379ms (transform 44%, tests 30%, import 20%, worker 6%)
+
+JSON report written to /tmp/pms-test-2026-10-17T06-42-47Z-unit-b667.json
+
+# код выхода 1 · 2 с

@@ -1,3 +1,4 @@
+import { requireFeature } from '../../../lib/vertical-guard';
 import Link from 'next/link';
 import { analyticsApi, reservationsApi, type TrackedSiteCard } from '../../../lib/api';
 import { hotelApi, type HotelSettings } from '../../../lib/hotel-api';
@@ -16,6 +17,8 @@ import '../website.css';
  * с источником «сайт», без предоплаты. Настраивается только то, что есть в модели: включение и тариф сайта.
  */
 export default async function WebsiteBookingPage() {
+  // сайт и онлайн-бронь гостиницы; у салона и ресторана сайт в «Продвижении» (аудит 17.10.2026, Д11)
+  await requireFeature('/website/booking');
   const sites = await analyticsApi.sites();
   const [all, plans, settings] = await Promise.all([
     Promise.all(sites.map((s) => analyticsApi.card(s.id))),

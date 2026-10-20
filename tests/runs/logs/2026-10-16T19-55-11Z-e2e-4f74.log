@@ -1,0 +1,22 @@
+# Сквозные (e2e) · 17.10.2026 00:55 Алматы · <сервер>
+# коммит c46ef1c (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 43
+# npx playwright test --workers=2 --reporter=list,json '--config' '/srv/hermes/workspace/wetop-portal-release-evidence-61af/quality-playwright.config.cjs' '--workers=1'
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/employee-portal-ui/site-booking.spec.ts:107:3 › generated public form in a real DOM (intercepted HTTP only) › prefills profile IDs, queries an explicit master, renders only canonical slots/timezone/price and posts a backend-accepted ISO (570ms)
+  ✓   2 tests/employee-portal-ui/site-booking.spec.ts:131:3 › generated public form in a real DOM (intercepted HTTP only) › populates a missing service/staff from canonical response without silently changing profile target (319ms)
+  ✓   3 tests/employee-portal-ui/site-booking.spec.ts:142:3 › generated public form in a real DOM (intercepted HTTP only) › clears selected slots immediately on date/service/master changes; any master requires a visible choice (464ms)
+  ✓   4 tests/employee-portal-ui/site-booking.spec.ts:166:3 › generated public form in a real DOM (intercepted HTTP only) › fails closed on empty/error/ineligible responses and retains unavailable URL master (never any fallback) (409ms)
+  ✓   5 tests/employee-portal-ui/site-booking.spec.ts:183:3 › generated public form in a real DOM (intercepted HTTP only) › reuses request UUID, captcha, honeypot on network retry and clears stale slots on conflict without success (502ms)
+  ✓   6 tests/employee-portal-ui/site-booking.spec.ts:205:5 › generated public form in a real DOM (intercepted HTTP only) › recovers from definitive 409 with a fresh CAPTCHA and the same request key (520ms)
+  ✓   7 tests/employee-portal-ui/site-booking.spec.ts:205:5 › generated public form in a real DOM (intercepted HTTP only) › recovers from definitive 403 with a fresh CAPTCHA and the same request key (518ms)
+  ✓   8 tests/employee-portal-ui/site-booking.spec.ts:235:3 › generated public form in a real DOM (intercepted HTTP only) › does not claim a booking on an empty successful HTTP response and retries with the same key (472ms)
+  ✓   9 tests/employee-portal-ui/site-booking.spec.ts:250:3 › generated public form in a real DOM (intercepted HTTP only) › retains invalid URL master until an explicit visible alternative is chosen (322ms)
+  ✓  10 tests/employee-portal-ui/site-booking.spec.ts:264:3 › generated public form in a real DOM (intercepted HTTP only) › preserves an offset ISO verbatim and rejects slots for a different master or without a zone (476ms)
+  ✓  11 tests/employee-portal-ui/site-booking.spec.ts:288:5 › generated public form in a real DOM (intercepted HTTP only) › preserves CALLBACK submission and does not fetch Beauty slots or apply URL targeting (301ms)
+  ✓  12 tests/employee-portal-ui/site-booking.spec.ts:288:5 › generated public form in a real DOM (intercepted HTTP only) › preserves TABLE_RESERVATION submission and does not fetch Beauty slots or apply URL targeting (355ms)
+
+  12 passed (6.8s)
+
+# код выхода 0 · 8 с

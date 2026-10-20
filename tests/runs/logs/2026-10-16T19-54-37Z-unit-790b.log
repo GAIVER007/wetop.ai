@@ -1,0 +1,101 @@
+# Модульные (unit) · 17.10.2026 00:54 Алматы · <сервер>
+# коммит c46ef1c (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 49
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T19-54-37Z-unit-790b.json' 'tests/unit/employee-portal-portability.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-portal-release-61af7b90
+
+ ❯ |unit| tests/unit/employee-portal-portability.test.ts (8 tests | 1 failed) 13ms
+   ❯ portable employee portal acceptance (8)
+     ✓ has no machine-specific fixture or evidence paths 2ms
+     ✓ allows endpoint and repo-relative evidence overrides 1ms
+     ✓ creates a private unique storage root in the OS temporary directory 0ms
+     ✓ uses the shared strict database guard in integration 0ms
+     × provides a portable serial config selecting all nine unskipped portal scenarios 6ms
+     ✓ starts real fixture and web test servers with fixture-only test NODE_ENV 1ms
+     ✓ takes optional browser and Turbopack paths only from the environment 0ms
+     ✓ dispatches the portal config through the existing full-gate UI matrix 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/employee-portal-portability.test.ts > portable employee portal acceptance > provides a portable serial config selecting all nine unskipped portal scenarios
+AssertionError: expected 'import { defineConfig } from \'@playw…' to match /testMatch:\s*['"]portal\.spec\.mjs['"]/
+
+- Expected:
+/testMatch:\s*['"]portal\.spec\.mjs['"]/
+
++ Received:
+"import { defineConfig } from '@playwright/test';
+import { fileURLToPath } from 'node:url';
+
+const api = process.env.PORTAL_API_URL || 'http://127.0.0.1:26831';
+const web = process.env.PORTAL_WEB_URL || 'http://127.0.0.1:27036';
+// Servers and synthetic authentication cookies are deliberately loopback-only.
+for (const endpoint of [api, web]) {
+  const url = new URL(endpoint);
+  if (url.protocol !== 'http:' || !['127.0.0.1', 'localhost'].includes(url.hostname)
+    || url.username || url.password || url.pathname !== '/' || url.search || url.hash) {
+    throw new Error('Portal acceptance requires loopback HTTP origins');
+  }
+}
+const apiPort = new URL(api).port || '80';
+const webPort = new URL(web).port || '80';
+const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+const turbopackRoot = process.env.NEXT_TEST_TURBOPACK_ROOT;
+const cwd = fileURLToPath(new URL('../../', import.meta.url));
+
+export default defineConfig({
+  testDir: '.',
+  // sections.spec.ts uses the older Beauty fixture contract, not the portal fixture.
+  testMatch: ['portal.spec.mjs', 'site-booking.spec.ts'],
+  workers: 1,
+  timeout: 90000,
+  use: {
+    baseURL: web,
+    viewport: { width: 1440, height: 1000 },
+    trace: 'retain-on-failure',
+    ...(executablePath ? { launchOptions: { executablePath } } : {}),
+  },
+  webServer: [
+    {
+      command: 'npx tsx --tsconfig apps/api/tsconfig.json tests/employee-portal-ui/fixture-api.ts',
+      cwd,
+      url: `${api}/__test/health`,
+      reuseExistingServer: false,
+      env: { EMPLOYEE_PORTAL_API_PORT: apiPort, NODE_ENV: 'test', APP_ALLOW_TEST_DATA: '1' },
+    },
+    {
+      command: `npm exec -w apps/web -- next dev --port ${webPort} --hostname 127.0.0.1`,
+      cwd,
+      url: `${web}/register`,
+      reuseExistingServer: false,
+      timeout: 120000,
+      env: {
+        APP_API_URL: api,
+        APP_ALLOW_TEST_DATA: '1',
+        APP_URL: web,
+        ...(turbopackRoot ? { NEXT_TEST_TURBOPACK_ROOT: turbopackRoot } : {}),
+      },
+    },
+  ],
+});
+"
+
+ ❯ tests/unit/employee-portal-portability.test.ts:41:22
+     39|   it('provides a portable serial config selecting all nine unskipped p…
+     40|     expect(existsSync(new URL(configPath, root)), fileURLToPath(new UR…
+     41|     expect(config()).toMatch(/testMatch:\s*['"]portal\.spec\.mjs['"]/);
+       |                      ^
+     42|     expect(config()).toMatch(/workers:\s*1/);
+     43|     const portal = read('tests/employee-portal-ui/portal.spec.mjs');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  19:54:38
+   Duration  187ms (transform 51%, tests 23%, import 19%, worker 6%)
+
+JSON report written to /tmp/pms-test-2026-10-16T19-54-37Z-unit-790b.json
+
+# код выхода 1 · 1 с

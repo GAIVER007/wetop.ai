@@ -1,0 +1,80 @@
+# Модульные (unit) · 16.10.2026 12:36 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T07-36-22Z-unit-4abd.json' 'apps/api/src/finance/expense-documents-api.test.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| apps/api/src/finance/expense-documents-api.test.ts (10 tests | 4 failed) 19ms
+   ❯ expense API safe defaults (10)
+     ✓ rejects supplier integration with explicit unavailable reason 3ms
+     ✓ rejects invalid idempotency key "" as 400 1ms
+     ✓ rejects invalid idempotency key "   " as 400 0ms
+     ✓ rejects invalid idempotency key "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" as 400 0ms
+     ✓ rejects invalid idempotency key "\n" as 400 0ms
+     × sanitizes database outages and unknown SQL errors as 503; known constraints alone are 409 9ms
+     × validates settlement idempotency key "" 2ms
+     × validates settlement idempotency key " " 1ms
+     × validates settlement idempotency key "\n" 1ms
+     ✓ stays disabled before held migration release 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/expense-documents-api.test.ts > expense API safe defaults > sanitizes database outages and unknown SQL errors as 503; known constraints alone are 409
+AssertionError: expected ConflictException: Expense intent or sour… { …(4) } to match object { status: 503, …(1) }
+(8 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "message": "Expense service temporarily unavailable",
+-   "status": 503,
++ ConflictException {
++   "message": "Expense intent or source conflicts with persisted accounting",
++   "status": 409,
+  }
+
+ ❯ apps/api/src/finance/expense-documents-api.test.ts:17:65
+     15|   try {
+     16|    for(const error of [Object.assign(new Error('postgresql://secret SE…
+     17|     await expect(controller['execute'](async()=>{throw error;})).rejec…
+       |                                                                 ^
+     18|    }
+     19|    await expect(controller['execute'](async()=>{throw {code:'P2010',me…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/api/src/finance/expense-documents-api.test.ts > expense API safe defaults > validates settlement idempotency key ""
+ FAIL  |unit| apps/api/src/finance/expense-documents-api.test.ts > expense API safe defaults > validates settlement idempotency key " "
+ FAIL  |unit| apps/api/src/finance/expense-documents-api.test.ts > expense API safe defaults > validates settlement idempotency key "\n"
+AssertionError: expected ServiceUnavailableException: Expense link… { …(4) } to match object { status: 400 }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "status": 400,
++ ServiceUnavailableException {
++   "status": 503,
+  }
+
+ ❯ apps/api/src/finance/expense-documents-api.test.ts:25:160
+     23|  });
+     24|  it.each(['', ' ', '\n'])('validates settlement idempotency key %j',as…
+     25|   await expect(new ExpenseDocumentsController({} as PrismaService).lin…
+       |                                                                                                                                                                ^
+     26|  });
+     27|  it('stays disabled before held migration release',async()=>{
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 6 passed (10)
+   Start at  07:36:23
+   Duration  1.89s (transform 76%, import 23%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T07-36-22Z-unit-4abd.json
+
+# код выхода 1 · 3 с

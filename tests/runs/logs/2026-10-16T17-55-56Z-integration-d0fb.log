@@ -1,0 +1,21 @@
+# Интеграционные (integration) · 16.10.2026 22:55 Алматы · <сервер>
+# коммит 61af7b9 (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 14
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T17-55-56Z-integration-d0fb.json' 'tests/integration/employee-portal.test.ts' 'tests/integration/employee-portal-rls.test.ts' 'tests/integration/mv4-beauty.test.ts' 'tests/integration/beauty-payments.test.ts' 'tests/integration/employee-workspace.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-portal-release-61af7b90
+
+ ✓ |integration| tests/integration/mv4-beauty.test.ts (23 tests) 3580ms
+   ✓ MV4 Beauty acceptance on PostgreSQL (23)
+     ✓ real HTTP applies verified scope, vertical capabilities and permissions before Beauty handlers 315ms
+ ✓ |integration| tests/integration/employee-workspace.test.ts (9 tests) 1051ms
+ ✓ |integration| tests/integration/employee-portal.test.ts (6 tests) 1159ms
+ ✓ |integration| tests/integration/employee-portal-rls.test.ts (10 tests) 531ms
+
+ Test Files  4 passed (4)
+      Tests  48 passed (48)
+   Start at  17:55:56
+   Duration  12.12s (tests 63%, import 21%, transform 16%)
+
+JSON report written to /tmp/pms-test-2026-10-16T17-55-56Z-integration-d0fb.json
+
+# код выхода 0 · 13 с

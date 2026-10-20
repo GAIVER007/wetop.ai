@@ -96,7 +96,16 @@ export class EmailVerificationService {
       ? await this.prisma.db.emailVerification.findUnique({
           where: { tokenHash: hashSessionToken(token) },
           include: {
-            user: { include: { memberships: { orderBy: { createdAt: 'asc' }, take: 1 } } },
+            user: {
+              include: {
+                // та же организация, что откроет вход паролем: действующее членство в неархивной организации
+                memberships: {
+                  where: { status: 'ACTIVE', organization: { status: { not: 'SUSPENDED' } } },
+                  orderBy: { createdAt: 'asc' },
+                  take: 1,
+                },
+              },
+            },
           },
         })
       : null;

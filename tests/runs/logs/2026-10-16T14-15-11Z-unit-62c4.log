@@ -1,0 +1,48 @@
+# Модульные (unit) · 16.10.2026 19:15 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 88
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T14-15-11Z-unit-62c4.json' 'apps/web/src/app/today/unified-owner.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+stderr | apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > passes actual previous daily money to the always-open chart
+React expects the `children` prop of <title> tags to be a string, number, bigint, or object with a novel `toString` method but found an Array with length 3 instead. Browsers treat all child Nodes of <title> tags as Text content and React expects to be able to convert `children` of <title> tags to a single string value which is why Arrays of length greater than 1 are not supported. When using JSX it can be common to combine text nodes and value nodes. For example: <title>hello {nameOfUser}</title>. While not immediately apparent, `children` in this case is an Array with length 2. If your `children` prop is using this form try rewriting it using a template string: <title>{`hello ${nameOfUser}`}</title>.
+React expects the `children` prop of <title> tags to be a string, number, bigint, or object with a novel `toString` method but found an Array with length 3 instead. Browsers treat all child Nodes of <title> tags as Text content and React expects to be able to convert `children` of <title> tags to a single string value which is why Arrays of length greater than 1 are not supported. When using JSX it can be common to combine text nodes and value nodes. For example: <title>hello {nameOfUser}</title>. While not immediately apparent, `children` in this case is an Array with length 2. If your `children` prop is using this form try rewriting it using a template string: <title>{`hello ${nameOfUser}`}</title>.
+
+ ❯  unit  apps/web/src/app/today/unified-owner.test.ts (13 tests | 1 failed) 189ms
+   ❯ unified owner actual DTO (13)
+     ✓ provides the skip-link main landmark in supported and unsupported views 38ms
+     ✓ explains missing money without exposing a raw reason code or invented totals 5ms
+     ✓ passes actual previous daily money to the always-open chart 17ms
+     × shows category bars only for a complete reconciled currency breakdown 54ms
+     ✓ renders linked category names safely and minute units without claiming disconnected 43ms
+     ✓ today 12ms
+     ✓ week 5ms
+     ✓ month 4ms
+     ✓ renders exact signed comparable money and basis point rate, never previous workload 4ms
+     ✓ formats big minor units without float loss 1ms
+     ✓ normalizes query, not rolling 30 days 0ms
+     ✓ unknown vertical is explicit unsupported 0ms
+     ✓ keeps room and bed separate without invented percent 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   unit  apps/web/src/app/today/unified-owner.test.ts > unified owner actual DTO > shows category bars only for a complete reconciled currency breakdown
+AssertionError: expected '<main id="main-content" class="owner-…' to contain 'value="25"'
+
+Expected: "value="25""
+Received: "<main id="main-content" class="owner-home" tabindex="-1"><header class="owner-heading"><div><p class="owner-eyebrow">Обзор бизнеса</p><h1>Главная</h1><p>Обновлено 16 окт. 2026 г., 14:00 · Asia/Almaty</p></div><a class="btn btn--secondary" href="/appointments">Рабочее место</a></header><div class="owner-toolbar"><nav class="seg" aria-label="Период отчёта"><a class="seg__item is-on" aria-current="page" href="/today?period=today">Сегодня</a><a class="seg__item" href="/today?period=week">7 дней</a><a class="seg__item" href="/today?period=month" title="С начала календарного месяца">Месяц</a></nav><p><time dateTime="2026-10-01">2026-10-01</time> – <time dateTime="2026-10-16">2026-10-16</time></p></div><section class="owner-kpis" aria-label="Показатели руководителя"><article><h2>Выручка</h2><div class="owner-value"><div>9 007 199 254 740 993,01 KZT</div><div>123,45 USD</div></div><p>Сравнение недоступно: Нет сопоставимых данных</p><p>Начисления, не полученные оплаты</p></article><article><h2>Загрузка сегодня</h2><div class="owner-value">Нет данных</div><p>Неполное покрытие периода</p><p>Записанное время мастеров / сохранённое расписание</p><p>Учтено 0 из 0 минут мастеров. Итоговый процент периода недоступен.</p></article><article><h2>Поступления</h2><div class="owner-value">Нет данных</div><p>Реестр оплат не подключён</p><p>Сравнение недоступно: Нет сопоставимых данных</p><p>Полученные оплаты, не выручка</p></article><article><h2>Оплаченные расходы</h2><div class="owner-value"><div>400,00 KZT</div></div><p>Сравнение недоступно: Нет сопоставимых данных</p><p>Только завершённые расходные операции</p></article></section><div class="owner-body"><section class="owner-panel owner-dynamics"><div class="owner-panel-heading"><div><h2>Динамика по дням</h2><p>2026-10-01 – 2026-10-16</p></div><a href="/finance">Финансовый отчёт</a></div><div class="owner-chart"><div class="owner-chart-toolbar"><div class="owner-chart-tabs" role="tablist" aria-label="Данные графика"><button type="button" role="tab" id="_R_2c_-tab-0" aria-controls="_R_2c_-panel" aria-selected="true" tabindex="0">Выручка</button><button type="button" role="tab" id="_R_2c_-tab-1" aria-controls="_R_2c_-panel" aria-selected="false" tabindex="-1">Поступления</button><button type="button" role="tab" id="_R_2c_-tab-2" aria-controls="_R_2c_-panel" aria-selected="false" tabindex="-1">Оплаченные расходы</button></div><div class="owner-chart-legend"><span>Текущий период</span></div></div><div role="tabpanel" id="_R_2c_-panel" aria-labelledby="_R_2c_-tab-0" tabindex="0"><p role="status">Выручка: Временной ряд не подключён</p><div class="owner-chart-empty" role="status"><strong>Нет данных для графика</strong><p>Нет операций с подтверждённой валютой за период. Недоступные источники не означают ноль.</p></div><p class="owner-chart-foot">По дням в часовом поясе филиала · текущий день неполный · сравнение недоступно</p></div></div><p>Сравнение с предыдущим периодом недоступно.</p></section><aside class="owner-panel owner-attention" aria-labelledby="owner-attention-title"><div class="owner-panel-heading"><h2 id="owner-attention-title">Требуют решения</h2></div><div class="owner-decision"><h3>Покрытие данных</h3><p>Неполное покрытие периода</p><a href="/appointments">Проверить загрузку →</a></div><div class="owner-decision"><h3>Учёт расходов</h3><p>Классификация расходов не подключена. Автоматические задачи и отклонения API не передаёт.</p><a href="/finance">Открыть операции</a></div><div class="owner-decision"><p><a href="/today/operations">Операционные инструменты дня</a></p></div></aside></div><section class="owner-panel owner-expense-panel"><div class="owner-panel-heading"><div><h2>Куда уходят деньги</h2><p>За выбранный период</p></div><a href="/finance">Оплаченные расходы</a></div><p>Связи с документами расходов в сводку пока не подключены. Без статьи: назначение операции не подтверждено. Это не «Прочее».</p><div class="owner-expenses"><div><h3>Материалы</h3><p>Валюта: KZT</p><strong>100,00 KZT</strong></div><div><h3>Без статьи</h3><p>Валюта: KZT</p><strong>300,00 KZT</strong></div></div></section><footer><p>Выбран один филиал. Валюты показаны раздельно, без общего итога.</p></footer></main>"
+
+ ❯ apps/web/src/app/today/unified-owner.test.ts:81:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  14:15:15
+   Duration  879ms (transform 51%, tests 33%, import 15%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T14-15-11Z-unit-62c4.json
+
+# код выхода 1 · 5 с

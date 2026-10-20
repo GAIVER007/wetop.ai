@@ -1,10 +1,12 @@
-import { canManageStaff, parseMembershipRole } from '@pms/domain';
 import { unstable_rethrow } from 'next/navigation';
+import { canManageStaff, parseMembershipRole } from '@pms/domain';
 import { authApi } from '../../lib/api';
 import { clientInfo, sessionToken } from '../../lib/session';
 import { TeamNavigation } from '../../components/team-navigation';
 import { Page } from '../../components/page';
 import { Notice } from '../../components/ui';
+import { RefreshButton } from '../../components/refresh-button';
+import { validAccessStructure } from './scope-model';
 import { currentMe } from '../../lib/desk-shell';
 import { InviteButton, MembersTable, PendingInvites, TeamProvider, TeamStats } from './team-board';
 import './team.css';
@@ -31,14 +33,25 @@ export default async function TeamPage() {
       ? await Promise.all([
           authApi.invites(token, info),
           authApi.members(token, info),
-          // область доступа (DATA_MODEL §31.1): нет структуры (старый API) — раздел без неё, как был
-          authApi.accessStructure(token, info).catch(() => null),
+          // Отказ и невалидный ответ не означают доступ ко всей организации.
+          authApi
+            .accessStructure(token, info)
+            .then((value) => (validAccessStructure(value) ? value : null))
+            .catch((error: unknown) => {
+              unstable_rethrow(error);
+              return null;
+            }),
         ])
       : [[], [], null];
   return (
-    <TeamProvider role={team && role ? role : null} structure={structure}>
+    <TeamProvider
+      key={me.user?.organizationId ?? 'unknown'}
+      role={team && role ? role : null}
+      structure={structure}
+      expectedOrganizationId={me.user?.organizationId ?? null}
+    >
       <Page
-        title="Сотрудники и доступ"
+        title="Сотрудники"
         subtitle={
           me.user?.organization?.name
             ? `${me.user.organization.name}: команда, должности и приглашения`
@@ -49,6 +62,13 @@ export default async function TeamPage() {
         {team ? (
           <>
             <TeamNavigation current="team" owner={role === 'OWNER'} />
+            {!structure && (
+              <Notice role="alert">
+                Не удалось загрузить структуру доступа. Приглашения и изменение области доступа
+                недоступны.
+                <RefreshButton label="Повторить загрузку" />
+              </Notice>
+            )}
             <TeamStats members={members} invites={invites} />
             <MembersTable members={members} structure={structure} actorRole={role} />
             <PendingInvites invites={invites} />

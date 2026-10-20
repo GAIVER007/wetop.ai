@@ -1,0 +1,19 @@
+# Типы (typecheck) · 15.10.2026 18:09 Алматы · <сервер>
+# коммит 6dfe1f6 (fix/audit-reset-closed-folio), незакоммиченных файлов набора: 12
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/closed-folio-http.test.ts(184,16): error TS2339: Property 'pid' does not exist on type '{ pid: number; } | undefined'.
+tests/integration/closed-folio-http.test.ts(201,16): error TS2339: Property 'pid' does not exist on type '{ pid: number; } | undefined'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 1 мин 15 с

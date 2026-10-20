@@ -72,6 +72,8 @@ export function InventoryCatalog({
   occupancy = [],
   channels = [],
   channelCategories = [],
+  canEditCatalog,
+  canHousekeeping,
 }: {
   units: InventoryUnit[];
   categories: CategorySummary[];
@@ -79,6 +81,8 @@ export function InventoryCatalog({
   occupancy?: UnitOccupancy[];
   channels?: ChannelMark[];
   channelCategories?: string[];
+  canEditCatalog: boolean;
+  canHousekeeping: boolean;
 }) {
   // Пока открыта панель места (адрес `/units/<код>`), список под ней держит фильтры фонда, а не пустые
   // параметры адреса панели — иначе он перерисовывался бы целиком и терял место прокрутки (ADR-108, I2)
@@ -235,6 +239,7 @@ export function InventoryCatalog({
       return next;
     });
   function bulkHousekeeping(status: string, word: string) {
+    if (!canHousekeeping) return;
     const codes = [...selected];
     startBulk(async () => {
       const r = await bulkHousekeepingAction(codes, status);
@@ -435,14 +440,16 @@ export function InventoryCatalog({
         <Table className="inventory-table" aria-label="Номера и койко-места">
           <thead>
             <tr>
-              <th className="inv-check">
-                <input
-                  type="checkbox"
-                  aria-label="Выбрать все показанные места"
-                  checked={allSelected}
-                  onChange={() => setSelected(allSelected ? new Set() : new Set(visibleCodes))}
-                />
-              </th>
+              {canHousekeeping && (
+                <th className="inv-check">
+                  <input
+                    type="checkbox"
+                    aria-label="Выбрать все показанные места"
+                    checked={allSelected}
+                    onChange={() => setSelected(allSelected ? new Set() : new Set(visibleCodes))}
+                  />
+                </th>
+              )}
               <th>Место</th>
               <th>Тип</th>
               <th>Расположение</th>
@@ -462,7 +469,7 @@ export function InventoryCatalog({
             .map(([code, group]) => (
               <tbody key={code}>
                 <tr className="inventory-group-row" data-testid="category-group">
-                  <th scope="colgroup" colSpan={10}>
+                  <th scope="colgroup" colSpan={canHousekeeping ? 10 : 9}>
                     <button
                       type="button"
                       className="inv-group-toggle"
@@ -496,14 +503,16 @@ export function InventoryCatalog({
                       aria-selected={selected.has(unit.code)}
                       aria-current={openCode === unit.code ? 'true' : undefined}
                     >
-                      <td className="inv-check">
-                        <input
-                          type="checkbox"
-                          aria-label={`Выбрать ${unit.code}`}
-                          checked={selected.has(unit.code)}
-                          onChange={() => toggle(unit.code)}
-                        />
-                      </td>
+                      {canHousekeeping && (
+                        <td className="inv-check">
+                          <input
+                            type="checkbox"
+                            aria-label={`Выбрать ${unit.code}`}
+                            checked={selected.has(unit.code)}
+                            onChange={() => toggle(unit.code)}
+                          />
+                        </td>
+                      )}
                       <td>
                         <Link
                           prefetch={false}
@@ -574,7 +583,14 @@ export function InventoryCatalog({
                               label: 'Показать в календаре',
                               href: `/chessboard?category=${encodeURIComponent(unit.accommodationTypeCode)}`,
                             },
-                            { label: 'Переименовать комнату', onSelect: () => setEditRoom(unit) },
+                            ...(canEditCatalog
+                              ? [
+                                  {
+                                    label: 'Переименовать комнату',
+                                    onSelect: () => setEditRoom(unit),
+                                  },
+                                ]
+                              : []),
                           ]}
                         />
                       </td>
@@ -584,7 +600,7 @@ export function InventoryCatalog({
             ))}
         </Table>
       )}
-      {selected.size > 0 && (
+      {canHousekeeping && selected.size > 0 && (
         <div className="inv-bulk" role="region" aria-label="Массовые действия">
           <span>Выбрано {pluralRu(selected.size, ['объект', 'объекта', 'объектов'])}</span>
           <Button
@@ -609,12 +625,16 @@ export function InventoryCatalog({
           </Button>
         </div>
       )}
-      <FundEditorDialog
-        categories={editorCategories}
-        {...(editRoom ? { room: { code: editRoom.code, roomNumber: editRoom.roomNumber } } : {})}
-        open={editRoom !== null}
-        onClose={() => setEditRoom(null)}
-      />
+      {canEditCatalog && (
+        <FundEditorDialog
+          categories={editorCategories}
+          {...(editRoom
+            ? { room: { code: editRoom.code, roomNumber: editRoom.roomNumber } }
+            : {})}
+          open={editRoom !== null}
+          onClose={() => setEditRoom(null)}
+        />
+      )}
     </section>
   );
 }

@@ -1,0 +1,174 @@
+# Модульные (unit) · 17.10.2026 14:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит 29cc63d (claude/u1-feature-registry), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T09-32-30Z-unit-932a.json' 'apps/web/src/lib/features.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/u1
+
+ ❯ |unit| apps/web/src/lib/features.test.ts (105 tests | 7 failed) 12ms
+   ❯ реестр функций (105)
+     ✓ /ai-agents/[id]: страница пускает те направления, что в реестре 1ms
+     ✓ /ai-agents/new: страница пускает те направления, что в реестре 0ms
+     ✓ /ai-agents: страница пускает те направления, что в реестре 0ms
+     ✓ /ai-seller/[[...section]]: страница пускает те направления, что в реестре 0ms
+     ✓ /ai-seller/agents/[id]: страница пускает те направления, что в реестре 0ms
+     ✓ /ai-seller/agents/new: страница пускает те направления, что в реестре 0ms
+     ✓ /ai-seller/agents: страница пускает те направления, что в реестре 0ms
+     ✓ /appointments: страница пускает те направления, что в реестре 0ms
+     ✓ /bar/operations: страница пускает те направления, что в реестре 0ms
+     ✓ /bar/products: страница пускает те направления, что в реестре 0ms
+     ✓ /bar/receipts/new: страница пускает те направления, что в реестре 0ms
+     ✓ /bar/receipts: страница пускает те направления, что в реестре 0ms
+     ✓ /bar/suppliers: страница пускает те направления, что в реестре 0ms
+     ✓ /bar: страница пускает те направления, что в реестре 0ms
+     ✓ /beauty/masters: страница пускает те направления, что в реестре 0ms
+     ✓ /beauty/schedule: страница пускает те направления, что в реестре 0ms
+     ✓ /beauty/services: страница пускает те направления, что в реестре 0ms
+     ✓ /beauty: страница пускает те направления, что в реестре 0ms
+     ✓ /branches: страница пускает те направления, что в реестре 0ms
+     ✓ /calendar: страница пускает те направления, что в реестре 0ms
+     ✓ /cashbox: страница пускает те направления, что в реестре 0ms
+     × /channel-manager: страница пускает те направления, что в реестре 3ms
+     ✓ /channels/[[...section]]: страница пускает те направления, что в реестре 0ms
+     ✓ /channels/events/[revisionId]: страница пускает те направления, что в реестре 0ms
+     ✓ /chessboard: страница пускает те направления, что в реестре 0ms
+     ✓ /connections/channex: страница пускает те направления, что в реестре 0ms
+     ✓ /connections: страница пускает те направления, что в реестре 0ms
+     ✓ /customers: страница пускает те направления, что в реестре 0ms
+     ✓ /dining-areas: страница пускает те направления, что в реестре 0ms
+     ✓ /drinks: страница пускает те направления, что в реестре 0ms
+     × /employees/[id]/profile: страница пускает те направления, что в реестре 0ms
+     ✓ /employees/shifts: страница пускает те направления, что в реестре 0ms
+     ✓ /employees: страница пускает те направления, что в реестре 0ms
+     ✓ /finance: страница пускает те направления, что в реестре 0ms
+     ✓ /floor-plan: страница пускает те направления, что в реестре 0ms
+     ✓ /guests/[id]: страница пускает те направления, что в реестре 0ms
+     ✓ /guests/birthdays: страница пускает те направления, что в реестре 0ms
+     ✓ /guests: страница пускает те направления, что в реестре 0ms
+     ✓ /help: страница пускает те направления, что в реестре 0ms
+     ✓ /hotel-settings/[[...section]]: страница пускает те направления, что в реестре 0ms
+     ✓ /incidents: страница пускает те направления, что в реестре 0ms
+     ✓ /inventory: страница пускает те направления, что в реестре 0ms
+     ✓ /journal: страница пускает те направления, что в реестре 0ms
+     ✓ /kitchen: страница пускает те направления, что в реестре 0ms
+     ✓ /management/[[...section]]: страница пускает те направления, что в реестре 0ms
+     ✓ /management/analytics/channels: страница пускает те направления, что в реестре 0ms
+     ✓ /management/analytics/occupancy: страница пускает те направления, что в реестре 0ms
+     ✓ /management/analytics/units: страница пускает те направления, что в реестре 0ms
+     ✓ /management/analytics: страница пускает те направления, что в реестре 0ms
+     ✓ /market: страница пускает те направления, что в реестре 0ms
+     ✓ /marketing/ads/launch/[id]: страница пускает те направления, что в реестре 0ms
+     ✓ /marketing/ads/launch: страница пускает те направления, что в реестре 0ms
+     ✓ /marketing/ads: страница пускает те направления, что в реестре 0ms
+     ✓ /marketing/analytics: страница пускает те направления, что в реестре 0ms
+     ✓ /marketing/budget/analytics: страница пускает те направления, что в реестре 0ms
+     ✓ /marketing/budget/expenses: страница пускает те направления, что в реестре 0ms
+     ✓ /marketing/budget: страница пускает те направления, что в реестре 0ms
+     ✓ /marketing/content: страница пускает те направления, что в реестре 0ms
+     ✓ /marketing/site/assets: страница пускает те направления, что в реестре 0ms
+     ✓ /marketing/site/editor: страница пускает те направления, что в реестре 0ms
+     ✓ /marketing/site: страница пускает те направления, что в реестре 0ms
+     ✓ /marketing: страница пускает те направления, что в реестре 0ms
+     ✓ /menu: страница пускает те направления, что в реестре 0ms
+     ✓ /my-work: страница пускает те направления, что в реестре 0ms
+     ✓ /onboarding: страница пускает те направления, что в реестре 0ms
+     ✓ /orders: страница пускает те направления, что в реестре 0ms
+     ✓ /payroll: страница пускает те направления, что в реестре 0ms
+     ✓ /platform/support/[[...section]]: страница пускает те направления, что в реестре 0ms
+     ✓ /platform: страница пускает те направления, что в реестре 0ms
+     ✓ /profile/access: страница пускает те направления, что в реестре 0ms
+     ✓ /profile: страница пускает те направления, что в реестре 0ms
+     × /rates/[[...rest]]: страница пускает те направления, что в реестре 0ms
+     ✓ /reports/finance: страница пускает те направления, что в реестре 0ms
+     ✓ /reports/form-910: страница пускает те направления, что в реестре 0ms
+     ✓ /reports/occupancy: страница пускает те направления, что в реестре 0ms
+     ✓ /reports/overview: страница пускает те направления, что в реестре 0ms
+     ✓ /reports/print: страница пускает те направления, что в реестре 0ms
+     ✓ /reports/units: страница пускает те направления, что в реестре 0ms
+     ✓ /reports: страница пускает те направления, что в реестре 0ms
+     × /reservations/[number]/print/contract: страница пускает те направления, что в реестре 0ms
+     × /reservations/[number]/print/invoice: страница пускает те направления, что в реестре 0ms
+     × /reservations/[number]/print: страница пускает те направления, что в реестре 0ms
+     × /reservations/[number]: страница пускает те направления, что в реестре 0ms
+     ✓ /reservations/new: страница пускает те направления, что в реестре 0ms
+     ✓ /reservations: страница пускает те направления, что в реестре 0ms
+     ✓ /restaurant-finance: страница пускает те направления, что в реестре 0ms
+     ✓ /restaurant-settings: страница пускает те направления, что в реестре 0ms
+     ✓ /rooms/[[...section]]: страница пускает те направления, что в реестре 0ms
+     ✓ /sales: страница пускает те направления, что в реестре 0ms
+     ✓ /services: страница пускает те направления, что в реестре 0ms
+     ✓ /staff: страница пускает те направления, что в реестре 0ms
+     ✓ /stock: страница пускает те направления, что в реестре 0ms
+     ✓ /table-reservations: страница пускает те направления, что в реестре 0ms
+     ✓ /tasks: страница пускает те направления, что в реестре 0ms
+     ✓ /team/roles: страница пускает те направления, что в реестре 0ms
+     ✓ /team: страница пускает те направления, что в реестре 0ms
+     ✓ /today/operations: страница пускает те направления, что в реестре 0ms
+     ✓ /today: страница пускает те направления, что в реестре 0ms
+     ✓ /units/[code]: страница пускает те направления, что в реестре 0ms
+     ✓ /website/analytics: страница пускает те направления, что в реестре 0ms
+     ✓ /website/booking: страница пускает те направления, что в реестре 0ms
+     ✓ /website/settings: страница пускает те направления, что в реестре 0ms
+     ✓ /website: страница пускает те направления, что в реестре 0ms
+     ✓ меню каждого направления строится только из его функций 0ms
+     ✓ самый длинный адрес решает: медиатека сайта у всех, публикация у гостиницы 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/features.test.ts > реестр функций > /channel-manager: страница пускает те направления, что в реестре
+ FAIL  |unit| apps/web/src/lib/features.test.ts > реестр функций > /rates/[[...rest]]: страница пускает те направления, что в реестре
+ FAIL  |unit| apps/web/src/lib/features.test.ts > реестр функций > /reservations/[number]/print/contract: страница пускает те направления, что в реестре
+ FAIL  |unit| apps/web/src/lib/features.test.ts > реестр функций > /reservations/[number]/print/invoice: страница пускает те направления, что в реестре
+ FAIL  |unit| apps/web/src/lib/features.test.ts > реестр функций > /reservations/[number]/print: страница пускает те направления, что в реестре
+ FAIL  |unit| apps/web/src/lib/features.test.ts > реестр функций > /reservations/[number]: страница пускает те направления, что в реестре
+AssertionError: expected [ 'BEAUTY', 'FOOD_SERVICE', …(1) ] to deeply equal [ 'HOSPITALITY' ]
+
+- Expected
++ Received
+
+  [
++   "BEAUTY",
++   "FOOD_SERVICE",
+    "HOSPITALITY",
+  ]
+
+ ❯ apps/web/src/lib/features.test.ts:47:45
+     45|     it(`${route}: страница пускает те направления, что в реестре`, () …
+     46|       const source = readFileSync(join(dir, 'page.tsx'), 'utf8');
+     47|       expect(sorted(pageVerticals(source))).toEqual(sorted(featureVert…
+       |                                             ^
+     48|     });
+     49|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |unit| apps/web/src/lib/features.test.ts > реестр функций > /employees/[id]/profile: страница пускает те направления, что в реестре
+AssertionError: expected [ 'BEAUTY', 'FOOD_SERVICE', …(1) ] to deeply equal [ 'BEAUTY', 'FOOD_SERVICE' ]
+
+- Expected
++ Received
+
+  [
+    "BEAUTY",
+    "FOOD_SERVICE",
++   "HOSPITALITY",
+  ]
+
+ ❯ apps/web/src/lib/features.test.ts:47:45
+     45|     it(`${route}: страница пускает те направления, что в реестре`, () …
+     46|       const source = readFileSync(join(dir, 'page.tsx'), 'utf8');
+     47|       expect(sorted(pageVerticals(source))).toEqual(sorted(featureVert…
+       |                                             ^
+     48|     });
+     49|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 98 passed (105)
+   Start at  02:32:31
+   Duration  400ms (transform 77%, import 18%, tests 4%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T09-32-30Z-unit-932a.json
+
+# код выхода 1 · 2 с

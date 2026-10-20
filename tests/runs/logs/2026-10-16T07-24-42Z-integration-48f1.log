@@ -1,0 +1,67 @@
+# Интеграционные (integration) · 16.10.2026 12:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5b5edf1 (claude/combined-279-port), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-24-42Z-integration-48f1.json' 'tests/integration/bar-payment-replay-loss.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-279
+
+(node:17186) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/bar-payment-replay-loss.test.ts (2 tests | 2 failed) 651ms
+   ❯ бар: повтор оплаты поставщику и потеря при отмене без склада (integration) (2)
+     × M6: тот же ключ возвращает первую оплату; другой запрос с тем же ключом отклоняется 129ms
+     × M9: отмена без возврата на склад уводит себестоимость в списание, с возвратом нет 59ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-payment-replay-loss.test.ts > бар: повтор оплаты поставщику и потеря при отмене без склада (integration) > M6: тот же ключ возвращает первую оплату; другой запрос с тем же ключом отклоняется
+AssertionError: expected { kind: 'paid', …(4) } to match object { kind: 'paid', …(2) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "id": "7cef99b9-47da-48c6-89d8-c4bfccfb4ed1",
++   "id": "474f0685-93aa-424c-a492-5160ca8309e4",
+    "kind": "paid",
+    "paidAmount": "100000",
+  }
+
+ ❯ tests/integration/bar-payment-replay-loss.test.ts:62:129
+     60|     expect(first).toMatchObject({ kind: 'paid', paidAmount: '100000', …
+     61|     // двойной клик или повтор после обрыва сети: та же оплата, второй…
+     62|     expect(await as(() => repo.payReceipt(receipt, { amountMinor: 1000…
+       |                                                                                                                                 ^
+     63|       kind: 'paid',
+     64|       id: (first as { id: string }).id,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/bar-payment-replay-loss.test.ts > бар: повтор оплаты поставщику и потеря при отмене без склада (integration) > M9: отмена без возврата на склад уводит себестоимость в списание, с возвратом нет
+AssertionError: expected 0n to be 60000n // Object.is equality
+
+- Expected
++ Received
+
+- 60000n
++ 0n
+
+ ❯ tests/integration/bar-payment-replay-loss.test.ts:92:107
+     90|     await as(() => repo.reverseSale(back.id, true, 'Ошибка кассира'));
+     91|     // 2 шт по 300 ₸ закупки потеряны: 600 ₸ в списании; возвращённая …
+     92|     expect(BigInt(((await as(() => repo.report())) as { writeOffMinor:…
+       |                                                                                                           ^
+     93|   });
+     94| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  00:24:43
+   Duration  1.72s (tests 54%, transform 30%, import 16%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T07-24-42Z-integration-48f1.json
+
+# код выхода 1 · 3 с

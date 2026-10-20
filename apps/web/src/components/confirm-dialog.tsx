@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { trapDialogFocus } from './overlay';
 import { Button, type ButtonTone } from './ui';
 
 /**
@@ -53,6 +54,7 @@ export function ConfirmDialog({
       aria-labelledby={titleId}
       aria-describedby={children ? bodyId : undefined}
       data-testid="confirm-dialog"
+      onKeyDown={trapDialogFocus}
       onCancel={(e) => {
         e.preventDefault();
         if (!pending) onCancel();

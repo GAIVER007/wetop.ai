@@ -1,0 +1,19 @@
+# Типы (typecheck) · 16.10.2026 14:00 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 46
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/beauty-workload-isolated.test.ts(41,26): error TS2339: Property 'percent' does not exist on type '{ state: string; reason: string | null; numerator: string | null; denominator: string | null; percent: number | null; coverage: { fromUtc: string; toUtc: string; state: string; sourceRevision: string; }[]; ... 5 more ...; requestedToUtc: string; } | { ...; } | { ...; }'.
+  Property 'percent' does not exist on type '{ state: "UNAVAILABLE"; reason: string; numerator: null; denominator: null; coverage: never[]; requestedFromUtc: string; requestedToUtc: string; }'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 58 с

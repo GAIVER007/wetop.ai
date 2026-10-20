@@ -1,4 +1,5 @@
 import { FIXTURE_API, test, expect } from './fixtures';
+import { signInForBar } from './bar-auth';
 for(const width of [1333,390]) test(`bar reference layout ${width}`,async({page})=>{
  await page.setViewportSize({width,height:973}); await page.goto('/bar');
  const main=page.getByRole('main').filter({visible:true});
@@ -41,7 +42,7 @@ test('mobile quick actions open the existing forms',async({page})=>{
  await actions.getByRole('link',{name:'Продажа',exact:true}).click();
  await expect(page.getByRole('button',{name:'Продать',exact:true})).toBeVisible();
  await page.getByRole('navigation',{name:'Разделы бара'}).getByRole('link',{name:'Поставщики',exact:true}).click();
- await expect(page.getByRole('heading',{level:1})).toHaveText('Бар: поставщики');
+ await expect(page.getByRole('heading',{level:1})).toHaveText('Склад: поставщики');
 });
 
 for(const width of [1333,960,390]) for(const theme of ['light','dark'] as const) test(`clear KPI ${width} ${theme}`,async({page,request})=>{
@@ -61,6 +62,7 @@ for(const width of [1333,960,390]) for(const theme of ['light','dark'] as const)
 
 for (const width of [1333,390]) test(`direct sale visible labels and journal ${width}`,async({page,request})=>{
  await request.post(`${FIXTURE_API}/__test/reset`);
+ await signInForBar(page);
  await page.setViewportSize({width,height:973});await page.goto('/bar');
  await page.getByRole('main').filter({visible:true}).getByRole('link',{name:'Продажа',exact:true}).filter({visible:true}).click();
  const panel=page.getByRole('tabpanel',{name:'Продажа напрямую',exact:true});
@@ -70,7 +72,9 @@ for (const width of [1333,390]) test(`direct sale visible labels and journal ${w
  await panel.getByLabel('Количество, шт.',{exact:true}).fill('3');
  await page.screenshot({path:`reports/bar-direct-sale-2026-10-14/${width}.png`});
  await panel.getByRole('button',{name:'Продать',exact:true}).click();
- await expect(panel.getByRole('status')).toContainText('Продажа записана');
+ await expect(panel.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
+ await expect(panel.getByTestId('retail-recovery-panel')).toContainText('подтверждена');
+ await panel.getByRole('button', { name: 'Новая продажа', exact: true }).click();
  await expect(panel.locator('.bar-retail-product-info')).toHaveCount(0);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();
  await page.goto('/bar/operations');

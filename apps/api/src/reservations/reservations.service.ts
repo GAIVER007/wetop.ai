@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { FolioClosedError } from '@pms/database';
 import { createHash } from 'node:crypto';
 import {
   BadRequestException,
@@ -294,6 +295,7 @@ async function guarded<T>(fn: () => Promise<T> | T): Promise<T> {
     return await fn();
   } catch (e) {
     // Ограничение продаж (ADR-020) — конфликт с календарём, как занятая ячейка: 409, не 422
+    if (e instanceof FolioClosedError) throw new ConflictException(e.message);
     if (e instanceof RestrictionViolationError) throw new ConflictException(e.message);
     if (e instanceof ReservationRuleError) throw new UnprocessableEntityException(e.message);
     if (e instanceof AllocationOverlapError) throw new ConflictException(e.message);

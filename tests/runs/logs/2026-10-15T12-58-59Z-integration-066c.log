@@ -1,0 +1,94 @@
+# Интеграционные (integration) · 15.10.2026 17:58 Алматы · <сервер>
+# коммит 6dfe1f6 (fix/audit-reset-closed-folio), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T12-58-59Z-integration-066c.json' 'tests/integration/reset-token-http.test.ts' 'tests/integration/closed-folio-http.test.ts' '--maxWorkers=1' '--testTimeout=60000' '--hookTimeout=120000'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-critical-fixes
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects PATCH price after closing a paid folio and rolls back all writes
+paid folio closed via HTTP {
+  folioId: 'b7ec5eeb-80b5-40a3-a10f-32967d4cdc7e',
+  status: 200,
+  balanceMinor: '0'
+}
+
+(node:4134155) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects PATCH price after closing a paid folio and rolls back all writes
+closed folio PATCH price {
+  status: 409,
+  body: {
+    message: 'Счёт b7ec5eeb-80b5-40a3-a10f-32967d4cdc7e закрыт',
+    error: 'Conflict',
+    statusCode: 409
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects cancellation without changing the closed folio, stay or audit
+paid folio closed via HTTP {
+  folioId: 'e94f7867-7389-4305-af2e-5c554385de23',
+  status: 200,
+  balanceMinor: '0'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects direct penalty creation against a closed folio inside the reservation transaction
+paid folio closed via HTTP {
+  folioId: 'f5f1eb9c-7868-4b33-9fb1-b26442b5e1a2',
+  status: 200,
+  balanceMinor: '0'
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects closed folio bar reversal over HTTP (restock=false)
+bar reversal {
+  closed: true,
+  status: 409,
+  body: {
+    message: 'Счёт b8a9d94a-eabd-4d87-b3b6-d9c22fae1cba закрыт',
+    error: 'Conflict',
+    statusCode: 409
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > rejects closed folio bar reversal over HTTP (restock=true)
+bar reversal {
+  closed: true,
+  status: 409,
+  body: {
+    message: 'Счёт c1551b84-ce25-41e8-bbfb-f9c2a5f2235f закрыт',
+    error: 'Conflict',
+    statusCode: 409
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows open folio bar reversal over HTTP (restock=false)
+bar reversal {
+  closed: false,
+  status: 201,
+  body: {
+    kind: 'reversed',
+    id: 'b035c25d-454a-40e6-8b69-d272c719a4ec',
+    status: 'REVERSED',
+    restocked: false
+  }
+}
+
+stdout | tests/integration/closed-folio-http.test.ts > closed folio charge mutations through HTTP > allows an unchanged accommodation sync on a closed folio
+paid folio closed via HTTP {
+  folioId: 'fe93d434-6e59-4c94-ac71-7e2f525301b8',
+  status: 200,
+  balanceMinor: '0'
+}
+
+ ✓ |integration| tests/integration/closed-folio-http.test.ts (12 tests) 2008ms
+ ✓ |integration| tests/integration/reset-token-http.test.ts (12 tests) 3326ms
+   ✓ password reset over real AuthModule HTTP and PostgreSQL (12)
+     ✓ concurrent same-token HTTP confirms have exactly one winner, one password and one audit 480ms
+     ✓ success revokes every live session across organizations, not another user or already-revoked time 587ms
+
+ Test Files  2 passed (2)
+      Tests  24 passed (24)
+   Start at  12:59:00
+   Duration  11.11s (tests 59%, transform 26%, import 15%)
+
+JSON report written to /tmp/pms-test-2026-10-15T12-58-59Z-integration-066c.json
+
+# код выхода 0 · 12 с

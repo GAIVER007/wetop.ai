@@ -1,0 +1,73 @@
+# Модульные (unit) · 17.10.2026 00:43 Алматы · <сервер>
+# коммит c46ef1c (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 49
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T19-43-52Z-unit-e3ec.json' 'tests/unit/employee-portal-restore-profile.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-portal-release-61af7b90
+
+ ❯ |unit| tests/unit/employee-portal-restore-profile.test.ts (3 tests | 1 failed) 18ms
+   ❯ portal restore CI coverage (3)
+     ✓ runs the dedicated restore profile in release checks 2ms
+     × documents the dedicated restore runner and admin database, never pmslocal 14ms
+     ✓ requires an explicit target rather than silently skipping restoration 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/employee-portal-restore-profile.test.ts > portal restore CI coverage > documents the dedicated restore runner and admin database, never pmslocal
+AssertionError: expected '# Employee portal grants replay (129)…' to contain 'tests/restore/employee-portal-grants-…'
+
+- Expected
++ Received
+
+- tests/restore/employee-portal-grants-restore.config.ts
++ # Employee portal grants replay (129)
++
++ Pure, idempotent replay of migration 128's ACL, with no new rights or schema/RLS changes.
++ `db-restore-prod.sh` already selects pure GRANT/REVOKE migrations and skips mixed schema
++ migration 128. Do not change that stock selector or replay 128 after pg_restore.
++
++ - **Backup / production:** follow `docs/ops/backups.md` and owner-approved cutover procedure;
++   this change does not authorize production execution. The dump must include migration 128.
++ - **Apply:** run `migration.sql` through the normal migration runner after 128. No internal
++   transaction boundaries, so stock restore retains its single atomic transaction.
++ - **Validate:** compare all four tables' ACLs and both functions' ACLs before/after stock
++   restore, plus RLS/policy definitions. `tests/integration/employee-portal-grants-restore.test.ts`
++   rehearses real `pg_dump --no-privileges` → unchanged stock restore with optional roles absent
++   and present, repeats 129 twice, and checks its rollback. It uses only disposable databases
++   on an explicitly opted-in dedicated loopback cluster (`EMPLOYEE_PORTAL_RESTORE_TEST_URL`),
++   never `DATABASE_URL`. Run without shared integration setup or loading `.env`:
++
++   ```sh
++   EMPLOYEE_PORTAL_RESTORE_TEST_URL=<скрыто> \
++     npx vitest run --config tests/integration/employee-portal-grants-restore.config.ts
++   ```
++
++   The cluster must initially have no `anon`/`authenticated` roles;
++   the test creates/drops these roles only for its present-role case.
++ - **Rollback:** run `down.sql` (intentional no-op). 128 already owns these ACLs; revoking
++   wetop_app or reopening PUBLIC on rollback would violate the pre-129 contract. For full
++   feature rollback, continue with `128/down.sql` using its documented procedure.
++
++ No roles are created by the migration. Only existing `anon`/`authenticated` roles have
++ portal-table and public-resolver rights revoked, matching 128 exactly. `wetop_service`
++ rights inherited from earlier default privileges remain unchanged.
++
+
+ ❯ tests/unit/employee-portal-restore-profile.test.ts:12:20
+     10|   it('documents the dedicated restore runner and admin database, never…
+     11|     const readme = readFileSync('packages/database/prisma/migrations/2…
+     12|     expect(readme).toContain('tests/restore/employee-portal-grants-res…
+       |                    ^
+     13|     expect(readme).toContain('127.0.0.1:55624/postgres');
+     14|     expect(readme).not.toContain('55613/pmslocal');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  19:43:53
+   Duration  180ms (transform 39%, tests 33%, import 19%, worker 8%)
+
+JSON report written to /tmp/pms-test-2026-10-16T19-43-52Z-unit-e3ec.json
+
+# код выхода 1 · 1 с

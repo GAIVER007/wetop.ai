@@ -1,0 +1,104 @@
+# Модульные (unit) · 16.10.2026 21:09 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (claude/marketing-ad-launch), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-09-30Z-unit-32d7.json' 'apps/api/src/reservations/reservations.controller.test.ts' 'tests/unit/guard-run.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+[Nest] 65809  - 09/09/2026, 11:00:00 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (category-single 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ❯ |unit| apps/api/src/reservations/reservations.controller.test.ts (55 tests | 1 failed) 280ms
+   ❯ manual reservation API (55)
+     ✓ ADR-021: отмена брони снимает блоки соседних ночей от раннего заезда и позднего выезда 34ms
+     ✓ Q-107: ячейка физически свободна, но категория продана бронями без ячейки → 409, как для канала 2ms
+     ✓ Б6: бронь записана, а дельта каналов не встала в очередь — ответ 201 с карточкой, не 500: иначе повтор создаст дубль 2ms
+     ✓ rejects invalid stay 2026-02-31 to 2026-03-03 before writes 1ms
+     ✓ rejects invalid stay 2026-02-28 to 2026-02-31 before writes 1ms
+     ✓ rejects invalid stay 2026-10-02 to 2026-10-01 before writes 1ms
+     ✓ rejects invalid stay 2026-10-01 to 2026-10-01 before writes 1ms
+     ✓ rejects invalid stay  to 2026-10-01 before writes 1ms
+     ✓ rejects invalid stay 2026-10-01 to  before writes 1ms
+     ✓ quotes the selected booking without writing a guest or reservation 1ms
+     ✓ quote breaks the total down by night: one entry per night, sum equals total 1ms
+     ✓ replays one creation key and rejects changed payload without duplicate guests 3ms
+     ✓ rejects an outdated expected total before writes 1ms
+     ✓ POST /reservations creates a CONFIRMED booking priced from DailyRate, assigns the unit, writes audit 1ms
+     ✓ ADR-072: пока база не в Казахстане, гость со стойки записывается псевдонимом; имя не обязательно 2ms
+     ✓ ADR-072: база в Казахстане (PII_STORAGE=real) — гость как введён, имя и фамилия обязательны 1ms
+     ✓ G6 (ТЗ «Гости v2» §33): guestId существующего гостя — бронь на него, нового гостя нет 1ms
+     ✓ G6: гость не своей организации или несуществующий — 404, брони нет 1ms
+     ✓ G6: guestId вместе с полями нового гостя — 400, чтобы не гадать, кого имели в виду 1ms
+     ✓ ADR-071: OTA вручную — канал и номер брони в канале обязательны; номер без пробелов, канал каноническим именем 3ms
+     ✓ ADR-071: номер брони в канале второй раз не заводится — ни вручную, ни когда бронь уже пришла из Channex 2ms
+     ✓ ADR-071: номер брони в канале можно вписать и поправить на готовой брони OTA; у другой — 400 2ms
+     ✓ rejects a missing/unknown source with 400 — no default (Q-089) 1ms
+     ✓ 422 when a night has no price, the tariff is inactive or the unit belongs to another category 2ms
+     ✓ 409 when the unit is blocked or already allocated for an overlapping night 2ms
+     ✓ PATCH dates reprices and moves the allocation; cancel frees the unit; both audited 3ms
+     ✓ отмена и незаезд берут замок брони раньше, чем читают её состояние 2ms
+     ✓ предпросмотр действия замок брони не берёт — только читает 2ms
+     ✓ Q-103: отмена заранее штрафа не даёт, незаезд даёт; даты меняются без повторного тарифа (Q-102) 2ms
+     ✓ assign moves the guest to another unit from a date (переселение), 404 for unknown booking/item 3ms
+     ✓ T1: переселение в другую категорию пересчитывает цену по её календарю и шлёт дельту по обеим категориям; частичное — запрещено 1ms
+     ✓ предпросмотр называет цену переселения и продления, штраф отмены, и ничего не пишет 3ms
+     ✓ T2: «+1 ночь» сдвигает выезд, пересчитывает цену и продлевает назначение; занятая ячейка — 409, выселенного продлить нельзя 4ms
+     ✓ Д5 (срез 7.3): сумма в окне = начисление — предпросмотр переселения, продления, отмены и незаезда 10ms
+     ✓ checkout on 2026-09-15 releases the unit and permits rebooking after inspection 2ms
+     ✓ checkout on 2026-09-16 releases the unit and permits rebooking after inspection 2ms
+     ✓ T3: выселить с непогашенным счётом можно только с подтверждением, и это попадает в журнал 3ms
+     ✓ ADR-020: ограничения продаж действуют на стойке — стоп-продажа, закрытый заезд/выезд, срок → 409 с датой и категорией; канал и другая категория не задеты 4ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в заметке брони маскируются — и при создании, и при правке 5ms
+     ✓ Q-169: база в Казахстане (PII_STORAGE=real) — заметка как введена 1ms
+     ✓ правка готовой брони: PATCH заметки и источник, PATCH гостей на проживании с проверкой вместимости; всё в журнале 5ms
+     ✓ цена проживания (план finance-payments-direct 07.10.2026): PATCH price переписывает цену и сумму брони, не число и ноль — 400, отменённое — 422 3ms
+     ✓ групповая бронь: quantity=3 → 3 проживания на трёх разных свободных ячейках по номеру; свободных меньше → 409 «свободно только K» 2ms
+     ✓ тариф брони по роли (Q-200, ADR-107) (7)
+       ✓ администратор меняет даты в том же тарифе; другой тариф — отказ словами, бронь не тронута 1ms
+       ✓ цену проживания вниз меняют владелец и управляющий, администратор — только вверх (ADR-107) 1ms
+       ✓ управляющий тариф меняет 1ms
+       ✓ продление и переселение в другую категорию — в тарифе брони; с другим тарифом — отказ 1ms
+       ✓ бронь из Legacy без тарифа: администратор назначает тариф со штрафом, без штрафа — отказ; тариф записывается (Q-201) 1ms
+       ✓ продление брони без тарифа записывает выбранный тариф: второе продление — уже в нём (Q-201) 1ms
+       ✓ управляющий назначает брони без тарифа любой тариф, и без штрафа тоже 1ms
+     ✓ GET /rate-plans lists only active tariffs 1ms
+     ✓ check-in needs an assigned unit; check-out frees the unit on early departure; no-show drops the allocation 5ms
+     × каждая команда, меняющая остаток категории, ставит дельту доступности: создание, смена дат, отмена, незаезд, ранний выезд 50ms
+     ✓ перенос брони (live-тест Channex 02.10.2026): в канал уходят только освободившаяся и занятая ночь, ночи между ними — нет 2ms
+     ✓ заселение без гражданства и с гражданством из одних пробелов отклоняется одним и тем же сообщением 2ms
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 5261ms
+   ✓ дежурный агент: платит ключ API, подписка только явно (ADR-137) (4)
+     ✓ заданы оба: платит ключ, токен подписки процессу агента не достаётся 1503ms
+     ✓ подписка с явным GUARD_ALLOW_SUBSCRIPTION=1 работает и называет себя в журнале 867ms
+   ✓ дежурный агент: дневной потолок денег (ADR-137) (4)
+     ✓ каждый запуск с потолком --max-budget-usd и счётчиком за сутки UTC 860ms
+     ✓ предел запусков исчерпан: модель не зовётся, дежурным одно сообщение за сутки 632ms
+     ✓ вчерашний счётчик не мешает: новые сутки начинаются с первого запуска 853ms
+     ✓ тихий час: нет неисправностей класса Б и В, модель не зовётся и счётчик не растёт 534ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > каждая команда, меняющая остаток категории, ставит дельту доступности: создание, смена дат, отмена, незаезд, ранний выезд
+Error: expected 201 "Created", got 405 "Method Not Allowed"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1995:7
+    1993|       '/reservations',
+    1994|       body({ arrivalDate: '2026-09-18', departureDate: '2026-09-19' }),
+    1995|     ).expect(201);
+       |       ^
+    1996|     published.length = 0;
+    1997|     await send(
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 62 passed (63)
+   Start at  09:09:31
+   Duration  5.39s (tests 83%, transform 10%, import 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-09-30Z-unit-32d7.json
+
+# код выхода 1 · 6 с

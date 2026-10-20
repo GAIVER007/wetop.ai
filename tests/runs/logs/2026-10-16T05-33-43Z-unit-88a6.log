@@ -1,0 +1,18 @@
+# Модульные (unit) · 16.10.2026 10:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит b6e59e0 (claude/bar-surplus), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-33-43Z-unit-88a6.json' 'apps/web/src/app/bar'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| apps/web/src/app/bar/stock-status.test.ts (4 tests) 2ms
+ ✓ |unit| apps/web/src/app/bar/load-context.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/app/bar/actions.test.ts (19 tests) 54ms
+
+ Test Files  3 passed (3)
+      Tests  26 passed (26)
+   Start at  22:33:55
+   Duration  5.00s (transform 75%, import 24%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-33-43Z-unit-88a6.json
+
+# код выхода 0 · 18 с

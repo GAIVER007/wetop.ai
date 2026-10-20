@@ -1,0 +1,71 @@
+# Модульные (unit) · 16.10.2026 12:34 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T07-34-20Z-unit-176d.json' 'apps/api/src/finance/expense-documents-api.test.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| apps/api/src/finance/expense-documents-api.test.ts (6 tests | 5 failed) 18ms
+   ❯ expense API safe defaults (6)
+     × rejects supplier integration with explicit unavailable reason 8ms
+     × rejects invalid idempotency key "" as 400 4ms
+     × rejects invalid idempotency key "   " as 400 1ms
+     × rejects invalid idempotency key "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" as 400 1ms
+     × rejects invalid idempotency key "\n" as 400 1ms
+     ✓ stays disabled before held migration release 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/expense-documents-api.test.ts > expense API safe defaults > rejects supplier integration with explicit unavailable reason
+AssertionError: expected [Function] to throw error matching /Supplier linking unavailable/ but got 'Expense linking is not enabled'
+
+- Expected:
+/Supplier linking unavailable/
+
++ Received:
+"Expense linking is not enabled"
+
+ ❯ apps/api/src/finance/expense-documents-api.test.ts:7:133
+      5|  const payload={categoryId:'00000000-0000-0000-0000-000000000001',titl…
+      6|  it('rejects supplier integration with explicit unavailable reason',as…
+      7|   await expect(new ExpenseDocumentsController({} as PrismaService).cre…
+       |                                                                                                                                     ^
+      8|  });
+      9|  it.each(['', ' '.repeat(3), 'x'.repeat(201), '\n'])('rejects invalid …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| apps/api/src/finance/expense-documents-api.test.ts > expense API safe defaults > rejects invalid idempotency key "" as 400
+ FAIL  |unit| apps/api/src/finance/expense-documents-api.test.ts > expense API safe defaults > rejects invalid idempotency key "   " as 400
+ FAIL  |unit| apps/api/src/finance/expense-documents-api.test.ts > expense API safe defaults > rejects invalid idempotency key "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" as 400
+ FAIL  |unit| apps/api/src/finance/expense-documents-api.test.ts > expense API safe defaults > rejects invalid idempotency key "\n" as 400
+AssertionError: expected ServiceUnavailableException: Expense link… { …(4) } to match object { status: 400 }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "status": 400,
++ ServiceUnavailableException {
++   "status": 503,
+  }
+
+ ❯ apps/api/src/finance/expense-documents-api.test.ts:10:88
+      8|  });
+      9|  it.each(['', ' '.repeat(3), 'x'.repeat(201), '\n'])('rejects invalid …
+     10|   await expect(new ExpenseDocumentsController({} as PrismaService).cre…
+       |                                                                                        ^
+     11|  });
+     12|  it('stays disabled before held migration release',async()=>{
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 1 passed (6)
+   Start at  07:34:21
+   Duration  2.19s (transform 73%, import 25%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T07-34-20Z-unit-176d.json
+
+# код выхода 1 · 3 с

@@ -1,0 +1,17 @@
+# Модульные (unit) · 16.10.2026 17:21 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 88
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T12-21-46Z-unit-ec7e.json' 'packages/domain/src/food/stock-tracing.test.ts' 'packages/domain/src/food/stock.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓  unit  packages/domain/src/food/stock-tracing.test.ts (1 test) 43ms
+ ✓  unit  packages/domain/src/food/stock.test.ts (12 tests) 48ms
+
+ Test Files  2 passed (2)
+      Tests  13 passed (13)
+   Start at  12:21:48
+   Duration  1.31s (import 41%, transform 41%, tests 14%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-16T12-21-46Z-unit-ec7e.json
+
+# код выхода 0 · 4 с

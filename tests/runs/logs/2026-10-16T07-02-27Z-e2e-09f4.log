@@ -1,0 +1,45 @@
+# Сквозные (e2e) · 16.10.2026 12:02 Алматы · Noutbuk-Vyacheslav.local
+# коммит c9e8346 (claude/marketing-analytics-export), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/marketing-budget.spec.ts' '--workers=1' '-g' 'аналитика маркетинга: воронка'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/marketing-budget.spec.ts:142:1 › аналитика маркетинга: воронка, CPL, стоимость брони и ROMI из результатов каналов; реклама без кабинетов только расход (6.2s)
+
+
+  1) tests/ui/marketing-budget.spec.ts:142:1 › аналитика маркетинга: воронка, CPL, стоимость брони и ROMI из результатов каналов; реклама без кабинетов только расход 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected value: "Итого;51200,00;10;5120,00;4;12800,00;10500,00;-79"
+    Received array: ["Канал;Расход, KZT;Обращения;CPL, KZT;Брони;Стоимость брони, KZT;Выручка, KZT;ROMI, %", "TikTok Ads;50000,00;;;;;;", "Meta Ads;720,00;;;;;;", "Google Ads;480,00;;;;;;", "Итого;51200,00;;;;;;", "", "День;Расход, KZT;Лиды;CPL, KZT;Брони;Новые клиенты;Выручка, KZT;ROMI, %", "2026-10-01;0,00;;;;;;", "2026-10-02;0,00;;;;;;", "2026-10-03;0,00;;;;;;", …]
+
+      204 |   expect(download.suggestedFilename()).toBe(`wetop-marketing-${month}.csv`);
+      205 |   const csv = (await readFile(await download.path(), 'utf8')).replace(/^﻿/, '').split('\r\n');
+    > 206 |   expect(csv).toContain('Итого;51200,00;10;5120,00;4;12800,00;10500,00;-79');
+          |               ^
+      207 |   expect(csv).toContain(`${today};51200,00;10;5120,00;4;3;10500,00;-79`);
+      208 |   expect(csv).toContain('Сайт;0,00;6;;2;;5000,00;');
+      209 | });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/tests/ui/marketing-budget.spec.ts:206:15
+
+    Error Context: test-results/marketing-budget-аналитика-4d778-без-кабинетов-только-расход/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-budget-аналитика-4d778-без-кабинетов-только-расход/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-budget-аналитика-4d778-без-кабинетов-только-расход/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/marketing-budget.spec.ts:142:1 › аналитика маркетинга: воронка, CPL, стоимость брони и ROMI из результатов каналов; реклама без кабинетов только расход 
+
+# код выхода 1 · 15 с

@@ -147,7 +147,7 @@ test('«Регистрация» при открытой регистрации 
   await page.goto('/');
   await page
     .locator('.public-intro')
-    .getByRole('link', { name: /Попробовать бесплатно/ })
+    .getByRole('link', { name: /Начать работу/ })
     .click();
 
   const dialog = page.getByRole('dialog');
@@ -360,5 +360,54 @@ test('registration: three countries, correct dial codes and English preference',
     phoneCountry: 'QA',
     phone: '5550 1234',
     locale: 'en',
+  });
+});
+
+test('путь посетителя: главная → салоны → спа → «Начать работу»; ошибка без ложного успеха, повтор проходит', async ({
+  page,
+}) => {
+  // Подставные ответы стойки: первая отправка отклонена, вторая принята. Настоящих заявок нет.
+  let attempts = 0;
+  const calls = await mockDesk(page, {
+    options: () => ({ status: 200, body: { registrationEnabled: true } }),
+    register: (body) =>
+      ++attempts === 1
+        ? { status: 409, body: { message: 'Почта уже зарегистрирована' } }
+        : { status: 200, body: { email: (body as { email: string }).email, sent: true } },
+  });
+  await page.goto('/');
+  await page.locator('.site-footer__directions a[href="/for/salons/"]').click();
+  await expect(page).toHaveURL(/\/for\/salons\/$/);
+  await page.locator('main .card a[href="/for/spa/"]').click();
+  await expect(page).toHaveURL(/\/for\/spa\/$/);
+  const cta = page.locator('.hotel-hero').getByRole('link', { name: /Начать работу/ });
+  await expect(cta).toHaveAttribute('href', 'https://wetop.ai/?vertical=BEAUTY#register');
+  await cta.click();
+
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+  // Категория страницы только подсказка направления: организацию и роль окно само не создаёт
+  await expect(dialog.locator('input[name="vertical"]:checked')).toHaveValue('BEAUTY');
+  await dialog.getByLabel('Имя').fill('Дана Тестова');
+  await dialog.getByLabel('Название бизнеса').fill('Тестовое спа');
+  await dialog.getByLabel('Страна', { exact: true }).selectOption('KZ');
+  await dialog.getByLabel('Телефон').fill('701 555 44 33');
+  await dialog.getByLabel('Почта').fill('spa@example.invalid');
+  await dialog.getByLabel('Пароль', { exact: true }).fill('parol-dlya-testa');
+  await dialog.getByRole('checkbox', { name: /политикой конфиденциальности/ }).check();
+  const submit = dialog.getByRole('button', { name: 'Создать аккаунт', exact: true });
+
+  await submit.click();
+  await expect(dialog.getByRole('alert')).toContainText('Почта уже зарегистрирована');
+  await expect(dialog.getByRole('heading', { name: 'Проверьте почту' })).toHaveCount(0);
+
+  await submit.click();
+  await expect(dialog.getByRole('heading', { name: 'Проверьте почту' })).toBeVisible();
+  const sent = calls.filter((c) => c.path === 'register');
+  expect(sent).toHaveLength(2);
+  expect(sent[1]?.body).toMatchObject({
+    vertical: 'BEAUTY',
+    locale: 'ru',
+    email: 'spa@example.invalid',
   });
 });

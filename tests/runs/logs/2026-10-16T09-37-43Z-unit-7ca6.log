@@ -1,0 +1,55 @@
+# Модульные (unit) · 16.10.2026 14:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 823661d (claude/marketing-expense-files), незакоммиченных файлов набора: 17
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T09-37-43Z-unit-7ca6.json' 'apps/web/src/app/marketing' 'apps/api/src/marketing-budget' 'apps/api/src/auth/route-access.test.ts' 'apps/api/src/hotel' 'packages/domain/src/marketing' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| packages/domain/src/marketing/generation.test.ts (18 tests) 69ms
+ ✓ |unit| packages/domain/src/marketing/edit.test.ts (30 tests) 66ms
+ ✓ |unit| packages/domain/src/marketing/site-spec.test.ts (40 tests) 94ms
+ ✓ |unit| packages/domain/src/marketing/site-spec-v1.test.ts (17 tests) 27ms
+ ✓ |unit| packages/domain/src/marketing/site-templates.test.ts (7 tests) 19ms
+ ✓ |unit| packages/domain/src/marketing/editor.test.ts (14 tests) 30ms
+ ✓ |unit| packages/domain/src/marketing/design-presets.test.ts (10 tests) 29ms
+ ✓ |unit| packages/domain/src/marketing/brief.test.ts (28 tests) 30ms
+ ✓ |unit| packages/domain/src/marketing/starter.test.ts (14 tests) 22ms
+ ✓ |unit| packages/domain/src/marketing/site-lead.test.ts (9 tests) 5ms
+ ✓ |unit| packages/domain/src/marketing/diff.test.ts (9 tests) 10ms
+ ✓ |unit| packages/domain/src/marketing/builder.test.ts (18 tests) 10ms
+ ✓ |unit| packages/domain/src/marketing/funnel.test.ts (10 tests) 465ms
+   ✓ воронка маркетинга: расходы → обращения → брони → выручка (МКТ-В5a, Q-MKT-ATTR) (7)
+     ✓ итог: все расходы против всех результатов каналов; деление на ноль не случается 460ms
+ ✓ |unit| apps/api/src/hotel/services-catalog.test.ts (6 tests) 103ms
+ ✓ |unit| apps/api/src/hotel/hotel.controller.test.ts (12 tests) 445ms
+ ✓ |unit| apps/api/src/hotel/reservation-directory.test.ts (18 tests) 138ms
+ ✓ |unit| packages/domain/src/marketing/expense-import.test.ts (5 tests) 18ms
+ ✓ |unit| apps/api/src/hotel/property-media.test.ts (8 tests) 144ms
+ ✓ |unit| apps/api/src/hotel/payment-methods.test.ts (5 tests) 19ms
+ ✓ |unit| apps/api/src/hotel/branches.test.ts (13 tests) 68ms
+ ✓ |unit| apps/api/src/marketing-budget/marketing-budget.service.test.ts (16 tests) 55ms
+ ✓ |unit| apps/api/src/hotel/onboarding.test.ts (11 tests) 18ms
+ ✓ |unit| packages/domain/src/marketing/budget.test.ts (31 tests) 11ms
+ ✓ |unit| packages/domain/src/marketing/conversation.test.ts (9 tests) 5ms
+ ✓ |unit| packages/domain/src/marketing/host.test.ts (26 tests) 18ms
+ ✓ |unit| apps/api/src/hotel/settings-update.test.ts (11 tests) 12ms
+ ✓ |unit| apps/web/src/app/marketing/analytics/report.test.ts (2 tests) 10ms
+ ✓ |unit| packages/domain/src/marketing/runtime.test.ts (20 tests) 6ms
+ ✓ |unit| apps/api/src/hotel/branch-lifecycle.test.ts (3 tests) 15ms
+ ✓ |unit| apps/api/src/hotel/business-cards.test.ts (8 tests) 73ms
+ ✓ |unit| apps/web/src/app/marketing/budget/derive.test.ts (12 tests) 10ms
+ ✓ |unit| apps/api/src/hotel/organization-summary.test.ts (3 tests) 23ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 29ms
+ ✓ |unit| packages/domain/src/marketing/assets.test.ts (10 tests) 19ms
+ ✓ |unit| apps/api/src/hotel/branch-context.test.ts (4 tests) 16ms
+ ✓ |unit| apps/api/src/hotel/settings-concurrency.test.ts (3 tests) 18ms
+ ✓ |unit| apps/api/src/hotel/first-steps.test.ts (2 tests) 6ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 158ms
+
+ Test Files  38 passed (38)
+      Tests  483 passed (483)
+   Start at  02:37:51
+   Duration  15.29s (import 64%, transform 33%, tests 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T09-37-43Z-unit-7ca6.json
+
+# код выхода 0 · 23 с

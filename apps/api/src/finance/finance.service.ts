@@ -680,6 +680,7 @@ export class FinanceService {
    * выравнивается обычной операцией кассы той же транзакцией — лента остаётся единственным источником движений.
    */
   async createCashReconciliation(dto: {
+    idempotencyKey?: string | undefined;
     method?: string;
     counted?: string | number;
     note?: string | null;
@@ -703,9 +704,10 @@ export class FinanceService {
             categoryName: delta.kind === 'INCOME' ? 'Излишек кассы' : 'Недостача кассы',
           };
     const note = freeTextForStorage(dto.note?.trim() || null);
+    let original: CashView | undefined;
     await lockedWrite(
       this.repo.createCashReconciliation(
-        { method: method as PaymentMethod, expectedMinor, countedMinor, note, adjustment },
+        { method: method as PaymentMethod, expectedMinor, countedMinor, note, adjustment, idempotencyKey:dto.idempotencyKey,intentAdjust:!!dto.adjust },
         {
           entityType: 'CashReconciliation',
           action: 'finance.cash.reconciliation',
@@ -720,9 +722,13 @@ export class FinanceService {
             ...(note === null ? {} : { note: maskContacts(note) }),
           },
         },
+        async (repo, saved) => {
+          original = saved ? saved as CashView : await new FinanceService(repo!, this.units).cash();
+          return original;
+        },
       ),
     );
-    return this.cash();
+    return original ?? this.cash();
   }
 
   async createCashCategory(dto: { kind?: string; name?: string }): Promise<CashCategoryView[]> {
@@ -808,6 +814,7 @@ export class FinanceService {
 
   /** Поступление или расход мимо счетов гостей; оплата брони проводится как платёж (`POST /finance/payments`) */
   async createCashOperation(dto: {
+    idempotencyKey?: string | undefined;
     kind?: string;
     method?: string;
     amount?: string | number;
@@ -825,6 +832,7 @@ export class FinanceService {
 
   /** Перевод между способами; комиссия — связанный расход той же транзакцией */
   async createCashTransfer(dto: {
+    idempotencyKey?: string | undefined;
     from?: string;
     to?: string;
     amount?: string | number;
@@ -834,6 +842,7 @@ export class FinanceService {
   }): Promise<CashView> {
     return this.writeCashOperation({
       kind: 'TRANSFER',
+      idempotencyKey: dto.idempotencyKey,
       method: dto.from,
       methodTo: dto.to,
       amount: dto.amount,
@@ -844,6 +853,7 @@ export class FinanceService {
   }
 
   private async writeCashOperation(dto: {
+    idempotencyKey?: string | undefined;
     kind: CashKind;
     method?: string | undefined;
     methodTo?: string | undefined;
@@ -883,9 +893,11 @@ export class FinanceService {
       throw new BadRequestException('occurredAt — дата-время ISO 8601');
     const commission = await this.commission(amountMinor, dto.commission, categories);
     const note = freeTextForStorage(dto.note?.trim() || null);
+    let original: CashView | undefined;
     await lockedWrite(
       this.repo.createCashOperation(
         {
+          idempotencyKey:dto.idempotencyKey,
           kind: dto.kind,
           method: dto.method as PaymentMethod,
           methodTo: (dto.methodTo as PaymentMethod | undefined) ?? null,
@@ -909,9 +921,13 @@ export class FinanceService {
             ...(note === null ? {} : { note: maskContacts(note) }),
           },
         },
+        async (repo, saved) => {
+          original = saved ? saved as CashView : await new FinanceService(repo!, this.units).cash();
+          return original;
+        },
       ),
     );
-    return this.cash();
+    return original ?? this.cash();
   }
 
   /** Аннулирование операции кассы: прошлое не правится, статус VOIDED; комиссия — вместе с основной */

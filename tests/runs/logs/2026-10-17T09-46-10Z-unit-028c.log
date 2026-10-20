@@ -1,0 +1,156 @@
+# Модульные (unit) · 17.10.2026 14:46 Алматы · <сервер>
+# коммит 1d006bc (integrate/tz21-5417daa6), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T09-46-10Z-unit-028c.json' 'apps/web/src/components/dialog-focus.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ❯  unit  apps/web/src/components/dialog-focus.test.ts (17 tests | 14 failed) 30ms
+   ❯ ConfirmDialog focus regression (2)
+     × wraps Tab from Confirm back to Cancel instead of allowing focus to leave 14ms
+     × uses the shared Overlay focus handler directly 4ms
+   ❯ trapDialogFocus (12)
+     × wraps forward from the last visible control 1ms
+     × wraps backward from the first visible control 1ms
+     × leaves middle-control Tab unchanged (shift=false) 1ms
+     × leaves middle-control Tab unchanged (shift=true) 0ms
+     × does not handle Escape 1ms
+     × does not handle Enter 0ms
+     × does not handle ArrowDown 1ms
+     × excludes hidden and inert controls from both boundaries (shift=false) 1ms
+     × excludes hidden and inert controls from both boundaries (shift=true) 1ms
+     × prevents escape when no eligible controls exist (shift=false) 1ms
+     × prevents escape when no eligible controls exist (shift=true) 1ms
+     × ignores a key event belonging to a nested dialog 1ms
+   ✓ Overlay trapFocus remains opt-in (3)
+     ✓ handles Tab only when trapFocus=false 1ms
+     ✓ handles Tab only when trapFocus=true 1ms
+     ✓ does not close the parent Overlay for a nested dialog cancel 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 14 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   unit  apps/web/src/components/dialog-focus.test.ts > ConfirmDialog focus regression > wraps Tab from Confirm back to Cancel instead of allowing focus to leave
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ apps/web/src/components/dialog-focus.test.ts:56:30
+     54|     const e = f.event();
+     55|     confirm().props.onKeyDown?.(e);
+     56|     expect(e.preventDefault).toHaveBeenCalledOnce();
+       |                              ^
+     57|     expect(f.doc.activeElement).toBe(f.first);
+     58|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯
+
+ FAIL   unit  apps/web/src/components/dialog-focus.test.ts > ConfirmDialog focus regression > uses the shared Overlay focus handler directly
+AssertionError: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ apps/web/src/components/dialog-focus.test.ts:61:39
+     59|
+     60|   it('uses the shared Overlay focus handler directly', () => {
+     61|     expect(confirm().props.onKeyDown).toBeTypeOf('function');
+       |                                       ^
+     62|     expect(confirm().props.onKeyDown).toBe(overlay.trapDialogFocus);
+     63|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯
+
+ FAIL   unit  apps/web/src/components/dialog-focus.test.ts > trapDialogFocus > wraps forward from the last visible control
+TypeError: trapDialogFocus is not a function
+ ❯ apps/web/src/components/dialog-focus.test.ts:71:13
+     69|     f.doc.activeElement = f.last;
+     70|     const e = f.event();
+     71|     overlay.trapDialogFocus(e);
+       |             ^
+     72|     expect(e.preventDefault).toHaveBeenCalledOnce();
+     73|     expect(f.first.focus).toHaveBeenCalledOnce();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/14]⎯
+
+ FAIL   unit  apps/web/src/components/dialog-focus.test.ts > trapDialogFocus > wraps backward from the first visible control
+TypeError: trapDialogFocus is not a function
+ ❯ apps/web/src/components/dialog-focus.test.ts:81:13
+     79|     f.doc.activeElement = f.first;
+     80|     const e = f.event('Tab', true);
+     81|     overlay.trapDialogFocus(e);
+       |             ^
+     82|     expect(e.preventDefault).toHaveBeenCalledOnce();
+     83|     expect(f.last.focus).toHaveBeenCalledOnce();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/14]⎯
+
+ FAIL   unit  apps/web/src/components/dialog-focus.test.ts > trapDialogFocus > leaves middle-control Tab unchanged (shift=false)
+ FAIL   unit  apps/web/src/components/dialog-focus.test.ts > trapDialogFocus > leaves middle-control Tab unchanged (shift=true)
+TypeError: trapDialogFocus is not a function
+ ❯ apps/web/src/components/dialog-focus.test.ts:91:13
+     89|     f.doc.activeElement = f.middle;
+     90|     const e = f.event('Tab', shift);
+     91|     overlay.trapDialogFocus(e);
+       |             ^
+     92|     expect(e.preventDefault).not.toHaveBeenCalled();
+     93|     expect(f.doc.activeElement).toBe(f.middle);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/14]⎯
+
+ FAIL   unit  apps/web/src/components/dialog-focus.test.ts > trapDialogFocus > does not handle Escape
+ FAIL   unit  apps/web/src/components/dialog-focus.test.ts > trapDialogFocus > does not handle Enter
+ FAIL   unit  apps/web/src/components/dialog-focus.test.ts > trapDialogFocus > does not handle ArrowDown
+TypeError: trapDialogFocus is not a function
+ ❯ apps/web/src/components/dialog-focus.test.ts:102:13
+    100|     f.doc.activeElement = f.last;
+    101|     const e = f.event(key);
+    102|     overlay.trapDialogFocus(e);
+       |             ^
+    103|     expect(e.preventDefault).not.toHaveBeenCalled();
+    104|     expect(f.querySelectorAll).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/14]⎯
+
+ FAIL   unit  apps/web/src/components/dialog-focus.test.ts > trapDialogFocus > excludes hidden and inert controls from both boundaries (shift=false)
+ FAIL   unit  apps/web/src/components/dialog-focus.test.ts > trapDialogFocus > excludes hidden and inert controls from both boundaries (shift=true)
+TypeError: trapDialogFocus is not a function
+ ❯ apps/web/src/components/dialog-focus.test.ts:115:13
+    113|     f.doc.activeElement = shift ? f.first : f.last;
+    114|     const e = f.event('Tab', shift);
+    115|     overlay.trapDialogFocus(e);
+       |             ^
+    116|     expect(e.preventDefault).toHaveBeenCalledOnce();
+    117|     expect(f.doc.activeElement).toBe(shift ? f.last : f.first);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/14]⎯
+
+ FAIL   unit  apps/web/src/components/dialog-focus.test.ts > trapDialogFocus > prevents escape when no eligible controls exist (shift=false)
+ FAIL   unit  apps/web/src/components/dialog-focus.test.ts > trapDialogFocus > prevents escape when no eligible controls exist (shift=true)
+TypeError: trapDialogFocus is not a function
+ ❯ apps/web/src/components/dialog-focus.test.ts:126:13
+    124|     f.querySelectorAll.mockReturnValue([f.control({ visible: false }),…
+    125|     const e = f.event('Tab', shift);
+    126|     overlay.trapDialogFocus(e);
+       |             ^
+    127|     expect(e.preventDefault).toHaveBeenCalledOnce();
+    128|     expect(f.doc.activeElement).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/14]⎯
+
+ FAIL   unit  apps/web/src/components/dialog-focus.test.ts > trapDialogFocus > ignores a key event belonging to a nested dialog
+TypeError: trapDialogFocus is not a function
+ ❯ apps/web/src/components/dialog-focus.test.ts:136:13
+    134|     f.doc.activeElement = f.last;
+    135|     const e = f.event();
+    136|     overlay.trapDialogFocus(e);
+       |             ^
+    137|     expect(f.target.closest).toHaveBeenCalledWith('dialog');
+    138|     expect(f.querySelectorAll).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/14]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  14 failed | 3 passed (17)
+   Start at  09:46:11
+   Duration  529ms (transform 47%, import 43%, tests 8%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-17T09-46-10Z-unit-028c.json
+
+# код выхода 1 · 2 с

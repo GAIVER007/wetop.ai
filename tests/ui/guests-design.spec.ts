@@ -14,8 +14,16 @@ const fixture = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
-test.afterEach(async ({ request }) => {
-  await request.post(`${fixture}/__test/control`, { data: {} });
+test.afterEach(async ({ playwright }) => {
+  // Browser work can leave the body's request pool at Node's idle-socket expiry boundary.
+  // Cleanup uses its own connection, with no retry; real HTTP/transport failures still fail the test.
+  const control = await playwright.request.newContext();
+  try {
+    const response = await control.post(`${fixture}/__test/control`, { data: {} });
+    expect(response.ok(), `fixture control cleanup: HTTP ${response.status()}`).toBe(true);
+  } finally {
+    await control.dispose();
+  }
 });
 
 test('гости: полная карточка — обзор, вся история, «Редактировать» (G4)', async ({

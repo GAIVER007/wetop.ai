@@ -21,14 +21,11 @@ const groups = <K extends string>(registry: StatusRegistry<K>, order: readonly K
     K,
     string
   >;
-/** Счётчики аналитики: группы из реестров салона и ресторана (DS1a), порядок колонок прежний */
-export const BEAUTY_LABELS = groups(beautyStatus, [
-  'BOOKED',
-  'CONFIRMED',
-  'DONE',
-  'NO_SHOW',
-  'CANCELLED',
-]);
+/** Canonical registry is exhaustive over AppointmentStatus; reports cannot omit a newly added status. */
+export const BEAUTY_LABELS = groups(
+  beautyStatus,
+  Object.keys(beautyStatus) as (keyof typeof beautyStatus)[],
+);
 export const FOOD_LABELS = groups(foodStatus, [
   'BOOKED',
   'CONFIRMED',

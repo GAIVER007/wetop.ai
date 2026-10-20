@@ -8,6 +8,8 @@
  * после сбоя сети не создаёт вторую заявку. Turnstile, если API отдаёт его ключ в `GET /w/config`, тем же порядком,
  * что у виджета брони. Ответ показывается текстом (`textContent`), разметки из ответа нет.
  */
+import { BEAUTY_FORM_JS } from './beauty-form-script';
+
 export const LEAD_JS = `(function () {
   var s = document.currentScript;
   if (!s || !window.fetch || !window.JSON) return;
@@ -50,6 +52,7 @@ export const LEAD_JS = `(function () {
     var el = form.elements[name];
     return el ? String(el.value || '').trim() : '';
   }
+  ${BEAUTY_FORM_JS}
   function setup(form) {
     var mode = form.getAttribute('data-mode');
     var endpoint = form.getAttribute('data-endpoint');
@@ -75,8 +78,10 @@ export const LEAD_JS = `(function () {
         });
       }).catch(function () {});
     });
+    var beauty = mode === 'BEAUTY_APPOINTMENT' ? setupBeauty(form, say, submit) : null;
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
+      if (beauty && !beauty.ready()) return;
       if (!form.reportValidity || form.reportValidity()) {
         if (!attempt) attempt = uuid();
         var body = { k: key, name: value(form, 'name'), phone: value(form, 'phone'), requestKey: attempt, lang: lang };
@@ -86,15 +91,16 @@ export const LEAD_JS = `(function () {
         if (hp && hp.value) body.website = hp.value;
         if (token) body.turnstileToken = token;
         if (mode === 'BEAUTY_APPOINTMENT') {
-          body.serviceCode = value(form, 'serviceCode');
+          body.serviceId = value(form, 'serviceId');
           var employee = value(form, 'employeeId');
           if (employee) body.employeeId = employee;
-          body.startsAt = value(form, 'date') + 'T' + value(form, 'time');
+          body.startsAt = value(form, 'startsAt');
         } else if (mode === 'TABLE_RESERVATION') {
           body.date = value(form, 'date');
           body.time = value(form, 'time');
           body.partySize = parseInt(value(form, 'partySize'), 10);
         }
+        if (beauty) beauty.pending(true);
         submit.disabled = true;
         say(form.getAttribute('data-sending'));
         fetch(api + endpoint, {
@@ -104,24 +110,37 @@ export const LEAD_JS = `(function () {
           credentials: 'omit',
         })
           .then(function (r) {
-            return r.json().catch(function () { return {}; }).then(function (data) { return { ok: r.ok, data: data }; });
+            return r.json().catch(function () { return {}; }).then(function (data) { return { ok: r.ok, status: r.status, data: data }; });
           })
           .then(function (res) {
             if (res.ok) {
+              if (beauty && !beauty.confirm(res.data)) throw new Error('Invalid booking response');
               attempt = null;
-              form.reset();
+              if (!beauty) form.reset();
+              else {
+                token = '';
+                if (widget !== null && window.turnstile) try { window.turnstile.reset(widget); } catch (e) {}
+              }
               say(form.getAttribute('data-done'));
               try { if (typeof window.pms === 'function') window.pms('event', 'booking_step', { step: 'done' }); } catch (e) {}
             } else {
+              if (beauty) {
+                token = '';
+                if (widget !== null && window.turnstile) try { window.turnstile.reset(widget); } catch (e) {}
+              }
+              if (beauty && res.status === 409) beauty.clear();
               var msg = res.data && typeof res.data.message === 'string' ? res.data.message : form.getAttribute('data-error');
               say(msg);
             }
           })
           .catch(function () { say(form.getAttribute('data-error')); })
           .then(function () {
-            submit.disabled = false;
-            token = '';
-            if (widget !== null && window.turnstile) try { window.turnstile.reset(widget); } catch (e) {}
+            if (beauty) beauty.pending(false);
+            else {
+              submit.disabled = false;
+              token = '';
+              if (widget !== null && window.turnstile) try { window.turnstile.reset(widget); } catch (e) {}
+            }
           });
       }
     });

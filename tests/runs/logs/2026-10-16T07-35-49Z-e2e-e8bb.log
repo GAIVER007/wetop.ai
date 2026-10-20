@@ -1,0 +1,109 @@
+# Сквозные (e2e) · 16.10.2026 12:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5b5edf1 (claude/combined-431-279), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/hospitality-read-only.spec.ts' 'tests/ui/ui-fix-01-access.spec.ts' 'tests/ui/ui-fix-01-kb.spec.ts' 'tests/ui/ui-fix-01-visual.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 81 tests using 1 worker
+
+  ✓   1 tests/ui/hospitality-read-only.spec.ts:15:1 › H-01: календарь сохраняет чтение и навигацию, но не предлагает команды записи (4.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1729473843'
+[WebServer] }
+  ✓   2 tests/ui/hospitality-read-only.spec.ts:38:1 › H-01: прямые страницы брони и ячейки не показывают формы записи (3.2s)
+[WebServer] [browser] Each child in a list should have a unique "key" prop.
+[WebServer] 
+[WebServer] Check the render method of `StockBoard`. It was passed a child from BarPage. See https://react.dev/link/warning-keys for more information. 
+  ✓   3 tests/ui/hospitality-read-only.spec.ts:56:1 › H-01: фонд и Bar оставляют просмотр без редакторов и submit-команд (3.1s)
+  ✓   4 tests/ui/hospitality-read-only.spec.ts:80:1 › H-01: Channels оставляет события доступными для чтения, но закрывает exchange и retry (2.4s)
+  ✓   5 tests/ui/ui-fix-01-access.spec.ts:2:1 › C-P1-1: failed access structure blocks invitations (1.5s)
+  ✓   6 tests/ui/ui-fix-01-access.spec.ts:20:1 › C-P1-1: recovery allows explicit organization scope (2.2s)
+  ✓   7 tests/ui/ui-fix-01-access.spec.ts:42:1 › C-P1-1 malformed successful response does not allow a broad invitation (1.5s)
+  ✓   8 tests/ui/ui-fix-01-access.spec.ts:61:1 › scope switch closes the old invitation and blocks commands until recovery (1.2s)
+  ✓   9 tests/ui/ui-fix-01-kb.spec.ts:35:1 › C-P1-2 unsaved text cannot publish (2.0s)
+  ✓  10 tests/ui/ui-fix-01-kb.spec.ts:42:1 › C-P1-2 save then publish B survives reload (2.1s)
+  ✓  11 tests/ui/ui-fix-01-kb.spec.ts:56:1 › C-P1-2 editing C during save B preserves C as dirty (4.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1729473843'
+[WebServer] }
+  ✓  12 tests/ui/ui-fix-01-kb.spec.ts:74:1 › C-P1-2 initial create B keeps typed C, then PATCHes the same document (9.9s)
+  ✓  13 tests/ui/ui-fix-01-kb.spec.ts:126:1 › C-P1-2 save and publish failures preserve text without false success (1.8s)
+  -  14 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /team
+  -  15 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /platform/support/base
+  -  16 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /inventory
+  -  17 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /rooms/categories
+  -  18 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /chessboard
+  -  19 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /reservations/new
+  -  20 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /reservations/20260913-TEST1
+  -  21 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /units/R02
+  -  22 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /bar
+  -  23 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /bar/products
+  -  24 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /bar/operations
+  -  25 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /bar/receipts
+  -  26 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /bar/receipts/new
+  -  27 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /bar/suppliers
+  -  28 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /channels/sync
+  -  29 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /channels/events
+  -  30 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 1440 /help
+  -  31 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /team
+  -  32 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /platform/support/base
+  -  33 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /inventory
+  -  34 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /rooms/categories
+  -  35 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /chessboard
+  -  36 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /reservations/new
+  -  37 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /reservations/20260913-TEST1
+  -  38 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /units/R02
+  -  39 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /bar
+  -  40 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /bar/products
+  -  41 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /bar/operations
+  -  42 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /bar/receipts
+  -  43 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /bar/receipts/new
+  -  44 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /bar/suppliers
+  -  45 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /channels/sync
+  -  46 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /channels/events
+  -  47 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 light 390 /help
+  -  48 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /team
+  -  49 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /platform/support/base
+  -  50 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /inventory
+  -  51 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /rooms/categories
+  -  52 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /chessboard
+  -  53 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /reservations/new
+  -  54 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /reservations/20260913-TEST1
+  -  55 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /units/R02
+  -  56 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /bar
+  -  57 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /bar/products
+  -  58 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /bar/operations
+  -  59 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /bar/receipts
+  -  60 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /bar/receipts/new
+  -  61 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /bar/suppliers
+  -  62 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /channels/sync
+  -  63 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /channels/events
+  -  64 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 1440 /help
+  -  65 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /team
+  -  66 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /platform/support/base
+  -  67 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /inventory
+  -  68 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /rooms/categories
+  -  69 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /chessboard
+  -  70 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /reservations/new
+  -  71 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /reservations/20260913-TEST1
+  -  72 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /units/R02
+  -  73 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /bar
+  -  74 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /bar/products
+  -  75 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /bar/operations
+  -  76 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /bar/receipts
+  -  77 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /bar/receipts/new
+  -  78 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /bar/suppliers
+  -  79 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /channels/sync
+  -  80 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /channels/events
+  -  81 tests/ui/ui-fix-01-visual.spec.ts:29:7 › UI-FIX-01 dark 390 /help
+
+  68 skipped
+  13 passed (44.4s)
+
+# код выхода 0 · 45 с

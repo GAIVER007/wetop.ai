@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 17.10.2026 13:35 Алматы · <сервер>
+# коммит 08f5f5b (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 15
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T08-35-52Z-integration-90b5.json' 'tests/integration/tz21-working-time.test.ts' '--maxWorkers=1' '--testTimeout=15000'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ✓  integration  tests/integration/tz21-working-time.test.ts (12 tests) 2879ms
+   ✓ TZ2.1 D real PostgreSQL consumers and CAS (12)
+     ✓ portal and Beauty expose one source revision and reject a stale cross-writer save 305ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  08:35:54
+   Duration  10.86s (transform 40%, tests 36%, import 25%)
+
+JSON report written to /tmp/pms-test-2026-10-17T08-35-52Z-integration-90b5.json
+
+# код выхода 0 · 13 с

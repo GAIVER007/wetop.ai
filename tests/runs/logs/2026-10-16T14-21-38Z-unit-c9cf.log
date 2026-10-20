@@ -1,0 +1,84 @@
+# Модульные (unit) · 16.10.2026 19:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9f59cf6 (claude/marketing-ai-targetolog-design), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T14-21-38Z-unit-c9cf.json' 'packages/domain/src/accounts/permissions.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| packages/domain/src/accounts/permissions.test.ts (15 tests | 2 failed) 7ms
+   ❯ права ролей (11)
+     × четырнадцать прав и своё; у каждого название 4ms
+     ✓ владельцу — всё 0ms
+     ✓ управляющему — всё, кроме владельческого 0ms
+     ✓ администратору — своё, работа с гостями, диалоги продавца и отчёты на просмотр 0ms
+     × запуск и остановка рекламы: владелец и управляющий, не администратор (ADR-MKT-LAUNCH, §57) 1ms
+     ✓ возврат и сторно — владелец и управляющий, не администратор (Q-024) 0ms
+     ✓ администратор не видит тарифы, каналы, настройки, журнал, сотрудников и настройки продавца 0ms
+     ✓ маркетинг (ADR-MKT-B7): своё право у владельца и управляющего, не у администратора 0ms
+     ✓ неизвестная роль не открывает ничего — даже своё 0ms
+     ✓ у кого право — по порядку ролей 0ms
+     ✓ отказ называет раздел и у кого доступ 0ms
+   ✓ тариф брони без тарифа у администратора (Q-201) (4)
+     ✓ назначить можно тариф со штрафом «первые сутки» или «всё проживание», без штрафа — нет 0ms
+     ✓ владелец и управляющий выбирают любой тариф — и у брони с тарифом, и без 0ms
+     ✓ администратору у брони с тарифом выбирать нечего, у брони без тарифа — только со штрафом 0ms
+     ✓ тариф без правила штрафа (старый ответ API) администратору не предлагается 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/accounts/permissions.test.ts > права ролей > четырнадцать прав и своё; у каждого название
+AssertionError: expected [ 'self', 'desk', 'dialogs', …(11) ] to deeply equal [ 'self', 'desk', 'dialogs', …(12) ]
+
+- Expected
++ Received
+
+@@ -7,11 +7,10 @@
+    "property",
+    "rates",
+    "channels",
+    "settings",
+    "marketing",
+-   "ads_launch",
+    "journal",
+    "seller",
+    "staff",
+    "owner",
+  ]
+
+ ❯ packages/domain/src/accounts/permissions.test.ts:22:17
+     20|
+     21|   it('четырнадцать прав и своё; у каждого название', () => {
+     22|     expect(all).toEqual([
+       |                 ^
+     23|       'self',
+     24|       'desk',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/permissions.test.ts > права ролей > запуск и остановка рекламы: владелец и управляющий, не администратор (ADR-MKT-LAUNCH, §57)
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ packages/domain/src/accounts/permissions.test.ts:55:40
+     53|
+     54|   it('запуск и остановка рекламы: владелец и управляющий, не администр…
+     55|     expect(can('OWNER', 'ads_launch')).toBe(true);
+       |                                        ^
+     56|     expect(can('MANAGER', 'ads_launch')).toBe(true);
+     57|     expect(can('STAFF', 'ads_launch')).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 13 passed (15)
+   Start at  07:21:40
+   Duration  96ms (transform 55%, tests 20%, import 18%, worker 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T14-21-38Z-unit-c9cf.json
+
+# код выхода 1 · 2 с

@@ -716,7 +716,7 @@ test('Food excludes every registered foreign workspace route before API requests
     '/inventory',
     '/rates',
     '/channels',
-    '/bar',
+    // `/bar` больше не чужой: бар общий модуль филиала (ADR-178), проверяет restaurant.spec.ts
     '/hotel-settings',
   ]) {
     await page.goto(route);

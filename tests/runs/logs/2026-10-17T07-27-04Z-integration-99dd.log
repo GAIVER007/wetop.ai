@@ -1,0 +1,104 @@
+# Интеграционные (integration) · 17.10.2026 12:27 Алматы · <сервер>
+# коммит 782b605 (fix/tz21-cash-people-working-time), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-17T07-27-04Z-integration-99dd.json' 'tests/integration/employee-common-writer.test.ts' 'tests/integration/employee-workspace.test.ts' 'tests/integration/employee-portal.test.ts' 'tests/integration/employee-portal-payroll-scope.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-tz21-local/tree
+
+ ✓  integration  tests/integration/employee-common-writer.test.ts (19 tests) 4336ms
+   ✓ TZ2.1 common Employee original-version writer, PostgreSQL RLS (19)
+     ✓ runs as wetop_app without bypass or ownership 739ms
+     ✓ BEAUTY: both original revisions are checked, including a profile-only competing change 304ms
+     ✓ BEAUTY: source microseconds survive reads and rapid saves; identity and consent survive 396ms
+     ✓ FOOD_SERVICE: forbidden fields and foreign employee cannot alter either source 469ms
+ ❯  integration  tests/integration/employee-workspace.test.ts (9 tests | 2 failed) 2768ms
+   ❯ PEOPLE profile CAS on real PostgreSQL with RLS (9)
+     ✓ application role is neither superuser nor BYPASSRLS nor Employee table owner 272ms
+     ✓ stale profile does not overwrite a newer phone 559ms
+     × legacy profile write without a token remains compatible 68ms
+     ✓ two concurrent profile writes admit one winner 80ms
+     ✓ successive writes advance the full timestamp token 153ms
+     ✓ an existing microsecond timestamp survives DB to API to request 65ms
+     ✓ profile status stays separate from membership and skills 47ms
+     ✓ a child services write does not advance the profile token 51ms
+     × foreign Employee and STAFF writes are rejected 20ms
+ ❯  integration  tests/integration/employee-portal-payroll-scope.test.ts (0 test)
+ ❯  integration  tests/integration/employee-portal.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   integration  tests/integration/employee-portal-payroll-scope.test.ts [ tests/integration/employee-portal-payroll-scope.test.ts ]
+Error: Portal fixtures require an owned loopback cluster or the dedicated GitHub job database
+ ❯ assertPortalDatabase tests/employee-portal-ui/fixture-support.ts:19:11
+     17|     && u.port === '5432' && u.pathname === '/pms_dev';
+     18|   if (u.protocol !== 'postgresql:' || u.hostname !== '127.0.0.1' || u.…
+     19|     throw new Error('Portal fixtures require an owned loopback cluster…
+       |           ^
+     20|   return raw;
+     21| }
+ ❯ tests/integration/employee-portal-payroll-scope.test.ts:12:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL   integration  tests/integration/employee-portal.test.ts [ tests/integration/employee-portal.test.ts ]
+Error: Portal fixtures require an owned loopback cluster or the dedicated GitHub job database
+ ❯ assertPortalDatabase tests/employee-portal-ui/fixture-support.ts:19:11
+     17|     && u.port === '5432' && u.pathname === '/pms_dev';
+     18|   if (u.protocol !== 'postgresql:' || u.hostname !== '127.0.0.1' || u.…
+     19|     throw new Error('Portal fixtures require an owned loopback cluster…
+       |           ^
+     20|   return raw;
+     21| }
+ ❯ tests/integration/employee-portal.test.ts:13:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   integration  tests/integration/employee-workspace.test.ts > PEOPLE profile CAS on real PostgreSQL with RLS > legacy profile write without a token remains compatible
+BadRequestException: expectedProfileRevision required: некорректная или отсутствующая версия профиля
+ ❯ employeeProfileRevision apps/api/src/employee-portal/employee-common.ts:12:11
+     10| export function employeeProfileRevision(value: unknown): string {
+     11|   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d…
+     12|     throw new BadRequestException('expectedProfileRevision required: н…
+       |           ^
+     13|   return value;
+     14| }
+ ❯ writeEmployeeCommon apps/api/src/employee-portal/employee-common.ts:29:18
+ ❯ apps/api/src/beauty/beauty.module.ts:487:63
+ ❯ prisma.db.$transaction.maxWait apps/api/src/beauty/scope.ts:112:30
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ beautyTransaction apps/api/src/beauty/scope.ts:102:12
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/employee-workspace.test.ts:119:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL   integration  tests/integration/employee-workspace.test.ts > PEOPLE profile CAS on real PostgreSQL with RLS > foreign Employee and STAFF writes are rejected
+AssertionError: expected [Function] to throw error matching /не найден/i but got 'expectedProfileRevision required: нек…'
+
+- Expected:
+/не найден/i
+
++ Received:
+"expectedProfileRevision required: некорректная или отсутствующая версия профиля"
+
+ ❯ tests/integration/employee-workspace.test.ts:182:84
+    180|       data: { businessId: other.business, name: 'Чужой тестовый мастер…
+    181|     });
+    182|     await expect(as(() => service.updateEmployee(foreign.id, { name: '…
+       |                                                                                    ^
+    183|       /не найден/i,
+    184|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  3 failed | 1 passed (4)
+      Tests  2 failed | 26 passed (28)
+   Start at  07:27:07
+   Duration  16.32s (tests 59%, import 22%, transform 19%)
+
+JSON report written to /tmp/pms-test-2026-10-17T07-27-04Z-integration-99dd.json
+
+# код выхода 1 · 19 с

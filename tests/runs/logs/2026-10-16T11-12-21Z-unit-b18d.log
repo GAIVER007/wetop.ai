@@ -1,0 +1,51 @@
+# Модульные (unit) · 16.10.2026 16:12 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 76
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T11-12-21Z-unit-b18d.json' 'apps/api/src/finance/owner-summary.test.ts' 'packages/domain/src/owner-summary/previous.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓ |unit| packages/domain/src/owner-summary/previous.test.ts (5 tests) 29ms
+ ❯ |unit| apps/api/src/finance/owner-summary.test.ts (7 tests | 1 failed) 22ms
+   ❯ owner summary real cash source (7)
+     ✓ feature off never queries absent held tables 6ms
+     ✓ joins hotel source identity without inventing historical currency 2ms
+     ✓ requires a signed-in verified location and never selects the first branch 2ms
+     × reads only completed branch expense cash within local period, with no budget/receipt addition 8ms
+     ✓ refuses foreign scope and invalid periods before cash reads 1ms
+     ✓ does not silently use present property currency for historical hospitality cash 1ms
+     ✓ enforces report permission inside the service 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/owner-summary.test.ts > owner summary real cash source > reads only completed branch expense cash within local period, with no budget/receipt addition
+AssertionError: expected undefined to match object { fromDate: '2026-10-03', …(2) }
+
+- Expected:
+{
+  "fromDate": "2026-10-03",
+  "toDate": "2026-10-09",
+  "toUtc": "2026-10-09T03:00:00.000Z",
+}
+
++ Received:
+undefined
+
+ ❯ apps/api/src/finance/owner-summary.test.ts:44:37
+     42|     expect(result.period.fromUtc).toBe('2026-10-09T19:00:00.000Z');
+     43|     expect(result.workload.state).toBe('UNAVAILABLE');
+     44|     expect(result.previous?.period).toMatchObject({fromDate:'2026-10-0…
+       |                                     ^
+     45|     expect(result.generatedAt).toBe('2026-10-16T03:00:00.000Z');
+     46|     expect(db.location.findFirst).toHaveBeenCalledWith(expect.objectCo…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 11 passed (12)
+   Start at  11:12:22
+   Duration  2.60s (transform 73%, import 24%, tests 2%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T11-12-21Z-unit-b18d.json
+
+# код выхода 1 · 4 с

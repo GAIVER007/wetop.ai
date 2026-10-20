@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 17.10.2026 11:35 Алматы · Noutbuk-Vyacheslav.local
+# коммит 61f71c0 (claude/auth-identity-1016), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T06-35-37Z-integration-14eb.json' 'tests/integration/core-security/auth-access-continuity.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+(node:24316) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/core-security/auth-access-continuity.test.ts (2 tests) 1629ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  23:35:38
+   Duration  5.78s (transform 46%, tests 32%, import 21%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T06-35-37Z-integration-14eb.json
+
+# код выхода 0 · 7 с

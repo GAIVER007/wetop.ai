@@ -1,0 +1,58 @@
+# Модульные (unit) · 16.10.2026 14:29 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 44
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T09-29-07Z-unit-5d98.json' 'packages/domain/src/owner-summary/expenses.test.ts' 'apps/api/src/finance/owner-summary.test.ts' 'apps/web/src/app/today/unified-owner.test.ts' 'apps/web/src/lib/owner-summary-api.test.ts' 'apps/web/src/app/today/dispatch.test.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓ |unit| apps/web/src/app/today/unified-owner.test.ts (8 tests) 36ms
+ ✓ |unit| apps/api/src/finance/owner-summary.test.ts (5 tests) 33ms
+ ✓ |unit| apps/web/src/lib/owner-summary-api.test.ts (2 tests) 12ms
+ ❯ |unit| packages/domain/src/owner-summary/expenses.test.ts (5 tests | 1 failed) 19ms
+   ❯ canonical paid expenses (5)
+     × deduplicates canonical references without adding procurement obligations 12ms
+     ✓ excludes voids, transfers and income and preserves currencies and large integers 3ms
+     ✓ rejects conflicting duplicate source data and foreign branches 1ms
+     ✓ does not assign current property currency to unknown historical cash 0ms
+     ✓ category classification preserves the total and rejects unsafe monetary inputs 1ms
+ ✓ |unit| apps/web/src/app/today/dispatch.test.ts (10 tests) 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/owner-summary/expenses.test.ts > canonical paid expenses > deduplicates canonical references without adding procurement obligations
+AssertionError: expected [ { currency: 'KZT', …(2) } ] to deeply equal [ { currency: 'KZT', …(2) } ]
+
+- Expected
++ Received
+
+@@ -1,10 +1,11 @@
+  [
+    {
+      "categories": [
+        {
+          "categoryId": null,
++         "categoryName": "Без статьи",
+          "paidMinor": "40000",
+        },
+      ],
+      "currency": "KZT",
+      "paidMinor": "40000",
+
+ ❯ packages/domain/src/owner-summary/expenses.test.ts:10:31
+      8|   it('deduplicates canonical references without adding procurement obl…
+      9|     const result = summarizePaidExpenses('branch', [source(), source()…
+     10|     expect(result.currencies).toEqual([{ currency: 'KZT', paidMinor: '…
+       |                               ^
+     11|   });
+     12|   it('excludes voids, transfers and income and preserves currencies an…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 29 passed (30)
+   Start at  09:29:10
+   Duration  4.48s (transform 68%, import 28%, tests 3%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T09-29-07Z-unit-5d98.json
+
+# код выхода 1 · 8 с

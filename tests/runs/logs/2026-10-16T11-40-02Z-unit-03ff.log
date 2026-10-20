@@ -1,0 +1,53 @@
+# Модульные (unit) · 16.10.2026 16:40 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 77
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T11-40-02Z-unit-03ff.json' 'apps/api/src/auth/route-access.test.ts' 'tests/unit/deploy-server.test.ts' 'tests/unit/design-slop.test.ts' 'tests/unit/migrations-hold.test.ts' 'apps/web/src/app/today/unified-owner.test.ts' 'apps/web/src/app/today/owner-daily-chart.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (3 tests) 429ms
+   ✓ права маршрутов API (ADR-107) (3)
+     ✓ у каждого маршрута — право из таблицы, и в таблице нет лишних строк 313ms
+ ✓ |unit| tests/unit/deploy-server.test.ts (41 tests) 569ms
+   ✓ deploy/compose.yml (26)
+     ✓ стойка получает только свои переменные (INFRA-ENV) (4)
+       ✓ всё, что стойка читает в production, названо в команде — иначе на сервере переменная молча пустая 424ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 16ms
+ ❯ |unit| tests/unit/migrations-hold.test.ts (4 tests | 1 failed) 104ms
+   ❯ миграции отдельного релиза ждут вне общей цепочки (ADR-137) (4)
+     ✓ в migrations/ метка «ОТДЕЛЬНЫЙ РЕЛИЗ» только у выпущенных: новая такая миграция лежит в migrations-hold/ 85ms
+     ✓ список выпущенных не врёт: каждая из них есть в migrations/ и несёт метку 3ms
+     × у ждущей миграции есть migration.sql с меткой и down.sql (AGENTS.md §14), и её нет в общей цепочке 13ms
+     ✓ Prisma берёт миграции только из prisma/migrations: ждущие не применяются 2ms
+ ✓ |unit| apps/web/src/app/today/unified-owner.test.ts (9 tests) 184ms
+ ✓ |unit| apps/web/src/app/today/owner-daily-chart.test.ts (2 tests) 48ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/migrations-hold.test.ts > миграции отдельного релиза ждут вне общей цепочки (ADR-137) > у ждущей миграции есть migration.sql с меткой и down.sql (AGENTS.md §14), и её нет в общей цепочке
+AssertionError: 20261016000114_expense_links: migration.sql с меткой «ОТДЕЛЬНЫЙ РЕЛИЗ»: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/unit/migrations-hold.test.ts:55:79
+     53|     const chain = new Set(migrationDirs(MIGRATIONS));
+     54|     for (const name of migrationDirs(HOLD)) {
+     55|       expect(marked(HOLD, name), `${name}: migration.sql с меткой «${M…
+       |                                                                               ^
+     56|       expect(existsSync(resolve(HOLD, name, 'down.sql')), `${name}: do…
+     57|       expect(chain.has(name), `${name} лежит и в migrations/`).toBe(fa…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 5 passed (6)
+      Tests  1 failed | 76 passed (77)
+   Start at  11:40:06
+   Duration  16.93s (transform 61%, import 30%, tests 9%)
+
+JSON report written to /tmp/pms-test-2026-10-16T11-40-02Z-unit-03ff.json
+
+# код выхода 1 · 22 с

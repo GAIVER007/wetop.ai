@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 16.10.2026 13:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2f3b7eb (claude/marketing-model-proposal), незакоммиченных файлов набора: 19
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/marketing.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (5.7s)
+  ✓  2 tests/ui/marketing.spec.ts:77:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (3.1s)
+  ✓  3 tests/ui/marketing.spec.ts:97:1 › хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», из данных только бюджет месяца (1.7s)
+  ✓  4 tests/ui/marketing.spec.ts:190:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (4.5s)
+  ✓  5 tests/ui/marketing.spec.ts:248:1 › администратор (без права marketing): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (4.0s)
+  ✓  6 tests/ui/marketing.spec.ts:274:3 › хаб на компьютере и телефоне, доступность: light (7.2s)
+  ✓  7 tests/ui/marketing.spec.ts:274:3 › хаб на компьютере и телефоне, доступность: dark (6.6s)
+  ✓  8 tests/ui/marketing.spec.ts:329:1 › MKT3: салон видит маркетинг, гостиничный конструктор недоступен (4.1s)
+
+  8 passed (42.6s)
+
+# код выхода 0 · 44 с

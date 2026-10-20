@@ -1,0 +1,31 @@
+# Модульные (unit) · 16.10.2026 12:10 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T07-10-13Z-unit-ff1f.json' 'apps/api/src/finance/expense-documents.test.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| apps/api/src/finance/expense-documents.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/expense-documents.test.ts [ apps/api/src/finance/expense-documents.test.ts ]
+TypeError: describe.sequential is not a function
+ ❯ apps/api/src/finance/expense-documents.test.ts:22:10
+     20| });
+     21| afterAll(async () => { await pool.end(); });
+     22| describe.sequential('expense persistence, isolated PostgreSQL', () => {
+       |          ^
+     23|   it('applies held migration and persists document without cash debit'…
+     24|     await pool.query(readFileSync(migration, 'utf8'));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  07:10:20
+   Duration  829ms (worker 99%, environment 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T07-10-13Z-unit-ff1f.json
+
+# код выхода 1 · 8 с

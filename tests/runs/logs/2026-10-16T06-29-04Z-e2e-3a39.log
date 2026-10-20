@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 16.10.2026 11:29 Алматы · Noutbuk-Vyacheslav.local
+# коммит e94b46e (claude/chessboard-fixes), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/cal-local.config.ts' '--workers=1' '--repeat-each=3' 'tests/ui/chessboard-grid.spec.ts' '-g' '30 дней: день'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✓  1 [main-ui-1] › ../.wetop-main-ui-FKo1lT/worker-1/tests/ui/chessboard-grid.spec.ts:58:1 › 30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается (4.8s)
+  ✓  2 [main-ui-1] › ../.wetop-main-ui-FKo1lT/worker-1/tests/ui/chessboard-grid.spec.ts:58:1 › 30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается (3.2s)
+  ✓  3 [main-ui-1] › ../.wetop-main-ui-FKo1lT/worker-1/tests/ui/chessboard-grid.spec.ts:58:1 › 30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается (3.2s)
+
+  3 passed (31.3s)
+
+# код выхода 0 · 33 с

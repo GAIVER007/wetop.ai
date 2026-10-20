@@ -1,0 +1,16 @@
+# Модульные (unit) · 17.10.2026 09:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит 076f56e (claude/beauty-csv), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-22-30Z-unit-6815.json' 'apps/web/src/app/finance/appointments-csv.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| apps/web/src/app/finance/appointments-csv.test.ts (1 test) 2ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  21:22:31
+   Duration  134ms (transform 74%, import 18%, worker 4%, tests 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-22-30Z-unit-6815.json
+
+# код выхода 0 · 2 с

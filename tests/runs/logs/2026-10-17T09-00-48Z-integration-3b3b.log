@@ -1,0 +1,23 @@
+# Интеграционные (integration) · 17.10.2026 14:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит 03d056d (claude/auth-identity-1016), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T09-00-48Z-integration-3b3b.json' 'tests/integration/auth-identity-chains.test.ts' 'tests/integration/reset-token-http.test.ts' 'tests/integration/core-security/auth-org-switch-http.test.ts' 'tests/integration/core-security/auth-session-revival.test.ts' 'tests/integration/core-security/auth-token-source.test.ts' 'tests/integration/core-security/auth-access-continuity.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ✓ |integration| tests/integration/auth-identity-chains.test.ts (15 tests) 1628ms
+(node:21867) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/core-security/auth-access-continuity.test.ts (2 tests) 866ms
+ ✓ |integration| tests/integration/reset-token-http.test.ts (12 tests) 1398ms
+ ✓ |integration| tests/integration/core-security/auth-org-switch-http.test.ts (1 test) 801ms
+ ✓ |integration| tests/integration/core-security/auth-session-revival.test.ts (2 tests) 751ms
+ ✓ |integration| tests/integration/core-security/auth-token-source.test.ts (1 test) 758ms
+
+ Test Files  6 passed (6)
+      Tests  33 passed (33)
+   Start at  02:00:49
+   Duration  10.78s (tests 62%, import 25%, transform 13%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T09-00-48Z-integration-3b3b.json
+
+# код выхода 0 · 11 с

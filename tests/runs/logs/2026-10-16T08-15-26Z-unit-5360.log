@@ -1,0 +1,68 @@
+# Модульные (unit) · 16.10.2026 13:15 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 23
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T08-15-26Z-unit-5360.json' 'apps/api/src/food-service/occupancy.test.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| apps/api/src/food-service/occupancy.test.ts (2 tests | 2 failed) 16ms
+   ❯ occupancy release safety (2)
+     × reports unavailable when SQL returned no command result 12ms
+     × rejects disabled direct commands before scope or database access 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/food-service/occupancy.test.ts > occupancy release safety > reports unavailable when SQL returned no command result
+AssertionError: expected ConflictException: Стол или сеанс уже изм… { …(4) } to match object { status: 503 }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "status": 503,
++ ConflictException {
++   "status": 409,
+  }
+
+ ❯ apps/api/src/food-service/occupancy.test.ts:11:86
+      9|     vi.stubEnv('RESTAURANT_OCCUPANCY_CAPTURE', 'true');
+     10|     const tx = { $queryRaw: vi.fn().mockResolvedValue([]) } as unknown…
+     11|     await expect(occupancyCommand(tx,'loc','key','SEAT','table',null,n…
+       |                                                                                      ^
+     12|   });
+     13|   it('rejects disabled direct commands before scope or database access…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/food-service/occupancy.test.ts > occupancy release safety > rejects disabled direct commands before scope or database access
+AssertionError: expected ForbiddenException: «Работа с гостями»: д… { …(4) } to match object { status: 503 }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "status": 503,
++ ForbiddenException {
++   "status": 403,
+  }
+
+ ❯ apps/api/src/food-service/occupancy.test.ts:17:53
+     15|     const db = { $transaction: vi.fn() };
+     16|     const service = new FoodService({db} as unknown as PrismaService);
+     17|     await expect(service.occupancy('key',{},'SEAT')).rejects.toMatchOb…
+       |                                                     ^
+     18|     expect(db.$transaction).not.toHaveBeenCalled();
+     19|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  08:15:28
+   Duration  2.16s (transform 72%, import 27%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T08-15-26Z-unit-5360.json
+
+# код выхода 1 · 4 с

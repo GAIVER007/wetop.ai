@@ -1,0 +1,30 @@
+# Модульные (unit) · 16.10.2026 14:44 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 45
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T09-44-04Z-unit-4c19.json' 'packages/domain/src/owner-summary/daily.test.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| packages/domain/src/owner-summary/daily.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/owner-summary/daily.test.ts [ packages/domain/src/owner-summary/daily.test.ts ]
+Error: Cannot find module './daily' imported from /srv/hermes/workspace/wetop-unified-owner-data/packages/domain/src/owner-summary/daily.test.ts
+ ❯ packages/domain/src/owner-summary/daily.test.ts:2:1
+      1| import { describe, it, expect } from 'vitest';
+      2| import { projectDailyMoney } from './daily';
+       | ^
+      3| describe('canonical daily money', () => {
+      4|  it('uses local event dates, DATE verbatim, deduplicates and excludes …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  09:44:05
+   Duration  245ms (worker 97%, environment 3%)
+
+JSON report written to /tmp/pms-test-2026-10-16T09-44-04Z-unit-4c19.json
+
+# код выхода 1 · 2 с

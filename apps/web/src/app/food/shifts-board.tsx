@@ -5,7 +5,7 @@ import { Overlay } from '../../components/overlay';
 import { Button, Table } from '../../components/ui';
 import type { FoodShiftRow } from '../../lib/food-types';
 import { WeekForm } from '../beauty/schedule/board';
-import { saveFoodShifts } from './restaurant-actions';
+import { loadFoodShift, saveFoodShifts } from './restaurant-actions';
 
 const DAYS: Record<number, string> = { 1: 'Пн', 2: 'Вт', 3: 'Ср', 4: 'Чт', 5: 'Пт', 6: 'Сб', 0: 'Вс' };
 
@@ -70,6 +70,9 @@ export function ShiftsBoard({
           <WeekForm
             employeeId={editing.id}
             week={editing.week}
+            expectedRevision={editing.weekRevision}
+            scopeKey={scopeKey}
+            loadCurrent={loadFoodShift.bind(null, scopeKey)}
             save={saveFoodShifts.bind(null, scopeKey)}
             onSaved={async () => router.refresh()}
           />

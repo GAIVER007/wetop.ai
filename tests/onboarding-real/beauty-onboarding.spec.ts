@@ -5,15 +5,25 @@ import { mkdirSync } from 'node:fs';
 const api = 'http://127.0.0.1:55844';
 const site = 'http://127.0.0.1:55845';
 const evidence = '.onboarding-work/evidence/screenshots';
+const DAY = 24 * 60 * 60 * 1000;
 mkdirSync(evidence, { recursive: true });
 
-async function register(page: Page, suffix: string) {
+async function register(page: Page, suffix: string, entry: 'hash' | 'cta' = 'hash') {
   const email = `onboarding-${suffix}-${randomUUID()}@example.invalid`;
-  await page.goto(`${site}/?vertical=BEAUTY#register`);
+  if (entry === 'cta') {
+    // Настоящая кнопка страницы «Для салонов красоты», как её нажимает посетитель сайта
+    await page.goto(`${site}/for/salons/`);
+    // окно открывается на месте только после загрузки скриптов страницы; клик раньше уводит ссылкой на главную,
+    // где направление выбирают сами (так под нагрузкой раннера упал гейт 354783d7)
+    await page.waitForLoadState('networkidle');
+    await page.locator('.salon-hero').getByRole('link', { name: /Начать работу/ }).click();
+  } else await page.goto(`${site}/?vertical=BEAUTY#register`);
   const dialog = page.getByRole('dialog');
   await dialog.locator('input[name="name"]').fill('Тестовый Владелец');
   await dialog.locator('input[name="businessName"]').fill('Салон Автотест');
-  await dialog.locator('input[value="BEAUTY"]').check();
+  // С кнопки страницы салонов направление закреплено ссылкой, выбора нет; с главной выбирают сами
+  if (entry === 'cta') await expect(dialog.getByTestId('auth-vertical-fixed')).toContainText('Салон');
+  else await dialog.locator('input[value="BEAUTY"]').check();
   await dialog.locator('input[name="phone"]').fill('7000000000');
   await dialog.locator('input[name="email"]').fill(email);
   await dialog.locator('input[name="password"]').fill('Onboarding-Test-2026!a');
@@ -60,7 +70,7 @@ async function shots(page: Page, name: string) {
 test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working calendar', async ({
   page,
 }) => {
-  await register(page, 'full');
+  const email = await register(page, 'full', 'cta');
   await shots(page, 'welcome');
   await page.getByRole('button', { name: 'Настроить салон', exact: true }).click();
   await expect(page.getByLabel('Название салона', { exact: true })).toHaveValue('Салон Автотест');
@@ -69,12 +79,21 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
     page.getByText('Выполнено 0 из 4 обязательных шагов', { exact: true }),
   ).toBeVisible();
   await shots(page, 'checklist-empty');
+  // Кто вошёл: своя организация в пробном периоде 7 дней (ADR-TRIAL-7-DAYS-20261017), салон, выбранный филиал
+  const firstHeaders = await apiHeaders(page);
+  const me = await (await page.request.get(`${api}/auth/me`, { headers: firstHeaders })).json();
+  expect(me.organization.status).toBe('TRIAL');
+  const trialLeft = Date.parse(me.organization.trialEndsAt) - Date.now();
+  expect(trialLeft).toBeGreaterThan(7 * DAY - 15 * 60_000);
+  expect(trialLeft).toBeLessThanOrEqual(7 * DAY);
+  expect(me.context.vertical).toBe('BEAUTY');
+  expect(me.context.locationId).toBeTruthy();
   await page.getByRole('link', { name: 'Добавить услугу', exact: true }).click();
   await page.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   let dialog = page.getByRole('dialog');
   await dialog.locator('input[name="name"]').fill('Тестовая стрижка');
   await dialog.locator('input[name="durationMinutes"]').fill('30');
-  await dialog.locator('input[name="priceMinor"]').fill('0');
+  await dialog.getByLabel(/^Цена каталога,/).fill('0');
   await dialog.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
   await expect(dialog.getByLabel('Филиал оказывает эту услугу')).toBeVisible();
   await dialog.getByLabel('Филиал оказывает эту услугу').check();
@@ -86,25 +105,30 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
     page.getByText('Выполнено 1 из 4 обязательных шагов', { exact: true }),
   ).toBeVisible();
   await page.reload();
-  await page.getByRole('link', { name: 'Добавить мастера', exact: true }).click();
-  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  await page.getByRole('link', { name: 'Добавить специалиста', exact: true }).click();
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Тестовый Мастер');
   await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
-  await dialog.getByRole('tab', { name: 'Услуги', exact: true }).click();
-  await dialog.getByLabel('Тестовая стрижка', { exact: true }).check();
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  const manager = page.getByTestId('employee-manager');
+  await manager.getByRole('tab', { name: 'Услуги', exact: true }).click();
+  await manager.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+  const skills = page.getByTestId('portal-services-form');
+  await skills.getByRole('checkbox', { name: /^Тестовая стрижка/ }).check();
   await page.screenshot({path:`${evidence}/employee-before-services-save.png`,fullPage:true});
-  await test.info().attach('dialog geometry',{body:JSON.stringify(await page.locator('dialog').evaluateAll(elements=>elements.map(e=>({open:(e as HTMLDialogElement).open,modal:e.matches(':modal'),rect:e.getBoundingClientRect().toJSON(),title:e.querySelector('h2')?.textContent})))),contentType:'application/json'});
-  await dialog.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
-  await expect(dialog.getByRole('status')).toContainText('Услуги назначены');
-  await expect(page.getByRole('listitem').filter({hasText:'Тестовый Мастер'})).toBeVisible();
-  await page.keyboard.press('Escape');
+  await skills.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+  await expect(skills.getByRole('status')).toContainText('Сохранено на сервере');
+  await goToEmployeesList(page);
+  await expect(page.getByRole('listitem').filter({hasText:'Тестовый Мастер'})).toContainText('Тестовая стрижка');
   await page.getByRole('link', { name: 'Вернуться к настройке салона', exact: true }).click();
   await expect(
     page.getByText('Выполнено 3 из 4 обязательных шагов', { exact: true }),
   ).toBeVisible();
   await page.getByRole('link', { name: 'Настроить график', exact: true }).click();
-  await page.getByRole('button', { name: 'Изменить график', exact: true }).click();
+  // график это сетка недели: часы мастера открываются по его имени (17.10.2026)
+  await page.getByRole('main').getByRole('button', { name: 'Тестовый Мастер', exact: true }).click();
   dialog = page.getByRole('dialog');
   const monday = dialog.getByRole('group', { name: 'Понедельник', exact: true });
   await monday.getByRole('button', { name: 'Сделать рабочим', exact: true }).click();
@@ -145,6 +169,45 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
     page.getByRole('main').getByRole('button').filter({ hasText: 'Клиент Автотест' }).first(),
   ).toBeVisible();
   await page.screenshot({ path: `${evidence}/first-appointment-1440.png`, fullPage: true });
+
+  // Повторный вход в новом браузере: та же организация и филиал, срок trial не начинается заново,
+  // услуги и мастер те же (без дублей), настройка остаётся завершённой, запись на месте
+  const snapshot = async (p: Page) => {
+    const h = await apiHeaders(p);
+    const get = async (path: string) => (await p.request.get(`${api}${path}`, { headers: h })).json();
+    const who = await get('/auth/me');
+    return {
+      organization: who.user.organizationId,
+      trialEndsAt: who.organization.trialEndsAt,
+      location: who.context.locationId,
+      vertical: who.context.vertical,
+      services: (await get('/beauty/services')).items.map((x: { id: string }) => x.id).sort(),
+      employees: (await get('/beauty/employees')).items.map((x: { id: string }) => x.id).sort(),
+      completed: Boolean((await get('/onboarding')).completedAt),
+    };
+  };
+  const before = await snapshot(page);
+  expect(before.services).toHaveLength(1);
+  expect(before.employees).toHaveLength(1);
+  expect(before.completed).toBe(true);
+  expect(before.trialEndsAt).toBe(me.organization.trialEndsAt);
+  expect((await page.request.post(`${api}/auth/logout`, { headers: await apiHeaders(page) })).ok()).toBe(true);
+  await page.context().clearCookies();
+  const fresh = await page.context().browser()!.newContext({ baseURL: 'http://127.0.0.1:55843' });
+  try {
+    const other = await fresh.newPage();
+    await login(other, email);
+    // стойка после входа ещё ведёт на свою страницу: переход в календарь до этого обрывается (ERR_ABORTED)
+    await other.waitForLoadState('networkidle');
+    await expect(other.getByRole('main')).toBeVisible();
+    expect(await snapshot(other)).toEqual(before);
+    await other.goto(`/calendar?date=${date}`);
+    await expect(other.getByRole('main').getByTestId('beauty-day-summary')).toContainText('Записей: 1');
+    await other.reload();
+    expect(await snapshot(other)).toEqual(before);
+  } finally {
+    await fresh.close();
+  }
 });
 
 async function apiHeaders(page: Page) {
@@ -153,6 +216,14 @@ async function apiHeaders(page: Page) {
   const scope = cookies.find((c) => c.name === 'wetop_scope')?.value;
   if (!session || !scope) throw new Error('Synthetic authenticated context missing');
   return { 'x-wetop-session': session, 'x-wetop-scope': decodeURIComponent(scope) };
+}
+async function goToEmployeesList(page: Page) {
+  const personnel = page.getByRole('button', { name: 'Персонал', exact: true });
+  if (!(await personnel.isVisible())) await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
+  await personnel.click();
+  await page.getByRole('link', { name: 'Специалисты', exact: true }).click();
+  await expect(page).toHaveURL(/\/employees$/);
+  await expect(page.getByTestId('employee-manager')).toHaveCount(0);
 }
 async function profileUI(page: Page) {
   await page.getByRole('button', { name: 'Настроить салон', exact: true }).click();
@@ -192,17 +263,73 @@ test('O03/O05/O20: logout, new session, deep links and history resume the saved 
     expect(state.profileApplied).toBe(true);
     await other.goto('/services?onboarding=1');
     await other.goBack();
-    await expect(
-      other.getByText('Выполнено 0 из 4 обязательных шагов', { exact: true }),
-    ).toBeVisible();
+    // History can retain hidden route DOM; require exactly one visible progress status.
+    const resumedProgress = other
+      .getByText('Выполнено 0 из 4 обязательных шагов', { exact: true })
+      .filter({ visible: true });
+    await expect(resumedProgress).toHaveCount(1);
+    await expect(resumedProgress).toBeVisible();
     await other.goForward();
     await expect(other.getByRole('heading', { level: 1 })).toHaveText('Услуги');
     await other.goto('/register/setup?vertical=HOSPITALITY&returnTo=https%3A%2F%2Fexample.invalid');
     await expect(other).toHaveURL(/127\.0\.0\.1:55843/);
-    await expect(other.getByTestId('beauty-onboarding')).toBeVisible();
+    // Next retains inactive route DOM after history navigation. Require one visible form, not one DOM copy.
+    const resumed = other.getByTestId('beauty-onboarding').filter({ visible: true });
+    await expect(resumed).toHaveCount(1);
+    await expect(resumed).toBeVisible();
+    await expect(resumed.getByRole('heading', { level: 1 })).toHaveText('Подготовьте салон к работе');
+    const resumedState = await (
+      await other.request.get(`${api}/onboarding`, { headers: await apiHeaders(other) })
+    ).json();
+    expect(resumedState.businessId).toBe(before.businessId);
+    expect(resumedState.locationId).toBe(before.locationId);
+    expect(resumedState.vertical).toBe('BEAUTY');
+    expect(resumedState.profileApplied).toBe(true);
+    await expect(resumed.locator('header > p')).toHaveText(String(resumedState.draft.locationName));
   } finally {
     await fresh.close();
   }
+});
+
+test('O07c: a closed employee card leaves the router on the list, so later actions cannot restore it', async ({
+  page,
+}) => {
+  // Детерминированная причина O07 (17.10.2026): закрытие карточки чистило адрес только в history, маршрутизатор
+  // Next оставался на `employee=<закрытый>`, следующее действие сервера уходило на этот адрес, а его ответ
+  // возвращал в строку закрытую карточку; перезагрузка открывала не того мастера.
+  await register(page, 'closed');
+  await profileUI(page);
+  await page.goto('/employees?onboarding=1');
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
+  let dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Закрытый');
+  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  const firstId = new URL(page.url()).pathname.split('/')[2]!;
+  await expect(page.getByTestId('employee-manager')).toBeVisible();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await goToEmployeesList(page);
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
+  dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Следующий');
+  const action = page.waitForRequest((r) => r.method() === 'POST' && Boolean(r.headers()['next-action']));
+  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  // действие уходит на тот адрес, который маршрутизатор считает текущим: это список, а не закрытая карточка
+  const actionUrl = new URL((await action).url());
+  expect(actionUrl.pathname).toBe('/employees');
+  expect(actionUrl.searchParams.get('employee')).toBeNull();
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  const secondId = new URL(page.url()).pathname.split('/')[2]!;
+  expect(secondId).not.toBe(firstId);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  const headers = await apiHeaders(page);
+  await expect
+    .poll(async () => (await (await page.request.get(`${api}/beauty/employees`, { headers })).json()).items.length)
+    .toBe(2);
+  const rows = (await (await page.request.get(`${api}/beauty/employees`, { headers })).json()).items;
+  expect(rows.map((row: { id: string }) => row.id).sort()).toEqual([firstId, secondId].sort());
+  await page.reload();
+  await expect(page).toHaveURL(new RegExp(`/employees/${secondId}/profile$`));
 });
 
 test('O07/O08: partial assignment and a lost create response recover one Employee ID', async ({
@@ -233,25 +360,32 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
     ).ok(),
   ).toBe(true);
   await page.goto('/employees?onboarding=1');
-  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   let dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Частичный');
   await dialog.getByRole('button', {name:'Создать мастера',exact:true}).click();
-  await dialog.getByRole('tab',{name:'Услуги',exact:true}).click();
-  const choice = dialog.getByLabel('Услуга повтора', { exact: true });
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  const manager = page.getByTestId('employee-manager');
+  await manager.getByRole('tab', { name: 'Услуги', exact: true }).click();
+  await manager.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+  const skills = page.getByTestId('portal-services-form');
+  const choice = skills.getByRole('checkbox', { name: /^Услуга повтора/ });
   await choice.check();
   await choice.evaluate((node, value) => {
     (node as HTMLInputElement).value = value;
   }, randomUUID());
-  await dialog.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
-  await expect(dialog.getByRole('alert')).toContainText('чужая');
-  await expect(dialog.getByText('Мастер Частичный',{exact:true})).toBeVisible();
+  await skills.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+  await expect(skills.getByRole('alert')).toContainText('Service outside business catalog');
+  await expect(manager.getByRole('heading', { name: 'Мастер Частичный', exact: true })).toBeVisible();
   await expect(choice).toBeChecked();
   let saved = await (await page.request.get(`${api}/beauty/employees`, { headers })).json();
   expect(saved.items).toHaveLength(1);
   const firstId = saved.items[0].id;
+  expect(saved.items[0].serviceIds).toEqual([]);
   await page.screenshot({ path: `${evidence}/partial-create-preserved.png`, fullPage: true });
-  await dialog.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+  await choice.evaluate((node, value) => { (node as HTMLInputElement).value = value; }, service.id);
+  await skills.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
   await expect
     .poll(
       async () =>
@@ -262,8 +396,10 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
   saved = await (await page.request.get(`${api}/beauty/employees`, { headers })).json();
   expect(saved.items).toHaveLength(1);
   expect(saved.items[0].id).toBe(firstId);
-  await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  // Закрывать после подтверждения на экране: до него форма честно считает изменения несохранёнными
+  await expect(skills.getByRole('status')).toContainText('Сохранено на сервере');
+  await goToEmployeesList(page);
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Потерянный Ответ');
   let dropped!: () => void;
@@ -291,11 +427,15 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
   const lostId = saved.items.find(
     (row: { name: string }) => row.name === 'Мастер Потерянный Ответ',
   ).id;
+  page.once('dialog', async (prompt) => prompt.accept());
   await page.reload();
-  await expect(page).toHaveURL(new RegExp('employee='+lostId));
-  await expect(page.getByRole('dialog').getByLabel('Имя мастера',{exact:true})).toHaveValue('Мастер Потерянный Ответ');
-  await page.getByRole('dialog').getByRole('tab',{name:'Услуги',exact:true}).click();
-  await page.getByRole('dialog').getByRole('button', {name:'Сохранить услуги',exact:true}).click();
+  await expect(page).toHaveURL(new RegExp(`/employees/${lostId}/profile$`));
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByTestId('portal-profile-form').getByLabel('Имя в карточке', { exact: true })).toHaveValue('Мастер Потерянный Ответ');
+  await page.getByTestId('employee-manager').getByRole('tab', { name: 'Услуги', exact: true }).click();
+  await page.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+  await page.getByTestId('portal-services-form').getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
+  await expect(page.getByTestId('portal-services-form').getByRole('status')).toContainText('Сохранено на сервере');
   await page.reload();
   expect(
     (await (await page.request.get(`${api}/beauty/employees`, { headers })).json()).items,
@@ -307,7 +447,7 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
     (
       await page.request.put(`${api}/beauty/employees/${firstId}/working-hours`, {
         headers,
-        data: { intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '12:00' }] },
+        data: { expectedRevision: (await (await page.request.get(`${api}/beauty/schedule?employee=${firstId}`, { headers })).json()).weekRevision, intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '12:00' }] },
       })
     ).ok(),
   ).toBe(true);
@@ -316,7 +456,7 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
   try {
     for (const tab of [a, b]) {
       await tab.goto(`/beauty/schedule?employee=${firstId}`);
-      await tab.getByRole('button', { name: 'Изменить график', exact: true }).click();
+      await tab.getByRole('main').getByRole('button', { name: 'Мастер Частичный', exact: true }).click();
     }
     await a.getByRole('dialog').getByLabel('Понедельник: конец').fill('13:00');
     await a

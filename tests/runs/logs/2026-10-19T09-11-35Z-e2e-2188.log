@@ -1,0 +1,110 @@
+# Сквозные (e2e) · 19.10.2026 14:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1a5add6 (codex/beauty-zapis-report), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/beauty-ui/playwright.config.ts' 'tests/beauty-ui/employee-workspace.spec.ts' 'tests/beauty-ui/zapis-report.spec.ts' 'tests/beauty-ui/positions.spec.ts' '--workers=1' '--max-failures=1'
+[WebServer] (node:29834) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29866) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29867) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29878) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29912) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29929) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 17 tests using 1 worker
+
+(node:30473) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31953) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32475) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/beauty-ui/employee-workspace.spec.ts:96:1 › minimal create, saved ID, reload and actual desktop/mobile themes (5.0s)
+[WebServer] (node:33499) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33706) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33806) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/beauty-ui/employee-workspace.spec.ts:132:1 › two stale forms keep the second draft and show the current profile (3.1s)
+[WebServer] (node:34426) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34626) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34761) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/beauty-ui/employee-workspace.spec.ts:156:1 › dirty stay, discard and save before tabs/close; failed save keeps draft (2.0s)
+[WebServer] (node:35088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/beauty-ui/employee-workspace.spec.ts:194:1 › Back/Forward and keyboard tabs retain a consistent employee URL (1.6s)
+[WebServer] (node:35447) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35790) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/beauty-ui/employee-workspace.spec.ts:215:1 › inaccessible deep link is neutral and old Beauty entry remains compatible (1.7s)
+[WebServer] (node:36444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/beauty-ui/employee-workspace.spec.ts:228:1 › lost create response is recovered on reload using one persistent operation (1.7s)
+[WebServer] (node:36544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36912) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/beauty-ui/employee-workspace.spec.ts:293:1 › late schedule A cannot populate employee B or a new employee (1.5s)
+[WebServer] (node:37254) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37460) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/beauty-ui/employee-workspace.spec.ts:335:1 › a scope-switch event invalidates an in-flight profile response (1.2s)
+[WebServer] (node:37698) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38362) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/beauty-ui/employee-workspace.spec.ts:379:1 › services cannot restore a stale name and profile cannot restore stale services (2.6s)
+[WebServer] (node:38611) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:40019) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/beauty-ui/employee-workspace.spec.ts:415:1 › native beforeunload protects reload and preserves draft when dismissed (2.6s)
+[WebServer] (node:40175) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:40180) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/beauty-ui/employee-workspace.spec.ts:440:1 › dirty internal navigation asks before leaving and stays on failure (1.6s)
+[WebServer] (node:40729) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/beauty-ui/employee-workspace.spec.ts:456:1 › profile fields, keyboard focus and contrast pass an axe audit (1.9s)
+[WebServer] (node:41446) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:41767) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 tests/beauty-ui/employee-workspace.spec.ts:475:1 › pending services save cannot mark a later checkbox edit as saved (3.0s)
+[WebServer] (node:42220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42322) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/beauty-ui/employee-workspace.spec.ts:515:1 › saving dirty creation before close leaves one saved employee in the canonical profile (2.6s)
+[WebServer] (node:42672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42681) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 tests/beauty-ui/employee-workspace.spec.ts:537:1 › a later week edit stays dirty after the submitted week is saved (1.4s)
+  ✓  16 tests/beauty-ui/positions.spec.ts:21:1 › positions: CRUD matrix, assignment, revoke history, stale revision and responsive themes (4.9s)
+[WebServer] (node:29867) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+  ✓  17 tests/beauty-ui/zapis-report.spec.ts:6:1 › report: centered multi-service appointment, per-master occupancy and exact payment (6.9s)
+
+  17 passed (51.4s)
+
+# код выхода 0 · 53 с

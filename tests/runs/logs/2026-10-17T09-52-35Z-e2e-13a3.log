@@ -1,0 +1,13 @@
+# Сквозные (e2e) · 17.10.2026 14:52 Алматы · Noutbuk-Vyacheslav.local
+# коммит 29cc63d (claude/u1-feature-registry), незакоммиченных файлов набора: 81
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/employee-portal-ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+Error: Timed out waiting 120000ms from config.webServer.
+
+
+# код выхода 1 · 2 мин 12 с

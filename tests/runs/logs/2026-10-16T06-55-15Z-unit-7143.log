@@ -1,0 +1,96 @@
+# Модульные (unit) · 16.10.2026 11:55 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T06-55-15Z-unit-7143.json' 'apps/api/src/finance/owner-summary.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| apps/api/src/finance/owner-summary.test.ts (5 tests | 1 failed) 46ms
+   ❯ owner summary real cash source (5)
+     ✓ requires a signed-in verified location and never selects the first branch 13ms
+     ✓ reads only completed branch expense cash within local period, with no budget/receipt addition 14ms
+     ✓ refuses foreign scope and invalid periods before cash reads 4ms
+     ✓ does not silently use present property currency for historical hospitality cash 1ms
+     × enforces report permission inside the service 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/owner-summary.test.ts > owner summary real cash source > enforces report permission inside the service
+AssertionError: promise resolved "{ …(10) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "classificationReason": "EXPENSE_DOCUMENT_LINKS_NOT_CONNECTED",
++   "comparisonReason": "COMPARABLE_PROJECTION_NOT_CONNECTED",
++   "current": {
++     "paidExpenses": {
++       "currencies": [
++         {
++           "categories": [
++             {
++               "categoryId": null,
++               "paidMinor": "40000",
++             },
++           ],
++           "currency": "KZT",
++           "paidMinor": "40000",
++         },
++       ],
++       "reason": null,
++       "state": "READY",
++       "unresolvedSources": 0,
++     },
++     "receipts": null,
++     "revenue": null,
++   },
++   "generatedAt": "2026-10-16T06:55:26.915Z",
++   "period": {
++     "fromDate": "2026-10-16",
++     "fromUtc": "2026-10-15T19:00:00.000Z",
++     "isFinalized": false,
++     "key": "today",
++     "timezone": "Asia/Almaty",
++     "toDate": "2026-10-16",
++     "toUtc": "2026-10-16T06:55:26.915Z",
++   },
++   "previous": null,
++   "scope": {
++     "locationId": "branch",
++     "organizationId": "org",
++     "vertical": "BEAUTY",
++   },
++   "sourceVersion": "owner-cash-foundation-v1",
++   "state": "PARTIAL",
++   "workload": {
++     "coverage": [],
++     "denominator": null,
++     "numerator": null,
++     "reason": "HISTORY_NOT_CAPTURED",
++     "requestedFromUtc": "2026-10-15T19:00:00.000Z",
++     "requestedToUtc": "2026-10-16T06:55:26.915Z",
++     "state": "UNAVAILABLE",
++   },
+  }
+
+ ❯ apps/api/src/finance/owner-summary.test.ts:44:74
+     42|   it('enforces report permission inside the service', async () => {
+     43|     const { db, service } = fixture();
+     44|     await expect(actor(() => service.report('today'), { role: 'STAFF' …
+       |                                                                          ^
+     45|     expect(db.restaurantCashOperation.findMany).not.toHaveBeenCalled();
+     46|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  06:55:21
+   Duration  5.93s (transform 75%, import 23%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T06-55-15Z-unit-7143.json
+
+# код выхода 1 · 11 с

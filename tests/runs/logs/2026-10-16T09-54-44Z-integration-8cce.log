@@ -1,0 +1,45 @@
+# Интеграционные (integration) · 16.10.2026 14:54 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 44
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T09-54-44Z-integration-8cce.json' '--config' 'tests/owner-money-isolated.config.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/owner-money-isolated.test.ts (6 tests | 1 failed) 1495ms
+   ❯ owner money actual isolated PostgreSQL queries (6)
+     ✓ daily series reconciles actual authorized service totals across today, week and calendar month 1115ms
+     ✓ classifies real partially-paid document without changing cash totals, including void and missing links 95ms
+     ✓ executes DONE beauty snapshot reads without inventing a payment ledger 19ms
+     ✓ reads CLOSED snapshots and POSTED sales once, excluding future and unclosed orders 4ms
+     ✓ does not borrow another branch or its present EUR currency 3ms
+     × executes hotel service-date/folio and payment scope queries against the real schema 144ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/owner-money-isolated.test.ts > owner money actual isolated PostgreSQL queries > executes hotel service-date/folio and payment scope queries against the real schema
+PrismaClientKnownRequestError: 
+Invalid `prisma.$queryRaw()` invocation:
+
+
+Raw query failed. Code: `23503`. Message: `insert or update on table "cash_operations" violates foreign key constraint "cash_operations_created_by_id_fkey"`
+ ❯ vn.handleRequestError ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ createHotelCash apps/api/src/finance/hotel-cash.ts:9:17
+
+ ❯ apps/api/src/finance/finance.repository.ts:1312:20
+ ❯ PrismaFinanceRepository.createCashOperation apps/api/src/finance/finance.repository.ts:1311:17
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/owner-money-isolated.test.ts:110:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  09:54:47
+   Duration  4.15s (transform 47%, tests 39%, import 14%)
+
+JSON report written to /tmp/pms-test-2026-10-16T09-54-44Z-integration-8cce.json
+
+# код выхода 1 · 7 с

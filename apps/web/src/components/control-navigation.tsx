@@ -20,7 +20,7 @@ export async function ControlNavigation({ current }: { current: 'incidents' | 'j
           prefetch={false}
           aria-current={current === 'journal' ? 'page' : undefined}
         >
-          <Icon name="journal" /> Журнал операций
+          <Icon name="journal" /> История действий
         </Link>
       )}
     </nav>

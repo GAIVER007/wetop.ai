@@ -1,0 +1,20 @@
+# Сквозные (e2e) · 16.10.2026 10:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2f4ef80 (claude/salon-cash)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/food-ui/playwright.config.ts' '--workers=1' 'tests/food-ui/restaurant.spec.ts' '-g' 'бар филиала|касса'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+[WebServer] (node:84383) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  1 tests/food-ui/restaurant.spec.ts:742:1 › бар филиала (ADR-178): ресторан и салон продают в кассу своего филиала (6.2s)
+  ✓  2 tests/food-ui/restaurant.spec.ts:805:1 › касса: остатки по способам, расход не уводит в минус, перевод, сверка и аннулирование (3.3s)
+
+  2 passed (16.1s)
+
+# код выхода 0 · 17 с

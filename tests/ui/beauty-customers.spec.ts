@@ -41,13 +41,14 @@ async function readySalon(page: Page, request: APIRequestContext) {
   let panel = page.getByRole('dialog');
   await panel.getByLabel('Название').fill('Маникюр');
   await panel.getByLabel(/Длительность, минут/).fill('60');
-  await panel.getByLabel(/Цена каталога, тиын/).fill('800000');
+  await panel.getByLabel(/Цена каталога/).fill('8000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
   await expect(panel.getByRole('status')).toHaveText('Услуга создана. Включите её в выбранном филиале ниже.');
   await page.goto('/beauty/services');
+  // услуги салона показаны карточками каталога, не строками таблицы
   await main
-    .getByRole('row')
-    .filter({ hasText: 'Маникюр' })
+    .locator('[data-service-list="catalog"] .beauty-service-item')
+    .filter({ has: page.getByText('Маникюр', { exact: true }) })
     .getByRole('button', { name: 'Изменить' })
     .click();
   panel = page.getByRole('dialog');
@@ -55,16 +56,27 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
   await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
   await page.goto('/beauty/masters');
-  await main.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+  await main.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Дина');
   await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
-  await panel.getByRole('tab', {name:'Услуги',exact:true}).click();
-  await panel.getByRole('checkbox', { name: 'Маникюр' }).check();
-  await panel.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Услуги назначены');
+  // Создание ведёт на полную карточку /employees/<id>/profile; назначение услуг через UI проверяет
+  // real-portal набор (как в beauty-catalog.spec.ts), здесь услугу назначает фикстурный API.
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  const employeeId = page.url().split('/').at(-2)!;
+  const testClient = { 'x-wetop-test-client': '1' };
+  const servicesResponse = await request.get(`${FIXTURE_API}/beauty/services`, { headers: testClient });
+  expect(servicesResponse.ok()).toBe(true);
+  const manicure = ((await servicesResponse.json()).items as Array<{ id: string; name: string }>).find(
+    (item) => item.name === 'Маникюр',
+  )!;
+  const assigned = await request.put(`${FIXTURE_API}/beauty/employees/${employeeId}/services`, {
+    headers: testClient,
+    data: { serviceIds: [manicure.id] },
+  });
+  expect(assigned.ok()).toBe(true);
   await page.goto('/beauty/schedule');
-  await main.getByRole('button', { name: 'Изменить график', exact: true }).click();
+  await main.getByRole('button', { name: 'Дина', exact: true }).click();
   panel = page.getByRole('dialog');
   await panel
     .getByRole('group')
@@ -79,7 +91,7 @@ async function readySalon(page: Page, request: APIRequestContext) {
 
 async function openDay(page: Page) {
   await page.goto(`/beauty?date=${DAY}`);
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Календарь');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Журнал');
 }
 
 async function book(page: Page, time: string, name: string, existing = false) {

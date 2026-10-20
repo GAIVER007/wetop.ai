@@ -1,0 +1,20 @@
+# Модульные (unit) · 18.10.2026 13:05 Алматы · <сервер>
+# коммит fb0e786 (fix/owner-report-period-20261018), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-18T08-05-41Z-unit-c074.json' 'apps/web/src/app/today/unified-owner.test.ts' 'apps/web/src/app/finance/period-continuity.test.ts' 'apps/web/src/app/restaurant-finance/period-continuity.test.ts' 'apps/web/src/app/growth/business-sales.test.ts' 'apps/web/src/lib/report-query.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-pr599-reconcile
+
+ ✓ |unit| apps/web/src/app/today/unified-owner.test.ts (24 tests) 155ms
+ ✓ |unit| apps/web/src/app/finance/period-continuity.test.ts (16 tests) 36ms
+ ✓ |unit| apps/web/src/app/growth/business-sales.test.ts (8 tests) 12ms
+ ✓ |unit| apps/web/src/lib/report-query.test.ts (12 tests) 10ms
+ ✓ |unit| apps/web/src/app/restaurant-finance/period-continuity.test.ts (5 tests) 10ms
+
+ Test Files  5 passed (5)
+      Tests  65 passed (65)
+   Start at  08:05:43
+   Duration  3.24s (transform 61%, import 35%, tests 4%)
+
+JSON report written to /tmp/pms-test-2026-10-18T08-05-41Z-unit-c074.json
+
+# код выхода 0 · 5 с

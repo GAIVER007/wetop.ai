@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
 import { Page } from '../../components/page';
 import { financeApi } from '../../lib/api';
-import { hotelToday } from '../../lib/hotel-api';
+import { hotelToday, propertyCurrency } from '../../lib/hotel-api';
+import { homeCurrency } from './home-currency';
 import { periods } from '../../lib/report-periods';
 import { OwnerLoad } from '../finance/owner-dashboard';
 import { AttentionCard, TodayCard } from '../finance/overview';
@@ -9,6 +10,7 @@ import { AttentionPlaceholder, OwnerPlaceholder } from '../finance/owner-loading
 import '../finance/owner-dashboard.css';
 import '../finance/attention.css';
 import '../finance/overview.css';
+import './hospitality-home.css';
 
 /**
  * Главная гостиницы (решение владельца 13.10.2026, поверх ADR-152): «Финансы» по эталону стали чисто
@@ -19,13 +21,15 @@ export async function HospitalityToday() {
   const cal = periods(await hotelToday());
   const period = `/finance?from=${cal.month.from}&to=${cal.month.to}`;
   const debts = await financeApi.debts(cal.month.from, cal.month.to).catch(() => null);
+  // Debts already carries the display currency. Only wait for settings if that source is absent.
+  const currency = homeCurrency(debts, debts?.currency ?? (await propertyCurrency()));
   return (
     <Page
       title="Главная"
       subtitle="Загрузка, события дня и задачи объекта"
       width="full"
     >
-      <div className="biz-overview" data-testid="owner-dashboard">
+      <div className="biz-overview hospitality-home" data-testid="owner-dashboard">
         <div className="biz-row biz-row--two">
           <Suspense
             fallback={
@@ -45,9 +49,10 @@ export async function HospitalityToday() {
           >
             <TodayCard
               date={cal.today}
+              showDebts={false}
               debts={debts}
               period={period}
-              currency={debts?.currency ?? 'KZT'}
+              currency={currency}
             />
           </Suspense>
         </div>

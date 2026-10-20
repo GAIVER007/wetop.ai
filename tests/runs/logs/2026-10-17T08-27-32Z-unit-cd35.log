@@ -1,0 +1,94 @@
+# Модульные (unit) · 17.10.2026 13:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7c4fd21 (claude/auth-identity-1016), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T08-27-32Z-unit-cd35.json' 'packages/domain/src/accounts/trial.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/auth-identity
+
+ ❯ |unit| packages/domain/src/accounts/trial.test.ts (19 tests | 3 failed) 7ms
+   ❯ trialEndsAt (2)
+     × семь суток от создания организации (решение владельца 17.10.2026, ADR-TRIAL-7-20261017; заменяет 14 суток ADR-102) 4ms
+     × ровно 7 × 24 часа в UTC: переход через полночь Алматы и конец месяца не сдвигают срок 0ms
+   ❯ daysLeft (4)
+     ✓ в первый день показывает семь, а не шесть с хвостом 0ms
+     ✓ за час до конца показывает один день, а не ноль 0ms
+     × новый срок: сразу после регистрации семь дней, в момент конца ноль 1ms
+     ✓ после конца — ноль, отрицательных дней не бывает 0ms
+   ✓ canWrite (4)
+     ✓ в пробном периоде писать можно 0ms
+     ✓ после конца пробного периода писать нельзя 0ms
+     ✓ TRIAL без срока не даёт писать: пустое поле это не бессрочный доступ 0ms
+     ✓ ACTIVE пишет всегда, READ_ONLY и SUSPENDED не пишут никогда 0ms
+   ✓ statusAfterTrial (3)
+     ✓ срок вышел — только чтение, данные остаются 0ms
+     ✓ срок не вышел — остаётся TRIAL 0ms
+     ✓ оплаченную организацию пробный период не трогает 0ms
+   ✓ writeBlocked (6)
+     ✓ срок вышел — запись закрыта, чтение открыто 0ms
+     ✓ в срок и после оплаты — пишет 0ms
+     ✓ READ_ONLY, выставленный руками, закрывает запись и без срока 0ms
+     ✓ выход, смена пароля и вход не блокируются — иначе человек застрянет 0ms
+     ✓ главному администратору «Платформа» открыта — он и подтверждает оплату 0ms
+     ✓ организации в сессии нет — правило молчит, решает замок входа 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/accounts/trial.test.ts > trialEndsAt > семь суток от создания организации (решение владельца 17.10.2026, ADR-TRIAL-7-20261017; заменяет 14 суток ADR-102)
+AssertionError: expected '2026-09-29T12:00:00.000Z' to be '2026-09-22T12:00:00.000Z' // Object.is equality
+
+Expected: "2026-09-22T12:00:00.000Z"
+Received: "2026-09-29T12:00:00.000Z"
+
+ ❯ packages/domain/src/accounts/trial.test.ts:8:66
+      6| describe('trialEndsAt', () => {
+      7|   it('семь суток от создания организации (решение владельца 17.10.2026…
+      8|     expect(trialEndsAt(t('2026-09-15T12:00:00Z')).toISOString()).toBe(…
+       |                                                                  ^
+      9|     expect(TRIAL_DAYS).toBe(7);
+     10|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/trial.test.ts > trialEndsAt > ровно 7 × 24 часа в UTC: переход через полночь Алматы и конец месяца не сдвигают срок
+AssertionError: expected '2026-11-11T19:30:00.000Z' to be '2026-11-04T19:30:00.000Z' // Object.is equality
+
+Expected: "2026-11-04T19:30:00.000Z"
+Received: "2026-11-11T19:30:00.000Z"
+
+ ❯ packages/domain/src/accounts/trial.test.ts:12:66
+     10|   });
+     11|   it('ровно 7 × 24 часа в UTC: переход через полночь Алматы и конец ме…
+     12|     expect(trialEndsAt(t('2026-10-28T19:30:00Z')).toISOString()).toBe(…
+       |                                                                  ^
+     13|   });
+     14| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/trial.test.ts > daysLeft > новый срок: сразу после регистрации семь дней, в момент конца ноль
+AssertionError: expected 14 to be 7 // Object.is equality
+
+- Expected
++ Received
+
+- 7
++ 14
+
+ ❯ packages/domain/src/accounts/trial.test.ts:26:34
+     24|     const start = t('2026-10-17T08:00:00Z');
+     25|     const end = trialEndsAt(start);
+     26|     expect(daysLeft(end, start)).toBe(7);
+       |                                  ^
+     27|     expect(daysLeft(end, new Date(end.getTime() - 1))).toBe(1);
+     28|     expect(daysLeft(end, end)).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 16 passed (19)
+   Start at  01:27:33
+   Duration  99ms (transform 53%, tests 20%, import 19%, worker 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T08-27-32Z-unit-cd35.json
+
+# код выхода 1 · 1 с

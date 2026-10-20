@@ -47,9 +47,9 @@ async function seedMarket(request: APIRequestContext): Promise<string> {
 test('пункт «Обзор продаж» первым в «Продажах»; шесть плиток по макету', async ({ page, request }) => {
   await seedMarket(request);
   await page.goto('/today');
-  await goViaMenu(page, 'Продажи', 'Обзор продаж');
+  await goViaMenu(page, 'Продвижение', 'Обзор продаж');
   await expect(page).toHaveURL(/\/sales$/);
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Продажи');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Обзор продаж');
 
   const kpis = page.getByTestId('sales-kpis');
   await expect(kpis.locator('.kpi-tile')).toHaveCount(6);
@@ -149,7 +149,7 @@ test('администратор смены открывает хаб', async ({
   // переход может быть прерван разворотом стойки на стартовую страницу роли: ждём, пока она откроется
   await page.goto('/today');
   await page.waitForURL('**/today');
-  await goViaMenu(page, 'Продажи', 'Обзор продаж');
+  await goViaMenu(page, 'Продвижение', 'Обзор продаж');
   await expect(page).toHaveURL(/\/sales$/);
   await expect(page.getByTestId('sales-kpis')).toBeVisible();
 });

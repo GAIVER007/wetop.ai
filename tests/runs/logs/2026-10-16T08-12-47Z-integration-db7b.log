@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 16.10.2026 13:12 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 22
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T08-12-47Z-integration-db7b.json' '--config' 'tests/occupancy-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+(node:1647487) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/occupancy-isolated.test.ts (4 tests) 884ms
+   ✓ real FoodService commands synchronize reservation, assignment and legacy hooks atomically 704ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  08:12:48
+   Duration  2.72s (transform 51%, tests 34%, import 15%)
+
+JSON report written to /tmp/pms-test-2026-10-16T08-12-47Z-integration-db7b.json
+
+# код выхода 0 · 4 с

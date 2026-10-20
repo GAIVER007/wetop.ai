@@ -1,0 +1,82 @@
+# Интеграционные (integration) · 16.10.2026 21:18 Алматы · <сервер>
+# коммит 4cf28b7 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 106
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T16-18-29Z-integration-e6eb.json' 'tests/integration/db-restore-prod.test.ts' 'tests/integration/function-search-path.test.ts' 'tests/integration/guest-directory.test.ts' 'tests/integration/mv4-beauty.test.ts' 'tests/integration/owner-money-isolated.test.ts' 'tests/integration/platform-organization-create.test.ts' 'tests/integration/rls-isolation.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓  integration  tests/integration/db-restore-prod.test.ts (2 tests) 17678ms
+   ✓ db-restore-prod.sh на настоящей PostgreSQL: данные из копии, права как были (2)
+     ✓ после копии и порчи: данные как в копии, RLS включён, права wetop_app совпадают с прежними 4355ms
+     ✓ сбой посреди восстановления откатывает всё: база остаётся как была 3362ms
+ ✓  integration  tests/integration/mv4-beauty.test.ts (23 tests) 2402ms
+ ❯  integration  tests/integration/owner-money-isolated.test.ts (11 tests | 1 failed) 1359ms
+   ❯ owner money actual isolated PostgreSQL queries (11)
+     ✓ fresh held114 applies to transactional baseline clones and rollback leaves originals intact 120ms
+     ✓ feature OFF uses only legacy adapter without querying held currency column 8ms
+     ✓ hotel supplier repository writes snapshot and settlement as runtime role; foreign tenant sees no receipt 565ms
+     ✓ daily series reconciles actual authorized service totals across today, week and calendar month 113ms
+     ✓ previous actual canonical rows stop at previous cutoff, retaining exact amounts and categories 27ms
+     ✓ actual authorized queries preserve local midnight, DST and unequal-month bounds 52ms
+     ✓ classifies real partially-paid document without changing cash totals, including void and missing links 79ms
+     × keeps DONE beauty revenue separate from gross receipts in the canonical branch cash ledger 37ms
+     ✓ reads CLOSED snapshots and POSTED sales once, excluding future and unclosed orders 7ms
+     ✓ does not borrow another branch or its present EUR currency 3ms
+     ✓ executes hotel service-date/folio and payment scope queries against the real schema 249ms
+(node:2658267) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓  integration  tests/integration/guest-directory.test.ts (2 tests) 1884ms
+   ✓ справочник гостей: отборы визита, число визитов, порядок (integration) (1)
+     ✓ раздел NONE, последний визит, число визитов, сортировки и числа чипов с отборами 930ms
+   ✓ справочник гостей: основное проживание, плитки, виды, отборы (integration) (1)
+     ✓ счёт, источник, ячейка, виды «Сегодня/Выезды/Проблемные», плитки со вчерашним днём и отборы по основному проживанию 791ms
+ ✓  integration  tests/integration/platform-organization-create.test.ts (6 tests) 850ms
+ ❯  integration  tests/integration/function-search-path.test.ts (2 tests | 1 failed) 446ms
+   ❯ search_path у функций схемы закреплён (integration, DATABASE_URL required) (2)
+     × у каждой своей функции схемы search_path задан и начинается с её схемы 224ms
+     ✓ закреплённый путь не ломает функции: запись журнала идёт, правка записи запрещена 84ms
+ ✓  integration  tests/integration/rls-isolation.test.ts (6 tests) 1311ms
+   ✓ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 614ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 331ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   integration  tests/integration/function-search-path.test.ts > search_path у функций схемы закреплён (integration, DATABASE_URL required) > у каждой своей функции схемы search_path задан и начинается с её схемы
+AssertionError: функции без закреплённого search_path своей схемы: expected [ 'hotel_cash_currency_guard()' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "hotel_cash_currency_guard()",
++ ]
+
+ ❯ tests/integration/function-search-path.test.ts:48:77
+     46|         })
+     47|         .map((r) => r.fn);
+     48|       expect(unpinned, 'функции без закреплённого search_path своей сх…
+       |                                                                             ^
+     49|     });
+     50|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL   integration  tests/integration/owner-money-isolated.test.ts > owner money actual isolated PostgreSQL queries > keeps DONE beauty revenue separate from gross receipts in the canonical branch cash ledger
+error: new row for relation "restaurant_cash_operations" violates check constraint "restaurant_cash_operations_values"
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/owner-money-isolated.test.ts:173:15
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 5 passed (7)
+      Tests  2 failed | 50 passed (52)
+   Start at  16:18:32
+   Duration  33.27s (tests 86%, import 8%, transform 6%)
+
+JSON report written to /tmp/pms-test-2026-10-16T16-18-29Z-integration-e6eb.json
+
+# код выхода 1 · 36 с

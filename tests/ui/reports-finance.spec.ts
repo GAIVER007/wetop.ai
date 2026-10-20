@@ -1,6 +1,13 @@
 import AxeBuilder from '@axe-core/playwright';
 import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
+test.beforeEach(async ({ request }) => {
+  const response = await request.post(`${FIXTURE_API}/__test/reset`, {
+    headers: { 'x-wetop-test-client': '1' },
+  });
+  expect(response.ok()).toBe(true);
+});
+
 /**
  * «Отчёты → Финансы» (RPT2.4a, `plans/reports-2-0-rpt24-cashflow-2026-10-09.md`): деньги за период по дням.
  * Подставной API без базы: проверяет, что экран показывает ответ API без пересчёта и что итоги таблицы равны плиткам.

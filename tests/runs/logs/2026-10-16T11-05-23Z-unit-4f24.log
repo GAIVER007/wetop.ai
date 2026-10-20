@@ -1,0 +1,31 @@
+# Модульные (unit) · 16.10.2026 16:05 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 68
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T11-05-23Z-unit-4f24.json' 'apps/web/src/app/restaurant-settings/opening.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| apps/web/src/app/restaurant-settings/opening.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/restaurant-settings/opening.test.ts [ apps/web/src/app/restaurant-settings/opening.test.ts ]
+Error: Cannot find module '/apps/web/src/app/restaurant-settings/opening-form' imported from /srv/hermes/workspace/wetop-unified-owner-data/apps/web/src/app/restaurant-settings/opening.test.ts
+ ❯ apps/web/src/app/restaurant-settings/opening.test.ts:4:1
+      2| import { beforeEach, expect, it, vi } from 'vitest';
+      3| import { renderToStaticMarkup } from 'react-dom/server';
+      4| import { OpeningForm } from './opening-form';
+       | ^
+      5| import { openingInput } from './opening-input';
+      6| import { saveOpening, loadOpening } from './opening-actions';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  11:05:26
+   Duration  385ms (worker 92%, environment 8%)
+
+JSON report written to /tmp/pms-test-2026-10-16T11-05-23Z-unit-4f24.json
+
+# код выхода 1 · 3 с

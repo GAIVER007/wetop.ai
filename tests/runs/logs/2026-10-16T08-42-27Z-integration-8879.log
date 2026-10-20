@@ -1,0 +1,45 @@
+# Интеграционные (integration) · 16.10.2026 13:42 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 32
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T08-42-27Z-integration-8879.json' '--config' 'tests/opening-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/opening-isolated.test.ts (2 tests | 1 failed) 436ms
+   ✓ rejects nonexistent and ambiguous local times rather than choosing offsets 62ms
+   × confirmed writer materializes observed capacity; sessions project complete and earlier partial; edits preserve history 366ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/opening-isolated.test.ts > confirmed writer materializes observed capacity; sessions project complete and earlier partial; edits preserve history
+PrismaClientKnownRequestError: 
+Invalid `prisma.$queryRaw()` invocation:
+
+
+Raw query failed. Code: `N/A`. Message: `Failed to deserialize column of type 'void'. If you're using $queryRaw and this column is explicitly marked as `Unsupported` in your Prisma schema, try casting this column to any supported Prisma type such as `String`.`
+ ❯ vn.handleRequestError ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/food-service/scope.ts:85:67
+     83|       if (currentVertical() === 'FOOD_SERVICE' && process.env.RESTAURA…
+     84|         const tracking = await tx.$queryRaw<{ location_id: string }[]>…
+     85|         if (!tracking.length && (await foodScope(tx, verticals))) awai…
+       |                                                                   ^
+     86|       }
+     87|       return fn(tx, await foodScope(tx, verticals));
+ ❯ Proxy._transactionWithCallback ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ foodTransaction apps/api/src/food-service/scope.ts:78:12
+ ❯ apps/api/src/auth/request-context.ts:67:41
+ ❯ tests/integration/opening-isolated.test.ts:30:2
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  08:42:28
+   Duration  2.48s (transform 63%, tests 20%, import 16%)
+
+JSON report written to /tmp/pms-test-2026-10-16T08-42-27Z-integration-8879.json
+
+# код выхода 1 · 3 с

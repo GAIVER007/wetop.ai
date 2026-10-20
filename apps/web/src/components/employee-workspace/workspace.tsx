@@ -63,7 +63,10 @@ export function EmployeeProfile({
     element?.dispatchEvent(
       new CustomEvent('employee-save-result', {
         bubbles: true,
-        detail: { success, snapshot: saved ? signature(element, saved) : undefined },
+        detail: {
+          success,
+          snapshot: saved ? employeeFormSignature(element, saved) : undefined,
+        },
       }),
     );
   };
@@ -194,7 +197,7 @@ export function EmployeeProfile({
 }
 
 // Compare visible editable controls, without tokens, hidden identity fields or contact storage.
-function signature(form: HTMLFormElement, saved?: EmployeeProfileDraft) {
+export function employeeFormSignature(form: HTMLFormElement, saved?: EmployeeProfileDraft) {
   return JSON.stringify(
     Array.from(form.elements).flatMap((control) => {
       if (!(
@@ -246,7 +249,9 @@ export function EmployeeTransitionGuard({
   const dirty = useCallback(
     () =>
       Array.from(root.current?.querySelectorAll('form') ?? []).filter(
-        (form) => baselines.current.has(form) && baselines.current.get(form) !== signature(form),
+        (form) =>
+          baselines.current.has(form) &&
+          baselines.current.get(form) !== employeeFormSignature(form),
       ),
     [],
   );
@@ -268,8 +273,10 @@ export function EmployeeTransitionGuard({
     const element = root.current;
     if (!element) return;
     const initialize = () =>
-      element.querySelectorAll('form').forEach((form) => {
-        if (!baselines.current.has(form)) baselines.current.set(form, signature(form));
+      element.querySelectorAll<HTMLFormElement>('form[data-employee-transition-form]').forEach((form) => {
+        if (!baselines.current.has(form)) {
+          baselines.current.set(form, employeeFormSignature(form));
+        }
       });
     initialize();
     const observer = new MutationObserver(initialize);
@@ -281,9 +288,11 @@ export function EmployeeTransitionGuard({
       if (result.success) {
         baselines.current.set(
           form,
-          result.snapshot ?? submitted.current.get(form) ?? signature(form),
+          result.snapshot ?? submitted.current.get(form) ?? employeeFormSignature(form),
         );
-        if (result.reset) requestAnimationFrame(() => baselines.current.set(form, signature(form)));
+        if (result.reset) {
+          requestAnimationFrame(() => baselines.current.set(form, employeeFormSignature(form)));
+        }
       }
       submitted.current.delete(form);
     };
@@ -375,7 +384,7 @@ export function EmployeeTransitionGuard({
       ref={root}
       onSubmitCapture={(event) => {
         if (event.target instanceof HTMLFormElement)
-          submitted.current.set(event.target, signature(event.target));
+          submitted.current.set(event.target, employeeFormSignature(event.target));
       }}
       onClickCapture={(event) => {
         if (bypass.current) return;
@@ -441,7 +450,9 @@ export function EmployeeTransitionGuard({
               onClick={() => {
                 const action = destination;
                 setDestination(null);
-                dirty().forEach((form) => baselines.current.set(form, signature(form)));
+                dirty().forEach((form) =>
+                  baselines.current.set(form, employeeFormSignature(form)),
+                );
                 discard();
                 action?.();
               }}

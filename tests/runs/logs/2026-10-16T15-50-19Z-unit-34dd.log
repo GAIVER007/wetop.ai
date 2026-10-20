@@ -1,0 +1,30 @@
+# Модульные (unit) · 16.10.2026 20:50 Алматы · Noutbuk-Vyacheslav.local
+# коммит 73d2b26 (claude/marketing-ad-proposal), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-50-19Z-unit-34dd.json' 'packages/domain/src/marketing/ad-proposal.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ❯ |unit| packages/domain/src/marketing/ad-proposal.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/ad-proposal.test.ts [ packages/domain/src/marketing/ad-proposal.test.ts ]
+Error: Cannot find module './ad-proposal' imported from /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/packages/domain/src/marketing/ad-proposal.test.ts
+ ❯ packages/domain/src/marketing/ad-proposal.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { normalizeAdProposal } from './ad-proposal';
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  08:50:20
+   Duration  88ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T15-50-19Z-unit-34dd.json
+
+# код выхода 1 · 1 с

@@ -1,14 +1,15 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
-import type { BeautyDay, BeautySchedule } from '../../lib/api';
+import type { BeautyDay } from '../../lib/api';
 
-vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh() {} }), unstable_rethrow() {} }));
+vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh() {} }), useSearchParams: () => new URLSearchParams(), usePathname: () => '/calendar', unstable_rethrow() {} }));
 vi.mock('../../components/overlay', () => ({ Overlay: () => null }));
 vi.mock('./appointment-form', () => ({ AppointmentForm: () => null }));
 vi.mock('./appointment-card', () => ({ AppointmentCard: () => null }));
 vi.mock('./date-bar', () => ({ DateBar: () => null }));
 vi.mock('./actions', () => ({}));
+vi.mock('../customers/actions', () => ({ markBeautyCustomer: vi.fn(), applyBeautyCustomerImport: vi.fn(), createBeautyCustomer: vi.fn(), createBeautyCustomerState: vi.fn(), previewBeautyCustomerImport: vi.fn() }));
 vi.mock('../../components/use-confirm', () => ({ useConfirm: () => ({}) }));
 
 import { JournalBoard } from './journal';
@@ -17,6 +18,7 @@ import CustomersPage from '../customers/page';
 vi.mock('../../lib/api', () => ({ beautyApi: { customers: async () => ({ items: [] }) } }));
 vi.mock('../../lib/vertical-guard', () => ({
   requireVertical: async () => ({ context: { vertical: 'BEAUTY' } }),
+  requireFeature: async () => ({ context: { vertical: 'BEAUTY' } }),
 }));
 
 const day = {
@@ -37,16 +39,49 @@ describe('Пустые рабочие экраны салона', () => {
   it('разрешает перенос мышью открытой записи, но запрещает его в режиме чтения', () => {
     const populated = {
       ...day,
-      columns: [{ id: 'master', name: 'Тестовый мастер', intervals: [{ timeFrom: '09:00', timeTo: '18:00' }], timeOff: false, timeOffReason: null, serviceIds: ['service'] }],
-      appointments: [{ id: 'appointment', employeeId: 'master', serviceId: 'service', serviceName: 'Тестовая услуга',
-        customer: { id: 'customer', name: 'Тестовый клиент', phone: null },
-        startsAt: '2026-10-11T05:00:00Z', endsAt: '2026-10-11T06:00:00Z',
-        startMinutes: 600, endMinutes: 660, status: 'BOOKED' as const, next: [],
-        priceMinor: '800000', currency: 'KZT', notes: null }],
+      columns: [
+        {
+          id: 'master',
+          name: 'Тестовый мастер',
+          intervals: [{ timeFrom: '09:00', timeTo: '18:00' }],
+          timeOff: false,
+          timeOffReason: null,
+          serviceIds: ['service'],
+        },
+      ],
+      appointments: [
+        {
+          id: 'appointment',
+          employeeId: 'master',
+          serviceId: 'service',
+          serviceName: 'Тестовая услуга',
+          customer: { id: 'customer', name: 'Тестовый клиент', phone: null },
+          startsAt: '2026-10-11T05:00:00Z',
+          endsAt: '2026-10-11T06:00:00Z',
+          startMinutes: 600,
+          endMinutes: 660,
+          status: 'BOOKED' as const,
+          next: [],
+          priceMinor: '800000',
+          paidMinor: '0',
+          refundedMinor: '0',
+          currency: 'KZT',
+          notes: null,
+        },
+      ],
     } satisfies BeautyDay;
-    const editable = renderToStaticMarkup(createElement(JournalBoard, { day: populated, customers: [], employees: [], readOnly: false }));
+    const editable = renderToStaticMarkup(
+      createElement(JournalBoard, {
+        day: populated,
+        customers: [],
+        employees: [],
+        readOnly: false,
+      }),
+    );
     expect(editable).toContain('draggable="true"');
-    const locked = renderToStaticMarkup(createElement(JournalBoard, { day: populated, customers: [], employees: [], readOnly: true }));
+    const locked = renderToStaticMarkup(
+      createElement(JournalBoard, { day: populated, customers: [], employees: [], readOnly: true }),
+    );
     expect(locked).not.toContain('draggable="true"');
   });
   it('показывает часы и сетку без мастеров и услуг, не разрешая запись', () => {
@@ -87,18 +122,12 @@ describe('Пустые рабочие экраны салона', () => {
     expect(html).toContain('<table');
     expect(html).toContain('Клиент');
   });
-  it('показывает семь дней графика без мастера', () => {
-    const data = {
-      employee: null,
-      employees: [],
-      week: [],
-      timeOffs: [],
-      locations: [],
-      location: null,
-    } as BeautySchedule;
+  it('показывает семь дней недели в сетке без мастеров', () => {
+    const data = { location: null, monday: '2026-10-12', masters: [], elsewhere: 0 };
     const html = renderToStaticMarkup(createElement(ScheduleBoard, { data, canEdit: true }));
-    expect(html).toContain('Понедельник');
-    expect(html).toContain('Воскресенье');
     expect(html).toContain('<table');
+    expect(html).toContain('12 октября, пн');
+    expect(html).toContain('18 октября, вс');
+    expect(html).toContain('В этом филиале пока нет специалистов');
   });
 });

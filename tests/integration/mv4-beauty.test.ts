@@ -153,6 +153,9 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
     }
   });
   beforeEach(async () => {
+    await db.appointmentLine.deleteMany({
+      where: { appointment: { locationId: { in: [location, secondLocation, otherLocation] } } },
+    });
     await db.appointment.deleteMany({
       where: { locationId: { in: [location, secondLocation, otherLocation] } },
     });
@@ -169,6 +172,7 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
     await db.$transaction(async (tx) => {
       const businesses = { in: [business, secondBusiness, foreignBusiness] };
       const locations = { in: [location, secondLocation, otherLocation] };
+      await tx.appointmentLine.deleteMany({ where: { appointment: { locationId: locations } } });
       await tx.appointment.deleteMany({ where: { locationId: locations } });
       await tx.timeOff.deleteMany({ where: { employee: { businessId: businesses } } });
       await tx.workingHours.deleteMany({ where: { locationId: locations } });
@@ -199,7 +203,7 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
       for (const fn of [
         () => catalog.createService(svc),
         () => catalog.createEmployee({ name: 'No write' }),
-        () => schedule.setWorkingHours(employee, { intervals: [] }),
+        async () => schedule.setWorkingHours(employee, { expectedRevision: (await schedule.overview(employee)).weekRevision, intervals: [] }),
         () => appointments.create(input()),
       ])
         await expect(run<unknown>(fn)).rejects.toThrow();
@@ -369,7 +373,7 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
         () => catalog.createEmployee({ name: 'No write' }),
         () => catalog.updateEmployee(employee, { active: false }),
         () => catalog.setEmployeeServices(employee, { serviceIds: [] }),
-        () => schedule.setWorkingHours(employee, { intervals: [] }),
+        async () => schedule.setWorkingHours(employee, { expectedRevision: (await schedule.overview(employee)).weekRevision, intervals: [] }),
         () => schedule.addTimeOff(employee, { dateFrom: timeOffDay, dateTo: timeOffDay }),
         () => schedule.removeTimeOff(employee, off.timeOffs[0]!.id),
         () => schedule.setLocations(employee, { locationIds: [] }),
@@ -394,9 +398,10 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
     await run(() => catalog.updateService(service, { active: false }));
     await expect(run(() => appointments.create(input()))).rejects.toThrow(/архиве/);
     await run(() => catalog.updateService(service, { active: true }));
-    await run(() => catalog.updateEmployee(employee, { active: false }));
+    const original = (await run(() => catalog.employees())).items.find((e) => e.id === employee)!;
+    const archived = await run(() => catalog.updateEmployee(employee, { active: false, expectedProfileRevision: original.profileRevision }));
     await expect(run(() => appointments.create(input()))).rejects.toThrow(/архиве/);
-    await run(() => catalog.updateEmployee(employee, { active: true }));
+    await run(() => catalog.updateEmployee(employee, { active: true, expectedProfileRevision: archived.profileRevision }));
     const foreign = await db.customer.create({
       data: { organizationId: foreignOrg, firstName: 'Synthetic foreign' },
     });
@@ -483,18 +488,56 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
     await db.timeOff.deleteMany({ where: { employeeId: employee } });
   });
   it('existing migration constraints and search_path match the accepted model', async () => {
-    const constraints = await db.$queryRaw<Array<{ name: string; definition: string }>>`
-      SELECT conname AS name, pg_get_constraintdef(oid) AS definition FROM pg_constraint
-      WHERE conrelid = 'appointments'::regclass AND conname = 'appointments_no_overlap_per_employee'`;
-    expect(constraints).toHaveLength(1);
-    expect(constraints[0]!.definition).toContain('employee_id WITH =');
-    expect(constraints[0]!.definition).not.toContain('location_id WITH =');
-    const functions = await db.$queryRaw<Array<{ config: string[] }>>`
-      SELECT proconfig AS config FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+    // Ordinary migration133 moves overlap enforcement from the scalar envelope to each line.
+    // Require the actual enabled, serialized, cross-branch guard, never merely an absent old constraint.
+    const guards = await db.$queryRaw<Array<{ name: string; enabled: string; definition: string }>>`
+      SELECT t.tgname AS name, t.tgenabled::text AS enabled, pg_get_functiondef(t.tgfoid) AS definition
+      FROM pg_trigger t WHERE t.tgrelid = 'appointment_lines'::regclass
+        AND t.tgname = 'appointment_lines_guard' AND NOT t.tgisinternal`;
+    expect(guards).toHaveLength(1);
+    expect(guards[0]!.enabled).toBe('O');
+    expect(guards[0]!.definition).toContain('pg_advisory_xact_lock(hashtextextended(NEW.employee_id::text, 731))');
+    expect(guards[0]!.definition).toContain('other.employee_id = NEW.employee_id');
+    expect(guards[0]!.definition).not.toContain('other.location_id');
+    expect(guards[0]!.definition).toContain("tstzrange(other.starts_at, other.ends_at, '[)') && tstzrange(NEW.starts_at, NEW.ends_at, '[)')");
+    expect(guards[0]!.definition).toContain("parent.status NOT IN ('CANCELLED', 'NO_SHOW')");
+    const functions = await db.$queryRaw<Array<{ name: string; config: string[] | null }>>`
+      SELECT p.proname AS name, proconfig AS config FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
       WHERE n.nspname = current_schema() AND p.proname LIKE 'beauty_%'`;
-    expect(functions).toHaveLength(6);
+    const heldTables = await db.$queryRaw<Array<{ name: string }>>`
+      SELECT c.relname AS name FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+      WHERE n.nspname=current_schema() AND c.relkind IN ('r','p')
+        AND c.relname IN ('beauty_schedule_versions','beauty_capacity_intervals','appointment_workload_revisions')`;
+    // Baseline CI and the full held package are both supported; partial installation is never accepted.
+    expect([0, 3], 'Beauty history schema must be wholly absent or wholly installed').toContain(heldTables.length);
+    expect(functions.map((f) => f.name).sort()).toEqual([
+      'beauty_customer_business_guard',
+      'beauty_employee_location_guard',
+      'beauty_location_service_guard',
+      'beauty_employee_service_guard',
+      'beauty_working_hours_guard',
+      'beauty_appointment_guard',
+      'beauty_employee_service_price_guard',
+      'beauty_appointment_line_guard',
+      'beauty_appointment_legacy_sync',
+      'beauty_appointment_status_overlap_guard',
+      'beauty_service_material_guard',
+      'beauty_appointment_review_guard',
+      'beauty_position_guard',
+      'beauty_position_assignment_guard',
+      'beauty_position_assignment_retain',
+      'beauty_location_hours_valid',
+      'beauty_location_hours_guard',
+      'beauty_time_in_hours',
+      'beauty_appointment_location_hours_guard',
+      ...(heldTables.length === 3 ? [
+        'beauty_appointment_changed',
+        'beauty_capacity_changed',
+        'beauty_history_tenant_guard',
+      ] : []),
+    ].sort());
     for (const f of functions)
-      expect(f.config.some((c) => c.startsWith('search_path=pms_test,'))).toBe(true);
+      expect(f.config, f.name).toContain('search_path=pms_test, public, pg_temp');
   });
   it('successful catalog, employee, schedule and appointment changes are audited', async () => {
     const day = await run(() => appointments.create(input()));

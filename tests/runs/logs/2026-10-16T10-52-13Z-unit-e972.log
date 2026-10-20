@@ -1,0 +1,196 @@
+# Модульные (unit) · 16.10.2026 15:52 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 59
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T10-52-13Z-unit-e972.json' 'apps/web/src/app/finance/cash-actions.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |unit| apps/web/src/app/finance/cash-actions.test.ts (3 tests | 3 failed) 37ms
+   × forwards stable intent through actual action async function cashOperationAction(_prev, fd) {
+	try {
+		await __vite_ssr_import_1__.financeApi.createCashOperation({
+			kind: s(fd, "kind"),
+			method: s(fd, "method"),
+			amount: s(fd, "amount"),
+			...s(fd, "categoryId") ? { categoryId: s(fd, "categoryId") } : {},
+			note: s(fd, "note") ?? null,
+			...commissionOf(fd) ? { commission: commissionOf(fd) } : {}
+		});
+	} catch (e) {
+		return {
+			error: describe(e),
+			ok: _prev.ok
+		};
+	};
+	return done(s(fd, "kind") === "EXPENSE" ? "Расход записан." : "Поступление записано.");
+} 33ms
+   × forwards stable intent through actual action async function cashTransferAction(_prev, fd) {
+	try {
+		await __vite_ssr_import_1__.financeApi.createCashTransfer({
+			from: s(fd, "from"),
+			to: s(fd, "to"),
+			amount: s(fd, "amount"),
+			note: s(fd, "note") ?? null,
+			...commissionOf(fd) ? { commission: commissionOf(fd) } : {}
+		});
+	} catch (e) {
+		return {
+			error: describe(e),
+			ok: _prev.ok
+		};
+	};
+	return done("Перевод записан.");
+} 2ms
+   × forwards stable intent through actual action async function cashReconcileAction(_prev, fd) {
+	try {
+		await __vite_ssr_import_1__.financeApi.createCashReconciliation({
+			method: s(fd, "method"),
+			counted: s(fd, "counted"),
+			note: s(fd, "note") ?? null,
+			adjust: fd.get("adjust") === "on"
+		});
+	} catch (e) {
+		return {
+			error: describe(e),
+			ok: _prev.ok
+		};
+	};
+	return done("Сверка записана.");
+} 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/finance/cash-actions.test.ts > forwards stable intent through actual action async function cashOperationAction(_prev, fd) {
+	try {
+		await __vite_ssr_import_1__.financeApi.createCashOperation({
+			kind: s(fd, "kind"),
+			method: s(fd, "method"),
+			amount: s(fd, "amount"),
+			...s(fd, "categoryId") ? { categoryId: s(fd, "categoryId") } : {},
+			note: s(fd, "note") ?? null,
+			...commissionOf(fd) ? { commission: commissionOf(fd) } : {}
+		});
+	} catch (e) {
+		return {
+			error: describe(e),
+			ok: _prev.ok
+		};
+	};
+	return done(s(fd, "kind") === "EXPENSE" ? "Расход записан." : "Поступление записано.");
+}
+AssertionError: expected last "vi.fn()" call to have been called with [ ObjectContaining{…} ]
+
+- Expected
++ Received
+
+  [
+    {
+-     "idempotencyKey": "synthetic-stable-intent",
++     "amount": "10",
++     "kind": "INCOME",
++     "method": undefined,
++     "note": null,
+    },
+  ]
+
+ ❯ apps/web/src/app/finance/cash-actions.test.ts:9:20
+      7|  const fd=new FormData();fd.set('idempotencyKey','synthetic-stable-int…
+      8|  await action({error:null,ok:0},fd);
+      9|  expect(api[name]).toHaveBeenLastCalledWith(expect.objectContaining({i…
+       |                    ^
+     10| });
+     11|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/cash-actions.test.ts > forwards stable intent through actual action async function cashTransferAction(_prev, fd) {
+	try {
+		await __vite_ssr_import_1__.financeApi.createCashTransfer({
+			from: s(fd, "from"),
+			to: s(fd, "to"),
+			amount: s(fd, "amount"),
+			note: s(fd, "note") ?? null,
+			...commissionOf(fd) ? { commission: commissionOf(fd) } : {}
+		});
+	} catch (e) {
+		return {
+			error: describe(e),
+			ok: _prev.ok
+		};
+	};
+	return done("Перевод записан.");
+}
+AssertionError: expected last "vi.fn()" call to have been called with [ ObjectContaining{…} ]
+
+- Expected
++ Received
+
+  [
+    {
+-     "idempotencyKey": "synthetic-stable-intent",
++     "amount": "10",
++     "from": undefined,
++     "note": null,
++     "to": undefined,
+    },
+  ]
+
+ ❯ apps/web/src/app/finance/cash-actions.test.ts:9:20
+      7|  const fd=new FormData();fd.set('idempotencyKey','synthetic-stable-int…
+      8|  await action({error:null,ok:0},fd);
+      9|  expect(api[name]).toHaveBeenLastCalledWith(expect.objectContaining({i…
+       |                    ^
+     10| });
+     11|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/app/finance/cash-actions.test.ts > forwards stable intent through actual action async function cashReconcileAction(_prev, fd) {
+	try {
+		await __vite_ssr_import_1__.financeApi.createCashReconciliation({
+			method: s(fd, "method"),
+			counted: s(fd, "counted"),
+			note: s(fd, "note") ?? null,
+			adjust: fd.get("adjust") === "on"
+		});
+	} catch (e) {
+		return {
+			error: describe(e),
+			ok: _prev.ok
+		};
+	};
+	return done("Сверка записана.");
+}
+AssertionError: expected last "vi.fn()" call to have been called with [ ObjectContaining{…} ]
+
+- Expected
++ Received
+
+  [
+    {
+-     "idempotencyKey": "synthetic-stable-intent",
++     "adjust": false,
++     "counted": undefined,
++     "method": undefined,
++     "note": null,
+    },
+  ]
+
+ ❯ apps/web/src/app/finance/cash-actions.test.ts:9:20
+      7|  const fd=new FormData();fd.set('idempotencyKey','synthetic-stable-int…
+      8|  await action({error:null,ok:0},fd);
+      9|  expect(api[name]).toHaveBeenLastCalledWith(expect.objectContaining({i…
+       |                    ^
+     10| });
+     11|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  10:52:15
+   Duration  225ms (transform 42%, tests 37%, import 16%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-10-16T10-52-13Z-unit-e972.json
+
+# код выхода 1 · 1 с

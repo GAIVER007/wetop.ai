@@ -1410,15 +1410,6 @@ body:has(.org-reference) .topmenu {
   gap: var(--space-2);
   min-height: 32px;
 }
-.org-create-dialog .branch-create__advanced {
-  border-top: 1px solid var(--border);
-  padding-top: var(--space-2);
-}
-.org-create-dialog .branch-create__advanced summary {
-  cursor: pointer;
-  color: var(--primary);
-  margin-bottom: var(--space-2);
-}
 @media (min-width: 1280px) and (min-height: 751px) {
   .org-cover {
     height: 112px;
@@ -2085,3 +2076,32 @@ body:has(.org-reference) .topmenu {
     min-height: var(--touch-target);
   }
 }
+
+/* Keep the familiar cards usable before a cover is uploaded. */
+.org-reference .org-card--no-cover .org-card-body {
+  padding: var(--space-4);
+}
+.org-reference .org-card--no-cover .org-business-icon {
+  top: var(--space-4);
+  width: var(--space-12);
+  height: var(--space-12);
+  background: var(--primary-soft);
+}
+.org-reference .org-card--no-cover h2 {
+  margin-top: var(--space-1);
+}
+.org-reference .org-card--no-cover .org-address {
+  margin-top: var(--space-6);
+}
+.org-reference .org-card .org-description {
+  min-height: 0;
+}
+.org-reference .org-card .org-branch-rows {
+  max-height: none;
+  overflow: visible;
+}
+.org-reference .org-card .org-branch-rows button {
+  height: auto;
+  min-height: 80px;
+}
+.org-reference .org-card-footer { margin-top: var(--space-4); }

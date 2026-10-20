@@ -11,34 +11,34 @@ const label = (vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', path: string
 describe('currentPlace', () => {
   it.each([
     ['/finance', 'Финансы'],
-    ['/bar/receipts/new', 'Финансы'],
-    ['/reservations/20260913-TESTAA', 'Гости и бронирования'],
-    ['/units/R01', 'Номерной фонд'],
-    ['/rooms/categories', 'Номерной фонд'],
-    ['/tasks', 'Календарь'],
+    ['/bar/receipts/new', 'Склад'],
+    ['/reservations/20260913-TESTAA', 'Клиенты'],
+    ['/units/R01', 'Услуги'],
+    ['/rooms/categories', 'Услуги'],
+    ['/tasks', 'Журнал'],
     ['/market', 'Продвижение'],
-    ['/ai-seller/dialogs', 'Продажи'],
+    ['/ai-seller/dialogs', 'Продвижение'],
     ['/website/settings', 'Продвижение'],
-    ['/management/analytics/units', 'Отчёты'],
+    ['/management/analytics/units', 'Статистика'],
     ['/branches', 'Настройки'],
     ['/profile', 'Профиль'],
     ['/help', 'Помощь'],
   ])('гостиница %s → %s', (path, expected) => expect(label('HOSPITALITY', path)).toBe(expected));
 
   it.each([
-    ['/beauty', 'Календарь'],
-    ['/beauty/masters', 'Мастера'],
-    ['/beauty/schedule', 'График'],
+    ['/beauty', 'Журнал'],
+    ['/beauty/masters', 'Персонал'],
+    ['/beauty/schedule', 'Персонал'],
     ['/beauty/services', 'Услуги'],
-    // единое меню направлений (14.10.2026): у салона, как у ресторана, группа «Команда»
-    ['/team', 'Команда'],
-    ['/team/roles', 'Команда'],
+    // верхнее меню 17.10.2026: учётные записи в разделе «Персонал» у всех направлений
+    ['/team', 'Персонал'],
+    ['/team/roles', 'Персонал'],
   ])('салон %s → %s', (path, expected) => expect(label('BEAUTY', path)).toBe(expected));
 
   it.each([
-    ['/table-reservations', 'Зал'],
-    ['/dining-areas', 'Зал'],
-    ['/kitchen', 'Заказы'],
-    ['/team', 'Команда'],
+    ['/table-reservations', 'Клиенты'],
+    ['/dining-areas', 'Услуги'],
+    ['/kitchen', 'Услуги'],
+    ['/team', 'Персонал'],
   ])('ресторан %s → %s', (path, expected) => expect(label('FOOD_SERVICE', path)).toBe(expected));
 });

@@ -1,0 +1,23 @@
+# Модульные (unit) · 16.10.2026 18:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит eaf0b57 (claude/finance-refunds), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-44-42Z-unit-292b.json' 'apps/web/src/app/growth' 'apps/web/src/app/food' 'apps/web/src/app/finance' 'apps/api/src/food-service'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| apps/web/src/app/finance/services-csv.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/app/finance/debts-csv.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/app/food/guest-marks.test.ts (2 tests) 2ms
+ ✓ |unit| apps/web/src/app/finance/csv.test.ts (10 tests) 3ms
+ ✓ |unit| apps/web/src/app/finance/operations-csv.test.ts (5 tests) 4ms
+ ✓ |unit| apps/web/src/app/growth/business-screen.test.ts (7 tests) 44ms
+ ✓ |unit| apps/web/src/app/growth/business-sales.test.ts (8 tests) 15ms
+ ✓ |unit| apps/api/src/food-service/boundary.test.ts (2 tests) 8ms
+
+ Test Files  8 passed (8)
+      Tests  39 passed (39)
+   Start at  06:44:47
+   Duration  2.80s (transform 53%, import 45%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T13-44-42Z-unit-292b.json
+
+# код выхода 0 · 8 с

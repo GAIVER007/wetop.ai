@@ -1,0 +1,97 @@
+# Модульные (unit) · 17.10.2026 11:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0766123 (claude/d7-romi-no-source), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T06-40-14Z-unit-da8f.json' 'packages/domain/src/marketing/funnel.test.ts' 'apps/web/src/app/marketing/analytics/report.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d7
+
+ ❯ |unit| packages/domain/src/marketing/funnel.test.ts (12 tests | 2 failed) 18ms
+   ✓ воронка маркетинга: расходы → обращения → брони → выручка (МКТ-В5a, Q-MKT-ATTR) (7)
+     ✓ канал со своим расходом и результатом: CPL, стоимость брони и ROMI по выручке 1ms
+     ✓ реклама без кабинетов показывает только расход: результаты не выдумываются 0ms
+     ✓ органический канал без расхода показывает результат, но CPL и ROMI не считаются 1ms
+     ✓ итог: все расходы против всех результатов каналов; деление на ноль не случается 7ms
+     ✓ разные валюты выручки и отчётности: ROMI не считается, выручка не смешивается с расходом 0ms
+     ✓ округление к ближайшему, отрицательный ROMI честный 0ms
+     ✓ порядок строк: сначала каналы с результатом, затем реклама; по расходу внутри 0ms
+   ✓ календарь маркетинга по дням: день, расход, лиды, CPL, брони, новые гости, выручка, ROMI (3)
+     ✓ каждый день месяца до последнего показанного, пустые дни нулями; CPL и ROMI по дню 1ms
+     ✓ итог календаря равен сумме дней; без lastDay показывается весь месяц 1ms
+     ✓ разные валюты: ROMI по дням не считается 1ms
+   ❯ ROMI без источника выручки (аудит платформы 17.10.2026, Д7) (2)
+     × воронка: ROMI недоступен, а не −100 % 4ms
+     × календарь: ROMI дней и итога недоступен 0ms
+ ❯ |unit| apps/web/src/app/marketing/analytics/report.test.ts (3 tests | 1 failed) 5ms
+   ✓ «Аналитика маркетинга» в CSV (МКТ-В6: отчёты и экспорт) (2)
+     ✓ два блока, как на экране: каналы с итогом и календарь по дням с итогом; деньги с запятой 2ms
+     ✓ результаты не загрузились: расходы есть, обращения, брони и выручка пустые, а не нули 0ms
+   ❯ салон и ресторан без результатов каналов (аудит 17.10.2026, Д7) (1)
+     × расход есть, выручки нет: ROMI недоступен, а не −100 % 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/marketing/funnel.test.ts > ROMI без источника выручки (аудит платформы 17.10.2026, Д7) > воронка: ROMI недоступен, а не −100 %
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/domain/src/marketing/funnel.test.ts:204:29
+    202|       revenueCurrency: null,
+    203|     });
+    204|     expect(f.romiAvailable).toBe(false);
+       |                             ^
+    205|     expect(f.total.romiPct).toBeNull();
+    206|     expect(f.rows.map((r) => r.romiPct)).toEqual([null, null]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| packages/domain/src/marketing/funnel.test.ts > ROMI без источника выручки (аудит платформы 17.10.2026, Д7) > календарь: ROMI дней и итога недоступен
+AssertionError: expected -100 to be null
+
+- Expected:
+null
+
++ Received:
+-100
+
+ ❯ packages/domain/src/marketing/funnel.test.ts:216:29
+    214|       revenueCurrency: null,
+    215|     });
+    216|     expect(d.total.romiPct).toBeNull();
+       |                             ^
+    217|     expect(d.rows.every((r) => r.romiPct === null)).toBe(true);
+    218|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/app/marketing/analytics/report.test.ts > салон и ресторан без результатов каналов (аудит 17.10.2026, Д7) > расход есть, выручки нет: ROMI недоступен, а не −100 %
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ apps/web/src/app/marketing/analytics/report.test.ts:81:36
+     79|     const r = buildAnalyticsReport(VIEW, { ...RESULTS, supported: fals…
+     80|     expect(r.ok).toBe(false);
+     81|     expect(r.funnel.romiAvailable).toBe(false);
+       |                                    ^
+     82|     expect(r.funnel.total.romiPct).toBeNull();
+     83|     expect(r.funnel.rows.map((f) => f.romiPct).filter((v) => v !== nul…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 12 passed (15)
+   Start at  23:40:16
+   Duration  491ms (transform 78%, import 15%, tests 5%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T06-40-14Z-unit-da8f.json
+
+# код выхода 1 · 3 с

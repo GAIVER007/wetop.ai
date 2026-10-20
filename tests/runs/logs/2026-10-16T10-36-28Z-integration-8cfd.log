@@ -1,0 +1,41 @@
+# Интеграционные (integration) · 16.10.2026 15:36 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 47
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T10-36-28Z-integration-8cfd.json' '--config' 'tests/cash-isolated.config.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/cash-intent-isolated.test.ts (2 tests | 1 failed) 873ms
+   × real branch writer replays exact intent, conflicts on change, serializes concurrency and preserves transfers 300ms
+   ✓ feature off retains legacy contract without intent rows 96ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/cash-intent-isolated.test.ts > real branch writer replays exact intent, conflicts on change, serializes concurrency and preserves transfers
+PrismaClientKnownRequestError: 
+Invalid `prisma.restaurantCashOperation.update()` invocation:
+
+
+Database error. Code: `23514`. Message: `new row for relation "restaurant_cash_operations" violates check constraint "restaurant_cash_operations_values"`
+ ❯ vn.handleRequestError ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/cash-intent-isolated.test.ts:30:2
+     28|  expect(await db.restaurantCashOperation.count({where:{locationId,kind…
+     29|  await expect(write({kind:'INCOME',method:'CASH',amount:1})).rejects.t…
+     30|  await db.restaurantCashOperation.update({where:{id:first.id},data:{st…
+       |  ^
+     31| });
+     32| it('feature off retains legacy contract without intent rows',async()=>{
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  10:36:29
+   Duration  3.98s (transform 55%, tests 24%, import 21%)
+
+JSON report written to /tmp/pms-test-2026-10-16T10-36-28Z-integration-8cfd.json
+
+# код выхода 1 · 5 с

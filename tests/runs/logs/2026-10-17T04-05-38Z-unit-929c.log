@@ -1,0 +1,21 @@
+# Модульные (unit) · 17.10.2026 09:05 Алматы · Noutbuk-Vyacheslav.local
+# коммит e15c977 (claude/beauty-in-progress), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-05-38Z-unit-929c.json' 'packages/domain/src/beauty'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/e0d75cf0-8eff-4af3-acb3-f8aeea8f4f5b/scratchpad/barwk
+
+ ✓ |unit| packages/domain/src/beauty/payment.test.ts (5 tests) 4ms
+ ✓ |unit| packages/domain/src/beauty/catalog.test.ts (15 tests) 6ms
+ ✓ |unit| packages/domain/src/beauty/beauty.test.ts (17 tests) 15ms
+ ✓ |unit| packages/domain/src/beauty/appointments.test.ts (17 tests) 14ms
+ ✓ |unit| packages/domain/src/beauty/slots.test.ts (6 tests) 13ms
+ ✓ |unit| packages/domain/src/beauty/schedule.test.ts (22 tests) 14ms
+
+ Test Files  6 passed (6)
+      Tests  82 passed (82)
+   Start at  21:05:40
+   Duration  177ms (transform 65%, tests 18%, import 14%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-17T04-05-38Z-unit-929c.json
+
+# код выхода 0 · 2 с

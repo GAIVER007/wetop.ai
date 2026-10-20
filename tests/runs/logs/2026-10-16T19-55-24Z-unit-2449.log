@@ -1,0 +1,47 @@
+# Модульные (unit) · 17.10.2026 00:55 Алматы · <сервер>
+# коммит c46ef1c (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 49
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T19-55-24Z-unit-2449.json' 'tests/unit/employee-portal-portability.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-portal-release-61af7b90
+
+ ❯ |unit| tests/unit/employee-portal-portability.test.ts (8 tests | 1 failed) 15ms
+   ❯ portable employee portal acceptance (8)
+     ✓ has no machine-specific fixture or evidence paths 2ms
+     ✓ allows endpoint and repo-relative evidence overrides 1ms
+     ✓ creates a private unique storage root in the OS temporary directory 0ms
+     ✓ uses the shared strict database guard in integration 0ms
+     × provides a portable serial config selecting both unskipped portal and site-booking suites 8ms
+     ✓ starts real fixture and web test servers with fixture-only test NODE_ENV 1ms
+     ✓ takes optional browser and Turbopack paths only from the environment 0ms
+     ✓ dispatches the portal config through the existing full-gate UI matrix 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/employee-portal-portability.test.ts > portable employee portal acceptance > provides a portable serial config selecting both unskipped portal and site-booking suites
+AssertionError: expected [ 'test(\'', 'test(\'', …(8) ] to have a length of 9 but got 10
+
+- Expected
++ Received
+
+- 9
++ 10
+
+ ❯ tests/unit/employee-portal-portability.test.ts:48:40
+     46|     expect(config()).not.toMatch(/fullyParallel:\s*true/);
+     47|     const portal = read('tests/employee-portal-ui/portal.spec.mjs');
+     48|     expect(portal.match(/^test\('/gm)).toHaveLength(9);
+       |                                        ^
+     49|     expect(portal).not.toMatch(/test\.(skip|fixme|only)\(/);
+     50|     for (const suite of ['portal.spec.mjs', 'site-booking.spec.ts']) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  19:55:25
+   Duration  193ms (transform 48%, import 24%, tests 23%, worker 6%)
+
+JSON report written to /tmp/pms-test-2026-10-16T19-55-24Z-unit-2449.json
+
+# код выхода 1 · 1 с

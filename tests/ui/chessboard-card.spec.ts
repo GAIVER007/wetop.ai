@@ -63,7 +63,8 @@ test('живой двойной щелчок по самой правой пла
       const box = el.getBoundingClientRect();
       const x = box.left + box.width / 2;
       if (box.width === 0 || x < wrap.left || x > wrap.right - 4) continue;
-      if (!best || x > best.x) best = { x, y: box.top + box.height / 2, number: el.getAttribute('data-number')! };
+      if (!best || x > best.x)
+        best = { x, y: box.top + box.height / 2, number: el.getAttribute('data-number')! };
     }
     return best;
   });
@@ -298,4 +299,59 @@ test('служебный код скрыт на плашке, источник �
   await expect(
     page.getByRole('link', { name: 'Редактировать бронь', exact: true }),
   ).toHaveAttribute('href', `/reservations/${number}#booking-actions`);
+});
+
+for (const preset of ['14 дней', '30 дней', 'Текущий месяц'] as const) {
+  test(`${preset}: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы`, async ({
+    page,
+  }) => {
+    // владелец 13.10.2026: «Посети…» и «заезд се» вместо подписи; длину имени меряет board-caption-fit.ts
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/chessboard');
+    await chooseBoardPeriod(page, preset);
+    await hydrated(page.locator('.board-stage'));
+    await expect
+      .poll(() =>
+        page
+          .locator('[data-testid="stay-cell"] .board-stay-caption')
+          .evaluateAll((caps) =>
+            caps.flatMap((cap) =>
+              [
+                ...cap.querySelectorAll<HTMLElement>(
+                  '.board-stay-name, .board-stay-name-short, .board-stay-initials, .board-stay-line--meta',
+                ),
+              ]
+                .filter((el) => el.getClientRects().length > 0 && el.scrollWidth > el.clientWidth)
+                .map((el) => `${el.className}: ${el.textContent}`),
+            ),
+          ),
+      )
+      .toEqual([]);
+  });
+}
+
+test('30 дней: плашка в две ночи без «⋯» и с «Имя Ф.», а не с инициалами', async ({ page, request }) => {
+  // Владелец: меню не должно вытеснять короткое имя. Выбираем именно двухночную TEST3,
+  // а не первого «Посетителя» текущей недели: у TEST6 может быть другой видимый интервал.
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const response = await request.get(`${fixture}/reservations/20260913-TEST3`, { headers: { 'x-wetop-test-client': '1' } });
+  expect(response.ok()).toBe(true);
+  const reservation = await response.json() as { confirmationNumber: string; arrivalDate: string; departureDate: string };
+  expect(reservation.confirmationNumber).toBe('20260913-TEST3');
+  expect(Date.parse(reservation.departureDate) - Date.parse(reservation.arrivalDate)).toBe(2 * 86_400_000);
+  const start = new Date(`${reservation.arrivalDate}T00:00:00Z`);
+  // Не попадаем случайно в режим целого 30-дневного месяца: здесь проверяются фиксированные колонки.
+  if (start.getUTCDate() === 1) start.setUTCDate(start.getUTCDate() - 1);
+  const end = new Date(start); end.setUTCDate(end.getUTCDate() + 29);
+  await page.goto(`/chessboard?from=${start.toISOString().slice(0, 10)}&to=${end.toISOString().slice(0, 10)}`);
+  await expect(page.getByTestId('date-col')).toHaveCount(30);
+  await expect(page.locator('.board--month')).toHaveCount(0);
+  const stay = page.locator('[data-testid="stay-cell"][data-number="20260913-TEST3"]')
+    .filter({ has: page.locator('.board-stay-caption') });
+  await expect(stay).toHaveCount(1);
+  await expect(stay.locator('.board-stay-caption')).toHaveAttribute('data-span', '2');
+  const cell = stay.locator('xpath=ancestor::td[1]');
+  await expect(cell.locator('.board-stay-menu')).toHaveCount(0);
+  await expect(cell.locator('.board-stay-name-short')).toBeVisible();
+  await expect(cell.locator('.board-stay-name-short')).toHaveText('Посетитель Д.');
 });

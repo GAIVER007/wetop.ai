@@ -1,0 +1,99 @@
+# Сквозные (e2e) · 17.10.2026 12:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит b532b26 (claude/d10-site-assets), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'tests/branches-ui/site-assets.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/branches-ui/site-assets.spec.ts:11:3 › Д10: hotel открывает изображения сайта (1.2s)
+[WebServer] (node:23502) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  2 tests/branches-ui/site-assets.spec.ts:11:3 › Д10: beauty открывает изображения сайта (5.6s)
+  ✘  3 tests/branches-ui/site-assets.spec.ts:11:3 › Д10: food открывает изображения сайта (5.6s)
+
+
+  1) tests/branches-ui/site-assets.spec.ts:11:3 › Д10: beauty открывает изображения сайта ──────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Изображения сайта', level: 1 })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Изображения сайта', level: 1 }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Изображения сайта', level: 1 })
+        - waiting for "http://127.0.0.1:26973/today" navigation to finish...
+        - navigated to "http://127.0.0.1:26973/today"
+
+
+      21 |     await page.goto('/marketing/site/assets');
+      22 |     await expect(page).toHaveURL(/\/marketing\/site\/assets$/);
+    > 23 |     await expect(page.getByRole('heading', { name: 'Изображения сайта', level: 1 })).toBeVisible();
+         |                                                                                      ^
+      24 |     await expect(page.getByTestId('site-assets-channex')).toHaveCount(vertical === 'hotel' ? 1 : 0);
+      25 |   });
+      26 | }
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d10/tests/branches-ui/site-assets.spec.ts:23:86
+
+    Error Context: test-results/site-assets-Д10-beauty-открывает-изображения-сайта/error-context.md
+
+    Error Context: test-results/site-assets-Д10-beauty-открывает-изображения-сайта/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-assets-Д10-beauty-открывает-изображения-сайта/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-assets-Д10-beauty-открывает-изображения-сайта/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/branches-ui/site-assets.spec.ts:11:3 › Д10: food открывает изображения сайта ────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Изображения сайта', level: 1 })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Изображения сайта', level: 1 }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Изображения сайта', level: 1 })
+        - waiting for "http://127.0.0.1:26973/today" navigation to finish...
+        - navigated to "http://127.0.0.1:26973/today"
+
+
+      21 |     await page.goto('/marketing/site/assets');
+      22 |     await expect(page).toHaveURL(/\/marketing\/site\/assets$/);
+    > 23 |     await expect(page.getByRole('heading', { name: 'Изображения сайта', level: 1 })).toBeVisible();
+         |                                                                                      ^
+      24 |     await expect(page.getByTestId('site-assets-channex')).toHaveCount(vertical === 'hotel' ? 1 : 0);
+      25 |   });
+      26 | }
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/08c95c88-5ef0-4611-8057-f1e6226074ee/scratchpad/d10/tests/branches-ui/site-assets.spec.ts:23:86
+
+    Error Context: test-results/site-assets-Д10-food-открывает-изображения-сайта/error-context.md
+
+    Error Context: test-results/site-assets-Д10-food-открывает-изображения-сайта/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/site-assets-Д10-food-открывает-изображения-сайта/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/site-assets-Д10-food-открывает-изображения-сайта/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/branches-ui/site-assets.spec.ts:11:3 › Д10: beauty открывает изображения сайта ───────────
+    tests/branches-ui/site-assets.spec.ts:11:3 › Д10: food открывает изображения сайта ─────────────
+  1 passed (20.7s)
+
+# код выхода 1 · 22 с

@@ -37,7 +37,7 @@ describe.skipIf(!process.env.DATABASE_URL)('derived rate plans and promo codes A
     app.use((_req: unknown, _res: unknown, next: () => void) => {
       void withSignedInUser({ userId: user.id, organizationId: org.id }, async () => next());
     });
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     try {
       await db.ratePlan.create({
         data: { propertyId: property.id, code: 'base-d4', name: 'Базовый D4', currency: 'KZT' },

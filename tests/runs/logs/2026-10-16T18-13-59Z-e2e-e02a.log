@@ -1,0 +1,43 @@
+# Сквозные (e2e) · 16.10.2026 23:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит 05b0ad8 (claude/fix-rls-registry), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/team.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 21 tests using 1 worker
+
+  ✓   1 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (3.7s)
+  ✓   2 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:49:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» (1.9s)
+  ✓   3 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:66:1 › ошибка приглашения — словами в панели, ввод не стирается (1.8s)
+  ✓   4 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:78:1 › «Отключить» — только после подтверждения с последствием (1.3s)
+  ✓   5 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:90:1 › телефон и должность (TEAM2, Q-244): «Изменить»: панель, после сохранения видны в строке (1.7s)
+  ✓   6 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:111:1 › неверный телефон: словами в панели, введённое не стирается (1.5s)
+  ✓   7 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:125:1 › управляющий: роль не меняет, приглашает только администраторов (1.2s)
+  ✓   8 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:141:1 › без сессии страница не уводит на вход: открыта, команда закрыта словами (ADR-107) (652ms)
+  ✓   9 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:152:1 › администратору раздел закрыт: гейт и меню без пункта (1.1s)
+  ✓  10 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:161:3 › снимки TEAM1 и доступность: light (3.0s)
+  ✓  11 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:161:3 › снимки TEAM1 и доступность: dark (3.0s)
+  ✓  12 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:200:1 › «Сотрудники и доступ»: сводка по команде и должность выбором из двух вариантов (1.5s)
+  ✓  13 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:218:1 › «Роли и права»: вкладка только на чтение, права трёх ролей по таблице API (2.6s)
+  ✓  14 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:245:1 › «Роли и права»: администратору закрыто (1.2s)
+  ✓  15 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:253:1 › приглашение: «Отправить заново» отзывает старое и шлёт новое на ту же почту с той же ролью (1.3s)
+  ✓  16 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:268:1 › приостановка доступа: подтверждение, метка, счётчик, возобновление одним действием (1.5s)
+  ✓  17 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:289:1 › приостановка: себе и владельцу кнопки нет, управляющий приостанавливает только администратора (1.1s)
+  ✓  18 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:305:1 › область доступа сотрудника: «Доступ» → выбранные филиалы с ролью по месту → подпись в таблице; очистка (2.7s)
+  ✓  19 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:330:1 › область доступа: пустой выбор при «Выбранные филиалы» не отправляется, словами (1.5s)
+  ✓  20 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:343:1 › приглашение с именем, телефоном и филиалами: уходит с областью, видно в ожидающих (1.8s)
+  ✓  21 [main-ui-1] › ../.wetop-main-ui-lOyjXA/worker-1/tests/ui/team.spec.ts:361:1 › управляющий: «Доступ» только администраторам, в списке ролей один вариант (1.6s)
+
+  21 passed (1.1m)
+
+# код выхода 0 · 1 мин 9 с

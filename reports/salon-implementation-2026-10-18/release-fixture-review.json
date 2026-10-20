@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "security_concerns": [],
+  "logic_errors": [],
+  "summary": "Reviewed HEAD diff, sellBarRetailAction/loadBarContext and original nine authorization negatives. Only two fixtures change; identity, scope and expiry now match the existing recovery contract. Guards, assertions and production logic remain untouched. No files modified; no tests, DB or process operations performed.",
+  "reviewer": "sa-0-c07084b5",
+  "delegation": "deleg_2f95ff37"
+}

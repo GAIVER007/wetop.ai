@@ -81,7 +81,7 @@ beforeAll(async () => {
     ],
   }).compile();
   app = moduleRef.createNestApplication();
-  await app.init();
+  await app.listen(0, '127.0.0.1');
 });
 
 afterAll(async () => {

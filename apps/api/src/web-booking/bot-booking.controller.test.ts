@@ -9,6 +9,7 @@ import { FakeAnalyticsRepository, SITE } from '../analytics/fake-repository';
 import { ARI_PUBLISHER } from '../channels/ari-publisher';
 import { CHANNELS_REPOSITORY } from '../channels/channels.repository';
 import { PrismaService } from '../database/prisma.provider';
+import { ExtensionsService } from '../platform/extensions.service';
 import {
   RESERVATIONS_UOW,
   type ReservationsRepository,
@@ -151,6 +152,9 @@ const prisma = {
   },
 };
 const created: Array<Record<string, unknown>> = [];
+/** Расширение «ИИ-продавец» организации: `active` по умолчанию, тесты Д9 выключают */
+const extension = { access: 'active' as string };
+const extensions = { aiSeller: async () => ({ access: extension.access }) };
 const reservations = {
   failNext: null as Error | null,
   create: vi.fn(async (dto: Record<string, unknown>) => {
@@ -201,9 +205,11 @@ describe('бронь из чата продавца /bot/booking-intents (DATA_M
       .useValue({ reservationChanged: async () => {} })
       .overrideProvider(CHANNELS_REPOSITORY)
       .useValue({})
+      .overrideProvider(ExtensionsService)
+      .useValue(extensions)
       .compile();
     app = m.createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     vi.useFakeTimers({ now: TODAY, toFake: ['Date'] });
   });
   afterAll(async () => {
@@ -216,6 +222,8 @@ describe('бронь из чата продавца /bot/booking-intents (DATA_M
     intents.clear();
     created.length = 0;
     reservations.create.mockClear();
+    extension.access = 'active';
+    sites.agentRows.get(AGENT)!.lifecycle = 'active';
     vi.setSystemTime(TODAY);
     app.get(WebBookingService).resetLimits();
   });
@@ -352,4 +360,29 @@ describe('бронь из чата продавца /bot/booking-intents (DATA_M
     }).expect(400);
     expect(created).toHaveLength(0);
   });
+
+  // Д9 аудита платформы (17.10.2026): бронь только от запущенного агента с включённым расширением
+  it.each([
+    ['черновик', () => (sites.agentRows.get(AGENT)!.lifecycle = 'draft')],
+    ['на паузе', () => (sites.agentRows.get(AGENT)!.lifecycle = 'paused')],
+    ['расширение выключено', () => (extension.access = 'expired')],
+  ])('агент %s: котировки нет', async (_n, off) => {
+    off();
+    await post('/bot/booking-intents', quoteBody).expect(404);
+    expect(intents.size).toBe(0);
+  });
+
+  it('агента поставили на паузу после котировки: подтверждение брони не создаёт', async () => {
+    const q = await quote();
+    sites.agentRows.get(AGENT)!.lifecycle = 'paused';
+    await post('/bot/booking-intents/confirm', {
+      agent: AGENT,
+      intent: q.intent,
+      message: 'msg-consent-0009',
+      guest,
+    }).expect(404);
+    expect(created).toHaveLength(0);
+    expect(intents.get(q.intent)!.state).toBe('QUOTED');
+  });
 });
+

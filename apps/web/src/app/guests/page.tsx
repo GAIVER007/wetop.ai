@@ -1,4 +1,4 @@
-import { requireVertical } from '../../lib/vertical-guard';
+import { requireFeature } from '../../lib/vertical-guard';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { redirect, unstable_rethrow } from 'next/navigation';
@@ -51,7 +51,7 @@ export default async function GuestsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireVertical(['HOSPITALITY']);
+  await requireFeature('/guests');
   const sp = normalizeSearchParams(await searchParams);
   const { f, error } = parseGuestFilters(sp);
   // Форма и ссылки шлют пустые поля и умолчания: такой адрес чистится одним переходом, им можно делиться

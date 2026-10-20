@@ -12,7 +12,7 @@ const day = (() => {
   while (d.getUTCDay() !== 1);
   return d.toISOString().slice(0, 10);
 })();
-const shots = 'reports/mv5-beauty-ui-2026-10-04/screenshots';
+const shots = process.env.BEAUTY_UI_SCREENSHOT_DIR || 'reports/mv5-beauty-ui-2026-10-04/screenshots';
 type Fixture = { business: string; otherBusiness: string; locations: string[] };
 const pointer = (business: string, location: string) => `business=${business};location=${location}`;
 async function scope(page: Page, business: string, location: string) {
@@ -45,7 +45,7 @@ async function expectEmptyCalendar(page: Page) {
     'href',
     '/services',
   );
-  await expect(setup.getByRole('link', { name: 'Добавить мастера', exact: true })).toHaveAttribute(
+  await expect(setup.getByRole('link', { name: 'Добавить специалиста', exact: true })).toHaveAttribute(
     'href',
     '/employees',
   );
@@ -90,11 +90,17 @@ async function seed(page: Page, request: APIRequestContext, fixture?: Fixture) {
     (
       await request.put(`${api}/beauty/employees/${employee.id}/working-hours`, {
         headers,
-        data: { intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] },
+        data: { expectedRevision: (await (await request.get(`${api}/beauty/schedule?employee=${employee.id}`, { headers })).json()).weekRevision, intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] },
       })
     ).ok(),
   ).toBe(true);
-  return { ...f, headers, employee, service };
+  // Return the client snapshot after weekly setup, which advances the profile source version.
+  const employeesResponse = await request.get(`${api}/beauty/employees`, { headers });
+  expect(employeesResponse.ok()).toBe(true);
+  const readyEmployee = (await employeesResponse.json()).items.find((e: { id: string }) => e.id === employee.id);
+  expect(readyEmployee).toBeDefined();
+  expect(readyEmployee.profileRevision).not.toBe(employee.profileRevision);
+  return { ...f, headers, employee: readyEmployee, service };
 }
 async function book(page: Page, name = 'Тестовая клиентка', time = '10:00') {
   await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
@@ -113,6 +119,8 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   page,
   request,
 }) => {
+  // сценарий вырос оплатой и возвратом записи (§49, §54): общего предела 90 с под нагрузкой не хватает
+  test.setTimeout(150_000);
   await reset(page, request);
   await page.goto('/calendar?vertical=HOSPITALITY');
   await expectEmptyCalendar(page);
@@ -120,48 +128,59 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await page.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   let panel = page.getByRole('dialog');
   await panel.getByLabel('Название', { exact: true }).fill('Тестовая стрижка');
-  await panel.getByLabel(/Цена каталога, тиын/).fill('1200000');
+  await panel.getByLabel(/Цена каталога/).fill('12000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(page.getByRole('row').filter({ hasText: 'Тестовая стрижка' })).toContainText('12 000');
-  await panel.getByRole('button', { name: 'Закрыть: Услуга каталога', exact: true }).click();
+  await expect(
+    page.locator('[data-service-list="catalog"] .beauty-service-item').filter({
+      has: page.getByText('Тестовая стрижка', { exact: true }),
+    }),
+  ).toContainText('12 000');
+  await panel.getByRole('button', { name: 'Закрыть: Новая услуга', exact: true }).click();
   await expect(panel).toBeHidden();
   await expect(page).toHaveURL(/\/services$/);
   await page.reload();
   // Незавершённая настройка филиала возобновляет созданную услугу в той же карточке.
   panel = page.getByRole('dialog');
   await expect(panel.getByLabel('Название', { exact: true })).toHaveValue('Тестовая стрижка');
-  await expect(panel.getByLabel(/Цена каталога, тиын/)).toHaveValue('1200000');
+  await expect(panel.getByLabel(/Цена каталога/)).toHaveValue('12000');
   await panel.getByLabel('Филиал оказывает эту услугу').check();
   await panel.getByRole('button', { name: 'Сохранить для филиала' }).click();
   await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
   await page.goto('/employees');
-  await page.getByRole('button', { name: 'Добавить мастера' }).click();
+  await page.getByRole('button', { name: 'Добавить специалиста' }).click();
   panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Тестовый мастер Анна');
   await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
-  await panel.getByRole('tab', {name:'Услуги',exact:true}).click();
-  await panel.getByRole('checkbox', { name: 'Тестовая стрижка' }).check();
-  await panel.getByRole('button', { name: 'Сохранить услуги' }).click();
-  await expect(panel.getByRole('status')).toContainText('Услуги назначены');
-  await panel.getByRole('button', { name: 'Закрыть: Мастер', exact: true }).click();
-  await expect(panel).toBeHidden();
+  // Создание открывает полную карточку специалиста отдельной страницей, не диалог.
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  let profile = page.getByTestId('employee-manager');
+  await profile.getByRole('tab', {name:'Услуги',exact:true}).click();
+  await profile.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+  const assignForm = profile.getByTestId('portal-services-form');
+  await assignForm.getByRole('checkbox', { name: /^Тестовая стрижка(?:\s|$)/ }).check();
+  await assignForm.getByRole('button', { name: 'Сохранить услуги' }).click();
+  await expect(assignForm.getByRole('status')).toContainText('Сохранено на сервере');
+  await expect(profile.getByTestId('portal-assigned-services')).toContainText('Тестовая стрижка');
+  await page.goto('/employees');
   await expect(page).toHaveURL(/\/employees$/);
   await page.reload();
   await page
     .getByRole('listitem')
     .filter({ hasText: 'Тестовый мастер Анна' })
-    .getByRole('button', { name: 'Открыть' })
+    .getByRole('link', { name: 'Открыть' })
     .click();
-  panel = page.getByRole('dialog');
-  await panel.getByRole('tab', { name: 'График', exact: true }).click();
-  await panel
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  profile = page.getByTestId('employee-manager');
+  await profile.getByRole('tab', { name: 'График', exact: true }).click();
+  const weekForm = profile.getByTestId('portal-week-form');
+  await weekForm
     .getByRole('group', { name: 'Понедельник', exact: true })
-    .getByRole('button', { name: 'Сделать рабочим' })
+    .getByRole('button', { name: 'Понедельник: добавить интервал' })
     .click();
-  await panel.getByLabel('Понедельник: начало').fill('09:00');
-  await panel.getByLabel('Понедельник: конец').fill('18:00');
-  await panel.getByRole('button', { name: 'Сохранить график' }).click();
-  await expect(panel.getByRole('status')).toContainText('График сохранён');
+  await weekForm.getByLabel('Понедельник: начало').fill('09:00');
+  await weekForm.getByLabel('Понедельник: до, интервал 1').fill('18:00');
+  await weekForm.getByRole('button', { name: 'Сохранить график' }).click();
+  await expect(weekForm.getByRole('status')).toContainText('Сохранено на сервере');
   await page.goto(`/calendar?date=${day}`);
   await expect(await book(page)).toBeHidden();
   await page.reload();
@@ -180,13 +199,90 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await tile.click();
   await page.getByRole('dialog').getByRole('button', { name: 'Подтвердить', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeHidden();
+  // A future visit cannot be marked absent (M6a); the API boundary tests
+  // separately prove NO_SHOW becomes available at its actual start.
+  await tile.click();
+  await expect(page.getByRole('dialog').getByRole('button', { name: 'Не пришёл', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('dialog')).toContainText('Можно после начала визита');
+  await page.getByRole('dialog').getByRole('button', { name: 'Начать', exact: true }).click();
+  await expect(page.getByRole('dialog')).toBeHidden();
+  await page.reload();
+  await expect(tile).toContainText('В процессе');
+  await tile.click();
+  await expect(page.getByRole('dialog').getByRole('button', { name: 'Не пришёл', exact: true })).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toBeHidden();
+  // оплата записи в кассу филиала (§49): часть картой, отмена с оплатой закрыта
+  await tile.click();
+  panel = page.getByRole('dialog');
+  await expect(panel.getByTestId('beauty-card-paid')).toHaveText('0 ₸ из 12 000 ₸');
+  const payment = panel.getByRole('region', { name: 'Оплата записи' });
+  await payment.getByLabel('Способ').selectOption('CARD_TERMINAL');
+  await payment.getByLabel('Сумма, ₸').fill('5000');
+  await payment.getByRole('button', { name: 'Принять оплату' }).click();
+  await expect(panel).toBeHidden();
+  await page.reload();
+  await tile.click();
+  panel = page.getByRole('dialog');
+  await expect(panel.getByTestId('beauty-card-paid')).toHaveText('5 000 ₸ из 12 000 ₸');
+  await expect(panel.getByRole('region', { name: 'Оплата записи' }).getByLabel('Сумма, ₸')).toHaveValue('7000');
+  expect((await new AxeBuilder({ page }).include('dialog[open]').analyze()).violations).toEqual([]);
+  await panel.getByRole('button', { name: 'Отменить запись', exact: true }).click();
+  // окно вопроса живёт внутри панели: берём его по своему признаку, как в beauty-journal.spec
+  await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Отменить запись', exact: true }).click();
+  await expect(panel.getByRole('alert')).toContainText('Сначала аннулируйте оплату записи в кассе');
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toBeHidden();
   await tile.click();
   await page.getByRole('dialog').getByRole('button', { name: 'Завершить', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeHidden();
   await page.reload();
   await expect(tile).toContainText('Завершена');
+  // возврат по выполненной записи (§54): часть с причиной, видно «Возвращено»
+  await tile.click();
+  panel = page.getByRole('dialog');
+  const refund = panel.getByRole('region', { name: 'Возврат по записи' });
+  await expect(refund.getByLabel('Сумма возврата, ₸')).toHaveValue('5000');
+  await refund.getByLabel('Способ возврата').selectOption('CARD_TERMINAL');
+  await refund.getByLabel('Сумма возврата, ₸').fill('2000');
+  await refund.getByRole('button', { name: 'Оформить возврат' }).click();
+  await expect(panel.getByRole('alert')).toContainText('Укажите причину возврата');
+  await refund.getByLabel('Причина').fill('Клиент недоволен результатом');
+  await refund.getByRole('button', { name: 'Оформить возврат' }).click();
+  await expect(panel).toBeHidden();
+  await page.reload();
+  await tile.click();
+  panel = page.getByRole('dialog');
+  await expect(panel.getByTestId('beauty-card-refunded')).toHaveText('2 000 ₸');
+  expect((await new AxeBuilder({ page }).include('dialog[open]').analyze()).violations).toEqual([]);
+  await page.keyboard.press('Escape');
+  // выгрузка записей в CSV (Q-BS-6): суммы записи есть, имени клиента в файле нет
+  // ссылка экрана берёт его 7 дней; запись сценария в будущем, поэтому файл берём по её дню той же сессией
+  await page.goto('/finance');
+  await expect(page.getByRole('link', { name: 'Выгрузить записи (CSV)' })).toHaveAttribute('href', /\/finance\/export-appointments\?from=/);
+  const exported = await page.request.get(`/finance/export-appointments?from=${day}&to=${day}`);
+  expect(exported.headers()['content-type']).toContain('text/csv');
+  const csv = await exported.text();
+  // C2 (a98cf2fc5): после статуса идут источник записи и автор
+  expect(csv).toContain('Статус;Источник;Автор;Валюта;Цена;Оплачено;Возвращено');
+  expect(csv).toMatch(/Завершена;Стойка;[^;\r\n]*;KZT;12000,00;5000,00;2000,00/);
+  expect(csv).not.toContain('Тестовая клиентка');
   await page.goto('/customers');
   await expect(page.getByRole('main')).toContainText('Тестовая клиентка');
+  // VIP и день рождения клиента салона (§36, Q-BS-3)
+  const client = page.getByRole('main').getByRole('row', { name: /Тестовая клиентка/ });
+  await client.getByRole('button', { name: 'Изменить' }).click();
+  const marks = page.getByTestId('customer-marks');
+  await marks.getByLabel('VIP-гость').check();
+  await marks.getByLabel('Дата рождения').fill('1990-03-15');
+  await marks.getByRole('button', { name: 'Сохранить' }).click();
+  // первое сохранение собирает серверное действие dev-сервером: под нагрузкой дольше 5 с
+  await expect(marks).toBeHidden({ timeout: 20_000 });
+  await expect(client).toContainText('VIP');
+  await expect(client.getByTestId('customer-birthday')).toContainText('15 марта');
+  await page.getByRole('main').getByLabel('Сегмент').selectOption('vip');
+  // клиентка в сценарии одна: отбор «VIP» оставляет её в таблице
+  await expect(client).toBeVisible();
   const calls: string[] = await (await request.get(`${api}/__test/calls`)).json();
   expect(
     calls.filter(
@@ -222,7 +318,7 @@ test('overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY', 
   await expect(page.getByRole('main')).toContainText('Тестовая стрижка');
   await expect(page.getByRole('button', { name: 'Добавить услугу', exact: true })).toHaveCount(0);
   await page.goto('/employees');
-  await expect(page.getByRole('button', { name: 'Добавить мастера', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Добавить специалиста', exact: true })).toHaveCount(0);
   await request.post(`${api}/__test/control`, { data: { readOnly: true } });
   await page.goto(`/calendar?date=${day}`);
   await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
@@ -242,6 +338,10 @@ test('existing customer can be selected for another appointment without duplicat
   await expect(await book(page)).toBeHidden();
   await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
   const panel = page.getByRole('dialog');
+  await panel.getByLabel('Телефон или имя', { exact: true }).fill('Несуществующий клиент');
+  await expect(panel.getByLabel('Клиент', { exact: true }).locator('option')).toHaveCount(1);
+  await panel.getByLabel('Телефон или имя', { exact: true }).fill('КЛИЕНТКА');
+  await expect(panel.getByLabel('Клиент', { exact: true }).locator('option')).toHaveCount(2);
   await panel.getByLabel('Клиент', { exact: true }).selectOption({ label: 'Тестовая клиентка' });
   await expect(panel.getByLabel('Имя клиента', { exact: true })).toHaveCount(0);
   await panel.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });
@@ -283,7 +383,7 @@ for (const width of [1440, 390])
           (
             await request.put(`${api}/beauty/employees/${employee.id}/working-hours`, {
               headers,
-              data: { intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] },
+              data: { expectedRevision: (await (await request.get(`${api}/beauty/schedule?employee=${employee.id}`, { headers })).json()).weekRevision, intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] },
             })
           ).ok(),
         ).toBe(true);
@@ -357,26 +457,40 @@ test('archived service and employee preserve historical calendar appointments', 
       })
     ).ok(),
   ).toBe(true);
-  expect(
-    (
-      await request.patch(`${api}/beauty/employees/${f.employee.id}`, {
-        headers: f.headers,
-        data: { active: false },
-      })
-    ).ok(),
-  ).toBe(true);
+  // Archive uses the employee version from this intent's original API snapshot, not the stale seed POST.
+  const employeeSnapshot = await request.get(`${api}/beauty/employees`, { headers: f.headers });
+  expect(employeeSnapshot.ok(), `read archive source version: HTTP ${employeeSnapshot.status()}`).toBe(true);
+  const originalEmployee = (await employeeSnapshot.json()).items.find((employee: { id: string }) => employee.id === f.employee.id);
+  expect(originalEmployee?.profileRevision).toBeTruthy();
+  const archived = await request.patch(`${api}/beauty/employees/${f.employee.id}`, {
+    headers: f.headers,
+    data: { active: false, expectedProfileRevision: originalEmployee.profileRevision },
+  });
+  const archiveError = archived.ok() ? null : await archived.json().catch(() => null);
+  // Do not log raw responses: they may contain employee/contact data or internal diagnostics.
+  const safeError = archiveError && {
+    statusCode: typeof archiveError.statusCode === 'number' ? archiveError.statusCode : archived.status(),
+    error: ['Bad Request', 'Forbidden', 'Conflict', 'Not Found', 'Internal Server Error'].includes(archiveError.error) ? archiveError.error : 'Other error',
+    expectedProfileRevisionRejected: typeof archiveError.message === 'string' && archiveError.message.includes('expectedProfileRevision'),
+  };
+  expect(archived.ok(), `archive employee: HTTP ${archived.status()}, safe error ${JSON.stringify(safeError)}`).toBe(true);
   await page.reload();
   await expect(page.locator('.beauty-grid-day .beauty-tile')).toContainText('Тестовая клиентка');
   await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByTestId('beauty-mobile-calendar')).toContainText('Тестовая клиентка');
+  await page.goto(`/calendar?date=${day}&view=week`);
+  await expect(
+    page.getByTestId('beauty-week').getByRole('link').filter({ hasText: 'Тестовая клиентка' }),
+  ).toContainText('Тестовый мастер Анна');
   await page.goto(`/appointments?date=${day}`);
   await expect(page.getByRole('table')).toContainText('Тестовый мастер Анна');
-  await page.getByLabel('Мастер').selectOption({ label: 'Тестовый мастер Анна (не принимает)' });
+  // The appointments list keeps inline filters; only the calendar uses a disclosure.
+  await page.getByLabel('Специалист').selectOption({ label: 'Тестовый мастер Анна (не принимает)' });
   await expect(page.getByRole('table')).toContainText('Тестовая клиентка');
 });
 
-test('TimeOff from employee drawer, server denial and timezone persisted', async ({
+test('TimeOff via manager API with compact employee drawer, server denial and timezone persisted', async ({
   page,
   request,
 }) => {
@@ -385,16 +499,30 @@ test('TimeOff from employee drawer, server denial and timezone persisted', async
   await page
     .getByRole('listitem')
     .filter({ hasText: 'Тестовый мастер Анна' })
-    .getByRole('button', { name: 'Открыть' })
+    .getByRole('link', { name: 'Открыть' })
     .click();
-  const panel = page.getByRole('dialog');
-  await panel.getByRole('tab', { name: 'Отсутствия', exact: true }).click();
-  await panel.getByLabel('С какого дня').fill(day);
-  await panel.getByLabel('По какой день включительно').fill(day);
-  await panel.getByLabel(/Причина/).fill('Тестовое обучение');
-  await panel.getByRole('button', { name: 'Добавить отсутствие' }).click();
-  await expect(panel.getByRole('status')).toContainText('Отсутствие добавлено');
-  await expect(panel.getByRole('table')).toContainText('Тестовое обучение');
+  await expect(page).toHaveURL(new RegExp(`/employees/${f.employee.id}/profile$`));
+  const panel = page.getByTestId('employee-manager');
+  await panel.getByRole('tab', { name: 'График', exact: true }).click();
+  await expect(panel.getByRole('heading', { name: 'Обычная неделя', exact: true })).toBeVisible();
+  await expect(panel.getByRole('button', { name: 'Сохранить график', exact: true })).toBeVisible();
+  await expect(panel.getByLabel('С какого дня')).toHaveCount(0);
+  await expect(panel.getByLabel('По какой день включительно')).toHaveCount(0);
+  await expect(panel.getByLabel(/Причина/)).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: 'Добавить отсутствие' })).toHaveCount(0);
+  // The compact drawer edits only the normal week; the owner API still manages dated absences.
+  const created = await request.post(`${api}/beauty/employees/${f.employee.id}/time-offs`, {
+    headers: f.headers,
+    data: { dateFrom: day, dateTo: day, reason: 'Тестовое обучение' },
+  });
+  expect(created.ok(), `manager absence fixture: HTTP ${created.status()}`).toBe(true);
+  const timeOffs = (await created.json()).timeOffs;
+  expect(timeOffs).toHaveLength(1);
+  expect(timeOffs).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ dateFrom: day, dateTo: day, reason: 'Тестовое обучение' }),
+    ]),
+  );
   await page.goto(`/calendar?date=${day}`);
   await expect(page.getByTestId('beauty-grid')).toContainText('Тестовое обучение');
   const rejected = await book(page);
@@ -450,6 +578,20 @@ test('Beauty onboarding v2 completes a ready branch and resumes Today', async ({
   await main.getByRole('button', { name: 'Настроить салон', exact: true }).click();
   await main.getByLabel('Название салона').fill('Тестовый салон');
   await main.getByLabel('Название филиала').fill('Тестовый филиал');
+  // пояс идёт от страны и только для чтения, валюта подставляется и меняется (Q-SCHED-3)
+  await expect(main.getByLabel('Часовой пояс')).toHaveJSProperty('readOnly', true);
+  await main.getByLabel('Страна').selectOption({ label: 'ОАЭ' });
+  await expect(main.getByLabel('Часовой пояс')).toHaveValue('Дубай (ОАЭ)');
+  await expect(main.getByLabel('Валюта')).toHaveValue('AED');
+  expect(await main.getByLabel('Валюта').locator('option').allTextContents()).toEqual([
+    'Тенге (KZT)',
+    'Доллар США (USD)',
+    'Дирхам ОАЭ (AED)',
+    'Катарский риал (QAR)',
+  ]);
+  await main.getByLabel('Страна').selectOption({ label: 'Казахстан' });
+  await expect(main.getByLabel('Часовой пояс')).toHaveValue('Алматы (Казахстан)');
+  await expect(main.getByLabel('Валюта')).toHaveValue('KZT');
   await main.getByRole('button', { name: 'Сохранить и продолжить', exact: true }).click();
   await expect(main.getByRole('button', { name: 'Завершить настройку' })).toBeDisabled();
   await seed(page, request, f);

@@ -1,0 +1,2 @@
+# HELD 118
+Не переносить в migrations без приёмки. Backup: pg_dump новой истории и source tables до выпуска. Локально применено только pms_test own DB. Validation: hospitality-workload-isolated integration и tenant RLS. Rollback: выключить чтение флагом, сохранять hooks и источники. Destructive down не предусмотрен: остановить записи, экспортировать обе hospitality таблицы и получить отдельное разрешение; не удалять историю штатным откатом. Production не применено.

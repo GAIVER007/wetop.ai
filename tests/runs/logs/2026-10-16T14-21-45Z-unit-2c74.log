@@ -1,0 +1,30 @@
+# Модульные (unit) · 16.10.2026 19:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9f59cf6 (claude/marketing-ai-targetolog-design), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T14-21-45Z-unit-2c74.json' 'packages/domain/src/accounts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1
+
+ ✓ |unit| packages/domain/src/accounts/session-device.test.ts (2 tests) 2ms
+ ✓ |unit| packages/domain/src/accounts/permissions.test.ts (15 tests) 4ms
+ ✓ |unit| packages/domain/src/accounts/scopes.test.ts (22 tests) 6ms
+ ✓ |unit| packages/domain/src/accounts/requester-context.test.ts (11 tests) 5ms
+ ✓ |unit| packages/domain/src/accounts/extensions.test.ts (10 tests) 20ms
+ ✓ |unit| packages/domain/src/accounts/trial.test.ts (17 tests) 3ms
+ ✓ |unit| packages/domain/src/accounts/session.test.ts (6 tests) 5ms
+ ✓ |unit| packages/domain/src/accounts/session-renew.test.ts (4 tests) 2ms
+ ✓ |unit| packages/domain/src/accounts/roles.test.ts (9 tests) 3ms
+ ✓ |unit| packages/domain/src/accounts/reset.test.ts (9 tests) 2ms
+ ✓ |unit| packages/domain/src/accounts/invite.test.ts (5 tests) 6ms
+ ✓ |unit| packages/domain/src/accounts/registration-contact.test.ts (13 tests) 3ms
+ ✓ |unit| packages/domain/src/accounts/registration.test.ts (11 tests) 3ms
+ ✓ |unit| packages/domain/src/accounts/members.test.ts (5 tests) 2ms
+ ✓ |unit| packages/domain/src/accounts/accounts.test.ts (24 tests) 397ms
+
+ Test Files  15 passed (15)
+      Tests  163 passed (163)
+   Start at  07:21:45
+   Duration  649ms (transform 43%, tests 40%, import 14%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T14-21-45Z-unit-2c74.json
+
+# код выхода 0 · 1 с

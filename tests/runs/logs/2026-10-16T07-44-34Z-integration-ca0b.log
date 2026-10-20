@@ -1,0 +1,43 @@
+# Интеграционные (integration) · 16.10.2026 12:44 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 16
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T07-44-34Z-integration-ca0b.json' '--config' 'tests/expense-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/expense-documents-isolated.test.ts (10 tests | 1 failed) 259ms
+   ❯ expense persistence, isolated PostgreSQL (10)
+     ✓ applies held migration and persists document without cash debit 13ms
+     ✓ links existing partial cash once, rejects duplicate and overpayment 42ms
+     ✓ rejects wrong currency and non-completed sources 23ms
+     ✓ serializes concurrent links and rejects overpayment 27ms
+     ✓ void retains link/history, freezes amount, permits recomputed balance 22ms
+     × backfills supplier cash and atomically follows later legacy payments without a second debit 33ms
+     ✓ replays identical intents, rejects changed payload, never creates cash 21ms
+     ✓ links proven hotel cash without inferring unknown historical currency 41ms
+     ✓ enforces tenant isolation under the actual runtime role 12ms
+     ✓ enables FORCE RLS and both policy predicates 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/expense-documents-isolated.test.ts > expense persistence, isolated PostgreSQL > backfills supplier cash and atomically follows later legacy payments without a second debit
+error: new row for relation "bar_receipts" violates check constraint "bar_receipts_status_times"
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/expense-documents-isolated.test.ts:73:5
+     71|     expect((await pool.query('SELECT expense_paid_minor($1) AS paid',[…
+     72|     expect((await pool.query('SELECT sum(amount) AS n FROM restaurant_…
+     73|     await pool.query(`UPDATE bar_receipts SET status='POSTED' WHERE id…
+       |     ^
+     74|     await pool.query(`INSERT INTO restaurant_cash_operations(id,locati…
+     75|     const db = createPrismaClient('postgresql://owner_home_test@127.0.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  07:44:35
+   Duration  2.27s (transform 69%, import 19%, tests 12%)
+
+JSON report written to /tmp/pms-test-2026-10-16T07-44-34Z-integration-ca0b.json
+
+# код выхода 1 · 3 с

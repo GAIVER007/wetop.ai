@@ -14,14 +14,16 @@ test('короткое меню настроек ведёт в единый об
   const sidebar = page.locator('.sidenav');
   const group = await openSection(page, 'Настройки');
   // Сайт объекта в «Маркетинг → Сайт и SEO» (MKT2; до 06.10 в «Продажах», ADR-117), в «Настройках» его больше нет
+  // верхнее меню 17.10.2026: сотрудники в «Персонале», «Каналы продаж» из «Продаж» здесь
   await expect(group.locator('a')).toHaveText([
     'Объект',
-    'Сотрудники и доступ',
+    'Каналы продаж',
     'Подключения',
-    'Журнал операций',
     'Неисправности',
+    'История действий',
   ]);
-  await sidebar.getByRole('button', {name: 'Закрыть меню', exact: true}).click();
+  // список раздела закрывается щелчком мимо (строка разделов, 18.10.2026)
+  await page.getByRole('main').getByRole('heading', { level: 1 }).click();
   await expect(page.getByTestId('stored-property').getByLabel('Название объекта', {exact: true})).toHaveValue('Luxx Aparts');
   const tabs = page.getByRole('navigation', { name: 'Настройки объекта', exact: true });
   await tabs.getByRole('link', { name: 'Услуги', exact: true }).click();

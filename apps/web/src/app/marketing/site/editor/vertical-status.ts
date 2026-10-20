@@ -22,3 +22,15 @@ export function verticalPendingText(vertical: WebVertical): string {
 export function createErrorText(vertical: WebVertical, reply: { status?: number; code?: string | null; message: string }): string {
   return verticalPending(vertical, reply) ? verticalPendingText(vertical) : reply.message;
 }
+
+/**
+ * Куда ведёт «Опубликовать» (аудит платформы 17.10.2026, Д10). Страница публикации пока гостиничная: источник брони
+ * сайта у неё тариф гостиницы. Салону и ресторану нужна своя онлайн-запись и бронь стола от их владельца; до неё кнопка
+ * честно неактивна с причиной, а не уводит на «Главную».
+ */
+export function publishTarget(vertical: WebVertical): { href: '/marketing/site' } | { reason: string } {
+  if (vertical === 'HOSPITALITY') return { href: '/marketing/site' };
+  return {
+    reason: `Публикация сайта ${verticalCopy(vertical).businessesOf} появится вместе с онлайн-записью на сайте. Черновик и изображения сохраняются уже сейчас.`,
+  };
+}

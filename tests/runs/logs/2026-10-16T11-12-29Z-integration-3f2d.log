@@ -1,0 +1,44 @@
+# Интеграционные (integration) · 16.10.2026 16:12 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 54
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T11-12-29Z-integration-3f2d.json' '--config' 'tests/owner-money-isolated.config.ts' '--maxWorkers=1' '-t' 'previous actual canonical'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/owner-money-isolated.test.ts (10 tests | 1 failed | 9 skipped) 540ms
+   ❯ owner money actual isolated PostgreSQL queries (10)
+     ↓ fresh held114 applies to transactional baseline clones and rollback leaves originals intact
+     ↓ feature OFF uses only legacy adapter without querying held currency column
+     ↓ hotel supplier repository writes snapshot and settlement as runtime role; foreign tenant sees no receipt
+     ↓ daily series reconciles actual authorized service totals across today, week and calendar month
+     × previous actual canonical rows stop at previous cutoff, retaining exact amounts and categories 448ms
+     ↓ classifies real partially-paid document without changing cash totals, including void and missing links
+     ↓ executes DONE beauty snapshot reads without inventing a payment ledger
+     ↓ reads CLOSED snapshots and POSTED sales once, excluding future and unclosed orders
+     ↓ does not borrow another branch or its present EUR currency
+     ↓ executes hotel service-date/folio and payment scope queries against the real schema
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/owner-money-isolated.test.ts > owner money actual isolated PostgreSQL queries > previous actual canonical rows stop at previous cutoff, retaining exact amounts and categories
+AssertionError: expected undefined to be '2040-01-02T03:00:00.000Z' // Object.is equality
+
+- Expected:
+"2040-01-02T03:00:00.000Z"
+
++ Received:
+undefined
+
+ ❯ tests/integration/owner-money-isolated.test.ts:103:42
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 skipped (10)
+   Start at  11:12:29
+   Duration  2.40s (transform 62%, tests 24%, import 14%)
+
+JSON report written to /tmp/pms-test-2026-10-16T11-12-29Z-integration-3f2d.json
+
+# код выхода 1 · 3 с

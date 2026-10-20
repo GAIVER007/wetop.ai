@@ -1,0 +1,38 @@
+# Сквозные (e2e) · 17.10.2026 11:53 Алматы · Noutbuk-Vyacheslav.local
+# коммит 739b32c (claude/public-site-tz5)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/auth-dialog.spec.ts' '-g' 'путь посетителя'
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/site/auth-dialog.spec.ts:366:1 › путь посетителя: главная → салоны → спа → «Начать работу»; ошибка без ложного успеха, повтор проходит (17.6s)
+
+
+  1) tests/site/auth-dialog.spec.ts:366:1 › путь посетителя: главная → салоны → спа → «Начать работу»; ошибка без ложного успеха, повтор проходит 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').getByTestId('auth-vertical-fixed')
+    Expected pattern: /салон/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').getByTestId('auth-vertical-fixed') with timeout 10000ms
+      - waiting for getByRole('dialog').getByTestId('auth-vertical-fixed')
+
+
+      388 |   await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+      389 |   // Категория страницы только подсказка направления: организацию и роль окно само не создаёт
+    > 390 |   await expect(dialog.getByTestId('auth-vertical-fixed')).toContainText(/салон/i);
+          |                                                           ^
+      391 |   await dialog.getByLabel('Имя').fill('Дана Тестова');
+      392 |   await dialog.getByLabel('Название бизнеса').fill('Тестовое спа');
+      393 |   await dialog.getByLabel('Страна', { exact: true }).selectOption('KZ');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-site/tests/site/auth-dialog.spec.ts:390:59
+
+    Error Context: test-results/auth-dialog-путь-посетител-d0b1a-ного-успеха-повтор-проходит/error-context.md
+
+  1 failed
+    tests/site/auth-dialog.spec.ts:366:1 › путь посетителя: главная → салоны → спа → «Начать работу»; ошибка без ложного успеха, повтор проходит 
+
+# код выхода 1 · 1 мин 1 с

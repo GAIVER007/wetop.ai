@@ -1,0 +1,16 @@
+# Модульные (unit) · 16.10.2026 21:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит e050a5c (claude/modest-lovelace-429ae7), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-25-08Z-unit-3b98.json' 'apps/api/src/analytics/collect.controller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/modest-lovelace-429ae7
+
+ ✓ |unit| apps/api/src/analytics/collect.controller.test.ts (15 tests) 92ms
+
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+   Start at  09:25:09
+   Duration  969ms (transform 50%, import 40%, tests 10%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T16-25-08Z-unit-3b98.json
+
+# код выхода 0 · 2 с

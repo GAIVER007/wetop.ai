@@ -1,0 +1,48 @@
+# Интеграционные (integration) · 15.10.2026 17:58 Алматы · <сервер>
+# коммит 6dfe1f6 (fix/audit-reset-closed-folio), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-15T12-58-25Z-integration-8e0f.json' 'tests/integration/reset-token-http.test.ts' 'tests/integration/closed-folio-http.test.ts' '--maxWorkers=1' '--testTimeout=60000' '--hookTimeout=120000'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-critical-fixes
+
+ ✓ |integration| tests/integration/reset-token-http.test.ts (12 tests) 3414ms
+   ✓ password reset over real AuthModule HTTP and PostgreSQL (12)
+     ✓ concurrent same-token HTTP confirms have exactly one winner, one password and one audit 528ms
+     ✓ success revokes every live session across organizations, not another user or already-revoked time 593ms
+     ✓ PostgreSQL failure in audit_logs rolls back password, token, sessions and audit; token remains retryable 342ms
+ ❯ |integration| tests/integration/closed-folio-http.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/closed-folio-http.test.ts [ tests/integration/closed-folio-http.test.ts ]
+Error: Transform failed with 1 error:
+
+[PARSE_ERROR] Identifier `lockOpenFolios` has already been declared
+     ╭─[ apps/api/src/finance/finance.repository.ts:2:10 ]
+     │
+   2 │ import { lockOpenFolios } from '@pms/database';
+     │          ───────┬──────  
+     │                 ╰──────── `lockOpenFolios` has already been declared here
+     │ 
+ 386 │ import { lockOpenFolios } from '@pms/database';
+     │          ───────┬──────  
+     │                 ╰──────── It can not be redeclared here
+─────╯
+
+  Plugin: vite:oxc
+  File: /srv/hermes/workspace/wetop-critical-fixes/apps/api/src/finance/finance.repository.ts
+ ❯ transformWithOxc node_modules/vite/dist/node/chunks/node.js:4103:19
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/node.js:4174:26
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/node.js:30932:51
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/node.js:20671:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  12 passed (12)
+   Start at  12:58:26
+   Duration  9.22s (tests 55%, transform 26%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-10-15T12-58-25Z-integration-8e0f.json
+
+# код выхода 1 · 11 с

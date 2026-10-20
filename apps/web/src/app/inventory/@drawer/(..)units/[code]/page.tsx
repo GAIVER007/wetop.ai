@@ -5,6 +5,8 @@ import { notFoundOn404 } from '../../../../../lib/page-error';
 import { DockedPanel } from '../../../docked-panel';
 import { channelMarks } from '../../../channel-marks';
 import { UnitPanel } from '../../../unit-panel';
+import { deskShell } from '../../../../../lib/desk-shell';
+import { mayAccess } from '../../../../../lib/navigation';
 
 /**
  * Панель места (ADR-108, срез I2, ТЗ §13; вид по снимку владельца 09.10): вкладки, быстрые действия,
@@ -16,7 +18,9 @@ export default async function UnitDrawerPage({ params }: { params: Promise<{ cod
   const unit = await unitsApi.card(decodeURIComponent(code)).catch(notFoundOn404);
   const clock = await hotelClock();
   const today = clock.today();
-  const marks = await channelMarks();
+  const [marks, shell] = await Promise.all([channelMarks(), deskShell()]);
+  const canEditCatalog = mayAccess(shell.access, 'property') && !shell.readOnly;
+  const canOperate = mayAccess(shell.access, 'desk') && !shell.readOnly;
   const roomUnits = await api
     .inventoryUnits()
     .then((all) => all.filter((u) => u.roomNumber === unit.roomNumber))
@@ -35,6 +39,8 @@ export default async function UnitDrawerPage({ params }: { params: Promise<{ cod
         createdAt={clock.full(unit.createdAt)}
         updatedAt={clock.full(unit.updatedAt)}
         channels={marks.mapped.includes(unit.accommodationTypeCode) ? marks.channels : []}
+        canEditCatalog={canEditCatalog}
+        canOperate={canOperate}
       />
     </DockedPanel>
   );

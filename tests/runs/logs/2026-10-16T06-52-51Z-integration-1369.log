@@ -1,0 +1,76 @@
+# Интеграционные (integration) · 16.10.2026 11:52 Алматы · Noutbuk-Vyacheslav.local
+# коммит d995c44 (claude/bar-o4-decisions-20261016), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-52-51Z-integration-1369.json' 'tests/integration/bar-archive-currency.test.ts' 'tests/integration/bar' 'tests/integration/mv3-onboarding.test.ts' 'tests/integration/onboarding'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main
+
+ ↓ |integration| tests/integration/bar-money-fixes.test.ts (35 tests | 35 skipped)
+ ↓ |integration| tests/integration/bar-money-invariants-audit.test.ts (31 tests | 31 skipped)
+(node:20003) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/onboarding-beauty-readiness.test.ts (23 tests) 890ms
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_categories: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_categories A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_products: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_products A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipt_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipt_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_receipts: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_receipts A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sale_lines: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sale_lines A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_sales: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_sales A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_lots: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_lots A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_stock_movements: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_stock_movements A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_supplier_payments: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_supplier_payments A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+stdout | tests/integration/bar-populated-rls.test.ts > BAR populated tenant visibility and SQL ownership boundary > bar_suppliers: own=1, foreign=0; unset/empty=0; service=2
+BAR_COUNTS bar_suppliers A=[1,0] B=[0,1] unset=[0,0] empty=[0,0] service=[1,1]
+
+ ✓ |integration| tests/integration/bar-populated-rls.test.ts (24 tests) 212ms
+ ✓ |integration| tests/integration/bar-external-parent-ownership.test.ts (29 tests) 218ms
+ ✓ |integration| tests/integration/bar-parent-concurrency.test.ts (200 tests) 2467ms
+ ✓ |integration| tests/integration/bar-ownership.test.ts (105 tests) 588ms
+ ↓ |integration| tests/integration/bar-api-bootstrap.test.ts (5 tests | 5 skipped)
+(node:20081) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-restaurant-cash.test.ts (4 tests) 233ms
+(node:20087) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/mv3-onboarding.test.ts (6 tests) 217ms
+ ✓ |integration| tests/integration/bar-archive-currency.test.ts (2 tests) 182ms
+(node:20093) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-location-children.test.ts (6 tests) 174ms
+ ✓ |integration| tests/integration/bar-property-guard.test.ts (12 tests) 33ms
+(node:20098) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-inventory-surplus.test.ts (3 tests) 196ms
+ ✓ |integration| tests/integration/bar-location.test.ts (5 tests) 20ms
+ ✓ |integration| tests/integration/onboarding-without-property.test.ts (1 test) 255ms
+(node:20106) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/bar-payment-methods.test.ts (3 tests) 267ms
+ ✓ |integration| tests/integration/onboarding-concurrency.test.ts (1 test) 206ms
+ ✓ |integration| tests/integration/bar-overview.test.ts (1 test) 156ms
+
+ Test Files  16 passed | 3 skipped (19)
+      Tests  425 passed | 71 skipped (496)
+   Start at  23:52:51
+   Duration  11.31s (tests 64%, import 29%, transform 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T06-52-51Z-integration-1369.json
+
+# код выхода 0 · 12 с

@@ -4,8 +4,8 @@ import { BadRequestException, ConflictException, Inject, Injectable, NotFoundExc
 import { BAR_REPOSITORY, type BarCategoryInput, type BarProductInput, type BarReceiptInput, type BarRepository, type BarSupplierInput } from './bar.repository';
 import { BAR_SALE_METHODS, BAR_SUPPLIER_METHODS, FinanceRuleError, assertPaymentMethodEnabled, barPaymentMethods } from '@pms/domain';
 
-/** Бар салона (§45): продажи и оплаты откроются вместе с кассой салона, склад работает */
-const NO_SALON_CASH = 'Продажи и оплаты бара салона откроются вместе с кассой салона';
+/** Деньги бара идут в кассу гостиницы или филиала (§45, §48); без кассы склад работает, продажи и оплаты нет */
+const NO_SALON_CASH = 'У этого филиала нет кассы: продажи и оплаты бара недоступны';
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const date = (value: string): boolean => {
@@ -206,9 +206,10 @@ export class BarService {
     const reason = optionalText(body.reason);
     if (!uuid.test(productId)) throw new BadRequestException('Товар не выбран');
     if (!reason) throw new BadRequestException('Укажите причину пересчета');
-    const result = await this.repo.inventoryCount({ productId, actualUnits: nonnegativeInteger(body.actualUnits, 'Фактический остаток'), reason });
+    const unitCostMinor = body.unitCostMinor === undefined || body.unitCostMinor === null || body.unitCostMinor === '' ? null : integer(body.unitCostMinor, 'Цена излишка');
+    const result = await this.repo.inventoryCount({ productId, actualUnits: nonnegativeInteger(body.actualUnits, 'Фактический остаток'), reason, unitCostMinor });
     if (result.kind === 'not_found') throw new NotFoundException('Товар не найден');
-    if (result.kind === 'surplus_requires_cost') throw new ConflictException(`Излишек не приходуем без решения о себестоимости. По системе ${result.systemUnits}`);
+    if (result.kind === 'surplus_requires_cost') throw new ConflictException('На складе пусто: укажите цену излишка за штуку, по ней он будет принят');
     return result;
   }
   createReceipt(raw: unknown) {
@@ -248,7 +249,9 @@ export class BarService {
     const method = typeof body.method === 'string' ? body.method : '';
     if (!(BAR_SUPPLIER_METHODS as readonly string[]).includes(method)) throw new BadRequestException('Способ оплаты не поддерживается');
     await this.assertMethodEnabled(method);
-    const result = await this.repo.payReceipt(id, { amountMinor: integer(body.amountMinor, 'Сумма'), method, note: optionalText(body.note) });
+    const idempotencyKey = optionalText(body.idempotencyKey);
+    if (!idempotencyKey || idempotencyKey.length > 120) throw new BadRequestException('Нужен ключ повтора оплаты');
+    const result = await this.repo.payReceipt(id, { amountMinor: integer(body.amountMinor, 'Сумма'), method, note: optionalText(body.note), idempotencyKey });
     if (result.kind === 'no_cash') throw new ConflictException(NO_SALON_CASH);
     if (result.kind === 'insufficient_cash') throw new ConflictException('В кассе по этому способу меньше этой суммы');
     if (result.kind === 'not_found') throw new NotFoundException('Приход не найден');

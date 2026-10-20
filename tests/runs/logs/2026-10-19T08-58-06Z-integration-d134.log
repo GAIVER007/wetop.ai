@@ -1,0 +1,23 @@
+# Интеграционные (integration) · 19.10.2026 13:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1a5add6 (codex/beauty-zapis-report), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T08-58-06Z-integration-d134.json' 'tests/integration/beauty-appointment-lines.test.ts' 'tests/integration/beauty-customers.test.ts' 'tests/integration/beauty-positions-api.test.ts' 'tests/integration/beauty-position-storage.test.ts' 'tests/integration/customer-import-runtime.test.ts' 'tests/integration/customer-import-race.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/vyacheslav/.codex/worktrees/beauty-zapis-report/WETOP
+
+ ✓ |integration| tests/integration/customer-import-runtime.test.ts (13 tests | 1 skipped) 729ms
+(node:57607) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/beauty-appointment-lines.test.ts (27 tests) 1083ms
+ ✓ |integration| tests/integration/customer-import-race.test.ts (6 tests) 472ms
+ ✓ |integration| tests/integration/beauty-customers.test.ts (4 tests) 235ms
+ ✓ |integration| tests/integration/beauty-positions-api.test.ts (8 tests) 272ms
+ ✓ |integration| tests/integration/beauty-position-storage.test.ts (10 tests) 88ms
+
+ Test Files  6 passed (6)
+      Tests  67 passed | 1 skipped (68)
+   Start at  01:58:07
+   Duration  5.72s (tests 61%, import 27%, transform 12%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T08-58-06Z-integration-d134.json
+
+# код выхода 0 · 7 с

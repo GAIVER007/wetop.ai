@@ -1,0 +1,35 @@
+# Сквозные (e2e) · 18.10.2026 21:13 Алматы · <сервер>
+# коммит 9ef34a2 (fix/salon-mobile-followup-20261018), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' '/opt/data/workspace/wetop-browser-readonly-check/schedule-test.config.ts' 'mobile-calendar-week.spec.ts' 'calendar-master-selection.spec.ts' 'schedule-persistence.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 17 tests using 1 worker
+
+[WebServer] (node:3303819) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   1 tests/beauty-ui/calendar-master-selection.spec.ts:31:1 › mobile master filter and visible calendar select the same master (6.7s)
+  ✓   2 tests/beauty-ui/calendar-master-selection.spec.ts:46:1 › new appointment defaults to the master selected in the desktop filter (4.1s)
+  ✓   3 tests/beauty-ui/calendar-master-selection.spec.ts:54:1 › quick report reads cash, card and refunds from actual stored operations (6.7s)
+  ✓   4 tests/beauty-ui/mobile-calendar-week.spec.ts:28:7 › 360 light › selected master name is visible above mobile calendar (3.8s)
+  ✓   5 tests/beauty-ui/mobile-calendar-week.spec.ts:37:7 › 360 light › week range has its own readable row and navigation still works (3.9s)
+  ✓   6 tests/beauty-ui/mobile-calendar-week.spec.ts:28:7 › 360 dark › selected master name is visible above mobile calendar (3.5s)
+  ✓   7 tests/beauty-ui/mobile-calendar-week.spec.ts:37:7 › 360 dark › week range has its own readable row and navigation still works (4.9s)
+  ✓   8 tests/beauty-ui/mobile-calendar-week.spec.ts:28:7 › 390 light › selected master name is visible above mobile calendar (2.2s)
+  ✓   9 tests/beauty-ui/mobile-calendar-week.spec.ts:37:7 › 390 light › week range has its own readable row and navigation still works (4.1s)
+  ✓  10 tests/beauty-ui/mobile-calendar-week.spec.ts:28:7 › 390 dark › selected master name is visible above mobile calendar (3.2s)
+  ✓  11 tests/beauty-ui/mobile-calendar-week.spec.ts:37:7 › 390 dark › week range has its own readable row and navigation still works (3.0s)
+  ✓  12 tests/beauty-ui/mobile-calendar-week.spec.ts:28:7 › 430 light › selected master name is visible above mobile calendar (2.4s)
+  ✓  13 tests/beauty-ui/mobile-calendar-week.spec.ts:37:7 › 430 light › week range has its own readable row and navigation still works (2.7s)
+  ✓  14 tests/beauty-ui/mobile-calendar-week.spec.ts:28:7 › 430 dark › selected master name is visible above mobile calendar (2.4s)
+  ✓  15 tests/beauty-ui/mobile-calendar-week.spec.ts:37:7 › 430 dark › week range has its own readable row and navigation still works (2.9s)
+  ✓  16 tests/beauty-ui/schedule-persistence.spec.ts:6:1 › desktop › owner saves initially empty master week through onboarding schedule and reloads persisted hours (13.1s)
+  ✓  17 tests/beauty-ui/schedule-persistence.spec.ts:6:1 › mobile touch › owner saves initially empty master week through onboarding schedule and reloads persisted hours (8.3s)
+
+  17 passed (1.6m)
+
+# код выхода 0 · 1 мин 37 с

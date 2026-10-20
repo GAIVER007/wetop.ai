@@ -1,0 +1,17 @@
+# Модульные (unit) · 16.10.2026 16:17 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 76
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T11-17-39Z-unit-aed2.json' 'apps/web/src/app/restaurant-settings/opening.test.ts' 'apps/api/src/food-service/opening.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓ |unit| apps/web/src/app/restaurant-settings/opening.test.ts (6 tests) 60ms
+ ✓ |unit| apps/api/src/food-service/opening.test.ts (2 tests) 24ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  11:17:44
+   Duration  7.85s (transform 72%, import 27%, tests 1%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T11-17-39Z-unit-aed2.json
+
+# код выхода 0 · 13 с

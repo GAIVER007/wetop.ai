@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 16.10.2026 13:43 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 32
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T08-43-18Z-integration-4dfb.json' '--config' 'tests/opening-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ✓ |integration| tests/integration/opening-isolated.test.ts (3 tests) 764ms
+   ✓ confirmed writer materializes observed capacity; sessions project complete and earlier partial; edits preserve history 628ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  08:43:19
+   Duration  3.07s (transform 59%, tests 26%, import 14%)
+
+JSON report written to /tmp/pms-test-2026-10-16T08-43-18Z-integration-4dfb.json
+
+# код выхода 0 · 4 с

@@ -1,3 +1,4 @@
+import { filterBeautyLocations } from '../beauty/access';
 import 'reflect-metadata';
 import {
   BadRequestException,
@@ -65,6 +66,7 @@ export class OrganizationSummaryService {
         locations.map((l) => ({ id: l.id, businessId: l.business.id })),
       ).map((l) => l.id),
     );
+    const permitted = new Set((await filterBeautyLocations(this.prisma.db, locations.map(location=>({id:location.id,businessId:location.business.id,vertical:location.business.vertical})),{section:'finance',action:'view'})).map(row=>row.id));
     const rows: Array<{
       id: string;
       businessId: string;
@@ -76,7 +78,7 @@ export class OrganizationSummaryService {
     const allOrders = new Set<string>();
     for (const l of locations.filter(
       (l) =>
-        visible.has(l.id) &&
+        visible.has(l.id) && permitted.has(l.id) &&
         canAt(role, assignments, 'reports', { businessId: l.business.id, locationId: l.id }),
     )) {
       if (

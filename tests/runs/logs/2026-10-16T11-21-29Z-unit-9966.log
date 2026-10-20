@@ -1,0 +1,19 @@
+# Модульные (unit) · 16.10.2026 16:21 Алматы · Noutbuk-Vyacheslav.local
+# коммит 433f96f (claude/calendar-polish), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T11-21-29Z-unit-9966.json' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/rest-design
+
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 375ms
+   ✓ tokens.css генерируется из design/tokens.json (4)
+     ✓ имена переменных прежние: ни одна var(--…) стойки не осталась без определения 351ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 21ms
+
+ Test Files  2 passed (2)
+      Tests  33 passed (33)
+   Start at  04:21:44
+   Duration  1.03s (import 58%, tests 31%, transform 11%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T11-21-29Z-unit-9966.json
+
+# код выхода 0 · 16 с

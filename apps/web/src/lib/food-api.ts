@@ -130,6 +130,9 @@ export const restaurantApi = {
     sendJson<{ token: string; expiresAt: string }>('POST', `${idPath('orders', id)}/rating-link`, {}),
   voidPayment: (id: string, reason: string) =>
     sendJson<OrderView>('POST', `${idPath('payments', id)}/void`, { reason }),
+  /** Возврат по закрытому заказу (§56) */
+  refundOrder: (id: string, body: { method: FoodPaymentMethod; amount: number; reason: string; idempotencyKey: string }) =>
+    sendJson<OrderView>('POST', `${idPath('orders', id)}/refunds`, body),
   // период считает сервер (ADR-181); без дат прежние последние 100 строк для экрана «Касса»
   cash: (period?: { from: string; to: string }) =>
     getJsonPublic<FoodCashView>(
@@ -141,7 +144,7 @@ export const restaurantApi = {
     sendJson<{ id: string }>('POST', `${idPath('cash/operations', id)}/void`, {}),
   cashReconciliation: (body: { method: FoodPaymentMethod; counted: number; note?: string | null }) =>
     sendJson<{ id: string }>('POST', `${base}/cash/reconciliations`, body),
-  payout: (id: string, body: { period: string; method: FoodPaymentMethod; amount: number }) =>
+  payout: (id: string, body: { period: string; method: FoodPaymentMethod; amount: number; idempotencyKey: string }) =>
     sendJson<{ id: string }>('POST', `${idPath('employees', id)}/payouts`, body),
   tableCleaning: (id: string, needsCleaning: boolean) =>
     sendJson<{ id: string }>('POST', `${idPath('tables', id)}/cleaning`, { needsCleaning }),
@@ -152,11 +155,11 @@ export const restaurantApi = {
     sendJson<FoodEmployee>('POST', `${base}/employees`, body),
   updateEmployee: (
     id: string,
-    body: { name?: string; phone?: string | null; email?: string | null; status?: string },
+    body: { name?: string; phone?: string | null; email?: string | null; status?: string; expectedProfileRevision: string },
   ) => sendJson<FoodEmployee>('PATCH', idPath('employees', id), body),
   shifts: () => getJsonPublic<{ employees: FoodShiftRow[] }>(`${base}/shifts`),
-  setShifts: (id: string, intervals: Array<{ weekday: number; timeFrom: string; timeTo: string }>) =>
-    sendJson<{ week: FoodShiftWeekDay[] }>('PUT', `${idPath('employees', id)}/working-hours`, { intervals }),
+  setShifts: (id: string, intervals: Array<{ weekday: number; timeFrom: string; timeTo: string }>, expectedRevision: string) =>
+    sendJson<{ week: FoodShiftWeekDay[]; weekRevision: string }>('PUT', `${idPath('employees', id)}/working-hours`, { intervals, expectedRevision }),
   payroll: (month: string) => getJsonPublic<PayrollView>(`${base}/payroll?month=${month}`),
   setPaySettings: (id: string, body: { model: PayModel; fixedMinor: number; percent: number }) =>
     sendJson<unknown>('PUT', `${idPath('employees', id)}/pay-settings`, body),

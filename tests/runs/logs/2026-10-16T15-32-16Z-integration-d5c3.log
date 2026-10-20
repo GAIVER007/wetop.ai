@@ -1,0 +1,35 @@
+# Интеграционные (integration) · 16.10.2026 20:32 Алматы · <сервер>
+# коммит 4cf28b7 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 98
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T15-32-16Z-integration-d5c3.json' 'tests/integration/beauty-appointment-payment.test.ts' 'tests/integration/restaurant-order-refund.test.ts' 'tests/integration/bar-payment-replay-loss.test.ts' 'tests/integration/bar-location-children.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+[pms_test] роли wetop_app включён вход (локальная база)
+ ✓  integration  tests/integration/beauty-appointment-payment.test.ts (5 tests) 4667ms
+   ✓ оплата записи салона (integration, §49) (5)
+     ✓ частями и разными способами до цены; повтор ключа не создаёт второй приход; больше остатка нельзя 1914ms
+     ✓ отмена и незаезд с оплатой закрыты, перенос не опускает цену ниже оплаченного; после аннулирования можно 594ms
+     ✓ возврат (§54): только после «Выполнено», с причиной, не больше чистой оплаты и остатка способа, повтор по ключу 300ms
+(node:2548534) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓  integration  tests/integration/bar-location-children.test.ts (6 tests) 987ms
+(node:2548572) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓  integration  tests/integration/bar-payment-replay-loss.test.ts (2 tests) 2398ms
+   ✓ бар: повтор оплаты поставщику и потеря при отмене без склада (integration) (2)
+     ✓ M6: тот же ключ возвращает первую оплату; другой запрос с тем же ключом отклоняется 1361ms
+     ✓ M9: отмена без возврата на склад уводит себестоимость в списание, с возвратом нет 512ms
+(node:2548730) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓  integration  tests/integration/restaurant-order-refund.test.ts (2 tests) 2371ms
+   ✓ возврат по закрытому заказу (integration, §56) (2)
+     ✓ до закрытия возврата нет; после: с причиной, не больше чистой оплаты и остатка способа, повтор по ключу 1420ms
+
+ Test Files  4 passed (4)
+      Tests  15 passed (15)
+   Start at  15:32:18
+   Duration  20.78s (tests 59%, import 23%, transform 18%)
+
+JSON report written to /tmp/pms-test-2026-10-16T15-32-16Z-integration-d5c3.json
+
+# код выхода 0 · 23 с

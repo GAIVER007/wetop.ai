@@ -1,0 +1,31 @@
+# Типы (typecheck) · 16.10.2026 20:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит dd44824 (claude/marketing-meta-writer), незакоммиченных файлов набора: 4
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+packages/integrations/src/meta/writer.ts(182,34): error TS2322: Type 'Uint8Array<ArrayBufferLike>' is not assignable to type 'BlobPart'.
+  Type 'Uint8Array<ArrayBufferLike>' is not assignable to type 'ArrayBufferView<ArrayBuffer>'.
+    Types of property 'buffer' are incompatible.
+      Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+        Type 'SharedArrayBuffer' is not assignable to type 'ArrayBuffer'.
+          Types of property '[Symbol.toStringTag]' are incompatible.
+            Type '"SharedArrayBuffer"' is not assignable to type '"ArrayBuffer"'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+packages/integrations/src/meta/writer.ts(182,34): error TS2322: Type 'Uint8Array<ArrayBufferLike>' is not assignable to type 'BlobPart'.
+  Type 'Uint8Array<ArrayBufferLike>' is not assignable to type 'Uint8Array<ArrayBuffer> | Blob | DataView<ArrayBuffer>'.
+    Type 'Uint8Array<ArrayBufferLike>' is not assignable to type 'Uint8Array<ArrayBuffer>'.
+      Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+        Type 'SharedArrayBuffer' is not assignable to type 'ArrayBuffer'.
+          Types of property '[Symbol.toStringTag]' are incompatible.
+            Type '"SharedArrayBuffer"' is not assignable to type '"ArrayBuffer"'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 19 с

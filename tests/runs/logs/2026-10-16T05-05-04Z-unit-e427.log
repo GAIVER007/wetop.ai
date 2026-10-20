@@ -1,0 +1,16 @@
+# Модульные (unit) · 16.10.2026 10:05 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1bd4c21 (main), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-05-04Z-unit-e427.json' 'tests/unit/design-slop.test.ts' 'tests/unit/design-tokens.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/744c2bcc-6045-44c3-b957-4641a292646f/scratchpad/wetop-main
+
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 6ms
+
+ Test Files  1 passed (1)
+      Tests  18 passed (18)
+   Start at  22:05:11
+   Duration  1.35s (import 92%, transform 6%, worker 1%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-16T05-05-04Z-unit-e427.json
+
+# код выхода 0 · 8 с

@@ -1,0 +1,44 @@
+# Интеграционные (integration) · 16.10.2026 15:52 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 49
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T10-52-15Z-integration-a4de.json' '--config' 'tests/hotel-cash-isolated.config.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/hotel-cash-intent-isolated.test.ts (5 tests | 5 skipped) 196ms
+   ↓ actual controller returns original CashView after void and subsequent reconciliation
+   ↓ repository direct guard replays, rejects changes and missing key, concurrent fee once, transfer remains transfer
+   ↓ audit failure rolls back main fee and intent, same key can retry
+   ↓ reconciliation adjustment replays once despite changed derived balance
+   ↓ feature off accepts missing key and bypasses held SQL in legacy adapter
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/hotel-cash-intent-isolated.test.ts [ tests/integration/hotel-cash-intent-isolated.test.ts ]
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.create()` invocation:
+
+
+Can't reach database server at 127.0.0.1:55516
+ ❯ vn.handleRequestError ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a ../wetop-design-audit-runtime/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/hotel-cash-intent-isolated.test.ts:30:18
+     28| const body=()=>({kind:'INCOME' as const,method:'CASH' as const,methodT…
+     29| beforeAll(async()=>{
+     30|  organizationId=(await db.organization.create({data:{name:'Synthetic h…
+       |                  ^
+     31|  await db.user.create({data:{id:user,name:'Synthetic owner',email:`hot…
+     32|  businessId=(await db.business.create({data:{organizationId,name:'Synt…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 skipped (5)
+   Start at  10:52:16
+   Duration  2.75s (transform 66%, import 26%, tests 8%)
+
+JSON report written to /tmp/pms-test-2026-10-16T10-52-15Z-integration-a4de.json
+
+# код выхода 1 · 4 с

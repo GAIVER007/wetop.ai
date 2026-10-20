@@ -1,0 +1,142 @@
+# Сквозные (e2e) · 17.10.2026 15:52 Алматы · Noutbuk-Vyacheslav.local
+# коммит a4f9b04 (claude/salon-e2e-check), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/onboarding-real/playwright.config.ts'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1133ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 639ms. If /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/apps/site/.next/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+
+Running 10 tests using 2 workers
+
+[WebServer] (node:85481) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1838492941'
+[WebServer] }
+  ✓   2 tests/onboarding-real/onboarding-compatibility.spec.ts:36:1 › O21 Food v1 real registration, saved location and completion (35.8s)
+  ✓   3 tests/onboarding-real/onboarding-compatibility.spec.ts:53:1 › O21 Hospitality v1 real registration, category persistence and provisioning (14.2s)
+  ✓   4 tests/onboarding-real/onboarding-compatibility.spec.ts:68:1 › O22/O23 Beauty extreme widths, reduced motion, keyboard and accessible errors (37.1s)
+  ✓   5 tests/onboarding-real/onboarding-compatibility.spec.ts:95:1 › O02/O03 confirmation in fresh browser and repeated link preserve original context (22.4s)
+  ✓   6 tests/onboarding-real/onboarding-compatibility.spec.ts:122:1 › create then immediate services tab keeps its native dialog open (18.4s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   7 tests/onboarding-real/onboarding-compatibility.spec.ts:172:1 › Employee mobile typography, confirmed scope and create cancellation (7.1s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerLayoutRouter url="/calendar?..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]       <SegmentViewNode type="page" pagePath="calendar/p...">
+[WebServer]         <SegmentTrieNode>
+[WebServer]         <GuardedPage>
+[WebServer]           <Page>
+[WebServer]             <main id="main-content" tabIndex={-1} className="page beaut...">
+[WebServer]               <header>
+[WebServer]               <nav>
+[WebServer]               <JournalBoard day={{location:{...}, ...}} customers={[...]} employees={[...]} readOnly={false} ...>
+[WebServer]                 <div className="beauty-bar...">
+[WebServer]                   <div className="beauty-cal...">
+[WebServer]                     <DateBar date="2026-10-19" path="/calendar">
+[WebServer]                       <DateBar date="2026-10-19" onToday={function onToday} onPrevious={function onPrevious} ...>
+[WebServer]                         <div className="date-bar">
+[WebServer]                           <Button>
+[WebServer]                           <Button>
+[WebServer]                           <Field label={<span>}>
+[WebServer]                             <label htmlFor={undefined} className="field">
+[WebServer]                               <span>
+[WebServer]                               <Input data-testid="beauty-day..." type="date" value="2026-10-19" ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   data-testid="beauty-day-date"
+[WebServer]                                   type="date"
+[WebServer]                                   value="2026-10-19"
+[WebServer]                                   onChange={function onChange}
+[WebServer]                                   id={undefined}
+[WebServer]                                   aria-describedby={undefined}
+[WebServer]                                   aria-invalid={undefined}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                     ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+  ✓   1 tests/onboarding-real/beauty-onboarding.spec.ts:67:1 › O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working calendar (2.6m)
+  ✓   8 tests/onboarding-real/beauty-onboarding.spec.ts:228:1 › O03/O05/O20: logout, new session, deep links and history resume the saved Location (41.4s)
+  ✘   9 tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07/O08: partial assignment and a lost create response recover one Employee ID (36.0s)
+  ✓  10 tests/onboarding-real/beauty-onboarding.spec.ts:404:1 › O02/O17: unverified and expired confirmation do not bypass real guards (758ms)
+
+
+  1) tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07/O08: partial assignment and a lost create response recover one Employee ID 
+
+    TimeoutError: locator.click: Timeout 20000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Добавить мастера', exact: true })
+        - locator resolved to <button class="btn" type="button">Добавить мастера</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <dialog open="" aria-labelledby="_r_4_" class="ui-overlay  ui-overlay--sm ">…</dialog> from <dialog open="" aria-labelledby="_R_mslritmin6lb_" class="ui-overlay ui-drawer ui-overlay--lg ">…</dialog> subtree intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <dialog open="" aria-labelledby="_r_4_" class="ui-overlay  ui-overlay--sm ">…</dialog> from <dialog open="" aria-labelledby="_R_mslritmin6lb_" class="ui-overlay ui-drawer ui-overlay--lg ">…</dialog> subtree intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        38 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <dialog open="" aria-labelledby="_r_4_" class="ui-overlay  ui-overlay--sm ">…</dialog> from <dialog open="" aria-labelledby="_R_mslritmin6lb_" class="ui-overlay ui-drawer ui-overlay--lg ">…</dialog> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+
+
+      319 |   expect(saved.items[0].id).toBe(firstId);
+      320 |   await page.keyboard.press('Escape');
+    > 321 |   await page.getByRole('button', { name: 'Добавить мастера', exact: true }).click();
+          |                                                                             ^
+      322 |   dialog = page.getByRole('dialog');
+      323 |   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Потерянный Ответ');
+      324 |   let dropped!: () => void;
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/f209fa7e-09d7-4256-92da-6ea87db5c81c/scratchpad/wt-e2e/tests/onboarding-real/beauty-onboarding.spec.ts:321:77
+
+    Error Context: test-results/beauty-onboarding-O07-O08--4b5b8-nse-recover-one-Employee-ID/error-context.md
+
+  1 failed
+    tests/onboarding-real/beauty-onboarding.spec.ts:263:1 › O07/O08: partial assignment and a lost create response recover one Employee ID 
+  9 passed (4.4m)
+
+# код выхода 1 · 4 мин 32 с

@@ -1,0 +1,19 @@
+# Модульные (unit) · 16.10.2026 22:55 Алматы · <сервер>
+# коммит 61af7b9 (feat/employee-portal-release-20261016), незакоммиченных файлов набора: 38
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T17-55-51Z-unit-8476.json' 'tests/unit/ci-runner.test.ts' 'tests/unit/design-slop.test.ts' 'apps/web/src/lib/navigation-beauty.test.ts' 'apps/web/src/lib/navigation-food.test.ts'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-portal-release-61af7b90
+
+ ✓ |unit| apps/web/src/lib/navigation-food.test.ts (4 tests) 11ms
+ ✓ |unit| tests/unit/ci-runner.test.ts (25 tests) 140ms
+ ✓ |unit| tests/unit/design-slop.test.ts (18 tests) 8ms
+ ✓ |unit| apps/web/src/lib/navigation-beauty.test.ts (8 tests) 12ms
+
+ Test Files  4 passed (4)
+      Tests  55 passed (55)
+   Start at  17:55:52
+   Duration  2.43s (transform 54%, import 36%, tests 9%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-16T17-55-51Z-unit-8476.json
+
+# код выхода 0 · 4 с

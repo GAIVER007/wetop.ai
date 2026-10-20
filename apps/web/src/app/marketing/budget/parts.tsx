@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { MARKETING_PLATFORM_LABELS } from '@pms/domain';
 import type { MarketingBudgetView } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { Icon } from '../../../components/icon';
@@ -8,17 +9,7 @@ import { EmptyState } from '../../../components/ui';
 import { byPlatform, type BudgetExpense } from './derive';
 
 /** Подписи каналов (ТЗ §4): словами, как на макете */
-export const PLATFORM_LABELS: Record<string, string> = {
-  META: 'Meta Ads',
-  GOOGLE: 'Google Ads',
-  TIKTOK: 'TikTok Ads',
-  INSTAGRAM: 'Instagram',
-  YOUTUBE: 'YouTube',
-  WHATSAPP: 'WhatsApp',
-  SITE: 'Сайт',
-  PHONE: 'Телефон',
-  OTHER: 'Прочие',
-};
+export const PLATFORM_LABELS: Record<string, string> = MARKETING_PLATFORM_LABELS;
 export const platformLabel = (p: string): string => PLATFORM_LABELS[p] ?? p;
 
 /** Статьи-подсказки формы: свободный текст, список не ограничивает (DATA_MODEL §41.1) */

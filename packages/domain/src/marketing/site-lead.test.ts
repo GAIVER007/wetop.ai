@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SITE_LEAD_ENDPOINTS, buildSiteBrief, parseSiteLead, type SiteBriefSnapshot } from './index';
+import { parseBeautyBookRequest } from '../web-booking/site-forms';
 
 const KEY = 'pms_0123456789ab';
 const RK = '6f1c2a90-3b4d-4e5f-8a6b-7c8d9e0f1a2b';
@@ -14,14 +15,16 @@ describe('site-lead: тело заявки салона, ресторана и �
     });
   });
 
-  it('запись к мастеру: общие поля и услуга, мастер по желанию, время филиала без пояса', () => {
+  it('запись к мастеру: тот же serviceId и ISO с поясом, что принимает публичный backend', () => {
     const r = parseSiteLead('BEAUTY_APPOINTMENT', {
-      k: KEY, name: ' Гость ', phone: '+7 700 000 00 01', requestKey: RK, serviceCode: 'svc-1', startsAt: '2026-10-20T14:30', turnstileToken: 'tok',
+      k: KEY, name: ' Гость ', phone: '+7 700 000 00 01', requestKey: RK, serviceId: RK, startsAt: '2026-10-20T14:30+05:00', turnstileToken: 'tok',
     });
     expect(r).toEqual({
       ok: true,
-      body: { k: KEY, name: 'Гость', phone: '+7 700 000 00 01', requestKey: RK, turnstileToken: 'tok', mode: 'BEAUTY_APPOINTMENT', serviceCode: 'svc-1', startsAt: '2026-10-20T14:30' },
+      body: { k: KEY, name: 'Гость', phone: '+7 700 000 00 01', requestKey: RK, turnstileToken: 'tok', mode: 'BEAUTY_APPOINTMENT', serviceId: RK, startsAt: '2026-10-20T14:30+05:00' },
     });
+    if (r.ok) expect(parseBeautyBookRequest(r.body).ok).toBe(true);
+    expect(parseSiteLead('BEAUTY_APPOINTMENT', { k: KEY, name: 'Guest', phone: '+77000000001', requestKey: RK, serviceCode: RK, startsAt: '2026-10-20T14:30' }).ok).toBe(false);
   });
 
   it('бронь стола: дата, время и число гостей', () => {

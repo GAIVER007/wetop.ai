@@ -1,0 +1,39 @@
+# Интеграционные (integration) · 16.10.2026 14:45 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 42
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T09-45-07Z-integration-cfb8.json' '--config' 'tests/owner-money-isolated.config.ts' '--maxWorkers=1' '--pool=threads' '--testTimeout=30000' '-t' 'daily series'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/owner-money-isolated.test.ts (6 tests | 6 skipped) 49ms
+   ↓ owner money actual isolated PostgreSQL queries (6)
+     ↓ daily series reconciles actual authorized service totals across today, week and calendar month
+     ↓ classifies real partially-paid document without changing cash totals, including void and missing links
+     ↓ executes DONE beauty snapshot reads without inventing a payment ledger
+     ↓ reads CLOSED snapshots and POSTED sales once, excluding future and unclosed orders
+     ↓ does not borrow another branch or its present EUR currency
+     ↓ executes hotel service-date/folio and payment scope queries against the real schema
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/owner-money-isolated.test.ts [ tests/integration/owner-money-isolated.test.ts ]
+Error: connect ECONNREFUSED 127.0.0.1:55516
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/owner-money-isolated.test.ts:13:18
+     11| const from=new Date('2040-01-02T19:00Z'), now=new Date('2040-01-03T03:…
+     12| beforeAll(async()=>{
+     13|  organizationId=(await pool.query('SELECT id FROM organizations LIMIT …
+       |                  ^
+     14|  await pool.query(`INSERT INTO businesses(id,organization_id,name,vert…
+     15|  await pool.query(`INSERT INTO locations(id,business_id,name,timezone,…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 skipped (6)
+   Start at  09:45:09
+   Duration  1.00s (transform 70%, import 24%, tests 6%)
+
+JSON report written to /tmp/pms-test-2026-10-16T09-45-07Z-integration-cfb8.json
+
+# код выхода 1 · 3 с

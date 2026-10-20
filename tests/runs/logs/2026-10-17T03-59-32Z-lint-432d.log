@@ -1,0 +1,11 @@
+# Линтер (lint) · 17.10.2026 08:59 Алматы · Noutbuk-Vyacheslav.local
+# коммит c46ef1c (claude/marketing-ad-wizard), незакоммиченных файлов набора: 19
+# npx eslint .
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/.claude/worktrees/marketing-module-b1/apps/web/src/app/marketing/ads/launch/wizard.tsx
+  106:13  error  Definition for rule '@next/next/no-img-element' was not found  @next/next/no-img-element
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 24 с

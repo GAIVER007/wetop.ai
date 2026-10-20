@@ -1,0 +1,31 @@
+# Интеграционные (integration) · 16.10.2026 12:27 Алматы · <сервер>
+# коммит 869b691 (feat/unified-owner-data-20261016), незакоммиченных файлов набора: 15
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-16T07-27-06Z-integration-8bba.json' '--config' 'tests/owner-money-isolated.config.ts' '--maxWorkers=1' '--pool=threads'
+
+ RUN  v5.0.0 /srv/hermes/workspace/wetop-unified-owner-data
+
+ ❯ |integration| tests/integration/owner-money-isolated.test.ts (3 tests | 3 skipped) 68ms
+   ↓ owner money actual isolated PostgreSQL queries (3)
+     ↓ reads CLOSED snapshots and POSTED sales once, excluding future and unclosed orders
+     ↓ does not borrow another branch or its present EUR currency
+     ↓ executes hotel service-date/folio and payment scope queries against the real schema
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/owner-money-isolated.test.ts [ tests/integration/owner-money-isolated.test.ts ]
+error: inconsistent types deduced for parameter $1
+ ❯ ../wetop-design-audit-runtime/node_modules/pg-pool/index.js:45:11
+ ❯ tests/integration/owner-money-isolated.test.ts:17:2
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 skipped (3)
+   Start at  07:27:07
+   Duration  915ms (transform 69%, import 22%, tests 8%)
+
+JSON report written to /tmp/pms-test-2026-10-16T07-27-06Z-integration-8bba.json
+
+# код выхода 1 · 2 с

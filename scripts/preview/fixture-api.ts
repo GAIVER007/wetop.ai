@@ -2968,6 +2968,9 @@ const sellerKnowledgeSeed = () => [
 let sellerKnowledge = sellerKnowledgeSeed();
 // С2: ключ модели партнёра — подставной бот хранит только последние 4 знака
 let sellerLlmKey: string | null = null;
+// подставной бот помнит ключ целиком (только стенд) и последнее состояние: «nocredit» в ключе значит пустой счёт
+let sellerLlmFullKey: string | null = null;
+let sellerLlmKeyState: { state: string; reason: string | null; checkedAt: string } | null = null;
 // С3: подключение WhatsApp — подставной бот выдаёт слово вебхука, токен не хранится
 let sellerWhatsApp: { phoneNumberId: string; verifyToken: string } | null = null;
 const sellerWhatsAppView = () => ({
@@ -3043,6 +3046,8 @@ function resetSeller() {
   sellerSaved = false;
   sellerApplied = false;
   sellerLlmKey = null;
+  sellerLlmFullKey = null;
+  sellerLlmKeyState = null;
   sellerWhatsApp = null;
   sellerUpdatedAt = null;
   sellerPrompt = null;
@@ -8216,7 +8221,7 @@ createServer(async (req, res) => {
         req.method === 'GET'
           ? path === '/ai-seller/embed'
             ? 'act'
-            : path === '/ai-seller/llm-key' || path === '/ai-seller/whatsapp'
+            : path === '/ai-seller/llm-key' || path === '/ai-seller/llm-usage' || path === '/ai-seller/whatsapp'
               ? 'configure'
               : 'read'
           : path === '/ai-seller/profile' ||
@@ -8601,22 +8606,34 @@ createServer(async (req, res) => {
         );
       }
       if (path === '/ai-seller/llm-key' && req.method === 'GET')
-        return send(200, { set: sellerLlmKey !== null, last4: sellerLlmKey });
+        return send(200, {
+          set: sellerLlmKey !== null,
+          last4: sellerLlmKey,
+          state: sellerLlmKeyState?.state ?? null,
+          reason: sellerLlmKeyState?.reason ?? null,
+          checkedAt: sellerLlmKeyState?.checkedAt ?? null,
+        });
+      if (path === '/ai-seller/llm-usage' && req.method === 'GET')
+        return send(200, { month: '2026-10', replies: 3, tokens: 12345, costUsd: null, costPartial: false });
       if (path === '/ai-seller/llm-key' && req.method === 'PUT') {
         const key = String(body['key'] ?? '').trim();
         sellerLlmKey = key === '' ? null : key.slice(-4);
+        sellerLlmFullKey = key === '' ? null : key;
+        sellerLlmKeyState = null;
         return send(200, { set: sellerLlmKey !== null, last4: sellerLlmKey });
       }
       if (path === '/ai-seller/llm-key/check' && req.method === 'POST') {
-        const key = String(body['key'] ?? '').trim();
-        if (key === '') return send(400, { message: 'Нечего проверять: ключ пуст' });
-        // подставной роутер: «valid» в ключе — действителен, иначе отказ словами
-        return send(
-          200,
-          key.includes('valid')
-            ? { valid: true, reason: null }
-            : { valid: false, reason: 'Роутер не принял ключ' },
-        );
+        const typed = String(body['key'] ?? '').trim();
+        const key = typed || sellerLlmFullKey || '';
+        if (key === '') return send(400, { message: 'Нечего проверять: ключ не сохранён' });
+        // подставной роутер: «nocredit» значит пустой счёт, «valid» действителен, иначе ключ не принят
+        const verdict = key.includes('nocredit')
+          ? { valid: false, state: 'no_credits', reason: 'На счёте провайдера модели закончились деньги: пополните баланс в его кабинете' }
+          : key.includes('valid')
+            ? { valid: true, state: 'ok', reason: null }
+            : { valid: false, state: 'invalid_key', reason: 'Роутер не принял ключ' };
+        if (!typed) sellerLlmKeyState = { state: verdict.state, reason: verdict.reason, checkedAt: '2026-10-20T15:51:54Z' };
+        return send(200, verdict);
       }
       if (path === '/ai-seller/extract' && req.method === 'POST') {
         // подставной бот «разобрал» рассказ: как у API — только в пустые поля черновика (С1)

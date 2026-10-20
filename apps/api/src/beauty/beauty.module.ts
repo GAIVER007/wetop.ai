@@ -32,6 +32,7 @@ import {
   parseLocationServiceInput,
   stockQty,
   type Permission,
+  RESTRICTED_CATALOG_WRITE_MESSAGE,
 } from '@pms/domain';
 import type { DbTx } from '@pms/database';
 import {
@@ -47,6 +48,7 @@ import {
 import { currentUserId } from '../auth/request-context';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Access } from '../auth/access.decorator';
+import { OrganizationLevel } from '../auth/organization-level.decorator';
 import { BeautyAccess } from './access.decorator';
 import { PrismaService } from '../database/prisma.provider';
 import { BeautyAppointmentsController, BeautyAppointmentsService } from './appointments';
@@ -1046,10 +1048,12 @@ export class BeautyCatalogController {
   }
   // Каталог услуг это прайс салона: цены по решению Q-253 меняет право `rates`
   @BeautyAccess('services', 'create')
+  @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
   @Access('rates') @Post('services') createService(@Body() body: unknown) {
     return this.service.createService(body);
   }
   @BeautyAccess('services', 'update')
+  @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
   @Access('rates') @Patch('services/:id') updateService(
     @Param('id') id: string,
     @Body() body: unknown,
@@ -1082,6 +1086,7 @@ export class BeautyCatalogController {
   @RequiresBusinessCapability('beauty.employees')
   @BeautyAccess('employees', 'create')
   @Access('property')
+  @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
   @Post('employees')
   createEmployee(@Body() body: unknown) {
     return this.service.createEmployee(body);
@@ -1089,6 +1094,7 @@ export class BeautyCatalogController {
   @RequiresBusinessCapability('beauty.employees')
   @BeautyAccess('employees', 'update')
   @Access('property')
+  @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
   @Patch('employees/:id')
   updateEmployee(@Param('id') id: string, @Body() body: unknown) {
     return this.service.updateEmployee(id, body);
@@ -1096,6 +1102,7 @@ export class BeautyCatalogController {
   @RequiresBusinessCapability('beauty.employees')
   @BeautyAccess('employees', 'update')
   @Access('property')
+  @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
   @Put('employees/:id/services')
   setEmployeeServices(@Param('id') id: string, @Body() body: unknown) {
     return this.service.setEmployeeServices(id, body);

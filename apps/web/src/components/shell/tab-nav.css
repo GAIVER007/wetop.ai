@@ -7,15 +7,20 @@
      на всю ширину, значок рядом с подписью. Подписи не обрезаются: у каждого элемента своя колонка сетки. */
   @media (min-width: 1280px) {
     div.workspace {
-      --header-h: calc(var(--header-row-h) + var(--header-menu-h) + env(safe-area-inset-top, 0px));
+      --header-h: calc(var(--space-12) + var(--space-10) + env(safe-area-inset-top, 0px));
     }
     .sidenav {
       display: none;
     }
+    /* шапка выше на 32 px (88 вместо 56): отступы страницы ужаты на 16, как при верхнем меню ADR-134,
+       чтобы экраны под ноутбук 1366×768 снова помещались */
+    div.workspace .page {
+      padding: var(--space-2) var(--space-8) var(--space-4);
+    }
     .workspace .workspace-header .workspace-header__row {
       display: grid;
       grid-template-columns: auto minmax(0, 1fr) minmax(220px, 300px) minmax(200px, 280px) auto;
-      grid-template-rows: var(--header-row-h) var(--header-menu-h);
+      grid-template-rows: var(--space-12) var(--space-10);
       align-items: center;
       gap: 0 var(--space-4);
       height: auto;

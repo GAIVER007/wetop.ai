@@ -44,9 +44,9 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
       const header = page.locator('.workspace-header');
       const tabs = page.locator('.tabnav .tabnav__tab');
       await expect(tabs).toHaveCount(11);
-      // две строки: 56 px управление + 44 px разделы, переменная шапки совпадает с высотой
+      // две строки: 48 px управление + 40 px разделы, переменная шапки совпадает с высотой
       const height = (await header.boundingBox())!.height;
-      expect(height).toBe(100);
+      expect(height).toBe(88);
       expect(
         await page.evaluate(() =>
           getComputedStyle(document.querySelector('.workspace')!).getPropertyValue('--header-h'),

@@ -5,8 +5,8 @@ import { ApiError } from './api-error';
 import { STAFF_REVENUE_PERIODS, periodHref, type StaffRevenue, type StaffRevenuePeriod } from './staff-revenue';
 
 /**
- * Свод «сколько принёс» (docs/decisions/2026-10-20-personnel-revenue.md). Без права на отчёты (403) колонку не
- * показываем: null. Остальные ошибки видны границей ошибок страницы.
+ * Свод «сколько принёс» (docs/decisions/2026-10-20-personnel-revenue.md). Сумма дополняет список персонала и не
+ * должна его ломать: без права на отчёты, без кассы филиала или при сбое API колонки нет (null), список открыт.
  */
 export async function loadStaffRevenue(
   source: 'branch' | 'hotel',
@@ -17,8 +17,9 @@ export async function loadStaffRevenue(
     return await getJsonPublic<StaffRevenue>(`${path}?period=${period}`);
   } catch (error) {
     unstable_rethrow(error);
-    if (error instanceof ApiError && error.status === 403) return null;
-    throw error;
+    if (!(error instanceof ApiError) || error.status !== 403)
+      console.warn('staff revenue unavailable', error instanceof Error ? error.message : error);
+    return null;
   }
 }
 

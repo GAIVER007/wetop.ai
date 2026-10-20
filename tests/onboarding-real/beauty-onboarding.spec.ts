@@ -121,7 +121,10 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
   await skills.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
   await expect(skills.getByRole('status')).toContainText('Сохранено на сервере');
   await goToEmployeesList(page);
-  await expect(page.getByRole('listitem').filter({hasText:'Тестовый Мастер'})).toContainText('Тестовая стрижка');
+  // единый экран персонала (20.10.2026): специалист строкой таблицы, услуги видны категорией или названием
+  const masterRow = page.getByTestId('staff-row').filter({ hasText: 'Тестовый Мастер' });
+  await expect(masterRow).toBeVisible();
+  await expect(masterRow).not.toContainText('Специализация не указана');
   await page.getByRole('link', { name: 'Вернуться к настройке салона', exact: true }).click();
   await expect(
     page.getByText('Выполнено 3 из 4 обязательных шагов', { exact: true }),

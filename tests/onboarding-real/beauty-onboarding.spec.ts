@@ -122,7 +122,8 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
   await expect(skills.getByRole('status')).toContainText('Сохранено на сервере');
   await goToEmployeesList(page);
   // единый экран персонала (20.10.2026): специалист строкой таблицы, услуги видны категорией или названием
-  const masterRow = page.getByTestId('staff-row').filter({ hasText: 'Тестовый Мастер' });
+  // строка видна во вкладке «Все» (открыта первой); в других вкладках та же строка скрыта
+  const masterRow = page.getByRole('tabpanel').getByTestId('staff-row').filter({ hasText: 'Тестовый Мастер' });
   await expect(masterRow).toBeVisible();
   await expect(masterRow).not.toContainText('Специализация не указана');
   await page.getByRole('link', { name: 'Вернуться к настройке салона', exact: true }).click();

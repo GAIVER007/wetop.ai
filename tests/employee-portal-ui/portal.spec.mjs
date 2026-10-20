@@ -97,7 +97,7 @@ test('real browser avatar/profile persistence, work approval and three views',as
 });
 test('specialist list opens one canonical profile and creation lands on the same screen',async({browser,request})=>{
  const f=await reset(request);const manager=await context(browser,f,'ownerA');const page=await manager.newPage();
- await page.goto('/employees');const card=page.getByTestId('staff-row').filter({hasText:'Synthetic specialist A'});
+ await page.goto('/employees');const card=page.getByRole('tabpanel').getByTestId('staff-row').filter({hasText:'Synthetic specialist A'});
  const open=card.getByRole('link',{name:'Открыть: Synthetic specialist A',exact:true});await expect(open).toHaveAttribute('href',`/employees/${f.employeeA}/profile`);await open.click();
  await expect(page).toHaveURL(new RegExp(`/employees/${f.employeeA}/profile$`));await expect(page.getByRole('heading',{name:'Карточка сотрудника',exact:true})).toBeVisible();await expect(page.getByTestId('employee-manager')).toBeVisible();await expect(page.getByRole('dialog')).toHaveCount(0);
  await page.goto(`/employees?employee=${f.employeeA}#profile`);await expect(page).toHaveURL(new RegExp(`/employees/${f.employeeA}/profile$`));await expect(page.getByTestId('employee-manager')).toBeVisible();

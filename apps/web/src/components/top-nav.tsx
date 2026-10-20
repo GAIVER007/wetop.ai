@@ -308,17 +308,6 @@ export function TopNav({
                         <Icon name="person" />
                         Профиль
                       </Link>
-                      <Link href="/help" onClick={() => setProfile(false)}>
-                        <Icon name="help" />
-                        Помощь
-                      </Link>
-                      {support && (
-                        <Link href="/help#support" onClick={() => setProfile(false)}>
-                          <Icon name="chat" />
-                          Связаться с поддержкой
-                        </Link>
-                      )}
-                      <WhatsNewLink vertical={shell?.vertical ?? 'HOSPITALITY'} onClick={() => setProfile(false)} />
                       {/* «Моя работа» (личный экран сотрудника) здесь, не в разделах (17.10.2026) */}
                       {(beauty || food) && (
                         <Link href="/my-work" onClick={() => setProfile(false)}>
@@ -332,6 +321,18 @@ export function TopNav({
                           Филиалы
                         </Link>
                       )}
+                      <hr className="profile-dropdown__sep" />
+                      <Link href="/help" onClick={() => setProfile(false)}>
+                        <Icon name="help" />
+                        Помощь
+                      </Link>
+                      {support && (
+                        <Link href="/help#support" onClick={() => setProfile(false)}>
+                          <Icon name="chat" />
+                          Связаться с поддержкой
+                        </Link>
+                      )}
+                      <WhatsNewLink vertical={shell?.vertical ?? 'HOSPITALITY'} onClick={() => setProfile(false)} />
                       {hospitality && (
                         <button
                           data-testid="tour-restart"
@@ -344,6 +345,7 @@ export function TopNav({
                           Обучение работе в WETOP
                         </button>
                       )}
+                      <hr className="profile-dropdown__sep" />
                       {/* пробный период и свежесть данных: на широком экране панели ☰ нет (18.10.2026), строки здесь */}
                       {shell?.trial && (
                         <span className="profile-dropdown__note" data-testid="profile-trial">

@@ -1,10 +1,10 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PENDING_ACCESS, menuSectionsFor, type NavigationAccess } from '../../lib/navigation';
 import type { WebVertical } from '../../lib/vertical-landing';
-import { Icon } from '../icon';
+import { Icon, type IconName } from '../icon';
 import { Overlay } from '../overlay';
 /**
  * Разделы для быстрого перехода: меню своего направления (аудит платформы 17.10.2026, Д3), без повторов адреса.
@@ -19,6 +19,23 @@ export function searchMatches(access: NavigationAccess, vertical: WebVertical, q
     .slice(0, 6);
 }
 
+/** Что можно найти по введённому тексту: гость всегда, бронь и номер только если в запросе есть цифра */
+export function entityResults(query: string) {
+  const q = query.trim();
+  if (!q) return [];
+  const code = encodeURIComponent(q);
+  const rows: { href: string; label: string; icon: IconName }[] = [
+    { href: `/guests?q=${code}`, label: `Гость: ${q}`, icon: 'person' },
+  ];
+  if (/\d/.test(q)) {
+    rows.push(
+      { href: `/reservations/${code}`, label: `Бронь №${q}`, icon: 'booking' },
+      { href: `/units/${code}`, label: `Номер или койка ${q}`, icon: 'hotel' },
+    );
+  }
+  return rows;
+}
+
 export function GlobalSearch({
   open,
   close,
@@ -29,86 +46,112 @@ export function GlobalSearch({
   close: () => void;
   /** Разделы, закрытые вошедшему (ADR-083, ADR-107), поиск не предлагает; пока API не ответил — как администратору */
   access?: NavigationAccess | undefined;
-  /** Направление филиала: его меню в быстром переходе; поиск гостя, брони и номера пока только у гостиницы */
+  /** Направление филиала: его меню в результатах; поиск гостя, брони и номера пока только у гостиницы */
   vertical?: WebVertical | undefined;
 }) {
   const [query, setQuery] = useState('');
-  const [kind, setKind] = useState('guest');
   const router = useRouter();
-  const matches = searchMatches(access, vertical, query);
-  // экраны записей и броней столов запрос `q` не принимают (контракт с их владельцем): салон и ресторан
-  // ищут раздел, Enter открывает первое совпадение
-  const entities = vertical === 'HOSPITALITY';
+  const list = useRef<HTMLDivElement>(null);
+  const field = useRef<HTMLInputElement>(null);
+  // окно открывается сразу в строке ввода и без прошлого запроса
+  useEffect(() => {
+    if (!open) return;
+    setQuery('');
+    const frame = requestAnimationFrame(() => field.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [open]);
+  const typed = query.trim().length > 0;
+  const entities = vertical === 'HOSPITALITY' ? entityResults(query) : [];
+  const sections = typed ? searchMatches(access, vertical, query) : [];
+  const first = entities[0] ?? sections[0];
+  const move = (key: string) => {
+    const items = [...(list.current?.querySelectorAll<HTMLElement>('a') ?? [])];
+    if (!items.length) return;
+    const at = items.indexOf(document.activeElement as HTMLElement);
+    const next = key === 'ArrowDown' ? at + 1 : at - 1;
+    items[Math.max(0, Math.min(items.length - 1, next))]?.focus();
+  };
   return (
     <Overlay open={open} onClose={close} title="Быстрый поиск" className="command-palette">
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          const q = query.trim();
-          if (!q) return;
-          if (!entities) {
-            if (!matches[0]) return;
-            close();
-            router.push(matches[0].href);
-            return;
-          }
+          if (!first) return;
           close();
-          router.push(
-            kind === 'booking'
-              ? `/reservations/${encodeURIComponent(q)}`
-              : kind === 'unit'
-                ? `/units/${encodeURIComponent(q)}`
-                : `/guests?q=${encodeURIComponent(q)}`,
-          );
+          router.push(first.href);
         }}
       >
         <div className="command-input">
           <Icon name="search" />
           <input
             className="inp"
+            ref={field}
             name="query"
             aria-label="Запрос"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={entities ? 'Поиск гостя, брони, номера...' : 'Название раздела'}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                move(e.key);
+              }
+            }}
+            placeholder={
+              vertical === 'HOSPITALITY' ? 'Гость, бронь, номер или раздел' : 'Название раздела'
+            }
             autoComplete="off"
-            required
           />
         </div>
-        {entities && (
-          <label className="field">
-            Искать
-            <select
-              className="inp"
-              name="kind"
-              value={kind}
-              onChange={(e) => setKind(e.target.value)}
-            >
-              <option value="guest">Гостя по имени, телефону или email</option>
-              <option value="booking">Бронь по номеру</option>
-              <option value="unit">Номер или койку по коду</option>
-            </select>
-          </label>
-        )}
-        <button className="btn" type="submit">
-          <Icon name="search" />
-          Найти
-        </button>
       </form>
-      <div className="command-links">
-        <span className="eyebrow">Быстрый переход</span>
-        {matches.map((item) => (
-          <Link key={item.href} href={item.href} onClick={close}>
-            <Icon name={item.icon} />
-            <span>{item.label}</span>
-            <Icon name="arrow" width={16} />
-          </Link>
-        ))}
-        {!matches.length && <p className="muted">Нет разделов с таким названием</p>}
+      <div
+        className="command-links"
+        ref={list}
+        onKeyDown={(e) => {
+          if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+          e.preventDefault();
+          move(e.key);
+        }}
+      >
+        {entities.length > 0 && (
+          <>
+            <span className="eyebrow">Найти</span>
+            {entities.map((item) => (
+              <Link key={item.href} href={item.href} onClick={close}>
+                <Icon name={item.icon} />
+                <span>{item.label}</span>
+                <Icon name="arrow" width={16} />
+              </Link>
+            ))}
+          </>
+        )}
+        {typed && (
+          <>
+            <span className="eyebrow">Разделы</span>
+            {sections.map((item) => (
+              <Link key={item.href} href={item.href} onClick={close}>
+                <Icon name={item.icon} />
+                <span>{item.label}</span>
+                <Icon name="arrow" width={16} />
+              </Link>
+            ))}
+            {!sections.length && <p className="muted">Нет разделов с таким названием</p>}
+          </>
+        )}
+        {!typed && (
+          <p className="muted command-hint">
+            {vertical === 'HOSPITALITY'
+              ? 'Начните вводить: имя или телефон гостя, номер брони, код номера или название раздела.'
+              : 'Начните вводить название раздела.'}
+          </p>
+        )}
       </div>
       <div className="command-foot">
-        <kbd>esc</kbd> закрыть{' '}
-        <span>{entities ? 'Поиск по текущему объекту' : 'Разделы текущего филиала'}</span>
+        <span>
+          <kbd>↵</kbd> открыть
+        </span>
+        <span>
+          <kbd>esc</kbd> закрыть
+        </span>
       </div>
     </Overlay>
   );

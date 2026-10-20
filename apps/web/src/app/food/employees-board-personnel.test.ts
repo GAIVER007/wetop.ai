@@ -58,4 +58,13 @@ describe('ресторан: назначение в «Сотрудниках»',
   it('без старых записей вкладки «Не назначено» нет', () => {
     expect(render(true, items.slice(0, 3))).not.toContain('data-tab="unassigned"');
   });
+
+  // замечание владельца 20.10.2026 «кривые переносы»: строка в одну линию, филиал один раз над таблицей
+  it('строка без переносов: филиал над таблицей, а не колонкой; действия одной группой', () => {
+    const html = render(true);
+    expect(html).toContain('Филиал: Зал');
+    expect(html).not.toContain('>Филиал</th>');
+    expect(html).toMatch(/class="[^"]*\brest-staff-table\b/);
+    expect(html).toContain('class="rest-staff-actions"');
+  });
 });

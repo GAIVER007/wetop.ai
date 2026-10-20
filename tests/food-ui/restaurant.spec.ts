@@ -455,6 +455,16 @@ test('сотрудники: список с продажами, добавлен
   await expect(tabs.getByRole('tab')).toHaveText(['Специалисты1', 'Другие сотрудники1']);
   await expect(page.getByRole('tabpanel').getByLabel('Назначение: Иванова Анна')).toHaveValue('SPECIALIST');
   await page.screenshot({ path: 'reports/personnel-kind-2026-10-20/food-employees-1440.png', fullPage: true });
+  // строка в одну линию (замечание владельца 20.10.2026 «кривые переносы»): имя, телефон и действия без переносов
+  const line = page.getByRole('tabpanel').locator('tbody tr', { hasText: 'Иванова Анна' });
+  for (const cell of await line.locator('td').all()) {
+    const box = await cell.boundingBox();
+    expect(box!.height, await cell.innerText()).toBeLessThan(60);
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: 'reports/personnel-kind-2026-10-20/food-employees-390.png', fullPage: true });
+  await page.setViewportSize({ width: 1440, height: 1000 });
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);
 });

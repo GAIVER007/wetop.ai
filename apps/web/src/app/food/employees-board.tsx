@@ -34,6 +34,7 @@ function KindCell({ scopeKey, employee, canAssign }: { scopeKey: string; employe
   return (
     <>
       <Select
+        className="rest-staff-kind"
         aria-label={`Назначение: ${employee.name}`}
         value={kind ?? ''}
         disabled={pending}
@@ -207,10 +208,10 @@ export function EmployeesBoard({
       .join('')
       .toUpperCase();
   const table = (rows: FoodEmployee[]) => (
-          <Table density="compact" caption="Сотрудники ресторана" captionHidden>
+          <Table density="compact" caption="Сотрудники ресторана" captionHidden nowrap className="rest-staff-table">
             <thead>
               <tr>
-                {['Сотрудник', 'Назначение', 'Телефон', 'Филиал', 'Смена сегодня', 'Статус', 'Продажи сегодня', 'Рейтинг'].map(
+                {['Сотрудник', 'Назначение', 'Телефон', 'Смена сегодня', 'Статус', 'Продажи сегодня', 'Рейтинг'].map(
                   (h) => (
                     <th key={h} scope="col">
                       {h}
@@ -238,7 +239,6 @@ export function EmployeesBoard({
                     <KindCell scopeKey={scopeKey} employee={e} canAssign={canAssignPersonnelKind && write} />
                   </td>
                   <td>{e.phone ?? '—'}</td>
-                  <td>{branchName}</td>
                   <td>{e.shift ?? 'Выходной'}</td>
                   <td>
                     <Badge tone={e.onShift ? 'ok' : 'neutral'}>
@@ -249,14 +249,22 @@ export function EmployeesBoard({
                   <td data-testid="employee-rating">
                     {e.rating?.average != null
                       ? `${String(e.rating.average).replace('.', ',')} ★, ${pluralRu(e.rating.count, ['оценка', 'оценки', 'оценок'])}`
-                      : 'Оценок нет'}
+                      : <span className="muted" title="Оценок нет">—</span>}
                   </td>
                   <td>
-                    {write && <a href={`/employees/${encodeURIComponent(e.id)}/profile`}>Карточка сотрудника</a>}
                     {write && (
-                      <Button tone="ghost" size="sm" onClick={() => setDraft(e)}>
-                        Изменить
-                      </Button>
+                      <span className="rest-staff-actions">
+                        <a
+                          className="btn btn--secondary btn--sm"
+                          href={`/employees/${encodeURIComponent(e.id)}/profile`}
+                          aria-label={`Карточка сотрудника: ${e.name}`}
+                        >
+                          Карточка
+                        </a>
+                        <Button tone="ghost" size="sm" onClick={() => setDraft(e)} aria-label={`Изменить: ${e.name}`}>
+                          Изменить
+                        </Button>
+                      </span>
                     )}
                   </td>
                 </tr>
@@ -272,6 +280,7 @@ export function EmployeesBoard({
         </div>
       )}
       <div className="rest-card">
+        <p className="muted rest-staff-branch">Филиал: {branchName}</p>
         <div className="rest-card__tools">
           <Field label={<span className="sr-only">Поиск по сотрудникам</span>}>
             <IconField icon="search">

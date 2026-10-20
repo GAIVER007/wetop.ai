@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { FinanceRuleError, discountMinor, parseMoney } from '@pms/domain';
 import { ApiError, financeApi, reservationsApi } from '../../../lib/api';
+import { currencySign } from '../../../lib/money';
 
 export interface FinanceActionResult {
   error: string | null;
@@ -62,11 +63,16 @@ const done = (number: string, message?: string): FinanceActionResult => {
   return { error: null, ok: Date.now(), ...(message ? { message } : {}) };
 };
 
-/** «12500» → «12 500 ₸» (DESIGN.md §14); не число — возвращаем как ввели, без выдумок */
-const money = (amount: string | undefined): string => {
+/**
+ * «12500» → «12 500 ₸» (DESIGN.md §14); не число — возвращаем как ввели, без выдумок. Валюта счёта из скрытого
+ * поля формы `currency` (решение владельца 20.10.2026: суммы в валюте объекта); нет поля — тенге, как раньше.
+ * Только подпись сообщения: число для API не пересчитывается.
+ */
+const money = (amount: string | undefined, currency?: string): string => {
+  const sign = currencySign(currency && /^[A-Z]{3}$/.test(currency) ? currency : 'KZT');
   const n = Number((amount ?? '').replace(',', '.'));
-  if (!Number.isFinite(n)) return `${amount ?? ''} ₸`.trim();
-  return `${new Intl.NumberFormat('ru-RU').format(n)} ₸`;
+  if (!Number.isFinite(n)) return `${amount ?? ''} ${sign}`.trim();
+  return `${new Intl.NumberFormat('ru-RU').format(n)} ${sign}`;
 };
 
 /** Тиыны → строка денег для API («-123450» → «-1234.50») */
@@ -160,7 +166,7 @@ export async function stayPriceAction(
     return rejected(e, _prev, fd, ['price']);
   }
   revalidatePath('/chessboard');
-  return done(number, `Цена проживания изменена: ${money(s(fd, 'price'))}. Счёт ниже пересчитан.`);
+  return done(number, `Цена проживания изменена: ${money(s(fd, 'price'), s(fd, 'currency'))}. Счёт ниже пересчитан.`);
 }
 
 /** Аннулировать платёж (У1–У4): деньги уходят из оплаченного, строка остаётся со статусом «аннулирован» */
@@ -195,7 +201,7 @@ export async function replacePaymentAction(
     return rejected(e, _prev, fd, ['method', 'amount', 'note']);
   }
   revalidatePath('/finance');
-  return done(number, `Платёж изменён: ${money(s(fd, 'amount'))}. Прежний остался в списке аннулированным.`);
+  return done(number, `Платёж изменён: ${money(s(fd, 'amount'), s(fd, 'currency'))}. Прежний остался в списке аннулированным.`);
 }
 export async function voidChargeAction(
   number: string,
@@ -237,7 +243,7 @@ export async function payAction(
   } catch (e) {
     return rejected(e, _prev, fd, ['method', 'amount', 'note']);
   }
-  return done(number, `Оплата принята: ${money(s(fd, 'amount'))}. Баланс счёта ниже пересчитан.`);
+  return done(number, `Оплата принята: ${money(s(fd, 'amount'), s(fd, 'currency'))}. Баланс счёта ниже пересчитан.`);
 }
 
 /** Один платёж на выбранные открытые счета. Совпадение сумм проверяет существующий API. */
@@ -330,7 +336,7 @@ export async function createPaymentRequestAction(
   } catch (e) {
     return rejected(e, prev, fd, ['folioId', 'method', 'amount', 'link', 'note']);
   }
-  return done(number, `Запрос на ${money(s(fd, 'amount'))} создан. Отправьте гостю текст ниже.`);
+  return done(number, `Запрос на ${money(s(fd, 'amount'), s(fd, 'currency'))} создан. Отправьте гостю текст ниже.`);
 }
 
 /** «Оплачено»: запрос превращается в обычный платёж на счёт проживания одной транзакцией */

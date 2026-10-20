@@ -709,6 +709,7 @@ export function PaymentForm({
       className="folio-form folio-form--pay"
       data-reviewed={review ? 'true' : undefined}
     >
+      <input type="hidden" name="currency" value={folio.currency} />
       <b className="folio-form__title">Принять оплату</b>
       <div className="row">
         <Field inline label="Способ">
@@ -814,6 +815,7 @@ function StayPriceForm({
       data-testid="stay-price-form"
       className="folio-form"
     >
+      <input type="hidden" name="currency" value={currency} />
       <b className="folio-form__title">Цена проживания</b>
       <div className="row">
         <Field inline label="Новая цена">
@@ -1015,6 +1017,7 @@ function EditPaymentDrawer({
           className="stack"
           data-testid="payment-edit-form"
         >
+          <input type="hidden" name="currency" value={folio.currency} />
           <p className="hint">
             Прежний платёж останется в списке аннулированным, новый проведётся той же датой (
             {clock.date(payment.paidAt)}).

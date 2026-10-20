@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
 import { Alert, Button, Field, Input, Notice, Select } from '../../components/ui';
 import type { InventoryCategory } from '../../lib/api';
-import { formatMoney } from '../../lib/money';
+import { currencySign, formatMoney } from '../../lib/money';
 import { saveInventory } from './actions';
 import { KIND_WORD, capacityLong, usageLines } from './category-words';
 
@@ -24,8 +24,8 @@ export function priceField(raw: string): string | null {
   return m[2] ? `${Number(m[1])}.${m[2]}` : String(Number(m[1]));
 }
 /** Подпись поля цены: койка продаётся поштучно, номер — целиком, одна цена при любом числе гостей */
-const priceLabel = (kind: InventoryCategory['kind']) =>
-  kind === 'DORM_BED' ? 'Цена за койку в ночь, ₸' : 'Цена за номер в ночь, ₸';
+const priceLabel = (kind: InventoryCategory['kind'], currency: string | null | undefined) =>
+  `${kind === 'DORM_BED' ? 'Цена за койку в ночь' : 'Цена за номер в ночь'}, ${currencySign(currency ?? 'KZT')}`;
 /** Текущая цена в поле правки: тиыны → «11000» или «456.5» */
 const priceInputValue = (minor: string | null) => {
   if (!minor) return '';
@@ -308,13 +308,14 @@ export function FundEditorDialog({
                       {errors.capacity && <Alert id="fund-err-capacity">{errors.capacity}</Alert>}
                     </>
                   )}
-                  <PriceField kind={kind} error={errors.price} />
+                  <PriceField kind={kind} currency={categories.find((c) => c.currency)?.currency} error={errors.price} />
                 </>
               ) : (
                 category && (
                   <>
                     <PriceField
                       kind={category.kind}
+                      currency={category.currency}
                       error={errors.price}
                       defaultValue={priceInputValue(category.priceMinor)}
                     />
@@ -413,16 +414,19 @@ export function FundEditorDialog({
 /** Цена категории: одна на все дни и любое число гостей, ставится на год вперёд и уходит в каналы */
 function PriceField({
   kind,
+  currency,
   error,
   defaultValue = '',
 }: {
   kind: InventoryCategory['kind'];
+  /** валюта объекта (у категории своя `currency`); у нового объекта без категорий тенге */
+  currency?: string | null | undefined;
   error?: string | undefined;
   defaultValue?: string;
 }) {
   return (
     <>
-      <Field label={priceLabel(kind)}>
+      <Field label={priceLabel(kind, currency)}>
         <Input
           name="price"
           inputMode="decimal"

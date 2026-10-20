@@ -2,7 +2,7 @@
 import { useActionState, useState } from 'react';
 import { paymentRequestMessage, type MessageLang } from '@pms/domain';
 import type { FinanceFolio, PaymentRequest } from '../../../lib/api';
-import { formatMoney } from '../../../lib/money';
+import { currencySign, formatMoney } from '../../../lib/money';
 import { useCommand } from '../../../lib/use-command';
 import { useConfirm } from '../../../components/use-confirm';
 import {
@@ -253,6 +253,7 @@ export function PaymentRequestsPanel({
               </Field>
             )}
             {openFolios.length === 1 && <input type="hidden" name="folioId" value={folioId} />}
+            {folio && <input type="hidden" name="currency" value={folio.currency} />}
             <Field label="Как оплатит гость">
               <Select
                 name="method"
@@ -267,7 +268,7 @@ export function PaymentRequestsPanel({
                 ))}
               </Select>
             </Field>
-            <Field label="Сумма, ₸">
+            <Field label={`Сумма, ${currencySign(folio?.currency)}`}>
               <Input
                 key={`${folioId}-${state.ok}`}
                 name="amount"

@@ -15,6 +15,7 @@ import {
 import { Tabs } from '../../components/tabs';
 import { Segmented } from '../../components/segmented';
 import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
+import { currencySign } from '../../lib/money';
 import { FOOD_PAYMENT_METHODS, type FoodCashView, type FoodPaymentMethod } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
 import { mutateCash } from '../cashbox/actions';
@@ -88,7 +89,7 @@ export function CashBoard({
     });
   function operation() {
     const minor = tenge(amount);
-    if (minor === null) return setError('Сумма в тенге, целое число больше нуля');
+    if (minor === null) return setError('Сумма: целое число больше нуля');
     let storageKey = '';
     run(
       async () => {
@@ -116,7 +117,7 @@ export function CashBoard({
     );
   }
   function reconcile() {
-    if (!/^\d+$/.test(counted)) return setError('Пересчитано: целое число тенге');
+    if (!/^\d+$/.test(counted)) return setError('Пересчитано: целое число');
     run(
       () => mutateCash(scopeKey, { kind: 'reconcile', body: { method: checkMethod, counted: Number(counted) * 100 } }),
       () => setCounted(''),
@@ -271,7 +272,7 @@ export function CashBoard({
             <div className="food-form-row">
               <MethodSelect label={kind === 'TRANSFER' ? 'Откуда' : 'Способ'} value={method} onChange={setMethod} />
               {kind === 'TRANSFER' && <MethodSelect label="Куда" value={methodTo} onChange={setMethodTo} />}
-              <Field label="Сумма, ₸">
+              <Field label={`Сумма, ${currencySign(cash.currency)}`}>
                 <Input inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))} />
               </Field>
             </div>
@@ -287,7 +288,7 @@ export function CashBoard({
           <section className="food-form" aria-label="Сверка кассы">
             <div className="food-form-row">
               <MethodSelect label="Сверка, способ" value={checkMethod} onChange={setCheckMethod} />
-              <Field label="Пересчитано, ₸">
+              <Field label={`Пересчитано, ${currencySign(cash.currency)}`}>
                 <Input inputMode="numeric" value={counted} onChange={(e) => setCounted(e.target.value.replace(/\D/g, ''))} />
               </Field>
             </div>

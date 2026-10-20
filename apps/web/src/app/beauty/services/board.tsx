@@ -578,7 +578,8 @@ function ServiceForm({
         {(creation.error || error || state?.error) && (
           <Alert>{creation.error || error || state?.error}</Alert>
         )}
-        {!error && state?.message && <p role="status">{state.message}</p>}
+        {/* один живой status в диалоге: сообщение филиала ниже заменяет сообщение о создании */}
+        {!error && state?.message && !locationState?.message && <p role="status">{state.message}</p>}
         <Button type="submit" disabled={pending || (!row && !creation.id)}>
           {pending ? 'Сохраняем…' : 'Сохранить услугу'}
         </Button>

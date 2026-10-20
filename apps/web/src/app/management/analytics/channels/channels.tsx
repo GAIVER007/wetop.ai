@@ -22,6 +22,7 @@ import {
   type Delta,
 } from '../../../../lib/dashboard-format';
 import { displayDate } from '../../../../lib/display-date';
+import { propertyCurrency } from '../../../../lib/hotel-api';
 import { DeltaMark } from '../tiles';
 import { CHANNELS_PATH, channelLabel, channelsHref, type ChannelsQuery } from './query';
 
@@ -75,24 +76,27 @@ function Before({ value, delta }: { value: string; delta: Delta }) {
 function Cells({
   row,
   prev,
+  cur,
 }: {
   row: Pick<ChannelEfficiencyRow, 'revenueMinor' | 'nights' | 'adrMinor'> & {
     revenueShare: number | null;
     nightsShare: number | null;
   };
   prev?: Pick<ChannelEfficiencyRow, 'revenueMinor' | 'nights' | 'adrMinor'> | null | undefined;
+  /** валюта объекта: доход и ADR в ней, не всегда тенге */
+  cur: string;
 }) {
   return (
     <>
       <td className="num">
         <span className="dash-cell-word">доход </span>
-        {wholeTenge(row.revenueMinor)}
+        {wholeTenge(row.revenueMinor, cur)}
         {row.revenueShare !== null && (
           <span className="pa-channels__share">{formatPercent(row.revenueShare)}</span>
         )}
         {prev !== undefined && (
           <Before
-            value={prev ? wholeTenge(prev.revenueMinor) : wholeTenge('0')}
+            value={prev ? wholeTenge(prev.revenueMinor, cur) : wholeTenge('0', cur)}
             delta={deltaPercent(BigInt(row.revenueMinor), BigInt(prev?.revenueMinor ?? '0'))}
           />
         )}
@@ -112,10 +116,10 @@ function Cells({
       </td>
       <td className="num">
         <span className="dash-cell-word">за ночь </span>
-        {row.adrMinor === null ? '—' : wholeTenge(row.adrMinor)}
+        {row.adrMinor === null ? '—' : wholeTenge(row.adrMinor, cur)}
         {prev !== undefined && (
           <Before
-            value={prev?.adrMinor ? wholeTenge(prev.adrMinor) : '—'}
+            value={prev?.adrMinor ? wholeTenge(prev.adrMinor, cur) : '—'}
             delta={deltaPercent(BigInt(row.adrMinor ?? '0'), BigInt(prev?.adrMinor ?? '0'))}
           />
         )}
@@ -195,6 +199,7 @@ function Filters({ query, report }: { query: ChannelsQuery; report: ChannelEffic
  * отменённых и незаездов, сумма брони по ночам не делится. Имён гостей в отчёте нет.
  */
 export async function ChannelsReport({ query }: { query: ChannelsQuery }) {
+  const cur = await propertyCurrency();
   const data = await dashboardApi
     .channels({
       from: query.from,
@@ -285,7 +290,7 @@ export async function ChannelsReport({ query }: { query: ChannelsQuery }) {
                       {row.bookings > 0 ? `броней: ${formatInt(row.bookings)}` : 'броней нет'}
                     </span>
                   </td>
-                  <Cells row={row} prev={prevOf(row.label)} />
+                  <Cells row={row} prev={prevOf(row.label)} cur={cur} />
                 </tr>
               ))}
             </tbody>
@@ -302,6 +307,7 @@ export async function ChannelsReport({ query }: { query: ChannelsQuery }) {
                     nightsShare: query.channel ? null : t.nights === 0 ? 0 : 100,
                   }}
                   prev={previous ? previous.totals : undefined}
+                  cur={cur}
                 />
               </tr>
             </tfoot>

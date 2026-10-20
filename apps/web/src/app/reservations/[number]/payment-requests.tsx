@@ -253,6 +253,7 @@ export function PaymentRequestsPanel({
               </Field>
             )}
             {openFolios.length === 1 && <input type="hidden" name="folioId" value={folioId} />}
+            {folio && <input type="hidden" name="currency" value={folio.currency} />}
             <Field label="Как оплатит гость">
               <Select
                 name="method"

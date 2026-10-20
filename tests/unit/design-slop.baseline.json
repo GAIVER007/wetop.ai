@@ -5,7 +5,7 @@
     "apps/web/src/app/components.css": 60,
     "apps/web/src/app/directory.css": 10,
     "apps/web/src/app/management/analytics/analytics.css": 15,
-    "apps/web/src/app/premium.css": 92,
+    "apps/web/src/app/premium.css": 88,
     "apps/web/src/app/workspace.css": 45
   },
   "uppercase": {
@@ -68,7 +68,7 @@
     "apps/web/src/app/journal/journal.css": 4,
     "apps/web/src/app/login/role-access.css": 4,
     "apps/web/src/app/management/analytics/analytics.css": 43,
-    "apps/web/src/app/premium.css": 179,
+    "apps/web/src/app/premium.css": 172,
     "apps/web/src/app/register/setup/setup.css": 4,
     "apps/web/src/app/reservations/new/booking-compact.css": 28,
     "apps/web/src/app/status/status.css": 8,

@@ -171,7 +171,7 @@
     display: flex;
     flex-direction: column;
     width: 288px;
-    padding: 8px;
+    padding: var(--space-2);
     border: 1px solid var(--border);
     border-radius: 16px;
     /* сплошной фон: через стекло просвечивал текст страницы под меню (20.10.2026) */
@@ -185,8 +185,8 @@
     gap: 10px;
     align-items: center;
     width: 100%;
-    min-height: 40px;
-    padding: 8px 10px;
+    min-height: var(--space-10);
+    padding: var(--space-2);
     background: none;
     border: none;
     color: var(--text-2);
@@ -207,14 +207,14 @@
   }
   .profile-dropdown__sep {
     width: 100%;
-    margin: 6px 0;
+    margin: var(--space-2) 0;
     border: 0;
     border-top: 1px solid var(--border);
   }
   /* «Выйти» отдельной строкой внизу, цвет опасного действия */
   .profile-dropdown form {
-    margin-top: 6px;
-    padding-top: 6px;
+    margin-top: var(--space-2);
+    padding-top: var(--space-2);
     border-top: 1px solid var(--border);
   }
   .profile-dropdown form button {
@@ -238,8 +238,8 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    margin-bottom: 6px;
-    padding: 10px 12px;
+    margin-bottom: var(--space-2);
+    padding: var(--space-2) var(--space-4);
     border-radius: 10px;
     background: var(--surface-muted);
   }
@@ -408,14 +408,14 @@
   .command-links {
     display: flex;
     flex-direction: column;
-    margin-top: 12px;
-    min-height: 56px;
+    margin-top: var(--space-4);
+    min-height: var(--space-12);
   }
   .command-links .eyebrow {
-    margin: 8px 8px 2px;
+    margin: var(--space-2) var(--space-2) var(--space-1);
   }
   .command-hint {
-    margin: 4px 8px;
+    margin: var(--space-1) var(--space-2);
   }
   .command-links a {
     display: flex;

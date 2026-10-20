@@ -273,9 +273,9 @@ test('мастер добавляется, а карточка показыва�
   const panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Дина');
   await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
-  // Карточка мастера живёт диалогом поверх списка (решение владельца 19.10, как у zapis.kz).
-  await expect(page).toHaveURL(/\/beauty\/masters\?employee=[0-9a-f-]+#profile$/);
-  const employeeId = new URL(page.url()).searchParams.get('employee')!;
+  // Карточка мастера остаётся страницей /employees/<id>/profile (решение владельца 20.10).
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  const employeeId = page.url().split('/').at(-2)!;
   const servicesResponse = await request.get(`${FIXTURE_API}/beauty/services`, { headers: TEST_CLIENT });
   expect(servicesResponse.ok()).toBe(true);
   const services = (await servicesResponse.json()).items as Array<{ id: string; name: string }>;
@@ -297,11 +297,10 @@ test('мастер добавляется, а карточка показыва�
   await expect(row).toContainText('Сегодня не работает');
   await page.screenshot({ path: `${SNAPSHOTS}/masters-1440.png`, fullPage: true });
 
-  // «Открыть» это кнопка диалога поверх списка (решение владельца 19.10), не уход на страницу.
-  await row.getByRole('button', { name: 'Открыть', exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`employee=${employeeId}#profile$`));
-  await expect(page.getByRole('dialog', { name: 'Мастер', exact: true })).toContainText('Дина');
-  await page.keyboard.press('Escape');
+  await expect(row.getByRole('link', { name: 'Открыть' })).toHaveAttribute(
+    'href',
+    `/employees/${employeeId}/profile`,
+  );
   // UI назначения и снятия проверяет real-portal набор; здесь фиксируем отображение ответа каталога.
   const reduced = await request.put(`${FIXTURE_API}/beauty/employees/${employeeId}/services`, {
     headers: TEST_CLIENT,

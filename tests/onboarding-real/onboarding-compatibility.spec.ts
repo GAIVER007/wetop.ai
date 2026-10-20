@@ -3,19 +3,6 @@ import AxeBuilder from '@axe-core/playwright';
 import pg from 'pg';
 import { randomUUID } from 'node:crypto';
 const api = 'http://127.0.0.1:55844';
-
-/**
- * Карточка мастера открывается диалогом поверх списка (341554556, решение владельца 19.10, как у zapis.kz):
- * после создания адрес `/employees?employee=<id>#profile`, полная карточка по ссылке из диалога.
- */
-async function openFullProfile(page: Page, id?: string) {
-  await expect(page).toHaveURL(
-    id ? new RegExp(`[?&]employee=${id}#profile$`) : /\/employees\?(?:.*&)?employee=[0-9a-f-]+#profile$/,
-  );
-  const master = page.getByRole('dialog', { name: 'Мастер', exact: true });
-  await master.getByRole('link', { name: 'Полная карточка сотрудника', exact: true }).click();
-  await expect(page).toHaveURL(id ? new RegExp(`/employees/${id}/profile$`) : /\/employees\/[0-9a-f-]+\/profile$/);
-}
 const evidence = '.onboarding-work/evidence/screenshots';
 async function employeeCommands(id:string) {
  const client=new pg.Client({connectionString:process.env.DATABASE_URL});
@@ -147,7 +134,7 @@ test('create then immediate services tab uses one canonical profile without prof
  const dialog = page.getByRole('dialog');
  await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Диагностики');
  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
- await openFullProfile(page);
+ await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
  const canonicalUrl = page.url();
  await expect(page.getByRole('dialog')).toHaveCount(0);
  const manager = page.getByTestId('employee-manager');

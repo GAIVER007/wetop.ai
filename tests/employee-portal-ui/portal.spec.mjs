@@ -95,26 +95,15 @@ test('real browser avatar/profile persistence, work approval and three views',as
  await expect(client.getByRole('heading',{name:'Пример портфолио: тестовая иллюстрация',exact:true})).toBeVisible();await expect(client.getByTestId('portal-pay')).toHaveCount(0);await expect(client.locator('body')).not.toContainText('private@example.invalid');await capture(client,'public-specialist');
  await anonymous.close();await manager.close();await staff.close();
 });
-test('specialist list opens the master dialog; the full profile stays one canonical screen',async({browser,request})=>{
- // Карточка мастера это диалог поверх списка (решение владельца 19.10, как у zapis.kz).
+test('specialist list opens one canonical profile and creation lands on the same screen',async({browser,request})=>{
  const f=await reset(request);const manager=await context(browser,f,'ownerA');const page=await manager.newPage();
  await page.goto('/employees');const card=page.locator('.beauty-master-card').filter({hasText:'Synthetic specialist A'});
- await card.getByRole('button',{name:'Открыть',exact:true}).click();
- await expect(page).toHaveURL(new RegExp(`/employees\\?employee=${f.employeeA}#profile$`));
- const master=page.getByRole('dialog',{name:'Мастер',exact:true});
- await expect(master).toContainText('Synthetic specialist A');
- // Полная карточка сотрудника остаётся одной, по своему адресу, и открывается из диалога.
- await master.getByRole('link',{name:'Полная карточка сотрудника',exact:true}).click();
- await expect(page).toHaveURL(new RegExp(`/employees/${f.employeeA}/profile$`));
- await expect(page.getByRole('heading',{name:'Карточка сотрудника',exact:true})).toBeVisible();
- await expect(page.getByTestId('employee-manager')).toBeVisible();await expect(page.getByRole('dialog')).toHaveCount(0);
- // Старый салонный адрес со ?employee= открывает тот же диалог поверх списка.
- await page.goto(`/beauty/masters?employee=${f.employeeA}#profile`);
- await expect(page.getByRole('dialog',{name:'Мастер',exact:true})).toContainText('Synthetic specialist A');
+ const open=card.getByRole('link',{name:'Открыть',exact:true});await expect(open).toHaveAttribute('href',`/employees/${f.employeeA}/profile`);await open.click();
+ await expect(page).toHaveURL(new RegExp(`/employees/${f.employeeA}/profile$`));await expect(page.getByRole('heading',{name:'Карточка сотрудника',exact:true})).toBeVisible();await expect(page.getByTestId('employee-manager')).toBeVisible();await expect(page.getByRole('dialog')).toHaveCount(0);
+ await page.goto(`/employees?employee=${f.employeeA}#profile`);await expect(page).toHaveURL(new RegExp(`/employees/${f.employeeA}/profile$`));await expect(page.getByTestId('employee-manager')).toBeVisible();
+ await page.goto(`/beauty/masters?employee=${f.employeeA}#profile`);await expect(page).toHaveURL(new RegExp(`/employees/${f.employeeA}/profile$`));await expect(page.getByTestId('employee-manager')).toBeVisible();
  await page.goto('/employees');await page.getByRole('button',{name:'Добавить специалиста',exact:true}).click();const create=page.getByRole('dialog',{name:'Новый специалист',exact:true});await create.getByLabel('Имя мастера',{exact:true}).fill('Synthetic created specialist');await create.getByRole('button',{name:'Создать мастера',exact:true}).click();
- await expect(page).toHaveURL(/\/employees\?employee=[0-9a-f-]+#profile$/);
- await expect(page.getByRole('dialog',{name:'Мастер',exact:true})).toContainText('Synthetic created specialist');
- await manager.close();
+ await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);await expect(page.getByRole('heading',{name:'Карточка сотрудника',exact:true})).toBeVisible();await expect(page.getByTestId('employee-manager')).toBeVisible();await expect(page.getByRole('dialog')).toHaveCount(0);await manager.close();
 });
 test('waiter owns orders and existing payroll without salon controls',async({browser,request})=>{
  const f=await reset(request,'FOOD_SERVICE');const d=await call(request,f,'/employee-portal/me');

@@ -6,19 +6,6 @@ const api = 'http://127.0.0.1:55844';
 const site = 'http://127.0.0.1:55845';
 const evidence = '.onboarding-work/evidence/screenshots';
 const DAY = 24 * 60 * 60 * 1000;
-
-/**
- * Карточка мастера открывается диалогом поверх списка (341554556, решение владельца 19.10, как у zapis.kz):
- * после создания адрес `/employees?employee=<id>#profile`, полная карточка по ссылке из диалога.
- */
-async function openFullProfile(page: Page, id?: string) {
-  await expect(page).toHaveURL(
-    id ? new RegExp(`[?&]employee=${id}#profile$`) : /\/employees\?(?:.*&)?employee=[0-9a-f-]+#profile$/,
-  );
-  const master = page.getByRole('dialog', { name: 'Мастер', exact: true });
-  await master.getByRole('link', { name: 'Полная карточка сотрудника', exact: true }).click();
-  await expect(page).toHaveURL(id ? new RegExp(`/employees/${id}/profile$`) : /\/employees\/[0-9a-f-]+\/profile$/);
-}
 mkdirSync(evidence, { recursive: true });
 
 async function register(page: Page, suffix: string, entry: 'hash' | 'cta' = 'hash') {
@@ -123,7 +110,7 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
   dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Тестовый Мастер');
   await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
-  await openFullProfile(page);
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   await expect(page.getByRole('dialog')).toHaveCount(0);
   const manager = page.getByTestId('employee-manager');
   await manager.getByRole('tab', { name: 'Услуги', exact: true }).click();
@@ -317,7 +304,7 @@ test('O07c: a closed employee card leaves the router on the list, so later actio
   let dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Закрытый');
   await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
-  await openFullProfile(page);
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   const firstId = new URL(page.url()).pathname.split('/')[2]!;
   await expect(page.getByTestId('employee-manager')).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -331,7 +318,7 @@ test('O07c: a closed employee card leaves the router on the list, so later actio
   const actionUrl = new URL((await action).url());
   expect(actionUrl.pathname).toBe('/employees');
   expect(actionUrl.searchParams.get('employee')).toBeNull();
-  await openFullProfile(page);
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   const secondId = new URL(page.url()).pathname.split('/')[2]!;
   expect(secondId).not.toBe(firstId);
   await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -377,7 +364,7 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
   let dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Частичный');
   await dialog.getByRole('button', {name:'Создать мастера',exact:true}).click();
-  await openFullProfile(page);
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   await expect(page.getByRole('dialog')).toHaveCount(0);
   const manager = page.getByTestId('employee-manager');
   await manager.getByRole('tab', { name: 'Услуги', exact: true }).click();
@@ -442,7 +429,7 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
   ).id;
   page.once('dialog', async (prompt) => prompt.accept());
   await page.reload();
-  await openFullProfile(page, lostId);
+  await expect(page).toHaveURL(new RegExp(`/employees/${lostId}/profile$`));
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByTestId('portal-profile-form').getByLabel('Имя в карточке', { exact: true })).toHaveValue('Мастер Потерянный Ответ');
   await page.getByTestId('employee-manager').getByRole('tab', { name: 'Услуги', exact: true }).click();

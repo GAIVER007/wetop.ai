@@ -52,29 +52,28 @@ test.afterEach(async ({ request }) => {
   expect(cleanup.ok(), await cleanup.text()).toBe(true);
 });
 
-test('create opens the master dialog and links to the one full employee profile', async ({
+test('create, canonical links and legacy addresses use one full employee profile', async ({
   page,
   request,
 }) => {
-  // Карточка мастера живёт диалогом поверх списка (решение владельца 19.10, как у zapis.kz);
-  // механику диалога держит employee-workspace.spec, здесь мост диалог → полная карточка.
   const fixture = await reset(page, request);
   await page.goto('/employees');
   await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   const creation = page.getByRole('dialog', { name: 'Новый специалист', exact: true });
   await creation.getByLabel('Имя мастера', { exact: true }).fill('Тестовый новый мастер');
   await creation.getByRole('button', { name: 'Создать мастера', exact: true }).click();
-  await expect(page).toHaveURL(/\/employees\?employee=[0-9a-f-]+#profile$/);
-  const id = new URL(page.url()).searchParams.get('employee')!;
-  const master = page.getByRole('dialog', { name: 'Мастер', exact: true });
-  await expect(master).toContainText('Тестовый новый мастер');
-  expect((await employees(request, fixture.headers)).map((item) => item.id)).toContain(id);
-
-  await master.getByRole('link', { name: 'Полная карточка сотрудника', exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`/employees/${id}/profile$`));
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  const createdUrl = page.url();
+  const id = createdUrl.split('/').at(-2)!;
   const profile = page.getByTestId('employee-manager');
   await expect(profile.getByRole('heading', { name: 'Тестовый новый мастер', exact: true })).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect((await employees(request, fixture.headers)).map((item) => item.id)).toContain(id);
+
+  await page.goto(`/employees?employee=${id}#profile`);
+  await expect(page).toHaveURL(createdUrl);
+  await page.goto(`/beauty/masters?employee=${id}#profile`);
+  await expect(page).toHaveURL(createdUrl);
 
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -131,9 +130,49 @@ test('manager assigns and removes salon services in the canonical profile', asyn
   expect((await employees(request, fixture.headers))[0]!.serviceIds).toEqual([]);
 });
 
-// Потерянный ответ создания и охрана несохранённого создания живут в employee-workspace.spec
-// ('lost create response is recovered on reload…', 'saving dirty creation before close…'):
-// с карточкой-диалогом это механика списка, а не полной страницы.
+test('lost create response is recovered once and redirects to the saved full profile', async ({
+  page,
+  request,
+}) => {
+  const fixture = await reset(page, request);
+  await page.goto('/employees');
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
+  const creation = page.getByRole('dialog', { name: 'Новый специалист', exact: true });
+  await creation.getByLabel('Имя мастера').fill('Тестовый потерянный ответ');
+  let intercepted = false;
+  let finishLostResponse = () => {};
+  const lostResponse = new Promise<void>((resolve) => { finishLostResponse = resolve; });
+  await page.route('**/employees', async (route) => {
+    if (route.request().method() !== 'POST' || intercepted) return route.continue();
+    intercepted = true;
+    await route.fetch();
+    await route.abort('failed');
+    finishLostResponse();
+  });
+  await creation.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await expect.poll(async () => (await employees(request, fixture.headers)).length).toBe(1);
+  await lostResponse;
+  await page.unroute('**/employees');
+  page.once('dialog', async (prompt) => prompt.accept());
+  await page.reload();
+  const saved = (await employees(request, fixture.headers))[0]!;
+  await expect(page).toHaveURL(new RegExp(`/employees/${saved.id}/profile$`));
+  await expect(page.getByTestId('employee-manager')).toContainText('Тестовый потерянный ответ');
+});
+
+test('dirty creation still uses the save-before-leaving guard', async ({ page, request }) => {
+  const fixture = await reset(page, request);
+  await page.goto('/employees');
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
+  const creation = page.getByRole('dialog', { name: 'Новый специалист', exact: true });
+  await creation.getByLabel('Имя мастера').fill('Тестовый мастер перед закрытием');
+  await creation.getByRole('button', { name: 'Закрыть: Новый специалист' }).click();
+  const confirm = page.getByRole('dialog', { name: 'Несохранённые изменения', exact: true });
+  await confirm.getByRole('button', { name: 'Сохранить и перейти', exact: true }).click();
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  await expect(page.getByTestId('employee-manager')).toContainText('Тестовый мастер перед закрытием');
+  expect(await employees(request, fixture.headers)).toHaveLength(1);
+});
 
 test('dirty canonical profile guards tabs, keeps failed saves and protects reload', async ({
   page,

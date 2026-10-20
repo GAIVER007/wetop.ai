@@ -5531,6 +5531,8 @@ interface FixtureBeautyEmployee {
   active: boolean;
   locationIds: string[];
   serviceIds: string[];
+  /** Назначение в «Персонале»: SPECIALIST | OTHER_EMPLOYEE | BOTH, null = не назначено (миграция 138) */
+  personnelKind: 'SPECIALIST' | 'OTHER_EMPLOYEE' | 'BOTH' | null;
 }
 /** График мастера и отсутствия в подставном API (срез B4): неделя на филиал, отсутствия на сеть */
 interface FixtureWorkingInterval {
@@ -7029,7 +7031,8 @@ createServer(async (req, res) => {
         return send(200, serviceList());
       }
       if (path === '/beauty/employees' && req.method === 'GET')
-        return send(200, { locationId, items: fixtureBeautyEmployees });
+        // назначать может руководитель (владелец и управляющий), как в API
+        return send(200, { locationId, canAssignPersonnelKind: uiRole !== 'STAFF', items: fixtureBeautyEmployees });
       if (path === '/beauty/employees' && req.method === 'POST') {
         const name = String(body['name'] ?? '').trim();
         if (!name) return send(400, { message: 'Укажите имя мастера' });
@@ -7045,8 +7048,25 @@ createServer(async (req, res) => {
           active: body['active'] !== false,
           locationIds: locationId ? [locationId] : [],
           serviceIds: [],
+          personnelKind: ['SPECIALIST', 'OTHER_EMPLOYEE', 'BOTH'].includes(String(body['personnelKind']))
+            ? (body['personnelKind'] as FixtureBeautyEmployee['personnelKind'])
+            : null,
         };
         fixtureBeautyEmployees.push(row);
+        return send(200, row);
+      }
+      const personnelKind = /^\/beauty\/employees\/([^/]+)\/personnel-kind$/.exec(path);
+      if (personnelKind && req.method === 'PATCH') {
+        if (uiRole === 'STAFF') return send(403, { message: 'Назначение меняет только руководитель' });
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(personnelKind[1]!));
+        if (!row) return send(404, { message: 'Сотрудник не найден' });
+        const kind = String(body['personnelKind'] ?? '');
+        if (!['SPECIALIST', 'OTHER_EMPLOYEE', 'BOTH'].includes(kind))
+          return send(400, { message: 'Назначение: специалист, другой сотрудник или оба' });
+        if (body['expectedProfileRevision'] !== row.profileRevision)
+          return send(409, { message: 'Сотрудник изменён в другом окне. Обновите список и выберите назначение снова.' });
+        row.personnelKind = kind as FixtureBeautyEmployee['personnelKind'];
+        row.profileRevision = new Date().toISOString().replace(/(\.\d{3})Z$/, '$1000Z');
         return send(200, row);
       }
       const patchEmployee = /^\/beauty\/employees\/([^/]+)$/.exec(path);

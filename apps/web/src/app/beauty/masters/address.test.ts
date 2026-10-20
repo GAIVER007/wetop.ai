@@ -32,6 +32,13 @@ vi.mock('../../../components/employee-workspace/workspace', () => ({
   EmployeeTransitionGuard: ({ children }: { children: ReactNode }) => children,
 }));
 
+// вкладки назначения (решение 20.10.2026) читают адрес в эффекте; здесь эффекты синхронные, поэтому простая замена
+vi.mock('../../../components/tabs', () => ({
+  Tabs: ({ panels }: { panels: Array<{ id: string; content: ReactNode }> }) =>
+    createElement('div', null, panels.map((p) => createElement('section', { key: p.id }, p.content))),
+}));
+vi.mock('../actions', () => ({ assignBeautyPersonnelKind: vi.fn() }));
+
 import { employeeProfileHref, MastersBoard } from './board';
 
 const row = (id: string): BeautyEmployeeRow => ({

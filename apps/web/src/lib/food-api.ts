@@ -151,7 +151,16 @@ export const restaurantApi = {
   report: (date: string) => getJsonPublic<FoodReport>(`${base}/report?date=${date}`),
   employees: (cursor?: string) =>
     getJsonPublic<FoodPage<FoodEmployee>>(`${base}/employees${query(cursor)}`),
-  createEmployee: (body: { name: string; phone?: string | null; email?: string | null }) =>
+  assignEmployeePersonnelKind: (
+    id: string,
+    body: { personnelKind: 'SPECIALIST' | 'OTHER_EMPLOYEE' | 'BOTH'; expectedProfileRevision: string },
+  ) => sendJson<{ id: string }>('PATCH', `${idPath('employees', id)}/personnel-kind`, body),
+  createEmployee: (body: {
+    name: string;
+    phone?: string | null;
+    email?: string | null;
+    personnelKind?: 'SPECIALIST' | 'OTHER_EMPLOYEE' | 'BOTH';
+  }) =>
     sendJson<FoodEmployee>('POST', `${base}/employees`, body),
   updateEmployee: (
     id: string,

@@ -3688,6 +3688,8 @@ export interface BeautyEmployeeRow {
   serviceIds: string[];
   servicesRevision?: string;
   profileRevision?: string;
+  /** Назначение в «Персонале» (DATA_MODEL.md, 18.10.2026); null = не назначено */
+  personnelKind?: 'SPECIALIST' | 'OTHER_EMPLOYEE' | 'BOTH' | null;
 }
 
 export interface BeautyEmployeeServicePriceRow {
@@ -4125,7 +4127,14 @@ export const beautyApi = {
       body,
     ),
   employees: () =>
-    getJson<{ locationId: string | null; items: BeautyEmployeeRow[] }>('/beauty/employees'),
+    getJson<{ locationId: string | null; canAssignPersonnelKind?: boolean; items: BeautyEmployeeRow[] }>(
+      '/beauty/employees',
+    ),
+  assignEmployeePersonnelKind: (
+    id: string,
+    body: { personnelKind: NonNullable<BeautyEmployeeRow['personnelKind']>; expectedProfileRevision: string },
+  ) =>
+    sendJson<BeautyEmployeeRow>('PATCH', `/beauty/employees/${encodeURIComponent(id)}/personnel-kind`, body),
   createEmployee: (body: unknown) => sendJson<BeautyEmployeeRow>('POST', '/beauty/employees', body),
   updateEmployee: (id: string, body: unknown) =>
     sendJson<BeautyEmployeeRow>('PATCH', `/beauty/employees/${encodeURIComponent(id)}`, body),

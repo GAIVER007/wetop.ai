@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -7,7 +7,10 @@ import {
   EmployeeTransitionGuard,
 } from '../../../components/employee-workspace/workspace';
 import { Overlay } from '../../../components/overlay';
-import { Alert, Badge, Button } from '../../../components/ui';
+import { Tabs } from '../../../components/tabs';
+import { Alert, Badge, Button, Select } from '../../../components/ui';
+import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, personnelTabs } from '@pms/domain';
+import { assignBeautyPersonnelKind } from '../actions';
 import { pluralRu } from '../../../lib/plural';
 import type {
   BeautyEmployeeRow,
@@ -25,8 +28,55 @@ import { beautyMasterDayStatus } from '../../../lib/beauty-master-day-status';
  */
 type Editing = { mode: 'new' } | null;
 
-export const employeeProfileHref = (id: string) =>
-  `/employees/${encodeURIComponent(id)}/profile`;
+export const employeeProfileHref = (id: string) => `/employees/${encodeURIComponent(id)}/profile`;
+
+type Kind = NonNullable<BeautyEmployeeRow['personnelKind']>;
+
+/**
+ * Назначение строки (DATA_MODEL.md, решения 18.10 и 20.10.2026): руководитель выбирает «специалист», «другой
+ * сотрудник» или «оба», остальные видят только метку. Право считает сервер (`canAssignPersonnelKind`), PATCH
+ * проверяет его ещё раз. Конфликт версии: сообщение и свежий список с сервера.
+ */
+function PersonnelKindPicker({ row, canAssign }: { row: BeautyEmployeeRow; canAssign: boolean }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [error, setError] = useState('');
+  const kind = row.personnelKind ?? null;
+  if (!canAssign || !row.profileRevision)
+    return <Badge>{kind ? PERSONNEL_KIND_LABELS[kind] : 'Не назначено'}</Badge>;
+  return (
+    <div className="beauty-master-card__kind">
+      <Select
+        aria-label={`Назначение: ${row.name}`}
+        value={kind ?? ''}
+        disabled={pending}
+        aria-busy={pending || undefined}
+        onChange={(event) => {
+          const next = event.target.value as Kind;
+          setError('');
+          start(async () => {
+            const result = await assignBeautyPersonnelKind(row.id, next, row.profileRevision!);
+            if (result.error) setError(result.error);
+            router.refresh();
+          });
+        }}
+      >
+        {kind === null && (
+          <option value="" disabled>
+            Не назначено
+          </option>
+        )}
+        {PERSONNEL_KINDS.map((value) => (
+          <option key={value} value={value}>
+            {PERSONNEL_KIND_LABELS[value]}
+          </option>
+        ))}
+      </Select>
+      {pending && <span className="beauty-note">Сохраняем…</span>}
+      {error && <Alert>{error}</Alert>}
+    </div>
+  );
+}
 
 /** Инициалы для кружка карточки: первые буквы первых двух слов имени */
 function initials(name: string): string {
@@ -51,6 +101,7 @@ export function MastersBoard({
   locationName,
   unavailable = false,
   scheduleAvailable = true,
+  canAssignPersonnelKind = false,
 }: {
   items: BeautyEmployeeRow[];
   services: BeautyServiceRow[];
@@ -66,6 +117,7 @@ export function MastersBoard({
   locationName?: string;
   unavailable?: boolean;
   scheduleAvailable?: boolean;
+  canAssignPersonnelKind?: boolean;
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState<Editing>(null);
@@ -103,6 +155,77 @@ export function MastersBoard({
     setEditing(null);
   };
   const names = new Map(services.map((s) => [s.id, s.name]));
+  // старые записи без назначения не прячутся и не угадываются: своя вкладка, пока они есть
+  const tabs = personnelTabs(
+    items.map((row) => ({ ...row, personnelKind: row.personnelKind ?? null })),
+  );
+  const card = (row: BeautyEmployeeRow) => {
+    const dayStatus = beautyMasterDayStatus(scheduleAvailable ? today : null, row.id);
+    const appointments = today.appointments.filter(
+      (a) => a.employeeId === row.id && a.status !== 'CANCELLED',
+    ).length;
+    const categories = [
+      ...new Set(
+        row.serviceIds
+          .map((id) => services.find((s) => s.id === id)?.category)
+          .filter((c): c is string => Boolean(c)),
+      ),
+    ];
+    return (
+      <li key={row.id} className="beauty-master-card">
+        <div className="beauty-master-card__head">
+          <span className="beauty-card-avatar" aria-hidden="true">
+            {initials(row.name)}
+          </span>
+          <div className="beauty-master-card__name">
+            <b>{row.name}</b>
+            <span className="beauty-note">
+              {categories.join(', ') || 'Специализация не указана'}
+            </span>
+          </div>
+        </div>
+        <PersonnelKindPicker row={row} canAssign={canAssignPersonnelKind} />
+        <div className="beauty-master-card__state">
+          <Badge tone={row.active ? 'ok' : undefined}>{row.active ? 'Активен' : 'В архиве'}</Badge>
+          {row.active &&
+            (dayStatus.state === 'UNAVAILABLE' ? (
+              <Badge>График недоступен</Badge>
+            ) : dayStatus.state === 'ON_SHIFT' ? (
+              <Badge tone="ok">На смене</Badge>
+            ) : (
+              <Badge>Выходной</Badge>
+            ))}
+          {row.active && (
+            <span className="beauty-note">
+              {pluralRu(appointments, ['запись', 'записи', 'записей'])} сегодня
+            </span>
+          )}
+        </div>
+        {row.active && dayStatus.state !== 'UNAVAILABLE' && (
+          <p className="beauty-note">
+            {dayStatus.state === 'ON_SHIFT' ? `Сегодня ${dayStatus.hours}` : 'Сегодня не работает'}
+          </p>
+        )}
+        <p className="beauty-master-card__skills">
+          {row.serviceIds.length === 0
+            ? 'Услуги не выбраны'
+            : row.serviceIds
+                .map((id) => names.get(id))
+                .filter(Boolean)
+                .join(', ')}
+        </p>
+        <p className="beauty-note">
+          {locations
+            .filter((l) => row.locationIds.includes(l.id))
+            .map((l) => l.name)
+            .join(', ') || 'Филиалы не назначены'}
+        </p>
+        <Link className="btn btn--secondary btn--sm" href={employeeProfileHref(row.id)}>
+          Открыть
+        </Link>
+      </li>
+    );
+  };
   return (
     <>
       {unavailable && <Alert>Специалист недоступен в текущем контексте.</Alert>}
@@ -111,7 +234,7 @@ export function MastersBoard({
         <p role="status">
           {items.length === 0
             ? 'Добавьте первого специалиста'
-            : `Специалистов: ${items.length}, из них в архиве ${items.filter((i) => !i.active).length}`}
+            : `В персонале: ${items.length}, из них в архиве ${items.filter((i) => !i.active).length}`}
         </p>
         {canCreate && (
           <Button
@@ -127,78 +250,36 @@ export function MastersBoard({
           </Button>
         )}
       </div>
-      <ul className="beauty-master-cards">
-        {items.map((row) => {
-          const dayStatus = beautyMasterDayStatus(scheduleAvailable ? today : null, row.id);
-          const appointments = today.appointments.filter(
-            (a) => a.employeeId === row.id && a.status !== 'CANCELLED',
-          ).length;
-          const categories = [
-            ...new Set(
-              row.serviceIds
-                .map((id) => services.find((s) => s.id === id)?.category)
-                .filter((c): c is string => Boolean(c)),
-            ),
-          ];
-          return (
-            <li key={row.id} className="beauty-master-card">
-              <div className="beauty-master-card__head">
-                <span className="beauty-card-avatar" aria-hidden="true">
-                  {initials(row.name)}
-                </span>
-                <div className="beauty-master-card__name">
-                  <b>{row.name}</b>
-                  <span className="beauty-note">
-                    {categories.join(', ') || 'Специализация не указана'}
-                  </span>
-                </div>
-              </div>
-              <div className="beauty-master-card__state">
-                <Badge tone={row.active ? 'ok' : undefined}>
-                  {row.active ? 'Активен' : 'В архиве'}
-                </Badge>
-                {row.active &&
-                  (dayStatus.state === 'UNAVAILABLE' ? (
-                    <Badge>График недоступен</Badge>
-                  ) : dayStatus.state === 'ON_SHIFT' ? (
-                    <Badge tone="ok">На смене</Badge>
-                  ) : (
-                    <Badge>Выходной</Badge>
-                  ))}
-                {row.active && (
-                  <span className="beauty-note">
-                    {pluralRu(appointments, ['запись', 'записи', 'записей'])} сегодня
-                  </span>
+      {items.length > 0 && (
+        <Tabs
+          key={tabs.map((tab) => tab.key).join(' ')}
+          label="Назначение в персонале"
+          panels={tabs.map((tab) => ({
+            id: tab.key,
+            label: tab.label,
+            ...(tab.key === 'unassigned' ? {} : { count: tab.count }),
+            content: (
+              <>
+                {tab.key === 'unassigned' && (
+                  <p className="beauty-note">
+                    Укажите, кто это: специалист, другой сотрудник или оба. Назначение не меняет
+                    услуги и права.
+                  </p>
                 )}
-              </div>
-              {row.active && dayStatus.state !== 'UNAVAILABLE' && (
-                <p className="beauty-note">
-                  {dayStatus.state === 'ON_SHIFT'
-                    ? `Сегодня ${dayStatus.hours}`
-                    : 'Сегодня не работает'}
-                </p>
-              )}
-              <p className="beauty-master-card__skills">
-                {row.serviceIds.length === 0
-                  ? 'Услуги не выбраны'
-                  : row.serviceIds
-                      .map((id) => names.get(id))
-                      .filter(Boolean)
-                      .join(', ')}
-              </p>
-              <p className="beauty-note">
-                {locations
-                  .filter((l) => row.locationIds.includes(l.id))
-                  .map((l) => l.name)
-                  .join(', ') || 'Филиалы не назначены'}
-              </p>
-              <Link className="btn btn--secondary btn--sm" href={employeeProfileHref(row.id)}>
-                Открыть
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+                {tab.items.length === 0 ? (
+                  <p className="beauty-note">
+                    {tab.key === 'specialists'
+                      ? 'Специалистов пока нет. Назначьте их в строке сотрудника.'
+                      : 'Других сотрудников пока нет. Назначьте их в строке сотрудника.'}
+                  </p>
+                ) : (
+                  <ul className="beauty-master-cards">{tab.items.map((row) => card(row))}</ul>
+                )}
+              </>
+            ),
+          }))}
+        />
+      )}
       <Overlay
         open={editing !== null}
         onClose={() => guard.current(close)}

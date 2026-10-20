@@ -2,7 +2,9 @@
 
 Модель: DATA_MODEL.md, раздел «Решение владельца 18.10.2026: назначение сотрудника в «Персонале»». Выпуск в обычной
 цепочке разрешён владельцем 20.10.2026: `docs/decisions/2026-10-20-personnel-kind-release.md`. Прежний вариант
-`migrations-hold/20261018000001_employee_personnel_kind` из PR #648 в main не входил и заменён этой миграцией.
+`migrations-hold/20261018000001_employee_personnel_kind` из PR #648 (слит в main 20.10.2026, флаг
+`PERSONNEL_KIND_ENABLED` выключен, на проде не применялась) удалён: его заменяет эта миграция. В production колонки
+`personnel_kind` до 138 нет.
 
 Миграция аддитивная: одна nullable колонка `employees.personnel_kind` text и CHECK на три значения `SPECIALIST`,
 `OTHER_EMPLOYEE`, `BOTH`. Умолчания и заполнения нет: старые записи остаются NULL («Не назначено»), назначение ставит

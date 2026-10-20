@@ -63,3 +63,11 @@ export function unattributedLabel(
   const parts = items.filter((i) => i.employeeId === null).map((i) => formatMoney(i.netMinor, i.currency));
   return parts.length ? `${UNATTRIBUTED[vertical]}: ${parts.join(' · ')}` : null;
 }
+
+/** Сколько принесли все за период, включая деньги без сотрудника; валюты не смешиваются: «12 000 ₸ · 50 USD» */
+export function revenueTotal(items: readonly StaffRevenueItem[]): string {
+  const sums = new Map<string, bigint>();
+  for (const i of items) sums.set(i.currency, (sums.get(i.currency) ?? 0n) + BigInt(i.netMinor));
+  if (sums.size === 0) return formatMoney('0');
+  return [...sums].map(([currency, minor]) => formatMoney(minor, currency)).join(' · ');
+}

@@ -265,7 +265,7 @@ test('заказы: создание с экрана, оплата частям�
   // рейтинг официанта по оценкам гостей на экране «Сотрудники»
   await page.goto('/employees');
   await expect(
-    page.locator('tbody tr', { hasText: waiter.name }).getByTestId('employee-rating'),
+    page.getByRole('tabpanel').locator('tbody tr', { hasText: waiter.name }).getByTestId('employee-rating'),
   ).toContainText('4 ★, 1 оценка');
   // «Финансы»: возврат гостю своей вкладкой, в «Расходах» его нет (§56, как ADR-176)
   await page.goto('/restaurant-finance');
@@ -443,19 +443,21 @@ test('сотрудники: «Принёс» за период, добавлен
     items: [{ menuItemId: pasta.id, qty: 1 }],
   });
   await page.goto('/employees');
-  const row = page.locator('tbody tr', { hasText: 'Иванова Анна' });
-  await expect(page.locator('thead')).toContainText('Принёс сегодня');
+  // единый экран (вариант A, 20.10.2026): открыта вкладка «Все», таблица одна на вкладку
+  const row = page.getByRole('tabpanel').locator('tbody tr', { hasText: 'Иванова Анна' });
+  await expect(page.getByRole('tabpanel').locator('thead')).toContainText('Принёс сегодня');
   await expect(row.getByTestId('employee-earned')).toHaveText('390 ₸');
   const periods = page.getByRole('navigation', { name: 'Период для «Принёс»' });
   await periods.getByRole('link', { name: 'Месяц' }).click();
   await expect(page).toHaveURL(/\/employees\?period=month$/, { timeout: 90_000 });
-  await expect(page.locator('thead')).toContainText('Принёс за месяц');
+  await expect(page.getByRole('tabpanel').locator('thead')).toContainText('Принёс за месяц');
   await expect(row.getByTestId('employee-earned')).toHaveText('390 ₸');
   await expect(periods.getByRole('link', { name: 'Месяц' })).toHaveAttribute('aria-current', 'page');
   await expect(row).toContainText('Не на смене');
   // назначение (решение владельца 20.10.2026): официант из seed без назначения стоит во вкладке «Не назначено»
   const tabs = page.getByRole('tablist', { name: 'Назначение в персонале' });
-  await expect(tabs.getByRole('tab', { name: 'Не назначено (1)' })).toHaveAttribute('aria-selected', 'true');
+  await expect(tabs.getByRole('tab', { name: /^Все/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(tabs.getByRole('tab', { name: /^Не назначено/ })).toHaveText('Не назначено1');
   await page.getByRole('button', { name: '+ Добавить сотрудника' }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя и фамилия').fill('Петров Максим');
@@ -465,9 +467,9 @@ test('сотрудники: «Принёс» за период, добавлен
   await tabs.getByRole('tab', { name: /^Другие сотрудники/ }).click();
   await expect(page.getByRole('tabpanel').locator('tbody tr', { hasText: 'Петров Максим' })).toBeVisible();
   // руководитель назначает старую запись: вкладка «Не назначено» пропадает, официант среди специалистов
-  await tabs.getByRole('tab', { name: 'Не назначено (1)' }).click();
+  await tabs.getByRole('tab', { name: /^Не назначено/ }).click();
   await page.getByRole('tabpanel').getByLabel('Назначение: Иванова Анна').selectOption('SPECIALIST');
-  await expect(tabs.getByRole('tab')).toHaveText(['Специалисты1', 'Другие сотрудники1']);
+  await expect(tabs.getByRole('tab')).toHaveText(['Все2', 'Специалисты1', 'Другие сотрудники1']);
   await expect(page.getByRole('tabpanel').getByLabel('Назначение: Иванова Анна')).toHaveValue('SPECIALIST');
   await page.screenshot({ path: 'reports/personnel-kind-2026-10-20/food-employees-1440.png', fullPage: true });
   // строка в одну линию (замечание владельца 20.10.2026 «кривые переносы»): имя, телефон и действия без переносов

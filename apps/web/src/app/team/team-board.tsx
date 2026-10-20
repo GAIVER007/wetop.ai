@@ -20,16 +20,15 @@ import {
   Field,
   Input,
   Select,
-  Stat,
-  Stats,
-  Table,
 } from '../../components/ui';
 import { Overlay } from '../../components/overlay';
+import { StaffBoard } from '../../components/staff-board';
+import { ActionMenu } from '../../components/action-menu';
 import { Icon } from '../../components/icon';
 import { useConfirm } from '../../components/use-confirm';
 import type { AuthAccessStructure, AuthInvite, AuthMember } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
-import { periodTitle, revenueCells, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
+import { periodTitle, revenueCells, revenueTotal, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
 import { ScopeEditor } from './scope-editor';
 import {
   fromScopes,
@@ -298,21 +297,14 @@ function useTeamActions() {
 }
 
 /** Сводка (STAFF2.2): считает только то, что API отдаёт; «доступ приостановлен» не показываем: данных нет */
-export function TeamStats({ members, invites }: { members: AuthMember[]; invites: AuthInvite[] }) {
-  const suspended = members.filter((m) => m.suspended).length;
-  const admins = members.filter((m) => m.role === 'STAFF').length;
-  return (
-    <Stats min={160} data-testid="team-stats" aria-label="Сводка по команде">
-      <Stat label="Сотрудников" value={members.length} testId="team-stat-total" />
-      <Stat label="Активных" value={members.length - suspended} testId="team-stat-active" />
-      <Stat label="Ожидают ответа" value={invites.length} testId="team-stat-invites" />
-      <Stat label="Доступ приостановлен" value={suspended} testId="team-stat-suspended" />
-      <Stat label="Администраторов" value={admins} testId="team-stat-admins" />
-    </Stats>
-  );
-}
-
 const who = (m: AuthMember) => m.name ?? m.email;
+const initialsOf = (name: string) =>
+  name
+    .split(/[\s@.]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]!.toUpperCase())
+    .join('');
 
 export function MembersTable({
   members,
@@ -320,6 +312,7 @@ export function MembersTable({
   actorRole = null,
   revenue = null,
   revenueNav = null,
+  invites = 0,
 }: {
   members: AuthMember[];
   structure?: AuthAccessStructure | null;
@@ -327,6 +320,8 @@ export function MembersTable({
   /** «Сколько принёс» гостиницы по создавшему бронь (решение 20.10.2026); null = колонки нет */
   revenue?: StaffRevenue | null;
   revenueNav?: ReactNode;
+  /** число ожидающих приглашений для плитки «Ожидают ответа» */
+  invites?: number;
 }) {
   const earned = revenue ? revenueCells(revenue.items) : null;
   const unattributed = revenue ? unattributedLabel(revenue.items, 'HOSPITALITY') : null;
@@ -336,92 +331,123 @@ export function MembersTable({
   const [scoping, setScoping] = useState<AuthMember | null>(null);
   const withScope = hasChoice(structure);
   const [editing, setEditing] = useState<AuthMember | null>(null);
+  const rows = members.map((m) => ({ ...m, id: m.userId }));
+  const suspended = members.filter((m) => m.suspended).length;
+  const admins = members.filter((m) => m.role === 'STAFF').length;
   return (
     <section className="settings-catalog" aria-label="Люди организации">
-      {error && <Alert boxed>{error}</Alert>}
-      {revenue && revenueNav}
-      <Table data-testid="team-table" className="settings-table settings-table--team">
-        <thead>
-          <tr>
-            <th>Сотрудник</th>
-            <th className="settings-col-wide">Телефон</th>
-            <th className="settings-col-wide">Должность</th>
-            {withScope && <th className="settings-col-wide">Доступ</th>}
-            <th className="settings-col-wide">В организации с</th>
-            <th className="settings-col-wide">Был в системе</th>
-            {revenue && <th className="team-col-earned">Принёс {periodTitle(revenue.period)}</th>}
-            <th>
-              <span className="sr-only">Действия</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {members.map((m) => (
-            <tr key={m.userId} data-testid="member-row">
-              <td>
-                <b>{who(m)}</b>
-                {m.you ? ' — это вы' : ''}
-                {m.suspended ? (
-                  <>
-                    {' '}
-                    <Badge tone="warn" data-testid="member-suspended">
-                      Приостановлен
-                    </Badge>
-                  </>
-                ) : null}
-                {m.position ? <span className="cell-sub">{m.position}</span> : null}
-                <span className="cell-sub team-member-sub">
-                  {m.name ? <span>{m.email}</span> : null}
-                  {/* на телефоне колонки телефона, роли и дат скрыты: они строками под именем */}
-                  {m.phone ? <span className="team-sub-role">{m.phone}</span> : null}
-                  <span className="team-sub-role">{MEMBERSHIP_ROLES[m.role]}</span>
-                  <span className="team-sub-role">
-                    {m.lastLoginAt
-                      ? `был в системе ${displayDate(m.lastLoginAt.slice(0, 10))}`
-                      : 'ещё не входил'}
+      <StaffBoard<AuthMember & { id: string }>
+        caption="Сотрудники организации"
+        tableTestId="team-table"
+        rowTestId="member-row"
+        statsTestId="team-stats"
+        notice={error ? <Alert boxed>{error}</Alert> : null}
+        stats={[
+          { label: 'Сотрудников', value: members.length, testId: 'team-stat-total' },
+          { label: 'Активных', value: members.length - suspended, testId: 'team-stat-active' },
+          ...(revenue ? [{ label: `Принесли ${periodTitle(revenue.period)}`, value: revenueTotal(revenue.items), testId: 'staff-total' }] : []),
+          { label: 'Ожидают ответа', value: invites, testId: 'team-stat-invites' },
+          { label: 'Доступ приостановлен', value: suspended, testId: 'team-stat-suspended' },
+          { label: 'Администраторов', value: admins, testId: 'team-stat-admins' },
+        ]}
+        tabs={[{ id: 'all', label: 'Все', rows, empty: 'В организации пока никого нет' }]}
+        search={(m) => `${m.name ?? ''} ${m.email} ${m.phone ?? ''}`}
+        searchPlaceholder="Поиск по имени, почте или телефону"
+        period={revenue ? revenueNav : null}
+        footer={unattributed ? <span data-testid="team-unattributed">{unattributed}</span> : null}
+        columns={[
+          {
+            key: 'name',
+            label: 'Сотрудник',
+            cell: (m) => (
+              <span className="staff-person">
+                <span className="staff-person__avatar" aria-hidden="true">
+                  {initialsOf(who(m))}
+                </span>
+                <span>
+                  <b>{who(m)}</b>
+                  {m.you ? ' — это вы' : ''}
+                  {m.suspended ? (
+                    <>
+                      {' '}
+                      <Badge tone="warn" data-testid="member-suspended">
+                        Приостановлен
+                      </Badge>
+                    </>
+                  ) : null}
+                  <span className="staff-person__role team-member-sub">
+                    {m.position ?? (m.name ? m.email : MEMBERSHIP_ROLES[m.role])}
+                    {/* на телефоне колонки телефона, роли и дат скрыты: они строками под именем */}
+                    {m.phone ? <span className="team-sub-role">{m.phone}</span> : null}
+                    <span className="team-sub-role">{MEMBERSHIP_ROLES[m.role]}</span>
+                    <span className="team-sub-role">
+                      {m.lastLoginAt ? `был в системе ${displayDate(m.lastLoginAt.slice(0, 10))}` : 'ещё не входил'}
+                    </span>
                   </span>
                 </span>
-              </td>
-              <td className="settings-col-wide">
-                {m.phone ? (
-                  <a href={`tel:${m.phone}`}>{m.phone}</a>
-                ) : (
-                  <span className="muted">не указан</span>
-                )}
-              </td>
-              <td className="settings-col-wide">
-                {m.roleEditable ? (
-                  <Select
-                    aria-label={`Должность: ${who(m)}`}
-                    value={m.role}
-                    disabled={pending}
-                    onChange={(event) =>
-                      run(() => setMemberRoleAction(m.userId, event.target.value))
-                    }
-                  >
-                    <option value="MANAGER">{capital(MEMBERSHIP_ROLES.MANAGER)}</option>
-                    <option value="STAFF">{capital(MEMBERSHIP_ROLES.STAFF)}</option>
-                  </Select>
-                ) : (
-                  MEMBERSHIP_ROLES[m.role]
-                )}
-              </td>
-              {withScope && (
-                <td className="settings-col-wide" data-testid="member-scope">
-                  {scopeSummary(m.scopes, structure)}
-                </td>
-              )}
-              <td className="settings-col-wide">{displayDate(m.joinedAt.slice(0, 10))}</td>
-              <td className="settings-col-wide">
-                {m.lastLoginAt ? displayDate(m.lastLoginAt.slice(0, 10)) : 'ещё не входил'}
-              </td>
-              {earned && (
-                <td className="team-col-earned" data-testid="member-earned">
-                  {earned.get(m.userId) ?? <span className="muted">—</span>}
-                </td>
-              )}
-              <td className="team-row-actions">
-                <span className="team-row-actions__group">
+              </span>
+            ),
+          },
+          {
+            key: 'phone',
+            label: 'Телефон',
+            className: 'settings-col-wide',
+            cell: (m) => (m.phone ? <a href={`tel:${m.phone}`}>{m.phone}</a> : <span className="muted">не указан</span>),
+          },
+          {
+            key: 'role',
+            label: 'Должность',
+            className: 'settings-col-wide',
+            cell: (m) =>
+              m.roleEditable ? (
+                <Select
+                  aria-label={`Должность: ${who(m)}`}
+                  value={m.role}
+                  disabled={pending}
+                  onChange={(event) => run(() => setMemberRoleAction(m.userId, event.target.value))}
+                >
+                  <option value="MANAGER">{capital(MEMBERSHIP_ROLES.MANAGER)}</option>
+                  <option value="STAFF">{capital(MEMBERSHIP_ROLES.STAFF)}</option>
+                </Select>
+              ) : (
+                MEMBERSHIP_ROLES[m.role]
+              ),
+          },
+          {
+            key: 'scope',
+            label: 'Доступ',
+            className: 'settings-col-wide',
+            testId: 'member-scope',
+            hidden: !withScope,
+            cell: (m) => scopeSummary(m.scopes, structure),
+          },
+          {
+            key: 'joined',
+            label: 'В организации с',
+            className: 'settings-col-wide',
+            cell: (m) => displayDate(m.joinedAt.slice(0, 10)),
+          },
+          {
+            key: 'login',
+            label: 'Был в системе',
+            className: 'settings-col-wide',
+            cell: (m) => (m.lastLoginAt ? displayDate(m.lastLoginAt.slice(0, 10)) : 'ещё не входил'),
+          },
+          {
+            key: 'earned',
+            label: revenue ? `Принёс ${periodTitle(revenue.period)}` : '',
+            align: 'end',
+            testId: 'member-earned',
+            hidden: !earned,
+            cell: (m) => earned?.get(m.userId) ?? null,
+          },
+          {
+            key: 'actions',
+            label: <span className="sr-only">Действия</span>,
+            align: 'end',
+            className: 'team-row-actions',
+            cell: (m) => (
+              <span className="staff-actions team-row-actions__group">
                 {m.detailsEditable && (
                   <Button
                     type="button"
@@ -446,54 +472,53 @@ export function MembersTable({
                     Доступ
                   </Button>
                 )}
-                {m.suspendable && (
-                  <Button
-                    type="button"
-                    tone="secondary"
+                {(m.suspendable || m.removable) && (
+                  <ActionMenu
                     size="sm"
-                    disabled={pending}
-                    onClick={async () => {
-                      if (m.suspended) return run(() => setMemberSuspendedAction(m.userId, false));
-                      const ok = await ask({
-                        title: `Приостановить доступ: ${who(m)}?`,
-                        body: 'Человек останется в команде, но не сможет войти: его сеансы погаснут сразу. Вернуть доступ можно одним действием.',
-                        confirmLabel: 'Приостановить',
-                      });
-                      if (ok) run(() => setMemberSuspendedAction(m.userId, true));
-                    }}
-                  >
-                    {m.suspended ? 'Возобновить' : 'Приостановить'}
-                  </Button>
+                    label={`Ещё: ${who(m)}`}
+                    items={[
+                      ...(m.suspendable
+                        ? [
+                            {
+                              label: m.suspended ? 'Возобновить' : 'Приостановить',
+                              disabled: pending,
+                              onSelect: async () => {
+                                if (m.suspended) return run(() => setMemberSuspendedAction(m.userId, false));
+                                const ok = await ask({
+                                  title: `Приостановить доступ: ${who(m)}?`,
+                                  body: 'Человек останется в команде, но не сможет войти: его сеансы погаснут сразу. Вернуть доступ можно одним действием.',
+                                  confirmLabel: 'Приостановить',
+                                });
+                                if (ok) run(() => setMemberSuspendedAction(m.userId, true));
+                              },
+                            },
+                          ]
+                        : []),
+                      ...(m.removable
+                        ? [
+                            {
+                              label: 'Отключить',
+                              tone: 'danger' as const,
+                              disabled: pending,
+                              onSelect: async () => {
+                                const ok = await ask({
+                                  title: `Отключить: ${who(m)}?`,
+                                  body: 'Человек сразу потеряет доступ к организации: его сеансы погаснут на следующем действии. Позвать снова можно приглашением.',
+                                  confirmLabel: 'Отключить',
+                                });
+                                if (ok) run(() => removeMemberAction(m.userId));
+                              },
+                            },
+                          ]
+                        : []),
+                    ]}
+                  />
                 )}
-                {m.removable && (
-                  <Button
-                    type="button"
-                    tone="secondary"
-                    size="sm"
-                    disabled={pending}
-                    onClick={async () => {
-                      const ok = await ask({
-                        title: `Отключить: ${who(m)}?`,
-                        body: 'Человек сразу потеряет доступ к организации: его сеансы погаснут на следующем действии. Позвать снова можно приглашением.',
-                        confirmLabel: 'Отключить',
-                      });
-                      if (ok) run(() => removeMemberAction(m.userId));
-                    }}
-                  >
-                    Отключить
-                  </Button>
-                )}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-      {unattributed && (
-        <p className="muted" data-testid="team-unattributed">
-          {unattributed}
-        </p>
-      )}
+              </span>
+            ),
+          },
+        ]}
+      />
       {dialog}
       <Overlay
         drawer

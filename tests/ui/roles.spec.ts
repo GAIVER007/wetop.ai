@@ -257,7 +257,7 @@ test('управляющий: журнал и платформа закрыты;
   const rows = main.getByTestId('member-row');
   await expect(rows).toHaveCount(3);
   await expect(
-    rows.filter({ hasText: 'Марат Тестов' }).getByRole('button', { name: 'Отключить' }),
+    rows.filter({ hasText: 'Марат Тестов' }).getByRole('button', { name: /^Ещё:/ }),
   ).toHaveCount(0);
   await expect(rows.filter({ hasText: 'Дана Тестова' })).toContainText('это вы');
   // роль меняет только владелец
@@ -273,7 +273,8 @@ test('управляющий: журнал и платформа закрыты;
     .click();
   await expect(invites).not.toContainText('zhdet@example.com');
 
-  await rows.filter({ hasText: 'Юрий Тестов' }).getByRole('button', { name: 'Отключить' }).click();
+  await rows.filter({ hasText: 'Юрий Тестов' }).getByRole('button', { name: /^Ещё:/ }).click();
+  await page.getByRole('menuitem', { name: 'Отключить' }).click();
   await page
     .locator('dialog[open][data-testid="confirm-dialog"]')
     .getByRole('button', { name: 'Отключить' })

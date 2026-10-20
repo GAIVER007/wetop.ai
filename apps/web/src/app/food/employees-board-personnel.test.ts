@@ -38,10 +38,11 @@ const render = (canAssignPersonnelKind: boolean, list = items) =>
 const panel = (html: string, id: string) => html.split(`data-panel="${id}"`)[1]!.split('</section>')[0]!;
 
 describe('ресторан: назначение в «Сотрудниках»', () => {
-  it('вкладки: «Не назначено (N)» первой, «оба» в обеих группах', () => {
+  // единый экран (вариант A, 20.10.2026): «Все» первой, затем «Не назначено», пока есть старые записи
+  it('вкладки: «Все», «Не назначено», «оба» в обеих группах', () => {
     const html = render(true);
     expect([...html.matchAll(/data-tab="(\w+)">([^<]+)</g)].map((m) => m[2])).toEqual([
-      'Не назначено (1)', 'Специалисты', 'Другие сотрудники',
+      'Все', 'Не назначено', 'Специалисты', 'Другие сотрудники',
     ]);
     expect(panel(html, 'specialists')).toContain('Вика Оба');
     expect(panel(html, 'specialists')).not.toContain('Бауыржан Кассир');
@@ -64,8 +65,8 @@ describe('ресторан: назначение в «Сотрудниках»',
     const html = render(true);
     expect(html).toContain('Филиал: Зал');
     expect(html).not.toContain('>Филиал</th>');
-    expect(html).toMatch(/class="[^"]*\brest-staff-table\b/);
-    expect(html).toContain('class="rest-staff-actions"');
+    expect(html).toMatch(/class="[^"]*\btbl--nowrap\b[^"]*staff-board__table/);
+    expect(html).toContain('class="staff-actions rest-staff-actions"');
   });
 
   // «сколько принёс» (решение владельца 20.10.2026): оплачено минус возвраты за выбранный период

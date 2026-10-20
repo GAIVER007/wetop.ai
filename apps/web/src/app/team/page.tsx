@@ -8,7 +8,7 @@ import { Notice } from '../../components/ui';
 import { RefreshButton } from '../../components/refresh-button';
 import { validAccessStructure } from './scope-model';
 import { currentMe } from '../../lib/desk-shell';
-import { InviteButton, MembersTable, PendingInvites, TeamProvider, TeamStats } from './team-board';
+import { InviteButton, MembersTable, PendingInvites, TeamProvider } from './team-board';
 import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../lib/staff-revenue-load';
 import { revenuePeriodParam } from '../../lib/staff-revenue';
 import './team.css';
@@ -77,11 +77,11 @@ export default async function TeamPage({
                 <RefreshButton label="Повторить загрузку" />
               </Notice>
             )}
-            <TeamStats members={members} invites={invites} />
             <MembersTable
               members={members}
               structure={structure}
               actorRole={role}
+              invites={invites.length}
               revenue={revenue}
               revenueNav={<StaffRevenuePeriodNav path="/team" period={period} />}
             />

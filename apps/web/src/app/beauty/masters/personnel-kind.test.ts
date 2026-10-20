@@ -9,7 +9,8 @@ vi.mock('next/link', () => ({
   default: ({ href, children }: { href: string; children: ReactNode }) =>
     createElement('a', { href }, children),
 }));
-vi.mock('../../../components/ui', () => ({
+vi.mock('../../../components/ui', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../components/ui')>()),
   Alert: ({ children }: { children: ReactNode }) =>
     createElement('div', { role: 'alert' }, children),
   Badge: ({ children }: { children: ReactNode }) =>
@@ -79,10 +80,12 @@ describe('экран «Специалисты»: назначение', () => {
     person('4', 'Глеб Старый', null),
   ];
 
-  it('вкладки: «Не назначено (N)» первой, «оба» в обеих группах', () => {
+  // единый экран (вариант A, 20.10.2026): «Все» первой, затем «Не назначено», пока есть старые записи
+  it('вкладки: «Все», «Не назначено», «оба» в обеих группах', () => {
     const html = render(items, true);
     expect([...html.matchAll(/data-tab="(\w+)">([^<]+)</g)].map((m) => [m[1], m[2]])).toEqual([
-      ['unassigned', 'Не назначено (1)'],
+      ['all', 'Все'],
+      ['unassigned', 'Не назначено'],
       ['specialists', 'Специалисты'],
       ['employees', 'Другие сотрудники'],
     ]);
@@ -120,7 +123,7 @@ describe('экран «Специалисты»: назначение', () => {
   });
 
   // «сколько принёс» (решение владельца 20.10.2026): оплата записи делится по цене услуг, сервер отдаёт свод
-  it('на карточке «Принёс за месяц» из свода; без денег прочерк; без права строки нет', () => {
+  it('колонка «Принёс за месяц» из свода; без денег прочерк; без права колонки нет', () => {
     const html = renderToStaticMarkup(
       createElement(MastersBoard, {
         items, services: [], today, locations: [] as BeautySchedule['locations'],
@@ -132,9 +135,11 @@ describe('экран «Специалисты»: назначение', () => {
     );
     const text = (part: string) => part.replace(/<[^>]+>/g, '');
     const anna = text(panel(html, 'specialists').split('Анна Специалист')[1]!.split('</li>')[0]!);
-    expect(anna).toContain('Принёс за месяц: 3 000 ₸');
+    expect(html).toContain('Принёс за месяц');
+    expect(anna).toContain('3 000 ₸');
     const vera = text(panel(html, 'specialists').split('Вера Оба')[1]!.split('</li>')[0]!);
-    expect(vera).toContain('Принёс за месяц: —');
+    expect(vera).toContain('—');
+    expect(vera).not.toContain('₸');
     expect(render(items, true)).not.toContain('Принёс');
   });
 });

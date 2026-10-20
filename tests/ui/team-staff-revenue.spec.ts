@@ -31,11 +31,14 @@ test('колонка «Принёс» и переключатель период
   await expect(yuri.getByTestId('member-earned')).toHaveText('500 000 ₸');
   // все действия строки видны целиком, ни одно не обрезано краем таблицы
   const tableBox = (await table.boundingBox())!;
-  for (const button of await marat.locator('.team-row-actions button').all()) {
+  for (const button of await marat.locator('.team-row-actions button:visible').all()) {
     const box = (await button.boundingBox())!;
     expect(box.x + box.width, await button.innerText()).toBeLessThanOrEqual(tableBox.x + tableBox.width + 1);
   }
-  await expect(marat.locator('.team-row-actions button')).toHaveText(['Изменить', 'Доступ', 'Приостановить', 'Отключить']);
+  // действия строки в один ряд: «Изменить», «Доступ» и меню «⋯» с «Приостановить» и «Отключить»
+  await expect(marat.locator('.team-row-actions button:visible')).toHaveText(['Изменить', 'Доступ', '']);
+  const rowBox = (await marat.boundingBox())!;
+  expect(rowBox.height).toBeLessThan(70);
   await page.screenshot({ path: 'reports/personnel-kind-2026-10-20/team-earned-1440.png', fullPage: true });
   const audit = await new AxeBuilder({ page }).include('main').analyze();
   expect(audit.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);

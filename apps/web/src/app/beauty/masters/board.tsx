@@ -7,12 +7,11 @@ import {
   EmployeeTransitionGuard,
 } from '../../../components/employee-workspace/workspace';
 import { Overlay } from '../../../components/overlay';
-import { Tabs } from '../../../components/tabs';
+import { StaffBoard, type StaffColumn } from '../../../components/staff-board';
 import { Alert, Badge, Button, Select } from '../../../components/ui';
 import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, personnelTabs } from '@pms/domain';
 import { assignBeautyPersonnelKind } from '../actions';
-import { pluralRu } from '../../../lib/plural';
-import { periodTitle, revenueCells, unattributedLabel, type StaffRevenue } from '../../../lib/staff-revenue';
+import { periodTitle, revenueCells, revenueTotal, unattributedLabel, type StaffRevenue } from '../../../lib/staff-revenue';
 import type {
   BeautyEmployeeRow,
   BeautyServiceRow,
@@ -167,138 +166,148 @@ export function MastersBoard({
   const tabs = personnelTabs(
     items.map((row) => ({ ...row, personnelKind: row.personnelKind ?? null })),
   );
-  const card = (row: BeautyEmployeeRow) => {
-    const dayStatus = beautyMasterDayStatus(scheduleAvailable ? today : null, row.id);
-    const appointments = today.appointments.filter(
-      (a) => a.employeeId === row.id && a.status !== 'CANCELLED',
-    ).length;
-    const categories = [
+  const appointmentsOf = (id: string) =>
+    today.appointments.filter((a) => a.employeeId === id && a.status !== 'CANCELLED').length;
+  const categoriesOf = (row: BeautyEmployeeRow) =>
+    [
       ...new Set(
         row.serviceIds
           .map((id) => services.find((s) => s.id === id)?.category)
           .filter((c): c is string => Boolean(c)),
       ),
-    ];
-    return (
-      <li key={row.id} className="beauty-master-card">
-        <div className="beauty-master-card__head">
-          <span className="beauty-card-avatar" aria-hidden="true">
+    ].join(', ');
+  const columns: StaffColumn<BeautyEmployeeRow>[] = [
+    {
+      key: 'name',
+      label: 'Специалист',
+      cell: (row) => (
+        <span className="staff-person">
+          <span className="staff-person__avatar" aria-hidden="true">
             {initials(row.name)}
           </span>
-          <div className="beauty-master-card__name">
-            <b>{row.name}</b>
-            <span className="beauty-note">
-              {categories.join(', ') || 'Специализация не указана'}
+          <span>
+            <strong>{row.name}</strong>
+            <span className="staff-person__role">
+              {categoriesOf(row) ||
+                (row.serviceIds.length
+                  ? row.serviceIds.map((id) => names.get(id)).filter(Boolean).join(', ')
+                  : 'Специализация не указана')}
             </span>
-          </div>
-        </div>
-        <PersonnelKindPicker row={row} canAssign={canAssignPersonnelKind} />
-        <div className="beauty-master-card__state">
-          <Badge tone={row.active ? 'ok' : undefined}>{row.active ? 'Активен' : 'В архиве'}</Badge>
-          {row.active &&
-            (dayStatus.state === 'UNAVAILABLE' ? (
-              <Badge>График недоступен</Badge>
-            ) : dayStatus.state === 'ON_SHIFT' ? (
-              <Badge tone="ok">На смене</Badge>
-            ) : (
-              <Badge>Выходной</Badge>
-            ))}
-          {row.active && (
-            <span className="beauty-note">
-              {pluralRu(appointments, ['запись', 'записи', 'записей'])} сегодня
-            </span>
-          )}
-        </div>
-        {row.active && dayStatus.state !== 'UNAVAILABLE' && (
-          <p className="beauty-note">
-            {dayStatus.state === 'ON_SHIFT' ? `Сегодня ${dayStatus.hours}` : 'Сегодня не работает'}
-          </p>
-        )}
-        {earned && revenue && (
-          <p className="beauty-master-card__earned" data-testid="employee-earned">
-            Принёс {periodTitle(revenue.period)}: <b>{earned.get(row.id) ?? '—'}</b>
-          </p>
-        )}
-        <p className="beauty-master-card__skills">
-          {row.serviceIds.length === 0
-            ? 'Услуги не выбраны'
-            : row.serviceIds
-                .map((id) => names.get(id))
-                .filter(Boolean)
-                .join(', ')}
-        </p>
-        <p className="beauty-note">
-          {locations
-            .filter((l) => row.locationIds.includes(l.id))
-            .map((l) => l.name)
-            .join(', ') || 'Филиалы не назначены'}
-        </p>
-        <Link className="btn btn--secondary btn--sm" href={employeeProfileHref(row.id)}>
-          Открыть
-        </Link>
-      </li>
-    );
-  };
+          </span>
+          {!row.active && <Badge>В архиве</Badge>}
+        </span>
+      ),
+    },
+    { key: 'kind', label: 'Назначение', cell: (row) => <PersonnelKindPicker row={row} canAssign={canAssignPersonnelKind} /> },
+    {
+      key: 'shift',
+      label: 'Смена сегодня',
+      cell: (row) => {
+        const day = beautyMasterDayStatus(scheduleAvailable ? today : null, row.id);
+        if (!row.active || day.state === 'UNAVAILABLE') return null;
+        return day.state === 'ON_SHIFT' ? day.hours : 'Выходной';
+      },
+    },
+    {
+      key: 'status',
+      label: 'Статус',
+      cell: (row) => {
+        const day = beautyMasterDayStatus(scheduleAvailable ? today : null, row.id);
+        if (!row.active) return <Badge>В архиве</Badge>;
+        if (day.state === 'UNAVAILABLE') return <Badge>График недоступен</Badge>;
+        return day.state === 'ON_SHIFT' ? <Badge tone="ok">На смене</Badge> : <Badge>Не на смене</Badge>;
+      },
+    },
+    {
+      key: 'load',
+      label: 'Записей сегодня',
+      align: 'end',
+      cell: (row) => (row.active ? appointmentsOf(row.id) || null : null),
+    },
+    {
+      key: 'earned',
+      label: revenue ? `Принёс ${periodTitle(revenue.period)}` : '',
+      align: 'end',
+      hidden: !earned,
+      cell: (row) => (earned?.get(row.id) ? <strong data-testid="employee-earned">{earned.get(row.id)}</strong> : null),
+    },
+    {
+      key: 'locations',
+      label: 'Филиалы',
+      cell: (row) =>
+        locations
+          .filter((l) => row.locationIds.includes(l.id))
+          .map((l) => l.name)
+          .join(', ') || null,
+    },
+    {
+      key: 'actions',
+      label: <span className="sr-only">Действия</span>,
+      align: 'end',
+      cell: (row) => (
+        <span className="staff-actions">
+          <Link className="btn btn--secondary btn--sm" href={employeeProfileHref(row.id)} aria-label={`Открыть: ${row.name}`}>
+            Открыть
+          </Link>
+        </span>
+      ),
+    },
+  ];
+  const unassigned = tabs.find((t) => t.key === 'unassigned')?.items.length ?? 0;
   return (
     <>
       {unavailable && <Alert>Специалист недоступен в текущем контексте.</Alert>}
       {notice && <p role="status">{notice}</p>}
-      <div className="beauty-bar">
-        <p role="status">
-          {items.length === 0
-            ? 'Добавьте первого специалиста'
-            : `В персонале: ${items.length}, из них в архиве ${items.filter((i) => !i.active).length}`}
-        </p>
-        {revenue && revenueNav}
-        {canCreate && (
-          <Button
-            type="button"
-            onClick={() =>
-              guard.current(() => {
-                setEditing({ mode: 'new' });
-                setNotice('');
-              })
-            }
-          >
-            Добавить специалиста
-          </Button>
-        )}
-      </div>
-      {items.length > 0 && (
-        <Tabs
-          key={tabs.map((tab) => tab.key).join(' ')}
-          label="Назначение в персонале"
-          panels={tabs.map((tab) => ({
+      <StaffBoard<BeautyEmployeeRow>
+        caption="Специалисты салона"
+        actions={
+          canCreate ? (
+            <Button
+              type="button"
+              onClick={() =>
+                guard.current(() => {
+                  setEditing({ mode: 'new' });
+                  setNotice('');
+                })
+              }
+            >
+              Добавить специалиста
+            </Button>
+          ) : null
+        }
+        stats={[
+          { label: 'В персонале', value: items.length, testId: 'staff-count' },
+          {
+            label: 'На смене сейчас',
+            value: items.filter(
+              (row) => row.active && beautyMasterDayStatus(scheduleAvailable ? today : null, row.id).state === 'ON_SHIFT',
+            ).length,
+          },
+          ...(revenue ? [{ label: `Принесли ${periodTitle(revenue.period)}`, value: revenueTotal(revenue.items), testId: 'staff-total' }] : []),
+          { label: 'В архиве', value: items.filter((i) => !i.active).length },
+          { label: 'Не назначено', value: unassigned, ...(unassigned ? { tone: 'warning' as const } : {}) },
+        ]}
+        tabs={[
+          { id: 'all', label: 'Все', rows: items, empty: 'Добавьте первого специалиста' },
+          ...tabs.map((tab) => ({
             id: tab.key,
-            label: tab.label,
-            ...(tab.key === 'unassigned' ? {} : { count: tab.count }),
-            content: (
-              <>
-                {tab.key === 'unassigned' && (
-                  <p className="beauty-note">
-                    Укажите, кто это: специалист, другой сотрудник или оба. Назначение не меняет
-                    услуги и права.
-                  </p>
-                )}
-                {tab.items.length === 0 ? (
-                  <p className="beauty-note">
-                    {tab.key === 'specialists'
-                      ? 'Специалистов пока нет. Назначьте их в строке сотрудника.'
-                      : 'Других сотрудников пока нет. Назначьте их в строке сотрудника.'}
-                  </p>
-                ) : (
-                  <ul className="beauty-master-cards">{tab.items.map((row) => card(row))}</ul>
-                )}
-              </>
-            ),
-          }))}
-        />
-      )}
-      {unattributed && (
-        <p className="beauty-note" data-testid="employees-unattributed">
-          {unattributed}
-        </p>
-      )}
+            label: tab.key === 'unassigned' ? 'Не назначено' : tab.label,
+            rows: tab.items as BeautyEmployeeRow[],
+            ...(tab.key === 'unassigned'
+              ? { note: 'Укажите, кто это: специалист, другой сотрудник или оба. Назначение не меняет услуги и права.' }
+              : {}),
+            empty:
+              tab.key === 'specialists'
+                ? 'Специалистов пока нет. Назначьте их в строке сотрудника.'
+                : 'Других сотрудников пока нет. Назначьте их в строке сотрудника.',
+          })),
+        ]}
+        columns={columns}
+        search={(row) => `${row.name} ${row.phone ?? ''}`}
+        searchPlaceholder="Поиск специалиста"
+        period={revenue ? revenueNav : null}
+        footer={unattributed ? <span data-testid="employees-unattributed">{unattributed}</span> : null}
+      />
       <Overlay
         open={editing !== null}
         onClose={() => guard.current(close)}

@@ -82,7 +82,8 @@ test('«Отключить» — только после подтвержден�
   await page.goto('/team');
   const main = page.getByRole('main');
   const rows = main.getByTestId('member-row');
-  await rows.nth(2).getByRole('button', { name: 'Отключить' }).click();
+  await rows.nth(2).getByRole('button', { name: /^Ещё:/ }).click();
+  await page.getByRole('menuitem', { name: 'Отключить' }).click();
   const confirm = page.getByRole('dialog');
   await expect(confirm).toContainText('потеряет доступ');
   await confirm.getByRole('button', { name: 'Отключить' }).click();
@@ -274,7 +275,8 @@ test('приостановка доступа: подтверждение, ме�
   await page.goto('/team');
   const main = page.getByRole('main');
   const yurij = main.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
-  await yurij.getByRole('button', { name: 'Приостановить' }).click();
+  await yurij.getByRole('button', { name: /^Ещё:/ }).click();
+  await page.getByRole('menuitem', { name: 'Приостановить' }).click();
   const confirm = page.getByRole('dialog');
   await expect(confirm).toContainText('останется в команде');
   await confirm.getByRole('button', { name: 'Приостановить' }).click();
@@ -283,7 +285,8 @@ test('приостановка доступа: подтверждение, ме�
   await expect(main.getByTestId('team-stat-active')).toHaveText('2');
   // из команды не ушёл
   await expect(main.getByTestId('member-row')).toHaveCount(3);
-  await yurij.getByRole('button', { name: 'Возобновить' }).click();
+  await yurij.getByRole('button', { name: /^Ещё:/ }).click();
+  await page.getByRole('menuitem', { name: 'Возобновить' }).click();
   await expect(yurij.getByTestId('member-suspended')).toHaveCount(0);
   await expect(main.getByTestId('team-stat-suspended')).toHaveText('0');
 });
@@ -296,12 +299,10 @@ test('приостановка: себе и владельцу кнопки не
   await asRole(request, 'MANAGER');
   await page.goto('/team');
   const rows = page.getByRole('main').getByTestId('member-row');
-  await expect(
-    rows.filter({ hasText: 'Марат Тестов' }).getByRole('button', { name: 'Приостановить' }),
-  ).toHaveCount(0);
-  await expect(
-    rows.filter({ hasText: 'Юрий Тестов' }).getByRole('button', { name: 'Приостановить' }),
-  ).toHaveCount(1);
+  // «Приостановить» в меню «⋯» строки (единый экран, 20.10.2026): у управляющего меню нет совсем
+  await expect(rows.filter({ hasText: 'Марат Тестов' }).getByRole('button', { name: /^Ещё:/ })).toHaveCount(0);
+  await rows.filter({ hasText: 'Юрий Тестов' }).getByRole('button', { name: /^Ещё:/ }).click();
+  await expect(page.getByRole('menuitem', { name: 'Приостановить' })).toHaveCount(1);
 });
 
 test('область доступа сотрудника: «Доступ» → выбранные филиалы с ролью по месту → подпись в таблице; очистка', async ({

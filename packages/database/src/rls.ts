@@ -182,6 +182,11 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'bar_stock_movements',
   'bar_supplier_payments',
   'bar_suppliers',
+  // STAFF-TG-20261020: привязка Telegram и коды через членство в организации, очередь уведомлений через Location →
+  // Business (миграция 20261020000139_staff_telegram_notifications, RLS с FORCE)
+  'staff_telegram_links',
+  'staff_telegram_link_codes',
+  'staff_notifications',
 ];
 
 /**

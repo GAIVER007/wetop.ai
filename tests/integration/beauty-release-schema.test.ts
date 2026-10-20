@@ -15,6 +15,7 @@ const id = Object.fromEntries(['org', 'business', 'location', 'employee', 'custo
 let db: pg.Client;
 let databaseUrl: string;
 let baseline: unknown;
+let later: string[] = [];
 const databaseName = `salon_release_proof_${randomUUID().replaceAll('-', '')}`;
 
 async function signature() {
@@ -64,8 +65,11 @@ describe('Beauty schema release on a separate owned canonical database', () => {
     db = new pg.Client({ connectionString: databaseUrl }); await db.connect();
     await db.query('CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA public');
     const dirs = readdirSync(migrations, { withFileTypes: true }).filter(x => x.isDirectory()).map(x => x.name).sort();
-    expect(dirs.slice(-5)).toEqual(names);
-    for (const name of dirs.slice(0, -5)) await db.query(readFileSync(resolve(migrations, name, 'migration.sql'), 'utf8'));
+    // Later ordinary migrations (139 staff Telegram and onwards) sit after the Beauty block: applied after it, reverted first
+    const start = dirs.indexOf(names[0]!);
+    expect(dirs.slice(start, start + names.length)).toEqual(names);
+    later = dirs.slice(start + names.length);
+    for (const name of dirs.slice(0, start)) await db.query(readFileSync(resolve(migrations, name, 'migration.sql'), 'utf8'));
     baseline = await signature();
     await db.query("INSERT INTO organizations(id,name,status) VALUES($1,'Synthetic release organization','ACTIVE')", [id.org]);
     await db.query("INSERT INTO businesses(id,organization_id,name,vertical,updated_at) VALUES($1,$2,'Synthetic salon','BEAUTY',now())", [id.business,id.org]);
@@ -77,7 +81,7 @@ describe('Beauty schema release on a separate owned canonical database', () => {
     await db.query('INSERT INTO employee_services(employee_id,service_id) VALUES($1,$2)', [id.employee,id.service]);
     await db.query('INSERT INTO location_services(location_id,service_id,updated_at) VALUES($1,$2,now())', [id.location,id.service]);
     await db.query("INSERT INTO appointments(id,location_id,customer_id,employee_id,service_id,starts_at,ends_at,price,currency,updated_at) VALUES($1,$2,$3,$4,$5,'2036-10-06T05:00Z','2036-10-06T05:30Z',123400,'KZT',now())", [id.appointment,id.location,id.customer,id.employee,id.service]);
-    for (const name of names) await db.query(readFileSync(resolve(migrations, name, 'migration.sql'), 'utf8'));
+    for (const name of [...names, ...later]) await db.query(readFileSync(resolve(migrations, name, 'migration.sql'), 'utf8'));
     console.log(`Owned release proof ${databaseName}: ${dirs.length} canonical migrations, one populated legacy appointment`);
   });
   afterAll(async () => { if (db) await db.end(); }); // Preserve the owned proof database, never delete a donor/shared database.
@@ -134,7 +138,7 @@ describe('Beauty schema release on a separate owned canonical database', () => {
     db.query("INSERT INTO employee_service_prices(employee_id,service_id,location_id,price_type,price_min_minor,price_max_minor,currency) VALUES($1,$2,$3,'FIXED',123400,123400,'KZT')",[id.employee,id.service,id.location]),/employee service prices exist/));
 
   it('reverses the unused new models in dependency order without losing the legacy appointment', async () => {
-    for(const name of [...names].reverse()) await db.query(readFileSync(resolve(migrations,name,'down.sql'),'utf8'));
+    for(const name of [...names, ...later].reverse()) await db.query(readFileSync(resolve(migrations,name,'down.sql'),'utf8'));
     expect(await signature()).toEqual(baseline);
     expect((await db.query('SELECT id,price::text FROM appointments WHERE id=$1',[id.appointment])).rows)
       .toEqual([{id:id.appointment,price:'123400'}]);

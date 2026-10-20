@@ -1,4 +1,4 @@
--- Restore-only ACL companion for mixed migrations132,134-137.
+-- Restore-only ACL companion for mixed migrations132,134-137,139.
 -- Not a schema migration. Run after ordinary pure-ACL migrations, inside the restore transaction.
 -- Copy existing privileges exactly; never replay mixed DDL or end the caller's transaction.
 DO $restore_acl$
@@ -47,5 +47,18 @@ BEGIN
     REVOKE ALL ON beauty_location_hours FROM wetop_app, wetop_service;
     GRANT SELECT ON beauty_location_hours TO wetop_app;
     GRANT SELECT, INSERT, UPDATE, DELETE ON beauty_location_hours TO wetop_service;
+  END IF;
+
+  -- 139 staff_telegram_notifications (STAFF-TG-20261020): the three tables exist together or not at all.
+  SELECT count(*) INTO installed FROM unnest(ARRAY[
+    'staff_telegram_links','staff_telegram_link_codes','staff_notifications'
+  ]) AS t(name) WHERE to_regclass('public.' || name) IS NOT NULL;
+  IF installed NOT IN (0,3) THEN RAISE EXCEPTION 'Incomplete staff Telegram schema during ACL restore'; END IF;
+  IF installed = 3 THEN
+    REVOKE ALL ON TABLE staff_telegram_links, staff_telegram_link_codes, staff_notifications FROM wetop_app, wetop_service;
+    GRANT SELECT, UPDATE ON TABLE staff_telegram_links TO wetop_app;
+    GRANT SELECT, INSERT, UPDATE ON TABLE staff_telegram_link_codes TO wetop_app;
+    GRANT SELECT, INSERT ON TABLE staff_notifications TO wetop_app;
+    GRANT SELECT, INSERT, UPDATE ON TABLE staff_telegram_links, staff_telegram_link_codes, staff_notifications TO wetop_service;
   END IF;
 END $restore_acl$;

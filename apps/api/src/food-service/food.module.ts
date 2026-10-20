@@ -296,6 +296,13 @@ export class FoodStaffController {
   @Post('employees') @Access('staff') createEmployee(@Body() b: unknown) {
     return this.service.createEmployee(b);
   }
+  // Назначение «специалист / другой сотрудник / оба» (решение владельца 20.10.2026): право «сотрудники» + руководитель
+  @Patch('employees/:id/personnel-kind') @Access('staff') assignPersonnelKind(
+    @Param('id') id: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.assignPersonnelKind(id, b);
+  }
   @Patch('employees/:id') @Access('staff') updateEmployee(
     @Param('id') id: string,
     @Body() b: unknown,

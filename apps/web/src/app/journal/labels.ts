@@ -131,6 +131,7 @@ export const ACTION_RU: Record<string, string> = {
   'folio.penalty': 'Штраф начислен',
   'food.menu.photo.removed': 'Фото блюда удалено',
   'food.order.rated': 'Заказ оценён',
+  'food.employee.personnel_kind': 'Назначение сотрудника изменено',
   'food.reservation.created': 'Бронь стола создана',
   'hotel.onboarding': 'Настройка гостиницы',
   'hotel.service.created': 'Услуга гостиницы создана',

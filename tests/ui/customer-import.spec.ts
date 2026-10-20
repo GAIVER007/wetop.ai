@@ -18,7 +18,7 @@ test('M4-B2: владелец импортирует CSV, восстанавли
     'Повтор не заменяет;Карточку;87000007101',
     'Строка с ошибкой;;не телефон',
   ].join('\r\n');
-  await panel.getByLabel('CSV с клиентами').setInputFiles({
+  await panel.getByLabel('Файл с клиентами: CSV или Excel').setInputFiles({
     name: 'synthetic-import.csv', mimeType: 'text/csv', buffer: Buffer.from(csv),
   });
   await panel.getByRole('button', { name: 'Проверить строки', exact: true }).click();
@@ -125,7 +125,7 @@ test('M4-B2: незавершённая загрузка после reload пр�
 });
 
 async function selectAndCheck(panel: Locator, csv: string, name: string) {
-  await panel.getByLabel('CSV с клиентами').setInputFiles({
+  await panel.getByLabel('Файл с клиентами: CSV или Excel').setInputFiles({
     name, mimeType: 'text/csv', buffer: Buffer.from(csv),
   });
   await panel.getByRole('button', { name: 'Проверить строки', exact: true }).click();

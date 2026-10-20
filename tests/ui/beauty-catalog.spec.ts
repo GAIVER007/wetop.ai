@@ -22,7 +22,7 @@ test('M4-B1: CSV проверяется локально, колонки мен�
   const writes: string[] = [];
   page.on('request', (req) => { if (req.method() === 'POST') writes.push(req.url()); });
   const csv = 'Имя;Телефон\r\nПервый тест;87000001001\r\nПовтор тест;+7 (700) 000-10-01\r\nБез номера;\r\nОшибка тест;abc';
-  await panel.getByLabel('CSV с клиентами').setInputFiles({ name: 'synthetic.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
+  await panel.getByLabel('Файл с клиентами: CSV или Excel').setInputFiles({ name: 'synthetic.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
   await expect(panel.getByLabel('Колонка имени')).toHaveValue('0');
   await expect(panel.getByLabel('Колонка телефона')).toHaveValue('1');
   await panel.getByRole('button', { name: 'Проверить строки', exact: true }).click();
@@ -50,8 +50,8 @@ test('M4-B1: CSV проверяется локально, колонки мен�
   await panel.getByRole('button', { name: 'Проверить строки', exact: true }).click();
   await expect(panel.getByRole('alert')).toContainText('дважды');
   await expect(panel.getByRole('alert')).toBeFocused();
-  await panel.getByLabel('CSV с клиентами').setInputFiles({ name: 'wrong.xlsx', mimeType: 'application/octet-stream', buffer: Buffer.from('synthetic') });
-  await expect(panel.getByRole('alert')).toContainText('Выберите CSV');
+  await panel.getByLabel('Файл с клиентами: CSV или Excel').setInputFiles({ name: 'wrong.xlsx', mimeType: 'application/octet-stream', buffer: Buffer.from('synthetic') });
+  await expect(panel.getByRole('alert')).toContainText('не является Excel');
   await expect(panel.getByRole('button', { name: 'Проверить строки', exact: true })).not.toBeVisible();
   expect(writes).toEqual([]);
   await page.keyboard.press('Escape');

@@ -31,7 +31,6 @@ export default async function CustomersPage() {
       >
         <BeautyCustomerTools
           canEdit={canCreate}
-          canImport={canImport}
           scopeKey={shell.scopeKey ?? ''}
           showCreate={false}
           importHistory={canCreate ? (

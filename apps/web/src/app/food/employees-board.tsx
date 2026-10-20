@@ -1,5 +1,5 @@
 'use client';
-import { useState, useTransition } from 'react';
+import { useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { IconField } from '../../components/icon-field';
 import { Overlay } from '../../components/overlay';
@@ -17,7 +17,7 @@ import {
 import { Tabs } from '../../components/tabs';
 import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, personnelTabs, type PersonnelKind } from '@pms/domain';
 import { pluralRu } from '../../lib/plural';
-import { wholeTenge } from '../../lib/dashboard-format';
+import { periodTitle, revenueCells, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
 import type { FoodEmployee } from '../../lib/food-types';
 import { assignFoodPersonnelKind, mutateStaff } from './restaurant-actions';
 
@@ -182,13 +182,21 @@ export function EmployeesBoard({
   employees,
   branchName,
   canAssignPersonnelKind = false,
+  revenue = null,
+  revenueNav = null,
 }: {
   scopeKey: string;
   write: boolean;
   employees: FoodEmployee[];
   branchName: string;
   canAssignPersonnelKind?: boolean;
+  /** «Сколько принёс» за период (решение 20.10.2026); null = нет права на отчёты, колонки нет */
+  revenue?: StaffRevenue | null;
+  /** переключатель периода (серверные ссылки) */
+  revenueNav?: ReactNode;
 }) {
+  const earned = revenue ? revenueCells(revenue.items) : null;
+  const unattributed = revenue ? unattributedLabel(revenue.items, 'FOOD_SERVICE') : null;
   const [search, setSearch] = useState('');
   const [onlyShift, setOnlyShift] = useState(false);
   const [draft, setDraft] = useState<FoodEmployee | null | 'new'>(null);
@@ -211,7 +219,7 @@ export function EmployeesBoard({
           <Table density="compact" caption="Сотрудники ресторана" captionHidden nowrap className="rest-staff-table">
             <thead>
               <tr>
-                {['Сотрудник', 'Назначение', 'Телефон', 'Смена сегодня', 'Статус', 'Продажи сегодня', 'Рейтинг'].map(
+                {['Сотрудник', 'Назначение', 'Телефон', 'Смена сегодня', 'Статус', ...(revenue ? [`Принёс ${periodTitle(revenue.period)}`] : []), 'Рейтинг'].map(
                   (h) => (
                     <th key={h} scope="col">
                       {h}
@@ -245,7 +253,11 @@ export function EmployeesBoard({
                       {e.onShift ? 'На смене' : 'Не на смене'}
                     </Badge>
                   </td>
-                  <td>{wholeTenge(e.salesTodayMinor)}</td>
+                  {earned && (
+                    <td data-testid="employee-earned">
+                      {earned.get(e.id) ?? <span className="muted">—</span>}
+                    </td>
+                  )}
                   <td data-testid="employee-rating">
                     {e.rating?.average != null
                       ? `${String(e.rating.average).replace('.', ',')} ★, ${pluralRu(e.rating.count, ['оценка', 'оценки', 'оценок'])}`
@@ -280,7 +292,10 @@ export function EmployeesBoard({
         </div>
       )}
       <div className="rest-card">
-        <p className="muted rest-staff-branch">Филиал: {branchName}</p>
+        <div className="rest-staff-head">
+          <p className="muted rest-staff-branch">Филиал: {branchName}</p>
+          {revenue && revenueNav}
+        </div>
         <div className="rest-card__tools">
           <Field label={<span className="sr-only">Поиск по сотрудникам</span>}>
             <IconField icon="search">
@@ -338,6 +353,11 @@ export function EmployeesBoard({
               ),
             }))}
           />
+        )}
+        {unattributed && (
+          <p className="muted" data-testid="employees-unattributed">
+            {unattributed}
+          </p>
         )}
       </div>
       {draft && (

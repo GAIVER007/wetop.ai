@@ -4296,6 +4296,18 @@ function read(path: string, q: URLSearchParams): unknown {
       truncated: picked.length > limit,
     };
   }
+  if (path === '/finance/staff-revenue') {
+    // «Сколько принёс» гостиницы (решение 20.10.2026): по создавшему бронь; синтетика стенда, как формат API
+    const period = ['week', 'month'].includes(q.get('period') ?? '') ? q.get('period')! : 'day';
+    const k = period === 'day' ? 1n : period === 'week' ? 5n : 20n;
+    return {
+      period, fromDate: today, toDate: today,
+      items: [
+        { employeeId: 'ui-admin', currency: 'KZT', paidMinor: String(3_000_000n * k), refundedMinor: String(500_000n * k), netMinor: String(2_500_000n * k), name: 'Юрий Тестов' },
+        { employeeId: null, currency: 'KZT', paidMinor: String(1_200_000n * k), refundedMinor: '0', netMinor: String(1_200_000n * k), name: null },
+      ],
+    };
+  }
   if (path === '/finance/cashflow') {
     // Как у API (RPT2.4a): деньги за период по дням из той же ленты, что у «Оплат»; период и предел те же
     const from = q.get('from') || today;
@@ -6930,6 +6942,16 @@ createServer(async (req, res) => {
       });
     }
     // Каталог салона (DATA_MODEL §19.1, срез B3): услуги сети и мастера, цена филиала переопределением
+    if (path === '/food-service/staff-revenue' && req.method === 'GET') {
+      // «Сколько принёс» салона (решение 20.10.2026): первому активному мастеру синтетическая сумма за период
+      const period = url.searchParams.get('period') || 'day';
+      const first = fixtureBeautyEmployees.find((e) => e.active);
+      const k = period === 'day' ? 1n : period === 'week' ? 5n : 20n;
+      return send(200, {
+        period, fromDate: '', toDate: '',
+        items: first ? [{ employeeId: first.id, currency: 'KZT', paidMinor: String(800_000n * k), refundedMinor: '0', netMinor: String(800_000n * k) }] : [],
+      });
+    }
     if (path.startsWith('/beauty/')) {
       const current = fixtureBranches.find((b) =>
         String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`),

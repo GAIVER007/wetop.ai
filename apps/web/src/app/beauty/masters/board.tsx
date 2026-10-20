@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
+import { useCallback, useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -12,6 +12,7 @@ import { Alert, Badge, Button, Select } from '../../../components/ui';
 import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, personnelTabs } from '@pms/domain';
 import { assignBeautyPersonnelKind } from '../actions';
 import { pluralRu } from '../../../lib/plural';
+import { periodTitle, revenueCells, unattributedLabel, type StaffRevenue } from '../../../lib/staff-revenue';
 import type {
   BeautyEmployeeRow,
   BeautyServiceRow,
@@ -102,6 +103,8 @@ export function MastersBoard({
   unavailable = false,
   scheduleAvailable = true,
   canAssignPersonnelKind = false,
+  revenue = null,
+  revenueNav = null,
 }: {
   items: BeautyEmployeeRow[];
   services: BeautyServiceRow[];
@@ -118,7 +121,12 @@ export function MastersBoard({
   unavailable?: boolean;
   scheduleAvailable?: boolean;
   canAssignPersonnelKind?: boolean;
+  /** «Сколько принёс» за период (решение 20.10.2026); null = нет права на отчёты, строки нет */
+  revenue?: StaffRevenue | null;
+  revenueNav?: ReactNode;
 }) {
+  const earned = revenue ? revenueCells(revenue.items) : null;
+  const unattributed = revenue ? unattributedLabel(revenue.items, 'BEAUTY') : null;
   const router = useRouter();
   const [editing, setEditing] = useState<Editing>(null);
   const [epoch, setEpoch] = useState(0);
@@ -206,6 +214,11 @@ export function MastersBoard({
             {dayStatus.state === 'ON_SHIFT' ? `Сегодня ${dayStatus.hours}` : 'Сегодня не работает'}
           </p>
         )}
+        {earned && revenue && (
+          <p className="beauty-master-card__earned" data-testid="employee-earned">
+            Принёс {periodTitle(revenue.period)}: <b>{earned.get(row.id) ?? '—'}</b>
+          </p>
+        )}
         <p className="beauty-master-card__skills">
           {row.serviceIds.length === 0
             ? 'Услуги не выбраны'
@@ -236,6 +249,7 @@ export function MastersBoard({
             ? 'Добавьте первого специалиста'
             : `В персонале: ${items.length}, из них в архиве ${items.filter((i) => !i.active).length}`}
         </p>
+        {revenue && revenueNav}
         {canCreate && (
           <Button
             type="button"
@@ -279,6 +293,11 @@ export function MastersBoard({
             ),
           }))}
         />
+      )}
+      {unattributed && (
+        <p className="beauty-note" data-testid="employees-unattributed">
+          {unattributed}
+        </p>
       )}
       <Overlay
         open={editing !== null}

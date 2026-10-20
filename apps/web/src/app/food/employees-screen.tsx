@@ -8,11 +8,13 @@ import type { FoodEmployee } from '../../lib/food-types';
 import { EmployeesBoard } from './employees-board';
 import { restaurantShell } from './restaurant-load';
 import { StaffTabs } from './staff-tabs';
+import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../components/staff-revenue';
+import type { StaffRevenuePeriod } from '../../lib/staff-revenue';
 import './food.css';
 import './restaurant.css';
 
 /** «Сотрудники» ресторана: добавление и правка — право «сотрудники» (staff), смотрят все роли стойки */
-export async function FoodEmployeesScreen() {
+export async function FoodEmployeesScreen({ period = 'day' }: { period?: StaffRevenuePeriod } = {}) {
   try {
     const shell = await restaurantShell();
     // право назначать считает сервер и кладёт в каждую страницу ответа; берём из первой
@@ -22,6 +24,7 @@ export async function FoodEmployeesScreen() {
       if (!cursor) canAssignPersonnelKind = (page as { canAssignPersonnelKind?: boolean }).canAssignPersonnelKind === true;
       return page;
     });
+    const revenue = await loadStaffRevenue('branch', period);
     return (
       <Page title="Сотрудники">
         <StaffTabs current="list" />
@@ -32,6 +35,8 @@ export async function FoodEmployeesScreen() {
             employees={employees}
             branchName={shell.branchName}
             canAssignPersonnelKind={canAssignPersonnelKind && !shell.readOnly}
+            revenue={revenue}
+            revenueNav={<StaffRevenuePeriodNav path="/employees" period={period} />}
           />
         </div>
       </Page>

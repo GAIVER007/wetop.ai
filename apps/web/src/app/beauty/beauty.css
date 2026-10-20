@@ -210,6 +210,12 @@
     display: grid;
     gap: var(--space-1);
   }
+  /* «Принёс за период» (решение 20.10.2026): сумма в одну строку */
+  .beauty-master-card__earned {
+    margin: 0;
+    font-size: var(--text-sm);
+    white-space: nowrap;
+  }
   .beauty-master-card__skills {
     color: var(--text-2);
     font-size: var(--text-sm);

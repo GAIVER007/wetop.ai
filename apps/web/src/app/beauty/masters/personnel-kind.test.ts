@@ -118,4 +118,23 @@ describe('экран «Специалисты»: назначение', () => {
     expect(panel(html, 'specialists')).toContain('data-badge="">Специалист<');
     expect(panel(html, 'unassigned')).toContain('data-badge="">Не назначено<');
   });
+
+  // «сколько принёс» (решение владельца 20.10.2026): оплата записи делится по цене услуг, сервер отдаёт свод
+  it('на карточке «Принёс за месяц» из свода; без денег прочерк; без права строки нет', () => {
+    const html = renderToStaticMarkup(
+      createElement(MastersBoard, {
+        items, services: [], today, locations: [] as BeautySchedule['locations'],
+        revenue: {
+          period: 'month', fromDate: '2026-10-01', toDate: '2026-10-31',
+          items: [{ employeeId: items[0]!.id, currency: 'KZT', paidMinor: '300000', refundedMinor: '0', netMinor: '300000' }],
+        },
+      }),
+    );
+    const text = (part: string) => part.replace(/<[^>]+>/g, '');
+    const anna = text(panel(html, 'specialists').split('Анна Специалист')[1]!.split('</li>')[0]!);
+    expect(anna).toContain('Принёс за месяц: 3 000 ₸');
+    const vera = text(panel(html, 'specialists').split('Вера Оба')[1]!.split('</li>')[0]!);
+    expect(vera).toContain('Принёс за месяц: —');
+    expect(render(items, true)).not.toContain('Принёс');
+  });
 });

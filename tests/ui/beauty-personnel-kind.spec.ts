@@ -163,6 +163,25 @@ test('новый сотрудник: назначение выбирается �
   await expect(panel(page).getByLabel('Назначение: Ержан Новый')).toHaveValue('BOTH');
 });
 
+// «сколько принёс» (решение владельца 20.10.2026): строка на карточке и переключатель периода ссылками
+test('«Принёс» на карточке специалиста: день, неделя, месяц', async ({ page, request }) => {
+  await openSalon(page, request);
+  await seedPeople(request);
+  await page.goto('/employees');
+  // первая заведённая запись (старая, без назначения) получает синтетическую сумму стенда: 8 000 ₸ в день
+  const card = panel(page).getByRole('listitem').filter({ hasText: 'Алия Старая запись' });
+  await expect(card.getByTestId('employee-earned')).toHaveText('Принёс сегодня: 8 000 ₸');
+  const periods = page.getByRole('navigation', { name: 'Период для «Принёс»' });
+  await periods.getByRole('link', { name: 'Неделя' }).click();
+  await expect(page).toHaveURL(/\/employees\?period=week$/, { timeout: 90_000 });
+  await expect(card.getByTestId('employee-earned')).toHaveText('Принёс за неделю: 40 000 ₸');
+  await tablist(page).getByRole('tab', { name: /^Специалисты/ }).click();
+  await expect(
+    panel(page).getByRole('listitem').filter({ hasText: 'Бота Специалист' }).getByTestId('employee-earned'),
+  ).toHaveText('Принёс за неделю: —');
+  await page.screenshot({ path: `${SNAPSHOTS}/beauty-earned-1440.png`, fullPage: true });
+});
+
 for (const theme of ['light', 'dark'] as const) {
   test(`экран «Специалисты» доступен в ${theme === 'light' ? 'светлой' : 'тёмной'} теме, 1440 и 390`, async ({
     page,

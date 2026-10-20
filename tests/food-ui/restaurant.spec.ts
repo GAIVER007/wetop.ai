@@ -426,17 +426,32 @@ test('план зала: заказ занимает стол, уборка вк
   expect(axe.violations).toEqual([]);
 });
 
-test('сотрудники: список с продажами, добавление и правка', async ({ page, request }) => {
+test('сотрудники: «Принёс» за период, добавление и правка', async ({ page, request }) => {
   const { headers, table, pasta, waiter } = await seed(page, request);
-  await post(request, headers, '/food-service/orders', {
+  // «Принёс» = оплачено минус возвраты (решение владельца 20.10.2026): заказ официанта оплачен, второй без официанта
+  const paid = await post(request, headers, '/food-service/orders', {
     tableId: table.id,
     waiterId: waiter.id,
     guestCount: 2,
     items: [{ menuItemId: pasta.id, qty: 1 }],
   });
+  expect((await serveAndPay(request, headers, paid)).status).toBe('CLOSED');
+  await post(request, headers, '/food-service/orders', {
+    tableId: table.id,
+    waiterId: waiter.id,
+    guestCount: 1,
+    items: [{ menuItemId: pasta.id, qty: 1 }],
+  });
   await page.goto('/employees');
   const row = page.locator('tbody tr', { hasText: 'Иванова Анна' });
-  await expect(row).toContainText('390 ₸');
+  await expect(page.locator('thead')).toContainText('Принёс сегодня');
+  await expect(row.getByTestId('employee-earned')).toHaveText('390 ₸');
+  const periods = page.getByRole('navigation', { name: 'Период для «Принёс»' });
+  await periods.getByRole('link', { name: 'Месяц' }).click();
+  await expect(page).toHaveURL(/\/employees\?period=month$/, { timeout: 90_000 });
+  await expect(page.locator('thead')).toContainText('Принёс за месяц');
+  await expect(row.getByTestId('employee-earned')).toHaveText('390 ₸');
+  await expect(periods.getByRole('link', { name: 'Месяц' })).toHaveAttribute('aria-current', 'page');
   await expect(row).toContainText('Не на смене');
   // назначение (решение владельца 20.10.2026): официант из seed без назначения стоит во вкладке «Не назначено»
   const tabs = page.getByRole('tablist', { name: 'Назначение в персонале' });

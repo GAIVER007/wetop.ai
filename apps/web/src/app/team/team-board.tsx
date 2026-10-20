@@ -29,6 +29,7 @@ import { Icon } from '../../components/icon';
 import { useConfirm } from '../../components/use-confirm';
 import type { AuthAccessStructure, AuthInvite, AuthMember } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
+import { periodTitle, revenueCells, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
 import { ScopeEditor } from './scope-editor';
 import {
   fromScopes,
@@ -317,11 +318,18 @@ export function MembersTable({
   members,
   structure = null,
   actorRole = null,
+  revenue = null,
+  revenueNav = null,
 }: {
   members: AuthMember[];
   structure?: AuthAccessStructure | null;
   actorRole?: MembershipRole | null;
+  /** «Сколько принёс» гостиницы по создавшему бронь (решение 20.10.2026); null = колонки нет */
+  revenue?: StaffRevenue | null;
+  revenueNav?: ReactNode;
 }) {
+  const earned = revenue ? revenueCells(revenue.items) : null;
+  const unattributed = revenue ? unattributedLabel(revenue.items, 'HOSPITALITY') : null;
   const team = useContext(TeamContext);
   const { error, pending, run } = useTeamActions();
   const { ask, dialog } = useConfirm();
@@ -331,6 +339,7 @@ export function MembersTable({
   return (
     <section className="settings-catalog" aria-label="Люди организации">
       {error && <Alert boxed>{error}</Alert>}
+      {revenue && revenueNav}
       <Table data-testid="team-table" className="settings-table settings-table--team">
         <thead>
           <tr>
@@ -340,7 +349,10 @@ export function MembersTable({
             {withScope && <th className="settings-col-wide">Доступ</th>}
             <th className="settings-col-wide">В организации с</th>
             <th className="settings-col-wide">Был в системе</th>
-            <th aria-label="Действия" />
+            {revenue && <th className="team-col-earned">Принёс {periodTitle(revenue.period)}</th>}
+            <th>
+              <span className="sr-only">Действия</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -403,7 +415,13 @@ export function MembersTable({
               <td className="settings-col-wide">
                 {m.lastLoginAt ? displayDate(m.lastLoginAt.slice(0, 10)) : 'ещё не входил'}
               </td>
+              {earned && (
+                <td className="team-col-earned" data-testid="member-earned">
+                  {earned.get(m.userId) ?? <span className="muted">—</span>}
+                </td>
+              )}
               <td className="team-row-actions">
+                <span className="team-row-actions__group">
                 {m.detailsEditable && (
                   <Button
                     type="button"
@@ -465,11 +483,17 @@ export function MembersTable({
                     Отключить
                   </Button>
                 )}
+                </span>
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
+      {unattributed && (
+        <p className="muted" data-testid="team-unattributed">
+          {unattributed}
+        </p>
+      )}
       {dialog}
       <Overlay
         drawer

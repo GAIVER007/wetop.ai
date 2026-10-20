@@ -67,4 +67,26 @@ describe('ресторан: назначение в «Сотрудниках»',
     expect(html).toMatch(/class="[^"]*\brest-staff-table\b/);
     expect(html).toContain('class="rest-staff-actions"');
   });
+
+  // «сколько принёс» (решение владельца 20.10.2026): оплачено минус возвраты за выбранный период
+  it('колонка «Принёс» берёт суммы из свода, без денег прочерк; заказы без официанта строкой', () => {
+    const html = renderToStaticMarkup(createElement(EmployeesBoard, {
+      scopeKey: 'b:l', write: true, employees: items, branchName: 'Зал', canAssignPersonnelKind: false,
+      revenue: {
+        period: 'week', fromDate: '2026-10-19', toDate: '2026-10-25',
+        items: [
+          { employeeId: items[0]!.id, currency: 'KZT', paidMinor: '1000000', refundedMinor: '100000', netMinor: '900000' },
+          { employeeId: null, currency: 'KZT', paidMinor: '200000', refundedMinor: '0', netMinor: '200000' },
+        ],
+      },
+    }));
+    expect(html).toContain('Принёс за неделю');
+    expect(html).not.toContain('Продажи сегодня');
+    expect(panel(html, 'specialists')).toContain('9 000 ₸');
+    expect(html).toContain('Заказы без официанта: 2 000 ₸');
+  });
+  it('без права на отчёты колонки «Принёс» нет', () => {
+    const html = render(false);
+    expect(html).not.toContain('Принёс');
+  });
 });

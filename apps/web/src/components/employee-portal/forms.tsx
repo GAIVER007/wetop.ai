@@ -72,9 +72,7 @@ export function PortalForm({ context, command, children, label = 'Сохрани
           }
           element.dispatchEvent(new CustomEvent('employee-save-result', {
             bubbles: true,
-            // reset: смена formRevision перемонтирует fieldset (файл в input пропадает),
-            // поэтому опорная подпись перечитывается после перерисовки, а не со снимка отправки.
-            detail: { success: true, snapshot, reset: true },
+            detail: { success: true, snapshot },
           }));
           // Upload forms create a new item: the remounted fieldset comes back empty, so re-baseline after that render.
           if (element.querySelector('input[type="file"]')) setRebaseline(n => n + 1);

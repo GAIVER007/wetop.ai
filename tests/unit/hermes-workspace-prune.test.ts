@@ -98,7 +98,7 @@ describe('scripts/ops/hermes-workspace-prune.sh', () => {
     expect(existsSync(join(dir, 'docker.log'))).toBe(false);
   });
 
-  it('несвежее рабочее дерево сохраняется и удаляется; основной клон и свежее дерево остаются', () => {
+  it('несвежее рабочее дерево сохраняется и удаляется; основной клон (HERMES_MAIN), свежее дерево и бэкапы моложе 30 дней остаются', () => {
     const main = join(root, 'main');
     mkdirSync(main, { recursive: true });
     git(main, 'init', '-q');
@@ -114,11 +114,18 @@ describe('scripts/ops/hermes-workspace-prune.sh', () => {
     writeFileSync(join(stale, 'a.txt'), 'dirty');
     age(main, 72);
     age(stale, 72);
+    const oldBackup = join(dir, 'backups/workspace-20200101');
+    const recentBackup = join(dir, 'backups/workspace-20991231');
+    mkdirSync(oldBackup, { recursive: true });
+    mkdirSync(recentBackup, { recursive: true });
+    const monthAgo = new Date(Date.now() - 31 * 86_400_000);
+    utimesSync(oldBackup, monthAgo, monthAgo);
 
     const dry = run(['--dry-run']);
     expect(dry.code, dry.out).toBe(0);
     expect(dry.out).toContain('удалилась бы (рабочее дерево');
     expect(existsSync(stale)).toBe(true);
+    expect(existsSync(oldBackup)).toBe(true);
 
     const r = run();
     expect(r.code, r.out).toBe(0);
@@ -126,7 +133,9 @@ describe('scripts/ops/hermes-workspace-prune.sh', () => {
     expect(existsSync(join(root, 'fresh-wt/a.txt'))).toBe(true);
     expect(existsSync(join(main, 'a.txt'))).toBe(true);
     expect(git(main, 'worktree', 'list')).not.toContain('stale');
-    const day = readdirSync(join(dir, 'backups')).find((d) => d.startsWith('workspace-'))!;
+    expect(existsSync(oldBackup)).toBe(false);
+    expect(existsSync(recentBackup)).toBe(true);
+    const day = readdirSync(join(dir, 'backups')).find((d) => d.startsWith('workspace-') && d !== 'workspace-20991231')!;
     const saved = join(dir, 'backups', day, 'stale');
     expect(readFileSync(join(saved, 'tracked.patch'), 'utf8')).toContain('+dirty');
     expect(readFileSync(join(saved, 'status.txt'), 'utf8')).toContain('new.txt');

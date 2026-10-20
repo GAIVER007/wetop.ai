@@ -56,4 +56,9 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
 
 # Точка входа накатывает миграции перед веб-процессом (см. scripts/).
 ENTRYPOINT ["./scripts/docker-entrypoint.sh"]
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "src.main:app", "--bind", "0.0.0.0:8000", "--workers", "2"]
+# Один воркер: каждый держит свою копию torch и модели эмбеддингов (~700 МБ), а на общем
+# сервере 7,8 ГБ памяти два воркера в двух сервисах (assistant, seller) занимали 2,9 ГБ свопа
+# (20.10.2026). Эмбеддинги идут в asyncio.to_thread, цикл событий они не блокируют.
+# Больше воркеров при росте нагрузки: WEB_CONCURRENCY в compose, без пересборки образа.
+ENV WEB_CONCURRENCY=1
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "src.main:app", "--bind", "0.0.0.0:8000"]

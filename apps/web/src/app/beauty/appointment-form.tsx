@@ -335,7 +335,7 @@ export function AppointmentForm({
         </fieldset>
       )}
       <fieldset>
-        <legend>Услуги</legend>
+        <legend>Услуга и время</legend>
         {lines.map((line, index) => {
           const effective = effectiveFor(line);
           const duration = Number(line.duration || effective.duration || 0);
@@ -575,10 +575,8 @@ export function AppointmentForm({
       </fieldset>
       {state?.error && <Alert>{state.error}</Alert>}
       <div className="appointment-form__footer">
-        <Button
-          type="submit"
-          disabled={pending || !validMoney || !validDuration || state?.outcome === 'unknown'}
-        >
+        {/* ТЗ-1.1 F02: кнопка активна всегда; невалидная форма не отправляется (onSubmit выше), занятость решает сервер */}
+        <Button type="submit" disabled={pending || state?.outcome === 'unknown'}>
           {pending
             ? editing
               ? 'Сохраняем…'

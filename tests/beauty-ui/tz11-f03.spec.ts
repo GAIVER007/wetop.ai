@@ -1,5 +1,5 @@
 import { test, expect } from '../ui/fixtures';
-import { date, evidence, seed } from './tz11-helpers';
+import { date, evidence, seed , nextDate } from './tz11-helpers';
 for (const width of [1440,390]) for (const theme of ['light','dark'] as const) {
  test(`F03 list context reload history card and privacy ${width} ${theme}`,async({page,request})=>{
   test.setTimeout(180000);
@@ -33,8 +33,8 @@ for (const width of [1440,390]) for (const theme of ['light','dark'] as const) {
   await page.goBack();await page.getByRole('button',{name:'Тест Искомый',exact:true}).click();
   await page.reload();await expect(page.getByRole('dialog',{name:'Запись',exact:true})).toBeVisible();
   await page.getByRole('button',{name:'Закрыть: Запись',exact:true}).click();
-  await page.getByTestId('beauty-day-date').fill('2026-10-20');
-  await expect(page.getByTestId('beauty-day-date')).toHaveValue('2026-10-20');
+  await page.getByTestId('beauty-day-date').fill(nextDate);
+  await expect(page.getByTestId('beauty-day-date')).toHaveValue(nextDate);
   await expect(page.getByRole('combobox',{name:'Специалист',exact:true})).toHaveValue(f.employees[0].id);
   await page.goto(`/appointments?date=${date}&master=foreign&service=${f.services[0].id}&appointment=foreign`);
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Фильтр или запись недоступны');

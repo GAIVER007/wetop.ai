@@ -104,7 +104,7 @@ test('shared form groups and save stay accessible in short viewport', async ({ p
   await page.goto(`/appointments?date=${date}`);
   await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Новая запись', exact: true });
-  for (const name of ['Клиент', 'Услуги', 'Дополнительно'])
+  for (const name of ['Клиент', 'Услуга и время', 'Дополнительно'])
     await expect(dialog.getByRole('group', { name, exact: true })).toBeVisible();
   await dialog.getByLabel('Заметка', { exact: true }).focus();
   await expect(dialog.getByLabel('Заметка', { exact: true })).toBeInViewport();

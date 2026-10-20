@@ -1,7 +1,18 @@
 import { expect, type Page, type APIRequestContext } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 export const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '26814'}`;
-export const date = '2026-10-19';
+// Понедельник в будущем: записи фикстур не должны «кончаться в прошлом» (ends_at > now() в конфликтах часов)
+const nextMonday = (() => {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() + (((8 - d.getUTCDay()) % 7) || 7));
+  return d.toISOString().slice(0, 10);
+})();
+export const date = nextMonday;
+export const nextDate = (() => {
+  const d = new Date(`${nextMonday}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+})();
 export const evidence = process.env.TZ11_EVIDENCE || 'test-results/tz11-evidence';
 mkdirSync(evidence + '/screenshots', { recursive: true });
 export async function seed(page: Page, request: APIRequestContext) {

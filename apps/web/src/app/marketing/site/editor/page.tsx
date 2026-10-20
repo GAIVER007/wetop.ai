@@ -22,6 +22,8 @@ import type { WebVertical } from '../../../../lib/vertical-landing';
 import { BackToModules } from '../../parts';
 import { SiteEditor } from './editor';
 import { CreateSite } from './create-site';
+import { SimpleSiteEditor } from './simple-editor';
+import { SimpleSiteSetup } from './simple-setup';
 import { publishTarget } from './vertical-status';
 import '../../marketing.css';
 
@@ -52,7 +54,11 @@ function siteStatusOf(current: MarketingSiteCurrent): SiteStatus {
   return current.site.published ? 'PUBLISHED' : 'DRAFT';
 }
 
-export default async function SiteEditorPage() {
+export default async function SiteEditorPage({ searchParams }: { searchParams?: Promise<{ full?: string; chat?: string }> }) {
+  // SITE-1: по умолчанию простой экран из пяти шагов; чат с ИИ (`?chat=1`) и полный редактор (`?full=1`) для своих
+  const params = await searchParams;
+  const full = params?.full === '1';
+  const chat = params?.chat === '1';
   const me = await requireFeature('/marketing/site/editor');
   const vertical: WebVertical = me.context?.vertical ?? 'HOSPITALITY';
   const locationId = me.context?.locationId ?? null;
@@ -150,11 +156,60 @@ export default async function SiteEditorPage() {
       </Page>
     );
   }
+  if (!full && !chat) {
+    const facts = await loadSiteFacts(locationId ?? '', vertical, siteFactsSource(locationId));
+    return (
+      <Page crumbs={<BackToModules />} title="Сайт и SEO" width="full">
+        {!licensed && (
+          <Alert boxed data-testid="ed-license-off">
+            <b>Конструктор сайта не активен для этого филиала.</b> Сайт виден, но менять и публиковать его нельзя. Подключить конструктор может
+            главный администратор WETOP.
+          </Alert>
+        )}
+        <SimpleSiteSetup
+          vertical={vertical}
+          base={{ id: site.latest.id, revision: site.latest.revision, spec: loaded.draft.version.spec }}
+          published={site.published}
+          siteUrl={site.url ?? null}
+          locationName={facts.ok ? facts.data.location.name : locationName}
+          facts={facts.ok ? facts.data : null}
+          assets={loaded.assets}
+          readOnly={readOnly}
+          publish={publishTarget(vertical)}
+        />
+      </Page>
+    );
+  }
+  if (!full)
+    return (
+      <Page crumbs={<BackToModules />} title="Сайт и SEO" width="full">
+        {!licensed && (
+          <Alert boxed data-testid="ed-license-off">
+            <b>Конструктор сайта не активен для этого филиала.</b> Сайт виден, но менять его и просить ИИ нельзя. Подключить конструктор может
+            главный администратор WETOP.
+          </Alert>
+        )}
+        <SimpleSiteEditor
+          vertical={vertical}
+          base={{ id: site.latest.id, revision: site.latest.revision, spec: loaded.draft.version.spec }}
+          published={site.published}
+          locationName={locationName}
+          assets={loaded.assets}
+          conversation={loaded.conversation}
+          readOnly={readOnly}
+        />
+      </Page>
+    );
   return (
     <Page
       crumbs={<BackToModules />}
       title={title}
-      subtitle="Попросите ИИ или поправьте сайт сами. Сохранение создаёт новую версию черновика, на сайт она попадает после публикации."
+      subtitle="Расширенный режим: страницы, блоки, SEO и история версий. Сохранение создаёт новую версию черновика, на сайт она попадает после публикации."
+      actions={
+        <Link className="btn btn--secondary" href="/marketing/site/editor" data-testid="ed-simple">
+          Простой режим
+        </Link>
+      }
     >
       <SiteEditor
         siteId={site.id}

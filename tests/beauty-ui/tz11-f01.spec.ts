@@ -2,7 +2,7 @@ import { chooseCalendarEmployee } from './calendar-employee';
 import { test, expect } from '../ui/fixtures';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import pg from 'pg';
-import { api, date, evidence, seed } from './tz11-helpers';
+import { api, date, evidence, seed, nextDate } from './tz11-helpers';
 
 for (const width of [1440, 390]) for (const theme of ['light', 'dark'] as const) {
   test(`F01 occupied intervals survive filters ${width} ${theme}`, async ({ page, request }) => {
@@ -67,7 +67,7 @@ for (const width of [1440, 390]) for (const theme of ['light', 'dark'] as const)
         await page.goto(`/calendar?date=${date}`);
         await expect(free('10:00')).toBeAttached();
       }
-      await page.goto(`/calendar?date=2026-10-20`);
+      await page.goto(`/calendar?date=${nextDate}`);
       await expect(free('10:00')).toBeVisible();
       await page.context().addCookies([{ name: 'wetop_scope', value: encodeURIComponent(`business=${f.business};location=${f.locations[1]}`), domain: '127.0.0.1', path: '/' }]);
       await page.goto(`/calendar?date=${date}`);

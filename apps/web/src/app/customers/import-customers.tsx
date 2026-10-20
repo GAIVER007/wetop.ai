@@ -20,6 +20,7 @@ import type {
   CustomerImportView,
 } from '@pms/domain';
 import { useConfirm } from '../../components/use-confirm';
+import { customerXlsxToCsv } from './xlsx-client';
 import { Alert, Button, Field, Input, Select, Table } from '../../components/ui';
 import {
   getCustomerImport,
@@ -157,25 +158,30 @@ export function ImportCustomers({ businessId, canImport = false }: { businessId:
     setFile(null); setChecked(null); setError(''); setLoading(false); setSourceKey('');
     importRequest.current = null;
     if (!selected) return;
-    if (!/\.csv$/i.test(selected.name)) {
-      showError('Выберите CSV. Файл Excel сначала сохраните в формате CSV.'); return;
+    const excel = /\.xlsx$/i.test(selected.name);
+    if (!excel && !/\.csv$/i.test(selected.name)) {
+      showError('Выберите файл CSV или Excel (XLSX).'); return;
     }
     if (selected.size > CUSTOMER_CSV_MAX_BYTES) {
-      showError('Файл больше 10 МБ. Разделите его на несколько CSV.'); return;
+      showError('Файл больше 10 МБ. Разделите его на несколько файлов.'); return;
     }
     setLoading(true);
     try {
       const bytes = await selected.arrayBuffer();
       if (id !== request.current) return;
       let text: string;
-      try { text = new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
-      catch { text = new TextDecoder('windows-1251').decode(bytes); }
+      if (excel) text = await customerXlsxToCsv(bytes);
+      else {
+        try { text = new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
+        catch { text = new TextDecoder('windows-1251').decode(bytes); }
+      }
+      if (id !== request.current) return;
       const parsed = readCustomerCsv(text);
       setFile(parsed); setMapping(parsed.mapping);
       setSourceKey(`${selected.name}:${selected.size}:${selected.lastModified}`);
     } catch (cause) {
       if (id === request.current)
-        showError(cause instanceof Error ? cause.message : 'Не удалось прочитать CSV. Выберите файл ещё раз.');
+        showError(cause instanceof Error ? cause.message : 'Не удалось прочитать файл. Выберите его ещё раз.');
     } finally { if (id === request.current) setLoading(false); }
   }
 
@@ -279,11 +285,12 @@ export function ImportCustomers({ businessId, canImport = false }: { businessId:
     <p>Проверьте файл перед переносом. Проверка выполняется на этом устройстве.</p>
     <p className="muted">Карточки с одинаковым телефоном не объединяются и не перезаписываются: импорт использует существующего клиента.</p>
     <a href={template} download="wetop-customers-template.csv">Скачать шаблон CSV</a>
-    <Field label="CSV с клиентами"><Input type="file" accept=".csv,text/csv" disabled={pending} onChange={(e) => void load(e.target.files?.[0])} /></Field>
-    <p className="muted">До 50 000 строк и 10 МБ. Поддерживаются UTF-8 и Windows-1251, разделители: точка с запятой, запятая и табуляция.</p>
-    {loading && <p role="status">Читаем файл…</p>}
+    <Field label="Файл с клиентами: CSV или Excel"><Input type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" disabled={pending} onChange={(e) => void load(e.target.files?.[0])} /></Field>
+    <p className="muted">До 50 000 строк и 10 МБ. Excel: первый лист, первая строка с заголовками. CSV: UTF-8 или Windows-1251, разделители точка с запятой, запятая и табуляция.</p>
+    {/* Одна живая область на окно: чтение файла и обновление состояния не объявляются двумя статусами сразу */}
+    <p role="status" className="muted">{loading ? 'Читаем файл…' : canImport && pending ? 'Обновляем состояние импорта…' : ''}</p>
     {error && <div role="alert" className="alert alert--boxed" tabIndex={-1} ref={errorRef}>{error}</div>}
-    {canImport && backgroundError && <div role="status">
+    {canImport && backgroundError && <div>
       <p>{backgroundError}</p>
       <Button type="button" tone="secondary" disabled={pending} onClick={refreshState}>Обновить состояние</Button>
     </div>}
@@ -327,7 +334,6 @@ export function ImportCustomers({ businessId, canImport = false }: { businessId:
       <ImportProgress job={job} />
       {mayUndo && <Button type="button" tone="danger" disabled={pending} onClick={() => void requestUndo()}>Отменить импорт</Button>}
     </>}
-    {canImport && pending && <p role="status">Обновляем состояние импорта…</p>}
     {dialog}
   </div>;
 }

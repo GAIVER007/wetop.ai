@@ -139,17 +139,45 @@ export function siteTemplateById(id: unknown): SiteTemplate | null {
 type Rec = Record<string, unknown>;
 
 /**
+ * Варианты секций, которые шаблон меняет безопасно: у них нет обязательной картинки, поэтому смена варианта не делает
+ * документ неверным. Первый экран и призыв с картинкой остаются как были (фото человека не теряется)
+ */
+const SAFE_VARIANTS = new Set(['features', 'accommodations', 'services', 'staff', 'menu', 'leadForm', 'hours']);
+
+/**
+ * Смена шаблона у готового сайта (простой редактор, SITE-1): тема, порядок блоков главной и варианты секций шаблона,
+ * а тексты, фото, цены и блоки сайта остаются как есть. Первый экран с фото фото сохраняет. Неизвестный шаблон: `null`
+ */
+export function applySiteTemplate(spec: unknown, templateId: unknown): Rec | null {
+  const tpl = siteTemplateById(templateId);
+  if (!tpl) return null;
+  const pages = ((spec as Rec | null)?.['pages'] as Rec[] | undefined) ?? [];
+  const home = pages.find((p) => p['isHome'] === true) ?? pages[0];
+  const hero = ((home?.['sections'] as Rec[] | undefined) ?? []).find((s) => s['type'] === 'hero');
+  const keepHero = hero && hero['image'] !== undefined && typeof hero['variant'] === 'string';
+  const direction: DesignDirection = keepHero ? { ...tpl.direction, heroVariant: hero['variant'] as DesignDirection['heroVariant'] } : tpl.direction;
+  const next = applyDesignDirection(spec, direction) as Rec;
+  for (const page of (next['pages'] as Rec[] | undefined) ?? [])
+    page['sections'] = ((page['sections'] as Rec[] | undefined) ?? []).map((s) => {
+      const type = String(s['type']);
+      const variant = tpl.variants[type];
+      return variant && SAFE_VARIANTS.has(type) ? { ...s, variant } : s;
+    });
+  return next;
+}
+
+/** Какой шаблон сегмента у сайта сейчас: тема и раскладка совпадают с шаблоном; иначе `null` (сайт правили) */
+export function currentSiteTemplate(spec: unknown, vertical: string | null | undefined): SiteTemplate | null {
+  const theme = JSON.stringify((spec as Rec | null)?.['theme'] ?? null);
+  return siteTemplatesFor(vertical).find((t) => JSON.stringify({ ...((spec as Rec)['theme'] as Rec), ...t.direction.theme }) === theme) ?? null;
+}
+
+/**
  * Готовый сайт по шаблону: заготовка филиала по фактам, тема и порядок блоков шаблона, варианты секций шаблона. Тот же
  * документ дают те же факты и тот же шаблон. Шаблон чужого сегмента или неизвестный: `null`
  */
 export function templateSiteSpec(facts: SiteFacts, templateId: unknown): Rec | null {
   const tpl = siteTemplateById(templateId);
   if (!tpl || tpl.vertical !== facts.vertical) return null;
-  const spec = applyDesignDirection(starterSpecFromFacts(facts), tpl.direction) as Rec;
-  for (const page of (spec['pages'] as Rec[]) ?? [])
-    page['sections'] = ((page['sections'] as Rec[]) ?? []).map((s) => {
-      const variant = tpl.variants[String(s['type'])];
-      return variant ? { ...s, variant } : s;
-    });
-  return spec;
+  return applySiteTemplate(starterSpecFromFacts(facts), tpl.id);
 }

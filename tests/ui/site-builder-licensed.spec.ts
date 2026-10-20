@@ -28,7 +28,7 @@ test.beforeEach(async ({ request }) => {
 
 test('лицензии нет: всё видно, правка, ИИ, «Текст» и сохранение закрыты; полоса проекта говорит почему', async ({ page, request }) => {
   await site(request, { license: 'OFF' });
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await expect(m.getByTestId('ed-license')).toHaveText('Конструктор не подключён');
   await expect(m.getByTestId('ed-license-off')).toContainText('Конструктор сайта не активен для этого филиала.');
@@ -48,11 +48,11 @@ test('лицензии нет: всё видно, правка, ИИ, «Текс
 
 test('срок лицензии вышел: та же закрытая правка, слова «Срок лицензии вышел»; первый экран без лицензии', async ({ page, request }) => {
   await site(request, { license: 'EXPIRED' });
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   await expect(main(page).getByTestId('ed-license')).toHaveText('Срок лицензии вышел');
   await expect(main(page).getByTestId('ed-license-off')).toContainText('Срок лицензии вышел.');
   await site(request, { license: 'OFF', noSite: true });
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const win = main(page).getByTestId('create-site');
   await expect(main(page).getByTestId('ed-license-off')).toBeVisible();
   await expect(win.getByTestId('create-site-start')).toBeDisabled();
@@ -60,7 +60,7 @@ test('срок лицензии вышел: та же закрытая прав�
 });
 
 test('режим «Чат»: ответ словами без новой версии, «Перейти в сборку»; разговор на сервере переживает обновление', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await expect(mode(page, 'Сборка')).toHaveAttribute('aria-checked', 'true');
   await mode(page, 'Чат').click();
@@ -76,7 +76,7 @@ test('режим «Чат»: ответ словами без новой вер�
 });
 
 test('режим «План»: вопросы с вариантами, план с шагами, правка текста сборки, «Собрать по плану» один раз', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await mode(page, 'План').click();
   await ai(page).getByLabel('Что вы хотите получить?').fill('Хочу, чтобы сайт был короче');
@@ -105,15 +105,15 @@ test('режим «План»: вопросы с вариантами, план 
 
 test('«Собрать с ИИ по описанию» на первом экране: первая сборка ИИ с выбранным шаблоном как оформлением', async ({ page, request }) => {
   await site(request, { noSite: true });
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const win = main(page).getByTestId('create-site');
   // без текста ИИ не нужен: кнопка ИИ закрыта, «Создать сайт» соберёт шаблон сам
   await expect(win.getByTestId('create-site-ai')).toBeDisabled();
   await win.getByLabel('Опишите, каким должен быть сайт').fill('Строго и по делу');
   const cards = win.getByTestId('site-designs');
   await expect(cards.getByRole('radio')).toHaveCount(3);
-  await cards.getByText('Бутик-отель').click();
-  await expect(cards.getByRole('radio', { name: /Бутик-отель/ })).toBeChecked();
+  await cards.getByTestId('site-design-card').filter({ hasText: 'Бутик-отель' }).getByTestId('site-design-choose').click();
+  await expect(cards.getByRole('radio', { name: /Бутик-отель/ })).toHaveAttribute('aria-checked', 'true');
   await clean(page);
   await shot(page, 'design-cards-light-1440');
   await win.getByTestId('create-site-ai').click();
@@ -124,7 +124,7 @@ test('«Собрать с ИИ по описанию» на первом экр�
 });
 
 test('«Выбор / Текст»: T включает правку текста, Enter применяет в черновике, Escape отменяет; сохранение без ИИ', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   await expect(frame(page).locator('#sec-hero')).toBeVisible();
   await page.keyboard.press('t');
@@ -156,7 +156,7 @@ test('«Выбор / Текст»: T включает правку текста,
 });
 
 test('закладки: звёздочка с подписью, закреплённый список сверху, снять закладку', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   await main(page).getByTestId('ed-history-open').click();
   const history = page.getByTestId('ed-history');
   const first = history.getByTestId('ed-history-row').nth(1);
@@ -172,7 +172,7 @@ test('закладки: звёздочка с подписью, закреплё
 });
 
 test('знания проекта: сохраняются отдельно от черновика и переживают обновление', async ({ page }) => {
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   await tab(page, 'Настройки').click();
   const box = main(page).getByTestId('ed-knowledge');
   await box.getByLabel('Что ИИ должен всегда учитывать на этом сайте').fill('Тон спокойный, без восклицаний');
@@ -217,7 +217,7 @@ test('«Платформа → Организации»: главный адми
   await list.getByTestId('platform-site-builder-form').nth(0).getByTestId('platform-site-builder-off').click();
   await expect(list.getByTestId('platform-site-builder-form').nth(0).getByTestId('platform-site-builder-result')).toContainText('Luxx Aparts» выключен');
   // филиал сразу видит сайт только для чтения
-  await page.goto('/marketing/site/editor');
+  await page.goto('/marketing/site/editor?full=1');
   await expect(main(page).getByTestId('ed-license')).toHaveText('Конструктор не подключён');
 });
 
@@ -236,14 +236,14 @@ for (const theme of ['light', 'dark'] as const)
         );
       await request.post(`${FIXTURE_API}/__test/reset`);
       await site(request, { noSite: true });
-      await page.goto('/marketing/site/editor');
+      await page.goto('/marketing/site/editor?full=1');
       await expect(main(page).getByTestId('create-site')).toBeVisible();
       expect(await wide()).toEqual([]);
       await clean(page);
       await shot(page, `first-screen-${theme}-${width}`);
 
       await request.post(`${FIXTURE_API}/__test/reset`);
-      await page.goto('/marketing/site/editor');
+      await page.goto('/marketing/site/editor?full=1');
       await expect(main(page).getByTestId('ed-project')).toContainText('Luxx Aparts');
       if (width === 390) await expect(tab(page, 'Редактор')).toHaveAttribute('aria-selected', 'true');
       else await expect(frame(page).locator('#sec-hero')).toBeVisible();
@@ -256,7 +256,7 @@ for (const theme of ['light', 'dark'] as const)
       await shot(page, `editor-chat-${theme}-${width}`);
 
       await request.post(`${FIXTURE_API}/__test/marketing-site`, { data: { license: 'OFF' } });
-      await page.goto('/marketing/site/editor');
+      await page.goto('/marketing/site/editor?full=1');
       await expect(main(page).getByTestId('ed-license-off')).toBeVisible();
       expect(await wide()).toEqual([]);
       await clean(page);

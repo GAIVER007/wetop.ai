@@ -44,20 +44,19 @@ export class RoleGuard implements CanActivate {
       throw new ForbiddenException(PLATFORM_ADMIN_ONLY);
     }
     if (access === 'service') throw new ForbiddenException(SERVICE_KEY_ONLY);
+    const restricted = isRestricted(user.role, user.scopes ?? []);
+    // маршрут с данными организации или бизнеса, а не филиала (гости, запись каталога): право общее со стойкой или
+    // с филиальной ролью, поэтому закрыт меткой. Проверяется раньше разбора Beauty: тот отдаёт решение роли в филиале
+    const organizationLevel = restricted
+      ? this.reflector.getAllAndOverride<string | undefined>(ORGANIZATION_LEVEL_ROUTE, targets)
+      : undefined;
+    if (organizationLevel) throw new ForbiddenException(organizationLevel);
     const beauty = this.reflector.getAllAndOverride<BeautyRequirement | undefined>(BEAUTY_ACCESS, targets);
     // Exact action is checked after the business pointer has been verified by AuthorInterceptor.
     if (beauty && !beauty.managerOnly && access !== 'owner') return true;
     // человеку с областью доступа организационные разделы закрыты, какая бы роль у него ни была в филиале (§31.1)
-    if (isRestricted(user.role, user.scopes ?? [])) {
-      if (ORGANIZATION_LEVEL_PERMISSIONS.includes(access))
-        throw new ForbiddenException(RESTRICTED_ORGANIZATION_MESSAGE);
-      // маршрут с данными организации, а не филиала (гости): право общее со стойкой, поэтому закрыт меткой
-      const organizationLevel = this.reflector.getAllAndOverride<string | undefined>(
-        ORGANIZATION_LEVEL_ROUTE,
-        targets,
-      );
-      if (organizationLevel) throw new ForbiddenException(organizationLevel);
-    }
+    if (restricted && ORGANIZATION_LEVEL_PERMISSIONS.includes(access))
+      throw new ForbiddenException(RESTRICTED_ORGANIZATION_MESSAGE);
     if (can(user.role, access)) return true;
     throw new ForbiddenException(accessDeniedMessage(access));
   }

@@ -58,3 +58,26 @@ it('offers a period and shows the local date alongside appointments', () => {
   expect(html).toContain('Показать период');
   expect(html).not.toContain('Поиск только по выбранному дню');
 });
+
+describe('C2 (паритет с zapis.kz): автор и источник в реестре', () => {
+  it('показывает колонки «Источник» и «Автор» со словами, а не кодами', () => {
+    const html = renderToStaticMarkup(
+      createElement(AppointmentsList, {
+        day: {
+          ...day,
+          appointments: [{
+            ...day.appointments[0],
+            source: 'WEBSITE' as const,
+            createdByName: 'Тест Админ',
+          }],
+        } as BeautyDay,
+        customers: [],
+        readOnly: true,
+      }),
+    );
+    expect(html).toContain('Источник');
+    expect(html).toContain('Сайт');
+    expect(html).toContain('Автор');
+    expect(html).toContain('Тест Админ');
+  });
+});

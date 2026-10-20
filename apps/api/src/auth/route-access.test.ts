@@ -302,7 +302,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /beauty/customers/:id': 'desk',
   'POST /beauty/customers': 'desk',
   'POST /beauty/customers/import/preview': 'desk',
-  'POST /beauty/customers/import': 'desk',
+  // импорт пишет клиентов: только владелец (решение владельца 19.10.2026), проверка файла остаётся стойке
+  'POST /beauty/customers/import': 'owner',
   'GET /beauty/customer-imports': 'owner',
   'GET /beauty/customer-imports/:id': 'owner',
   'GET /beauty/customer-imports/:id/rows': 'owner',

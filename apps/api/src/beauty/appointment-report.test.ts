@@ -18,10 +18,10 @@ describe('appointment report cash projection', () => {
         startsAt: new Date('2026-10-12T05:00:00Z'), endsAt: new Date('2026-10-12T06:00:00Z'),
         basePriceMinor: 100n, discountMinor: 0n, surchargeMinor: 0n, priceMinor: 100n,
         currency: 'KZT', discountPercent: null, employee: { name: 'Мастер' }, service: { name: 'Тестовая услуга' } }],
-      payments: [{ kind: 'INCOME', method: 'CASH', amount: 9007199254740993n },
-        { kind: 'INCOME', method: 'CARD_TERMINAL', amount: 60n },
-        { kind: 'INCOME', method: 'KASPI', amount: 40n },
-        { kind: 'EXPENSE', method: 'CASH', amount: 20n }] }]);
+      payments: [{ id: 'p1', occurredAt: new Date('2026-10-12T10:00:00Z'), kind: 'INCOME', method: 'CASH', amount: 9007199254740993n },
+        { id: 'p2', occurredAt: new Date('2026-10-12T10:01:00Z'), kind: 'INCOME', method: 'CARD_TERMINAL', amount: 60n },
+        { id: 'p3', occurredAt: new Date('2026-10-12T10:02:00Z'), kind: 'INCOME', method: 'KASPI', amount: 40n },
+        { id: 'p4', occurredAt: new Date('2026-10-12T10:03:00Z'), kind: 'EXPENSE', method: 'CASH', amount: 20n }] }]);
     const db = { employeeServicePrice: { findMany: vi.fn().mockResolvedValue([]) },
       beautyLocationHours: { findUnique: vi.fn().mockResolvedValue(null) }, employee: { findMany: vi.fn().mockResolvedValue([]) },
       appointment: { findMany }, beautyService: { findMany: vi.fn().mockResolvedValue([]) } };
@@ -33,7 +33,7 @@ describe('appointment report cash projection', () => {
         startsAt: { lt: new Date('2026-10-12T19:00:00Z') },
         endsAt: { gt: new Date('2026-10-11T19:00:00Z') },
       } } },
-      select: expect.objectContaining({ payments: { where: { status: 'COMPLETED' }, select: { kind: true, amount: true, method: true } } }),
+      select: expect.objectContaining({ payments: { where: { status: 'COMPLETED' }, orderBy: { occurredAt: 'asc' }, select: { id: true, kind: true, amount: true, method: true, occurredAt: true } } }),
     }));
   });
 });

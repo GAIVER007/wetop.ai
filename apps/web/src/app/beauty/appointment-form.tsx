@@ -6,6 +6,9 @@ import { formatMoney, inputToMinor, minorToInput } from '../../lib/money';
 import { createAppointment, moveAppointment } from './journal-actions';
 import { instantOf, localInput } from './time';
 
+// A5 (паритет с zapis.kz): кого выбирали в прошлый раз на этой вкладке; удобство, не данные
+let lastPickedCustomerId: string | null = null;
+
 export function AppointmentForm({
   day,
   customers,
@@ -30,6 +33,11 @@ export function AppointmentForm({
   onStateChange?: (state: { dirty: boolean; pending: boolean }) => void;
 }) {
   const source = editing ?? repeatFrom;
+  const durationText = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const rest = minutes % 60;
+    return hours === 0 ? `${rest} мин` : rest === 0 ? `${hours} ч` : `${hours} ч ${rest} мин`;
+  };
   const inFlight = useRef(false);
   const [state, action, pending] = useActionState(
     async (
@@ -166,12 +174,20 @@ export function AppointmentForm({
     return total < 0n ? null : total;
   };
   const totals = lines.map(lineTotal);
-  const validMoney = totals.every((value) => value !== null);
+  // An unselected service is reported by the native `required` check on submit; only lines with a
+  // chosen service can make the money or the duration invalid.
+  const validMoney = totals.every((value, index) => value !== null || !lines[index]!.serviceId);
   const validDuration = lines.every((line) => {
+    if (!line.serviceId) return true;
     const minutes = Number(line.duration || effectiveFor(line).duration);
     return Number.isInteger(minutes) && minutes > 0 && minutes <= 1440;
   });
   const total = totals.reduce<bigint>((sum, value) => sum + (value ?? 0n), 0n);
+  // A3 (паритет с zapis.kz): строки идут подряд, поэтому длительность визита это сумма строк
+  const totalMinutes = lines.reduce(
+    (sum, line) => sum + Number(line.duration || effectiveFor(line).duration || 0),
+    0,
+  );
   const search = customerSearch.trim().toLocaleLowerCase();
   const matchingCustomers = customers.filter(
     (customer) =>
@@ -239,12 +255,57 @@ export function AppointmentForm({
               autoComplete="off"
             />
           </Field>
+          {search && matchingCustomers.length > 0 && (
+            <div className="appointment-customer-suggest" role="listbox" aria-label="Найденные клиенты">
+              {matchingCustomers.slice(0, 5).map((c) => (
+                <Button
+                  key={c.id}
+                  type="button"
+                  size="sm"
+                  tone="ghost"
+                  onClick={() => {
+                    setCustomerId(c.id);
+                    lastPickedCustomerId = c.id;
+                    setCustomerSearch('');
+                  }}
+                >
+                  {`${[c.firstName, c.lastName].filter(Boolean).join(' ')}${c.phone ? `, ${c.phone}` : ''}`}
+                </Button>
+              ))}
+            </div>
+          )}
+          <div className="appointment-customer-quick">
+            {/* A5 (паритет с zapis.kz): «Гость» - визит без контактов, «Последний клиент» - выбранный в прошлый раз */}
+            <Button
+              type="button"
+              size="sm"
+              tone="secondary"
+              onClick={() => {
+                setCustomerId('');
+                setDraft({ ...draft, firstName: 'Гость', lastName: '', phone: '' });
+              }}
+            >
+              Гость
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              tone="secondary"
+              disabled={!lastPickedCustomerId || !customers.some((c) => c.id === lastPickedCustomerId)}
+              onClick={() => lastPickedCustomerId && setCustomerId(lastPickedCustomerId)}
+            >
+              Последний клиент
+            </Button>
+          </div>
           <Field label="Клиент">
             <Select
               name="customerId"
               aria-label="Клиент"
               value={customerId}
-              onChange={(e) => setCustomerId(e.target.value)}
+              onChange={(e) => {
+                setCustomerId(e.target.value);
+                if (e.target.value) lastPickedCustomerId = e.target.value;
+              }}
             >
               <option value="">Новый клиент</option>
               {repeatFrom && !matchingCustomers.some((c) => c.id === repeatFrom.customer.id) && (
@@ -479,6 +540,7 @@ export function AppointmentForm({
             {validMoney
               ? formatMoney(total.toString(), day.location.currency)
               : 'Проверьте суммы услуг'}
+            {validDuration && totalMinutes > 0 ? `, ${durationText(totalMinutes)}` : ''}
           </strong>
         </p>
         <div className="beauty-fields-pair">

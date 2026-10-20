@@ -150,6 +150,7 @@
     .beauty-customer-tools > .btn {
       flex: 1 1 100%;
       min-width: 0;
+      max-width: 100%;
       white-space: normal;
       overflow-wrap: anywhere;
     }
@@ -730,6 +731,23 @@
   .beauty-calendar-actions .date-bar .inp {
     width: 10rem;
     max-width: 100%;
+  }
+  .beauty-calendar-wide {
+    display: contents;
+  }
+  .beauty-calendar-narrow {
+    display: none;
+  }
+  @media (max-width: 600px) {
+    .beauty-calendar-wide {
+      display: none;
+    }
+    .beauty-calendar-narrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-bottom: var(--space-2);
+    }
   }
   .beauty-page .beauty-calendar-toolbar .beauty-filters {
     display: grid;
@@ -1408,4 +1426,12 @@
       grid-template-columns: minmax(0, 1fr);
     }
   }
+}
+
+/* A5 (паритет с zapis.kz): подсказки поиска клиента и быстрые кнопки «Гость» / «Последний клиент» */
+.appointment-customer-suggest,
+.appointment-customer-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }

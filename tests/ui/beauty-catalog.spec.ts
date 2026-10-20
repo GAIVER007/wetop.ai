@@ -12,7 +12,7 @@ const SNAPSHOTS = 'reports/beauty-b3-2026-10-03';
 test('M4-B1: CSV проверяется локально, колонки меняются, клиенты не создаются', async ({ page, request }) => {
   test.setTimeout(180_000);
   await openSalon(page, request);
-  // Локальный preview доступен администратору; durable import и его recovery проверяются отдельно у OWNER.
+  // Решение владельца 19.10.2026: администратор видит проверку файла без записи, сам импорт и отмена только у владельца.
   await request.post(`${FIXTURE_API}/__test/control`, { data: { role: 'STAFF' } });
   await page.goto('/customers');
   const main = page.getByRole('main');
@@ -32,6 +32,9 @@ test('M4-B1: CSV проверяется локально, колонки мен�
   await expect(panel.getByRole('heading', { name: 'Пропустим: 1', exact: true })).toBeVisible();
   await expect(panel.getByText('Проверка завершена. Данные ещё не импортированы.', { exact: true })).toBeVisible();
   await expect(panel.getByRole('link', { name: 'Скачать шаблон CSV' })).toHaveAttribute('download', 'wetop-customers-template.csv');
+  // записи у администратора нет: ни надёжного импорта, ни отмены
+  await expect(panel.getByRole('button', { name: /^Импортировать \d+ строк$/ })).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: 'Отменить импорт', exact: true })).toHaveCount(0);
   for (const width of [375, 768, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.evaluate((dark) => { document.documentElement.dataset.theme = dark ? 'dark' : 'light'; }, width === 375);
@@ -176,7 +179,7 @@ test('филиал включает услугу и ставит свою цен
   await panel.getByLabel(/Своя цена филиала/).fill('9500');
   await panel.getByLabel(/Своя длительность/).fill('90');
   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
+  await expect(panel.getByRole('status').filter({ hasText: 'Настройки филиала сохранены' })).toBeVisible();
   await page.goto('/beauty/services');
   const salonItem = main
     .locator('[data-service-list="salon"] .beauty-service-item')
@@ -392,7 +395,7 @@ test('стартовая услуга справа требует цену и п
   await expect(panel.getByRole('status')).toContainText('Услуга создана');
   await expect(panel.getByLabel('Филиал оказывает эту услугу')).toBeChecked();
   await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
+  await expect(panel.getByRole('status').filter({ hasText: 'Настройки филиала сохранены' })).toBeVisible();
   await page.goto('/beauty/services');
   await expect(
     main.locator('[data-service-list="salon"] .beauty-service-item').filter({ has: page.getByText('Стрижка мужская', { exact: true }) }),

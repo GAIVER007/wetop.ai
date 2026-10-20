@@ -150,6 +150,16 @@ export function CashBoard({
               <td>{wholeTenge(o.amountMinor, cash.currency)}</td>
               <td>
                 {o.employee ? `${o.employee}, ${o.period}` : (o.note ?? '')}
+                {o.appointmentId && o.appointmentStartsAt && (
+                  <>
+                    {' '}
+                    <a
+                      href={`/appointments?from=${localInput(o.appointmentStartsAt, timezone).slice(0, 10)}&to=${localInput(o.appointmentStartsAt, timezone).slice(0, 10)}&appointment=${o.appointmentId}`}
+                    >
+                      Запись
+                    </a>
+                  </>
+                )}
                 {o.status === 'VOIDED' && <small> (аннулирована)</small>}
               </td>
               <td>

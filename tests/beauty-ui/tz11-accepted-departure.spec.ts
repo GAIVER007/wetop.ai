@@ -9,7 +9,7 @@ for (const mode of ['same-date', 'different-date']) {
    await page.getByLabel('Период с',{exact:true}).fill(nextDate);
    await page.getByLabel('Период по',{exact:true}).fill(nextDate);
    await page.getByRole('button',{name:'Показать период',exact:true}).click();
-   await expect(page).toHaveURL(new RegExp(`from=${nextDate}`));
+   await expect(page).toHaveURL(new RegExp(`from=${nextDate}&to=${nextDate}`));
   } else {
    await page.evaluate(()=>history.pushState({...history.state},'',location.href+'&reviewstep=1'));
   }

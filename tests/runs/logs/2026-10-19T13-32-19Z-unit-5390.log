@@ -1,0 +1,46 @@
+# Модульные (unit) · 19.10.2026 18:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит b19e9e9 (claude/salon-zapis-p0), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-32-19Z-unit-5390.json' 'apps/web/src/app/beauty/multi-service-form.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/eaddd23c-190d-4f0e-994d-e1a1f6c746f9/scratchpad/wt-rel
+
+ ❯ |unit| apps/web/src/app/beauty/multi-service-form.test.ts (10 tests | 1 failed) 39ms
+   ❯ report A1 A2 A3 A5: appointment form contract (4)
+     ✓ offers a line list, duration and one client search rather than a single fixed service 16ms
+     × A3: итог показывает суммарную длительность визита по строкам 6ms
+     ✓ sends all ordered service lines with exact money, not only legacy serviceId 8ms
+     ✓ rejects an invalid service list locally without issuing a create request 0ms
+   ✓ sends edited service lines and notes without collapsing the visit to its first service 0ms
+   ✓ requires an explicit final price for a range or unpriced master service 0ms
+   ✓ offers percent or amount discounts inside each service adjustment disclosure 2ms
+   ✓ offers separate hours and five-minute steps while retaining a legacy non-step duration 2ms
+   ✓ distinguishes clients with equal names by phone in the selection list 2ms
+   ✓ repeats a visit as a new draft with the same client and services, never the source id or payment 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/beauty/multi-service-form.test.ts > report A1 A2 A3 A5: appointment form contract > A3: итог показывает суммарную длительность визита по строкам
+AssertionError: expected '<form class="beauty-form appointment-…' to contain '1 ч 15 мин'
+
+Expected: "1 ч 15 мин"
+Received: "<form class="beauty-form appointment-form" action="javascript:throw new Error(&#x27;React form unexpectedly submitted.&#x27;)"><input type="hidden" name="scopeKey" value=""/><input type="hidden" name="id" value="visit"/><input type="hidden" name="items" value="[{&quot;employeeId&quot;:&quot;master&quot;,&quot;serviceId&quot;:&quot;cut&quot;},{&quot;employeeId&quot;:&quot;master&quot;,&quot;serviceId&quot;:&quot;cut&quot;}]"/><fieldset><legend>Услуги</legend><fieldset class="appointment-service-line"><legend>Услуга 1</legend><label class="field">Услуга<select class="inp" aria-label="Услуга" required=""><option value="" disabled="">Выберите услугу</option><option value="cut" selected="">Test haircut, 30 мин</option></select></label><label class="field">Специалист<select class="inp" aria-label="Специалист" required=""><option value="" disabled="">Выберите специалиста</option><option value="master" selected="">Test Master</option></select></label><div class="beauty-fields-pair appointment-duration-price"><div><span class="field">Длительность</span><div class="appointment-duration-controls"><label class="field"><span class="sr-only">Часы</span><select class="inp" aria-label="Часы услуги 1" disabled=""><option value="0" selected="">0 ч</option><option value="1">1 ч</option><option value="2">2 ч</option><option value="3">3 ч</option><option value="4">4 ч</option><option value="5">5 ч</option><option value="6">6 ч</option><option value="7">7 ч</option><option value="8">8 ч</option><option value="9">9 ч</option><option value="10">10 ч</option><option value="11">11 ч</option><option value="12">12 ч</option><option value="13">13 ч</option><option value="14">14 ч</option><option value="15">15 ч</option><option value="16">16 ч</option><option value="17">17 ч</option><option value="18">18 ч</option><option value="19">19 ч</option><option value="20">20 ч</option><option value="21">21 ч</option><option value="22">22 ч</option><option value="23">23 ч</option><option value="24">24 ч</option></select></label><label class="field"><span class="sr-only">Минуты</span><select class="inp" aria-label="Минуты услуги 1" disabled=""><option value="0">00 мин</option><option value="5">05 мин</option><option value="10">10 мин</option><option value="15">15 мин</option><option value="20">20 мин</option><option value="25">25 мин</option><option value="30" selected="">30 мин</option><option value="35">35 мин</option><option value="40">40 мин</option><option value="45">45 мин</option><option value="50">50 мин</option><option value="55">55 мин</option></select></label></div></div><label class="field">Цена, USD<input class="inp" inputMode="decimal" required="" readOnly="" value="25"/></label></div><p>Стоимость: 25 USD</p><button class="btn btn--secondary" type="button">Удалить услугу 1</button></fieldset><fieldset class="appointment-service-line"><legend>Услуга 2</legend><label class="field">Услуга<select class="inp" aria-label="Услуга 2" required=""><option value="" disabled="">Выберите услугу</option><option value="cut" selected="">Test haircut, 30 мин</option></select></label><label class="field">Специалист<select class="inp" aria-label="Специалист услуги 2" required=""><option value="" disabled="">Выберите специалиста</option><option value="master" selected="">Test Master</option></select></label><div class="beauty-fields-pair appointment-duration-price"><div><span class="field">Длительность</span><div class="appointment-duration-controls"><label class="field"><span class="sr-only">Часы</span><select class="inp" aria-label="Часы услуги 2" disabled=""><option value="0" selected="">0 ч</option><option value="1">1 ч</option><option value="2">2 ч</option><option value="3">3 ч</option><option value="4">4 ч</option><option value="5">5 ч</option><option value="6">6 ч</option><option value="7">7 ч</option><option value="8">8 ч</option><option value="9">9 ч</option><option value="10">10 ч</option><option value="11">11 ч</option><option value="12">12 ч</option><option value="13">13 ч</option><option value="14">14 ч</option><option value="15">15 ч</option><option value="16">16 ч</option><option value="17">17 ч</option><option value="18">18 ч</option><option value="19">19 ч</option><option value="20">20 ч</option><option value="21">21 ч</option><option value="22">22 ч</option><option value="23">23 ч</option><option value="24">24 ч</option></select></label><label class="field"><span class="sr-only">Минуты</span><select class="inp" aria-label="Минуты услуги 2" disabled=""><option value="0">00 мин</option><option value="5">05 мин</option><option value="10">10 мин</option><option value="15">15 мин</option><option value="20">20 мин</option><option value="25">25 мин</option><option value="30">30 мин</option><option value="35">35 мин</option><option value="40">40 мин</option><option value="45" selected="">45 мин</option><option value="50">50 мин</option><option value="55">55 мин</option></select></label></div></div><label class="field">Цена, USD<input class="inp" inputMode="decimal" required="" readOnly="" value="25"/></label></div><p>Стоимость: 25 USD</p><button class="btn btn--secondary" type="button">Удалить услугу 2</button></fieldset><button class="btn btn--secondary" type="button">Добавить услугу</button><p aria-live="polite"><strong>Итого: 50 USD</strong></p><div class="beauty-fields-pair"><label class="field">Дата<input class="inp" type="date" required="" value="2026-10-18"/></label><label class="field">Время<input class="inp" type="time" required="" value="10:00"/></label></div><input type="hidden" name="startsAt" value="2026-10-18T10:00:00.000Z"/><p class="beauty-note">Время филиала: UTC. Доступность подтвердится при сохранении.</p><p class="beauty-note" aria-live="polite">Выбрано:<span class="beauty-selection-line">Дата: 2026-10-18</span><span class="beauty-selection-line">Время: 10:00 (UTC)</span></p></fieldset><fieldset><legend>Дополнительно</legend><label class="field">Заметка<input class="inp" maxLength="2000" name="notes" value=""/></label></fieldset><div class="appointment-form__footer"><button class="btn" type="submit">Сохранить изменения</button></div></form><script>addEventListener("submit",function(a){if(!a.defaultPrevented){var c=a.target,d=a.submitter,e=c.action,b=d;if(d){var f=d.getAttribute("formAction");null!=f&&(e=f,b=null)}"javascript:throw new Error('React form unexpectedly submitted.')"===e&&(a.preventDefault(),b?(a=document.createElement("input"),a.name=b.name,a.value=b.value,b.parentNode.insertBefore(a,b),b=new FormData(c),a.parentNode.removeChild(a)):b=new FormData(c),a=c.ownerDocument||c,(a.$$reactFormReplay=a.$$reactFormReplay||[]).push(c,d,b))}});</script>"
+
+ ❯ apps/web/src/app/beauty/multi-service-form.test.ts:91:18
+     89|       }),
+     90|     );
+     91|     expect(html).toContain('1 ч 15 мин');
+       |                  ^
+     92|   });
+     93|   it('sends all ordered service lines with exact money, not only legac…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  06:32:20
+   Duration  291ms (import 41%, transform 41%, tests 17%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-19T13-32-19Z-unit-5390.json
+
+# код выхода 1 · 1 с

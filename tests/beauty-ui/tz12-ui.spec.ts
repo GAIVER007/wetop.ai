@@ -65,9 +65,10 @@ test('calendar compact controls preserve filtering and hidden occupancy', async 
       return { tag: node.tagName, classes: String(node.className), x: rect.x, y: rect.y, width: rect.width, height: rect.height };
     }),
   );
-  // 422 → 470: «Компактный вид» добавил тулбару ряд 44px (салонный выпуск 18.10), при 2x шрифте
-  // на 320 кнопки не делят ряд, поэтому ряд не убрать; «Записей: N» переехал в ряд «День | Неделя».
-  expect((await timeline.boundingBox())!.y, JSON.stringify(layout)).toBeLessThanOrEqual(470);
+  // Controls end by 422 px; below them only the chosen specialist and their hours (a48f54bb6), then the grid.
+  const calendarTop = (await page.getByTestId('beauty-mobile-calendar').boundingBox())!.y;
+  expect(calendarTop, JSON.stringify(layout)).toBeLessThanOrEqual(422);
+  expect((await timeline.boundingBox())!.y - calendarTop, JSON.stringify(layout)).toBeLessThanOrEqual(64);
   await expect(page.getByLabel('Статус записи', { exact: true })).not.toBeVisible();
   await page.getByText(/^Фильтры/).click();
   await page.getByLabel('Статус записи', { exact: true }).selectOption('DONE');
@@ -103,7 +104,7 @@ test('shared form groups and save stay accessible in short viewport', async ({ p
   await page.goto(`/appointments?date=${date}`);
   await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Новая запись', exact: true });
-  for (const name of ['Клиент', 'Услуга и время', 'Дополнительно'])
+  for (const name of ['Клиент', 'Услуги', 'Дополнительно'])
     await expect(dialog.getByRole('group', { name, exact: true })).toBeVisible();
   await dialog.getByLabel('Заметка', { exact: true }).focus();
   await expect(dialog.getByLabel('Заметка', { exact: true })).toBeInViewport();

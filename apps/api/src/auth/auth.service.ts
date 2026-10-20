@@ -84,6 +84,8 @@ interface WhoAmI {
   user: SignedInUser;
   organization: SignedInOrganization | null;
   expiresAt: string;
+  /** Когда выдана сессия: не меняется при продлении, по нему стойка узнаёт ту же сессию (бар, восстановление продажи) */
+  sessionIssuedAt: string;
 }
 
 export interface LoginResult {
@@ -627,6 +629,7 @@ export class AuthService {
           }
         : null,
       expiresAt: expiresAt.toISOString(),
+      sessionIssuedAt: found.session.issuedAt.toISOString(),
     };
   }
 

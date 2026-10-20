@@ -60,10 +60,21 @@ async function readySalon(page: Page, request: APIRequestContext) {
   panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Дина');
   await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
-  await panel.getByRole('tab', {name:'Услуги',exact:true}).click();
-  await panel.getByRole('checkbox', { name: 'Маникюр' }).check();
-  await panel.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Услуги назначены');
+  // Создание ведёт на полную карточку /employees/<id>/profile; назначение услуг через UI проверяет
+  // real-portal набор (как в beauty-catalog.spec.ts), здесь услугу назначает фикстурный API.
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  const employeeId = page.url().split('/').at(-2)!;
+  const testClient = { 'x-wetop-test-client': '1' };
+  const servicesResponse = await request.get(`${FIXTURE_API}/beauty/services`, { headers: testClient });
+  expect(servicesResponse.ok()).toBe(true);
+  const manicure = ((await servicesResponse.json()).items as Array<{ id: string; name: string }>).find(
+    (item) => item.name === 'Маникюр',
+  )!;
+  const assigned = await request.put(`${FIXTURE_API}/beauty/employees/${employeeId}/services`, {
+    headers: testClient,
+    data: { serviceIds: [manicure.id] },
+  });
+  expect(assigned.ok()).toBe(true);
   await page.goto('/beauty/schedule');
   await main.getByRole('button', { name: 'Дина', exact: true }).click();
   panel = page.getByRole('dialog');

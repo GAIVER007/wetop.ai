@@ -1245,7 +1245,11 @@ export class RestaurantService {
       this.balances(db, s),
       db.restaurantCashOperation.findMany({
         where: { locationId: s.locationId, ...(period ? { occurredAt: period } : {}) },
-        include: { employee: { select: { name: true } } },
+        include: {
+          employee: { select: { name: true } },
+          // H1 (паритет с zapis.kz): операция оплаты или возврата записи ссылается на неё
+          appointment: { select: { startsAt: true } },
+        },
         orderBy: { occurredAt: 'desc' },
         ...(period ? {} : { take: 100 }),
       }),
@@ -1277,6 +1281,8 @@ export class RestaurantService {
         refund: o.kind === 'EXPENSE' && (o.orderId !== null || o.appointmentId !== null),
         status: o.status,
         occurredAt: o.occurredAt,
+        appointmentId: o.appointmentId,
+        appointmentStartsAt: o.appointment?.startsAt.toISOString() ?? null,
       })),
       payments: payments.map((p) => ({
         id: p.id,

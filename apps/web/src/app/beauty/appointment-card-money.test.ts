@@ -80,3 +80,26 @@ describe('AppointmentCard service lines', () => {
     expect(html).toContain('91,25'); expect(html).toContain('108,75');
   });
 });
+
+describe('A4 (паритет с zapis.kz): платежи записи списком', () => {
+  it('карточка показывает каждый платёж со способом и временем, возврат отдельной строкой', () => {
+    const html = renderToStaticMarkup(
+      createElement(AppointmentCard, {
+        row: {
+          ...row,
+          paidMinor: '500000',
+          refundedMinor: '100000',
+          payments: [
+            { id: 'op-1', kind: 'INCOME', method: 'CASH', amountMinor: '500000', at: '2026-10-18T12:40:00.000Z' },
+            { id: 'op-2', kind: 'EXPENSE', method: 'CASH', amountMinor: '100000', at: '2026-10-18T13:00:00.000Z' },
+          ],
+        },
+        day,
+        onClose: vi.fn(),
+      } as never),
+    );
+    expect(html).toContain('Платежи');
+    expect(html).toContain('Наличные');
+    expect(html).toContain('Возврат');
+  });
+});

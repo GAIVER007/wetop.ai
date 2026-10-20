@@ -151,29 +151,36 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill('Тестовый мастер Анна');
   await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
-  await panel.getByRole('tab', {name:'Услуги',exact:true}).click();
-  await panel.getByRole('checkbox', { name: 'Тестовая стрижка' }).check();
-  await panel.getByRole('button', { name: 'Сохранить услуги' }).click();
-  await expect(panel.getByRole('status')).toContainText('Услуги назначены');
-  await panel.getByRole('button', { name: 'Закрыть: Мастер', exact: true }).click();
-  await expect(panel).toBeHidden();
+  // Создание открывает полную карточку специалиста отдельной страницей, не диалог.
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  let profile = page.getByTestId('employee-manager');
+  await profile.getByRole('tab', {name:'Услуги',exact:true}).click();
+  await profile.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+  const assignForm = profile.getByTestId('portal-services-form');
+  await assignForm.getByRole('checkbox', { name: /^Тестовая стрижка(?:\s|$)/ }).check();
+  await assignForm.getByRole('button', { name: 'Сохранить услуги' }).click();
+  await expect(assignForm.getByRole('status')).toContainText('Сохранено на сервере');
+  await expect(profile.getByTestId('portal-assigned-services')).toContainText('Тестовая стрижка');
+  await page.goto('/employees');
   await expect(page).toHaveURL(/\/employees$/);
   await page.reload();
   await page
     .getByRole('listitem')
     .filter({ hasText: 'Тестовый мастер Анна' })
-    .getByRole('button', { name: 'Открыть' })
+    .getByRole('link', { name: 'Открыть' })
     .click();
-  panel = page.getByRole('dialog');
-  await panel.getByRole('tab', { name: 'График', exact: true }).click();
-  await panel
+  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
+  profile = page.getByTestId('employee-manager');
+  await profile.getByRole('tab', { name: 'График', exact: true }).click();
+  const weekForm = profile.getByTestId('portal-week-form');
+  await weekForm
     .getByRole('group', { name: 'Понедельник', exact: true })
-    .getByRole('button', { name: 'Сделать рабочим' })
+    .getByRole('button', { name: 'Понедельник: добавить интервал' })
     .click();
-  await panel.getByLabel('Понедельник: начало').fill('09:00');
-  await panel.getByLabel('Понедельник: конец').fill('18:00');
-  await panel.getByRole('button', { name: 'Сохранить график' }).click();
-  await expect(panel.getByRole('status')).toContainText('График сохранён');
+  await weekForm.getByLabel('Понедельник: начало').fill('09:00');
+  await weekForm.getByLabel('Понедельник: до, интервал 1').fill('18:00');
+  await weekForm.getByRole('button', { name: 'Сохранить график' }).click();
+  await expect(weekForm.getByRole('status')).toContainText('Сохранено на сервере');
   await page.goto(`/calendar?date=${day}`);
   await expect(await book(page)).toBeHidden();
   await page.reload();
@@ -256,8 +263,9 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   const exported = await page.request.get(`/finance/export-appointments?from=${day}&to=${day}`);
   expect(exported.headers()['content-type']).toContain('text/csv');
   const csv = await exported.text();
-  expect(csv).toContain('Статус;Валюта;Цена;Оплачено;Возвращено');
-  expect(csv).toContain('Завершена;KZT;12000,00;5000,00;2000,00');
+  // C2 (a98cf2fc5): после статуса идут источник записи и автор
+  expect(csv).toContain('Статус;Источник;Автор;Валюта;Цена;Оплачено;Возвращено');
+  expect(csv).toMatch(/Завершена;Стойка;[^;\r\n]*;KZT;12000,00;5000,00;2000,00/);
   expect(csv).not.toContain('Тестовая клиентка');
   await page.goto('/customers');
   await expect(page.getByRole('main')).toContainText('Тестовая клиентка');
@@ -491,9 +499,10 @@ test('TimeOff via manager API with compact employee drawer, server denial and ti
   await page
     .getByRole('listitem')
     .filter({ hasText: 'Тестовый мастер Анна' })
-    .getByRole('button', { name: 'Открыть' })
+    .getByRole('link', { name: 'Открыть' })
     .click();
-  const panel = page.getByRole('dialog');
+  await expect(page).toHaveURL(new RegExp(`/employees/${f.employee.id}/profile$`));
+  const panel = page.getByTestId('employee-manager');
   await panel.getByRole('tab', { name: 'График', exact: true }).click();
   await expect(panel.getByRole('heading', { name: 'Обычная неделя', exact: true })).toBeVisible();
   await expect(panel.getByRole('button', { name: 'Сохранить график', exact: true })).toBeVisible();

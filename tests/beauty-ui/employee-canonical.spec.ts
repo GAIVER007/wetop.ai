@@ -188,3 +188,81 @@ test('canonical profile keeps keyboard tabs and accessibility in both themes', a
     expect(results.violations).toEqual([]);
   }
 });
+
+/** Держит первый POST на страницу профиля, пока тест не отпустит его: так видно поведение формы посреди запроса */
+async function holdNextSave(page: Page) {
+  let release!: () => void;
+  let arrived!: () => void;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const reached = new Promise<void>((resolve) => {
+    arrived = resolve;
+  });
+  let intercepted = false;
+  await page.route('**/employees/*/profile', async (route) => {
+    if (route.request().method() !== 'POST' || intercepted) return route.continue();
+    intercepted = true;
+    const response = await route.fetch();
+    arrived();
+    await held;
+    await route.fulfill({ response });
+  });
+  return { reached, release };
+}
+
+test('a scope switch during a profile save does not apply the old response', async ({ page, request }) => {
+  const fixture = await seed(page, request);
+  await page.goto(`/employees/${fixture.employee.id}/profile`);
+  const profile = page.getByTestId('employee-manager');
+  const form = profile.getByTestId('portal-profile-form');
+  const save = await holdNextSave(page);
+  await form.getByLabel('Телефон для связи').fill('+0000000007');
+  await form.getByRole('button', { name: 'Сохранить профиль', exact: true }).click();
+  await save.reached;
+  // филиал сменили, пока сохранение было в пути: карточка старого филиала закрывается, его ответ никуда не пишется
+  await page.evaluate(() => window.dispatchEvent(new Event('wetop-scope-switch')));
+  save.release();
+  await expect(profile).toHaveCount(0);
+  await expect(page.getByText('Сохранено на сервере', { exact: true })).toHaveCount(0);
+});
+
+test('a profile save does not strand the week editor, and the week is locked while it saves', async ({
+  page,
+  request,
+}) => {
+  const fixture = await seed(page, request);
+  await page.goto(`/employees/${fixture.employee.id}/profile`);
+  const profile = page.getByTestId('employee-manager');
+  const form = profile.getByTestId('portal-profile-form');
+  await form.getByLabel('Телефон для связи').fill('+0000000008');
+  await form.getByRole('button', { name: 'Сохранить профиль', exact: true }).click();
+  await expect(form.getByRole('status')).toContainText('Сохранено на сервере');
+
+  // версия недели сдвинулась вместе с профилем: нетронутая неделя берёт новую, без ложного конфликта
+  await profile.getByRole('tab', { name: 'График', exact: true }).click();
+  const week = profile.getByTestId('portal-week-form');
+  const monday = week.getByRole('group', { name: 'Понедельник', exact: true });
+  await monday.getByRole('button', { name: 'Понедельник: добавить интервал', exact: true }).click();
+  await monday.getByLabel('Понедельник: начало', { exact: true }).fill('09:00');
+  const end = monday.getByLabel('Понедельник: до, интервал 1', { exact: true });
+  await end.fill('18:00');
+  const save = await holdNextSave(page);
+  await week.getByRole('button', { name: 'Сохранить график', exact: true }).click();
+  await save.reached;
+  // поздней правки посреди сохранения не бывает: поля недели закрыты до ответа сервера
+  await expect(end).toBeDisabled();
+  save.release();
+  await expect(week.getByRole('status')).toContainText('Сохранено на сервере');
+  await expect(week.getByRole('alert')).toHaveCount(0);
+  const saved = await (
+    await request.get(`${api}/beauty/schedule?employee=${fixture.employee.id}`, { headers: fixture.headers })
+  ).json();
+  expect(saved.week.find((day: { weekday: number }) => day.weekday === 1).intervals).toEqual([
+    { timeFrom: '09:00', timeTo: '18:00' },
+  ]);
+  // сохранённая неделя не числится несохранённой: уход на другую вкладку без вопроса
+  await profile.getByRole('tab', { name: 'Профиль', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Несохранённые изменения', exact: true })).toHaveCount(0);
+  await expect(form).toBeVisible();
+});

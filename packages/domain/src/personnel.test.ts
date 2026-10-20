@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'vitest';
-import { parsePersonnelKind, personnelLists } from './personnel';
+import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, parsePersonnelKind, personnelLists, personnelTabs } from './personnel';
 
-// Assignment is explicit metadata, never inferred from services or access roles.
+// Назначение явное: не выводится из услуг и ролей доступа
 describe('explicit personnel assignment', () => {
   it('accepts the three exact owner-approved assignments', () => {
     for (const kind of ['SPECIALIST', 'OTHER_EMPLOYEE', 'BOTH']) {
@@ -58,5 +58,29 @@ describe('explicit personnel assignment', () => {
   });
   it('returns empty lists for an authoritative empty response', () => {
     assert.deepEqual(personnelLists([]), { specialists: [], employees: [], unassigned: [] });
+  });
+});
+
+// Вкладки экрана «Специалисты»: подписи и пустая «Не назначено» не показывается
+describe('personnel tabs', () => {
+  it('counts tabs and hides empty unassigned tab', () => {
+    const tabs = personnelTabs([
+      { id: 'a', personnelKind: 'SPECIALIST' as const },
+      { id: 'b', personnelKind: 'BOTH' as const },
+      { id: 'c', personnelKind: 'OTHER_EMPLOYEE' as const },
+    ]);
+    assert.deepEqual(tabs.map((t) => [t.key, t.count]), [['specialists', 2], ['employees', 2]]);
+  });
+  it('puts unassigned tab first with its count while legacy rows exist', () => {
+    // после выпуска у всех старых записей назначения нет: первой открывается вкладка, где нужно действие
+    const tabs = personnelTabs([{ id: 'd', personnelKind: null }, { id: 'e', personnelKind: 'SPECIALIST' as const }]);
+    assert.deepEqual(tabs.map((t) => [t.key, t.label, t.count]), [
+      ['unassigned', 'Не назначено (1)', 1],
+      ['specialists', 'Специалисты', 1],
+      ['employees', 'Другие сотрудники', 0],
+    ]);
+  });
+  it('labels every kind in Russian', () => {
+    assert.deepEqual(PERSONNEL_KINDS.map((k) => PERSONNEL_KIND_LABELS[k]), ['Специалист', 'Другой сотрудник', 'Оба']);
   });
 });

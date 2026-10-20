@@ -3,10 +3,12 @@ import { createHash, randomUUID } from 'node:crypto';
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { parseCreatePersonnelKind, parsePersonnelKindCommand, writePersonnelKind } from '../beauty/personnel-kind';
 import {
   foodId,
   foodInt,
@@ -48,9 +50,12 @@ import {
   type OrderStatus,
   type FoodPaymentMethod,
   type Permission,
+  canManageStaff,
+  canWrite,
+  parsePersonnelKind,
 } from '@pms/domain';
 import type { DbTx, Prisma } from '@pms/database';
-import { currentUserId } from '../auth/request-context';
+import { actorMay, currentRole, currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { BRANCH_CASH_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } from './scope';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
@@ -891,12 +896,19 @@ export class RestaurantService {
       take: p.limit + 1,
     });
     const profiles = new Map((await readEmployeeCommon(this.prisma.db, s.businessId)).map(row => [row.id, row]));
-    return paged(
+    // назначение «специалист / другой сотрудник / оба» (решение владельца 20.10.2026): право считает сервер
+    const role = currentRole();
+    const org = role && canManageStaff(role) && actorMay('staff')
+      ? await this.prisma.db.organization.findUnique({ where: { id: s.organizationId }, select: { status: true, trialEndsAt: true } })
+      : null;
+    const canAssignPersonnelKind = Boolean(org && canWrite(org.status, org.trialEndsAt, new Date()));
+    const result = paged(
       rows.map((r) => {
         const todayHours = r.workingHours.filter(h => h.weekday === new Date(`${local.date}T12:00:00Z`).getUTCDay()).sort((a,b) => a.timeFrom.getTime()-b.timeFrom.getTime());
         const fit = resolveWorkingTime({ startsAt: new Date(), timezone: s.timezone, supported: true, employeeActive: r.status === 'ACTIVE', worksHere: r.locations.some(l => l.locationId === s.locationId), workingHours: r.workingHours.map(h => ({ weekday: h.weekday, timeFrom: clockText(h.timeFrom), timeTo: clockText(h.timeTo) })), timeOffs: r.timeOffs.map(t => ({ dateFrom: t.dateFrom.toISOString().slice(0,10), dateTo: t.dateTo.toISOString().slice(0,10) })) });
         return {
           ...profiles.get(r.id)!,
+          personnelKind: r.personnelKind === null ? null : parsePersonnelKind(r.personnelKind),
           shift: todayHours.map(h => `${clockText(h.timeFrom)}–${clockText(h.timeTo)}`).join(', ') || null,
           onShift: fit.ok,
           workingTimeStatus: fit.ok ? 'WORKING' : fit.reason,
@@ -907,6 +919,21 @@ export class RestaurantService {
       }),
       p.limit,
     );
+    return { ...result, canAssignPersonnelKind };
+  }
+
+  /** Назначение сотрудника ресторана: те же правила и версия профиля, что у салона (beauty/personnel-kind.ts) */
+  async assignPersonnelKind(idRaw: string, raw: unknown) {
+    const input = parsePersonnelKindCommand(raw);
+    return this.write('staff', async (tx, s) => {
+      const role = currentRole();
+      if (!role || !canManageStaff(role)) throw new ForbiddenException('Назначение меняет только руководитель');
+      const id = parsed(() => foodId(idRaw));
+      const { before, after } = await writePersonnelKind(tx, s, id, input);
+      await this.audit(tx, s, 'employee', id, 'food.employee.personnel_kind',
+        { personnelKind: after.personnelKind }, { personnelKind: before.personnelKind });
+      return { id, personnelKind: after.personnelKind, profileRevision: after.profileRevision };
+    });
   }
 
   // ─── График смен (Q-REST-11): недельный шаблон в `working_hours`, как у мастеров салона (§19.1) ───
@@ -973,10 +1000,12 @@ export class RestaurantService {
 
   async createEmployee(raw: unknown) {
     return this.write('staff', async (tx, s) => {
-      const b = parsed(() => foodObject(raw, ['name', 'phone', 'email']));
+      const b = parsed(() => foodObject(raw, ['name', 'phone', 'email', 'personnelKind']));
+      const personnelKind = parseCreatePersonnelKind(b);
       const row = await tx.employee.create({
         data: {
           businessId: s.businessId,
+          personnelKind,
           name: parsed(() => foodText(b.name, 200)),
           phone: b.phone == null ? null : parsed(() => foodText(b.phone, 32)),
           email: b.email == null ? null : parsed(() => foodText(b.email, 320)),

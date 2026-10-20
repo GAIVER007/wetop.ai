@@ -340,6 +340,8 @@ export interface FoodEmployee {
   salesTodayMinor: string;
   /** §39: рейтинг по оценкам гостей; average null, пока оценок нет */
   rating?: { average: number | null; count: number };
+  /** Назначение в «Персонале» (решение владельца 20.10.2026); null = не назначено */
+  personnelKind?: 'SPECIALIST' | 'OTHER_EMPLOYEE' | 'BOTH' | null;
 }
 /** График смен (Q-REST-11): неделя с понедельника, у выходного дня список пуст */
 export interface FoodShiftWeekDay {

@@ -1,6 +1,7 @@
 'use client';
 import { useId, type FormEvent, type RefObject } from 'react';
-import { Alert, Button, Field, Input } from '../ui';
+import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, type PersonnelKind } from '@pms/domain';
+import { Alert, Button, Field, Input, Select } from '../ui';
 
 export interface EmployeeProfileDraft {
   name: string;
@@ -21,6 +22,8 @@ export function EmployeeBasicForm({
   error,
   current,
   formRef,
+  personnelKind,
+  onPersonnelKindChange,
 }: {
   draft: EmployeeProfileDraft;
   onChange: (draft: EmployeeProfileDraft) => void;
@@ -32,6 +35,9 @@ export function EmployeeBasicForm({
   error: string | null;
   current: EmployeeProfileDraft | null;
   formRef: RefObject<HTMLFormElement | null>;
+  /** Назначение нового сотрудника: явный выбор руководителя в форме создания (решение 20.10.2026) */
+  personnelKind?: PersonnelKind;
+  onPersonnelKindChange?: (kind: PersonnelKind) => void;
 }) {
   const prefix = useId();
   const problem =
@@ -108,6 +114,26 @@ export function EmployeeBasicForm({
           />
           Специалист работает
         </label>
+      )}
+      {creating && personnelKind && onPersonnelKindChange && (
+        <Field
+          label="Кто это"
+          controlId={`${prefix}-personnelKind`}
+          hint="Специалист принимает клиентов, другой сотрудник помогает в работе салона."
+        >
+          <Select
+            name="personnelKind"
+            value={personnelKind}
+            disabled={pending || disabled}
+            onChange={(event) => onPersonnelKindChange(event.target.value as PersonnelKind)}
+          >
+            {PERSONNEL_KINDS.map((value) => (
+              <option key={value} value={value}>
+                {PERSONNEL_KIND_LABELS[value]}
+              </option>
+            ))}
+          </Select>
+        </Field>
       )}
       {creating && (
         <p className="employee-workspace-note">

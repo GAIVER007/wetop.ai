@@ -51,5 +51,8 @@ describe('StaffAccessPicker: блок «Доступ в WETOP»', () => {
   it('по умолчанию от назначения: специалист в кабинет, другой сотрудник без входа', () => {
     expect(staffAccessDraft('SPECIALIST')).toEqual({ level: 'PORTAL', allBranches: false });
     expect(staffAccessDraft('OTHER_EMPLOYEE')).toEqual({ level: 'NONE', allBranches: false });
+    // без почты войти нельзя: мастер создаётся сразу «Без входа», кабинет включается вместе с почтой
+    expect(staffAccessDraft('SPECIALIST', '')).toEqual({ level: 'NONE', allBranches: false });
+    expect(staffAccessDraft('SPECIALIST', 'a@b.kz')).toEqual({ level: 'PORTAL', allBranches: false });
   });
 });

@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/hermes/wt-personnel/apps/web/src/app/register/page.tsx"],"sourcesContent":["import { redirect } from 'next/navigation';\nimport { parseBusinessVertical } from '@pms/domain';\nimport { publicAuthUrl } from '../../lib/auth-entry';\n\nexport default async function RegisterPage({\n  searchParams = Promise.resolve({}),\n}: {\n  searchParams?: Promise<{ vertical?: string }>;\n} = {}) {\n  const params = await searchParams;\n  const url = new URL(publicAuthUrl('register'));\n  const vertical = parseBusinessVertical(params.vertical);\n  if (vertical) url.searchParams.set('vertical', vertical);\n  redirect(url.toString());\n}\n"],"names":["RegisterPage","searchParams","Promise","resolve","params","url","URL","vertical","set","toString"],"mappings":";;;;AAAA;AAAA;AACA;AAAA;AACA;;;;AAEe,eAAeA,aAAa,EACzCC,eAAeC,QAAQC,OAAO,CAAC,CAAC,EAAE,EAGnC,GAAG,CAAC,CAAC;IACJ,MAAMC,SAAS,MAAMH;IACrB,MAAMI,MAAM,IAAIC,IAAI,IAAA,8KAAa,EAAC;IAClC,MAAMC,WAAW,IAAA,8LAAqB,EAACH,OAAOG,QAAQ;IACtD,IAAIA,UAAUF,IAAIJ,YAAY,CAACO,GAAG,CAAC,YAAYD;IAC/C,IAAA,oNAAQ,EAACF,IAAII,QAAQ;AACvB"}}]
-}

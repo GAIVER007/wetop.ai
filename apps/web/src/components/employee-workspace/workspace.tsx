@@ -44,7 +44,7 @@ export function EmployeeProfile({
   // по умолчанию «Специалист»: руководитель видит выбор и может сменить его до создания
   const [personnelKind, setPersonnelKind] = useState<PersonnelKind>('SPECIALIST');
   // доступ по умолчанию от назначения: специалист в личный кабинет, другой сотрудник без входа
-  const [accessDraft, setAccessDraft] = useState<StaffAccessDraft>(() => staffAccessDraft('SPECIALIST'));
+  const [accessDraft, setAccessDraft] = useState<StaffAccessDraft>(() => staffAccessDraft('SPECIALIST', ''));
   const [accessTouched, setAccessTouched] = useState(false);
   const showAccess = !row && !!access && access.levels.length > 0;
   const [created, setCreated] = useState<BeautyEmployeeRow | null>(null);
@@ -212,7 +212,12 @@ export function EmployeeProfile({
     <>
       <EmployeeBasicForm
         draft={draft}
-        onChange={setDraft}
+        onChange={(next) => {
+          setDraft(next);
+          // почта появилась или исчезла: уровень по умолчанию следует за ней, пока владелец не выбрал сам
+          if (!row && !accessTouched && next.email.trim() !== draft.email.trim())
+            setAccessDraft(staffAccessDraft(personnelKind, next.email));
+        }}
         onSave={(event) => {
           event.preventDefault();
           void save();
@@ -233,7 +238,7 @@ export function EmployeeProfile({
               personnelKind,
               onPersonnelKindChange: (next: PersonnelKind) => {
                 setPersonnelKind(next);
-                if (!accessTouched) setAccessDraft(staffAccessDraft(next));
+                if (!accessTouched) setAccessDraft(staffAccessDraft(next, draft.email));
               },
             })}
         access={

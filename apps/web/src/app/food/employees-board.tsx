@@ -88,7 +88,7 @@ function EmployeeDrawer({
   // назначение нового сотрудника выбирает руководитель; по умолчанию «Другой сотрудник»: у ресторана это чаще
   const [personnelKind, setPersonnelKind] = useState<PersonnelKind>('OTHER_EMPLOYEE');
   // доступ по умолчанию от назначения (решение 20.10.2026): специалист в кабинет, другой сотрудник без входа
-  const [accessDraft, setAccessDraft] = useState<StaffAccessDraft>(() => staffAccessDraft('OTHER_EMPLOYEE'));
+  const [accessDraft, setAccessDraft] = useState<StaffAccessDraft>(() => staffAccessDraft('OTHER_EMPLOYEE', ''));
   const [accessTouched, setAccessTouched] = useState(false);
   const showAccess = !employee && !!access && access.levels.length > 0;
   const [expectedProfileRevision] = useState(employee?.profileRevision ?? '');
@@ -161,7 +161,14 @@ function EmployeeDrawer({
             <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
           </Field>
           <Field label="Почта">
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (!accessTouched) setAccessDraft(staffAccessDraft(personnelKind, e.target.value));
+              }}
+            />
           </Field>
         </div>
         {!employee && (
@@ -171,7 +178,7 @@ function EmployeeDrawer({
               onChange={(e) => {
                 const next = e.target.value as PersonnelKind;
                 setPersonnelKind(next);
-                if (!accessTouched) setAccessDraft(staffAccessDraft(next));
+                if (!accessTouched) setAccessDraft(staffAccessDraft(next, email));
               }}
             >
               {PERSONNEL_KINDS.map((value) => (

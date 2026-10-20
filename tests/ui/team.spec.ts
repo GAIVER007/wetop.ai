@@ -56,7 +56,7 @@ test('приглашение — панелью из шапки: почта, р�
   const drawer = page.getByRole('dialog');
   await expect(drawer.getByRole('heading', { name: 'Пригласить сотрудника' })).toBeVisible();
   await drawer.getByLabel('Почта приглашённого').fill('novyj-admin@example.com');
-  await drawer.getByLabel('Должность', { exact: true }).selectOption('MANAGER');
+  await drawer.getByTestId('staff-access').getByRole('radio', { name: /^Управляющий/ }).check();
   await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
   // панель закрылась, приглашение видно в списке ожидающих
   await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -211,13 +211,17 @@ test('«Сотрудники и доступ»: таблица без плито
   await expect(main.locator('.staff-board__stats')).toHaveCount(0);
   await expect(main.getByTestId('member-row')).toHaveCount(3);
   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
-  const position = page.getByRole('dialog').getByLabel('Должность', { exact: true });
-  await expect(position.locator('option')).toHaveText(['Управляющий', 'Администратор']);
-  // что увидит человек с выбранной должностью (уровни доступа, решение владельца 20.10.2026)
-  const sees = page.getByRole('dialog').getByTestId('invite-role-sees');
-  await expect(sees).toContainText('Шахматка');
-  await position.selectOption('MANAGER');
-  await expect(sees).toContainText('Сотрудники и доступ');
+  // единый блок доступа во всех направлениях (решение владельца 20.10.2026): окно по центру, уровни карточками
+  const dialog = page.getByRole('dialog');
+  const box = (await dialog.boundingBox())!;
+  const viewport = page.viewportSize()!;
+  expect(Math.abs(box.x + box.width / 2 - viewport.width / 2)).toBeLessThan(4);
+  const access = dialog.getByTestId('staff-access');
+  await expect(access.locator('[data-level]')).toHaveCount(2);
+  await expect(access.getByTestId('staff-access-details')).toContainText('Шахматка');
+  await access.getByRole('radio', { name: /^Управляющий/ }).check();
+  await expect(access.getByTestId('staff-access-details')).toContainText('Сотрудники и доступ');
+  await page.screenshot({ path: 'reports/personnel-kind-2026-10-20/team-invite-1440.png' });
   // свободного текста «Должность» в приглашении нет: только выбор
   await expect(page.getByRole('dialog').locator('input[name="memberPosition"]')).toHaveCount(0);
 });

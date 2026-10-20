@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/hermes/wt-personnel/apps/web/src/app/not-found.tsx"],"sourcesContent":["import Link from 'next/link';\nimport { Page } from '../components/page';\nexport default function NotFound() {\n  return (\n    <Page title=\"Страница не найдена\" width=\"narrow\">\n      <section className=\"empty-state\">\n        <p>Проверьте адрес или вернитесь к рабочему дню.</p>\n        {/* «/» ведёт на стартовую страницу направления (у гостиницы «Финансы», у салона и ресторана «Сегодня») */}\n        <Link href=\"/\" className=\"btn\">\n          На главную\n        </Link>\n      </section>\n    </Page>\n  );\n}\n"],"names":["NotFound","title","width","className","href"],"mappings":";;;;;AAAA;AACA;;;;AACe,SAASA;IACtB,qBACE,iQAAC,oKAAI;QAACC,OAAM;QAAsBC,OAAM;kBACtC,cAAA,iQAAC;YAAQC,WAAU;;8BACjB,iQAAC;8BAAE;;;;;;8BAEH,iQAAC,6MAAI;oBAACC,MAAK;oBAAID,WAAU;8BAAM;;;;;;;;;;;;;;;;;AAMvC"}}]
-}

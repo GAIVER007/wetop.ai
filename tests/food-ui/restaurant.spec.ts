@@ -466,10 +466,14 @@ test('сотрудники: «Принёс» за период, добавлен
   const access = dialog.getByTestId('staff-access');
   await expect(access.getByRole('radio', { name: /^Без входа/ })).toBeChecked();
   await dialog.getByLabel('Кто это').selectOption('SPECIALIST');
+  // без почты войти нельзя: «Без входа», с почтой у официанта по умолчанию «Личный кабинет»
+  await expect(access.getByRole('radio', { name: /^Без входа/ })).toBeChecked();
+  await dialog.getByLabel('Почта').fill('max@example.invalid');
   await expect(access.getByRole('radio', { name: /^Личный кабинет/ })).toBeChecked();
   await expect(access.getByTestId('staff-access-details')).toContainText('Свои заказы');
   await page.screenshot({ path: 'reports/personnel-kind-2026-10-20/staff-access-food-1440.png', fullPage: true });
   await dialog.getByLabel('Кто это').selectOption('OTHER_EMPLOYEE');
+  await dialog.getByLabel('Почта').fill('');
   await access.getByRole('radio', { name: /^Без входа/ }).check();
   await dialog.getByRole('button', { name: 'Сохранить' }).click();
   await expect(dialog).not.toBeVisible();

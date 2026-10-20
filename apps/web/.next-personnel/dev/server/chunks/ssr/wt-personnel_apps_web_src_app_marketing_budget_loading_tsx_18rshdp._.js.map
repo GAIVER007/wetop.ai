@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/hermes/wt-personnel/apps/web/src/app/marketing/budget/loading.tsx"],"sourcesContent":["import { LoadingState, Skeleton } from '../../../components/ui';\n\n/** Ожидание бюджета маркетинга: без своего `<Page>` (один `h1` на странице даёт сама страница), читалке говорит `LoadingState` */\nexport default function Loading() {\n  return (\n    <div className=\"page\" data-testid=\"marketing-budget-loading\">\n      <LoadingState label=\"Загружаем бюджет маркетинга…\">\n        <Skeleton variant=\"title\" />\n        <Skeleton variant=\"stat\" />\n        <Skeleton />\n        <Skeleton />\n        <Skeleton />\n      </LoadingState>\n    </div>\n  );\n}\n"],"names":["Loading","className","label","variant"],"mappings":";;;;;AAAA;;;AAGe,SAASA;IACtB,qBACE,iQAAC;QAAIC,WAAU;QAAO,eAAY;kBAChC,cAAA,iQAAC,0KAAY;YAACC,OAAM;;8BAClB,iQAAC,sKAAQ;oBAACC,SAAQ;;;;;;8BAClB,iQAAC,sKAAQ;oBAACA,SAAQ;;;;;;8BAClB,iQAAC,sKAAQ;;;;;8BACT,iQAAC,sKAAQ;;;;;8BACT,iQAAC,sKAAQ;;;;;;;;;;;;;;;;AAIjB"}}]
-}

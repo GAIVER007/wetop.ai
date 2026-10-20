@@ -57,6 +57,7 @@ export default async function TeamPage({
       role={team && role ? role : null}
       structure={structure}
       expectedOrganizationId={me.user?.organizationId ?? null}
+      vertical={'context' in me && typeof me.context?.vertical === 'string' ? me.context.vertical : 'HOSPITALITY'}
     >
       <Page
         title="Сотрудники"

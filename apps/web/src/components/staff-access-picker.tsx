@@ -16,8 +16,12 @@ export interface StaffAccessDraft {
   allBranches: boolean;
 }
 
-export const staffAccessDraft = (kind: string | null | undefined): StaffAccessDraft => ({
-  level: defaultAccessLevel(kind),
+/**
+ * Уровень по умолчанию: от назначения (специалист в кабинет), но вход без почты невозможен, поэтому пока почты нет,
+ * «Без входа»: добавить мастера можно сразу, а кабинет включится, как только владелец впишет почту.
+ */
+export const staffAccessDraft = (kind: string | null | undefined, email = 'x'): StaffAccessDraft => ({
+  level: email.trim() ? defaultAccessLevel(kind) : 'NONE',
   allBranches: false,
 });
 
@@ -30,6 +34,8 @@ export function StaffAccessPicker({
   canAllBranches,
   email,
   disabled = false,
+  showWhere = true,
+  name,
 }: {
   vertical: string;
   /** уровни, которые может выдать вошедший (`accessLevelsFor`) */
@@ -42,6 +48,10 @@ export function StaffAccessPicker({
   /** почта из формы: на неё уйдёт приглашение */
   email: string;
   disabled?: boolean;
+  /** «Где работает» своим блоком; гостиница выбирает места своим редактором области (несколько филиалов) */
+  showWhere?: boolean;
+  /** имя поля уровня в форме (иначе своё на каждый экземпляр) */
+  name?: string;
 }) {
   const id = useId();
   const info = accessLevelInfo(vertical);
@@ -59,7 +69,7 @@ export function StaffAccessPicker({
           >
             <input
               type="radio"
-              name={`${id}-level`}
+              name={name ?? `${id}-level`}
               value={level}
               checked={value.level === level}
               onChange={() => onChange({ ...value, level })}
@@ -91,7 +101,7 @@ export function StaffAccessPicker({
           )}
         </div>
       )}
-      {withLogin && (
+      {withLogin && showWhere && (
         <div className="staff-access__where" role="radiogroup" aria-label="Где работает">
           <label>
             <input

@@ -156,8 +156,8 @@ test('новый сотрудник: назначение выбирается �
   await expect(kind).toHaveValue('SPECIALIST');
   await kind.selectOption('BOTH');
   await dialog.getByLabel('Имя мастера').fill('Ержан Новый');
-  // без входа: приглашение не нужно (уровни доступа, 20.10.2026)
-  await dialog.getByTestId('staff-access').getByRole('radio', { name: /^Без входа/ }).check();
+  // без почты по умолчанию «Без входа»: приглашение не нужно (уровни доступа, 20.10.2026)
+  await expect(dialog.getByTestId('staff-access').getByRole('radio', { name: /^Без входа/ })).toBeChecked();
   await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
   // карточка мастера остаётся отдельной страницей (решение владельца 20.10.2026)
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/, { timeout: 90_000 });
@@ -177,8 +177,10 @@ test('новый специалист: «Доступ в WETOP», по умол�
   const dialog = page.getByRole('dialog');
   const access = dialog.getByTestId('staff-access');
   await expect(access.getByRole('group', { name: 'Доступ в WETOP' }).or(access)).toBeVisible();
-  // четыре уровня, у специалиста по умолчанию «Личный кабинет»
+  // четыре уровня; без почты войти нельзя, поэтому пока почты нет, «Без входа»; почта включает кабинет специалиста
   await expect(access.locator('[data-level]')).toHaveCount(4);
+  await expect(access.getByRole('radio', { name: /^Без входа/ })).toBeChecked();
+  await dialog.getByLabel('Почта').fill('karina@example.invalid');
   await expect(access.getByRole('radio', { name: /^Личный кабинет/ })).toBeChecked();
   await expect(access.getByTestId('staff-access-details')).toContainText('Свои записи');
   await expect(access.getByTestId('staff-access-details')).toContainText('Не увидит');
@@ -194,14 +196,16 @@ test('новый специалист: «Доступ в WETOP», по умол�
   await access.getByRole('radio', { name: /^Администратор/ }).check();
   await expect(access.getByTestId('staff-access-details')).toContainText('Клиенты');
   await access.getByRole('radio', { name: /^Личный кабинет/ }).check();
-  await expect(access.getByTestId('staff-access-invite')).toContainText('Укажите почту');
+  await expect(access.getByTestId('staff-access-invite')).toContainText('karina@example.invalid');
   await page.screenshot({ path: `${SNAPSHOTS}/staff-access-beauty-1440.png`, fullPage: true });
-  // без почты не создаёт: подсказка словами
+  // выбранный вручную кабинет без почты не создаёт: подсказка словами
   await dialog.getByLabel('Имя мастера').fill('Карина Доступ');
+  await dialog.getByLabel('Почта').fill('');
+  await expect(access.getByRole('radio', { name: /^Личный кабинет/ })).toBeChecked();
+  await expect(access.getByTestId('staff-access-invite')).toContainText('Укажите почту');
   await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
   await expect(dialog).toContainText('Для входа в WETOP укажите почту');
   await dialog.getByLabel('Почта').fill('karina@example.invalid');
-  await expect(access.getByTestId('staff-access-invite')).toContainText('karina@example.invalid');
   await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/, { timeout: 90_000 });
   // приглашение ушло с ролью «личный кабинет», сотрудником и только этим филиалом

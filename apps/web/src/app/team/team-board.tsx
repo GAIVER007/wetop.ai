@@ -9,7 +9,6 @@ import {
 } from 'react';
 import {
   MEMBERSHIP_ROLES,
-  accessLevelInfo,
   invitableRoles,
   type InviteRole,
   type MembershipRole,
@@ -24,6 +23,7 @@ import {
 } from '../../components/ui';
 import { Overlay } from '../../components/overlay';
 import { StaffBoard } from '../../components/staff-board';
+import { StaffAccessPicker } from '../../components/staff-access-picker';
 import { ActionMenu } from '../../components/action-menu';
 import { Icon } from '../../components/icon';
 import { useConfirm } from '../../components/use-confirm';
@@ -67,11 +67,14 @@ export function TeamProvider({
   structure = null,
   expectedOrganizationId,
   children,
+  vertical = 'HOSPITALITY',
 }: {
   role: MembershipRole | null;
   structure?: AuthAccessStructure | null;
   expectedOrganizationId: string | null;
   children: ReactNode;
+  /** направление филиала: слова «Увидит» в блоке доступа */
+  vertical?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [scopeSwitching, setScopeSwitching] = useState(false);
@@ -102,8 +105,8 @@ export function TeamProvider({
     >
       {children}
       {role && (
-        <Overlay drawer open={open} onClose={() => setOpen(false)} title="Пригласить сотрудника">
-          <InviteForm role={role} structure={structure} onDone={() => setOpen(false)} />
+        <Overlay open={open} onClose={() => setOpen(false)} title="Пригласить сотрудника" size="lg">
+          <InviteForm role={role} structure={structure} onDone={() => setOpen(false)} vertical={vertical} />
         </Overlay>
       )}
     </TeamContext.Provider>
@@ -129,10 +132,12 @@ function InviteForm({
   role,
   structure,
   onDone,
+  vertical = 'HOSPITALITY',
 }: {
   role: MembershipRole;
   structure: AuthAccessStructure | null;
   onDone: () => void;
+  vertical?: string;
 }) {
   const team = useContext(TeamContext);
   // «Личный кабинет» выдаётся из формы «Новый сотрудник» (вход привязывается к карточке сотрудника), здесь его нет
@@ -227,31 +232,23 @@ function InviteForm({
           onChange={(event) => setEmail(event.target.value)}
         />
       </Field>
-      {roles.length > 1 ? (
-        <Field label="Должность">
-          <Select
-            name="inviteRole"
-            // подпись вокруг списка добавила бы к имени выбранную должность: имя задаём явно (как в срезе 13)
-            aria-label="Должность"
-            value={inviteRole}
-            onChange={(event) => setInviteRole(event.target.value as InviteRole)}
-          >
-            {roles.map((r) => (
-              <option key={r} value={r}>
-                {capital(MEMBERSHIP_ROLES[r])}
-              </option>
-            ))}
-          </Select>
-        </Field>
-      ) : (
+      {/* единый блок доступа во всех направлениях (решение владельца 20.10.2026): уровни, «Увидит / Не увидит» */}
+      <StaffAccessPicker
+        vertical={vertical}
+        levels={roles.filter((r): r is 'MANAGER' | 'STAFF' => r === 'MANAGER' || r === 'STAFF')}
+        value={{ level: inviteRole === 'MANAGER' ? 'MANAGER' : 'STAFF', allBranches: !restricted }}
+        onChange={(next) => setInviteRole(next.level === 'MANAGER' ? 'MANAGER' : 'STAFF')}
+        branchName={null}
+        canAllBranches
+        email={email}
+        showWhere={false}
+        name="inviteRole"
+      />
+      {roles.length <= 1 && (
         <p className="muted" data-testid="invite-role-fixed">
-          Должность: администратор. Управляющий приглашает администраторов; управляющих приглашает
-          владелец.
+          Управляющий приглашает администраторов; управляющих приглашает владелец.
         </p>
       )}
-      <p className="muted" data-testid="invite-role-sees">
-        Увидит: {accessLevelInfo('HOSPITALITY')[inviteRole === 'MANAGER' ? 'MANAGER' : 'STAFF'].sees.join(', ')}.
-      </p>
       <Field label="Телефон (необязательно)">
         <Input
           type="tel"

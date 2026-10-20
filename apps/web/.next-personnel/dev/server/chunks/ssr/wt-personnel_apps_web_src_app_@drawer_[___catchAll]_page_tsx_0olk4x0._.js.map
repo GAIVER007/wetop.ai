@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/hermes/wt-personnel/apps/web/src/app/@drawer/[...catchAll]/page.tsx"],"sourcesContent":["export default function CatchAll() {\n  return null;\n}\n"],"names":["CatchAll"],"mappings":";;;;AAAe,SAASA;IACtB,OAAO;AACT"}}]
-}

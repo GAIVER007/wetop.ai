@@ -112,6 +112,7 @@ export const ACTION_RU: Record<string, string> = {
   'beauty.service.materials': 'Техкарта услуги изменена',
   'beauty.customer.marks': 'Отметки клиента изменены',
   'beauty.employee.created': 'Мастер добавлен',
+  'beauty.employee.personnel_kind': 'Назначение мастера изменено',
   'beauty.employee.locations.set': 'Филиалы мастера изменены',
   'beauty.employee.services.set': 'Услуги мастера изменены',
   'beauty.employee.time_off.added': 'Отсутствие мастера добавлено',

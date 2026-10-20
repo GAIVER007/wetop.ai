@@ -26,7 +26,7 @@ const COUNTS: Record<string, string> = {
 };
 export function BeautyChecklist({ initial }: { initial: SharedOnboardingState }) {
   const [state, setState] = useState(initial);
-  // страна организации из регистрации подставляет пояс и валюту, если пояс филиала ещё не из списка (Q-SCHED-3)
+  // Страна организации задаёт умолчания только для ещё не заполненного пояса (Q-SCHED-3).
   const [draft, setDraft] = useState(() => withCountry(initial.draft, initial.organizationCountry));
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState('');

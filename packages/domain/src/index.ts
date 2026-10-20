@@ -40,3 +40,4 @@ export * from './customers';
 export { readCustomerCsv, previewCustomerCsv, CUSTOMER_CSV_MAX_ROWS, CUSTOMER_CSV_MAX_BYTES } from './customer-import';
 export type { CustomerCsvFile, CustomerCsvMapping, CustomerCsvRow, CustomerCsvStatus } from './customer-import';
 export * from './customer-import-job';
+export * from './personnel';

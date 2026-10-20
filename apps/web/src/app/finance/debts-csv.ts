@@ -2,6 +2,7 @@ import type { PeriodDebts } from '../../lib/api';
 import { hospitalityStatus } from '../../lib/status/hospitality';
 import { statusLabel } from '../../lib/status/types';
 import { csvField, csvTenge } from './csv';
+import { currencySign } from '../../lib/money';
 
 type DebtRow = PeriodDebts['rows'][number];
 
@@ -20,17 +21,18 @@ const nights = (from: string, to: string) =>
  * тот же формат, что у выгрузки операций — «;», UTF-8 с BOM, CRLF, суммы вида «12500,50».
  * Имён гостей нет намеренно: файл уходит из системы, а бронь находится по номеру.
  */
-export function debtsCsv(rows: DebtRow[]): string {
+export function debtsCsv(rows: DebtRow[], currency = 'KZT'): string {
+  const sign = currencySign(currency);
   const head = [
     'Бронь',
     'Статус',
     'Заезд',
     'Выезд',
     'Ночей',
-    'Начислено, ₸',
-    'Оплачено, ₸',
-    'Возвращено, ₸',
-    'Остаток, ₸',
+    `Начислено, ${sign}`,
+    `Оплачено, ${sign}`,
+    `Возвращено, ${sign}`,
+    `Остаток, ${sign}`,
     'Просрочено',
   ];
   const lines = rows.map((x) =>

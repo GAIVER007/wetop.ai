@@ -6,6 +6,7 @@ import { IconField } from '../../components/icon-field';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Input, Select, StatusBadge, Textarea } from '../../components/ui';
 import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
+import { currencySign } from '../../lib/money';
 import type {
   DiningArea,
   DiningTable,
@@ -156,7 +157,7 @@ function PaymentPanel({
   const [refundReason, setRefundReason] = useState('');
   function refund() {
     const tenge = Number(refundAmount);
-    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма в тенге, целое число больше нуля');
+    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма: целое число больше нуля');
     if (!refundReason.trim()) return setError('Укажите причину возврата');
     start(async () =>
       done(
@@ -185,7 +186,7 @@ function PaymentPanel({
   };
   function pay() {
     const tenge = Number(amount);
-    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма в тенге, целое число больше нуля');
+    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма: целое число больше нуля');
     start(async () =>
       done(
         await mutateOrder(ctx.scopeKey, {
@@ -261,7 +262,7 @@ function PaymentPanel({
               ))}
             </Select>
           </Field>
-          <Field label="Сумма, ₸">
+          <Field label={`Сумма, ${currencySign(order.currency)}`}>
             <Input
               inputMode="numeric"
               value={amount}
@@ -288,7 +289,7 @@ function PaymentPanel({
                 ))}
               </Select>
             </Field>
-            <Field label="Сумма возврата, ₸">
+            <Field label={`Сумма возврата, ${currencySign(order.currency)}`}>
               <Input inputMode="numeric" value={refundAmount} onChange={(e) => setRefundAmount(e.target.value.replace(/\D/g, ''))} />
             </Field>
           </div>

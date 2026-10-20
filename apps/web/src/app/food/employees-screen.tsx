@@ -8,7 +8,7 @@ import type { FoodEmployee } from '../../lib/food-types';
 import { EmployeesBoard } from './employees-board';
 import { restaurantShell } from './restaurant-load';
 import { StaffTabs } from './staff-tabs';
-import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../components/staff-revenue';
+import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../lib/staff-revenue-load';
 import type { StaffRevenuePeriod } from '../../lib/staff-revenue';
 import './food.css';
 import './restaurant.css';

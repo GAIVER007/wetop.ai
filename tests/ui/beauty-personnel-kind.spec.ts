@@ -175,11 +175,11 @@ test('«Принёс» на карточке специалиста: день, �
   await periods.getByRole('link', { name: 'Неделя' }).click();
   await expect(page).toHaveURL(/\/employees\?period=week$/, { timeout: 90_000 });
   await expect(card.getByTestId('employee-earned')).toHaveText('Принёс за неделю: 40 000 ₸');
+  await page.screenshot({ path: `${SNAPSHOTS}/beauty-earned-1440.png`, fullPage: true });
   await tablist(page).getByRole('tab', { name: /^Специалисты/ }).click();
   await expect(
     panel(page).getByRole('listitem').filter({ hasText: 'Бота Специалист' }).getByTestId('employee-earned'),
   ).toHaveText('Принёс за неделю: —');
-  await page.screenshot({ path: `${SNAPSHOTS}/beauty-earned-1440.png`, fullPage: true });
 });
 
 for (const theme of ['light', 'dark'] as const) {

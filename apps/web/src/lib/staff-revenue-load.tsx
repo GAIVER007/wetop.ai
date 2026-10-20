@@ -1,13 +1,8 @@
-import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
-import { getJsonPublic } from '../lib/api';
-import { ApiError } from '../lib/api-error';
-import {
-  STAFF_REVENUE_PERIODS,
-  periodHref,
-  type StaffRevenue,
-  type StaffRevenuePeriod,
-} from '../lib/staff-revenue';
+import { ChipGroup, Chip } from '../components/chip';
+import { getJsonPublic } from './api';
+import { ApiError } from './api-error';
+import { STAFF_REVENUE_PERIODS, periodHref, type StaffRevenue, type StaffRevenuePeriod } from './staff-revenue';
 
 /**
  * Свод «сколько принёс» (docs/decisions/2026-10-20-personnel-revenue.md). Без права на отчёты (403) колонку не
@@ -27,21 +22,15 @@ export async function loadStaffRevenue(
   }
 }
 
-/** Переключатель периода ссылками: адрес хранит выбор, «Назад» в браузере работает */
+/** Период ссылками-чипами (DESIGN.md §8: отбор живёт в адресе), «Назад» в браузере работает */
 export function StaffRevenuePeriodNav({ path, period }: { path: string; period: StaffRevenuePeriod }) {
   return (
-    <nav className="seg seg--sm staff-revenue-period" aria-label="Период для «Принёс»">
+    <ChipGroup as="nav" label="Период для «Принёс»" className="staff-revenue-period">
       {STAFF_REVENUE_PERIODS.map((p) => (
-        <Link
-          key={p.value}
-          href={periodHref(path, p.value)}
-          className={p.value === period ? 'is-on' : undefined}
-          aria-current={p.value === period ? 'page' : undefined}
-          scroll={false}
-        >
+        <Chip key={p.value} size="sm" selected={p.value === period} href={periodHref(path, p.value)}>
           {p.label}
-        </Link>
+        </Chip>
       ))}
-    </nav>
+    </ChipGroup>
   );
 }

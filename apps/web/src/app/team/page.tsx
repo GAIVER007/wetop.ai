@@ -9,7 +9,7 @@ import { RefreshButton } from '../../components/refresh-button';
 import { validAccessStructure } from './scope-model';
 import { currentMe } from '../../lib/desk-shell';
 import { InviteButton, MembersTable, PendingInvites, TeamProvider, TeamStats } from './team-board';
-import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../components/staff-revenue';
+import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../lib/staff-revenue-load';
 import { revenuePeriodParam } from '../../lib/staff-revenue';
 import './team.css';
 

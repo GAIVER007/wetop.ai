@@ -8,7 +8,7 @@ import { beautyApi, type BeautyDay } from '../../../lib/api';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayBeautyAccess } from '../../../lib/navigation';
 import { MastersBoard } from './board';
-import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../../components/staff-revenue';
+import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../../lib/staff-revenue-load';
 import { revenuePeriodParam } from '../../../lib/staff-revenue';
 import '../beauty.css';
 

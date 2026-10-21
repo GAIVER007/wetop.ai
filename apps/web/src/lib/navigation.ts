@@ -456,6 +456,15 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
     label: 'Система',
     items: [
       {
+        // хаб «Настройки» (поручение владельца 21.10.2026): все настройки направления карточками, одна таблица
+        // `settings-hub.ts`; ссылки хаба наследуют право своих страниц, сам хаб видит любой работник стойки
+        href: '/settings',
+        requires: 'desk',
+        label: 'Все настройки',
+        icon: 'settings',
+        description: 'Все настройки бизнеса на одной странице: основные, журнал, клиенты и система.',
+      },
+      {
         href: '/hotel-settings',
         requires: 'settings',
         label: 'Настройки объекта',
@@ -673,10 +682,12 @@ const ROW: Array<{
       // право `desk`: администратор видит неисправности (ADR-107)
       { label: 'Неисправности', at: { HOSPITALITY: '/incidents' } },
       { label: 'История действий', at: ALL('/journal') },
+      // хаб со всеми настройками направления карточками (21.10.2026): последним рабочим пунктом, порядок прочих прежний
+      { label: 'Все настройки', at: ALL('/settings') },
       // «Организации» только главному администратору (отметка `platform`)
       { label: 'Организации', at: ALL('/platform') },
     ],
-    match: ['/branches', '/beauty-settings', '/hotel-settings', '/connections', '/channel-manager', '/platform'],
+    match: ['/settings', '/branches', '/beauty-settings', '/hotel-settings', '/connections', '/channel-manager', '/platform'],
   },
   {
     // «Продвижение» (ADR-184): бывшие «Маркетинг» и «Продажи»
@@ -812,6 +823,7 @@ interface BeautyRouteAccess {
 
 const BEAUTY_ROUTES: Array<{ href: string; access: BeautyRouteAccess }> = [
   { href: '/beauty-settings', access: { section: 'settings', legacy: 'desk' } },
+  { href: '/settings', access: { section: 'settings', legacy: 'desk' } },
   { href: '/beauty/schedule', access: { section: 'journal', legacy: 'desk' } },
   { href: '/beauty/masters', access: { section: 'employees', legacy: 'desk' } },
   { href: '/beauty/services', access: { section: 'services', legacy: 'desk' } },

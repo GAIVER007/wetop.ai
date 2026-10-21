@@ -48,7 +48,7 @@ describe('меню салона', () => {
       // «Сертификаты» салона (решение 21.10.2026 §3)
       ['Финансы', ['/finance', '/cashbox', '/finance/certificates']],
       // «Подключения» и «Неисправности» только у гостиницы (аудит 17.10.2026, Д1)
-      ['Настройки', ['/beauty-settings', '/journal']],
+      ['Настройки', ['/beauty-settings', '/journal', '/settings']],
       // без «Конкурентов»: мониторинг соседей пока только у гостиницы
       ['Продвижение', ['/marketing', '/marketing/ads', '/marketing/content', '/ai-agents', '/sales', '/marketing/budget', '/marketing/analytics']],
       ['Помощь', ['/help']],

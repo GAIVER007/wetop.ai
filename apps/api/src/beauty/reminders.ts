@@ -29,17 +29,23 @@ import {
   reminderDueTimes,
   reminderVariables,
   renderReminder,
+  reviewRequestDueAt,
+  reviewRequestText,
+  reviewUrl,
   timeOffWindow,
   whatsappLink,
   type ReminderVariables,
 } from '@pms/domain';
+import { createHmac } from 'node:crypto';
 import type { DbTx } from '@pms/database';
 import { Access } from '../auth/access.decorator';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { currentUserId, withServiceDatabase } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
+import { appUrlFromEnv } from '../auth/password-reset.service';
 import { bookingMailerFromEnv } from '../web-booking/booking-mailer';
 import { BeautyAccess } from './access.decorator';
+import { issueReviewInvitationTx, reviewInvitationTokenHash, type ReviewInvitationRefusal } from './reviews';
 import { beautyScope, beautyTransaction, mayBeauty, mayBeautyWrite, UUID } from './scope';
 
 /**
@@ -94,8 +100,8 @@ export async function syncAppointmentReminders(
   const appointment = await tx.appointment.findUnique({
     where: { id: appointmentId },
     select: {
-      id: true, status: true, startsAt: true, locationId: true, customerId: true,
-      location: { select: { business: { select: { organizationId: true, vertical: true } } } },
+      id: true, status: true, startsAt: true, endsAt: true, locationId: true, customerId: true,
+      location: { select: { timezone: true, business: { select: { organizationId: true, vertical: true } } } },
     },
   });
   if (!appointment || appointment.location.business.vertical !== 'BEAUTY') return;
@@ -112,7 +118,13 @@ export async function syncAppointmentReminders(
   if (stale.length)
     await tx.clientNotification.updateMany({ where: { id: { in: stale } }, data: { state: 'CANCELLED' } });
   if (!ACTIVE_STATUSES.has(appointment.status))
-    await tx.clientNotification.updateMany({ where: { appointmentId, state: 'PENDING' }, data: { state: 'CANCELLED' } });
+    await tx.clientNotification.updateMany({
+      where: { appointmentId, kind: { in: ['REMINDER', 'CONFIRMATION'] }, state: 'PENDING' },
+      data: { state: 'CANCELLED' },
+    });
+  // просьба отзыва ждёт, пока запись «Выполнено»; ушла из него до отправки: снимается
+  if (appointment.status !== 'DONE')
+    await tx.clientNotification.updateMany({ where: { appointmentId, kind: 'REVIEW_REQUEST', state: 'PENDING' }, data: { state: 'CANCELLED' } });
   const base = {
     organizationId: appointment.location.business.organizationId,
     locationId: appointment.locationId,
@@ -130,10 +142,45 @@ export async function syncAppointmentReminders(
       where: { appointmentId, kind: 'REMINDER', state: 'CANCELLED', dueAt: { in: wanted } },
       data: { state: 'PENDING', attempts: 0, nextAttemptAt: null, lastError: null, channel: null },
     });
+  if (appointment.status === 'DONE' && settings.enabled) await enqueueReviewRequest(tx, appointmentId, base, {
+    endsAt: appointment.endsAt,
+    timezone: appointment.location.timezone,
+    now,
+  });
   if (options.confirmation && ACTIVE_STATUSES.has(appointment.status) && settings.enabled)
     await tx.clientNotification.createMany({
       data: [{ ...base, kind: 'CONFIRMATION' as const, dueAt: now }],
       skipDuplicates: true,
+    });
+}
+
+/**
+ * Одна просьба отзыва на запись (решение 21.10.2026, «Просьба отзыва»). Время зависит от момента «Выполнено», поэтому
+ * натуральный ключ (запись, вид, время) дубль не ловит: проверяем любую строку этого вида у записи. Отменённая строка
+ * (запись уходила из «Выполнено») возвращается в очередь, новая не создаётся.
+ */
+async function enqueueReviewRequest(
+  tx: DbTx,
+  appointmentId: string,
+  base: { organizationId: string; locationId: string; appointmentId: string; customerId: string },
+  input: { endsAt: Date; timezone: string; now: Date },
+): Promise<void> {
+  const existing = await tx.clientNotification.findMany({
+    where: { appointmentId, kind: 'REVIEW_REQUEST' },
+    select: { id: true, state: true, lastError: true },
+  });
+  if (!existing.length) {
+    const dueAt = reviewRequestDueAt({ endsAt: input.endsAt, doneAt: input.now, timezone: input.timezone });
+    await tx.clientNotification.createMany({ data: [{ ...base, kind: 'REVIEW_REQUEST' as const, dueAt }], skipDuplicates: true });
+    return;
+  }
+  // уже отправлена, ушла в «Вручную» или ждёт: ничего не делаем; отменённая уходом из «Выполнено» возвращается
+  if (existing.some((row) => row.state !== 'CANCELLED')) return;
+  const revived = existing.find((row) => row.lastError === null);
+  if (revived)
+    await tx.clientNotification.update({
+      where: { id: revived.id },
+      data: { state: 'PENDING', attempts: 0, nextAttemptAt: null, lastError: null, channel: null },
     });
 }
 
@@ -226,6 +273,83 @@ export async function reminderMessage(db: Pick<DbTx, 'appointment' | 'beautyRemi
   };
 }
 
+// ───────────── просьба отзыва ─────────────
+
+const REVIEW_REFUSAL: Record<ReviewInvitationRefusal, string> = {
+  NOT_FOUND: 'Запись не найдена',
+  NOT_DONE: 'Запись не выполнена',
+  NO_MASTERS: 'В записи нет мастеров для оценки',
+  NO_COMPLETION: 'Нет времени выполнения записи',
+  EXPIRED: 'Срок отзыва истёк',
+  SUBMITTED: 'Клиент отзыв уже оставил',
+};
+
+/**
+ * Ключ ссылки на отзыв для строки очереди: HMAC от `SESSION_SECRET` и id строки. В базе лежит только хэш ключа, а
+ * список «Напомнить сегодня» перечитывается при каждом открытии журнала; так ссылка в нём одна и та же и приглашение
+ * не перевыпускается на каждый показ. Без секрета ключа нет (null).
+ */
+export function reviewRequestToken(notificationId: string, env: Record<string, string | undefined> = process.env): string | null {
+  const secret = env.SESSION_SECRET;
+  if (!secret || secret.length < 16) return null;
+  return createHmac('sha256', secret).update(`beauty-review-request:v1:${notificationId}`).digest('base64url');
+}
+
+type ReviewTarget = {
+  status: string;
+  locationId: string;
+  organizationId: string;
+  customerName: string;
+  phone: string | null;
+  email: string | null;
+};
+
+async function reviewTarget(db: Pick<DbTx, 'appointment'>, appointmentId: string): Promise<ReviewTarget | null> {
+  const a = await db.appointment.findUnique({
+    where: { id: appointmentId },
+    select: {
+      status: true, locationId: true,
+      customer: { select: { firstName: true, phone: true, email: true } },
+      location: { select: { business: { select: { organizationId: true } } } },
+    },
+  });
+  if (!a) return null;
+  return {
+    status: a.status,
+    locationId: a.locationId,
+    organizationId: a.location.business.organizationId,
+    customerName: a.customer.firstName ?? '',
+    phone: a.customer.phone,
+    email: a.customer.email,
+  };
+}
+
+function reviewText(target: ReviewTarget, token: string) {
+  const text = reviewRequestText(target.customerName, reviewUrl(appUrlFromEnv(), `/reviews/${token}`));
+  return { text, whatsappUrl: whatsappLink(target.phone, text) };
+}
+
+/**
+ * Текст просьбы отзыва для списка «Вручную»: только пока приглашение этой строки действует (не перевыпущено кнопкой в
+ * карточке, не использовано, не истекло). Ничего не пишет: список читается ролью приложения.
+ */
+export async function reviewRequestListMessage(
+  db: Pick<DbTx, 'appointment' | 'beautyReviewInvitation'>,
+  notificationId: string,
+  appointmentId: string,
+  now: Date = new Date(),
+): Promise<{ text: string; whatsappUrl: string | null } | null> {
+  const token = reviewRequestToken(notificationId);
+  if (!token) return null;
+  const [target, invitation] = await Promise.all([
+    reviewTarget(db, appointmentId),
+    db.beautyReviewInvitation.findUnique({ where: { appointmentId }, select: { tokenHash: true, expiresAt: true, submittedAt: true } }),
+  ]);
+  if (!target || target.status !== 'DONE' || !invitation) return null;
+  if (invitation.tokenHash !== reviewInvitationTokenHash(token) || invitation.submittedAt || invitation.expiresAt <= now) return null;
+  return reviewText(target, token);
+}
+
 @Injectable()
 export class ClientReminderWorker implements OnModuleInit, OnModuleDestroy {
   private timer: NodeJS.Timeout | null = null;
@@ -284,14 +408,73 @@ export class ClientReminderWorker implements OnModuleInit, OnModuleDestroy {
   }
 
   private async deliver(tx: DbTx, row: DueRow, now: Date): Promise<keyof ReminderRunResult> {
+    if (row.kind === 'REVIEW_REQUEST') return this.deliverReviewRequest(tx, row, now);
     const message = await reminderMessage(tx, row.appointmentId, row.kind);
     if (!message || !ACTIVE_STATUSES.has(message.status) || message.startsAt.getTime() <= now.getTime()) {
       await tx.clientNotification.update({ where: { id: row.id }, data: { state: 'CANCELLED' } });
       return 'cancelled';
     }
+    return this.send(tx, row, now, message);
+  }
+
+  /**
+   * Просьба отзыва: приглашение выпускается той же логикой, что и кнопка в карточке записи (reviews.ts), ссылка
+   * в тексте. Запись ушла из «Выполнено» или приглашение выпустить нельзя (отзыв уже есть, срок истёк): строка
+   * отменяется с причиной, воркер идёт дальше. WhatsApp-шаблон напоминания сюда не подходит: только почта или вручную.
+   */
+  private async deliverReviewRequest(tx: DbTx, row: DueRow, now: Date): Promise<keyof ReminderRunResult> {
+    const target = await reviewTarget(tx, row.appointmentId);
+    const cancel = async (reason: string | null) => {
+      await tx.clientNotification.update({ where: { id: row.id }, data: { state: 'CANCELLED', lastError: reason } });
+      return 'cancelled' as const;
+    };
+    if (!target || target.status !== 'DONE') return cancel(null);
+    const token = reviewRequestToken(row.id);
+    if (!token) return this.retry(tx, row, now, null, new Error('Ссылка на отзыв недоступна: не задан SESSION_SECRET'));
+    const issued = await issueReviewInvitationTx(tx, {
+      appointmentId: row.appointmentId,
+      locationId: target.locationId,
+      organizationId: target.organizationId,
+      now,
+      token,
+    });
+    if (!issued.ok) return cancel(REVIEW_REFUSAL[issued.reason]);
+    const { text } = reviewText(target, token);
+    return this.send(tx, row, now, { text, phone: target.phone, email: target.email, whatsappTemplateName: null, vars: null });
+  }
+
+  private async retry(tx: DbTx, row: DueRow, now: Date, channel: 'EMAIL' | 'WHATSAPP' | null, e: unknown): Promise<'failed' | 'retried'> {
+    const attempts = row.attempts + 1;
+    const failed = attempts >= REMINDER_MAX_ATTEMPTS;
+    await tx.clientNotification.update({
+      where: { id: row.id },
+      data: {
+        attempts,
+        channel,
+        state: failed ? 'FAILED' : 'PENDING',
+        nextAttemptAt: failed ? null : new Date(now.getTime() + reminderBackoffMs(attempts)),
+        // SECURITY.md §7: без контактов и ключей в журнале очереди
+        lastError: redactText(e instanceof Error ? e.message : String(e), 500),
+      },
+    });
+    return failed ? 'failed' : 'retried';
+  }
+
+  private async send(
+    tx: DbTx,
+    row: DueRow,
+    now: Date,
+    message: {
+      text: string;
+      phone: string | null;
+      email: string | null;
+      whatsappTemplateName: string | null;
+      vars: ReminderVariables | null;
+    },
+  ): Promise<keyof ReminderRunResult> {
     let channel: 'EMAIL' | 'WHATSAPP' | null = null;
     try {
-      if (message.whatsappTemplateName && message.phone && (await this.whatsapp.connected(row.locationId))) {
+      if (message.vars && message.whatsappTemplateName && message.phone && (await this.whatsapp.connected(row.locationId))) {
         channel = 'WHATSAPP';
         const v = message.vars;
         await this.whatsapp.send({
@@ -306,20 +489,7 @@ export class ClientReminderWorker implements OnModuleInit, OnModuleDestroy {
         await this.mailer.send({ to: message.email.toLowerCase(), subject: SUBJECT[row.kind], text: message.text });
       }
     } catch (e) {
-      const attempts = row.attempts + 1;
-      const failed = attempts >= REMINDER_MAX_ATTEMPTS;
-      await tx.clientNotification.update({
-        where: { id: row.id },
-        data: {
-          attempts,
-          channel,
-          state: failed ? 'FAILED' : 'PENDING',
-          nextAttemptAt: failed ? null : new Date(now.getTime() + reminderBackoffMs(attempts)),
-          // SECURITY.md §7: без контактов и ключей в журнале очереди
-          lastError: redactText(e instanceof Error ? e.message : String(e), 500),
-        },
-      });
-      return failed ? 'failed' : 'retried';
+      return this.retry(tx, row, now, channel, e);
     }
     if (!channel) {
       await tx.clientNotification.update({ where: { id: row.id }, data: { state: 'MANUAL', channel: 'MANUAL' } });
@@ -334,6 +504,13 @@ export class ClientReminderWorker implements OnModuleInit, OnModuleDestroy {
 }
 
 // ───────────── API ─────────────
+
+/** Что сделать со строкой списка: напоминание о записи и просьба отзыва различимы */
+const KIND_LABEL: Record<DueRow['kind'], string> = {
+  REMINDER: 'Напомнить о записи',
+  CONFIRMATION: 'Подтвердить запись',
+  REVIEW_REQUEST: 'Попросить отзыв',
+};
 
 const STATE_LABEL: Record<string, string> = {
   PENDING: 'Ждёт',
@@ -436,10 +613,17 @@ export class BeautyRemindersService {
     });
     const items = [];
     for (const row of rows) {
-      const message = row.state === 'MANUAL' ? await reminderMessage(this.prisma.db, row.appointmentId, row.kind) : null;
+      // «Ошибка» тоже в списке «Напомнить сегодня» (письмо не ушло): ей нужна та же ссылка WhatsApp
+      const manual = row.state === 'MANUAL' || row.state === 'FAILED';
+      const message = !manual
+        ? null
+        : row.kind === 'REVIEW_REQUEST'
+          ? await reviewRequestListMessage(this.prisma.db, row.id, row.appointmentId)
+          : await reminderMessage(this.prisma.db, row.appointmentId, row.kind);
       items.push({
         id: row.id,
         kind: row.kind,
+        kindLabel: KIND_LABEL[row.kind],
         state: row.state,
         stateLabel: STATE_LABEL[row.state] ?? row.state,
         channel: row.channel,

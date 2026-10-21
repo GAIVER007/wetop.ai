@@ -175,7 +175,7 @@ export function MastersBoard({
   }, [router, scopeKey]);
   const savedProfile = (row: BeautyEmployeeRow) => {
     setEditing(null);
-    setNotice('Специалист создан');
+    setNotice('Специалист создан, открываем карточку…');
     clearPendingCreation(scopeKey, 'employee', row.id);
     router.replace(employeeProfileHref(row.id), { scroll: false });
     // список берёт свежие строки с сервера: без этого новый специалист появлялся только после перезагрузки (п. 1)

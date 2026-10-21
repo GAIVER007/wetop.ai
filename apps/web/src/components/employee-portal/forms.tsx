@@ -5,6 +5,7 @@ import { loadPortalWeek, savePortal } from '../../app/my-work/actions';
 import { Alert, Button, Input } from '../ui';
 import { useConfirm } from '../use-confirm';
 import { employeeFormSignature } from '../employee-workspace/workspace';
+import { applyWeekPreset, WEEK_PRESETS } from './week-presets';
 export type PortalContext = {
   target: { employeeId: string | null }; scope: string; onSaved: (data: EmployeePortalDto) => void;
 };
@@ -135,6 +136,11 @@ export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[];
   const intervals = days.flatMap(day => day.intervals.map(slot => ({ weekday: day.weekday, ...slot })));
   return <><PortalForm key={originalRevision} context={context} command="week" revision={base} label="Сохранить график">
     <p className="portal-week-help">Рабочие часы по дням. Нет интервалов: выходной.</p>
+    {/* быстрый шаблон недели (онбординг 21.10.2026): заполняет все дни, дальше можно поправить день */}
+    <div className="portal-week-presets" role="group" aria-label="Быстро заполнить неделю">
+      <span>Заполнить:</span>
+      {WEEK_PRESETS.map((preset) => <Button key={preset.label} type="button" size="sm" tone="secondary" onClick={() => setDays(prev => applyWeekPreset(prev, preset))}>{preset.label}</Button>)}
+    </div>
     <input type="hidden" name="intervals" value={JSON.stringify(intervals)} />
     {days.map(day => <div className="portal-week-row" key={day.weekday} role="group" aria-label={DAYS[day.weekday]}>
       <strong><span className="portal-day-full">{DAYS[day.weekday]}</span><abbr className="portal-day-short" title={DAYS[day.weekday]}>{['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][day.weekday]}</abbr></strong>

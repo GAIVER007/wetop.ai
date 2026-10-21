@@ -9,7 +9,7 @@ export interface MasterSetupStep {
 
 export function masterSetupSteps(input: {
   services: ReadonlyArray<{ assigned: boolean }>;
-  week: ReadonlyArray<{ intervals: ReadonlyArray<unknown> }>;
+  week: ReadonlyArray<{ weekday?: number; intervals: ReadonlyArray<unknown> }>;
 }): MasterSetupStep[] {
   const steps: MasterSetupStep[] = [
     { id: 'services', label: 'Назначьте услуги', done: input.services.some((s) => s.assigned), tab: 'services' },

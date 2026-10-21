@@ -83,7 +83,7 @@ function WorkloadValue({ value }: { value: Workload }) {
   return (
     <>
       <span
-        className="owner-load"
+        className="owner-totals__load"
         title={[valid ? basis : '', counted].filter(Boolean).join(' ') || undefined}
       >
         <strong className="owner-value">{valid ? `${fmt(value.percent!)}%` : 'Нет данных'}</strong>

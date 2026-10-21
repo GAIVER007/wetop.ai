@@ -48,8 +48,18 @@ test('гостиница: «Настройки» карточками, ссыл�
   await expect(card('Основные').getByRole('link')).toHaveText(['Режим работы и правила', 'Филиалы и реквизиты', 'Сотрудники и доступ', 'Права ролей']);
   await expect(card('Система').getByRole('link', { name: 'Подключения', exact: true })).toHaveAttribute('href', '/connections');
   // на ноутбуке четыре карточки в один ряд
-  const tops = await hub.locator('.settings-hub__card').evaluateAll((cards) => cards.map((c) => Math.round(c.getBoundingClientRect().top)));
-  expect(new Set(tops).size).toBe(1);
+  const boxes = await hub.locator('.settings-hub__card').evaluateAll((cards) =>
+    cards.map((c) => { const r = c.getBoundingClientRect(); return [Math.round(r.top), Math.round(r.width), Math.round(r.height)]; }),
+  );
+  expect(new Set(boxes.map(([top]) => top)).size).toBe(1);
+  // карточки одного размера: ширина и высота у всех одинаковые, не «прыгают» (замечание владельца 21.10.2026)
+  expect(new Set(boxes.map(([, w]) => w)).size).toBe(1);
+  expect(new Set(boxes.map(([, , h]) => h)).size).toBe(1);
+  // на планшете два ряда по две, высота рядов тоже одна
+  await page.setViewportSize({ width: 1024, height: 900 });
+  const tablet = await hub.locator('.settings-hub__card').evaluateAll((cards) => cards.map((c) => Math.round(c.getBoundingClientRect().height)));
+  expect(new Set(tablet).size).toBe(1);
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await checkShots(page, 'hotel');
   await card('Основные').getByRole('link', { name: 'Режим работы и правила', exact: true }).click();
   await expect(page).toHaveURL(/\/hotel-settings$/);

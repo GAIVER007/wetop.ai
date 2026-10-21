@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('../actions', () => ({
   saveBeautyService: vi.fn(),
   saveLocationService: vi.fn(),
+  moveLocationServices: vi.fn(),
 }));
 vi.mock('../../../components/overlay', () => ({ Overlay: () => null }));
 import { ServicesBoard } from './board';

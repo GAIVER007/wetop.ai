@@ -62,8 +62,24 @@
 
   .beauty-service-items {
     display: grid;
+    gap: var(--space-1);
+    margin-top: var(--space-2);
+  }
+
+  .beauty-service-bulk {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
     gap: var(--space-2);
     margin-top: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+
+  .beauty-service-bulk .beauty-check {
+    min-height: 36px;
   }
 
   .beauty-service-item {
@@ -71,11 +87,27 @@
     grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--space-2);
     align-items: center;
-    min-height: 72px;
-    padding: var(--space-2);
+    min-height: 52px;
+    padding: var(--space-1) var(--space-2);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
     background: var(--surface-muted);
+  }
+
+  .beauty-service-item:has(.beauty-service-check) {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .beauty-service-item:has(.beauty-service-check:checked) {
+    border-color: var(--primary);
+    background: var(--surface);
+  }
+
+  .beauty-service-check {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    accent-color: var(--primary);
   }
 
   .beauty-service-item[draggable='true'] {
@@ -86,11 +118,18 @@
     cursor: grabbing;
   }
 
-  .beauty-service-item-body,
-  .beauty-service-item-actions {
+  .beauty-service-item-body {
     display: grid;
-    gap: var(--space-1);
+    gap: 0;
     min-width: 0;
+  }
+
+  .beauty-service-item-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--space-1);
   }
 
   .beauty-service-item-body > b,
@@ -99,19 +138,29 @@
     overflow-wrap: anywhere;
   }
 
-  .beauty-service-item-body > span,
+  .beauty-service-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-4);
+  }
+
+  .beauty-service-meta,
   .beauty-service-item-body > small {
     color: var(--muted);
+    font-size: var(--text-sm);
   }
 
-  .beauty-service-item-actions {
-    justify-items: stretch;
+  .beauty-service-item-body > .beauty-service-warn {
+    color: var(--warning);
+    font-weight: var(--weight-bold);
   }
 
-  .beauty-service-transfer-form .btn,
-  .beauty-service-item-actions > .btn {
-    width: 100%;
+  .beauty-service-item .btn {
     min-height: 44px;
+  }
+
+  .beauty-service-transfer-form {
+    display: flex;
   }
 
   .beauty-service-transfer-hint {
@@ -234,13 +283,23 @@
       padding: var(--space-2);
     }
 
-    .beauty-service-item {
-      grid-template-columns: minmax(0, 1fr);
+    .beauty-service-item,
+    .beauty-service-item:has(.beauty-service-check) {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .beauty-service-item > :last-child {
+      grid-column: 1 / -1;
+      justify-content: stretch;
     }
 
     .beauty-service-item-actions,
     .beauty-service-transfer-form {
       width: 100%;
+    }
+
+    .beauty-service-transfer-form .btn {
+      flex: 1;
     }
 
     .beauty-material-row {

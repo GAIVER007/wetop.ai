@@ -244,3 +244,19 @@
     display: inline;
   }
 }
+
+/* Переключатель «Каталог / В филиале (N)» на 320 px при крупном шрифте: кнопки делят строку и переносят подпись */
+@layer sections {
+  @media (max-width: 600px) {
+    .beauty-service-mobile-view {
+      flex-wrap: wrap;
+    }
+    .beauty-service-mobile-view > .btn {
+      flex: 1 1 auto;
+      min-width: 0;
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+  }
+}

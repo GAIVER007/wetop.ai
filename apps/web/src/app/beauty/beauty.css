@@ -1730,3 +1730,20 @@
     }
   }
 }
+
+/* Журнал на телефоне: «День / Неделя» рядом с «Фильтрами», «Новая запись» рядом с выбором специалиста.
+   Раньше вид занимал отдельную строку, а кнопка ещё одну, и сетка начиналась ниже 422 px (tz12 compact controls). */
+@layer sections {
+  @media (max-width: 600px) {
+    .beauty-calendar-toolbar .beauty-calendar-actions > .beauty-calendar-views {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    .beauty-calendar-toolbar .beauty-calendar-actions > .btn {
+      grid-area: 1 / 2;
+      min-width: 0;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+  }
+}

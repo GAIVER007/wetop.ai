@@ -3715,3 +3715,19 @@
     }
   }
 }
+
+/* Пустое состояние на телефоне при крупном шрифте: текст и кнопка переносятся, а не уводят страницу вбок
+   (beauty-ui release-customer-reflow 320 px, «Добавить первого клиента») */
+@layer components {
+  @media (max-width: 600px) {
+    .empty-state > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .empty-state__actions > .btn {
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+  }
+}

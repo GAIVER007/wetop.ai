@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icon } from '../../components/icon';
+import { Input } from '../../components/ui';
 
 /**
  * Компактный поиск гостей («Гости и бронирования»; ТЗ «Гости v2» §6): автопоиск с задержкой вместо кнопки «Найти».
@@ -39,8 +40,7 @@ export function GuestsSearch({
       ))}
       <label className="search-field">
         <Icon name="search" />
-        <input
-          className="inp"
+        <Input
           type="search"
           name="q"
           value={value}

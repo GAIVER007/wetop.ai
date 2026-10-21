@@ -4,6 +4,7 @@ import { SUPPORTED_COUNTRIES, countryOf, currencyOptions } from '@pms/domain';
 import { createBranch } from './actions';
 import type { BusinessCardView } from '../../lib/api';
 import type { WebVertical } from '../../lib/vertical-landing';
+import { Input, Select } from '../../components/ui';
 export function BranchForm({
   id,
   onPendingChange,
@@ -68,8 +69,7 @@ export function BranchForm({
       {mode === 'BRANCH' && (
         <label>
           Бизнес
-          <select
-            className="inp"
+          <Select
             name="businessId"
             value={businessId}
             disabled={pending}
@@ -81,7 +81,7 @@ export function BranchForm({
                 {b.name}
               </option>
             ))}
-          </select>
+          </Select>
           <small>Новый филиал будет добавлен именно в этот бизнес.</small>
         </label>
       )}
@@ -114,8 +114,7 @@ export function BranchForm({
           <input type="hidden" name="newBusinessId" value={newBusinessId} />
           <label>
             Название бизнеса
-            <input
-              className="inp"
+            <Input
               name="businessName"
               required
               maxLength={200}
@@ -127,8 +126,7 @@ export function BranchForm({
       )}
       <label>
         {mode === 'BUSINESS' ? 'Название первого объекта' : 'Название объекта'}
-        <input
-          className="inp"
+        <Input
           name="name"
           required={mode !== 'BUSINESS'}
           maxLength={200}
@@ -141,12 +139,11 @@ export function BranchForm({
       </label>
       <label>
         Адрес
-        <input className="inp" name="address" maxLength={500} disabled={pending} />
+        <Input name="address" maxLength={500} disabled={pending} />
       </label>
       <label>
         Страна
-        <select
-          className="inp"
+        <Select
           value={country}
           disabled={pending}
           onChange={(e) => {
@@ -159,13 +156,12 @@ export function BranchForm({
               {c.label}
             </option>
           ))}
-        </select>
+        </Select>
       </label>
       <input type="hidden" name="timezone" value={countryOf({ code: country })?.zone ?? ''} />
       <label>
         Валюта
-        <select
-          className="inp"
+        <Select
           name="currency"
           required
           value={currency}
@@ -177,7 +173,7 @@ export function BranchForm({
               {o.label}
             </option>
           ))}
-        </select>
+        </Select>
       </label>
       <p className="muted">Часовой пояс задаёт страна: от него зависят даты записей и отчётов.</p>
       <p className="muted">

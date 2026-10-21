@@ -2,7 +2,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
-import { Alert, Button, Field, Input, Notice, Select } from '../../components/ui';
+import { Alert, Button, Field, Input, Notice, Select, Textarea } from '../../components/ui';
 import type { InventoryCategory } from '../../lib/api';
 import { currencySign, formatMoney } from '../../lib/money';
 import { saveInventory } from './actions';
@@ -358,8 +358,7 @@ export function FundEditorDialog({
               </Field>
               {dorm ? (
                 <Field label="Обозначения коек — по одному на строку">
-                  <textarea
-                    className="inp"
+                  <Textarea
                     name="codes"
                     required
                     rows={5}

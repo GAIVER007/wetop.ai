@@ -17,6 +17,7 @@ import {
   type ShownStep,
 } from './tour-steps';
 import './product-tour.css';
+import { Select } from '../ui';
 
 /**
  * Элемент шага на экране: есть в разметке, у него есть размер и он видим (свёрнутое меню телефона и закрытая
@@ -212,8 +213,7 @@ export function ProductTour({
         </p>
         <label className="tour__topics">
           Тема обучения
-          <select
-            className="inp"
+          <Select
             aria-label="Тема обучения"
             value={index}
             onChange={(event) => setIndex(Number(event.target.value))}
@@ -223,7 +223,7 @@ export function ProductTour({
                 {i + 1}. {item.title}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
         <h2 id="tour-title" className="tour__title">
           {step.title}

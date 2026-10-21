@@ -4,6 +4,7 @@ import { useActionState } from 'react';
 import { AuthShell } from '../../../components/auth-shell';
 import { Icon } from '../../../components/icon';
 import { requestReset, type ResetRequestState } from '../actions';
+import { Input } from '../../../components/ui';
 
 export function ResetRequestForm() {
   const [state, submit, pending] = useActionState<ResetRequestState, FormData>(requestReset, {
@@ -44,8 +45,7 @@ export function ResetRequestForm() {
           <form action={submit}>
             <label className="field">
               Email
-              <input
-                className="inp"
+              <Input
                 type="email"
                 name="email"
                 autoComplete="username"

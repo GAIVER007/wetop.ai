@@ -3,7 +3,7 @@ import './organizations.css';
 import { randomUUID } from 'node:crypto';
 import { unstable_rethrow } from 'next/navigation';
 import { isIsoDate, todayAt } from '@pms/domain';
-import { Badge, Fact, Grid, Panel, Stat, Stats } from '../../components/ui';
+import { Badge, Fact, Grid, Panel, Stat, Stats, Input } from '../../components/ui';
 import { branchesApi, type BranchItem } from '../../lib/api';
 import { summarizeBranches } from '../../lib/branch-summary';
 import { formatMoney } from '../../lib/money';
@@ -76,11 +76,11 @@ export async function OwnOrganization({
           {selected && <input type="hidden" name="org" value={selected} />}
           <label>
             С даты
-            <input className="inp" type="date" name="from" defaultValue={from} required />
+            <Input type="date" name="from" defaultValue={from} required />
           </label>
           <label>
             По дату
-            <input className="inp" type="date" name="to" defaultValue={to} required min={from} />
+            <Input type="date" name="to" defaultValue={to} required min={from} />
           </label>
           <button className="btn" type="submit">
             Показать

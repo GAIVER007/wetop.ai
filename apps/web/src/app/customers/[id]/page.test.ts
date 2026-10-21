@@ -18,7 +18,10 @@ vi.mock('../../../lib/api', () => ({
       visits: [],
       historyTruncated: false,
     }),
-    customerBonuses: async () => ({ balanceMinor: 35000, currency: 'KZT', entries: [] }),
+    customerBonuses: async () => ({
+      customerId: 'c1', currency: 'KZT', balanceMinor: '35000', entries: [],
+      program: { enabled: true, accrualPercent: 5, maxRedeemPercent: 30, expiresDays: null },
+    }),
   },
 }));
 

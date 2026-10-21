@@ -250,7 +250,7 @@ export function parseAppointmentPayment(raw: unknown): Parsed<AppointmentPayment
     return { ok: false, reason: 'Неизвестный способ оплаты' };
   const amount = b['amount'];
   if (typeof amount !== 'number' || !Number.isSafeInteger(amount) || amount < 1)
-    return { ok: false, reason: 'Сумма — целое число minor units' };
+    return { ok: false, reason: 'Сумма: целое число в минорных единицах' };
   const key = b['idempotencyKey'];
   if (typeof key !== 'string' || !key.trim() || key.length > 100) return { ok: false, reason: 'Нужен ключ повтора' };
   let certificateCode: string | null = null;

@@ -72,6 +72,8 @@ import {
   BeautyReviewsService,
 } from './reviews';
 import { BeautyScheduleController, BeautyScheduleService } from './schedule';
+import { BeautyRemindersController, BeautyRemindersService, ClientReminderWorker } from './reminders';
+import { BeautyLoyaltyController, BeautyLoyaltyService } from './loyalty';
 import { findOrCreateCustomer } from '../customers/identity';
 import { CustomerImportsController, CustomerImportService } from './customer-import';
 import { CustomerImportWorker } from './customer-import.worker';
@@ -1238,6 +1240,8 @@ function parseExpectedPriceRevision(raw: unknown): number {
     BeautyLocationHoursController,
     BeautyPositionsController,
     BeautyAppointmentsController,
+    BeautyRemindersController,
+    BeautyLoyaltyController,
   ],
   providers: [
     BeautyCatalogService,
@@ -1251,6 +1255,9 @@ function parseExpectedPriceRevision(raw: unknown): number {
     BeautyLocationHoursService,
     BeautyPositionsService,
     BeautyAppointmentsService,
+    BeautyRemindersService,
+    ClientReminderWorker,
+    BeautyLoyaltyService,
     PrismaService,
   ],
 })

@@ -49,7 +49,10 @@ export function foodCashBalances(
   }>,
 ): Record<FoodPaymentMethod, bigint> {
   const out = Object.fromEntries(FOOD_PAYMENT_METHODS.map((m) => [m, 0n])) as Record<string, bigint>;
-  const add = (m: string, v: bigint) => (out[m] = (out[m] ?? 0n) + v);
+  // только живые деньги: бонусы и сертификат (оплата записи салона) в кассе не лежат
+  const add = (m: string, v: bigint) => {
+    if (m in out) out[m] = (out[m] ?? 0n) + v;
+  };
   for (const p of payments) if (p.status === 'COMPLETED') add(p.method, p.amount);
   for (const o of operations) {
     if (o.status !== 'COMPLETED') continue;

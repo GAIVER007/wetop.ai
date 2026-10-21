@@ -133,31 +133,36 @@ CREATE INDEX "gift_certificate_entries_certificate_idx" ON "gift_certificate_ent
 
 -- Принадлежность: бизнес салона своей организации, клиент своей организации, запись своего бизнеса.
 CREATE FUNCTION loyalty_owner_guard() RETURNS trigger LANGUAGE plpgsql AS $$
-DECLARE biz uuid; org uuid;
+DECLARE biz uuid; org uuid; appointment uuid; payment uuid;
 BEGIN
+  -- поля NEW читаются только своей таблицы: PL/pgSQL не сокращает AND, чужое поле дало бы ошибку
   IF TG_TABLE_NAME = 'gift_certificate_entries' THEN
     SELECT g.business_id, g.organization_id INTO biz, org FROM gift_certificates g WHERE g.id = NEW.certificate_id;
     IF org IS DISTINCT FROM NEW.organization_id THEN RAISE EXCEPTION 'Certificate entry belongs to another organization'; END IF;
+    appointment := NEW.appointment_id; payment := NEW.payment_id;
   ELSE
     biz := NEW.business_id; org := NEW.organization_id;
     IF NOT EXISTS (SELECT 1 FROM businesses b WHERE b.id = biz AND b.organization_id = org AND b.vertical = 'BEAUTY') THEN
       RAISE EXCEPTION 'Loyalty row requires a Beauty business of its organization';
     END IF;
+    IF TG_TABLE_NAME = 'customer_bonus_entries' THEN
+      IF NOT EXISTS (SELECT 1 FROM customers c WHERE c.id = NEW.customer_id AND c.organization_id = org) THEN
+        RAISE EXCEPTION 'Bonus customer belongs to another organization';
+      END IF;
+      appointment := NEW.appointment_id; payment := NEW.payment_id;
+    ELSIF TG_TABLE_NAME = 'gift_certificates' THEN
+      IF NEW.buyer_customer_id IS NOT NULL AND NOT EXISTS (
+        SELECT 1 FROM customers c WHERE c.id = NEW.buyer_customer_id AND c.organization_id = org) THEN
+        RAISE EXCEPTION 'Certificate buyer belongs to another organization';
+      END IF;
+    END IF;
   END IF;
-  IF TG_TABLE_NAME = 'customer_bonus_entries' AND NOT EXISTS (
-    SELECT 1 FROM customers c WHERE c.id = NEW.customer_id AND c.organization_id = org) THEN
-    RAISE EXCEPTION 'Bonus customer belongs to another organization';
-  END IF;
-  IF TG_TABLE_NAME = 'gift_certificates' AND NEW.buyer_customer_id IS NOT NULL AND NOT EXISTS (
-    SELECT 1 FROM customers c WHERE c.id = NEW.buyer_customer_id AND c.organization_id = org) THEN
-    RAISE EXCEPTION 'Certificate buyer belongs to another organization';
-  END IF;
-  IF TG_TABLE_NAME IN ('customer_bonus_entries', 'gift_certificate_entries') AND NEW.appointment_id IS NOT NULL AND NOT EXISTS (
-    SELECT 1 FROM appointments a JOIN locations l ON l.id = a.location_id WHERE a.id = NEW.appointment_id AND l.business_id = biz) THEN
+  IF appointment IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM appointments a JOIN locations l ON l.id = a.location_id WHERE a.id = appointment AND l.business_id = biz) THEN
     RAISE EXCEPTION 'Loyalty entry appointment belongs to another business';
   END IF;
-  IF TG_TABLE_NAME IN ('customer_bonus_entries', 'gift_certificate_entries') AND NEW.payment_id IS NOT NULL AND NOT EXISTS (
-    SELECT 1 FROM restaurant_cash_operations o JOIN locations l ON l.id = o.location_id WHERE o.id = NEW.payment_id AND l.business_id = biz) THEN
+  IF payment IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM restaurant_cash_operations o JOIN locations l ON l.id = o.location_id WHERE o.id = payment AND l.business_id = biz) THEN
     RAISE EXCEPTION 'Loyalty entry payment belongs to another business';
   END IF;
   RETURN NEW;

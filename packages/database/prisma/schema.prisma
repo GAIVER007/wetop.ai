@@ -589,6 +589,9 @@ model Property {
 
   sellerBookingIntents SellerBookingIntent[]
 
+  barOperationIntents BarOperationIntent[]
+  barPaymentReversals BarSupplierPaymentReversal[]
+  barCostLosses       BarCostLoss[]
   @@index([organizationId])
   @@map("properties")
 }
@@ -1598,6 +1601,7 @@ model BarSupplierPayment {
   cashOperation           CashOperation?           @relation(fields: [cashOperationId], references: [id], onDelete: Restrict)
   restaurantCashOperation RestaurantCashOperation? @relation(fields: [restaurantCashOperationId], references: [id], onDelete: Restrict)
 
+  reversal      BarSupplierPaymentReversal?
   @@unique([receiptId, idempotencyKey])
   @@index([receiptId, paidAt])
   @@map("bar_supplier_payments")
@@ -1630,6 +1634,7 @@ model BarSale {
   charge                  Charge?                  @relation(fields: [chargeId], references: [id], onDelete: Restrict)
   lines                   BarSaleLine[]
 
+  costLoss      BarCostLoss?
   @@unique([locationId, idempotencyKey])
   @@index([locationId, createdAt])
   @@map("bar_sales")

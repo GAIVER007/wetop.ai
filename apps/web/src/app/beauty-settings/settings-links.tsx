@@ -7,7 +7,7 @@ import Link from 'next/link';
 export function SettingsLinks() {
   return (
     <p className="settings-back" data-testid="settings-links">
-      <Link href="/settings" prefetch={false}>
+      <Link href="/settings">
         ← Все настройки
       </Link>
       <span>Салон, филиалы, специалисты, доступ и история действий</span>

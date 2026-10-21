@@ -127,15 +127,23 @@
     display: block;
     width: 100%;
     height: var(--space-2);
+    border: 0;
     border-radius: var(--radius-full);
     background: var(--border);
     overflow: hidden;
+    appearance: none;
   }
-  .setup-b__bar i {
-    display: block;
-    height: 100%;
+  .setup-b__bar::-webkit-progress-bar {
+    background: var(--border);
     border-radius: var(--radius-full);
+  }
+  .setup-b__bar::-webkit-progress-value {
     background: var(--primary);
+    border-radius: var(--radius-full);
+  }
+  .setup-b__bar::-moz-progress-bar {
+    background: var(--primary);
+    border-radius: var(--radius-full);
   }
   .setup-b__grid {
     display: grid;

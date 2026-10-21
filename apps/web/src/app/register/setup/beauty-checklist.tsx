@@ -316,13 +316,7 @@ export function BeautyChecklist({
           {!welcome && state.profileApplied && (
             <div className="setup-b__progress">
               <p role="status">Выполнено {done} из 4 обязательных шагов</p>
-              <span className="setup-b__bar" aria-hidden="true">
-                <i
-                  style={{
-                    width: `${done * 25}%`,
-                  }} /* slop-allow: inline-style ширина полосы из доли выполненных шагов */
-                />
-              </span>
+              <progress className="setup-b__bar" max={4} value={done} aria-hidden="true" />
               <Button tone="ghost" size="sm" disabled={pending} onClick={() => refresh()}>
                 Обновить проверку
               </Button>

@@ -84,17 +84,33 @@ describe('Пустые рабочие экраны салона', () => {
     );
     expect(locked).not.toContain('draggable="true"');
   });
-  it('показывает часы и сетку без мастеров и услуг, не разрешая запись', () => {
+  it('без мастеров и услуг: одно пустое состояние с двумя кнопками вместо пустой сетки (аудит 21.10.2026, п. 15, 16, 36)', () => {
     const html = renderToStaticMarkup(
       createElement(JournalBoard, { day, customers: [], employees: [], readOnly: false }),
     );
-    expect(html).toContain('data-testid="beauty-grid"');
-    expect(html).toContain('09:00');
-    expect(html).toContain('17:30');
-    expect(html).toContain('data-testid="beauty-empty-timeline"');
-    expect(html).toContain('href="/employees"');
+    expect(html).not.toContain('data-testid="beauty-grid"');
+    expect(html).not.toContain('data-testid="beauty-empty-timeline"');
+    expect(html).not.toContain('Расписание дня');
+    expect(html).toMatch(/<section[^>]*class="empty-state[^"]*"[^>]*role="status"/);
+    expect(html).toMatch(/<a[^>]*class="btn[^"]*"[^>]*href="\/services"[^>]*>Добавить услугу<\/a>/);
+    expect(html).toMatch(/<a[^>]*class="btn[^"]*"[^>]*href="\/employees\?new=1"[^>]*>Добавить специалиста<\/a>/);
     expect(html).not.toContain('beauty-slot-free');
     expect(html).toMatch(/disabled=""[^>]*>\+ Новая запись/);
+    // причина бледной кнопки видна сразу у кнопки (п. 13)
+    expect(html).toContain('title="Сначала добавьте услугу и специалиста с графиком"');
+  });
+  it('День и Неделя стоят в одной строке с датой (п. 34)', () => {
+    const html = renderToStaticMarkup(
+      createElement(JournalBoard, {
+        day,
+        customers: [],
+        employees: [],
+        readOnly: false,
+        views: createElement('nav', { 'aria-label': 'Вид журнала' }, 'День Неделя'),
+      }),
+    );
+    const actions = html.slice(html.indexOf('beauty-calendar-actions'), html.indexOf('+ Новая запись'));
+    expect(actions).toContain('aria-label="Вид журнала"');
   });
   it('сохраняет настоящую колонку мастера без услуг', () => {
     const column = {

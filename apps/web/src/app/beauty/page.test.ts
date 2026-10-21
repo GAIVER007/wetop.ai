@@ -17,6 +17,13 @@ vi.mock('../../lib/api', () => ({ beautyApi: {
   day, customers: async () => ({ items: [] }), employees: async () => ({ items: [] }),
 } }));
 vi.mock('./journal', () => ({ JournalBoard: () => createElement('div', null, 'Журнал дня') }));
+const prefetchFlags: unknown[] = [];
+vi.mock('next/link', () => ({
+  default: ({ prefetch, ...props }: { prefetch?: boolean; href: string; children?: unknown }) => {
+    prefetchFlags.push(prefetch);
+    return createElement('a', props as Record<string, unknown>);
+  },
+}));
 import BeautyPage from './page';
 
 beforeEach(() => {
@@ -36,6 +43,12 @@ describe('Недельный календарь салона', () => {
     ]);
     expect(html).toContain('data-testid="beauty-week"');
     expect(html).toContain('/calendar?date=2026-10-12');
+  });
+  it('День и Неделя без предзагрузки: на живом сайте она висела и страница не затихала (аудит 21.10.2026, п. 3)', async () => {
+    const html = renderToStaticMarkup(await BeautyPage({ searchParams: Promise.resolve({ date: '2026-10-14', view: 'week' }) }));
+    const views = html.slice(html.indexOf('aria-label="Вид журнала"'));
+    expect(views).toContain('>День<');
+    expect(prefetchFlags.filter((flag) => flag === false).length).toBeGreaterThanOrEqual(2);
   });
   it('обычный день не загружает всю неделю', async () => {
     const html = renderToStaticMarkup(await BeautyPage({ searchParams: Promise.resolve({ date: '2026-10-14' }) }));

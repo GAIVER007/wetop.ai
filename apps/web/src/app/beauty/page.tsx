@@ -85,28 +85,35 @@ export default async function BeautyPage({
       </Page>
     );
 
+  // «День / Неделя»: в дне стоят в строке инструментов рядом с датой (аудит 21.10.2026, п. 34). Без предзагрузки:
+  // предзагрузка этих двух адресов на живом сайте висела открытым запросом, и страница не затихала (п. 3)
+  const views = (
+    <nav className="beauty-calendar-views" aria-label="Вид журнала">
+      <Link
+        className="btn btn--secondary"
+        prefetch={false}
+        aria-current={view !== 'week' ? 'page' : undefined}
+        href={`/calendar?date=${loaded.value.date}&${filters}`}
+      >
+        День
+      </Link>
+      <Link
+        className="btn btn--secondary"
+        prefetch={false}
+        aria-current={view === 'week' ? 'page' : undefined}
+        href={`/calendar?date=${loaded.value.date}&view=week&${filters}`}
+      >
+        Неделя
+      </Link>
+    </nav>
+  );
   return (
     <Page
       className="beauty-page"
       title="Журнал"
       subtitle={`Расписание специалистов и услуг салона${loaded.value.location.name ? `, ${loaded.value.location.name}` : ''}`}
     >
-      <nav className="beauty-calendar-views" aria-label="Вид журнала">
-        <Link
-          className="btn btn--secondary"
-          aria-current={view !== 'week' ? 'page' : undefined}
-          href={`/calendar?date=${loaded.value.date}&${filters}`}
-        >
-          День
-        </Link>
-        <Link
-          className="btn btn--secondary"
-          aria-current={view === 'week' ? 'page' : undefined}
-          href={`/calendar?date=${loaded.value.date}&view=week&${filters}`}
-        >
-          Неделя
-        </Link>
-      </nav>
+      {loaded.week && views}
       {loaded.week ? (
         <WeekCalendar
           days={loaded.week}
@@ -131,6 +138,7 @@ export default async function BeautyPage({
             : {})}
           appointmentId={appointment}
           scopeKey={scopeKey}
+          views={views}
         />
       )}
     </Page>

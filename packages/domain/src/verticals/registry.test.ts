@@ -16,6 +16,9 @@ describe('canonical business verticals', () => {
     expect(verticalDefinition('BEAUTY').availability).toBe('PILOT');
     expect(verticalDefinition('FOOD_SERVICE').availability).toBe('PILOT');
   });
+  it('gives the shared branch stock to every vertical', () => {
+    for (const id of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const) expect(hasVerticalCapability(id, 'branch.stock')).toBe(true);
+  });
   it('never grants hospitality capabilities to another vertical', () => {
     expect(hasVerticalCapability('HOSPITALITY', 'hospitality.reservations')).toBe(true);
     expect(hasVerticalCapability('BEAUTY', 'hospitality.reservations')).toBe(false);

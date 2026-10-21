@@ -18,7 +18,7 @@ export interface FoodScope {
   timezone: string;
   currency: string;
   /** направление филиала: касса (§48) и зарплата (§19.2) общие у ресторана и салона */
-  vertical: 'FOOD_SERVICE' | 'BEAUTY';
+  vertical: 'FOOD_SERVICE' | 'BEAUTY' | 'HOSPITALITY';
 }
 export function foodMay(permission: Permission) {
   if (!hasSignedInActor() || !actorMay(permission))
@@ -26,7 +26,9 @@ export function foodMay(permission: Permission) {
 }
 /** Касса филиала (§35.2) общая у ресторана и салона (§48); остальное ресторанное только у ресторана */
 export const BRANCH_CASH_VERTICALS = ['FOOD_SERVICE', 'BEAUTY'] as const;
-type FoodVertical = (typeof BRANCH_CASH_VERTICALS)[number];
+/** Склад кухни и расходников (`branch.stock`) открыт всем трём направлениям (ADR-STOCK-ALL, 21.10.2026) */
+export const BRANCH_STOCK_VERTICALS = ['FOOD_SERVICE', 'BEAUTY', 'HOSPITALITY'] as const;
+type FoodVertical = (typeof BRANCH_STOCK_VERTICALS)[number];
 export async function foodScope(
   db: Pick<DbTx, 'business' | 'location'>,
   verticals: readonly FoodVertical[] = ['FOOD_SERVICE'],

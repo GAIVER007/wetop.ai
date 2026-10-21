@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ingredientCost } from './restaurant';
 import {
   allocateStock,
+  dishPortions,
   inventoryDelta,
   milliOf,
   milliText,
@@ -133,3 +134,47 @@ describe('излишек при инвентаризации (Q-KITCHEN-9, ADR-1
   });
 });
 
+
+describe('порций блюда из остатков склада (ADR-STOCK-ALL)', () => {
+  const onHand = new Map<string, bigint>([
+    ['flour', 12_000_000n],
+    ['cream', 1_500_000n],
+    ['parmesan', 180_000n],
+  ]);
+  it('берёт наименьшее число целых порций и называет продукт, который ограничивает', () => {
+    const r = dishPortions(
+      [
+        { productId: 'flour', name: 'Мука', normQty: '120' },
+        { productId: 'cream', name: 'Сливки', normQty: '50' },
+        { productId: 'parmesan', name: 'Пармезан', normQty: '20' },
+      ],
+      onHand,
+    );
+    expect(r).toEqual({ portions: 9, limiting: 'Пармезан' });
+  });
+  it('нехватка до целой порции даёт ноль, а не дробь', () => {
+    expect(dishPortions([{ productId: 'parmesan', name: 'Пармезан', normQty: '200' }], onHand)).toEqual({
+      portions: 0,
+      limiting: 'Пармезан',
+    });
+  });
+  it('строки без связи со складом ничего не ограничивают; без единой связи порции неизвестны', () => {
+    expect(
+      dishPortions(
+        [
+          { productId: null, name: 'Соль', normQty: '2' },
+          { productId: 'cream', name: 'Сливки', normQty: '50' },
+        ],
+        onHand,
+      ),
+    ).toEqual({ portions: 30, limiting: 'Сливки' });
+    expect(dishPortions([{ productId: null, name: 'Соль', normQty: '2' }], onHand)).toEqual({ portions: null, limiting: null });
+    expect(dishPortions([], onHand)).toEqual({ portions: null, limiting: null });
+  });
+  it('продукта нет в остатках: хватит на ноль порций', () => {
+    expect(dishPortions([{ productId: 'ghost', name: 'Трюфель', normQty: '5' }], onHand)).toEqual({
+      portions: 0,
+      limiting: 'Трюфель',
+    });
+  });
+});

@@ -79,6 +79,8 @@ describe('unified owner actual DTO', () => {
   });
   it('explains missing money without exposing a raw reason code or invented totals', () => {
     const d = dto(); d.current.revenue = {state:'UNAVAILABLE', reason:'NO_MONEY_DATA', currencies:null};
+    // поступления есть, поэтому плитки на месте (при всех пустых показателях их заменяет пустое состояние)
+    d.current.receipts = {state:'READY', reason:null, currencies:[{currency:'USD', amountMinor:'100'}]};
     const html = renderToStaticMarkup(createElement(OwnerSummaryView, {summary:d}));
     expect(html).toContain('Нет денежных операций за выбранный период');
     expect(html).not.toContain('NO_MONEY_DATA');
@@ -205,5 +207,32 @@ describe('unified owner actual DTO', () => {
   it('период из нескольких дней: «1-16 октября»', () => {
     const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('month') }));
     expect(html).toContain('1-16 октября');
+  });
+  // аудит живого сайта 21.10.2026, п. 8: четыре плитки «Нет данных» владелец не хочет
+  it('все четыре показателя пусты: одно короткое пустое состояние с записью в Журнал вместо плиток', () => {
+    const d = dto('today');
+    d.current.revenue = { state: 'UNAVAILABLE', reason: 'NO_MONEY_DATA', currencies: null };
+    d.current.receipts = { state: 'UNAVAILABLE', reason: 'NO_MONEY_DATA', currencies: null };
+    d.current.paidExpenses = { state: 'UNAVAILABLE', reason: 'NO_MONEY_DATA', currencies: null };
+    d.workload = { ...d.workload, state: 'UNAVAILABLE', percent: null, numerator: null, denominator: null };
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: d }));
+    expect(html).not.toContain('owner-kpis');
+    expect(html).toContain('data-testid="owner-empty"');
+    expect(html).toMatch(/<a[^>]*href="\/calendar"[^>]*>Добавить первую запись<\/a>/);
+  });
+  it('есть данные: плитки на месте', () => {
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('today') }));
+    expect(html).toContain('owner-kpis');
+    expect(html).not.toContain('data-testid="owner-empty"');
+  });
+  it('«Проверить загрузку» салона ведёт в Журнал, как меню (п. 10)', () => {
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('today') }));
+    expect(html).toMatch(/<a href="\/calendar">Проверить загрузку<\/a>/);
+    expect(html).not.toContain('href="/appointments"');
+  });
+  it('пустой график без служебных оговорок (п. 9)', () => {
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('today') }));
+    expect(html).not.toContain('Недоступные источники не означают ноль');
+    expect(html).not.toContain('подтверждённой валютой');
   });
 });

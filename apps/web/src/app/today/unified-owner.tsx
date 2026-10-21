@@ -88,12 +88,26 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
       </main>
     );
   const expenses = s.current.paidExpenses;
+  // путь как в меню: у салона это Журнал (аудит 21.10.2026, п. 10)
   const operational =
     s.scope.vertical === 'BEAUTY'
-      ? '/appointments'
+      ? '/calendar'
       : s.scope.vertical === 'FOOD_SERVICE'
         ? '/floor-plan'
         : '/chessboard';
+  // все четыре показателя пусты: вместо плиток «Нет данных» одно пустое состояние с действием (п. 8)
+  const noMoney = (v: { currencies?: readonly unknown[] | null }) => !v.currencies?.length;
+  const empty =
+    noMoney(s.current.revenue) &&
+    noMoney(s.current.receipts) &&
+    noMoney(expenses) &&
+    !(s.workload.state === 'COMPLETE' && s.workload.percent != null);
+  const firstStep =
+    s.scope.vertical === 'BEAUTY'
+      ? { href: '/calendar', label: 'Добавить первую запись' }
+      : s.scope.vertical === 'FOOD_SERVICE'
+        ? { href: '/floor-plan', label: 'Открыть зал' }
+        : { href: '/chessboard', label: 'Добавить первую бронь' };
   const finance = financePeriodHref(
     s.scope.vertical === 'FOOD_SERVICE' ? '/restaurant-finance' : '/finance',
     { from: s.period.fromDate, to: s.period.toDate },
@@ -141,6 +155,17 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
           <time dateTime={s.period.fromDate}>{humanPeriod(s.period.fromDate, s.period.toDate)}</time>
         </p>
       </div>
+      {empty ? (
+        <section className="owner-panel owner-empty" data-testid="owner-empty" aria-label="Показатели руководителя">
+          <div>
+            <h2>За этот период пока нет данных</h2>
+            <p>Выручка, оплаты, расходы и загрузка появятся здесь после первых операций.</p>
+          </div>
+          <a className="btn btn--primary" href={firstStep.href}>
+            {firstStep.label}
+          </a>
+        </section>
+      ) : (
       <section className="owner-kpis" aria-label="Показатели руководителя">
         <article>
           <h2>Выручка</h2>
@@ -180,6 +205,7 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
           <p>Только завершённые расходные операции</p>
         </article>
       </section>
+      )}
       <div className="owner-body">
         <section className="owner-panel owner-dynamics">
           <div className="owner-panel-heading">

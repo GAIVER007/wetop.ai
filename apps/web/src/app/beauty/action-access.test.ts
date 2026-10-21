@@ -32,6 +32,7 @@ vi.mock('../../lib/desk-shell', () => ({
     context: { vertical: 'BEAUTY', businessId: 'synthetic-business', locationId: 'synthetic-location' },
   }),
 }));
+vi.mock('../../lib/staff-revenue-load', () => ({ loadStaffRevenue: async () => null, StaffRevenuePeriodNav: () => null }));
 vi.mock('../../lib/api', () => ({
   beautyApi: {
     day: state.day,

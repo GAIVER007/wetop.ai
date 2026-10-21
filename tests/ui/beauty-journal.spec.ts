@@ -125,7 +125,20 @@ test('запись из пустой клетки появляется в сет
   await expect(tile).toContainText('10:00');
   await expect(tile).toContainText('Маникюр');
   await expect(main.getByTestId('beauty-grid')).toContainText('Айгуль');
+  // журнал на весь экран (решение владельца 20.10.2026): списка специалистов слева нет, сетка во всю ширину,
+  // специалист в шапке колонки с числом записей; нажатие на него оставляет только его колонку
+  await expect(main.getByRole('complementary', { name: 'Специалисты' })).toHaveCount(0);
+  const board = (await main.getByTestId('beauty-grid').boundingBox())!;
+  const content = (await main.boundingBox())!;
+  expect(board.width).toBeGreaterThan(content.width * 0.85);
+  const person = main.getByTestId('beauty-grid').locator('.beauty-col-person').first();
+  await expect(person.getByTestId('beauty-col-count')).toHaveText('1');
   await page.screenshot({ path: `${SNAPSHOTS}/journal-1440.png`, fullPage: true });
+  await person.click();
+  await expect(person).toHaveAttribute('aria-pressed', 'true');
+  await expect(main.getByTestId('beauty-grid').locator('.beauty-col-person')).toHaveCount(1);
+  await person.click();
+  await expect(person).toHaveAttribute('aria-pressed', 'false');
 });
 
 test('неделя показывает запись и открывает её карточку, телефон без прокрутки вбок', async ({

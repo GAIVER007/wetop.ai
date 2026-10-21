@@ -6,8 +6,11 @@ import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
 import { beautyApi, type BeautyDay } from '../../../lib/api';
 import { deskShell } from '../../../lib/desk-shell';
-import { mayBeautyAccess } from '../../../lib/navigation';
+import { mayAccess, mayBeautyAccess } from '../../../lib/navigation';
+import { accessLevelsFor } from '@pms/domain';
 import { MastersBoard } from './board';
+import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../../lib/staff-revenue-load';
+import { revenuePeriodParam } from '../../../lib/staff-revenue';
 import '../beauty.css';
 
 /**
@@ -16,7 +19,7 @@ import '../beauty.css';
  */
 export default async function BeautyMastersPage({
   searchParams,
-}: { searchParams?: Promise<{ employee?: string | string[] }> } = {}) {
+}: { searchParams?: Promise<{ employee?: string | string[]; period?: string | string[] }> } = {}) {
   await requireFeature('/beauty/masters');
   const params = await searchParams;
   const requested = typeof params?.employee === 'string' ? params.employee : '';
@@ -25,6 +28,7 @@ export default async function BeautyMastersPage({
   )
     ? requested
     : '';
+  const period = revenuePeriodParam(params?.period);
   const shell = await deskShell();
   const canReadServices = mayBeautyAccess(shell.access, 'services', 'view', { legacy: 'rates' });
   const canReadJournal = mayBeautyAccess(shell.access, 'journal', 'view', { legacy: 'desk' });
@@ -35,6 +39,7 @@ export default async function BeautyMastersPage({
       : Promise.resolve({ locationId: null, locationCurrency: null, items: [] }),
     canReadJournal ? beautyApi.day() : Promise.resolve(null),
     canReadJournal ? beautyApi.schedule() : Promise.resolve(null),
+    loadStaffRevenue('branch', period),
   ]).then(
     (value) => ({ ok: true as const, value }),
     (error: unknown) => {
@@ -48,7 +53,7 @@ export default async function BeautyMastersPage({
         <LoadError testId="beauty-masters-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
-  const [employees, services, loadedToday, loadedSchedule] = loaded.value;
+  const [employees, services, loadedToday, loadedSchedule, revenue] = loaded.value;
   const today: BeautyDay = loadedToday ?? {
     location: { id: employees.locationId ?? '', name: null, timezone: 'UTC', currency: '' },
     date: '', columns: [], appointments: [], services: [], bounds: { fromMinutes: 480, toMinutes: 1200 },
@@ -86,6 +91,15 @@ export default async function BeautyMastersPage({
         canManagePrices={may('services', 'update')}
         canAssignPersonnelKind={employees.canAssignPersonnelKind === true && !shell.readOnly}
         initialEmployeeId={employeeId}
+        revenue={revenue}
+        revenueNav={<StaffRevenuePeriodNav path="/employees" period={period} />}
+        access={{
+          levels: may('employees', 'create') && shell.access.role ? accessLevelsFor(shell.access.role) : [],
+          canAllBranches:
+            shell.access.role === 'OWNER' ||
+            (mayAccess(shell.access, 'staff') && shell.access.restricted !== true),
+          branchName: typeof loadedSchedule?.location?.name === 'string' ? loadedSchedule.location.name : null,
+        }}
         unavailable={Boolean(requested) && !employees.items.some((row) => row.id === employeeId)}
       />
     </Page>

@@ -38,10 +38,11 @@ const render = (canAssignPersonnelKind: boolean, list = items) =>
 const panel = (html: string, id: string) => html.split(`data-panel="${id}"`)[1]!.split('</section>')[0]!;
 
 describe('ресторан: назначение в «Сотрудниках»', () => {
-  it('вкладки: «Не назначено (N)» первой, «оба» в обеих группах', () => {
+  // единый экран (вариант A, 20.10.2026): «Все» первой, затем «Не назначено», пока есть старые записи
+  it('вкладки: «Все», «Не назначено», «оба» в обеих группах', () => {
     const html = render(true);
     expect([...html.matchAll(/data-tab="(\w+)">([^<]+)</g)].map((m) => m[2])).toEqual([
-      'Не назначено (1)', 'Специалисты', 'Другие сотрудники',
+      'Все', 'Не назначено', 'Специалисты', 'Другие сотрудники',
     ]);
     expect(panel(html, 'specialists')).toContain('Вика Оба');
     expect(panel(html, 'specialists')).not.toContain('Бауыржан Кассир');
@@ -64,7 +65,29 @@ describe('ресторан: назначение в «Сотрудниках»',
     const html = render(true);
     expect(html).toContain('Филиал: Зал');
     expect(html).not.toContain('>Филиал</th>');
-    expect(html).toMatch(/class="[^"]*\brest-staff-table\b/);
-    expect(html).toContain('class="rest-staff-actions"');
+    expect(html).toMatch(/class="[^"]*\btbl--nowrap\b[^"]*staff-board__table/);
+    expect(html).toContain('class="staff-actions rest-staff-actions"');
+  });
+
+  // «сколько принёс» (решение владельца 20.10.2026): оплачено минус возвраты за выбранный период
+  it('колонка «Принёс» берёт суммы из свода, без денег прочерк; заказы без официанта строкой', () => {
+    const html = renderToStaticMarkup(createElement(EmployeesBoard, {
+      scopeKey: 'b:l', write: true, employees: items, branchName: 'Зал', canAssignPersonnelKind: false,
+      revenue: {
+        period: 'week', fromDate: '2026-10-19', toDate: '2026-10-25',
+        items: [
+          { employeeId: items[0]!.id, currency: 'KZT', paidMinor: '1000000', refundedMinor: '100000', netMinor: '900000' },
+          { employeeId: null, currency: 'KZT', paidMinor: '200000', refundedMinor: '0', netMinor: '200000' },
+        ],
+      },
+    }));
+    expect(html).toContain('Принёс за неделю');
+    expect(html).not.toContain('Продажи сегодня');
+    expect(panel(html, 'specialists')).toContain('9 000 ₸');
+    expect(html).toContain('Заказы без официанта: 2 000 ₸');
+  });
+  it('без права на отчёты колонки «Принёс» нет', () => {
+    const html = render(false);
+    expect(html).not.toContain('Принёс');
   });
 });

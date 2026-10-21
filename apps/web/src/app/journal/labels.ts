@@ -31,6 +31,7 @@ export const ACTION_RU: Record<string, string> = {
   'invite.created': 'Приглашение создано',
   'invite.revoked': 'Приглашение отозвано',
   'invite.accepted': 'Приглашение принято',
+  'employee.account_linked': 'Вход привязан к сотруднику',
   'membership.details.updated': 'Данные сотрудника изменены',
   'bar.sale.posted': 'Продажа в баре',
   'bar.sale.folio_posted': 'Продажа бара начислена в счёт',

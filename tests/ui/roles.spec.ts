@@ -252,12 +252,14 @@ test('управляющий: журнал и платформа закрыты;
   await expect(drawer.getByTestId('invite-role-fixed')).toContainText(
     'Управляющий приглашает администраторов',
   );
-  await expect(drawer.getByLabel('Должность', { exact: true })).toHaveCount(0);
+  // единый блок доступа (20.10.2026): у управляющего только «Администратор», без «Управляющего»
+  await expect(drawer.getByTestId('staff-access').locator('[data-level]')).toHaveCount(1);
+  await expect(drawer.getByRole('radio', { name: /^Управляющий/ })).toHaveCount(0);
   await drawer.getByRole('button', { name: 'Отмена' }).click();
   const rows = main.getByTestId('member-row');
   await expect(rows).toHaveCount(3);
   await expect(
-    rows.filter({ hasText: 'Марат Тестов' }).getByRole('button', { name: 'Отключить' }),
+    rows.filter({ hasText: 'Марат Тестов' }).getByRole('button', { name: /^Ещё:/ }),
   ).toHaveCount(0);
   await expect(rows.filter({ hasText: 'Дана Тестова' })).toContainText('это вы');
   // роль меняет только владелец
@@ -273,7 +275,8 @@ test('управляющий: журнал и платформа закрыты;
     .click();
   await expect(invites).not.toContainText('zhdet@example.com');
 
-  await rows.filter({ hasText: 'Юрий Тестов' }).getByRole('button', { name: 'Отключить' }).click();
+  await rows.filter({ hasText: 'Юрий Тестов' }).getByRole('button', { name: /^Ещё:/ }).click();
+  await page.getByRole('menuitem', { name: 'Отключить' }).click();
   await page
     .locator('dialog[open][data-testid="confirm-dialog"]')
     .getByRole('button', { name: 'Отключить' })
@@ -288,12 +291,13 @@ test('владелец: зовёт управляющего и админист�
   const main = page.getByRole('main');
   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
   const drawer = page.getByRole('dialog');
-  const role = drawer.getByLabel('Должность', { exact: true });
-  await expect(role.locator('option')).toHaveText(['Управляющий', 'Администратор']);
-  await expect(role).toHaveValue('STAFF');
+  // единый блок доступа (решение владельца 20.10.2026): уровни карточками, по умолчанию «Администратор»
+  const access = drawer.getByTestId('staff-access');
+  await expect(access.locator('[data-level]')).toHaveCount(2);
+  await expect(access.getByRole('radio', { name: /^Администратор/ })).toBeChecked();
 
   await drawer.getByLabel('Почта приглашённого').fill('New.Manager@Example.com');
-  await role.selectOption('MANAGER');
+  await access.getByRole('radio', { name: /^Управляющий/ }).check();
   await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
   // панель закрылась, приглашение — в «Ожидают ответа» с ролью словом
   await expect(page.getByRole('dialog')).toHaveCount(0);

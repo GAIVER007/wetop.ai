@@ -364,15 +364,17 @@
   .overlay-content {
     padding: 20px;
   }
+  /* Панель справа больше не выезжает сбоку (решение владельца 20.10.2026: «чтобы открывалось по центру нормально, и так
+     везде»): все панели открываются окном по центру, шире обычного окна, со своей прокруткой. Класс оставлен, чтобы
+     разделы держали свои правки содержимого. */
   .ui-drawer {
-    margin: 0 0 0 auto;
-    width: min(var(--drawer-w-md), 100vw);
-    max-width: 100vw;
-    height: 100dvh;
-    max-height: 100dvh;
-    border-radius: 20px 0 0 20px;
-    border-right: 0;
-    animation: drawer-in 180ms ease-out;
+    margin: auto;
+    width: min(var(--drawer-w-md), calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    height: auto;
+    max-height: calc(100dvh - 48px);
+    border-radius: var(--radius-lg);
+    animation: dialog-in 160ms ease-out;
   }
   /* Размер окна и панели (MV8.5 DS1c, DESIGN.md §8.2): md прежняя ширина основы выше, sm и lg из
      токенов; на узком экране ширина не больше окна */
@@ -383,17 +385,22 @@
     width: min(var(--overlay-w-lg), calc(100vw - 32px));
   }
   .ui-drawer.ui-overlay--sm {
-    width: min(var(--drawer-w-sm), 100vw);
+    width: min(var(--drawer-w-sm), calc(100vw - 32px));
   }
   .ui-drawer.ui-overlay--lg {
-    width: min(var(--drawer-w-lg), 100vw);
+    width: min(var(--drawer-w-lg), calc(100vw - 32px));
   }
-  @keyframes drawer-in {
+  @keyframes dialog-in {
     from {
-      transform: translateX(32px);
+      transform: translateY(8px);
     }
     to {
-      transform: translateX(0);
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ui-drawer {
+      animation: none;
     }
   }
   .command-input {
@@ -621,7 +628,9 @@
       display: none;
     }
     .ui-drawer {
-      border-radius: 0;
+      width: calc(100vw - 16px);
+      max-width: calc(100vw - 16px);
+      max-height: calc(100dvh - 16px);
     }
     .profile-dropdown {
       right: -4px;

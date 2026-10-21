@@ -106,6 +106,21 @@ export function JournalBoard({
   const [moving, startMove] = useTransition();
   const movable = (row: BeautyAppointmentRow) =>
     canUpdate && !moving && (row.status === 'BOOKED' || row.status === 'CONFIRMED');
+  // линия «сейчас» только на сегодняшнем дне филиала, минуты по поясу филиала
+  const [nowMinutes] = useState<number | null>(() => {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: day.location.timezone || 'UTC',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).formatToParts(new Date());
+    const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '';
+    if (`${get('year')}-${get('month')}-${get('day')}` !== day.date) return null;
+    return Number(get('hour')) * 60 + Number(get('minute'));
+  });
   const from = Math.floor(day.bounds.fromMinutes / STEP) * STEP;
   const to = Math.ceil(day.bounds.toMinutes / STEP) * STEP;
   const slots = Array.from({ length: (to - from) / STEP }, (_, i) => from + i * STEP);
@@ -127,11 +142,20 @@ export function JournalBoard({
     setPanel(null);
     router.refresh();
   };
+  const nowLine = nowMinutes !== null && nowMinutes >= from && nowMinutes <= to && (
+    <div
+      className="beauty-now"
+      data-testid="beauty-now"
+      aria-hidden="true"
+      style={{ top: (nowMinutes - from) * PX_PER_MIN }} /* slop-allow: inline-style положение линии «сейчас» */
+    />
+  );
   const column = (employee: BeautyDayColumn) => (
     <div
       className="beauty-col-body"
       style={{ height }} /* slop-allow: inline-style высота колонки из длины рабочего дня */
     >
+      {nowLine}
       {slots.map((m) => {
         const works =
           !employee.timeOff &&
@@ -189,6 +213,7 @@ export function JournalBoard({
                 className="beauty-slot-free"
                 disabled={!canCreate}
                 aria-label={`${employee.name}, ${clock(m)}, свободно`}
+                data-time={`+ ${clock(m)}`}
                 onClick={() => setPanel({ kind: 'new', employeeId: employee.id, time: clock(m) })}
               />
             )}
@@ -437,45 +462,6 @@ export function JournalBoard({
         </p>
       )}
       <div className="beauty-layout">
-        {!!columns.length && (
-          <aside className="beauty-masters" aria-label="Специалисты">
-            <h2 className="beauty-masters__title">Специалисты</h2>
-            <ul>
-              <li>
-                <button type="button" aria-pressed={!master} onClick={() => setMaster('')}>
-                  <span className="beauty-avatar beauty-avatar--all" aria-hidden="true">
-                    {columns.length}
-                  </span>
-                  <span>
-                    Все специалисты <small>({columns.length})</small>
-                  </span>
-                </button>
-              </li>
-              {columns.map((c) => (
-                <li key={c.id}>
-                  <button
-                    type="button"
-                    aria-pressed={master === c.id}
-                    onClick={() => setMaster(master === c.id ? '' : c.id)}
-                  >
-                    <span className="beauty-avatar" aria-hidden="true">
-                      {initials(c.name)}
-                    </span>
-                    <span>
-                      {c.name}
-                      <small>
-                        {c.timeOff
-                          ? c.timeOffReason || 'Отсутствие'
-                          : c.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ') ||
-                            'Выходной'}
-                      </small>
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </aside>
-        )}
         <div className="beauty-board">
           <div
             className="beauty-grid-day"
@@ -485,14 +471,29 @@ export function JournalBoard({
             tabIndex={0}
             style={{
               /* slop-allow: inline-style число колонок из количества выбранных мастеров */
-              gridTemplateColumns: `56px repeat(${Math.max(1, shown.length)}, minmax(180px, 1fr))`,
+              gridTemplateColumns: `56px repeat(${Math.max(1, shown.length)}, minmax(${shown.length > 6 ? 150 : 180}px, 1fr))`,
             }}
           >
             <div aria-hidden="true" />
             {!columns.length && <h2 className="beauty-col-head">Расписание дня</h2>}
             {shown.map((e) => (
               <h2 key={e.id} className="beauty-col-head">
-                {e.name}
+                {/* журнал на весь экран (владелец 20.10.2026): специалист в шапке своей колонки, без списка слева */}
+                <button
+                  type="button"
+                  className="beauty-col-person"
+                  aria-pressed={master === e.id}
+                  title={master === e.id ? 'Показать всех специалистов' : `Показать только: ${e.name}`}
+                  onClick={() => setMaster(master === e.id ? '' : e.id)}
+                >
+                  <span className="beauty-avatar" aria-hidden="true">
+                    {initials(e.name)}
+                  </span>
+                  <span className="beauty-col-person__name">{e.name}</span>
+                  <span className="beauty-col-person__count" data-testid="beauty-col-count">
+                    {live.filter((a) => a.employeeId === e.id).length || ''}
+                  </span>
+                </button>
                 <small>
                   {e.timeOff ? (
                     <Badge>{e.timeOffReason || 'Отсутствие'}</Badge>

@@ -23,6 +23,7 @@ describe('роли в организации', () => {
       OWNER: 'владелец',
       MANAGER: 'управляющий',
       STAFF: 'администратор',
+      EMPLOYEE: 'личный кабинет',
     });
   });
 
@@ -35,10 +36,11 @@ describe('роли в организации', () => {
     expect(canConfigureSeller('STAFF')).toBe(false);
   });
 
-  it('владелец зовёт управляющих и администраторов, управляющий — только администраторов', () => {
-    expect(invitableRoles('OWNER')).toEqual(['MANAGER', 'STAFF']);
-    expect(invitableRoles('MANAGER')).toEqual(['STAFF']);
+  it('владелец зовёт управляющих, администраторов и в кабинет, управляющий — администраторов и в кабинет', () => {
+    expect(invitableRoles('OWNER')).toEqual(['MANAGER', 'STAFF', 'EMPLOYEE']);
+    expect(invitableRoles('MANAGER')).toEqual(['STAFF', 'EMPLOYEE']);
     expect(invitableRoles('STAFF')).toEqual([]);
+    expect(invitableRoles('EMPLOYEE')).toEqual([]);
     expect(canInvite('OWNER', 'MANAGER')).toBe(true);
     expect(canInvite('MANAGER', 'MANAGER')).toBe(false);
     expect(canInvite('MANAGER', 'STAFF')).toBe(true);

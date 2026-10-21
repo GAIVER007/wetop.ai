@@ -84,6 +84,7 @@ packages/database/src/generated/
 
 # Isolated UI test build, separate from the interactive preview
 .next-ui/
+.next-*/
 
 # Замки прогонов: чей-то живой процесс, в историю не едут
 tests/runs/.locks/

@@ -279,6 +279,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /food-service/tables/:id/cleaning': 'desk',
   'GET /food-service/report': 'desk',
   'GET /food-service/period-report': 'reports',
+  'GET /food-service/staff-revenue': 'reports',
   'GET /food-service/employees': 'desk',
   'POST /food-service/employees': 'staff',
   'GET /food-service/shifts': 'desk',
@@ -438,6 +439,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /finance/debts': 'reports',
   'GET /finance/operations': 'reports',
   'GET /finance/cashflow': 'reports',
+  'GET /finance/staff-revenue': 'reports',
   // касса (DATA_MODEL §21, Q-238): ведёт смена, как оплаты; аннулирование — как возврат; статьи — настройки
   'GET /finance/cash': 'desk',
   // справочник статей для «Настроек объекта» (ADR-185): владелец и управляющий
@@ -565,6 +567,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /ai-seller/apply': 'seller',
   'POST /ai-seller/extract': 'seller',
   'GET /ai-seller/llm-key': 'seller',
+  'GET /ai-seller/llm-usage': 'seller',
   'PUT /ai-seller/llm-key': 'seller',
   'POST /ai-seller/llm-key/check': 'seller',
   'GET /ai-seller/whatsapp': 'seller',

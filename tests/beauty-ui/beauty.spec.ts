@@ -164,8 +164,10 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await page.goto('/employees');
   await expect(page).toHaveURL(/\/employees$/);
   await page.reload();
+  // единый экран персонала (20.10.2026): строка таблицы во вкладке «Все»
   await page
-    .getByRole('listitem')
+    .getByRole('tabpanel')
+    .getByTestId('staff-row')
     .filter({ hasText: 'Тестовый мастер Анна' })
     .getByRole('link', { name: 'Открыть' })
     .click();
@@ -496,8 +498,10 @@ test('TimeOff via manager API with compact employee drawer, server denial and ti
 }) => {
   const f = await seed(page, request);
   await page.goto('/employees');
+  // единый экран персонала (20.10.2026): строка таблицы во вкладке «Все»
   await page
-    .getByRole('listitem')
+    .getByRole('tabpanel')
+    .getByTestId('staff-row')
     .filter({ hasText: 'Тестовый мастер Анна' })
     .getByRole('link', { name: 'Открыть' })
     .click();

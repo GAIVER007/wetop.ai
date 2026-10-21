@@ -158,6 +158,7 @@ export class FakeAccountsRepository implements AccountsRepository {
     phone?: string | null;
     position?: string | null;
     scopes?: ScopeAssignment[];
+    employeeId?: string | null;
   }): Promise<InviteRecord> {
     this.seq += 1;
     const org = this.accounts.find((a) => a.organizationId === input.organizationId);
@@ -177,6 +178,7 @@ export class FakeAccountsRepository implements AccountsRepository {
       phone: input.phone ?? null,
       position: input.position ?? null,
       scopes: input.scopes ?? [],
+      employeeId: input.employeeId ?? null,
     };
     this.invites.push(stored);
     return toInviteRecord(stored);
@@ -395,6 +397,23 @@ export class FakeAccountsRepository implements AccountsRepository {
       },
     ],
   };
+
+  /** Сотрудники для приглашения из формы «Новый сотрудник» (уровни доступа, 20.10.2026) */
+  employees: Array<{
+    id: string;
+    organizationId: string;
+    businessId: string;
+    name: string;
+    locationIds: string[];
+    userId: string | null;
+  }> = [];
+
+  async employeeForInvite(organizationId: string, employeeId: string) {
+    const e = this.employees.find((x) => x.id === employeeId && x.organizationId === organizationId);
+    return e
+      ? { id: e.id, businessId: e.businessId, name: e.name, locationIds: [...e.locationIds], userId: e.userId }
+      : null;
+  }
 
   async organizationStructure(): Promise<OrganizationStructure> {
     return this.structure;

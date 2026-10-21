@@ -290,6 +290,49 @@ describe.skipIf(!url)('формы сайта салона и ресторана,
       expect(await admin.customer.count({ where: { organizationId: w.org, phone: p } })).toBe(1);
     });
 
+    it('несколько услуг подряд к одному мастеру: строки визита по порядку, цена суммой, время концом последней', async () => {
+      // вторая услуга салона (30 мин, 3000 ₸), её оказывает только eBl1
+      const svc2 = await admin.beautyService.create({
+        data: { businessId: w.ids.bz!, name: `Брови ${run}`, price: 300000n, currency: 'KZT', durationMinutes: 30 },
+      });
+      await admin.locationService.create({ data: { locationId: w.ids.bl1!, serviceId: svc2.id, enabled: true } });
+      await admin.employeeService.create({ data: { employeeId: w.ids.eBl1!, serviceId: svc2.id } });
+      const startsAt = almatyAt(nextMonday(week++), '11:00');
+      const body = beautyBody({ startsAt, serviceIds: [w.ids.svc, svc2.id] });
+      const r = await post('/w/beauty/book', body, host('salon'));
+      expect(r.status, r.text).toBe(201);
+      // «любой мастер»: вторую услугу оказывает только eBl1, его и выбрали
+      expect(r.json).toMatchObject({ status: 'BOOKED', employee: { id: w.ids.eBl1 }, priceMinor: '1100000', currency: 'KZT' });
+      const row = await admin.appointment.findUniqueOrThrow({ where: { id: r.json['appointmentId'] as string } });
+      expect(row.endsAt.getTime() - row.startsAt.getTime()).toBe(90 * 60_000);
+      const lines = await admin.appointmentLine.findMany({
+        where: { appointmentId: row.id },
+        orderBy: { position: 'asc' },
+        select: { position: true, employeeId: true, serviceId: true, startsAt: true, endsAt: true, priceMinor: true },
+      });
+      expect(lines.map((l) => [l.position, l.serviceId, l.employeeId, l.priceMinor])).toEqual([
+        [0, w.ids.svc, w.ids.eBl1, 800000n],
+        [1, svc2.id, w.ids.eBl1, 300000n],
+      ]);
+      expect(lines[1]!.startsAt).toEqual(lines[0]!.endsAt);
+      // повтор того же запроса: та же запись; тот же ключ с другим составом: отказ
+      const again = await post('/w/beauty/book', { ...body, turnstileToken: token() }, host('salon'));
+      expect(again.status, again.text).toBe(201);
+      expect(again.json['appointmentId']).toBe(row.id);
+      const other = await post('/w/beauty/book', { ...body, serviceIds: [w.ids.svc], turnstileToken: token() }, host('salon'));
+      expect(other.status).toBe(409);
+      // мастер не оказывает вторую услугу: 409 словами, записи нет
+      const before = await admin.appointment.count({ where: { locationId: w.ids.bl1! } });
+      const bad = await post(
+        '/w/beauty/book',
+        beautyBody({ startsAt: almatyAt(nextMonday(week++), '11:00'), employeeId: w.ids.eBl1b, serviceIds: [w.ids.svc, svc2.id] }),
+        host('salon'),
+      );
+      expect(bad.status, bad.text).toBe(409);
+      expect(bad.json['message']).toBe('Мастер эту услугу не оказывает');
+      expect(await admin.appointment.count({ where: { locationId: w.ids.bl1! } })).toBe(before);
+    });
+
     it('«любой мастер»: первый свободный по имени; оба заняты: 409', async () => {
       const startsAt = almatyAt(nextMonday(week++), '12:00');
       const a = await post('/w/beauty/book', beautyBody({ startsAt }), host('salon'));

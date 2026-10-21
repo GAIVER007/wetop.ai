@@ -51,7 +51,9 @@ import { hotelClock } from '../../../lib/hotel-api';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess } from '../../../lib/navigation';
 import { displayPeriod } from '../../../lib/display-date';
-import { sellerApi, type SellerFactsView, type SellerStatus } from '../../../lib/api';
+import { sellerApi, type SellerFactsView, type SellerLlmUsage, type SellerStatus } from '../../../lib/api';
+import { propertyClock } from '../../../lib/property-time';
+import { workspaceTimezone } from '../../../lib/workspace-context';
 import { loadErrorProps } from '../../../lib/load-error';
 import { pluralRu } from '../../../lib/plural';
 import { CopyButton } from '../../website/forms';
@@ -467,13 +469,46 @@ async function ModelView({ status }: { status: SellerStatus }) {
         </p>
       </Panel>
     );
-  const loaded = await settle(sellerApi.llmKey());
+  const [loaded, usage, timezone] = await Promise.all([
+    settle(sellerApi.llmKey()),
+    settle(sellerApi.llmUsage()),
+    workspaceTimezone(),
+  ]);
   if (!loaded.ok)
     return <LoadError testId="seller-llm-key-error-load" {...loadErrorProps(loaded.error)} />;
+  const checkedAt = loaded.value.checkedAt;
+  const checkedLabel = checkedAt ? propertyClock(timezone).when(checkedAt) : null;
   return (
     <Panel data-testid="seller-llm-key" aria-label="Ключ модели партнёра">
-      <LlmKeyForm status={loaded.value} readOnly={readOnly} />
+      <LlmKeyForm status={loaded.value} readOnly={readOnly} checkedLabel={checkedLabel} />
+      {/* расход не загрузился: ключ всё равно настраивается, строка о расходе просто не показывается */}
+      {usage.ok && <LlmUsageLine usage={usage.value} />}
     </Panel>
+  );
+}
+
+const USD = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+const MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
+
+/** «2026-10» → «октябрь 2026» */
+function displayMonth(ym: string): string {
+  const [y, m] = ym.split('-').map(Number);
+  return m && m >= 1 && m <= 12 ? `${MONTHS[m - 1]} ${y}` : ym;
+}
+
+/** Расход модели за месяц по учёту продавца: ответы, токены и, если у продавца заданы цены, стоимость */
+function LlmUsageLine({ usage }: { usage: SellerLlmUsage }) {
+  const tokens = new Intl.NumberFormat('ru-RU').format(usage.tokens);
+  const cost =
+    usage.costUsd === null ? null : `${usage.costPartial ? 'не меньше ' : '≈ '}${USD.format(usage.costUsd)}`;
+  return (
+    <p className="settings-note" data-testid="seller-llm-usage">
+      Расход за {usage.month ? displayMonth(usage.month) : 'месяц'}:{' '}
+      {pluralRu(usage.replies, ['ответ', 'ответа', 'ответов'])}, {tokens}{' '}
+      {pluralRu(usage.tokens, ['токен', 'токена', 'токенов'], false)}
+      {cost ? `, ${cost}` : ''}. Это учёт продавца, а не счёт провайдера: остаток денег смотрите в кабинете
+      провайдера модели (у OpenAI: Settings, Billing).
+    </p>
   );
 }
 

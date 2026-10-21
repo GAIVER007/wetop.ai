@@ -287,14 +287,13 @@ test('мастер добавляется, а карточка показыва�
   });
   expect(assigned.ok()).toBe(true);
   await page.goto('/beauty/masters');
-  // карточки вместо таблицы (ТЗ салона 09.10.2026): умения и филиалы остаются на виду
-  const row = main.getByRole('listitem').filter({ hasText: 'Дина' });
+  // единый экран персонала (вариант A, решение владельца 20.10.2026): строка таблицы, умения и филиалы на виду
+  const row = main.getByRole('tabpanel').getByTestId('staff-row').filter({ hasText: 'Дина' });
   await expect(row).toContainText('Маникюр, Стрижка');
   await expect(row).toContainText('Студия Айна');
-  // у нового мастера нет графика на сегодня: карточка честно говорит «Выходной» и «0 записей»
+  // у нового мастера нет графика на сегодня: строка честно говорит «Выходной», записей нет
   await expect(row).toContainText('Выходной');
-  await expect(row).toContainText('0 записей сегодня');
-  await expect(row).toContainText('Сегодня не работает');
+  await expect(row).toContainText('Не на смене');
   await page.screenshot({ path: `${SNAPSHOTS}/masters-1440.png`, fullPage: true });
 
   await expect(row.getByRole('link', { name: 'Открыть' })).toHaveAttribute(
@@ -308,10 +307,9 @@ test('мастер добавляется, а карточка показыва�
   });
   expect(reduced.ok()).toBe(true);
   await page.goto('/beauty/masters');
-  await expect(main.getByRole('listitem').filter({ hasText: 'Дина' })).toContainText('Маникюр');
-  await expect(main.getByRole('listitem').filter({ hasText: 'Дина' })).not.toContainText(
-    'Стрижка',
-  );
+  const reducedRow = main.getByRole('tabpanel').getByTestId('staff-row').filter({ hasText: 'Дина' });
+  await expect(reducedRow).toContainText('Маникюр');
+  await expect(reducedRow).not.toContainText('Стрижка');
 });
 
 test('каталог салона на телефоне: без прокрутки вбок', async ({ page, request }) => {

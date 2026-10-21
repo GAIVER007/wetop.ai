@@ -9,8 +9,23 @@
   .team-row-actions {
     text-align: right;
   }
-  .team-row-actions > * + * {
-    margin-left: var(--space-2);
+  /* «Принёс за период» (решение 20.10.2026): сумма в одну строку; скрытая подпись «Действия» держится в своей ячейке */
+  .team-col-earned {
+    white-space: nowrap;
+    text-align: right;
+  }
+  .settings-table--team th:last-child {
+    position: relative;
+  }
+  .settings-catalog > .staff-revenue-period {
+    margin-bottom: var(--space-2);
+  }
+  /* действия строки: ровные ряды справа, без лесенки (замечание владельца 20.10.2026 «кривые переносы») */
+  /* действия строки в один ряд: «Изменить», «Доступ» и меню «⋯» (замечание владельца 20.10.2026 «кривые переносы») */
+  .team-row-actions__group {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
   }
   .team-invites {
     margin-top: var(--space-6);

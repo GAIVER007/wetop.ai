@@ -1,27 +1,39 @@
 @layer sections {
   .salon-reports {
     display: grid;
-    gap: var(--space-6);
+    gap: var(--space-4);
     min-width: 0;
   }
-  .salon-reports__period {
-    display: flex;
-    align-items: end;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-  }
-  .salon-reports__period label {
-    display: grid;
-    gap: var(--space-2);
-  }
-  .salon-reports__period input {
-    min-height: 44px;
+  .salon-reports section h2 {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--muted);
   }
   .salon-reports__kpis {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--space-4);
-    margin-top: var(--space-4);
+    margin-top: var(--space-2);
+  }
+  .salon-reports__trio {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .salon-reports__trio .tbl td:last-child,
+  .salon-reports__trio .tbl th:last-child {
+    white-space: nowrap;
+  }
+  .salon-reports__more {
+    display: inline-block;
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+  }
+  @media (max-width: 1279px) {
+    .salon-reports__trio {
+      grid-template-columns: 1fr;
+    }
   }
   @media (max-width: 960px) {
     .salon-reports__kpis {
@@ -31,13 +43,6 @@
   @media (max-width: 600px) {
     .salon-reports__kpis {
       grid-template-columns: 1fr;
-    }
-    .salon-reports__period > label {
-      width: 100%;
-    }
-    .salon-reports__period button {
-      min-height: 44px;
-      width: 100%;
     }
   }
 }

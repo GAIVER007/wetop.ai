@@ -6,12 +6,13 @@ import { Alert, Panel, Stat, Stats } from '../../../../components/ui';
 import { branchesApi, type BranchItem } from '../../../../lib/api';
 import { currentMe, deskShell } from '../../../../lib/desk-shell';
 import { localInput } from '../../../beauty/time';
-import { displayDate } from '../../../../lib/display-date';
 import { BEAUTY_LABELS, FOOD_LABELS, moneyText, periodDates } from './metrics';
 import { loadBranchPeriod } from './load';
 import { FoodPeriodPanel } from './food-period';
 import './vertical.css';
-import { Tabs } from '../../../../components/tabs';
+import { Chip, ChipGroup } from '../../../../components/chip';
+import { PeriodBar } from '../../../../components/period-bar';
+import { BranchReport } from './branch-report';
 const path = '/management/analytics';
 export async function VerticalAnalytics({ sp }: { sp: Record<string, string | undefined> }) {
   const shell = await deskShell();
@@ -65,38 +66,30 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
     return (
       <Page
         title="Аналитика"
-        subtitle={
-          organization
-            ? 'Отчёты по филиалам, отдельно по направлениям.'
-            : selected.name
-        }
+        subtitle={organization ? 'Отчёты по филиалам, отдельно по направлениям.' : selected.name}
       >
         <div className="vertical-report" data-testid="vertical-analytics">
-          <Tabs
-            label="Область отчёта"
-            items={[
-              { href: `${path}?${q}`, label: 'Выбранный филиал', current: !organization },
-              { href: `${path}?${q}&scope=organization`, label: 'Все филиалы', current: organization },
-            ]}
+          <PeriodBar
+            action={path}
+            from={from}
+            to={to}
+            today={today}
+            label="Период отчёта"
+            {...(organization ? { hidden: { scope: 'organization' } } : {})}
+            href={(f, t) =>
+              `${path}?${new URLSearchParams({ from: f, to: t, ...(organization ? { scope: 'organization' } : {}) })}`
+            }
+            lead={
+              <ChipGroup as="nav" label="Область отчёта">
+                <Chip href={`${path}?${q}`} selected={!organization}>
+                  Выбранный филиал
+                </Chip>
+                <Chip href={`${path}?${q}&scope=organization`} selected={organization}>
+                  Все филиалы
+                </Chip>
+              </ChipGroup>
+            }
           />
-          <form className="vertical-report-period" action={path}>
-            <label>
-              С даты
-              <input type="date" name="from" defaultValue={from} required />
-            </label>
-            <label>
-              По дату
-              <input type="date" name="to" defaultValue={to} required />
-            </label>
-            {organization && <input type="hidden" name="scope" value="organization" />}
-            <button className="btn btn--primary" type="submit">
-              Показать
-            </button>
-          </form>
-          <p className="muted">
-            С {displayDate(from)} по {displayDate(to)} включительно, по местному времени каждого филиала.
-            Период до 31 дня.
-          </p>
           {(['BEAUTY', 'FOOD_SERVICE'] as const).map((vertical) => {
             const group = results.filter((r) => r.branch.vertical === vertical);
             if (!group.length) return null;
@@ -111,37 +104,14 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
                         <Alert boxed>{error}</Alert>
                       ) : (
                         report && (
-                          <>
-                            <Stats min={150} aria-label="Статусы за период">
-                              {Object.entries(labels).map(([status, label]) => (
-                                <Stat
-                                  key={status}
-                                  label={label}
-                                  value={report.counts[status as keyof typeof report.counts] ?? 0}
-                                  testId={`period-${status}`}
-                                />
-                              ))}
-                            </Stats>
-                            {report.revenue !== null ? (
-                              <Panel title="Выручка по завершённым записям">
-                                {Object.entries(report.revenue).length ? (
-                                  Object.entries(report.revenue).map(([currency, minor]) => (
-                                    <p key={currency} data-testid={`revenue-${currency}`}>
-                                      {moneyText(minor, currency)}
-                                    </p>
-                                  ))
-                                ) : (
-                                  <p>Завершённых записей за период нет.</p>
-                                )}
-                                <p className="muted">
-                                  Снимки цены записей со статусом «Завершено». Это не полученные
-                                  оплаты. Валюты отдельно.
-                                </p>
-                              </Panel>
-                            ) : (
-                              report.food && <FoodPeriodPanel report={report.food} />
-                            )}
-                          </>
+                          <BranchReport
+                            labels={labels}
+                            counts={report.counts}
+                            revenue={report.revenue}
+                            foodPanel={
+                              report.food ? <FoodPeriodPanel report={report.food} /> : null
+                            }
+                          />
                         )
                       )}
                     </div>
@@ -171,8 +141,8 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
             </section>
           )}
           <p className="muted">
-            Показаны текущие статусы записей, начавшихся за период. Проценты неявок и повторных
-            посещений пока не рассчитываются.
+            Даты по часам каждого филиала, период до 31 дня. Показаны текущие статусы записей,
+            начавшихся за период. Проценты неявок и повторных посещений пока не рассчитываются.
           </p>
         </div>
       </Page>

@@ -1585,6 +1585,9 @@
     white-space: nowrap;
     font-size: var(--text-sm);
   }
+  .beauty-reminders-today__kind {
+    font-weight: 600;
+  }
   .beauty-reminders-today__actions {
     display: flex;
     align-items: center;

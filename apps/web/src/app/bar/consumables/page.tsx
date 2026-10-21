@@ -9,6 +9,8 @@ import { requireFeature } from '../../../lib/vertical-guard';
 import { selectedWorkspaceBranch } from '../../../lib/workspace-context';
 import { StockBoard } from '../../food/stock-board';
 import { BarTabs } from '../tabs';
+import { StockInsightsView } from '../../food/stock-insights';
+import { buildStockInsights } from '../../food/stock-insights-data';
 import { loadBarContext } from '../load-context';
 import '../../food/food.css';
 import '../../food/restaurant.css';
@@ -44,6 +46,7 @@ export default async function BeautyConsumablesPage() {
       >
         <BarTabs current="consumables" />
         <div key={scopeKey}>
+          <StockInsightsView insights={buildStockInsights(products.items, null)} currency={currency} />
           <StockBoard
             ctx={{
               scopeKey,

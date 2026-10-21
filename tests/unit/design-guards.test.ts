@@ -124,3 +124,28 @@ describe('slop-allow: исключение только для названно�
       expect(withoutAllowed(line, 'inline-style')).toBe(line);
   });
 });
+
+describe('raw-form-control: текстовые поля только из components/ui', () => {
+  it('ловит текстовые input, select и textarea, в том числе с => в обработчике', () => {
+    expect(hits('raw-form-control', '<input className="inp" name="a" />', 'apps/web/src/app/x/a.tsx')).toBe(1);
+    expect(hits('raw-form-control', '<input onChange={(e) => set(e.target.value)} type="text" />', 'apps/web/src/app/x/a.tsx')).toBe(1);
+    expect(hits('raw-form-control', '<select value={v}><option /></select><textarea rows={3} />', 'apps/web/src/app/x/a.tsx')).toBe(2);
+  });
+  it('пропускает переключатели, файл, скрытое поле и сам набор полей', () => {
+    const src = '<input type="checkbox" /><input onChange={(e) => x(e)} type="radio" /><input type="file" /><input type="hidden" name="a" />';
+    expect(hits('raw-form-control', src, 'apps/web/src/app/x/a.tsx')).toBe(0);
+    expect(hits('raw-form-control', '<input className={cx("inp", c)} {...rest} />', 'apps/web/src/components/ui.tsx')).toBe(0);
+    expect(hits('raw-form-control', '<Input name="a" /><Select /><Textarea />', 'apps/web/src/app/x/a.tsx')).toBe(0);
+  });
+});
+
+describe('control-size-literal: высота поля только токеном', () => {
+  it('ловит высоту поля цифрой в теге, классе .inp и во вложенном @media', () => {
+    expect(hits('control-size-literal', '.toolbar .inp { min-height: 36px; }')).toBe(1);
+    expect(hits('control-size-literal', '@media (max-width: 600px) { .a input, .a select { height: 40px; } }')).toBe(1);
+  });
+  it('пропускает токены, auto, ноль, не поля и комментарии', () => {
+    expect(hits('control-size-literal', '.a .inp { min-height: var(--touch-target); height: auto; max-height: 0; }')).toBe(0);
+    expect(hits('control-size-literal', '.card { height: 40px; } /* .inp { height: 36px } */')).toBe(0);
+  });
+});

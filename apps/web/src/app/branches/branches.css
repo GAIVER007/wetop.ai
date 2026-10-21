@@ -1484,7 +1484,7 @@ body:has(.org-reference) .topmenu {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: var(--space-1);
-  min-height: 34px;
+  min-height: var(--control-h);
   max-width: 158px;
   box-sizing: border-box;
 }
@@ -1723,8 +1723,8 @@ body:has(.org-reference) .topmenu {
 .org-month input,
 .org-month a,
 .org-month button {
-  height: 40px;
-  min-height: 40px;
+  height: var(--control-h);
+  min-height: var(--control-h);
   box-sizing: border-box;
   font: inherit;
   font-size: var(--text-sm);

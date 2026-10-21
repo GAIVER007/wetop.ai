@@ -1468,6 +1468,17 @@ export class PrismaFinanceRepository implements FinanceRepository {
           where: { OR: [{ id }, { relatedId: id }] },
           data: { status: 'VOIDED' },
         });
+        const linked = await tx.barSupplierPayment.findUnique({ where: { cashOperationId: id }, include: { receipt: true } });
+        if (linked) {
+          const reversal = await tx.barSupplierPaymentReversal.create({ data: {
+            propertyId: linked.receipt.propertyId, paymentId: linked.id, amountMinor: linked.amount,
+            createdById: auditUserId(),
+          } });
+          await tx.auditLog.create({ data: {
+            userId: auditUserId(), entityType: 'bar_supplier_payment', entityId: linked.id,
+            action: 'bar.supplier_payment.reversed', after: { reversalId: reversal.id, cashOperationId: id, receiptId: linked.receiptId, amountMinor: linked.amount.toString() },
+          } });
+        }
       },
     );
   }

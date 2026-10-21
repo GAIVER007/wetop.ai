@@ -55,6 +55,9 @@
   }
   .beauty-note {
     color: var(--muted);
+  }
+  .beauty-note a {
+    text-decoration: underline;
   } /* Каталог салона (срез B3): полоса над таблицей, панели правки, список умений */
   .beauty-note a {
     text-decoration: underline;

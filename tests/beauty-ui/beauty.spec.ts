@@ -120,7 +120,15 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   test.setTimeout(150_000);
   await reset(page, request);
   await page.goto('/calendar?vertical=HOSPITALITY');
-  await expectEmptyCalendar(page);
+  await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Расписание дня', exact: true })).toBeVisible();
+  await expect(page.getByTestId('beauty-grid').getByTestId('beauty-empty-timeline')).toBeVisible();
+  await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
+  await expect(page.getByRole('status')).toContainText(
+    'Для новой записи нужны услуги и мастера с рабочим графиком.',
+  );
+  await expect(page.getByRole('link', { name: 'Добавить услугу', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Добавить мастера', exact: true })).toBeVisible();
   await page.goto('/services');
   await page.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   let panel = page.getByRole('dialog');
@@ -310,7 +318,16 @@ test('overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY', 
   );
   await scope(page, f.otherBusiness, f.locations[2]!);
   await page.goto(`/calendar?date=${day}`);
-  await expectEmptyCalendar(page);
+  await expect(page.locator('.beauty-grid-day .beauty-tile')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Расписание дня', exact: true })).toBeVisible();
+  await expect(page.getByTestId('beauty-grid').getByTestId('beauty-empty-timeline')).toBeVisible();
+  await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
+  await expect(page.getByRole('status')).toContainText(
+    'Для новой записи нужны услуги и мастера с рабочим графиком.',
+  );
+  await expect(page.getByRole('link', { name: 'Добавить услугу', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Добавить мастера', exact: true })).toBeVisible();
   await page.goto('/customers');
   await expect(page.getByRole('main')).not.toContainText('Тестовая клиентка');
   await scope(page, f.business, f.locations[1]!);

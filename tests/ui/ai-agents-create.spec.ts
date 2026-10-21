@@ -266,6 +266,7 @@ for (const theme of ['light', 'dark'] as const) {
           ).toBeVisible();
           if (view === 'form') await page.getByTestId('agent-name').fill('AI-продавец Luxx 2');
         }
+        await expect(page).toHaveTitle('WETOP: рабочее пространство');
         const scan = await new AxeBuilder({ page }).analyze();
         expect(scan.violations.map((v) => v.id)).toEqual([]);
         const overflow = await page.evaluate(

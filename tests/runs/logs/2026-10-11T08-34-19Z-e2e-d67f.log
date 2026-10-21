@@ -1,0 +1,60 @@
+# Сквозные (e2e) · 11.10.2026 13:34 Алматы · MacBook-Air-Urij.local
+# коммит 95463ef (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 789
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/bar-operational-ui/playwright.config.ts' '--grep' 'CARD_WRITE_OFF'
+[WebServer] (node:95983) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96009) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96022) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96049) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96050) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:96072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96101) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96102) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:96110) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/bar-operational-ui/replay.spec.ts:6:90 › BAR persistent browser intents with real SessionGuard › CARD_WRITE_OFF: committed response loss, reload and relogin preserve one intent (8.5s)
+
+
+  1) tests/bar-operational-ui/replay.spec.ts:6:90 › BAR persistent browser intents with real SessionGuard › CARD_WRITE_OFF: committed response loss, reload and relogin preserve one intent
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      45 |       });
+      46 |       await form.locator('button[type="submit"]').click();
+    > 47 |       await expect.poll(async () => (await db.query('SELECT count(*)::int AS n FROM bar_operation_intents WHERE property_id=$1 AND kind=$2', [data.side.property,operationKind])).rows[0].n).toBeGreaterThan(0);
+         |                                                                                                                                                                                              ^
+      48 |       // Commit precedes completion of the RSC response; wait for the actual injected loss.
+      49 |       await lostResponse;
+      50 |       await expect(form.getByRole('alert')).toBeVisible();
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/tests/bar-operational-ui/replay.spec.ts:47:190
+
+    Error Context: test-results/replay-BAR-persistent-brow-9c7fe-relogin-preserve-one-intent/error-context.md
+
+  1 failed
+    tests/bar-operational-ui/replay.spec.ts:6:90 › BAR persistent browser intents with real SessionGuard › CARD_WRITE_OFF: committed response loss, reload and relogin preserve one intent
+
+# код выхода 1 · 29 с

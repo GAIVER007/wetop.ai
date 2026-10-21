@@ -1,0 +1,167 @@
+# Интеграционные (integration) · 07.10.2026 17:49 Алматы · MacBook-Air-Urij.local
+# коммит b80a15c (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T12-49-52Z-integration-f69d.json' 'tests/integration/bar-replay-repair.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ❯ |integration| tests/integration/bar-replay-repair.test.ts (8 tests | 8 failed) 1037ms
+   ❯ BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL (8)
+     × T03/T06/T07 payment: lost response replay is one effect, changed payload conflicts, new intent succeeds 165ms
+     × T03/T06/T07 write-off: lost response replay is one effect, changed payload conflicts, new intent succeeds 49ms
+     × T03/T06/T07 retail: lost response replay is one effect, changed payload conflicts, new intent succeeds 51ms
+     × T03/T06/T07 folio: lost response replay is one effect, changed payload conflicts, new intent succeeds 56ms
+     × T10 linked Finance void restores debt and replay returns VOIDED without paying again 68ms
+     × T10 no-restock loss retains FIFO cost once without a second warehouse decrement 63ms
+     × T09 STAFF cannot reverse a BAR sale 48ms
+     × T11 closed Folio cannot be changed through BAR reverse 46ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03/T06/T07 payment: lost response replay is one effect, changed payload conflicts, new intent succeeds
+AssertionError: expected '6660c666-9bb3-46ee-94ef-40c1b129e842' to be '5d9850ab-0f8f-4159-b832-92c05b3ecb96' // Object.is equality
+
+Expected: "5d9850ab-0f8f-4159-b832-92c05b3ecb96"
+Received: "6660c666-9bb3-46ee-94ef-40c1b129e842"
+
+ ❯ tests/integration/bar-replay-repair.test.ts:31:27
+     29|     const before = await effects(d.side.property);
+     30|     const retry = await f.request(path, input, d.options);
+     31|     expect(retry.body.id).toBe(first.body.id);
+       |                           ^
+     32|     expect(await effects(d.side.property)).toEqual(before);
+     33|     const conflict = await f.request(path, { ...input, ...(kind === 'p…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03/T06/T07 write-off: lost response replay is one effect, changed payload conflicts, new intent succeeds
+AssertionError: expected '2f93c924-1ca2-4bca-96d4-cd0761fb9d83' to be 'b77eba04-2b6d-4435-95d4-6e9cfbea1646' // Object.is equality
+
+Expected: "b77eba04-2b6d-4435-95d4-6e9cfbea1646"
+Received: "2f93c924-1ca2-4bca-96d4-cd0761fb9d83"
+
+ ❯ tests/integration/bar-replay-repair.test.ts:31:27
+     29|     const before = await effects(d.side.property);
+     30|     const retry = await f.request(path, input, d.options);
+     31|     expect(retry.body.id).toBe(first.body.id);
+       |                           ^
+     32|     expect(await effects(d.side.property)).toEqual(before);
+     33|     const conflict = await f.request(path, { ...input, ...(kind === 'p…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03/T06/T07 retail: lost response replay is one effect, changed payload conflicts, new intent succeeds
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03/T06/T07 folio: lost response replay is one effect, changed payload conflicts, new intent succeeds
+AssertionError: expected 201 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 201
+
+ ❯ tests/integration/bar-replay-repair.test.ts:34:29
+     32|     expect(await effects(d.side.property)).toEqual(before);
+     33|     const conflict = await f.request(path, { ...input, ...(kind === 'p…
+     34|     expect(conflict.status).toBe(409);
+       |                             ^
+     35|     expect(await effects(d.side.property)).toEqual(before);
+     36|     const second = await f.request(path, { ...input, idempotencyKey: r…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T10 linked Finance void restores debt and replay returns VOIDED without paying again
+AssertionError: expected { purchasesMinor: '280000', …(7) } to match object { supplierPaidMinor: '0', …(2) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "stockCostMinor": "280000",
+-   "supplierDebtMinor": "280000",
+-   "supplierPaidMinor": "0",
++   "supplierDebtMinor": "220000",
++   "supplierPaidMinor": "60000",
+  }
+
+ ❯ tests/integration/bar-replay-repair.test.ts:45:68
+     43|     const stored = await f.db.barSupplierPayment.findUniqueOrThrow({ w…
+     44|     expect((await f.request(`/finance/cash/operations/${stored.cashOpe…
+     45|     expect((await f.request('report', undefined, d.options)).body).toM…
+       |                                                                    ^
+     46|     const before = await effects(d.side.property);
+     47|     expect((await f.request(`receipts/${d.r1.id}/payments`, body, d.op…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T10 no-restock loss retains FIFO cost once without a second warehouse decrement
+AssertionError: expected { purchasesMinor: '280000', …(7) } to match object { …(4) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "costMinor": "0",
+-   "nonRestockedLossMinor": "132000",
+    "stockCostMinor": "148000",
+    "writeOffMinor": "0",
+  }
+
+ ❯ tests/integration/bar-replay-repair.test.ts:55:68
+     53|     const sale = await f.request('sales/retail', { productId: d.a.id, …
+     54|     expect((await f.request(`sales/${sale.body.id}/reverse`, { restock…
+     55|     expect((await f.request('report', undefined, d.options)).body).toM…
+       |                                                                    ^
+     56|     const before = await effects(d.side.property);
+     57|     expect((await f.request(`sales/${sale.body.id}/reverse`, { restock…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T09 STAFF cannot reverse a BAR sale
+AssertionError: expected 201 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 201
+
+ ❯ tests/integration/bar-replay-repair.test.ts:64:141
+     62|     const sale = await f.request('sales/retail', { productId: d.a.id, …
+     63|     const before = await effects(d.side.property);
+     64|     expect((await f.request(`sales/${sale.body.id}/reverse`, { restock…
+       |                                                                                                                                             ^
+     65|     expect(await effects(d.side.property)).toEqual(before);
+     66|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T11 closed Folio cannot be changed through BAR reverse
+AssertionError: expected 201 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 201
+
+ ❯ tests/integration/bar-replay-repair.test.ts:72:119
+     70|     await f.db.folio.update({ where: { id: d.side.folio }, data: { sta…
+     71|     const before = await effects(d.side.property);
+     72|     expect((await f.request(`sales/${sale.body.id}/reverse`, { restock…
+       |                                                                                                                       ^
+     73|     expect(await effects(d.side.property)).toEqual(before);
+     74|     expect((await f.db.charge.findUniqueOrThrow({ where: { id: sale.bo…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed (8)
+   Start at  16:49:53
+   Duration  2.63s (tests 49%, transform 32%, import 19%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T12-49-52Z-integration-f69d.json
+
+# код выхода 1 · 4 с

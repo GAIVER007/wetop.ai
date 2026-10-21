@@ -1,3 +1,4 @@
+import { deskShellOf } from '../../../lib/desk-person';
 import Link from 'next/link';
 import { displayDate } from '../../../lib/display-date';
 import { requireFeature } from '../../../lib/vertical-guard';

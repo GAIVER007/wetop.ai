@@ -1,0 +1,69 @@
+# Интеграционные (integration) · 07.10.2026 18:31 Алматы · MacBook-Air-Urij.local
+# коммит 12a7cc2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-31-06Z-integration-649c.json' 'tests/integration/bar-real-auth.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ❯ |integration| tests/integration/bar-real-auth.test.ts (4 tests | 1 failed) 3339ms
+   ❯ BAR real SessionGuard/AuthService rights and read-only (4)
+     ✓ OWNER desk reads and writes, refunds/settings follow the accepted matrix 1269ms
+     ✓ MANAGER desk reads and writes, refunds/settings follow the accepted matrix 364ms
+     ✓ STAFF desk reads and writes, refunds/settings follow the accepted matrix 356ms
+     × unset session is 401, foreign scope is denied, READ_ONLY reads but all mutations are denied without effects 349ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-real-auth.test.ts > BAR real SessionGuard/AuthService rights and read-only
+PrismaClientKnownRequestError:
+Invalid `prisma.organization.deleteMany()` invocation:
+
+
+Foreign key constraint violated on the constraint: `audit_logs_organization_id_fkey`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/tools/bar-operational-fixture.ts:188:9
+    186|         await tx.session.deleteMany({ where: { organizationId: selecte…
+    187|         await tx.membership.deleteMany({ where: { organizationId: sele…
+    188|         await tx.organization.deleteMany({ where: { id: selected.org }…
+       |         ^
+    189|       });
+    190|     }
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ Object.close tests/tools/bar-operational-fixture.ts:159:7
+ ❯ tests/integration/bar-real-auth.test.ts:8:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-real-auth.test.ts > BAR real SessionGuard/AuthService rights and read-only > unset session is 401, foreign scope is denied, READ_ONLY reads but all mutations are denied without effects
+AssertionError: categories/ba9eff0b-7254-4da1-9353-99f89b86d435/active: expected 404 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 404
+
+ ❯ tests/integration/bar-real-auth.test.ts:54:106
+     52|       [`/finance/cash/operations/${cash.cashOperationId}/void`, {}],
+     53|     ];
+     54|     for (const [path, body] of operations) expect((await f.request(pat…
+       |                                                                                                          ^
+     55|     for (const path of ['categories','products','suppliers','receipts'…
+     56|     expect(await f.db.barStockMovement.count({ where: { propertyId: si…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  17:31:09
+   Duration  10.00s (tests 43%, transform 32%, import 24%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-31-06Z-integration-649c.json
+
+# код выхода 1 · 13 с

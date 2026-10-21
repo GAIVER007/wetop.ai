@@ -1,0 +1,70 @@
+# Модульные (unit) · 07.10.2026 18:59 Алматы · MacBook-Air-Urij.local
+# коммит 12a7cc2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 22
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-59-10Z-unit-9432.json' 'tests/unit/auto-deploy.test.ts' 'tests/unit/channex-tunnel-guard.test.ts' '--maxWorkers=1'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ✓ |unit| tests/unit/channex-tunnel-guard.test.ts (7 tests) 72114ms
+   ✓ scripts/ops/channex-tunnel.sh: постоянный адрес важнее быстрого туннеля (7)
+     ✓ отказывается запускаться, когда у PMS задан постоянный адрес 303ms
+     ✓ в Channex записан одноразовый туннель — работаем как прежде 20166ms
+     ✓ осознанный запуск с ALLOW_QUICK_TUNNEL=1 проходит защиту 20762ms
+     ✓ без постоянного адреса работает как прежде 20475ms
+     ✓ API ещё не поднялся — ждёт статус, не дождавшись, отказывается, а не считает адрес свободным 5081ms
+     ✓ API отвечает ошибкой на статус (Channex молчит) — тоже отказ 5118ms
+ ❯ |unit| tests/unit/auto-deploy.test.ts (16 tests | 2 failed) 76047ms
+   ❯ scripts/ops/auto-deploy.sh (16)
+     ✓ checked-out source stays readable by the container user under a private caller umask 4129ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 4445ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 3990ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 3052ms
+     × владелец применил миграции и назвал вершину — выкладывает ровно её 6097ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 3859ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 3451ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 2673ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 4626ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 3888ms
+     ✓ локальные правки в клоне — не затирает их 2998ms
+     ✓ историю ветки переписали — не выкладывает поверх 4359ms
+     × после сборки не отвечает — возвращает прежний коммит и прежний образ 12997ms
+     ✓ CI-раннер выполняет задачу — сборку откладывает без отказа, освободился — выкладывает 5236ms
+     ✓ раннер занят дольше предела — выкладывает всё равно и говорит об этом 5944ms
+     ✓ миграции проверяются раньше раннера: занятый раннер не прячет отказ 4298ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > владелец применил миграции и назвал вершину — выкладывает ровно её
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:164:3
+    162|   });
+    163|
+    164|   it('владелец применил миграции и назвал вершину — выкладывает ровно …
+       |   ^
+    165|     const target = commit('packages/database/prisma/migrations/0002_mo…
+    166|     const refusal = run();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > после сборки не отвечает — возвращает прежний коммит и прежний образ
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/auto-deploy.test.ts:271:3
+    269|   });
+    270|
+    271|   it('после сборки не отвечает — возвращает прежний коммит и прежний о…
+       |   ^
+    272|     const before = head();
+    273|     const target = commit('apps/web/page.txt', 'broken\n', 'broken');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 21 passed (23)
+   Start at  17:59:13
+   Duration  149.28s (tests 100%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-59-10Z-unit-9432.json
+
+# код выхода 1 · 2 мин 33 с

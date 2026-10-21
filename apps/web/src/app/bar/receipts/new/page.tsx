@@ -1,3 +1,4 @@
+import { deskShellOf } from '../../../../lib/desk-person';
 import Link from 'next/link';
 import { requireFeature } from '../../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';

@@ -1,0 +1,185 @@
+# Интеграционные (integration) · 07.10.2026 19:02 Алматы · MacBook-Air-Urij.local
+# коммит 12a7cc2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-02-42Z-integration-07e3.json' 'tests/integration/bar-replay-repair.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ❯ |integration| tests/integration/bar-replay-repair.test.ts (15 tests | 15 failed) 14117ms
+   ❯ BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL (15)
+     × T03/T06/T07 payment: lost response replay is one effect, changed payload conflicts, new intent succeeds 281ms
+     × T03/T06/T07 write-off: lost response replay is one effect, changed payload conflicts, new intent succeeds 335ms
+     × T03/T06/T07 retail: lost response replay is one effect, changed payload conflicts, new intent succeeds 171ms
+     × T03/T06/T07 folio: lost response replay is one effect, changed payload conflicts, new intent succeeds 183ms
+     × T10 linked Finance void restores debt and replay returns VOIDED without paying again 292ms
+     × T10 no-restock loss retains FIFO cost once without a second warehouse decrement 211ms
+     × T05 payment same-key concurrent requests serialize to one effect, persisted replay survives a new API instance 2086ms
+     × T05 write-off same-key concurrent requests serialize to one effect, persisted replay survives a new API instance 3345ms
+     × T05 retail same-key concurrent requests serialize to one effect, persisted replay survives a new API instance 3268ms
+     × T05 folio same-key concurrent requests serialize to one effect, persisted replay survives a new API instance 2146ms
+     × T02 payment registry failure rolls back all ledger effects and the original key remains retryable 126ms
+     × T02 write-off registry failure rolls back all ledger effects and the original key remains retryable 115ms
+     × T02 retail registry failure rolls back all ledger effects and the original key remains retryable 147ms
+     × T02 folio registry failure rolls back all ledger effects and the original key remains retryable 111ms
+     × T01 operation kind scopes keys independently for RETAIL and FOLIO in one Property 82ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 15 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03/T06/T07 payment: lost response replay is one effect, changed payload conflicts, new intent succeeds
+AssertionError: expected 'e947b4db-0bb9-4112-b637-f90c7d420e2f' to be 'e9557756-8f6c-4f08-8846-b4eac9d8f2e0' // Object.is equality
+
+Expected: "e9557756-8f6c-4f08-8846-b4eac9d8f2e0"
+Received: "e947b4db-0bb9-4112-b637-f90c7d420e2f"
+
+ ❯ tests/integration/bar-replay-repair.test.ts:32:27
+     30|     const before = await effects(d.side.property);
+     31|     const retry = await f.request(path, input, d.options);
+     32|     expect(retry.body.id).toBe(first.body.id);
+       |                           ^
+     33|     expect(await effects(d.side.property)).toEqual(before);
+     34|     const conflict = await f.request(path, { ...input, ...(kind === 'p…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/15]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03/T06/T07 write-off: lost response replay is one effect, changed payload conflicts, new intent succeeds
+AssertionError: expected 'c49bc96c-e0e0-4c5a-a733-1e55aaab8191' to be 'ab666523-c517-4a70-8d54-295bd83c5d7c' // Object.is equality
+
+Expected: "ab666523-c517-4a70-8d54-295bd83c5d7c"
+Received: "c49bc96c-e0e0-4c5a-a733-1e55aaab8191"
+
+ ❯ tests/integration/bar-replay-repair.test.ts:32:27
+     30|     const before = await effects(d.side.property);
+     31|     const retry = await f.request(path, input, d.options);
+     32|     expect(retry.body.id).toBe(first.body.id);
+       |                           ^
+     33|     expect(await effects(d.side.property)).toEqual(before);
+     34|     const conflict = await f.request(path, { ...input, ...(kind === 'p…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/15]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03/T06/T07 retail: lost response replay is one effect, changed payload conflicts, new intent succeeds
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03/T06/T07 folio: lost response replay is one effect, changed payload conflicts, new intent succeeds
+AssertionError: expected 201 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 201
+
+ ❯ tests/integration/bar-replay-repair.test.ts:35:29
+     33|     expect(await effects(d.side.property)).toEqual(before);
+     34|     const conflict = await f.request(path, { ...input, ...(kind === 'p…
+     35|     expect(conflict.status).toBe(409);
+       |                             ^
+     36|     expect(await effects(d.side.property)).toEqual(before);
+     37|     const second = await f.request(path, { ...input, idempotencyKey: r…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/15]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T10 linked Finance void restores debt and replay returns VOIDED without paying again
+AssertionError: expected { purchasesMinor: '280000', …(7) } to match object { supplierPaidMinor: '0', …(2) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "stockCostMinor": "280000",
+-   "supplierDebtMinor": "280000",
+-   "supplierPaidMinor": "0",
++   "supplierDebtMinor": "220000",
++   "supplierPaidMinor": "60000",
+  }
+
+ ❯ tests/integration/bar-replay-repair.test.ts:46:68
+     44|     const stored = await f.db.barSupplierPayment.findUniqueOrThrow({ w…
+     45|     expect((await f.request(`/finance/cash/operations/${stored.cashOpe…
+     46|     expect((await f.request('report', undefined, d.options)).body).toM…
+       |                                                                    ^
+     47|     const before = await effects(d.side.property);
+     48|     expect((await f.request(`receipts/${d.r1.id}/payments`, body, d.op…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/15]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T10 no-restock loss retains FIFO cost once without a second warehouse decrement
+AssertionError: expected { purchasesMinor: '280000', …(7) } to match object { …(4) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "costMinor": "0",
+-   "nonRestockedLossMinor": "132000",
+    "stockCostMinor": "148000",
+    "writeOffMinor": "0",
+  }
+
+ ❯ tests/integration/bar-replay-repair.test.ts:56:68
+     54|     const sale = await f.request('sales/retail', { productId: d.a.id, …
+     55|     expect((await f.request(`sales/${sale.body.id}/reverse`, { restock…
+     56|     expect((await f.request('report', undefined, d.options)).body).toM…
+       |                                                                    ^
+     57|     const before = await effects(d.side.property);
+     58|     expect((await f.request(`sales/${sale.body.id}/reverse`, { restock…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/15]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T05 payment same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T05 write-off same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T05 retail same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T05 folio same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+AssertionError: both requests observed at the PostgreSQL advisory barrier: expected 0 to be greater than or equal to 2
+ ❯ tests/integration/bar-replay-repair.test.ts:85:84
+     83|         await new Promise(resolve => setTimeout(resolve, 10));
+     84|       }
+     85|       expect(waiting, 'both requests observed at the PostgreSQL adviso…
+       |                                                                                    ^
+     86|       await barrier.query('COMMIT');
+     87|       const responses = await Promise.all(pending);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/15]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T02 payment registry failure rolls back all ledger effects and the original key remains retryable
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T02 write-off registry failure rolls back all ledger effects and the original key remains retryable
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T02 retail registry failure rolls back all ledger effects and the original key remains retryable
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T02 folio registry failure rolls back all ledger effects and the original key remains retryable
+AssertionError: expected 201 to be 500 // Object.is equality
+
+- Expected
++ Received
+
+- 500
++ 201
+
+ ❯ tests/integration/bar-replay-repair.test.ts:106:64
+    104|     await f.db.$executeRawUnsafe(`CREATE TRIGGER ${name} AFTER INSERT …
+    105|     try {
+    106|       expect((await f.request(path, input, d.options)).status).toBe(50…
+       |                                                                ^
+    107|       expect(await effects(d.side.property)).toEqual(before);
+    108|       expect(await f.db.barOperationIntent.count({ where: { key: idemp…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/15]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T01 operation kind scopes keys independently for RETAIL and FOLIO in one Property
+AssertionError: expected 'aeb08e98-df4e-42e8-88f6-0aac9eae44fc' not to be 'aeb08e98-df4e-42e8-88f6-0aac9eae44fc' // Object.is equality
+ ❯ tests/integration/bar-replay-repair.test.ts:122:31
+    120|     expect(retail.status).toBe(201);
+    121|     expect(folio.status).toBe(201);
+    122|     expect(folio.body.id).not.toBe(retail.body.id);
+       |                               ^
+    123|     expect(await f.db.barOperationIntent.count({ where: { propertyId: …
+    124|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/15]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  15 failed (15)
+   Start at  18:02:48
+   Duration  37.09s (tests 72%, transform 18%, import 9%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-02-42Z-integration-07e3.json
+
+# код выхода 1 · 43 с

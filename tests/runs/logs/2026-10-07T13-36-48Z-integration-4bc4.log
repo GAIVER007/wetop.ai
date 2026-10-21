@@ -1,0 +1,246 @@
+# Интеграционные (integration) · 07.10.2026 18:36 Алматы · MacBook-Air-Urij.local
+# коммит 12a7cc2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-36-48Z-integration-4bc4.json' 'tests/integration/bar-replay-repair.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+[Nest] 87446  - 10/07/2026, 5:37:11 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError:
+Invalid `prisma.barSale.create()` invocation:
+
+
+Unique constraint failed on the constraint: `bar_sales_property_id_idempotency_key_key`
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:219:20
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at BarService.sellRetail (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:108:20) {
+  code: 'P2002',
+  meta: {
+    driverAdapterError: DriverAdapterError: UniqueConstraintViolation
+        at PgTransaction.onError (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at PgTransaction.queryRaw (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70920)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69631)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:71857)
+        at e.run (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69273)
+        at execute (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:57:815) {
+      cause: {
+        originalCode: '23505',
+        originalMessage: 'duplicate key value violates unique constraint "bar_sales_property_id_idempotency_key_key"',
+        kind: 'UniqueConstraintViolation',
+        constraint: {
+          index: 'bar_sales_property_id_idempotency_key_key'
+        },
+        table: 'bar_sales'
+      }
+    },
+    modelName: 'BarSale'
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 87446  - 10/07/2026, 5:37:13 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError:
+Invalid `prisma.barSale.create()` invocation:
+
+
+Unique constraint failed on the constraint: `bar_sales_property_id_idempotency_key_key`
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:248:20
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at BarService.sellToFolio (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:123:20) {
+  code: 'P2002',
+  meta: {
+    driverAdapterError: DriverAdapterError: UniqueConstraintViolation
+        at PgTransaction.onError (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at PgTransaction.queryRaw (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70920)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69631)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:71857)
+        at e.run (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69273)
+        at execute (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:57:815) {
+      cause: {
+        originalCode: '23505',
+        originalMessage: 'duplicate key value violates unique constraint "bar_sales_property_id_idempotency_key_key"',
+        kind: 'UniqueConstraintViolation',
+        constraint: {
+          index: 'bar_sales_property_id_idempotency_key_key'
+        },
+        table: 'bar_sales'
+      }
+    },
+    modelName: 'BarSale'
+  },
+  clientVersion: '7.10.0'
+}
+ ❯ |integration| tests/integration/bar-replay-repair.test.ts (11 tests | 11 failed) 12408ms
+   ❯ BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL (11)
+     × T03/T06/T07 payment: lost response replay is one effect, changed payload conflicts, new intent succeeds 495ms
+     × T03/T06/T07 write-off: lost response replay is one effect, changed payload conflicts, new intent succeeds 268ms
+     × T03/T06/T07 retail: lost response replay is one effect, changed payload conflicts, new intent succeeds 198ms
+     × T03/T06/T07 folio: lost response replay is one effect, changed payload conflicts, new intent succeeds 178ms
+     × T10 linked Finance void restores debt and replay returns VOIDED without paying again 250ms
+     × T10 no-restock loss retains FIFO cost once without a second warehouse decrement 193ms
+     × T05 payment same-key concurrent requests serialize to one effect, persisted replay survives a new API instance 2118ms
+     × T05 write-off same-key concurrent requests serialize to one effect, persisted replay survives a new API instance 2733ms
+     × T05 retail same-key concurrent requests serialize to one effect, persisted replay survives a new API instance 2193ms
+     × T05 folio same-key concurrent requests serialize to one effect, persisted replay survives a new API instance 2116ms
+     × T02 registry failure rolls back all ledger effects and the original key remains retryable 203ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03/T06/T07 payment: lost response replay is one effect, changed payload conflicts, new intent succeeds
+AssertionError: expected '0dd36e94-7e5c-4a02-b28b-28eda41ad007' to be 'af1301bc-ea6e-448b-b123-463575ee2ceb' // Object.is equality
+
+Expected: "af1301bc-ea6e-448b-b123-463575ee2ceb"
+Received: "0dd36e94-7e5c-4a02-b28b-28eda41ad007"
+
+ ❯ tests/integration/bar-replay-repair.test.ts:32:27
+     30|     const before = await effects(d.side.property);
+     31|     const retry = await f.request(path, input, d.options);
+     32|     expect(retry.body.id).toBe(first.body.id);
+       |                           ^
+     33|     expect(await effects(d.side.property)).toEqual(before);
+     34|     const conflict = await f.request(path, { ...input, ...(kind === 'p…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03/T06/T07 write-off: lost response replay is one effect, changed payload conflicts, new intent succeeds
+AssertionError: expected '8deaa493-5ac1-40c2-a3cc-d15f6d84a027' to be '0043b146-c80c-4429-84e6-a9d4c6c91de1' // Object.is equality
+
+Expected: "0043b146-c80c-4429-84e6-a9d4c6c91de1"
+Received: "8deaa493-5ac1-40c2-a3cc-d15f6d84a027"
+
+ ❯ tests/integration/bar-replay-repair.test.ts:32:27
+     30|     const before = await effects(d.side.property);
+     31|     const retry = await f.request(path, input, d.options);
+     32|     expect(retry.body.id).toBe(first.body.id);
+       |                           ^
+     33|     expect(await effects(d.side.property)).toEqual(before);
+     34|     const conflict = await f.request(path, { ...input, ...(kind === 'p…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03/T06/T07 retail: lost response replay is one effect, changed payload conflicts, new intent succeeds
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T03/T06/T07 folio: lost response replay is one effect, changed payload conflicts, new intent succeeds
+AssertionError: expected 201 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 201
+
+ ❯ tests/integration/bar-replay-repair.test.ts:35:29
+     33|     expect(await effects(d.side.property)).toEqual(before);
+     34|     const conflict = await f.request(path, { ...input, ...(kind === 'p…
+     35|     expect(conflict.status).toBe(409);
+       |                             ^
+     36|     expect(await effects(d.side.property)).toEqual(before);
+     37|     const second = await f.request(path, { ...input, idempotencyKey: r…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T10 linked Finance void restores debt and replay returns VOIDED without paying again
+AssertionError: expected { purchasesMinor: '280000', …(7) } to match object { supplierPaidMinor: '0', …(2) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "stockCostMinor": "280000",
+-   "supplierDebtMinor": "280000",
+-   "supplierPaidMinor": "0",
++   "supplierDebtMinor": "220000",
++   "supplierPaidMinor": "60000",
+  }
+
+ ❯ tests/integration/bar-replay-repair.test.ts:46:68
+     44|     const stored = await f.db.barSupplierPayment.findUniqueOrThrow({ w…
+     45|     expect((await f.request(`/finance/cash/operations/${stored.cashOpe…
+     46|     expect((await f.request('report', undefined, d.options)).body).toM…
+       |                                                                    ^
+     47|     const before = await effects(d.side.property);
+     48|     expect((await f.request(`receipts/${d.r1.id}/payments`, body, d.op…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T10 no-restock loss retains FIFO cost once without a second warehouse decrement
+AssertionError: expected { purchasesMinor: '280000', …(7) } to match object { …(4) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "costMinor": "0",
+-   "nonRestockedLossMinor": "132000",
+    "stockCostMinor": "148000",
+    "writeOffMinor": "0",
+  }
+
+ ❯ tests/integration/bar-replay-repair.test.ts:56:68
+     54|     const sale = await f.request('sales/retail', { productId: d.a.id, …
+     55|     expect((await f.request(`sales/${sale.body.id}/reverse`, { restock…
+     56|     expect((await f.request('report', undefined, d.options)).body).toM…
+       |                                                                    ^
+     57|     const before = await effects(d.side.property);
+     58|     expect((await f.request(`sales/${sale.body.id}/reverse`, { restock…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T05 payment same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T05 write-off same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T05 retail same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T05 folio same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+AssertionError: both requests observed at the PostgreSQL advisory barrier: expected 0 to be greater than or equal to 2
+ ❯ tests/integration/bar-replay-repair.test.ts:85:84
+     83|         await new Promise(resolve => setTimeout(resolve, 10));
+     84|       }
+     85|       expect(waiting, 'both requests observed at the PostgreSQL adviso…
+       |                                                                                    ^
+     86|       await barrier.query('COMMIT');
+     87|       const responses = await Promise.all(pending);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T02 registry failure rolls back all ledger effects and the original key remains retryable
+AssertionError: expected 201 to be 500 // Object.is equality
+
+- Expected
++ Received
+
+- 500
++ 201
+
+ ❯ tests/integration/bar-replay-repair.test.ts:104:74
+    102|     await f.db.$executeRawUnsafe(`CREATE TRIGGER ${name} AFTER INSERT …
+    103|     try {
+    104|       expect((await f.request('sales/retail', input, d.options)).statu…
+       |                                                                          ^
+    105|       expect(await effects(d.side.property)).toEqual(before);
+    106|       expect(await f.db.barOperationIntent.count({ where: { key: idemp…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 failed (11)
+   Start at  17:36:54
+   Duration  22.25s (tests 66%, transform 20%, import 14%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-36-48Z-integration-4bc4.json
+
+# код выхода 1 · 28 с

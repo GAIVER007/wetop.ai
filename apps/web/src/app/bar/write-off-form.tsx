@@ -4,7 +4,7 @@ import { BarContextFields, type BarFormContext } from './context';
 
 import type { BarStockRow } from '../../lib/api';
 import { Button, Field, Input, Select } from '../../components/ui';
-import { writeOffBarAction, type BarActionResult } from './actions';
+import { writeOffBarAction } from './actions';
 
 const initial: BarActionResult = { error: null, ok: 0 };
 export function WriteOffForm({

@@ -122,10 +122,10 @@ export function barFixture(
       const stockCost = products.filter((p) => p.active).reduce((sum, p) => sum + BigInt(p.stockCostMinor), 0n);
       return ok({
         purchasesMinor: '24280000', supplierPaidMinor: (24280000n - debt).toString(), revenueMinor: '124560000', costMinor: '62220000',
-        grossProfitMinor: '62340000', writeOffMinor: '0', stockCostMinor: stockCost.toString(), supplierDebtMinor: debt.toString(),
+        nonRestockedLossMinor: '0', grossProfitMinor: '62340000', writeOffMinor: '0', stockCostMinor: stockCost.toString(), supplierDebtMinor: debt.toString(),
         month: {
           monthStart: `${daysAgo(0).slice(0, 7)}-01`, purchasesMinor: '41280000', purchasesPrevMinor: '36857143',
-          revenueMinor: '124560000', revenuePrevMinor: '105559322', grossProfitMinor: '62340000',
+          revenueMinor: '124560000', revenuePrevMinor: '105559322', nonRestockedLossMinor: '0', grossProfitMinor: '62340000',
           purchasesGrowth: 12, revenueGrowth: 18,
         },
         popular,

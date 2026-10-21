@@ -3759,6 +3759,53 @@ model TableAssignment {
   @@map("table_assignments")
 }
 
+
+/// Permanent replay result, committed atomically with BAR ledger effects.
+model BarOperationIntent {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  propertyId  String   @map("property_id") @db.Uuid
+  kind        String   @db.VarChar(32)
+  key         String   @db.VarChar(120)
+  request     Json
+  result      Json
+  operationId String   @map("operation_id") @db.Uuid
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  @@unique([propertyId, kind, key])
+  @@index([propertyId, createdAt])
+  @@map("bar_operation_intents")
+}
+
+/// Compensation preserves the original supplier payment and Finance audit.
+model BarSupplierPaymentReversal {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  propertyId  String   @map("property_id") @db.Uuid
+  paymentId   String   @unique @map("payment_id") @db.Uuid
+  amountMinor BigInt   @map("amount_minor")
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  payment BarSupplierPayment @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  @@index([propertyId, createdAt])
+  @@map("bar_supplier_payment_reversals")
+}
+
+/// FIFO cost lost on reversal without restock; no second warehouse decrement.
+model BarCostLoss {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  propertyId  String   @map("property_id") @db.Uuid
+  saleId      String   @unique @map("sale_id") @db.Uuid
+  amountMinor BigInt   @map("amount_minor")
+  reason      String
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  sale BarSale @relation(fields: [saleId], references: [id], onDelete: Restrict)
+  @@index([propertyId, createdAt])
+  @@map("bar_cost_losses")
+}
+
 enum RestaurantOrderStatus {
   NEW
   COOKING

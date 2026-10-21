@@ -1,0 +1,58 @@
+# Модульные (unit) · 07.10.2026 20:45 Алматы · MacBook-Air-Urij.local
+# коммит ebbaae6 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-45-48Z-unit-534b.json' 'tests/unit/ci-runner.test.ts' '-t' 'BAR real HTTP browser acceptance'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ❯ |unit| tests/unit/ci-runner.test.ts (23 tests | 1 failed | 22 skipped) 14ms
+   ❯ свой раннер CI (14)
+     ↓ раннеру не дают сокет Docker: это был бы root на машине с чужими проектами
+     ↓ потолки памяти и процессора заданы: браузерные проверки не душат боевую стойку
+     ↓ ни одна проверка не идёт на боевой сервер и ни одна не запускается на каждый пуш (ADR-139)
+     ↓ перед выкладкой: lint, typecheck, unit, главная, бот, база и весь UI; по кнопке или пушем в release-candidate
+     ↓ база и UI ждут быстрые проверки: при красном lint или unit минуты на них не тратятся
+     ↓ наборы салона, ресторана и филиалов входят в гейт выкладки параллельно, на своей базе (MV8.5 DS0a)
+     × BAR real HTTP browser acceptance belongs to the full exact-SHA gate on isolated PostgreSQL 13ms
+     ↓ сквозные в гейте идут вошедшим пользователем: E2E_AUTH=1 задан явно (решение владельца 07.10.2026)
+     ↓ тесты бота входят в проверки: pytest в apps/ai-seller на той же версии Python, что образ бота
+     ↓ образ раннера без sudo: под no-new-privileges он не работает
+     ↓ образ раннера ставит всё, что Playwright просит для Chromium на Ubuntu 24.04
+     ↓ проверки не слушают pull_request_target: там код форка шёл бы с правами репозитория
+     ↓ задача с базой остаётся на GitHub: ей нужен Docker для services: postgres
+     ↓ эталоны -linux снимает раннер GitHub по кнопке и кладёт отдельной веткой, не в main и не в release
+   ↓ свой раннер не выполняет код из чужого форка (ADR-137) (5)
+     ↓ образ раннера включает хук: переменная ACTIONS_RUNNER_HOOK_JOB_STARTED указывает на job-started.sh
+     ↓ запрос на слияние из форка: отказ, задача краснеет, а не пропускается
+     ↓ форк уже удалён (head.repo пуст): чей код, не проверить, тоже отказ
+     ↓ ветка самого репозитория и пуш в main выполняются
+     ↓ нет файла события или он битый: отказ, а не молчаливый пропуск проверки
+   ↓ скрипт запуска раннера: регистрация (4)
+     ↓ образец «…» вместо токена: отказ словами до регистрации, config.sh не зовётся
+     ↓ токен с пробелом или в кавычках и адрес не GitHub: тоже отказ
+     ↓ настоящий токен: регистрация с меткой wetop, затем работа
+     ↓ уже зарегистрирован (настройка в томе): токен не нужен и не проверяется
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер CI > BAR real HTTP browser acceptance belongs to the full exact-SHA gate on isolated PostgreSQL
+AssertionError: задача bar-acceptance не найдена: expected -1 to be greater than -1
+ ❯ job tests/unit/ci-runner.test.ts:46:46
+     44| function job(name: string, text = RELEASE): string {
+     45|   const start = text.indexOf(`\n  ${name}:\n`);
+     46|   expect(start, `задача ${name} не найдена`).toBeGreaterThan(-1);
+       |                                              ^
+     47|   const rest = text.slice(start + 1);
+     48|   const next = rest.search(/\n {2}[a-z][a-z-]*:\n/);
+ ❯ tests/unit/ci-runner.test.ts:116:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 22 skipped (23)
+   Start at  19:46:10
+   Duration  1.02s (transform 59%, import 32%, worker 4%, tests 4%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-45-48Z-unit-534b.json
+
+# код выхода 1 · 24 с

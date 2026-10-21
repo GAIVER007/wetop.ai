@@ -522,7 +522,8 @@ export class PrismaBarRepository implements BarRepository {
       if (sale.restaurantCashOperationId)
         await (tx as any).restaurantCashOperation.update({ where: { id: sale.restaurantCashOperationId }, data: { status: 'VOIDED', voidedAt: new Date(), voidedById: auditUserId() } });
       if (sale.chargeId) await (tx as any).charge.update({ where: { id: sale.chargeId }, data: { voidedAt: new Date() } });
-      await (tx as any).barSale.update({ where: { id }, data: { status: 'REVERSED', reversedAt: new Date() } });
+      await (tx as any).barSale.update({ where: { id }, data: { status: 'REVERSED', reversedAt: new Date(), reversalRestocked: restock } });
+      if (!restock) await tx.barCostLoss.create({ data: { propertyId, saleId: id, amountMinor: sale.totalCost, reason, createdById: auditUserId() } });
       await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_sale', entityId: id, action: 'bar.sale.reversed', after: { restock, reason } } });
       return { kind: 'reversed' as const, id, status: 'REVERSED' as const, restocked: restock };
     }));

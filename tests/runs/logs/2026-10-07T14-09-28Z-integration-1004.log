@@ -1,0 +1,55 @@
+# Интеграционные (integration) · 07.10.2026 19:09 Алматы · MacBook-Air-Urij.local
+# коммит 12a7cc2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-09-28Z-integration-1004.json' 'tests/integration/bar-replay-repair.test.ts' '--testNamePattern' 'T04'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ❯ |integration| tests/integration/bar-replay-repair.test.ts (19 tests | 4 failed | 15 skipped) 8846ms
+   ❯ BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL (19)
+     ↓ T03/T06/T07 payment: lost response replay is one effect, changed payload conflicts, new intent succeeds
+     ↓ T03/T06/T07 write-off: lost response replay is one effect, changed payload conflicts, new intent succeeds
+     ↓ T03/T06/T07 retail: lost response replay is one effect, changed payload conflicts, new intent succeeds
+     ↓ T03/T06/T07 folio: lost response replay is one effect, changed payload conflicts, new intent succeeds
+     ↓ T10 linked Finance void restores debt and replay returns VOIDED without paying again
+     ↓ T10 no-restock loss retains FIFO cost once without a second warehouse decrement
+     ↓ T05 payment same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+     ↓ T05 write-off same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+     ↓ T05 retail same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+     ↓ T05 folio same-key concurrent requests serialize to one effect, persisted replay survives a new API instance
+     ↓ T02 payment registry failure rolls back all ledger effects and the original key remains retryable
+     ↓ T02 write-off registry failure rolls back all ledger effects and the original key remains retryable
+     ↓ T02 retail registry failure rolls back all ledger effects and the original key remains retryable
+     ↓ T02 folio registry failure rolls back all ledger effects and the original key remains retryable
+     × T04 payment client abort before late commit preserves one retry result 2193ms
+     × T04 write-off client abort before late commit preserves one retry result 2087ms
+     × T04 retail client abort before late commit preserves one retry result 2138ms
+     × T04 folio client abort before late commit preserves one retry result 2054ms
+     ↓ T01 operation kind scopes keys independently for RETAIL and FOLIO in one Property
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T04 payment client abort before late commit preserves one retry result
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T04 write-off client abort before late commit preserves one retry result
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T04 retail client abort before late commit preserves one retry result
+ FAIL  |integration| tests/integration/bar-replay-repair.test.ts > BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL > T04 folio client abort before late commit preserves one retry result
+Error: Expected requests not observed at the real database barrier
+ ❯ waitForRequests tests/integration/bar-replay-repair.test.ts:135:13
+    133|         await new Promise(resolve => setTimeout(resolve, 10));
+    134|       }
+    135|       throw new Error('Expected requests not observed at the real data…
+       |             ^
+    136|     }
+    137|     try {
+ ❯ tests/integration/bar-replay-repair.test.ts:142:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 15 skipped (19)
+   Start at  18:09:29
+   Duration  11.06s (tests 84%, transform 10%, import 6%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-09-28Z-integration-1004.json
+
+# код выхода 1 · 12 с

@@ -18,6 +18,7 @@ describe('бар на счёт: дата услуги начисления', () 
     // 9 октября, 23:30 по Алматы: по UTC ещё 9-е, по поясу объекта тоже; дата услуги из пояса объекта
     vi.useFakeTimers({ now: new Date('2026-10-09T18:30:00Z'), toFake: ['Date'] });
     const created: Array<Record<string, unknown>> = [];
+    const intents: Array<Record<string, unknown>> = [];
     const tx = {
       // валюта филиала отвечает KZT (D-CUR, §44), сверка истории закупок и замки строк — пусто
       $queryRaw: async (strings: TemplateStringsArray) =>
@@ -58,6 +59,8 @@ describe('бар на счёт: дата услуги начисления', () 
       idempotencyKey: 'k-1',
     } as never);
     expect(result.kind).toBe('posted');
+    expect(intents).toHaveLength(1);
+    expect(intents[0]).toMatchObject({ kind: 'FOLIO', key: 'k-1', operationId: 'sale-1' });
     expect(created).toHaveLength(1);
     expect(created[0]?.serviceDate).toEqual(new Date('2026-10-09T00:00:00Z'));
   });

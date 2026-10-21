@@ -1,0 +1,16 @@
+# Модульные (unit) · 07.10.2026 18:27 Алматы · MacBook-Air-Urij.local
+# коммит 12a7cc2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-27-47Z-unit-dec7.json' 'apps/web/src/app/bar/actions.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ✓ |unit| apps/web/src/app/bar/actions.test.ts (12 tests) 141ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  17:27:53
+   Duration  764ms (transform 42%, tests 38%, import 17%, worker 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T13-27-47Z-unit-dec7.json
+
+# код выхода 0 · 7 с

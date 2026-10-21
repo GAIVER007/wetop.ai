@@ -1,0 +1,248 @@
+# Интеграционные (integration) · 07.10.2026 20:21 Алматы · MacBook-Air-Urij.local
+# коммит c4178b3 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-21-14Z-integration-e5d4.json' 'tests/integration/bar-payment-void-race.test.ts' 'tests/integration/bar-replay-repair.test.ts' 'tests/integration/bar-operational.test.ts' 'tests/integration/mv8-branches-contract.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+[Nest] 79589  - 10/07/2026, 7:22:15 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError:
+Invalid `prisma.barOperationIntent.create()` invocation:
+
+
+Database error. Code: `P0001`. Message: `Synthetic atomic rollback`
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:119:11
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at PrismaBarRepository.operation (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:87:14)
+    at BarService.payReceipt (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:191:20) {
+  code: 'P2039',
+  meta: {
+    modelName: 'BarOperationIntent',
+    driverAdapterError: DriverAdapterError: Synthetic atomic rollback
+        at PgTransaction.onError (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at PgTransaction.queryRaw (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70920)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:71857)
+        at e.run (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69273)
+        at execute (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:57:815)
+        at yr.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:58:2425) {
+      cause: {
+        originalCode: 'P0001',
+        originalMessage: 'Synthetic atomic rollback',
+        kind: 'postgres',
+        code: 'P0001',
+        severity: 'ERROR',
+        message: 'Synthetic atomic rollback',
+        detail: undefined,
+        column: undefined,
+        hint: undefined
+      }
+    }
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 79589  - 10/07/2026, 7:22:17 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError:
+Invalid `prisma.barOperationIntent.create()` invocation:
+
+
+Database error. Code: `P0001`. Message: `Synthetic atomic rollback`
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:119:11
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at PrismaBarRepository.operation (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:87:14)
+    at BarService.writeOff (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:145:20) {
+  code: 'P2039',
+  meta: {
+    modelName: 'BarOperationIntent',
+    driverAdapterError: DriverAdapterError: Synthetic atomic rollback
+        at PgTransaction.onError (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at PgTransaction.queryRaw (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70920)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:71857)
+        at e.run (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69273)
+        at execute (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:57:815)
+        at yr.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:58:2425) {
+      cause: {
+        originalCode: 'P0001',
+        originalMessage: 'Synthetic atomic rollback',
+        kind: 'postgres',
+        code: 'P0001',
+        severity: 'ERROR',
+        message: 'Synthetic atomic rollback',
+        detail: undefined,
+        column: undefined,
+        hint: undefined
+      }
+    }
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 79589  - 10/07/2026, 7:22:18 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError:
+Invalid `prisma.barOperationIntent.create()` invocation:
+
+
+Database error. Code: `P0001`. Message: `Synthetic atomic rollback`
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:119:11
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at PrismaBarRepository.operation (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:87:14)
+    at BarService.sellRetail (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:108:20) {
+  code: 'P2039',
+  meta: {
+    modelName: 'BarOperationIntent',
+    driverAdapterError: DriverAdapterError: Synthetic atomic rollback
+        at PgTransaction.onError (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at PgTransaction.queryRaw (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70920)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:71857)
+        at e.run (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69273)
+        at execute (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:57:815)
+        at yr.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:58:2425) {
+      cause: {
+        originalCode: 'P0001',
+        originalMessage: 'Synthetic atomic rollback',
+        kind: 'postgres',
+        code: 'P0001',
+        severity: 'ERROR',
+        message: 'Synthetic atomic rollback',
+        detail: undefined,
+        column: undefined,
+        hint: undefined
+      }
+    }
+  },
+  clientVersion: '7.10.0'
+}
+[Nest] 79589  - 10/07/2026, 7:22:19 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError:
+Invalid `prisma.barOperationIntent.create()` invocation:
+
+
+Database error. Code: `P0001`. Message: `Synthetic atomic rollback`
+    at vn.handleRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at a (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:119:11
+    at Proxy._transactionWithCallback (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at PrismaBarRepository.operation (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.repository.ts:87:14)
+    at BarService.sellToFolio (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/apps/api/src/bar/bar.service.ts:123:20) {
+  code: 'P2039',
+  meta: {
+    modelName: 'BarOperationIntent',
+    driverAdapterError: DriverAdapterError: Synthetic atomic rollback
+        at PgTransaction.onError (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at PgTransaction.queryRaw (file:///Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:70920)
+        at e.interpretNode (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:71857)
+        at e.run (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:11:69273)
+        at execute (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:57:815)
+        at yr.request (/Users/urijzapojnov/wetop-bar-acceptance-20261007-src/node_modules/@prisma/client/runtime/client.js:58:2425) {
+      cause: {
+        originalCode: 'P0001',
+        originalMessage: 'Synthetic atomic rollback',
+        kind: 'postgres',
+        code: 'P0001',
+        severity: 'ERROR',
+        message: 'Synthetic atomic rollback',
+        detail: undefined,
+        column: undefined,
+        hint: undefined
+      }
+    }
+  },
+  clientVersion: '7.10.0'
+}
+ ✓ |integration| tests/integration/bar-replay-repair.test.ts (21 tests) 43890ms
+   ✓ BAR approved replay/debt/loss contracts on real HTTP and PostgreSQL (21)
+     ✓ T03/T06/T07 payment: lost response replay is one effect, changed payload conflicts, new intent succeeds 2083ms
+     ✓ T03/T06/T07 write-off: lost response replay is one effect, changed payload conflicts, new intent succeeds 2511ms
+     ✓ T03/T06/T07 retail: lost response replay is one effect, changed payload conflicts, new intent succeeds 2509ms
+     ✓ T03/T06/T07 folio: lost response replay is one effect, changed payload conflicts, new intent succeeds 963ms
+     ✓ T10 linked Finance void restores debt and replay returns VOIDED without paying again 2215ms
+     ✓ T10 no-restock loss retains FIFO cost once without a second warehouse decrement 1822ms
+     ✓ T05 payment same-key concurrent requests serialize to one effect, persisted replay survives a new API instance 2590ms
+     ✓ T05 write-off same-key concurrent requests serialize to one effect, persisted replay survives a new API instance 2942ms
+     ✓ T05 retail same-key concurrent requests serialize to one effect, persisted replay survives a new API instance 2064ms
+     ✓ T05 folio same-key concurrent requests serialize to one effect, persisted replay survives a new API instance 1854ms
+     ✓ T02 payment registry failure rolls back all ledger effects and the original key remains retryable 2800ms
+     ✓ T02 write-off registry failure rolls back all ledger effects and the original key remains retryable 1182ms
+     ✓ T02 retail registry failure rolls back all ledger effects and the original key remains retryable 1820ms
+     ✓ T02 folio registry failure rolls back all ledger effects and the original key remains retryable 1113ms
+     ✓ T04 payment client abort before late commit preserves one retry result 1131ms
+     ✓ T04 write-off client abort before late commit preserves one retry result 1135ms
+     ✓ T04 retail client abort before late commit preserves one retry result 1853ms
+     ✓ T04 folio client abort before late commit preserves one retry result 704ms
+     ✓ T08 retail persisted replay after reversal returns the same REVERSED sale without new effects 1287ms
+     ✓ T08 folio persisted replay after reversal returns the same REVERSED sale without new effects 1136ms
+     ✓ T01 operation kind scopes keys independently for RETAIL and FOLIO in one Property 1672ms
+ ❯ |integration| tests/integration/mv8-branches-contract.test.ts (2 tests | 1 failed) 9594ms
+   × MV8 requires real branches contract to expose selected Food Location and current timezone 6452ms
+   ✓ real HTTP acceptance matrix preserves Hospitality/Beauty and isolates owned active Food locations 3134ms
+ ✓ |integration| tests/integration/bar-payment-void-race.test.ts (3 tests) 13891ms
+   ✓ T10 shared receipt lock serializes void-first without overpayment or duplicate compensation 1712ms
+   ✓ T10 shared receipt lock serializes pay-first without overpayment or duplicate compensation 303ms
+   ✓ T10 ordinary write-off stays separate from no-restock FIFO loss without a second loss or warehouse decrement 630ms
+ ✓ |integration| tests/integration/bar-operational.test.ts (13 tests) 19963ms
+   ✓ BAR operational acceptance: real HTTP and PostgreSQL (13)
+     ✓ C01-C08 reconciles drafts, FIFO, cash, Folio, write-off and shortage in minor units 2664ms
+     ✓ C09/C10 reversal restock=true preserves exact stock and cash, repeat denies 939ms
+     ✓ C09/C10 reversal restock=false preserves exact stock and cash, repeat denies 1365ms
+     ✓ C13 replay after void returns actual REVERSED status for retail without new effects 1330ms
+     ✓ C13 replay after void returns actual REVERSED status for folio without new effects 1057ms
+     ✓ C11 invalid inputs and insufficient stock leave no partial effects 436ms
+     ✓ C15 foreign product, receipt, sale and Folio are denied without cross-property writes 895ms
+     ✓ C01 archives an unused product without affecting stock, and C04 pays remaining debt exactly 1003ms
+     ✓ C14 current STAFF contract permits desk sales but denies catalog settings 382ms
+     ✓ C16 controlled row-lock race: last-unit 664ms
+     ✓ C16 controlled row-lock race: supplier-balance 586ms
+     ✓ C16 controlled row-lock race: receipt-post 951ms
+     ✓ C16 controlled row-lock race: sale-reverse 1366ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/mv8-branches-contract.test.ts > MV8 requires real branches contract to expose selected Food Location and current timezone
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/integration/mv8-branches-contract.test.ts:14:1
+     12| import { isLocalDatabase } from '../tools/seed-local';
+     13|
+     14| it('MV8 requires real branches contract to expose selected Food Locati…
+       | ^
+     15|   if (!isLocalDatabase(process.env.DATABASE_URL ?? ''))
+     16|     throw new Error('Own local database required');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 38 passed (39)
+   Start at  19:21:23
+   Duration  140.86s (tests 67%, import 20%, transform 12%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T15-21-14Z-integration-e5d4.json
+
+# код выхода 1 · 2 мин 31 с

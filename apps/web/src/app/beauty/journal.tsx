@@ -167,16 +167,21 @@ export function JournalBoard({
     <div
       className="beauty-col-body"
       style={{ height }} /* slop-allow: inline-style высота колонки из длины рабочего дня */
+      data-testid={employee ? undefined : 'beauty-empty-timeline'}
+      role={employee ? undefined : 'group'}
+      aria-label={employee ? undefined : 'Расписание без назначенных мастеров'}
     >
       {nowLine}
       {slots.map((m) => {
         const works =
+          !!employee &&
           !employee.timeOff &&
           employee.intervals.some(
             (i) => clockMinutes(i.timeFrom) <= m && m + STEP <= clockMinutes(i.timeTo),
           );
         const occupied = segments.some(
           (a) =>
+            employee !== undefined &&
             a.employeeId === employee.id &&
             a.status !== 'CANCELLED' &&
             a.status !== 'NO_SHOW' &&

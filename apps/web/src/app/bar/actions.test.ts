@@ -11,7 +11,7 @@ vi.mock('../../lib/workspace-context', () => ({ selectedWorkspaceBranch: vi.fn()
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 vi.mock('../../lib/api', () => ({
   ApiError: class ApiError extends Error {},
-  barApi: { createCategory: vi.fn(), createProduct: vi.fn(), createReceipt: vi.fn(), postReceipt: vi.fn(), scanReceipt: vi.fn(), sellRetail: vi.fn(), sellToFolio: vi.fn(), payReceipt: vi.fn(), inventoryCount: vi.fn(), setProductPrice: vi.fn(), updateProduct: vi.fn() },
+  barApi: { createCategory: vi.fn(), createProduct: vi.fn(), createReceipt: vi.fn(), postReceipt: vi.fn(), scanReceipt: vi.fn(), sellRetail: vi.fn(), sellToFolio: vi.fn(), payReceipt: vi.fn(), inventoryCount: vi.fn(), setProductPrice: vi.fn(), updateProduct: vi.fn(), writeOff: vi.fn() },
 }));
 
 describe('retail recovery server authorization boundary', () => {

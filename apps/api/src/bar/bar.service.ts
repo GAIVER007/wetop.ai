@@ -195,7 +195,7 @@ export class BarService {
     const reason = optionalText(body.reason);
     if (!uuid.test(productId)) throw new BadRequestException('Товар не выбран');
     if (!reason) throw new BadRequestException('Укажите причину списания');
-    const result = await this.repo.writeOff({ productId, quantityUnits: integer(body.quantityUnits, 'Количество'), reason });
+    const result = await this.repo.writeOff({ productId, quantityUnits: integer(body.quantityUnits, 'Количество'), reason, idempotencyKey: operationKey(body.idempotencyKey) });
     if (result.kind === 'not_found') throw new NotFoundException('Товар не найден');
     if (result.kind === 'insufficient_stock') throw new ConflictException(`Недостаточно товара: доступно ${result.availableUnits}`);
     return result;

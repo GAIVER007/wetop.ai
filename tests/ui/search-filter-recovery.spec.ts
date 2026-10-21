@@ -1,4 +1,4 @@
-import { FIXTURE_API, expect, test, settleStreaming } from './fixtures';
+import { FIXTURE_API, expect, test, settleStreaming, hydrated } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 // Synthetic loopback API. UI state evidence, not production or database evidence.
@@ -136,7 +136,8 @@ for (const width of [1440, 390]) {
       // Карточка считает все места, включая койки, и передаёт выбранный период и категорию.
       const link = page.getByRole('link', { name: /^Свободно .*Найти места$/ });
       await expect(link).toBeVisible();
-      await link.click();
+      await hydrated(link);
+      await Promise.all([page.waitForURL('**/rooms/availability?**'), link.click()]);
       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');
       await expect(page.getByLabel('Выезд', { exact: true })).toHaveValue('2026-10-13');
       await expect(page.getByRole('combobox', { name: 'Категория', exact: true })).toHaveValue(

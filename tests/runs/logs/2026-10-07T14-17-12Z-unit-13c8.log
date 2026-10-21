@@ -1,0 +1,57 @@
+# Модульные (unit) · 07.10.2026 19:17 Алматы · MacBook-Air-Urij.local
+# коммит 12a7cc2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 22
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-17-12Z-unit-13c8.json' 'apps/web/src/app/bar/actions.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ❯ |unit| apps/web/src/app/bar/actions.test.ts (13 tests | 1 failed) 19ms
+   ✓ форма прихода бара (8)
+     ✓ переводит тенге и процент в целые младшие единицы 12ms
+     ✓ не пропускает float и не отправляет запрос 0ms
+     ✓ передает розничную продажу с ключом повтора 0ms
+     ✓ переводит частичную оплату поставщику в minor units 0ms
+     ✓ передает продажу в счет гостя с ключом повтора 0ms
+     ✓ передает фактический остаток без float 0ms
+     ✓ хранит наценку категории в basis points 0ms
+     ✓ сохраняет свою цену продажи в minor units 0ms
+   ✓ BAR browser intent key survives server action retries (4)
+     ✓ retail forwards the same explicit key on both attempts 0ms
+     ✓ folio forwards the same explicit key on both attempts 0ms
+     ✓ write-off forwards the same explicit key on both attempts 0ms
+     ✓ payment forwards the same explicit key on both attempts 0ms
+   × expired-session navigation is preserved instead of displaying NEXT_REDIRECT 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/bar/actions.test.ts > expired-session navigation is preserved instead of displaying NEXT_REDIRECT
+AssertionError: promise resolved "{ error: 'NEXT_REDIRECT', ok: +0 }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "error": "NEXT_REDIRECT",
++   "ok": 0,
+  }
+
+ ❯ apps/web/src/app/bar/actions.test.ts:119:64
+    117|   const fd = new FormData();
+    118|   Object.entries({ productId: 'product-1', quantityUnits: '1', method:…
+    119|   await expect(sellBarRetailAction({ error: null, ok: 0 }, fd)).reject…
+       |                                                                ^
+    120| });
+    121|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  18:17:13
+   Duration  145ms (transform 49%, tests 30%, import 17%, worker 4%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T14-17-12Z-unit-13c8.json
+
+# код выхода 1 · 1 с

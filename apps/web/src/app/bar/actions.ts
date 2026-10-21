@@ -222,7 +222,7 @@ export async function payBarSupplierAction(
     await verifyContext(fd);
     await barApi.payReceipt(value(fd, 'receiptId'), { amountMinor: minor(value(fd, 'amount'), 'Сумма'), method: value(fd, 'method'), note: value(fd, 'note') || null, idempotencyKey: saleKey(fd, 'оплаты') });
     revalidateBar();
-    return { error: null, ok: Date.now(), message: 'Оплата поставщику записана в кассе' };
+    return { error: null, ok: Date.now(), message: payment.status === 'VOIDED' ? 'Эта оплата аннулирована, долг не погашен' : 'Оплата поставщику записана в кассе' };
   } catch (error) {
     return { error: describe(error), ok: _previous.ok };
   }

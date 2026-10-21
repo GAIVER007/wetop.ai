@@ -1255,3 +1255,41 @@
     }
   }
 }
+
+@layer sections {
+  .bar-intent-fields { border: 0; padding: 0; margin: 0; min-width: 0; }
+  .bar-intent-fields:disabled { opacity: .6; }
+  .bar-quick-form.bar-sale-form,
+  .bar-quick-form.bar-folio-form { grid-template-columns: minmax(0, 1fr); align-items: start; }
+  .bar-inline > .bar-intent-fields {
+    grid-column: 1 / -2;
+    grid-template-columns: minmax(0, 2fr) minmax(56px, 0.6fr) minmax(0, 1.3fr);
+  }
+  .bar-inline--folio > .bar-intent-fields {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr) minmax(0, 1.5fr) minmax(56px, 0.5fr);
+  }
+  .bar-card-writeoff { grid-template-columns: minmax(0, 1fr); }
+  .bar-card-writeoff > .bar-intent-fields {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(56px, 0.6fr) minmax(0, 1.4fr);
+    gap: var(--space-2);
+  }
+  .bar-card-writeoff > p,
+  .bar-card-writeoff > button[type="button"] { grid-column: 1 / -1; }
+  .bar-payment-form > .bar-intent-fields {
+    grid-column: 1 / -2;
+    display: grid;
+    grid-template-columns: minmax(100px, 0.7fr) minmax(150px, 1fr);
+    gap: var(--space-1);
+  }
+  @media (max-width: 960px) {
+    .bar-card-writeoff > .bar-intent-fields { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .bar-inline > .bar-intent-fields { grid-column: 1 / -1; grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .bar-payment-form > .bar-intent-fields { grid-column: 1 / -1; grid-template-columns: 1fr; }
+  }
+}

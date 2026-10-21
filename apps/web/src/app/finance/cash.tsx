@@ -516,14 +516,16 @@ export function VoidCashOperation({ id, summary }: { id: string; summary: string
   const { ask, dialog } = useConfirm();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [ready, setReady] = useState(false);
+  useEffect(() => { setReady(true); }, []);
   return (
     <>
       {dialog}
       <Button
         type="button"
         tone="ghost"
-        disabled={busy}
-        aria-busy={busy}
+        disabled={busy || !ready}
+        aria-busy={busy || !ready}
         data-testid="cash-void"
         onClick={async () => {
           if (

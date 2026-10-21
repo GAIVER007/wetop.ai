@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 07.10.2026 17:09 Алматы · MacBook-Air-Urij.local
+# коммит e0089a2 (codex/bar-operational-acceptance-20261007), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T12-09-19Z-integration-b5f6.json' 'tests/integration/bar-operational.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-bar-acceptance-20261007-src
+
+ ✓ |integration| tests/integration/bar-operational.test.ts (11 tests) 1431ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  16:09:20
+   Duration  3.15s (tests 59%, transform 24%, import 17%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-07T12-09-19Z-integration-b5f6.json
+
+# код выхода 0 · 4 с

@@ -215,24 +215,28 @@ it('real HTTP acceptance matrix preserves Hospitality/Beauty and isolates owned 
     actorOrg = null;
     expect((await fetch(`${base}/branches`)).status).toBe(403);
     actorOrg = orgA;
-    const createId = randomUUID();
-    const payload = {
-      id: createId,
-      name: 'Тестовый Food',
-      vertical: 'FOOD_SERVICE',
-      currency: 'AED',
-      timezone: 'Asia/Dubai',
-    };
+    const createdId = randomUUID();
     const create = await fetch(`${base}/branches`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        id: createdId,
+        name: 'Тестовый Food',
+        vertical: 'FOOD_SERVICE',
+        currency: 'AED',
+        timezone: 'Asia/Dubai',
+      }),
     });
     expect(create.status).toBe(201);
-    const created = await create.json();
-    expect(created).toMatchObject({ ...payload, locationId: createId });
+    expect(await create.json()).toMatchObject({
+      locationId: createdId,
+      name: 'Тестовый Food',
+      vertical: 'FOOD_SERVICE',
+      timezone: 'Asia/Dubai',
+      currency: 'AED',
+    });
     const saved = await db.location.findUniqueOrThrow({
-      where: { id: createId },
+      where: { id: createdId },
       include: { business: true },
     });
     expect(saved.business).toMatchObject({ organizationId: orgA, vertical: 'FOOD_SERVICE' });
@@ -267,16 +271,12 @@ it('real HTTP acceptance matrix preserves Hospitality/Beauty and isolates owned 
       await tx.auditLog.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
     });
     const own = { business: { organizationId: { in: [orgA, orgB] } } };
-    await db.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
-      await tx.auditLog.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
-      await tx.onboardingProgress.deleteMany({ where: { location: own } });
-      await tx.property.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
-      await tx.location.deleteMany({ where: own });
-      await tx.business.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
-      await tx.organization.deleteMany({ where: { id: { in: [orgA, orgB] } } });
-      await tx.user.deleteMany({ where: { id: user } });
-    });
+    await db.onboardingProgress.deleteMany({ where: { location: own } });
+    await db.property.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
+    await db.location.deleteMany({ where: own });
+    await db.business.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
+    await db.organization.deleteMany({ where: { id: { in: [orgA, orgB] } } });
+    await db.user.deleteMany({ where: { id: user } });
     await db.$disconnect();
   }
 });

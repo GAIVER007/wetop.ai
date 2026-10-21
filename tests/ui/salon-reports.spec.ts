@@ -133,3 +133,38 @@ for (const width of [1440, 390])
       });
     });
   }
+
+test('salon reports overview fits one laptop screen and presets switch the period', async ({
+  page,
+  request,
+}, info) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await setup(page, request);
+  await page.goto(`/reports?from=${date}&to=${date}`);
+  const main = page.getByRole('main');
+  await expect(page.getByTestId('salon-report-cost-KZT')).toBeVisible();
+  await page.screenshot({ path: info.outputPath('salon-reports-one-screen.png') });
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(900);
+  await main.getByRole('link', { name: '7 дней', exact: true }).click();
+  await expect(page).toHaveURL(/from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}&view=overview/);
+  await expect(page.getByTestId('salon-report-cost-KZT')).toHaveText('12 000,00 KZT');
+});
+
+test('salon analytics fits one laptop screen: one control row, statuses and revenue side by side', async ({
+  page,
+  request,
+}, info) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await setup(page, request);
+  await page.goto(`/management/analytics?from=${date}&to=${date}`);
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('vertical-analytics')).toBeVisible();
+  await expect(main.getByTestId('period-DONE')).toHaveText('1');
+  await expect(main.getByTestId('revenue-KZT')).toHaveText('12 000,00 KZT');
+  await page.screenshot({ path: info.outputPath('salon-analytics-one-screen.png') });
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(900);
+  await main.getByRole('link', { name: 'Вчера', exact: true }).click();
+  await expect(page).toHaveURL(/from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}/);
+  await main.getByRole('link', { name: 'Все филиалы', exact: true }).click();
+  await expect(page).toHaveURL(/scope=organization/);
+});

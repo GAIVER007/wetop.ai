@@ -1141,8 +1141,8 @@
     }
     .board-toolbar .inp,
     .board-toolbar select {
-      min-height: 36px;
-      height: 36px;
+      min-height: var(--control-h);
+      height: var(--control-h);
     }
 
     .board-stay-menu {
@@ -1747,7 +1747,7 @@
       margin-block: var(--space-4);
     }
     .free-menu__period .inp {
-      min-height: 48px;
+      min-height: var(--touch-target);
       width: 100%;
       font-size: 16px;
     }
@@ -1763,7 +1763,7 @@
       margin-block: var(--space-4);
     }
     .free-menu__arrival .inp {
-      min-height: 48px;
+      min-height: var(--touch-target);
       width: 100%;
       font-size: 16px;
     }

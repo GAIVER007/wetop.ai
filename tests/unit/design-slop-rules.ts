@@ -134,6 +134,34 @@ function values(src: string, prop: RegExp): string[] {
   return out;
 }
 
+
+/** Тег поля ввода целиком, с учётом `=>` и строк внутри `{…}`: `<input … type="date" … />` → атрибуты */
+function controlTags(src: string): Array<{ tag: string; attrs: string }> {
+  const out: Array<{ tag: string; attrs: string }> = [];
+  for (const m of src.matchAll(/<(input|select|textarea)\b/g)) {
+    let depth = 0;
+    let quote = '';
+    let i = m.index! + m[0].length;
+    for (; i < src.length; i += 1) {
+      const c = src[i]!;
+      if (quote) { if (c === quote && src[i - 1] !== '\\') quote = ''; continue; }
+      if (c === '"' || c === "'" || c === '`') quote = c;
+      else if (c === '{') depth += 1;
+      else if (c === '}') depth -= 1;
+      else if (c === '>' && depth === 0) break;
+    }
+    out.push({ tag: m[1]!, attrs: src.slice(m.index! + m[0].length, i) });
+  }
+  return out;
+}
+
+/** Переключатели и служебные поля не текстовые: их вид не задаётся `.inp` */
+const NON_TEXT_INPUT = /\btype=["'{`]*(?:hidden|checkbox|radio|file|color|range)\b/;
+/** Единственный дом текстовых полей: Input/Select/Textarea в `components/ui.tsx` */
+const CONTROL_KIT = 'apps/web/src/components/ui.tsx';
+/** Правило CSS, чей селектор попадает в поле ввода: тег или класс `.inp` основы */
+const CONTROL_SELECTOR = /(?:^|[\s,>+~(])(?:input|select|textarea)\b|\.inp\b/;
+
 export const RULES: Rule[] = [
   {
     id: 'color-literal',
@@ -263,6 +291,30 @@ export const RULES: Rule[] = [
     why: '.tsx, который никто не импортирует и который не файл маршрута Next (MV8.5 DS0a)',
     ext: /\.tsx$/,
     find: (_s, file) => (orphanSet().has(file) ? 1 : 0),
+  },
+  {
+    id: 'raw-form-control',
+    why: 'текстовое поле руками <input>/<select>/<textarea> вместо Input/Select/Textarea из components/ui (единые поля во всех вертикалях, 21.10.2026)',
+    ext: /\.tsx$/,
+    find: (s, file) =>
+      file === CONTROL_KIT
+        ? 0
+        : controlTags(s).filter(({ tag, attrs }) => tag !== 'input' || !NON_TEXT_INPUT.test(attrs)).length,
+  },
+  {
+    id: 'control-size-literal',
+    why: 'высота поля ввода цифрой: только --control-h, --control-h-sm, --touch-target (единые поля во всех вертикалях, 21.10.2026)',
+    ext: /\.css$/,
+    find: (s) => {
+      let n = 0;
+      const css = s.replace(/\/\*[\s\S]*?\*\//g, '');
+      for (const m of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+        if (!CONTROL_SELECTOR.test(m[1]!)) continue;
+        for (const d of m[2]!.matchAll(/(?:^|[;\s])(?:min-|max-)?height\s*:\s*([^;}!]+)/g))
+          n += d[1]!.trim().split(/\s+/).filter((v) => /^\d*\.?\d+(?:px|rem|em)$/.test(v) && parseFloat(v) !== 0).length;
+      }
+      return n;
+    },
   },
 ];
 

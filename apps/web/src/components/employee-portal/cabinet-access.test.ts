@@ -24,7 +24,7 @@ vi.mock('./forms', () => ({
 vi.mock('./media', () => ({ PortalMedia: () => createElement('div', { 'data-testid': 'portal-media' }) }));
 vi.mock('./management', () => ({ PortalManagement: () => createElement('div', { 'data-testid': 'portal-management' }) }));
 vi.mock('./locations', () => ({ EmployeeLocationsForm: () => createElement('div', { 'data-testid': 'portal-locations-form' }) }));
-vi.mock('./service-prices', () => ({ EmployeeServicePrices: () => null }));
+vi.mock('./service-prices', () => ({ EmployeeServicePrices: () => null, servicePricesKey: () => '' }));
 vi.mock('./reviews', () => ({ EmployeeReviews: () => createElement('div', { 'data-testid': 'portal-reviews' }) }));
 vi.mock('../tabs', () => ({
   Tabs: ({ panels }: { panels: Array<{ id: string; label: string; content: ReactNode }> }) => createElement(

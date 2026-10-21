@@ -23,8 +23,11 @@ it('orders the overview from expenses to received income without changing values
     ],
   };
   const html = renderToStaticMarkup(createElement(FinancialWidgets, { summary }));
+  // без плиток (правило владельца 21.10.2026, порядок в «Настройках»): итоги месяца одной строкой
+  expect(html).not.toContain('org-kpis');
+  expect(html).toContain('data-testid="org-totals"');
   const labels = ['Расходы', 'Средний чек', 'Оплаченные заказы', 'Доход от оплат'];
-  const positions = labels.map((label) => html.indexOf(`<p>${label}</p>`));
+  const positions = labels.map((label) => html.indexOf(`<i>${label}</i>`));
   expect(positions.every((index) => index >= 0)).toBe(true);
   expect(positions).toEqual([...positions].sort((a, b) => a - b));
   expect(html).toContain('5 000 ₸');

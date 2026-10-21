@@ -38,8 +38,6 @@ export interface DeskShell {
    * уже несёт (Platform P2 К1). Нет филиала в указателе, значит гостиница, как было до среза B2.
    */
   vertical: WebVertical;
-  /** Verified Business/Location identity, used to hide stale content during switching. */
-  scopeKey?: string;
 }
 
 export const CLOSED_SHELL: DeskShell = {

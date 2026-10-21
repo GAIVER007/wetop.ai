@@ -32,6 +32,8 @@ export function Sidebar({
   /** Что открыто вошедшему и кто он (ADR-083); пока API не ответил — меню без закрытых пунктов */
   desk?: Promise<DeskShell> | undefined;
 }) {
+  const shell = desk ? use(desk) : null;
+  const sections = menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical);
   const active = activeMenuRoute(path);
   // `null` раскрывает раздел текущей страницы (его знает список: разделы зависят от направления филиала)
   const [expanded, setExpanded] = useState<string | null | undefined>(undefined);

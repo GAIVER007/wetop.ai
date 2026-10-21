@@ -1,0 +1,120 @@
+# Сквозные (e2e) · 11.10.2026 22:36 Алматы · MacBook-Air-Urij.local
+# коммит b811e67 (codex/ui3-1-hidden-navigation), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--timeout=120000' 'tests/ui/ui31-shell.spec.ts'
+[WebServer] (node:32200) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32227) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32230) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32260) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32264) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+(node:32418) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/ui31-shell.spec.ts:10:1 › UI3.1: одна кнопка, стабильная ширина и клавиатурное меню (16.6s)
+  ✓  2 tests/ui/ui31-shell.spec.ts:39:1 › UI3.1: mobile освобождает низ и возвращает фокус (9.9s)
+[WebServer] (node:32561) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/ui31-shell.spec.ts:58:1 › UI3.1: переход закрывает меню, active route сохраняется (36.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1064836930'
+[WebServer] }
+(node:32605) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/ui/ui31-shell.spec.ts:75:1 › UI3.1: граница desktop/mobile и узкий экран (55.4s)
+  ✓  5 tests/ui/ui31-shell.spec.ts:109:1 › UI3.1: размеры целей шапки и мобильной поверхности (19.4s)
+  ✓  6 tests/ui/ui31-shell.spec.ts:134:3 › UI3.1: история периода закрывает меню 1440 (18.1s)
+  ✓  7 tests/ui/ui31-shell.spec.ts:134:3 › UI3.1: история периода закрывает меню 390 (36.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1064836930'
+[WebServer] }
+  ✘  8 tests/ui/ui31-shell.spec.ts:157:1 › UI3.1: мобильный переход фокусирует готовое содержимое (32.9s)
+
+
+  1) tests/ui/ui31-shell.spec.ts:58:1 › UI3.1: переход закрывает меню, active route сохраняется ────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/hotel-settings$/
+    Received string:  "http://127.0.0.1:3191/chessboard"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        27 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3191/chessboard"
+
+
+      63 |   await panel.getByRole('button', { name: 'Настройки', exact: true }).hover();
+      64 |   await panel.getByRole('link', { name: 'Объект', exact: true }).click();
+    > 65 |   await expect(page).toHaveURL(/\/hotel-settings$/);
+         |                      ^
+      66 |   await expect(panel).toBeHidden();
+      67 |   await expect(page.locator('#main-content')).toBeFocused();
+      68 |   await trigger.click();
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/ui31-shell.spec.ts:65:22
+
+    Error Context: test-results/ui31-shell-UI3-1-переход-з-70026-ню-active-route-сохраняется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-UI3-1-переход-з-70026-ню-active-route-сохраняется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-UI3-1-переход-з-70026-ню-active-route-сохраняется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ui31-shell.spec.ts:157:1 › UI3.1: мобильный переход фокусирует готовое содержимое ────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/guests$/
+    Received string:  "http://127.0.0.1:3191/chessboard"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        25 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3191/chessboard"
+
+
+      161 |   const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
+      162 |   await drawer.getByRole('link', { name: 'Гости и бронирования', exact: true }).click();
+    > 163 |   await expect(page).toHaveURL(/\/guests$/);
+          |                      ^
+      164 |   await expect(drawer).toBeHidden();
+      165 |   await expect(page.locator('#main-content')).toBeFocused();
+      166 | });
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/ui31-shell.spec.ts:163:22
+
+    Error Context: test-results/ui31-shell-UI3-1-мобильный-df75b-кусирует-готовое-содержимое/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-UI3-1-мобильный-df75b-кусирует-готовое-содержимое/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-UI3-1-мобильный-df75b-кусирует-готовое-содержимое/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/ui31-shell.spec.ts:58:1 › UI3.1: переход закрывает меню, active route сохраняется ─────
+    tests/ui/ui31-shell.spec.ts:157:1 › UI3.1: мобильный переход фокусирует готовое содержимое ─────
+  6 passed (4.9m)
+
+# код выхода 1 · 5 мин 1 с

@@ -1,0 +1,256 @@
+# Сквозные (e2e) · 11.10.2026 17:27 Алматы · MacBook-Air-Urij.local
+# коммит b811e67 (codex/ui3-1-hidden-navigation), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/ui31-shell.spec.ts' 'tests/ui/side-nav.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/trial-read-only.spec.ts'
+[WebServer] (node:89063) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89125) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89175) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89177) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 20 tests using 1 worker
+
+(node:89277) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89577) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (50.8s)
+(node:89705) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89910) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (49.3s)
+(node:90049) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (48.3s)
+(node:90405) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 tests/ui/navigation.spec.ts:51:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (35.6s)
+(node:90638) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90869) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   5 tests/ui/navigation.spec.ts:95:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (56.5s)
+(node:90907) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91011) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91104) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3827930172'
+[WebServer] }
+[WebServer] (node:91161) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 tests/ui/navigation.spec.ts:122:1 › все пункты меню открывают существующие страницы (1.1m)
+
+
+  1) tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор ────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3191/branches", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/fixtures.ts:163:30)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/branches.spec.ts:9:14
+
+    Error Context: test-results/branches-филиалы-создание-сохранение-после-reload-и-обзор/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-филиалы-создание-сохранение-после-reload-и-обзор/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-филиалы-создание-сохранение-после-reload-и-обзор/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 45000ms exceeded.
+
+      68 |   for (const width of [1440, 390]) {
+      69 |     await page.setViewportSize({ width, height: 1000 });
+    > 70 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+         |                       ^
+      71 |       true,
+      72 |     );
+      73 |     await page.evaluate(() => window.scrollTo(0, 0));
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/branches.spec.ts:70:23
+
+    Error Context: test-results/branches-организации-филиа-a7883--и-сохраняется-после-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-организации-филиа-a7883--и-сохраняется-после-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-организации-филиа-a7883--и-сохраняется-после-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('.mobile-navigation').getByRole('button', { name: 'Выбрать филиал', exact: true })
+
+
+      147 |   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
+      148 |   const mobile = page.locator('.mobile-navigation');
+    > 149 |   await mobile.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
+          |                                                                             ^
+      150 |   // в кнопке между названием и адресом подписано направление (#403): «Филиал Север Гостиничный бизнес Тестовая улица…»
+      151 |   await expect(mobile.getByRole('button', { name: /Филиал Север .*Тестовая улица/ })).toHaveAttribute(
+      152 |     'aria-pressed',
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/branches.spec.ts:149:77
+
+    Error Context: test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/navigation.spec.ts:51:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/market$/
+    Received string:  "http://127.0.0.1:3191/chessboard"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        26 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3191/chessboard"
+
+
+      84 |   await expect(menu.getByRole('link', { name: 'Анализ конкурентов', exact: true })).toBeFocused();
+      85 |   await page.keyboard.press('Enter');
+    > 86 |   await expect(page).toHaveURL(/\/market$/);
+         |                      ^
+      87 |   await expect(menu).not.toBeVisible();
+      88 |   // открыли снова: раздел текущей страницы раскрыт сам, пункт помечен
+      89 |   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/navigation.spec.ts:86:22
+
+    Error Context: test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-р-dbb99-ются-переход-закрывает-окно/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/navigation.spec.ts:95:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3191/hotel-settings/services", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/fixtures.ts:163:30)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/navigation.spec.ts:99:14
+
+    Error Context: test-results/navigation-меню-телефона-в-2ce55-ямая-ссылка-«Номерной-фонд»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-меню-телефона-в-2ce55-ямая-ссылка-«Номерной-фонд»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-меню-телефона-в-2ce55-ямая-ссылка-«Номерной-фонд»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/navigation.spec.ts:122:1 › все пункты меню открывают существующие страницы ───────────
+
+    Test was interrupted.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/hotel-settings$/
+    Received string:  "http://127.0.0.1:3191/management/analytics"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        5 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3191/management/analytics"
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      136 |       const href = await link.getAttribute('href');
+      137 |       await link.click();
+    > 138 |       await expect(page).toHaveURL(new RegExp(`${href}$`));
+          |                          ^
+      139 |       await expect(
+      140 |         page
+      141 |           .getByRole('main')
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/navigation.spec.ts:138:26
+
+    Error Context: test-results/navigation-все-пункты-меню-открывают-существующие-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-все-пункты-меню-открывают-существующие-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор ─────────────
+    tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload 
+    tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+    tests/ui/navigation.spec.ts:51:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно 
+    tests/ui/navigation.spec.ts:95:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» 
+  1 interrupted
+    tests/ui/navigation.spec.ts:122:1 › все пункты меню открывают существующие страницы ────────────
+  14 did not run
+
+# код выхода 130 · 7 мин 10 с

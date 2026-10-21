@@ -1,0 +1,72 @@
+# Сквозные (e2e) · 11.10.2026 17:25 Алматы · MacBook-Air-Urij.local
+# коммит b811e67 (codex/ui3-1-hidden-navigation), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/ui31-shell.spec.ts'
+[WebServer] (node:87807) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87837) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87838) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87839) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87871) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87879) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 282ms. If /Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+(node:87901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/ui31-shell.spec.ts:10:1 › UI3.1: одна кнопка, стабильная ширина и клавиатурное меню (16.5s)
+  ✘  2 tests/ui/ui31-shell.spec.ts:41:1 › UI3.1: mobile освобождает низ и возвращает фокус (4.1s)
+(node:88103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/ui/ui31-shell.spec.ts:62:1 › UI3.1: переход закрывает меню, active route сохраняется (18.3s)
+
+
+  1) tests/ui/ui31-shell.spec.ts:41:1 › UI3.1: mobile освобождает низ и возвращает фокус ───────────
+
+    Error: expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 56
+    Received: 57
+
+    Expected precision:    0
+    Expected difference: < 0.5
+    Received difference:   1
+
+      49 |   });
+      50 |   await expect(page.locator('.bottom-navigation')).toHaveCount(0);
+    > 51 |   expect((await page.locator('.workspace-header').boundingBox())!.height).toBeCloseTo(56, 0);
+         |                                                                           ^
+      52 |   const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
+      53 |   await trigger.click();
+      54 |   const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/ui31-shell.spec.ts:51:75
+
+    Error Context: test-results/ui31-shell-UI3-1-mobile-освобождает-низ-и-возвращает-фокус/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-UI3-1-mobile-освобождает-низ-и-возвращает-фокус/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-UI3-1-mobile-освобождает-низ-и-возвращает-фокус/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ui31-shell.spec.ts:41:1 › UI3.1: mobile освобождает низ и возвращает фокус ────────────
+  2 passed (1.1m)
+
+# код выхода 1 · 1 мин 12 с

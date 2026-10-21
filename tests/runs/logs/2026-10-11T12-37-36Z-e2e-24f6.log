@@ -1,0 +1,143 @@
+# Сквозные (e2e) · 11.10.2026 17:37 Алматы · MacBook-Air-Urij.local
+# коммит b811e67 (codex/ui3-1-hidden-navigation), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--timeout=120000' 'tests/ui/ui31-shell.spec.ts' 'tests/ui/side-nav.spec.ts'
+[WebServer] (node:92036) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92082) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92084) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 749ms. If /Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+(node:92327) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/side-nav.spec.ts:48:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню (39.3s)
+(node:92663) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/ui/side-nav.spec.ts:101:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (40.2s)
+[WebServer] (node:92862) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/side-nav.spec.ts:141:1 › вложенные адреса показывают свой раздел (2.4m)
+(node:92909) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 tests/ui/side-nav.spec.ts:166:3 › меню без прокрутки вбок и доступное: light (1.8h)
+(node:92992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 tests/ui/side-nav.spec.ts:166:3 › меню без прокрутки вбок и доступное: dark (21.0s)
+  ✓  6 tests/ui/side-nav.spec.ts:221:1 › кнопка текущего раздела находится в шапке и доступна после гидрации (8.8s)
+  ✓  7 tests/ui/ui31-shell.spec.ts:10:1 › UI3.1: одна кнопка, стабильная ширина и клавиатурное меню (18.4s)
+  ✓  8 tests/ui/ui31-shell.spec.ts:41:1 › UI3.1: mobile освобождает низ и возвращает фокус (6.3s)
+  ✓  9 tests/ui/ui31-shell.spec.ts:62:1 › UI3.1: переход закрывает меню, active route сохраняется (5.9s)
+[WebServer] (node:93123) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+  1) tests/ui/side-nav.spec.ts:48:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню 
+
+    Error: page.goto: net::ERR_NETWORK_IO_SUSPENDED at http://127.0.0.1:3191/finance
+    Call log:
+      - navigating to "http://127.0.0.1:3191/finance", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/fixtures.ts:163:30)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/side-nav.spec.ts:51:14
+
+    Error Context: test-results/side-nav-ТЗ-§4-текущий-раз-f0047-лчок-ведёт-и-обновляет-меню/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/side-nav-ТЗ-§4-текущий-раз-f0047-лчок-ведёт-и-обновляет-меню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/side-nav-ТЗ-§4-текущий-раз-f0047-лчок-ведёт-и-обновляет-меню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/side-nav.spec.ts:141:1 › вложенные адреса показывают свой раздел ─────────────────────
+
+    Test timeout of 90000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3191/rooms/categories", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/fixtures.ts:163:30)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/side-nav.spec.ts:150:14
+
+    Error Context: test-results/side-nav-вложенные-адреса-показывают-свой-раздел/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/side-nav-вложенные-адреса-показывают-свой-раздел/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/side-nav-вложенные-адреса-показывают-свой-раздел/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/side-nav.spec.ts:166:3 › меню без прокрутки вбок и доступное: light ──────────────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.setViewportSize: Test timeout of 120000ms exceeded.
+
+      175 |     const nav = sideNav(page);
+      176 |     for (const width of [1024, 1280, 1440]) {
+    > 177 |       await page.setViewportSize({ width, height: 900 });
+          |                  ^
+      178 |       await expect(nav).toBeVisible();
+      179 |       expect(
+      180 |         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP-ui31-main-20261011/tests/ui/side-nav.spec.ts:177:18
+
+    Error Context: test-results/side-nav-меню-без-прокрутки-вбок-и-доступное-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/side-nav-меню-без-прокрутки-вбок-и-доступное-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/side-nav-меню-без-прокрутки-вбок-и-доступное-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/side-nav.spec.ts:48:1 › ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню 
+    tests/ui/side-nav.spec.ts:141:1 › вложенные адреса показывают свой раздел ──────────────────────
+    tests/ui/side-nav.spec.ts:166:3 › меню без прокрутки вбок и доступное: light ───────────────────
+  6 passed (1.9h)
+
+# код выхода 1 · 1 ч 54 мин

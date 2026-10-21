@@ -1,0 +1,59 @@
+# Сквозные (e2e) · 11.10.2026 22:21 Алматы · MacBook-Air-Urij.local
+# коммит b811e67 (codex/ui3-1-hidden-navigation), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' 'tests/ui/ui31-shell.spec.ts' '--grep' 'размеры целей'
+[WebServer] (node:29595) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29637) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29639) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29650) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29689) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:29745) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/ui31-shell.spec.ts:109:1 › UI3.1: размеры целей шапки и мобильной поверхности (9.6s)
+
+
+  1) tests/ui/ui31-shell.spec.ts:109:1 › UI3.1: размеры целей шапки и мобильной поверхности ────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 344
+    Received: 324
+
+      121 |   const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
+      122 |   const box = (await drawer.boundingBox())!;
+    > 123 |   expect(box.width).toBe(344);
+          |                     ^
+      124 |   expect(box.x).toBeGreaterThanOrEqual(8);
+      125 |   expect(box.y).toBeGreaterThanOrEqual(8);
+      126 |   expect(box.x + box.width).toBeLessThanOrEqual(352);
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/ui31-shell.spec.ts:123:21
+
+    Error Context: test-results/ui31-shell-UI3-1-размеры-целей-шапки-и-мобильной-поверхности/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-UI3-1-размеры-целей-шапки-и-мобильной-поверхности/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-UI3-1-размеры-целей-шапки-и-мобильной-поверхности/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ui31-shell.spec.ts:109:1 › UI3.1: размеры целей шапки и мобильной поверхности ─────────
+
+# код выхода 1 · 50 с

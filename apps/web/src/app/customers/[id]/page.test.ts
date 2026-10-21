@@ -18,6 +18,7 @@ vi.mock('../../../lib/api', () => ({
       visits: [],
       historyTruncated: false,
     }),
+    customerBonuses: async () => ({ balanceMinor: 35000, currency: 'KZT', entries: [] }),
   },
 }));
 
@@ -35,5 +36,6 @@ describe('карточка клиента салона', () => {
     expect(html).not.toContain('Активен');
     expect(html).toContain('Записать');
     expect(html).toContain('/appointments?create=1&amp;customer=c1');
+    expect(html).toContain('customer-bonus-head');
   });
 });

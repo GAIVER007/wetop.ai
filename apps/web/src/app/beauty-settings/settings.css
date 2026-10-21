@@ -115,4 +115,39 @@
       grid-template-columns: minmax(0, 1fr);
     }
   }
+  .salon-settings-stack {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .salon-loyalty-fields {
+    display: grid;
+    gap: var(--space-4);
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+  }
+  .salon-loyalty-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+  }
+  .salon-loyalty-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+  }
+  .salon-loyalty-preview {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .salon-loyalty-preview p {
+    margin: 0;
+    white-space: pre-wrap;
+  }
 }

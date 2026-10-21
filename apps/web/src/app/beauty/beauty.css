@@ -1550,6 +1550,90 @@
     border-top: 2px solid var(--danger);
     pointer-events: none;
   }
+  /* «Напомнить сегодня» (решение 21.10.2026 §1): строка на клиента, действия справа */
+  .beauty-reminders-today {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .beauty-reminders-today h2 {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .beauty-reminders-today ul {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .beauty-reminders-today li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .beauty-reminders-today__who {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--text-sm);
+  }
+  .beauty-reminders-today__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+  }
+  /* бонусы клиента и оплата бонусами, сертификатом */
+  .beauty-bonus-balance {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .beauty-loyalty-hint {
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+  /* «Финансы → Сертификаты» (решение 21.10.2026 §3) */
+  .beauty-certificates {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .beauty-certificates__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .beauty-certificates__lookup {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-2);
+  }
+  .beauty-certificates__table td {
+    white-space: nowrap;
+  }
+  .beauty-certificates__sell,
+  .beauty-certificates__sold {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .beauty-certificates__sold p {
+    margin: 0;
+  }
+  .beauty-certificates__code {
+    font-size: var(--text-lg);
+    letter-spacing: 0.1em;
+  }
 }
 
 /* График: быстрые шаблоны недели и кнопка «Задать часы» у нового специалиста (онбординг 21.10.2026) */

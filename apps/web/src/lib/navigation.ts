@@ -81,6 +81,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       { href: '/stock', label: 'Склад', icon: 'stock', requires: 'desk', description: 'Склад кухни: ингредиенты и остатки' },
       { href: '/payroll', label: 'Зарплата', icon: 'money', requires: 'staff', description: 'Зарплата и финансы' },
       { href: '/cashbox', label: 'Касса', icon: 'money', requires: 'desk', description: 'Касса филиала' },
+      // подарочные сертификаты салона (решение 21.10.2026 §3): продажа и остатки
+      { href: '/finance/certificates', label: 'Сертификаты', icon: 'receipt', requires: 'desk', description: 'Подарочные сертификаты: продажа, остаток и срок.' },
       // макет ресторана из 14 экранов (12.10.2026): бар, финансы и настройки ресторана своими экранами
       { href: '/drinks', label: 'Напитки', icon: 'breakfast', requires: 'desk', description: 'Напитки: заказы бара и витрина' },
       { href: '/restaurant-finance', label: 'Финансы', icon: 'money', requires: 'reports', description: 'Выручка, расходы и поступления ресторана' },
@@ -655,6 +657,8 @@ const ROW: Array<{
       // порядок у всех одинаков (20.10.2026): обзор первым, рабочий экран кассы, отчёты последними
       { label: 'Обзор финансов', at: { HOSPITALITY: '/finance', BEAUTY: '/finance', FOOD_SERVICE: '/restaurant-finance' } },
       { label: 'Касса', at: { BEAUTY: '/cashbox', FOOD_SERVICE: '/cashbox' } },
+      // подарочные сертификаты салона (решение 21.10.2026 §3)
+      { label: 'Сертификаты', at: { BEAUTY: '/finance/certificates' } },
       { label: 'Отчёты', at: { HOSPITALITY: '/reports/finance' } },
     ],
   },
@@ -818,6 +822,7 @@ const BEAUTY_ROUTES: Array<{ href: string; access: BeautyRouteAccess }> = [
   { href: '/calendar', access: { section: 'journal', legacy: 'desk' } },
   { href: '/payroll', access: { section: 'payroll', legacy: 'staff' } },
   { href: '/cashbox', access: { section: 'finance', legacy: 'desk' } },
+  { href: '/finance/certificates', access: { section: 'finance', legacy: 'desk' } },
   { href: '/finance', access: { section: 'finance', legacy: 'reports' } },
   { href: '/journal', access: { section: 'settings', legacy: 'journal' } },
   { href: '/bar', access: { section: 'stock', legacy: 'reports' } },

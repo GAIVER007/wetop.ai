@@ -118,7 +118,8 @@ jobs:
     # Нужен `services: postgres`, то есть Docker внутри раннера: своему раннеру сокет Docker не даём, это root
     # на машине, где рядом боевая стойка и чужие проекты.
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    # 20.10.2026 задача шла 27-29 минут при пределе 30 и снималась по времени на медленном раннере (PR #743)
+    timeout-minutes: 45
     services:
       postgres:
         image: postgres:16

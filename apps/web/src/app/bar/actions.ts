@@ -1,6 +1,7 @@
 'use server';
 import { salePriceFromMarkup } from '@pms/domain';
 import { revalidatePath } from 'next/cache';
+import { suggestCode } from './product-code';
 import { ApiError, barApi, type BarScanResult } from '../../lib/api';
 import { loadBarContext } from './load-context';
 import { currentMe } from '../../lib/desk-shell';
@@ -287,9 +288,12 @@ export async function createBarProductAction(
   try {
     await verifyContext(fd);
     const markup = value(fd, 'markup');
+    const name = value(fd, 'name').trim();
+    if (!name) return { error: 'Укажите название товара', ok: _previous.ok };
     await barApi.createProduct({
-      code: value(fd, 'code'),
-      name: value(fd, 'name'),
+      // пустой код берём из названия, как в приходе (аудит 21.10.2026 п.2)
+      code: value(fd, 'code').trim() || suggestCode(name),
+      name,
       categoryId: value(fd, 'categoryId') || null,
       barcode: value(fd, 'barcode') || null,
       unitsPerPackage: Number(value(fd, 'unitsPerPackage')),

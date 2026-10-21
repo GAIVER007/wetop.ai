@@ -117,10 +117,11 @@ describe('Пустые рабочие экраны салона', () => {
     expect(html).toContain('Тестовый мастер');
     expect(html).not.toContain('Пока нечего показывать');
   });
-  it('сохраняет заголовки таблицы клиентов без строк', async () => {
+  // аудит 21.10.2026 п.24: пустой список клиентов это EmptyState с действиями, а не таблица с одной строкой текста
+  it('пустой список клиентов объясняет, что делать', async () => {
     const html = renderToStaticMarkup(await CustomersPage());
-    expect(html).toContain('<table');
-    expect(html).toContain('Клиент');
+    expect(html).toContain('Клиентов пока нет');
+    expect(html).toContain('empty-state');
   });
   it('показывает семь дней недели в сетке без мастеров', () => {
     const data = { location: null, monday: '2026-10-12', masters: [], elsewhere: 0 };

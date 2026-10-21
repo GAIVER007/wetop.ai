@@ -10,6 +10,12 @@ const SEGMENTS = new Set<BeautyCustomerSegmentFilter>(['all', 'new', 'regular', 
 const text = (status: number, body: string) =>
   new Response(body, { status, headers: { 'content-type': 'text/plain; charset=utf-8' } });
 
+/** Адрес выгрузки, открытый обычной ссылкой (аудит 21.10.2026 п.6): файл отдаёт только POST кнопки, ссылка ведёт к списку */
+// Относительный адрес: за прокси `request.url` бывает внутренним хостом
+export function GET() {
+  return new Response(null, { status: 303, headers: { location: '/customers' } });
+}
+
 export async function POST(request: Request) {
   const contentLength = Number(request.headers.get('content-length') ?? 0);
   if (Number.isFinite(contentLength) && contentLength > 4096) return text(413, 'Слишком большой запрос');

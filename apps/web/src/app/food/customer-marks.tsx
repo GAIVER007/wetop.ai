@@ -44,7 +44,7 @@ export function CustomerMarks({
             {error && <Alert>{error}</Alert>}
             <Switch name="isVip" label="VIP-гость" hint="Метку видно всей смене" defaultChecked={customer.isVip} />
             <Field label="Дата рождения">
-              <Input type="date" name="birthDate" defaultValue={customer.birthDate ?? ''} />
+              <Input type="date" lang="ru" name="birthDate" defaultValue={customer.birthDate ?? ''} />
             </Field>
             <div className="food-actions">
               <Button type="submit" disabled={pending}>

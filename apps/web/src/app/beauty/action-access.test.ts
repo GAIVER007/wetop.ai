@@ -34,6 +34,7 @@ vi.mock('../../lib/desk-shell', () => ({
 }));
 vi.mock('../../lib/staff-revenue-load', () => ({ loadStaffRevenue: async () => null, StaffRevenuePeriodNav: () => null }));
 vi.mock('../../lib/api', () => ({
+  sharedOnboardingApi: { status: async () => ({ vertical: 'BEAUTY', completedAt: '2026-10-01T00:00:00Z' }) },
   beautyApi: {
     day: state.day,
     period: state.period,
@@ -72,7 +73,7 @@ vi.mock('../customers/customer-tools', () => ({
 }));
 vi.mock('../customers/beauty-table', () => ({
   BeautyCustomersTable: (props: Record<string, unknown>) =>
-    createElement('div', { 'data-testid': 'customer-update', 'data-allowed': String(props.canEdit) }),
+    createElement('div', { 'data-testid': 'customer-update', 'data-allowed': String(props.canEdit) }, props.tools as never),
 }));
 vi.mock('./services/board', () => ({
   ServicesBoard: (props: Record<string, unknown>) => createElement('div', {

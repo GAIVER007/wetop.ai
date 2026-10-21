@@ -143,6 +143,9 @@ async function addService(page: Page, name: string, minutes: string, price: stri
   const main = page.getByRole('main');
   await main.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   const panel = page.getByRole('dialog');
+  // новая услуга по умолчанию сразу в филиале (аудит 21.10.2026 п.5); здесь проверяем путь «только каталог»
+  await expect(panel.getByLabel('Сразу в этом филиале')).toBeChecked();
+  await panel.getByLabel('Сразу в этом филиале').uncheck();
   await panel.getByLabel('Название').fill(name);
   await panel.getByLabel(/Длительность, минут/).fill(minutes);
   await panel.getByLabel(/Цена каталога/).fill(price);
@@ -367,7 +370,7 @@ test('типовая услуга подставляет поля, цена вв
   // на приёмке ввели 5000 в поле «тиын» и получили 50 тенге: теперь 5000 это 5 000 тенге
   await panel.getByLabel(/Цена каталога/).fill('5000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Услуга создана');
+  await expect(panel.getByRole('status')).toContainText('Услуга добавлена в филиал');
   await page.goto('/beauty/services');
   await expect(
     page.getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: page.getByText('Маникюр', { exact: true }) }),
@@ -380,9 +383,11 @@ test('стартовая услуга справа требует цену и п
   const main = page.getByRole('main');
   const catalog = main.locator('[data-service-list="catalog"]');
   await expect(catalog.getByText('Стрижка мужская', { exact: true })).toBeVisible();
-  await expect(catalog).toContainText('Цена задаётся при добавлении');
+  // типовая услуга одной строкой: название, минуты и категория (аудит 21.10.2026 п.39)
+  await expect(catalog.locator('.beauty-service-item').filter({ hasText: 'Стрижка мужская' })).toContainText('45 мин, Волосы');
   await catalog.getByRole('button', { name: 'Настроить и добавить в филиал: Стрижка мужская' }).click();
   const panel = page.getByRole('dialog');
+  await expect(panel.getByLabel('Типовая услуга')).toHaveCount(0);
   await expect(panel.getByLabel('Название')).toHaveValue('Стрижка мужская');
   await expect(panel.getByLabel(/Категория/)).toHaveValue('Волосы');
   await expect(panel.getByLabel(/Длительность, минут/)).toHaveValue('45');

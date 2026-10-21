@@ -1076,6 +1076,16 @@
 @layer sections {
  .bar-page .bar-tabs { display:flex; flex-wrap:wrap; gap:var(--space-1); margin-bottom:var(--space-2); }
  .bar-page .bar-tabs .tabs__item { min-height:44px; padding-inline:var(--space-4); }
+ /* от 961 px те же пункты уже есть в выпадающем списке «Склад» верхнего меню: второй ряд не показываем */
+ @media (min-width:961px) { .bar-page .bar-tabs, .bar-subpage .bar-tabs { display:none; } }
+ .bar-warehouses { display:grid; grid-template-columns:repeat(auto-fit,minmax(16rem,1fr)); gap:var(--space-4); margin-bottom:var(--space-4); }
+ .bar-warehouse { display:flex; flex-direction:column; gap:var(--space-2); min-height:44px; padding:var(--space-4); border:1px solid var(--border); border-radius:var(--radius); background:var(--surface); text-decoration:none; color:inherit; }
+ .bar-warehouse:hover { border-color:var(--primary); }
+ .bar-warehouse-head { display:flex; align-items:center; gap:var(--space-2); }
+ .bar-warehouse-head .badge { margin-left:auto; }
+ .bar-warehouse-title { font-size:var(--text-lg, 1.125rem); font-weight:700; }
+ .bar-warehouse-body { color:var(--muted); }
+ .bar-warehouse-foot { color:var(--muted); font-size:var(--text-sm, 0.8125rem); }
  .bar-row-details > summary { min-height:44px; cursor:pointer; color:var(--primary); display:flex; align-items:center; }
  .bar-row-details p { margin:var(--space-1) 0; }
  @media (max-width:600px) { .bar-mobile-actions { grid-template-columns:repeat(3,minmax(0,1fr)); } }

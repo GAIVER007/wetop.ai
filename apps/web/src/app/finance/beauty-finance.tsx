@@ -11,7 +11,7 @@ import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
 import { shortPeriod } from '../../lib/human-period';
 import { PeriodBar } from '../../lib/period-bar';
-import { EmptyState, Panel, SectionTitle, Table } from '../../components/ui';
+import { EmptyState, SectionTitle, Table } from '../../components/ui';
 import './finance.css';
 import './summary.css';
 import '../sales/sales.css';

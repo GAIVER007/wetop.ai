@@ -45,6 +45,18 @@ describe('report A1 A2 A3 A5: appointment form contract', () => {
     expect(html).toContain('Телефон или имя');
     expect(html).toContain('Итого');
   });
+  it('пояс филиала словами, без кода вроде Asia/Almaty (живой сайт 21.10.2026, телефон)', () => {
+    const html = renderToStaticMarkup(
+      createElement(AppointmentForm, {
+        day: { ...day, location: { ...day.location, timezone: 'Asia/Almaty' } }, // tz-allow: данные теста
+        customers: [],
+        employeeId: 'master',
+        onDone: vi.fn(),
+      }),
+    );
+    expect(html).not.toContain('Asia/Almaty'); // tz-allow: проверка отсутствия кода пояса
+    expect(html).toContain('Алматы, UTC+5');
+  });
   it('A5: рядом с поиском клиента есть «Гость» и «Последний клиент»', () => {
     const html = renderToStaticMarkup(
       createElement(AppointmentForm, { day, customers: [], employeeId: 'master', onDone: vi.fn() }),

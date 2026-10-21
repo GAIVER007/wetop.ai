@@ -25,6 +25,7 @@ import { AttemptWindows, visitorKey } from '../auth/attempt-limits';
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import { Public } from '../auth/public.decorator';
 import { currentUserId, withServiceDatabase } from '../auth/request-context';
+import type { DbTx } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
 import { visitorIp } from '../web-booking/client-ip';
 import { beautyScope, beautyTransaction, UUID } from './scope';
@@ -106,6 +107,91 @@ function parseSubmission(raw: unknown): ParsedReview[] {
   return reviews;
 }
 
+/** Почему приглашение на отзыв не выпущено */
+export type ReviewInvitationRefusal = 'NOT_FOUND' | 'NOT_DONE' | 'NO_MASTERS' | 'NO_COMPLETION' | 'EXPIRED' | 'SUBMITTED';
+const ISSUE_REFUSAL_MESSAGE: Record<Exclude<ReviewInvitationRefusal, 'NOT_FOUND'>, string> = {
+  NOT_DONE: 'Отзыв доступен только после завершения записи',
+  NO_MASTERS: 'В записи нет мастеров для оценки',
+  NO_COMPLETION: 'Completion time is unavailable',
+  EXPIRED: 'Review invitation expired',
+  SUBMITTED: 'Review invitation already submitted',
+};
+
+/** Ключ приглашения: случайный или заданный вызывающим (просьба отзыва из очереди, reminders.ts) */
+export const reviewInvitationTokenHash = (token: string) => hashToken(token);
+
+/**
+ * Выпустить или перевыпустить приглашение на отзыв в текущей транзакции. Одна логика для кнопки в карточке записи
+ * и для просьбы отзыва из очереди (решение 21.10.2026, «Просьба отзыва»). Срок 30 дней от «Выполнено».
+ * `token`: заданный ключ; если он уже действует, ничего не пишется (повтор отправки не плодит ротации в журнале).
+ */
+export async function issueReviewInvitationTx(
+  tx: DbTx,
+  input: { appointmentId: string; locationId: string; organizationId: string; now: Date; token?: string },
+): Promise<{ ok: true; invitation: BeautyReviewInvitationResult } | { ok: false; reason: ReviewInvitationRefusal }> {
+  const { appointmentId, now } = input;
+  await tx.$queryRaw`SELECT id FROM appointments WHERE id=${appointmentId}::uuid FOR UPDATE`;
+  const appointment = await tx.appointment.findFirst({
+    where: { id: appointmentId, locationId: input.locationId },
+    select: {
+      id: true,
+      status: true,
+      lines: {
+        orderBy: { position: 'asc' },
+        select: {
+          employeeId: true,
+          employee: { select: { name: true } },
+        },
+      },
+    },
+  });
+  if (!appointment) return { ok: false, reason: 'NOT_FOUND' };
+  if (appointment.status !== 'DONE') return { ok: false, reason: 'NOT_DONE' };
+  const masters = uniqueMasters(appointment.lines);
+  if (!masters.length) return { ok: false, reason: 'NO_MASTERS' };
+  const completed = await tx.auditLog.findFirst({
+    where: {
+      organizationId: input.organizationId,
+      entityType: 'appointment',
+      entityId: appointment.id,
+      action: 'beauty.appointment.status',
+      after: { path: ['status'], equals: 'DONE' },
+    },
+    orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+    select: { createdAt: true },
+  });
+  if (!completed) return { ok: false, reason: 'NO_COMPLETION' };
+  const expiresAt = new Date(completed.createdAt.getTime() + THIRTY_DAYS_MS);
+  if (now >= expiresAt) return { ok: false, reason: 'EXPIRED' };
+  await tx.$queryRaw`SELECT appointment_id FROM beauty_review_invitations
+    WHERE appointment_id=${appointment.id}::uuid FOR UPDATE`;
+  const current = await tx.beautyReviewInvitation.findUnique({
+    where: { appointmentId: appointment.id },
+  });
+  if (current?.submittedAt) return { ok: false, reason: 'SUBMITTED' };
+  const token = input.token ?? newSessionToken();
+  const tokenHash = hashToken(token);
+  const result = { reviewPath: `/reviews/${token}`, expiresAt: expiresAt.toISOString(), masterCount: masters.length };
+  if (current?.tokenHash === tokenHash && current.expiresAt.getTime() === expiresAt.getTime())
+    return { ok: true, invitation: result };
+  await tx.beautyReviewInvitation.upsert({
+    where: { appointmentId: appointment.id },
+    create: { appointmentId: appointment.id, tokenHash, expiresAt },
+    update: { tokenHash, expiresAt },
+  });
+  await tx.auditLog.create({
+    data: {
+      organizationId: input.organizationId,
+      userId: currentUserId(),
+      entityType: 'appointment',
+      entityId: appointment.id,
+      action: current ? 'beauty.review_invitation.rotated' : 'beauty.review_invitation.issued',
+      after: { expiresAt: expiresAt.toISOString(), masterCount: masters.length },
+    },
+  });
+  return { ok: true, invitation: result };
+}
+
 @Injectable()
 export class BeautyReviewsService {
   private readonly now: () => Date;
@@ -126,68 +212,15 @@ export class BeautyReviewsService {
     const scope = await beautyScope(this.prisma, true);
     const now = this.now();
     return withServiceDatabase(() => beautyTransaction(this.prisma, scope, async (tx) => {
-      await tx.$queryRaw`SELECT id FROM appointments WHERE id=${appointmentId}::uuid FOR UPDATE`;
-      const appointment = await tx.appointment.findFirst({
-        where: { id: appointmentId, locationId: scope.locationId! },
-        select: {
-          id: true,
-          status: true,
-          lines: {
-            orderBy: { position: 'asc' },
-            select: {
-              employeeId: true,
-              employee: { select: { name: true } },
-            },
-          },
-        },
+      const issued = await issueReviewInvitationTx(tx, {
+        appointmentId,
+        locationId: scope.locationId!,
+        organizationId: scope.organizationId,
+        now,
       });
-      if (!appointment) throw new NotFoundException('Запись не найдена');
-      if (appointment.status !== 'DONE')
-        throw new ConflictException('Отзыв доступен только после завершения записи');
-      const masters = uniqueMasters(appointment.lines);
-      if (!masters.length) throw new ConflictException('В записи нет мастеров для оценки');
-      const completed = await tx.auditLog.findFirst({
-        where: {
-          organizationId: scope.organizationId,
-          entityType: 'appointment',
-          entityId: appointment.id,
-          action: 'beauty.appointment.status',
-          after: { path: ['status'], equals: 'DONE' },
-        },
-        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
-        select: { createdAt: true },
-      });
-      if (!completed) throw new ConflictException('Completion time is unavailable');
-      const expiresAt = new Date(completed.createdAt.getTime() + THIRTY_DAYS_MS);
-      if (now >= expiresAt) throw new ConflictException('Review invitation expired');
-      await tx.$queryRaw`SELECT appointment_id FROM beauty_review_invitations
-        WHERE appointment_id=${appointment.id}::uuid FOR UPDATE`;
-      const current = await tx.beautyReviewInvitation.findUnique({
-        where: { appointmentId: appointment.id },
-      });
-      if (current?.submittedAt) throw new ConflictException('Review invitation already submitted');
-      const token = newSessionToken();
-      const tokenHash = hashToken(token);
-      await tx.beautyReviewInvitation.upsert({
-        where: { appointmentId: appointment.id },
-        create: { appointmentId: appointment.id, tokenHash, expiresAt },
-        update: { tokenHash, expiresAt },
-      });
-      await tx.auditLog.create({
-        data: {
-          organizationId: scope.organizationId,
-          userId: currentUserId(),
-          entityType: 'appointment',
-          entityId: appointment.id,
-          action: current ? 'beauty.review_invitation.rotated' : 'beauty.review_invitation.issued',
-          after: { expiresAt: expiresAt.toISOString(), masterCount: masters.length },
-        },
-      });
-      return {
-        reviewPath: `/reviews/${token}`,
-        expiresAt: expiresAt.toISOString(),
-        masterCount: masters.length,
-      };
+      if (issued.ok) return issued.invitation;
+      if (issued.reason === 'NOT_FOUND') throw new NotFoundException('Запись не найдена');
+      throw new ConflictException(ISSUE_REFUSAL_MESSAGE[issued.reason]);
     }));
   }
 

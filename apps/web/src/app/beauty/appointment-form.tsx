@@ -5,6 +5,7 @@ import type { BeautyAppointmentRow, BeautyCustomerRow, BeautyDay } from '../../l
 import { formatMoney, inputToMinor, minorToInput } from '../../lib/money';
 import { createAppointment, moveAppointment } from './journal-actions';
 import { instantOf, localInput } from './time';
+import { zoneLabel } from '../../lib/human-period';
 
 // A5 (паритет с zapis.kz): кого выбирали в прошлый раз на этой вкладке; удобство, не данные
 let lastPickedCustomerId: string | null = null;
@@ -557,13 +558,13 @@ export function AppointmentForm({
           value={instantOf(`${date}T${hour}`, day.location.timezone)}
         />
         <p className="beauty-note">
-          Время филиала: {day.location.timezone}. Доступность подтвердится при сохранении.
+          Время филиала: {zoneLabel(day.location.timezone)}. Доступность подтвердится при сохранении.
         </p>
         <p className="beauty-note sr-only" aria-live="polite">
           Выбрано:
           <span className="beauty-selection-line">Дата: {date}</span>
           <span className="beauty-selection-line">
-            Время: {hour} ({day.location.timezone})
+            Время: {hour} ({zoneLabel(day.location.timezone)})
           </span>
         </p>
       </fieldset>

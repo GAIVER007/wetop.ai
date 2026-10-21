@@ -3,7 +3,8 @@ import { can } from '@pms/domain';
 import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
 import { redirect, unstable_rethrow } from 'next/navigation';
-import { sharedOnboardingApi, onboardingApi, authApi } from '../../../lib/api';
+import { sharedOnboardingApi, onboardingApi, authApi, beautyApi } from '../../../lib/api';
+import { bookingPreview } from './setup-path';
 import { publicAuthUrl } from '../../../lib/auth-entry';
 import { signedInUser } from '../../login/signed-in';
 import { OnboardingShell } from './shell';
@@ -44,12 +45,24 @@ export default async function SetupPage({
   )
     redirect(landingForVertical(state.vertical));
   const hotel = state.vertical === 'HOSPITALITY' ? await onboardingApi.status() : null;
+  // превью онлайн-записи (вариант B, 21.10.2026): необязательно, без прав или при ошибке шаги работают без него
+  const preview =
+    state.vertical === 'BEAUTY' && state.profileApplied
+      ? await Promise.all([beautyApi.services(), beautyApi.employees()]).then(
+          ([services, employees]) => bookingPreview(services.items, employees.items, state.locationId),
+          (error) => {
+            unstable_rethrow(error);
+            return null;
+          },
+        )
+      : null;
   if (hotel && !hotel.needed) redirect('/today');
   return (
     <OnboardingShell
       key={`${state.businessId}:${state.locationId}`}
       initial={state}
       hotel={hotel}
+      preview={preview}
     />
   );
 }

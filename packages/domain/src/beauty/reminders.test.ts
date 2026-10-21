@@ -8,6 +8,9 @@ import {
   reminderDueTimes,
   reminderVariables,
   renderReminder,
+  reviewRequestDueAt,
+  reviewRequestText,
+  reviewUrl,
   whatsappLink,
 } from './reminders';
 
@@ -113,5 +116,39 @@ describe('повторы', () => {
     expect(reminderBackoffMs(20)).toBe(6 * H);
     expect(REMINDER_MAX_ATTEMPTS).toBe(5);
     expect(DEFAULT_REMINDER_HOURS).toEqual([24, 2]);
+  });
+});
+
+describe('просьба отзыва после визита', () => {
+  it('через 2 часа после конца визита, если «Выполнено» нажали раньше конца', () => {
+    // визит до 12:00 по Алматы (07:00Z), выполнено в 11:50
+    expect(
+      reviewRequestDueAt({ endsAt: new Date('2026-10-23T07:00:00Z'), doneAt: new Date('2026-10-23T06:50:00Z'), timezone: 'Asia/Almaty' }).toISOString(),
+    ).toBe('2026-10-23T09:00:00.000Z');
+  });
+  it('через 2 часа после «Выполнено», если нажали позже конца визита', () => {
+    expect(
+      reviewRequestDueAt({ endsAt: new Date('2026-10-23T07:00:00Z'), doneAt: new Date('2026-10-23T08:00:00Z'), timezone: 'Asia/Almaty' }).toISOString(),
+    ).toBe('2026-10-23T10:00:00.000Z');
+  });
+  it('поздний вечер и ночь переносятся на 10:00 по поясу филиала', () => {
+    // конец визита 20:00 Алматы, +2 часа = 22:00: просьба на следующий день в 10:00 (05:00Z)
+    expect(
+      reviewRequestDueAt({ endsAt: new Date('2026-10-23T15:00:00Z'), doneAt: new Date('2026-10-23T15:00:00Z'), timezone: 'Asia/Almaty' }).toISOString(),
+    ).toBe('2026-10-24T05:00:00.000Z');
+    // конец визита 06:30 Алматы, +2 часа = 08:30: в тот же день в 10:00
+    expect(
+      reviewRequestDueAt({ endsAt: new Date('2026-10-23T01:30:00Z'), doneAt: new Date('2026-10-23T01:30:00Z'), timezone: 'Asia/Almaty' }).toISOString(),
+    ).toBe('2026-10-23T05:00:00.000Z');
+  });
+  it('текст: имя и ссылка, без длинного тире; без имени без пустой запятой', () => {
+    const withName = reviewRequestText('Айгуль', 'https://app.wetop.ai/reviews/abc');
+    expect(withName).toBe('Спасибо, что были у нас, Айгуль! Оцените визит: https://app.wetop.ai/reviews/abc');
+    expect(withName).not.toContain('\u2014');
+    expect(reviewRequestText('  ', 'https://x.test/reviews/abc')).toBe('Спасибо, что были у нас! Оцените визит: https://x.test/reviews/abc');
+  });
+  it('адрес отзыва: база стойки без лишней косой черты плюс путь приглашения', () => {
+    expect(reviewUrl('https://app.wetop.ai/', '/reviews/abc')).toBe('https://app.wetop.ai/reviews/abc');
+    expect(reviewUrl('https://app.wetop.ai', '/reviews/abc')).toBe('https://app.wetop.ai/reviews/abc');
   });
 });

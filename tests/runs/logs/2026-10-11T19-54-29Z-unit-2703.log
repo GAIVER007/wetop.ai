@@ -1,0 +1,18 @@
+# Модульные (unit) · 12.10.2026 00:54 Алматы · MacBook-Air-Urij.local
+# коммит e523f35 (codex/ui3-1-acceptance-fixes), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T19-54-29Z-unit-2703.json' 'scripts/design/build-tokens.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Developer/wetop-ui31-20261011
+
+ ✓ |unit| scripts/design/build-tokens.test.ts (15 tests) 527ms
+   ✓ tokens.css генерируется из design/tokens.json (4)
+     ✓ имена переменных прежние: ни одна var(--…) стойки не осталась без определения 507ms
+
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+   Start at  23:54:36
+   Duration  1.55s (tests 83%, transform 12%, import 5%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T19-54-29Z-unit-2703.json
+
+# код выхода 0 · 9 с

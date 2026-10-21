@@ -1,0 +1,85 @@
+# Сквозные (e2e) · 12.10.2026 00:47 Алматы · MacBook-Air-Urij.local
+# коммит e523f35 (codex/ui3-1-acceptance-fixes), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'reports/ui3-1-fixes-2026-10-11/playwright.diagnostic.config.ts' 'tests/ui/ui31-board-width.spec.ts' 'tests/ui/ui31-shell.spec.ts' '-g' 'сетка занимает|переход закрывает' '--workers=1'
+[WebServer] (node:98087) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98114) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98117) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] WETOP test API on 127.0.0.1:4391 (no DB/providers)
+[WebServer] (node:98129) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98162) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98163) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ▲ Next.js 16.3.6 (Turbopack)
+[WebServer] - Local:         http://127.0.0.1:3191
+[WebServer] - Network:       http://127.0.0.1:3191
+[WebServer] ✓ Ready in 1590ms
+[WebServer] ✓ Running next.config.ts took 758ms
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 427ms. If /Users/urijzapojnov/Developer/wetop-ui31-20261011/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] - Experiments (use with caution):
+[WebServer]   · serverActions
+[WebServer]   ⨯ turbopackFileSystemCacheForDev
+[WebServer] 
+[WebServer]  GET /today 200 in 4.6s (next.js: 3.3s, proxy.ts: 60ms, application-code: 1193ms)
+
+Running 2 tests using 1 worker
+
+(node:98189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ○ Compiling /chessboard ...
+[WebServer]  GET /chessboard 200 in 5.4s (next.js: 4.3s, proxy.ts: 129ms, application-code: 963ms)
+[WebServer]  GET /api/freshness 200 in 1182ms (next.js: 1041ms, proxy.ts: 11ms, application-code: 130ms)
+  ✘  1 tests/ui/ui31-board-width.spec.ts:3:1 › UI3.1: сетка занимает ширину без постоянной сводки дня (11.2s)
+(node:98272) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]  GET /chessboard 200 in 657ms (next.js: 70ms, proxy.ts: 30ms, application-code: 557ms)
+[WebServer]  GET /api/freshness 200 in 28ms (next.js: 14ms, proxy.ts: 3ms, application-code: 11ms)
+[WebServer]  GET /api/freshness 200 in 37ms (next.js: 27ms, proxy.ts: 4ms, application-code: 6ms)
+[WebServer] (node:98294) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]  GET /hotel-settings 200 in 2.1s (next.js: 1974ms, proxy.ts: 58ms, application-code: 67ms)
+  ✓  2 tests/ui/ui31-shell.spec.ts:58:1 › UI3.1: переход закрывает меню, active route сохраняется (6.1s)
+
+
+  1) tests/ui/ui31-board-width.spec.ts:3:1 › UI3.1: сетка занимает ширину без постоянной сводки дня 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 1404
+    Received:   1168
+
+      10 |   const available = await stage.boundingBox();
+      11 |   const actual = await grid.boundingBox();
+    > 12 |   expect(actual!.width).toBeGreaterThan(available!.width - 4);
+         |                         ^
+      13 |   for (const width of [1440, 1536, 768, 390, 320]) {
+      14 |     await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
+      15 |     for (const colorScheme of ['light', 'dark'] as const) {
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/ui31-board-width.spec.ts:12:25
+
+    Error Context: test-results/ui31-board-width-UI3-1-сет-fc9fd-у-без-постоянной-сводки-дня/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-board-width-UI3-1-сет-fc9fd-у-без-постоянной-сводки-дня/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-board-width-UI3-1-сет-fc9fd-у-без-постоянной-сводки-дня/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ui31-board-width.spec.ts:3:1 › UI3.1: сетка занимает ширину без постоянной сводки дня ─
+  1 passed (47.9s)
+
+# код выхода 1 · 52 с

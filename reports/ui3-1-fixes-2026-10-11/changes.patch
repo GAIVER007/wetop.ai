@@ -1,0 +1,490 @@
+diff --git a/CLAUDE.md b/CLAUDE.md
+index e1c7eb7..97dad31 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -142,3 +142,12 @@ Slice 1 выполнен 08.09.2026 по подтверждённому план
+ 
+ Документация и общение — русский. Код, коммиты, имена сущностей — английский.
+ Печатные формы — RU и KZ.
++
++## UI3.1: обязательный маршрут чтения
++
++Перед UI-правками читать DESIGN.md §4, §8 и ADR-UI31 в DECISIONS.md.
++Это единый источник визуальных правил; не копировать таблицы токенов в инструкции.
++Не возвращать постоянную левую колонку, нижнюю навигацию или правую сводку дня шахматки.
++Сохранять navigation registry, server scope/RBAC и общую оболочку трёх вертикалей.
++Референс показывает направление; явно утверждённые текстовые изменения имеют приоритет.
++Приёмка UI3.1 требует evidence, наличие коммита не означает приёмку или deploy.
+diff --git a/DECISIONS.md b/DECISIONS.md
+index eb83489..01abb5b 100644
+--- a/DECISIONS.md
++++ b/DECISIONS.md
+@@ -6631,3 +6631,7 @@ S7 (аналитика салона); S6 «Финансы/Зарплата» з
+ Основа реализации: существующий SideNav из свежего main b811e67, без возвращения удалённого TopMenu. Один scoped --header-h на основе --header-row-h плюс safe-area; общие примитивы/глобальные токены не меняются. Состав меню и RBAC определяют menuSectionsFor/activeMenuRoute. Специализированные календари, их API и модели не меняются.
+ 
+ Последствия: проверка desktop/mobile/keyboard, всех трёх вертикалей и зависимых sticky/viewport. Тесты старой нижней панели переводятся на новое поведение без удаления проверок доступа. Изолированный clone, синтетический loopback API без Supabase. Merge/push/deploy не разрешены. План и критерии: reports/ui3-1-2026-10-11/ui3-0-ui3-1-spec.md, поправка базы в preflight.md.
++
++## ADR-UI31-ACCEPTANCE: приёмка оболочки и ширина шахматки (11.10.2026)
++
++Проблема: нормативные разделы сохраняли устаревший каркас, а постоянная сводка дня занимала ширину шахматки. Варианты: сохранить сводку, свернуть или убрать. Решение владельца: убрать правую сводку; сохранить карточку выбранной брони и существующие действия. Контракт UI3.1 сводится в DESIGN.md §4/§8, инструкции Claude только ссылаются на него. Причина: полезная площадь сетки и единый нормативный источник. Последствия: нет правого резерва без выбранной брони; KPI, API, RBAC и расчёты не меняются. Работы выполняются локально, без merge/push/deploy. Базовые ops/test исправления проверяются отдельно от UI.
+diff --git a/DESIGN.md b/DESIGN.md
+index e17235c..3c40135 100644
+--- a/DESIGN.md
++++ b/DESIGN.md
+@@ -104,12 +104,17 @@
+ 
+ ## 4. Раскладка и плотность
+ 
+-- **Каркас (с 02.10.2026, ADR-134):** шапка из двух липких строк: 56 px (знак, объект с переключателем
+-  филиала, поиск, тема, профиль) и 44 px (строка разделов: вкладки, активная подчёркнута, группы
+-  раскрывают список), итого `--header-h` 100 px; контент во всю ширину окна. На 960 и уже строки разделов
+-  нет: шапка 60 px, меню выдвижное, на телефоне нижняя навигация из первых четырёх вкладок. До 02.10 слева
+-  стояло боковое меню 232/76 px (на 1280 и уже 216 px).
+-  **Почему:** шахматка на 88 строк и таблицы броней — широкие; ширина важнее полей.
++- **Каркас UI3.1 (11.10.2026, ADR-UI31):** одна шапка 56 px плюс safe-area,
++  скрытое меню под одной кнопкой, без постоянной левой колонки и нижней навигации.
++  Контент использует всю освобождённую ширину. Desktop больше 960 px: панель 560 px,
++  две равные колонки, padding/gap 8 px, radius 10 px. На 960 px и уже отдельный
++  modal Overlay: ширина до 400 px и не больше viewport минус 16 px, padding 16 px.
++  Кнопка меню минимум 44×44 px, Icon 20 px. Шапка: desktop padding 24/gap 16,
++  mobile padding 16/gap 8. Цвета и шрифт только из существующих токенов.
++  Глобальный --header-h 100 px пока сохраняется для прежних потребителей;
++  workspace переопределяет его на 56 px плюс safe-area, второй строки нет.
++  История: ADR-134 описывал две строки 56+44 и нижнюю mobile-навигацию;
++  эти предписания заменены UI3.1 и не применяются к текущему workspace.
+ - **Экран:** заголовок 28 px, подзаголовок, справа действия; дальше блоки. Один `main` и один `h1`
+   на страницу (на них стоят e2e).
+ - **Экран:** заголовок 28 px (`--text-4xl`), подзаголовок, справа действия; дальше блоки. Один `main`
+@@ -122,7 +127,7 @@
+   144 (месяц) / 120 (узкий экран) / 84 (телефон), день не уже 24 px. Всё это — `dimension.board.*`.
+   На desktop сетка занимает остаток окна, страница не прокручивается (`.page:has(> .board-wrap)`).
+   На ширине ≤960 px страница прокручивается, сетка имеет собственную высоту 60dvh;
+-  на телефоне зарезервировано место под нижнюю навигацию (ADR-050).
++  на телефоне нижняя навигация отсутствует, учитывать только safe-area.
+   На телефоне управление календаря — две строки (стрелки дат с «Помощью»; сегмент 7/14/30 с «Датами»),
+   «Новая бронь» стоит рядом с заголовком, сетка начинается до 384 px (`chessboard-week` C1).
+   **Почему:** фиксированная страница с перенесёнными контролами обрезала последние строки на телефоне;
+@@ -187,7 +192,7 @@
+ **Правило.** Радиус по уровню элемента: бейдж, плашка суммы, подсказка, пункт меню — 4
+ (`--radius-xs`), поле и кнопка — 8/10 (`--radius-sm`, `--radius-control`), список меню и
+ уведомление — 8 (`--radius-sm`), панель, карточка, таблица — 16 (`--radius`), окно над страницей — 20
+-(`--radius-lg`), круглое — `--radius-full`. Тень **только у слоя над страницей** (окно,
++(`--radius-lg`); исключение UI3.1: поверхность навигации radius 10 (`--radius-control`), круглое: `--radius-full`. Тень **только у слоя над страницей** (окно,
+ выпадающее меню, панель карточки): `--shadow-floating`. Блок на странице отделяется рамкой 1 px
+ (`--border`), не тенью.
+ **Почему:** тень у каждого блока превращает экран в набор «карточек», и главное — окно поверх — не
+@@ -313,7 +318,7 @@ Brush, SprayCan, ClipboardCheck) добавлена в набор 21.09 при 
+ 
+ | Компонент | Код сегодня | Размеры и токены | Состояние |
+ |---|---|---|---|
+-| Меню разделов | `shell/side-nav.tsx`, `shell/side-nav.css`; `menuSectionsFor`; мобильное меню `shell/sidebar.tsx` | кнопка в шапке рядом с логотипом, минимум 44 px; панель 220 + 280 px или одна колонка | С 11.10.2026 (уточнение ADR-161): постоянной боковой колонки нет. Клик по кнопке текущего раздела открывает все разделы. Раздел с одним пунктом является прямой ссылкой без повторения названия; остальные имеют подпункты. Сохранены права, активные пункты, Escape, клик снаружи и клавиатура. Кнопка недоступна до гидрации; статус каналов и пробный срок компактно в шапке. Мобильная навигация сохраняется. |
++| Меню разделов UI3.1 | `shell/side-nav.tsx`, `shell/sidebar.tsx`, `top-nav.tsx`; существующий navigation registry | Одна кнопка, desktop панель 560 px с двумя колонками, mobile отдельный Overlay; геометрия §4. Trial/freshness внутри меню, scope и RBAC сохранены | Hover/focus открывает подраздел; Escape, внешний click, уход фокуса, route/scope/history/breakpoint закрывают меню. На mobile trapFocus, Escape возвращает к кнопке; переход фокусирует готовый main, вмешательство пользователя отменяет отложенный перенос |
+ | Заголовок страницы | `page.tsx` (`Page`) | 28 px / 700, действия справа | есть |
+ | Поиск ⌘K | `shell/search.tsx` | окно 560 px | есть |
+ | Кнопка | `ui.tsx` (`Button`), тона primary/secondary/danger/warning/success/info/ghost | 38 px (`--control-h`), sm 30 (`--control-h-sm`), xs 24 (`--control-h-xs`), радиус `--radius-control`; **почему 38:** ниже 36 палец на планшете промахивается, выше 40 в строке таблицы не помещается | есть; **залита только главная**, остальные белые с цветной подписью (ADR-027) |
+@@ -1283,8 +1288,13 @@ ADR-132 у главной): палитра `--salon-*` из `tokens.css` (тёп
+ специфичности. До DS0b часть объявлений разделов проигрывала `.tbl a` или `.tbl td` и была мёртвой;
+ DS0b их удалил, чтобы вид не изменился. Новый вид раздела над примитивом задаётся своим классом.
+ 
+-## UI3.1: скрытое меню, 11.10.2026
++## UI3.1: область применения
+ 
+-Решение владельца текущего UI3: навигация скрыта под одной кнопкой, постоянной левой и нижней панели нет. Desktop использует существующий SideNav с разделами и подразделами, mobile использует Overlay/Sidebar. Общий реестр и scope сохранены. Шапка 56 px (--header-row-h) плюс верхний safe-area; эффективный --header-h задаётся внутри workspace и наследуется sticky-потребителями. Глобальная палитра, шрифт и примитивы не меняются.
+-
+-Меню: desktop 560 px (--overlay-w-md), две колонки, строки минимум 44 px, внутренний отступ 8 px, радиус 10 px. Mobile: до 400 px (--drawer-w-sm), от края минимум 8 px и safe-area, отдельная прокрутка. Кнопка меню 44×44 px, Lucide 20 px. Escape возвращает фокус, переход закрывает меню, hover/focus раскрывает подраздел, уход курсора не закрывает всё меню. Подробный контракт и проверки: reports/ui3-1-2026-10-11/ui3-0-ui3-1-spec.md. Предыдущие правила постоянной колонки/нижней панели заменяются этим договором для UI3.1.
++Нормативные размеры и поведение оболочки приведены в §4 и строке меню §8.
++Единая шапка, скрытое меню и переключатель филиала работают для Hospitality,
++Beauty и Food Service; специализированные календари сохраняют свои оси и модель.
++Hospitality: номера/койки и даты; Beauty: мастера и время; Food: зал и столы.
++Range popover и специализированные редизайны остаются будущими этапами UI3.3/UI3.7.
++Постоянная правая сводка дня на шахматке удаляется по поручению владельца
++11.10.2026. Карточка выбранной брони открывается по действию пользователя,
++KPI и операции бронирования сохраняются. Не возвращать пустой резерв справа.
+diff --git a/apps/web/CLAUDE.md b/apps/web/CLAUDE.md
+index 43c994c..67f0f77 100644
+--- a/apps/web/CLAUDE.md
++++ b/apps/web/CLAUDE.md
+@@ -1 +1,3 @@
+ @AGENTS.md
++
++Для UI: [корневой DESIGN.md](../../DESIGN.md), §4 и §8; [инструкции Claude](../../CLAUDE.md), раздел UI3.1. Не дублировать нормативные значения локально.
+diff --git a/apps/web/src/app/chessboard/board-clock.tsx b/apps/web/src/app/chessboard/board-clock.tsx
+deleted file mode 100644
+index 80b2aa2..0000000
+--- a/apps/web/src/app/chessboard/board-clock.tsx
++++ /dev/null
+@@ -1,24 +0,0 @@
+-'use client';
+-
+-import { useEffect, useState } from 'react';
+-
+-/**
+- * Часы объекта в заголовке сводки дня («Сегодня, 6 октября, 17:37:58», образец Lite PMS).
+- * Сервер отдаёт первое значение, браузер дальше тикает сам по поясу объекта, а не браузера.
+- */
+-export function BoardClock({ timeZone, initial }: { timeZone: string; initial: string }) {
+-  const [time, setTime] = useState(initial);
+-  useEffect(() => {
+-    const format = new Intl.DateTimeFormat('ru-RU', {
+-      timeZone,
+-      hour: '2-digit',
+-      minute: '2-digit',
+-      second: '2-digit',
+-    });
+-    const tick = () => setTime(format.format(new Date()));
+-    tick();
+-    const id = setInterval(tick, 1000);
+-    return () => clearInterval(id);
+-  }, [timeZone]);
+-  return <span suppressHydrationWarning>{time}</span>;
+-}
+diff --git a/apps/web/src/app/chessboard/board-grid.tsx b/apps/web/src/app/chessboard/board-grid.tsx
+index 62759e6..affd3d9 100644
+--- a/apps/web/src/app/chessboard/board-grid.tsx
++++ b/apps/web/src/app/chessboard/board-grid.tsx
+@@ -160,7 +160,6 @@ export function ChessboardGrid({
+   actions,
+   kpis,
+   help,
+-  summary,
+ }: {
+   board: Chessboard;
+   today: string;
+@@ -175,7 +174,6 @@ export function ChessboardGrid({
+   kpis?: ReactNode;
+   /** Текст «Как работать с календарём»: раскрывашка внизу окошка «Фильтры» (в полосе значка «?» нет) */
+   help?: ReactNode;
+-  summary?: ReactNode;
+ }) {
+   const [query, setQuery] = useState('');
+   const searchParams = useSearchParams();
+@@ -1052,7 +1050,7 @@ export function ChessboardGrid({
+       )}
+       <div
+         className="board-stage"
+-        data-docked={docked && (preview || summary) ? 'true' : undefined}
++        data-docked={docked && preview ? 'true' : undefined}
+       >
+         <div
+           ref={wrapRef}
+@@ -1283,9 +1281,6 @@ export function ChessboardGrid({
+             </tbody>
+           </table>
+         </div>
+-        {docked && !preview && summary && (
+-          <aside className="stay-panel calendar-day-summary">{summary}</aside>
+-        )}
+         {docked && preview && (
+           <StayPreview
+             key={`${preview.number}:${preview.itemId}`}
+diff --git a/apps/web/src/app/chessboard/board.css b/apps/web/src/app/chessboard/board.css
+index 1139d17..321d068 100644
+--- a/apps/web/src/app/chessboard/board.css
++++ b/apps/web/src/app/chessboard/board.css
+@@ -3240,29 +3240,6 @@
+   body:has(.calendar-shell[data-expanded='true']) {
+     overflow: hidden;
+   }
+-  .calendar-day-summary .board-day-panel {
+-    border: 0;
+-    padding: 0;
+-    background: transparent;
+-  }
+-  .calendar-day-summary .board-day-panel__title {
+-    font-size: var(--text-lg);
+-  }
+-  .calendar-day-summary .board-day-panel__columns {
+-    display: flex;
+-    flex-direction: column;
+-    gap: var(--space-4);
+-  }
+-  .calendar-day-summary .board-day-panel__row {
+-    display: flex;
+-    justify-content: space-between;
+-    gap: var(--space-2);
+-    padding-block: var(--space-2);
+-  }
+-  .calendar-day-summary .board-day-panel__col + .board-day-panel__col {
+-    border-top: 1px solid var(--border);
+-    padding-top: var(--space-2);
+-  }
+   .stay-panel:has(.stay-preview-finance) .stay-panel__facts,
+   .stay-panel:has(.stay-preview-finance) .stay-panel__contacts {
+     display: none;
+@@ -3309,15 +3286,6 @@
+   .calendar-shell .board-stage > .board-wrap:has(.board--month) {
+     scrollbar-gutter: auto;
+   }
+-  .calendar-day-summary {
+-    width: 232px;
+-  }
+-  /* Все 31 даты важнее повторной сводки: 888px сетки, 232px сводки и отступы. */
+-  @container calendar-screen (max-width: 1160px) {
+-    .board-stage:has(.board--month) .calendar-day-summary {
+-      display: none;
+-    }
+-  }
+   @media (min-width: 601px) {
+     .calendar-shell .board-toolbar .board-search .inp {
+       height: var(--control-h);
+diff --git a/apps/web/src/app/chessboard/page.tsx b/apps/web/src/app/chessboard/page.tsx
+index 00f6c45..cd17ae1 100644
+--- a/apps/web/src/app/chessboard/page.tsx
++++ b/apps/web/src/app/chessboard/page.tsx
+@@ -17,7 +17,6 @@ import { BoardZoom } from './board-zoom';
+ import { displayDate } from '../../lib/display-date';
+ import { hotelClock, validDate } from '../../lib/hotel-api';
+ import { CalendarWorkspace, CalendarExpandButton } from './calendar-workspace';
+-import { BoardClock } from './board-clock';
+ import { Icon } from '../../components/icon';
+ import { monthPeriod } from './month-period';
+ import { deskShell } from '../../lib/desk-shell';
+@@ -372,11 +371,6 @@ export default async function ChessboardPage({
+           actions={actions}
+           kpis={kpis}
+           help={help}
+-          summary={
+-            day ? (
+-              <SideDayStats day={day} today={today} timeZone={clock.timezone} board={current} />
+-            ) : null
+-          }
+         />
+         <div className="board-footer">
+           {/* Нижняя строка по образцу владельца (09.10.2026): цвета плашек словами, «Показать легенду»,
+@@ -614,66 +608,3 @@ function DayStats({
+     </section>
+   );
+ }
+-
+-function SideDayStats({
+-  day,
+-  board,
+-  today,
+-  timeZone,
+-}: {
+-  day: import('../../lib/api').DeskDay;
+-  board: import('../../lib/api').Chessboard | null;
+-  today: string;
+-  timeZone: string;
+-}) {
+-  const s = board?.summary[today];
+-  const units = s ? s.occupied + s.free + s.blocked : null;
+-  const occupancy = s && units ? Math.round((s.occupied / units) * 100) : units === 0 ? 0 : null;
+-  const tomorrow = new Date(Date.parse(`${today}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
+-  const dayHref = (date: string) => `/reservations?from=${today}&to=${today}&date=${date}`;
+-  const n = (value: number | null | undefined) => (value == null ? 'н/д' : String(value));
+-  const title = new Intl.DateTimeFormat('ru-RU', {
+-    day: 'numeric',
+-    month: 'long',
+-    timeZone,
+-  }).format(new Date(`${today}T12:00:00Z`));
+-  const initialTime = new Intl.DateTimeFormat('ru-RU', {
+-    timeZone,
+-    hour: '2-digit',
+-    minute: '2-digit',
+-    second: '2-digit',
+-  }).format(new Date());
+-  const c = day.counts;
+-  const row = (id: string, label: string, value: React.ReactNode, href?: string) => (
+-    <div className={`board-day-panel__row board-day-panel__row--${id}`}>
+-      {href ? <Link href={href}>{label}</Link> : <span>{label}</span>}
+-      <b data-testid={`summary-${id}`}>{value}</b>
+-    </div>
+-  );
+-  return (
+-    <section className="board-day-panel" role="group" aria-label="Сводка дня">
+-      <h2 className="board-day-panel__title">
+-        Сегодня, {title}, <BoardClock timeZone={timeZone} initial={initialTime} />
+-      </h2>
+-      <div className="board-day-panel__columns">
+-        <div className="board-day-panel__col">
+-          {row('arrivals', 'Заезды', c.arrivals, dayHref('arrival'))}
+-          {row('departures', 'Выезды', c.departures, dayHref('departure'))}
+-          {row('inhouse', 'Проживания', c.inHouse, '/reservations?view=inhouse')}
+-        </div>
+-        <div className="board-day-panel__col">
+-          {/* Без разбивки на номера и койки, без дней рождения, задач, блокировок и «Всего номеров»:
+-              владелец 06.10 «лишнее убери, в скобках убери», «всего номеров незачем видеть постоянно» */}
+-          {row(
+-            'free',
+-            'Свободно мест',
+-            n(s?.free),
+-            `/rooms/availability?arrival=${today}&departure=${tomorrow}`,
+-          )}
+-          {row('occupied', 'Занято мест', n(s?.occupied))}
+-          {row('occupancy', 'Загрузка', occupancy === null ? 'н/д' : `${occupancy}%`)}
+-        </div>
+-      </div>
+-    </section>
+-  );
+-}
+diff --git a/scripts/ops/repo-sync.sh b/scripts/ops/repo-sync.sh
+index 5c0a5e7..d5cbaa4 100755
+--- a/scripts/ops/repo-sync.sh
++++ b/scripts/ops/repo-sync.sh
+@@ -280,7 +280,7 @@ EOF
+     fi
+   else
+     info "всё из неё уже на GitHub; .env и данные переедут вместе с папкой"
+-    need "убрать дубль из рабочей папки: scripts/ops/repo-sync.sh --archive-nested (перенесёт «$top_rel» целиком в $ARCHIVE_DIR, ничего не удалит)"
++    need "убрать дубль из рабочей папки: scripts/ops/repo-sync.sh --archive-nested (перенесёт «${top_rel}» целиком в $ARCHIVE_DIR, ничего не удалит)"
+   fi
+ done <<EOF
+ $nested_git
+diff --git a/scripts/ops/shift-check.sh b/scripts/ops/shift-check.sh
+index 13b8f90..1bb83a7 100755
+--- a/scripts/ops/shift-check.sh
++++ b/scripts/ops/shift-check.sh
+@@ -58,7 +58,7 @@ done
+ 
+ # День смены по Алматы (UTC+5 без перехода на летнее время, как confirmationNumber в @pms/domain)
+ [ -n "$day" ] || day="$(date -u -d '+5 hours' +%F 2>/dev/null || date -u -v+5H +%F)"
+-[[ "$day" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || fail "день смены: нужно ГГГГ-ММ-ДД, а не «$day»"
++[[ "$day" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || fail "день смены: нужно ГГГГ-ММ-ДД, а не «${day}»"
+ 
+ work="$(mktemp -d)"
+ trap 'rm -rf "$work"' EXIT
+diff --git a/tests/ui/branches.spec.ts b/tests/ui/branches.spec.ts
+index 5037fb5..80c9d7d 100644
+--- a/tests/ui/branches.spec.ts
++++ b/tests/ui/branches.spec.ts
+@@ -107,6 +107,7 @@ test('переключатель филиалов сохраняет разде
+   const sidebar = page.locator('.workspace-header');
+   const trigger = sidebar.getByRole('button', { name: 'Выбрать филиал', exact: true });
+   const navigation = page.getByRole('main');
++  await expect(navigation).toBeVisible();
+   const before = await navigation.boundingBox();
+   await trigger.click();
+   const choices = sidebar.getByRole('region', { name: 'Выбор филиала' });
+diff --git a/tests/ui/ui31-board-width.spec.ts b/tests/ui/ui31-board-width.spec.ts
+new file mode 100644
+index 0000000..8b1289a
+--- /dev/null
++++ b/tests/ui/ui31-board-width.spec.ts
+@@ -0,0 +1,24 @@
++import { FIXTURE_API, expect, test } from './fixtures';
++
++test('UI3.1: сетка занимает ширину без постоянной сводки дня', async ({ page, request }) => {
++  await request.post(`${FIXTURE_API}/__test/reset`);
++  await page.goto('/chessboard');
++  const stage = page.locator('.board-stage');
++  await expect(stage).toBeVisible();
++  await expect(page.locator('.calendar-day-summary')).toHaveCount(0);
++  await expect(stage).not.toHaveAttribute('data-docked', 'true');
++  const grid = page.getByRole('region', { name: 'Календарь по дням', exact: true });
++  const available = await stage.boundingBox();
++  const actual = await grid.boundingBox();
++  expect(actual!.width).toBeGreaterThan(available!.width - 4);
++  for (const width of [1440, 1536, 768, 390, 320]) {
++    await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
++    for (const colorScheme of ['light', 'dark'] as const) {
++      await page.emulateMedia({ colorScheme });
++      await expect(page.locator('html')).toHaveAttribute('data-theme', colorScheme);
++      await expect(page.locator('.calendar-day-summary')).toHaveCount(0);
++      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
++      await page.screenshot({ path: `reports/ui3-1-fixes-2026-10-11/board-${colorScheme}-${width}.png` });
++    }
++  }
++});
+diff --git a/tests/ui/ui31-settings-loading.spec.ts b/tests/ui/ui31-settings-loading.spec.ts
+new file mode 100644
+index 0000000..0330e9c
+--- /dev/null
++++ b/tests/ui/ui31-settings-loading.spec.ts
+@@ -0,0 +1,22 @@
++import { FIXTURE_API, expect, test } from './fixtures';
++
++test('UI3.1: переход в настройки показывает загрузку до ответа API', async ({ page, request }) => {
++  await request.post(`${FIXTURE_API}/__test/reset`);
++  await page.goto('/hotel-settings');
++  await expect(page.locator('#main-content')).toBeVisible();
++  await page.goto('/chessboard');
++  await request.post(`${FIXTURE_API}/__test/control`, { data: { holdHotel: true } });
++  try {
++    await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
++    const panel = page.locator('.sidenav__panel');
++    await panel.getByRole('button', { name: 'Настройки', exact: true }).hover();
++    await panel.getByRole('link', { name: 'Объект', exact: true }).click();
++    await expect(page.getByTestId('settings-loading')).toBeVisible();
++    await expect(page).toHaveURL(/\/hotel-settings$/);
++    await expect(panel).toBeHidden();
++  } finally {
++    await request.post(`${FIXTURE_API}/__test/control`, { data: { holdHotel: false } });
++  }
++  await expect(page.getByTestId('settings-loading')).toHaveCount(0);
++  await expect(page.locator('#main-content')).toBeFocused();
++});
+diff --git a/tests/unit/test-journal-merge.test.ts b/tests/unit/test-journal-merge.test.ts
+index a80ce32..5001517 100644
+--- a/tests/unit/test-journal-merge.test.ts
++++ b/tests/unit/test-journal-merge.test.ts
+@@ -2,7 +2,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
+ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+ import { tmpdir } from 'node:os';
+ import { join, resolve } from 'node:path';
+-import { afterEach, describe, expect, it } from 'vitest';
++import { afterAll, afterEach, describe, expect, it } from 'vitest';
+ import { ROOT } from '../tools/git-state';
+ import {
+   JOURNAL_FILE,
+@@ -91,26 +91,42 @@ describe('журнал прогонов: две ветки сливаются б
+ });
+ 
+ describe('журнал из записей: test:status видит то же, что видел по общему файлу', () => {
+-  it('нынешний journal.jsonl, разложенный по записям, даёт те же прогоны и те же вердикты', () => {
+-    const archive = readFileSync(resolve(ROOT, JOURNAL_FILE), 'utf8');
+-    const before = parseJournal(archive);
+-    expect(before.length).toBeGreaterThan(100);
+-    // копии одного прогона (след `merge=union`) читаются один раз
+-    expect(new Set(before.map((r) => r.id)).size).toBe(before.length);
++  describe('весь нынешний архив, ограниченные порции файлового ввода-вывода', () => {
++    const before = parseJournal(readFileSync(resolve(ROOT, JOURNAL_FILE), 'utf8'));
++    const batchSize = 200;
++    const batches = Array.from({ length: Math.ceil(before.length / batchSize) }, (_, index) => ({
++      index,
++      records: before.slice(index * batchSize, (index + 1) * batchSize),
++    }));
++    const restored = new Map<number, RunRecord[]>();
+ 
+-    const repo = mkdtempSync(join(tmpdir(), 'journal-entries-'));
+-    dirs.push(repo);
+-    for (const r of before) writeRunRecord(repo, r);
+-    const after = parseJournal(readJournalText(repo));
+-    expect(after).toEqual(before);
++    it('архив содержит историю без повторов id', () => {
++      expect(before.length).toBeGreaterThan(100);
++      expect(new Set(before.map((r) => r.id)).size).toBe(before.length);
++    });
+ 
+-    const now = new Date(before.at(-1)!.startedAt);
+-    for (const suite of Object.values(SUITES)) {
+-      const fingerprint = [...before].reverse().find((r) => r.suite === suite.name)?.fingerprint ?? 'none';
+-      expect(assess(suite, after, { fingerprint, now }), suite.name).toEqual(
+-        assess(suite, before, { fingerprint, now }),
+-      );
+-    }
++    // Все записи проверяются, но рост архива не увеличивает I/O одного теста сверх его 5 секунд.
++    it.each(batches)('порция $index сохраняет каждую запись', ({ index, records }) => {
++      const repo = mkdtempSync(join(tmpdir(), 'journal-entries-'));
++      dirs.push(repo);
++      for (const r of records) writeRunRecord(repo, r);
++      const after = parseJournal(readJournalText(repo));
++      expect(after).toEqual(records);
++      restored.set(index, after);
++    });
++
++    afterAll(() => {
++      expect(restored.size).toBe(batches.length);
++      const after = batches.flatMap(({ index }) => restored.get(index) ?? []);
++      expect(after).toEqual(before);
++      const now = new Date(before.at(-1)!.startedAt);
++      for (const suite of Object.values(SUITES)) {
++        const fingerprint = [...before].reverse().find((r) => r.suite === suite.name)?.fingerprint ?? 'none';
++        expect(assess(suite, after, { fingerprint, now }), suite.name).toEqual(
++          assess(suite, before, { fingerprint, now }),
++        );
++      }
++    });
+   });
+ 
+   it('архив и записи вместе: старое из архива, новое из записи, порядок по времени', () => {

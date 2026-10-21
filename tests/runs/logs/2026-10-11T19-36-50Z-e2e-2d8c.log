@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 12.10.2026 00:36 Алматы · MacBook-Air-Urij.local
+# коммит e523f35 (codex/ui3-1-acceptance-fixes), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/ui31-settings-loading.spec.ts' '--workers=1'
+[WebServer] (node:84362) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84390) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84394) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:84457) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84531) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/ui31-settings-loading.spec.ts:3:1 › UI3.1: переход в настройки показывает загрузку до ответа API (30.6s)
+
+
+  1) tests/ui/ui31-settings-loading.spec.ts:3:1 › UI3.1: переход в настройки показывает загрузку до ответа API 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('hotel-settings-loading')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('hotel-settings-loading') with timeout 15000ms
+      - waiting for getByTestId('hotel-settings-loading')
+
+
+      12 |     await panel.getByRole('button', { name: 'Настройки', exact: true }).hover();
+      13 |     await panel.getByRole('link', { name: 'Объект', exact: true }).click();
+    > 14 |     await expect(page.getByTestId('hotel-settings-loading')).toBeVisible();
+         |                                                              ^
+      15 |     await expect(page).toHaveURL(/\/hotel-settings$/);
+      16 |     await expect(panel).toBeHidden();
+      17 |   } finally {
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/ui31-settings-loading.spec.ts:14:62
+
+    Error Context: test-results/ui31-settings-loading-UI3--aafd9-вает-загрузку-до-ответа-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-settings-loading-UI3--aafd9-вает-загрузку-до-ответа-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-settings-loading-UI3--aafd9-вает-загрузку-до-ответа-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ui31-settings-loading.spec.ts:3:1 › UI3.1: переход в настройки показывает загрузку до ответа API 
+
+# код выхода 1 · 1 мин 4 с

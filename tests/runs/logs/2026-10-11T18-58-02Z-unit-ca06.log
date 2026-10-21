@@ -1,0 +1,121 @@
+# Модульные (unit) · 11.10.2026 23:58 Алматы · MacBook-Air-Urij.local
+# коммит e523f35 (codex/ui3-1-hidden-navigation)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T18-58-02Z-unit-ca06.json' '--maxWorkers=1' 'tests/unit/repo-sync.test.ts' 'tests/unit/shift-check-wrapper.test.ts' 'tests/unit/test-journal-merge.test.ts' '--testNamePattern' 'находит перенесённую внутрь копию|пустая таблица и незнакомый ключ|нынешний journal.jsonl'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Developer/wetop-ui31-20261011
+
+ ❯ |unit| tests/unit/test-journal-merge.test.ts (3 tests | 1 failed | 2 skipped) 6969ms
+   ↓ журнал прогонов: две ветки сливаются без конфликта (1)
+     ↓ у каждой ветки свой прогон от одного предка, merge-tree чистый
+   ❯ журнал из записей: test:status видит то же, что видел по общему файлу (2)
+     × нынешний journal.jsonl, разложенный по записям, даёт те же прогоны и те же вердикты 6967ms
+     ↓ архив и записи вместе: старое из архива, новое из записи, порядок по времени
+ ❯ |unit| tests/unit/repo-sync.test.ts (25 tests | 1 failed | 24 skipped) 2545ms
+   ↓ repo-sync.sh: связь папки с репозиторием (18)
+     ↓ проверка: называет remote, отставание от origin/main, службы в другой папке; код выхода 1
+     ↓ --pull подтягивает origin/main только fast-forward и потом отставания нет
+     ↓ --pull не трогает дерево с незакоммиченными правками
+     ↓ --pull с локальными коммитами не сливает, а просит отправить их
+     ↓ --relink переводит службы launchd на эту папку через uninstall.sh + install.sh
+     ↓ --from переносит то, чего нет в git (.env, выгрузки), и не перезаписывает существующее
+     ↓ без .env говорит, что его нет, но содержимое не читает и не печатает
+     ↓ чужой remote или папка не под git — код 2 и ни одного действия
+     ↓ аргументы после # — комментарий: zsh без INTERACTIVE_COMMENTS передаёт их скрипту
+     ↓ при постоянном адресе быстрый туннель не переустанавливается, а снимается; нужен domain
+     ↓ быстрый туннель не переустанавливается ни на какой машине: без wetop.yml тоже снимается
+     ↓ esbuild не той платформы: API и скрипты падали бы на старте — просит npm ci
+     ↓ --fix при битом esbuild: npm ci, клиент Prisma и перезапуск API — сам, без диктовки команд
+     ↓ webhook Channex не на постоянном адресе: проверка называет, --fix перерегистрирует
+     ↓ next-env.d.ts переписан сборкой — это не работа для человека, а строка «сборка»
+     ↓ настоящая правка рядом со сгенерированным файлом по-прежнему пункт к исполнению
+     ↓ --pull возвращает сгенерированный файл и подтягивает: из-за него fast-forward не отменяется
+     ↓ находит вторую копию репозитория рядом с папкой
+   ❯ repo-sync.sh: папка бота, перенесённая внутрь рабочей (7)
+     × находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает 2543ms
+     ↓ --archive-nested переносит папку целиком в архив рядом: .env и заметки с ней, рабочая чистая
+     ↓ копия с неотправленной работой остаётся на месте: названы коммиты и правки, команда отправки
+     ↓ чужой репозиторий внутри папки назван, но не переносится
+     ↓ рабочие копии сессий и node_modules копиями не считаются
+     ↓ файлы из старой папки поверх apps/ai-seller названы; --fix возвращает версию main и подтягивает
+     ↓ настоящая правка в apps/ai-seller копией не считается, и --fix её не трогает
+ ❯ |unit| tests/unit/shift-check-wrapper.test.ts (4 tests | 1 failed | 3 skipped) 237ms
+   ❯ scripts/ops/shift-check.sh (4)
+     ↓ таблица из файла: один вход в контейнер, аргументы как есть, новые строки в журнал вне клона
+     ↓ повторный срез: журнал целиком уходит в контейнер после разделителя, без новых строк файл не меняется
+     × пустая таблица и незнакомый ключ: код 2, контейнер не зовётся 235ms
+     ↓ без --date день смены сегодняшний по Алматы
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: папка бота, перенесённая внутрь рабочей > находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает
+AssertionError: expected 'Папка: /private/var/folders/sl/5hhh0s…' to contain '--archive-nested'
+
+- Expected
++ Received
+
+- --archive-nested
++ Папка: /private/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/repo-sync-tY5g9u/WETOP
++   ✓ origin → /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/repo-sync-tY5g9u/GAIVER007/wetop.ai.git
++ Git: ветка main, коммит 997472b; origin/main 997472b
++   ✓ совпадает с origin/main
++   · неотслеживаемых файлов: 1 (git status)
++   ✗ ещё одна копия репозитория рядом: /private/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/repo-sync-tY5g9u/seed (997472b от 2026-10-11)
++   → оставить одну папку: службы launchd, .env и тесты живут в одной (AGENTS.md §17)
++   ✗ внутри папки вторая копия репозитория: Чат агент/WETOP (ветка ai-seller)
++   · это старая папка бота: с 24.09 он живёт в apps/ai-seller ветки main, со всей историей
++   · всё из неё уже на GitHub; .env и данные переедут вместе с папкой
++ /Users/urijzapojnov/Developer/wetop-ui31-20261011/scripts/ops/repo-sync.sh: line 283: top_rel�: unbound variable
++
+
+ ❯ tests/unit/repo-sync.test.ts:545:17
+    543|     expect(out).toMatch(/apps\/ai-seller/);
+    544|     expect(out).toMatch(/всё из неё уже на GitHub/);
+    545|     expect(out).toContain('--archive-nested');
+       |                 ^
+    546|     expect(out).not.toContain('SECRET=1');
+    547|     expect(existsSync(join(top, 'WETOP', '.env'))).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| tests/unit/shift-check-wrapper.test.ts > scripts/ops/shift-check.sh > пустая таблица и незнакомый ключ: код 2, контейнер не зовётся
+AssertionError: expected '/Users/urijzapojnov/Developer/wetop-u…' to contain 'нужно ГГГГ-ММ-ДД'
+
+- Expected
++ Received
+
+- нужно ГГГГ-ММ-ДД
++ /Users/urijzapojnov/Developer/wetop-ui31-20261011/scripts/ops/shift-check.sh: line 61: day�: unbound variable
++
+
+ ❯ tests/unit/shift-check-wrapper.test.ts:100:69
+     98|     expect(s.run(['--date', '2026-10-06'], '  \n\n').code).toBe(2);
+     99|     expect(s.run(['--force'], 'событие\tбронь\n').code).toBe(2);
+    100|     expect(s.run(['--date', '06.10.2026'], 'событие\tбронь\n').err).to…
+       |                                                                     ^
+    101|     expect(s.read('calls')).toBe('');
+    102|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| tests/unit/test-journal-merge.test.ts > журнал из записей: test:status видит то же, что видел по общему файлу > нынешний journal.jsonl, разложенный по записям, даёт те же прогоны и те же вердикты
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/test-journal-merge.test.ts:94:3
+     92|
+     93| describe('журнал из записей: test:status видит то же, что видел по общ…
+     94|   it('нынешний journal.jsonl, разложенный по записям, даёт те же прого…
+       |   ^
+     95|     const archive = readFileSync(resolve(ROOT, JOURNAL_FILE), 'utf8');
+     96|     const before = parseJournal(archive);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  3 failed | 29 skipped (32)
+   Start at  22:58:09
+   Duration  11.38s (tests 90%, transform 8%, import 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-11T18-58-02Z-unit-ca06.json
+
+# код выхода 1 · 19 с

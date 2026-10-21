@@ -1,0 +1,275 @@
+# Сквозные (e2e) · 12.10.2026 00:55 Алматы · MacBook-Air-Urij.local
+# коммит e523f35 (codex/ui3-1-acceptance-fixes), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'reports/ui3-1-fixes-2026-10-11/playwright.diagnostic.config.ts' 'tests/ui/ui31-board-width.spec.ts' 'tests/ui/ui31-shell.spec.ts' 'tests/ui/ui31-settings-loading.spec.ts' 'tests/ui/branches.spec.ts' 'tests/ui/chessboard-card.spec.ts:17' 'tests/ui/roles.spec.ts:31' 'tests/ui/chessboard-filters.spec.ts:288' 'tests/ui/theme-transition.spec.ts:11' '--workers=1'
+[WebServer] (node:27674) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:27702) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:27703) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] WETOP test API on 127.0.0.1:4391 (no DB/providers)
+[WebServer] (node:27706) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:27735) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:27736) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ▲ Next.js 16.3.6 (Turbopack)
+[WebServer] - Local:         http://127.0.0.1:3191
+[WebServer] - Network:       http://127.0.0.1:3191
+[WebServer] ✓ Ready in 1241ms
+[WebServer] ✓ Running next.config.ts took 632ms
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] - Experiments (use with caution):
+[WebServer]   · serverActions
+[WebServer]   ⨯ turbopackFileSystemCacheForDev
+[WebServer] 
+[WebServer]  GET /today 200 in 3.1s (next.js: 2.5s, proxy.ts: 62ms, application-code: 463ms)
+
+Running 17 tests using 1 worker
+
+(node:27744) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ○ Compiling /auth/fallback ...
+[WebServer]  GET /auth/fallback 200 in 6.4s (next.js: 6.0s, proxy.ts: 109ms, application-code: 294ms)
+[WebServer]  POST /auth/fallback 303 in 869ms (next.js: 100ms, proxy.ts: 158ms, application-code: 611ms)
+[WebServer]  GET /scope/resolve?next=%2Ftoday 307 in 665ms (next.js: 408ms, proxy.ts: 30ms, application-code: 227ms)
+[WebServer] ○ Compiling /[...catchAll] ...
+[WebServer]  GET /today 200 in 1670ms (next.js: 119ms, proxy.ts: 42ms, application-code: 1509ms)
+[WebServer]  GET /favicon.ico 200 in 4.9s
+[WebServer] (node:27836) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ○ Compiling /api/freshness ...
+[WebServer]  GET /api/freshness 200 in 4.1s (next.js: 2.9s, proxy.ts: 124ms, application-code: 1071ms)
+[WebServer]  GET /finance 200 in 11.6s (next.js: 4.1s, proxy.ts: 8ms, application-code: 7.4s)
+[WebServer]  GET /api/freshness 200 in 1440ms (next.js: 284ms, proxy.ts: 439ms, application-code: 718ms)
+[WebServer] ○ Compiling /branches ...
+[WebServer]  GET /branches 200 in 11.7s (next.js: 6.3s, proxy.ts: 47ms, application-code: 5.4s)
+  ✘   1 tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор (52.5s)
+(node:27918) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]  GET /auth/fallback 200 in 883ms (next.js: 473ms, proxy.ts: 239ms, application-code: 170ms)
+[WebServer]  POST /auth/fallback 303 in 277ms (next.js: 140ms, proxy.ts: 38ms, application-code: 99ms)
+[WebServer]  GET /favicon.ico 200 in 1093ms (next.js: 367ms, application-code: 726ms)
+[WebServer]  GET /scope/resolve?next=%2Ftoday 307 in 63ms (next.js: 40ms, proxy.ts: 3ms, application-code: 20ms)
+[WebServer]  GET /today 200 in 461ms (next.js: 103ms, proxy.ts: 6ms, application-code: 352ms)
+[WebServer] (node:28005) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]  GET /api/freshness 200 in 112ms (next.js: 63ms, proxy.ts: 6ms, application-code: 42ms)
+[WebServer]  GET /api/freshness 200 in 491ms (next.js: 140ms, proxy.ts: 324ms, application-code: 28ms)
+[WebServer]  GET /finance 200 in 2.0s (next.js: 123ms, proxy.ts: 4ms, application-code: 1910ms)
+[WebServer] ○ Compiling /platform ...
+[WebServer]  GET /platform 200 in 10.8s (next.js: 9.7s, proxy.ts: 18ms, application-code: 1075ms)
+[WebServer]  GET /api/freshness 200 in 130ms (next.js: 29ms, proxy.ts: 8ms, application-code: 92ms)
+[WebServer]  GET /platform 200 in 1934ms (next.js: 21ms, proxy.ts: 16ms, application-code: 1897ms)
+[WebServer]  GET /api/freshness 200 in 82ms (next.js: 29ms, proxy.ts: 22ms, application-code: 32ms)
+[WebServer]  POST /platform 200 in 3.8s (next.js: 224ms, proxy.ts: 162ms, application-code: 3.4s)
+[WebServer]   └─ ƒ createBranch(null, {}) in 289ms src/app/branches/actions.ts
+[WebServer]  GET /platform 200 in 5.2s (next.js: 320ms, proxy.ts: 50ms, application-code: 4.8s)
+  ✘   2 tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload (48.6s)
+(node:28175) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]  GET /auth/fallback 200 in 2.9s (next.js: 857ms, proxy.ts: 1015ms, application-code: 1071ms)
+[WebServer] (node:28338) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]  POST /auth/fallback 303 in 3.6s (next.js: 1034ms, proxy.ts: 849ms, application-code: 1673ms)
+[WebServer]  GET /favicon.ico 200 in 10.5s (next.js: 2.2s, application-code: 8.4s)
+[WebServer]  GET /scope/resolve?next=%2Ftoday 307 in 669ms (next.js: 318ms, proxy.ts: 74ms, application-code: 276ms)
+[WebServer]  GET /branches 200 in 4.0s (next.js: 645ms, proxy.ts: 32ms, application-code: 3.3s)
+[WebServer] ○ Compiling /chessboard ...
+  ✘   3 tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (53.7s)
+(node:28411) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (src/lib/api.ts:148:11)
+[WebServer]     at async getJson (src/lib/api.ts:186:15)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:93:78)
+[WebServer]   146 |       throw error;
+[WebServer]   147 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 148 |     throw new ApiError(
+[WebServer]       |           ^
+[WebServer]   149 |       503,
+[WebServer]   150 |       options.method && options.method !== 'GET'
+[WebServer]   151 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer]  GET /chessboard 200 in 24.6s (next.js: 2.2s, proxy.ts: 1406ms, application-code: 20.9s)
+[WebServer]  GET /api/freshness 200 in 4.7s (next.js: 2.5s, proxy.ts: 545ms, application-code: 1721ms)
+  ✘   4 tests/ui/chessboard-card.spec.ts:17:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (49.6s)
+(node:28598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]  GET /chessboard?from=2026-10-11&to=2026-10-17 200 in 20.1s (next.js: 1686ms, proxy.ts: 1162ms, application-code: 17.3s)
+  ✘   5 tests/ui/chessboard-filters.spec.ts:288:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр (55.3s)
+
+
+  1) tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор ────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3191/branches", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/fixtures.ts:163:30)
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/branches.spec.ts:9:14
+
+    Error Context: test-results/branches-филиалы-создание-сохранение-после-reload-и-обзор/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-филиалы-создание-сохранение-после-reload-и-обзор/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-филиалы-создание-сохранение-после-reload-и-обзор/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('main').getByRole('heading', { name: 'Тестовый объект Север', exact: true })
+    Expected: visible
+    Received: undefined
+
+
+      63 |   await expect(
+      64 |     main.getByRole('heading', { name: 'Тестовый объект Север', exact: true }),
+    > 65 |   ).toBeVisible();
+         |     ^
+      66 |   // показатели стоят прямо в карточке филиала
+      67 |   await expect(main.getByText('Загрузка').first()).toBeVisible();
+      68 |   for (const width of [1440, 390]) {
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/branches.spec.ts:65:5
+
+    Error Context: test-results/branches-организации-филиа-a7883--и-сохраняется-после-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-организации-филиа-a7883--и-сохраняется-после-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-организации-филиа-a7883--и-сохраняется-после-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3191/chessboard", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/fixtures.ts:163:30)
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/branches.spec.ts:105:14
+
+    Error Context: test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/chessboard-card.spec.ts:17:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('stay-cell').first()
+        - locator resolved to <a draggable="true" data-plate-start="" class="board__stay" data-unit-code="R01" data-item-id="ui-item" data-date="2026-10-12" aria-haspopup="dialog" data-testid="stay-cell" data-number="20260913-TESTAA" href="/reservations/20260913-TESTAA" aria-label="Гость Тестовый · 20260913-TESTAA · подтверждена, ждём · 2026-10-12 → 2026-10-15 · 3 ночи">…</a>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+
+
+      21 |   const stay = page.getByTestId('stay-cell').first();
+      22 |   const number = await stay.getAttribute('data-number');
+    > 23 |   await stay.click();
+         |              ^
+      24 |   const preview = page.getByTestId('stay-preview');
+      25 |   await expect(preview).toBeVisible();
+      26 |   await expect(page).toHaveURL('/chessboard');
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/chessboard-card.spec.ts:23:14
+
+    Error Context: test-results/chessboard-card-одинарный--1f6f6-акрывает-и-возвращает-фокус/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-одинарный--1f6f6-акрывает-и-возвращает-фокус/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-одинарный--1f6f6-акрывает-и-возвращает-фокус/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/chessboard-filters.spec.ts:288:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3191/chessboard?from=2026-10-11&to=2026-10-17", waiting until "load"
+
+
+       at fixtures.ts:163
+
+      161 |     const goto = page.goto.bind(page);
+      162 |     page.goto = async (url, options) => {
+    > 163 |       const response = await goto(url, options);
+          |                              ^
+      164 |       await settleStreaming(page);
+      165 |       return response;
+      166 |     };
+        at _Page.goto (/Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/fixtures.ts:163:30)
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/chessboard-filters.spec.ts:291:14
+
+    Error Context: test-results/chessboard-filters-§40-Ctr-fe376-er-на-плашке-—-предпросмотр/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-§40-Ctr-fe376-er-на-плашке-—-предпросмотр/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-§40-Ctr-fe376-er-на-плашке-—-предпросмотр/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/branches.spec.ts:2:1 › филиалы: создание, сохранение после reload и обзор ─────────────
+    tests/ui/branches.spec.ts:33:1 › организации: филиал создаётся прямо в разделе и сохраняется после reload 
+    tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+    tests/ui/chessboard-card.spec.ts:17:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус 
+    tests/ui/chessboard-filters.spec.ts:288:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр 
+  12 did not run
+
+# код выхода 130 · 6 мин 50 с

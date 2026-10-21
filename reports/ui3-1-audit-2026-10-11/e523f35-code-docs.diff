@@ -1,0 +1,1623 @@
+diff --git a/DECISIONS.md b/DECISIONS.md
+index 8a51548..eb83489 100644
+--- a/DECISIONS.md
++++ b/DECISIONS.md
+@@ -6620,3 +6620,14 @@ S7 (аналитика салона); S6 «Финансы/Зарплата» з
+ ## Единый вход владельца по направлениям (11.10.2026)
+ 
+ Поручение владельца: один существующий аккаунт открывает гостиницу, салон и ресторан без повторной регистрации. Используем существующие Membership OWNER, Business и Location в собственной организации. PlatformAdmin не расширяет доступ к данным чужих организаций. Создание филиала поддерживает FOOD_SERVICE через ту же транзакцию организации, что BEAUTY, без Property. Переключатель показывает направление рядом с названием. Новая схема и миграция не требуются. Настройка конкретного аккаунта выполняется отдельно после проверки существующих записей через авторизованный доступ.
++
++## ADR-UI31: скрытая навигация и единая оболочка календарей
++
++Дата: 11.10.2026. Решение владельца: текущий чат UI3, разрешение приступить к UI3.1.
++
++Проблема: постоянные элементы навигации отнимают площадь рабочих календарей, разные поверхности должны сохранять один scope и реестр доступа.
++Варианты: постоянная панель, прежние вкладки, скрытое меню под одной кнопкой. Принято: скрытое меню. На desktop две колонки разделов/подразделов по hover/focus; на mobile существующий Overlay/Sidebar. Переход и смена scope закрывают меню. Нижняя постоянная навигация снимается; маршруты остаются в полном меню. Trial/freshness доступны внутри меню, read-only-banner сохранён.
++
++Основа реализации: существующий SideNav из свежего main b811e67, без возвращения удалённого TopMenu. Один scoped --header-h на основе --header-row-h плюс safe-area; общие примитивы/глобальные токены не меняются. Состав меню и RBAC определяют menuSectionsFor/activeMenuRoute. Специализированные календари, их API и модели не меняются.
++
++Последствия: проверка desktop/mobile/keyboard, всех трёх вертикалей и зависимых sticky/viewport. Тесты старой нижней панели переводятся на новое поведение без удаления проверок доступа. Изолированный clone, синтетический loopback API без Supabase. Merge/push/deploy не разрешены. План и критерии: reports/ui3-1-2026-10-11/ui3-0-ui3-1-spec.md, поправка базы в preflight.md.
+diff --git a/DESIGN.md b/DESIGN.md
+index 8d27a8d..e17235c 100644
+--- a/DESIGN.md
++++ b/DESIGN.md
+@@ -1282,3 +1282,9 @@ ADR-132 у главной): палитра `--salon-*` из `tokens.css` (тёп
+ Следствие слоёв, о котором надо помнить: правило раздела побеждает примитив независимо от
+ специфичности. До DS0b часть объявлений разделов проигрывала `.tbl a` или `.tbl td` и была мёртвой;
+ DS0b их удалил, чтобы вид не изменился. Новый вид раздела над примитивом задаётся своим классом.
++
++## UI3.1: скрытое меню, 11.10.2026
++
++Решение владельца текущего UI3: навигация скрыта под одной кнопкой, постоянной левой и нижней панели нет. Desktop использует существующий SideNav с разделами и подразделами, mobile использует Overlay/Sidebar. Общий реестр и scope сохранены. Шапка 56 px (--header-row-h) плюс верхний safe-area; эффективный --header-h задаётся внутри workspace и наследуется sticky-потребителями. Глобальная палитра, шрифт и примитивы не меняются.
++
++Меню: desktop 560 px (--overlay-w-md), две колонки, строки минимум 44 px, внутренний отступ 8 px, радиус 10 px. Mobile: до 400 px (--drawer-w-sm), от края минимум 8 px и safe-area, отдельная прокрутка. Кнопка меню 44×44 px, Lucide 20 px. Escape возвращает фокус, переход закрывает меню, hover/focus раскрывает подраздел, уход курсора не закрывает всё меню. Подробный контракт и проверки: reports/ui3-1-2026-10-11/ui3-0-ui3-1-spec.md. Предыдущие правила постоянной колонки/нижней панели заменяются этим договором для UI3.1.
+diff --git a/apps/web/src/app/workspace.css b/apps/web/src/app/workspace.css
+index c4e4ccb..073bd93 100644
+--- a/apps/web/src/app/workspace.css
++++ b/apps/web/src/app/workspace.css
+@@ -389,12 +389,12 @@
+     }
+   }
+   @media (max-width: 960px) {
+-    /* строки разделов нет: одна строка шапки 60 px, объект вверху меню телефона */
++    /* UI3.1: одна строка шапки 56 px, объект вверху меню телефона */
+     .workspace {
+-      --header-h: 60px;
++      --header-h: calc(var(--header-row-h) + env(safe-area-inset-top, 0px));
+     }
+     .workspace-header__row {
+-      min-height: 60px;
++      min-height: var(--header-row-h);
+     }
+     .workspace-header__property {
+       display: none;
+@@ -412,11 +412,10 @@
+     .workspace-brand .brand-name {
+       display: none;
+     }
+-    /* Нижняя навигация — fixed ~70 px (ADR-050): без запаса последние строки страницы уходят под неё.
+-   * Правило живёт здесь, а не в блоке ≤360: иначе на обычном телефоне (375–430 px) его нет. */
++    /* UI3.1: нижней навигации нет, остаётся отступ содержимого и safe-area. */
+     .workspace .page,
+     .workspace .page--full {
+-      padding: 22px 16px calc(90px + env(safe-area-inset-bottom, 0px));
++      padding: 22px 16px calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+     }
+     /* Телефон целиком. ADR-134 свёл эти правила в блок ≤360 px, и на обычном телефоне (361–600 px)
+    * перестали действовать цели 44 px, размер заголовка и отступы панелей: кнопки падали до 36 px. */
+diff --git a/apps/web/src/components/shell/side-nav.css b/apps/web/src/components/shell/side-nav.css
+index a8ebc35..bf2aebe 100644
+--- a/apps/web/src/components/shell/side-nav.css
++++ b/apps/web/src/components/shell/side-nav.css
+@@ -1,162 +1,124 @@
+-/* Левая контекстная навигация (ADR-161, DESIGN.md §8 «Левое меню»): колонка 232 px во всю высоту окна,
+-   кнопка текущего раздела, под ней его подразделы; панель всех разделов открывается справа от кнопки.
+-   До 960 px колонки нет: окно «Навигация» и нижняя панель телефона. */
++/* UI3.1: hidden desktop navigation; one surface, no reserved sidebar width. */
+ @layer sections {
++  .workspace {
++    --header-h: calc(var(--header-row-h) + env(safe-area-inset-top, 0px));
++    padding-left: 0;
++  }
++  .workspace .workspace-header {
++    padding-top: env(safe-area-inset-top, 0px);
++    border-bottom: 0;
++    box-shadow: inset 0 -1px var(--border);
++  }
++  .workspace .workspace-header__row {
++    height: var(--header-row-h);
++    min-height: var(--header-row-h);
++    padding: 0 var(--space-6);
++    gap: var(--space-4);
++  }
++  .workspace-header .icon-button {
++    width: var(--touch-target);
++    height: var(--touch-target);
++    border-radius: var(--radius-control);
++  }
++  .workspace-header .workspace-search {
++    min-width: var(--touch-target);
++    min-height: var(--touch-target);
++  }
+   .sidenav {
+     display: none;
+   }
+   @media (min-width: 961px) {
+-    .workspace {
+-      --sidenav-w: 232px;
+-      padding-left: var(--sidenav-w);
+-      --header-h: var(--header-row-h);
+-    }
+-    /* знак живёт в колонке, в шапке его нет */
+-    .workspace-header .workspace-brand {
+-      display: none;
+-    }
+     .sidenav {
+-      position: fixed;
+-      inset: 0 auto 0 0;
+-      z-index: var(--layer-sidebar);
+-      display: flex;
+-      flex-direction: column;
+-      gap: var(--space-4);
+-      width: var(--sidenav-w);
+-      padding: var(--space-4) var(--space-4);
+-      border-right: 1px solid var(--border);
+-      background: var(--surface);
++      display: block;
++      flex: none;
+     }
+   }
+-  .sidenav__brand {
+-    min-height: var(--space-10);
+-    padding: 0 var(--space-2);
+-  }
+   .sidenav__nav {
+-    display: flex;
+-    flex-direction: column;
+-    gap: var(--space-2);
+-    flex: 1 1 auto;
+-    min-height: 0;
+-  }
+-  /* без overflow: панель стоит абсолютом справа, прокрутка её обрезала бы; прокручивается только список ниже */
+-  .sidenav__menu {
+     position: relative;
+   }
+   .sidenav__current {
+-    display: flex;
++    display: inline-flex;
+     align-items: center;
+-    gap: var(--space-2);
+-    width: 100%;
+-    min-height: var(--space-12);
+-    padding: 0 var(--space-4);
+-    border: 0;
++    justify-content: center;
++    width: var(--touch-target);
++    height: var(--touch-target);
++    border: 1px solid var(--border);
+     border-radius: var(--radius-control);
+-    background: var(--primary);
+-    color: var(--on-primary);
+-    font: inherit;
+-    font-size: var(--text-sm);
+-    font-weight: var(--weight-semibold);
+-    text-align: left;
++    background: var(--surface-solid);
++    color: var(--text);
+     cursor: pointer;
+-    transition: background var(--ease);
+   }
+   .sidenav__current:hover,
+   .sidenav__current[aria-expanded='true'] {
+-    background: var(--primary-hover);
+-  }
+-  .sidenav__current > span {
+-    flex: 1 1 auto;
+-    min-width: 0;
+-    overflow: hidden;
+-    text-overflow: ellipsis;
+-    white-space: nowrap;
++    background: var(--row-hover);
+   }
+-  .sidenav__chevron {
+-    transition: transform var(--ease);
++  .sidenav__current:disabled {
++    cursor: wait;
++    opacity: 0.7;
+   }
+-  .sidenav__current[aria-expanded='true'] .sidenav__chevron {
+-    transform: rotate(-90deg);
++  .sidenav__current svg {
++    width: var(--icon-size);
++    height: var(--icon-size);
+   }
+-  /* панель: слой над страницей, плотная заливка и тень слоя (DESIGN.md §20.3); закрыта: невидима и вне фокуса */
+   .sidenav__panel {
+     position: absolute;
+-    top: 0;
+-    left: calc(100% + var(--space-4));
+-    z-index: var(--layer-overlay);
++    top: calc(100% + var(--space-2));
++    left: 0;
++    z-index: var(--layer-sidebar);
+     display: grid;
+-    grid-template-columns: 220px 280px;
+-    min-height: 360px;
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++    width: var(--overlay-w-md);
++    max-width: calc(100vw - var(--space-12));
++    max-height: calc(100dvh - var(--header-h) - var(--space-4));
++    overflow-y: auto;
++    padding: var(--space-2);
++    gap: var(--space-2);
+     border: 1px solid var(--border);
+-    border-radius: var(--radius-lg);
+-    background: var(--surface);
++    border-radius: var(--radius-control);
++    background: var(--surface-solid);
+     box-shadow: var(--shadow-floating);
+-    visibility: hidden;
+-    opacity: 0;
+-    transform: translateX(calc(-1 * var(--space-2)));
+-    transition:
+-      opacity var(--ease),
+-      transform var(--ease),
+-      visibility 0s linear var(--duration-base);
+-  }
+-  /* мостик через зазор: курсор идёт от кнопки к панели и не покидает меню */
+-  .sidenav__panel::before {
+-    content: '';
+-    position: absolute;
+-    top: 0;
+-    bottom: 0;
+-    right: 100%;
+-    width: var(--space-4);
+   }
+-  .sidenav__panel[data-open] {
+-    visibility: visible;
+-    opacity: 1;
+-    transform: none;
+-    transition:
+-      opacity var(--ease),
+-      transform var(--ease);
++  .sidenav__panel[hidden],
++  .sidenav__items[hidden],
++  .sidenav__items > [hidden] {
++    display: none;
+   }
+   .sidenav__sections,
+-  .sidenav__items {
+-    display: flex;
+-    flex-direction: column;
+-    gap: var(--space-1);
+-    padding: var(--space-4);
+-  }
+   .sidenav__items > div {
+     display: flex;
+     flex-direction: column;
+     gap: var(--space-1);
+-  }
+-  .sidenav__items > [hidden] {
+-    display: none;
+-  }
+-  .sidenav__sections {
+-    border-right: 1px solid var(--border);
++    min-width: 0;
+   }
+   .sidenav__section,
+   .sidenav__link {
+     display: flex;
+     align-items: center;
+     gap: var(--space-2);
+-    min-height: var(--control-h);
+-    padding: var(--space-2) var(--space-4);
++    min-height: var(--touch-target);
++    width: 100%;
++    padding: var(--space-2);
++    border: 0;
+     border-radius: var(--radius-control);
++    background: transparent;
+     color: var(--text-2);
++    font: inherit;
+     font-size: var(--text-sm);
+     font-weight: var(--weight-medium);
+     line-height: var(--leading-base);
+-    white-space: nowrap;
++    text-align: left;
++    white-space: normal;
++    overflow-wrap: anywhere;
++    cursor: pointer;
+   }
+   .sidenav__section svg,
+   .sidenav__link svg {
+-    width: var(--space-4);
+-    height: var(--space-4);
++    width: var(--icon-size);
++    height: var(--icon-size);
+     flex: none;
+-    color: var(--muted);
+   }
+   .sidenav__section > span {
+-    flex: 1 1 auto;
++    flex: 1;
+   }
+   .sidenav__section:hover,
+   .sidenav__section.is-shown,
+@@ -169,157 +131,83 @@
+   .sidenav__link.is-active {
+     background: var(--primary-soft);
+     color: var(--primary);
+-    font-weight: var(--weight-semibold);
+-  }
+-  .sidenav__section.has-current-page svg,
+-  .sidenav__link.is-active svg {
+-    color: currentColor;
+   }
+   .sidenav__title {
+-    display: flex;
+-    align-items: center;
+-    gap: var(--space-2);
+-    margin: 0 0 var(--space-2);
+-    padding: var(--space-2) var(--space-4);
++    margin: 0;
++    padding: var(--space-2);
++    min-height: var(--touch-target);
+     color: var(--text);
+-    font-size: var(--text-md);
++    font-size: var(--text-sm);
+     font-weight: var(--weight-semibold);
+   }
+-  .sidenav__title svg {
+-    width: var(--space-6);
+-    height: var(--space-6);
+-  }
+-  /* подразделы текущего раздела под кнопкой */
+-  .sidenav__sub {
+-    display: flex;
+-    flex-direction: column;
+-    gap: var(--space-1);
+-    min-height: 0;
+-    overflow-y: auto;
+-  }
+-  .sidenav__sub .sidenav__link {
+-    padding-left: var(--space-8);
+-  }
+   .sidenav__bottom {
++    grid-column: 1 / -1;
+     display: flex;
+-    flex-direction: column;
++    flex-wrap: wrap;
++    align-items: center;
+     gap: var(--space-2);
+-    padding: var(--space-4) var(--space-2) 0;
++    padding: var(--space-2);
+     border-top: 1px solid var(--border);
+     color: var(--muted);
+     font-size: var(--text-xs);
+-    font-variant-numeric: tabular-nums;
+   }
+   .sidenav__trial {
+     display: inline-flex;
+     align-items: center;
+     gap: var(--space-1);
+-    color: var(--text);
+   }
+-  .sidenav__trial .icon {
+-    color: var(--primary);
+-  }
+-  .sidenav__freshness .freshness--warn {
+-    color: var(--warning);
+-  }
+-  @media (prefers-reduced-motion: reduce) {
+-    .sidenav__current,
+-    .sidenav__chevron,
+-    .sidenav__panel,
+-    .sidenav__panel[data-open] {
+-      transition: none;
+-    }
++  .sidenav__trial svg {
++    width: var(--icon-size-sm);
++    height: var(--icon-size-sm);
+   }
+-}
+-
+-/* Компактная навигация: согласованное поручение владельца 11.10.2026. */
+-@layer sections {
+-  @media (min-width: 961px) {
+-    .workspace {
+-      --sidenav-w: 0px;
+-      padding-left: 0;
+-    }
+-    .workspace-header .workspace-brand {
+-      display: flex;
+-    }
+-    .sidenav {
+-      position: relative;
+-      inset: auto;
+-      width: auto;
+-      padding: 0;
+-      border: 0;
+-      flex-direction: row;
+-      align-items: center;
++  @media (max-width: 960px) {
++    .workspace .workspace-header__row {
++      padding: 0 var(--space-4);
+       gap: var(--space-2);
+-      background: transparent;
+-      flex-shrink: 0;
+     }
+-    .sidenav__nav {
++    .workspace .mobile-menu {
++      width: var(--touch-target);
++      height: var(--touch-target);
+       flex: none;
+     }
+-    .sidenav__current {
+-      width: auto;
+-      min-height: 44px;
+-    }
+-    .sidenav__panel {
+-      top: calc(100% + 8px);
+-      left: 0;
+-      min-height: 0;
+-      max-height: calc(100dvh - 100px);
++    .workspace .mobile-navigation {
++      width: min(var(--drawer-w-sm), calc(100vw - var(--space-4)));
++      max-width: calc(100vw - var(--space-4));
++      border-radius: var(--radius-control);
++      background: var(--surface-solid);
++      height: auto;
++      max-height: calc(
++        100dvh - var(--space-4) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
++      );
++      margin: calc(var(--space-2) + env(safe-area-inset-top, 0px)) auto;
++      padding: var(--space-4);
+       overflow-y: auto;
+-      max-width: calc(100vw - 32px);
+-      transform: translateY(-4px);
+     }
+-    .sidenav__panel[data-open] {
+-      transform: translateY(0);
++    .workspace .mobile-navigation > .overlay-heading {
++      padding: 0 0 var(--space-2);
++      background: var(--surface-solid);
+     }
+-    .sidenav__panel[data-single] {
+-      grid-template-columns: 240px;
++    .workspace .mobile-navigation > .overlay-content {
++      padding: var(--space-2) 0 0;
+     }
+-    .sidenav__panel[data-single] .sidenav__items {
+-      display: none;
++    .workspace .mobile-navigation .icon-button {
++      width: var(--touch-target);
++      height: var(--touch-target);
+     }
+-    .sidenav__current[aria-expanded='true'] .sidenav__chevron {
+-      transform: rotate(180deg);
+-    }
+-    .sidenav__bottom {
+-      margin-top: 0;
+-      border: 0;
+-      padding: 0;
+-    }
+-    .sidenav__freshness {
+-      display: block;
+-    }
+-    .sidenav__bottom {
+-      max-width: 180px;
+-      gap: var(--space-1);
+-    }
+-    .sidenav__bottom:not(:has([data-testid])) {
+-      display: none;
+-    }
+-    .sidenav__freshness .freshness,
+-    .sidenav__trial > span {
+-      display: block;
+-      max-width: 160px;
+-      overflow: hidden;
+-      text-overflow: ellipsis;
+-      white-space: nowrap;
+-    }
+-    .sidenav__current:disabled {
+-      opacity: 0.7;
+-      cursor: wait;
+-    }
+-  }
+-  @media (min-width: 961px) and (max-width: 1279px) {
+-    .sidenav__bottom {
+-      max-width: 140px;
++    .workspace .mobile-navigation .sidebar-section-toggle {
++      grid-template-columns: var(--icon-size) minmax(0, 1fr) var(--icon-size);
+     }
+-    .sidenav__freshness .freshness,
+-    .sidenav__trial > span {
+-      max-width: 120px;
++    .workspace .mobile-navigation .sidebar-section-toggle > svg,
++    .workspace .mobile-navigation .workspace-link > svg {
++      width: var(--icon-size);
++      height: var(--icon-size);
+     }
+-    .workspace-header .brand-name {
+-      display: none;
++    .workspace .mobile-navigation .sidebar-section-toggle,
++    .workspace .mobile-navigation .workspace-link {
++      min-height: var(--touch-target);
++      font-size: var(--text-sm);
++      white-space: normal;
++      overflow-wrap: anywhere;
+     }
+   }
+ }
+diff --git a/apps/web/src/components/shell/side-nav.tsx b/apps/web/src/components/shell/side-nav.tsx
+index f5f6567..39a6d78 100644
+--- a/apps/web/src/components/shell/side-nav.tsx
++++ b/apps/web/src/components/shell/side-nav.tsx
+@@ -13,68 +13,79 @@ import { DataFreshness } from '../data-freshness';
+ import { Icon } from '../icon';
+ import { cx } from '../ui';
+ 
+-/**
+- * Левая контекстная навигация (ТЗ «Новая навигация админки», поручение владельца 10.10.2026, ADR-161).
+- * Видна только кнопка текущего раздела и его подразделы. Наведение или щелчок по кнопке открывает панель:
+- * слева все разделы, справа подразделы того, на который наведён курсор. Щелчок по пункту ведёт на страницу,
+- * панель закрывается, меню слева показывает новый раздел. Состав и права из `menuSectionsFor` (ADR-107).
+- * До 960 px меню нет: окно «Навигация» (`Sidebar`) и нижняя панель телефона.
+- */
+-export function SideNav({ path, desk }: { path: string; desk?: Promise<DeskShell> | undefined }) {
++/** UI3.1: one trigger, shared access registry, no persistent navigation column. */
++export function SideNav({
++  path,
++  desk,
++  dismissKey,
++}: {
++  path: string;
++  desk?: Promise<DeskShell> | undefined;
++  dismissKey: string;
++}) {
+   return (
+     <aside className="sidenav">
+-      {/* пока API не ответил, меню пустое: разделы появляются, а не исчезают (ADR-107) */}
+       <Suspense fallback={null}>
+-        <GrantedMenu desk={desk} path={path} />
++        <GrantedMenu desk={desk} path={path} dismissKey={dismissKey} />
+       </Suspense>
+-      <div className="sidenav__bottom">
+-        <Suspense fallback={null}>
+-          <GrantedTrial desk={desk} />
+-        </Suspense>
+-        {/* Свежесть данных Channex и очереди ARI: общий опрос оболочки, своего запроса нет */}
+-        <span className="sidenav__freshness">
+-          <DataFreshness />
+-        </span>
+-      </div>
+     </aside>
+   );
+ }
+ 
+-function GrantedMenu({ desk, path }: { desk: Promise<DeskShell> | undefined; path: string }) {
++function GrantedMenu({
++  desk,
++  path,
++  dismissKey,
++}: {
++  desk: Promise<DeskShell> | undefined;
++  path: string;
++  dismissKey: string;
++}) {
+   const shell = desk ? use(desk) : null;
+   return (
+-    <Menu sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)} path={path} />
++    <Menu
++      sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)}
++      path={path}
++      dismissKey={dismissKey}
++      trial={shell?.trial ?? null}
++    />
+   );
+ }
+ 
+-/** Задержка закрытия: курсор успевает дойти от кнопки до панели, ТЗ §6 «закрывается при уходе курсора» */
+-const CLOSE_DELAY = 150;
+-
+-function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
++function Menu({
++  sections,
++  path,
++  dismissKey,
++  trial,
++}: {
++  sections: MenuSection[];
++  path: string;
++  dismissKey: string;
++  trial: string | null;
++}) {
+   const active = activeMenuRoute(path);
+-  const current = sections.find((section) => section.items.some((item) => item.href === active));
++  const current = sections.find((s) => s.items.some((item) => item.href === active));
+   const [ready, setReady] = useState(false);
+-  useEffect(() => setReady(true), []);
+-  const label = current?.label ?? 'Разделы';
+   const [open, setOpen] = useState(false);
+-  const [hovered, setHovered] = useState<string | undefined>(undefined);
+-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+-  const root = useRef<HTMLDivElement>(null);
++  const [hovered, setHovered] = useState<string>();
++  const root = useRef<HTMLElement>(null);
+   const trigger = useRef<HTMLButtonElement>(null);
+   const id = useId();
+   const shown = sections.find((s) => s.id === hovered) ?? current ?? sections[0];
+-
+-  const show = () => {
+-    clearTimeout(timer.current);
+-    if (!open) setHovered(current?.id);
+-    setOpen(true);
+-  };
+-  const hide = (delay = 0) => {
+-    clearTimeout(timer.current);
+-    timer.current = setTimeout(() => setOpen(false), delay);
+-  };
+-  useEffect(() => () => clearTimeout(timer.current), []);
+-  useEffect(() => setOpen(false), [path]);
++  useEffect(() => setReady(true), []);
++  useEffect(() => {
++    setOpen(false);
++  }, [path, dismissKey]);
++  useEffect(() => {
++    const media = window.matchMedia('(max-width: 960px)');
++    const close = () => setOpen(false);
++    media.addEventListener('change', close);
++    window.addEventListener('popstate', close);
++    return () => {
++      media.removeEventListener('change', close);
++      window.removeEventListener('popstate', close);
++    };
++  }, []);
+   useEffect(() => {
+     if (!open) return;
+     const outside = (event: PointerEvent) => {
+@@ -83,28 +94,43 @@ function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
+     document.addEventListener('pointerdown', outside);
+     return () => document.removeEventListener('pointerdown', outside);
+   }, [open]);
+-
+-  // Панель уже в разметке (flushSync ниже), поэтому фокус ставится сразу, без кадра анимации:
+-  // requestAnimationFrame в фоновой вкладке не срабатывает
+-  const linksOf = (column: Element | null | undefined) =>
+-    [...(column?.querySelectorAll<HTMLElement>('a') ?? [])].filter(
+-      (a) => a.getClientRects().length,
++  const controls = (column: Element | null | undefined) =>
++    [...(column?.querySelectorAll<HTMLElement>('a, button') ?? [])].filter(
++      (el) => el.getClientRects().length,
+     );
+-  const focusIn = (column: 'sections' | 'items', index = 0) =>
+-    linksOf(root.current?.querySelector(`[data-column="${column}"]`))[index]?.focus();
+-
+-  // Клавиатура (ТЗ §9): ↑↓ по столбцу, → в подразделы, ← обратно к разделу, Escape закрывает
+-  const onPanelKey = (event: KeyboardEvent<HTMLDivElement>) => {
++  const focusIn = (column: string, index = 0) =>
++    controls(root.current?.querySelector(`[data-column="${column}"]`))[index]?.focus();
++  const show = () => {
++    flushSync(() => {
++      setHovered(current?.id);
++      setOpen(true);
++    });
++    focusIn(
++      'sections',
++      Math.max(
++        0,
++        sections.findIndex((s) => s.id === current?.id),
++      ),
++    );
++  };
++  const navigate = () => setOpen(false);
++  const onPanelKey = (event: KeyboardEvent<HTMLElement>) => {
++    if (event.key === 'Escape') {
++      event.preventDefault();
++      setOpen(false);
++      trigger.current?.focus();
++      return;
++    }
+     const target = event.target as HTMLElement;
+     const column = target.closest<HTMLElement>('[data-column]');
+     if (!column) return;
+-    const links = linksOf(column);
+-    const index = links.indexOf(target);
+-    const move: Record<string, () => void> = {
+-      ArrowDown: () => links[(index + 1) % links.length]?.focus(),
+-      ArrowUp: () => links[(index - 1 + links.length) % links.length]?.focus(),
+-      Home: () => links[0]?.focus(),
+-      End: () => links.at(-1)?.focus(),
++    const items = controls(column);
++    const index = items.indexOf(target);
++    const actions: Record<string, () => void> = {
++      ArrowDown: () => items[(index + 1) % items.length]?.focus(),
++      ArrowUp: () => items[(index - 1 + items.length) % items.length]?.focus(),
++      Home: () => items[0]?.focus(),
++      End: () => items.at(-1)?.focus(),
+       ArrowRight: () => column.dataset.column === 'sections' && focusIn('items'),
+       ArrowLeft: () =>
+         column.dataset.column === 'items' &&
+@@ -115,131 +141,127 @@ function Menu({ sections, path }: { sections: MenuSection[]; path: string }) {
+             sections.findIndex((s) => s.id === shown?.id),
+           ),
+         ),
+-      Escape: () => {
+-        setOpen(false);
+-        trigger.current?.focus();
+-      },
+     };
+-    const action = move[event.key];
+-    if (!action) return;
+-    event.preventDefault();
+-    action();
++    if (actions[event.key]) {
++      event.preventDefault();
++      actions[event.key]!();
++    }
+   };
+-
+-  const panelId = `${id}-panel`;
+   return (
+-    <nav className="sidenav__nav" aria-label="Разделы">
+-      <div
+-        className="sidenav__menu"
+-        ref={root}
+-        onPointerEnter={() => clearTimeout(timer.current)}
+-        onPointerLeave={(event) => event.pointerType === 'mouse' && hide(CLOSE_DELAY)}
+-        onBlur={(event) => {
+-          if (
+-            !(event.relatedTarget instanceof Node) ||
+-            !root.current?.contains(event.relatedTarget)
+-          )
+-            hide();
++    <nav
++      ref={root}
++      className="sidenav__nav"
++      aria-label="Разделы"
++      onKeyDown={onPanelKey}
++      onBlur={(event) => {
++        if (
++          event.relatedTarget instanceof Node &&
++          !event.currentTarget.contains(event.relatedTarget)
++        )
++          setOpen(false);
++      }}
++    >
++      <button
++        ref={trigger}
++        type="button"
++        className="sidenav__current"
++        aria-label="Открыть меню"
++        title={current?.label ?? 'Разделы'}
++        aria-expanded={open}
++        aria-controls={id}
++        disabled={!ready}
++        aria-busy={!ready}
++        onClick={() => (open ? setOpen(false) : show())}
++        onKeyDown={(event) => {
++          if (event.key === 'ArrowDown') {
++            event.preventDefault();
++            show();
++          }
+         }}
+       >
+-        <button
+-          ref={trigger}
+-          type="button"
+-          className="sidenav__current"
+-          aria-expanded={open}
+-          aria-controls={panelId}
+-          aria-label={`${label}: все разделы`}
+-          disabled={!ready}
+-          aria-busy={!ready}
+-          onClick={() => (open ? hide() : show())}
+-          onKeyDown={(event) => {
+-            if (event.key === 'Escape') return hide();
+-            if (event.key !== 'ArrowDown') return;
+-            event.preventDefault();
+-            flushSync(show);
+-            focusIn(
+-              'sections',
+-              Math.max(
+-                0,
+-                sections.findIndex((s) => s.id === current?.id),
+-              ),
++        <Icon name="menu" />
++        <span className="sr-only">{current?.label ?? 'Разделы'}</span>
++      </button>
++      <div id={id} className="sidenav__panel" hidden={!open} data-open={open || undefined}>
++        <div className="sidenav__sections" data-column="sections">
++          {sections.map((section) => {
++            const single = section.direct ? section.items[0] : undefined;
++            const contents = (
++              <>
++                <Icon name={section.icon} />
++                <span>{section.label}</span>
++                {!single && <Icon name="chevron" className="sidenav__more" />}
++              </>
+             );
+-          }}
+-        >
+-          <Icon name={current?.icon ?? 'menu'} />
+-          <span>{label}</span>
+-          <Icon className="sidenav__chevron" name="down" width={16} />
+-        </button>
+-        <div
+-          id={panelId}
+-          className="sidenav__panel"
+-          data-open={open || undefined}
+-          data-single={shown?.items.length === 1 || undefined}
+-          onKeyDown={onPanelKey}
+-        >
+-          <div className="sidenav__sections" data-column="sections">
+-            {sections.map((section) => (
++            const props = {
++              className: cx(
++                'sidenav__section',
++                section.id === shown?.id && 'is-shown',
++                section.id === current?.id && 'has-current-page',
++              ),
++              'data-tour': `section-${section.id}`,
++              onPointerEnter: () => setHovered(section.id),
++              onFocus: () => setHovered(section.id),
++            };
++            return single ? (
+               <Link
+                 key={section.id}
+-                href={section.items[0]!.href}
++                {...props}
++                href={single.href}
+                 prefetch={false}
+-                data-tour={`section-${section.id}`}
+-                className={cx(
+-                  'sidenav__section',
+-                  section.id === shown?.id && 'is-shown',
+-                  section.id === current?.id && 'has-current-page',
+-                )}
+-                aria-current={section.id === current?.id ? 'true' : undefined}
+-                onPointerEnter={() => setHovered(section.id)}
+-                onFocus={() => setHovered(section.id)}
+-                onClick={() => setOpen(false)}
++                aria-current={single.href === active ? 'page' : undefined}
++                onClick={navigate}
+               >
+-                <Icon name={section.icon} />
+-                <span>{section.label}</span>
+-                {section.items.length > 1 && (
+-                  <Icon className="sidenav__more" name="chevron" width={14} />
+-                )}
++                {contents}
+               </Link>
+-            ))}
+-          </div>
+-          {/* подразделы всех разделов в разметке, виден один: каждый адрес меню ровно один раз (`hidden`) */}
+-          <div className="sidenav__items" data-column="items">
+-            {sections.map((section) => (
+-              <div key={section.id} hidden={section.id !== shown?.id || section.items.length === 1}>
+-                <p className="sidenav__title">
+-                  <Icon name={section.icon} />
+-                  <span>{section.label}</span>
+-                </p>
+-                {section.items.map((item) => (
+-                  <Link
+-                    key={item.href}
+-                    href={item.href}
+-                    prefetch={false}
+-                    className={cx('sidenav__link', item.href === active && 'is-active')}
+-                    aria-current={item.href === active ? 'page' : undefined}
+-                    onClick={() => setOpen(false)}
+-                  >
+-                    <Icon name={item.icon} />
+-                    <span>{item.label}</span>
+-                  </Link>
+-                ))}
+-              </div>
+-            ))}
+-          </div>
++            ) : (
++              <button
++                key={section.id}
++                {...props}
++                type="button"
++                aria-expanded={shown?.id === section.id}
++                aria-controls={`${id}-${section.id}`}
++                onClick={() => setHovered(section.id)}
++              >
++                {contents}
++              </button>
++            );
++          })}
++        </div>
++        <div className="sidenav__items" data-column="items" hidden={!!shown?.direct}>
++          {sections.map((section) => (
++            <div
++              key={section.id}
++              id={`${id}-${section.id}`}
++              hidden={section.id !== shown?.id || !!section.direct}
++            >
++              <p className="sidenav__title">{section.label}</p>
++              {section.items.map((item) => (
++                <Link
++                  key={item.href}
++                  href={item.href}
++                  prefetch={false}
++                  className={cx('sidenav__link', item.href === active && 'is-active')}
++                  aria-current={!section.direct && item.href === active ? 'page' : undefined}
++                  onClick={navigate}
++                >
++                  <Icon name={item.icon} />
++                  <span>{item.label}</span>
++                </Link>
++              ))}
++            </div>
++          ))}
++        </div>
++        <div className="sidenav__bottom">
++          {trial && (
++            <span className="sidenav__trial" data-testid="trial-line" data-tour="trial">
++              <Icon name="clock" />
++              <span>{trial}</span>
++            </span>
++          )}
++          <DataFreshness />
+         </div>
+       </div>
+     </nav>
+   );
+ }
+-
+-/** Пробный период организации: на каждом экране, а не только на `/login` (ТЗ ux-retention п. 2.7) */
+-function GrantedTrial({ desk }: { desk: Promise<DeskShell> | undefined }) {
+-  const trial = desk ? use(desk).trial : null;
+-  if (!trial) return null;
+-  return (
+-    <span className="sidenav__trial" data-testid="trial-line" data-tour="trial" title={trial}>
+-      <Icon name="clock" width={16} />
+-      <span>{trial}</span>
+-    </span>
+-  );
+-}
+diff --git a/apps/web/src/components/shell/sidebar.tsx b/apps/web/src/components/shell/sidebar.tsx
+index fd93d06..de7cbdd 100644
+--- a/apps/web/src/components/shell/sidebar.tsx
++++ b/apps/web/src/components/shell/sidebar.tsx
+@@ -4,7 +4,6 @@ import { Suspense, use, useEffect, useId, useState } from 'react';
+ import {
+   CLOSED_ACCESS,
+   activeMenuRoute,
+-  menuSections,
+   menuSectionsFor,
+   type MenuSection,
+ } from '../../lib/navigation';
+@@ -32,8 +31,10 @@ export function Sidebar({
+   /** Что открыто вошедшему и кто он (ADR-083); пока API не ответил — меню без закрытых пунктов */
+   desk?: Promise<DeskShell> | undefined;
+ }) {
++  const shell = desk ? use(desk) : null;
++  const sections = menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical);
+   const active = activeMenuRoute(path);
+-  const activeSection = menuSections.find((section) =>
++  const activeSection = sections.find((section) =>
+     section.items.some((item) => item.href === active),
+   )?.id;
+   const [expanded, setExpanded] = useState<string | null>(activeSection ?? null);
+diff --git a/apps/web/src/components/top-nav.tsx b/apps/web/src/components/top-nav.tsx
+index f83c01c..295de3f 100644
+--- a/apps/web/src/components/top-nav.tsx
++++ b/apps/web/src/components/top-nav.tsx
+@@ -1,8 +1,8 @@
+ 'use client';
+-import { landingForVertical, type WebVertical } from '../lib/vertical-landing';
++import { landingForVertical } from '../lib/vertical-landing';
+ import Link from 'next/link';
+ import { usePathname, useRouter } from 'next/navigation';
+-import { Suspense, use, useEffect, useRef, useState, type ReactNode } from 'react';
++import { Suspense, use, useEffect, useRef, useState, type ReactNode, type MouseEvent } from 'react';
+ import { Icon } from './icon';
+ import { Sidebar } from './shell/sidebar';
+ import { GrantedProperty, PropertyBlock, type PropertyIdentity } from './shell/property-block';
+@@ -10,25 +10,12 @@ import { SideNav } from './shell/side-nav';
+ import { GlobalSearch } from './shell/search';
+ import { Overlay } from './overlay';
+ import { useTheme } from './theme-provider';
+-import { cx } from './ui';
+-import {
+-  CLOSED_ACCESS,
+-  PENDING_ACCESS,
+-  activeMenuRoute,
+-  allowedItem,
+-  phoneNavigationFor,
+-  type NavigationAccess,
+-} from '../lib/navigation';
+ import type { DeskPerson, DeskShell } from '../lib/desk-person';
+ import { DataFreshnessProvider } from './data-freshness';
+ import { ProductTour } from './shell/product-tour';
+ import { TOUR_RESTART_EVENT } from './shell/tour-steps';
+ 
+-/**
+- * Оболочка стойки: слева контекстное меню (`SideNav`, ADR-161, вместо строки вкладок ADR-134), справа шапка
+- * одной липкой строкой: объект с переключателем филиала, поиск ⌘K, «Демо», тема, меню профиля. До 960 px меню
+- * слева нет: знак в шапке, кнопка «Открыть меню» и окно «Навигация» (`Sidebar`), на телефоне ещё нижняя панель.
+- */
++/** UI3.1: одна строка шапки, скрытое меню и отдельная мобильная поверхность. */
+ export function TopNav({
+   children,
+   demo = false,
+@@ -45,6 +32,8 @@ export function TopNav({
+   desk?: Promise<DeskShell>;
+ }) {
+   const path = usePathname() ?? '';
++  const menuDestination = useRef<string | null>(null);
++  const cancelMenuFocus = useRef<(() => void) | null>(null);
+   const router = useRouter();
+   const shell = desk ? use(desk) : null;
+   const scopeKey = shell?.scopeKey ?? 'unresolved';
+@@ -118,11 +107,54 @@ export function TopNav({
+   }, [path, beauty, food, router]);
+   useEffect(() => {
+     setProfile(false);
++    setMenu(false);
++    const focusRequested = menuDestination.current === path;
++    menuDestination.current = null;
++    if (focusRequested) cancelMenuFocus.current = focusMainWhenReady();
++    return () => cancelMenuFocus.current?.();
+   }, [path]);
++  useEffect(() => {
++    const media = window.matchMedia('(max-width: 960px)');
++    const cancelFocus = () => {
++      menuDestination.current = null;
++      cancelMenuFocus.current?.();
++    };
++    const close = () => {
++      setMenu(false);
++      cancelFocus();
++    };
++    media.addEventListener('change', close);
++    window.addEventListener('popstate', close);
++    window.addEventListener('pointerdown', cancelFocus);
++    window.addEventListener('keydown', cancelFocus);
++    return () => {
++      media.removeEventListener('change', close);
++      window.removeEventListener('popstate', close);
++      window.removeEventListener('pointerdown', cancelFocus);
++      window.removeEventListener('keydown', cancelFocus);
++      cancelFocus();
++    };
++  }, []);
++  const onMenuNavigation = (event: MouseEvent<HTMLDivElement>) => {
++    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
++      return;
++    const link =
++      event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null;
++    if (!link?.closest('.sidenav__panel, .mobile-navigation') || link.target === '_blank') return;
++    const url = new URL(link.href);
++    if (url.origin !== window.location.origin) return;
++    cancelMenuFocus.current?.();
++    if (url.pathname === path) cancelMenuFocus.current = focusMainWhenReady();
++    else menuDestination.current = url.pathname;
++  };
+   if (path.includes('/print') || path === '/login' || path === '/register') return <>{children}</>;
+   return (
+     <DataFreshnessProvider enabled={hospitality}>
+-      <div className="workspace" data-scope-switching={scopeSwitching || undefined}>
++      <div
++        className="workspace"
++        data-scope-switching={scopeSwitching || undefined}
++        onClickCapture={onMenuNavigation}
++      >
+         <a className="skip-link" href={scopeSwitching ? '#scope-switch-status' : '#main-content'}>
+           К содержимому
+         </a>
+@@ -130,11 +162,22 @@ export function TopNav({
+           <div className="workspace-header__row">
+             <button
+               className="icon-button mobile-menu"
+-              onClick={() => setMenu(true)}
++              onClick={() => {
++                setProfile(false);
++                setSearch(false);
++                setMenu(true);
++              }}
++              disabled={!ready}
++              aria-expanded={menu}
+               aria-label="Открыть меню"
+             >
+               <Icon name="menu" />
+             </button>
++            <SideNav
++              path={path}
++              desk={desk}
++              dismissKey={`${scopeKey}:${scopeSwitching}:${search}:${profile}:${menu}`}
++            />
+             <Link
+               className="workspace-brand"
+               href={landingForVertical(shell?.vertical ?? 'HOSPITALITY')}
+@@ -145,7 +188,7 @@ export function TopNav({
+                 WETOP<span>.AI</span>
+               </span>
+             </Link>
+-            <SideNav path={path} desk={desk} />
++
+             {/* объект и филиал: переехали сюда из бокового меню (ADR-134); до 960 px они вверху меню телефона */}
+             <div className="workspace-header__property">
+               <Suspense
+@@ -276,18 +319,9 @@ export function TopNav({
+             </main>
+           )}
+         </div>
+-        {/* Нижняя панель телефона: первые четыре вкладки шапки (работа смены) и «Ещё» (ADR-050, ADR-134) */}
+-        <nav className="bottom-navigation" aria-label="Основная навигация">
+-          <Suspense fallback={<BottomNavLinks access={PENDING_ACCESS} path={path} />}>
+-            <GrantedBottomNav desk={desk} path={path} />
+-          </Suspense>
+-          <button onClick={() => setMenu(true)} aria-label="Ещё разделы">
+-            <Icon name="more" />
+-            <span>Ещё</span>
+-          </button>
+-        </nav>
+         <Overlay
+           open={menu}
++          trapFocus
+           onClose={() => setMenu(false)}
+           title="Навигация"
+           className="mobile-navigation"
+@@ -308,45 +342,40 @@ export function TopNav({
+   );
+ }
+ 
+-/**
+- * Нижняя панель телефона — первый раздел бокового меню, в том же порядке и с теми же подписями;
+- * закрытые вошедшему пункты скрыты, как в самом меню (ADR-107). Пока ответа /auth/me нет —
+- * PENDING_ACCESS, как у Sidebar: панель не мигает пустотой на каждом переходе.
+- */
+-function BottomNavLinks({
+-  access,
+-  path,
+-  vertical,
+-}: {
+-  access: NavigationAccess;
+-  path: string;
+-  vertical?: WebVertical | undefined;
+-}) {
+-  return phoneNavigationFor(vertical)
+-    .filter((item) => allowedItem(item, access))
+-    .map((n) => (
+-      <Link
+-        key={n.href}
+-        href={n.href}
+-        // как в шапке и выдвижном меню: на /reservations активен пункт «Гости и бронирования», своего пункта у «Броней» нет (09.10.2026)
+-        className={cx(activeMenuRoute(path) === n.href && 'is-active')}
+-        aria-current={activeMenuRoute(path) === n.href ? 'page' : undefined}
+-      >
+-        <Icon name={n.icon} />
+-        <span>{n.shortLabel ?? n.label}</span>
+-      </Link>
+-    ));
+-}
+-
+-function GrantedBottomNav({ desk, path }: { desk: Promise<DeskShell> | undefined; path: string }) {
+-  const shell = desk ? use(desk) : null;
+-  return (
+-    <BottomNavLinks
+-      access={shell?.access ?? CLOSED_ACCESS}
+-      path={path}
+-      vertical={shell?.vertical}
+-    />
+-  );
++/** Focus only the completed route, then detach; user interaction cancels this from TopNav. */
++function focusMainWhenReady(): () => void {
++  const content = document.querySelector('.workspace-content');
++  if (!content) return () => undefined;
++  let frame = 0;
++  let stopped = false;
++  const stop = () => {
++    stopped = true;
++    observer.disconnect();
++    cancelAnimationFrame(frame);
++  };
++  const focus = () => {
++    cancelAnimationFrame(frame);
++    frame = requestAnimationFrame(() => {
++      if (stopped) return;
++      const main = document.getElementById('main-content');
++      if (!main?.getClientRects().length || main.getAttribute('aria-busy') === 'true') return;
++      const loading = [
++        ...main.querySelectorAll<HTMLElement>('.loading-state[aria-busy="true"]'),
++      ].some((element) => element.getClientRects().length > 0);
++      if (loading) return;
++      main.focus({ preventScroll: true });
++      stop();
++    });
++  };
++  const observer = new MutationObserver(focus);
++  observer.observe(content, {
++    childList: true,
++    subtree: true,
++    attributes: true,
++    attributeFilter: ['aria-busy', 'hidden', 'class'],
++  });
++  focus();
++  return stop;
+ }
+ 
+ function GrantedHeaderPerson({ desk }: { desk: Promise<DeskShell> | undefined }) {
+diff --git a/tests/branches-ui/ui31-shell.spec.ts b/tests/branches-ui/ui31-shell.spec.ts
+new file mode 100644
+index 0000000..856d95c
+--- /dev/null
++++ b/tests/branches-ui/ui31-shell.spec.ts
+@@ -0,0 +1,74 @@
++import { expect, test } from '@playwright/test';
++import { mkdirSync } from 'node:fs';
++const api = `http://127.0.0.1:${process.env.BRANCHES_UI_API_PORT ?? '55864'}`;
++const shots = 'reports/ui3-1-2026-10-11/verticals';
++
++test.beforeEach(async ({ page }) => {
++  await page.addInitScript(() => {
++    const get = Storage.prototype.getItem;
++    Storage.prototype.getItem = function (key: string) {
++      const value = get.call(this, key);
++      return value === null && key.startsWith('wetop.tour.v1:') ? 'done' : value;
++    };
++  });
++});
++
++for (const vertical of ['hotel', 'beauty', 'food'] as const) {
++  test(`UI3.1: ${vertical} shared shell desktop/mobile`, async ({ page, request }) => {
++    test.setTimeout(180_000);
++    const response = await request.post(`${api}/__test/reset`);
++    expect(response.ok()).toBe(true);
++    const f = await response.json();
++    const branch = {
++      hotel: { business: f.hotel, location: f.locations[4], route: '/chessboard' },
++      beauty: { business: f.beauty, location: f.locations[3], route: '/calendar' },
++      food: { business: f.business, location: f.locations[0], route: '/floor-plan' },
++    }[vertical];
++    await page.context().addCookies([
++      {
++        name: 'wetop_scope',
++        value: encodeURIComponent(`business=${branch.business};location=${branch.location}`),
++        domain: '127.0.0.1',
++        path: '/',
++      },
++    ]);
++    const errors: string[] = [];
++    page.on('pageerror', (error) => {
++      if (!/Failed to execute 'measure' on 'Performance'/.test(error.message))
++        errors.push(error.message);
++    });
++    await page.goto(branch.route);
++    await expect(page).toHaveURL(new RegExp(`${branch.route}$`));
++    mkdirSync(shots, { recursive: true });
++    for (const theme of ['light', 'dark'] as const) {
++      await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
++      for (const width of [1440, 390]) {
++        await page.setViewportSize({ width, height: 900 });
++        const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
++        await expect(trigger).toHaveCount(1);
++        await expect(trigger).toBeEnabled();
++        await expect(page.locator('.bottom-navigation')).toHaveCount(0);
++        expect((await page.locator('.workspace-header').boundingBox())!.height).toBe(56);
++        expect(
++          await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
++        ).toBe(true);
++        await trigger.click();
++        const menu =
++          width > 960
++            ? page.locator('.sidenav__panel')
++            : page.getByRole('dialog', { name: 'Навигация', exact: true });
++        await expect(menu).toBeVisible();
++        await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
++        await expect(menu.locator('[aria-current="page"]')).toBeVisible();
++        if (vertical !== 'hotel')
++          await expect(menu.locator('a[href="/chessboard"]')).toHaveCount(0);
++        await page.screenshot({ path: `${shots}/${vertical}-${theme}-${width}-menu.png` });
++        await page.keyboard.press('Escape');
++        await expect(menu).toBeHidden();
++        await expect(trigger).toBeFocused();
++        await page.screenshot({ path: `${shots}/${vertical}-${theme}-${width}.png` });
++      }
++    }
++    expect(errors).toEqual([]);
++  });
++}
+diff --git a/tests/ui/navigation.spec.ts b/tests/ui/navigation.spec.ts
+index e058b7b..e0b63ac 100644
+--- a/tests/ui/navigation.spec.ts
++++ b/tests/ui/navigation.spec.ts
+@@ -224,7 +224,7 @@ test('«Гости и бронирования»: один пункт меню,
+   await page.goto('/guests');
+   const main = page.getByRole('main');
+   // подразделы левого меню (ADR-161): каждый адрес один раз, текущий помечен
+-  const menu = page.locator('.sidenav__items');
++  const menu = page.locator('.sidenav__nav');
+   await expect(menu.locator('[aria-current="page"]')).toHaveText('Гости и бронирования');
+   await main.getByRole('link', { name: 'Список броней', exact: true }).click();
+   await expect(page).toHaveURL(/\/reservations$/);
+diff --git a/tests/ui/profile-menu-readiness.spec.ts b/tests/ui/profile-menu-readiness.spec.ts
+index e7e7fdc..01cb815 100644
+--- a/tests/ui/profile-menu-readiness.spec.ts
++++ b/tests/ui/profile-menu-readiness.spec.ts
+@@ -31,7 +31,8 @@ test.beforeEach(async ({ page, request }) => {
+   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+-  await page.waitForURL('**/today');
++  // /today redirects to /finance; finish that navigation before gating scripts.
++  await page.waitForURL('**/finance');
+   // следующий экран грузится «холодно»: HTML сразу, скрипты стойки только после команды
+   const gate = new Promise<void>((resolve) => {
+     openGate = resolve;
+diff --git a/tests/ui/side-nav.spec.ts b/tests/ui/side-nav.spec.ts
+index be3cd66..24dd88b 100644
+--- a/tests/ui/side-nav.spec.ts
++++ b/tests/ui/side-nav.spec.ts
+@@ -2,10 +2,8 @@ import { FIXTURE_API, expect, test, devNoise, menuLinks, openSection, sideNav }
+ import AxeBuilder from '@axe-core/playwright';
+ import { mkdirSync } from 'node:fs';
+ 
+-/**
+- * Левая контекстная навигация (ТЗ «Новая навигация админки», ADR-161): видна кнопка текущего раздела и его
+- * подразделы; наведение открывает панель всех разделов, наведение на раздел показывает справа его подразделы,
+- * щелчок ведёт на страницу и обновляет меню. На телефоне и планшете по-прежнему окно «Навигация» и нижняя панель.
++/** UI3.1: одна кнопка меню, hover/focus раскрывает подразделы, переход закрывает панель.
++ * Mobile использует отдельное окно навигации без нижней панели.
+  */
+ const routes = [
+   '/ai-agents',
+@@ -39,13 +37,13 @@ const SECTIONS = [
+ ];
+ 
+ const fixture = FIXTURE_API;
+-const SHOTS = 'reports/side-nav-2026-10-10';
++const SHOTS = 'reports/ui3-1-2026-10-11/regression';
+ 
+ test.beforeEach(async ({ request }) => {
+   await request.post(`${fixture}/__test/reset`);
+ });
+ 
+-test('ТЗ §4: текущий раздел виден, наведение открывает все разделы, справа подразделы, щелчок ведёт и обновляет меню', async ({
++test('UI3.1: кнопка открывает разделы, наведение раскрывает подразделы, ссылка ведёт на страницу', async ({
+   page,
+ }) => {
+   await page.goto('/finance');
+@@ -82,9 +80,11 @@ test('ТЗ §4: текущий раздел виден, наведение от
+   await expect(panel).toBeHidden();
+   // 5. меню слева обновилось: новый раздел и его подразделы
+   await expect(trigger).toHaveText('Продажи');
+-  // ТЗ §6: уход курсора закрывает панель
++  // UI3.1: уход курсора сохраняет панель, внешний щелчок закрывает
+   await openSection(page, 'Настройки');
+   await page.mouse.move(1200, 800);
++  await expect(panel).toBeVisible();
++  await page.mouse.click(1200, 800);
+   await expect(panel).toBeHidden();
+   // раздел из одного пункта: щелчок по самому разделу ведёт на страницу
+   await openSection(page, 'Календарь');
+@@ -140,14 +140,14 @@ test('вложенные адреса показывают свой раздел
+   test.setTimeout(90_000);
+   const nav = sideNav(page);
+   const trigger = nav.locator('.sidenav__current');
+-  const current = nav.locator('.sidenav__items [aria-current="page"]');
++  const current = nav.locator('[aria-current="page"]');
+   await page.goto('/hotel-settings/services');
+   await expect(trigger).toHaveText('Настройки');
+   await expect(current).toHaveText('Объект');
+   // «Номерной фонд»: раздел из одного пункта, подразделов под кнопкой нет (ADR-108)
+   await page.goto('/rooms/categories');
+   await expect(trigger).toHaveText('Номерной фонд');
+-  await expect(nav.locator('.sidenav__items [aria-current="page"]')).toHaveText('Номерной фонд');
++  await expect(nav.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
+   // сайт: один пункт «Сайт и SEO» раздела «Маркетинг» (MKT2)
+   await page.goto('/website/settings');
+   await expect(trigger).toHaveText('Маркетинг');
+@@ -193,11 +193,11 @@ for (const theme of ['light', 'dark'] as const) {
+         expect(audit.violations).toEqual([]);
+       }
+       if (width === 1440) await page.screenshot({ path: `${SHOTS}/panel-${theme}-${width}.png` });
+-      await page.mouse.move(width - 10, 880);
++      await page.mouse.click(width - 10, 880);
+       await expect(nav.locator('.sidenav__panel')).toBeHidden();
+       if (width === 1440) await page.screenshot({ path: `${SHOTS}/sales-${theme}-${width}.png` });
+     }
+-    // телефон: колонки нет, работают выдвижное меню и нижняя панель
++    // телефон: колонки нет, работает скрытое выдвижное меню
+     await page.setViewportSize({ width: 390, height: 844 });
+     await expect(nav).toBeHidden();
+     await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
+@@ -207,7 +207,7 @@ for (const theme of ['light', 'dark'] as const) {
+     await page.keyboard.press('Escape');
+     await expect(drawer).not.toBeVisible();
+     const bottom = page.locator('.bottom-navigation');
+-    await expect(bottom.locator('a')).toHaveText(['Финансы', 'Календарь', 'Брони', 'Продажи']);
++    await expect(bottom).toHaveCount(0);
+     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+       true,
+     );
+@@ -220,7 +220,7 @@ test('кнопка текущего раздела находится в шап
+   await page.goto('/today');
+   const button = page
+     .locator('.workspace-header')
+-    .getByRole('button', { name: 'Финансы: все разделы', exact: true });
++    .getByRole('button', { name: 'Открыть меню', exact: true });
+   await expect(button).toBeEnabled();
+   await expect(button).toHaveText('Финансы');
+   await button.click();
+diff --git a/tests/ui/ui31-shell.spec.ts b/tests/ui/ui31-shell.spec.ts
+new file mode 100644
+index 0000000..70756b4
+--- /dev/null
++++ b/tests/ui/ui31-shell.spec.ts
+@@ -0,0 +1,166 @@
++import { mkdirSync } from 'node:fs';
++import { FIXTURE_API, expect, test } from './fixtures';
++
++const shots = 'reports/ui3-1-2026-10-11';
++test.beforeEach(async ({ request }) => {
++  await request.post(`${FIXTURE_API}/__test/reset`);
++  mkdirSync(shots, { recursive: true });
++});
++
++test('UI3.1: одна кнопка, стабильная ширина и клавиатурное меню', async ({ page }) => {
++  await page.goto('/chessboard');
++  await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toBeEnabled();
++  await page.screenshot({
++    path: `${shots}/${process.env.UI31_BASELINE ? 'before' : 'after'}-desktop.png`,
++  });
++  const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
++  await expect(trigger).toBeVisible();
++  const before = await page.locator('main').boundingBox();
++  await trigger.click();
++  const panel = page.locator('.sidenav__panel');
++  await expect(panel).toBeVisible();
++  const after = await page.locator('main').boundingBox();
++  expect(after?.width).toBe(before?.width);
++  expect(after?.x).toBe(before?.x);
++  const sales = panel.getByRole('button', { name: 'Продажи', exact: true });
++  await sales.focus();
++  await expect(sales).toHaveAttribute('aria-expanded', 'true');
++  await page.keyboard.press('ArrowRight');
++  await expect(panel.getByRole('link', { name: 'Обзор продаж', exact: true })).toBeFocused();
++  await page.keyboard.press('ArrowLeft');
++  await expect(sales).toBeFocused();
++  await page.mouse.move(1400, 880);
++  await expect(panel).toBeVisible();
++  await page.keyboard.press('Escape');
++  await expect(panel).toBeHidden();
++  await expect(trigger).toBeFocused();
++});
++
++test('UI3.1: mobile освобождает низ и возвращает фокус', async ({ page }) => {
++  await page.setViewportSize({ width: 390, height: 844 });
++  await page.goto('/chessboard');
++  await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toBeEnabled();
++  await page.screenshot({
++    path: `${shots}/${process.env.UI31_BASELINE ? 'before' : 'after'}-mobile.png`,
++  });
++  await expect(page.locator('.bottom-navigation')).toHaveCount(0);
++  expect((await page.locator('.workspace-header').boundingBox())!.height).toBeCloseTo(56, 0);
++  const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
++  await trigger.click();
++  const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
++  await expect(drawer).toBeVisible();
++  await expect(drawer.getByRole('link', { name: 'Календарь', exact: true })).toBeVisible();
++  await page.keyboard.press('Escape');
++  await expect(drawer).toBeHidden();
++  await expect(trigger).toBeFocused();
++});
++
++test('UI3.1: переход закрывает меню, active route сохраняется', async ({ page }) => {
++  await page.goto('/chessboard');
++  const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
++  await trigger.click();
++  const panel = page.locator('.sidenav__panel');
++  await panel.getByRole('button', { name: 'Настройки', exact: true }).hover();
++  await panel.getByRole('link', { name: 'Объект', exact: true }).click();
++  await expect(page).toHaveURL(/\/hotel-settings$/);
++  await expect(panel).toBeHidden();
++  await expect(page.locator('#main-content')).toBeFocused();
++  await trigger.click();
++  await expect(panel.locator('[aria-current="page"]')).toHaveText('Объект');
++  await page.goBack();
++  await expect(page).toHaveURL(/\/chessboard$/);
++  await expect(panel).toBeHidden();
++});
++
++test('UI3.1: граница desktop/mobile и узкий экран', async ({ page }) => {
++  await page.goto('/chessboard');
++  for (const width of [1536, 1366, 1024, 961, 960, 959, 768, 390, 360, 320]) {
++    await page.setViewportSize({ width, height: 800 });
++    const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
++    await expect(trigger).toHaveCount(1);
++    await expect(trigger).toBeEnabled();
++    const header = (await page.locator('.workspace-header').boundingBox())!;
++    expect(header.height).toBe(56);
++    expect(
++      await page
++        .locator('.workspace')
++        .evaluate((el) => parseFloat(getComputedStyle(el).getPropertyValue('--header-row-h'))),
++    ).toBe(56);
++    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
++      true,
++    );
++    await trigger.click();
++    if (width > 960) await expect(page.locator('.sidenav__panel')).toBeVisible();
++    else {
++      const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
++      await expect(drawer).toBeVisible();
++      const close = drawer.getByRole('button', { name: 'Закрыть: Навигация' });
++      await close.focus();
++      await page.keyboard.press('Shift+Tab');
++      await expect(drawer.locator('.workspace-footer')).toBeFocused();
++      await page.keyboard.press('Tab');
++      await expect(close).toBeFocused();
++    }
++    await page.keyboard.press('Escape');
++    await expect(trigger).toBeFocused();
++  }
++});
++
++test('UI3.1: размеры целей шапки и мобильной поверхности', async ({ page }) => {
++  await page.goto('/chessboard');
++  await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toBeEnabled();
++  for (const width of [1440, 360]) {
++    await page.setViewportSize({ width, height: 640 });
++    for (const name of ['Открыть меню', 'Переключить тему', 'Найти гостя или бронь']) {
++      const box = (await page.getByRole('button', { name, exact: true }).boundingBox())!;
++      expect(box.width, name).toBeGreaterThanOrEqual(44);
++      expect(box.height, name).toBeGreaterThanOrEqual(44);
++    }
++  }
++  await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
++  const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
++  const box = (await drawer.boundingBox())!;
++  expect(box.width).toBe(344);
++  await expect(drawer).toHaveCSS('padding', '16px');
++  await expect(drawer).toHaveCSS('border-radius', '10px');
++  await expect(drawer.locator('.sidebar-section-toggle').first()).toHaveCSS('font-size', '14px');
++  expect(box.x).toBeGreaterThanOrEqual(8);
++  expect(box.y).toBeGreaterThanOrEqual(8);
++  expect(box.x + box.width).toBeLessThanOrEqual(352);
++  expect(box.y + box.height).toBeLessThanOrEqual(632);
++});
++
++for (const width of [1440, 390]) {
++  test(`UI3.1: история периода закрывает меню ${width}`, async ({ page }) => {
++    await page.setViewportSize({ width, height: 844 });
++    await page.goto('/chessboard');
++    const previous = page.url();
++    await page.getByRole('link', { name: 'Следующая неделя', exact: true }).click();
++    await expect(page).not.toHaveURL(previous);
++    const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
++    const surface =
++      width > 960
++        ? page.locator('.sidenav__panel')
++        : page.getByRole('dialog', { name: 'Навигация', exact: true });
++    await trigger.click();
++    await expect(surface).toBeVisible();
++    await page.goBack();
++    await expect(page).toHaveURL(previous);
++    await expect(surface).toBeHidden();
++    await trigger.click();
++    await page.goForward();
++    await expect(page).not.toHaveURL(previous);
++    await expect(surface).toBeHidden();
++  });
++}
++
++test('UI3.1: мобильный переход фокусирует готовое содержимое', async ({ page }) => {
++  await page.setViewportSize({ width: 390, height: 844 });
++  await page.goto('/chessboard');
++  await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
++  const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
++  await drawer.getByRole('link', { name: 'Гости и бронирования', exact: true }).click();
++  await expect(page).toHaveURL(/\/guests$/);
++  await expect(drawer).toBeHidden();
++  await expect(page.locator('#main-content')).toBeFocused();
++});
+diff --git a/tests/ui/workspace.spec.ts b/tests/ui/workspace.spec.ts
+index de8825b..3729017 100644
+--- a/tests/ui/workspace.spec.ts
++++ b/tests/ui/workspace.spec.ts
+@@ -1,4 +1,13 @@
+-import { FIXTURE_API, boardFilter, expect, openBoardFilters, test, devNoise, type Page, goViaMenu } from './fixtures';
++import {
++  FIXTURE_API,
++  boardFilter,
++  expect,
++  openBoardFilters,
++  test,
++  devNoise,
++  type Page,
++  goViaMenu,
++} from './fixtures';
+ import { mkdirSync } from 'node:fs';
+ import { resolve } from 'node:path';
+ 
+@@ -1456,11 +1465,9 @@ test('новая бронь: резюме выбора обновляется п
+   const button = form.getByRole('button', { name: 'Создать бронь' });
+   await form.getByLabel('Источник *').scrollIntoViewIfNeeded();
+   await expect(button).toBeInViewport();
+-  const [box, nav] = await Promise.all([
+-    button.boundingBox(),
+-    page.locator('.bottom-navigation').boundingBox(),
+-  ]);
+-  expect(box!.y + box!.height).toBeLessThanOrEqual(nav!.y + 1);
++  const box = await button.boundingBox();
++  await expect(page.locator('.bottom-navigation')).toHaveCount(0);
++  expect(box!.y + box!.height).toBeLessThanOrEqual(page.viewportSize()!.height + 1);
+   const layout = await page.evaluate(() => ({
+     viewport: window.innerWidth,
+     content: document.documentElement.scrollWidth,
+@@ -1584,7 +1591,9 @@ test('финансы F1: период в подзаголовке, четыре
+   const presets = main.getByRole('navigation', { name: 'Готовые периоды' });
+   await presets.getByRole('link', { name: 'Сегодня', exact: true }).click();
+   await expect(page).toHaveURL(/\/finance\?from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}/);
+-  await expect(presets.getByRole('link', { name: 'Сегодня', exact: true })).toHaveClass(/is-active/);
++  await expect(presets.getByRole('link', { name: 'Сегодня', exact: true })).toHaveClass(
++    /is-active/,
++  );
+   await expect(main.getByTestId('finance-period')).toContainText('За период с');
+   // отказ API: заголовок, форма и период остаются, чисел нет, повтор возвращает их
+   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/report' } });

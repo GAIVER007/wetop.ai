@@ -1,0 +1,58 @@
+[
+  {
+    "locale": "en_US.UTF-8",
+    "expression": "\"«$top_rel»\"",
+    "exit": 127,
+    "stdout": "",
+    "stderr": "/bin/bash: top_rel�: unbound variable\n"
+  },
+  {
+    "locale": "en_US.UTF-8",
+    "expression": "\"«${top_rel}»\"",
+    "exit": 0,
+    "stdout": "«x»\n",
+    "stderr": ""
+  },
+  {
+    "locale": "en_US.UTF-8",
+    "expression": "\"«$day»\"",
+    "exit": 127,
+    "stdout": "",
+    "stderr": "/bin/bash: day�: unbound variable\n"
+  },
+  {
+    "locale": "en_US.UTF-8",
+    "expression": "\"«${day}»\"",
+    "exit": 0,
+    "stdout": "«x»\n",
+    "stderr": ""
+  },
+  {
+    "locale": "C",
+    "expression": "\"«$top_rel»\"",
+    "exit": 0,
+    "stdout": "«x»\n",
+    "stderr": ""
+  },
+  {
+    "locale": "C",
+    "expression": "\"«${top_rel}»\"",
+    "exit": 0,
+    "stdout": "«x»\n",
+    "stderr": ""
+  },
+  {
+    "locale": "C",
+    "expression": "\"«$day»\"",
+    "exit": 0,
+    "stdout": "«x»\n",
+    "stderr": ""
+  },
+  {
+    "locale": "C",
+    "expression": "\"«${day}»\"",
+    "exit": 0,
+    "stdout": "«x»\n",
+    "stderr": ""
+  }
+]

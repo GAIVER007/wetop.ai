@@ -1,0 +1,34 @@
+{
+  "variant": "ui31",
+  "note": "Existing dev caches; 60s observation only, original acceptance test unchanged at 15s",
+  "samples": [
+    {
+      "iteration": 1,
+      "elapsedMs": 5975,
+      "withinOriginal15s": true,
+      "menuClosedAfterClick": true,
+      "responses": [
+        {
+          "afterMs": 5371,
+          "status": 200
+        }
+      ],
+      "navigation": null,
+      "mainFocused": true
+    },
+    {
+      "iteration": 2,
+      "elapsedMs": 1142,
+      "withinOriginal15s": true,
+      "menuClosedAfterClick": true,
+      "responses": [
+        {
+          "afterMs": 998,
+          "status": 200
+        }
+      ],
+      "navigation": null,
+      "mainFocused": true
+    }
+  ]
+}

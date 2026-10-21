@@ -1,0 +1,114 @@
+# Сквозные (e2e) · 11.10.2026 23:48 Алматы · MacBook-Air-Urij.local
+# коммит e523f35 (codex/ui3-1-hidden-navigation)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' '--workers=1' '--timeout=120000' 'tests/ui/ui31-shell.spec.ts' 'tests/ui/branches.spec.ts:84' 'tests/ui/roles.spec.ts:31' 'tests/ui/chessboard-filters.spec.ts:288' 'tests/ui/theme-transition.spec.ts:11'
+[WebServer] (node:75401) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75437) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75473) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75475) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 1429ms. If /Users/urijzapojnov/Developer/wetop-ui31-20261011/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+(node:75488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:75566) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (19.1s)
+(node:75604) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/chessboard-filters.spec.ts:288:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр (7.5s)
+[WebServer] (node:75678) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/roles.spec.ts:31:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (30.2s)
+  ✓   4 tests/ui/theme-transition.spec.ts:11:1 › после смены темы тема применена и переходов цвета в полёте нет (20.0s)
+  ✓   5 tests/ui/ui31-shell.spec.ts:10:1 › UI3.1: одна кнопка, стабильная ширина и клавиатурное меню (19.7s)
+  ✓   6 tests/ui/ui31-shell.spec.ts:39:1 › UI3.1: mobile освобождает низ и возвращает фокус (13.4s)
+[WebServer] (node:75961) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   7 tests/ui/ui31-shell.spec.ts:58:1 › UI3.1: переход закрывает меню, active route сохраняется (23.5s)
+(node:75987) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/ui31-shell.spec.ts:75:1 › UI3.1: граница desktop/mobile и узкий экран (18.0s)
+  ✓   9 tests/ui/ui31-shell.spec.ts:109:1 › UI3.1: размеры целей шапки и мобильной поверхности (13.6s)
+  ✓  10 tests/ui/ui31-shell.spec.ts:134:3 › UI3.1: история периода закрывает меню 1440 (12.7s)
+  ✓  11 tests/ui/ui31-shell.spec.ts:134:3 › UI3.1: история периода закрывает меню 390 (29.2s)
+  ✓  12 tests/ui/ui31-shell.spec.ts:157:1 › UI3.1: мобильный переход фокусирует готовое содержимое (30.8s)
+
+
+  1) tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+
+    TypeError: Cannot read properties of null (reading 'y')
+
+      112 |   const choices = sidebar.getByRole('region', { name: 'Выбор филиала' });
+      113 |   await expect(choices).toBeVisible();
+    > 114 |   expect((await navigation.boundingBox())!.y).toBe(before!.y);
+          |                                                            ^
+      115 |   await choices.getByLabel('Найти филиал').fill('Нет такого филиала');
+      116 |   await expect(choices.getByText('Филиалы не найдены')).toBeVisible();
+      117 |   await choices.getByLabel('Найти филиал').fill('');
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/branches.spec.ts:114:60
+
+    Error Context: test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ui31-shell.spec.ts:58:1 › UI3.1: переход закрывает меню, active route сохраняется ────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/hotel-settings$/
+    Received string:  "http://127.0.0.1:3191/chessboard"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        26 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3191/chessboard"
+
+
+      63 |   await panel.getByRole('button', { name: 'Настройки', exact: true }).hover();
+      64 |   await panel.getByRole('link', { name: 'Объект', exact: true }).click();
+    > 65 |   await expect(page).toHaveURL(/\/hotel-settings$/);
+         |                      ^
+      66 |   await expect(panel).toBeHidden();
+      67 |   await expect(page.locator('#main-content')).toBeFocused();
+      68 |   await trigger.click();
+        at /Users/urijzapojnov/Developer/wetop-ui31-20261011/tests/ui/ui31-shell.spec.ts:65:22
+
+    Error Context: test-results/ui31-shell-UI3-1-переход-з-70026-ню-active-route-сохраняется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui31-shell-UI3-1-переход-з-70026-ню-active-route-сохраняется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui31-shell-UI3-1-переход-з-70026-ню-active-route-сохраняется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/branches.spec.ts:84:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+    tests/ui/ui31-shell.spec.ts:58:1 › UI3.1: переход закрывает меню, active route сохраняется ─────
+  10 passed (4.9m)
+
+# код выхода 1 · 5 мин 4 с

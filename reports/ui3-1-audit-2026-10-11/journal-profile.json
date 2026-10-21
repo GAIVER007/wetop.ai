@@ -1,0 +1,10 @@
+{
+  "records": 7904,
+  "parseMs": 134.00420800000006,
+  "writeMs": 1469.8549999999998,
+  "readParseMs": 5448.127375,
+  "elapsedMs": 7313.554125,
+  "recordsEqual": true,
+  "verdictsEqual": true,
+  "note": "Timing diagnostic, no test timeout changed; equality checks use Node deep comparison rather than Vitest"
+}

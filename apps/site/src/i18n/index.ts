@@ -1,4 +1,5 @@
 import { ru } from './ru';
+import { kk } from './kk';
 import type { Dictionary } from './types';
 
 /*
@@ -7,6 +8,7 @@ import type { Dictionary } from './types';
  */
 export const locales = {
   ru: { dictionary: ru, htmlLang: 'ru', openGraphLocale: 'ru_RU', dateLocale: 'ru-RU' },
+  kk: { dictionary: kk, htmlLang: 'kk', openGraphLocale: 'kk_KZ', dateLocale: 'kk-KZ' },
 } as const satisfies Record<
   string,
   { dictionary: Dictionary; htmlLang: string; openGraphLocale: string; dateLocale: string }

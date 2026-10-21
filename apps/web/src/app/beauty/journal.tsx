@@ -17,7 +17,7 @@ import type {
 import { formatMoney } from '../../lib/money';
 import { AppointmentCard } from './appointment-card';
 import { AppointmentEditor } from './appointment-editor';
-import { appointmentSegments, calendarColumns, matchesAppointment } from './calendar-columns';
+import { appointmentSegments, calendarColumns, matchesAppointment, mobileDefaultMaster } from './calendar-columns';
 import { DateBar } from './date-bar';
 import { clock, clockMinutes, instantOf } from './time';
 import { beautyPeriodRows, moveAppointment } from './journal-actions';
@@ -84,7 +84,7 @@ export function JournalBoard({
     }),
   );
   const { employee: master, service, status } = filters;
-  const selected = master || columns[0]?.id || '';
+  const selected = master || mobileDefaultMaster(columns, appointmentSegments(day.appointments));
   const router = useRouter();
   const [filterPending, startFilterTransition] = useTransition();
   const applyFilters = (next: typeof filters) => {

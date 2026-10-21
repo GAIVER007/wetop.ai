@@ -762,7 +762,7 @@
   }
   select.filter-chip {
     width: auto;
-    min-height: 28px;
+    min-height: var(--control-h-sm);
     padding: 4px 32px 4px 8px;
   }
   .row--between {
@@ -3134,7 +3134,7 @@
   .date-range__inputs input {
     width: 100%;
     min-width: 0;
-    min-height: 34px;
+    min-height: var(--control-h);
     padding: 0 var(--space-1);
     border: 1px solid var(--border-input);
     border-radius: var(--radius-sm);

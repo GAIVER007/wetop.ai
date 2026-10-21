@@ -24,7 +24,7 @@ vi.mock('./forms', () => ({
 vi.mock('./media', () => ({ PortalMedia: () => null }));
 vi.mock('./management', () => ({ PortalManagement: () => null }));
 vi.mock('./locations', () => ({ EmployeeLocationsForm: () => null }));
-vi.mock('./service-prices', () => ({ EmployeeServicePrices: () => null }));
+vi.mock('./service-prices', () => ({ EmployeeServicePrices: () => null, servicePricesKey: () => '' }));
 vi.mock('../tabs', () => ({
   Tabs: ({ panels }: { panels: Array<{ label: string; content: ReactNode }> }) => createElement(
     'div',

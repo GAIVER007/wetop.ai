@@ -7,7 +7,16 @@ import { markReminderDone } from './reminder-actions';
 const time = (iso: string, timeZone: string) =>
   new Intl.DateTimeFormat('ru-RU', { timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(iso));
 
-/** «Напомнить сегодня»: напоминания, которые салон отправляет сам, в WhatsApp по ссылке wa.me */
+/** Почему нет кнопки WhatsApp: нет телефона или ссылка на отзыв уже не действует (перевыпущена в карточке записи) */
+export function missingLink(item: Pick<BeautyReminderItem, 'kind' | 'customerPhone'>): string {
+  if (!item.customerPhone) return 'Нет телефона';
+  return item.kind === 'REVIEW_REQUEST' ? 'Ссылка на отзыв не действует' : 'Проверьте телефон';
+}
+
+/**
+ * «Напомнить сегодня»: сообщения, которые салон отправляет сам, в WhatsApp по ссылке wa.me. Напоминания о записи и
+ * просьбы отзыва после визита («Попросить отзыв») в одном списке.
+ */
 export function RemindersToday({
   items,
   timezone,
@@ -27,9 +36,15 @@ export function RemindersToday({
       <h2>Напомнить сегодня ({left.length})</h2>
       <ul>
         {left.map((item) => (
-          <li key={item.id} data-testid="reminder-row">
+          <li key={item.id} data-testid="reminder-row" data-kind={item.kind}>
             <span className="beauty-reminders-today__who">
-              {item.customerName}, запись в {time(item.appointmentStartsAt, timezone)}
+              {item.kind === 'REVIEW_REQUEST' && (
+                <span className="beauty-reminders-today__kind" data-testid="reminder-kind">
+                  {item.kindLabel}:{' '}
+                </span>
+              )}
+              {item.customerName}, {item.kind === 'REVIEW_REQUEST' ? 'визит' : 'запись'} в{' '}
+              {time(item.appointmentStartsAt, timezone)}
               {item.state === 'FAILED' && <span className="muted">, письмо не ушло</span>}
             </span>
             <span className="beauty-reminders-today__actions">
@@ -38,7 +53,7 @@ export function RemindersToday({
                   Написать в WhatsApp
                 </a>
               ) : (
-                <span className="muted">Нет телефона</span>
+                <span className="muted">{missingLink(item)}</span>
               )}
               {canUpdate && (
                 <Button
@@ -53,7 +68,7 @@ export function RemindersToday({
                     })
                   }
                 >
-                  Напомнил
+                  {item.kind === 'REVIEW_REQUEST' ? 'Попросил' : 'Напомнил'}
                 </Button>
               )}
             </span>

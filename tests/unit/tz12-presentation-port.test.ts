@@ -35,7 +35,8 @@ describe('approved TZ12 presentation compatibility port', () => {
     for (const name of ['Клиент', 'Услуга и время', 'Дополнительно']) expect(text).toContain(`<legend>${name}</legend>`);
     expect(text).toContain('aria-live="polite"');
     expect(text).toContain('<span className="beauty-selection-line">Дата: {date}</span>');
-    expect(text).toMatch(/<span className="beauty-selection-line">\s*Время: \{hour\} \(\{day\.location\.timezone\}\)\s*<\/span>/);
+    // пояс называется словами (zoneLabel), а не кодом IANA: обход живого сайта 21.10.2026
+    expect(text).toMatch(/<span className="beauty-selection-line">\s*Время: \{hour\} \(\{zoneLabel\(day\.location\.timezone\)\}\)\s*<\/span>/);
     expect(text).toContain('appointment-form__footer');
     expect(source('beauty/beauty.css')).toContain('.appointment-editor > .overlay-content');
   });

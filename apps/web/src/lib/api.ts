@@ -4017,6 +4017,8 @@ export interface BeautyReminderSettings {
 export interface BeautyReminderItem {
   id: string;
   kind: 'REMINDER' | 'CONFIRMATION' | 'REVIEW_REQUEST';
+  /** «Напомнить о записи», «Подтвердить запись», «Попросить отзыв» */
+  kindLabel: string;
   state: 'PENDING' | 'SENT' | 'MANUAL' | 'FAILED' | 'CANCELLED';
   stateLabel: string;
   channel: 'EMAIL' | 'WHATSAPP' | 'MANUAL' | null;

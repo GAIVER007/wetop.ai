@@ -130,3 +130,43 @@ export function parseReminderSettings(raw: unknown): Parsed<ReminderSettingsInpu
     },
   };
 }
+
+// ───────────── просьба отзыва после визита ─────────────
+
+/** Через сколько часов после визита просим отзыв */
+export const REVIEW_REQUEST_DELAY_HOURS = 2;
+/** Окно вежливой отправки по поясу филиала: с 10:00 до 21:00 */
+const REVIEW_REQUEST_FROM_HOUR = 10;
+const REVIEW_REQUEST_TO_HOUR = 21;
+
+/**
+ * Когда просить отзыв: через 2 часа после конца визита или после «Выполнено», что позже. Ночью и поздно вечером
+ * не пишем: время до 10:00 и с 21:00 по поясу филиала переносится на ближайшие 10:00 (AGENTS.md §13).
+ */
+export function reviewRequestDueAt(input: { endsAt: Date; doneAt: Date; timezone: string }): Date {
+  const base = new Date(Math.max(input.endsAt.getTime(), input.doneAt.getTime()) + REVIEW_REQUEST_DELAY_HOURS * 3_600_000);
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: input.timezone,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(base);
+  const part = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? 0);
+  const hour = part('hour');
+  const sinceMidnightMs = ((hour * 60 + part('minute')) * 60 + part('second')) * 1000 + base.getUTCMilliseconds();
+  if (hour >= REVIEW_REQUEST_FROM_HOUR && hour < REVIEW_REQUEST_TO_HOUR) return base;
+  const targetMs = (hour < REVIEW_REQUEST_FROM_HOUR ? REVIEW_REQUEST_FROM_HOUR : 24 + REVIEW_REQUEST_FROM_HOUR) * 3_600_000;
+  return new Date(base.getTime() + targetMs - sinceMidnightMs);
+}
+
+/** Текст просьбы отзыва: коротко, имя и ссылка на страницу отзыва */
+export function reviewRequestText(customerName: string, url: string): string {
+  const name = customerName.trim();
+  return `Спасибо, что были у нас${name ? `, ${name}` : ''}! Оцените визит: ${url}`;
+}
+
+/** Полный адрес страницы отзыва: адрес стойки и путь приглашения `/reviews/<ключ>` */
+export function reviewUrl(appUrl: string, reviewPath: string): string {
+  return `${appUrl.replace(/\/+$/, '')}/${reviewPath.replace(/^\/+/, '')}`;
+}

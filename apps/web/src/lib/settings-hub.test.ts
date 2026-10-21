@@ -10,22 +10,22 @@ const flat = (groups: ReturnType<typeof settingsGroupsFor>) =>
 describe('хаб «Настройки» одной таблицей для всех направлений', () => {
   it('у владельца карточки в одном порядке и со своими экранами направления', () => {
     expect(flat(settingsGroupsFor(owner, 'BEAUTY'))).toEqual([
-      ['Основные', ['Режим работы и правила /beauty-settings', 'Филиалы и реквизиты /branches', 'Сотрудники и доступ /team', 'Права ролей /team/roles']],
+      ['Основные', ['Филиалы и реквизиты /branches', 'Режим работы /beauty-settings#hours', 'Сотрудники и доступ /team', 'Права ролей /team/roles', 'Мой профиль /profile']],
       ['Журнал', ['Специалисты /employees', 'График работы /beauty/schedule', 'Каталог услуг /services']],
       ['Клиенты и продажи', ['Напоминания клиентам /beauty-settings#reminders', 'Бонусы /beauty-settings#bonuses', 'Сертификаты /finance/certificates', 'Сайт и онлайн-запись /marketing/site/editor', 'ИИ-продавец /ai-agents']],
       ['Система', ['История действий /journal']],
     ]);
     expect(flat(settingsGroupsFor(owner, 'FOOD_SERVICE'))).toEqual([
-      ['Основные', ['Режим работы и правила /restaurant-settings', 'Филиалы и реквизиты /branches', 'Сотрудники и доступ /team', 'Права ролей /team/roles']],
-      ['Журнал', ['Специалисты /employees', 'График работы /employees/shifts', 'Залы и столы /dining-areas', 'Каталог услуг /menu']],
+      ['Основные', ['Филиалы и реквизиты /branches', 'Режим работы /restaurant-settings?section=hours', 'Сотрудники и доступ /team', 'Права ролей /team/roles', 'Мой профиль /profile']],
+      ['Журнал', ['Специалисты /employees', 'График работы /employees/shifts', 'Залы и столы /dining-areas', 'Правила бронирования /restaurant-settings?section=bookings', 'Каталог услуг /menu']],
       ['Клиенты и продажи', ['Сайт и онлайн-запись /marketing/site/editor', 'ИИ-продавец /ai-agents']],
       ['Система', ['История действий /journal']],
     ]);
     expect(flat(settingsGroupsFor(owner, 'HOSPITALITY'))).toEqual([
-      ['Основные', ['Режим работы и правила /hotel-settings', 'Филиалы и реквизиты /branches', 'Сотрудники и доступ /team', 'Права ролей /team/roles']],
+      ['Основные', ['Карточка объекта /hotel-settings', 'Филиалы и реквизиты /branches', 'Режим работы /hotel-settings/stay', 'Сотрудники и доступ /team', 'Права ролей /team/roles', 'Мой профиль /profile']],
       ['Журнал', ['Номера /inventory', 'Каталог услуг /hotel-settings/services']],
       ['Клиенты и продажи', ['Каналы продаж /channels', 'Сайт и онлайн-запись /website', 'ИИ-продавец /ai-agents']],
-      ['Система', ['Способы оплаты и статьи кассы /hotel-settings/directories', 'Подключения /connections', 'Неисправности /incidents', 'История действий /journal']],
+      ['Система', ['Способы оплаты и статьи кассы /hotel-settings/directories', 'Документы и договор /hotel-settings/documents', 'Подключения /connections', 'Неисправности /incidents', 'История действий /journal']],
     ]);
   });
 

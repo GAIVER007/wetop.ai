@@ -25,17 +25,21 @@ export interface SettingsGroup {
 
 export const SETTINGS_GROUPS: SettingsGroup[] = [
   {
+    // кто мы, где и когда работаем, кто работает: правится один раз при запуске
     id: 'main',
     title: 'Основные',
     icon: 'settings',
     links: [
-      { label: 'Режим работы и правила', at: { HOSPITALITY: '/hotel-settings', BEAUTY: '/beauty-settings', FOOD_SERVICE: '/restaurant-settings' } },
+      { label: 'Карточка объекта', at: { HOSPITALITY: '/hotel-settings' } },
       { label: 'Филиалы и реквизиты', at: ALL('/branches') },
+      { label: 'Режим работы', at: { HOSPITALITY: '/hotel-settings/stay', BEAUTY: '/beauty-settings#hours', FOOD_SERVICE: '/restaurant-settings?section=hours' } },
       { label: 'Сотрудники и доступ', at: ALL('/team') },
       { label: 'Права ролей', at: ALL('/team/roles') },
+      { label: 'Мой профиль', at: ALL('/profile') },
     ],
   },
   {
+    // из чего собирается журнал: места, люди, их график и что продаём
     id: 'journal',
     title: 'Журнал',
     icon: 'board',
@@ -44,10 +48,12 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
       { label: 'Специалисты', at: { BEAUTY: '/employees', FOOD_SERVICE: '/employees' } },
       { label: 'График работы', at: { BEAUTY: '/beauty/schedule', FOOD_SERVICE: '/employees/shifts' } },
       { label: 'Залы и столы', at: { FOOD_SERVICE: '/dining-areas' } },
+      { label: 'Правила бронирования', at: { FOOD_SERVICE: '/restaurant-settings?section=bookings' } },
       { label: 'Каталог услуг', at: { HOSPITALITY: '/hotel-settings/services', BEAUTY: '/services', FOOD_SERVICE: '/menu' } },
     ],
   },
   {
+    // как клиент приходит и возвращается
     id: 'clients',
     title: 'Клиенты и продажи',
     icon: 'guests',
@@ -61,11 +67,13 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     ],
   },
   {
+    // деньги, документы, внешние сервисы и след изменений
     id: 'system',
     title: 'Система',
     icon: 'system',
     links: [
       { label: 'Способы оплаты и статьи кассы', at: { HOSPITALITY: '/hotel-settings/directories' } },
+      { label: 'Документы и договор', at: { HOSPITALITY: '/hotel-settings/documents' } },
       { label: 'Подключения', at: { HOSPITALITY: '/connections' } },
       { label: 'Неисправности', at: { HOSPITALITY: '/incidents' } },
       { label: 'История действий', at: ALL('/journal') },
@@ -76,7 +84,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
 
 /** Открыта ли страница ссылки этому вошедшему в этом направлении: та же охрана, что у меню и страниц */
 export function settingsLinkOpen(access: NavigationAccess, vertical: WebVertical, href: string): boolean {
-  const path = href.split('#')[0]!;
+  const path = href.split(/[?#]/)[0]!;
   if (!featureVerticals(path).includes(vertical)) return false;
   const rule = routeRule(path);
   if (!rule?.requires) return true;

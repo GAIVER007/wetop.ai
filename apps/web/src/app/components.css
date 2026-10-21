@@ -3467,6 +3467,10 @@
     .tbl--stack thead {
       display: none;
     }
+    /* карточкам не нужна общая ширина 520 px для прокрутки: иначе страница шире телефона (MV9, 390 px) */
+    .table-scroll > .tbl--stack {
+      min-width: 0;
+    }
     .tbl--stack,
     .tbl--stack tbody,
     .tbl--stack tr {

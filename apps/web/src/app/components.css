@@ -1259,7 +1259,9 @@
   }
   .date-field__foot {
     display: flex;
-    justify-content: flex-end;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-1);
     padding: 8px 4px 0;
   }
   @media (max-width: 600px), (pointer: coarse) {

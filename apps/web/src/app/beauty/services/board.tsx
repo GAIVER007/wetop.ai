@@ -252,7 +252,7 @@ export function ServicesBoard({
                     aria-label={`Настроить и добавить в филиал: ${preset.name}`}
                     onClick={() => setEditing({ mode: 'new', preset, enableForLocation: true })}
                   >
-                    ← Настроить
+                    Добавить
                   </Button>
                 </div>}
               </article>
@@ -478,6 +478,7 @@ function ServiceForm({
           />
         )}
         {!row && <input type="hidden" name="creationId" value={creation.id} />}
+        {!row && enableForLocation && <input type="hidden" name="enableForLocation" value="on" />}
         <input type="hidden" name="priceMinor" value={priceMinor ?? ''} />
         {!row && (
           <Field label="Типовая услуга">

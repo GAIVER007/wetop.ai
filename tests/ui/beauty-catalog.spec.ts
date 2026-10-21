@@ -389,10 +389,9 @@ test('стартовая услуга справа требует цену и п
   await expect(panel.getByLabel(/Цена каталога/)).toHaveValue('');
   await panel.getByLabel(/Цена каталога/).fill('35.50');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Услуга создана');
+  // типовая услуга сразу попадает в филиал, второй кнопки не нужно (онбординг на живом сайте, 21.10.2026)
+  await expect(panel.getByRole('status')).toContainText('Услуга добавлена в филиал');
   await expect(panel.getByLabel('Филиал оказывает эту услугу')).toBeChecked();
-  await panel.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
-  await expect(panel.getByRole('status').filter({ hasText: 'Настройки филиала сохранены' })).toBeVisible();
   await page.goto('/beauty/services');
   await expect(
     main.locator('[data-service-list="salon"] .beauty-service-item').filter({ has: page.getByText('Стрижка мужская', { exact: true }) }),

@@ -10,6 +10,7 @@ import { EmployeeLocationsForm } from './locations';
 import { EmployeeServicePrices } from './service-prices';
 import { EmployeeReviews } from './reviews';
 import { Tabs } from '../tabs';
+import { masterSetupSteps } from './setup-steps';
 import { beautyStatus } from '../../lib/status/beauty';
 import { foodOrderStatus } from '../../lib/status/food';
 import type { BeautyEmployeeServicePriceRow, BeautySchedule } from '../../lib/api';
@@ -80,6 +81,16 @@ export function EmployeeCabinet({
       </div>
       {data.avatar && <img className="portal-avatar" src={data.avatar.url} alt={`Фото: ${data.employee.name}`} width={96} height={96} />}
     </header>
+    {/* новый мастер (онбординг 21.10.2026): что осталось, чтобы к нему могли записаться; ссылка открывает вкладку */}
+    {beauty && manager && data.employee.active && (() => {
+      const steps = masterSetupSteps({ services: data.services, week: data.week });
+      return steps.length ? <nav className="panel portal-setup" aria-label="Чтобы к мастеру могли записаться" data-testid="portal-setup-steps">
+        <strong>Чтобы к мастеру могли записаться:</strong>
+        <ol>{steps.map((step) => <li key={step.id} data-done={step.done ? 'true' : undefined}>
+          {step.done ? <span>{step.label}: готово</span> : <a className="btn btn--secondary btn--sm" href={`#${step.tab}`}>{step.label}</a>}
+        </li>)}</ol>
+      </nav> : null;
+    })()}
     <Tabs label="Разделы кабинета" className="portal-tabs" panels={[
       { id: 'professional', label: 'Профиль', content: <section className="panel portal-section"><h2>Профессиональный профиль</h2>
 

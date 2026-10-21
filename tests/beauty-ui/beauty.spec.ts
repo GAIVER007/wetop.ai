@@ -154,7 +154,12 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   // Создание открывает полную карточку специалиста отдельной страницей, не диалог.
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   let profile = page.getByTestId('employee-manager');
-  await profile.getByRole('tab', {name:'Услуги',exact:true}).click();
+  // новый мастер: карточка подсказывает оставшиеся шаги и открывает нужную вкладку (онбординг 21.10.2026)
+  const setup = profile.getByTestId('portal-setup-steps');
+  await expect(setup).toContainText('Чтобы к мастеру могли записаться');
+  await setup.getByRole('link', { name: 'Назначьте услуги' }).click();
+  await expect(profile.getByRole('tab', { name: 'Услуги', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await page.screenshot({ path: 'reports/master-setup-steps-1440.png' });
   await profile.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   const assignForm = profile.getByTestId('portal-services-form');
   await assignForm.getByRole('checkbox', { name: /^Тестовая стрижка(?:\s|$)/ }).check();

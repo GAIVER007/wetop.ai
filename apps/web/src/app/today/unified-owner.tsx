@@ -68,6 +68,17 @@ function WorkloadValue({ value }: { value: Workload }) {
     </>
   );
 }
+
+/** Период словами: «21 октября», «1-16 октября», «28 сентября - 4 октября» (живой сайт 21.10.2026: ISO-даты на главной) */
+export function humanPeriod(from: string, to: string): string {
+  const d = (iso: string) => new Date(`${iso}T12:00:00Z`);
+  const day = (iso: string) => new Intl.DateTimeFormat('ru-RU', { day: 'numeric', timeZone: 'UTC' }).format(d(iso));
+  const dayMonth = (iso: string) => new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(d(iso));
+  if (from === to) return dayMonth(from);
+  if (from.slice(0, 7) === to.slice(0, 7)) return `${day(from)}-${dayMonth(to)}`;
+  return `${dayMonth(from)} - ${dayMonth(to)}`;
+}
+
 export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
   if (!['BEAUTY', 'FOOD_SERVICE', 'HOSPITALITY'].includes(s.scope.vertical))
     return (
@@ -99,7 +110,7 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
               dateStyle: 'medium',
               timeStyle: 'short',
               timeZone: s.period.timezone,
-            }).format(new Date(s.generatedAt))}, {s.period.timezone}
+            }).format(new Date(s.generatedAt))}
           </p>
         </div>
         <div className="owner-heading__actions">
@@ -127,7 +138,7 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
           ))}
         </nav>
         <p>
-          <time dateTime={s.period.fromDate}>{s.period.fromDate}</time> – <time dateTime={s.period.toDate}>{s.period.toDate}</time>
+          <time dateTime={s.period.fromDate}>{humanPeriod(s.period.fromDate, s.period.toDate)}</time>
         </p>
       </div>
       <section className="owner-kpis" aria-label="Показатели руководителя">
@@ -172,7 +183,7 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
       <div className="owner-body">
         <section className="owner-panel owner-dynamics">
           <div className="owner-panel-heading">
-            <div><h2>Динамика по дням</h2><p>{s.period.fromDate} – {s.period.toDate}</p></div>
+            <div><h2>Динамика по дням</h2><p>{humanPeriod(s.period.fromDate, s.period.toDate)}</p></div>
             <a href={finance}>Финансовый отчёт</a>
           </div>
           <OwnerDailyChart metrics={[
@@ -180,7 +191,7 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
             {label:'Поступления',daily:s.current.receipts.daily,previous:s.previous?.receipts.daily},
             {label:'Оплаченные расходы',daily:expenses.daily,previous:s.previous?.paidExpenses.daily},
           ]} />
-          <p>{s.previous ? `Сравнение: ${s.previous.period.fromDate} – ${s.previous.period.toDate}, до того же местного времени.` : null}</p>
+          {s.previous && <p>Сравнение с периодом {humanPeriod(s.previous.period.fromDate, s.previous.period.toDate)}, до того же времени.</p>}
         </section>
         <aside className="owner-panel owner-attention" aria-labelledby="owner-attention-title">
           <div className="owner-panel-heading"><h2 id="owner-attention-title">Требуют решения</h2></div>
@@ -218,16 +229,10 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
             });
           })}
         </div>
-        <p>
-          {s.classificationReason === 'EXPENSE_DOCUMENT_LINKS_NOT_CONNECTED' ? 'Связи с документами расходов пока не подключены. ' : 'Статьи из связанных документов расходов. '}Без статьи: назначение не подтверждено, не «Прочее».
-        </p>
         {!expenses.currencies?.length && (
-          <p className="owner-expense-empty">{ownerReason(expenses.reason) || 'Нет классифицированных сумм. Отсутствие данных не означает нулевые расходы.'}</p>
+          <p className="owner-expense-empty">{ownerReason(expenses.reason) || 'Расходов за период пока нет. Добавьте расход в «Финансах», и здесь появятся статьи.'}</p>
         )}
       </section>
-      <footer>
-        <p>Выбран один филиал. Валюты показаны раздельно, без общего итога.</p>
-      </footer>
     </main>
   );
 }

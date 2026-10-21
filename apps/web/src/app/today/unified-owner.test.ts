@@ -189,4 +189,21 @@ describe('unified owner actual DTO', () => {
     const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto() }));
     expect(html).toMatch(/<a[^>]*href="\/today\/operations"[^>]*>Рабочий день<\/a>/);
   });
+  it('говорит по-человечески: даты словами, без пояса Asia/Almaty и служебных оговорок (живой сайт 21.10.2026)', () => {
+    const d = dto('today');
+    d.period.fromDate = '2026-10-21';
+    d.period.toDate = '2026-10-21';
+    d.previous = null;
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: d }));
+    expect(html).not.toContain('Asia/Almaty');
+    expect(html).not.toMatch(/>2026-10-21/);
+    expect(html).toContain('21 октября');
+    expect(html).not.toContain('Отсутствие данных не означает нулевые расходы');
+    expect(html).not.toContain('Валюты показаны раздельно, без общего итога');
+    expect(html).not.toContain('Связи с документами расходов пока не подключены');
+  });
+  it('период из нескольких дней: «1-16 октября»', () => {
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('month') }));
+    expect(html).toContain('1-16 октября');
+  });
 });

@@ -254,6 +254,19 @@
       justify-content: flex-start;
     }
 
+    /* крупный шрифт на 320 px: подписи кнопок переносятся, строка не шире экрана */
+    .beauty-service-item .btn,
+    .beauty-service-bulk .btn {
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .beauty-service-item-actions,
+    .beauty-service-bulk {
+      min-width: 0;
+    }
+
     .beauty-service-item,
     .beauty-service-item:has(.beauty-service-check) {
       grid-template-columns: auto minmax(0, 1fr);

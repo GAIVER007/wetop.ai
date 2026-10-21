@@ -339,7 +339,9 @@
     margin: auto;
     width: min(var(--drawer-w-md), calc(100vw - 32px));
     max-width: calc(100vw - 32px);
-    height: auto;
+    /* высота по содержимому: без этого окно с inset:0 тянулось до max-height, и под формой оставалось пустое поле
+       (аудит живого сайта 21.10.2026: «Добавить клиента» 852px при содержимом 470px) */
+    height: fit-content;
     max-height: calc(100dvh - 48px);
     border-radius: var(--radius-lg);
     animation: dialog-in 160ms ease-out;

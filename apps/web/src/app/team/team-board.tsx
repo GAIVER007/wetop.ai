@@ -340,7 +340,8 @@ export function MembersTable({
         notice={error ? <Alert boxed>{error}</Alert> : null}
         tabs={[{ id: 'all', label: 'Все', rows, empty: 'В организации пока никого нет' }]}
         search={(m) => `${m.name ?? ''} ${m.email} ${m.phone ?? ''}`}
-        searchPlaceholder="Поиск по имени, почте или телефону"
+        // короткая подсказка: длинная обрезалась в поле («…телеф», аудит 21.10.2026, п. 22)
+        searchPlaceholder="Имя, почта, телефон"
         period={revenue ? revenueNav : null}
         footer={unattributed ? <span data-testid="team-unattributed">{unattributed}</span> : null}
         columns={[
@@ -364,10 +365,10 @@ export function MembersTable({
                     </>
                   ) : null}
                   <span className="staff-person__role team-member-sub">
-                    {m.position ?? (m.name ? m.email : MEMBERSHIP_ROLES[m.role])}
+                    {m.position ?? (m.name ? m.email : roleLabel(m.role))}
                     {/* на телефоне колонки телефона, роли и дат скрыты: они строками под именем */}
                     {m.phone ? <span className="team-sub-role">{m.phone}</span> : null}
-                    <span className="team-sub-role">{MEMBERSHIP_ROLES[m.role]}</span>
+                    <span className="team-sub-role">{roleLabel(m.role)}</span>
                     <span className="team-sub-role">
                       {m.lastLoginAt ? `был в системе ${displayDate(m.lastLoginAt.slice(0, 10))}` : 'ещё не входил'}
                     </span>
@@ -399,7 +400,7 @@ export function MembersTable({
                   <option value="EMPLOYEE">{capital(MEMBERSHIP_ROLES.EMPLOYEE)}</option>
                 </Select>
               ) : (
-                MEMBERSHIP_ROLES[m.role]
+                roleLabel(m.role)
               ),
           },
           {
@@ -680,7 +681,7 @@ export function PendingInvites({ invites }: { invites: AuthInvite[] }) {
               <span className="login-team-row__who">
                 <b>{i.email}</b>{' '}
                 <span className="muted">
-                  {MEMBERSHIP_ROLES[i.role ?? 'STAFF']}, ждёт ответа до{' '}
+                  {roleLabel(i.role ?? 'STAFF')}, ждёт ответа до{' '}
                   <time dateTime={i.expiresAt}>{displayDate(i.expiresAt.slice(0, 10))}</time>
                 </span>
               </span>
@@ -728,3 +729,5 @@ export function PendingInvites({ invites }: { invites: AuthInvite[] }) {
 }
 
 const capital = (text: string) => text.charAt(0).toLocaleUpperCase('ru') + text.slice(1);
+/** Роль с заглавной, как «Владелец» в шапке (аудит 21.10.2026, п. 23) */
+export const roleLabel = (role: MembershipRole): string => capital(MEMBERSHIP_ROLES[role]);

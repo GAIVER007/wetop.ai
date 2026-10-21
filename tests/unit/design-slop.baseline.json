@@ -156,22 +156,12 @@
   },
   "control-size-literal": {
     "apps/web/src/app/bar/bar.css": 4,
-    "apps/web/src/app/branches/branches.css": 3,
-    "apps/web/src/app/channels/channels.css": 1,
-    "apps/web/src/app/chessboard/board.css": 4,
-    "apps/web/src/app/components.css": 2,
-    "apps/web/src/app/finance/finance.css": 2,
-    "apps/web/src/app/guests/guests-bookings.css": 2,
-    "apps/web/src/app/hotel-settings/settings.css": 1,
-    "apps/web/src/app/inventory/inventory.css": 4,
+    "apps/web/src/app/guests/guests-bookings.css": 1,
+    "apps/web/src/app/inventory/inventory.css": 3,
     "apps/web/src/app/marketing/marketing.css": 1,
-    "apps/web/src/app/premium.css": 1,
     "apps/web/src/app/register/setup/setup.css": 1,
     "apps/web/src/app/reviews/[token]/reviews.css": 1,
-    "apps/web/src/app/team/roles/positions.css": 2,
-    "apps/web/src/app/today/unified-owner.css": 1,
-    "apps/web/src/components/employee-portal/portal.css": 3,
-    "apps/web/src/components/employee-workspace/workspace.css": 1,
-    "apps/web/src/components/shell/product-tour.css": 1
+    "apps/web/src/app/team/roles/positions.css": 1,
+    "apps/web/src/components/employee-portal/portal.css": 3
   }
 }

@@ -182,6 +182,24 @@ export default async function AiSellerPage({
   );
 }
 
+/**
+ * Продавец не отвечает гостям из-за ключа модели (нет денег на счёте или ключ не принят): плашка на всех вкладках
+ * раздела, 20.10.2026 такой отказ три недели никто не видел. Состояние знает только бот и отдаёт его тем, кто
+ * настраивает продавца; остальным и при сбое запроса плашки нет.
+ */
+async function KeyDownAlert({ status }: { status: SellerStatus }) {
+  if (!sellerConnected(status) || status.canConfigure === false) return null;
+  const key = await settle(sellerApi.llmKey());
+  if (!key.ok || (key.value.state !== 'no_credits' && key.value.state !== 'invalid_key')) return null;
+  const reason = key.value.reason ?? 'модель отказала';
+  return (
+    <Alert data-testid="seller-key-down">
+      Продавец не отвечает гостям: {reason.charAt(0).toLowerCase() + reason.slice(1)}. Гости получают «администратор
+      свяжется». <Link href="/ai-seller/connections">Открыть «Модель ИИ»</Link>
+    </Alert>
+  );
+}
+
 /** Метка состояния под заголовком: одно слово и строка — подробности там, где их можно исправить */
 async function SellerStatePill() {
   const status = await settle(sellerApi.status());
@@ -228,6 +246,8 @@ async function SellerScreen({
     owner && status.value.canConfigure !== false ? extensionReminder(status.value.extension) : null;
   return (
     <Stack>
+      {/* на «Подключениях» то же состояние стоит бейджем рядом с ключом */}
+      {view !== 'connections' && <KeyDownAlert status={status.value} />}
       {reminder && (
         <Alert tone="warning" data-testid="seller-extension-ending">
           {reminder}

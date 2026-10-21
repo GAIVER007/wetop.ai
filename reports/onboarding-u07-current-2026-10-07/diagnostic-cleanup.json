@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-07T11:51:20.733665+00:00",
+  "all_ports_closed": {
+    "55933": true,
+    "55823": true,
+    "55824": true,
+    "55825": true,
+    "3100": true,
+    "4311": true,
+    "3002": true
+  },
+  "production_touched": false
+}

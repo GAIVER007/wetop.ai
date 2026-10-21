@@ -1,0 +1,149 @@
+# Сквозные (e2e) · 07.10.2026 16:42 Алматы · MacBook-Air-Urij.local
+# коммит e070da7 (codex/onboarding-u07-current-20261007)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '--grep' 'ключ создания: после отказа|переключатель филиалов сохраняет раздел|compact board: notebook|администратор принимает оплату'
+[WebServer] (node:9523) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9547) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9550) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9577) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:9604) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9605) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:9607) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ (1.3s)
+[WebServer] (node:9640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/branches.spec.ts:82:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки (21.1s)
+(node:9652) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/chessboard-compact-screen.spec.ts:7:1 › compact board: notebook viewport and remembered category overview (2.8s)
+(node:9673) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9691) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9692) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9695) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (22.0s)
+
+
+  1) tests/ui/branches.spec.ts:82:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.workspace-header').getByRole('region', { name: 'Выбор филиала' }).getByText('Текущий филиал')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.workspace-header').getByRole('region', { name: 'Выбор филиала' }).getByText('Текущий филиал') with timeout 15000ms
+      - waiting for locator('.workspace-header').getByRole('region', { name: 'Выбор филиала' }).getByText('Текущий филиал')
+
+
+      114 |   await expect(choices.getByText('Филиалы не найдены')).toBeVisible();
+      115 |   await choices.getByLabel('Найти филиал').fill('');
+    > 116 |   await expect(choices.getByText('Текущий филиал')).toBeVisible();
+          |                                                     ^
+      117 |   await choices.getByRole('button', { name: /Филиал Север/ }).click();
+      118 |   await expect(trigger).toContainText('Филиал Север');
+      119 |   await expect(page).toHaveURL(/\/chessboard$/);
+        at /Users/urijzapojnov/wetop-u07-current-20261007/tests/ui/branches.spec.ts:116:53
+
+    Error Context: test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-переключатель-фил-ab9f0--и-выбор-после-перезагрузки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-compact-screen.spec.ts:7:1 › compact board: notebook viewport and remembered category overview 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 400
+    Received:   375.203125
+
+      11 |   const board = page.getByRole('region', { name: 'Календарь по дням' });
+      12 |   const box = await board.boundingBox();
+    > 13 |   expect(box!.height).toBeGreaterThan(400);
+         |                       ^
+      14 |   expect(await page.evaluate('document.documentElement.scrollHeight <= innerHeight + 1')).toBe(
+      15 |     true,
+      16 |   );
+        at /Users/urijzapojnov/wetop-u07-current-20261007/tests/ui/chessboard-compact-screen.spec.ts:13:23
+
+    Error Context: test-results/chessboard-compact-screen--60848-emembered-category-overview/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-compact-screen--60848-emembered-category-overview/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-compact-screen--60848-emembered-category-overview/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByRole('columnheader', { name: 'Действия', exact: true })
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByRole('columnheader', { name: 'Действия', exact: true }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('columnheader', { name: 'Действия', exact: true })
+        33 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      140 |   await expect(main.getByTestId('refund-btn')).toHaveCount(0);
+      141 |   await expect(main.getByTestId('payment-void')).toHaveCount(0);
+    > 142 |   await expect(main.getByRole('columnheader', { name: 'Действия', exact: true })).toHaveCount(0);
+          |                                                                                   ^
+      143 |
+      144 |   await asRole(request, 'MANAGER');
+      145 |   await pay('оплата управляющего');
+        at /Users/urijzapojnov/wetop-u07-current-20261007/tests/ui/roles.spec.ts:142:83
+
+    Error Context: test-results/roles-администратор-приним-a99d8-о-нет-у-управляющего-—-есть/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-приним-a99d8-о-нет-у-управляющего-—-есть/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-приним-a99d8-о-нет-у-управляющего-—-есть/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/branches.spec.ts:82:1 › переключатель филиалов сохраняет раздел и выбор после перезагрузки 
+    tests/ui/chessboard-compact-screen.spec.ts:7:1 › compact board: notebook viewport and remembered category overview 
+    tests/ui/roles.spec.ts:118:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть 
+  1 passed (1.2m)
+
+# код выхода 1 · 1 мин 11 с

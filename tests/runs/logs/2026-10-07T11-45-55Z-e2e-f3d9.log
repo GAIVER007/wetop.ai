@@ -1,0 +1,322 @@
+# Сквозные (e2e) · 07.10.2026 16:45 Алматы · MacBook-Air-Urij.local
+# коммит e070da7 (codex/onboarding-u07-current-20261007)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '--grep' 'ключ создания: после отказа проверки' '--repeat-each=10'
+[WebServer] (node:10086) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10111) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10113) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10139) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:10167) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 1 worker
+
+(node:10170) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ (1.1s)
+(node:10191) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ (45.1s)
+(node:10268) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ (45.1s)
+(node:10381) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ (45.4s)
+(node:10544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ (1.1s)
+(node:10570) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ (45.5s)
+(node:10659) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ (1.3s)
+(node:10681) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ (45.2s)
+(node:10789) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ (1.0s)
+(node:10808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ (45.3s)
+
+
+  1) tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('[data-pmsw="submit"]')
+        - locator resolved to <button type="submit" data-pmsw="submit">Подтвердить бронь</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        86 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+      258 |   await expect(submit).toBeDisabled();
+      259 |   await solve(page, 'tok-new');
+    > 260 |   await submit.click();
+          |                ^
+      261 |   await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
+      262 |   expect(s.booked.map((b) => b['turnstileToken'])).toEqual(['tok-old', 'tok-new']);
+      263 |   expect(keyOf(s.booked[0]!)).toMatch(UUID_V4);
+        at /Users/urijzapojnov/wetop-u07-current-20261007/tests/ui/booking-widget-turnstile.spec.ts:260:16
+
+    Error Context: test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('[data-pmsw="submit"]')
+        - locator resolved to <button type="submit" data-pmsw="submit">Подтвердить бронь</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        86 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+      258 |   await expect(submit).toBeDisabled();
+      259 |   await solve(page, 'tok-new');
+    > 260 |   await submit.click();
+          |                ^
+      261 |   await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
+      262 |   expect(s.booked.map((b) => b['turnstileToken'])).toEqual(['tok-old', 'tok-new']);
+      263 |   expect(keyOf(s.booked[0]!)).toMatch(UUID_V4);
+        at /Users/urijzapojnov/wetop-u07-current-20261007/tests/ui/booking-widget-turnstile.spec.ts:260:16
+
+    Error Context: test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat2/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat2/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat2/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('[data-pmsw="submit"]')
+        - locator resolved to <button type="submit" data-pmsw="submit">Подтвердить бронь</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        86 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+      258 |   await expect(submit).toBeDisabled();
+      259 |   await solve(page, 'tok-new');
+    > 260 |   await submit.click();
+          |                ^
+      261 |   await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
+      262 |   expect(s.booked.map((b) => b['turnstileToken'])).toEqual(['tok-old', 'tok-new']);
+      263 |   expect(keyOf(s.booked[0]!)).toMatch(UUID_V4);
+        at /Users/urijzapojnov/wetop-u07-current-20261007/tests/ui/booking-widget-turnstile.spec.ts:260:16
+
+    Error Context: test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat3/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat3/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat3/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('[data-pmsw="submit"]')
+        - locator resolved to <button type="submit" data-pmsw="submit">Подтвердить бронь</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        86 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+      258 |   await expect(submit).toBeDisabled();
+      259 |   await solve(page, 'tok-new');
+    > 260 |   await submit.click();
+          |                ^
+      261 |   await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
+      262 |   expect(s.booked.map((b) => b['turnstileToken'])).toEqual(['tok-old', 'tok-new']);
+      263 |   expect(keyOf(s.booked[0]!)).toMatch(UUID_V4);
+        at /Users/urijzapojnov/wetop-u07-current-20261007/tests/ui/booking-widget-turnstile.spec.ts:260:16
+
+    Error Context: test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat5/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat5/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat5/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('[data-pmsw="submit"]')
+        - locator resolved to <button type="submit" data-pmsw="submit">Подтвердить бронь</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        86 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+      258 |   await expect(submit).toBeDisabled();
+      259 |   await solve(page, 'tok-new');
+    > 260 |   await submit.click();
+          |                ^
+      261 |   await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
+      262 |   expect(s.booked.map((b) => b['turnstileToken'])).toEqual(['tok-old', 'tok-new']);
+      263 |   expect(keyOf(s.booked[0]!)).toMatch(UUID_V4);
+        at /Users/urijzapojnov/wetop-u07-current-20261007/tests/ui/booking-widget-turnstile.spec.ts:260:16
+
+    Error Context: test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat7/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat7/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat7/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('[data-pmsw="submit"]')
+        - locator resolved to <button type="submit" data-pmsw="submit">Подтвердить бронь</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        86 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+      258 |   await expect(submit).toBeDisabled();
+      259 |   await solve(page, 'tok-new');
+    > 260 |   await submit.click();
+          |                ^
+      261 |   await expect(page.locator('[data-pmsw="done"]')).toBeVisible();
+      262 |   expect(s.booked.map((b) => b['turnstileToken'])).toEqual(['tok-old', 'tok-new']);
+      263 |   expect(keyOf(s.booked[0]!)).toMatch(UUID_V4);
+        at /Users/urijzapojnov/wetop-u07-current-20261007/tests/ui/booking-widget-turnstile.spec.ts:260:16
+
+    Error Context: test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat9/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat9/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-widget-turnstile-к-04ab0--новый-токен-но-тот-же-ключ-repeat9/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ 
+    tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ 
+    tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ 
+    tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ 
+    tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ 
+    tests/ui/booking-widget-turnstile.spec.ts:244:1 › ключ создания: после отказа проверки новый токен, но тот же ключ 
+  4 passed (5.0m)
+
+# код выхода 1 · 5 мин

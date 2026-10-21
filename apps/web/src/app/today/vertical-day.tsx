@@ -36,6 +36,8 @@ export interface DayRow {
 /** Панель рядом со списком «Впереди»: строка это имя, часы и короткая пометка справа */
 export interface DayAside {
   title: string;
+  /** число рядом с заголовком панели вместо плитки над списком (аудит 21.10.2026, п. 12) */
+  summary?: ReactNode;
   empty: ReactNode;
   rows: Array<{ id: string; title: string; detail: string; note: string }>;
 }
@@ -57,14 +59,21 @@ export function VerticalDay({
   empty,
   aside,
   quickActions,
+  upcomingSummary,
+  tabs,
 }: {
+  /** строка с числами дня под заголовком «Ближайших»: салон без плиток над списками (аудит 21.10.2026, п. 12) */
+  upcomingSummary?: ReactNode;
+  /** вкладки «Обзор / Рабочий день» под заголовком (п. 11) */
+  tabs?: ReactNode;
   testId: string;
   /** заголовок экрана: у салона «Главная», как раздел меню (17.10.2026) */
   title?: string;
   subtitle: string;
   /** `primary`: главное действие смены залито `--primary` (DESIGN.md, главная кнопка одна на экран) */
   action: { href: string; label: string; primary?: boolean };
-  stats: DayStat[];
+  /** плитки дня; салон их не передаёт (владелец не хочет плиток над списками) */
+  stats?: DayStat[];
   attention: DayAttention[];
   upcomingTitle: string;
   upcoming: DayRow[];
@@ -74,6 +83,7 @@ export function VerticalDay({
 }) {
   const upcomingPanel = (
     <Panel title={upcomingTitle} aria-label={upcomingTitle}>
+      {upcomingSummary && <p className="vertical-today__summary">{upcomingSummary}</p>}
       {upcoming.length === 0 ? (
         <EmptyState className="vertical-today__empty">{empty}</EmptyState>
       ) : (
@@ -102,7 +112,9 @@ export function VerticalDay({
         </Link>
       }
     >
+      {tabs}
       <div className="vertical-today" data-testid={testId}>
+        {stats && stats.length > 0 && (
         <Stats min={aside ? 200 : 150} aria-label="Показатели дня">
           {stats.map((s) => (
             <Stat
@@ -116,6 +128,7 @@ export function VerticalDay({
             />
           ))}
         </Stats>
+        )}
         {attention.length > 0 && (
           <Panel title="Требуют внимания" aria-label="Требуют внимания">
             <ul className="vertical-today__attention">
@@ -134,6 +147,7 @@ export function VerticalDay({
           <div className="vertical-today__split">
             {upcomingPanel}
             <Panel title={aside.title} aria-label={aside.title}>
+              {aside.summary && <p className="vertical-today__summary">{aside.summary}</p>}
               {aside.rows.length === 0 ? (
                 <EmptyState className="vertical-today__empty">{aside.empty}</EmptyState>
               ) : (

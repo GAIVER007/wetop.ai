@@ -8,7 +8,7 @@ const initial: BarActionResult = { error: null, ok: 0 };
 
 export function SupplierForm({ context }: { context: BarFormContext }) {
   const [state, action, pending] = useActionState(createBarSupplierAction, initial);
-  return <form action={action} className="bar-supplier-form">
+  return <form action={action} className="bar-supplier-form bar-dialog-form">
     <BarContextFields context={context} />
     <Field label="Название" controlId="bar-supplier-name"><Input name="name" id="bar-supplier-name" required /></Field>
     <Field label="Телефон" controlId="bar-supplier-phone"><Input name="phone" id="bar-supplier-phone" /></Field>

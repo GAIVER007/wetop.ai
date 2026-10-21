@@ -25,7 +25,9 @@ function fixture(status = 'BOOKED') {
     beautyService: { findMany: vi.fn().mockResolvedValue([]) },
     employeeServicePrice: { findMany: vi.fn().mockResolvedValue([]) },
     beautyLocationHours: { findUnique: vi.fn().mockResolvedValue(null) },
-    appointment: { findFirst: vi.fn().mockResolvedValue(row), findMany: vi.fn().mockResolvedValue([row]), updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
+    appointment: { findFirst: vi.fn().mockResolvedValue(row), findMany: vi.fn().mockResolvedValue([row]), updateMany: vi.fn().mockResolvedValue({ count: 1 }),
+      // пересчёт напоминаний (решение 21.10.2026): запись не найдена, очередь не трогается
+      findUnique: vi.fn().mockResolvedValue(null) },
     restaurantCashOperation: { groupBy: vi.fn().mockResolvedValue([]) },
     auditLog: { create: vi.fn().mockResolvedValue({}) },
     $queryRaw: vi.fn().mockResolvedValue([]),

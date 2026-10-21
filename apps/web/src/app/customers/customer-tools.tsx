@@ -52,11 +52,9 @@ export function BeautyCustomerTools({
   };
   return (
     <>
-      <div className="beauty-customer-tools">
-        {showCreate && <Button type="button" onClick={() => open('create')}>Добавить клиента</Button>}
-        <Button type="button" tone="secondary" onClick={() => open('import')}>Импортировать клиентов</Button>
-        <span className="muted">CSV или XLSX (Excel) с колонками «Имя» и «Телефон», до 50 000 строк.</span>
-      </div>
+      {/* кнопки встают в панель списка рядом с «Скачать Excel» (аудит 21.10.2026 п.44), подсказка о файле в окне импорта */}
+      {showCreate && <Button type="button" onClick={() => open('create')}>Добавить клиента</Button>}
+      <Button type="button" tone="secondary" onClick={() => open('import')}>Импортировать клиентов</Button>
 
       {showCreate && <Overlay open={mode === 'create'} onClose={close} title="Добавить клиента" trapFocus>
         <form className="settings-form" onSubmit={submitCreate}>
@@ -82,6 +80,7 @@ export function BeautyCustomerTools({
       </Overlay>}
 
       <Overlay open={mode === 'import'} onClose={close} title="Импортировать клиентов" trapFocus size="lg">
+        <p className="muted">CSV или XLSX (Excel) с колонками «Имя» и «Телефон», до 50 000 строк.</p>
         {importHistory}
       </Overlay>
     </>

@@ -7,28 +7,23 @@
     margin-bottom: var(--space-4);
   }
 
-  .beauty-service-dual-toolbar > p {
-    grid-column: 1;
-    margin: 0;
-    color: var(--muted);
-  }
-
-  .beauty-service-dual-toolbar > .btn {
-    grid-column: 3;
-    grid-row: 1;
-  }
-
   .beauty-service-archive-filter {
-    grid-column: 2;
-    grid-row: 1;
     min-height: 44px;
   }
 
+  /* переключатель колонок нужен только телефону (аудит 21.10.2026 п.47) */
+  .beauty-service-mobile-view {
+    display: none;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+
+  /* колонки по высоте своего содержимого, без стрелок между ними (п.38) */
   .beauty-service-transfer-board {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: var(--space-4);
-    align-items: stretch;
+    align-items: start;
     margin-top: var(--space-4);
   }
 
@@ -118,33 +113,20 @@
     cursor: grabbing;
   }
 
+  /* одна строка на услугу: «Название, 45 мин, Волосы | Добавить» (п.39) */
   .beauty-service-item-body {
-    display: grid;
-    gap: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-2);
+    align-items: baseline;
     min-width: 0;
   }
 
-  .beauty-service-item-actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    align-items: center;
-    gap: var(--space-1);
-  }
-
-  .beauty-service-item-body > b,
-  .beauty-service-item-body > span,
-  .beauty-service-item-body > small {
+  .beauty-service-item-body > b {
     overflow-wrap: anywhere;
   }
 
-  .beauty-service-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 var(--space-4);
-  }
-
-  .beauty-service-meta,
+  .beauty-service-item-body > span,
   .beauty-service-item-body > small {
     color: var(--muted);
     font-size: var(--text-sm);
@@ -153,6 +135,14 @@
   .beauty-service-item-body > .beauty-service-warn {
     color: var(--warning);
     font-weight: var(--weight-bold);
+  }
+
+  .beauty-service-item-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    align-items: center;
+    justify-content: flex-end;
   }
 
   .beauty-service-item .btn {
@@ -236,23 +226,8 @@
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .beauty-service-dual-toolbar > p,
-    .beauty-service-dual-toolbar > .btn,
-    .beauty-service-archive-filter {
-      grid-column: 1;
-      grid-row: auto;
-    }
-
     .beauty-service-dual-toolbar > .btn {
       width: 100%;
-    }
-
-    .beauty-service-list--salon {
-      grid-row: 1;
-    }
-
-    .beauty-service-list--catalog {
-      grid-row: 2;
     }
 
     .beauty-material-stock,
@@ -262,18 +237,26 @@
   }
 
   @media (max-width: 600px) {
+    .beauty-service-mobile-view {
+      display: flex;
+    }
+
+    .beauty-service-transfer-board[data-mobile-view='catalog'] .beauty-service-list--salon,
+    .beauty-service-transfer-board[data-mobile-view='salon'] .beauty-service-list--catalog {
+      display: none;
+    }
+
     .beauty-service-list {
       padding: var(--space-2);
+    }
+
+    .beauty-service-item-actions {
+      justify-content: flex-start;
     }
 
     .beauty-service-item,
     .beauty-service-item:has(.beauty-service-check) {
       grid-template-columns: auto minmax(0, 1fr);
-    }
-
-    .beauty-service-item > :last-child {
-      grid-column: 1 / -1;
-      justify-content: stretch;
     }
 
     .beauty-service-item-actions {
@@ -288,6 +271,28 @@
     .beauty-material-row > .btn,
     .beauty-material-form > .btn {
       width: 100%;
+    }
+  }
+}
+
+@layer sections {
+  .beauty-service-item-body .beauty-popularity {
+    display: inline;
+  }
+}
+
+/* Переключатель «Каталог / В филиале (N)» на 320 px при крупном шрифте: кнопки делят строку и переносят подпись */
+@layer sections {
+  @media (max-width: 600px) {
+    .beauty-service-mobile-view {
+      flex-wrap: wrap;
+    }
+    .beauty-service-mobile-view > .btn {
+      flex: 1 1 auto;
+      min-width: 0;
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
   }
 }

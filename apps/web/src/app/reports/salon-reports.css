@@ -9,17 +9,27 @@
     font-size: var(--text-sm);
     color: var(--muted);
   }
-  .salon-reports__kpis {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--space-4);
-    margin-top: var(--space-2);
+  /* итоги строкой вместо плиток (правило владельца 21.10.2026) */
+  .salon-reports__summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+    margin: 0;
+    color: var(--muted);
+  }
+  .salon-reports__summary b {
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
   }
   .salon-reports__trio {
     display: grid;
     grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 0.8fr);
     gap: var(--space-4);
     align-items: start;
+  }
+  /* статусы в узкой колонке: таблица по ширине карточки, иначе число записей уходит за край */
+  .salon-reports__trio .table-scroll > .tbl {
+    min-width: 0;
   }
   .salon-reports__trio .tbl td:last-child,
   .salon-reports__trio .tbl th:last-child {
@@ -32,16 +42,6 @@
   }
   @media (max-width: 1279px) {
     .salon-reports__trio {
-      grid-template-columns: 1fr;
-    }
-  }
-  @media (max-width: 960px) {
-    .salon-reports__kpis {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @media (max-width: 600px) {
-    .salon-reports__kpis {
       grid-template-columns: 1fr;
     }
   }

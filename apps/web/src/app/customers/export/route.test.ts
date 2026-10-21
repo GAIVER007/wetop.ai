@@ -66,3 +66,12 @@ describe('D2: защищённая XLSX выгрузка клиентов', () =
     expect(await response.text()).toContain('Нет доступа');
   });
 });
+
+describe('аудит 21.10.2026 п.6: адрес выгрузки, открытый ссылкой', () => {
+  it('GET уводит на список клиентов, а не отдаёт пустую страницу 405', async () => {
+    const { GET } = await import('./route');
+    const response = GET();
+    expect(response.status).toBe(303);
+    expect(response.headers.get('location')).toBe('/customers');
+  });
+});

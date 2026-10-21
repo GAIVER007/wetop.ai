@@ -47,6 +47,7 @@ export function ServicesBoard({
   const [editing, setEditing] = useState<Editing>(null);
   const [search, setSearch] = useState('');
   const [showArchived, setShowArchived] = useState(false);
+  const [mobileView, setMobileView] = useState<'catalog' | 'salon'>('catalog');
   const [draggedServiceId, setDraggedServiceId] = useState<string | null>(null);
   const [draggedPresetName, setDraggedPresetName] = useState<string | null>(null);
   const [materialService, setMaterialService] = useState<BeautyServiceRow | null>(null);
@@ -141,27 +142,32 @@ export function ServicesBoard({
   }, [scopeKey, items]);
   return (
     <>
+      {/* поиск, архив и кнопка в одну линию по низу, счётчики живут в значках колонок (аудит 21.10.2026 п.37) */}
       <div className="beauty-service-dual-toolbar">
-        <Field label="Поиск услуг"><Input type="search" aria-label="Поиск услуг" placeholder="Название или категория" value={search} onChange={event => setSearch(event.target.value)} /></Field>
-        <p role="status">
-          {items.length === 0
-            ? 'Добавьте первую услугу'
-            : `В филиале: ${salon.length}. В каталоге: ${active.length}`}
-        </p>
+        <Input type="search" aria-label="Поиск услуг" placeholder="Поиск: название или категория" value={search} onChange={event => setSearch(event.target.value)} />
         <label className="beauty-check beauty-service-archive-filter">
           <input type="checkbox" checked={showArchived} onChange={(event) => setShowArchived(event.target.checked)} />
           Показать архив{archivedCount > 0 ? ` (${archivedCount})` : ''}
         </label>
         {canCreate && (
-          <Button type="button" onClick={() => setEditing({ mode: 'new' })}>
+          <Button type="button" onClick={() => setEditing({ mode: 'new', enableForLocation: Boolean(locationCurrency) })}>
             Добавить услугу
           </Button>
         )}
       </div>
+      {/* телефон: одна колонка за раз, по умолчанию каталог (аудит 21.10.2026 п.47) */}
+      <div className="beauty-service-mobile-view" role="group" aria-label="Какие услуги показать">
+        <Button type="button" size="sm" tone={mobileView === 'catalog' ? 'primary' : 'secondary'} aria-pressed={mobileView === 'catalog'} onClick={() => setMobileView('catalog')}>
+          Все услуги
+        </Button>
+        <Button type="button" size="sm" tone={mobileView === 'salon' ? 'primary' : 'secondary'} aria-pressed={mobileView === 'salon'} onClick={() => setMobileView('salon')}>
+          В филиале ({salon.length})
+        </Button>
+      </div>
       {!locationCurrency && <Alert>Выберите филиал, чтобы добавлять и убирать его услуги.</Alert>}
       {notice?.error && <Alert>{notice.error}</Alert>}
       {!notice?.error && notice?.message && <p role="status">{notice.message}</p>}
-      <div className="beauty-service-transfer-board">
+      <div className="beauty-service-transfer-board" data-mobile-view={mobileView}>
         <section
           className="beauty-service-list beauty-service-list--salon"
           data-service-list="salon"
@@ -296,7 +302,7 @@ export function ServicesBoard({
                 )}
                 <div className="beauty-service-item-body">
                   <b>{preset.name}</b>
-                  <span className="beauty-service-meta"><span>{preset.category}</span><span>{preset.minutes} мин</span></span>
+                  <span>{preset.minutes} мин, {preset.category}</span>
                 </div>
                 {canCreate && <div className="beauty-service-item-actions">
                   <Button
@@ -306,7 +312,7 @@ export function ServicesBoard({
                     aria-label={`Настроить и добавить в филиал: ${preset.name}`}
                     onClick={() => setEditing({ mode: 'new', preset, enableForLocation: true })}
                   >
-                    Настроить
+                    Добавить
                   </Button>
                 </div>}
               </article>
@@ -416,7 +422,7 @@ function ServiceIdentity({
   return (
     <div className="beauty-service-item-body">
       <b>{row.name}</b>
-      <span className="beauty-service-meta"><span>{row.category ?? 'Без категории'}</span><span>{minutes} мин</span></span>
+      <span>{minutes} мин, {row.category ?? 'Без категории'}</span>
       {priceMissing && <small className="beauty-service-warn">Укажите цену: «Изменить» в каталоге</small>}
       {location && row.effective && !row.effective.sellable && (
         <small>{NOT_SELLABLE[row.effective.reason] ?? 'Не продаётся'}</small>
@@ -449,6 +455,7 @@ function ServiceForm({
   canDelete: boolean;
 }) {
   const creation = useCreationKey(scopeKey, 'service', Boolean(row));
+  const [enableHere, setEnableHere] = useState(enableForLocation);
   const [state, action, pending] = useActionState(saveBeautyService, null);
   const [locationState, locationAction, locationPending] = useActionState(
     saveLocationService,
@@ -528,8 +535,22 @@ function ServiceForm({
           />
         )}
         {!row && <input type="hidden" name="creationId" value={creation.id} />}
+        {/* новая услуга сразу продаётся в филиале, из которого её создали (аудит 21.10.2026 п.5) */}
+        {!row && locationCurrency && (
+          <label className="beauty-check">
+            <input
+              type="checkbox"
+              name="enableForLocation"
+              value="on"
+              checked={enableHere}
+              onChange={(e) => setEnableHere(e.target.checked)}
+            />
+            Сразу в этом филиале
+          </label>
+        )}
         <input type="hidden" name="priceMinor" value={priceMinor ?? ''} />
-        {!row && (
+        {/* у «Добавить» типовой услуги выбор уже сделан: второй список из 14 услуг не показываем (п.22) */}
+        {!row && !preset && (
           <Field label="Типовая услуга">
             <Select
               aria-label="Типовая услуга"

@@ -30,6 +30,11 @@ export type PaymentMethod =
   | 'DEPOSIT'
   | 'HALYK'
   | 'KASPI';
+/**
+ * Способ из таблиц гостиницы. BONUS и GIFT_CERTIFICATE (салон, миграция 141) туда не пускает CHECK базы,
+ * поэтому сужение типа здесь безопасно.
+ */
+const hotelMethod = (method: string): PaymentMethod => method as PaymentMethod;
 /** Поддерживаемые способы оплаты (DATA_MODEL §6). */
 export const PAYMENT_METHODS: readonly PaymentMethod[] = [
   'CASH',
@@ -499,7 +504,7 @@ const toFolio = (f: FolioRow): FolioRecord => ({
     paymentId: a.paymentId,
     amountMinor: a.amount,
     payment: {
-      method: a.payment.method,
+      method: hotelMethod(a.payment.method),
       status: a.payment.status,
       amountMinor: a.payment.amount,
       paidAt: a.payment.paidAt.toISOString(),
@@ -677,8 +682,8 @@ export class PrismaFinanceRepository implements FinanceRepository {
     });
     const byMethod = new Map<PaymentMethod, { count: number; amountMinor: bigint }>();
     for (const p of payments) {
-      const v = byMethod.get(p.method) ?? { count: 0, amountMinor: 0n };
-      byMethod.set(p.method, { count: v.count + 1, amountMinor: v.amountMinor + p.amount });
+      const v = byMethod.get(hotelMethod(p.method)) ?? { count: 0, amountMinor: 0n };
+      byMethod.set(hotelMethod(p.method), { count: v.count + 1, amountMinor: v.amountMinor + p.amount });
     }
     const refunds = await this.prisma.db.refund.findMany({
       where: {
@@ -1036,7 +1041,7 @@ export class PrismaFinanceRepository implements FinanceRepository {
     return p
       ? {
           id: p.id,
-          method: p.method,
+          method: hotelMethod(p.method),
           status: p.status,
           amountMinor: p.amount,
           currency: p.currency,
@@ -1437,8 +1442,8 @@ export class PrismaFinanceRepository implements FinanceRepository {
     return {
       id: o.id,
       kind: o.kind,
-      method: o.method,
-      methodTo: o.methodTo,
+      method: hotelMethod(o.method),
+      methodTo: o.methodTo === null ? null : hotelMethod(o.methodTo),
       amountMinor: o.amount,
       status: o.status,
       relatedId: o.relatedId,

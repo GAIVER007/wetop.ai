@@ -85,7 +85,7 @@ test('клавиатура: стрелка вниз открывает спис�
     await expect(list.getByRole('link', { name: 'Обзор', exact: true })).toBeFocused({ timeout: 1_000 });
   }).toPass({ timeout: 15_000 });
   await page.keyboard.press('ArrowDown');
-  await expect(list.getByRole('link', { name: 'ИИ-таргетолог', exact: true })).toBeFocused();
+  await expect(list.getByRole('link', { name: 'Реклама', exact: true })).toBeFocused();
   await page.keyboard.press('End');
   await expect(list.getByRole('link', { name: 'Аналитика маркетинга', exact: true })).toBeFocused();
   await page.keyboard.press('Escape');

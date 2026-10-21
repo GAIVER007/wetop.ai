@@ -87,6 +87,13 @@
     color: var(--muted);
     font-size: var(--text-sm);
   }
+  /* салон и ресторан: карточки по высоте содержимого, без пустой зоны над кнопкой (аудит 21.10.2026 п. 31) */
+  .growth-hub .sales-trio {
+    align-items: start;
+  }
+  .growth-hub .sales-card__foot {
+    margin-top: 0;
+  }
   .sales-card__foot {
     margin-top: auto;
     display: flex;

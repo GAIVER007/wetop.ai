@@ -22,7 +22,7 @@ describe('сайт в меню — одно место (ADR-117)', () => {
     expect(marketing?.items.map((item) => [item.href, item.label])).toEqual([
       // верхнее меню 17.10.2026: «Маркетинг» и «Продажи» одним разделом
       ['/marketing', 'Обзор'],
-      ['/marketing/ads', 'ИИ-таргетолог'],
+      ['/marketing/ads', 'Реклама'],
       ['/marketing/content', 'Контент'],
       ['/ai-agents', 'ИИ-продавец'],
       ['/market', 'Анализ конкурентов'],

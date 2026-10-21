@@ -12,6 +12,8 @@ import { BeautyCatalogController } from './beauty.module';
 import { BeautyCustomerDetailController } from './customer-detail';
 import { BeautyCustomerImportController } from './customer-import';
 import { BeautyLocationHoursController } from './location-hours';
+import { BeautyLoyaltyController } from './loyalty';
+import { BeautyRemindersController } from './reminders';
 import { BeautyPublicReviewsController, BeautyReviewInvitationController } from './reviews';
 import { BeautyScheduleController } from './schedule';
 
@@ -97,6 +99,21 @@ describe('Beauty route action metadata', () => {
     });
     expectRoutes(BeautyReviewInvitationController, {
       issue: { section: 'reviews', action: 'create' },
+    });
+    expectRoutes(BeautyRemindersController, {
+      settings: { section: 'settings', action: 'view' },
+      saveSettings: { section: 'settings', action: 'update' },
+      day: { section: 'journal', action: 'view' },
+      done: { section: 'appointments', action: 'update' },
+    });
+    expectRoutes(BeautyLoyaltyController, {
+      program: { section: 'settings', action: 'view' },
+      saveProgram: { section: 'settings', action: 'update' },
+      customerBonuses: { section: 'customers', action: 'view' },
+      adjust: { section: 'customers', action: 'update', managerOnly: true },
+      certificates: { section: 'finance', action: 'view' },
+      lookup: { section: 'finance', action: 'view' },
+      sell: { section: 'finance', action: 'create' },
     });
   });
 

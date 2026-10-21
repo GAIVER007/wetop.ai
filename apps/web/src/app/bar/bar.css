@@ -1018,7 +1018,7 @@
 }
 
 @layer sections {
- .bar-period-label { order:-1; display:flex; align-items:center; gap:var(--space-2); color:var(--muted); min-height:44px; padding:var(--space-2); text-transform:capitalize; }
+ .bar-period-label { order:-1; display:flex; align-items:center; gap:var(--space-2); color:var(--muted); min-height:44px; padding:var(--space-2); }
  .bar-analytics-disclosure > summary { display:none; }
  .bar-top-products li { min-height:28px; }
  .bar-day-chart { height:130px; }
@@ -1122,4 +1122,136 @@
   .bar-page .bar-kpis { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .bar-retail-form .bar-retail-fields { grid-template-columns:minmax(0,1fr); }
  }
+}
+
+@layer sections {
+  /* аудит 21.10.2026: без плиток над списком (п.7), итоги строкой под доской, предупреждение только при нехватке */
+  .bar-low-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--warning-soft);
+    color: var(--text);
+    font-size: var(--text-sm);
+  }
+  /* ссылки в тексте предупреждения отличаются не только цветом (axe link-in-text-block, WCAG 1.4.1) */
+  .bar-low-warning a {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .bar-low-warning svg {
+    flex: 0 0 auto;
+    margin-top: var(--space-1);
+    color: var(--warning);
+  }
+  .bar-totals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+    margin: var(--space-4) 0;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .bar-totals b {
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  /* один размер заголовков карточек и спокойные подписи справа (п.43) */
+  .bar-panel-title,
+  .bar-chart-panel h2 {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+  .bar-chart-panel header .bar-muted {
+    font-size: var(--text-xs);
+  }
+  .bar-analytics {
+    align-items: stretch;
+  }
+  .bar-sales {
+    padding: 0;
+    margin: 0;
+  }
+  /* формы каталога и поставщиков в окнах по центру (п.15, п.42): поля в две колонки */
+  .bar-dialog-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    align-items: end;
+  }
+  .bar-dialog-form > .btn,
+  .bar-dialog-form > [role='alert'],
+  .bar-dialog-form > [role='status'] {
+    grid-column: 1 / -1;
+  }
+  .bar-dialog-form > .btn {
+    justify-self: start;
+  }
+  .bar-product-name small {
+    display: block;
+    color: var(--muted);
+  }
+  /* своя кнопка выбора фото вместо «Choose File» браузера (п.30), в линию с «Распознать» (п.45) */
+  .bar-file-picker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 44px;
+  }
+  .bar-file-picker span {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+    overflow-wrap: anywhere;
+  }
+  .bar-scan-row {
+    position: relative;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bar-line-tools .btn {
+    min-height: 44px;
+  }
+  .bar-line-tools {
+    align-self: end;
+  }
+  @media (max-width: 600px) {
+    .bar-dialog-form {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  /* вкладки внутри подстраницы подчёркнутые, как у «Расходников» (п.18, п.33) */
+  .bar-tabs-line > .tabs {
+    gap: var(--space-1);
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+  }
+  .bar-tabs-line > .tabs > .tabs__item {
+    border-radius: 0;
+    background: transparent;
+    box-shadow: inset 0 -2px 0 transparent;
+  }
+  .bar-tabs-line > .tabs > .tabs__item[aria-selected='true'] {
+    background: transparent;
+    color: var(--primary);
+    box-shadow: inset 0 -2px 0 var(--primary);
+  }
+}
+
+@layer sections {
+  /* телефон: плавающая панель «Приход / Продажа / Пересчёт» не закрывает низ страницы (аудит 21.10.2026 п.46) */
+  @media (max-width: 600px) {
+    main.page.bar-page {
+      padding-bottom: calc(var(--space-8) + var(--space-8) + 64px);
+    }
+  }
 }

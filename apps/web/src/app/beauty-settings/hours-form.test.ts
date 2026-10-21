@@ -42,7 +42,12 @@ it('аудит 21.10.2026 пп. 8, 37: пояс словами, копирова
 });
 
 it('аудит 21.10.2026 п. 2: из настроек салона есть путь к профилю, специалистам, доступу и истории', async () => {
+  // путь идёт через хаб «Настройки» (21.10.2026): одна ссылка отсюда, а в хабе салона все четыре экрана
   const { SettingsLinks } = await import('./settings-links');
   const html = renderToStaticMarkup(createElement(SettingsLinks));
-  for (const href of ['/branches', '/employees', '/team', '/journal']) expect(html).toContain(`href="${href}"`);
+  expect(html).toContain('href="/settings"');
+  const { settingsGroupsFor } = await import('../../lib/settings-hub');
+  const { CLOSED_ACCESS } = await import('../../lib/navigation');
+  const hub = settingsGroupsFor({ ...CLOSED_ACCESS, role: 'OWNER' }, 'BEAUTY').flatMap((g) => g.links.map((l) => l.href));
+  for (const href of ['/branches', '/employees', '/team', '/journal']) expect(hub).toContain(href);
 });

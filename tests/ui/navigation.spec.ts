@@ -32,6 +32,7 @@ const routes = [
   '/connections',
   '/incidents',
   '/journal',
+  '/settings',
   '/marketing',
   '/marketing/ads',
   '/marketing/content',

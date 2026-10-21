@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Panel, Stat, Stats } from '../../../../components/ui';
+import { Panel } from '../../../../components/ui';
 import { ShareBar, type ShareBarTone } from '../../../../components/share-bar';
 import { moneyText } from './metrics';
 
@@ -14,7 +14,7 @@ const TONES: Record<string, ShareBarTone> = {
   CANCELLED: 'neutral',
 };
 
-/** Один филиал на один экран: ряд статусов, выручка слева, доли статусов справа. */
+/** Один филиал на один экран: выручка слева, статусы полосками с числами справа, без плиток (правило владельца). */
 export function BranchReport({
   labels,
   counts,
@@ -33,16 +33,6 @@ export function BranchReport({
   const currencies = revenue ? Object.entries(revenue) : [];
   return (
     <div className="branch-report">
-      <Stats min={120} aria-label="Статусы за период">
-        {entries.map(([status, label]) => (
-          <Stat
-            key={status}
-            label={label}
-            value={counts[status] ?? 0}
-            testId={`period-${status}`}
-          />
-        ))}
-      </Stats>
       <div className="branch-report__cols">
         {revenue !== null ? (
           <Panel title="Выручка по завершённым записям">
@@ -67,24 +57,25 @@ export function BranchReport({
           (foodPanel ?? null)
         )}
         <Panel title={`Записи по статусам, всего ${total}`}>
-          {total === 0 ? (
-            <p className="branch-report__empty">Записей за период нет.</p>
-          ) : (
-            <ul className="branch-report__shares">
-              {entries.map(([status, label]) => (
-                <li key={status}>
-                  <span>{label}</span>
+          {total === 0 && <p className="branch-report__empty">Записей за период нет.</p>}
+          <ul className="branch-report__shares">
+            {entries.map(([status, label]) => (
+              <li key={status}>
+                <span>{label}</span>
+                {total > 0 ? (
                   <ShareBar
                     label={label}
                     value={counts[status] ?? 0}
                     max={total}
                     tone={TONES[status] ?? 'neutral'}
                   />
-                  <b>{counts[status] ?? 0}</b>
-                </li>
-              ))}
-            </ul>
-          )}
+                ) : (
+                  <span aria-hidden="true" />
+                )}
+                <b data-testid={`period-${status}`}>{counts[status] ?? 0}</b>
+              </li>
+            ))}
+          </ul>
         </Panel>
       </div>
     </div>

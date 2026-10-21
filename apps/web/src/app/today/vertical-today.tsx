@@ -78,9 +78,8 @@ function BeautyRows({
           <time dateTime={r.startsAt}>{clock.clock(r.startsAt)}</time>
           <div>
             <strong>{r.customer.name}</strong>
-            <span>
-              {r.serviceName} · {masters.get(r.employeeId) ?? 'Мастер не указан'}
-            </span>
+            <span>{r.serviceName}</span>
+            <span>{masters.get(r.employeeId) ?? 'Мастер не указан'}</span>
           </div>
           <span className="vertical-today-status">{beautyLabels[r.status]}</span>
         </li>
@@ -108,10 +107,15 @@ function FoodRows({
           </time>
           <div>
             <strong>{[r.customer.firstName, r.customer.lastName].filter(Boolean).join(' ')}</strong>
-            <span>
-              {r.partySize} гостей ·{' '}
-              {r.table ? `${r.table.areaName} · ${r.table.name}` : 'Стол не назначен'}
-            </span>
+            <span>Гостей: {r.partySize}</span>
+            {r.table ? (
+              <>
+                <span>{r.table.areaName}</span>
+                <span>{r.table.name}</span>
+              </>
+            ) : (
+              <span>Стол не назначен</span>
+            )}
           </div>
           <span className="vertical-today-status">{foodStatusLabels[r.status]}</span>
         </li>
@@ -127,7 +131,12 @@ export async function BeautyToday({ locationId }: { locationId: string }) {
     return (
       <Page
         title="Главная"
-        subtitle={`${displayDate(day.date, 'full')} · ${day.location.name ?? 'Салон'}`}
+        subtitle={
+          <>
+            <span>{displayDate(day.date, 'full')}</span>
+            <span className="vertical-today-location">{day.location.name ?? 'Салон'}</span>
+          </>
+        }
         actions={<DashboardRefresh />}
       >
         <div className="vertical-today" data-testid="beauty-today">
@@ -146,7 +155,7 @@ export async function BeautyToday({ locationId }: { locationId: string }) {
               <>
                 {m.confirmation.length > 0 && (
                   <>
-                    <p>{m.confirmation.length} записей ждут подтверждения</p>
+                    <p>Ждут подтверждения: {m.confirmation.length}</p>
                     <BeautyRows
                       rows={m.confirmation}
                       timezone={day.location.timezone}
@@ -188,7 +197,12 @@ export async function FoodToday() {
     return (
       <Page
         title="Главная"
-        subtitle={`${displayDate(data.date, 'full')} · ${branch.name}`}
+        subtitle={
+          <>
+            <span>{displayDate(data.date, 'full')}</span>
+            <span className="vertical-today-location">{branch.name}</span>
+          </>
+        }
         actions={<DashboardRefresh />}
       >
         <div className="vertical-today" data-testid="food-today">

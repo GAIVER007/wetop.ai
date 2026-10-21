@@ -1,0 +1,19 @@
+# Модульные (unit) · 06.10.2026 13:20 Алматы · MacBook-Air-Urij.local
+# коммит 7c4059b (codex/mv8-vertical-today-20261005), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-06T08-20-51Z-unit-59e0.json' 'apps/web/src/lib/today-loaders.test.ts' 'apps/web/src/lib/desk-shell.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-20261005
+
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (8 tests) 388ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 384ms
+ ✓ |unit| apps/web/src/lib/today-loaders.test.ts (8 tests) 33ms
+
+ Test Files  2 passed (2)
+      Tests  16 passed (16)
+   Start at  12:20:53
+   Duration  576ms (tests 46%, transform 43%, import 9%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-06T08-20-51Z-unit-59e0.json
+
+# код выхода 0 · 2 с

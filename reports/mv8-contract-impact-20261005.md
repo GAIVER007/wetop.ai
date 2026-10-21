@@ -1,5 +1,7 @@
 # MV8 STOP: missing Food branch contract
 
+Historical report. Blocker resolved by PR #248, merged at dd763f5cee621f5bb8e3e08a72fe3d25880e1bcc. Implementation resumed on the preserved MV8 branch. Final evidence: mv8-vertical-today-20261006/README.md.
+
 ## Status and exact base
 
 Owner-authorized implementation, base 04e532b656fd96f1a526f01d3257e75caf595745.

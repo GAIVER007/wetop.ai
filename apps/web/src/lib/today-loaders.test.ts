@@ -16,6 +16,7 @@ describe('MV8 verified scope', () => {
       {},
       { user: {} },
       { user: {}, context: { vertical: 'UNKNOWN', businessId: 'b', locationId: 'l' } },
+      { user: {}, context: { vertical: ['BEAUTY'], businessId: 'b', locationId: 'l' } },
       { user: {}, context: { vertical: 'BEAUTY', businessId: 'b' } },
     ])
       expect(() => verifiedTodayScope(me)).toThrow();

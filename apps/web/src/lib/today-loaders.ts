@@ -16,16 +16,20 @@ export function verifiedTodayScope(me: unknown): {
     typeof me !== 'object' ||
     !('user' in me) ||
     !me.user ||
+    typeof me.user !== 'object' ||
+    Array.isArray(me.user) ||
     !('context' in me) ||
     !me.context ||
-    typeof me.context !== 'object'
+    typeof me.context !== 'object' ||
+    Array.isArray(me.context)
   )
     throw new Error(
       'Не удалось определить выбранный филиал. Выберите филиал и повторите загрузку.',
     );
   const c = me.context as Record<string, unknown>;
   if (
-    !['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'].includes(String(c.vertical)) ||
+    typeof c.vertical !== 'string' ||
+    !['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'].includes(c.vertical) ||
     typeof c.businessId !== 'string' ||
     !c.businessId ||
     typeof c.locationId !== 'string' ||

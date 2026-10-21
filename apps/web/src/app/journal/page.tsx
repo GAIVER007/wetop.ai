@@ -171,6 +171,11 @@ export default async function JournalPage({
         </Field>
         {type && <input name="type" type="hidden" value={type} />}
         <Button tone="secondary">Искать в истории</Button>
+        {(needle || type || showSystem || actor || from || to || group || action || cursor) && (
+          <Link href="/journal" className="btn btn--ghost">
+            Сбросить фильтры
+          </Link>
+        )}
       </form>
       <details className="journal-filter-panel">
         <summary>Фильтры истории</summary>
@@ -252,11 +257,6 @@ export default async function JournalPage({
             Служебные события
           </label>
           <Button tone="secondary">Найти</Button>
-          {(needle || type || showSystem || actor || from || to || group || action || cursor) && (
-            <Link href="/journal" className="btn btn--ghost">
-              Сбросить фильтры
-            </Link>
-          )}
         </form>
       </details>
       <nav className="chips" aria-label="Раздел истории">

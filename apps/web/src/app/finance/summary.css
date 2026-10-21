@@ -43,7 +43,9 @@
       gap: var(--space-1);
     }
     .money-summary > div {
+      flex-wrap: wrap;
       justify-content: space-between;
+      white-space: normal;
     }
   }
 }

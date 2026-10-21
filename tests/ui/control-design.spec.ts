@@ -111,7 +111,7 @@ test('контроль: поиск журнала и переходы досту
   await request.post(`${API}/__test/control`, { data: { delayPath: '/audit', delayMs: 5000 } });
   const start = performance.now();
   await page.goto('/journal?q=TEST', { waitUntil: 'commit' });
-  await page.getByText('Фильтры истории', { exact: true }).click({ timeout: 1500 });
+  // аудит 21.10.2026 п. 38: поле поиска по истории видно сразу, без раскрытия фильтров
   await expect(page.getByLabel('Поиск в истории')).toBeVisible({ timeout: 1500 });
   console.log(`CONTROL_JOURNAL_CONTROLS_MS ${Math.round(performance.now() - start)}`);
   await expect(page.getByTestId('journal-loading')).toBeVisible();

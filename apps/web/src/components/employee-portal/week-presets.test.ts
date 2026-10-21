@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyWeekPreset, WEEK_PRESETS } from './week-presets';
+import { applyWeekPreset, weekProblem, WEEK_PRESETS } from './week-presets';
 
 // Онбординг на живом сайте 21.10.2026: у нового мастера все 7 дней «Выходной», чтобы задать обычную неделю,
 // нужно 14 раз выбрать время. Быстрые шаблоны заполняют неделю одним нажатием, дальше можно поправить день.
@@ -21,5 +21,21 @@ describe('applyWeekPreset', () => {
     const filled = empty.map((d) => ({ ...d, intervals: [{ timeFrom: '08:00', timeTo: '12:00' }, { timeFrom: '13:00', timeTo: '17:00' }] }));
     expect(applyWeekPreset(filled, WEEK_PRESETS[0]!)[2]!.intervals).toEqual([{ timeFrom: '10:00', timeTo: '19:00' }]);
     expect(applyWeekPreset(filled, WEEK_PRESETS[0]!)[6]!.intervals).toEqual([]);
+  });
+});
+
+// Живой сайт 21.10.2026 (аудит, п. 2): пустое время давало подсказку браузера по-английски «Please fill out this field.»
+describe('weekProblem', () => {
+  const day = (weekday: number, timeFrom: string, timeTo: string) => ({ weekday, intervals: [{ timeFrom, timeTo }] });
+  it('пустое время: своя подсказка по-русски с названием дня', () => {
+    expect(weekProblem([day(1, '', '')])).toBe('Понедельник: укажите время начала и конца, например 09:00 и 18:00');
+    expect(weekProblem([day(0, '10:00', '')])).toBe('Воскресенье: укажите время начала и конца, например 09:00 и 18:00');
+  });
+  it('конец раньше начала: та же проверка, что на сервере', () => {
+    expect(weekProblem([day(2, '18:00', '09:00')])).toBe('Конец рабочего времени должен быть позже начала');
+  });
+  it('верная неделя и пустая неделя проходят', () => {
+    expect(weekProblem([day(1, '09:00', '18:00')])).toBeNull();
+    expect(weekProblem([{ weekday: 3, intervals: [] }])).toBeNull();
   });
 });

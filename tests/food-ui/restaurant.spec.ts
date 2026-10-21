@@ -510,7 +510,9 @@ test('зарплата: оклад + процент, премия и штраф,
   expect((await serveAndPay(request, headers, order)).status).toBe('CLOSED');
   await page.goto('/payroll');
   const row = page.locator('tbody tr', { hasText: 'Иванова Анна' });
-  await row.getByRole('button', { name: 'Оплата' }).click();
+  // одна главная кнопка в строке, остальное в меню «Ещё» (аудит 21.10.2026, п. 42)
+  await row.getByRole('button', { name: 'Ещё: Иванова Анна' }).click();
+  await page.getByRole('menuitem', { name: 'Условия оплаты' }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Модель оплаты').selectOption('FIXED_PLUS_PERCENT');
   await dialog.getByLabel('Оклад за месяц, ₸').fill('40000');
@@ -519,7 +521,8 @@ test('зарплата: оклад + процент, премия и штраф,
   await expect(dialog).not.toBeVisible();
   // продажи 3 900, 5 % = 195; оклад 40 000 → к выплате 40 195
   await expect(row).toContainText('40 195 ₸');
-  await row.getByRole('button', { name: 'Начислить' }).click();
+  await row.getByRole('button', { name: 'Ещё: Иванова Анна' }).click();
+  await page.getByRole('menuitem', { name: 'Премия или штраф' }).click();
   await dialog.getByLabel('Сумма, ₸').fill('5000');
   await dialog.getByLabel('Причина').fill('Отличная смена');
   await dialog.getByRole('button', { name: 'Начислить' }).click();
@@ -527,7 +530,8 @@ test('зарплата: оклад + процент, премия и штраф,
   await expect(page.getByTestId('payroll-bonus')).toContainText('5 000 ₸');
   await expect(page.getByTestId('payroll-total')).toContainText('45 195 ₸');
   // штраф
-  await row.getByRole('button', { name: 'Начислить' }).click();
+  await row.getByRole('button', { name: 'Ещё: Иванова Анна' }).click();
+  await page.getByRole('menuitem', { name: 'Премия или штраф' }).click();
   await dialog.getByRole('button', { name: 'Штраф' }).click();
   await dialog.getByLabel('Сумма, ₸').fill('2000');
   await dialog.getByLabel('Причина').fill('Опоздание');

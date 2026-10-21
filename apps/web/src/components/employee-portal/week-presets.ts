@@ -1,3 +1,4 @@
+import { parseWorkingHoursWeek } from '@pms/domain';
 /** Быстрые шаблоны обычной недели мастера (онбординг 21.10.2026): одним нажатием, дальше правится по дню */
 export interface WeekPreset {
   label: string;
@@ -20,4 +21,24 @@ export function applyWeekPreset<D extends { weekday: number; intervals: Array<{ 
     ...day,
     intervals: preset.weekdays.includes(day.weekday) ? [{ timeFrom: preset.timeFrom, timeTo: preset.timeTo }] : [],
   }));
+}
+
+const DAY_NAMES = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+
+/**
+ * Проверка недели до отправки, словами по-русски (аудит живого сайта 21.10.2026, п. 2): пустое поле давало
+ * подсказку браузера «Please fill out this field.», а рядом висело «Сохранено на сервере». Сначала пустое время
+ * с названием дня, потом тот же разбор домена, что на сервере. null: неделю можно отправлять.
+ */
+export function weekProblem(
+  days: ReadonlyArray<{ weekday: number; intervals: ReadonlyArray<{ timeFrom: string; timeTo: string }> }>,
+): string | null {
+  for (const day of days)
+    for (const slot of day.intervals)
+      if (!slot.timeFrom.trim() || !slot.timeTo.trim())
+        return `${DAY_NAMES[day.weekday] ?? 'День'}: укажите время начала и конца, например 09:00 и 18:00`;
+  const parsed = parseWorkingHoursWeek({
+    intervals: days.flatMap((day) => day.intervals.map((slot) => ({ weekday: day.weekday, ...slot }))),
+  });
+  return parsed.ok ? null : parsed.reason;
 }

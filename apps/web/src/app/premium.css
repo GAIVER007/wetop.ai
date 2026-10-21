@@ -376,7 +376,7 @@
     height: fit-content;
     max-height: calc(100dvh - 48px);
     border-radius: var(--radius-lg);
-    animation: dialog-in 160ms ease-out;
+    /* без анимации сдвига: дробный сдвиг во время открытия давал полю 43.99 px вместо 44 (onboarding-real) */
   }
   /* Размер окна и панели (MV8.5 DS1c, DESIGN.md §8.2): md прежняя ширина основы выше, sm и lg из
      токенов; на узком экране ширина не больше окна */
@@ -391,19 +391,6 @@
   }
   .ui-drawer.ui-overlay--lg {
     width: min(var(--drawer-w-lg), calc(100vw - 32px));
-  }
-  @keyframes dialog-in {
-    from {
-      transform: translateY(8px);
-    }
-    to {
-      transform: none;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .ui-drawer {
-      animation: none;
-    }
   }
   .command-input {
     display: flex;

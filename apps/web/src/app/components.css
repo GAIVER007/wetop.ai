@@ -2943,6 +2943,12 @@
   .period-picker__presets {
     flex-basis: 100%;
   }
+  /* русская подпись «10 сентября 2026» шире числа «09/10/2026»: поле периода держит её целиком, без «10 сентяб…»
+     (эталон period-picker, ui-snapshots #43); на узком экране поле сжимается до ширины строки */
+  .period-picker .date-field--labelled {
+    width: 12rem;
+    max-width: 100%;
+  }
   .period-picker__error {
     flex-basis: 100%;
     margin: 0;

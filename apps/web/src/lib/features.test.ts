@@ -75,6 +75,6 @@ it('customer detail has its own vertical boundary while the customer list remain
   expect(featureVerticals('/customers/11111111-1111-4111-8111-111111111111')).toEqual(['BEAUTY']);
 });
 
-it('salon consumables do not open in other verticals', () => {
-  expect(featureVerticals('/bar/consumables')).toEqual(['BEAUTY']);
+it('kitchen and consumables stock opens for hotel and salon, the restaurant has /stock', () => {
+  expect(featureVerticals('/bar/consumables')).toEqual(['HOSPITALITY', 'BEAUTY']);
 });

@@ -6,6 +6,7 @@ const api = vi.hoisted(() => ({
   categories: vi.fn(), stock: vi.fn(), suppliers: vi.fn(), folios: vi.fn(), receipts: vi.fn(),
   sales: vi.fn(), movements: vi.fn(), report: vi.fn(), paymentMethods: vi.fn(),
 }));
+const kitchen = vi.hoisted(() => ({ products: vi.fn() }));
 
 vi.mock('next/navigation', () => ({
   unstable_rethrow() {},
@@ -15,6 +16,7 @@ vi.mock('../../lib/vertical-guard', () => ({
   requireFeature: async () => ({ context: { vertical: 'BEAUTY' } }),
 }));
 vi.mock('../../lib/api', () => ({ barApi: api }));
+vi.mock('../../lib/food-api', () => ({ stockApi: kitchen }));
 vi.mock('../../lib/hotel-api', () => ({
   hotelToday: async () => '2026-10-18',
   propertyTimezone: async () => 'UTC',
@@ -48,6 +50,7 @@ import BarPage from './page';
 describe('Beauty goods loader', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    kitchen.products.mockResolvedValue({ items: [] });
     api.categories.mockResolvedValue([]);
     api.stock.mockResolvedValue([]);
     api.suppliers.mockResolvedValue([]);

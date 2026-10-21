@@ -1092,7 +1092,7 @@
     gap: 20px;
   }
   .login-form .inp {
-    height: 44px;
+    height: var(--touch-target);
     width: 100%;
   }
   .login-form form > .btn {

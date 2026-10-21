@@ -306,7 +306,7 @@
   @media (min-width: 601px) {
     .finance-toolbar .inp,
     .finance-toolbar .btn {
-      min-height: 36px;
+      min-height: var(--control-h);
       font-size: 13px;
     }
   }
@@ -775,7 +775,7 @@
       gap: var(--space-1) var(--space-2);
     }
     .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-toolbar .inp {
-      min-height: 44px;
+      min-height: var(--touch-target);
       font-size: 16px;
     }
     .page:is(:has(.cash-summary), :has(.biz-overview)) .finance-presets {

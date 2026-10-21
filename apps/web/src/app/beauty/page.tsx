@@ -10,6 +10,8 @@ import { currentMe, deskShell } from '../../lib/desk-shell';
 import { mayBeautyAccess } from '../../lib/navigation';
 import { JournalBoard } from './journal';
 import { WeekCalendar } from './week-calendar';
+import { RemindersToday } from './reminders-today';
+import { loadManualReminders } from '../../lib/beauty-reminders';
 import './beauty.css';
 
 /**
@@ -78,6 +80,7 @@ export default async function BeautyPage({
       unstable_rethrow(error);
       return { ok: false as const, error };
     });
+  const manual = view === 'week' ? null : await loadManualReminders();
   if (!loaded.ok)
     return (
       <Page title="Салон">
@@ -107,6 +110,13 @@ export default async function BeautyPage({
           Неделя
         </Link>
       </nav>
+      {manual && manual.items.length > 0 && (
+        <RemindersToday
+          items={manual.items}
+          timezone={manual.timezone}
+          canUpdate={may('appointments', 'update', 'desk')}
+        />
+      )}
       {loaded.week ? (
         <WeekCalendar
           days={loaded.week}

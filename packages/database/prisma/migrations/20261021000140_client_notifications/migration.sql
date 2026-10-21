@@ -27,7 +27,8 @@ CREATE TABLE "client_notifications" (
   CONSTRAINT "client_notifications_pkey" PRIMARY KEY ("id"),
   CONSTRAINT "client_notifications_organization_fkey" FOREIGN KEY ("organization_id") REFERENCES "organizations"("id") ON DELETE RESTRICT ON UPDATE NO ACTION,
   CONSTRAINT "client_notifications_location_fkey" FOREIGN KEY ("location_id") REFERENCES "locations"("id") ON DELETE RESTRICT ON UPDATE NO ACTION,
-  CONSTRAINT "client_notifications_appointment_fkey" FOREIGN KEY ("appointment_id") REFERENCES "appointments"("id") ON DELETE RESTRICT ON UPDATE NO ACTION,
+  -- записи не удаляются приложением; служебная очистка записи уносит и её очередь
+  CONSTRAINT "client_notifications_appointment_fkey" FOREIGN KEY ("appointment_id") REFERENCES "appointments"("id") ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT "client_notifications_customer_fkey" FOREIGN KEY ("customer_id") REFERENCES "customers"("id") ON DELETE RESTRICT ON UPDATE NO ACTION,
   CONSTRAINT "client_notifications_values" CHECK (
     "attempts" >= 0
@@ -59,12 +60,6 @@ BEGIN
 END $$;
 CREATE TRIGGER client_notifications_guard BEFORE INSERT OR UPDATE ON "client_notifications"
   FOR EACH ROW EXECUTE FUNCTION client_notifications_guard();
-CREATE FUNCTION client_notifications_no_delete() RETURNS trigger LANGUAGE plpgsql AS $$
-BEGIN
-  RAISE EXCEPTION 'Client notifications are kept: cancel instead of delete';
-END $$;
-CREATE TRIGGER client_notifications_no_delete BEFORE DELETE ON "client_notifications"
-  FOR EACH ROW EXECUTE FUNCTION client_notifications_no_delete();
 
 CREATE TABLE "beauty_reminder_settings" (
   "location_id" UUID NOT NULL,
@@ -97,7 +92,7 @@ CREATE TRIGGER beauty_reminder_settings_guard BEFORE INSERT OR UPDATE ON "beauty
   FOR EACH ROW EXECUTE FUNCTION beauty_reminder_settings_guard();
 
 -- RLS: организация читает свои строки. Очередь пишется в транзакции записи (роль wetop_app), поэтому вставка и
--- смена состояния разрешены своей организации; удаления нет. Настройки пишет служебная роль (как режим работы, 137).
+-- смена состояния разрешены своей организации; права DELETE нет ни у одной роли приложения (отмена = CANCELLED). Настройки пишет служебная роль (как режим работы, 137).
 ALTER TABLE "client_notifications" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "client_notifications" FORCE ROW LEVEL SECURITY;
 CREATE POLICY rls_tenant ON "client_notifications" FOR SELECT TO wetop_app
@@ -125,7 +120,6 @@ DECLARE s text := current_schema(); path text;
 BEGIN
   path := CASE WHEN s='public' THEN 'public, pg_temp' ELSE format('%I, public, pg_temp',s) END;
   EXECUTE format('ALTER FUNCTION %I.client_notifications_guard() SET search_path = %s',s,path);
-  EXECUTE format('ALTER FUNCTION %I.client_notifications_no_delete() SET search_path = %s',s,path);
   EXECUTE format('ALTER FUNCTION %I.beauty_reminder_settings_guard() SET search_path = %s',s,path);
 END $$;
 

@@ -9,7 +9,6 @@ END $$;
 DROP TABLE "client_notifications";
 DROP TABLE "beauty_reminder_settings";
 DROP FUNCTION client_notifications_guard();
-DROP FUNCTION client_notifications_no_delete();
 DROP FUNCTION beauty_reminder_settings_guard();
 DROP TYPE "ClientNotificationState";
 DROP TYPE "ClientNotificationChannel";

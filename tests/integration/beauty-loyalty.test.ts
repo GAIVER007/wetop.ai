@@ -115,13 +115,23 @@ describe('салон: напоминания, бонусы, сертификат
       expect((await queue(a.id)).every((q) => q.state === 'CANCELLED')).toBe(true);
     });
 
-    it('повтор пересчёта ничего не дублирует; база не даёт удалить строку и сменить ключ', async () => {
+    it('повтор пересчёта ничего не дублирует; роль приложения не удаляет строку, ключ не меняется', async () => {
       const a = await book('13:00');
       await db.$transaction((tx) => syncAppointmentReminders(tx, a.id));
       await db.$transaction((tx) => syncAppointmentReminders(tx, a.id));
       const rows = await queue(a.id);
       expect(rows).toHaveLength(2);
-      await expect(db.clientNotification.delete({ where: { id: rows[0]!.id } })).rejects.toThrow(/cancel instead of delete/);
+      const app = new pg.Client({ connectionString: url, options: `-c search_path=${process.env.DATABASE_SCHEMA?.trim() || 'public'},public` });
+      await app.connect();
+      try {
+        await app.query('BEGIN');
+        await app.query('SET LOCAL ROLE wetop_app');
+        await app.query(`SELECT set_config('app.org_id', $1, true)`, [own.org]);
+        await expect(app.query('DELETE FROM client_notifications WHERE id = $1', [rows[0]!.id])).rejects.toThrow(/permission denied/);
+      } finally {
+        await app.query('ROLLBACK');
+        await app.end();
+      }
       await expect(db.clientNotification.update({ where: { id: rows[0]!.id }, data: { dueAt: new Date() } })).rejects.toThrow(/immutable/);
       await expect(db.clientNotification.create({ data: {
         organizationId: other.org, locationId: own.location, appointmentId: a.id, customerId: await customerOf(a.id), kind: 'REMINDER', dueAt: new Date(),

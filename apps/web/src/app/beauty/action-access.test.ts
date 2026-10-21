@@ -14,6 +14,8 @@ const state = vi.hoisted(() => ({
   services: vi.fn(),
   schedule: vi.fn(),
   locationHours: vi.fn(),
+  reminderSettings: vi.fn(),
+  bonusProgram: vi.fn(),
 }));
 
 vi.mock('next/navigation', () => ({
@@ -42,7 +44,16 @@ vi.mock('../../lib/api', () => ({
     services: state.services,
     schedule: state.schedule,
     locationHours: state.locationHours,
+    reminderSettings: state.reminderSettings,
+    bonusProgram: state.bonusProgram,
   },
+}));
+vi.mock('../../lib/beauty-reminders', () => ({ loadManualReminders: async () => null }));
+vi.mock('../beauty-settings/loyalty-forms', () => ({
+  ReminderSettingsForm: (props: Record<string, unknown>) =>
+    createElement('div', { 'data-testid': 'reminders-update', 'data-allowed': String(props.canEdit) }),
+  BonusProgramForm: (props: Record<string, unknown>) =>
+    createElement('div', { 'data-testid': 'bonus-update', 'data-allowed': String(props.canEdit) }),
 }));
 vi.mock('./journal', () => ({
   JournalBoard: (props: Record<string, unknown>) => createElement('div', {
@@ -99,6 +110,8 @@ vi.mock('../../components/use-confirm', () => ({
 }));
 vi.mock('./journal-actions', () => ({
   moveAppointment: vi.fn(),
+  customerBonusQuote: vi.fn(),
+  lookupCertificate: vi.fn(),
   payAppointment: vi.fn(),
   refundAppointment: vi.fn(),
   setAppointmentStatus: vi.fn(),
@@ -159,6 +172,8 @@ beforeEach(() => {
   state.services.mockResolvedValue({ locationId: day.location.id, locationCurrency: 'USD', items: [] });
   state.schedule.mockResolvedValue({ businessName: 'Synthetic Business', location: day.location, locations: [] });
   state.locationHours.mockResolvedValue({ location: day.location, weekdays: [] });
+  state.reminderSettings.mockResolvedValue({ revision: 0, enabled: true, hoursBefore: [24, 2], template: null, whatsappTemplateName: null });
+  state.bonusProgram.mockResolvedValue({ revision: 0, enabled: false, accrualPercent: 5, maxRedeemPercent: 30, expiresDays: null });
 });
 
 describe('Beauty page action access', () => {
@@ -256,6 +271,9 @@ describe('Beauty page action access', () => {
     const html = renderToStaticMarkup(await BeautySettingsPage());
 
     expect(html).toContain('data-testid="settings-update" data-allowed="false"');
+    // напоминания и бонусы (решение 21.10.2026) под тем же правом settings.update
+    expect(html).toContain('data-testid="reminders-update" data-allowed="false"');
+    expect(html).toContain('data-testid="bonus-update" data-allowed="false"');
   });
 });
 

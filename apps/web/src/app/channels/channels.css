@@ -6,11 +6,12 @@
     gap: var(--space-1);
     font-variant-numeric: tabular-nums;
   }
+  /* шапка от 1280 px выше на 32 px (20.10.2026): зазор и поля плашки вдвое меньше, обзор помещается на 1366×768 */
   .channels-overview {
-    gap: 16px;
+    gap: var(--space-2);
   }
   .channels-overview > .state-bar {
-    padding: 16px 16px;
+    padding: var(--space-2) var(--space-4);
     gap: 16px;
     margin: 0;
     grid-template-columns: minmax(210px, 1fr) 2fr;
@@ -128,6 +129,12 @@
   @media (min-width: 601px) {
     .page:has(.channels-overview) {
       padding-bottom: 16px;
+    }
+    .page:has(.channels-overview) .page__head {
+      margin-bottom: var(--space-2);
+    }
+    .page:has(.channels-overview) .tabs {
+      margin-bottom: var(--space-2);
     }
   }
   .channels-overview .state-bar__state {

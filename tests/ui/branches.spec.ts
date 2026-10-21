@@ -15,7 +15,8 @@ test('филиалы: создание, сохранение после reload �
       .locator('.org-heading-controls')
       .evaluate((element) => getComputedStyle(element).display),
   ).toBe('flex');
-  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(900);
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(932);
+  // 932 = 900 + 32: от 1280 px шапка в две строки 88 px вместо 56 (20.10.2026)
   // От 1280 px разделы находятся в шапке, кнопка выдвижного меню скрыта из доступного интерфейса.
   await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toHaveCount(0);
   await expect(page.getByRole('navigation', { name: 'Главное меню', exact: true })).toBeVisible();
@@ -56,7 +57,7 @@ test('филиалы: создание, сохранение после reload �
     );
     if (width >= 1024) {
       expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(
-        900,
+        932,
       );
       const card = await main.locator('.org-card').first().boundingBox();
       expect(card).not.toBeNull();

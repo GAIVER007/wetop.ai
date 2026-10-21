@@ -1,0 +1,18 @@
+# Типы (typecheck) · 20.09.2026 20:12 Алматы · MacBook-Air-Urij.local
+# коммит 0ed8c75 (codex/pause-self-registration), незакоммиченных файлов набора: 14
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/auth/registration-access.test.ts(59,49): error TS2339: Property 'db' does not exist on type 'never'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 1 мин 43 с

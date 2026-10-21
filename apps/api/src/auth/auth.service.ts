@@ -320,6 +320,17 @@ export class AuthService {
     }
   }
 
+  /** ADR-055: единственный источник настройки для API и стойки, без данных пользователей. */
+  registrationOptions(): { registrationEnabled: boolean } {
+    return { registrationEnabled: registrationOpen() };
+  }
+
+  assertRegistrationOpen(): void {
+    if (!this.registrationOptions().registrationEnabled) {
+      throw new ForbiddenException(REGISTRATION_CLOSED_MESSAGE);
+    }
+  }
+
   async login(
     input: { email: string; password: string; userAgentFamily?: string | null },
     now = new Date(),

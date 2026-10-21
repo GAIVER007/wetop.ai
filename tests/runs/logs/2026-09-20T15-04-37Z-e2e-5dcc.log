@@ -1,0 +1,71 @@
+# Сквозные (e2e) · 20.09.2026 20:04 Алматы · MacBook-Air-Urij.local
+# коммит 0ed8c75 (codex/pause-self-registration), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/registration-closed.spec.ts' '--workers=1' '--grep' 'регистрация закрыта:' '--max-failures=1'
+[WebServer] (node:78373) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78405) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78421) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78454) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+(node:78470) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/registration-closed.spec.ts:8:3 › регистрация закрыта: /login оставляет вход сотрудников (17.2s)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) tests/ui/registration-closed.spec.ts:8:3 › регистрация закрыта: /login оставляет вход сотрудников
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('button', { name: 'Регистрация', exact: true })
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('button', { name: 'Регистрация', exact: true }) with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Регистрация', exact: true })
+        34 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+       9 |     await page.goto(path);
+      10 |     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Вход в WETOP');
+    > 11 |     await expect(page.getByRole('button', { name: 'Регистрация', exact: true })).toHaveCount(0);
+         |                                                                                  ^
+      12 |     await expect(page.getByRole('button', { name: 'Создать организацию' })).toHaveCount(0);
+      13 |     await expect(page.getByLabel('Пароль', { exact: true })).toBeVisible();
+      14 |     await expect(page.getByRole('link', { name: 'Забыли пароль?' })).toBeVisible();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/registration-closed.spec.ts:11:82
+
+    Error Context: test-results/registration-closed-регист-bfb36--оставляет-вход-сотрудников/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/registration-closed-регист-bfb36--оставляет-вход-сотрудников/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/registration-closed-регист-bfb36--оставляет-вход-сотрудников/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/registration-closed.spec.ts:8:3 › регистрация закрыта: /login оставляет вход сотрудников
+  2 did not run
+  1 error was not a part of any test, see above for details
+
+# код выхода 1 · 30 с

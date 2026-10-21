@@ -118,3 +118,36 @@ describe('salon report server permission boundary', () => {
     expect(html).not.toContain('Услуга Пример');
   });
 });
+
+describe('аудит 21.10.2026: отчёты салона', () => {
+  it('п.27, п.33, п.34, п.36: период словами «С … по …», общие вкладки, поля Field, подзаголовок без названия салона', async () => {
+    const html = renderToStaticMarkup(
+      await SalonReportsScreen({ searchParams: { from: '2026-10-18', to: '2026-10-19' } }),
+    );
+    expect(html).toMatch(/С 18[^<]*окт[^<]* по 19[^<]*окт/);
+    expect(html).not.toContain('class="chips"');
+    expect(html).toContain('class="tabs"');
+    expect(html).toContain('class="field"');
+    expect(html).not.toContain('page__subtitle">Салон Пример');
+  });
+  it('итоги строкой без плиток, ссылки обычные', async () => {
+    const html = renderToStaticMarkup(
+      await SalonReportsScreen({ searchParams: { from: '2026-10-18', to: '2026-10-18' } }),
+    );
+    expect(html).not.toContain('kpi-tile');
+    expect(html).toContain('salon-reports__totals');
+    expect(html).toContain('data-testid="salon-report-cost-KZT"');
+    expect(html).toContain('записи за этот период');
+  });
+  it('п.25: пустой период это один баннер без пустых таблиц', async () => {
+    load.mockResolvedValueOnce({
+      counts: { DONE: 0, BOOKED: 0, CONFIRMED: 0, IN_PROGRESS: 0, NO_SHOW: 0, CANCELLED: 0 },
+      currencies: [], services: [], masters: [],
+    });
+    const html = renderToStaticMarkup(await SalonReportsScreen({ searchParams: {} }));
+    expect(html).toContain('За этот период записей нет');
+    expect(html).not.toContain('Статусы записей');
+    expect(html).not.toContain('По услугам');
+    expect((html.match(/class="empty-state"/g) ?? []).length).toBe(1);
+  });
+});

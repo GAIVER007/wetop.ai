@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
 import { can } from '@pms/domain';
 import { Page } from '../../../../components/page';
-import { Alert, Panel, Stat, Stats } from '../../../../components/ui';
+import { Alert, Button, Field, Input, Panel, Stat, Stats, Table } from '../../../../components/ui';
 import { branchesApi, type BranchItem } from '../../../../lib/api';
 import { currentMe, deskShell } from '../../../../lib/desk-shell';
 import { localInput } from '../../../beauty/time';
@@ -68,7 +68,7 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
         subtitle={
           organization
             ? 'Отчёты по филиалам, отдельно по направлениям.'
-            : selected.name
+            : 'Записи и выручка выбранного филиала за период.'
         }
       >
         <div className="vertical-report" data-testid="vertical-analytics">
@@ -79,19 +79,16 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
               { href: `${path}?${q}&scope=organization`, label: 'Все филиалы', current: organization },
             ]}
           />
+          {/* поля и кнопка одной высоты, по низу (аудит 21.10.2026 п.34) */}
           <form className="vertical-report-period" action={path}>
-            <label>
-              С даты
-              <input type="date" name="from" defaultValue={from} required />
-            </label>
-            <label>
-              По дату
-              <input type="date" name="to" defaultValue={to} required />
-            </label>
+            <Field label="С даты" controlId="vertical-report-from">
+              <Input type="date" lang="ru" name="from" defaultValue={from} required />
+            </Field>
+            <Field label="По дату" controlId="vertical-report-to">
+              <Input type="date" lang="ru" name="to" defaultValue={to} required />
+            </Field>
             {organization && <input type="hidden" name="scope" value="organization" />}
-            <button className="btn btn--primary" type="submit">
-              Показать
-            </button>
+            <Button type="submit">Показать</Button>
           </form>
           <p className="muted">
             С {displayDate(from)} по {displayDate(to)} включительно, по местному времени каждого филиала.
@@ -105,23 +102,33 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
               <section key={vertical} aria-label={vertical === 'BEAUTY' ? 'Салоны' : 'Рестораны'}>
                 {organization && <h2>{vertical === 'BEAUTY' ? 'Салоны' : 'Рестораны'}</h2>}
                 {group.map(({ branch, report, error }) => (
-                  <Panel key={branch.locationId} title={branch.name}>
+                  // название филиала в заголовке карточки только в сводке по всем филиалам (п.36)
+                  <Panel key={branch.locationId} {...(organization ? { title: branch.name } : {})}>
                     <div data-testid={`report-${branch.locationId}`}>
                       {error ? (
                         <Alert boxed>{error}</Alert>
                       ) : (
                         report && (
                           <>
-                            <Stats min={150} aria-label="Статусы за период">
-                              {Object.entries(labels).map(([status, label]) => (
-                                <Stat
-                                  key={status}
-                                  label={label}
-                                  value={report.counts[status as keyof typeof report.counts] ?? 0}
-                                  testId={`period-${status}`}
-                                />
-                              ))}
-                            </Stats>
+                            {/* таблица «Статус | Записи» вместо шести плиток (аудит 21.10.2026 п.9, п.48) */}
+                            <Table density="compact" caption="Записи по статусам за период" stack>
+                              <thead>
+                                <tr>
+                                  <th scope="col">Статус</th>
+                                  <th scope="col">Записи</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {Object.entries(labels).map(([status, label]) => (
+                                  <tr key={status}>
+                                    <td data-label="Статус">{label}</td>
+                                    <td data-label="Записи" data-testid={`period-${status}`}>
+                                      {report.counts[status as keyof typeof report.counts] ?? 0}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </Table>
                             {report.revenue !== null ? (
                               <Panel title="Выручка по завершённым записям">
                                 {Object.entries(report.revenue).length ? (

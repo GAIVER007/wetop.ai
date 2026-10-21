@@ -1,17 +1,20 @@
 import { notFound } from 'next/navigation';
 import { BackCrumb, Page } from '../../../components/page';
 import { Tabs } from '../../../components/tabs';
+import Link from 'next/link';
 import { Badge, EmptyState, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
 import { CustomerMarks } from '../../food/customer-marks';
 import { markBeautyCustomer } from '../actions';
+import { customerSegment } from '../customer-filter';
 import { beautyApi, type BeautyCustomerDetail } from '../../../lib/api';
 import { deskShell } from '../../../lib/desk-shell';
 import { formatMoney } from '../../../lib/money';
-import { mayAccess } from '../../../lib/navigation';
+import { mayAccess, mayBeautyAccess } from '../../../lib/navigation';
 import { notFoundOn404 } from '../../../lib/page-error';
 import { requireVertical } from '../../../lib/vertical-guard';
 import '../../beauty/beauty.css';
+import '../customers.css';
 
 type Visit = BeautyCustomerDetail['visits'][number];
 
@@ -90,35 +93,22 @@ export default async function BeautyCustomerPage({ params }: { params: Promise<{
   const customer = detail.customer;
   const name = [customer.firstName, customer.lastName].filter(Boolean).join(' ');
   const canEdit = !shell.readOnly && mayAccess(shell.access, 'desk');
+  const canBook = !shell.readOnly
+    && mayBeautyAccess(shell.access, 'appointments', 'create', { legacy: 'desk' });
+  const doneVisits = detail.visits.filter((visit) => visit.status === 'DONE').length;
+  // сегмент тем же правилом, что в списке (аудит 21.10.2026 п.11): там «Новый», здесь не «Активен»
+  const s = customerSegment({ status: customer.status, visits: doneVisits });
+  const visitCount = `${detail.visits.length}${detail.historyTruncated ? '+' : ''}`;
   const overview = (
     <>
-      <dl className="beauty-customer-head">
-        <div>
-          <dt>Телефон</dt>
-          <dd>
-            {customer.phone ? <a href={`tel:${customer.phone}`}>{customer.phone}</a> : 'Не указан'}
-          </dd>
-        </div>
-        <div>
-          <dt>Email</dt>
-          <dd>{customer.email ?? 'Не указан'}</dd>
-        </div>
-        <div>
-          <dt>Статус</dt>
-          <dd>
-            <Badge tone={customer.status === 'ACTIVE' ? 'ok' : 'neutral'}>
-              {customer.status === 'ACTIVE' ? 'Активен' : 'В архиве'}
-            </Badge>
-          </dd>
-        </div>
-        <div>
-          <dt>Визитов</dt>
-          <dd>
-            {detail.visits.length}
-            {detail.historyTruncated ? '+' : ''}
-          </dd>
-        </div>
-      </dl>
+      {/* контакты строкой, без плиток (аудит 21.10.2026 п.10, правило владельца «без плиток») */}
+      <p className="beauty-customer-contacts">
+        {customer.phone ? <a href={`tel:${customer.phone}`}>{customer.phone}</a> : <span>Телефон не указан</span>}
+        {customer.email && <span>{customer.email}</span>}
+        <Badge tone={s.tone}>{s.label}</Badge>
+        {customer.isVip && <Badge tone="warn">VIP</Badge>}
+        <span>Визитов: {visitCount}</span>
+      </p>
       {customer.notes && (
         <>
           <SectionTitle>Заметки</SectionTitle>
@@ -136,18 +126,25 @@ export default async function BeautyCustomerPage({ params }: { params: Promise<{
       crumbs={<BackCrumb href="/customers">Клиенты</BackCrumb>}
       title={name}
       actions={
-        canEdit ? (
-          <CustomerMarks
-            scopeKey={shell.scopeKey ?? ''}
-            customer={{
-              id: customer.id,
-              name,
-              isVip: customer.isVip,
-              birthDate: customer.birthDate,
-            }}
-            save={markBeautyCustomer}
-          />
-        ) : undefined
+        <>
+          {canBook && customer.status === 'ACTIVE' && (
+            <Link className="btn" prefetch={false} href={`/appointments?create=1&customer=${encodeURIComponent(customer.id)}`}>
+              Записать
+            </Link>
+          )}
+          {canEdit && (
+            <CustomerMarks
+              scopeKey={shell.scopeKey ?? ''}
+              customer={{
+                id: customer.id,
+                name,
+                isVip: customer.isVip,
+                birthDate: customer.birthDate,
+              }}
+              save={markBeautyCustomer}
+            />
+          )}
+        </>
       }
     >
       <Tabs

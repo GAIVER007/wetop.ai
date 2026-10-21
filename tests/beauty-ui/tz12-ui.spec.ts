@@ -90,7 +90,7 @@ test('list mobile cards retain contact semantics and honest record action', asyn
   await populated(page, request);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`/appointments?date=${date}`);
-  await expect(page.getByText('Поиск по выбранному периоду.')).toBeVisible();
+  await expect(page.getByRole('searchbox', { name: 'Поиск клиента', exact: true })).toHaveAttribute('placeholder', 'Имя или телефон');
   await expect(page.locator('.beauty-appointments-table')).not.toContainText('—');
   const row = page.locator('.beauty-appointments-table tr').filter({ hasText: longName });
   await expect(row.getByRole('button', { name: /Открыть запись/ })).toBeVisible();

@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 
 import { useActionState, useEffect, useMemo, useState } from 'react';
 import { Alert, Button, Field, Input, Select } from '../../../components/ui';
@@ -165,7 +166,12 @@ export function ServiceMaterials({
           : formatMoney(data.totalCostMinor, data.currency)}</strong>
       </div>
       {!dirty && data.missingCost && <Alert>Для части материалов нет цены партии или не хватает остатка.</Alert>}
-      {!available.length && <p>В складе нет активных материалов для добавления.</p>}
+      {!available.length && (
+        <p>
+          На складе нет расходников для добавления.{' '}
+          <Link href="/bar/consumables" prefetch={false}>Добавить расходник</Link>
+        </p>
+      )}
       {(localError ?? state?.error) && <Alert>{localError ?? state?.error}</Alert>}
       {!localError && state?.message && <p role="status">{state.message}</p>}
       <Button type="submit" disabled={pending || !dirty}>{pending ? 'Сохраняем…' : 'Сохранить техкарту'}</Button>

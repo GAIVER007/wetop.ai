@@ -1,5 +1,6 @@
 import { ApiError, marketingBudgetApi, type MarketingResultsView } from '../../../../lib/api';
 import { analyticsCsv, buildAnalyticsReport } from '../report';
+import { currentMe } from '../../../../lib/desk-shell';
 
 const text = (status: number, body: string) =>
   new Response(body, { status, headers: { 'content-type': 'text/plain; charset=utf-8' } });
@@ -14,7 +15,8 @@ export async function GET(request: Request) {
   try {
     const view = await marketingBudgetApi.view(month);
     const results: MarketingResultsView | 'error' = await marketingBudgetApi.results(month).catch(() => 'error' as const);
-    return new Response(analyticsCsv(buildAnalyticsReport(view, results)), {
+    const vertical = (await currentMe().catch(() => null))?.context?.vertical ?? 'HOSPITALITY';
+    return new Response(analyticsCsv(buildAnalyticsReport(view, results), vertical), {
       headers: {
         'content-type': 'text/csv; charset=utf-8',
         'content-disposition': `attachment; filename="wetop-marketing-${month}.csv"`,

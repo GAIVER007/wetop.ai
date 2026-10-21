@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BuilderOffCard } from './builder-off-card';
 import { unstable_rethrow } from 'next/navigation';
 import { requireFeature } from '../../../../lib/vertical-guard';
 import { Page } from '../../../../components/page';
@@ -138,21 +139,20 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
     const name = facts.ok ? facts.data.location.name : locationName;
     return (
       <Page crumbs={<BackToModules />} title="Сайт и SEO" width="full">
-        {!pending && !licensed && (
-          <Alert boxed data-testid="ed-license-off">
-            <b>Конструктор сайта не активен для этого филиала.</b> Создать сайт и просить ИИ нельзя. Подключить конструктор может главный
-            администратор WETOP.
-          </Alert>
+        {!pending && !licensed ? (
+          // аудит 21.10.2026 п. 4: при неактивном конструкторе одна карточка с действием вместо формы с неактивными кнопками
+          <BuilderOffCard locationName={name} expired={current.builder.access === 'expired'} />
+        ) : (
+          <CreateSite
+            vertical={vertical}
+            locationName={name}
+            locationId={locationId ?? (facts.ok ? facts.data.location.id : null)}
+            briefHash={loaded.brief?.briefHash ?? null}
+            facts={facts}
+            locations={locations}
+            readOnly={readOnly}
+          />
         )}
-        <CreateSite
-          vertical={vertical}
-          locationName={name}
-          locationId={locationId ?? (facts.ok ? facts.data.location.id : null)}
-          briefHash={loaded.brief?.briefHash ?? null}
-          facts={facts}
-          locations={locations}
-          readOnly={readOnly}
-        />
       </Page>
     );
   }

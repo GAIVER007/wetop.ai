@@ -66,6 +66,7 @@ export function ServicesBoard({
   const [editing, setEditing] = useState<Editing>(null);
   const [search, setSearch] = useState('');
   const [showArchived, setShowArchived] = useState(false);
+  const [mobileView, setMobileView] = useState<'catalog' | 'salon'>('catalog');
   const [draggedServiceId, setDraggedServiceId] = useState<string | null>(null);
   const [draggedPresetName, setDraggedPresetName] = useState<string | null>(null);
   const [materialService, setMaterialService] = useState<BeautyServiceRow | null>(null);
@@ -105,27 +106,32 @@ export function ServicesBoard({
   }, [scopeKey, items]);
   return (
     <>
+      {/* поиск, архив и кнопка в одну линию по низу, счётчики живут в значках колонок (аудит 21.10.2026 п.37) */}
       <div className="beauty-service-dual-toolbar">
-        <Field label="Поиск услуг"><Input type="search" aria-label="Поиск услуг" placeholder="Название или категория" value={search} onChange={event => setSearch(event.target.value)} /></Field>
-        <p role="status">
-          {items.length === 0
-            ? 'Добавьте первую услугу'
-            : `В филиале: ${salon.length}. В каталоге: ${active.length}`}
-        </p>
+        <Input type="search" aria-label="Поиск услуг" placeholder="Поиск: название или категория" value={search} onChange={event => setSearch(event.target.value)} />
         <label className="beauty-check beauty-service-archive-filter">
           <input type="checkbox" checked={showArchived} onChange={(event) => setShowArchived(event.target.checked)} />
           Показать архив{archivedCount > 0 ? ` (${archivedCount})` : ''}
         </label>
         {canCreate && (
-          <Button type="button" onClick={() => setEditing({ mode: 'new' })}>
+          <Button type="button" onClick={() => setEditing({ mode: 'new', enableForLocation: Boolean(locationCurrency) })}>
             Добавить услугу
           </Button>
         )}
       </div>
+      {/* телефон: одна колонка за раз, по умолчанию каталог (аудит 21.10.2026 п.47) */}
+      <div className="beauty-service-mobile-view" role="group" aria-label="Какие услуги показать">
+        <Button type="button" size="sm" tone={mobileView === 'catalog' ? 'primary' : 'secondary'} aria-pressed={mobileView === 'catalog'} onClick={() => setMobileView('catalog')}>
+          Все услуги
+        </Button>
+        <Button type="button" size="sm" tone={mobileView === 'salon' ? 'primary' : 'secondary'} aria-pressed={mobileView === 'salon'} onClick={() => setMobileView('salon')}>
+          В филиале ({salon.length})
+        </Button>
+      </div>
       {!locationCurrency && <Alert>Выберите филиал, чтобы добавлять и убирать его услуги.</Alert>}
       {transferState?.error && <Alert>{transferState.error}</Alert>}
       {!transferState?.error && transferState?.message && <p role="status">{transferState.message}</p>}
-      <div className="beauty-service-transfer-board">
+      <div className="beauty-service-transfer-board" data-mobile-view={mobileView}>
         <section
           className="beauty-service-list beauty-service-list--salon"
           data-service-list="salon"
@@ -160,14 +166,9 @@ export function ServicesBoard({
                 )}
               </article>
             ))}
-            {salon.length === 0 && <p className="beauty-service-empty">Перенесите услуги из каталога справа.</p>}
+            {salon.length === 0 && <p className="beauty-service-empty">Добавьте услуги из каталога кнопкой «Добавить».</p>}
           </div>
         </section>
-
-        <div className="beauty-service-transfer-hint" aria-hidden="true">
-          <span>←</span>
-          <span>→</span>
-        </div>
 
         <section
           className="beauty-service-list beauty-service-list--catalog"
@@ -240,9 +241,7 @@ export function ServicesBoard({
               >
                 <div className="beauty-service-item-body">
                   <b>{preset.name}</b>
-                  <span>{preset.minutes} мин</span>
-                  <small>{preset.category}</small>
-                  <small>Цена задаётся при добавлении</small>
+                  <span>{preset.minutes} мин, {preset.category}</span>
                 </div>
                 {canCreate && <div className="beauty-service-item-actions">
                   <Button
@@ -252,7 +251,7 @@ export function ServicesBoard({
                     aria-label={`Настроить и добавить в филиал: ${preset.name}`}
                     onClick={() => setEditing({ mode: 'new', preset, enableForLocation: true })}
                   >
-                    ← Настроить
+                    Добавить
                   </Button>
                 </div>}
               </article>
@@ -336,7 +335,7 @@ function TransferForm({
         disabled={disabled}
         aria-label={`${enabled ? 'Добавить в филиал' : 'Убрать из филиала'}: ${row.name}`}
       >
-        {enabled && <span aria-hidden="true">←</span>}{enabled ? 'Добавить' : 'Убрать'}{!enabled && <span aria-hidden="true">→</span>}
+        {enabled ? 'Добавить' : 'Убрать'}
       </Button>
     </form>
   );
@@ -359,25 +358,19 @@ function ServiceIdentity({
   return (
     <div className="beauty-service-item-body">
       <b>{row.name}</b>
-      <span>{price}</span>
-      <small>{row.category ?? 'Без категории'}</small>
+      <span>{price}, {row.category ?? 'Без категории'}</span>
       {location && row.effective && !row.effective.sellable && (
         <small>{NOT_SELLABLE[row.effective.reason] ?? 'Не продаётся'}</small>
       )}
       {popularity && (
         row.popularity ? row.popularity.totalCompletedVisits > 0 ? (
-          <div className="beauty-popularity">
+          <small className="beauty-popularity">
             <b>{new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(
               row.popularity.completedVisits * 100 / row.popularity.totalCompletedVisits,
-            )}%</b>
-            <progress
-              aria-label={`Доля завершённых визитов услуги ${row.name}`}
-              value={row.popularity.completedVisits}
-              max={row.popularity.totalCompletedVisits}
-            />
-            <small>{row.popularity.completedVisits} из {row.popularity.totalCompletedVisits} завершённых визитов</small>
-          </div>
-        ) : 'Нет завершённых визитов' : locationCurrency ? 'Нет данных' : 'Выберите филиал'
+            )}%</b>{' '}
+            ({row.popularity.completedVisits} из {row.popularity.totalCompletedVisits} завершённых визитов)
+          </small>
+        ) : <small>Нет завершённых визитов</small> : <small>{locationCurrency ? 'Нет данных' : 'Выберите филиал'}</small>
       )}
     </div>
   );
@@ -399,6 +392,7 @@ function ServiceForm({
   canDelete: boolean;
 }) {
   const creation = useCreationKey(scopeKey, 'service', Boolean(row));
+  const [enableHere, setEnableHere] = useState(enableForLocation);
   const [state, action, pending] = useActionState(saveBeautyService, null);
   const [locationState, locationAction, locationPending] = useActionState(
     saveLocationService,
@@ -478,8 +472,22 @@ function ServiceForm({
           />
         )}
         {!row && <input type="hidden" name="creationId" value={creation.id} />}
+        {/* новая услуга сразу продаётся в филиале, из которого её создали (аудит 21.10.2026 п.5) */}
+        {!row && locationCurrency && (
+          <label className="beauty-check">
+            <input
+              type="checkbox"
+              name="enableForLocation"
+              value="on"
+              checked={enableHere}
+              onChange={(e) => setEnableHere(e.target.checked)}
+            />
+            Сразу в этом филиале
+          </label>
+        )}
         <input type="hidden" name="priceMinor" value={priceMinor ?? ''} />
-        {!row && (
+        {/* у «Добавить» типовой услуги выбор уже сделан: второй список из 14 услуг не показываем (п.22) */}
+        {!row && !preset && (
           <Field label="Типовая услуга">
             <Select
               aria-label="Типовая услуга"

@@ -77,7 +77,7 @@
   },
   "inline-style": {
     "apps/web/src/app/ai-seller/agents/editor.tsx": 1,
-    "apps/web/src/app/beauty/journal.tsx": 4,
+    "apps/web/src/app/beauty/journal.tsx": 3,
     "apps/web/src/app/chessboard/board-grid.tsx": 9,
     "apps/web/src/app/chessboard/stay-resize.tsx": 1,
     "apps/web/src/app/finance/overview.tsx": 2,

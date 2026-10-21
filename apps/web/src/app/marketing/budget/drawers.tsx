@@ -1,7 +1,7 @@
 'use client';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import type { MarketingExpenseRow } from '../../../lib/api';
-import { formatMoney, minorToInput } from '../../../lib/money';
+import { formatMoney, minorToInput, currencySign } from '../../../lib/money';
 import { csvField } from '../../finance/csv';
 import { Icon } from '../../../components/icon';
 import { Overlay } from '../../../components/overlay';
@@ -157,7 +157,7 @@ function ExpenseForm({
         <Field label="Кампания" controlId="budget-campaign-input" hint="Необязательно: название кампании или поста">
           <Input name="campaign" maxLength={200} defaultValue={v('campaign', expense?.campaign)} data-testid="budget-campaign" />
         </Field>
-        <Field label={`Сумма, ${currency}`}>
+        <Field label={`Сумма, ${currencySign(currency)}`}>
           <Input
             name="amount"
             inputMode="decimal"
@@ -442,7 +442,7 @@ function LinesForm({
       {state.error && <Alert boxed>{state.error}</Alert>}
       <input type="hidden" name="month" value={month} />
       <p className="settings-note">
-        Разбивка общего плана месяца по каналам в {currency}. Пустое поле: канала в плане нет. Без общего плана
+        Разбивка общего плана месяца по каналам, {currencySign(currency)}. Пустое поле: канала в плане нет. Без общего плана
         сумма каналов и есть план месяца.
       </p>
       {prevLines.length > 0 && (
@@ -530,10 +530,10 @@ function PlanForm({
       {state.error && <Alert boxed>{state.error}</Alert>}
       <input type="hidden" name="month" value={month} />
       <p className="settings-note">
-        Общий бюджет месяца в валюте отчётности ({currency}). Прогноз и рекомендация на обзоре
+        Общий бюджет месяца в валюте отчётности ({currencySign(currency)}). Прогноз и рекомендация на обзоре
         считаются от этой суммы.
       </p>
-      <Field label={`План, ${currency}`}>
+      <Field label={`План, ${currencySign(currency)}`}>
         <Input
           name="amount"
           inputMode="decimal"

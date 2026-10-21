@@ -33,12 +33,9 @@ async function reset(page: Page, request: APIRequestContext) {
   return f;
 }
 async function expectEmptyCalendar(page: Page) {
-  const grid = page.getByTestId('beauty-grid');
-  await expect(grid).toBeVisible();
-  await expect(grid.getByTestId('beauty-empty-timeline')).toBeVisible();
-  await expect(grid).toContainText('09:00');
-  await expect(grid).toContainText('17:30');
-  await expect(grid.locator('.beauty-tile, .beauty-slot-free')).toHaveCount(0);
+  // без специалистов сетку не рисуем: одно пустое состояние с кнопками (аудит 21.10.2026, п. 15, 16, 36)
+  await expect(page.getByTestId('beauty-grid')).toHaveCount(0);
+  await expect(page.locator('.beauty-tile, .beauty-slot-free')).toHaveCount(0);
   await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
   const setup = page.getByRole('status').filter({ hasText: 'Для новой записи нужны услуги' });
   await expect(setup.getByRole('link', { name: 'Добавить услугу', exact: true })).toHaveAttribute(
@@ -47,7 +44,7 @@ async function expectEmptyCalendar(page: Page) {
   );
   await expect(setup.getByRole('link', { name: 'Добавить специалиста', exact: true })).toHaveAttribute(
     'href',
-    '/employees',
+    '/employees?new=1',
   );
 }
 async function seed(page: Page, request: APIRequestContext, fixture?: Fixture) {
@@ -154,7 +151,12 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   // Создание открывает полную карточку специалиста отдельной страницей, не диалог.
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   let profile = page.getByTestId('employee-manager');
-  await profile.getByRole('tab', {name:'Услуги',exact:true}).click();
+  // новый мастер: карточка подсказывает оставшиеся шаги и открывает нужную вкладку (онбординг 21.10.2026)
+  const setup = profile.getByTestId('portal-setup-steps');
+  await expect(setup).toContainText('Чтобы к мастеру могли записаться');
+  await setup.getByRole('link', { name: 'Назначьте услуги' }).click();
+  await expect(profile.getByRole('tab', { name: 'Услуги', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await page.screenshot({ path: 'reports/master-setup-steps-1440.png' });
   await profile.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   const assignForm = profile.getByTestId('portal-services-form');
   await assignForm.getByRole('checkbox', { name: /^Тестовая стрижка(?:\s|$)/ }).check();

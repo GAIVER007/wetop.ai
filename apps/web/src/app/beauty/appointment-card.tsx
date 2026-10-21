@@ -7,6 +7,8 @@ import { formatMoney, inputToMinor, minorToInput } from '../../lib/money';
 import { METHOD_RU } from '../../lib/dashboard-format';
 import { FOOD_PAYMENT_METHODS, type FoodPaymentMethod } from '../../lib/food-types';
 import {
+  customerBonusQuote,
+  lookupCertificate,
   moveAppointment,
   payAppointment,
   refundAppointment,
@@ -18,9 +20,11 @@ import { AppointmentHistoryPanel } from './appointment-history-panel';
 import { ReviewInvitation } from './review-invitation';
 import { ACTION_WORD } from './appointment-status';
 import { beautyStatus } from '../../lib/status/beauty';
-import { NO_SHOW_BEFORE_START_MESSAGE } from '@pms/domain';
+import { NO_SHOW_BEFORE_START_MESSAGE, maxRedeem, normalizeCertificateCode } from '@pms/domain';
 import { AppointmentMoneyOperation, type PreparedMoneyRequest } from './appointment-money-operation';
 import type { JournalResult } from './journal-actions';
+
+type PayMethod = FoodPaymentMethod | 'BONUS' | 'GIFT_CERTIFICATE';
 
 export function AppointmentCard(props: Parameters<typeof AppointmentCardBody>[0]) {
   return <AppointmentCardBody key={`${props.scopeKey}:${props.row.id}`} {...props} />;
@@ -77,7 +81,7 @@ function AppointmentCardBody({
       let result: JournalResult;
       try {
         result = request.kind === 'pay'
-          ? await payAppointment(row.id, request.method, request.amountMinor, request.idempotencyKey, scopeKey)
+          ? await payAppointment(row.id, request.method, request.amountMinor, request.idempotencyKey, scopeKey, request.certificateCode)
           : await refundAppointment(row.id, request.method, request.amountMinor, request.reason!, request.idempotencyKey, scopeKey);
       } catch {
         result = { outcome: 'unknown', error: 'Ответ потерян. Результат операции не подтверждён.' };
@@ -130,16 +134,71 @@ function AppointmentCardBody({
   };
   const payable =
     canPay && row.status !== 'CANCELLED' && row.status !== 'NO_SHOW' && remaining > 0n;
-  const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
+  const [method, setMethod] = useState<PayMethod>('CASH');
   const [amount, setAmount] = useState(() => minorToInput(remaining.toString()));
+  // бонусы: баланс клиента и сколько можно списать в этот чек (решение 21.10.2026 §2)
+  const [bonus, setBonus] = useState<{ balanceMinor: string; maxRedeemPercent: number } | null | 'loading'>(null);
+  const paidByBonus = (row.payments ?? []).reduce(
+    (sum, p) => (p.method === 'BONUS' ? (p.kind === 'INCOME' ? sum + BigInt(p.amountMinor) : sum - BigInt(p.amountMinor)) : sum),
+    0n,
+  );
+  const minOf = (...values: bigint[]) => values.reduce((a, b) => (a < b ? a : b));
+  // доля чека минус уже оплаченное бонусами, не больше баланса и остатка к оплате (тот же расчёт, что у API)
+  const bonusMaxRaw = bonus && bonus !== 'loading'
+    ? minOf(
+        maxRedeem(BigInt(row.priceMinor), BigInt(bonus.balanceMinor), bonus.maxRedeemPercent),
+        (BigInt(row.priceMinor) * BigInt(bonus.maxRedeemPercent)) / 100n - paidByBonus,
+        remaining,
+      )
+    : 0n;
+  const bonusMax = bonusMaxRaw > 0n ? bonusMaxRaw : 0n;
+  // сертификат: код и остаток по нему (решение 21.10.2026 §3)
+  const [certCode, setCertCode] = useState('');
+  const [cert, setCert] = useState<{ balanceMinor: string; status: string; expiresAt: string } | { error: string } | null>(null);
+  const chooseMethod = (next: PayMethod) => {
+    setMethod(next);
+    setCert(null);
+    if (next === 'BONUS' && bonus === null) {
+      setBonus('loading');
+      void customerBonusQuote(row.customer.id).then((quote) => {
+        if (!mounted.current) return;
+        setBonus(quote);
+        if (quote) {
+          const max = minOf(
+            maxRedeem(BigInt(row.priceMinor), BigInt(quote.balanceMinor), quote.maxRedeemPercent),
+            (BigInt(row.priceMinor) * BigInt(quote.maxRedeemPercent)) / 100n - paidByBonus,
+            remaining,
+          );
+          setAmount(minorToInput((max > 0n ? max : 0n).toString()));
+        }
+      });
+    }
+  };
+  const checkCertificate = () => {
+    const code = normalizeCertificateCode(certCode);
+    if (!code) return setCert({ error: 'Код сертификата: 8 знаков' });
+    void lookupCertificate(code).then((found) => {
+      if (!mounted.current) return;
+      setCert(found);
+      if (!('error' in found)) {
+        const balance = BigInt(found.balanceMinor);
+        setAmount(minorToInput((balance < remaining ? balance : remaining).toString()));
+      }
+    });
+  };
   const pay = () => {
     const minorText = inputToMinor(amount);
     if (minorText === null) return setError('Введите сумму, не больше двух знаков после запятой');
     const minor = BigInt(minorText || '0');
     if (minor <= 0n) return setError('Сумма должна быть больше нуля');
     if (minor > BigInt(Number.MAX_SAFE_INTEGER)) return setError('Сумма слишком большая');
+    if (method === 'BONUS' && minor > bonusMax) return setError(`Бонусами можно оплатить не больше ${formatMoney(bonusMax.toString(), row.currency)}`);
+    const certificateCode = method === 'GIFT_CERTIFICATE' ? normalizeCertificateCode(certCode) : null;
+    if (method === 'GIFT_CERTIFICATE' && !certificateCode) return setError('Введите код сертификата: 8 знаков');
     const operation = money.current;
-    const request = operation?.begin({ kind: 'pay', method, amountMinor: Number(minor) });
+    const request = operation?.begin({
+      kind: 'pay', method, amountMinor: Number(minor), ...(certificateCode ? { certificateCode } : {}),
+    });
     if (operation && request) runMoney(request, operation);
     else if (operation) setMoneyStatus(operation.status);
   };
@@ -330,14 +389,52 @@ function AppointmentCardBody({
         <section className="beauty-form" aria-label="Оплата записи">
           <h3>Оплата</h3>
           <Field label="Способ">
-            <Select disabled={moneyLocked} value={method} onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}>
+            <Select disabled={moneyLocked} value={method} onChange={(e) => chooseMethod(e.target.value as PayMethod)}>
               {FOOD_PAYMENT_METHODS.map((m) => (
                 <option key={m} value={m}>
                   {METHOD_RU[m] ?? m}
                 </option>
               ))}
+              <option value="BONUS">Бонусы</option>
+              <option value="GIFT_CERTIFICATE">Сертификат</option>
             </Select>
           </Field>
+          {method === 'BONUS' && (
+            <p className="beauty-loyalty-hint" data-testid="pay-bonus-hint">
+              {bonus === 'loading'
+                ? 'Проверяем бонусы клиента…'
+                : bonus === null
+                  ? 'Бонусная программа выключена или бонусов нет.'
+                  : `Бонусов: ${formatMoney(bonus.balanceMinor, row.currency)}. Можно списать: ${formatMoney(bonusMax.toString(), row.currency)}.`}
+            </p>
+          )}
+          {method === 'GIFT_CERTIFICATE' && (
+            <>
+              <Field label="Код сертификата">
+                <Input
+                  disabled={moneyLocked}
+                  value={certCode}
+                  maxLength={12}
+                  autoComplete="off"
+                  onChange={(e) => { setCertCode(e.target.value); setCert(null); }}
+                />
+              </Field>
+              <Button type="button" tone="secondary" disabled={moneyLocked || !certCode.trim()} onClick={checkCertificate}>
+                Проверить
+              </Button>
+              {cert && (
+                <p className="beauty-loyalty-hint" data-testid="pay-certificate-hint">
+                  {'error' in cert
+                    ? cert.error
+                    : cert.status === 'ACTIVE'
+                      ? `Остаток сертификата: ${formatMoney(cert.balanceMinor, row.currency)}. Если остатка не хватает, спишется сколько есть.`
+                      : cert.status === 'EXPIRED'
+                        ? 'Срок сертификата истёк'
+                        : 'Сертификат уже использован'}
+                </p>
+              )}
+            </>
+          )}
           <Field label={`Сумма, ${currencyLabel}`}>
             <Input disabled={moneyLocked} inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </Field>

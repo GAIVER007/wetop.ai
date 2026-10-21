@@ -47,6 +47,19 @@ beforeEach(() => {
       ],
     });
 });
+describe('итоги отчёта салона строкой, без плиток (правило владельца 21.10.2026)', () => {
+  it('одна строка итогов, без kpi-tile; статусы с числами', async () => {
+    const html = renderToStaticMarkup(
+      await SalonReportsScreen({ searchParams: { from: '2026-10-18', to: '2026-10-18' } }),
+    );
+    expect(html).not.toContain('kpi-tile');
+    expect(html).toContain('data-testid="salon-report-summary"');
+    expect(html).toMatch(/data-testid="salon-report-cost-KZT"[^>]*>16\s000/);
+    expect(html).toContain('завершённых записей <b>1</b>');
+    expect(html).toContain('специалистов <b>1</b>');
+    expect(html).toMatch(/data-testid="salon-report-status-DONE"[^>]*>1</);
+  });
+});
 describe('salon report server permission boundary', () => {
   it('renders actual service and employee breakdowns without payment claims', async () => {
     const html = renderToStaticMarkup(

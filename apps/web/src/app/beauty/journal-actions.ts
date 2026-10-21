@@ -176,17 +176,45 @@ export async function payAppointment(
   amountMinor: number,
   idempotencyKey: string,
   scope: string,
+  certificateCode?: string,
 ): Promise<JournalResult> {
   if (!(await moneyScopeMatches(scope)))
     return { outcome: 'rejected', error: 'Не удалось подтвердить исходный филиал. Команда не отправлена.' };
   try {
-    const saved = await beautyApi.payAppointment(id, { method, amount: amountMinor, idempotencyKey });
+    const saved = await beautyApi.payAppointment(id, {
+      method, amount: amountMinor, idempotencyKey, ...(certificateCode ? { certificateCode } : {}),
+    });
     if (!Array.isArray(saved?.appointments) || !saved.appointments.some((row) => row.id === id))
       return unknownMoneyResult();
     moneyRevalidate();
     return { message: 'Оплата принята' };
-  } catch {
+  } catch (e) {
+    // бонусы и сертификат: явный отказ API (лимит, срок, код) значит ничего не записано, причину видно сразу
+    if (LOYALTY_METHODS.has(method) && e instanceof ApiError && [400, 404, 409].includes(e.status))
+      return { outcome: 'rejected', error: e.message };
     return unknownMoneyResult();
+  }
+}
+
+const LOYALTY_METHODS = new Set(['BONUS', 'GIFT_CERTIFICATE']);
+
+/** Баланс бонусов клиента для формы оплаты; null: программа выключена или ответа нет */
+export async function customerBonusQuote(customerId: string): Promise<{ balanceMinor: string; maxRedeemPercent: number } | null> {
+  try {
+    const b = await beautyApi.customerBonuses(customerId);
+    return b.program.enabled ? { balanceMinor: b.balanceMinor, maxRedeemPercent: b.program.maxRedeemPercent } : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Остаток сертификата по коду для формы оплаты */
+export async function lookupCertificate(code: string): Promise<{ balanceMinor: string; status: string; expiresAt: string } | { error: string }> {
+  try {
+    const c = await beautyApi.giftCertificateLookup(code);
+    return { balanceMinor: c.balanceMinor, status: c.status, expiresAt: c.expiresAt };
+  } catch (e) {
+    return { error: e instanceof ApiError ? e.message : 'Не удалось проверить сертификат' };
   }
 }
 

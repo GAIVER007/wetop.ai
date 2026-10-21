@@ -5,7 +5,6 @@
   margin-inline: auto;
   padding: var(--space-6) var(--space-8);
   color: var(--text);
-  background: var(--surface-muted);
   font-size: var(--text-sm);
 }
 .owner-home p { color: var(--muted); font-size: var(--text-xs); line-height: 1.5; margin: var(--space-2) 0; overflow-wrap: anywhere; }
@@ -29,7 +28,11 @@
 .owner-home progress::-webkit-progress-bar { background: var(--border); border-radius: var(--radius-sm); }
 .owner-home progress::-webkit-progress-value { background: var(--primary); border-radius: var(--radius-sm); }
 .owner-home progress::-moz-progress-bar { background: var(--primary); }
-.owner-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 320px); gap: var(--space-4); }
+.owner-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 320px); gap: var(--space-4); align-items: start; }
+/* аудит 21.10.2026: одно пустое состояние вместо четырёх плиток «Нет данных» (п. 8) */
+.owner-empty { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; padding: var(--space-4) var(--space-6); }
+.owner-empty p { margin-bottom: 0; }
+.owner-home .owner-empty a.btn { color: var(--on-primary); }
 .owner-panel { min-width: 0; border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius-sm); margin-bottom: var(--space-4); overflow: hidden; }
 .owner-panel-heading { padding: var(--space-4) var(--space-6) 0; }
 .owner-panel-heading p { margin-bottom: 0; }

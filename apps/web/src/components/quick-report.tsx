@@ -100,7 +100,10 @@ export function QuickReport({
   scope,
   build,
   loadPeriod,
+  text,
 }: {
+  /** видимая подпись рядом со значком (журнал салона, аудит 21.10.2026 п. 14); имя кнопки остаётся «Быстрый отчёт» */
+  text?: string;
   date: string;
   /** части подписи отчёта, каждая своей строкой, без разделителя-точки (DESIGN.md §14) */
   scope: string[];
@@ -161,6 +164,7 @@ export function QuickReport({
         onClick={() => setOpen(true)}
       >
         <Icon name="pie" />
+        {text && <span aria-hidden="true">{text}</span>}
       </Button>
       {/* Новый dialog при открытии сбрасывает прокрутку после смены темы или размера экрана. */}
       <Overlay

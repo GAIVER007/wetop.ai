@@ -11,6 +11,7 @@ import { loadBarContext } from '../load-context';
 import { BarCommandForm } from '../command-form';
 import { SupplierForm } from './supplier-form';
 import { BarTabs } from '../tabs';
+import { CatalogDialog } from '../catalog-dialog';
 import { deskShell } from '../../../lib/desk-shell';
 import { barActionAccess } from '../action-access';
 import '../bar.css';
@@ -42,16 +43,16 @@ export default async function BarSuppliersPage() {
     a.active === b.active ? a.name.localeCompare(b.name, 'ru') : a.active ? -1 : 1);
   // раздел меню «Склад» у всех направлений (решение владельца 19.10.2026)
   const sectionName = 'Склад';
-  return <Page width="wide" className="bar-subpage" title={`${sectionName}: поставщики`} subtitle="Контакты и расчёты: закуплено, оплачено и долг по каждому поставщику.">
+  return <Page width="wide" className="bar-subpage" title={`${sectionName}: поставщики`} subtitle="Контакты и расчёты: закуплено, оплачено и долг по каждому поставщику." actions={rights.createCatalog ? (
+      <CatalogDialog label="Новый поставщик">
+        <SupplierForm context={context} />
+      </CatalogDialog>
+    ) : undefined}>
     <BarTabs current="suppliers" />
-    {rights.createCatalog && <details className="panel bar-supplier-panel bar-details">
-      <summary>Новый поставщик</summary>
-      <SupplierForm context={context} />
-    </details>}
     <section className="bar-suppliers-table">
       <SectionTitle>Поставщики и расчёты</SectionTitle>
       {rows.length === 0
-        ? <EmptyState icon={<Icon name="guests" />} title="Поставщиков пока нет">Добавьте первого в форме выше: без поставщика не завести приход.</EmptyState>
+        ? <EmptyState icon={<Icon name="guests" />} title="Поставщиков пока нет">Добавьте первого кнопкой «Новый поставщик» вверху: без поставщика не завести приход.</EmptyState>
         : <Table density="compact" sticky="header" aria-label={`Поставщики ${shell.vertical === 'BEAUTY' ? 'склада' : 'бара'}`}>
             <thead><tr><th>Поставщик</th><th>Контакты</th><th>Долг</th><th>Расчёты</th><th>Действия</th></tr></thead>
             <tbody>{rows.map((supplier) => {

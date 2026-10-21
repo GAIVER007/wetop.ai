@@ -26,7 +26,7 @@ test('быстрая продажа: Halyk первым, Kaspi выключен 
   const saved = await request.put(`${fixture}/hotel/payment-methods`, { headers, data: { methods: settings(['HALYK'], ['KASPI']) } });
   expect(saved.ok()).toBe(true);
   await page.goto('/bar#bar-quick-sale');
-  const sale = main(page).locator('#bar-quick-sale').getByRole('tabpanel', { name: 'Продажа напрямую', exact: true });
+  const sale = page.locator('#bar-quick-sale').getByRole('tabpanel', { name: 'Продажа напрямую', exact: true });
   const select = sale.getByRole('combobox', { name: 'Способ оплаты' });
   await expect(select.locator('option')).toHaveText(['Halyk', 'Наличные', 'Карта', 'Перевод']);
   await expect(select).toHaveValue('HALYK');
@@ -48,7 +48,7 @@ test('объект оставил только депозит и гаранти�
     data: { methods: settings([], ['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL']) },
   });
   await page.goto('/bar#bar-quick-sale');
-  const sale = main(page).locator('#bar-quick-sale').getByRole('tabpanel', { name: 'Продажа напрямую', exact: true });
+  const sale = page.locator('#bar-quick-sale').getByRole('tabpanel', { name: 'Продажа напрямую', exact: true });
   await expect(sale.getByTestId('bar-no-methods')).toHaveText('В настройках объекта нет способа оплаты, который принимает бар');
   await expect(sale.getByRole('button', { name: 'Продать' })).toHaveCount(0);
   await expect(sale.getByRole('combobox', { name: 'Способ оплаты' })).toHaveCount(0);

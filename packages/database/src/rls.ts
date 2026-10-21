@@ -95,6 +95,13 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'beauty_position_permissions',
   'beauty_position_assignments',
   'beauty_location_hours',
+  // Салон, миграции 140-141 (docs/decisions/2026-10-21-salon-reminders-loyalty.md): напоминания, бонусы, сертификаты
+  'client_notifications',
+  'beauty_reminder_settings',
+  'bonus_programs',
+  'customer_bonus_entries',
+  'gift_certificates',
+  'gift_certificate_entries',
   // Approved portal tables: tenant policies already installed by migration128.
   'employee_public_profiles',
   'employee_media',

@@ -77,13 +77,16 @@ const num = (v: number | null) => (v === null ? '' : String(v));
  * Выгрузка в Excel (правила ADR-113: «;», UTF-8 с BOM, деньги с запятой): блок каналов и блок дней, каждый с
  * итогом, как на экране. Без результатов каналов обращения, брони и выручка пустые, а не нули.
  */
-export function analyticsCsv(r: AnalyticsReport): string {
+export function analyticsCsv(r: AnalyticsReport, vertical: string = 'HOSPITALITY'): string {
+  // слова результата по направлению (аудит 21.10.2026 п. 16): у салона записи, у ресторана брони столов
+  const [many, one] =
+    vertical === 'BEAUTY' ? ['Записи', 'записи'] : vertical === 'FOOD_SERVICE' ? ['Брони столов', 'брони стола'] : ['Брони', 'брони'];
   const rc = r.reportingCurrency;
   const rev = r.revenueCurrency;
   const res = <T>(v: T) => (r.ok ? v : null);
   const romi = (v: number | null) => num(r.ok && r.funnel.romiAvailable ? v : null);
   const lines = [
-    ['Канал', `Расход, ${rc}`, 'Обращения', `CPL, ${rc}`, 'Брони', `Стоимость брони, ${rc}`, `Выручка, ${rev}`, 'ROMI, %'],
+    ['Канал', `Расход, ${rc}`, 'Обращения', `CPL, ${rc}`, many, `Стоимость ${one}, ${rc}`, `Выручка, ${rev}`, 'ROMI, %'],
     ...r.funnel.rows.map((f) => [
       MARKETING_PLATFORM_LABELS[f.platform as MarketingPlatform] ?? f.platform,
       money(f.spendMinor),
@@ -98,7 +101,7 @@ export function analyticsCsv(r: AnalyticsReport): string {
   const t = r.funnel.total;
   lines.push(['Итого', money(t.spendMinor), num(res(t.leads)), money(res(t.cplMinor)), num(res(t.bookings)), money(res(t.costPerBookingMinor)), money(res(t.revenueMinor)), romi(t.romiPct)]);
   lines.push([]);
-  lines.push(['День', `Расход, ${rc}`, 'Лиды', `CPL, ${rc}`, 'Брони', 'Новые клиенты', `Выручка, ${rev}`, 'ROMI, %']);
+  lines.push(['День', `Расход, ${rc}`, 'Лиды', `CPL, ${rc}`, many, 'Новые клиенты', `Выручка, ${rev}`, 'ROMI, %']);
   const day = (label: string, d: MarketingDays['total']) => [
     label,
     money(d.spendMinor),

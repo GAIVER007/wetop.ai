@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { requireFeature } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../../components/page';
@@ -11,6 +10,7 @@ import { mayAccess } from '../../../lib/navigation';
 import { isIsoDate, todayAt } from '@pms/domain';
 import { ScheduleBoard, type WeekGridData } from './board';
 import { mondayOf } from './week';
+import { SalonSetupLink, salonSetupPending } from '../masters/setup-link';
 import '../beauty.css';
 
 /**
@@ -26,8 +26,8 @@ export default async function BeautySchedulePage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/beauty/schedule');
-  const { week, group } = normalizeSearchParams(await searchParams);
-  const shell = await deskShell();
+  const { week, group, onboarding } = normalizeSearchParams(await searchParams);
+  const [shell, setupPending] = await Promise.all([deskShell(), salonSetupPending(onboarding === '1')]);
   const loaded = await loadGrid(
     typeof week === 'string' ? week : undefined,
     typeof group === 'string' ? group : undefined,
@@ -57,9 +57,7 @@ export default async function BeautySchedulePage({
           : 'График специалистов. Филиал пока не выбран.'
       }
     >
-      <p>
-        <Link href="/register/setup">Вернуться к настройке салона</Link>
-      </p>
+      {setupPending && <SalonSetupLink />}
       <ScheduleBoard
         key={loaded.value.location?.id ?? 'none'}
         data={loaded.value}

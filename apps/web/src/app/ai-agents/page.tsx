@@ -15,6 +15,8 @@ import { deskShell } from '../../lib/desk-shell';
 import { loadErrorProps } from '../../lib/load-error';
 import { sellerVerticalUiCopy } from '../../lib/ai-seller';
 import type { WebVertical } from '../../lib/vertical-landing';
+import { supportContacts } from '../../lib/support-contacts';
+import { BackToModules } from '../marketing/parts';
 
 /**
  * Каталог «ИИ-агентов» (S0: `plans/ai-agents-wetop-support-2026-09-29.md`, Q-A2; SA1: `plans/business-ai-seller-v2-2026-09-29.md`
@@ -33,10 +35,12 @@ export default async function AiAgentsPage() {
   } catch (error) {
     failure = error;
   }
-  const button = catalog ? createButton(catalog, readOnly) : null;
+  // расширения нет: одна карточка с действием, без неактивной кнопки снаружи (аудит 21.10.2026 п. 3)
+  const off = catalog?.extension?.access === 'off';
+  const button = catalog && !off ? createButton(catalog, readOnly) : null;
   const disabledReasonId = 'agent-add-reason';
   return (
-    <Page title="ИИ-продавец" subtitle="Настройка продавцов, инструкции и каналы общения.">
+    <Page crumbs={<BackToModules />} title="ИИ-продавец" subtitle="Настройка продавцов, инструкции и каналы общения.">
       {failure !== null && (
         <LoadError
           testId="agents-error"
@@ -46,7 +50,7 @@ export default async function AiAgentsPage() {
       )}
       <Stack>
         <Grid min={280}>
-          {catalog && catalog.extension?.access === 'off' && <OffCard vertical={vertical} />}
+          {off && <OffCard vertical={vertical} />}
           {catalog?.agents.map((agent) => (
             <AgentCard key={agent.id} agent={agent} />
           ))}
@@ -90,16 +94,27 @@ export default async function AiAgentsPage() {
   );
 }
 
-/** Расширение не подключено: вместо списка — что даёт продавец и как его подключить (Q-SA-1: счёт, цены здесь нет) */
+/** Расширение не подключено: вместо списка что даёт продавец и кнопка в поддержку (Q-SA-1: счёт, цены здесь нет) */
 function OffCard({ vertical }: { vertical: WebVertical }) {
   const copy = sellerVerticalUiCopy(vertical);
+  const href = supportContacts(process.env)?.whatsapp ?? '/help#support';
   return (
-    <Panel title="ИИ-продавец" className="agent-card" data-testid="agent-seller">
+    <Panel title="Что умеет ИИ-продавец" className="agent-card" data-testid="agent-seller">
       <Stack gap="sm">
         <div>{copy.agentCard}</div>
         <div data-testid="agent-seller-off" className="muted">
-          Расширение «ИИ-продавец» не подключено. Подключает администратор WETOP после оплаты по
-          счёту.
+          Расширение не подключено. Его подключает команда WETOP после оплаты по счёту.
+        </div>
+        <div>
+          {href.startsWith('/') ? (
+            <Link className="btn" href={href} data-testid="agent-seller-ask">
+              Связаться с поддержкой
+            </Link>
+          ) : (
+            <a className="btn" href={href} target="_blank" rel="noreferrer" data-testid="agent-seller-ask">
+              Связаться с поддержкой
+            </a>
+          )}
         </div>
       </Stack>
     </Panel>

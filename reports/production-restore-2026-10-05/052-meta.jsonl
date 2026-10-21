@@ -1,0 +1,4 @@
+{"migration" : "20261004000052_onboarding_progress", "checksum" : "b8566ad5c85ce6b8ad22a7cf3b6eaf1c06a6053af0cb643cfb0c8aee1a8b4e9a", "finished" : true, "rolled_back" : false}
+{"rls" : true, "force_rls" : false}
+{"policy" : "rls_tenant", "roles" : ["wetop_app"], "using" : "(EXISTS ( SELECT 1\n   FROM locations l\n  WHERE (l.id = onboarding_progress.location_id)))", "with_check" : "(EXISTS ( SELECT 1\n   FROM locations l\n  WHERE (l.id = onboarding_progress.location_id)))"}
+{"wetop_app_select" : true, "wetop_app_insert" : true, "wetop_app_update" : true, "users_full_select" : false}

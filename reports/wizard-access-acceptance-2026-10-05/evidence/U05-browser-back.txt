@@ -1,0 +1,70 @@
+- alert
+- link "К содержимому":
+  - /url: "#main-content"
+- banner:
+  - link "WETOP, Главная":
+    - /url: /today
+    - generic: W
+    - generic: WETOP.AI
+  - button "Выбрать филиал":
+    - strong: Тестовый отель
+  - button "Найти гостя или бронь":
+    - generic: Поиск гостя, брони, номера...
+    - generic: ⌘ K
+  - button "Переключить тему":
+  - button "Меню администратора":
+    - generic: ТВ
+    - strong: Тестовый владелец
+    - generic: Владелец
+  - navigation "Разделы":
+    - link "Салон":
+      - /url: /beauty
+    - link "Услуги":
+      - /url: /beauty/services
+    - link "Мастера":
+      - /url: /beauty/masters
+    - link "График":
+      - /url: /beauty/schedule
+    - link "Сотрудники":
+      - /url: /team
+    - link "Журнал":
+      - /url: /journal
+    - generic: Нет связи с API
+- main:
+  - paragraph: Настройка рабочего пространства
+  - heading "Настройте отель" [level=1]
+  - list "Прогресс настройки":
+    - listitem: Номера и цены
+  - region "Отель":
+    - heading "Отель" [level=2]
+    - text: Название
+    - textbox "Название": Тестовый отель
+    - text: Валюта
+    - textbox "Валюта": KZT
+    - paragraph: Название и реквизиты можно изменить в настройках объекта.
+  - region "Номера и цены":
+    - heading "Номера и цены" [level=2]
+    - list:
+      - text: Название категории
+      - textbox "Название категории":
+        - /placeholder: Двухместный номер
+        - text: QA-U09-room
+      - text: Тип
+      - combobox "Тип":
+        - option "Отдельный номер" [selected]
+        - option "Койко-место (общий номер)"
+        - option "Апартаменты"
+      - text: Гостей на место
+      - spinbutton "Гостей на место": "2"
+      - text: Сколько мест
+      - spinbutton "Сколько мест": "2"
+      - text: Цена за ночь, KZT
+      - spinbutton "Цена за ночь, KZT": "18000"
+      - button "Убрать категорию 1" [disabled]:
+    - button "Добавить категорию":
+      - text: Добавить категорию
+  - button "Заполнить позже"
+  - button "Запустить отель":
+    - text: Запустить отель
+  - status: Нажмите «Сохранить», чтобы продолжить после перезагрузки.
+  - button "Сохранить"

@@ -1,0 +1,22 @@
+- main:
+  - paragraph: Настройка рабочего пространства
+  - heading "Настройте Beauty" [level=1]
+  - list "Прогресс настройки":
+    - listitem: ✓ Бизнес
+    - listitem: ✓ Филиал
+    - listitem: Проверка
+  - region "Проверка":
+    - heading "Проверка" [level=2]
+    - term: Бизнес
+    - definition: QA-U04-lost-response
+    - term: Филиал
+    - definition: QA-U07-retry
+    - term: Часовой пояс
+    - definition: Asia/Almaty
+    - term: Валюта
+    - definition: KZT
+  - status: Сохранено
+  - button "Назад"
+  - button "Сохранить"
+  - button "Завершить настройку"
+- alert

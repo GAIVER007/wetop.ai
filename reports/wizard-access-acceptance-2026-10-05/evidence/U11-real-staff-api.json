@@ -1,0 +1,10 @@
+{
+  "verifiedRole": "STAFF",
+  "requestResult": {
+    "status": 403,
+    "body": {
+      "message": "Настройку выполняет владелец или управляющий"
+    }
+  },
+  "draftUnchanged": true
+}

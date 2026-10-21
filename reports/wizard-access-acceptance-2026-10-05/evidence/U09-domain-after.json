@@ -1,0 +1,84 @@
+{
+  "properties": [
+    {
+      "id": "50aa3f32-89f9-453d-aae7-9867e079f420",
+      "name": "Тестовый отель",
+      "legal_name": null,
+      "bin": null,
+      "address": null,
+      "timezone": "Asia/Almaty",
+      "currency": "KZT",
+      "check_in_time": "14:00",
+      "check_out_time": "12:00",
+      "created_at": "2026-10-05T12:27:15.213Z",
+      "updated_at": "2026-10-05T12:27:15.213Z",
+      "organization_id": "6d4589a4-feda-4b35-99c2-cf0b14233647",
+      "phone": null,
+      "email": null,
+      "location_id": "87e44b75-c827-4581-bb5b-3424e0017eb9",
+      "country_code": null,
+      "city": null,
+      "channex_property_type": null
+    }
+  ],
+  "accommodation_types": [
+    {
+      "id": "86ba3d5c-31b4-4aff-b187-6ce319c2c69f",
+      "property_id": "50aa3f32-89f9-453d-aae7-9867e079f420",
+      "code": "cat-1",
+      "name": "QA-U09-room",
+      "kind": "PRIVATE_ROOM",
+      "capacity_adults": 2,
+      "capacity_children": 0,
+      "active": true,
+      "created_at": "2026-10-05T12:30:57.887Z",
+      "updated_at": "2026-10-05T12:30:57.887Z"
+    }
+  ],
+  "inventory_units": [
+    {
+      "id": "89b8da51-cf7c-4798-bc0a-191968ed4576",
+      "physical_room_id": "4e359c83-625d-46a5-b5a8-dce27050987e",
+      "accommodation_type_id": "86ba3d5c-31b4-4aff-b187-6ce319c2c69f",
+      "kind": "ROOM",
+      "code": "101",
+      "housekeeping_status": "DIRTY",
+      "active": true,
+      "created_at": "2026-10-05T12:30:57.892Z",
+      "updated_at": "2026-10-05T12:30:57.892Z",
+      "property_id": "50aa3f32-89f9-453d-aae7-9867e079f420"
+    },
+    {
+      "id": "8f90d651-a6ec-4d0c-a28b-59f7ae8cd13e",
+      "physical_room_id": "34091110-410b-4809-becf-750c8d512c63",
+      "accommodation_type_id": "86ba3d5c-31b4-4aff-b187-6ce319c2c69f",
+      "kind": "ROOM",
+      "code": "102",
+      "housekeeping_status": "DIRTY",
+      "active": true,
+      "created_at": "2026-10-05T12:30:57.895Z",
+      "updated_at": "2026-10-05T12:30:57.895Z",
+      "property_id": "50aa3f32-89f9-453d-aae7-9867e079f420"
+    }
+  ],
+  "rate_plans": [
+    {
+      "id": "4c6a1501-b815-4fc5-a692-592f402a79a1",
+      "property_id": "50aa3f32-89f9-453d-aae7-9867e079f420",
+      "code": "main",
+      "name": "Основной тариф",
+      "currency": "KZT",
+      "meal_plan": null,
+      "active": true,
+      "note": null,
+      "created_at": "2026-10-05T12:30:57.897Z",
+      "updated_at": "2026-10-05T12:30:57.897Z",
+      "cancellation_penalty": "FIRST_NIGHT",
+      "parent_rate_plan_id": null,
+      "discount_percent": null,
+      "min_days_before_arrival": null,
+      "max_days_before_arrival": null,
+      "min_nights": null
+    }
+  ]
+}

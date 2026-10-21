@@ -1,0 +1,22 @@
+{
+  "production_vs_historical": {
+    "columns": true,
+    "constraints": true,
+    "indexes": true,
+    "triggers": true,
+    "functions": true,
+    "policies": true,
+    "rls": true,
+    "grants": true
+  },
+  "historical_vs_release": {
+    "columns": true,
+    "constraints": true,
+    "indexes": true,
+    "triggers": true,
+    "functions": false,
+    "policies": true,
+    "rls": true,
+    "grants": true
+  }
+}

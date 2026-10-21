@@ -1,0 +1,7 @@
+{
+  "status": 409,
+  "body": {
+    "message": "Настройка уже завершена"
+  },
+  "allProgressUnchanged": true
+}

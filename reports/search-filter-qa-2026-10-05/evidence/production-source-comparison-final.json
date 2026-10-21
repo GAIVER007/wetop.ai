@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-10-06T07:34:58.044789+00:00",
+  "initialProductionSha": "6d9b470564fa8d52db66bca8cf4b74217750e391",
+  "currentProductionMarkerAndHead": "c86e529665072164c8d0cbaf13fc79f39645c3ae",
+  "comparedFiles": [
+    "apps/web/src/app/rooms/availability-finder.tsx",
+    "apps/web/src/app/finance/page.tsx",
+    "apps/web/src/app/rates/bulk-editor.tsx",
+    "apps/web/src/app/reports/print/page.tsx",
+    "apps/web/src/app/chessboard/page.tsx",
+    "apps/web/src/app/chessboard/board-position.ts"
+  ],
+  "changedFiles": [],
+  "productionAcceptanceOfCandidate": "not performed"
+}

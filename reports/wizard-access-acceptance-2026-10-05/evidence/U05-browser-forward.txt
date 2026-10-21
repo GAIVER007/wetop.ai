@@ -1,0 +1,57 @@
+- alert: WETOP · Управление гостиницей
+- link "К содержимому":
+  - /url: "#main-content"
+- banner:
+  - link "WETOP, Главная":
+    - /url: /today
+    - generic: W
+    - generic: WETOP.AI
+  - button "Выбрать филиал":
+    - strong: Тестовый отель
+  - button "Найти гостя или бронь":
+    - generic: Поиск гостя, брони, номера...
+    - generic: ⌘ K
+  - button "Переключить тему":
+  - button "Меню администратора":
+    - generic: ТВ
+    - strong: Тестовый владелец
+    - generic: Владелец
+  - navigation "Разделы":
+    - link "Салон":
+      - /url: /beauty
+    - link "Услуги":
+      - /url: /beauty/services
+    - link "Мастера":
+      - /url: /beauty/masters
+    - link "График":
+      - /url: /beauty/schedule
+    - link "Сотрудники":
+      - /url: /team
+    - link "Журнал":
+      - /url: /journal
+    - generic: Нет связи с API
+- main:
+  - heading "Главная" [level=1]
+  - navigation "Действия страницы":
+    - button "Обновить"
+  - heading "Деньги" [level=2]
+  - navigation "Период финансов":
+    - link "Сегодня":
+      - /url: /today?period=today
+    - link "7 дней":
+      - /url: /today?period=week
+    - link "Месяц":
+      - /url: /today?period=month
+  - textbox "Начало периода": 2026-10-01
+  - generic: –
+  - textbox "Конец периода": 2026-10-31
+  - button "Показать"
+  - alert:
+    - text: Финансовая аналитика не загрузилась. Обновите страницу или откройте
+    - link "финансы":
+      - /url: /finance
+    - text: . Данные не заменены нулями.
+  - alert:
+    - text: Данные стойки не загрузились. Обновите страницу.
+    - link "Открыть брони":
+      - /url: /reservations

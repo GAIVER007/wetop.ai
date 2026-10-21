@@ -1,0 +1,32 @@
+{
+  "column_definitions_equal": true,
+  "column_relative_order_equal": true,
+  "enum_labels_and_relative_order_equal": true,
+  "test_role_difference": "wetop_app NOLOGIN in isolated copy, production LOGIN; no production password copied",
+  "constraint_deparse_changes": [
+    {
+      "table": "seller_agents",
+      "name": "seller_agents_lifecycle_check",
+      "source": "CHECK (((lifecycle)::text = ANY ((ARRAY['draft'::character varying, 'active'::character varying, 'paused'::character varying, 'archived'::character varying])::text[])))",
+      "restored": "CHECK (((lifecycle)::text = ANY (ARRAY[('draft'::character varying)::text, ('active'::character varying)::text, ('paused'::character varying)::text, ('archived'::character varying)::text])))"
+    },
+    {
+      "table": "seller_agents",
+      "name": "seller_agents_scenario_check",
+      "source": "CHECK (((scenario)::text = ANY ((ARRAY['sales'::character varying, 'support'::character varying])::text[])))",
+      "restored": "CHECK (((scenario)::text = ANY (ARRAY[('sales'::character varying)::text, ('support'::character varying)::text])))"
+    },
+    {
+      "table": "seller_agents",
+      "name": "seller_agents_working_needs_location",
+      "source": "CHECK ((((lifecycle)::text <> ALL ((ARRAY['active'::character varying, 'paused'::character varying])::text[])) OR (location_id IS NOT NULL)))",
+      "restored": "CHECK ((((lifecycle)::text <> ALL (ARRAY[('active'::character varying)::text, ('paused'::character varying)::text])) OR (location_id IS NOT NULL)))"
+    },
+    {
+      "table": "seller_booking_intents",
+      "name": "seller_booking_intents_channel",
+      "source": "CHECK (((channel)::text = ANY ((ARRAY['whatsapp'::character varying, 'widget'::character varying])::text[])))",
+      "restored": "CHECK (((channel)::text = ANY (ARRAY[('whatsapp'::character varying)::text, ('widget'::character varying)::text])))"
+    }
+  ]
+}

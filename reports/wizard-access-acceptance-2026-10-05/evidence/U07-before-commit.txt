@@ -1,0 +1,21 @@
+- main:
+  - paragraph: Настройка рабочего пространства
+  - heading "Настройте Beauty" [level=1]
+  - list "Прогресс настройки":
+    - listitem: ✓ Бизнес
+    - listitem: Филиал
+    - listitem: Проверка
+  - region "Филиал":
+    - heading "Филиал" [level=2]
+    - text: Название филиала
+    - textbox "Название филиала": QA-U07-retry
+    - text: Часовой пояс IANA
+    - textbox "Часовой пояс IANA": Asia/Almaty
+    - text: Валюта
+    - textbox "Валюта": KZT
+  - alert: QA interrupted before commit
+  - status: Нажмите «Сохранить», чтобы продолжить после перезагрузки.
+  - button "Назад"
+  - button "Сохранить"
+  - button "Продолжить"
+- alert

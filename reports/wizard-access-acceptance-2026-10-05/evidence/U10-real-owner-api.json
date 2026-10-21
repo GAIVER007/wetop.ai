@@ -1,0 +1,11 @@
+{
+  "verifiedRole": "OWNER",
+  "organizationStatus": "READ_ONLY",
+  "requestResult": {
+    "status": 403,
+    "body": {
+      "message": "Организация доступна только для чтения"
+    }
+  },
+  "draftUnchanged": true
+}

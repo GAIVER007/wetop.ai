@@ -1,0 +1,3 @@
+BEGIN
+{"checked_at" : "2026-10-05T07:43:13.895436+00:00", "read_only" : "on", "server_version" : "17.6", "onboarding_exists" : false, "migration_history_rows" : 57, "migration_history_digest" : "db14c2c79243399eacb08cbb04ba7043", "active_migrations" : 56, "unfinished_migrations" : 0}
+COMMIT

@@ -1,0 +1,106 @@
+- link "К содержимому":
+  - /url: "#main-content"
+- banner:
+  - link "WETOP, Главная":
+    - /url: /today
+    - generic: W
+    - generic: WETOP.AI
+  - button "Выбрать филиал":
+    - strong: Тестовый отель
+  - button "Найти гостя или бронь":
+    - generic: Поиск гостя, брони, номера...
+    - generic: ⌘ K
+  - button "Переключить тему":
+  - button "Меню администратора":
+    - generic: ТВ
+    - strong: Тестовый владелец
+    - generic: Владелец
+  - navigation "Разделы":
+    - link "Главная":
+      - /url: /today
+    - link "Календарь":
+      - /url: /chessboard
+    - link "Брони":
+      - /url: /reservations
+    - link "Гости":
+      - /url: /guests
+    - link "Финансы":
+      - /url: /finance
+    - button "Продажи":
+      - generic: Продажи
+    - button "Отчёты":
+      - generic: Отчёты
+    - link "Номерной фонд":
+      - /url: /inventory
+    - button "Настройки":
+      - generic: Настройки
+    - generic: Нет связи с API
+- main:
+  - heading "Настройки объекта" [level=1]
+  - generic: Тестовый отель
+  - navigation "Действия страницы":
+    - status
+    - button "Сохранить изменения" [disabled]
+  - navigation "Настройки объекта":
+    - link "Основное":
+      - /url: /hotel-settings
+    - link "Проживание":
+      - /url: /hotel-settings/stay
+    - link "Услуги":
+      - /url: /hotel-settings/services
+  - region "Основная информация":
+    - heading "Основная информация" [level=2]
+    - text: Название объекта
+    - textbox "Название объекта": Тестовый отель
+    - text: Телефон
+    - textbox "Телефон"
+    - text: Почта
+    - textbox "Почта"
+    - text: Адрес
+    - textbox "Адрес"
+  - region "Региональные настройки":
+    - heading "Региональные настройки" [level=2]
+    - term: Часовой пояс
+    - definition: Asia/Almaty
+    - term: Валюта
+    - definition: KZT
+    - paragraph: "Меняет поддержка WETOP: от них зависят цены, счета и границы ночей."
+  - region "Расположение для каналов продаж":
+    - heading "Расположение для каналов продаж" [level=2]
+    - paragraph: Эти данные нужны перед подключением объекта к менеджеру каналов.
+    - text: Страна (код ISO)
+    - textbox "Страна (код ISO)":
+      - /placeholder: KZ
+    - text: Город
+    - textbox "Город"
+    - text: Тип размещения
+    - combobox "Тип размещения":
+      - option "Выберите тип" [selected]
+      - option "Апарт-отель"
+      - option "Апартаменты"
+      - option "Размещение на судне"
+      - option "Кемпинг"
+      - option "Капсульный отель"
+      - option "Шале"
+      - option "Загородный дом"
+      - option "Проживание на ферме"
+      - option "Гостевой дом"
+      - option "Дом для отдыха"
+      - option "Парк отдыха"
+      - option "Проживание в доме"
+      - option "Хостел"
+      - option "Отель"
+      - option "Мини-отель"
+      - option "Лодж"
+      - option "Мотель"
+      - option "Курортный отель"
+      - option "Риад"
+      - option "Рёкан"
+  - region "Юридическое лицо":
+    - heading "Юридическое лицо" [level=2]
+    - paragraph: Печатаются в договоре и счёте гостя.
+    - text: Юридическое название
+    - textbox "Юридическое название"
+    - text: ИИН/БИН
+    - textbox "ИИН/БИН"
+- alert: Настройки объекта

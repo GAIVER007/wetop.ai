@@ -1,0 +1,20 @@
+[
+  {
+    "variant": "historical",
+    "apply052": "PASS",
+    "draft_reconnect_read": "PASS",
+    "down_refuses_saved_draft": "PASS",
+    "draft_retained": "1",
+    "postgres": "16.15 isolated localhost",
+    "note": "No production data copied"
+  },
+  {
+    "variant": "release",
+    "apply052": "PASS",
+    "draft_reconnect_read": "PASS",
+    "down_refuses_saved_draft": "PASS",
+    "draft_retained": "1",
+    "postgres": "16.15 isolated localhost",
+    "note": "No production data copied"
+  }
+]

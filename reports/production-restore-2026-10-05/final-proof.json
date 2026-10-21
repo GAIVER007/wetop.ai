@@ -1,0 +1,9 @@
+{
+  "production_history_unchanged": true,
+  "production052_absent": true,
+  "production_active_migrations": 56,
+  "production_unfinished_migrations": 0,
+  "server_head": "2d9adf662d2133bcffbd15b5dd582407c8f980e2",
+  "deployed_marker": "2d9adf662d2133bcffbd15b5dd582407c8f980e2",
+  "isolated_database_removed": true
+}

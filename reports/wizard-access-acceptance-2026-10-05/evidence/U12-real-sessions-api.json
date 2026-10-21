@@ -1,0 +1,37 @@
+{
+  "checks": [
+    {
+      "method": "GET",
+      "status": 403,
+      "body": {
+        "message": "Выберите бизнес и филиал для настройки"
+      }
+    },
+    {
+      "method": "POST",
+      "status": 403,
+      "body": {
+        "message": "Выберите бизнес и филиал для настройки"
+      }
+    },
+    {
+      "method": "foreign body",
+      "status": 400,
+      "body": {
+        "message": "Неизвестное поле запроса"
+      }
+    },
+    {
+      "method": "B own read",
+      "status": 200,
+      "locationId": "1baa1c05-80ec-4d56-9581-24e949b2f7f2",
+      "draft": {
+        "currency": "KZT",
+        "timezone": "Asia/Almaty",
+        "businessName": "QA-B-private-draft",
+        "locationName": "QA-B"
+      }
+    }
+  ],
+  "allProgressUnchanged": true
+}

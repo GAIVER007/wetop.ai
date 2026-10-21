@@ -1,0 +1,7 @@
+{
+  "original_tables_unchanged_after052": true,
+  "new_onboarding_table_empty_before_test": true,
+  "migration_rows_added": 1,
+  "baseline_history_rows": 57,
+  "constraint_equivalence_zero_differences": true
+}

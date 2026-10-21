@@ -1,0 +1,65 @@
+# Сквозные (e2e) · 05.10.2026 20:45 Алматы · MacBook-Air-Urij.local
+# коммит 6d9b470 (codex/search-filter-qa-20261005), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/search-filter-recovery.spec.ts'
+[WebServer] (node:89578) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89603) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89607) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89633) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89635) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:89676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 20 tests using 1 worker
+
+(node:89683) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search (575ms)
+
+
+  1) tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search 
+
+    Test was interrupted.
+
+    TypeError: Cannot read properties of null (reading 'addInitScript')
+
+       at fixtures.ts:108
+
+      106 |   tour: [false, { option: true }],
+      107 |   page: async ({ page, tour }, use) => {
+    > 108 |     if (!tour) await page.addInitScript(TOUR_DONE_SCRIPT);
+          |                           ^
+      109 |     const goto = page.goto.bind(page);
+      110 |     page.goto = async (url, options) => {
+      111 |       const response = await goto(url, options);
+        at Object.page (/Users/urijzapojnov/wetop-channex-recovery-20261004/tests/ui/fixtures.ts:108:27)
+
+    Error Context: test-results/search-filter-recovery-sea-de260--fields-and-repeated-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-filter-recovery-sea-de260--fields-and-repeated-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/search-filter-recovery-sea-de260--fields-and-repeated-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 interrupted
+    tests/ui/search-filter-recovery.spec.ts:25:7 › search/filter recovery 1440 › availability: Завтра updates edited fields and repeated search 
+  19 did not run
+
+# код выхода 130 · 10 с

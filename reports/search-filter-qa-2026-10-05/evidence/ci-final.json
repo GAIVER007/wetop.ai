@@ -1,0 +1,58 @@
+{
+  "head_sha": "7b45dbd1f641d0ec9ad697f78c707af6e1f22980",
+  "run_attempt": 2,
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/GAIVER007/wetop.ai/actions/runs/37362960052",
+  "jobs": [
+    {
+      "id": 112154385971,
+      "name": "бот · pytest",
+      "conclusion": "success",
+      "started_at": "2026-10-06T07:17:38Z",
+      "completed_at": "2026-10-06T07:20:17Z"
+    },
+    {
+      "id": 112154386270,
+      "name": "lint · typecheck · unit · главная",
+      "conclusion": "success",
+      "started_at": "2026-10-06T07:17:38Z",
+      "completed_at": "2026-10-06T07:21:25Z"
+    },
+    {
+      "id": 112155631711,
+      "name": "миграции · integration · e2e на чистом PostgreSQL 16",
+      "conclusion": "success",
+      "started_at": "2026-10-06T07:21:27Z",
+      "completed_at": "2026-10-06T07:30:25Z"
+    },
+    {
+      "id": 112155631814,
+      "name": "UI · часть 2/3",
+      "conclusion": "success",
+      "started_at": "2026-10-06T07:21:27Z",
+      "completed_at": "2026-10-06T07:38:14Z"
+    },
+    {
+      "id": 112155631816,
+      "name": "UI · часть 3/3",
+      "conclusion": "success",
+      "started_at": "2026-10-06T07:21:27Z",
+      "completed_at": "2026-10-06T07:41:26Z"
+    },
+    {
+      "id": 112155631880,
+      "name": "UI · часть 1/3",
+      "conclusion": "success",
+      "started_at": "2026-10-06T07:21:30Z",
+      "completed_at": "2026-10-06T07:53:49Z"
+    },
+    {
+      "id": 112166530284,
+      "name": "стойка на синтетическом API (tests/ui)",
+      "conclusion": "success",
+      "started_at": "2026-10-06T07:53:53Z",
+      "completed_at": "2026-10-06T07:53:57Z"
+    }
+  ]
+}

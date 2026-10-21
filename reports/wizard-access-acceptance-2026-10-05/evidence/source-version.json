@@ -1,0 +1,8 @@
+{
+  "sha": "a5c5050c8c835ae4e2d43e73092355176f5a53f2",
+  "trackedApplicationFiles": 1579,
+  "differences": [],
+  "generatedDeclarationRestored": [
+    "apps/web/next-env.d.ts"
+  ]
+}

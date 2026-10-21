@@ -1,0 +1,16 @@
+- main:
+  - paragraph: Настройка рабочего пространства
+  - heading "Настройте Beauty" [level=1]
+  - list "Прогресс настройки":
+    - listitem: Бизнес
+    - listitem: Филиал
+    - listitem: Проверка
+  - region "Бизнес":
+    - heading "Бизнес" [level=2]
+    - text: Название бизнеса
+    - textbox "Название бизнеса": QA-U04-lost-response
+  - alert: QA response lost after commit
+  - status: Нажмите «Сохранить», чтобы продолжить после перезагрузки.
+  - button "Сохранить"
+  - button "Продолжить"
+- alert

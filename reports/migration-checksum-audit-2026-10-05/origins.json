@@ -1,0 +1,38 @@
+[
+  {
+    "migration": "20260930000035_business_agent_identity",
+    "path": "packages/database/prisma/migrations/20260930000035_business_agent_identity/migration.sql",
+    "source_commit": "077b9c60b508330b8ff24f135e4be27b4bc6644b",
+    "source_date": "2026-09-30T11:38:45Z",
+    "production_matching_sha256": "5b40292fe64045c8b5df6c390a8d0bc7e940c85385354a5e1877b2ac4474866c",
+    "release_sha256": "cdea096f1c4c9349d48bab80cc96d2efc87645d78d934702a86146fdcd5be9c9",
+    "replacement_count": 11,
+    "entire_difference": "space U+2014 space -> comma space",
+    "change_commit": "46a507ff09ad448fb749e0e4fd97d33c200e1206",
+    "change_date": "2026-10-01T11:05:22Z"
+  },
+  {
+    "migration": "20260930000036_seller_agent_scope_expand",
+    "path": "packages/database/prisma/migrations/20260930000036_seller_agent_scope_expand/migration.sql",
+    "source_commit": "077b9c60b508330b8ff24f135e4be27b4bc6644b",
+    "source_date": "2026-09-30T11:38:45Z",
+    "production_matching_sha256": "26853b7490d3724bc1a78b6e977010dbc94dea7eb3d7dbe4ac8f03b0998c6eab",
+    "release_sha256": "36fffbe43b9f46e701977f05019300da1ea50abdb93df9f0bc34a79f1167a1ea",
+    "replacement_count": 15,
+    "entire_difference": "space U+2014 space -> comma space",
+    "change_commit": "46a507ff09ad448fb749e0e4fd97d33c200e1206",
+    "change_date": "2026-10-01T11:05:22Z"
+  },
+  {
+    "migration": "20260930000039_seller_profile_agent_key",
+    "path": "packages/database/prisma/migrations/20260930000039_seller_profile_agent_key/migration.sql",
+    "source_commit": "0b345fedaca37ed0033005d86134e81a00e7f9ec",
+    "source_date": "2026-09-30T13:50:22Z",
+    "production_matching_sha256": "a49b527bba16918ce6487ace6adefba007a65512dd40e6511cde30a7cec071a6",
+    "release_sha256": "0c00c98da3edad9a5973e104c456f3faa611ed6a8eea1000a6ab2623a5928894",
+    "replacement_count": 4,
+    "entire_difference": "space U+2014 space -> comma space",
+    "change_commit": "46a507ff09ad448fb749e0e4fd97d33c200e1206",
+    "change_date": "2026-10-01T11:05:22Z"
+  }
+]

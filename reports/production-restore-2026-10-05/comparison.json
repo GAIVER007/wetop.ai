@@ -1,0 +1,69 @@
+{
+  "data": {
+    "tables_source": 74,
+    "tables_restored": 74,
+    "rows_source": 9368,
+    "rows_restored": 9368,
+    "all_table_counts_and_digests_equal": true,
+    "differing_tables": [],
+    "migration_history": true
+  },
+  "catalog": {
+    "columns": {
+      "equal": false,
+      "source_items": 690,
+      "restored_items": 690
+    },
+    "constraints": {
+      "equal": false,
+      "source_items": 281,
+      "restored_items": 281
+    },
+    "indexes": {
+      "equal": true,
+      "source_items": 201,
+      "restored_items": 201
+    },
+    "triggers": {
+      "equal": true,
+      "source_items": 12,
+      "restored_items": 12
+    },
+    "functions": {
+      "equal": true,
+      "source_items": 20,
+      "restored_items": 20
+    },
+    "policies": {
+      "equal": true,
+      "source_items": 63,
+      "restored_items": 63
+    },
+    "rls": {
+      "equal": true,
+      "source_items": 74,
+      "restored_items": 74
+    },
+    "privileges": {
+      "equal": true,
+      "source_items": 6972,
+      "restored_items": 6972
+    },
+    "enums": {
+      "equal": false,
+      "source_items": 134,
+      "restored_items": 134
+    },
+    "roles": {
+      "equal": false,
+      "source_items": 2,
+      "restored_items": 2
+    }
+  },
+  "backup": {
+    "path": "/root/backups/wetop-20261005T072907Z.dump",
+    "sha256": "1425c82b89560061bbe89143af35148ba58b24bae2d525e5f79a11c983a31cb5",
+    "bytes": 386298,
+    "permissions": "0o600"
+  }
+}

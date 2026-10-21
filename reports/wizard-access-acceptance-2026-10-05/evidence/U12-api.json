@@ -1,0 +1,32 @@
+[
+  {
+    "scenario": "cross-organization header",
+    "method": "GET",
+    "status": 403,
+    "body": {
+      "message": "Выберите бизнес и филиал для настройки"
+    }
+  },
+  {
+    "scenario": "cross-organization header",
+    "method": "POST",
+    "status": 403,
+    "body": {
+      "message": "Выберите бизнес и филиал для настройки"
+    }
+  },
+  {
+    "scenario": "foreign location in body",
+    "status": 400,
+    "body": {
+      "message": "Неизвестное поле запроса"
+    }
+  },
+  {
+    "scenario": "wrong branch paired with business",
+    "status": 403,
+    "body": {
+      "message": "Выберите бизнес и филиал для настройки"
+    }
+  }
+]

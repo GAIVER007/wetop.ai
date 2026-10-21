@@ -1,0 +1,12 @@
+[
+  {
+    "user_id": "dd547b00-d4d3-4cdd-8067-e087b3e29b5d",
+    "revoked": true,
+    "count": 1
+  },
+  {
+    "user_id": "dd547b00-d4d3-4cdd-8067-e087b3e29b5d",
+    "revoked": false,
+    "count": 1
+  }
+]

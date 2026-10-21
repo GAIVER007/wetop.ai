@@ -32,8 +32,9 @@ test('обзор как на макете: пять KPI, графики, ком�
   await expect(m.getByRole('link', { name: 'Приход', exact: true })).toHaveAttribute('href', '/bar/receipts/new');
   await expect(m.getByRole('link', { name: 'Продажа', exact: true })).toBeVisible();
   await expect(m.getByRole('link', { name: 'Инвентаризация', exact: true })).toBeVisible();
-  await expect(m.getByRole('navigation',{name:'Разделы бара'})).toBeVisible();
-  await expect(m.getByRole('navigation', { name: 'Разделы бара' }).getByRole('link')).toHaveCount(5);
+  // на широком экране те же пункты открывает меню «Склад», второго ряда вкладок нет (21.10.2026)
+  await expect(m.getByRole('navigation',{name:'Разделы склада'})).toBeHidden();
+  await expect(m.getByRole('navigation', { name: 'Разделы склада' }).getByRole('link', { includeHidden: true })).toHaveCount(6);
   // Пять плиток текущего макета, без выдуманных данных.
   const kpis = m.getByRole('region', { name: 'Показатели бара' });
   await expect(kpis.locator('.bar-kpi-label')).toHaveText([

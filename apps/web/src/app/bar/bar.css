@@ -1076,6 +1076,13 @@
 @layer sections {
  .bar-page .bar-tabs { display:flex; flex-wrap:wrap; gap:var(--space-1); margin-bottom:var(--space-2); }
  .bar-page .bar-tabs .tabs__item { min-height:44px; padding-inline:var(--space-4); }
+ /* от 961 px те же пункты уже есть в выпадающем списке «Склад» верхнего меню: второй ряд не показываем */
+ @media (min-width:961px) { .bar-page .bar-tabs { display:none; } }
+ .bar-warehouses { display:grid; grid-template-columns:repeat(auto-fit,minmax(16rem,1fr)); gap:var(--space-3); margin-bottom:var(--space-3); }
+ .bar-warehouse { display:flex; flex-direction:column; gap:var(--space-2); min-height:44px; padding:var(--space-3) var(--space-4); text-decoration:none; color:inherit; }
+ .bar-warehouse-head { display:flex; align-items:center; gap:var(--space-2); }
+ .bar-warehouse-head .badge { margin-left:auto; }
+ .bar-warehouse-body { color:var(--muted); }
  .bar-row-details > summary { min-height:44px; cursor:pointer; color:var(--primary); display:flex; align-items:center; }
  .bar-row-details p { margin:var(--space-1) 0; }
  @media (max-width:600px) { .bar-mobile-actions { grid-template-columns:repeat(3,minmax(0,1fr)); } }

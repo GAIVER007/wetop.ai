@@ -14,6 +14,13 @@ it('exposes the same consumables used by Beauty techcards in the selected branch
   expect(db.kitchenStockLot.findMany).toHaveBeenCalledWith(expect.objectContaining({where:expect.objectContaining({locationId:'branch'})}));
 });
 
+it('opens the same kitchen stock to a hotel branch (ADR-STOCK-ALL)', async()=>{
+  const db={business:{findFirst:vi.fn().mockResolvedValue({id:'hotel'})},location:{findFirst:vi.fn().mockResolvedValue({id:'branch',timezone:'UTC',currency:'KZT'})},kitchenProduct:{findMany:vi.fn().mockResolvedValue([{id:'flour',name:'Мука',unit:'г',minQty:'1000',active:true}])},kitchenStockLot:{findMany:vi.fn().mockResolvedValue([])}};
+  const result=await withSignedInUser({userId:'owner',organizationId:'org',role:'OWNER',scope:'LOCATION',businessId:'hotel',locationId:'branch',vertical:'HOSPITALITY'},()=>new StockService({db} as never).products());
+  expect(result.items).toEqual([expect.objectContaining({id:'flour',unit:'г'})]);
+  expect(db.business.findFirst).toHaveBeenCalledWith({where:expect.objectContaining({vertical:'HOSPITALITY'})});
+});
+
 describe('shared consumables route boundaries',()=>{
   it('uses a shared stock capability without granting restaurant menu or order capabilities',()=>{
     expect(Reflect.getMetadata(BUSINESS_CAPABILITY,FoodStockController)).toBe('branch.stock');

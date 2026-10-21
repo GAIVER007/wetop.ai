@@ -19,20 +19,20 @@ const SECTIONS: Array<{ id: BarSection; href: string; label: string }> = [
 ];
 
 export function barSectionsFor(vertical: WebVertical) {
-  return vertical === 'BEAUTY'
-    ? [
-        SECTIONS[0]!,
-        { id: 'consumables' as const, href: '/bar/consumables', label: 'Расходники' },
-        ...SECTIONS.slice(1),
-      ]
-    : SECTIONS;
+  // склад кухни: салон зовёт его «Расходники», гостиница «Кухня»; у ресторана он на `/stock` (ADR-STOCK-ALL)
+  if (vertical === 'FOOD_SERVICE') return SECTIONS;
+  return [
+    SECTIONS[0]!,
+    { id: 'consumables' as const, href: '/bar/consumables', label: vertical === 'BEAUTY' ? 'Расходники' : 'Кухня' },
+    ...SECTIONS.slice(1),
+  ];
 }
 
 export function BarTabs({ current }: { current: BarSection }) {
   const vertical = useDeskVertical();
   return (
     <Tabs
-      label={vertical === 'BEAUTY' ? 'Разделы склада' : 'Разделы бара'}
+      label="Разделы склада"
       className="bar-tabs"
       items={barSectionsFor(vertical).map((section) => ({
         href: section.href,

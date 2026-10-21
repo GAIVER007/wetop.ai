@@ -275,9 +275,9 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         href: '/bar/consumables',
         requires: 'reports',
-        label: 'Расходники',
+        label: 'Кухня и расходники',
         icon: 'stock',
-        description: 'Материалы услуг, приходы, списания и остатки салона.',
+        description: 'Кухня гостиницы и материалы услуг салона: приходы, списания и остатки.',
       },
       // подстраницы бара пунктами раздела «Склад» (верхнее меню 17.10.2026); право то же, что у `/bar`
       {
@@ -639,6 +639,7 @@ const ROW: Array<{
       { label: 'Склад кухни', at: { FOOD_SERVICE: '/stock' } },
       { label: 'Обзор склада', at: ALL('/bar') },
       { label: 'Расходники', at: { BEAUTY: '/bar/consumables' } },
+      { label: 'Кухня', at: { HOSPITALITY: '/bar/consumables' } },
       { label: 'Приходы', at: ALL('/bar/receipts') },
       { label: 'Номенклатура', at: ALL('/bar/products') },
       { label: 'Поставщики', at: ALL('/bar/suppliers') },

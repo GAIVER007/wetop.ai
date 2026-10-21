@@ -43,7 +43,7 @@ describe('меню по ролям', () => {
       ['clients', ['/guests', '/reservations']],
       ['stats', ['/management/analytics', '/reports']],
       // склад на экранах бара: администратор смотрит, как все отчёты (право `reports`)
-      ['stock', ['/bar', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
+      ['stock', ['/bar', '/bar/consumables', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
       ['money', ['/finance', '/reports/finance']],
       // право `desk`: неисправности; остальные настройки ему закрыты
       ['settings', ['/incidents']],
@@ -60,6 +60,7 @@ describe('меню по ролям', () => {
     expect(stock?.items.map((i) => [i.href, i.label])).toEqual([
       // в порядке вкладок экрана склада (19.10.2026)
       ['/bar', 'Обзор склада'],
+      ['/bar/consumables', 'Кухня'],
       ['/bar/receipts', 'Приходы'],
       ['/bar/products', 'Номенклатура'],
       ['/bar/suppliers', 'Поставщики'],

@@ -296,6 +296,15 @@ export function AppointmentForm({
             >
               Последний клиент
             </Button>
+            <Button
+              type="button"
+              size="sm"
+              tone="ghost"
+              aria-pressed={!customerId}
+              onClick={() => setCustomerId('')}
+            >
+              + Новый клиент
+            </Button>
           </div>
           <Field label="Клиент">
             <Select
@@ -320,7 +329,7 @@ export function AppointmentForm({
             </Select>
           </Field>
           {!customerId && (
-            <>
+            <div className="appointment-customer-new">
               <Field label="Имя клиента">
                 <Input name="firstName" {...field('firstName')} required maxLength={100} />
               </Field>
@@ -330,7 +339,7 @@ export function AppointmentForm({
               <Field label="Телефон">
                 <Input name="phone" {...field('phone')} type="tel" maxLength={32} />
               </Field>
-            </>
+            </div>
           )}
         </fieldset>
       )}
@@ -346,7 +355,7 @@ export function AppointmentForm({
           ].sort((a, b) => a - b);
           return (
             <fieldset key={line.key} className="appointment-service-line">
-              <legend>Услуга {index + 1}</legend>
+              <legend className={lines.length === 1 ? 'sr-only' : undefined}>Услуга {index + 1}</legend>
               <Field label="Услуга">
                 <Select
                   aria-label={index === 0 ? 'Услуга' : `Услуга ${index + 1}`}
@@ -534,15 +543,6 @@ export function AppointmentForm({
         >
           Добавить услугу
         </Button>
-        <p aria-live="polite">
-          <strong>
-            Итого:{' '}
-            {validMoney
-              ? formatMoney(total.toString(), day.location.currency)
-              : 'Проверьте суммы услуг'}
-            {validDuration && totalMinutes > 0 ? `, ${durationText(totalMinutes)}` : ''}
-          </strong>
-        </p>
         <div className="beauty-fields-pair">
           <Field label="Дата">
             <Input type="date" required value={date} onChange={(e) => setDate(e.target.value)} />
@@ -559,7 +559,7 @@ export function AppointmentForm({
         <p className="beauty-note">
           Время филиала: {day.location.timezone}. Доступность подтвердится при сохранении.
         </p>
-        <p className="beauty-note" aria-live="polite">
+        <p className="beauty-note sr-only" aria-live="polite">
           Выбрано:
           <span className="beauty-selection-line">Дата: {date}</span>
           <span className="beauty-selection-line">
@@ -575,6 +575,15 @@ export function AppointmentForm({
       </fieldset>
       {state?.error && <Alert>{state.error}</Alert>}
       <div className="appointment-form__footer">
+        <p className="appointment-form__total" aria-live="polite">
+          <strong>
+            Итого:{' '}
+            {validMoney
+              ? formatMoney(total.toString(), day.location.currency)
+              : 'Проверьте суммы услуг'}
+            {validDuration && totalMinutes > 0 ? `, ${durationText(totalMinutes)}` : ''}
+          </strong>
+        </p>
         {/* ТЗ-1.1 F02: кнопка активна всегда; невалидная форма не отправляется (onSubmit выше), занятость решает сервер */}
         <Button type="submit" disabled={pending || state?.outcome === 'unknown'}>
           {pending

@@ -9,6 +9,20 @@ export interface BeautyCustomerFilter {
 
 export const BEAUTY_REGULAR_CUSTOMER_VISITS = 2;
 
+/**
+ * Сегмент клиента одним правилом для списка и карточки (аудит 21.10.2026 п.11: в карточке «Активен», в списке «Новый»).
+ * `visits` это завершённые визиты, как считает API списка.
+ */
+export function customerSegment(row: { status: string; visits: number }): {
+  label: string;
+  tone: 'info' | 'ok' | 'neutral';
+} {
+  if (row.status !== 'ACTIVE') return { label: 'В архиве', tone: 'neutral' };
+  return row.visits >= BEAUTY_REGULAR_CUSTOMER_VISITS
+    ? { label: 'Постоянный', tone: 'ok' }
+    : { label: 'Новый', tone: 'info' };
+}
+
 export function filterBeautyCustomers(
   items: BeautyCustomerRow[],
   filter: BeautyCustomerFilter,

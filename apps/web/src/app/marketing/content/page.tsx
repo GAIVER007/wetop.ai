@@ -18,12 +18,12 @@ const formats = (c: VerticalCopy): Array<{ title: string; text: string; icon: Ic
   { title: `Фото ${c.photoSubject}`, text: 'Снимок в нужном стиле', icon: c.photoIcon },
   { title: 'Видео-тур', text: 'Ролик до 30 секунд', icon: 'board' },
   { title: 'Пост для Instagram', text: 'Текст и картинка', icon: 'send' },
-  { title: 'История (Stories)', text: 'Вертикальный кадр', icon: 'journal' },
+  { title: 'Сторис', text: 'Вертикальный кадр', icon: 'journal' },
   { title: 'Пост с отзывом', text: `Из отзывов ${c.clientsOf}`, icon: 'chat' },
-  { title: 'Reels', text: 'Короткое видео', icon: 'refresh' },
+  { title: 'Рилс', text: 'Короткое видео', icon: 'refresh' },
   { title: 'Баннер для рекламы', text: 'Для модуля «Реклама»', icon: 'channels' },
 ];
-const KINDS = ['Фото', 'Видео', 'Посты', 'Stories', 'Reels', 'Email'];
+const KINDS = ['Фото', 'Видео', 'Посты', 'Сторис', 'Рилс', 'Рассылка'];
 const SOON = 'marketing-content-soon';
 
 function Ideas({ copy }: { copy: VerticalCopy }) {
@@ -35,13 +35,13 @@ function Ideas({ copy }: { copy: VerticalCopy }) {
         ))}
       </ul>
       <ul className="marketing-formats" data-testid="marketing-content-formats">
-        <li className="marketing-format marketing-format--create">
+        <li className="marketing-format marketing-format--create" aria-disabled="true">
           <Icon name="plus" aria-hidden="true" />
           <strong>Создать с ИИ</strong>
           <span>Опишите, что нужно, например: фото {copy.photoSubject} в стиле «уют и минимализм».</span>
         </li>
         {formats(copy).map((f) => (
-          <li key={f.title} className="marketing-format">
+          <li key={f.title} className="marketing-format" aria-disabled="true">
             <span className="marketing-format__art" aria-hidden="true">
               <Icon name={f.icon} />
             </span>
@@ -77,8 +77,8 @@ export default async function MarketingContentPage() {
     >
       <div className="marketing-screen" data-testid="marketing-content-screen">
         <ModuleSoon id={SOON} testId={SOON}>
-          Модуль в разработке: генерация и план публикаций появятся в следующих этапах. Изображения сайта уже живут в
-          медиатеке.
+          Создание фото, текстов и плана публикаций с ИИ появится позже. Ниже показано, какие форматы будут. Изображения
+          сайта уже лежат в медиатеке.
         </ModuleSoon>
         <Tabs
           label="Разделы контента"

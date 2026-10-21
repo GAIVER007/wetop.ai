@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { requireFeature } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../../components/page';
@@ -8,7 +7,8 @@ import { beautyApi, type BeautyDay } from '../../../lib/api';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess, mayBeautyAccess } from '../../../lib/navigation';
 import { accessLevelsFor } from '@pms/domain';
-import { MastersBoard } from './board';
+import { MastersBoard, NewSpecialistButton } from './board';
+import { SalonSetupLink, salonSetupPending } from './setup-link';
 import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../../lib/staff-revenue-load';
 import { revenuePeriodParam } from '../../../lib/staff-revenue';
 import '../beauty.css';
@@ -19,7 +19,14 @@ import '../beauty.css';
  */
 export default async function BeautyMastersPage({
   searchParams,
-}: { searchParams?: Promise<{ employee?: string | string[]; period?: string | string[] }> } = {}) {
+}: {
+  searchParams?: Promise<{
+    employee?: string | string[];
+    period?: string | string[];
+    new?: string | string[];
+    onboarding?: string | string[];
+  }>;
+} = {}) {
   await requireFeature('/beauty/masters');
   const params = await searchParams;
   const requested = typeof params?.employee === 'string' ? params.employee : '';
@@ -40,6 +47,7 @@ export default async function BeautyMastersPage({
     canReadJournal ? beautyApi.day() : Promise.resolve(null),
     canReadJournal ? beautyApi.schedule() : Promise.resolve(null),
     loadStaffRevenue('branch', period),
+    salonSetupPending(params?.onboarding === '1'),
   ]).then(
     (value) => ({ ok: true as const, value }),
     (error: unknown) => {
@@ -53,7 +61,7 @@ export default async function BeautyMastersPage({
         <LoadError testId="beauty-masters-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
-  const [employees, services, loadedToday, loadedSchedule, revenue] = loaded.value;
+  const [employees, services, loadedToday, loadedSchedule, revenue, setupPending] = loaded.value;
   const today: BeautyDay = loadedToday ?? {
     location: { id: employees.locationId ?? '', name: null, timezone: 'UTC', currency: '' },
     date: '', columns: [], appointments: [], services: [], bounds: { fromMinutes: 480, toMinutes: 1200 },
@@ -63,16 +71,19 @@ export default async function BeautyMastersPage({
     mayBeautyAccess(shell.access, section, action, {
       legacy: section === 'services' ? 'rates' : 'property',
     });
+  const canCreate = may('employees', 'create');
   return (
     <Page
       className="beauty-page"
       title="Специалисты"
       subtitle="Специалист работает в сети: его можно поставить в несколько филиалов."
+      // кнопка добавления в шапке, как «Пригласить сотрудника» на /team (аудит 21.10.2026, п. 37)
+      actions={canCreate ? <NewSpecialistButton /> : undefined}
     >
-      <p>
-        <Link href="/register/setup">Вернуться к настройке салона</Link>
-      </p>
+      {setupPending && <SalonSetupLink />}
       <MastersBoard
+        headerAction
+        openNew={params?.new === '1'}
         key={employees.locationId ?? 'business'}
         {...(loadedSchedule?.businessName !== undefined
           ? { businessName: loadedSchedule.businessName }
@@ -86,7 +97,7 @@ export default async function BeautyMastersPage({
         today={today}
         scheduleAvailable={loadedToday !== null}
         locations={loadedSchedule?.locations ?? []}
-        canCreate={may('employees', 'create')}
+        canCreate={canCreate}
         canUpdate={may('employees', 'update')}
         canManagePrices={may('services', 'update')}
         canAssignPersonnelKind={employees.canAssignPersonnelKind === true && !shell.readOnly}

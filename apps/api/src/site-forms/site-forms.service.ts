@@ -46,6 +46,7 @@ import {
 import { findOrCreateCustomer } from '../customers/identity';
 import { TurnstileService, turnstileFailureError } from '../web-booking/turnstile';
 import type { RequestContext } from '../web-booking/web-booking.service';
+import { syncAppointmentReminders } from '../beauty/reminders';
 
 /**
  * Формы управляемого сайта салона и ресторана и заявка «Перезвоните мне» (SITE-4, SITE-5; ADR-185, план
@@ -361,6 +362,8 @@ export class SiteFormsService {
               },
             },
           });
+          // напоминания и подтверждение клиенту в той же транзакции (решение 21.10.2026 §1)
+          await syncAppointmentReminders(tx, created.id, { confirmation: true });
           const value = await this.appointmentReplay(tx, fs, key, fingerprint);
           return { value: value!, replayed: false };
         },

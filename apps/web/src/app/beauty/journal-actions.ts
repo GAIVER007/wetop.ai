@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { ApiError, authApi, beautyApi } from '../../lib/api';
+import { ApiError, authApi, beautyApi, type BeautyAppointmentRow } from '../../lib/api';
+import { MAX_PERIOD_DAYS, periodDays } from '../../components/quick-report-period';
 
 /**
  * Журнал записей салона (срез B5): создание записи, перенос и состояние.
@@ -175,17 +176,45 @@ export async function payAppointment(
   amountMinor: number,
   idempotencyKey: string,
   scope: string,
+  certificateCode?: string,
 ): Promise<JournalResult> {
   if (!(await moneyScopeMatches(scope)))
     return { outcome: 'rejected', error: 'Не удалось подтвердить исходный филиал. Команда не отправлена.' };
   try {
-    const saved = await beautyApi.payAppointment(id, { method, amount: amountMinor, idempotencyKey });
+    const saved = await beautyApi.payAppointment(id, {
+      method, amount: amountMinor, idempotencyKey, ...(certificateCode ? { certificateCode } : {}),
+    });
     if (!Array.isArray(saved?.appointments) || !saved.appointments.some((row) => row.id === id))
       return unknownMoneyResult();
     moneyRevalidate();
     return { message: 'Оплата принята' };
-  } catch {
+  } catch (e) {
+    // бонусы и сертификат: явный отказ API (лимит, срок, код) значит ничего не записано, причину видно сразу
+    if (LOYALTY_METHODS.has(method) && e instanceof ApiError && [400, 404, 409].includes(e.status))
+      return { outcome: 'rejected', error: e.message };
     return unknownMoneyResult();
+  }
+}
+
+const LOYALTY_METHODS = new Set(['BONUS', 'GIFT_CERTIFICATE']);
+
+/** Баланс бонусов клиента для формы оплаты; null: программа выключена или ответа нет */
+export async function customerBonusQuote(customerId: string): Promise<{ balanceMinor: string; maxRedeemPercent: number } | null> {
+  try {
+    const b = await beautyApi.customerBonuses(customerId);
+    return b.program.enabled ? { balanceMinor: b.balanceMinor, maxRedeemPercent: b.program.maxRedeemPercent } : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Остаток сертификата по коду для формы оплаты */
+export async function lookupCertificate(code: string): Promise<{ balanceMinor: string; status: string; expiresAt: string } | { error: string }> {
+  try {
+    const c = await beautyApi.giftCertificateLookup(code);
+    return { balanceMinor: c.balanceMinor, status: c.status, expiresAt: c.expiresAt };
+  } catch (e) {
+    return { error: e instanceof ApiError ? e.message : 'Не удалось проверить сертификат' };
   }
 }
 
@@ -223,5 +252,27 @@ export async function setAppointmentStatus(id: string, status: string): Promise<
     return { message: 'Состояние записи изменено' };
   } catch (e) {
     return failed(e, 'Не удалось изменить состояние записи.');
+  }
+}
+
+/**
+ * Записи салона за период для быстрого отчёта: журнал отдаёт только день, поэтому дни читаются по
+ * очереди пачками. Период ограничен (`MAX_PERIOD_DAYS`), чтобы отчёт не превращался в выгрузку.
+ */
+export async function beautyPeriodRows(
+  from: string,
+  to: string,
+): Promise<{ rows?: BeautyAppointmentRow[]; error?: string }> {
+  const days = periodDays(from, to);
+  if (!days) return { error: `Выберите период не длиннее ${MAX_PERIOD_DAYS} дней.` };
+  try {
+    const rows: BeautyAppointmentRow[] = [];
+    for (let i = 0; i < days.length; i += 8) {
+      const chunk = await Promise.all(days.slice(i, i + 8).map((day) => beautyApi.day(day)));
+      for (const day of chunk) rows.push(...day.appointments);
+    }
+    return { rows };
+  } catch (e) {
+    return failed(e, 'Не удалось загрузить записи за период. Повторите попытку.');
   }
 }

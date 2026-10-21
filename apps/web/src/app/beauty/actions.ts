@@ -84,6 +84,19 @@ export async function saveBeautyService(
     revalidatePath('/services');
     revalidatePath('/customers');
     revalidatePath('/beauty/services');
+    // «Настроить и добавить в филиал» (типовая услуга, онбординг): новая услуга сразу включается в выбранном филиале,
+    // иначе она оставалась в каталоге и шаг «Добавьте услуги» не засчитывался (проверка живого сайта 21.10.2026)
+    if (!id && form.get('enableForLocation') === 'on') {
+      try {
+        await beautyApi.setLocationService(saved.id, { enabled: true, priceOverrideMinor: '', durationOverrideMinutes: '' });
+      } catch {
+        return {
+          error: 'Услуга создана, но не включилась в филиале. Нажмите «Сохранить для филиала» ниже.',
+          resourceId: saved.id,
+        };
+      }
+      return { message: 'Услуга добавлена в филиал', resourceId: saved.id };
+    }
     return {
       message: id ? 'Услуга сохранена' : 'Услуга создана. Включите её в выбранном филиале ниже.',
       resourceId: saved.id,

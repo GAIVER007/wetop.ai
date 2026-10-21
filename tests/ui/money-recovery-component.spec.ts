@@ -41,6 +41,11 @@ export function AppointmentEditor(){return null}
 export function AppointmentHistoryPanel(){return null}
 export function ReviewInvitation(){return null}
 export const NO_SHOW_BEFORE_START_MESSAGE='Можно после начала визита';
+// бонусы и сертификаты салона (миграции 140/141): в этом сценарии оплаты деньгами не участвуют
+export function maxRedeem(total,balance,percent){const cap=total*BigInt(percent)/100n;return cap<balance?cap:balance}
+export function normalizeCertificateCode(raw){return typeof raw==='string'&&raw.trim()?raw.trim().toUpperCase():null}
+export async function customerBonusQuote(){return null}
+export async function lookupCertificate(){return {error:'not used'}}
 export async function moveAppointment(){return {}}
 export async function setAppointmentStatus(){return {}}
 async function command(kind,args){

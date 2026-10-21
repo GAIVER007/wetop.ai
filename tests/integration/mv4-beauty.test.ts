@@ -530,6 +530,8 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
       'beauty_location_hours_guard',
       'beauty_time_in_hours',
       'beauty_appointment_location_hours_guard',
+      // 140 напоминания клиентам (решение 21.10.2026)
+      'beauty_reminder_settings_guard',
       ...(heldTables.length === 3 ? [
         'beauty_appointment_changed',
         'beauty_capacity_changed',

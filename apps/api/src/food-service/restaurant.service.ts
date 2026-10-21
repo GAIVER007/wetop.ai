@@ -62,6 +62,7 @@ import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/ass
 import { assertWeekRevision, hoursRevision, hoursRowsRevision } from '../beauty/write-contract';
 import { StockService } from './stock.service';
 import { branchStaffRevenue } from './staff-revenue';
+import { reverseLoyaltyForVoid } from '../beauty/loyalty';
 
 /** Срок ссылки на оценку с телефона гостя (§40) */
 const RATING_LINK_TTL_MS = 72 * 3_600_000;
@@ -1391,6 +1392,8 @@ export class RestaurantService {
         where: { id },
         data: { status: 'VOIDED', voidedAt: new Date(), voidedById: currentUserId() },
       });
+      // салон: бонусы и сертификат по этой операции возвращаются в той же транзакции (решение 21.10.2026)
+      await reverseLoyaltyForVoid(tx, op);
       await this.audit(tx, s, 'restaurant_cash', id, 'food.cash.voided', { amountMinor: op.amount.toString() });
       return { id };
     }, BRANCH_CASH_VERTICALS);

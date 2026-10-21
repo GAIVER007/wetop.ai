@@ -126,7 +126,9 @@ describe('Beauty employee cabinet access projection', () => {
       scope: 'synthetic-scope',
     }));
 
-    expect(html).toContain('Управление сотрудником');
+    // карточка у руководителя без бейджа «Управление сотрудником» (аудит 21.10.2026, п. 25)
+    expect(html).toContain('data-testid="employee-manager"');
+    expect(html).not.toContain('Управление сотрудником');
     expect(html).not.toContain('data-testid="portal-own-work"');
     expect(html).not.toContain('data-testid="portal-reviews"');
     expect(html).not.toContain('data-testid="portal-week"');
@@ -156,5 +158,25 @@ describe('Beauty employee cabinet access projection', () => {
 
     expect(html).toContain('data-testid="employee-day-status">График недоступен');
     expect(html).not.toContain('data-testid="employee-day-status">Выходной');
+  });
+
+  it('аудит 21.10.2026, п. 25-27: филиал один раз, «Специалист», без «Мои» у руководителя, месяц только в оплате', () => {
+    const data = dto('MANAGER', { ...limited, appointmentsView: true, servicesView: true, payrollView: true, employeesView: true });
+    data.location = { ...data.location!, name: data.business.name };
+    const html = renderToStaticMarkup(createElement(EmployeeCabinet, {
+      initial: data,
+      target: { employeeId: '11111111-1111-4111-8111-111111111111' },
+      scope: 'synthetic-scope',
+    }));
+    const meta = html.slice(html.indexOf('portal-identity-meta'), html.indexOf('</ul>', html.indexOf('portal-identity-meta')));
+    expect(meta.split('Synthetic Beauty').length - 1).toBe(1);
+    expect(meta).toContain('Специалист');
+    expect(meta).not.toContain('Мастер');
+    expect(html).not.toContain('Мои записи');
+    expect(html).not.toContain('Мои услуги');
+    expect(html).not.toContain('Мои финансы');
+    expect(html).not.toContain('Месяц оплаты труда');
+    expect(html).not.toContain('ожидает одобрения');
+    expect(html).toContain('Месяц расчёта');
   });
 });

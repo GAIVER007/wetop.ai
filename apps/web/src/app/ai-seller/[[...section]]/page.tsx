@@ -128,6 +128,14 @@ export default async function AiSellerPage({
   const tabs = SELLER_TABS.filter((item) => configure || item.view === 'dialogs');
   const query = await searchParams;
   const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : '');
+  // расширение не подключено: одна карточка без вкладок «Обзор, Настройка, Диалоги…» (аудит 21.10.2026 п. 25)
+  const first = await settle(sellerApi.status());
+  if (first.ok && first.value.state === 'extension-off')
+    return (
+      <Page title="ИИ-продавец">
+        <ExtensionOff status={first.value} platform={access.platform} vertical={vertical} />
+      </Page>
+    );
   return (
     <Page
       title="ИИ-продавец"

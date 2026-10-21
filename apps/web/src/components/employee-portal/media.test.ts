@@ -37,7 +37,7 @@ function data(canUpload: boolean): EmployeePortalDto {
 describe('employee portal photo storage capability', () => {
   it('does not offer uploads when runtime storage is unavailable', () => {
     const html = renderToStaticMarkup(createElement(PortalMedia, { data: data(false), context }));
-    expect(html).toContain('Хранилище изображений не подключено');
+    expect(html).toContain('Загрузка фото пока недоступна');
     expect(html).not.toContain('data-command="avatar"');
     expect(html).not.toContain('data-command="add-work"');
   });
@@ -46,6 +46,6 @@ describe('employee portal photo storage capability', () => {
     const html = renderToStaticMarkup(createElement(PortalMedia, { data: data(true), context }));
     expect(html).toContain('data-command="avatar"');
     expect(html).toContain('data-command="add-work"');
-    expect(html).not.toContain('Хранилище изображений не подключено');
+    expect(html).not.toContain('Загрузка фото пока недоступна');
   });
 });

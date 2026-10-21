@@ -118,4 +118,20 @@ describe('shared stock controls', () => {
     expect(html).toContain('12,34 USD');
     expect(html).not.toContain('12 USD');
   });
+
+  it('аудит 21.10.2026 п.8, п.40, п.41: итог строкой под таблицей, кнопки в строке поиска, без заливки ячеек', () => {
+    const html = renderToStaticMarkup(createElement(StockBoard as never, {
+      ctx: { scopeKey: 's', currency: 'USD', vertical: 'BEAUTY', canCreate: true, canUpdate: true, canDelete: false },
+      products: [{ ...product, onHand: '0', low: true }],
+      movements: [],
+    }));
+    expect(html).not.toContain('class="stat');
+    expect(html).toContain('data-testid="stock-totals"');
+    expect(html).toContain('data-testid="stock-value"');
+    expect(html).not.toContain('data-low');
+    expect(html).toContain('Нет на складе');
+    const tools = html.slice(html.indexOf('rest-card__tools'), html.indexOf('<table'));
+    expect(tools).toContain('+ Расходник');
+    expect(tools).toContain('+ Приход товара');
+  });
 });

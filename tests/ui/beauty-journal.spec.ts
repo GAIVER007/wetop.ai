@@ -46,9 +46,7 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await panel.getByLabel(/Длительность, минут/).fill('60');
   await panel.getByLabel(/Цена каталога/).fill('8000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(panel.getByRole('status')).toHaveText(
-    'Услуга создана. Включите её в выбранном филиале ниже.',
-  );
+  await expect(panel.getByRole('status')).toHaveText('Услуга добавлена в филиал');
   await page.goto('/beauty/services');
   // услуги салона показаны карточками каталога, не строками таблицы
   await main
@@ -357,6 +355,32 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
+test('быстрый отчёт календаря: неделя, месяц и свой период меняют заголовок и данные', async ({
+  page,
+  request,
+}) => {
+  await openSalon(page, request);
+  await openDay(page);
+  await page.getByRole('button', { name: 'Быстрый отчёт', exact: true }).click();
+  const report = page.getByRole('dialog', { name: /Статистика за/ });
+  await report.getByRole('button', { name: 'Неделя', exact: true }).click();
+  await expect(report.getByRole('button', { name: 'Неделя', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(page.getByRole('dialog', { name: /Статистика за \d+–\d+ / })).toBeVisible();
+  await report.getByRole('button', { name: 'Прошлый месяц', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: /Статистика за \d+–\d+ / })).toBeVisible();
+  await report.getByRole('button', { name: 'Свой период', exact: true }).click();
+  await expect(report.getByLabel('С', { exact: true })).toBeVisible();
+  await report.getByLabel('С', { exact: true }).fill('2026-10-01');
+  await report.getByLabel('По', { exact: true }).fill('2026-12-31');
+  await report.getByRole('button', { name: 'Показать' }).click();
+  await expect(report.getByRole('alert')).toContainText('не длиннее 62 дней');
+  await report.getByRole('button', { name: 'День', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: /Статистика за \d+ \S+ \d{4}$/ })).toBeVisible();
+});
+
 test('быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон', async ({
   page,
   request,
@@ -385,6 +409,14 @@ test('быстрый отчёт календаря: пустой день, ка�
       await expect(report).toContainText('Средний чек');
       await expect(report).toContainText('Оплата наличными');
       await expect(report).toContainText('Оплата безналом');
+      await expect(report).toContainText('Сумма записей');
+      await expect(report.getByRole('button', { name: 'День', exact: true })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
+      // «Закрыть» получает фокус при открытии, до любых действий внутри отчёта
+      await expect(report.getByRole('button', { name: /Закрыть/ })).toBeFocused();
+      await report.getByText('Лояльность и WETOP', { exact: true }).click();
       await expect(report.getByRole('region', { name: 'Лояльность' })).toContainText('Нет данных');
       await expect(report.getByRole('region', { name: 'WETOP' })).toContainText('Нет данных');
       await expect(report).not.toContainText('Zapis');
@@ -401,7 +433,7 @@ test('быстрый отчёт календаря: пустой день, ка�
         path: `reports/calendar-quick-report-2026-10-17/beauty-${width}-${colorScheme}.png`,
         fullPage: false,
       });
-      await expect(report.getByRole('button', { name: /Закрыть/ })).toBeFocused();
+      await report.getByRole('button', { name: /Закрыть/ }).focus();
       await page.keyboard.press('Shift+Tab');
       await expect(report.locator('.reference-info summary').last()).toBeFocused();
       await page.keyboard.press('Enter');

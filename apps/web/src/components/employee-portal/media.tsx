@@ -9,7 +9,7 @@ export function PortalMedia({ data, context }: { data: EmployeePortalDto; contex
       {data.canUpload ? <>
         <p>JPG, PNG или WebP до 5 МиБ. Старое фото остаётся до подтверждения загрузки сервером.</p>
         <PortalForm context={context} command="avatar" label="Загрузить фото"><Field label="Новое фото"><Input name="file" type="file" accept="image/jpeg,image/png,image/webp" required /></Field></PortalForm>
-      </> : <p role="status">Хранилище изображений не подключено. Загрузка фото временно недоступна.</p>}
+      </> : <p role="status">Загрузка фото пока недоступна. Мы уже подключаем её.</p>}
       {data.avatar && <PortalForm context={context} command="remove-avatar" label="Удалить фото" />}
     </section>
     <section className="panel portal-section" data-testid="portal-portfolio"><h2>Портфолио</h2>

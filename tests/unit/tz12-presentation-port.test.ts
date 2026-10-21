@@ -24,7 +24,8 @@ describe('approved TZ12 presentation compatibility port', () => {
   it('provides period list search, callable contact and an explicit record action', () => {
     const text = source('appointments/list.tsx');
     expect(text).toContain('className="beauty-period-filter"');
-    expect(text).toContain('Поиск по выбранному периоду.');
+    // подсказка теперь в самом поле поиска (аудит 21.10.2026 п.19)
+    expect(text).toContain('placeholder="Имя или телефон"');
     expect(text).toContain('tel:${r.customer.phone}');
     expect(text).toContain('Открыть запись');
   });

@@ -568,7 +568,7 @@ export function AppointmentForm({
         </p>
       </fieldset>
       <fieldset>
-        <legend className="sr-only">Дополнительно</legend>
+        <legend>Дополнительно</legend>
         <Field label="Заметка">
           <Input name="notes" {...field('notes')} maxLength={2000} />
         </Field>

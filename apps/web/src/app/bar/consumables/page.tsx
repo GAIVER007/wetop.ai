@@ -9,6 +9,7 @@ import { requireFeature } from '../../../lib/vertical-guard';
 import { selectedWorkspaceBranch } from '../../../lib/workspace-context';
 import { StockBoard } from '../../food/stock-board';
 import { BarTabs } from '../tabs';
+import { loadBarContext } from '../load-context';
 import '../../food/food.css';
 import '../../food/restaurant.css';
 import '../bar.css';
@@ -22,8 +23,12 @@ export default async function BeautyConsumablesPage() {
       stockApi.products(),
       stockApi.movements(),
     ]);
-    if (!branch?.currency || !shell.scopeKey) throw new Error('Сначала выберите филиал');
     const beauty = me.context?.vertical === 'BEAUTY';
+    // у гостиницы валюта в её объекте (филиалов гостиницы в списке филиалов нет), у салона в филиале
+    const hotel = beauty ? null : await loadBarContext();
+    const currency = beauty ? branch?.currency : hotel?.currency;
+    const scopeKey = shell.scopeKey ?? hotel?.propertyId;
+    if (!currency || !scopeKey) throw new Error('Сначала выберите филиал');
     // салон решает по матрице должностей, гостиница по ролям: справочник `property`, приход и списания `desk`
     const may = (action: 'create' | 'update' | 'delete') =>
       !shell.readOnly && mayBeautyAccess(shell.access, 'stock', action, { legacy: 'settings' });
@@ -32,15 +37,17 @@ export default async function BeautyConsumablesPage() {
       : { canDesk: !shell.readOnly && mayAccess(shell.access, 'desk'), canProperty: !shell.readOnly && mayAccess(shell.access, 'property') };
     return (
       <Page
+        width="wide"
+        className="bar-subpage"
         title={beauty ? 'Склад: расходники' : 'Склад: кухня'}
         subtitle={beauty ? 'Материалы для услуг, приходы, списания и остатки' : 'Продукты кухни, приходы, списания и остатки'}
       >
         <BarTabs current="consumables" />
-        <div key={shell.scopeKey}>
+        <div key={scopeKey}>
           <StockBoard
             ctx={{
-              scopeKey: shell.scopeKey,
-              currency: branch.currency,
+              scopeKey,
+              currency,
               vertical: beauty ? 'BEAUTY' : 'HOSPITALITY',
               ...rights,
             }}

@@ -45,21 +45,25 @@ export default async function WarehousePage() {
   const barItems = bar.ok ? bar.value.filter((item) => item.active) : null;
   const kitchenItems = kitchen.ok ? kitchen.value.items.filter((item) => item.active) : null;
   const currency = barItems?.[0]?.currency ?? 'KZT';
+  const barLow = barItems ? barItems.filter((item) => stockStatusOf(item) !== 'ok') : null;
+  const kitchenLow = kitchenItems ? kitchenItems.filter((item) => item.low) : null;
   const cards: WarehouseCard[] = [
     {
       id: 'bar',
       title: 'Бар',
       href: '/bar',
+      noun: ['товар', 'товара', 'товаров'],
       items: barItems ? barItems.length : null,
-      low: barItems ? barItems.filter((item) => stockStatusOf(item) !== 'ok').length : 0,
+      lowNames: (barLow ?? []).map((item) => item.name),
       value: barItems ? formatMoney(barItems.reduce((sum, item) => sum + BigInt(item.stockCostMinor), 0n), currency) : null,
     },
     {
       id: 'kitchen',
       title: kitchenName,
       href: kitchenHref,
+      noun: ['продукт', 'продукта', 'продуктов'],
       items: kitchenItems ? kitchenItems.length : null,
-      low: kitchenItems ? kitchenItems.filter((item) => item.low).length : 0,
+      lowNames: (kitchenLow ?? []).map((item) => item.name),
       value: kitchenItems
         ? formatMoney(kitchenItems.reduce((sum, item) => sum + BigInt(item.valueMinor), 0n), currency)
         : null,

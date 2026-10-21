@@ -6,7 +6,8 @@ import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { SubtypeLinks } from '../../../components/landing/subtype-links';
 import { Breadcrumbs } from '../../../components/breadcrumbs';
 import { typo } from '../../../components/typo';
-import { getDictionary } from '../../../i18n';
+import { getDictionary, type Locale } from '../../../i18n';
+import { LangSwitch } from '../../../components/lang-switch';
 import { pageMetadata } from '../../../lib/metadata';
 import { registerLink } from '../../../lib/site';
 
@@ -17,15 +18,23 @@ import { registerLink } from '../../../lib/site';
  * вопросы и призыв. Текст только из продукта (§19.9): ни чисел клиентов, ни кейсов, ни тарифов;
  * условий trial нет (ADR-147).
  */
-export const metadata: Metadata = pageMetadata({
-  path: '/for/hotels/',
-  image: '/og/hotel.jpg',
-  title: getDictionary().hotel.metaTitle,
-  description: getDictionary().hotel.description,
-});
+export function hotelsDirectionMetadata(locale: Locale): Metadata {
+  const t = getDictionary(locale);
+  return pageMetadata({
+    path: locale === 'kk' ? '/kk/for/hotels/' : '/for/hotels/',
+    locale,
+    languages: { ru: '/for/hotels/', kk: '/kk/for/hotels/', 'x-default': '/for/hotels/' },
+    image: '/og/hotel.jpg',
+    title: t.hotel.metaTitle,
+    description: t.hotel.description,
+  });
+}
 
-export default function HotelLandingPage() {
-  const t = getDictionary();
+export const metadata: Metadata = hotelsDirectionMetadata('ru');
+
+export function HotelLanding({ locale = 'ru' }: { locale?: Locale }) {
+  const t = getDictionary(locale);
+  const prefix = locale === 'kk' ? '/kk' : '';
   const s = t.hotel;
   const register = registerLink(undefined, 'HOSPITALITY').href;
   return (
@@ -35,9 +44,10 @@ export default function HotelLandingPage() {
           label={t.a11y.breadcrumbs}
           trail={[
             { name: t.a11y.crumbHome, path: '/' },
-            { name: t.hotel.badge, path: '/for/hotels/' },
+            { name: t.hotel.badge, path: `${prefix}/for/hotels/` },
           ]}
         />
+        <LangSwitch locale={locale} ruPath="/for/hotels/" kkPath="/kk/for/hotels/" />
         <div className="landing">
           <section className="hotel-hero" aria-labelledby="hotel-title">
             <div>
@@ -161,7 +171,7 @@ export default function HotelLandingPage() {
             </div>
           </section>
 
-          <SubtypeLinks direction="hotels" title={t.segments.typesTitle.hotels} />
+          <SubtypeLinks direction="hotels" title={t.segments.typesTitle.hotels} locale={locale} />
 
           <MarketingBlock
             id="marketing"
@@ -184,4 +194,8 @@ export default function HotelLandingPage() {
       </div>
     </div>
   );
+}
+
+export default function HotelLandingPage() {
+  return <HotelLanding locale="ru" />;
 }

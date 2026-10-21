@@ -23,6 +23,8 @@ export const ru: Dictionary = {
     menu: 'Меню',
     breadcrumbs: 'Где вы на сайте',
     crumbHome: 'Главная',
+    switchToKk: 'Қазақша',
+    switchToRu: 'Русский',
   },
   nav: {
     product: 'Продукт',

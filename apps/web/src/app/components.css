@@ -1119,6 +1119,14 @@
     text-overflow: ellipsis;
     pointer-events: none;
   }
+  /* текст подписи из data-text: так он не попадает в доступное имя поля, которое браузер собирает из <label> */
+  .date-field__label::before {
+    content: attr(data-text);
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
   .date-field__input:focus + .date-field__label {
     visibility: hidden;
   }

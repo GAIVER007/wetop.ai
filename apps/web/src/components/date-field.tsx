@@ -121,9 +121,8 @@ export function MonthInput({ className, ...rest }: InputHTMLAttributes<HTMLInput
   return (
     <span className={className ? `date-field date-field--labelled ${className}` : 'date-field date-field--labelled'}>
       <input ref={input} type="month" className="inp date-field__input" {...rest} />
-      <span className="date-field__label" aria-hidden="true">
-        {text || 'Выберите месяц'}
-      </span>
+      {/* подпись в data-text и ::before: текст не входит в имя поля из <label> («Месяц расчёта», не «Месяц расчётаоктябрь 2026») */}
+      <span className="date-field__label" aria-hidden="true" data-text={text || 'Выберите месяц'} />
     </span>
   );
 }
@@ -302,9 +301,7 @@ export function DateInput({
   return (
     <span className={cx('date-field date-field--labelled', className)}>
       <input ref={input} type="date" className="inp date-field__input" id={givenId} {...rest} />
-      <span className="date-field__label" aria-hidden="true">
-        {ruDateLabel(shown) || 'Выберите дату'}
-      </span>
+      <span className="date-field__label" aria-hidden="true" data-text={ruDateLabel(shown) || 'Выберите дату'} />
       <button
         ref={button}
         type="button"

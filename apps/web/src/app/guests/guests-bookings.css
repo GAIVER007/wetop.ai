@@ -95,7 +95,7 @@
     margin: 0;
   }
   .gb-search .inp {
-    min-height: 48px;
+    min-height: var(--touch-target);
   }
   /* подпись внутри поля, над значением, как на макете */
   .gb-filter {

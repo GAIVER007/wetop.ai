@@ -29,7 +29,12 @@ test('филиалы: создание, сохранение после reload �
       })),
     );
   expect(monthControls).toHaveLength(4);
-  expect(monthControls.every((control) => control.height === 40)).toBe(true);
+  // Единые поля (21.10.2026): месяц, поле и кнопка той же высоты, что любое поле, из токена --control-h
+  const controlHeight = parseFloat(
+    await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--control-h')),
+  );
+  expect(controlHeight).toBeGreaterThan(0);
+  expect(monthControls.every((control) => control.height === controlHeight)).toBe(true);
   expect(
     monthControls.every((control) => Math.abs(control.bottom - monthControls[0]!.bottom) < 1),
   ).toBe(true);

@@ -1551,3 +1551,18 @@
     pointer-events: none;
   }
 }
+
+/* График: быстрые шаблоны недели и кнопка «Задать часы» у нового специалиста (онбординг 21.10.2026) */
+@layer sections {
+  .beauty-week-presets {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .beauty-week-grid th .beauty-week-unset {
+    display: flex;
+    margin-top: var(--space-1);
+  }
+}
+

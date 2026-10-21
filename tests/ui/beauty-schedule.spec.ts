@@ -163,6 +163,20 @@ test('сетка: выходной по графику ведёт в окно н
   await expect(cell(page, 'Дина', 2)).toContainText('Работает');
   await expect(cell(page, 'Дина', 2)).toContainText('09:00–18:00');
 
+  // быстрый шаблон недели и кнопка «Задать часы» у нового специалиста (онбординг 21.10.2026)
+  await addMaster(page, 'Ева');
+  await page.goto('/beauty/schedule');
+  await main.getByRole('row').filter({ hasText: 'Ева' }).getByTestId('beauty-week-unset').click();
+  const eva = page.getByRole('dialog', { name: 'Часы работы: Ева' });
+  await eva.getByRole('button', { name: 'Пн-Пт 10:00-19:00', exact: true }).click();
+  await expect(eva.getByLabel('Пятница: начало')).toHaveValue('10:00');
+  await expect(eva.getByRole('group', { name: 'Суббота' })).toContainText('Выходной');
+  await eva.getByRole('button', { name: 'Сохранить график', exact: true }).click();
+  await expect(eva.getByRole('status')).toContainText('График сохранён');
+  await page.screenshot({ path: `${SNAPSHOTS}/week-presets-1440.png` });
+  await page.keyboard.press('Escape');
+  await expect(main.getByRole('row').filter({ hasText: 'Ева' }).getByTestId('beauty-week-unset')).toHaveCount(0);
+
   // у мастера запись в эту среду: выключение дня её не отменяет и предупреждает
   const monday = await thisMonday(page);
   const wednesday = new Date(Date.parse(`${monday}T12:00:00Z`) + 2 * 86_400_000)

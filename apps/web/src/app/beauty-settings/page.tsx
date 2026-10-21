@@ -7,6 +7,7 @@ import { currentMe, deskShell } from '../../lib/desk-shell';
 import { mayBeautyAccess } from '../../lib/navigation';
 import { requireFeature } from '../../lib/vertical-guard';
 import { SalonHoursForm } from './hours-form';
+import { SettingsLinks } from './settings-links';
 import './settings.css';
 
 export default async function BeautySettingsPage() {
@@ -22,6 +23,7 @@ export default async function BeautySettingsPage() {
     });
     return (
       <Page title="Настройки салона" subtitle={initial.location.name ?? 'Выбранный филиал'}>
+        <SettingsLinks />
         <SalonHoursForm
           key={scopeKey}
           initial={initial}

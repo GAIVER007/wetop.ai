@@ -2,14 +2,55 @@
   .salon-hours-form {
     display: grid;
     gap: var(--space-4);
-    max-width: 960px;
   }
   .salon-hours-form h2,
   .salon-hours-form p {
     margin: 0;
   }
-  .salon-hours-form > .btn {
-    justify-self: start;
+  .salon-hours-foot {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border-top: 1px solid var(--border);
+  }
+  .salon-hours-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .salon-hours-day > .btn {
+    justify-self: end;
+  }
+  .settings-links {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin: 0 0 var(--space-6);
+    padding: 0;
+    list-style: none;
+  }
+  .settings-links a {
+    display: grid;
+    gap: var(--space-1);
+    height: 100%;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .settings-links a:hover {
+    border-color: var(--primary);
+  }
+  .settings-links span {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  @media (max-width: 960px) {
+    .settings-links {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
   .salon-hours-week {
     display: grid;
@@ -70,8 +111,8 @@
       grid-column: 1 / -1;
       justify-self: start;
     }
-    .salon-hours-form > .btn {
-      justify-self: stretch;
+    .settings-links {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 }

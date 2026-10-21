@@ -12,13 +12,12 @@ import { loadErrorProps } from '../../../lib/load-error';
 import { formatMoney } from '../../../lib/money';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { requireFeature } from '../../../lib/vertical-guard';
-import { verticalCopy, type VerticalCopy } from '../../../lib/vertical-copy';
 import '../marketing.css';
 import '../budget/budget.css';
+import '../../finance/summary.css';
 import { LoadError } from '../../../components/load-error';
 import { Page } from '../../../components/page';
-import { Tabs } from '../../../components/tabs';
-import { Alert, Badge, EmptyState, Stat, Stats, Table } from '../../../components/ui';
+import { Alert, Badge, EmptyState, Table } from '../../../components/ui';
 import { BackToModules, ModuleSoon } from '../parts';
 import { ChooseLocation, MonthNav, platformLabel } from '../budget/parts';
 import { CampaignButton, StatsButton } from './campaigns';
@@ -96,17 +95,32 @@ function Campaigns({
   const tm = campaignMetrics({ spendMinor: total.spend, ...total });
   return (
     <div className="marketing-screen__stack">
-      <Stats min={160} data-testid="marketing-ads-metrics">
-        <Stat
-          label="Расход кампаний"
-          value={formatMoney(total.spend, rc)}
-          hint={foreign ? 'без кабинетов в другой валюте: они в таблице' : undefined}
-          testId="ads-spend"
-        />
-        <Stat label="Показы" value={total.impressions.toLocaleString('ru-RU')} hint={`CPM ${money(tm.cpmMinor)}`} testId="ads-impressions" />
-        <Stat label="Клики" value={total.clicks.toLocaleString('ru-RU')} hint={`CTR ${ctrText(tm.ctrBp)}`} testId="ads-clicks" />
-        <Stat label="Лиды площадки" value={String(total.leads)} hint={`CPL ${money(tm.cplMinor)}`} testId="ads-leads" />
-      </Stats>
+      {/* итоги месяца одной строкой вместо плиток (аудит 21.10.2026 п. 34) */}
+      <dl className="money-summary" data-testid="marketing-ads-metrics">
+        <div>
+          <dt>Расход кампаний</dt>
+          <dd data-testid="ads-spend">{formatMoney(total.spend, rc)}</dd>
+        </div>
+        <div>
+          <dt>Показы</dt>
+          <dd data-testid="ads-impressions">{total.impressions.toLocaleString('ru-RU')}</dd>
+        </div>
+        <div>
+          <dt>Клики</dt>
+          <dd data-testid="ads-clicks">{total.clicks.toLocaleString('ru-RU')}</dd>
+        </div>
+        <div>
+          <dt>Лиды площадки</dt>
+          <dd data-testid="ads-leads">{String(total.leads)}</dd>
+        </div>
+        <div>
+          <dt>CTR, CPM, CPL</dt>
+          <dd>
+            {ctrText(tm.ctrBp)}, {money(tm.cpmMinor)}, {money(tm.cplMinor)}
+          </dd>
+        </div>
+      </dl>
+      {foreign && <p className="settings-note">Расход без кабинетов в другой валюте: они показаны в таблице.</p>}
       <div className="budget-head">
         {editable ? <CampaignButton /> : <span />}
         <MonthNav base="/marketing/ads" month={view.month} />
@@ -193,11 +207,8 @@ function Campaigns({
   );
 }
 
-const empty = (text: string) => <EmptyState title="Пока пусто">{text}</EmptyState>;
-
 export default async function MarketingAdsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const me = await requireFeature('/marketing/ads');
-  const copy: VerticalCopy = verticalCopy(me.context?.vertical);
+  await requireFeature('/marketing/ads');
   const q = normalizeSearchParams(await searchParams);
   const month = /^\d{4}-\d{2}$/.test(q['month'] ?? '') ? q['month'] : undefined;
   const [loaded, shell, cabinet, launches, timezone] = await Promise.all([
@@ -235,8 +246,8 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
   return (
     <Page
       crumbs={<BackToModules />}
-      title="ИИ-таргетолог"
-      subtitle="Кампании, кабинет Meta, запуск с ИИ и статистика площадок."
+      title="Реклама"
+      subtitle="Кампании Facebook и Instagram: расход, показы, клики и заявки. Запуск с ИИ после вашей проверки."
       actions={
         launchable ? (
           <Link className="btn" href="/marketing/ads/launch" data-testid="ad-new">
@@ -247,8 +258,8 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
     >
       <div className="marketing-screen" data-testid="marketing-ads-screen">
         <ModuleSoon id={SOON} testId={SOON}>
-          Кампания с ИИ запускается кнопкой в мастере после вашей проверки текста, аудитории и бюджета; остановить её
-          можно здесь же. Аудитории и библиотека креативов в следующих этапах, другие площадки ведутся вручную.
+          Аудитории и креативы с ИИ появятся позже. Сейчас кампании ведутся вручную, а с подключённым кабинетом
+          Facebook запускаются с ИИ после вашей проверки текста, аудитории и бюджета.
         </ModuleSoon>
         {metaResult === 'connected' && (
           <Alert tone="success" data-testid="meta-result">
@@ -273,16 +284,8 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
         )}
         {cabinet && !(metaResult === 'choose' && choices.length > 0) && <MetaCabinet view={cabinet} editable={editable} />}
         <AdLaunches loaded={launches} clock={propertyClock(timezone)} />
-        <Tabs
-          label="Разделы рекламы"
-          panels={[
-            { id: 'campaigns', label: 'Кампании', content: campaigns },
-            { id: 'audiences', label: 'Аудитории', content: empty(`Аудитории ИИ соберёт из ${copy.clientsOf} и посетителей сайта.`) },
-            { id: 'creatives', label: 'Креативы', content: empty('Картинки и тексты объявлений придут из модуля «Контент».') },
-            { id: 'analytics', label: 'Аналитика', content: empty(`Расходы, заявки и ${copy.conversionTo === 'в бронь' ? 'брони' : copy.conversionTo === 'в запись' ? 'записи' : 'заказы'} по кампаниям появятся после первых запусков.`) },
-            { id: 'settings', label: 'Настройки', content: empty('Рекламный кабинет, лимиты бюджета и уведомления.') },
-          ]}
-        />
+        {/* пустые вкладки «Аудитории», «Креативы», «Аналитика», «Настройки» спрятаны до готовности (аудит п. 15) */}
+        <section aria-label="Кампании">{campaigns}</section>
       </div>
     </Page>
   );

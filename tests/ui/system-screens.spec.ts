@@ -29,21 +29,21 @@ test('журнал: выборка словами, разделы чипами, 
   );
   // раздел — чипом с текущим состоянием, выборка пересчитана
   const filters = main.getByRole('navigation', { name: 'Раздел истории' });
-  await filters.getByRole('link', { name: 'сотрудники', exact: true }).click();
+  await filters.getByRole('link', { name: 'Сотрудники', exact: true }).click();
   await expect(page).toHaveURL(/type=user/);
-  await expect(filters.getByRole('link', { name: 'сотрудники', exact: true })).toHaveAttribute(
+  await expect(filters.getByRole('link', { name: 'Сотрудники', exact: true })).toHaveAttribute(
     'aria-current',
     'true',
   );
-  await expect(main.getByTestId('journal-meta')).toHaveText('1 операция, раздел «сотрудники»');
+  await expect(main.getByTestId('journal-meta')).toHaveText('1 операция, раздел «Сотрудники»');
   // пусто по условиям — условие названо, путь к последним операциям
   await page.goto('/journal?q=нет-такого&type=Reservation');
   const empty = main.getByTestId('journal-empty');
   // 21.09: пустой результат — общее пустое состояние, условие названо в тексте, а не в ячейке таблицы
   await expect(empty).toContainText('По этим условиям операций нет');
-  await expect(empty).toContainText('по запросу «нет-такого», раздел «брони»');
+  await expect(empty).toContainText('по запросу «нет-такого», раздел «Брони»');
   await expect(main.getByTestId('journal-meta')).toContainText(
-    '0 операций, по запросу «нет-такого», раздел «брони» (поиск по всей истории)',
+    '0 операций, по запросу «нет-такого», раздел «Брони» (поиск по всей истории)',
   );
   await empty.getByRole('link', { name: 'Показать последние операции' }).click();
   await expect(main.getByTestId('journal-row')).toHaveCount(3);

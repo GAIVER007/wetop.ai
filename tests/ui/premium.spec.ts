@@ -48,7 +48,8 @@ test('shell: панель, меню профиля, поиск', async ({ page }
   const search = page.getByRole('dialog', { name: 'Быстрый поиск' });
   await expect(search).toBeVisible();
   await search.getByLabel('Запрос').fill('Тест');
-  await search.getByRole('button', { name: 'Найти', exact: true }).click();
+  await expect(search.getByRole('button', { name: 'Найти', exact: true })).toHaveCount(0);
+  await search.getByLabel('Запрос').press('Enter');
   await expect(page).toHaveURL(/guests\?q=/);
 });
 test('drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст', async ({

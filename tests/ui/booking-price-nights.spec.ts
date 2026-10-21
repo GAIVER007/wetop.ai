@@ -45,7 +45,8 @@ for (const width of [1280, 1366, 1440]) {
     expect(p.y + p.height).toBeLessThanOrEqual(bar.y + 1);
     expect(bar.height).toBeLessThanOrEqual(56);
     expect(bar.y + bar.height).toBeLessThanOrEqual(grid.y + 1);
-    expect(grid.y).toBeLessThanOrEqual(360);
+    // 384 как в chessboard-week C1 (поручение 02.10): шапка от 1280 px в две строки, 88 px (20.10.2026)
+    expect(grid.y).toBeLessThanOrEqual(384);
     const tops = await panel
       .locator('.stat')
       .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top)));

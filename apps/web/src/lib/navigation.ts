@@ -680,7 +680,7 @@ const ROW: Array<{
     icon: 'send',
     items: [
       { label: 'Обзор', at: ALL('/marketing') },
-      { label: 'ИИ-таргетолог', at: ALL('/marketing/ads') },
+      { label: 'Реклама', at: ALL('/marketing/ads') },
       { label: 'Контент', at: ALL('/marketing/content') },
       { label: 'ИИ-продавец', at: ALL('/ai-agents') },
       // мониторинг загрузки соседей пока только у гостиницы (ADR-142)
@@ -737,20 +737,43 @@ export function phoneNavigationFor(vertical: WebVertical = 'HOSPITALITY'): Navig
  * всех направлений, путь и ссылка берутся из меню направления. Нет экрана или права, нет шага; новое направление
  * получает справку вместе с меню.
  */
-const HELP_STEPS: Array<{ section: string; item: string; text: string }> = [
-  { section: 'services', item: 'Каталог', text: 'заполните то, что продаёте: названия, длительность или вместимость и цены.' },
-  { section: 'staff', item: 'Специалисты', text: 'добавьте тех, кто оказывает услуги, назначьте им услуги и рабочие часы.' },
-  { section: 'journal', item: 'Журнал', text: 'создайте первую запись или бронь.' },
-  { section: 'settings', item: 'Объект', text: 'проверьте данные объекта, часы работы и подключения.' },
+type HelpWords = { catalog: string; first: string; settings: string };
+/** Слова шагов по направлению (аудит живого сайта 21.10.2026 п. 12): без «длительность или вместимость», «запись или бронь» */
+const HELP_WORDS: Record<WebVertical, HelpWords> = {
+  HOSPITALITY: {
+    catalog: 'заполните номера: названия, вместимость и цены.',
+    first: 'создайте первую бронь.',
+    settings: 'проверьте данные гостиницы, часы заезда и выезда и подключения.',
+  },
+  BEAUTY: {
+    catalog: 'заполните услуги: названия, длительность и цены.',
+    first: 'создайте первую запись.',
+    settings: 'проверьте режим работы салона, его данные и доступ сотрудников.',
+  },
+  FOOD_SERVICE: {
+    catalog: 'заполните меню: блюда и цены.',
+    first: 'создайте первую бронь стола.',
+    settings: 'проверьте данные ресторана и часы работы.',
+  },
+};
+const HELP_STEPS: Array<{ section: string; item: string; text: (w: HelpWords) => string }> = [
+  { section: 'services', item: 'Каталог', text: (w) => w.catalog },
+  { section: 'staff', item: 'Специалисты', text: () => 'добавьте тех, кто оказывает услуги, назначьте им услуги и рабочие часы.' },
+  { section: 'journal', item: 'Журнал', text: (w) => w.first },
+  { section: 'settings', item: 'Объект', text: (w) => w.settings },
 ];
 
-export function helpSteps(sections: MenuSection[]): Array<{ path: string; href: string; text: string }> {
+export function helpSteps(
+  sections: MenuSection[],
+  vertical: WebVertical = 'HOSPITALITY',
+): Array<{ path: string; href: string; text: string }> {
+  const words = HELP_WORDS[vertical] ?? HELP_WORDS.HOSPITALITY;
   return HELP_STEPS.flatMap((step) => {
     const section = sections.find((s) => s.id === step.section);
     if (!section) return [];
-    if (section.direct) return [{ path: section.label, href: section.items[0]!.href, text: step.text }];
+    if (section.direct) return [{ path: section.label, href: section.items[0]!.href, text: step.text(words) }];
     const item = section.items.find((i) => i.label === step.item);
-    return item ? [{ path: `${section.label} → ${item.label}`, href: item.href, text: step.text }] : [];
+    return item ? [{ path: `${section.label} → ${item.label}`, href: item.href, text: step.text(words) }] : [];
   });
 }
 

@@ -10,6 +10,7 @@ import './journal.css';
 import { RefreshButton } from '../../components/refresh-button';
 import { workspaceTimezone } from '../../lib/workspace-context';
 import { propertyClock } from '../../lib/property-time';
+import { zoneLabel } from '../../lib/human-period';
 import { dayTitle } from './journal-view';
 import { getJsonPublic } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
@@ -50,14 +51,14 @@ interface AuditRow {
 }
 
 const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
-  [null, 'все'],
-  ['Reservation', 'брони'],
-  ['InventoryUnit', 'ячейки'],
-  ['Guest', 'гости'],
-  ['Property', 'объект и каналы'],
-  ['TrackedSite', 'сайт'],
-  ['user', 'сотрудники'],
-  ['organization', 'организация'],
+  [null, 'Все'],
+  ['Reservation', 'Брони'],
+  ['InventoryUnit', 'Ячейки'],
+  ['Guest', 'Гости'],
+  ['Property', 'Объект и каналы'],
+  ['TrackedSite', 'Сайт'],
+  ['user', 'Сотрудники'],
+  ['organization', 'Организация'],
 ];
 /** Сколько строк просим у API: поиск и отбор идут по всей истории, наружу — не больше этого */
 const LIMIT = 50;
@@ -147,7 +148,7 @@ export default async function JournalPage({
   return (
     <Page
       title="История действий"
-      subtitle={`Действия сотрудников и изменения денег. Время: ${clock.timezone}.`}
+      subtitle={`Действия сотрудников и изменения денег. Время: ${zoneLabel(clock.timezone)}.`}
       actions={<RefreshButton />}
     >
       {desk.vertical !== 'BEAUTY' && <TeamNavigation current="journal" owner />}
@@ -157,20 +158,24 @@ export default async function JournalPage({
           сотрудника.
         </Notice>
       )}
+      {/* аудит 21.10.2026 п. 38: поиск по истории виден сразу и ищет только в истории, а не по всему WETOP */}
+      <form method="get" className="journal-search" role="search" aria-label="Искать по истории">
+        <Field label="Поиск в истории">
+          <Input
+            key={`q-${needle}`}
+            name="q"
+            aria-label="Поиск в истории"
+            placeholder={desk.vertical === 'HOSPITALITY' ? 'Номер брони' : 'Действие или сотрудник'}
+            defaultValue={needle}
+          />
+        </Field>
+        {type && <input name="type" type="hidden" value={type} />}
+        <Button tone="secondary">Искать в истории</Button>
+      </form>
       <details className="journal-filter-panel">
         <summary>Фильтры истории</summary>
         <form method="get" className="control-toolbar control-journal-search">
-          <Field label="Поиск в истории">
-            <Input
-              key={`q-${needle}`}
-              name="q"
-              aria-label="Поиск в истории"
-              placeholder={
-                desk.vertical === 'HOSPITALITY' ? 'Номер брони' : 'Действие или сотрудник'
-              }
-              defaultValue={needle}
-            />
-          </Field>
+          <input name="q" type="hidden" value={needle ?? ''} />
           <input name="type" type="hidden" value={type ?? ''} />
           <Field label="Сотрудник">
             <Select
@@ -335,7 +340,7 @@ async function JournalEntries({
         >
           <thead>
             <tr>
-              {['Когда', 'Кто', 'Что сделали', 'Объект'].map((h) => (
+              {['Когда', 'Кто', 'Что сделали', 'Где'].map((h) => (
                 <th key={h}>{h}</th>
               ))}
             </tr>

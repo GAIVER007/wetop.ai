@@ -81,7 +81,7 @@ test('журнал: дни группами, время без года, объ�
   await expect(first).toContainText('Бронь 20260913-TESTAA');
   await expect(main.getByText(/ui-\w+…/)).toHaveCount(0);
   await expect(main.getByTestId('journal-row').nth(1)).toContainText('Сотрудник');
-  const deleted = main.getByTestId('journal-row').filter({ hasText: 'бронь создана' });
+  const deleted = main.getByTestId('journal-row').filter({ hasText: 'Бронь создана' });
   await expect(deleted).toContainText('20260913-TESTAA');
   await expect(deleted.getByRole('link', { name: '20260913-TESTAA' })).toHaveCount(0);
   await expect(deleted).toContainText('удалена');
@@ -90,7 +90,7 @@ test('журнал: дни группами, время без года, объ�
   const filters = main.getByRole('navigation', { name: 'Раздел истории' });
   await expect(filters).toHaveClass(/chips/);
   const chipHeight = await filters
-    .getByRole('link', { name: 'брони', exact: true })
+    .getByRole('link', { name: 'Брони', exact: true })
     .evaluate((el) => el.getBoundingClientRect().height);
   expect(chipHeight).toBeGreaterThanOrEqual(38);
 

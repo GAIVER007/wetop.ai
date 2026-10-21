@@ -1,0 +1,49 @@
+/* Итоги одной строкой и выбор периода (аудит 21.10.2026): вместо ряда плиток над таблицами. Используют «Финансы»,
+   «Касса», «Обзор продаж», «Бюджет», «Аналитика маркетинга» и «Реклама» салона, ресторана и гостиницы. */
+@layer sections {
+  .money-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-6);
+    margin: 0 0 var(--space-4);
+    padding: 0;
+    font-size: var(--text-sm);
+  }
+  .money-summary > div {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    min-width: 0;
+    white-space: nowrap;
+  }
+  .money-summary dt {
+    color: var(--text-2);
+  }
+  .money-summary dd {
+    margin: 0;
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+  }
+  .money-summary dd .muted {
+    font-weight: var(--weight-medium);
+  }
+  .period-bar {
+    margin: 0 0 var(--space-4);
+  }
+  .period-bar .period-picker__presets {
+    flex-basis: auto;
+  }
+  .period-bar .muted {
+    font-size: var(--text-sm);
+  }
+  @media (max-width: 600px) {
+    .money-summary {
+      display: grid;
+      gap: var(--space-1);
+    }
+    .money-summary > div {
+      justify-content: space-between;
+    }
+  }
+}

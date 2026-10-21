@@ -1,6 +1,16 @@
 /* «Маркетинг → Бюджет» (МКТ-В1/В2): обзор, журнал расходов, аналитика. Только токены; примитивы
    (.panel, .stat, .tbl, .tabs, .chip) живут в components.css, здесь — свои классы раздела. */
 @layer sections {
+  .budget-plan-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+  }
+  .budget-plan-line .money-summary {
+    margin: 0;
+  }
   .budget-screen {
     display: flex;
     flex-direction: column;

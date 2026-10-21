@@ -5,6 +5,7 @@ import { hotelApi } from '../../lib/hotel-api';
 import { helpSteps, menuSectionsFor } from '../../lib/navigation';
 import { selectedWorkspaceBranch } from '../../lib/workspace-context';
 import { SupportBlock } from './support-block';
+import './help.css';
 
 /** Название филиала для начала сообщения в поддержку; оба запроса уже сделал макет (`cache`), новых рейсов нет */
 async function branchName(vertical: string): Promise<string | null> {
@@ -23,29 +24,35 @@ export default async function HelpPage() {
     <Page title="Помощь" subtitle="Выберите филиал">
       <p>Выберите филиал, чтобы открыть инструкции для его направления.</p>
       <Link href="/branches">Выбрать филиал</Link>
-      <p>Данные можно просматривать в режиме чтения. Вход и выход доступны через меню профиля.</p>
+      <p>Вход и выход доступны через меню профиля.</p>
       <SupportBlock />
     </Page>
   );
-  const steps = helpSteps(menuSectionsFor(access, vertical));
+  const steps = helpSteps(menuSectionsFor(access, vertical), vertical);
+  // аудит 21.10.2026 пп. 13, 39: заголовок блока без дубля в подзаголовке, шаги и поддержка в две колонки
   return (
-    <Page title="Помощь" subtitle="Начало работы">
-      <ol data-testid="help-steps">
-        {steps.map((step) => (
-          <li key={step.href}>
-            <Link href={step.href}>«{step.path}»</Link>: {step.text}
-          </li>
-        ))}
-      </ol>
-      <p>
-        Время показывается в часовом поясе филиала. Доступ сотрудников к WETOP настраивается в разделе{' '}
-        <Link href="/team">«Персонал → Сотрудники»</Link>.
-      </p>
-      <p>
-        Если направление находится в режиме чтения, данные доступны, а изменения закрыты. Обратитесь к владельцу
-        организации.
-      </p>
-      <SupportBlock branch={await branchName(vertical)} />
+    <Page title="Помощь">
+      <div className="help-columns">
+        <section className="panel" aria-labelledby="help-steps-title">
+          <h2 id="help-steps-title" className="panel__title">Начало работы</h2>
+          <ol data-testid="help-steps">
+            {steps.map((step) => (
+              <li key={step.href}>
+                <Link href={step.href}>«{step.path}»</Link>: {step.text}
+              </li>
+            ))}
+          </ol>
+          <p>
+            Время показывается в часовом поясе филиала. Доступ сотрудников к WETOP настраивается в разделе{' '}
+            <Link href="/team">«Персонал → Сотрудники»</Link>.
+          </p>
+          <p>
+            Если доступ открыт только для просмотра, данные видны, а изменения закрыты. Обратитесь к владельцу
+            организации.
+          </p>
+        </section>
+        <SupportBlock branch={await branchName(vertical)} />
+      </div>
     </Page>
   );
 }

@@ -53,10 +53,10 @@ test('срок лицензии вышел: та же закрытая прав�
   await expect(main(page).getByTestId('ed-license-off')).toContainText('Срок лицензии вышел.');
   await site(request, { license: 'OFF', noSite: true });
   await page.goto('/marketing/site/editor?full=1');
-  const win = main(page).getByTestId('create-site');
+  // аудит 21.10.2026 п. 4: без сайта и лицензии одна карточка с действием вместо формы с неактивными кнопками
   await expect(main(page).getByTestId('ed-license-off')).toBeVisible();
-  await expect(win.getByTestId('create-site-start')).toBeDisabled();
-  await expect(win.getByTestId('create-site-ai')).toBeDisabled();
+  await expect(main(page).getByTestId('site-off-ask')).toBeVisible();
+  await expect(main(page).getByTestId('create-site')).toHaveCount(0);
 });
 
 test('режим «Чат»: ответ словами без новой версии, «Перейти в сборку»; разговор на сервере переживает обновление', async ({ page }) => {

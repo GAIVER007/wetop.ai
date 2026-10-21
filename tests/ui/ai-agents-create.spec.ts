@@ -39,7 +39,7 @@ test('свободный филиал: кнопка активна, форма �
   await page.goto('/ai-agents');
   const button = page
     .getByTestId('agent-add')
-    .getByRole('link', { name: '+ Подключить AI-продавца' });
+    .getByRole('link', { name: 'Подключить ИИ-продавца' });
   await expect(button).toBeVisible();
   await button.click();
   await expect(page).toHaveURL(/\/ai-agents\/new$/);
@@ -111,7 +111,7 @@ test('каталог после создания: карточка агента 
   await expect(card).toContainText('Сеть Тест · Астана');
   await expect(card.getByTestId('agent-status')).toHaveText('Черновик');
   const add = page.getByTestId('agent-add');
-  await expect(add.getByRole('button', { name: '+ Подключить AI-продавца' })).toBeDisabled();
+  await expect(add.getByRole('button', { name: 'Подключить ИИ-продавца' })).toBeDisabled();
   await expect(add).toContainText(
     'Нет свободного филиала. Во всех филиалах AI-продавец уже создан.',
   );
@@ -195,7 +195,7 @@ test('«только чтение»: кнопка в каталоге неакт
   await signIn(page);
   await page.goto('/ai-agents');
   const add = page.getByTestId('agent-add');
-  await expect(add.getByRole('button', { name: '+ Подключить AI-продавца' })).toBeDisabled();
+  await expect(add.getByRole('button', { name: 'Подключить ИИ-продавца' })).toBeDisabled();
   await page.goto('/ai-agents/new');
   await expect(page.getByTestId('agent-create-blocked')).toBeVisible();
   await expect(page.getByTestId('agent-create-form')).toHaveCount(0);

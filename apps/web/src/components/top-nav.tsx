@@ -464,8 +464,9 @@ function GrantedHeaderCaption({ desk }: { desk: Promise<DeskShell> | undefined }
 function HeaderCaption({ person }: { person: DeskPerson | null }) {
   return (
     <>
-      <strong>{person?.name ?? 'Администратор'}</strong>
-      <small>{person?.caption ?? 'Рабочее пространство'}</small>
+      {/* полное имя и роль в подсказке: в узкой шапке строка обрезается многоточием (аудит 21.10.2026 п. 23) */}
+      <strong title={person?.name ?? undefined}>{person?.name ?? 'Администратор'}</strong>
+      <small title={person?.caption ?? undefined}>{person?.caption ?? 'Рабочее пространство'}</small>
     </>
   );
 }

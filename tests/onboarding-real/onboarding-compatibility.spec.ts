@@ -198,7 +198,9 @@ test('Employee mobile typography, confirmed scope and create cancellation',async
  for(const width of [320,390,600]){
   await page.setViewportSize({width,height:width===320?568:844});
   expect(await panel.getByLabel('Имя мастера',{exact:true}).evaluate(el=>getComputedStyle(el).fontSize)).toBe('17px');
-  expect((await panel.getByLabel('Имя мастера',{exact:true}).boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  // CSS contract: 44px tap target; the centred dialog can render it at 43.99998 (subpixel), so compare whole pixels
+  expect(await panel.getByLabel('Имя мастера',{exact:true}).evaluate(el=>getComputedStyle(el).minHeight)).toBe('44px');
+  expect(Math.round((await panel.getByLabel('Имя мастера',{exact:true}).boundingBox())!.height)).toBeGreaterThanOrEqual(44);
  }
  await expect(panel.getByRole('region',{name:'Бизнес и филиал',exact:true})).toContainText(businessName);
  await panel.getByLabel('Имя мастера',{exact:true}).fill('Черновик Мастера');

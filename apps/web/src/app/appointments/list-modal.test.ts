@@ -81,3 +81,26 @@ describe('C2 (паритет с zapis.kz): автор и источник в р�
     expect(html).toContain('Тест Админ');
   });
 });
+
+describe('аудит 21.10.2026 п.3 и п.19: список записей', () => {
+  it('выключенная «Новая запись» всегда объяснена ссылками на услуги и специалистов', () => {
+    const html = renderToStaticMarkup(createElement(AppointmentsList, {
+      day: { ...day, columns: [], services: [] },
+      customers: [],
+      readOnly: false,
+    }));
+    expect(html).toContain('Для новой записи нужны услуги и специалисты');
+    expect(html).toContain('href="/services"');
+    expect(html).toContain('href="/employees"');
+  });
+  it('у поиска есть подсказка в поле, служебных строк под ним нет; фильтры в одной карточке', () => {
+    const html = renderToStaticMarkup(createElement(AppointmentsList, { day, customers: [], readOnly: false }));
+    expect(html).toContain('placeholder="Имя или телефон"');
+    expect(html).not.toContain('Поиск по выбранному периоду.');
+    expect(html).not.toContain('После перезагрузки поиск клиента очищается.');
+    expect(html).not.toContain('Для новой записи нужны');
+    const panel = html.slice(html.indexOf('beauty-list-panel'));
+    expect(panel.indexOf('Показать период')).toBeLessThan(panel.indexOf('Сбросить фильтры'));
+    expect(panel.indexOf('Сбросить фильтры')).toBeLessThan(panel.indexOf('</section>'));
+  });
+});

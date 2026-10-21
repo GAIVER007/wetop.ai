@@ -29,6 +29,17 @@ import { beautyMasterDayStatus } from '../../../lib/beauty-master-day-status';
  */
 type Editing = { mode: 'new' } | null;
 
+/** Кнопка «Добавить специалиста» в шапке страницы (аудит 21.10.2026, п. 37), как «Пригласить сотрудника» на /team.
+ * Окно живёт в списке: кнопка шлёт событие, список открывает окно через тот же сторож черновика. */
+const NEW_SPECIALIST_EVENT = 'wetop-new-specialist';
+export function NewSpecialistButton() {
+  return (
+    <Button type="button" onClick={() => window.dispatchEvent(new Event(NEW_SPECIALIST_EVENT))}>
+      Добавить специалиста
+    </Button>
+  );
+}
+
 export const employeeProfileHref = (id: string) => `/employees/${encodeURIComponent(id)}/profile`;
 
 type Kind = NonNullable<BeautyEmployeeRow['personnelKind']>;
@@ -106,7 +117,13 @@ export function MastersBoard({
   revenue = null,
   revenueNav = null,
   access,
+  openNew = false,
+  headerAction = false,
 }: {
+  /** `/employees?new=1`: окно нового специалиста открыто сразу (аудит 21.10.2026, п. 16) */
+  openNew?: boolean;
+  /** кнопка добавления стоит в шапке страницы (`NewSpecialistButton`), в списке её не повторяем */
+  headerAction?: boolean;
   items: BeautyEmployeeRow[];
   services: BeautyServiceRow[];
   canEdit?: boolean;
@@ -131,7 +148,7 @@ export function MastersBoard({
   const earned = revenue ? revenueCells(revenue.items) : null;
   const unattributed = revenue ? unattributedLabel(revenue.items, 'BEAUTY') : null;
   const router = useRouter();
-  const [editing, setEditing] = useState<Editing>(null);
+  const [editing, setEditing] = useState<Editing>(() => (openNew && canCreate ? { mode: 'new' } : null));
   const [epoch, setEpoch] = useState(0);
   const [notice, setNotice] = useState('');
   const guard = useRef<(action: () => void) => void>((action) => action());
@@ -161,10 +178,25 @@ export function MastersBoard({
     setNotice('Специалист создан');
     clearPendingCreation(scopeKey, 'employee', row.id);
     router.replace(employeeProfileHref(row.id), { scroll: false });
+    // список берёт свежие строки с сервера: без этого новый специалист появлялся только после перезагрузки (п. 1)
+    router.refresh();
   };
   const close = () => {
     setEditing(null);
   };
+  const startNew = useCallback(
+    () =>
+      guard.current(() => {
+        setEditing({ mode: 'new' });
+        setNotice('');
+      }),
+    [],
+  );
+  useEffect(() => {
+    if (!canCreate || typeof window === 'undefined') return;
+    window.addEventListener(NEW_SPECIALIST_EVENT, startNew);
+    return () => window.removeEventListener(NEW_SPECIALIST_EVENT, startNew);
+  }, [canCreate, startNew]);
   const names = new Map(services.map((s) => [s.id, s.name]));
   // старые записи без назначения не прячутся и не угадываются: своя вкладка, пока они есть
   const tabs = personnelTabs(
@@ -264,17 +296,16 @@ export function MastersBoard({
       <StaffBoard<BeautyEmployeeRow>
         caption="Специалисты салона"
         actions={
-          canCreate ? (
-            <Button
-              type="button"
-              onClick={() =>
-                guard.current(() => {
-                  setEditing({ mode: 'new' });
-                  setNotice('');
-                })
-              }
-            >
+          canCreate && !headerAction ? (
+            <Button type="button" onClick={startNew}>
               Добавить специалиста
+            </Button>
+          ) : null
+        }
+        emptyAction={
+          canCreate ? (
+            <Button type="button" tone="secondary" onClick={startNew}>
+              Добавить первого специалиста
             </Button>
           ) : null
         }

@@ -8,8 +8,6 @@ import {
   Field,
   Input,
   Select,
-  Stat,
-  Stats,
   Table,
 } from '../../components/ui';
 import { Tabs } from '../../components/tabs';
@@ -89,7 +87,7 @@ export function CashBoard({
     });
   function operation() {
     const minor = tenge(amount);
-    if (minor === null) return setError('Сумма: целое число больше нуля');
+    if (minor === null) return setError(amount ? 'Сумма должна быть больше нуля' : 'Введите сумму');
     let storageKey = '';
     run(
       async () => {
@@ -117,7 +115,7 @@ export function CashBoard({
     );
   }
   function reconcile() {
-    if (!/^\d+$/.test(counted)) return setError('Пересчитано: целое число');
+    if (!/^\d+$/.test(counted)) return setError(counted ? 'Пересчитано: целое число' : 'Введите пересчитанную сумму');
     run(
       () => mutateCash(scopeKey, { kind: 'reconcile', body: { method: checkMethod, counted: Number(counted) * 100 } }),
       () => setCounted(''),
@@ -249,20 +247,35 @@ export function CashBoard({
     <div className="food-workspace" data-testid="cash-board">
       {dialog}
       {error && <Alert>{error}</Alert>}
-      <Stats min={170}>
-        <Stat label="Всего в кассе" value={wholeTenge(String(total), cash.currency)} tone="info" testId="cash-total" />
-        {cash.balances.map((b) => (
-          <Stat
-            key={b.method}
-            label={methodName(b.method)}
-            value={wholeTenge(b.balanceMinor, cash.currency)}
-            testId={`cash-${b.method}`}
-          />
-        ))}
-      </Stats>
+      {/* аудит 21.10.2026 п. 26: вместо ряда плиток итог строкой и остатки по способам в таблице */}
+      <dl className="money-summary">
+        <div>
+          <dt>Всего в кассе</dt>
+          <dd data-testid="cash-total">{wholeTenge(String(total), cash.currency)}</dd>
+        </div>
+      </dl>
+      {cash.balances.length > 0 && (
+        <Table aria-label="Остатки по способам оплаты" data-testid="cash-balances">
+          <thead>
+            <tr>
+              <th>Способ оплаты</th>
+              <th>Остаток</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cash.balances.map((b) => (
+              <tr key={b.method}>
+                <td>{methodName(b.method)}</td>
+                <td data-testid={`cash-${b.method}`}>{wholeTenge(b.balanceMinor, cash.currency)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
       {write && (
         <div className="rest-cash-forms">
-          <section className="food-form" aria-label="Операция кассы">
+          <section className="panel food-form" aria-labelledby="cash-op-title">
+            <h2 id="cash-op-title" className="panel__title">Операция кассы</h2>
             <Segmented
               label="Вид операции"
               value={kind}
@@ -285,9 +298,11 @@ export function CashBoard({
               </Button>
             </div>
           </section>
-          <section className="food-form" aria-label="Сверка кассы">
+          <section className="panel food-form" aria-labelledby="cash-check-title">
+            <h2 id="cash-check-title" className="panel__title">Сверка кассы</h2>
+            <p className="muted">Пересчитайте деньги одного способа: WETOP покажет разницу с остатком.</p>
             <div className="food-form-row">
-              <MethodSelect label="Сверка, способ" value={checkMethod} onChange={setCheckMethod} />
+              <MethodSelect label="Способ" value={checkMethod} onChange={setCheckMethod} />
               <Field label={`Пересчитано, ${currencySign(cash.currency)}`}>
                 <Input inputMode="numeric" value={counted} onChange={(e) => setCounted(e.target.value.replace(/\D/g, ''))} />
               </Field>

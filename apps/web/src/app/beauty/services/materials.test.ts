@@ -68,6 +68,9 @@ describe('техкарта услуги салона', () => {
     expect(html).toContain('Материалы не добавлены');
     expect(html).toContain('Себестоимость не рассчитана');
     expect(html).not.toContain('0,00');
+    // аудит 21.10.2026 п.23: путь на склад, где заводят расходники
+    expect(html).toContain('href="/bar/consumables"');
+    expect(html).toContain('Добавить расходник');
   });
 
   it('объясняет отсутствующую стоимость партии или остаток', () => {

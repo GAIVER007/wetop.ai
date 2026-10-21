@@ -4,7 +4,6 @@ import { pageOpen } from '../../lib/navigation';
 import { Page } from '../../components/page';
 import { Alert, EmptyState, Panel, Table } from '../../components/ui';
 import { PeriodBar } from '../../components/period-bar';
-import { KpiTile } from '../../components/kpi-tile';
 import { deskShell } from '../../lib/desk-shell';
 import { selectedWorkspaceBranch } from '../../lib/workspace-context';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
@@ -77,42 +76,39 @@ export async function SalonReportsScreen({ searchParams }: { searchParams: Searc
               details="Измените период или посмотрите статусы всех записей."
             />
           ) : (
+            // итоги строкой вместо четырёх плиток (правило владельца 21.10.2026: без плиток над списком)
             report.currencies.map((group) => (
-              <section key={group.currency} aria-label={`Итоги ${group.currency}`}>
-                <h2>{group.currency}</h2>
-                <div className="salon-reports__kpis">
-                  <KpiTile
-                    icon="money"
-                    label="Стоимость оказанных услуг"
-                    value={moneyText(group.costMinor, group.currency)}
-                    caption="Снимки цен завершённых записей, не поступления"
-                    testId={`salon-report-cost-${group.currency}`}
-                  />
-                  <KpiTile
-                    icon="check"
-                    label="Завершённые записи"
-                    value={String(group.visits)}
-                    caption="Один визит считается один раз"
-                  />
-                  <KpiTile
-                    icon="receipt"
-                    label="Средняя стоимость записи"
-                    value={moneyText(
+              <p
+                key={group.currency}
+                className="salon-reports__summary"
+                data-testid="salon-report-summary"
+                aria-label={`Итоги ${group.currency}`}
+              >
+                <span>
+                  Стоимость оказанных услуг{' '}
+                  <b data-testid={`salon-report-cost-${group.currency}`}>
+                    {moneyText(group.costMinor, group.currency)}
+                  </b>
+                </span>
+                <span>
+                  завершённых записей <b>{group.visits}</b>
+                </span>
+                <span>
+                  средний чек{' '}
+                  <b>
+                    {moneyText(
                       (BigInt(group.costMinor) / BigInt(group.visits)).toString(),
                       group.currency,
                     )}
-                    caption="По завершённым записям"
-                  />
-                  <KpiTile
-                    icon="guests"
-                    label="Специалисты"
-                    value={String(
-                      report.masters.filter((master) => master.currency === group.currency).length,
-                    )}
-                    caption="Участвовали в завершённых записях"
-                  />
-                </div>
-              </section>
+                  </b>
+                </span>
+                <span>
+                  специалистов{' '}
+                  <b>
+                    {report.masters.filter((master) => master.currency === group.currency).length}
+                  </b>
+                </span>
+              </p>
             ))
           )}
           {view === 'overview' ? (
@@ -238,7 +234,9 @@ function StatusesPanel({ counts }: { counts: Record<string, number> }) {
           {Object.entries(BEAUTY_LABELS).map(([status, label]) => (
             <tr key={status}>
               <td data-label="Статус">{label}</td>
-              <td data-label="Записи">{counts[status] ?? 0}</td>
+              <td data-label="Записи" data-testid={`salon-report-status-${status}`}>
+                {counts[status] ?? 0}
+              </td>
             </tr>
           ))}
         </tbody>

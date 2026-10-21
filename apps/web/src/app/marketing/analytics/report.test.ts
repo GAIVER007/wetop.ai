@@ -86,3 +86,10 @@ describe('салон и ресторан без результатов кана�
   });
 });
 
+describe('CSV салона словами салона (аудит 21.10.2026 п. 16)', () => {
+  it('колонки «Записи» и «Стоимость записи» вместо гостиничных «Броней»', () => {
+    const l = lines(analyticsCsv(buildAnalyticsReport(VIEW, RESULTS), 'BEAUTY'));
+    expect(l[0]).toBe('Канал;Расход, KZT;Обращения;CPL, KZT;Записи;Стоимость записи, KZT;Выручка, KZT;ROMI, %');
+    expect(l.join('\n')).not.toContain('Брони');
+  });
+});

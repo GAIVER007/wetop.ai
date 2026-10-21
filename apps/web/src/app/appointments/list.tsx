@@ -1,5 +1,6 @@
 'use client';
 import { useState, useSyncExternalStore } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
 import {
@@ -12,7 +13,7 @@ import {
   StatusBadge,
   Table,
 } from '../../components/ui';
-import type { BeautyCustomerRow, BeautyDay } from '../../lib/api';
+import type { BeautyAppointmentRow, BeautyCustomerRow, BeautyDay } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
 import { AppointmentCard } from '../beauty/appointment-card';
@@ -41,7 +42,13 @@ export function AppointmentsList({
   scopeKey = '',
   period = { from: day.date, to: day.date },
   creationUnavailableReason,
+  openCreate = false,
+  createFor,
 }: {
+  /** клиент из карточки («Записать»): форма открывается уже с ним */
+  createFor?: string;
+  /** `?create=1` из карточки клиента («Записать»): окно новой записи открыто сразу */
+  openCreate?: boolean;
   day: BeautyDay;
   customers: BeautyCustomerRow[];
   readOnly: boolean;
@@ -56,7 +63,7 @@ export function AppointmentsList({
   period?: { from: string; to: string };
   creationUnavailableReason?: string;
 }) {
-  const [creating, setCreating] = useState(false);
+  const [creating, setCreating] = useState(openCreate);
   // Non-PII context has one source: the URL (same pattern as MastersBoard).
   // Client search stays only in this scope-keyed component's memory, never in URL/history/storage.
   const [query, setQuery] = useState('');
@@ -135,6 +142,33 @@ export function AppointmentsList({
     url.searchParams.delete('to');
     router.push(`${url.pathname}${url.search}`);
   };
+  const missingSetup = !day.columns.length || !day.services.length;
+  // Форма умеет начинать с клиента только через «повторить запись»: даём ей пустую запись с этим клиентом,
+  // без услуги и заметок, поэтому строки услуг остаются пустыми
+  const prefillCustomer = createFor ? customers.find((c) => c.id === createFor) : undefined;
+  const prefill: BeautyAppointmentRow | undefined = prefillCustomer && {
+    id: '',
+    employeeId: day.columns[0]?.id ?? '',
+    serviceId: '',
+    serviceName: '',
+    customer: {
+      id: prefillCustomer.id,
+      name: [prefillCustomer.firstName, prefillCustomer.lastName].filter(Boolean).join(' '),
+      phone: prefillCustomer.phone,
+    },
+    startsAt: '',
+    endsAt: '',
+    startMinutes: day.bounds.fromMinutes,
+    endMinutes: day.bounds.fromMinutes,
+    status: 'BOOKED',
+    next: [],
+    priceMinor: '0',
+    paidMinor: '0',
+    refundedMinor: '0',
+    currency: day.location.currency,
+    notes: null,
+  };
+  const canStart = canCreate && !missingSetup;
   const rows = invalid
     ? []
     : day.appointments.filter(
@@ -147,117 +181,124 @@ export function AppointmentsList({
       );
   return (
     <>
-      <div className="beauty-bar beauty-operational-toolbar">
-        <form
-          className="beauty-period-filter"
-          key={`${period.from}:${period.to}`}
-          onSubmit={(event) => {
-            event.preventDefault();
-            const values = new FormData(event.currentTarget);
-            const url = new URL(location.href);
-            url.searchParams.set('from', String(values.get('from') ?? ''));
-            url.searchParams.set('to', String(values.get('to') ?? ''));
-            url.searchParams.delete('date');
-            url.searchParams.delete('appointment');
-            router.push(`${url.pathname}${url.search}`);
-          }}
-        >
-          <Field label="Период с">
-            <Input
-              name="from"
-              type="date"
-              required
-              defaultValue={period.from}
-              data-testid="beauty-day-date"
-            />
-          </Field>
-          <Field label="Период по">
-            <Input name="to" type="date" required defaultValue={period.to} />
-          </Field>
-          <Button type="submit" tone="secondary">
-            Показать период
+      <section className="panel beauty-list-panel" aria-label="Период и фильтры записей">
+        <div className="beauty-bar beauty-operational-toolbar">
+          <form
+            className="beauty-period-filter"
+            key={`${period.from}:${period.to}`}
+            onSubmit={(event) => {
+              event.preventDefault();
+              const values = new FormData(event.currentTarget);
+              const url = new URL(location.href);
+              url.searchParams.set('from', String(values.get('from') ?? ''));
+              url.searchParams.set('to', String(values.get('to') ?? ''));
+              url.searchParams.delete('date');
+              url.searchParams.delete('appointment');
+              router.push(`${url.pathname}${url.search}`);
+            }}
+          >
+            <Field label="Период с">
+              <Input
+                name="from"
+                type="date"
+                lang="ru"
+                required
+                defaultValue={period.from}
+                data-testid="beauty-day-date"
+              />
+            </Field>
+            <Field label="Период по">
+              <Input name="to" type="date" lang="ru" required defaultValue={period.to} />
+            </Field>
+            <Button type="submit" tone="secondary">
+              Показать период
+            </Button>
+            <Button type="button" tone="ghost" onClick={() => changeDate()}>
+              Сегодня
+            </Button>
+          </form>
+          <Button disabled={!canStart} onClick={() => setCreating(true)}>
+            + Новая запись
           </Button>
-          <Button type="button" tone="ghost" onClick={() => changeDate()}>
-            Сегодня
-          </Button>
-        </form>
-        <Button
-          disabled={!canCreate || !day.columns.length || !day.services.length}
-          onClick={() => setCreating(true)}
-        >
-          + Новая запись
-        </Button>
-      </div>
-      {creationUnavailableReason && <Alert>{creationUnavailableReason}</Alert>}
-      <div className="beauty-filters beauty-list-filters">
-        <Field label="Статус">
-          <Select
-            value={status}
-            onChange={(e) => address({ status: e.target.value, appointment: '' })}
-          >
-            <option value="">Все статусы</option>
-            {Object.entries(beautyStatus).map(([key, { label }]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <Field label="Специалист">
-          <Select
-            value={employee}
-            onChange={(e) => address({ master: e.target.value, appointment: '' })}
-          >
-            <option value="">Все специалисты</option>
-            {day.columns.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.name}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <Field label="Услуга">
-          <Select
-            value={service}
-            onChange={(e) => address({ service: e.target.value, appointment: '' })}
-          >
-            <option value="">Все услуги</option>
-            {services.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <div className="beauty-list-search">
-          <Field label="Поиск клиента">
-            <Input
-              type="search"
-              data-page-search
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </Field>
-          <p className="beauty-note">Поиск по выбранному периоду.</p>
-          <p className="beauty-note">После перезагрузки поиск клиента очищается.</p>
         </div>
-      </div>
-      {invalid && (
-        <Alert>
-          Фильтр или запись недоступны в текущем филиале. Сбросьте отбор или выберите доступные
-          значения.
-        </Alert>
-      )}
-      <Button
-        tone="secondary"
-        className="beauty-list-reset"
-        onClick={() => {
-          setQuery('');
-          address({ master: '', service: '', status: '', appointment: '' });
-        }}
-      >
-        Сбросить фильтры
-      </Button>
+        {creationUnavailableReason && <Alert>{creationUnavailableReason}</Alert>}
+        {/* причина выключенной «Новой записи» видна всегда, со ссылками (аудит 21.10.2026 п.3) */}
+        {canCreate && missingSetup && (
+          <p className="beauty-note" role="status" data-testid="appointments-setup-hint">
+            Для новой записи нужны услуги и специалисты с рабочим графиком.{' '}
+            {!day.services.length && <Link href="/services">Добавить услугу</Link>}{' '}
+            {!day.columns.length && <Link href="/employees">Добавить специалиста</Link>}
+          </p>
+        )}
+        <div className="beauty-filters beauty-list-filters">
+          <Field label="Статус">
+            <Select
+              value={status}
+              onChange={(e) => address({ status: e.target.value, appointment: '' })}
+            >
+              <option value="">Все статусы</option>
+              {Object.entries(beautyStatus).map(([key, { label }]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Специалист">
+            <Select
+              value={employee}
+              onChange={(e) => address({ master: e.target.value, appointment: '' })}
+            >
+              <option value="">Все специалисты</option>
+              {day.columns.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Услуга">
+            <Select
+              value={service}
+              onChange={(e) => address({ service: e.target.value, appointment: '' })}
+            >
+              <option value="">Все услуги</option>
+              {services.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <div className="beauty-list-search">
+            <Field label="Поиск клиента">
+              <Input
+                type="search"
+                data-page-search
+                placeholder="Имя или телефон"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </Field>
+          </div>
+          <Button
+            tone="secondary"
+            className="beauty-list-reset"
+            onClick={() => {
+              setQuery('');
+              address({ master: '', service: '', status: '', appointment: '' });
+            }}
+          >
+            Сбросить фильтры
+          </Button>
+        </div>
+        {invalid && (
+          <Alert>
+            Фильтр или запись недоступны в текущем филиале. Сбросьте отбор или выберите доступные
+            значения.
+          </Alert>
+        )}
+      </section>
       {rows.length === 0 ? (
         <EmptyState title="Записей не найдено">
           Выберите другой период или измените фильтры.
@@ -335,13 +376,14 @@ export function AppointmentsList({
       )}
       <AppointmentEditor
         canAdjustPrice={canAdjustPrice}
-        open={canCreate && creating}
+        open={canStart && creating}
         onClose={() => setCreating(false)}
         scopeKey={scopeKey}
         day={day}
         customers={customers}
         employeeId={day.columns[0]?.id ?? ''}
         time={clock(day.bounds.fromMinutes)}
+        {...(prefill ? { repeatFrom: prefill } : {})}
         onDone={() => {
           setCreating(false);
           router.refresh();

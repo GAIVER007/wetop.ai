@@ -30,6 +30,8 @@ export const PAYMENT_METHOD_RU: Record<string, string> = {
   DEPOSIT: 'Депозит',
   CARD_GUARANTEE: 'Гарантия картой',
   EXTERNAL: 'Внешний канал',
+  BONUS: 'Бонусы',
+  GIFT_CERTIFICATE: 'Сертификат',
 };
 export const paymentMethodRu = (method: string): string => PAYMENT_METHOD_RU[method] ?? method;
 

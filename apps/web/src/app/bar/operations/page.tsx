@@ -8,7 +8,7 @@ import { workspaceTimezone } from '../../../lib/workspace-context';
 import { propertyClock } from '../../../lib/property-time';
 import { Tabs } from '../../../components/tabs';
 import { Page } from '../../../components/page';
-import { Badge, EmptyState, SectionTitle, Table } from '../../../components/ui';
+import { Badge, EmptyState, Table } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
 import { BarReturnButtons } from '../return-buttons';
 import { WriteOffForm } from '../write-off-form';
@@ -67,7 +67,9 @@ export default async function BarOperationsPage() {
       subtitle="Списание и инвентаризация, журнал продаж с возвратами, лента движений остатка."
     >
       <BarTabs current="operations" />
+      {/* внутренние вкладки подчёркнутые, как на «Расходниках», чтобы не путались с разделами склада (аудит 21.10.2026 п.18) */}
       <Tabs
+        className="bar-tabs-line"
         label={`Операции ${sectionGenitive}`}
         panels={[
           {
@@ -75,8 +77,6 @@ export default async function BarOperationsPage() {
             label: 'Продажи',
             content: (
               <>
-                {' '}
-                <SectionTitle>Продажи</SectionTitle>
                 {sales.value.length === 0 ? (
                   <EmptyState icon={<Icon name="receipt" />} title="Продаж пока нет">
                     Первую продажу можно записать на «Обзоре».
@@ -134,8 +134,6 @@ export default async function BarOperationsPage() {
             label: 'Движения',
             content: (
               <>
-                {' '}
-                <SectionTitle>Движения</SectionTitle>
                 {movements.value.length === 0 ? (
                   <EmptyState icon={<Icon name="journal" />} title="Движений пока нет">
                     Лента заполнится с первым приходом или продажей.

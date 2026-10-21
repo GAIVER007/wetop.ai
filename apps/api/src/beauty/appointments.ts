@@ -26,13 +26,16 @@ import {
   milliOf,
   milliText,
   parseAppointmentInput,
+  parseAppointmentPayment,
   parseFoodPayment,
+  isLoyaltyMethod,
   planAppointment,
   statusChange,
   timeOffWindow,
   type AppointmentPlan,
   type AppointmentItemInput,
   type AppointmentStatus,
+  type AppointmentPaymentMethod,
 } from '@pms/domain';
 import { currentUserId, currentBeautyOperation } from '../auth/request-context';
 import { currentBeautyPositionAccess } from './access';
@@ -46,6 +49,8 @@ import { PrismaService } from '../database/prisma.provider';
 import { beautyScope, beautyTransaction, mayBeauty, mayBeautyWrite, UUID, type BeautyScope } from './scope';
 import { fitsSalonHours, intersectLocationHours, salonHours } from './location-hours-policy';
 import { appointmentLineHistorySnapshot } from './appointment-history-snapshot';
+import { syncAppointmentReminders } from './reminders';
+import { checkLoyaltyRefund, prepareLoyaltyPayment, recordLoyaltyPayment, recordLoyaltyRefund } from './loyalty';
 
 /**
  * Журнал записей салона (DATA_MODEL §19.1, срез B5): день филиала столбцами по мастерам.
@@ -153,7 +158,9 @@ function appointmentView(row: AppointmentViewRow, timezone: string, anchorDate: 
     priceMinor: row.price.toString(),
     paidMinor: row.payments.reduce((sum, payment) => payment.kind === 'INCOME' ? sum + payment.amount : sum, 0n).toString(),
     paidCashMinor: row.payments.reduce((sum, payment) => payment.kind === 'INCOME' && payment.method === 'CASH' ? sum + payment.amount : sum, 0n).toString(),
-    paidNonCashMinor: row.payments.reduce((sum, payment) => payment.kind === 'INCOME' && payment.method !== 'CASH' ? sum + payment.amount : sum, 0n).toString(),
+    // безнал это живые деньги не наличными; бонусы и сертификат отдельно (решение 21.10.2026)
+    paidNonCashMinor: row.payments.reduce((sum, payment) => payment.kind === 'INCOME' && payment.method !== 'CASH' && !isLoyaltyMethod(payment.method) ? sum + payment.amount : sum, 0n).toString(),
+    paidLoyaltyMinor: row.payments.reduce((sum, payment) => payment.kind === 'INCOME' && isLoyaltyMethod(payment.method) ? sum + payment.amount : sum, 0n).toString(),
     refundedMinor: row.payments.reduce((sum, payment) => payment.kind === 'EXPENSE' ? sum + payment.amount : sum, 0n).toString(),
     currency: row.currency,
     notes: row.notes,
@@ -476,6 +483,8 @@ export class BeautyAppointmentsService {
           },
         },
       });
+      // напоминания клиенту в той же транзакции (решение 21.10.2026 §1)
+      await syncAppointmentReminders(tx, id);
       return first.startsAt;
     });
     return this.day(localDate(savedStartsAt, scope.locationTimezone ?? 'UTC'));
@@ -598,6 +607,7 @@ export class BeautyAppointmentsService {
           },
         },
       });
+      await syncAppointmentReminders(tx, row.id);
       return first.startsAt;
     });
     return this.day(localDate(savedStartsAt, scope.locationTimezone ?? 'UTC'));
@@ -630,6 +640,8 @@ export class BeautyAppointmentsService {
           after: materials ? { status: to, materials } : { status: to },
         },
       });
+      // отмена, незаезд и «Выполнено» снимают ждущие напоминания; подтверждение их сохраняет
+      await syncAppointmentReminders(tx, row.id);
     });
     return this.day(localDate(row.startsAt, scope.locationTimezone ?? 'UTC'));
   }
@@ -639,12 +651,9 @@ export class BeautyAppointmentsService {
     await mayBeautyWrite(this.prisma, 'desk');
     const { scope, row } = await this.own(id);
     const locationId = scope.locationId as string;
-    let input: ReturnType<typeof parseFoodPayment>;
-    try {
-      input = parseFoodPayment(raw);
-    } catch (error) {
-      throw new BadRequestException((error as Error).message);
-    }
+    const parsed = parseAppointmentPayment(raw);
+    if (!parsed.ok) throw new BadRequestException(parsed.reason);
+    const input = parsed.value;
     await beautyTransaction(this.prisma, scope, async (tx) => {
       const replay = await tx.restaurantCashOperation.findFirst({ where: { locationId, idempotencyKey: input.idempotencyKey } });
       if (replay) {
@@ -654,7 +663,7 @@ export class BeautyAppointmentsService {
       const paid = await this.paidLocked(tx, row.id);
       const a = await tx.appointment.findUniqueOrThrow({
         where: { id: row.id },
-        select: { status: true, price: true, currency: true, customer: { select: { firstName: true, lastName: true } } },
+        select: { status: true, price: true, currency: true, customerId: true, customer: { select: { firstName: true, lastName: true } } },
       });
       if (a.currency !== scope.locationCurrency) throw new ConflictException('Валюта записи не совпадает с валютой филиала');
       try {
@@ -662,13 +671,16 @@ export class BeautyAppointmentsService {
       } catch (error) {
         throw new ConflictException((error as Error).message);
       }
+      // бонусы: баланс и доля чека; сертификат: код, срок, свой бизнес, остаток под замком строки (частично)
+      const loyalty = await prepareLoyaltyPayment(tx, scope, input, { id: row.id, customerId: a.customerId, price: a.price, currency: a.currency });
+      const amount = loyalty.amount;
       const name = [a.customer.firstName, a.customer.lastName].filter(Boolean).join(' ');
       const op = await tx.restaurantCashOperation.create({
         data: {
           locationId,
           kind: 'INCOME',
           method: input.method,
-          amount: input.amount,
+          amount,
           currency: a.currency,
           note: `Оплата записи: ${name}`.slice(0, 500),
           appointmentId: row.id,
@@ -676,6 +688,11 @@ export class BeautyAppointmentsService {
           createdById: currentUserId() ?? null,
         },
       });
+      const { accruedMinor } = await recordLoyaltyPayment(
+        tx, scope,
+        { id: op.id, kind: 'INCOME', method: op.method, amount: op.amount, currency: op.currency, appointmentId: row.id },
+        { id: row.id, customerId: a.customerId }, loyalty.certificateId,
+      );
       await tx.auditLog.create({
         data: {
           organizationId: scope.organizationId,
@@ -683,7 +700,11 @@ export class BeautyAppointmentsService {
           entityType: 'appointment',
           entityId: row.id,
           action: 'beauty.appointment.paid',
-          after: { cashOperationId: op.id, method: input.method, amountMinor: input.amount.toString(), paidMinor: (paid + input.amount).toString() },
+          after: {
+            cashOperationId: op.id, method: input.method, amountMinor: amount.toString(), paidMinor: (paid + amount).toString(),
+            ...(accruedMinor > 0n ? { bonusAccruedMinor: accruedMinor.toString() } : {}),
+            ...(loyalty.certificateId ? { giftCertificateId: loyalty.certificateId } : {}),
+          },
         },
       });
     });
@@ -696,10 +717,14 @@ export class BeautyAppointmentsService {
     const { scope, row } = await this.own(id);
     const locationId = scope.locationId as string;
     const { reason: rawReason, ...rest } = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
-    let input: ReturnType<typeof parseFoodPayment>;
+    let input: { method: string; amount: bigint; idempotencyKey: string };
     let reason: string;
     try {
-      input = parseFoodPayment(rest);
+      // возврат бонусами или на сертификат: тот же разбор, способ лояльности без кода
+      const method = (rest as Record<string, unknown>)['method'];
+      input = typeof method === 'string' && isLoyaltyMethod(method)
+        ? { ...parseFoodPayment({ ...rest, method: 'CASH' }), method }
+        : parseFoodPayment(rest);
       reason = String(rawReason ?? '').trim();
       if (!reason || reason.length > 300) throw new Error('Укажите причину возврата, до 300 знаков');
     } catch (error) {
@@ -714,13 +739,18 @@ export class BeautyAppointmentsService {
       const paidNet = await this.paidLocked(tx, row.id);
       const a = await tx.appointment.findUniqueOrThrow({
         where: { id: row.id },
-        select: { status: true, currency: true, customer: { select: { firstName: true, lastName: true } } },
+        select: { status: true, currency: true, customerId: true, customer: { select: { firstName: true, lastName: true } } },
       });
       try {
         appointmentRefund(a.status as AppointmentStatus, paidNet, input.amount);
       } catch (error) {
         throw new ConflictException((error as Error).message);
       }
+      await checkLoyaltyRefund(tx, row.id, input.method, input.amount);
+      const moneyIncome = (await tx.restaurantCashOperation.aggregate({
+        where: { appointmentId: row.id, kind: 'INCOME', status: 'COMPLETED', method: { notIn: ['BONUS', 'GIFT_CERTIFICATE'] } },
+        _sum: { amount: true },
+      }))._sum.amount ?? 0n;
       // расход кассы не уводит способ в минус (§35.2): тот же расчёт остатков, что у самой кассы
       const [payments, ops] = await Promise.all([
         tx.restaurantPayment.groupBy({ by: ['method', 'status'], where: { locationId }, _sum: { amount: true } }),
@@ -730,13 +760,14 @@ export class BeautyAppointmentsService {
         payments.map((p) => ({ method: p.method, amount: p._sum.amount ?? 0n, status: p.status })),
         ops.map((o) => ({ kind: o.kind, method: o.method, methodTo: o.methodTo, amount: o._sum.amount ?? 0n, status: o.status })),
       );
-      if (input.amount > (balances[input.method] ?? 0n)) throw new ConflictException('В кассе по этому способу меньше этой суммы');
+      if (!isLoyaltyMethod(input.method) && input.amount > (balances[input.method as keyof typeof balances] ?? 0n))
+        throw new ConflictException('В кассе по этому способу меньше этой суммы');
       const name = [a.customer.firstName, a.customer.lastName].filter(Boolean).join(' ');
       const op = await tx.restaurantCashOperation.create({
         data: {
           locationId,
           kind: 'EXPENSE',
-          method: input.method,
+          method: input.method as AppointmentPaymentMethod,
           amount: input.amount,
           currency: a.currency,
           note: `Возврат по записи: ${name}. Причина: ${reason}`.slice(0, 500),
@@ -745,6 +776,12 @@ export class BeautyAppointmentsService {
           createdById: currentUserId() ?? null,
         },
       });
+      // бонусы назад, остаток на сертификат, начисленное с денег снимается пропорционально
+      await recordLoyaltyRefund(
+        tx, scope,
+        { id: op.id, kind: 'EXPENSE', method: op.method, amount: op.amount, currency: op.currency, appointmentId: row.id },
+        { id: row.id, customerId: a.customerId }, moneyIncome,
+      );
       await tx.auditLog.create({
         data: {
           organizationId: scope.organizationId,

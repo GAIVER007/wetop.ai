@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createBarCategoryAction, createBarReceiptAction, inventoryBarAction, payBarSupplierAction, scanBarReceiptAction, sellBarRetailAction, sellBarToFolioAction, setBarProductPriceAction } from './actions';
+import { createBarCategoryAction, createBarProductAction, createBarReceiptAction, inventoryBarAction, payBarSupplierAction, scanBarReceiptAction, sellBarRetailAction, sellBarToFolioAction, setBarProductPriceAction } from './actions';
 import { barApi } from '../../lib/api';
 import { currentMe } from '../../lib/desk-shell';
 import { hotelApi } from '../../lib/hotel-api';
@@ -300,6 +300,34 @@ describe('форма прихода бара', () => {
       unitCostMinor: '25000',
     });
     expect(result.message).toBe('Излишек 3 шт. принят на склад');
+  });
+
+  it('аудит 21.10.2026 п.2: пустой код товара берётся из названия, а не отказ браузера по-английски', async () => {
+    vi.mocked(barApi.createProduct).mockResolvedValue({} as never);
+    const fd = new FormData();
+    fd.set('barPropertyId', 'property-1');
+    fd.set('barCurrency', 'KZT');
+    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2026-10-19T08:00:00.000Z']));
+    fd.set('code', '');
+    fd.set('name', 'Шампунь 500 мл');
+    fd.set('unitsPerPackage', '1');
+    fd.set('salePrice', '500');
+    fd.set('minimumStockUnits', '0');
+    const result = await createBarProductAction({ error: null, ok: 0 }, fd);
+    expect(result.error).toBeNull();
+    expect(barApi.createProduct).toHaveBeenCalledWith(expect.objectContaining({ code: 'SHAMPUN-500-ML', name: 'Шампунь 500 мл' }));
+  });
+
+  it('пустое название товара: своя ошибка по-русски', async () => {
+    const fd = new FormData();
+    fd.set('barPropertyId', 'property-1');
+    fd.set('barCurrency', 'KZT');
+    fd.set('retailRecoveryScope', JSON.stringify(['org-1', 'business-1', 'location-1', 'user-1', 'property-1', 'KZT', '2026-10-19T08:00:00.000Z']));
+    fd.set('name', ' ');
+    fd.set('salePrice', '500');
+    const result = await createBarProductAction({ error: null, ok: 0 }, fd);
+    expect(result.error).toBe('Укажите название товара');
+    expect(barApi.createProduct).not.toHaveBeenCalled();
   });
 
   it('хранит наценку категории в basis points', async () => {

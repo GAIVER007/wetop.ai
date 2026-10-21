@@ -1,7 +1,7 @@
 'use client';
 import { useActionState, useState, useTransition } from 'react';
 import type { MarketingAdAssets, MarketingAdProposal } from '../../../../lib/api';
-import { formatMoney } from '../../../../lib/money';
+import { currencySign, formatMoney } from '../../../../lib/money';
 import { Segmented } from '../../../../components/segmented';
 import { Switch } from '../../../../components/switch';
 import { Alert, Button, Field, Grid, Input, Select, Stack, Textarea } from '../../../../components/ui';
@@ -229,7 +229,7 @@ export function LaunchWizard({ assets, country }: { assets: Connected; country: 
         <h2 className="budget-files__title">4. Бюджет и запуск</h2>
         <Grid min={240}>
           <Field
-            label={`Бюджет в день, ${assets.cabinet.currency}`}
+            label={`Бюджет в день, ${currencySign(assets.cabinet.currency)}`}
             controlId="ad-budget"
             required
             hint={

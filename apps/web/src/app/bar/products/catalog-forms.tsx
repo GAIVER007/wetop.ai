@@ -1,5 +1,6 @@
 'use client';
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
+import { suggestCode } from '../product-code';
 import type { BarCategoryRow } from '../../../lib/api';
 import { Button, Field, Input, Select } from '../../../components/ui';
 import { createBarCategoryAction, createBarProductAction, type BarActionResult } from '../actions';
@@ -14,10 +15,13 @@ const Feedback = ({ state }: { state: BarActionResult }) => <>
 /** Карточка товара: код, категория с наследуемой наценкой, штрихкод, цена и минимальный остаток. */
 export function ProductForm({ categories, context }: { categories: BarCategoryRow[]; context: BarFormContext }) {
   const [state, action, pending] = useActionState(createBarProductAction, initial);
-  return <form action={action} className="bar-product-form">
+  // код подставляется из названия, как в карточке на обзоре; пустой код сервер тоже возьмёт из названия (аудит 21.10.2026 п.2)
+  const [code, setCode] = useState('');
+  const [codeTouched, setCodeTouched] = useState(false);
+  return <form action={action} className="bar-product-form bar-dialog-form">
     <BarContextFields context={context} />
-    <Field label="Код" controlId="bar-product-code"><Input name="code" id="bar-product-code" required /></Field>
-    <Field label="Название" controlId="bar-product-name"><Input name="name" id="bar-product-name" required /></Field>
+    <Field label="Название" controlId="bar-product-name"><Input name="name" id="bar-product-name" required onChange={(event) => { if (!codeTouched) setCode(suggestCode(event.target.value)); }} /></Field>
+    <Field label="Код" controlId="bar-product-code" hint="Заполняется из названия, можно изменить"><Input name="code" id="bar-product-code" value={code} onChange={(event) => { setCodeTouched(true); setCode(event.target.value); }} /></Field>
     <Field label="Категория" controlId="bar-product-category"><Select name="categoryId" id="bar-product-category" defaultValue=""><option value="">Без категории</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</Select></Field>
     <Field label="Штрихкод" controlId="bar-product-barcode"><Input name="barcode" id="bar-product-barcode" /></Field>
     <Field label="Штук в упаковке" controlId="bar-product-units"><Input name="unitsPerPackage" id="bar-product-units" inputMode="numeric" defaultValue="1" required /></Field>
@@ -31,7 +35,7 @@ export function ProductForm({ categories, context }: { categories: BarCategoryRo
 
 export function CategoryForm({ context }: { context: BarFormContext }) {
   const [state, action, pending] = useActionState(createBarCategoryAction, initial);
-  return <form action={action} className="bar-category-form">
+  return <form action={action} className="bar-category-form bar-dialog-form">
     <BarContextFields context={context} />
     <Field label="Название" controlId="bar-category-name"><Input name="name" id="bar-category-name" required /></Field>
     <Field label="Наценка, %" controlId="bar-category-markup"><Input name="markup" id="bar-category-markup" inputMode="decimal" required /></Field>

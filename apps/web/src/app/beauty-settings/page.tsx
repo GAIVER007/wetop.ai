@@ -31,10 +31,19 @@ export default async function BeautySettingsPage() {
     return (
       <Page title="Настройки салона" subtitle={initial.location.name ?? 'Выбранный филиал'}>
         <SettingsLinks />
+        {/* компактно (поручение 21.10.2026): режим работы слева, напоминания и бонусы справа; на телефоне столбиком */}
         <div className="salon-settings-stack">
-          <SalonHoursForm key={scopeKey} initial={initial} scopeKey={scopeKey} canEdit={canEdit} />
-          <ReminderSettingsForm key={`r${scopeKey}`} initial={reminders} scopeKey={scopeKey} canEdit={canEdit} />
-          <BonusProgramForm key={`b${scopeKey}`} initial={bonuses} scopeKey={scopeKey} canEdit={canEdit} />
+          <div className="salon-settings-col" id="hours">
+            <SalonHoursForm key={scopeKey} initial={initial} scopeKey={scopeKey} canEdit={canEdit} />
+          </div>
+          <div className="salon-settings-col">
+            <div id="reminders">
+              <ReminderSettingsForm key={`r${scopeKey}`} initial={reminders} scopeKey={scopeKey} canEdit={canEdit} />
+            </div>
+            <div id="bonuses">
+              <BonusProgramForm key={`b${scopeKey}`} initial={bonuses} scopeKey={scopeKey} canEdit={canEdit} />
+            </div>
+          </div>
         </div>
       </Page>
     );

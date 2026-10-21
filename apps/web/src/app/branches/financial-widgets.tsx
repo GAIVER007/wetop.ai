@@ -1,6 +1,5 @@
 import type { OrganizationSummary, OrganizationMoney } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
-import { Icon } from '../../components/icon';
 const amounts = (
   rows: OrganizationMoney[],
   field: 'receiptsMinor' | 'expensesMinor' | 'averageMinor',
@@ -12,57 +11,18 @@ const amounts = (
         )
         .join(' / ')
     : 'Нет данных';
+/** Итоги месяца организации одной строкой, без ряда плиток (правило владельца 21.10.2026 «без плиток»): порядок от
+ * расходов к полученному доходу прежний, суммы по валютам раздельно */
 export function FinancialWidgets({ summary }: { summary: OrganizationSummary | null | undefined }) {
+  const rows = summary?.currencies ?? [];
   return (
     <>
-      <div className="org-kpis org-financial-kpis">
-        <div>
-          <span className="org-symbol teal">
-            <Icon name="cash" />
-          </span>
-          <section>
-            <p>Расходы</p>
-            <strong className="org-money">
-              {amounts(summary?.currencies ?? [], 'expensesMinor')}
-            </strong>
-            <small>Учтённые расходы за месяц</small>
-          </section>
-        </div>
-        <div>
-          <span className="org-symbol coral">
-            <Icon name="rates" />
-          </span>
-          <section>
-            <p>Средний чек</p>
-            <strong className="org-money">
-              {amounts(summary?.currencies ?? [], 'averageMinor')}
-            </strong>
-            <small>Оплаты / число заказов</small>
-          </section>
-        </div>
-        <div>
-          <span className="org-symbol purple">
-            <Icon name="booking" />
-          </span>
-          <section>
-            <p>Оплаченные заказы</p>
-            <strong>{summary ? summary.orders : 'Нет данных'}</strong>
-            <small>Бронирования и заказы</small>
-          </section>
-        </div>
-        <div>
-          <span className="org-symbol">
-            <Icon name="money" />
-          </span>
-          <section>
-            <p>Доход от оплат</p>
-            <strong className="org-money">
-              {amounts(summary?.currencies ?? [], 'receiptsMinor')}
-            </strong>
-            <small>Поступившие оплаты за месяц</small>
-          </section>
-        </div>
-      </div>
+      <p className="org-totals" data-testid="org-totals">
+        <span><i>Расходы</i> <b className="org-money">{amounts(rows, 'expensesMinor')}</b></span>
+        <span><i>Средний чек</i> <b className="org-money">{amounts(rows, 'averageMinor')}</b></span>
+        <span><i>Оплаченные заказы</i> <b>{summary ? summary.orders : 'Нет данных'}</b></span>
+        <span><i>Доход от оплат</i> <b className="org-money">{amounts(rows, 'receiptsMinor')}</b></span>
+      </p>
       {!summary ? (
         <p className="org-finance-coverage" role="status">
           Финансовая сводка сейчас недоступна. Суммы не заменяются примерными значениями.

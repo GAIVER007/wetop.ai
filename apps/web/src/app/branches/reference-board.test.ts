@@ -59,7 +59,7 @@ describe('organization workspace states', () => {
     expect(html).not.toContain('Поиск бизнесов и филиалов');
     expect(html).toContain('Test project');
     expect(html).toContain('Second project');
-    expect(html.indexOf('Test archive')).toBeLessThan(html.indexOf('org-kpis'));
+    expect(html.indexOf('Test archive')).toBeLessThan(html.indexOf('org-totals'));
   });
   it('separates address and capacity without inventing an operating status', () => {
     const hotel = {

@@ -25,7 +25,11 @@ const row = (v: (typeof VERTICALS)[number]) =>
 
 describe('одно меню для всех направлений', () => {
   it('у владельца все одиннадцать разделов в одном порядке у каждого направления', () => {
-    for (const v of VERTICALS) expect(row(v).map(([label]) => label), v).toEqual(SECTIONS);
+    for (const v of VERTICALS)
+      expect(
+        row(v).map(([label]) => label),
+        v,
+      ).toEqual(SECTIONS);
   });
 
   it('вид раздела общий: Главная, Журнал и Помощь прямые ссылки, остальные открывают список', () => {
@@ -44,10 +48,13 @@ describe('одно меню для всех направлений', () => {
       for (const b of VERTICALS)
         for (const [section, items] of row(a)) {
           const mine = items.map(([label]) => label);
-          const theirs = (row(b).find(([label]) => label === section)?.[1] ?? []).map(([label]) => label);
-          expect(mine.filter((l) => theirs.includes(l)), `${a}/${b} ${section}`).toEqual(
-            theirs.filter((l) => mine.includes(l)),
+          const theirs = (row(b).find(([label]) => label === section)?.[1] ?? []).map(
+            ([label]) => label,
           );
+          expect(
+            mine.filter((l) => theirs.includes(l)),
+            `${a}/${b} ${section}`,
+          ).toEqual(theirs.filter((l) => mine.includes(l)));
         }
   });
 
@@ -56,25 +63,57 @@ describe('одно меню для всех направлений', () => {
       row(v)
         .find(([label]) => label === section)?.[1]
         .find(([label]) => label === item)?.[1];
-    expect(VERTICALS.map((v) => screen(v, 'Журнал', 'Журнал'))).toEqual(['/chessboard', '/calendar', '/floor-plan']);
-    expect(VERTICALS.map((v) => screen(v, 'Клиенты', 'Клиенты'))).toEqual(['/guests', '/customers', '/customers']);
+    expect(VERTICALS.map((v) => screen(v, 'Журнал', 'Журнал'))).toEqual([
+      '/chessboard',
+      '/calendar',
+      '/floor-plan',
+    ]);
+    expect(VERTICALS.map((v) => screen(v, 'Клиенты', 'Клиенты'))).toEqual([
+      '/guests',
+      '/customers',
+      '/customers',
+    ]);
     expect(VERTICALS.map((v) => screen(v, 'Клиенты', 'Записи'))).toEqual([
       '/reservations',
       '/appointments',
       '/table-reservations',
     ]);
-    expect(VERTICALS.map((v) => screen(v, 'Услуги', 'Каталог'))).toEqual(['/inventory', '/services', '/menu']);
-    expect(VERTICALS.map((v) => screen(v, 'Персонал', 'Сотрудники'))).toEqual(['/team', '/team', '/team']);
+    expect(VERTICALS.map((v) => screen(v, 'Услуги', 'Каталог'))).toEqual([
+      '/inventory',
+      '/services',
+      '/menu',
+    ]);
+    expect(VERTICALS.map((v) => screen(v, 'Персонал', 'Сотрудники'))).toEqual([
+      '/team',
+      '/team',
+      '/team',
+    ]);
     expect(VERTICALS.map((v) => screen(v, 'Персонал', 'График работы'))).toEqual([
       undefined,
       '/beauty/schedule',
       '/employees/shifts',
     ]);
-    expect(VERTICALS.map((v) => screen(v, 'Финансы', 'Касса'))).toEqual([undefined, '/cashbox', '/cashbox']);
+    expect(VERTICALS.map((v) => screen(v, 'Финансы', 'Касса'))).toEqual([
+      undefined,
+      '/cashbox',
+      '/cashbox',
+    ]);
     expect(VERTICALS.map((v) => screen(v, 'Финансы', 'Обзор финансов'))).toEqual([
       '/finance',
       '/finance',
       '/restaurant-finance',
     ]);
+  });
+
+  it('в «Финансах» обзор стоит первым, отчёты последними, у всех направлений', () => {
+    for (const v of VERTICALS) {
+      const labels = (row(v).find(([label]) => label === 'Финансы')?.[1] ?? []).map(
+        ([label]) => label,
+      );
+      expect(labels[0], v).toBe('Обзор финансов');
+      expect(labels.filter((l) => l === 'Отчёты').length ? labels.at(-1) : 'Отчёты', v).toBe(
+        'Отчёты',
+      );
+    }
   });
 });

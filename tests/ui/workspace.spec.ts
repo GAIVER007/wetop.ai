@@ -275,7 +275,8 @@ test('показатели за период: готовые отрезки и �
   await expect(page.getByRole('main').getByTestId('pa-chart-categories')).toBeVisible();
   await page.getByRole('button', { name: 'Найти гостя или бронь' }).click();
   await page.getByLabel('Запрос', { exact: true }).fill('Тест');
-  await page.getByRole('button', { name: 'Найти', exact: true }).click();
+  // кнопки «Найти» в окне больше нет (20.10.2026): Enter открывает первый результат, поиск гостя
+  await page.getByLabel('Запрос', { exact: true }).press('Enter');
   await expect(page).toHaveURL(/\/guests\?q=/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Гости и бронирования');
   await page.setViewportSize({ width: 390, height: 844 });

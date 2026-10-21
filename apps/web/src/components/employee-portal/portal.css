@@ -73,6 +73,10 @@
 .employee-portal .portal-section { padding: var(--space-4); }
 .employee-portal .portal-section:not(.portal-heading) { display: block; }
 .employee-portal .portal-heading { padding-block: var(--space-2); }
+/* шапка от 1280 px в две строки (20.10.2026) на 44 px выше: заголовок кабинета без вертикальных полей, чтобы вкладка помещалась в экран 768 px */
+@media (min-width: 1280px) {
+  .employee-portal .portal-heading { padding-block: 0; }
+}
 .portal-identity-line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 .portal-identity-meta { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); list-style: none; padding: 0; margin: var(--space-1) 0 0; color: var(--text-2); font-size: var(--text-sm); }
 .employee-portal .portal-service-meta { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); }

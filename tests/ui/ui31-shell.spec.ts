@@ -88,7 +88,8 @@ test('UI3.1: граница desktop/mobile и узкий экран', async ({ p
     // от 1280 px кнопки нет (18.10.2026), уже одна
     await expect(trigger).toHaveCount(width >= 1280 ? 0 : 1);
     const header = (await page.locator('.workspace-header').boundingBox())!;
-    expect(header.height).toBe(56);
+    // от 1280 px шапка в две строки: управление 48 и разделы 40 (20.10.2026)
+    expect(header.height).toBe(width >= 1280 ? 88 : 56);
     expect(
       await page
         .locator('.workspace')

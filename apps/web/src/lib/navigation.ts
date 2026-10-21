@@ -654,10 +654,12 @@ const ROW: Array<{
     items: [
       // пункты называются по экранам (решение владельца 19.10.2026): касса филиала (§35.2, §48) у салона и
       // ресторана; «Финансы» каждого направления; у гостиницы касса внутри её «Финансов»
-      { label: 'Касса', at: { BEAUTY: '/cashbox', FOOD_SERVICE: '/cashbox' } },
+      // порядок у всех одинаков (20.10.2026): обзор первым, рабочий экран кассы, отчёты последними
       { label: 'Обзор финансов', at: { HOSPITALITY: '/finance', BEAUTY: '/finance', FOOD_SERVICE: '/restaurant-finance' } },
+      { label: 'Касса', at: { BEAUTY: '/cashbox', FOOD_SERVICE: '/cashbox' } },
+      // подарочные сертификаты салона (решение 21.10.2026 §3)
       { label: 'Сертификаты', at: { BEAUTY: '/finance/certificates' } },
-      { label: 'Отчеты', at: { HOSPITALITY: '/reports/finance' } },
+      { label: 'Отчёты', at: { HOSPITALITY: '/reports/finance' } },
     ],
   },
   {

@@ -149,7 +149,7 @@ test('ТЗ §9: клавиатура, ↓ открывает, ↑↓ по раз
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowRight');
   await page.keyboard.press('ArrowDown');
-  await expect(items.getByRole('link', { name: 'Отчеты', exact: true })).toBeFocused();
+  await expect(items.getByRole('link', { name: 'Отчёты', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/reports\/finance$/, { timeout: 30_000 });
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');

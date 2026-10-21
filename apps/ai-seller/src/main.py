@@ -82,9 +82,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         # в подключённую панель войти нечем. Сеем только если панель есть.
         if getattr(app.state, "dashboard_path", ""):
             await ensure_admin_user(app_settings)
-        # 🔴 Не молча: без доменов виджет отвечает любому сайту. В бою это
-        # недосмотр настройки, и искать его потом негде.
-        if not app_settings.widget_site_hosts_list:
+        # 🔴 Не молча: без доменов виджет помощника отвечает любому сайту. В бою это
+        # недосмотр настройки, и искать его потом негде. Продавец эту настройку не читает:
+        # его дверь пускает только домены сайтов филиала агента, пустой список значит отказ всем.
+        from src.channels.widget_guards import seller_mode
+
+        if not app_settings.widget_site_hosts_list and not seller_mode(app_settings):
             logger.warning("Виджет: домены сайта не заданы, проверка Origin выключена")
         telegram_worker = None
         if app_settings.telegram_seller_enabled:

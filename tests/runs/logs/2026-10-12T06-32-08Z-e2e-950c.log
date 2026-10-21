@@ -1,0 +1,171 @@
+# Сквозные (e2e) · 12.10.2026 11:32 Алматы · MacBook-Air-Urij.local
+# коммит 758a0e4 (codex/ui31-main-20261012), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/analytics-v2.spec.ts' 'tests/ui/bar.spec.ts' '--workers=1'
+[WebServer] (node:77303) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77331) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77335) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77365) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 20 tests using 1 worker
+
+(node:77372) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77406) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/analytics-v2.spec.ts:64:1 › меню: «Статистика» стала «Аналитикой», старый экран — вкладка «Загрузка» (7.5s)
+  ✘   2 tests/ui/analytics-v2.spec.ts:83:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории (17.0s)
+(node:77442) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/analytics-v2.spec.ts:120:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение (5.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '997774503'
+[WebServer] }
+  ✓   4 tests/ui/analytics-v2.spec.ts:145:1 › рост отмен — красный, падение — зелёный; сравнение выключается (2.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '997774503'
+[WebServer] }
+  ✓   5 tests/ui/analytics-v2.spec.ts:158:1 › база сравнения ноль — «нет данных», а не ±100 %; пустой период — словами (2.7s)
+  ✓   6 tests/ui/analytics-v2.spec.ts:181:1 › сбой API не уносит полосу периода; неизвестный тип фонда — весь фонд (2.4s)
+  ✓   7 tests/ui/analytics-v2.spec.ts:198:1 › телефон: без прокрутки вбок, плитки в две колонки (1.6s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <Suspense name="occupancy/" fallback={<Fragment>}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/managemen..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="management...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <OccupancyPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page analy...">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AnalyticsToolbar>
+[WebServer]                         <section className="pa-toolbar" aria-label="Период и о..." data-testid="pa-toolbar">
+[WebServer]                           <div>
+[WebServer]                           <div className="pa-toolbar...">
+[WebServer]                             <nav>
+[WebServer]                             <details className="pa-range">
+[WebServer]                               <summary>
+[WebServer]                               <form method="get" className="pa-range__..." data-testid="pa-range-form">
+[WebServer]                                 <input
+[WebServer]                                   type="hidden"
+[WebServer]                                   name="period"
+[WebServer]                                   value="custom"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 <label>
+[WebServer]                                   <DateInput name="from" defaultValue="2026-10-12" aria-label="Период: с">
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="from"
+[WebServer]                                         defaultValue="2026-10-12"
+[WebServer]                                         aria-label="Период: с"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                                 <label>
+[WebServer]                                   <DateInput name="to" rangeFromName="from" defaultValue="2026-10-12" ...>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="to"
+[WebServer]                                         defaultValue="2026-10-12"
+[WebServer]                                         aria-label="Период: по"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                                 ...
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓   8 tests/ui/analytics-v2.spec.ts:209:1 › снимки для визуального гейта AN1 (19.3s)
+  ✓   9 tests/ui/bar.spec.ts:23:1 › обзор как на макете: шапка, семь плиток, продажа строкой, доска, приходы и популярные (3.3s)
+  ✓  10 tests/ui/bar.spec.ts:74:1 › быстрая продажа одной строкой и фильтры доски (2.0s)
+  ✓  11 tests/ui/bar.spec.ts:98:1 › карточка товара: «Изменить цены» пересчитывает от закупки, «Сохранить» пишет, история и списание (2.9s)
+  ✓  12 tests/ui/bar.spec.ts:131:1 › «Удалить» уводит товар в архив после вопроса; флажки отмечают строки (2.9s)
+  ✓  13 tests/ui/bar.spec.ts:148:1 › «Добавить товар» открывает карточку нового товара справа; код предлагается из названия (2.8s)
+  ✓  14 tests/ui/bar.spec.ts:162:1 › меню: «Бар» живёт в группе «Финансы», адреса бара подсвечивают её (2.0s)
+  ✓  15 tests/ui/bar.spec.ts:174:1 › новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом (3.5s)
+  ✓  16 tests/ui/bar.spec.ts:203:1 › скан бережёт руки, но не выключает их: PDF отклоняется словами, строки добавляются вручную (1.7s)
+  ✓  17 tests/ui/bar.spec.ts:215:1 › подстраницы: оплата долга в приходах, новый товар в каталоге, расчёты с поставщиками (4.3s)
+  ✓  18 tests/ui/bar.spec.ts:239:1 › операции: списание с причиной, журнал продаж и лента движений (2.0s)
+  ✓  19 tests/ui/bar.spec.ts:253:3 › доступность и телефон: light (4.5s)
+  ✓  20 tests/ui/bar.spec.ts:253:3 › доступность и телефон: dark (4.3s)
+
+
+  1) tests/ui/analytics-v2.spec.ts:83:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('pa-kpis').locator('.kpi--occupancy .kpi-delta--down')
+    Expected substring: "п.п."
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('pa-kpis').locator('.kpi--occupancy .kpi-delta--down') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('pa-kpis').locator('.kpi--occupancy .kpi-delta--down')
+
+
+      100 |   await expect(kpis.locator('.kpi')).toHaveCount(5);
+      101 |   // стенд: весь фонд в этом месяце загружен слабее прошлого — падение в п.п.
+    > 102 |   await expect(kpis.locator('.kpi--occupancy .kpi-delta--down')).toContainText('п.п.');
+          |                                                                  ^
+      103 |   await expect(main.getByTestId('pa-kpis-detail')).not.toBeVisible();
+      104 |   await main.locator('.pa-details > summary').click();
+      105 |   await expect(main.getByTestId('pa-kpis-detail').locator('.kpi')).toHaveCount(2);
+        at /Users/urijzapojnov/Developer/wetop-ui31-main-20261012/tests/ui/analytics-v2.spec.ts:102:66
+
+    Error Context: test-results/analytics-v2-обзор-за-меся-13876-агрузки-и-выручки-категории/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-v2-обзор-за-меся-13876-агрузки-и-выручки-категории/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-v2-обзор-за-меся-13876-агрузки-и-выручки-категории/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/analytics-v2.spec.ts:83:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории 
+  19 passed (1.7m)
+
+# код выхода 1 · 1 мин 46 с

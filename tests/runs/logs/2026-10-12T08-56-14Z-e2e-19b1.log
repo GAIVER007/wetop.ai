@@ -1,0 +1,35 @@
+# Сквозные (e2e) · 12.10.2026 13:56 Алматы · MacBook-Air-Urij.local
+# коммит 35ec260 (codex/ui31-main-20261012), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/calendar-workspace.spec.ts' 'tests/ui/marketing.spec.ts' '--grep' 'calendar fills|экраны «Реклама»|администратор \(без права' '--workers=1'
+[WebServer] (node:19881) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19909) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19910) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19941) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+(node:19950) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/calendar-workspace.spec.ts:7:1 › calendar fills notebook screen without a side summary and keeps frozen headings (2.7s)
+  ✓  2 tests/ui/marketing.spec.ts:161:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (3.8s)
+[WebServer] (node:19984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/ui/marketing.spec.ts:219:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (5.1s)
+
+  3 passed (18.3s)
+
+# код выхода 0 · 20 с

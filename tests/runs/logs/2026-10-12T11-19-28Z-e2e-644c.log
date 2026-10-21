@@ -1,0 +1,100 @@
+# Сквозные (e2e) · 12.10.2026 16:19 Алматы · MacBook-Air-Urij.local
+# коммит 8d1ca12 (codex/ui31-main-20261012), незакоммиченных файлов набора: 108
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'tests/branches-ui/ui31-shell.spec.ts' '--workers=1'
+[WebServer] (node:32840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32867) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32869) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32872) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32902) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+(node:32904) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/branches-ui/ui31-shell.spec.ts:21:3 › UI3.1: hotel shared shell desktop/mobile (2.4s)
+  ✓  2 tests/branches-ui/ui31-shell.spec.ts:21:3 › UI3.1: beauty shared shell desktop/mobile (1.5s)
+[WebServer] [Nest] 32869  - 10/12/2026, 3:19:39 PM   ERROR [ExceptionsHandler] PrismaClientValidationError: 
+[WebServer] Invalid `prisma.restaurantOrder.findMany()` invocation:
+[WebServer] 
+[WebServer] {
+[WebServer]   where: {
+[WebServer]     locationId: "c2c531fa-0c5b-47c0-93a4-329f9eca603c",
+[WebServer]     status: {
+[WebServer]       in: [
+[WebServer]         "NEW",
+[WebServer]         "COOKING",
+[WebServer]         "READY",
+[WebServer]         "SERVED"
+[WebServer]       ]
+[WebServer]     }
+[WebServer]   },
+[WebServer]   include: {
+[WebServer]     table: {
+[WebServer]       include: {
+[WebServer]         area: {
+[WebServer]           select: {
+[WebServer]             name: true
+[WebServer]           }
+[WebServer]         }
+[WebServer]       }
+[WebServer]     },
+[WebServer]     waiter: {
+[WebServer]       select: {
+[WebServer]         id: true,
+[WebServer]         name: true
+[WebServer]       }
+[WebServer]     },
+[WebServer]     items: {
+[WebServer]       orderBy: {
+[WebServer]         sortOrder: "asc"
+[WebServer]       }
+[WebServer]     },
+[WebServer]     payments: {
+[WebServer]       orderBy: {
+[WebServer]         paidAt: "asc"
+[WebServer]       }
+[WebServer]     },
+[WebServer]     rating: true,
+[WebServer]     ~~~~~~
+[WebServer] ?   location?: true,
+[WebServer] ?   createdBy?: true
+[WebServer]   },
+[WebServer]   orderBy: [
+[WebServer]     {
+[WebServer]       openedAt: "desc"
+[WebServer]     },
+[WebServer]     {
+[WebServer]       id: "asc"
+[WebServer]     }
+[WebServer]   ],
+[WebServer]   take: 101
+[WebServer] }
+[WebServer] 
+[WebServer] Unknown field `rating` for include statement on model `RestaurantOrder`. Available options are marked with ?.
+[WebServer]     at throwValidationException (/Users/urijzapojnov/Developer/wetop-ui31-main-20261012/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9)
+[WebServer]     at vn.handleRequestError (/Users/urijzapojnov/Developer/wetop-ui31-main-20261012/node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7)
+[WebServer]     at vn.handleAndLogRequestError (/Users/urijzapojnov/Developer/wetop-ui31-main-20261012/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/Users/urijzapojnov/Developer/wetop-ui31-main-20261012/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async a (/Users/urijzapojnov/Developer/wetop-ui31-main-20261012/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async RestaurantService.orders (/Users/urijzapojnov/Developer/wetop-ui31-main-20261012/apps/api/src/food-service/restaurant.service.ts:491:18) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+  ✓  3 tests/branches-ui/ui31-shell.spec.ts:21:3 › UI3.1: food shared shell desktop/mobile (1.5s)
+
+  3 passed (11.1s)
+
+# код выхода 0 · 12 с

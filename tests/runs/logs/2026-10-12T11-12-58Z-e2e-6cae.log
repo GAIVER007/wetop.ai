@@ -1,0 +1,112 @@
+# Сквозные (e2e) · 12.10.2026 16:12 Алматы · MacBook-Air-Urij.local
+# коммит 8d1ca12 (codex/ui31-main-20261012), незакоммиченных файлов набора: 108
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/ui31-shell.spec.ts' 'tests/ui/ui31-board-width.spec.ts' 'tests/ui/ui31-settings-loading.spec.ts' 'tests/ui/side-nav.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' 'tests/ui/calendar-workspace.spec.ts' 'tests/ui/real-data.spec.ts' '--workers=1'
+[WebServer] (node:31709) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31737) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31741) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31770) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31771) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 38 tests using 1 worker
+
+(node:31775) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/calendar-workspace.spec.ts:7:1 › calendar fills notebook screen without a side summary and keeps frozen headings (2.8s)
+  ✓   2 tests/ui/calendar-workspace.spec.ts:29:1 › expanded calendar restores the workspace with Escape and remembers density (2.7s)
+  ✓   3 tests/ui/calendar-workspace.spec.ts:53:1 › booking menu and keyboard remain usable in the expanded calendar (1.6s)
+[WebServer] (node:31819) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31834) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: скрытое меню доступно на основных маршрутах без нижней панели и переполнения (9.6s)
+  ✓   5 tests/ui/mobile-adaptation.spec.ts:52:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (1.2s)
+  ✓   6 tests/ui/mobile-adaptation.spec.ts:61:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (1.6s)
+  ✓   7 tests/ui/mobile-adaptation.spec.ts:76:1 › телефон: сводка и управление оставляют сетку на первом экране (1.2s)
+  ✓   8 tests/ui/mobile-adaptation.spec.ts:94:1 › узкий телефон: плитки финансов встают в одну колонку (1.3s)
+[WebServer] (node:31856) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31862) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31863) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/ui/mobile-adaptation.spec.ts:105:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (5.8s)
+[WebServer] (node:31875) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31879) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/ui/mobile-adaptation.spec.ts:138:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (6.7s)
+  ✓  11 tests/ui/navigation.spec.ts:51:1 › меню телефона: работа смены прямыми ссылками, группы раскрываются, переход закрывает окно (2.4s)
+[WebServer] (node:31889) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/navigation.spec.ts:95:1 › меню телефона: вложенные адреса подсвечивают свой пункт, прямая ссылка «Номерной фонд» (1.2s)
+[WebServer] (node:31893) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31910) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31915) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 tests/ui/navigation.spec.ts:122:1 › все пункты меню открывают существующие страницы (17.8s)
+  ✓  14 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: light (3.3s)
+  ✓  15 tests/ui/navigation.spec.ts:166:3 › меню телефона и планшета ровное и доступное: dark (3.2s)
+  ✓  16 tests/ui/navigation.spec.ts:221:1 › «Гости и бронирования»: один пункт меню, список броней под той же вкладкой (1.1s)
+[WebServer] (node:31946) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 tests/ui/real-data.spec.ts:21:1 › источник и агрегаты проекта видны главному администратору в «Платформе», а не на «Интеграциях» (2.7s)
+[WebServer] (node:31953) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 tests/ui/real-data.spec.ts:41:1 › ошибка базы не превращается в нулевые показатели; повтор обновляет состояние (2.2s)
+  ✓  19 tests/ui/real-data.spec.ts:61:1 › название гостиницы в каркасе и обзоре поступает из backend (1.1s)
+  ✓  20 tests/ui/real-data.spec.ts:70:1 › недоступный API не скрывается за демо или выдуманным объектом (695ms)
+  ✓  21 tests/ui/real-data.spec.ts:84:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню (1.5s)
+  ✓  22 tests/ui/side-nav.spec.ts:46:1 › UI3.1: кнопка открывает разделы, наведение раскрывает подразделы, ссылка ведёт на страницу (3.0s)
+  ✓  23 tests/ui/side-nav.spec.ts:100:1 › ТЗ §9: клавиатура, ↓ открывает, ↑↓ по разделам, → в подразделы, ← назад, Escape закрывает (2.8s)
+[WebServer] (node:31987) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31989) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31991) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  24 tests/ui/side-nav.spec.ts:140:1 › вложенные адреса показывают свой раздел (5.5s)
+  ✓  25 tests/ui/side-nav.spec.ts:171:1 › касание раздела на планшете раскрывает подразделы, а не уводит со страницы (1.4s)
+  ✓  26 tests/ui/side-nav.spec.ts:183:3 › меню без прокрутки вбок и доступное: light (3.5s)
+  ✓  27 tests/ui/side-nav.spec.ts:183:3 › меню без прокрутки вбок и доступное: dark (3.4s)
+  ✓  28 tests/ui/side-nav.spec.ts:238:1 › кнопка текущего раздела находится в шапке и доступна после гидрации (1.8s)
+  ✓  29 tests/ui/ui31-board-width.spec.ts:3:1 › UI3.1: сетка занимает ширину без постоянной сводки дня (8.1s)
+[WebServer] (node:32046) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32049) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  30 tests/ui/ui31-settings-loading.spec.ts:3:1 › UI3.1: переход в настройки показывает загрузку до ответа API (2.4s)
+  ✓  31 tests/ui/ui31-shell.spec.ts:10:1 › UI3.1: одна кнопка, стабильная ширина и клавиатурное меню (1.6s)
+  ✓  32 tests/ui/ui31-shell.spec.ts:40:1 › UI3.1: mobile освобождает низ и возвращает фокус (1.5s)
+[WebServer] (node:32063) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  33 tests/ui/ui31-shell.spec.ts:60:1 › UI3.1: переход закрывает меню, active route сохраняется (1.9s)
+  ✓  34 tests/ui/ui31-shell.spec.ts:77:1 › UI3.1: граница desktop/mobile и узкий экран (3.5s)
+  ✓  35 tests/ui/ui31-shell.spec.ts:111:1 › UI3.1: размеры целей шапки и мобильной поверхности (1.6s)
+  ✓  36 tests/ui/ui31-shell.spec.ts:136:3 › UI3.1: история периода закрывает меню 1440 (2.0s)
+  ✓  37 tests/ui/ui31-shell.spec.ts:136:3 › UI3.1: история периода закрывает меню 390 (2.0s)
+  ✓  38 tests/ui/ui31-shell.spec.ts:159:1 › UI3.1: мобильный переход фокусирует готовое содержимое (1.6s)
+
+  38 passed (2.1m)
+
+# код выхода 0 · 2 мин 8 с

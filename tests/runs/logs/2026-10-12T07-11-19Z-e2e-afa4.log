@@ -1,0 +1,32 @@
+# Сквозные (e2e) · 12.10.2026 12:11 Алматы · MacBook-Air-Urij.local
+# коммит d3ee71e (codex/ui31-main-20261012)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'tests/branches-ui/today.spec.ts' '--grep' 'ресторан: больше 100|pending Hospitality' '--workers=1'
+[WebServer] (node:11767) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11795) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11796) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11835) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11837) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:11852) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/branches-ui/today.spec.ts:173:3 › MV8: «Сегодня» салона и ресторана на настоящем API › ресторан: больше 100 броней, бронь через полночь, закрытые столы; только залы, столы и брони (5.5s)
+  ✓  2 tests/branches-ui/today.spec.ts:320:3 › MV8: «Сегодня» салона и ресторана на настоящем API › pending Hospitality selection stops previous branch freshness polling (5.4s)
+
+  2 passed (20.4s)
+
+# код выхода 0 · 22 с

@@ -1,0 +1,181 @@
+# Сквозные (e2e) · 12.10.2026 13:10 Алматы · MacBook-Air-Urij.local
+# коммит 35ec260 (codex/ui31-main-20261012), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'tests/ui/guests-bookings.spec.ts' 'tests/ui/guests-design.spec.ts' 'tests/ui/marketing.spec.ts' 'tests/ui/mobile-adaptation.spec.ts' '--workers=1'
+[WebServer] (node:18692) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18721) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18722) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18753) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 31 tests using 1 worker
+
+(node:18757) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/guests-bookings.spec.ts:25:1 › гости и бронирования: плитки, виды со счётчиками, одна строка на гостя, панель первого гостя (2.4s)
+  ✓   2 tests/ui/guests-bookings.spec.ts:90:1 › гости и бронирования: панель гостя: вкладки, бронь, оплата, история, закрытие и выбор строкой (3.2s)
+  ✓   3 tests/ui/guests-bookings.spec.ts:160:1 › гости и бронирования: отметки строк и нижняя полоса действий (1.7s)
+  ✓   4 tests/ui/guests-bookings.spec.ts:198:1 › гости и бронирования: поиск, статус, источник, переключатели и период живут в адресе (4.5s)
+  ✓   5 tests/ui/guests-bookings.spec.ts:264:1 › гости и бронирования: страницы и размер страницы (2.7s)
+  ✓   6 tests/ui/guests-bookings.spec.ts:283:1 › гости и бронирования: пустые состояния, пустая база, сбой API (1.9s)
+  ✓   7 tests/ui/guests-bookings.spec.ts:315:1 › гости и бронирования: одна вкладка меню, ссылка в классический список и новая бронь (3.3s)
+  ✓   8 tests/ui/guests-bookings.spec.ts:334:3 › гости и бронирования: доступность и ширина экрана, светлая тема (4.8s)
+  ✓   9 tests/ui/guests-bookings.spec.ts:334:3 › гости и бронирования: доступность и ширина экрана, тёмная тема (4.5s)
+  ✓  10 tests/ui/guests-bookings.spec.ts:373:3 › гости и бронирования: на 1366×768 таблица показывает несколько строк, а не одну (799ms)
+  ✓  11 tests/ui/guests-bookings.spec.ts:373:3 › гости и бронирования: на 1280×800 таблица показывает несколько строк, а не одну (917ms)
+  ✓  12 tests/ui/guests-bookings.spec.ts:373:3 › гости и бронирования: на 1280×900 таблица показывает несколько строк, а не одну (1.5s)
+  ✓  13 tests/ui/guests-bookings.spec.ts:373:3 › гости и бронирования: на 1440×1000 таблица показывает несколько строк, а не одну (1.1s)
+[WebServer] (node:18893) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18919) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18920) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/ui/guests-design.spec.ts:21:1 › гости: полная карточка — обзор, вся история, «Редактировать» (G4) (6.2s)
+[WebServer] (node:18927) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18930) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18931) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 tests/ui/guests-design.spec.ts:93:1 › гости: документы и финансовый свод гостя (G5) (3.0s)
+[WebServer] (node:18935) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18949) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18952) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 tests/ui/guests-design.spec.ts:145:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) (6.9s)
+  ✓  17 tests/ui/marketing.spec.ts:24:1 › меню: «Маркетинг» своя группа, в «Продажах» сайта нет, клавиатура как у других групп (4.8s)
+  ✓  18 tests/ui/marketing.spec.ts:64:1 › /website/* подсвечивает «Маркетинг», а не «Продажи»; страница сайта знает, что она в «Маркетинге» (3.8s)
+  ✓  19 tests/ui/marketing.spec.ts:84:1 › хаб Marketing 2.0: три модуля с кнопкой «Открыть», у «Сайта и SEO» конструктор и меню действий, реклама и контент «Скоро», результаты без выдуманных чисел, ни одного запроса данных (2.0s)
+  ✘  20 tests/ui/marketing.spec.ts:161:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных (15.2m)
+(node:19017) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19061) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  21 tests/ui/marketing.spec.ts:219:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб (16.3m)
+(node:19098) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 tests/ui/marketing.spec.ts:241:3 › хаб на компьютере и телефоне, доступность: light (37.1s)
+  ✓  23 tests/ui/marketing.spec.ts:241:3 › хаб на компьютере и телефоне, доступность: dark (8.5s)
+[WebServer] (node:19302) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  24 tests/ui/marketing.spec.ts:296:1 › MKT3: хаб «Маркетинг» только для гостиницы, салон уводится на свой «Сегодня» (5.7s)
+[WebServer] (node:19349) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19355) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  25 tests/ui/mobile-adaptation.spec.ts:25:1 › телефон: конец страницы доступен без нижней навигации (24.8s)
+  ✓  26 tests/ui/mobile-adaptation.spec.ts:53:1 › телефон: заголовок календаря читается строкой, а не колонкой по буквам (3.3s)
+  ✓  27 tests/ui/mobile-adaptation.spec.ts:62:1 › телефон: чипы отборов — цели нажатия не ниже 44 px (3.9s)
+  ✓  28 tests/ui/mobile-adaptation.spec.ts:77:1 › телефон: сводка и управление оставляют сетку на первом экране (3.5s)
+  ✓  29 tests/ui/mobile-adaptation.spec.ts:95:1 › узкий телефон: плитки финансов встают в одну колонку (3.0s)
+[WebServer] (node:19453) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19457) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19459) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  30 tests/ui/mobile-adaptation.spec.ts:106:1 › телефон: кнопки, поля и вкладки разделов — цели не ниже 44 px (7.6s)
+[WebServer] (node:19468) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  31 tests/ui/mobile-adaptation.spec.ts:139:1 › телефон: поля не мельче 16 px — иначе iOS зумит страницу при фокусе (8.8s)
+
+
+  1) tests/ui/marketing.spec.ts:161:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/marketing$/
+    Received string:  "http://127.0.0.1:3108/marketing/ads#audiences"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        13 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3108/marketing/ads#audiences"
+
+
+      184 |   await expect(ads.getByRole('tabpanel')).toContainText('Пока пусто');
+      185 |   await ads.getByRole('link', { name: 'Назад к модулям', exact: true }).click();
+    > 186 |   await expect(page).toHaveURL(/\/marketing$/);
+          |                      ^
+      187 |
+      188 |   await main(page).getByRole('link', { name: 'Открыть: Контент', exact: true }).click();
+      189 |   await expect(page).toHaveURL(/\/marketing\/content$/);
+        at /Users/urijzapojnov/Developer/wetop-ui31-main-20261012/tests/ui/marketing.spec.ts:186:22
+
+    Error Context: test-results/marketing-экраны-«Реклама»-92464-ни-чисел-ни-запросов-данных/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-экраны-«Реклама»-92464-ни-чисел-ни-запросов-данных/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-экраны-«Реклама»-92464-ни-чисел-ни-запросов-данных/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/marketing.spec.ts:219:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.sidenav').locator('.sidenav__section').filter({ hasText: /^Маркетинг$/ })
+    Expected: 0
+    Received: undefined
+
+    Call log:
+      - Expect "toHaveCount" locator('.sidenav').locator('.sidenav__section').filter({ hasText: /^Маркетинг$/ }) with timeout 15000ms
+      - waiting for locator('.sidenav').locator('.sidenav__section').filter({ hasText: /^Маркетинг$/ })
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      230 |   const menu = menuOf(page);
+      231 |   await expect(menu.locator('.sidenav__section', { hasText: /^Продажи$/ })).toHaveCount(1);
+    > 232 |   await expect(menu.locator('.sidenav__section', { hasText: /^Маркетинг$/ })).toHaveCount(0);
+          |                                                                               ^
+      233 |   for (const path of ['/marketing', '/website', '/marketing/ads', '/marketing/content']) {
+      234 |     await page.goto(path);
+      235 |     await expect(main(page).getByTestId('no-access')).toBeVisible();
+        at /Users/urijzapojnov/Developer/wetop-ui31-main-20261012/tests/ui/marketing.spec.ts:232:79
+
+    Error Context: test-results/marketing-администратор-бе-e8e41-ямой-адрес-не-открывает-хаб/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/marketing-администратор-бе-e8e41-ямой-адрес-не-открывает-хаб/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/marketing-администратор-бе-e8e41-ямой-адрес-не-открывает-хаб/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/marketing.spec.ts:161:1 › экраны «Реклама» и «Контент»: вкладки как в макете, пустые состояния, кнопки неактивны, ни чисел, ни запросов данных 
+    tests/ui/marketing.spec.ts:219:1 › администратор (без права settings): вкладки «Маркетинг» нет, прямой адрес не открывает хаб 
+  29 passed (42.8m)
+
+# код выхода 1 · 42 мин 50 с

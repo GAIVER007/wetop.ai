@@ -1,0 +1,22 @@
+# Сквозные (e2e) · 12.10.2026 10:50 Алматы · MacBook-Air-Urij.local
+# коммит 758a0e4 (codex/ui31-main-20261012), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/branches-ui/playwright.config.ts' 'tests/branches-ui/ui31-shell.spec.ts' '--workers=1'
+[WebServer] (node:39803) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39831) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39833) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] /Users/urijzapojnov/Developer/wetop-ui31-main-20261012/tests/branches-ui/fixture-api.ts:28
+[WebServer]   throw new Error('Own local database required');
+[WebServer]         ^
+[WebServer] 
+[WebServer] Error: Own local database required
+[WebServer]     at <anonymous> (/Users/urijzapojnov/Developer/wetop-ui31-main-20261012/tests/branches-ui/fixture-api.ts:28:9)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer] 
+[WebServer] Node.js v24.15.0
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 3 с

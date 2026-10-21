@@ -7,7 +7,8 @@ const testTurbopackRoot =
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  distDir: process.env.APP_UI_TEST === '1' ? '.next-ui' : '.next',
+  distDir: process.env.LOCAL_DIST_DIR || (process.env.APP_UI_TEST === '1' ? '.next-ui' : '.next'),
+  ...(process.env.LOCAL_TURBOPACK_ROOT ? { turbopack: { root: process.env.LOCAL_TURBOPACK_ROOT } } : {}),
   devIndicators: false,
   // Стойка на app.wetop.ai за туннелем Cloudflare (plans/wetop-domain-2026-09-14.md, Д5): версия сервера наружу не нужна
   poweredByHeader: false,

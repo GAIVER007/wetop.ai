@@ -17,6 +17,23 @@ export function calendarColumns(day: BeautyDay, employees: BeautyEmployeeRow[]) 
   return columns;
 }
 
+/**
+ * Мастер, которого журнал показывает на телефоне, когда в фильтре «Все специалисты» (живой сайт 21.10.2026):
+ * сначала первый с записями дня, иначе первый, кто работает, иначе первый по списку.
+ */
+export function mobileDefaultMaster(
+  columns: Array<{ id: string; intervals: unknown[]; timeOff: boolean }>,
+  appointments: Array<{ employeeId: string; status: string }>,
+): string {
+  const busy = new Set(appointments.filter((a) => a.status !== 'CANCELLED').map((a) => a.employeeId));
+  return (
+    columns.find((c) => busy.has(c.id))?.id ??
+    columns.find((c) => !c.timeOff && c.intervals.length > 0)?.id ??
+    columns[0]?.id ??
+    ''
+  );
+}
+
 /** Calendar occupancy uses service intervals; payment and visit counts use the parent. */
 export function appointmentSegments(rows: BeautyAppointmentRow[]) {
   return rows.flatMap((row) =>

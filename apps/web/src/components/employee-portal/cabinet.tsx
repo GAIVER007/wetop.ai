@@ -8,7 +8,7 @@ import { PortalForm, PortalWeek, PortalWeekView, type PortalContext } from './fo
 import { PortalMedia } from './media';
 import { PortalManagement, type PortalAccountOption } from './management';
 import { EmployeeLocationsForm } from './locations';
-import { EmployeeServicePrices } from './service-prices';
+import { EmployeeServicePrices, servicePricesKey } from './service-prices';
 import { EmployeeReviews } from './reviews';
 import { Tabs } from '../tabs';
 import { masterSetupSteps } from './setup-steps';
@@ -132,7 +132,7 @@ export function EmployeeCabinet({
       <ul className="portal-list" data-testid="portal-assigned-services">{data.services.filter(service=>service.assigned).map(service=><li key={service.id}><strong>{service.name}</strong><span>{service.durationMinutes} мин</span><span>{servicePriceLabel(service)}</span></li>)}</ul>
       {!data.services.some(service=>service.assigned) && <p>Услуги пока не выбраны</p>}
       {manager && (!access || access.servicesUpdate) && servicePrices !== undefined && target.employeeId && (servicePrices
-        ? <EmployeeServicePrices employeeId={target.employeeId} scope={scope} initial={servicePrices} />
+        ? <EmployeeServicePrices key={servicePricesKey(servicePrices)} employeeId={target.employeeId} scope={scope} initial={servicePrices} />
         : <p role="alert">Не удалось загрузить цены мастера.</p>)}
       {canEditProfile && (!data.location ? <p>Выберите филиал, чтобы увидеть действующие цены и назначить услуги.</p> : <details className="portal-service-picker"><summary role="button" className="btn btn--secondary">Добавить услугу</summary><p>Отметьте услуги из каталога салона. Чтобы убрать услугу, снимите отметку.</p><PortalForm context={context} command="services" revision={data.servicesRevision} label="Сохранить услуги">
         {!data.services.length && <p>В каталоге пока нет услуг</p>}

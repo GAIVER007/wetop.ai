@@ -1078,7 +1078,7 @@
  .bar-page .bar-tabs .tabs__item { min-height:44px; padding-inline:var(--space-4); }
  /* от 961 px те же пункты уже есть в выпадающем списке «Склад» верхнего меню: второй ряд не показываем */
  @media (min-width:961px) { .bar-page .bar-tabs, .bar-subpage .bar-tabs { display:none; } }
- .bar-warehouses { display:grid; grid-template-columns:repeat(auto-fit,minmax(16rem,1fr)); gap:var(--space-3); margin-bottom:var(--space-3); }
+ .bar-warehouses { display:grid; grid-template-columns:repeat(auto-fit,minmax(16rem,1fr)); gap:var(--space-4); margin-bottom:var(--space-4); }
  .bar-warehouse { display:flex; flex-direction:column; gap:var(--space-2); min-height:44px; padding:var(--space-4); border:1px solid var(--border); border-radius:var(--radius); background:var(--surface); text-decoration:none; color:inherit; }
  .bar-warehouse:hover { border-color:var(--primary); }
  .bar-warehouse-head { display:flex; align-items:center; gap:var(--space-2); }

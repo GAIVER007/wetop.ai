@@ -175,7 +175,6 @@ export function BeautyChecklist({
         save('apply-profile');
       }}
     >
-      <h3 className="sr-only">Основные сведения</h3>
       <div className="setup-fields__grid">
         {field('businessName', 'Название салона')}
         {field('locationName', 'Название филиала')}
@@ -254,8 +253,8 @@ export function BeautyChecklist({
   return (
     <main id="main-content" className="onboarding setup-shell setup-b" data-testid="beauty-onboarding">
       <header className="setup-b__head">
-        <div>
-          <p className="setup-b__salon">{String(state.draft.locationName ?? state.draft.businessName ?? '')}</p>
+        <p className="setup-b__salon">{String(state.draft.locationName ?? state.draft.businessName ?? '')}</p>
+        <div className="setup-b__title">
           <h1 ref={heading} tabIndex={-1}>
             {welcome ? 'Добро пожаловать в WETOP' : ready ? 'Салон готов к работе' : 'Подготовьте салон к работе'}
           </h1>

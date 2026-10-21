@@ -44,7 +44,7 @@
     }
     .employee-workspace-form .inp {
       font-size: var(--text-lg);
-      min-height: 44px;
+      min-height: var(--touch-target);
     }
     .employee-workspace-form .btn {
       white-space: normal;

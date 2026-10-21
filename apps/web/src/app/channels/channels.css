@@ -59,7 +59,7 @@
     .channels-period input,
     .channels-period select,
     .channels-period button {
-      min-height: 36px;
+      min-height: var(--control-h);
       padding-top: 8px;
       padding-bottom: 8px;
       font-size: 13px;

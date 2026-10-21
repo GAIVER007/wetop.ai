@@ -73,23 +73,19 @@ describe('Услуги салона и общий каталог', () => {
     expect(html).toContain('Показать архив');
   });
 
-  it('оставляет стрелкам доступные кнопки и передаёт точные настройки филиала', () => {
+  it('не рисует стрелок и кнопок на каждой строке: перенос только галочками и общей кнопкой', () => {
     const html = renderToStaticMarkup(createElement(ServicesBoard, {
       canEdit: true,
       locationCurrency: 'KZT',
       scopeKey: 'business:location',
       items: [
-        service('selected', 'Стрижка выбранная', { enabled: true, override: '125050', minutes: 75 }),
+        service('selected', 'Стрижка выбранная', { enabled: true }),
         service('available', 'Стрижка доступная', { enabled: false }),
       ],
     }));
-
-    expect(html).toContain('aria-label="Убрать из филиала: Стрижка выбранная"');
-    expect(html).toContain('aria-label="Добавить в филиал: Стрижка доступная"');
-    expect(html).toContain('aria-label="В филиале: Стрижка выбранная"');
-    expect(html).toContain('name="priceOverrideMinor" value="125050"');
-    expect(html).toContain('name="durationOverrideMinutes" value="75"');
-    expect(html).toContain('name="scopeKey" value="business:location"');
+    expect(html).not.toContain('←');
+    expect(html).not.toContain('→');
+    expect(html).not.toContain('Добавить в филиал: Стрижка доступная');
     expect(html).toContain('draggable="true"');
   });
 

@@ -161,7 +161,7 @@ test('услуга каталога добавляется и видна в сп
   // цены в списках не показываются: их правят вручную в карточке услуги (решение владельца 21.10.2026)
   await expect(item).not.toContainText('8 000');
   // Услуга уже есть в общем каталоге, но филиал добавляет её отдельно.
-  await expect(item.getByRole('button', { name: 'Добавить в филиал: Маникюр' })).toBeVisible();
+  await expect(item.getByLabel('Выбрать: Маникюр')).toBeEnabled();
   await page.screenshot({ path: `${SNAPSHOTS}/services-1440.png`, fullPage: true });
 });
 
@@ -188,7 +188,7 @@ test('филиал включает услугу и ставит свою цен
   await expect(salonItem).toContainText('90 мин');
   await expect(salonItem).not.toContainText('9 500');
   await expect(
-    main.locator('[data-service-list="catalog"]').getByRole('button', { name: 'В филиале: Маникюр' }),
+    main.locator('[data-service-list="catalog"]').getByLabel('Выбрать: Маникюр', { exact: true }),
   ).toBeDisabled();
 });
 
@@ -211,11 +211,12 @@ test('каталог переносит услуги кнопками и drag-an
   expect(desktopCatalogBox).not.toBeNull();
   expect(desktopSalonBox!.x).toBeLessThan(desktopCatalogBox!.x);
 
-  await catalog.getByRole('button', { name: 'Добавить в филиал: Услуга стрелкой' }).click();
+  await catalog.getByLabel('Выбрать: Услуга стрелкой').check();
+  await catalog.getByRole('button', { name: /^Добавить в филиал/ }).click();
   await expect(
     salon.locator('.beauty-service-item').filter({ hasText: 'Услуга стрелкой' }),
   ).toBeVisible();
-  await expect(catalog.getByRole('button', { name: 'В филиале: Услуга стрелкой' })).toBeDisabled();
+  await expect(catalog.getByLabel('Выбрать: Услуга стрелкой')).toBeDisabled();
 
   await catalog
     .locator('.beauty-service-item')
@@ -226,7 +227,7 @@ test('каталог переносит услуги кнопками и drag-an
   await expect(
     salon.locator('.beauty-service-item').filter({ hasText: 'Услуга перетаскиванием' }),
   ).toBeVisible();
-  await expect(catalog.getByRole('button', { name: 'В филиале: Услуга перетаскиванием' })).toBeDisabled();
+  await expect(catalog.getByLabel('Выбрать: Услуга перетаскиванием')).toBeDisabled();
 
   await salon
     .locator('.beauty-service-item')
@@ -235,7 +236,7 @@ test('каталог переносит услуги кнопками и drag-an
   await expect(
     salon.locator('.beauty-service-item').filter({ hasText: 'Услуга перетаскиванием' }),
   ).toHaveCount(0);
-  await expect(catalog.getByRole('button', { name: 'Добавить в филиал: Услуга перетаскиванием' })).toBeVisible();
+  await expect(catalog.getByLabel('Выбрать: Услуга перетаскиванием')).toBeEnabled();
   await page.screenshot({ path: `${SNAPSHOTS}/services-transfer-1440.png`, fullPage: true });
 
   await page.setViewportSize({ width: 390, height: 844 });
@@ -245,7 +246,7 @@ test('каталог переносит услуги кнопками и drag-an
   expect(mobileCatalogBox).not.toBeNull();
   expect(mobileSalonBox!.y).toBeLessThan(mobileCatalogBox!.y);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await expect(catalog.getByRole('button', { name: 'Добавить в филиал: Услуга перетаскиванием' })).toBeVisible();
+  await expect(catalog.getByLabel('Выбрать: Услуга перетаскиванием')).toBeEnabled();
   await page.screenshot({ path: `${SNAPSHOTS}/services-transfer-390.png`, fullPage: true });
 });
 
@@ -274,7 +275,7 @@ test('Услуги: отмеченные галочкой переносятся
   await expect(row(salon, 'Пачка один')).toBeVisible();
   await expect(row(salon, 'Пачка два')).toBeVisible();
   await expect(main.getByRole('status').filter({ hasText: 'Добавлено в филиал: 2 услуги' })).toBeVisible();
-  await expect(catalog.getByRole('button', { name: 'В филиале: Пачка один' })).toBeDisabled();
+  await expect(catalog.getByLabel('Выбрать: Пачка один')).toBeDisabled();
 
   // переносится на сервере: после перезагрузки услуги остались в филиале
   await page.reload();
@@ -285,7 +286,7 @@ test('Услуги: отмеченные галочкой переносятся
   await salon.getByRole('button', { name: /^Убрать из филиала/ }).first().click();
   await expect(row(salon, 'Пачка один')).toHaveCount(0);
   await expect(row(salon, 'Пачка два')).toHaveCount(0);
-  await expect(catalog.getByRole('button', { name: 'Добавить в филиал: Пачка один' })).toBeVisible();
+  await expect(catalog.getByLabel('Выбрать: Пачка один')).toBeEnabled();
   await page.screenshot({ path: `${SNAPSHOTS}/services-bulk-1440.png`, fullPage: true });
 });
 

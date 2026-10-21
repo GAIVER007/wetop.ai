@@ -26,7 +26,7 @@
 
   .beauty-service-transfer-board {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 52px minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-4);
     align-items: stretch;
     margin-top: var(--space-4);
@@ -163,15 +163,6 @@
     display: flex;
   }
 
-  .beauty-service-transfer-hint {
-    display: grid;
-    place-content: center;
-    gap: var(--space-2);
-    color: var(--primary);
-    font-size: var(--text-xl);
-    font-weight: var(--weight-bold);
-  }
-
   .beauty-service-empty {
     margin: 0;
     padding: var(--space-4);
@@ -264,21 +255,7 @@
       grid-row: 1;
     }
 
-    .beauty-service-transfer-hint {
-      display: none;
-    }
-
-    .beauty-service-list--catalog {
-      grid-row: 2;
-    }
-
-    .beauty-material-stock,
-    .beauty-material-cost {
-      align-self: start;
-    }
-  }
-
-  @media (max-width: 600px) {
+    @media (max-width: 600px) {
     .beauty-service-list {
       padding: var(--space-2);
     }

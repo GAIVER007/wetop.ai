@@ -182,7 +182,6 @@ export function ServicesBoard({
               selectedCount={salonSelected.length}
               onToggleAll={(on) => toggleAll(salonKeys, on)}
               actionLabel="Убрать из филиала"
-              actionArrow="right"
               disabled={transferDisabled}
               onAction={() => submitBulk(salonSelected, false)}
             />
@@ -206,25 +205,11 @@ export function ServicesBoard({
                   />
                 )}
                 <ServiceIdentity row={row} location />
-                {canUpdate && (
-                  <TransferForm
-                    row={row}
-                    enabled={false}
-                    scopeKey={scopeKey}
-                    action={transferAction}
-                    disabled={transferDisabled}
-                  />
-                )}
               </article>
             ))}
             {salon.length === 0 && <p className="beauty-service-empty">Отметьте услуги в каталоге справа и нажмите «Добавить в филиал».</p>}
           </div>
         </section>
-
-        <div className="beauty-service-transfer-hint" aria-hidden="true">
-          <span>←</span>
-          <span>→</span>
-        </div>
 
         <section
           className="beauty-service-list beauty-service-list--catalog"
@@ -246,7 +231,6 @@ export function ServicesBoard({
               selectedCount={catalogSelected.length}
               onToggleAll={(on) => toggleAll(catalogKeys, on)}
               actionLabel="Добавить в филиал"
-              actionArrow="left"
               disabled={transferDisabled}
               onAction={() => submitBulk(catalogSelected, true)}
             />
@@ -273,40 +257,23 @@ export function ServicesBoard({
                       onChange={(event) => toggle(`id:${row.id}`, event.target.checked)}
                     />
                   )}
-                  <ServiceIdentity row={row} popularity locationCurrency={locationCurrency} />
-                  <div className="beauty-service-item-actions">
-                    {selectedInLocation && <Badge>В филиале</Badge>}
-                    {!row.active && <Badge>В архиве</Badge>}
-                    {canUpdate && (selectedInLocation ? (
-                      <Button type="button" size="sm" tone="secondary" disabled aria-label={`В филиале: ${row.name}`}>
-                        В филиале
+                  <ServiceIdentity row={row} popularity />
+                  {canUpdate && (
+                    <div className="beauty-service-item-actions">
+                      <Button
+                        type="button"
+                        size="sm"
+                        tone="secondary"
+                        aria-label={`Техкарта услуги: ${row.name}`}
+                        onClick={() => setMaterialService(row)}
+                      >
+                        Материалы
                       </Button>
-                    ) : row.active ? (
-                      <TransferForm
-                        row={row}
-                        enabled
-                        scopeKey={scopeKey}
-                        action={transferAction}
-                        disabled={transferDisabled}
-                      />
-                    ) : null)}
-                    {canUpdate && (
-                      <>
-                        <Button
-                          type="button"
-                          size="sm"
-                          tone="secondary"
-                          aria-label={`Техкарта услуги: ${row.name}`}
-                          onClick={() => setMaterialService(row)}
-                        >
-                          Материалы
-                        </Button>
-                        <Button type="button" size="sm" tone="secondary" onClick={() => setEditing({ mode: 'edit', row })}>
-                          Изменить
-                        </Button>
-                      </>
-                    )}
-                  </div>
+                      <Button type="button" size="sm" tone="secondary" onClick={() => setEditing({ mode: 'edit', row })}>
+                        Изменить
+                      </Button>
+                    </div>
+                  )}
                 </article>
               );
             })}
@@ -339,7 +306,7 @@ export function ServicesBoard({
                     aria-label={`Настроить и добавить в филиал: ${preset.name}`}
                     onClick={() => setEditing({ mode: 'new', preset, enableForLocation: true })}
                   >
-                    ← Настроить
+                    Настроить
                   </Button>
                 </div>}
               </article>
@@ -396,46 +363,12 @@ function locationTransferFormData(row: BeautyServiceRow, enabled: boolean, scope
   return form;
 }
 
-function TransferForm({
-  row,
-  enabled,
-  scopeKey,
-  action,
-  disabled,
-}: {
-  row: BeautyServiceRow;
-  enabled: boolean;
-  scopeKey: string;
-  action: (payload: FormData) => void;
-  disabled: boolean;
-}) {
-  return (
-    <form action={action} className="beauty-service-transfer-form">
-      <input type="hidden" name="id" value={row.id} />
-      <input type="hidden" name="scopeKey" value={scopeKey} />
-      <input type="hidden" name="priceOverrideMinor" value={row.location?.priceOverrideMinor ?? ''} />
-      <input type="hidden" name="durationOverrideMinutes" value={row.location?.durationOverrideMinutes ?? ''} />
-      {enabled && <input type="hidden" name="enabled" value="on" />}
-      <Button
-        type="submit"
-        size="sm"
-        tone="secondary"
-        disabled={disabled}
-        aria-label={`${enabled ? 'Добавить в филиал' : 'Убрать из филиала'}: ${row.name}`}
-      >
-        {enabled && <span aria-hidden="true">←</span>}{enabled ? 'Добавить' : 'Убрать'}{!enabled && <span aria-hidden="true">→</span>}
-      </Button>
-    </form>
-  );
-}
-
 function SelectionBar({
   label,
   keys,
   selectedCount,
   onToggleAll,
   actionLabel,
-  actionArrow,
   disabled,
   onAction,
 }: {
@@ -444,7 +377,6 @@ function SelectionBar({
   selectedCount: number;
   onToggleAll: (on: boolean) => void;
   actionLabel: string;
-  actionArrow: 'left' | 'right';
   disabled: boolean;
   onAction: () => void;
 }) {
@@ -461,10 +393,8 @@ function SelectionBar({
         {selectedCount > 0 ? `Выбрано: ${selectedCount}` : 'Выбрать все'}
       </label>
       <Button type="button" size="sm" disabled={disabled || selectedCount === 0} onClick={onAction}>
-        {actionArrow === 'left' && <span aria-hidden="true">←</span>}
         {actionLabel}
         {selectedCount > 0 ? ` (${selectedCount})` : ''}
-        {actionArrow === 'right' && <span aria-hidden="true">→</span>}
       </Button>
     </div>
   );
@@ -474,12 +404,10 @@ function ServiceIdentity({
   row,
   location = false,
   popularity = false,
-  locationCurrency,
 }: {
   row: BeautyServiceRow;
   location?: boolean;
   popularity?: boolean;
-  locationCurrency?: string | null;
 }) {
   // Цены в списках не показываются: их правят вручную в карточке услуги. Только если у услуги филиала цена
   // ещё не задана (типовая, добавленная пачкой), строка просит её указать, чтобы запись не шла за 0.
@@ -493,20 +421,13 @@ function ServiceIdentity({
       {location && row.effective && !row.effective.sellable && (
         <small>{NOT_SELLABLE[row.effective.reason] ?? 'Не продаётся'}</small>
       )}
-      {popularity && (
-        row.popularity ? row.popularity.totalCompletedVisits > 0 ? (
-          <div className="beauty-popularity">
-            <b>{new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(
-              row.popularity.completedVisits * 100 / row.popularity.totalCompletedVisits,
-            )}%</b>
-            <progress
-              aria-label={`Доля завершённых визитов услуги ${row.name}`}
-              value={row.popularity.completedVisits}
-              max={row.popularity.totalCompletedVisits}
-            />
-            <small>{row.popularity.completedVisits} из {row.popularity.totalCompletedVisits} завершённых визитов</small>
-          </div>
-        ) : <small>Нет завершённых визитов</small> : <small>{locationCurrency ? 'Нет данных' : 'Выберите филиал'}</small>
+      {popularity && row.popularity && row.popularity.totalCompletedVisits > 0 && (
+        <small>
+          {new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(
+            (row.popularity.completedVisits * 100) / row.popularity.totalCompletedVisits,
+          )}
+          % визитов
+        </small>
       )}
     </div>
   );

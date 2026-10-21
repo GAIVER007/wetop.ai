@@ -41,7 +41,7 @@ test('catalog services branch price duration precede secondary full catalog data
   const catalogItem = catalog.locator('.beauty-service-item').filter({ hasText: 'Тест стрижка' });
   await expect(salonItem).toContainText('75 мин');
   await expect(catalogItem).toContainText('60 мин');
-  await expect(catalogItem).toContainText('Нет завершённых визитов');
+  await expect(catalogItem).not.toContainText('Нет завершённых визитов');
   await expect(catalogItem).not.toContainText('0%');
 });
 

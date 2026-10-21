@@ -86,8 +86,9 @@ export function salonLoyaltyFixture(req: SalonLoyaltyRequest): SalonLoyaltyRespo
       if (!parsed.ok) return { status: 400, body: { message: parsed.reason } };
       if (parsed.value.expectedRevision !== state.reminderSettings.revision)
         return { status: 409, body: { message: 'Настройки напоминаний изменены. Обновите страницу.' } };
-      const { expectedRevision: _r, ...rest } = parsed.value;
-      state.reminderSettings = { ...rest, revision: state.reminderSettings.revision + 1 };
+      const rest: Partial<typeof parsed.value> = { ...parsed.value };
+      delete rest.expectedRevision;
+      state.reminderSettings = { ...state.reminderSettings, ...rest, revision: state.reminderSettings.revision + 1 };
     }
     return {
       status: 200,
@@ -100,8 +101,9 @@ export function salonLoyaltyFixture(req: SalonLoyaltyRequest): SalonLoyaltyRespo
       if (!parsed.ok) return { status: 400, body: { message: parsed.reason } };
       if (parsed.value.expectedRevision !== state.bonusProgram.revision)
         return { status: 409, body: { message: 'Настройки бонусов изменены. Обновите страницу.' } };
-      const { expectedRevision: _r, ...rest } = parsed.value;
-      state.bonusProgram = { ...rest, revision: state.bonusProgram.revision + 1 };
+      const rest: Partial<typeof parsed.value> = { ...parsed.value };
+      delete rest.expectedRevision;
+      state.bonusProgram = { ...state.bonusProgram, ...rest, revision: state.bonusProgram.revision + 1 };
     }
     return { status: 200, body: { businessId: 'fixture', configured: state.bonusProgram.revision > 0, ...state.bonusProgram } };
   }

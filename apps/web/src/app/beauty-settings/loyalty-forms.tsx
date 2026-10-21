@@ -38,6 +38,10 @@ export function ReminderSettingsForm({
         когда номер салона подключён и указан одобренный шаблон. Иначе напоминание появится в журнале в списке
         «Напомнить сегодня» с кнопкой «Написать в WhatsApp».
       </p>
+      <p className="muted" data-testid="review-request-note">
+        Через 2 часа после визита со статусом «Выполнено» клиент получает просьбу оценить визит со ссылкой на отзыв
+        (с 10:00 до 21:00). Выключение напоминаний выключает и её.
+      </p>
       <input type="hidden" name="scopeKey" value={scopeKey} />
       <input type="hidden" name="revision" value={data.revision} />
       <fieldset disabled={!canEdit || pending} className="salon-loyalty-fields">

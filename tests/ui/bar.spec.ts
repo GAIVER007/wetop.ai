@@ -26,7 +26,7 @@ test('обзор как на макете: пять KPI, графики, ком�
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
   const m = main(page);
-  await expect(m.getByRole('heading', { level: 1 })).toHaveText('Склад');
+  await expect(m.getByRole('heading', { level: 1 })).toHaveText('Склад: бар');
   // Приход, продажа, инвентаризация в шапке; добавление товара у списка.
   await expect(m.getByRole('button', { name: 'Добавить товар', exact: true })).toBeVisible();
   await expect(m.getByRole('link', { name: 'Приход', exact: true })).toHaveAttribute('href', '/bar/receipts/new');
@@ -34,7 +34,7 @@ test('обзор как на макете: пять KPI, графики, ком�
   await expect(m.getByRole('link', { name: 'Инвентаризация', exact: true })).toBeVisible();
   // на широком экране те же пункты открывает меню «Склад», второго ряда вкладок нет (21.10.2026)
   await expect(m.getByRole('navigation',{name:'Разделы склада'})).toBeHidden();
-  await expect(m.getByRole('navigation', { name: 'Разделы склада' }).getByRole('link', { includeHidden: true })).toHaveCount(6);
+  await expect(m.getByRole('navigation', { name: 'Разделы склада' }).getByRole('link', { includeHidden: true })).toHaveCount(7);
   // Пять плиток текущего макета, без выдуманных данных.
   const kpis = m.getByRole('region', { name: 'Показатели бара' });
   await expect(kpis.locator('.bar-kpi-label')).toHaveText([

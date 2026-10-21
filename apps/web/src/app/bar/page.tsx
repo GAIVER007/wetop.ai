@@ -20,8 +20,6 @@ import { stockStatusOf } from './stock-status';
 import { AnalyticsDisclosure } from './analytics-disclosure';
 import { SaleDisclosure } from './sale-disclosure';
 import { BarAnalytics } from './bar-analytics';
-import { WarehouseSummary, type WarehouseCard } from './warehouse-summary';
-import { stockApi } from '../../lib/food-api';
 import { deskShell } from '../../lib/desk-shell';
 import { barActionAccess } from './action-access';
 import './bar.css';
@@ -89,10 +87,10 @@ export default async function BarPage({
   // бар филиала (ADR-178): «в счёт гостя» только у гостиницы; ресторан и салон продают в кассу филиала (§45, §48)
   const vertical = me.context?.vertical ?? 'HOSPITALITY';
   // раздел меню «Склад» у всех направлений (решение владельца 19.10.2026)
-  const sectionName = 'Склад';
+  const sectionName = 'Склад: бар';
   const params = await searchParams;
   const productParam = typeof params.product === 'string' ? params.product : null;
-  const [categories, stock, suppliers, folios, receipts, sales, movements, report, paymentMethods, today, shell, kitchen] =
+  const [categories, stock, suppliers, folios, receipts, sales, movements, report, paymentMethods, today, shell] =
     await Promise.all([
       settle(barApi.categories()),
       settle(barApi.stock()),
@@ -107,7 +105,6 @@ export default async function BarPage({
       settle(barApi.paymentMethods()),
       hotelToday(),
       deskShell(),
-      settle(stockApi.products()),
     ]);
   // UI-FIX-01: продажа, приход и остаток пишут по праву desk, каталог по праву settings; в режиме чтения команд нет.
   const rights = barActionAccess(shell, vertical);
@@ -151,19 +148,6 @@ export default async function BarPage({
   const active = stock.value.filter((item) => item.active);
   const lowStock = active.filter((item) => stockStatusOf(item) !== 'ok');
   const lowCount = lowStock.length;
-  // кухня или расходники: сбой её чтения не роняет экран бара, карточка скажет «Нет данных»
-  const kitchenItems = kitchen.ok ? kitchen.value.items.filter((item) => item.active) : null;
-  const warehouseCards: WarehouseCard[] = [
-    { id: 'bar', title: 'Бар', href: '/bar/products', items: active.length, low: lowCount, value: null },
-    {
-      id: 'kitchen',
-      title: vertical === 'BEAUTY' ? 'Расходники' : 'Кухня',
-      href: vertical === 'FOOD_SERVICE' ? '/stock' : '/bar/consumables',
-      items: kitchenItems ? kitchenItems.length : null,
-      low: kitchenItems ? kitchenItems.filter((item) => item.low).length : 0,
-      value: kitchenItems ? money(kitchenItems.reduce((sum, item) => sum + BigInt(item.valueMinor), 0n)) : null,
-    },
-  ];
   const timezone = await propertyTimezone();
   const monthRevenue = BigInt(r.month?.revenueMinor ?? r.revenueMinor);
   const monthProfit = BigInt(r.month?.grossProfitMinor ?? r.grossProfitMinor);
@@ -295,8 +279,7 @@ export default async function BarPage({
           Пересчёт
         </Link>}
       </nav>
-      <BarTabs current="overview" />
-      <WarehouseSummary cards={warehouseCards} />
+      <BarTabs current="bar" />
       <section className="bar-kpis" aria-label={`Показатели ${vertical === 'BEAUTY' ? 'склада' : 'бара'}`}>
         <Kpi icon="cart" tone="info" label="Сумма закупок" value={money(r.month?.purchasesMinor ?? r.purchasesMinor)} hint={r.month ? 'За текущий месяц' : 'За всё время'} />
         <Kpi icon="chart" tone="primary" label={vertical === 'BEAUTY' ? 'Выручка склада' : 'Выручка бара'} value={money(monthRevenue)} hint={r.month ? 'За текущий месяц' : 'За всё время'} />

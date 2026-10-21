@@ -7,11 +7,12 @@ import type { WebVertical } from '../../lib/vertical-landing';
  * Вкладки раздела «Бар» (ADR-157): пять подстраниц вместо одного полотна. «Новый приход» живёт под
  * «Приходами» и своей вкладки не имеет. Право у всех одно: пункт меню `/bar` (`routeRule`).
  */
-export type BarSection = 'overview' | 'receipts' | 'products' | 'suppliers' | 'operations' | 'consumables';
+export type BarSection = 'warehouse' | 'bar' | 'receipts' | 'products' | 'suppliers' | 'operations' | 'consumables';
 
 // подписи вкладок совпадают с пунктами меню «Склад» (решение владельца 19.10.2026)
 const SECTIONS: Array<{ id: BarSection; href: string; label: string }> = [
-  { id: 'overview', href: '/bar', label: 'Обзор' },
+  { id: 'warehouse', href: '/warehouse', label: 'Обзор склада' },
+  { id: 'bar', href: '/bar', label: 'Бар' },
   { id: 'receipts', href: '/bar/receipts', label: 'Приходы' },
   { id: 'products', href: '/bar/products', label: 'Номенклатура' },
   { id: 'suppliers', href: '/bar/suppliers', label: 'Поставщики' },
@@ -19,13 +20,12 @@ const SECTIONS: Array<{ id: BarSection; href: string; label: string }> = [
 ];
 
 export function barSectionsFor(vertical: WebVertical) {
-  // склад кухни: салон зовёт его «Расходники», гостиница «Кухня»; у ресторана он на `/stock` (ADR-STOCK-ALL)
-  if (vertical === 'FOOD_SERVICE') return SECTIONS;
-  return [
-    SECTIONS[0]!,
-    { id: 'consumables' as const, href: '/bar/consumables', label: vertical === 'BEAUTY' ? 'Расходники' : 'Кухня' },
-    ...SECTIONS.slice(1),
-  ];
+  // склад кухни: салон зовёт его «Расходники», остальные «Кухня»; у ресторана он на `/stock` (ADR-STOCK-ALL)
+  const kitchen =
+    vertical === 'FOOD_SERVICE'
+      ? { id: 'consumables' as const, href: '/stock', label: 'Склад кухни' }
+      : { id: 'consumables' as const, href: '/bar/consumables', label: vertical === 'BEAUTY' ? 'Расходники' : 'Кухня' };
+  return [SECTIONS[0]!, SECTIONS[1]!, kitchen, ...SECTIONS.slice(2)];
 }
 
 export function BarTabs({ current }: { current: BarSection }) {

@@ -6,6 +6,7 @@ import { pluralRu } from '../../lib/plural';
 export interface WarehouseCard {
   id: 'bar' | 'kitchen';
   title: string;
+  /** куда ведёт карточка: экран самого склада */
   href: string;
   /** активных позиций; null, если склад не прочитался */
   items: number | null;

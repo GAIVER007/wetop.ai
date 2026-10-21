@@ -266,6 +266,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Доходы, поступления, расходы, прибыль, операции, касса и отчёты.',
       },
       {
+        href: '/warehouse',
+        requires: 'reports',
+        label: 'Обзор склада',
+        icon: 'stock',
+        description: 'Остатки бара и кухни рядом и что заканчивается.',
+      },
+      {
         href: '/bar',
         requires: 'reports',
         label: 'Бар',
@@ -636,10 +643,12 @@ const ROW: Array<{
     icon: 'stock',
     items: [
       // пункты в порядке вкладок экрана склада (решение владельца 19.10.2026): одно название в меню и на вкладке
-      { label: 'Склад кухни', at: { FOOD_SERVICE: '/stock' } },
-      { label: 'Обзор склада', at: ALL('/bar') },
-      { label: 'Расходники', at: { BEAUTY: '/bar/consumables' } },
+      { label: 'Обзор склада', at: ALL('/warehouse') },
+      { label: 'Бар', at: ALL('/bar') },
       { label: 'Кухня', at: { HOSPITALITY: '/bar/consumables' } },
+      // у ресторана «Кухня» уже раздел «Услуги»: склад кухни называется целиком
+      { label: 'Склад кухни', at: { FOOD_SERVICE: '/stock' } },
+      { label: 'Расходники', at: { BEAUTY: '/bar/consumables' } },
       { label: 'Приходы', at: ALL('/bar/receipts') },
       { label: 'Номенклатура', at: ALL('/bar/products') },
       { label: 'Поставщики', at: ALL('/bar/suppliers') },
@@ -798,6 +807,7 @@ const BEAUTY_ROUTES: Array<{ href: string; access: BeautyRouteAccess }> = [
   { href: '/cashbox', access: { section: 'finance', legacy: 'desk' } },
   { href: '/finance', access: { section: 'finance', legacy: 'reports' } },
   { href: '/journal', access: { section: 'settings', legacy: 'journal' } },
+  { href: '/warehouse', access: { section: 'stock', legacy: 'reports' } },
   { href: '/bar', access: { section: 'stock', legacy: 'reports' } },
   { href: '/beauty', access: { section: 'journal', legacy: 'desk' } },
   { href: '/today', access: { section: 'journal', legacy: 'desk' } },

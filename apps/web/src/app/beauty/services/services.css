@@ -159,10 +159,6 @@
     min-height: 44px;
   }
 
-  .beauty-service-transfer-form {
-    display: flex;
-  }
-
   .beauty-service-empty {
     margin: 0;
     padding: var(--space-4);
@@ -255,7 +251,17 @@
       grid-row: 1;
     }
 
-    @media (max-width: 600px) {
+    .beauty-service-list--catalog {
+      grid-row: 2;
+    }
+
+    .beauty-material-stock,
+    .beauty-material-cost {
+      align-self: start;
+    }
+  }
+
+  @media (max-width: 600px) {
     .beauty-service-list {
       padding: var(--space-2);
     }
@@ -270,13 +276,8 @@
       justify-content: stretch;
     }
 
-    .beauty-service-item-actions,
-    .beauty-service-transfer-form {
+    .beauty-service-item-actions {
       width: 100%;
-    }
-
-    .beauty-service-transfer-form .btn {
-      flex: 1;
     }
 
     .beauty-material-row {

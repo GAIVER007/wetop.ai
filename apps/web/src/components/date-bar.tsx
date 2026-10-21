@@ -1,5 +1,5 @@
 'use client';
-import type { InputHTMLAttributes } from 'react';
+import type { ComponentProps, InputHTMLAttributes } from 'react';
 import { Icon } from './icon';
 import { Button, Field, Input } from './ui';
 import { DateInput } from './date-field';
@@ -19,6 +19,7 @@ export function DateBar({
   className,
   compact = false,
   calendar = false,
+  presets,
 }: {
   date: string;
   onDateChange: (date: string) => void;
@@ -33,6 +34,8 @@ export function DateBar({
   /** подпись «Дата» только для программы чтения: полоса дня одной строкой в панели экрана */
   compact?: boolean;
   calendar?: boolean;
+  /** быстрые кнопки в календаре (только с `calendar`) */
+  presets?: ComponentProps<typeof DateInput>['presets'];
 }) {
   const DateControl = calendar ? DateInput : Input;
   return (
@@ -47,6 +50,7 @@ export function DateBar({
       </Button>
       <Field label={compact ? <span className="sr-only">Дата</span> : 'Дата'}>
         <DateControl
+          {...(calendar && presets ? { presets } : {})}
           {...inputProps}
           type="date"
           value={date}

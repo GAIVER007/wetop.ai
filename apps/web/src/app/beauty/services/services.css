@@ -267,12 +267,17 @@
       min-width: 0;
     }
 
-    .beauty-service-item,
+    .beauty-service-item {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* колонка галочки фиксирована: иначе широкие кнопки действий растягивают её, а название выпадает за экран */
     .beauty-service-item:has(.beauty-service-check) {
-      grid-template-columns: auto minmax(0, 1fr);
+      grid-template-columns: 20px minmax(0, 1fr);
     }
 
     .beauty-service-item-actions {
+      grid-column: 1 / -1;
       width: 100%;
     }
 

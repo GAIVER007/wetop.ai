@@ -42,7 +42,7 @@ const MONTHS_OF = [
 const WEEKDAYS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
 /** размеры всплывающего календаря (см. .date-field__pop): нужны, чтобы не выйти за окно */
 const POP_W = 296;
-const POP_H = 372;
+const POP_H = 412;
 const DAY = 86_400_000;
 
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -79,9 +79,12 @@ export function DateInput({
   className,
   rangeFromName,
   defaultOpen,
+  presets,
   id: givenId,
   ...rest
 }: InputHTMLAttributes<HTMLInputElement> & {
+  /** быстрые кнопки в подвале календаря: день (`offsetDays` от сегодня) или своё действие экрана */
+  presets?: Array<{ label: string; offsetDays?: number; onSelect?: () => void }> | undefined;
   /** имя парного поля «с» в той же форме: дни от его даты до выбранной подсвечиваются отрезком */
   rangeFromName?: string | undefined;
   /** календарь раскрыт сразу — только для страницы `/design-system` */
@@ -365,6 +368,22 @@ export function DateInput({
             >
               Сегодня
             </button>
+            {presets?.map((preset) => (
+              <button
+                key={preset.label}
+                type="button"
+                className="btn btn--ghost btn--xs"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (preset.onSelect) {
+                    close(false);
+                    preset.onSelect();
+                  } else if (preset.offsetDays !== undefined) select(addDays(parse(today)!, preset.offsetDays));
+                }}
+              >
+                {preset.label}
+              </button>
+            ))}
           </div>
         </div>
       )}

@@ -20,7 +20,7 @@ import { AppointmentEditor } from './appointment-editor';
 import { appointmentSegments, calendarColumns, matchesAppointment } from './calendar-columns';
 import { DateBar } from './date-bar';
 import { clock, clockMinutes, instantOf } from './time';
-import { moveAppointment } from './journal-actions';
+import { beautyPeriodRows, moveAppointment } from './journal-actions';
 import { beautyStatus } from '../../lib/status/beauty';
 import { CalendarLegend } from './calendar-legend';
 
@@ -128,6 +128,14 @@ export function JournalBoard({
   const reportRows = day.appointments.filter(
     (a) => matchesAppointment(a, master, service) && (!status || a.status === status),
   );
+  const buildReport = (periodRows?: unknown[]) =>
+    beautyQuickReport(
+      periodRows
+        ? (periodRows as BeautyAppointmentRow[]).filter(
+            (a) => matchesAppointment(a, master, service) && (!status || a.status === status),
+          )
+        : reportRows,
+    );
   const segments = appointmentSegments(day.appointments);
   const live = reportRows.filter((a) => a.status !== 'CANCELLED');
   const shown = master ? columns.filter((c) => c.id === master) : columns;
@@ -343,7 +351,8 @@ export function JournalBoard({
                   : 'Все специалисты',
                 ...(service || status ? ['С учётом фильтров журнала'] : []),
               ]}
-              build={() => beautyQuickReport(reportRows)}
+              build={buildReport}
+              loadPeriod={beautyPeriodRows}
             />
           </span>
           <Button
@@ -377,7 +386,8 @@ export function JournalBoard({
                 : 'Все специалисты',
               ...(service || status ? ['С учётом фильтров журнала'] : []),
             ]}
-            build={() => beautyQuickReport(reportRows)}
+            build={buildReport}
+            loadPeriod={beautyPeriodRows}
           />
           </div>
           <div className="beauty-filters">

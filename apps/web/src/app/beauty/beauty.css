@@ -1551,3 +1551,55 @@
     pointer-events: none;
   }
 }
+
+/* «Новая запись» компактнее (21.10.2026): клиент одной группой, имя и фамилия в ряд, «Итого» над кнопкой,
+   без прокрутки на ноутбуке при одной услуге. */
+@layer sections {
+  .appointment-form {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+  }
+  .appointment-form fieldset {
+    gap: var(--space-2);
+  }
+  .appointment-form .appointment-customer-fields > * {
+    grid-column: 1 / -1;
+  }
+  .appointment-customer-new {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  /* быстрые кнопки и выбор клиента в одном ряду: на ноутбуке «Новая запись» без лишней прокрутки */
+  @media (min-width: 700px) {
+    .appointment-form .appointment-customer-fields {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: end;
+    }
+    .appointment-form .appointment-customer-fields > .appointment-customer-quick {
+      grid-column: 1;
+    }
+    .appointment-form .appointment-customer-fields > .appointment-customer-quick + .field {
+      grid-column: 2;
+    }
+  }
+  .appointment-form .appointment-customer-fields > legend {
+    padding-bottom: 0;
+  }
+  .appointment-form__footer {
+    display: grid;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+  }
+  .appointment-form__total {
+    margin: 0;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 600px) {
+    .appointment-customer-new {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

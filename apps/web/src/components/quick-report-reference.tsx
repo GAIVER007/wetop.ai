@@ -46,8 +46,6 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
   const states = reference.statuses.filter((s) => s.key !== 'NO_SHOW' || s.count > 0);
   const metric = (label: string) => data.money.find((m) => m.label === label);
   const finance = [
-    ['Средний чек', 'Средняя стоимость завершённой записи'],
-    ['Выручка (за один день)', 'Сумма завершённых услуг'],
     ['Оплата наличными', 'Оплата наличными'],
     ['Оплата безналом', 'Оплата безналом'],
   ] as const;
@@ -129,11 +127,23 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
           </div>
         </div>
       </div>
-      <dl className="reference-total quick-report-counts">
+      <dl className="reference-kpis" aria-label="Итоги">
         <div>
-          <dt>Общая сумма всех записей:</dt>
+          <dt>Сумма записей</dt>
           <dd>
             <Money values={reference.totalPrices} />
+          </dd>
+        </div>
+        <div>
+          <dt>Выручка</dt>
+          <dd>
+            <Money values={metric('Сумма завершённых услуг')?.values} />
+          </dd>
+        </div>
+        <div>
+          <dt>Средний чек</dt>
+          <dd>
+            <Money values={metric('Средняя стоимость завершённой записи')?.values} />
           </dd>
         </div>
       </dl>
@@ -160,6 +170,8 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
           )}
         </dl>
       </section>
+      <details className="reference-more">
+        <summary>Лояльность и WETOP</summary>
       <section className="reference-section" aria-label="Лояльность">
         <h3>Лояльность:</h3>
         <dl className="quick-report-counts">
@@ -185,9 +197,10 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
           )}
         </dl>
       </section>
+      </details>
       {data.total === 0 && (
         <p role="status" className="sr-only">
-          За выбранный день по этим фильтрам записей нет.
+          За выбранный период по этим фильтрам записей нет.
         </p>
       )}
     </>

@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { ApiError, authApi, beautyApi } from '../../lib/api';
+import { ApiError, authApi, beautyApi, type BeautyAppointmentRow } from '../../lib/api';
+import { MAX_PERIOD_DAYS, periodDays } from '../../components/quick-report-period';
 
 /**
  * Журнал записей салона (срез B5): создание записи, перенос и состояние.
@@ -223,5 +224,27 @@ export async function setAppointmentStatus(id: string, status: string): Promise<
     return { message: 'Состояние записи изменено' };
   } catch (e) {
     return failed(e, 'Не удалось изменить состояние записи.');
+  }
+}
+
+/**
+ * Записи салона за период для быстрого отчёта: журнал отдаёт только день, поэтому дни читаются по
+ * очереди пачками. Период ограничен (`MAX_PERIOD_DAYS`), чтобы отчёт не превращался в выгрузку.
+ */
+export async function beautyPeriodRows(
+  from: string,
+  to: string,
+): Promise<{ rows?: BeautyAppointmentRow[]; error?: string }> {
+  const days = periodDays(from, to);
+  if (!days) return { error: `Выберите период не длиннее ${MAX_PERIOD_DAYS} дней.` };
+  try {
+    const rows: BeautyAppointmentRow[] = [];
+    for (let i = 0; i < days.length; i += 8) {
+      const chunk = await Promise.all(days.slice(i, i + 8).map((day) => beautyApi.day(day)));
+      for (const day of chunk) rows.push(...day.appointments);
+    }
+    return { rows };
+  } catch (e) {
+    return failed(e, 'Не удалось загрузить записи за период. Повторите попытку.');
   }
 }

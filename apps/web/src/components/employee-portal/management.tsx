@@ -1,7 +1,7 @@
 'use client';
 import type { EmployeePortalDto } from '@pms/domain';
 import { Field, Input, Select } from '../ui';
-import { minorToInput } from '../../lib/money';
+import { currencySign, minorToInput } from '../../lib/money';
 import { PortalForm, type PortalContext } from './forms';
 export type PortalAccountOption = { userId: string; label: string };
 
@@ -55,20 +55,20 @@ export function PortalManagement({
             {accountOptions.map((option) => <option key={option.userId} value={option.userId}>{option.label}</option>)}
           </Select>
         </Field>
-        <p>Сервер повторно проверит активное членство, подтверждённый вход и доступ к филиалу.</p>
+        <p>Привязать можно только участника, у которого есть вход и доступ к этому филиалу.</p>
       </PortalForm>
     )}
     {data.employee.accountLinked && <PortalForm context={context} command="unlink" label="Отвязать аккаунт" />}
     <h3>Условия оплаты труда</h3>
     <PortalForm context={context} command="pay" label="Сохранить условия оплаты">
       <Field label="Модель оплаты"><Select name="model" defaultValue={data.pay.model ?? ''} required><option value="" disabled>Выберите модель</option><option value="FIXED">Фиксированная</option><option value="PERCENT">Процент</option><option value="FIXED_PLUS_PERCENT">Фиксированная + процент</option><option value="BONUS_ONLY">Только бонусы</option></Select></Field>
-      <Field label={`Фиксированная ставка, ${data.pay.currency === 'KZT' ? '₸' : data.pay.currency}`}><Input name="fixedAmount" inputMode="decimal" required defaultValue={data.pay.fixedMinor === null ? '' : minorToInput(data.pay.fixedMinor)} /></Field>
+      <Field label={`Фиксированная ставка, ${currencySign(data.pay.currency)}`}><Input name="fixedAmount" inputMode="decimal" required defaultValue={data.pay.fixedMinor === null ? '' : minorToInput(data.pay.fixedMinor)} /></Field>
       <Field label="Процент, от 0 до 100"><Input name="percent" type="number" min={0} max={100} step={1} required defaultValue={data.pay.percent ?? ''} /></Field>
-      <p>Введите сумму в выбранной валюте. Расчёт выполняет сервер.</p>
+      <p>Сумма в валюте филиала. Зарплату за месяц WETOP посчитает сам.</p>
     </PortalForm>
     {data.business.vertical === 'BEAUTY' && <>
       <h3>База процента для бизнеса</h3>
-      <p>Настройка общая для бизнеса, а не только для этого сотрудника. Неподдерживаемые закрытые периоды и возвраты не рассчитываются в браузере.</p>
+      <p>Настройка общая для всех специалистов бизнеса: от какой суммы считать процент.</p>
       <PortalForm context={context} command="pay-policy" revision={data.pay.policyRevision} label="Сохранить базу процента">
         <Field label="База процента"><Select name="percentBasis" required defaultValue={data.pay.percentBasis ?? ''}><option value="" disabled>Не настроена</option><option value="COMPLETED_SERVICES">Стоимость оказанных услуг</option><option value="PAID_COMPLETED_SERVICES">Оплаченные оказанные услуги</option></Select></Field>
       </PortalForm>

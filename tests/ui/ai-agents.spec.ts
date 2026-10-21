@@ -60,7 +60,7 @@ test('главный администратор: к техподдержке —
   await expect(page).toHaveURL(/\/platform\/support/);
 });
 
-test('расширение не подключено: карточка объясняет, кнопка создания неактивна, ссылка ведёт на страницу с объяснением', async ({
+test('расширение не подключено: одна карточка объясняет и ведёт в поддержку', async ({
   page,
   request,
 }) => {
@@ -73,12 +73,10 @@ test('расширение не подключено: карточка объя�
   // карточки продавца, статуса и «Открыть» без расширения нет
   await expect(page.getByTestId('agent-status')).toHaveCount(0);
   await expect(seller.getByRole('link', { name: 'Открыть' })).toHaveCount(0);
-  // кнопка создания видна, но неактивна: расширения нет; рядом — путь к странице с объяснением
-  const add = page.getByTestId('agent-add');
-  await expect(add.getByRole('button', { name: '+ Подключить AI-продавца' })).toBeDisabled();
-  await expect(add).toContainText('Расширение «ИИ-продавец» не подключено.');
-  await add.getByRole('link', { name: 'Как подключить расширение', exact: true }).click();
-  await expect(page).toHaveURL(/\/ai-seller$/);
+  // аудит 21.10.2026 п. 3: одна карточка с действием, неактивной кнопки снаружи нет
+  await expect(page.getByTestId('agent-add')).toHaveCount(0);
+  await expect(seller.getByTestId('agent-seller-ask')).toBeVisible();
+  await page.goto('/ai-seller');
   await expect(page.getByTestId('seller-extension-off')).toBeVisible();
 });
 
@@ -96,7 +94,7 @@ test('срок расширения вышел: карточка остаётс�
   await expect(seller.getByTestId('agent-status')).toHaveText('Подписка не активна');
   await expect(seller.getByRole('link', { name: 'Открыть' })).toBeVisible();
   const add = page.getByTestId('agent-add');
-  await expect(add.getByRole('button', { name: '+ Подключить AI-продавца' })).toBeDisabled();
+  await expect(add.getByRole('button', { name: 'Подключить ИИ-продавца' })).toBeDisabled();
   await expect(add).toContainText('Срок расширения «ИИ-продавец» вышел.');
   await expect(
     add.getByRole('link', { name: 'Как подключить расширение', exact: true }),
@@ -113,7 +111,7 @@ test('действует, профиль не применён: «Не наст�
   await expect(seller).toContainText('Сеть Тест · Алматы');
   // единственный филиал занят рабочим продавцом: создать второго нельзя, кнопка видна и объясняет почему
   const add = page.getByTestId('agent-add');
-  await expect(add.getByRole('button', { name: '+ Подключить AI-продавца' })).toBeDisabled();
+  await expect(add.getByRole('button', { name: 'Подключить ИИ-продавца' })).toBeDisabled();
   await expect(add).toContainText(
     'Нет свободного филиала. Для этого филиала AI-продавец уже создан.',
   );
@@ -136,7 +134,7 @@ test('продавец работает: статус, каналы по дан�
   await expect(channels).toContainText('WhatsApp');
   await expect(channels).toContainText('Подключён');
   const add = page.getByTestId('agent-add');
-  const button = add.getByRole('button', { name: '+ Подключить AI-продавца' });
+  const button = add.getByRole('button', { name: 'Подключить ИИ-продавца' });
   await expect(button).toBeDisabled();
   await expect(add).toContainText(
     'Нет свободного филиала. Для этого филиала AI-продавец уже создан.',
@@ -204,7 +202,7 @@ test('сотрудник смены видит список; кнопка соз
     'Профиль сохранён',
   );
   const add = page.getByTestId('agent-add');
-  await expect(add.getByRole('button', { name: '+ Подключить AI-продавца' })).toBeDisabled();
+  await expect(add.getByRole('button', { name: 'Подключить ИИ-продавца' })).toBeDisabled();
   await expect(add).toContainText('Создавать агентов могут владелец и управляющий.');
 });
 

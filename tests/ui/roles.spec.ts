@@ -303,17 +303,17 @@ test('владелец: зовёт управляющего и админист�
   await expect(page.getByRole('dialog')).toHaveCount(0);
   const invites = main.getByTestId('invite-list');
   await expect(invites.locator('li', { hasText: 'new.manager@example.com' })).toContainText(
-    'управляющий',
+    'Управляющий',
   );
-  await expect(invites.locator('li', { hasText: 'boss@example.com' })).toContainText('управляющий');
+  await expect(invites.locator('li', { hasText: 'boss@example.com' })).toContainText('Управляющий');
   await expect(invites.locator('li', { hasText: 'zhdet@example.com' })).toContainText(
-    'администратор',
+    'Администратор',
   );
 
   const admin = main.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
-  await expect(admin).toContainText('администратор');
+  await expect(admin).toContainText('Администратор');
   await admin.getByRole('combobox', { name: 'Должность: Юрий Тестов' }).selectOption('MANAGER');
-  await expect(admin).toContainText('управляющий');
+  await expect(admin).toContainText('Управляющий');
   await shot(page, 'team-owner');
 });
 

@@ -48,7 +48,7 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   // ADR-184 и верхнее меню 17.10.2026: «Продвижение» вместе с бывшими «Продажами»
   await expect(menu.locator('.sidenav__items:not([hidden]) a')).toHaveText([
     'Обзор',
-    'ИИ-таргетолог',
+    'Реклама',
     'Контент',
     'ИИ-продавец',
     'Анализ конкурентов',
@@ -162,13 +162,14 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   await expect(budgetMenu.getByRole('menuitem')).toHaveText(['Расходы', 'Аналитика маркетинга']);
   await page.keyboard.press('Escape');
 
-  // реклама и контент ещё не построены: «Скоро», одна кнопка «Открыть» на свой экран, без «Подключено» и меню
-  for (const [testId, title, href] of [
-    ['marketing-ads', 'Реклама', '/marketing/ads'],
-    ['marketing-content', 'Контент', '/marketing/content'],
+  // реклама живая (кампании, кабинет Meta), контент ещё не построен: одна кнопка «Открыть» на свой экран, без меню
+  // (аудит 21.10.2026 п. 5: «Скоро» рядом с живой кнопкой у рекламы сбивал с толку)
+  for (const [testId, title, href, status] of [
+    ['marketing-ads', 'Реклама', '/marketing/ads', 'Доступно'],
+    ['marketing-content', 'Контент', '/marketing/content', 'Скоро'],
   ] as const) {
     const card = hub.getByTestId(testId);
-    await expect(card.getByTestId(`${testId}-status`)).toHaveText('Скоро');
+    await expect(card.getByTestId(`${testId}-status`)).toHaveText(status);
     await expect(card.locator('a, button')).toHaveCount(1);
     await expect(card.getByRole('link', { name: `Открыть: ${title}`, exact: true })).toHaveAttribute('href', href);
     await expect(card).not.toContainText('Подключено');
@@ -205,18 +206,17 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   await main(page).getByRole('link', { name: 'Открыть: Реклама', exact: true }).click();
   await expect(page).toHaveURL(/\/marketing\/ads$/);
   const ads = main(page);
-  await expect(ads.getByRole('heading', { level: 1 })).toHaveText('ИИ-таргетолог');
+  // аудит 21.10.2026 пп. 14, 15, 34: одно имя «Реклама», пустых вкладок нет, итоги строкой вместо плиток
+  await expect(ads.getByRole('heading', { level: 1 })).toHaveText('Реклама');
   await expect(menuOf(page).locator('.sidenav__current')).toHaveText('Продвижение');
   await expect(ads.getByTestId('marketing-ads-soon')).toContainText('Скоро');
-  await expect(ads.getByRole('tab')).toHaveText(['Кампании', 'Аудитории', 'Креативы', 'Аналитика', 'Настройки']);
+  await expect(ads.getByRole('tab')).toHaveCount(0);
   const metrics = ads.getByTestId('marketing-ads-metrics');
-  await expect(metrics.locator('.stat__label')).toHaveText(['Расход кампаний', 'Показы', 'Клики', 'Лиды площадки']);
+  await expect(metrics.locator('dt')).toHaveText(['Расход кампаний', 'Показы', 'Клики', 'Лиды площадки', 'CTR, CPM, CPL']);
   await expect(ads.getByTestId('ads-empty')).toContainText('Кампаний пока нет');
   // кабинет Meta подключается (ADR-MKT-META), кампанию можно создать и вручную (МКТ-В3)
   await expect(ads.getByRole('button', { name: 'Подключить кабинет через Facebook', exact: true })).toBeEnabled();
   await expect(ads.getByRole('button', { name: 'Создать кампанию', exact: true })).toBeEnabled();
-  await ads.getByRole('tab', { name: 'Аудитории', exact: true }).click();
-  await expect(ads.getByRole('tabpanel')).toContainText('Пока пусто');
   await ads.getByRole('link', { name: 'Назад к модулям', exact: true }).click();
   await expect(page).toHaveURL(/\/marketing$/);
 
@@ -357,7 +357,9 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   await expect(hub).toBeVisible();
   // единая система (14.10.2026): бюджет ведётся по филиалу любого направления; SITE-1: «Сайт и SEO» открыт всем,
   // гостиничные экраны сайта (публикация, изображения, бронирование) салону не предлагаются
-  await expect(hub.getByTestId('marketing-module')).toHaveCount(5);
+  // аудит 21.10.2026 п. 5: гостиничных «Конкурентов» у салона нет
+  await expect(hub.getByTestId('marketing-module')).toHaveCount(4);
+  await expect(hub.getByTestId('marketing-competitors')).toHaveCount(0);
   await expect(hub.getByTestId('marketing-site-status')).toHaveText('Доступно');
   await expect(hub.getByTestId('marketing-budget-status')).toHaveText('Доступно');
   await expect(

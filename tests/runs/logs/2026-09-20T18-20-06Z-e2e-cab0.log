@@ -1,0 +1,179 @@
+# Сквозные (e2e) · 20.09.2026 23:20 Алматы · MacBook-Air-Urij.local
+# коммит 913cf0f (codex/section-loading-performance), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/loading-performance.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/dashboard-resilience.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/real-data.spec.ts' '--grep-invert' 'навигация ровная'
+[WebServer] (node:53378) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:53405) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:53406) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:53407) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:53440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:53451) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 42 tests using 1 worker
+
+(node:53455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/dashboard-resilience.spec.ts:15:1 › показатели не пришли — экран открыт, стойка на месте, причина названа (1.8s)
+  ✓   2 tests/ui/dashboard-resilience.spec.ts:30:1 › период выбирается: «этот месяц» открывается с числами (1.2s)
+  ✓   3 tests/ui/loading-performance.spec.ts:11:1 › Главная показывает блоки, пока настройки гостиницы ещё загружаются (1.0s)
+  ✓   4 tests/ui/loading-performance.spec.ts:32:1 › стойка и её шахматка запрашиваются параллельно (6.5s)
+  ✓   5 tests/ui/loading-performance.spec.ts:57:1 › мобильное меню использует уже загруженную свежесть без второго опроса (2.1s)
+TODAY_LOADING_MS [{"heading":620,"kpi":621,"desk":621},{"heading":330,"desk":666,"kpi":1135},{"desk":547,"heading":569,"kpi":581}]
+  ✓   6 tests/ui/loading-performance.spec.ts:82:1 › замер: блоки Главной при задержке настроек 2000 мс (7.6s)
+  ✓   7 tests/ui/loading-performance.spec.ts:112:1 › фоновый опрос не перекрывается и восстанавливается после отказа (1.9s)
+  ✓   8 tests/ui/navigation.spec.ts:39:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (2.1s)
+  ✓   9 tests/ui/navigation.spec.ts:52:1 › разделы содержат все прежние ссылки без дублей; раскрываются с клавиатуры (1.8s)
+[WebServer] (node:53568) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/ui/navigation.spec.ts:90:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (2.2s)
+[WebServer] (node:53576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:53584) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:53587) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:53588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:53589) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/navigation.spec.ts:115:1 › все пункты меню открывают существующие страницы (11.0s)
+  ✓  12 tests/ui/real-data.spec.ts:8:1 › источник и агрегаты проекта видны отдельно от Channex (2.0s)
+  ✓  13 tests/ui/real-data.spec.ts:18:1 › ошибка базы не превращается в нулевые показатели; повтор обновляет состояние (1.4s)
+  ✓  14 tests/ui/real-data.spec.ts:36:1 › название гостиницы в каркасе и обзоре поступает из backend (1.2s)
+  ✓  15 tests/ui/real-data.spec.ts:47:1 › недоступный API не скрывается за демо или выдуманным объектом (932ms)
+  ✓  16 tests/ui/real-data.spec.ts:57:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню (1.9s)
+  ✓  17 tests/ui/requests.spec.ts:29:3 › экран /today: данные берутся одним запросом на путь (2.2s)
+  ✓  18 tests/ui/requests.spec.ts:29:3 › экран /chessboard: данные берутся одним запросом на путь (2.1s)
+  ✓  19 tests/ui/requests.spec.ts:29:3 › экран /reservations: данные берутся одним запросом на путь (1.4s)
+  ✓  20 tests/ui/requests.spec.ts:29:3 › экран /guests: данные берутся одним запросом на путь (1.3s)
+[WebServer] (node:53642) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  21 tests/ui/requests.spec.ts:29:3 › экран /rooms: данные берутся одним запросом на путь (1.4s)
+  ✓  22 tests/ui/requests.spec.ts:29:3 › экран /inventory: данные берутся одним запросом на путь (1.7s)
+[WebServer] (node:53657) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  23 tests/ui/requests.spec.ts:29:3 › экран /rooms/categories: данные берутся одним запросом на путь (1.3s)
+[WebServer] (node:53661) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  24 tests/ui/requests.spec.ts:29:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.6s)
+  ✓  25 tests/ui/requests.spec.ts:29:3 › экран /rates: данные берутся одним запросом на путь (1.4s)
+[WebServer] (node:53673) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  26 tests/ui/requests.spec.ts:29:3 › экран /management/statistics: данные берутся одним запросом на путь (1.8s)
+  ✓  27 tests/ui/requests.spec.ts:29:3 › экран /finance: данные берутся одним запросом на путь (1.4s)
+  ✓  28 tests/ui/requests.spec.ts:29:3 › экран /channel-manager: данные берутся одним запросом на путь (1.5s)
+  ✘  29 tests/ui/requests.spec.ts:29:3 › экран /channels: данные берутся одним запросом на путь (1.6s)
+(node:53696) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  30 tests/ui/requests.spec.ts:29:3 › экран /analytics: данные берутся одним запросом на путь (2.5s)
+[WebServer] (node:53727) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  31 tests/ui/requests.spec.ts:29:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.4s)
+[WebServer] (node:53733) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  32 tests/ui/requests.spec.ts:29:3 › экран /hotel-settings/check-in: данные берутся одним запросом на путь (1.6s)
+[WebServer] (node:53738) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  33 tests/ui/requests.spec.ts:29:3 › экран /hotel-settings/penalties: данные берутся одним запросом на путь (1.3s)
+[WebServer] (node:53742) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  34 tests/ui/requests.spec.ts:29:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.5s)
+[WebServer] (node:53748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  35 tests/ui/requests.spec.ts:29:3 › экран /hotel-settings/description: данные берутся одним запросом на путь (1.6s)
+[WebServer] (node:53753) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  36 tests/ui/requests.spec.ts:29:3 › экран /hotel-settings/photos: данные берутся одним запросом на путь (1.6s)
+[WebServer] (node:53757) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  37 tests/ui/requests.spec.ts:29:3 › экран /hotel-settings/amenities: данные берутся одним запросом на путь (1.7s)
+  ✓  38 tests/ui/requests.spec.ts:29:3 › экран /connections: данные берутся одним запросом на путь (1.8s)
+  ✓  39 tests/ui/requests.spec.ts:29:3 › экран /analytics/setup: данные берутся одним запросом на путь (1.6s)
+  ✘  40 tests/ui/requests.spec.ts:29:3 › экран /incidents: данные берутся одним запросом на путь (1.4s)
+(node:53776) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  41 tests/ui/requests.spec.ts:29:3 › экран /journal: данные берутся одним запросом на путь (2.1s)
+  ✓  42 tests/ui/requests.spec.ts:29:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (1.4s)
+
+
+  1) tests/ui/requests.spec.ts:29:3 › экран /channels: данные берутся одним запросом на путь ───────
+
+    Error: запросов на экран /channels: {"/auth/me":2,"/system/freshness":2,"/hotel/settings":1,"/channels/channex/mapping":1,"/channels/channex/outbox":1,"/inventory/summary":1,"/channels/channex/webhook/status":1,"/channels/channex/events":1,"/channels/channex/outbox/rows":1,"/channels/channex/connection":1}
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 10
+    Received:    12
+
+      35 |     const twice = Object.entries(byPath).filter(([p, n]) => n > 1 && !SHELL.includes(p));
+      36 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+    > 37 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(10);
+         |                                                           ^
+      38 |   });
+      39 | }
+      40 |
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/requests.spec.ts:37:59
+
+    Error Context: test-results/requests-экран-channels-да-ab0b2-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-channels-да-ab0b2-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-channels-да-ab0b2-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/requests.spec.ts:29:3 › экран /incidents: данные берутся одним запросом на путь ──────
+
+    Error: путь с данными запрошен повторно за один показ /incidents: {"/auth/me":2,"/guard/incidents":2,"/system/freshness":2,"/hotel/settings":1,"/guard/status":1}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "/guard/incidents",
+    +     2,
+    +   ],
+    + ]
+
+      34 |     const seen = JSON.stringify(byPath);
+      35 |     const twice = Object.entries(byPath).filter(([p, n]) => n > 1 && !SHELL.includes(p));
+    > 36 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      37 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(10);
+      38 |   });
+      39 | }
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/requests.spec.ts:36:88
+
+    Error Context: test-results/requests-экран-incidents-д-33bd2-утся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-incidents-д-33bd2-утся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-incidents-д-33bd2-утся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/requests.spec.ts:29:3 › экран /channels: данные берутся одним запросом на путь ────────
+    tests/ui/requests.spec.ts:29:3 › экран /incidents: данные берутся одним запросом на путь ───────
+  40 passed (1.7m)
+
+# код выхода 1 · 1 мин 45 с

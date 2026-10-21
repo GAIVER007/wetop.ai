@@ -1,0 +1,174 @@
+# Сквозные (e2e) · 20.09.2026 23:32 Алматы · MacBook-Air-Urij.local
+# коммит a16a79f (codex/section-loading-performance)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/loading-performance.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/dashboard-resilience.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/real-data.spec.ts' 'tests/ui/login-access.spec.ts' '--grep-invert' 'навигация ровная'
+[WebServer] (node:57460) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57724) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57754) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57853) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57883) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57889) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 60 tests using 1 worker
+
+(node:58495) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/dashboard-resilience.spec.ts:15:1 › показатели не пришли — экран открыт, стойка на месте, причина названа (4.4s)
+  ✓   2 tests/ui/dashboard-resilience.spec.ts:30:1 › период выбирается: «этот месяц» открывается с числами (4.0s)
+  ✓   3 tests/ui/loading-performance.spec.ts:11:1 › ошибка стойки показывается сразу, даже если шахматка ещё грузится (5.2s)
+  ✓   4 tests/ui/loading-performance.spec.ts:27:1 › Главная показывает блоки, пока настройки гостиницы ещё загружаются (2.0s)
+  ✓   5 tests/ui/loading-performance.spec.ts:48:1 › стойка и её шахматка запрашиваются параллельно (8.5s)
+  ✓   6 tests/ui/loading-performance.spec.ts:73:1 › мобильное меню использует уже загруженную свежесть без второго опроса (5.1s)
+TODAY_LOADING_MS [{"heading":1005,"kpi":1358,"desk":1358},{"heading":1119,"kpi":1119,"desk":1851},{"heading":1508,"kpi":1801,"desk":1801}]
+  ✓   7 tests/ui/loading-performance.spec.ts:98:1 › замер: блоки Главной при задержке настроек 2000 мс (11.0s)
+  ✓   8 tests/ui/loading-performance.spec.ts:128:1 › фоновый опрос не перекрывается и восстанавливается после отказа (4.3s)
+  ✓   9 tests/ui/login-access.spec.ts:23:1 › форма входа просит почту и пароль (2.3s)
+  ✓  10 tests/ui/login-access.spec.ts:33:1 › верный пароль пускает на рабочее место, «Выйти» возвращает на экран входа (3.5s)
+  ✓  11 tests/ui/login-access.spec.ts:54:1 › неверный пароль не пускает и не говорит, что именно не так (2.2s)
+  ✓  12 tests/ui/login-access.spec.ts:67:1 › форма первой на телефоне: вход и помощь доступны без прокрутки (1.6s)
+  ✓  13 tests/ui/login-access.spec.ts:79:1 › сбой API сохраняет почту, повторный вход после восстановления работает (2.8s)
+  ✓  14 tests/ui/login-access.spec.ts:96:1 › клавиатура, видимость пароля и ожидание без повторной отправки (2.7s)
+  ✓  15 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — light (10.6s)
+  ✓  16 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — dark (9.7s)
+  ✓  17 tests/ui/login-access.spec.ts:182:1 › за Cloudflare Access почта подставлена в поле, но вход всё равно спрашивают (1.3s)
+  ✓  18 tests/ui/login-access.spec.ts:198:1 › после входа экран входа показывает, кто вошёл, и даёт открыть рабочее место (1.7s)
+  ✓  19 tests/ui/login-access.spec.ts:222:3 › регистрация доступна по умолчанию › на экране входа нет входа по коду: только пароль и кнопка регистрации (993ms)
+  ✓  20 tests/ui/login-access.spec.ts:232:3 › регистрация доступна по умолчанию › кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю (1.1s)
+  ✓  21 tests/ui/login-access.spec.ts:248:3 › регистрация доступна по умолчанию › /login?mode=register открывает регистрацию сразу — по этой ссылке приходят с сайта (1.1s)
+  ✓  22 tests/ui/login-access.spec.ts:255:3 › регистрация доступна по умолчанию › регистрация с /register: почта, имя, пароль → «подтвердите почту», без сессии (3.3s)
+  ✓  23 tests/ui/login-access.spec.ts:274:3 › регистрация доступна по умолчанию › ссылка из письма: подтверждение почты открывает рабочее место; кука HttpOnly (5.5s)
+  ✘  24 tests/ui/login-access.spec.ts:296:3 › регистрация доступна по умолчанию › негодная ссылка подтверждения: отказ текстом на той же странице (3.0s)
+(node:66242) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  25 tests/ui/login-access.spec.ts:302:3 › регистрация доступна по умолчанию › регистрация: ошибки формы приходят текстом из API и не уводят со страницы (2.3s)
+  ✓  26 tests/ui/navigation.spec.ts:39:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (3.9s)
+  ✓  27 tests/ui/navigation.spec.ts:52:1 › разделы содержат все прежние ссылки без дублей; раскрываются с клавиатуры (4.7s)
+[WebServer] (node:66286) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  28 tests/ui/navigation.spec.ts:90:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (5.0s)
+[WebServer] (node:66408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66412) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66424) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66428) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66439) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66442) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66443) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  29 tests/ui/navigation.spec.ts:115:1 › все пункты меню открывают существующие страницы (37.1s)
+  ✓  30 tests/ui/real-data.spec.ts:8:1 › источник и агрегаты проекта видны отдельно от Channex (5.9s)
+  ✓  31 tests/ui/real-data.spec.ts:18:1 › ошибка базы не превращается в нулевые показатели; повтор обновляет состояние (2.7s)
+  ✓  32 tests/ui/real-data.spec.ts:36:1 › название гостиницы в каркасе и обзоре поступает из backend (3.0s)
+  ✓  33 tests/ui/real-data.spec.ts:47:1 › недоступный API не скрывается за демо или выдуманным объектом (3.5s)
+  ✓  34 tests/ui/real-data.spec.ts:57:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню (3.5s)
+  ✓  35 tests/ui/requests.spec.ts:59:3 › экран /today: данные берутся одним запросом на путь (4.7s)
+  ✓  36 tests/ui/requests.spec.ts:59:3 › экран /chessboard: данные берутся одним запросом на путь (6.3s)
+  ✓  37 tests/ui/requests.spec.ts:59:3 › экран /reservations: данные берутся одним запросом на путь (5.7s)
+  ✓  38 tests/ui/requests.spec.ts:59:3 › экран /guests: данные берутся одним запросом на путь (4.8s)
+[WebServer] (node:66588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  39 tests/ui/requests.spec.ts:59:3 › экран /rooms: данные берутся одним запросом на путь (8.0s)
+  ✓  40 tests/ui/requests.spec.ts:59:3 › экран /inventory: данные берутся одним запросом на путь (5.6s)
+[WebServer] (node:66631) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  41 tests/ui/requests.spec.ts:59:3 › экран /rooms/categories: данные берутся одним запросом на путь (5.5s)
+[WebServer] (node:66676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  42 tests/ui/requests.spec.ts:59:3 › экран /rooms/availability: данные берутся одним запросом на путь (9.1s)
+  ✓  43 tests/ui/requests.spec.ts:59:3 › экран /rates: данные берутся одним запросом на путь (3.1s)
+[WebServer] (node:66700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  44 tests/ui/requests.spec.ts:59:3 › экран /management/statistics: данные берутся одним запросом на путь (2.7s)
+  ✓  45 tests/ui/requests.spec.ts:59:3 › экран /finance: данные берутся одним запросом на путь (2.7s)
+  ✓  46 tests/ui/requests.spec.ts:59:3 › экран /channel-manager: данные берутся одним запросом на путь (2.1s)
+  ✓  47 tests/ui/requests.spec.ts:59:3 › экран /channels: данные берутся одним запросом на путь (5.1s)
+  ✓  48 tests/ui/requests.spec.ts:59:3 › экран /analytics: данные берутся одним запросом на путь (6.0s)
+[WebServer] (node:66748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  49 tests/ui/requests.spec.ts:59:3 › экран /hotel-settings: данные берутся одним запросом на путь (3.6s)
+[WebServer] (node:66755) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  50 tests/ui/requests.spec.ts:59:3 › экран /hotel-settings/check-in: данные берутся одним запросом на путь (3.0s)
+[WebServer] (node:66761) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  51 tests/ui/requests.spec.ts:59:3 › экран /hotel-settings/penalties: данные берутся одним запросом на путь (4.4s)
+[WebServer] (node:66768) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  52 tests/ui/requests.spec.ts:59:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (4.2s)
+[WebServer] (node:66776) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  53 tests/ui/requests.spec.ts:59:3 › экран /hotel-settings/description: данные берутся одним запросом на путь (3.6s)
+[WebServer] (node:66782) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  54 tests/ui/requests.spec.ts:59:3 › экран /hotel-settings/photos: данные берутся одним запросом на путь (3.8s)
+[WebServer] (node:66798) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  55 tests/ui/requests.spec.ts:59:3 › экран /hotel-settings/amenities: данные берутся одним запросом на путь (5.5s)
+  ✓  56 tests/ui/requests.spec.ts:59:3 › экран /connections: данные берутся одним запросом на путь (4.4s)
+  ✓  57 tests/ui/requests.spec.ts:59:3 › экран /analytics/setup: данные берутся одним запросом на путь (3.2s)
+  ✓  58 tests/ui/requests.spec.ts:59:3 › экран /incidents: данные берутся одним запросом на путь (2.8s)
+  ✓  59 tests/ui/requests.spec.ts:59:3 › экран /journal: данные берутся одним запросом на путь (3.0s)
+  ✓  60 tests/ui/requests.spec.ts:59:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (4.6s)
+
+
+  1) tests/ui/login-access.spec.ts:296:3 › регистрация доступна по умолчанию › негодная ссылка подтверждения: отказ текстом на той же странице 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "Ссылка не годится"
+    Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+        1) <p role="alert" class="alert">Ссылка не годится: запросите письмо заново.</p> aka getByText('Ссылка не годится: запросите письмо заново')
+        2) <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div> aka locator('[id="__next-route-announcer__"]')
+
+    Call log:
+      - Expect "toContainText" getByRole('alert') with timeout 15000ms
+      - waiting for getByRole('alert')
+
+
+      297 |     await page.goto('/login/verify?token=<скрыто>');
+      298 |     await page.getByRole('button', { name: 'Подтвердить почту и войти' }).click();
+    > 299 |     await expect(page.getByRole('alert')).toContainText('Ссылка не годится');
+          |                                           ^
+      300 |   });
+      301 |
+      302 |   test('регистрация: ошибки формы приходят текстом из API и не уводят со страницы', async ({
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/login-access.spec.ts:299:43
+
+    Error Context: test-results/login-access-регистрация-д-e56f0--текстом-на-той-же-странице/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-регистрация-д-e56f0--текстом-на-той-же-странице/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-регистрация-д-e56f0--текстом-на-той-же-странице/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/login-access.spec.ts:296:3 › регистрация доступна по умолчанию › негодная ссылка подтверждения: отказ текстом на той же странице 
+  59 passed (5.1m)
+
+# код выхода 1 · 5 мин 10 с

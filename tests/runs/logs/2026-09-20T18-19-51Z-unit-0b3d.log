@@ -1,0 +1,17 @@
+# Модульные (unit) · 20.09.2026 23:19 Алматы · MacBook-Air-Urij.local
+# коммит 913cf0f (codex/section-loading-performance), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-20T18-19-51Z-unit-0b3d.json' 'apps/api/src/hotel/settings-concurrency.test.ts' 'apps/api/src/hotel/hotel.controller.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| apps/api/src/hotel/settings-concurrency.test.ts (2 tests) 6ms
+ ✓ |unit| apps/api/src/hotel/hotel.controller.test.ts (11 tests) 188ms
+
+ Test Files  2 passed (2)
+      Tests  13 passed (13)
+   Start at  22:19:52
+   Duration  849ms (import 53%, transform 31%, tests 15%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-20T18-19-51Z-unit-0b3d.json
+
+# код выхода 0 · 2 с

@@ -84,6 +84,13 @@ export function DataFreshness() {
   // Время последнего события — по часам объекта (С-13), а не по зашитому поясу
   const clock = usePropertyClock();
 
+  return <FreshnessContext.Provider value={{ data, failed }}>{children}</FreshnessContext.Provider>;
+}
+
+/** Строка состояния читает общий результат, не заводя собственный таймер. */
+export function DataFreshness() {
+  const { data, failed } = useContext(FreshnessContext);
+
   if (!data)
     return failed ? (
       <span className="freshness freshness--warn" data-testid="data-freshness">

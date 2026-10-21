@@ -22,6 +22,23 @@ import { TodayScopeContent } from './scope-content';
 import { Page } from '../../components/page';
 import { Alert } from '../../components/ui';
 
+async function loadHotel() {
+  return hotelApi.settings().catch((error: unknown) => {
+    if (error instanceof ApiError) return null;
+    throw error;
+  });
+}
+
+async function PropertyName() {
+  const hotel = await loadHotel();
+  return hotel?.property.name ?? 'Гостиница';
+}
+
+async function PropertyClock() {
+  const hotel = await loadHotel();
+  return <HotelClock timezone={hotel?.property.timezone ?? 'Asia/Almaty'} />;
+}
+
 /**
  * Рабочий экран дня (MV8): один адрес на все направления. Экран выбирает подтверждённое направление
  * выбранного филиала; без него гостиница не угадывается, человек идёт через выбор филиала (SCOPE-HARDENING).

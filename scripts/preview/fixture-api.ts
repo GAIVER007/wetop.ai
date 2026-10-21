@@ -6974,6 +6974,18 @@ createServer(async (req, res) => {
       });
     }
     // Каталог салона (DATA_MODEL §19.1, срез B3): услуги сети и мастера, цена филиала переопределением
+    if (path === '/food-service/stock/products' && req.method === 'GET') {
+      // склад кухни (ADR-STOCK-ALL): у демонстрации несколько продуктов, один ниже минимума
+      const row = (id: string, name: string, unit: string, minQty: string, onHand: string, valueMinor: string, low: boolean) => ({
+        id, name, unit, minQty, active: true, onHand, valueMinor, low, nearestExpiry: null,
+      });
+      return send(200, { items: [
+        row('k1', 'Мука', 'г', '5000', '12000', '960000', false),
+        row('k2', 'Сливки 20%', 'мл', '3000', '1500', '300000', true),
+        row('k3', 'Яйца', 'шт', '60', '180', '450000', false),
+      ] });
+    }
+    if (path === '/food-service/stock/movements' && req.method === 'GET') return send(200, { items: [] });
     if (path === '/food-service/staff-revenue' && req.method === 'GET') {
       // «Сколько принёс» салона (решение 20.10.2026): первому активному мастеру синтетическая сумма за период
       const period = url.searchParams.get('period') || 'day';

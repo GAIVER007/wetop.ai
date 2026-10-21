@@ -26,14 +26,15 @@ test('обзор как на макете: пять KPI, графики, ком�
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
   const m = main(page);
-  await expect(m.getByRole('heading', { level: 1 })).toHaveText('Склад');
+  await expect(m.getByRole('heading', { level: 1 })).toHaveText('Склад: бар');
   // Приход, продажа, инвентаризация в шапке; добавление товара у списка.
   await expect(m.getByRole('button', { name: 'Добавить товар', exact: true })).toBeVisible();
   await expect(m.getByRole('link', { name: 'Приход', exact: true })).toHaveAttribute('href', '/bar/receipts/new');
   await expect(m.getByRole('link', { name: 'Продажа', exact: true })).toBeVisible();
   await expect(m.getByRole('link', { name: 'Инвентаризация', exact: true })).toBeVisible();
-  await expect(m.getByRole('navigation',{name:'Разделы бара'})).toBeVisible();
-  await expect(m.getByRole('navigation', { name: 'Разделы бара' }).getByRole('link')).toHaveCount(5);
+  // на широком экране те же пункты открывает меню «Склад», второго ряда вкладок нет (21.10.2026)
+  await expect(m.getByRole('navigation',{name:'Разделы склада'})).toBeHidden();
+  await expect(m.locator('.bar-tabs a')).toHaveCount(7);
   // Без плиток над списком (аудит 21.10.2026 п.7): итоги месяца строкой под доской, нехватка строкой-предупреждением
   await expect(m.locator('.bar-kpi')).toHaveCount(0);
   const totals = m.getByTestId('bar-totals');
@@ -218,7 +219,7 @@ test('меню: экраны бара в разделе «Склад», адре
   await expect(nav.locator('.sidenav__section', { hasText: /^Бар$/ })).toHaveCount(0);
   const items = await openSection(page, 'Склад');
   // пункты в порядке вкладок экрана склада (19.10.2026)
-  await expect(items.locator('a')).toHaveText(['Обзор склада', 'Приходы', 'Номенклатура', 'Поставщики', 'Движение товаров']);
+  await expect(items.locator('a')).toHaveText(['Обзор склада', 'Бар', 'Кухня', 'Приходы', 'Номенклатура', 'Поставщики', 'Движение товаров']);
   await expect(items.getByRole('link', { name: 'Номенклатура', exact: true })).toHaveAttribute('aria-current', 'page');
   // у приходов свой пункт
   await page.goto('/bar/receipts');

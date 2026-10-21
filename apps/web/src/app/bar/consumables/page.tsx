@@ -4,17 +4,20 @@ import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
 import { deskShell } from '../../../lib/desk-shell';
 import { stockApi } from '../../../lib/food-api';
-import { mayBeautyAccess } from '../../../lib/navigation';
+import { mayAccess, mayBeautyAccess } from '../../../lib/navigation';
 import { requireFeature } from '../../../lib/vertical-guard';
 import { selectedWorkspaceBranch } from '../../../lib/workspace-context';
 import { StockBoard } from '../../food/stock-board';
 import { BarTabs } from '../tabs';
+import { StockInsightsView } from '../../food/stock-insights';
+import { buildStockInsights } from '../../food/stock-insights-data';
+import { loadBarContext } from '../load-context';
 import '../../food/food.css';
 import '../../food/restaurant.css';
 import '../bar.css';
 
 export default async function BeautyConsumablesPage() {
-  await requireFeature('/bar/consumables');
+  const me = await requireFeature('/bar/consumables');
   try {
     const [shell, branch, products, movements] = await Promise.all([
       deskShell(),
@@ -22,21 +25,34 @@ export default async function BeautyConsumablesPage() {
       stockApi.products(),
       stockApi.movements(),
     ]);
-    if (!branch?.currency || !shell.scopeKey) throw new Error('Сначала выберите филиал салона');
+    const beauty = me.context?.vertical === 'BEAUTY';
+    // у гостиницы валюта в её объекте (филиалов гостиницы в списке филиалов нет), у салона в филиале
+    const hotel = beauty ? null : await loadBarContext();
+    const currency = beauty ? branch?.currency : hotel?.currency;
+    const scopeKey = shell.scopeKey ?? hotel?.propertyId;
+    if (!currency || !scopeKey) throw new Error('Сначала выберите филиал');
+    // салон решает по матрице должностей, гостиница по ролям: справочник `property`, приход и списания `desk`
     const may = (action: 'create' | 'update' | 'delete') =>
       !shell.readOnly && mayBeautyAccess(shell.access, 'stock', action, { legacy: 'settings' });
+    const rights = beauty
+      ? { canCreate: may('create'), canUpdate: may('update'), canDelete: may('delete') }
+      : { canDesk: !shell.readOnly && mayAccess(shell.access, 'desk'), canProperty: !shell.readOnly && mayAccess(shell.access, 'property') };
     return (
-      <Page title="Склад: расходники" subtitle="Материалы для услуг, приходы, списания и остатки">
+      <Page
+        width="wide"
+        className="bar-subpage"
+        title={beauty ? 'Склад: расходники' : 'Склад: кухня'}
+        subtitle={beauty ? 'Материалы для услуг, приходы, списания и остатки' : 'Продукты кухни, приходы, списания и остатки'}
+      >
         <BarTabs current="consumables" />
-        <div key={shell.scopeKey}>
+        <div key={scopeKey}>
+          <StockInsightsView insights={buildStockInsights(products.items, null)} currency={currency} />
           <StockBoard
             ctx={{
-              scopeKey: shell.scopeKey,
-              currency: branch.currency,
-              vertical: 'BEAUTY',
-              canCreate: may('create'),
-              canUpdate: may('update'),
-              canDelete: may('delete'),
+              scopeKey,
+              currency,
+              vertical: beauty ? 'BEAUTY' : 'HOSPITALITY',
+              ...rights,
             }}
             products={products.items}
             movements={movements.items}
@@ -47,7 +63,7 @@ export default async function BeautyConsumablesPage() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Склад: расходники">
+      <Page title="Склад: кухня и расходники">
         <LoadError testId="beauty-consumables-error" {...loadErrorProps(error)} />
       </Page>
     );

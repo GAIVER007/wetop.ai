@@ -46,7 +46,9 @@ test('администратор: в меню — работа с гостями
       '/management/analytics',
       '/reports',
       // «Склад» в порядке вкладок экрана (ad793ebf6, решение владельца 19.10.2026)
+      '/warehouse',
       '/bar',
+      '/bar/consumables',
       '/bar/receipts',
       '/bar/products',
       '/bar/suppliers',

@@ -60,7 +60,7 @@ async function enter(page: Page, currency: string, path = '/bar') {
 }
 async function overview(page: Page, currency: string) {
   await enter(page, currency);
-  await expect(page.getByRole('heading', { name: 'Склад', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Склад: бар', exact: true })).toBeVisible();
 }
 // Next на время перехода держит в DOM и уходящую страницу: после goto и reload ждём, пока скрытая копия уйдёт,
 // иначе строгий режим находит поле формы дважды (тот же приём в tests/branches-ui/branches.spec.ts)

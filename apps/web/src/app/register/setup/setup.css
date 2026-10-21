@@ -83,6 +83,12 @@
     display: grid;
     gap: var(--space-6);
   }
+  /* Область «Первые шаги» (имя для экранного чтения и тестов) несёт ту же сетку, что и main */
+  .setup-b__region {
+    display: grid;
+    gap: var(--space-6);
+    min-width: 0;
+  }
   .setup-b__head {
     display: flex;
     flex-wrap: wrap;

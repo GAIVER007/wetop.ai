@@ -41,10 +41,34 @@ const HINTS: Record<string, string> = {
   schedule: 'Когда мастера принимают. Шаблон «Пн-Пт 10:00-19:00» в один клик.',
 };
 const NEXT: Array<{ href: string; icon: IconName; title: string; text: string; action: string }> = [
-  { href: '/beauty-settings', icon: 'clock', title: 'Часы работы салона', text: 'Журнал и онлайн-запись показывают время только внутри этих часов.', action: 'Указать часы' },
-  { href: '/marketing/site/editor', icon: 'globe', title: 'Сайт с онлайн-записью', text: 'Шаблон за минуту: услуги, мастера и цены берутся из WETOP.', action: 'Сделать сайт' },
-  { href: '/employees', icon: 'guests', title: 'Вход для мастеров', text: 'Мастер видит свои записи, график, зарплату и отзывы.', action: 'Открыть персонал' },
-  { href: '/payroll', icon: 'money', title: 'Оплата труда', text: 'Оклад и процент с услуг: зарплата считается сама.', action: 'Настроить зарплату' },
+  {
+    href: '/beauty-settings',
+    icon: 'clock',
+    title: 'Часы работы салона',
+    text: 'Журнал и онлайн-запись показывают время только внутри этих часов.',
+    action: 'Указать часы',
+  },
+  {
+    href: '/marketing/site/editor',
+    icon: 'globe',
+    title: 'Сайт с онлайн-записью',
+    text: 'Шаблон за минуту: услуги, мастера и цены берутся из WETOP.',
+    action: 'Сделать сайт',
+  },
+  {
+    href: '/employees',
+    icon: 'guests',
+    title: 'Вход для мастеров',
+    text: 'Мастер видит свои записи, график, зарплату и отзывы.',
+    action: 'Открыть персонал',
+  },
+  {
+    href: '/payroll',
+    icon: 'money',
+    title: 'Оплата труда',
+    text: 'Оклад и процент с услуг: зарплата считается сама.',
+    action: 'Настроить зарплату',
+  },
 ];
 const COUNTS: Record<string, string> = {
   services: 'Доступных услуг',
@@ -184,10 +208,13 @@ export function BeautyChecklist({
             disabled={pending || !state.canEdit}
             onChange={(e) => {
               const country = countryOf({ code: e.target.value });
-              if (country) setDraft({ ...draft, timezone: country.zone, currency: country.currency });
+              if (country)
+                setDraft({ ...draft, timezone: country.zone, currency: country.currency });
             }}
           >
-            {!countryOf({ zone: String(draft.timezone ?? '') }) && <option value="">Выберите страну</option>}
+            {!countryOf({ zone: String(draft.timezone ?? '') }) && (
+              <option value="">Выберите страну</option>
+            )}
             {SUPPORTED_COUNTRIES.map((c) => (
               <option key={c.code} value={c.code}>
                 {c.label}
@@ -212,12 +239,15 @@ export function BeautyChecklist({
           <Input
             readOnly
             value={
-              timezoneOptions(String(draft.timezone ?? '')).find((o) => o.value === draft.timezone)?.label ?? ''
+              timezoneOptions(String(draft.timezone ?? '')).find((o) => o.value === draft.timezone)
+                ?.label ?? ''
             }
           />
         </Field>
       </div>
-      <p className="setup-help">Название салона общее для всех филиалов. Пояс и валюта задаются страной.</p>
+      <p className="setup-help">
+        Название салона общее для всех филиалов. Пояс и валюта задаются страной.
+      </p>
       {state.canEdit && (
         <div className="onboarding__actions">
           <Button type="submit" disabled={pending}>
@@ -235,11 +265,18 @@ export function BeautyChecklist({
   );
   const stepAction = (row: SetupPathRow) => {
     if (row.id === 'profile') return null;
-    if (row.status === 'locked') return <p className="setup-path__note">Для этого шага нужны права владельца или управляющего.</p>;
+    if (row.status === 'locked')
+      return (
+        <p className="setup-path__note">Для этого шага нужны права владельца или управляющего.</p>
+      );
     const href = ROUTES[row.id]!;
     if (row.status === 'done')
       return (
-        <Link className="btn btn--ghost btn--sm setup-path__edit" href={href} aria-label={`Изменить: ${STEP_NAMES[row.id]}`}>
+        <Link
+          className="btn btn--ghost btn--sm setup-path__edit"
+          href={href}
+          aria-label={`Изменить: ${STEP_NAMES[row.id]}`}
+        >
           Изменить
         </Link>
       );
@@ -251,197 +288,252 @@ export function BeautyChecklist({
     );
   };
   return (
-    <main id="main-content" className="onboarding setup-shell setup-b" data-testid="beauty-onboarding">
-      <header className="setup-b__head">
-        <p className="setup-b__salon">{String(state.draft.locationName ?? state.draft.businessName ?? '')}</p>
-        <div className="setup-b__title">
-          <h1 ref={heading} tabIndex={-1}>
-            {welcome ? 'Добро пожаловать в WETOP' : ready ? 'Салон готов к работе' : 'Подготовьте салон к работе'}
-          </h1>
-          {welcome && (
-            <p className="setup-b__lead">
-              Пять коротких шагов, около 5 минут. Справа видно, как клиент увидит вашу онлайн-запись.
-            </p>
+    <main
+      id="main-content"
+      className="onboarding setup-shell setup-b"
+      data-testid="beauty-onboarding"
+    >
+      <section className="setup-b__region" aria-label="Первые шаги">
+        <header className="setup-b__head">
+          <p className="setup-b__salon">
+            {String(state.draft.locationName ?? state.draft.businessName ?? '')}
+          </p>
+          <div className="setup-b__title">
+            <h1 ref={heading} tabIndex={-1}>
+              {welcome
+                ? 'Добро пожаловать в WETOP'
+                : ready
+                  ? 'Салон готов к работе'
+                  : 'Подготовьте салон к работе'}
+            </h1>
+            {welcome && (
+              <p className="setup-b__lead">
+                Пять коротких шагов, около 5 минут. Справа видно, как клиент увидит вашу
+                онлайн-запись.
+              </p>
+            )}
+          </div>
+          {!welcome && state.profileApplied && (
+            <div className="setup-b__progress">
+              <p role="status">Выполнено {done} из 4 обязательных шагов</p>
+              <span className="setup-b__bar" aria-hidden="true">
+                <i
+                  style={{
+                    width: `${done * 25}%`,
+                  }} /* slop-allow: inline-style ширина полосы из доли выполненных шагов */
+                />
+              </span>
+              <Button tone="ghost" size="sm" disabled={pending} onClick={() => refresh()}>
+                Обновить проверку
+              </Button>
+            </div>
           )}
+        </header>
+        <div className="setup-b__grid">
+          <div className="setup-b__main">
+            {completed && !state.readiness?.ready && (
+              <Alert boxed>
+                Настройка ранее завершена. Сейчас часть данных требует исправления. Рабочее
+                пространство остаётся доступным.
+              </Alert>
+            )}
+            {state.profileApplied && !state.readiness && (
+              <Alert boxed>Не удалось определить готовность. Обновите проверку.</Alert>
+            )}
+            <ol className="setup-path" aria-label="Шаги настройки">
+              {path.map((row, i) => {
+                const status = welcome ? 'todo' : row.status;
+                return (
+                  <li
+                    key={row.id}
+                    className={`setup-path__row setup-path__row--${status}`}
+                    data-step={row.id}
+                  >
+                    <span className="setup-path__num" aria-hidden="true">
+                      {status === 'done' ? <Icon name="check" width={16} height={16} /> : i + 1}
+                    </span>
+                    <div className="setup-path__body">
+                      <h2>{TITLES[row.id]}</h2>
+                      <p className="setup-path__sr">
+                        {status === 'done'
+                          ? 'Готово'
+                          : status === 'current'
+                            ? 'Сейчас'
+                            : status === 'locked'
+                              ? 'Недоступно'
+                              : 'Дальше'}
+                      </p>
+                      {status === 'done' && row.id !== 'profile' && (
+                        <p className="setup-path__summary">
+                          {COUNTS[row.id]}: {row.count}
+                        </p>
+                      )}
+                      {status === 'done' && row.id === 'profile' && (
+                        <p className="setup-path__summary">
+                          {String(state.draft.businessName ?? '')},{' '}
+                          {String(state.draft.currency ?? '')}
+                        </p>
+                      )}
+                      {(status === 'current' || welcome) && (
+                        <p className="setup-path__hint">{HINTS[row.id]}</p>
+                      )}
+                      {status === 'current' && row.id === 'profile' && !welcome && profileForm}
+                    </div>
+                    {!welcome && <div className="setup-path__action">{stepAction(row)}</div>}
+                  </li>
+                );
+              })}
+            </ol>
+            {welcome ? (
+              <div className="onboarding__actions">
+                {state.canEdit && (
+                  <Button disabled={pending} onClick={() => save('next')}>
+                    {state.updatedAt ? 'Продолжить настройку' : 'Настроить салон'}
+                  </Button>
+                )}
+                <Link className="btn btn--secondary" href="/today">
+                  Посмотреть рабочее пространство
+                </Link>
+              </div>
+            ) : (
+              state.profileApplied && (
+                <div className="onboarding__actions">
+                  {ready ? (
+                    <>
+                      <Link className="btn" href="/today">
+                        Перейти к работе
+                      </Link>
+                      <Link className="btn btn--secondary" href="/calendar">
+                        Открыть календарь
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      {state.permissions?.complete && (
+                        <Button
+                          disabled={pending || !state.readiness?.ready}
+                          onClick={() => save('complete')}
+                        >
+                          Завершить настройку
+                        </Button>
+                      )}
+                      <Link className="btn btn--secondary" href="/today">
+                        {completed ? 'Перейти к работе' : 'Посмотреть рабочее пространство'}
+                      </Link>
+                      {!state.readiness?.ready && (
+                        <span className="setup-b__why">
+                          Завершить можно, когда готовы все четыре шага
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
+              )
+            )}
+            {!welcome && state.profileApplied && (
+              /* полная настройка салона (решение владельца 20.10.2026): то, без чего салон не принимает клиентов сам;
+               не влияет на «Завершить настройку» */
+              <section
+                aria-labelledby="setup-next-heading"
+                className="setup-next"
+                data-testid="beauty-setup-next"
+              >
+                <h2 id="setup-next-heading">Дальше: чтобы клиенты записывались сами</h2>
+                <ul className="setup-next__list">
+                  {NEXT.map((item) => (
+                    <li key={item.href}>
+                      <Link href={item.href} className="setup-next__item">
+                        <span className="setup-next__icon" aria-hidden="true">
+                          <Icon name={item.icon} width={20} height={20} />
+                        </span>
+                        <span>
+                          <strong>{item.title}</strong>
+                          <span>{item.text}</span>
+                        </span>
+                        <span className="setup-next__go">{item.action}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </div>
+          <BookingPreviewCard
+            preview={preview}
+            name={String(state.draft.businessName ?? '')}
+            ready={Boolean(state.readiness?.ready)}
+          />
         </div>
-        {!welcome && state.profileApplied && (
-          <div className="setup-b__progress">
-            <p role="status">Выполнено {done} из 4 обязательных шагов</p>
-            <span className="setup-b__bar" aria-hidden="true">
-              <i style={{ width: `${done * 25}%` }} /* slop-allow: inline-style ширина полосы из доли выполненных шагов */ />
-            </span>
-            <Button tone="ghost" size="sm" disabled={pending} onClick={() => refresh()}>
-              Обновить проверку
+        {!state.canEdit && (
+          <p role="status">
+            Основные сведения и завершение доступны владельцу или управляющему. Отдельные действия
+            определяются вашими правами.
+          </p>
+        )}
+        {error && (
+          <div ref={errorBox} tabIndex={-1}>
+            <Alert boxed>{error}</Alert>
+            <Button tone="secondary" disabled={pending} onClick={() => refresh(true)}>
+              Сравнить с сохранёнными данными
             </Button>
           </div>
         )}
-      </header>
-      <div className="setup-b__grid">
-        <div className="setup-b__main">
-          {completed && !state.readiness?.ready && (
-            <Alert boxed>
-              Настройка ранее завершена. Сейчас часть данных требует исправления. Рабочее пространство остаётся
-              доступным.
-            </Alert>
-          )}
-          {state.profileApplied && !state.readiness && (
-            <Alert boxed>Не удалось определить готовность. Обновите проверку.</Alert>
-          )}
-          <ol className="setup-path" aria-label="Шаги настройки">
-            {path.map((row, i) => {
-              const status = welcome ? 'todo' : row.status;
-              return (
-                <li key={row.id} className={`setup-path__row setup-path__row--${status}`} data-step={row.id}>
-                  <span className="setup-path__num" aria-hidden="true">
-                    {status === 'done' ? <Icon name="check" width={16} height={16} /> : i + 1}
-                  </span>
-                  <div className="setup-path__body">
-                    <h2>{TITLES[row.id]}</h2>
-                    <p className="setup-path__sr">
-                      {status === 'done' ? 'Готово' : status === 'current' ? 'Сейчас' : status === 'locked' ? 'Недоступно' : 'Дальше'}
-                    </p>
-                    {status === 'done' && row.id !== 'profile' && (
-                      <p className="setup-path__summary">
-                        {COUNTS[row.id]}: {row.count}
-                      </p>
-                    )}
-                    {status === 'done' && row.id === 'profile' && (
-                      <p className="setup-path__summary">
-                        {String(state.draft.businessName ?? '')}, {String(state.draft.currency ?? '')}
-                      </p>
-                    )}
-                    {(status === 'current' || welcome) && <p className="setup-path__hint">{HINTS[row.id]}</p>}
-                    {status === 'current' && row.id === 'profile' && !welcome && profileForm}
-                  </div>
-                  {!welcome && <div className="setup-path__action">{stepAction(row)}</div>}
-                </li>
-              );
-            })}
-          </ol>
-          {welcome ? (
-            <div className="onboarding__actions">
-              {state.canEdit && (
-                <Button disabled={pending} onClick={() => save('next')}>
-                  {state.updatedAt ? 'Продолжить настройку' : 'Настроить салон'}
-                </Button>
-              )}
-              <Link className="btn btn--secondary" href="/today">
-                Посмотреть рабочее пространство
-              </Link>
-            </div>
-          ) : (
-            state.profileApplied && (
-              <div className="onboarding__actions">
-                {ready ? (
-                  <>
-                    <Link className="btn" href="/today">
-                      Перейти к работе
-                    </Link>
-                    <Link className="btn btn--secondary" href="/calendar">
-                      Открыть календарь
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    {state.permissions?.complete && (
-                      <Button disabled={pending || !state.readiness?.ready} onClick={() => save('complete')}>
-                        Завершить настройку
-                      </Button>
-                    )}
-                    <Link className="btn btn--secondary" href="/today">
-                      {completed ? 'Перейти к работе' : 'Посмотреть рабочее пространство'}
-                    </Link>
-                    {!state.readiness?.ready && (
-                      <span className="setup-b__why">Завершить можно, когда готовы все четыре шага</span>
-                    )}
-                  </>
-                )}
-              </div>
-            )
-          )}
-          {!welcome && state.profileApplied && (
-            /* полная настройка салона (решение владельца 20.10.2026): то, без чего салон не принимает клиентов сам;
-               не влияет на «Завершить настройку» */
-            <section aria-labelledby="setup-next-heading" className="setup-next" data-testid="beauty-setup-next">
-              <h2 id="setup-next-heading">Дальше: чтобы клиенты записывались сами</h2>
-              <ul className="setup-next__list">
-                {NEXT.map((item) => (
-                  <li key={item.href}>
-                    <Link href={item.href} className="setup-next__item">
-                      <span className="setup-next__icon" aria-hidden="true">
-                        <Icon name={item.icon} width={20} height={20} />
-                      </span>
-                      <span>
-                        <strong>{item.title}</strong>
-                        <span>{item.text}</span>
-                      </span>
-                      <span className="setup-next__go">{item.action}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-        </div>
-        <BookingPreviewCard preview={preview} name={String(state.draft.businessName ?? '')} ready={Boolean(state.readiness?.ready)} />
-      </div>
-      {!state.canEdit && (
-        <p role="status">
-          Основные сведения и завершение доступны владельцу или управляющему. Отдельные действия определяются
-          вашими правами.
+        {latest && (
+          <section className="panel" aria-label="Сравнение данных">
+            <h2>Сохранено на сервере</h2>
+            <dl>
+              {Object.entries(latest.draft).map(([key, value]) => (
+                <div key={key}>
+                  <dt>
+                    {{
+                      businessName: 'Название салона',
+                      locationName: 'Филиал',
+                      currency: 'Валюта',
+                      timezone: 'Часовой пояс',
+                    }[key] ?? key}
+                  </dt>
+                  <dd>{String(value)}</dd>
+                </div>
+              ))}
+            </dl>
+            <p>Ваш ввод сохранён в форме. Ничего не отправлено поверх изменений другого окна.</p>
+            <Button
+              tone="secondary"
+              onClick={() => {
+                accept(latest, true);
+                setError(null);
+              }}
+            >
+              Принять сохранённые данные
+            </Button>
+          </section>
+        )}
+        <p className="sr-only" role="status" aria-live="polite">
+          {pending ? 'Сохраняем…' : notice}
         </p>
-      )}
-      {error && (
-        <div ref={errorBox} tabIndex={-1}>
-          <Alert boxed>{error}</Alert>
-          <Button tone="secondary" disabled={pending} onClick={() => refresh(true)}>
-            Сравнить с сохранёнными данными
-          </Button>
-        </div>
-      )}
-      {latest && (
-        <section className="panel" aria-label="Сравнение данных">
-          <h2>Сохранено на сервере</h2>
-          <dl>
-            {Object.entries(latest.draft).map(([key, value]) => (
-              <div key={key}>
-                <dt>
-                  {{
-                    businessName: 'Название салона',
-                    locationName: 'Филиал',
-                    currency: 'Валюта',
-                    timezone: 'Часовой пояс',
-                  }[key] ?? key}
-                </dt>
-                <dd>{String(value)}</dd>
-              </div>
-            ))}
-          </dl>
-          <p>Ваш ввод сохранён в форме. Ничего не отправлено поверх изменений другого окна.</p>
-          <Button
-            tone="secondary"
-            onClick={() => {
-              accept(latest, true);
-              setError(null);
-            }}
-          >
-            Принять сохранённые данные
-          </Button>
-        </section>
-      )}
-      <p className="sr-only" role="status" aria-live="polite">
-        {pending ? 'Сохраняем…' : notice}
-      </p>
+      </section>
     </main>
   );
 }
 
 /** Превью онлайн-записи (вариант B): что клиент увидит, по мере шагов заполняется данными салона */
-function BookingPreviewCard({ preview, name, ready }: { preview: BookingPreview | null; name: string; ready: boolean }) {
+function BookingPreviewCard({
+  preview,
+  name,
+  ready,
+}: {
+  preview: BookingPreview | null;
+  name: string;
+  ready: boolean;
+}) {
   const services = preview?.services ?? [];
   const masters = preview?.masters ?? [];
   return (
-    <aside className="setup-preview" aria-labelledby="setup-preview-heading" data-testid="setup-preview">
+    <aside
+      className="setup-preview"
+      aria-labelledby="setup-preview-heading"
+      data-testid="setup-preview"
+    >
       <h2 id="setup-preview-heading">Так клиент увидит онлайн-запись</h2>
       <div className="setup-preview__phone">
         <p className="setup-preview__name">{name || 'Ваш салон'}</p>
@@ -458,7 +550,9 @@ function BookingPreviewCard({ preview, name, ready }: { preview: BookingPreview 
                   <b>{s.price}</b>
                 </li>
               ))}
-              {preview && preview.moreServices > 0 && <li className="setup-preview__more">и ещё {preview.moreServices}</li>}
+              {preview && preview.moreServices > 0 && (
+                <li className="setup-preview__more">и ещё {preview.moreServices}</li>
+              )}
             </ul>
           ) : (
             <span className="setup-preview__empty">Появится после шага «Услуги»</span>

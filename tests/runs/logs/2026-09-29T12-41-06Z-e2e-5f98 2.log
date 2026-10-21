@@ -1,0 +1,40 @@
+# Сквозные (e2e) · 29.09.2026 17:41 Алматы · vm
+# коммит efff031 (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 30 tests using 2 workers
+
+  ✓   2 tests/site/calculator.spec.ts:7:1 › калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год (1.3s)
+  ✓   3 tests/site/calculator.spec.ts:31:1 › калькулятор: неверное значение — подсказка у поля, результат пропадает (598ms)
+  ✓   4 tests/site/landing.spec.ts:11:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (427ms)
+  ✓   1 tests/site/auth-dialog.spec.ts:47:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (3.1s)
+  ✓   6 tests/site/auth-dialog.spec.ts:75:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (1.1s)
+  ✓   5 tests/site/landing.spec.ts:17:3 › / — открывается, доступна и без «TODO» на экране (2.2s)
+  ✓   8 tests/site/landing.spec.ts:32:3 › / — на телефоне нет горизонтальной прокрутки (433ms)
+  ✓   7 tests/site/auth-dialog.spec.ts:90:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (1.2s)
+  ✓   9 tests/site/landing.spec.ts:17:3 › /blog/ — открывается, доступна и без «TODO» на экране (980ms)
+  ✓  11 tests/site/landing.spec.ts:32:3 › /blog/ — на телефоне нет горизонтальной прокрутки (246ms)
+  ✓  12 tests/site/landing.spec.ts:17:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране (990ms)
+  ✓  13 tests/site/landing.spec.ts:32:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки (247ms)
+  ✓  10 tests/site/auth-dialog.spec.ts:106:1 › «Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма (2.6s)
+  ✓  14 tests/site/landing.spec.ts:17:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране (1.1s)
+  ✓  15 tests/site/auth-dialog.spec.ts:146:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (751ms)
+  ✓  16 tests/site/landing.spec.ts:32:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки (410ms)
+  ✓  17 tests/site/auth-dialog.spec.ts:155:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (753ms)
+  ✓  18 tests/site/landing.spec.ts:17:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране (1.2s)
+  ✓  19 tests/site/auth-dialog.spec.ts:165:1 › на телефоне окно открывается из меню и не шире экрана (1.1s)
+  ✓  20 tests/site/landing.spec.ts:32:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки (323ms)
+  ✓  21 tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв (400ms)
+  ✓  23 tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв (402ms)
+  ✓  22 tests/site/landing.spec.ts:17:3 › /calculator/ — открывается, доступна и без «TODO» на экране (1.2s)
+  ✓  24 tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв (358ms)
+  ✓  25 tests/site/landing.spec.ts:32:3 › /calculator/ — на телефоне нет горизонтальной прокрутки (352ms)
+  ✓  26 tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов (501ms)
+  ✓  27 tests/site/landing.spec.ts:45:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (1.4s)
+  ✓  28 tests/site/landing.spec.ts:63:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (31ms)
+  ✓  29 tests/site/landing.spec.ts:84:1 › главная: «Войти» и «Регистрация», шаги под регистрацию с 7 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · » (1.8s)
+  ✓  30 tests/site/landing.spec.ts:150:1 › первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее (647ms)
+
+  30 passed (46.4s)
+
+# код выхода 0 · 49 с

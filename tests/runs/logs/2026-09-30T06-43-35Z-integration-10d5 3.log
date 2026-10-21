@@ -1,0 +1,282 @@
+# Интеграционные (integration) · 30.09.2026 11:43 Алматы · vm
+# коммит f177acf (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T06-43-35Z-integration-10d5.json' 'tests/integration/business-agent-identity.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/business-agent-identity.test.ts (12 tests | 12 failed) 830ms
+   ❯ Business Agent: личность и перенос (integration, DATABASE_URL required) (12)
+     ❯ перенос существующего продавца (seller_agents_backfill) (6)
+       × рабочий продавец с принятым профилем становится активным агентом с id = organization_id, филиалом объекта и владельцем как автором 403ms
+       × профиль без принятия продавцом остаётся черновиком, имя по умолчанию — «AI-продавец» 28ms
+       × профиль, вставленный прежним кодом уже после миграции, сам получает агента с id = organization_id 33ms
+       × организация с расширением, но без объекта и профиля — черновик без филиала 23ms
+       × организация без продавца и без расширения агента не получает 25ms
+       × повторный запуск ничего не дублирует и не меняет уже перенесённого агента 43ms
+     ❯ ограничения агента (6)
+       × четыре хранимых состояния: `preparing` и `error` больше не допускаются 29ms
+       × активный и приостановленный агент без филиала невозможны, черновик без филиала можно 22ms
+       × на филиале не более одного неархивного AI-продавца; архивный не мешает 24ms
+       × агент другого типа на занятом филиале допустим: ограничение относится только к AI-продавцу 25ms
+       × филиал чужой организации: отказ при вставке и при смене филиала 41ms
+       × профиль связан с агентом своей организации: чужой агент — отказ 19ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > рабочий продавец с принятым профилем становится активным агентом с id = organization_id, филиалом объекта и владельцем как автором
+PrismaClientKnownRequestError: 
+Invalid `prisma.sellerProfile.create()` invocation:
+
+
+The column `seller_profiles.agent_id` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ profile tests/integration/business-agent-identity.test.ts:50:5
+     48|
+     49|   async function profile(organizationId: string, applied: boolean, bot…
+     50|     await db.sellerProfile.create({
+       |     ^
+     51|       data: {
+     52|         organizationId,
+ ❯ tests/integration/business-agent-identity.test.ts:113:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > профиль без принятия продавцом остаётся черновиком, имя по умолчанию — «AI-продавец»
+PrismaClientKnownRequestError: 
+Invalid `prisma.sellerProfile.create()` invocation:
+
+
+The column `seller_profiles.agent_id` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ profile tests/integration/business-agent-identity.test.ts:50:5
+     48|
+     49|   async function profile(organizationId: string, applied: boolean, bot…
+     50|     await db.sellerProfile.create({
+       |     ^
+     51|       data: {
+     52|         organizationId,
+ ❯ tests/integration/business-agent-identity.test.ts:135:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > профиль, вставленный прежним кодом уже после миграции, сам получает агента с id = organization_id
+PrismaClientKnownRequestError: 
+Invalid `prisma.sellerProfile.create()` invocation:
+
+
+The column `seller_profiles.agent_id` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ profile tests/integration/business-agent-identity.test.ts:50:5
+     48|
+     49|   async function profile(organizationId: string, applied: boolean, bot…
+     50|     await db.sellerProfile.create({
+       |     ^
+     51|       data: {
+     52|         organizationId,
+ ❯ tests/integration/business-agent-identity.test.ts:149:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > организация с расширением, но без объекта и профиля — черновик без филиала
+PrismaClientKnownRequestError: 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42883`. Message: `function seller_agents_backfill() does not exist`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/business-agent-identity.test.ts:168:7
+    166|       });
+    167|
+    168|       await backfill();
+       |       ^
+    169|
+    170|       const [row] = await agent(a.orgId);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > организация без продавца и без расширения агента не получает
+PrismaClientKnownRequestError: 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42883`. Message: `function seller_agents_backfill() does not exist`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/business-agent-identity.test.ts:178:7
+    176|       const a = await organization('Перенос пустой');
+    177|
+    178|       await backfill();
+       |       ^
+    179|
+    180|       expect(await agent(a.orgId)).toHaveLength(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > повторный запуск ничего не дублирует и не меняет уже перенесённого агента
+PrismaClientKnownRequestError: 
+Invalid `prisma.sellerProfile.create()` invocation:
+
+
+The column `seller_profiles.agent_id` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ profile tests/integration/business-agent-identity.test.ts:50:5
+     48|
+     49|   async function profile(organizationId: string, applied: boolean, bot…
+     50|     await db.sellerProfile.create({
+       |     ^
+     51|       data: {
+     52|         organizationId,
+ ❯ tests/integration/business-agent-identity.test.ts:185:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > четыре хранимых состояния: `preparing` и `error` больше не допускаются
+PrismaClientKnownRequestError: 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42703`. Message: `column "location_id" of relation "seller_agents" does not exist`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/business-agent-identity.test.ts:207:7
+    205|       await expect(insertAgent(a.orgId, a.userId, { lifecycle: 'prepar…
+    206|       await expect(insertAgent(a.orgId, a.userId, { lifecycle: 'error'…
+    207|       await insertAgent(a.orgId, a.userId, { lifecycle: 'draft' });
+       |       ^
+    208|       await insertAgent(a.orgId, a.userId, { lifecycle: 'archived' });
+    209|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > активный и приостановленный агент без филиала невозможны, черновик без филиала можно
+PrismaClientKnownRequestError: 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42703`. Message: `column "location_id" of relation "seller_agents" does not exist`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/business-agent-identity.test.ts:215:7
+    213|       await expect(insertAgent(a.orgId, a.userId, { lifecycle: 'active…
+    214|       await expect(insertAgent(a.orgId, a.userId, { lifecycle: 'paused…
+    215|       await insertAgent(a.orgId, a.userId, { lifecycle: 'draft', locat…
+       |       ^
+    216|     });
+    217|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > на филиале не более одного неархивного AI-продавца; архивный не мешает
+PrismaClientKnownRequestError: 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42703`. Message: `column "location_id" of relation "seller_agents" does not exist`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/business-agent-identity.test.ts:220:7
+    218|     it('на филиале не более одного неархивного AI-продавца; архивный н…
+    219|       const a = await organization('Один на филиал');
+    220|       await insertAgent(a.orgId, a.userId, { location: a.locationId, l…
+       |       ^
+    221|       await expect(insertAgent(a.orgId, a.userId, { location: a.locati…
+    222|         /seller_agents_one_seller_per_location|unique|duplicate/i,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > агент другого типа на занятом филиале допустим: ограничение относится только к AI-продавцу
+PrismaClientKnownRequestError: 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42703`. Message: `column "location_id" of relation "seller_agents" does not exist`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/business-agent-identity.test.ts:230:7
+    228|     it('агент другого типа на занятом филиале допустим: ограничение от…
+    229|       const a = await organization('Другой тип');
+    230|       await insertAgent(a.orgId, a.userId, { location: a.locationId, l…
+       |       ^
+    231|       // тип `support` уже разрешён CHECK-ом scenario; будущие типы до…
+    232|       await insertAgent(a.orgId, a.userId, { location: a.locationId, l…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > филиал чужой организации: отказ при вставке и при смене филиала
+AssertionError: expected [Function] to throw error matching /принадлеж|organization|филиал/i but got '\nInvalid `prisma.$executeRawUnsafe()…'
+
+- Expected:
+/принадлеж|organization|филиал/i
+
++ Received:
+"
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42703`. Message: `column \"location_id\" of relation \"seller_agents\" does not exist`"
+
+ ❯ tests/integration/business-agent-identity.test.ts:238:111
+    236|       const mine = await organization('Своя цепочка');
+    237|       const foreign = await organization('Чужая цепочка');
+    238|       await expect(insertAgent(mine.orgId, mine.userId, { location: fo…
+       |                                                                                                               ^
+    239|         /принадлеж|organization|филиал/i,
+    240|       );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > профиль связан с агентом своей организации: чужой агент — отказ
+PrismaClientKnownRequestError: 
+Invalid `prisma.sellerProfile.create()` invocation:
+
+
+The column `seller_profiles.agent_id` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ profile tests/integration/business-agent-identity.test.ts:50:5
+     48|
+     49|   async function profile(organizationId: string, applied: boolean, bot…
+     50|     await db.sellerProfile.create({
+       |     ^
+     51|       data: {
+     52|         organizationId,
+ ❯ tests/integration/business-agent-identity.test.ts:262:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  12 failed (12)
+   Start at  06:43:36
+   Duration  3.05s (tests 65%, transform 26%, import 9%)
+
+JSON report written to /tmp/pms-test-2026-09-30T06-43-35Z-integration-10d5.json
+
+# код выхода 1 · 4 с

@@ -1,0 +1,68 @@
+# Сквозные (e2e) · 30.09.2026 19:48 Алматы · MacBook-Air-Urij.local
+# коммит c4079cc (codex/unified-workspace-20260929), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'inventory-onboarding.spec.ts' '--workers=1'
+[WebServer] (node:81274) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81311) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81359) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81407) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:81438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/inventory-onboarding.spec.ts:3:1 › empty inventory can start a dorm category from the add menu (22.3s)
+
+
+  1) tests/ui/inventory-onboarding.spec.ts:3:1 › empty inventory can start a dorm category from the add menu 
+
+    Error: expect(locator).toBeEnabled() failed
+
+    Locator:  getByRole('menuitem', { name: 'Комнату с койками', exact: true })
+    Expected: enabled
+    Received: disabled
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeEnabled" getByRole('menuitem', { name: 'Комнату с койками', exact: true }) with timeout 15000ms
+      - waiting for getByRole('menuitem', { name: 'Комнату с койками', exact: true })
+        34 × locator resolved to <button disabled type="button" tabindex="-1" role="menuitem" aria-disabled="true" class="action-menu__item">Комнату с койками</button>
+           - unexpected value "disabled"
+
+
+       6 |   await page.goto('/inventory');
+       7 |   await page.getByRole('button', { name: '+ Добавить', exact: true }).click();
+    >  8 |   await expect(page.getByRole('menuitem', { name: 'Комнату с койками', exact: true })).toBeEnabled();
+         |                                                                                        ^
+       9 |   await page.getByRole('menuitem', { name: 'Комнату с койками', exact: true }).click();
+      10 |   const dialog = page.getByRole('dialog', { name: 'Создать категорию' });
+      11 |   await expect(dialog).toBeVisible();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/inventory-onboarding.spec.ts:8:88
+
+    Error Context: test-results/inventory-onboarding-empty-38f0b--category-from-the-add-menu/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/inventory-onboarding-empty-38f0b--category-from-the-add-menu/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/inventory-onboarding-empty-38f0b--category-from-the-add-menu/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/inventory-onboarding.spec.ts:3:1 › empty inventory can start a dorm category from the add menu 
+
+# код выхода 1 · 33 с

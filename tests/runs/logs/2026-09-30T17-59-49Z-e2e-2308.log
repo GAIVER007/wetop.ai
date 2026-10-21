@@ -1,0 +1,155 @@
+# Сквозные (e2e) · 30.09.2026 22:59 Алматы · MacBook-Air-Urij.local
+# коммит 4800dfe (codex/unified-workspace-20260929), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/channels-compact.spec.ts' '--workers=1'
+[WebServer] (node:63662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:63704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:63706) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:63752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:63839) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:63840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+(node:63865) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:63972) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]       <RedirectBoundary>
+[WebServer]         <RedirectErrorBoundary router={{...}}>
+[WebServer]           <InnerLayoutRouter url="/channels" tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]             <SegmentViewNode type="page" pagePath="channels/[...">
+[WebServer]               <SegmentTrieNode>
+[WebServer]               <ChannelSalesPage>
+[WebServer]                 <Page>
+[WebServer]                   <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                     <header>
+[WebServer]                     <nav>
+[WebServer]                     <Overview>
+[WebServer]                       <div className="stack chan...">
+[WebServer]                         <div>
+[WebServer]                         <div>
+[WebServer]                         <ChannelReport>
+[WebServer]                           <section className="stack stac..." aria-labelledby="channel-re...">
+[WebServer]                             <h2>
+[WebServer]                             <p>
+[WebServer]                             <form method="get" action="/channels" className="row toolba..." data-testid="channel-pe...">
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field">
+[WebServer]                                   <DateInput name="from" defaultValue="2026-09-01" required={true}>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="from"
+[WebServer]                                         defaultValue="2026-09-01"
+[WebServer]                                         required={true}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field">
+[WebServer]                                   <DateInput name="to" rangeFromName="from" defaultValue="2026-09-30" required={true}>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="to"
+[WebServer]                                         defaultValue="2026-09-30"
+[WebServer]                                         required={true}
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               ...
+[WebServer]                             ...
+[WebServer]                         ...
+[WebServer]             ...
+[WebServer]           ...
+[WebServer]  
+[
+  { c: 'page__head', h: 34, y: 90 },
+  { c: 'settings-tabs channels-tabs', h: 49, y: 136 },
+  { c: 'stack channels-overview', h: 1000, y: 199 },
+  { c: 'panel state-bar state-bar--wide', h: 122, y: 199 },
+  { c: 'alert alert--boxed', h: 67, y: 332 },
+  { c: 'stack stack--sm channels-report', h: 699, y: 411 },
+  { c: 'section-title', h: 20, y: 437 },
+  { c: 'note', h: 18, y: 478 },
+  { c: 'row toolbar channels-period', h: 98, y: 505 },
+  { c: 'stats', h: 134, y: 632 },
+  { c: 'table-scroll', h: 271, y: 799 },
+  { c: 'context-help', h: 32, y: 1079 },
+  { c: 'context-help', h: 32, y: 1123 },
+  { c: 'context-help', h: 32, y: 1166 }
+]
+  ✘  1 tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке (6.1s)
+(node:63999) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64017) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/ui/channels-compact.spec.ts:16:1 › нет подключения: пустая очередь не выдаётся за успешную отправку (2.6s)
+[WebServer] (node:64022) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/ui/channels-compact.spec.ts:22:1 › доступ к API в staging не выдаётся за работающий обмен с OTA (2.5s)
+
+
+  1) tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      11 |   await page.screenshot({ path: 'reports/channels-compact-desktop.png', fullPage: true });
+      12 |   console.log(await page.locator('main > *, .channels-overview > *, .channels-report > *').evaluateAll(es => es.map(e => ({c:e.className,h:Math.round(e.getBoundingClientRect().height),y:Math.round(e.getBoundingClientRect().top)}))));
+    > 13 |   expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(true);
+         |                                                                                               ^
+      14 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+      15 | });
+      16 | test('нет подключения: пустая очередь не выдаётся за успешную отправку', async ({ page, request }) => {
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/channels-compact.spec.ts:13:95
+
+    Error Context: test-results/channels-compact-обзор-кан-76f5b-лица-помещаются-на-ноутбуке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channels-compact-обзор-кан-76f5b-лица-помещаются-на-ноутбуке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channels-compact-обзор-кан-76f5b-лица-помещаются-на-ноутбуке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке 
+  2 passed (29.6s)
+
+# код выхода 1 · 32 с

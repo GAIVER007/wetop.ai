@@ -1,0 +1,413 @@
+# Сквозные (e2e) · 29.09.2026 17:27 Алматы · vm
+# коммит f6f4369 (claude/focused-gauss-p6zmlb)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 26 tests using 2 workers
+
+  ✘   1 tests/site/auth-dialog.spec.ts:47:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (4ms)
+  ✘   2 tests/site/landing.spec.ts:11:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (4ms)
+  ✘   3 tests/site/auth-dialog.spec.ts:75:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (4ms)
+  ✘   4 tests/site/landing.spec.ts:17:3 › / — открывается, доступна и без «TODO» на экране (3ms)
+  ✘   5 tests/site/auth-dialog.spec.ts:90:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (3ms)
+  ✘   6 tests/site/landing.spec.ts:32:3 › / — на телефоне нет горизонтальной прокрутки (5ms)
+  ✘   7 tests/site/auth-dialog.spec.ts:106:1 › «Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма (3ms)
+  ✘   8 tests/site/landing.spec.ts:17:3 › /blog/ — открывается, доступна и без «TODO» на экране (4ms)
+  ✘   9 tests/site/auth-dialog.spec.ts:146:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (3ms)
+  ✘  10 tests/site/landing.spec.ts:32:3 › /blog/ — на телефоне нет горизонтальной прокрутки (2ms)
+  ✘  11 tests/site/auth-dialog.spec.ts:155:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (4ms)
+  ✘  12 tests/site/landing.spec.ts:17:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране (4ms)
+  ✘  13 tests/site/auth-dialog.spec.ts:165:1 › на телефоне окно открывается из меню и не шире экрана (4ms)
+  ✘  14 tests/site/landing.spec.ts:32:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки (4ms)
+  ✘  15 tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв (2ms)
+  ✘  16 tests/site/landing.spec.ts:17:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране (3ms)
+  ✘  17 tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв (3ms)
+  ✘  18 tests/site/landing.spec.ts:32:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки (3ms)
+  ✘  19 tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв (4ms)
+  ✘  20 tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов (3ms)
+  ✘  21 tests/site/landing.spec.ts:17:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране (4ms)
+  ✘  22 tests/site/landing.spec.ts:32:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки (3ms)
+  ✘  23 tests/site/landing.spec.ts:45:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (3ms)
+  ✓  24 tests/site/landing.spec.ts:63:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (51ms)
+  ✘  25 tests/site/landing.spec.ts:84:1 › главная: «Войти» и «Регистрация», шаги под регистрацию с 7 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · » (2ms)
+  ✘  26 tests/site/landing.spec.ts:150:1 › первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее (3ms)
+
+
+  1) tests/site/auth-dialog.spec.ts:47:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-dialog-«Войти»-открыв-eecc1-й-вход-ведёт-прямо-в-стойку/error-context.md
+
+  2) tests/site/auth-dialog.spec.ts:75:1 › неверный пароль — текст стойки в окне, человек остаётся на главной 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-dialog-неверный-парол-34dda-человек-остаётся-на-главной/error-context.md
+
+  3) tests/site/auth-dialog.spec.ts:90:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-dialog-стойка-недосту-151fd-сылку-на-отдельную-страницу/error-context.md
+
+  4) tests/site/auth-dialog.spec.ts:106:1 › «Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-dialog-«Получить-дост-11db6-рьте-почту»-и-повтор-письма/error-context.md
+
+  5) tests/site/auth-dialog.spec.ts:146:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-dialog-регистрация-за-ac234-аписать-форму-не-показывает/error-context.md
+
+  6) tests/site/auth-dialog.spec.ts:155:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-dialog--login-в-адрес-722aa-т-и-убирает-метку-из-адреса/error-context.md
+
+  7) tests/site/auth-dialog.spec.ts:165:1 › на телефоне окно открывается из меню и не шире экрана ──
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-dialog-на-телефоне-ок-d3727-ся-из-меню-и-не-шире-экрана/error-context.md
+
+  8) tests/site/landing.spec.ts:11:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/landing-чат-ИИ-помощника-т-2e0ae-бличный-сервис-не-подключён/error-context.md
+
+  9) tests/site/landing.spec.ts:17:3 › / — открывается, доступна и без «TODO» на экране ────────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/landing--—-открывается-доступна-и-без-«TODO»-на-экране/error-context.md
+
+  10) tests/site/landing.spec.ts:32:3 › / — на телефоне нет горизонтальной прокрутки ───────────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/landing--—-на-телефоне-нет-горизонтальной-прокрутки/error-context.md
+
+  11) tests/site/landing.spec.ts:17:3 › /blog/ — открывается, доступна и без «TODO» на экране ──────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/landing--blog-—-открывается-доступна-и-без-«TODO»-на-экране/error-context.md
+
+  12) tests/site/landing.spec.ts:32:3 › /blog/ — на телефоне нет горизонтальной прокрутки ──────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/landing--blog-—-на-телефоне-нет-горизонтальной-прокрутки/error-context.md
+
+  13) tests/site/landing.spec.ts:17:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/landing--for-hostels-—-отк-18f1b-упна-и-без-«TODO»-на-экране/error-context.md
+
+  14) tests/site/landing.spec.ts:32:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки ───
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/landing--for-hostels-—-на--599d2-ет-горизонтальной-прокрутки/error-context.md
+
+  15) tests/site/landing.spec.ts:17:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/landing--for-mini-hotels-—-325c4-упна-и-без-«TODO»-на-экране/error-context.md
+
+  16) tests/site/landing.spec.ts:32:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/landing--for-mini-hotels-—-37d3d-ет-горизонтальной-прокрутки/error-context.md
+
+  17) tests/site/landing.spec.ts:17:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/landing--for-apart-hotels--ae777-упна-и-без-«TODO»-на-экране/error-context.md
+
+  18) tests/site/landing.spec.ts:32:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/landing--for-apart-hotels--c7589-ет-горизонтальной-прокрутки/error-context.md
+
+  19) tests/site/landing.spec.ts:45:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/landing-ссылка-в-мессендже-3692a-писание-и-картинка-1200×630/error-context.md
+
+  20) tests/site/landing.spec.ts:84:1 › главная: «Войти» и «Регистрация», шаги под регистрацию с 7 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · » 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/landing-главная-«Войти»-и--c0346-а-внутри-карточки-без-«-·-»/error-context.md
+
+  21) tests/site/landing.spec.ts:150:1 › первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/landing-первый-экран-—-цен-652a8-работает-Beauty-—-следующее/error-context.md
+
+  22) tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв ───────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/segments--for-hostels-—-заголовок-возможности-и-призыв/error-context.md
+
+  23) tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв ───────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/segments--for-mini-hotels-—-заголовок-возможности-и-призыв/error-context.md
+
+  24) tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв ──────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/segments--for-apart-hotels-—-заголовок-возможности-и-призыв/error-context.md
+
+  25) tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/segments-карточки-направле-9d38c--страницы-по-типам-объектов/error-context.md
+
+  25 failed
+    tests/site/auth-dialog.spec.ts:47:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку 
+    tests/site/auth-dialog.spec.ts:75:1 › неверный пароль — текст стойки в окне, человек остаётся на главной 
+    tests/site/auth-dialog.spec.ts:90:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу 
+    tests/site/auth-dialog.spec.ts:106:1 › «Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма 
+    tests/site/auth-dialog.spec.ts:146:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает 
+    tests/site/auth-dialog.spec.ts:155:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса 
+    tests/site/auth-dialog.spec.ts:165:1 › на телефоне окно открывается из меню и не шире экрана ───
+    tests/site/landing.spec.ts:11:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён 
+    tests/site/landing.spec.ts:17:3 › / — открывается, доступна и без «TODO» на экране ─────────────
+    tests/site/landing.spec.ts:32:3 › / — на телефоне нет горизонтальной прокрутки ─────────────────
+    tests/site/landing.spec.ts:17:3 › /blog/ — открывается, доступна и без «TODO» на экране ────────
+    tests/site/landing.spec.ts:32:3 › /blog/ — на телефоне нет горизонтальной прокрутки ────────────
+    tests/site/landing.spec.ts:17:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране ─
+    tests/site/landing.spec.ts:32:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки ─────
+    tests/site/landing.spec.ts:17:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране 
+    tests/site/landing.spec.ts:32:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки ─
+    tests/site/landing.spec.ts:17:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране 
+    tests/site/landing.spec.ts:32:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки 
+    tests/site/landing.spec.ts:45:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 
+    tests/site/landing.spec.ts:84:1 › главная: «Войти» и «Регистрация», шаги под регистрацию с 7 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · » 
+    tests/site/landing.spec.ts:150:1 › первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее 
+    tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв ─────────────
+    tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв ─────────
+    tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв ────────
+    tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов 
+  1 passed (30.2s)
+
+# код выхода 1 · 32 с

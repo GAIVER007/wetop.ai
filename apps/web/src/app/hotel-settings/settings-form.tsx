@@ -119,7 +119,7 @@ function SettingsForm({
   );
 }
 
-const GENERAL = ['name', 'phone', 'email', 'address', 'legalName', 'bin'] as const;
+const GENERAL = ['name', 'phone', 'email', 'address', 'countryCode', 'city', 'channexPropertyType', 'legalName', 'bin'] as const;
 const STAY = ['checkInTime', 'checkOutTime'] as const;
 
 export function GeneralSettingsForm({ property }: { property: Property }) {
@@ -145,6 +145,31 @@ export function GeneralSettingsForm({ property }: { property: Property }) {
             </div>
           </Panel>
           <RegionalSettings property={property} />
+          <Panel className="settings-block" aria-labelledby="settings-channex-location">
+            <h2 id="settings-channex-location">Расположение для каналов продаж</h2>
+            <p className="settings-note">Эти данные нужны перед подключением объекта к Channex.</p>
+            <div className="settings-fields">
+              <Field label="Страна (код ISO)">
+                <Input name="countryCode" maxLength={2} placeholder="KZ" defaultValue={value('countryCode')} />
+              </Field>
+              <Field label="Город">
+                <Input name="city" maxLength={100} defaultValue={value('city')} />
+              </Field>
+              <Field label="Тип размещения" className="settings-fields__wide">
+                <select name="channexPropertyType" defaultValue={value('channexPropertyType')}>
+                  <option value="">Выберите тип</option>
+                  <option value="hotel">Отель</option>
+                  <option value="hostel">Хостел</option>
+                  <option value="apart_hotel">Апарт-отель</option>
+                  <option value="apartment">Апартаменты</option>
+                  <option value="guest_house">Гостевой дом</option>
+                  <option value="inn">Мини-отель</option>
+                  <option value="resort">Курортный отель</option>
+                  <option value="homestay">Проживание в доме</option>
+                </select>
+              </Field>
+            </div>
+          </Panel>
           <Panel className="settings-block" aria-labelledby="settings-legal">
             <h2 id="settings-legal">Юридическое лицо</h2>
             <p className="settings-note">Печатаются в договоре и счёте гостя.</p>

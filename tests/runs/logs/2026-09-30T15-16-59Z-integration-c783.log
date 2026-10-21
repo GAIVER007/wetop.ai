@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 30.09.2026 20:16 Алматы · MacBook-Air-Urij.local
+# коммит ec63d74 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-30T15-16-59Z-integration-c783.json' 'tests/integration/seller-profiles.test.ts' 'tests/integration/seller-catalog.test.ts' 'tests/integration/business-agents.test.ts' 'tests/integration/seller-agent-scope.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |integration| tests/integration/seller-profiles.test.ts (7 tests) 406ms
+ ✓ |integration| tests/integration/seller-agent-scope.test.ts (6 tests) 231ms
+ ✓ |integration| tests/integration/business-agents.test.ts (7 tests) 193ms
+ ✓ |integration| tests/integration/seller-catalog.test.ts (6 tests) 183ms
+
+ Test Files  4 passed (4)
+      Tests  26 passed (26)
+   Start at  19:17:00
+   Duration  2.62s (tests 54%, import 31%, transform 14%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-30T15-16-59Z-integration-c783.json
+
+# код выхода 0 · 4 с

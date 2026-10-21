@@ -104,6 +104,9 @@ export class HotelService {
         // контакты для печатных форм — тоже из записи (v1.7, ADR-082)
         phone: true,
         email: true,
+        countryCode: true,
+        city: true,
+        channexPropertyType: true,
         timezone: true,
         currency: true,
         checkInTime: true,

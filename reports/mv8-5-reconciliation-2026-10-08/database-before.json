@@ -1,0 +1,37 @@
+{
+  "ledger": [
+    {
+      "migration_name": "20261006000061_marketing_site_grants"
+    },
+    {
+      "migration_name": "20261006000060_marketing_site_core"
+    },
+    {
+      "migration_name": "20261005000059_food_service_grants"
+    },
+    {
+      "migration_name": "20261005000058_food_service_domain"
+    },
+    {
+      "migration_name": "20261005000057_bar_external_parent_guards"
+    },
+    {
+      "migration_name": "20261005000056_bar_ownership_guards"
+    },
+    {
+      "migration_name": "20261005000055_bar_property_guard_dispatch"
+    },
+    {
+      "migration_name": "20261005000054_bar_force_rls"
+    }
+  ],
+  "counts": [
+    {
+      "sites": 0,
+      "versions": 0,
+      "locations": 2,
+      "tracked": 0
+    }
+  ],
+  "security": []
+}

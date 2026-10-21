@@ -1,0 +1,286 @@
+# Сквозные (e2e) · 29.09.2026 21:41 Алматы · vm
+# коммит 068cf57 (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/ai-agents.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 26 tests using 1 worker
+
+  ✓   1 tests/ui/ai-agents.spec.ts:27:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец (5.9s)
+  ✓   2 tests/ui/ai-agents.spec.ts:50:1 › главный администратор: рядом с продавцом карточка WETOP Support (3.7s)
+  ✘   3 tests/ui/ai-agents.spec.ts:62:1 › расширение не подключено: карточка объясняет, «Подключить» ведёт на страницу с объяснением (16.8s)
+  ✘   4 tests/ui/ai-agents.spec.ts:77:1 › срок расширения вышел: карточка остаётся, «Подписка не активна», «Возобновить» (17.5s)
+  ✘   5 tests/ui/ai-agents.spec.ts:88:1 › действует, профиль не применён: «Не настроен», Business и Location объекта, «Настроить» (17.0s)
+  ✘   6 tests/ui/ai-agents.spec.ts:97:1 › продавец работает: статус, каналы по данным, второго завести нельзя — причина словами (17.1s)
+  ✘   7 tests/ui/ai-agents.spec.ts:116:1 › бот не ответил: страница жива, WhatsApp — «Нет данных» (17.1s)
+  ✘   8 tests/ui/ai-agents.spec.ts:125:1 › черновики гостевого мастера: «Черновик», без Business и Location (17.1s)
+  ✘   9 tests/ui/ai-agents.spec.ts:137:1 › сотрудник смены видит список, но без кнопок (17.1s)
+  ✓  10 tests/ui/ai-agents.spec.ts:145:1 › старый адрес /ai-seller работает (2.3s)
+  ✓  11 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, working, light, 1440 (2.9s)
+  ✓  12 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, off, light, 1440 (2.9s)
+  ✓  13 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, expired, light, 1440 (3.2s)
+  ✓  14 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, setup, light, 1440 (3.0s)
+  ✓  15 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, working, light, 390 (2.6s)
+  ✓  16 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, off, light, 390 (2.6s)
+  ✓  17 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, expired, light, 390 (2.7s)
+  ✓  18 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, setup, light, 390 (2.6s)
+  ✓  19 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, working, dark, 1440 (2.9s)
+  ✓  20 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, off, dark, 1440 (2.9s)
+  ✓  21 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, expired, dark, 1440 (3.0s)
+  ✓  22 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, setup, dark, 1440 (2.9s)
+  ✓  23 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, working, dark, 390 (2.6s)
+  ✓  24 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, off, dark, 390 (2.7s)
+  ✓  25 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, expired, dark, 390 (2.6s)
+  ✓  26 tests/ui/ai-agents.spec.ts:161:7 › каталог: axe и снимок, setup, dark, 390 (2.6s)
+
+
+  1) tests/ui/ai-agents.spec.ts:62:1 › расширение не подключено: карточка объясняет, «Подключить» ведёт на страницу с объяснением 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('agent-seller')
+    Expected substring: "Автоматизируйте ответы гостям, подбор размещения и продажи"
+    Received string:    "AI-продавецПродажиHospitalityОтвечает гостям в чате на сайте, называет цены по тарифу и зовёт человека.Расширение «ИИ-продавец» не подключено. Подключает администратор WETOP после оплаты по счёту.Подробнее"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('agent-seller') with timeout 15000ms
+      - waiting for getByTestId('agent-seller')
+        33 × locator resolved to <section class="panel" data-testid="agent-seller">…</section>
+           - unexpected value "AI-продавецПродажиHospitalityОтвечает гостям в чате на сайте, называет цены по тарифу и зовёт человека.Расширение «ИИ-продавец» не подключено. Подключает администратор WETOP после оплаты по счёту.Подробнее"
+
+
+      65 |   await page.goto('/ai-agents');
+      66 |   const seller = page.getByTestId('agent-seller');
+    > 67 |   await expect(seller).toContainText('Автоматизируйте ответы гостям, подбор размещения и продажи');
+         |                        ^
+      68 |   await expect(page.getByTestId('agent-seller-off')).toContainText('не подключено');
+      69 |   // карточки продавца, статуса и «Открыть» без расширения нет
+      70 |   await expect(page.getByTestId('agent-status')).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/ai-agents.spec.ts:67:24
+
+    Error Context: test-results/ai-agents-расширение-не-по-11a9b-т-на-страницу-с-объяснением/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-расширение-не-по-11a9b-т-на-страницу-с-объяснением/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-расширение-не-по-11a9b-т-на-страницу-с-объяснением/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ai-agents.spec.ts:77:1 › срок расширения вышел: карточка остаётся, «Подписка не активна», «Возобновить» 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByTestId('agent-seller').getByTestId('agent-status')
+    Expected: "Подписка не активна"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByTestId('agent-seller').getByTestId('agent-status') with timeout 15000ms
+      - waiting for getByTestId('agent-seller').getByTestId('agent-status')
+
+
+      81 |   await expect(page.getByTestId('agent-seller-off')).toHaveCount(0);
+      82 |   const seller = page.getByTestId('agent-seller');
+    > 83 |   await expect(seller.getByTestId('agent-status')).toHaveText('Подписка не активна');
+         |                                                    ^
+      84 |   await expect(seller.getByRole('link', { name: 'Открыть' })).toBeVisible();
+      85 |   await expect(page.getByTestId('agent-add').getByRole('link', { name: 'Возобновить', exact: true })).toBeVisible();
+      86 | });
+        at /home/user/wetop.ai/tests/ui/ai-agents.spec.ts:83:52
+
+    Error Context: test-results/ai-agents-срок-расширения--7c7a8-а-не-активна»-«Возобновить»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-срок-расширения--7c7a8-а-не-активна»-«Возобновить»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-срок-расширения--7c7a8-а-не-активна»-«Возобновить»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/ai-agents.spec.ts:88:1 › действует, профиль не применён: «Не настроен», Business и Location объекта, «Настроить» 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByTestId('agent-seller').getByTestId('agent-status')
+    Expected: "Не настроен"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByTestId('agent-seller').getByTestId('agent-status') with timeout 15000ms
+      - waiting for getByTestId('agent-seller').getByTestId('agent-status')
+
+
+      90 |   await page.goto('/ai-agents');
+      91 |   const seller = page.getByTestId('agent-seller');
+    > 92 |   await expect(seller.getByTestId('agent-status')).toHaveText('Не настроен');
+         |                                                    ^
+      93 |   await expect(seller).toContainText('Сеть Тест · Алматы');
+      94 |   await expect(page.getByTestId('agent-add').getByRole('link', { name: 'Настроить', exact: true })).toBeVisible();
+      95 | });
+        at /home/user/wetop.ai/tests/ui/ai-agents.spec.ts:92:52
+
+    Error Context: test-results/ai-agents-действует-профил-cc6d8-ocation-объекта-«Настроить»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-действует-профил-cc6d8-ocation-объекта-«Настроить»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-действует-профил-cc6d8-ocation-объекта-«Настроить»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/ai-agents.spec.ts:97:1 › продавец работает: статус, каналы по данным, второго завести нельзя — причина словами 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByTestId('agent-seller').getByTestId('agent-status')
+    Expected: "Работает"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByTestId('agent-seller').getByTestId('agent-status') with timeout 15000ms
+      - waiting for getByTestId('agent-seller').getByTestId('agent-status')
+
+
+      100 |   await page.goto('/ai-agents');
+      101 |   const seller = page.getByTestId('agent-seller');
+    > 102 |   await expect(seller.getByTestId('agent-status')).toHaveText('Работает');
+          |                                                    ^
+      103 |   const channels = seller.getByTestId('agent-channels');
+      104 |   await expect(channels).toContainText('Сайт');
+      105 |   await expect(channels).toContainText('Домены заданы');
+        at /home/user/wetop.ai/tests/ui/ai-agents.spec.ts:102:52
+
+    Error Context: test-results/ai-agents-продавец-работае-f3e5d-ти-нельзя-—-причина-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-продавец-работае-f3e5d-ти-нельзя-—-причина-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-продавец-работае-f3e5d-ти-нельзя-—-причина-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/ai-agents.spec.ts:116:1 › бот не ответил: страница жива, WhatsApp — «Нет данных» ─────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('agent-seller').getByTestId('agent-channels')
+    Expected substring: "Нет данных"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('agent-seller').getByTestId('agent-channels') with timeout 15000ms
+      - waiting for getByTestId('agent-seller').getByTestId('agent-channels')
+
+
+      119 |   await page.goto('/ai-agents');
+      120 |   const channels = page.getByTestId('agent-seller').getByTestId('agent-channels');
+    > 121 |   await expect(channels).toContainText('Нет данных');
+          |                          ^
+      122 |   await expect(page.getByTestId('agent-seller').getByTestId('agent-status')).toHaveText('Работает');
+      123 | });
+      124 |
+        at /home/user/wetop.ai/tests/ui/ai-agents.spec.ts:121:26
+
+    Error Context: test-results/ai-agents-бот-не-ответил-с-fb8e4-ива-WhatsApp-—-«Нет-данных»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-бот-не-ответил-с-fb8e4-ива-WhatsApp-—-«Нет-данных»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-бот-не-ответил-с-fb8e4-ива-WhatsApp-—-«Нет-данных»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/ai-agents.spec.ts:125:1 › черновики гостевого мастера: «Черновик», без Business и Location 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('agent-draft')
+    Expected: 1
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('agent-draft') with timeout 15000ms
+      - waiting for getByTestId('agent-draft')
+        34 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      128 |   await page.goto('/ai-agents');
+      129 |   const draft = page.getByTestId('agent-draft');
+    > 130 |   await expect(draft).toHaveCount(1);
+          |                       ^
+      131 |   await expect(draft).toContainText('Мой хостел');
+      132 |   await expect(draft.getByTestId('agent-status')).toHaveText('Черновик');
+      133 |   await expect(draft).toContainText('Business и Location не выбраны');
+        at /home/user/wetop.ai/tests/ui/ai-agents.spec.ts:130:23
+
+    Error Context: test-results/ai-agents-черновики-гостев-e7914-ик»-без-Business-и-Location/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-черновики-гостев-e7914-ик»-без-Business-и-Location/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-черновики-гостев-e7914-ик»-без-Business-и-Location/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/ai-agents.spec.ts:137:1 › сотрудник смены видит список, но без кнопок ────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByTestId('agent-seller').getByTestId('agent-status')
+    Expected: "Работает"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByTestId('agent-seller').getByTestId('agent-status') with timeout 15000ms
+      - waiting for getByTestId('agent-seller').getByTestId('agent-status')
+
+
+      139 |   await signIn(page);
+      140 |   await page.goto('/ai-agents');
+    > 141 |   await expect(page.getByTestId('agent-seller').getByTestId('agent-status')).toHaveText('Работает');
+          |                                                                              ^
+      142 |   await expect(page.getByTestId('agent-add')).toHaveCount(0);
+      143 | });
+      144 |
+        at /home/user/wetop.ai/tests/ui/ai-agents.spec.ts:141:78
+
+    Error Context: test-results/ai-agents-сотрудник-смены-видит-список-но-без-кнопок/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-сотрудник-смены-видит-список-но-без-кнопок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-сотрудник-смены-видит-список-но-без-кнопок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests/ui/ai-agents.spec.ts:62:1 › расширение не подключено: карточка объясняет, «Подключить» ведёт на страницу с объяснением 
+    tests/ui/ai-agents.spec.ts:77:1 › срок расширения вышел: карточка остаётся, «Подписка не активна», «Возобновить» 
+    tests/ui/ai-agents.spec.ts:88:1 › действует, профиль не применён: «Не настроен», Business и Location объекта, «Настроить» 
+    tests/ui/ai-agents.spec.ts:97:1 › продавец работает: статус, каналы по данным, второго завести нельзя — причина словами 
+    tests/ui/ai-agents.spec.ts:116:1 › бот не ответил: страница жива, WhatsApp — «Нет данных» ──────
+    tests/ui/ai-agents.spec.ts:125:1 › черновики гостевого мастера: «Черновик», без Business и Location 
+    tests/ui/ai-agents.spec.ts:137:1 › сотрудник смены видит список, но без кнопок ─────────────────
+  19 passed (3.2m)
+
+# код выхода 1 · 3 мин 15 с

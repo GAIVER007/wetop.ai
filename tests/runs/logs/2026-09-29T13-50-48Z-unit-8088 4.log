@@ -1,0 +1,30 @@
+# Модульные (unit) · 29.09.2026 18:50 Алматы · vm
+# коммит fb0dfbc (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T13-50-48Z-unit-8088.json' 'apps/web/src/lib/rate-rule-text.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/rate-rule-text.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/rate-rule-text.test.ts [ apps/web/src/lib/rate-rule-text.test.ts ]
+Error: Cannot find module './rate-rule-text' imported from /home/user/wetop.ai/apps/web/src/lib/rate-rule-text.test.ts
+ ❯ apps/web/src/lib/rate-rule-text.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { derivedRuleText, promoPeriodText, promoUsesText } from './rat…
+       | ^
+      3|
+      4| /** Слова для производных тарифов и промокодов на стойке (DATA_MODEL §…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  13:50:49
+   Duration  217ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-09-29T13-50-48Z-unit-8088.json
+
+# код выхода 1 · 1 с

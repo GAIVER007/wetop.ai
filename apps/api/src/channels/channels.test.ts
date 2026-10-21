@@ -15,6 +15,7 @@ const property = {
   timezone: 'Asia/Almaty',
   country: 'KZ',
   city: 'Алматы',
+  propertyType: 'hostel',
   address: null,
   email: null,
   phone: null,
@@ -48,6 +49,10 @@ const categories = [
 const ratePlan = { id: 'p2', code: 'rate-ota', name: 'Тестовый для ОТА +35%', currency: 'KZT' };
 
 describe('buildChannexSetup', () => {
+  it('uses the selected property type instead of the installation default', () => {
+    const plan = buildChannexSetup({ property: { ...property, propertyType: 'hotel' }, categories, ratePlan });
+    expect(plan.property.property_type).toBe('hotel');
+  });
   it('maps categories to room types (dorm → room_kind dorm, capacity 18) and one manual per_room rate plan each', () => {
     const plan = buildChannexSetup({ property, categories, ratePlan });
     expect(plan.property).toMatchObject({

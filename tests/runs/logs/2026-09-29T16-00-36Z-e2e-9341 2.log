@@ -1,0 +1,74 @@
+# Сквозные (e2e) · 29.09.2026 21:00 Алматы · vm
+# коммит 57999eb (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/reservation-promo-field.spec.ts' 'tests/ui/channel-booking-number.spec.ts' 'tests/ui/manual-reservation.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 2 workers
+
+  ✓  2 tests/ui/channel-booking-number.spec.ts:9:1 › новая бронь OTA: канал и номер брони в канале обязательны и уходят в API (10.6s)
+  ✘  1 tests/ui/reservation-promo-field.spec.ts:28:1 › промокод из формы уходит в запрос брони (11.1s)
+  ✓  3 tests/ui/reservation-promo-field.spec.ts:33:1 › пустой промокод в запрос не попадает (4.0s)
+
+
+  1) tests/ui/reservation-promo-field.spec.ts:28:1 › промокод из формы уходит в запрос брони ───────
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  -  1
+    + Received  + 22
+
+      Object {
+    -   "promoCode": "RANNIY10",
+    +   "arrivalDate": "2026-09-29",
+    +   "channel": "Booking.com",
+    +   "departureDate": "2026-09-30",
+    +   "externalId": "999 601 3801",
+    +   "guest": Object {
+    +     "email": null,
+    +     "firstName": "Канал",
+    +     "lastName": "Тест",
+    +     "middleName": null,
+    +     "phone": null,
+    +   },
+    +   "items": Array [
+    +     Object {
+    +       "accommodationTypeCode": "MALE",
+    +       "adults": 1,
+    +       "quantity": 1,
+    +       "ratePlanCode": "BASE",
+    +       "unitCode": "M03",
+    +     },
+    +   ],
+    +   "notes": null,
+    +   "source": "OTA",
+      }
+
+      28 | test('промокод из формы уходит в запрос брони', async ({ page, request }) => {
+      29 |   const body = await createBooking(page, request, 'RANNIY10');
+    > 30 |   expect(body).toMatchObject({ promoCode: 'RANNIY10' });
+         |                ^
+      31 | });
+      32 |
+      33 | test('пустой промокод в запрос не попадает', async ({ page, request }) => {
+        at /home/user/wetop.ai/tests/ui/reservation-promo-field.spec.ts:30:16
+
+    Error Context: test-results/reservation-promo-field-пр-bbfa5-формы-уходит-в-запрос-брони/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservation-promo-field-пр-bbfa5-формы-уходит-в-запрос-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservation-promo-field-пр-bbfa5-формы-уходит-в-запрос-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/reservation-promo-field.spec.ts:28:1 › промокод из формы уходит в запрос брони ────────
+  2 passed (23.6s)
+
+# код выхода 1 · 25 с

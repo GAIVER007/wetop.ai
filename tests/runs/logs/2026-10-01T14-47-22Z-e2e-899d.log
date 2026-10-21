@@ -1,0 +1,74 @@
+# Сквозные (e2e) · 01.10.2026 19:47 Алматы · MacBook-Air-Urij.local
+# коммит 8a65868 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 79
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/channels-compact.spec.ts' '--grep' 'sync never'
+[WebServer] (node:43097) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43157) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43172) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43259) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43260) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:43329) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43330) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:43336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43487) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/channels-compact.spec.ts:56:1 › sync never calls an empty disconnected queue successful (22.9s)
+
+
+  1) tests/ui/channels-compact.spec.ts:56:1 › sync never calls an empty disconnected queue successful 
+
+    Error: expect(locator).not.toContainText(expected) failed
+
+    Locator: getByTestId('sync-kinds')
+    Expected substring: not "актуально"
+    Received string: "ЧтоСостояниеПоследняя отправкаОстаткиактуально—Цены и ограниченияактуально—Брони из каналовпринимаются—"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "not toContainText" getByTestId('sync-kinds') with timeout 15000ms
+      - waiting for getByTestId('sync-kinds')
+        32 × locator resolved to <table data-testid="sync-kinds" class="tbl tbl--sm dir-table">…</table>
+           - unexpected value "ЧтоСостояниеПоследняя отправкаОстаткиактуально—Цены и ограниченияактуально—Брони из каналовпринимаются—"
+
+
+      65 |   await page.goto('/channels/sync');
+      66 |   await expect(page.getByRole('main')).toContainText('Каналы не подключены');
+    > 67 |   await expect(page.getByTestId('sync-kinds')).not.toContainText('актуально');
+         |                                                    ^
+      68 |   await expect(page.getByRole('main')).not.toContainText('принимаются');
+      69 |   await expect(page.getByRole('main')).not.toContainText('всё ушло в каналы');
+      70 | });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/channels-compact.spec.ts:67:52
+
+    Error Context: test-results/channels-compact-sync-neve-decb3-sconnected-queue-successful/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channels-compact-sync-neve-decb3-sconnected-queue-successful/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channels-compact-sync-neve-decb3-sconnected-queue-successful/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/channels-compact.spec.ts:56:1 › sync never calls an empty disconnected queue successful 
+
+# код выхода 1 · 1 мин 11 с

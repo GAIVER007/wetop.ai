@@ -1,0 +1,11 @@
+# Линтер (lint) · 29.09.2026 18:44 Алматы · vm
+# коммит b8c2794 (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 12
+# npx eslint .
+
+/home/user/wetop.ai/apps/site/src/components/calculator-form.tsx
+  12:58  error  Irregular whitespace not allowed  no-irregular-whitespace
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 17 с

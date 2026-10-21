@@ -1,0 +1,20 @@
+# Модульные (unit) · 01.10.2026 15:21 Алматы · MacBook-Air-Urij.local
+# коммит 6e4b768 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 74
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T10-21-46Z-unit-9f33.json' 'apps/web/src/lib/navigation-roles.test.ts' 'apps/api/src/accounts/invites.controller.test.ts' 'apps/api/src/accounts/members.controller.test.ts' 'apps/web/src/app/login/actions.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (17 tests) 7ms
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (4 tests) 14ms
+ ✓ |unit| apps/api/src/accounts/members.controller.test.ts (22 tests) 183ms
+[Nest] 55223  - 10/01/2026, 2:21:48 PM   ERROR [AccountsService] Не удалось отправить приглашение; ссылка отозвана
+ ✓ |unit| apps/api/src/accounts/invites.controller.test.ts (12 tests) 190ms
+
+ Test Files  4 passed (4)
+      Tests  55 passed (55)
+   Start at  14:21:47
+   Duration  976ms (import 45%, transform 38%, tests 16%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T10-21-46Z-unit-9f33.json
+
+# код выхода 0 · 2 с

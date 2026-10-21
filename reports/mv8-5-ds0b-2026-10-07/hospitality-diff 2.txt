@@ -1,0 +1,22 @@
+
+> pms-lux@0.0.0 design:diff
+> tsx scripts/design/diff-screens.ts reports/mv8-5-ds0b-2026-10-07/before/hospitality reports/mv8-5-ds0b-2026-10-07/after/hospitality
+
+chessboard-1440-dark.png                          650 / 1297440 px    0.050 %  область x 16–1423, y 166–716
+chessboard-1440-light.png                         645 / 1297440 px    0.050 %  область x 17–1422, y 166–716
+chessboard-390-dark.png                           606 / 523380 px    0.116 %  область x 8–381, y 132–695
+chessboard-390-light.png                          468 / 523380 px    0.089 %  область x 9–380, y 132–695
+finance-1440-dark.png                               7 / 1296000 px    0.001 %  область x 341–346, y 440–448
+finance-1440-light.png                              8 / 1296000 px    0.001 %  область x 341–346, y 440–448
+finance-390-dark.png                                0 / 329160 px    0.000 %
+finance-390-light.png                               0 / 329160 px    0.000 %
+reservations-1440-dark.png                      29012 / 1297440 px    2.236 %  область x 16–1423, y 171–900
+reservations-1440-light.png                     28999 / 1297440 px    2.235 %  область x 16–1423, y 171–900
+reservations-390-dark.png                       69130 / 1419210 px    4.871 %  область x 8–381, y 129–3525
+reservations-390-light.png                      38056 / 1419210 px    2.681 %  область x 8–381, y 129–3519
+today-1440-dark.png                                 0 / 1296000 px    0.000 %
+today-1440-light.png                              523 / 1296000 px    0.040 %  область x 1280–1415, y 72–84
+today-390-dark.png                                  0 / 329160 px    0.000 %
+today-390-light.png                                 0 / 329160 px    0.000 %
+
+снимков: 16, с отличиями: 11

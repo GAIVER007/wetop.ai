@@ -14,6 +14,9 @@ export interface HotelSettings {
     /** Контакты объекта для печатных форм (v1.7, ADR-082); старый API полей не шлёт */
     phone?: string | null;
     email?: string | null;
+    countryCode?: string | null;
+    city?: string | null;
+    channexPropertyType?: string | null;
     timezone: string;
     currency: string;
     checkInTime: string;

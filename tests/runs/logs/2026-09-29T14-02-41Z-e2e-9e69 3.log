@@ -1,0 +1,21 @@
+# Сквозные (e2e) · 29.09.2026 19:02 Алматы · vm
+# коммит 2fbbc6f (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/rates-derived.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/rates-derived.spec.ts:33:1 › производный тариф: добавить, условия словами, ошибка у формы, правка процента (4.7s)
+  ✓  2 tests/ui/rates-derived.spec.ts:60:1 › промокоды: вкладка, добавить, повтор кода — ошибка, выключить (4.5s)
+  ✓  3 tests/ui/rates-derived.spec.ts:95:1 › «только чтение»: производные тарифы и промокоды видны, кнопок правки нет (2.6s)
+  ✓  4 tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: light (8.3s)
+  ✓  5 tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: dark (8.0s)
+
+  5 passed (33.0s)
+
+# код выхода 0 · 34 с

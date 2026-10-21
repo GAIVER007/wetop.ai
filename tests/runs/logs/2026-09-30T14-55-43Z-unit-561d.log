@@ -1,0 +1,21 @@
+# Модульные (unit) · 30.09.2026 19:55 Алматы · MacBook-Air-Urij.local
+# коммит c4079cc (codex/unified-workspace-20260929), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-30T14-55-43Z-unit-561d.json' 'apps/api/src/auth/auth.service.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (50 tests) 6370ms
+   ✓ AuthService.login (14)
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 690ms
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 503ms
+     ✓ попытка, ждавшая в очереди, пока учётку заперли, уже не входит — даже с верным паролем 436ms
+     ✓ пачка ошибок на истёкшем замке запирает снова, а не сбрасывает счёт каждой попыткой 398ms
+
+ Test Files  1 passed (1)
+      Tests  50 passed (50)
+   Start at  18:55:46
+   Duration  7.83s (tests 86%, transform 7%, import 7%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-30T14-55-43Z-unit-561d.json
+
+# код выхода 0 · 11 с

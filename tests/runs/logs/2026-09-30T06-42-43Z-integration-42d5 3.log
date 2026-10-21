@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 30.09.2026 11:42 Алматы · vm
+# коммит f177acf (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T06-42-43Z-integration-42d5.json' 'tests/integration/business-agent-identity.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/business-agent-identity.test.ts (12 tests) 767ms
+   ✓ Business Agent: личность и перенос (integration, DATABASE_URL required) (12)
+     ✓ перенос существующего продавца (seller_agents_backfill) (6)
+       ✓ рабочий продавец с принятым профилем становится активным агентом с id = organization_id, филиалом объекта и владельцем как автором 376ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  06:42:44
+   Duration  2.49s (tests 64%, transform 27%, import 9%)
+
+JSON report written to /tmp/pms-test-2026-09-30T06-42-43Z-integration-42d5.json
+
+# код выхода 0 · 3 с

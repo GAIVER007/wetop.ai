@@ -1,0 +1,36 @@
+# Сквозные (e2e) · 24.09.2026 22:13 Алматы · MacBook-Air-Urij.local
+# коммит 7a04641 (codex/chessboard-comfort), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-extend.spec.ts' 'tests/ui/chessboard-design.spec.ts' '--workers=1'
+[WebServer] (node:29276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29313) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29315) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29356) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29366) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+(node:29372) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/chessboard-design.spec.ts:9:1 › статусы шахматки понятны без открытия инструкции (3.1s)
+  ✓  2 tests/ui/chessboard-design.spec.ts:34:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (5.3s)
+  ✓  3 tests/ui/chessboard-design.spec.ts:55:3 › дизайн шахматки: light, компактное управление и доступная сетка (18.4s)
+  ✓  4 tests/ui/chessboard-design.spec.ts:55:3 › дизайн шахматки: dark, компактное управление и доступная сетка (16.3s)
+  ✓  5 tests/ui/chessboard-extend.spec.ts:7:1 › правый край брони: продление на несколько ночей с подтверждением и отменой (3.1s)
+  ✓  6 tests/ui/chessboard-extend.spec.ts:26:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload (4.4s)
+
+  6 passed (1.0m)
+
+# код выхода 0 · 1 мин 3 с

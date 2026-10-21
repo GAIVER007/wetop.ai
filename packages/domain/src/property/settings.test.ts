@@ -7,6 +7,12 @@ import { parseHotelSettingsPatch } from './settings';
  * попадают вовсе — они держат деньги и границы ночей.
  */
 describe('parseHotelSettingsPatch', () => {
+  it('accepts valid per-property Channex location and type, rejects malformed values', () => {
+    expect(parseHotelSettingsPatch({ countryCode: 'KZ', city: 'Алматы', channexPropertyType: 'hostel' }))
+      .toEqual({ ok: true, value: { countryCode: 'KZ', city: 'Алматы', channexPropertyType: 'hostel' } });
+    expect(parseHotelSettingsPatch({ countryCode: 'Kazakhstan' }).ok).toBe(false);
+    expect(parseHotelSettingsPatch({ channexPropertyType: 'unknown' }).ok).toBe(false);
+  });
   it('нормализует пробелы, пустое необязательное поле — null', () => {
     expect(
       parseHotelSettingsPatch({

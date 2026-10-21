@@ -1,0 +1,30 @@
+
+> pms-lux@0.0.0 design:diff
+> tsx scripts/design/diff-screens.ts reports/mv8-5-ds0b-2026-10-07/before/food reports/mv8-5-ds0b-2026-10-07/after/food
+
+customers-dark-1440.png                          3032 / 1440000 px    0.211 %  область x 659–965, y 73–267
+customers-dark-390.png                           1046 / 329160 px    0.318 %  область x 281–372, y 199–250
+customers-light-1440.png                         3041 / 1440000 px    0.211 %  область x 32–965, y 12–267
+customers-light-390.png                          1059 / 329160 px    0.322 %  область x 281–372, y 199–250
+dining-areas-dark-1440.png                      10594 / 1440000 px    0.736 %  область x 32–1407, y 12–541
+dining-areas-dark-390.png                       14390 / 329160 px    4.372 %  область x 16–373, y 426–610
+dining-areas-light-1440.png                      9220 / 1440000 px    0.640 %  область x 32–1405, y 12–540
+dining-areas-light-390.png                      14013 / 329160 px    4.257 %  область x 17–372, y 426–609
+floor-plan-dark-1440.png                         8022 / 1440000 px    0.557 %  область x 32–1407, y 73–810
+floor-plan-dark-390.png                      размер 390×989 → 390×975
+floor-plan-light-1440.png                        6644 / 1440000 px    0.461 %  область x 34–1405, y 73–809
+floor-plan-light-390.png                     размер 390×989 → 390×975
+reservation-drawer-dark-1440.png                 1988 / 1440000 px    0.138 %  область x 712–1419, y 71–177
+reservation-drawer-dark-390.png              размер 390×989 → 390×975
+reservation-drawer-light-1440.png                3323 / 1440000 px    0.231 %  область x 60–1419, y 70–766
+reservation-drawer-light-390.png             размер 390×989 → 390×975
+table-reservations-dark-1440.png                 5832 / 1440000 px    0.405 %  область x 32–1332, y 12–474
+table-reservations-dark-390.png                   120 / 329160 px    0.036 %  область x 228–356, y 550–575
+table-reservations-light-1440.png                5841 / 1440000 px    0.406 %  область x 224–1332, y 73–474
+table-reservations-light-390.png                  119 / 329160 px    0.036 %  область x 228–356, y 550–575
+today-dark-1440.png                             29857 / 1440000 px    2.073 %  область x 32–1407, y 73–522
+today-dark-390.png                              10782 / 329160 px    3.276 %  область x 16–373, y 529–685
+today-light-1440.png                            25728 / 1440000 px    1.787 %  область x 33–1406, y 73–521
+today-light-390.png                             10435 / 329160 px    3.170 %  область x 17–372, y 529–684
+
+снимков: 24, с отличиями: 24

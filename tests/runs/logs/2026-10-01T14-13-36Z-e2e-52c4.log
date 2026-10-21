@@ -1,0 +1,70 @@
+# Сквозные (e2e) · 01.10.2026 19:13 Алматы · MacBook-Air-Urij.local
+# коммит df6723c (codex/unified-workspace-20260929), незакоммиченных файлов набора: 96
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/booking-dates.spec.ts' '--workers=1' '-g' 'occupied selection'
+[WebServer] (node:30146) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30184) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30195) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30239) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:30291) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30292) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:30298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/booking-dates.spec.ts:127:1 › occupied selection stays visible and cannot silently become unassigned (21.9s)
+
+
+  1) tests/ui/booking-dates.spec.ts:127:1 › occupied selection stays visible and cannot silently become unassigned 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('new-reservation-form').getByText(/Выбранная ячейка M03 недоступна/)
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('new-reservation-form').getByText(/Выбранная ячейка M03 недоступна/) with timeout 15000ms
+      - waiting for getByTestId('new-reservation-form').getByText(/Выбранная ячейка M03 недоступна/)
+
+
+      154 |   await expect(unit).toHaveAttribute('aria-invalid', 'true');
+      155 |   await expect(form.getByRole('button', { name: 'Создать бронь', exact: true })).toBeDisabled();
+    > 156 |   await expect(form.getByText(/Выбранная ячейка M03 недоступна/)).toBeVisible();
+          |                                                                   ^
+      157 |   await unit.selectOption('');
+      158 |   await expect(form.getByRole('button', { name: 'Создать бронь', exact: true })).toBeEnabled();
+      159 | });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/booking-dates.spec.ts:156:67
+
+    Error Context: test-results/booking-dates-occupied-sel-47539--silently-become-unassigned/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-dates-occupied-sel-47539--silently-become-unassigned/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-dates-occupied-sel-47539--silently-become-unassigned/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/booking-dates.spec.ts:127:1 › occupied selection stays visible and cannot silently become unassigned 
+
+# код выхода 1 · 54 с

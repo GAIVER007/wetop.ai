@@ -1,0 +1,66 @@
+# Сквозные (e2e) · 30.09.2026 22:31 Алматы · MacBook-Air-Urij.local
+# коммит ef76158 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/rates-design.spec.ts' '--grep' 'шести недель' '--workers=1'
+[WebServer] (node:47518) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:47555) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:47556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:47557) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:47600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:47603) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:47684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/rates-design.spec.ts:162:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь (22.7s)
+
+
+  1) tests/ui/rates-design.spec.ts:162:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByLabel('Категория', { exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByLabel('Категория', { exact: true }) with timeout 15000ms
+      - waiting for getByRole('main').getByLabel('Категория', { exact: true })
+
+
+      164 |   await page.goto('/rates?month=2026-08');
+      165 |   const main = page.getByRole('main');
+    > 166 |   await expect(main.getByLabel('Категория', { exact: true })).toBeVisible();
+          |                                                               ^
+      167 |   const cal = main.getByTestId('rates-calendar');
+      168 |   await expect(cal).toBeVisible();
+      169 |   const before = await cal.boundingBox();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/rates-design.spec.ts:166:63
+
+    Error Context: test-results/rates-design-месяц-из-шест-e00a0-выбор-не-сдвигает-календарь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-design-месяц-из-шест-e00a0-выбор-не-сдвигает-календарь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-design-месяц-из-шест-e00a0-выбор-не-сдвигает-календарь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/rates-design.spec.ts:162:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь 
+
+# код выхода 1 · 38 с

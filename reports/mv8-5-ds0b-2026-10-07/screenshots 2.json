@@ -1,0 +1,838 @@
+{
+  "baselineSha": "50f04c5ce104bc366d4854e5bf831b81ddfe665f",
+  "afterSha": "d1461ddc3d757a76d36905af55614483083b34e2",
+  "pairs": [
+    {
+      "file": "beauty/appointments-1440-dark.png",
+      "before": {
+        "sha256": "2a4dd6e166b7af689326f75829f59fef7567aa957180fbd6e482eea8a773ba5f",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "4738a282521f4fbf1b92fb26b7fa0e9b4fbe26f476e3fcb30313f0f722a8d487",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "beauty/appointments-1440-light.png",
+      "before": {
+        "sha256": "00f87094ecf284c539a3842168aba70a73dd37cb029ed1de733d557de2408524",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "7a2b7d1ec45fd1a85d7d6a7dd1e9d1213b62ee9344f1f66a7054efb412ae1a11",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "beauty/appointments-390-dark.png",
+      "before": {
+        "sha256": "39f7a48930a104bdb3b6d9f1a367dd8b2a91707afc281ec8e5b39c4f498eb089",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "39f7a48930a104bdb3b6d9f1a367dd8b2a91707afc281ec8e5b39c4f498eb089",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "beauty/appointments-390-light.png",
+      "before": {
+        "sha256": "88a155b9241d25b824862cdf26cf52e34f84c57846615731b9788bb350934662",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "88a155b9241d25b824862cdf26cf52e34f84c57846615731b9788bb350934662",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "beauty/calendar-1440-dark.png",
+      "before": {
+        "sha256": "0695e61baaac6c2125b51e05c17242914fceda35be9feb3b2d17f2eaa0da66fe",
+        "width": 1440,
+        "height": 1038
+      },
+      "after": {
+        "sha256": "c8028b0e3e2ba6c0be824d2e74b72d0d3ea05ba5e11d8af3eb23457f21aea6cb",
+        "width": 1440,
+        "height": 1038
+      }
+    },
+    {
+      "file": "beauty/calendar-1440-light.png",
+      "before": {
+        "sha256": "f0bafa3757145012fee0fbed7e8bf50cbf59ae565ef2dc5c30fd3fd93db7d1f1",
+        "width": 1440,
+        "height": 1038
+      },
+      "after": {
+        "sha256": "fde0f259aab0a1e0b9d38415f90563d42de45d19d08bedb8807a4a1d60417d7d",
+        "width": 1440,
+        "height": 1038
+      }
+    },
+    {
+      "file": "beauty/calendar-390-dark.png",
+      "before": {
+        "sha256": "cb343de3a2ad6b2aacbd7a1ecea1bc2118586c3045382877309aca5db0c9cacc",
+        "width": 390,
+        "height": 1636
+      },
+      "after": {
+        "sha256": "cb343de3a2ad6b2aacbd7a1ecea1bc2118586c3045382877309aca5db0c9cacc",
+        "width": 390,
+        "height": 1636
+      }
+    },
+    {
+      "file": "beauty/calendar-390-light.png",
+      "before": {
+        "sha256": "086b36d541983dae48dd8c691a6b5aaa57b8f8c3cd14ef202a738f2321323ae1",
+        "width": 390,
+        "height": 1636
+      },
+      "after": {
+        "sha256": "086b36d541983dae48dd8c691a6b5aaa57b8f8c3cd14ef202a738f2321323ae1",
+        "width": 390,
+        "height": 1636
+      }
+    },
+    {
+      "file": "beauty/customers-1440-dark.png",
+      "before": {
+        "sha256": "5ee39be57629622ed10d396de37ac5cfb8d4d29ffaa3356ac7eff4b927daaf8a",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "5cc01e61b2c000b766bb5450d0556fc0447128abdeeebd141a04eefc28a354ed",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "beauty/customers-1440-light.png",
+      "before": {
+        "sha256": "86353083e86dfc01a5321bc421d63e090726da5588ba7fd310a8c17e9c730a1e",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "c26351b13af03f23e697875a8b3a4903de06b74f226bbeda41ed75981142bc45",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "beauty/customers-390-dark.png",
+      "before": {
+        "sha256": "05c62e04fff966f2f9af54d554923dc9212edd6c918c53c7f3413bbd18c1b988",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "05c62e04fff966f2f9af54d554923dc9212edd6c918c53c7f3413bbd18c1b988",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "beauty/customers-390-light.png",
+      "before": {
+        "sha256": "450f3c6836d76305ec87c13adae26989d9c4cbbc6a16cf0d68fccb6e7a7503b7",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "450f3c6836d76305ec87c13adae26989d9c4cbbc6a16cf0d68fccb6e7a7503b7",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "beauty/drawer-1440-dark.png",
+      "before": {
+        "sha256": "06f7a8f553355b10b5b93f90295358124878bacb21358f325d84ddc61c044a37",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "5a93cd8a40ec4987df17f0872058477fe5fa828212fc3c61e4a566bf04058207",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "beauty/drawer-1440-light.png",
+      "before": {
+        "sha256": "9a1e2e55270845592f88e4e63a34b2bc82ec1d835797733e42b91b136937e16b",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "fcfc4d164f9d745995755f4cf4c8dd1d80bc8a3e4999addd7de3d780927f3fee",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "beauty/drawer-390-dark.png",
+      "before": {
+        "sha256": "a3ebb51dcca81064c4d8bbea64b82985d544bff9c4d16ba43ef25dba69b455b5",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "a3ebb51dcca81064c4d8bbea64b82985d544bff9c4d16ba43ef25dba69b455b5",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "beauty/drawer-390-light.png",
+      "before": {
+        "sha256": "85c3cedf7b49422d1f570a1102098721521a12a077b53bac49d25819a5334a29",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "85c3cedf7b49422d1f570a1102098721521a12a077b53bac49d25819a5334a29",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "beauty/employees-1440-dark.png",
+      "before": {
+        "sha256": "7c14e7fcb31fe571b64c3bf13161373f1459d3d362a93555648fbcb9bbebdd54",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "7cb3012454333b3cbd2bd0df5166c6b0fd4637f4e7dcc58c785d4c32e8ff02ac",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "beauty/employees-1440-light.png",
+      "before": {
+        "sha256": "53ad1c07f816536c2928a7b747d19f58cbf664a4916c56004cf36f08375488ed",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "ffd9905b95925d481a1cf3198089545a7e57cb072396ec47a6620323d8847d64",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "beauty/employees-390-dark.png",
+      "before": {
+        "sha256": "479421c4012bf25d2c5a8bae3f8c2381ed7cad5d23ab24beba3f4bd1de31a976",
+        "width": 390,
+        "height": 1032
+      },
+      "after": {
+        "sha256": "479421c4012bf25d2c5a8bae3f8c2381ed7cad5d23ab24beba3f4bd1de31a976",
+        "width": 390,
+        "height": 1032
+      }
+    },
+    {
+      "file": "beauty/employees-390-light.png",
+      "before": {
+        "sha256": "3cbffc18441bf1d2fa2460b93b2c6a39d908d216f20be3b8b473021a95e40ce7",
+        "width": 390,
+        "height": 1032
+      },
+      "after": {
+        "sha256": "3cbffc18441bf1d2fa2460b93b2c6a39d908d216f20be3b8b473021a95e40ce7",
+        "width": 390,
+        "height": 1032
+      }
+    },
+    {
+      "file": "beauty/services-1440-dark.png",
+      "before": {
+        "sha256": "51d336b3c8b6fb7911bbdccf79ef64ef1d26bfbe512551d113aa4098754b97cb",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "d790d80d8fac93336e07f6565ce55b165d22a4c639565fa3645ab510386c5d6a",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "beauty/services-1440-light.png",
+      "before": {
+        "sha256": "4fe895bcbc2f3f5e622aaeba69227366d0534bd8c7abb384dd9ad9dd2d702e9c",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "fe1c173372636c93a89db6499ca703e57a6adba53a5629df4f4d93ef463cdbf6",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "beauty/services-390-dark.png",
+      "before": {
+        "sha256": "437e83ba7309d00cc156c36032d43d3b0b2f6b55891638ca50ce1842ec4678e5",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "437e83ba7309d00cc156c36032d43d3b0b2f6b55891638ca50ce1842ec4678e5",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "beauty/services-390-light.png",
+      "before": {
+        "sha256": "1be42505828e333242dd62b197172f77e40873785aeff268420914d782bbf557",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "1be42505828e333242dd62b197172f77e40873785aeff268420914d782bbf557",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "food/customers-dark-1440.png",
+      "before": {
+        "sha256": "495f2728f5b21b49d16ababcc0adbe43e1169187810bd6623e19ccebafed8034",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "79bc70e6d20f38a255caa524101a0a69a23054c71166da4168de60117ddfc50e",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "food/customers-dark-390.png",
+      "before": {
+        "sha256": "d8dd4ee8480dee5ac1851d4fe76b135f449cdb8f09768d5ad0a2b0428628681a",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "7ce414989bd88c69940eee1766824e81789a6db152b476e5548af3e0999db761",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "food/customers-light-1440.png",
+      "before": {
+        "sha256": "e6be3e2a9b8dd28e4672a1a6d29323b11b5160dc4e25ce43d5f8d2807d178605",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "b141dee596a96e2a35c16346af3e702dbc705185fe1e544298a7a262170b97a3",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "food/customers-light-390.png",
+      "before": {
+        "sha256": "f2afdb34ae99be63bab7bd53eb1ce9a6f38ab30e53a77aaa8fec705efc921be3",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "a1c4cd900b0d148e122f71af014392fc348b76aba917a5e14070cf08c6fe00f1",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "food/dining-areas-dark-1440.png",
+      "before": {
+        "sha256": "b18ce4db35071afd21fb2ea2bc1fa4d7f437b0bc558329c1e64e5a375eef0959",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "b473a7c9d2d75910658882df3d4fa461effb5884927a6946b3d33992a3355b9b",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "food/dining-areas-dark-390.png",
+      "before": {
+        "sha256": "de512b70ac761dc627ad8b0d67b8e811166fe24f93df6079d3158be6667a38da",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "79efafeb9c28124c834ef2c62c3e5f44475a8575b213fde9f67a855662936b00",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "food/dining-areas-light-1440.png",
+      "before": {
+        "sha256": "b17a59b2e907dec8d8e8f637b5bebbf79f6c0738bbebbff5d2dbed85ca91337e",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "e3314ba1ea5a092448cab5787fbd337b14ad330c7de37115c6d9563c7a7b7dd4",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "food/dining-areas-light-390.png",
+      "before": {
+        "sha256": "643a68241e6b4eec80473a131596be3ef6c8359fde5044082ee74e99f9d63bde",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "c6a15e1f988942cbc01a535b483c81b6dfd8ba81700e5ab2a6465817a18b00a9",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "food/floor-plan-dark-1440.png",
+      "before": {
+        "sha256": "c2af07b11697c844c0ea799d7f3fc32e6e7fd4558ae5b1f3a1b72e27d4662841",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "bde1b203ebe07e62cee0d97a24b2459d1f07ff8b6f289f6f22207cf8f228b5fe",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "food/floor-plan-dark-390.png",
+      "before": {
+        "sha256": "bb0ef33a56fa59208f76ebaf0f6895a2a179f17d4fe97f5c702630e531b43059",
+        "width": 390,
+        "height": 989
+      },
+      "after": {
+        "sha256": "2488690e373cd1d303acc8d1409af36cff8e243a5fa61e282c8341bf6c7a73d2",
+        "width": 390,
+        "height": 975
+      }
+    },
+    {
+      "file": "food/floor-plan-light-1440.png",
+      "before": {
+        "sha256": "cf4ce58da925ffa368913374acb1e380ef4f08cbac848084bfb4100147654369",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "f1c3cf7364b675b1d07a1fcdb19b34cc87ba84a18c1c3481ed723d3b4e9b311a",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "food/floor-plan-light-390.png",
+      "before": {
+        "sha256": "c56be010fab5fb7f59cb4cb774cb3c5597f46cc723e085d7ae63f161eca57352",
+        "width": 390,
+        "height": 989
+      },
+      "after": {
+        "sha256": "d0dc899cff71c9fc4b77cb8c8851a2df969060acf1cdfc2a98744e023fc938c7",
+        "width": 390,
+        "height": 975
+      }
+    },
+    {
+      "file": "food/reservation-drawer-dark-1440.png",
+      "before": {
+        "sha256": "506b4401e9bcf3f48b6261992071d647cc5b6be0882ab7678b32faf924ab33ee",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "4f2c8c380f6132bd97001ee8ae792cd6c3109e4894a6df704e95a39f225e6ad3",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "food/reservation-drawer-dark-390.png",
+      "before": {
+        "sha256": "9d22f63f21f91fbaab9e9ba50742d4c541cd5e4b6eafbeb7c4b0a46d6c7cf742",
+        "width": 390,
+        "height": 989
+      },
+      "after": {
+        "sha256": "ab0e30db1326b227be13cf01c5beea3db7188874b205950f3007a43364bd66c6",
+        "width": 390,
+        "height": 975
+      }
+    },
+    {
+      "file": "food/reservation-drawer-light-1440.png",
+      "before": {
+        "sha256": "7bc7f0d1a0d398e634b2446cfbb9b43f42037517f804198c688bac1415503a14",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "5b934b2138b68e0a70094c368e10da0f473d614440850010eaf5a542006a5031",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "food/reservation-drawer-light-390.png",
+      "before": {
+        "sha256": "84bb6033c0f1120394bc13ba6e8412bf6086889c325657c3078d405ea080722b",
+        "width": 390,
+        "height": 989
+      },
+      "after": {
+        "sha256": "45f42552bd3a63568ad0601d5760d10d3241ef00e24e701ad6f4968ae34ce3a0",
+        "width": 390,
+        "height": 975
+      }
+    },
+    {
+      "file": "food/table-reservations-dark-1440.png",
+      "before": {
+        "sha256": "089d1e429fafe22261583b49b29ea3ecf80c92df4fea2777e1e9637318bb86c1",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "dc757bb47f24d30e2ab15d33cbb6e27b5b3763c257c12ff9e3ac0ea2b16820ee",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "food/table-reservations-dark-390.png",
+      "before": {
+        "sha256": "1401c04af227a1a54cbe04c36b79aeb1061e622021fc1586a314ced08ca65659",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "a86d6f33b23869c4bd3e1edd06cc44b9b1d89d215e4f08249b69c7a2a4ec6277",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "food/table-reservations-light-1440.png",
+      "before": {
+        "sha256": "f2c29eb464378f25acfe8f77b685f2e2a38f57ec918562639071147d471baa2b",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "6c45c6cc3b5739d0afddf9efc21e0cc17b67a9e9f275390c560ddf31c687344d",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "food/table-reservations-light-390.png",
+      "before": {
+        "sha256": "7cfc1fbe466483a76fa81e409c8737f8bfac72e353c8ef6f293e5186510b653d",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "4c19a991eb49a8b22679120f307f7664efea8b112222b2dadc7a69b296751e81",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "food/today-dark-1440.png",
+      "before": {
+        "sha256": "2366043987236ba4ec2e057470285840b0f2f6972548ac22c66b7fb5dad63f47",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "65d77e9547cfdee259a55d01e3eb303124535303ba3930994d3ae9f89395390e",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "food/today-dark-390.png",
+      "before": {
+        "sha256": "1013391aea31d2e1bf4d97b507b96956c34b9800be37e048e27921dd98d426a7",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "cee370064b1cca26078b9aae9a425bc7e42c1b3b099176fb7086b1d00558d1b8",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "food/today-light-1440.png",
+      "before": {
+        "sha256": "f07c0c91e16a8e32d8efbe92db077a49b716885ff580e8bbed388f3877ac0442",
+        "width": 1440,
+        "height": 1000
+      },
+      "after": {
+        "sha256": "2621ed80ece2b40cba92f24eb390007bbb4fab882d5ccb2f0c0c30fc15a6c854",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "food/today-light-390.png",
+      "before": {
+        "sha256": "ffc36c288681802753f158a524d21c675e00c8f8fd8e7319f3f058d84699d65c",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "6f4e9aa1a3793dcd83cfa91a36e456bc058e821eeb30f1618d1dd18639e482e0",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "hospitality/chessboard-1440-dark.png",
+      "before": {
+        "sha256": "59011c52a3906a1e8682751f97e915a96ee2ec011c08890c3297b8cdb2b3f86f",
+        "width": 1440,
+        "height": 901
+      },
+      "after": {
+        "sha256": "93f824bb385f217ab53e7cabafcce3b7e388366962081fad210ff84a4e92ba51",
+        "width": 1440,
+        "height": 901
+      }
+    },
+    {
+      "file": "hospitality/chessboard-1440-light.png",
+      "before": {
+        "sha256": "d3a8c47432408f5f1ead462d9c48bb8946dd51df3aa778b2a62e46785690a80b",
+        "width": 1440,
+        "height": 901
+      },
+      "after": {
+        "sha256": "211cb80acad55d4839e9ebd8c39d49007cfeb3d57eab24b58e985917b7d889cb",
+        "width": 1440,
+        "height": 901
+      }
+    },
+    {
+      "file": "hospitality/chessboard-390-dark.png",
+      "before": {
+        "sha256": "3b1f3ea6b96009068c9dc553c59902f8f7ffc42400fbf0cab63391798bd85a3a",
+        "width": 390,
+        "height": 1342
+      },
+      "after": {
+        "sha256": "6d1d6fc9146c06a269cce1079b8602f9ebda6369893bce772862023eadc639ef",
+        "width": 390,
+        "height": 1342
+      }
+    },
+    {
+      "file": "hospitality/chessboard-390-light.png",
+      "before": {
+        "sha256": "f7198135fc43e81d5e52baa457e757350241d8cd36dd459bde622b59d57eb4e4",
+        "width": 390,
+        "height": 1342
+      },
+      "after": {
+        "sha256": "aa80f423ffe67f8e77d181d95625ee416750bce96e76601b05ea46963942b0ba",
+        "width": 390,
+        "height": 1342
+      }
+    },
+    {
+      "file": "hospitality/finance-1440-dark.png",
+      "before": {
+        "sha256": "74258c943ac9925071f1c2960416cad0c8fbd4989dc859f4c45980fdab09f48f",
+        "width": 1440,
+        "height": 900
+      },
+      "after": {
+        "sha256": "9376f358e5c58b717d656e8ebc1e19ffc8679a8e1927ffc8b506d3f79df98b72",
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "file": "hospitality/finance-1440-light.png",
+      "before": {
+        "sha256": "02ca1864691f1e06e542b7356b9fe8eec5b8784a291f4e578343e11ab73d052e",
+        "width": 1440,
+        "height": 900
+      },
+      "after": {
+        "sha256": "d995748fd0f62e0c7b92f41b17a2808c4f66a58b87cc2306a5183547c1b55a35",
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "file": "hospitality/finance-390-dark.png",
+      "before": {
+        "sha256": "715db90446237dbdcbb0eaab7445d4f6e4937740794b1e9fde7d80ed6a940352",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "715db90446237dbdcbb0eaab7445d4f6e4937740794b1e9fde7d80ed6a940352",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "hospitality/finance-390-light.png",
+      "before": {
+        "sha256": "ed2b2a810f2c425ccec1eff708bd4767f4de06d33b5fdf35e4de9d127304776e",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "ed2b2a810f2c425ccec1eff708bd4767f4de06d33b5fdf35e4de9d127304776e",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "hospitality/reservations-1440-dark.png",
+      "before": {
+        "sha256": "5ae85d34f6548d70c0f24831953148d63335a950987cce18dc4ec08e70819535",
+        "width": 1440,
+        "height": 901
+      },
+      "after": {
+        "sha256": "d4e254ae65bca5ac367f4024170d73e9f5f8deb3f15681fedcdbc33278b80870",
+        "width": 1440,
+        "height": 901
+      }
+    },
+    {
+      "file": "hospitality/reservations-1440-light.png",
+      "before": {
+        "sha256": "4d4c4c902da4414c243fa637029dfcd4dcd0e68f00585b5fd0d50cdec1d119cc",
+        "width": 1440,
+        "height": 901
+      },
+      "after": {
+        "sha256": "d7346ca50bfc51823cdcb0e203952bcb5a220757a403f27639b587f3e4a64706",
+        "width": 1440,
+        "height": 901
+      }
+    },
+    {
+      "file": "hospitality/reservations-390-dark.png",
+      "before": {
+        "sha256": "cc6b240a8ccd3ecf46ccf83466da8ca47bfb17bb501e54287986f20cab78120e",
+        "width": 390,
+        "height": 3639
+      },
+      "after": {
+        "sha256": "75e5f95bcb123dadc9be97b9584add24a1850d243521345e101892517a10d043",
+        "width": 390,
+        "height": 3639
+      }
+    },
+    {
+      "file": "hospitality/reservations-390-light.png",
+      "before": {
+        "sha256": "ee80ecfbba0b2a55b2663cba5e5411a9c62633c00c2f11215956b7d299f75f4e",
+        "width": 390,
+        "height": 3639
+      },
+      "after": {
+        "sha256": "ea4cf93aa26de8e253d5d3545f8b8ed1cf584d866256874540612cbb240698ff",
+        "width": 390,
+        "height": 3639
+      }
+    },
+    {
+      "file": "hospitality/today-1440-dark.png",
+      "before": {
+        "sha256": "ec9081d2f5caa9d0ace061925e7555f3ad2ddae787493526683014d2b54fe005",
+        "width": 1440,
+        "height": 900
+      },
+      "after": {
+        "sha256": "ec9081d2f5caa9d0ace061925e7555f3ad2ddae787493526683014d2b54fe005",
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "file": "hospitality/today-1440-light.png",
+      "before": {
+        "sha256": "ec9f261c7c04143d2fceb18adf6cd4e348a0108b04ff27f792bd6d317632ec3c",
+        "width": 1440,
+        "height": 900
+      },
+      "after": {
+        "sha256": "df308f16437575266a484399feb2a0687bf9c7bf6ebebb70f4e6e61384763b19",
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "file": "hospitality/today-390-dark.png",
+      "before": {
+        "sha256": "20df0f0b05c2346a74525571b2c8a7c3fab0d84bb71f9e76688200960f97b716",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "20df0f0b05c2346a74525571b2c8a7c3fab0d84bb71f9e76688200960f97b716",
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "hospitality/today-390-light.png",
+      "before": {
+        "sha256": "adcec5c311921b5527698ebbbf27b23fef37ece834ba5b3c8fa6103678734e7a",
+        "width": 390,
+        "height": 844
+      },
+      "after": {
+        "sha256": "adcec5c311921b5527698ebbbf27b23fef37ece834ba5b3c8fa6103678734e7a",
+        "width": 390,
+        "height": 844
+      }
+    }
+  ]
+}

@@ -8,6 +8,7 @@ import {
   currentLocationId,
   currentOrganizationId,
   currentScope,
+  currentIntegrationPropertyId,
 } from '../auth/request-context';
 
 /**
@@ -61,6 +62,16 @@ const cache = new Map<string, PropertyRef>();
 const schema = (): string => process.env.DATABASE_SCHEMA?.trim() || 'public';
 
 export async function propertyRef(db: Db, name: string): Promise<PropertyRef> {
+  const integrationPropertyId = currentIntegrationPropertyId();
+  if (integrationPropertyId) {
+    const byId = await db.property.findUnique({
+      where: { id: integrationPropertyId },
+      select: { id: true, name: true, organizationId: true, timezone: true },
+    });
+    if (!byId) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
+    assertPropertyVisible(byId);
+    return byId;
+  }
   // Мультитенантность (решение владельца 21.09.2026). Вошедший человек видит только объект СВОЕЙ
   // организации — какое бы имя ни просил репозиторий (все просят имя единственного прежде объекта).
   // Это тот же замок ADR-061, перенесённый в саму выборку: подставить чужой объект нельзя, потому

@@ -1,0 +1,60 @@
+# Сквозные (e2e) · 29.09.2026 17:42 Алматы · vm
+# коммит efff031 (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/calculator.spec.ts'
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/site/calculator.spec.ts:7:1 › калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год (10.2s)
+  ✘  2 tests/site/calculator.spec.ts:31:1 › калькулятор: неверное значение — подсказка у поля, результат пропадает (1.0m)
+
+
+  1) tests/site/calculator.spec.ts:7:1 › калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+       7 | test('калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год', async ({ page }) => {
+       8 |   await page.goto('/calculator/');
+    >  9 |   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+         |                                                         ^
+      10 |   for (const label of ['Ночей в месяц через OTA', 'Средняя цена ночи, ₸', 'Комиссия OTA, %', 'Доля броней, которые перейдут напрямую, %']) {
+      11 |     await expect(page.getByLabel(label)).toHaveValue('');
+      12 |   }
+        at /home/user/wetop.ai/tests/site/calculator.spec.ts:9:57
+
+    Error Context: test-results/calculator-калькулятор-пус-17818-ода-—-сумма-в-месяц-и-в-год/error-context.md
+
+  2) tests/site/calculator.spec.ts:31:1 › калькулятор: неверное значение — подсказка у поля, результат пропадает 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.fill: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Ночей в месяц через OTA')
+
+
+      31 | test('калькулятор: неверное значение — подсказка у поля, результат пропадает', async ({ page }) => {
+      32 |   await page.goto('/calculator/');
+    > 33 |   await page.getByLabel('Ночей в месяц через OTA').fill('100');
+         |                                                    ^
+      34 |   await page.getByLabel('Средняя цена ночи, ₸').fill('20000');
+      35 |   await page.getByLabel('Комиссия OTA, %').fill('180');
+      36 |   await page.getByLabel('Доля броней, которые перейдут напрямую, %').fill('25');
+        at /home/user/wetop.ai/tests/site/calculator.spec.ts:33:52
+
+    Error Context: test-results/calculator-калькулятор-нев-aa8d6--у-поля-результат-пропадает/error-context.md
+
+  2 failed
+    tests/site/calculator.spec.ts:7:1 › калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год 
+    tests/site/calculator.spec.ts:31:1 › калькулятор: неверное значение — подсказка у поля, результат пропадает 
+
+# код выхода 1 · 1 мин 21 с

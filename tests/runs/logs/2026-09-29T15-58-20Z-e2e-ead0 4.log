@@ -1,0 +1,50 @@
+# Сквозные (e2e) · 29.09.2026 20:58 Алматы · vm
+# коммит 57999eb (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/reservation-promo-field.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/reservation-promo-field.spec.ts:28:1 › промокод из формы уходит в запрос брони (45.2s)
+  ✓  2 tests/ui/reservation-promo-field.spec.ts:33:1 › пустой промокод в запрос не попадает (5.9s)
+
+
+  1) tests/ui/reservation-promo-field.spec.ts:28:1 › промокод из формы уходит в запрос брони ───────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('new-reservation-form').getByLabel('Промокод', { exact: true })
+
+
+      17 |   await page.goto('/reservations/new?unit=M03');
+      18 |   const form = page.getByTestId('new-reservation-form');
+    > 19 |   if (promo) await form.getByLabel('Промокод', { exact: true }).fill(promo);
+         |                                                                 ^
+      20 |   await form.getByLabel('Имя *', { exact: true }).fill('Промо');
+      21 |   await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
+      22 |   await form.getByRole('button', { name: 'Создать бронь' }).click();
+        at createBooking (/home/user/wetop.ai/tests/ui/reservation-promo-field.spec.ts:19:65)
+        at /home/user/wetop.ai/tests/ui/reservation-promo-field.spec.ts:29:16
+
+    Error Context: test-results/reservation-promo-field-пр-bbfa5-формы-уходит-в-запрос-брони/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservation-promo-field-пр-bbfa5-формы-уходит-в-запрос-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservation-promo-field-пр-bbfa5-формы-уходит-в-запрос-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/reservation-promo-field.spec.ts:28:1 › промокод из формы уходит в запрос брони ────────
+  1 passed (2.2m)
+
+# код выхода 1 · 2 мин 13 с

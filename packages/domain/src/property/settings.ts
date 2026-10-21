@@ -13,6 +13,9 @@ export interface HotelSettingsPatch {
   email?: string | null;
   checkInTime?: string;
   checkOutTime?: string;
+  countryCode?: string | null;
+  city?: string | null;
+  channexPropertyType?: string | null;
 }
 
 export type HotelSettingsParse =
@@ -22,6 +25,11 @@ export type HotelSettingsParse =
 const LOCKED = new Set(['currency', 'timezone']);
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TEXT_MAX = 300;
+export const CHANNEX_PROPERTY_TYPES = [
+  'apart_hotel', 'apartment', 'boat', 'camping', 'capsule_hotel', 'chalet',
+  'country_house', 'farm_stay', 'guest_house', 'holiday_home', 'holiday_park',
+  'homestay', 'hostel', 'hotel', 'inn', 'lodge', 'motel', 'resort', 'riad', 'ryokan',
+] as const;
 
 /**
  * Время суток «как набирают» → ЧЧ:ММ, иначе null (SET2 «Настроек объекта», DESIGN.md §14 — всегда 24 часа). Принимает
@@ -88,6 +96,27 @@ export function parseHotelSettingsPatch(raw: unknown): HotelSettingsParse {
         const s = text(value)?.toLowerCase() ?? null;
         if (s !== null && !EMAIL.test(s)) return { ok: false, reason: 'Почта — в виде name@example.kz' };
         out.email = s;
+        break;
+      }
+      case 'countryCode': {
+        const s = text(value)?.toUpperCase() ?? null;
+        if (s !== null && !/^[A-Z]{2}$/.test(s))
+          return { ok: false, reason: 'Страна: двухбуквенный код, например KZ' };
+        out.countryCode = s;
+        break;
+      }
+      case 'city': {
+        const s = text(value);
+        if (s !== null && s.length > 100)
+          return { ok: false, reason: 'Город: не длиннее 100 знаков' };
+        out.city = s;
+        break;
+      }
+      case 'channexPropertyType': {
+        const s = text(value);
+        if (s !== null && !CHANNEX_PROPERTY_TYPES.includes(s as typeof CHANNEX_PROPERTY_TYPES[number]))
+          return { ok: false, reason: 'Выберите тип размещения из списка' };
+        out.channexPropertyType = s;
         break;
       }
       case 'checkInTime':

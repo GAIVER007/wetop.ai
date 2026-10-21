@@ -1,0 +1,9 @@
+{
+  "scope": "All apps/web/src CSS source concatenated; gzip is a source comparison, not a browser bundle measurement",
+  "beforeSha": "b6db018699fa806060d3e74f8d257ec57a9ff8c2",
+  "afterSha": "d1461ddc3d757a76d36905af55614483083b34e2",
+  "beforeBytes": 475800,
+  "afterBytes": 500148,
+  "beforeGzipBytes": 92792,
+  "afterGzipBytes": 90807
+}

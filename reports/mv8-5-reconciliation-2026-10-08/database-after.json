@@ -1,0 +1,74 @@
+{
+  "ledger": [
+    {
+      "migration_name": "20261007000067_site_asset_grants"
+    },
+    {
+      "migration_name": "20261007000066_site_assets"
+    },
+    {
+      "migration_name": "20261007000065_marketing_publication_grants"
+    },
+    {
+      "migration_name": "20261007000064_marketing_publication_domains"
+    },
+    {
+      "migration_name": "20261007000063_generation_run_grants"
+    },
+    {
+      "migration_name": "20261007000062_generation_run_core"
+    },
+    {
+      "migration_name": "20261006000061_marketing_site_grants"
+    },
+    {
+      "migration_name": "20261006000060_marketing_site_core"
+    }
+  ],
+  "counts": [
+    {
+      "sites": 0,
+      "versions": 0,
+      "locations": 2,
+      "tracked": 0
+    }
+  ],
+  "security": [
+    {
+      "relname": "generation_runs",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "can_select": true,
+      "can_insert": true,
+      "can_update": false,
+      "can_delete": false
+    },
+    {
+      "relname": "marketing_site_publications",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "can_select": true,
+      "can_insert": true,
+      "can_update": false,
+      "can_delete": false
+    },
+    {
+      "relname": "site_assets",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "can_select": true,
+      "can_insert": true,
+      "can_update": true,
+      "can_delete": false
+    },
+    {
+      "relname": "site_domains",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "can_select": true,
+      "can_insert": true,
+      "can_update": true,
+      "can_delete": false
+    }
+  ]
+}

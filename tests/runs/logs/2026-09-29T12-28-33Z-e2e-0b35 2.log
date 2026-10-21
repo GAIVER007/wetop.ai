@@ -1,0 +1,229 @@
+# Сквозные (e2e) · 29.09.2026 17:28 Алматы · vm
+# коммит f6f4369 (claude/focused-gauss-p6zmlb)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 26 tests using 2 workers
+
+  ✓   2 tests/site/landing.spec.ts:11:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (881ms)
+  ✓   1 tests/site/auth-dialog.spec.ts:47:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (2.9s)
+  ✓   3 tests/site/landing.spec.ts:17:3 › / — открывается, доступна и без «TODO» на экране (2.7s)
+  ✓   5 tests/site/landing.spec.ts:32:3 › / — на телефоне нет горизонтальной прокрутки (482ms)
+  ✓   4 tests/site/auth-dialog.spec.ts:75:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (1.9s)
+  ✓   6 tests/site/landing.spec.ts:17:3 › /blog/ — открывается, доступна и без «TODO» на экране (1.1s)
+  ✓   8 tests/site/landing.spec.ts:32:3 › /blog/ — на телефоне нет горизонтальной прокрутки (281ms)
+  ✘   9 tests/site/landing.spec.ts:17:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране (168ms)
+  ✓   7 tests/site/auth-dialog.spec.ts:90:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (1.7s)
+  ✓  11 tests/site/landing.spec.ts:32:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки (263ms)
+  ✘  12 tests/site/landing.spec.ts:17:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране (161ms)
+  ✓  13 tests/site/landing.spec.ts:32:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки (229ms)
+  ✘  14 tests/site/landing.spec.ts:17:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране (157ms)
+  ✓  10 tests/site/auth-dialog.spec.ts:106:1 › «Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма (3.1s)
+  ✓  15 tests/site/auth-dialog.spec.ts:146:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (888ms)
+  ✓  16 tests/site/landing.spec.ts:32:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки (310ms)
+  ✓  17 tests/site/auth-dialog.spec.ts:155:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (1.1s)
+  ✓  19 tests/site/auth-dialog.spec.ts:165:1 › на телефоне окно открывается из меню и не шире экрана (1.1s)
+  ✘  20 tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв (10.1s)
+  ✘  21 tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв (10.2s)
+  ✘  22 tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв (10.2s)
+  ✘  23 tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов (10.5s)
+  ✘  18 tests/site/landing.spec.ts:45:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (1.0m)
+  ✓  24 tests/site/landing.spec.ts:63:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (89ms)
+  ✓  25 tests/site/landing.spec.ts:84:1 › главная: «Войти» и «Регистрация», шаги под регистрацию с 7 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · » (2.0s)
+  ✓  26 tests/site/landing.spec.ts:150:1 › первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее (584ms)
+
+
+  1) tests/site/landing.spec.ts:17:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране 
+
+    Error: страница /for/hostels/
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 404
+
+      17 |   test(`${path} — открывается, доступна и без «TODO» на экране`, async ({ page }) => {
+      18 |     const response = await page.goto(path);
+    > 19 |     expect(response?.status(), `страница ${path}`).toBe(200);
+         |                                                    ^
+      20 |
+      21 |     await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+      22 |     await expect(page).toHaveTitle(/WETOP/);
+        at /home/user/wetop.ai/tests/site/landing.spec.ts:19:52
+
+    Error Context: test-results/landing--for-hostels-—-отк-18f1b-упна-и-без-«TODO»-на-экране/error-context.md
+
+  2) tests/site/landing.spec.ts:17:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране 
+
+    Error: страница /for/mini-hotels/
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 404
+
+      17 |   test(`${path} — открывается, доступна и без «TODO» на экране`, async ({ page }) => {
+      18 |     const response = await page.goto(path);
+    > 19 |     expect(response?.status(), `страница ${path}`).toBe(200);
+         |                                                    ^
+      20 |
+      21 |     await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+      22 |     await expect(page).toHaveTitle(/WETOP/);
+        at /home/user/wetop.ai/tests/site/landing.spec.ts:19:52
+
+    Error Context: test-results/landing--for-mini-hotels-—-325c4-упна-и-без-«TODO»-на-экране/error-context.md
+
+  3) tests/site/landing.spec.ts:17:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране 
+
+    Error: страница /for/apart-hotels/
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 404
+
+      17 |   test(`${path} — открывается, доступна и без «TODO» на экране`, async ({ page }) => {
+      18 |     const response = await page.goto(path);
+    > 19 |     expect(response?.status(), `страница ${path}`).toBe(200);
+         |                                                    ^
+      20 |
+      21 |     await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+      22 |     await expect(page).toHaveTitle(/WETOP/);
+        at /home/user/wetop.ai/tests/site/landing.spec.ts:19:52
+
+    Error Context: test-results/landing--for-apart-hotels--ae777-упна-и-без-«TODO»-на-экране/error-context.md
+
+  4) tests/site/landing.spec.ts:45:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.getAttribute: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('meta[property="og:title"]')
+
+
+      47 |     await page.goto(path);
+      48 |     const meta = async (property: string) =>
+    > 49 |       page.locator(`meta[property="${property}"]`).getAttribute('content');
+         |                                                    ^
+      50 |     expect(await meta('og:title'), `og:title на ${path}`).toContain('WETOP');
+      51 |     expect(await meta('og:description'), `og:description на ${path}`).toBeTruthy();
+      52 |     expect(await meta('og:image:width')).toBe('1200');
+        at meta (/home/user/wetop.ai/tests/site/landing.spec.ts:49:52)
+        at /home/user/wetop.ai/tests/site/landing.spec.ts:50:18
+
+    Error Context: test-results/landing-ссылка-в-мессендже-3692a-писание-и-картинка-1200×630/error-context.md
+
+  5) tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв ────────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /хостел/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      15 |   test(`${segment.path} — заголовок, возможности и призыв`, async ({ page }) => {
+      16 |     await page.goto(segment.path);
+    > 17 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+         |                                                           ^
+      18 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      19 |     expect(await page.locator('main .card').count(), 'карточек возможностей').toBeGreaterThanOrEqual(5);
+      20 |     await expect(page.locator('main a[data-auth="register"]')).toBeVisible();
+        at /home/user/wetop.ai/tests/site/segments.spec.ts:17:59
+
+    Error Context: test-results/segments--for-hostels-—-заголовок-возможности-и-призыв/error-context.md
+
+  6) tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв ────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /мини-отел/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      15 |   test(`${segment.path} — заголовок, возможности и призыв`, async ({ page }) => {
+      16 |     await page.goto(segment.path);
+    > 17 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+         |                                                           ^
+      18 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      19 |     expect(await page.locator('main .card').count(), 'карточек возможностей').toBeGreaterThanOrEqual(5);
+      20 |     await expect(page.locator('main a[data-auth="register"]')).toBeVisible();
+        at /home/user/wetop.ai/tests/site/segments.spec.ts:17:59
+
+    Error Context: test-results/segments--for-mini-hotels-—-заголовок-возможности-и-призыв/error-context.md
+
+  7) tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв ───────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /апарт/i
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      15 |   test(`${segment.path} — заголовок, возможности и призыв`, async ({ page }) => {
+      16 |     await page.goto(segment.path);
+    > 17 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(segment.title);
+         |                                                           ^
+      18 |     expect(await page.locator('main').innerText()).toMatch(segment.mustHave);
+      19 |     expect(await page.locator('main .card').count(), 'карточек возможностей').toBeGreaterThanOrEqual(5);
+      20 |     await expect(page.locator('main a[data-auth="register"]')).toBeVisible();
+        at /home/user/wetop.ai/tests/site/segments.spec.ts:17:59
+
+    Error Context: test-results/segments--for-apart-hotels-—-заголовок-возможности-и-призыв/error-context.md
+
+  8) tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('#audience a[href="/for/hostels/"]')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('#audience a[href="/for/hostels/"]') with timeout 10000ms
+      - waiting for locator('#audience a[href="/for/hostels/"]')
+        23 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      29 |   await page.goto('/');
+      30 |   for (const segment of SEGMENTS) {
+    > 31 |     await expect(page.locator(`#audience a[href="${segment.path}"]`)).toHaveCount(1);
+         |                                                                       ^
+      32 |   }
+      33 | });
+      34 |
+        at /home/user/wetop.ai/tests/site/segments.spec.ts:31:71
+
+    Error Context: test-results/segments-карточки-направле-9d38c--страницы-по-типам-объектов/error-context.md
+
+  8 failed
+    tests/site/landing.spec.ts:17:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране ─
+    tests/site/landing.spec.ts:17:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране 
+    tests/site/landing.spec.ts:17:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране 
+    tests/site/landing.spec.ts:45:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 
+    tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв ─────────────
+    tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв ─────────
+    tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв ────────
+    tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов 
+  18 passed (1.4m)
+
+# код выхода 1 · 1 мин 24 с

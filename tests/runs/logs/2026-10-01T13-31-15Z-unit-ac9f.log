@@ -1,0 +1,76 @@
+# Модульные (unit) · 01.10.2026 18:31 Алматы · MacBook-Air-Urij.local
+# коммит 6c4d0f1 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 67
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T13-31-15Z-unit-ac9f.json' 'apps/web/src/app/chessboard/stay-labels.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (12 tests | 2 failed) 15ms
+   ✓ подпись непрерывного проживания в видимом окне (3)
+     ✓ показывает имя даже если заезд остался за левой границей 2ms
+     ✓ не объединяет соседние проживания и не протягивает текст через свободную ночь 0ms
+     ✓ не рисует полосу бронирования на блокировке 0ms
+   ✓ имя гостя по ширине плашки (ТЗ v2 §18, §58) (3)
+     ✓ полное, «Имя Ф.» и инициалы 1ms
+     ✓ двойная фамилия и лишние пробелы не ломают сокращение 0ms
+     ✓ одно слово — без точки; пустое имя — пусто 0ms
+   ✓ бейдж источника (ТЗ v2 §21): коротко на плашке, полностью в подсказке (3)
+     ✓ канал — буквами канала 0ms
+     ✓ прямые — коротким словом 0ms
+     ✓ без источника — без бейджа 0ms
+   ❯ служебный псевдоним на плашке (3)
+     × заменяет код стойки понятной подписью 7ms
+     × использует фактический канал, а не способ создания псевдонима 2ms
+     ✓ не скрывает настоящую фамилию и похожий текст 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/stay-labels.test.ts > служебный псевдоним на плашке > заменяет код стойки понятной подписью
+AssertionError: expected { full: 'Гость Стойка-a1b2c3', …(2) } to deeply equal { full: 'Бронь со стойки', …(2) }
+
+- Expected
++ Received
+
+  {
+-   "full": "Бронь со стойки",
+-   "initials": "Бронь",
+-   "short": "Со стойки",
++   "full": "Гость Стойка-a1b2c3",
++   "initials": "ГС",
++   "short": "Гость С.",
+  }
+
+ ❯ apps/web/src/app/chessboard/stay-labels.test.ts:78:61
+     76| describe('служебный псевдоним на плашке', () => {
+     77|   it('заменяет код стойки понятной подписью', () => {
+     78|     expect(guestNames('Гость Стойка-a1b2c3', 'DESK', null)).toEqual({ …
+       |                                                             ^
+     79|   });
+     80|   it('использует фактический канал, а не способ создания псевдонима', …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/stay-labels.test.ts > служебный псевдоним на плашке > использует фактический канал, а не способ создания псевдонима
+AssertionError: expected 'Гость Стойка-a1b2c3' to be 'Бронь по телефону' // Object.is equality
+
+Expected: "Бронь по телефону"
+Received: "Гость Стойка-a1b2c3"
+
+ ❯ apps/web/src/app/chessboard/stay-labels.test.ts:81:67
+     79|   });
+     80|   it('использует фактический канал, а не способ создания псевдонима', …
+     81|     expect(guestNames('Гость Стойка-a1b2c3', 'PHONE', null).full).toBe…
+       |                                                                   ^
+     82|     expect(guestNames('Гость Канал-a1b2c3', 'OTA', 'Booking.com').full…
+     83|     expect(guestNames('Гость Канал-a1b2c3', undefined, null).full).toB…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 passed (12)
+   Start at  17:31:17
+   Duration  214ms (transform 54%, tests 21%, import 19%, worker 5%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T13-31-15Z-unit-ac9f.json
+
+# код выхода 1 · 2 с

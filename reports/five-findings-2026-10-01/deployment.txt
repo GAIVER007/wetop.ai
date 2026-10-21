@@ -1,0 +1,12 @@
+Final production release: 9f2ee5573 (main, release, feature branch).
+Deployment completed 2026-10-01T14:53:44Z, 157 seconds.
+Production browser /channels/sync: explicitly not connected in summary, inbound,
+availability, prices/restrictions and bookings. No actual/success claim without connection.
+Production /reservations/new: 2026-09-30 departure with 2026-10-01 arrival has
+aria-invalid=true, amount hidden, Create disabled; Enter does not navigate/submit.
+Restored 2026-10-02. No production reservation created during verification.
+www.wetop.ai: 14-day trial visible in hero, onboarding, CTA and FAQ.
+Cloudflare Pages deployment: e21699d0.wetop-site.pages.dev (site sources from 8a658682).
+Repair readback: zero stale future allocations on CHECKED_OUT, exactly one repair audit.
+Protected booking untouched.
+Screenshot: /tmp/wetop-sync-final.png

@@ -62,13 +62,6 @@ export class ChannelConnectionService {
     };
     if (!this.reader) return { ...result, state: 'NO_KEY', message: 'Не задан ключ менеджера каналов' };
     if (!propertyId) return { ...result, state: 'NO_MAPPING', message: 'Объект не сопоставлен' };
-    const configuredId = process.env.CHANNEX_PROPERTY_ID?.trim();
-    if (configuredId && configuredId !== propertyId)
-      return {
-        ...result,
-        state: 'MAPPING_MISMATCH',
-        message: 'Идентификаторы объекта не совпадают',
-      };
     try {
       await this.reader.getProperty(propertyId);
       return { ...result, state: 'READY', propertyAccessible: true, message: 'Объект доступен' };

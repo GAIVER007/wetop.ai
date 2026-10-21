@@ -1,0 +1,16 @@
+# Модульные (unit) · 29.09.2026 22:15 Алматы · vm
+# коммит 38254b5 (claude/book-sec1-turnstile), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T17-15-53Z-unit-b6a8.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 48ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  17:15:54
+   Duration  3.51s (transform 74%, import 24%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-09-29T17-15-53Z-unit-b6a8.json
+
+# код выхода 0 · 5 с

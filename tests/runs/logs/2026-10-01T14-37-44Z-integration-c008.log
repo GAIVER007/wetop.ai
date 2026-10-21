@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 01.10.2026 19:37 Алматы · MacBook-Air-Urij.local
+# коммит e8b3914 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 47
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T14-37-44Z-integration-c008.json' 'tests/integration/reservation-create-retry.test.ts' 'tests/integration/overbooking-guard.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+(node:39889) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-create-retry.test.ts (3 tests) 485ms
+ ✓ |integration| tests/integration/overbooking-guard.test.ts (1 test) 242ms
+
+ Test Files  2 passed (2)
+      Tests  4 passed (4)
+   Start at  18:37:45
+   Duration  2.44s (tests 44%, transform 29%, import 26%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T14-37-44Z-integration-c008.json
+
+# код выхода 0 · 4 с

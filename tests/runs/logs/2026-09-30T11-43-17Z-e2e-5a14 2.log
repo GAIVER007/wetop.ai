@@ -1,0 +1,646 @@
+# Сквозные (e2e) · 30.09.2026 16:43 Алматы · vm
+# коммит 077b9c6 (claude/integration-2026-09-30), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/rates-derived.spec.ts' 'tests/ui/reservation-promo-field.spec.ts' 'tests/ui/rates-range.spec.ts' 'tests/ui/rates-design.spec.ts' 'tests/ui/ai-agents.spec.ts' 'tests/ui/ai-agents-create.spec.ts' 'tests/ui/ai-seller.spec.ts' 'tests/ui/platform-support.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 94 tests using 2 workers
+
+  ✓   2 tests/ui/ai-agents.spec.ts:29:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец (8.6s)
+  ✓   3 tests/ui/ai-agents.spec.ts:52:1 › главный администратор: рядом с продавцом карточка WETOP Support (4.7s)
+  ✓   4 tests/ui/ai-agents.spec.ts:64:1 › расширение не подключено: карточка объясняет, кнопка создания неактивна, ссылка ведёт на страницу с объяснением (2.5s)
+  ✓   5 tests/ui/ai-agents.spec.ts:83:1 › срок расширения вышел: карточка остаётся, «Подписка не активна», кнопка создания неактивна (2.3s)
+  ✓   6 tests/ui/ai-agents.spec.ts:97:1 › действует, профиль не применён: «Не настроен», Business и Location объекта, единственный филиал занят (2.2s)
+  ✓   7 tests/ui/ai-agents.spec.ts:109:1 › продавец работает: статус, каналы по данным, создать ещё нельзя — причина словами (2.3s)
+  ✘   1 tests/ui/ai-agents-create.spec.ts:31:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние (24.3s)
+  ✓   8 tests/ui/ai-agents.spec.ts:128:1 › бот не ответил: страница жива, WhatsApp — «Нет данных» (2.3s)
+  ✓  10 tests/ui/ai-agents-create.spec.ts:68:1 › каталог после создания: карточка агента с Business · Location, кнопка снова неактивна (5.6s)
+  ✓  11 tests/ui/ai-agents-create.spec.ts:89:1 › ошибки у поля словами: пустое название не отправляется и ничего не создаёт (3.6s)
+  ✓  12 tests/ui/ai-agents-create.spec.ts:105:1 › двойной щелчок по «Создать черновик» даёт одного агента (3.1s)
+  ✓  13 tests/ui/ai-agents-create.spec.ts:116:1 › единственный филиал занят: форма недоступна, причина словами, кнопки создания нет (2.3s)
+  ✓  14 tests/ui/ai-agents-create.spec.ts:127:1 › сотрудник смены: страница создания объясняет роль, формы нет (2.1s)
+  ✘   9 tests/ui/ai-agents.spec.ts:137:1 › черновики гостевого мастера: «Черновик», без Business и Location (18.0s)
+  ✓  16 tests/ui/ai-agents.spec.ts:149:1 › каталог не загрузился: экран остаётся, вместо карточек — сбой со следующим шагом (2.5s)
+  ✓  17 tests/ui/ai-agents.spec.ts:162:1 › сотрудник смены видит список; кнопка создания видна, неактивна, причина про роль (2.2s)
+  ✓  18 tests/ui/ai-agents.spec.ts:172:1 › старый адрес /ai-seller работает (2.4s)
+  ✓  19 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, light, 1440 (3.4s)
+  ✓  20 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, light, 1440 (3.4s)
+  ✘  15 tests/ui/ai-agents-create.spec.ts:135:1 › управляющий может создать агента (18.0s)
+  ✓  21 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, light, 1440 (3.8s)
+  ✓  22 tests/ui/ai-agents-create.spec.ts:144:1 › «только чтение»: кнопка в каталоге неактивна, форма недоступна (3.9s)
+  ✓  23 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, light, 1440 (4.6s)
+  ✓  25 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, light, 390 (3.6s)
+  ✓  26 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, light, 390 (2.9s)
+  ✓  27 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, light, 390 (3.0s)
+  ✓  28 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, light, 390 (2.8s)
+  ✓  29 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, dark, 1440 (3.5s)
+  ✘  24 tests/ui/ai-agents-create.spec.ts:155:1 › расширения нет: на странице создания причина про расширение (17.6s)
+  ✓  30 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, dark, 1440 (3.7s)
+  ✓  31 tests/ui/ai-agents-create.spec.ts:162:1 › несуществующий агент — страница «не найдено», а не пустая карточка (3.6s)
+  ✓  32 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, dark, 1440 (4.9s)
+  ✓  34 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, dark, 1440 (3.4s)
+  ✓  35 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, dark, 390 (3.0s)
+  ✓  36 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, dark, 390 (3.0s)
+  ✓  37 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, dark, 390 (2.9s)
+  ✓  38 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, dark, 390 (3.0s)
+  ✓  39 tests/ui/ai-seller.spec.ts:39:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (2.9s)
+  ✓  40 tests/ui/ai-seller.spec.ts:70:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (2.4s)
+  ✓  41 tests/ui/ai-seller.spec.ts:97:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (1.3s)
+  ✓  42 tests/ui/ai-seller.spec.ts:122:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (2.0s)
+  ✓  43 tests/ui/ai-seller.spec.ts:137:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (4.7s)
+  ✓  44 tests/ui/ai-seller.spec.ts:165:1 › продавец недоступен — метка, причина и обещание повтора (2.3s)
+  ✓  45 tests/ui/ai-seller.spec.ts:176:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (1.4s)
+  ✓  46 tests/ui/ai-seller.spec.ts:191:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (7.1s)
+  ✓  47 tests/ui/ai-seller.spec.ts:205:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (1.9s)
+  ✘  33 tests/ui/ai-agents-create.spec.ts:171:1 › запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком (45.3s)
+  ✓  48 tests/ui/ai-seller.spec.ts:236:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (4.0s)
+  ✓  50 tests/ui/ai-seller.spec.ts:270:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.8s)
+  ✓  51 tests/ui/ai-seller.spec.ts:276:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (4.5s)
+  ✓  52 tests/ui/ai-seller.spec.ts:304:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (3.2s)
+  ✓  53 tests/ui/ai-seller.spec.ts:318:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (2.2s)
+  ✓  54 tests/ui/ai-seller.spec.ts:335:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (2.9s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <SetupView>
+[WebServer]                       <Stack>
+[WebServer]                         <div className="stack">
+[WebServer]                           <section>
+[WebServer]                           <div className="seller-setup">
+[WebServer]                             ...
+[WebServer]                               <SellerPromptForm initial={"Разговор..."} max={20000} readOnly={null} note={null}>
+[WebServer]                                 <form action={function bound dispatchActionState} className="stack" ...>
+[WebServer]                                   <Textarea name="text" aria-labelledby="seller-pro..." rows={16} maxLength={20000} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       aria-labelledby="seller-prompt-title"
+[WebServer]                                       rows={16}
+[WebServer]                                       maxLength={20000}
+[WebServer]                                       required={true}
+[WebServer]                                       disabled={false}
+[WebServer]                                       defaultValue={"Разговор по шагам\n- Узнай, что нужно гостю: даты, сколько госте..."}
+[WebServer]                                       data-testid="seller-prompt-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                               <Field label="Сообщение ...">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Textarea name="text" rows={2} maxLength={2000} required={true} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       rows={2}
+[WebServer]                                       maxLength={2000}
+[WebServer]                                       required={true}
+[WebServer]                                       placeholder="Здравствуйте, есть места на выходные?"
+[WebServer]                                       data-testid="sandbox-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]     ...
+[WebServer]  
+  ✘  49 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, light, 1440 (18.6s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <SetupView>
+[WebServer]                       <Stack>
+[WebServer]                         <div className="stack">
+[WebServer]                           <section>
+[WebServer]                           <div className="seller-setup">
+[WebServer]                             ...
+[WebServer]                               <SellerPromptForm initial={"Разговор..."} max={20000} readOnly={null} note={null}>
+[WebServer]                                 <form action={function bound dispatchActionState} className="stack" ...>
+[WebServer]                                   <Textarea name="text" aria-labelledby="seller-pro..." rows={16} maxLength={20000} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       aria-labelledby="seller-prompt-title"
+[WebServer]                                       rows={16}
+[WebServer]                                       maxLength={20000}
+[WebServer]                                       required={true}
+[WebServer]                                       disabled={false}
+[WebServer]                                       defaultValue={"Разговор по шагам\n- Узнай, что нужно гостю: даты, сколько госте..."}
+[WebServer]                                       data-testid="seller-prompt-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                               <Field label="Сообщение ...">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Textarea name="text" rows={2} maxLength={2000} required={true} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       rows={2}
+[WebServer]                                       maxLength={2000}
+[WebServer]                                       required={true}
+[WebServer]                                       placeholder="Здравствуйте, есть места на выходные?"
+[WebServer]                                       data-testid="sandbox-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]     ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <SetupView>
+[WebServer]                       <Stack>
+[WebServer]                         <div className="stack">
+[WebServer]                           <section>
+[WebServer]                           <div className="seller-setup">
+[WebServer]                             ...
+[WebServer]                               <SellerPromptForm initial={"Разговор..."} max={20000} readOnly={null} note={null}>
+[WebServer]                                 <form action={function bound dispatchActionState} className="stack" ...>
+[WebServer]                                   <Textarea name="text" aria-labelledby="seller-pro..." rows={16} maxLength={20000} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       aria-labelledby="seller-prompt-title"
+[WebServer]                                       rows={16}
+[WebServer]                                       maxLength={20000}
+[WebServer]                                       required={true}
+[WebServer]                                       disabled={false}
+[WebServer]                                       defaultValue={"Разговор по шагам\n- Узнай, что нужно гостю: даты, сколько госте..."}
+[WebServer]                                       data-testid="seller-prompt-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                               <Field label="Сообщение ...">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Textarea name="text" rows={2} maxLength={2000} required={true} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       rows={2}
+[WebServer]                                       maxLength={2000}
+[WebServer]                                       required={true}
+[WebServer]                                       placeholder="Здравствуйте, есть места на выходные?"
+[WebServer]                                       data-testid="sandbox-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]     ...
+[WebServer]  
+  ✓  55 tests/ui/ai-seller.spec.ts:364:1 › снимки экранов раздела (7.9s)
+  ✓  57 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (3.7s)
+  ✓  58 tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, очередь, карточка — кто пишет (5.4s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="platform/s...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <SupportPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <div>
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SupportScreen>
+[WebServer]                 <KnowledgeView>
+[WebServer]                   <Stack>
+[WebServer]                     <div className="stack">
+[WebServer]                       ...
+[WebServer]                         <KnowledgeUploadForm upload={function supportUploadAction}>
+[WebServer]                           <form action={function bound dispatchActionState} className="stack stac...">
+[WebServer]                             <Field label="Документ: ...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input type="file" name="file" accept=".md,.txt,...." required={true} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="file"
+[WebServer]                                     name="file"
+[WebServer]                                     accept=".md,.txt,.pdf,.docx,.xlsx"
+[WebServer]                                     required={true}
+[WebServer]                                     data-testid="knowledge-file"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]     ...
+[WebServer]  
+  ✓  59 tests/ui/platform-support.spec.ts:103:1 › знания помощника: список и загрузка документа (4.1s)
+  ✓  60 tests/ui/platform-support.spec.ts:123:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (9.0s)
+  ✓  61 tests/ui/platform-support.spec.ts:175:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (2.3s)
+  ✓  62 tests/ui/platform-support.spec.ts:192:1 › помощник не подключён — раздел говорит, что вписать владельцу (2.3s)
+  ✘  56 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, light, 1440 (45.2s)
+  ✓  63 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: light, 1440px (14.6s)
+  ✓  65 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, light, 1440 (4.7s)
+  ✓  66 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, light, 390 (4.0s)
+  ✓  67 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, light, 390 (4.9s)
+  ✓  64 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: dark, 1440px (18.3s)
+  ✓  68 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, light, 390 (3.9s)
+  ✓  69 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: light, 390px (14.5s)
+  ✘  70 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, dark, 1440 (18.4s)
+  ✓  72 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, dark, 1440 (5.4s)
+  ✓  73 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, dark, 1440 (4.7s)
+  ✓  71 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: dark, 390px (15.9s)
+  ✓  75 tests/ui/rates-derived.spec.ts:33:1 › производный тариф: добавить, условия словами, ошибка у формы, правка процента (5.7s)
+  ✓  76 tests/ui/rates-derived.spec.ts:60:1 › промокоды: вкладка, добавить, повтор кода — ошибка, выключить (6.1s)
+  ✓  77 tests/ui/rates-derived.spec.ts:95:1 › «только чтение»: производные тарифы и промокоды видны, кнопок правки нет (3.2s)
+  ✘  74 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, dark, 390 (17.7s)
+  ✓  79 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, dark, 390 (4.6s)
+  ✓  78 tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: light (10.6s)
+  ✓  80 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, dark, 390 (3.7s)
+  ✓  82 tests/ui/rates-design.spec.ts:18:1 › календарь: сетка месяца с ценой в ячейке, ограничения словами, постоянной формы нет (2.7s)
+  ✓  83 tests/ui/rates-design.spec.ts:64:1 › изменить цены: панель открывается кнопкой, форма прежняя — дни одной строкой, число изменений (2.1s)
+  ✓  84 tests/ui/rates-design.spec.ts:94:1 › массовое изменение: ни одного дня недели — строка не добавляется, форма объясняет почему (3.4s)
+  ✓  81 tests/ui/rates-derived.spec.ts:106:3 › снимки D4 и доступность: dark (10.6s)
+  ✓  85 tests/ui/rates-design.spec.ts:110:1 › фильтры: категория и тариф чипами в одно касание, месяц русским списком — без «Показать» (3.2s)
+  ✓  86 tests/ui/rates-range.spec.ts:35:1 › один день: выбор, панель с фактами, предпросмотр, одна отправка, календарь обновлён и выбор сброшен (3.0s)
+  ✓  87 tests/ui/rates-design.spec.ts:139:1 › на телефоне сетка складывается в список дней, цена по-прежнему правится в ячейке (1.9s)
+  ✓  88 tests/ui/rates-range.spec.ts:88:1 › отрезок: второе касание задаёт отрезок, третье начинает заново, то же касание снимает выбор (3.3s)
+  ✓  89 tests/ui/reservation-promo-field.spec.ts:31:1 › промокод из формы уходит в запрос брони (4.6s)
+  ✓  90 tests/ui/rates-range.spec.ts:135:1 › разные исходные цены: «отличаются» с наименьшей и наибольшей, в предпросмотре — только новая цена (3.0s)
+  ✓  91 tests/ui/reservation-promo-field.spec.ts:36:1 › пустой промокод в запрос не попадает (2.9s)
+  ✓  92 tests/ui/rates-range.spec.ts:173:1 › щелчок по цене — прежняя правка ячейки, выбор дат он не трогает; смена месяца выбор сбрасывает (2.8s)
+  ✓  93 tests/ui/rates-range.spec.ts:192:1 › отказ API: причина в панели, панель, введённая цена и выбор остаются (2.2s)
+  ✓  94 tests/ui/rates-range.spec.ts:212:1 › «только чтение»: выбор и предпросмотр доступны, сохранить нельзя — общая фраза, запроса нет (2.9s)
+
+
+  1) tests/ui/ai-agents-create.spec.ts:31:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/ai-agents\/[0-9a-f-]{36}$/
+    Received string:  "http://127.0.0.1:3100/ai-agents/new"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        33 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/ai-agents/new"
+
+
+      50 |   await page.getByTestId('agent-create-submit').click();
+      51 |
+    > 52 |   await expect(page).toHaveURL(/\/ai-agents\/[0-9a-f-]{36}$/);
+         |                      ^
+      53 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText('AI-продавец Luxx 2');
+      54 |   await expect(page.getByText('Сеть Тест · Астана')).toBeVisible();
+      55 |   await expect(page.getByTestId('agent-lifecycle')).toHaveText('Черновик');
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:52:22
+
+    Error Context: test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ai-agents-create.spec.ts:135:1 › управляющий может создать агента ────────────────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/ai-agents\/[0-9a-f-]{36}$/
+    Received string:  "http://127.0.0.1:3100/ai-agents/new"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        33 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/ai-agents/new"
+
+
+      139 |   await page.getByTestId('agent-name').fill('Агент управляющего');
+      140 |   await page.getByTestId('agent-create-submit').click();
+    > 141 |   await expect(page).toHaveURL(/\/ai-agents\/[0-9a-f-]{36}$/);
+          |                      ^
+      142 | });
+      143 |
+      144 | test('«только чтение»: кнопка в каталоге неактивна, форма недоступна', async ({ page, request }) => {
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:141:22
+
+    Error Context: test-results/ai-agents-create-управляющий-может-создать-агента/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-управляющий-может-создать-агента/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-управляющий-может-создать-агента/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/ai-agents-create.spec.ts:155:1 › расширения нет: на странице создания причина про расширение 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('agent-create-blocked')
+    Expected substring: "Расширение «ИИ-продавец» не подключено."
+    Received string:    "Создать нельзяНет свободного филиала. Для этого филиала AI-продавец уже создан.К списку агентов"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('agent-create-blocked') with timeout 15000ms
+      - waiting for getByTestId('agent-create-blocked')
+        33 × locator resolved to <section class="panel" data-testid="agent-create-blocked">…</section>
+           - unexpected value "Создать нельзяНет свободного филиала. Для этого филиала AI-продавец уже создан.К списку агентов"
+
+
+      157 |   await signIn(page);
+      158 |   await page.goto('/ai-agents/new');
+    > 159 |   await expect(page.getByTestId('agent-create-blocked')).toContainText('Расширение «ИИ-продавец» не подключено.');
+          |                                                          ^
+      160 | });
+      161 |
+      162 | test('несуществующий агент — страница «не найдено», а не пустая карточка', async ({ page, request }) => {
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:159:58
+
+    Error Context: test-results/ai-agents-create-расширени-ab14d-ания-причина-про-расширение/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-расширени-ab14d-ания-причина-про-расширение/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-расширени-ab14d-ания-причина-про-расширение/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/ai-agents-create.spec.ts:171:1 › запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+      navigated to "http://127.0.0.1:3100/ai-agents/new"
+    ============================================================
+
+      175 |   await page.getByTestId('agent-name').fill('Черновик без запуска');
+      176 |   await page.getByTestId('agent-create-submit').click();
+    > 177 |   await page.waitForURL(/\/ai-agents\/[0-9a-f-]{36}$/);
+          |              ^
+      178 |   const id = page.url().split('/').pop()!;
+      179 |   const answer = await request.post(`${API}/ai-seller/agents/${id}/activate`, {
+      180 |     headers: { 'x-wetop-test-client': '1' },
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:177:14
+
+    Error Context: test-results/ai-agents-create-запуска-н-66745-ерновик-остаётся-черновиком/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-запуска-н-66745-ерновик-остаётся-черновиком/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-запуска-н-66745-ерновик-остаётся-черновиком/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, light, 1440 ─────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('agent-create-form')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('agent-create-form') with timeout 15000ms
+      - waiting for getByTestId('agent-create-form')
+
+
+      203 |         } else {
+      204 |           await page.goto('/ai-agents/new');
+    > 205 |           await expect(page.getByTestId(view === 'form' ? 'agent-create-form' : 'agent-create-blocked')).toBeVisible();
+          |                                                                                                          ^
+      206 |           if (view === 'form') await page.getByTestId('agent-name').fill('AI-продавец Luxx 2');
+      207 |         }
+      208 |         const scan = await new AxeBuilder({ page }).analyze();
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:205:106
+
+    Error Context: test-results/ai-agents-create-оформление-axe-и-снимок-form-light-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-оформление-axe-и-снимок-form-light-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-оформление-axe-и-снимок-form-light-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, light, 1440 ────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 45000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+      navigated to "http://127.0.0.1:3100/ai-agents/new"
+    ============================================================
+
+      199 |           await page.getByTestId('agent-name').fill('AI-продавец Luxx 2');
+      200 |           await page.getByTestId('agent-create-submit').click();
+    > 201 |           await page.waitForURL(/\/ai-agents\/[0-9a-f-]{36}$/);
+          |                      ^
+      202 |           await expect(page.getByTestId('agent-setup')).toBeVisible();
+      203 |         } else {
+      204 |           await page.goto('/ai-agents/new');
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:201:22
+
+    Error Context: test-results/ai-agents-create-оформление-axe-и-снимок-agent-light-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-оформление-axe-и-снимок-agent-light-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-оформление-axe-и-снимок-agent-light-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, dark, 1440 ──────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('agent-create-form')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('agent-create-form') with timeout 15000ms
+      - waiting for getByTestId('agent-create-form')
+
+
+      203 |         } else {
+      204 |           await page.goto('/ai-agents/new');
+    > 205 |           await expect(page.getByTestId(view === 'form' ? 'agent-create-form' : 'agent-create-blocked')).toBeVisible();
+          |                                                                                                          ^
+      206 |           if (view === 'form') await page.getByTestId('agent-name').fill('AI-продавец Luxx 2');
+      207 |         }
+      208 |         const scan = await new AxeBuilder({ page }).analyze();
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:205:106
+
+    Error Context: test-results/ai-agents-create-оформление-axe-и-снимок-form-dark-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-оформление-axe-и-снимок-form-dark-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-оформление-axe-и-снимок-form-dark-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, dark, 390 ───────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('agent-create-form')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('agent-create-form') with timeout 15000ms
+      - waiting for getByTestId('agent-create-form')
+
+
+      203 |         } else {
+      204 |           await page.goto('/ai-agents/new');
+    > 205 |           await expect(page.getByTestId(view === 'form' ? 'agent-create-form' : 'agent-create-blocked')).toBeVisible();
+          |                                                                                                          ^
+      206 |           if (view === 'form') await page.getByTestId('agent-name').fill('AI-продавец Luxx 2');
+      207 |         }
+      208 |         const scan = await new AxeBuilder({ page }).analyze();
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:205:106
+
+    Error Context: test-results/ai-agents-create-оформление-axe-и-снимок-form-dark-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-оформление-axe-и-снимок-form-dark-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-оформление-axe-и-снимок-form-dark-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/ai-agents.spec.ts:137:1 › черновики гостевого мастера: «Черновик», без Business и Location 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('agent-draft')
+    Expected: 1
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('agent-draft') with timeout 15000ms
+      - waiting for getByTestId('agent-draft')
+        33 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      140 |   await page.goto('/ai-agents');
+      141 |   const draft = page.getByTestId('agent-draft');
+    > 142 |   await expect(draft).toHaveCount(1);
+          |                       ^
+      143 |   await expect(draft).toContainText('Мой хостел');
+      144 |   await expect(draft.getByTestId('agent-status')).toHaveText('Черновик');
+      145 |   await expect(draft).toContainText('Business и Location не выбраны');
+        at /home/user/wetop.ai/tests/ui/ai-agents.spec.ts:142:23
+
+    Error Context: test-results/ai-agents-черновики-гостев-e7914-ик»-без-Business-и-Location/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-черновики-гостев-e7914-ик»-без-Business-и-Location/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-черновики-гостев-e7914-ик»-без-Business-и-Location/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9 failed
+    tests/ui/ai-agents-create.spec.ts:31:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние 
+    tests/ui/ai-agents-create.spec.ts:135:1 › управляющий может создать агента ─────────────────────
+    tests/ui/ai-agents-create.spec.ts:155:1 › расширения нет: на странице создания причина про расширение 
+    tests/ui/ai-agents-create.spec.ts:171:1 › запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком 
+    tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, light, 1440 ──────────
+    tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, light, 1440 ─────────
+    tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, dark, 1440 ───────────
+    tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, dark, 390 ────────────
+    tests/ui/ai-agents.spec.ts:137:1 › черновики гостевого мастера: «Черновик», без Business и Location 
+  85 passed (5.2m)
+
+# код выхода 1 · 5 мин 14 с

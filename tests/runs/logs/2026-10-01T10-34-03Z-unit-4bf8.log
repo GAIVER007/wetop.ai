@@ -1,0 +1,58 @@
+# Модульные (unit) · 01.10.2026 15:34 Алматы · MacBook-Air-Urij.local
+# коммит 46aefde (codex/unified-workspace-20260929), незакоммиченных файлов набора: 67
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T10-34-03Z-unit-4bf8.json' 'apps/web/src/lib/api.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| apps/web/src/lib/api.test.ts (16 tests | 1 failed) 111ms
+   ✓ сохраняет HTTP-статус, чтобы отличить отсутствующую бронь от сбоя API 79ms
+   ✓ обычный запуск не принимает демонстрационные данные 1ms
+   ✓ production не разрешает тестовый сервер даже с флагом 0ms
+   ✓ test opt-in добавляет явный заголовок, пустые реальные ответы остаются пустыми 1ms
+   ✓ ответ 5xx на команду предупреждает, что операция могла записаться, и просит проверить перед повтором (Б6) 1ms
+   ✓ сетевой отказ не превращается в нулевые показатели и не повторяет команду 0ms
+   ✓ чтение ждёт API столько же, сколько команда: 60 с (уточнение ADR-031) 1ms
+   ✓ не перехватывает служебные сигналы рендера как сетевой сбой 0ms
+   ✓ деморежим разрешён только явно и только на локальном dev-источнике 0ms
+   ✓ production не принимает demo даже с флагом и не отправляет команды 0ms
+   ✓ обычный режим отвергает demo-заголовок с любого адреса 0ms
+   ✓ при включённом входе 401 ведёт на экран входа 22ms
+   ✓ пока вход не включён, 401 остаётся обычной ошибкой API 0ms
+   ✓ неверный пароль на входе не превращается в переход на тот же экран 0ms
+   ✓ ApiError carries its status in digest, so the client error boundary can tell 404 from 503 0ms
+   × auth/me переносит организацию рабочего API в контекст пользователя 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/api.test.ts > auth/me переносит организацию рабочего API в контекст пользователя
+AssertionError: expected undefined to deeply equal { name: 'Test organization', …(2) }
+
+- Expected:
+{
+  "name": "Test organization",
+  "status": "ACTIVE",
+  "trialEndsAt": null,
+}
+
++ Received:
+undefined
+
+ ❯ apps/web/src/lib/api.test.ts:173:51
+    171|   const organization = { name: 'Test organization', status: 'ACTIVE', …
+    172|   vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.s…
+    173|   expect((await authApi.me()).user?.organization).toEqual(organization…
+       |                                                   ^
+    174|  });
+    175|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 passed (16)
+   Start at  14:34:05
+   Duration  330ms (tests 54%, transform 38%, import 7%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T10-34-03Z-unit-4bf8.json
+
+# код выхода 1 · 2 с

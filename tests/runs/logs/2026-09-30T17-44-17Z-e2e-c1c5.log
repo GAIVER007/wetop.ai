@@ -1,0 +1,58 @@
+# Сквозные (e2e) · 30.09.2026 22:44 Алматы · MacBook-Air-Urij.local
+# коммит 4ea1af6 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/rates-design.spec.ts' '--grep' 'в воскресенье' '--workers=1'
+[WebServer] (node:56032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56069) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56070) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56071) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56118) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56187) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:56221) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/rates-design.spec.ts:192:1 › нет цены в воскресенье: подсказка не расширяет страницу (11.9s)
+
+
+  1) tests/ui/rates-design.spec.ts:192:1 › нет цены в воскресенье: подсказка не расширяет страницу ─
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      195 |   await page.goto('/rates?month=2026-06');
+      196 |   await expect(page.getByRole('main').getByTestId('rate-row-2026-06-21')).toContainText('Нет цены');
+    > 197 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+          |                                                                                             ^
+      198 | });
+      199 |
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/rates-design.spec.ts:197:93
+
+    Error Context: test-results/rates-design-нет-цены-в-во-4f6c5-казка-не-расширяет-страницу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-design-нет-цены-в-во-4f6c5-казка-не-расширяет-страницу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-design-нет-цены-в-во-4f6c5-казка-не-расширяет-страницу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/rates-design.spec.ts:192:1 › нет цены в воскресенье: подсказка не расширяет страницу ──
+
+# код выхода 1 · 41 с

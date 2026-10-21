@@ -1,0 +1,37 @@
+{
+  "sourceMain": "791adad02a5955102f32ffa9c6533a29bc4f3757",
+  "lastAppliedReadOnly": "20261006000061_marketing_site_grants",
+  "pending": [
+    {
+      "name": "20261007000062_generation_run_core",
+      "upSha256": "c60709b847406880289d9ce75dfa2a01b72c3b2c391ab03eb9136f80e5effe56",
+      "downSha256": "23b309b090e16c03c209b567f56687107ccdf27e7aa9d32e7e5fee9b595b1b28"
+    },
+    {
+      "name": "20261007000063_generation_run_grants",
+      "upSha256": "d06e12f7d82085042fa51a30aea62fd750e00416b3d6330dc02aba8c99d0a51d",
+      "downSha256": "f72e715deb381f46548156a94bb002281ffab0dde1a6e1856b03e35535480f9e"
+    },
+    {
+      "name": "20261007000064_marketing_publication_domains",
+      "upSha256": "677edcc9ee8435a46c28339e2ebe3de9374e3fee6af3e08277589838887d7908",
+      "downSha256": "d8217e39ae2789ad093e4dd2ce564287d8ae9e8854993bc830e06a60fee430d3"
+    },
+    {
+      "name": "20261007000065_marketing_publication_grants",
+      "upSha256": "9c93f031730113fcadb92b3def062df78593c641a1f7074bf494457f2a53c37c",
+      "downSha256": "52148662c7947f656f748664c29ec3e4a6ccc222a884bce8dbb7a2aece96f0f8"
+    },
+    {
+      "name": "20261007000066_site_assets",
+      "upSha256": "5f6418d83b0e2ef5d7a502c09ac307b6910505ad3f563ddfd0e7d617bacdbe59",
+      "downSha256": "d58d5dc4a6814a47d78cda6620d86f600e771a77a4351f2d4cb64bc0cd1b134f"
+    },
+    {
+      "name": "20261007000067_site_asset_grants",
+      "upSha256": "aa2c95f40ac8072ffcf8980d6a9130fd9f5c064765f9d4ba0866ce0822133441",
+      "downSha256": "ff3088684de4b14f5fb89f27b4f7da858f9e236dab5f99df93172eb40be8efad"
+    }
+  ],
+  "approvalRequired": true
+}

@@ -1,0 +1,16 @@
+# Модульные (unit) · 29.09.2026 18:50 Алматы · vm
+# коммит fb0dfbc (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T13-50-50Z-unit-29d3.json' 'apps/web/src/lib/rate-rule-text.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/rate-rule-text.test.ts (4 tests) 8ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  13:50:51
+   Duration  207ms (transform 57%, import 22%, tests 14%, worker 7%)
+
+JSON report written to /tmp/pms-test-2026-09-29T13-50-50Z-unit-29d3.json
+
+# код выхода 0 · 1 с

@@ -1,0 +1,19 @@
+# Интеграционные (integration) · 30.09.2026 11:44 Алматы · vm
+# коммит f177acf (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T06-44-25Z-integration-7aff.json' 'tests/integration/business-agent-identity.test.ts' 'tests/integration/seller-catalog.test.ts' 'tests/integration/seller-profiles.test.ts' 'tests/integration/seller-orgs.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/seller-profiles.test.ts (7 tests) 577ms
+ ✓ |integration| tests/integration/business-agent-identity.test.ts (13 tests) 651ms
+ ✓ |integration| tests/integration/seller-catalog.test.ts (3 tests) 305ms
+ ✓ |integration| tests/integration/seller-orgs.test.ts (3 tests) 247ms
+
+ Test Files  4 passed (4)
+      Tests  26 passed (26)
+   Start at  06:44:26
+   Duration  5.32s (tests 49%, import 29%, transform 22%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-30T06-44-25Z-integration-7aff.json
+
+# код выхода 0 · 6 с

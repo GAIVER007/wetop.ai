@@ -1,0 +1,69 @@
+# Сквозные (e2e) · 01.10.2026 17:59 Алматы · MacBook-Air-Urij.local
+# коммит a7065b1 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 79
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/booking-compact.spec.ts' '--grep' 'пустой филиал' '--workers=1'
+[WebServer] (node:6028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6075) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6077) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6079) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6126) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6127) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:6191) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6193) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:6201) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/booking-compact.spec.ts:62:1 › пустой филиал не позволяет создать бронь без категории (19.8s)
+
+
+  1) tests/ui/booking-compact.spec.ts:62:1 › пустой филиал не позволяет создать бронь без категории 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Сначала добавьте категории и номера в разделе «Номерной фонд».', { exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Сначала добавьте категории и номера в разделе «Номерной фонд».', { exact: true }) with timeout 15000ms
+      - waiting for getByText('Сначала добавьте категории и номера в разделе «Номерной фонд».', { exact: true })
+
+
+      64 |   await page.goto('/reservations/new');
+      65 |   await expect(page.getByRole('button', { name: 'Создать бронь', exact: true })).toBeDisabled();
+    > 66 |   await expect(page.getByText('Сначала добавьте категории и номера в разделе «Номерной фонд».', { exact: true })).toBeVisible();
+         |                                                                                                                   ^
+      67 | });
+      68 |
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/booking-compact.spec.ts:66:115
+
+    Error Context: test-results/booking-compact-пустой-фил-1336e-создать-бронь-без-категории/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/booking-compact-пустой-фил-1336e-создать-бронь-без-категории/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/booking-compact-пустой-фил-1336e-создать-бронь-без-категории/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/booking-compact.spec.ts:62:1 › пустой филиал не позволяет создать бронь без категории ─
+
+# код выхода 1 · 48 с

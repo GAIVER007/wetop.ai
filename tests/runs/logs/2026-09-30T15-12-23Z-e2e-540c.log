@@ -1,0 +1,335 @@
+# Сквозные (e2e) · 30.09.2026 20:12 Алматы · MacBook-Air-Urij.local
+# коммит ec63d74 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'ai-seller.spec.ts' 'seller-workspace.spec.ts' 'seller-agent-editor.spec.ts' 'ai-agents.spec.ts' 'ai-agents-create.spec.ts' '--workers=1'
+[WebServer] (node:93468) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93511) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93512) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93522) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93630) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 72 tests using 1 worker
+
+(node:93639) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/ai-agents-create.spec.ts:31:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние (8.5s)
+[WebServer] (node:93736) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/ai-agents-create.spec.ts:68:1 › каталог после создания: карточка агента с Business · Location, кнопка снова неактивна (5.3s)
+  ✓   3 tests/ui/ai-agents-create.spec.ts:89:1 › ошибки у поля словами: пустое название не отправляется и ничего не создаёт (3.5s)
+[WebServer] (node:93746) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:93759) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/ai-agents-create.spec.ts:105:1 › двойной щелчок по «Создать черновик» даёт одного агента (2.5s)
+  ✓   5 tests/ui/ai-agents-create.spec.ts:116:1 › единственный филиал занят: форма недоступна, причина словами, кнопки создания нет (1.8s)
+  ✓   6 tests/ui/ai-agents-create.spec.ts:127:1 › сотрудник смены: страница создания объясняет роль, формы нет (1.4s)
+  ✓   7 tests/ui/ai-agents-create.spec.ts:135:1 › управляющий может создать агента (1.6s)
+[WebServer] (node:93778) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/ai-agents-create.spec.ts:144:1 › «только чтение»: кнопка в каталоге неактивна, форма недоступна (2.0s)
+  ✓   9 tests/ui/ai-agents-create.spec.ts:155:1 › расширения нет: на странице создания причина про расширение (1.6s)
+  ✓  10 tests/ui/ai-agents-create.spec.ts:162:1 › несуществующий агент — страница «не найдено», а не пустая карточка (1.5s)
+[WebServer] (node:93791) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/ai-agents-create.spec.ts:171:1 › запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком (2.2s)
+[WebServer] (node:93795) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, light, 1440 (2.7s)
+[WebServer] (node:93823) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, light, 1440 (3.1s)
+  ✓  14 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, light, 1440 (2.7s)
+  ✓  15 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, light, 390 (4.9s)
+[WebServer] (node:93875) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, light, 390 (2.8s)
+  ✓  17 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, light, 390 (2.4s)
+  ✓  18 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, dark, 1440 (2.3s)
+[WebServer] (node:93947) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, dark, 1440 (2.9s)
+  ✓  20 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, dark, 1440 (2.9s)
+  ✓  21 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, dark, 390 (2.0s)
+[WebServer] (node:93987) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, dark, 390 (2.7s)
+  ✓  23 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, dark, 390 (2.6s)
+[WebServer] (node:94010) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  24 tests/ui/ai-agents.spec.ts:29:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец (3.1s)
+[WebServer] (node:94023) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  25 tests/ui/ai-agents.spec.ts:52:1 › главный администратор: рядом с продавцом карточка WETOP Support (5.8s)
+  ✓  26 tests/ui/ai-agents.spec.ts:64:1 › расширение не подключено: карточка объясняет, кнопка создания неактивна, ссылка ведёт на страницу с объяснением (4.8s)
+[WebServer] (node:94047) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  27 tests/ui/ai-agents.spec.ts:83:1 › срок расширения вышел: карточка остаётся, «Подписка не активна», кнопка создания неактивна (3.3s)
+  ✓  28 tests/ui/ai-agents.spec.ts:97:1 › действует, профиль не применён: «Не настроен», Business и Location объекта, единственный филиал занят (1.9s)
+  ✓  29 tests/ui/ai-agents.spec.ts:109:1 › продавец работает: статус, каналы по данным, создать ещё нельзя — причина словами (1.6s)
+  ✓  30 tests/ui/ai-agents.spec.ts:128:1 › бот не ответил: страница жива, WhatsApp — «Нет данных» (1.2s)
+  ✓  31 tests/ui/ai-agents.spec.ts:137:1 › черновики гостевого мастера: «Черновик», без Business и Location (1.2s)
+  ✓  32 tests/ui/ai-agents.spec.ts:149:1 › каталог не загрузился: экран остаётся, вместо карточек — сбой со следующим шагом (1.3s)
+  ✓  33 tests/ui/ai-agents.spec.ts:162:1 › сотрудник смены видит список; кнопка создания видна, неактивна, причина про роль (1.2s)
+  ✓  34 tests/ui/ai-agents.spec.ts:172:1 › старый адрес /ai-seller работает (1.5s)
+[WebServer] (node:94093) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  35 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, light, 1440 (1.9s)
+  ✓  36 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, light, 1440 (2.2s)
+  ✓  37 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, light, 1440 (2.2s)
+  ✓  38 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, light, 1440 (3.8s)
+  ✓  39 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, light, 390 (2.9s)
+  ✓  40 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, light, 390 (1.9s)
+  ✓  41 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, light, 390 (1.7s)
+  ✓  42 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, light, 390 (1.9s)
+  ✓  43 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, dark, 1440 (2.0s)
+  ✓  44 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, dark, 1440 (2.8s)
+  ✓  45 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, dark, 1440 (3.0s)
+  ✓  46 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, dark, 1440 (3.1s)
+  ✓  47 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, dark, 390 (2.6s)
+  ✓  48 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, dark, 390 (2.9s)
+  ✓  49 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, dark, 390 (2.1s)
+  ✓  50 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, dark, 390 (2.3s)
+[WebServer] (node:94464) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  51 tests/ui/ai-seller.spec.ts:39:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (2.0s)
+[WebServer] (node:94471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  52 tests/ui/ai-seller.spec.ts:70:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (1.9s)
+[WebServer] (node:94473) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  53 tests/ui/ai-seller.spec.ts:97:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (1.0s)
+[WebServer] (node:94487) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  54 tests/ui/ai-seller.spec.ts:122:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (1.4s)
+[WebServer] (node:94493) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94495) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94498) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94500) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  55 tests/ui/ai-seller.spec.ts:137:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (3.3s)
+[WebServer] (node:94507) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  56 tests/ui/ai-seller.spec.ts:165:1 › продавец недоступен — метка, причина и обещание повтора (1.7s)
+[WebServer] (node:94519) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  57 tests/ui/ai-seller.spec.ts:176:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (1.0s)
+[WebServer] (node:94523) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94526) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94527) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94528) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94529) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94530) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94532) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94533) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  58 tests/ui/ai-seller.spec.ts:191:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (5.1s)
+[WebServer] (node:94537) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94540) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  59 tests/ui/ai-seller.spec.ts:205:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (2.5s)
+[WebServer] (node:94544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94549) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94550) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  60 tests/ui/ai-seller.spec.ts:236:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (2.7s)
+[WebServer] (node:94554) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  61 tests/ui/ai-seller.spec.ts:270:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.2s)
+[WebServer] (node:94558) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94561) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94562) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94563) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94564) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  62 tests/ui/ai-seller.spec.ts:276:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (3.1s)
+[WebServer] (node:94571) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94573) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94575) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  63 tests/ui/ai-seller.spec.ts:304:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (3.0s)
+[WebServer] (node:94579) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94581) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  64 tests/ui/ai-seller.spec.ts:318:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (2.8s)
+[WebServer] (node:94588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94589) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  65 tests/ui/ai-seller.spec.ts:335:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (2.4s)
+[WebServer] (node:94602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <SetupView>
+[WebServer]                       <Stack>
+[WebServer]                         <div className="stack">
+[WebServer]                           <section>
+[WebServer]                           <div className="seller-setup">
+[WebServer]                             ...
+[WebServer]                               <SellerPromptForm initial={"Разговор..."} max={20000} readOnly={null} note={null}>
+[WebServer]                                 <form action={function bound dispatchActionState} className="stack" ...>
+[WebServer]                                   <Textarea name="text" aria-labelledby="seller-pro..." rows={16} maxLength={20000} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       aria-labelledby="seller-prompt-title"
+[WebServer]                                       rows={16}
+[WebServer]                                       maxLength={20000}
+[WebServer]                                       required={true}
+[WebServer]                                       disabled={false}
+[WebServer]                                       defaultValue={"Разговор по шагам\n- Узнай, что нужно гостю: даты, сколько госте..."}
+[WebServer]                                       data-testid="seller-prompt-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                               <Field label="Сообщение ...">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Textarea name="text" rows={2} maxLength={2000} required={true} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       rows={2}
+[WebServer]                                       maxLength={2000}
+[WebServer]                                       required={true}
+[WebServer]                                       placeholder="Здравствуйте, есть места на выходные?"
+[WebServer]                                       data-testid="sandbox-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]     ...
+[WebServer]  
+[WebServer] (node:94608) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94622) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  66 tests/ui/ai-seller.spec.ts:364:1 › снимки экранов раздела (3.8s)
+[WebServer] (node:94640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  67 tests/ui/ai-seller.spec.ts:389:1 › Все агенты возвращает в единый каталог, а не только к черновикам (2.2s)
+[WebServer] (node:94647) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  68 tests/ui/ai-seller.spec.ts:398:1 › закрытое расширение: администратор видит действие для управления доступом (16.0s)
+(node:94660) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94694) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94696) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  69 tests/ui/seller-agent-editor.spec.ts:3:1 › агент из списка: редактирование, сохранение и повторное открытие (8.5s)
+  ✓  70 tests/ui/seller-agent-editor.spec.ts:25:1 › выключенный каталог объясняет состояние и не предлагает неработающее создание (2.1s)
+[WebServer] (node:94718) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94719) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94721) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  71 tests/ui/seller-workspace.spec.ts:11:1 › окно инструкции и проверка: светлая и тёмная темы, 1440–320, без горизонтального скролла (4.2s)
+[WebServer] (node:94726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:94727) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  72 tests/ui/seller-workspace.spec.ts:26:1 › широкий экран — проверка рядом с окном, телефон — под ним; подписи вкладок не сжаты (1.8s)
+
+
+  1) tests/ui/ai-seller.spec.ts:398:1 › закрытое расширение: администратор видит действие для управления доступом 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' })
+    Expected: "/platform"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' }) with timeout 15000ms
+      - waiting for getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' })
+
+
+      399 |   await request.post(`${API}/__test/control`, { data: { platformAdmin: true, sellerExtension: 'off' } });
+      400 |   await page.goto('/ai-seller');
+    > 401 |   await expect(page.getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' })).toHaveAttribute('href', '/platform');
+          |                                                                                                            ^
+      402 | });
+      403 |
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/ai-seller.spec.ts:401:108
+
+    Error Context: test-results/ai-seller-закрытое-расшире-1383d-вие-для-управления-доступом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-закрытое-расшире-1383d-вие-для-управления-доступом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-закрытое-расшире-1383d-вие-для-управления-доступом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ai-seller.spec.ts:398:1 › закрытое расширение: администратор видит действие для управления доступом 
+  71 passed (3.7m)
+
+# код выхода 1 · 3 мин 46 с

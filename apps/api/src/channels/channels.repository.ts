@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { randomUUID } from 'node:crypto';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { channex } from '@pms/integrations';
 import { Prisma } from '@pms/database';
 import { guardAriGateway } from './ari-switch';
@@ -17,6 +17,7 @@ import type {
   LocalRatePlanForChannex,
 } from './setup-plan';
 import { auditUserId } from '../accounts/actor';
+import { mappedChannexProperties, type MappedChannexProperty } from './mapped-properties';
 
 /** Подмножество клиента Channex, которое нужно синхронизации; в тестах — фальшивка. */
 export type ChannexGateway = Pick<
@@ -53,6 +54,8 @@ export interface LocalSetup {
 }
 
 export interface ChannelsRepository {
+  connectedProperties(): Promise<MappedChannexProperty[]>;
+  currentPropertyId(): Promise<string>;
   /** Сегодня по часам объекта (С-13, ТЗ аудита 25.09.2026): окно ARI считается от него */
   today(): Promise<string>;
   localSetup(ratePlanCode: string): Promise<LocalSetup>;
@@ -213,14 +216,20 @@ export interface OutboxRow {
 }
 export const CHANNELS_REPOSITORY = Symbol('CHANNELS_REPOSITORY');
 
-/** Адрес объекта для Channex — OBJECT.md (в схеме Property нет страны/города). */
-const OBJECT_LOCATION = { country: 'KZ', city: 'Алматы' };
 const asDate = (d: string) => new Date(`${d}T00:00:00Z`);
 const iso = (x: Date) => x.toISOString().slice(0, 10);
 
 @Injectable()
 export class PrismaChannelsRepository implements ChannelsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  connectedProperties(): Promise<MappedChannexProperty[]> {
+    return mappedChannexProperties(this.prisma.db);
+  }
+
+  currentPropertyId(): Promise<string> {
+    return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+  }
 
   async today(): Promise<string> {
     return propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
@@ -231,6 +240,10 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     // по имени — sync.service ходит сюда как служебный ходок). Читаем полный объект по его id.
     const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
     const p = await this.prisma.db.property.findUniqueOrThrow({ where: { id: propertyId } });
+    if (!p.countryCode || !p.city || !p.channexPropertyType)
+      throw new UnprocessableEntityException(
+        'Укажите страну, город и тип размещения в настройках объекта перед подключением Channex',
+      );
     const types = await this.prisma.db.accommodationType.findMany({
       where: { propertyId: p.id, active: true },
       orderBy: { code: 'asc' },
@@ -249,7 +262,9 @@ export class PrismaChannelsRepository implements ChannelsRepository {
         address: p.address,
         email: null,
         phone: null,
-        ...OBJECT_LOCATION,
+        country: p.countryCode,
+        city: p.city,
+        propertyType: p.channexPropertyType,
       },
       categories: types.map((t) => ({
         id: t.id,
@@ -496,7 +511,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
   }
   async lastAuditAt(action: string): Promise<Date | null> {
     const row = await this.prisma.db.auditLog.findFirst({
-      where: { action },
+      where: { action, entityType: 'Property', entityId: await this.scopedPropertyId() },
       orderBy: { createdAt: 'desc' },
       select: { createdAt: true },
     });

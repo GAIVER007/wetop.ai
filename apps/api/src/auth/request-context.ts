@@ -44,6 +44,8 @@ interface RequestActor {
   locationId?: string;
   /** Направление — из строки Business, никогда не приходит снаружи */
   vertical?: BusinessVertical;
+  /** Internal Channex job scope, set only after provider property ID is resolved server-side. */
+  integrationPropertyId?: string;
 }
 
 const storage = new AsyncLocalStorage<RequestActor>();
@@ -95,6 +97,16 @@ export function databaseTenant(): string | null {
 export function withServiceDatabase<T>(fn: () => Promise<T>): Promise<T> {
   const store = storage.getStore();
   return runAwaited({ ...(store ?? { userId: null, organizationId: null }), serviceDatabase: true }, fn);
+}
+
+/** Keep background Channex operations on one verified Property across async database calls. */
+export function withIntegrationPropertyScope<T>(propertyId: string, fn: () => Promise<T>): Promise<T> {
+  const store = storage.getStore();
+  return runAwaited({ ...(store ?? { userId: null, organizationId: null }), integrationPropertyId: propertyId }, fn);
+}
+
+export function currentIntegrationPropertyId(): string | null {
+  return storage.getStore()?.integrationPropertyId ?? null;
 }
 
 export function currentUserId(): string | null {

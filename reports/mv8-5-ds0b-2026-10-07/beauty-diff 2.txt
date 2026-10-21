@@ -1,0 +1,30 @@
+
+> pms-lux@0.0.0 design:diff
+> tsx scripts/design/diff-screens.ts reports/mv8-5-ds0b-2026-10-07/before/beauty reports/mv8-5-ds0b-2026-10-07/after/beauty
+
+appointments-1440-dark.png                       1846 / 1440000 px    0.128 %  область x 692–998, y 73–85
+appointments-1440-light.png                      1841 / 1440000 px    0.128 %  область x 692–998, y 73–85
+appointments-390-dark.png                           0 / 329160 px    0.000 %
+appointments-390-light.png                          0 / 329160 px    0.000 %
+calendar-1440-dark.png                           2176 / 1494720 px    0.146 %  область x 693–1043, y 73–393
+calendar-1440-light.png                          2088 / 1494720 px    0.140 %  область x 693–1035, y 73–386
+calendar-390-dark.png                               0 / 638040 px    0.000 %
+calendar-390-light.png                              0 / 638040 px    0.000 %
+customers-1440-dark.png                          1838 / 1440000 px    0.128 %  область x 693–999, y 73–85
+customers-1440-light.png                         1837 / 1440000 px    0.128 %  область x 693–999, y 73–85
+customers-390-dark.png                              0 / 329160 px    0.000 %
+customers-390-light.png                             0 / 329160 px    0.000 %
+drawer-1440-dark.png                             1037 / 1440000 px    0.072 %  область x 746–959, y 71–85
+drawer-1440-light.png                            1698 / 1440000 px    0.118 %  область x 699–959, y 70–86
+drawer-390-dark.png                                 0 / 329160 px    0.000 %
+drawer-390-light.png                                0 / 329160 px    0.000 %
+employees-1440-dark.png                          1830 / 1440000 px    0.127 %  область x 693–999, y 73–85
+employees-1440-light.png                         1828 / 1440000 px    0.127 %  область x 693–999, y 73–85
+employees-390-dark.png                              0 / 402480 px    0.000 %
+employees-390-light.png                             0 / 402480 px    0.000 %
+services-1440-dark.png                           1840 / 1440000 px    0.128 %  область x 692–998, y 73–85
+services-1440-light.png                          1838 / 1440000 px    0.128 %  область x 692–998, y 73–85
+services-390-dark.png                               0 / 329160 px    0.000 %
+services-390-light.png                              0 / 329160 px    0.000 %
+
+снимков: 24, с отличиями: 12

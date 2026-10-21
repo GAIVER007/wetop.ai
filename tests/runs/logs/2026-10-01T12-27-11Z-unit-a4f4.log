@@ -1,0 +1,90 @@
+# Модульные (unit) · 01.10.2026 17:27 Алматы · MacBook-Air-Urij.local
+# коммит 8984033 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 67
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T12-27-11Z-unit-a4f4.json' 'apps/web/src/app/branches/switch.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| apps/web/src/app/branches/switch.test.ts (7 tests | 4 failed) 19ms
+   × переключение сохраняет безопасный раздел /chessboard 16ms
+   × переключение сохраняет безопасный раздел /reservations/other-branch-booking 1ms
+   × переключение сохраняет безопасный раздел /guests/other-guest 0ms
+   × переключение сохраняет безопасный раздел /finance?folioId=old 0ms
+   ✓ переключение сохраняет безопасный раздел https://outside.test 1ms
+   ✓ переключение сохраняет безопасный раздел //outside.test 0ms
+   ✓ чужой филиал не меняет cookie 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/branches/switch.test.ts > переключение сохраняет безопасный раздел /chessboard
+AssertionError: expected [Function] to throw error including 'redirect:/chessboard' but got 'redirect:/today'
+
+Expected: "redirect:/chessboard"
+Received: "redirect:/today"
+
+ ❯ apps/web/src/app/branches/switch.test.ts:21:35
+     19| ])('переключение сохраняет безопасный раздел %s', async (from, expecte…
+     20|   const form = new FormData(); form.set('id', 'own'); form.set('return…
+     21|   await expect(selectBranch(form)).rejects.toThrow(`redirect:${expecte…
+       |                                   ^
+     22|   expect(state.set).toHaveBeenCalledOnce();
+     23|   expect(state.refresh).toHaveBeenCalledWith('/', 'layout');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/web/src/app/branches/switch.test.ts > переключение сохраняет безопасный раздел /reservations/other-branch-booking
+AssertionError: expected [Function] to throw error including 'redirect:/reservations' but got 'redirect:/today'
+
+Expected: "redirect:/reservations"
+Received: "redirect:/today"
+
+ ❯ apps/web/src/app/branches/switch.test.ts:21:35
+     19| ])('переключение сохраняет безопасный раздел %s', async (from, expecte…
+     20|   const form = new FormData(); form.set('id', 'own'); form.set('return…
+     21|   await expect(selectBranch(form)).rejects.toThrow(`redirect:${expecte…
+       |                                   ^
+     22|   expect(state.set).toHaveBeenCalledOnce();
+     23|   expect(state.refresh).toHaveBeenCalledWith('/', 'layout');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/web/src/app/branches/switch.test.ts > переключение сохраняет безопасный раздел /guests/other-guest
+AssertionError: expected [Function] to throw error including 'redirect:/guests' but got 'redirect:/today'
+
+Expected: "redirect:/guests"
+Received: "redirect:/today"
+
+ ❯ apps/web/src/app/branches/switch.test.ts:21:35
+     19| ])('переключение сохраняет безопасный раздел %s', async (from, expecte…
+     20|   const form = new FormData(); form.set('id', 'own'); form.set('return…
+     21|   await expect(selectBranch(form)).rejects.toThrow(`redirect:${expecte…
+       |                                   ^
+     22|   expect(state.set).toHaveBeenCalledOnce();
+     23|   expect(state.refresh).toHaveBeenCalledWith('/', 'layout');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/web/src/app/branches/switch.test.ts > переключение сохраняет безопасный раздел /finance?folioId=old
+AssertionError: expected [Function] to throw error including 'redirect:/finance' but got 'redirect:/today'
+
+Expected: "redirect:/finance"
+Received: "redirect:/today"
+
+ ❯ apps/web/src/app/branches/switch.test.ts:21:35
+     19| ])('переключение сохраняет безопасный раздел %s', async (from, expecte…
+     20|   const form = new FormData(); form.set('id', 'own'); form.set('return…
+     21|   await expect(selectBranch(form)).rejects.toThrow(`redirect:${expecte…
+       |                                   ^
+     22|   expect(state.set).toHaveBeenCalledOnce();
+     23|   expect(state.refresh).toHaveBeenCalledWith('/', 'layout');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 3 passed (7)
+   Start at  16:27:12
+   Duration  159ms (transform 44%, tests 33%, import 19%, worker 4%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T12-27-11Z-unit-a4f4.json
+
+# код выхода 1 · 2 с

@@ -1,0 +1,64 @@
+# Интеграционные (integration) · 30.09.2026 12:41 Алматы · vm
+# коммит 1fb5cbb (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 15
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T07-41-37Z-integration-d3a2.json' 'tests/integration/business-agents.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/business-agents.test.ts (7 tests | 1 failed) 516ms
+   ❯ Business Agents: создание и чтение (integration, DATABASE_URL required) (7)
+     ✓ placement: свой Business и свой филиал — да; чужой, не того Business, снятый с показа — null 25ms
+     ✓ create: черновик с филиалом, автором и журналом; повтор по ключу — тот же агент, один журнал 77ms
+     ✓ create: занятый филиал — LocationTakenError, второй записи и журнала нет; архивный агент филиал освобождает 29ms
+     × create: ключ чужой организации, чужого человека и ключ, равный организации, — ForeignIdempotencyKeyError 27ms
+     ✓ create: два одновременных создателя на свободный филиал — победитель один, второй LocationTakenError 17ms
+     ✓ options: Business и филиалы своей организации, занятый помечен; чужие не видны 13ms
+     ✓ get: агент своей организации с филиалом; чужой, рабочий продавец и запись мастера без филиала — null 18ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/business-agents.test.ts > Business Agents: создание и чтение (integration, DATABASE_URL required) > create: ключ чужой организации, чужого человека и ключ, равный организации, — ForeignIdempotencyKeyError
+AssertionError: promise resolved "{ agent: { …(7) }, created: false }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "agent": {
++     "business": {
++       "id": "49836e35-5e10-472f-a1e8-befba3ae5cbe",
++       "name": "Агенты А 1675f5f1-34ac-499f-a864-6c00600a0843",
++     },
++     "createdAt": 2026-09-30T07:41:41.100Z,
++     "id": "c1f49f38-554b-4ac9-aa4e-6a2eb5825ba6",
++     "lifecycle": "draft",
++     "location": {
++       "id": "339c046d-06d5-4052-8cd8-1627ba8bfbfc",
++       "name": "Филиал А2 1675f5f1-34ac-499f-a864-6c00600a0843",
++     },
++     "name": "AI-продавец теста",
++     "updatedAt": 2026-09-30T07:41:41.100Z,
++   },
++   "created": false,
+  }
+
+ ❯ tests/integration/business-agents.test.ts:135:6
+    133|     await expect(
+    134|       repo.create({ ...input({ id: key }), organizationId: orgB, userI…
+    135|     ).rejects.toBeInstanceOf(ForeignIdempotencyKeyError);
+       |      ^
+    136|     await expect(repo.create(input({ id: key, userId: userA2 }))).reje…
+    137|     // рабочий продавец: id = organization_id
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  07:41:38
+   Duration  2.94s (transform 53%, tests 31%, import 17%)
+
+JSON report written to /tmp/pms-test-2026-09-30T07-41-37Z-integration-d3a2.json
+
+# код выхода 1 · 4 с

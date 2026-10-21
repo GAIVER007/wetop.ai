@@ -87,7 +87,7 @@ export function OwnerDailyChart({ metrics }: { metrics: Metric[] }) {
             {rows.map((row, i) => <tr key={i}><th scope="row">{row[0]?.date ?? 'Нет данных'}</th><td>{row[0] && row[0].unresolvedSources !== 0 ? 'Данные неполные' : values[0]![i] === null ? 'Нет данных' : formatOwnerMoney(values[0]![i]!.toString(), currency)}</td>{hasPrevious && <><td>{row[1]?.date ?? 'Нет данных'}</td><td>{row[1] && row[1].unresolvedSources !== 0 ? 'Данные неполные' : values[1]![i] === null ? 'Нет данных' : formatOwnerMoney(values[1]![i]!.toString(), currency)}</td></>}</tr>)}
           </tbody></table>
         </details>
-      </> : <div className="owner-chart-empty" role="status"><strong>Нет данных для графика</strong><p>Нет операций с подтверждённой валютой за период. Недоступные источники не означают ноль.</p></div>}
+      </> : <div className="owner-chart-empty" role="status"><strong>Нет данных для графика</strong><p>За этот период ещё нет операций. График появится после первой оплаты или расхода.</p></div>}
       <p className="owner-chart-foot">По дням в часовом поясе филиала, текущий день неполный{!hasPrevious && ', сравнение недоступно'}</p>
     </div>
   </div>;

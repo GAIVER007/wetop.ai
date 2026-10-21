@@ -11,14 +11,14 @@ import { loadErrorProps } from '../../lib/load-error';
 import { Tabs } from '../../components/tabs';
 import { BarTabs } from './tabs';
 import { loadBarContext } from './load-context';
-import { Badge, EmptyState, Table, cx } from '../../components/ui';
-import { Icon, type IconName } from '../../components/icon';
+import { Badge, EmptyState, Table } from '../../components/ui';
+import { Icon } from '../../components/icon';
 import { SaleForm } from './sale-form';
 import { FolioSaleForm } from './folio-sale-form';
 import { StockBoard } from './stock-board';
 import { stockStatusOf } from './stock-status';
 import { AnalyticsDisclosure } from './analytics-disclosure';
-import { SaleDisclosure } from './sale-disclosure';
+import { SaleDialog } from './sale-disclosure';
 import { BarAnalytics } from './bar-analytics';
 import { deskShell } from '../../lib/desk-shell';
 import { barActionAccess } from './action-access';
@@ -58,19 +58,6 @@ function popularOf(report: BarReport, sales: BarSaleRow[]): Array<{ name: string
     .sort((a, b) => (a[1] === b[1] ? a[0].localeCompare(b[0], 'ru') : a[1] > b[1] ? -1 : 1))
     .slice(0, 5)
     .map(([name, units]) => ({ name, units: units.toString() }));
-}
-
-/** Плитка показателя по макету: цветная иконка слева, подпись, число, подсказка или прирост к прошлому месяцу */
-function Kpi({icon, tone, label, value, hint, alarm, children}: {
-  icon: IconName; tone: 'primary' | 'success' | 'warning' | 'danger' | 'info';
-  label: string; value: string; hint: string; alarm?: boolean; children?: import('react').ReactNode;
-}) {
-  return <div className={cx('bar-kpi',alarm && 'bar-kpi--alarm')}>
-    <span className={`bar-kpi-icon bar-kpi-icon--${tone}`}><Icon name={icon} width={24} height={24} /></span>
-    <div className="bar-kpi-body"><div className="bar-kpi-label">{label}</div><div className="bar-kpi-value">{value}</div></div>
-    <div className="bar-kpi-hint">{hint}</div>
-    {children}
-  </div>;
 }
 
 /**
@@ -119,7 +106,7 @@ export default async function BarPage({
     const error = loadErrorProps(failed.error);
     // 409 это деловой отказ сервера (смешанная валюта истории, D-CUR): его слова и есть заголовок
     return (
-      <Page width="full" className="bar-page" title={sectionName}>
+      <Page width="wide" className="bar-page" title={sectionName}>
         <LoadError
           testId="bar-load-error"
           {...error}
@@ -153,6 +140,27 @@ export default async function BarPage({
   const monthProfit = BigInt(r.month?.grossProfitMinor ?? r.grossProfitMinor);
   const lastReceipts = receipts.value.slice(0, 4);
   const popular = popularOf(r, sales.value);
+  // «Октябрь 2026 г.»: заглавная только у первой буквы, без text-transform (аудит 21.10.2026 п.28)
+  const monthName = r.month
+    ? new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
+        new Date(`${r.month.monthStart}T12:00:00Z`),
+      )
+    : 'текущий месяц';
+  const monthLabel = monthName.charAt(0).toLocaleUpperCase('ru') + monthName.slice(1);
+  const periodWord = r.month ? `За ${monthName}` : 'За всё время';
+  const saleForm = (
+    <SaleForm key={JSON.stringify([me.user?.id, me.context, me.sessionIssuedAt, context])} stock={stock.value} context={context} methods={paymentMethods.value.sale} recoveryScope={[me.user?.organizationId ?? '', me.context?.businessId ?? '', me.context?.locationId ?? '', me.user?.id ?? '', context.propertyId, context.currency, me.sessionIssuedAt ?? '']} expiresAt={me.expiresAt ?? ''} />
+  );
+  // итоги месяца строкой под списком, без плиток (аудит 21.10.2026 п.7)
+  const totals = (
+    <p className="bar-totals" data-testid="bar-totals">
+      <span>{periodWord}:</span>
+      <span>закупки <b data-testid="bar-total-purchases">{money(r.month?.purchasesMinor ?? r.purchasesMinor)}</b></span>
+      <span>выручка <b data-testid="bar-total-revenue">{money(monthRevenue)}</b></span>
+      <span>прибыль от продаж <b data-testid="bar-total-profit">{money(monthProfit)}</b> (без прочих расходов)</span>
+      <span>долг поставщикам <b data-testid="bar-total-debt">{money(r.supplierDebtMinor)}</b></span>
+    </p>
+  );
   const bottom = (
     <div className="bar-bottom">
       <section className="panel bar-bottom-panel" aria-labelledby="bar-receipts-title">
@@ -166,7 +174,7 @@ export default async function BarPage({
         </header>
         {lastReceipts.length === 0 ? (
           <p className="bar-muted">
-            Приходов пока нет: занесите первую счёт-фактуру кнопкой «Приход».
+            Приходов пока нет: занесите первую счёт-фактуру кнопкой «Приход» вверху страницы.
           </p>
         ) : (
           <Table density="compact" aria-label="Последние приходы поставщиков" plain>
@@ -200,32 +208,11 @@ export default async function BarPage({
           </Table>
         )}
       </section>
-      <section className="panel bar-bottom-panel" aria-labelledby="bar-popular-title">
-        <header className="bar-bottom-head bar-bottom-head--stack">
-          <h2 id="bar-popular-title" className="bar-panel-title">
-            Популярные товары
-          </h2>
-          <span className="bar-muted">За последний месяц</span>
-        </header>
-        {popular.length === 0 ? (
-          <p className="bar-muted">Продаж за месяц нет: первая продажа заполнит список.</p>
-        ) : (
-          <ol className="bar-popular">
-            {popular.map((item, index) => (
-              <li key={item.name}>
-                <span className="bar-popular-rank">{index + 1}</span>
-                <span className="bar-popular-name">{item.name}</span>
-                <b>{item.units} шт.</b>
-              </li>
-            ))}
-          </ol>
-        )}
-      </section>
     </div>
   );
   return (
     <Page
-      width="full"
+      width="wide"
       className="bar-page"
       title={sectionName}
       subtitle="Товары, остатки и продажи"
@@ -252,13 +239,7 @@ export default async function BarPage({
           )}
           <span className="bar-period-label">
             <Icon name="board" width={16} height={16} />
-            {r.month
-              ? new Intl.DateTimeFormat('ru-RU', {
-                  month: 'long',
-                  year: 'numeric',
-                  timeZone: 'UTC',
-                }).format(new Date(`${r.month.monthStart}T12:00:00Z`))
-              : 'Текущий месяц'}
+            {monthLabel}
           </span>
         </>
       }
@@ -280,15 +261,22 @@ export default async function BarPage({
         </Link>}
       </nav>
       <BarTabs current="bar" />
-      <section className="bar-kpis" aria-label={`Показатели ${vertical === 'BEAUTY' ? 'склада' : 'бара'}`}>
-        <Kpi icon="cart" tone="info" label="Сумма закупок" value={money(r.month?.purchasesMinor ?? r.purchasesMinor)} hint={r.month ? 'За текущий месяц' : 'За всё время'} />
-        <Kpi icon="chart" tone="primary" label={vertical === 'BEAUTY' ? 'Выручка склада' : 'Выручка бара'} value={money(monthRevenue)} hint={r.month ? 'За текущий месяц' : 'За всё время'} />
-        <Kpi icon="coins" tone="success" label="Прибыль от продаж" value={money(monthProfit)} hint={r.month ? 'Текущий месяц, без прочих расходов' : 'За всё время, без прочих расходов'} />
-        <Kpi icon="truck" tone="warning" label="Долг поставщикам" value={money(r.supplierDebtMinor)} hint="Осталось оплатить" />
-        <Kpi icon="incidents" tone="danger" label="Заканчиваются" value={String(lowCount)} hint={lowCount ? pluralRu(lowCount,['товар','товара','товаров'],false) : 'Нет предупреждений'} alarm={lowCount > 0}>
-          {lowCount > 0 && <details className="bar-kpi-list"><summary>Список товаров</summary><ul>{lowStock.map(item => <li key={item.id}><Link href={`/bar?product=${item.id}`} prefetch={false}>{item.name}</Link><b>{item.availableUnits} шт.</b></li>)}</ul></details>}
-        </Kpi>
-      </section>
+      {/* без плиток над списком (правило владельца, аудит 21.10.2026 п.7): предупреждение строкой, только когда есть что сказать */}
+      {lowCount > 0 && (
+        <p className="bar-low-warning" role="status" data-testid="bar-low-warning">
+          <Icon name="incidents" width={16} height={16} />
+          <span>
+            Заканчиваются: {pluralRu(lowCount, ['товар', 'товара', 'товаров'])}.{' '}
+            {lowStock.slice(0, 5).map((item, index) => (
+              <span key={item.id}>
+                {index > 0 && ', '}
+                <Link href={`/bar?product=${item.id}`} prefetch={false}>{item.name}</Link> ({item.availableUnits} шт.)
+              </span>
+            ))}
+            {lowCount > 5 && ' и другие'}
+          </span>
+        </p>
+      )}
       <AnalyticsDisclosure>
         <BarAnalytics
           sales={sales.value}
@@ -298,36 +286,53 @@ export default async function BarPage({
         />
       </AnalyticsDisclosure>
       {canSell && (
-      <SaleDisclosure label={vertical === 'HOSPITALITY' ? undefined : 'Продажа напрямую'}>
-        <section className="panel bar-sales" aria-label={`Продажи ${vertical === 'BEAUTY' ? 'склада' : 'бара'}`}>
-          <Tabs
-            label="Способ продажи"
-            panels={[
-              {
-                id: 'bar-retail',
-                label: 'Продажа напрямую',
-                content: <SaleForm key={JSON.stringify([me.user?.id, me.context, me.sessionIssuedAt, context])} stock={stock.value} context={context} methods={paymentMethods.value.sale} recoveryScope={[me.user?.organizationId ?? '', me.context?.businessId ?? '', me.context?.locationId ?? '', me.user?.id ?? '', context.propertyId, context.currency, me.sessionIssuedAt ?? '']} expiresAt={me.expiresAt ?? ''} />,
-              },
-              ...(vertical !== 'HOSPITALITY' ? [] : [{
-                id: 'bar-folio',
-                label: 'В счёт гостя',
-                content:
-                  folios.value.length === 0 ? (
-                    <p className="bar-muted">Открытых счетов нет. Доступна продажа напрямую.</p>
-                  ) : (
-                    <FolioSaleForm stock={stock.value} folios={folios.value} context={context} />
-                  ),
-              }]),
-            ]}
-          />
-        </section>
-      </SaleDisclosure>
+        // одна кнопка «Продажа» в шапке открывает окно продажи (аудит 21.10.2026 п.13); вкладки только у гостиницы
+        <SaleDialog title={vertical === 'HOSPITALITY' ? 'Продажа' : 'Продажа напрямую'}>
+          <section className="bar-sales" aria-label={`Продажи ${vertical === 'BEAUTY' ? 'склада' : 'бара'}`}>
+            {vertical === 'HOSPITALITY' ? (
+              <Tabs
+                label="Способ продажи"
+                panels={[
+                  { id: 'bar-retail', label: 'Продажа напрямую', content: saleForm },
+                  {
+                    id: 'bar-folio',
+                    label: 'В счёт гостя',
+                    content:
+                      folios.value.length === 0 ? (
+                        <p className="bar-muted">Открытых счетов нет. Доступна продажа напрямую.</p>
+                      ) : (
+                        <FolioSaleForm stock={stock.value} folios={folios.value} context={context} />
+                      ),
+                  },
+                ]}
+              />
+            ) : (
+              saleForm
+            )}
+          </section>
+        </SaleDialog>
       )}
       {stock.value.length === 0 ? (
         <>
-          <EmptyState icon={<Icon name="product" />} title="Товаров пока нет">
-            Добавьте первый товар кнопкой «Добавить товар» или загрузите фото накладной: «Приход».
+          <EmptyState
+            icon={<Icon name="product" />}
+            title="Товаров пока нет"
+            actions={
+              rights.createCatalog || rights.receiveStock ? (
+                <>
+                  {rights.createCatalog && (
+                    <Link className="btn" href="/bar/products#new-product" prefetch={false}>Добавить товар</Link>
+                  )}
+                  {rights.receiveStock && (
+                    <Link className="btn btn--secondary" href="/bar/receipts/new" prefetch={false}>Приход по накладной</Link>
+                  )}
+                </>
+              ) : undefined
+            }
+          >
+            Заведите товар вручную или загрузите фото накладной: товары появятся вместе с приходом.
           </EmptyState>
+          {totals}
           {bottom}
         </>
       ) : (
@@ -343,10 +348,13 @@ export default async function BarPage({
           canCatalogMutate={canCatalogMutate}
           canStockMutate={rights.operateStock}
           bottom={
-            <details className="bar-details">
-              <summary>Приходы и популярные товары</summary>
-              {bottom}
-            </details>
+            <>
+              {totals}
+              <details className="bar-details">
+                <summary>Последние приходы</summary>
+                {bottom}
+              </details>
+            </>
           }
         />
       )}

@@ -4,7 +4,7 @@ import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
-import { beautyApi } from '../../../lib/api';
+import { beautyApi, sharedOnboardingApi } from '../../../lib/api';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayBeautyAccess } from '../../../lib/navigation';
 import { ServicesBoard } from './board';
@@ -14,9 +14,20 @@ import '../beauty.css';
  * «Услуги» (срез B3, ADR-141): каталог сети и то, что про него говорит филиал.
  * Право на правку это `rates` (в салоне список услуг и есть прайс, решение Q-253).
  */
+/** Настройка салона ещё идёт: ссылка «Вернуться к настройке» нужна только тогда (аудит 21.10.2026 п.21) */
+async function setupInProgress(): Promise<boolean> {
+  try {
+    const state = await sharedOnboardingApi.status();
+    return state.vertical === 'BEAUTY' && !state.completedAt;
+  } catch (error) {
+    unstable_rethrow(error);
+    return false;
+  }
+}
+
 export default async function BeautyServicesPage() {
   await requireFeature('/beauty/services');
-  const shell = await deskShell();
+  const [shell, setup] = await Promise.all([deskShell(), setupInProgress()]);
   const loaded = await beautyApi.services().then(
     (value) => ({ ok: true as const, value }),
     (error: unknown) => {
@@ -40,9 +51,11 @@ export default async function BeautyServicesPage() {
       title="Услуги"
       subtitle="Каталог услуг и условия в выбранном филиале."
     >
-      <p>
-        <Link href="/register/setup">Вернуться к настройке салона</Link>
-      </p>
+      {setup && (
+        <p>
+          <Link href="/register/setup">Вернуться к настройке салона</Link>
+        </p>
+      )}
       <ServicesBoard
         key={loaded.value.locationId ?? 'catalog'}
         scopeKey={loaded.value.locationId ?? ''}

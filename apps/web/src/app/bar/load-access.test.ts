@@ -40,7 +40,10 @@ vi.mock('./tabs', () => ({ BarTabs: () => null }));
 vi.mock('./stock-board', () => ({ StockBoard: () => createElement('div', null, 'goods') }));
 vi.mock('./bar-analytics', () => ({ BarAnalytics: () => null }));
 vi.mock('./analytics-disclosure', () => ({ AnalyticsDisclosure: ({ children }: { children: unknown }) => children }));
-vi.mock('./sale-disclosure', () => ({ SaleDisclosure: ({ children }: { children: unknown }) => children }));
+vi.mock('./sale-disclosure', () => ({
+  SaleDisclosure: ({ children }: { children: unknown }) => children,
+  SaleDialog: ({ children }: { children: unknown }) => children,
+}));
 
 import BarPage from './page';
 
@@ -69,5 +72,20 @@ describe('Beauty goods loader', () => {
     expect(api.folios).not.toHaveBeenCalled();
     expect(api.paymentMethods).toHaveBeenCalledOnce();
     expect(html).not.toContain('Продажа напрямую');
+  });
+
+  it('аудит 21.10.2026 п.7, п.14, п.28: без плиток, пустой склад ведёт к добавлению товара, месяц без «Г.»', async () => {
+    api.report.mockResolvedValue({
+      currency: 'USD', purchasesMinor: '0', revenueMinor: '0', grossProfitMinor: '0',
+      supplierDebtMinor: '0', popular: [],
+      month: { monthStart: '2026-10-01', purchasesMinor: '0', revenueMinor: '0', grossProfitMinor: '0' },
+    });
+    const html = renderToStaticMarkup(await BarPage({ searchParams: Promise.resolve({}) }));
+    expect(html).not.toContain('bar-kpi');
+    expect(html).toContain('data-testid="bar-totals"');
+    expect(html).not.toContain('кнопкой «Добавить товар»');
+    expect(html).toContain('Октябрь 2026 г.');
+    expect(html).not.toContain('Популярные товары');
+    expect(html).toContain('page--wide');
   });
 });

@@ -64,4 +64,6 @@ export const METHOD_RU: Record<string, string> = {
   DEPOSIT: 'Депозит',
   CARD_GUARANTEE: 'Гарантия картой',
   EXTERNAL: 'Внешний канал',
+  BONUS: 'Бонусы',
+  GIFT_CERTIFICATE: 'Сертификат',
 };

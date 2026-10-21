@@ -158,11 +158,8 @@ test('report: centered multi-service appointment, per-master occupancy and exact
   await expect(serviceForm.getByLabel(/Цена каталога/)).toHaveValue('');
   await serviceForm.getByLabel(/Цена каталога/).fill('35.50');
   await serviceForm.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(serviceForm.getByRole('status')).toContainText('Услуга создана');
-  await serviceForm.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
-  await expect(
-    serviceForm.getByRole('status').filter({ hasText: 'Настройки филиала сохранены' }),
-  ).toBeVisible();
+  // типовая услуга сразу попадает в филиал (онбординг на живом сайте, 21.10.2026)
+  await expect(serviceForm.getByRole('status')).toContainText('Услуга добавлена в филиал');
   await serviceForm.getByRole('button', { name: /^Закрыть:/ }).click();
   await expect(
     page.locator('[data-service-list="salon"]').getByText('Стрижка мужская', { exact: true }),

@@ -103,8 +103,9 @@ describe('Услуги салона и общий каталог', () => {
     const catalog = html.slice(html.indexOf('data-service-list="catalog"'));
     expect(catalog).toContain('Стрижка мужская');
     expect(catalog).toContain('Волосы');
-    expect(catalog).toContain('45 мин');
-    expect(catalog).toContain('Цена задаётся при добавлении');
+    // одна строка: «Стрижка мужская, 45 мин, Волосы» (аудит 21.10.2026 п.39)
+    expect(catalog).toContain('45 мин, Волосы');
+    expect(catalog).not.toContain('Цена задаётся при добавлении');
     expect(catalog).toContain('aria-label="Настроить и добавить в филиал: Стрижка мужская"');
     expect(catalog).not.toContain('0 USD');
   });
@@ -132,5 +133,25 @@ describe('Услуги салона и общий каталог', () => {
     expect(editable).toContain('aria-label="Техкарта услуги: Уход сохранённый"');
     expect(readOnly).not.toContain('aria-label="Техкарта услуги: Уход сохранённый"');
     expect(templates).not.toContain('aria-label="Техкарта услуги: Стрижка мужская"');
+  });
+});
+
+describe('аудит 21.10.2026: панель и колонки услуг', () => {
+  it('п.37, п.38: без подписи над поиском, без строки-счётчика и без стрелок между колонками', () => {
+    const html = renderToStaticMarkup(createElement(ServicesBoard, {
+      canEdit: true, locationCurrency: 'KZT', scopeKey: 'business:location', items: [],
+    }));
+    expect(html).not.toContain('Добавьте первую услугу');
+    expect(html).not.toContain('beauty-service-transfer-hint');
+    expect(html).not.toContain('>←<');
+    expect(html).toContain('aria-label="Поиск услуг"');
+  });
+  it('п.47: на телефоне выбор «Все услуги / В филиале», по умолчанию каталог', () => {
+    const html = renderToStaticMarkup(createElement(ServicesBoard, {
+      canEdit: true, locationCurrency: 'KZT', scopeKey: 'business:location', items: [],
+    }));
+    expect(html).toContain('data-mobile-view="catalog"');
+    expect(html).toContain('Все услуги');
+    expect(html).toContain('В филиале (0)');
   });
 });

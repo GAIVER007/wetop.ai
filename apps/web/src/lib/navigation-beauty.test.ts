@@ -45,7 +45,8 @@ describe('меню салона', () => {
       ['Статистика', ['/management/analytics', '/reports']],
       ['Склад', ['/warehouse', '/bar', '/bar/consumables', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
       // касса филиала, общая с рестораном (§48, ADR-178 этап 0)
-      ['Финансы', ['/finance', '/cashbox']],
+      // «Сертификаты» салона (решение 21.10.2026 §3)
+      ['Финансы', ['/finance', '/cashbox', '/finance/certificates']],
       // «Подключения» и «Неисправности» только у гостиницы (аудит 17.10.2026, Д1)
       ['Настройки', ['/beauty-settings', '/journal']],
       // без «Конкурентов»: мониторинг соседей пока только у гостиницы

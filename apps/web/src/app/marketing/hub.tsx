@@ -52,7 +52,7 @@ const modules = (c: VerticalCopy): Module[] => [
     title: 'Реклама',
     icon: 'channels',
     href: '/marketing/ads',
-    text: 'Запускайте рекламные кампании в Facebook и Instagram с помощью ИИ-таргетолога.',
+    text: 'Ведите рекламные кампании в Facebook и Instagram: расход, показы, клики и заявки в одном месте.',
     caps: [
       'Подключение рекламных кабинетов',
       'Автоматическая настройка и оптимизация',
@@ -117,7 +117,8 @@ const BUDGET_MENU = [
  */
 export function liveModules(vertical: WebVertical): Set<Module['key']> {
   return new Set<Module['key']>(
-    vertical === 'HOSPITALITY' ? ['site', 'budget', 'competitors'] : ['site', 'budget'],
+    // «Реклама» живая у всех (кампании МКТ-В3, кабинет Meta): значок «Доступно», а не «Скоро» рядом с «Открыть»
+    vertical === 'HOSPITALITY' ? ['site', 'budget', 'ads', 'competitors'] : ['site', 'budget', 'ads'],
   );
 }
 
@@ -173,7 +174,8 @@ function ModuleCard({
               Открыть <Icon name="arrow" width={16} aria-hidden="true" />
             </Link>
           )}
-          {live && module.key !== 'competitors' && (module.key !== 'site' || hospitality) && (
+          {/* меню «⋯» только у гостиницы (её экраны сайта); у салона и ресторана действия карточек одинаковые */}
+          {hospitality && live && (module.key === 'site' || module.key === 'budget') && (
             <ActionMenu
               label={`Ещё действия: ${module.title}`}
               items={module.key === 'budget' ? BUDGET_MENU : SITE_MENU}
@@ -197,7 +199,9 @@ export function MarketingHub({
   const copy = verticalCopy(vertical);
   const live = liveModules(vertical);
   // Реклама и контент пока «Скоро» у всех направлений; ссылка на экран-превью есть, кнопок действий нет
-  const PREVIEW = new Set<Module['key']>(['ads', 'content']);
+  const PREVIEW = new Set<Module['key']>(['content']);
+  // «Конкуренты» это гостиничный мониторинг загрузки (ADR-142): салону и ресторану карточку не показываем
+  const shown = modules(copy).filter((m) => hospitality || m.key !== 'competitors');
   const value = (key: ResultKey) => {
     if (key === 'spent' && spend) return formatMoney(spend.spentMinor, spend.currency);
     return 'Нет данных';
@@ -211,8 +215,8 @@ export function MarketingHub({
         className="marketing-hub"
         data-testid={hospitality ? 'marketing-hub' : 'business-marketing'}
       >
-        <div className="marketing-hub__modules">
-          {modules(copy).map((m) => (
+        <div className={shown.length === 4 ? 'marketing-hub__modules marketing-hub__modules--four' : 'marketing-hub__modules'}>
+          {shown.map((m) => (
             <ModuleCard
               key={m.key}
               module={m}
@@ -257,12 +261,13 @@ export function MarketingHub({
                 </>
               ) : (
                 <>
-                  Показатели филиала: <Link href="/management/analytics">Аналитика</Link>.
+                  Подробно по каналам: <Link href="/marketing/analytics">Аналитика маркетинга</Link>.
                 </>
               )}{' '}
               Переходы и доход с рекламы появятся после подключения рекламных кабинетов.
             </p>
           </section>
+          {hospitality && (
           <section className="panel marketing-start" aria-labelledby="marketing-start-title">
             <div className="marketing-start__head">
               <span className="marketing-start__icon" aria-hidden="true">
@@ -271,9 +276,7 @@ export function MarketingHub({
               <div className="marketing-start__body">
                 <h2 id="marketing-start-title">Больше {copy.clientsAcc}, меньше рутины</h2>
                 <p>
-                  {hospitality
-                    ? 'Сайт, реклама и контент в одном рабочем пространстве. Доступность указана в каждом модуле.'
-                    : `Начните с сайта: WETOP уже знает ${copy.catalogTitle.toLowerCase()} филиала и предложит три дизайна.`}
+                  Сайт, реклама и контент в одном рабочем пространстве. Доступность указана в каждом модуле.
                 </p>
               </div>
             </div>
@@ -284,6 +287,7 @@ export function MarketingHub({
               Начать с сайта
             </Link>
           </section>
+          )}
         </aside>
       </div>
     </Page>

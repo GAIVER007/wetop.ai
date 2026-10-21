@@ -7,6 +7,7 @@ import { CashBoard } from '../food/cash-board';
 import { restaurantShell } from '../food/restaurant-load';
 import '../food/food.css';
 import '../food/restaurant.css';
+import '../finance/summary.css';
 
 /** «Касса» филиала ресторана и салона (DATA_MODEL §35.2, §48, ADR-165): остатки по способам, операции и сверка */
 export default async function CashboxPage() {
@@ -18,7 +19,7 @@ export default async function CashboxPage() {
         title="Касса"
         subtitle={
           shell.vertical === 'BEAUTY'
-            ? 'Деньги салона по способам оплаты: бар, приходы, расходы и выплаты'
+            ? 'Деньги салона по способам оплаты: приходы, расходы и выплаты'
             : 'Деньги филиала по способам оплаты: заказы, приходы, расходы и выплаты'
         }
       >

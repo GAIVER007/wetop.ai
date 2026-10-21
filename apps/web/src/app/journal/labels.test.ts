@@ -38,4 +38,10 @@ describe('подписи журнала операций', () => {
     expect(actionLabel('beauty.something.new')).toBe('Действие: салон');
     expect(actionLabel('food.something.new')).toBe('Действие: ресторан');
   });
+  it('аудит 21.10.2026 п. 10: подписи с большой буквы, у кодов сотрудников свои подписи', () => {
+    expect(Object.entries(ACTION_RU).filter(([, v]) => v[0] !== v[0]!.toUpperCase())).toEqual([]);
+    expect(actionLabel('membership.suspended')).toBe('Доступ сотрудника приостановлен');
+    expect(actionLabel('membership.resumed')).toBe('Доступ сотрудника возобновлён');
+    expect(actionLabel('user.login')).toBe('Вход в систему');
+  });
 });

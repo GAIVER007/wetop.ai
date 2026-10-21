@@ -1,4 +1,5 @@
 import { customerImportFixture, resetCustomerImportFixture } from './customer-import-fixture';
+import { resetSalonLoyaltyFixture, salonLoyaltyFixture } from './salon-loyalty-fixture';
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
@@ -6126,7 +6127,12 @@ createServer(async (req, res) => {
       ).map((r) => ({ ...r, priceMinor: BigInt(r.priceMinor) }));
       return send(200, { ok: true, today });
     }
+    if (path === '/__test/salon-loyalty') {
+      const seeded = salonLoyaltyFixture({ path, method: req.method, body, locationId: null, query: url.searchParams });
+      if (seeded) return send(seeded.status, seeded.body);
+    }
     if (path === '/__test/reset') {
+      resetSalonLoyaltyFixture();
       categoryPhotos.clear();
       fixtureBranches.length = 0;
       fixtureBusinessCards.clear();
@@ -7000,6 +7006,9 @@ createServer(async (req, res) => {
       const locationCurrency = current
         ? String((current as Record<string, unknown>)['currency'] ?? 'KZT')
         : null;
+      // напоминания, бонусы и сертификаты салона (решение 21.10.2026): свой модуль стенда
+      const loyalty = salonLoyaltyFixture({ path, method: req.method, body, locationId, query: url.searchParams });
+      if (loyalty) return send(loyalty.status, loyalty.body);
       const effective = (s: FixtureBeautyService) => {
         if (!s.active) return { sellable: false, reason: 'SERVICE_INACTIVE' };
         if (!locationCurrency) return null;

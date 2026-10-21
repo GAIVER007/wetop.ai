@@ -37,7 +37,7 @@ test('владелец: таблица людей с ролями и датам�
   // вошедший владелец — первым, с отметкой «это вы»
   await expect(rows.nth(0)).toContainText('это вы');
   await expect(rows.nth(1)).toContainText('Марат Тестов');
-  await expect(rows.nth(1)).toContainText('управляющий');
+  await expect(rows.nth(1)).toContainText('Управляющий');
   // «Был в системе» — дата последнего входа (формат displayDate); не входил — слова, а не прочерк
   await expect(rows.nth(1)).toContainText('28 сент.');
   await expect(rows.nth(2)).toContainText('ещё не входил');
@@ -62,7 +62,7 @@ test('приглашение — панелью из шапки: почта, р�
   await expect(page.getByRole('dialog')).toHaveCount(0);
   const invites = main.getByTestId('invite-list');
   await expect(invites).toContainText('novyj-admin@example.com');
-  await expect(invites).toContainText('управляющий');
+  await expect(invites).toContainText('Управляющий');
 });
 
 test('ошибка приглашения — словами в панели, ввод не стирается', async ({ page }) => {
@@ -268,11 +268,11 @@ test('приглашение: «Отправить заново» отзывае
   await page.goto('/team');
   const invites = page.getByRole('main').getByTestId('invite-list');
   const row = invites.locator('li', { hasText: 'zhdet@example.com' });
-  await expect(row).toContainText('администратор');
+  await expect(row).toContainText('Администратор');
   await row.getByRole('button', { name: 'Отправить заново' }).click();
   await expect(invites.locator('li', { hasText: 'zhdet@example.com' })).toHaveCount(1);
   await expect(invites.locator('li', { hasText: 'zhdet@example.com' })).toContainText(
-    'администратор',
+    'Администратор',
   );
 });
 
@@ -327,7 +327,7 @@ test('область доступа сотрудника: «Доступ» → �
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(yurij.getByTestId('member-scope')).toHaveText('Главный филиал, Филиал Алматы');
   // роль членства стала старшей из назначенных
-  await expect(yurij).toContainText('управляющий');
+  await expect(yurij).toContainText('Управляющий');
   // вернуть на всю организацию
   await yurij.getByRole('button', { name: 'Доступ', exact: true }).click();
   await page.getByRole('dialog').getByLabel('Вся организация').check();

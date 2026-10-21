@@ -54,6 +54,7 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   '/beauty': B,
   // склад кухни и расходников у гостиницы и салона; ресторан ведёт его на `/stock` (ADR-STOCK-ALL)
   '/bar/consumables': HB,
+  '/finance/certificates': B,
   // салон и ресторан
   '/customers': BF,
   '/employees': BF,

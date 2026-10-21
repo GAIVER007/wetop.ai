@@ -1138,6 +1138,13 @@
     color: var(--text);
     font-size: var(--text-sm);
   }
+  /* ссылки в тексте предупреждения отличаются не только цветом (axe link-in-text-block, WCAG 1.4.1) */
+  .bar-low-warning a {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
   .bar-low-warning svg {
     flex: 0 0 auto;
     margin-top: var(--space-1);

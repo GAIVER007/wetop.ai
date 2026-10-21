@@ -1599,6 +1599,24 @@
       grid-column: 1 / -1;
     }
   }
+  /* «День / Неделя» и подписанный «Быстрый отчёт» удлинили строку инструментов: на 1440 «Фильтры» уезжали
+     за край экрана и давали горизонтальную прокрутку. Строка переносится, «Фильтры» уходят под неё. */
+  @media (min-width: 1280px) {
+    .beauty-page .beauty-calendar-toolbar {
+      flex-wrap: wrap;
+    }
+    .beauty-calendar-toolbar .beauty-calendar-actions {
+      flex: 1 1 auto;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+    .beauty-calendar-toolbar > .context-help {
+      flex: 0 0 auto;
+    }
+    .beauty-calendar-toolbar > .context-help[open] {
+      flex: 1 1 100%;
+    }
+  }
 }
 
 /* График недели, аудит 21.10.2026 (п. 41): стрелки недели как у дня в Журнале */

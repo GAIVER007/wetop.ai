@@ -141,7 +141,7 @@ export function BeautyCustomersTable({
       {items.length === 0 ? (
         <EmptyState
           title="Клиентов пока нет"
-          actions={canCreate ? <Button type="button" onClick={() => setCreating(true)}>Добавить клиента</Button> : undefined}
+          actions={canCreate ? <Button type="button" onClick={() => setCreating(true)}>Добавить первого клиента</Button> : undefined}
         >
           Добавьте первого клиента или импортируйте список из CSV или Excel.
         </EmptyState>

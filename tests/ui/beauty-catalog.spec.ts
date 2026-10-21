@@ -241,14 +241,20 @@ test('каталог переносит услуги кнопками и drag-an
   await page.screenshot({ path: `${SNAPSHOTS}/services-transfer-1440.png`, fullPage: true });
 
   await page.setViewportSize({ width: 390, height: 844 });
-  const mobileSalonBox = await salon.boundingBox();
-  const mobileCatalogBox = await catalog.boundingBox();
-  expect(mobileSalonBox).not.toBeNull();
-  expect(mobileCatalogBox).not.toBeNull();
-  expect(mobileSalonBox!.y).toBeLessThan(mobileCatalogBox!.y);
+  // телефон: одна колонка за раз, переключатель «Все услуги / В филиале» (аудит 21.10.2026 п.47)
+  const mobileView = main.getByRole('group', { name: 'Какие услуги показать' });
+  await expect(mobileView).toBeVisible();
+  await expect(mobileView.getByRole('button', { name: 'Все услуги' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(catalog).toBeVisible();
+  await expect(salon).toBeHidden();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expect(catalog.getByRole('button', { name: 'Добавить в филиал: Услуга перетаскиванием' })).toBeVisible();
   await page.screenshot({ path: `${SNAPSHOTS}/services-transfer-390.png`, fullPage: true });
+  await mobileView.getByRole('button', { name: /^В филиале/ }).click();
+  await expect(salon).toBeVisible();
+  await expect(catalog).toBeHidden();
+  await expect(salon.locator('.beauty-service-item').filter({ hasText: 'Услуга стрелкой' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
 test('ошибки услуги словами, введённое не стирается', async ({ page, request }) => {

@@ -86,6 +86,9 @@ test('быстрая продажа одной строкой и фильтры 
   await sale.getByLabel('Товар').selectOption({ index: 1 });
   await sale.getByRole('button', { name: 'Продать' }).click();
   await expect(sale.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
+  // окно продажи модальное: закрываем его, прежде чем фильтровать доску под ним
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog', { name: 'Продажа' })).toHaveCount(0);
   const board = m.getByRole('region', { name: 'Товары и остатки бара' });
   await m.getByLabel('Поиск товара').fill('red');
   await expect(board.locator('tbody tr')).toHaveCount(1);
@@ -276,7 +279,8 @@ test('подстраницы: оплата долга в приходах, но�
   await products.getByRole('button', { name: 'Новый товар', exact: true }).click();
   const productForm = page.getByRole('dialog', { name: 'Новый товар' }).locator('.bar-product-form');
   await productForm.getByLabel('Название').fill('Чай чёрный');
-  await expect(productForm.getByLabel('Код', { exact: true })).toHaveValue('CHAY-CHERNYY');
+  // подсказка «Заполняется из названия» входит в подпись поля, поэтому имя начинается с «Код»
+  await expect(productForm.getByRole('textbox', { name: /^Код(\s|$)/ })).toHaveValue('CHAY-CHERNYY');
   await productForm.getByLabel('Начальная цена, ₸').fill('500');
   await productForm.getByRole('button', { name: 'Добавить товар' }).click();
   await expect(productForm.getByRole('status')).toContainText('Товар добавлен');

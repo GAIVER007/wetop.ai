@@ -155,10 +155,10 @@ export default async function BarPage({
   const totals = (
     <p className="bar-totals" data-testid="bar-totals">
       <span>{periodWord}:</span>
-      <span>закупки <b>{money(r.month?.purchasesMinor ?? r.purchasesMinor)}</b></span>
-      <span>выручка <b>{money(monthRevenue)}</b></span>
-      <span>прибыль от продаж <b>{money(monthProfit)}</b> (без прочих расходов)</span>
-      <span>долг поставщикам <b>{money(r.supplierDebtMinor)}</b></span>
+      <span>закупки <b data-testid="bar-total-purchases">{money(r.month?.purchasesMinor ?? r.purchasesMinor)}</b></span>
+      <span>выручка <b data-testid="bar-total-revenue">{money(monthRevenue)}</b></span>
+      <span>прибыль от продаж <b data-testid="bar-total-profit">{money(monthProfit)}</b> (без прочих расходов)</span>
+      <span>долг поставщикам <b data-testid="bar-total-debt">{money(r.supplierDebtMinor)}</b></span>
     </p>
   );
   const bottom = (

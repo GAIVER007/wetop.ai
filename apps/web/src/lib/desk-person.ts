@@ -38,6 +38,8 @@ export interface DeskShell {
    * уже несёт (Platform P2 К1). Нет филиала в указателе, значит гостиница, как было до среза B2.
    */
   vertical: WebVertical;
+  /** Verified Business/Location identity, used to hide stale content during switching. */
+  scopeKey?: string;
 }
 
 export const CLOSED_SHELL: DeskShell = {
@@ -54,7 +56,11 @@ export function readOnlyOf(org: TrialOrganization | null | undefined, now: Date)
   if (!org) return false;
   const known: OrganizationStatus[] = ['TRIAL', 'ACTIVE', 'READ_ONLY', 'SUSPENDED'];
   if (!known.includes(org.status as OrganizationStatus)) return false;
-  return !canWrite(org.status as OrganizationStatus, org.trialEndsAt ? new Date(org.trialEndsAt) : null, now);
+  return !canWrite(
+    org.status as OrganizationStatus,
+    org.trialEndsAt ? new Date(org.trialEndsAt) : null,
+    now,
+  );
 }
 
 interface TrialOrganization {
@@ -124,6 +130,11 @@ export function deskShellOf(me: MeLike | null): DeskShell {
     trial: trialLine(me.user.organization, new Date()),
     tourKey: tourKeyOf(me.user.email),
     readOnly: readOnlyOf(me.user.organization, new Date()),
-    vertical: me.context?.vertical === 'FOOD_SERVICE' ? 'FOOD_SERVICE' : me.context?.vertical === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY',
+    vertical:
+      me.context?.vertical === 'FOOD_SERVICE'
+        ? 'FOOD_SERVICE'
+        : me.context?.vertical === 'BEAUTY'
+          ? 'BEAUTY'
+          : 'HOSPITALITY',
   };
 }

@@ -6,6 +6,10 @@ const SHOTS = 'reports/finance-home-merge-2026-10-09';
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);
+  await request.post(`${FIXTURE_API}/__test/control`, { data: { signedIn: true } });
+  await page
+    .context()
+    .addCookies([{ name: 'wetop_session', value: 'ui-session-1', domain: '127.0.0.1', path: '/' }]);
 });
 
 test('forecast details expose availability and open the selected calendar day', async ({

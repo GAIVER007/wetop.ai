@@ -1,5 +1,11 @@
 import { beforeEach, expect, it, vi } from 'vitest';
-const state = vi.hoisted(() => ({ set: vi.fn(), refresh: vi.fn(), list: vi.fn() }));
+const state = vi.hoisted(() => ({
+  set: vi.fn(),
+  refresh: vi.fn(),
+  list: vi.fn(),
+  me: vi.fn(),
+  settings: vi.fn(),
+}));
 vi.mock('next/headers', () => ({ cookies: async () => ({ set: state.set }) }));
 vi.mock('next/cache', () => ({ revalidatePath: state.refresh }));
 vi.mock('next/navigation', () => ({
@@ -9,9 +15,11 @@ vi.mock('next/navigation', () => ({
 }));
 vi.mock('../../lib/api', () => ({
   branchesApi: { list: state.list },
+  authApi: { me: state.me },
   ApiError: class extends Error {},
 }));
-import { selectBranch } from './actions';
+vi.mock('../../lib/hotel-api', () => ({ hotelApi: { settings: state.settings } }));
+import { selectBranch, branchChoices } from './actions';
 beforeEach(() => {
   vi.clearAllMocks();
   state.list.mockResolvedValue({
@@ -27,13 +35,13 @@ beforeEach(() => {
   });
 });
 it.each([
-  ['/chessboard', '/chessboard'],
-  ['/reservations/other-branch-booking', '/reservations'],
-  ['/guests/other-guest', '/guests'],
-  ['/finance?folioId=old', '/finance'],
+  ['/chessboard', '/today'],
+  ['/reservations/other-branch-booking', '/today'],
+  ['/guests/other-guest', '/today'],
+  ['/finance?folioId=old', '/today'],
   ['https://outside.test', '/today'],
   ['//outside.test', '/today'],
-])('переключение сохраняет безопасный раздел %s', async (from, expected) => {
+])('переключение завершённого филиала ведёт на Главную из %s', async (from, expected) => {
   const form = new FormData();
   form.set('id', 'own');
   form.set('returnTo', from);

@@ -1,0 +1,30 @@
+# Модульные (unit) · 05.10.2026 20:49 Алматы · MacBook-Air-Urij.local
+# коммит 04e532b (codex/mv8-vertical-today-20261005), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T15-49-07Z-unit-2a90.json' 'apps/web/src/lib/today-metrics.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-20261005
+
+ ❯ |unit| apps/web/src/lib/today-metrics.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/today-metrics.test.ts [ apps/web/src/lib/today-metrics.test.ts ]
+Error: Cannot find module './today-metrics' imported from /Users/urijzapojnov/wetop-mv8-20261005/apps/web/src/lib/today-metrics.test.ts
+ ❯ apps/web/src/lib/today-metrics.test.ts:2:1
+      1| import { describe, it, expect } from 'vitest';
+      2| import { beautyTodayMetrics, foodTodayMetrics } from './today-metrics';
+       | ^
+      3| import type { BeautyDay, BeautyAppointmentRow } from './api';
+      4| import type { RestaurantReservation } from './food-types';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  19:49:13
+   Duration  115ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-05T15-49-07Z-unit-2a90.json
+
+# код выхода 1 · 6 с

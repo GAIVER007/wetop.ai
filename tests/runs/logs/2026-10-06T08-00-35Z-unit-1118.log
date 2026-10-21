@@ -1,0 +1,42 @@
+# Модульные (unit) · 06.10.2026 13:00 Алматы · MacBook-Air-Urij.local
+# коммит e9b3eaf (codex/mv8-vertical-today-20261005), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-06T08-00-35Z-unit-1118.json' 'apps/web/src/lib/desk-shell.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/wetop-mv8-20261005
+
+ ❯ |unit| apps/web/src/lib/desk-shell.test.ts (7 tests | 2 failed) 428ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 420ms
+     ✓ вошедший управляющий — его роль 1ms
+     ✓ `/auth/me` не ответил — меню как у администратора, «Платформы» нет, а роль помечена неизвестной 1ms
+   ✓ MV8 invalid server context never becomes Hospitality shell 0ms
+   ✓ MV8 unknown vertical cannot start Hospitality shell calls 0ms
+   × MV8 absent server scope cannot start domain reads: {"user":null} 4ms
+   × MV8 absent server scope cannot start domain reads: {"user":{"email":"<email>","name":null,"role":"OWNER"}} 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/desk-shell.test.ts > MV8 absent server scope cannot start domain reads: {"user":null}
+ FAIL  |unit| apps/web/src/lib/desk-shell.test.ts > MV8 absent server scope cannot start domain reads: {"user":{"email":"<email>","name":null,"role":"OWNER"}}
+AssertionError: expected undefined to be true // Object.is equality
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ apps/web/src/lib/desk-shell.test.ts:61:280
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 5 passed (7)
+   Start at  12:00:36
+   Duration  597ms (tests 89%, transform 7%, import 3%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-06T08-00-35Z-unit-1118.json
+
+# код выхода 1 · 2 с

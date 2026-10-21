@@ -1,0 +1,123 @@
+# Сквозные (e2e) · 06.10.2026 12:37 Алматы · MacBook-Air-Urij.local
+# коммит abe4500 (codex/mv8-vertical-today-20261005), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/today-ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:81508) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81535) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81537) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81542) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:81572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Failed to install `Date` class extension. When using `cacheComponents`, APIs that read the current time will not correctly trigger dynamic behavior.
+[WebServer] (node:81574) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+(node:81589) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/today-ui/today.spec.ts:12:1 › real vertical Today: statuses, overnight, scope switching and foreign API isolation (1.4s)
+(node:81605) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/today-ui/today.spec.ts:31:1 › pagination and mandatory-source failure (330ms)
+(node:81619) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/today-ui/today.spec.ts:35:1 › 12 real API screenshots and accessibility (429ms)
+
+
+  1) tests/today-ui/today.spec.ts:12:1 › real vertical Today: statuses, overnight, scope switching and foreign API isolation
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+       5 | async function setup(page:Page,request:APIRequestContext, options={}){
+       6 |  const r=await request.post(`${api}/__test/reset`);expect(r.ok()).toBe(true);const f:Fixture=await r.json();
+    >  7 |  const seed=await request.post(`${api}/__test/seed`,{data:options});expect(seed.ok()).toBe(true);
+         |                                                                                       ^
+       8 |  await scope(page,f.business,f.locations[0]!);return f;
+       9 | }
+      10 | async function scope(page:Page,business:string,location:string){await page.context().addCookies([{name:'wetop_scope',value:encodeURIComponent(`business=${business};location=${location}`),domain:'127.0.0.1',path:'/'}]);}
+        at setup (/Users/urijzapojnov/wetop-mv8-20261005/tests/today-ui/today.spec.ts:7:87)
+        at /Users/urijzapojnov/wetop-mv8-20261005/tests/today-ui/today.spec.ts:13:10
+
+    Error Context: test-results/today-real-vertical-Today--f9ac9-g-and-foreign-API-isolation/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-real-vertical-Today--f9ac9-g-and-foreign-API-isolation/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-real-vertical-Today--f9ac9-g-and-foreign-API-isolation/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/today-ui/today.spec.ts:31:1 › pagination and mandatory-source failure ───────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+       5 | async function setup(page:Page,request:APIRequestContext, options={}){
+       6 |  const r=await request.post(`${api}/__test/reset`);expect(r.ok()).toBe(true);const f:Fixture=await r.json();
+    >  7 |  const seed=await request.post(`${api}/__test/seed`,{data:options});expect(seed.ok()).toBe(true);
+         |                                                                                       ^
+       8 |  await scope(page,f.business,f.locations[0]!);return f;
+       9 | }
+      10 | async function scope(page:Page,business:string,location:string){await page.context().addCookies([{name:'wetop_scope',value:encodeURIComponent(`business=${business};location=${location}`),domain:'127.0.0.1',path:'/'}]);}
+        at setup (/Users/urijzapojnov/wetop-mv8-20261005/tests/today-ui/today.spec.ts:7:87)
+        at /Users/urijzapojnov/wetop-mv8-20261005/tests/today-ui/today.spec.ts:32:2
+
+    Error Context: test-results/today-pagination-and-mandatory-source-failure/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-pagination-and-mandatory-source-failure/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-pagination-and-mandatory-source-failure/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/today-ui/today.spec.ts:35:1 › 12 real API screenshots and accessibility ─────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+       5 | async function setup(page:Page,request:APIRequestContext, options={}){
+       6 |  const r=await request.post(`${api}/__test/reset`);expect(r.ok()).toBe(true);const f:Fixture=await r.json();
+    >  7 |  const seed=await request.post(`${api}/__test/seed`,{data:options});expect(seed.ok()).toBe(true);
+         |                                                                                       ^
+       8 |  await scope(page,f.business,f.locations[0]!);return f;
+       9 | }
+      10 | async function scope(page:Page,business:string,location:string){await page.context().addCookies([{name:'wetop_scope',value:encodeURIComponent(`business=${business};location=${location}`),domain:'127.0.0.1',path:'/'}]);}
+        at setup (/Users/urijzapojnov/wetop-mv8-20261005/tests/today-ui/today.spec.ts:7:87)
+        at /Users/urijzapojnov/wetop-mv8-20261005/tests/today-ui/today.spec.ts:36:10
+
+    Error Context: test-results/today-12-real-API-screenshots-and-accessibility/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-12-real-API-screenshots-and-accessibility/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-12-real-API-screenshots-and-accessibility/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/today-ui/today.spec.ts:12:1 › real vertical Today: statuses, overnight, scope switching and foreign API isolation
+    tests/today-ui/today.spec.ts:31:1 › pagination and mandatory-source failure ────────────────────
+    tests/today-ui/today.spec.ts:35:1 › 12 real API screenshots and accessibility ──────────────────
+
+# код выхода 1 · 27 с

@@ -1,0 +1,63 @@
+# Сквозные (e2e) · 06.10.2026 12:44 Алматы · MacBook-Air-Urij.local
+# коммит abe4500 (codex/mv8-vertical-today-20261005), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/today-ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:83294) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83321) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83325) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83355) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Failed to install `Date` class extension. When using `cacheComponents`, APIs that read the current time will not correctly trigger dynamic behavior.
+[WebServer] (node:83356) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:83360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/today-ui/today.spec.ts:12:1 › real vertical Today: statuses, overnight, scope switching and foreign API isolation (3.5s)
+  ✓  2 tests/today-ui/today.spec.ts:31:1 › pagination and mandatory-source failure (1.3s)
+  ✓  3 tests/today-ui/today.spec.ts:35:1 › empty, STAFF, READ_ONLY and failed verified scope (1.5s)
+  ✘  4 tests/today-ui/today.spec.ts:43:1 › 12 real API screenshots and accessibility (30.8s)
+
+
+  1) tests/today-ui/today.spec.ts:43:1 › 12 real API screenshots and accessibility ─────────────────
+
+    Test was interrupted.
+
+    Error: page.evaluate: Test ended.
+
+      49 |    if(await page.locator('html').getAttribute('data-theme')!==theme)await page.getByRole('button',{name:'Переключить тему',exact:true}).click();
+      50 |    await expect(page.locator('html')).toHaveAttribute('data-theme',theme);
+    > 51 |    await page.evaluate(async()=>{await Promise.all(document.getAnimations().filter(a=>a instanceof CSSTransition && a.playState==='running').map(a=>a.finished.catch(()=>{})));});
+         |               ^
+      52 |    await page.screenshot({path:`reports/mv8-vertical-today-20261006/screenshots/${vertical}-${theme}-${width}.png`,fullPage:true});
+      53 |    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+      54 |    expect((await new AxeBuilder({page}).analyze()).violations).toEqual([]);
+        at /Users/urijzapojnov/wetop-mv8-20261005/tests/today-ui/today.spec.ts:51:15
+
+    Error Context: test-results/today-12-real-API-screenshots-and-accessibility/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-12-real-API-screenshots-and-accessibility/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-12-real-API-screenshots-and-accessibility/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 interrupted
+    tests/today-ui/today.spec.ts:43:1 › 12 real API screenshots and accessibility ──────────────────
+  3 passed (44.3s)
+
+# код выхода 130 · 46 с

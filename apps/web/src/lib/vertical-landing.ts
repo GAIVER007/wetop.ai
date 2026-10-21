@@ -46,6 +46,7 @@ const routes: Record<WebVertical, string[]> = {
   ],
 };
 export function routeVertical(path: string): WebVertical | null {
+  if (path === '/today') return null;
   for (const vertical of Object.keys(routes) as WebVertical[]) {
     if (routes[vertical].some((root) => path === root || path.startsWith(`${root}/`)))
       return vertical;

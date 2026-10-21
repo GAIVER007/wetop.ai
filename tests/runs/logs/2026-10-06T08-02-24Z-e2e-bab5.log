@@ -1,0 +1,73 @@
+# Сквозные (e2e) · 06.10.2026 13:02 Алматы · MacBook-Air-Urij.local
+# коммит e9b3eaf (codex/mv8-vertical-today-20261005), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/today-ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:88973) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:88999) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89000) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89006) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89036) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Failed to install `Date` class extension. When using `cacheComponents`, APIs that read the current time will not correctly trigger dynamic behavior.
+[WebServer] (node:89037) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+(node:89043) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/today-ui/today.spec.ts:38:1 › real vertical Today: statuses, overnight, scope switching and foreign API isolation (1.9s)
+(node:89055) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/today-ui/today.spec.ts:115:1 › pagination and mandatory-source failure (1.4s)
+  ✓  3 tests/today-ui/today.spec.ts:125:1 › empty, STAFF, READ_ONLY and failed verified scope (1.8s)
+  ✓  4 tests/today-ui/today.spec.ts:153:1 › absent Location can recover by branch selection and signed-out Today has no domain reads (1.4s)
+  ✓  5 tests/today-ui/today.spec.ts:173:1 › 12 real API screenshots and accessibility (18.0s)
+
+
+  1) tests/today-ui/today.spec.ts:38:1 › real vertical Today: statuses, overnight, scope switching and foreign API isolation
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "/food-service/reservations?limit=100&date=2026-10-05|business=868791c7-70c6-4ec5-9ec8-36b5536d676d;location=8c96d681-025d-431e-95ff-39df0d05d309",
+    +   "/food-service/reservations?limit=100&date=2026-10-04|business=868791c7-70c6-4ec5-9ec8-36b5536d676d;location=8c96d681-025d-431e-95ff-39df0d05d309",
+    + ]
+
+      59 |       ),
+      60 |     ),
+    > 61 |   ).toEqual([]);
+         |     ^
+      62 |   expect(calls.some((c) => c.includes('date=2026-10-04'))).toBe(true);
+      63 |   expect(calls.some((c) => c.includes('date=2026-10-05'))).toBe(true);
+      64 |   await request.post(`${api}/__test/control`, { data: { delayReads: true } });
+        at /Users/urijzapojnov/wetop-mv8-20261005/tests/today-ui/today.spec.ts:61:5
+
+    Error Context: test-results/today-real-vertical-Today--f9ac9-g-and-foreign-API-isolation/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-real-vertical-Today--f9ac9-g-and-foreign-API-isolation/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-real-vertical-Today--f9ac9-g-and-foreign-API-isolation/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/today-ui/today.spec.ts:38:1 › real vertical Today: statuses, overnight, scope switching and foreign API isolation
+  4 passed (32.4s)
+
+# код выхода 1 · 34 с

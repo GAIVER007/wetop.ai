@@ -74,7 +74,7 @@ export default async function BarPage({
   // бар филиала (ADR-178): «в счёт гостя» только у гостиницы; ресторан и салон продают в кассу филиала (§45, §48)
   const vertical = me.context?.vertical ?? 'HOSPITALITY';
   // раздел меню «Склад» у всех направлений (решение владельца 19.10.2026)
-  const sectionName = 'Склад';
+  const sectionName = 'Склад: бар';
   const params = await searchParams;
   const productParam = typeof params.product === 'string' ? params.product : null;
   const [categories, stock, suppliers, folios, receipts, sales, movements, report, paymentMethods, today, shell] =
@@ -260,7 +260,7 @@ export default async function BarPage({
           Пересчёт
         </Link>}
       </nav>
-      <BarTabs current="overview" />
+      <BarTabs current="bar" />
       {/* без плиток над списком (правило владельца, аудит 21.10.2026 п.7): предупреждение строкой, только когда есть что сказать */}
       {lowCount > 0 && (
         <p className="bar-low-warning" role="status" data-testid="bar-low-warning">

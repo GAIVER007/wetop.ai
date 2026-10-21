@@ -2,16 +2,17 @@ import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
 import { can } from '@pms/domain';
 import { Page } from '../../../../components/page';
-import { Alert, Button, Field, Input, Panel, Stat, Stats, Table } from '../../../../components/ui';
+import { Alert, Panel, Stat, Stats } from '../../../../components/ui';
 import { branchesApi, type BranchItem } from '../../../../lib/api';
 import { currentMe, deskShell } from '../../../../lib/desk-shell';
 import { localInput } from '../../../beauty/time';
-import { displayDate } from '../../../../lib/display-date';
 import { BEAUTY_LABELS, FOOD_LABELS, moneyText, periodDates } from './metrics';
 import { loadBranchPeriod } from './load';
 import { FoodPeriodPanel } from './food-period';
 import './vertical.css';
-import { Tabs } from '../../../../components/tabs';
+import { Chip, ChipGroup } from '../../../../components/chip';
+import { PeriodBar } from '../../../../components/period-bar';
+import { BranchReport } from './branch-report';
 const path = '/management/analytics';
 export async function VerticalAnalytics({ sp }: { sp: Record<string, string | undefined> }) {
   const shell = await deskShell();
@@ -65,35 +66,30 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
     return (
       <Page
         title="Аналитика"
-        subtitle={
-          organization
-            ? 'Отчёты по филиалам, отдельно по направлениям.'
-            : 'Записи и выручка выбранного филиала за период.'
-        }
+        subtitle={organization ? 'Отчёты по филиалам, отдельно по направлениям.' : selected.name}
       >
         <div className="vertical-report" data-testid="vertical-analytics">
-          <Tabs
-            label="Область отчёта"
-            items={[
-              { href: `${path}?${q}`, label: 'Выбранный филиал', current: !organization },
-              { href: `${path}?${q}&scope=organization`, label: 'Все филиалы', current: organization },
-            ]}
+          <PeriodBar
+            action={path}
+            from={from}
+            to={to}
+            today={today}
+            label="Период отчёта"
+            {...(organization ? { hidden: { scope: 'organization' } } : {})}
+            href={(f, t) =>
+              `${path}?${new URLSearchParams({ from: f, to: t, ...(organization ? { scope: 'organization' } : {}) })}`
+            }
+            lead={
+              <ChipGroup as="nav" label="Область отчёта">
+                <Chip href={`${path}?${q}`} selected={!organization}>
+                  Выбранный филиал
+                </Chip>
+                <Chip href={`${path}?${q}&scope=organization`} selected={organization}>
+                  Все филиалы
+                </Chip>
+              </ChipGroup>
+            }
           />
-          {/* поля и кнопка одной высоты, по низу (аудит 21.10.2026 п.34) */}
-          <form className="vertical-report-period" action={path}>
-            <Field label="С даты" controlId="vertical-report-from">
-              <Input type="date" lang="ru" name="from" defaultValue={from} required />
-            </Field>
-            <Field label="По дату" controlId="vertical-report-to">
-              <Input type="date" lang="ru" name="to" defaultValue={to} required />
-            </Field>
-            {organization && <input type="hidden" name="scope" value="organization" />}
-            <Button type="submit">Показать</Button>
-          </form>
-          <p className="muted">
-            С {displayDate(from)} по {displayDate(to)} включительно, по местному времени каждого филиала.
-            Период до 31 дня.
-          </p>
           {(['BEAUTY', 'FOOD_SERVICE'] as const).map((vertical) => {
             const group = results.filter((r) => r.branch.vertical === vertical);
             if (!group.length) return null;
@@ -102,53 +98,20 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
               <section key={vertical} aria-label={vertical === 'BEAUTY' ? 'Салоны' : 'Рестораны'}>
                 {organization && <h2>{vertical === 'BEAUTY' ? 'Салоны' : 'Рестораны'}</h2>}
                 {group.map(({ branch, report, error }) => (
-                  // название филиала в заголовке карточки только в сводке по всем филиалам (п.36)
-                  <Panel key={branch.locationId} {...(organization ? { title: branch.name } : {})}>
+                  <Panel key={branch.locationId} title={branch.name}>
                     <div data-testid={`report-${branch.locationId}`}>
                       {error ? (
                         <Alert boxed>{error}</Alert>
                       ) : (
                         report && (
-                          <>
-                            {/* таблица «Статус | Записи» вместо шести плиток (аудит 21.10.2026 п.9, п.48) */}
-                            <Table density="compact" caption="Записи по статусам за период" stack>
-                              <thead>
-                                <tr>
-                                  <th scope="col">Статус</th>
-                                  <th scope="col">Записи</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {Object.entries(labels).map(([status, label]) => (
-                                  <tr key={status}>
-                                    <td data-label="Статус">{label}</td>
-                                    <td data-label="Записи" data-testid={`period-${status}`}>
-                                      {report.counts[status as keyof typeof report.counts] ?? 0}
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </Table>
-                            {report.revenue !== null ? (
-                              <Panel title="Выручка по завершённым записям">
-                                {Object.entries(report.revenue).length ? (
-                                  Object.entries(report.revenue).map(([currency, minor]) => (
-                                    <p key={currency} data-testid={`revenue-${currency}`}>
-                                      {moneyText(minor, currency)}
-                                    </p>
-                                  ))
-                                ) : (
-                                  <p>Завершённых записей за период нет.</p>
-                                )}
-                                <p className="muted">
-                                  Снимки цены записей со статусом «Завершено». Это не полученные
-                                  оплаты. Валюты отдельно.
-                                </p>
-                              </Panel>
-                            ) : (
-                              report.food && <FoodPeriodPanel report={report.food} />
-                            )}
-                          </>
+                          <BranchReport
+                            labels={labels}
+                            counts={report.counts}
+                            revenue={report.revenue}
+                            foodPanel={
+                              report.food ? <FoodPeriodPanel report={report.food} /> : null
+                            }
+                          />
                         )
                       )}
                     </div>
@@ -178,8 +141,8 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
             </section>
           )}
           <p className="muted">
-            Показаны текущие статусы записей, начавшихся за период. Проценты неявок и повторных
-            посещений пока не рассчитываются.
+            Даты по часам каждого филиала, период до 31 дня. Показаны текущие статусы записей,
+            начавшихся за период. Проценты неявок и повторных посещений пока не рассчитываются.
           </p>
         </div>
       </Page>

@@ -3,18 +3,6 @@
     display: grid;
     gap: var(--space-4);
   }
-  .vertical-report-period {
-    display: flex;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-    align-items: end;
-  }
-  .vertical-report-period .field {
-    margin: 0;
-  }
-  .vertical-report-period .inp {
-    max-width: 100%;
-  }
   .vertical-report section {
     min-width: 0;
     display: grid;
@@ -23,50 +11,50 @@
   .vertical-report .stat__value {
     overflow-wrap: anywhere;
   }
-  @media (max-width: 600px) {
-    .vertical-report-period .field {
-      flex: 1 1 130px;
-      min-width: 0;
-    }
-  }
-}
-
-@layer sections {
-  /* ресторан: выручка по дням и продажи по категориям рядом, как на макете (экран 10) */
-  .vertical-food__charts {
+  .branch-report {
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+  .branch-report__cols {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
     gap: var(--space-4);
     align-items: start;
   }
-  @media (max-width: 960px) {
-    .vertical-food__charts {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-}
-
-@layer sections {
-  /* ресторан: четыре плитки слева направо, как на макете (экран 10) */
-  .vertical-food__kpis .stat {
-    justify-content: flex-start;
-    text-align: left;
-    min-height: 0;
-  }
-  .vertical-food__facts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4) var(--space-8);
+  .branch-report__money {
     margin: 0;
-  }
-  .vertical-food__facts dt {
-    color: var(--text-2);
-    font-size: var(--text-xs);
-  }
-  .vertical-food__facts dd {
-    margin: 0;
-    font-size: var(--text-lg);
+    font-size: var(--text-3xl);
     font-weight: var(--weight-semibold);
     font-variant-numeric: tabular-nums;
+  }
+  .branch-report__empty {
+    margin: 0;
+    color: var(--muted);
+  }
+  .branch-report__shares {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .branch-report__shares li {
+    display: grid;
+    grid-template-columns: minmax(110px, 1fr) minmax(0, 2fr) 32px;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .branch-report__shares .share-bar,
+  .branch-report__shares .share-bar__meter {
+    width: 100%;
+  }
+  .branch-report__shares b {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 960px) {
+    .branch-report__cols {
+      grid-template-columns: 1fr;
+    }
   }
 }

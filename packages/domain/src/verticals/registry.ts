@@ -38,6 +38,7 @@ const DEFINITIONS: Readonly<Record<BusinessVertical, VerticalDefinition>> = Obje
       'hospitality.inventory',
       'hospitality.rates',
       'hospitality.channels',
+      'branch.stock',
     ] as const),
   }),
   BEAUTY: Object.freeze({

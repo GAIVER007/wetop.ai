@@ -27,7 +27,7 @@ import {
 import type { DbTx, KitchenProduct, KitchenStockLot, Prisma } from '@pms/database';
 import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
-import { foodMay, foodScope, foodTransaction, foodWritable, type FoodScope, BRANCH_CASH_VERTICALS } from './scope';
+import { foodMay, foodScope, foodTransaction, foodWritable, type FoodScope, BRANCH_STOCK_VERTICALS } from './scope';
 
 /** Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS). Записи сериализует замок филиала в foodTransaction. */
 function parsed<T>(fn: () => T): T {
@@ -84,8 +84,8 @@ export class StockService {
   ): Promise<T> {
     foodMay(permission);
     await foodWritable(this.prisma.db);
-    const s = await foodScope(this.prisma.db, BRANCH_CASH_VERTICALS);
-    return foodTransaction(this.prisma, s, fn, BRANCH_CASH_VERTICALS);
+    const s = await foodScope(this.prisma.db, BRANCH_STOCK_VERTICALS);
+    return foodTransaction(this.prisma, s, fn, BRANCH_STOCK_VERTICALS);
   }
   private async audit(tx: DbTx, s: FoodScope, id: string, action: string, after: Prisma.InputJsonObject) {
     await tx.auditLog.create({
@@ -115,7 +115,7 @@ export class StockService {
   /** Справочник бизнеса с остатком текущего филиала; полный список, ингредиентов у кухни сотни, не тысячи */
   async products() {
     foodMay('desk');
-    const s = await foodScope(this.prisma.db, BRANCH_CASH_VERTICALS);
+    const s = await foodScope(this.prisma.db, BRANCH_STOCK_VERTICALS);
     const [products, lots] = await Promise.all([
       this.prisma.db.kitchenProduct.findMany({
         where: { businessId: s.businessId },
@@ -172,7 +172,7 @@ export class StockService {
 
   async lots(query: unknown) {
     foodMay('desk');
-    const s = await foodScope(this.prisma.db, BRANCH_CASH_VERTICALS);
+    const s = await foodScope(this.prisma.db, BRANCH_STOCK_VERTICALS);
     const q = parsed(() => foodObject(query, ['productId']));
     const productId = parsed(() => foodId(q.productId));
     const rows = await this.prisma.db.kitchenStockLot.findMany({
@@ -185,7 +185,7 @@ export class StockService {
   /** Последние движения филиала (до 200), новые сверху: история, а не основание для расчёта */
   async movements(query: unknown) {
     foodMay('desk');
-    const s = await foodScope(this.prisma.db, BRANCH_CASH_VERTICALS);
+    const s = await foodScope(this.prisma.db, BRANCH_STOCK_VERTICALS);
     const q = parsed(() => foodObject(query, ['productId', 'limit']));
     const productId = q.productId === undefined ? undefined : parsed(() => foodId(q.productId));
     const limit =

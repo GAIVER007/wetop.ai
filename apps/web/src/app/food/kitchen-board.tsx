@@ -6,6 +6,7 @@ import type { MenuStation, OrderItemStatus, OrderItemView, OrderView } from '../
 import { localInput } from '../beauty/time';
 import { stationLines } from '../../lib/food-stations';
 import { mutateOrder } from './restaurant-actions';
+import { LineModifiers } from './modifier-parts';
 
 const COLUMNS: ReadonlyArray<{ id: OrderItemStatus; title: string; action: OrderItemStatus; button: string }> = [
   { id: 'NEW', title: 'Новые', action: 'COOKING', button: 'Принять' },
@@ -90,7 +91,7 @@ export function KitchenBoard({
               <span className="rest-kds-line">
                 <span>
                   {i.name}
-                  {i.notes && <small>{i.notes}</small>}
+                  <LineModifiers modifiers={i.modifiers} notes={i.notes} />
                 </span>
                 <b>×{i.qty}</b>
               </span>

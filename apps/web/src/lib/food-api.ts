@@ -20,6 +20,8 @@ import type {
   MenuCategoryInput,
   MenuItemInput,
   MenuItemView,
+  ModifierGroupInput,
+  ModifierGroupView,
   OrderCreateInput,
   OrderPatch,
   OrderItemStatus,
@@ -116,6 +118,14 @@ export const restaurantApi = {
     sendJson<MenuItemView>('PATCH', idPath('menu/items', id), body),
   replaceIngredients: (id: string, ingredients: IngredientInput[]) =>
     sendJson<MenuItemView>('PUT', `${idPath('menu/items', id)}/ingredients`, { ingredients }),
+  /** Модификаторы блюд (§33.7): группы бизнеса и группы блюда */
+  modifierGroups: () => getJsonPublic<{ items: ModifierGroupView[] }>(`${base}/menu/modifier-groups`),
+  createModifierGroup: (body: ModifierGroupInput) =>
+    sendJson<ModifierGroupView>('POST', `${base}/menu/modifier-groups`, body),
+  updateModifierGroup: (id: string, body: Partial<ModifierGroupInput>) =>
+    sendJson<ModifierGroupView>('PATCH', idPath('menu/modifier-groups', id), body),
+  setItemModifierGroups: (id: string, groupIds: string[]) =>
+    sendJson<{ menuItemId: string; modifierGroupIds: string[] }>('PUT', `${idPath('menu/items', id)}/modifier-groups`, { groupIds }),
   orders: (date: string, cursor?: string) =>
     getJsonPublic<FoodPage<OrderView>>(`${base}/orders${query(cursor, date)}`),
   openOrders: (cursor?: string) =>
@@ -130,7 +140,7 @@ export const restaurantApi = {
     sendJson<OrderView>('POST', `${idPath('orders', id)}/items/${encodeURIComponent(itemId)}/status`, body),
   /** Столы зала для экрана официанта (§33.6) */
   waiterTables: () => getJsonPublic<WaiterTables>(`${base}/waiter/tables`),
-  payOrder: (id: string, body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string }) =>
+  payOrder: (id: string, body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string; itemIds?: string[] }) =>
     sendJson<OrderView>('POST', `${idPath('orders', id)}/payments`, body),
   rateOrder: (id: string, body: { stars: number; comment: string | null }) =>
     sendJson<OrderView>('POST', `${idPath('orders', id)}/rating`, body),

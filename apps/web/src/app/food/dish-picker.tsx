@@ -5,6 +5,8 @@ import { Icon } from '../../components/icon';
 import { Button, Field, Input } from '../../components/ui';
 import { wholeTenge } from '../../lib/dashboard-format';
 import type { MenuCategory, MenuItemView, OrderItemInput } from '../../lib/food-types';
+import { addCartLine, cartLineKey, cartLinePrice } from '../../lib/food-modifiers';
+import { LineModifiers, ModifierPicker } from './modifier-parts';
 
 /**
  * Выбор блюд и текущий заказ (макет POS, экран 5): общий для формы заказа у стойки (`order-drawer.tsx`) и телефонного
@@ -27,6 +29,8 @@ export function DishPicker({
 }) {
   const [category, setCategory] = useState('');
   const [query, setQuery] = useState('');
+  // §33.7: блюдо с группами добавок открывает выбор добавок и комментария
+  const [choosing, setChoosing] = useState<MenuItemView | null>(null);
   const q = query.trim().toLocaleLowerCase('ru');
   const dishes = ctx.menuItems.filter(
     (m) =>
@@ -34,11 +38,9 @@ export function DishPicker({
       (!category || m.categoryId === category) &&
       (!q || m.name.toLocaleLowerCase('ru').includes(q)),
   );
-  const add = (id: string) => {
-    const index = items.findIndex((i) => i.menuItemId === id);
-    if (index >= 0)
-      setItems(items.map((item, i) => (i === index ? { ...item, qty: item.qty + 1 } : item)));
-    else setItems([...items, { menuItemId: id, qty: 1 }]);
+  const add = (dish: MenuItemView) => {
+    if (dish.modifierGroups?.length) return setChoosing(dish);
+    setItems(addCartLine(items, { menuItemId: dish.id, qty: 1 }));
   };
   return (
     <div className="rest-pos-menu">
@@ -79,7 +81,7 @@ export function DishPicker({
               className="rest-pos-dish"
               key={m.id}
               aria-label={`Добавить: ${m.name}, ${wholeTenge(m.priceMinor, m.currency)}`}
-              onClick={() => add(m.id)}
+              onClick={() => add(m)}
             >
               {m.photoUrl ? (
                 <img src={m.photoUrl} alt="" width={160} height={120} />
@@ -90,9 +92,17 @@ export function DishPicker({
               )}
               <span className="rest-pos-dish__name">{m.name}</span>
               <strong>{wholeTenge(m.priceMinor, m.currency)}</strong>
+              {m.modifierGroups?.length ? <small className="food-mod-hint">с выбором</small> : null}
             </button>
           ))}
         </div>
+      )}
+      {choosing && (
+        <ModifierPicker
+          dish={choosing}
+          onSubmit={(line) => setItems(addCartLine(items, line))}
+          close={() => setChoosing(null)}
+        />
       )}
     </div>
   );
@@ -109,10 +119,11 @@ export function CurrentOrder({
   setItems: (items: OrderItemInput[]) => void;
 }) {
   const byId = new Map(ctx.menuItems.map((m) => [m.id, m]));
-  const total = items.reduce(
-    (acc, i) => acc + BigInt(byId.get(i.menuItemId)?.priceMinor ?? '0') * BigInt(i.qty),
-    0n,
-  );
+  // §33.7: цена строки с добавками
+  const total = items.reduce((acc, i) => acc + cartLinePrice(byId.get(i.menuItemId), i.modifierIds) * BigInt(i.qty), 0n);
+  const [editing, setEditing] = useState<number | null>(null);
+  const modifierName = (dishId: string, id: string) =>
+    byId.get(dishId)?.modifierGroups?.flatMap((g) => g.modifiers).find((m) => m.id === id)?.name ?? '';
   const change = (index: number, qty: number) => {
     if (qty <= 0) setItems(items.filter((_, i) => i !== index));
     else setItems(items.map((item, i) => (i === index ? { ...item, qty } : item)));
@@ -126,7 +137,7 @@ export function CurrentOrder({
       {items.map((item, index) => {
         const m = byId.get(item.menuItemId);
         return (
-          <div className="rest-order-item rest-order-item--pos" key={item.menuItemId}>
+          <div className="rest-order-item rest-order-item--pos" key={cartLineKey(item)}>
             <span className="rest-order-qty">
               <Button tone="ghost" aria-label="Меньше" onClick={() => change(index, item.qty - 1)}>
                 −
@@ -136,13 +147,30 @@ export function CurrentOrder({
                 +
               </Button>
             </span>
-            <strong>{m?.name ?? 'Блюдо'}</strong>
+            <strong>
+              {m?.name ?? 'Блюдо'}
+              <LineModifiers modifiers={(item.modifierIds ?? []).map((id) => ({ name: modifierName(item.menuItemId, id) }))} notes={item.notes} />
+            </strong>
+            {m && (
+              <Button tone="ghost" size="sm" aria-label={`Выбор и комментарий: ${m.name}`} onClick={() => setEditing(index)}>
+                ✎
+              </Button>
+            )}
             <span className="rest-tech-cost">
-              {m ? wholeTenge(String(BigInt(m.priceMinor) * BigInt(item.qty)), m.currency) : '—'}
+              {m ? wholeTenge(String(cartLinePrice(m, item.modifierIds) * BigInt(item.qty)), m.currency) : '—'}
             </span>
           </div>
         );
       })}
+      {editing !== null && items[editing] && byId.get(items[editing]!.menuItemId) && (
+        <ModifierPicker
+          dish={byId.get(items[editing]!.menuItemId)!}
+          initial={items[editing]}
+          submitLabel="Сохранить"
+          onSubmit={(line) => setItems(addCartLine(items.filter((_, i) => i !== editing), line))}
+          close={() => setEditing(null)}
+        />
+      )}
       <div className="rest-order-total">
         <span>Итого</span>
         <strong data-testid="order-draft-total">{wholeTenge(String(total))}</strong>

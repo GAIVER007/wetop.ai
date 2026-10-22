@@ -21,6 +21,8 @@ import { mutateOrder, orderRatingLink } from './restaurant-actions';
 import { useConfirm } from '../../components/use-confirm';
 import { QrCode, StarsInput } from './rating-parts';
 import { CurrentOrder, DishPicker } from './dish-picker';
+import { orderLinesToCart } from '../../lib/food-modifiers';
+import { LineModifiers, SplitBill } from './modifier-parts';
 
 export interface OrderContext {
   scopeKey: string;
@@ -319,6 +321,8 @@ export function OrderDrawer({
   const [saved, setSaved] = useState<OrderView | null>(null);
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
+  // §33.7: «Разделить счёт» поровну или по позициям
+  const [splitting, setSplitting] = useState(false);
   const initial = draft.kind === 'view' ? draft.order : null;
   const order =
     saved && (!initial || Date.parse(saved.updatedAt) >= Date.parse(initial.updatedAt))
@@ -332,9 +336,7 @@ export function OrderDrawer({
   const [guestCount, setGuestCount] = useState(order?.guestCount ?? 2);
   const [notes, setNotes] = useState(order?.notes ?? '');
   const [items, setItems] = useState<OrderItemInput[]>(
-    order?.items
-      .filter((i) => i.menuItemId)
-      .map((i) => ({ menuItemId: i.menuItemId!, qty: i.qty, notes: i.notes })) ??
+    (order ? orderLinesToCart(order.items) : undefined) ??
       (draft.kind === 'create' ? (draft.items ?? []) : []),
   );
   const areaName = useMemo(
@@ -458,7 +460,7 @@ export function OrderDrawer({
                 <div className="rest-order-item" key={i.id}>
                   <strong>
                     {i.name}
-                    {i.notes ? <small>, {i.notes}</small> : null}
+                    <LineModifiers modifiers={i.modifiers} notes={i.notes} />
                   </strong>
                   <span>× {i.qty}</span>
                   <span className="rest-tech-cost">
@@ -474,6 +476,12 @@ export function OrderDrawer({
               </div>
             </div>
             <PaymentPanel ctx={ctx} order={order} onSaved={setSaved} />
+            {ctx.write && order.status !== 'CLOSED' && order.status !== 'CANCELLED' && BigInt(order.totalMinor) > BigInt(order.paidMinor) && (
+              <Button tone="secondary" data-testid="split-bill-open" onClick={() => setSplitting(true)}>
+                Разделить счёт
+              </Button>
+            )}
+            {splitting && <SplitBill scopeKey={ctx.scopeKey} order={order} onSaved={setSaved} close={() => setSplitting(false)} />}
             <RatingPanel ctx={ctx} order={order} onSaved={setSaved} />
             {ctx.write && (
               <div className="food-actions">

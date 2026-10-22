@@ -16,6 +16,8 @@ import { localInput } from '../beauty/time';
 import { CurrentOrder, DishPicker } from '../food/dish-picker';
 import { mutateOrder } from '../food/restaurant-actions';
 import { tableTitle } from '../food/timeline-board';
+import { orderLinesToCart } from '../../lib/food-modifiers';
+import { LineModifiers } from '../food/modifier-parts';
 
 /** Слова статуса позиции для официанта (§33.6): «Готово к выдаче» значит пора нести гостю */
 export const ITEM_STATUS_LABEL: Record<OrderItemStatus, string> = {
@@ -85,10 +87,7 @@ export function WaiterBoard({
     start(async () => {
       const add = tableOrder && tableOrder.items.every((i) => i.menuItemId);
       const merged = add
-        ? [
-            ...tableOrder!.items.map((i) => ({ menuItemId: i.menuItemId!, qty: i.qty })),
-            ...cart,
-          ]
+        ? [...orderLinesToCart(tableOrder!.items), ...cart]
         : cart;
       const result = add
         ? await mutateOrder(scopeKey, {
@@ -232,6 +231,7 @@ export function WaiterBoard({
                   <li key={i.id} data-status={i.status ?? 'NEW'} data-testid="waiter-item">
                     <span className="waiter-order__name">
                       {i.name} ×{i.qty}
+                      <LineModifiers modifiers={i.modifiers} notes={i.notes} />
                       <small>{STATION_LABEL[i.station ?? 'KITCHEN']}</small>
                     </span>
                     <span className="waiter-order__status">{ITEM_STATUS_LABEL[i.status ?? 'NEW']}</span>

@@ -44,14 +44,14 @@ export function DishPicker({
   };
   return (
     <div className="rest-pos-menu">
-      <nav className="rest-utabs" aria-label="Категории меню">
-        <button type="button" aria-current={!category ? 'page' : undefined} onClick={() => setCategory('')}>
+      <nav className="tabs" aria-label="Категории меню">
+        <button className="tabs__item" type="button" aria-current={!category ? 'page' : undefined} onClick={() => setCategory('')}>
           Все блюда
         </button>
         {ctx.categories
           .filter((c) => c.active)
           .map((c) => (
-            <button
+            <button className="tabs__item"
               key={c.id}
               type="button"
               aria-current={category === c.id ? 'page' : undefined}

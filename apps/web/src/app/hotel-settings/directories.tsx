@@ -99,25 +99,27 @@ export function PaymentMethodsForm({
                   {m.enabled ? 'да' : 'нет'}
                 </label>
               </td>
-              <td className="settings-order">
-                <Button
-                  type="button"
-                  tone="ghost"
-                  disabled={i === 0}
-                  onClick={() => move(i, -1)}
-                  aria-label={`Выше: ${label(m.method)}`}
-                >
-                  Выше
-                </Button>
-                <Button
-                  type="button"
-                  tone="ghost"
-                  disabled={i === list.length - 1}
-                  onClick={() => move(i, 1)}
-                  aria-label={`Ниже: ${label(m.method)}`}
-                >
-                  Ниже
-                </Button>
+              <td className="settings-actions">
+                <div className="settings-order">
+                  <Button
+                    type="button"
+                    tone="ghost"
+                    disabled={i === 0}
+                    onClick={() => move(i, -1)}
+                    aria-label={`Выше: ${label(m.method)}`}
+                  >
+                    Выше
+                  </Button>
+                  <Button
+                    type="button"
+                    tone="ghost"
+                    disabled={i === list.length - 1}
+                    onClick={() => move(i, 1)}
+                    aria-label={`Ниже: ${label(m.method)}`}
+                  >
+                    Ниже
+                  </Button>
+                </div>
               </td>
             </tr>
           ))}
@@ -125,8 +127,8 @@ export function PaymentMethodsForm({
       </Table>
       <p className="settings-note">
         Выключенный способ не предлагается при приёме оплаты, в кассе и в запросах оплаты. Прошлые
-        платежи, отчёты и сверка не меняются. Платёж площадки (внешний канал) ставят каналы продаж, он
-        здесь не настраивается.
+        платежи, отчёты и сверка не меняются. Платёж площадки (внешний канал) ставят каналы продаж,
+        он здесь не настраивается.
       </p>
     </form>
   );
@@ -210,13 +212,15 @@ export function CashCategoriesEditor({
                 </Badge>
               </td>
               {editable && (
-                <td className="settings-order">
-                  {renaming !== c.id && (
-                    <Button type="button" tone="ghost" onClick={() => setRenaming(c.id)}>
-                      Переименовать
-                    </Button>
-                  )}
-                  <ToggleForm category={c} />
+                <td className="settings-actions">
+                  <div className="settings-order">
+                    {renaming !== c.id && (
+                      <Button type="button" tone="ghost" onClick={() => setRenaming(c.id)}>
+                        Переименовать
+                      </Button>
+                    )}
+                    <ToggleForm category={c} />
+                  </div>
                 </td>
               )}
             </tr>

@@ -47,7 +47,7 @@ const disable = (request: APIRequestContext, ...off: string[]) =>
     data: { methods: ALL.map((method) => ({ method, enabled: !off.includes(method) })) },
   });
 
-test('вкладка «Справочники»: восемь способов; Kaspi выключен и Halyk поднят, сохранение из шапки, после перечитывания то же', async ({
+test('вкладка «Справочники»: восемь способов; Kaspi убран и Halyk поднят, сохранение из шапки, после перечитывания то же', async ({
   page,
   request,
 }) => {
@@ -64,8 +64,10 @@ test('вкладка «Справочники»: восемь способов; 
   const save = main.getByRole('button', { name: 'Сохранить изменения' });
   await expect(save).toBeDisabled();
 
-  await main.getByLabel('Принимаем: Kaspi').uncheck();
-  await main.getByRole('button', { name: 'Выше: Halyk' }).click();
+  // в таблице только принимаемые способы; «Убрать» переносит способ в список «Добавить способ оплаты»
+  await expect(main.getByTestId('payment-method-add')).toHaveCount(0);
+  await main.getByRole('button', { name: 'Убрать: Kaspi' }).click();
+  await expect(rows).toHaveCount(7);
   await main.getByRole('button', { name: 'Выше: Halyk' }).click();
   await expect(rows.nth(1)).toHaveAttribute('data-method', 'HALYK');
   await expect(main.getByTestId('settings-save-state')).toHaveText('• Есть несохранённые изменения');
@@ -80,17 +82,45 @@ test('вкладка «Справочники»: восемь способов; 
 
   await page.reload();
   await expect(main.getByTestId('payment-method-row').nth(1)).toHaveAttribute('data-method', 'HALYK');
-  await expect(main.getByLabel('Принимаем: Kaspi')).not.toBeChecked();
+  await expect(main.getByTestId('payment-method-row')).toHaveCount(7);
+  await expect(main.getByLabel('Добавить способ оплаты')).toHaveValue('KASPI');
   await expect(main.getByRole('button', { name: 'Сохранить изменения' })).toBeDisabled();
+});
+
+test('добавить способ оплаты: выбрать из выключенных, встаёт в конец, сохраняется', async ({ page, request }) => {
+  await disable(request, 'KASPI', 'HALYK');
+  await signIn(page);
+  await page.goto('/hotel-settings/directories');
+  const main = page.getByRole('main');
+  const rows = main.getByTestId('payment-method-row');
+  await expect(rows).toHaveCount(6);
+  const pick = main.getByLabel('Добавить способ оплаты');
+  await expect(pick.locator('option')).toHaveText(['Kaspi', 'Halyk']);
+  await pick.selectOption('HALYK');
+  await main.getByRole('button', { name: 'Добавить способ: Halyk' }).click();
+  await expect(rows).toHaveCount(7);
+  await expect(rows.last()).toHaveAttribute('data-method', 'HALYK');
+  await expect(pick.locator('option')).toHaveText(['Kaspi']);
+  await main.getByRole('button', { name: 'Сохранить изменения' }).click();
+  await expect(main.getByTestId('settings-save-state')).toHaveText('✓ Изменения сохранены');
+  const saved = (await (await request.get(`${API}/hotel/payment-methods`, { headers: H })).json()) as {
+    methods: Array<{ method: string; enabled: boolean }>;
+  };
+  expect(saved.methods.filter((m) => m.enabled).at(-1)?.method).toBe('HALYK');
+  expect(saved.methods.find((m) => m.method === 'KASPI')?.enabled).toBe(false);
+  // все добавлены: выбор исчезает
+  await pick.selectOption('KASPI');
+  await main.getByRole('button', { name: 'Добавить способ: Kaspi' }).click();
+  await expect(main.getByTestId('payment-method-add')).toHaveCount(0);
 });
 
 test('все способы выключены: сохранить нельзя, причина словами', async ({ page }) => {
   await signIn(page);
   await page.goto('/hotel-settings/directories');
   const main = page.getByRole('main');
-  const toggles = main.getByTestId('payment-method-toggle');
-  await expect(toggles).toHaveCount(8);
-  for (let i = 0; i < 8; i += 1) await toggles.nth(i).uncheck();
+  const remove = main.getByTestId('payment-method-remove');
+  await expect(remove).toHaveCount(8);
+  for (let i = 0; i < 8; i += 1) await remove.first().click();
   await expect(main.getByText('Хотя бы один способ оплаты должен быть включён')).toBeVisible();
   await main.getByRole('button', { name: 'Сохранить изменения' }).click();
   // форма не ушла: разбор домена остановил запрос, список по-прежнему весь выключен
@@ -169,13 +199,13 @@ test('управляющий правит; «только чтение» вид�
   await control(request, { role: 'MANAGER' });
   await page.goto('/hotel-settings/directories');
   const main = page.getByRole('main');
-  await expect(main.getByTestId('payment-method-toggle').first()).toBeVisible();
+  await expect(main.getByTestId('payment-method-remove').first()).toBeVisible();
   await expect(main.getByTestId('cash-category-form')).toBeVisible();
 
   await control(request, { role: 'OWNER', orgTrialDays: 'ended' });
   await page.goto('/hotel-settings/directories');
   await expect(main.getByTestId('payment-method-row')).toHaveCount(8);
-  await expect(main.getByTestId('payment-method-toggle')).toHaveCount(0);
+  await expect(main.getByTestId('payment-method-remove')).toHaveCount(0);
   await expect(main.getByTestId('cash-category-form')).toHaveCount(0);
   await expect(main.getByRole('button', { name: 'Сохранить изменения' })).toHaveCount(0);
 });

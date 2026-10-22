@@ -816,6 +816,16 @@
     flex-direction: column;
     align-items: stretch;
   }
+  /* способы оплаты: три короткие кнопки строкой с переносом, не столбиком в три этажа */
+  .object-settings .settings-payment-table .settings-order {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .object-settings .settings-payment-table th:last-child,
+  .object-settings .settings-payment-table .settings-actions {
+    width: 66%;
+  }
 }
 /* скрытая подпись «Действия» ищет опору внутри прокрутки, а не вне её (те же грабли, что у долгов и счетов) */
 .object-settings .settings-directory .table-scroll,

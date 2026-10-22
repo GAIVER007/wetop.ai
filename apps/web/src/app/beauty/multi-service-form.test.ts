@@ -45,6 +45,13 @@ describe('report A1 A2 A3 A5: appointment form contract', () => {
     expect(html).toContain('Телефон или имя');
     expect(html).toContain('Итого');
   });
+  it('аудит салона 22.10.2026: до выбора услуги нет «Стоимость: Проверьте сумму»', () => {
+    const html = renderToStaticMarkup(
+      createElement(AppointmentForm, { day, customers: [], employeeId: 'master', onDone: vi.fn() }),
+    );
+    expect(html).not.toContain('Проверьте сумму');
+    expect(html).not.toContain('Стоимость:');
+  });
   it('пояс филиала словами, без кода вроде Asia/Almaty (живой сайт 21.10.2026, телефон)', () => {
     const html = renderToStaticMarkup(
       createElement(AppointmentForm, {

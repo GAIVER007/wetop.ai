@@ -20,7 +20,7 @@
   }
   .waiter-area h2 {
     margin: 0;
-    font-size: var(--text-base);
+    font-size: var(--text-md);
   }
   .waiter-tables {
     display: grid;
@@ -78,7 +78,7 @@
   }
   .waiter-take__title {
     margin: 0;
-    font-size: var(--text-base);
+    font-size: var(--text-md);
   }
   .waiter-guests {
     display: inline-flex;

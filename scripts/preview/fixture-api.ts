@@ -5913,13 +5913,17 @@ createServer(async (req, res) => {
           ageMin: 25,
           ageMax: 54,
           genders: [],
-          interests: ['путешествия'],
+          // для видео подставной ИИ называет, сколько кадров получил: UI-тест сверяет, что кадры дошли до API
+          interests: body['creativeKind'] === 'VIDEO' ? [`кадров видео: ${Array.isArray(body['images']) ? body['images'].length : 0}`] : ['путешествия'],
           welcome: body['destination'] === 'WHATSAPP' ? { text: 'Здравствуйте! Подскажем свободные даты', autofill: 'Хочу узнать цены' } : null,
           notes: [],
         });
       if (req.method === 'POST' && path === '/marketing/ads/creatives') {
-        if (!/Content-Type: image\/(png|jpeg)/i.test(raw.toString('latin1'))) return send(415, { message: 'Креатив: фото JPEG или PNG' });
-        return send(201, { id: '00000000-0000-4000-a000-0000000c0001', fileName: 'Креатив', url: 'about:blank' });
+        const part = raw.toString('latin1');
+        if (!/Content-Type: (image\/(png|jpeg)|video\/(mp4|quicktime))/i.test(part))
+          return send(415, { message: 'Креатив: фото JPEG, PNG или видео MP4, MOV' });
+        const isVideo = /Content-Type: video\//i.test(part);
+        return send(201, { id: isVideo ? '00000000-0000-4000-a000-0000000c0002' : '00000000-0000-4000-a000-0000000c0001', fileName: 'Креатив', url: 'about:blank' });
       }
       if (req.method === 'POST' && path === '/marketing/ads/launches') {
         if (!body['headline']) return send(400, { message: 'Нужен заголовок' });

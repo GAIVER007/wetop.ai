@@ -25,7 +25,12 @@ describe('бронь стола: «Принял» (integration, §33.6)', () => 
       { userId: user, organizationId: org, role: 'STAFF', scope: 'LOCATION', businessId: business, locationId: location, vertical: 'FOOD_SERVICE' },
       fn,
     );
-  const startsAt = new Date(Date.now() + 50 * 3_600_000);
+  const startsAt = (() => {
+  // полдень по Алматы через 2 суток: «сейчас + N часов» в 23:00+ по Алматы выводило бронь за период 00:00–23:59
+  // (CI 22.10.2026 16:38 UTC: «Бронь не помещается в период обслуживания»)
+  const d = new Date(Date.now() + 2 * 86_400_000);
+  return new Date(`${new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(d)}T12:00:00+05:00`);
+})();
   const book = (extra: Record<string, unknown>) =>
     at(() =>
       svc.create(randomUUID(), {

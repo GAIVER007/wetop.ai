@@ -131,7 +131,12 @@ describe.skipIf(!ENABLED)('«Личный кабинет» ресторана п
   });
 
   it('бронирует стол: бронь помнит его как принявшего, в списке только свои брони', async () => {
-    const startsAt = new Date(Date.now() + 26 * 3_600_000);
+    const startsAt = (() => {
+  // полдень по Алматы через 2 суток: «сейчас + N часов» в 23:00+ по Алматы выводило бронь за период 00:00–23:59
+  // (CI 22.10.2026 16:38 UTC: «Бронь не помещается в период обслуживания»)
+  const d = new Date(Date.now() + 2 * 86_400_000);
+  return new Date(`${new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(d)}T12:00:00+05:00`);
+})();
     const period = await w.db.servicePeriod.update({ where: { id: ids.period }, data: { weekday: new Date(startsAt.getTime() + 5 * 3_600_000).getUTCDay() } });
     expect(period.id).toBe(ids.period);
     const r = await request(w.app.getHttpServer())

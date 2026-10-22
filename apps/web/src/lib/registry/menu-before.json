@@ -1,0 +1,2862 @@
+{
+  "HOSPITALITY": {
+    "OWNER": [
+      {
+        "id": "today",
+        "label": "Главная",
+        "direct": true,
+        "items": [
+          {
+            "href": "/today",
+            "label": "Главная"
+          }
+        ]
+      },
+      {
+        "id": "journal",
+        "label": "Журнал",
+        "direct": true,
+        "items": [
+          {
+            "href": "/chessboard",
+            "label": "Журнал"
+          }
+        ]
+      },
+      {
+        "id": "staff",
+        "label": "Персонал",
+        "items": [
+          {
+            "href": "/team",
+            "label": "Сотрудники"
+          }
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Клиенты",
+        "items": [
+          {
+            "href": "/guests",
+            "label": "Клиенты"
+          },
+          {
+            "href": "/reservations",
+            "label": "Записи"
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "label": "Услуги",
+        "items": [
+          {
+            "href": "/inventory",
+            "label": "Каталог"
+          }
+        ]
+      },
+      {
+        "id": "stats",
+        "label": "Статистика",
+        "items": [
+          {
+            "href": "/management/analytics",
+            "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/reports",
+            "label": "Все отчёты"
+          }
+        ]
+      },
+      {
+        "id": "stock",
+        "label": "Склад",
+        "items": [
+          {
+            "href": "/warehouse",
+            "label": "Обзор склада"
+          },
+          {
+            "href": "/bar",
+            "label": "Бар"
+          },
+          {
+            "href": "/bar/consumables",
+            "label": "Кухня"
+          },
+          {
+            "href": "/bar/receipts",
+            "label": "Приходы"
+          },
+          {
+            "href": "/bar/products",
+            "label": "Номенклатура"
+          },
+          {
+            "href": "/bar/suppliers",
+            "label": "Поставщики"
+          },
+          {
+            "href": "/bar/operations",
+            "label": "Движение товаров"
+          }
+        ]
+      },
+      {
+        "id": "money",
+        "label": "Финансы",
+        "items": [
+          {
+            "href": "/finance",
+            "label": "Обзор финансов"
+          },
+          {
+            "href": "/reports/finance",
+            "label": "Отчёты"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "label": "Настройки",
+        "items": [
+          {
+            "href": "/hotel-settings",
+            "label": "Объект"
+          },
+          {
+            "href": "/channels",
+            "label": "Каналы продаж"
+          },
+          {
+            "href": "/connections",
+            "label": "Подключения"
+          },
+          {
+            "href": "/incidents",
+            "label": "Неисправности"
+          },
+          {
+            "href": "/journal",
+            "label": "История действий"
+          },
+          {
+            "href": "/settings",
+            "label": "Все настройки"
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "label": "Продвижение",
+        "items": [
+          {
+            "href": "/marketing",
+            "label": "Обзор"
+          },
+          {
+            "href": "/marketing/ads",
+            "label": "Реклама"
+          },
+          {
+            "href": "/marketing/content",
+            "label": "Контент"
+          },
+          {
+            "href": "/ai-agents",
+            "label": "ИИ-продавец"
+          },
+          {
+            "href": "/market",
+            "label": "Анализ конкурентов"
+          },
+          {
+            "href": "/sales",
+            "label": "Обзор продаж"
+          },
+          {
+            "href": "/marketing/budget",
+            "label": "Бюджет"
+          },
+          {
+            "href": "/marketing/analytics",
+            "label": "Аналитика маркетинга"
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "Помощь",
+        "direct": true,
+        "items": [
+          {
+            "href": "/help",
+            "label": "Помощь"
+          }
+        ]
+      }
+    ],
+    "MANAGER": [
+      {
+        "id": "today",
+        "label": "Главная",
+        "direct": true,
+        "items": [
+          {
+            "href": "/today",
+            "label": "Главная"
+          }
+        ]
+      },
+      {
+        "id": "journal",
+        "label": "Журнал",
+        "direct": true,
+        "items": [
+          {
+            "href": "/chessboard",
+            "label": "Журнал"
+          }
+        ]
+      },
+      {
+        "id": "staff",
+        "label": "Персонал",
+        "items": [
+          {
+            "href": "/team",
+            "label": "Сотрудники"
+          }
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Клиенты",
+        "items": [
+          {
+            "href": "/guests",
+            "label": "Клиенты"
+          },
+          {
+            "href": "/reservations",
+            "label": "Записи"
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "label": "Услуги",
+        "items": [
+          {
+            "href": "/inventory",
+            "label": "Каталог"
+          }
+        ]
+      },
+      {
+        "id": "stats",
+        "label": "Статистика",
+        "items": [
+          {
+            "href": "/management/analytics",
+            "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/reports",
+            "label": "Все отчёты"
+          }
+        ]
+      },
+      {
+        "id": "stock",
+        "label": "Склад",
+        "items": [
+          {
+            "href": "/warehouse",
+            "label": "Обзор склада"
+          },
+          {
+            "href": "/bar",
+            "label": "Бар"
+          },
+          {
+            "href": "/bar/consumables",
+            "label": "Кухня"
+          },
+          {
+            "href": "/bar/receipts",
+            "label": "Приходы"
+          },
+          {
+            "href": "/bar/products",
+            "label": "Номенклатура"
+          },
+          {
+            "href": "/bar/suppliers",
+            "label": "Поставщики"
+          },
+          {
+            "href": "/bar/operations",
+            "label": "Движение товаров"
+          }
+        ]
+      },
+      {
+        "id": "money",
+        "label": "Финансы",
+        "items": [
+          {
+            "href": "/finance",
+            "label": "Обзор финансов"
+          },
+          {
+            "href": "/reports/finance",
+            "label": "Отчёты"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "label": "Настройки",
+        "items": [
+          {
+            "href": "/hotel-settings",
+            "label": "Объект"
+          },
+          {
+            "href": "/channels",
+            "label": "Каналы продаж"
+          },
+          {
+            "href": "/connections",
+            "label": "Подключения"
+          },
+          {
+            "href": "/incidents",
+            "label": "Неисправности"
+          },
+          {
+            "href": "/settings",
+            "label": "Все настройки"
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "label": "Продвижение",
+        "items": [
+          {
+            "href": "/marketing",
+            "label": "Обзор"
+          },
+          {
+            "href": "/marketing/ads",
+            "label": "Реклама"
+          },
+          {
+            "href": "/marketing/content",
+            "label": "Контент"
+          },
+          {
+            "href": "/ai-agents",
+            "label": "ИИ-продавец"
+          },
+          {
+            "href": "/market",
+            "label": "Анализ конкурентов"
+          },
+          {
+            "href": "/sales",
+            "label": "Обзор продаж"
+          },
+          {
+            "href": "/marketing/budget",
+            "label": "Бюджет"
+          },
+          {
+            "href": "/marketing/analytics",
+            "label": "Аналитика маркетинга"
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "Помощь",
+        "direct": true,
+        "items": [
+          {
+            "href": "/help",
+            "label": "Помощь"
+          }
+        ]
+      }
+    ],
+    "STAFF": [
+      {
+        "id": "today",
+        "label": "Главная",
+        "direct": true,
+        "items": [
+          {
+            "href": "/today",
+            "label": "Главная"
+          }
+        ]
+      },
+      {
+        "id": "journal",
+        "label": "Журнал",
+        "direct": true,
+        "items": [
+          {
+            "href": "/chessboard",
+            "label": "Журнал"
+          }
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Клиенты",
+        "items": [
+          {
+            "href": "/guests",
+            "label": "Клиенты"
+          },
+          {
+            "href": "/reservations",
+            "label": "Записи"
+          }
+        ]
+      },
+      {
+        "id": "stats",
+        "label": "Статистика",
+        "items": [
+          {
+            "href": "/management/analytics",
+            "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/reports",
+            "label": "Все отчёты"
+          }
+        ]
+      },
+      {
+        "id": "stock",
+        "label": "Склад",
+        "items": [
+          {
+            "href": "/warehouse",
+            "label": "Обзор склада"
+          },
+          {
+            "href": "/bar",
+            "label": "Бар"
+          },
+          {
+            "href": "/bar/consumables",
+            "label": "Кухня"
+          },
+          {
+            "href": "/bar/receipts",
+            "label": "Приходы"
+          },
+          {
+            "href": "/bar/products",
+            "label": "Номенклатура"
+          },
+          {
+            "href": "/bar/suppliers",
+            "label": "Поставщики"
+          },
+          {
+            "href": "/bar/operations",
+            "label": "Движение товаров"
+          }
+        ]
+      },
+      {
+        "id": "money",
+        "label": "Финансы",
+        "items": [
+          {
+            "href": "/finance",
+            "label": "Обзор финансов"
+          },
+          {
+            "href": "/reports/finance",
+            "label": "Отчёты"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "label": "Настройки",
+        "items": [
+          {
+            "href": "/incidents",
+            "label": "Неисправности"
+          },
+          {
+            "href": "/settings",
+            "label": "Все настройки"
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "label": "Продвижение",
+        "items": [
+          {
+            "href": "/ai-agents",
+            "label": "ИИ-продавец"
+          },
+          {
+            "href": "/market",
+            "label": "Анализ конкурентов"
+          },
+          {
+            "href": "/sales",
+            "label": "Обзор продаж"
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "Помощь",
+        "direct": true,
+        "items": [
+          {
+            "href": "/help",
+            "label": "Помощь"
+          }
+        ]
+      }
+    ],
+    "EMPLOYEE": [],
+    "OWNER+platform": [
+      {
+        "id": "today",
+        "label": "Главная",
+        "direct": true,
+        "items": [
+          {
+            "href": "/today",
+            "label": "Главная"
+          }
+        ]
+      },
+      {
+        "id": "journal",
+        "label": "Журнал",
+        "direct": true,
+        "items": [
+          {
+            "href": "/chessboard",
+            "label": "Журнал"
+          }
+        ]
+      },
+      {
+        "id": "staff",
+        "label": "Персонал",
+        "items": [
+          {
+            "href": "/team",
+            "label": "Сотрудники"
+          }
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Клиенты",
+        "items": [
+          {
+            "href": "/guests",
+            "label": "Клиенты"
+          },
+          {
+            "href": "/reservations",
+            "label": "Записи"
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "label": "Услуги",
+        "items": [
+          {
+            "href": "/inventory",
+            "label": "Каталог"
+          }
+        ]
+      },
+      {
+        "id": "stats",
+        "label": "Статистика",
+        "items": [
+          {
+            "href": "/management/analytics",
+            "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/reports",
+            "label": "Все отчёты"
+          }
+        ]
+      },
+      {
+        "id": "stock",
+        "label": "Склад",
+        "items": [
+          {
+            "href": "/warehouse",
+            "label": "Обзор склада"
+          },
+          {
+            "href": "/bar",
+            "label": "Бар"
+          },
+          {
+            "href": "/bar/consumables",
+            "label": "Кухня"
+          },
+          {
+            "href": "/bar/receipts",
+            "label": "Приходы"
+          },
+          {
+            "href": "/bar/products",
+            "label": "Номенклатура"
+          },
+          {
+            "href": "/bar/suppliers",
+            "label": "Поставщики"
+          },
+          {
+            "href": "/bar/operations",
+            "label": "Движение товаров"
+          }
+        ]
+      },
+      {
+        "id": "money",
+        "label": "Финансы",
+        "items": [
+          {
+            "href": "/finance",
+            "label": "Обзор финансов"
+          },
+          {
+            "href": "/reports/finance",
+            "label": "Отчёты"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "label": "Настройки",
+        "items": [
+          {
+            "href": "/hotel-settings",
+            "label": "Объект"
+          },
+          {
+            "href": "/channels",
+            "label": "Каналы продаж"
+          },
+          {
+            "href": "/connections",
+            "label": "Подключения"
+          },
+          {
+            "href": "/incidents",
+            "label": "Неисправности"
+          },
+          {
+            "href": "/journal",
+            "label": "История действий"
+          },
+          {
+            "href": "/settings",
+            "label": "Все настройки"
+          },
+          {
+            "href": "/platform",
+            "label": "Организации"
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "label": "Продвижение",
+        "items": [
+          {
+            "href": "/marketing",
+            "label": "Обзор"
+          },
+          {
+            "href": "/marketing/ads",
+            "label": "Реклама"
+          },
+          {
+            "href": "/marketing/content",
+            "label": "Контент"
+          },
+          {
+            "href": "/ai-agents",
+            "label": "ИИ-продавец"
+          },
+          {
+            "href": "/market",
+            "label": "Анализ конкурентов"
+          },
+          {
+            "href": "/sales",
+            "label": "Обзор продаж"
+          },
+          {
+            "href": "/marketing/budget",
+            "label": "Бюджет"
+          },
+          {
+            "href": "/marketing/analytics",
+            "label": "Аналитика маркетинга"
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "Помощь",
+        "direct": true,
+        "items": [
+          {
+            "href": "/help",
+            "label": "Помощь"
+          }
+        ]
+      }
+    ],
+    "MANAGER+restricted": [
+      {
+        "id": "today",
+        "label": "Главная",
+        "direct": true,
+        "items": [
+          {
+            "href": "/today",
+            "label": "Главная"
+          }
+        ]
+      },
+      {
+        "id": "journal",
+        "label": "Журнал",
+        "direct": true,
+        "items": [
+          {
+            "href": "/chessboard",
+            "label": "Журнал"
+          }
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Клиенты",
+        "items": [
+          {
+            "href": "/guests",
+            "label": "Клиенты"
+          },
+          {
+            "href": "/reservations",
+            "label": "Записи"
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "label": "Услуги",
+        "items": [
+          {
+            "href": "/inventory",
+            "label": "Каталог"
+          }
+        ]
+      },
+      {
+        "id": "stats",
+        "label": "Статистика",
+        "items": [
+          {
+            "href": "/management/analytics",
+            "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/reports",
+            "label": "Все отчёты"
+          }
+        ]
+      },
+      {
+        "id": "stock",
+        "label": "Склад",
+        "items": [
+          {
+            "href": "/warehouse",
+            "label": "Обзор склада"
+          },
+          {
+            "href": "/bar",
+            "label": "Бар"
+          },
+          {
+            "href": "/bar/consumables",
+            "label": "Кухня"
+          },
+          {
+            "href": "/bar/receipts",
+            "label": "Приходы"
+          },
+          {
+            "href": "/bar/products",
+            "label": "Номенклатура"
+          },
+          {
+            "href": "/bar/suppliers",
+            "label": "Поставщики"
+          },
+          {
+            "href": "/bar/operations",
+            "label": "Движение товаров"
+          }
+        ]
+      },
+      {
+        "id": "money",
+        "label": "Финансы",
+        "items": [
+          {
+            "href": "/finance",
+            "label": "Обзор финансов"
+          },
+          {
+            "href": "/reports/finance",
+            "label": "Отчёты"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "label": "Настройки",
+        "items": [
+          {
+            "href": "/hotel-settings",
+            "label": "Объект"
+          },
+          {
+            "href": "/channels",
+            "label": "Каналы продаж"
+          },
+          {
+            "href": "/connections",
+            "label": "Подключения"
+          },
+          {
+            "href": "/incidents",
+            "label": "Неисправности"
+          },
+          {
+            "href": "/settings",
+            "label": "Все настройки"
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "label": "Продвижение",
+        "items": [
+          {
+            "href": "/marketing",
+            "label": "Обзор"
+          },
+          {
+            "href": "/marketing/ads",
+            "label": "Реклама"
+          },
+          {
+            "href": "/marketing/content",
+            "label": "Контент"
+          },
+          {
+            "href": "/market",
+            "label": "Анализ конкурентов"
+          },
+          {
+            "href": "/sales",
+            "label": "Обзор продаж"
+          },
+          {
+            "href": "/marketing/budget",
+            "label": "Бюджет"
+          },
+          {
+            "href": "/marketing/analytics",
+            "label": "Аналитика маркетинга"
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "Помощь",
+        "direct": true,
+        "items": [
+          {
+            "href": "/help",
+            "label": "Помощь"
+          }
+        ]
+      }
+    ]
+  },
+  "BEAUTY": {
+    "OWNER": [
+      {
+        "id": "today",
+        "label": "Главная",
+        "direct": true,
+        "items": [
+          {
+            "href": "/today",
+            "label": "Главная"
+          }
+        ]
+      },
+      {
+        "id": "journal",
+        "label": "Журнал",
+        "direct": true,
+        "items": [
+          {
+            "href": "/calendar",
+            "label": "Журнал"
+          }
+        ]
+      },
+      {
+        "id": "staff",
+        "label": "Персонал",
+        "items": [
+          {
+            "href": "/employees",
+            "label": "Специалисты"
+          },
+          {
+            "href": "/team",
+            "label": "Сотрудники"
+          },
+          {
+            "href": "/beauty/schedule",
+            "label": "График работы"
+          },
+          {
+            "href": "/payroll",
+            "label": "Зарплата"
+          }
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Клиенты",
+        "items": [
+          {
+            "href": "/customers",
+            "label": "Клиенты"
+          },
+          {
+            "href": "/appointments",
+            "label": "Записи"
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "label": "Услуги",
+        "items": [
+          {
+            "href": "/services",
+            "label": "Каталог"
+          }
+        ]
+      },
+      {
+        "id": "stats",
+        "label": "Статистика",
+        "items": [
+          {
+            "href": "/management/analytics",
+            "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/reports",
+            "label": "Все отчёты"
+          }
+        ]
+      },
+      {
+        "id": "stock",
+        "label": "Склад",
+        "items": [
+          {
+            "href": "/warehouse",
+            "label": "Обзор склада"
+          },
+          {
+            "href": "/bar",
+            "label": "Бар"
+          },
+          {
+            "href": "/bar/consumables",
+            "label": "Расходники"
+          },
+          {
+            "href": "/bar/receipts",
+            "label": "Приходы"
+          },
+          {
+            "href": "/bar/products",
+            "label": "Номенклатура"
+          },
+          {
+            "href": "/bar/suppliers",
+            "label": "Поставщики"
+          },
+          {
+            "href": "/bar/operations",
+            "label": "Движение товаров"
+          }
+        ]
+      },
+      {
+        "id": "money",
+        "label": "Финансы",
+        "items": [
+          {
+            "href": "/finance",
+            "label": "Обзор финансов"
+          },
+          {
+            "href": "/cashbox",
+            "label": "Касса"
+          },
+          {
+            "href": "/finance/certificates",
+            "label": "Сертификаты"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "label": "Настройки",
+        "items": [
+          {
+            "href": "/beauty-settings",
+            "label": "Объект"
+          },
+          {
+            "href": "/journal",
+            "label": "История действий"
+          },
+          {
+            "href": "/settings",
+            "label": "Все настройки"
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "label": "Продвижение",
+        "items": [
+          {
+            "href": "/marketing",
+            "label": "Обзор"
+          },
+          {
+            "href": "/marketing/ads",
+            "label": "Реклама"
+          },
+          {
+            "href": "/marketing/content",
+            "label": "Контент"
+          },
+          {
+            "href": "/ai-agents",
+            "label": "ИИ-продавец"
+          },
+          {
+            "href": "/sales",
+            "label": "Обзор продаж"
+          },
+          {
+            "href": "/marketing/budget",
+            "label": "Бюджет"
+          },
+          {
+            "href": "/marketing/analytics",
+            "label": "Аналитика маркетинга"
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "Помощь",
+        "direct": true,
+        "items": [
+          {
+            "href": "/help",
+            "label": "Помощь"
+          }
+        ]
+      }
+    ],
+    "MANAGER": [
+      {
+        "id": "today",
+        "label": "Главная",
+        "direct": true,
+        "items": [
+          {
+            "href": "/today",
+            "label": "Главная"
+          }
+        ]
+      },
+      {
+        "id": "journal",
+        "label": "Журнал",
+        "direct": true,
+        "items": [
+          {
+            "href": "/calendar",
+            "label": "Журнал"
+          }
+        ]
+      },
+      {
+        "id": "staff",
+        "label": "Персонал",
+        "items": [
+          {
+            "href": "/employees",
+            "label": "Специалисты"
+          },
+          {
+            "href": "/team",
+            "label": "Сотрудники"
+          },
+          {
+            "href": "/beauty/schedule",
+            "label": "График работы"
+          },
+          {
+            "href": "/payroll",
+            "label": "Зарплата"
+          }
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Клиенты",
+        "items": [
+          {
+            "href": "/customers",
+            "label": "Клиенты"
+          },
+          {
+            "href": "/appointments",
+            "label": "Записи"
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "label": "Услуги",
+        "items": [
+          {
+            "href": "/services",
+            "label": "Каталог"
+          }
+        ]
+      },
+      {
+        "id": "stats",
+        "label": "Статистика",
+        "items": [
+          {
+            "href": "/management/analytics",
+            "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/reports",
+            "label": "Все отчёты"
+          }
+        ]
+      },
+      {
+        "id": "stock",
+        "label": "Склад",
+        "items": [
+          {
+            "href": "/warehouse",
+            "label": "Обзор склада"
+          },
+          {
+            "href": "/bar",
+            "label": "Бар"
+          },
+          {
+            "href": "/bar/consumables",
+            "label": "Расходники"
+          },
+          {
+            "href": "/bar/receipts",
+            "label": "Приходы"
+          },
+          {
+            "href": "/bar/products",
+            "label": "Номенклатура"
+          },
+          {
+            "href": "/bar/suppliers",
+            "label": "Поставщики"
+          },
+          {
+            "href": "/bar/operations",
+            "label": "Движение товаров"
+          }
+        ]
+      },
+      {
+        "id": "money",
+        "label": "Финансы",
+        "items": [
+          {
+            "href": "/finance",
+            "label": "Обзор финансов"
+          },
+          {
+            "href": "/cashbox",
+            "label": "Касса"
+          },
+          {
+            "href": "/finance/certificates",
+            "label": "Сертификаты"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "label": "Настройки",
+        "items": [
+          {
+            "href": "/beauty-settings",
+            "label": "Объект"
+          },
+          {
+            "href": "/settings",
+            "label": "Все настройки"
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "label": "Продвижение",
+        "items": [
+          {
+            "href": "/marketing",
+            "label": "Обзор"
+          },
+          {
+            "href": "/marketing/ads",
+            "label": "Реклама"
+          },
+          {
+            "href": "/marketing/content",
+            "label": "Контент"
+          },
+          {
+            "href": "/ai-agents",
+            "label": "ИИ-продавец"
+          },
+          {
+            "href": "/sales",
+            "label": "Обзор продаж"
+          },
+          {
+            "href": "/marketing/budget",
+            "label": "Бюджет"
+          },
+          {
+            "href": "/marketing/analytics",
+            "label": "Аналитика маркетинга"
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "Помощь",
+        "direct": true,
+        "items": [
+          {
+            "href": "/help",
+            "label": "Помощь"
+          }
+        ]
+      }
+    ],
+    "STAFF": [
+      {
+        "id": "today",
+        "label": "Главная",
+        "direct": true,
+        "items": [
+          {
+            "href": "/today",
+            "label": "Главная"
+          }
+        ]
+      },
+      {
+        "id": "journal",
+        "label": "Журнал",
+        "direct": true,
+        "items": [
+          {
+            "href": "/calendar",
+            "label": "Журнал"
+          }
+        ]
+      },
+      {
+        "id": "staff",
+        "label": "Персонал",
+        "items": [
+          {
+            "href": "/employees",
+            "label": "Специалисты"
+          },
+          {
+            "href": "/beauty/schedule",
+            "label": "График работы"
+          }
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Клиенты",
+        "items": [
+          {
+            "href": "/customers",
+            "label": "Клиенты"
+          },
+          {
+            "href": "/appointments",
+            "label": "Записи"
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "label": "Услуги",
+        "items": [
+          {
+            "href": "/services",
+            "label": "Каталог"
+          }
+        ]
+      },
+      {
+        "id": "stats",
+        "label": "Статистика",
+        "items": [
+          {
+            "href": "/management/analytics",
+            "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/reports",
+            "label": "Все отчёты"
+          }
+        ]
+      },
+      {
+        "id": "stock",
+        "label": "Склад",
+        "items": [
+          {
+            "href": "/warehouse",
+            "label": "Обзор склада"
+          },
+          {
+            "href": "/bar",
+            "label": "Бар"
+          },
+          {
+            "href": "/bar/consumables",
+            "label": "Расходники"
+          },
+          {
+            "href": "/bar/receipts",
+            "label": "Приходы"
+          },
+          {
+            "href": "/bar/products",
+            "label": "Номенклатура"
+          },
+          {
+            "href": "/bar/suppliers",
+            "label": "Поставщики"
+          },
+          {
+            "href": "/bar/operations",
+            "label": "Движение товаров"
+          }
+        ]
+      },
+      {
+        "id": "money",
+        "label": "Финансы",
+        "items": [
+          {
+            "href": "/finance",
+            "label": "Обзор финансов"
+          },
+          {
+            "href": "/cashbox",
+            "label": "Касса"
+          },
+          {
+            "href": "/finance/certificates",
+            "label": "Сертификаты"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "label": "Настройки",
+        "items": [
+          {
+            "href": "/beauty-settings",
+            "label": "Объект"
+          },
+          {
+            "href": "/settings",
+            "label": "Все настройки"
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "label": "Продвижение",
+        "items": [
+          {
+            "href": "/ai-agents",
+            "label": "ИИ-продавец"
+          },
+          {
+            "href": "/sales",
+            "label": "Обзор продаж"
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "Помощь",
+        "direct": true,
+        "items": [
+          {
+            "href": "/help",
+            "label": "Помощь"
+          }
+        ]
+      }
+    ],
+    "EMPLOYEE": [],
+    "OWNER+platform": [
+      {
+        "id": "today",
+        "label": "Главная",
+        "direct": true,
+        "items": [
+          {
+            "href": "/today",
+            "label": "Главная"
+          }
+        ]
+      },
+      {
+        "id": "journal",
+        "label": "Журнал",
+        "direct": true,
+        "items": [
+          {
+            "href": "/calendar",
+            "label": "Журнал"
+          }
+        ]
+      },
+      {
+        "id": "staff",
+        "label": "Персонал",
+        "items": [
+          {
+            "href": "/employees",
+            "label": "Специалисты"
+          },
+          {
+            "href": "/team",
+            "label": "Сотрудники"
+          },
+          {
+            "href": "/beauty/schedule",
+            "label": "График работы"
+          },
+          {
+            "href": "/payroll",
+            "label": "Зарплата"
+          }
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Клиенты",
+        "items": [
+          {
+            "href": "/customers",
+            "label": "Клиенты"
+          },
+          {
+            "href": "/appointments",
+            "label": "Записи"
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "label": "Услуги",
+        "items": [
+          {
+            "href": "/services",
+            "label": "Каталог"
+          }
+        ]
+      },
+      {
+        "id": "stats",
+        "label": "Статистика",
+        "items": [
+          {
+            "href": "/management/analytics",
+            "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/reports",
+            "label": "Все отчёты"
+          }
+        ]
+      },
+      {
+        "id": "stock",
+        "label": "Склад",
+        "items": [
+          {
+            "href": "/warehouse",
+            "label": "Обзор склада"
+          },
+          {
+            "href": "/bar",
+            "label": "Бар"
+          },
+          {
+            "href": "/bar/consumables",
+            "label": "Расходники"
+          },
+          {
+            "href": "/bar/receipts",
+            "label": "Приходы"
+          },
+          {
+            "href": "/bar/products",
+            "label": "Номенклатура"
+          },
+          {
+            "href": "/bar/suppliers",
+            "label": "Поставщики"
+          },
+          {
+            "href": "/bar/operations",
+            "label": "Движение товаров"
+          }
+        ]
+      },
+      {
+        "id": "money",
+        "label": "Финансы",
+        "items": [
+          {
+            "href": "/finance",
+            "label": "Обзор финансов"
+          },
+          {
+            "href": "/cashbox",
+            "label": "Касса"
+          },
+          {
+            "href": "/finance/certificates",
+            "label": "Сертификаты"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "label": "Настройки",
+        "items": [
+          {
+            "href": "/beauty-settings",
+            "label": "Объект"
+          },
+          {
+            "href": "/journal",
+            "label": "История действий"
+          },
+          {
+            "href": "/settings",
+            "label": "Все настройки"
+          },
+          {
+            "href": "/platform",
+            "label": "Организации"
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "label": "Продвижение",
+        "items": [
+          {
+            "href": "/marketing",
+            "label": "Обзор"
+          },
+          {
+            "href": "/marketing/ads",
+            "label": "Реклама"
+          },
+          {
+            "href": "/marketing/content",
+            "label": "Контент"
+          },
+          {
+            "href": "/ai-agents",
+            "label": "ИИ-продавец"
+          },
+          {
+            "href": "/sales",
+            "label": "Обзор продаж"
+          },
+          {
+            "href": "/marketing/budget",
+            "label": "Бюджет"
+          },
+          {
+            "href": "/marketing/analytics",
+            "label": "Аналитика маркетинга"
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "Помощь",
+        "direct": true,
+        "items": [
+          {
+            "href": "/help",
+            "label": "Помощь"
+          }
+        ]
+      }
+    ],
+    "MANAGER+restricted": [
+      {
+        "id": "today",
+        "label": "Главная",
+        "direct": true,
+        "items": [
+          {
+            "href": "/today",
+            "label": "Главная"
+          }
+        ]
+      },
+      {
+        "id": "journal",
+        "label": "Журнал",
+        "direct": true,
+        "items": [
+          {
+            "href": "/calendar",
+            "label": "Журнал"
+          }
+        ]
+      },
+      {
+        "id": "staff",
+        "label": "Персонал",
+        "items": [
+          {
+            "href": "/employees",
+            "label": "Специалисты"
+          },
+          {
+            "href": "/beauty/schedule",
+            "label": "График работы"
+          }
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Клиенты",
+        "items": [
+          {
+            "href": "/customers",
+            "label": "Клиенты"
+          },
+          {
+            "href": "/appointments",
+            "label": "Записи"
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "label": "Услуги",
+        "items": [
+          {
+            "href": "/services",
+            "label": "Каталог"
+          }
+        ]
+      },
+      {
+        "id": "stats",
+        "label": "Статистика",
+        "items": [
+          {
+            "href": "/management/analytics",
+            "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/reports",
+            "label": "Все отчёты"
+          }
+        ]
+      },
+      {
+        "id": "stock",
+        "label": "Склад",
+        "items": [
+          {
+            "href": "/warehouse",
+            "label": "Обзор склада"
+          },
+          {
+            "href": "/bar",
+            "label": "Бар"
+          },
+          {
+            "href": "/bar/consumables",
+            "label": "Расходники"
+          },
+          {
+            "href": "/bar/receipts",
+            "label": "Приходы"
+          },
+          {
+            "href": "/bar/products",
+            "label": "Номенклатура"
+          },
+          {
+            "href": "/bar/suppliers",
+            "label": "Поставщики"
+          },
+          {
+            "href": "/bar/operations",
+            "label": "Движение товаров"
+          }
+        ]
+      },
+      {
+        "id": "money",
+        "label": "Финансы",
+        "items": [
+          {
+            "href": "/finance",
+            "label": "Обзор финансов"
+          },
+          {
+            "href": "/cashbox",
+            "label": "Касса"
+          },
+          {
+            "href": "/finance/certificates",
+            "label": "Сертификаты"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "label": "Настройки",
+        "items": [
+          {
+            "href": "/beauty-settings",
+            "label": "Объект"
+          },
+          {
+            "href": "/settings",
+            "label": "Все настройки"
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "label": "Продвижение",
+        "items": [
+          {
+            "href": "/marketing",
+            "label": "Обзор"
+          },
+          {
+            "href": "/marketing/ads",
+            "label": "Реклама"
+          },
+          {
+            "href": "/marketing/content",
+            "label": "Контент"
+          },
+          {
+            "href": "/sales",
+            "label": "Обзор продаж"
+          },
+          {
+            "href": "/marketing/budget",
+            "label": "Бюджет"
+          },
+          {
+            "href": "/marketing/analytics",
+            "label": "Аналитика маркетинга"
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "Помощь",
+        "direct": true,
+        "items": [
+          {
+            "href": "/help",
+            "label": "Помощь"
+          }
+        ]
+      }
+    ]
+  },
+  "FOOD_SERVICE": {
+    "OWNER": [
+      {
+        "id": "today",
+        "label": "Главная",
+        "direct": true,
+        "items": [
+          {
+            "href": "/today",
+            "label": "Главная"
+          }
+        ]
+      },
+      {
+        "id": "journal",
+        "label": "Журнал",
+        "direct": true,
+        "items": [
+          {
+            "href": "/floor-plan",
+            "label": "Журнал"
+          }
+        ]
+      },
+      {
+        "id": "staff",
+        "label": "Персонал",
+        "items": [
+          {
+            "href": "/employees",
+            "label": "Специалисты"
+          },
+          {
+            "href": "/team",
+            "label": "Сотрудники"
+          },
+          {
+            "href": "/employees/shifts",
+            "label": "График работы"
+          },
+          {
+            "href": "/payroll",
+            "label": "Зарплата"
+          }
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Клиенты",
+        "items": [
+          {
+            "href": "/customers",
+            "label": "Клиенты"
+          },
+          {
+            "href": "/table-reservations",
+            "label": "Записи"
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "label": "Услуги",
+        "items": [
+          {
+            "href": "/menu",
+            "label": "Каталог"
+          },
+          {
+            "href": "/orders",
+            "label": "Заказы"
+          },
+          {
+            "href": "/kitchen",
+            "label": "Кухня"
+          },
+          {
+            "href": "/drinks",
+            "label": "Напитки"
+          },
+          {
+            "href": "/dining-areas",
+            "label": "Залы и столы"
+          }
+        ]
+      },
+      {
+        "id": "stats",
+        "label": "Статистика",
+        "items": [
+          {
+            "href": "/management/analytics",
+            "label": "Аналитика бизнеса"
+          }
+        ]
+      },
+      {
+        "id": "stock",
+        "label": "Склад",
+        "items": [
+          {
+            "href": "/warehouse",
+            "label": "Обзор склада"
+          },
+          {
+            "href": "/bar",
+            "label": "Бар"
+          },
+          {
+            "href": "/stock",
+            "label": "Склад кухни"
+          },
+          {
+            "href": "/bar/receipts",
+            "label": "Приходы"
+          },
+          {
+            "href": "/bar/products",
+            "label": "Номенклатура"
+          },
+          {
+            "href": "/bar/suppliers",
+            "label": "Поставщики"
+          },
+          {
+            "href": "/bar/operations",
+            "label": "Движение товаров"
+          }
+        ]
+      },
+      {
+        "id": "money",
+        "label": "Финансы",
+        "items": [
+          {
+            "href": "/restaurant-finance",
+            "label": "Обзор финансов"
+          },
+          {
+            "href": "/cashbox",
+            "label": "Касса"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "label": "Настройки",
+        "items": [
+          {
+            "href": "/restaurant-settings",
+            "label": "Объект"
+          },
+          {
+            "href": "/journal",
+            "label": "История действий"
+          },
+          {
+            "href": "/settings",
+            "label": "Все настройки"
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "label": "Продвижение",
+        "items": [
+          {
+            "href": "/marketing",
+            "label": "Обзор"
+          },
+          {
+            "href": "/marketing/ads",
+            "label": "Реклама"
+          },
+          {
+            "href": "/marketing/content",
+            "label": "Контент"
+          },
+          {
+            "href": "/ai-agents",
+            "label": "ИИ-продавец"
+          },
+          {
+            "href": "/sales",
+            "label": "Обзор продаж"
+          },
+          {
+            "href": "/marketing/budget",
+            "label": "Бюджет"
+          },
+          {
+            "href": "/marketing/analytics",
+            "label": "Аналитика маркетинга"
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "Помощь",
+        "direct": true,
+        "items": [
+          {
+            "href": "/help",
+            "label": "Помощь"
+          }
+        ]
+      }
+    ],
+    "MANAGER": [
+      {
+        "id": "today",
+        "label": "Главная",
+        "direct": true,
+        "items": [
+          {
+            "href": "/today",
+            "label": "Главная"
+          }
+        ]
+      },
+      {
+        "id": "journal",
+        "label": "Журнал",
+        "direct": true,
+        "items": [
+          {
+            "href": "/floor-plan",
+            "label": "Журнал"
+          }
+        ]
+      },
+      {
+        "id": "staff",
+        "label": "Персонал",
+        "items": [
+          {
+            "href": "/employees",
+            "label": "Специалисты"
+          },
+          {
+            "href": "/team",
+            "label": "Сотрудники"
+          },
+          {
+            "href": "/employees/shifts",
+            "label": "График работы"
+          },
+          {
+            "href": "/payroll",
+            "label": "Зарплата"
+          }
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Клиенты",
+        "items": [
+          {
+            "href": "/customers",
+            "label": "Клиенты"
+          },
+          {
+            "href": "/table-reservations",
+            "label": "Записи"
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "label": "Услуги",
+        "items": [
+          {
+            "href": "/menu",
+            "label": "Каталог"
+          },
+          {
+            "href": "/orders",
+            "label": "Заказы"
+          },
+          {
+            "href": "/kitchen",
+            "label": "Кухня"
+          },
+          {
+            "href": "/drinks",
+            "label": "Напитки"
+          },
+          {
+            "href": "/dining-areas",
+            "label": "Залы и столы"
+          }
+        ]
+      },
+      {
+        "id": "stats",
+        "label": "Статистика",
+        "items": [
+          {
+            "href": "/management/analytics",
+            "label": "Аналитика бизнеса"
+          }
+        ]
+      },
+      {
+        "id": "stock",
+        "label": "Склад",
+        "items": [
+          {
+            "href": "/warehouse",
+            "label": "Обзор склада"
+          },
+          {
+            "href": "/bar",
+            "label": "Бар"
+          },
+          {
+            "href": "/stock",
+            "label": "Склад кухни"
+          },
+          {
+            "href": "/bar/receipts",
+            "label": "Приходы"
+          },
+          {
+            "href": "/bar/products",
+            "label": "Номенклатура"
+          },
+          {
+            "href": "/bar/suppliers",
+            "label": "Поставщики"
+          },
+          {
+            "href": "/bar/operations",
+            "label": "Движение товаров"
+          }
+        ]
+      },
+      {
+        "id": "money",
+        "label": "Финансы",
+        "items": [
+          {
+            "href": "/restaurant-finance",
+            "label": "Обзор финансов"
+          },
+          {
+            "href": "/cashbox",
+            "label": "Касса"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "label": "Настройки",
+        "items": [
+          {
+            "href": "/restaurant-settings",
+            "label": "Объект"
+          },
+          {
+            "href": "/settings",
+            "label": "Все настройки"
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "label": "Продвижение",
+        "items": [
+          {
+            "href": "/marketing",
+            "label": "Обзор"
+          },
+          {
+            "href": "/marketing/ads",
+            "label": "Реклама"
+          },
+          {
+            "href": "/marketing/content",
+            "label": "Контент"
+          },
+          {
+            "href": "/ai-agents",
+            "label": "ИИ-продавец"
+          },
+          {
+            "href": "/sales",
+            "label": "Обзор продаж"
+          },
+          {
+            "href": "/marketing/budget",
+            "label": "Бюджет"
+          },
+          {
+            "href": "/marketing/analytics",
+            "label": "Аналитика маркетинга"
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "Помощь",
+        "direct": true,
+        "items": [
+          {
+            "href": "/help",
+            "label": "Помощь"
+          }
+        ]
+      }
+    ],
+    "STAFF": [
+      {
+        "id": "today",
+        "label": "Главная",
+        "direct": true,
+        "items": [
+          {
+            "href": "/today",
+            "label": "Главная"
+          }
+        ]
+      },
+      {
+        "id": "journal",
+        "label": "Журнал",
+        "direct": true,
+        "items": [
+          {
+            "href": "/floor-plan",
+            "label": "Журнал"
+          }
+        ]
+      },
+      {
+        "id": "staff",
+        "label": "Персонал",
+        "items": [
+          {
+            "href": "/employees",
+            "label": "Специалисты"
+          },
+          {
+            "href": "/employees/shifts",
+            "label": "График работы"
+          }
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Клиенты",
+        "items": [
+          {
+            "href": "/customers",
+            "label": "Клиенты"
+          },
+          {
+            "href": "/table-reservations",
+            "label": "Записи"
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "label": "Услуги",
+        "items": [
+          {
+            "href": "/menu",
+            "label": "Каталог"
+          },
+          {
+            "href": "/orders",
+            "label": "Заказы"
+          },
+          {
+            "href": "/kitchen",
+            "label": "Кухня"
+          },
+          {
+            "href": "/drinks",
+            "label": "Напитки"
+          },
+          {
+            "href": "/dining-areas",
+            "label": "Залы и столы"
+          }
+        ]
+      },
+      {
+        "id": "stats",
+        "label": "Статистика",
+        "items": [
+          {
+            "href": "/management/analytics",
+            "label": "Аналитика бизнеса"
+          }
+        ]
+      },
+      {
+        "id": "stock",
+        "label": "Склад",
+        "items": [
+          {
+            "href": "/warehouse",
+            "label": "Обзор склада"
+          },
+          {
+            "href": "/bar",
+            "label": "Бар"
+          },
+          {
+            "href": "/stock",
+            "label": "Склад кухни"
+          },
+          {
+            "href": "/bar/receipts",
+            "label": "Приходы"
+          },
+          {
+            "href": "/bar/products",
+            "label": "Номенклатура"
+          },
+          {
+            "href": "/bar/suppliers",
+            "label": "Поставщики"
+          },
+          {
+            "href": "/bar/operations",
+            "label": "Движение товаров"
+          }
+        ]
+      },
+      {
+        "id": "money",
+        "label": "Финансы",
+        "items": [
+          {
+            "href": "/restaurant-finance",
+            "label": "Обзор финансов"
+          },
+          {
+            "href": "/cashbox",
+            "label": "Касса"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "label": "Настройки",
+        "items": [
+          {
+            "href": "/settings",
+            "label": "Все настройки"
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "label": "Продвижение",
+        "items": [
+          {
+            "href": "/ai-agents",
+            "label": "ИИ-продавец"
+          },
+          {
+            "href": "/sales",
+            "label": "Обзор продаж"
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "Помощь",
+        "direct": true,
+        "items": [
+          {
+            "href": "/help",
+            "label": "Помощь"
+          }
+        ]
+      }
+    ],
+    "EMPLOYEE": [],
+    "OWNER+platform": [
+      {
+        "id": "today",
+        "label": "Главная",
+        "direct": true,
+        "items": [
+          {
+            "href": "/today",
+            "label": "Главная"
+          }
+        ]
+      },
+      {
+        "id": "journal",
+        "label": "Журнал",
+        "direct": true,
+        "items": [
+          {
+            "href": "/floor-plan",
+            "label": "Журнал"
+          }
+        ]
+      },
+      {
+        "id": "staff",
+        "label": "Персонал",
+        "items": [
+          {
+            "href": "/employees",
+            "label": "Специалисты"
+          },
+          {
+            "href": "/team",
+            "label": "Сотрудники"
+          },
+          {
+            "href": "/employees/shifts",
+            "label": "График работы"
+          },
+          {
+            "href": "/payroll",
+            "label": "Зарплата"
+          }
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Клиенты",
+        "items": [
+          {
+            "href": "/customers",
+            "label": "Клиенты"
+          },
+          {
+            "href": "/table-reservations",
+            "label": "Записи"
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "label": "Услуги",
+        "items": [
+          {
+            "href": "/menu",
+            "label": "Каталог"
+          },
+          {
+            "href": "/orders",
+            "label": "Заказы"
+          },
+          {
+            "href": "/kitchen",
+            "label": "Кухня"
+          },
+          {
+            "href": "/drinks",
+            "label": "Напитки"
+          },
+          {
+            "href": "/dining-areas",
+            "label": "Залы и столы"
+          }
+        ]
+      },
+      {
+        "id": "stats",
+        "label": "Статистика",
+        "items": [
+          {
+            "href": "/management/analytics",
+            "label": "Аналитика бизнеса"
+          }
+        ]
+      },
+      {
+        "id": "stock",
+        "label": "Склад",
+        "items": [
+          {
+            "href": "/warehouse",
+            "label": "Обзор склада"
+          },
+          {
+            "href": "/bar",
+            "label": "Бар"
+          },
+          {
+            "href": "/stock",
+            "label": "Склад кухни"
+          },
+          {
+            "href": "/bar/receipts",
+            "label": "Приходы"
+          },
+          {
+            "href": "/bar/products",
+            "label": "Номенклатура"
+          },
+          {
+            "href": "/bar/suppliers",
+            "label": "Поставщики"
+          },
+          {
+            "href": "/bar/operations",
+            "label": "Движение товаров"
+          }
+        ]
+      },
+      {
+        "id": "money",
+        "label": "Финансы",
+        "items": [
+          {
+            "href": "/restaurant-finance",
+            "label": "Обзор финансов"
+          },
+          {
+            "href": "/cashbox",
+            "label": "Касса"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "label": "Настройки",
+        "items": [
+          {
+            "href": "/restaurant-settings",
+            "label": "Объект"
+          },
+          {
+            "href": "/journal",
+            "label": "История действий"
+          },
+          {
+            "href": "/settings",
+            "label": "Все настройки"
+          },
+          {
+            "href": "/platform",
+            "label": "Организации"
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "label": "Продвижение",
+        "items": [
+          {
+            "href": "/marketing",
+            "label": "Обзор"
+          },
+          {
+            "href": "/marketing/ads",
+            "label": "Реклама"
+          },
+          {
+            "href": "/marketing/content",
+            "label": "Контент"
+          },
+          {
+            "href": "/ai-agents",
+            "label": "ИИ-продавец"
+          },
+          {
+            "href": "/sales",
+            "label": "Обзор продаж"
+          },
+          {
+            "href": "/marketing/budget",
+            "label": "Бюджет"
+          },
+          {
+            "href": "/marketing/analytics",
+            "label": "Аналитика маркетинга"
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "Помощь",
+        "direct": true,
+        "items": [
+          {
+            "href": "/help",
+            "label": "Помощь"
+          }
+        ]
+      }
+    ],
+    "MANAGER+restricted": [
+      {
+        "id": "today",
+        "label": "Главная",
+        "direct": true,
+        "items": [
+          {
+            "href": "/today",
+            "label": "Главная"
+          }
+        ]
+      },
+      {
+        "id": "journal",
+        "label": "Журнал",
+        "direct": true,
+        "items": [
+          {
+            "href": "/floor-plan",
+            "label": "Журнал"
+          }
+        ]
+      },
+      {
+        "id": "staff",
+        "label": "Персонал",
+        "items": [
+          {
+            "href": "/employees",
+            "label": "Специалисты"
+          },
+          {
+            "href": "/employees/shifts",
+            "label": "График работы"
+          }
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Клиенты",
+        "items": [
+          {
+            "href": "/customers",
+            "label": "Клиенты"
+          },
+          {
+            "href": "/table-reservations",
+            "label": "Записи"
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "label": "Услуги",
+        "items": [
+          {
+            "href": "/menu",
+            "label": "Каталог"
+          },
+          {
+            "href": "/orders",
+            "label": "Заказы"
+          },
+          {
+            "href": "/kitchen",
+            "label": "Кухня"
+          },
+          {
+            "href": "/drinks",
+            "label": "Напитки"
+          },
+          {
+            "href": "/dining-areas",
+            "label": "Залы и столы"
+          }
+        ]
+      },
+      {
+        "id": "stats",
+        "label": "Статистика",
+        "items": [
+          {
+            "href": "/management/analytics",
+            "label": "Аналитика бизнеса"
+          }
+        ]
+      },
+      {
+        "id": "stock",
+        "label": "Склад",
+        "items": [
+          {
+            "href": "/warehouse",
+            "label": "Обзор склада"
+          },
+          {
+            "href": "/bar",
+            "label": "Бар"
+          },
+          {
+            "href": "/stock",
+            "label": "Склад кухни"
+          },
+          {
+            "href": "/bar/receipts",
+            "label": "Приходы"
+          },
+          {
+            "href": "/bar/products",
+            "label": "Номенклатура"
+          },
+          {
+            "href": "/bar/suppliers",
+            "label": "Поставщики"
+          },
+          {
+            "href": "/bar/operations",
+            "label": "Движение товаров"
+          }
+        ]
+      },
+      {
+        "id": "money",
+        "label": "Финансы",
+        "items": [
+          {
+            "href": "/restaurant-finance",
+            "label": "Обзор финансов"
+          },
+          {
+            "href": "/cashbox",
+            "label": "Касса"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "label": "Настройки",
+        "items": [
+          {
+            "href": "/restaurant-settings",
+            "label": "Объект"
+          },
+          {
+            "href": "/settings",
+            "label": "Все настройки"
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "label": "Продвижение",
+        "items": [
+          {
+            "href": "/marketing",
+            "label": "Обзор"
+          },
+          {
+            "href": "/marketing/ads",
+            "label": "Реклама"
+          },
+          {
+            "href": "/marketing/content",
+            "label": "Контент"
+          },
+          {
+            "href": "/sales",
+            "label": "Обзор продаж"
+          },
+          {
+            "href": "/marketing/budget",
+            "label": "Бюджет"
+          },
+          {
+            "href": "/marketing/analytics",
+            "label": "Аналитика маркетинга"
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "Помощь",
+        "direct": true,
+        "items": [
+          {
+            "href": "/help",
+            "label": "Помощь"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -6,7 +6,12 @@ import { encryptPii } from '@pms/shared';
 import { withSignedInUser } from '../../apps/api/src/auth/request-context';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { PrismaMarketingBudgetRepository } from '../../apps/api/src/marketing-budget/marketing-budget.repository';
-import { AdLaunchService, type MetaWriterPort } from '../../apps/api/src/marketing-ads/ad-launch';
+import {
+  AD_CREATIVE_MAX_BYTES,
+  AD_VIDEO_MAX_BYTES,
+  AdLaunchService,
+  type MetaWriterPort,
+} from '../../apps/api/src/marketing-ads/ad-launch';
 import type { SiteAssetStorage } from '../../apps/api/src/marketing-site/asset-storage';
 import { purgeAuditRows } from '../tools/audit-purge';
 import { isLocalDatabase } from '../tools/seed-local';
@@ -19,23 +24,45 @@ import { isLocalDatabase } from '../tools/seed-local';
 process.env.PII_ENCRYPTION_KEY ||= 'test-key-for-ad-launch-integration-only';
 const TOKEN = 'suat-test-not-real';
 const JPEG = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.from('fake-jpeg-body')]);
+/** MP4 и MOV опознаются по ящику `ftyp` в байтах 4–8 (марка `isom` или `qt  `) */
+const ftyp = (brand: string, size: number) =>
+  Buffer.concat([
+    Buffer.from([0, 0, 0, 0x18]),
+    Buffer.from('ftyp'),
+    Buffer.from(brand),
+    Buffer.alloc(Math.max(size - 12, 0), 7),
+  ]);
 
 class FakeWriter implements MetaWriterPort {
   calls: Array<[string, unknown[]]> = [];
   tokens: string[] = [];
   failAt: string | null = null;
+  /** начало номеров объектов Meta: у разных запусков теста они не должны совпадать (кампания WETOP ищется по номеру) */
+  idBase = '12000000000';
   private n = 0;
   private hit(name: string, args: unknown[]) {
     this.calls.push([name, args]);
     if (this.failAt === name)
       throw new meta.MetaApiError('Meta: Нет способа оплаты', 100, false, 1885272);
     this.n += 1;
-    return `12000000000${String(this.n).padStart(4, '0')}`;
+    return `${this.idBase}${String(this.n).padStart(4, '0')}`;
   }
   async uploadImage(...a: unknown[]) {
     this.calls.push(['uploadImage', a]);
     if (this.failAt === 'uploadImage') throw new meta.MetaApiError('Meta: картинка', 100, false);
     return 'imghash123';
+  }
+  /** готовность видео по очереди: пустой список = сразу ready */
+  videoStatuses: string[] = [];
+  async uploadVideo(...a: unknown[]) {
+    this.calls.push(['uploadVideo', a]);
+    if (this.failAt === 'uploadVideo') throw new meta.MetaApiError('Meta: видео', 100, false);
+    return 'video-888';
+  }
+  async video(...a: unknown[]) {
+    this.calls.push(['video', a]);
+    const status = this.videoStatuses.shift() ?? 'ready';
+    return { status, picture: status === 'ready' ? 'https://example.test/thumb.jpg' : null };
   }
   async createCampaign(...a: unknown[]) {
     return this.hit('createCampaign', a);
@@ -314,6 +341,118 @@ describe('запуск рекламы (integration)', () => {
       'ADSET:ROLLED_BACK',
     ]);
     expect(l.steps[2]!.errorCode).toBe(100);
+  });
+
+  it('видео: MP4 и MOV в закрытое хранилище как VIDEO, лимиты 8 МБ для фото и 200 МБ для видео', async () => {
+    const mp4 = await as(() =>
+      service.uploadCreative({ buffer: ftyp('isom', 4096), originalname: 'tour.mp4' }),
+    );
+    const mp4Row = await db.marketingAdCreative.findUniqueOrThrow({ where: { id: mp4.id } });
+    expect(mp4Row).toMatchObject({ kind: 'VIDEO', mimeType: 'video/mp4', byteSize: 4096 });
+    expect(mp4Row.storageRef).toBe(`marketing-ad-creatives/${location}/${mp4Row.id}/${mp4Row.sha256}.mp4`);
+
+    const mov = await as(() =>
+      service.uploadCreative({ buffer: ftyp('qt  ', 4096), originalname: 'tour.mov' }),
+    );
+    expect(await db.marketingAdCreative.findUniqueOrThrow({ where: { id: mov.id } })).toMatchObject({
+      kind: 'VIDEO',
+      mimeType: 'video/quicktime',
+    });
+
+    // фото больше 8 МБ отклоняется, видео такого же размера проходит
+    const bigImage = Buffer.concat([JPEG, Buffer.alloc(AD_CREATIVE_MAX_BYTES, 1)]);
+    await expect(
+      as(() => service.uploadCreative({ buffer: bigImage, originalname: 'big.jpg' })),
+    ).rejects.toMatchObject({ status: 413 });
+    const bigVideo = ftyp('isom', AD_CREATIVE_MAX_BYTES + 1024);
+    await expect(
+      as(() => service.uploadCreative({ buffer: bigVideo, originalname: 'ok.mp4' })),
+    ).resolves.toHaveProperty('id');
+    await expect(
+      as(() =>
+        service.uploadCreative({ buffer: ftyp('isom', AD_VIDEO_MAX_BYTES + 1), originalname: 'x.mp4' }),
+      ),
+    ).rejects.toMatchObject({ status: 413 });
+  });
+
+  describe('запуск с видео', () => {
+    const fast = { intervalMs: 1, timeoutMs: 80 };
+    const videoService = () =>
+      new AdLaunchService(
+        prisma,
+        repo,
+        storage,
+        (token) => {
+          writer.tokens.push(token);
+          return writer;
+        },
+        fast,
+      );
+    const videoCreative = async (tagName: string) =>
+      (
+        await as(() =>
+          service.uploadCreative({ buffer: ftyp('isom', 2048 + tagName.length), originalname: `${tagName}.mp4` }),
+        )
+      ).id;
+
+    it('загружает видео, ждёт готовности, креатив собирается из номера видео и превью', async () => {
+      writer = new FakeWriter();
+      writer.idBase = '13000000000';
+      writer.videoStatuses = ['processing', 'processing', 'ready'];
+      const svc = videoService();
+      const creative = await videoCreative('ok');
+      const { id } = await as(() => svc.start(input({ creativeId: creative })));
+      await svc.idle();
+      expect(writer.names()).toEqual([
+        'uploadVideo',
+        'video',
+        'video',
+        'video',
+        'createCampaign',
+        'createAdSet',
+        'createCreative',
+        'createAd',
+      ]);
+      const upload = writer.calls[0]![1] as [string, { mimeType: string; fileName: string }];
+      expect(upload[1]).toMatchObject({ mimeType: 'video/mp4', fileName: 'ok.mp4' });
+      expect(writer.calls[6]![1][1]).toMatchObject({
+        media: { kind: 'VIDEO', videoId: 'video-888', thumbnailUrl: 'https://example.test/thumb.jpg' },
+      });
+      const l = await db.marketingAdLaunch.findUniqueOrThrow({
+        where: { id },
+        include: { steps: { orderBy: { at: 'asc' } } },
+      });
+      expect(l.status).toBe('SUCCEEDED');
+      expect(l.steps[0]).toMatchObject({ step: 'MEDIA', status: 'OK', externalId: 'video-888' });
+      // кампания не должна оставаться действующей: от неё зависит остаток бюджета в соседних проверках
+      await db.marketingCampaign.update({ where: { id: l.campaignId! }, data: { status: 'PAUSED' } });
+    });
+
+    it('Meta не обработала видео: запуск FAILED словами, кампания в Meta не создаётся', async () => {
+      writer = new FakeWriter();
+      writer.videoStatuses = ['processing', 'error'];
+      const svc = videoService();
+      const creative = await videoCreative('bad');
+      const { id } = await as(() => svc.start(input({ creativeId: creative })));
+      await svc.idle();
+      expect(writer.names()).toEqual(['uploadVideo', 'video', 'video']);
+      const l = await db.marketingAdLaunch.findUniqueOrThrow({ where: { id } });
+      expect(l).toMatchObject({ status: 'FAILED', step: 'MEDIA', externalCampaignId: null });
+      expect(l.error).toMatch(/не смогла обработать видео/);
+    });
+
+    it('видео не готово за отведённое время: запуск FAILED, дальше загрузки Meta не идём', async () => {
+      writer = new FakeWriter();
+      writer.videoStatuses = Array.from({ length: 500 }, () => 'processing');
+      const svc = videoService();
+      const creative = await videoCreative('slow');
+      const { id } = await as(() => svc.start(input({ creativeId: creative })));
+      await svc.idle();
+      expect(writer.names()).not.toContain('createCampaign');
+      const l = await db.marketingAdLaunch.findUniqueOrThrow({ where: { id } });
+      expect(l).toMatchObject({ status: 'FAILED', step: 'MEDIA' });
+      expect(l.error).toMatch(/не обработано за/);
+    });
   });
 
   it('деньги: нет плана, остаток плана мал, кабинет в тенге: отказ словами до Meta, строки нет', async () => {

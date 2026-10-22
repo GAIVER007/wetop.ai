@@ -64,6 +64,8 @@ export const CAPABILITIES: readonly Capability[] = [
   cap('table-reservations', ['/table-reservations'], 'desk', F, 'LOCATION'),
   cap('dining-areas', ['/dining-areas'], 'desk', F, 'LOCATION'),
   cap('orders', ['/orders'], 'desk', F, 'LOCATION'),
+  // официант с телефона (§33.6, 22.10.2026): право «Приём заказов» (`orders`), есть и у «Личного кабинета»
+  cap('waiter', ['/waiter'], 'orders', F, 'LOCATION'),
   cap('kitchen', ['/kitchen'], 'desk', F, 'LOCATION'),
   cap('drinks', ['/drinks'], 'desk', F, 'LOCATION'),
   cap('kitchen-stock', ['/stock'], 'desk', F, 'LOCATION'),

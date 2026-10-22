@@ -1113,6 +1113,20 @@
     }
   },
   {
+    "route": "/waiter",
+    "vertical": "FOOD_SERVICE",
+    "features": [
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/waiter",
+    "rule": {
+      "href": "/waiter",
+      "label": "Принять заказ",
+      "requires": "orders"
+    }
+  },
+  {
     "route": "/warehouse",
     "vertical": null,
     "features": [

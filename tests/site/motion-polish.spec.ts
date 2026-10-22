@@ -107,6 +107,95 @@ test('стрелка «Подробнее» подсказывает напра�
     .not.toBe('none');
 });
 
+test('окно входа появляется и уходит одним путём, при reduced motion мгновенно', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto(PAGE);
+  await page.locator('.site-header__login').click();
+  const dialog = page.locator('.auth-dialog');
+  await expect(dialog).toBeVisible();
+  const dur = await dialog.evaluate((el) => getComputedStyle(el).transitionDuration);
+  expect(dur, 'вход и выход окна должны идти переходом, а не одноразовой анимацией').not.toBe('0s');
+  // Выход тем же путём: сразу после close окно ещё отрисовано (в браузере с поддержкой overlay)
+  const closing = await dialog.evaluate((el) => {
+    const d = el as HTMLDialogElement;
+    const overlay = CSS.supports('overlay: auto');
+    d.close();
+    return { overlay, display: getComputedStyle(d).display };
+  });
+  if (closing.overlay) expect(closing.display).not.toBe('none');
+  await expect(dialog).toBeHidden();
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.locator('.site-header__login').click();
+  await expect(dialog).toBeVisible();
+  const reduced = await dialog.evaluate((el) => getComputedStyle(el).transitionDuration);
+  expect(
+    reduced.split(',').every((d) => d.trim() === '0s'),
+    `при reduced motion переход остался: ${reduced}`,
+  ).toBe(true);
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+});
+
+test('мобильное меню материализуется от своей кнопки и уходит тем же путём', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(PAGE);
+  const button = page.locator('.mobile-menu__button');
+  await button.click();
+  const panel = page.locator('.mobile-menu__panel');
+  await expect(panel).toBeVisible();
+  const style = await panel.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return { origin: s.transformOrigin, duration: s.transitionDuration };
+  });
+  expect(style.duration, 'у панели меню нет перехода').not.toBe('0s');
+  // Точка роста у кнопки: правый верхний угол панели (меню якорится к тому, что его открыло).
+  // Ширина из layout (offsetWidth): boundingBox во время scale-перехода меньше настоящей.
+  const width = await panel.evaluate((el) => (el as HTMLElement).offsetWidth);
+  const [originX, originY] = style.origin.split(' ').map(Number.parseFloat);
+  expect(Math.abs((originX ?? 0) - width)).toBeLessThan(2);
+  expect(originY).toBe(0);
+  await button.click();
+  await expect(panel).toBeHidden();
+});
+
+test('смена темы идёт плавным переходом, при reduced motion сразу', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto(PAGE);
+  // Считаем вызовы view transition: плавная смена темы обязана идти через него
+  await page.evaluate(() => {
+    const doc = document as Document & {
+      startViewTransition?: (cb: () => void) => unknown;
+      __vtCount?: number;
+    };
+    doc.__vtCount = 0;
+    const orig = doc.startViewTransition?.bind(document);
+    if (orig)
+      doc.startViewTransition = (cb: () => void) => {
+        doc.__vtCount = (doc.__vtCount ?? 0) + 1;
+        return orig(cb);
+      };
+  });
+  const toggle = page.locator('.theme-toggle');
+  const theme = () => page.evaluate(() => document.documentElement.dataset['theme']);
+  await toggle.click();
+  await expect.poll(theme).toBeTruthy();
+  const first = await theme();
+  expect(await page.evaluate(() => (document as Document & { __vtCount?: number }).__vtCount)).toBe(
+    1,
+  );
+  // При reduced motion тема меняется сразу, без view transition
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await toggle.click();
+  await expect.poll(theme).not.toBe(first);
+  expect(await page.evaluate(() => (document as Document & { __vtCount?: number }).__vtCount)).toBe(
+    1,
+  );
+});
+
 test('абзацы переносятся аккуратно: text-wrap pretty', async ({ page }) => {
   await page.goto(PAGE);
   const wrap = await page

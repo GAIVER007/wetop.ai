@@ -546,6 +546,12 @@ button {
 .mobile-menu__button:hover {
   border-color: var(--border-input);
 }
+/* Отклик на само нажатие у круглых кнопок шапки, как у .btn (apple-design §1) */
+.mobile-menu__button:active,
+.theme-toggle:active {
+  transform: scale(0.94);
+  transition: transform 100ms ease-out;
+}
 .mobile-menu__panel {
   position: absolute;
   top: calc(100% + 12px);
@@ -563,6 +569,37 @@ button {
     background: var(--glass-bg-strong);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
     backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  }
+}
+/*
+ * Меню материализуется от своей кнопки и уходит тем же путём (apple-design §7, §12): точка роста
+ * в правом верхнем углу, рядом с гамбургером. Переход прерываемый; display в списке перехода
+ * только там, где браузер понимает allow-discrete, иначе закрытие мгновенное, как раньше.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .mobile-menu__panel {
+    transform-origin: top right;
+    transition:
+      opacity 180ms ease-out,
+      transform 180ms ease-out;
+  }
+  .mobile-menu__panel[hidden] {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+  @starting-style {
+    .mobile-menu__panel:not([hidden]) {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.96);
+    }
+  }
+  @supports (transition-behavior: allow-discrete) {
+    .mobile-menu__panel {
+      transition:
+        opacity 180ms ease-out,
+        transform 180ms ease-out,
+        display 180ms allow-discrete;
+    }
   }
 }
 .mobile-menu__links a {
@@ -1816,14 +1853,42 @@ button {
   color: var(--primary);
   font-weight: 600;
 }
+/*
+ * Окно входа появляется и уходит одним путём (apple-design §7): переход вместо одноразовой
+ * анимации, прерываемый в любой момент. Вход работает везде, где есть @starting-style; выход
+ * с удержанием в top layer только при поддержке overlay (иначе закрытие мгновенное, как раньше).
+ */
 @media (prefers-reduced-motion: no-preference) {
-  .auth-dialog[open] {
-    animation: auth-dialog-in 180ms ease-out;
+  .auth-dialog,
+  .auth-dialog::backdrop {
+    transition:
+      opacity 180ms ease-out,
+      transform 180ms ease-out;
   }
-  @keyframes auth-dialog-in {
-    from {
+  .auth-dialog:not([open]) {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  .auth-dialog:not([open])::backdrop {
+    opacity: 0;
+  }
+  @starting-style {
+    .auth-dialog[open] {
       opacity: 0;
       transform: translateY(8px) scale(0.98);
+    }
+    .auth-dialog[open]::backdrop {
+      opacity: 0;
+    }
+  }
+  @supports (overlay: auto) {
+    .auth-dialog,
+    .auth-dialog::backdrop {
+      transition:
+        opacity 180ms ease-out,
+        transform 180ms ease-out,
+        display 180ms allow-discrete,
+        overlay 180ms allow-discrete;
     }
   }
 }

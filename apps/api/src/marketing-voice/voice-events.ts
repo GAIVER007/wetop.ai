@@ -59,7 +59,29 @@ const EXTERNAL_ID = /^[\x21-\x7E]{1,128}$/;
 const ISO_WITH_ZONE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
 const E164 = /^\+[0-9]{10,15}$/;
 const MASKED = /^\*\*\*[0-9]{0,4}$/;
-const FUTURE_SKEW_MS = 5 * 60_000;
+/** Код причины: латиница, цифры и _ . : - (кириллица и пробелы в коде не нужны) */
+const CODE = /^[A-Za-z0-9_.:-]+$/;
+/**
+ * Служебные знаки (кроме табуляции и перевода строки) и непарные суррогаты база или движок не принимают: это 500, а не 400.
+ * Проход по знакам вместо регулярного выражения: правило линтера запрещает управляющие знаки в шаблоне.
+ */
+function hasBadText(text: string): boolean {
+  for (let i = 0; i < text.length; i += 1) {
+    const c = text.charCodeAt(i);
+    if (c < 0x20 && c !== 0x09 && c !== 0x0a) return true;
+    if (c === 0x7f) return true;
+    if (c >= 0xd800 && c <= 0xdbff) {
+      const next = text.charCodeAt(i + 1);
+      if (!(next >= 0xdc00 && next <= 0xdfff)) return true;
+      i += 1;
+    } else if (c >= 0xdc00 && c <= 0xdfff) {
+      return true;
+    }
+  }
+  return false;
+}
+/** Расхождение часов воркера: до суток вперёд принимаем и приводим ко времени сервера, дальше отказ */
+const FUTURE_LIMIT_MS = 86_400_000;
 const MAX_AGE_MS = 30 * 86_400_000;
 
 const bad = (what: string): never => {
@@ -81,11 +103,13 @@ export function toE164(raw: unknown): string | null {
   return E164.test(out) ? out : null;
 }
 
-const optionalText = (value: unknown, max: number, field: string): string | null => {
+const optionalText = (value: unknown, max: number, field: string, pattern: RegExp | null = null): string | null => {
   if (value === undefined || value === null) return null;
   if (typeof value !== 'string') return bad(`${field}: ожидалась строка`);
+  if (hasBadText(value)) return bad(`${field}: недопустимые знаки`);
   const text = value.trim();
   if (text.length > max) return bad(`${field}: длиннее ${max}`);
+  if (text !== '' && pattern && !pattern.test(text)) return bad(`${field}: недопустимые знаки`);
   return text === '' ? null : text;
 };
 
@@ -110,9 +134,10 @@ export function parseVoiceEvent(dto: unknown, now: Date = new Date()): VoiceEven
 
   const at = body.occurredAt;
   if (typeof at !== 'string' || !ISO_WITH_ZONE.test(at)) return bad('occurredAt: ожидалось время ISO с поясом');
-  const occurredAt = new Date(at);
+  let occurredAt = new Date(at);
   if (Number.isNaN(occurredAt.getTime())) return bad('occurredAt: время не читается');
-  if (occurredAt.getTime() > now.getTime() + FUTURE_SKEW_MS) return bad('occurredAt: время из будущего');
+  if (occurredAt.getTime() > now.getTime() + FUTURE_LIMIT_MS) return bad('occurredAt: время слишком далеко в будущем');
+  if (occurredAt.getTime() > now.getTime()) occurredAt = new Date(now);
   if (occurredAt.getTime() < now.getTime() - MAX_AGE_MS) return bad('occurredAt: событие старше 30 суток');
 
   const direction = body.direction === undefined ? 'INBOUND' : body.direction;
@@ -148,8 +173,8 @@ export function parseVoiceEvent(dto: unknown, now: Date = new Date()): VoiceEven
     direction,
     dialedNumber: (dialed as string | null | undefined) ?? null,
     callerMasked: (masked as string | null | undefined) ?? null,
-    endReason: optionalText(body.endReason, 40, 'endReason'),
-    errorCode: optionalText(body.errorCode, 40, 'errorCode'),
+    endReason: optionalText(body.endReason, 40, 'endReason', CODE),
+    errorCode: optionalText(body.errorCode, 40, 'errorCode', CODE),
     transferRequested: optionalBool(body.transferRequested, 'transferRequested') ?? false,
     consentAnnounced: optionalBool(body.consentAnnounced, 'consentAnnounced'),
     callback,
@@ -184,15 +209,24 @@ export function applyEvent(existing: CallValues | null, ev: VoiceEvent): { next:
   const forward = existing !== null && rank(ev.state) > rank(existing.state) && !FINAL.includes(existing.state);
   const state = existing === null ? ev.state : forward ? ev.state : existing.state;
 
+  // Отвеченным считается только живой звонок: позднее ANSWERED на REJECTED или FAILED его не оживляет
   let answeredAt = base.answeredAt;
-  if (ev.state === 'ANSWERED' && answeredAt === null) answeredAt = notBefore(ev.occurredAt, base.receivedAt);
+  const failedBeforeAnswer = base.state === 'REJECTED' || base.state === 'FAILED';
+  if (ev.state === 'ANSWERED' && answeredAt === null && !failedBeforeAnswer)
+    answeredAt = notBefore(ev.occurredAt, base.receivedAt);
   let endedAt = base.endedAt;
-  if (FINAL.includes(ev.state) && endedAt === null && state === ev.state) endedAt = notBefore(ev.occurredAt, base.receivedAt);
+  const endsHere = FINAL.includes(ev.state) && state === ev.state;
+  if (endsHere && endedAt === null) endedAt = notBefore(ev.occurredAt, base.receivedAt);
 
+  // Длительность считает само завершающее событие по уже известному ответу. Позднее ANSWERED после ENDED её не
+  // трогает: вместо ложного нуля остаётся null («неизвестно»), receivedAt задним числом не сдвинуть (ревью M2)
   const durationSeconds =
-    state === 'ENDED' && answeredAt && endedAt
+    ev.state === 'ENDED' && endsHere && answeredAt && endedAt
       ? Math.max(0, Math.floor((endedAt.getTime() - answeredAt.getTime()) / 1000))
       : base.durationSeconds;
+
+  // Причина и код ошибки принадлежат состоянию, в котором звонок остался; проигравшее конечное событие их не подмешивает
+  const reasonsAllowed = state === ev.state || !FINAL.includes(base.state);
 
   const next: CallValues = {
     state,
@@ -203,8 +237,8 @@ export function applyEvent(existing: CallValues | null, ev: VoiceEvent): { next:
     durationSeconds,
     dialedNumber: base.dialedNumber ?? ev.dialedNumber,
     callerMasked: base.callerMasked ?? ev.callerMasked,
-    endReason: base.endReason ?? ev.endReason,
-    errorCode: base.errorCode ?? ev.errorCode,
+    endReason: base.endReason ?? (reasonsAllowed ? ev.endReason : null),
+    errorCode: base.errorCode ?? (reasonsAllowed ? ev.errorCode : null),
     transferRequested: base.transferRequested || ev.transferRequested,
     callbackRequested: base.callbackRequested || ev.callback !== null,
     consentAnnounced: base.consentAnnounced && ev.consentAnnounced !== false,

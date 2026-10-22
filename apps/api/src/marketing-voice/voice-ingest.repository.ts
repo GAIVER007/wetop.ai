@@ -29,6 +29,8 @@ export interface VoiceIngestRepository {
   record(scope: AgentScope, event: VoiceEvent): Promise<RecordResult>;
 }
 
+/** Блокировка строки и гонка за уникальный ключ при нагрузке могут ждать дольше 5 секунд умолчания */
+const TX_OPTIONS = { maxWait: 10_000, timeout: 15_000 } as const;
 const UNIQUE_VIOLATION = 'P2002';
 const isUnique = (e: unknown): boolean =>
   typeof e === 'object' && e !== null && (e as { code?: string }).code === UNIQUE_VIOLATION;
@@ -40,9 +42,10 @@ export class PrismaVoiceIngestRepository implements VoiceIngestRepository {
   async resolveAgent(agentId: string): Promise<AgentScope | null | 'NO_LOCATION'> {
     const agent = await this.prisma.db.sellerAgent.findUnique({
       where: { id: agentId },
-      select: { organizationId: true, locationId: true, location: { select: { businessId: true } } },
+      select: { organizationId: true, locationId: true, lifecycle: true, location: { select: { businessId: true } } },
     });
-    if (!agent) return null;
+    // архивный агент событий не принимает: ключ воркера общий, лишнего он открывать не должен
+    if (!agent || agent.lifecycle === 'archived') return null;
     if (!agent.locationId || !agent.location) return 'NO_LOCATION';
     return {
       organizationId: agent.organizationId,
@@ -137,6 +140,6 @@ export class PrismaVoiceIngestRepository implements VoiceIngestRepository {
         callbackCreated = made.count > 0;
       }
       return { callId, state: next.state, created: !row, changed, callbackCreated };
-    });
+    }, TX_OPTIONS);
   }
 }

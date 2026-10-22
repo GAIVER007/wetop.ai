@@ -157,11 +157,15 @@ export class PrismaMarketingVoiceRepository implements MarketingVoiceRepository 
     });
     if (!found) return null;
     if (found.status === 'DONE') return toCallback(found);
-    const done = await this.prisma.db.voiceCallback.update({
-      where: { id },
+    // Условное закрытие: из двух одновременных закрытий отметку (кто и когда) оставляет первое, второе её не переписывает
+    await this.prisma.db.voiceCallback.updateMany({
+      where: { id, organizationId: scope.organizationId, status: 'NEW' },
       data: { status: 'DONE', doneAt: new Date(), doneById: userId },
+    });
+    const done = await this.prisma.db.voiceCallback.findFirst({
+      where: { id, organizationId: scope.organizationId, call: { locationId: scope.locationId } },
       select: callbackSelect,
     });
-    return toCallback(done);
+    return done ? toCallback(done) : null;
   }
 }

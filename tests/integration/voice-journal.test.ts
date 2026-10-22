@@ -217,7 +217,31 @@ describe.skipIf(!url)(
       ).toBe(user);
     });
 
-    it('разбор события тот же, что в сервисе: плохое тело не доходит до базы', async () => {
+    it('два человека закрывают одну просьбу одновременно: отметка первого не переписывается', async () => {
+    const id = `room-${mark}-close`;
+    await ingest.ingest(event({ externalCallId: id, state: 'ANSWERED', callback: { phone: '+77005550000', name: 'Б', note: '' } }));
+    const [cb] = (await reads.callbacks(scopeA, 'NEW', 100)).filter((c) => c.phone === '+77005550000');
+    const other = randomUUID();
+    await sql.query(`INSERT INTO users (id, email, status, created_at) VALUES ($1, $2, 'ACTIVE', now())`, [other, `voice2-${mark}@example.invalid`]);
+    try {
+      const [one, two] = await Promise.all([reads.closeCallback(scopeA, cb!.id, user), reads.closeCallback(scopeA, cb!.id, other)]);
+      expect(one!.doneAt!.getTime()).toBe(two!.doneAt!.getTime());
+      const row = (await sql.query(`SELECT done_by_id FROM voice_callbacks WHERE id = $1`, [cb!.id])).rows[0];
+      expect([user, other]).toContain(row.done_by_id);
+      expect(await reads.closeCallback(scopeA, cb!.id, other === row.done_by_id ? user : other)).toMatchObject({ status: 'DONE' });
+      expect((await sql.query(`SELECT done_by_id FROM voice_callbacks WHERE id = $1`, [cb!.id])).rows[0].done_by_id).toBe(row.done_by_id);
+    } finally {
+      await sql.query(`UPDATE voice_callbacks SET done_by_id = NULL WHERE id = $1`, [cb!.id]);
+      await sql.query(`DELETE FROM users WHERE id = $1`, [other]);
+    }
+  });
+
+  it('агент в архиве событий не принимает', async () => {
+    await sql.query(`UPDATE seller_agents SET lifecycle = 'archived' WHERE id = $1`, [agentNoLoc]);
+    await expect(ingest.ingest(event({ agentId: agentNoLoc }))).rejects.toMatchObject({ status: 404 });
+  });
+
+  it('разбор события тот же, что в сервисе: плохое тело не доходит до базы', async () => {
       expect(() => parseVoiceEvent({ agentId: agentA })).toThrow();
       await expect(ingest.ingest({ agentId: agentA })).rejects.toMatchObject({ status: 400 });
     });

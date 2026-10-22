@@ -44,7 +44,7 @@ describe('parseVoiceEvent', () => {
     ['неизвестное состояние', base({ state: 'DONE' })],
     ['время не ISO', base({ occurredAt: 'вчера' })],
     ['время без пояса', base({ occurredAt: '2026-10-22 11:59' })],
-    ['время из будущего', base({ occurredAt: '2026-10-22T12:10:00Z' })],
+    ['время из далёкого будущего (больше суток)', base({ occurredAt: '2026-10-24T12:10:00Z' })],
     ['время старше 30 суток', base({ occurredAt: '2026-09-01T00:00:00Z' })],
     ['маска не маска', base({ callerMasked: '+77001112233' })],
     ['dialedNumber не E.164', base({ dialedNumber: '8700' })],
@@ -54,6 +54,11 @@ describe('parseVoiceEvent', () => {
     ['заметка длиннее 500', base({ callback: { phone: '+77001112233', name: 'А', note: 'я'.repeat(501) } })],
     ['имя длиннее 100', base({ callback: { phone: '+77001112233', name: 'я'.repeat(101), note: '' } })],
     ['endReason длиннее 40', base({ endReason: 'x'.repeat(41) })],
+    ['endReason со служебным знаком', base({ endReason: 'a\u0000b' })],
+    ['endReason с пробелом и кириллицей', base({ endReason: 'сбой связи' })],
+    ['errorCode со служебным знаком', base({ errorCode: 'x\u0001' })],
+    ['имя с нулевым знаком', base({ callback: { phone: '+77001112233', name: 'А\u0000', note: '' } })],
+    ['заметка с непарным суррогатом', base({ callback: { phone: '+77001112233', name: 'А', note: 'x\ud800' } })],
   ])('отказ: %s', (_name, dto) => {
     expect(() => parseVoiceEvent(dto, NOW)).toThrow(VoiceEventError);
   });
@@ -70,6 +75,20 @@ describe('parseVoiceEvent', () => {
 const T = (s: string) => new Date(`2026-10-22T${s}Z`);
 const ev = (state: string, at: string, over: Record<string, unknown> = {}) =>
   parseVoiceEvent(base({ state, occurredAt: `2026-10-22T${at}Z`, ...over }), NOW);
+
+describe('время из будущего (расхождение часов воркера)', () => {
+  it('до суток вперёд принимается и приводится ко времени сервера', () => {
+    const e = parseVoiceEvent(base({ occurredAt: '2026-10-22T12:10:00Z' }), NOW);
+    expect(e.occurredAt.toISOString()).toBe(NOW.toISOString());
+  });
+});
+
+describe('текст: переводы строки в заметке допустимы', () => {
+  it('перевод строки и табуляция проходят', () => {
+    const e = parseVoiceEvent(base({ callback: { phone: '+77001112233', name: 'А', note: 'строка 1\nстрока 2\tхвост' } }), NOW);
+    expect(e.callback?.note).toBe('строка 1\nстрока 2\tхвост');
+  });
+});
 
 describe('applyEvent: состояние идёт только вперёд, повтор не меняет', () => {
   it('первое событие создаёт звонок', () => {
@@ -138,5 +157,38 @@ describe('applyEvent: состояние идёт только вперёд, п�
     expect(b.dialedNumber).toBe('+77009990000');
     expect(b.endReason).toBe('hangup');
     expect(applyEvent(b, ev('ENDED', '11:01:00', { endReason: 'other' })).next.endReason).toBe('hangup');
+  });
+});
+
+
+describe('applyEvent: события вне порядка (замечания ревью M2, L3)', () => {
+  it('ENDED раньше ANSWERED: длительность неизвестна (null), а не ноль', () => {
+    const ended = applyEvent(null, ev('ENDED', '11:03:00')).next;
+    const late = applyEvent(ended, ev('ANSWERED', '11:01:30')).next;
+    expect(late.state).toBe('ENDED');
+    expect(late.durationSeconds).toBeNull();
+  });
+
+  it('позднее ANSWERED на REJECTED или FAILED не делает звонок отвеченным', () => {
+    for (const final of ['REJECTED', 'FAILED']) {
+      const row = applyEvent(null, ev(final, '11:00:00')).next;
+      const late = applyEvent(row, ev('ANSWERED', '11:00:05')).next;
+      expect(late.answeredAt).toBeNull();
+      expect(late.state).toBe(final);
+    }
+  });
+
+  it('конфликтующее конечное событие не подмешивает причину и код ошибки', () => {
+    const ended = applyEvent(applyEvent(null, ev('RECEIVED', '11:00:00')).next, ev('ENDED', '11:01:00', { endReason: 'hangup' })).next;
+    const failed = applyEvent(ended, ev('FAILED', '11:01:01', { errorCode: 'session_error', endReason: 'boom' })).next;
+    expect(failed).toMatchObject({ state: 'ENDED', endReason: 'hangup', errorCode: null });
+  });
+
+  it('конечное событие заполняет причину у ещё не конечного звонка', () => {
+    const a = applyEvent(null, ev('ANSWERED', '11:00:05')).next;
+    expect(applyEvent(a, ev('FAILED', '11:00:30', { errorCode: 'session_error' })).next).toMatchObject({
+      state: 'FAILED',
+      errorCode: 'session_error',
+    });
   });
 });

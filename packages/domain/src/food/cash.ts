@@ -1,4 +1,4 @@
-import { foodObject, foodText } from './food';
+import { foodId, foodObject, foodText } from './food';
 import type { OrderStatus } from './restaurant';
 
 /** Касса ресторанного филиала (DATA_MODEL §35, ADR-165). Деньги — bigint minor units (ADR-008). */
@@ -81,11 +81,19 @@ function methodOf(v: unknown): FoodPaymentMethod {
 const noteOf = (v: unknown) => (v == null ? null : foodText(v, 500));
 
 export function parseFoodPayment(raw: unknown) {
-  const b = foodObject(raw, ['method', 'amount', 'idempotencyKey']);
+  const b = foodObject(raw, ['method', 'amount', 'idempotencyKey', 'itemIds']);
+  // §33.7: оплата по позициям; без списка обычная частичная оплата суммой
+  let itemIds: string[] | null = null;
+  if (b.itemIds !== undefined && b.itemIds !== null) {
+    if (!Array.isArray(b.itemIds) || b.itemIds.length > 100) throw new Error('Позиции списком до 100');
+    if (!b.itemIds.length) throw new Error('Отметьте хотя бы одну позицию');
+    itemIds = b.itemIds.map(foodId);
+  }
   return {
     method: methodOf(b.method),
     amount: amountOf(b.amount, 1),
     idempotencyKey: foodText(b.idempotencyKey, 100),
+    itemIds,
   };
 }
 

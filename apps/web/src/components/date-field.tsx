@@ -128,12 +128,13 @@ export function MonthInput({ className, ...rest }: InputHTMLAttributes<HTMLInput
 }
 
 /**
- * Имя кнопки календаря с именем поля: у пары «С» / «По» две кнопки рядом, и одинаковое «Открыть календарь»
- * программа чтения не различала (аудит 22.10.2026, P2-6).
+ * Описание кнопки календаря с именем поля: у пары «С» / «По» две кнопки рядом, и одинаковое «Открыть календарь»
+ * программа чтения не различала (аудит 22.10.2026, P2-6). Имя поля стоит в описании, а не в имени кнопки: иначе
+ * поиск поля по подписи («Период: с») находил и поле, и кнопку.
  */
-export function calendarButtonLabel(field: string | undefined): string {
+export function calendarButtonLabel(field: string | undefined): string | undefined {
   const name = field?.trim();
-  return name ? `Открыть календарь (${name})` : 'Открыть календарь';
+  return name ? `для поля «${name}»` : undefined;
 }
 
 /**
@@ -325,7 +326,8 @@ export function DateInput({
         ref={button}
         type="button"
         className="date-field__button"
-        aria-label={calendarButtonLabel(fieldName)}
+        aria-label="Открыть календарь"
+        aria-description={calendarButtonLabel(fieldName)}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={open ? popId : undefined}

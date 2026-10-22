@@ -46,4 +46,8 @@ describe('окно новой услуги (аудит 21.10.2026 п.5, п.22)',
     expect(html).not.toContain('Типовая услуга');
     expect(html).toContain('value="Маникюр"');
   });
+  it('аудит 22.10.2026: форма без браузерных подсказок на английском, свои сообщения под полями', () => {
+    const html = render({ mode: 'new', enableForLocation: true });
+    expect(html.toLowerCase()).toContain('novalidate=""');
+  });
 });

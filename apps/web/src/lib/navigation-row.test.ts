@@ -73,17 +73,19 @@ describe('одно меню для всех направлений', () => {
       '/customers',
       '/customers',
     ]);
-    expect(VERTICALS.map((v) => screen(v, 'Клиенты', 'Записи'))).toEqual([
+    // слово пункта своё у направления (аудит 22.10.2026): у ресторана брони столов, меню и доступ
+    const word = (v: (typeof VERTICALS)[number], common: string, food: string) => (v === 'FOOD_SERVICE' ? food : common);
+    expect(VERTICALS.map((v) => screen(v, 'Клиенты', word(v, 'Записи', 'Брони столов')))).toEqual([
       '/reservations',
       '/appointments',
       '/table-reservations',
     ]);
-    expect(VERTICALS.map((v) => screen(v, 'Услуги', 'Каталог'))).toEqual([
+    expect(VERTICALS.map((v) => screen(v, 'Услуги', word(v, 'Каталог', 'Меню')))).toEqual([
       '/inventory',
       '/services',
       '/menu',
     ]);
-    expect(VERTICALS.map((v) => screen(v, 'Персонал', 'Сотрудники'))).toEqual([
+    expect(VERTICALS.map((v) => screen(v, 'Персонал', word(v, 'Сотрудники', 'Доступ и роли')))).toEqual([
       '/team',
       '/team',
       '/team',

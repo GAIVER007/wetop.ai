@@ -68,7 +68,8 @@ export function EmployeeCabinet({
   const showServices = beauty && (!access || access.servicesView);
   const showSchedule = !beauty || !access || access.journalView;
   const showPay = !beauty || !access || access.payrollView;
-  const showMedia = !access || canEditProfile;
+  // без хранилища фото вкладку не показываем вовсе (аудит 22.10.2026: никаких «скоро подключим»)
+  const showMedia = data.canUpload && (!access || canEditProfile);
   const showManagement = manager && (!access || access.employeesUpdate);
   useEffect(() => {
     const invalidate = () => setInvalidScope(scope);
@@ -135,7 +136,7 @@ export function EmployeeCabinet({
       </nav>
       {data.workRange === 'DAY' ? <form className="portal-filters" method="get"><Field label={beauty ? 'Дата записей' : 'Дата заказов'}><Input name="date" type="date" /></Field><button className="btn btn--secondary" type="submit">Показать</button></form>
         : <p data-testid="portal-work-period">{beauty ? 'Записи' : 'Заказы'} за {portalMonthLabel(data.monthStats.month, new Date().getUTCFullYear().toString()).toLowerCase()}, по дате.{data.workTruncated ? ' Показаны первые 200.' : ''}</p>}
-      {beauty ? data.appointments.length ? <ul className="portal-list">{data.appointments.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{shortPeriod(a.date, a.date)}</span><span>{new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: data.location?.timezone ?? 'UTC' }).format(new Date(a.startsAt))}</span><span>{a.customerName}</span><span>{beautyStatus[a.status as AppointmentStatus]?.label ?? 'Неизвестный статус'}</span><span>{formatMoney(a.priceMinor, a.currency)}</span></li>)}</ul> : <p>{data.workRange === 'MONTH' ? 'За этот месяц записей нет' : 'На выбранную дату записей нет'}</p>
+      {beauty ? data.appointments.length ? <ul className="portal-list">{data.appointments.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{shortPeriod(a.date, a.date)}</span><span>{new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: data.location?.timezone ?? 'UTC' }).format(new Date(a.startsAt))}</span><span>{a.customerName}</span><span>{beautyStatus[a.status as AppointmentStatus]?.label ?? 'Неизвестный статус'}</span><span>{formatMoney(a.priceMinor, a.currency)}</span></li>)}</ul> : <div className="portal-work-empty"><p>{data.workRange === 'MONTH' ? 'За этот месяц записей нет' : 'На выбранную дату записей нет'}</p>{manager && data.employee.active && <a className="btn btn--secondary btn--sm" href={`/calendar?employee=${encodeURIComponent(data.employee.id)}&new=1`} data-testid="portal-work-new">Новая запись</a>}</div>
         : data.orders.length ? <ul className="portal-list">{data.orders.map(order => <li key={order.id}><strong>Заказ №{order.number}</strong>{data.workRange === 'MONTH' && <span>{shortPeriod(order.date, order.date)}</span>}<span>{order.tableName ?? 'Стол не указан'}</span><span>{foodOrderStatus[order.status as OrderStatus]?.label ?? 'Неизвестный статус'}</span><span>{formatMoney(order.totalMinor, order.currency)}</span></li>)}</ul> : <p>Собственных заказов за выбранный период нет</p>}
     </section> }] : []),
       ...(showReviews ? [{
@@ -177,8 +178,7 @@ export function EmployeeCabinet({
       })()}
     </section>
     {beauty && <section className="panel portal-section" data-testid="portal-schedule-conflicts" aria-live="polite"><h2>Записи и график</h2>
-      <p>Проверяем предстоящие собственные записи во всех назначенных филиалах по местному времени каждого филиала. Записи не отменены и не перенесены автоматически.</p>
-      {data.scheduleConflicts.items.length ? <><p role="alert">Есть записи вне графика или в дни отсутствия. Согласуйте изменения с руководителем.</p><ul className="portal-list">{data.scheduleConflicts.items.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{a.locationName}</span><span>{shortPeriod(a.date, a.date)} {new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: a.timezone }).format(new Date(a.startsAt))} ({zoneLabel(a.timezone)})</span><span>{a.reason === 'TIME_OFF' ? 'В день отсутствия' : 'Вне рабочих часов'}</span></li>)}</ul></> : <p>{data.scheduleConflicts.truncated ? 'В проверенной части конфликтов нет.' : 'Предстоящих записей, противоречащих графику, нет.'}</p>}
+      {data.scheduleConflicts.items.length ? <><p role="alert">Есть записи вне графика или в дни отсутствия. Согласуйте изменения с руководителем.</p><ul className="portal-list">{data.scheduleConflicts.items.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{a.locationName}</span><span>{shortPeriod(a.date, a.date)} {new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: a.timezone }).format(new Date(a.startsAt))} ({zoneLabel(a.timezone)})</span><span>{a.reason === 'TIME_OFF' ? 'В день отсутствия' : 'Вне рабочих часов'}</span></li>)}</ul></> : <p>{data.scheduleConflicts.truncated ? 'Среди первых 500 записей вне нового графика нет.' : 'Записей вне нового графика нет.'}</p>}
       {data.scheduleConflicts.truncated && <p role="alert">Проверены только первые 500 предстоящих записей. Проверка неполная: остальные записи нужно проверить с руководителем.</p>}
     </section>}
     </div> }] : []),

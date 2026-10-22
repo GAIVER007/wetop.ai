@@ -17,8 +17,8 @@ describe('хаб «Настройки» одной таблицей для вс�
     ]);
     expect(flat(settingsGroupsFor(owner, 'FOOD_SERVICE'))).toEqual([
       ['Основные', ['Филиалы и реквизиты /branches', 'Режим работы /restaurant-settings?section=hours', 'Сотрудники и доступ /team', 'Права ролей /team/roles', 'Мой профиль /profile']],
-      ['Журнал', ['Специалисты /employees', 'График работы /employees/shifts', 'Залы и столы /dining-areas', 'Правила бронирования /restaurant-settings?section=bookings', 'Каталог услуг /menu']],
-      ['Клиенты и продажи', ['Сайт и онлайн-запись /marketing/site/editor', 'ИИ-продавец /ai-agents']],
+      ['Журнал', ['Сотрудники /employees', 'График работы /employees/shifts', 'Залы и столы /dining-areas', 'Правила бронирования /restaurant-settings?section=bookings', 'Меню /menu']],
+      ['Клиенты и продажи', ['Сайт и онлайн-бронь /marketing/site/editor', 'ИИ-продавец /ai-agents']],
       ['Система', ['История действий /journal']],
     ]);
     expect(flat(settingsGroupsFor(owner, 'HOSPITALITY'))).toEqual([

@@ -113,7 +113,7 @@ test('ресторан: те же карточки, режим работы и �
   await expect(page.getByRole('heading', { level: 1, name: 'Настройки ресторана' })).toBeVisible({ timeout: 60_000 });
   await expect(hub.getByRole('heading', { level: 2 })).toHaveText(['Основные', 'Журнал', 'Клиенты и продажи', 'Система']);
   const card = (title: string) => hub.getByRole('region', { name: title, exact: true });
-  await expect(card('Журнал').getByRole('link')).toHaveText(['Специалисты', 'График работы', 'Залы и столы', 'Правила бронирования', 'Каталог услуг']);
+  await expect(card('Журнал').getByRole('link')).toHaveText(['Сотрудники', 'График работы', 'Залы и столы', 'Правила бронирования', 'Меню']);
   await expect(hub.getByRole('link', { name: 'Номера', exact: true })).toHaveCount(0);
   await checkShots(page, 'restaurant');
   await card('Основные').getByRole('link', { name: 'Режим работы', exact: true }).click();

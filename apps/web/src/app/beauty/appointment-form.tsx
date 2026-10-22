@@ -526,12 +526,15 @@ export function AppointmentForm({
                   </div>
                 </details>
               )}
-              <p>
-                Стоимость:{' '}
-                {lineTotal(line) === null
-                  ? 'Проверьте сумму'
-                  : formatMoney(String(lineTotal(line)), day.location.currency)}
-              </p>
+              {/* до выбора услуги строки нет (аудит салона 22.10.2026: «Проверьте сумму» на пустой форме) */}
+              {line.serviceId && (
+                <p>
+                  Стоимость:{' '}
+                  {lineTotal(line) === null
+                    ? 'Проверьте сумму'
+                    : formatMoney(String(lineTotal(line)), day.location.currency)}
+                </p>
+              )}
               {lines.length > 1 && (
                 <Button
                   type="button"

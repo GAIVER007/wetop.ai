@@ -13,6 +13,8 @@ vi.mock('./forms', () => ({
     createElement('form', { 'data-command': command }, children, createElement('button', { type: 'submit' }, label)),
 }));
 
+vi.mock('../../app/login/actions', () => ({ inviteNewStaffAction: vi.fn() }));
+
 import { PortalManagement } from './management';
 
 const data = (accountLinked = false, access: 'MANAGER' | 'SELF' = 'MANAGER'): EmployeePortalDto => ({
@@ -86,6 +88,18 @@ describe('E4: привязка входа мастера выбором учас
     }));
     expect(html).not.toContain('data-command="account"');
     expect(html).toContain('data-command="unlink"');
+  });
+
+  it('аудит 22.10.2026: без входа понятное действие «Пригласить в личный кабинет», без «пока недоступен»', () => {
+    const html = renderToStaticMarkup(createElement(ManagementWithOptions, { data: data(), context, accountOptions: [] }));
+    expect(html).not.toContain('пока недоступен');
+    expect(html).not.toContain('существующий вход по коду');
+    expect(html).toContain('Пригласить в личный кабинет');
+    expect(html).toContain('data-testid="portal-invite"');
+    expect(html).toContain('Мастер увидит свои записи, график и зарплату');
+    const linked = renderToStaticMarkup(createElement(ManagementWithOptions, { data: data(true), context }));
+    expect(linked).not.toContain('Пригласить в личный кабинет');
+    expect(linked).toContain('Мастер входит в личный кабинет');
   });
 
   it('не показывает управление аккаунтом сотруднику в своём кабинете', () => {

@@ -36,9 +36,10 @@ function data(canUpload: boolean): EmployeePortalDto {
 }
 
 describe('employee portal photo storage capability', () => {
-  it('does not offer uploads when runtime storage is unavailable', () => {
+  it('does not offer uploads when runtime storage is unavailable, and shows no «coming soon» stub', () => {
     const html = renderToStaticMarkup(createElement(PortalMedia, { data: data(false), context }));
-    expect(html).toContain('Загрузка фото пока недоступна');
+    expect(html).not.toContain('пока недоступна');
+    expect(html).not.toContain('подключаем');
     expect(html).not.toContain('data-command="avatar"');
     expect(html).not.toContain('data-command="add-work"');
   });

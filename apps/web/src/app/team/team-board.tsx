@@ -227,7 +227,7 @@ function InviteForm({
           type="email"
           name="inviteEmail"
           autoComplete="off"
-          placeholder="admin@hotel.com"
+          placeholder="name@company.kz"
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}

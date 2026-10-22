@@ -9,6 +9,8 @@ import { pendingCreation, useCreationKey } from '../creation-key';
 import { moveLocationServices, saveBeautyService, saveLocationService } from '../actions';
 import { PRESETS, type ServicePreset } from './presets';
 import { ServiceMaterials } from './materials';
+import { closesAfterSave, serviceFieldErrors, type ServiceFieldErrors } from './service-validation';
+import { useToast } from '../../../components/toast';
 import './services.css';
 
 /**
@@ -337,6 +339,7 @@ export function ServicesBoard({
             locationCurrency={locationCurrency}
             scopeKey={scopeKey}
             canDelete={canDelete}
+            onCreated={() => setEditing(null)}
           />
         )}
       </Overlay>
@@ -446,6 +449,7 @@ function ServiceForm({
   locationCurrency,
   scopeKey,
   canDelete,
+  onCreated,
 }: {
   scopeKey: string;
   row: BeautyServiceRow | null;
@@ -453,7 +457,11 @@ function ServiceForm({
   enableForLocation?: boolean;
   locationCurrency: string | null;
   canDelete: boolean;
+  /** новая услуга создана и включена в филиале: окно закрывается (аудит салона 22.10.2026) */
+  onCreated?: () => void;
 }) {
+  const { toast } = useToast();
+  const [fieldErrors, setFieldErrors] = useState<ServiceFieldErrors>({});
   const creation = useCreationKey(scopeKey, 'service', Boolean(row));
   const [enableHere, setEnableHere] = useState(enableForLocation);
   const [state, action, pending] = useActionState(saveBeautyService, null);
@@ -476,6 +484,11 @@ function ServiceForm({
   const submittedDraft = useRef(original);
   useEffect(() => {
     if (state?.message && !state.error) setOriginal(submittedDraft.current);
+    if (closesAfterSave(state, Boolean(row))) {
+      creation.clear();
+      toast({ text: `${state?.message}: ${submittedDraft.current.name}`, tone: 'success' });
+      onCreated?.();
+    }
   }, [state]);
   const [local, setLocal] = useState({
     enabled: row?.location?.enabled ?? enableForLocation,
@@ -497,12 +510,16 @@ function ServiceForm({
       <form
         action={action}
         className="beauty-form"
+        noValidate
         onSubmit={(event) => {
           submittedDraft.current = { ...draft };
           const data = new FormData(event.currentTarget);
-          if (priceMinor === null || priceMinor === '') {
+          // свои сообщения под полями вместо молчания и английских подсказок браузера (аудит 22.10.2026)
+          const errors = serviceFieldErrors(draft);
+          setFieldErrors(errors);
+          if (Object.keys(errors).length) {
             event.preventDefault();
-            setError('Цена: число, например 5000 или 5000,50');
+            setError(null);
             return;
           }
           const parsed = parseBeautyServiceInput({
@@ -575,7 +592,7 @@ function ServiceForm({
             </Select>
           </Field>
         )}
-        <Field label="Название">
+        <Field label="Название" controlId="service-name" error={fieldErrors.name}>
           <Input
             name="name"
             required
@@ -598,7 +615,7 @@ function ServiceForm({
             onChange={(e) => setDraft({ ...draft, category: e.target.value })}
           />
         </Field>
-        <Field label="Длительность, минут">
+        <Field label="Длительность, минут" controlId="service-duration" error={fieldErrors.durationMinutes}>
           <Input
             name="durationMinutes"
             inputMode="numeric"
@@ -614,6 +631,8 @@ function ServiceForm({
               <small className="beauty-note">например 5000</small>
             </span>
           }
+          controlId="service-price"
+          error={fieldErrors.price}
         >
           <Input
             inputMode="decimal"

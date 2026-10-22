@@ -24,6 +24,13 @@ describe('warehouse summary', () => {
     const out = html([{ id: 'bar', title: 'Бар', href: '/bar', noun, items: 9, lowNames: ['А', 'Б', 'В', 'Г', 'Д'], value: null }]);
     expect(out).toContain('А, Б, В и ещё 2');
   });
+  it('an empty warehouse is not reported as being in order', () => {
+    const out = html([{ id: 'bar', title: 'Бар', href: '/bar', noun, items: 0, lowNames: [], value: '0 ₸' }]);
+    expect(out).toContain('Пока пусто');
+    expect(out).toContain('Пусто');
+    expect(out).not.toContain('Всё в порядке');
+    expect(out).not.toContain('В норме');
+  });
   it('says so when a stock could not be read instead of showing zeros', () => {
     const out = html([{ id: 'kitchen', title: 'Кухня', href: '/stock', noun, items: null, lowNames: [], value: null }]);
     expect(out).toContain('Нет данных');

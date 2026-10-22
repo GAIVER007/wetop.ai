@@ -90,11 +90,13 @@ describe('одно меню для всех направлений', () => {
       '/team',
       '/team',
     ]);
+    // гостиница: «График работы» и «Зарплата» как у салона и ресторана (решение 22.10.2026, кабинет горничной)
     expect(VERTICALS.map((v) => screen(v, 'Персонал', 'График работы'))).toEqual([
-      undefined,
+      '/staff-schedule',
       '/beauty/schedule',
       '/employees/shifts',
     ]);
+    expect(VERTICALS.map((v) => screen(v, 'Персонал', 'Зарплата'))).toEqual(['/payroll', '/payroll', '/payroll']);
     expect(VERTICALS.map((v) => screen(v, 'Финансы', 'Касса'))).toEqual([
       undefined,
       '/cashbox',

@@ -964,3 +964,14 @@
     }
   }
 }
+
+/* «Кто убирает» в карточке номера */
+.hk-assign {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: end;
+}
+.hk-assign select {
+  min-height: var(--touch-target);
+}

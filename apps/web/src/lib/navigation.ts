@@ -129,6 +129,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Смены сотрудников на неделю.',
       },
       {
+        // гостиница: «График работы» горничных и ресепшена (кабинет горничной, решение 22.10.2026)
+        href: '/staff-schedule',
+        label: 'График работы',
+        icon: 'clock',
+        requires: 'desk',
+        description: 'Смены горничных и ресепшена на неделю.',
+      },
+      {
         href: '/services',
         label: 'Услуги',
         icon: 'rates',
@@ -616,8 +624,8 @@ const ROW: Array<{
     items: [
       { label: { word: 'specialists' }, at: { BEAUTY: '/employees', FOOD_SERVICE: '/employees' } },
       { label: { word: 'team' }, at: ALL('/team') },
-      { label: 'График работы', at: { BEAUTY: '/beauty/schedule', FOOD_SERVICE: '/employees/shifts' } },
-      { label: 'Зарплата', at: { BEAUTY: '/payroll', FOOD_SERVICE: '/payroll' } },
+      { label: 'График работы', at: { HOSPITALITY: '/staff-schedule', BEAUTY: '/beauty/schedule', FOOD_SERVICE: '/employees/shifts' } },
+      { label: 'Зарплата', at: ALL('/payroll') },
     ],
     match: ['/staff', '/beauty/masters'],
   },

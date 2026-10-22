@@ -61,7 +61,7 @@ import {
 import type { DbTx, Prisma } from '@pms/database';
 import { actorMay, currentRole, currentUserId, currentVertical } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
-import { BRANCH_CASH_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, waiterSelf, type FoodScope } from './scope';
+import { BRANCH_CASH_VERTICALS, BRANCH_PAYROLL_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, waiterSelf, type FoodScope, type FoodVertical } from './scope';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
 import { assertWeekRevision, hoursRevision, hoursRowsRevision } from '../beauty/write-contract';
 import { StockService } from './stock.service';
@@ -224,7 +224,7 @@ export class RestaurantService {
   private async write<T>(
     permission: Permission,
     fn: (tx: DbTx, s: FoodScope) => Promise<T>,
-    verticals?: typeof BRANCH_CASH_VERTICALS,
+    verticals?: readonly FoodVertical[],
   ): Promise<T> {
     foodMay(permission);
     await foodWritable(this.prisma.db);
@@ -1132,9 +1132,10 @@ export class RestaurantService {
   // ─── График смен (Q-REST-11): недельный шаблон в `working_hours`, как у мастеров салона (§19.1) ───
 
   /** Неделя каждого действующего сотрудника этого филиала */
-  async shifts() {
+  /** График смен; гостиница зовёт тот же расчёт со своим направлением (hotel-staff, 22.10.2026) */
+  async shifts(verticals: readonly FoodVertical[] = ['FOOD_SERVICE']) {
     foodMay('desk');
-    const s = await foodScope(this.prisma.db);
+    const s = await foodScope(this.prisma.db, verticals);
     const rows = await this.prisma.db.employee.findMany({
       where: { businessId: s.businessId, status: 'ACTIVE', locations: { some: { locationId: s.locationId } } },
       include: {
@@ -1160,7 +1161,7 @@ export class RestaurantService {
   }
 
   /** Неделя целиком: список заменяет прежний график сотрудника в этом филиале */
-  async setShifts(idRaw: string, raw: unknown) {
+  async setShifts(idRaw: string, raw: unknown, verticals?: readonly FoodVertical[]) {
     return this.write('staff', async (tx, s) => {
       const id = parsed(() => foodId(idRaw));
       const week = parseWorkingHoursWeek(raw);
@@ -1188,10 +1189,11 @@ export class RestaurantService {
       });
       await touchEmployeeSourceRevision(tx, id);
       return { week: weekTemplate(week.value), weekRevision: await hoursRevision(tx, id, s.locationId) };
-    });
+    }, verticals);
   }
 
-  async createEmployee(raw: unknown) {
+  /** Новый сотрудник филиала; гостиница зовёт со своим направлением (hotel-staff, 22.10.2026) */
+  async createEmployee(raw: unknown, verticals?: readonly FoodVertical[]) {
     return this.write('staff', async (tx, s) => {
       const b = parsed(() => foodObject(raw, ['name', 'phone', 'email', 'personnelKind']));
       const personnelKind = parseCreatePersonnelKind(b);
@@ -1207,7 +1209,7 @@ export class RestaurantService {
       await tx.employeeLocation.create({ data: { employeeId: row.id, locationId: s.locationId } });
       await this.audit(tx, s, 'employee', row.id, 'food.employee.created', { name: row.name });
       return row;
-    });
+    }, verticals);
   }
 
   async updateEmployee(idRaw: string, raw: unknown) {
@@ -1616,6 +1618,11 @@ export class RestaurantService {
 
   /** Выплата зарплаты из кассы: не больше «осталось» за месяц (§35.3) */
   async payout(idRaw: string, raw: unknown) {
+    // гостиница: начисления без выплаты из кассы филиала (касса объекта §21 другая; решение 22.10.2026)
+    if (currentVertical() === 'HOSPITALITY') {
+      foodMay('staff');
+      throw new ConflictException('Выплата из кассы у гостиницы пока не подключена: начисления видны, выплату проведите в кассе объекта');
+    }
     return this.write('staff', async (tx, s) => {
       const id = parsed(() => foodId(idRaw));
       const request = parsed(() => foodObject(raw, ['period', 'method', 'amount', 'idempotencyKey']));
@@ -1857,7 +1864,7 @@ export class RestaurantService {
 
   async payroll(query: unknown) {
     foodMay('staff');
-    const s = await foodScope(this.prisma.db, BRANCH_CASH_VERTICALS);
+    const s = await foodScope(this.prisma.db, BRANCH_PAYROLL_VERTICALS);
     const q = parsed(() => foodObject(query, ['month']));
     const { m, rows, adjustments } = await this.monthPayroll(this.prisma.db, s, q.month);
     let fund = 0n,
@@ -1865,8 +1872,8 @@ export class RestaurantService {
       penalty = 0n,
       payout = 0n,
       paidTotal = 0n;
-    const out = rows.map(({ e, setting, sales, t, paid }) => {
-        fund += t.base + t.percentPart;
+    const out = rows.map(({ e, setting, perCleaningMinor, sales, cleanings, t, paid }) => {
+        fund += t.base + t.percentPart + t.piece;
         bonus += t.bonus;
         penalty += t.penalty;
         payout += t.total;
@@ -1879,6 +1886,9 @@ export class RestaurantService {
           fixedMinor: setting.fixedMinor.toString(),
           percent: setting.percent,
           salesMinor: sales.toString(),
+          perCleaningMinor: perCleaningMinor.toString(),
+          cleanings,
+          pieceMinor: t.piece.toString(),
           baseMinor: t.base.toString(),
           percentMinor: t.percentPart.toString(),
           bonusMinor: t.bonus.toString(),
@@ -1891,6 +1901,9 @@ export class RestaurantService {
     return {
       month: m.month,
       currency: s.currency,
+      vertical: s.vertical,
+      /** выплата из кассы филиала есть у салона и ресторана; у гостиницы только начисления */
+      payouts: s.vertical !== 'HOSPITALITY',
       totals: {
         fundMinor: fund.toString(),
         bonusMinor: bonus.toString(),
@@ -1923,6 +1936,7 @@ export class RestaurantService {
           model: b.model,
           fixedMinor: b.fixedMinor,
           percent: b.percent,
+          perCleaningMinor: b.perCleaningMinor ?? 0n,
           currency: s.currency,
           updatedById: currentUserId(),
         },
@@ -1930,6 +1944,7 @@ export class RestaurantService {
           model: b.model,
           fixedMinor: b.fixedMinor,
           percent: b.percent,
+          ...(b.perCleaningMinor === undefined ? {} : { perCleaningMinor: b.perCleaningMinor }),
           updatedById: currentUserId(),
         },
       });
@@ -1939,13 +1954,13 @@ export class RestaurantService {
         'employee_pay',
         id,
         'food.pay_settings.saved',
-        { model: row.model, fixedMinor: row.fixedMinor.toString(), percent: row.percent },
+        { model: row.model, fixedMinor: row.fixedMinor.toString(), percent: row.percent, perCleaningMinor: row.perCleaningMinor.toString() },
         old
-          ? { model: old.model, fixedMinor: old.fixedMinor.toString(), percent: old.percent }
+          ? { model: old.model, fixedMinor: old.fixedMinor.toString(), percent: old.percent, perCleaningMinor: old.perCleaningMinor.toString() }
           : undefined,
       );
-      return { ...row, fixedMinor: row.fixedMinor.toString() };
-    }, BRANCH_CASH_VERTICALS);
+      return { ...row, fixedMinor: row.fixedMinor.toString(), perCleaningMinor: row.perCleaningMinor.toString() };
+    }, BRANCH_PAYROLL_VERTICALS);
   }
 
   async addPayAdjustment(idRaw: string, raw: unknown) {
@@ -1969,6 +1984,6 @@ export class RestaurantService {
         reason: b.reason,
       });
       return { ...row, amountMinor: row.amountMinor.toString() };
-    }, BRANCH_CASH_VERTICALS);
+    }, BRANCH_PAYROLL_VERTICALS);
   }
 }

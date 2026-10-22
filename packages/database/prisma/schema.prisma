@@ -698,6 +698,8 @@ model InventoryUnit {
   /// Код места в PMS; уникален внутри объекта (v1.12) — искать только в паре с объектом
   code                String
   housekeepingStatus  HousekeepingStatus @default(DIRTY) @map("housekeeping_status")
+  /// «Кто убирает» (миграция 143): сотрудник того же бизнеса (триггер); NULL = не назначено
+  housekeepingAssigneeId String?         @map("housekeeping_assignee_id") @db.Uuid
   active              Boolean            @default(true)
   createdAt           DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -708,8 +710,10 @@ model InventoryUnit {
   blocks             InventoryBlock[]
   housekeepingEvents HousekeepingEvent[]
   allocations        Allocation[]
+  housekeepingAssignee Employee?        @relation("InventoryUnitHousekeepingAssignee", fields: [housekeepingAssigneeId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   @@unique([propertyId, code])
+  @@index([housekeepingAssigneeId])
   @@index([accommodationTypeId])
   @@index([physicalRoomId])
   @@map("inventory_units")
@@ -944,13 +948,18 @@ model HousekeepingEvent {
   inventoryUnitId String             @map("inventory_unit_id") @db.Uuid
   fromStatus      HousekeepingStatus @map("from_status")
   toStatus        HousekeepingStatus @map("to_status")
-  /// Сущность User появится после Q-060…Q-064; до этого — идентификатор без FK
+  /// Кто нажал (FK users с миграции 143, ON DELETE SET NULL)
   userId          String?            @map("user_id") @db.Uuid
+  /// Чья уборка (миграция 143): назначенная горничная места в момент «Убрано»; сдельная оплата и «Мой месяц»
+  employeeId      String?            @map("employee_id") @db.Uuid
   createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
 
   inventoryUnit InventoryUnit @relation(fields: [inventoryUnitId], references: [id])
+  user          User?         @relation("HousekeepingEventUser", fields: [userId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  employee      Employee?     @relation("HousekeepingEventEmployee", fields: [employeeId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   @@index([inventoryUnitId, createdAt])
+  @@index([employeeId, createdAt])
   @@map("housekeeping_events")
 }
 
@@ -2595,6 +2604,7 @@ model User {
   tasksAssigned                DeskTask[]                     @relation("DeskTaskAssignee")
   tasksDone                    DeskTask[]                     @relation("DeskTaskDoneBy")
   tasksCreated                 DeskTask[]                     @relation("DeskTaskCreatedBy")
+  housekeepingEvents           HousekeepingEvent[]            @relation("HousekeepingEventUser")
   paymentRequests              PaymentRequest[]
   fiscalReceipts               FiscalReceipt[]
   competitorsCreated           Competitor[]
@@ -3221,6 +3231,8 @@ model Employee {
   portalMedia      EmployeeMedia[]
   portfolio        EmployeePortfolioItem[]
   invites          Invite[]
+  housekeepingUnits  InventoryUnit[]     @relation("InventoryUnitHousekeepingAssignee")
+  housekeepingEvents HousekeepingEvent[] @relation("HousekeepingEventEmployee")
 
   @@index([businessId])
   @@map("employees")
@@ -3930,6 +3942,8 @@ model EmployeePaySetting {
   model       EmployeePayModel @default(FIXED)
   fixedMinor  BigInt           @default(0) @map("fixed_minor")
   percent     Int              @default(0) @db.SmallInt
+  /// Сдельно за одну уборку гостиницы (миграция 143), тиыны, CHECK >= 0
+  perCleaningMinor BigInt      @default(0) @map("per_cleaning_minor")
   currency    String           @db.Char(3)
   updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
   updatedById String?          @map("updated_by_id") @db.Uuid

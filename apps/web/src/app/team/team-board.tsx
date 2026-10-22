@@ -9,7 +9,9 @@ import {
 } from 'react';
 import {
   MEMBERSHIP_ROLES,
+  accessLevelsFor,
   invitableRoles,
+  type AccessLevel,
   type InviteRole,
   type MembershipRole,
 } from '@pms/domain';
@@ -39,8 +41,10 @@ import {
   toScopes,
   type ScopeModel,
 } from './scope-model';
+import { createHotelEmployeeAction } from '../hotel-staff/actions';
 import {
   inviteAction,
+  inviteNewStaffAction,
   removeMemberAction,
   resendInviteAction,
   revokeInviteAction,
@@ -141,8 +145,16 @@ function InviteForm({
   vertical?: string;
 }) {
   const team = useContext(TeamContext);
-  // «Личный кабинет» выдаётся из формы «Новый сотрудник» (вход привязывается к карточке сотрудника), здесь его нет
+  // «Личный кабинет» привязан к карточке сотрудника: у салона и ресторана он выдаётся из формы «Новый сотрудник».
+  // У гостиницы своей формы сотрудника нет, поэтому здесь все четыре уровня (кабинет горничной, решение 22.10.2026):
+  // «Без входа» и «Личный кабинет» сначала создают сотрудника гостиницы, приглашение уходит с его карточкой.
+  const hotel = vertical === 'HOSPITALITY';
   const roles = invitableRoles(role).filter((r) => r !== 'EMPLOYEE');
+  const levels: AccessLevel[] = hotel
+    ? accessLevelsFor(role)
+    : roles.filter((r): r is 'MANAGER' | 'STAFF' => r === 'MANAGER' || r === 'STAFF');
+  const [level, setLevel] = useState<AccessLevel>('STAFF');
+  const personal = level === 'NONE' || level === 'PORTAL';
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -163,6 +175,39 @@ function InviteForm({
         }
         start(async () => {
           setError('');
+          if (personal) {
+            const name = [firstName.trim(), lastName.trim()].filter(Boolean).join(' ');
+            if (!name) {
+              setError('Укажите имя сотрудника.');
+              return;
+            }
+            if (level === 'PORTAL' && !email.trim()) {
+              setError('Для входа в WETOP укажите почту: на неё придёт приглашение.');
+              return;
+            }
+            const created = await createHotelEmployeeAction({
+              name,
+              ...(phone.trim() ? { phone: phone.trim() } : {}),
+              ...(email.trim() ? { email: email.trim() } : {}),
+            });
+            if (created.error || !created.id) {
+              setError(created.error ?? 'Не удалось добавить сотрудника.');
+              return;
+            }
+            if (level === 'PORTAL') {
+              const invited = await inviteNewStaffAction({ employeeId: created.id, level, email: email.trim(), allBranches: false });
+              if (invited.error) {
+                setError(`Сотрудник добавлен, но приглашение не ушло: ${invited.error}`);
+                return;
+              }
+            }
+            setEmail('');
+            setFirstName('');
+            setLastName('');
+            setPhone('');
+            onDone();
+            return;
+          }
           if (restricted && !scopeSelectionValid(structure, model)) {
             setError('Структура доступа изменилась. Проверьте выбранные филиалы.');
             return;
@@ -228,7 +273,7 @@ function InviteForm({
           name="inviteEmail"
           autoComplete="off"
           placeholder="name@company.kz"
-          required
+          required={level !== 'NONE'}
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
@@ -236,9 +281,12 @@ function InviteForm({
       {/* единый блок доступа во всех направлениях (решение владельца 20.10.2026): уровни, «Увидит / Не увидит» */}
       <StaffAccessPicker
         vertical={vertical}
-        levels={roles.filter((r): r is 'MANAGER' | 'STAFF' => r === 'MANAGER' || r === 'STAFF')}
-        value={{ level: inviteRole === 'MANAGER' ? 'MANAGER' : 'STAFF', allBranches: !restricted }}
-        onChange={(next) => setInviteRole(next.level === 'MANAGER' ? 'MANAGER' : 'STAFF')}
+        levels={levels}
+        value={{ level, allBranches: !restricted }}
+        onChange={(next) => {
+          setLevel(next.level);
+          if (next.level === 'MANAGER' || next.level === 'STAFF') setInviteRole(next.level);
+        }}
         branchName={null}
         canAllBranches
         email={email}
@@ -261,7 +309,7 @@ function InviteForm({
           onChange={(event) => setPhone(formatPhoneInput(event.target.value))}
         />
       </Field>
-      {structure && (
+      {structure && !personal && (
         <ScopeEditor
           structure={structure}
           roles={roles}
@@ -276,7 +324,7 @@ function InviteForm({
       {error && <Alert>{error}</Alert>}
       <div className="team-invite-form__actions">
         <Button type="submit" disabled={pending || !structure || !team?.ready}>
-          {pending ? 'Отправляю…' : 'Отправить приглашение'}
+          {pending ? 'Отправляю…' : level === 'NONE' ? 'Добавить сотрудника' : 'Отправить приглашение'}
         </Button>
         <Button type="button" tone="secondary" onClick={onDone}>
           Отмена

@@ -1437,7 +1437,9 @@ export interface UnitCard {
     status: string;
     guestLabel: string;
   }>;
-  housekeepingHistory: Array<{ at: string; from: string; to: string }>;
+  housekeepingHistory: Array<{ at: string; from: string; to: string; by?: string | null }>;
+  /** «Кто убирает» (DATA_MODEL §4.1, 22.10.2026); старый API поля не шлёт */
+  housekeepingAssignee?: { id: string; name: string } | null;
   /** Заведено и последнее изменение, UTC ISO */
   createdAt: string;
   updatedAt: string;

@@ -1519,7 +1519,8 @@ test('гости D1: выборка и пустота словами, стату
   const main = page.getByRole('main');
   await expect(main.getByTestId('guests-meta')).toContainText('по запросу «Тест»');
   const row = main.getByTestId('guests-table').locator('tbody tr').first();
-  await expect(row).toContainText('Гость Тестовый');
+  // имя «Имя Фамилия» (аудит гостиницы 22.10.2026 P1-17)
+  await expect(row).toContainText('Тестовый Гость');
   await expect(row.locator('time').first()).toHaveAttribute('datetime', /\d{4}-\d{2}-\d{2}/);
   await expect(main.getByRole('link', { name: 'Сбросить фильтры' })).toBeVisible();
 

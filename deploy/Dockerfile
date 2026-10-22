@@ -8,7 +8,7 @@
 # (@pms/domain, @pms/shared), standalone их не собирает без отдельной настройки; размер образа здесь ничего не решает.
 #
 # Секретов в образе нет: .env исключён из контекста сборки (.dockerignore) и подаётся снаружи через env_file (SECURITY.md §3).
-FROM node:24-alpine AS build
+FROM node:24.22.1-alpine AS build
 WORKDIR /app
 
 # Зависимости отдельным слоем: правка кода не переустанавливает node_modules.
@@ -43,7 +43,7 @@ COPY . .
 RUN NODE_OPTIONS=--max-old-space-size=2048 npm run build -w apps/web
 
 # --- рабочий слой ---------------------------------------------------------------------------------
-FROM node:24-alpine AS runtime
+FROM node:24.22.1-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 # Даты проживания — DATE в поясе объекта, события — UTC (AGENTS.md §13).

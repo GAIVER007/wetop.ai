@@ -107,6 +107,10 @@ h4 {
   text-wrap: balance;
   letter-spacing: -0.02em;
 }
+/* Аккуратные переносы абзацев без висячих слов (apple-design §15); браузер без поддержки игнорирует */
+p {
+  text-wrap: pretty;
+}
 /* :where — нулевая специфичность: отступы списков из классов ниже не перебиваются сбросом. */
 :where(ul[class], ol[class], nav ul) {
   margin: 0;
@@ -262,8 +266,10 @@ button {
     box-shadow var(--ease),
     transform var(--ease);
 }
+/* Отклик на само нажатие (apple-design §1): кнопка прижимается мгновенно, возврат идёт обычным ходом */
 .btn:active {
-  transform: translateY(1px);
+  transform: translateY(1px) scale(0.97);
+  transition-duration: 100ms;
 }
 .btn--sm {
   padding: 8px 16px;
@@ -327,9 +333,15 @@ button {
   font-size: 0.9375rem;
   font-weight: 700;
   text-decoration: none;
-  transition:
-    gap var(--ease),
-    border-color var(--ease);
+  transition: border-color var(--ease);
+}
+/*
+ * Стрелка движется transform-ом, а не gap: transform не трогает layout и анимируется компоновщиком
+ * (apple-design §11). Наведение на карточку-ссылку тоже сдвигает стрелку: движение подсказывает,
+ * куда ведёт щелчок (apple-design §8).
+ */
+.link-arrow .icon {
+  transition: transform var(--ease);
 }
 /*
  * Пилюля прямым ребёнком карточки: карточка выкладывает детей колонкой и растягивает их по ширине,
@@ -357,8 +369,13 @@ button {
   align-self: flex-start;
 }
 .link-arrow:hover {
-  gap: 12px;
   border-color: color-mix(in srgb, var(--accent-1) 50%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .link-arrow:hover .icon,
+  .card:hover .link-arrow .icon {
+    transform: translateX(4px);
+  }
 }
 .link-back {
   display: inline-flex;
@@ -391,6 +408,26 @@ button {
     background: color-mix(in srgb, var(--bg) 42%, transparent);
     -webkit-backdrop-filter: blur(18px) saturate(150%);
     backdrop-filter: blur(18px) saturate(150%);
+  }
+}
+/*
+ * Кромка шапки по прокрутке (apple-design §12: scroll edge вместо постоянной линии): тень и рамка
+ * проявляются за первые 80px прокрутки, наверху шапка сливается со страницей. Браузер без
+ * scroll-driven animations оставляет шапку как была.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    .site-header {
+      animation: site-header-edge linear both;
+      animation-timeline: scroll();
+      animation-range: 0 80px;
+    }
+    @keyframes site-header-edge {
+      to {
+        border-bottom-color: var(--glass-border-dim);
+        box-shadow: 0 10px 24px -18px var(--chrome-shadow);
+      }
+    }
   }
 }
 .site-header__inner {
@@ -509,6 +546,12 @@ button {
 .mobile-menu__button:hover {
   border-color: var(--border-input);
 }
+/* Отклик на само нажатие у круглых кнопок шапки, как у .btn (apple-design §1) */
+.mobile-menu__button:active,
+.theme-toggle:active {
+  transform: scale(0.94);
+  transition: transform 100ms ease-out;
+}
 .mobile-menu__panel {
   position: absolute;
   top: calc(100% + 12px);
@@ -526,6 +569,37 @@ button {
     background: var(--glass-bg-strong);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
     backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  }
+}
+/*
+ * Меню материализуется от своей кнопки и уходит тем же путём (apple-design §7, §12): точка роста
+ * в правом верхнем углу, рядом с гамбургером. Переход прерываемый; display в списке перехода
+ * только там, где браузер понимает allow-discrete, иначе закрытие мгновенное, как раньше.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .mobile-menu__panel {
+    transform-origin: top right;
+    transition:
+      opacity 180ms ease-out,
+      transform 180ms ease-out;
+  }
+  .mobile-menu__panel[hidden] {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+  @starting-style {
+    .mobile-menu__panel:not([hidden]) {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.96);
+    }
+  }
+  @supports (transition-behavior: allow-discrete) {
+    .mobile-menu__panel {
+      transition:
+        opacity 180ms ease-out,
+        transform 180ms ease-out,
+        display 180ms allow-discrete;
+    }
   }
 }
 .mobile-menu__links a {
@@ -676,7 +750,6 @@ button {
   .hero__visual {
     padding-bottom: 0;
   }
-  
 }
 
 @keyframes stay-in {
@@ -781,6 +854,11 @@ button {
   .card:hover {
     transform: translateY(-2px);
   }
+}
+/* Карточка-ссылка отвечает на само нажатие, как кнопка (apple-design §1) */
+.card:has(.card__title a):active {
+  transform: scale(0.99);
+  transition-duration: 100ms;
 }
 .icon-tile {
   display: inline-flex;
@@ -1788,14 +1866,42 @@ button {
   color: var(--primary);
   font-weight: 600;
 }
+/*
+ * Окно входа появляется и уходит одним путём (apple-design §7): переход вместо одноразовой
+ * анимации, прерываемый в любой момент. Вход работает везде, где есть @starting-style; выход
+ * с удержанием в top layer только при поддержке overlay (иначе закрытие мгновенное, как раньше).
+ */
 @media (prefers-reduced-motion: no-preference) {
-  .auth-dialog[open] {
-    animation: auth-dialog-in 180ms ease-out;
+  .auth-dialog,
+  .auth-dialog::backdrop {
+    transition:
+      opacity 180ms ease-out,
+      transform 180ms ease-out;
   }
-  @keyframes auth-dialog-in {
-    from {
+  .auth-dialog:not([open]) {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  .auth-dialog:not([open])::backdrop {
+    opacity: 0;
+  }
+  @starting-style {
+    .auth-dialog[open] {
       opacity: 0;
       transform: translateY(8px) scale(0.98);
+    }
+    .auth-dialog[open]::backdrop {
+      opacity: 0;
+    }
+  }
+  @supports (overlay: auto) {
+    .auth-dialog,
+    .auth-dialog::backdrop {
+      transition:
+        opacity 180ms ease-out,
+        transform 180ms ease-out,
+        display 180ms allow-discrete,
+        overlay 180ms allow-discrete;
     }
   }
 }
@@ -1877,6 +1983,29 @@ button {
   line-height: 1.7;
   margin: 0;
   padding: 0 32px 24px 0;
+}
+/*
+ * Плавное раскрытие ответа (apple-design §3: переход прерываемый, стартует с текущей высоты,
+ * повторный щелчок разворачивает движение с места). Браузер без ::details-content или
+ * interpolate-size открывает мгновенно, как раньше; при reduced motion переходов нет.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .faq details {
+    interpolate-size: allow-keywords;
+  }
+  .faq details::details-content {
+    opacity: 0;
+    block-size: 0;
+    overflow-y: clip;
+    transition:
+      content-visibility 240ms allow-discrete,
+      opacity 240ms ease-out,
+      block-size 240ms ease-out;
+  }
+  .faq details[open]::details-content {
+    opacity: 1;
+    block-size: auto;
+  }
 }
 .faq__layout .section-heading {
   margin-bottom: 0;

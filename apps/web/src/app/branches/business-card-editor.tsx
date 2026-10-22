@@ -8,6 +8,7 @@ import { useEffect, useRef, useState, useTransition, type FormEvent } from 'reac
 import { Icon } from '../../components/icon';
 import { saveBusinessCard } from './actions';
 import type { BusinessCardView } from './reference-board';
+import { Input, Textarea } from '../../components/ui';
 export function BusinessCardEditor({
   business,
   onClose,
@@ -74,7 +75,7 @@ export function BusinessCardEditor({
                 <div className="org-editor-fields">
                   <label>
                     Название бизнеса
-                    <input
+                    <Input
                       name="name"
                       required
                       maxLength={200}
@@ -84,7 +85,7 @@ export function BusinessCardEditor({
                   </label>
                   <label>
                     Описание
-                    <textarea
+                    <Textarea
                       name="description"
                       maxLength={1000}
                       rows={3}

@@ -322,6 +322,8 @@ test('перенос меняет время записи', async ({ page, reque
   const card = page.getByRole('dialog');
   await card.getByTestId('beauty-move-start').fill(`${DAY}T15:00`);
   await card.getByRole('button', { name: 'Перенести', exact: true }).click();
+  // переход раньше ответа сервера обрывал перенос (CI 22.10.2026): ждём закрытия карточки
+  await expect(page.getByRole('dialog')).toHaveCount(0);
 
   await openDay(page);
   await expect(
@@ -514,6 +516,7 @@ test('быстрый отчёт календаря: выбранный маст�
     .first()
     .click();
   await page.getByRole('dialog').getByRole('button', { name: 'Подтвердить', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await openDay(page);
   await page
     .getByRole('main')
@@ -522,6 +525,7 @@ test('быстрый отчёт календаря: выбранный маст�
     .first()
     .click();
   await page.getByRole('dialog').getByRole('button', { name: 'Завершить', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await openDay(page);
   await page.locator('.employee-filter summary').click();
   await page.getByRole('searchbox', { name: 'Поиск специалиста' }).fill('Дин');

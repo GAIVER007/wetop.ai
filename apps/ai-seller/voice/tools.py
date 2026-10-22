@@ -62,6 +62,7 @@ class VoiceTools:
         catalog,
         profile: VoiceProfile,
         transfer: TransferFn | None = None,
+        events=None,
     ) -> None:
         self._call_id = call_id
         self._route = route
@@ -70,6 +71,19 @@ class VoiceTools:
         self._profile = profile
         self._transfer = transfer
         self._transfer_done = False
+        self._events = events
+
+    def _emit(self, kind: str, *args: str) -> None:
+        """Событие в очередь платформы. Сбой отчётности не должен ломать разговор."""
+        if self._events is None:
+            return
+        try:
+            if kind == "callback":
+                self._events.callback(self._call_id, self._route, *args)
+            else:
+                self._events.transfer(self._call_id, self._route)
+        except Exception:  # noqa: BLE001 - причину в лог без данных клиента
+            logger.warning("событие %s не поставлено в очередь", kind)
 
     async def get_services(self) -> str:
         """Услуги объекта с длительностью и ценой из каталога."""
@@ -115,6 +129,7 @@ class VoiceTools:
             self._call_id, CallState.CALLBACK, route=self._route, caller=number, key=number,
             client_name=clean_name, note=clean_note,
         )
+        self._emit("callback", number, clean_name, clean_note)
         return "Просьба записана, администратор свяжется с клиентом."
 
     async def transfer_to_human(self) -> str:
@@ -133,4 +148,5 @@ class VoiceTools:
         if not ok:
             return "Перевод не удался, администратор перезвонит клиенту."
         self._journal.record(self._call_id, CallState.TRANSFER, route=self._route)
+        self._emit("transfer")
         return "Перевожу на администратора, подождите, пожалуйста."

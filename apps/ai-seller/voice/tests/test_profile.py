@@ -43,3 +43,21 @@ def test_from_env_defaults_and_overrides():
 
 def test_bad_handoff_number_is_dropped_not_dialed():
     assert VoiceProfile.from_env({"VOICE_HANDOFF_NUMBER": "abc"}).handoff_number is None
+
+
+def test_from_api_uses_platform_values():
+    from voice.platform import ProfileData
+
+    data = ProfileData(
+        agent_id="a", organization_id="o",
+        object_name="Салон Тест", greeting_tail="Работаем до 20 часов.", voice_name="Puck", handoff_phone="8 700 111 22 33",
+    )
+    p = VoiceProfile.from_api(data)
+    assert (p.object_name, p.voice, p.handoff_number) == ("Салон Тест", "Puck", "+77001112233")
+    text = opening_line(p)
+    assert "Работаем до 20 часов." in text and "ИИ" in text and "записывается" in text
+
+
+def test_greeting_tail_is_sanitised():
+    p = VoiceProfile(object_name="Салон", greeting_tail="  строка\x00 с мусором  ")
+    assert "\x00" not in opening_line(p)

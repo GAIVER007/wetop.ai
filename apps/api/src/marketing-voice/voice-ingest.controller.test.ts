@@ -12,6 +12,7 @@ import { VoiceIngestController } from './voice-ingest.controller';
 import { VoiceIngestService } from './voice-ingest.service';
 import {
   VOICE_INGEST_REPOSITORY,
+  type AgentProfile,
   type AgentScope,
   type RecordResult,
   type VoiceIngestRepository,
@@ -41,6 +42,13 @@ class FakeRepo implements VoiceIngestRepository {
     this.lookups += 1;
     if (agentId === AGENT_NOLOC) return 'NO_LOCATION';
     return SCOPES[agentId] ?? null;
+  }
+  async profile(agentId: string): Promise<AgentProfile | null | 'NO_LOCATION'> {
+    this.lookups += 1;
+    if (agentId === AGENT_NOLOC) return 'NO_LOCATION';
+    const scope = SCOPES[agentId];
+    if (!scope) return null;
+    return { agentId, organizationId: scope.organizationId, objectName: agentId === AGENT_A ? 'Салон Тест' : 'Салон Б', greetingTail: '', voiceName: 'Leda', handoffPhone: null };
   }
   async record(scope: AgentScope, event: VoiceEvent): Promise<RecordResult> {
     const key = `${event.agentId}|${event.externalCallId}`;
@@ -194,5 +202,56 @@ describe('приём событий', () => {
   it('ошибка не раскрывает значения полей', async () => {
     const res = await post(VOICE_KEY, event({ callback: { phone: '+7700SECRETPHONE', name: 'А', note: '' } })).expect(400);
     expect(JSON.stringify(res.body)).not.toContain('SECRETPHONE');
+  });
+});
+
+
+describe('профиль голоса по агенту: GET /voice/profile', () => {
+  function get(key: string | null, query: string, env: Record<string, string> = {}) {
+    vi.stubEnv('AUTH_REQUIRED', '1');
+    vi.stubEnv('VOICE_INGEST_KEY', VOICE_KEY);
+    vi.stubEnv('SERVICE_API_KEY', SERVICE_KEY);
+    vi.stubEnv('NODE_ENV', 'test');
+    for (const [k, v] of Object.entries(env)) vi.stubEnv(k, v);
+    const req = request(app.getHttpServer()).get(`/voice/profile${query}`);
+    return key ? req.set('x-wetop-service-key', key) : req;
+  }
+
+  it('тот же ключ: без ключа 401, общий служебный 403, база не тронута', async () => {
+    await get(null, `?agent=${AGENT_A}`).expect(401);
+    await get(SERVICE_KEY, `?agent=${AGENT_A}`).expect(403);
+    expect(repo.lookups).toBe(0);
+  });
+
+  it('отдаёт профиль по агенту: объект, организация, умолчания голоса', async () => {
+    const res = await get(VOICE_KEY, `?agent=${AGENT_A}`).expect(200);
+    expect(res.headers['cache-control']).toBe('no-store');
+    expect(res.body).toEqual({
+      agentId: AGENT_A,
+      organizationId: 'org-a',
+      objectName: 'Салон Тест',
+      greetingTail: '',
+      voiceName: 'Leda',
+      handoffPhone: null,
+    });
+  });
+
+  it('ответ минимален: без идентификаторов бизнеса и филиала', async () => {
+    const res = await get(VOICE_KEY, `?agent=${AGENT_A}`).expect(200);
+    expect(Object.keys(res.body).sort()).toEqual(
+      ['agentId', 'greetingTail', 'handoffPhone', 'objectName', 'organizationId', 'voiceName'].sort(),
+    );
+  });
+
+  it('агент не найден 404, без филиала 422, не UUID или пусто 400', async () => {
+    await get(VOICE_KEY, '?agent=9f9f9f9f-9f9f-49f9-89f9-9f9f9f9f9f9f').expect(404);
+    await get(VOICE_KEY, `?agent=${AGENT_NOLOC}`).expect(422);
+    await get(VOICE_KEY, '?agent=x').expect(400);
+    await get(VOICE_KEY, '').expect(400);
+  });
+
+  it('путь проверяет ключ и без замка входа (AUTH_REQUIRED=0)', async () => {
+    await get(null, `?agent=${AGENT_A}`, { AUTH_REQUIRED: '0' }).expect(401);
+    await get(VOICE_KEY, `?agent=${AGENT_A}`, { AUTH_REQUIRED: '0' }).expect(200);
   });
 });

@@ -17,7 +17,7 @@ from voice.tools import VoiceTools
 
 logger = logging.getLogger(__name__)
 
-UNKNOWN_NUMBER_LINE = "Извините, этот номер пока не настроен. Позвоните, пожалуйста, позже."
+UNKNOWN_NUMBER_LINE = "Извините, сейчас мы не можем принять звонок. Позвоните, пожалуйста, позже."
 
 
 def make_function_tools(tools: VoiceTools) -> list:
@@ -40,19 +40,32 @@ def make_function_tools(tools: VoiceTools) -> list:
 
 
 class VoiceAgent(Agent):
-    def __init__(self, *, profile: VoiceProfile, tools: VoiceTools, journal: CallJournal, route: Route, call_id: str) -> None:
+    def __init__(
+        self, *, profile: VoiceProfile, tools: VoiceTools, journal: CallJournal, route: Route, call_id: str, events=None
+    ) -> None:
         super().__init__(instructions=build_instructions(profile, ""), tools=make_function_tools(tools))
         self._profile = profile
         self._journal = journal
         self._route = route
         self._call_id = call_id
+        self._events = events
+
+    async def _emit_state(self, state: CallState) -> None:
+        if self._events is None:
+            return
+        try:
+            self._events.state(self._call_id, self._route, state)
+        except Exception:  # noqa: BLE001 - отчётность не ломает звонок
+            logger.warning("событие %s не поставлено в очередь", state.value)
 
     async def on_enter(self) -> None:
         self._journal.record(self._call_id, CallState.ANSWERED, route=self._route)
+        await self._emit_state(CallState.ANSWERED)
         await self.session.say(opening_line(self._profile))
 
     async def on_exit(self) -> None:
         self._journal.record(self._call_id, CallState.ENDED, route=self._route)
+        await self._emit_state(CallState.ENDED)
         try:
             await self.session.say(closing_line())
         except Exception:  # noqa: BLE001 - сессия уже закрывается
@@ -60,7 +73,7 @@ class VoiceAgent(Agent):
 
 
 class RejectAgent(Agent):
-    """Звонок на номер без настройки: вежливо прощаемся и кладём трубку."""
+    """Звонок без настройки или без профиля объекта: вежливо прощаемся и кладём трубку."""
 
     def __init__(self) -> None:
         super().__init__(instructions="Сообщи, что номер не настроен, и заверши звонок.")

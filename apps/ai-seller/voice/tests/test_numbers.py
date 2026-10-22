@@ -125,3 +125,12 @@ def test_decide_route_accepts_json_string_metadata():
 
     text = json.dumps({"organization_id": ORG, "agent_id": AGENT})
     assert decide_route(text, NumberMap.from_json(_map())) == Route(ORG, AGENT)
+
+
+def test_empty_map_trusts_valid_metadata_api_checks_the_agent():
+    from voice.numbers import decide_route
+
+    meta = {"organization_id": ORG, "agent_id": AGENT}
+    assert decide_route(meta, NumberMap.from_json("")) == Route(ORG, AGENT)
+    assert decide_route("garbage", NumberMap.from_json("")) is None
+    assert decide_route(None, NumberMap.from_json("")) is None

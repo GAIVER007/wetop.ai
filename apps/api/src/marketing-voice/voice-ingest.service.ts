@@ -1,7 +1,9 @@
 import 'reflect-metadata';
 import { BadRequestException, Inject, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { parseVoiceEvent, VoiceEventError } from './voice-events';
-import { VOICE_INGEST_REPOSITORY, type VoiceIngestRepository } from './voice-ingest.repository';
+import { VOICE_INGEST_REPOSITORY, type AgentProfile, type VoiceIngestRepository } from './voice-ingest.repository';
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export interface VoiceIngestAck {
   ok: true;
@@ -37,5 +39,14 @@ export class VoiceIngestService {
       state: result.state,
       duplicate: !result.created && !result.changed && !result.callbackCreated,
     };
+  }
+
+  /** Профиль голоса для воркера: звонок обслуживается по `agent_id`, организацию воркер сверяет с ответом */
+  async profile(agent: unknown): Promise<AgentProfile> {
+    if (typeof agent !== 'string' || !UUID.test(agent)) throw new BadRequestException('agent: ожидался UUID');
+    const profile = await this.repo.profile(agent.toLowerCase());
+    if (profile === null) throw new NotFoundException('Агент не найден');
+    if (profile === 'NO_LOCATION') throw new UnprocessableEntityException('У агента не выбран филиал');
+    return profile;
   }
 }

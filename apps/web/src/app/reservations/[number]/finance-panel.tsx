@@ -320,11 +320,11 @@ function FolioPanel({
                 value={kind}
                 onChange={(e) => setKind(e.target.value)}
               >
-                <option value="SERVICE">услуга</option>
+                <option value="SERVICE">Услуга</option>
                 {/* скидка уменьшает счёт: владелец и управляющий (ADR-107); администратору не предлагаем */}
-                {reverse && <option value="DISCOUNT">скидка</option>}
-                <option value="PENALTY">штраф</option>
-                <option value="ADJUSTMENT">корректировка</option>
+                {reverse && <option value="DISCOUNT">Скидка</option>}
+                <option value="PENALTY">Штраф</option>
+                <option value="ADJUSTMENT">Корректировка</option>
               </Select>
             </Field>
             {kind === 'SERVICE' && (
@@ -334,6 +334,12 @@ function FolioPanel({
                   aria-label="Услуга"
                   defaultValue={chargeState.values?.serviceCode ?? services[0]?.code}
                 >
+                  {/* у нового отеля услуг ещё нет: пустой список выглядел сломанным (аудит 22.10.2026 P2-2) */}
+                  {services.length === 0 && (
+                    <option value="" disabled>
+                      Услуг пока нет
+                    </option>
+                  )}
                   {services.map((s) => (
                     <option key={s.code} value={s.code}>
                       {s.group ? `${s.group}: ` : ''}

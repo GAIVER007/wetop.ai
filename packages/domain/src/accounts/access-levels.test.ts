@@ -19,8 +19,9 @@ describe('уровни доступа сотрудника', () => {
     expect(levelOfRole('OWNER')).toBe('OWNER');
   });
 
-  it('«Личный кабинет» открывает только своё', () => {
+  it('«Личный кабинет» открывает только своё (и приём своих заказов в ресторане, §33.6)', () => {
     expect(can('EMPLOYEE', 'self')).toBe(true);
+    expect(can('EMPLOYEE', 'orders')).toBe(true);
     for (const p of ['desk', 'reports', 'dialogs', 'staff', 'refunds', 'settings'] as const)
       expect(can('EMPLOYEE', p)).toBe(false);
   });

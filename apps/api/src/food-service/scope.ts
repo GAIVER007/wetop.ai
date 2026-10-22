@@ -9,6 +9,7 @@ import {
   currentOrganizationId,
   currentVertical,
   hasSignedInActor,
+  currentUserId,
 } from '../auth/request-context';
 import type { PrismaService } from '../database/prisma.provider';
 export interface FoodScope {
@@ -97,4 +98,25 @@ export async function foodTransaction<T>(
       throw new ConflictException('Такая запись уже существует');
     throw error;
   }
+}
+
+/**
+ * Официант с правом `orders` без `desk` («Личный кабинет», §33.6): работает только от своего сотрудника бизнеса
+ * (`employees.user_id`). Стойка (`desk`) работает за всех: null. Нет привязанного сотрудника — отказ.
+ */
+export async function waiterSelf(
+  db: Pick<DbTx, 'employee'>,
+  s: Pick<FoodScope, 'businessId'>,
+): Promise<{ id: string; name: string } | null> {
+  if (actorMay('desk')) return null;
+  foodMay('orders');
+  const userId = currentUserId();
+  const me = userId
+    ? await db.employee.findFirst({
+        where: { userId, businessId: s.businessId, status: 'ACTIVE' },
+        select: { id: true, name: true },
+      })
+    : null;
+  if (!me) throw new ForbiddenException('Ваш вход не привязан к сотруднику этого ресторана: обратитесь к руководителю');
+  return me;
 }

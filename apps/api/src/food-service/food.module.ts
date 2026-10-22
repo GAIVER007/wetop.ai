@@ -101,10 +101,11 @@ export class FoodReservationsController {
   @Patch('customers/:id') updateCustomer(@Param('id') id: string, @Body() b: unknown) {
     return this.service.updateCustomer(id, b);
   }
-  @Get('reservations') list(@Query() q: Record<string, unknown>) {
+  // официант видит и создаёт свои брони (§33.6): право `orders`, сервис сужает до своего сотрудника
+  @Get('reservations') @Access('orders') list(@Query() q: Record<string, unknown>) {
     return this.service.reservations(q);
   }
-  @Post('reservations') create(@Headers('idempotency-key') key: unknown, @Body() b: unknown) {
+  @Post('reservations') @Access('orders') create(@Headers('idempotency-key') key: unknown, @Body() b: unknown) {
     return this.service.create(key, b);
   }
   @Patch('reservations/:id') update(@Param('id') id: string, @Body() b: unknown) {
@@ -145,7 +146,7 @@ export class FoodMenuController {
   @Delete('menu/items/:id/photo') @Access('property') removePhoto(@Param('id') id: string) {
     return this.photos.remove(id);
   }
-  @Get('menu/categories') categories(@Query() q: Record<string, unknown>) {
+  @Get('menu/categories') @Access('orders') categories(@Query() q: Record<string, unknown>) {
     return this.service.categories(q);
   }
   @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
@@ -159,7 +160,7 @@ export class FoodMenuController {
   ) {
     return this.service.updateCategory(id, b);
   }
-  @Get('menu/items') items(@Query() q: Record<string, unknown>) {
+  @Get('menu/items') @Access('orders') items(@Query() q: Record<string, unknown>) {
     return this.service.menuItems(q);
   }
   @Get('menu/items/:id') item(@Param('id') id: string) {
@@ -189,17 +190,29 @@ export class FoodMenuController {
 @RequiresBusinessCapability('food.orders')
 export class FoodOrdersController {
   constructor(@Inject(RestaurantService) private readonly service: RestaurantService) {}
-  @Get('orders') orders(@Query() q: Record<string, unknown>) {
+  // Официант с телефона (§33.6): столы зала, свои заказы, заказ на себя, дозаказ, «Подано» по позиции
+  @Get('waiter/tables') @Access('orders') waiterTables() {
+    return this.service.waiterTables();
+  }
+  @Get('orders') @Access('orders') orders(@Query() q: Record<string, unknown>) {
     return this.service.orders(q);
   }
-  @Post('orders') create(@Body() b: unknown) {
+  @Post('orders') @Access('orders') create(@Body() b: unknown) {
     return this.service.createOrder(b);
   }
-  @Patch('orders/:id') update(@Param('id') id: string, @Body() b: unknown) {
+  @Patch('orders/:id') @Access('orders') update(@Param('id') id: string, @Body() b: unknown) {
     return this.service.updateOrder(id, b);
   }
   @Post('orders/:id/status') status(@Param('id') id: string, @Body() b: unknown) {
     return this.service.orderStatus(id, b);
+  }
+  // Кухня и бар двигают свою позицию (§33.6, миграция 142)
+  @Post('orders/:id/items/:itemId/status') @Access('orders') @HttpCode(200) itemStatus(
+    @Param('id') id: string,
+    @Param('itemId') itemId: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.orderItemStatus(id, itemId, b);
   }
   // Оплата и касса филиала (DATA_MODEL §35, ADR-165): смотрит и проводит смена, аннулирует `refunds`
   @Post('orders/:id/rating') rate(@Param('id') id: string, @Body() b: unknown) {

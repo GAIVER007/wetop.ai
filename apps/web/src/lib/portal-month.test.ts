@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { PortalMonthStats } from '@pms/domain';
-import { portalMonthLabel, portalMonthLine, portalShiftMonth } from './portal-month';
+import { portalAbsenceDays, portalAbsences, portalMonthLabel, portalMonthLine, portalShiftMonth } from './portal-month';
 
 const base: PortalMonthStats = {
   month: '2026-10', status: 'AVAILABLE', currency: 'KZT',
@@ -23,5 +23,21 @@ describe('строка «Мой месяц»', () => {
     expect(portalShiftMonth('2026-01', -1)).toBe('2025-12');
     expect(portalShiftMonth('2026-12', 1)).toBe('2027-01');
     expect(portalMonthLabel('2026-05', '2026')).toBe('Май');
+  });
+});
+
+describe('отсутствия в кабинете', () => {
+  it('делит на текущие/будущие и прошедшие, считает дни включительно', () => {
+    const rows = [
+      { id: 'a', dateFrom: '2026-09-01', dateTo: '2026-09-03', reason: null },
+      { id: 'b', dateFrom: '2026-10-20', dateTo: '2026-10-24', reason: 'Отпуск' },
+      { id: 'c', dateFrom: '2026-11-02', dateTo: '2026-11-02', reason: null },
+      { id: 'd', dateFrom: '2026-10-01', dateTo: '2026-10-02', reason: null },
+    ];
+    const r = portalAbsences(rows, '2026-10-22');
+    expect(r.upcoming.map((x) => x.id)).toEqual(['b', 'c']);
+    expect(r.past.map((x) => x.id)).toEqual(['d', 'a']);
+    expect(portalAbsenceDays(rows[0]!)).toBe('3 дня');
+    expect(portalAbsenceDays(rows[2]!)).toBe('1 день');
   });
 });

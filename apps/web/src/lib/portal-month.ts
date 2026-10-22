@@ -2,7 +2,7 @@
  * Строка итогов «Мой месяц» в кабинете сотрудника (срез S2, владелец 21.10.2026): одна строка, без плиток
  * (правило владельца об итогах). «Октябрь: 12 смен, 4 выходных, 37 услуг, выручка 450 000 ₸, бонусы 10 000 ₸».
  */
-import type { PortalMonthStats } from '@pms/domain';
+import type { PortalMonthStats, PortalTimeOff } from '@pms/domain';
 import { formatMoney } from './money';
 import { pluralRu } from './plural';
 
@@ -41,4 +41,17 @@ export function portalMonthLine(s: PortalMonthStats, currentYear: string): strin
   if (s.status === 'SELECT_LOCATION') return `${label}: выберите филиал, чтобы увидеть итоги месяца`;
   const parts = portalMonthParts(s);
   return parts.length ? `${label}: ${parts.join(', ')}` : `${label}: итоги недоступны`;
+}
+
+/** Отсутствия сотрудника (срез S3): текущие и будущие сверху по дате, прошедшие отдельно, свежие первыми */
+export function portalAbsences(timeOffs: readonly PortalTimeOff[], today: string) {
+  const upcoming = timeOffs.filter((t) => t.dateTo >= today).sort((a, b) => a.dateFrom.localeCompare(b.dateFrom));
+  const past = timeOffs.filter((t) => t.dateTo < today).sort((a, b) => b.dateFrom.localeCompare(a.dateFrom));
+  return { upcoming, past };
+}
+
+/** Число дней отсутствия включительно: «3 дня» */
+export function portalAbsenceDays(t: PortalTimeOff): string {
+  const days = Math.round((Date.parse(`${t.dateTo}T00:00:00Z`) - Date.parse(`${t.dateFrom}T00:00:00Z`)) / 86_400_000) + 1;
+  return pluralRu(days, ['день', 'дня', 'дней']);
 }

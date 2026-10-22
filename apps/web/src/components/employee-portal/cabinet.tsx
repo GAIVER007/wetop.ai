@@ -17,7 +17,9 @@ import { foodOrderStatus } from '../../lib/status/food';
 import type { BeautyEmployeeServicePriceRow, BeautySchedule } from '../../lib/api';
 import type { BeautyMasterDayStatus } from '../../lib/beauty-master-day-status';
 import { EmployeeTransitionGuard } from '../employee-workspace/workspace';
-import { portalMonthLine, portalShiftMonth } from '../../lib/portal-month';
+import { portalAbsenceDays, portalAbsences, portalMonthLine, portalShiftMonth } from '../../lib/portal-month';
+import { shortPeriod, zoneLabel } from '../../lib/human-period';
+import { localDate } from '@pms/domain';
 
 function servicePriceLabel(service: EmployeePortalDto['services'][number]): string {
   if (!service.available) return 'В этом филиале недоступна';
@@ -155,9 +157,21 @@ export function EmployeeCabinet({
       ...(showSchedule ? [{ id: 'week', label: 'График', content: <div className="portal-schedule"><section className="panel portal-section" data-testid="portal-week"><h2>Обычная неделя</h2>
       {!data.location ? <p>Выберите филиал для недельного графика.</p> : manager && (!access || access.employeesUpdate) ? <PortalWeek context={context} week={data.week} revision={data.weekRevision} /> : <PortalWeekView week={data.week} />}
     </section>
+    {/* отсутствия и выходные по датам (срез S3, владелец 21.10.2026): только просмотр, ставит руководитель */}
+    <section className="panel portal-section" data-testid="portal-time-offs"><h2>{manager ? 'Отсутствия' : 'Мои отсутствия'}</h2>
+      {(() => {
+        const { upcoming, past } = portalAbsences(data.timeOffs, localDate(new Date(), data.location?.timezone ?? 'UTC'));
+        const row = (t: EmployeePortalDto['timeOffs'][number]) => <li key={t.id} data-testid="portal-time-off"><strong>{shortPeriod(t.dateFrom, t.dateTo)}</strong><span>{portalAbsenceDays(t)}</span><span>{t.reason || 'Без причины'}</span></li>;
+        return <>
+          {upcoming.length ? <ul className="portal-list">{upcoming.map(row)}</ul> : <p>Ближайших отсутствий нет.</p>}
+          {!!past.length && <details className="portal-time-offs-past"><summary>Прошедшие ({past.length})</summary><ul className="portal-list">{past.map(row)}</ul></details>}
+          {!manager && <p>Отсутствия и график ставит руководитель. Если нужно изменить, напишите ему.</p>}
+        </>;
+      })()}
+    </section>
     {beauty && <section className="panel portal-section" data-testid="portal-schedule-conflicts" aria-live="polite"><h2>Записи и график</h2>
       <p>Проверяем предстоящие собственные записи во всех назначенных филиалах по местному времени каждого филиала. Записи не отменены и не перенесены автоматически.</p>
-      {data.scheduleConflicts.items.length ? <><p role="alert">Есть записи вне графика или в дни отсутствия. Согласуйте изменения с руководителем.</p><ul className="portal-list">{data.scheduleConflicts.items.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{a.locationName}</span><span>{a.date} {new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: a.timezone }).format(new Date(a.startsAt))} ({a.timezone})</span><span>{a.reason === 'TIME_OFF' ? 'В день отсутствия' : 'Вне рабочих часов'}</span></li>)}</ul></> : <p>{data.scheduleConflicts.truncated ? 'В проверенной части конфликтов нет.' : 'Предстоящих записей, противоречащих графику, нет.'}</p>}
+      {data.scheduleConflicts.items.length ? <><p role="alert">Есть записи вне графика или в дни отсутствия. Согласуйте изменения с руководителем.</p><ul className="portal-list">{data.scheduleConflicts.items.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{a.locationName}</span><span>{shortPeriod(a.date, a.date)} {new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: a.timezone }).format(new Date(a.startsAt))} ({zoneLabel(a.timezone)})</span><span>{a.reason === 'TIME_OFF' ? 'В день отсутствия' : 'Вне рабочих часов'}</span></li>)}</ul></> : <p>{data.scheduleConflicts.truncated ? 'В проверенной части конфликтов нет.' : 'Предстоящих записей, противоречащих графику, нет.'}</p>}
       {data.scheduleConflicts.truncated && <p role="alert">Проверены только первые 500 предстоящих записей. Проверка неполная: остальные записи нужно проверить с руководителем.</p>}
     </section>}
     </div> }] : []),

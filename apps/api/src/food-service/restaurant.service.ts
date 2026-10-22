@@ -57,6 +57,11 @@ import {
   canManageStaff,
   canWrite,
   parsePersonnelKind,
+  checkModifierChoice,
+  linePrice,
+  orderLineKey,
+  itemsPaymentAmount,
+  type ChosenModifier,
 } from '@pms/domain';
 import type { DbTx, Prisma } from '@pms/database';
 import { actorMay, currentRole, currentUserId, currentVertical } from '../auth/request-context';
@@ -71,12 +76,38 @@ import { reverseLoyaltyForVoid } from '../beauty/loyalty';
 
 /** Срок ссылки на оценку с телефона гостя (§40) */
 const RATING_LINK_TTL_MS = 72 * 3_600_000;
+/** §33.7: группы модификаторов блюда с модификаторами, по порядку блюда */
+const itemGroupsInclude = {
+  modifierGroups: {
+    orderBy: { sortOrder: 'asc' as const },
+    include: { group: { include: { modifiers: { orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }] as Prisma.MenuModifierOrderByWithRelationInput[] } } } },
+  },
+} as const;
 const OPEN_STATUSES: OrderStatus[] = ['NEW', 'COOKING', 'READY', 'SERVED'];
+/** Строка заказа из запроса после проверки (§33.6, §33.7) */
+interface OrderLineData {
+  key: string;
+  menuItemId: string;
+  name: string;
+  price: bigint;
+  qty: number;
+  notes: string | null;
+  sortOrder: number;
+  station: MenuStation;
+  modifiers: ChosenModifier[];
+}
 const orderInclude = {
   table: { include: { area: { select: { name: true } } } },
   waiter: { select: { id: true, name: true } },
-  items: { orderBy: { sortOrder: 'asc' as const } },
-  payments: { orderBy: { paidAt: 'asc' as const } },
+  // §33.7: снимок модификаторов строки и её действующая оплата по позициям
+  items: {
+    orderBy: { sortOrder: 'asc' as const },
+    include: {
+      modifiers: { orderBy: { sortOrder: 'asc' as const } },
+      paymentItems: { where: { releasedAt: null }, select: { paymentId: true } },
+    },
+  },
+  payments: { orderBy: { paidAt: 'asc' as const }, include: { items: { select: { orderItemId: true } } } },
   // возвраты после закрытия (§56)
   refunds: { orderBy: { occurredAt: 'asc' as const }, select: { id: true, method: true, amount: true, status: true, note: true, occurredAt: true } },
   rating: true,
@@ -133,6 +164,14 @@ function orderView(r: OrderRow, now = new Date()) {
       station: i.station,
       status: i.status,
       readyAt: i.readyAt,
+      // §33.7: выбранные модификаторы (снимок) и оплачена ли строка по позициям
+      modifiers: i.modifiers.map((m) => ({
+        modifierId: m.modifierId,
+        groupName: m.groupName,
+        name: m.name,
+        priceDeltaMinor: m.priceDelta.toString(),
+      })),
+      paid: i.paymentItems.length > 0,
     })),
     // §39: оценка гостя после оплаты
     rating: r.rating
@@ -145,6 +184,8 @@ function orderView(r: OrderRow, now = new Date()) {
       status: p.status,
       paidAt: p.paidAt,
       voidReason: p.voidReason,
+      // §33.7: позиции, оплаченные этим платежом (пусто у оплаты суммой)
+      itemIds: p.items.map((x) => x.orderItemId),
     })),
     refunds: r.refunds.map((p) => ({
       id: p.id,
@@ -320,7 +361,9 @@ export class RestaurantService {
   }
 
   private menuItemView(
-    row: Prisma.MenuItemGetPayload<{ include: { ingredients: true, photo: true } }> | Prisma.MenuItemGetPayload<object>,
+    row: (Prisma.MenuItemGetPayload<{ include: { ingredients: true, photo: true } }> | Prisma.MenuItemGetPayload<object>) & {
+      modifierGroups?: Prisma.MenuItemModifierGroupGetPayload<{ include: typeof itemGroupsInclude.modifierGroups.include }>[];
+    },
   ) {
     const ingredients =
       'ingredients' in row
@@ -343,6 +386,20 @@ export class RestaurantService {
       techNotes: row.techNotes,
       sortOrder: row.sortOrder,
       updatedAt: row.updatedAt,
+      // §33.7: группы модификаторов блюда по порядку; для выбора только активные группы и модификаторы
+      modifierGroupIds: (row.modifierGroups ?? []).map((l) => l.groupId),
+      modifierGroups: (row.modifierGroups ?? [])
+        .filter((l) => l.group.active)
+        .map((l) => ({
+          id: l.group.id,
+          name: l.group.name,
+          minSelect: l.group.minSelect,
+          maxSelect: l.group.maxSelect,
+          required: l.group.minSelect >= 1,
+          modifiers: l.group.modifiers
+            .filter((m) => m.active)
+            .map((m) => ({ id: m.id, name: m.name, priceDeltaMinor: m.priceDelta.toString() })),
+        })),
       ...(ingredients
         ? {
             ingredients: ingredients.map((i) => ({
@@ -379,7 +436,7 @@ export class RestaurantService {
     const desk = actorMay('desk');
     const rows = await this.prisma.db.menuItem.findMany({
       where: { ...(p.cursor ? { id: { gt: p.cursor } } : {}), businessId: s.businessId, ...(desk ? {} : { active: true }) },
-      include: { ingredients: desk, photo: true },
+      include: { ingredients: desk, photo: true, ...itemGroupsInclude },
       orderBy: { id: 'asc' },
       take: p.limit + 1,
     });
@@ -392,7 +449,7 @@ export class RestaurantService {
       id = parsed(() => foodId(idRaw));
     const row = await this.prisma.db.menuItem.findFirst({
       where: { id, businessId: s.businessId },
-      include: { ingredients: true, photo: true },
+      include: { ingredients: true, photo: true, ...itemGroupsInclude },
     });
     if (!row) throw new NotFoundException('Блюдо не найдено');
     return this.menuItemOut(row);
@@ -419,7 +476,7 @@ export class RestaurantService {
           techNotes: b.techNotes ?? null,
           sortOrder: b.sortOrder ?? 0,
         },
-        include: { ingredients: true, photo: true },
+        include: { ingredients: true, photo: true, ...itemGroupsInclude },
       });
       await this.audit(tx, s, 'menu_item', row.id, 'food.menu_item.created', {
         name: row.name,
@@ -454,7 +511,7 @@ export class RestaurantService {
           ...(b.techNotes !== undefined ? { techNotes: b.techNotes } : {}),
           ...(b.sortOrder !== undefined ? { sortOrder: b.sortOrder } : {}),
         },
-        include: { ingredients: true, photo: true },
+        include: { ingredients: true, photo: true, ...itemGroupsInclude },
       });
       await this.audit(
         tx,
@@ -479,7 +536,7 @@ export class RestaurantService {
       const rows = body.ingredients.map((r) => parsed(() => parseIngredientInput(r)));
       const old = await tx.menuItem.findFirst({
         where: { id, businessId: s.businessId },
-        include: { ingredients: true, photo: true },
+        include: { ingredients: true, photo: true, ...itemGroupsInclude },
       });
       if (!old) throw new NotFoundException('Блюдо не найдено');
       // §38: ингредиент склада своего бизнеса и той же единицы, иначе слова, а не ошибка триггера
@@ -523,7 +580,7 @@ export class RestaurantService {
       );
       const fresh = await tx.menuItem.findUniqueOrThrow({
         where: { id },
-        include: { ingredients: true, photo: true },
+        include: { ingredients: true, photo: true, ...itemGroupsInclude },
       });
       return this.menuItemOut(fresh);
     });
@@ -600,30 +657,61 @@ export class RestaurantService {
     };
   }
 
+  /**
+   * Строки заказа из запроса (§33.6, §33.7): блюдо своего бизнеса, станция категории, проверка модификаторов по группам
+   * блюда, цена строки = цена блюда + прибавки (замораживается). Ключ строки = блюдо + модификаторы + комментарий.
+   */
   private async orderItemsData(tx: DbTx, s: FoodScope, items: ReturnType<typeof parseOrderItems>) {
     const ids = [...new Set(items.map((i) => i.menuItemId))];
     const dishes = await tx.menuItem.findMany({
       where: { id: { in: ids }, businessId: s.businessId, active: true },
-      include: { category: { select: { station: true } } },
+      include: { category: { select: { station: true } }, ...itemGroupsInclude },
     });
     const byId = new Map(dishes.map((d) => [d.id, d]));
     for (const id of ids) if (!byId.has(id)) throw new NotFoundException('Блюдо недоступно');
     let total = 0n;
     const data = items.map((i, index) => {
       const dish = byId.get(i.menuItemId)!;
-      total += dish.price * BigInt(i.qty);
+      const groups = dish.modifierGroups
+        .filter((l) => l.group.active)
+        .map((l) => ({ ...l.group, modifiers: l.group.modifiers }));
+      let chosen: ChosenModifier[];
+      let price: bigint;
+      try {
+        chosen = checkModifierChoice(groups, i.modifierIds);
+        price = linePrice(dish.price, chosen.map((m) => m.priceDelta));
+      } catch (e) {
+        throw new BadRequestException(`${dish.name}: ${e instanceof Error ? e.message : 'выбор недоступен'}`);
+      }
+      total += price * BigInt(i.qty);
       return {
+        key: orderLineKey(dish.id, chosen.map((m) => m.modifierId), i.notes),
         menuItemId: dish.id,
         name: dish.name,
-        price: dish.price,
+        price,
         qty: i.qty,
         notes: i.notes,
         sortOrder: index,
         // §33.6: снимок станции категории
         station: dish.category.station as MenuStation,
+        modifiers: chosen,
       };
     });
     return { data, total };
+  }
+
+  /** Данные строки для Prisma: без ключа, с вложенным снимком модификаторов */
+  private lineCreate(d: OrderLineData, qty = d.qty, sortOrder = d.sortOrder) {
+    return {
+      menuItemId: d.menuItemId,
+      name: d.name,
+      price: d.price,
+      qty,
+      notes: d.notes,
+      sortOrder,
+      station: d.station,
+      ...(d.modifiers.length ? { modifiers: { create: d.modifiers } } : {}),
+    };
   }
 
   /**
@@ -701,7 +789,7 @@ export class RestaurantService {
           total,
           currency: s.currency,
           createdById: currentUserId(),
-          items: { create: data },
+          items: { create: data.map((d) => this.lineCreate(d)) },
         },
         include: orderInclude,
       });
@@ -711,7 +799,7 @@ export class RestaurantService {
         waiterId: row.waiterId,
         guestCount: row.guestCount,
         totalMinor: row.total.toString(),
-        items: data.map((i) => ({ name: i.name, qty: i.qty })),
+        items: data.map((i) => ({ name: i.name, qty: i.qty, modifiers: i.modifiers.map((m) => m.name) })),
       });
       return orderView(row);
     });
@@ -810,25 +898,28 @@ export class RestaurantService {
    * работе остаются, пока их количество покрыто новым составом; остальное количество уходит новыми строками на свою
    * станцию. Возвращает сумму заказа.
    */
-  private async replaceItems(
-    tx: DbTx,
-    r: OrderRow,
-    data: Array<{ menuItemId: string; name: string; price: bigint; qty: number; notes: string | null; station: MenuStation }>,
-  ): Promise<bigint> {
+  private async replaceItems(tx: DbTx, r: OrderRow, data: OrderLineData[]): Promise<bigint> {
+    // §33.7: строка узнаётся по блюду, выбранным модификаторам и комментарию
+    const keyOf = (i: OrderRow['items'][number]) =>
+      i.menuItemId ? orderLineKey(i.menuItemId, i.modifiers.map((m) => m.modifierId ?? m.name), i.notes) : null;
     const want = new Map<string, number>();
-    for (const d of data) want.set(d.menuItemId, (want.get(d.menuItemId) ?? 0) + d.qty);
+    for (const d of data) want.set(d.key, (want.get(d.key) ?? 0) + d.qty);
     const keep: OrderRow['items'] = [];
-    const frozen = r.items.filter((i) => i.status === 'READY' || i.status === 'SERVED');
+    // оплаченные по позициям строки остаются как есть (§33.7), готовые и поданные тоже (§33.6)
+    const frozen = r.items.filter((i) => i.paymentItems.length > 0 || i.status === 'READY' || i.status === 'SERVED');
     for (const i of frozen) {
-      const left = i.menuItemId ? (want.get(i.menuItemId) ?? 0) : 0;
-      if (i.menuItemId && left < i.qty) throw new ConflictException('Готовые позиции убрать нельзя');
-      if (i.menuItemId) want.set(i.menuItemId, left - i.qty);
+      const key = keyOf(i);
+      const left = key ? (want.get(key) ?? 0) : 0;
+      if (key && left < i.qty)
+        throw new ConflictException(i.paymentItems.length > 0 ? 'Оплаченные позиции убрать нельзя' : 'Готовые позиции убрать нельзя');
+      if (key) want.set(key, left - i.qty);
       keep.push(i);
     }
-    for (const i of r.items.filter((x) => x.status === 'COOKING')) {
-      const left = i.menuItemId ? (want.get(i.menuItemId) ?? 0) : 0;
-      if (i.menuItemId && left >= i.qty) {
-        want.set(i.menuItemId, left - i.qty);
+    for (const i of r.items.filter((x) => x.status === 'COOKING' && !keep.includes(x))) {
+      const key = keyOf(i);
+      const left = key ? (want.get(key) ?? 0) : 0;
+      if (key && left >= i.qty) {
+        want.set(key, left - i.qty);
         keep.push(i);
       }
     }
@@ -837,10 +928,10 @@ export class RestaurantService {
     let sortOrder = keep.reduce((m, i) => Math.max(m, i.sortOrder), -1) + 1;
     let total = keep.reduce((sum, i) => sum + i.price * BigInt(i.qty), 0n);
     for (const d of data) {
-      const qty = Math.min(d.qty, want.get(d.menuItemId) ?? 0);
+      const qty = Math.min(d.qty, want.get(d.key) ?? 0);
       if (qty <= 0) continue;
-      want.set(d.menuItemId, (want.get(d.menuItemId) ?? 0) - qty);
-      await tx.restaurantOrderItem.create({ data: { ...d, qty, sortOrder: sortOrder++, orderId: r.id } });
+      want.set(d.key, (want.get(d.key) ?? 0) - qty);
+      await tx.restaurantOrderItem.create({ data: { ...this.lineCreate(d, qty, sortOrder++), orderId: r.id } });
       total += d.price * BigInt(qty);
     }
     return total;
@@ -1335,11 +1426,20 @@ export class RestaurantService {
       if (!r) throw new NotFoundException('Заказ не найден');
       const result = (() => {
         try {
+          // §33.7: оплата по позициям: сумма равна отмеченным неоплаченным строкам этого заказа
+          if (b.itemIds) {
+            const due = itemsPaymentAmount(
+              r.items.map((i) => ({ id: i.id, price: i.price, qty: i.qty, paid: i.paymentItems.length > 0 })),
+              b.itemIds,
+            );
+            if (due !== b.amount) throw new Error('Сумма не совпадает с отмеченными позициями');
+          }
           return orderPayment(r.status, r.total, orderPaid(r), b.amount);
         } catch (e) {
           throw new ConflictException(e instanceof Error ? e.message : 'Оплата недоступна');
         }
       })();
+      const lines = new Map(r.items.map((i) => [i.id, i]));
       const payment = await tx.restaurantPayment.create({
         data: {
           locationId: s.locationId,
@@ -1349,6 +1449,16 @@ export class RestaurantService {
           currency: r.currency,
           idempotencyKey: b.idempotencyKey,
           createdById: currentUserId(),
+          ...(b.itemIds
+            ? {
+                items: {
+                  create: b.itemIds.map((orderItemId) => ({
+                    orderItemId,
+                    amount: lines.get(orderItemId)!.price * BigInt(lines.get(orderItemId)!.qty),
+                  })),
+                },
+              }
+            : {}),
         },
       });
       const row = await tx.restaurantOrder.update({
@@ -1365,6 +1475,7 @@ export class RestaurantService {
         amountMinor: payment.amount.toString(),
         paidMinor: result.paidAfter.toString(),
         closed: result.close,
+        ...(b.itemIds ? { itemIds: b.itemIds } : {}),
       });
       return orderView(row);
     });

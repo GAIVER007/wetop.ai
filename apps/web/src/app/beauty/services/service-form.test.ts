@@ -2,7 +2,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('../actions', () => ({ saveBeautyService: vi.fn(), saveLocationService: vi.fn() }));
+vi.mock('../actions', () => ({ saveBeautyService: vi.fn(), saveLocationService: vi.fn(), moveLocationServices: vi.fn() }));
 vi.mock('./materials', () => ({ ServiceMaterials: () => null }));
 // окно рисуем сразу, чтобы увидеть форму внутри
 vi.mock('../../../components/overlay', () => ({

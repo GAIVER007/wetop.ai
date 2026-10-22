@@ -57,8 +57,24 @@
 
   .beauty-service-items {
     display: grid;
+    gap: var(--space-1);
+    margin-top: var(--space-2);
+  }
+
+  .beauty-service-bulk {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
     gap: var(--space-2);
     margin-top: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+
+  .beauty-service-bulk .beauty-check {
+    min-height: 36px;
   }
 
   .beauty-service-item {
@@ -66,11 +82,27 @@
     grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--space-2);
     align-items: center;
-    min-height: 56px;
-    padding: var(--space-2);
+    min-height: 52px;
+    padding: var(--space-1) var(--space-2);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
     background: var(--surface-muted);
+  }
+
+  .beauty-service-item:has(.beauty-service-check) {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .beauty-service-item:has(.beauty-service-check:checked) {
+    border-color: var(--primary);
+    background: var(--surface);
+  }
+
+  .beauty-service-check {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    accent-color: var(--primary);
   }
 
   .beauty-service-item[draggable='true'] {
@@ -100,6 +132,11 @@
     font-size: var(--text-sm);
   }
 
+  .beauty-service-item-body > .beauty-service-warn {
+    color: var(--warning);
+    font-weight: var(--weight-bold);
+  }
+
   .beauty-service-item-actions {
     display: flex;
     flex-wrap: wrap;
@@ -108,8 +145,7 @@
     justify-content: flex-end;
   }
 
-  .beauty-service-transfer-form .btn,
-  .beauty-service-item-actions > .btn {
+  .beauty-service-item .btn {
     min-height: 44px;
   }
 
@@ -218,12 +254,30 @@
       justify-content: flex-start;
     }
 
+    /* крупный шрифт на 320 px: подписи кнопок переносятся, строка не шире экрана */
+    .beauty-service-item .btn,
+    .beauty-service-bulk .btn {
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .beauty-service-item-actions,
+    .beauty-service-bulk {
+      min-width: 0;
+    }
+
     .beauty-service-item {
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .beauty-service-item-actions,
-    .beauty-service-transfer-form {
+    /* колонка галочки фиксирована: иначе широкие кнопки действий растягивают её, а название выпадает за экран */
+    .beauty-service-item:has(.beauty-service-check) {
+      grid-template-columns: 20px minmax(0, 1fr);
+    }
+
+    .beauty-service-item-actions {
+      grid-column: 1 / -1;
       width: 100%;
     }
 

@@ -8,6 +8,7 @@ import {
   type BeautyWorkingInterval,
 } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
+import { PRESETS } from './services/presets';
 
 /**
  * Каталог салона и график мастера: сохранение услуги, её настройки в филиале, мастера, его недели,
@@ -129,6 +130,100 @@ export async function saveLocationService(
   } catch (e) {
     return failed(e, 'Не удалось сохранить настройки филиала.');
   }
+}
+
+const BULK_LIMIT = 50;
+
+/**
+ * Массовый перенос услуг между «Каталогом» и «Услугами филиала»: галочки в списке, одна кнопка.
+ * Цены тут не вводятся и не меняются: у существующей услуги остаются её цена каталога и своя цена филиала,
+ * у типовой создаётся карточка с ценой 0, человек задаёт цену вручную («Изменить»). Состояние читается
+ * заново с сервера, а не берётся из формы: устаревшая страница не перезапишет чужую правку.
+ */
+export async function moveLocationServices(
+  _prev: SaveResult | null,
+  form: FormData,
+): Promise<SaveResult> {
+  const mismatch = await scopeError(form);
+  if (mismatch) return mismatch;
+  const enable = form.get('direction') === 'enable';
+  const ids = [...new Set(form.getAll('id').filter((v): v is string => typeof v === 'string' && v !== ''))];
+  const presetNames = enable
+    ? [...new Set(form.getAll('preset').filter((v): v is string => typeof v === 'string'))]
+    : [];
+  if (ids.length + presetNames.length === 0) return { error: 'Отметьте услуги галочкой.' };
+  if (ids.length + presetNames.length > BULK_LIMIT)
+    return { error: `За один раз можно перенести не больше ${BULK_LIMIT} услуг.` };
+  let current: Awaited<ReturnType<typeof beautyApi.services>>;
+  try {
+    current = await beautyApi.services();
+  } catch (e) {
+    return failed(e, 'Не удалось загрузить услуги. Обновите страницу и повторите.');
+  }
+  if (!current.locationId || !current.locationCurrency)
+    return { error: 'Выберите филиал, чтобы добавлять и убирать его услуги.' };
+  const byId = new Map(current.items.map((item) => [item.id, item]));
+  const byName = new Map(current.items.map((item) => [item.name.trim().toLocaleLowerCase('ru-RU'), item]));
+  let done = 0;
+  const failedNames: string[] = [];
+  for (const id of ids) {
+    const row = byId.get(id);
+    if (!row) continue;
+    if (Boolean(row.location?.enabled) === enable) continue;
+    if (enable && !row.active) continue;
+    try {
+      await beautyApi.setLocationService(id, {
+        enabled: enable,
+        priceOverrideMinor: row.location?.priceOverrideMinor ?? '',
+        durationOverrideMinutes:
+          row.location?.durationOverrideMinutes == null ? '' : String(row.location.durationOverrideMinutes),
+      });
+      done += 1;
+    } catch {
+      failedNames.push(row.name);
+    }
+  }
+  for (const name of presetNames) {
+    const preset = PRESETS.find((item) => item.name === name);
+    if (!preset) continue;
+    try {
+      const existing = byName.get(preset.name.toLocaleLowerCase('ru-RU'));
+      if (existing?.location?.enabled) continue;
+      const serviceId =
+        existing && existing.active
+          ? existing.id
+          : (
+              await beautyApi.createService({
+                name: preset.name,
+                category: preset.category,
+                durationMinutes: String(preset.minutes),
+                priceMinor: '0',
+                currency: current.locationCurrency,
+                active: true,
+                creationId: crypto.randomUUID(),
+              })
+            ).id;
+      await beautyApi.setLocationService(serviceId, {
+        enabled: true,
+        priceOverrideMinor: '',
+        durationOverrideMinutes: '',
+      });
+      done += 1;
+    } catch {
+      failedNames.push(preset.name);
+    }
+  }
+  revalidatePath('/calendar');
+  revalidatePath('/appointments');
+  revalidatePath('/employees');
+  revalidatePath('/services');
+  revalidatePath('/customers');
+  revalidatePath('/beauty/services');
+  const verb = enable ? 'Добавлено в филиал' : 'Убрано из филиала';
+  if (failedNames.length > 0)
+    return { error: `${verb}: ${done}. Не удалось перенести: ${failedNames.join(', ')}. Повторите для них.` };
+  if (done === 0) return { message: 'Выбранные услуги уже там, куда вы их переносите.' };
+  return { message: `${verb}: ${pluralRu(done, ['услуга', 'услуги', 'услуг'])}` };
 }
 
 export async function saveBeautyEmployee(

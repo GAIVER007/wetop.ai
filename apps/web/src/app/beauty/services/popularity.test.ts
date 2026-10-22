@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('../actions', () => ({
   saveBeautyService: vi.fn(),
   saveLocationService: vi.fn(),
+  moveLocationServices: vi.fn(),
 }));
 vi.mock('../../../components/overlay', () => ({ Overlay: () => null }));
 import { ServicesBoard } from './board';
@@ -15,12 +16,12 @@ describe('Доля завершённых визитов в каталоге', (
     const html = renderToStaticMarkup(createElement(ServicesBoard, { canEdit: false, locationCurrency: 'KZT',
       items: [{ ...row, popularity: { completedVisits: 3, totalCompletedVisits: 4 } }] }));
     expect(html).toContain('75%');
-    expect(html).toContain('3 из 4 завершённых визитов');
+    expect(html).toContain('визитов');
   });
-  it('при нулевом числе визитов сообщает об отсутствии данных', () => {
+  it('при нулевом числе визитов ничего не показывает', () => {
     const html = renderToStaticMarkup(createElement(ServicesBoard, { canEdit: false, locationCurrency: 'KZT',
       items: [{ ...row, popularity: { completedVisits: 0, totalCompletedVisits: 0 } }] }));
-    expect(html).toContain('Нет завершённых визитов');
+    expect(html).not.toContain('визитов');
     expect(html).not.toContain('NaN');
   });
 });

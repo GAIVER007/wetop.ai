@@ -2,7 +2,7 @@
 #
 # Внутри только Claude Code, git и клон репозитория. Ни базы, ни .env боевой PMS, ни служебного ключа:
 # неисправности агент читает ключом на чтение (GUARD_READ_KEY, apps/api/src/auth/auth.guard.ts).
-FROM node:24-alpine
+FROM node:24.22.1-alpine
 
 RUN apk add --no-cache git openssh-client ca-certificates tini \
   && npm install -g --omit=dev @anthropic-ai/claude-code \

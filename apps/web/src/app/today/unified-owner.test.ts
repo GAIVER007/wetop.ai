@@ -61,7 +61,8 @@ describe('unified owner actual DTO', () => {
         const links = [...html.matchAll(/href="([^"]+)"/g)]
           .map((m) => new URL(m[1]!.replaceAll('&amp;', '&'), 'https://unit.invalid'))
           .filter((url) => ['/finance', '/restaurant-finance'].includes(url.pathname));
-        expect(links.length).toBeGreaterThanOrEqual(4);
+        // шапка, график и «Куда уходят деньги»; общая строка «Открыть операции» ушла с настоящими сигналами (21.10.2026)
+        expect(links.length).toBeGreaterThanOrEqual(3);
         for (const url of links) {
           expect(url.pathname).toBe(vertical === 'FOOD_SERVICE' ? '/restaurant-finance' : '/finance');
           expect(url.searchParams.get('from')).toBe(from);
@@ -233,9 +234,11 @@ describe('unified owner actual DTO', () => {
     expect(html).toContain('owner-totals');
     expect(html).not.toContain('data-testid="owner-empty"');
   });
-  it('«Проверить загрузку» салона ведёт в Журнал, как меню (п. 10)', () => {
-    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('today') }));
-    expect(html).toMatch(/<a href="\/calendar">Проверить загрузку<\/a>/);
+  it('салон: строка «Требуют решения» ведёт в Журнал, как меню (п. 10)', () => {
+    const d = dto('today');
+    d.attention = [{ id: 'unpaid-visits', tone: 'warn', count: 1, text: 'Не оплачено сегодня: 1 запись', href: '/calendar', action: 'Журнал' }];
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: d }));
+    expect(html).toMatch(/<a href="\/calendar">Журнал<\/a>/);
     expect(html).not.toContain('href="/appointments"');
   });
   it('пустой график без служебных оговорок (п. 9)', () => {
@@ -248,9 +251,8 @@ describe('unified owner actual DTO', () => {
     expect(html).toContain('Обновлено 16 окт., 14:00');
     expect(html).not.toMatch(/Обновлено[^<]*2026/);
   });
-  it('без «пока недоступны»: расходы общей суммой словами (аудит 22.10.2026 P1-1)', () => {
+  it('без «пока недоступны» на Главной (аудит 22.10.2026 P1-1)', () => {
     const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('today') }));
     expect(html).not.toContain('пока недоступны');
-    expect(html).toContain('Расходы показаны общей суммой, без статей.');
   });
 });

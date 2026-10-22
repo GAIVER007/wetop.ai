@@ -43,6 +43,15 @@ export type Workload = {
   sourceRevisions?: string[];
   coveredPercent?: number | null;
 };
+/** Строка «Требуют решения»: дела СЕГОДНЯ филиала, считает API (`apps/api/src/finance/owner-attention.ts`) */
+export interface OwnerAttentionItem {
+  id: string;
+  tone: 'warn' | 'ok';
+  text: string;
+  href: string;
+  action: string;
+  count?: number;
+}
 export interface OwnerSummaryDto {
   sourceVersion: 'owner-cash-foundation-v1';
   generatedAt: string;
@@ -64,6 +73,8 @@ export interface OwnerSummaryDto {
   classificationReason: string | null;
   classificationState?: 'READY' | 'PARTIAL' | 'UNAVAILABLE';
   workload: Workload;
+  /** нет у старого API: тогда блок честно говорит, что сигналы недоступны */
+  attention?: OwnerAttentionItem[];
 }
 /** Decimal-safe formatting: never convert money to Number, including very large balances. */
 /**

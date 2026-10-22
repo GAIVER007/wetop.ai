@@ -220,9 +220,9 @@ describe('unified owner actual DTO', () => {
     expect(html).toContain('data-testid="owner-empty"');
     expect(html).toMatch(/<a[^>]*href="\/calendar"[^>]*>Добавить первую запись<\/a>/);
   });
-  it('есть данные: плитки на месте', () => {
+  it('есть данные: итоги строкой на месте (Главная на одном экране, 21.10.2026)', () => {
     const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('today') }));
-    expect(html).toContain('owner-kpis');
+    expect(html).toContain('owner-totals');
     expect(html).not.toContain('data-testid="owner-empty"');
   });
   it('«Проверить загрузку» салона ведёт в Журнал, как меню (п. 10)', () => {

@@ -159,7 +159,7 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
     s.classificationReason === 'UNCLASSIFIED_EXPENSE_SOURCES'
       ? 'Есть расходы без статьи.'
       : s.classificationReason === 'EXPENSE_DOCUMENT_LINKS_NOT_CONNECTED'
-        ? 'Статьи расходов пока недоступны.'
+        ? 'Расходы показаны общей суммой, без статей.'
         : 'Проверьте оплаченные операции за период.';
   // Главная на одном экране компьютера (решение владельца 21.10.2026): шапка строкой, итоги строкой,
   // ниже график слева и справа «Требуют решения» с «Куда уходят деньги»; листать не нужно

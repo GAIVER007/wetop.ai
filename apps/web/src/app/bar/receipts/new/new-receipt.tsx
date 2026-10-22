@@ -4,6 +4,7 @@ import { salePriceFromMarkup } from '@pms/domain';
 import { suggestCode } from '../../product-code';
 import type { BarProductRow, BarSupplierRow } from '../../../../lib/api';
 import { formatMoney, minorToInput } from '../../../../lib/money';
+import { receiptMarkupInput } from '../../../../lib/bar-markup';
 import { Button, Field, Input, Select, Textarea } from '../../../../components/ui';
 import { BarContextFields, type BarFormContext } from '../../context';
 import {
@@ -27,6 +28,8 @@ interface LineDraft {
   quantity: string;
   unitCost: string;
   markup: string;
+  /** наценку правили руками: закупка её больше не пересчитывает */
+  markupTouched?: boolean;
 }
 
 let lineKey = 0;
@@ -89,7 +92,6 @@ export function NewReceipt({ products, suppliers, today, context }: { products: 
     if (scan.documentDate) setDocumentDate(scan.documentDate);
     if (scan.lines.length > 0) setLines(scan.lines.map((line) => {
       const product = line.productId ? products.find((p) => p.id === line.productId) : undefined;
-      const markup = product ? (product.markupBasis ?? product.category?.defaultMarkupBasis ?? 0) : 0;
       return {
         key: (lineKey += 1),
         mode: product ? 'existing' as const : 'new' as const,
@@ -99,7 +101,8 @@ export function NewReceipt({ products, suppliers, today, context }: { products: 
         barcode: line.barcode ?? '',
         quantity: line.quantityUnits,
         unitCost: minorToInput(line.unitCostMinor),
-        markup: (markup / 100).toFixed(2),
+        // без своей наценки держим заданную цену продажи товара (аудит салона 22.10.2026)
+        markup: receiptMarkupInput(product, minorToInput(line.unitCostMinor)),
       };
     }));
   }, [scanState.ok, scanState.scan, products]);
@@ -194,11 +197,13 @@ function ReceiptLine({ index, line, products, currency, onChange, remove }: {
   const recommendedPrice = parsedCost !== null && parsedCost > 0n && parsedMarkup !== null
     ? salePriceFromMarkup(parsedCost, parsedMarkup, currency)
     : null;
+  // наценка по товару: своя или категории, иначе та, что сохраняет заданную цену продажи (аудит салона 22.10.2026)
   const pickProduct = (productId: string) => {
     const picked = products.find((item) => item.id === productId);
-    const markup = picked ? (picked.markupBasis ?? picked.category?.defaultMarkupBasis ?? 0) : 0;
-    onChange({ productId, markup: (markup / 100).toFixed(2) });
+    onChange({ productId, markup: receiptMarkupInput(picked, line.unitCost), markupTouched: false });
   };
+  const changeCost = (unitCost: string) =>
+    onChange(product && !line.markupTouched ? { unitCost, markup: receiptMarkupInput(product, unitCost) } : { unitCost });
   return <div className="bar-line" data-line-mode={line.mode}>
     {line.mode === 'existing' ? (
       <Field label="Товар">
@@ -215,8 +220,8 @@ function ReceiptLine({ index, line, products, currency, onChange, remove }: {
       </div>
     )}
     <Field label="Кол-во, шт."><Input name={`quantityUnits.${index}`} inputMode="numeric" pattern="[0-9]+" value={line.quantity} onChange={(event) => onChange({ quantity: event.target.value })} required /></Field>
-    <Field label={`Закупка за 1 шт., ${currency === 'KZT' ? '₸' : currency}`}><Input name={`unitCost.${index}`} inputMode="decimal" value={line.unitCost} onChange={(event) => onChange({ unitCost: event.target.value })} required /></Field>
-    <Field label="Наценка, %"><Input name={`markup.${index}`} inputMode="decimal" value={line.markup} onChange={(event) => onChange({ markup: event.target.value })} required /></Field>
+    <Field label={`Закупка за 1 шт., ${currency === 'KZT' ? '₸' : currency}`}><Input name={`unitCost.${index}`} inputMode="decimal" value={line.unitCost} onChange={(event) => changeCost(event.target.value)} required /></Field>
+    <Field label="Наценка, %"><Input name={`markup.${index}`} inputMode="decimal" value={line.markup} onChange={(event) => onChange({ markup: event.target.value, markupTouched: true })} required /></Field>
     <div className="bar-line-tools">
       <Button type="button" tone="secondary" onClick={() => onChange(line.mode === 'existing' ? { mode: 'new', productId: '', code: line.code || suggestCode(line.name) } : { mode: 'existing' })}>
         {line.mode === 'existing' ? 'Нет в списке' : 'Выбрать из списка'}

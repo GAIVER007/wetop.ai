@@ -11,4 +11,15 @@ export function phoneOnInput(event: FormEvent<HTMLInputElement>) {
   if (next !== input.value) input.value = next;
 }
 
+/**
+ * Начальное значение поля телефона (`defaultValue`): ровно то, что поле само покажет после ввода. Иначе сохранённый
+ * номер, который `formatPhone` и `formatPhoneInput` пишут по-разному (чужой код страны), выглядит изменённым, и форма
+ * спрашивает «Несохранённые изменения» без правок (CI beauty-ui 22.10.2026, «+0000000008»).
+ */
+export function phoneFieldValue(raw: string | null | undefined): string {
+  if (!raw) return '';
+  const shown = formatPhone(raw);
+  return formatPhoneInput(shown) === shown ? shown : formatPhoneInput(raw);
+}
+
 export { formatPhone, formatPhoneInput };

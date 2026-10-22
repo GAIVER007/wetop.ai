@@ -71,4 +71,15 @@ BEGIN
     GRANT SELECT, INSERT ON customer_bonus_entries, gift_certificate_entries TO wetop_app, wetop_service;
     GRANT SELECT, INSERT, UPDATE ON gift_certificates TO wetop_app, wetop_service;
   END IF;
+  -- 142_voice_calls: exact ACL of the voice journal (all-or-none)
+  SELECT count(*) INTO installed FROM unnest(ARRAY['voice_calls','voice_callbacks','voice_profiles']) AS t(name)
+    WHERE to_regclass('public.' || name) IS NOT NULL;
+  IF installed NOT IN (0,3) THEN RAISE EXCEPTION 'Incomplete voice schema during ACL restore'; END IF;
+  IF installed = 3 THEN
+    REVOKE ALL ON voice_calls, voice_callbacks, voice_profiles FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON voice_calls, voice_callbacks, voice_profiles TO wetop_service;
+    GRANT SELECT ON voice_calls, voice_profiles TO wetop_app;
+    GRANT SELECT ON voice_callbacks TO wetop_app;
+    GRANT UPDATE (status, done_at, done_by_id) ON voice_callbacks TO wetop_app;
+  END IF;
 END $restore_acl$;

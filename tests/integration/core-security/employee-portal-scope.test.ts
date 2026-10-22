@@ -6,6 +6,7 @@
  */
 import { randomBytes } from 'node:crypto';
 import request from 'supertest';
+// приложение мира поднято в scope-world.ts через `listen(0, '127.0.0.1')` (сторож supertest-loopback)
 import { hashPassword } from '@pms/domain';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildScopeWorld, type ScopeWorld } from './scope-world';

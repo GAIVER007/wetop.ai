@@ -108,6 +108,12 @@ const MARKET_COLLECT_WRITE = /^\/market\/collector\/competitors\/[^/]+\/occupanc
  */
 const SITES_RUNTIME_ALLOWED = ['/sites-runtime/current', '/sites-runtime/preview'];
 
+/**
+ * Ключ голосового воркера (`VOICE_INGEST_KEY`, DATA_MODEL VOICE-OWNER-APPROVAL-20261022): только `POST /voice/events`.
+ * Журнал звонков, просьбы и всё остальное этим ключом не открываются.
+ */
+const VOICE_INGEST_ALLOWED = ['/voice/events'];
+
 function marketCollectAllowed(method: unknown, url: unknown): boolean {
   const path = pathOf(url);
   if (path === null) return false;
@@ -142,6 +148,7 @@ export type ServiceKeyKind =
   | 'seller-book'
   | 'market-collect'
   | 'sites-runtime'
+  | 'voice-ingest'
   | 'unknown';
 
 export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind | null {
@@ -163,6 +170,8 @@ export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind
   if (collectKey && sameKey(presented, collectKey)) return 'market-collect';
   const runtimeKey = process.env.SITES_RUNTIME_KEY?.trim();
   if (runtimeKey && sameKey(presented, runtimeKey)) return 'sites-runtime';
+  const voiceKey = process.env.VOICE_INGEST_KEY?.trim();
+  if (voiceKey && sameKey(presented, voiceKey)) return 'voice-ingest';
   return 'unknown';
 }
 
@@ -274,6 +283,13 @@ export class SessionGuard implements CanActivate {
         return true;
       }
       throw new ForbiddenException('Ключ рантайма сайтов читает только текущую опубликованную версию');
+    }
+    if (key === 'voice-ingest') {
+      if (postAllowed(VOICE_INGEST_ALLOWED, request.method, request.url)) {
+        request.service = true;
+        return true;
+      }
+      throw new ForbiddenException('Ключ голосового агента пишет только события звонков');
     }
     if (key === 'unknown') throw new UnauthorizedException('Служебный ключ не подходит');
 

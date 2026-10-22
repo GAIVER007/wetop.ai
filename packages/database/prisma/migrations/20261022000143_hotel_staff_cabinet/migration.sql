@@ -29,16 +29,16 @@ ALTER TABLE "employee_pay_settings" ADD CONSTRAINT "employee_pay_settings_per_cl
 
 -- Уборку делает и номер убирает только сотрудник того же бизнеса, что филиал объекта места
 CREATE FUNCTION hotel_housekeeping_employee_guard() RETURNS trigger LANGUAGE plpgsql AS $$
-DECLARE emp uuid; unit uuid;
+DECLARE emp uuid; prop uuid;
 BEGIN
- IF TG_TABLE_NAME = 'inventory_units' THEN emp := NEW.housekeeping_assignee_id; unit := NEW.id;
- ELSE emp := NEW.employee_id; unit := NEW.inventory_unit_id; END IF;
+ -- у места объект берётся из самой строки (при INSERT её ещё нет в таблице), у события из его места
+ IF TG_TABLE_NAME = 'inventory_units' THEN emp := NEW.housekeeping_assignee_id; prop := NEW.property_id;
+ ELSE emp := NEW.employee_id; SELECT iu.property_id INTO prop FROM inventory_units iu WHERE iu.id = NEW.inventory_unit_id; END IF;
  IF emp IS NOT NULL AND NOT EXISTS (
    SELECT 1 FROM employees e
      JOIN locations l ON l.business_id = e.business_id
      JOIN properties p ON p.location_id = l.id
-     JOIN inventory_units iu ON iu.property_id = p.id
-    WHERE e.id = emp AND iu.id = unit
+    WHERE e.id = emp AND p.id = prop
  ) THEN RAISE EXCEPTION 'Housekeeping employee belongs to another business'; END IF;
  RETURN NEW;
 END $$;

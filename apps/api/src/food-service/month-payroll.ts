@@ -7,10 +7,12 @@ import { payrollTotals, timeOffWindow } from '@pms/domain';
  * Зарплата принадлежит бизнесу (ADR-181): процент и «выплачено» по всем филиалам, окно месяца по часам
  * выбранного филиала. База процента: у ресторана закрытые заказы официанта, у салона выполненные строки записей.
  * `employeeId` сужает выборку до одного сотрудника (кабинет «только я»), формула та же.
+ * Гостиница (DATA_MODEL §4.1, 22.10.2026): процента нет, сдельно = уборки месяца (DIRTY → CLEAN со своим
+ * `employee_id`) × ставка `per_cleaning_minor`.
  */
 export type MonthPayrollDb = Pick<
   DbTx,
-  'employee' | 'restaurantOrder' | 'appointmentLine' | 'employeePayAdjustment' | 'restaurantCashOperation'
+  'employee' | 'restaurantOrder' | 'appointmentLine' | 'employeePayAdjustment' | 'restaurantCashOperation' | 'housekeepingEvent'
 >;
 export interface MonthPayrollScope {
   businessId: string;
@@ -27,7 +29,8 @@ export async function monthPayrollRows(
   const w = timeOffWindow({ dateFrom: m.from, dateTo: m.to, timezone: s.timezone });
   const period = new Date(`${m.from}T00:00:00Z`);
   const only = employeeId === undefined ? {} : { employeeId };
-  const [employees, orders, adjustments, payouts] = await Promise.all([
+  const hotel = s.vertical === 'HOSPITALITY';
+  const [employees, orders, adjustments, payouts, cleanings] = await Promise.all([
     db.employee.findMany({
       where: { businessId: s.businessId, ...(employeeId === undefined ? {} : { id: employeeId }) },
       include: { paySetting: true },
@@ -36,7 +39,9 @@ export async function monthPayrollRows(
     // зарплата принадлежит бизнесу (ADR-181): процент и «выплачено» по всем филиалам,
     // иначе бизнес с двумя филиалами показывает и может выплатить один оклад дважды
     // база процента: у ресторана закрытые заказы официанта, у салона выполненные записи мастера (§19.2)
-    s.vertical === 'BEAUTY'
+    hotel
+      ? Promise.resolve([] as Array<{ waiterId: string | null; _sum: { total: bigint | null } }>)
+      : s.vertical === 'BEAUTY'
       ? db.appointmentLine
           .groupBy({
             by: ['employeeId'],
@@ -75,16 +80,33 @@ export async function monthPayrollRows(
       },
       _sum: { amount: true },
     }),
+    hotel
+      ? db.housekeepingEvent.groupBy({
+          by: ['employeeId'],
+          where: {
+            employee: { businessId: s.businessId },
+            employeeId: employeeId === undefined ? { not: null } : employeeId,
+            fromStatus: 'DIRTY',
+            toStatus: 'CLEAN',
+            createdAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
+          },
+          _count: { _all: true },
+        })
+      : Promise.resolve([] as Array<{ employeeId: string | null; _count: { _all: number } }>),
   ]);
   const salesByWaiter = new Map(orders.map((o) => [o.waiterId!, o._sum.total ?? 0n]));
   const paidByEmployee = new Map(payouts.map((p) => [p.employeeId!, p._sum.amount ?? 0n]));
+  const cleaningsBy = new Map(cleanings.map((c) => [c.employeeId!, c._count._all]));
   const rows = employees.map((e) => {
     const setting = e.paySetting
       ? { model: e.paySetting.model, fixedMinor: e.paySetting.fixedMinor, percent: e.paySetting.percent }
       : { model: 'FIXED' as const, fixedMinor: 0n, percent: 0 };
+    const perCleaningMinor = e.paySetting?.perCleaningMinor ?? 0n;
     const sales = salesByWaiter.get(e.id) ?? 0n;
+    const cleaned = cleaningsBy.get(e.id) ?? 0;
     const adj = adjustments.filter((a) => a.employeeId === e.id).map((a) => a.amountMinor);
-    return { e, setting, sales, t: payrollTotals(setting, sales, adj), paid: paidByEmployee.get(e.id) ?? 0n };
+    const t = payrollTotals(setting, sales, adj, hotel ? BigInt(cleaned) * perCleaningMinor : 0n);
+    return { e, setting, perCleaningMinor, sales, cleanings: cleaned, t, paid: paidByEmployee.get(e.id) ?? 0n };
   });
   return { period, rows, adjustments };
 }

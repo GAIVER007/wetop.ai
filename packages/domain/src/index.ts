@@ -1,6 +1,7 @@
 /** @pms/domain — бизнес-логика PMS. Не знает про Channex/eQonaq/HTTP/Prisma. */
 export type * from './employee-portal/types';
 export * from './employee-portal/month';
+export * from './employee-portal/hotel';
 export * from './property/index';
 export * from './inventory/index';
 export * from './chessboard/index';

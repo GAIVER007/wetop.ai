@@ -18,6 +18,7 @@ import {
 } from './units.repository';
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const BLOCK_TYPES: BlockType[] = ['MAINTENANCE', 'MANAGEMENT', 'OUT_OF_ORDER', 'OTHER'];
 const HK: HousekeepingStatus[] = ['DIRTY', 'CLEAN', 'INSPECTED'];
 const MAX_BLOCK_NIGHTS = 3 * 366;
@@ -140,6 +141,21 @@ export class UnitsService {
         { status: dto.status },
       );
     }
+    return this.card(code);
+  }
+
+  /** «Кто убирает» (DATA_MODEL §4.1): назначает стойка; null снимает назначение */
+  async setHousekeepingAssignee(code: string, dto: { employeeId?: unknown }): Promise<UnitCard> {
+    const employeeId = dto?.employeeId;
+    if (employeeId !== null && (typeof employeeId !== 'string' || !UUID.test(employeeId)))
+      throw new BadRequestException('Выберите сотрудника');
+    this.assertCode(code);
+    const unit = await this.repo.unitByCode(code);
+    if (!unit) throw new NotFoundException(`Номер ${code} не найден`);
+    const before = unit.housekeepingAssigneeId ?? null;
+    if (employeeId !== null && !(await this.repo.housekeepingEmployee(unit.id, employeeId)))
+      throw new BadRequestException('Сотрудник не найден в этой гостинице');
+    if (before !== employeeId) await this.repo.setHousekeepingAssignee(unit.id, employeeId, before);
     return this.card(code);
   }
 }

@@ -140,6 +140,18 @@ describe('разбор входа', () => {
     expect(() => parsePayAdjustment({ period: '2026-10', amountMinor: 0, reason: 'X' })).toThrow();
     expect(() => parsePayAdjustment({ period: '2026-13', amountMinor: 1, reason: 'X' })).toThrow();
   });
+  it('гостиница: сдельно за уборки идёт в «К выплате» отдельной частью (решение 22.10.2026)', () => {
+    const t = payrollTotals({ model: 'FIXED', fixedMinor: 1000000n, percent: 0 }, 0n, [-50000n], 450000n);
+    expect([t.base, t.piece, t.penalty, t.total]).toEqual([1000000n, 450000n, -50000n, 1400000n]);
+    expect(payrollTotals({ model: 'BONUS_ONLY', fixedMinor: 1n, percent: 0 }, 0n, [], 3n).total).toBe(3n);
+    expect(payrollTotals({ model: 'FIXED', fixedMinor: 7n, percent: 0 }, 0n, []).piece).toBe(0n);
+  });
+  it('ставка за уборку: целые тиыны ≥ 0, по умолчанию 0', () => {
+    expect(parsePaySettings({ model: 'FIXED', fixedMinor: 0, percent: 0 }).perCleaningMinor).toBe(0n);
+    expect(parsePaySettings({ model: 'FIXED', fixedMinor: 0, percent: 0, perCleaningMinor: 150000 }).perCleaningMinor).toBe(150000n);
+    expect(() => parsePaySettings({ model: 'FIXED', fixedMinor: 0, percent: 0, perCleaningMinor: -1 })).toThrow();
+    expect(() => parsePaySettings({ model: 'FIXED', fixedMinor: 0, percent: 0, perCleaningMinor: 1.5 })).toThrow();
+  });
   it('настройка оплаты: процент 0..100', () => {
     const s = parsePaySettings({ model: 'FIXED_PLUS_PERCENT', fixedMinor: 4000000, percent: 5 });
     expect(s.fixedMinor).toBe(4000000n);

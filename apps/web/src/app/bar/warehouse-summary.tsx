@@ -34,6 +34,8 @@ export function WarehouseSummary({ cards }: { cards: WarehouseCard[] }) {
               <b>{card.title}</b>
               {card.items === null ? (
                 <Badge tone="neutral">Нет данных</Badge>
+              ) : card.items === 0 ? (
+                <Badge tone="neutral">Пусто</Badge>
               ) : low > 0 ? (
                 <Badge tone="warn">Нужна закупка</Badge>
               ) : (
@@ -45,7 +47,11 @@ export function WarehouseSummary({ cards }: { cards: WarehouseCard[] }) {
             ) : (
               <>
                 <span className="bar-warehouse-title">
-                  {low > 0 ? `Докупить: ${pluralRu(low, card.noun, true)}` : 'Всё в порядке'}
+                  {card.items === 0
+                    ? 'Пока пусто'
+                    : low > 0
+                      ? `Докупить: ${pluralRu(low, card.noun, true)}`
+                      : 'Всё в порядке'}
                 </span>
                 {low > 0 && (
                   <span className="bar-warehouse-body">
@@ -54,8 +60,9 @@ export function WarehouseSummary({ cards }: { cards: WarehouseCard[] }) {
                   </span>
                 )}
                 <span className="bar-warehouse-foot">
-                  Всего на складе: {pluralRu(card.items, card.noun, true)}
-                  {card.value ? ` на ${card.value}` : ''}
+                  {card.items === 0
+                    ? 'Позиций на складе нет: добавьте первую или оформите приход'
+                    : `Всего на складе: ${pluralRu(card.items, card.noun, true)}${card.value ? ` на ${card.value}` : ''}`}
                 </span>
               </>
             )}

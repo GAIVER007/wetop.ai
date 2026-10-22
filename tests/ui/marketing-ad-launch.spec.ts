@@ -1,4 +1,4 @@
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { FIXTURE_API, expect, test } from './fixtures';
 
@@ -90,6 +90,100 @@ test('мастер: ИИ заполняет текст, запуск с подт
   await row.getByRole('button', { name: 'Включить' }).click();
   await expect(page.getByText('Кампания снова идёт в Meta')).toBeVisible();
   await expect(row.getByRole('button', { name: 'Остановить' })).toBeVisible();
+});
+
+// MP4: ящик ftyp в байтах 4–8, как у настоящего файла; Chromium из Playwright без кодека H.264 такой файл не раскодирует
+const MP4 = Buffer.concat([Buffer.from([0, 0, 0, 0x18]), Buffer.from('ftypisom'), Buffer.alloc(4096, 7)]);
+
+test('видео: сохраняется отдельным запросом, в форму запуска файл не попадает, без кадров текст пишется руками', async ({ page, request }) => {
+  await request.post(`${API}/__test/marketing-budget`, { data: {} });
+  const main = page.getByRole('main');
+  await page.goto('/marketing/ads/meta/callback?code=c0de&state=fixture-state');
+  await page.waitForURL(/\/marketing\/ads\?meta=choose/);
+  await main.getByTestId('meta-choose-save').click();
+  await page.waitForURL(/\/marketing\/ads\?meta=connected/);
+  await page.goto('/marketing/ads/launch');
+  const wizard = main.getByTestId('ad-wizard');
+
+  const uploads: number[] = [];
+  const actionBodies: number[] = [];
+  // размер тела берём из заголовка: Playwright не отдаёт multipart с файлом через postData
+  page.on('request', async (r) => {
+    if (r.method() !== 'POST') return;
+    const size = Number((await r.allHeaders())['content-length'] ?? 0);
+    if (/\/marketing\/ads\/creatives$/.test(r.url())) uploads.push(size);
+    else if (/\/marketing\/ads\/launch$/.test(r.url())) actionBodies.push(size);
+  });
+
+  await wizard.getByTestId('ad-creative').setInputFiles({ name: 'tour.mp4', mimeType: 'video/mp4', buffer: MP4 });
+  await expect(wizard.getByLabel('Превью видео')).toBeVisible();
+  const status = wizard.getByTestId('ad-video-status');
+  await expect(status).toContainText('Видео сохранено', { timeout: 15_000 });
+  await expect(status).toContainText('Кадры для ИИ снять не удалось');
+  expect(uploads).toHaveLength(1);
+  expect(uploads[0]).toBeGreaterThan(MP4.length);
+
+  // кадров нет: ИИ честно отказывает, запуск от этого не зависит
+  await wizard.getByTestId('ad-propose').click();
+  await expect(wizard.getByTestId('ad-error')).toContainText('Кадры видео не сняты');
+
+  await wizard.getByTestId('ad-headline').fill('Тур на видео');
+  await wizard.getByTestId('ad-text').fill('Смотрите, как у нас по утрам. Напишите, подберём даты.');
+  await wizard.getByTestId('ad-age-min').fill('25');
+  await wizard.getByTestId('ad-age-max').fill('54');
+  await wizard.getByTestId('ad-budget').fill('5');
+  await wizard.getByTestId('ad-fx').fill('480');
+  await axe(page);
+
+  await wizard.getByTestId('ad-launch').click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Запустить' }).click();
+  await page.waitForURL(/\/marketing\/ads\/launch\/[0-9a-f-]{36}$/);
+  await expect(main.getByTestId('ad-launch-status').getByRole('heading', { name: 'Кампания запущена' })).toBeVisible({ timeout: 10_000 });
+  // действия формы несут номер креатива и поля, а не видео: ни один запрос не больше самого файла
+  expect(actionBodies.length).toBeGreaterThan(0);
+  for (const size of actionBodies) expect(size).toBeLessThan(MP4.length);
+  expect(uploads).toHaveLength(1);
+});
+
+test('видео: браузер снимает три кадра и они доходят до ИИ', async ({ page, request }) => {
+  await request.post(`${API}/__test/marketing-budget`, { data: {} });
+  const main = page.getByRole('main');
+  await page.goto('/marketing/ads/meta/callback?code=c0de&state=fixture-state');
+  await page.waitForURL(/\/marketing\/ads\?meta=choose/);
+  await main.getByTestId('meta-choose-save').click();
+  await page.waitForURL(/\/marketing\/ads\?meta=connected/);
+  await page.goto('/marketing/ads/launch');
+  const wizard = main.getByTestId('ad-wizard');
+
+  // настоящее видео, которое раскодирует сам Chromium (кодека H.264 в нём нет, поэтому WebM, 2 секунды, 11 КБ,
+  // сгенерировано ffmpeg из тестовой картинки). Тип файла объявлен video/mp4, как у выбора в мастере: браузер
+  // определяет формат по содержимому.
+  const webm = readFileSync('tests/fixtures/ad-video/sample.webm');
+  await wizard.getByTestId('ad-creative').setInputFiles({ name: 'tour.mp4', mimeType: 'video/mp4', buffer: webm });
+  await expect(wizard.getByTestId('ad-video-status')).toContainText('Кадры для ИИ сняты', { timeout: 20_000 });
+  await wizard.getByTestId('ad-offer').fill('Осенние выходные');
+  await wizard.getByTestId('ad-propose').click();
+  await expect(wizard.getByTestId('ad-proposed')).toContainText('ИИ подготовил');
+  await expect(wizard.getByText('кадров видео: 3')).toBeVisible();
+});
+
+test('видео: слишком большой файл и отказ сервера показываются словами, запуск закрыт', async ({ page, request }) => {
+  await request.post(`${API}/__test/marketing-budget`, { data: {} });
+  const main = page.getByRole('main');
+  await page.goto('/marketing/ads/meta/callback?code=c0de&state=fixture-state');
+  await page.waitForURL(/\/marketing\/ads\?meta=choose/);
+  await main.getByTestId('meta-choose-save').click();
+  await page.waitForURL(/\/marketing\/ads\?meta=connected/);
+  await page.goto('/marketing/ads/launch');
+  const wizard = main.getByTestId('ad-wizard');
+  // сервер отказал при сохранении: мастер говорит словами сервера и не даёт запустить без креатива
+  await page.route('**/marketing/ads/creatives', (route) =>
+    route.fulfill({ status: 413, contentType: 'application/json', body: JSON.stringify({ error: 'Видео больше 200 МБ' }) }),
+  );
+  await wizard.getByTestId('ad-creative').setInputFiles({ name: 'tour.mp4', mimeType: 'video/mp4', buffer: MP4 });
+  await expect(wizard.getByTestId('ad-video-status')).toContainText('Видео больше 200 МБ', { timeout: 15_000 });
+  await expect(wizard.getByTestId('ad-launch')).toBeDisabled();
+  await axe(page);
 });
 
 test('последние запуски: вернуться к незавершённому и неудачному запуску после потери адреса', async ({ page, request }) => {

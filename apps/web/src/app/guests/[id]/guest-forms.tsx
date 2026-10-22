@@ -1,5 +1,5 @@
 'use client';
-import { useActionState } from 'react';
+import { useActionState, useEffect, useRef } from 'react';
 import { useCommand } from '../../../lib/use-command';
 import type { GuestCard } from '../../../lib/api';
 import { displayDay } from '../../../lib/display-date';
@@ -46,17 +46,26 @@ export function GuestProfileForm({
   guest,
   piiStorage,
   readOnly,
+  onSaved,
 }: {
   guest: GuestCard;
   /** ADR-072: `pseudonymized` — база не в Казахстане: имя, контакты, заметки и документы не вносятся */
   piiStorage: 'real' | 'pseudonymized';
   readOnly: boolean;
+  /** окно над бронью закрывается после сохранения (аудит 22.10.2026 P2-3); вкладка гостя остаётся открытой */
+  onSaved?: () => void;
 }) {
   const personal = piiStorage === 'real';
   const [pState, pAction, pPending] = useActionState<GuestActionResult, FormData>(
     updateGuestAction.bind(null, guest.id),
     { error: null },
   );
+  const savedRef = useRef(pState.saved);
+  useEffect(() => {
+    if (!pState.saved || savedRef.current === pState.saved) return;
+    savedRef.current = pState.saved;
+    onSaved?.();
+  }, [pState.saved, onSaved]);
   return (
     <form
       key={pState.attempt ?? 0}

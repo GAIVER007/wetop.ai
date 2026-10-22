@@ -544,7 +544,7 @@ function StayButtons(props: {
       : preview === null
         ? 'Сумма не загрузилась — цена появится на счёте после продления'
         : !preview.nextNightsFree
-          ? `${preview.unitCode ?? 'Ячейка'} занята ${dd(props.item.departureDate)} — сначала переселите`
+          ? `${preview.unitCode ? `Номер ${preview.unitCode}` : 'Номер'} занят ${dd(props.item.departureDate)} — сначала переселите`
           : preview.ratePlanRequired
             ? extendPlans.length > 0
               ? 'выберите тариф для новой ночи'
@@ -623,7 +623,7 @@ function StayButtons(props: {
     <div className="panel">
       {dialog}
       <PanelTitle>
-        {props.item.accommodationTypeName} — {props.item.unitCode ?? 'ячейка не назначена'}
+        {props.item.accommodationTypeName} — {props.item.unitCode ? `номер ${props.item.unitCode}` : 'номер не назначен'}
       </PanelTitle>
       <Row>
         {expected && (
@@ -636,8 +636,8 @@ function StayButtons(props: {
               const hk = props.item.unitHousekeepingStatus;
               if (hk && hk !== 'INSPECTED') {
                 const ok = await ask({
-                  title: `Ячейка ${props.item.unitCode} ещё не проверена. Заселить?`,
-                  body: `Сейчас ${HOUSEKEEPING_RU[hk]}. Гость заезжает в проверенную ячейку; заселение не запрещено, но нужно ваше подтверждение.`,
+                  title: `Номер ${props.item.unitCode} ещё не проверен. Заселить?`,
+                  body: `Сейчас ${HOUSEKEEPING_RU[hk]}. Гость заезжает в проверенный номер; заселение не запрещено, но нужно ваше подтверждение.`,
                   confirmLabel: 'Заселить всё равно',
                   // заселение — не отмена и не долг: тон основной, а не тревоги (DESIGN.md §9)
                   tone: 'primary',
@@ -660,7 +660,7 @@ function StayButtons(props: {
               });
             }}
             disabled={pending || !props.item.unitCode}
-            title={props.item.unitCode ? '' : 'Сначала назначьте ячейку'}
+            title={props.item.unitCode ? '' : 'Сначала назначьте номер'}
           >
             Заселить
           </Button>
@@ -843,20 +843,20 @@ function AssignForm(props: {
       data-testid="assign-form"
     >
       <PanelTitle>
-        {props.item.unitCode ? `Переселить из ${props.item.unitCode}` : 'Назначить ячейку'} —{' '}
+        {props.item.unitCode ? `Переселить из ${props.item.unitCode}` : 'Назначить номер'} —{' '}
         {props.item.accommodationTypeName}
       </PanelTitle>
       <Row>
         <Select
           name="unitCode"
-          aria-label="Свободная ячейка"
+          aria-label="Свободный номер"
           data-testid={`assign-unit-${props.item.id}`}
           data-quick-action={`move:${props.item.id}`}
           required
           defaultValue={state.values?.unitCode ?? ''}
         >
           <option value="" disabled>
-            — свободная ячейка —
+            — свободный номер —
           </option>
           {props.item.availableGroups.map((g) => (
             <optgroup
@@ -895,7 +895,7 @@ function AssignForm(props: {
         </Button>
       </Row>
       <div className="hint">
-        Ячейка другой категории пересчитает цену по её календарю; такое переселение возможно только
+        Номер другой категории пересчитает цену по её календарю; такое переселение возможно только
         на всё проживание целиком — сумму покажем до подтверждения.
       </div>
       {state.error && <Alert>{state.error}</Alert>}
@@ -937,7 +937,7 @@ function StayGuestsForm({
       data-testid={`guests-form-${item.id}`}
       key={`${item.adults}/${item.children}/${state.attempt ?? 0}`}
     >
-      <PanelTitle>Гости: {item.unitCode ?? 'без ячейки'}</PanelTitle>
+      <PanelTitle>{item.unitCode ? `Гости номера ${item.unitCode}` : 'Гости'}</PanelTitle>
       <Row>
         <Field label="Взрослых">
           <Input

@@ -46,7 +46,7 @@ export default async function UnitPage({
     <Page
       width="medium"
       crumbs={<BackCrumb href="/inventory">Номерной фонд</BackCrumb>}
-      title={`Ячейка ${unit.code}`}
+      title={`Номер ${unit.code}`}
       subtitle={`${unit.kind === 'BED' ? 'Койко-место' : 'Номер'}, категория «${unit.accommodationTypeName}», комната ${unit.roomNumber}${unit.active ? '' : ', выведена из фонда'}`}
     >
       <UnitFacts unit={unit} today={today} />

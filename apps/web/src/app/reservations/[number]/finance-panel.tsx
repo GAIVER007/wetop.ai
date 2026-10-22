@@ -42,6 +42,8 @@ import {
 import { usePropertyClock } from '../../../components/property-time';
 import { useMay } from '../../../components/desk-access';
 import { displayDate } from '../../../lib/display-date';
+import { DESK_PAYMENT_METHODS, methodInline, methodRu } from '../../../lib/payment-method-label';
+import { chargeLine } from '../../../lib/charge-text';
 import { useConfirm } from '../../../components/use-confirm';
 
 const KIND_RU: Record<string, string> = {
@@ -50,20 +52,9 @@ const KIND_RU: Record<string, string> = {
   PENALTY: 'штраф',
   ADJUSTMENT: 'корректировка',
 };
-const METHODS: Array<[string, string]> = [
-  ['CASH', 'наличные'],
-  ['CARD_TERMINAL', 'карта (терминал)'],
-  ['KASPI', 'Kaspi'],
-  ['HALYK', 'Halyk'],
-  ['BANK_TRANSFER_PERSON', 'перевод от физлица'],
-  ['BANK_TRANSFER_LEGAL', 'перевод от юрлица'],
-  ['DEPOSIT', 'депозит'],
-  ['CARD_GUARANTEE', 'гарантия картой'],
-  ['EXTERNAL', 'внешний канал'],
-];
-export const methodRu = (m: string) => METHODS.find(([k]) => k === m)?.[1] ?? m;
+export { methodRu };
 /** Способы стойки: без EXTERNAL (его ставят каналы), в порядке настройки объекта (DATA_MODEL §21.6) */
-const DESK_METHODS = METHODS.filter(([k]) => k !== 'EXTERNAL');
+const DESK_METHODS = DESK_PAYMENT_METHODS;
 const methodOptions = (enabled?: string[]): Array<[string, string]> =>
   enabled ? enabled.flatMap((k) => DESK_METHODS.filter(([code]) => code === k)) : DESK_METHODS;
 const MethodsContext = createContext<Array<[string, string]>>(DESK_METHODS);
@@ -246,7 +237,15 @@ function FolioPanel({
               className={c.voidedAt ? 'is-void' : undefined}
             >
               <td>
-                <span className="hint">{KIND_RU[c.kind] ?? c.kind}</span> {c.description}
+                {(() => {
+                  // «проживание Проживание 2026-10-22 → …» → «Проживание 22 окт. – 24 окт.» (аудит 22.10.2026 P1-7)
+                  const line = chargeLine(KIND_RU[c.kind] ?? c.kind, c.description);
+                  return (
+                    <>
+                      {line.kind && <span className="hint">{line.kind}</span>} {line.text}
+                    </>
+                  );
+                })()}
               </td>
               <td>
                 {c.serviceDate ? (
@@ -478,12 +477,12 @@ function FolioPanel({
                     {p.externalReference ? `, ${p.externalReference}` : ''}
                     {p.status === 'VOIDED' ? ' — аннулирован' : ''}
                   </td>
-                  <td>{clock.date(p.paidAt)}</td>
+                  <td>{clock.moment(p.paidAt)}</td>
                   <td className="num">{formatMoney(p.allocatedMinor, folio.currency)}</td>
                   <td className="num">{formatMoney(p.refundedMinor, folio.currency)}</td>
                   <td data-testid="payment-receipt">
                     {p.receipt ? (
-                      <span title={`отмечен ${clock.date(p.receipt.issuedAt)}`}>
+                      <span title={`отмечен ${clock.moment(p.receipt.issuedAt)}`}>
                         № {p.receipt.number}
                       </span>
                     ) : p.status === 'COMPLETED' && desk ? (
@@ -575,7 +574,7 @@ function FolioPanel({
           {folio.refunds
             .map(
               (r) =>
-                `${formatMoney(r.amountMinor, folio.currency)} (${clock.date(r.createdAt)}${r.reason ? `, ${r.reason}` : ''})`,
+                `${formatMoney(r.amountMinor, folio.currency)} (${clock.moment(r.createdAt)}${r.reason ? `, ${r.reason}` : ''})`,
             )
             .join('; ')}
         </div>
@@ -699,7 +698,7 @@ export function PaymentForm({
   const digest =
     amount === ''
       ? 'Введите сумму'
-      : `${minor ? formatMoney(minor, folio.currency) : `${amount} — не число`}, ${methodRu(method)}, на счёт «${folio.stay.accommodationTypeName}» брони ${number}`;
+      : `${minor ? formatMoney(minor, folio.currency) : `${amount} — не число`}, ${methodInline(method)}, на счёт «${folio.stay.accommodationTypeName}» брони ${number}`;
   return (
     <form
       action={action}
@@ -1020,7 +1019,7 @@ function EditPaymentDrawer({
           <input type="hidden" name="currency" value={folio.currency} />
           <p className="hint">
             Прежний платёж останется в списке аннулированным, новый проведётся той же датой (
-            {clock.date(payment.paidAt)}).
+            {clock.when(payment.paidAt)}).
           </p>
           {state.error && <Alert boxed>{state.error}</Alert>}
           <Field label="Способ оплаты">

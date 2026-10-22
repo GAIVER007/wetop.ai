@@ -33,12 +33,12 @@ test('календарь: заголовок, сводка дня и быстр�
   const arrival = (await dateColumns.first().getAttribute('data-date'))!;
   const last = (await dateColumns.last().getAttribute('data-date'))!;
   const departure = new Date(Date.parse(`${last}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
-  // имя ссылки начинается с видимой подписи плитки (WCAG 2.5.3, мастер-проход UI, этап 4)
+  // имя ссылки = видимая часть строки итогов (WCAG 2.5.3, мастер-проход UI, этап 4)
   await expect(
-    page.getByRole('link', { name: /^Свободно .*Найти места$/ }),
+    stats.getByRole('link', { name: /^свободно \S+$/ }),
   ).toHaveAttribute('href', `/rooms/availability?arrival=${arrival}&departure=${departure}`);
   await expect(
-    page.getByRole('link', { name: /^Требует внимания \d+ Долги и задачи$/ }),
+    stats.getByRole('link', { name: /^требует внимания \d+$/ }),
   ).toHaveAttribute(
     'href',
     '/chessboard?stays=debt',

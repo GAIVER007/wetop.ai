@@ -131,7 +131,7 @@ test('карточка: «Продлить на ночь» знает сумму
   await cardTab(page, 'Действия');
   await expect(page.getByRole('main').getByTestId('extend-ui-item')).toBeDisabled();
   await expect(page.getByRole('main').getByTestId('hint-extend-ui-item')).toHaveText(
-    `R01 занята ${dd(plus(4))} — сначала переселите`,
+    `Номер R01 занят ${dd(plus(4))} — сначала переселите`,
   );
 });
 
@@ -183,7 +183,7 @@ test('карточка: отмена, незаезд и выселение с д
   await page.getByRole('main').getByTestId('check-in-ui-item').click();
   // Q-156 (ADR-068): R01 требует уборки — стойка предупреждает и заселяет после подтверждения
   await page
-    .getByRole('dialog', { name: 'Ячейка R01 ещё не проверена. Заселить?' })
+    .getByRole('dialog', { name: 'Номер R01 ещё не проверен. Заселить?' })
     .getByRole('button', { name: 'Заселить всё равно' })
     .click();
   await page.getByRole('main').getByTestId('check-out-ui-item').click();

@@ -7,7 +7,7 @@ export type EmployeeAccountOption = { userId: string; name: string | null; email
 const base = (target: PortalTarget) => target.employeeId
   ? `/employee-portal/employees/${encodeURIComponent(target.employeeId)}` : '/employee-portal/me';
 export const employeePortalApi = {
-  load: (target: PortalTarget, query: { date?: string; month?: string } = {}) =>
+  load: (target: PortalTarget, query: { date?: string; month?: string; range?: 'month' } = {}) =>
     portalTransport<EmployeePortalDto>(`${base(target)}?${new URLSearchParams(query)}`),
   profile: (target: PortalTarget, input: PortalProfileInput) => portalTransport<EmployeePortalDto>(`${base(target)}/profile`, 'PATCH', input),
   avatar: (target: PortalTarget, form: FormData) => portalTransport<EmployeePortalDto>(`${base(target)}/avatar`, 'PUT', form),

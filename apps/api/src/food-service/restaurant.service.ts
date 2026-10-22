@@ -48,7 +48,6 @@ import {
   parseOrderItems,
   parsePayAdjustment,
   parsePaySettings,
-  payrollTotals,
   techCardTotals,
   timeOffWindow,
   foodLocal,
@@ -67,6 +66,7 @@ import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/ass
 import { assertWeekRevision, hoursRevision, hoursRowsRevision } from '../beauty/write-contract';
 import { StockService } from './stock.service';
 import { branchStaffRevenue } from './staff-revenue';
+import { monthPayrollRows, type MonthPayrollDb } from './month-payroll';
 import { reverseLoyaltyForVoid } from '../beauty/loyalty';
 
 /** Срок ссылки на оценку с телефона гостя (§40) */
@@ -1849,72 +1849,9 @@ export class RestaurantService {
   // ─── Зарплата (§33.4) ───
 
   /** К выплате за месяц по сотрудникам бизнеса (§33.4) и выплачено из кассы филиала (§35.3) */
-  private async monthPayroll(
-    db: Pick<DbTx, 'employee' | 'restaurantOrder' | 'appointmentLine' | 'employeePayAdjustment' | 'restaurantCashOperation'>,
-    s: FoodScope,
-    month: unknown,
-  ) {
+  private async monthPayroll(db: MonthPayrollDb, s: FoodScope, month: unknown) {
     const m = monthParam(month);
-    const w = timeOffWindow({ dateFrom: m.from, dateTo: m.to, timezone: s.timezone });
-    const period = new Date(`${m.from}T00:00:00Z`);
-    const [employees, orders, adjustments, payouts] = await Promise.all([
-      db.employee.findMany({
-        where: { businessId: s.businessId },
-        include: { paySetting: true },
-        orderBy: { id: 'asc' },
-      }),
-      // зарплата принадлежит бизнесу (ADR-181): процент и «выплачено» по всем филиалам,
-      // иначе бизнес с двумя филиалами показывает и может выплатить один оклад дважды
-      // база процента: у ресторана закрытые заказы официанта, у салона выполненные записи мастера (§19.2)
-      s.vertical === 'BEAUTY'
-        ? db.appointmentLine
-            .groupBy({
-              by: ['employeeId'],
-              where: {
-                appointment: {
-                  location: { businessId: s.businessId },
-                  status: 'DONE',
-                  startsAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
-                },
-              },
-              _sum: { priceMinor: true },
-            })
-            .then((rows) => rows.map((r) => ({ waiterId: r.employeeId, _sum: { total: r._sum.priceMinor } })))
-        : db.restaurantOrder.groupBy({
-            by: ['waiterId'],
-            where: {
-              location: { businessId: s.businessId },
-              status: 'CLOSED',
-              waiterId: { not: null },
-              closedAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
-            },
-            _sum: { total: true },
-          }),
-      db.employeePayAdjustment.findMany({
-        where: { employee: { businessId: s.businessId }, period },
-        orderBy: { createdAt: 'asc' },
-      }),
-      db.restaurantCashOperation.groupBy({
-        by: ['employeeId'],
-        where: {
-          location: { businessId: s.businessId },
-          period,
-          status: 'COMPLETED',
-          employeeId: { not: null },
-        },
-        _sum: { amount: true },
-      }),
-    ]);
-    const salesByWaiter = new Map(orders.map((o) => [o.waiterId!, o._sum.total ?? 0n]));
-    const paidByEmployee = new Map(payouts.map((p) => [p.employeeId!, p._sum.amount ?? 0n]));
-    const rows = employees.map((e) => {
-      const setting = e.paySetting
-        ? { model: e.paySetting.model, fixedMinor: e.paySetting.fixedMinor, percent: e.paySetting.percent }
-        : { model: 'FIXED' as const, fixedMinor: 0n, percent: 0 };
-      const sales = salesByWaiter.get(e.id) ?? 0n;
-      const adj = adjustments.filter((a) => a.employeeId === e.id).map((a) => a.amountMinor);
-      return { e, setting, sales, t: payrollTotals(setting, sales, adj), paid: paidByEmployee.get(e.id) ?? 0n };
-    });
+    const { period, rows, adjustments } = await monthPayrollRows(db, s, m);
     return { m, period, rows, adjustments };
   }
 

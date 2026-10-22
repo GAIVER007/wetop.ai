@@ -48,6 +48,9 @@
   .portal-tabs .tabs__panel:not([hidden]) { display: grid; gap: var(--space-4); }
   .portal-tabs .tabs__panel[hidden] { display: none; }
   .portal-eyebrow { font-weight: var(--weight-semibold); }
+  .portal-month { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); min-width: 0; }
+  .portal-work-range { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }
+  .portal-month-line { flex: 1 1 auto; min-width: 0; margin: 0; color: var(--text); font-variant-numeric: tabular-nums; }
 }
 @media (max-width: 600px) {
   .specialist-page { padding: var(--space-4); }

@@ -19,7 +19,7 @@ import {
   createPropertyInChain,
   NEW_PROPERTY_DEFAULTS,
 } from '@pms/database';
-import { canAt, visibleLocations } from '@pms/domain';
+import { can, canAt, visibleLocations } from '@pms/domain';
 import { filterBeautyLocations } from '../beauty/access';
 import {
   currentAssignments,
@@ -144,7 +144,8 @@ export class BranchesService {
     );
     const permitted = new Set((await filterBeautyLocations(this.prisma.db, all.map(item => ({ id:item.locationId,businessId:item.location.businessId,vertical:item.vertical })))).map(row=>row.id));
     const items = all.filter((item) => visible.has(item.locationId) && permitted.has(item.locationId));
-    return { organization, items, canCreate: currentRole() === 'OWNER' };
+    // `personal`: «Личный кабинет», стойка сама выбирает его филиал и ведёт в «Мою работу» (`/scope/resolve`)
+    return { organization, items, canCreate: currentRole() === 'OWNER', personal: currentRole() === 'EMPLOYEE' };
   }
   async create(raw: unknown) {
     const organizationId = this.organization();
@@ -364,14 +365,19 @@ export class BranchesController {
     @Inject(DashboardService) private readonly dashboard: DashboardService,
     @Inject(BusinessCardsService) private readonly cards: BusinessCardsService,
   ) {}
-  @Access('desk') @ScopeAware() @Get() async list() {
+  // Список своих филиалов нужен каждому вошедшему: по нему стойка выбирает рабочий филиал (`/scope/resolve`). С
+  // правом `desk` «Личный кабинет» (EMPLOYEE) получал 403 и не попадал в свой кабинет (живой аудит 21.10.2026). Список
+  // уже сужен назначениями (`visibleLocations`, `filterBeautyLocations`); карточки бизнесов отдаются только с `desk`.
+  @Access('self') @ScopeAware() @Get() async list() {
     const result = await this.service.list();
     return {
       ...result,
-      businesses: await this.cards.list(
-        result.items.map((item) => item.location.businessId),
-        currentRole() === 'OWNER',
-      ),
+      businesses: can(currentRole() ?? 'EMPLOYEE', 'desk')
+        ? await this.cards.list(
+            result.items.map((item) => item.location.businessId),
+            currentRole() === 'OWNER',
+          )
+        : [],
     };
   }
   @Access('reports')

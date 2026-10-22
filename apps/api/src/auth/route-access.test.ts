@@ -65,7 +65,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /employee-portal/public/:slug': 'public',
   'GET /onboarding': 'self',
   'POST /onboarding': 'settings',
-  'GET /branches': 'desk',
+  'GET /branches': 'self',
   'POST /branches': 'owner',
   'GET /branches/locations/archived': 'owner',
   'POST /branches/locations/:id/archive': 'owner',

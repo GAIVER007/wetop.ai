@@ -3659,6 +3659,8 @@ export const branchesApi = {
       businesses?: BusinessCardView[];
       items: BranchItem[];
       canCreate: boolean;
+      // «Личный кабинет»: стойка сама выбирает его филиал и ведёт в «Мою работу»
+      personal?: boolean;
     }>('/branches'),
   create: (body: {
     id: string;

@@ -11,7 +11,7 @@ import { UnitActions } from '../units/[code]/unit-actions';
 import type { ChannelMark } from './channel-marks';
 import { FundEditor } from './fund-editor';
 import { PhotoGallery } from './photo-gallery';
-import { HousekeepingBadge, UnitStateBadge, floorRoomText } from './unit-state';
+import { HousekeepingBadge, UnitStateBadge, buildingText, floorRoomText } from './unit-state';
 
 /**
  * Панель места по снимку владельца 09.10: фото-блок, вкладки «Информация», «Койко-места», «Бронь / Гости»,
@@ -68,7 +68,7 @@ export function UnitPanel({
   const { current, next } = unitNow(unit.stays, today);
   const block = unit.blocks.find((b) => b.dateFrom <= today && today < b.dateTo) ?? null;
   const floorRoom = floorRoomText(unit);
-  const place = [unit.buildingName && `Корпус ${unit.buildingName}`, floorRoom]
+  const place = [unit.buildingName && buildingText(unit.buildingName), floorRoom]
     .filter(Boolean)
     .join(', ');
   const info = (
@@ -80,7 +80,7 @@ export function UnitPanel({
         <Row icon="rates" label="Расположение" testId="unit-place">
           {place ? (
             <span className="inventory-place">
-              {unit.buildingName && <span>Корпус {unit.buildingName}</span>}
+              {unit.buildingName && <span>{buildingText(unit.buildingName)}</span>}
               {floorRoom && <span className="inventory-state-note">{floorRoom}</span>}
             </span>
           ) : (

@@ -1253,7 +1253,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     expect(fakes.blocks[1]).toMatchObject({ dateFrom: '2026-09-30', dateTo: '2026-10-01' });
     // койка в соседнюю ночь занята другим гостем — услугу не начисляем, отвечаем 409 словами блокировки
     fakes.blockConflict =
-      'В ячейке 9001 есть проживание: X-1 (2026-10-03 → 2026-10-05) — сначала переселите';
+      'В номере 9001 есть проживание: X-1 (03.10.2026 – 05.10.2026). Сначала переселите';
     const before = (
       await request(app.getHttpServer()).get('/finance/reservations/B-1')
     ).body.folios.find((f: { id: string }) => f.id === '00000000-0000-4000-8000-000000000021')

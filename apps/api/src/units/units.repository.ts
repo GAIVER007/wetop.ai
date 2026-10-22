@@ -238,12 +238,12 @@ export class PrismaUnitsRepository implements UnitsRepository {
       });
       if (busy.length)
         throw new ConflictException(
-          `В ячейке есть проживание: ${busy
-            .map(
-              (a) =>
-                `${a.reservationItem.reservation.confirmationNumber} (${iso(a.startDate)} → ${iso(a.endDate)})`,
-            )
-            .join(', ')} — сначала переселите`,
+          `В номере есть проживание: ${busy
+            .map((a) => {
+              const day = (d: Date) => iso(d).split('-').reverse().join('.');
+              return `${a.reservationItem.reservation.confirmationNumber} (${day(a.startDate)} – ${day(a.endDate)})`;
+            })
+            .join(', ')}. Сначала переселите`,
         );
       // Проверяем проданные проживания, включая ещё не назначенные на ячейку.
       // Уже закрытые ночи повторный блок не расходует: проверяем только новые интервалы.

@@ -20,6 +20,7 @@ import {
   stayPayment,
   stayStatus,
   visitsWord,
+  guestDisplayName,
 } from './guest-stay';
 import { formatPhone } from '../../lib/phone';
 
@@ -69,7 +70,7 @@ export async function GuestPanel({
   const actions = readOnly ? null : stayActions(stay);
   const messengers = messengerLinks(g.phone);
   const status = stayStatus(g, today);
-  const name = `${g.lastName} ${g.firstName} ${g.middleName ?? ''}`.trim();
+  const name = guestDisplayName(g);
   const payment = stayPayment(stay);
   const currency = stay?.currency ?? g.currency;
   const visitsShown = g.visits.slice(0, 3);

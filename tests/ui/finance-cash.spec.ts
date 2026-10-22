@@ -54,6 +54,9 @@ test('поступление и расход со статьёй меняют о
 
   await page.getByTestId('cash-income-btn').click();
   const form = page.getByTestId('cash-operation-form');
+  // пустая сумма: своя подсказка по-русски вместо браузерной «Please fill out this field.» (аудит 22.10.2026)
+  await form.getByRole('button', { name: 'Сохранить' }).click();
+  await expect(form.getByText('Укажите сумму', { exact: true })).toBeVisible();
   // нулевая сумма — отказ словами, панель не закрывается
   await form.getByTestId('cash-amount').fill('0');
   await form.getByRole('button', { name: 'Сохранить' }).click();

@@ -84,8 +84,8 @@ test('обзор каналов: полоса состояния, вкладки
   // полоса состояния: очередь и ошибки числами, webhook словом
   await expect(main.getByTestId('outbox-pending')).toHaveText('2');
   await expect(main.getByTestId('channels-errors')).toHaveText('2');
-  // webhook стенда не настроен (registered=false без PUBLIC_API_URL) — слово честное, не «выключен»
-  await expect(main.getByTestId('webhook-status')).toHaveText('нет PUBLIC_API_URL');
+  // webhook стенда не настроен (registered=false без PUBLIC_API_URL) — слово честное, не «выключен», без имени переменной
+  await expect(main.getByTestId('webhook-status')).toHaveText('адрес сервера не задан');
   // наблюдаемые каналы (Q-205 закрыт владельцем, дополнение к ADR-112): факты из событий,
   // без зелёного health — формулировка «Booking.com — работает» запрещена
   await main.getByTestId('channels-activity').locator('summary').click();

@@ -13,5 +13,5 @@ it('does not plot or print an unknown-currency day as an exact confirmed zero',(
  const html=renderToStaticMarkup(createElement(OwnerDailyChart,{metrics:[{label:'Поступления',daily:daily as DailyMoney}]}));
  expect((html.match(/<circle /g)??[])).toHaveLength(1);
  expect(html).toContain('Данные неполные');
- expect(html).not.toContain('<td>0,00 USD</td>');
+ expect(html).not.toContain('<td>0 USD</td>');
 });

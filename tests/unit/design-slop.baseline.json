@@ -1,7 +1,7 @@
 {
   "color-literal": {},
   "space-off-scale": {
-    "apps/web/src/app/chessboard/board.css": 16,
+    "apps/web/src/app/chessboard/board.css": 14,
     "apps/web/src/app/components.css": 60,
     "apps/web/src/app/directory.css": 10,
     "apps/web/src/app/management/analytics/analytics.css": 15,
@@ -57,7 +57,7 @@
     "apps/web/src/app/ai-seller/agents/agents.css": 6,
     "apps/web/src/app/beauty/beauty.css": 40,
     "apps/web/src/app/channels/channels.css": 48,
-    "apps/web/src/app/chessboard/board.css": 27,
+    "apps/web/src/app/chessboard/board.css": 25,
     "apps/web/src/app/components.css": 128,
     "apps/web/src/app/connections/integrations.css": 14,
     "apps/web/src/app/directory.css": 87,

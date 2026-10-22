@@ -159,7 +159,7 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
     s.classificationReason === 'UNCLASSIFIED_EXPENSE_SOURCES'
       ? 'Есть расходы без статьи.'
       : s.classificationReason === 'EXPENSE_DOCUMENT_LINKS_NOT_CONNECTED'
-        ? 'Статьи расходов пока недоступны.'
+        ? 'Расходы показаны общей суммой, без статей.'
         : 'Проверьте оплаченные операции за период.';
   // Главная на одном экране компьютера (решение владельца 21.10.2026): шапка строкой, итоги строкой,
   // ниже график слева и справа «Требуют решения» с «Куда уходят деньги»; листать не нужно
@@ -169,9 +169,12 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
         <h1>Главная</h1>
         <span className="owner-bar__updated">
           Обновлено{' '}
+          {/* «16 окт., 14:00»: без года и «г.» (аудит 22.10.2026 P2-9) */}
           {new Intl.DateTimeFormat('ru-RU', {
-            dateStyle: 'medium',
-            timeStyle: 'short',
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
             timeZone: s.period.timezone,
           }).format(new Date(s.generatedAt))}
         </span>

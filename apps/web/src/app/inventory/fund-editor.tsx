@@ -7,6 +7,7 @@ import type { InventoryCategory } from '../../lib/api';
 import { currencySign, formatMoney } from '../../lib/money';
 import { saveInventory } from './actions';
 import { KIND_WORD, capacityLong, usageLines } from './category-words';
+import { floorText } from './unit-state';
 
 type Mode = 'category' | 'room';
 type Created = {
@@ -378,7 +379,7 @@ export function FundEditorDialog({
                 </strong>
                 {dorm && <span>Койко-мест: {roomPreview.codes.length}</span>}
                 <span>
-                  {[roomPreview.building, roomPreview.floor && `этаж ${roomPreview.floor}`]
+                  {[roomPreview.building, roomPreview.floor && floorText(roomPreview.floor)]
                     .filter(Boolean)
                     .join(', ') || 'Укажите корпус и этаж'}
                 </span>

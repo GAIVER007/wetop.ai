@@ -66,14 +66,21 @@ export interface OwnerSummaryDto {
   workload: Workload;
 }
 /** Decimal-safe formatting: never convert money to Number, including very large balances. */
+/**
+ * Деньги Главной в том же виде, что на остальных экранах (аудит 22.10.2026 P1-1: было «50 000,00 KZT»): знак ₸ для
+ * тенге, копейки только когда они есть, минус настоящий. BigInt без float (ADR-008).
+ */
 export function formatOwnerMoney(minor: string, currency: string): string {
   const digits =
     new Intl.NumberFormat('ru-RU', { style: 'currency', currency }).resolvedOptions()
       .maximumFractionDigits ?? 2;
   const amount = BigInt(minor),
     absolute = amount < 0n ? -amount : amount,
-    scale = 10n ** BigInt(digits);
-  return `${amount < 0n ? '-' : ''}${new Intl.NumberFormat('ru-RU').format(absolute / scale)}${digits ? ',' + (absolute % scale).toString().padStart(digits, '0') : ''} ${currency}`;
+    scale = 10n ** BigInt(digits),
+    fraction = absolute % scale;
+  const whole = new Intl.NumberFormat('ru-RU').format(absolute / scale);
+  const tail = digits && fraction ? ',' + fraction.toString().padStart(digits, '0') : '';
+  return `${amount < 0n ? '−' : ''}${whole}${tail} ${currency === 'KZT' ? '₸' : currency}`;
 }
 export const ownerSummaryEnabled = (value: string | undefined) => value === 'true';
 export function ownerReason(reason: string | null | undefined): string {

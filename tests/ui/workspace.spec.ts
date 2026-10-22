@@ -337,7 +337,7 @@ test('шахматка: подсказка внутри окошка «Филь�
   await expect(help).not.toHaveAttribute('open', '');
   await help.locator('summary').click();
   await expect(help).toHaveAttribute('open', '');
-  await expect(help).toContainText('Ночь выезда ячейку не занимает');
+  await expect(help).toContainText('Ночь выезда номер не занимает');
   await page.keyboard.press('Escape');
   await expect(pop).toBeHidden();
   // «Сбросить» появляется, когда есть отбор, и до неё достаёт мышь
@@ -416,7 +416,7 @@ test('карточка: профиль гостя и заселение прох
   await page.getByTestId('check-in-ui-item').filter({ visible: true }).click();
   // Q-156 (ADR-068): R01 требует уборки — стойка предупреждает и заселяет после подтверждения
   await page
-    .getByRole('dialog', { name: 'Ячейка R01 ещё не проверена. Заселить?' })
+    .getByRole('dialog', { name: 'Номер R01 ещё не проверен. Заселить?' })
     .getByRole('button', { name: 'Заселить всё равно' })
     .click();
   // §8 «сделал — и что?»: карточка перерисовывается молча, итог называет уведомление (срез 7.4)
@@ -1471,7 +1471,7 @@ test('новая бронь: резюме выбора обновляется п
     .getAttribute('value'))!;
   await unitSelect.selectOption(unitCode);
   await expect(summary).toContainText(categoryName);
-  await expect(summary).toContainText(`ячейка ${unitCode}`);
+  await expect(summary).toContainText(`номер ${unitCode}`);
   await form.locator('.booking-create__extras > summary').click();
   await form.getByLabel('Источник *').selectOption('PHONE');
   await expect(summary).toContainText('Телефон');
@@ -1485,7 +1485,7 @@ test('новая бронь: резюме выбора обновляется п
     '',
   );
   await expect(summary).toContainText(roomName);
-  await expect(summary).not.toContainText(`ячейка ${unitCode}`);
+  await expect(summary).not.toContainText(`номер ${unitCode}`);
   // окно 700 px: форма длиннее экрана, но кнопка создания видна, пока прокручено к её началу
   await form.getByLabel('Источник *').scrollIntoViewIfNeeded();
   await expect(form.getByRole('button', { name: 'Создать бронь' })).toBeInViewport();

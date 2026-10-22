@@ -192,7 +192,16 @@ export default async function ReservationPage({
         <div>
           <dt>Место</dt>
           <dd className="mono" data-testid="booking-place">
-            {unitCodes.length ? unitCodes.join(', ') : <span className="warn-text">—</span>}
+            {unitCodes.length ? (
+              unitCodes.join(', ')
+            ) : liveItems.length === 0 ? (
+              <span className="muted">—</span>
+            ) : liveItems.every((it) => it.status === 'CHECKED_OUT') ? (
+              // выезд в день заезда снимает назначение целиком (API удаляет его): номер не хранится, тревоги нет
+              <span className="muted">освобождён при выезде</span>
+            ) : (
+              <span className="warn-text">номер не назначен</span>
+            )}
             {/* у группы — числом, как в списке (формулировка владельца 27.09) */}
             {unassigned > 0 && liveItems.length > 1 && (
               <small className="warn-text">⚠ {unassigned} без размещения</small>
@@ -267,7 +276,7 @@ export default async function ReservationPage({
                 <Table className="dir-table dir-table--stays" data-testid="stays-table">
                   <thead>
                     <tr>
-                      {['Ячейка', 'Категория', 'Заезд', 'Выезд', 'Статус', 'Цена', 'Гости'].map(
+                      {['Номер', 'Категория', 'Заезд', 'Выезд', 'Статус', 'Цена', 'Гости'].map(
                         (h) => (
                           <th key={h} className={h === 'Цена' ? 'num' : undefined}>
                             {h}
@@ -403,7 +412,7 @@ export default async function ReservationPage({
                 <SectionTitle id="booking-actions">Действия с бронированием</SectionTitle>
                 {longPeriods > 0 && (
                   <Alert boxed tone="warning" data-testid="stay-too-long">
-                    Проживание длиннее {MAX_CHESSBOARD_DAYS} ночей: список свободных ячеек на весь
+                    Проживание длиннее {MAX_CHESSBOARD_DAYS} ночей: список свободных номеров на весь
                     срок не строится. Назначайте и переселяйте из календаря на нужные даты.
                   </Alert>
                 )}
@@ -411,7 +420,7 @@ export default async function ReservationPage({
                   .length > 0 && (
                   <Alert boxed tone="warning">
                     Доступность части периодов не загрузилась. Обновите карточку перед назначением
-                    ячейки.
+                    номера.
                   </Alert>
                 )}
                 {ratePlans === null && (

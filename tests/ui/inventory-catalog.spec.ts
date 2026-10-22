@@ -253,7 +253,7 @@ test('панель места: живущий гость — «живёт», о�
   await expect(free.getByTestId('unit-now')).toHaveText('свободно');
 });
 
-test('панель места появляется при выборе места и исчезает, когда адрес другой; плитки без обрезки', async ({
+test('панель места появляется при выборе места и исчезает, когда адрес другой; итоги строкой без обрезки', async ({
   page,
   request,
 }) => {
@@ -264,12 +264,13 @@ test('панель места появляется при выборе мест�
     const main = page.getByRole('main');
     // без выбранного места панели нет
     await expect(page.getByTestId('unit-aside')).toHaveCount(0);
-    // подписи плиток целиком: ни у одной плитки содержимое не шире самой плитки
-    const clipped = await main.locator('.inv-tile').evaluateAll((tiles) =>
-      tiles.filter((t) => t.scrollWidth > t.clientWidth + 1).length,
-    );
-    expect(clipped).toBe(0);
-    await expect(main.locator('.inv-tile')).toHaveCount(6);
+    // итоги одной строкой вместо шести плиток (аудит 22.10.2026 P1-17): строка не шире экрана
+    const summary = main.getByTestId('inventory-summary');
+    await expect(summary).toContainText('Всего мест');
+    await expect(main.locator('.inv-tile')).toHaveCount(0);
+    expect(
+      await summary.evaluate((el) => el.scrollWidth <= el.clientWidth + 1),
+    ).toBe(true);
     if (width === 390) continue;
     await main.getByRole('link', { name: 'Открыть номер R02', exact: true }).click();
     await expect(page.getByRole('complementary', { name: 'Номер R02' })).toBeVisible();

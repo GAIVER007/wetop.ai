@@ -180,4 +180,29 @@ describe('Beauty employee cabinet access projection', () => {
     expect(html).not.toContain('ожидает одобрения');
     expect(html).toContain('Месяц расчёта');
   });
+
+  describe('аудит салона 22.10.2026: карточка мастера без заглушек и служебных текстов', () => {
+    const full = { ...limited, journalUpdate: true, appointmentsView: true, employeesView: true, employeesUpdate: true };
+    const render = (data: EmployeePortalDto) => renderToStaticMarkup(createElement(EmployeeCabinet, {
+      initial: data, target: { employeeId: data.employee.id }, scope: 'synthetic-scope',
+    }));
+
+    it('без хранилища фото вкладки «Фото и работы» нет', () => {
+      expect(render({ ...dto('MANAGER', full), canUpload: false })).not.toContain('data-testid="portal-media"');
+      expect(render(dto('MANAGER', full))).toContain('data-testid="portal-media"');
+    });
+
+    it('вкладка «График» говорит человеческими словами', () => {
+      const html = render(dto('MANAGER', full));
+      expect(html).not.toContain('Проверяем предстоящие собственные записи');
+      expect(html).toContain('Записей вне нового графика нет.');
+    });
+
+    it('пустые «Записи» руководителя ведут к новой записи к этому мастеру', () => {
+      const html = render(dto('MANAGER', full));
+      expect(html).toContain('data-testid="portal-work-new"');
+      expect(html).toContain('href="/calendar?employee=11111111-1111-4111-8111-111111111111&amp;new=1"');
+      expect(render(dto('SELF', full))).not.toContain('data-testid="portal-work-new"');
+    });
+  });
 });

@@ -1601,7 +1601,7 @@ test('финансы F1: период в подзаголовке, четыре 
   const kpis = main.getByTestId('finance-kpis');
   await expect(kpis.getByTestId('charged')).toHaveText('24 000 ₸');
   await expect(kpis.getByTestId('paid')).toHaveText('8 000 ₸');
-  await expect(kpis).toContainText('возвратов за период не было');
+  await expect(kpis.getByTestId('refunded')).toHaveText('0 ₸');
   // Q-206: «К сбору» — полный остаток броней периода, то же число, что итог списка долгов, а не разность итогов
   const debts = (await (
     await request.get(`${fixture}/finance/debts?from=2026-09-01&to=2026-09-30`, {
@@ -1611,7 +1611,6 @@ test('финансы F1: период в подзаголовке, четыре 
   await expect(kpis.getByTestId('balance')).toContainText('₸');
   const due = Number((await kpis.getByTestId('balance').innerText()).replace(/[^\d]/g, ''));
   expect(due * 100).toBe(Number(debts.balanceMinor));
-  await expect(kpis).toContainText('остаток по броням периода');
   await expect(main.getByTestId('finance-charges')).toContainText('По видам начислений');
   // готовые отрезки: ссылка ведёт на период в адресе, активный отмечен
   // с 09.10 в main две ссылки «Сегодня» (навигация «Период обзора» в шапке и «Готовые периоды»

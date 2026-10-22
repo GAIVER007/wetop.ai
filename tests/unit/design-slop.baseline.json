@@ -124,12 +124,6 @@
     "apps/web/src/components/section-cards.tsx": 1
   },
   "raw-form-control": {
-    "apps/web/src/app/ai-agents/[id]/telegram-panel.tsx": 2,
-    "apps/web/src/app/branches/business-card-editor.tsx": 2,
-    "apps/web/src/app/create/build-step.tsx": 1,
-    "apps/web/src/app/create/chat-step.tsx": 1,
-    "apps/web/src/app/create/wizard-fields.tsx": 9,
-    "apps/web/src/app/create/wizard.tsx": 1,
     "apps/web/src/app/marketing/site/editor/create-site.tsx": 1,
     "apps/web/src/app/marketing/site/editor/simple-editor.tsx": 1,
     "apps/web/src/app/today/owner-daily-chart.tsx": 1,

@@ -218,7 +218,8 @@ test('«Сотрудники и доступ»: таблица без плито
   const viewport = page.viewportSize()!;
   expect(Math.abs(box.x + box.width / 2 - viewport.width / 2)).toBeLessThan(4);
   const access = dialog.getByTestId('staff-access');
-  await expect(access.locator('[data-level]')).toHaveCount(2);
+  // гостиница (кабинет горничной 22.10.2026): все четыре уровня, «Без входа» и «Личный кабинет» тоже
+  await expect(access.locator('[data-level]')).toHaveCount(4);
   await expect(access.getByTestId('staff-access-details')).toContainText('Шахматка');
   await access.getByRole('radio', { name: /^Управляющий/ }).check();
   await expect(access.getByTestId('staff-access-details')).toContainText('Сотрудники и доступ');

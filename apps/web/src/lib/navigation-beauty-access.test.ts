@@ -174,5 +174,10 @@ describe('Beauty position access in the web shell', () => {
       (section) => section.items.map((item) => item.href),
     );
     expect(beauty).not.toContain('/waiter');
+    // горничная и ресепшен гостиницы (22.10.2026): рабочих разделов нет, своё в «Моей работе»
+    const hotel = menuSectionsFor({ aiSeller: false, platform: false, role: 'EMPLOYEE' }, 'HOSPITALITY').flatMap(
+      (section) => section.items.map((item) => item.href),
+    );
+    expect(hotel).toEqual([]);
   });
 });

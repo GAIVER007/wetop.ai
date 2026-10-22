@@ -20,6 +20,7 @@ import {
 import { BLOCK_TYPE_RU } from '../../../lib/block-types';
 import { Icon } from '../../../components/icon';
 import { housekeepingStatus } from '../../../lib/status/housekeeping';
+import { HousekeeperPicker } from './housekeeper-picker';
 
 const TYPES: Array<[string, string]> = Object.entries(BLOCK_TYPE_RU);
 /**
@@ -41,11 +42,14 @@ export function UnitActions({
   unit,
   today,
   blockPeriod,
+  housekeepers,
 }: {
   unit: UnitCard;
   today: string;
   /** Период из окошка шахматки (ТЗ v2 §31–32): форма блокировки открывается с ним */
   blockPeriod?: { dateFrom: string; dateTo: string } | undefined;
+  /** Сотрудники гостиницы для «Кто убирает» (22.10.2026); не переданы: выбора нет */
+  housekeepers?: ReadonlyArray<{ id: string; name: string; active: boolean }> | undefined;
 }) {
   const [blockState, blockAction, blockPending] = useActionState<UnitActionResult, FormData>(
     blockUnitAction.bind(null, unit.code),
@@ -70,6 +74,9 @@ export function UnitActions({
           ))}
         </ol>
         <p className="hint">{HK_NEXT[unit.housekeepingStatus]}</p>
+        {housekeepers && (
+          <HousekeeperPicker code={unit.code} current={unit.housekeepingAssignee ?? null} employees={housekeepers} />
+        )}
         <Row>
           {housekeepingTargets(unit.housekeepingStatus).map((k) => (
             <Button

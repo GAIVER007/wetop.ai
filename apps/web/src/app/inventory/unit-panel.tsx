@@ -50,6 +50,7 @@ export function UnitPanel({
   channels,
   canEditCatalog,
   canOperate,
+  housekeepers,
 }: {
   unit: UnitCard;
   today: string;
@@ -64,6 +65,8 @@ export function UnitPanel({
   channels: ChannelMark[];
   canEditCatalog: boolean;
   canOperate: boolean;
+  /** «Кто убирает» (22.10.2026): сотрудники гостиницы для выбора */
+  housekeepers?: ReadonlyArray<{ id: string; name: string; active: boolean }> | undefined;
 }) {
   const { current, next } = unitNow(unit.stays, today);
   const block = unit.blocks.find((b) => b.dateFrom <= today && today < b.dateTo) ?? null;
@@ -98,6 +101,9 @@ export function UnitPanel({
         </Row>
         <Row icon="dirty" label="Состояние уборки" testId="unit-hk">
           <HousekeepingBadge status={unit.housekeepingStatus} />
+        </Row>
+        <Row icon="guests" label="Кто убирает" testId="unit-hk-assignee">
+          {unit.housekeepingAssignee?.name ?? 'Не назначено'}
         </Row>
         <Row icon="channels" label="Каналы продаж" testId="unit-channels">
           {channels.length ? (
@@ -150,7 +156,7 @@ export function UnitPanel({
       {canOperate && (
         <>
           <h3 className="unit-subhead">Уборка и блокировки</h3>
-          <UnitActions unit={unit} today={today} />
+          <UnitActions unit={unit} today={today} housekeepers={housekeepers} />
         </>
       )}
     </div>

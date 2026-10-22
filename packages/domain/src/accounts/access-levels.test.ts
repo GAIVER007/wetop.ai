@@ -48,6 +48,9 @@ describe('уровни доступа сотрудника', () => {
     expect(salon.NONE.sees).toEqual([]);
     expect(accessLevelInfo('FOOD_SERVICE').PORTAL.sees).toContain('Свои заказы');
     expect(accessLevelInfo('HOSPITALITY').STAFF.sees).toContain('Брони и гости');
+    // горничная и ресепшен (22.10.2026): свои уборки и задачи, отзывов о сотрудниках у гостиницы нет
+    expect(accessLevelInfo('HOSPITALITY').PORTAL.sees).toEqual(['Свои уборки и задачи', 'Свой график', 'Своя зарплата']);
+    expect(accessLevelInfo('HOSPITALITY').PORTAL.denies).toContain('Шахматка, брони и гости');
     expect(salon.MANAGER.denies).toContain('Платные расширения и управляющие');
   });
 });

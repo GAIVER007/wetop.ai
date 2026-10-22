@@ -146,8 +146,8 @@ describe('разбор входа', () => {
     expect(payrollTotals({ model: 'BONUS_ONLY', fixedMinor: 1n, percent: 0 }, 0n, [], 3n).total).toBe(3n);
     expect(payrollTotals({ model: 'FIXED', fixedMinor: 7n, percent: 0 }, 0n, []).piece).toBe(0n);
   });
-  it('ставка за уборку: целые тиыны ≥ 0, по умолчанию 0', () => {
-    expect(parsePaySettings({ model: 'FIXED', fixedMinor: 0, percent: 0 }).perCleaningMinor).toBe(0n);
+  it('ставка за уборку: целые тиыны ≥ 0; не прислана, значит прежняя не меняется (салон, ресторан, кабинет)', () => {
+    expect('perCleaningMinor' in parsePaySettings({ model: 'FIXED', fixedMinor: 0, percent: 0 })).toBe(false);
     expect(parsePaySettings({ model: 'FIXED', fixedMinor: 0, percent: 0, perCleaningMinor: 150000 }).perCleaningMinor).toBe(150000n);
     expect(() => parsePaySettings({ model: 'FIXED', fixedMinor: 0, percent: 0, perCleaningMinor: -1 })).toThrow();
     expect(() => parsePaySettings({ model: 'FIXED', fixedMinor: 0, percent: 0, perCleaningMinor: 1.5 })).toThrow();

@@ -308,8 +308,8 @@ export function TopNav({
                         <Icon name="person" />
                         Профиль
                       </Link>
-                      {/* «Моя работа» (личный экран сотрудника) здесь, не в разделах (17.10.2026) */}
-                      {(beauty || food) && (
+                      {/* «Моя работа» (личный экран сотрудника) здесь, не в разделах (17.10.2026); у гостиницы с 22.10.2026 */}
+                      {shell?.vertical && (
                         <Link href="/my-work" onClick={() => setProfile(false)}>
                           <Icon name="person" />
                           Моя работа

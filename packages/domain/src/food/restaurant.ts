@@ -271,8 +271,8 @@ export interface PaySettingsInput {
   model: PayModel;
   fixedMinor: bigint;
   percent: number;
-  /** Ставка за одну уборку гостиницы (миграция 143); не прислана = 0 */
-  perCleaningMinor: bigint;
+  /** Ставка за одну уборку гостиницы (миграция 143); не прислана: прежняя не меняется */
+  perCleaningMinor?: bigint;
 }
 export function parsePaySettings(raw: unknown): PaySettingsInput {
   const b = foodObject(raw, ['model', 'fixedMinor', 'percent', 'perCleaningMinor']);
@@ -281,7 +281,7 @@ export function parsePaySettings(raw: unknown): PaySettingsInput {
     model: b.model as PayModel,
     fixedMinor: money(b.fixedMinor),
     percent: foodInt(b.percent, 0, 100),
-    perCleaningMinor: b.perCleaningMinor === undefined ? 0n : money(b.perCleaningMinor),
+    ...(b.perCleaningMinor === undefined ? {} : { perCleaningMinor: money(b.perCleaningMinor) }),
   };
 }
 

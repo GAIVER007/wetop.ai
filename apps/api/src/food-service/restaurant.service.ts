@@ -1936,7 +1936,7 @@ export class RestaurantService {
           model: b.model,
           fixedMinor: b.fixedMinor,
           percent: b.percent,
-          perCleaningMinor: b.perCleaningMinor,
+          perCleaningMinor: b.perCleaningMinor ?? 0n,
           currency: s.currency,
           updatedById: currentUserId(),
         },
@@ -1944,7 +1944,7 @@ export class RestaurantService {
           model: b.model,
           fixedMinor: b.fixedMinor,
           percent: b.percent,
-          perCleaningMinor: b.perCleaningMinor,
+          ...(b.perCleaningMinor === undefined ? {} : { perCleaningMinor: b.perCleaningMinor }),
           updatedById: currentUserId(),
         },
       });

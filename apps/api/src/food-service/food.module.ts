@@ -201,6 +201,14 @@ export class FoodOrdersController {
   @Post('orders/:id/status') status(@Param('id') id: string, @Body() b: unknown) {
     return this.service.orderStatus(id, b);
   }
+  // Кухня и бар двигают свою позицию (§33.6, миграция 142)
+  @Post('orders/:id/items/:itemId/status') @HttpCode(200) itemStatus(
+    @Param('id') id: string,
+    @Param('itemId') itemId: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.orderItemStatus(id, itemId, b);
+  }
   // Оплата и касса филиала (DATA_MODEL §35, ADR-165): смотрит и проводит смена, аннулирует `refunds`
   @Post('orders/:id/rating') rate(@Param('id') id: string, @Body() b: unknown) {
     return this.service.rateOrder(id, b);

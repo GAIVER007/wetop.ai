@@ -266,6 +266,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /food-service/orders': 'desk',
   'PATCH /food-service/orders/:id': 'desk',
   'POST /food-service/orders/:id/status': 'desk',
+  'POST /food-service/orders/:id/items/:itemId/status': 'desk',
   'POST /food-service/orders/:id/payments': 'desk',
   // возврат по закрытому заказу (§56)
   'POST /food-service/orders/:id/refunds': 'refunds',

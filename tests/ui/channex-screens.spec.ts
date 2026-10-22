@@ -365,7 +365,7 @@ test('приём брони: сбой сервера назван ошибкой
   await page.goto('/channels/events/ui-rev-new-2');
   await expect(page.getByRole('heading', { level: 1 })).not.toHaveText('Страница не найдена');
   await expect(page.getByRole('alert').first()).toContainText(
-    /Проверьте подключение|Сервер отклонил/,
+    /Проверьте подключение|Сервер не принял запрос/,
   );
 });
 

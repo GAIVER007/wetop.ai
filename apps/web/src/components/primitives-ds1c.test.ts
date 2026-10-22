@@ -357,14 +357,31 @@ describe('ErrorState поверх EmptyState', () => {
     expect(empty).toContain('<h3 class="empty-state__title">Не загрузилось</h3>');
     expect(markup).toContain('<h3 class="empty-state__title">Не загрузилось</h3>');
     expect(markup).toContain('Проверьте подключение и повторите запрос.');
-    expect(markup).toMatch(/Подключения API/);
+    expect(markup).toMatch(/>Подключения</);
     expect(markup).toMatch(/<details><summary>Код ошибки<\/summary>API_503<\/details>/);
   });
   it('отклонённый запрос: совет про адрес, без «Подключения API»', () => {
     const markup = html(h(ErrorState, { error: err('API_404'), retry: noop }));
-    expect(markup).toContain('Сервер отклонил запрос (код 404)');
-    expect(markup).not.toContain('Подключения API');
+    expect(markup).toContain('Сервер не принял запрос: проверьте адрес страницы');
+    expect(markup).not.toContain('>Подключения<');
     expect(markup).toContain('Повторить загрузку');
+  });
+  it('403: один понятный текст без кода ошибки и без «Подключения API» (аудит 22.10.2026, P1-2)', () => {
+    const markup = html(h(ErrorState, { error: err('API_403'), retry: noop, title: 'Не загрузилось' }));
+    expect(markup).toContain('Этот раздел вам недоступен. Попросите руководителя открыть доступ.');
+    expect(markup).not.toContain('код 403');
+    expect(markup).not.toContain('Код ошибки');
+    expect(markup).not.toContain('API_403');
+    expect(markup).not.toContain('Подключения');
+    expect(markup).not.toContain('Проверьте подключение');
+    // повтор с теми же правами даст тот же отказ: кнопки повтора нет
+    expect(markup).not.toContain('Повторить загрузку');
+  });
+  it('отклонённый запрос и сбой связи: без слов для разработчиков («код 404», «API»)', () => {
+    const rejected = html(h(ErrorState, { error: err('API_404'), retry: noop }));
+    expect(rejected).not.toMatch(/код \d{3}/);
+    const offline = html(h(ErrorState, { error: err('API_503'), retry: noop }));
+    expect(offline).not.toContain('Подключения API');
   });
   it('салон и ресторан: без «Подключения API», у них нет этой страницы', () => {
     for (const vertical of ['BEAUTY', 'FOOD_SERVICE'] as const) {
@@ -376,7 +393,7 @@ describe('ErrorState поверх EmptyState', () => {
         }),
       );
       expect(markup).toContain('Повторить загрузку');
-      expect(markup).not.toContain('Подключения API');
+      expect(markup).not.toContain('>Подключения<');
     }
   });
   it('исходник ErrorState не держит своей разметки empty-state', () => {

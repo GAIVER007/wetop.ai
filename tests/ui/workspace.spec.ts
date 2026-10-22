@@ -440,12 +440,12 @@ test('экран ошибки различает отклонённый запр
   });
   await page.goto('/inventory');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
-  await expect(page.getByRole('main')).toContainText('Сервер отклонил запрос (код 404)');
+  await expect(page.getByRole('main')).toContainText('Сервер не принял запрос');
   await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
   await page.goto('/inventory');
   await expect(page.getByRole('main')).toContainText('Проверьте подключение');
-  await expect(page.getByText('Сервер отклонил запрос')).toHaveCount(0);
+  await expect(page.getByText('Сервер не принял запрос')).toHaveCount(0);
 });
 
 test('сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь', async ({

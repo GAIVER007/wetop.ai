@@ -22,6 +22,7 @@ import { clock, localInput } from '../beauty/time';
 import { beautyStatus } from '../../lib/status/beauty';
 import { AppointmentEditor } from '../beauty/appointment-editor';
 import { formatPhone } from '../../lib/phone';
+import { appointmentSourceLabel } from '../../lib/appointment-source';
 function subscribeAddress(changed: () => void) {
   window.addEventListener('popstate', changed);
   window.addEventListener('appointments-address', changed);
@@ -360,7 +361,7 @@ export function AppointmentsList({
                 <td data-label="Статус">
                   <StatusBadge kind="beauty" value={r.status} />
                 </td>
-                <td data-label="Источник">{r.source === 'WEBSITE' ? 'Сайт' : 'Стойка'}</td>
+                <td data-label="Источник">{appointmentSourceLabel(r.source)}</td>
                 <td data-label="Автор">{r.createdByName ?? '-'}</td>
                 <td data-label="Стоимость" className="beauty-amount">
                   {formatMoney(r.priceMinor, r.currency)}

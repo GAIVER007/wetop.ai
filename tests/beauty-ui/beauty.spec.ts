@@ -265,7 +265,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   const csv = await exported.text();
   // C2 (a98cf2fc5): после статуса идут источник записи и автор
   expect(csv).toContain('Статус;Источник;Автор;Валюта;Цена;Оплачено;Возвращено');
-  expect(csv).toMatch(/Завершена;Стойка;[^;\r\n]*;KZT;12000,00;5000,00;2000,00/);
+  expect(csv).toMatch(/Завершена;Администратор;[^;\r\n]*;KZT;12000,00;5000,00;2000,00/);
   expect(csv).not.toContain('Тестовая клиентка');
   await page.goto('/customers');
   await expect(page.getByRole('main')).toContainText('Тестовая клиентка');

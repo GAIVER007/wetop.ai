@@ -2068,25 +2068,13 @@ body:has(.org-reference) .topmenu {
 }
 .org-reference .org-card-footer { margin-top: var(--space-4); }
 
-/* итоги месяца одной строкой вместо ряда плиток (21.10.2026): как строка итогов склада */
-.org-reference .org-totals,
-.org-totals {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-6);
-  margin: 0;
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface-solid);
+/* итоги месяца одной строкой под списком объектов (аудит 22.10.2026 P1-3a): строка `money-summary` из
+   finance/summary.css, здесь только отступ от карточек и пустая фраза */
+.org-reference .org-totals {
+  margin: var(--space-4) 0 var(--space-1);
+}
+.org-reference .org-totals-note {
+  margin: var(--space-4) 0 0;
   color: var(--text-2);
   font-size: var(--text-sm);
-}
-.org-totals i {
-  font-style: normal;
-}
-.org-totals b {
-  color: var(--text);
-  font-weight: var(--weight-semibold);
-  overflow-wrap: anywhere;
 }

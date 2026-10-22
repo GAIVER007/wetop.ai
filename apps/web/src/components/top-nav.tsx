@@ -214,12 +214,12 @@ export function TopNav({
               <button
                 className="workspace-search"
                 data-tour="search"
-                aria-label={beauty || food ? 'Найти раздел' : 'Найти гостя или бронь'}
+                aria-label={beauty || food ? 'Найти клиента или раздел' : 'Найти гостя или бронь'}
                 onClick={() => setSearch(true)}
               >
                 <Icon name="search" />
                 <span className="workspace-search-full">
-                  {beauty || food ? 'Поиск раздела' : 'Поиск гостя, брони, номера...'}
+                  {beauty || food ? 'Поиск клиента, раздела...' : 'Поиск гостя, брони, номера...'}
                 </span>
                 <span className="workspace-search-short" aria-hidden="true">
                   Поиск

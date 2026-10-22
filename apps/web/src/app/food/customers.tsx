@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
-import { Badge, EmptyState, StatusBadge, Table } from '../../components/ui';
+import { Badge, Button, EmptyState, Input, StatusBadge, Table } from '../../components/ui';
 import { Tabs } from '../../components/tabs';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
@@ -12,8 +12,13 @@ import { localInput } from '../beauty/time';
 import { pluralRu } from '../../lib/plural';
 import { restaurantShell } from './restaurant-load';
 import { CustomerMarks } from './customer-marks';
+import { matchesCustomerQuery } from '../../lib/customer-hits';
 import './food.css';
 import './restaurant.css';
+import '../customers/customers.css';
+
+/** Форма новой брони стола: у API ресторана гость создаётся только вместе с бронью */
+const NEW_BOOKING = '/table-reservations?new=1';
 
 const name = (c: { firstName: string; lastName: string | null }) =>
   [c.firstName, c.lastName].filter(Boolean).join(' ');
@@ -31,7 +36,7 @@ const birthdayText = (c: FoodCustomer) =>
         : dayMonth(c.birthDate);
 
 /** «Клиенты и бронирования» по макету (ADR-159): постоянный гость от двух визитов, VIP и дни рождения (§36) */
-export async function FoodCustomers() {
+export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
   try {
     const shell = await restaurantShell();
     const write = shell.canDesk && !shell.readOnly;
@@ -56,7 +61,16 @@ export async function FoodCustomers() {
       empty = 'Клиенты появятся после первого бронирования',
     ) =>
       list.length === 0 ? (
-        <EmptyState title={empty} />
+        <EmptyState
+          title={empty}
+          actions={
+            write && customers.length === 0 ? (
+              <Link className="btn" href={NEW_BOOKING}>
+                Создать первую бронь
+              </Link>
+            ) : undefined
+          }
+        />
       ) : (
         <Table>
           <thead>
@@ -145,6 +159,9 @@ export async function FoodCustomers() {
           </tbody>
         </Table>
       );
+    // `?q=` из поиска в шапке (аудит 22.10.2026 P1-4): вкладка «Все» сразу показывает найденного гостя
+    const search = query.trim();
+    const found = search ? customers.filter((c) => matchesCustomerQuery(c, search)) : customers;
     const regulars = customers.filter((c) => (c.visits ?? 0) >= 2);
     const vips = customers.filter((c) => c.isVip);
     const birthdays = customers
@@ -153,13 +170,52 @@ export async function FoodCustomers() {
     return (
       <Page
         title="Клиенты"
-        subtitle="Клиенты и бронирования. Новый клиент добавляется при создании брони"
+        subtitle="Клиенты и бронирования. Новый клиент добавляется вместе с бронью стола"
       >
+        {/* панель как у салона (аудит 22.10.2026 P1-5): поиск слева, действия справа. Отдельного создания и импорта
+            гостей у API ресторана нет: гость появляется вместе с бронью, поэтому «Добавить клиента» открывает её форму */}
+        <div className="beauty-customers-bar" data-testid="food-customers-bar">
+          <form className="beauty-customers-bar__filters" method="get" action="/customers" role="search">
+            <Input
+              type="search"
+              name="q"
+              defaultValue={search}
+              maxLength={100}
+              aria-label="Поиск по имени или телефону"
+              placeholder="Имя или телефон"
+            />
+            <Button type="submit" tone="secondary">
+              Найти
+            </Button>
+          </form>
+          {write && (
+            <div className="beauty-customers-bar__actions">
+              <Link className="btn" href={NEW_BOOKING}>
+                Добавить клиента
+              </Link>
+            </div>
+          )}
+        </div>
         <div className="food-workspace" data-testid="food-customers">
           <Tabs
             label="Клиенты и бронирования"
             panels={[
-              { id: 'all', label: 'Все', count: customers.length, content: customersTable(customers) },
+              {
+                id: 'all',
+                label: 'Все',
+                count: found.length,
+                content: (
+                  <>
+                    {search && (
+                      <p className="muted" data-testid="food-customers-query">
+                        Найдено по запросу «{search}»: {found.length}.{' '}
+                        <Link href="/customers">Показать всех</Link>
+                      </p>
+                    )}
+                    {customersTable(found, search ? 'Клиентов с таким именем или телефоном нет' : undefined)}
+                  </>
+                ),
+              },
               {
                 id: 'bookings',
                 label: 'Бронирования',

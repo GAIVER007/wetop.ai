@@ -235,7 +235,7 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
   expect((await request.post(`${api}/__test/cleanup`)).ok()).toBe(true);
 });
 
-test('restaurant-only organization keeps financial widgets without lower panels', async ({
+test('restaurant-only organization keeps one totals line without lower panels', async ({
   page,
   request,
 }) => {
@@ -245,7 +245,9 @@ test('restaurant-only organization keeps financial widgets without lower panels'
     await page.goto('/branches');
     await expect(page.locator('.org-reference--service')).toBeVisible();
     await expect(page.locator('.org-bottom, .org-object-results')).toHaveCount(0);
-    await expect(page.getByText('Доход от оплат', { exact: true })).toBeVisible();
+    // итоги месяца одной строкой под объектами (аудит 22.10.2026 P1-3a): строка или одна фраза пустого месяца
+    await expect(page.getByTestId('org-totals')).toBeVisible();
+    await expect(page.locator('.org-kpis')).toHaveCount(0);
   } finally {
     await request.post(`${api}/__test/control`, { data: { org: 'A' } });
     await request.post(`${api}/__test/cleanup`);

@@ -39,6 +39,7 @@ import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { foodMay, foodScope, foodTransaction, foodWritable, waiterSelf, type FoodScope } from './scope';
 import { occupancyCommand, occupancyEnabled, reservationOccupancy } from './occupancy';
+import { customerSearch, customerSearchWhere } from '../customers/search';
 
 /** Сегодня по часовому поясу филиала, `ГГГГ-ММ-ДД` */
 const localToday = (timezone: string) =>
@@ -397,14 +398,17 @@ export class FoodService {
   }
   async customers(query: unknown) {
     foodMay('desk');
-    const s = await foodScope(this.prisma.db),
-      p = page(query);
+    const p = page(query, ['q']);
+    // поиск в шапке ресторана (аудит 22.10.2026 P1-4): сужает тот же список, фильтр организации и бизнеса прежний
+    const search = customerSearch(p.q.q);
+    const s = await foodScope(this.prisma.db);
     const rows = await this.prisma.db.customer.findMany({
       where: {
         ...(p.cursor ? { id: { gt: p.cursor } } : {}),
         organizationId: s.organizationId,
         status: 'ACTIVE',
         businesses: { some: { businessId: s.businessId } },
+        ...(search ? customerSearchWhere(search) : {}),
       },
       select: {
         id: true,

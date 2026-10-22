@@ -4191,7 +4191,11 @@ export const beautyApi = {
   issueReviewInvitation: (id: string) => sendJson<{ reviewPath: string; expiresAt: string; masterCount: number }>(
     'POST', `/beauty/appointments/${encodeURIComponent(id)}/review-invitation`, {},
   ),
-  customers: () => getJson<{ items: BeautyCustomerRow[] }>('/beauty/customers'),
+  /** `q`: поиск по имени и телефону в шапке (аудит 22.10.2026 P1-4); API отдаёт до 20 совпадений */
+  customers: (filter: { q?: string } = {}) =>
+    getJson<{ items: BeautyCustomerRow[] }>(
+      `/beauty/customers${filter.q ? `?${new URLSearchParams({ q: filter.q })}` : ''}`,
+    ),
   customer: (id: string) => getJson<BeautyCustomerDetail>(`/beauty/customers/${encodeURIComponent(id)}`),
   createCustomer: (body: { firstName: string; lastName: string; phone: string }) =>
     sendJson<{ id: string; created: boolean }>('POST', '/beauty/customers', body),

@@ -42,10 +42,11 @@ import type {
 const base = '/food-service';
 const idPath = (collection: string, id: string) =>
   `${base}/${collection}/${encodeURIComponent(id)}`;
-const query = (cursor?: string, date?: string) => {
+const query = (cursor?: string, date?: string, search?: string) => {
   const q = new URLSearchParams({ limit: '100' });
   if (cursor) q.set('cursor', cursor);
   if (date) q.set('date', date);
+  if (search) q.set('q', search);
   return `?${q}`;
 };
 export const foodApi = {
@@ -76,8 +77,9 @@ export const foodApi = {
     sendJson<ServicePeriod>('POST', `${base}/service-periods`, body),
   updatePeriod: (id: string, body: Partial<PeriodInput>) =>
     sendJson<ServicePeriod>('PATCH', idPath('service-periods', id), body),
-  customers: (cursor?: string) =>
-    getJsonPublic<FoodPage<FoodCustomer>>(`${base}/customers${query(cursor)}`),
+  /** `search`: имя или телефон гостя (поиск в шапке, аудит 22.10.2026 P1-4) */
+  customers: (cursor?: string, search?: string) =>
+    getJsonPublic<FoodPage<FoodCustomer>>(`${base}/customers${query(cursor, undefined, search)}`),
   updateCustomer: (id: string, body: { isVip?: boolean; birthDate?: string | null }) =>
     sendJson<{ id: string }>('PATCH', idPath('customers', id), body),
   reservations: (date: string, cursor?: string) =>

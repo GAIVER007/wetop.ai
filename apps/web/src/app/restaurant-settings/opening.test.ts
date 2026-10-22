@@ -49,3 +49,18 @@ it('server error returns inline failure without automatic retry', async () => {
  const result = await saveOpening('b:l', input, true);
  expect(result.error).toContain('часов'); expect(openingApi.confirm).toHaveBeenCalledTimes(1);
 });
+
+// аудит 22.10.2026 P1-6: часовой пояс словами, выключенный учёт понятной владельцу фразой без служебных слов
+it('выключенный учёт: одна понятная фраза без «физических часов» и формы; пояс «Алматы, UTC+5»', () => {
+ const html = renderToStaticMarkup(React.createElement(OpeningForm, { scopeKey: 'b:l', timezone: 'Asia/Almaty', write: true, initial: { enabled: false, schedule: null } }));
+ expect(html).toContain('Часы работы зала настраиваются командой WETOP');
+ expect(html).not.toContain('Учёт физических часов отключён');
+ expect(html).not.toContain('Расписание недоступно');
+ expect(html).not.toContain('Asia/Almaty');
+ expect(html).not.toContain('<form');
+});
+it('включённый учёт: пояс словами, без Asia/Almaty', () => {
+ const html = renderToStaticMarkup(React.createElement(OpeningForm, { scopeKey: 'b:l', timezone: 'Asia/Almaty', write: true, initial: { enabled: true, schedule: null } }));
+ expect(html).toContain('Часовой пояс: Алматы, UTC+5');
+ expect(html).not.toContain('Asia/Almaty');
+});

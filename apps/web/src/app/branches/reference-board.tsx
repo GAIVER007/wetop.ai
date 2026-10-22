@@ -101,7 +101,6 @@ export function ReferenceBoard({
           {create}
         </div>
       </div>
-      <FinancialWidgets summary={financial} />
       {visible.length ? (
         <div className="org-cards">
           {visible.map((group) => {
@@ -243,6 +242,9 @@ export function ReferenceBoard({
           </p>
           {create ? <button onClick={() => openCreate()}>Добавить первый объект</button> : null}
         </div>
+      )}
+      {visible.length > 0 && (
+        <FinancialWidgets summary={financial} verticals={visible.map((group) => group.vertical)} />
       )}
       {editing && (
         <BusinessCardEditor

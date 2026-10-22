@@ -18,6 +18,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import {
   birthdayInDays,
@@ -75,6 +76,7 @@ import { BeautyScheduleController, BeautyScheduleService } from './schedule';
 import { BeautyRemindersController, BeautyRemindersService, ClientReminderWorker } from './reminders';
 import { BeautyLoyaltyController, BeautyLoyaltyService } from './loyalty';
 import { findOrCreateCustomer } from '../customers/identity';
+import { CUSTOMER_SEARCH_LIMIT, customerSearch, customerSearchWhere } from '../customers/search';
 import { CustomerImportsController, CustomerImportService } from './customer-import';
 import { CustomerImportWorker } from './customer-import.worker';
 import {
@@ -225,14 +227,17 @@ export class BeautyCatalogService {
    * деньги записи это её снимок цены (Q-252), новых таблиц нет. Средний чек идёт по валюте, в которой
    * у клиента больше всего визитов (валюты не складываются, курсов нет); «всего визитов» по всем валютам.
    */
-  async customers() {
+  async customers(filter: { q?: unknown } = {}) {
     this.may('desk');
+    const search = customerSearch(filter.q);
     const scope = await this.scope();
     const items = await this.prisma.db.customer.findMany({
       where: {
         organizationId: scope.organizationId,
         businesses: { some: { businessId: scope.businessId } },
+        ...(search ? customerSearchWhere(search) : {}),
       },
+      ...(search ? { take: CUSTOMER_SEARCH_LIMIT } : {}),
       orderBy: [{ firstName: 'asc' }, { id: 'asc' }],
       select: { id: true, firstName: true, lastName: true, phone: true, status: true, isVip: true, birthDate: true },
     });
@@ -1072,8 +1077,8 @@ export class BeautyCatalogController {
   @RequiresBusinessCapability('beauty.customers')
   @BeautyAccess('customers', 'view')
   @Get('customers')
-  customers() {
-    return this.service.customers();
+  customers(@Query('q') q?: string) {
+    return this.service.customers(q === undefined ? {} : { q });
   }
   @RequiresBusinessCapability('beauty.customers')
   @BeautyAccess('customers', 'create')

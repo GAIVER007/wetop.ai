@@ -1,104 +1,75 @@
 import type { OrganizationSummary, OrganizationMoney } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
-const amounts = (
-  rows: OrganizationMoney[],
-  field: 'receiptsMinor' | 'expensesMinor' | 'averageMinor',
-) =>
-  rows.length
-    ? rows
-        .map((row) =>
-          row[field] === null ? 'Не определён' : formatMoney(row[field]!, row.currency),
-        )
-        .join(' / ')
-    : 'Нет данных';
-/** Итоги месяца организации одной строкой, без ряда плиток (правило владельца 21.10.2026 «без плиток»): порядок от
- * расходов к полученному доходу прежний, суммы по валютам раздельно */
-export function FinancialWidgets({ summary }: { summary: OrganizationSummary | null | undefined }) {
-  const rows = summary?.currencies ?? [];
-  return (
-    <>
-      <p className="org-totals" data-testid="org-totals">
-        <span><i>Расходы</i> <b className="org-money">{amounts(rows, 'expensesMinor')}</b></span>
-        <span><i>Средний чек</i> <b className="org-money">{amounts(rows, 'averageMinor')}</b></span>
-        <span><i>Оплаченные заказы</i> <b>{summary ? summary.orders : 'Нет данных'}</b></span>
-        <span><i>Доход от оплат</i> <b className="org-money">{amounts(rows, 'receiptsMinor')}</b></span>
-      </p>
-      {!summary ? (
-        <p className="org-finance-coverage" role="status">
-          Финансовая сводка сейчас недоступна. Суммы не заменяются примерными значениями.
-        </p>
-      ) : !summary.complete ? (
-        <p className="org-finance-coverage" role="status">
-          По объектам с доступными финансовыми данными. Валюты показаны раздельно.
-        </p>
-      ) : (
-        <p className="org-finance-coverage">
-          Все доступные объекты, включая архивные. Валюты показаны раздельно.
-        </p>
-      )}
-    </>
-  );
+import { verticalCopy } from '../../lib/vertical-copy';
+import '../finance/summary.css';
+const VERTICAL_ORDER = ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const;
+type Vertical = (typeof VERTICAL_ORDER)[number];
+/** «Оплаченные брони и записи»: слова направлений из vertical-copy (в салоне нет заказов и броней, аудит P2-5) */
+function paidLabel(verticals: readonly Vertical[]) {
+  const words = VERTICAL_ORDER.filter((v) => verticals.includes(v)).map((v) => verticalCopy(v).paidUnits);
+  const list = words.length ? words : [verticalCopy('HOSPITALITY').paidUnits];
+  const tail = list.length > 1 ? `${list.slice(0, -1).join(', ')} и ${list.at(-1)}` : list[0];
+  return `Оплаченные ${tail}`;
 }
-export function BusinessFinancialWidgets({
+const known = (rows: OrganizationMoney[], field: 'receiptsMinor' | 'expensesMinor' | 'averageMinor') =>
+  rows
+    .filter((row) => row[field] !== null)
+    .map((row) => formatMoney(row[field]!, row.currency))
+    .join(' / ');
+/** Итоги месяца организации одной строкой под списком объектов, как `money-summary` на «Финансах» и в «Кассе»
+ * (правило владельца «без плиток», аудит 22.10.2026 P1-3a). Пустой месяц: одна фраза без «0 ₸» и «Не определён». */
+export function FinancialWidgets({
   summary,
-  businessId,
+  verticals = [],
 }: {
   summary: OrganizationSummary | null | undefined;
-  businessId: string;
+  verticals?: readonly Vertical[];
 }) {
-  const rows = summary?.rows.filter((row) => row.businessId === businessId) ?? [];
-  if (!rows.length || rows.some((row) => row.state !== 'READY'))
+  if (!summary)
     return (
-      <p className="org-finance-unavailable">
-        {rows.some((row) => row.state === 'UNAVAILABLE')
-          ? 'Учёт оплат не подключён'
-          : 'Финансовые данные сейчас недоступны'}
+      <p className="org-totals-note" data-testid="org-totals" role="status">
+        Итоги месяца сейчас не загрузились. Обновите страницу чуть позже.
       </p>
     );
-  const currencies = new Map<
-    string,
-    { received: bigint; expenses: bigint; orders: number; known: boolean }
-  >();
-  for (const row of rows)
-    for (const c of row.currencies) {
-      const sum = currencies.get(c.currency) ?? {
-        received: 0n,
-        expenses: 0n,
-        orders: 0,
-        known: true,
-      };
-      sum.received += BigInt(c.receiptsMinor);
-      sum.expenses += BigInt(c.expensesMinor);
-      sum.orders += c.orders;
-      sum.known =
-        sum.known && (c.orders === 0 ? BigInt(c.receiptsMinor) === 0n : c.averageMinor !== null);
-      currencies.set(c.currency, sum);
-    }
-  const values = [...currencies].map(([currency, sum]) => ({
-    currency,
-    receiptsMinor: sum.received.toString(),
-    expensesMinor: sum.expenses.toString(),
-    orders: sum.orders,
-    averageMinor: sum.known && sum.orders ? (sum.received / BigInt(sum.orders)).toString() : null,
-  }));
+  const rows = summary.currencies.filter(
+    (row) => row.orders > 0 || BigInt(row.receiptsMinor) !== 0n || BigInt(row.expensesMinor) !== 0n,
+  );
+  const scope = summary.complete
+    ? 'Все объекты, в том числе из архива.'
+    : 'Только объекты, где ведётся учёт оплат.';
+  if (!rows.length)
+    return (
+      <p className="org-totals-note" data-testid="org-totals">
+        За этот месяц оплат и расходов пока нет. {scope}
+      </p>
+    );
+  const average = known(rows, 'averageMinor');
   return (
-    <div className="org-business-finance">
-      <div>
-        <strong>{amounts(values, 'receiptsMinor')}</strong>
-        <small>Оплаты</small>
-      </div>
-      <div>
-        <strong>{rows.reduce((n, row) => n + row.orders, 0)}</strong>
-        <small>Заказы</small>
-      </div>
-      <div>
-        <strong>{amounts(values, 'averageMinor')}</strong>
-        <small>Средний чек</small>
-      </div>
-      <div>
-        <strong>{amounts(values, 'expensesMinor')}</strong>
-        <small>Расходы</small>
-      </div>
-    </div>
+    <>
+      <dl className="money-summary org-totals" data-testid="org-totals">
+        <div>
+          <dt>Расходы</dt>
+          <dd>{known(rows, 'expensesMinor')}</dd>
+        </div>
+        {average && (
+          <div>
+            <dt>Средний чек</dt>
+            <dd>{average}</dd>
+          </div>
+        )}
+        <div>
+          <dt>{paidLabel(verticals)}</dt>
+          <dd>{summary.orders}</dd>
+        </div>
+        <div>
+          <dt>Доход от оплат</dt>
+          <dd>{known(rows, 'receiptsMinor')}</dd>
+        </div>
+      </dl>
+      <p className="org-finance-coverage" role={summary.complete ? undefined : 'status'}>
+        {scope}
+        {rows.length > 1 ? ' Суммы в разных валютах считаются отдельно.' : ''}
+      </p>
+    </>
   );
 }

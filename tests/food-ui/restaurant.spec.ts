@@ -1000,6 +1000,13 @@ test('клиенты: вкладки, «Постоянный гость» от �
   expect(second.ok()).toBe(true);
   await page.goto('/customers');
   await expect(page.getByRole('tab', { name: /Все/ })).toBeVisible();
+  // панель как у салона (аудит 22.10.2026 P1-5): поиск и «Добавить клиента» (гость создаётся вместе с бронью)
+  const bar = page.getByTestId('food-customers-bar');
+  await expect(bar.getByRole('searchbox', { name: 'Поиск по имени или телефону' })).toBeVisible();
+  await expect(bar.getByRole('link', { name: 'Добавить клиента', exact: true })).toHaveAttribute(
+    'href',
+    '/table-reservations?new=1',
+  );
   // скрытые панели вкладок остаются в DOM: ищем строку только в видимой панели
   const row = page.getByRole('tabpanel').locator('tbody tr', { hasText: 'Сергей Иванов' });
   await expect(row).toContainText('Постоянный гость');
@@ -1028,6 +1035,16 @@ test('клиенты: вкладки, «Постоянный гость» от �
   await expect(page.getByRole('tabpanel')).toContainText('Сергей Иванов');
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);
+  // поиск в шапке (аудит 22.10.2026 P1-4): ищет гостей ресторана по имени и телефону, а не только разделы
+  await page.getByRole('button', { name: 'Найти клиента или раздел', exact: true }).click();
+  const search = page.getByRole('dialog', { name: 'Быстрый поиск' });
+  await search.getByRole('textbox', { name: 'Запрос' }).fill('8 700 123');
+  const hit = search.getByRole('link', { name: /Сергей Иванов/ });
+  await expect(hit).toBeVisible();
+  await hit.click();
+  await expect(page).toHaveURL(/\/customers\?q=/);
+  await expect(page.getByTestId('food-customers-query')).toContainText('Найдено');
+  await expect(page.getByRole('tabpanel').locator('tbody tr')).toHaveCount(1);
   // метки видит смена: в бронях дня и строкой на «Главной» (вторая бронь клиента сегодня активна)
   await page.goto(`/table-reservations?date=${localDay}&view=list`);
   await expect(page.getByTestId('guest-marks').first()).toContainText('VIP');

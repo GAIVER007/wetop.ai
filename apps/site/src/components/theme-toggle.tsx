@@ -22,7 +22,17 @@ export function ThemeToggle() {
       onClick={() => {
         const value = !dark;
         setDark(value);
-        document.documentElement.dataset.theme = value ? 'dark' : 'light';
+        const apply = () => {
+          document.documentElement.dataset.theme = value ? 'dark' : 'light';
+        };
+        // Смена темы без резкого скачка яркости (apple-design §14): короткий cross-fade
+        // через view transition; при reduced motion или без поддержки — сразу.
+        const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
+        if (doc.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          doc.startViewTransition(apply);
+        } else {
+          apply();
+        }
         try {
           localStorage.setItem('wetop-theme', value ? 'dark' : 'light');
         } catch {

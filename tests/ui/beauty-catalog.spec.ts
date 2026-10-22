@@ -73,9 +73,11 @@ test('M4-A: клиент без записи, повтор номера и со�
   await panel.getByRole('button', { name: 'Сохранить клиента', exact: true }).click();
   await expect(panel.getByText('Укажите имя клиента', { exact: true })).toBeVisible();
   await expect(panel.getByText('Укажите телефон, например +7 701 000 00 00', { exact: true })).toBeVisible();
-  await panel.getByLabel('Имя', { exact: true }).fill('Тестовый клиент M4');
+  // текст ошибки входит в имя поля, пока его не поправили: поля по name
+  await panel.locator('input[name="firstName"]').fill('Тестовый клиент M4');
+  await expect(panel.getByText('Укажите имя клиента', { exact: true })).toHaveCount(0);
   await panel.getByLabel('Фамилия', { exact: true }).fill('Синтетический');
-  await panel.getByLabel('Телефон', { exact: true }).fill('8 (700) 000-50-01');
+  await panel.locator('input[name="phone"]').fill('8 (700) 000-50-01');
   await panel.getByRole('button', { name: 'Сохранить клиента', exact: true }).click();
   await expect(panel).not.toBeVisible();
   let row = main.getByRole('row').filter({ hasText: 'Тестовый клиент M4' });

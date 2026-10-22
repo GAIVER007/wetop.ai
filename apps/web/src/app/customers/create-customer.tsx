@@ -4,7 +4,7 @@ import { Alert, Button, Field, Input } from '../../components/ui';
 import { createBeautyCustomerState } from './actions';
 import { formatPhoneInput } from '../../lib/phone';
 
-type CustomerFieldErrors = Partial<Record<'firstName' | 'phone', string>>;
+type CustomerFieldErrors = { firstName?: string | undefined; phone?: string | undefined };
 
 /** Пустые обязательные поля называются под полем (аудит салона 22.10.2026: кнопка молчала); формат номера проверяет сервер */
 export function customerFieldErrors(draft: { firstName: string; phone: string }): CustomerFieldErrors {
@@ -35,11 +35,11 @@ export function CreateCustomer({ businessId, onSaved }: {
     <form action={action} className="beauty-form" noValidate onSubmit={check}>
       <input type="hidden" name="businessId" value={businessId} />
       <Field label="Имя" controlId="create-customer-first-name" error={errors.firstName}><Input name="firstName" autoComplete="given-name" required maxLength={100}
-        value={firstName} onChange={(e) => setFirstName(e.target.value)} /></Field>
+        value={firstName} onChange={(e) => { setFirstName(e.target.value); setErrors((current) => ({ ...current, firstName: undefined })); }} /></Field>
       <Field label="Фамилия"><Input name="lastName" autoComplete="family-name" maxLength={100}
         value={lastName} onChange={(e) => setLastName(e.target.value)} /></Field>
       <Field label="Телефон" controlId="create-customer-phone" error={errors.phone}><Input name="phone" type="tel" inputMode="tel" autoComplete="tel" required maxLength={32}
-        placeholder="+7 701 000 00 00" value={phone} onChange={(e) => setPhone(formatPhoneInput(e.target.value))} /></Field>
+        placeholder="+7 701 000 00 00" value={phone} onChange={(e) => { setPhone(formatPhoneInput(e.target.value)); setErrors((current) => ({ ...current, phone: undefined })); }} /></Field>
       <p className="muted">Номер можно ввести с +7, с 8 или как 10 цифр местного номера.</p>
       {state?.error && <Alert>{state.error}</Alert>}
       <Button type="submit" disabled={pending}>{pending ? 'Сохраняем…' : 'Сохранить клиента'}</Button>

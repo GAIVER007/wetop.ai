@@ -390,7 +390,7 @@ test('быстрый отчёт календаря: пустой день, ка�
   await openDay(page);
   const trigger = page.getByRole('button', { name: 'Быстрый отчёт', exact: true });
   await expect(trigger).toBeVisible();
-  await page.getByRole('button', { name: 'Открыть календарь', exact: true }).click();
+  await page.getByRole('button', { name: /^Открыть календарь/ }).click();
   const calendar = page.getByRole('dialog', { name: 'Календарь', exact: true });
   await expect(calendar).toBeVisible();
   await calendar.getByRole('button', { name: 'Следующий месяц' }).click();

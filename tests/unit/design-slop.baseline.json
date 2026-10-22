@@ -127,7 +127,6 @@
   "raw-form-control": {
     "apps/web/src/app/ai-agents/[id]/telegram-panel.tsx": 2,
     "apps/web/src/app/branches/business-card-editor.tsx": 2,
-    "apps/web/src/app/branches/month-picker.tsx": 1,
     "apps/web/src/app/create/build-step.tsx": 1,
     "apps/web/src/app/create/chat-step.tsx": 1,
     "apps/web/src/app/create/wizard-fields.tsx": 9,

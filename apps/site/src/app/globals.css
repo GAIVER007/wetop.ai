@@ -1749,6 +1749,19 @@ button {
   color: var(--primary);
   text-decoration: underline;
 }
+/* Ошибка под полем (P1-1a): свой русский текст вместо всплывающего сообщения браузера */
+.auth-field__error {
+  color: var(--danger);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+.auth-field__input[aria-invalid='true'],
+.auth-field__password:has(> .auth-field__input[aria-invalid='true']) {
+  border-color: var(--danger);
+}
+.auth-field__password .auth-field__input[aria-invalid='true'] {
+  border-color: transparent;
+}
 .auth-form__hint {
   margin: -4px 0 0;
   color: var(--muted);
@@ -4090,6 +4103,12 @@ button {
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 20px;
+}
+/* Казахские подписи длиннее русских: на 390 кнопка героя переносит текст, а не вылезает за экран (P1-12) */
+.hotel-hero__actions > .btn {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
 }
 .hotel-hero__chips {
   display: flex;

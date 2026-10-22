@@ -73,6 +73,8 @@ export const ACTION_RU: Record<string, string> = {
   'analytics.site.update': 'Сайт со счётчиком изменён',
   'analytics.site.delete': 'Сайт со счётчиком удалён',
   'user.login': 'Вход в систему',
+  // владелец создал аккаунт сам (регистрация с сайта): раньше строка читалась «Действие: сотрудники» (P2-3)
+  'user.register': 'Аккаунт создан',
   'user.logout': 'Выход из системы',
   'user.organization.switched': 'Организация переключена',
   'user.password.changed': 'Пароль изменён',
@@ -221,7 +223,8 @@ export const ENTITY_RU: Record<string, string> = {
   Folio: 'Счёт',
   organization: 'Организация',
   location: 'Филиал',
-  user: 'Сотрудник',
+  // объект входа, регистрации и смены пароля — учётная запись человека, а не карточка сотрудника (P2-3)
+  user: 'Учётная запись',
   Competitor: 'Конкурент',
   Location: 'Филиал',
   PaymentRequest: 'Счёт на оплату',

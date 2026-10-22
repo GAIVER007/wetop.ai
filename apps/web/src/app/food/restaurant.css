@@ -244,6 +244,25 @@
     display: block;
     color: var(--text-2);
   }
+  /* §33.6: у позиции своя кнопка под названием */
+  .rest-kds-items li[data-status] {
+    display: grid;
+    gap: var(--space-1);
+    padding-bottom: var(--space-1);
+    border-bottom: 1px solid var(--border);
+  }
+  .rest-kds-items li[data-status]:last-child {
+    border-bottom: 0;
+  }
+  .rest-kds-line {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .rest-kds-items li .btn {
+    justify-self: stretch;
+    min-height: var(--touch-target);
+  }
   .rest-kds-head time {
     color: var(--text-2);
     font-size: var(--text-xs);
@@ -1529,9 +1548,10 @@
 
 @layer sections {
   /* ── Бар (макет, экран 7): текущие заказы слева, витрина напитков справа ── */
+  /* §33.6: экран бармена по позициям сверху на всю ширину, витрина напитков ниже */
   .rest-bar-screen {
     display: grid;
-    grid-template-columns: 340px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-4);
     align-items: start;
   }

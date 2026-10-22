@@ -67,6 +67,7 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   '/dining-areas': F,
   '/orders': F,
   '/kitchen': F,
+  '/waiter': F,
   '/drinks': F,
   '/menu': F,
   '/stock': F,

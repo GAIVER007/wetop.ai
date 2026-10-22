@@ -75,6 +75,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       { href: '/dining-areas', label: 'Залы и столы', icon: 'settings', requires: 'desk', description: 'Залы, столы и их вместимость.' },
       // Ресторан по ТЗ владельца 09.10.2026 (ADR-159)
       { href: '/orders', label: 'Заказы', icon: 'receipt', requires: 'desk', description: 'Заказы ресторана' },
+      // официант с телефона (§33.6, 22.10.2026): право «Приём заказов» есть и у «Личного кабинета»
+      { href: '/waiter', label: 'Принять заказ', icon: 'receipt', requires: 'orders', description: 'Стол, меню и отправка заказа на кухню и в бар с телефона.' },
       { href: '/kitchen', label: 'Кухня', icon: 'kitchen', requires: 'desk', description: 'Экран кухни (KDS)' },
       { href: '/menu', label: 'Меню', icon: 'kettle', requires: 'desk', description: 'Меню и техкарты' },
       // Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS)
@@ -631,6 +633,7 @@ const ROW: Array<{
     items: [
       { label: 'Каталог', at: { HOSPITALITY: '/inventory', BEAUTY: '/services', FOOD_SERVICE: '/menu' } },
       { label: 'Заказы', at: { FOOD_SERVICE: '/orders' } },
+      { label: 'Принять заказ', at: { FOOD_SERVICE: '/waiter' } },
       { label: 'Кухня', at: { FOOD_SERVICE: '/kitchen' } },
       { label: 'Напитки', at: { FOOD_SERVICE: '/drinks' } },
       { label: 'Залы и столы', at: { FOOD_SERVICE: '/dining-areas' } },

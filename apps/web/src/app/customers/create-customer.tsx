@@ -2,6 +2,7 @@
 import { useActionState, useEffect, useState } from 'react';
 import { Alert, Button, Field, Input } from '../../components/ui';
 import { createBeautyCustomerState } from './actions';
+import { formatPhoneInput } from '../../lib/phone';
 
 export function CreateCustomer({ businessId, onSaved }: {
   businessId: string;
@@ -22,7 +23,7 @@ export function CreateCustomer({ businessId, onSaved }: {
       <Field label="Фамилия"><Input name="lastName" autoComplete="family-name" maxLength={100}
         value={lastName} onChange={(e) => setLastName(e.target.value)} /></Field>
       <Field label="Телефон"><Input name="phone" type="tel" inputMode="tel" autoComplete="tel" required maxLength={32}
-        value={phone} onChange={(e) => setPhone(e.target.value)} /></Field>
+        placeholder="+7 701 000 00 00" value={phone} onChange={(e) => setPhone(formatPhoneInput(e.target.value))} /></Field>
       <p className="muted">Номер можно ввести с +7, с 8 или как 10 цифр местного номера.</p>
       {state?.error && <Alert>{state.error}</Alert>}
       <Button type="submit" disabled={pending}>{pending ? 'Сохраняем…' : 'Сохранить клиента'}</Button>

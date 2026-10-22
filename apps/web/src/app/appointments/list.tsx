@@ -21,6 +21,7 @@ import { matchesAppointment } from '../beauty/calendar-columns';
 import { clock, localInput } from '../beauty/time';
 import { beautyStatus } from '../../lib/status/beauty';
 import { AppointmentEditor } from '../beauty/appointment-editor';
+import { formatPhone } from '../../lib/phone';
 function subscribeAddress(changed: () => void) {
   window.addEventListener('popstate', changed);
   window.addEventListener('appointments-address', changed);
@@ -341,7 +342,7 @@ export function AppointmentsList({
                   }
                 >
                   {r.customer.phone ? (
-                    <a href={`tel:${r.customer.phone}`}>{r.customer.phone}</a>
+                    <a href={`tel:${r.customer.phone}`}>{formatPhone(r.customer.phone)}</a>
                   ) : (
                     'Не указан'
                   )}

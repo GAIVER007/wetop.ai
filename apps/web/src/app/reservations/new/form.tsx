@@ -19,6 +19,7 @@ import { checkBookingAvailability } from './availability';
 import { CHANNELS, SOURCES } from '../sources';
 import { summarize } from './summary';
 import { isStayDate } from '../../../lib/stay-date';
+import { formatPhone, phoneOnInput } from '../../../lib/phone';
 
 export function NewReservationForm(props: {
   canMutate: boolean;
@@ -372,7 +373,10 @@ export function NewReservationForm(props: {
               <Input
                 type="tel"
                 name="phone"
-                defaultValue={kept['phone'] ?? ''}
+                inputMode="tel"
+                placeholder="+7 701 000 00 00"
+                defaultValue={formatPhone(kept['phone'])}
+                onInput={phoneOnInput}
                 onChange={(e) => setPhone(e.target.value)}
               />
             </Field>

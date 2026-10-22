@@ -17,6 +17,7 @@ import { GuestDocuments, GuestProfileForm } from './guest-forms';
 import { financeState } from '../../reservations/finance-state';
 import '../../directory.css';
 import '../guests.css';
+import { formatPhone } from '../../../lib/phone';
 
 type Stay = GuestCard['stays'][number];
 
@@ -382,7 +383,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
         <div>
           <dt>Телефон</dt>
           <dd>
-            {g.phone ?? <span className="muted">—</span>}
+            {g.phone ? formatPhone(g.phone) : <span className="muted">—</span>}
             {messengers && (
               <span className="booking-head__contacts">
                 <a href={messengers.whatsapp} target="_blank" rel="noreferrer">

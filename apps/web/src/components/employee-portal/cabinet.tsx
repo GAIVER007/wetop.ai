@@ -20,6 +20,7 @@ import { EmployeeTransitionGuard } from '../employee-workspace/workspace';
 import { portalAbsenceDays, portalAbsences, portalMonthLabel, portalMonthLine, portalShiftMonth } from '../../lib/portal-month';
 import { shortPeriod, zoneLabel } from '../../lib/human-period';
 import { localDate } from '@pms/domain';
+import { formatPhone, phoneOnInput } from '../../lib/phone';
 
 function servicePriceLabel(service: EmployeePortalDto['services'][number]): string {
   if (!service.available) return 'В этом филиале недоступна';
@@ -107,7 +108,7 @@ export function EmployeeCabinet({
 
       {canEditProfile ? <PortalForm context={context} command="profile" revision={data.profile.revision} profileRevision={data.employee.profileRevision} label="Сохранить профиль">
         <Field label="Имя в карточке"><Input name="name" required maxLength={200} defaultValue={data.employee.name} /></Field>
-        <Field label="Телефон для связи"><Input name="phone" type="tel" maxLength={32} defaultValue={data.employee.phone ?? ''} /></Field>
+        <Field label="Телефон для связи"><Input name="phone" type="tel" inputMode="tel" placeholder="+7 701 000 00 00" maxLength={32} onInput={phoneOnInput} defaultValue={formatPhone(data.employee.phone)} /></Field>
         <Field label="Почта для связи"><Input name="email" type="email" maxLength={320} defaultValue={data.employee.email ?? ''} /></Field>
 
         <Field label="Специализация"><Input name="headline" maxLength={200} defaultValue={data.profile.headline} /></Field>
@@ -115,7 +116,7 @@ export function EmployeeCabinet({
         <Field label="Год начала практики"><Input name="practiceSinceYear" type="number" min={1900} max={new Date().getUTCFullYear()} defaultValue={data.profile.practiceSinceYear ?? ''} /></Field>
       </PortalForm> : <dl className="portal-pay-grid">
         <dt>Имя в карточке</dt><dd>{data.employee.name}</dd>
-        <dt>Телефон для связи</dt><dd>{data.employee.phone ?? 'Не указан'}</dd>
+        <dt>Телефон для связи</dt><dd>{data.employee.phone ? formatPhone(data.employee.phone) : 'Не указан'}</dd>
         <dt>Почта для связи</dt><dd>{data.employee.email ?? 'Не указана'}</dd>
         <dt>Специализация</dt><dd>{data.profile.headline || 'Не указана'}</dd>
         <dt>О себе</dt><dd>{data.profile.biography || 'Не указано'}</dd>

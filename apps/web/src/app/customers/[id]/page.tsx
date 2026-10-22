@@ -15,6 +15,7 @@ import { notFoundOn404 } from '../../../lib/page-error';
 import { requireVertical } from '../../../lib/vertical-guard';
 import '../../beauty/beauty.css';
 import '../customers.css';
+import { formatPhone } from '../../../lib/phone';
 
 type Visit = BeautyCustomerDetail['visits'][number];
 
@@ -159,7 +160,7 @@ export default async function BeautyCustomerPage({ params }: { params: Promise<{
     <>
       {/* контакты строкой, без плиток (аудит 21.10.2026 п.10, правило владельца «без плиток») */}
       <p className="beauty-customer-contacts">
-        {customer.phone ? <a href={`tel:${customer.phone}`}>{customer.phone}</a> : <span>Телефон не указан</span>}
+        {customer.phone ? <a href={`tel:${customer.phone}`}>{formatPhone(customer.phone)}</a> : <span>Телефон не указан</span>}
         {customer.email && <span>{customer.email}</span>}
         <Badge tone={s.tone}>{s.label}</Badge>
         {customer.isVip && <Badge tone="warn">VIP</Badge>}

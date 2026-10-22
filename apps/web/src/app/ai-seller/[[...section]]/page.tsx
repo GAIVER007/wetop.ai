@@ -74,6 +74,7 @@ import { ChannelsTable } from './channels';
 import { ScenariosView } from './scenarios';
 import '../ai-seller.css';
 import { Tabs } from '../../../components/tabs';
+import { formatPhone } from '../../../lib/phone';
 
 /**
  * Раздел «ИИ-продавец» (ТЗ ред. 1 §4.1, П6; ADR-079; макет владельца 26.09.2026 — ADR-097). Четыре экрана:
@@ -972,7 +973,7 @@ async function DialogCard({
         <dl className="settings-facts">
           <div>
             <dt>Телефон</dt>
-            <dd>{card.contact.phone ?? '—'}</dd>
+            <dd>{card.contact.phone ? formatPhone(card.contact.phone) : '—'}</dd>
           </div>
           <div>
             <dt>Почта</dt>

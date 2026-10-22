@@ -13,6 +13,7 @@ import type {
   MenuItemInput,
   MenuItemView,
   OrderCreateInput,
+  OrderItemStatus,
   OrderPatch,
   OrderStatus,
   OrderToken,
@@ -28,6 +29,8 @@ type OrderCommand =
   | { kind: 'create'; body: OrderCreateInput }
   | { kind: 'edit'; id: string; body: OrderPatch }
   | { kind: 'status'; id: string; body: OrderToken & { status: OrderStatus } }
+  // §33.6: позиция на своей станции (кухня, бар) или «Подано» у официанта
+  | { kind: 'item-status'; id: string; itemId: string; body: { status: OrderItemStatus; expectedUpdatedAt: string } }
   | {
       kind: 'pay';
       id: string;
@@ -121,6 +124,9 @@ export async function mutateOrder(
       case 'status':
         order = await restaurantApi.orderStatus(command.id, command.body);
         break;
+      case 'item-status':
+        order = await restaurantApi.itemStatus(command.id, command.itemId, command.body);
+        break;
       case 'pay':
         order = await restaurantApi.payOrder(command.id, command.body);
         break;
@@ -134,7 +140,7 @@ export async function mutateOrder(
         order = await restaurantApi.rateOrder(command.id, command.body);
         break;
     }
-    for (const path of ['/orders', '/kitchen', '/floor-plan', '/today', '/cashbox', '/employees'])
+    for (const path of ['/orders', '/kitchen', '/drinks', '/waiter', '/floor-plan', '/today', '/cashbox', '/employees'])
       revalidatePath(path);
     return { error: null, order };
   } catch (error) {

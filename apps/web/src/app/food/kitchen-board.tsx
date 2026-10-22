@@ -2,31 +2,40 @@
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Alert, Badge, Button } from '../../components/ui';
-import type { OrderStatus, OrderView } from '../../lib/food-types';
+import type { MenuStation, OrderItemStatus, OrderItemView, OrderView } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
+import { stationLines } from '../../lib/food-stations';
 import { mutateOrder } from './restaurant-actions';
 
-const COLUMNS = [
-  { id: 'NEW', title: 'Новые', action: 'COOKING' as OrderStatus, button: 'Принять' },
-  { id: 'COOKING', title: 'Готовятся', action: 'READY' as OrderStatus, button: 'Готово' },
-  { id: 'READY', title: 'Готово', action: 'SERVED' as OrderStatus, button: 'Отметить как выдано' },
-] as const;
+const COLUMNS: ReadonlyArray<{ id: OrderItemStatus; title: string; action: OrderItemStatus; button: string }> = [
+  { id: 'NEW', title: 'Новые', action: 'COOKING', button: 'Принять' },
+  { id: 'COOKING', title: 'Готовятся', action: 'READY', button: 'Готово' },
+  { id: 'READY', title: 'Готово', action: 'SERVED', button: 'Отметить как выдано' },
+];
+/** Автообновление: новые позиции от официантов появляются без перезагрузки (§33.6) */
+const REFRESH_MS = 15_000;
 
 function minutesAgo(iso: string, now: number) {
   return Math.max(0, Math.round((now - Date.parse(iso)) / 60000));
 }
 
-/** Экран кухни (KDS) по макету (экран 6): Новые, Готовятся, Готово, Задерживаются; обновляется раз в 30 секунд */
+/**
+ * Экран станции (KDS) по позициям (§33.6, макет экрана 6): кухня видит только позиции KITCHEN, бар только BAR. Колонки
+ * Новые, Готовятся, Готово, Задерживаются; карточка заказа держит позиции этой колонки, у каждой своя кнопка
+ * «Принять / Готово / Отметить как выдано». Обновляется каждые 15 секунд.
+ */
 export function KitchenBoard({
   scopeKey,
   timezone,
   write,
   orders,
+  station = 'KITCHEN',
 }: {
   scopeKey: string;
   timezone: string;
   write: boolean;
   orders: OrderView[];
+  station?: MenuStation;
 }) {
   const router = useRouter();
   const [error, setError] = useState('');
@@ -36,32 +45,30 @@ export function KitchenBoard({
     const timer = setInterval(() => {
       setNow(Date.now());
       router.refresh();
-    }, 30000);
+    }, REFRESH_MS);
     return () => clearInterval(timer);
   }, [router]);
   const clock = (iso: string) => localInput(iso, timezone).slice(11, 16);
-  const delayed = orders.filter((o) => o.delayed);
-  function transition(order: OrderView, status: OrderStatus) {
+  const mine = orders.filter((o) => stationLines(o, station).length > 0);
+  const late = (o: OrderView) => o.delayed && stationLines(o, station).some((i) => (i.status ?? 'NEW') !== 'READY');
+  function transition(order: OrderView, item: OrderItemView, status: OrderItemStatus) {
     setError('');
     start(async () => {
       const result = await mutateOrder(scopeKey, {
-        kind: 'status',
+        kind: 'item-status',
         id: order.id,
-        body: {
-          expectedStatus: order.status,
-          expectedUpdatedAt: order.updatedAt,
-          status,
-        },
+        itemId: item.id,
+        body: { status, expectedUpdatedAt: order.updatedAt },
       });
       if (result.error) setError(result.error);
       router.refresh();
     });
   }
-  const card = (o: OrderView, action?: { status: OrderStatus; button: string }) => (
+  const card = (o: OrderView, lines: OrderItemView[], col: OrderItemStatus | 'DELAYED') => (
     <article
       className="rest-kds-card"
-      data-status={o.status}
-      data-delayed={o.delayed || undefined}
+      data-status={col === 'DELAYED' ? (lines[0]?.status ?? 'NEW') : col}
+      data-delayed={col === 'DELAYED' || undefined}
       key={o.id}
     >
       <div className="rest-kds-head">
@@ -70,44 +77,58 @@ export function KitchenBoard({
           {clock(o.openedAt)}
         </time>
       </div>
-      <span className="rest-kds-table">{o.table ? `Стол ${o.table.name}` : 'Без стола'}</span>
+      <span className="rest-kds-table">
+        {o.table ? `Стол ${o.table.name}` : 'Без стола'}
+        {o.waiter ? `, ${o.waiter.name}` : ''}
+      </span>
       <ul className="rest-kds-items">
-        {o.items.map((i) => (
-          <li key={i.id}>
-            <span>
-              {i.name}
-              {i.notes && <small>{i.notes}</small>}
-            </span>
-            <b>×{i.qty}</b>
-          </li>
-        ))}
+        {lines.map((i) => {
+          const status = i.status ?? 'NEW';
+          const action = COLUMNS.find((c) => c.id === status)!;
+          return (
+            <li key={i.id} data-status={status} data-testid="kds-line">
+              <span className="rest-kds-line">
+                <span>
+                  {i.name}
+                  {i.notes && <small>{i.notes}</small>}
+                </span>
+                <b>×{i.qty}</b>
+              </span>
+              {write && (
+                <Button
+                  size="sm"
+                  tone={status === 'COOKING' ? 'primary' : 'secondary'}
+                  disabled={pending}
+                  aria-label={`${action.button}: ${i.name}`}
+                  onClick={() => transition(o, i, action.action)}
+                >
+                  {action.button}
+                </Button>
+              )}
+            </li>
+          );
+        })}
       </ul>
       <small className="muted">{minutesAgo(o.openedAt, now)} мин в работе</small>
-      {o.delayed && <Badge tone="danger">Задерживается</Badge>}
-      {write && action && (
-        <Button
-          size="sm"
-          tone={o.status === 'READY' ? 'primary' : 'secondary'}
-          disabled={pending}
-          onClick={() => transition(o, action.status)}
-        >
-          {action.button}
-        </Button>
-      )}
+      {col === 'DELAYED' && <Badge tone="danger">Задерживается</Badge>}
     </article>
   );
+  const delayed = mine.filter(late);
   return (
-    <div className="food-workspace" data-testid="kitchen-board">
+    <div className="food-workspace" data-testid={station === 'BAR' ? 'bar-kds' : 'kitchen-board'}>
       {error && <Alert>{error}</Alert>}
       <div className="rest-kds">
         {COLUMNS.map((col) => {
-          const list = orders.filter((o) => o.status === col.id && !delayed.includes(o));
+          const list = mine
+            .filter((o) => !delayed.includes(o) || col.id === 'READY')
+            .map((o) => [o, stationLines(o, station).filter((i) => (i.status ?? 'NEW') === col.id)] as const)
+            .filter(([, lines]) => lines.length > 0);
           return (
             <section className="rest-kds-col" data-col={col.id} key={col.id} aria-label={col.title}>
               <h2>
                 {col.title} ({list.length})
               </h2>
-              {list.map((o) => card(o, { status: col.action, button: col.button }))}
+              {list.map(([o, lines]) => card(o, lines, col.id))}
               {list.length === 0 && <p className="muted">Пусто</p>}
             </section>
           );
@@ -117,12 +138,11 @@ export function KitchenBoard({
           {delayed.map((o) =>
             card(
               o,
-              o.status === 'NEW'
-                ? { status: 'COOKING', button: 'Принять' }
-                : { status: 'READY', button: 'Готово' },
+              stationLines(o, station).filter((i) => (i.status ?? 'NEW') !== 'READY'),
+              'DELAYED',
             ),
           )}
-          {delayed.length === 0 && <p className="muted">Кухня успевает</p>}
+          {delayed.length === 0 && <p className="muted">{station === 'BAR' ? 'Бар успевает' : 'Кухня успевает'}</p>}
         </section>
       </div>
     </div>

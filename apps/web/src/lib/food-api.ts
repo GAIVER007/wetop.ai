@@ -22,10 +22,12 @@ import type {
   MenuItemView,
   OrderCreateInput,
   OrderPatch,
+  OrderItemStatus,
   OrderStatus,
   OrderToken,
   OrderView,
   PayModel,
+  WaiterTables,
   PayrollView,
   PeriodInput,
   ReservationInput,
@@ -123,6 +125,11 @@ export const restaurantApi = {
     sendJson<OrderView>('PATCH', idPath('orders', id), body),
   orderStatus: (id: string, body: OrderToken & { status: OrderStatus }) =>
     sendJson<OrderView>('POST', `${idPath('orders', id)}/status`, body),
+  /** Кухня и бар двигают свою позицию, официант отмечает «Подано» (§33.6) */
+  itemStatus: (id: string, itemId: string, body: { status: OrderItemStatus; expectedUpdatedAt: string }) =>
+    sendJson<OrderView>('POST', `${idPath('orders', id)}/items/${encodeURIComponent(itemId)}/status`, body),
+  /** Столы зала для экрана официанта (§33.6) */
+  waiterTables: () => getJsonPublic<WaiterTables>(`${base}/waiter/tables`),
   payOrder: (id: string, body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string }) =>
     sendJson<OrderView>('POST', `${idPath('orders', id)}/payments`, body),
   rateOrder: (id: string, body: { stars: number; comment: string | null }) =>

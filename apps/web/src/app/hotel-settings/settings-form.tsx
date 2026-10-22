@@ -40,6 +40,7 @@ import {
 } from './card-model';
 import { PreviewPanel, type PreviewPhoto } from './object-preview';
 import { SETTINGS_FORM_ID, useLiveReport, useSaveReport, type LiveValues } from './settings-save';
+import { formatPhone, phoneOnInput } from '../../lib/phone';
 
 type Property = HotelSettings['property'];
 type FieldName = keyof Property;
@@ -413,7 +414,7 @@ function MainInfoCard({
         />
         <Field label="Телефон">
           <IconField icon="phone">
-            <Input name="phone" type="tel" defaultValue={value('phone')} />
+            <Input name="phone" type="tel" inputMode="tel" placeholder="+7 701 000 00 00" onInput={phoneOnInput} defaultValue={formatPhone(value('phone'))} />
           </IconField>
         </Field>
         <Field label="Почта">

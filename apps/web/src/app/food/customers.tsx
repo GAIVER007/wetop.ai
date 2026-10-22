@@ -19,6 +19,7 @@ import '../customers/customers.css';
 
 /** Форма новой брони стола: у API ресторана гость создаётся только вместе с бронью */
 const NEW_BOOKING = '/table-reservations?new=1';
+import { formatPhone } from '../../lib/phone';
 
 const name = (c: { firstName: string; lastName: string | null }) =>
   [c.firstName, c.lastName].filter(Boolean).join(' ');
@@ -91,7 +92,7 @@ export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
               return (
                 <tr key={c.id}>
                   <td>{name(c)}</td>
-                  <td>{c.phone ?? 'Не указан'}</td>
+                  <td>{c.phone ? formatPhone(c.phone) : 'Не указан'}</td>
                   <td>{c.visits ?? 0}</td>
                   <td>
                     <span className="food-inline-actions">

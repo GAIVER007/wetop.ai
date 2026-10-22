@@ -23,6 +23,7 @@ import { beautyStatus } from '../../lib/status/beauty';
 import { NO_SHOW_BEFORE_START_MESSAGE, maxRedeem, normalizeCertificateCode } from '@pms/domain';
 import { AppointmentMoneyOperation, type PreparedMoneyRequest } from './appointment-money-operation';
 import type { JournalResult } from './journal-actions';
+import { formatPhone } from '../../lib/phone';
 
 type PayMethod = FoodPaymentMethod | 'BONUS' | 'GIFT_CERTIFICATE';
 
@@ -230,7 +231,7 @@ function AppointmentCardBody({
           <dt>Клиент</dt>
           <dd>
             {row.customer.name}
-            {row.customer.phone ? `, ${row.customer.phone}` : ''}
+            {row.customer.phone ? `, ${formatPhone(row.customer.phone)}` : ''}
           </dd>
         </div>
         {row.items?.length ? (

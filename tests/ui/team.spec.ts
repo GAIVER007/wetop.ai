@@ -121,7 +121,8 @@ test('неверный телефон: словами в панели, введ�
   await drawer.getByLabel('Подпись под именем (необязательно)').fill('Кассир');
   await drawer.getByRole('button', { name: 'Сохранить' }).click();
   await expect(drawer.getByRole('alert')).toContainText('Проверьте телефон');
-  await expect(drawer.getByLabel('Телефон')).toHaveValue('12-34');
+  // поле само ставит формат «+7 …» (владелец 22.10.2026), неполный номер сервер всё равно отклоняет
+  await expect(drawer.getByLabel('Телефон')).toHaveValue('+7 123 4');
   await expect(drawer.getByLabel('Подпись под именем (необязательно)')).toHaveValue('Кассир');
 });
 

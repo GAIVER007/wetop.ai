@@ -4668,3 +4668,11 @@ Customer сохраняет исходное nullable поле phone. Добав
 Техническая модель SL4-M4B-PENDING выше и план plans/salons-m4b2-2026-10-18.md утверждены для реализации. Для частично обработанной FAILED задачи безопасная отмена использует те же ограничения и окно от терминального завершения, чтобы ошибка процесса не оставляла созданные карточки без пути отмены. Поля и RLS перечислены в технической модели выше; существующие сущности/финансовые правила не меняются.
 
 Уточнение хранения SL4-M4B2: uploadReceipts содержат хэши принятых исходных пакетов и очищаются до пустого объекта по тому же TTL 30 дней, включая задачи, у которых input уже NULL. Агрегаты, исходы строк и технический requestDigest от одного totalRows остаются. Новых полей и сущностей это уточнение не добавляет.
+
+## VOICE-20261022: журнал голосовых звонков (ПРЕДЛОЖЕНИЕ, не утверждено)
+
+Статус: ожидает утверждения владельцем. До утверждения миграций и кода таблиц нет, первый срез ведёт файловый журнал (`docs/voice/voice-channel.md`).
+
+Предлагается `VoiceCall`: id, organizationId, businessId, locationId, agentId, externalCallId (строкой, уникален в паре с agentId), direction (INBOUND/OUTBOUND), dialedNumber (E.164 номера объекта), callerPhoneNormalized (канонический телефон, как в SL4-M4A), state (RECEIVED/ANSWERED/ENDED/REJECTED/FAILED), receivedAt и answeredAt и endedAt (UTC timestamptz, ставит приложение), durationSeconds, endReason, transferredTo (маска), callbackRequested (bool), callbackNote (до 500 знаков), consentAnnounced (bool), errorCode, retryCount, createdAt. Деньги не хранятся. Запись разговора и расшифровка отдельной сущностью только после Q-VOICE-2.
+
+Идемпотентность: уникальный ключ (agentId, externalCallId), повтор события обновляет ту же строку. Доступ на чтение: журнал звонков раздела «Маркетинг», право marketing.view. Изоляция организаций через RLS, как у остальных таблиц. Миграция additive; rollback: удалить таблицу, данных других сущностей она не меняет.

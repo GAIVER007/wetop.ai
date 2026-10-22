@@ -12,6 +12,7 @@ import { localInput } from '../beauty/time';
 import { pluralRu } from '../../lib/plural';
 import { restaurantShell } from './restaurant-load';
 import { CustomerMarks } from './customer-marks';
+import { matchesCustomerQuery } from '../../lib/customer-hits';
 import './food.css';
 import './restaurant.css';
 
@@ -31,7 +32,7 @@ const birthdayText = (c: FoodCustomer) =>
         : dayMonth(c.birthDate);
 
 /** «Клиенты и бронирования» по макету (ADR-159): постоянный гость от двух визитов, VIP и дни рождения (§36) */
-export async function FoodCustomers() {
+export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
   try {
     const shell = await restaurantShell();
     const write = shell.canDesk && !shell.readOnly;
@@ -145,6 +146,9 @@ export async function FoodCustomers() {
           </tbody>
         </Table>
       );
+    // `?q=` из поиска в шапке (аудит 22.10.2026 P1-4): вкладка «Все» сразу показывает найденного гостя
+    const search = query.trim();
+    const found = search ? customers.filter((c) => matchesCustomerQuery(c, search)) : customers;
     const regulars = customers.filter((c) => (c.visits ?? 0) >= 2);
     const vips = customers.filter((c) => c.isVip);
     const birthdays = customers
@@ -159,7 +163,22 @@ export async function FoodCustomers() {
           <Tabs
             label="Клиенты и бронирования"
             panels={[
-              { id: 'all', label: 'Все', count: customers.length, content: customersTable(customers) },
+              {
+                id: 'all',
+                label: 'Все',
+                count: found.length,
+                content: (
+                  <>
+                    {search && (
+                      <p className="muted" data-testid="food-customers-query">
+                        Найдено по запросу «{search}»: {found.length}.{' '}
+                        <Link href="/customers">Показать всех</Link>
+                      </p>
+                    )}
+                    {customersTable(found, search ? 'Клиентов с таким именем или телефоном нет' : undefined)}
+                  </>
+                ),
+              },
               {
                 id: 'bookings',
                 label: 'Бронирования',

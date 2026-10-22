@@ -248,8 +248,8 @@ test('гости и бронирования: поиск, статус, исто
   await main.getByLabel('Период', { exact: true }).selectOption('range');
   await expect(page).toHaveURL(/period=range/);
   await expect(main.getByTestId('guests-range')).toBeVisible();
-  await main.getByTestId('guests-range').getByLabel('Период: с').fill('2020-01-01');
-  await main.getByTestId('guests-range').getByLabel('Период: по').fill('2020-01-31');
+  await main.getByTestId('guests-range').getByLabel('Период: с', { exact: true }).fill('2020-01-01');
+  await main.getByTestId('guests-range').getByLabel('Период: по', { exact: true }).fill('2020-01-31');
   await main.getByTestId('guests-range').getByRole('button', { name: 'Показать' }).click();
   await expect(page).toHaveURL(/from=2020-01-01&to=2020-01-31/);
   await expect(main.getByTestId('guests-empty')).toContainText('Ничего не найдено');

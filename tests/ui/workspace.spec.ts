@@ -261,8 +261,8 @@ test('показатели за период: готовые отрезки и �
   await expect(page.getByTestId('pa-chart-categories')).toBeVisible();
   // свой отрезок — три дня; старый адрес с периодом переносит его на «Обзор»
   await page.getByText('Период', { exact: true }).click();
-  await page.getByLabel('Период: с').fill('2026-09-01');
-  await page.getByLabel('Период: по').fill('2026-09-03');
+  await page.getByLabel('Период: с', { exact: true }).fill('2026-09-01');
+  await page.getByLabel('Период: по', { exact: true }).fill('2026-09-03');
   await page.getByTestId('pa-range-form').getByRole('button', { name: 'Применить' }).click();
   await expect(page).toHaveURL(/period=custom&from=2026-09-01&to=2026-09-03/);
   await expect(page.getByTestId('pa-period')).toContainText('3 дня');

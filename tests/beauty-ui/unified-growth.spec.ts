@@ -156,8 +156,9 @@ test('салон: продажи, финансы и маркетинг на да
   await expect(marketing).toBeVisible();
   await expect(page.getByTestId('marketing-budget-status')).toHaveText('Доступно');
   // SITE-1: «Сайт и SEO» открыт всем направлениям
-  // аудит 21.10.2026 P0-4: «Подключает WETOP» только при выключенной лицензии; стенд салона лицензию не отдаёт,
-  // состояние неизвестно, значок прежний (выключенная лицензия проверена в growth/business-screen.test.ts)
+  // аудит 21.10.2026 P0-4: без лицензии конструктора карточка пишет «Подключает WETOP» (правило `siteBadge`).
+  // В этом стенде модуль сайта не подключён (`GET /marketing/site` отвечает 404): состояние лицензии неизвестно,
+  // и карточка по правилу остаётся с прежним «Доступно»
   await expect(page.getByTestId('marketing-site-status')).toHaveText('Доступно');
   await expect(marketing).toContainText('сайт салона');
   await expect(page.getByTestId('marketing-result-spent')).toContainText('63 000');

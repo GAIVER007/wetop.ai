@@ -107,6 +107,17 @@ describe('страница «Голосовой агент»', () => {
     expect(html).not.toMatch(/href="tel:[^"]*[;,#]/);
   });
 
+  it.each([
+    ['BEAUTY', 'по услугам и ценам'],
+    ['FOOD_SERVICE', 'часах работы'],
+    ['HOSPITALITY', 'просьбы перезвонить'],
+  ])('%s: подзаголовок говорит о том, что агент умеет в этом направлении', async (vertical, phrase) => {
+    mocks.requireFeature.mockResolvedValue({ context: { vertical } });
+    const html = await render();
+    expect(html).toContain(phrase);
+    if (vertical !== 'BEAUTY') expect(html).not.toContain('по услугам и ценам');
+  });
+
   it('в журнале нет полного номера звонившего', async () => {
     const html = await render();
     const journal = html.slice(html.indexOf('data-testid="voice-calls"'));

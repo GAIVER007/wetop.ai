@@ -125,8 +125,8 @@ export const CAPABILITIES: readonly Capability[] = [
   cap('marketing-analytics', ['/marketing/analytics'], 'marketing', ALL, 'LOCATION'),
   cap('marketing-ads', ['/marketing/ads'], 'marketing', ALL, 'LOCATION'),
   cap('marketing-content', ['/marketing/content'], 'marketing', ALL, 'LOCATION'),
-  // голосовой агент (ИИ-колл-центр): сначала только салон (решение владельца 22.10.2026)
-  cap('marketing-voice', ['/marketing/voice'], 'marketing', B, 'LOCATION'),
+  // голосовой агент (ИИ-колл-центр): все направления (решение владельца 22.10.2026)
+  cap('marketing-voice', ['/marketing/voice'], 'marketing', ALL, 'LOCATION'),
   cap('market', ['/market'], 'reports', H, 'LOCATION'),
   cap('website', ['/website'], 'marketing', H, 'LOCATION'),
 

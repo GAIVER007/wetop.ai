@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 # Ключ уходит заголовком, а не параметром адреса: адреса пишутся в журналы прокси.
 KEY_HEADER = "x-wetop-service-key"
 PATH_BEAUTY_SERVICES = "/bot/beauty-services"
+PATH_FOOD_PERIODS = "/bot/food-service-periods"
 
 
 class CatalogUnavailable(Exception):
@@ -26,9 +27,15 @@ class WetopCatalog:
         self._timeout = timeout
 
     async def beauty_services(self, agent_id: str) -> list[dict]:
+        return await self._items(PATH_BEAUTY_SERVICES, agent_id)
+
+    async def food_service_periods(self, agent_id: str) -> list[dict]:
+        return await self._items(PATH_FOOD_PERIODS, agent_id)
+
+    async def _items(self, path: str, agent_id: str) -> list[dict]:
         try:
             response = await self._http.get(
-                f"{self._base}{PATH_BEAUTY_SERVICES}",
+                f"{self._base}{path}",
                 params={"agent": agent_id},
                 headers={KEY_HEADER: self._key},
                 timeout=self._timeout,

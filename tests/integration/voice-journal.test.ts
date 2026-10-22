@@ -249,13 +249,14 @@ describe.skipIf(!url)(
     expect(await profileRepo.profile(agentA)).toEqual({
       agentId: agentA,
       organizationId: orgA,
+      vertical: 'BEAUTY',
       objectName: 'Салон A',
       greetingTail: 'Работаем до 20 часов.',
       voiceName: 'Puck',
       handoffPhone: '+77009990000',
     });
     await sql.query(`UPDATE seller_agents SET lifecycle = 'active' WHERE id = $1`, [agentB]);
-    expect(await profileRepo.profile(agentB)).toMatchObject({ voiceName: 'Leda', handoffPhone: null, greetingTail: '' });
+    expect(await profileRepo.profile(agentB)).toMatchObject({ voiceName: 'Leda', handoffPhone: null, greetingTail: '', vertical: 'BEAUTY' });
     await sql.query(`UPDATE seller_agents SET lifecycle = 'paused' WHERE id = $1`, [agentB]);
     expect(await profileRepo.profile(agentB)).toBeNull();
     expect(await profileRepo.profile(agentNoLoc)).toBeNull();

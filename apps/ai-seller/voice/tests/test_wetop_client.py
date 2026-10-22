@@ -56,3 +56,26 @@ async def test_network_error_is_catalog_unavailable():
     with pytest.raises(CatalogUnavailable) as err:
         await _client(boom).beauty_services(AGENT)
     assert "secret-host" not in str(err.value)
+
+
+PERIODS = [
+    {"name": "Обед", "weekday": 1, "timeFrom": "12:00", "timeTo": "16:00", "endsNextDay": False, "defaultDurationMinutes": 90},
+]
+
+
+async def test_food_service_periods_use_their_own_path_key_in_header():
+    seen = {}
+
+    def handler(req: httpx.Request):
+        seen["path"] = req.url.path
+        seen["key"] = req.headers.get("x-wetop-service-key")
+        seen["agent"] = req.url.params.get("agent")
+        return httpx.Response(200, json={"context": {}, "items": PERIODS})
+
+    assert await _client(handler).food_service_periods(AGENT) == PERIODS
+    assert seen == {"path": "/bot/food-service-periods", "key": "k-test", "agent": AGENT}
+
+
+async def test_food_service_periods_failure_is_catalog_unavailable():
+    with pytest.raises(CatalogUnavailable):
+        await _client(lambda r: httpx.Response(500, json={})).food_service_periods(AGENT)

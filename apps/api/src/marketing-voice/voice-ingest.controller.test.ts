@@ -48,7 +48,7 @@ class FakeRepo implements VoiceIngestRepository {
     if (agentId === AGENT_NOLOC) return 'NO_LOCATION';
     const scope = SCOPES[agentId];
     if (!scope) return null;
-    return { agentId, organizationId: scope.organizationId, objectName: agentId === AGENT_A ? 'Салон Тест' : 'Салон Б', greetingTail: '', voiceName: 'Leda', handoffPhone: null };
+    return { agentId, organizationId: scope.organizationId, vertical: agentId === AGENT_A ? 'BEAUTY' : 'FOOD_SERVICE', objectName: agentId === AGENT_A ? 'Салон Тест' : 'Салон Б', greetingTail: '', voiceName: 'Leda', handoffPhone: null };
   }
   async record(scope: AgentScope, event: VoiceEvent): Promise<RecordResult> {
     const key = `${event.agentId}|${event.externalCallId}`;
@@ -229,6 +229,7 @@ describe('профиль голоса по агенту: GET /voice/profile', ()
     expect(res.body).toEqual({
       agentId: AGENT_A,
       organizationId: 'org-a',
+      vertical: 'BEAUTY',
       objectName: 'Салон Тест',
       greetingTail: '',
       voiceName: 'Leda',
@@ -239,7 +240,7 @@ describe('профиль голоса по агенту: GET /voice/profile', ()
   it('ответ минимален: без идентификаторов бизнеса и филиала', async () => {
     const res = await get(VOICE_KEY, `?agent=${AGENT_A}`).expect(200);
     expect(Object.keys(res.body).sort()).toEqual(
-      ['agentId', 'greetingTail', 'handoffPhone', 'objectName', 'organizationId', 'voiceName'].sort(),
+      ['agentId', 'greetingTail', 'handoffPhone', 'objectName', 'organizationId', 'vertical', 'voiceName'].sort(),
     );
   });
 

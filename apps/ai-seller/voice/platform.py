@@ -19,6 +19,7 @@ from voice.outbox import Outbox
 
 logger = logging.getLogger(__name__)
 
+VERTICALS = ("HOSPITALITY", "BEAUTY", "FOOD_SERVICE")
 KEY_HEADER = "x-wetop-service-key"
 PATH_EVENTS = "/voice/events"
 PATH_PROFILE = "/voice/profile"
@@ -44,6 +45,7 @@ class ProfileUnavailable(Exception):
 class ProfileData:
     agent_id: str
     organization_id: str
+    vertical: str
     object_name: str
     greeting_tail: str
     voice_name: str
@@ -106,9 +108,13 @@ class PlatformClient:
             raise ProfileUnavailable(f"status_{response.status_code}")
         try:
             body = response.json()
+            vertical = body["vertical"]
+            if vertical not in VERTICALS:
+                raise ValueError("vertical")
             return ProfileData(
                 agent_id=str(body["agentId"]),
                 organization_id=str(body["organizationId"]),
+                vertical=vertical,
                 object_name=str(body["objectName"]),
                 greeting_tail=str(body.get("greetingTail") or ""),
                 voice_name=str(body.get("voiceName") or "Leda"),

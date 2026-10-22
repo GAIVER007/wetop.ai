@@ -77,6 +77,7 @@ async def test_send_event_sends_key_in_header_and_json_body_only():
 PROFILE = {
     "agentId": ROUTE.agent_id,
     "organizationId": ROUTE.organization_id,
+    "vertical": "BEAUTY",
     "objectName": "Салон Тест",
     "greetingTail": "Работаем до 20 часов.",
     "voiceName": "Leda",
@@ -96,6 +97,7 @@ async def test_get_profile_parses_response():
     assert seen == {"agent": ROUTE.agent_id, "path": "/voice/profile"}
     assert p.organization_id == ROUTE.organization_id
     assert p.object_name == "Салон Тест"
+    assert p.vertical == "BEAUTY"
     assert p.greeting_tail == "Работаем до 20 часов."
     assert p.handoff_phone == "+77009990000"
 
@@ -169,3 +171,16 @@ def test_unwritable_outbox_does_not_raise_into_the_call(tmp_path):
     (tmp_path / "ob").write_text("file")
     ev, _ = _events(tmp_path)
     ev.state("room-1", ROUTE, CallState.RECEIVED)
+
+
+@pytest.mark.parametrize("vertical", ["HOSPITALITY", "BEAUTY", "FOOD_SERVICE"])
+async def test_get_profile_accepts_each_vertical(vertical):
+    c = _client(lambda r: httpx.Response(200, json={**PROFILE, "vertical": vertical}))
+    assert (await c.get_profile(ROUTE.agent_id)).vertical == vertical
+
+
+@pytest.mark.parametrize("bad", ["SPACE", "", None, 5])
+async def test_get_profile_unknown_vertical_is_unavailable(bad):
+    c = _client(lambda r: httpx.Response(200, json={**PROFILE, "vertical": bad}))
+    with pytest.raises(ProfileUnavailable):
+        await c.get_profile(ROUTE.agent_id)

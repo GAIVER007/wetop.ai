@@ -18,8 +18,8 @@ ITEMS = [{"name": "Стрижка", "category": "Волосы", "durationMinutes
 
 
 class FakeCatalog:
-    def __init__(self, items=None, fail=False):
-        self.items, self.fail, self.calls = items, fail, 0
+    def __init__(self, items=None, fail=False, periods=None):
+        self.items, self.fail, self.calls, self.periods = items, fail, 0, periods
 
     async def beauty_services(self, agent_id):
         self.calls += 1
@@ -27,6 +27,13 @@ class FakeCatalog:
         if self.fail:
             raise CatalogUnavailable("timeout")
         return self.items
+
+    async def food_service_periods(self, agent_id):
+        self.calls += 1
+        assert agent_id == ROUTE.agent_id
+        if self.fail:
+            raise CatalogUnavailable("timeout")
+        return self.periods
 
 
 def _tools(tmp_path, catalog=None, handoff="+77009990000", transfer=None):
@@ -241,3 +248,27 @@ async def test_broken_events_sink_does_not_break_the_tool(tmp_path):
 
     tools = _tools_with_events(tmp_path, Broken())
     assert "записана" in (await tools.request_callback("А", "+77001112233", "")).lower()
+
+
+PERIODS = [
+    {"name": "Обед", "weekday": 1, "timeFrom": "12:00", "timeTo": "16:00", "endsNextDay": False, "defaultDurationMinutes": 90},
+    {"name": "Обед", "weekday": 2, "timeFrom": "12:00", "timeTo": "16:00", "endsNextDay": False, "defaultDurationMinutes": 90},
+    {"name": "Ужин", "weekday": 5, "timeFrom": "18:00", "timeTo": "02:00", "endsNextDay": True, "defaultDurationMinutes": 120},
+]
+
+
+async def test_service_hours_group_days_and_mark_next_day(tmp_path):
+    tools, _ = _tools(tmp_path, FakeCatalog(periods=PERIODS))
+    text = await tools.get_service_hours()
+    assert "Обед" in text and "понедельник" in text and "вторник" in text
+    assert "12:00" in text and "16:00" in text
+    assert "Ужин" in text and "пятница" in text and "следующего дня" in text
+    assert text.count("Обед") == 1  # два дня с одинаковым временем объединены
+
+
+async def test_service_hours_failure_or_empty_is_neutral(tmp_path):
+    for catalog in (FakeCatalog(fail=True), FakeCatalog(periods=[])):
+        tools, _ = _tools(tmp_path, catalog)
+        text = await tools.get_service_hours()
+        assert "администратор" in text.lower()
+        assert "timeout" not in text

@@ -52,6 +52,31 @@ def format_services(items: list[dict]) -> str:
     return "; ".join(rows)
 
 
+DAYS = ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"]
+
+
+def format_service_hours(items: list[dict]) -> str:
+    """Периоды обслуживания: дни с одинаковым временем объединяются, переход через полночь помечается."""
+    groups: dict[tuple, list[int]] = {}
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        name, day = item.get("name"), item.get("weekday")
+        start, end = item.get("timeFrom"), item.get("timeTo")
+        if not (isinstance(name, str) and name.strip() and isinstance(day, int) and 0 <= day <= 6):
+            continue
+        if not (isinstance(start, str) and isinstance(end, str)):
+            continue
+        key = (name.strip(), start, end, bool(item.get("endsNextDay")))
+        groups.setdefault(key, []).append(day)
+    rows = []
+    for (name, start, end, next_day), days in groups.items():
+        names = ", ".join(DAYS[d] for d in sorted(set(days), key=lambda d: (d + 6) % 7))
+        tail = " (заканчивается в ночь следующего дня)" if next_day else ""
+        rows.append(f"{name}: {names}, с {start} до {end}{tail}")
+    return "; ".join(rows)
+
+
 class VoiceTools:
     def __init__(
         self,
@@ -96,6 +121,18 @@ class VoiceTools:
             return ASK_ADMIN
         text = format_services(items)
         return f"Услуги и цены каталога: {text}." if text else ASK_ADMIN
+
+    async def get_service_hours(self) -> str:
+        """Периоды обслуживания ресторана по дням недели (часы работы)."""
+        try:
+            items = await self._catalog.food_service_periods(self._route.agent_id)
+        except CatalogUnavailable:
+            return ASK_ADMIN
+        except Exception:  # noqa: BLE001
+            logger.warning("get_service_hours: непредвиденный сбой")
+            return ASK_ADMIN
+        text = format_service_hours(items)
+        return f"Часы обслуживания: {text}." if text else ASK_ADMIN
 
     async def request_callback(self, name: str, phone: str, note: str = "") -> str:
         """Сохранить просьбу перезвонить клиенту."""

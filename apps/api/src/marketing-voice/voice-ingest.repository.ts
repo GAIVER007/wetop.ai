@@ -22,6 +22,8 @@ export interface AgentScope {
 export interface AgentProfile {
   agentId: string;
   organizationId: string;
+  /** Направление бизнеса: от него воркер выбирает, что агент называет по справочнику (салон услуги, ресторан часы, гостиница ничего) */
+  vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
   objectName: string;
   greetingTail: string;
   voiceName: string;
@@ -76,7 +78,7 @@ export class PrismaVoiceIngestRepository implements VoiceIngestRepository {
         organizationId: true,
         locationId: true,
         lifecycle: true,
-        location: { select: { business: { select: { name: true } } } },
+        location: { select: { business: { select: { name: true, vertical: true } } } },
         voiceProfile: { select: { greetingTail: true, voiceName: true, handoffPhone: true } },
       },
     });
@@ -87,6 +89,7 @@ export class PrismaVoiceIngestRepository implements VoiceIngestRepository {
     return {
       agentId,
       organizationId: agent.organizationId,
+      vertical: agent.location.business.vertical,
       objectName: agent.location.business.name,
       greetingTail: agent.voiceProfile?.greetingTail ?? '',
       voiceName: agent.voiceProfile?.voiceName ?? 'Leda',

@@ -26,7 +26,25 @@ interface Module {
   caps: string[];
 }
 
-const modules = (c: VerticalCopy): Module[] => [
+/** Текст карточки голосового агента по направлению: только то, что агент умеет (docs/voice/voice-channel.md) */
+function voiceCard(c: VerticalCopy, vertical: WebVertical): Pick<Module, 'text' | 'caps'> {
+  if (vertical === 'BEAUTY')
+    return {
+      text: `ИИ принимает звонки ${c.clientsOf}: отвечает по услугам и ценам и собирает просьбы перезвонить.`,
+      caps: ['Ответы по услугам и ценам', 'Просьбы перезвонить', 'Перевод на администратора'],
+    };
+  if (vertical === 'FOOD_SERVICE')
+    return {
+      text: `ИИ принимает звонки ${c.clientsOf}: рассказывает о часах работы и собирает просьбы перезвонить.`,
+      caps: ['Ответы о часах работы', 'Просьбы перезвонить', 'Перевод на администратора'],
+    };
+  return {
+    text: `ИИ принимает звонки ${c.clientsOf}, собирает просьбы перезвонить и переводит на администратора.`,
+    caps: ['Приём звонков', 'Просьбы перезвонить', 'Перевод на администратора'],
+  };
+}
+
+const modules = (c: VerticalCopy, vertical: WebVertical): Module[] => [
   {
     key: 'site',
     testId: 'marketing-site',
@@ -70,14 +88,13 @@ const modules = (c: VerticalCopy): Module[] => [
     caps: ['Конкуренты рядом', 'Загрузка по датам', 'Подсказки к цене'],
   },
   {
-    // ИИ-колл-центр (решение владельца 22.10.2026): сначала салон, остальным направлениям карточки нет
+    // ИИ-колл-центр (решение владельца 22.10.2026): все направления; что агент называет по телефону, зависит от направления
     key: 'voice',
     testId: 'marketing-voice',
     title: 'Голосовой агент',
     icon: 'chat',
     href: '/marketing/voice',
-    text: `ИИ принимает звонки ${c.clientsOf}: отвечает по услугам и ценам и собирает просьбы перезвонить.`,
-    caps: ['Ответы по услугам и ценам', 'Просьбы перезвонить', 'Перевод на администратора'],
+    ...voiceCard(c, vertical),
   },
   {
     key: 'content',
@@ -129,10 +146,8 @@ export function liveModules(vertical: WebVertical): Set<Module['key']> {
   return new Set<Module['key']>(
     // «Реклама» живая у всех (кампании МКТ-В3, кабинет Meta): значок «Доступно», а не «Скоро» рядом с «Открыть»
     vertical === 'HOSPITALITY'
-      ? ['site', 'budget', 'ads', 'competitors']
-      : vertical === 'BEAUTY'
-        ? ['site', 'budget', 'ads', 'voice']
-        : ['site', 'budget', 'ads'],
+      ? ['site', 'budget', 'ads', 'voice', 'competitors']
+      : ['site', 'budget', 'ads', 'voice'],
   );
 }
 
@@ -215,9 +230,7 @@ export function MarketingHub({
   // Реклама и контент пока «Скоро» у всех направлений; ссылка на экран-превью есть, кнопок действий нет
   const PREVIEW = new Set<Module['key']>(['content']);
   // «Конкуренты» это гостиничный мониторинг загрузки (ADR-142): салону и ресторану карточку не показываем
-  const shown = modules(copy).filter(
-    (m) => (hospitality || m.key !== 'competitors') && (vertical === 'BEAUTY' || m.key !== 'voice'),
-  );
+  const shown = modules(copy, vertical).filter((m) => hospitality || m.key !== 'competitors');
   const value = (key: ResultKey) => {
     if (key === 'spent' && spend) return formatMoney(spend.spentMinor, spend.currency);
     return 'Нет данных';

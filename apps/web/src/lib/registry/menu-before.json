@@ -166,6 +166,10 @@
             "label": "Контент"
           },
           {
+            "href": "/marketing/voice",
+            "label": "Голосовой агент"
+          },
+          {
             "href": "/ai-agents",
             "label": "ИИ-продавец"
           },
@@ -359,6 +363,10 @@
           {
             "href": "/marketing/content",
             "label": "Контент"
+          },
+          {
+            "href": "/marketing/voice",
+            "label": "Голосовой агент"
           },
           {
             "href": "/ai-agents",
@@ -708,6 +716,10 @@
             "label": "Контент"
           },
           {
+            "href": "/marketing/voice",
+            "label": "Голосовой агент"
+          },
+          {
             "href": "/ai-agents",
             "label": "ИИ-продавец"
           },
@@ -891,6 +903,10 @@
           {
             "href": "/marketing/content",
             "label": "Контент"
+          },
+          {
+            "href": "/marketing/voice",
+            "label": "Голосовой агент"
           },
           {
             "href": "/market",
@@ -2068,6 +2084,10 @@
             "label": "Контент"
           },
           {
+            "href": "/marketing/voice",
+            "label": "Голосовой агент"
+          },
+          {
             "href": "/ai-agents",
             "label": "ИИ-продавец"
           },
@@ -2269,6 +2289,10 @@
           {
             "href": "/marketing/content",
             "label": "Контент"
+          },
+          {
+            "href": "/marketing/voice",
+            "label": "Голосовой агент"
           },
           {
             "href": "/ai-agents",
@@ -2654,6 +2678,10 @@
             "label": "Контент"
           },
           {
+            "href": "/marketing/voice",
+            "label": "Голосовой агент"
+          },
+          {
             "href": "/ai-agents",
             "label": "ИИ-продавец"
           },
@@ -2847,6 +2875,10 @@
           {
             "href": "/marketing/content",
             "label": "Контент"
+          },
+          {
+            "href": "/marketing/voice",
+            "label": "Голосовой агент"
           },
           {
             "href": "/sales",

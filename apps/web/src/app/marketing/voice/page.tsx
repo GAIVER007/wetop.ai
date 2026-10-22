@@ -87,7 +87,7 @@ function SetupNote() {
         ))}
       </ol>
       <p className="settings-note">
-        Агент называет себя ИИ-помощником и предупреждает, что разговор записывается. Запись по телефону он не оформляет:
+        Агент называет себя ИИ-помощником и предупреждает, что разговор записывается. Запись, бронь и заказ стола по телефону он не оформляет:
         собирает имя и номер и оставляет просьбу перезвонить.
       </p>
     </section>
@@ -212,8 +212,18 @@ function CallsTable({ view }: { view: VoiceCallsView }) {
   );
 }
 
+/** Что агент называет по телефону, зависит от направления (docs/voice/voice-channel.md) */
+const SUBTITLE: Record<string, string> = {
+  BEAUTY:
+    'ИИ-помощник принимает телефонные звонки: отвечает по услугам и ценам, собирает просьбы перезвонить и переводит на администратора.',
+  FOOD_SERVICE:
+    'ИИ-помощник принимает телефонные звонки: рассказывает о часах работы, собирает просьбы перезвонить и переводит на администратора.',
+  HOSPITALITY:
+    'ИИ-помощник принимает телефонные звонки, собирает просьбы перезвонить и переводит на администратора.',
+};
+
 export default async function MarketingVoicePage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  await requireFeature('/marketing/voice');
+  const me = await requireFeature('/marketing/voice');
   const q = normalizeSearchParams(await searchParams);
   const month = /^\d{4}-\d{2}$/.test(q['month'] ?? '') ? q['month'] : undefined;
   const [loaded, shell] = await Promise.all([load(month), deskShell()]);
@@ -223,7 +233,7 @@ export default async function MarketingVoicePage({ searchParams }: { searchParam
     <Page
       crumbs={<BackToModules />}
       title="Голосовой агент"
-      subtitle="ИИ-помощник принимает телефонные звонки: отвечает по услугам и ценам, собирает просьбы перезвонить и переводит на администратора."
+      subtitle={SUBTITLE[me.context?.vertical ?? 'HOSPITALITY'] ?? SUBTITLE['HOSPITALITY']}
     >
       <div className="marketing-screen" data-testid="marketing-voice-screen">
         {'summary' in loaded ? (

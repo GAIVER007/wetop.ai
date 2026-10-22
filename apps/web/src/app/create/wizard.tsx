@@ -15,6 +15,7 @@ import {
 } from './strings';
 import { useGuestDraft } from './use-guest-draft';
 import { WizardFields } from './wizard-fields';
+import { Input } from '../../components/ui';
 
 /** «hostel.kz» без схемы принимаем как https://hostel.kz; всё, что не похоже на адрес, вернём как есть для отказа */
 function normalizeUrl(raw: string): string {
@@ -197,7 +198,7 @@ export function GuestWizard() {
               </fieldset>
               <label className="guest-wizard__url">
                 <span>{S.source.url}</span>
-                <input
+                <Input
                   type="text"
                   inputMode="url"
                   autoComplete="url"

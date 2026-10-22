@@ -1,0 +1,34 @@
+.otp { display: grid; gap: 10px; justify-items: center; }
+.cells { display: grid; grid-template-columns: repeat(6, minmax(0, 52px)); gap: 8px; width: 100%; justify-content: center; }
+.cell {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 60px;
+  border-radius: 12px;
+  border: 1.5px solid var(--public-border);
+  background: var(--public-bg);
+  color: var(--public-text);
+  font: 600 1.5rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-align: center;
+  caret-color: var(--public-accent);
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+.cell:focus-visible { outline: none; border-color: var(--public-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--public-accent) 25%, transparent); }
+.cell:disabled { opacity: 0.7; }
+.otp[data-status='error'] .cell { border-color: #d14343; }
+.otp[data-status='success'] .cell { border-color: #1f9d55; }
+.message { margin: 0; font-size: 0.875rem; line-height: 1.5; color: var(--public-muted); text-align: center; }
+.otp[data-status='error'] .message { color: #d14343; }
+.otp[data-status='success'] .message { color: #1f9d55; }
+@media (prefers-reduced-motion: no-preference) {
+  .otp[data-status='error'] .cells { animation: otp-shake 320ms ease; }
+}
+@keyframes otp-shake {
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+@media (max-width: 380px) {
+  .cells { gap: 6px; }
+  .cell { height: 52px; font-size: 1.25rem; }
+}

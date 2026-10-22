@@ -52,6 +52,7 @@ const authUrls = {
     login: siteAuthEndpoint('login'),
     register: siteAuthEndpoint('register'),
     resend: siteAuthEndpoint('resend'),
+    verifyCode: siteAuthEndpoint('verify-code'),
     session: siteAuthEndpoint('session'),
   },
 };

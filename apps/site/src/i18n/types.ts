@@ -487,6 +487,12 @@ export type Dictionary = {
       /** `{seconds}` — сколько ждать до следующей отправки. */
       wait: string;
       change: string;
+      /** Поле кода из письма (22.10.2026) */
+      codeLabel: string;
+      codeHint: string;
+      codeChecking: string;
+      codeAccepted: string;
+      linkFallback: string;
     };
     fields: {
       email: string;

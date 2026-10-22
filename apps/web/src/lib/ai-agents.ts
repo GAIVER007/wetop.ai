@@ -24,7 +24,7 @@ export interface CreateButton {
   connectHref: string | null;
 }
 
-export const CREATE_LABEL = '+ Подключить AI-продавца';
+export const CREATE_LABEL = 'Подключить ИИ-продавца';
 
 /**
  * Кнопка под списком (SA2, решение владельца 30.09): видна всегда, при невозможности, неактивна с причиной, а не спрятана.

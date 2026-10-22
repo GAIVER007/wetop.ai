@@ -1,8 +1,8 @@
 'use client';
 import Link from 'next/link';
-import { useCallback, useEffect, useId, useState } from 'react';
+import { useCallback, useEffect, useId, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { Alert, Badge, Button, Input, Select, Table } from '../../components/ui';
+import { Alert, Badge, Button, EmptyState, Input, Select, Table } from '../../components/ui';
 import { Overlay } from '../../components/overlay';
 import { CreateCustomer } from './create-customer';
 import type { BeautyCustomerRow } from '../../lib/api';
@@ -11,8 +11,10 @@ import { formatMoney } from '../../lib/money';
 import { pluralRu } from '../../lib/plural';
 import { CustomerMarks } from '../food/customer-marks';
 import { markBeautyCustomer } from './actions';
+import './customers.css';
 import {
   BEAUTY_REGULAR_CUSTOMER_VISITS,
+  customerSegment,
   filterBeautyCustomers,
   type BeautyCustomerSegmentFilter,
 } from './customer-filter';
@@ -36,12 +38,7 @@ const birthday = (row: BeautyCustomerRow) =>
         ? `${dayMonth(row.birthDate)}, через ${pluralRu(row.birthdayInDays!, ['день', 'дня', 'дней'])}`
         : dayMonth(row.birthDate);
 
-function segment(row: BeautyCustomerRow): { label: string; tone: 'info' | 'ok' | 'neutral' } {
-  if (row.status !== 'ACTIVE') return { label: 'В архиве', tone: 'neutral' };
-  return row.visits >= REGULAR_FROM
-    ? { label: 'Постоянный', tone: 'ok' }
-    : { label: 'Новый', tone: 'info' };
-}
+const segment = (row: BeautyCustomerRow) => customerSegment(row);
 
 export function BeautyCustomersTable({
   items,
@@ -49,7 +46,10 @@ export function BeautyCustomersTable({
   canEdit = false,
   scopeKey = '',
   businessId = '',
+  tools,
 }: {
+  /** импорт клиентов: кнопка в той же панели, что поиск и «Скачать Excel» (аудит 21.10.2026 п.44) */
+  tools?: ReactNode;
   items: BeautyCustomerRow[];
   canCreate?: boolean;
   canEdit?: boolean;
@@ -99,14 +99,8 @@ export function BeautyCustomersTable({
   }, [saved, items]);
   return (
     <>
-      <div className="beauty-bar">
-        <p role="status">
-          {rows.length === items.length
-            ? pluralRu(items.length, ['клиент', 'клиента', 'клиентов'])
-            : `Показано ${rows.length} из ${items.length}`}
-        </p>
-        <div className="beauty-customers-controls">
-          {canCreate && <Button type="button" onClick={() => setCreating(true)}>Добавить клиента</Button>}
+      <div className="beauty-customers-bar beauty-customers-controls">
+        <div className="beauty-customers-bar__filters">
           <Input
             id={searchId}
             type="search"
@@ -126,6 +120,9 @@ export function BeautyCustomersTable({
             <option value="vip">VIP</option>
             <option value="archived">В архиве</option>
           </Select>
+        </div>
+        <div className="beauty-customers-bar__actions">
+          {tools}
           <Button
             type="button"
             tone="secondary"
@@ -136,10 +133,20 @@ export function BeautyCustomersTable({
           >
             Скачать Excel
           </Button>
+          {canCreate && <Button type="button" onClick={() => setCreating(true)}>Добавить клиента</Button>}
         </div>
       </div>
       {exportError && <Alert>{exportError}</Alert>}
       {saved && <p role="status">{saved.created ? 'Клиент создан.' : 'Клиент уже есть. Используем существующую карточку.'}</p>}
+      {items.length === 0 ? (
+        <EmptyState
+          title="Клиентов пока нет"
+          actions={canCreate ? <Button type="button" onClick={() => setCreating(true)}>Добавить первого клиента</Button> : undefined}
+        >
+          Добавьте первого клиента или импортируйте список из CSV или Excel.
+        </EmptyState>
+      ) : (
+      <>
       <Table className="beauty-customers-table">
         <thead>
           <tr>
@@ -156,11 +163,7 @@ export function BeautyCustomersTable({
         <tbody>
           {rows.length === 0 && (
             <tr>
-              <td colSpan={canEdit ? 8 : 7}>
-                {items.length === 0
-                  ? 'Клиентов пока нет. Добавьте первого клиента или импортируйте CSV.'
-                  : 'Никого не нашли. Поменяйте поиск или сегмент.'}
-              </td>
+              <td colSpan={canEdit ? 8 : 7}>Никого не нашли. Поменяйте поиск или сегмент.</td>
             </tr>
           )}
           {rows.map((row) => {
@@ -210,6 +213,13 @@ export function BeautyCustomersTable({
           })}
         </tbody>
       </Table>
+      <p role="status" className="beauty-customers-total">
+        {rows.length === items.length
+          ? `Всего: ${pluralRu(items.length, ['клиент', 'клиента', 'клиентов'])}`
+          : `Показано ${rows.length} из ${items.length}`}
+      </p>
+      </>
+      )}
       {canCreate && <Overlay open={creating} onClose={() => setCreating(false)} title="Добавить клиента" drawer trapFocus>
         {creating && <CreateCustomer key={businessId} businessId={businessId} onSaved={onSaved} />}
       </Overlay>}

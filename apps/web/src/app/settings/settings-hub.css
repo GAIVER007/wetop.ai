@@ -1,0 +1,71 @@
+@layer sections {
+  /* хаб «Настройки»: карточки по четыре в ряд на ноутбуке, по две на планшете, столбиком на телефоне */
+  /* карточки одного размера (замечание владельца 21.10.2026 «че они прыгают, разные размеры»): ряды равной высоты
+     по самой длинной карточке, заголовок сверху, ссылки сразу под ним */
+  .settings-hub {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
+    gap: var(--space-4);
+    align-items: stretch;
+  }
+  .settings-hub__card {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    align-content: start;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .settings-hub__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    color: var(--text);
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+  .settings-hub__title svg {
+    color: var(--primary);
+    flex: none;
+  }
+  .settings-hub__links {
+    display: grid;
+    align-content: start;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .settings-hub__links a {
+    display: flex;
+    align-items: center;
+    min-height: 32px;
+    color: var(--primary);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+  .settings-hub__links a:hover,
+  .settings-hub__links a:focus-visible {
+    text-decoration: underline;
+  }
+  @media (max-width: 1279px) {
+    .settings-hub {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 600px) {
+    .settings-hub {
+      grid-template-columns: minmax(0, 1fr);
+      grid-auto-rows: auto;
+    }
+    /* на телефоне ссылка во всю строку и не меньше 44 px под палец */
+    .settings-hub__links a {
+      min-height: 44px;
+    }
+  }
+}

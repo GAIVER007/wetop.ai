@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef, useState } from 'react';
 import { Alert, Button, Field, Input } from '../../components/ui';
 import type { BeautyLocationHoursResponse } from '../../lib/api';
 import { localInput } from '../beauty/time';
+import { zoneLabel } from '../../lib/human-period';
 import { saveSalonHours } from './actions';
 
 type Interval = BeautyLocationHoursResponse['intervals'][number] & { key: number };
@@ -40,7 +41,7 @@ export function SalonHoursForm({
     <form action={action} className="salon-hours-form">
       <h2>Режим работы салона</h2>
       <p>
-        Часовой пояс: {initial.location.timezone}. Запись должна попадать в часы салона и график
+        Время: {zoneLabel(initial.location.timezone)}. Запись должна попадать в часы салона и график
         мастера.
       </p>
       {!data.configured && (
@@ -130,19 +131,42 @@ export function SalonHoursForm({
             </section>
           );
         })}
+        {canEdit && (
+          <div className="salon-hours-foot">
+            {!rows.length && (
+              <p>Если сохранить пустой график, все дни станут выходными для новых записей.</p>
+            )}
+            {state?.error && <Alert>{state.error}</Alert>}
+            {state?.data && (
+              <Alert tone="success">Режим работы сохранён. Существующие записи не перенесены.</Alert>
+            )}
+            <div className="salon-hours-actions">
+              <Button type="submit" disabled={pending}>
+                {pending ? 'Сохраняем…' : 'Сохранить режим'}
+              </Button>
+              <Button
+                type="button"
+                tone="secondary"
+                disabled={!rows.some((row) => row.weekday === 1)}
+                onClick={() =>
+                  setRows((all) => {
+                    const monday = all.filter((row) => row.weekday === 1);
+                    return [
+                      ...monday,
+                      ...DAYS.filter(([weekday]) => weekday !== 1).flatMap(([weekday]) =>
+                        monday.map((row) => ({ ...row, weekday, key: nextKey.current++ })),
+                      ),
+                    ];
+                  })
+                }
+              >
+                Скопировать понедельник на все дни
+              </Button>
+            </div>
+          </div>
+        )}
       </fieldset>
-      {canEdit && !rows.length && (
-        <p>Если сохранить пустой график, все дни станут выходными для новых записей.</p>
-      )}
-      {state?.error && <Alert>{state.error}</Alert>}
-      {state?.data && (
-        <Alert tone="success">Режим работы сохранён. Существующие записи не перенесены.</Alert>
-      )}
-      {canEdit && (
-        <Button type="submit" disabled={pending}>
-          {pending ? 'Сохраняем…' : 'Сохранить режим'}
-        </Button>
-      )}
+      {!canEdit && state?.error && <Alert>{state.error}</Alert>}
       {data.conflicts.length > 0 && (
         <section aria-label="Записи вне нового режима">
           <h3>Записи вне режима работы</h3>

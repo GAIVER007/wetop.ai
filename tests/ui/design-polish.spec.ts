@@ -10,22 +10,11 @@ for (const width of [1333, 390]) {
       await page.setViewportSize({ width, height: 973 });
       await page.addInitScript((value) => localStorage.setItem('wetop.theme', value), theme);
       await page.goto('/bar');
-      const cards = await page.locator('.bar-kpi').evaluateAll((elements) => elements.map((card) => {
-        const body = card.querySelector('.bar-kpi-body')!.getBoundingClientRect();
-        const hint = card.querySelector('.bar-kpi-hint')?.getBoundingClientRect();
-        const style = getComputedStyle(card);
-        const contentWidth = card.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-        const readable = Array.from(card.querySelectorAll('.bar-kpi-label, .bar-kpi-value')).every(
-          (element) => element.scrollWidth <= element.clientWidth + 1 && element.scrollHeight <= element.clientHeight + 1,
-        );
-        return { wide: Math.abs(body.width - contentWidth) <= 1, separated: !hint || hint.top >= body.bottom - 1, readable };
-      }));
-      expect(cards.length).toBeGreaterThan(0);
-      for (const card of cards) {
-        expect(card.wide).toBeTruthy();
-        expect(card.separated).toBeTruthy();
-        expect(card.readable).toBeTruthy();
-      }
+      // плиток над доской нет (аудит 21.10.2026 п.7): итоги строкой, подписи читаются целиком
+      await expect(page.locator('.bar-kpi')).toHaveCount(0);
+      const totals = page.getByTestId('bar-totals');
+      await expect(totals).toBeVisible();
+      expect(await totals.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBeTruthy();
       await page.locator('.bar-board-head').getByRole('button', { name: 'Добавить товар', exact: true }).click();
       await expect(page.locator('#bar-new-name')).toBeVisible();
       await page.getByRole('button', { name: 'Отмена', exact: true }).click();

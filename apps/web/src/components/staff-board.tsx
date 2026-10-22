@@ -48,7 +48,10 @@ export function StaffBoard<T extends { id: string }>({
   rowTestId = 'staff-row',
   tableTestId,
   notice,
+  emptyAction,
 }: {
+  /** кнопка в пустом состоянии вкладки «Все» (аудит 21.10.2026, п. 19) */
+  emptyAction?: ReactNode;
   caption: string;
   tabs: StaffTab<T>[];
   columns: StaffColumn<T>[];
@@ -74,7 +77,12 @@ export function StaffBoard<T extends { id: string }>({
   const table = (tab: StaffTab<T>) => {
     const rows = tab.rows.filter(match);
     if (rows.length === 0)
-      return <p className="staff-board__empty muted">{needle ? 'Никого не нашли' : (tab.empty ?? 'Пока никого нет')}</p>;
+      return (
+        <div className="staff-board__empty">
+          <p className="muted">{needle ? 'Никого не нашли' : (tab.empty ?? 'Пока никого нет')}</p>
+          {!needle && all === 0 && emptyAction}
+        </div>
+      );
     return (
       <Table
         density="compact"
@@ -128,7 +136,8 @@ export function StaffBoard<T extends { id: string }>({
               </IconField>
             </Field>
           )}
-          {period}
+          {/* период нужен только колонке «Принёс»: без строк его нет (п. 18) */}
+          {all > 0 && period}
         </div>
         {notice}
         {tabs.length === 1 ? (

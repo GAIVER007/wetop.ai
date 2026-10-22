@@ -1,4 +1,4 @@
--- Restore-only ACL companion for mixed migrations132,134-137.
+-- Restore-only ACL companion for mixed migrations132,134-137,140,141.
 -- Not a schema migration. Run after ordinary pure-ACL migrations, inside the restore transaction.
 -- Copy existing privileges exactly; never replay mixed DDL or end the caller's transaction.
 DO $restore_acl$
@@ -47,5 +47,28 @@ BEGIN
     REVOKE ALL ON beauty_location_hours FROM wetop_app, wetop_service;
     GRANT SELECT ON beauty_location_hours TO wetop_app;
     GRANT SELECT, INSERT, UPDATE, DELETE ON beauty_location_hours TO wetop_service;
+  END IF;
+  -- 140_client_notifications: exact ACL of the mixed migration (all-or-none)
+  SELECT count(*) INTO installed FROM unnest(ARRAY['client_notifications','beauty_reminder_settings']) AS t(name)
+    WHERE to_regclass('public.' || name) IS NOT NULL;
+  IF installed NOT IN (0,2) THEN RAISE EXCEPTION 'Incomplete client-notifications schema during ACL restore'; END IF;
+  IF installed = 2 THEN
+    REVOKE ALL ON client_notifications, beauty_reminder_settings FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON client_notifications TO wetop_app;
+    GRANT SELECT, INSERT, UPDATE ON client_notifications TO wetop_service;
+    GRANT SELECT ON beauty_reminder_settings TO wetop_app;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON beauty_reminder_settings TO wetop_service;
+  END IF;
+
+  -- 141_salon_loyalty: exact ACL of the mixed migration (all-or-none)
+  SELECT count(*) INTO installed FROM unnest(ARRAY['bonus_programs','customer_bonus_entries','gift_certificates','gift_certificate_entries']) AS t(name)
+    WHERE to_regclass('public.' || name) IS NOT NULL;
+  IF installed NOT IN (0,4) THEN RAISE EXCEPTION 'Incomplete salon-loyalty schema during ACL restore'; END IF;
+  IF installed = 4 THEN
+    REVOKE ALL ON bonus_programs, customer_bonus_entries, gift_certificates, gift_certificate_entries FROM wetop_app, wetop_service;
+    GRANT SELECT ON bonus_programs TO wetop_app;
+    GRANT SELECT, INSERT, UPDATE ON bonus_programs TO wetop_service;
+    GRANT SELECT, INSERT ON customer_bonus_entries, gift_certificate_entries TO wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON gift_certificates TO wetop_app, wetop_service;
   END IF;
 END $restore_acl$;

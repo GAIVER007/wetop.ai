@@ -13,6 +13,7 @@ const H: readonly WebVertical[] = ['HOSPITALITY'];
 const B: readonly WebVertical[] = ['BEAUTY'];
 const F: readonly WebVertical[] = ['FOOD_SERVICE'];
 const BF: readonly WebVertical[] = ['BEAUTY', 'FOOD_SERVICE'];
+const HB: readonly WebVertical[] = ['HOSPITALITY', 'BEAUTY'];
 
 const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   // гостиница: фонд, брони, каналы, настройки объекта, гостиничные отчёты и сайт с онлайн-бронью
@@ -51,7 +52,9 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   '/appointments': B,
   '/services': B,
   '/beauty': B,
-  '/bar/consumables': B,
+  // склад кухни и расходников у гостиницы и салона; ресторан ведёт его на `/stock` (ADR-STOCK-ALL)
+  '/bar/consumables': HB,
+  '/finance/certificates': B,
   // салон и ресторан
   '/customers': BF,
   '/employees': BF,

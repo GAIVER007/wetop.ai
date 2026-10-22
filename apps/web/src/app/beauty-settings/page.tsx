@@ -7,6 +7,8 @@ import { currentMe, deskShell } from '../../lib/desk-shell';
 import { mayBeautyAccess } from '../../lib/navigation';
 import { requireFeature } from '../../lib/vertical-guard';
 import { SalonHoursForm } from './hours-form';
+import { SettingsLinks } from './settings-links';
+import { BonusProgramForm, ReminderSettingsForm } from './loyalty-forms';
 import './settings.css';
 
 export default async function BeautySettingsPage() {
@@ -14,7 +16,13 @@ export default async function BeautySettingsPage() {
   const me = await currentMe();
   const shell = await deskShell();
   try {
-    const initial = await beautyApi.locationHours();
+    const [initial, reminders, bonuses] = await Promise.all([
+      beautyApi.locationHours(),
+      beautyApi.reminderSettings(),
+      beautyApi.bonusProgram(),
+    ]);
+    const canEdit =
+      !shell.readOnly && mayBeautyAccess(shell.access, 'settings', 'update', { legacy: 'property' });
     const scopeKey = JSON.stringify({
       organizationId: me.user?.organizationId,
       businessId: me.context?.businessId,
@@ -22,15 +30,21 @@ export default async function BeautySettingsPage() {
     });
     return (
       <Page title="Настройки салона" subtitle={initial.location.name ?? 'Выбранный филиал'}>
-        <SalonHoursForm
-          key={scopeKey}
-          initial={initial}
-          scopeKey={scopeKey}
-          canEdit={
-            !shell.readOnly &&
-            mayBeautyAccess(shell.access, 'settings', 'update', { legacy: 'property' })
-          }
-        />
+        <SettingsLinks />
+        {/* компактно (поручение 21.10.2026): режим работы слева, напоминания и бонусы справа; на телефоне столбиком */}
+        <div className="salon-settings-stack">
+          <div className="salon-settings-col" id="hours">
+            <SalonHoursForm key={scopeKey} initial={initial} scopeKey={scopeKey} canEdit={canEdit} />
+          </div>
+          <div className="salon-settings-col">
+            <div id="reminders">
+              <ReminderSettingsForm key={`r${scopeKey}`} initial={reminders} scopeKey={scopeKey} canEdit={canEdit} />
+            </div>
+            <div id="bonuses">
+              <BonusProgramForm key={`b${scopeKey}`} initial={bonuses} scopeKey={scopeKey} canEdit={canEdit} />
+            </div>
+          </div>
+        </div>
       </Page>
     );
   } catch (error) {

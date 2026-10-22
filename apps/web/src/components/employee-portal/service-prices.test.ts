@@ -37,6 +37,7 @@ vi.mock('../tabs', () => ({
 }));
 
 import { EmployeeCabinet } from './cabinet';
+import { servicePricesKey } from './service-prices';
 
 const initial = (access: 'MANAGER' | 'SELF'): EmployeePortalDto => ({
   canUpload: true,
@@ -97,5 +98,14 @@ describe('цены и длительность услуг мастера', () =>
 
   it('не показывает редактор цен в собственном read-only кабинете мастера', () => {
     expect(render('SELF')).not.toContain('data-testid="portal-service-prices"');
+  });
+});
+
+/** Живой сайт 21.10.2026: после «Сохранить услуги» блок цен писал «Сначала назначьте мастеру услугу» до перезагрузки */
+describe('блок цен мастера обновляется после назначения услуг', () => {
+  it('ключ меняется, когда меняется набор услуг', () => {
+    expect(servicePricesKey([])).not.toBe(servicePricesKey([prices[0]]));
+    expect(servicePricesKey([prices[0], prices[1]])).toBe(servicePricesKey([prices[1], prices[0]]));
+    expect(servicePricesKey([prices[0]])).not.toBe(servicePricesKey([{ ...prices[0], revision: 4 }]));
   });
 });

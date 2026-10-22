@@ -7,6 +7,16 @@
   .vertical-today .stats {
     margin-bottom: 0;
   }
+  /* числа дня под заголовком списка (аудит 21.10.2026, п. 12) */
+  .vertical-today__summary {
+    margin: 0 0 var(--space-2);
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .vertical-today__summary b {
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
   .vertical-today__attention,
   .vertical-today__rows {
     list-style: none;

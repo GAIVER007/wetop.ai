@@ -46,7 +46,9 @@ test('администратор: в меню — работа с гостями
       '/management/analytics',
       '/reports',
       // «Склад» в порядке вкладок экрана (ad793ebf6, решение владельца 19.10.2026)
+      '/warehouse',
       '/bar',
+      '/bar/consumables',
       '/bar/receipts',
       '/bar/products',
       '/bar/suppliers',
@@ -54,6 +56,8 @@ test('администратор: в меню — работа с гостями
       '/finance',
       '/reports/finance',
       '/incidents',
+      // хаб «Все настройки» (21.10.2026): ему открыт, внутри только его ссылки
+      '/settings',
       // «Продвижение»: администратору продавец, конкуренты (право `reports`) и обзор продаж
       '/ai-agents',
       '/market',
@@ -303,17 +307,17 @@ test('владелец: зовёт управляющего и админист�
   await expect(page.getByRole('dialog')).toHaveCount(0);
   const invites = main.getByTestId('invite-list');
   await expect(invites.locator('li', { hasText: 'new.manager@example.com' })).toContainText(
-    'управляющий',
+    'Управляющий',
   );
-  await expect(invites.locator('li', { hasText: 'boss@example.com' })).toContainText('управляющий');
+  await expect(invites.locator('li', { hasText: 'boss@example.com' })).toContainText('Управляющий');
   await expect(invites.locator('li', { hasText: 'zhdet@example.com' })).toContainText(
-    'администратор',
+    'Администратор',
   );
 
   const admin = main.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
-  await expect(admin).toContainText('администратор');
+  await expect(admin).toContainText('Администратор');
   await admin.getByRole('combobox', { name: 'Должность: Юрий Тестов' }).selectOption('MANAGER');
-  await expect(admin).toContainText('управляющий');
+  await expect(admin).toContainText('Управляющий');
   await shot(page, 'team-owner');
 });
 

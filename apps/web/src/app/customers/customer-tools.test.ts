@@ -11,8 +11,8 @@ describe('D1/D2: действия над клиентами', () => {
     const editable = renderToStaticMarkup(createElement(BeautyCustomerTools, { canEdit: true, scopeKey: 'business:location' }));
     expect(editable).toContain('Добавить клиента');
     expect(editable).toContain('Импортировать клиентов');
-    expect(editable).toContain('Имя');
-    expect(editable).toContain('Телефон');
+    // подсказка о колонках файла живёт в окне импорта, а не строкой над списком (аудит 21.10.2026 п.44)
+    expect(editable).not.toContain('до 50 000 строк');
 
     const readOnly = renderToStaticMarkup(createElement(BeautyCustomerTools, { canEdit: false, scopeKey: 'business:location' }));
     expect(readOnly).not.toContain('Добавить клиента');

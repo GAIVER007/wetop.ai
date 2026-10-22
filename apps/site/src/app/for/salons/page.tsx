@@ -6,7 +6,8 @@ import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { SubtypeLinks } from '../../../components/landing/subtype-links';
 import { Breadcrumbs } from '../../../components/breadcrumbs';
 import { typo } from '../../../components/typo';
-import { getDictionary } from '../../../i18n';
+import { getDictionary, type Locale } from '../../../i18n';
+import { LangSwitch } from '../../../components/lang-switch';
 import { pageMetadata } from '../../../lib/metadata';
 import { registerLink } from '../../../lib/site';
 
@@ -17,15 +18,23 @@ import { registerLink } from '../../../lib/site';
  * (Q-SALON-1, Q-SALON-2); «14 дней» макета снято, условий trial нет (ADR-147); фото заменены
  * мокапом и рисунком на SVG, появятся свои фото — меняются мокап героя и SalonArt (Q-SALON-3).
  */
-export const metadata: Metadata = pageMetadata({
-  path: '/for/salons/',
-  image: '/og/salon.jpg',
-  title: getDictionary().salon.metaTitle,
-  description: getDictionary().salon.description,
-});
+export function salonsDirectionMetadata(locale: Locale): Metadata {
+  const t = getDictionary(locale);
+  return pageMetadata({
+    path: locale === 'kk' ? '/kk/for/salons/' : '/for/salons/',
+    locale,
+    languages: { ru: '/for/salons/', kk: '/kk/for/salons/', 'x-default': '/for/salons/' },
+    image: '/og/salon.jpg',
+    title: t.salon.metaTitle,
+    description: t.salon.description,
+  });
+}
 
-export default function SalonLandingPage() {
-  const t = getDictionary();
+export const metadata: Metadata = salonsDirectionMetadata('ru');
+
+export function SalonLanding({ locale = 'ru' }: { locale?: Locale }) {
+  const t = getDictionary(locale);
+  const prefix = locale === 'kk' ? '/kk' : '';
   const s = t.salon;
   const register = registerLink(undefined, 'BEAUTY').href;
   return (
@@ -35,9 +44,10 @@ export default function SalonLandingPage() {
           label={t.a11y.breadcrumbs}
           trail={[
             { name: t.a11y.crumbHome, path: '/' },
-            { name: t.salon.badge, path: '/for/salons/' },
+            { name: t.salon.badge, path: `${prefix}/for/salons/` },
           ]}
         />
+        <LangSwitch locale={locale} ruPath="/for/salons/" kkPath="/kk/for/salons/" />
         <div className="landing">
           <section className="salon-hero" aria-labelledby="salon-title">
             <div>
@@ -161,7 +171,7 @@ export default function SalonLandingPage() {
             </figure>
           </section>
 
-          <SubtypeLinks direction="salons" title={t.segments.typesTitle.salons} />
+          <SubtypeLinks direction="salons" title={t.segments.typesTitle.salons} locale={locale} />
 
           <MarketingBlock
             id="marketing"
@@ -185,4 +195,8 @@ export default function SalonLandingPage() {
       </div>
     </div>
   );
+}
+
+export default function SalonLandingPage() {
+  return <SalonLanding locale="ru" />;
 }

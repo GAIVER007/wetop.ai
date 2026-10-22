@@ -215,6 +215,17 @@ describe.skipIf(!url)('формы сайта салона и ресторана,
       expect(times).not.toContain('10:00');
       expect(times).not.toContain('09:15');
       expect(times).toContain('11:00');
+      // напоминания клиенту (решение 21.10.2026 §1): подтверждение сразу и напоминания за 24 и 2 часа в той же транзакции
+      const queue = await admin.clientNotification.findMany({
+        where: { appointmentId: booked.json['appointmentId'] as string },
+        orderBy: { dueAt: 'asc' },
+        select: { kind: true, state: true, dueAt: true },
+      });
+      expect(queue.map((q) => q.kind).sort()).toEqual(['CONFIRMATION', 'REMINDER', 'REMINDER']);
+      expect(queue.filter((q) => q.kind === 'REMINDER').map((q) => q.dueAt.toISOString())).toEqual([
+        new Date(new Date(almatyAt(day, '10:00')).getTime() - 24 * 3_600_000).toISOString(),
+        new Date(new Date(almatyAt(day, '10:00')).getTime() - 2 * 3_600_000).toISOString(),
+      ]);
     });
 
     it('свободные окна учитывают мастера второй строки многострочного визита', async () => {

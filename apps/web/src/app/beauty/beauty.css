@@ -1550,4 +1550,263 @@
     border-top: 2px solid var(--danger);
     pointer-events: none;
   }
+  /* «Напомнить сегодня» (решение 21.10.2026 §1): строка на клиента, действия справа */
+  .beauty-reminders-today {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .beauty-reminders-today h2 {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .beauty-reminders-today ul {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .beauty-reminders-today li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .beauty-reminders-today__who {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--text-sm);
+  }
+  .beauty-reminders-today__kind {
+    font-weight: 600;
+  }
+  .beauty-reminders-today__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+  }
+  /* бонусы клиента и оплата бонусами, сертификатом */
+  .beauty-bonus-balance {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .beauty-loyalty-hint {
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+  /* «Финансы → Сертификаты» (решение 21.10.2026 §3) */
+  .beauty-certificates {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .beauty-certificates__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .beauty-certificates__lookup {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-2);
+  }
+  .beauty-certificates__table td {
+    white-space: nowrap;
+  }
+  .beauty-certificates__sell,
+  .beauty-certificates__sold {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .beauty-certificates__sold p {
+    margin: 0;
+  }
+  .beauty-certificates__code {
+    font-size: var(--text-lg);
+    letter-spacing: 0.1em;
+  }
+}
+
+/* График: быстрые шаблоны недели и кнопка «Задать часы» у нового специалиста (онбординг 21.10.2026) */
+@layer sections {
+  .beauty-week-presets {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .beauty-week-grid th .beauty-week-unset {
+    display: flex;
+    margin-top: var(--space-1);
+  }
+}
+
+
+/* Журнал салона, аудит 21.10.2026 (п. 13-15, 34-36): одна строка инструментов, подписанный отчёт,
+   «Фильтры» как соседние кнопки, пустое состояние карточкой вместо пустой сетки */
+@layer sections {
+  .beauty-calendar-actions > .beauty-calendar-views {
+    margin: 0;
+    gap: var(--space-1);
+  }
+  .beauty-calendar-wide > .quick-report-trigger {
+    margin-left: 0;
+  }
+  .beauty-calendar-toolbar > .context-help > summary {
+    border-color: var(--border);
+    background: var(--surface);
+    color: var(--text-2);
+    font-weight: 500;
+  }
+  .beauty-calendar-toolbar > .context-help > summary:hover {
+    border-color: var(--border-input);
+    background: var(--row-hover);
+    color: var(--text);
+  }
+  .beauty-setup-empty {
+    margin-block: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  @media (max-width: 600px) {
+    .beauty-calendar-actions > .beauty-calendar-views {
+      grid-column: 1 / -1;
+    }
+  }
+  /* «День / Неделя» и подписанный «Быстрый отчёт» удлинили строку инструментов: на 1440 «Фильтры» уезжали
+     за край экрана и давали горизонтальную прокрутку. Строка переносится, «Фильтры» уходят под неё. */
+  @media (min-width: 1280px) {
+    .beauty-page .beauty-calendar-toolbar {
+      flex-wrap: wrap;
+    }
+    .beauty-calendar-toolbar .beauty-calendar-actions {
+      flex: 1 1 auto;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+    .beauty-calendar-toolbar > .context-help {
+      flex: 0 0 auto;
+    }
+    .beauty-calendar-toolbar > .context-help[open] {
+      flex: 1 1 100%;
+    }
+  }
+}
+
+/* График недели, аудит 21.10.2026 (п. 41): стрелки недели как у дня в Журнале */
+@layer sections {
+  .beauty-week-nav.date-bar {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .beauty-week-nav__range {
+    min-width: 12rem;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+  }
+  @media (max-width: 600px) {
+    .beauty-week-nav.date-bar {
+      display: grid;
+      grid-template-columns: auto 44px minmax(0, 1fr) 44px;
+      gap: var(--space-1);
+    }
+    .beauty-week-nav.date-bar > .beauty-week-nav__range {
+      grid-column: auto;
+      grid-row: auto;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+/* Журнал на телефоне: «День / Неделя» рядом с «Фильтрами», «Новая запись» рядом с выбором специалиста.
+   Раньше вид занимал отдельную строку, а кнопка ещё одну, и сетка начиналась ниже 422 px (tz12 compact controls). */
+@layer sections {
+  @media (max-width: 600px) {
+    .beauty-calendar-toolbar .beauty-calendar-actions > .beauty-calendar-views {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    .beauty-calendar-toolbar .beauty-calendar-actions > .btn {
+      grid-area: 1 / 2;
+      min-width: 0;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+  }
+}
+
+/* «Новая запись» компактнее (21.10.2026): клиент одной группой, имя и фамилия в ряд, «Итого» над кнопкой,
+   без прокрутки на ноутбуке при одной услуге. */
+@layer sections {
+  .appointment-form {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+  }
+  .appointment-form fieldset {
+    gap: var(--space-2);
+  }
+  .appointment-form .appointment-customer-fields > * {
+    grid-column: 1 / -1;
+  }
+  .appointment-customer-new {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  /* быстрые кнопки и выбор клиента в одном ряду: на ноутбуке «Новая запись» без лишней прокрутки */
+  @media (min-width: 601px) {
+    .appointment-form .appointment-customer-fields {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: end;
+    }
+    .appointment-form .appointment-customer-fields > .appointment-customer-quick {
+      grid-column: 1;
+    }
+    .appointment-form .appointment-customer-fields > .appointment-customer-quick + .field {
+      grid-column: 2;
+    }
+  }
+  .appointment-form .appointment-customer-fields > legend {
+    padding-bottom: 0;
+  }
+  .appointment-form fieldset:last-of-type > legend {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .appointment-form__footer {
+    display: grid;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+  }
+  .appointment-form__total {
+    margin: 0;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 600px) {
+    .appointment-customer-new {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
 }

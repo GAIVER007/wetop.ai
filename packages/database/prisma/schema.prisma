@@ -66,6 +66,9 @@ model Business {
   beautyPayrollPolicy BeautyPayrollPolicy?
   beautyPositions BeautyPosition[]
   beautyPositionAssignments BeautyPositionAssignment[]
+  bonusProgram              BonusProgram?
+  bonusEntries              CustomerBonusEntry[]
+  giftCertificates          GiftCertificate[]
 
   @@index([organizationId])
   @@map("businesses")
@@ -140,6 +143,8 @@ model Location {
   trackedSites           TrackedSite[]                  @relation("LocationTrackedSites")
   /// SITE-5: заявки с сайта без слота
   siteLeads              SiteLead[]
+  clientNotifications       ClientNotification[]
+  reminderSettings          BeautyReminderSettings?
 
   @@index([businessId])
   @@index([bookingTrackedSiteId])
@@ -1235,6 +1240,10 @@ enum PaymentMethod {
   DEPOSIT
   HALYK
   KASPI
+  /// салон (миграция 141): оплата записи бонусами, не деньги в кассе
+  BONUS
+  /// салон (миграция 141): оплата записи подарочным сертификатом, не деньги в кассе
+  GIFT_CERTIFICATE
 }
 
 enum PaymentStatus {
@@ -2540,6 +2549,10 @@ model Organization {
 
   sellerBookingIntents SellerBookingIntent[]
   siteLeads            SiteLead[]
+  clientNotifications  ClientNotification[]
+  bonusEntries         CustomerBonusEntry[]
+  giftCertificates     GiftCertificate[]
+  giftCertificateEntries GiftCertificateEntry[]
 
   @@map("organizations")
 }
@@ -2622,6 +2635,9 @@ model User {
   siteAiRunsRequested          SiteAiRun[]
   siteBookmarksCreated         MarketingSiteVersionBookmark[]
   siteBuilderEntitlementEdits  SiteBuilderEntitlement[]
+  bonusEntriesCreated          CustomerBonusEntry[]
+  giftCertificatesCreated      GiftCertificate[]
+  giftCertificateEntriesMade   GiftCertificateEntry[]
 
   @@map("users")
 }
@@ -3148,6 +3164,9 @@ model Customer {
   businesses             CustomerBusiness[]
   appointments           Appointment[]
   restaurantReservations RestaurantReservation[]
+  clientNotifications    ClientNotification[]
+  bonusEntries           CustomerBonusEntry[]
+  giftCertificatesBought GiftCertificate[]
 
   @@index([organizationId])
   @@map("customers")
@@ -3509,6 +3528,9 @@ model Appointment {
   lines     AppointmentLine[]
   reviews   BeautyAppointmentReview[]
   reviewInvitation BeautyReviewInvitation?
+  clientNotifications ClientNotification[]
+  bonusEntries     CustomerBonusEntry[]
+  giftCertificateEntries GiftCertificateEntry[]
 
   @@unique([locationId, creationKey])
   @@index([locationId, startsAt])
@@ -4065,6 +4087,8 @@ model RestaurantCashOperation {
   barSale            BarSale?
   barSupplierPayment BarSupplierPayment?
   voidedBy           User?               @relation("RestaurantCashOpVoidedBy", fields: [voidedById], references: [id])
+  bonusEntries       CustomerBonusEntry[]
+  giftCertificateEntries GiftCertificateEntry[]
 
   @@index([locationId, occurredAt])
   @@unique([locationId, idempotencyKey])
@@ -4242,4 +4266,185 @@ model CustomerImportRow {
   @@index([organizationId])
   @@index([customerId])
   @@map("customer_import_rows")
+}
+
+/// 140 Напоминания клиентам салона (docs/decisions/2026-10-21-salon-reminders-loyalty.md §1)
+enum ClientNotificationKind {
+  REMINDER
+  CONFIRMATION
+  REVIEW_REQUEST
+}
+
+enum ClientNotificationChannel {
+  EMAIL
+  WHATSAPP
+  MANUAL
+}
+
+enum ClientNotificationState {
+  PENDING
+  SENT
+  MANUAL
+  FAILED
+  CANCELLED
+}
+
+/// Очередь сообщений клиенту по записи: без текста и контактов, текст собирается при отправке
+model ClientNotification {
+  id             String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                     @map("organization_id") @db.Uuid
+  locationId     String                     @map("location_id") @db.Uuid
+  appointmentId  String                     @map("appointment_id") @db.Uuid
+  customerId     String                     @map("customer_id") @db.Uuid
+  kind           ClientNotificationKind
+  dueAt          DateTime                   @map("due_at") @db.Timestamptz(6)
+  channel        ClientNotificationChannel?
+  state          ClientNotificationState    @default(PENDING)
+  attempts       Int                        @default(0)
+  nextAttemptAt  DateTime?                  @map("next_attempt_at") @db.Timestamptz(6)
+  lastError      String?                    @map("last_error") @db.VarChar(500)
+  sentAt         DateTime?                  @map("sent_at") @db.Timestamptz(6)
+  createdAt      DateTime                   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime                   @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "client_notifications_organization_fkey")
+  location     Location     @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "client_notifications_location_fkey")
+  appointment  Appointment  @relation(fields: [appointmentId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "client_notifications_appointment_fkey")
+  customer     Customer     @relation(fields: [customerId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "client_notifications_customer_fkey")
+
+  @@unique([appointmentId, kind, dueAt], map: "client_notifications_natural_key")
+  @@index([state, dueAt], map: "client_notifications_state_due_idx")
+  @@index([locationId, dueAt], map: "client_notifications_location_due_idx")
+  @@map("client_notifications")
+}
+
+/// Настройки напоминаний филиала салона
+model BeautyReminderSettings {
+  locationId           String   @id @map("location_id") @db.Uuid
+  enabled              Boolean  @default(true)
+  hoursBefore          Int[]    @default([24, 2]) @map("hours_before")
+  template             String?
+  whatsappTemplateName String?  @map("whatsapp_template_name") @db.VarChar(100)
+  revision             Int      @default(1)
+  updatedAt            DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "beauty_reminder_settings_location_fkey")
+
+  @@map("beauty_reminder_settings")
+}
+
+/// 141 Бонусы и подарочные сертификаты салона (docs/decisions/2026-10-21-salon-reminders-loyalty.md §2-3)
+enum BonusEntryKind {
+  ACCRUAL
+  REDEEM
+  REVERSAL
+  ADJUSTMENT
+}
+
+enum GiftCertificateStatus {
+  ACTIVE
+  USED
+  EXPIRED
+  VOID
+}
+
+enum GiftCertificateEntryKind {
+  SALE
+  REDEEM
+  REVERSAL
+}
+
+/// Бонусная программа бизнеса салона; 1 бонус = 1 минорная единица валюты филиала
+model BonusProgram {
+  businessId       String   @id @map("business_id") @db.Uuid
+  enabled          Boolean  @default(false)
+  accrualPercent   Int      @default(5) @map("accrual_percent")
+  maxRedeemPercent Int      @default(30) @map("max_redeem_percent")
+  expiresDays      Int?     @map("expires_days")
+  revision         Int      @default(1)
+  updatedAt        DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "bonus_programs_business_fkey")
+
+  @@map("bonus_programs")
+}
+
+/// Движения бонусов клиента; только дописываются, баланс = сумма
+model CustomerBonusEntry {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String         @map("organization_id") @db.Uuid
+  businessId     String         @map("business_id") @db.Uuid
+  customerId     String         @map("customer_id") @db.Uuid
+  kind           BonusEntryKind
+  /// minor units со знаком: начисление плюс, списание минус
+  amountMinor    BigInt         @map("amount_minor")
+  currency       String         @db.Char(3)
+  expiresAt      DateTime?      @map("expires_at") @db.Timestamptz(6)
+  appointmentId  String?        @map("appointment_id") @db.Uuid
+  paymentId      String?        @map("payment_id") @db.Uuid
+  reason         String?        @db.VarChar(300)
+  createdById    String?        @map("created_by_id") @db.Uuid
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organization Organization             @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "customer_bonus_entries_organization_fkey")
+  business     Business                 @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "customer_bonus_entries_business_fkey")
+  customer     Customer                 @relation(fields: [customerId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "customer_bonus_entries_customer_fkey")
+  appointment  Appointment?             @relation(fields: [appointmentId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "customer_bonus_entries_appointment_fkey")
+  payment      RestaurantCashOperation? @relation(fields: [paymentId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "customer_bonus_entries_payment_fkey")
+  createdBy    User?                    @relation(fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "customer_bonus_entries_created_by_fkey")
+
+  @@unique([paymentId, kind], map: "customer_bonus_entries_payment_kind_key")
+  @@index([businessId, customerId, createdAt], map: "customer_bonus_entries_customer_idx")
+  @@index([appointmentId], map: "customer_bonus_entries_appointment_idx")
+  @@map("customer_bonus_entries")
+}
+
+/// Подарочный сертификат бизнеса салона; остаток не меньше нуля
+model GiftCertificate {
+  id              String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String                @map("organization_id") @db.Uuid
+  businessId      String                @map("business_id") @db.Uuid
+  code            String                @db.VarChar(12)
+  initialMinor    BigInt                @map("initial_minor")
+  balanceMinor    BigInt                @map("balance_minor")
+  currency        String                @db.Char(3)
+  expiresAt       DateTime              @map("expires_at") @db.Timestamptz(6)
+  buyerCustomerId String?               @map("buyer_customer_id") @db.Uuid
+  status          GiftCertificateStatus @default(ACTIVE)
+  createdById     String?               @map("created_by_id") @db.Uuid
+  createdAt       DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime              @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization           @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "gift_certificates_organization_fkey")
+  business     Business               @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "gift_certificates_business_fkey")
+  buyer        Customer?              @relation(fields: [buyerCustomerId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "gift_certificates_buyer_fkey")
+  createdBy    User?                  @relation(fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "gift_certificates_created_by_fkey")
+  entries      GiftCertificateEntry[]
+
+  @@unique([businessId, code], map: "gift_certificates_business_code_key")
+  @@index([businessId, createdAt], map: "gift_certificates_business_created_idx")
+  @@map("gift_certificates")
+}
+
+/// Движения сертификата: продажа, погашение, возврат; только дописываются
+model GiftCertificateEntry {
+  id             String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                   @map("organization_id") @db.Uuid
+  certificateId  String                   @map("certificate_id") @db.Uuid
+  kind           GiftCertificateEntryKind
+  amountMinor    BigInt                   @map("amount_minor")
+  appointmentId  String?                  @map("appointment_id") @db.Uuid
+  paymentId      String?                  @map("payment_id") @db.Uuid
+  createdById    String?                  @map("created_by_id") @db.Uuid
+  createdAt      DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organization Organization             @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "gift_certificate_entries_organization_fkey")
+  certificate  GiftCertificate          @relation(fields: [certificateId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "gift_certificate_entries_certificate_fkey")
+  appointment  Appointment?             @relation(fields: [appointmentId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "gift_certificate_entries_appointment_fkey")
+  payment      RestaurantCashOperation? @relation(fields: [paymentId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "gift_certificate_entries_payment_fkey")
+  createdBy    User?                    @relation(fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "gift_certificate_entries_created_by_fkey")
+
+  @@unique([paymentId, kind], map: "gift_certificate_entries_payment_kind_key")
+  @@index([certificateId, createdAt], map: "gift_certificate_entries_certificate_idx")
+  @@map("gift_certificate_entries")
 }

@@ -20,12 +20,16 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
       beauty: `business=${f.beauty};location=${f.locations[3]}`,
       food: `business=${f.business};location=${f.locations[0]}`,
     }[vertical];
-    await page.context().addCookies([
-      { name: 'wetop_scope', value: encodeURIComponent(scope), domain: '127.0.0.1', path: '/' },
-    ]);
+    await page
+      .context()
+      .addCookies([
+        { name: 'wetop_scope', value: encodeURIComponent(scope), domain: '127.0.0.1', path: '/' },
+      ]);
     await page.goto('/today');
     const main = page.locator('main#main-content');
-    await expect(main.getByText('Обзор бизнеса')).toBeVisible();
+    // строка «Обзор бизнеса» снята: шапка Главной одной строкой (решение владельца 21.10.2026)
+    await expect(main.getByRole('heading', { level: 1, name: 'Главная' })).toBeVisible();
+    await expect(main.getByRole('complementary', { name: 'Решения и расходы' })).toBeVisible();
     await main.getByRole('link', { name: 'Рабочий день' }).click();
     await expect(page).toHaveURL(/\/today\/operations$/);
     await expect(page.locator('main#main-content h1')).toBeVisible();

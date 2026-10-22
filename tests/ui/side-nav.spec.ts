@@ -17,7 +17,9 @@ const routes = [
   '/management/analytics',
   '/bar/products',
   '/bar/receipts',
+  '/warehouse',
   '/bar',
+  '/bar/consumables',
   '/bar/operations',
   '/bar/suppliers',
   '/finance',
@@ -27,6 +29,7 @@ const routes = [
   '/connections',
   '/incidents',
   '/journal',
+  '/settings',
   '/marketing',
   '/marketing/ads',
   '/marketing/content',
@@ -92,6 +95,7 @@ test('UI3.1: кнопка открывает разделы, наведение 
     'Подключения',
     'Неисправности',
     'История действий',
+    'Все настройки',
   ]);
   // 4. щелчок: переход на страницу, панель закрыта
   await items.getByRole('link', { name: 'Каналы продаж', exact: true }).click();

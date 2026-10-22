@@ -3818,6 +3818,8 @@ export interface BeautyAppointmentRow {
   paidMinor: string;
   paidCashMinor?: string;
   paidNonCashMinor?: string;
+  /** оплачено бонусами и сертификатом (не деньги в кассе, решение 21.10.2026) */
+  paidLoyaltyMinor?: string;
   /** возвращено по выполненной записи (§54), действующие расходы */
   refundedMinor: string;
   currency: string;
@@ -4000,6 +4002,80 @@ export interface BeautyAppointmentHistoryResponse {
   truncated: boolean;
 }
 
+/** Напоминания клиентам салона (решение 21.10.2026 §1) */
+export interface BeautyReminderSettings {
+  locationId: string;
+  configured: boolean;
+  revision: number;
+  enabled: boolean;
+  hoursBefore: number[];
+  template: string | null;
+  defaultTemplate: string;
+  whatsappTemplateName: string | null;
+  whatsappConnected: boolean;
+}
+export interface BeautyReminderItem {
+  id: string;
+  kind: 'REMINDER' | 'CONFIRMATION' | 'REVIEW_REQUEST';
+  /** «Напомнить о записи», «Подтвердить запись», «Попросить отзыв» */
+  kindLabel: string;
+  state: 'PENDING' | 'SENT' | 'MANUAL' | 'FAILED' | 'CANCELLED';
+  stateLabel: string;
+  channel: 'EMAIL' | 'WHATSAPP' | 'MANUAL' | null;
+  dueAt: string;
+  sentAt: string | null;
+  attempts: number;
+  lastError: string | null;
+  appointmentId: string;
+  appointmentStartsAt: string;
+  customerName: string;
+  customerPhone: string | null;
+  text: string | null;
+  whatsappUrl: string | null;
+}
+export interface BeautyRemindersDay {
+  date: string;
+  timezone: string;
+  items: BeautyReminderItem[];
+}
+/** Бонусы и сертификаты салона (решение 21.10.2026 §2-3) */
+export interface BeautyBonusProgram {
+  businessId: string;
+  configured: boolean;
+  revision: number;
+  enabled: boolean;
+  accrualPercent: number;
+  maxRedeemPercent: number;
+  expiresDays: number | null;
+}
+export interface BeautyCustomerBonuses {
+  customerId: string;
+  currency: string;
+  program: { enabled: boolean; accrualPercent: number; maxRedeemPercent: number; expiresDays: number | null };
+  balanceMinor: string;
+  entries: Array<{
+    id: string;
+    kind: 'ACCRUAL' | 'REDEEM' | 'REVERSAL' | 'ADJUSTMENT';
+    amountMinor: string;
+    currency: string;
+    expiresAt: string | null;
+    appointmentId: string | null;
+    reason: string | null;
+    createdAt: string;
+    createdByName: string | null;
+  }>;
+}
+export interface BeautyGiftCertificate {
+  id: string;
+  code: string;
+  initialMinor: string;
+  balanceMinor: string;
+  currency: string;
+  expiresAt: string;
+  status: 'ACTIVE' | 'USED' | 'EXPIRED' | 'VOID';
+  createdAt: string;
+  buyer: { id: string; name: string } | null;
+}
 export interface BeautyLocationHoursResponse {
   location: { id: string; name: string | null; timezone: string };
   configured: boolean;
@@ -4079,6 +4155,35 @@ export const beautyApi = {
       { expectedRevision },
     ),
   locationHours: () => getJson<BeautyLocationHoursResponse>('/beauty/location-hours'),
+  reminderSettings: () => getJson<BeautyReminderSettings>('/beauty/reminder-settings'),
+  saveReminderSettings: (body: {
+    expectedRevision: number;
+    enabled: boolean;
+    hoursBefore: number[];
+    template: string | null;
+    whatsappTemplateName: string | null;
+  }) => sendJson<BeautyReminderSettings>('PUT', '/beauty/reminder-settings', body),
+  reminders: (date?: string) =>
+    getJson<BeautyRemindersDay>(`/beauty/reminders${date ? `?date=${encodeURIComponent(date)}` : ''}`),
+  reminderDone: (id: string) =>
+    sendJson<{ id: string; state: 'SENT' }>('POST', `/beauty/reminders/${encodeURIComponent(id)}/done`, {}),
+  bonusProgram: () => getJson<BeautyBonusProgram>('/beauty/bonus-program'),
+  saveBonusProgram: (body: {
+    expectedRevision: number;
+    enabled: boolean;
+    accrualPercent: number;
+    maxRedeemPercent: number;
+    expiresDays: number | null;
+  }) => sendJson<BeautyBonusProgram>('PUT', '/beauty/bonus-program', body),
+  customerBonuses: (id: string) =>
+    getJson<BeautyCustomerBonuses>(`/beauty/customers/${encodeURIComponent(id)}/bonuses`),
+  adjustBonuses: (id: string, body: { amountMinor: string; reason: string }) =>
+    sendJson<BeautyCustomerBonuses>('POST', `/beauty/customers/${encodeURIComponent(id)}/bonuses/adjustments`, body),
+  giftCertificates: () => getJson<{ currency: string | null; items: BeautyGiftCertificate[] }>('/beauty/gift-certificates'),
+  giftCertificateLookup: (code: string) =>
+    getJson<BeautyGiftCertificate>(`/beauty/gift-certificates/lookup?code=${encodeURIComponent(code)}`),
+  sellGiftCertificate: (body: { amountMinor: number; method: string; months?: number; idempotencyKey: string }) =>
+    sendJson<BeautyGiftCertificate>('POST', '/beauty/gift-certificates', body),
   saveLocationHours: (body: { expectedRevision: number; intervals: BeautyLocationHoursResponse['intervals'] }) => sendJson<BeautyLocationHoursResponse>('PUT', '/beauty/location-hours', body),
   appointmentHistory: (id: string) => getJson<BeautyAppointmentHistoryResponse>(`/beauty/appointments/${encodeURIComponent(id)}/history`),
   issueReviewInvitation: (id: string) => sendJson<{ reviewPath: string; expiresAt: string; masterCount: number }>(
@@ -4246,7 +4351,7 @@ export const beautyApi = {
       status,
     }),
   /** Оплата записи в кассу филиала (§49) */
-  payAppointment: (id: string, body: { method: string; amount: number; idempotencyKey: string }) =>
+  payAppointment: (id: string, body: { method: string; amount: number; idempotencyKey: string; certificateCode?: string }) =>
     sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/payments`, body),
   /** Возврат по выполненной записи (§54) */
   refundAppointment: (id: string, body: { method: string; amount: number; reason: string; idempotencyKey: string }) =>

@@ -5,6 +5,7 @@ import { Icon } from '../../components/icon';
 import { displayDate } from '../../lib/display-date';
 import { nightsBetween, pluralRu } from '../../lib/plural';
 import type { FreeMenu } from './range-plan';
+import { Select } from '../../components/ui';
 
 const GAP = 6;
 const EDGE = 8;
@@ -140,8 +141,7 @@ export function FreeMenuPopover({
       {!readOnly && (
         <label className="field free-menu__arrival">
           <span>Заезд</span>
-          <select
-            className="inp"
+          <Select
             aria-label="Заезд"
             value={arrival}
             onChange={(event) => {
@@ -154,7 +154,7 @@ export function FreeMenuPopover({
                 {displayDate(start.date)}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
       )}
       <dl className="free-menu__summary" aria-live="polite">
@@ -176,8 +176,7 @@ export function FreeMenuPopover({
       {!readOnly && (
         <label className="field free-menu__period">
           <span>Период проживания</span>
-          <select
-            className="inp"
+          <Select
             value={period}
             onChange={(event) => setPeriod(Number(event.target.value))}
           >
@@ -186,7 +185,7 @@ export function FreeMenuPopover({
                 {index === 0 ? `${option.dates}, 1 ночь` : option.dates}
               </option>
             ))}
-          </select>
+          </Select>
           <span className="muted">
             Доступны свободные ночи этого участка. Другие даты можно выбрать в форме брони.
           </span>

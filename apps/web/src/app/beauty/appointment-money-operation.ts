@@ -5,6 +5,8 @@ export type MoneyRequest = Readonly<{
   method: string;
   amountMinor: number;
   reason?: string;
+  /** оплата сертификатом: код (решение 21.10.2026 §3) */
+  certificateCode?: string;
 }>;
 export type PreparedMoneyRequest = MoneyRequest & { readonly idempotencyKey: string };
 type MarkerStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;

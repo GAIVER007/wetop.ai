@@ -1,4 +1,5 @@
 import { customerImportFixture, resetCustomerImportFixture } from './customer-import-fixture';
+import { resetSalonLoyaltyFixture, salonLoyaltyFixture } from './salon-loyalty-fixture';
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
@@ -6130,7 +6131,12 @@ createServer(async (req, res) => {
       ).map((r) => ({ ...r, priceMinor: BigInt(r.priceMinor) }));
       return send(200, { ok: true, today });
     }
+    if (path === '/__test/salon-loyalty') {
+      const seeded = salonLoyaltyFixture({ path, method: req.method, body, locationId: null, query: url.searchParams });
+      if (seeded) return send(seeded.status, seeded.body);
+    }
     if (path === '/__test/reset') {
+      resetSalonLoyaltyFixture();
       categoryPhotos.clear();
       fixtureBranches.length = 0;
       fixtureBusinessCards.clear();
@@ -6972,6 +6978,18 @@ createServer(async (req, res) => {
       });
     }
     // Каталог салона (DATA_MODEL §19.1, срез B3): услуги сети и мастера, цена филиала переопределением
+    if (path === '/food-service/stock/products' && req.method === 'GET') {
+      // склад кухни (ADR-STOCK-ALL): у демонстрации несколько продуктов, один ниже минимума
+      const row = (id: string, name: string, unit: string, minQty: string, onHand: string, valueMinor: string, low: boolean) => ({
+        id, name, unit, minQty, active: true, onHand, valueMinor, low, nearestExpiry: null,
+      });
+      return send(200, { items: [
+        row('k1', 'Мука', 'г', '5000', '12000', '960000', false),
+        row('k2', 'Сливки 20%', 'мл', '3000', '1500', '300000', true),
+        row('k3', 'Яйца', 'шт', '60', '180', '450000', false),
+      ] });
+    }
+    if (path === '/food-service/stock/movements' && req.method === 'GET') return send(200, { items: [] });
     if (path === '/food-service/staff-revenue' && req.method === 'GET') {
       // «Сколько принёс» салона (решение 20.10.2026): первому активному мастеру синтетическая сумма за период
       const period = url.searchParams.get('period') || 'day';
@@ -6992,6 +7010,9 @@ createServer(async (req, res) => {
       const locationCurrency = current
         ? String((current as Record<string, unknown>)['currency'] ?? 'KZT')
         : null;
+      // напоминания, бонусы и сертификаты салона (решение 21.10.2026): свой модуль стенда
+      const loyalty = salonLoyaltyFixture({ path, method: req.method, body, locationId, query: url.searchParams });
+      if (loyalty) return send(loyalty.status, loyalty.body);
       const effective = (s: FixtureBeautyService) => {
         if (!s.active) return { sellable: false, reason: 'SERVICE_INACTIVE' };
         if (!locationCurrency) return null;

@@ -526,7 +526,7 @@ export function MenuBoard({
             <IconField icon="search">
               <Input
                 type="search"
-                placeholder="Поиск блюда"
+                placeholder={view === 'modifiers' ? 'Поиск добавки' : 'Поиск блюда'}
                 data-page-search
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -549,7 +549,7 @@ export function MenuBoard({
           )}
         </div>
         {view === 'modifiers' ? (
-          <ModifierGroupsTable ctx={ctx} groups={modifierGroups} items={items} adding={newGroup} setAdding={setNewGroup} />
+          <ModifierGroupsTable ctx={ctx} groups={modifierGroups} items={items} adding={newGroup} setAdding={setNewGroup} needle={needle} />
         ) : view === 'categories' ? (
           <Table density="compact" caption="Категории меню" captionHidden>
             <thead>

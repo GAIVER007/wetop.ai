@@ -227,20 +227,27 @@ function ModifierGroupDrawer({ ctx, group, close }: { ctx: Ctx; group: ModifierG
 }
 
 /** Вкладка «Добавки» в «Меню»: группы таблицей, создание и правка */
-export function ModifierGroupsTable({ ctx, groups, items, adding, setAdding }: {
+export function ModifierGroupsTable({ ctx, groups: all, items, adding, setAdding, needle = '' }: {
   ctx: Ctx;
   groups: ModifierGroupView[];
+  /** строка поиска экрана «Меню»: по группе и её добавкам */
+  needle?: string;
   items: MenuItemView[];
   adding: boolean;
   setAdding: (v: boolean) => void;
 }) {
   const [edit, setEdit] = useState<ModifierGroupView | null>(null);
+  const groups = all.filter(
+    (g) => !needle || [g.name, ...g.modifiers.map((m) => m.name)].some((n) => n.toLocaleLowerCase('ru').includes(needle)),
+  );
   // знак валюты филиала обратно в код: «₸» это тенге, остальные валюты currencySign отдаёт кодом
   const currency = ctx.currencyHint === '₸' ? 'KZT' : ctx.currencyHint;
   const used = (id: string) => items.filter((m) => (m.modifierGroupIds ?? []).includes(id)).length;
   return (
     <>
-      {groups.length === 0 ? (
+      {all.length > 0 && groups.length === 0 ? (
+        <p className="muted food-mod-empty">Группы не найдены</p>
+      ) : groups.length === 0 ? (
         <p className="muted food-mod-empty">
           Групп пока нет. Создайте «Размер» (обязательно, одно) или «Добавки» (по желанию), затем отметьте их в окне блюда.
         </p>

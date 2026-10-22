@@ -14,6 +14,7 @@ import { AmountChip } from '../../../components/amount-chip';
 import { EmptyState, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
 import { GuestDocuments, GuestProfileForm } from './guest-forms';
+import { guestDisplayName } from '../guest-stay';
 import { financeState } from '../../reservations/finance-state';
 import '../../directory.css';
 import '../guests.css';
@@ -360,7 +361,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
     <Page
       width="medium"
       crumbs={<BackCrumb href="/guests">Гости и бронирования</BackCrumb>}
-      title={`${g.lastName} ${g.firstName} ${g.middleName ?? ''}`.trim()}
+      title={guestDisplayName(g)}
       actions={
         // «Только чтение» (ADR-102): действия, которых нельзя, не рисуются — как «Новая бронь» на «Бронях»
         readOnly ? undefined : (

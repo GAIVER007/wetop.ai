@@ -29,6 +29,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly' as const,
       priority: 0.8,
     })),
+    ...DIRECTIONS.map((slug) => ({
+      url: absoluteUrl(`/kk/for/${slug}/`),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    })),
+    ...SUBTYPE_SLUGS.map((slug) => ({
+      url: absoluteUrl(`/kk/for/${slug}/`),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    })),
     { url: absoluteUrl('/calculator/'), changeFrequency: 'monthly' as const, priority: 0.6 },
     ...posts.map((post) => ({
       url: absoluteUrl(`/blog/${post.slug}/`),

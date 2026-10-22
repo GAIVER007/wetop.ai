@@ -4,6 +4,7 @@ import { useActionState } from 'react';
 import { AuthShell } from '../../../components/auth-shell';
 import { Icon } from '../../../components/icon';
 import { setPassword, type SetPasswordState } from '../actions';
+import { Input } from '../../../components/ui';
 
 export function SetPasswordForm({ token }: { token: string }) {
   const [state, submit, pending] = useActionState<SetPasswordState, FormData>(setPassword, {
@@ -32,8 +33,7 @@ export function SetPasswordForm({ token }: { token: string }) {
             <input type="hidden" name="token" value={token} />
             <label className="field">
               Пароль
-              <input
-                className="inp"
+              <Input
                 type="password"
                 name="password"
                 aria-label="Пароль"
@@ -43,8 +43,7 @@ export function SetPasswordForm({ token }: { token: string }) {
             </label>
             <label className="field">
               Пароль ещё раз
-              <input
-                className="inp"
+              <Input
                 type="password"
                 name="again"
                 aria-label="Пароль ещё раз"

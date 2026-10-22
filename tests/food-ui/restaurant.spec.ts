@@ -1000,6 +1000,13 @@ test('клиенты: вкладки, «Постоянный гость» от �
   expect(second.ok()).toBe(true);
   await page.goto('/customers');
   await expect(page.getByRole('tab', { name: /Все/ })).toBeVisible();
+  // панель как у салона (аудит 22.10.2026 P1-5): поиск и «Добавить клиента» (гость создаётся вместе с бронью)
+  const bar = page.getByTestId('food-customers-bar');
+  await expect(bar.getByRole('searchbox', { name: 'Поиск по имени или телефону' })).toBeVisible();
+  await expect(bar.getByRole('link', { name: 'Добавить клиента', exact: true })).toHaveAttribute(
+    'href',
+    '/table-reservations?new=1',
+  );
   // скрытые панели вкладок остаются в DOM: ищем строку только в видимой панели
   const row = page.getByRole('tabpanel').locator('tbody tr', { hasText: 'Сергей Иванов' });
   await expect(row).toContainText('Постоянный гость');

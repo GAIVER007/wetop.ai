@@ -62,7 +62,7 @@ import {
 import type { DbTx, Prisma } from '@pms/database';
 import { actorMay, currentRole, currentUserId, currentVertical } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
-import { BRANCH_CASH_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } from './scope';
+import { BRANCH_CASH_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, waiterSelf, type FoodScope } from './scope';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
 import { assertWeekRevision, hoursRevision, hoursRowsRevision } from '../beauty/write-contract';
 import { StockService } from './stock.service';
@@ -257,7 +257,8 @@ export class RestaurantService {
   // ─── Меню и техкарты (§33.1) ───
 
   async categories(query: unknown) {
-    foodMay('desk');
+    // меню на чтение нужно и официанту (§33.6)
+    foodMay('orders');
     const s = await foodScope(this.prisma.db),
       p = page(query);
     return paged(
@@ -371,12 +372,14 @@ export class RestaurantService {
   }
 
   async menuItems(query: unknown) {
-    foodMay('desk');
+    foodMay('orders');
     const s = await foodScope(this.prisma.db),
       p = page(query);
+    // официанту (без `desk`) техкарта и себестоимость не нужны (§33.6)
+    const desk = actorMay('desk');
     const rows = await this.prisma.db.menuItem.findMany({
-      where: { ...(p.cursor ? { id: { gt: p.cursor } } : {}), businessId: s.businessId },
-      include: { ingredients: true, photo: true },
+      where: { ...(p.cursor ? { id: { gt: p.cursor } } : {}), businessId: s.businessId, ...(desk ? {} : { active: true }) },
+      include: { ingredients: desk, photo: true },
       orderBy: { id: 'asc' },
       take: p.limit + 1,
     });
@@ -529,10 +532,12 @@ export class RestaurantService {
   // ─── Заказы и кухня (§33.2) ───
 
   async orders(query: unknown) {
-    foodMay('desk');
+    foodMay('orders');
     const s = await foodScope(this.prisma.db),
       p = page(query, ['date', 'open']);
-    const where: Prisma.RestaurantOrderWhereInput = { locationId: s.locationId };
+    const me = await waiterSelf(this.prisma.db, s);
+    // официант видит только свои заказы (§33.6)
+    const where: Prisma.RestaurantOrderWhereInput = { locationId: s.locationId, ...(me ? { waiterId: me.id } : {}) };
     if (p.q.open === '1') where.status = { in: OPEN_STATUSES };
     else {
       const date = dayParam(p.q.date);
@@ -548,6 +553,51 @@ export class RestaurantService {
     });
     const now = new Date();
     return paged(rows.map((r) => orderView(r, now)), p.limit);
+  }
+
+  /** Столы зала для экрана официанта (§33.6): занят открытым заказом или посаженной бронью; «мой» = мой заказ */
+  async waiterTables() {
+    foodMay('orders');
+    const s = await foodScope(this.prisma.db);
+    const userId = currentUserId();
+    const me = actorMay('desk')
+      ? userId
+        ? await this.prisma.db.employee.findFirst({
+            where: { userId, businessId: s.businessId, status: 'ACTIVE' },
+            select: { id: true, name: true },
+          })
+        : null
+      : await waiterSelf(this.prisma.db, s);
+    const [tables, open, seated] = await Promise.all([
+      this.prisma.db.diningTable.findMany({
+        where: { active: true, area: { locationId: s.locationId, active: true } },
+        include: { area: { select: { id: true, name: true, sortOrder: true } } },
+        orderBy: [{ area: { sortOrder: 'asc' } }, { sortOrder: 'asc' }, { name: 'asc' }],
+      }),
+      this.prisma.db.restaurantOrder.findMany({
+        where: { locationId: s.locationId, status: { in: OPEN_STATUSES }, tableId: { not: null } },
+        select: { tableId: true, waiterId: true },
+      }),
+      this.prisma.db.tableAssignment.findMany({
+        where: { reservation: { locationId: s.locationId, status: 'SEATED' } },
+        select: { tableId: true },
+      }),
+    ]);
+    const busy = new Set([...open.map((o) => o.tableId), ...seated.map((a) => a.tableId)]);
+    const mine = new Set(open.filter((o) => me && o.waiterId === me.id).map((o) => o.tableId));
+    return {
+      me: me ?? null,
+      tables: tables.map((t) => ({
+        id: t.id,
+        name: t.name,
+        capacity: t.capacity,
+        areaId: t.area.id,
+        areaName: t.area.name,
+        busy: busy.has(t.id),
+        mine: mine.has(t.id),
+        needsCleaning: t.needsCleaning,
+      })),
+    };
   }
 
   private async orderItemsData(tx: DbTx, s: FoodScope, items: ReturnType<typeof parseOrderItems>) {
@@ -629,8 +679,11 @@ export class RestaurantService {
   }
 
   async createOrder(raw: unknown) {
-    return this.write('desk', async (tx, s) => {
+    return this.write('orders', async (tx, s) => {
       const b = parsed(() => parseOrderCreate(raw));
+      // официант принимает заказ только на себя (§33.6)
+      const me = await waiterSelf(tx, s);
+      if (me) b.waiterId = me.id;
       await this.checkTableAndWaiter(tx, s, b.tableId, b.waiterId);
       const { data, total } = await this.orderItemsData(tx, s, b.items);
       const last = await tx.restaurantOrder.aggregate({
@@ -664,7 +717,7 @@ export class RestaurantService {
     });
   }
 
-  private async lockedOrder(tx: DbTx, s: FoodScope, idRaw: string, b: Record<string, unknown>) {
+  private async lockedOrder(tx: DbTx, s: FoodScope, idRaw: string, b: Record<string, unknown>, waiterId?: string) {
     const id = parsed(() => foodId(idRaw));
     const expected = parsed(() => {
       if (typeof b.expectedStatus !== 'string') throw new Error('Нужен ожидаемый статус');
@@ -673,7 +726,7 @@ export class RestaurantService {
     });
     await tx.$queryRaw`SELECT id FROM restaurant_orders WHERE id=${id}::uuid AND location_id=${s.locationId}::uuid FOR UPDATE`;
     const r = await tx.restaurantOrder.findFirst({
-      where: { id, locationId: s.locationId },
+      where: { id, locationId: s.locationId, ...(waiterId ? { waiterId } : {}) },
       include: orderInclude,
     });
     if (!r) throw new NotFoundException('Заказ не найден');
@@ -687,7 +740,8 @@ export class RestaurantService {
   }
 
   async updateOrder(idRaw: string, raw: unknown) {
-    return this.write('desk', async (tx, s) => {
+    return this.write('orders', async (tx, s) => {
+      const me = await waiterSelf(tx, s);
       const b = parsed(() =>
         foodObject(raw, [
           'expectedStatus',
@@ -699,9 +753,10 @@ export class RestaurantService {
           'items',
         ]),
       );
-      const r = await this.lockedOrder(tx, s, idRaw, b);
+      const r = await this.lockedOrder(tx, s, idRaw, b, me?.id);
       if (r.status === 'CLOSED' || r.status === 'CANCELLED')
         throw new ConflictException('Завершённый заказ изменять нельзя');
+      if (me && b.waiterId !== undefined) b.waiterId = me.id;
 
       const tableId = b.tableId === undefined ? r.tableId : b.tableId === null ? null : parsed(() => foodId(b.tableId));
       const waiterId = b.waiterId === undefined ? r.waiterId : b.waiterId === null ? null : parsed(() => foodId(b.waiterId));
@@ -793,12 +848,18 @@ export class RestaurantService {
 
   /** Кухня и бар двигают свою строку (§33.6); статус заказа выводится из строк, «Готово» списывает склад строки */
   async orderItemStatus(idRaw: string, itemIdRaw: string, raw: unknown) {
-    return this.write('desk', async (tx, s) => {
+    return this.write('orders', async (tx, s) => {
       const id = parsed(() => foodId(idRaw)),
         itemId = parsed(() => foodId(itemIdRaw)),
         b = parsed(() => parseItemStatusCommand(raw));
+      // официант только подаёт свои позиции; «Принять» и «Готово» у кухни и бара (стойка, §33.6)
+      const me = await waiterSelf(tx, s);
+      if (me && b.status !== 'SERVED') throw new ForbiddenException('Готовность отмечают кухня и бар');
       await tx.$queryRaw`SELECT id FROM restaurant_orders WHERE id=${id}::uuid AND location_id=${s.locationId}::uuid FOR UPDATE`;
-      const r = await tx.restaurantOrder.findFirst({ where: { id, locationId: s.locationId }, include: orderInclude });
+      const r = await tx.restaurantOrder.findFirst({
+        where: { id, locationId: s.locationId, ...(me ? { waiterId: me.id } : {}) },
+        include: orderInclude,
+      });
       if (!r) throw new NotFoundException('Заказ не найден');
       if (r.updatedAt.toISOString() !== b.expectedUpdatedAt)
         throw new ConflictException('Заказ уже изменён, обновите данные');

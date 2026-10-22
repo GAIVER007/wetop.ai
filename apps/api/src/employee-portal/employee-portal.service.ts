@@ -3,7 +3,7 @@ import { readEmployeeCommon, writeEmployeeCommon, readEmployeeWeekSource, touchE
 import { createHash, randomUUID } from 'node:crypto';
 import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import type { Db, DbTx, EmployeeMedia } from '@pms/database';
-import { beautyPermissionScope, canWrite, resolveBeautyPositionAccess, roleAt, parsePaySettings, payrollTotals, parseWorkingHoursWeek, fitsSchedule, parseTimeOffInput, timeOffWindow, weekTemplate, localDate, type EmployeePortalDto, type EmployeePortalSectionAccess, type MembershipRole, type PublicEmployeeDto, type PortalPay, type PortalPercentBasis, type ScopeAssignment } from '@pms/domain';
+import { beautyPermissionScope, canWrite, resolveBeautyPositionAccess, roleAt, parsePaySettings, parseWorkingHoursWeek, fitsSchedule, parseTimeOffInput, timeOffWindow, weekTemplate, localDate, type EmployeePortalDto, type EmployeePortalSectionAccess, type MembershipRole, type PublicEmployeeDto, type PortalPay, type ScopeAssignment } from '@pms/domain';
 import { actorMay, currentBeautyOperation, currentBusinessId, currentLocationId, currentOrganizationId, currentUserId, currentRole, currentAssignments, withOrganizationScope, withServiceDatabase } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
@@ -11,11 +11,13 @@ import { processSiteImage, AssetImageError } from '../marketing-site/asset-image
 import { objectInput, revision, profileInput, publicationInput, portfolioInput, policyInput, UUID } from './boundary';
 import { assertWeekRevision, hoursRowsRevision, hoursRevision } from '../beauty/write-contract';
 import { employeeBookingTarget } from './booking-target';
+import { monthPayrollRows } from '../food-service/month-payroll';
 import { assertBeautyOperation, assertCurrentBeautyMembership, currentBeautyAssignments } from '../beauty/access';
 
 const fingerprint = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const clock = (d: Date) => d.toISOString().slice(11,16);
 const dateOnly = (d: Date) => d.toISOString().slice(0,10);
+const monthBounds = (month: string) => { const [y,m]=month.split('-').map(Number); return {from:`${month}-01`,to:`${month}-${String(new Date(Date.UTC(y!,m!,0)).getUTCDate()).padStart(2,'0')}`}; };
 const id = (v: unknown): string => { if (typeof v !== 'string' || !UUID.test(v)) throw new BadRequestException('Invalid ID'); return v; };
 const parsed = <T>(fn:()=>T):T => { try { return fn(); } catch(e) { throw new BadRequestException(e instanceof Error ? e.message : 'Invalid input'); } };
 const intersectLocationScopes=(left:string[]|null,right:string[]|null):string[]|null=>left===null?right:right===null?left:left.filter(id=>right.includes(id));
@@ -172,28 +174,23 @@ export class EmployeePortalService {
     return {id:media.id,url:await this.storage.signedGet(media.storageRef,60),width:media.width,height:media.height};
   }
   private async pay(db:Db|DbTx, employeeId:string, businessId:string, vertical:string, viewingLocation:{currency:string;timezone:string}|null, month:string):Promise<PortalPay> {
-    if(vertical==='FOOD_SERVICE'&&!viewingLocation) {
+    if(!viewingLocation) {
       const setting=await db.employeePaySetting.findUnique({where:{employeeId}});
       return {status:'SELECT_LOCATION',month,currency:setting?.currency??'',model:setting?.model??null,fixedMinor:setting?.fixedMinor.toString()??null,percent:setting?.percent??null,percentBasis:null,policyRevision:null,earnedMinor:null,bonusMinor:null,penaltyMinor:null,paidMinor:null,remainingMinor:null,adjustments:[],explanation:'Выберите филиал в общем переключателе филиалов, чтобы увидеть расчёт за месяц в его часовом поясе и валюте. Сохранённые условия оплаты доступны без выбора филиала.'};
     }
-    const currency=viewingLocation?.currency??'KZT', timezone=viewingLocation?.timezone??'UTC';
-    const period=new Date(`${month}-01T00:00:00Z`);
-    const [setting,policy,adjustments,payout]=await Promise.all([
-      db.employeePaySetting.findUnique({where:{employeeId}}),db.beautyPayrollPolicy.findUnique({where:{businessId}}),
-      db.employeePayAdjustment.findMany({where:{employeeId,period},orderBy:{createdAt:'asc'}}),
-      db.restaurantCashOperation.aggregate({where:{employeeId,period,status:'COMPLETED',location:{businessId}},_sum:{amount:true}}),
-    ]);
-    const adj=adjustments.map(a=>a.amountMinor),bonus=adj.filter(v=>v>0n).reduce((a,b)=>a+b,0n),penalty=adj.filter(v=>v<0n).reduce((a,b)=>a+b,0n), paid=payout._sum.amount??0n;
-    const out:PortalPay={status:!setting||!policy?'NOT_CONFIGURED':'UNSUPPORTED_POLICY',month,currency:setting?.currency??currency,model:setting?.model??null,fixedMinor:setting?.fixedMinor.toString()??null,percent:setting?.percent??null,percentBasis:(policy?.percentBasis as PortalPercentBasis)??null,policyRevision:policy?String(policy.revision):null,earnedMinor:null,bonusMinor:bonus.toString(),penaltyMinor:penalty.toString(),paidMinor:paid.toString(),remainingMinor:null,explanation:'Расчёт зарплаты салона пока недоступен. Показаны реальные условия, корректировки и выплаты. Автоначисления включаются только после поддержки выбранной политики, истории ставок и возвратов за закрытые периоды.',adjustments:adjustments.map(a=>({id:a.id,amountMinor:a.amountMinor.toString(),reason:a.reason}))};
-    if(vertical==='FOOD_SERVICE') {
-      const next=new Date(period);next.setUTCMonth(next.getUTCMonth()+1); next.setUTCDate(0);
-      const w=timeOffWindow({dateFrom:`${month}-01`,dateTo:dateOnly(next),timezone});
-      const orders=await db.restaurantOrder.aggregate({where:{waiterId:employeeId,location:{businessId},status:'CLOSED',closedAt:{gte:w.fromUtc,lt:w.toUtcExclusive}},_sum:{total:true}});
-      const s=setting??{model:'FIXED' as const,fixedMinor:0n,percent:0};
-      const t=payrollTotals(s,orders._sum.total??0n,adj);
-      Object.assign(out,{status:'AVAILABLE',currency,percentBasis:null,policyRevision:null,earnedMinor:t.total.toString(),remainingMinor:(t.total-paid).toString(),explanation:'Расчёт ресторана: действующие условия оплаты, закрытые заказы во всех филиалах бизнеса, корректировки и проведённые выплаты.'});
-    }
-    return out;
+    // Тот же расчёт, что у руководителя в «Зарплате» (/payroll), только по себе (S1, владелец 21.10.2026).
+    const beauty=vertical==='BEAUTY';
+    const {rows,adjustments}=await monthPayrollRows(db,{businessId,timezone:viewingLocation.timezone,vertical:beauty?'BEAUTY':'FOOD_SERVICE'},monthBounds(month),employeeId);
+    const row=rows[0];
+    if(!row)throw new NotFoundException('Employee not found');
+    const setting=await db.employeePaySetting.findUnique({where:{employeeId}});
+    return {status:'AVAILABLE',month,currency:viewingLocation.currency,model:setting?.model??null,fixedMinor:setting?.fixedMinor.toString()??null,percent:setting?.percent??null,
+      percentBasis:beauty?'COMPLETED_SERVICES':null,policyRevision:null,
+      earnedMinor:row.t.total.toString(),bonusMinor:row.t.bonus.toString(),penaltyMinor:row.t.penalty.toString(),paidMinor:row.paid.toString(),remainingMinor:(row.t.total-row.paid).toString(),
+      explanation:beauty
+        ?'Расчёт салона, как у руководителя в разделе «Зарплата»: действующие условия оплаты, выполненные услуги во всех филиалах салона за месяц, бонусы и удержания, проведённые выплаты.'
+        :'Расчёт ресторана: действующие условия оплаты, закрытые заказы во всех филиалах бизнеса, корректировки и проведённые выплаты.',
+      adjustments:adjustments.map(a=>({id:a.id,amountMinor:a.amountMinor.toString(),reason:a.reason}))};
   }
   async get(employeeId:string|null, query:Record<string,unknown>):Promise<EmployeePortalDto> {
     objectInput(query,['date','month']);

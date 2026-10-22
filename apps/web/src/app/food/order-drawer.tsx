@@ -20,6 +20,7 @@ import { localInput } from '../beauty/time';
 import { mutateOrder, orderRatingLink } from './restaurant-actions';
 import { useConfirm } from '../../components/use-confirm';
 import { QrCode, StarsInput } from './rating-parts';
+import { compareTables } from '../../lib/table-title';
 import { CurrentOrder, DishPicker } from './dish-picker';
 
 export interface OrderContext {
@@ -274,7 +275,7 @@ function PaymentPanel({
         </div>
       )}
       {open && remaining === 0n && order.status !== 'SERVED' && (
-        <p className="muted">Оплачено полностью: заказ закроется сам, когда его подадут.</p>
+        <p className="muted">Оплачено полностью. Когда заказ подадут, нажмите «Закрыть заказ».</p>
       )}
       {refundable && (
         <section className="food-form" aria-label="Возврат по заказу">
@@ -508,6 +509,7 @@ export function OrderDrawer({
                     <option value="">Без стола</option>
                     {ctx.tables
                       .filter((t) => t.active)
+                      .sort(compareTables)
                       .map((t) => (
                         <option key={t.id} value={t.id}>
                           {tableLabel(t)}

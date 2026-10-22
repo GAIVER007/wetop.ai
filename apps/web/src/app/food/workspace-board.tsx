@@ -32,6 +32,7 @@ import { FloorLayoutEditor, SHAPE_CSS, spotStyle } from './floor-layout-editor';
 import { layoutSpots, tableShapeOf } from '@pms/domain';
 import { QuickReport } from '../../components/quick-report';
 import { foodQuickReport } from '../../components/quick-report-data';
+import { compareTables } from '../../lib/table-title';
 import { formatPhone } from '../../lib/phone';
 
 
@@ -91,7 +92,7 @@ export function WorkspaceBoard({
   const areas = data.areas.filter((a) => a.active).sort((a, b) => a.sortOrder - b.sortOrder);
   const activeTables = data.tables
     .filter((t) => t.active && areas.some((a) => a.id === t.areaId))
-    .sort((x, y) => x.sortOrder - y.sortOrder);
+    .sort(compareTables);
   const onDay = (r: RestaurantReservation) =>
     localInput(r.startsAt, data.timezone).slice(0, 10) === data.date;
   const unassigned = data.reservations.filter(

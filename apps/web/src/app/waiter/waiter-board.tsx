@@ -15,7 +15,7 @@ import { pluralRu } from '../../lib/plural';
 import { localInput } from '../beauty/time';
 import { CurrentOrder, DishPicker } from '../food/dish-picker';
 import { mutateOrder } from '../food/restaurant-actions';
-import { tableTitle } from '../food/timeline-board';
+import { tableTitle } from '../../lib/table-title';
 
 /** Слова статуса позиции для официанта (§33.6): «Готово к выдаче» значит пора нести гостю */
 export const ITEM_STATUS_LABEL: Record<OrderItemStatus, string> = {

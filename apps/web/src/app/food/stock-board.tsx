@@ -24,6 +24,7 @@ import type {
   StockUnit,
 } from '../../lib/food-types';
 import { loadLots, mutateStock } from './stock-actions';
+import { dayClock } from '../../lib/human-period';
 import { useConfirm } from '../../components/use-confirm';
 
 /** Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS) */
@@ -36,6 +37,8 @@ export interface StockCtx {
   canDelete?: boolean;
   currency: string;
   vertical?: WebVertical;
+  /** пояс филиала для времени движений; без него время по UTC, одинаково на сервере и в браузере */
+  timezone?: string;
 }
 
 const stockNouns = (ctx: StockCtx) =>
@@ -458,7 +461,7 @@ export function StockBoard({
                   <td className="rest-stock-qty">{qtyText(p.onHand, p.unit)}</td>
                   <td className="rest-stock-qty">{qtyText(p.minQty, p.unit)}</td>
                   <td>{stockMoney(p.valueMinor, ctx)}</td>
-                  <td>{p.nearestExpiry ? <time dateTime={p.nearestExpiry}>{dateText(p.nearestExpiry)}</time> : 'Нет'}</td>
+                  <td>{p.nearestExpiry ? <time dateTime={p.nearestExpiry}>{dateText(p.nearestExpiry)}</time> : '—'}</td>
                   <td>
                     {!p.active ? (
                       <Badge tone="neutral">Не используется</Badge>
@@ -522,7 +525,7 @@ export function StockBoard({
           {movements.map((m) => (
             <tr key={m.id}>
               <td>
-                <time dateTime={m.createdAt}>{new Date(m.createdAt).toLocaleString('ru-RU', { dateStyle: 'short', timeStyle: 'short' })}</time>
+                <time dateTime={m.createdAt}>{dayClock(m.createdAt, ctx.timezone ?? 'UTC')}</time>
               </td>
               <td>{m.productName}</td>
               <td>{KIND_LABEL[m.kind]}</td>

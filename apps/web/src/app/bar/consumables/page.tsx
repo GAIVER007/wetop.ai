@@ -6,7 +6,7 @@ import { deskShell } from '../../../lib/desk-shell';
 import { stockApi } from '../../../lib/food-api';
 import { mayAccess, mayBeautyAccess } from '../../../lib/navigation';
 import { requireFeature } from '../../../lib/vertical-guard';
-import { selectedWorkspaceBranch } from '../../../lib/workspace-context';
+import { selectedWorkspaceBranch, workspaceTimezone } from '../../../lib/workspace-context';
 import { StockBoard } from '../../food/stock-board';
 import { BarTabs } from '../tabs';
 import { StockInsightsView } from '../../food/stock-insights';
@@ -51,6 +51,7 @@ export default async function BeautyConsumablesPage() {
             ctx={{
               scopeKey,
               currency,
+              timezone: await workspaceTimezone(),
               vertical: beauty ? 'BEAUTY' : 'HOSPITALITY',
               ...rights,
             }}

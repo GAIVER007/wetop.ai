@@ -31,18 +31,6 @@
   .rest-dash .food-section-heading a {
     font-size: var(--text-sm);
   }
-  /* плитки дня по макету: подпись, число, изменение слева, без центровки общего `.stats` */
-  .rest-kpis .stat {
-    justify-content: flex-start;
-    text-align: left;
-    min-height: 0;
-  }
-  .rest-kpis .stat__label {
-    margin-bottom: var(--space-1);
-  }
-  .rest-kpis .stat__delta[data-direction='up'] {
-    color: var(--success);
-  }
   .rest-now {
     display: inline-flex;
     align-items: center;

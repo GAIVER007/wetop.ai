@@ -37,6 +37,26 @@ describe('Касса (аудит 21.10.2026, пп. 20, 26, 27)', () => {
     expect(html).toContain('>Операция кассы</h2>');
     expect(html).toContain('>Сверка кассы</h2>');
   });
+  it('время операций словами в поясе филиала, у возвратов и расходов знак «−» (аудит ресторана 22.10.2026)', () => {
+    const op = (id: string, kind: 'INCOME' | 'EXPENSE', refund: boolean) => ({
+      id, kind, method: 'CASH' as const, methodTo: null, amountMinor: '60000', note: null, employee: null,
+      period: null, refund, status: 'COMPLETED' as const, occurredAt: '2026-10-21T20:06:00.000Z',
+    });
+    const withOps = renderToStaticMarkup(
+      createElement(CashBoard, {
+        scopeKey: 'b:l', timezone: 'Asia/Almaty', write: true, refunds: false, orders: true,
+        cash: {
+          ...cash,
+          operations: [op('a', 'EXPENSE', true), op('b', 'EXPENSE', false), op('c', 'INCOME', false)],
+          payments: [{ id: 'p', orderNumber: 1, method: 'CASH', amountMinor: '560000', status: 'COMPLETED', paidAt: '2026-10-21T20:06:00.000Z' }],
+        },
+      }),
+    );
+    expect(withOps).toContain('22 окт., 01:06');
+    expect(withOps).not.toMatch(/2026-10-2\d/);
+    expect(withOps.match(/−600 ₸/g)).toHaveLength(2);
+    expect(withOps).toMatch(/>600 ₸</);
+  });
   it('пустая сумма: понятная подсказка «Введите сумму»', () => {
     const source = readFileSync(new URL('./cash-board.tsx', import.meta.url), 'utf8');
     expect(source).toContain("'Введите сумму'");

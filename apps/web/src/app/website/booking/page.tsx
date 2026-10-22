@@ -10,6 +10,7 @@ import { Alert, Panel, Row, Stack, StateBar, StateFact } from '../../../componen
 import { BookingSettings, InstallWidgetButton } from '../forms';
 import { ManagedSitesNotice, MarketingCrumb, WebsiteNotConnected, WebsiteTabs } from '../parts';
 import '../website.css';
+import { bookingDemoHref } from '../../../lib/booking-demo';
 
 /**
  * «Сайт и онлайн-бронирование → Бронирование» (ADR-117, WEB1; WEB3 — состояние, демо, «Что увидит гость», окно
@@ -88,7 +89,7 @@ function SiteBooking({
           {demo && (
             <a
               className="btn btn--secondary"
-              href={snippet.bookingDemoUrl}
+              href={bookingDemoHref(site.id)}
               target="_blank"
               rel="noreferrer"
               data-testid="site-card-booking-demo"

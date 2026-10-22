@@ -920,8 +920,9 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await expect(page.getByTestId('channel-bookings')).toHaveText('0');
   await expect(page.getByTestId('channel-report-empty')).toContainText('Нет бронирований');
   await page.goto('/finance');
-  for (const id of ['charged', 'paid', 'refunded', 'balance'])
-    await expect(page.getByRole('main').getByTestId(id)).toHaveText('0 ₸');
+  // пустой месяц одной заглушкой вместо нулевых итогов (аудит 22.10.2026, финансы без плиток)
+  await expect(page.getByRole('main').getByTestId('finance-empty')).toContainText('За этот период денег ещё не было');
+  await expect(page.getByRole('main').getByTestId('charged')).toHaveCount(0);
   // Номерной фонд с PR #66 — `/inventory`; `/rooms` уводит туда потоком, и переход в пути обрывал следующий goto
   await page.goto('/inventory');
   for (const id of ['total-units', 'rooms', 'beds', 'on-sale', 'blocks', 'needs-cleaning'])

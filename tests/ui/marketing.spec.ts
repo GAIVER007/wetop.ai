@@ -115,8 +115,9 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
     byPath: Record<string, number>;
   };
   // единая система (14.10.2026): хаб читает один источник, бюджет филиала за месяц («Потрачено на рекламу»)
-  const business = Object.keys(hits.byPath).filter((path) => !SHELL.has(path));
-  expect(business, `хаб спросил данные: ${JSON.stringify(hits.byPath)}`).toEqual(['/marketing/budget']);
+  // + лицензия конструктора сайта (аудит 21.10.2026 P0-4): значок «Сайт и SEO» по `builder.access`
+  const business = Object.keys(hits.byPath).filter((path) => !SHELL.has(path)).sort();
+  expect(business, `хаб спросил данные: ${JSON.stringify(hits.byPath)}`).toEqual(['/marketing/budget', '/marketing/site']);
 
   const hub = main(page);
   await expect(hub.getByRole('heading', { level: 1 })).toHaveText('Продвижение');
@@ -133,8 +134,8 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
 
   // «Сайт и SEO»: рабочий модуль, главная кнопка ведёт в конструктор, остальное в меню «⋯»
   const site = hub.getByTestId('marketing-site');
-  // аудит 21.10.2026 P0-4: без лицензии конструктора карточка не пишет «Доступно»
-  await expect(site.getByTestId('marketing-site-status')).toHaveText('Подключает WETOP');
+  // аудит 21.10.2026 P0-4: «Доступно» только при включённом конструкторе (на стенде он включён; выключенный в unit-тесте hub)
+  await expect(site.getByTestId('marketing-site-status')).toHaveText('Доступно');
   await expect(site.getByRole('listitem')).toHaveText(['ИИ-конструктор сайта', 'Онлайн-бронирование', 'SEO-оптимизация']);
   const builder = site.getByRole('link', { name: 'Открыть: Сайт и SEO', exact: true });
   await expect(builder).toHaveAttribute('href', '/marketing/site/editor');
@@ -361,8 +362,8 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   // аудит 21.10.2026 п. 5: гостиничных «Конкурентов» у салона нет
   await expect(hub.getByTestId('marketing-module')).toHaveCount(4);
   await expect(hub.getByTestId('marketing-competitors')).toHaveCount(0);
-  // аудит 21.10.2026 P0-4: без лицензии конструктора карточка не пишет «Доступно»
-  await expect(hub.getByTestId('marketing-site-status')).toHaveText('Подключает WETOP');
+  // аудит 21.10.2026 P0-4: «Доступно» только при включённом конструкторе (на стенде он включён)
+  await expect(hub.getByTestId('marketing-site-status')).toHaveText('Доступно');
   await expect(hub.getByTestId('marketing-budget-status')).toHaveText('Доступно');
   await expect(
     hub.getByTestId('marketing-site').getByRole('link', { name: 'Открыть: Сайт и SEO', exact: true }),

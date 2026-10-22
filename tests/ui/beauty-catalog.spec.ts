@@ -75,7 +75,7 @@ test('M4-A: клиент без записи, повтор номера и со�
   await panel.getByRole('button', { name: 'Сохранить клиента', exact: true }).click();
   await expect(panel).not.toBeVisible();
   let row = main.getByRole('row').filter({ hasText: 'Тестовый клиент M4' });
-  await expect(row).toContainText('8 (700) 000-50-01');
+  await expect(row).toContainText('+7 700 000 50 01');
   await expect(row.locator('[data-label="Всего визитов"]')).toHaveText('0');
   await expect(main.getByRole('status').filter({ hasText: 'Клиент создан.' })).toBeVisible();
   await page.screenshot({ path: 'reports/salons-m4a-2026-10-18/customers-375.png', fullPage: true });

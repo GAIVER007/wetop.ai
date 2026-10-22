@@ -54,7 +54,7 @@ test('A28 cash: hydration preserves a native date edited before client scripts l
     // Opening the actual client calendar proves its event handlers are ready.
     const calendarButton = to
       .locator('..')
-      .getByRole('button', { name: 'Открыть календарь', exact: true });
+      .getByRole('button', { name: 'Открыть календарь (Период: по)', exact: true });
     await calendarButton.click();
     await expect(page.getByRole('dialog', { name: 'Календарь', exact: true })).toBeVisible();
     await expect(to).toHaveValue('2026-09-30');

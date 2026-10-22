@@ -45,3 +45,12 @@ describe('подписи журнала операций', () => {
     expect(actionLabel('user.login')).toBe('Вход в систему');
   });
 });
+
+describe('фильтры истории действий', () => {
+  // «Ячейки» — служебное слово для номера или места (аудит 22.10.2026, P2-2)
+  it('фильтр номеров назван по-человечески', () => {
+    const page = readFileSync(resolve(import.meta.dirname, 'page.tsx'), 'utf8');
+    expect(page).toContain("['InventoryUnit', 'Номера и места']");
+    expect(page).not.toContain('Ячейки');
+  });
+});

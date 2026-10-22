@@ -4,6 +4,7 @@ import { Page } from '../../components/page';
 import { hotelApi } from '../../lib/hotel-api';
 import { helpSteps, menuSectionsFor } from '../../lib/navigation';
 import { selectedWorkspaceBranch } from '../../lib/workspace-context';
+import { verticalCopy } from '../../lib/vertical-copy';
 import { SupportBlock } from './support-block';
 import './help.css';
 
@@ -28,7 +29,11 @@ export default async function HelpPage() {
       <SupportBlock />
     </Page>
   );
-  const steps = helpSteps(menuSectionsFor(access, vertical), vertical);
+  // Шаг «Персонал» словами направления (P2-7): общий текст меню «тех, кто оказывает услуги» салонный
+  const staffHelp = verticalCopy(vertical).staffHelp;
+  const steps = helpSteps(menuSectionsFor(access, vertical), vertical).map((step) =>
+    step.href === '/employees' ? { ...step, text: staffHelp } : step,
+  );
   // аудит 21.10.2026 пп. 13, 39: заголовок блока без дубля в подзаголовке, шаги и поддержка в две колонки
   return (
     <Page title="Помощь">

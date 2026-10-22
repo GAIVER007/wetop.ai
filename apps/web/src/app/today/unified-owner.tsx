@@ -169,9 +169,12 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
         <h1>Главная</h1>
         <span className="owner-bar__updated">
           Обновлено{' '}
+          {/* «16 окт., 14:00»: без года и «г.» (аудит 22.10.2026 P2-9) */}
           {new Intl.DateTimeFormat('ru-RU', {
-            dateStyle: 'medium',
-            timeStyle: 'short',
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
             timeZone: s.period.timezone,
           }).format(new Date(s.generatedAt))}
         </span>

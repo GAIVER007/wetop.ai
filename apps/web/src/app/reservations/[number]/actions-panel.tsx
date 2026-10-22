@@ -45,6 +45,7 @@ import { previewLine } from '../../../lib/action-preview';
 import { useToast } from '../../../components/toast';
 import { useMay } from '../../../components/desk-access';
 import { previewAction } from '../actions';
+import { displayDate } from '../../../lib/display-date';
 
 const OPEN = new Set(['TENTATIVE', 'CONFIRMED']);
 
@@ -97,7 +98,8 @@ function useQuickTarget(panel: RefObject<HTMLElement | null>) {
 }
 
 /** Дата словами стойки: 20.09.2026 (DESIGN.md §14) */
-const dd = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}`;
+/** «25 окт.»: как даты в шапке брони и шахматке (аудит 22.10.2026 P2-4, было «25.10.2026») */
+const dd = (iso: string) => displayDate(iso, 'short');
 const NIGHTS: [string, string, string] = ['ночь', 'ночи', 'ночей'];
 
 export function ReservationActions(props: {

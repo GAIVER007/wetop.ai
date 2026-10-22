@@ -235,4 +235,9 @@ describe('unified owner actual DTO', () => {
     expect(html).not.toContain('Недоступные источники не означают ноль');
     expect(html).not.toContain('подтверждённой валютой');
   });
+  it('«Обновлено 16 окт., 14:00» без года и «г.» (аудит 22.10.2026 P2-9)', () => {
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('today') }));
+    expect(html).toContain('Обновлено 16 окт., 14:00');
+    expect(html).not.toMatch(/Обновлено[^<]*2026/);
+  });
 });

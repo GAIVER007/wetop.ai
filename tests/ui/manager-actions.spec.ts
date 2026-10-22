@@ -17,6 +17,11 @@ let today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const plus = (n: number) =>
   new Date(Date.parse(`${today}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
 const dd = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}`;
+/** «25 окт.»: подсказки действий брони короткой датой (аудит 22.10.2026 P2-4) */
+const short = (iso: string) =>
+  new Intl.DateTimeFormat('ru-RU', { timeZone: 'UTC', day: 'numeric', month: 'short' }).format(
+    new Date(`${iso}T00:00:00Z`),
+  );
 
 test.beforeEach(async ({ request }) => {
   const reset = await request.post(`${fixture}/__test/reset`);
@@ -87,7 +92,7 @@ test('карточка: «Продлить на ночь» знает сумму
   await page.goto(`/reservations/${BOOKING}`);
   await cardTab(page, 'Действия');
   const hint = page.getByRole('main').getByTestId('hint-extend-ui-item');
-  await expect(hint).toHaveText(`до ${dd(plus(4))}, +8 000 ₸ на счёт`);
+  await expect(hint).toHaveText(`до ${short(plus(4))}, +8 000 ₸ на счёт`);
   await page.getByRole('main').getByTestId('extend-ui-item').click();
   const confirm = page.getByRole('dialog', { name: 'Продлить на ночь — Двухместный номер?' });
   try {
@@ -109,7 +114,7 @@ test('карточка: «Продлить на ночь» знает сумму
   expect(await commands(page)).toEqual([]);
   await confirm.getByRole('button', { name: 'Продлить', exact: true }).click();
   await expect(page.getByRole('main').getByTestId('done-extend-ui-item')).toHaveText(
-    `Проживание продлено до ${dd(plus(4))}, +8 000 ₸ на счёт`,
+    `Проживание продлено до ${short(plus(4))}, +8 000 ₸ на счёт`,
   );
   await cardTab(page, 'Обзор');
   await expect(
@@ -131,7 +136,7 @@ test('карточка: «Продлить на ночь» знает сумму
   await cardTab(page, 'Действия');
   await expect(page.getByRole('main').getByTestId('extend-ui-item')).toBeDisabled();
   await expect(page.getByRole('main').getByTestId('hint-extend-ui-item')).toHaveText(
-    `Номер R01 занят ${dd(plus(4))} — сначала переселите`,
+    `Номер R01 занят ${short(plus(4))} — сначала переселите`,
   );
 });
 

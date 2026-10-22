@@ -3212,6 +3212,7 @@ model Employee {
   appointmentLines AppointmentLine[]
   beautyReviews    BeautyAppointmentReview[]
   restaurantOrders RestaurantOrder[]
+  tableReservations RestaurantReservation[]
   paySetting       EmployeePaySetting?
   payAdjustments   EmployeePayAdjustment[]
   cashPayouts      RestaurantCashOperation[]
@@ -3729,15 +3730,19 @@ model RestaurantReservation {
   creationKey         String                      @map("creation_key") @db.VarChar(200)
   creationFingerprint String                      @map("creation_fingerprint") @db.VarChar(64)
   createdById         String?                     @map("created_by_id") @db.Uuid
+  /// §33.6: кто принял бронь (официант или выбор у стойки)
+  employeeId          String?                     @map("employee_id") @db.Uuid
   createdAt           DateTime                    @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime                    @updatedAt @map("updated_at") @db.Timestamptz(6)
   location            Location                    @relation(fields: [locationId], references: [id])
   customer            Customer                    @relation(fields: [customerId], references: [id])
   servicePeriod       ServicePeriod               @relation(fields: [servicePeriodId], references: [id])
   createdBy           User?                       @relation(fields: [createdById], references: [id])
+  employee            Employee?                   @relation(fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: NoAction)
   tableAssignment     TableAssignment?
 
   @@unique([locationId, creationKey])
+  @@index([employeeId])
   @@index([locationId, startsAt])
   @@index([customerId])
   @@index([status])
@@ -3768,6 +3773,20 @@ enum RestaurantOrderStatus {
   CANCELLED
 }
 
+/// Станция ресторана (§33.6, миграция 142): куда уходит позиция заказа
+enum MenuStation {
+  KITCHEN
+  BAR
+}
+
+/// Статус строки заказа на своей станции (§33.6); статус заказа выводится из строк
+enum OrderItemStatus {
+  NEW
+  COOKING
+  READY
+  SERVED
+}
+
 enum EmployeePayModel {
   FIXED
   PERCENT
@@ -3777,14 +3796,16 @@ enum EmployeePayModel {
 
 /// Меню ресторана: каталог сети, принадлежит бизнесу FOOD_SERVICE (§33.1, ADR-159)
 model MenuCategory {
-  id         String     @id @default(uuid()) @db.Uuid
-  businessId String     @map("business_id") @db.Uuid
-  name       String     @db.VarChar(100)
-  sortOrder  Int        @default(0) @map("sort_order")
-  active     Boolean    @default(true)
-  createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
-  business   Business   @relation(fields: [businessId], references: [id])
+  id         String      @id @default(uuid()) @db.Uuid
+  businessId String      @map("business_id") @db.Uuid
+  name       String      @db.VarChar(100)
+  sortOrder  Int         @default(0) @map("sort_order")
+  active     Boolean     @default(true)
+  /// §33.6: кухня или бар получает позиции этой категории
+  station    MenuStation @default(KITCHEN)
+  createdAt  DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  business   Business    @relation(fields: [businessId], references: [id])
   items      MenuItem[]
 
   @@unique([businessId, name])
@@ -3888,12 +3909,17 @@ model RestaurantOrderItem {
   qty        Int
   notes      String?         @db.VarChar(500)
   sortOrder  Int             @default(0) @map("sort_order")
+  /// §33.6: снимок станции категории при добавлении и свой статус строки
+  station    MenuStation     @default(KITCHEN)
+  status     OrderItemStatus @default(NEW)
+  readyAt    DateTime?       @map("ready_at") @db.Timestamptz(6)
   createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
   order      RestaurantOrder @relation(fields: [orderId], references: [id])
   menuItem   MenuItem?       @relation(fields: [menuItemId], references: [id])
 
   @@index([orderId])
+  @@index([orderId, station], map: "restaurant_order_items_order_station_idx")
   @@index([menuItemId])
   @@map("restaurant_order_items")
 }

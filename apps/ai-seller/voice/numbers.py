@@ -93,7 +93,7 @@ def decide_route(meta: object, numbers: NumberMap) -> Route | None:
     """Маршрут звонка. Закрыто по умолчанию.
 
     Нет metadata: единственный настроенный маршрут (однообъектный режим).
-    Есть metadata, но она битая или её пары нет в настройке: отказ, без запасного пути,
+    Есть metadata, но она битая или её пары нет в непустой настройке: отказ, без запасного пути,
     иначе звонок чужого объекта достался бы первому.
     """
     if isinstance(meta, str):
@@ -108,6 +108,8 @@ def decide_route(meta: object, numbers: NumberMap) -> Route | None:
     if meta is None or meta == {}:
         return numbers.sole_route()
     route = route_from_metadata(meta)
-    if route is None or not numbers.allows(route):
+    # Таблица номеров необязательна: пустая не режет, непустая работает как список разрешённых пар. Существование
+    # агента и совпадение организации проверяет платформа по профилю.
+    if route is None or (len(numbers) > 0 and not numbers.allows(route)):
         return None
     return route

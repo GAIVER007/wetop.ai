@@ -19,6 +19,17 @@ class VoiceProfile:
     object_name: str
     voice: str = DEFAULT_VOICE
     handoff_number: str | None = None
+    greeting_tail: str = ""
+
+    @classmethod
+    def from_api(cls, data) -> "VoiceProfile":
+        """Профиль с платформы (`GET /voice/profile`): имя объекта, голос, номер администратора, хвост приветствия."""
+        return cls(
+            object_name=(data.object_name or "наш объект").strip(),
+            voice=(data.voice_name or DEFAULT_VOICE).strip(),
+            handoff_number=normalize_e164(data.handoff_phone),
+            greeting_tail=data.greeting_tail or "",
+        )
 
     @classmethod
     def from_env(cls, env: Mapping[str, str]) -> "VoiceProfile":
@@ -29,11 +40,19 @@ class VoiceProfile:
         )
 
 
+def _clean(text: str, limit: int = 300) -> str:
+    """Текст владельца для озвучивания: без служебных знаков, одной строкой, не длиннее предела."""
+    kept = "".join(ch if ch.isprintable() else " " for ch in text or "")
+    return " ".join(kept.split())[:limit]
+
+
 def opening_line(profile: VoiceProfile) -> str:
     """Первая фраза звонка: назвать себя ИИ и предупредить о записи (Q-VOICE-2)."""
+    tail = _clean(profile.greeting_tail)
+    middle = f" {tail}" if tail else ""
     return (
         f"Здравствуйте, это ИИ-помощник, {profile.object_name}. "
-        "Разговор записывается. Чем могу помочь?"
+        f"Разговор записывается.{middle} Чем могу помочь?"
     )
 
 

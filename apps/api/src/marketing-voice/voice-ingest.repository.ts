@@ -15,6 +15,19 @@ export interface AgentScope {
   locationId: string;
 }
 
+/**
+ * Профиль голоса агента для воркера: объект (имя бизнеса) и настройки из `voice_profiles`; без строки профиля умолчания.
+ * Минимум для звонка: идентификаторы бизнеса и филиала воркеру не нужны и не отдаются.
+ */
+export interface AgentProfile {
+  agentId: string;
+  organizationId: string;
+  objectName: string;
+  greetingTail: string;
+  voiceName: string;
+  handoffPhone: string | null;
+}
+
 export interface RecordResult {
   callId: string;
   state: VoiceState;
@@ -26,6 +39,8 @@ export interface RecordResult {
 export interface VoiceIngestRepository {
   /** null: агента нет; 'NO_LOCATION': агент без филиала, бизнес неизвестен */
   resolveAgent(agentId: string): Promise<AgentScope | null | 'NO_LOCATION'>;
+  /** null: агента нет или он в архиве; 'NO_LOCATION': агент без филиала */
+  profile(agentId: string): Promise<AgentProfile | null | 'NO_LOCATION'>;
   record(scope: AgentScope, event: VoiceEvent): Promise<RecordResult>;
 }
 
@@ -51,6 +66,31 @@ export class PrismaVoiceIngestRepository implements VoiceIngestRepository {
       organizationId: agent.organizationId,
       businessId: agent.location.businessId,
       locationId: agent.locationId,
+    };
+  }
+
+  async profile(agentId: string): Promise<AgentProfile | null | 'NO_LOCATION'> {
+    const agent = await this.prisma.db.sellerAgent.findUnique({
+      where: { id: agentId },
+      select: {
+        organizationId: true,
+        locationId: true,
+        lifecycle: true,
+        location: { select: { business: { select: { name: true } } } },
+        voiceProfile: { select: { greetingTail: true, voiceName: true, handoffPhone: true } },
+      },
+    });
+    // Звонки принимает только действующий агент (active): черновик, пауза и архив получают 404, как неизвестный.
+    // События уже идущего звонка принимаются и у агента на паузе (resolveAgent), чтобы не терять конец разговора
+    if (!agent || agent.lifecycle !== 'active') return null;
+    if (!agent.locationId || !agent.location) return 'NO_LOCATION';
+    return {
+      agentId,
+      organizationId: agent.organizationId,
+      objectName: agent.location.business.name,
+      greetingTail: agent.voiceProfile?.greetingTail ?? '',
+      voiceName: agent.voiceProfile?.voiceName ?? 'Leda',
+      handoffPhone: agent.voiceProfile?.handoffPhone ?? null,
     };
   }
 

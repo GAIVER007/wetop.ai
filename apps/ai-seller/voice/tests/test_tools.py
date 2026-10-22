@@ -174,3 +174,70 @@ async def test_negative_or_bad_price_is_not_spoken(tmp_path):
     tools, _ = _tools(tmp_path, FakeCatalog(bad))
     text = await tools.get_services()
     assert "-" not in text.split("Укладка")[1]
+
+
+class FakeEvents:
+    def __init__(self):
+        self.callbacks = []
+        self.transfers = []
+
+    def callback(self, call_id, route, phone, name, note):
+        self.callbacks.append((call_id, route, phone, name, note))
+
+    def transfer(self, call_id, route):
+        self.transfers.append((call_id, route))
+
+
+def _tools_with_events(tmp_path, events, transfer=None):
+    journal = CallJournal(tmp_path / "calls.jsonl", now=lambda: T0)
+    return VoiceTools(
+        call_id="call-1",
+        route=ROUTE,
+        journal=journal,
+        catalog=FakeCatalog(ITEMS),
+        profile=VoiceProfile(object_name="Салон Тест", handoff_number="+77009990000"),
+        transfer=transfer,
+        events=events,
+    )
+
+
+async def test_callback_goes_to_platform_once_with_full_phone(tmp_path):
+    events = FakeEvents()
+    tools = _tools_with_events(tmp_path, events)
+    await tools.request_callback("Айдана", "8 700 111 22 33", "окрашивание")
+    await tools.request_callback("Айдана", "+77001112233", "окрашивание")
+    assert events.callbacks == [("call-1", ROUTE, "+77001112233", "Айдана", "окрашивание")]
+
+
+async def test_callback_not_sent_to_platform_when_local_save_failed(tmp_path):
+    events = FakeEvents()
+    tools = _tools_with_events(tmp_path, events)
+    (tmp_path / "calls.callbacks.jsonl").mkdir()
+    await tools.request_callback("А", "+77001112233", "")
+    assert events.callbacks == []
+
+
+async def test_transfer_event_only_after_success(tmp_path):
+    events = FakeEvents()
+
+    async def ok(call_id, number):
+        return True
+
+    await _tools_with_events(tmp_path, events, transfer=ok).transfer_to_human()
+    assert events.transfers == [("call-1", ROUTE)]
+    failing = FakeEvents()
+
+    async def bad(call_id, number):
+        return False
+
+    await _tools_with_events(tmp_path, failing, transfer=bad).transfer_to_human()
+    assert failing.transfers == []
+
+
+async def test_broken_events_sink_does_not_break_the_tool(tmp_path):
+    class Broken(FakeEvents):
+        def callback(self, *a, **k):
+            raise RuntimeError("queue down")
+
+    tools = _tools_with_events(tmp_path, Broken())
+    assert "записана" in (await tools.request_callback("А", "+77001112233", "")).lower()

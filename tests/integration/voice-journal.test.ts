@@ -236,6 +236,32 @@ describe.skipIf(!url)(
     }
   });
 
+  it('профиль: отдаётся только активному агенту; черновик, пауза и архив получают 404', async () => {
+    const profileRepo = new PrismaVoiceIngestRepository({ db } as PrismaService);
+    await sql.query(`UPDATE seller_agents SET lifecycle = 'draft' WHERE id = $1`, [agentA]);
+    expect(await profileRepo.profile(agentA)).toBeNull();
+    await sql.query(`UPDATE seller_agents SET lifecycle = 'active' WHERE id = $1`, [agentA]);
+    await sql.query(
+      `INSERT INTO voice_profiles (agent_id, organization_id, business_id, greeting_tail, voice_name, handoff_phone)
+       VALUES ($1, $2, $3, 'Работаем до 20 часов.', 'Puck', '+77009990000')`,
+      [agentA, orgA, bizA],
+    );
+    expect(await profileRepo.profile(agentA)).toEqual({
+      agentId: agentA,
+      organizationId: orgA,
+      objectName: 'Салон A',
+      greetingTail: 'Работаем до 20 часов.',
+      voiceName: 'Puck',
+      handoffPhone: '+77009990000',
+    });
+    await sql.query(`UPDATE seller_agents SET lifecycle = 'active' WHERE id = $1`, [agentB]);
+    expect(await profileRepo.profile(agentB)).toMatchObject({ voiceName: 'Leda', handoffPhone: null, greetingTail: '' });
+    await sql.query(`UPDATE seller_agents SET lifecycle = 'paused' WHERE id = $1`, [agentB]);
+    expect(await profileRepo.profile(agentB)).toBeNull();
+    expect(await profileRepo.profile(agentNoLoc)).toBeNull();
+    await sql.query(`DELETE FROM voice_profiles WHERE agent_id = $1`, [agentA]);
+  });
+
   it('агент в архиве событий не принимает', async () => {
     await sql.query(`UPDATE seller_agents SET lifecycle = 'archived' WHERE id = $1`, [agentNoLoc]);
     await expect(ingest.ingest(event({ agentId: agentNoLoc }))).rejects.toMatchObject({ status: 404 });

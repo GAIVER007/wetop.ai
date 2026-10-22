@@ -14,6 +14,17 @@ python -m voice.worker
 Дальше в панели VideoSDK: номер и шлюзы, правило маршрутизации `dispatch.agent` = `{type: "self", id: <VOICE_AGENT_ID>,
 metadata: {organization_id, agent_id}}` (README демо, раздел Connect Your AI Phone Agent).
 
+## Очередь событий
+
+События звонков уходят в API платформы через очередь на диске (`VOICE_OUTBOX_DIR`). Если платформа была недоступна при выходе
+воркера, догнать очередь можно командой (из `apps/ai-seller`):
+
+```bash
+python -m voice.flush
+```
+
+Код выхода 2 значит, что в очереди ещё остались события. Флаг `--requeue-rejected` возвращает отложенные события в очередь.
+
 ## Тесты
 
 ```bash

@@ -9,6 +9,7 @@ ENV = {
     "VOICE_WETOP_BASE_URL": "https://wetop.test",
     "VOICE_WETOP_SERVICE_KEY": "k",
     "VOICE_JOURNAL_PATH": "/tmp/calls.jsonl",
+    "VOICE_INGEST_KEY": "ik",
 }
 
 
@@ -42,7 +43,7 @@ def test_bad_port_is_config_error():
         VoiceSettings.from_env({**ENV, "VOICE_WORKER_PORT": "abc"})
 
 
-def test_more_than_one_number_is_refused_until_per_tenant_profiles_exist():
+def test_several_numbers_are_allowed_profile_comes_from_the_platform():
     import json
 
     org, agent = "11111111-1111-4111-8111-111111111111", "22222222-2222-4222-8222-222222222222"
@@ -52,9 +53,16 @@ def test_more_than_one_number_is_refused_until_per_tenant_profiles_exist():
             "+77004445566": {"organization_id": org, "agent_id": agent},
         }
     )
+    assert len(VoiceSettings.from_env({**ENV, "VOICE_NUMBER_MAP": many}).number_map) == 2
+
+
+def test_ingest_key_is_required_and_outbox_dir_has_a_default():
+    s = VoiceSettings.from_env(ENV)
+    assert s.ingest_key == "ik"
+    assert s.outbox_dir.endswith("calls.outbox")
     with pytest.raises(ConfigError) as err:
-        VoiceSettings.from_env({**ENV, "VOICE_NUMBER_MAP": many})
-    assert "VOICE_NUMBER_MAP" in str(err.value)
+        VoiceSettings.from_env({k: v for k, v in ENV.items() if k != "VOICE_INGEST_KEY"})
+    assert "VOICE_INGEST_KEY" in str(err.value)
 
 
 def test_plain_http_base_url_is_refused_except_localhost():

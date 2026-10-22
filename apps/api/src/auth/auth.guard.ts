@@ -109,10 +109,11 @@ const MARKET_COLLECT_WRITE = /^\/market\/collector\/competitors\/[^/]+\/occupanc
 const SITES_RUNTIME_ALLOWED = ['/sites-runtime/current', '/sites-runtime/preview'];
 
 /**
- * Ключ голосового воркера (`VOICE_INGEST_KEY`, DATA_MODEL VOICE-OWNER-APPROVAL-20261022): только `POST /voice/events`.
- * Журнал звонков, просьбы и всё остальное этим ключом не открываются.
+ * Ключ голосового воркера (`VOICE_INGEST_KEY`, DATA_MODEL VOICE-OWNER-APPROVAL-20261022): `POST /voice/events` и
+ * `GET /voice/profile` (профиль голоса по агенту). Журнал звонков, просьбы и всё остальное этим ключом не открываются.
  */
 const VOICE_INGEST_ALLOWED = ['/voice/events'];
+const VOICE_INGEST_READ = ['/voice/profile'];
 
 function marketCollectAllowed(method: unknown, url: unknown): boolean {
   const path = pathOf(url);
@@ -285,11 +286,14 @@ export class SessionGuard implements CanActivate {
       throw new ForbiddenException('Ключ рантайма сайтов читает только текущую опубликованную версию');
     }
     if (key === 'voice-ingest') {
-      if (postAllowed(VOICE_INGEST_ALLOWED, request.method, request.url)) {
+      if (
+        postAllowed(VOICE_INGEST_ALLOWED, request.method, request.url) ||
+        readAllowed(VOICE_INGEST_READ, request.method, request.url)
+      ) {
         request.service = true;
         return true;
       }
-      throw new ForbiddenException('Ключ голосового агента пишет только события звонков');
+      throw new ForbiddenException('Ключ голосового агента пишет только события звонков и читает профиль агента');
     }
     if (key === 'unknown') throw new UnauthorizedException('Служебный ключ не подходит');
 

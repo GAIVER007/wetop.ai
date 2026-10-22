@@ -127,22 +127,18 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await panel.getByLabel('Название', { exact: true }).fill('Тестовая стрижка');
   await panel.getByLabel(/Цена каталога/).fill('12000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
+  // новая услуга сразу в филиале: окно закрывается само, итог в уведомлении (аудит салона 22.10.2026)
+  await expect(page.getByTestId('toast-stack')).toContainText('Услуга добавлена в филиал');
+  await expect(panel).toBeHidden();
+  await expect(page).toHaveURL(/\/services$/);
   await expect(
-    page.locator('[data-service-list="catalog"] .beauty-service-item').filter({
+    page.locator('[data-service-list="salon"] .beauty-service-item').filter({
       has: page.getByText('Тестовая стрижка', { exact: true }),
     }),
   ).not.toContainText('12 000');
-  await panel.getByRole('button', { name: 'Закрыть: Новая услуга', exact: true }).click();
-  await expect(panel).toBeHidden();
-  await expect(page).toHaveURL(/\/services$/);
+  // созданная услуга не открывается заново после перезагрузки: незавершённой настройки нет
   await page.reload();
-  // Незавершённая настройка филиала возобновляет созданную услугу в той же карточке.
-  panel = page.getByRole('dialog');
-  await expect(panel.getByLabel('Название', { exact: true })).toHaveValue('Тестовая стрижка');
-  await expect(panel.getByLabel(/Цена каталога/)).toHaveValue('12000');
-  await panel.getByLabel('Филиал оказывает эту услугу').check();
-  await panel.getByRole('button', { name: 'Сохранить для филиала' }).click();
-  await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.goto('/employees');
   await page.getByRole('button', { name: 'Добавить специалиста' }).click();
   panel = page.getByRole('dialog');

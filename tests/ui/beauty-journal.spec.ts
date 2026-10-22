@@ -46,7 +46,9 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await panel.getByLabel(/Длительность, минут/).fill('60');
   await panel.getByLabel(/Цена каталога/).fill('8000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(panel.getByRole('status')).toHaveText('Услуга добавлена в филиал');
+  // новая услуга сразу в филиале: окно закрывается, итог в уведомлении (аудит салона 22.10.2026)
+  await expect(page.getByTestId('toast-stack')).toContainText('Услуга добавлена в филиал');
+  await expect(panel).toBeHidden();
   await page.goto('/beauty/services');
   // услуги салона показаны карточками каталога, не строками таблицы
   await main

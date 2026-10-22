@@ -71,6 +71,10 @@ model Business {
   giftCertificates          GiftCertificate[]
 
   @@index([organizationId])
+  voiceCalls     VoiceCall[]
+  voiceCallbacks VoiceCallback[]
+  voiceProfiles  VoiceProfile[]
+
   @@map("businesses")
 }
 
@@ -148,6 +152,8 @@ model Location {
 
   @@index([businessId])
   @@index([bookingTrackedSiteId])
+  voiceCalls VoiceCall[]
+
   @@map("locations")
 }
 
@@ -2554,6 +2560,10 @@ model Organization {
   giftCertificates     GiftCertificate[]
   giftCertificateEntries GiftCertificateEntry[]
 
+  voiceCalls     VoiceCall[]
+  voiceCallbacks VoiceCallback[]
+  voiceProfiles  VoiceProfile[]
+
   @@map("organizations")
 }
 
@@ -2638,6 +2648,8 @@ model User {
   bonusEntriesCreated          CustomerBonusEntry[]
   giftCertificatesCreated      GiftCertificate[]
   giftCertificateEntriesMade   GiftCertificateEntry[]
+
+  voiceCallbacksDone VoiceCallback[]
 
   @@map("users")
 }
@@ -2969,6 +2981,9 @@ model SellerAgent {
 
   @@index([organizationId])
   @@index([locationId])
+  voiceCalls   VoiceCall[]
+  voiceProfile VoiceProfile?
+
   @@map("seller_agents")
 }
 
@@ -4447,4 +4462,105 @@ model GiftCertificateEntry {
   @@unique([paymentId, kind], map: "gift_certificate_entries_payment_kind_key")
   @@index([certificateId, createdAt], map: "gift_certificate_entries_certificate_idx")
   @@map("gift_certificate_entries")
+}
+
+/// 142 Журнал голосовых звонков (docs/decisions/2026-10-22-voice-stage2-storage.md, DATA_MODEL VOICE-OWNER-APPROVAL-20261022)
+enum VoiceCallState {
+  RECEIVED
+  ANSWERED
+  ENDED
+  REJECTED
+  FAILED
+}
+
+enum VoiceCallbackStatus {
+  NEW
+  DONE
+}
+
+enum VoiceDirection {
+  INBOUND
+  OUTBOUND
+}
+
+/// Звонок голосового агента; телефон звонящего только маской, события пишет служебная роль
+model VoiceCall {
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String         @map("organization_id") @db.Uuid
+  businessId       String         @map("business_id") @db.Uuid
+  locationId       String?        @map("location_id") @db.Uuid
+  agentId          String         @map("agent_id") @db.Uuid
+  externalCallId   String         @map("external_call_id") @db.VarChar(128)
+  direction        VoiceDirection @default(INBOUND)
+  dialedNumber     String?        @map("dialed_number") @db.VarChar(16)
+  callerMasked     String?        @map("caller_masked") @db.VarChar(12)
+  state            VoiceCallState
+  /// UTC, ставит приложение (AGENTS.md §13)
+  receivedAt       DateTime       @map("received_at") @db.Timestamptz(6)
+  answeredAt       DateTime?      @map("answered_at") @db.Timestamptz(6)
+  endedAt          DateTime?      @map("ended_at") @db.Timestamptz(6)
+  durationSeconds  Int?           @map("duration_seconds")
+  endReason        String?        @map("end_reason") @db.VarChar(40)
+  transferRequested Boolean       @default(false) @map("transfer_requested")
+  callbackRequested Boolean       @default(false) @map("callback_requested")
+  consentAnnounced Boolean        @default(true) @map("consent_announced")
+  errorCode        String?        @map("error_code") @db.VarChar(40)
+  retryCount       Int            @default(0) @map("retry_count")
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_calls_organization_fkey")
+  business     Business         @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_calls_business_fkey")
+  location     Location?        @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_calls_location_fkey")
+  agent        SellerAgent      @relation(fields: [agentId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_calls_agent_fkey")
+  callbacks    VoiceCallback[]
+
+  @@unique([agentId, externalCallId], map: "voice_calls_agent_call_key")
+  @@index([organizationId, businessId, receivedAt(sort: Desc)], map: "voice_calls_org_received_idx")
+  @@index([agentId, receivedAt(sort: Desc)], map: "voice_calls_agent_idx")
+  @@map("voice_calls")
+}
+
+/// Просьба перезвонить: единственное место полного номера (E.164)
+model VoiceCallback {
+  id             String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String              @map("organization_id") @db.Uuid
+  businessId     String              @map("business_id") @db.Uuid
+  voiceCallId    String              @map("voice_call_id") @db.Uuid
+  phone          String              @db.VarChar(16)
+  name           String              @default("") @db.VarChar(100)
+  note           String              @default("") @db.VarChar(500)
+  status         VoiceCallbackStatus @default(NEW)
+  doneAt         DateTime?           @map("done_at") @db.Timestamptz(6)
+  doneById       String?             @map("done_by_id") @db.Uuid
+  /// UTC, ставит приложение
+  createdAt      DateTime            @map("created_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_callbacks_organization_fkey")
+  business     Business     @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_callbacks_business_fkey")
+  call         VoiceCall    @relation(fields: [voiceCallId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_callbacks_call_fkey")
+  doneBy       User?        @relation(fields: [doneById], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "voice_callbacks_done_by_fkey")
+
+  @@unique([voiceCallId, phone], map: "voice_callbacks_call_phone_key")
+  @@index([organizationId, businessId, status, createdAt(sort: Desc)], map: "voice_callbacks_queue_idx")
+  @@map("voice_callbacks")
+}
+
+/// Профиль голоса по агенту: снимает ограничение «один номер на воркер»
+model VoiceProfile {
+  agentId        String   @id @map("agent_id") @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  businessId     String   @map("business_id") @db.Uuid
+  greetingTail   String   @default("") @map("greeting_tail") @db.VarChar(300)
+  voiceName      String   @default("Leda") @map("voice_name") @db.VarChar(40)
+  handoffPhone   String?  @map("handoff_phone") @db.VarChar(16)
+  revision       Int      @default(1)
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  agent        SellerAgent  @relation(fields: [agentId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_profiles_agent_fkey")
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_profiles_organization_fkey")
+  business     Business     @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_profiles_business_fkey")
+
+  @@index([organizationId, businessId], map: "voice_profiles_org_idx")
+  @@map("voice_profiles")
 }

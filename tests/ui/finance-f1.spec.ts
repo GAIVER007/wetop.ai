@@ -225,7 +225,7 @@ test('F1: «только чтение» — список долгов виден
   ).toBeVisible();
 });
 
-test('F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено»', async ({
+test('F1: сбой списка долгов не роняет итоги; пустой период — одна заглушка с первой бронью', async ({
   page,
   request,
 }) => {
@@ -241,7 +241,10 @@ test('F1: сбой списка долгов не роняет итоги; пу�
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
   await page.goto(`${url}#charges`);
   await page.reload();
-  await expect(main.getByTestId('finance-attention')).toContainText('За период проблем не найдено');
+  // пустой месяц (аудит 22.10.2026 P1-3b): одна заглушка «Добавить первую бронь» вместо блоков из нулей
+  await expect(main.getByTestId('finance-empty')).toContainText('Добавить первую бронь');
+  await expect(main.getByTestId('finance-attention')).toHaveCount(0);
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(main.getByTestId('debts-empty')).toContainText('оплачены');
   await expect(main.getByRole('navigation', { name: 'Отбор долгов' })).toHaveCount(0);
 });

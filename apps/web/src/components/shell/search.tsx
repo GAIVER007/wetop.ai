@@ -164,7 +164,7 @@ export function GlobalSearch({
         )}
         {vertical !== 'HOSPITALITY' && typed && !customers.pending && !entities.length &&
           customerQueryReady(query) && <p className="muted">Клиентов с таким именем или телефоном нет</p>}
-        {typed && (
+        {typed && (vertical === 'HOSPITALITY' || sections.length > 0 || !entities.length) && (
           <>
             <span className="eyebrow">Разделы</span>
             {sections.map((item) => (
@@ -174,7 +174,10 @@ export function GlobalSearch({
                 <Icon name="arrow" width={16} />
               </Link>
             ))}
-            {!sections.length && <p className="muted">Нет разделов с таким названием</p>}
+            {/* найдены клиенты: «Нет разделов» не пугает пустым ответом (аудит 22.10.2026 P1-4) */}
+            {!sections.length && (vertical === 'HOSPITALITY' || !entities.length) && (
+              <p className="muted">Нет разделов с таким названием</p>
+            )}
           </>
         )}
         {!typed && (

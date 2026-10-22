@@ -12,6 +12,7 @@ import type {
   MenuCategoryInput,
   MenuItemInput,
   MenuItemView,
+  ModifierGroupInput,
   OrderCreateInput,
   OrderItemStatus,
   OrderPatch,
@@ -24,7 +25,10 @@ import type {
 type MenuCommand =
   | { kind: 'category'; id?: string; body: Partial<MenuCategoryInput> }
   | { kind: 'item'; id?: string; body: Partial<MenuItemInput> }
-  | { kind: 'ingredients'; id: string; ingredients: IngredientInput[] };
+  | { kind: 'ingredients'; id: string; ingredients: IngredientInput[] }
+  // §33.7: группы добавок бизнеса и группы блюда
+  | { kind: 'modifier-group'; id?: string; body: Partial<ModifierGroupInput> }
+  | { kind: 'item-modifier-groups'; id: string; groupIds: string[] };
 type OrderCommand =
   | { kind: 'create'; body: OrderCreateInput }
   | { kind: 'edit'; id: string; body: OrderPatch }
@@ -34,7 +38,7 @@ type OrderCommand =
   | {
       kind: 'pay';
       id: string;
-      body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string };
+      body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string; itemIds?: string[] };
     }
   | { kind: 'void-payment'; id: string; reason: string }
   | {
@@ -99,6 +103,11 @@ export async function mutateMenu(
       item = command.id
         ? await restaurantApi.updateMenuItem(command.id, command.body)
         : await restaurantApi.createMenuItem(command.body as MenuItemInput);
+    } else if (command.kind === 'modifier-group') {
+      if (command.id) await restaurantApi.updateModifierGroup(command.id, command.body);
+      else await restaurantApi.createModifierGroup(command.body as ModifierGroupInput);
+    } else if (command.kind === 'item-modifier-groups') {
+      await restaurantApi.setItemModifierGroups(command.id, command.groupIds);
     } else item = await restaurantApi.replaceIngredients(command.id, command.ingredients);
     revalidatePath('/menu');
     return { error: null, ...(item ? { item } : {}) };

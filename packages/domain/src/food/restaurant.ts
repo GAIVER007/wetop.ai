@@ -1,4 +1,5 @@
 import { foodId, foodInt, foodObject, foodText } from './food';
+import { parseModifierIds } from './modifiers';
 
 /** Ресторан v2 (DATA_MODEL §33, ADR-159): заказы, техкарты, зарплата. Деньги — bigint minor units (ADR-008). */
 export const ORDER_STATUSES = ['NEW', 'COOKING', 'READY', 'SERVED', 'CLOSED', 'CANCELLED'] as const;
@@ -235,7 +236,10 @@ export function parseIngredientInput(raw: unknown): IngredientInput {
 export interface OrderItemInput {
   menuItemId: string;
   qty: number;
+  /** комментарий к позиции («без лука») */
   notes: string | null;
+  /** §33.7: выбранные модификаторы блюда */
+  modifierIds: string[];
 }
 export interface OrderCreate {
   tableId: string | null;
@@ -248,11 +252,13 @@ export function parseOrderItems(raw: unknown): OrderItemInput[] {
   if (!Array.isArray(raw) || raw.length === 0) throw new Error('Добавьте хотя бы одно блюдо');
   if (raw.length > 100) throw new Error('Слишком много строк заказа');
   return raw.map((item) => {
-    const b = foodObject(item, ['menuItemId', 'qty', 'notes']);
+    const b = foodObject(item, ['menuItemId', 'qty', 'notes', 'modifierIds']);
     return {
       menuItemId: foodId(b.menuItemId),
       qty: foodInt(b.qty, 1, 999),
-      notes: b.notes == null ? null : foodText(b.notes, 500),
+      // пустой комментарий = без комментария
+      notes: b.notes == null || (typeof b.notes === 'string' && !b.notes.trim()) ? null : foodText(b.notes, 500),
+      modifierIds: parseModifierIds(b.modifierIds),
     };
   });
 }

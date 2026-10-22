@@ -1825,3 +1825,123 @@
     font-weight: var(--weight-regular);
   }
 }
+
+@layer sections {
+  /* ── Модификаторы блюд и деление счёта (§33.7) ── */
+  .food-mod-line {
+    display: block;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
+    overflow-wrap: anywhere;
+  }
+  .food-mod-hint {
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .food-mod-group {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-2) 0 0;
+    border: 0;
+    border-top: 1px solid var(--border-soft);
+    min-width: 0;
+  }
+  .food-mod-group legend {
+    display: flex;
+    gap: var(--space-2);
+    align-items: baseline;
+    padding: 0;
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+  .food-mod-group legend small {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
+  }
+  .food-mod-option {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--space-2);
+    align-items: center;
+    min-height: var(--touch-target);
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .food-mod-option input {
+    margin: 0;
+    accent-color: var(--primary);
+  }
+  .food-mod-option small {
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .food-mod-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-lg);
+  }
+  .food-mod-qty {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .food-mod-qty .btn {
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+  }
+  .food-mod-edit-row {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto auto;
+    gap: var(--space-2);
+    align-items: center;
+  }
+  .food-mod-names {
+    max-width: 360px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .food-mod-empty {
+    padding: var(--space-4);
+  }
+  .food-split-left {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .food-split-list {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .food-split-list > li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--touch-target);
+    padding: var(--space-1) 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .food-split-list > li .food-mod-option {
+    flex: 1;
+  }
+  .food-split .btn {
+    min-height: var(--touch-target);
+  }
+  @media (max-width: 600px) {
+    .food-mod-edit-row {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .food-mod-names {
+      max-width: 160px;
+    }
+  }
+}

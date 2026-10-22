@@ -30,6 +30,7 @@ import { FoodService } from './food.service';
 import { RestaurantOpeningController, RestaurantOpeningService } from './opening';
 import { RestaurantService } from './restaurant.service';
 import { StockService } from './stock.service';
+import { MenuModifiersService } from './modifiers';
 @Controller('food-service')
 @Access('desk')
 @RequiresBusinessCapability('food.tables')
@@ -128,6 +129,7 @@ export class FoodMenuController {
   constructor(
     @Inject(RestaurantService) private readonly service: RestaurantService,
     @Inject(MenuPhotoService) private readonly photos: MenuPhotoService,
+    @Inject(MenuModifiersService) private readonly modifiers: MenuModifiersService,
   ) {}
   // Фото блюда (DATA_MODEL §37): одно на блюдо, правка меню под `property`
   @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
@@ -176,6 +178,22 @@ export class FoodMenuController {
     @Body() b: unknown,
   ) {
     return this.service.updateMenuItem(id, b);
+  }
+  // Модификаторы блюд (§33.7, миграция 144): группы бизнеса и привязка к блюду, правка меню под `property`
+  @Get('menu/modifier-groups') @Access('orders') modifierGroups() {
+    return this.modifiers.groups();
+  }
+  @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
+  @Post('menu/modifier-groups') @Access('property') createModifierGroup(@Body() b: unknown) {
+    return this.modifiers.createGroup(b);
+  }
+  @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
+  @Patch('menu/modifier-groups/:id') @Access('property') updateModifierGroup(@Param('id') id: string, @Body() b: unknown) {
+    return this.modifiers.updateGroup(id, b);
+  }
+  @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
+  @Put('menu/items/:id/modifier-groups') @Access('property') setItemModifierGroups(@Param('id') id: string, @Body() b: unknown) {
+    return this.modifiers.setItemGroups(id, b);
   }
   @OrganizationLevel(RESTRICTED_CATALOG_WRITE_MESSAGE)
   @Put('menu/items/:id/ingredients') @Access('property') replaceIngredients(
@@ -401,6 +419,7 @@ export class FoodStockController {
     RestaurantService,
     StockService,
     MenuPhotoService,
+    MenuModifiersService,
     OrderRatingLinkService,
     { provide: SITE_ASSET_STORAGE, useFactory: () => siteAssetStorageFromEnv() },
   ],

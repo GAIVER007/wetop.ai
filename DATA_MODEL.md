@@ -3820,6 +3820,40 @@ BOOKED/CONFIRMED на сегодня; Уборка = флаг; иначе Сво
 - GRANT/REVOKE нет, RLS не меняется. Откат `down.sql` (README миграции): станции и статусы строк теряются, статус заказа
   остаётся в `restaurant_orders.status`.
 
+### 33.7 Модификаторы блюд и деление счёта (v2.44, 22.10.2026; УТВЕРЖДЕНО владельцем 22.10.2026, миграция 144)
+
+Владелец 22.10.2026: «Да, оба: план + миграция + экраны» (модификаторы блюд: добавки, размеры, комментарий к позиции;
+деление счёта поровну и по позициям). Решение `docs/decisions/2026-10-22-menu-modifiers-split.md`, план
+`plans/menu-modifiers-split-2026-10-22.md`.
+
+- **`menu_modifier_groups`**: `id` uuid PK, `business_id` FK (бизнес FOOD_SERVICE, триггер), `name` varchar(100),
+  `min_select` int >= 0, `max_select` int 1..20, `min_select <= max_select`, `sort_order`, `active`, timestamps. UNIQUE
+  `(business_id, name)`. Обязательная группа = `min_select >= 1`; при `max_select = 1` выбор одним (радио).
+- **`menu_modifiers`**: `id` uuid PK, `group_id` FK, `name` varchar(100), `price_delta` bigint (minor units, может быть
+  отрицательной), `sort_order`, `active`, timestamps. Не удаляются, только выключаются.
+- **`menu_item_modifier_groups`**: PK `(menu_item_id, group_id)`, `sort_order`; блюдо и группа одного бизнеса (триггер).
+- **`restaurant_order_item_modifiers`**: `id` uuid PK, `order_item_id` FK (CASCADE со строкой), `modifier_id` FK NULL
+  (SET NULL), снимки `group_name`, `name`, `price_delta`, `sort_order`. Модификатор того же бизнеса (триггер).
+- **Цена строки** = цена блюда + сумма `price_delta` выбранных, не меньше нуля, замораживается в
+  `restaurant_order_items.price` при добавлении строки. Комментарий к позиции: существующий `notes varchar(500)`.
+  Блюдо с разными модификаторами или комментарием это разные строки; ключ строки при правке состава = блюдо +
+  отсортированные модификаторы + комментарий.
+- **Проверка выбора** (домен `checkModifierChoice`): каждая группа блюда от `min_select` до `max_select` выбранных;
+  модификатор не из активных групп этого блюда = отказ; выключенный модификатор = отказ.
+- **`restaurant_payment_items`** (оплата по позициям): `id` uuid PK, `payment_id` FK `restaurant_payments`,
+  `order_item_id` FK, `amount` bigint >= 0 (цена × количество строки на момент оплаты), `released_at` timestamptz NULL,
+  `created_at`. UNIQUE `(payment_id, order_item_id)`; частичный UNIQUE `(order_item_id) WHERE released_at IS NULL`:
+  строка оплачивается одним действующим платежом. Сумма платежа по позициям = сумме его строк (API). Аннулирование
+  платежа (`status` ≠ COMPLETED) триггером ставит `released_at` его строкам; удаление строки заказа с действующей
+  оплатой запрещено триггером. Изменять строку можно только отметкой `released_at` один раз.
+- **Поровну на N**: без хранения, домен `splitEvenly(остаток, N)`: N частей, остаток minor units первому; каждая часть
+  проводится обычной частичной оплатой (§35.1).
+- **Права**: группы, модификаторы, привязка к блюду меняет `property`; меню с группами читает `orders` (официант);
+  оплата по позициям `desk`. RLS `rls_tenant` через родителя, как у соседей §33.5. GRANT: SELECT/INSERT/UPDATE/DELETE
+  на первые четыре таблицы, SELECT/INSERT/UPDATE на `restaurant_payment_items` (как платежи, без DELETE), для
+  `wetop_app` и `wetop_service`; строки скопированы в `scripts/ops/restore-mixed-domain-grants.sql`.
+- Откат `down.sql`: таблицы и триггеры снимаются; цены строк и платежи остаются верными.
+
 ## 33. Версии инструкции ИИ-продавца (v2.16, УТВЕРЖДЕНО владельцем 10.10.2026 словом «да, продолжай»; SALES2.7)
 
 **Зачем.** Инструкция продавцу (`seller_profiles.prompt_text`) правится одним окном и затирает прежний текст: ошибочную правку нечем откатить. Нужна история и возврат к прежней версии.

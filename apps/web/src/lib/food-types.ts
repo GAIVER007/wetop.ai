@@ -180,6 +180,44 @@ export interface MenuItemView {
   totals?: MenuTotals | null;
   /** Подписанный адрес фото блюда на время (§37); null, если фото нет или хранилище выключено */
   photoUrl?: string | null;
+  /** §33.7: группы добавок блюда (все привязанные) и активные для выбора; старый ответ API без полей */
+  modifierGroupIds?: string[];
+  modifierGroups?: MenuItemModifierGroup[];
+}
+/** §33.7: группа добавок блюда для выбора в заказе (только активные модификаторы) */
+export interface MenuItemModifierGroup {
+  id: string;
+  name: string;
+  minSelect: number;
+  maxSelect: number;
+  required: boolean;
+  modifiers: Array<{ id: string; name: string; priceDeltaMinor: string }>;
+}
+/** §33.7: группа добавок бизнеса в «Меню» → «Добавки» */
+export interface ModifierGroupView {
+  id: string;
+  name: string;
+  minSelect: number;
+  maxSelect: number;
+  required: boolean;
+  sortOrder: number;
+  active: boolean;
+  updatedAt: string;
+  modifiers: Array<{ id: string; name: string; priceDeltaMinor: string; sortOrder: number; active: boolean }>;
+}
+export interface ModifierGroupInput {
+  name: string;
+  minSelect: number;
+  maxSelect: number;
+  active?: boolean;
+  modifiers: Array<{ id?: string | null; name: string; priceDeltaMinor: number; active?: boolean }>;
+}
+/** §33.7: снимок выбранной добавки у позиции заказа */
+export interface OrderItemModifierView {
+  modifierId: string | null;
+  groupName: string;
+  name: string;
+  priceDeltaMinor: string;
 }
 export interface MenuCategoryInput {
   name: string;
@@ -214,6 +252,9 @@ export interface OrderItemView {
   station?: MenuStation;
   status?: OrderItemStatus;
   readyAt?: string | null;
+  /** §33.7: выбранные добавки и оплачена ли позиция по позициям */
+  modifiers?: OrderItemModifierView[];
+  paid?: boolean;
 }
 export interface OrderView {
   id: string;
@@ -267,6 +308,8 @@ export interface OrderPaymentView {
   status: 'COMPLETED' | 'VOIDED';
   paidAt: string;
   voidReason: string | null;
+  /** §33.7: позиции, оплаченные этим платежом */
+  itemIds?: string[];
 }
 /** Возврат по закрытому заказу (§56): расход кассы филиала */
 export interface OrderRefundView {
@@ -331,6 +374,8 @@ export interface OrderItemInput {
   menuItemId: string;
   qty: number;
   notes?: string | null;
+  /** §33.7: выбранные добавки */
+  modifierIds?: string[];
 }
 export interface OrderCreateInput {
   tableId?: string | null;

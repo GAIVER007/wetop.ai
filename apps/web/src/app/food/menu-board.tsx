@@ -16,8 +16,9 @@ import {
 import { Icon } from '../../components/icon';
 import { IconField } from '../../components/icon-field';
 import { wholeTenge } from '../../lib/dashboard-format';
-import type { IngredientInput, MenuCategory, MenuItemView, MenuStation } from '../../lib/food-types';
+import type { IngredientInput, MenuCategory, MenuItemView, MenuStation, ModifierGroupView } from '../../lib/food-types';
 import { dishPhoto, mutateMenu } from './restaurant-actions';
+import { DishModifierGroups, ModifierGroupsTable } from './modifier-parts';
 
 interface Ctx {
   scopeKey: string;
@@ -90,11 +91,14 @@ function DishDrawer({
   ctx,
   categories,
   item,
+  modifierGroups,
   close,
 }: {
   ctx: Ctx;
   categories: MenuCategory[];
   item: MenuItemView | null;
+  /** §33.7: группы добавок бизнеса для раздела «Добавки и размеры» */
+  modifierGroups: ModifierGroupView[];
   close: () => void;
 }) {
   const router = useRouter();
@@ -104,6 +108,7 @@ function DishDrawer({
   const [categoryId, setCategoryId] = useState(item?.categoryId ?? categories[0]?.id ?? '');
   const [price, setPrice] = useState(item ? String(BigInt(item.priceMinor) / 100n) : '');
   const [weight, setWeight] = useState(item?.weightGrams ? String(item.weightGrams) : '');
+  const [groupIds, setGroupIds] = useState<string[]>(item?.modifierGroupIds ?? []);
   function submit() {
     setError('');
     const priceMinor = Math.round(Number(price)) * 100;
@@ -122,11 +127,16 @@ function DishDrawer({
         ctx.scopeKey,
         item ? { kind: 'item', id: item.id, body } : { kind: 'item', body },
       );
-      if (result.error) setError(result.error);
-      else {
-        router.refresh();
-        close();
+      if (result.error) return setError(result.error);
+      // §33.7: группы добавок сохраняются, только если их меняли (и у нового блюда, если отмечены)
+      const before = item?.modifierGroupIds ?? [];
+      const id = item?.id ?? result.item?.id;
+      if (id && groupIds.join(',') !== before.join(',')) {
+        const groups = await mutateMenu(ctx.scopeKey, { kind: 'item-modifier-groups', id, groupIds });
+        if (groups.error) return setError(groups.error);
       }
+      router.refresh();
+      close();
     });
   }
   return (
@@ -160,6 +170,7 @@ function DishDrawer({
         <Field label="Выход, г">
           <Input type="number" min={1} value={weight} onChange={(e) => setWeight(e.target.value)} />
         </Field>
+        <DishModifierGroups groups={modifierGroups.filter((g) => g.active || groupIds.includes(g.id))} value={groupIds} onChange={setGroupIds} />
         {item && ctx.write && <DishPhoto ctx={ctx} item={item} />}
         <div className="food-actions">
           <Button disabled={pending} onClick={submit}>
@@ -386,10 +397,13 @@ export function MenuBoard({
   categories,
   items,
   stock = [],
+  modifierGroups = [],
 }: {
   ctx: Ctx;
   categories: MenuCategory[];
   items: MenuItemView[];
+  /** §33.7: группы добавок бизнеса (вкладка «Добавки») */
+  modifierGroups?: ModifierGroupView[];
   /** Ингредиенты склада для связи строк техкарты (§38); пусто, если склада нет */
   stock?: StockOption[];
 }) {
@@ -397,7 +411,8 @@ export function MenuBoard({
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
   const [category, setCategory] = useState('');
-  const [view, setView] = useState<'items' | 'categories'>('items');
+  const [view, setView] = useState<'items' | 'categories' | 'modifiers'>('items');
+  const [newGroup, setNewGroup] = useState(false);
   const [search, setSearch] = useState('');
   const [dish, setDish] = useState<MenuItemView | null | 'new'>(null);
   const [tech, setTech] = useState<MenuItemView | null>(null);
@@ -464,11 +479,21 @@ export function MenuBoard({
           >
             Категории ({categories.filter((c) => c.active).length})
           </button>
+          <button
+            type="button"
+            aria-current={view === 'modifiers' ? 'page' : undefined}
+            onClick={() => setView('modifiers')}
+          >
+            Добавки ({modifierGroups.length})
+          </button>
         </nav>
         {ctx.write && (
           <div className="food-inline-actions">
             <Button tone="secondary" onClick={() => setNewCategory('')}>
               + Категория
+            </Button>
+            <Button tone="secondary" onClick={() => { setView('modifiers'); setNewGroup(true); }}>
+              + Группа добавок
             </Button>
             <Button
               onClick={() => setDish('new')}
@@ -511,7 +536,7 @@ export function MenuBoard({
             <IconField icon="search">
               <Input
                 type="search"
-                placeholder="Поиск блюда"
+                placeholder={view === 'modifiers' ? 'Поиск добавки' : 'Поиск блюда'}
                 data-page-search
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -533,7 +558,9 @@ export function MenuBoard({
             </Field>
           )}
         </div>
-        {view === 'categories' ? (
+        {view === 'modifiers' ? (
+          <ModifierGroupsTable ctx={ctx} groups={modifierGroups} items={items} adding={newGroup} setAdding={setNewGroup} needle={needle} />
+        ) : view === 'categories' ? (
           <Table density="compact" caption="Категории меню" captionHidden>
             <thead>
               <tr>
@@ -686,6 +713,7 @@ export function MenuBoard({
           categories={categories.filter((c) => c.active)}
           // свежее блюдо из списка: после загрузки фото список обновился, а снимок в состоянии нет
           item={dish === 'new' ? null : (items.find((i) => i.id === dish.id) ?? dish)}
+          modifierGroups={modifierGroups}
           close={() => setDish(null)}
         />
       )}

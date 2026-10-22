@@ -62,6 +62,8 @@ model Business {
   beautyServices   BeautyService[]
   menuCategories   MenuCategory[]
   menuItems        MenuItem[]
+  /// §33.7: группы модификаторов меню
+  menuModifierGroups MenuModifierGroup[]
   kitchenProducts  KitchenProduct[]
   beautyPayrollPolicy BeautyPayrollPolicy?
   beautyPositions BeautyPosition[]
@@ -3831,6 +3833,8 @@ model MenuItem {
   ingredients MenuItemIngredient[]
   photo       MenuItemPhoto?
   orderItems  RestaurantOrderItem[]
+  /// §33.7: группы модификаторов блюда
+  modifierGroups MenuItemModifierGroup[]
 
   @@index([businessId])
   @@index([categoryId])
@@ -3917,11 +3921,97 @@ model RestaurantOrderItem {
   updatedAt  DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
   order      RestaurantOrder @relation(fields: [orderId], references: [id])
   menuItem   MenuItem?       @relation(fields: [menuItemId], references: [id])
+  /// §33.7: снимок выбранных модификаторов и оплата по позициям
+  modifiers    RestaurantOrderItemModifier[]
+  paymentItems RestaurantPaymentItem[]
 
   @@index([orderId])
   @@index([orderId, station], map: "restaurant_order_items_order_station_idx")
   @@index([menuItemId])
   @@map("restaurant_order_items")
+}
+
+/// §33.7 (миграция 144): группа модификаторов бизнеса («Размер», «Добавки»); обязательная = minSelect >= 1
+model MenuModifierGroup {
+  id         String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId String                  @map("business_id") @db.Uuid
+  name       String                  @db.VarChar(100)
+  minSelect  Int                     @default(0) @map("min_select")
+  maxSelect  Int                     @default(1) @map("max_select")
+  sortOrder  Int                     @default(0) @map("sort_order")
+  active     Boolean                 @default(true)
+  createdAt  DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+  business   Business                @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  modifiers  MenuModifier[]
+  menuItems  MenuItemModifierGroup[]
+
+  @@unique([businessId, name])
+  @@map("menu_modifier_groups")
+}
+
+/// §33.7: модификатор группы; `priceDelta` прибавка к цене блюда в minor units (может быть отрицательной)
+model MenuModifier {
+  id         String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  groupId    String                        @map("group_id") @db.Uuid
+  name       String                        @db.VarChar(100)
+  priceDelta BigInt                        @default(0) @map("price_delta")
+  sortOrder  Int                           @default(0) @map("sort_order")
+  active     Boolean                       @default(true)
+  createdAt  DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  group      MenuModifierGroup             @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  orderLines RestaurantOrderItemModifier[]
+
+  @@index([groupId])
+  @@map("menu_modifiers")
+}
+
+/// §33.7: группы модификаторов блюда и их порядок
+model MenuItemModifierGroup {
+  menuItemId String            @map("menu_item_id") @db.Uuid
+  groupId    String            @map("group_id") @db.Uuid
+  sortOrder  Int               @default(0) @map("sort_order")
+  menuItem   MenuItem          @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  group      MenuModifierGroup @relation(fields: [groupId], references: [id], onDelete: Restrict)
+
+  @@id([menuItemId, groupId])
+  @@index([groupId])
+  @@map("menu_item_modifier_groups")
+}
+
+/// §33.7: снимок выбранного модификатора у строки заказа; цена строки уже включает прибавки
+model RestaurantOrderItemModifier {
+  id          String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderItemId String              @map("order_item_id") @db.Uuid
+  modifierId  String?             @map("modifier_id") @db.Uuid
+  groupName   String              @map("group_name") @db.VarChar(100)
+  name        String              @db.VarChar(100)
+  priceDelta  BigInt              @map("price_delta")
+  sortOrder   Int                 @default(0) @map("sort_order")
+  orderItem   RestaurantOrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  modifier    MenuModifier?       @relation(fields: [modifierId], references: [id], onDelete: SetNull)
+
+  @@index([orderItemId])
+  @@index([modifierId])
+  @@map("restaurant_order_item_modifiers")
+}
+
+/// §33.7: оплата по позициям; строка в одном действующем платеже (частичный уникальный индекс в SQL миграции 144,
+/// `released_at IS NULL`); аннулирование платежа ставит `releasedAt` (триггер)
+model RestaurantPaymentItem {
+  id          String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  paymentId   String              @map("payment_id") @db.Uuid
+  orderItemId String              @map("order_item_id") @db.Uuid
+  amount      BigInt
+  releasedAt  DateTime?           @map("released_at") @db.Timestamptz(6)
+  createdAt   DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  payment     RestaurantPayment   @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  orderItem   RestaurantOrderItem @relation(fields: [orderItemId], references: [id], onDelete: Restrict)
+
+  @@unique([paymentId, orderItemId])
+  @@index([orderItemId])
+  @@map("restaurant_payment_items")
 }
 
 /// Оплата труда сотрудника (§33.4, форма §19.2): настройка 1:1 к employees
@@ -4070,6 +4160,8 @@ model RestaurantPayment {
   order     RestaurantOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
   createdBy User?           @relation("RestaurantPaymentCreatedBy", fields: [createdById], references: [id])
   voidedBy  User?           @relation("RestaurantPaymentVoidedBy", fields: [voidedById], references: [id])
+  /// §33.7: оплаченные позиции (оплата по позициям)
+  items     RestaurantPaymentItem[]
 
   @@unique([locationId, idempotencyKey])
   @@index([orderId])

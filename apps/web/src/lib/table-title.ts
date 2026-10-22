@@ -6,3 +6,10 @@ export function tableTitle(name: string): string {
   const title = name.trim();
   return /^стол/i.test(title) || !/^\d/.test(title) ? title : `Стол ${title}`;
 }
+
+const byName = new Intl.Collator('ru', { numeric: true, sensitivity: 'base' });
+
+/** Порядок столов во всех списках: сначала sortOrder, потом название с учётом чисел (Стол 1, Стол 2, Стол 10) */
+export function compareTables(a: { name: string; sortOrder: number }, b: { name: string; sortOrder: number }): number {
+  return a.sortOrder - b.sortOrder || byName.compare(a.name, b.name);
+}

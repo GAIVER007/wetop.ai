@@ -9,7 +9,7 @@ import { mutateFoodReservation } from './actions';
 import { foodStatus } from '../../lib/status/food';
 import { weekdays } from '../../lib/food-data';
 import { pluralRu } from '../../lib/plural';
-import { tableTitle } from '../../lib/table-title';
+import { compareTables, tableTitle } from '../../lib/table-title';
 import { formatPhone, phoneOnInput } from '../../lib/phone';
 export function ReservationForm({
   data,
@@ -42,9 +42,9 @@ export function ReservationForm({
     ? localInput(reservation.startsAt, data.timezone)
     : `${data.date}T${time ?? data.time}`;
   const periods = data.periods.filter((p) => p.active || p.id === reservation?.servicePeriodId);
-  const tables = data.tables.filter(
-    (t) => t.active && data.areas.some((a) => a.id === t.areaId && a.active),
-  );
+  const tables = data.tables
+    .filter((t) => t.active && data.areas.some((a) => a.id === t.areaId && a.active))
+    .sort(compareTables);
   const [date, setDate] = useState(local.slice(0, 10));
   const [clockValue, setClockValue] = useState(local.slice(11, 16));
   const [period, setPeriod] = useState(
@@ -70,7 +70,7 @@ export function ReservationForm({
     );
   const suitable = tables
     .filter((t) => t.capacity >= party && !busy(t.id))
-    .sort((a, b) => a.capacity - b.capacity || a.sortOrder - b.sortOrder);
+    .sort((a, b) => a.capacity - b.capacity || compareTables(a, b));
   const areaName = (id: string) => data.areas.find((a) => a.id === id)?.name ?? '';
   return (
     <form

@@ -608,7 +608,7 @@ test('assignment reassign unassign edit and capacity conflicts stay in drawer', 
   await d.getByRole('button', { name: 'Сохранить', exact: true }).click();
   await expect(d.getByRole('alert')).toContainText('Нельзя уменьшить вместимость');
   await expect(d.getByLabel('Вместимость')).toHaveValue('1');
-  await d.getByRole('button', { name: 'Закрыть: Изменить: Стол', exact: true }).click();
+  await d.getByRole('button', { name: 'Закрыть: Изменить стол', exact: true }).click();
   for (const kind of ['table', 'area', 'period']) {
     if (kind === 'table')
       await page.getByRole('button', { name: 'Изменить стол Стол 8', exact: true }).click();

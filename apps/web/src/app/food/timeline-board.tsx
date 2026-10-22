@@ -4,7 +4,7 @@ import type { FoodWorkspace, RestaurantReservation } from '../../lib/food-types'
 import { foodStatus } from '../../lib/status/food';
 import { pluralRu } from '../../lib/plural';
 import { localInput } from '../beauty/time';
-import { tableTitle } from '../../lib/table-title';
+import { compareTables, tableTitle } from '../../lib/table-title';
 
 /** Брони, которые держат стол на шкале: отменённые и неявки строку не занимают */
 const ON_TIMELINE = new Set(['BOOKED', 'CONFIRMED', 'SEATED', 'COMPLETED']);
@@ -67,8 +67,7 @@ export function TimelineBoard({
     )
     .sort(
       (a, b) =>
-        (areaOrder.get(a.areaId) ?? 0) - (areaOrder.get(b.areaId) ?? 0) ||
-        a.sortOrder - b.sortOrder,
+        (areaOrder.get(a.areaId) ?? 0) - (areaOrder.get(b.areaId) ?? 0) || compareTables(a, b),
     );
   const placed = reservations
     .filter((r) => r.table && ON_TIMELINE.has(r.status))

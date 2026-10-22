@@ -359,7 +359,7 @@ function TechCardDrawer({
             <strong>{wholeTenge(String(Math.round(profit * 100)), item.currency)}</strong>
           </div>
           <div>
-            <small>Food cost</small>
+            <small>Себестоимость, %</small>
             <strong>{foodCost === null ? '—' : `${foodCost} %`}</strong>
           </div>
         </div>
@@ -470,9 +470,19 @@ export function MenuBoard({
             <Button tone="secondary" onClick={() => setNewCategory('')}>
               + Категория
             </Button>
-            <Button onClick={() => setDish('new')} disabled={!categories.length}>
+            <Button
+              onClick={() => setDish('new')}
+              disabled={!categories.length}
+              title={categories.length ? undefined : 'Сначала добавьте категорию'}
+              aria-describedby={categories.length ? undefined : 'menu-no-category'}
+            >
               + Добавить блюдо
             </Button>
+            {!categories.length && (
+              <span id="menu-no-category" className="muted">
+                Сначала добавьте категорию
+              </span>
+            )}
           </div>
         )}
       </div>
@@ -593,7 +603,7 @@ export function MenuBoard({
                     Цена
                   </th>
                   <th scope="col" className="num">
-                    Food cost
+                    Себестоимость, %
                   </th>
                   <th scope="col">Статус</th>
                   <th scope="col">

@@ -137,7 +137,7 @@ test('меню: категория и блюдо с экрана, переклю
   await dialog.getByLabel('Единица').nth(1).selectOption('шт');
   await dialog.getByLabel('Цена за единицу').nth(1).fill('10');
   const totals = dialog.getByTestId('tech-totals');
-  await expect(totals).toContainText('Food cost');
+  await expect(totals).toContainText('Себестоимость, %');
   await expect(totals).toContainText('28 %');
   await expect(totals).toContainText('255 %');
   await dialog.getByLabel('Технология приготовления').fill('Варить 9 минут, смешать.');

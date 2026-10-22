@@ -71,3 +71,34 @@ it('Hospitality verification retains its current destination', async () => {
   await verifyEmailAction('synthetic-verification');
   expect(redirect).toHaveBeenLastCalledWith('/today');
 });
+
+it('код из письма ведёт пилота так же, как ссылка: филиал из регистрации и завершение настройки', async () => {
+  const { verifyEmailCodeAction } = await import('./actions');
+  const verify = vi.spyOn(authApi, 'verifyEmailCode').mockResolvedValue({
+    token: 'synthetic-code-session',
+    expiresAt: '2030-01-01T00:00:00Z',
+  } as never);
+  vi.spyOn(authApi, 'registrationContext').mockResolvedValue({
+    businessId: 'verified-business',
+    locationId: 'verified-location',
+    vertical: 'BEAUTY',
+    businessName: 'Пилот',
+    locationName: 'Филиал',
+  });
+  const result = await verifyEmailCodeAction('new@example.invalid', '204815');
+  expect(verify).toHaveBeenCalledWith({ email: 'new@example.invalid', code: '204815' }, expect.anything());
+  expect(set).toHaveBeenCalledWith(
+    'wetop_scope',
+    'business=verified-business;location=verified-location',
+    expect.objectContaining({ httpOnly: true }),
+  );
+  expect(result).toEqual({ error: null, redirectTo: '/register/complete' });
+});
+
+it('неверный код возвращает текст ошибки и не ставит куку', async () => {
+  const { verifyEmailCodeAction } = await import('./actions');
+  vi.spyOn(authApi, 'verifyEmailCode').mockRejectedValue(new Error('Код не подошёл'));
+  const result = await verifyEmailCodeAction('new@example.invalid', '111111');
+  expect(result.error).toBeTruthy();
+  expect(set).not.toHaveBeenCalled();
+});

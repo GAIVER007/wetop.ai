@@ -78,6 +78,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /auth/login': 'public',
   'POST /auth/register': 'public',
   'POST /auth/email/verify': 'public',
+  'POST /auth/email/verify-code': 'public',
   'POST /auth/email/resend': 'public',
   'POST /auth/logout': 'public',
   'POST /auth/password-reset/request': 'public',

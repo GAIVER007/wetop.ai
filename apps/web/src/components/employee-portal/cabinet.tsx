@@ -82,16 +82,16 @@ export function EmployeeCabinet({
     <header className="panel portal-section portal-heading">
       {/* аудит 21.10.2026, п. 25: без бейджа «Управление сотрудником», бизнес и филиал одной строкой, если названия совпадают; «Специалист», как в разделе */}
       <div><div className="portal-identity-line">{!manager && <Badge>Мой кабинет</Badge>}<h2>{data.employee.name}</h2></div>
-        <ul className="portal-identity-meta" aria-label="Место работы и статус">{[...new Set([data.business.name, data.location?.name ?? 'Филиал не выбран'])].map((place) => <li key={place}>{place}</li>)}<li>{beauty ? 'Специалист' : 'Сотрудник ресторана'}</li><li>{data.employee.active ? 'Активен' : 'В архиве'}</li>{beauty && data.employee.active && dayStatus && <li data-testid="employee-day-status">{dayStatus.state === 'ON_SHIFT' ? `На смене${dayStatus.hours ? `, ${dayStatus.hours}` : ''}` : dayStatus.state === 'OFF' ? 'Выходной' : 'График недоступен'}</li>}</ul>
+        <div className="portal-identity-row"><ul className="portal-identity-meta" aria-label="Место работы и статус">{[...new Set([data.business.name, data.location?.name ?? 'Филиал не выбран'])].map((place) => <li key={place}>{place}</li>)}<li>{beauty ? 'Специалист' : 'Сотрудник ресторана'}</li><li>{data.employee.active ? 'Активен' : 'В архиве'}</li>{beauty && data.employee.active && dayStatus && <li data-testid="employee-day-status">{dayStatus.state === 'ON_SHIFT' ? `На смене${dayStatus.hours ? `, ${dayStatus.hours}` : ''}` : dayStatus.state === 'OFF' ? 'Выходной' : 'График недоступен'}</li>}</ul>
+      {/* «Мой месяц» (срез S2, владелец 21.10.2026): одна строка итогов, без плиток; стрелки листают месяц */}
+      <nav className="portal-month" aria-label="Итоги месяца" data-testid="portal-month">
+        <a className="btn btn--secondary btn--sm" href={`?month=${portalShiftMonth(data.monthStats.month, -1)}${data.workRange === 'MONTH' ? '&range=month' : ''}`} aria-label="Предыдущий месяц" data-testid="portal-month-prev"><span aria-hidden="true">‹</span></a>
+        <p className="portal-month-line" data-testid="portal-month-line" data-month={data.monthStats.month}>{portalMonthLine(data.monthStats, new Date().getUTCFullYear().toString())}</p>
+        <a className="btn btn--secondary btn--sm" href={`?month=${portalShiftMonth(data.monthStats.month, 1)}${data.workRange === 'MONTH' ? '&range=month' : ''}`} aria-label="Следующий месяц" data-testid="portal-month-next"><span aria-hidden="true">›</span></a>
+      </nav></div>
       </div>
       {data.avatar && <img className="portal-avatar" src={data.avatar.url} alt={`Фото: ${data.employee.name}`} width={96} height={96} />}
     </header>
-    {/* «Мой месяц» (срез S2, владелец 21.10.2026): одна строка итогов, без плиток; стрелки листают месяц */}
-    <nav className="panel portal-month" aria-label="Итоги месяца" data-testid="portal-month">
-      <a className="btn btn--secondary btn--sm" href={`?month=${portalShiftMonth(data.monthStats.month, -1)}${data.workRange === 'MONTH' ? '&range=month' : ''}`} aria-label="Предыдущий месяц" data-testid="portal-month-prev"><span aria-hidden="true">‹</span></a>
-      <p className="portal-month-line" data-testid="portal-month-line" data-month={data.monthStats.month}>{portalMonthLine(data.monthStats, new Date().getUTCFullYear().toString())}</p>
-      <a className="btn btn--secondary btn--sm" href={`?month=${portalShiftMonth(data.monthStats.month, 1)}${data.workRange === 'MONTH' ? '&range=month' : ''}`} aria-label="Следующий месяц" data-testid="portal-month-next"><span aria-hidden="true">›</span></a>
-    </nav>
     {/* новый мастер (онбординг 21.10.2026): что осталось, чтобы к нему могли записаться; ссылка открывает вкладку */}
     {beauty && manager && data.employee.active && (() => {
       const steps = masterSetupSteps({ services: data.services, week: data.week });

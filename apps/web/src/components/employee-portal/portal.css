@@ -7,7 +7,8 @@
   .portal-section h3 { font-size: var(--text-lg); margin: var(--space-4) 0 var(--space-2); }
   .portal-section p { margin: var(--space-2) 0 var(--space-4); color: var(--text-2); }
   .portal-heading { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); }
-  .portal-heading h2 { margin: var(--space-2) 0; font-size: var(--text-2xl); }
+  .portal-heading > div:first-child { flex: 1 1 auto; min-width: 0; }
+  .portal-heading h2 { margin: var(--space-1) 0 0; font-size: var(--text-2xl); }
   .portal-heading p:last-child { margin-bottom: 0; }
   .portal-avatar { flex: 0 0 auto; width: 96px; height: 96px; object-fit: cover; border-radius: var(--radius); background: var(--surface-muted); }
   .portal-nav { display: flex; flex-wrap: wrap; gap: var(--space-2); }
@@ -48,7 +49,9 @@
   .portal-tabs .tabs__panel:not([hidden]) { display: grid; gap: var(--space-4); }
   .portal-tabs .tabs__panel[hidden] { display: none; }
   .portal-eyebrow { font-weight: var(--weight-semibold); }
-  .portal-month { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); min-width: 0; }
+  /* «Мой месяц» в строке места работы: на широком экране не добавляет высоты шапке (вкладки помещаются в 768 px) */
+  .portal-identity-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-4); min-width: 0; }
+  .portal-month { display: flex; flex: 1 1 320px; align-items: center; gap: var(--space-2); min-width: 0; }
   .portal-work-range { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }
   .portal-month-line { flex: 1 1 auto; min-width: 0; margin: 0; color: var(--text); font-variant-numeric: tabular-nums; }
 }
@@ -103,6 +106,9 @@
 .employee-portal .portal-week-row > .btn { width: auto; padding-inline: var(--space-2); white-space: nowrap; }
 .employee-portal .portal-schedule { justify-items: start; }
 .employee-portal [data-testid='portal-week'] { width: fit-content; max-width: 100%; }
+/* неделя сотрудника (только просмотр) компактной таблицей, чтобы вкладка с отсутствиями помещалась в 768 px (S3) */
+.employee-portal [data-testid='portal-week-view'] .portal-list li { padding-block: var(--space-1); }
+.employee-portal [data-testid='portal-week-view'] .portal-list { max-height: none; overflow: visible; }
 .portal-service-picker { margin-top: var(--space-4); }
 .employee-portal .portal-service-picker > summary { display: inline-flex; align-items: center; padding: var(--space-2) var(--space-4); }
 .portal-service-prices { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
@@ -150,6 +156,9 @@
   .employee-portal [data-testid='portal-avatar'] fieldset { grid-template-columns: 1fr; }
   .employee-portal .portal-list { max-height: 360px; overflow-y: auto; }
   .employee-portal .portal-pay-grid { grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) auto; }
+  /* неделя и отсутствия рядом, проверка записей под ними на всю ширину (S3) */
+  .employee-portal .portal-schedule { grid-template-columns: max-content minmax(0, 1fr); align-items: start; justify-items: stretch; }
+  .employee-portal .portal-schedule > [data-testid='portal-schedule-conflicts'] { grid-column: 1 / -1; }
 }
 @media (max-width: 600px) {
   .employee-portal .portal-section { padding: var(--space-2); }

@@ -32,7 +32,8 @@ describe('employee portal frontend boundaries', () => {
     expect(source('components/employee-portal/forms.tsx')).toContain("{hours || 'Выходной'}");
     expect(ui).toContain('<PortalWeekView');
     expect(ui).toContain('data.scheduleConflicts.items.map');
-    expect(ui).toContain('Записи не отменены');
+    // служебная фраза «Проверяем… Записи не отменены» снята (аудит салона 22.10.2026); конфликт назван словами
+    expect(ui).toContain('Есть записи вне графика или в дни отсутствия');
     expect(ui).toContain('scheduleConflicts.truncated');
   });
   it('keeps self pay read-only and separates waiter orders from beauty services', () => {

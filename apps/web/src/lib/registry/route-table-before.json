@@ -120,7 +120,7 @@
     "active": "/bar/consumables",
     "rule": {
       "href": "/bar/consumables",
-      "label": "Кухня и расходники",
+      "label": "Расходники",
       "requires": "reports"
     }
   },
@@ -803,6 +803,7 @@
     "route": "/payroll",
     "vertical": null,
     "features": [
+      "HOSPITALITY",
       "BEAUTY",
       "FOOD_SERVICE"
     ],
@@ -1036,6 +1037,20 @@
       "href": "/staff",
       "label": "Сотрудники",
       "requires": "staff"
+    }
+  },
+  {
+    "route": "/staff-schedule",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/today",
+    "active": "/staff-schedule",
+    "rule": {
+      "href": "/staff-schedule",
+      "label": "График работы",
+      "requires": "desk"
     }
   },
   {

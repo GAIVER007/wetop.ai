@@ -30,6 +30,14 @@
           {
             "href": "/team",
             "label": "Сотрудники"
+          },
+          {
+            "href": "/staff-schedule",
+            "label": "График работы"
+          },
+          {
+            "href": "/payroll",
+            "label": "Зарплата"
           }
         ]
       },
@@ -85,7 +93,7 @@
           },
           {
             "href": "/bar/consumables",
-            "label": "Кухня"
+            "label": "Расходники"
           },
           {
             "href": "/bar/receipts",
@@ -229,6 +237,14 @@
           {
             "href": "/team",
             "label": "Сотрудники"
+          },
+          {
+            "href": "/staff-schedule",
+            "label": "График работы"
+          },
+          {
+            "href": "/payroll",
+            "label": "Зарплата"
           }
         ]
       },
@@ -284,7 +300,7 @@
           },
           {
             "href": "/bar/consumables",
-            "label": "Кухня"
+            "label": "Расходники"
           },
           {
             "href": "/bar/receipts",
@@ -418,6 +434,16 @@
         ]
       },
       {
+        "id": "staff",
+        "label": "Персонал",
+        "items": [
+          {
+            "href": "/staff-schedule",
+            "label": "График работы"
+          }
+        ]
+      },
+      {
         "id": "clients",
         "label": "Клиенты",
         "items": [
@@ -459,7 +485,7 @@
           },
           {
             "href": "/bar/consumables",
-            "label": "Кухня"
+            "label": "Расходники"
           },
           {
             "href": "/bar/receipts",
@@ -568,6 +594,14 @@
           {
             "href": "/team",
             "label": "Сотрудники"
+          },
+          {
+            "href": "/staff-schedule",
+            "label": "График работы"
+          },
+          {
+            "href": "/payroll",
+            "label": "Зарплата"
           }
         ]
       },
@@ -623,7 +657,7 @@
           },
           {
             "href": "/bar/consumables",
-            "label": "Кухня"
+            "label": "Расходники"
           },
           {
             "href": "/bar/receipts",
@@ -765,6 +799,16 @@
         ]
       },
       {
+        "id": "staff",
+        "label": "Персонал",
+        "items": [
+          {
+            "href": "/staff-schedule",
+            "label": "График работы"
+          }
+        ]
+      },
+      {
         "id": "clients",
         "label": "Клиенты",
         "items": [
@@ -816,7 +860,7 @@
           },
           {
             "href": "/bar/consumables",
-            "label": "Кухня"
+            "label": "Расходники"
           },
           {
             "href": "/bar/receipts",
@@ -1017,7 +1061,7 @@
           },
           {
             "href": "/bar",
-            "label": "Бар"
+            "label": "Товары"
           },
           {
             "href": "/bar/consumables",
@@ -1065,7 +1109,7 @@
         "items": [
           {
             "href": "/beauty-settings",
-            "label": "Объект"
+            "label": "Салон"
           },
           {
             "href": "/journal",
@@ -1216,7 +1260,7 @@
           },
           {
             "href": "/bar",
-            "label": "Бар"
+            "label": "Товары"
           },
           {
             "href": "/bar/consumables",
@@ -1264,7 +1308,7 @@
         "items": [
           {
             "href": "/beauty-settings",
-            "label": "Объект"
+            "label": "Салон"
           },
           {
             "href": "/settings",
@@ -1403,7 +1447,7 @@
           },
           {
             "href": "/bar",
-            "label": "Бар"
+            "label": "Товары"
           },
           {
             "href": "/bar/consumables",
@@ -1451,7 +1495,7 @@
         "items": [
           {
             "href": "/beauty-settings",
-            "label": "Объект"
+            "label": "Салон"
           },
           {
             "href": "/settings",
@@ -1579,7 +1623,7 @@
           },
           {
             "href": "/bar",
-            "label": "Бар"
+            "label": "Товары"
           },
           {
             "href": "/bar/consumables",
@@ -1627,7 +1671,7 @@
         "items": [
           {
             "href": "/beauty-settings",
-            "label": "Объект"
+            "label": "Салон"
           },
           {
             "href": "/journal",
@@ -1774,7 +1818,7 @@
           },
           {
             "href": "/bar",
-            "label": "Бар"
+            "label": "Товары"
           },
           {
             "href": "/bar/consumables",
@@ -1822,7 +1866,7 @@
         "items": [
           {
             "href": "/beauty-settings",
-            "label": "Объект"
+            "label": "Салон"
           },
           {
             "href": "/settings",
@@ -1903,11 +1947,11 @@
         "items": [
           {
             "href": "/employees",
-            "label": "Специалисты"
+            "label": "Сотрудники"
           },
           {
             "href": "/team",
-            "label": "Сотрудники"
+            "label": "Доступ и роли"
           },
           {
             "href": "/employees/shifts",
@@ -1929,7 +1973,7 @@
           },
           {
             "href": "/table-reservations",
-            "label": "Записи"
+            "label": "Брони столов"
           }
         ]
       },
@@ -1939,7 +1983,7 @@
         "items": [
           {
             "href": "/menu",
-            "label": "Каталог"
+            "label": "Меню"
           },
           {
             "href": "/orders",
@@ -2027,7 +2071,7 @@
         "items": [
           {
             "href": "/restaurant-settings",
-            "label": "Объект"
+            "label": "Ресторан"
           },
           {
             "href": "/journal",
@@ -2114,11 +2158,11 @@
         "items": [
           {
             "href": "/employees",
-            "label": "Специалисты"
+            "label": "Сотрудники"
           },
           {
             "href": "/team",
-            "label": "Сотрудники"
+            "label": "Доступ и роли"
           },
           {
             "href": "/employees/shifts",
@@ -2140,7 +2184,7 @@
           },
           {
             "href": "/table-reservations",
-            "label": "Записи"
+            "label": "Брони столов"
           }
         ]
       },
@@ -2150,7 +2194,7 @@
         "items": [
           {
             "href": "/menu",
-            "label": "Каталог"
+            "label": "Меню"
           },
           {
             "href": "/orders",
@@ -2238,7 +2282,7 @@
         "items": [
           {
             "href": "/restaurant-settings",
-            "label": "Объект"
+            "label": "Ресторан"
           },
           {
             "href": "/settings",
@@ -2321,7 +2365,7 @@
         "items": [
           {
             "href": "/employees",
-            "label": "Специалисты"
+            "label": "Сотрудники"
           },
           {
             "href": "/employees/shifts",
@@ -2339,7 +2383,7 @@
           },
           {
             "href": "/table-reservations",
-            "label": "Записи"
+            "label": "Брони столов"
           }
         ]
       },
@@ -2349,7 +2393,7 @@
         "items": [
           {
             "href": "/menu",
-            "label": "Каталог"
+            "label": "Меню"
           },
           {
             "href": "/orders",
@@ -2508,11 +2552,11 @@
         "items": [
           {
             "href": "/employees",
-            "label": "Специалисты"
+            "label": "Сотрудники"
           },
           {
             "href": "/team",
-            "label": "Сотрудники"
+            "label": "Доступ и роли"
           },
           {
             "href": "/employees/shifts",
@@ -2534,7 +2578,7 @@
           },
           {
             "href": "/table-reservations",
-            "label": "Записи"
+            "label": "Брони столов"
           }
         ]
       },
@@ -2544,7 +2588,7 @@
         "items": [
           {
             "href": "/menu",
-            "label": "Каталог"
+            "label": "Меню"
           },
           {
             "href": "/orders",
@@ -2632,7 +2676,7 @@
         "items": [
           {
             "href": "/restaurant-settings",
-            "label": "Объект"
+            "label": "Ресторан"
           },
           {
             "href": "/journal",
@@ -2723,7 +2767,7 @@
         "items": [
           {
             "href": "/employees",
-            "label": "Специалисты"
+            "label": "Сотрудники"
           },
           {
             "href": "/employees/shifts",
@@ -2741,7 +2785,7 @@
           },
           {
             "href": "/table-reservations",
-            "label": "Записи"
+            "label": "Брони столов"
           }
         ]
       },
@@ -2751,7 +2795,7 @@
         "items": [
           {
             "href": "/menu",
-            "label": "Каталог"
+            "label": "Меню"
           },
           {
             "href": "/orders",
@@ -2839,7 +2883,7 @@
         "items": [
           {
             "href": "/restaurant-settings",
-            "label": "Объект"
+            "label": "Ресторан"
           },
           {
             "href": "/settings",

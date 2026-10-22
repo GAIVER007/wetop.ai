@@ -37,7 +37,8 @@ test('салон: обзор склада зовёт кухню «Расходн
   await expect(materials).toHaveAttribute('href', '/bar/consumables');
   // в этом стенде модуль бара не подключён (404): карточка бара говорит об этом словами и не прячет «Расходники»
   await expect(page.locator('[data-warehouse="bar"]')).toContainText('Остатки не загрузились');
-  await expect(page.getByText('Остатки бара не загрузились')).toBeVisible();
+  // у салона склад бара называется «Товары» (аудит салона 22.10.2026)
+  await expect(page.getByText('Остатки склада «Товары» не загрузились.', { exact: false })).toBeVisible();
   if (shots) await page.screenshot({ path: `${shots}/salon-warehouse.png`, fullPage: true });
 
   await materials.click();

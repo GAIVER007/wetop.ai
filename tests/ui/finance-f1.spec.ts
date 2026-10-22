@@ -66,8 +66,8 @@ test('F1: заголовок и период в подзаголовке, пер
 
   // Даты и отборы на компьютере располагаются одним рядом.
   const form = main.getByTestId('period-form');
-  const fromBox = (await form.getByLabel('Период: с').boundingBox())!;
-  const toBox = (await form.getByLabel('Период: по').boundingBox())!;
+  const fromBox = (await form.getByLabel('Период: с', { exact: true }).boundingBox())!;
+  const toBox = (await form.getByLabel('Период: по', { exact: true }).boundingBox())!;
   expect(Math.abs(fromBox.y - toBox.y)).toBeLessThanOrEqual(4);
   await expect(form.getByLabel('Тип операции', { exact: true })).toBeVisible();
   await expect(form.getByRole('link', { name: 'Сбросить фильтр' })).toBeVisible();

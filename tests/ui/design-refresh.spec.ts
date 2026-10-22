@@ -55,8 +55,8 @@ test('период «Финансов» и «Аналитики» на теле�
     const main = page.getByRole('main');
     await main.locator('.pa-range > summary').click();
     const controls = [
-      main.getByLabel('Период: с'),
-      main.getByLabel('Период: по'),
+      main.getByLabel('Период: с', { exact: true }),
+      main.getByLabel('Период: по', { exact: true }),
       main.getByTestId('pa-range-form').getByRole('button', { name: 'Применить' }),
       main.locator('.pa-range > summary'),
       main.getByRole('navigation', { name: 'Период' }).getByRole('link', { name: 'Сегодня' }),

@@ -84,9 +84,9 @@ test('R1: панель в две строки, таблица в первом э
   const firstRow = await table.locator('tbody tr').first().boundingBox();
   expect(firstRow!.y).toBeLessThanOrEqual(480);
   // «С / По» спрятаны за «Даты» при готовом отрезке (§62) — и раскрываются по кнопке
-  await expect(main.getByLabel('Период: с')).toBeHidden();
+  await expect(main.getByLabel('Период: с', { exact: true })).toBeHidden();
   await main.getByRole('button', { name: 'Даты', exact: true }).click();
-  await expect(main.getByLabel('Период: с')).toBeVisible();
+  await expect(main.getByLabel('Период: с', { exact: true })).toBeVisible();
   await main.getByRole('button', { name: 'Даты', exact: true }).click();
 
   // §66.8: финансы — одна колонка; отдельных «Стоимость» и «К оплате» больше нет

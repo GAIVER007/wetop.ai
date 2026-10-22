@@ -105,7 +105,7 @@ test('телефон и должность (TEAM2, Q-244): «Изменить»:
   await drawer.getByRole('button', { name: 'Сохранить' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(yurij).toContainText('Старший администратор');
-  await expect(yurij.getByRole('link', { name: '+77015554433' })).toHaveAttribute(
+  await expect(yurij.getByRole('link', { name: '+7 701 555 44 33' })).toHaveAttribute(
     'href',
     'tel:+77015554433',
   );
@@ -239,8 +239,9 @@ test('«Роли и права»: вкладка только на чтение,
   await expect(page).toHaveURL(/\/team\/roles$/);
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники');
-  // 15 прав: с ADR-MKT-B7 у маркетинга своё право `marketing`, с DATA_MODEL §57 запуск рекламы `ads_launch`
-  await expect(main.getByTestId('roles-row')).toHaveCount(15);
+  // 16 прав: с ADR-MKT-B7 у маркетинга своё право `marketing`, с DATA_MODEL §57 запуск рекламы `ads_launch`,
+  // с приёмом заказов официантом с телефона (22.10.2026) право `orders`
+  await expect(main.getByTestId('roles-row')).toHaveCount(16);
   const owner = main
     .getByTestId('roles-row')
     .filter({ hasText: 'Управляющие, роли и платные расширения' });

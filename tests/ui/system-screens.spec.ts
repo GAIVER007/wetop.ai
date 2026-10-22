@@ -203,7 +203,7 @@ test('аналитика и статистика: пустое состояни�
   await page.goto('/management/analytics/occupancy?date=2026-09-25');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Аналитика');
   await expect(main.getByTestId('pa-period')).toContainText('25 сентября 2026');
-  await expect(main.getByLabel('Период: с')).toHaveValue('2026-09-25');
+  await expect(main.getByLabel('Период: с', { exact: true })).toHaveValue('2026-09-25');
   const statsFailure = main.getByTestId('statistics-error');
   await expect(statsFailure).toContainText('Проверьте подключение и повторите запрос');
   await expect(main.locator('.kpi__value')).toHaveCount(0);

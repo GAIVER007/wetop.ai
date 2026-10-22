@@ -1,6 +1,5 @@
 'use client';
 import { Tabs } from '../../components/tabs';
-import { Button } from '../../components/ui';
 import { BranchArchiveButton } from './branch-archive-button';
 import { selectBranch } from './actions';
 import type { BranchItem } from '../../lib/api';
@@ -8,7 +7,7 @@ import { useEffect, useRef, useState, useTransition, type FormEvent } from 'reac
 import { Icon } from '../../components/icon';
 import { saveBusinessCard } from './actions';
 import type { BusinessCardView } from './reference-board';
-import { Input, Textarea } from '../../components/ui';
+import { Button, Input, Textarea } from '../../components/ui';
 export function BusinessCardEditor({
   business,
   onClose,

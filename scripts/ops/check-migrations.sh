@@ -53,7 +53,9 @@ snapshot() { # $1 — база; снимок схемы без коммента�
 
 drift() { # schema.prisma против базы из всех миграций; иначе следующий `prisma migrate dev` впишет разницу в чужую миграцию
   # Адрес — только временная _mig_after: DIRECT_URL задан явно, иначе prisma.config.ts дочитал бы его из .env
+  # npm кладёт CLI то в пакет базы, то в общий node_modules (поднятие зависимостей, 22.10.2026)
   local prisma="$ROOT/packages/database/node_modules/.bin/prisma" rc
+  [ -x "$prisma" ] || prisma="$ROOT/node_modules/.bin/prisma"
   if [ ! -x "$prisma" ]; then
     echo "FAIL schema.prisma не с чем сверить: нет CLI Prisma (сначала npm ci)"; return 1
   fi

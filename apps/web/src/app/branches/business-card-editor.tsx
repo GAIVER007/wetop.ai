@@ -1,5 +1,6 @@
 'use client';
 import { Tabs } from '../../components/tabs';
+import { Button } from '../../components/ui';
 import { BranchArchiveButton } from './branch-archive-button';
 import { selectBranch } from './actions';
 import type { BranchItem } from '../../lib/api';
@@ -58,7 +59,7 @@ export function BusinessCardEditor({
           <h2 id="org-editor-title">Редактировать карточку</h2>
           <p>{business.name}</p>
         </div>
-        <button type="button" aria-label="Закрыть редактор" disabled={pending} onClick={onClose}>
+        <button type="button" className="icon-button" aria-label="Закрыть редактор" disabled={pending} onClick={onClose}>
           <Icon name="close" />
         </button>
       </header>
@@ -141,8 +142,10 @@ export function BusinessCardEditor({
                     </small>
                   </label>
                   {(preview || business.hasCover) && !removeCover && (
-                    <button
+                    <Button
                       type="button"
+                      tone="secondary"
+                      size="sm"
                       className="org-remove-photo"
                       disabled={pending}
                       onClick={() => {
@@ -154,7 +157,7 @@ export function BusinessCardEditor({
                       }}
                     >
                       Убрать обложку
-                    </button>
+                    </Button>
                   )}
                 </section>
                 {error && (
@@ -163,12 +166,12 @@ export function BusinessCardEditor({
                   </p>
                 )}
                 <footer>
-                  <button type="button" onClick={onClose} disabled={pending}>
+                  <Button type="button" tone="secondary" onClick={onClose} disabled={pending}>
                     Отмена
-                  </button>
-                  <button type="submit" disabled={pending}>
+                  </Button>
+                  <Button type="submit" disabled={pending}>
                     {pending ? 'Сохраняем…' : 'Сохранить изменения'}
-                  </button>
+                  </Button>
                 </footer>
               </form>
             ),
@@ -195,17 +198,17 @@ export function BusinessCardEditor({
                         <div className="org-editor-branch-actions">
                           <form action={selectBranch}>
                             <input type="hidden" name="id" value={branch.id} />
-                            <button type="submit" className="org-editor-open">
+                            <Button type="submit" tone="secondary" size="sm" className="org-editor-open">
                               Открыть филиал
-                            </button>
+                            </Button>
                           </form>
                           {branch.vertical === 'HOSPITALITY' && (
                             <form action={selectBranch}>
                               <input type="hidden" name="id" value={branch.id} />
                               <input type="hidden" name="returnTo" value="/hotel-settings" />
-                              <button type="submit" className="org-editor-settings">
+                              <Button type="submit" tone="secondary" size="sm" className="org-editor-settings">
                                 Редактировать филиал
-                              </button>
+                              </Button>
                             </form>
                           )}
                           <BranchArchiveButton id={branch.locationId} name={branch.name} />

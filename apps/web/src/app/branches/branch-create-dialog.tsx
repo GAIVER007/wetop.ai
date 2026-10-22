@@ -4,6 +4,7 @@ import { BranchForm } from './form';
 import type { BusinessCardView } from '../../lib/api';
 import type { WebVertical } from '../../lib/vertical-landing';
 import { Icon } from '../../components/icon';
+import { Button } from '../../components/ui';
 export function BranchCreateDialog({
   id,
   label,
@@ -26,7 +27,7 @@ export function BranchCreateDialog({
   const [pending, setPending] = useState(false);
   return (
     <>
-      <button
+      <Button
         id="create-branch"
         type="button"
         className="org-create-trigger"
@@ -45,7 +46,7 @@ export function BranchCreateDialog({
       >
         <Icon name="plus" />
         {label}
-      </button>
+      </Button>
       <dialog
         id="create-branch-dialog"
         ref={dialog}
@@ -62,6 +63,7 @@ export function BranchCreateDialog({
           </div>
           <button
             type="button"
+            className="icon-button"
             aria-label="Закрыть окно добавления"
             disabled={pending}
             onClick={() => dialog.current?.close()}

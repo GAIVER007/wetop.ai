@@ -1,0 +1,43 @@
+# Голосовой воркер. Запуск из apps/ai-seller/voice на сервере:
+#   docker compose --env-file .env up -d --build
+# Ключи и адреса только в .env на сервере (образец: env.example), в репозитории и в образе их нет.
+# Порт воркера наружу не публикуется: VideoSDK сам подключает воркера по исходящему соединению (register=True).
+
+services:
+  voice-worker:
+    build:
+      context: ..
+      dockerfile: voice/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # журнал звонков и очередь событий на томе
+      VOICE_JOURNAL_PATH: /data/calls.jsonl
+      VOICE_OUTBOX_DIR: /data/calls.outbox
+      VOICE_WORKER_HOST: 0.0.0.0
+    volumes:
+      - voice-data:/data
+    # Журнал пишется и в стандартный вывод, и (журнал звонков) на том: драйвер json-file держит записи внутри контейнера
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Разовая команда догона очереди событий: docker compose run --rm voice-flush
+  # (по расписанию, например раз в 15 минут через cron хоста). Код выхода 2: в очереди ещё остались события
+  voice-flush:
+    build:
+      context: ..
+      dockerfile: voice/Dockerfile
+    profiles: ["tools"]
+    env_file: .env
+    environment:
+      VOICE_JOURNAL_PATH: /data/calls.jsonl
+      VOICE_OUTBOX_DIR: /data/calls.outbox
+    volumes:
+      - voice-data:/data
+    command: ["python", "-m", "voice.flush"]
+
+volumes:
+  voice-data:

@@ -357,9 +357,13 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   await expect(hub).toBeVisible();
   // единая система (14.10.2026): бюджет ведётся по филиалу любого направления; SITE-1: «Сайт и SEO» открыт всем,
   // гостиничные экраны сайта (публикация, изображения, бронирование) салону не предлагаются
-  // аудит 21.10.2026 п. 5: гостиничных «Конкурентов» у салона нет
-  await expect(hub.getByTestId('marketing-module')).toHaveCount(4);
+  // аудит 21.10.2026 п. 5: гостиничных «Конкурентов» у салона нет; «Голосовой агент» (22.10.2026) только у салона
+  await expect(hub.getByTestId('marketing-module')).toHaveCount(5);
   await expect(hub.getByTestId('marketing-competitors')).toHaveCount(0);
+  await expect(hub.getByTestId('marketing-voice-status')).toHaveText('Доступно');
+  await expect(
+    hub.getByTestId('marketing-voice').getByRole('link', { name: 'Открыть: Голосовой агент', exact: true }),
+  ).toHaveAttribute('href', '/marketing/voice');
   await expect(hub.getByTestId('marketing-site-status')).toHaveText('Доступно');
   await expect(hub.getByTestId('marketing-budget-status')).toHaveText('Доступно');
   await expect(

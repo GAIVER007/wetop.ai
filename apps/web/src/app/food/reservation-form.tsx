@@ -9,7 +9,7 @@ import { mutateFoodReservation } from './actions';
 import { foodStatus } from '../../lib/status/food';
 import { weekdays } from '../../lib/food-data';
 import { pluralRu } from '../../lib/plural';
-import { tableTitle } from './timeline-board';
+import { tableTitle } from '../../lib/table-title';
 import { formatPhone, phoneOnInput } from '../../lib/phone';
 export function ReservationForm({
   data,

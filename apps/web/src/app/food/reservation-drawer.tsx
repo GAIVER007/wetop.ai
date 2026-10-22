@@ -8,6 +8,7 @@ import { pluralRu } from '../../lib/plural';
 import { foodStatusActions } from '../../lib/food-data';
 import type { FoodStatus, FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
+import { visitRange } from '../../lib/human-period';
 import { GuestMarks } from './guest-marks';
 import { mutateFoodReservation } from './actions';
 import { ReservationForm } from './reservation-form';
@@ -107,8 +108,7 @@ export function ReservationDrawer({
               <dd>{r.customer.phone ? formatPhone(r.customer.phone) : 'Не указан'}</dd>
               <dt>Дата / время</dt>
               <dd>
-                {localInput(r.startsAt, data.timezone).replace('T', ', ')}–
-                {localInput(r.endsAt, data.timezone).slice(11)}
+                {visitRange(r.startsAt, r.endsAt, data.timezone)}
               </dd>
               <dt>Период</dt>
               <dd>{r.servicePeriod.name}</dd>

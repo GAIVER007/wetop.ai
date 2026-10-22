@@ -5,6 +5,7 @@ import { Alert, Badge, Button } from '../../components/ui';
 import type { MenuStation, OrderItemStatus, OrderItemView, OrderView } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
 import { stationLines } from '../../lib/food-stations';
+import { tableTitle } from '../../lib/table-title';
 import { mutateOrder } from './restaurant-actions';
 
 const COLUMNS: ReadonlyArray<{ id: OrderItemStatus; title: string; action: OrderItemStatus; button: string }> = [
@@ -78,7 +79,7 @@ export function KitchenBoard({
         </time>
       </div>
       <span className="rest-kds-table">
-        {o.table ? `Стол ${o.table.name}` : 'Без стола'}
+        {o.table ? tableTitle(o.table.name) : 'Без стола'}
         {o.waiter ? `, ${o.waiter.name}` : ''}
       </span>
       <ul className="rest-kds-items">

@@ -9,6 +9,7 @@ import { foodApi } from '../../lib/food-api';
 import { completeFoodList, validFoodReservation } from '../../lib/food-data';
 import type { FoodCustomer, RestaurantReservation } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
+import { tableTitle } from '../../lib/table-title';
 import { pluralRu } from '../../lib/plural';
 import { restaurantShell } from './restaurant-load';
 import { CustomerMarks } from './customer-marks';
@@ -56,7 +57,7 @@ export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
     }
     const clock = (iso: string) => localInput(iso, shell.timezone).slice(11, 16);
     const bookingText = (r: RestaurantReservation) =>
-      `${r.table ? `Стол ${r.table.name}` : 'Без стола'}, ${pluralRu(r.partySize, ['гость', 'гостя', 'гостей'])}, ${clock(r.startsAt)}`;
+      `${r.table ? tableTitle(r.table.name) : 'Без стола'}, ${pluralRu(r.partySize, ['гость', 'гостя', 'гостей'])}, ${clock(r.startsAt)}`;
     const customersTable = (
       list: FoodCustomer[],
       empty = 'Клиенты появятся после первого бронирования',

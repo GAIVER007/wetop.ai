@@ -131,7 +131,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
     page.locator('[data-service-list="catalog"] .beauty-service-item').filter({
       has: page.getByText('Тестовая стрижка', { exact: true }),
     }),
-  ).toContainText('12 000');
+  ).not.toContainText('12 000');
   await panel.getByRole('button', { name: 'Закрыть: Новая услуга', exact: true }).click();
   await expect(panel).toBeHidden();
   await expect(page).toHaveURL(/\/services$/);

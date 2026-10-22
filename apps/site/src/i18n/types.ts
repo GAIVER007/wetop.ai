@@ -57,6 +57,9 @@ export type Dictionary = {
     menu: string;
     breadcrumbs: string;
     crumbHome: string;
+    /** Переключатель языка страницы: подпись ссылки на казахскую и русскую версии. */
+    switchToKk: string;
+    switchToRu: string;
   };
   nav: {
     product: string;

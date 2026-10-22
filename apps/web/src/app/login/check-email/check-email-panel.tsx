@@ -4,6 +4,7 @@ import { useActionState } from 'react';
 import { AuthShell } from '../../../components/auth-shell';
 import { Icon } from '../../../components/icon';
 import { resendVerification, type ResendState } from '../actions';
+import { Input } from '../../../components/ui';
 
 /**
  * Что человек видит после «Создать»: письмо ушло, вход откроется по ссылке из него.
@@ -59,8 +60,7 @@ export function CheckEmailPanel({ email, sent }: { email: string; sent: boolean 
             // Сюда же ведёт ссылка с экрана входа, где адреса в строке нет — тогда спрашиваем
             <label className="field">
               Email
-              <input
-                className="inp"
+              <Input
                 type="email"
                 name="email"
                 autoComplete="username"

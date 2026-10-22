@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState, useTransition, type ReactNode } fro
 import { branchChoices, selectBranch } from '../../app/branches/actions';
 import { Icon } from '../icon';
 import styles from './branch-switcher.module.css';
+import { Input } from '../ui';
 
 export function BranchSwitcher({
   children,
@@ -114,8 +115,7 @@ export function BranchSwitcher({
           ) : choices?.items ? (
             <>
               {choices.items.length > 1 && (
-                <input
-                  className="inp"
+                <Input
                   aria-label="Найти филиал"
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}

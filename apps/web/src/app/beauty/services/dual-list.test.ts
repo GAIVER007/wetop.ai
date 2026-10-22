@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('../actions', () => ({
   saveBeautyService: vi.fn(),
   saveLocationService: vi.fn(),
+  moveLocationServices: vi.fn(),
 }));
 vi.mock('./materials', () => ({ ServiceMaterials: () => null }));
 vi.mock('../../../components/overlay', () => ({ Overlay: () => null }));
@@ -72,23 +73,19 @@ describe('Услуги салона и общий каталог', () => {
     expect(html).toContain('Показать архив');
   });
 
-  it('оставляет стрелкам доступные кнопки и передаёт точные настройки филиала', () => {
+  it('не рисует стрелок и кнопок на каждой строке: перенос только галочками и общей кнопкой', () => {
     const html = renderToStaticMarkup(createElement(ServicesBoard, {
       canEdit: true,
       locationCurrency: 'KZT',
       scopeKey: 'business:location',
       items: [
-        service('selected', 'Стрижка выбранная', { enabled: true, override: '125050', minutes: 75 }),
+        service('selected', 'Стрижка выбранная', { enabled: true }),
         service('available', 'Стрижка доступная', { enabled: false }),
       ],
     }));
-
-    expect(html).toContain('aria-label="Убрать из филиала: Стрижка выбранная"');
-    expect(html).toContain('aria-label="Добавить в филиал: Стрижка доступная"');
-    expect(html).toContain('aria-label="В филиале: Стрижка выбранная"');
-    expect(html).toContain('name="priceOverrideMinor" value="125050"');
-    expect(html).toContain('name="durationOverrideMinutes" value="75"');
-    expect(html).toContain('name="scopeKey" value="business:location"');
+    expect(html).not.toContain('←');
+    expect(html).not.toContain('→');
+    expect(html).not.toContain('Добавить в филиал: Стрижка доступная');
     expect(html).toContain('draggable="true"');
   });
 
@@ -133,6 +130,55 @@ describe('Услуги салона и общий каталог', () => {
     expect(editable).toContain('aria-label="Техкарта услуги: Уход сохранённый"');
     expect(readOnly).not.toContain('aria-label="Техкарта услуги: Уход сохранённый"');
     expect(templates).not.toContain('aria-label="Техкарта услуги: Стрижка мужская"');
+  });
+
+  it('даёт отметить услуги галочкой и переносить пачкой, не показывая цен в списках', () => {
+    const html = renderToStaticMarkup(createElement(ServicesBoard, {
+      canEdit: true,
+      locationCurrency: 'KZT',
+      scopeKey: 'business:location',
+      items: [
+        service('selected', 'Массаж выбранный', { enabled: true, override: '125050' }),
+        service('available', 'Массаж доступный', { enabled: false }),
+        service('archived', 'Массаж архивный', { active: false, enabled: false }),
+      ],
+    }));
+    const catalog = html.slice(html.indexOf('data-service-list="catalog"'));
+
+    expect(html).toContain('aria-label="Выбрать все услуги филиала"');
+    expect(html).toContain('aria-label="Выбрать все услуги каталога"');
+    expect(html).toContain('aria-label="Выбрать: Массаж доступный"');
+    // уже стоящая в филиале услуга справа не отмечается: переносить нечего
+    expect(catalog).toMatch(/aria-label="Выбрать: Массаж выбранный"[^>]*disabled/);
+    // типовые услуги тоже можно отметить
+    expect(catalog).toContain('aria-label="Выбрать: Стрижка мужская"');
+    // цен нет: их правят вручную в карточке
+    expect(html).not.toMatch(/1\s?000/);
+    expect(html).not.toContain('₸');
+  });
+
+  it('просит указать цену у услуги филиала, добавленной пачкой с нулевой ценой', () => {
+    const zero = { ...service('zero', 'Типовая без цены', { enabled: true }), priceMinor: '0' };
+    zero.effective = { sellable: true, priceMinor: '0', currency: 'KZT', durationMinutes: 60, overridden: false };
+    const html = renderToStaticMarkup(createElement(ServicesBoard, {
+      canEdit: true,
+      locationCurrency: 'KZT',
+      scopeKey: 'business:location',
+      items: [zero],
+    }));
+    const salon = html.slice(html.indexOf('data-service-list="salon"'), html.indexOf('data-service-list="catalog"'));
+    expect(salon).toContain('Укажите цену');
+  });
+
+  it('без права правки не показывает галочки и массовые кнопки', () => {
+    const html = renderToStaticMarkup(createElement(ServicesBoard, {
+      canEdit: false,
+      locationCurrency: 'KZT',
+      scopeKey: 'business:location',
+      items: [service('s', 'Только чтение', { enabled: true })],
+    }));
+    expect(html).not.toContain('Выбрать все');
+    expect(html).not.toContain('type="checkbox" class="beauty-service-check"');
   });
 });
 

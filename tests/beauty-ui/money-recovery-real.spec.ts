@@ -53,7 +53,10 @@ for (const width of [390, 1440]) for (const kind of ['pay', 'refund'] as const) 
     expect(after.map((op) => ({ id: op.id, kind: op.kind, amount: op.amount, note: op.note })))
       .toEqual(before.map((op) => ({ id: op.id, kind: op.kind, amount: op.amount, note: op.note })));
     expect(commands).toBe(2);
-    await page.reload();
+    // Fresh load of the journal without the card: page.reload() raced the client-side address replace and
+    // reopened the card over the row (CI 39661442107, 39665328615: dialog intercepted the click).
+    await page.goto(`/appointments?date=${date}`);
+    await expect(card).toBeHidden();
     await page.getByRole('button', { name: 'Тест денежный повтор', exact: true }).click();
     await expect(card.getByTestId('beauty-card-paid')).toHaveText('3 000 ₸ из 12 000 ₸');
     if (kind === 'refund') await expect(card.getByTestId('beauty-card-refunded')).toHaveText('1 000 ₸');

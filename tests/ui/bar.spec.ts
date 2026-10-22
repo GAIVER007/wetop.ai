@@ -86,7 +86,7 @@ test('быстрая продажа одной строкой и фильтры 
   await expect(sale.getByLabel('Количество, шт.')).toHaveValue('1');
   await sale.getByLabel('Товар').selectOption({ index: 1 });
   await sale.getByRole('button', { name: 'Продать' }).click();
-  await expect(sale.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
+  await expect(sale.getByRole('status')).toContainText('Продажа записана');
   // окно продажи модальное: закрываем его, прежде чем фильтровать доску под ним
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog', { name: 'Продажа' })).toHaveCount(0);

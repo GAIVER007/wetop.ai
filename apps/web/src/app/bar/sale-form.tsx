@@ -102,7 +102,7 @@ export function SaleForm({ stock, context, methods, recoveryScope, expiresAt }: 
       )}
       {(methods.length > 0 || intent) && <Button type="submit" disabled={pending || !controller || intent?.blocked || unavailableMethod || intent?.status === 'confirmed' || (!intent && available.length === 0)}><Icon name="cart" width={16} height={16} /> {pending ? 'Выполняется…' : intent && intent.status !== 'confirmed' ? 'Повторить с тем же ключом' : 'Продать'}</Button>}
     </div>
-    {intent && <section role="status" aria-label="Исходная продажа" data-testid="retail-recovery-panel">
+    {intent && <section role="region" aria-label="Исходная продажа" data-testid="retail-recovery-panel">
       <h3>Исходная продажа: {intent.status === 'confirmed' ? 'подтверждена' : 'нужна сверка'}</h3>
       <dl><dt>Ключ</dt><dd>{intent.key}</dd><dt>Товар (исходный ID)</dt><dd>{intent.payload.productId}</dd><dt>Количество</dt><dd>{intent.payload.quantityUnits}</dd><dt>Способ оплаты</dt><dd>{intent.payload.method}</dd></dl>
       {intent.warning && <p>{intent.warning}</p>}
@@ -110,12 +110,11 @@ export function SaleForm({ stock, context, methods, recoveryScope, expiresAt }: 
       {intent.status !== 'confirmed' && <p>Прошлая продажа могла выполниться, даже если ответ не получен. До сверки результата нельзя менять или сбрасывать её данные. Не создавайте повторную продажу.</p>}
     </section>}
     {selected && <p className="bar-retail-product-info"><b>{selected.name}</b><span>В наличии: {selected.availableUnits} шт.</span></p>}
-    <p role="status">{pending ? 'Ожидаем ответ. Не создавайте другую продажу.' : intent?.status === 'confirmed' ? 'Результат подтверждён.' : intent ? 'Результат не подтверждён. Повтор использует исходные поля и ключ; если записи нет, сервер выполнит продажу.' : controller ? 'Новая продажа' : 'Восстановление продажи недоступно. Сверьте журнал продаж.'}</p>
+    <p role="status">{pending ? 'Ожидаем ответ. Не создавайте другую продажу.' : intent?.status === 'confirmed' ? (state.message ?? 'Результат подтверждён.') : intent ? 'Результат не подтверждён. Повтор использует исходные поля и ключ; если записи нет, сервер выполнит продажу.' : controller ? 'Новая продажа' : 'Восстановление продажи недоступно. Сверьте журнал продаж.'}</p>
     {intent?.status === 'confirmed' && <Button type="button" onClick={() => {
       try { controller?.newIntent(); setIntent(null); setProductId(''); setState(initial); }
       catch { setState({ error: 'Не удалось сохранить состояние. Обновите страницу.', ok: 0 }); }
     }}>Новая продажа</Button>}
     {state.error && <p role="alert" className="bar-error">{state.error}</p>}
-    {state.message && <p role="status" className="bar-success">{state.message}</p>}
   </form>;
 }

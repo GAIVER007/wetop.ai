@@ -159,10 +159,9 @@
 
   /* ---------- строки филиалов: одна высота у всех направлений, видно три, дальше своя прокрутка ---------- */
   .org-branch-rows {
-    --org-row: calc(var(--space-12) + var(--space-2));
     display: grid;
     gap: var(--space-1);
-    max-height: calc(3 * var(--org-row) + 2 * var(--space-1));
+    max-height: calc(3 * (var(--space-12) + var(--space-2)) + 2 * var(--space-1));
     overflow: auto;
     overscroll-behavior: contain;
   }
@@ -175,7 +174,7 @@
     gap: var(--space-2);
     box-sizing: border-box;
     width: 100%;
-    height: var(--org-row);
+    height: calc(var(--space-12) + var(--space-2));
     padding: 0 var(--space-2);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);

@@ -7,6 +7,7 @@ import type {
   DiningArea,
   DiningTable,
   FoodCustomer,
+  FoodEmployee,
   OrderView,
   ServicePeriod,
   RestaurantReservation,
@@ -31,11 +32,15 @@ export async function loadFood(
     dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) && !Number.isNaN(Date.parse(dateParam))
       ? dateParam
       : local.slice(0, 10);
-  const [areas, tables, periods, customers] = await Promise.all([
+  const [areas, tables, periods, customers, staff] = await Promise.all([
     completeFoodList<DiningArea>(foodApi.areas),
     completeFoodList<DiningTable>(foodApi.tables),
     completeFoodList<ServicePeriod>(foodApi.periods),
     completeFoodList<FoodCustomer>(foodApi.customers),
+    // §33.6: «Принял» в форме брони; без списка форма просто не предлагает выбор
+    Promise.resolve()
+      .then(() => completeFoodList<FoodEmployee>(restaurantApi.employees))
+      .catch(() => [] as FoodEmployee[]),
   ]);
   const weekday = new Date(`${date}T12:00:00Z`).getUTCDay();
   const first = periods
@@ -75,5 +80,6 @@ export async function loadFood(
     readOnly: shell.readOnly,
     canDesk: mayAccess(shell.access, 'desk'),
     canProperty: mayAccess(shell.access, 'property'),
+    employees: staff.filter((e) => e.status === 'ACTIVE').map((e) => ({ id: e.id, name: e.name })),
   };
 }

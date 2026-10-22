@@ -68,6 +68,8 @@ export interface RestaurantReservation {
   servicePeriod: ServicePeriod;
   table: (DiningTable & { areaName: string }) | null;
   nextStatuses: FoodStatus[];
+  /** §33.6: кто принял бронь (официант сам, у стойки выбор); старый ответ API без поля */
+  employee?: { id: string; name: string } | null;
 }
 export interface FoodToken {
   expectedStatus: FoodStatus;
@@ -92,6 +94,8 @@ export interface ReservationInput {
   tableId?: string;
   notes?: string | null;
   source: 'DESK' | 'WALK_IN';
+  /** §33.6: кто принял бронь, необязательно */
+  employeeId?: string;
 }
 export type ReservationPatch = FoodToken &
   Partial<Pick<ReservationInput, 'servicePeriodId' | 'startsAt' | 'partySize' | 'notes'>>;
@@ -112,6 +116,8 @@ export interface FoodWorkspace extends FoodCatalog {
   readOnly: boolean;
   canDesk: boolean;
   canProperty: boolean;
+  /** §33.6: сотрудники для «Принял» в форме брони; пусто, если список не загрузился */
+  employees?: Array<{ id: string; name: string }>;
 }
 
 // ── Ресторан v2 (§33, ADR-159): меню, заказы, кухня, сотрудники, зарплата ──

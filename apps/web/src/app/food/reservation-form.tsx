@@ -118,6 +118,7 @@ export function ReservationForm({
                           },
                         }),
                     ...(f.get('tableId') ? { tableId: String(f.get('tableId')) } : {}),
+                    ...(f.get('employeeId') ? { employeeId: String(f.get('employeeId')) } : {}),
                   },
                 },
           );
@@ -314,6 +315,18 @@ export function ReservationForm({
               <option key={t.id} value={t.id} disabled={t.capacity < party}>
                 {data.areas.find((a) => a.id === t.areaId)?.name}, {t.name},{' '}
                 {pluralRu(t.capacity, ['место', 'места', 'мест'])}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      )}
+      {!reservation && !walkIn && (data.employees?.length ?? 0) > 0 && (
+        <Field label="Принял бронь">
+          <Select name="employeeId" defaultValue="">
+            <option value="">Не указывать</option>
+            {data.employees!.map((e) => (
+              <option key={e.id} value={e.id}>
+                {e.name}
               </option>
             ))}
           </Select>

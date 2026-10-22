@@ -116,7 +116,7 @@ export function ReservationDrawer({
               <dt>Стол / зал</dt>
               <dd>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</dd>
               <dt>Источник</dt>
-              <dd>{r.source === 'WALK_IN' ? 'Без брони' : 'Сотрудник'}</dd>
+              <dd>{r.source === 'WALK_IN' ? 'Без брони' : r.employee ? `Принял: ${r.employee.name}` : 'Сотрудник'}</dd>
               <dt>Заметка</dt>
               <dd>{r.notes || 'Нет заметки'}</dd>
             </dl>

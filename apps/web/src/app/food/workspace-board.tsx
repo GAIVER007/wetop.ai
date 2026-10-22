@@ -467,7 +467,7 @@ export function WorkspaceBoard({
                         </td>
                         <td>{r.notes || '—'}</td>
                         <td>{r.servicePeriod.name}</td>
-                        <td>{r.source === 'WALK_IN' ? 'Без брони' : 'Сотрудник'}</td>
+                        <td>{r.source === 'WALK_IN' ? 'Без брони' : r.employee ? `Принял: ${r.employee.name}` : 'Сотрудник'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -489,6 +489,7 @@ export function WorkspaceBoard({
                     {r.notes && <small>{r.notes}</small>}
                     <span>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</span>
                     <small>{r.servicePeriod.name}</small>
+                    {r.employee && <small>Принял: {r.employee.name}</small>}
                   </button>
                 ))}
               </div>

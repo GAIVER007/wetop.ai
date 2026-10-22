@@ -41,6 +41,7 @@ import {
 import { PreviewPanel, type PreviewPhoto } from './object-preview';
 import { SETTINGS_FORM_ID, useLiveReport, useSaveReport, type LiveValues } from './settings-save';
 import { formatPhone, phoneOnInput } from '../../lib/phone';
+import { zoneLabel } from '../../lib/human-period';
 
 type Property = HotelSettings['property'];
 type FieldName = keyof Property;
@@ -755,7 +756,7 @@ function LocationCard({
             </Select>
           </IconField>
         </Field>
-        <ReadonlyField label="Часовой пояс" icon="clock" value={property.timezone} />
+        <ReadonlyField label="Часовой пояс" icon="clock" value={zoneLabel(property.timezone)} />
         <ReadonlyField label="Валюта" icon="cash" value={property.currency} />
         <ReadonlyField
           label="Количество номеров"
@@ -911,7 +912,7 @@ export function StaySettingsForm({
 export function StayNote({ timezone }: { timezone: string }) {
   return (
     <p className="settings-note">
-      По времени объекта ({timezone}). Эти часы печатаются в договоре, их видит гость в модуле
+      По времени объекта ({zoneLabel(timezone)}). Эти часы печатаются в договоре, их видит гость в модуле
       бронирования на сайте, по ним отвечает ИИ-продавец.
     </p>
   );

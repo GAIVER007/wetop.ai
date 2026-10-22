@@ -8,10 +8,10 @@ import { DateInput, calendarButtonLabel } from './date-field';
  * P2-6): программа чтения не различала их. Имя кнопки теперь несёт имя своего поля.
  */
 describe('кнопка календаря у поля даты', () => {
-  it('имя кнопки называет поле', () => {
-    expect(calendarButtonLabel('Период: с')).toBe('Открыть календарь (Период: с)');
-    expect(calendarButtonLabel('')).toBe('Открыть календарь');
-    expect(calendarButtonLabel(undefined)).toBe('Открыть календарь');
+  it('описание кнопки называет поле, имя остаётся «Открыть календарь»', () => {
+    expect(calendarButtonLabel('Период: с')).toBe('для поля «Период: с»');
+    expect(calendarButtonLabel('')).toBeUndefined();
+    expect(calendarButtonLabel(undefined)).toBeUndefined();
   });
   it('поля «с» и «по» дают кнопкам разные имена уже в разметке сервера', () => {
     const markup = renderToStaticMarkup(
@@ -20,7 +20,10 @@ describe('кнопка календаря у поля даты', () => {
         h(DateInput, { key: 't', name: 'to', defaultValue: '2026-10-07', 'aria-label': 'Период: по' }),
       ]),
     );
-    expect(markup).toContain('aria-label="Открыть календарь (Период: с)"');
-    expect(markup).toContain('aria-label="Открыть календарь (Период: по)"');
+    // имя поля только в описании: в имени кнопки оно совпадало с подписью поля, и поиск поля по подписи
+    // находил два элемента (getByLabel('Период: с') в UI-проверках, 22.10.2026)
+    expect(markup).not.toContain('aria-label="Открыть календарь (');
+    expect(markup).toContain('aria-description="для поля «Период: с»"');
+    expect(markup).toContain('aria-description="для поля «Период: по»"');
   });
 });

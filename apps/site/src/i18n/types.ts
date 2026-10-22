@@ -60,6 +60,11 @@ export type Dictionary = {
     /** Переключатель языка страницы: подпись ссылки на казахскую и русскую версии. */
     switchToKk: string;
     switchToRu: string;
+    /** Правовые ссылки в подвале и переключатель темы в шапке (каркас казахских страниц, P1-12). */
+    legalNav: string;
+    theme: string;
+    themeLight: string;
+    themeDark: string;
   };
   nav: {
     product: string;
@@ -513,6 +518,16 @@ export type Dictionary = {
     };
     errors: {
       required: string;
+      /** Ошибка под полем: формы окна с noValidate, браузер своего сообщения не показывает (P1-1a) */
+      fields: {
+        email: string;
+        emailFormat: string;
+        password: string;
+        passwordShort: string;
+        name: string;
+        businessName: string;
+        phone: string;
+      };
       privacy: string;
       network: string;
       /** Ссылка на ту же форму на отдельной странице стойки — на случай сбоя окна. */

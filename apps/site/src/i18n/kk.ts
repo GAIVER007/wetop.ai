@@ -3,7 +3,7 @@ import type { Dictionary } from './types';
 import { hotelKk, hotelsItemsKk } from './kk-parts/hotels';
 import { salonKk, beautyItemsKk } from './kk-parts/beauty';
 import { restaurantKk, foodItemsKk } from './kk-parts/food';
-import { segmentsSharedKk, marketingKk, miscKk } from './kk-parts/shared';
+import { segmentsSharedKk, marketingKk, miscKk, frameKk } from './kk-parts/shared';
 
 /*
  * Казахский словарь (фаза 1, 21.10.2026): полностью переведены ветки раздела «для кого» (направления,
@@ -23,9 +23,11 @@ export const kk: Dictionary = {
     items: { ...ru.segments.items, ...hotelsItemsKk, ...beautyItemsKk, ...foodItemsKk },
   },
   final: { ...ru.final, note: miscKk.finalNote },
-  nav: { ...ru.nav, features: miscKk.navFeatures, register: miscKk.navRegister },
+  // Шапка, меню и подвал по-казахски (P1-12): раньше брались из русского словаря
+  nav: { ...frameKk.nav, features: miscKk.navFeatures, register: miscKk.navRegister },
+  footer: frameKk.footer,
   a11y: {
-    ...ru.a11y,
+    ...frameKk.a11y,
     breadcrumbs: miscKk.a11yBreadcrumbs,
     crumbHome: miscKk.a11yCrumbHome,
     switchToKk: miscKk.switchToKk,

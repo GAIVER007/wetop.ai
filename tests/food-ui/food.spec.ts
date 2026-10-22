@@ -159,6 +159,25 @@ test('walk-in is seated immediately and persisted after reload', async ({ page, 
   await dialog.getByRole('button', { name: 'Закрыть: Бронирование' }).click();
   await expect(page.getByRole('button', { name: 'Стол 7, Свободен' })).toBeVisible();
 });
+test('посадить без брони без имени: гость «Гость», без английского «Please select an item»', async ({
+  page,
+  request,
+}) => {
+  await seed(page, request);
+  await page.goto(`/floor-plan?date=${date}&time=19:00`);
+  await page.getByRole('button', { name: 'Посадить без брони', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByRole('radio', { name: 'Новый', exact: true })).toBeChecked();
+  await dialog.getByLabel('Время', { exact: true }).fill('19:00');
+  await dialog.getByRole('button', { name: 'Посадить', exact: true }).click();
+  await expect(dialog.getByRole('alert')).toContainText('Выберите стол');
+  await dialog
+    .getByRole('combobox', { name: 'Стол', exact: true })
+    .selectOption({ label: 'Основной зал, Стол 7, 4 места' });
+  await dialog.getByRole('button', { name: 'Посадить', exact: true }).click();
+  await expect(dialog.getByRole('heading', { name: 'Гость', exact: true })).toBeVisible();
+  await expect(dialog).toContainText('За столом');
+});
 test('real API screenshots, keyboard and axe', async ({ page, request }) => {
   // 16 переходов с axe и снимками: под нагрузкой машины (load 7+) каждый 1,5–5 с, общий предел 90 с мал
   test.setTimeout(240_000);

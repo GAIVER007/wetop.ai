@@ -11,6 +11,7 @@ import { weekdays } from '../../lib/food-data';
 import { pluralRu } from '../../lib/plural';
 import { compareTables, tableTitle } from '../../lib/table-title';
 import { formatPhone, phoneOnInput } from '../../lib/phone';
+import { reservationProblem, WALK_IN_GUEST, walkInFirstName } from '../../lib/food-reservation-check';
 export function ReservationForm({
   data,
   walkIn = false,
@@ -33,7 +34,8 @@ export function ReservationForm({
   const [pending, start] = useTransition();
   const [error, setError] = useState('');
   const [key] = useState(() => crypto.randomUUID());
-  const [mode, setMode] = useState(data.customers.length ? 'existing' : 'new');
+  // гостю без брони карточка клиента не нужна: сразу «Новый», имя по умолчанию «Гость»
+  const [mode, setMode] = useState<'existing' | 'new'>(!walkIn && data.customers.length ? 'existing' : 'new');
   // заполненность разделов для полосы шагов макета (экран 4): только отображение, форма одна
   const [guestPicked, setGuestPicked] = useState('');
   const [guestName, setGuestName] = useState('');
@@ -76,10 +78,24 @@ export function ReservationForm({
     <form
       className={reservation ? 'food-form' : 'food-form rest-book'}
       aria-busy={pending}
+      noValidate
       onSubmit={(e) => {
         e.preventDefault();
         const f = new FormData(e.currentTarget);
         setError('');
+        if (!reservation) {
+          const problem = reservationProblem({
+            walkIn,
+            mode,
+            customerId: String(f.get('customerId') ?? ''),
+            firstName: String(f.get('firstName') ?? ''),
+            tableId: String(f.get('tableId') ?? ''),
+            period: String(f.get('period') ?? ''),
+          });
+          if (problem) return setError(problem);
+        } else if (!f.get('period')) return setError('Выберите период обслуживания');
+        if (!f.get('date') || !f.get('time')) return setError('Укажите дату и время');
+        if (!(party >= 1)) return setError('Укажите число гостей');
         const body = {
           servicePeriodId: String(f.get('period')),
           startsAt: instantOf(`${f.get('date')}T${f.get('time')}`, data.timezone),
@@ -113,7 +129,9 @@ export function ReservationForm({
                       ? { customerId: String(f.get('customerId')) }
                       : {
                           customer: {
-                            firstName: String(f.get('firstName')),
+                            firstName: walkIn
+                              ? walkInFirstName(String(f.get('firstName') ?? ''))
+                              : String(f.get('firstName')).trim(),
                             ...(f.get('lastName') ? { lastName: String(f.get('lastName')) } : {}),
                             ...(f.get('phone') ? { phone: String(f.get('phone')) } : {}),
                           },
@@ -141,7 +159,7 @@ export function ReservationForm({
           {(
             [
               ['Основное', !!(date && clockValue && period)],
-              ['Гость', mode === 'existing' ? !!guestPicked : !!guestName.trim()],
+              ['Гость', mode === 'existing' ? !!guestPicked : walkIn || !!guestName.trim()],
               ['Стол', !!table],
               ['Подтверждение', false],
             ] as const
@@ -208,7 +226,7 @@ export function ReservationForm({
                 <Field label="Имя">
                   <Input
                     name="firstName"
-                    required
+                    {...(walkIn ? { placeholder: WALK_IN_GUEST } : { required: true })}
                     maxLength={100}
                     onChange={(e) => setGuestName(e.target.value)}
                   />

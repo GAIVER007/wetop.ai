@@ -13,6 +13,7 @@ vi.mock('./actions', () => ({ saveFoodCatalog: vi.fn() }));
 import { MenuBoard } from './menu-board';
 import { StockBoard } from './stock-board';
 import { CatalogBoard } from './catalog-board';
+import { ReservationForm } from './reservation-form';
 
 const source = (f: string) => readFileSync(new URL(f, import.meta.url), 'utf8');
 
@@ -92,6 +93,33 @@ describe('залы и столы', () => {
     const form = source('./catalog-form.tsx');
     expect(form).not.toContain("'Добавить'");
     for (const t of ['Новый зал', 'Новый стол', 'Новый период']) expect(form).toContain(t);
+  });
+});
+
+describe('посадить без брони', () => {
+  it('форма без браузерной проверки (noValidate), гость без брони сразу «Новый», имя необязательно', () => {
+    const data = {
+      areas: [{ id: 'a', name: 'Зал', sortOrder: 0, active: true }],
+      tables: [{ id: 't', areaId: 'a', name: 'Стол 1', capacity: 4, sortOrder: 0, active: true }],
+      periods: [{ id: 'p', name: 'Весь день', weekday: 4, timeFrom: '09:00', timeTo: '23:00', endsNextDay: false, defaultDurationMinutes: 120, active: true }],
+      customers: [{ id: 'c', firstName: 'Айгерим', lastName: null, phone: null }],
+      reservations: [],
+      date: '2026-10-22',
+      time: '12:00',
+      timezone: 'Asia/Almaty',
+      scopeKey: 'b:l',
+      readOnly: false,
+      canDesk: true,
+      canProperty: true,
+    } as unknown as FoodWorkspace;
+    const html = renderToStaticMarkup(
+      createElement(ReservationForm, { data, walkIn: true, tableId: 't', created: () => {}, onStale: () => {} }),
+    );
+    expect(html.toLowerCase()).toContain('novalidate');
+    expect(html).toMatch(/<input type="radio" name="customerMode" checked=""[^>]*\/>Новый/);
+    const first = html.match(/<input[^>]*name="firstName"[^>]*>/)?.[0] ?? '';
+    expect(first).toContain('placeholder="Гость"');
+    expect(first).not.toContain('required');
   });
 });
 

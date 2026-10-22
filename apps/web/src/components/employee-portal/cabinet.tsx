@@ -17,7 +17,7 @@ import { foodOrderStatus } from '../../lib/status/food';
 import type { BeautyEmployeeServicePriceRow, BeautySchedule } from '../../lib/api';
 import type { BeautyMasterDayStatus } from '../../lib/beauty-master-day-status';
 import { EmployeeTransitionGuard } from '../employee-workspace/workspace';
-import { portalAbsenceDays, portalAbsences, portalMonthLine, portalShiftMonth } from '../../lib/portal-month';
+import { portalAbsenceDays, portalAbsences, portalMonthLabel, portalMonthLine, portalShiftMonth } from '../../lib/portal-month';
 import { shortPeriod, zoneLabel } from '../../lib/human-period';
 import { localDate } from '@pms/domain';
 
@@ -88,9 +88,9 @@ export function EmployeeCabinet({
     </header>
     {/* «Мой месяц» (срез S2, владелец 21.10.2026): одна строка итогов, без плиток; стрелки листают месяц */}
     <nav className="panel portal-month" aria-label="Итоги месяца" data-testid="portal-month">
-      <a className="btn btn--secondary btn--sm" href={`?month=${portalShiftMonth(data.monthStats.month, -1)}`} aria-label="Предыдущий месяц" data-testid="portal-month-prev"><span aria-hidden="true">‹</span></a>
+      <a className="btn btn--secondary btn--sm" href={`?month=${portalShiftMonth(data.monthStats.month, -1)}${data.workRange === 'MONTH' ? '&range=month' : ''}`} aria-label="Предыдущий месяц" data-testid="portal-month-prev"><span aria-hidden="true">‹</span></a>
       <p className="portal-month-line" data-testid="portal-month-line" data-month={data.monthStats.month}>{portalMonthLine(data.monthStats, new Date().getUTCFullYear().toString())}</p>
-      <a className="btn btn--secondary btn--sm" href={`?month=${portalShiftMonth(data.monthStats.month, 1)}`} aria-label="Следующий месяц" data-testid="portal-month-next"><span aria-hidden="true">›</span></a>
+      <a className="btn btn--secondary btn--sm" href={`?month=${portalShiftMonth(data.monthStats.month, 1)}${data.workRange === 'MONTH' ? '&range=month' : ''}`} aria-label="Следующий месяц" data-testid="portal-month-next"><span aria-hidden="true">›</span></a>
     </nav>
     {/* новый мастер (онбординг 21.10.2026): что осталось, чтобы к нему могли записаться; ссылка открывает вкладку */}
     {beauty && manager && data.employee.active && (() => {
@@ -127,9 +127,15 @@ export function EmployeeCabinet({
     </section> },
       ...(showWork ? [{ id: 'work', label: beauty ? 'Записи' : 'Заказы', content: <section className="panel portal-section" data-testid="portal-own-work"><h2>{beauty ? (manager ? 'Записи' : 'Мои записи') : (manager ? 'Заказы' : 'Мои заказы')}</h2>
       {/* месяц оплаты только на вкладке «Оплата труда» (аудит 21.10.2026, п. 26) */}
-      <form className="portal-filters" method="get"><Field label="Дата записей"><Input name="date" type="date" /></Field><button className="btn btn--secondary" type="submit">Показать</button></form>
-      {beauty ? data.appointments.length ? <ul className="portal-list">{data.appointments.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{a.date}</span><span>{new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: data.location?.timezone ?? 'UTC' }).format(new Date(a.startsAt))}</span><span>{a.customerName}</span><span>{beautyStatus[a.status as AppointmentStatus]?.label ?? 'Неизвестный статус'}</span><span>{formatMoney(a.priceMinor, a.currency)}</span></li>)}</ul> : <p>На выбранную дату записей нет</p>
-        : data.orders.length ? <ul className="portal-list">{data.orders.map(order => <li key={order.id}><strong>Заказ №{order.number}</strong><span>{order.tableName ?? 'Стол не указан'}</span><span>{foodOrderStatus[order.status as OrderStatus]?.label ?? 'Неизвестный статус'}</span><span>{formatMoney(order.totalMinor, order.currency)}</span></li>)}</ul> : <p>Собственных заказов за выбранный период нет</p>}
+      {/* «День / Месяц» (D-roles п. 4): месяц тот же, что в строке итогов; не больше 200 строк по дате */}
+      <nav className="portal-work-range" aria-label="Период списка">
+        <a className={`btn btn--sm ${data.workRange === 'DAY' ? 'btn--primary' : 'btn--secondary'}`} href={`?month=${data.monthStats.month}#work`} aria-current={data.workRange === 'DAY' ? 'page' : undefined} data-testid="portal-work-day">День</a>
+        <a className={`btn btn--sm ${data.workRange === 'MONTH' ? 'btn--primary' : 'btn--secondary'}`} href={`?month=${data.monthStats.month}&range=month#work`} aria-current={data.workRange === 'MONTH' ? 'page' : undefined} data-testid="portal-work-month">Месяц</a>
+      </nav>
+      {data.workRange === 'DAY' ? <form className="portal-filters" method="get"><Field label={beauty ? 'Дата записей' : 'Дата заказов'}><Input name="date" type="date" /></Field><button className="btn btn--secondary" type="submit">Показать</button></form>
+        : <p data-testid="portal-work-period">{beauty ? 'Записи' : 'Заказы'} за {portalMonthLabel(data.monthStats.month, new Date().getUTCFullYear().toString()).toLowerCase()}, по дате.{data.workTruncated ? ' Показаны первые 200.' : ''}</p>}
+      {beauty ? data.appointments.length ? <ul className="portal-list">{data.appointments.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{shortPeriod(a.date, a.date)}</span><span>{new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: data.location?.timezone ?? 'UTC' }).format(new Date(a.startsAt))}</span><span>{a.customerName}</span><span>{beautyStatus[a.status as AppointmentStatus]?.label ?? 'Неизвестный статус'}</span><span>{formatMoney(a.priceMinor, a.currency)}</span></li>)}</ul> : <p>{data.workRange === 'MONTH' ? 'За этот месяц записей нет' : 'На выбранную дату записей нет'}</p>
+        : data.orders.length ? <ul className="portal-list">{data.orders.map(order => <li key={order.id}><strong>Заказ №{order.number}</strong>{data.workRange === 'MONTH' && <span>{shortPeriod(order.date, order.date)}</span>}<span>{order.tableName ?? 'Стол не указан'}</span><span>{foodOrderStatus[order.status as OrderStatus]?.label ?? 'Неизвестный статус'}</span><span>{formatMoney(order.totalMinor, order.currency)}</span></li>)}</ul> : <p>Собственных заказов за выбранный период нет</p>}
     </section> }] : []),
       ...(showReviews ? [{
         id: 'reviews',

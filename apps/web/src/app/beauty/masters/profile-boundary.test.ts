@@ -109,7 +109,8 @@ function portal(active: boolean): EmployeePortalDto {
     scheduleConflicts: { items: [], checkedFrom: '2026-10-18', checkedCount: 0, truncated: false },
     timeOffs: [], appointments: [], orders: [],
     reviews: { averageStars: null, count: 0, hasMore: false, items: [] },
-    monthStats: { month: '2026-10', status: 'AVAILABLE', currency: 'KZT', shifts: 20, daysOff: 11, absenceDays: 0, appointmentsDone: 0, servicesDone: 0, ordersClosed: null, tablesServed: null, guests: null, revenueMinor: '0', bonusMinor: '0', percent: null },    pay: {
+    workRange: 'DAY', workTruncated: false, monthStats: { month: '2026-10', status: 'AVAILABLE', currency: 'KZT', shifts: 20, daysOff: 11, absenceDays: 0, appointmentsDone: 0, servicesDone: 0, ordersClosed: null, tablesServed: null, guests: null, revenueMinor: '0', bonusMinor: '0', percent: null },
+    pay: {
       month: '2026-10', status: 'NOT_CONFIGURED', model: null, fixedMinor: null,
       percent: null, percentBasis: null, policyRevision: null, earnedMinor: null,
       paidMinor: '0', remainingMinor: null, bonusMinor: null, penaltyMinor: null,

@@ -92,6 +92,19 @@ describe('«Мой месяц» мастера салона', () => {
     const branchless = await as('staffA', null, () => portal.get(null, { month }));
     expect(branchless.monthStats).toMatchObject({ status: 'SELECT_LOCATION', shifts: null, revenueMinor: null, appointmentsDone: null });
   });
+
+  it('список «Месяц»: свои записи филиала за месяц по дате, с датой по часам филиала; «День» по-прежнему один день', async () => {
+    const dto = await as('staffA', f.locationA, () => portal.get(null, { month, range: 'month' }));
+    expect(dto.workRange).toBe('MONTH');
+    expect(dto.workTruncated).toBe(false);
+    // 1, 2, 3 (записана), 7 (две строки) сентября; 31 августа, филиал B и чужие не попадают
+    expect(dto.appointments.map((a) => a.date)).toEqual(['2026-09-01', '2026-09-02', '2026-09-03', '2026-09-07', '2026-09-07']);
+    expect(dto.appointments.map((a) => a.startsAt)).toEqual([...dto.appointments.map((a) => a.startsAt)].sort());
+    const day = await as('staffA', f.locationA, () => portal.get(null, { date: '2026-09-02' }));
+    expect(day.workRange).toBe('DAY');
+    expect(day.appointments.map((a) => a.date)).toEqual(['2026-09-02']);
+    await expect(as('staffA', f.locationA, () => portal.get(null, { range: 'year' }))).rejects.toThrow();
+  });
 });
 
 describe('«Мой месяц» официанта', () => {
@@ -129,6 +142,14 @@ describe('«Мой месяц» официанта', () => {
       revenueMinor: String(20000 + 15000 + 30000 + 5000 - 2000), bonusMinor: '7000', percent: 15,
       shifts: 0, daysOff: 30,
     });
+  });
+
+  it('список «Месяц»: свои заказы филиала за месяц по дате открытия, с датой', async () => {
+    const dto = await as('staffA', () => portal.get(null, { month, range: 'month' }));
+    expect(dto.workRange).toBe('MONTH');
+    expect(dto.orders.map((o) => o.date)).toEqual(['2026-09-02', '2026-09-03', '2026-09-04', '2026-09-05', '2026-09-06']);
+    expect(dto.orders.map((o) => o.totalMinor)).not.toContain('88000');
+    expect(dto.orders.map((o) => o.totalMinor)).not.toContain('77000');
   });
 
   it('чужие заказы не попадают в итоги официанта', async () => {

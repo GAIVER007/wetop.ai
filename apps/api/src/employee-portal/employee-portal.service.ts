@@ -20,6 +20,8 @@ const clock = (d: Date) => d.toISOString().slice(11,16);
 const dateOnly = (d: Date) => d.toISOString().slice(0,10);
 const id = (v: unknown): string => { if (typeof v !== 'string' || !UUID.test(v)) throw new BadRequestException('Invalid ID'); return v; };
 const parsed = <T>(fn:()=>T):T => { try { return fn(); } catch(e) { throw new BadRequestException(e instanceof Error ? e.message : 'Invalid input'); } };
+/** Список «Месяц» своих записей/заказов: без тяжёлых выборок (D-roles S2, п. 4) */
+const WORK_MONTH_LIMIT=200;
 const intersectLocationScopes=(left:string[]|null,right:string[]|null):string[]|null=>left===null?right:right===null?left:left.filter(id=>right.includes(id));
 
 export interface EmployeeAccountOption {
@@ -193,7 +195,9 @@ export class EmployeePortalService {
       adjustments:adjustments.map(a=>({id:a.id,amountMinor:a.amountMinor.toString(),reason:a.reason}))};
   }
   async get(employeeId:string|null, query:Record<string,unknown>):Promise<EmployeePortalDto> {
-    objectInput(query,['date','month']);
+    objectInput(query,['date','month','range']);
+    if(query.range!==undefined&&query.range!=='day'&&query.range!=='month')throw new BadRequestException('Invalid range');
+    const monthRange=query.range==='month';
     const db=this.prisma.db, s=await this.resolve(db,employeeId), {employee:e,business:b,location:l}=s;
     const portalAccess=b.vertical==='BEAUTY'?await this.portalAccess(db,b.id,employeeId):undefined;
     const sectionAccess=portalAccess?.sections;
@@ -222,11 +226,17 @@ export class EmployeePortalService {
       b.vertical==='BEAUTY'&&reviewsAllowed?db.beautyAppointmentReview.aggregate({where:{employeeId:e.id,...reviewLocationFilter},_avg:{stars:true},_count:{_all:true}}):null,
       b.vertical==='BEAUTY'&&reviewsAllowed?db.beautyAppointmentReview.findMany({where:{employeeId:e.id,...reviewLocationFilter},select:{appointmentId:true,stars:true,comment:true,submittedAt:true},orderBy:[{submittedAt:'desc'},{appointmentId:'desc'}],take:50}):[],
     ]);
-    const w=timeOffWindow({dateFrom:date,dateTo:date,timezone});
-    const [appointments,orders]=await Promise.all([
-      l&&appointmentsAllowed?db.appointmentLine.findMany({where:{employeeId:e.id,appointment:{locationId:l.id},startsAt:{gte:w.fromUtc,lt:w.toUtcExclusive}},include:{appointment:{select:{id:true,status:true,customer:{select:{firstName:true,lastName:true}}}},service:{select:{name:true}}},orderBy:{startsAt:'asc'}}):[],
-      b.vertical==='FOOD_SERVICE'?db.restaurantOrder.findMany({where:{waiterId:e.id,location:{businessId:b.id},...(l?{locationId:l.id}:{}),openedAt:{gte:w.fromUtc,lt:w.toUtcExclusive}},include:{table:{select:{name:true}}},orderBy:{openedAt:'desc'}}):[],
+    // «День» или «Месяц» (выбранный месяц по часам филиала); месяц ограничен WORK_MONTH_LIMIT строк по дате
+    const mb=monthBounds(month);
+    const w=monthRange?timeOffWindow({dateFrom:mb.from,dateTo:mb.to,timezone}):timeOffWindow({dateFrom:date,dateTo:date,timezone});
+    const take=monthRange?WORK_MONTH_LIMIT+1:undefined;
+    const [appointmentRows,orderRows]=await Promise.all([
+      l&&appointmentsAllowed?db.appointmentLine.findMany({where:{employeeId:e.id,appointment:{locationId:l.id},startsAt:{gte:w.fromUtc,lt:w.toUtcExclusive}},include:{appointment:{select:{id:true,status:true,customer:{select:{firstName:true,lastName:true}}}},service:{select:{name:true}}},orderBy:[{startsAt:'asc'},{id:'asc'}],...(take?{take}:{})}):[],
+      b.vertical==='FOOD_SERVICE'?db.restaurantOrder.findMany({where:{waiterId:e.id,location:{businessId:b.id},...(l?{locationId:l.id}:{}),openedAt:{gte:w.fromUtc,lt:w.toUtcExclusive}},include:{table:{select:{name:true}}},orderBy:monthRange?[{openedAt:'asc'},{id:'asc'}]:{openedAt:'desc'},...(take?{take}:{})}):[],
     ]);
+    const workTruncated=monthRange&&(appointmentRows.length>WORK_MONTH_LIMIT||orderRows.length>WORK_MONTH_LIMIT);
+    const appointments=monthRange?appointmentRows.slice(0,WORK_MONTH_LIMIT):appointmentRows;
+    const orders=monthRange?orderRows.slice(0,WORK_MONTH_LIMIT):orderRows;
     const checkedFrom=new Date();
     const scopedConflictLocations=portalAccess?intersectLocationScopes(portalAccess.locationScopes.journal,portalAccess.locationScopes.appointments):null;
     const assignedLocations=e.locations.map(x=>x.location).filter(x=>x.status==='ACTIVE'&&x.businessId===b.id&&(!scopedConflictLocations||scopedConflictLocations.includes(x.id)));
@@ -255,7 +265,7 @@ export class EmployeePortalService {
       profile:{headline:p.headline,biography:p.biography,practiceSinceYear:p.practiceSinceYear,slug:p.slug,published:p.published,publicationConsent:p.publicationConsent,revision:String(p.revision)},avatar:avatar?await this.image(avatar):null,
       portfolio:await Promise.all(works.map(async x=>({id:x.id,title:x.title,description:x.description,serviceId:x.serviceId,published:x.published,publicationConsent:x.publicationConsent,image:await this.image(x.media)}))),
       services:services.filter(x=>!portalAccess||portalAccess.catalogServicesView||skills.some(k=>k.serviceId===x.id)).map(x=>{const ls=l?x.locations[0]:undefined,mp=x.employeePrices[0],inherited=ls?.priceOverride??(l&&x.currency===l.currency?x.price:null),priceType=mp?.priceType??'FIXED',min=mp?mp.priceMinMinor:inherited,max=mp?mp.priceMaxMinor:inherited,price=priceType==='FIXED'||priceType==='FREE'?min:null;return {id:x.id,name:x.name,durationMinutes:mp?.durationMinutes??ls?.durationOverride??x.durationMinutes,priceMinor:price?.toString()??null,currency:mp?.currency??l?.currency??x.currency,priceType,priceMinMinor:min?.toString()??null,priceMaxMinor:max?.toString()??null,priceSource:mp?'MASTER' as const:ls?.priceOverride!==null&&ls?.priceOverride!==undefined?'LOCATION' as const:'CATALOG' as const,priceRevision:mp?.revision??null,assigned:skills.some(k=>k.serviceId===x.id),available:!!l&&x.active&&!!ls?.enabled&&(mp!==undefined||inherited!==null)};}),servicesRevision:fingerprint(skills.map(x=>x.serviceId)),week:weekTemplate(intervals),weekRevision:weekSource?hoursRowsRevision(weekSource.rows,weekSource.sourceRevision):null,
-      timeOffs:timeOffs.map(t=>({id:t.id,dateFrom:dateOnly(t.dateFrom),dateTo:dateOnly(t.dateTo),reason:t.reason})),appointments:appointments.map(a=>({id:a.id,date,startsAt:a.startsAt.toISOString(),endsAt:a.endsAt.toISOString(),customerName:[a.appointment.customer.firstName,a.appointment.customer.lastName].filter(Boolean).join(' '),serviceName:a.service.name,status:a.appointment.status,priceMinor:a.priceMinor.toString(),currency:a.currency})),orders:orders.map(o=>({id:o.id,number:String(o.number),status:o.status,totalMinor:o.total.toString(),currency:o.currency,tableName:o.table?.name??null})),
+      timeOffs:timeOffs.map(t=>({id:t.id,dateFrom:dateOnly(t.dateFrom),dateTo:dateOnly(t.dateTo),reason:t.reason})),appointments:appointments.map(a=>({id:a.id,date:monthRange?localDate(a.startsAt,timezone):date,startsAt:a.startsAt.toISOString(),endsAt:a.endsAt.toISOString(),customerName:[a.appointment.customer.firstName,a.appointment.customer.lastName].filter(Boolean).join(' '),serviceName:a.service.name,status:a.appointment.status,priceMinor:a.priceMinor.toString(),currency:a.currency})),orders:orders.map(o=>({id:o.id,number:String(o.number),status:o.status,totalMinor:o.total.toString(),currency:o.currency,tableName:o.table?.name??null,date:localDate(o.openedAt,timezone)})),workRange:monthRange?'MONTH' as const:'DAY' as const,workTruncated,
       scheduleConflicts:{items:conflicts,checkedFrom:checkedFrom.toISOString(),checkedCount:Math.min(upcoming.length,500),truncated:upcoming.length>500},
       reviews:{averageStars:reviewSummary?._avg.stars??null,count:reviewSummary?._count._all??0,hasMore:(reviewSummary?._count._all??0)>reviewItems.length,items:reviewItems.map(review=>({appointmentId:review.appointmentId,stars:review.stars,comment:review.comment,submittedAt:review.submittedAt.toISOString()}))},
       pay:payrollAllowed?await this.pay(db,e.id,b.id,b.vertical,l,month):this.unavailablePay(month,l?.currency??''),monthStats};

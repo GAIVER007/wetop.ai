@@ -24,7 +24,7 @@ export interface PortalAppointment {
   id: string; date: string; startsAt: string; endsAt: string;
   customerName: string; serviceName: string; status: string; priceMinor: string; currency: string;
 }
-export interface PortalOrder { id: string; number: string; status: string; totalMinor: string; currency: string; tableName: string | null }
+export interface PortalOrder { id: string; number: string; status: string; totalMinor: string; currency: string; tableName: string | null; date: string }
 export interface PortalPay {
   status: 'NOT_CONFIGURED' | 'AVAILABLE' | 'SELECT_LOCATION' | 'UNSUPPORTED_POLICY';
   month: string; currency: string; model: PortalPayModel | null; fixedMinor: string | null;
@@ -79,6 +79,8 @@ export interface EmployeePortalDto {
   scheduleConflicts: { items: PortalScheduleConflict[]; checkedFrom: string; checkedCount: number; truncated: boolean };
   reviews: PortalReviews;
   timeOffs: PortalTimeOff[]; appointments: PortalAppointment[]; orders: PortalOrder[];
+  /** Список своих записей/заказов: за день (`date`) или за месяц (`month`, не больше 200 строк по дате) */
+  workRange: 'DAY' | 'MONTH'; workTruncated: boolean;
   pay: PortalPay;
   monthStats: PortalMonthStats;
 }

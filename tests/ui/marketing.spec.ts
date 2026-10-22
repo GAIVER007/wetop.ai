@@ -133,7 +133,8 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
 
   // «Сайт и SEO»: рабочий модуль, главная кнопка ведёт в конструктор, остальное в меню «⋯»
   const site = hub.getByTestId('marketing-site');
-  await expect(site.getByTestId('marketing-site-status')).toHaveText('Доступно');
+  // аудит 21.10.2026 P0-4: без лицензии конструктора карточка не пишет «Доступно»
+  await expect(site.getByTestId('marketing-site-status')).toHaveText('Подключает WETOP');
   await expect(site.getByRole('listitem')).toHaveText(['ИИ-конструктор сайта', 'Онлайн-бронирование', 'SEO-оптимизация']);
   const builder = site.getByRole('link', { name: 'Открыть: Сайт и SEO', exact: true });
   await expect(builder).toHaveAttribute('href', '/marketing/site/editor');
@@ -360,7 +361,8 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   // аудит 21.10.2026 п. 5: гостиничных «Конкурентов» у салона нет
   await expect(hub.getByTestId('marketing-module')).toHaveCount(4);
   await expect(hub.getByTestId('marketing-competitors')).toHaveCount(0);
-  await expect(hub.getByTestId('marketing-site-status')).toHaveText('Доступно');
+  // аудит 21.10.2026 P0-4: без лицензии конструктора карточка не пишет «Доступно»
+  await expect(hub.getByTestId('marketing-site-status')).toHaveText('Подключает WETOP');
   await expect(hub.getByTestId('marketing-budget-status')).toHaveText('Доступно');
   await expect(
     hub.getByTestId('marketing-site').getByRole('link', { name: 'Открыть: Сайт и SEO', exact: true }),

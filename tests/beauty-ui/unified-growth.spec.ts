@@ -156,7 +156,8 @@ test('салон: продажи, финансы и маркетинг на да
   await expect(marketing).toBeVisible();
   await expect(page.getByTestId('marketing-budget-status')).toHaveText('Доступно');
   // SITE-1: «Сайт и SEO» открыт всем направлениям
-  await expect(page.getByTestId('marketing-site-status')).toHaveText('Доступно');
+  // аудит 21.10.2026 P0-4: без лицензии конструктора карточка не пишет «Доступно»
+  await expect(page.getByTestId('marketing-site-status')).toHaveText('Подключает WETOP');
   await expect(marketing).toContainText('сайт салона');
   await expect(page.getByTestId('marketing-result-spent')).toContainText('63 000');
   await expect(page.getByTestId('marketing-plan')).toContainText('150 000');

@@ -60,6 +60,13 @@ class NumberMap:
             )
         return cls(routes)
 
+    def __len__(self) -> int:
+        return len(self._routes)
+
+    def allows(self, route: Route) -> bool:
+        """Пара организация и агент есть в настройке: чужую пару не принимаем."""
+        return route in self._routes.values()
+
     def sole_route(self) -> Route | None:
         """Единственный маршрут, если номер один: чужому объекту достаться некому."""
         return next(iter(self._routes.values())) if len(self._routes) == 1 else None
@@ -80,3 +87,27 @@ def route_from_metadata(meta: object) -> Route | None:
         )
     except NumberMapError:
         return None
+
+
+def decide_route(meta: object, numbers: NumberMap) -> Route | None:
+    """Маршрут звонка. Закрыто по умолчанию.
+
+    Нет metadata: единственный настроенный маршрут (однообъектный режим).
+    Есть metadata, но она битая или её пары нет в настройке: отказ, без запасного пути,
+    иначе звонок чужого объекта достался бы первому.
+    """
+    if isinstance(meta, str):
+        text = meta.strip()
+        if text in ("", "null"):
+            meta = None
+        else:
+            try:
+                meta = json.loads(text)
+            except ValueError:
+                return None
+    if meta is None or meta == {}:
+        return numbers.sole_route()
+    route = route_from_metadata(meta)
+    if route is None or not numbers.allows(route):
+        return None
+    return route

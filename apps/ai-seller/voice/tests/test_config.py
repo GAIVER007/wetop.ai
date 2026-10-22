@@ -40,3 +40,24 @@ def test_error_never_contains_secret_values():
 def test_bad_port_is_config_error():
     with pytest.raises(ConfigError):
         VoiceSettings.from_env({**ENV, "VOICE_WORKER_PORT": "abc"})
+
+
+def test_more_than_one_number_is_refused_until_per_tenant_profiles_exist():
+    import json
+
+    org, agent = "11111111-1111-4111-8111-111111111111", "22222222-2222-4222-8222-222222222222"
+    many = json.dumps(
+        {
+            "+77001112233": {"organization_id": org, "agent_id": agent},
+            "+77004445566": {"organization_id": org, "agent_id": agent},
+        }
+    )
+    with pytest.raises(ConfigError) as err:
+        VoiceSettings.from_env({**ENV, "VOICE_NUMBER_MAP": many})
+    assert "VOICE_NUMBER_MAP" in str(err.value)
+
+
+def test_plain_http_base_url_is_refused_except_localhost():
+    with pytest.raises(ConfigError):
+        VoiceSettings.from_env({**ENV, "VOICE_WETOP_BASE_URL": "http://wetop.test"})
+    VoiceSettings.from_env({**ENV, "VOICE_WETOP_BASE_URL": "http://localhost:3000"})

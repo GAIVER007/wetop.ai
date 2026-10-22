@@ -53,7 +53,10 @@ class VoiceAgent(Agent):
 
     async def on_exit(self) -> None:
         self._journal.record(self._call_id, CallState.ENDED, route=self._route)
-        await self.session.say(closing_line())
+        try:
+            await self.session.say(closing_line())
+        except Exception:  # noqa: BLE001 - сессия уже закрывается
+            logger.info("прощание не произнесено: сессия закрыта")
 
 
 class RejectAgent(Agent):

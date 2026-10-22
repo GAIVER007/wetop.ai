@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import os
-import traceback
 import uuid
 from functools import lru_cache
 
@@ -16,7 +15,7 @@ from videosdk.plugins.google import GeminiLiveConfig, GeminiRealtime
 from voice.agent import RejectAgent, VoiceAgent
 from voice.config import ConfigError, VoiceSettings
 from voice.journal import CallJournal, CallState
-from voice.numbers import route_from_metadata
+from voice.numbers import decide_route
 from voice.tools import VoiceTools
 from voice.wetop_client import WetopCatalog
 
@@ -38,15 +37,15 @@ def journal() -> CallJournal:
 async def start_session(context: JobContext) -> None:
     cfg = settings()
     call_id = context.get_room_id() or f"call-{uuid.uuid4()}"
-    route = route_from_metadata(context.metadata) or cfg.number_map.sole_route()
-    journal().record(call_id, CallState.RECEIVED, route=route)
+    route = decide_route(context.metadata, cfg.number_map)
 
     if route is None:
         journal().record(call_id, CallState.REJECTED, route=None, error="unknown_number")
-        pipeline = _pipeline(cfg)
-        session = AgentSession(agent=RejectAgent(), pipeline=pipeline)
+        session = AgentSession(agent=RejectAgent(), pipeline=_pipeline(cfg))
         await session.start(wait_for_participant=True, run_until_shutdown=True)
         return
+
+    journal().record(call_id, CallState.RECEIVED, route=route)
 
     holder: dict = {}
 
@@ -60,9 +59,9 @@ async def start_session(context: JobContext) -> None:
             call_id=call_id, route=route, journal=journal(), catalog=catalog, profile=cfg.profile, transfer=transfer
         )
         agent = VoiceAgent(profile=cfg.profile, tools=tools, journal=journal(), route=route, call_id=call_id)
-        session = AgentSession(agent=agent, pipeline=_pipeline(cfg))
-        holder["session"] = session
         try:
+            session = AgentSession(agent=agent, pipeline=_pipeline(cfg))
+            holder["session"] = session
             await session.start(wait_for_participant=True, run_until_shutdown=True)
         except Exception:  # noqa: BLE001 - причина в логе, клиенту ничего не показываем
             journal().record(call_id, CallState.FAILED, route=route, error="session_error")
@@ -99,8 +98,8 @@ def main() -> None:
     )
     try:
         WorkerJob(entrypoint=start_session, jobctx=make_context, options=options).start()
-    except Exception:
-        traceback.print_exc()
+    except Exception as exc:  # noqa: BLE001 - текст исключения может нести адрес или ключ
+        logger.error("воркер остановлен: %s", type(exc).__name__)
         raise SystemExit(1) from None
 
 

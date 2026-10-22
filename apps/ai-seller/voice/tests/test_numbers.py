@@ -86,3 +86,42 @@ def test_sole_route_only_when_exactly_one_number():
     )
     assert two.sole_route() is None
     assert NumberMap.from_json("").sole_route() is None
+
+
+def test_decide_route_metadata_must_match_configured_route():
+    from voice.numbers import decide_route
+
+    numbers = NumberMap.from_json(_map())
+    ok = {"organization_id": ORG, "agent_id": AGENT}
+    assert decide_route(ok, numbers) == Route(ORG, AGENT)
+    other_agent = {"organization_id": ORG, "agent_id": "33333333-3333-4333-8333-333333333333"}
+    assert decide_route(other_agent, numbers) is None
+
+
+def test_decide_route_mixed_org_and_agent_is_rejected():
+    from voice.numbers import decide_route
+
+    numbers = NumberMap.from_json(_map())
+    mixed = {"organization_id": "44444444-4444-4444-8444-444444444444", "agent_id": AGENT}
+    assert decide_route(mixed, numbers) is None
+
+
+@pytest.mark.parametrize("meta", ["garbage", {"organization_id": "x"}, [1], 5])
+def test_decide_route_invalid_metadata_does_not_fall_back_to_sole_route(meta):
+    from voice.numbers import decide_route
+
+    assert decide_route(meta, NumberMap.from_json(_map())) is None
+
+
+@pytest.mark.parametrize("meta", [None, {}, "", "{}"])
+def test_decide_route_absent_metadata_uses_sole_route(meta):
+    from voice.numbers import decide_route
+
+    assert decide_route(meta, NumberMap.from_json(_map())) == Route(ORG, AGENT)
+
+
+def test_decide_route_accepts_json_string_metadata():
+    from voice.numbers import decide_route
+
+    text = json.dumps({"organization_id": ORG, "agent_id": AGENT})
+    assert decide_route(text, NumberMap.from_json(_map())) == Route(ORG, AGENT)

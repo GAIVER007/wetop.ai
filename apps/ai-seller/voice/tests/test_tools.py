@@ -75,7 +75,7 @@ async def test_callback_is_journaled_once_per_phone(tmp_path):
     tools, journal = _tools(tmp_path)
     first = await tools.request_callback("Айдана", "8 700 111 22 33", "хочу окрашивание")
     again = await tools.request_callback("Айдана", "+77001112233", "хочу окрашивание")
-    assert "передан" in first.lower() and "уже" not in first.lower()
+    assert "записана" in first.lower() and "уже" not in first.lower()
     assert "уже" in again.lower()
     assert _states(journal).count("CALLBACK") == 1
     assert "7001112233" not in (tmp_path / "calls.jsonl").read_text()
@@ -127,3 +127,50 @@ async def test_transfer_failure_is_neutral(tmp_path, mode):
     text = await tools.transfer_to_human()
     assert "secret detail" not in text
     assert "перевожу" not in text.lower()
+
+
+async def test_callback_full_phone_goes_only_to_private_callbacks_file(tmp_path):
+    tools, journal = _tools(tmp_path)
+    await tools.request_callback("Айдана", "8 700 111 22 33", "окрашивание")
+    assert "7001112233" not in (tmp_path / "calls.jsonl").read_text()
+    cb = tmp_path / "calls.callbacks.jsonl"
+    row = json.loads(cb.read_text().splitlines()[0])
+    assert row["phone"] == "+77001112233" and row["call_id"] == "call-1"
+    import stat
+
+    assert stat.S_IMODE(cb.stat().st_mode) & 0o077 == 0
+
+
+async def test_callback_not_promised_when_callback_file_cannot_be_written(tmp_path):
+    tools, _ = _tools(tmp_path)
+    (tmp_path / "calls.callbacks.jsonl").mkdir()
+    text = await tools.request_callback("А", "+77001112233", "")
+    assert "не удалось" in text.lower() or "уточнит" in text.lower()
+    assert "передана администратору" not in text.lower()
+
+
+async def test_callbacks_are_capped_per_call(tmp_path):
+    tools, journal = _tools(tmp_path)
+    for i in range(6):
+        await tools.request_callback("А", f"+7700111223{i}", "")
+    assert _states(journal).count("CALLBACK") == 3
+
+
+async def test_transfer_only_once_per_call(tmp_path):
+    calls = []
+
+    async def transfer(call_id, number):
+        calls.append(number)
+        return True
+
+    tools, _ = _tools(tmp_path, transfer=transfer)
+    await tools.transfer_to_human()
+    await tools.transfer_to_human()
+    assert len(calls) == 1
+
+
+async def test_negative_or_bad_price_is_not_spoken(tmp_path):
+    bad = [{"name": "Укладка", "durationMinutes": 30, "priceMinor": "-500", "currency": "KZT"}]
+    tools, _ = _tools(tmp_path, FakeCatalog(bad))
+    text = await tools.get_services()
+    assert "-" not in text.split("Укладка")[1]

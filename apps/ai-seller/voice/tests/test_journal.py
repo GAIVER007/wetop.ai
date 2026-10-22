@@ -78,3 +78,27 @@ def test_unwritable_journal_does_not_raise_into_the_call(tmp_path):
     j = CallJournal(tmp_path / "missing-dir" / "x" / "calls.jsonl", now=lambda: T0)
     j.path.parent.parent.write_text("a file, not a directory")
     assert j.record("call-1", CallState.RECEIVED, route=ROUTE) is False
+
+
+def test_extra_fields_cannot_override_core_keys(tmp_path):
+    j = _journal(tmp_path)
+    j.record("call-1", CallState.RECEIVED, route=ROUTE, received_at="1999", organization_id="evil")
+    [row] = _lines(tmp_path)
+    assert row["organization_id"] == ROUTE.organization_id
+    assert row["received_at"].startswith("2026-10-22")
+
+
+def test_append_after_torn_line_does_not_glue_records(tmp_path):
+    path = tmp_path / "calls.jsonl"
+    path.write_text('{"call_id": "old", "state": "RECEIVED"', encoding="utf-8")
+    j = CallJournal(path, now=lambda: T0)
+    assert j.record("call-1", CallState.RECEIVED, route=ROUTE) is True
+    assert [e["call_id"] for e in j.events_for("call-1")] == ["call-1"]
+
+
+def test_journal_file_is_private(tmp_path):
+    import stat
+
+    _journal(tmp_path).record("call-1", CallState.RECEIVED, route=ROUTE)
+    mode = stat.S_IMODE((tmp_path / "calls.jsonl").stat().st_mode)
+    assert mode & 0o077 == 0

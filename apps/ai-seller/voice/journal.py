@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import os
 from collections.abc import Callable
 from datetime import datetime, timezone
 from enum import Enum
@@ -39,6 +40,22 @@ def _digest(key: str) -> str:
 
 def _utc_now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def append_private(path: Path, row: dict) -> None:
+    """Дописать строку JSONL в файл с правами 0600; оборванную строку отделяем переводом строки."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
+    with os.fdopen(fd, "a", encoding="utf-8") as fh:
+        if path.stat().st_size > 0 and not _ends_with_newline(path):
+            fh.write("\n")
+        fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
+def _ends_with_newline(path: Path) -> bool:
+    with path.open("rb") as fh:
+        fh.seek(-1, os.SEEK_END)
+        return fh.read(1) == b"\n"
 
 
 class CallJournal:
@@ -77,6 +94,7 @@ class CallJournal:
             if ident in seen:
                 return False
             row = {
+                **fields,
                 "call_id": call_id,
                 "state": state.value,
                 "key": ident[2],
@@ -84,16 +102,24 @@ class CallJournal:
                 "organization_id": route.organization_id if route else None,
                 "agent_id": route.agent_id if route else None,
                 "caller": mask_phone(caller) if caller else None,
-                **fields,
             }
-            self.path.parent.mkdir(parents=True, exist_ok=True)
-            with self.path.open("a", encoding="utf-8") as fh:
-                fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+            append_private(self.path, row)
             seen.add(ident)
             return True
         except Exception as exc:  # noqa: BLE001 - журнал не роняет звонок
             logger.warning("журнал звонков: запись не удалась (%s)", type(exc).__name__)
             return False
+
+    @property
+    def callbacks_path(self) -> Path:
+        """Отдельный файл с полными номерами просьб о звонке (права 0600)."""
+        return self.path.with_suffix(".callbacks.jsonl")
+
+    def has(self, call_id: str, state: CallState, key: str = "") -> bool:
+        return (call_id, state.value, _digest(key)) in self._load()
+
+    def now_iso(self) -> str:
+        return self._now().isoformat()
 
     def events_for(self, call_id: str) -> list[dict]:
         if not self.path.exists():

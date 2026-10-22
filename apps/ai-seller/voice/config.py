@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from urllib.parse import urlparse
 
 from voice.numbers import NumberMap, NumberMapError
 from voice.profile import VoiceProfile
@@ -48,6 +49,14 @@ class VoiceSettings:
             numbers = NumberMap.from_json(env.get("VOICE_NUMBER_MAP"))
         except NumberMapError:
             raise ConfigError("VOICE_NUMBER_MAP: неверный формат") from None
+        if len(numbers) > 1:
+            raise ConfigError(
+                "VOICE_NUMBER_MAP: больше одного номера не поддерживается, пока у профиля нет разделения по объектам"
+            )
+        base = env["VOICE_WETOP_BASE_URL"].strip()
+        host = urlparse(base).hostname or ""
+        if not base.startswith("https://") and host not in ("localhost", "127.0.0.1"):
+            raise ConfigError("VOICE_WETOP_BASE_URL: ключ нельзя слать по http")
         return cls(
             videosdk_token=env["VIDEOSDK_AUTH_TOKEN"].strip(),
             google_api_key=env["GOOGLE_API_KEY"].strip(),

@@ -23,7 +23,8 @@ const DESTINATIONS: Array<{ value: Destination; label: string }> = [
   { value: 'WEBSITE', label: 'Сайт' },
 ];
 const NONE: LaunchActionResult = { error: null, ok: 0 };
-const VIDEO_MAX_BYTES = 200 * 1024 * 1024;
+/** В мастере видео до 100 МБ: больше не пройдёт через Cloudflare (тело запроса 100 МБ); API принимает до 200 МБ (§57) */
+const VIDEO_MAX_BYTES = 100 * 1024 * 1024;
 const VIDEO_TYPES = ['video/mp4', 'video/quicktime'];
 
 /** Видео креатива: сохраняется на сервере сразу при выборе (в действие формы такой файл не пройдёт), кадры для ИИ снимает браузер */
@@ -117,7 +118,7 @@ export function LaunchWizard({ assets, country }: { assets: Connected; country: 
 
         <h2 className="budget-files__title">2. Креатив и оффер</h2>
         <Grid min={240}>
-          <Field label="Фото или видео креатива" controlId="ad-creative" required hint="Фото JPEG или PNG до 8 МБ, видео MP4 или MOV до 200 МБ">
+          <Field label="Фото или видео креатива" controlId="ad-creative" required hint="Фото JPEG или PNG до 8 МБ, видео MP4 или MOV до 100 МБ">
             <Input
               // видео в форме не едет: его номер и кадры лежат в скрытых полях (выше), файл сохраняется отдельно
               name={preview?.video ? undefined : 'creative'}
@@ -139,7 +140,7 @@ export function LaunchWizard({ assets, country }: { assets: Connected; country: 
                   return;
                 }
                 if (f.size > VIDEO_MAX_BYTES) {
-                  setVideo({ phase: 'error', message: 'Видео больше 200 МБ: выберите файл меньше' });
+                  setVideo({ phase: 'error', message: 'Видео больше 100 МБ: выберите файл меньше' });
                   return;
                 }
                 setVideo({ phase: 'loading' });

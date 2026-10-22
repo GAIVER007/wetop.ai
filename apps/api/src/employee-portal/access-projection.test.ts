@@ -74,7 +74,7 @@ function fixture(permissions: Permission[], assignmentLocationId:string|null=nul
     appointmentLine: { findMany: privateReads.appointments, groupBy: privateReads.paySales },
     restaurantOrder: { findMany: vi.fn(async () => []), aggregate: vi.fn(async () => ({ _sum: { total: 0n } })) },
     employeePaySetting: { findUnique: privateReads.paySetting },
-    employeePayAdjustment: { findMany: privateReads.payAdjustments },
+    employeePayAdjustment: { findMany: privateReads.payAdjustments, aggregate: vi.fn(async () => ({ _sum: { amountMinor: 500n } })) },
     restaurantCashOperation: { groupBy: privateReads.payouts },
     beautyPositionAssignment: {
       findMany: vi.fn(async () => [{
@@ -83,6 +83,8 @@ function fixture(permissions: Permission[], assignmentLocationId:string|null=nul
       }]),
     },
     $queryRaw: vi.fn(async (sql: TemplateStringsArray) => {
+      // «Мой месяц»: деньги по своим записям (касса филиала) в этих проверках не нужны
+      if (sql.join(' ').includes('restaurant_cash_operations')) return [];
       if (sql.join(' ').includes('LEFT JOIN working_hours')) return [{ sourceRevision: '2026-10-18T00:00:00.000000Z', id: null, weekday: null, timeFrom: null, timeTo: null }];
       return [{ id: resolvedEmployeeId, name: 'Synthetic master', phone: null, email: null, status: 'ACTIVE', profileRevision: '2026-10-18T00:00:00.000000Z' }];
     }),

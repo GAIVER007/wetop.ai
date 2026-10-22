@@ -33,6 +33,21 @@ export interface PortalPay {
   paidMinor: string | null; remainingMinor: string | null; explanation: string;
   adjustments: Array<{ id: string; amountMinor: string; reason: string }>;
 }
+/**
+ * «Мой месяц» (срез S2): одна строка итогов за выбранный месяц по выбранному филиалу, в его часовом поясе.
+ * null: раздел закрыт должностью или не относится к направлению. Бонусы, как в зарплате, по всему бизнесу.
+ */
+export interface PortalMonthStats {
+  month: string; status: 'AVAILABLE' | 'SELECT_LOCATION'; currency: string;
+  /** Дни месяца с часами в недельном графике минус отсутствия; выходные = остальные дни месяца */
+  shifts: number | null; daysOff: number | null; absenceDays: number | null;
+  /** Салон: выполненные записи и услуги (строки записей) мастера */
+  appointmentsDone: number | null; servicesDone: number | null;
+  /** Ресторан: закрытые заказы, обслуженные столы (закрытые заказы со столом), гости (сумма guestCount) */
+  ordersClosed: number | null; tablesServed: number | null; guests: number | null;
+  /** Оплачено минус возвраты по своим записям или заказам («Сколько принёс сотрудник») */
+  revenueMinor: string | null; bonusMinor: string | null; percent: number | null;
+}
 export interface PortalScheduleConflict {
   id: string; date: string; startsAt: string; endsAt: string;
   locationId: string; locationName: string; timezone: string; serviceName: string;
@@ -65,6 +80,7 @@ export interface EmployeePortalDto {
   reviews: PortalReviews;
   timeOffs: PortalTimeOff[]; appointments: PortalAppointment[]; orders: PortalOrder[];
   pay: PortalPay;
+  monthStats: PortalMonthStats;
 }
 // Public projection has no private Employee, account, schedule reasons, orders, pay or customer fields.
 export interface PublicEmployeeDto {

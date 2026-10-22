@@ -78,7 +78,7 @@ function dto(access: 'SELF' | 'MANAGER', sectionAccess: EmployeePortalSectionAcc
     appointments: [],
     orders: [],
     reviews: { averageStars: null, count: 0, hasMore: false, items: [] },
-    pay: {
+    monthStats: { month: '2026-10', status: 'AVAILABLE', currency: 'KZT', shifts: 20, daysOff: 11, absenceDays: 0, appointmentsDone: 0, servicesDone: 0, ordersClosed: null, tablesServed: null, guests: null, revenueMinor: '0', bonusMinor: '0', percent: null },    pay: {
       status: 'NOT_CONFIGURED', month: '2026-10', currency: 'KZT', model: null, fixedMinor: null,
       percent: null, percentBasis: null, policyRevision: null, earnedMinor: null, bonusMinor: null,
       penaltyMinor: null, paidMinor: null, remainingMinor: null, adjustments: [], explanation: '',

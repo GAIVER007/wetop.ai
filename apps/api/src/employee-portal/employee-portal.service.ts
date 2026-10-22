@@ -3,7 +3,7 @@ import { readEmployeeCommon, writeEmployeeCommon, readEmployeeWeekSource, touchE
 import { createHash, randomUUID } from 'node:crypto';
 import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import type { Db, DbTx, EmployeeMedia } from '@pms/database';
-import { beautyPermissionScope, canWrite, resolveBeautyPositionAccess, roleAt, parsePaySettings, parseWorkingHoursWeek, fitsSchedule, parseTimeOffInput, timeOffWindow, weekTemplate, localDate, type EmployeePortalDto, type EmployeePortalSectionAccess, type MembershipRole, type PublicEmployeeDto, type PortalPay, type ScopeAssignment } from '@pms/domain';
+import { beautyPermissionScope, canWrite, resolveBeautyPositionAccess, roleAt, parsePaySettings, parseWorkingHoursWeek, fitsSchedule, parseTimeOffInput, timeOffWindow, weekTemplate, localDate, monthBounds, type EmployeePortalDto, type EmployeePortalSectionAccess, type MembershipRole, type PublicEmployeeDto, type PortalPay, type ScopeAssignment } from '@pms/domain';
 import { actorMay, currentBeautyOperation, currentBusinessId, currentLocationId, currentOrganizationId, currentUserId, currentRole, currentAssignments, withOrganizationScope, withServiceDatabase } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
@@ -12,12 +12,12 @@ import { objectInput, revision, profileInput, publicationInput, portfolioInput, 
 import { assertWeekRevision, hoursRowsRevision, hoursRevision } from '../beauty/write-contract';
 import { employeeBookingTarget } from './booking-target';
 import { monthPayrollRows } from '../food-service/month-payroll';
+import { employeeMonthStats } from './month-stats';
 import { assertBeautyOperation, assertCurrentBeautyMembership, currentBeautyAssignments } from '../beauty/access';
 
 const fingerprint = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const clock = (d: Date) => d.toISOString().slice(11,16);
 const dateOnly = (d: Date) => d.toISOString().slice(0,10);
-const monthBounds = (month: string) => { const [y,m]=month.split('-').map(Number); return {from:`${month}-01`,to:`${month}-${String(new Date(Date.UTC(y!,m!,0)).getUTCDate()).padStart(2,'0')}`}; };
 const id = (v: unknown): string => { if (typeof v !== 'string' || !UUID.test(v)) throw new BadRequestException('Invalid ID'); return v; };
 const parsed = <T>(fn:()=>T):T => { try { return fn(); } catch(e) { throw new BadRequestException(e instanceof Error ? e.message : 'Invalid input'); } };
 const intersectLocationScopes=(left:string[]|null,right:string[]|null):string[]|null=>left===null?right:right===null?left:left.filter(id=>right.includes(id));
@@ -246,6 +246,9 @@ export class EmployeePortalService {
     const avatar=media.find(m=>m.kind==='AVATAR');
     const weekSource=l&&scheduleAllowed?await readEmployeeWeekSource(db,e.id,l.id):null;
     const intervals=(weekSource?.rows??hours).map(h=>({weekday:h.weekday,timeFrom:clock(h.timeFrom),timeTo:clock(h.timeTo)}));
+    const monthStats=await employeeMonthStats(db,{employeeId:e.id,businessId:b.id,vertical:b.vertical as 'BEAUTY'|'FOOD_SERVICE',location:l,month,
+      workingWeekdays:[...new Set(intervals.map(h=>h.weekday))],timeOffs:timeOffs.map(t=>({dateFrom:dateOnly(t.dateFrom),dateTo:dateOnly(t.dateTo)})),
+      allowed:{schedule:scheduleAllowed,work:appointmentsAllowed,pay:payrollAllowed}});
     const common=(await readEmployeeCommon(db,b.id)).find(row=>row.id===e.id);
     if(!common)throw new NotFoundException('Employee not found');
     return {access:s.access,...(sectionAccess?{sectionAccess}:{}),canUpload:this.storage!==null&&portalUpdateAllowed,employee:{id:e.id,name:common.name,phone:common.phone,email:common.email,profileRevision:common.profileRevision,active:common.status==='ACTIVE',accountLinked:!!e.userId},business:{id:b.id,name:b.name,vertical:b.vertical as 'BEAUTY'|'FOOD_SERVICE'},location:l?{id:l.id,name:l.name,timezone:l.timezone,currency:l.currency}:null,
@@ -255,7 +258,7 @@ export class EmployeePortalService {
       timeOffs:timeOffs.map(t=>({id:t.id,dateFrom:dateOnly(t.dateFrom),dateTo:dateOnly(t.dateTo),reason:t.reason})),appointments:appointments.map(a=>({id:a.id,date,startsAt:a.startsAt.toISOString(),endsAt:a.endsAt.toISOString(),customerName:[a.appointment.customer.firstName,a.appointment.customer.lastName].filter(Boolean).join(' '),serviceName:a.service.name,status:a.appointment.status,priceMinor:a.priceMinor.toString(),currency:a.currency})),orders:orders.map(o=>({id:o.id,number:String(o.number),status:o.status,totalMinor:o.total.toString(),currency:o.currency,tableName:o.table?.name??null})),
       scheduleConflicts:{items:conflicts,checkedFrom:checkedFrom.toISOString(),checkedCount:Math.min(upcoming.length,500),truncated:upcoming.length>500},
       reviews:{averageStars:reviewSummary?._avg.stars??null,count:reviewSummary?._count._all??0,hasMore:(reviewSummary?._count._all??0)>reviewItems.length,items:reviewItems.map(review=>({appointmentId:review.appointmentId,stars:review.stars,comment:review.comment,submittedAt:review.submittedAt.toISOString()}))},
-      pay:payrollAllowed?await this.pay(db,e.id,b.id,b.vertical,l,month):this.unavailablePay(month,l?.currency??'')};
+      pay:payrollAllowed?await this.pay(db,e.id,b.id,b.vertical,l,month):this.unavailablePay(month,l?.currency??''),monthStats};
   }
   async mutate(employeeId:string|null, action:string, raw:unknown, itemId?:string):Promise<EmployeePortalDto> {
     let committedWeek: Pick<EmployeePortalDto, 'week' | 'weekRevision'> | undefined;

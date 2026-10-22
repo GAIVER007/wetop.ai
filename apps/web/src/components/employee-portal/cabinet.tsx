@@ -17,6 +17,7 @@ import { foodOrderStatus } from '../../lib/status/food';
 import type { BeautyEmployeeServicePriceRow, BeautySchedule } from '../../lib/api';
 import type { BeautyMasterDayStatus } from '../../lib/beauty-master-day-status';
 import { EmployeeTransitionGuard } from '../employee-workspace/workspace';
+import { portalMonthLine, portalShiftMonth } from '../../lib/portal-month';
 
 function servicePriceLabel(service: EmployeePortalDto['services'][number]): string {
   if (!service.available) return 'В этом филиале недоступна';
@@ -83,6 +84,12 @@ export function EmployeeCabinet({
       </div>
       {data.avatar && <img className="portal-avatar" src={data.avatar.url} alt={`Фото: ${data.employee.name}`} width={96} height={96} />}
     </header>
+    {/* «Мой месяц» (срез S2, владелец 21.10.2026): одна строка итогов, без плиток; стрелки листают месяц */}
+    <nav className="panel portal-month" aria-label="Итоги месяца" data-testid="portal-month">
+      <a className="btn btn--secondary btn--sm" href={`?month=${portalShiftMonth(data.monthStats.month, -1)}`} aria-label="Предыдущий месяц" data-testid="portal-month-prev"><span aria-hidden="true">‹</span></a>
+      <p className="portal-month-line" data-testid="portal-month-line" data-month={data.monthStats.month}>{portalMonthLine(data.monthStats, new Date().getUTCFullYear().toString())}</p>
+      <a className="btn btn--secondary btn--sm" href={`?month=${portalShiftMonth(data.monthStats.month, 1)}`} aria-label="Следующий месяц" data-testid="portal-month-next"><span aria-hidden="true">›</span></a>
+    </nav>
     {/* новый мастер (онбординг 21.10.2026): что осталось, чтобы к нему могли записаться; ссылка открывает вкладку */}
     {beauty && manager && data.employee.active && (() => {
       const steps = masterSetupSteps({ services: data.services, week: data.week });

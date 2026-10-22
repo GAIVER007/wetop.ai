@@ -20,15 +20,31 @@ logger = logging.getLogger(__name__)
 UNKNOWN_NUMBER_LINE = "Извините, сейчас мы не можем принять звонок. Позвоните, пожалуйста, позже."
 
 
-def make_function_tools(tools: VoiceTools) -> list:
-    @function_tool(name="get_services")
-    async def get_services() -> str:
-        """Услуги объекта: названия, длительность и цены из каталога. Вызывай, когда клиент спрашивает про услуги или цены."""
-        return await tools.get_services()
+def make_function_tools(tools: VoiceTools, vertical: str = "BEAUTY") -> list:
+    """Набор инструментов по направлению: справочник только там, где у платформы есть читающий адрес для продавца."""
+    built: list = []
+
+    if vertical == "BEAUTY":
+
+        @function_tool(name="get_services")
+        async def get_services() -> str:
+            """Услуги объекта: названия, длительность и цены из каталога. Вызывай, когда клиент спрашивает про услуги или цены."""
+            return await tools.get_services()
+
+        built.append(get_services)
+
+    if vertical == "FOOD_SERVICE":
+
+        @function_tool(name="get_service_hours")
+        async def get_service_hours() -> str:
+            """Часы обслуживания ресторана по дням недели. Вызывай, когда клиент спрашивает, когда открыто или во сколько завтрак, обед, ужин."""
+            return await tools.get_service_hours()
+
+        built.append(get_service_hours)
 
     @function_tool(name="request_callback")
     async def request_callback(name: str, phone: str, note: str = "") -> str:
-        """Сохранить просьбу перезвонить: имя клиента, его телефон и коротко чего он хочет. Вызывай, когда клиент хочет записаться."""
+        """Сохранить просьбу перезвонить: имя клиента, его телефон и коротко чего он хочет. Вызывай, когда клиент хочет записаться или забронировать."""
         return await tools.request_callback(name, phone, note)
 
     @function_tool(name="transfer_to_human")
@@ -36,14 +52,15 @@ def make_function_tools(tools: VoiceTools) -> list:
         """Соединить клиента с администратором. Вызывай, если клиент просит живого человека или вопрос вне твоих данных."""
         return await tools.transfer_to_human()
 
-    return [get_services, request_callback, transfer_to_human]
+    built.extend([request_callback, transfer_to_human])
+    return built
 
 
 class VoiceAgent(Agent):
     def __init__(
         self, *, profile: VoiceProfile, tools: VoiceTools, journal: CallJournal, route: Route, call_id: str, events=None
     ) -> None:
-        super().__init__(instructions=build_instructions(profile, ""), tools=make_function_tools(tools))
+        super().__init__(instructions=build_instructions(profile, ""), tools=make_function_tools(tools, profile.vertical))
         self._profile = profile
         self._journal = journal
         self._route = route

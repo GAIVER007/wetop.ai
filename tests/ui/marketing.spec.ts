@@ -123,10 +123,10 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   await expect(hub.locator('.page__subtitle')).toHaveText(
     'Привлекайте гостей, ведите рекламный бюджет и развивайте бренд гостиницы с помощью ИИ.',
   );
-  // пять модулей одного вида, по порядку (ADR-184: «Конкуренты» в «Продвижении»)
+  // шесть модулей одного вида, по порядку (ADR-184: «Конкуренты» в «Продвижении»; «Голосовой агент» у всех направлений, 22.10.2026)
   const modules = hub.getByTestId('marketing-module');
-  await expect(modules).toHaveCount(5);
-  await expect(modules.getByRole('heading', { level: 2 })).toHaveText(['Сайт и SEO', 'Бюджет', 'Реклама', 'Конкуренты', 'Контент']);
+  await expect(modules).toHaveCount(6);
+  await expect(modules.getByRole('heading', { level: 2 })).toHaveText(['Сайт и SEO', 'Бюджет', 'Реклама', 'Конкуренты', 'Голосовой агент', 'Контент']);
   const competitors = hub.getByTestId('marketing-competitors');
   await expect(competitors.getByTestId('marketing-competitors-status')).toHaveText('Доступно');
   await expect(competitors.getByRole('link', { name: 'Открыть: Конкуренты', exact: true })).toHaveAttribute('href', '/market');

@@ -14,7 +14,7 @@ FALLBACK = VoiceProfile(object_name="Из окружения")
 
 def _data(org=ORG, name="Салон Тест", agent=AGENT):
     return ProfileData(
-        agent_id=agent, organization_id=org,
+        agent_id=agent, organization_id=org, vertical="BEAUTY",
         object_name=name, greeting_tail="", voice_name="Leda", handoff_phone=None,
     )
 

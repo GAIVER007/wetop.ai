@@ -32,7 +32,7 @@ describe('Разделы роста по направлению бизнеса',
     expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(5);
     expect(html).not.toContain('marketing-competitors');
     expect(html).not.toContain('marketing-hub__modules--four');
-    // ИИ-колл-центр: карточка есть только у салона, живая, ведёт на свой экран
+    // ИИ-колл-центр: карточка живая, ведёт на свой экран (есть у всех направлений)
     expect(html).toMatch(/data-testid="marketing-voice-status"[^>]*>Доступно</);
     expect(html).toContain('href="/marketing/voice"');
     expect(html).toContain('Голосовой агент');
@@ -115,9 +115,9 @@ describe('Разделы роста по направлению бизнеса',
       expect(html).toContain('href="/marketing/ads"');
       expect(html).toContain('href="/marketing/content"');
       expect(html).not.toContain('href="/website');
-      // голосовой агент: пока только салон (решение владельца 22.10.2026)
-      if (vertical === 'BEAUTY') expect(html).toContain('href="/marketing/voice"');
-      else expect(html).not.toContain('marketing-voice');
+      // голосовой агент: все направления (решение владельца 22.10.2026, второе: не только салон)
+      expect(html).toContain('href="/marketing/voice"');
+      expect(html).toMatch(/data-testid="marketing-voice-status"[^>]*>Доступно</);
     });
   }
   it('для салона каталог ведёт к услугам, для ресторана к блюдам', () => {

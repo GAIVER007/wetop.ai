@@ -759,7 +759,9 @@
     "route": "/marketing/voice",
     "vertical": null,
     "features": [
-      "BEAUTY"
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
     ],
     "branch": "/today",
     "active": "/marketing/voice",

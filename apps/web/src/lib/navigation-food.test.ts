@@ -14,7 +14,7 @@ describe('Food workspace isolation', () => {
       ['Журнал', ['/floor-plan']],
       ['Персонал', ['/employees', '/team', '/employees/shifts', '/payroll']],
       ['Клиенты', ['/customers', '/table-reservations']],
-      ['Услуги', ['/menu', '/orders', '/kitchen', '/drinks', '/dining-areas']],
+      ['Услуги', ['/menu', '/orders', '/waiter', '/kitchen', '/drinks', '/dining-areas']],
       // `/reports` ресторану перенаправляет на «Аналитику бизнеса» (аудит 17.10.2026, Д2)
       ['Статистика', ['/management/analytics']],
       ['Склад', ['/warehouse', '/bar', '/stock', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
@@ -70,6 +70,7 @@ describe('Food workspace isolation', () => {
     expect(routeVertical('/dining-areas')).toBe('FOOD_SERVICE');
     expect(routeVertical('/orders')).toBe('FOOD_SERVICE');
     expect(routeVertical('/kitchen')).toBe('FOOD_SERVICE');
+    expect(routeVertical('/waiter')).toBe('FOOD_SERVICE');
     expect(routeVertical('/stock')).toBe('FOOD_SERVICE');
     expect(routeVertical('/menu')).toBe('FOOD_SERVICE');
     // зарплата общая у ресторана и салона (§19.2)

@@ -122,11 +122,32 @@ export interface FoodWorkspace extends FoodCatalog {
 
 // ── Ресторан v2 (§33, ADR-159): меню, заказы, кухня, сотрудники, зарплата ──
 export type OrderStatus = 'NEW' | 'COOKING' | 'READY' | 'SERVED' | 'CLOSED' | 'CANCELLED';
+/** Станция ресторана (§33.6): кухня или бар */
+export type MenuStation = 'KITCHEN' | 'BAR';
+/** Статус позиции заказа на своей станции (§33.6) */
+export type OrderItemStatus = 'NEW' | 'COOKING' | 'READY' | 'SERVED';
 export interface MenuCategory {
   id: string;
   name: string;
   sortOrder: number;
   active: boolean;
+  /** §33.6: куда уходят позиции категории; старый ответ API без поля = кухня */
+  station?: MenuStation;
+}
+/** Стол на экране официанта (§33.6) */
+export interface WaiterTable {
+  id: string;
+  name: string;
+  capacity: number;
+  areaId: string;
+  areaName: string;
+  busy: boolean;
+  mine: boolean;
+  needsCleaning: boolean;
+}
+export interface WaiterTables {
+  me: { id: string; name: string } | null;
+  tables: WaiterTable[];
 }
 export interface MenuIngredient {
   id: string;
@@ -164,6 +185,7 @@ export interface MenuCategoryInput {
   name: string;
   sortOrder?: number;
   active?: boolean;
+  station?: MenuStation;
 }
 export interface MenuItemInput {
   categoryId: string;
@@ -188,6 +210,10 @@ export interface OrderItemView {
   priceMinor: string;
   qty: number;
   notes: string | null;
+  /** §33.6: станция и статус позиции; старый ответ API без полей */
+  station?: MenuStation;
+  status?: OrderItemStatus;
+  readyAt?: string | null;
 }
 export interface OrderView {
   id: string;

@@ -16,7 +16,7 @@ import {
 import { Icon } from '../../components/icon';
 import { IconField } from '../../components/icon-field';
 import { wholeTenge } from '../../lib/dashboard-format';
-import type { IngredientInput, MenuCategory, MenuItemView } from '../../lib/food-types';
+import type { IngredientInput, MenuCategory, MenuItemView, MenuStation } from '../../lib/food-types';
 import { dishPhoto, mutateMenu } from './restaurant-actions';
 
 interface Ctx {
@@ -402,6 +402,7 @@ export function MenuBoard({
   const [dish, setDish] = useState<MenuItemView | null | 'new'>(null);
   const [tech, setTech] = useState<MenuItemView | null>(null);
   const [newCategory, setNewCategory] = useState<string | null>(null);
+  const [newStation, setNewStation] = useState<MenuStation>('KITCHEN');
   const needle = search.trim().toLocaleLowerCase('ru');
   const list = items.filter(
     (m) =>
@@ -426,9 +427,21 @@ export function MenuBoard({
     if (!name) return;
     setError('');
     start(async () => {
-      const result = await mutateMenu(ctx.scopeKey, { kind: 'category', body: { name } });
+      const result = await mutateMenu(ctx.scopeKey, { kind: 'category', body: { name, station: newStation } });
       if (result.error) setError(result.error);
-      else setNewCategory(null);
+      else {
+        setNewCategory(null);
+        setNewStation('KITCHEN');
+      }
+      router.refresh();
+    });
+  }
+  /** Станция категории (§33.6): куда уходят её позиции, «Кухня» или «Бар»; отправленные позиции не переезжают */
+  function setStation(c: MenuCategory, station: MenuStation) {
+    setError('');
+    start(async () => {
+      const result = await mutateMenu(ctx.scopeKey, { kind: 'category', id: c.id, body: { station } });
+      if (result.error) setError(result.error);
       router.refresh();
     });
   }
@@ -467,6 +480,12 @@ export function MenuBoard({
         <div className="food-toolbar">
           <Field label="Название категории">
             <Input value={newCategory} onChange={(e) => setNewCategory(e.target.value)} />
+          </Field>
+          <Field label="Куда уходят заказы">
+            <Select value={newStation} onChange={(e) => setNewStation(e.target.value as MenuStation)}>
+              <option value="KITCHEN">Кухня</option>
+              <option value="BAR">Бар</option>
+            </Select>
           </Field>
           <Button disabled={pending} onClick={addCategory}>
             Сохранить
@@ -509,6 +528,7 @@ export function MenuBoard({
             <thead>
               <tr>
                 <th scope="col">Категория</th>
+                <th scope="col">Станция</th>
                 <th scope="col" className="num">
                   Блюд
                 </th>
@@ -526,6 +546,23 @@ export function MenuBoard({
                     <tr key={c.id}>
                       <td>
                         <strong>{c.name}</strong>
+                      </td>
+                      <td>
+                        {ctx.write ? (
+                          <Select
+                            aria-label={`Станция: ${c.name}`}
+                            value={c.station ?? 'KITCHEN'}
+                            disabled={pending}
+                            onChange={(e) => setStation(c, e.target.value as MenuStation)}
+                          >
+                            <option value="KITCHEN">Кухня</option>
+                            <option value="BAR">Бар</option>
+                          </Select>
+                        ) : c.station === 'BAR' ? (
+                          'Бар'
+                        ) : (
+                          'Кухня'
+                        )}
                       </td>
                       <td className="num">{dishes.length}</td>
                       <td className="num">{dishes.filter((m) => m.active).length}</td>

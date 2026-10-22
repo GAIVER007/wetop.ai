@@ -286,12 +286,12 @@ test('кухня: колонки KDS и переходы кнопками', asyn
   });
   await page.goto('/kitchen');
   const newCol = page.getByRole('region', { name: 'Новые' });
-  // карточка по макету (экран 6): номер и время в шапке, стол, позиция и количество справа
-  await expect(newCol.getByRole('listitem')).toHaveText('Паста Карбонара×1');
+  // карточка по макету (экран 6): номер и время в шапке, стол, позиция и количество справа; кнопка у позиции (§33.6)
+  await expect(newCol.getByTestId('kds-line')).toContainText('Паста Карбонара×1');
   await expect(newCol).toContainText('Стол 7');
-  await newCol.getByRole('button', { name: 'Принять' }).click();
+  await newCol.getByRole('button', { name: 'Принять: Паста Карбонара' }).click();
   const cooking = page.getByRole('region', { name: 'Готовятся' });
-  await expect(cooking.getByRole('listitem')).toHaveText('Паста Карбонара×1');
+  await expect(cooking.getByTestId('kds-line')).toContainText('Паста Карбонара×1');
   await cooking.getByRole('button', { name: 'Готово' }).click();
   const ready = page.getByRole('region', { name: 'Готово' });
   await ready.getByRole('button', { name: 'Отметить как выдано' }).click();
@@ -1055,8 +1055,8 @@ test('навигация ресторана: пункты макета на ме
 
 test('бар, финансы и настройки ресторана по макету (экраны 7, 12, 13)', async ({ page, request }) => {
   const { headers, table, pasta } = await seed(page, request);
-  // бар: категория «Напитки» и напиток; плитка открывает заказ с этим напитком
-  const drinks = await post(request, headers, '/food-service/menu/categories', { name: 'Напитки' });
+  // бар: категория «Напитки» станции «Бар» (§33.6) и напиток; плитка открывает заказ с этим напитком
+  const drinks = await post(request, headers, '/food-service/menu/categories', { name: 'Напитки', station: 'BAR' });
   const mojito = await post(request, headers, '/food-service/menu/items', {
     categoryId: drinks.id,
     name: 'Мохито',
@@ -1071,7 +1071,7 @@ test('бар, финансы и настройки ресторана по ма�
     ],
   });
   await page.goto('/drinks');
-  const current = page.getByRole('region', { name: /Текущие заказы/ });
+  const current = page.getByRole('region', { name: 'Заказы бара' });
   await expect(current).toContainText(`№${order.number}`);
   await expect(current).toContainText('Мохито×2');
   await expect(current).not.toContainText('Паста');

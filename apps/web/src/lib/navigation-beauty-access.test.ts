@@ -168,5 +168,11 @@ describe('Beauty position access in the web shell', () => {
     );
     expect(food).not.toContain('/orders');
     expect(food).not.toContain('/kitchen');
+    // официант ресторана (§33.6, 22.10.2026): из рабочих разделов только «Принять заказ»
+    expect(food).toEqual(['/waiter']);
+    const beauty = menuSectionsFor({ aiSeller: false, platform: false, role: 'EMPLOYEE' }, 'BEAUTY').flatMap(
+      (section) => section.items.map((item) => item.href),
+    );
+    expect(beauty).not.toContain('/waiter');
   });
 });

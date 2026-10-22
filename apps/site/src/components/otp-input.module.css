@@ -5,22 +5,22 @@
   width: 100%;
   min-width: 0;
   height: 60px;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   border: 1.5px solid var(--public-border);
   background: var(--public-bg);
   color: var(--public-text);
-  font: 600 1.5rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font: 600 1.5rem/1 var(--mono);
   text-align: center;
   caret-color: var(--public-accent);
   transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
 }
 .cell:focus-visible { outline: none; border-color: var(--public-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--public-accent) 25%, transparent); }
 .cell:disabled { opacity: 0.7; }
-.otp[data-status='error'] .cell { border-color: #d14343; }
-.otp[data-status='success'] .cell { border-color: #1f9d55; }
+.otp[data-status='error'] .cell { border-color: var(--danger); }
+.otp[data-status='success'] .cell { border-color: var(--success); }
 .message { margin: 0; font-size: 0.875rem; line-height: 1.5; color: var(--public-muted); text-align: center; }
-.otp[data-status='error'] .message { color: #d14343; }
-.otp[data-status='success'] .message { color: #1f9d55; }
+.otp[data-status='error'] .message { color: var(--danger); }
+.otp[data-status='success'] .message { color: var(--success); }
 @media (prefers-reduced-motion: no-preference) {
   .otp[data-status='error'] .cells { animation: otp-shake 320ms ease; }
 }
@@ -30,5 +30,5 @@
 }
 @media (max-width: 380px) {
   .cells { gap: 6px; }
-  .cell { height: 52px; font-size: 1.25rem; }
+  .cell { height: 52px; font-size: 1.25rem; line-height: 1; }
 }

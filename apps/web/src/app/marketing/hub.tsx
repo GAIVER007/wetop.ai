@@ -17,7 +17,7 @@ import type { WebVertical } from '../../lib/vertical-landing';
  * `/auth/me` через `requireVertical`, право `marketing` проверяет общий `AccessGate`.
  */
 interface Module {
-  key: 'site' | 'budget' | 'ads' | 'content' | 'competitors';
+  key: 'site' | 'budget' | 'ads' | 'content' | 'competitors' | 'voice';
   testId: string;
   title: string;
   icon: IconName;
@@ -70,6 +70,16 @@ const modules = (c: VerticalCopy): Module[] => [
     caps: ['Конкуренты рядом', 'Загрузка по датам', 'Подсказки к цене'],
   },
   {
+    // ИИ-колл-центр (решение владельца 22.10.2026): сначала салон, остальным направлениям карточки нет
+    key: 'voice',
+    testId: 'marketing-voice',
+    title: 'Голосовой агент',
+    icon: 'chat',
+    href: '/marketing/voice',
+    text: `ИИ принимает звонки ${c.clientsOf}: отвечает по услугам и ценам и собирает просьбы перезвонить.`,
+    caps: ['Ответы по услугам и ценам', 'Просьбы перезвонить', 'Перевод на администратора'],
+  },
+  {
     key: 'content',
     testId: 'marketing-content',
     title: 'Контент',
@@ -118,7 +128,11 @@ const BUDGET_MENU = [
 export function liveModules(vertical: WebVertical): Set<Module['key']> {
   return new Set<Module['key']>(
     // «Реклама» живая у всех (кампании МКТ-В3, кабинет Meta): значок «Доступно», а не «Скоро» рядом с «Открыть»
-    vertical === 'HOSPITALITY' ? ['site', 'budget', 'ads', 'competitors'] : ['site', 'budget', 'ads'],
+    vertical === 'HOSPITALITY'
+      ? ['site', 'budget', 'ads', 'competitors']
+      : vertical === 'BEAUTY'
+        ? ['site', 'budget', 'ads', 'voice']
+        : ['site', 'budget', 'ads'],
   );
 }
 
@@ -201,7 +215,9 @@ export function MarketingHub({
   // Реклама и контент пока «Скоро» у всех направлений; ссылка на экран-превью есть, кнопок действий нет
   const PREVIEW = new Set<Module['key']>(['content']);
   // «Конкуренты» это гостиничный мониторинг загрузки (ADR-142): салону и ресторану карточку не показываем
-  const shown = modules(copy).filter((m) => hospitality || m.key !== 'competitors');
+  const shown = modules(copy).filter(
+    (m) => (hospitality || m.key !== 'competitors') && (vertical === 'BEAUTY' || m.key !== 'voice'),
+  );
   const value = (key: ResultKey) => {
     if (key === 'spent' && spend) return formatMoney(spend.spentMinor, spend.currency);
     return 'Нет данных';

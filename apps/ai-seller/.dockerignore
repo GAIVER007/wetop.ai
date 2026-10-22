@@ -2,6 +2,10 @@
 .venv
 .env
 .env.*
+# на любой глубине (voice/.env с настоящими ключами): старый Docker без BuildKit не читает voice/Dockerfile.dockerignore
+**/.env
+**/.env.*
+!**/env.example
 __pycache__
 *.pyc
 .pytest_cache

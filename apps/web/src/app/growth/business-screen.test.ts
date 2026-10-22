@@ -27,10 +27,15 @@ describe('Разделы роста по направлению бизнеса',
     );
     expect(html).toContain('marketing-hub__modules');
     expect(html).toContain('Сайт и SEO');
-    // аудит 21.10.2026 п. 5: гостиничных «Конкурентов» у салона нет, сетка 2 на 2
-    expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(4);
+    // аудит 21.10.2026 п. 5: гостиничных «Конкурентов» у салона нет. С «Голосовым агентом» (22.10.2026) модулей
+    // пять: сетка 2 на 2 для четырёх больше не подходит, работает обычная (3 + 2)
+    expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(5);
     expect(html).not.toContain('marketing-competitors');
-    expect(html).toContain('marketing-hub__modules--four');
+    expect(html).not.toContain('marketing-hub__modules--four');
+    // ИИ-колл-центр: карточка есть только у салона, живая, ведёт на свой экран
+    expect(html).toMatch(/data-testid="marketing-voice-status"[^>]*>Доступно</);
+    expect(html).toContain('href="/marketing/voice"');
+    expect(html).toContain('Голосовой агент');
     // единая система: бюджет ведётся по филиалу любого направления
     expect(html).toMatch(/data-testid="marketing-budget-status"[^>]*>Доступно</);
     expect(html).toContain('href="/marketing/budget"');
@@ -110,6 +115,9 @@ describe('Разделы роста по направлению бизнеса',
       expect(html).toContain('href="/marketing/ads"');
       expect(html).toContain('href="/marketing/content"');
       expect(html).not.toContain('href="/website');
+      // голосовой агент: пока только салон (решение владельца 22.10.2026)
+      if (vertical === 'BEAUTY') expect(html).toContain('href="/marketing/voice"');
+      else expect(html).not.toContain('marketing-voice');
     });
   }
   it('для салона каталог ведёт к услугам, для ресторана к блюдам', () => {

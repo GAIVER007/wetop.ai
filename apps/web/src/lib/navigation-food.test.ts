@@ -31,12 +31,12 @@ describe('Food workspace isolation', () => {
       ['/menu', 'Услуги'],
     ]);
     const labels = sections.flatMap((s) => s.items);
-    expect(labels.find((i) => i.href === '/menu')?.label).toBe('Каталог');
+    expect(labels.find((i) => i.href === '/menu')?.label).toBe('Меню');
     expect(labels.find((i) => i.href === '/stock')?.label).toBe('Склад кухни');
-    expect(labels.find((i) => i.href === '/employees')?.label).toBe('Специалисты');
+    expect(labels.find((i) => i.href === '/employees')?.label).toBe('Сотрудники');
     expect(labels.find((i) => i.href === '/employees/shifts')?.label).toBe('График работы');
     expect(labels.find((i) => i.href === '/cashbox')?.label).toBe('Касса');
-    expect(labels.find((i) => i.href === '/table-reservations')?.label).toBe('Записи');
+    expect(labels.find((i) => i.href === '/table-reservations')?.label).toBe('Брони столов');
   });
   it('does not expose Food to existing verticals', () => {
     for (const v of ['BEAUTY', 'HOSPITALITY'] as const) {

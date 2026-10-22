@@ -41,8 +41,8 @@ export default async function BeautyConsumablesPage() {
       <Page
         width="wide"
         className="bar-subpage"
-        title={beauty ? 'Склад: расходники' : 'Склад: кухня'}
-        subtitle={beauty ? 'Материалы для услуг, приходы, списания и остатки' : 'Продукты кухни, приходы, списания и остатки'}
+        title="Склад: расходники"
+        subtitle={beauty ? 'Материалы для услуг, приходы, списания и остатки' : 'Продукты и материалы, приходы, списания и остатки'}
       >
         <BarTabs current="consumables" />
         <div key={scopeKey}>
@@ -63,7 +63,7 @@ export default async function BeautyConsumablesPage() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Склад: кухня и расходники">
+      <Page title="Склад: расходники">
         <LoadError testId="beauty-consumables-error" {...loadErrorProps(error)} />
       </Page>
     );

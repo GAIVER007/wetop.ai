@@ -18,6 +18,7 @@ import {
   filterBeautyCustomers,
   type BeautyCustomerSegmentFilter,
 } from './customer-filter';
+import { formatPhone } from '../../lib/phone';
 
 /**
  * Клиенты салона по макету ТЗ (09.10.2026): телефон, последний визит, всего визитов, средний чек и
@@ -179,7 +180,7 @@ export function BeautyCustomersTable({
                   </strong>{' '}
                   {row.isVip && <Badge tone="warn">VIP</Badge>}
                 </td>
-                <td data-label="Телефон" className="beauty-customer-contact">{row.phone ? <a href={`tel:${row.phone}`}>{row.phone}</a> : 'Не указан'}</td>
+                <td data-label="Телефон" className="beauty-customer-contact">{row.phone ? <a href={`tel:${row.phone}`}>{formatPhone(row.phone)}</a> : 'Не указан'}</td>
                 <td data-label="Последний визит" className="beauty-col-wide">
                   {visitDate ? (
                     <time dateTime={visitDate}>

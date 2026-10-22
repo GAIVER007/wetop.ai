@@ -10,6 +10,7 @@ import { foodStatus } from '../../lib/status/food';
 import { weekdays } from '../../lib/food-data';
 import { pluralRu } from '../../lib/plural';
 import { tableTitle } from './timeline-board';
+import { formatPhone, phoneOnInput } from '../../lib/phone';
 export function ReservationForm({
   data,
   walkIn = false,
@@ -196,7 +197,7 @@ export function ReservationForm({
                 {data.customers.map((c) => (
                   <option key={c.id} value={c.id}>
                     {[c.firstName, c.lastName].filter(Boolean).join(' ')}
-                    {c.phone ? `, ${c.phone}` : ''}
+                    {c.phone ? `, ${formatPhone(c.phone)}` : ''}
                   </option>
                 ))}
               </Select>
@@ -217,7 +218,7 @@ export function ReservationForm({
                 </Field>
               </div>
               <Field label="Телефон">
-                <Input name="phone" type="tel" maxLength={40} />
+                <Input name="phone" type="tel" inputMode="tel" placeholder="+7 701 000 00 00" maxLength={40} onInput={phoneOnInput} />
               </Field>
             </>
           )}

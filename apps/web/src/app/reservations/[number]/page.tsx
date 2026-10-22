@@ -24,6 +24,7 @@ import { FinanceLine } from '../finance-line';
 import '../../directory.css';
 import { sourceStatus } from '../../../lib/status/source';
 import { statusLabel } from '../../../lib/status/types';
+import { formatPhone } from '../../../lib/phone';
 
 /**
  * Карточка брони + действия стойки (шаг 3.5): даты, отмена, назначение/переселение.
@@ -163,7 +164,7 @@ export default async function ReservationPage({
                       <a href={`tel:${r.primaryGuest.phone}`}>Позвонить</a>
                     </>
                   ) : (
-                    <a href={`tel:${r.primaryGuest.phone}`}>{r.primaryGuest.phone}</a>
+                    <a href={`tel:${r.primaryGuest.phone}`}>{formatPhone(r.primaryGuest.phone)}</a>
                   ))}
                 {guestMessengers && (
                   <>

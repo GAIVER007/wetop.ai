@@ -50,6 +50,7 @@ import {
   setMemberSuspendedAction,
   type TeamActionResult,
 } from '../login/actions';
+import { formatPhone, formatPhoneInput } from '../../lib/phone';
 
 /**
  * «Сотрудники» (TEAM1, план `plans/settings-hub-2026-10-02.md`): команда — видимый раздел, а не секция
@@ -255,9 +256,9 @@ function InviteForm({
           name="invitePhone"
           inputMode="tel"
           autoComplete="off"
-          placeholder="8 701 000 00 00"
+          placeholder="+7 701 000 00 00"
           value={phone}
-          onChange={(event) => setPhone(event.target.value)}
+          onChange={(event) => setPhone(formatPhoneInput(event.target.value))}
         />
       </Field>
       {structure && (
@@ -367,7 +368,7 @@ export function MembersTable({
                   <span className="staff-person__role team-member-sub">
                     {m.position ?? (m.name ? m.email : roleLabel(m.role))}
                     {/* на телефоне колонки телефона, роли и дат скрыты: они строками под именем */}
-                    {m.phone ? <span className="team-sub-role">{m.phone}</span> : null}
+                    {m.phone ? <span className="team-sub-role">{formatPhone(m.phone)}</span> : null}
                     <span className="team-sub-role">{roleLabel(m.role)}</span>
                     <span className="team-sub-role">
                       {m.lastLoginAt ? `был в системе ${displayDate(m.lastLoginAt.slice(0, 10))}` : 'ещё не входил'}
@@ -381,7 +382,7 @@ export function MembersTable({
             key: 'phone',
             label: 'Телефон',
             className: 'settings-col-wide',
-            cell: (m) => (m.phone ? <a href={`tel:${m.phone}`}>{m.phone}</a> : <span className="muted">не указан</span>),
+            cell: (m) => (m.phone ? <a href={`tel:${m.phone}`}>{formatPhone(m.phone)}</a> : <span className="muted">не указан</span>),
           },
           {
             key: 'role',
@@ -614,7 +615,7 @@ function ScopeForm({
 
 /** Телефон и должность (TEAM2, Q-244): пустое поле стирает значение; отказ API: словами, ввод остаётся */
 function DetailsForm({ member, onDone }: { member: AuthMember; onDone: () => void }) {
-  const [phone, setPhone] = useState(member.phone ?? '');
+  const [phone, setPhone] = useState(formatPhone(member.phone));
   const [position, setPosition] = useState(member.position ?? '');
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
@@ -640,9 +641,9 @@ function DetailsForm({ member, onDone }: { member: AuthMember; onDone: () => voi
           name="memberPhone"
           inputMode="tel"
           autoComplete="off"
-          placeholder="8 701 000 00 00"
+          placeholder="+7 701 000 00 00"
           value={phone}
-          onChange={(event) => setPhone(event.target.value)}
+          onChange={(event) => setPhone(formatPhoneInput(event.target.value))}
         />
       </Field>
       <Field label="Подпись под именем (необязательно)">

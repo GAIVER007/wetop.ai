@@ -6,6 +6,7 @@ import { wholeTenge } from '../../lib/dashboard-format';
 import { pluralRu } from '../../lib/plural';
 import { foodStatus } from '../../lib/status/food';
 import type { DiningTable, OrderView, RestaurantReservation } from '../../lib/food-types';
+import { formatPhone } from '../../lib/phone';
 
 export type TableKind = 'FREE' | 'OCCUPIED' | 'RESERVED' | 'CLEANING';
 export const KIND_LABEL: Record<TableKind, string> = {
@@ -105,7 +106,7 @@ export function TablePanel({
         {current && (
           <section aria-label="Текущий визит" className="rest-table-panel__now">
             <strong>{name(current)}</strong>
-            {current.customer.phone && <span>{current.customer.phone}</span>}
+            {current.customer.phone && <span>{formatPhone(current.customer.phone)}</span>}
             <span>
               Время: {clock(current.startsAt)}–{clock(current.endsAt)},{' '}
               {pluralRu(current.partySize, ['гость', 'гостя', 'гостей'])}

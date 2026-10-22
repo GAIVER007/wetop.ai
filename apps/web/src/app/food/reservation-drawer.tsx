@@ -11,6 +11,7 @@ import { localInput } from '../beauty/time';
 import { GuestMarks } from './guest-marks';
 import { mutateFoodReservation } from './actions';
 import { ReservationForm } from './reservation-form';
+import { formatPhone } from '../../lib/phone';
 export type ReservationDraft =
   { kind: 'create'; walkIn: boolean; tableId?: string; time?: string } | { kind: 'view'; id: string };
 export function ReservationDrawer({
@@ -103,7 +104,7 @@ export function ReservationDrawer({
             </div>
             <dl>
               <dt>Телефон</dt>
-              <dd>{r.customer.phone ?? 'Не указан'}</dd>
+              <dd>{r.customer.phone ? formatPhone(r.customer.phone) : 'Не указан'}</dd>
               <dt>Дата / время</dt>
               <dd>
                 {localInput(r.startsAt, data.timezone).replace('T', ', ')}–

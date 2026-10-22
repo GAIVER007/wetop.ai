@@ -31,7 +31,8 @@ test('салон: обзор склада зовёт кухню «Расходн
   await expect(page.getByRole('heading', { level: 1, name: 'Склад' })).toBeVisible();
   const materials = page.locator('[data-warehouse="kitchen"]');
   await expect(materials).toContainText('Расходники');
-  await expect(materials).toContainText('Докупить: 1 продукт');
+  // у салона расходники считаются «позициями», не «продуктами» (аудит салона 22.10.2026, слова склада)
+  await expect(materials).toContainText('Докупить: 1 позиция');
   await expect(materials).toContainText('Шампунь профессиональный');
   await expect(materials).toHaveAttribute('href', '/bar/consumables');
   // в этом стенде модуль бара не подключён (404): карточка бара говорит об этом словами и не прячет «Расходники»

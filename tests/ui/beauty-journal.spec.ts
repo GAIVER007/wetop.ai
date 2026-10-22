@@ -272,12 +272,16 @@ test('состояния записи идут по жизни, из выпол�
   let card = page.getByRole('dialog');
   await expect(card.getByTestId('beauty-card-status')).toHaveText('Записан');
   await card.getByRole('button', { name: 'Подтвердить', exact: true }).click();
+  // карточка закрывается после ответа сервера; переход раньше обрывал запрос (CI 22.10.2026, карточка теперь
+  // сразу читает бонусы клиента, ответ стал дольше)
+  await expect(page.getByRole('dialog')).toHaveCount(0);
 
   await openDay(page);
   await page.getByRole('main').getByRole('button').filter({ hasText: 'Сауле' }).first().click();
   card = page.getByRole('dialog');
   await expect(card.getByTestId('beauty-card-status')).toHaveText('Подтверждена');
   await card.getByRole('button', { name: 'Завершить', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
 
   await openDay(page);
   await page.getByRole('main').getByRole('button').filter({ hasText: 'Сауле' }).first().click();

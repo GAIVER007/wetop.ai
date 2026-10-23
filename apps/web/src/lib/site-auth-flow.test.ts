@@ -84,3 +84,39 @@ it('tampered registration vertical is rejected before forwarding', async () => {
   expect(response.status).toBe(400);
   expect(register).not.toHaveBeenCalled();
 });
+
+it('код из письма: почта подтверждена, кука сессии и выбор филиала сервером', async () => {
+  const verify = vi.spyOn(authApi, 'verifyEmailCode').mockResolvedValue({
+    token: 'synthetic-verified',
+    expiresAt: '2030-01-01T00:00:00Z',
+  } as never);
+  const response = await POST(
+    request('verify-code', { email: 'new@example.invalid', code: '204815' }),
+    context('verify-code'),
+  );
+  expect(response.status).toBe(200);
+  expect(await response.json()).toEqual({ next: '/scope/resolve?next=%2Ftoday' });
+  expect(verify).toHaveBeenCalledWith({ email: 'new@example.invalid', code: '204815' }, expect.anything());
+  const cookies = response.headers.getSetCookie();
+  expect(cookies.find((c) => c.startsWith('wetop_session='))).toContain('HttpOnly');
+});
+
+it('неверный код: ответ API без куки сессии', async () => {
+  vi.spyOn(authApi, 'verifyEmailCode').mockRejectedValue(
+    new ApiError(401, 'Код не подошёл. Проверьте цифры или запросите новый код.'),
+  );
+  const response = await POST(
+    request('verify-code', { email: 'new@example.invalid', code: '111111' }),
+    context('verify-code'),
+  );
+  expect(response.status).toBe(401);
+  expect(await response.json()).toEqual({ message: 'Код не подошёл. Проверьте цифры или запросите новый код.' });
+  expect(response.headers.getSetCookie().some((c) => c.startsWith('wetop_session='))).toBe(false);
+});
+
+it('пустой код не уходит в API', async () => {
+  const verify = vi.spyOn(authApi, 'verifyEmailCode');
+  const response = await POST(request('verify-code', { email: 'new@example.invalid' }), context('verify-code'));
+  expect(response.status).toBe(400);
+  expect(verify).not.toHaveBeenCalled();
+});

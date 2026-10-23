@@ -177,6 +177,28 @@ export async function verifyEmailAction(token: string): Promise<AuthActionResult
   redirect(pilot ? '/register/complete' : '/today');
 }
 
+/**
+ * Подтверждение почты кодом из письма (решение владельца 22.10.2026). Дальше всё как у ссылки: кука сессии,
+ * регистрационный помощник выбирает единственный филиал новой организации, иначе выбор филиала решает сервер.
+ */
+export async function verifyEmailCodeAction(email: string, code: string): Promise<AuthActionResult> {
+  let pilot: boolean;
+  let scoped: boolean;
+  try {
+    const result = await authApi.verifyEmailCode({ email, code }, await clientInfo());
+    await setSessionCookie(result.token, result.expiresAt);
+    const context = await authApi.registrationContext(result.token);
+    pilot = Boolean(context && context.vertical !== 'HOSPITALITY');
+    scoped = Boolean(context);
+    if (context)
+      await setScopeCookie(`business=${context.businessId};location=${context.locationId}`);
+  } catch (e) {
+    return { error: errorText(e) };
+  }
+  if (!pilot && !scoped) return { error: null, redirectTo: scopeResolvePath('/today') };
+  return { error: null, redirectTo: pilot ? '/register/complete' : '/today' };
+}
+
 export interface ResendState {
   error: string | null;
   sent: boolean;

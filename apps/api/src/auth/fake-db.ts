@@ -415,10 +415,15 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         where,
         data,
       }: {
-        where: { userId: string; usedAt: null };
+        where: { userId: string; usedAt: null; expiresAt?: { lte: Date } };
         data: Partial<FakeVerification>;
       }) {
-        const hit = verifications.filter((r) => r.userId === where.userId && r.usedAt === null);
+        const hit = verifications.filter(
+          (r) =>
+            r.userId === where.userId &&
+            r.usedAt === null &&
+            (where.expiresAt === undefined || r.expiresAt <= where.expiresAt.lte),
+        );
         hit.forEach((r) => Object.assign(r, data));
         return { count: hit.length };
       },

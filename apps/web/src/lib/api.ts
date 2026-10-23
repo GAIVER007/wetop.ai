@@ -731,6 +731,14 @@ export const authApi = {
       body,
       info ? authHeaders(info) : {},
     ),
+  /** Подтверждение почты кодом из письма (22.10.2026): ответ тот же, что у ссылки и у входа */
+  verifyEmailCode: (body: { email: string; code: string }, info?: AuthClientInfo) =>
+    sendJson<{ token: string; expiresAt: string; user: SignedIn }>(
+      'POST',
+      '/auth/email/verify-code',
+      body,
+      info ? authHeaders(info) : {},
+    ),
   /** «Выслать письмо заново»: ответ один и тот же, есть такая почта или нет */
   resendVerification: (body: { email: string }, info?: AuthClientInfo) =>
     sendJson<{ ok: boolean }>('POST', '/auth/email/resend', body, info ? authHeaders(info) : {}),

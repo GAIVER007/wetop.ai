@@ -4779,6 +4779,28 @@ Customer сохраняет исходное nullable поле phone. Добав
 - Доступ: чтение и закрытие просьб по праву `marketing`; запись событий только служебной ролью `wetop_service` (воркер голоса). RLS: ENABLE и FORCE на всех трёх таблицах, `wetop_app` читает свои строки, закрывает просьбы своей организации.
 - Миграция additive: `20261022000145_voice_calls` (номер 145: 142-144 заняты поездом #766) с `down.sql` (откат только пока таблицы пусты). В production не применена.
 
+## VOICE-BOOKING-PROPOSAL-20261023: голосовая бронь (ПРЕДЛОЖЕНИЕ, не утверждено)
+
+Статус: предложение среза 0 плана `plans/voice-booking-2026-10-23.md`; ответы владельца-делегата: `docs/decisions/2026-10-23-voice-booking-answers.md`. Ничего из ниже не создано: ни schema, ни миграции, ни кода. Начинается только после явного «утверждаю» владельца (AGENTS.md §2). Опирается на таблицы `voice_calls` и `voice_profiles` из VOICE-20261022 (миграция 145, PR #772), которая должна быть в `main` раньше.
+
+**1. Источник брони «голос» (additive).** Значение `VOICE` в `ReservationSource` (гостиница), `RestaurantReservationSource` (стол) и `AppointmentSource` (запись к мастеру). Старые значения и старый код не меняются. Статусы не добавляются: «ожидает подтверждения» это существующие `TENTATIVE` (гостиница), `BOOKED` (стол, запись), «подтверждена» это `CONFIRMED`.
+
+**2. Выключатель и лимиты на объект: поля `voice_profiles`.** `booking_enabled boolean not null default false`, `booking_needs_approval boolean not null default true` (первая неделя), `booking_max_per_call smallint not null default 3`, `booking_max_per_phone_day smallint not null default 5`; CHECK значения 1..20. Уже существующая RLS и триггер организации `voice_profiles` покрывают новые поля.
+
+**3. Котировки салона и ресторана: новая таблица `voice_booking_quotes`** по образцу `seller_booking_intents`. Поля: `id`, `organization_id`, `location_id`, `agent_id`, `voice_call_id` (FK на `voice_calls`, RESTRICT), `kind` (`TABLE` | `APPOINTMENT`, CHECK), `selection` jsonb (идентификаторы стола или мастера и услуги, окно, число гостей; только из выдачи поиска этого звонка), `total_minor bigint` (для записи, > 0; у стола NULL), `currency char(3)`, `expires_at timestamptz` (30 минут), `state` (`QUOTED` | `CONFIRMED` | `REJECTED` | `EXPIRED`), `result_id uuid` (бронь или запись, скаляр без FK как `entityId` в audit, чтобы не мешать архивированию), `request_hash varchar(64)`, `created_at`, `updated_at`. Уникальность `(voice_call_id, request_hash)` (повтор не создаёт вторую котировку), частичный уникальный индекс `result_id` where not null. Tenant-RLS по `organization_id`, как у `voice_calls`. Деньги integer minor units (ADR-008), даты окна `timestamptz` (события, AGENTS.md §13).
+
+**4. Гостиница не получает новой таблицы.** Котировка и подтверждение идут через существующую `seller_booking_intents`; для канала голоса нужно расширить CHECK `channel` значением `voice` (сейчас `whatsapp` | `widget`), `conversation_id` = идентификатор звонка.
+
+**5. Лимиты считаются из данных, отдельного счётчика нет.** За звонок: число `CONFIRMED` котировок с этим `voice_call_id`. В сутки на телефон: число подтверждённых голосовых броней на тот же канонический телефон за календарные сутки объекта. Связь звонка с бронью: `voice_booking_quotes.voice_call_id` (стол, запись) и `seller_booking_intents.conversation_id` (гостиница).
+
+**6. Что не меняется.** Деньги, тарифы, folio, Channex, eQonaq, фискализация (AGENTS.md §4): голос их не читает и не пишет, цену берёт готовым расчётом платформы. Данные клиентов других броней в ответ агенту не попадают. Отмена и перенос, предоплата: вне этого предложения.
+
+**Backup / validation / rollback (AGENTS.md §14).** Все изменения additive: `ALTER TYPE ... ADD VALUE` ×3, 4 колонки с default, 1 таблица, 1 расширенный CHECK. Backup перед применением владельцем; валидация скриптом по образцу `scripts/ops/check-voice-schema.sh`; откат `down.sql`: drop таблицы и колонок (значения enum в PostgreSQL не удаляются, остаются неиспользуемыми, это записать в README миграции). Номер миграции взять следующий после занятых в `main` и в PR платформы на момент создания.
+
+### VOICE-BOOKING-OWNER-APPROVAL-20261023
+
+Статус: УТВЕРЖДЕНО 23.10.2026. Владелец ответил: «Утверждаю модель данных VOICE-BOOKING-PROPOSAL-20261023. Начинай срез 1 (гостиница)». Предложение выше утверждено без правок. Миграцию на рабочей базе применяет владелец. Первый срез: гостиница (источник `VOICE`, поля `voice_profiles`, канал `voice` у `seller_booking_intents`); таблица `voice_booking_quotes` идёт со срезами ресторана и салона.
+
 ### VOICE-BOOKING-QUOTES-NOTE-20261023: уточнение п. 3 утверждённого предложения
 
 Таблица `voice_booking_quotes` (миграция 148) хранит звонок текстом `call_ref` (внешний ID звонка, `varchar(64)`), а не внешним ключом `voice_call_id` на `voice_calls`: события звонка идут из воркера через очередь и могут прийти позже первой котировки, внешний ключ ломал бы котировку. Связь с журналом по паре (`agent_id`, `call_ref` = `external_call_id`). Остальное как в утверждённом предложении. Основание: `docs/decisions/2026-10-23-voice-booking-salon-restaurant.md`.

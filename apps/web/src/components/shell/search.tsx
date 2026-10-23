@@ -8,31 +8,38 @@ import { Icon, type IconName } from '../icon';
 import { Overlay } from '../overlay';
 import { customerQueryReady, type CustomerHit } from '../../lib/customer-hits';
 import { searchCustomers } from '../../app/customers/search-action';
+import { translator, type Translate } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
+
+const asIs = translator('ru');
+
 /**
  * Разделы для быстрого перехода: меню своего направления (аудит платформы 17.10.2026, Д3), без повторов адреса.
  * Раньше список всегда строился по гостиничному меню и салону предлагал «Календарь» шахматки.
+ * На казахском (KK1) раздел находится и по переводу, и по русскому слову, подпись переведённая.
  */
-export function searchMatches(access: NavigationAccess, vertical: WebVertical, query: string) {
+export function searchMatches(access: NavigationAccess, vertical: WebVertical, query: string, t: Translate = asIs) {
   const q = query.toLocaleLowerCase('ru');
   return menuSectionsFor(access, vertical)
     .flatMap((section) => section.items)
     .filter((item, index, items) => items.findIndex((other) => other.href === item.href) === index)
-    .filter((n) => n.label.toLocaleLowerCase('ru').includes(q))
+    .filter((n) => [t(n.label), n.label].some((label) => label.toLocaleLowerCase('ru').includes(q)))
+    .map((n) => ({ ...n, label: t(n.label) }))
     .slice(0, 6);
 }
 
 /** Что можно найти по введённому тексту: гость всегда, бронь и номер только если в запросе есть цифра */
-export function entityResults(query: string) {
+export function entityResults(query: string, t: Translate = asIs) {
   const q = query.trim();
   if (!q) return [];
   const code = encodeURIComponent(q);
   const rows: { href: string; label: string; icon: IconName }[] = [
-    { href: `/guests?q=${code}`, label: `Гость: ${q}`, icon: 'person' },
+    { href: `/guests?q=${code}`, label: t('Гость: {q}', { q }), icon: 'person' },
   ];
   if (/\d/.test(q)) {
     rows.push(
-      { href: `/reservations/${code}`, label: `Бронь №${q}`, icon: 'booking' },
-      { href: `/units/${code}`, label: `Номер или койка ${q}`, icon: 'hotel' },
+      { href: `/reservations/${code}`, label: t('Бронь №{q}', { q }), icon: 'booking' },
+      { href: `/units/${code}`, label: t('Номер или койка {q}', { q }), icon: 'hotel' },
     );
   }
   return rows;
@@ -77,6 +84,7 @@ export function GlobalSearch({
   /** Поиск клиентов салона и ресторана; подменяется в тестах */
   findCustomers?: (query: string) => Promise<CustomerHit[]>;
 }) {
+  const t = useT();
   const [query, setQuery] = useState('');
   const customers = useCustomerHits(open && vertical !== 'HOSPITALITY' ? query : '', findCustomers);
   const router = useRouter();
@@ -92,13 +100,13 @@ export function GlobalSearch({
   const typed = query.trim().length > 0;
   const entities =
     vertical === 'HOSPITALITY'
-      ? entityResults(query)
+      ? entityResults(query, t)
       : customers.hits.map((hit) => ({
           href: hit.href,
           label: hit.hint ? `${hit.label}, ${hit.hint}` : hit.label,
           icon: 'person' as IconName,
         }));
-  const sections = typed ? searchMatches(access, vertical, query) : [];
+  const sections = typed ? searchMatches(access, vertical, query, t) : [];
   const first = entities[0] ?? sections[0];
   const move = (key: string) => {
     const items = [...(list.current?.querySelectorAll<HTMLElement>('a') ?? [])];
@@ -108,7 +116,7 @@ export function GlobalSearch({
     items[Math.max(0, Math.min(items.length - 1, next))]?.focus();
   };
   return (
-    <Overlay open={open} onClose={close} title="Быстрый поиск" className="command-palette">
+    <Overlay open={open} onClose={close} title={t('Быстрый поиск')} className="command-palette">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -123,7 +131,7 @@ export function GlobalSearch({
             className="inp"
             ref={field}
             name="query"
-            aria-label="Запрос"
+            aria-label={t('Запрос')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
@@ -134,8 +142,8 @@ export function GlobalSearch({
             }}
             placeholder={
               vertical === 'HOSPITALITY'
-                ? 'Гость, бронь, номер или раздел'
-                : 'Имя или телефон клиента, раздел'
+                ? t('Гость, бронь, номер или раздел')
+                : t('Имя или телефон клиента, раздел')
             }
             autoComplete="off"
           />
@@ -152,7 +160,7 @@ export function GlobalSearch({
       >
         {entities.length > 0 && (
           <>
-            <span className="eyebrow">{vertical === 'HOSPITALITY' ? 'Найти' : 'Клиенты'}</span>
+            <span className="eyebrow">{vertical === 'HOSPITALITY' ? t('Найти') : t('Клиенты')}</span>
             {entities.map((item) => (
               <Link key={item.href} href={item.href} onClick={close}>
                 <Icon name={item.icon} />
@@ -163,10 +171,10 @@ export function GlobalSearch({
           </>
         )}
         {vertical !== 'HOSPITALITY' && typed && !customers.pending && !entities.length &&
-          customerQueryReady(query) && <p className="muted">Клиентов с таким именем или телефоном нет{/* slop-allow: muted-empty ответ поиска строкой в выпадающем списке, не пустой экран */}</p>}
+          customerQueryReady(query) && <p className="muted">{t('Клиентов с таким именем или телефоном нет')}{/* slop-allow: muted-empty ответ поиска строкой в выпадающем списке, не пустой экран */}</p>}
         {typed && (vertical === 'HOSPITALITY' || sections.length > 0 || !entities.length) && (
           <>
-            <span className="eyebrow">Разделы</span>
+            <span className="eyebrow">{t('Разделы')}</span>
             {sections.map((item) => (
               <Link key={item.href} href={item.href} onClick={close}>
                 <Icon name={item.icon} />
@@ -176,24 +184,24 @@ export function GlobalSearch({
             ))}
             {/* найдены клиенты: «Нет разделов» не пугает пустым ответом (аудит 22.10.2026 P1-4) */}
             {!sections.length && (vertical === 'HOSPITALITY' || !entities.length) && (
-              <p className="muted">Нет разделов с таким названием{/* slop-allow: muted-empty ответ поиска строкой в выпадающем списке, не пустой экран */}</p>
+              <p className="muted">{t('Нет разделов с таким названием')}{/* slop-allow: muted-empty ответ поиска строкой в выпадающем списке, не пустой экран */}</p>
             )}
           </>
         )}
         {!typed && (
           <p className="muted command-hint">
             {vertical === 'HOSPITALITY'
-              ? 'Начните вводить: имя или телефон гостя, номер брони, код номера или название раздела.'
-              : 'Начните вводить: имя или телефон клиента или название раздела.'}
+              ? t('Начните вводить: имя или телефон гостя, номер брони, код номера или название раздела.')
+              : t('Начните вводить: имя или телефон клиента или название раздела.')}
           </p>
         )}
       </div>
       <div className="command-foot">
         <span>
-          <kbd>↵</kbd> открыть
+          <kbd>↵</kbd> {t('открыть')}
         </span>
         <span>
-          <kbd>esc</kbd> закрыть
+          <kbd>esc</kbd> {t('закрыть')}
         </span>
       </div>
     </Overlay>

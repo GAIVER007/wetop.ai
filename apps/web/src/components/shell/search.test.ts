@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CLOSED_ACCESS } from '../../lib/navigation';
 import { searchMatches } from './search';
+import { translator } from '../../i18n';
 
 const owner = { ...CLOSED_ACCESS, role: 'OWNER' as const };
 const hrefs = (vertical: Parameters<typeof searchMatches>[1], q: string) =>
@@ -20,5 +21,10 @@ describe('быстрый переход поиска', () => {
   });
   it('гостиница: журнал это шахматка', () => {
     expect(hrefs('HOSPITALITY', 'жур')).toEqual(['/chessboard']);
+  });
+  it('KK1: по-казахски раздел находится и казахским, и русским словом, подпись казахская', () => {
+    const t = translator('kk');
+    expect(searchMatches(owner, 'BEAUTY', 'жазыл', t).map((i) => [i.href, i.label])).toEqual([['/appointments', 'Жазылулар']]);
+    expect(searchMatches(owner, 'BEAUTY', 'запис', t).map((i) => i.label)).toEqual(['Жазылулар']);
   });
 });

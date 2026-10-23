@@ -364,4 +364,11 @@ export class AuthController {
     });
     return { ok: true };
   }
+
+  /** Язык стойки себе (ADR-163, KK1). Язык не секрет и не право: отдельного окна попыток не нужно */
+  @Access('self')
+  @Post('locale')
+  async locale(@Headers() headers: Record<string, string>, @Body() body: Record<string, unknown>) {
+    return { locale: await this.auth.changeLocale(tokenFromHeaders(headers) ?? '', body?.locale) };
+  }
 }

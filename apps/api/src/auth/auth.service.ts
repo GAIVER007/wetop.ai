@@ -33,6 +33,8 @@ import {
   REGISTRATION_PHONE_MESSAGE,
   REGISTRATION_PRIVACY_MESSAGE,
   registrationLocale,
+  INTERFACE_LOCALES,
+  type InterfaceLocale,
   registrationPhone,
   trialEndsAt,
   validEmail,
@@ -86,6 +88,8 @@ interface WhoAmI {
   expiresAt: string;
   /** Когда выдана сессия: не меняется при продлении, по нему стойка узнаёт ту же сессию (бар, восстановление продажи) */
   sessionIssuedAt: string;
+  /** Язык стойки этого человека (ADR-163): у человека, а не у организации */
+  locale: InterfaceLocale;
 }
 
 export interface LoginResult {
@@ -630,7 +634,29 @@ export class AuthService {
         : null,
       expiresAt: expiresAt.toISOString(),
       sessionIssuedAt: found.session.issuedAt.toISOString(),
+      locale: registrationLocale(found.user.locale) ?? 'ru',
     };
+  }
+
+  /** Сменить язык стойки себе (ADR-163, KK1): только свой, только из списка, с журналом «было/стало». */
+  changeLocale(token: string, raw: unknown, now = new Date()): Promise<InterfaceLocale> {
+    return withServiceDatabase(async () => {
+      const locale = INTERFACE_LOCALES.find((code) => code === raw);
+      if (!locale) throw new BadRequestException(REGISTRATION_LOCALE_MESSAGE);
+      const found = await this.session(token, now);
+      if (!found) throw new UnauthorizedException('Войдите заново: сессия не годится');
+      const before = registrationLocale(found.user.locale) ?? 'ru';
+      await this.prisma.db.$transaction(async (tx) => {
+        await tx.user.update({ where: { id: found.user.id }, data: { locale } });
+        await tx.auditLog.create({
+          data: {
+            userId: found.user.id, entityType: 'user', entityId: found.user.id,
+            action: 'user.locale.changed', before: { locale: before }, after: { locale },
+          },
+        });
+      });
+      return locale;
+    });
   }
 
   /** «Выйти». Идемпотентен: неизвестный или уже отозванный токен ничего не ломает и в журнал не пишет. */

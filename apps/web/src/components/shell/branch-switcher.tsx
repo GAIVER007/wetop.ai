@@ -4,6 +4,7 @@ import { branchChoices, selectBranch } from '../../app/branches/actions';
 import { Icon } from '../icon';
 import styles from './branch-switcher.module.css';
 import { Input } from '../ui';
+import { useT } from '../../i18n/locale-provider';
 
 export function BranchSwitcher({
   children,
@@ -14,6 +15,7 @@ export function BranchSwitcher({
   path: string;
   close?: (() => void) | undefined;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [choices, setChoices] = useState<Awaited<ReturnType<typeof branchChoices>> | null>(null);
   const [search, setSearch] = useState('');
@@ -24,11 +26,12 @@ export function BranchSwitcher({
   const trigger = useRef<HTMLButtonElement>(null);
   const id = useId();
   const filtered =
-    choices?.items?.filter((item) =>
-      `${item.name} ${item.address ?? ''} ${item.vertical === 'FOOD_SERVICE' ? 'Ресторан' : item.vertical === 'BEAUTY' ? 'Салон' : 'Гостиница'}`
+    choices?.items?.filter((item) => {
+      const kind = item.vertical === 'FOOD_SERVICE' ? 'Ресторан' : item.vertical === 'BEAUTY' ? 'Салон' : 'Гостиница';
+      return `${item.name} ${item.address ?? ''} ${kind} ${t(kind)}`
         .toLocaleLowerCase('ru')
-        .includes(search.trim().toLocaleLowerCase('ru')),
-    ) ?? [];
+        .includes(search.trim().toLocaleLowerCase('ru'));
+    }) ?? [];
   useEffect(() => {
     setOpen(false);
   }, [path]);
@@ -59,7 +62,7 @@ export function BranchSwitcher({
         close?.();
       } catch {
         window.dispatchEvent(new Event('wetop-scope-switch-failed'));
-        setError('Не удалось переключить филиал. Обновите список и повторите.');
+        setError(t('Не удалось переключить филиал. Обновите список и повторите.'));
       }
     });
   }
@@ -85,7 +88,7 @@ export function BranchSwitcher({
         type="button"
         ref={trigger}
         className="workspace-property"
-        aria-label="Выбрать филиал"
+        aria-label={t('Выбрать филиал')}
         disabled={switching}
         aria-expanded={open}
         aria-controls={id}
@@ -103,23 +106,23 @@ export function BranchSwitcher({
         <section
           id={id}
           className="branch-switcher__list"
-          aria-label="Выбор филиала"
+          aria-label={t('Выбор филиала')}
           aria-busy={loading || switching}
         >
           <div className="branch-switcher__heading">
-            <strong>Бизнес и филиалы</strong>
+            <strong>{t('Бизнес и филиалы')}</strong>
             <span>{choices?.items?.length ?? ''}</span>
           </div>
           {loading ? (
-            <p role="status">Загружаем…</p>
+            <p role="status">{t('Загружаем…')}</p>
           ) : choices?.items ? (
             <>
               {choices.items.length > 1 && (
                 <Input
-                  aria-label="Найти филиал"
+                  aria-label={t('Найти филиал')}
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Название или адрес"
+                  placeholder={t('Название или адрес')}
                 />
               )}
               <div className="branch-switcher__options">
@@ -134,7 +137,7 @@ export function BranchSwitcher({
                   if (!items.length) return null;
                   return (
                     <div className={styles.group} key={vertical}>
-                      <p className={styles.groupTitle}>{label}</p>
+                      <p className={styles.groupTitle}>{t(label)}</p>
                       {items.map((item) => (
                         <button
                           type="button"
@@ -148,17 +151,17 @@ export function BranchSwitcher({
                           <strong>{item.name}</strong>
                           <small>
                             {item.vertical === 'FOOD_SERVICE'
-                              ? 'Кафе / ресторан'
+                              ? t('Кафе / ресторан')
                               : item.vertical === 'BEAUTY'
-                                ? 'Салон / студия'
-                                : 'Гостиничный бизнес'}
+                                ? t('Салон / студия')
+                                : t('Гостиничный бизнес')}
                           </small>
                           {item.id === choices.currentId && <Icon name="check" width={16} />}
                           <span title={item.address || undefined}>
-                            {item.address || 'Адрес не указан'}
+                            {item.address || t('Адрес не указан')}
                           </span>
                           {item.id === choices.currentId && (
-                            <small className="sr-only">Текущий филиал</small>
+                            <small className="sr-only">{t('Текущий филиал')}</small>
                           )}
                         </button>
                       ))}
@@ -166,7 +169,7 @@ export function BranchSwitcher({
                   );
                 })}
                 {filtered.length === 0 && (
-                  <p role="status">{search ? 'Филиалы не найдены' : 'Нет доступных филиалов.'}</p>
+                  <p role="status">{search ? t('Филиалы не найдены') : t('Нет доступных филиалов.')}</p>
                 )}
               </div>
             </>
@@ -174,11 +177,11 @@ export function BranchSwitcher({
             <>
               <p role="alert">{choices?.error}</p>
               <button className="btn" type="button" onClick={refresh}>
-                Повторить
+                {t('Повторить')}
               </button>
             </>
           )}
-          {switching && <p role="status">Переключаем филиал…</p>}
+          {switching && <p role="status">{t('Переключаем филиал…')}</p>}
           {error && <p role="alert">{error}</p>}
         </section>
       )}

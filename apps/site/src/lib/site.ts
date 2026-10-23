@@ -66,7 +66,7 @@ export type AuthMode = 'login' | 'register';
  * Кука сессии ставится ответом стойки: сайт её не видит и ключа не получает.
  */
 export function siteAuthEndpoint(
-  action: 'options' | 'login' | 'register' | 'resend' | 'session',
+  action: 'options' | 'login' | 'register' | 'resend' | 'session' | 'verify-code',
   config: SiteConfig = siteConfig,
 ): string {
   return `${checkHttpUrl('appUrl', config.appUrl)}/api/site-auth/${action}`;

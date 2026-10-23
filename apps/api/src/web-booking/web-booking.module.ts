@@ -105,6 +105,8 @@ export class WidgetCorsMiddleware implements NestMiddleware {
     // журнал неисправностей для алерта С-7 (booking.flood): своя привязка порта, без всего GuardModule
     { provide: INCIDENTS_REPOSITORY, useClass: PrismaIncidentsRepository },
   ],
+  // голосовая бронь гостиницы (DATA_MODEL VOICE-BOOKING-OWNER-APPROVAL-20261023) считает цены и места тем же путём
+  exports: [WebBookingService, BookingIntentsService],
 })
 export class WebBookingModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

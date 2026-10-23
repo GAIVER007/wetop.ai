@@ -69,3 +69,8 @@ def test_plain_http_base_url_is_refused_except_localhost():
     with pytest.raises(ConfigError):
         VoiceSettings.from_env({**ENV, "VOICE_WETOP_BASE_URL": "http://wetop.test"})
     VoiceSettings.from_env({**ENV, "VOICE_WETOP_BASE_URL": "http://localhost:3000"})
+
+
+def test_booking_key_is_optional_and_trimmed():
+    assert VoiceSettings.from_env(ENV).book_key == ""
+    assert VoiceSettings.from_env({**ENV, "VOICE_BOOK_KEY": "  bk  "}).book_key == "bk"

@@ -6,6 +6,7 @@ import asyncio
 import logging
 import os
 import uuid
+from dataclasses import replace
 from functools import lru_cache
 
 import httpx
@@ -21,6 +22,7 @@ from voice.outbox import Outbox
 from voice.platform import PlatformClient, PlatformEvents
 from voice.session_plan import PlanRejected, plan_call
 from voice.tools import VoiceTools
+from voice.booking_client import VoiceBooking
 from voice.wetop_client import WetopCatalog
 
 logger = logging.getLogger("voice.worker")
@@ -89,8 +91,19 @@ async def _run_call(cfg, context, call_id, http, platform, events) -> None:
         return True
 
     catalog = WetopCatalog(base_url=cfg.wetop_base_url, service_key=cfg.wetop_service_key, http=http)
+    booking = None
+    if profile.can_book:
+        if cfg.book_key:
+            booking = VoiceBooking(
+                base_url=cfg.wetop_base_url, read_key=cfg.ingest_key, book_key=cfg.book_key, http=http
+            )
+        else:
+            # платформа бронь разрешила, но ключа записи у воркера нет: агент не обещает того, чего не сможет
+            logger.error("бронь по телефону включена на объекте, но VOICE_BOOK_KEY не задан")
+            profile = replace(profile, booking_enabled=False)
     tools = VoiceTools(
-        call_id=call_id, route=route, journal=journal(), catalog=catalog, profile=profile, transfer=transfer, events=events
+        call_id=call_id, route=route, journal=journal(), catalog=catalog, profile=profile, transfer=transfer,
+        events=events, booking=booking,
     )
     agent = VoiceAgent(profile=profile, tools=tools, journal=journal(), route=route, call_id=call_id, events=events)
     try:

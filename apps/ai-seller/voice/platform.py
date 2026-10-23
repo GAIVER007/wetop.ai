@@ -50,6 +50,12 @@ class ProfileData:
     greeting_tail: str
     voice_name: str
     handoff_phone: str | None
+    booking_enabled: bool = False
+    booking_max_per_call: int = 3
+
+
+def _limit(value: object) -> int:
+    return value if isinstance(value, int) and not isinstance(value, bool) and 1 <= value <= 20 else 3
 
 
 def _utc_now() -> datetime:
@@ -109,6 +115,7 @@ class PlatformClient:
         try:
             body = response.json()
             vertical = body["vertical"]
+            booking = body.get("booking") if isinstance(body.get("booking"), dict) else {}
             if vertical not in VERTICALS:
                 raise ValueError("vertical")
             return ProfileData(
@@ -119,6 +126,8 @@ class PlatformClient:
                 greeting_tail=str(body.get("greetingTail") or ""),
                 voice_name=str(body.get("voiceName") or "Leda"),
                 handoff_phone=body.get("handoffPhone") or None,
+                booking_enabled=booking.get("enabled") is True,
+                booking_max_per_call=_limit(booking.get("maxPerCall")),
             )
         except (ValueError, KeyError, TypeError):
             raise ProfileUnavailable("bad_body") from None

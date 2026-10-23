@@ -184,3 +184,20 @@ async def test_get_profile_unknown_vertical_is_unavailable(bad):
     c = _client(lambda r: httpx.Response(200, json={**PROFILE, "vertical": bad}))
     with pytest.raises(ProfileUnavailable):
         await c.get_profile(ROUTE.agent_id)
+
+
+async def test_get_profile_reads_booking_switch_and_limit_with_safe_defaults():
+    body = {"agentId": "a", "organizationId": "o", "vertical": "HOSPITALITY", "objectName": "Г"}
+
+    def client(extra):
+        return PlatformClient(
+            base_url="https://wetop.test", key="k",
+            http=httpx.AsyncClient(transport=httpx.MockTransport(lambda r: httpx.Response(200, json={**body, **extra}))),
+        )
+
+    on = await client({"booking": {"enabled": True, "maxPerCall": 2}}).get_profile("a")
+    assert (on.booking_enabled, on.booking_max_per_call) == (True, 2)
+    for bad in ({}, {"booking": {"enabled": "yes"}}, {"booking": {"enabled": True, "maxPerCall": 99}}, {"booking": "x"}):
+        data = await client(bad).get_profile("a")
+        assert data.booking_enabled is False or bad.get("booking", {}).get("enabled") is True
+        assert data.booking_max_per_call == 3

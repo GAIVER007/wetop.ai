@@ -481,6 +481,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // голосовой агент: события воркера только узким ключом VOICE_INGEST_KEY, журнал и просьбы по праву marketing
   'POST /voice/events': 'service',
   'GET /voice/profile': 'service',
+  'GET /voice/availability': 'service',
+  'POST /voice/booking-quotes': 'service',
+  'POST /voice/booking-quotes/confirm': 'service',
   'GET /marketing/voice/summary': 'marketing',
   'GET /marketing/voice/calls': 'marketing',
   'GET /marketing/voice/callbacks': 'marketing',

@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 UNKNOWN_NUMBER_LINE = "Извините, сейчас мы не можем принять звонок. Позвоните, пожалуйста, позже."
 
 
-def make_function_tools(tools: VoiceTools, vertical: str = "BEAUTY") -> list:
+def make_function_tools(tools: VoiceTools, vertical: str = "BEAUTY", can_book: bool = False) -> list:
     """Набор инструментов по направлению: справочник только там, где у платформы есть читающий адрес для продавца."""
     built: list = []
 
@@ -42,6 +42,25 @@ def make_function_tools(tools: VoiceTools, vertical: str = "BEAUTY") -> list:
 
         built.append(get_service_hours)
 
+    if vertical == "HOSPITALITY" and can_book:
+
+        @function_tool(name="check_availability")
+        async def check_availability(arrival: str, departure: str, adults: int) -> str:
+            """Свободные категории номеров и цена проживания. Даты заезда и выезда в формате ГГГГ-ММ-ДД, число гостей. Вызывай, когда клиент спрашивает про наличие, цены или хочет забронировать."""
+            return await tools.check_availability(arrival, departure, adults)
+
+        @function_tool(name="quote_stay")
+        async def quote_stay(category: str, arrival: str, departure: str, adults: int) -> str:
+            """Условия брони для категории из последнего результата check_availability, с теми же датами и числом гостей. Это не бронь: перескажи условия клиенту и спроси согласие."""
+            return await tools.quote_stay(category, arrival, departure, adults)
+
+        @function_tool(name="confirm_booking")
+        async def confirm_booking(first_name: str, last_name: str, phone: str, customer_agreed: bool) -> str:
+            """Подтвердить бронь по последним условиям. Вызывай только после того, как клиент явно сказал «да» на пересказанные условия; customer_agreed ставь true только в этом случае."""
+            return await tools.confirm_booking(first_name, last_name, phone, customer_agreed)
+
+        built.extend([check_availability, quote_stay, confirm_booking])
+
     @function_tool(name="request_callback")
     async def request_callback(name: str, phone: str, note: str = "") -> str:
         """Сохранить просьбу перезвонить: имя клиента, его телефон и коротко чего он хочет. Вызывай, когда клиент хочет записаться или забронировать."""
@@ -60,7 +79,7 @@ class VoiceAgent(Agent):
     def __init__(
         self, *, profile: VoiceProfile, tools: VoiceTools, journal: CallJournal, route: Route, call_id: str, events=None
     ) -> None:
-        super().__init__(instructions=build_instructions(profile, ""), tools=make_function_tools(tools, profile.vertical))
+        super().__init__(instructions=build_instructions(profile, ""), tools=make_function_tools(tools, profile.vertical, profile.can_book))
         self._profile = profile
         self._journal = journal
         self._route = route

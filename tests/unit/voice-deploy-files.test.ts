@@ -57,7 +57,7 @@ describe('compose воркера', () => {
     expect(compose).toMatch(/voice-data:\/data|\.\/data:\/data/);
     expect(compose).toContain('restart: unless-stopped');
     expect(compose).toMatch(/max-size/);
-    expect(compose).not.toMatch(/(API_KEY|SECRET|TOKEN|PASSWORD|INGEST_KEY)\s*[:=]\s*[^\s$]/);
+    expect(compose).not.toMatch(/(API_KEY|SECRET|TOKEN|PASSWORD|INGEST_KEY|BOOK_KEY)\s*[:=]\s*[^\s$]/);
   });
   it('очередь догоняется отдельной командой voice.flush', () => {
     expect(compose).toContain('voice.flush');
@@ -72,7 +72,7 @@ describe('образец окружения и шаги владельца', () 
   const names = [...env.matchAll(/^([A-Z][A-Z0-9_]+)=/gm)].map((m) => m[1]!);
   const runbook = read(resolve(ROOT, 'docs/ops/voice-release.md'));
   it('в образце нет значений секретов', () => {
-    for (const secret of ['VIDEOSDK_AUTH_TOKEN', 'GOOGLE_API_KEY', 'VOICE_WETOP_SERVICE_KEY', 'VOICE_INGEST_KEY'])
+    for (const secret of ['VIDEOSDK_AUTH_TOKEN', 'GOOGLE_API_KEY', 'VOICE_WETOP_SERVICE_KEY', 'VOICE_INGEST_KEY', 'VOICE_BOOK_KEY'])
       expect(env, secret).toMatch(new RegExp(`^${secret}=\\s*$`, 'm'));
   });
   it('каждая переменная образца названа в шагах владельца', () => {
@@ -82,6 +82,8 @@ describe('образец окружения и шаги владельца', () 
   it('шаги владельца: миграция, ключ, правило маршрутизации, пробный звонок, откат, юридические условия', () => {
     for (const must of [
       '20261022000145_voice_calls',
+      '20261023000146_voice_booking',
+      'VOICE_BOOK_KEY',
       'openssl rand',
       '"organization_id"',
       '"agent_id"',

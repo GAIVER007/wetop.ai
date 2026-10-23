@@ -7,8 +7,11 @@
 from __future__ import annotations
 
 import logging
+import re
 from collections.abc import Awaitable, Callable
+from datetime import date
 
+from voice.booking_client import BookingRefused, BookingUnavailable
 from voice.journal import CallJournal, CallState, append_private
 from voice.numbers import Route
 from voice.phone import normalize_e164
@@ -21,6 +24,12 @@ NOTE_MAX = 500
 CALLBACKS_PER_CALL = 3
 ASK_ADMIN = "Этих данных у меня нет, администратор уточнит и свяжется с клиентом."
 TransferFn = Callable[[str, str], Awaitable[bool]]
+ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+MAX_ADULTS = 10
+BAD_DATES = "Даты или число гостей не поняты: уточните дату заезда, дату выезда и число гостей."
+NOT_AVAILABLE = "Этот вариант сейчас недоступен. Предложите другие даты или категорию, либо оставьте просьбу для администратора."
+NEED_QUOTE = "Сначала нужно предложение с условиями: проверьте наличие и назовите условия клиенту."
+BOOKING_OFF = "Бронь по телефону сейчас недоступна, администратор свяжется с клиентом."
 
 
 def _money(minor: object, currency: object) -> str | None:
@@ -88,6 +97,7 @@ class VoiceTools:
         profile: VoiceProfile,
         transfer: TransferFn | None = None,
         events=None,
+        booking=None,
     ) -> None:
         self._call_id = call_id
         self._route = route
@@ -97,6 +107,12 @@ class VoiceTools:
         self._transfer = transfer
         self._transfer_done = False
         self._events = events
+        self._booking = booking
+        # категории, которые платформа вернула как свободные в этом звонке: бронь только из этой выдачи
+        self._offered: dict[str, tuple[str, str, str, int]] = {}
+        # последняя котировка этого звонка: идентификатор остаётся здесь, модель его не видит и не подставляет
+        self._pending: dict | None = None
+        self._booked = 0
 
     def _emit(self, kind: str, *args: str) -> None:
         """Событие в очередь платформы. Сбой отчётности не должен ломать разговор."""
@@ -187,3 +203,120 @@ class VoiceTools:
         self._journal.record(self._call_id, CallState.TRANSFER, route=self._route)
         self._emit("transfer")
         return "Перевожу на администратора, подождите, пожалуйста."
+
+    def _valid_stay(self, arrival: str, departure: str, adults: int) -> bool:
+        if not (ISO_DATE.match(arrival or "") and ISO_DATE.match(departure or "")):
+            return False
+        try:
+            start, end = date.fromisoformat(arrival), date.fromisoformat(departure)
+        except ValueError:
+            return False
+        return end > start and isinstance(adults, int) and 1 <= adults <= MAX_ADULTS
+
+    async def check_availability(self, arrival: str, departure: str, adults: int) -> str:
+        """Свободные категории номеров и цена проживания по расчёту платформы."""
+        if self._booking is None or not self._profile.can_book:
+            return BOOKING_OFF
+        if not self._valid_stay(arrival, departure, adults):
+            return BAD_DATES
+        try:
+            data = await self._booking.availability(self._route.agent_id, self._call_id, arrival, departure, adults)
+        except BookingRefused:
+            return NOT_AVAILABLE
+        except BookingUnavailable:
+            return BOOKING_OFF
+        except Exception:  # noqa: BLE001
+            logger.warning("check_availability: непредвиденный сбой")
+            return BOOKING_OFF
+        rows, offered = [], {}
+        currency = data.get("currency")
+        for item in data.get("categories") or []:
+            if not isinstance(item, dict) or not isinstance(item.get("name"), str):
+                continue
+            price = _money(item.get("totalMinor"), currency) if item.get("free") == "yes" else None
+            if item.get("free") == "yes" and price and isinstance(item.get("code"), str):
+                rows.append(f"{item['name']}: есть места, {price} за весь период")
+                offered[item["name"].strip().lower()] = (item["code"], arrival, departure, adults)
+                offered[item["code"].strip().lower()] = (item["code"], arrival, departure, adults)
+            else:
+                rows.append(f"{item['name']}: мест нет")
+        self._offered = offered
+        self._pending = None
+        if not rows:
+            return NOT_AVAILABLE
+        nights = data.get("nights")
+        head = f"На {nights} ноч. с {arrival} по {departure}, гостей {adults}. " if isinstance(nights, int) else ""
+        return head + "; ".join(rows) + "."
+
+    async def quote_stay(self, category: str, arrival: str, departure: str, adults: int) -> str:
+        """Предложение с условиями на 30 минут для категории из последней выдачи; бронью не является."""
+        if self._booking is None or not self._profile.can_book:
+            return BOOKING_OFF
+        picked = self._offered.get((category or "").strip().lower())
+        if picked is None:
+            if self._offered:
+                return NOT_AVAILABLE
+            return NEED_QUOTE
+        code, offered_arrival, offered_departure, offered_adults = picked
+        # условия те же, что платформа показала при проверке наличия: другие даты или гостей требуют новой проверки
+        if (arrival, departure, adults) != (offered_arrival, offered_departure, offered_adults):
+            return NEED_QUOTE
+        try:
+            quote = await self._booking.quote(self._route.agent_id, self._call_id, code, arrival, departure, adults)
+        except BookingRefused:
+            return NOT_AVAILABLE
+        except BookingUnavailable:
+            return BOOKING_OFF
+        except Exception:  # noqa: BLE001
+            logger.warning("quote_stay: непредвиденный сбой")
+            return BOOKING_OFF
+        intent = quote.get("intent")
+        price = _money(quote.get("totalMinor"), quote.get("currency"))
+        if not isinstance(intent, str) or not price:
+            return BOOKING_OFF
+        self._pending = {"intent": intent}
+        return (
+            f"Условия: {quote.get('categoryName', category)}, с {quote.get('arrivalDate')} по {quote.get('departureDate')}, "
+            f"гостей {quote.get('adults')}, {price} за весь период, заезд с {quote.get('checkInTime')}. "
+            "Это ещё не бронь. Предложение действует 30 минут. Для подтверждения брони спросите имя, фамилию, телефон и получите от клиента явное согласие «да»."
+        )
+
+    async def confirm_booking(self, first_name: str, last_name: str, phone: str, customer_agreed: bool) -> str:
+        """Подтвердить бронь по последнему предложению после явного согласия звонящего."""
+        if self._booking is None or not self._profile.can_book:
+            return BOOKING_OFF
+        if self._pending is None:
+            return NEED_QUOTE
+        if customer_agreed is not True:
+            return "Нужно явное согласие клиента на условия: переспросите и дождитесь слова «да»."
+        if self._booked >= self._profile.booking_max_per_call:
+            return "За один звонок забронировано максимум, остальное уточнит администратор."
+        first, last = (first_name or "").strip()[:80], (last_name or "").strip()[:80]
+        if not first or not last:
+            return "Нужны имя и фамилия гостя, уточните их у клиента."
+        number = normalize_e164(phone)
+        if number is None:
+            return "Номер телефона не расслышан, попросите клиента повторить его полностью."
+        intent = self._pending["intent"]
+        try:
+            booked = await self._booking.confirm(
+                self._route.agent_id, self._call_id, intent, {"firstName": first, "lastName": last, "phone": number}
+            )
+        except BookingRefused:
+            self._pending = None
+            return NOT_AVAILABLE
+        except BookingUnavailable:
+            return BOOKING_OFF
+        except Exception:  # noqa: BLE001
+            logger.warning("confirm_booking: непредвиденный сбой")
+            return BOOKING_OFF
+        self._pending = None
+        self._offered = {}
+        self._booked += 1
+        number_text = booked.get("confirmationNumber")
+        tail = (
+            "Бронь ожидает подтверждения администратора, он свяжется с клиентом."
+            if booked.get("pendingApproval")
+            else "Бронь подтверждена."
+        )
+        return f"Бронь принята, номер {number_text}. {tail}"

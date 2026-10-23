@@ -25,8 +25,16 @@ const withPropertyOf = <T>(organizationId: string, propertyId: string, fn: () =>
 /** Срок котировки из чата: решение владельца 01.10.2026 (Q-SELLER-QUOTE-TTL) */
 export const INTENT_TTL_MS = 30 * 60_000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const CHANNEL_SOURCE = { whatsapp: 'WHATSAPP', widget: 'WEBSITE' } as const;
+const CHANNEL_SOURCE = { whatsapp: 'WHATSAPP', widget: 'WEBSITE', voice: 'VOICE' } as const;
 type Channel = keyof typeof CHANNEL_SOURCE;
+/** Каналы бота продавца: голос приходит только через своё API с ключом голоса, ключ записи продавца его не создаёт */
+export const BOT_CHANNELS: readonly Channel[] = ['whatsapp', 'widget'];
+export const VOICE_CHANNELS: readonly Channel[] = ['voice'];
+export interface IntentOptions {
+  channels?: readonly Channel[];
+  /** Пометка в заметке брони (например, ожидание подтверждения администратором) */
+  notes?: string;
+}
 const NOT_FOUND = 'Предложение не найдено';
 const STALE = 'Предложение устарело: нужна новая цена и новое согласие гостя';
 const AGENT_OFF = 'Агент недоступен';
@@ -58,6 +66,11 @@ export interface IntentBooking {
   replay: boolean;
 }
 
+const CHANNEL_NOTE: Record<Channel, string> = {
+  whatsapp: 'Бронь из WhatsApp, ИИ-продавец',
+  widget: 'Бронь из чата сайта, ИИ-продавец',
+  voice: 'Бронь по телефону, голосовой ИИ-агент',
+};
 const text = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max + 1) : '');
 const nightsBetween = (a: string, b: string) =>
   Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86_400_000);
@@ -94,7 +107,7 @@ export class BookingIntentsService {
     if (access.access !== 'active') throw new NotFoundException(AGENT_OFF);
   }
 
-  async quote(raw: unknown, now: Date = new Date()): Promise<IntentQuote> {
+  async quote(raw: unknown, now: Date = new Date(), options: IntentOptions = {}): Promise<IntentQuote> {
     const b = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
     const agent = text(b.agent, 36).toLowerCase();
     if (!UUID.test(agent)) throw new BadRequestException('agent: ожидается UUID');
@@ -102,7 +115,8 @@ export class BookingIntentsService {
     if (!conversation || conversation.length > 64)
       throw new BadRequestException('conversation: от 1 до 64 знаков');
     const channel = text(b.channel, 16) as Channel;
-    if (!(channel in CHANNEL_SOURCE)) throw new BadRequestException('channel: whatsapp или widget');
+    const channels = options.channels ?? BOT_CHANNELS;
+    if (!channels.includes(channel)) throw new BadRequestException('channel: whatsapp или widget');
     const category = text(b.category, 64);
     if (!category) throw new BadRequestException('category: код категории');
     await this.requireLiveAgent(agent);
@@ -174,7 +188,7 @@ export class BookingIntentsService {
     };
   }
 
-  async confirm(raw: unknown, now: Date = new Date()): Promise<IntentBooking> {
+  async confirm(raw: unknown, now: Date = new Date(), options: IntentOptions = {}): Promise<IntentBooking> {
     const b = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
     const agent = text(b.agent, 36).toLowerCase();
     const intentId = text(b.intent, 36).toLowerCase();
@@ -201,7 +215,8 @@ export class BookingIntentsService {
         reservation: { select: { confirmationNumber: true } },
       },
     });
-    if (!row) throw new NotFoundException(NOT_FOUND);
+    if (!row || !(options.channels ?? BOT_CHANNELS).includes(row.channel as Channel))
+      throw new NotFoundException(NOT_FOUND);
     if (row.state === 'CONFIRMED' && row.reservation)
       return this.summary(
         row.organizationId,
@@ -248,10 +263,7 @@ export class BookingIntentsService {
             expectedTotalMinor: row.totalMinor.toString(),
             arrivalDate,
             departureDate,
-            notes:
-              channel === 'whatsapp'
-                ? 'Бронь из WhatsApp, ИИ-продавец'
-                : 'Бронь из чата сайта, ИИ-продавец',
+            notes: [CHANNEL_NOTE[channel], options.notes].filter(Boolean).join('. '),
             guest: {
               firstName: guest.firstName,
               lastName: guest.lastName,

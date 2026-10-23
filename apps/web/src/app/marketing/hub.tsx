@@ -75,8 +75,8 @@ const modules = (c: VerticalCopy): Module[] => [
     title: 'Контент',
     icon: 'journal',
     href: '/marketing/content',
-    text: 'Создавайте фото, тексты, видео и посты с помощью ИИ. Планируйте публикации во все соцсети.',
-    caps: ['Генерация фото и видео', 'Готовые шаблоны постов', 'Планировщик публикаций'],
+    text: 'Тексты постов с ИИ по данным вашего филиала. Правьте, ставьте на день недели и копируйте в соцсети.',
+    caps: ['Пост с ИИ: два варианта', 'Проверка цифр по карточке', 'План публикаций на неделю'],
   },
 ];
 
@@ -117,8 +117,8 @@ const BUDGET_MENU = [
  */
 export function liveModules(vertical: WebVertical): Set<Module['key']> {
   return new Set<Module['key']>(
-    // «Реклама» живая у всех (кампании МКТ-В3, кабинет Meta): значок «Доступно», а не «Скоро» рядом с «Открыть»
-    vertical === 'HOSPITALITY' ? ['site', 'budget', 'ads', 'competitors'] : ['site', 'budget', 'ads'],
+    // «Реклама» живая у всех (кампании МКТ-В3, кабинет Meta), «Контент» с черновиками постов (CONTENT-DRAFTS-20261022)
+    vertical === 'HOSPITALITY' ? ['site', 'budget', 'ads', 'competitors', 'content'] : ['site', 'budget', 'ads', 'content'],
   );
 }
 
@@ -198,8 +198,8 @@ export function MarketingHub({
   const hospitality = vertical === 'HOSPITALITY';
   const copy = verticalCopy(vertical);
   const live = liveModules(vertical);
-  // Реклама и контент пока «Скоро» у всех направлений; ссылка на экран-превью есть, кнопок действий нет
-  const PREVIEW = new Set<Module['key']>(['content']);
+  // экранов-превью без живых данных больше нет: «Контент» с 23.10.2026 пишет и хранит черновики постов
+  const PREVIEW = new Set<Module['key']>([]);
   // «Конкуренты» это гостиничный мониторинг загрузки (ADR-142): салону и ресторану карточку не показываем
   const shown = modules(copy).filter((m) => hospitality || m.key !== 'competitors');
   const value = (key: ResultKey) => {

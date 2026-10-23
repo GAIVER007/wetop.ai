@@ -4993,6 +4993,19 @@ let fixtureLaunch: { id: string; headline: string; dailyBudgetMinor: string; vie
 type FixtureLaunchRow = { id: string; status: 'RUNNING' | 'SUCCEEDED' | 'FAILED'; step: string; headline: string; dailyBudgetMinor: string; currency: string; error: string | null; createdAt: string };
 let fixtureLaunches: FixtureLaunchRow[] = [];
 let fixtureLaunchesFail: number | null = null;
+/** «Контент» (CONTENT-DRAFTS-20261022): черновики филиала и выключатель ИИ (`__test/content-ai`) */
+type FixtureContentDraft = {
+  id: string; creationId: string; channel: string; topic: string; title: string | null; body: string; hashtags: string[];
+  cta: string | null; origin: string; plannedOn: string | null; status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  publishedAt: string | null; revision: number; createdAt: string;
+};
+let fixtureContentDrafts: FixtureContentDraft[] = [];
+let fixtureContentAiDown = false;
+const CONTENT_SITE = 'https://salon.example';
+const contentPreview = (d: { body: string; hashtags: string[]; cta: string | null }) =>
+  [d.body, d.cta === 'BOOK_ONLINE' ? `Записаться онлайн: ${CONTENT_SITE}` : d.cta === 'VISIT' ? 'Ждём вас: ул. Абая, 1' : null,
+    d.hashtags.length ? d.hashtags.map((t) => `#${t}`).join(' ') : null].filter(Boolean).join('\n\n');
+const contentDay = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10);
 /** Разбивка плана по каналам (§52): первое число месяца → строки */
 const budgetLines = new Map<string, Array<{ platform: string; amount: string }>>();
 /** МКТ-В5a: результаты каналов по месяцам (засев `__test/marketing-budget` → `results`); нет записи: нули */
@@ -5885,6 +5898,58 @@ createServer(async (req, res) => {
     }
     // ИИ-таргетолог (§57, ADR-MKT-LAUNCH): мастер, предложение ИИ, запуск в кабинете, «Остановить» и «Включить»;
     // Meta подставная, запуск проходит за один просмотр экрана шагов
+    // «Контент»: черновики постов (CONTENT-DRAFTS-20261022). ИИ подставной: 2 варианта, во втором выдуманные 30%
+    if (path.startsWith('/marketing/content/drafts')) {
+      if (!can(uiRole, 'marketing')) return send(403, { message: accessDeniedMessage('marketing') });
+      const ctas = ['BOOK_ONLINE', 'VISIT', 'NONE'];
+      if (req.method === 'POST' && path === '/marketing/content/drafts/proposal') {
+        if (!String(body['topic'] ?? '').trim()) return send(400, { message: 'Напишите, о чём пост' });
+        if (fixtureContentAiDown) return send(503, { message: 'ИИ сейчас недоступен: попробуйте позже или напишите пост сами' });
+        const v = [
+          { hook: 'Осень, время ухода', title: null, body: 'Осень, время ухода. Скидка 30% на маску всю неделю.', hashtags: ['уход', 'салон'], cta: 'BOOK_ONLINE', warnings: ['30%'] },
+          { hook: 'Волосам нужен отдых', title: null, body: 'Волосам нужен отдых после лета. Приходите на уход.', hashtags: [], cta: 'VISIT', warnings: [] },
+        ];
+        return send(200, { variants: v.map((x) => ({ ...x, preview: contentPreview(x) })), ctas });
+      }
+      const live = () => fixtureContentDrafts.filter((d) => d.status !== 'ARCHIVED');
+      if (req.method === 'GET' && path === '/marketing/content/drafts') {
+        const today = contentDay(0);
+        const dow = new Date(`${today}T00:00:00Z`).getUTCDay();
+        const from = typeof url.searchParams.get('week') === 'string' && url.searchParams.get('week') ? url.searchParams.get('week')! : contentDay(-((dow + 6) % 7));
+        const to = new Date(Date.parse(`${from}T00:00:00Z`) + 6 * 86_400_000).toISOString().slice(0, 10);
+        const items = live().filter((d) => !d.plannedOn || (d.plannedOn >= from && d.plannedOn <= to));
+        return send(200, { week: { from, to }, today, ctas, items: items.map((d) => ({ ...d, preview: contentPreview(d) })) });
+      }
+      if (req.method === 'POST' && path === '/marketing/content/drafts') {
+        if (!String(body['body'] ?? '').trim()) return send(400, { message: 'Напишите текст поста' });
+        const dup = fixtureContentDrafts.find((d) => d.creationId === body['creationId']);
+        if (dup) return send(200, { ...dup, preview: contentPreview(dup) });
+        const d: FixtureContentDraft = {
+          id: `00000000-0000-4000-a000-${String(fixtureContentDrafts.length + 1).padStart(12, '0')}`,
+          creationId: String(body['creationId']), channel: String(body['channel']), topic: String(body['topic'] ?? ''),
+          title: body['title'] ? String(body['title']) : null, body: String(body['body']),
+          hashtags: Array.isArray(body['hashtags']) ? (body['hashtags'] as string[]) : [], cta: (body['cta'] as string | null) ?? null,
+          origin: String(body['origin']), plannedOn: (body['plannedOn'] as string | null) ?? null, status: 'DRAFT',
+          publishedAt: null, revision: 1, createdAt: new Date().toISOString(),
+        };
+        fixtureContentDrafts.push(d);
+        return send(201, { ...d, preview: contentPreview(d) });
+      }
+      const m = /^\/marketing\/content\/drafts\/([^/]+)(\/published|\/archive)?$/.exec(path);
+      const d = m ? fixtureContentDrafts.find((x) => x.id === m[1]) : undefined;
+      if (m && !d) return send(404, { message: 'Черновик не найден' });
+      if (m && d) {
+        if (d.revision !== body['expectedRevision'] || d.status === 'ARCHIVED')
+          return send(409, { message: 'Черновик уже изменили в другом окне: обновите страницу' });
+        if (req.method === 'PATCH' && !m[2])
+          Object.assign(d, { channel: body['channel'], topic: body['topic'], title: body['title'] || null, body: body['body'], hashtags: body['hashtags'], cta: body['cta'] ?? null, plannedOn: body['plannedOn'] ?? null });
+        else if (req.method === 'POST' && m[2] === '/published') Object.assign(d, { status: 'PUBLISHED', publishedAt: new Date().toISOString() });
+        else if (req.method === 'POST' && m[2] === '/archive') d.status = 'ARCHIVED';
+        else return send(405, { message: 'Метод не поддерживается' });
+        d.revision += 1;
+        return send(200, { ...d, preview: contentPreview(d) });
+      }
+    }
     if (path.startsWith('/marketing/ads/')) {
       if (!can(uiRole, 'ads_launch') && !(req.method === 'GET' && path.startsWith('/marketing/ads/launches')))
         return send(403, { message: accessDeniedMessage('ads_launch') });
@@ -6135,7 +6200,13 @@ createServer(async (req, res) => {
       const seeded = salonLoyaltyFixture({ path, method: req.method, body, locationId: null, query: url.searchParams });
       if (seeded) return send(seeded.status, seeded.body);
     }
+    if (path === '/__test/content-ai' && req.method === 'POST') {
+      fixtureContentAiDown = body['down'] === true;
+      return send(200, { down: fixtureContentAiDown });
+    }
     if (path === '/__test/reset') {
+      fixtureContentDrafts = [];
+      fixtureContentAiDown = false;
       resetSalonLoyaltyFixture();
       categoryPhotos.clear();
       fixtureBranches.length = 0;

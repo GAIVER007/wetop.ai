@@ -37,6 +37,7 @@ export async function cleanupOnboardingFixture(db: Db, organizationId: string, u
     await tx.ratePlan.deleteMany({ where: { propertyId: { in: propertyIds } } });
     await tx.property.deleteMany({ where: { organizationId } });
     await tx.onboardingProgress.deleteMany({ where: { locationId: { in: locationIds } } });
+    await tx.branchPaymentMethodSetting.deleteMany({ where: { locationId: { in: locationIds } } });
     await tx.location.deleteMany({ where: { id: { in: locationIds } } });
     await tx.business.deleteMany({ where: { organizationId } });
     await tx.organization.delete({ where: { id: organizationId } });

@@ -31,7 +31,6 @@
   .biz-row--three {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .biz-money,
   .biz-methods,
   .biz-today,
   .biz-attention,
@@ -104,89 +103,6 @@
     color: var(--primary);
     font-weight: var(--weight-medium);
   }
-
-  /* финансовый обзор */
-  /* поступления, возвраты, расходы (возвраты отдельной строкой, решение владельца 13.10.2026) */
-  .biz-money__sums {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-4);
-    margin-bottom: var(--space-4);
-  }
-  .biz-money__sum > span {
-    color: var(--text-2);
-    font-size: var(--text-sm);
-  }
-  .biz-money__sum > strong {
-    display: block;
-    margin-top: var(--space-1);
-    font-size: var(--text-2xl);
-    line-height: 1.2;
-    font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
-  }
-  .biz-money__sum--income > strong {
-    color: var(--success);
-  }
-  .biz-money__sum--expense > strong {
-    color: var(--danger);
-  }
-  .biz-money__delta {
-    display: block;
-    margin-top: var(--space-1);
-    color: var(--muted);
-    font-size: var(--text-xs);
-  }
-  .biz-money__body {
-    display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-    gap: var(--space-4);
-  }
-  .biz-money__body h3 {
-    margin: 0 0 var(--space-2);
-    font-size: var(--text-md);
-  }
-  .biz-flow {
-    display: flex;
-    align-items: flex-end;
-    gap: var(--space-1);
-    height: 96px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .biz-flow li {
-    flex: 1 1 0;
-    min-width: 0;
-    height: 100%;
-    display: flex;
-    align-items: flex-end;
-  }
-  .biz-flow__bars {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    align-items: flex-end;
-  }
-  .biz-flow__bars i {
-    display: block;
-    width: 50%;
-    min-height: 2px;
-    border-radius: var(--radius-xs) var(--radius-xs) 0 0;
-  }
-  .biz-flow__in {
-    background: var(--success);
-  }
-  .biz-flow__out {
-    background: var(--danger);
-  }
-  .biz-flow__axis {
-    display: flex;
-    justify-content: space-between;
-    margin-top: var(--space-1);
-    color: var(--muted);
-    font-size: var(--text-xs);
-  }
   .biz-dot {
     display: inline-block;
     width: 8px;
@@ -213,31 +129,6 @@
   }
   .biz-dot--4 {
     background: var(--muted);
-  }
-  .biz-money__accounts > strong {
-    display: block;
-    margin-bottom: var(--space-2);
-    font-size: var(--text-2xl);
-    font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
-  }
-  .biz-money__accounts dl {
-    margin: 0;
-  }
-  .biz-money__accounts dl > div {
-    display: flex;
-    justify-content: space-between;
-    gap: var(--space-2);
-    padding-block: var(--space-1);
-    border-top: 1px solid var(--border-soft);
-  }
-  .biz-money__accounts dt {
-    color: var(--text-2);
-    font-size: var(--text-sm);
-  }
-  .biz-money__accounts dd {
-    margin: 0;
-    font-variant-numeric: tabular-nums;
   }
 
   /* способы оплаты */
@@ -423,18 +314,11 @@
     .biz-kpis .stat__value {
       white-space: nowrap;
     }
-    .biz-money,
     .biz-methods,
     .biz-today,
     .biz-attention,
     .biz-recent {
       padding: var(--space-2);
-    }
-    .biz-money__body {
-      grid-template-columns: minmax(0, 1fr);
-    }
-    .biz-flow {
-      height: 64px;
     }
     .biz-period {
       justify-content: flex-start;
@@ -576,9 +460,6 @@
     gap: var(--space-2);
     padding-bottom: var(--space-4);
   }
-  .biz-money__sums {
-    margin-bottom: var(--space-2);
-  }
   @media (max-width: 600px) {
     .biz-row--daily {
       grid-template-columns: minmax(0, 1fr);
@@ -611,17 +492,17 @@
 }
 
 @layer sections {
-  .biz-row--two > .biz-money,
   .biz-row--two > .owner-load {
     padding: var(--space-2);
   }
 }
 
-
 @layer sections {
   .biz-overview { gap: var(--space-2); }
   .biz-row--two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .biz-row--two > .biz-money, .biz-row--two > .owner-load, .biz-today, .biz-attention { padding: var(--space-2) var(--space-4); }
+  .biz-row--two > .owner-load,
+  .biz-today,
+  .biz-attention { padding: var(--space-2) var(--space-4); }
   .biz-today__tile { grid-template-columns: auto minmax(0,1fr) auto; min-height: 44px; padding-block: var(--space-1); }
   .biz-today__icon { display: grid; place-items: center; width: 24px; height: 24px; border-radius: var(--radius-control); background: var(--primary-soft); color: var(--primary); }
   .biz-card__head { margin-bottom: var(--space-2); }

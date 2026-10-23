@@ -134,7 +134,8 @@ for (const width of [1440, 390]) {
     test('availability: calendar transfers its inclusive range and category', async ({ page }) => {
       await page.goto('/chessboard?from=2026-10-10&to=2026-10-12&category=MALE');
       // Карточка считает все места, включая койки, и передаёт выбранный период и категорию.
-      const link = page.getByRole('link', { name: /^Свободно .*Найти места$/ });
+      // сводка дня одной строкой (аудит гостиницы 22.10.2026 P1-2): ссылка «свободно N» ведёт к поиску мест
+      const link = page.getByRole('group', { name: 'Сегодня на объекте' }).getByRole('link', { name: /^свободно \d+$/ });
       await expect(link).toBeVisible();
       await link.click();
       await expect(page.getByLabel('Заезд', { exact: true })).toHaveValue('2026-10-10');

@@ -100,13 +100,13 @@ export default async function MarketingContentPage({ searchParams }: { searchPar
                 <div className="marketing-screen__stack">
                   <nav className="content-week-nav" aria-label="Неделя">
                     <Link className="btn btn--ghost btn--sm" href={`/marketing/content?week=${addDays(week.week.from, -7)}#plan`}>
-                      ← Прошлая неделя
+                      Прошлая неделя
                     </Link>
                     <span data-testid="content-week-range">
                       с {dayLabel(week.week.from)} по {dayLabel(week.week.to)}
                     </span>
                     <Link className="btn btn--ghost btn--sm" href={`/marketing/content?week=${addDays(week.week.from, 7)}#plan`}>
-                      Следующая неделя →
+                      Следующая неделя
                     </Link>
                   </nav>
                   <ContentPlan items={week.items} from={week.week.from} today={week.today} ctas={week.ctas} />

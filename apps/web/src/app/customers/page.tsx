@@ -14,9 +14,16 @@ import { CustomerSectionTabs } from './section-tabs';
 import '../beauty/beauty.css';
 
 /** Клиенты салона по макету ТЗ (09.10.2026): сегменты, визиты и средний чек считает API по DONE */
-export default async function CustomersPage() {
+export default async function CustomersPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+} = {}) {
   const me = await requireFeature('/customers');
-  if (me.context?.vertical === 'FOOD_SERVICE') return <FoodCustomers />;
+  if (me.context?.vertical === 'FOOD_SERVICE') {
+    const q = (await searchParams)?.q;
+    return <FoodCustomers query={typeof q === 'string' ? q.slice(0, 100) : ''} />;
+  }
   try {
     const [{ items }, shell] = await Promise.all([beautyApi.customers(), deskShell()]);
     const canCreate = !shell.readOnly

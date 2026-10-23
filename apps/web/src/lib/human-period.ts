@@ -54,3 +54,26 @@ export function zoneLabel(timeZone: string): string {
   const shift = offset(timeZone);
   return shift ? `${city}, ${shift}` : city;
 }
+
+/** Части момента в поясе филиала: «чт», «22 окт.», «19:00» */
+function momentParts(iso: string, timeZone: string): { weekday: string; day: string; time: string } {
+  const at = new Date(iso);
+  const weekday = new Intl.DateTimeFormat('ru-RU', { weekday: 'short', timeZone }).format(at);
+  const day = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', timeZone }).format(at);
+  const time = new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone }).format(at);
+  return { weekday, day, time };
+}
+
+/** Момент операции словами в поясе филиала: «22 окт., 01:06» (касса, движения склада) */
+export function dayClock(iso: string, timeZone: string): string {
+  const p = momentParts(iso, timeZone);
+  return `${p.day}, ${p.time}`;
+}
+
+/** Время визита словами: «чт, 22 окт., 19:00–21:00»; через полночь с днём конца */
+export function visitRange(startsAt: string, endsAt: string, timeZone: string): string {
+  const s = momentParts(startsAt, timeZone);
+  const e = momentParts(endsAt, timeZone);
+  if (s.day === e.day) return `${s.weekday}, ${s.day}, ${s.time}–${e.time}`;
+  return `${s.weekday}, ${s.day}, ${s.time} – ${e.weekday}, ${e.day}, ${e.time}`;
+}

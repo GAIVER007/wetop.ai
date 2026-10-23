@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bookingPreview, setupPath } from './setup-path';
+import { bookingPreview, setupCountLine, setupPath } from './setup-path';
 
 const steps = (done: boolean[]) =>
   ['services', 'masters', 'skills', 'schedule'].map((id, i) => ({
@@ -77,5 +77,15 @@ describe('превью онлайн-записи из данных салона'
       { name: 'Айгерим Тестова', initials: 'АТ' },
       { name: 'Сауле', initials: 'С' },
     ]);
+  });
+});
+
+describe('итог выполненного шага словами (аудит салона 22.10.2026)', () => {
+  it('без технических слов «пригодных сочетаний»', () => {
+    expect(setupCountLine('schedule', 8)).toBe('Можно записаться: 8 вариантов услуги и мастера');
+    expect(setupCountLine('schedule', 1)).toBe('Можно записаться: 1 вариант услуги и мастера');
+    expect(setupCountLine('services', 3)).toBe('Услуг в филиале: 3');
+    expect(setupCountLine('masters', 2)).toBe('Мастеров: 2');
+    expect(setupCountLine('skills', 5)).toBe('Услуг назначено мастерам: 5');
   });
 });

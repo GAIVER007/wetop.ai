@@ -37,9 +37,9 @@ function fixture(permissions: Permission[], assignmentLocationId:string|null=nul
         { appointmentId: 'visit-b', stars: 3, comment: 'Branch B private', submittedAt: new Date() },
       ]),
     paySetting: vi.fn(async () => ({ model: 'FIXED', fixedMinor: 1000n, percent: 0, currency: 'KZT' })),
-    payPolicy: vi.fn(async () => ({ percentBasis: 'COMPLETED_SERVICES', revision: 1 })),
-    payAdjustments: vi.fn(async () => [{ id: 'adjustment-private', amountMinor: 500n, reason: 'Private bonus' }]),
-    payouts: vi.fn(async () => ({ _sum: { amount: 750n } })),
+    paySales: vi.fn(async () => [{ employeeId, _sum: { priceMinor: 0n } }]),
+    payAdjustments: vi.fn(async () => [{ id: 'adjustment-private', employeeId, amountMinor: 500n, reason: 'Private bonus' }]),
+    payouts: vi.fn(async () => [{ employeeId, _sum: { amount: 750n } }]),
   };
   const location = {
     id: locationId,
@@ -71,12 +71,11 @@ function fixture(permissions: Permission[], assignmentLocationId:string|null=nul
     workingHours: { findMany: vi.fn(async () => []) },
     timeOff: { findMany: vi.fn(async () => []) },
     beautyAppointmentReview: { aggregate: privateReads.reviewSummary, findMany: privateReads.reviewItems },
-    appointmentLine: { findMany: privateReads.appointments },
+    appointmentLine: { findMany: privateReads.appointments, groupBy: privateReads.paySales },
     restaurantOrder: { findMany: vi.fn(async () => []), aggregate: vi.fn(async () => ({ _sum: { total: 0n } })) },
     employeePaySetting: { findUnique: privateReads.paySetting },
-    beautyPayrollPolicy: { findUnique: privateReads.payPolicy },
-    employeePayAdjustment: { findMany: privateReads.payAdjustments },
-    restaurantCashOperation: { aggregate: privateReads.payouts },
+    employeePayAdjustment: { findMany: privateReads.payAdjustments, aggregate: vi.fn(async () => ({ _sum: { amountMinor: 500n } })) },
+    restaurantCashOperation: { groupBy: privateReads.payouts },
     beautyPositionAssignment: {
       findMany: vi.fn(async () => [{
         id: 'assignment', userId, organizationId, businessId, locationId:assignmentLocationId, revokedAt: null,
@@ -84,6 +83,8 @@ function fixture(permissions: Permission[], assignmentLocationId:string|null=nul
       }]),
     },
     $queryRaw: vi.fn(async (sql: TemplateStringsArray) => {
+      // «Мой месяц»: деньги по своим записям (касса филиала) в этих проверках не нужны
+      if (sql.join(' ').includes('restaurant_cash_operations')) return [];
       if (sql.join(' ').includes('LEFT JOIN working_hours')) return [{ sourceRevision: '2026-10-18T00:00:00.000000Z', id: null, weekday: null, timeFrom: null, timeTo: null }];
       return [{ id: resolvedEmployeeId, name: 'Synthetic master', phone: null, email: null, status: 'ACTIVE', profileRevision: '2026-10-18T00:00:00.000000Z' }];
     }),
@@ -119,7 +120,7 @@ describe('Beauty employee portal section projection', () => {
     expect(f.privateReads.reviewSummary).not.toHaveBeenCalled();
     expect(f.privateReads.reviewItems).not.toHaveBeenCalled();
     expect(f.privateReads.paySetting).not.toHaveBeenCalled();
-    expect(f.privateReads.payPolicy).not.toHaveBeenCalled();
+    expect(f.privateReads.paySales).not.toHaveBeenCalled();
     expect(f.privateReads.payAdjustments).not.toHaveBeenCalled();
     expect(f.privateReads.payouts).not.toHaveBeenCalled();
     expect(dto.sectionAccess).toMatchObject({
@@ -148,7 +149,7 @@ describe('Beauty employee portal section projection', () => {
     expect(f.privateReads.reviewSummary).toHaveBeenCalled();
     expect(f.privateReads.reviewItems).toHaveBeenCalled();
     expect(f.privateReads.paySetting).toHaveBeenCalled();
-    expect(f.privateReads.payPolicy).toHaveBeenCalled();
+    expect(f.privateReads.paySales).toHaveBeenCalled();
     expect(f.privateReads.payAdjustments).toHaveBeenCalled();
     expect(f.privateReads.payouts).toHaveBeenCalled();
     expect(dto.sectionAccess).toMatchObject({
@@ -169,7 +170,7 @@ describe('Beauty employee portal section projection', () => {
     expect(f.privateReads.reviewSummary).not.toHaveBeenCalled();
     expect(f.privateReads.reviewItems).not.toHaveBeenCalled();
     expect(f.privateReads.paySetting).toHaveBeenCalled();
-    expect(f.privateReads.payPolicy).toHaveBeenCalled();
+    expect(f.privateReads.paySales).toHaveBeenCalled();
     expect(f.privateReads.payAdjustments).toHaveBeenCalled();
     expect(f.privateReads.payouts).toHaveBeenCalled();
     expect(dto.sectionAccess).toMatchObject({
@@ -190,7 +191,7 @@ describe('Beauty employee portal section projection', () => {
     expect(f.privateReads.reviewSummary).not.toHaveBeenCalled();
     expect(f.privateReads.reviewItems).not.toHaveBeenCalled();
     expect(f.privateReads.paySetting).not.toHaveBeenCalled();
-    expect(f.privateReads.payPolicy).not.toHaveBeenCalled();
+    expect(f.privateReads.paySales).not.toHaveBeenCalled();
     expect(f.privateReads.payAdjustments).not.toHaveBeenCalled();
     expect(f.privateReads.payouts).not.toHaveBeenCalled();
     expect(dto.sectionAccess).toMatchObject({ employeesView: true, appointmentsView: false, reviewsView: false, payrollView: false });

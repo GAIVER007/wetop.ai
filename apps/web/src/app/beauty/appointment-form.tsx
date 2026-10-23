@@ -6,6 +6,7 @@ import { formatMoney, inputToMinor, minorToInput } from '../../lib/money';
 import { createAppointment, moveAppointment } from './journal-actions';
 import { instantOf, localInput } from './time';
 import { zoneLabel } from '../../lib/human-period';
+import { formatPhone, formatPhoneInput } from '../../lib/phone';
 
 // A5 (паритет с zapis.kz): кого выбирали в прошлый раз на этой вкладке; удобство, не данные
 let lastPickedCustomerId: string | null = null;
@@ -270,7 +271,7 @@ export function AppointmentForm({
                     setCustomerSearch('');
                   }}
                 >
-                  {`${[c.firstName, c.lastName].filter(Boolean).join(' ')}${c.phone ? `, ${c.phone}` : ''}`}
+                  {`${[c.firstName, c.lastName].filter(Boolean).join(' ')}${c.phone ? `, ${formatPhone(c.phone)}` : ''}`}
                 </Button>
               ))}
             </div>
@@ -323,7 +324,7 @@ export function AppointmentForm({
               )}
               {matchingCustomers.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {`${[c.firstName, c.lastName].filter(Boolean).join(' ')}${c.phone ? `, ${c.phone}` : ''}`}
+                  {`${[c.firstName, c.lastName].filter(Boolean).join(' ')}${c.phone ? `, ${formatPhone(c.phone)}` : ''}`}
                   {c.status === 'ARCHIVED' ? ' (в архиве)' : ''}
                 </option>
               ))}
@@ -338,7 +339,15 @@ export function AppointmentForm({
                 <Input name="lastName" {...field('lastName')} maxLength={100} />
               </Field>
               <Field label="Телефон">
-                <Input name="phone" {...field('phone')} type="tel" maxLength={32} />
+                <Input
+                  name="phone"
+                  value={draft.phone}
+                  onChange={(e) => setDraft({ ...draft, phone: formatPhoneInput(e.target.value) })}
+                  type="tel"
+                  inputMode="tel"
+                  placeholder="+7 701 000 00 00"
+                  maxLength={32}
+                />
               </Field>
             </div>
           )}
@@ -517,12 +526,15 @@ export function AppointmentForm({
                   </div>
                 </details>
               )}
-              <p>
-                Стоимость:{' '}
-                {lineTotal(line) === null
-                  ? 'Проверьте сумму'
-                  : formatMoney(String(lineTotal(line)), day.location.currency)}
-              </p>
+              {/* до выбора услуги строки нет (аудит салона 22.10.2026: «Проверьте сумму» на пустой форме) */}
+              {line.serviceId && (
+                <p>
+                  Стоимость:{' '}
+                  {lineTotal(line) === null
+                    ? 'Проверьте сумму'
+                    : formatMoney(String(lineTotal(line)), day.location.currency)}
+                </p>
+              )}
               {lines.length > 1 && (
                 <Button
                   type="button"

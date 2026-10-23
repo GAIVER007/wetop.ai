@@ -2,6 +2,7 @@ import { featureVerticals } from './features';
 import { allowedItem, pageOpen, routeRule, type NavigationAccess } from './navigation';
 import type { IconName } from '../components/icon';
 import type { WebVertical } from './vertical-landing';
+import { verticalCopy, type MenuWords } from './vertical-copy';
 
 /**
  * Хаб «Настройки» (поручение владельца 21.10.2026: «порядок, рабочим универсальным», образец «Настройки» из записи
@@ -13,7 +14,8 @@ type Screens = Partial<Record<WebVertical, string>>;
 const ALL = (href: string): Screens => ({ HOSPITALITY: href, BEAUTY: href, FOOD_SERVICE: href });
 
 export interface SettingsLink {
-  label: string;
+  /** общая подпись или слово направления из `vertical-copy.ts` (аудит ресторана 22.10.2026 P2) */
+  label: string | { word: keyof MenuWords };
   at: Screens;
 }
 export interface SettingsGroup {
@@ -45,11 +47,11 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     icon: 'board',
     links: [
       { label: 'Номера', at: { HOSPITALITY: '/inventory' } },
-      { label: 'Специалисты', at: { BEAUTY: '/employees', FOOD_SERVICE: '/employees' } },
+      { label: { word: 'specialists' }, at: { BEAUTY: '/employees', FOOD_SERVICE: '/employees' } },
       { label: 'График работы', at: { BEAUTY: '/beauty/schedule', FOOD_SERVICE: '/employees/shifts' } },
       { label: 'Залы и столы', at: { FOOD_SERVICE: '/dining-areas' } },
       { label: 'Правила бронирования', at: { FOOD_SERVICE: '/restaurant-settings?section=bookings' } },
-      { label: 'Каталог услуг', at: { HOSPITALITY: '/hotel-settings/services', BEAUTY: '/services', FOOD_SERVICE: '/menu' } },
+      { label: { word: 'catalogSettings' }, at: { HOSPITALITY: '/hotel-settings/services', BEAUTY: '/services', FOOD_SERVICE: '/menu' } },
     ],
   },
   {
@@ -62,7 +64,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
       { label: 'Бонусы', at: { BEAUTY: '/beauty-settings#bonuses' } },
       { label: 'Сертификаты', at: { BEAUTY: '/finance/certificates' } },
       { label: 'Каналы продаж', at: { HOSPITALITY: '/channels' } },
-      { label: 'Сайт и онлайн-запись', at: { HOSPITALITY: '/website', BEAUTY: '/marketing/site/editor', FOOD_SERVICE: '/marketing/site/editor' } },
+      { label: { word: 'siteSettings' }, at: { HOSPITALITY: '/website', BEAUTY: '/marketing/site/editor', FOOD_SERVICE: '/marketing/site/editor' } },
       { label: 'ИИ-продавец', at: ALL('/ai-agents') },
     ],
   },
@@ -102,7 +104,8 @@ export function settingsGroupsFor(
     ...group,
     links: links.flatMap(({ label, at }) => {
       const href = at[vertical];
-      return href && settingsLinkOpen(access, vertical, href) ? [{ label, href }] : [];
+      if (!href || !settingsLinkOpen(access, vertical, href)) return [];
+      return [{ label: typeof label === 'string' ? label : verticalCopy(vertical).menu[label.word], href }];
     }),
   })).filter((group) => group.links.length > 0);
 }

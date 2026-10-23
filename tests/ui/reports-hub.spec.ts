@@ -161,8 +161,8 @@ test('пресет «Сегодня» и свой период меняют ад
 
   // свой период — та же форма С/По, что на «Финансах»
   const form = main.getByTestId('reports-period-form');
-  await form.getByLabel('Период: с').fill('2026-09-01');
-  await form.getByLabel('Период: по').fill('2026-09-10');
+  await form.getByLabel('Период: с', { exact: true }).fill('2026-09-01');
+  await form.getByLabel('Период: по', { exact: true }).fill('2026-09-10');
   await form.getByRole('button', { name: 'Показать', exact: true }).click();
   await expect(page).toHaveURL('/reports?from=2026-09-01&to=2026-09-10');
   await expect(main.getByTestId('reports-period')).toContainText('10 дней');

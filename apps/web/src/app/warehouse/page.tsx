@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
 import { requireFeature } from '../../lib/vertical-guard';
+import { stockWords } from '../../lib/stock-words';
 import { barApi } from '../../lib/api';
 import { stockApi } from '../../lib/food-api';
 import { formatMoney } from '../../lib/money';
@@ -23,7 +24,7 @@ const settle = <T,>(promise: Promise<T>) =>
 
 interface LowRow {
   key: string;
-  warehouse: 'Бар' | 'Кухня' | 'Расходники';
+  warehouse: string;
   href: string;
   name: string;
   onHand: string;
@@ -39,7 +40,8 @@ interface LowRow {
 export default async function WarehousePage() {
   const me = await requireFeature('/warehouse');
   const vertical = me.context?.vertical ?? 'HOSPITALITY';
-  const kitchenName = vertical === 'BEAUTY' ? 'Расходники' : 'Кухня';
+  const words = stockWords(vertical);
+  const kitchenName = words.materials;
   const kitchenHref = vertical === 'FOOD_SERVICE' ? '/stock' : '/bar/consumables';
   const [bar, kitchen] = await Promise.all([settle(barApi.stock()), settle(stockApi.products())]);
   const barItems = bar.ok ? bar.value.filter((item) => item.active) : null;
@@ -50,7 +52,7 @@ export default async function WarehousePage() {
   const cards: WarehouseCard[] = [
     {
       id: 'bar',
-      title: 'Бар',
+      title: words.goods,
       href: '/bar',
       noun: ['товар', 'товара', 'товаров'],
       items: barItems ? barItems.length : null,
@@ -61,7 +63,7 @@ export default async function WarehousePage() {
       id: 'kitchen',
       title: kitchenName,
       href: kitchenHref,
-      noun: ['продукт', 'продукта', 'продуктов'],
+      noun: words.materialsNoun,
       items: kitchenItems ? kitchenItems.length : null,
       lowNames: (kitchenLow ?? []).map((item) => item.name),
       value: kitchenItems
@@ -74,7 +76,7 @@ export default async function WarehousePage() {
       .filter((item) => stockStatusOf(item) !== 'ok')
       .map((item) => ({
         key: `bar-${item.id}`,
-        warehouse: 'Бар' as const,
+        warehouse: words.goods,
         href: `/bar?product=${item.id}`,
         name: item.name,
         onHand: `${item.availableUnits} шт.`,
@@ -85,7 +87,7 @@ export default async function WarehousePage() {
       .filter((item) => item.low)
       .map((item) => ({
         key: `kitchen-${item.id}`,
-        warehouse: kitchenName as 'Кухня' | 'Расходники',
+        warehouse: kitchenName,
         href: kitchenHref,
         name: item.name,
         onHand: `${item.onHand} ${item.unit}`,
@@ -94,7 +96,7 @@ export default async function WarehousePage() {
       })),
   ];
   return (
-    <Page width="wide" className="bar-subpage" title="Склад" subtitle="Остатки бара и кухни и что заканчивается">
+    <Page width="wide" className="bar-subpage" title="Склад" subtitle={words.overviewSubtitle}>
       <BarTabs current="warehouse" />
       <WarehouseSummary cards={cards} />
       <section className="panel bar-low" aria-labelledby="warehouse-low-title">
@@ -103,7 +105,7 @@ export default async function WarehousePage() {
         </h2>
         {bar.ok && kitchen.ok && low.length === 0 ? (
           <EmptyState icon={<Icon name="stock" />} title="Всё в норме">
-            Остатки бара и кухни выше минимума.
+            {words.overviewOk}
           </EmptyState>
         ) : (
           <Table density="compact" aria-label="Позиции, которые заканчиваются" plain>
@@ -137,7 +139,7 @@ export default async function WarehousePage() {
         )}
         {(!bar.ok || !kitchen.ok) && (
           <p className="bar-muted">
-            {!bar.ok ? 'Остатки бара не загрузились. ' : ''}
+            {!bar.ok ? `Остатки склада «${words.goods}» не загрузились. ` : ''}
             {!kitchen.ok ? `Остатки склада «${kitchenName}» не загрузились.` : ''}
           </p>
         )}

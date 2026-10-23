@@ -1,4 +1,5 @@
 import { EmployeePortalModule } from './employee-portal/employee-portal.module';
+import { HotelStaffModule } from './hotel-staff/hotel-staff.module';
 import { SharedOnboardingModule } from './onboarding/onboarding.module';
 import { WizardModule } from './wizard/wizard.module';
 import 'reflect-metadata';
@@ -60,6 +61,7 @@ import { DataConnectionModule } from './database/connection';
     InventoryModule,
     BeautyModule,
     EmployeePortalModule,
+    HotelStaffModule,
     FoodModule,
     MarketingSiteModule,
     MarketingBudgetModule,

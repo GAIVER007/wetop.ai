@@ -92,7 +92,7 @@ for (const theme of ['light', 'dark'] as const) {
         }
         // ручной период — за кнопкой «Даты» (ADR-106): в раскрытом виде цели тоже не меньше 44 px
         await dates.click();
-        expect((await page.getByLabel('Период: с').boundingBox())!.height).toBeGreaterThanOrEqual(
+        expect((await page.getByLabel('Период: с', { exact: true }).boundingBox())!.height).toBeGreaterThanOrEqual(
           44,
         );
         await dates.click();

@@ -5,6 +5,8 @@ import { hotelClock } from '../../../../lib/hotel-api';
 import { PrintButton } from './print-button';
 import { sourceStatus } from '../../../../lib/status/source';
 import { statusLabel } from '../../../../lib/status/types';
+import { displayDay } from '../../../../lib/display-date';
+import { humanizeIsoDates } from '../../../../lib/charge-text';
 
 /**
  * Регистрационная карта гостя — печатная форма RU / KZ (SPEC §9, CLAUDE §7).
@@ -80,7 +82,7 @@ export default async function PrintRegistrationCard({
   ]);
   const doc = guest?.documents[0];
   // Штамп печати — по часам объекта (С-13): «2026-09-17 13:30»
-  const printedAt = (await hotelClock()).printed().stamp;
+  const printedAt = humanizeIsoDates((await hotelClock()).printed().stamp, 'print');
   return (
     <main
       data-testid="print-registration"
@@ -124,7 +126,7 @@ export default async function PrintRegistrationCard({
                 : (r.primaryGuest?.label ?? '—')
             }
           />
-          <Row k={t.birthDate} v={guest?.birthDate ?? '—'} />
+          <Row k={t.birthDate} v={guest?.birthDate ? displayDay(guest.birthDate) : '—'} />
           <Row k={t.citizenship} v={guest?.citizenship ?? r.primaryGuest?.citizenship ?? '—'} />
           <Row
             k={t.document}
@@ -161,8 +163,8 @@ export default async function PrintRegistrationCard({
             <tr key={it.id}>
               <td style={cell}>{it.accommodationTypeName}</td>
               <td style={cell}>{it.unitCode ?? '—'}</td>
-              <td style={cell}>{it.arrivalDate}</td>
-              <td style={cell}>{it.departureDate}</td>
+              <td style={cell}>{displayDay(it.arrivalDate)}</td>
+              <td style={cell}>{displayDay(it.departureDate)}</td>
               <td style={cell}>{nights(it.arrivalDate, it.departureDate)}</td>
               <td style={{ ...cell, textAlign: 'right' }}>
                 {formatMinor(it.priceMinor, r.currency)}

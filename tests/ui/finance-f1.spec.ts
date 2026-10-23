@@ -66,30 +66,20 @@ test('F1: заголовок и период в подзаголовке, пер
 
   // Даты и отборы на компьютере располагаются одним рядом.
   const form = main.getByTestId('period-form');
-  const fromBox = (await form.getByLabel('Период: с').boundingBox())!;
-  const toBox = (await form.getByLabel('Период: по').boundingBox())!;
+  const fromBox = (await form.getByLabel('Период: с', { exact: true }).boundingBox())!;
+  const toBox = (await form.getByLabel('Период: по', { exact: true }).boundingBox())!;
   expect(Math.abs(fromBox.y - toBox.y)).toBeLessThanOrEqual(4);
   await expect(form.getByLabel('Тип операции', { exact: true })).toBeVisible();
   await expect(form.getByRole('link', { name: 'Сбросить фильтр' })).toBeVisible();
 
-  // четыре итога: порядок, один ряд, одна высота
-  const tiles = main.getByTestId('finance-kpis').locator('.stat');
-  await expect(tiles.locator('.stat__label')).toHaveText([
+  // четыре итога одной строкой без плиток (аудит 22.10.2026 P1-3b): порядок прежний
+  await expect(main.getByTestId('finance-kpis').locator('dt')).toHaveText([
     'Начислено',
     'Оплачено',
     'Возвращено',
     'К сбору',
   ]);
-  const boxes = await tiles.evaluateAll((xs) =>
-    xs.map((x) => {
-      const r = x.getBoundingClientRect();
-      return { top: r.top, height: r.height };
-    }),
-  );
-  for (const b of boxes) {
-    expect(Math.abs(b.top - boxes[0]!.top)).toBeLessThanOrEqual(1);
-    expect(Math.abs(b.height - boxes[0]!.height)).toBeLessThanOrEqual(1);
-  }
+  await expect(main.getByTestId('finance-kpis').locator('.stat')).toHaveCount(0);
   // «К сбору» ведёт к списку долгов
   await main.getByTestId('kpi-due').click();
   await expect(page).toHaveURL(/#debts$/);
@@ -235,7 +225,7 @@ test('F1: «только чтение» — список долгов виден
   ).toBeVisible();
 });
 
-test('F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено»', async ({
+test('F1: сбой списка долгов не роняет итоги; пустой период — одна заглушка с первой бронью', async ({
   page,
   request,
 }) => {
@@ -251,7 +241,10 @@ test('F1: сбой списка долгов не роняет итоги; пу�
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
   await page.goto(`${url}#charges`);
   await page.reload();
-  await expect(main.getByTestId('finance-attention')).toContainText('За период проблем не найдено');
+  // пустой месяц (аудит 22.10.2026 P1-3b): одна заглушка «Добавить первую бронь» вместо блоков из нулей
+  await expect(main.getByTestId('finance-empty')).toContainText('Добавить первую бронь');
+  await expect(main.getByTestId('finance-attention')).toHaveCount(0);
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(main.getByTestId('debts-empty')).toContainText('оплачены');
   await expect(main.getByRole('navigation', { name: 'Отбор долгов' })).toHaveCount(0);
 });
@@ -267,11 +260,11 @@ test('F1: телефон — без прокрутки страницы вбок
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
     true,
   );
-  // 201d35e1 (мобильная адаптация): на узком телефоне (≤520) итоги в одну колонку — суммы не переносятся
+  // на узком телефоне итоги одной колонкой (money-summary ≤600): суммы не переносятся
   const xs = await main
     .getByTestId('finance-kpis')
-    .locator('.stat')
-    .evaluateAll((tiles) => tiles.map((t) => Math.round(t.getBoundingClientRect().left)));
+    .locator('dd')
+    .evaluateAll((items) => items.map((t) => Math.round(t.parentElement!.getBoundingClientRect().left)));
   expect(new Set(xs).size).toBe(1);
 });
 

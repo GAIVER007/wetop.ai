@@ -22,22 +22,23 @@ test.afterEach(async ({ request }) => {
   await request.post(`${fixture}/__test/control`, { data: {} });
 });
 
-test('гости и бронирования: плитки, виды со счётчиками, одна строка на гостя, панель первого гостя', async ({
+test('гости и бронирования: итоги строкой, виды со счётчиками, одна строка на гостя, панель первого гостя', async ({
   page,
 }) => {
   const main = page.getByRole('main');
   await page.goto('/guests');
   await expect(main.getByRole('heading', { level: 1, name: 'Гости и бронирования' })).toBeVisible();
 
-  // плитки: число и подпись видны до любого нажатия, каждая плитка ведёт в свой вид
+  // итоги одной строкой (аудит 22.10.2026 P1-16): число и подпись целиком, каждая часть ведёт в свой вид
   const kpis = main.getByTestId('guests-kpis');
+  await expect(kpis.locator('.stat')).toHaveCount(0);
   for (const [id, label, value] of [
     ['kpi-inhouse', 'Проживают', '4'],
-    ['kpi-arrivals', 'Заезды сегодня', '3'],
-    ['kpi-departures', 'Выезды сегодня', '2'],
-    ['kpi-expected', 'Ожидают заезд', '4'],
-    ['kpi-attention', 'Требуют внимания', '3'],
-    ['kpi-none', 'Без активного проживания', '0'],
+    ['kpi-arrivals', 'заезды сегодня', '3'],
+    ['kpi-departures', 'выезды сегодня', '2'],
+    ['kpi-expected', 'ожидают заезд', '4'],
+    ['kpi-attention', 'требуют внимания', '3'],
+    ['kpi-none', 'без активного проживания', '0'],
   ] as const) {
     await expect(kpis.getByRole('link', { name: new RegExp(label) })).toBeVisible();
     await expect(kpis.getByTestId(id)).toHaveText(value);
@@ -176,8 +177,8 @@ test('гости и бронирования: отметки строк и ни�
 
   // две отметки: групповых действий нет, обе кнопки гаснут с подсказкой
   await page.goto('/guests?size=25');
-  await table.getByRole('checkbox', { name: 'Отметить: Давний Гость' }).check();
-  await table.getByRole('checkbox', { name: 'Отметить: Задолжавший Гость' }).check();
+  await table.getByRole('checkbox', { name: 'Отметить: Гость Давний' }).check();
+  await table.getByRole('checkbox', { name: 'Отметить: Гость Задолжавший' }).check();
   await expect(main.getByTestId('guests-selected')).toContainText('Выбрано 3 из 13');
   await expect(bar.getByRole('button', { name: 'Выселить', exact: true })).toHaveAttribute(
     'title',
@@ -248,8 +249,8 @@ test('гости и бронирования: поиск, статус, исто
   await main.getByLabel('Период', { exact: true }).selectOption('range');
   await expect(page).toHaveURL(/period=range/);
   await expect(main.getByTestId('guests-range')).toBeVisible();
-  await main.getByTestId('guests-range').getByLabel('Период: с').fill('2020-01-01');
-  await main.getByTestId('guests-range').getByLabel('Период: по').fill('2020-01-31');
+  await main.getByTestId('guests-range').getByLabel('Период: с', { exact: true }).fill('2020-01-01');
+  await main.getByTestId('guests-range').getByLabel('Период: по', { exact: true }).fill('2020-01-31');
   await main.getByTestId('guests-range').getByRole('button', { name: 'Показать' }).click();
   await expect(page).toHaveURL(/from=2020-01-01&to=2020-01-31/);
   await expect(main.getByTestId('guests-empty')).toContainText('Ничего не найдено');

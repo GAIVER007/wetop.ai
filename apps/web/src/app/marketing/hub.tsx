@@ -7,6 +7,7 @@ import { Badge } from '../../components/ui';
 import { formatMoney } from '../../lib/money';
 import { verticalCopy, type VerticalCopy } from '../../lib/vertical-copy';
 import type { WebVertical } from '../../lib/vertical-landing';
+import type { SiteBuilderState } from '../../lib/api';
 
 /**
  * Хаб «Маркетинг» (MKT2, ADR-149; макет Marketing 2.0 владельца 09.10.2026, plans/mkt10-marketing-2-audit-2026-10-09.md):
@@ -126,11 +127,16 @@ export function liveModules(vertical: WebVertical): Set<Module['key']> {
 function ModuleCard({
   module,
   live,
+  badge,
+  note,
   soonForVertical,
   hospitality,
 }: {
   module: Module;
   live: boolean;
+  /** свой значок вместо «Доступно» (конструктор сайта выключен) */
+  badge?: { text: string; tone: 'warn' | 'info' } | undefined;
+  note?: string | undefined;
   soonForVertical: boolean;
   hospitality: boolean;
 }) {
@@ -147,14 +153,16 @@ function ModuleCard({
             <Icon name={module.icon} />
           </span>
           <h2 id={headingId}>{module.title}</h2>
-          <Badge tone={live ? 'ok' : 'info'} data-testid={`${module.testId}-status`}>
-            {live ? 'Доступно' : 'Скоро'}
+          <Badge tone={badge?.tone ?? (live ? 'ok' : 'info')} data-testid={`${module.testId}-status`}>
+            {badge?.text ?? (live ? 'Доступно' : 'Скоро')}
           </Badge>
         </div>
         <p className="marketing-module__text">
           {soonForVertical
             ? `${module.text} Для этого направления модуль готовится к подключению.`
-            : module.text}
+            : note
+              ? `${module.text} ${note}`
+              : module.text}
         </p>
         <ul className="marketing-module__caps">
           {module.caps.map((cap) => (
@@ -187,11 +195,32 @@ function ModuleCard({
   );
 }
 
+/**
+ * Значок «Сайт и SEO» по лицензии конструктора филиала (живой аудит 21.10.2026 P0-4: конструктор выключен у новых
+ * бизнесов, а карточка писала «Доступно»). Состояние неизвестно (ошибка чтения): прежний «Доступно».
+ */
+function siteBadge(builder: SiteBuilderState | null | undefined) {
+  if (builder?.access === 'off')
+    return {
+      badge: { text: 'Подключает WETOP', tone: 'warn' as const },
+      note: 'Конструктор сайта подключает команда WETOP: откройте раздел и напишите нам.',
+    };
+  if (builder?.access === 'expired')
+    return {
+      badge: { text: 'Срок вышел', tone: 'warn' as const },
+      note: 'Срок конструктора сайта вышел: сайт работает, менять его нельзя до продления.',
+    };
+  return { badge: undefined, note: undefined };
+}
+
 export function MarketingHub({
   vertical,
   spend = null,
+  builder = null,
 }: {
   vertical: WebVertical;
+  /** лицензия конструктора сайта филиала; null: не прочитана */
+  builder?: SiteBuilderState | null;
   /** расходы месяца из бюджета филиала; null: бюджет не прочитан (нет филиала или ошибка) */
   spend?: HubSpend | null;
 }) {
@@ -221,6 +250,7 @@ export function MarketingHub({
               key={m.key}
               module={m}
               live={live.has(m.key)}
+              {...(m.key === 'site' ? siteBadge(builder) : {})}
               soonForVertical={!live.has(m.key) && !PREVIEW.has(m.key)}
               hospitality={hospitality}
             />

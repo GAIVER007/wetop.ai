@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { requireFeature } from '../../lib/vertical-guard';
+import { stockWords } from '../../lib/stock-words';
 import { unstable_rethrow } from 'next/navigation';
 import { barApi, type BarReceiptRow, type BarReport, type BarSaleRow } from '../../lib/api';
 import { hotelToday, propertyTimezone } from '../../lib/hotel-api';
@@ -74,7 +75,8 @@ export default async function BarPage({
   // бар филиала (ADR-178): «в счёт гостя» только у гостиницы; ресторан и салон продают в кассу филиала (§45, §48)
   const vertical = me.context?.vertical ?? 'HOSPITALITY';
   // раздел меню «Склад» у всех направлений (решение владельца 19.10.2026)
-  const sectionName = 'Склад: бар';
+  // аудит салона 22.10.2026: у салона «Склад: товары», у остальных прежний «Склад: бар»
+  const sectionName = stockWords(vertical).goodsTitle;
   const params = await searchParams;
   const productParam = typeof params.product === 'string' ? params.product : null;
   const [categories, stock, suppliers, folios, receipts, sales, movements, report, paymentMethods, today, shell] =

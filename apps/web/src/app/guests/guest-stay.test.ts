@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { GuestMainStay } from '../../lib/api';
 import {
   cardHref,
+  guestDisplayName,
   guestNote,
   initials,
   pageWindow,
@@ -45,6 +46,15 @@ describe('подпись под именем и инициалы', () => {
     expect(guestNote({ state: 'EXPECTED', staysCount: 0 })).toBe('Новый гость');
     // состояние NONE важнее числа визитов: подпись про проживание
     expect(guestNote({ state: 'NONE', staysCount: 5 })).toBe('Без активного проживания');
+  });
+  it('имя гостя в порядке «Имя Фамилия» (аудит 22.10.2026 P1-16), отчество после фамилии не теряется', () => {
+    expect(guestDisplayName({ firstName: 'Айдана', lastName: 'Касымова', middleName: null })).toBe(
+      'Айдана Касымова',
+    );
+    expect(guestDisplayName({ firstName: 'Сергей', lastName: 'Петров', middleName: 'Иванович' })).toBe(
+      'Сергей Иванович Петров',
+    );
+    expect(guestDisplayName({ firstName: '', lastName: 'Петров' })).toBe('Петров');
   });
   it('инициалы: фамилия и имя, лишнее не ломает', () => {
     expect(initials('Петров', 'Сергей')).toBe('ПС');

@@ -63,17 +63,25 @@ export function decideScope(
   items: SelectableBranch[],
   rawNext: string | null,
   rememberedLocationId: string | null = null,
+  options: { personal?: boolean } = {},
 ): ScopeDecision {
   if (items.length === 0) return { kind: 'empty', target: '/onboarding' };
   const remembered = rememberedLocationId
     ? items.find((item) => item.locationId === rememberedLocationId)
     : undefined;
-  const chosen = items.length === 1 ? items[0]! : remembered;
+  // «Личный кабинет» (EMPLOYEE): экрана выбора на /branches у него нет, поэтому без запомненного берётся первый из его
+  // назначений (список уже сужен сервером), а вход ведёт в «Мою работу» (живой аудит 21.10.2026)
+  const chosen = items.length === 1 ? items[0]! : (remembered ?? (options.personal ? items[0] : undefined));
   if (!chosen) return { kind: 'choose', target: '/branches' };
+  const next = rawNext ? safeReturnPath(rawNext) : null;
   return {
     kind: 'select',
     pointer: `business=${chosen.location.businessId};location=${chosen.locationId}`,
-    target: targetFor(chosen.vertical, rawNext),
+    target: options.personal
+      ? next && (next === '/my-work' || next.startsWith('/my-work?') || next.startsWith('/my-work/'))
+        ? next
+        : '/my-work'
+      : targetFor(chosen.vertical, rawNext),
   };
 }
 

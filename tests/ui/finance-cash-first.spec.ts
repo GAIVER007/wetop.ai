@@ -118,15 +118,13 @@ test('касса: первый экран без лишних кнопок, де
 test('касса: визуальная иерархия итогов и спокойный сброс', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
-  // «Финансовый обзор» по макету 09.10: поступления и расходы рядом, одной строкой
+  // итоги одной строкой без плиток (аудит 22.10.2026 P1-3b): на телефоне строка складывается в столбец
   const income = await page.getByTestId('cash-period-income').boundingBox();
   const expense = await page.getByTestId('cash-period-expense').boundingBox();
-  expect(Math.abs(expense!.y - income!.y)).toBeLessThanOrEqual(1);
-  expect(expense!.x).toBeGreaterThan(income!.x);
+  expect(expense!.y).toBeGreaterThan(income!.y);
   await expect(page.getByTestId('finance-period')).toContainText(/\d+–\d+ [а-яё]+ \d{4}/);
-  expect(
-    await page.getByTestId('cash-summary').evaluate((el) => getComputedStyle(el).backgroundColor),
-  ).not.toBe('rgba(0, 0, 0, 0)');
+  await expect(page.getByTestId('cash-summary')).toHaveClass(/money-summary/);
+  await expect(page.locator('.fin-kpi, .biz-money')).toHaveCount(0);
   await page.getByRole('tab', {name:'Операции',exact:true}).click();
   expect(
     await page

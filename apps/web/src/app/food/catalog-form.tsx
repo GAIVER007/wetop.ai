@@ -24,13 +24,15 @@ export function CatalogForm({
   const [error, setError] = useState('');
   const item = draft.item;
   const title =
-    draft.kind === 'area' ? 'Зал' : draft.kind === 'table' ? 'Стол' : 'Период обслуживания';
+    draft.kind === 'area' ? 'зал' : draft.kind === 'table' ? 'стол' : 'период обслуживания';
+  const newTitle =
+    draft.kind === 'area' ? 'Новый зал' : draft.kind === 'table' ? 'Новый стол' : 'Новый период';
   return (
     <Overlay
       open
       drawer
       trapFocus
-      title={`${item ? 'Изменить' : 'Добавить'}: ${title}`}
+      title={item ? `Изменить ${title}` : newTitle}
       onClose={close}
       className="food-drawer"
     >

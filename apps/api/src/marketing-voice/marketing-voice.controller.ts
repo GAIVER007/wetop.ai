@@ -24,6 +24,17 @@ export class MarketingVoiceController {
     return this.service.callbacks(query);
   }
 
+  /** Настройка брони по телефону: выключатель и лимит за звонок (срез 4) */
+  @Get('booking')
+  booking() {
+    return this.service.bookingView();
+  }
+
+  @Patch('booking')
+  saveBooking(@Body() dto: unknown) {
+    return this.service.saveBooking(dto);
+  }
+
   @Patch('callbacks/:id')
   close(@Param('id', ParseUUIDPipe) id: string, @Body() dto: Record<string, unknown>) {
     return this.service.closeCallback(id, dto ?? {});

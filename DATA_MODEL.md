@@ -4782,3 +4782,7 @@ Customer сохраняет исходное nullable поле phone. Добав
 ### VOICE-BOOKING-QUOTES-NOTE-20261023: уточнение п. 3 утверждённого предложения
 
 Таблица `voice_booking_quotes` (миграция 147) хранит звонок текстом `call_ref` (внешний ID звонка, `varchar(64)`), а не внешним ключом `voice_call_id` на `voice_calls`: события звонка идут из воркера через очередь и могут прийти позже первой котировки, внешний ключ ломал бы котировку. Связь с журналом по паре (`agent_id`, `call_ref` = `external_call_id`). Остальное как в утверждённом предложении. Основание: `docs/decisions/2026-10-23-voice-booking-salon-restaurant.md`.
+
+### VOICE-BOOKING-SETTINGS-NOTE-20261023: права стойки на выключатель (миграция 148)
+
+Срез 4 плана. Новых сущностей и полей нет. Приложению (роль человека) выданы столбцовые права на `voice_profiles`: `INSERT` (agent_id, organization_id, business_id, booking_enabled, booking_max_per_call) и `UPDATE` (booking_enabled, booking_max_per_call, updated_at), политики вставки и правки только своей организации; остальные поля профиля пишет служебная роль. Основание: README миграции 146 («право приложения на правку выключателя выдаст срез 4») и утверждённый п. 2 предложения VOICE-BOOKING-PROPOSAL-20261023. Предложение хэша телефона (VOICE-PHONE-LIMIT-PROPOSAL-20261023) получит следующий номер миграции.

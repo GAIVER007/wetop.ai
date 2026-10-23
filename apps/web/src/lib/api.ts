@@ -4761,7 +4761,21 @@ export interface VoiceCallbackRow {
   doneAt: string | null;
 }
 
+/** Настройка брони по телефону (срез 4): выключатель, лимит за звонок и причины, почему включить нельзя */
+export interface VoiceBookingView {
+  hasAgent: boolean;
+  vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE' | null;
+  enabled: boolean;
+  needsApproval: boolean;
+  maxPerCall: number;
+  canEnable: boolean;
+  blockers: string[];
+}
+
 export const marketingVoiceApi = {
+  booking: () => getJson<VoiceBookingView>('/marketing/voice/booking'),
+  saveBooking: (body: { enabled?: boolean; maxPerCall?: number }) =>
+    sendJson<VoiceBookingView>('PATCH', '/marketing/voice/booking', body),
   summary: (month?: string) =>
     getJson<VoiceSummaryView>(`/marketing/voice/summary${month ? `?month=${encodeURIComponent(month)}` : ''}`),
   calls: (month?: string, limit = 50, offset = 0) =>

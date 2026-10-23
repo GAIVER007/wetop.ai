@@ -50,6 +50,15 @@ class FakeRepo implements MarketingVoiceRepository {
     durationCount: 2,
   };
   closeResult: CallbackRecord | null = { ...CB, status: 'DONE', doneAt: new Date('2026-10-22T06:00:00Z') };
+  async bookingAgent() {
+    return null;
+  }
+  async readiness() {
+    return [];
+  }
+  async saveBooking() {
+    /* настройка брони проверяется в marketing-voice-booking.service.test.ts */
+  }
   async scope(): Promise<ReadScope> {
     if (this.scopeError) throw this.scopeError;
     return SCOPE;

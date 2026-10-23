@@ -52,7 +52,27 @@ export interface CallbackRecord {
   doneAt: Date | null;
 }
 
+/** Агент голоса филиала и его настройка брони по телефону (`voice_profiles`, миграции 146 и 148) */
+export interface BookingAgentRecord {
+  agentId: string;
+  lifecycle: string;
+  vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
+  enabled: boolean;
+  needsApproval: boolean;
+  maxPerCall: number;
+}
+
+export interface BookingPatch {
+  enabled?: boolean;
+  maxPerCall?: number;
+}
+
 export interface MarketingVoiceRepository {
+  /** Неархивный агент ИИ-продавца филиала со строкой настройки (умолчания, если строки профиля ещё нет); null: агента нет */
+  bookingAgent(scope: ReadScope): Promise<BookingAgentRecord | null>;
+  /** Чего не хватает для брони по телефону на этом направлении (пустой список: всё готово) */
+  readiness(scope: ReadScope, vertical: BookingAgentRecord['vertical']): Promise<string[]>;
+  saveBooking(scope: ReadScope, agentId: string, patch: BookingPatch, userId: string | null): Promise<void>;
   scope(): Promise<ReadScope>;
   assertWritable(organizationId: string): Promise<void>;
   summary(scope: ReadScope, start: Date, end: Date): Promise<SummaryData>;
@@ -89,6 +109,85 @@ export class PrismaMarketingVoiceRepository implements MarketingVoiceRepository 
     });
     if (!location) throw new ForbiddenException('Выбранный филиал недоступен: выберите филиал заново');
     return { organizationId, locationId: location.id, timezone: location.timezone };
+  }
+
+  async bookingAgent(scope: ReadScope): Promise<BookingAgentRecord | null> {
+    const agent = await this.prisma.db.sellerAgent.findFirst({
+      where: { organizationId: scope.organizationId, locationId: scope.locationId, scenario: 'sales', lifecycle: { not: 'archived' } },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+      select: {
+        id: true,
+        lifecycle: true,
+        location: { select: { business: { select: { vertical: true } } } },
+        voiceProfile: { select: { bookingEnabled: true, bookingNeedsApproval: true, bookingMaxPerCall: true } },
+      },
+    });
+    if (!agent?.location) return null;
+    return {
+      agentId: agent.id,
+      lifecycle: agent.lifecycle,
+      vertical: agent.location.business.vertical,
+      enabled: agent.voiceProfile?.bookingEnabled ?? false,
+      needsApproval: agent.voiceProfile?.bookingNeedsApproval ?? true,
+      maxPerCall: agent.voiceProfile?.bookingMaxPerCall ?? 3,
+    };
+  }
+
+  async readiness(scope: ReadScope, vertical: BookingAgentRecord['vertical']): Promise<string[]> {
+    const db = this.prisma.db;
+    const blockers: string[] = [];
+    if (vertical === 'BEAUTY') {
+      const n = await db.beautyService.count({
+        where: {
+          active: true,
+          locations: { some: { locationId: scope.locationId, enabled: true } },
+          employees: { some: { employee: { status: 'ACTIVE', locations: { some: { locationId: scope.locationId } } } } },
+        },
+      });
+      if (n === 0) blockers.push('Нет услуг, которые оказывает хотя бы один мастер этого филиала');
+    } else if (vertical === 'FOOD_SERVICE') {
+      const [periods, tables] = await Promise.all([
+        db.servicePeriod.count({ where: { locationId: scope.locationId, active: true } }),
+        db.diningTable.count({ where: { active: true, area: { locationId: scope.locationId, active: true } } }),
+      ]);
+      if (periods === 0) blockers.push('Не заданы периоды обслуживания');
+      if (tables === 0) blockers.push('Нет столов в зале');
+    } else {
+      const sites = await db.trackedSite.count({ where: { locationId: scope.locationId, status: 'ACTIVE', bookingEnabled: true } });
+      if (sites === 0) blockers.push('У объекта нет сайта с включённым бронированием');
+    }
+    return blockers;
+  }
+
+  async saveBooking(scope: ReadScope, agentId: string, patch: BookingPatch, userId: string | null): Promise<void> {
+    const data = {
+      ...(patch.enabled !== undefined ? { bookingEnabled: patch.enabled } : {}),
+      ...(patch.maxPerCall !== undefined ? { bookingMaxPerCall: patch.maxPerCall } : {}),
+    };
+    await this.prisma.db.$transaction(async (tx) => {
+      const found = await tx.voiceProfile.findUnique({ where: { agentId }, select: { agentId: true } });
+      if (found) {
+        await tx.voiceProfile.update({ where: { agentId }, data });
+      } else {
+        const biz = await tx.location.findFirstOrThrow({
+          where: { id: scope.locationId, business: { organizationId: scope.organizationId } },
+          select: { businessId: true },
+        });
+        await tx.voiceProfile.create({
+          data: { agentId, organizationId: scope.organizationId, businessId: biz.businessId, ...data },
+        });
+      }
+      await tx.auditLog.create({
+        data: {
+          organizationId: scope.organizationId,
+          userId,
+          entityType: 'voice_profile',
+          entityId: agentId,
+          action: 'voice.booking.settings',
+          after: { locationId: scope.locationId, ...patch },
+        },
+      });
+    });
   }
 
   async assertWritable(organizationId: string): Promise<void> {

@@ -7,6 +7,17 @@ export type { VoiceSummaryView };
 const NO_DATA = 'Нет данных';
 const DASH = '–';
 
+/** Что агент оформляет по телефону, зависит от направления: подсказка над выключателем */
+export function bookingHint(vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE' | null): string {
+  if (vertical === 'BEAUTY')
+    return 'Агент ищет свободное время у мастера или у любого свободного и записывает клиента с его именем, телефоном и пожеланием. Запись ждёт подтверждения администратора.';
+  if (vertical === 'FOOD_SERVICE')
+    return 'Агент проверяет, что на нужное время есть место, и бронирует на имя и телефон гостя с комментарием. Номер стола агент не называет: его назначает администратор.';
+  if (vertical === 'HOSPITALITY')
+    return 'Агент проверяет свободные номера и цену проживания и бронирует после явного согласия гостя. Оплату и паспортные данные по телефону он не берёт.';
+  return 'У филиала нет агента ИИ-продавца: создайте его, чтобы включить бронь по телефону.';
+}
+
 export function formatDuration(seconds: number | null): string {
   if (seconds === null || !Number.isFinite(seconds) || seconds < 0) return DASH;
   const s = Math.floor(seconds);

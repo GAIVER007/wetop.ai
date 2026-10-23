@@ -1,4 +1,5 @@
 import { foodId, foodInt, foodObject, foodText } from './food';
+import { parseModifierIds } from './modifiers';
 
 /** Ресторан v2 (DATA_MODEL §33, ADR-159): заказы, техкарты, зарплата. Деньги — bigint minor units (ADR-008). */
 export const ORDER_STATUSES = ['NEW', 'COOKING', 'READY', 'SERVED', 'CLOSED', 'CANCELLED'] as const;
@@ -15,6 +16,52 @@ export function orderNext(status: OrderStatus): OrderStatus[] {
       CANCELLED: [],
     } as Record<OrderStatus, OrderStatus[]>
   )[status];
+}
+/** Станции ресторана (§33.6): кухня и бар получают позиции своих категорий */
+export const MENU_STATIONS = ['KITCHEN', 'BAR'] as const;
+export type MenuStation = (typeof MENU_STATIONS)[number];
+/** Статус строки заказа на своей станции (§33.6) */
+export const ITEM_STATUSES = ['NEW', 'COOKING', 'READY', 'SERVED'] as const;
+export type ItemStatus = (typeof ITEM_STATUSES)[number];
+/** Переходы строки: «Принять», «Готово» (бар может сразу), «Подано»; назад нельзя */
+export function itemNext(status: ItemStatus): ItemStatus[] {
+  return (
+    {
+      NEW: ['COOKING', 'READY'],
+      COOKING: ['READY'],
+      READY: ['SERVED'],
+      SERVED: [],
+    } as Record<ItemStatus, ItemStatus[]>
+  )[status];
+}
+/**
+ * Статус открытого заказа из строк (§33.6): ничего не начато → NEW, всё подано → SERVED, всё готово или подано → READY,
+ * иначе COOKING (бар отдал напиток, кухня ещё готовит). CLOSED и CANCELLED ставятся оплатой и отменой, не строками.
+ */
+export function orderStatusFromItems(statuses: readonly ItemStatus[]): 'NEW' | 'COOKING' | 'READY' | 'SERVED' {
+  if (!statuses.length) throw new Error('В заказе нет строк');
+  if (statuses.every((s) => s === 'NEW')) return 'NEW';
+  if (statuses.every((s) => s === 'SERVED')) return 'SERVED';
+  if (statuses.every((s) => s === 'READY' || s === 'SERVED')) return 'READY';
+  return 'COOKING';
+}
+/** Строки станции, которые ей ещё нужны (поданные уходят с экрана) */
+export function stationItems<T extends { station: MenuStation; status: ItemStatus }>(
+  items: readonly T[],
+  station: MenuStation,
+): T[] {
+  return items.filter((i) => i.station === station && i.status !== 'SERVED');
+}
+export interface ItemStatusCommand {
+  status: ItemStatus;
+  expectedUpdatedAt: string;
+}
+export function parseItemStatusCommand(raw: unknown): ItemStatusCommand {
+  const b = foodObject(raw, ['status', 'expectedUpdatedAt']);
+  if (!ITEM_STATUSES.includes(b.status as ItemStatus)) throw new Error('Неизвестный статус позиции');
+  if (typeof b.expectedUpdatedAt !== 'string' || !b.expectedUpdatedAt)
+    throw new Error('Нужна отметка изменения');
+  return { status: b.status as ItemStatus, expectedUpdatedAt: b.expectedUpdatedAt };
 }
 export function orderDelayed(status: OrderStatus, openedAt: Date, now: Date): boolean {
   return (
@@ -73,6 +120,8 @@ export interface PaySetting {
 export interface PayrollTotals {
   base: bigint;
   percentPart: bigint;
+  /** Сдельно: уборки гостиницы × ставка (DATA_MODEL §4.1); у салона и ресторана 0 */
+  piece: bigint;
   bonus: bigint;
   penalty: bigint;
   total: bigint;
@@ -82,6 +131,7 @@ export function payrollTotals(
   setting: PaySetting,
   closedOrdersTotal: bigint,
   adjustments: bigint[],
+  piece = 0n,
 ): PayrollTotals {
   const base =
     setting.model === 'FIXED' || setting.model === 'FIXED_PLUS_PERCENT' ? setting.fixedMinor : 0n;
@@ -91,7 +141,7 @@ export function payrollTotals(
       : 0n;
   const bonus = adjustments.filter((a) => a > 0n).reduce((s, a) => s + a, 0n);
   const penalty = adjustments.filter((a) => a < 0n).reduce((s, a) => s + a, 0n);
-  return { base, percentPart, bonus, penalty, total: base + percentPart + bonus + penalty };
+  return { base, percentPart, piece, bonus, penalty, total: base + percentPart + piece + bonus + penalty };
 }
 
 function money(v: unknown, min = 0): bigint {
@@ -104,11 +154,16 @@ export interface MenuCategoryInput {
   name?: string;
   sortOrder?: number;
   active?: boolean;
+  station?: MenuStation;
 }
 export function parseMenuCategoryInput(raw: unknown, partial = false): MenuCategoryInput {
-  const b = foodObject(raw, ['name', 'sortOrder', 'active']);
+  const b = foodObject(raw, ['name', 'sortOrder', 'active', 'station']);
   const out: MenuCategoryInput = {};
   if (!partial || b.name !== undefined) out.name = foodText(b.name, 100);
+  if (b.station !== undefined) {
+    if (!MENU_STATIONS.includes(b.station as MenuStation)) throw new Error('Станция: кухня или бар');
+    out.station = b.station as MenuStation;
+  }
   if (b.sortOrder !== undefined) out.sortOrder = foodInt(b.sortOrder, -2147483648);
   if (b.active !== undefined) {
     if (typeof b.active !== 'boolean') throw new Error('Нужно логическое значение');
@@ -181,7 +236,10 @@ export function parseIngredientInput(raw: unknown): IngredientInput {
 export interface OrderItemInput {
   menuItemId: string;
   qty: number;
+  /** комментарий к позиции («без лука») */
   notes: string | null;
+  /** §33.7: выбранные модификаторы блюда */
+  modifierIds: string[];
 }
 export interface OrderCreate {
   tableId: string | null;
@@ -194,11 +252,13 @@ export function parseOrderItems(raw: unknown): OrderItemInput[] {
   if (!Array.isArray(raw) || raw.length === 0) throw new Error('Добавьте хотя бы одно блюдо');
   if (raw.length > 100) throw new Error('Слишком много строк заказа');
   return raw.map((item) => {
-    const b = foodObject(item, ['menuItemId', 'qty', 'notes']);
+    const b = foodObject(item, ['menuItemId', 'qty', 'notes', 'modifierIds']);
     return {
       menuItemId: foodId(b.menuItemId),
       qty: foodInt(b.qty, 1, 999),
-      notes: b.notes == null ? null : foodText(b.notes, 500),
+      // пустой комментарий = без комментария
+      notes: b.notes == null || (typeof b.notes === 'string' && !b.notes.trim()) ? null : foodText(b.notes, 500),
+      modifierIds: parseModifierIds(b.modifierIds),
     };
   });
 }
@@ -217,14 +277,17 @@ export interface PaySettingsInput {
   model: PayModel;
   fixedMinor: bigint;
   percent: number;
+  /** Ставка за одну уборку гостиницы (миграция 143); не прислана: прежняя не меняется */
+  perCleaningMinor?: bigint;
 }
 export function parsePaySettings(raw: unknown): PaySettingsInput {
-  const b = foodObject(raw, ['model', 'fixedMinor', 'percent']);
+  const b = foodObject(raw, ['model', 'fixedMinor', 'percent', 'perCleaningMinor']);
   if (!PAY_MODELS.includes(b.model as PayModel)) throw new Error('Неизвестная модель оплаты');
   return {
     model: b.model as PayModel,
     fixedMinor: money(b.fixedMinor),
     percent: foodInt(b.percent, 0, 100),
+    ...(b.perCleaningMinor === undefined ? {} : { perCleaningMinor: money(b.perCleaningMinor) }),
   };
 }
 

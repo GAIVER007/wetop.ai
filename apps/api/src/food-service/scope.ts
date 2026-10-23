@@ -9,6 +9,7 @@ import {
   currentOrganizationId,
   currentVertical,
   hasSignedInActor,
+  currentUserId,
 } from '../auth/request-context';
 import type { PrismaService } from '../database/prisma.provider';
 export interface FoodScope {
@@ -28,7 +29,12 @@ export function foodMay(permission: Permission) {
 export const BRANCH_CASH_VERTICALS = ['FOOD_SERVICE', 'BEAUTY'] as const;
 /** Склад кухни и расходников (`branch.stock`) открыт всем трём направлениям (ADR-STOCK-ALL, 21.10.2026) */
 export const BRANCH_STOCK_VERTICALS = ['FOOD_SERVICE', 'BEAUTY', 'HOSPITALITY'] as const;
-type FoodVertical = (typeof BRANCH_STOCK_VERTICALS)[number];
+/**
+ * Зарплата (`branch.payroll`): начисления у всех трёх направлений (docs/decisions/2026-10-22-hotel-staff-cabinet.md);
+ * выплата из кассы филиала только там, где касса филиала (BRANCH_CASH_VERTICALS)
+ */
+export const BRANCH_PAYROLL_VERTICALS = ['FOOD_SERVICE', 'BEAUTY', 'HOSPITALITY'] as const;
+export type FoodVertical = (typeof BRANCH_STOCK_VERTICALS)[number];
 export async function foodScope(
   db: Pick<DbTx, 'business' | 'location'>,
   verticals: readonly FoodVertical[] = ['FOOD_SERVICE'],
@@ -97,4 +103,25 @@ export async function foodTransaction<T>(
       throw new ConflictException('Такая запись уже существует');
     throw error;
   }
+}
+
+/**
+ * Официант с правом `orders` без `desk` («Личный кабинет», §33.6): работает только от своего сотрудника бизнеса
+ * (`employees.user_id`). Стойка (`desk`) работает за всех: null. Нет привязанного сотрудника — отказ.
+ */
+export async function waiterSelf(
+  db: Pick<DbTx, 'employee'>,
+  s: Pick<FoodScope, 'businessId'>,
+): Promise<{ id: string; name: string } | null> {
+  if (actorMay('desk')) return null;
+  foodMay('orders');
+  const userId = currentUserId();
+  const me = userId
+    ? await db.employee.findFirst({
+        where: { userId, businessId: s.businessId, status: 'ACTIVE' },
+        select: { id: true, name: true },
+      })
+    : null;
+  if (!me) throw new ForbiddenException('Ваш вход не привязан к сотруднику этого ресторана: обратитесь к руководителю');
+  return me;
 }

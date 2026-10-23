@@ -314,6 +314,8 @@ Brush, SprayCan, ClipboardCheck) добавлена в набор 21.09 при �
 Утверждённый V4 owner-home (16.10.2026): `today/unified-owner.tsx`, `unified-owner.css`, одна композиция для BEAUTY, FOOD_SERVICE, HOSPITALITY. Четыре показателя: выручка, загрузка полосой, поступления, оплаченные расходы; ниже динамика, ограничения данных и структура расходов. Существующие `.seg`, `.btn`, semantic tokens и Inter оболочки. Постоянной боковой панели и кольца нет. APP_UNIFIED_OWNER_HOME по умолчанию выключен. Неизвестные значения не нули; серии, предыдущий период и классификация не выдумываются. Операционные инструменты: `/today/operations` и профильные разделы. Полный backend contract: `docs/contracts/owner-summary.md`.
 
 
+Итоги одной строкой вместо плиток (аудит гостиницы 22.10.2026, `docs/decisions/2026-10-22-hermes-ahotel-hotel-audit.md`): `lib/summary-line.tsx` (`SummaryLine`, части через запятую, число жирным с testid, часть-ссылка), стили `app/summary-line.css` (`.summary-line`). Используют шахматка (`chessboard/day-line.tsx`), «Гости» (`guests/guests-summary.tsx`), «Номерной фонд», «Брони по источникам» (`channels/channel-totals.tsx`). Новые сводки списков строятся на нём, не на `Stat`.
+
 **Правило.** У каждого интерактивного компонента описаны и на странице `/design-system` показаны
 восемь состояний: обычное, наведение, фокус с клавиатуры, нажатие, отключено, загрузка, ошибка,
 выбрано/активно. Фокус — кольцо `--focus` 2 px с отступом 2 px, никогда не `outline: none`.

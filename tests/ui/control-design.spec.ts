@@ -80,7 +80,7 @@ test('журнал: дни группами, время без года, объ�
   // объект — одной подписью словом и номером; обрезанных служебных идентификаторов нет
   await expect(first).toContainText('Бронь 20260913-TESTAA');
   await expect(main.getByText(/ui-\w+…/)).toHaveCount(0);
-  await expect(main.getByTestId('journal-row').nth(1)).toContainText('Сотрудник');
+  await expect(main.getByTestId('journal-row').nth(1)).toContainText('Учётная запись');
   const deleted = main.getByTestId('journal-row').filter({ hasText: 'Бронь создана' });
   await expect(deleted).toContainText('20260913-TESTAA');
   await expect(deleted.getByRole('link', { name: '20260913-TESTAA' })).toHaveCount(0);

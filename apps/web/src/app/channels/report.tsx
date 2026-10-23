@@ -19,13 +19,12 @@ import {
   Help,
   SectionTitle,
   Select,
-  Stat,
-  Stats,
   Table,
 } from '../../components/ui';
 import { DateInput } from '../../components/date-field';
 import { Icon } from '../../components/icon';
 import { unstable_rethrow } from 'next/navigation';
+import { ChannelTotals } from './channel-totals';
 
 /**
  * Отчёт по источникам броней за период по дате заезда — бывший экран «Менеджер каналов»
@@ -110,26 +109,12 @@ export async function ChannelReport({ sp }: { sp: Record<string, string | undefi
       )}
       {report && totals && (
         <>
-          <Stats min={200}>
-            <Stat label="Бронирований" value={totals.count} testId="channel-bookings" />
-            <Stat label="Отмен" value={totals.cancelled} />
-            <Stat label="Незаездов" value={totals.noShow} />
-            <Stat
-              label="Стоимость броней"
-              testId="channel-amount"
-              value={
-                money.size ? (
-                  <span className="channel-amount">
-                    {[...money].map(([currency, value]) => (
-                      <span key={currency}>{formatMoney(value.toString(), currency)}</span>
-                    ))}
-                  </span>
-                ) : (
-                  '—'
-                )
-              }
-            />
-          </Stats>
+          <ChannelTotals
+            count={totals.count}
+            cancelled={totals.cancelled}
+            noShow={totals.noShow}
+            money={money}
+          />
           {report.rows.length > 0 && (
             <Table className="dir-table dir-table--channel-report" data-testid="channel-report">
               <thead>

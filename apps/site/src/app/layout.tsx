@@ -8,6 +8,7 @@ import motion from '../components/site-motion.module.css';
 import { DevAgentation } from '../components/dev-agentation';
 import { SiteFooter } from '../components/site-footer';
 import { SiteHeader } from '../components/site-header';
+import { ByLocale } from '../components/by-locale';
 import { getDictionary, localeInfo } from '../i18n';
 import { TITLE_SEPARATOR, websiteOpenGraph } from '../lib/metadata';
 import { assistantScriptSrc, resetLink, siteAuthEndpoint, siteUrl } from '../lib/site';
@@ -40,6 +41,8 @@ const monoFont = IBM_Plex_Mono({
 });
 
 const t = getDictionary();
+const ru = t;
+const kk = getDictionary('kk');
 const assistantSrc = assistantScriptSrc();
 // Окно входа и создания аккаунта (ADR-100): адреса стойки считаются при сборке, клиенту настройки не передаются
 const authUrls = {
@@ -84,13 +87,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <body className={motion.motion}>
         <a className="skip-link" href="#content">
-          {t.a11y.skipToContent}
+          <ByLocale ru={ru.a11y.skipToContent} kk={kk.a11y.skipToContent} />
         </a>
-        <SiteHeader />
+        {/* шапка и подвал на языке адреса: /kk/* по-казахски (P1-12) */}
+        <ByLocale ru={<SiteHeader />} kk={<SiteHeader locale="kk" />} />
         <main id="content" tabIndex={-1}>
           {children}
         </main>
-        <SiteFooter />
+        <ByLocale ru={<SiteFooter />} kk={<SiteFooter locale="kk" />} />
         {/* Организация и сайт для поисковиков (schema.org): имя, адрес, контакт; цен и отзывов нет (§19.9) */}
         <JsonLd
           data={{

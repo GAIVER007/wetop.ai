@@ -6,6 +6,8 @@ import { restaurantApi } from '../../lib/food-api';
 import { PayrollBoard } from '../food/payroll-board';
 import { restaurantShell } from '../food/restaurant-load';
 import { StaffTabs } from '../food/staff-tabs';
+import { requireFeature } from '../../lib/vertical-guard';
+import { HotelPayrollPage } from './hotel-page';
 import '../food/food.css';
 import '../food/restaurant.css';
 
@@ -16,6 +18,9 @@ export default async function PayrollPage({
   searchParams: Promise<{ month?: string }>;
 }) {
   const { month } = await searchParams;
+  // зарплата у всех направлений (кабинет горничной, решение 22.10.2026); гостиница своим экраном начислений
+  const me = await requireFeature('/payroll');
+  if (me.context?.vertical === 'HOSPITALITY') return <HotelPayrollPage month={month} />;
   try {
     const shell = await restaurantShell(undefined, ['FOOD_SERVICE', 'BEAUTY']);
     const salon = shell.vertical === 'BEAUTY';

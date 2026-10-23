@@ -106,6 +106,9 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
                         report && (
                           <BranchReport
                             labels={labels}
+                            {...(vertical === 'FOOD_SERVICE'
+                              ? { statusTitle: 'Брони по статусам', statusEmpty: 'Броней за период нет.' }
+                              : {})}
                             counts={report.counts}
                             revenue={report.revenue}
                             foodPanel={
@@ -141,8 +144,8 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
             </section>
           )}
           <p className="muted">
-            Даты по часам каждого филиала, период до 31 дня. Показаны текущие статусы записей,
-            начавшихся за период. Проценты неявок и повторных посещений пока не рассчитываются.
+            Даты по часам каждого филиала, период до 31 дня. Показаны текущие статусы записей и броней,
+            начавшихся за период.
           </p>
         </div>
       </Page>

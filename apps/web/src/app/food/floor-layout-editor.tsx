@@ -5,6 +5,7 @@ import { LAYOUT_SIZE, layoutSpots, tableShapeOf, type TableLayout, type TableSha
 import { Alert, Button, Field, Select } from '../../components/ui';
 import type { DiningArea, DiningTable } from '../../lib/food-types';
 import { saveFloorLayout } from './restaurant-actions';
+import { tableTitle } from '../../lib/table-title';
 
 /** Форма стола на плане: те же три фигуры, что рисует CSS плана зала */
 export const SHAPE_CSS: Record<TableShape, string> = { ROUND: 'round', SQUARE: 'square', RECT: 'long' };
@@ -146,7 +147,7 @@ export function FloorLayoutEditor({
         })}
       </div>
       {current && table && (
-        <div className="rest-fp-editor__fields" aria-label={`Стол ${table.name}`} role="group">
+        <div className="rest-fp-editor__fields" aria-label={tableTitle(table.name)} role="group">
           <Field label={`Форма: ${table.name}`}>
             <Select
               value={current.shape ?? ''}

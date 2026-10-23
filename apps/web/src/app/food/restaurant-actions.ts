@@ -12,7 +12,9 @@ import type {
   MenuCategoryInput,
   MenuItemInput,
   MenuItemView,
+  ModifierGroupInput,
   OrderCreateInput,
+  OrderItemStatus,
   OrderPatch,
   OrderStatus,
   OrderToken,
@@ -23,15 +25,20 @@ import type {
 type MenuCommand =
   | { kind: 'category'; id?: string; body: Partial<MenuCategoryInput> }
   | { kind: 'item'; id?: string; body: Partial<MenuItemInput> }
-  | { kind: 'ingredients'; id: string; ingredients: IngredientInput[] };
+  | { kind: 'ingredients'; id: string; ingredients: IngredientInput[] }
+  // §33.7: группы добавок бизнеса и группы блюда
+  | { kind: 'modifier-group'; id?: string; body: Partial<ModifierGroupInput> }
+  | { kind: 'item-modifier-groups'; id: string; groupIds: string[] };
 type OrderCommand =
   | { kind: 'create'; body: OrderCreateInput }
   | { kind: 'edit'; id: string; body: OrderPatch }
   | { kind: 'status'; id: string; body: OrderToken & { status: OrderStatus } }
+  // §33.6: позиция на своей станции (кухня, бар) или «Подано» у официанта
+  | { kind: 'item-status'; id: string; itemId: string; body: { status: OrderItemStatus; expectedUpdatedAt: string } }
   | {
       kind: 'pay';
       id: string;
-      body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string };
+      body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string; itemIds?: string[] };
     }
   | { kind: 'void-payment'; id: string; reason: string }
   | {
@@ -96,6 +103,11 @@ export async function mutateMenu(
       item = command.id
         ? await restaurantApi.updateMenuItem(command.id, command.body)
         : await restaurantApi.createMenuItem(command.body as MenuItemInput);
+    } else if (command.kind === 'modifier-group') {
+      if (command.id) await restaurantApi.updateModifierGroup(command.id, command.body);
+      else await restaurantApi.createModifierGroup(command.body as ModifierGroupInput);
+    } else if (command.kind === 'item-modifier-groups') {
+      await restaurantApi.setItemModifierGroups(command.id, command.groupIds);
     } else item = await restaurantApi.replaceIngredients(command.id, command.ingredients);
     revalidatePath('/menu');
     return { error: null, ...(item ? { item } : {}) };
@@ -121,6 +133,9 @@ export async function mutateOrder(
       case 'status':
         order = await restaurantApi.orderStatus(command.id, command.body);
         break;
+      case 'item-status':
+        order = await restaurantApi.itemStatus(command.id, command.itemId, command.body);
+        break;
       case 'pay':
         order = await restaurantApi.payOrder(command.id, command.body);
         break;
@@ -134,7 +149,7 @@ export async function mutateOrder(
         order = await restaurantApi.rateOrder(command.id, command.body);
         break;
     }
-    for (const path of ['/orders', '/kitchen', '/floor-plan', '/today', '/cashbox', '/employees'])
+    for (const path of ['/orders', '/kitchen', '/drinks', '/waiter', '/floor-plan', '/today', '/cashbox', '/employees'])
       revalidatePath(path);
     return { error: null, order };
   } catch (error) {

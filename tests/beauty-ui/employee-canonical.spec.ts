@@ -274,7 +274,9 @@ test('a profile save does not strand the week editor, and the week is locked whi
   await page.goto(`/employees/${fixture.employee.id}/profile`);
   const profile = page.getByTestId('employee-manager');
   const form = profile.getByTestId('portal-profile-form');
-  await form.getByLabel('Телефон для связи').fill('+0000000008');
+  // вымышленный номер в формате +7: поле и перечитанная страница показывают его одинаково, форма не считается изменённой.
+  // Иностранный номер (не +7) поле при вводе не форматирует, а после сохранения страница показывает группами по три цифры
+  await form.getByLabel('Телефон для связи').fill('+70000000008');
   await form.getByRole('button', { name: 'Сохранить профиль', exact: true }).click();
   await expect(form.getByRole('status')).toContainText('Сохранено на сервере');
 

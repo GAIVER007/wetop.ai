@@ -100,6 +100,41 @@ test('«Войти» открывает окно на главной, вход �
   });
 });
 
+test('пустые поля: русская ошибка под каждым полем и фокус в первое, без сообщений браузера (P1-1a)', async ({
+  page,
+}) => {
+  const calls = await mockDesk(page, {
+    options: () => ({ status: 200, body: { registrationEnabled: true } }),
+  });
+  await page.goto('/#login');
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
+  const email = dialog.getByLabel('Почта');
+  await expect(email).toHaveAttribute('aria-invalid', 'true');
+  await expect(email).toHaveAccessibleDescription('Введите почту');
+  await expect(email).toBeFocused();
+  await expect(dialog.getByLabel('Пароль', { exact: true })).toHaveAccessibleDescription(
+    'Введите пароль',
+  );
+  // браузер своей проверкой форму не останавливает: формы с noValidate
+  expect(await dialog.locator('form').evaluate((f) => (f as HTMLFormElement).noValidate)).toBe(true);
+  await email.fill('dana@example.invalid');
+  await expect(email).not.toHaveAttribute('aria-invalid', 'true');
+
+  await dialog.getByRole('tab', { name: 'Регистрация' }).click();
+  await dialog.getByRole('button', { name: 'Создать аккаунт', exact: true }).click();
+  await expect(dialog.getByLabel('Имя')).toBeFocused();
+  for (const [label, text] of [
+    ['Имя', 'Введите имя'],
+    ['Название бизнеса', 'Введите название бизнеса'],
+    ['Телефон', 'Введите телефон'],
+    ['Пароль', 'Введите пароль'],
+  ] as const)
+    await expect(dialog.getByLabel(label, { exact: true })).toHaveAccessibleDescription(text);
+  await expect(dialog).not.toContainText('Please fill');
+  expect(calls.filter((c) => c.path === 'login' || c.path === 'register')).toEqual([]);
+});
+
 test('неверный пароль — текст стойки в окне, человек остаётся на главной', async ({ page }) => {
   await mockDesk(page, {
     options: () => ({ status: 200, body: { registrationEnabled: true } }),
@@ -287,7 +322,7 @@ test('снимки окна регистрации: светлая и тёмна
     'Cookie',
   ])
     await expect(page.getByRole('heading', { level: 2, name: new RegExp(section) })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'zapoinov@bk.ru' }).first()).toBeVisible();
+  await expect(page.getByRole('link', { name: 'hello@wetop.ai' }).first()).toBeVisible();
   await page.screenshot({
     path: `${report}/site-privacy-light-1440.png`,
     fullPage: true,

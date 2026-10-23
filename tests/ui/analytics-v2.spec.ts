@@ -130,8 +130,9 @@ test('номера и койки считаются раздельно: своя
   await main.getByTestId('pa-fund').getByRole('link', { name: 'Номера' }).click();
   await expect(page).toHaveURL(/fund=rooms/);
   const economics = main.getByTestId('pa-unit-economics');
-  await expect(economics).toContainText('Средняя цена номера (ADR)');
-  await expect(economics).toContainText('Доход на номер (RevPAR)');
+  await expect(economics).toContainText('Средняя цена номера');
+  await expect(economics).toContainText('Доход на номер');
+  await expect(economics).not.toContainText(/ADR|RevPAR/);
   await expectOccupancyDirection(page, 'rooms');
   await expect(main.getByTestId('pa-categories').locator('tbody tr')).toHaveCount(1);
 

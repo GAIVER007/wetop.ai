@@ -5,7 +5,7 @@ import { redirect, unstable_rethrow } from 'next/navigation';
 import { shiftDate } from '@pms/domain';
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
-import { Alert, Button, EmptyState, Stat } from '../../components/ui';
+import { Alert, Button, EmptyState } from '../../components/ui';
 import { Chip, ChipGroup } from '../../components/chip';
 import { Toolbar } from '../../components/toolbar';
 import { DateInput } from '../../components/date-field';
@@ -21,7 +21,8 @@ import { GuestPanel } from './guest-panel';
 import { GuestsSearch } from './guests-search';
 import { GuestsTable } from './guests-table';
 import { PageSize } from './page-size';
-import { pageWindow, vsYesterday } from './guest-stay';
+import { pageWindow } from './guest-stay';
+import { GuestsSummary } from './guests-summary';
 import { buildRowView } from './row-view';
 import {
   DEFAULT_FILTERS,
@@ -189,61 +190,14 @@ export default async function GuestsPage({
         />
       )}
       {result && !emptyBase && (
-        <section className="gb-kpis" aria-label="Показатели гостей" data-testid="guests-kpis">
-          <Stat
-            icon={<Icon name="guests" />}
-            tone="success"
-            label="Проживают"
-            value={result.kpi.inhouse}
-            hint="Сейчас в доме"
-            href={guestsHref(DEFAULT_FILTERS, { view: 'inhouse' })}
-            testId="kpi-inhouse"
-          />
-          <Stat
-            icon={<Icon name="arrival" />}
-            tone="info"
-            label="Заезды сегодня"
-            value={result.kpi.arrivalsToday}
-            delta={vsYesterday(result.kpi.arrivalsToday, result.kpi.arrivalsYesterday)}
-            href={guestsHref(DEFAULT_FILTERS, { view: 'today' })}
-            testId="kpi-arrivals"
-          />
-          <Stat
-            icon={<Icon name="departure" />}
-            tone="warning"
-            label="Выезды сегодня"
-            value={result.kpi.departuresToday}
-            delta={vsYesterday(result.kpi.departuresToday, result.kpi.departuresYesterday)}
-            href={guestsHref(DEFAULT_FILTERS, { view: 'departures' })}
-            testId="kpi-departures"
-          />
-          <Stat
-            icon={<Icon name="clock" />}
-            tone="info"
-            label="Ожидают заезд"
-            value={result.kpi.expected}
-            hint="В ближайшие дни"
-            href={guestsHref(DEFAULT_FILTERS, { view: 'expected' })}
-            testId="kpi-expected"
-          />
-          <Stat
-            icon={<Icon name="incidents" />}
-            tone="danger"
-            label="Требуют внимания"
-            value={result.kpi.attention}
-            hint="Долг, без номера, не заехал"
-            href={guestsHref(DEFAULT_FILTERS, { view: 'attention' })}
-            testId="kpi-attention"
-          />
-          <Stat
-            icon={<Icon name="bed" />}
-            label="Без активного проживания"
-            value={result.kpi.none}
-            hint={`Всего гостей в базе: ${result.kpi.all}`}
-            href={guestsHref(DEFAULT_FILTERS, { state: 'NONE' })}
-            testId="kpi-none"
-          />
-        </section>
+        <GuestsSummary
+          kpi={result.kpi}
+          href={(part) =>
+            part === 'none'
+              ? guestsHref(DEFAULT_FILTERS, { state: 'NONE' })
+              : guestsHref(DEFAULT_FILTERS, { view: part })
+          }
+        />
       )}
       {!emptyBase && (
         <div className="gb-layout" data-panel={selectedId ? 'open' : 'closed'}>

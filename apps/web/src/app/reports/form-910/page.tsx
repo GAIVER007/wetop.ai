@@ -10,6 +10,7 @@ import { Alert, Table } from '../../../components/ui';
 import { METHOD_RU } from '../../finance/labels';
 import '../../directory.css';
 import '../reports.css';
+import { halfLinks } from './half-nav';
 
 const MONTHS = [
   'Январь',
@@ -91,20 +92,18 @@ export default async function Form910Page({
     for (const p of r.income?.byMethod ?? [])
       byMethod.set(p.method, (byMethod.get(p.method) ?? 0n) + p.amountMinor);
   const money = (v: bigint) => formatMoney(v.toString(), currency);
-  const link = (y: number, h: 1 | 2) => `/reports/form-910?year=${y}&half=${h}`;
-  const prev = half === 1 ? link(year - 1, 2) : link(year, 1);
-  const next = half === 1 ? link(year, 2) : link(year + 1, 1);
+  const { prev, next } = halfLinks(year, half);
   return (
     <Page
       title="Доход для формы 910"
       subtitle={`${half === 1 ? 'Первое' : 'Второе'} полугодие ${year}: деньги от гостей минус возвраты, по месяцам`}
     >
       <nav className="row row--xs" aria-label="Полугодие">
-        <Link href={prev} className="btn btn--secondary btn--sm">
-          Предыдущее полугодие
+        <Link href={prev.href} className="btn btn--secondary btn--sm">
+          {prev.label}
         </Link>
-        <Link href={next} className="btn btn--secondary btn--sm">
-          Следующее полугодие
+        <Link href={next.href} className="btn btn--secondary btn--sm">
+          {next.label}
         </Link>
       </nav>
       {error && <Alert boxed>{error}</Alert>}

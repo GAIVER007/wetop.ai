@@ -61,7 +61,8 @@ describe('unified owner actual DTO', () => {
         const links = [...html.matchAll(/href="([^"]+)"/g)]
           .map((m) => new URL(m[1]!.replaceAll('&amp;', '&'), 'https://unit.invalid'))
           .filter((url) => ['/finance', '/restaurant-finance'].includes(url.pathname));
-        expect(links.length).toBeGreaterThanOrEqual(4);
+        // шапка, график и «Куда уходят деньги»; общая строка «Открыть операции» ушла с настоящими сигналами (21.10.2026)
+        expect(links.length).toBeGreaterThanOrEqual(3);
         for (const url of links) {
           expect(url.pathname).toBe(vertical === 'FOOD_SERVICE' ? '/restaurant-finance' : '/finance');
           expect(url.searchParams.get('from')).toBe(from);
@@ -84,7 +85,7 @@ describe('unified owner actual DTO', () => {
     const html = renderToStaticMarkup(createElement(OwnerSummaryView, {summary:d}));
     expect(html).toContain('Нет денежных операций за выбранный период');
     expect(html).not.toContain('NO_MONEY_DATA');
-    expect(html).not.toContain('0,00 KZT');
+    expect(html).not.toContain('>0 ₸<');
   });
   it('passes actual previous daily money to the always-open chart', () => {
     const d = dto();
@@ -93,7 +94,7 @@ describe('unified owner actual DTO', () => {
     d.previous = {period:{...d.period,policy:'SAME_LOCAL_WALL_CLOCK'}, ...d.current, revenue:{...d.current.revenue,daily:daily('6789','2026-09-16')}};
     const html = renderToStaticMarkup(createElement(OwnerSummaryView, {summary:d}));
     expect(html).toContain('data-series="previous"');
-    expect(html).toContain('67,89 KZT');
+    expect(html).toContain('67,89 ₸');
     expect(html).toContain('role="tablist"');
     expect(html.indexOf('<svg')).toBeLessThan(html.indexOf('<details'));
   });
@@ -113,7 +114,7 @@ describe('unified owner actual DTO', () => {
     d.workload.numerator = '3600000'; d.workload.denominator = '7200000';
     const html = renderToStaticMarkup(createElement(OwnerSummaryView, {summary:d}));
     expect(html).toContain('&lt;Закупки&gt;');
-    expect(html).toContain('400,00 KZT');
+    expect(html).toContain('400 ₸');
     expect(html).not.toContain('Классификация расходов не подключена');
     expect(html).not.toContain('миллисекунд');
     expect(html).toContain('60 из 120');
@@ -129,7 +130,9 @@ describe('unified owner actual DTO', () => {
       expect(html).toContain(label);
       expect(html).toContain('Оплаченные расходы');
       expect(html).toContain('USD');
-      expect(html).toContain('KZT');
+      // тенге знаком «₸», как на остальных экранах (аудит 22.10.2026 P1-1)
+      expect(html).toContain('₸');
+      expect(html).not.toMatch(/\d KZT/);
       expect(html).not.toContain('50%');
       expect(html).toContain('Неполное покрытие периода');
       expect(html).toContain('Временной ряд не подключён');
@@ -139,14 +142,20 @@ describe('unified owner actual DTO', () => {
     const d=dto();
     d.comparisons={revenue:{reason:null,currencies:[{currency:'USD',deltaMinor:'100',rateBasisPoints:'125',reason:null}]},receipts:{reason:'PAYMENT_LEDGER_NOT_AVAILABLE',currencies:null},paidExpenses:{reason:'UNKNOWN_SOURCE_CURRENCY',currencies:null}};
     const html=renderToStaticMarkup(createElement(OwnerSummaryView,{summary:d}));
-    expect(html).toContain('+1,00 USD');
+    expect(html).toContain('+1 USD');
     expect(html).toContain('+1,25%');
     expect(html).toContain('Нет данных для сравнения');
   });
   it('formats big minor units without float loss', () =>
     expect(formatOwnerMoney('900719925474099301', 'KZT').replace(/\s/g, '')).toBe(
-      '9007199254740993,01KZT',
+      '9007199254740993,01₸',
     ));
+  it('деньги как везде: «50 000 ₸» без копеек, другая валюта кодом (аудит 22.10.2026 P1-1)', () => {
+    expect(formatOwnerMoney('5000000', 'KZT').replace(/\s/g, ' ')).toBe('50 000 ₸');
+    expect(formatOwnerMoney('-5000000', 'KZT').replace(/\s/g, ' ')).toBe('−50 000 ₸');
+    expect(formatOwnerMoney('6789', 'USD')).toBe('67,89 USD');
+    expect(formatOwnerMoney('100', 'USD')).toBe('1 USD');
+  });
   it('normalizes query, not rolling 30 days', () => {
     expect(ownerPeriod('month')).toBe('month');
     expect(ownerPeriod('30')).toBe('today');
@@ -225,14 +234,25 @@ describe('unified owner actual DTO', () => {
     expect(html).toContain('owner-totals');
     expect(html).not.toContain('data-testid="owner-empty"');
   });
-  it('«Проверить загрузку» салона ведёт в Журнал, как меню (п. 10)', () => {
-    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('today') }));
-    expect(html).toMatch(/<a href="\/calendar">Проверить загрузку<\/a>/);
+  it('салон: строка «Требуют решения» ведёт в Журнал, как меню (п. 10)', () => {
+    const d = dto('today');
+    d.attention = [{ id: 'unpaid-visits', tone: 'warn', count: 1, text: 'Не оплачено сегодня: 1 запись', href: '/calendar', action: 'Журнал' }];
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: d }));
+    expect(html).toMatch(/<a href="\/calendar">Журнал<\/a>/);
     expect(html).not.toContain('href="/appointments"');
   });
   it('пустой график без служебных оговорок (п. 9)', () => {
     const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('today') }));
     expect(html).not.toContain('Недоступные источники не означают ноль');
     expect(html).not.toContain('подтверждённой валютой');
+  });
+  it('«Обновлено 16 окт., 14:00» без года и «г.» (аудит 22.10.2026 P2-9)', () => {
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('today') }));
+    expect(html).toContain('Обновлено 16 окт., 14:00');
+    expect(html).not.toMatch(/Обновлено[^<]*2026/);
+  });
+  it('без «пока недоступны» на Главной (аудит 22.10.2026 P1-1)', () => {
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('today') }));
+    expect(html).not.toContain('пока недоступны');
   });
 });

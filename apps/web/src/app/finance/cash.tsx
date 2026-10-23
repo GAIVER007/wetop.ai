@@ -290,7 +290,7 @@ function ReconcileForm({
   const [method, setMethod] = useState(cash.balances[0]?.method ?? 'CASH');
   const expected = cash.balances.find((b) => b.method === method)?.balanceMinor ?? '0';
   return (
-    <form action={action} className="settings-service-form" data-testid="cash-reconcile-form">
+    <form action={action} className="settings-service-form" data-testid="cash-reconcile-form" noValidate>
       {state.error && <Alert boxed>{state.error}</Alert>}
       <Field label="Способ">
         <Select
@@ -413,7 +413,7 @@ function OperationForm({
   useSavedEffect(state, onSaved);
   const fit = categories.filter((c) => c.kind === kind && c.active);
   return (
-    <form action={action} className="settings-service-form" data-testid="cash-operation-form">
+    <form action={action} className="settings-service-form" data-testid="cash-operation-form" noValidate>
       {state.error && <Alert boxed>{state.error}</Alert>}
       <input type="hidden" name="kind" value={kind} />
       <Field label="Сумма">
@@ -454,7 +454,7 @@ function TransferForm({
   const [state, action, pending] = useCashIntentAction(cashTransferAction, 'transfer');
   useSavedEffect(state, onSaved);
   return (
-    <form action={action} className="settings-service-form" data-testid="cash-transfer-form">
+    <form action={action} className="settings-service-form" data-testid="cash-transfer-form" noValidate>
       {state.error && <Alert boxed>{state.error}</Alert>}
       <MethodSelect name="from" label="Откуда" testId="cash-from" />
       <MethodSelect name="to" label="Куда" testId="cash-to" />

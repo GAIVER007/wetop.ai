@@ -18,7 +18,7 @@ import type { OrderContext } from '../food/order-drawer';
 import '../food/food.css';
 import '../food/restaurant.css';
 
-/** «Напитки» (бар) ресторана по макету владельца (экран 7): текущие заказы с напитками и витрина напитков меню */
+/** «Напитки» (бар) ресторана по макету владельца (экран 7): позиции станции «Бар» (§33.6) и витрина напитков меню */
 export default async function DrinksPage() {
   try {
     const shell = await restaurantShell();

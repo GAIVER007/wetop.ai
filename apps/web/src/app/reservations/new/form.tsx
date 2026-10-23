@@ -19,6 +19,7 @@ import { checkBookingAvailability } from './availability';
 import { CHANNELS, SOURCES } from '../sources';
 import { summarize } from './summary';
 import { isStayDate } from '../../../lib/stay-date';
+import { phoneFieldValue, phoneOnInput } from '../../../lib/phone';
 
 export function NewReservationForm(props: {
   canMutate: boolean;
@@ -298,8 +299,8 @@ export function NewReservationForm(props: {
       {unavailable.length > 0 && (
         <Alert tone="warning">
           {unavailable.length === 1
-            ? `Выбранная ячейка ${unavailable[0]} недоступна`
-            : `Выбранные ячейки ${unavailable.join(', ')} недоступны`}{' '}
+            ? `Выбранный номер ${unavailable[0]} недоступен`
+            : `Выбранные номера ${unavailable.join(', ')} недоступны`}{' '}
           на этот период. Выберите другое размещение.
         </Alert>
       )}
@@ -372,7 +373,10 @@ export function NewReservationForm(props: {
               <Input
                 type="tel"
                 name="phone"
-                defaultValue={kept['phone'] ?? ''}
+                inputMode="tel"
+                placeholder="+7 701 000 00 00"
+                defaultValue={phoneFieldValue(kept['phone'])}
+                onInput={phoneOnInput}
                 onChange={(e) => setPhone(e.target.value)}
               />
             </Field>
@@ -675,7 +679,7 @@ function PlacementFields({
       </Field>
       {group ? (
         <div className="field" style={{ justifyContent: 'end' }} data-testid="group-hint">
-          {Number(quantity)} проживания на первых свободных ячейках по номеру
+          {Number(quantity)} проживания в первых свободных номерах по порядку
           {Number(quantity) > units.length ? `, свободно только ${units.length}` : ''}; всего{' '}
           {pluralRu(Number(quantity) * adults, ['гость', 'гостя', 'гостей'])}
         </div>
@@ -736,7 +740,7 @@ function PlacementFields({
           max={Math.max(1, units.length)}
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
-          title={`свободно ${units.length} в категории; при 2 и больше ячейки назначит система`}
+          title={`свободно ${units.length} в категории; при 2 и больше номера назначит система`}
         />
       </Field>
     </Grid>

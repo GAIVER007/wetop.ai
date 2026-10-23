@@ -9,6 +9,7 @@ import { readBeautyWorkload } from '../beauty/workload';
 import { readHospitalityWorkload } from '../hospitality/workload';
 import { readRestaurantWorkload } from '../food-service/workload';
 import { readOwnerMoney } from './owner-money';
+import { readOwnerAttention } from './owner-attention';
 import { currentAssignments, currentLocationId, currentOrganizationId, currentRole, hasSignedInActor } from '../auth/request-context';
 import { Access } from '../auth/access.decorator';
 import { ScopeAware } from '../auth/scope-aware.decorator';
@@ -85,6 +86,8 @@ export class OwnerSummaryService {
       workload: vertical === 'BEAUTY' ? await readBeautyWorkload(this.prisma.db, locationId, from, now, location.timezone) : vertical === 'FOOD_SERVICE' ? await readRestaurantWorkload(this.prisma.db, locationId, from, now) : vertical === 'HOSPITALITY' ? await readHospitalityWorkload(this.prisma.db, { propertyId: location.property?.id ?? null, locationId, organizationId }, fromDate, today, now) : { state: 'UNAVAILABLE' as const, reason: supported ? 'HISTORY_NOT_CAPTURED' : 'UNSUPPORTED_VERTICAL', numerator: null, denominator: null, coverage: [], requestedFromUtc: from.toISOString(), requestedToUtc: now.toISOString() },
       classificationState: projection.classificationState,
       classificationReason: projection.classificationReason,
+      // «Требуют решения»: всегда сегодня филиала, не выбранный период (решение 21.10.2026)
+      attention: supported ? await readOwnerAttention(this.prisma.db, { locationId, organizationId, businessId: location.business.id, vertical, timezone: location.timezone, propertyId: location.property?.id ?? null, now, unclassifiedExpenses: projection.classificationReason === 'UNCLASSIFIED_EXPENSE_SOURCES' }) : [],
     };
   }
 }

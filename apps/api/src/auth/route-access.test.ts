@@ -292,6 +292,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /food-service/orders/:id/rating-link': 'desk',
   'POST /food-service/payments/:id/void': 'refunds',
   'GET /food-service/cash': 'desk',
+  // способы оплаты филиала (§21.7): читает стойка, правят владелец и управляющий
+  'GET /food-service/payment-methods': 'desk',
+  'PUT /food-service/payment-methods': 'settings',
   'POST /food-service/cash/operations': 'desk',
   'POST /food-service/cash/operations/:id/void': 'refunds',
   'POST /food-service/cash/reconciliations': 'desk',
@@ -501,6 +504,11 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PATCH /market/competitors/:id': 'rates',
   'PUT /market/competitors/:id/occupancy': 'rates',
   'PUT /market/competitors/:id/rates': 'rates',
+  // §60 конкуренты салона и ресторана: смотрит тот, кто видит отчёты; ведёт тот, кто ставит цены
+  'GET /business-market': 'reports',
+  'POST /business-market/competitors': 'rates',
+  'PATCH /business-market/competitors/:id': 'rates',
+  'PUT /business-market/competitors/:id/snapshot': 'rates',
   'GET /market/collector/competitors': 'service',
   'PUT /market/collector/competitors/:id/occupancy': 'service',
   // MKT4: публичный рантайм сайтов, только узкий ключ SITES_RUNTIME_KEY; чтения версии по id нет

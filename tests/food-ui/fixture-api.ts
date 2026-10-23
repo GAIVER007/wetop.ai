@@ -303,6 +303,8 @@ app.use(
                 await tx.kitchenProduct.deleteMany({ where: { business: b } });
                 await tx.auditLog.deleteMany({ where: { organizationId: org } });
                 await tx.onboardingProgress.deleteMany({ where: { location: { business: b } } });
+                // способы оплаты филиала (§21.7, миграция 151) держат филиал внешним ключом
+                await tx.branchPaymentMethodSetting.deleteMany({ where: { location: { business: b } } });
                 await tx.location.deleteMany({ where: { business: b } });
                 await tx.business.deleteMany({ where: b });
                 await tx.membership.deleteMany({ where: { organizationId: org, userId: user } });

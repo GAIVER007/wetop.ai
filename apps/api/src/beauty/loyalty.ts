@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { assertBranchMethodsOpen } from '../food-service/branch-payment-methods';
 import {
   BadRequestException,
   Body,
@@ -487,6 +488,8 @@ export class BeautyLoyaltyService {
         if (!certificateId) throw new ConflictException('Этот ключ оплаты уже использован');
         return certificateId;
       }
+      // §21.7: сертификат продаётся только включённым в филиале способом
+      await assertBranchMethodsOpen(tx, locationId, input.method);
       if (input.buyerCustomerId) {
         const buyer = await tx.customer.findFirst({
           where: { id: input.buyerCustomerId, organizationId: scope.organizationId, businesses: { some: { businessId: scope.businessId } } },

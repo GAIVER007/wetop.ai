@@ -259,6 +259,21 @@
     }
   },
   {
+    "route": "/branch-payment-methods",
+    "vertical": null,
+    "features": [
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/branch-payment-methods",
+    "rule": {
+      "href": "/branch-payment-methods",
+      "label": "Способы оплаты",
+      "requires": "desk"
+    }
+  },
+  {
     "route": "/calendar",
     "vertical": "BEAUTY",
     "features": [

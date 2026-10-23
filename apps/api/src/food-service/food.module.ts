@@ -31,6 +31,7 @@ import { RestaurantOpeningController, RestaurantOpeningService } from './opening
 import { RestaurantService } from './restaurant.service';
 import { StockService } from './stock.service';
 import { MenuModifiersService } from './modifiers';
+import { BranchPaymentMethodsController, BranchPaymentMethodsService } from './branch-payment-methods';
 import { FoodReminderWorker, FoodRemindersController, FoodRemindersService } from './reminders';
 @Controller('food-service')
 @Access('desk')
@@ -409,6 +410,7 @@ export class FoodStockController {
     FoodOrdersController,
     BranchCashController,
     BranchPayrollController,
+    BranchPaymentMethodsController,
     FoodStaffController,
     FoodStockController,
     OrderRatingLinkController,
@@ -422,6 +424,7 @@ export class FoodStockController {
     StockService,
     MenuPhotoService,
     MenuModifiersService,
+    BranchPaymentMethodsService,
     OrderRatingLinkService,
     FoodRemindersService,
     FoodReminderWorker,

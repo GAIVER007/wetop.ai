@@ -2765,6 +2765,38 @@ model PaymentMethodSetting {
 базе применяет владелец.** `payments`, `refunds`, `cash_operations` не меняются.
 
 
+### 21.7. Способы оплаты филиала салона и ресторана (23.10.2026, решение владельца «Да, делай по этой схеме»; `docs/decisions/2026-10-23-branch-payment-methods.md`)
+
+Тот же смысл, что §21.6, для кассы филиала (§35, §48): филиал решает, какие из шести денежных способов принимает и в
+каком порядке. Набор: CASH, CARD_TERMINAL, KASPI, HALYK, BANK_TRANSFER_PERSON, BANK_TRANSFER_LEGAL (как
+`FOOD_PAYMENT_METHODS`); депозита и гарантии картой у филиала нет, BONUS и GIFT_CERTIFICATE это не деньги кассы и
+настройкой не управляются. Строк нет, значит умолчания: все шесть включены, поэтому выкладка у филиалов ничего не
+меняет. Таблица гостиницы `payment_method_settings` (§21.6) не трогается.
+
+```prisma
+model BranchPaymentMethodSetting {
+  id         String        @id @default(uuid()) @db.Uuid
+  locationId String        @map("location_id") @db.Uuid
+  method     PaymentMethod
+  enabled    Boolean       @default(true)
+  sortOrder  Int           @map("sort_order")
+  updatedAt  DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  location   Location      @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  @@unique([locationId, method])
+  @@map("branch_payment_method_settings")
+}
+```
+
+Правила: CHECK на шесть способов, порядок неотрицательный; хотя бы один включён; сохранение пишет все шесть строк одной
+транзакцией, журнал `branch.payment_methods.updated` (было и стало). Выключенный способ не принимает новых денег:
+оплата заказа и деление счёта, оплата записи салона, приход кассы и перевод «в» способ, выплата зарплаты, продажа
+сертификата и бара; API отказывает словами «Способ оплаты «…» выключен в настройках филиала». Расход, перевод «из»
+способа, возвраты, сверка и отчёты работают по любому способу: деньги, принятые раньше, выводятся из кассы. Читает
+стойка (`GET /food-service/payment-methods`), правят владелец и управляющий (`PUT`, право `settings`, у салона
+«Настройки → изменение»). RLS `rls_tenant` через Location → Business, у приложения нет DELETE. Миграция
+`20261023000151_branch_payment_method_settings` (+`down.sql`); **на рабочей базе применяет владелец, до выкладки кода.**
+`restaurant_payments`, `restaurant_cash_operations` не меняются.
+
 ## 22. Задачи стойки (УТВЕРЖДЕНО владельцем 03.10.2026 — «давай да делай что надо», «доводи до рабочего состояния»; ADR-145, Q-249)
 
 **Утверждение 03.10.2026, уточнения при миграции `20261003000049_desk_tasks`:** (1) `organization_id` не хранится: изоляция по `property_id` через `app_property_visible`, как у кассы §21, организацию даёт объект; (2) `due_time` — текст «HH:MM» с CHECK, как `properties.check_in_time`, а не тип TIME; (3) автор закрытия — `done_by_id`, CHECK «нет `done_at` — нет и `done_by_id`». Видимость (Q-249-б): все роли объекта видят и закрывают задачи объекта, право `desk`.
@@ -4791,7 +4823,7 @@ Customer сохраняет исходное nullable поле phone. Добав
 |---|---|
 | `content_drafts` | черновик поста филиала: канал, тема, текст, хештеги, CTA, происхождение AI/MANUAL, день публикации (DATE пояса филиала), статус DRAFT/PUBLISHED/ARCHIVED, revision |
 
-## 60. Загрузка конкурентов салона и ресторана (ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО; уточнение владельца 23.10.2026 «через Booking и т. д., видеть загруженность»; номер раздела берётся при слиянии)
+## 60. Загрузка конкурентов салона и ресторана (УТВЕРЖДЕНО владельцем 23.10.2026: «через Booking и т. д., видеть загруженность», «да давай делай все варианты»; миграция 20261023000150_location_competitors)
 
 План: `plans/2026-10-23-competitors-business-manual.md`. Гостиничные `competitors`, `competitor_rates`,
 `competitor_occupancy` (§23) не меняются: у них ключ — объект размещения и ночь, здесь — филиал и день.
@@ -4800,7 +4832,8 @@ Customer сохраняет исходное nullable поле phone. Добав
 | поле | тип | правило |
 |---|---|---|
 | id | uuid PK | |
-| business_id | uuid FK businesses | бизнес из сессии |
+| organization_id | uuid FK organizations | организация бизнеса (RLS) |
+| business_id | uuid FK businesses | бизнес из сессии, вертикаль BEAUTY или FOOD_SERVICE |
 | location_id | uuid FK locations | филиал того же бизнеса (составной FK / триггер) |
 | name | varchar(200) | непусто; уникально в филиале без учёта регистра |
 | address | varchar(300)? | |
@@ -4815,7 +4848,7 @@ Customer сохраняет исходное nullable поле phone. Добав
 | поле | тип | правило |
 |---|---|---|
 | id | uuid PK | |
-| business_id, location_id | uuid | те же, что у соседа (составной FK `(competitor_id, location_id)`) |
+| organization_id, location_id | uuid | те же, что у соседа (составной FK `(competitor_id, location_id)`) |
 | competitor_id | uuid | сосед этого филиала |
 | day | date | на какой день смотрели свободные окна/столы |
 | observed_on | date | когда смотрели; `day >= observed_on` |

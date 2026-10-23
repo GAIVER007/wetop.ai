@@ -71,6 +71,7 @@ model Business {
   bonusProgram              BonusProgram?
   bonusEntries              CustomerBonusEntry[]
   giftCertificates          GiftCertificate[]
+  locationCompetitors       LocationCompetitor[]
 
   @@index([organizationId])
   @@map("businesses")
@@ -108,6 +109,7 @@ model Location {
   barSales                  BarSale[]
   servicePeriods            ServicePeriod[]
   foodBookingRules          FoodBookingRules?
+  paymentMethodSettings     BranchPaymentMethodSetting[]
   foodClosedDays            FoodClosedDay[]
   restaurantReservations    RestaurantReservation[]
   restaurantOrders          RestaurantOrder[]
@@ -148,6 +150,7 @@ model Location {
   siteLeads                 SiteLead[]
   clientNotifications       ClientNotification[]
   reminderSettings          BeautyReminderSettings?
+  competitors               LocationCompetitor[]
   /// 152: напоминания гостям ресторана
   restaurantNotifications   RestaurantReservationNotification[]
   foodReminderSettings      FoodReminderSettings?
@@ -1781,6 +1784,22 @@ model PaymentMethodSetting {
   @@map("payment_method_settings")
 }
 
+/// Способы оплаты филиала салона и ресторана (DATA_MODEL §21.7, решение владельца 23.10.2026): шесть денежных
+/// способов кассы филиала (§35). Строк нет: умолчания (все шесть включены). CHECK на набор способов в миграции 151.
+model BranchPaymentMethodSetting {
+  id         String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  locationId String        @map("location_id") @db.Uuid
+  method     PaymentMethod
+  enabled    Boolean       @default(true)
+  sortOrder  Int           @map("sort_order")
+  updatedAt  DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@unique([locationId, method])
+  @@map("branch_payment_method_settings")
+}
+
 /// DATA_MODEL §24 (03.10.2026, ADR-144): счёт Kaspi по телефону, ссылка банка или перевод, привязанные к счёту
 /// проживания. «Оплачено» создаёт обычный Payment и закрывает запрос одной транзакцией.
 model PaymentRequest {
@@ -1975,6 +1994,62 @@ model CompetitorOccupancy {
   @@unique([competitorId, stayDate, observedOn])
   @@index([propertyId, observedOn, stayDate])
   @@map("competitor_occupancy")
+}
+
+/// §60 Сосед филиала салона или ресторана (миграция 150); гостиничные конкуренты — Competitor (§23)
+model LocationCompetitor {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  businessId     String   @map("business_id") @db.Uuid
+  locationId     String   @map("location_id") @db.Uuid
+  name           String   @db.VarChar(200)
+  address        String?  @db.VarChar(300)
+  /// расстояние в метрах, >= 0
+  distanceM      Int?     @map("distance_m")
+  /// страница онлайн-записи или брони соседа (Dikidi, YCLIENTS, Restoplace…)
+  url            String?
+  note           String?
+  /// «убрать» = архив, снимки остаются; удалять нельзя (прав DELETE нет)
+  active         Boolean  @default(true)
+  createdById    String?  @map("created_by_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization                 @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "location_competitors_organization_fkey")
+  business     Business                     @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "location_competitors_business_fkey")
+  location     Location                     @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "location_competitors_location_fkey")
+  createdBy    User?                        @relation("LocationCompetitorCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "location_competitors_created_by_fkey")
+  snapshots    LocationCompetitorSnapshot[]
+
+  @@unique([id, locationId], map: "location_competitors_id_location_key")
+  @@index([businessId, locationId, active], map: "location_competitors_business_idx")
+  @@map("location_competitors")
+}
+
+/// §60 Снимок дня соседа: нет мест / мало мест / есть места и видимые окна или столы (миграция 150)
+model LocationCompetitorSnapshot {
+  id             String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                      @map("organization_id") @db.Uuid
+  locationId     String                      @map("location_id") @db.Uuid
+  competitorId   String                      @map("competitor_id") @db.Uuid
+  /// на какой день смотрели свободные окна или столы
+  day            DateTime                    @db.Date
+  /// когда смотрели; day >= observed_on
+  observedOn     DateTime                    @map("observed_on") @db.Date
+  level          CompetitorAvailabilityLevel
+  /// сколько окон или столов видно, если площадка показывает (>= 0)
+  freeSlots      Int?                        @map("free_slots")
+  source         CompetitorObservationSource @default(MANUAL)
+  createdById    String?                     @map("created_by_id") @db.Uuid
+  observedAt     DateTime                    @default(now()) @map("observed_at") @db.Timestamptz(6)
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "location_competitor_snapshots_organization_fkey")
+  competitor   LocationCompetitor @relation(fields: [competitorId, locationId], references: [id, locationId], onDelete: Restrict, onUpdate: NoAction, map: "location_competitor_snapshots_competitor_fkey")
+  createdBy    User?              @relation("LocationCompetitorSnapshotCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "location_competitor_snapshots_created_by_fkey")
+
+  @@unique([competitorId, day, observedOn], map: "location_competitor_snapshots_day_key")
+  @@index([locationId, observedOn, day], map: "location_competitor_snapshots_location_idx")
+  @@map("location_competitor_snapshots")
 }
 
 // ───────────────────────── §11 Аналитика сайта ─────────────────────────
@@ -2591,13 +2666,15 @@ model Organization {
   auditLogs            AuditLog[]
   customers            Customer[]
 
-  sellerBookingIntents    SellerBookingIntent[]
-  siteLeads               SiteLead[]
-  clientNotifications     ClientNotification[]
-  bonusEntries            CustomerBonusEntry[]
-  giftCertificates        GiftCertificate[]
-  restaurantNotifications RestaurantReservationNotification[]
-  giftCertificateEntries  GiftCertificateEntry[]
+  sellerBookingIntents        SellerBookingIntent[]
+  siteLeads                   SiteLead[]
+  clientNotifications         ClientNotification[]
+  bonusEntries                CustomerBonusEntry[]
+  giftCertificates            GiftCertificate[]
+  giftCertificateEntries      GiftCertificateEntry[]
+  locationCompetitors         LocationCompetitor[]
+  locationCompetitorSnapshots LocationCompetitorSnapshot[]
+  restaurantNotifications     RestaurantReservationNotification[]
 
   @@map("organizations")
 }
@@ -2626,65 +2703,67 @@ model User {
   failedAttempts Int       @default(0) @map("failed_attempts")
   lockedUntil    DateTime? @map("locked_until") @db.Timestamptz(6)
 
-  sellerAgents                 SellerAgent[]
-  wizardDrafts                 WizardDraft[]
-  memberships                  Membership[]
-  membershipScopes             MembershipScope[]
-  sessions                     Session[]
-  invitesIssued                Invite[]                       @relation("InviteCreatedBy")
-  passwordResets               PasswordReset[]
-  emailVerifications           EmailVerification[]
-  auditLogs                    AuditLog[]
-  cashOperations               CashOperation[]
-  cashReconciliations          CashReconciliation[]
-  tasksAssigned                DeskTask[]                     @relation("DeskTaskAssignee")
-  tasksDone                    DeskTask[]                     @relation("DeskTaskDoneBy")
-  tasksCreated                 DeskTask[]                     @relation("DeskTaskCreatedBy")
-  housekeepingEvents           HousekeepingEvent[]            @relation("HousekeepingEventUser")
-  paymentRequests              PaymentRequest[]
-  fiscalReceipts               FiscalReceipt[]
-  competitorsCreated           Competitor[]
-  competitorReadings           CompetitorOccupancy[]
-  competitorRatesCreated       CompetitorRate[]
-  userErrors                   UserError[]
-  beautyEmployees              Employee[]
-  appointmentsCreated          Appointment[]
-  sellerProfileEdits           SellerProfile[]
-  sellerPromptVersions         SellerPromptVersion[]
-  platformAdmin                PlatformAdmin?
-  extensionEdits               OrganizationExtension[]
-  foodReservationsCreated      RestaurantReservation[]
-  foodAssignmentsCreated       TableAssignment[]
-  restaurantOrdersCreated      RestaurantOrder[]
-  paySettingsEdited            EmployeePaySetting[]
-  payAdjustmentsCreated        EmployeePayAdjustment[]
-  menuPhotosCreated            MenuItemPhoto[]
-  orderRatingsTaken            RestaurantOrderRating[]
-  kitchenLotsCreated           KitchenStockLot[]
-  kitchenMovementsCreated      KitchenStockMovement[]
-  restaurantPaymentsCreated    RestaurantPayment[]            @relation("RestaurantPaymentCreatedBy")
-  restaurantPaymentsVoided     RestaurantPayment[]            @relation("RestaurantPaymentVoidedBy")
-  restaurantCashOpsCreated     RestaurantCashOperation[]      @relation("RestaurantCashOpCreatedBy")
-  restaurantCashOpsVoided      RestaurantCashOperation[]      @relation("RestaurantCashOpVoidedBy")
-  restaurantCashChecks         RestaurantCashReconciliation[]
-  marketingSitesCreated        MarketingSite[]
-  marketingSiteVersionsCreated MarketingSiteVersion[]
-  generationRunsRequested      GenerationRun[]
-  sitePublications             MarketingSitePublication[]
-  siteAssetsCreated            SiteAsset[]
-  propertyMedia                PropertyMedia[]
-  marketingExpensesCreated     MarketingExpense[]
-  marketingExpenseFilesCreated MarketingExpenseFile[]
-  marketingAdConnectionsMade   MarketingAdConnection[]
-  marketingAdCreativesMade     MarketingAdCreative[]
-  contentDraftsMade            ContentDraft[]                 @relation("ContentDraftsMade")
-  marketingAdLaunchesMade      MarketingAdLaunch[]
-  siteAiRunsRequested          SiteAiRun[]
-  siteBookmarksCreated         MarketingSiteVersionBookmark[]
-  siteBuilderEntitlementEdits  SiteBuilderEntitlement[]
-  bonusEntriesCreated          CustomerBonusEntry[]
-  giftCertificatesCreated      GiftCertificate[]
-  giftCertificateEntriesMade   GiftCertificateEntry[]
+  sellerAgents                       SellerAgent[]
+  wizardDrafts                       WizardDraft[]
+  memberships                        Membership[]
+  membershipScopes                   MembershipScope[]
+  sessions                           Session[]
+  invitesIssued                      Invite[]                       @relation("InviteCreatedBy")
+  passwordResets                     PasswordReset[]
+  emailVerifications                 EmailVerification[]
+  auditLogs                          AuditLog[]
+  cashOperations                     CashOperation[]
+  cashReconciliations                CashReconciliation[]
+  tasksAssigned                      DeskTask[]                     @relation("DeskTaskAssignee")
+  tasksDone                          DeskTask[]                     @relation("DeskTaskDoneBy")
+  tasksCreated                       DeskTask[]                     @relation("DeskTaskCreatedBy")
+  housekeepingEvents                 HousekeepingEvent[]            @relation("HousekeepingEventUser")
+  paymentRequests                    PaymentRequest[]
+  fiscalReceipts                     FiscalReceipt[]
+  competitorsCreated                 Competitor[]
+  competitorReadings                 CompetitorOccupancy[]
+  competitorRatesCreated             CompetitorRate[]
+  userErrors                         UserError[]
+  beautyEmployees                    Employee[]
+  appointmentsCreated                Appointment[]
+  sellerProfileEdits                 SellerProfile[]
+  sellerPromptVersions               SellerPromptVersion[]
+  platformAdmin                      PlatformAdmin?
+  extensionEdits                     OrganizationExtension[]
+  foodReservationsCreated            RestaurantReservation[]
+  foodAssignmentsCreated             TableAssignment[]
+  restaurantOrdersCreated            RestaurantOrder[]
+  paySettingsEdited                  EmployeePaySetting[]
+  payAdjustmentsCreated              EmployeePayAdjustment[]
+  menuPhotosCreated                  MenuItemPhoto[]
+  orderRatingsTaken                  RestaurantOrderRating[]
+  kitchenLotsCreated                 KitchenStockLot[]
+  kitchenMovementsCreated            KitchenStockMovement[]
+  restaurantPaymentsCreated          RestaurantPayment[]            @relation("RestaurantPaymentCreatedBy")
+  restaurantPaymentsVoided           RestaurantPayment[]            @relation("RestaurantPaymentVoidedBy")
+  restaurantCashOpsCreated           RestaurantCashOperation[]      @relation("RestaurantCashOpCreatedBy")
+  restaurantCashOpsVoided            RestaurantCashOperation[]      @relation("RestaurantCashOpVoidedBy")
+  restaurantCashChecks               RestaurantCashReconciliation[]
+  marketingSitesCreated              MarketingSite[]
+  marketingSiteVersionsCreated       MarketingSiteVersion[]
+  generationRunsRequested            GenerationRun[]
+  sitePublications                   MarketingSitePublication[]
+  siteAssetsCreated                  SiteAsset[]
+  propertyMedia                      PropertyMedia[]
+  marketingExpensesCreated           MarketingExpense[]
+  marketingExpenseFilesCreated       MarketingExpenseFile[]
+  marketingAdConnectionsMade         MarketingAdConnection[]
+  marketingAdCreativesMade           MarketingAdCreative[]
+  contentDraftsMade                  ContentDraft[]                 @relation("ContentDraftsMade")
+  marketingAdLaunchesMade            MarketingAdLaunch[]
+  siteAiRunsRequested                SiteAiRun[]
+  siteBookmarksCreated               MarketingSiteVersionBookmark[]
+  siteBuilderEntitlementEdits        SiteBuilderEntitlement[]
+  bonusEntriesCreated                CustomerBonusEntry[]
+  giftCertificatesCreated            GiftCertificate[]
+  giftCertificateEntriesMade         GiftCertificateEntry[]
+  locationCompetitorsCreated         LocationCompetitor[]           @relation("LocationCompetitorCreatedBy")
+  locationCompetitorSnapshotsCreated LocationCompetitorSnapshot[]   @relation("LocationCompetitorSnapshotCreatedBy")
 
   @@map("users")
 }

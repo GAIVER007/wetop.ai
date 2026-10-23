@@ -13,13 +13,13 @@ describe('хаб «Настройки» одной таблицей для вс�
       ['Основные', ['Филиалы и реквизиты /branches', 'Режим работы /beauty-settings#hours', 'Сотрудники и доступ /team', 'Права ролей /team/roles', 'Мой профиль /profile']],
       ['Журнал', ['Специалисты /employees', 'График работы /beauty/schedule', 'Каталог услуг /services']],
       ['Клиенты и продажи', ['Напоминания клиентам /beauty-settings#reminders', 'Бонусы /beauty-settings#bonuses', 'Сертификаты /finance/certificates', 'Сайт и онлайн-запись /marketing/site/editor', 'ИИ-продавец /ai-agents']],
-      ['Система', ['История действий /journal']],
+      ['Система', ['Способы оплаты /branch-payment-methods', 'История действий /journal']],
     ]);
     expect(flat(settingsGroupsFor(owner, 'FOOD_SERVICE'))).toEqual([
       ['Основные', ['Филиалы и реквизиты /branches', 'Режим работы /restaurant-settings?section=hours', 'Сотрудники и доступ /team', 'Права ролей /team/roles', 'Мой профиль /profile']],
       ['Журнал', ['Сотрудники /employees', 'График работы /employees/shifts', 'Залы и столы /dining-areas', 'Правила бронирования /restaurant-settings?section=bookings', 'Меню /menu']],
       ['Клиенты и продажи', ['Напоминания клиентам /restaurant-settings?section=reminders', 'Сайт и онлайн-бронь /marketing/site/editor', 'ИИ-продавец /ai-agents']],
-      ['Система', ['История действий /journal']],
+      ['Система', ['Способы оплаты /branch-payment-methods', 'История действий /journal']],
     ]);
     expect(flat(settingsGroupsFor(owner, 'HOSPITALITY'))).toEqual([
       ['Основные', ['Карточка объекта /hotel-settings', 'Филиалы и реквизиты /branches', 'Режим работы /hotel-settings/stay', 'Сотрудники и доступ /team', 'Права ролей /team/roles', 'Мой профиль /profile']],

@@ -82,6 +82,12 @@ BEGIN
     GRANT SELECT, INSERT, UPDATE ON restaurant_payment_items TO wetop_app, wetop_service;
   END IF;
 
+  -- 151_branch_payment_method_settings: exact ACL of the mixed migration (no DELETE: methods are switched off)
+  IF to_regclass('public.branch_payment_method_settings') IS NOT NULL THEN
+    REVOKE ALL ON branch_payment_method_settings FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON branch_payment_method_settings TO wetop_app, wetop_service;
+  END IF;
+
   -- 152_restaurant_reminders: exact ACL of the mixed migration (all-or-none)
   SELECT count(*) INTO installed FROM unnest(ARRAY['restaurant_reservation_notifications','food_reminder_settings']) AS t(name)
     WHERE to_regclass('public.' || name) IS NOT NULL;
@@ -93,9 +99,20 @@ BEGIN
     GRANT SELECT ON food_reminder_settings TO wetop_app;
     GRANT SELECT, INSERT, UPDATE, DELETE ON food_reminder_settings TO wetop_service;
   END IF;
+
   -- 146_content_drafts: exact ACL of the mixed migration (draft is archived, never deleted)
   IF to_regclass('public.content_drafts') IS NOT NULL THEN
     REVOKE ALL ON content_drafts FROM wetop_app, wetop_service;
     GRANT SELECT, INSERT, UPDATE ON content_drafts TO wetop_app, wetop_service;
+  END IF;
+
+  -- 150_location_competitors: exact ACL of the mixed migration (all-or-none); competitors are archived, never deleted
+  SELECT count(*) INTO installed FROM unnest(ARRAY['location_competitors','location_competitor_snapshots']) AS t(name)
+    WHERE to_regclass('public.' || name) IS NOT NULL;
+  IF installed NOT IN (0,2) THEN RAISE EXCEPTION 'Incomplete location-competitors schema during ACL restore'; END IF;
+  IF installed = 2 THEN
+    REVOKE ALL ON location_competitors, location_competitor_snapshots FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON location_competitors TO wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON location_competitor_snapshots TO wetop_app, wetop_service;
   END IF;
 END $restore_acl$;

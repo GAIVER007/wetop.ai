@@ -34,6 +34,7 @@ describe('бар: приходы (BAR2)', () => {
     async movements() { return [{ id: 'movement-1', kind: 'RECEIPT', units: '12' }]; },
     async report() { return { purchasesMinor: '180000', supplierPaidMinor: '80000', revenueMinor: '70000', costMinor: '15000', grossProfitMinor: '55000', writeOffMinor: '0', stockCostMinor: '165000', supplierDebtMinor: '100000' }; },
     async enabledPaymentMethods() { return null; },
+    async enabledBranchPaymentMethods() { return null; },
     async inventoryCount(input) {
       if (input.actualUnits > 12n && input.unitCostMinor === null) return { kind: 'surplus_requires_cost', systemUnits: 12n };
       return { kind: 'adjusted', id: '92000000-0000-4000-8000-000000000001', systemUnits: '12', actualUnits: input.actualUnits.toString(), differenceUnits: (input.actualUnits - 12n).toString(), costMinor: '15000' };
@@ -182,6 +183,7 @@ describe('бар: права на сторно (FOOD-FIX-01)', () => {
   let app: INestApplication;
   const repo = {
     async enabledPaymentMethods() { return null; },
+    async enabledBranchPaymentMethods() { return null; },
     async sellRetail() {
       return { kind: 'posted', id: '60000000-0000-4000-8000-000000000001', status: 'POSTED', revenueMinor: '70000', costMinor: '15000' };
     },

@@ -619,6 +619,10 @@ test('отчёт за период: выручка, средний чек, оп�
   await page.goto('/management/analytics');
   await expect(page.getByTestId('food-period-days')).toBeVisible();
   await expect(page.getByTestId('food-period-categories')).toContainText('Паста');
+  // «Все отчёты» ресторана (аудит вертикалей 22.10.2026 п.5): /reports ведёт сюда же, период сохраняется
+  await page.goto(`/reports?from=${yesterday}&to=${day}`);
+  await expect(page).toHaveURL(new RegExp(`/management/analytics\\?from=${yesterday}&to=${day}$`));
+  await expect(page.getByTestId('food-period-categories')).toContainText('Паста');
   const bad = await request.get(`${api}/food-service/period-report?from=${day}&to=2000-01-01`, { headers });
   expect(bad.status()).toBe(400);
   // оценка гостя (§39): только после оплаты и только одна

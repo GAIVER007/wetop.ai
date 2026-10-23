@@ -34,6 +34,8 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   '/customers/[id]': B,
   '/onboarding': H,
   '/market': H,
+  // конкуренты салона и ресторана (DATA_MODEL §60): свой экран, гостиница остаётся на /market (ADR-142)
+  '/market/business': BF,
   '/website': H,
   '/marketing/site': H,
   '/marketing/site/assets': ALL_VERTICALS,
@@ -60,6 +62,8 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   '/employees': BF,
   '/employees/shifts': F,
   '/cashbox': BF,
+  // способы оплаты филиала (DATA_MODEL §21.7): салон и ресторан
+  '/branch-payment-methods': BF,
   // зарплата у всех трёх направлений (кабинет горничной 22.10.2026); у гостиницы без выплат из кассы
   '/payroll': ALL_VERTICALS,
   '/staff-schedule': H,

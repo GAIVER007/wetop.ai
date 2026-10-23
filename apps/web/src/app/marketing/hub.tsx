@@ -76,8 +76,8 @@ const modules = (c: VerticalCopy): Module[] => [
     title: 'Контент',
     icon: 'journal',
     href: '/marketing/content',
-    text: 'Тексты постов с ИИ по данным вашего филиала. Правьте, ставьте на день недели и копируйте в соцсети.',
-    caps: ['Пост с ИИ: два варианта', 'Проверка цифр по карточке', 'План публикаций на неделю'],
+    text: 'Создавайте фото, тексты, видео и посты с помощью ИИ. Планируйте публикации во все соцсети.',
+    caps: ['Генерация фото и видео', 'Готовые шаблоны постов', 'Планировщик публикаций'],
   },
 ];
 
@@ -116,10 +116,11 @@ const BUDGET_MENU = [
  * зависит). «Сайт и SEO» с SITE-1 открыт всем направлениям: первый экран (филиал, факты, чат, дизайны) работает у
  * всех, а создание сайта салона и ресторана честно говорит словами сервера, пока API их не подключит.
  */
-export function liveModules(vertical: WebVertical): Set<Module['key']> {
+export function liveModules(): Set<Module['key']> {
   return new Set<Module['key']>(
-    // «Реклама» живая у всех (кампании МКТ-В3, кабинет Meta), «Контент» с черновиками постов (CONTENT-DRAFTS-20261022)
-    vertical === 'HOSPITALITY' ? ['site', 'budget', 'ads', 'competitors', 'content'] : ['site', 'budget', 'ads', 'content'],
+    // «Реклама» живая у всех (кампании МКТ-В3, кабинет Meta): значок «Доступно», а не «Скоро» рядом с «Открыть»
+    // «Конкуренты» живые у всех: у гостиницы загрузка по ночам (ADR-142), у салона и ресторана по дням (§60)
+    ['site', 'budget', 'ads', 'competitors'],
   );
 }
 
@@ -226,11 +227,13 @@ export function MarketingHub({
 }) {
   const hospitality = vertical === 'HOSPITALITY';
   const copy = verticalCopy(vertical);
-  const live = liveModules(vertical);
-  // экранов-превью без живых данных больше нет: «Контент» с 23.10.2026 пишет и хранит черновики постов
-  const PREVIEW = new Set<Module['key']>([]);
-  // «Конкуренты» это гостиничный мониторинг загрузки (ADR-142): салону и ресторану карточку не показываем
-  const shown = modules(copy).filter((m) => hospitality || m.key !== 'competitors');
+  const live = liveModules();
+  // Реклама и контент пока «Скоро» у всех направлений; ссылка на экран-превью есть, кнопок действий нет
+  const PREVIEW = new Set<Module['key']>(['content']);
+  // «Конкуренты» у всех направлений (решение владельца 23.10.2026, п. 5): у гостиницы мониторинг загрузки
+  // (ADR-142), у салона и ресторана карточка честно говорит, что источника данных о соседях пока нет
+  // у салона и ресторана «Конкуренты» ведут на их экран по дням (§60), у гостиницы на загрузку по ночам
+  const shown = modules(copy).map((m) => (m.key === 'competitors' && !hospitality ? { ...m, href: '/market/business', text: `Загрузка ближайших ${copy.businessesOf} по дням: когда у соседей всё занято, цену можно поднять.`, caps: ['Конкуренты рядом', 'Загрузка по дням', 'Подсказки к цене'] } : m));
   const value = (key: ResultKey) => {
     if (key === 'spent' && spend) return formatMoney(spend.spentMinor, spend.currency);
     return 'Нет данных';

@@ -74,14 +74,16 @@ test('заселить → карточка и шахматка показыва
     .getByTestId('guest-form')
     .getByRole('button', { name: 'Сохранить' })
     .click();
-  await expect(
-    page.getByRole('main').getByTestId('guest-form').locator('input[name="citizenship"]'),
-  ).toHaveValue('KAZ');
+  // сохранение обновляет страницу: пока оно идёт, введённый номер документа стирался (CI #804 23.10.2026,
+  // та же гонка, что в full-day.spec.ts), поэтому ждём гражданство в шапке карточки и только потом документ
+  await expect(page.getByRole('main').getByRole('definition').filter({ hasText: /^KAZ$/ })).toBeVisible();
+  await page.waitForLoadState('networkidle');
   // G5: документы — своя вкладка карточки гостя
   await page.getByRole('main').getByRole('tab', { name: 'Документы', exact: true }).click();
   const doc = page.getByRole('main').getByTestId('document-form');
   await doc.locator('input[name="number"]').fill('N 0000001');
   await doc.locator('input[name="issueCountry"]').fill('KAZ');
+  await expect(doc.locator('input[name="number"]')).toHaveValue('N 0000001');
   await doc.getByRole('button', { name: 'Добавить' }).click();
   await expect(page.getByRole('main').getByTestId('document-row')).toContainText('****0001');
   await page.screenshot({ path: 'reports/screenshots/guest-card.png', fullPage: true });

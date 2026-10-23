@@ -218,14 +218,14 @@ export default async function RevisionPageView({
         </div>
         <section className="chain__card" aria-labelledby="chain-unit">
           <h2 id="chain-unit" className="chain__title">
-            3. Ячейка в календаре
+            3. Номер в календаре
           </h2>
           {reservation?.items.length ? (
             reservation.items.map((it) => (
               <div key={it.id} className="stack stack--sm" data-testid="revision-unit">
                 <div className="row row--inline">
                   <Badge tone={it.unitCode ? 'ok' : 'warn'}>
-                    {it.unitCode ? `${it.unitCode}, ${it.accommodationTypeName}` : 'без ячейки'}
+                    {it.unitCode ? `${it.unitCode}, ${it.accommodationTypeName}` : 'номер не назначен'}
                   </Badge>
                   <StatusBadge kind="hospitality" value={it.status} />
                 </div>
@@ -233,7 +233,7 @@ export default async function RevisionPageView({
                 <div className="muted">
                   {it.unitCode
                     ? 'назначена автоматически: первая свободная в категории (Q-094)'
-                    : 'место не назначено — в календаре в строке «Без ячейки»'}
+                    : 'место не назначено — в календаре в строке «Без номера»'}
                 </div>
                 <Link
                   href={`/chessboard?from=${it.arrivalDate}&to=${it.departureDate}`}
@@ -244,7 +244,7 @@ export default async function RevisionPageView({
               </div>
             ))
           ) : (
-            <p className="muted">Проживаний нет — ячейка появится после создания брони.</p>
+            <p className="muted">Проживаний нет — номер появится после создания брони.</p>
           )}
         </section>
       </div>

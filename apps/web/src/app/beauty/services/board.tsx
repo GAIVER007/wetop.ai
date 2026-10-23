@@ -12,6 +12,7 @@ import { ServiceMaterials } from './materials';
 import { closesAfterSave, serviceFieldErrors, type ServiceFieldErrors } from './service-validation';
 import { useToast } from '../../../components/toast';
 import './services.css';
+import { groupCatalog } from '../../../components/catalog-table';
 
 /**
  * Каталог услуг салона (DATA_MODEL §19.1, срез B3). Каталог принадлежит сети, цену и доступность решает
@@ -28,6 +29,26 @@ type Editing =
   | { mode: 'new'; preset?: ServicePreset; enableForLocation?: boolean }
   | { mode: 'edit'; row: BeautyServiceRow }
   | null;
+
+/**
+ * Подзаголовки категорий в обоих списках (каталог A + подзаголовки B, решение владельца 23.10.2026, п. 6).
+ * Списки и перенос галочками остаются (PR 749: цен в списках нет), меняется только порядок: по категориям
+ * в алфавитном порядке, «Без категории» последней.
+ */
+function byCategory<T>(rows: readonly T[], categoryOf: (row: T) => string | null | undefined) {
+  const names = [...new Set(rows.map((row) => categoryOf(row)?.trim()).filter((c): c is string => Boolean(c)))].sort(
+    (a, b) => a.localeCompare(b, 'ru-RU'),
+  );
+  return groupCatalog(rows, (row) => categoryOf(row)?.trim() || null, names.map((name) => ({ id: name, name })));
+}
+
+function GroupHeading({ name, count }: { name: string; count: number }) {
+  return (
+    <h3 className="beauty-service-group">
+      {name} <span className="catalog-group__count">{count}</span>
+    </h3>
+  );
+}
 
 export function ServicesBoard({
   items,
@@ -195,7 +216,9 @@ export function ServicesBoard({
             />
           )}
           <div className="beauty-service-items">
-            {salon.map((row) => (
+            {byCategory(salon, (row) => row.category).flatMap((group) => [
+              <GroupHeading key={`g:${group.key}`} name={group.name} count={group.rows.length} />,
+              ...group.rows.map((row) => (
               <article
                 className="beauty-service-item"
                 draggable={canUpdate && row.active}
@@ -214,7 +237,8 @@ export function ServicesBoard({
                 )}
                 <ServiceIdentity row={row} location />
               </article>
-            ))}
+              )),
+            ])}
             {salon.length === 0 && <p className="beauty-service-empty">Отметьте услуги в каталоге справа и нажмите «Добавить в филиал».</p>}
           </div>
         </section>
@@ -244,7 +268,9 @@ export function ServicesBoard({
             />
           )}
           <div className="beauty-service-items">
-            {catalog.map((row) => {
+            {byCategory(catalog, (row) => row.category).flatMap((group) => [
+              <GroupHeading key={`g:${group.key}`} name={group.name} count={group.rows.length} />,
+              ...group.rows.map((row) => {
               const selectedInLocation = row.location?.enabled === true;
               const movable = row.active && !selectedInLocation;
               return (
@@ -284,7 +310,9 @@ export function ServicesBoard({
                   )}
                 </article>
               );
-            })}
+            }),
+            ])}
+            {presetCatalog.length > 0 && <GroupHeading name="Типовые услуги" count={presetCatalog.length} />}
             {presetCatalog.map((preset) => (
               <article
                 className="beauty-service-item beauty-service-item--preset"

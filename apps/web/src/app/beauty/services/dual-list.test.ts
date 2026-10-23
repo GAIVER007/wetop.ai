@@ -44,6 +44,27 @@ const service = (
 });
 
 describe('Услуги салона и общий каталог', () => {
+  it('оба списка разбиты подзаголовками категорий по алфавиту, «Без категории» последней (23.10.2026)', () => {
+    const cat = (row: BeautyServiceRow, category: string | null) => ({ ...row, category });
+    const html = renderToStaticMarkup(createElement(ServicesBoard, {
+      canEdit: true,
+      locationCurrency: 'KZT',
+      scopeKey: 'business:location',
+      items: [
+        cat(service('n1', 'Маникюр', { enabled: true }), 'Ногти'),
+        cat(service('h1', 'Стрижка', { enabled: false }), 'Волосы'),
+        cat(service('h2', 'Окрашивание', { enabled: true }), 'Волосы'),
+        cat(service('x1', 'Консультация', { enabled: false }), null),
+      ],
+    }));
+    const catalog = html.slice(html.indexOf('data-service-list="catalog"'));
+    const salon = html.slice(html.indexOf('data-service-list="salon"'), html.indexOf('data-service-list="catalog"'));
+    const heads = (part: string) => [...part.matchAll(/class="beauty-service-group">([^<]+) </g)].map((m) => m[1]);
+    expect(heads(salon)).toEqual(['Волосы', 'Ногти']);
+    expect(heads(catalog).slice(0, 3)).toEqual(['Волосы', 'Ногти', 'Без категории']);
+    expect(catalog.indexOf('Окрашивание')).toBeLessThan(catalog.indexOf('Маникюр'));
+    expect(catalog.indexOf('Маникюр')).toBeLessThan(catalog.indexOf('Консультация'));
+  });
   it('показывает выбранные услуги слева и все активные услуги справа', () => {
     const html = renderToStaticMarkup(createElement(ServicesBoard, {
       canEdit: true,

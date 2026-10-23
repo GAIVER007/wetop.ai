@@ -163,6 +163,7 @@ const SITE_ASSISTANT_PATH = '/internal/site-assistant';
 const BAR_RECEIPT_SCAN_PATH = '/internal/bar-receipt-scan';
 /** ADR-MKT-LAUNCH: предложение ИИ-таргетолога (контракт `ad-proposal/0`), вход без состояния, ключ только платформы */
 const AD_PROPOSAL_PATH = '/internal/ad-proposal';
+const CONTENT_DRAFT_PATH = '/internal/content-draft';
 
 export class BotPanelClient {
   private readonly base: string;
@@ -351,6 +352,11 @@ export class BotPanelClient {
    */
   adProposal(body: Json): Promise<Json> {
     return this.request('POST', AD_PROPOSAL_PATH, JSON.stringify(body), SITE_GENERATION_TIMEOUT_MS, this.origin);
+  }
+
+  /** Черновик поста «Контента» (`content-draft/0`): тот же служебный ключ, каскад и учёт расхода */
+  contentDraft(body: Json): Promise<Json> {
+    return this.request('POST', CONTENT_DRAFT_PATH, JSON.stringify(body), SITE_GENERATION_TIMEOUT_MS, this.origin);
   }
 
   /** Завести или поправить гостиницу у продавца (Э4): имя, действует ли, домены, публичный ключ виджета */

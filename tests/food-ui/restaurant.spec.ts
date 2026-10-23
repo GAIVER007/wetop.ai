@@ -143,8 +143,8 @@ test('меню: категория и блюдо с экрана, переклю
   await dialog.getByLabel('Технология приготовления').fill('Варить 9 минут, смешать.');
   await dialog.getByRole('button', { name: 'Сохранить техкарту' }).click();
   await expect(dialog).not.toBeVisible();
-  // таблица меню (экран 8): food cost своей колонкой
-  await expect(pastaRow.getByRole('cell').nth(3)).toHaveText('28 %');
+  // таблица меню (экран 8): food cost своей колонкой; с 23.10 перед ценой колонка «Выход» (каталог A, #800)
+  await expect(pastaRow.getByRole('cell').nth(4)).toHaveText('28 %');
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);
 });

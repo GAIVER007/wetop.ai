@@ -1864,7 +1864,7 @@ model SellerBookingIntent {
   state               SellerBookingIntentState @default(QUOTED)
   reservationId       String?                  @unique @map("reservation_id") @db.Uuid
   requestHash         String                   @map("request_hash") @db.VarChar(64)
-  /// HMAC номера гостя для суточного лимита голоса (миграция 151); только у подтверждённой строки, обнуляется через 7 дней
+  /// HMAC номера гостя для суточного лимита голоса (миграция 153); только у подтверждённой строки, обнуляется через 7 дней
   guestPhoneHash      String?                  @map("guest_phone_hash") @db.Char(64)
   createdAt           DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime                 @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -4715,7 +4715,7 @@ model VoiceBookingQuote {
   state          String   @default("QUOTED") @db.VarChar(16)
   resultId       String?  @map("result_id") @db.Uuid
   requestHash    String   @map("request_hash") @db.VarChar(64)
-  /// HMAC номера гостя для суточного лимита (миграция 151); только у подтверждённой строки
+  /// HMAC номера гостя для суточного лимита (миграция 153); только у подтверждённой строки
   guestPhoneHash String?  @map("guest_phone_hash") @db.Char(64)
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)

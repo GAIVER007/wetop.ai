@@ -105,7 +105,7 @@ export class PrismaVoiceQuoteStore implements VoiceQuoteStore {
   async settle(id: string, state: Exclude<VoiceQuoteState, 'QUOTED'>, resultId?: string, guestPhoneHash?: string | null): Promise<boolean> {
     const done = await this.prisma.db.voiceBookingQuote.updateMany({
       where: { id, state: 'QUOTED' },
-      // хэш телефона только у подтверждённой строки (CHECK миграции 151)
+      // хэш телефона только у подтверждённой строки (CHECK миграции 153)
       data: { state, resultId: resultId ?? null, updatedAt: new Date(), ...(state === 'CONFIRMED' && guestPhoneHash ? { guestPhoneHash } : {}) },
     });
     return done.count > 0;

@@ -3,14 +3,14 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 /**
- * Миграция 151 «Хэш телефона голосовой брони» (DATA_MODEL VOICE-PHONE-LIMIT-OWNER-APPROVAL-20261023). Сторож без базы;
+ * Миграция 153 «Хэш телефона голосовой брони» (DATA_MODEL VOICE-PHONE-LIMIT-OWNER-APPROVAL-20261023). Сторож без базы;
  * поведение в базе проверено на чистой базе (docs/status/2026-10-23-voice-phone-limit.md).
  */
 const ROOT = resolve(import.meta.dirname, '../..');
-const DIR = resolve(ROOT, 'packages/database/prisma/migrations/20261023000151_voice_phone_limit');
+const DIR = resolve(ROOT, 'packages/database/prisma/migrations/20261023000153_voice_phone_limit');
 const read = (path: string) => readFileSync(path, 'utf8');
 
-describe('миграция 151 voice_phone_limit', () => {
+describe('миграция 153 voice_phone_limit', () => {
   it('есть migration.sql, down.sql и README', () => {
     for (const file of ['migration.sql', 'down.sql', 'README.md']) expect(existsSync(resolve(DIR, file)), file).toBe(true);
   });

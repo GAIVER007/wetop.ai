@@ -30,7 +30,7 @@ import { VoiceIngestService } from './voice-ingest.service';
     VoiceBeautyService,
     VoiceFoodService,
     VoiceBookingRouter,
-    // суточный лимит на телефон (миграция 151): секрет из окружения, пока его нет лимит выключен
+    // суточный лимит на телефон (миграция 153): секрет из окружения, пока его нет лимит выключен
     { provide: PHONE_HASH_KEY, useFactory: () => process.env.VOICE_PHONE_HASH_KEY?.trim() || undefined },
     { provide: PHONE_LIMIT_STORE, useClass: PrismaPhoneLimitStore },
     VoicePhoneLimit,

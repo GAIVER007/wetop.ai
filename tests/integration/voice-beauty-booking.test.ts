@@ -152,7 +152,7 @@ describe.skipIf(!url)('голосовая запись в салон (integratio
     await expect(quoteFor(c, d, w.ids.eBl1!, '15:00')).rejects.toMatchObject({ status: 409 });
   });
 
-  describe('суточный лимит на телефон (миграция 151)', () => {
+  describe('суточный лимит на телефон (миграция 153)', () => {
     const KEY = 'integration-test-hash-key-0123456789';
     let limited: VoiceBeautyService;
     let limit: VoicePhoneLimit;

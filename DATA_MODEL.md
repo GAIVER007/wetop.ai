@@ -4686,3 +4686,7 @@ Customer сохраняет исходное nullable поле phone. Добав
 - `VoiceProfile` (`voice_profiles`): agentId (ключ), organizationId, businessId, greetingTail (до 300), voiceName (до 40, по умолчанию Leda), handoffPhone (E.164, nullable), revision, updatedAt.
 - Доступ: чтение и закрытие просьб по праву `marketing`; запись событий только служебной ролью `wetop_service` (воркер голоса). RLS: ENABLE и FORCE на всех трёх таблицах, `wetop_app` читает свои строки, закрывает просьбы своей организации.
 - Миграция additive: `20261022000145_voice_calls` (номер 145: 142-144 заняты поездом #766) с `down.sql` (откат только пока таблицы пусты). В production не применена.
+
+### VOICE-BOOKING-QUOTES-NOTE-20261023: уточнение п. 3 утверждённого предложения
+
+Таблица `voice_booking_quotes` (миграция 147) хранит звонок текстом `call_ref` (внешний ID звонка, `varchar(64)`), а не внешним ключом `voice_call_id` на `voice_calls`: события звонка идут из воркера через очередь и могут прийти позже первой котировки, внешний ключ ломал бы котировку. Связь с журналом по паре (`agent_id`, `call_ref` = `external_call_id`). Остальное как в утверждённом предложении. Основание: `docs/decisions/2026-10-23-voice-booking-salon-restaurant.md`.

@@ -7,6 +7,8 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { SessionGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { VoiceBookingController } from './voice-booking.controller';
+import { VoiceBeautyService } from './voice-beauty.service';
+import { VoiceBookingRouter } from './voice-booking.router';
 import { VoiceBookingService } from './voice-booking.service';
 
 /** Ключи голосовой брони разделены: чтение свободного и запись брони разными ключами; общий служебный не входит */
@@ -17,10 +19,14 @@ const SELLER_BOOK = 'seller-book-key-for-unit-tests';
 
 describe('голосовая бронь: ключи', () => {
   let app: INestApplication;
-  const service = {
-    availability: vi.fn(async () => ({ categories: [] })),
+  const service = { availability: vi.fn(async () => ({ categories: [] })) };
+  const router = {
     quote: vi.fn(async () => ({ intent: 'i' })),
     confirm: vi.fn(async () => ({ confirmationNumber: 'WT-1' })),
+  };
+  const beauty = {
+    catalog: vi.fn(async () => ({ services: [] })),
+    slots: vi.fn(async () => ({ slots: [] })),
   };
 
   beforeAll(async () => {
@@ -28,6 +34,8 @@ describe('голосовая бронь: ключи', () => {
       controllers: [VoiceBookingController],
       providers: [
         { provide: VoiceBookingService, useValue: service },
+        { provide: VoiceBookingRouter, useValue: router },
+        { provide: VoiceBeautyService, useValue: beauty },
         { provide: AuthService, useValue: { whoami: async () => null } },
         { provide: APP_GUARD, useClass: SessionGuard },
       ],
@@ -61,18 +69,23 @@ describe('голосовая бронь: ключи', () => {
     for (const path of ['/voice/booking-quotes', '/voice/booking-quotes/confirm']) {
       await request(app.getHttpServer()).post(path).set('x-wetop-service-key', BOOK).send({}).expect(path.endsWith('confirm') ? 200 : 201);
     }
-    expect(service.quote).toHaveBeenCalledOnce();
-    expect(service.confirm).toHaveBeenCalledOnce();
+    expect(router.quote).toHaveBeenCalledOnce();
+    expect(router.confirm).toHaveBeenCalledOnce();
   });
   it.each([['приёма событий', INGEST], ['общий служебный', SERVICE], ['записи продавца', SELLER_BOOK]])(
     'записать бронь ключом %s нельзя',
     async (_name, key) => {
       for (const path of ['/voice/booking-quotes', '/voice/booking-quotes/confirm'])
         await request(app.getHttpServer()).post(path).set('x-wetop-service-key', key).send({}).expect(403);
-      expect(service.quote).not.toHaveBeenCalled();
-      expect(service.confirm).not.toHaveBeenCalled();
+      expect(router.quote).not.toHaveBeenCalled();
+      expect(router.confirm).not.toHaveBeenCalled();
     },
   );
+  it.each(['/voice/beauty-catalog', '/voice/beauty-slots'])('справочник и окна салона %s читает ключ приёма событий, ключ записи нет', async (path) => {
+    await request(app.getHttpServer()).get(path).set('x-wetop-service-key', INGEST).expect(200);
+    await request(app.getHttpServer()).get(path).set('x-wetop-service-key', BOOK).expect(403);
+    await request(app.getHttpServer()).get(path).set('x-wetop-service-key', SERVICE).expect(403);
+  });
   it('ключ записи голоса не открывает события, профиль и чтение свободного', async () => {
     await request(app.getHttpServer()).get('/voice/availability').set('x-wetop-service-key', BOOK).expect(403);
   });

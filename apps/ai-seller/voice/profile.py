@@ -14,6 +14,8 @@ from voice.phone import normalize_e164
 DEFAULT_VOICE = "Leda"
 VERTICALS = ("HOSPITALITY", "BEAUTY", "FOOD_SERVICE")
 DEFAULT_VERTICAL = "BEAUTY"
+# Направления, где платформа даёт бронь по телефону (гостиница, салон); ресторан добавляется своим срезом
+BOOKING_VERTICALS = ("HOSPITALITY", "BEAUTY")
 
 
 @dataclass(frozen=True)
@@ -29,7 +31,7 @@ class VoiceProfile:
 
     @property
     def can_book(self) -> bool:
-        return self.vertical == "HOSPITALITY" and self.booking_enabled
+        return self.vertical in BOOKING_VERTICALS and self.booking_enabled
 
     @classmethod
     def from_api(cls, data) -> "VoiceProfile":
@@ -106,6 +108,17 @@ HOTEL_BOOKING_RULE = (
 )
 
 
+BEAUTY_BOOKING_RULE = (
+    "Услуги, мастеров и цены ты узнаёшь инструментом get_masters: он говорит, какой мастер какие услуги оказывает. Свободное время "
+    "на дату ищи инструментом find_slots (дата в формате ГГГГ-ММ-ДД): клиент может записаться к любому свободному мастеру или к "
+    "тому, кого назвал. Называй время и цену ровно как вернули инструменты, ничего не считай и не обещай скидок. "
+    "Чтобы записать, сначала вызови quote_visit для времени из последней выдачи и перескажи условия: услуга, мастер, дата, время и "
+    "цена. Спроси имя и телефон клиента и, если есть, пожелание к визиту (комментарий). Получи явное согласие звонящего словом «да» и "
+    "только тогда вызови confirm_visit. Платежей по телефону нет. Отмену и перенос по телефону ты не делаешь: предложи оставить "
+    "просьбу или соединить с администратором."
+)
+
+
 def build_instructions(profile: VoiceProfile, services_hint: str) -> str:
     vertical = profile.vertical if profile.vertical in VERTICALS else DEFAULT_VERTICAL
     booking = profile.can_book
@@ -114,7 +127,7 @@ def build_instructions(profile: VoiceProfile, services_hint: str) -> str:
         "одной-двумя фразами за раз. Ты ИИ и не скрываешь этого.",
         "Отвечай только по данным, которые дают инструменты. Если данных нет, скажи, что администратор "
         "уточнит и свяжется с клиентом.",
-        HOTEL_BOOKING_RULE if booking else CATALOG_RULE[vertical],
+        (HOTEL_BOOKING_RULE if vertical == "HOSPITALITY" else BEAUTY_BOOKING_RULE) if booking else CATALOG_RULE[vertical],
         "Не считай итоговые суммы и не складывай цены: называй цену из справочника как есть.",
         (
             "Не обещай то, чего не делаешь: не обещай скидку и не называй суммы, которых не вернул инструмент. "

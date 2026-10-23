@@ -61,6 +61,30 @@ def make_function_tools(tools: VoiceTools, vertical: str = "BEAUTY", can_book: b
 
         built.extend([check_availability, quote_stay, confirm_booking])
 
+    if vertical == "BEAUTY" and can_book:
+
+        @function_tool(name="get_masters")
+        async def get_masters() -> str:
+            """Услуги салона с ценами и мастера, которые каждую услугу оказывают. Вызывай первым, когда клиент хочет записаться или спрашивает, кто что делает."""
+            return await tools.get_masters()
+
+        @function_tool(name="find_slots")
+        async def find_slots(service: str, date: str, master: str = "") -> str:
+            """Свободное время на дату (ГГГГ-ММ-ДД) для услуги из get_masters. Мастера указывай, только если клиент назвал его; иначе оставь пустым (любой свободный)."""
+            return await tools.find_slots(service, date, master)
+
+        @function_tool(name="quote_visit")
+        async def quote_visit(service: str, time: str, master: str = "") -> str:
+            """Условия записи на время из последней выдачи find_slots. Это не запись: перескажи условия клиенту и спроси согласие."""
+            return await tools.quote_visit(service, time, master)
+
+        @function_tool(name="confirm_visit")
+        async def confirm_visit(name: str, phone: str, comment: str, customer_agreed: bool) -> str:
+            """Записать клиента по последним условиям. Вызывай только после явного «да» клиента на пересказанные условия; customer_agreed ставь true только в этом случае. comment: пожелание к визиту, если есть."""
+            return await tools.confirm_visit(name, phone, comment, customer_agreed)
+
+        built.extend([get_masters, find_slots, quote_visit, confirm_visit])
+
     @function_tool(name="request_callback")
     async def request_callback(name: str, phone: str, note: str = "") -> str:
         """Сохранить просьбу перезвонить: имя клиента, его телефон и коротко чего он хочет. Вызывай, когда клиент хочет записаться или забронировать."""

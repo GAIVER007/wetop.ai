@@ -78,3 +78,12 @@ def test_hotel_gets_booking_tools_only_when_booking_is_on(tmp_path):
     for vertical in ("BEAUTY", "FOOD_SERVICE"):
         names = [t._tool_info.name for t in make_function_tools(tools, vertical, True)]
         assert "confirm_booking" not in names
+
+
+def test_salon_gets_booking_tools_only_when_booking_is_on(tmp_path):
+    _, _, tools = _tools(tmp_path)
+    off = sorted(t._tool_info.name for t in make_function_tools(tools, "BEAUTY", False))
+    on = sorted(t._tool_info.name for t in make_function_tools(tools, "BEAUTY", True))
+    assert off == ["get_services", "request_callback", "transfer_to_human"]
+    assert on == ["confirm_visit", "find_slots", "get_masters", "get_services", "quote_visit", "request_callback", "transfer_to_human"]
+    assert "confirm_visit" not in [t._tool_info.name for t in make_function_tools(tools, "FOOD_SERVICE", True)]

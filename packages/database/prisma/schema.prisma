@@ -153,6 +153,7 @@ model Location {
   @@index([businessId])
   @@index([bookingTrackedSiteId])
   voiceCalls VoiceCall[]
+  voiceBookingQuotes VoiceBookingQuote[]
 
   @@map("locations")
 }
@@ -2564,6 +2565,7 @@ model Organization {
   voiceCalls     VoiceCall[]
   voiceCallbacks VoiceCallback[]
   voiceProfiles  VoiceProfile[]
+  voiceBookingQuotes VoiceBookingQuote[]
 
   @@map("organizations")
 }
@@ -2984,6 +2986,7 @@ model SellerAgent {
   @@index([locationId])
   voiceCalls   VoiceCall[]
   voiceProfile VoiceProfile?
+  voiceBookingQuotes VoiceBookingQuote[]
 
   @@map("seller_agents")
 }
@@ -4522,6 +4525,37 @@ model VoiceCall {
   @@index([organizationId, businessId, receivedAt(sort: Desc)], map: "voice_calls_org_received_idx")
   @@index([agentId, receivedAt(sort: Desc)], map: "voice_calls_agent_idx")
   @@map("voice_calls")
+}
+
+/// Котировка голосовой брони салона и ресторана (миграция 147): слот или время из выдачи звонка, 30 минут, подтверждение один раз.
+/// Звонок хранится внешним ID текстом: события звонка приходят очередью и могут опоздать
+model VoiceBookingQuote {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  locationId     String   @map("location_id") @db.Uuid
+  agentId        String   @map("agent_id") @db.Uuid
+  callRef        String   @map("call_ref") @db.VarChar(64)
+  /// APPOINTMENT | TABLE (CHECK в миграции)
+  kind           String   @db.VarChar(16)
+  selection      Json
+  totalMinor     BigInt?  @map("total_minor")
+  currency       String?  @db.Char(3)
+  expiresAt      DateTime @map("expires_at") @db.Timestamptz(6)
+  /// QUOTED | CONFIRMED | REJECTED | EXPIRED (CHECK в миграции)
+  state          String   @default("QUOTED") @db.VarChar(16)
+  resultId       String?  @map("result_id") @db.Uuid
+  requestHash    String   @map("request_hash") @db.VarChar(64)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_booking_quotes_organization_fkey")
+  location     Location     @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_booking_quotes_location_fkey")
+  agent        SellerAgent  @relation(fields: [agentId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_booking_quotes_agent_fkey")
+
+  @@unique([agentId, callRef, requestHash], map: "voice_booking_quotes_call_key")
+  @@index([agentId, callRef, state], map: "voice_booking_quotes_call_idx")
+  @@index([organizationId, locationId], map: "voice_booking_quotes_org_idx")
+  @@map("voice_booking_quotes")
 }
 
 /// Просьба перезвонить: единственное место полного номера (E.164)

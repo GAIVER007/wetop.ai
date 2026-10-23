@@ -34,6 +34,8 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   '/customers/[id]': B,
   '/onboarding': H,
   '/market': H,
+  // конкуренты салона и ресторана (DATA_MODEL §60): свой экран, гостиница остаётся на /market (ADR-142)
+  '/market/business': BF,
   '/website': H,
   '/marketing/site': H,
   '/marketing/site/assets': ALL_VERTICALS,

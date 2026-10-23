@@ -72,6 +72,8 @@ describe('organization workspace states', () => {
     const html = render([hotel], []);
     expect(html).toMatch(/class="org-branch-address"[^>]*>Test street, 12<\/small>/);
     expect(html).toContain('Номеров и коек: 88');
+    // имя и одна строка сведений у любого направления: ёмкость отеля внутри той же строки, что адрес
+    expect(html).toMatch(/class="org-branch-meta"><small[^>]*>Test street, 12<\/small><span class="org-branch-capacity">/);
     expect(html).toContain('Категорий: 5');
     expect(html).toContain('aria-label="Открыть объект: Test hotel"');
     expect(html).not.toContain('class="org-dot"');
@@ -131,6 +133,6 @@ describe('organization workspace states', () => {
     expect(html).toContain('Test project');
     expect(html).toContain('Объекты ещё не добавлены');
     expect(html).toContain('Редактировать: Test project');
-    expect(html).not.toContain('class="org-open"');
+    expect(html).not.toContain('org-open');
   });
 });

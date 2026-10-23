@@ -2,6 +2,8 @@
 import { FinancialWidgets } from './financial-widgets';
 import { useState, type ReactNode } from 'react';
 import { Icon, type IconName } from '../../components/icon';
+import { Page } from '../../components/page';
+import { Button, EmptyState } from '../../components/ui';
 import type { BranchItem } from '../../lib/api';
 import { selectBranch } from './actions';
 import { groupBusinessBranches } from './business-groups';
@@ -78,29 +80,33 @@ export function ReferenceBoard({
     }
   };
   return (
-    <section
-      className={`org-reference ${singleProject ? 'org-reference--single' : ''} ${!hasHospitality ? 'org-reference--service' : ''} ${!groups.length ? 'org-reference--empty' : ''}`}
-      aria-label="Бизнесы и филиалы организации"
-    >
-      <div className="org-heading">
-        <div>
-          <h1>Организация</h1>
-          <p>
-            {organization}.{' '}
-            {singleProject
-              ? 'Ваш проект уже создан. Добавляйте филиалы и направления, когда они понадобятся.'
-              : 'Управляйте бизнесами и объектами в одном месте.'}
-          </p>
+    <Page
+      title="Организация"
+      width="wide"
+      className="org-page"
+      subtitle={
+        <>
+          {organization}.{' '}
+          {singleProject
+            ? 'Ваш проект уже создан. Добавляйте филиалы и направления, когда они понадобятся.'
+            : 'Управляйте бизнесами и объектами в одном месте.'}
           {preview && (
             <small className="org-preview-note">Локальный просмотр, вымышленные данные</small>
           )}
-        </div>
+        </>
+      }
+      actions={
         <div className="org-heading-controls">
           {period}
           {archive}
           {create}
         </div>
-      </div>
+      }
+    >
+    <section
+      className={`org-reference ${singleProject ? 'org-reference--single' : ''} ${!hasHospitality ? 'org-reference--service' : ''} ${!groups.length ? 'org-reference--empty' : ''}`}
+      aria-label="Бизнесы и филиалы организации"
+    >
       {visible.length ? (
         <div className="org-cards">
           {visible.map((group) => {
@@ -116,11 +122,15 @@ export function ReferenceBoard({
                   />
                 )}
                 <div className="org-card-body">
-                  <span className="org-business-icon">
-                    <Icon name={businessIcons[group.vertical]} />
-                  </span>
-                  <h2 title={group.card.name}>{group.card.name}</h2>
-                  <p className="org-muted org-business-kind">{businessLabels[group.vertical]}</p>
+                  <div className="org-card-title">
+                    <span className="org-business-icon">
+                      <Icon name={businessIcons[group.vertical]} />
+                    </span>
+                    <div>
+                      <h2 title={group.card.name}>{group.card.name}</h2>
+                      <p className="org-muted org-business-kind">{businessLabels[group.vertical]}</p>
+                    </div>
+                  </div>
                   <p className="org-address">
                     <Icon name="pin" />
                     {group.branches[0]?.address || 'Адрес не указан'}
@@ -137,13 +147,15 @@ export function ReferenceBoard({
                         : `Объекты (${group.branches.length})`}
                     </strong>
                     {create && (
-                      <button
+                      <Button
                         type="button"
+                        tone="ghost"
+                        size="sm"
                         className="org-add-link"
                         onClick={() => openCreate(group.vertical, group.id)}
                       >
                         + Добавить
-                      </button>
+                      </Button>
                     )}
                   </div>
                   <div
@@ -165,18 +177,21 @@ export function ReferenceBoard({
                           </span>
                           <span className="org-branch-info">
                             <strong>{branch.name}</strong>
-                            <small
-                              className="org-branch-address"
-                              title={branch.address || undefined}
-                            >
-                              {branch.address || 'Адрес не указан'}
-                            </small>
-                            {branch.vertical === 'HOSPITALITY' && (
-                              <span className="org-branch-capacity">
-                                <span>Номеров и коек: {branch._count.inventoryUnits}</span>
-                                <span>Категорий: {branch._count.accommodationTypes}</span>
-                              </span>
-                            )}
+                            {/* Две строки у любого направления: имя и одна строка сведений (адрес, у отеля ещё ёмкость) */}
+                            <span className="org-branch-meta">
+                              <small
+                                className="org-branch-address"
+                                title={branch.address || undefined}
+                              >
+                                {branch.address || 'Адрес не указан'}
+                              </small>
+                              {branch.vertical === 'HOSPITALITY' && (
+                                <span className="org-branch-capacity">
+                                  <span>Номеров и коек: {branch._count.inventoryUnits}</span>
+                                  <span>Категорий: {branch._count.accommodationTypes}</span>
+                                </span>
+                              )}
+                            </span>
                           </span>
                           <Icon name="chevron" />
                         </button>
@@ -187,20 +202,23 @@ export function ReferenceBoard({
                     {group.branches.length > 0 && (
                       <form action={selectBranch}>
                         <input type="hidden" name="id" value={group.branches[0]?.id} />
-                        <button type="submit" className="org-open">
+                        <Button type="submit" tone="secondary" size="sm" className="org-open">
                           Открыть <Icon name="arrow" />
-                        </button>
+                        </Button>
                       </form>
                     )}
                     {group.card.canEdit && (
-                      <button
+                      <Button
+                        type="button"
+                        tone="secondary"
+                        size="sm"
                         className="org-edit"
                         aria-label={`Редактировать: ${group.card.name}`}
                         onClick={() => setEditing(group.card)}
                       >
                         <Icon name="edit" />
                         <span>Редактировать</span>
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -215,33 +233,45 @@ export function ReferenceBoard({
                   ? 'Один объект уже готов к работе. Филиалы и другие направления добавляются по необходимости.'
                   : 'Бизнес создан. Добавьте первый объект, чтобы начать работу.'}
               </p>
-              <button type="button" onClick={() => openCreate(groups[0]?.vertical, groups[0]?.id)}>
+              <Button
+                type="button"
+                tone="secondary"
+                onClick={() => openCreate(groups[0]?.vertical, groups[0]?.id)}
+              >
                 <Icon name="pin" />
                 {items.length ? 'Добавить филиал' : 'Добавить первый объект'}
-              </button>
+              </Button>
               <h3>Добавить направление бизнеса</h3>
               <p>Выберите направление и заполните данные первого объекта.</p>
               {directions
                 .filter(([vertical]) => vertical !== groups[0]?.vertical)
                 .map(([vertical, label]) => (
-                  <button type="button" key={vertical} onClick={() => openCreate(vertical)}>
+                  <Button type="button" tone="secondary" key={vertical} onClick={() => openCreate(vertical)}>
                     <Icon name={businessIcons[vertical]} />
                     {label}
-                  </button>
+                  </Button>
                 ))}
             </aside>
           )}
         </div>
       ) : (
-        <div className="org-empty" role="status">
-          <strong>Пока нет доступных проектов</strong>
-          <p>
-            {create
+        <EmptyState
+          className="org-empty"
+          role="status"
+          title="Пока нет доступных проектов"
+          details={
+            create
               ? 'Добавьте первый объект. Направление бизнеса будет создано вместе с ним.'
-              : 'Попросите владельца предоставить доступ к проекту.'}
-          </p>
-          {create ? <button onClick={() => openCreate()}>Добавить первый объект</button> : null}
-        </div>
+              : 'Попросите владельца предоставить доступ к проекту.'
+          }
+          actions={
+            create ? (
+              <Button type="button" onClick={() => openCreate()}>
+                Добавить первый объект
+              </Button>
+            ) : null
+          }
+        />
       )}
       {visible.length > 0 && (
         <FinancialWidgets summary={financial} verticals={visible.map((group) => group.vertical)} />
@@ -254,5 +284,6 @@ export function ReferenceBoard({
         />
       )}
     </section>
+    </Page>
   );
 }

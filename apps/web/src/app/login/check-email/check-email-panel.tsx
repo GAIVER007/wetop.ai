@@ -1,9 +1,10 @@
 'use client';
+import type React from 'react';
 import Link from 'next/link';
-import { useActionState } from 'react';
+import { useActionState, useState, useTransition } from 'react';
 import { AuthShell } from '../../../components/auth-shell';
 import { Icon } from '../../../components/icon';
-import { resendVerification, type ResendState } from '../actions';
+import { resendVerification, verifyEmailCodeAction, type ResendState } from '../actions';
 import { Input } from '../../../components/ui';
 
 /**
@@ -15,6 +16,18 @@ export function CheckEmailPanel({ email, sent }: { email: string; sent: boolean 
     error: null,
     sent: false,
   });
+  const [code, setCode] = useState('');
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [checking, startCheck] = useTransition();
+  // Код из письма (22.10.2026): шесть цифр и вход сразу; ссылка из того же письма остаётся запасным путём
+  const confirmCode = (event: React.FormEvent) => {
+    event.preventDefault();
+    startCheck(async () => {
+      const result = await verifyEmailCodeAction(email, code);
+      setCodeError(result.error);
+      if (result.redirectTo) window.location.assign(result.redirectTo);
+    });
+  };
   return (
     <AuthShell
       story={{
@@ -34,10 +47,37 @@ export function CheckEmailPanel({ email, sent }: { email: string; sent: boolean 
         <>
           <h2>Проверьте почту</h2>
           <p>
-            {email ? `Письмо со ссылкой отправлено на ${email}.` : 'Письмо со ссылкой отправлено.'}{' '}
-            Откройте его и нажмите «Подтвердить почту» — после этого вход откроется. Ссылка работает
-            72 часа и только один раз.
+            {email ? `Код из 6 цифр отправлен на ${email}.` : 'Код из 6 цифр отправлен на вашу почту.'}{' '}
+            Введите его ниже: вход откроется сразу. Код действует 15 минут. В том же письме есть
+            ссылка: она работает 72 часа, если удобнее подтвердить по ней.
           </p>
+          {email ? (
+            <form onSubmit={confirmCode}>
+              <label className="field">
+                Код из письма
+                <Input
+                  name="code"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  pattern="[0-9 ]{6,7}"
+                  maxLength={7}
+                  placeholder="000000"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/[^\d ]/g, ''))}
+                  required
+                />
+              </label>
+              {codeError && (
+                <p className="alert" role="alert">
+                  {codeError}
+                </p>
+              )}
+              <button className="btn" type="submit" disabled={checking || code.replace(/\D/g, '').length !== 6}>
+                {checking ? 'Проверяем…' : 'Подтвердить и войти'}
+                <Icon name="arrow" width={16} />
+              </button>
+            </form>
+          ) : null}
         </>
       ) : (
         <>

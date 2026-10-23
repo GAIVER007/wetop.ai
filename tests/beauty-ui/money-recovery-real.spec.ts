@@ -25,9 +25,13 @@ for (const width of [390, 1440]) for (const kind of ['pay', 'refund'] as const) 
     const region = card.getByRole('region', { name: kind === 'pay' ? 'Оплата записи' : 'Возврат по записи', exact: true });
     await region.getByLabel(kind === 'pay' ? 'Сумма, ₸' : 'Сумма возврата, ₸', { exact: true }).fill(kind === 'pay' ? '3000' : '1000');
     if (kind === 'refund') await region.getByLabel('Причина', { exact: true }).fill('  Вымышленная причина денежного повтора  ');
+    // Считаем только денежную команду этой записи: карточка сама зовёт и другие серверные действия (способы оплаты
+    // филиала §21.7, данные клиента), и обрывался их ответ, а не оплаты (CI #807 23.10.2026). Аргументы
+    // денежного действия начинаются с номера записи.
     let first = true; let commands = 0;
     await page.route((target) => target.pathname === '/appointments', async (route) => {
       if (route.request().method() !== 'POST' || !route.request().headers()['next-action']) return route.continue();
+      if (!(route.request().postData() ?? '').startsWith(`["${id}"`)) return route.continue();
       commands++;
       if (!first) return route.continue();
       first = false;

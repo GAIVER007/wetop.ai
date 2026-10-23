@@ -212,7 +212,10 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   // аудит 21.10.2026 пп. 14, 15, 34: одно имя «Реклама», пустых вкладок нет, итоги строкой вместо плиток
   await expect(ads.getByRole('heading', { level: 1 })).toHaveText('Реклама');
   await expect(menuOf(page).locator('.sidenav__current')).toHaveText('Продвижение');
-  await expect(ads.getByTestId('marketing-ads-soon')).toContainText('Скоро');
+  // «Скоро» больше нет (23.10.2026): «Аудитории» и «Креативы» живые, пока запусков нет, честно пусто
+  await expect(ads.getByTestId('marketing-ads-soon')).toHaveCount(0);
+  await expect(ads.getByTestId('ad-audiences')).toContainText('Пока пусто');
+  await expect(ads.getByTestId('ad-creatives')).toContainText('Пока пусто');
   await expect(ads.getByRole('tab')).toHaveCount(0);
   const metrics = ads.getByTestId('marketing-ads-metrics');
   await expect(metrics.locator('dt')).toHaveText(['Расход кампаний', 'Показы', 'Клики', 'Лиды площадки', 'Доля кликов, цена 1000 показов, цена обращения']);
@@ -251,6 +254,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path)).sort()).toEqual([
     '/marketing/ad-connections/meta',
     '/marketing/ads/launches',
+    '/marketing/ads/library',
     '/marketing/campaigns',
     '/marketing/content/drafts',
   ]);

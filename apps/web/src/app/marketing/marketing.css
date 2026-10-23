@@ -2294,3 +2294,13 @@
     border-bottom: 1px solid var(--border);
   }
 }
+
+/* «Аудитории» и «Креативы» карточками (Table stack): подпись числа слева, как у остальных строк карточки */
+@media (max-width: 600px) {
+  .ad-library .tbl--stack td.budget-td-num {
+    text-align: right;
+  }
+  .ad-library .tbl--stack td.budget-td-num::before {
+    text-align: left;
+  }
+}

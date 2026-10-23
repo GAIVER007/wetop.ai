@@ -120,6 +120,8 @@ import {
   type MarketingExpenseInput,
   type PriceReading,
   type SiteFacts,
+  adLibrary,
+  type AdLibraryLaunch,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -4990,7 +4992,13 @@ let fixtureMeta: { adAccountId: string; status: 'ACTIVE' | 'FAILED'; lastSyncedA
 /** Запуск ИИ-таргетолога (§57): один на прогон, готов со второго просмотра экрана шагов */
 let fixtureLaunch: { id: string; headline: string; dailyBudgetMinor: string; views: number } | null = null;
 /** Засеянные прошлые запуски (`__test/marketing-budget` → `launches`) и отказ источника списка (`launchesFail`) */
-type FixtureLaunchRow = { id: string; status: 'RUNNING' | 'SUCCEEDED' | 'FAILED'; step: string; headline: string; dailyBudgetMinor: string; currency: string; error: string | null; createdAt: string };
+type FixtureLaunchRow = {
+  id: string; status: 'RUNNING' | 'SUCCEEDED' | 'FAILED'; step: string; headline: string; dailyBudgetMinor: string; currency: string; error: string | null; createdAt: string;
+  /** «Аудитории» и «Креативы» (23.10.2026): настройки показа, креатив и итог кабинета засеянного запуска */
+  settings?: AdLibraryLaunch['settings'];
+  creative?: AdLibraryLaunch['creative'];
+  stats?: { spendMinor: string; leads: number; impressions: number; clicks: number } | null;
+};
 let fixtureLaunches: FixtureLaunchRow[] = [];
 let fixtureLaunchesFail: number | null = null;
 /** «Контент» (CONTENT-DRAFTS-20261022): черновики филиала и выключатель ИИ (`__test/content-ai`) */
@@ -6053,8 +6061,29 @@ createServer(async (req, res) => {
       }
     }
     if (path.startsWith('/marketing/ads/')) {
-      if (!can(uiRole, 'ads_launch') && !(req.method === 'GET' && path.startsWith('/marketing/ads/launches')))
-        return send(403, { message: accessDeniedMessage('ads_launch') });
+      const readOnlyAds =
+        req.method === 'GET' &&
+        ((path.startsWith('/marketing/ads/launches') && !path.endsWith('/audience')) || path === '/marketing/ads/library');
+      if (!can(uiRole, 'ads_launch') && !readOnlyAds) return send(403, { message: accessDeniedMessage('ads_launch') });
+      // «Аудитории» и «Креативы»: та же сводка домена, что у API, по засеянным запускам
+      if (req.method === 'GET' && path === '/marketing/ads/library')
+        return send(
+          200,
+          adLibrary(
+            fixtureLaunches
+              .filter((l) => l.settings)
+              .map((l) => ({
+                id: l.id, status: l.status, createdAt: l.createdAt, currency: l.currency, headline: l.headline,
+                settings: l.settings!, creative: l.creative ?? null,
+                stats: l.stats ? { ...l.stats, spendMinor: BigInt(l.stats.spendMinor) } : null,
+              })),
+          ),
+        );
+      const audienceMatch = /^\/marketing\/ads\/launches\/([^/]+)\/audience$/.exec(path);
+      if (req.method === 'GET' && audienceMatch) {
+        const l = fixtureLaunches.find((x) => x.id === audienceMatch[1] && x.status === 'SUCCEEDED' && x.settings);
+        return l ? send(200, l.settings) : send(404, { message: 'Запуск не найден' });
+      }
       if (req.method === 'GET' && path === '/marketing/ads/assets') {
         const base = { reportingCurrency: 'KZT', roomDailyMinor: '5000000' };
         if (!fixtureMeta || fixtureMeta.status !== 'ACTIVE') return send(200, { connected: false, ...base });

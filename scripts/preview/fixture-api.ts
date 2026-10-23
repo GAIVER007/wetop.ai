@@ -7467,6 +7467,16 @@ createServer(async (req, res) => {
             birthdayInDays: null,
           };
         });
+        // поиск в шапке (аудит 22.10.2026 P1-4): как у API, каждое слово в имени или телефоне, до 20 строк
+        const search = (url.searchParams.get('q') ?? '').trim().toLocaleLowerCase('ru');
+        if (search) {
+          const found = items.filter((c) =>
+            search.split(/\s+/).every((word) =>
+              `${c.firstName} ${c.lastName ?? ''} ${c.phone ?? ''}`.toLocaleLowerCase('ru').includes(word),
+            ),
+          );
+          return send(200, { items: found.slice(0, 20) });
+        }
         return send(200, { items });
       }
       if (path === '/beauty/appointments' && req.method === 'GET')

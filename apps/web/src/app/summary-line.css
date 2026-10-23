@@ -1,0 +1,27 @@
+/* Итоги экрана одной строкой вместо плиток (аудит гостиницы 22.10.2026): шахматка, «Гости», «Номерной фонд».
+   Компонент `lib/summary-line.tsx`. */
+@layer sections {
+  .summary-line {
+    margin: 0 0 var(--space-4);
+    color: var(--text-2);
+    font-size: var(--text-sm);
+    line-height: var(--leading-base);
+  }
+  .summary-line b {
+    color: var(--text);
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+  }
+  .summary-line__part {
+    white-space: nowrap;
+  }
+  .summary-line__link {
+    color: inherit;
+    text-decoration: none;
+  }
+  .summary-line__link:hover,
+  .summary-line__link:focus-visible {
+    color: var(--text);
+    text-decoration: underline;
+  }
+}

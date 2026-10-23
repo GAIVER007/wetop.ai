@@ -73,12 +73,12 @@ test('период «Броней»: готовые отрезки ссылка�
   const picker = page.locator('.period-picker');
   await expect(picker).toBeVisible();
   await expect(picker.getByRole('navigation', { name: 'Готовые периоды' })).toBeVisible();
-  await expect(picker.getByLabel('Период: с')).toHaveValue('2026-09-10');
-  await picker.getByLabel('Период: по').fill('2026-09-20');
+  await expect(picker.getByLabel('Период: с', { exact: true })).toHaveValue('2026-09-10');
+  await picker.getByLabel('Период: по', { exact: true }).fill('2026-09-20');
   await page.getByRole('button', { name: 'Показать', exact: true }).click();
   await expect(page).toHaveURL(/from=2026-09-10/);
   await expect(page).toHaveURL(/to=2026-09-20/);
-  await expect(page.locator('.period-picker').getByLabel('Период: по')).toHaveValue('2026-09-20');
+  await expect(page.locator('.period-picker').getByLabel('Период: по', { exact: true })).toHaveValue('2026-09-20');
 });
 
 test('размеры окон: «Новая задача» sm, новая бронь 940 px, Escape закрывает и возвращает фокус', async ({

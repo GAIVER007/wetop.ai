@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { Badge, Button, EmptyState, Panel } from '../../components/ui';
 import type { FoodWorkspace } from '../../lib/food-types';
 import { weekdays } from '../../lib/food-data';
+import { pluralRu } from '../../lib/plural';
+import { compareTables } from '../../lib/table-title';
 import { CatalogForm, type CatalogDraft } from './catalog-form';
 export function CatalogBoard({ data }: { data: FoodWorkspace }) {
   const [tab, setTab] = useState<'areas' | 'periods'>('areas');
@@ -31,9 +33,7 @@ export function CatalogBoard({ data }: { data: FoodWorkspace }) {
         ? { ...draft, item: data.tables.find((t) => t.id === draft.item?.id) ?? draft.item }
         : { ...draft, item: data.periods.find((p) => p.id === draft.item?.id) ?? draft.item };
   const write = data.canProperty && !data.readOnly;
-  const tables = [...data.tables].sort(
-    (a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, 'ru'),
-  );
+  const tables = [...data.tables].sort(compareTables);
   return (
     <div className="food-workspace">
       <nav className="food-tabs" aria-label="Каталог ресторана">
@@ -69,7 +69,7 @@ export function CatalogBoard({ data }: { data: FoodWorkspace }) {
                     <div>
                       <h2>{area.name}</h2>
                       <span className="muted">
-                        {tables.filter((t) => t.areaId === area.id).length} столов ·{' '}
+                        {pluralRu(tables.filter((t) => t.areaId === area.id).length, ['стол', 'стола', 'столов'])} ·{' '}
                         {area.active ? 'Активен' : 'В архиве'}
                       </span>
                     </div>
@@ -104,7 +104,7 @@ export function CatalogBoard({ data }: { data: FoodWorkspace }) {
                           <li key={t.id}>
                             <div>
                               <strong>{t.name}</strong>
-                              <span>{t.capacity} мест</span>
+                              <span>{pluralRu(t.capacity, ['место', 'места', 'мест'])}</span>
                             </div>
                             <Badge tone={t.active ? 'ok' : 'neutral'}>
                               {t.active ? 'Активен' : 'В архиве'}

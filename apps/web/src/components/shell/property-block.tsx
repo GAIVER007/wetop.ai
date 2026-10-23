@@ -44,7 +44,7 @@ export function PropertyBlock({
       </span>
       <div>
         <strong>{property?.name ?? 'Объект не загружен'}</strong>
-        <span>{property?.address ?? 'Настройки объекта'}</span>
+        <span>{property?.address ?? 'Гостиница'}</span>
       </div>
     </>
   );

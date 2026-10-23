@@ -64,9 +64,13 @@ export const CAPABILITIES: readonly Capability[] = [
   cap('table-reservations', ['/table-reservations'], 'desk', F, 'LOCATION'),
   cap('dining-areas', ['/dining-areas'], 'desk', F, 'LOCATION'),
   cap('orders', ['/orders'], 'desk', F, 'LOCATION'),
+  // официант с телефона (§33.6, 22.10.2026): право «Приём заказов» (`orders`), есть и у «Личного кабинета»
+  cap('waiter', ['/waiter'], 'orders', F, 'LOCATION'),
   cap('kitchen', ['/kitchen'], 'desk', F, 'LOCATION'),
   cap('drinks', ['/drinks'], 'desk', F, 'LOCATION'),
   cap('kitchen-stock', ['/stock'], 'desk', F, 'LOCATION'),
+  // график персонала гостиницы (S10, миграция 143, решение владельца 22.10.2026)
+  cap('staff-schedule', ['/staff-schedule'], 'desk', H, 'LOCATION'),
   cap('my-work', ['/my-work'], 'self', ALL, 'LOCATION'),
 
   // ── каталоги бизнеса: читают все филиалы, запись организационная (ADR-188, F3) ──
@@ -83,7 +87,7 @@ export const CAPABILITIES: readonly Capability[] = [
   cap('finance', ['/finance'], 'reports', ALL, 'LOCATION'),
   cap('restaurant-finance', ['/restaurant-finance'], 'reports', F, 'LOCATION'),
   cap('cashbox', ['/cashbox'], 'desk', BF, 'LOCATION'),
-  cap('payroll', ['/payroll'], 'staff', BF, 'ORGANIZATION'),
+  cap('payroll', ['/payroll'], 'staff', ALL, 'ORGANIZATION'),
   // сертификат продаётся в филиале, действует на бизнес: у `GiftCertificate` ключ бизнеса (§ миграции №141)
   cap('certificates', ['/finance/certificates'], 'desk', B, 'BUSINESS'),
   cap('finance-report', ['/reports/finance'], 'reports', H, 'LOCATION'),

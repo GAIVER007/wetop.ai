@@ -173,7 +173,7 @@ test('карточка брони: заселение в непроверенн�
   // пока вкладка догружается, в DOM на миг есть скрытая копия панели — жмём видимую кнопку
   const checkIn = page.getByTestId('check-in-ui-item').filter({ visible: true });
   await checkIn.click();
-  const warn = page.getByRole('dialog', { name: 'Ячейка R01 ещё не проверена. Заселить?' });
+  const warn = page.getByRole('dialog', { name: 'Номер R01 ещё не проверен. Заселить?' });
   await expect(warn).toContainText('требует уборки');
   await warn.getByRole('button', { name: 'Оставить' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -181,7 +181,7 @@ test('карточка брони: заселение в непроверенн�
   expect(await (await request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
   await checkIn.click();
   await page
-    .getByRole('dialog', { name: 'Ячейка R01 ещё не проверена. Заселить?' })
+    .getByRole('dialog', { name: 'Номер R01 ещё не проверен. Заселить?' })
     .getByRole('button', { name: 'Заселить всё равно' })
     .click();
   await expect(page.getByRole('status').filter({ hasText: 'Гость заселён' })).toBeVisible();

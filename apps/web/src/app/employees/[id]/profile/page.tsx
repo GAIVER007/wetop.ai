@@ -8,11 +8,11 @@ import { beautyMasterDayStatus } from '../../../../lib/beauty-master-day-status'
 import { unstable_rethrow } from 'next/navigation';
 import { roleAt } from '@pms/domain';
 import { clientInfo, sessionToken } from '../../../../lib/session';
-export default async function EmployeeProfilePage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ date?: string; month?: string }> }) {
+export default async function EmployeeProfilePage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ date?: string; month?: string; range?: string }> }) {
   // раздел направления по реестру функций (У1): по прямой ссылке чужое направление уходит на свою стартовую
   await requireFeature('/employees');
   const [{ id }, search, shell] = await Promise.all([params, searchParams, deskShell()]);
-  const query = { ...(typeof search.date === 'string' ? { date: search.date } : {}), ...(typeof search.month === 'string' ? { month: search.month } : {}) };
+  const query = { ...(typeof search.date === 'string' ? { date: search.date } : {}), ...(typeof search.month === 'string' ? { month: search.month } : {}), ...(search.range === 'month' ? { range: 'month' as const } : {}) };
   const beautyLocationSelected = shell.vertical === 'BEAUTY' && Boolean(shell.scopeKey);
   const canManageLocations = shell.vertical === 'BEAUTY'
     ? mayBeautyAccess(shell.access, 'employees', 'update', { legacy: 'property' })

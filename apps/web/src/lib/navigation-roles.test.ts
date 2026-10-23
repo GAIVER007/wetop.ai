@@ -40,6 +40,8 @@ describe('меню по ролям', () => {
     expect(menuSectionsFor(access('STAFF')).map((s) => [s.id, s.items.map((i) => i.href)])).toEqual([
       ['today', ['/today']],
       ['journal', ['/chessboard']],
+      // «График работы» горничных и ресепшена смотрит смена (право `desk`), как у ресторана (22.10.2026)
+      ['staff', ['/staff-schedule']],
       ['clients', ['/guests', '/reservations']],
       ['stats', ['/management/analytics', '/reports']],
       // склад на экранах бара: администратор смотрит, как все отчёты (право `reports`)
@@ -61,7 +63,7 @@ describe('меню по ролям', () => {
       // в порядке вкладок экрана склада (19.10.2026)
       ['/warehouse', 'Обзор склада'],
       ['/bar', 'Бар'],
-      ['/bar/consumables', 'Кухня'],
+      ['/bar/consumables', 'Расходники'],
       ['/bar/receipts', 'Приходы'],
       ['/bar/products', 'Номенклатура'],
       ['/bar/suppliers', 'Поставщики'],

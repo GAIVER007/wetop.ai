@@ -47,7 +47,11 @@ export async function deskShell(): Promise<DeskShell> {
       typeof c.locationId !== 'string' ||
       !c.locationId
     )
-      return { ...shell, access: UNKNOWN_SHELL.access, branchNeeded: true };
+      // «Личный кабинет» (EMPLOYEE) без филиала остаётся собой: «как у администратора» открыло бы ему меню и страницы
+      // рабочих разделов с ошибками 403 (живой аудит 21.10.2026). Остальные роли без филиала по-прежнему ждут выбора.
+      return shell.access.role === 'EMPLOYEE'
+        ? { ...shell, branchNeeded: true }
+        : { ...shell, access: UNKNOWN_SHELL.access, branchNeeded: true };
     return { ...shell, scopeKey: `${c.businessId}:${c.locationId}` };
   } catch (error) {
     unstable_rethrow(error);

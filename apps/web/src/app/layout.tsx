@@ -78,7 +78,8 @@ async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
     if (error instanceof ApiError) return null;
     throw error;
   });
-  return hotel?.property[field] ?? (field === 'name' ? 'Объект не загружен' : 'Настройки объекта');
+  // подпись под названием, пока адрес не заполнен: вид бизнеса, как «Салон» и «Ресторан» (аудит 22.10.2026 P1-20)
+  return hotel?.property[field] ?? (field === 'name' ? 'Объект не загружен' : 'Гостиница');
 }
 
 /** Общий shell и параллельная карточка используют одну тему и существующие server actions. */
@@ -209,7 +210,7 @@ export default async function RootLayout({
                         </Suspense>
                       ),
                       address: (
-                        <Suspense fallback="Настройки объекта">
+                        <Suspense fallback="Гостиница">
                           <ProjectProperty field="address" />
                         </Suspense>
                       ),

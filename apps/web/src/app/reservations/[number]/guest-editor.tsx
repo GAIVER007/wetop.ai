@@ -36,7 +36,7 @@ export function BookingGuestEditor({ id, scopeKey, canEdit, piiStorage }: {
     <Overlay open={open && canEdit} onClose={close} title="Данные гостя">
       {loading ? <p role="status">Загружаем данные гостя…</p> : error ? <>
         <Alert>{error}</Alert><Button type="button" onClick={() => void load()}>Повторить</Button>
-      </> : guest ? <GuestProfileForm key={`${scopeKey}:${guest.id}`} guest={guest} piiStorage={piiStorage} readOnly={!canEdit} /> : null}
+      </> : guest ? <GuestProfileForm key={`${scopeKey}:${guest.id}`} guest={guest} piiStorage={piiStorage} readOnly={!canEdit} onSaved={close} /> : null}
     </Overlay>
   </>;
 }

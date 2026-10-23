@@ -4,6 +4,7 @@
  */
 import type { BeautyEmployeeRow, BeautyServiceRow } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
+import { pluralRu } from '../../../lib/plural';
 
 export type SetupStepId = 'profile' | 'services' | 'masters' | 'skills' | 'schedule';
 export type SetupStatus = 'done' | 'current' | 'todo' | 'locked';
@@ -86,4 +87,18 @@ export function bookingPreview(
     moreServices: Math.max(0, sellable.length - 4),
     masters: masters.slice(0, 6).map((e) => ({ name: e.name, initials: initials(e.name) })),
   };
+}
+
+/** Итог выполненного шага настройки словами владельца (аудит салона 22.10.2026: «Пригодных сочетаний услуги и графика: 8») */
+export function setupCountLine(id: Exclude<SetupStepId, 'profile'>, count: number): string {
+  switch (id) {
+    case 'services':
+      return `Услуг в филиале: ${count}`;
+    case 'masters':
+      return `Мастеров: ${count}`;
+    case 'skills':
+      return `Услуг назначено мастерам: ${count}`;
+    case 'schedule':
+      return `Можно записаться: ${pluralRu(count, ['вариант', 'варианта', 'вариантов'])} услуги и мастера`;
+  }
 }

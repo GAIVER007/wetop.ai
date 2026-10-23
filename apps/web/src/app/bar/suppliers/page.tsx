@@ -15,6 +15,7 @@ import { CatalogDialog } from '../catalog-dialog';
 import { deskShell } from '../../../lib/desk-shell';
 import { barActionAccess } from '../action-access';
 import '../bar.css';
+import { formatPhone } from '../../../lib/phone';
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
 
@@ -59,7 +60,7 @@ export default async function BarSuppliersPage() {
               const total = totals.get(supplier.id);
               return <tr key={supplier.id} className={supplier.active ? undefined : 'is-void'}>
                 <td><b>{supplier.name}</b></td>
-                <td>{[supplier.phone, supplier.email].filter(Boolean).join(', ') || 'нет'}</td>
+                <td>{[supplier.phone ? formatPhone(supplier.phone) : null, supplier.email].filter(Boolean).join(', ') || 'нет'}</td>
                 <td>{total && total.due > 0n
                   ? <Badge tone="warn">{formatMoney(total.due.toString(), context.currency)}</Badge>
                   : formatMoney('0', context.currency)}</td>

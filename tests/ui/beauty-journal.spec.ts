@@ -46,7 +46,9 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await panel.getByLabel(/Длительность, минут/).fill('60');
   await panel.getByLabel(/Цена каталога/).fill('8000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(panel.getByRole('status')).toHaveText('Услуга добавлена в филиал');
+  // новая услуга сразу в филиале: окно закрывается, итог в уведомлении (аудит салона 22.10.2026)
+  await expect(page.getByTestId('toast-stack')).toContainText('Услуга добавлена в филиал');
+  await expect(panel).toBeHidden();
   await page.goto('/beauty/services');
   // услуги салона показаны карточками каталога, не строками таблицы
   await main
@@ -270,12 +272,16 @@ test('состояния записи идут по жизни, из выпол�
   let card = page.getByRole('dialog');
   await expect(card.getByTestId('beauty-card-status')).toHaveText('Записан');
   await card.getByRole('button', { name: 'Подтвердить', exact: true }).click();
+  // карточка закрывается после ответа сервера; переход раньше обрывал запрос (CI 22.10.2026, карточка теперь
+  // сразу читает бонусы клиента, ответ стал дольше)
+  await expect(page.getByRole('dialog')).toHaveCount(0);
 
   await openDay(page);
   await page.getByRole('main').getByRole('button').filter({ hasText: 'Сауле' }).first().click();
   card = page.getByRole('dialog');
   await expect(card.getByTestId('beauty-card-status')).toHaveText('Подтверждена');
   await card.getByRole('button', { name: 'Завершить', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
 
   await openDay(page);
   await page.getByRole('main').getByRole('button').filter({ hasText: 'Сауле' }).first().click();
@@ -316,6 +322,8 @@ test('перенос меняет время записи', async ({ page, reque
   const card = page.getByRole('dialog');
   await card.getByTestId('beauty-move-start').fill(`${DAY}T15:00`);
   await card.getByRole('button', { name: 'Перенести', exact: true }).click();
+  // переход раньше ответа сервера обрывал перенос (CI 22.10.2026): ждём закрытия карточки
+  await expect(page.getByRole('dialog')).toHaveCount(0);
 
   await openDay(page);
   await expect(
@@ -390,7 +398,7 @@ test('быстрый отчёт календаря: пустой день, ка�
   await openDay(page);
   const trigger = page.getByRole('button', { name: 'Быстрый отчёт', exact: true });
   await expect(trigger).toBeVisible();
-  await page.getByRole('button', { name: 'Открыть календарь', exact: true }).click();
+  await page.getByRole('button', { name: /^Открыть календарь/ }).click();
   const calendar = page.getByRole('dialog', { name: 'Календарь', exact: true });
   await expect(calendar).toBeVisible();
   await calendar.getByRole('button', { name: 'Следующий месяц' }).click();
@@ -508,6 +516,7 @@ test('быстрый отчёт календаря: выбранный маст�
     .first()
     .click();
   await page.getByRole('dialog').getByRole('button', { name: 'Подтвердить', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await openDay(page);
   await page
     .getByRole('main')
@@ -516,6 +525,7 @@ test('быстрый отчёт календаря: выбранный маст�
     .first()
     .click();
   await page.getByRole('dialog').getByRole('button', { name: 'Завершить', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await openDay(page);
   await page.locator('.employee-filter summary').click();
   await page.getByRole('searchbox', { name: 'Поиск специалиста' }).fill('Дин');

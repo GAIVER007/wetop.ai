@@ -6,7 +6,7 @@ import { deskShell } from '../../../lib/desk-shell';
 import { stockApi } from '../../../lib/food-api';
 import { mayAccess, mayBeautyAccess } from '../../../lib/navigation';
 import { requireFeature } from '../../../lib/vertical-guard';
-import { selectedWorkspaceBranch } from '../../../lib/workspace-context';
+import { selectedWorkspaceBranch, workspaceTimezone } from '../../../lib/workspace-context';
 import { StockBoard } from '../../food/stock-board';
 import { BarTabs } from '../tabs';
 import { StockInsightsView } from '../../food/stock-insights';
@@ -41,8 +41,8 @@ export default async function BeautyConsumablesPage() {
       <Page
         width="wide"
         className="bar-subpage"
-        title={beauty ? 'Склад: расходники' : 'Склад: кухня'}
-        subtitle={beauty ? 'Материалы для услуг, приходы, списания и остатки' : 'Продукты кухни, приходы, списания и остатки'}
+        title="Склад: расходники"
+        subtitle={beauty ? 'Материалы для услуг, приходы, списания и остатки' : 'Продукты и материалы, приходы, списания и остатки'}
       >
         <BarTabs current="consumables" />
         <div key={scopeKey}>
@@ -51,6 +51,7 @@ export default async function BeautyConsumablesPage() {
             ctx={{
               scopeKey,
               currency,
+              timezone: await workspaceTimezone(),
               vertical: beauty ? 'BEAUTY' : 'HOSPITALITY',
               ...rights,
             }}
@@ -63,7 +64,7 @@ export default async function BeautyConsumablesPage() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Склад: кухня и расходники">
+      <Page title="Склад: расходники">
         <LoadError testId="beauty-consumables-error" {...loadErrorProps(error)} />
       </Page>
     );

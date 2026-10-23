@@ -1,6 +1,6 @@
 import { unstable_rethrow } from 'next/navigation';
 import { requireFeature } from '../../lib/vertical-guard';
-import { marketingBudgetApi } from '../../lib/api';
+import { marketingBudgetApi, marketingSiteApi, type SiteBuilderState } from '../../lib/api';
 import { summarize } from './budget/derive';
 import { MarketingHub, type HubSpend } from './hub';
 
@@ -20,7 +20,18 @@ async function loadSpend(): Promise<HubSpend | null> {
   }
 }
 
+/** Лицензия конструктора сайта филиала: значок «Сайт и SEO» не обещает «Доступно», когда конструктор выключен */
+async function loadBuilder(): Promise<SiteBuilderState | null> {
+  try {
+    return (await marketingSiteApi.current()).builder ?? null;
+  } catch (error) {
+    unstable_rethrow(error);
+    return null;
+  }
+}
+
 export default async function MarketingPage() {
   const me = await requireFeature('/marketing');
-  return <MarketingHub vertical={me.context?.vertical ?? 'HOSPITALITY'} spend={await loadSpend()} />;
+  const [spend, builder] = await Promise.all([loadSpend(), loadBuilder()]);
+  return <MarketingHub vertical={me.context?.vertical ?? 'HOSPITALITY'} spend={spend} builder={builder} />;
 }

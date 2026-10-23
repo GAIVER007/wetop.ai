@@ -7,7 +7,7 @@ import { CLOSED_ACCESS, helpSteps, menuSectionsFor } from './navigation';
  */
 const owner = { ...CLOSED_ACCESS, role: 'OWNER' as const };
 const steps = (v: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE') =>
-  helpSteps(menuSectionsFor(owner, v)).map((s) => [s.path, s.href]);
+  helpSteps(menuSectionsFor(owner, v), v).map((s) => [s.path, s.href]);
 
 describe('первые шаги «Помощи» из меню', () => {
   it('у каждого направления те же шаги в том же порядке, ссылки на свои экраны', () => {
@@ -15,13 +15,13 @@ describe('первые шаги «Помощи» из меню', () => {
       ['Услуги → Каталог', '/services'],
       ['Персонал → Специалисты', '/employees'],
       ['Журнал', '/calendar'],
-      ['Настройки → Объект', '/beauty-settings'],
+      ['Настройки → Салон', '/beauty-settings'],
     ]);
     expect(steps('FOOD_SERVICE')).toEqual([
-      ['Услуги → Каталог', '/menu'],
-      ['Персонал → Специалисты', '/employees'],
+      ['Услуги → Меню', '/menu'],
+      ['Персонал → Сотрудники', '/employees'],
       ['Журнал', '/floor-plan'],
-      ['Настройки → Объект', '/restaurant-settings'],
+      ['Настройки → Ресторан', '/restaurant-settings'],
     ]);
     // у гостиницы нет экрана специалистов: шага нет
     expect(steps('HOSPITALITY')).toEqual([

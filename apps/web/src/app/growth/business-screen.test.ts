@@ -148,3 +148,25 @@ afterAll(() => {
     }
   }
 });
+
+// Живой аудит 21.10.2026 P0-4: конструктор выключен у новых бизнесов, а карточка писала «Доступно»
+describe('«Сайт и SEO» говорит правду о конструкторе', () => {
+  it('конструктор выключен: значок «Подключает WETOP», текст про подключение', async () => {
+    const { MarketingHub } = await import('../marketing/hub');
+    const html = renderToStaticMarkup(
+      createElement(MarketingHub, { vertical: 'BEAUTY', builder: { access: 'off', status: null, activeUntil: null } }),
+    );
+    expect(html).toMatch(/data-testid="marketing-site-status"[^>]*>Подключает WETOP</);
+    expect(html).toContain('Конструктор сайта подключает команда WETOP');
+  });
+  it('лицензия кончилась: «Срок вышел»; активна или неизвестна: «Доступно»', async () => {
+    const { MarketingHub } = await import('../marketing/hub');
+    const off = (access: 'expired' | 'active') =>
+      renderToStaticMarkup(createElement(MarketingHub, { vertical: 'FOOD_SERVICE', builder: { access, status: null, activeUntil: null } }));
+    expect(off('expired')).toMatch(/data-testid="marketing-site-status"[^>]*>Срок вышел</);
+    expect(off('active')).toMatch(/data-testid="marketing-site-status"[^>]*>Доступно</);
+    expect(renderToStaticMarkup(createElement(MarketingHub, { vertical: 'HOSPITALITY' }))).toMatch(
+      /data-testid="marketing-site-status"[^>]*>Доступно</,
+    );
+  });
+});

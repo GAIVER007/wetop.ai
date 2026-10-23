@@ -42,6 +42,7 @@ export function JournalBoard({
   canIssueReview = false,
   canAdjustPrice = false,
   appointmentId,
+  newFor,
   scopeKey = '',
   creationUnavailableReason,
   views,
@@ -58,6 +59,8 @@ export function JournalBoard({
   canIssueReview?: boolean;
   canAdjustPrice?: boolean;
   appointmentId?: string | undefined;
+  /** «Новая запись» из карточки мастера (`?new=1&employee=`): форма открыта сразу к этому мастеру */
+  newFor?: string | undefined;
   scopeKey?: string;
   creationUnavailableReason?: string;
   /** «День / Неделя» в строке инструментов рядом с датой (аудит 21.10.2026, п. 34) */
@@ -68,7 +71,11 @@ export function JournalBoard({
   const PX_PER_MIN = compact ? 1 : 1.5;
   const [panel, setPanel] = useState<Panel>(() => {
     const row = day.appointments.find((item) => item.id === appointmentId);
-    return row ? { kind: 'card', row } : null;
+    if (row) return { kind: 'card', row };
+    // из карточки мастера: начало его часов в этот день, иначе начало дня журнала (аудит 22.10.2026)
+    const master = newFor ? day.columns.find((c) => c.id === newFor) : undefined;
+    if (!master || !canCreate) return null;
+    return { kind: 'new', employeeId: master.id, time: master.intervals[0]?.timeFrom ?? clock(day.bounds.fromMinutes) };
   });
   const params = useSearchParams();
   const pathname = usePathname();

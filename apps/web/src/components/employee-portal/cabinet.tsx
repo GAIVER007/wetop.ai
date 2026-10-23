@@ -17,6 +17,10 @@ import { foodOrderStatus } from '../../lib/status/food';
 import type { BeautyEmployeeServicePriceRow, BeautySchedule } from '../../lib/api';
 import type { BeautyMasterDayStatus } from '../../lib/beauty-master-day-status';
 import { EmployeeTransitionGuard } from '../employee-workspace/workspace';
+import { portalAbsenceDays, portalAbsences, portalMonthLabel, portalMonthLine, portalShiftMonth } from '../../lib/portal-month';
+import { shortPeriod, zoneLabel } from '../../lib/human-period';
+import { localDate } from '@pms/domain';
+import { formatPhone, phoneFieldValue, phoneOnInput } from '../../lib/phone';
 
 function servicePriceLabel(service: EmployeePortalDto['services'][number]): string {
   if (!service.available) return 'В этом филиале недоступна';
@@ -64,7 +68,8 @@ export function EmployeeCabinet({
   const showServices = beauty && (!access || access.servicesView);
   const showSchedule = !beauty || !access || access.journalView;
   const showPay = !beauty || !access || access.payrollView;
-  const showMedia = !access || canEditProfile;
+  // без хранилища фото вкладку не показываем вовсе (аудит 22.10.2026: никаких «скоро подключим»)
+  const showMedia = data.canUpload && (!access || canEditProfile);
   const showManagement = manager && (!access || access.employeesUpdate);
   useEffect(() => {
     const invalidate = () => setInvalidScope(scope);
@@ -79,7 +84,13 @@ export function EmployeeCabinet({
     <header className="panel portal-section portal-heading">
       {/* аудит 21.10.2026, п. 25: без бейджа «Управление сотрудником», бизнес и филиал одной строкой, если названия совпадают; «Специалист», как в разделе */}
       <div><div className="portal-identity-line">{!manager && <Badge>Мой кабинет</Badge>}<h2>{data.employee.name}</h2></div>
-        <ul className="portal-identity-meta" aria-label="Место работы и статус">{[...new Set([data.business.name, data.location?.name ?? 'Филиал не выбран'])].map((place) => <li key={place}>{place}</li>)}<li>{beauty ? 'Специалист' : 'Сотрудник ресторана'}</li><li>{data.employee.active ? 'Активен' : 'В архиве'}</li>{beauty && data.employee.active && dayStatus && <li data-testid="employee-day-status">{dayStatus.state === 'ON_SHIFT' ? `На смене${dayStatus.hours ? `, ${dayStatus.hours}` : ''}` : dayStatus.state === 'OFF' ? 'Выходной' : 'График недоступен'}</li>}</ul>
+        <div className="portal-identity-row"><ul className="portal-identity-meta" aria-label="Место работы и статус">{[...new Set([data.business.name, data.location?.name ?? 'Филиал не выбран'])].map((place) => <li key={place}>{place}</li>)}<li>{beauty ? 'Специалист' : 'Сотрудник ресторана'}</li><li>{data.employee.active ? 'Активен' : 'В архиве'}</li>{beauty && data.employee.active && dayStatus && <li data-testid="employee-day-status">{dayStatus.state === 'ON_SHIFT' ? `На смене${dayStatus.hours ? `, ${dayStatus.hours}` : ''}` : dayStatus.state === 'OFF' ? 'Выходной' : 'График недоступен'}</li>}</ul>
+      {/* «Мой месяц» (срез S2, владелец 21.10.2026): одна строка итогов, без плиток; стрелки листают месяц */}
+      <nav className="portal-month" aria-label="Итоги месяца" data-testid="portal-month">
+        <a className="btn btn--secondary btn--sm" href={`?month=${portalShiftMonth(data.monthStats.month, -1)}${data.workRange === 'MONTH' ? '&range=month' : ''}`} aria-label="Предыдущий месяц" data-testid="portal-month-prev"><span aria-hidden="true">‹</span></a>
+        <p className="portal-month-line" data-testid="portal-month-line" data-month={data.monthStats.month}>{portalMonthLine(data.monthStats, new Date().getUTCFullYear().toString())}</p>
+        <a className="btn btn--secondary btn--sm" href={`?month=${portalShiftMonth(data.monthStats.month, 1)}${data.workRange === 'MONTH' ? '&range=month' : ''}`} aria-label="Следующий месяц" data-testid="portal-month-next"><span aria-hidden="true">›</span></a>
+      </nav></div>
       </div>
       {data.avatar && <img className="portal-avatar" src={data.avatar.url} alt={`Фото: ${data.employee.name}`} width={96} height={96} />}
     </header>
@@ -98,7 +109,7 @@ export function EmployeeCabinet({
 
       {canEditProfile ? <PortalForm context={context} command="profile" revision={data.profile.revision} profileRevision={data.employee.profileRevision} label="Сохранить профиль">
         <Field label="Имя в карточке"><Input name="name" required maxLength={200} defaultValue={data.employee.name} /></Field>
-        <Field label="Телефон для связи"><Input name="phone" type="tel" maxLength={32} defaultValue={data.employee.phone ?? ''} /></Field>
+        <Field label="Телефон для связи"><Input name="phone" type="tel" inputMode="tel" placeholder="+7 701 000 00 00" maxLength={32} onInput={phoneOnInput} defaultValue={phoneFieldValue(data.employee.phone)} /></Field>
         <Field label="Почта для связи"><Input name="email" type="email" maxLength={320} defaultValue={data.employee.email ?? ''} /></Field>
 
         <Field label="Специализация"><Input name="headline" maxLength={200} defaultValue={data.profile.headline} /></Field>
@@ -106,7 +117,7 @@ export function EmployeeCabinet({
         <Field label="Год начала практики"><Input name="practiceSinceYear" type="number" min={1900} max={new Date().getUTCFullYear()} defaultValue={data.profile.practiceSinceYear ?? ''} /></Field>
       </PortalForm> : <dl className="portal-pay-grid">
         <dt>Имя в карточке</dt><dd>{data.employee.name}</dd>
-        <dt>Телефон для связи</dt><dd>{data.employee.phone ?? 'Не указан'}</dd>
+        <dt>Телефон для связи</dt><dd>{data.employee.phone ? formatPhone(data.employee.phone) : 'Не указан'}</dd>
         <dt>Почта для связи</dt><dd>{data.employee.email ?? 'Не указана'}</dd>
         <dt>Специализация</dt><dd>{data.profile.headline || 'Не указана'}</dd>
         <dt>О себе</dt><dd>{data.profile.biography || 'Не указано'}</dd>
@@ -118,9 +129,15 @@ export function EmployeeCabinet({
     </section> },
       ...(showWork ? [{ id: 'work', label: beauty ? 'Записи' : 'Заказы', content: <section className="panel portal-section" data-testid="portal-own-work"><h2>{beauty ? (manager ? 'Записи' : 'Мои записи') : (manager ? 'Заказы' : 'Мои заказы')}</h2>
       {/* месяц оплаты только на вкладке «Оплата труда» (аудит 21.10.2026, п. 26) */}
-      <form className="portal-filters" method="get"><Field label="Дата записей"><Input name="date" type="date" /></Field><button className="btn btn--secondary" type="submit">Показать</button></form>
-      {beauty ? data.appointments.length ? <ul className="portal-list">{data.appointments.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{a.date}</span><span>{new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: data.location?.timezone ?? 'UTC' }).format(new Date(a.startsAt))}</span><span>{a.customerName}</span><span>{beautyStatus[a.status as AppointmentStatus]?.label ?? 'Неизвестный статус'}</span><span>{formatMoney(a.priceMinor, a.currency)}</span></li>)}</ul> : <p>На выбранную дату записей нет</p>
-        : data.orders.length ? <ul className="portal-list">{data.orders.map(order => <li key={order.id}><strong>Заказ №{order.number}</strong><span>{order.tableName ?? 'Стол не указан'}</span><span>{foodOrderStatus[order.status as OrderStatus]?.label ?? 'Неизвестный статус'}</span><span>{formatMoney(order.totalMinor, order.currency)}</span></li>)}</ul> : <p>Собственных заказов за выбранный период нет</p>}
+      {/* «День / Месяц» (D-roles п. 4): месяц тот же, что в строке итогов; не больше 200 строк по дате */}
+      <nav className="portal-work-range" aria-label="Период списка">
+        <a className={`btn btn--sm ${data.workRange === 'DAY' ? 'btn--primary' : 'btn--secondary'}`} href={`?month=${data.monthStats.month}#work`} aria-current={data.workRange === 'DAY' ? 'page' : undefined} data-testid="portal-work-day">День</a>
+        <a className={`btn btn--sm ${data.workRange === 'MONTH' ? 'btn--primary' : 'btn--secondary'}`} href={`?month=${data.monthStats.month}&range=month#work`} aria-current={data.workRange === 'MONTH' ? 'page' : undefined} data-testid="portal-work-month">Месяц</a>
+      </nav>
+      {data.workRange === 'DAY' ? <form className="portal-filters" method="get"><Field label={beauty ? 'Дата записей' : 'Дата заказов'}><Input name="date" type="date" /></Field><button className="btn btn--secondary" type="submit">Показать</button></form>
+        : <p data-testid="portal-work-period">{beauty ? 'Записи' : 'Заказы'} за {portalMonthLabel(data.monthStats.month, new Date().getUTCFullYear().toString()).toLowerCase()}, по дате.{data.workTruncated ? ' Показаны первые 200.' : ''}</p>}
+      {beauty ? data.appointments.length ? <ul className="portal-list">{data.appointments.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{shortPeriod(a.date, a.date)}</span><span>{new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: data.location?.timezone ?? 'UTC' }).format(new Date(a.startsAt))}</span><span>{a.customerName}</span><span>{beautyStatus[a.status as AppointmentStatus]?.label ?? 'Неизвестный статус'}</span><span>{formatMoney(a.priceMinor, a.currency)}</span></li>)}</ul> : <div className="portal-work-empty"><p>{data.workRange === 'MONTH' ? 'За этот месяц записей нет' : 'На выбранную дату записей нет'}</p>{manager && data.employee.active && <a className="btn btn--secondary btn--sm" href={`/calendar?employee=${encodeURIComponent(data.employee.id)}&new=1`} data-testid="portal-work-new">Новая запись</a>}</div>
+        : data.orders.length ? <ul className="portal-list">{data.orders.map(order => <li key={order.id}><strong>Заказ №{order.number}</strong>{data.workRange === 'MONTH' && <span>{shortPeriod(order.date, order.date)}</span>}<span>{order.tableName ?? 'Стол не указан'}</span><span>{foodOrderStatus[order.status as OrderStatus]?.label ?? 'Неизвестный статус'}</span><span>{formatMoney(order.totalMinor, order.currency)}</span></li>)}</ul> : <p>Собственных заказов за выбранный период нет</p>}
     </section> }] : []),
       ...(showReviews ? [{
         id: 'reviews',
@@ -148,9 +165,20 @@ export function EmployeeCabinet({
       ...(showSchedule ? [{ id: 'week', label: 'График', content: <div className="portal-schedule"><section className="panel portal-section" data-testid="portal-week"><h2>Обычная неделя</h2>
       {!data.location ? <p>Выберите филиал для недельного графика.</p> : manager && (!access || access.employeesUpdate) ? <PortalWeek context={context} week={data.week} revision={data.weekRevision} /> : <PortalWeekView week={data.week} />}
     </section>
+    {/* отсутствия и выходные по датам (срез S3, владелец 21.10.2026): только просмотр, ставит руководитель */}
+    <section className="panel portal-section" data-testid="portal-time-offs"><h2>{manager ? 'Отсутствия' : 'Мои отсутствия'}</h2>
+      {(() => {
+        const { upcoming, past } = portalAbsences(data.timeOffs, localDate(new Date(), data.location?.timezone ?? 'UTC'));
+        const row = (t: EmployeePortalDto['timeOffs'][number]) => <li key={t.id} data-testid="portal-time-off"><strong>{shortPeriod(t.dateFrom, t.dateTo)}</strong><span>{portalAbsenceDays(t)}</span><span>{t.reason || 'Без причины'}</span></li>;
+        return <>
+          {upcoming.length ? <ul className="portal-list">{upcoming.map(row)}</ul> : <p>Ближайших отсутствий нет.</p>}
+          {!!past.length && <details className="portal-time-offs-past"><summary>Прошедшие ({past.length})</summary><ul className="portal-list">{past.map(row)}</ul></details>}
+          {!manager && <p>Отсутствия и график ставит руководитель. Если нужно изменить, напишите ему.</p>}
+        </>;
+      })()}
+    </section>
     {beauty && <section className="panel portal-section" data-testid="portal-schedule-conflicts" aria-live="polite"><h2>Записи и график</h2>
-      <p>Проверяем предстоящие собственные записи во всех назначенных филиалах по местному времени каждого филиала. Записи не отменены и не перенесены автоматически.</p>
-      {data.scheduleConflicts.items.length ? <><p role="alert">Есть записи вне графика или в дни отсутствия. Согласуйте изменения с руководителем.</p><ul className="portal-list">{data.scheduleConflicts.items.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{a.locationName}</span><span>{a.date} {new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: a.timezone }).format(new Date(a.startsAt))} ({a.timezone})</span><span>{a.reason === 'TIME_OFF' ? 'В день отсутствия' : 'Вне рабочих часов'}</span></li>)}</ul></> : <p>{data.scheduleConflicts.truncated ? 'В проверенной части конфликтов нет.' : 'Предстоящих записей, противоречащих графику, нет.'}</p>}
+      {data.scheduleConflicts.items.length ? <><p role="alert">Есть записи вне графика или в дни отсутствия. Согласуйте изменения с руководителем.</p><ul className="portal-list">{data.scheduleConflicts.items.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{a.locationName}</span><span>{shortPeriod(a.date, a.date)} {new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: a.timezone }).format(new Date(a.startsAt))} ({zoneLabel(a.timezone)})</span><span>{a.reason === 'TIME_OFF' ? 'В день отсутствия' : 'Вне рабочих часов'}</span></li>)}</ul></> : <p>{data.scheduleConflicts.truncated ? 'Среди первых 500 записей вне нового графика нет.' : 'Записей вне нового графика нет.'}</p>}
       {data.scheduleConflicts.truncated && <p role="alert">Проверены только первые 500 предстоящих записей. Проверка неполная: остальные записи нужно проверить с руководителем.</p>}
     </section>}
     </div> }] : []),
@@ -161,7 +189,7 @@ export function EmployeeCabinet({
         ['finance-paid','Выплачено',data.pay.paidMinor,'Выплаты, учтённые руководителем'],
         ['finance-remaining','Осталось к выплате',data.pay.status==='AVAILABLE'?data.pay.remainingMinor:null,'Остаток по данным расчёта'],
       ] as const).map(([key,label,amount,hint])=><article key={key} data-testid={key} data-amount={amount??undefined}><span>{label}</span><strong>{amount===null?(key==='finance-paid'?'Нет данных':'Нет расчёта'):formatMoney(amount,data.pay.currency)}</strong><small>{hint}</small></article>)}</div>
-      <p role="status" className="portal-finance-notice">{data.pay.status==='AVAILABLE'?'Суммы получены из расчёта оплаты труда.':data.pay.status==='SELECT_LOCATION'?'Выберите филиал в общем переключателе филиалов, чтобы увидеть начисления, выплаты и остаток за месяц.':data.pay.status==='NOT_CONFIGURED'?'Условия оплаты ещё не настроены. Подтверждённые выплаты отображаются отдельно.':'Автоматический расчёт для салона пока недоступен. Выплаты и условия оплаты доступны ниже.'}</p>
+      <p role="status" className="portal-finance-notice">{data.pay.status==='AVAILABLE'?'Суммы те же, что видит руководитель в разделе «Зарплата».':data.pay.status==='SELECT_LOCATION'?'Выберите филиал в общем переключателе филиалов, чтобы увидеть начисления, выплаты и остаток за месяц.':data.pay.status==='NOT_CONFIGURED'?'Условия оплаты ещё не настроены. Подтверждённые выплаты отображаются отдельно.':'Расчёт за этот месяц недоступен. Выплаты и условия оплаты доступны ниже.'}</p>
       <div className="portal-finance-extras"><p><span>Бонусы</span><strong>{data.pay.bonusMinor===null?'Не указаны':formatMoney(data.pay.bonusMinor,data.pay.currency)}</strong></p><p><span>Удержания</span><strong>{data.pay.penaltyMinor===null?'Не указаны':formatMoney(data.pay.penaltyMinor,data.pay.currency)}</strong></p></div>
       <details className="portal-finance-conditions"><summary>Условия оплаты</summary>
       <dl className="portal-pay-grid">

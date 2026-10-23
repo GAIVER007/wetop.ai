@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { amenityLabel, type withCardDefaults } from './card-model';
 import { Icon } from '../../components/icon';
 import { Badge, Panel } from '../../components/ui';
+import { formatPhone } from '../../lib/phone';
 
 type Card = ReturnType<typeof withCardDefaults>;
 
@@ -120,7 +121,7 @@ export function DocumentsSummary({ property: p, owner }: { property: Card; owner
               ['Юридическое лицо', p.legalName],
               ...(owner ? [['ИИН/БИН', p.bin] as [string, string | null | undefined]] : []),
               ['Адрес', p.address],
-              ['Телефон', p.phone],
+              ['Телефон', p.phone ? formatPhone(p.phone) : p.phone],
               ['Почта', p.email],
               ['Заезд и выезд', `с ${p.checkInTime} до ${p.checkOutTime}`],
             ]}

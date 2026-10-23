@@ -14,7 +14,7 @@ test('финансы: деньги на первом экране; главна�
     // «Финансы» (ADR-180): плитки денег первым экраном, кнопки брони нет
     await page.goto('/finance');
     await expect(page.getByRole('main').getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
-    await expect(page.getByTestId('fin-income')).toBeInViewport();
+    await expect(page.getByTestId('cash-period-income')).toBeInViewport();
     // «Главная» (/today): риски и «Все задачи» живут здесь
     await page.goto('/today');
     await expect(page.getByRole('main').getByRole('link', { name: /Новая бронь/ })).toHaveCount(0);
@@ -55,8 +55,8 @@ test('период «Финансов» и «Аналитики» на теле�
     const main = page.getByRole('main');
     await main.locator('.pa-range > summary').click();
     const controls = [
-      main.getByLabel('Период: с'),
-      main.getByLabel('Период: по'),
+      main.getByLabel('Период: с', { exact: true }),
+      main.getByLabel('Период: по', { exact: true }),
       main.getByTestId('pa-range-form').getByRole('button', { name: 'Применить' }),
       main.locator('.pa-range > summary'),
       main.getByRole('navigation', { name: 'Период' }).getByRole('link', { name: 'Сегодня' }),

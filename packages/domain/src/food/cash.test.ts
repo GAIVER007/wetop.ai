@@ -75,6 +75,7 @@ describe('разбор запросов кассы', () => {
       method: 'CASH',
       amount: 5000n,
       idempotencyKey: key,
+      itemIds: null,
     });
     expect(() => parseFoodPayment({ method: 'DEPOSIT', amount: 5000, idempotencyKey: key })).toThrow();
     expect(() => parseFoodPayment({ method: 'CASH', amount: 50.5, idempotencyKey: key })).toThrow();

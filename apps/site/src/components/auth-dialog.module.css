@@ -14,6 +14,7 @@
 .registration :global(.auth-form > .auth-field:has(input[autocomplete='new-password'])) { grid-column: 1 / -1; }
 .registration :global(.auth-field__input) { background: var(--public-bg); border-color: var(--public-border); color: var(--public-text); min-height: 46px; }
 .registration :global(.auth-field__input::placeholder) { color: var(--public-muted); opacity: 1; }
+.registration :global(.auth-field > .auth-field__input[aria-invalid='true']) { border-color: var(--danger); }
 .registration :global(.auth-row) { gap: 16px; }
 .registration :global(.auth-form__hint) { color: var(--public-muted); font-size: 0.8125rem; line-height: 1.5; }
 .registration :global(.auth-verticals__grid) { gap: 8px; }

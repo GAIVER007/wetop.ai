@@ -13,6 +13,7 @@ import { assignFoodPersonnelKind, mutateStaff } from './restaurant-actions';
 import { inviteNewStaffAction } from '../login/actions';
 import { StaffAccessPicker, staffAccessDraft, type StaffAccessDraft } from '../../components/staff-access-picker';
 import type { AccessLevel } from '@pms/domain';
+import { formatPhone, formatPhoneInput } from '../../lib/phone';
 
 /**
  * Назначение строки (DATA_MODEL.md, решения 18.10 и 20.10.2026): руководитель выбирает «специалист», «другой
@@ -82,7 +83,7 @@ function EmployeeDrawer({
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
   const [name, setName] = useState(employee?.name ?? '');
-  const [phone, setPhone] = useState(employee?.phone ?? '');
+  const [phone, setPhone] = useState(formatPhone(employee?.phone));
   const [email, setEmail] = useState(employee?.email ?? '');
   const [status, setStatus] = useState(employee?.status ?? 'ACTIVE');
   // назначение нового сотрудника выбирает руководитель; по умолчанию «Другой сотрудник»: у ресторана это чаще
@@ -158,7 +159,7 @@ function EmployeeDrawer({
         </Field>
         <div className="food-form-row">
           <Field label="Телефон">
-            <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+            <Input type="tel" inputMode="tel" placeholder="+7 701 000 00 00" value={phone} onChange={(e) => setPhone(formatPhoneInput(e.target.value))} />
           </Field>
           <Field label="Почта">
             <Input
@@ -275,7 +276,7 @@ export function EmployeesBoard({
           </span>
           <span>
             <strong>{e.name}</strong>
-            <span className="staff-person__role">{e.phone ?? 'Телефон не указан'}</span>
+            <span className="staff-person__role">{e.phone ? formatPhone(e.phone) : 'Телефон не указан'}</span>
           </span>
           {e.status === 'ARCHIVED' && <Badge>В архиве</Badge>}
         </span>

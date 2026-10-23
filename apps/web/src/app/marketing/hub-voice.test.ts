@@ -20,7 +20,7 @@ describe('«Голосовой агент» во всех направления
   });
 
   it.each(VERTICALS)('%s: карточка живая, ссылка на экран, число карточек хаба', (vertical) => {
-    expect(liveModules(vertical).has('voice')).toBe(true);
+    expect(liveModules().has('voice')).toBe(true);
     const html = renderToStaticMarkup(createElement(MarketingHub, { vertical }));
     expect(html).toMatch(/data-testid="marketing-voice-status"[^>]*>Доступно</);
     expect(html).toContain('href="/marketing/voice"');

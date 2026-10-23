@@ -48,7 +48,7 @@ class FakeRepo implements VoiceIngestRepository {
     if (agentId === AGENT_NOLOC) return 'NO_LOCATION';
     const scope = SCOPES[agentId];
     if (!scope) return null;
-    return { agentId, organizationId: scope.organizationId, vertical: agentId === AGENT_A ? 'BEAUTY' : 'FOOD_SERVICE', objectName: agentId === AGENT_A ? 'Салон Тест' : 'Салон Б', greetingTail: '', voiceName: 'Leda', handoffPhone: null };
+    return { agentId, organizationId: scope.organizationId, vertical: agentId === AGENT_A ? 'BEAUTY' : 'FOOD_SERVICE', objectName: agentId === AGENT_A ? 'Салон Тест' : 'Салон Б', greetingTail: '', voiceName: 'Leda', handoffPhone: null, booking: { enabled: false, needsApproval: true, maxPerCall: 3, maxPerPhoneDay: 5 } };
   }
   async record(scope: AgentScope, event: VoiceEvent): Promise<RecordResult> {
     const key = `${event.agentId}|${event.externalCallId}`;

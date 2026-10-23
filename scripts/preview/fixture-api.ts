@@ -5032,6 +5032,108 @@ const budgetMonthShift = (month: string, shift: number) => {
   const total = (y as number) * 12 + ((m as number) - 1) + shift;
   return `${Math.floor(total / 12)}-${String((total % 12) + 1).padStart(2, '0')}`;
 };
+/**
+ * «Голосовой агент» (срез 4): журнал, просьбы, брони по телефону и настройка брони. Данные вымышленные (ADR-010).
+ * Засев и сброс: `POST /__test/marketing-voice`. Имён и телефонов гостей в списке броней нет, как у настоящего API.
+ */
+type FixtureVoiceBooking = {
+  hasAgent: boolean;
+  vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE' | null;
+  enabled: boolean;
+  needsApproval: boolean;
+  maxPerCall: number;
+  canEnable: boolean;
+  blockers: string[];
+};
+const voiceDefaults = () => ({
+  booking: {
+    hasAgent: true,
+    vertical: 'HOSPITALITY',
+    enabled: false,
+    needsApproval: true,
+    maxPerCall: 3,
+    canEnable: true,
+    blockers: [],
+  } as FixtureVoiceBooking,
+  bookings: [] as Array<Record<string, unknown>>,
+  bookingsFail: false,
+  callbacks: [] as Array<Record<string, unknown>>,
+  calls: [] as Array<Record<string, unknown>>,
+});
+let voiceState = voiceDefaults();
+const VOICE_TZ = 'Asia/Almaty';
+function marketingVoiceRoute(
+  path: string,
+  method: string,
+  q: URLSearchParams,
+  body: Record<string, unknown>,
+): [number, unknown] | null {
+  if (!path.startsWith('/marketing/voice')) return null;
+  if (!can(uiRole, 'marketing')) return [403, { message: accessDeniedMessage('marketing') }];
+  const month = q.get('month') ?? today.slice(0, 7);
+  if (path === '/marketing/voice/summary' && method === 'GET') {
+    const calls = voiceState.calls.length;
+    return [
+      200,
+      {
+        month,
+        timezone: VOICE_TZ,
+        hasData: calls > 0,
+        totals: {
+          calls,
+          answered: calls,
+          ended: calls,
+          rejected: 0,
+          failed: 0,
+          callbacks: voiceState.callbacks.length,
+          transfers: 0,
+          avgDurationSeconds: calls ? 95 : null,
+        },
+      },
+    ];
+  }
+  if (path === '/marketing/voice/calls' && method === 'GET')
+    return [200, { month, timezone: VOICE_TZ, total: voiceState.calls.length, rows: voiceState.calls }];
+  if (path === '/marketing/voice/callbacks' && method === 'GET') {
+    const status = q.get('status');
+    return [200, voiceState.callbacks.filter((c) => !status || c['status'] === status)];
+  }
+  const closing = /^\/marketing\/voice\/callbacks\/([^/]+)$/.exec(path);
+  if (closing && method === 'PATCH') {
+    const row = voiceState.callbacks.find((c) => c['id'] === closing[1]);
+    if (!row) return [404, { message: 'Просьба не найдена' }];
+    row['status'] = 'DONE';
+    row['doneAt'] = new Date().toISOString();
+    return [200, row];
+  }
+  if (path === '/marketing/voice/bookings' && method === 'GET') {
+    if (voiceState.bookingsFail) return [500, { message: 'Внутренняя ошибка' }];
+    const day = Date.now() - 86_400_000;
+    return [
+      200,
+      {
+        timezone: VOICE_TZ,
+        days: Number(q.get('days') ?? 7),
+        last24h: voiceState.bookings.filter((b) => Date.parse(String(b['at'])) > day).length,
+        rows: voiceState.bookings,
+      },
+    ];
+  }
+  if (path === '/marketing/voice/booking' && method === 'GET') return [200, voiceState.booking];
+  if (path === '/marketing/voice/booking' && method === 'PATCH') {
+    const keys = Object.keys(body);
+    if (keys.length === 0 || keys.some((k) => k !== 'enabled' && k !== 'maxPerCall'))
+      return [400, { message: 'Можно менять только выключатель (enabled) и лимит за звонок (maxPerCall)' }];
+    if ('maxPerCall' in body && !(Number.isInteger(body['maxPerCall']) && (body['maxPerCall'] as number) >= 1 && (body['maxPerCall'] as number) <= 20))
+      return [400, { message: 'maxPerCall: целое число от 1 до 20' }];
+    if (body['enabled'] === true && !voiceState.booking.canEnable)
+      return [409, { message: `Включить нельзя: ${voiceState.booking.blockers.join('; ')}` }];
+    if (typeof body['enabled'] === 'boolean') voiceState.booking.enabled = body['enabled'];
+    if (typeof body['maxPerCall'] === 'number') voiceState.booking.maxPerCall = body['maxPerCall'];
+    return [200, voiceState.booking];
+  }
+  return null;
+}
 /** null — маршрут не бюджета; иначе [код, тело] */
 function marketingBudgetRoute(
   path: string,
@@ -6115,6 +6217,18 @@ createServer(async (req, res) => {
         throw e;
       }
     }
+    const voiceResponse = marketingVoiceRoute(path, req.method ?? 'GET', url.searchParams, body);
+    if (voiceResponse) return send(voiceResponse[0], voiceResponse[1]);
+    // засев голосового агента для UI-тестов: настройка брони, брони, просьбы, звонки; пустое тело сбрасывает всё
+    if (path === '/__test/marketing-voice' && req.method === 'POST') {
+      voiceState = voiceDefaults();
+      Object.assign(voiceState.booking, (body['booking'] as Partial<FixtureVoiceBooking> | undefined) ?? {});
+      voiceState.bookings = (body['bookings'] as Array<Record<string, unknown>> | undefined) ?? [];
+      voiceState.bookingsFail = body['bookingsFail'] === true;
+      voiceState.callbacks = (body['callbacks'] as Array<Record<string, unknown>> | undefined) ?? [];
+      voiceState.calls = (body['calls'] as Array<Record<string, unknown>> | undefined) ?? [];
+      return send(200, { ok: true });
+    }
     const budgetResponse = marketingBudgetRoute(path, req.method ?? 'GET', url.searchParams, body);
     if (budgetResponse) return send(budgetResponse[0], budgetResponse[1]);
     // засев бюджета маркетинга для UI-тестов: строки расходов и план месяца
@@ -6222,6 +6336,7 @@ createServer(async (req, res) => {
       resetCustomerImportFixture();
       resetMarket();
       resetMarketingBudget();
+      voiceState = voiceDefaults();
       resetAgentFixture();
       resetBarFixture();
       resetMarketingSiteFixture();

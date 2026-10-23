@@ -771,6 +771,22 @@
     }
   },
   {
+    "route": "/marketing/voice",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/marketing/voice",
+    "rule": {
+      "href": "/marketing/voice",
+      "label": "Голосовой агент",
+      "requires": "marketing"
+    }
+  },
+  {
     "route": "/menu",
     "vertical": "FOOD_SERVICE",
     "features": [

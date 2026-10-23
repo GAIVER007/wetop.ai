@@ -4793,6 +4793,24 @@ Customer сохраняет исходное nullable поле phone. Добав
 
 Уточнение хранения SL4-M4B2: uploadReceipts содержат хэши принятых исходных пакетов и очищаются до пустого объекта по тому же TTL 30 дней, включая задачи, у которых input уже NULL. Агрегаты, исходы строк и технический requestDigest от одного totalRows остаются. Новых полей и сущностей это уточнение не добавляет.
 
+## VOICE-20261022: журнал голосовых звонков (предложение; заменено VOICE-OWNER-APPROVAL-20261022 ниже, утверждено 22.10.2026)
+
+Статус: ожидает утверждения владельцем. До утверждения миграций и кода таблиц нет, первый срез ведёт файловый журнал (`docs/voice/voice-channel.md`).
+
+Предлагается `VoiceCall`: id, organizationId, businessId, locationId, agentId, externalCallId (строкой, уникален в паре с agentId), direction (INBOUND/OUTBOUND), dialedNumber (E.164 номера объекта), callerPhoneNormalized (канонический телефон, как в SL4-M4A), state (RECEIVED/ANSWERED/ENDED/REJECTED/FAILED), receivedAt и answeredAt и endedAt (UTC timestamptz, ставит приложение), durationSeconds, endReason, transferredTo (маска), callbackRequested (bool), callbackNote (до 500 знаков), consentAnnounced (bool), errorCode, retryCount, createdAt. Деньги не хранятся. Запись разговора и расшифровка отдельной сущностью только после Q-VOICE-2.
+
+Идемпотентность: уникальный ключ (agentId, externalCallId), повтор события обновляет ту же строку. Доступ на чтение: журнал звонков раздела «Маркетинг», право marketing.view. Изоляция организаций через RLS, как у остальных таблиц. Миграция additive; rollback: удалить таблицу, данных других сущностей она не меняет.
+
+### VOICE-OWNER-APPROVAL-20261022 (УТВЕРЖДЕНО 22.10.2026)
+
+Статус: УТВЕРЖДЕНО владельцем 22.10.2026 (`docs/decisions/2026-10-22-voice-stage2-storage.md`). Заменяет предложение выше там, где они расходятся: полный телефон звонящего в `VoiceCall` НЕ хранится.
+
+- `VoiceCall` (`voice_calls`): id, organizationId, businessId, locationId (nullable), agentId (SellerAgent), externalCallId (строка до 128), direction (INBOUND/OUTBOUND), dialedNumber (E.164 номера объекта, nullable), callerMasked (маска вида `***1234`), state (RECEIVED/ANSWERED/ENDED/REJECTED/FAILED), receivedAt, answeredAt, endedAt (UTC timestamptz, ставит приложение), durationSeconds, endReason, transferRequested (bool), callbackRequested (bool), consentAnnounced (bool, true по умолчанию), errorCode, retryCount, createdAt, updatedAt. Уникально (agentId, externalCallId): повтор события обновляет ту же строку. Состояние только вперёд: ENDED, REJECTED, FAILED конечные.
+- `VoiceCallback` (`voice_callbacks`): id, organizationId, businessId, voiceCallId, phone (канонический E.164, единственное место полного номера), name (до 100), note (до 500), status (NEW/DONE), doneAt, doneById, createdAt. Уникально (voiceCallId, phone). DONE требует doneAt.
+- `VoiceProfile` (`voice_profiles`): agentId (ключ), organizationId, businessId, greetingTail (до 300), voiceName (до 40, по умолчанию Leda), handoffPhone (E.164, nullable), revision, updatedAt.
+- Доступ: чтение и закрытие просьб по праву `marketing`; запись событий только служебной ролью `wetop_service` (воркер голоса). RLS: ENABLE и FORCE на всех трёх таблицах, `wetop_app` читает свои строки, закрывает просьбы своей организации.
+- Миграция additive: `20261022000145_voice_calls` (номер 145: 142-144 заняты поездом #766) с `down.sql` (откат только пока таблицы пусты). В production не применена.
+
 ## VOICE-BOOKING-PROPOSAL-20261023: голосовая бронь (ПРЕДЛОЖЕНИЕ, не утверждено)
 
 Статус: предложение среза 0 плана `plans/voice-booking-2026-10-23.md`; ответы владельца-делегата: `docs/decisions/2026-10-23-voice-booking-answers.md`. Ничего из ниже не создано: ни schema, ни миграции, ни кода. Начинается только после явного «утверждаю» владельца (AGENTS.md §2). Опирается на таблицы `voice_calls` и `voice_profiles` из VOICE-20261022 (миграция 145, PR #772), которая должна быть в `main` раньше.
@@ -4814,6 +4832,36 @@ Customer сохраняет исходное nullable поле phone. Добав
 ### VOICE-BOOKING-OWNER-APPROVAL-20261023
 
 Статус: УТВЕРЖДЕНО 23.10.2026. Владелец ответил: «Утверждаю модель данных VOICE-BOOKING-PROPOSAL-20261023. Начинай срез 1 (гостиница)». Предложение выше утверждено без правок. Миграцию на рабочей базе применяет владелец. Первый срез: гостиница (источник `VOICE`, поля `voice_profiles`, канал `voice` у `seller_booking_intents`); таблица `voice_booking_quotes` идёт со срезами ресторана и салона.
+
+### VOICE-BOOKING-QUOTES-NOTE-20261023: уточнение п. 3 утверждённого предложения
+
+Таблица `voice_booking_quotes` (миграция 148) хранит звонок текстом `call_ref` (внешний ID звонка, `varchar(64)`), а не внешним ключом `voice_call_id` на `voice_calls`: события звонка идут из воркера через очередь и могут прийти позже первой котировки, внешний ключ ломал бы котировку. Связь с журналом по паре (`agent_id`, `call_ref` = `external_call_id`). Остальное как в утверждённом предложении. Основание: `docs/decisions/2026-10-23-voice-booking-salon-restaurant.md`.
+
+## VOICE-PHONE-LIMIT-PROPOSAL-20261023: суточный лимит голосовых броней на телефон (ПРЕДЛОЖЕНИЕ, не утверждено)
+
+Статус: предложение к Q-VOICE-10 (владелец 23.10.2026: «да да» на хэш телефона). Ничего не создано. Начинается только после явного «утверждаю» владельца (AGENTS.md §2). Утверждённое поле `voice_profiles.booking_max_per_phone_day` (по умолчанию 5) уже есть, но не применяется: у брони номера гостя для подсчёта нет (телефон в базе хранится псевдонимом по `PII_STORAGE`).
+
+**1. Поле хэша телефона (additive).** `guest_phone_hash char(64) NULL` в `seller_booking_intents` (гостиница) и в `voice_booking_quotes` (салон, ресторан). Значение: HMAC-SHA256 канонического номера E.164 с серверным секретом `VOICE_PHONE_HASH_KEY` (в `.env` API; секрет не пустой, иначе лимит не включается и API пишет в журнал предупреждение). Хэш с секретом: утечка базы не позволяет перебором восстановить номера. Номер в открытом виде в эти таблицы не попадает. Ставится в момент подтверждения вместе с переходом в `CONFIRMED`. CHECK: хэш задан только у подтверждённой строки (`state = 'CONFIRMED'` или хэш NULL).
+
+**2. Индекс.** Частичный `(agent_id, guest_phone_hash, updated_at) WHERE guest_phone_hash IS NOT NULL` в обеих таблицах.
+
+**3. Как считается лимит.** При котировке и подтверждении: число `CONFIRMED` голосовых броней агента с тем же хэшем за последние 24 часа в обеих таблицах не должно быть меньше `booking_max_per_phone_day`; иначе 409 «лимит на этот телефон, дальше администратор». Для котировки хэш неизвестен (телефон спрашивается после условий), поэтому проверка на шаге подтверждения. Время `updated_at` ставит приложение.
+
+**4. Срок хранения.** Хэш нужен только на 24 часа окна. Предлагаю обнулять `guest_phone_hash` у строк старше 7 дней фоновой задачей API (уже есть образец очистки содержимого импорта клиентов, SL4-M4B). Если задачи нет к моменту выкладки, хэш остаётся (он не позволяет восстановить номер), это записывается в README миграции.
+
+**5. Что не меняется.** Деньги, тарифы, folio, статусы брони. Лимит за звонок остаётся. Телефон гостя остаётся в карточке клиента как раньше.
+
+**Backup / validation / rollback (AGENTS.md §14).** Две колонки NULL, два индекса, два CHECK; backup перед применением владельцем; откат `DROP COLUMN`/`DROP INDEX` (данные лимита безвозвратны, на бронь не влияют).
+
+**Вопросы владельцу.** (а) Окно 24 часа скользящее или календарные сутки объекта? (моё: скользящие 24 часа). (б) Срок обнуления хэша 7 дней? (моё: да). (в) Один лимит на все три направления одного бизнеса или отдельно на агента? (моё: на агента).
+
+### VOICE-PHONE-LIMIT-OWNER-APPROVAL-20261023
+
+Статус: УТВЕРЖДЕНО 23.10.2026. Владелец ответил: «Утверждаю VOICE-PHONE-LIMIT-PROPOSAL-20261023 с вашими вариантами (скользящие 24 часа, обнуление через 7 дней, лимит на агента). Делай миграцию 149.» (номер в цепочке позже менялся из-за занятости: 150, 151, затем 153; содержание миграции то же). Предложение выше утверждено без правок: окно скользящие 24 часа, хэш обнуляется через 7 дней, лимит считается на агента. Миграцию на рабочей базе применяет владелец; секрет `VOICE_PHONE_HASH_KEY` вписывает владелец в `.env` API.
+
+### VOICE-BOOKING-SETTINGS-NOTE-20261023: права стойки на выключатель (миграция 149)
+
+Срез 4 плана. Новых сущностей и полей нет. Приложению (роль человека) выданы столбцовые права на `voice_profiles`: `INSERT` (agent_id, organization_id, business_id, booking_enabled, booking_max_per_call) и `UPDATE` (booking_enabled, booking_max_per_call, updated_at), политики вставки и правки только своей организации; остальные поля профиля пишет служебная роль. Основание: README миграции 147 («право приложения на правку выключателя выдаст срез 4») и утверждённый п. 2 предложения VOICE-BOOKING-PROPOSAL-20261023. Предложение хэша телефона (VOICE-PHONE-LIMIT-PROPOSAL-20261023) получит следующий номер миграции.
 
 ## CONTENT-DRAFTS-20261022: черновики постов (УТВЕРЖДЕНО 23.10.2026; Q-CONTENT-1…6)
 

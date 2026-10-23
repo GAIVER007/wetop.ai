@@ -454,6 +454,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Посты, фото и план публикаций.',
       },
       {
+        // Голосовой агент (ИИ-колл-центр, решение владельца 22.10.2026): все направления, видимость задаёт features.ts
+        href: '/marketing/voice',
+        requires: 'marketing',
+        label: 'Голосовой агент',
+        icon: 'chat',
+        description: 'ИИ принимает звонки: отвечает по услугам и ценам, собирает просьбы перезвонить.',
+      },
+      {
         // Фишка №1 (ADR-142): загрузка ближайших отелей рядом со своей; с ADR-184 в «Продвижении»
         href: '/market',
         requires: 'reports',
@@ -728,6 +736,8 @@ const ROW: Array<{
       { label: 'Обзор', at: ALL('/marketing') },
       { label: 'Реклама', at: ALL('/marketing/ads') },
       { label: 'Контент', at: ALL('/marketing/content') },
+      // голосовой агент (ИИ-колл-центр): все направления (решение владельца 22.10.2026)
+      { label: 'Голосовой агент', at: ALL('/marketing/voice') },
       { label: 'ИИ-продавец', at: ALL('/ai-agents') },
       // мониторинг загрузки соседей пока только у гостиницы (ADR-142)
       { label: 'Анализ конкурентов', at: { HOSPITALITY: '/market' } },

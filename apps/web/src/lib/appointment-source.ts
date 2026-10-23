@@ -3,5 +3,6 @@
  * Слово «Стойка» осталось у гостиницы.
  */
 export function appointmentSourceLabel(source: string | null | undefined): string {
+  if (source === 'VOICE') return 'Голосовой агент';
   return source === 'WEBSITE' ? 'Сайт' : 'Администратор';
 }

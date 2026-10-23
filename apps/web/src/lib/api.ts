@@ -4821,6 +4821,109 @@ export const marketingAdsApi = {
     sendJson<{ status: string }>('POST', `/marketing/ads/campaigns/${encodeURIComponent(campaignId)}/resume`, {}),
 };
 
+/** Голосовой агент: итоги месяца, журнал звонков и просьбы перезвонить (API `/marketing/voice`, право `marketing`) */
+export interface VoiceSummaryView {
+  month: string;
+  timezone: string;
+  hasData: boolean;
+  totals: {
+    calls: number;
+    answered: number;
+    ended: number;
+    rejected: number;
+    failed: number;
+    callbacks: number;
+    transfers: number;
+    /** null: усреднять нечего */
+    avgDurationSeconds: number | null;
+  };
+}
+
+export interface VoiceCallRow {
+  id: string;
+  receivedAt: string;
+  callerMasked: string | null;
+  state: string;
+  direction: string;
+  durationSeconds: number | null;
+  transferRequested: boolean;
+  callbackRequested: boolean;
+  endReason: string | null;
+}
+
+export interface VoiceCallsView {
+  month: string;
+  timezone: string;
+  total: number;
+  rows: VoiceCallRow[];
+}
+
+export interface VoiceCallbackRow {
+  id: string;
+  callId: string;
+  phone: string;
+  name: string;
+  note: string;
+  status: 'NEW' | 'DONE';
+  createdAt: string;
+  doneAt: string | null;
+}
+
+/** Настройка брони по телефону (срез 4): выключатель, лимит за звонок и причины, почему включить нельзя */
+export interface VoiceBookingView {
+  hasAgent: boolean;
+  vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE' | null;
+  enabled: boolean;
+  needsApproval: boolean;
+  maxPerCall: number;
+  canEnable: boolean;
+  blockers: string[];
+}
+
+/** Бронь, принятая голосовым агентом: без имени и телефона гостя */
+export interface VoiceBookingRow {
+  id: string;
+  kind: 'HOTEL' | 'APPOINTMENT' | 'TABLE';
+  at: string;
+  status: string | null;
+  reference?: string;
+  category?: string;
+  arrival?: string;
+  departure?: string;
+  adults?: number;
+  service?: string;
+  master?: string;
+  startsAt?: string;
+  partySize?: number;
+  period?: string;
+  totalMinor?: string;
+  currency?: string;
+}
+
+export interface VoiceBookingsView {
+  timezone: string;
+  days: number;
+  last24h: number;
+  rows: VoiceBookingRow[];
+}
+
+export const marketingVoiceApi = {
+  bookings: (days = 7) => getJson<VoiceBookingsView>(`/marketing/voice/bookings?days=${days}`),
+  booking: () => getJson<VoiceBookingView>('/marketing/voice/booking'),
+  saveBooking: (body: { enabled?: boolean; maxPerCall?: number }) =>
+    sendJson<VoiceBookingView>('PATCH', '/marketing/voice/booking', body),
+  summary: (month?: string) =>
+    getJson<VoiceSummaryView>(`/marketing/voice/summary${month ? `?month=${encodeURIComponent(month)}` : ''}`),
+  calls: (month?: string, limit = 50, offset = 0) =>
+    getJson<VoiceCallsView>(
+      `/marketing/voice/calls?limit=${limit}&offset=${offset}${month ? `&month=${encodeURIComponent(month)}` : ''}`,
+    ),
+  callbacks: (status?: 'NEW' | 'DONE', limit = 100) =>
+    getJson<VoiceCallbackRow[]>(`/marketing/voice/callbacks?limit=${limit}${status ? `&status=${status}` : ''}`),
+  closeCallback: (id: string) =>
+    sendJson<VoiceCallbackRow>('PATCH', `/marketing/voice/callbacks/${encodeURIComponent(id)}`, { status: 'DONE' }),
+};
+
 export const marketingCampaignsApi = {
   list: (month?: string) =>
     getJson<MarketingCampaignsView>(`/marketing/campaigns${month ? `?month=${encodeURIComponent(month)}` : ''}`),

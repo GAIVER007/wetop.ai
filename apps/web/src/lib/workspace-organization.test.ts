@@ -18,7 +18,7 @@ it('organizes the menu by tasks: one row of sections shared by all verticals', (
     // «Продвижение» (ADR-184) вместе с бывшими «Продажами»
     [
       'Продвижение',
-      ['/marketing', '/marketing/ads', '/marketing/content', '/ai-agents', '/market', '/sales', '/marketing/budget', '/marketing/analytics'],
+      ['/marketing', '/marketing/ads', '/marketing/content', '/marketing/voice', '/ai-agents', '/market', '/sales', '/marketing/budget', '/marketing/analytics'],
     ],
     ['Помощь', ['/help']],
   ]);

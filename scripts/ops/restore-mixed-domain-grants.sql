@@ -71,6 +71,26 @@ BEGIN
     GRANT SELECT, INSERT ON customer_bonus_entries, gift_certificate_entries TO wetop_app, wetop_service;
     GRANT SELECT, INSERT, UPDATE ON gift_certificates TO wetop_app, wetop_service;
   END IF;
+  -- 145_voice_calls: exact ACL of the voice journal (all-or-none)
+  SELECT count(*) INTO installed FROM unnest(ARRAY['voice_calls','voice_callbacks','voice_profiles']) AS t(name)
+    WHERE to_regclass('public.' || name) IS NOT NULL;
+  IF installed NOT IN (0,3) THEN RAISE EXCEPTION 'Incomplete voice schema during ACL restore'; END IF;
+  IF installed = 3 THEN
+    REVOKE ALL ON voice_calls, voice_callbacks, voice_profiles FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON voice_calls, voice_callbacks, voice_profiles TO wetop_service;
+    GRANT SELECT ON voice_calls, voice_profiles TO wetop_app;
+    GRANT SELECT ON voice_callbacks TO wetop_app;
+    GRANT UPDATE (status, done_at, done_by_id) ON voice_callbacks TO wetop_app;
+    -- 149_voice_booking_settings: column grants for the booking switch and the per-call limit
+    GRANT INSERT (agent_id, organization_id, business_id, booking_enabled, booking_max_per_call) ON voice_profiles TO wetop_app;
+    GRANT UPDATE (booking_enabled, booking_max_per_call, updated_at) ON voice_profiles TO wetop_app;
+  END IF;
+  -- 148_voice_booking_quotes: exact ACL of the voice booking quotes
+  IF to_regclass('public.voice_booking_quotes') IS NOT NULL THEN
+    REVOKE ALL ON voice_booking_quotes FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON voice_booking_quotes TO wetop_service;
+    GRANT SELECT ON voice_booking_quotes TO wetop_app;
+  END IF;
 
   -- 144_menu_modifiers_split: exact ACL of the mixed migration (all-or-none)
   SELECT count(*) INTO installed FROM unnest(ARRAY['menu_modifier_groups','menu_modifiers','menu_item_modifier_groups','restaurant_order_item_modifiers','restaurant_payment_items']) AS t(name)

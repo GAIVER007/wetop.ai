@@ -29,6 +29,7 @@ MAX_ADULTS = 10
 BAD_DATES = "Даты или число гостей не поняты: уточните дату заезда, дату выезда и число гостей."
 NOT_AVAILABLE = "Этот вариант сейчас недоступен. Предложите другие даты или категорию, либо оставьте просьбу для администратора."
 NEED_QUOTE = "Сначала нужно предложение с условиями: проверьте наличие и назовите условия клиенту."
+NEED_CATALOG = "Сначала узнайте услуги и мастеров: вызовите get_masters."
 BOOKING_OFF = "Бронь по телефону сейчас недоступна, администратор свяжется с клиентом."
 
 
@@ -113,6 +114,11 @@ class VoiceTools:
         # последняя котировка этого звонка: идентификатор остаётся здесь, модель его не видит и не подставляет
         self._pending: dict | None = None
         self._booked = 0
+        # салон: справочник услуг с мастерами и последняя выдача окон этого звонка; идентификаторы остаются здесь, модель их не видит
+        self._catalog_services: dict[str, dict] = {}
+        self._slots: dict[str, dict] | None = None
+        self._slots_service: str | None = None
+        self._slots_masters: dict = {}
 
     def _emit(self, kind: str, *args: str) -> None:
         """Событие в очередь платформы. Сбой отчётности не должен ломать разговор."""
@@ -320,3 +326,169 @@ class VoiceTools:
             else "Бронь подтверждена."
         )
         return f"Бронь принята, номер {number_text}. {tail}"
+
+    # ---- салон: мастера, окна, запись
+
+    @staticmethod
+    def _find(name: str, items: dict) -> dict | None:
+        key = (name or "").strip().lower()
+        if not key:
+            return None
+        if key in items:
+            return items[key]
+        starts = [v for k, v in items.items() if k.startswith(key) or key.startswith(k)]
+        return starts[0] if len(starts) == 1 else None
+
+    async def get_masters(self) -> str:
+        """Услуги салона, цены и мастера, которые каждую услугу оказывают."""
+        if self._booking is None or not self._profile.can_book:
+            return BOOKING_OFF
+        try:
+            data = await self._booking.beauty_catalog(self._route.agent_id, self._call_id)
+        except BookingRefused:
+            return NOT_AVAILABLE
+        except BookingUnavailable:
+            return BOOKING_OFF
+        except Exception:  # noqa: BLE001
+            logger.warning("get_masters: непредвиденный сбой")
+            return BOOKING_OFF
+        rows, known = [], {}
+        currency = data.get("currency")
+        for item in data.get("services") or []:
+            if not isinstance(item, dict) or not isinstance(item.get("name"), str):
+                continue
+            masters = [m for m in item.get("masters") or [] if isinstance(m, dict) and isinstance(m.get("name"), str)]
+            if not masters:
+                continue
+            known[item["name"].strip().lower()] = {"id": item.get("id"), "name": item["name"], "masters": {m["name"].strip().lower(): m for m in masters}}
+            price = _money(item.get("priceMinor"), currency)
+            minutes = item.get("durationMinutes")
+            head = item["name"] + (f", {minutes} минут" if isinstance(minutes, int) and minutes > 0 else "") + (f", {price}" if price else "")
+            rows.append(f"{head} (мастера: {', '.join(m['name'] for m in masters)})")
+        self._catalog_services = known
+        self._slots = None
+        return "; ".join(rows) + "." if rows else NOT_AVAILABLE
+
+    async def find_slots(self, service: str, date: str, master: str = "") -> str:
+        """Свободное время на дату для услуги: у любого мастера или у названного."""
+        if self._booking is None or not self._profile.can_book:
+            return BOOKING_OFF
+        if not self._catalog_services:
+            return NEED_CATALOG
+        entry = self._find(service, self._catalog_services)
+        if entry is None:
+            return "Такой услуги нет в списке: уточните название услуги у клиента."
+        if not ISO_DATE.match(date or "") or not self._valid_date(date):
+            return BAD_DATES
+        master_id = None
+        if (master or "").strip():
+            picked = self._find(master, entry["masters"])
+            if picked is None:
+                return "Этот мастер эту услугу не оказывает: назовите мастеров из списка."
+            master_id = picked["id"]
+        try:
+            data = await self._booking.beauty_slots(self._route.agent_id, self._call_id, entry["id"], date, master_id)
+        except BookingRefused:
+            return NOT_AVAILABLE
+        except BookingUnavailable:
+            return BOOKING_OFF
+        except Exception:  # noqa: BLE001
+            logger.warning("find_slots: непредвиденный сбой")
+            return BOOKING_OFF
+        names = {m["id"]: m["name"] for m in data.get("masters") or [] if isinstance(m, dict)}
+        slots, rows = {}, []
+        for slot in data.get("slots") or []:
+            if not isinstance(slot, dict) or not isinstance(slot.get("time"), str) or not isinstance(slot.get("startsAt"), str):
+                continue
+            ids = [i for i in slot.get("masterIds") or [] if isinstance(i, str)]
+            slots[slot["time"]] = {"startsAt": slot["startsAt"], "masterIds": ids}
+            rows.append(slot["time"])
+        self._slots = slots
+        self._slots_service = entry["id"]
+        self._slots_masters = names
+        self._pending = None
+        if not rows:
+            return f"На {date} свободного времени нет: предложите другую дату."
+        price = _money(data.get("service", {}).get("priceMinor"), data.get("service", {}).get("currency"))
+        tail = f" Цена услуги {price}." if price else ""
+        return f"Свободное время на {date}: {', '.join(rows)}.{tail}"
+
+    async def quote_visit(self, service: str, time: str, master: str = "") -> str:
+        """Условия записи на время из последней выдачи; записью не является."""
+        if self._booking is None or not self._profile.can_book:
+            return BOOKING_OFF
+        entry = self._find(service, self._catalog_services) if self._catalog_services else None
+        slot = (self._slots or {}).get((time or "").strip())
+        if entry is None or slot is None or entry["id"] != self._slots_service:
+            return "Такого времени нет в последней выдаче: сначала найдите свободное время инструментом find_slots."
+        master_id = None
+        if (master or "").strip():
+            picked = self._find(master, entry["masters"])
+            if picked is None:
+                return "Этот мастер эту услугу не оказывает: назовите мастеров из списка."
+            master_id = picked["id"]
+            if master_id not in slot["masterIds"]:
+                return NOT_AVAILABLE
+        try:
+            quote = await self._booking.beauty_quote(self._route.agent_id, self._call_id, entry["id"], master_id, slot["startsAt"])
+        except BookingRefused:
+            return NOT_AVAILABLE
+        except BookingUnavailable:
+            return BOOKING_OFF
+        except Exception:  # noqa: BLE001
+            logger.warning("quote_visit: непредвиденный сбой")
+            return BOOKING_OFF
+        quote_id = quote.get("quote")
+        price = _money(quote.get("priceMinor"), quote.get("currency"))
+        if not isinstance(quote_id, str):
+            return BOOKING_OFF
+        self._pending = {"quote": quote_id}
+        who = quote.get("master") or "любой свободный мастер"
+        return (
+            f"Условия: {quote.get('service', service)}, мастер {who}, {quote.get('date')} в {quote.get('time')}"
+            + (f", {price}" if price else "")
+            + ". Это ещё не запись. Предложение действует 30 минут. Для подтверждения записи спросите имя, телефон, пожелание "
+            "к визиту и получите от клиента явное согласие «да»."
+        )
+
+    async def confirm_visit(self, name: str, phone: str, comment: str, customer_agreed: bool) -> str:
+        """Записать клиента по последним условиям после явного согласия звонящего."""
+        if self._booking is None or not self._profile.can_book:
+            return BOOKING_OFF
+        if self._pending is None or "quote" not in self._pending:
+            return NEED_QUOTE
+        if customer_agreed is not True:
+            return "Нужно явное согласие клиента на условия: переспросите и дождитесь слова «да»."
+        if self._booked >= self._profile.booking_max_per_call:
+            return "За один звонок записано максимум, остальное уточнит администратор."
+        clean_name = (name or "").strip()[:100]
+        if not clean_name:
+            return "Нужно имя клиента, уточните его."
+        number = normalize_e164(phone)
+        if number is None:
+            return "Номер телефона не расслышан, попросите клиента повторить его полностью."
+        guest = {"name": clean_name, "phone": number, "comment": (comment or "").strip()[:NOTE_MAX]}
+        try:
+            booked = await self._booking.beauty_confirm(self._route.agent_id, self._call_id, self._pending["quote"], guest)
+        except BookingRefused:
+            self._pending = None
+            self._slots = None
+            return NOT_AVAILABLE
+        except BookingUnavailable:
+            return BOOKING_OFF
+        except Exception:  # noqa: BLE001
+            logger.warning("confirm_visit: непредвиденный сбой")
+            return BOOKING_OFF
+        self._pending = None
+        self._slots = None
+        self._booked += 1
+        tail = "Запись ожидает подтверждения администратора, он свяжется с клиентом." if booked.get("pendingApproval") else "Запись подтверждена."
+        return f"Клиент записан: {booked.get('service')}, мастер {booked.get('master')}. {tail}"
+
+    @staticmethod
+    def _valid_date(value: str) -> bool:
+        try:
+            date.fromisoformat(value)
+            return True
+        except ValueError:
+            return False

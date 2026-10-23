@@ -113,7 +113,7 @@ const SITES_RUNTIME_ALLOWED = ['/sites-runtime/current', '/sites-runtime/preview
  * `GET /voice/profile` (профиль голоса по агенту). Журнал звонков, просьбы и всё остальное этим ключом не открываются.
  */
 const VOICE_INGEST_ALLOWED = ['/voice/events'];
-const VOICE_INGEST_READ = ['/voice/profile', '/voice/availability'];
+const VOICE_INGEST_READ = ['/voice/profile', '/voice/availability', '/voice/beauty-catalog', '/voice/beauty-slots'];
 
 /**
  * Ключ записи голоса (`VOICE_BOOK_KEY`, DATA_MODEL VOICE-BOOKING-OWNER-APPROVAL-20261023): только POST котировки брони по

@@ -16,6 +16,8 @@ KEY_HEADER = "x-wetop-service-key"
 PATH_AVAILABILITY = "/voice/availability"
 PATH_QUOTE = "/voice/booking-quotes"
 PATH_CONFIRM = "/voice/booking-quotes/confirm"
+PATH_BEAUTY_CATALOG = "/voice/beauty-catalog"
+PATH_BEAUTY_SLOTS = "/voice/beauty-slots"
 # Отказ по существу: нет мест, цена не задана, лимит звонка, выключено, чужая котировка. Остальное сбой связи или настройки
 REFUSAL_STATUSES = (400, 404, 409, 422, 429)
 
@@ -51,6 +53,25 @@ class VoiceBooking:
 
     async def confirm(self, agent: str, call: str, intent: str, guest: dict) -> dict:
         body = {"agent": agent, "call": call, "intent": intent, "consent": True, "guest": guest}
+        return await self._send("POST", PATH_CONFIRM, self._book_key, json=body)
+
+    # ---- салон: справочник и окна читаются ключом приёма событий, котировка и запись ключом записи голоса
+
+    async def beauty_catalog(self, agent: str, call: str) -> dict:
+        return await self._send("GET", PATH_BEAUTY_CATALOG, self._read_key, params={"agent": agent, "call": call})
+
+    async def beauty_slots(self, agent: str, call: str, service: str, date: str, employee: str | None) -> dict:
+        params = {"agent": agent, "call": call, "service": service, "date": date}
+        if employee:
+            params["employee"] = employee
+        return await self._send("GET", PATH_BEAUTY_SLOTS, self._read_key, params=params)
+
+    async def beauty_quote(self, agent: str, call: str, service: str, employee: str | None, starts_at: str) -> dict:
+        body = {"agent": agent, "call": call, "service": service, "employee": employee, "startsAt": starts_at}
+        return await self._send("POST", PATH_QUOTE, self._book_key, json=body)
+
+    async def beauty_confirm(self, agent: str, call: str, quote: str, guest: dict) -> dict:
+        body = {"agent": agent, "call": call, "quote": quote, "consent": True, "guest": guest}
         return await self._send("POST", PATH_CONFIRM, self._book_key, json=body)
 
     async def _send(self, method: str, path: str, key: str, **kwargs) -> dict:

@@ -497,6 +497,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /voice/events': 'service',
   'GET /voice/profile': 'service',
   'GET /voice/availability': 'service',
+  'GET /voice/beauty-catalog': 'service',
+  'GET /voice/beauty-slots': 'service',
   'POST /voice/booking-quotes': 'service',
   'POST /voice/booking-quotes/confirm': 'service',
   'GET /marketing/voice/summary': 'marketing',

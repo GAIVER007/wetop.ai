@@ -82,6 +82,12 @@ BEGIN
     GRANT SELECT ON voice_callbacks TO wetop_app;
     GRANT UPDATE (status, done_at, done_by_id) ON voice_callbacks TO wetop_app;
   END IF;
+  -- 147_voice_booking_quotes: exact ACL of the voice booking quotes
+  IF to_regclass('public.voice_booking_quotes') IS NOT NULL THEN
+    REVOKE ALL ON voice_booking_quotes FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON voice_booking_quotes TO wetop_service;
+    GRANT SELECT ON voice_booking_quotes TO wetop_app;
+  END IF;
 
   -- 144_menu_modifiers_split: exact ACL of the mixed migration (all-or-none)
   SELECT count(*) INTO installed FROM unnest(ARRAY['menu_modifier_groups','menu_modifiers','menu_item_modifier_groups','restaurant_order_item_modifiers','restaurant_payment_items']) AS t(name)

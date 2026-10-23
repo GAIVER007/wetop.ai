@@ -102,6 +102,7 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'voice_calls',
   'voice_callbacks',
   'voice_profiles',
+  'voice_booking_quotes',
   'customer_bonus_entries',
   'gift_certificates',
   'gift_certificate_entries',

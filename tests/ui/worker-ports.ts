@@ -48,6 +48,9 @@ export function authPorts(env: NodeJS.ProcessEnv = process.env) {
   );
 }
 
+/** Обходы всех разделов: каждый на несколько минут, двое в одной части не укладываются в лимит задачи */
+const HEAVY_SPECS = ['accessibility.spec.ts', 'workspace.spec.ts'];
+
 /**
  * Часть набора для одной задачи гейта (`UI_SHARD=N/всего`), файлы по кругу. Делить надо до раздачи файлов двум
  * worker: `--shard` Playwright режет общий список тестов по порядку проектов, и первая часть целиком доставалась
@@ -60,5 +63,11 @@ export function shardSpecs(specs: string[], shard = process.env['UI_SHARD']): st
   const index = Number(match?.[1]);
   const total = Number(match?.[2]);
   if (!match || index > total) throw new Error(`UI_SHARD должен быть N/всего, получено ${shard}`);
-  return specs.filter((_, specIndex) => specIndex % total === index - 1);
+  // Обходы всех разделов идут первыми в круге и потому в разные части: новый файл в алфавите больше не сводит
+  // их к одному next dev (23.10.2026 desk-kk.spec.ts посадил оба в 3/5, гейт краснел по времени)
+  const ordered = [
+    ...HEAVY_SPECS.filter((name) => specs.includes(name)),
+    ...specs.filter((name) => !HEAVY_SPECS.includes(name)),
+  ];
+  return ordered.filter((_, specIndex) => specIndex % total === index - 1);
 }

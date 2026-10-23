@@ -2,6 +2,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
+import { CatalogGroupRow, groupCatalog } from '../../components/catalog-table';
 import {
   Alert,
   Badge,
@@ -627,6 +628,9 @@ export function MenuBoard({
                   <th scope="col">Название</th>
                   <th scope="col">Категория</th>
                   <th scope="col" className="num">
+                    Выход
+                  </th>
+                  <th scope="col" className="num">
                     Цена
                   </th>
                   <th scope="col" className="num">
@@ -639,7 +643,15 @@ export function MenuBoard({
                 </tr>
               </thead>
               <tbody>
-                {list.map((m) => (
+                {/* «Все категории»: подзаголовки категорий (каталог A + B, решение 23.10.2026) */}
+                {(category
+                  ? [{ key: category, name: '', rows: list }]
+                  : groupCatalog(list, (m) => m.categoryId, categories)
+                ).flatMap((group) => [
+                  ...(category
+                    ? []
+                    : [<CatalogGroupRow key={`g:${group.key}`} name={group.name} count={group.rows.length} columns={7} />]),
+                  ...group.rows.map((m) => (
                   <tr className="rest-menu-row" key={m.id}>
                     <td>
                       <span className="rest-menu-name">
@@ -652,11 +664,11 @@ export function MenuBoard({
                         </span>
                         <span>
                           <strong>{m.name}</strong>
-                          {m.weightGrams ? <small>{m.weightGrams} г</small> : null}
                         </span>
                       </span>
                     </td>
                     <td>{categoryName.get(m.categoryId) ?? 'Без категории'}</td>
+                    <td className="num">{m.weightGrams ? `${m.weightGrams} г` : '—'}</td>
                     <td className="num rest-menu-price">{wholeTenge(m.priceMinor, m.currency)}</td>
                     <td className="num">
                       {m.totals?.foodCostPct != null && m.totals.costMinor !== '0'
@@ -701,7 +713,8 @@ export function MenuBoard({
                       </span>
                     </td>
                   </tr>
-                ))}
+                  )),
+                ])}
               </tbody>
             </Table>
           </div>

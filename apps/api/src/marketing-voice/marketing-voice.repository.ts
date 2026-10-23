@@ -67,7 +67,30 @@ export interface BookingPatch {
   maxPerCall?: number;
 }
 
+/** Бронь, принятая голосовым агентом: что и когда, без имени и телефона гостя (список в стойке по праву `marketing`) */
+export interface VoiceBookingRecord {
+  id: string;
+  kind: 'HOTEL' | 'APPOINTMENT' | 'TABLE';
+  /** Когда агент подтвердил бронь */
+  at: Date;
+  status: string | null;
+  reference?: string;
+  category?: string;
+  arrival?: string;
+  departure?: string;
+  adults?: number;
+  service?: string;
+  master?: string;
+  startsAt?: string;
+  partySize?: number;
+  period?: string;
+  totalMinor?: string;
+  currency?: string;
+}
+
 export interface MarketingVoiceRepository {
+  /** Подтверждённые голосом брони филиала (номера, записи, столы) после момента `since`, новые сверху */
+  voiceBookings(scope: ReadScope, since: Date, limit: number): Promise<VoiceBookingRecord[]>;
   /** Неархивный агент ИИ-продавца филиала со строкой настройки (умолчания, если строки профиля ещё нет); null: агента нет */
   bookingAgent(scope: ReadScope): Promise<BookingAgentRecord | null>;
   /** Чего не хватает для брони по телефону на этом направлении (пустой список: всё готово) */
@@ -188,6 +211,72 @@ export class PrismaMarketingVoiceRepository implements MarketingVoiceRepository 
         },
       });
     });
+  }
+
+  async voiceBookings(scope: ReadScope, since: Date, limit: number): Promise<VoiceBookingRecord[]> {
+    const db = this.prisma.db;
+    const [quotes, intents] = await Promise.all([
+      db.voiceBookingQuote.findMany({
+        where: { organizationId: scope.organizationId, locationId: scope.locationId, state: 'CONFIRMED', updatedAt: { gte: since } },
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        take: limit,
+        select: { id: true, kind: true, selection: true, totalMinor: true, currency: true, updatedAt: true, resultId: true },
+      }),
+      db.sellerBookingIntent.findMany({
+        where: {
+          organizationId: scope.organizationId,
+          channel: 'voice',
+          state: 'CONFIRMED',
+          updatedAt: { gte: since },
+          property: { locationId: scope.locationId },
+        },
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        take: limit,
+        select: {
+          id: true, arrivalDate: true, departureDate: true, adults: true, totalMinor: true, currency: true, updatedAt: true,
+          accommodationType: { select: { name: true } },
+          reservation: { select: { confirmationNumber: true, status: true } },
+        },
+      }),
+    ]);
+    // статус записи или брони стола сейчас: администратор мог подтвердить или отменить
+    const visitIds = quotes.filter((q) => q.kind === 'APPOINTMENT' && q.resultId).map((q) => q.resultId as string);
+    const tableIds = quotes.filter((q) => q.kind === 'TABLE' && q.resultId).map((q) => q.resultId as string);
+    const [visits, tables] = await Promise.all([
+      visitIds.length ? db.appointment.findMany({ where: { id: { in: visitIds }, locationId: scope.locationId }, select: { id: true, status: true } }) : [],
+      tableIds.length ? db.restaurantReservation.findMany({ where: { id: { in: tableIds }, locationId: scope.locationId }, select: { id: true, status: true } }) : [],
+    ]);
+    const statusOf = new Map<string, string>([...visits, ...tables].map((r) => [r.id, r.status]));
+    const text = (v: unknown): string | undefined => (typeof v === 'string' && v ? v : undefined);
+    const fromQuotes: VoiceBookingRecord[] = quotes.map((q) => {
+      const sel = (q.selection ?? {}) as Record<string, unknown>;
+      return q.kind === 'APPOINTMENT'
+        ? {
+            id: q.id, kind: 'APPOINTMENT', at: q.updatedAt, status: q.resultId ? (statusOf.get(q.resultId) ?? null) : null,
+            ...(text(sel.serviceName) ? { service: text(sel.serviceName) as string } : {}),
+            ...(text(sel.employeeName) ? { master: text(sel.employeeName) as string } : {}),
+            ...(text(sel.startsAt) ? { startsAt: text(sel.startsAt) as string } : {}),
+            ...(q.totalMinor !== null ? { totalMinor: q.totalMinor.toString() } : {}),
+            ...(q.currency ? { currency: q.currency.trim() } : {}),
+          }
+        : {
+            id: q.id, kind: 'TABLE', at: q.updatedAt, status: q.resultId ? (statusOf.get(q.resultId) ?? null) : null,
+            ...(text(sel.startsAt) ? { startsAt: text(sel.startsAt) as string } : {}),
+            ...(typeof sel.partySize === 'number' ? { partySize: sel.partySize } : {}),
+            ...(text(sel.period) ? { period: text(sel.period) as string } : {}),
+          };
+    });
+    const fromIntents: VoiceBookingRecord[] = intents.map((i) => ({
+      id: i.id, kind: 'HOTEL', at: i.updatedAt, status: i.reservation?.status ?? null,
+      ...(i.reservation ? { reference: i.reservation.confirmationNumber } : {}),
+      category: i.accommodationType.name,
+      arrival: i.arrivalDate.toISOString().slice(0, 10),
+      departure: i.departureDate.toISOString().slice(0, 10),
+      adults: i.adults,
+      totalMinor: i.totalMinor.toString(),
+      currency: i.currency.trim(),
+    }));
+    return [...fromQuotes, ...fromIntents].sort((a, b) => b.at.getTime() - a.at.getTime() || b.id.localeCompare(a.id)).slice(0, limit);
   }
 
   async assertWritable(organizationId: string): Promise<void> {

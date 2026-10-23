@@ -3,6 +3,7 @@ import { can } from '@pms/domain';
 import {
   ApiError,
   marketingVoiceApi,
+  type VoiceBookingsView,
   type VoiceBookingView,
   type VoiceCallbackRow,
   type VoiceCallsView,
@@ -23,7 +24,12 @@ import { BackToModules } from '../parts';
 import { ChooseLocation, MonthNav } from '../budget/parts';
 import { BookingForm } from './booking-form';
 import { CloseCallbackButton } from './close-button';
-import { callbackStatusLabel, formatDuration, formatPhone, formatWhen, stateBadge, summaryItems } from './format';
+import {
+  bookingKindLabel,
+  bookingStatus,
+  bookingTitle,
+  callbackStatusLabel,
+  formatDuration, formatPhone, formatWhen, stateBadge, summaryItems } from './format';
 
 /**
  * Модуль «Голосовой агент» (ИИ-колл-центр, docs/voice/voice-channel.md, DATA_MODEL VOICE-OWNER-APPROVAL-20261022).
@@ -38,21 +44,23 @@ type Loaded =
       callbacks: VoiceCallbackRow[];
       done: VoiceCallbackRow[];
       booking: VoiceBookingView | null;
+      bookings: VoiceBookingsView | null;
     }
   | { chooseLocation: true }
   | { error: ReturnType<typeof loadErrorProps> };
 
 async function load(month: string | undefined): Promise<Loaded> {
   try {
-    const [summary, calls, callbacks, done, booking] = await Promise.all([
+    const [summary, calls, callbacks, done, booking, bookings] = await Promise.all([
       marketingVoiceApi.summary(month),
       marketingVoiceApi.calls(month, 50, 0),
       marketingVoiceApi.callbacks('NEW', 100),
       marketingVoiceApi.callbacks('DONE', 10),
       // настройка брони не должна ронять весь экран: без неё вкладка просто не показывается
       marketingVoiceApi.booking().catch(() => null),
+      marketingVoiceApi.bookings(7).catch(() => null),
     ]);
-    return { summary, calls, callbacks, done, booking };
+    return { summary, calls, callbacks, done, booking, bookings };
   } catch (e) {
     unstable_rethrow(e);
     if (e instanceof ApiError && e.status === 409) return { chooseLocation: true };
@@ -97,8 +105,8 @@ function SetupNote() {
         ))}
       </ol>
       <p className="settings-note">
-        Агент называет себя ИИ-помощником и предупреждает, что разговор записывается. Запись, бронь и заказ стола по телефону он не оформляет:
-        собирает имя и номер и оставляет просьбу перезвонить.
+        Агент называет себя ИИ-помощником и предупреждает, что разговор записывается. Пока бронь по телефону выключена, он записи, брони и заказа
+        стола не оформляет: собирает имя и номер и оставляет просьбу перезвонить. Включается она во вкладке «Бронь по телефону».
       </p>
     </section>
   );
@@ -171,6 +179,50 @@ function CallbackList({
   );
 }
 
+/** Брони, принятые агентом по телефону: что, когда, статус сейчас. Имён и телефонов гостей здесь нет (карточка брони по своим правам) */
+function BookingsList({ view }: { view: VoiceBookingsView }) {
+  if (view.rows.length === 0)
+    return (
+      <EmptyState title="Броней по телефону пока нет" data-testid="voice-bookings-empty">
+        Когда агент примет бронь, она появится здесь с видом, временем и статусом. Включить приём броней можно во вкладке «Бронь по телефону».
+      </EmptyState>
+    );
+  return (
+    <div className="marketing-screen__stack">
+      <p className="settings-note" data-testid="voice-bookings-note">
+        За {view.days} дней принято {view.rows.length}, за последние сутки {view.last24h}. Имена и телефоны гостей смотрите в карточке брони.
+      </p>
+      <div className="tbl-wrap" role="region" aria-label="Брони по телефону" tabIndex={0}>
+        <Table density="normal" aria-label="Брони по телефону" data-testid="voice-bookings">
+          <thead>
+            <tr>
+              <th scope="col">Принята</th>
+              <th scope="col">Вид</th>
+              <th scope="col">Что</th>
+              <th scope="col">Статус</th>
+            </tr>
+          </thead>
+          <tbody>
+            {view.rows.map((r) => {
+              const status = bookingStatus(r.kind, r.status);
+              return (
+                <tr key={r.id} data-testid={`voice-booking-${r.id}`}>
+                  <td>{formatWhen(r.at, view.timezone)}</td>
+                  <td>{bookingKindLabel(r.kind)}</td>
+                  <td>{bookingTitle(r, view.timezone) || '–'}</td>
+                  <td>
+                    <Badge tone={status.tone}>{status.label}</Badge>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
 function CallsTable({ view }: { view: VoiceCallsView }) {
   if (view.rows.length === 0)
     return (
@@ -225,11 +277,11 @@ function CallsTable({ view }: { view: VoiceCallsView }) {
 /** Что агент называет по телефону, зависит от направления (docs/voice/voice-channel.md) */
 const SUBTITLE: Record<string, string> = {
   BEAUTY:
-    'ИИ-помощник принимает телефонные звонки: отвечает по услугам и ценам, собирает просьбы перезвонить и переводит на администратора.',
+    'ИИ-помощник принимает телефонные звонки: отвечает по услугам и ценам, записывает клиентов (если включена бронь по телефону), собирает просьбы перезвонить и переводит на администратора.',
   FOOD_SERVICE:
-    'ИИ-помощник принимает телефонные звонки: рассказывает о часах работы, собирает просьбы перезвонить и переводит на администратора.',
+    'ИИ-помощник принимает телефонные звонки: рассказывает о часах работы, бронирует (если включена бронь по телефону), собирает просьбы перезвонить и переводит на администратора.',
   HOSPITALITY:
-    'ИИ-помощник принимает телефонные звонки, собирает просьбы перезвонить и переводит на администратора.',
+    'ИИ-помощник принимает телефонные звонки, бронирует номера (если включена бронь по телефону), собирает просьбы перезвонить и переводит на администратора.',
 };
 
 export default async function MarketingVoicePage({ searchParams }: { searchParams: Promise<SearchParams> }) {
@@ -268,6 +320,15 @@ export default async function MarketingVoicePage({ searchParams }: { searchParam
                     />
                   ),
                 },
+                ...(loaded.bookings
+                  ? [
+                      {
+                        id: 'bookings',
+                        label: `Брони по телефону${loaded.bookings.last24h ? ` (${loaded.bookings.last24h})` : ''}`,
+                        content: <BookingsList view={loaded.bookings} />,
+                      },
+                    ]
+                  : []),
                 { id: 'calls', label: 'Журнал звонков', content: <CallsTable view={loaded.calls} /> },
                 ...(loaded.booking
                   ? [

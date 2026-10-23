@@ -112,3 +112,42 @@ describe('подсказка над выключателем брони', () => 
     expect(bookingHint(null)).toMatch(/нет агента/);
   });
 });
+
+describe('брони голосового агента: подписи', () => {
+  const tz = 'Asia/Almaty';
+  it('номер: категория, даты, гости, номер брони, сумма', async () => {
+    const { bookingTitle } = await import('./format');
+    const t = bookingTitle({ id: '1', kind: 'HOTEL', at: '2026-11-10T05:00:00.000Z', status: 'CONFIRMED', reference: 'WT-1', category: 'Стандарт', arrival: '2026-11-20', departure: '2026-11-22', adults: 2, totalMinor: '3000000', currency: 'KZT' }, tz);
+    expect(t).toContain('Стандарт');
+    expect(t).toContain('20.11.2026');
+    expect(t).toContain('22.11.2026');
+    expect(t).toContain('2 гост');
+    expect(t).toContain('WT-1');
+    expect(t).toMatch(/30\s?000/);
+  });
+  it('запись: услуга, мастер, время в поясе филиала; стол: дата, время, гости, период', async () => {
+    const { bookingTitle } = await import('./format');
+    const visit = bookingTitle({ id: '2', kind: 'APPOINTMENT', at: '2026-11-10T05:00:00.000Z', status: 'BOOKED', service: 'Стрижка', master: 'Алия', startsAt: '2026-11-12T05:00:00.000Z' }, tz);
+    expect(visit).toContain('Стрижка');
+    expect(visit).toContain('Алия');
+    expect(visit).toContain('12.11.2026, 10:00');
+    const table = bookingTitle({ id: '3', kind: 'TABLE', at: '2026-11-10T05:00:00.000Z', status: 'BOOKED', startsAt: '2026-11-12T14:00:00.000Z', partySize: 4, period: 'Ужин' }, tz);
+    expect(table).toContain('4 гост');
+    expect(table).toContain('19:00');
+    expect(table).toContain('Ужин');
+  });
+  it('статус словами и тоном: ждёт подтверждения, подтверждена, отменена; неизвестный без выдумки', async () => {
+    const { bookingStatus } = await import('./format');
+    expect(bookingStatus('APPOINTMENT', 'BOOKED')).toEqual({ label: 'Ждёт подтверждения', tone: 'warn' });
+    expect(bookingStatus('TABLE', 'CONFIRMED')).toEqual({ label: 'Подтверждена', tone: 'ok' });
+    expect(bookingStatus('HOTEL', 'CANCELLED').tone).toBe('danger');
+    expect(bookingStatus('HOTEL', null)).toEqual({ label: '–', tone: 'neutral' });
+    expect(bookingStatus('HOTEL', 'ВЫДУМАНО')).toEqual({ label: '–', tone: 'neutral' });
+  });
+  it('вид брони словами', async () => {
+    const { bookingKindLabel } = await import('./format');
+    expect(bookingKindLabel('HOTEL')).toBe('Номер');
+    expect(bookingKindLabel('APPOINTMENT')).toBe('Запись');
+    expect(bookingKindLabel('TABLE')).toBe('Стол');
+  });
+});

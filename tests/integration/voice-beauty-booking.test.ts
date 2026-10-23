@@ -5,6 +5,7 @@ import type { Db } from '@pms/database';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { SiteFormsService } from '../../apps/api/src/site-forms/site-forms.service';
 import { PrismaVoiceQuoteStore, VoiceBeautyService } from '../../apps/api/src/marketing-voice/voice-beauty.service';
+import { PrismaMarketingVoiceRepository } from '../../apps/api/src/marketing-voice/marketing-voice.repository';
 import { PrismaPhoneLimitStore, VoicePhoneLimit } from '../../apps/api/src/marketing-voice/voice-phone-limit';
 import { PrismaVoiceIngestRepository } from '../../apps/api/src/marketing-voice/voice-ingest.repository';
 import { almatyAt, makeClients, nextMonday, seedUser, url } from './core-security/harness';
@@ -111,6 +112,24 @@ describe.skipIf(!url)('голосовая запись в салон (integratio
     await expect(quoteFor(call('late'), d, null, '23:00')).rejects.toMatchObject({ status: 409 });
     const q = await quoteFor(call('own'), d, w.ids.eBl1b!, '12:00');
     await expect(service.confirm({ agent, call: call('thief'), quote: q.quote, consent: true, guest })).rejects.toMatchObject({ status: 404 });
+  });
+
+  it('список броней голоса: запись с услугой, мастером и статусом сейчас, без данных гостя; чужой филиал её не видит', async () => {
+    const reads = new PrismaMarketingVoiceRepository({ db: admin } as unknown as PrismaService);
+    const d = day();
+    const c = call('list');
+    const q = await quoteFor(c, d, w.ids.eBl1b!, '15:00');
+    await service.confirm({ agent, call: c, quote: q.quote, consent: true, guest: { name: 'Список Гость', phone: '+77025550777', comment: 'секретное пожелание' } });
+    const scope = { organizationId: w.org, locationId: w.ids.bl1!, timezone: 'Asia/Almaty' };
+    const rows = await reads.voiceBookings(scope, new Date(Date.now() - 3_600_000), 50);
+    const mine = rows.find((r) => r.id === q.quote);
+    expect(mine).toMatchObject({ kind: 'APPOINTMENT', status: 'BOOKED', service: expect.any(String), master: expect.any(String) });
+    expect(JSON.stringify(rows)).not.toMatch(/Список Гость|5550777|секретное/);
+    // подтверждение администратором меняет статус в списке
+    await admin.appointment.updateMany({ where: { creationKey: `voice:${q.quote}` }, data: { status: 'CONFIRMED' } });
+    expect((await reads.voiceBookings(scope, new Date(Date.now() - 3_600_000), 50)).find((r) => r.id === q.quote)?.status).toBe('CONFIRMED');
+    const other = await reads.voiceBookings({ ...scope, locationId: w.ids.fl1! }, new Date(Date.now() - 3_600_000), 50);
+    expect(other.find((r) => r.id === q.quote)).toBeUndefined();
   });
 
   it('выключатель: пока выключен, справочник и котировка отказывают', async () => {

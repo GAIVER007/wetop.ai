@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { FOOD_PAYMENT_METHODS, type FoodPaymentMethod } from '../../lib/food-types';
-import { readBranchPaymentMethods } from './read-action';
 import { branchMethodsShown } from './shown';
 
 /**
@@ -13,9 +12,15 @@ export function useBranchPaymentMethods(scopeKey: string): FoodPaymentMethod[] {
   const [enabled, setEnabled] = useState<string[] | null>(null);
   useEffect(() => {
     let live = true;
-    void readBranchPaymentMethods().then((list) => {
-      if (live) setEnabled(list);
-    });
+    // обычный GET (enabled/route.ts), не действие сервера: не встаёт в очередь денежных команд страницы
+    void fetch('/branch-payment-methods/enabled', { cache: 'no-store' })
+      .then((r) => (r.ok ? (r.json() as Promise<{ methods: string[] | null }>) : { methods: null }))
+      .then(
+        (body) => {
+          if (live) setEnabled(Array.isArray(body.methods) ? body.methods : null);
+        },
+        () => undefined,
+      );
     return () => {
       live = false;
     };

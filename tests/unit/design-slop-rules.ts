@@ -302,6 +302,15 @@ export const RULES: Rule[] = [
         : controlTags(s).filter(({ tag, attrs }) => tag !== 'input' || !NON_TEXT_INPUT.test(attrs)).length,
   },
   {
+    id: 'muted-empty',
+    why: 'пустое состояние серой строкой <p className="muted">…нет…</p> вместо EmptyState из components/ui (единый вид вертикалей, 22.10.2026)',
+    ext: /\.tsx$/,
+    find: (s) =>
+      [...s.matchAll(/<p className="muted">([^<{]*)<\/p>/g)].filter((m) =>
+        /(^|\s)(нет|пока нет|не найдено|не найдены)(\s|[.!]|$)|^Нет\s/i.test(m[1]!.trim()),
+      ).length,
+  },
+  {
     id: 'control-size-literal',
     why: 'высота поля ввода цифрой: только --control-h, --control-h-sm, --touch-target (единые поля во всех вертикалях, 21.10.2026)',
     ext: /\.css$/,

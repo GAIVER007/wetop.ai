@@ -259,7 +259,7 @@ async function SiteBuilderLicenses({ organizationId }: { organizationId: string 
     },
   );
   if (!loaded.ok) return <LoadError testId="platform-site-builder-load-error" {...loadErrorProps(loaded.error)} />;
-  if (loaded.value.items.length === 0) return <p className="muted">У организации нет гостиничных филиалов.</p>;
+  if (loaded.value.items.length === 0) return <EmptyState title="У организации нет гостиничных филиалов" />;
   return (
     <Stack data-testid="platform-site-builder">
       {loaded.value.items.map((l) => (

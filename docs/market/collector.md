@@ -145,3 +145,18 @@ npm run market:collect-business -- --days 7
 
 Имена мастеров, телефоны и отзывы не сохраняются. Ответ 401/403/429 или капча: сосед «закрыт проверкой», обходить не
 пробуем.
+
+### Расписание на сервере (Hostinger, один раз от root)
+
+Сборщик идёт в том же образе, что API (`scripts/` и `tsx` в нём есть), раз в день в 03:10 по Алматы (22:10 UTC), до
+открытия салонов. Ключ берётся из того же `.env` в корне клона; адрес API внутри сети compose. В `.env` должна быть
+строка `MARKET_COLLECT_KEY=<длинный случайный ключ>` (если её ещё нет, добавить и перезапустить `api`).
+
+```
+( crontab -l 2>/dev/null | grep -v market-collect-business
+  echo '10 22 * * * cd /root/wetop/deploy && docker compose run --rm --no-deps -e MARKET_COLLECT_URL=http://api:3001 api node --import tsx scripts/market/cli-collect-business.ts --days 7 >> /var/log/wetop-market-collect.log 2>&1 # market-collect-business' ) | crontab -
+```
+
+Проверка без записи: та же команда с `--dry-run` вместо расписания; журнал `/var/log/wetop-market-collect.log`
+(строка на соседа и итог «записано / без данных / закрыто проверкой / пропущено»). Выключить: убрать строку из
+`crontab -e`.

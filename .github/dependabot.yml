@@ -1,0 +1,15 @@
+version: 2
+# Только обновления безопасности (Dependabot security updates включены в настройках репозитория 22.10.2026).
+# Плановые обновления выключены: limit 0. Каждый PR гонит release-checks (~1,5 часа), лимиты Actions ограничены.
+# Обновления безопасности группируются в один PR на экосистему, а не по PR на пакет.
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+    groups:
+      npm-security:
+        applies-to: security-updates
+        patterns:
+          - '*'

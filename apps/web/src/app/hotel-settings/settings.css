@@ -749,11 +749,19 @@
   min-height: 44px;
   cursor: pointer;
 }
+/* кнопки строки справочника: обёртка внутри ячейки, сама ячейка остаётся ячейкой таблицы (22.10.2026: flex на <td>
+   выбивал её из строки, разделители под кнопками разъезжались) */
+.object-settings .settings-actions {
+  width: 1%;
+  white-space: nowrap;
+  vertical-align: middle;
+}
 .object-settings .settings-order {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: var(--space-1);
   align-items: center;
+  justify-content: flex-end;
 }
 .object-settings .settings-category-add {
   display: flex;
@@ -800,9 +808,23 @@
     font-size: var(--text-xs);
     margin-top: var(--space-1);
   }
+  .object-settings .settings-directory-table .settings-actions {
+    width: auto;
+    white-space: normal;
+  }
   .object-settings .settings-directory-table .settings-order {
     flex-direction: column;
     align-items: stretch;
+  }
+  /* способы оплаты: три короткие кнопки строкой с переносом, не столбиком в три этажа */
+  .object-settings .settings-payment-table .settings-order {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .object-settings .settings-payment-table th:last-child,
+  .object-settings .settings-payment-table .settings-actions {
+    width: 66%;
   }
 }
 /* скрытая подпись «Действия» ищет опору внутри прокрутки, а не вне её (те же грабли, что у долгов и счетов) */

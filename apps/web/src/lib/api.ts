@@ -4515,6 +4515,54 @@ export const salesApi = {
     ),
 };
 
+/** «Конкуренты» салона и ресторана (DATA_MODEL §60): соседи филиала и снимки дня */
+export type BusinessAvailability = 'SOLD_OUT' | 'FEW_LEFT' | 'AVAILABLE';
+export interface BusinessCompetitor {
+  id: string;
+  name: string;
+  address: string | null;
+  distanceM: number | null;
+  url: string | null;
+  note: string | null;
+  active: boolean;
+}
+export interface BusinessMarketView {
+  today: string;
+  competitors: BusinessCompetitor[];
+  board: {
+    days: string[];
+    competitors: Array<{
+      id: string;
+      name: string;
+      url: string | null;
+      distanceM: number | null;
+      platform: string | null;
+      lastObservedOn: string | null;
+      cells: Array<{ day: string; level: BusinessAvailability | null; freeSlots: number | null; source: 'MANUAL' | 'AI_AGENT' | null; observedOn: string | null }>;
+    }>;
+    market: Array<{ day: string; withData: number; tight: number; full: boolean }>;
+    summary: { competitors: number; withData: number; fullDays: number; lastObservedOn: string | null };
+  };
+}
+export const businessMarketApi = {
+  board: (q: { from?: string; days?: number } = {}) => {
+    const qs = new URLSearchParams();
+    if (q.from) qs.set('from', q.from);
+    if (q.days) qs.set('days', String(q.days));
+    const tail = qs.toString();
+    return getJson<BusinessMarketView>(`/business-market${tail ? `?${tail}` : ''}`);
+  },
+  create: (body: Record<string, unknown>) => sendJson<BusinessCompetitor>('POST', '/business-market/competitors', body),
+  update: (id: string, body: Record<string, unknown>) =>
+    sendJson<BusinessCompetitor>('PATCH', `/business-market/competitors/${encodeURIComponent(id)}`, body),
+  snapshot: (id: string, body: { day: string; level?: BusinessAvailability | ''; freeSlots?: string }) =>
+    sendJson<{ day: string; level: BusinessAvailability; freeSlots: number | null }>(
+      'PUT',
+      `/business-market/competitors/${encodeURIComponent(id)}/snapshot`,
+      body,
+    ),
+};
+
 export const marketApi = {
   night: (date: string) =>
     getJson<MarketNightHistory>(`/market/night?date=${encodeURIComponent(date)}`),

@@ -114,6 +114,9 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'competitors',
   'competitor_occupancy',
   'competitor_rates',
+  // §60 конкуренты салона и ресторана: политики в миграции 20261023000150_location_competitors
+  'location_competitors',
+  'location_competitor_snapshots',
   // Food Service v1, migration 55.
   'dining_areas',
   'dining_tables',

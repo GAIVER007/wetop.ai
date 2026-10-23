@@ -108,9 +108,9 @@ export function FinanceBoard({
   return (
     <div className="food-workspace rest-ws" data-testid="finance-board">
       <div className="rest-bar">
-        <nav className="rest-utabs" aria-label="Финансы">
+        <nav className="tabs" aria-label="Финансы">
           {TABS.map(([id, label]) => (
-            <button
+            <button className="tabs__item"
               key={id}
               type="button"
               aria-current={tab === id ? 'page' : undefined}
@@ -119,7 +119,7 @@ export function FinanceBoard({
               {label}
             </button>
           ))}
-          <Link href="/management/analytics">Отчёты</Link>
+          <Link className="tabs__item" href="/management/analytics">Отчёты</Link>
         </nav>
         <Button onClick={exportCsv} disabled={shown.length === 0}>
           <Icon name="file" />

@@ -1351,50 +1351,7 @@
 }
 
 @layer sections {
-  /* ── Вкладки с подчёркиванием по макету (экраны 8, 9, 11, 12): синий текст и черта у текущей ── */
-  .rest-utabs {
-    display: flex;
-    gap: var(--space-1);
-    border-bottom: 1px solid var(--border);
-  }
-  .rest-utabs > a,
-  .rest-utabs > button {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--space-10);
-    padding: 0 var(--space-4);
-    border: 0;
-    background: transparent;
-    color: var(--text-2);
-    font: inherit;
-    font-size: var(--text-sm);
-    text-decoration: none;
-    cursor: pointer;
-    box-shadow: inset 0 -2px 0 transparent;
-  }
-  /* телефон: вкладка — цель касания 44 px; полоса прокручивается сама и не тянет страницу (аудит UI5) */
-  @media (max-width: 600px) {
-    .rest-utabs {
-      max-width: 100%;
-      overflow-x: auto;
-    }
-    .rest-utabs > a,
-    .rest-utabs > button {
-      flex: none;
-      min-height: var(--touch-target);
-    }
-  }
-
-  .rest-utabs > [aria-current='page'] {
-    color: var(--primary);
-    font-weight: var(--weight-semibold);
-    box-shadow: inset 0 -2px 0 var(--primary);
-  }
-  .rest-utabs > a:focus-visible,
-  .rest-utabs > button:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: -2px;
-  }
+  /* Вкладки ресторана — общий `.tabs` (components.css), как в салоне и гостинице (22.10.2026). */
   .rest-finance-total {
     margin-left: auto;
     color: var(--text-2);
@@ -1634,9 +1591,6 @@
   }
   .btn.rest-btn-go:hover:not(:disabled) {
     filter: brightness(0.95);
-  }
-  .rest-pos-menu .rest-utabs {
-    overflow-x: auto;
   }
 }
 

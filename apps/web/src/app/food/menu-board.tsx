@@ -464,22 +464,22 @@ export function MenuBoard({
     <div className="food-workspace" data-testid="menu-board">
       {error && <Alert>{error}</Alert>}
       <div className="rest-bar">
-        <nav className="rest-utabs" aria-label="Меню">
-          <button
+        <nav className="tabs" aria-label="Меню">
+          <button className="tabs__item"
             type="button"
             aria-current={view === 'items' ? 'page' : undefined}
             onClick={() => setView('items')}
           >
             Позиции ({items.length})
           </button>
-          <button
+          <button className="tabs__item"
             type="button"
             aria-current={view === 'categories' ? 'page' : undefined}
             onClick={() => setView('categories')}
           >
             Категории ({categories.filter((c) => c.active).length})
           </button>
-          <button
+          <button className="tabs__item"
             type="button"
             aria-current={view === 'modifiers' ? 'page' : undefined}
             onClick={() => setView('modifiers')}

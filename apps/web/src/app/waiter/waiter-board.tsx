@@ -128,15 +128,15 @@ export function WaiterBoard({
 
   return (
     <div className="waiter-board" data-testid="waiter-board">
-      <nav className="rest-utabs waiter-tabs" aria-label="Экран официанта">
-        <button
+      <nav className="tabs waiter-tabs" aria-label="Экран официанта">
+        <button className="tabs__item"
           type="button"
           aria-current={view === 'tables' ? 'page' : undefined}
           onClick={() => setView('tables')}
         >
           Столы
         </button>
-        <button
+        <button className="tabs__item"
           type="button"
           aria-current={view === 'orders' ? 'page' : undefined}
           onClick={() => setView('orders')}

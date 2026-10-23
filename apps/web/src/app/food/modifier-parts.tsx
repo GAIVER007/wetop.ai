@@ -394,11 +394,11 @@ export function SplitBill({
     <Overlay open onClose={close} title={`Разделить счёт №${order.number}`} drawer trapFocus>
       <div className="food-form food-split" data-testid="split-bill">
         {error && <Alert>{error}</Alert>}
-        <nav className="rest-utabs" aria-label="Как делить">
-          <button type="button" aria-current={mode === 'even' ? 'page' : undefined} onClick={() => setMode('even')}>
+        <nav className="tabs" aria-label="Как делить">
+          <button className="tabs__item" type="button" aria-current={mode === 'even' ? 'page' : undefined} onClick={() => setMode('even')}>
             Поровну
           </button>
-          <button type="button" aria-current={mode === 'items' ? 'page' : undefined} onClick={() => setMode('items')}>
+          <button className="tabs__item" type="button" aria-current={mode === 'items' ? 'page' : undefined} onClick={() => setMode('items')}>
             По позициям
           </button>
         </nav>

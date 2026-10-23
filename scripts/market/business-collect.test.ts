@@ -4,6 +4,7 @@ import { collectBusiness, firstDikidiService, type BusinessTarget, type Fetcher 
 const NOW = new Date('2026-10-23T20:30:00Z'); // в Алматы уже 24.10
 const dikidi: BusinessTarget = { id: 'd', name: 'Студия', url: 'https://dikidi.net/ru/record/2091353', platform: 'Dikidi', timezone: 'Asia/Almaty' };
 const yclients: BusinessTarget = { id: 'y', name: 'Барбер', url: 'https://n1.yclients.com/company/1', platform: 'YCLIENTS', timezone: 'Asia/Almaty' };
+const resto: BusinessTarget = { id: 'r', name: 'Бар', url: 'https://bar.restoplace.ws/', platform: 'Restoplace', timezone: 'Asia/Almaty' };
 
 const services = JSON.stringify({ error: { code: 0 }, data: { list: [{ id: 22672844, name: 'Стрижка', cost: 10000, time: 60 }] } });
 const datetimes = (day: string) =>
@@ -56,7 +57,7 @@ describe('сборщик соседей салона (§60, срез 3)', () => 
     const reports = await run(true);
     expect(writes).toEqual([]);
     expect(reports.map((r) => [r.id, r.outcome])).toEqual([['y', 'skipped'], ['d', 'dry-run']]);
-    expect(reports[0]!.reason).toMatch(/только Dikidi/);
+    expect(reports[0]!.reason).toMatch(/токеном виджета/);
   });
 
   it('403 или капча: сосед закрыт, дальше не идём и ничего не пишем; непонятный ответ дня не пишется', async () => {
@@ -74,5 +75,27 @@ describe('сборщик соседей салона (§60, срез 3)', () => 
     expect(firstDikidiService(JSON.parse(services))).toBe('22672844');
     expect(firstDikidiService({ data: {} })).toBeNull();
     expect(firstDikidiService(null)).toBeNull();
+  });
+
+  it('Restoplace: адрес со страницы, свободные столы по дням тем же запросом, что у виджета; без брони гостей', async () => {
+    const forms: Array<Record<string, string>> = [];
+    const writes: Array<{ id: string; entries: unknown }> = [];
+    const items = [{ id: '1', type: 'table', reserve: '1' }, { id: '2', type: 'table', reserve: '1' }];
+    const [report] = await collectBusiness(
+      {
+        api: { competitors: async () => [resto], write: async (id, entries) => (writes.push({ id, entries }), { saved: entries.length, kept: 0 }) },
+        get: async () => ({ status: 200, body: "<body data-hash='e542ee65a7ec768858ad'>" }),
+        post: async (_url, form) => {
+          forms.push(form);
+          const day = form.action!.split(':')[1]!;
+          const tables_reserve = day === '2026-10-24' ? { '1_table': { n: [{ time_from: '2026-10-24 19:00:00' }] } } : [];
+          return { status: 200, body: JSON.stringify({ items, tables_reserve }) };
+        },
+      },
+      { days: 2, delayMs: 1, dryRun: false, now: NOW, sleep: async () => undefined },
+    );
+    expect(forms[0]).toEqual({ action: 'getJsonParams:2026-10-24:first:0', address: 'e542ee65a7ec768858ad', langApi: 'ru' });
+    expect(writes).toEqual([{ id: 'r', entries: [{ day: '2026-10-24', freeSlots: 1 }, { day: '2026-10-25', freeSlots: 2 }] }]);
+    expect(report).toMatchObject({ outcome: 'written' });
   });
 });

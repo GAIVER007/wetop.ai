@@ -53,7 +53,7 @@ Booking и Ostrovok салоны и рестораны не продают. Ан
 2. API для B/F и служебный вход сборщика (тот же узкий ключ `MARKET_COLLECT_KEY`, только снимки).
 3. Сборщик: чтение площадок, прошедших пробу.
    **Сделано 23.10.2026 для Dikidi:** служебный вход `business-market/collector`, `npm run market:collect-business`
-   (`docs/market/collector.md`). YCLIENTS и Restoplace — следующий срез.
+   (`docs/market/collector.md`). **Restoplace сделан 23.10.2026** (свободные столы по дням). YCLIENTS ниже.
    **Проба YCLIENTS 23.10.2026 (вечер):** виджет записи (`n1.yclients.com/company/<id>`) берёт окна из
    `platform.yclients.com/api/v1/b2c/booking/availability/*` только с заголовком Authorization, токен зашит в код
    виджета и выдан YCLIENTS не нам. Вынимать и подставлять чужой токен не будем. Законные пути: (а) партнёрский API

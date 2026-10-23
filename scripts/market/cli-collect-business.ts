@@ -5,10 +5,10 @@
  *
  * Окружение: MARKET_COLLECT_URL (адрес API WETOP) и MARKET_COLLECT_KEY (тот же служебный ключ, что у сборщика
  * гостиницы), из окружения или `.env` проекта; необязательно MARKET_COLLECT_DELAY_MS (пауза между запросами к площадке,
- * по умолчанию 8000). Модель не нужна: Dikidi отдаёт окна готовыми числами. Значения ключей вписывает владелец.
+ * по умолчанию 8000). Модель не нужна: Dikidi и Restoplace отдают окна и столы готовыми числами. Значения ключей вписывает владелец.
  */
 import { existsSync } from 'node:fs';
-import { collectBusiness, type BusinessCollectorApi, type BusinessTarget, type Fetcher } from './business-collect';
+import { collectBusiness, type BusinessCollectorApi, type BusinessTarget, type Fetcher, type Poster } from './business-collect';
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(name);
@@ -54,6 +54,22 @@ function fetcher(): Fetcher {
   };
 }
 
+function poster(): Poster {
+  return async (url, form) => {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36',
+        'content-type': 'application/x-www-form-urlencoded',
+        'x-requested-with': 'XMLHttpRequest',
+      },
+      body: new URLSearchParams(form).toString(),
+      signal: AbortSignal.timeout(30_000),
+    });
+    return { status: res.status, body: await res.text() };
+  };
+}
+
 async function main(): Promise<void> {
   if (existsSync('.env')) process.loadEnvFile('.env');
   const url = process.env['MARKET_COLLECT_URL'];
@@ -63,7 +79,7 @@ async function main(): Promise<void> {
   if (!/^https?:\/\//.test(url)) throw new Error('MARKET_COLLECT_URL: адрес API, например https://api.wetop.ai');
   const days = Math.min(Math.max(Number(arg('--days') ?? 7), 1), 14);
   const reports = await collectBusiness(
-    { api: api(url, key), get: fetcher() },
+    { api: api(url, key), get: fetcher(), post: poster() },
     {
       days,
       delayMs: Number(process.env['MARKET_COLLECT_DELAY_MS'] ?? 8000),

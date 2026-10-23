@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { MarketInputError } from './occupancy';
-import { dikidiCompanyId, dikidiDaySlots, parseCollectedDays } from './business-collect';
+import { dikidiCompanyId, dikidiDaySlots, parseCollectedDays, restoplaceAddress, restoplaceFreeTables } from './business-collect';
 
 describe('сборщик соседей салона и ресторана (§60, срез 3)', () => {
   it('номер компании Dikidi из ссылки соседа, чужие и пустые ссылки: null', () => {
@@ -50,5 +50,34 @@ describe('сборщик соседей салона и ресторана (§60
       Array.from({ length: 15 }, (_, i) => ({ day: `2026-10-${String(23 + (i % 8)).padStart(2, '0')}`, freeSlots: 1 })),
     ])
       expect(() => parseCollectedDays(bad, '2026-10-23')).toThrow(MarketInputError);
+  });
+
+  it('Restoplace: адрес из ссылки или страницы виджета, чужие хосты null', () => {
+    const hash = 'e542ee65a7ec768858ad';
+    expect(restoplaceAddress(`https://bar.restoplace.ws/?address=${hash}&nostep=1`)).toBe(hash);
+    expect(restoplaceAddress('https://bar.restoplace.ws/', `<body class='x' data-hash='${hash}' data-page='index'>`)).toBe(hash);
+    expect(restoplaceAddress('https://bar.restoplace.ws/')).toBeNull();
+    expect(restoplaceAddress(`https://evil.example/?address=${hash}`)).toBeNull();
+    expect(restoplaceAddress(null)).toBeNull();
+  });
+
+  it('Restoplace: свободные столы = онлайн-столы без брони этого дня; непонятный ответ null', () => {
+    const items = [
+      { id: '1', type: 'table', reserve: '1' },
+      { id: '2', type: 'table', reserve: '1' },
+      { id: '3', type: 'table', reserve: '1' },
+      { id: '4', type: 'table', reserve: '0' },
+      { id: '5', type: 'decor', reserve: '1' },
+    ];
+    const tables_reserve = {
+      '1_table': { n: [{ time_from: '2026-10-24 19:00:00' }] },
+      '2_table': { n: [{ time_from: '2026-10-25 19:00:00' }] },
+      '4_table': { n: [{ time_from: '2026-10-24 19:00:00' }] },
+    };
+    expect(restoplaceFreeTables({ items, tables_reserve }, '2026-10-24')).toBe(2);
+    expect(restoplaceFreeTables({ items, tables_reserve: [] }, '2026-10-24')).toBe(3);
+    expect(restoplaceFreeTables({ items: [], tables_reserve }, '2026-10-24')).toBeNull();
+    expect(restoplaceFreeTables({ tables_reserve }, '2026-10-24')).toBeNull();
+    expect(restoplaceFreeTables({ items, tables_reserve: { '1_table': { n: 'x' } } }, '2026-10-24')).toBeNull();
   });
 });

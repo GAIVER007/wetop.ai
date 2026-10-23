@@ -54,6 +54,50 @@ export function dikidiDaySlots(data: unknown, day: string): number | null {
   return slots.size;
 }
 
+/** Restoplace: адрес соседа из ссылки (`?address=<20 hex>`) или из страницы виджета (`data-hash`); иначе null */
+export function restoplaceAddress(url: string | null | undefined, html = ''): string | null {
+  if (!url) return null;
+  let u: URL;
+  try {
+    u = new URL(url);
+  } catch {
+    return null;
+  }
+  if (!/(^|\.)restoplace\.(ws|cc)$/.test(u.hostname.toLowerCase())) return null;
+  const q = u.searchParams.get('address');
+  if (q && /^[0-9a-f]{20}$/.test(q)) return q;
+  const m = html.match(/data-hash=['"]([0-9a-f]{20})['"]/);
+  return m ? m[1]! : null;
+}
+
+/**
+ * Свободные столы дня из ответа виджета Restoplace (`getJsonParams:<день>:first:0`): столы, которые ресторан даёт
+ * бронировать онлайн (`type=table`, `reserve=1`), минус столы с любой бронью, начинающейся в этот день
+ * (`tables_reserve["<id>_table"].n[].time_from`). Неожиданная форма ответа — null, ничего не пишем.
+ */
+export function restoplaceFreeTables(data: unknown, day: string): number | null {
+  if (!data || typeof data !== 'object') return null;
+  const d = data as { items?: unknown; tables_reserve?: unknown };
+  if (!Array.isArray(d.items)) return null;
+  const tables = new Set<string>();
+  for (const it of d.items) {
+    const i = (it ?? {}) as { id?: unknown; type?: unknown; reserve?: unknown };
+    if (i.type === 'table' && String(i.reserve) === '1' && (typeof i.id === 'string' || typeof i.id === 'number')) tables.add(String(i.id));
+  }
+  if (tables.size === 0) return null;
+  const reserves = d.tables_reserve ?? {};
+  if (typeof reserves !== 'object' || reserves === null) return null;
+  const busy = new Set<string>();
+  for (const [key, v] of Object.entries(reserves as Record<string, unknown>)) {
+    const m = key.match(/^(\d+)_table$/);
+    if (!m || !tables.has(m[1]!)) continue;
+    const list = (v as { n?: unknown } | null)?.n;
+    if (!Array.isArray(list)) return null;
+    if (list.some((r) => typeof (r as { time_from?: unknown })?.time_from === 'string' && (r as { time_from: string }).time_from.startsWith(day))) busy.add(m[1]!);
+  }
+  return tables.size - busy.size;
+}
+
 export interface CollectedDay {
   day: string;
   level: AvailabilityLevel;

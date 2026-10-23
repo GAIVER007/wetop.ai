@@ -32,7 +32,7 @@ import { OutboxTable } from '../outbox-table';
 import { EVENTS_PAGE, EventsTable, type EventsFilter } from '../events-table';
 import { hotelClock } from '../../../lib/hotel-api';
 import type { PropertyClock } from '../../../lib/property-time';
-import { eventTime, reconciliationView } from '../format';
+import { connectionSummary, eventTime, reconciliationView, webhookWord } from '../format';
 import { ChannelReport } from '../report';
 import { ChannelList } from '../channel-list';
 import { categoryMappings, planMappings } from '../mapping';
@@ -179,7 +179,7 @@ async function Overview({
             ? 'настройка не завершена'
             : 'API доступен';
   const summary = notConnected
-    ? `${connection?.message ?? 'Не удалось проверить соединение с менеджером каналов'}.`
+    ? connectionSummary(connection?.state, connection?.message)
     : !outbox
       ? 'Сводка очереди не загрузилась — обновите страницу.'
       : outbox.failed > 0
@@ -277,19 +277,9 @@ async function Overview({
           )}
         </StateFact>
         <StateFact
-          label="Приём событий"
+          label="Приём броней"
           value={
-            <span data-testid="webhook-status">
-              {webhook === null
-                ? 'состояние неизвестно'
-                : webhook.registered
-                  ? webhook.active
-                    ? 'активен'
-                    : 'выключен'
-                  : webhook.expectedUrl
-                    ? 'не зарегистрирован'
-                    : 'нет PUBLIC_API_URL'}
-            </span>
+            <span data-testid="webhook-status">{webhookWord(webhook)}</span>
           }
         >
           {webhook?.registered &&

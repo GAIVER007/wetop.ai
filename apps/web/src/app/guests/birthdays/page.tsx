@@ -8,6 +8,7 @@ import { Page } from '../../../components/page';
 import { EmptyState, Table } from '../../../components/ui';
 import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
+import { guestDisplayName } from '../guest-stay';
 
 /**
  * «Дни рождения» (образец Lite PMS, Q-249 T0): именинники сегодня и в ближайшую неделю, из уже
@@ -40,7 +41,7 @@ export default async function BirthdaysPage() {
               <tr key={g.id} data-testid="birthday-row">
                 <td>
                   <Link href={`/guests/${encodeURIComponent(g.id)}`}>
-                    {g.lastName} {g.firstName}
+                    {guestDisplayName(g)}
                   </Link>
                 </td>
                 <td>{displayDate(g.date, 'full')}</td>

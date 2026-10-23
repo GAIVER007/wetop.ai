@@ -86,7 +86,7 @@ test('быстрая продажа одной строкой и фильтры 
   await expect(sale.getByLabel('Количество, шт.')).toHaveValue('1');
   await sale.getByLabel('Товар').selectOption({ index: 1 });
   await sale.getByRole('button', { name: 'Продать' }).click();
-  await expect(sale.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
+  await expect(sale.getByRole('status')).toContainText('Продажа записана');
   // окно продажи модальное: закрываем его, прежде чем фильтровать доску под ним
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog', { name: 'Продажа' })).toHaveCount(0);
@@ -219,7 +219,7 @@ test('меню: экраны бара в разделе «Склад», адре
   await expect(nav.locator('.sidenav__section', { hasText: /^Бар$/ })).toHaveCount(0);
   const items = await openSection(page, 'Склад');
   // пункты в порядке вкладок экрана склада (19.10.2026)
-  await expect(items.locator('a')).toHaveText(['Обзор склада', 'Бар', 'Кухня', 'Приходы', 'Номенклатура', 'Поставщики', 'Движение товаров']);
+  await expect(items.locator('a')).toHaveText(['Обзор склада', 'Бар', 'Расходники', 'Приходы', 'Номенклатура', 'Поставщики', 'Движение товаров']);
   await expect(items.getByRole('link', { name: 'Номенклатура', exact: true })).toHaveAttribute('aria-current', 'page');
   // у приходов свой пункт
   await page.goto('/bar/receipts');

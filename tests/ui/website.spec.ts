@@ -369,7 +369,11 @@ test('WEB3 · бронирование: состояние, демо тольк�
   const state = main.getByTestId('website-booking-state');
   await expect(state).toHaveAttribute('data-state', 'on');
   await expect(state).toContainText('Бронь сразу в PMS, оплата при заселении');
-  await expect(main.getByTestId('site-card-booking-demo')).toHaveAttribute('href', DEMO_URL);
+  // аудит 21.10.2026: демо открывается в стойке, `/w/demo` на адресе API наружу закрыт туннелем
+  await expect(main.getByTestId('site-card-booking-demo')).toHaveAttribute(
+    'href',
+    /^\/website\/booking\/demo\?site=/,
+  );
   await expect(main.getByTestId('site-card-booking-demo')).toHaveAttribute('target', '_blank');
   await expect(main.getByTestId('booking-guest-plan')).toContainText('«Стандартный»');
   await expect(main.getByTestId('booking-guest-plan')).toContainText('KZT');

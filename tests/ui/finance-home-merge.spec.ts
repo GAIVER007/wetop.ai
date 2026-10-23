@@ -16,7 +16,7 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
-test('финансы: четыре плитки эталона из тех же API, блоки без заглушек', async ({ page }) => {
+test('финансы: итоги одной строкой из тех же API, блоки без заглушек', async ({ page }) => {
   await page.goto('/finance');
   await expect(page.getByRole('heading', { name: 'Финансы', exact: true, level: 1 })).toBeVisible();
   const main = page.getByRole('main');
@@ -39,10 +39,12 @@ test('финансы: четыре плитки эталона из тех же 
   ).json();
   const income = BigInt(ops.paidMinor) + BigInt(ops.incomeMinor);
   const profit = income - BigInt(ops.refundedMinor) - BigInt(ops.expenseMinor);
-  const kpis = board.getByRole('region', { name: 'Деньги за период', exact: true });
+  // плитки сняты (аудит 22.10.2026 P1-3b): итоги одной строкой `money-summary`, метки прежние
+  const kpis = board.getByTestId('cash-summary');
+  await expect(board.locator('.fin-kpi')).toHaveCount(0);
   await expect(kpis.getByTestId('fin-charged')).toHaveText(formatMoney(report.chargedMinor, 'KZT'));
-  await expect(kpis.getByTestId('fin-income')).toHaveText(formatMoney(income.toString(), 'KZT'));
-  await expect(kpis.getByTestId('fin-expense')).toHaveText(formatMoney(ops.expenseMinor, 'KZT'));
+  await expect(kpis.getByTestId('cash-period-income')).toHaveText(formatMoney(income.toString(), 'KZT'));
+  await expect(kpis.getByTestId('cash-period-expense')).toHaveText(formatMoney(ops.expenseMinor, 'KZT'));
   await expect(kpis.getByTestId('fin-profit')).toHaveText(formatMoney(profit.toString(), 'KZT'));
 
   // блоки эталона на месте, числа из данных
@@ -58,8 +60,9 @@ test('финансы: четыре плитки эталона из тех же 
   await expect(board.getByRole('heading', { name: 'Расходы по категориям' })).toBeVisible();
   await expect(board.getByRole('heading', { name: 'Финансовые отчёты' })).toBeVisible();
   await expect(board.getByRole('heading', { name: 'Аналитика и прогнозы' })).toBeVisible();
-  // «Финансовый обзор»: возвраты отдельной строкой (ADR-176) и остаток на счетах
-  const money = board.getByTestId('cash-summary');
+  // в той же строке: возвраты отдельно (ADR-176) и остаток на счетах; второго блока «Финансовый обзор» нет
+  const money = kpis;
+  await expect(board.getByRole('heading', { name: 'Финансовый обзор' })).toHaveCount(0);
   await expect(money.getByTestId('cash-period-income')).toHaveText(
     formatMoney(income.toString(), 'KZT'),
   );
@@ -141,13 +144,33 @@ test('меню: «Главная» первой вкладкой, «Финанс
   await expect(sideNav(page).locator('.sidenav__section').first()).toHaveText('Главная');
 });
 
-test('телефон: плитки денег первым экраном, фильтры достижимы', async ({ page }) => {
+test('телефон: итоги денег первым экраном, фильтры достижимы', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
-  await expect(page.getByTestId('fin-income')).toBeInViewport();
+  await expect(page.getByTestId('cash-period-income')).toBeInViewport();
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
   ).toBeLessThanOrEqual(1);
   await page.locator('#finance-filters').scrollIntoViewIfNeeded();
   await expect(page.getByTestId('period-form')).toBeVisible();
+});
+
+// аудит 22.10.2026 P1-3b: пустой месяц не рисует плитки, таблицу нулей и ось «0,01 ₸»
+test('финансы: пустой месяц, одна заглушка «Добавить первую бронь» вместо нулей', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/control`, { data: { empty: true } });
+  await page.goto('/finance');
+  const main = page.getByRole('main');
+  const empty = main.getByTestId('finance-empty');
+  await expect(empty).toBeVisible();
+  await expect(empty.getByRole('link', { name: 'Добавить первую бронь', exact: true })).toHaveAttribute(
+    'href',
+    '/reservations/new',
+  );
+  await expect(main.getByTestId('fin-dynamics')).toHaveCount(0);
+  await expect(main.getByTestId('cash-summary')).toHaveCount(0);
+  await expect(main.getByTestId('charges-table')).toHaveCount(0);
+  await expect(main.getByText('0,01', { exact: false })).toHaveCount(0);
 });

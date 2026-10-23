@@ -121,7 +121,8 @@ test('own schedule is read-only for the employee; the manager sets it',async({br
  const c=await context(browser,f,'staffA');const page=await c.newPage();await page.goto('/my-work');await select(page,'График');
  await expect(page.getByTestId('portal-week-view')).toContainText('График меняет руководитель');
  await expect(page.getByRole('button',{name:'Сохранить график',exact:true})).toHaveCount(0);
- await expect(page.getByTestId('portal-time-offs')).toHaveCount(0);
+ // отсутствия видны только списком (S3): формы и кнопок добавления у сотрудника нет
+ await expect(page.getByTestId('portal-time-offs')).toBeVisible();await expect(page.getByTestId('portal-time-offs').getByRole('button')).toHaveCount(0);
  await call(request,f,`/employee-portal/employees/${f.employeeA}/week`,{actor:'ownerA',method:'put',data:{intervals:[{weekday:1,timeFrom:'10:00',timeTo:'19:00'}],expectedRevision:before.weekRevision}});
  await page.reload();await select(page,'График');await expect(page.getByTestId('portal-week-view')).toContainText('10:00–19:00');
  await c.close();
@@ -225,6 +226,47 @@ test('personal finance shows real server amounts and never invents unavailable e
   for(const width of [320,390]){await page.setViewportSize({width,height:1000});expect(await page.evaluate(()=>document.documentElement.scrollWidth),'finance month form fits narrow mobile').toBeLessThanOrEqual(width);await expect(page.getByLabel('Месяц расчёта',{exact:true})).toBeVisible();await expect(page.getByTestId('portal-pay').getByRole('button',{name:'Показать',exact:true})).toBeVisible();}
   await c.close();
  }
+});
+
+// «Мой месяц», отсутствия и список «День / Месяц» (срезы S2, S3; владелец 21.10.2026)
+const CAB_DIR=process.env.PORTAL_CAB_DIR||'';
+async function cabShots(page,name){
+ if(!CAB_DIR)return;mkdirSync(CAB_DIR,{recursive:true});
+ for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await page.evaluate(()=>window.scrollTo(0,0));
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth),`${name} fits ${width}px`).toBeLessThanOrEqual(width);
+  await page.screenshot({path:`${CAB_DIR}/cab-${name}-${width}.png`,fullPage:true,animations:'disabled',timeout:20000});}
+ await page.setViewportSize({width:1440,height:1000});
+}
+test('master sees one month summary line, own absences, weekly days off and a month list',async({browser,request})=>{
+ test.setTimeout(120000);
+ const f=await reset(request);const before=await seedProfessional(request,f);
+ await call(request,f,`/employee-portal/employees/${f.employeeA}/week`,{actor:'ownerA',method:'put',data:{intervals:[1,2,3,4,5].map(weekday=>({weekday,timeFrom:'10:00',timeTo:'19:00'})),expectedRevision:before.weekRevision}});
+ const next=new Date();next.setUTCDate(next.getUTCDate()+30);const iso=next.toISOString().slice(0,10);
+ await call(request,f,`/employee-portal/employees/${f.employeeA}/time-offs`,{actor:'ownerA',method:'post',data:{dateFrom:iso,dateTo:iso,reason:'Синтетический отпуск'}});
+ const data=await call(request,f,'/employee-portal/me');
+ expect(data.monthStats).toMatchObject({status:'AVAILABLE',appointmentsDone:1,servicesDone:1});expect(data.monthStats.shifts).toBeGreaterThan(0);
+ const c=await context(browser,f,'staffA');const page=await c.newPage();await page.goto('/my-work');
+ const line=page.getByTestId('portal-month-line');await expect(line).toBeVisible();
+ await expect(line).toContainText(`${data.monthStats.shifts} смен`);await expect(line).toContainText('выходн');await expect(line).toContainText('1 услуга');await expect(line).toContainText('выручка');await expect(line).toContainText('бонусы');
+ await expect(page.getByTestId('portal-month').locator('article')).toHaveCount(0);
+ await cabShots(page,'salon-month');
+ await select(page,'График');await expect(page.getByTestId('portal-week-day').filter({hasText:'Суббота'})).toContainText('Выходной');await expect(page.getByTestId('portal-week-day').filter({hasText:'Понедельник'})).toContainText('10:00–19:00');
+ await expect(page.getByTestId('portal-time-off')).toHaveCount(1);await expect(page.getByTestId('portal-time-off')).toContainText('Синтетический отпуск');await expect(page.getByTestId('portal-time-off')).toContainText('1 день');
+ await cabShots(page,'salon-schedule');
+ await select(page,'Записи');await page.getByTestId('portal-work-month').click();await expect(page).toHaveURL(/range=month/);await select(page,'Записи');
+ await expect(page.getByTestId('portal-work-period')).toBeVisible();await expect(page.getByTestId('portal-own-work').locator('.portal-list li')).toHaveCount(1);
+ await page.getByTestId('portal-month-prev').click();await expect(page.getByTestId('portal-month-line')).not.toHaveAttribute('data-month',data.monthStats.month);
+ await c.close();
+});
+test('waiter month line counts closed orders, tables, guests, own revenue and percent',async({browser,request})=>{
+ const f=await reset(request,'FOOD_SERVICE');const data=await call(request,f,'/employee-portal/me');
+ expect(data.monthStats).toMatchObject({status:'AVAILABLE',ordersClosed:1,guests:1,percent:15,revenueMinor:'10000'});
+ const c=await context(browser,f,'staffA');const page=await c.newPage();await page.goto('/my-work');
+ const line=page.getByTestId('portal-month-line');await expect(line).toContainText('1 заказ');await expect(line).toContainText('1 гость');await expect(line).toContainText('мой процент 15%');await expect(line).toContainText('выручка');
+ await cabShots(page,'restaurant-month');
+ await select(page,'Заказы');await page.getByTestId('portal-work-month').click();await select(page,'Заказы');await expect(page.getByTestId('portal-own-work').locator('.portal-list li')).toHaveCount(1);
+ await cabShots(page,'restaurant-orders-month');
+ await c.close();
 });
 
 test('public missing profile uses not-found handling',async({page,request})=>{

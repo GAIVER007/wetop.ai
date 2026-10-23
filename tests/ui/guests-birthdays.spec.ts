@@ -39,7 +39,7 @@ test('календарь исключает дни рождения, отдел�
   await page.goto('/guests/birthdays');
   await expect(page).toHaveURL(/\/guests\/birthdays$/);
   const todaySection = page.getByRole('region', { name: 'Сегодня' });
-  await expect(todaySection.getByRole('link', { name: 'Гость Тестовый' })).toHaveAttribute(
+  await expect(todaySection.getByRole('link', { name: 'Тестовый Гость' })).toHaveAttribute(
     'href',
     '/guests/ui-guest',
   );

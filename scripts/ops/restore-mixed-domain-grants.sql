@@ -1,4 +1,4 @@
--- Restore-only ACL companion for mixed migrations132,134-137,140,141.
+-- Restore-only ACL companion for mixed migrations132,134-137,140,141,144.
 -- Not a schema migration. Run after ordinary pure-ACL migrations, inside the restore transaction.
 -- Copy existing privileges exactly; never replay mixed DDL or end the caller's transaction.
 DO $restore_acl$
@@ -81,5 +81,15 @@ BEGIN
     GRANT SELECT ON voice_calls, voice_profiles TO wetop_app;
     GRANT SELECT ON voice_callbacks TO wetop_app;
     GRANT UPDATE (status, done_at, done_by_id) ON voice_callbacks TO wetop_app;
+  END IF;
+
+  -- 144_menu_modifiers_split: exact ACL of the mixed migration (all-or-none)
+  SELECT count(*) INTO installed FROM unnest(ARRAY['menu_modifier_groups','menu_modifiers','menu_item_modifier_groups','restaurant_order_item_modifiers','restaurant_payment_items']) AS t(name)
+    WHERE to_regclass('public.' || name) IS NOT NULL;
+  IF installed NOT IN (0,5) THEN RAISE EXCEPTION 'Incomplete menu-modifiers schema during ACL restore'; END IF;
+  IF installed = 5 THEN
+    REVOKE ALL ON menu_modifier_groups, menu_modifiers, menu_item_modifier_groups, restaurant_order_item_modifiers, restaurant_payment_items FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON menu_modifier_groups, menu_modifiers, menu_item_modifier_groups, restaurant_order_item_modifiers TO wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON restaurant_payment_items TO wetop_app, wetop_service;
   END IF;
 END $restore_acl$;

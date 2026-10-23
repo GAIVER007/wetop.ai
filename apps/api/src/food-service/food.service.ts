@@ -6,6 +6,7 @@ import {
   Injectable,
   NotFoundException,
   ServiceUnavailableException,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   FOOD_STATUSES,
@@ -36,8 +37,9 @@ import {
 import type { DbTx, Prisma, DiningArea, DiningTable, ServicePeriod } from '@pms/database';
 import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
-import { foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } from './scope';
+import { foodMay, foodScope, foodTransaction, foodWritable, waiterSelf, type FoodScope } from './scope';
 import { occupancyCommand, occupancyEnabled, reservationOccupancy } from './occupancy';
+import { customerSearch, customerSearchWhere } from '../customers/search';
 
 /** Сегодня по часовому поясу филиала, `ГГГГ-ММ-ДД` */
 const localToday = (timezone: string) =>
@@ -57,6 +59,8 @@ const include = {
   },
   servicePeriod: true,
   tableAssignment: { include: { table: { include: { area: true } } } },
+  // §33.6: кто принял бронь
+  employee: { select: { id: true, name: true } },
 } as const;
 type Row = Prisma.RestaurantReservationGetPayload<{ include: typeof include }>;
 function parsed<T>(fn: () => T): T {
@@ -95,6 +99,7 @@ const view = (r: Row) => ({
   createdAt: r.createdAt,
   updatedAt: r.updatedAt,
   createdById: r.createdById,
+  employee: r.employee,
   customer: {
     ...r.customer,
     // §36: дата рождения строкой; метка «день рождения в день брони» считается на экране по дню филиала
@@ -393,14 +398,17 @@ export class FoodService {
   }
   async customers(query: unknown) {
     foodMay('desk');
-    const s = await foodScope(this.prisma.db),
-      p = page(query);
+    const p = page(query, ['q']);
+    // поиск в шапке ресторана (аудит 22.10.2026 P1-4): сужает тот же список, фильтр организации и бизнеса прежний
+    const search = customerSearch(p.q.q);
+    const s = await foodScope(this.prisma.db);
     const rows = await this.prisma.db.customer.findMany({
       where: {
         ...(p.cursor ? { id: { gt: p.cursor } } : {}),
         organizationId: s.organizationId,
         status: 'ACTIVE',
         businesses: { some: { businessId: s.businessId } },
+        ...(search ? customerSearchWhere(search) : {}),
       },
       select: {
         id: true,
@@ -476,9 +484,11 @@ export class FoodService {
     });
   }
   async reservations(query: unknown) {
-    foodMay('desk');
+    foodMay('orders');
     const s = await foodScope(this.prisma.db),
       p = page(query, ['date']);
+    // официант видит только брони, которые принял сам (§33.6)
+    const me = await waiterSelf(this.prisma.db, s);
     const date = parsed(() => {
       const d = foodText(p.q.date, 10);
       if (
@@ -494,6 +504,7 @@ export class FoodService {
       where: {
         locationId: s.locationId,
         startsAt: { gte: window.fromUtc, lt: window.toUtcExclusive },
+        ...(me ? { employeeId: me.id } : {}),
       },
       include,
       orderBy: [{ startsAt: 'asc' }, { id: 'asc' }],
@@ -569,10 +580,20 @@ export class FoodService {
       throw new ConflictException('Стол в это время занят');
   }
   async create(keyRaw: unknown, raw: unknown) {
-    return this.write('desk', async (tx, s) => {
+    return this.write('orders', async (tx, s) => {
       const key = parsed(() => foodText(keyRaw, 200)),
-        b = parsed(() => parseFoodCreate(raw)),
-        fingerprint = foodFingerprint(b);
+        b = parsed(() => parseFoodCreate(raw));
+      // §33.6: официант принимает бронь на себя; у стойки «Принял» выбирают в форме, необязательно
+      const me = await waiterSelf(tx, s);
+      if (me) {
+        if (b.source === 'WALK_IN') throw new ForbiddenException('Посадку без брони делает стойка');
+        b.employeeId = me.id;
+      } else if (
+        b.employeeId &&
+        !(await tx.employee.findFirst({ where: { id: b.employeeId, businessId: s.businessId, status: 'ACTIVE' } }))
+      )
+        throw new NotFoundException('Сотрудник недоступен');
+      const fingerprint = foodFingerprint(b);
       const old = await tx.restaurantReservation.findUnique({
         where: { locationId_creationKey: { locationId: s.locationId, creationKey: key } },
         include,
@@ -617,6 +638,7 @@ export class FoodService {
           creationKey: key,
           creationFingerprint: fingerprint,
           createdById: currentUserId(),
+          employeeId: b.employeeId ?? null,
         },
       });
       if (b.tableId) {
@@ -635,6 +657,7 @@ export class FoodService {
         partySize: b.partySize,
         status: r.status,
         source: r.source,
+        employeeId: r.employeeId,
       });
       return view(
         await tx.restaurantReservation.findUniqueOrThrow({ where: { id: r.id }, include }),

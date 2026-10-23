@@ -128,6 +128,16 @@ export function MonthInput({ className, ...rest }: InputHTMLAttributes<HTMLInput
 }
 
 /**
+ * Описание кнопки календаря с именем поля: у пары «С» / «По» две кнопки рядом, и одинаковое «Открыть календарь»
+ * программа чтения не различала (аудит 22.10.2026, P2-6). Имя поля стоит в описании, а не в имени кнопки: иначе
+ * поиск поля по подписи («Период: с») находил и поле, и кнопку.
+ */
+export function calendarButtonLabel(field: string | undefined): string | undefined {
+  const name = field?.trim();
+  return name ? `для поля «${name}»` : undefined;
+}
+
+/**
  * Поле даты с календарём (DESIGN.md §8). Родное `<input type="date">` остаётся: ввод с клавиатуры,
  * `name` для формы, подписи и `fill()` в тестах — те же. Кнопка справа открывает месяц в стиле стойки;
  * выбор пишет значение в родное поле и шлёт `input`/`change`, чтобы формы и React узнали о нём.
@@ -166,6 +176,10 @@ export function DateInput({
   /** где стояло поле, когда календарь открыли: сдвинулось — координаты календаря устарели */
   const anchor = useRef<{ top: number; left: number } | null>(null);
   const shown = useShownValue(input, rest.value, rest.defaultValue);
+  // имя поля для кнопки: своё aria-label сразу (сервер), подпись из <label> — после монтирования
+  const [fieldName, setFieldName] = useState<string | undefined>(
+    typeof rest['aria-label'] === 'string' ? rest['aria-label'] : undefined,
+  );
 
   const rangeFrom = () => {
     if (!rangeFromName || !input.current?.form) return null;
@@ -209,7 +223,10 @@ export function DateInput({
       .map((n) => n.textContent ?? '')
       .join('')
       .trim();
-    if (text) el.setAttribute('aria-label', text);
+    if (text) {
+      el.setAttribute('aria-label', text);
+      setFieldName(text);
+    }
   }, []);
   useEffect(() => {
     if (!open || defaultOpen) return;
@@ -310,6 +327,7 @@ export function DateInput({
         type="button"
         className="date-field__button"
         aria-label="Открыть календарь"
+        aria-description={calendarButtonLabel(fieldName)}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={open ? popId : undefined}

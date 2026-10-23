@@ -88,5 +88,5 @@ test('business metadata and branch archive survive reload; second brand keeps it
   ).toBeVisible();
   await expect(card).toContainText('Persisted business description');
   await expect(page.locator('.org-bottom, .org-object-results')).toHaveCount(0);
-  await expect(page.getByText('Доход от оплат', { exact: true })).toBeVisible();
+  await expect(page.getByTestId('org-totals')).toBeVisible();
 });

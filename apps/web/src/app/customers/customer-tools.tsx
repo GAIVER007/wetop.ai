@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Alert, Button, Field, Input, Notice, Stack } from '../../components/ui';
 import { Overlay } from '../../components/overlay';
 import { createBeautyCustomer, type CustomerActionResult } from './actions';
+import { phoneOnInput } from '../../lib/phone';
 
 export function BeautyCustomerTools({
   canEdit,
@@ -67,7 +68,7 @@ export function BeautyCustomerTools({
               <Input name="lastName" maxLength={100} autoComplete="family-name" />
             </Field>
             <Field label="Телефон" controlId="beauty-customer-phone" required>
-              <Input name="phone" type="tel" maxLength={32} autoComplete="tel" inputMode="tel" />
+              <Input name="phone" type="tel" maxLength={32} autoComplete="tel" inputMode="tel" placeholder="+7 701 000 00 00" onInput={phoneOnInput} />
             </Field>
             {result?.error && <Alert>{result.error}</Alert>}
             {result?.message && <Notice>{result.message}</Notice>}

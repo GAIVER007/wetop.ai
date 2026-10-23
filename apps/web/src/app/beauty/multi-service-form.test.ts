@@ -45,6 +45,13 @@ describe('report A1 A2 A3 A5: appointment form contract', () => {
     expect(html).toContain('Телефон или имя');
     expect(html).toContain('Итого');
   });
+  it('аудит салона 22.10.2026: до выбора услуги нет «Стоимость: Проверьте сумму»', () => {
+    const html = renderToStaticMarkup(
+      createElement(AppointmentForm, { day, customers: [], employeeId: 'master', onDone: vi.fn() }),
+    );
+    expect(html).not.toContain('Проверьте сумму');
+    expect(html).not.toContain('Стоимость:');
+  });
   it('пояс филиала словами, без кода вроде Asia/Almaty (живой сайт 21.10.2026, телефон)', () => {
     const html = renderToStaticMarkup(
       createElement(AppointmentForm, {
@@ -249,6 +256,7 @@ it('offers separate hours and five-minute steps while retaining a legacy non-ste
   expect(html).toContain('value="47" selected');
 });
 
+// телефон в списке группами «+7 700 000 00 01» (владелец 22.10.2026)
 it('distinguishes clients with equal names by phone in the selection list', () => {
   const customers = ['+77000000001', '+77000000002'].map((phone, index) => ({
     id: `customer-${index}`,
@@ -265,8 +273,8 @@ it('distinguishes clients with equal names by phone in the selection list', () =
       onDone: vi.fn(),
     }),
   );
-  expect(html).toContain('Тестовый Клиент, +77000000001');
-  expect(html).toContain('Тестовый Клиент, +77000000002');
+  expect(html).toContain('Тестовый Клиент, +7 700 000 00 01');
+  expect(html).toContain('Тестовый Клиент, +7 700 000 00 02');
 });
 
 it('repeats a visit as a new draft with the same client and services, never the source id or payment', () => {

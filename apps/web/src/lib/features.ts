@@ -62,13 +62,16 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   '/employees': BF,
   '/employees/shifts': F,
   '/cashbox': BF,
-  '/payroll': BF,
+  // зарплата у всех трёх направлений (кабинет горничной 22.10.2026); у гостиницы без выплат из кассы
+  '/payroll': ALL_VERTICALS,
+  '/staff-schedule': H,
   // ресторан
   '/floor-plan': F,
   '/table-reservations': F,
   '/dining-areas': F,
   '/orders': F,
   '/kitchen': F,
+  '/waiter': F,
   '/drinks': F,
   '/menu': F,
   '/stock': F,

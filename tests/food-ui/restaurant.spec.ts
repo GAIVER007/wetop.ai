@@ -137,7 +137,7 @@ test('меню: категория и блюдо с экрана, переклю
   await dialog.getByLabel('Единица').nth(1).selectOption('шт');
   await dialog.getByLabel('Цена за единицу').nth(1).fill('10');
   const totals = dialog.getByTestId('tech-totals');
-  await expect(totals).toContainText('Food cost');
+  await expect(totals).toContainText('Себестоимость, %');
   await expect(totals).toContainText('28 %');
   await expect(totals).toContainText('255 %');
   await dialog.getByLabel('Технология приготовления').fill('Варить 9 минут, смешать.');
@@ -286,12 +286,12 @@ test('кухня: колонки KDS и переходы кнопками', asyn
   });
   await page.goto('/kitchen');
   const newCol = page.getByRole('region', { name: 'Новые' });
-  // карточка по макету (экран 6): номер и время в шапке, стол, позиция и количество справа
-  await expect(newCol.getByRole('listitem')).toHaveText('Паста Карбонара×1');
+  // карточка по макету (экран 6): номер и время в шапке, стол, позиция и количество справа; кнопка у позиции (§33.6)
+  await expect(newCol.getByTestId('kds-line')).toContainText('Паста Карбонара×1');
   await expect(newCol).toContainText('Стол 7');
-  await newCol.getByRole('button', { name: 'Принять' }).click();
+  await newCol.getByRole('button', { name: 'Принять: Паста Карбонара' }).click();
   const cooking = page.getByRole('region', { name: 'Готовятся' });
-  await expect(cooking.getByRole('listitem')).toHaveText('Паста Карбонара×1');
+  await expect(cooking.getByTestId('kds-line')).toContainText('Паста Карбонара×1');
   await cooking.getByRole('button', { name: 'Готово' }).click();
   const ready = page.getByRole('region', { name: 'Готово' });
   await ready.getByRole('button', { name: 'Отметить как выдано' }).click();
@@ -1000,6 +1000,13 @@ test('клиенты: вкладки, «Постоянный гость» от �
   expect(second.ok()).toBe(true);
   await page.goto('/customers');
   await expect(page.getByRole('tab', { name: /Все/ })).toBeVisible();
+  // панель как у салона (аудит 22.10.2026 P1-5): поиск и «Добавить клиента» (гость создаётся вместе с бронью)
+  const bar = page.getByTestId('food-customers-bar');
+  await expect(bar.getByRole('searchbox', { name: 'Поиск по имени или телефону' })).toBeVisible();
+  await expect(bar.getByRole('link', { name: 'Добавить клиента', exact: true })).toHaveAttribute(
+    'href',
+    '/table-reservations?new=1',
+  );
   // скрытые панели вкладок остаются в DOM: ищем строку только в видимой панели
   const row = page.getByRole('tabpanel').locator('tbody tr', { hasText: 'Сергей Иванов' });
   await expect(row).toContainText('Постоянный гость');
@@ -1028,6 +1035,16 @@ test('клиенты: вкладки, «Постоянный гость» от �
   await expect(page.getByRole('tabpanel')).toContainText('Сергей Иванов');
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);
+  // поиск в шапке (аудит 22.10.2026 P1-4): ищет гостей ресторана по имени и телефону, а не только разделы
+  await page.getByRole('button', { name: 'Найти клиента или раздел', exact: true }).click();
+  const search = page.getByRole('dialog', { name: 'Быстрый поиск' });
+  await search.getByRole('textbox', { name: 'Запрос' }).fill('8 700 123');
+  const hit = search.getByRole('link', { name: /Сергей Иванов/ });
+  await expect(hit).toBeVisible();
+  await hit.click();
+  await expect(page).toHaveURL(/\/customers\?q=/);
+  await expect(page.getByTestId('food-customers-query')).toContainText('Найдено');
+  await expect(page.getByRole('tabpanel').locator('tbody tr')).toHaveCount(1);
   // метки видит смена: в бронях дня и строкой на «Главной» (вторая бронь клиента сегодня активна)
   await page.goto(`/table-reservations?date=${localDay}&view=list`);
   await expect(page.getByTestId('guest-marks').first()).toContainText('VIP');
@@ -1055,8 +1072,8 @@ test('навигация ресторана: пункты макета на ме
 
 test('бар, финансы и настройки ресторана по макету (экраны 7, 12, 13)', async ({ page, request }) => {
   const { headers, table, pasta } = await seed(page, request);
-  // бар: категория «Напитки» и напиток; плитка открывает заказ с этим напитком
-  const drinks = await post(request, headers, '/food-service/menu/categories', { name: 'Напитки' });
+  // бар: категория «Напитки» станции «Бар» (§33.6) и напиток; плитка открывает заказ с этим напитком
+  const drinks = await post(request, headers, '/food-service/menu/categories', { name: 'Напитки', station: 'BAR' });
   const mojito = await post(request, headers, '/food-service/menu/items', {
     categoryId: drinks.id,
     name: 'Мохито',
@@ -1071,7 +1088,7 @@ test('бар, финансы и настройки ресторана по ма�
     ],
   });
   await page.goto('/drinks');
-  const current = page.getByRole('region', { name: /Текущие заказы/ });
+  const current = page.getByRole('region', { name: 'Заказы бара' });
   await expect(current).toContainText(`№${order.number}`);
   await expect(current).toContainText('Мохито×2');
   await expect(current).not.toContainText('Паста');

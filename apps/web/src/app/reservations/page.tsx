@@ -44,6 +44,7 @@ import {
   sourceNames,
   reservationStatuses,
 } from '../../lib/hotel-api';
+import { placementNote } from './placement-note';
 
 export default async function ReservationsPage({
   searchParams,
@@ -419,7 +420,7 @@ export default async function ReservationsPage({
                   {result.rows.map((r) => {
                     const nights = nightsBetween(r.arrivalDate, r.departureDate);
                     const itemsCount = r.itemsCount ?? (r.unitCodes.length || 1);
-                    const unassigned = r.unitCodes.length < itemsCount;
+                    const note = placementNote(r, today);
                     // Вычисляемые пометки дня (§12 ТЗ): не статус в модели, а взгляд стойки на дату
                     const arrivesToday =
                       r.arrivalDate === today &&
@@ -468,12 +469,15 @@ export default async function ReservationsPage({
                             </span>
                           ) : null}
                           {/* у группы предупреждение называет число (формулировка владельца 27.09):
-                              «3 размещения» + «⚠ 1 без размещения»; одиночная — «⚠ без ячейки» (§9) */}
-                          {unassigned && (
-                            <span className="warn-text reservations-unassigned">
-                              {itemsCount > 1
-                                ? `⚠ ${itemsCount - r.unitCodes.length} без размещения`
-                                : '⚠ без ячейки'}
+                              «3 размещения» + «⚠ 1 без размещения»; будущей брони «Номер назначим позже» без тревоги,
+                              выехавшей и отменённой пометки нет (аудит 22.10.2026 P1-13) */}
+                          {note && (
+                            <span
+                              className={
+                                note.warn ? 'warn-text reservations-unassigned' : 'muted reservations-unassigned'
+                              }
+                            >
+                              {note.text}
                             </span>
                           )}
                         </td>

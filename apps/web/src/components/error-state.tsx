@@ -21,9 +21,18 @@ export function ErrorState({
   title?: string | undefined;
 }) {
   const status = apiErrorStatus(error.digest);
-  const rejected = status !== undefined && status >= 400 && status < 500;
+  // Нет прав (аудит 22.10.2026, P1-2): один понятный текст, без кода, «Подключений» и повтора — тот же
+  // запрос с теми же правами даст тот же отказ
+  const denied = status === 403;
+  const rejected = status !== undefined && status >= 400 && status < 500 && !denied;
   // «Подключения» есть только у гостиницы (Channex): салону и ресторану ссылка увела бы на «Главную»
   const hotel = useDeskVertical() === 'HOSPITALITY';
+  if (denied)
+    return (
+      <EmptyState role="alert" icon={<Icon name="lock" width={32} height={32} />} title={title}>
+        {FORBIDDEN_TEXT}
+      </EmptyState>
+    );
   return (
     <EmptyState
       role="alert"
@@ -44,15 +53,18 @@ export function ErrorState({
           </button>
           {!rejected && hotel && (
             <Link href="/connections" className="btn btn--secondary">
-              Подключения API
+              Подключения
             </Link>
           )}
         </>
       }
     >
       {rejected
-        ? `Сервер отклонил запрос (код ${status}): проверьте адрес страницы и даты в нём. Повтор с теми же данными даст тот же ответ.`
+        ? 'Сервер не принял запрос: проверьте адрес страницы и даты в нём. Повтор с теми же данными даст тот же ответ.'
         : 'Проверьте подключение и повторите запрос.'}
     </EmptyState>
   );
 }
+
+/** Текст отказа в доступе: тот же, что на экране ошибки макета (`app/layout.tsx`). */
+export const FORBIDDEN_TEXT = 'Этот раздел вам недоступен. Попросите руководителя открыть доступ.';

@@ -141,6 +141,12 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'restaurant_cash_operations',
   'restaurant_cash_reconciliations',
   'restaurant_order_ratings',
+  // Модификаторы блюд и оплата по позициям (DATA_MODEL §33.7, миграция 20261022000144_menu_modifiers_split)
+  'menu_modifier_groups',
+  'menu_modifiers',
+  'menu_item_modifier_groups',
+  'restaurant_order_item_modifiers',
+  'restaurant_payment_items',
   // Правила брони столов и закрытые дни (DATA_MODEL §43, миграция 20261013000101_food_booking_rules)
   'food_booking_rules',
   'food_closed_days',

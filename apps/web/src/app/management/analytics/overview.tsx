@@ -16,6 +16,7 @@ import { pluralRu } from '../../../lib/plural';
 import { analyticsHref, type AnalyticsQuery } from './params';
 import { Tile, countDelta, moneyDelta, pointsDelta } from './tiles';
 import { OccupancyTiles } from './occupancy-tiles';
+import { METRIC } from '../../../lib/metric-words';
 
 const b = (v: string) => BigInt(v);
 
@@ -105,7 +106,7 @@ function PricePanel({ c, query, cur }: { c: DashboardPeriod; query: AnalyticsQue
   const axis = (k: DashboardBucket) =>
     g === 'month' ? shortMonth(k.from) : `${k.from.slice(8, 10)}.${k.from.slice(5, 7)}`;
   return (
-    <Panel title="ADR и RevPAR" className="dash-panel pa-wide">
+    <Panel title={`${METRIC.adr} и ${METRIC.revpar.toLowerCase()}`} className="dash-panel pa-wide">
       <LineChart
         testId="pa-chart-price"
         labels={buckets.map((k) =>
@@ -116,12 +117,12 @@ function PricePanel({ c, query, cur }: { c: DashboardPeriod; query: AnalyticsQue
         formatAxis={(v) => compactTenge.format(v)}
         series={[
           {
-            name: 'ADR',
+            name: METRIC.adr,
             values: buckets.map((k) => toTenge(k.adrMinor)),
             summary: c.adrMinor ? wholeTenge(c.adrMinor, cur) : 'нет данных',
           },
           {
-            name: 'RevPAR',
+            name: METRIC.revpar,
             values: buckets.map((k) => toTenge(k.revparMinor)),
             dashed: true,
             summary: c.revparMinor ? wholeTenge(c.revparMinor, cur) : 'нет данных',
@@ -129,8 +130,8 @@ function PricePanel({ c, query, cur }: { c: DashboardPeriod; query: AnalyticsQue
         ]}
       />
       <p className="muted dash-note">
-        Цена места делится по ночам проживания. ADR: выручка за ночи на занятые ночи, RevPAR: на
-        ночи, доступные к продаже. В итоге периода и в списке выше число за весь период.
+        Цена места делится по ночам проживания. Средняя цена ночи: выручка за ночи на занятые ночи, доход
+        на номер: на ночи, доступные к продаже. В итоге периода и в списке выше число за весь период.
       </p>
     </Panel>
   );
@@ -309,7 +310,7 @@ function UnitEconomics({
     >
       <Tile
         id="adr"
-        label={rooms ? 'Средняя цена номера (ADR)' : 'Средняя цена койки'}
+        label={rooms ? 'Средняя цена номера' : 'Средняя цена койки'}
         value={c.adrMinor ? wholeTenge(c.adrMinor, cur) : '—'}
         hint={`выручка проживания на проданную ночь ${rooms ? 'номера' : 'койки'}`}
         delta={moneyDelta(c.adrMinor, p?.adrMinor ?? null)}
@@ -317,7 +318,7 @@ function UnitEconomics({
       />
       <Tile
         id="revpar"
-        label={rooms ? 'Доход на номер (RevPAR)' : 'Доход на койку'}
+        label={rooms ? METRIC.revpar : 'Доход на койку'}
         value={c.revparMinor ? wholeTenge(c.revparMinor, cur) : '—'}
         hint={`выручка проживания на ${rooms ? 'каждый номер' : 'каждую койку'} за ночь`}
         delta={moneyDelta(c.revparMinor, p?.revparMinor ?? null)}

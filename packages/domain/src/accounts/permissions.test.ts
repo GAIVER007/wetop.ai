@@ -22,6 +22,7 @@ describe('права ролей', () => {
     expect(all).toEqual([
       'self',
       'desk',
+      'orders',
       'dialogs',
       'reports',
       'refunds',
@@ -48,7 +49,13 @@ describe('права ролей', () => {
   });
 
   it('администратору — своё, работа с гостями, диалоги продавца и отчёты на просмотр', () => {
-    expect(permissionsOf('STAFF')).toEqual(['self', 'desk', 'dialogs', 'reports']);
+    expect(permissionsOf('STAFF')).toEqual(['self', 'desk', 'orders', 'dialogs', 'reports']);
+  });
+
+  it('приём заказов (§33.6, 22.10.2026): все роли стойки и «Личный кабинет»; касса и отчёты кабинету закрыты', () => {
+    expect(rolesWith('orders')).toEqual(['OWNER', 'MANAGER', 'STAFF', 'EMPLOYEE']);
+    expect(permissionsOf('EMPLOYEE')).toEqual(['self', 'orders']);
+    for (const p of ['desk', 'reports', 'refunds', 'staff'] as const) expect(can('EMPLOYEE', p)).toBe(false);
   });
 
   it('запуск и остановка рекламы: владелец и управляющий, не администратор (ADR-MKT-LAUNCH, §57)', () => {

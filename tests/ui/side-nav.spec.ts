@@ -10,6 +10,9 @@ const routes = [
   '/today',
   '/chessboard',
   '/team',
+  // кабинет горничной и ресепшена S10 (22.10.2026): «График работы» и «Зарплата» есть и у гостиницы
+  '/staff-schedule',
+  '/payroll',
   '/guests',
   '/reservations',
   '/inventory',

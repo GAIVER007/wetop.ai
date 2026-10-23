@@ -47,9 +47,10 @@ test('отклонённый запрос: код и совет проверит
   });
   await page.goto('/reservations');
   const failure = page.getByRole('main').getByTestId('reservations-error');
-  await expect(failure).toContainText('Сервер отклонил запрос (код 400)');
+  await expect(failure).toContainText('Сервер не принял запрос');
+  await expect(failure).not.toContainText('код 400');
   await expect(failure).toContainText('проверьте адрес страницы и даты');
-  await expect(failure.getByRole('link', { name: 'Подключения API' })).toHaveCount(0);
+  await expect(failure.getByRole('link', { name: 'Подключения', exact: true })).toHaveCount(0);
 });
 
 test('пока список идёт — скелетон с подписью словом, затем таблица', async ({ page, request }) => {

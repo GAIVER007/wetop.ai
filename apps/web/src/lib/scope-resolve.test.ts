@@ -104,3 +104,30 @@ it('Beauty default work entry checks setup before continuing, without changing e
   });
   expect(decideScope([branch('BEAUTY')], '/calendar')).toMatchObject({ target: '/calendar' });
 });
+
+// «Личный кабинет» (EMPLOYEE): рабочих разделов и выбора филиала на /branches у него нет (живой аудит 21.10.2026)
+it('«Личный кабинет»: филиал выбирается сам и ведёт в «Мою работу» в любом направлении', () => {
+  for (const v of ['BEAUTY', 'FOOD_SERVICE', 'HOSPITALITY'] as const)
+    expect(decideScope([branch(v)], '/today', null, { personal: true })).toEqual({
+      kind: 'select',
+      pointer: `business=${B1};location=${L1}`,
+      target: '/my-work',
+    });
+  // своя страница кабинета из next сохраняется
+  expect(decideScope([branch('BEAUTY')], '/my-work?month=2026-10', null, { personal: true })).toMatchObject({
+    target: '/my-work?month=2026-10',
+  });
+});
+
+it('«Личный кабинет» в нескольких филиалах: запомненный, иначе первый назначенный, но не /branches', () => {
+  const two = [branch('BEAUTY'), branch('BEAUTY', B2, L2)];
+  expect(decideScope(two, null, L2, { personal: true })).toMatchObject({
+    pointer: `business=${B2};location=${L2}`,
+    target: '/my-work',
+  });
+  expect(decideScope(two, null, null, { personal: true })).toMatchObject({
+    kind: 'select',
+    pointer: `business=${B1};location=${L1}`,
+    target: '/my-work',
+  });
+});

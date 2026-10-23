@@ -43,6 +43,15 @@ export type Workload = {
   sourceRevisions?: string[];
   coveredPercent?: number | null;
 };
+/** Строка «Требуют решения»: дела СЕГОДНЯ филиала, считает API (`apps/api/src/finance/owner-attention.ts`) */
+export interface OwnerAttentionItem {
+  id: string;
+  tone: 'warn' | 'ok';
+  text: string;
+  href: string;
+  action: string;
+  count?: number;
+}
 export interface OwnerSummaryDto {
   sourceVersion: 'owner-cash-foundation-v1';
   generatedAt: string;
@@ -64,16 +73,25 @@ export interface OwnerSummaryDto {
   classificationReason: string | null;
   classificationState?: 'READY' | 'PARTIAL' | 'UNAVAILABLE';
   workload: Workload;
+  /** нет у старого API: тогда блок честно говорит, что сигналы недоступны */
+  attention?: OwnerAttentionItem[];
 }
 /** Decimal-safe formatting: never convert money to Number, including very large balances. */
+/**
+ * Деньги Главной в том же виде, что на остальных экранах (аудит 22.10.2026 P1-1: было «50 000,00 KZT»): знак ₸ для
+ * тенге, копейки только когда они есть, минус настоящий. BigInt без float (ADR-008).
+ */
 export function formatOwnerMoney(minor: string, currency: string): string {
   const digits =
     new Intl.NumberFormat('ru-RU', { style: 'currency', currency }).resolvedOptions()
       .maximumFractionDigits ?? 2;
   const amount = BigInt(minor),
     absolute = amount < 0n ? -amount : amount,
-    scale = 10n ** BigInt(digits);
-  return `${amount < 0n ? '-' : ''}${new Intl.NumberFormat('ru-RU').format(absolute / scale)}${digits ? ',' + (absolute % scale).toString().padStart(digits, '0') : ''} ${currency}`;
+    scale = 10n ** BigInt(digits),
+    fraction = absolute % scale;
+  const whole = new Intl.NumberFormat('ru-RU').format(absolute / scale);
+  const tail = digits && fraction ? ',' + fraction.toString().padStart(digits, '0') : '';
+  return `${amount < 0n ? '−' : ''}${whole}${tail} ${currency === 'KZT' ? '₸' : currency}`;
 }
 export const ownerSummaryEnabled = (value: string | undefined) => value === 'true';
 export function ownerReason(reason: string | null | undefined): string {

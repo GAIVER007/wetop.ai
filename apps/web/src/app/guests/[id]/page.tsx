@@ -14,9 +14,11 @@ import { AmountChip } from '../../../components/amount-chip';
 import { EmptyState, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
 import { GuestDocuments, GuestProfileForm } from './guest-forms';
+import { guestDisplayName } from '../guest-stay';
 import { financeState } from '../../reservations/finance-state';
 import '../../directory.css';
 import '../guests.css';
+import { formatPhone } from '../../../lib/phone';
 
 type Stay = GuestCard['stays'][number];
 
@@ -359,7 +361,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
     <Page
       width="medium"
       crumbs={<BackCrumb href="/guests">Гости и бронирования</BackCrumb>}
-      title={`${g.lastName} ${g.firstName} ${g.middleName ?? ''}`.trim()}
+      title={guestDisplayName(g)}
       actions={
         // «Только чтение» (ADR-102): действия, которых нельзя, не рисуются — как «Новая бронь» на «Бронях»
         readOnly ? undefined : (
@@ -382,7 +384,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
         <div>
           <dt>Телефон</dt>
           <dd>
-            {g.phone ?? <span className="muted">—</span>}
+            {g.phone ? formatPhone(g.phone) : <span className="muted">—</span>}
             {messengers && (
               <span className="booking-head__contacts">
                 <a href={messengers.whatsapp} target="_blank" rel="noreferrer">

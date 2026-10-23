@@ -325,6 +325,25 @@ describe.skipIf(!url)('MV6 real PostgreSQL', () => {
       status: 400,
     });
   });
+  // аудит 22.10.2026 P1-4: поиск в шапке ресторана ищет гостей по имени и телефону только в своём бизнесе
+  it('customer search by name and phone stays inside the business and organization', async () => {
+    await book();
+    const found = await run(() => svc.customers({ q: 'synthetic CUST' }));
+    expect(found.items.map((x) => x.id)).toContain(customer);
+    expect((await run(() => svc.customers({ q: 'Nobody-matches-this' }))).items).toEqual([]);
+    expect(
+      (await run(() => svc.customers({ q: 'Synthetic' }), { businessId: business2, locationId: otherLocation }))
+        .items,
+    ).toHaveLength(0);
+    const foreign = await db.customer.create({
+      data: { organizationId: foreignOrg, firstName: 'Synthetic customer foreign' },
+    });
+    expect((await run(() => svc.customers({ q: 'Synthetic customer' }))).items.map((x) => x.id)).not.toContain(
+      foreign.id,
+    );
+    await db.customer.delete({ where: { id: foreign.id } });
+    await expect(run(() => svc.customers({ q: 'x'.repeat(101) }))).rejects.toMatchObject({ status: 400 });
+  });
   it('customer link visibility, archive and foreign organization unavailable', async () => {
     await book();
     expect((await run(() => svc.customers({}))).items.map((x) => x.id)).toContain(customer);

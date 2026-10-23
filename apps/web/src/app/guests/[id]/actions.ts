@@ -7,6 +7,8 @@ export interface GuestActionResult {
   error: string | null;
   values?: Record<string, string>;
   attempt?: number;
+  /** метка успешного сохранения профиля: окно «Изменить гостя» закрывается по ней */
+  saved?: number;
 }
 const describe = (e: unknown) =>
   e instanceof ApiError ? e.message : e instanceof Error ? e.message : String(e);
@@ -53,7 +55,7 @@ export async function updateGuestAction(
   }
   revalidatePath(`/guests/${id}`);
   revalidatePath('/reservations/[number]', 'page');
-  return { error: null };
+  return { error: null, saved: Date.now() };
 }
 export async function addDocumentAction(
   id: string,

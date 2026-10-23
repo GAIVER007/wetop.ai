@@ -4768,3 +4768,45 @@ Customer сохраняет исходное nullable поле phone. Добав
 | Таблица (черновое имя) | Назначение |
 |---|---|
 | `content_drafts` | черновик поста филиала: канал, тема, текст, хештеги, CTA, происхождение AI/MANUAL, день публикации (DATE пояса филиала), статус DRAFT/PUBLISHED/ARCHIVED, revision |
+
+## 60. Цены конкурентов салона и ресторана (ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО; Q-VERT-MARKET-1 вариант А, 23.10.2026; номер раздела берётся при слиянии)
+
+План: `plans/2026-10-23-competitors-business-manual.md`. Гостиничные `competitors`, `competitor_rates`,
+`competitor_occupancy` (§23) не меняются: у них ключ — объект размещения и ночь, у салона и ресторана — филиал и
+позиция каталога.
+
+### 60.1 `location_competitors`
+| поле | тип | правило |
+|---|---|---|
+| id | uuid PK | |
+| business_id | uuid FK businesses | бизнес из сессии |
+| location_id | uuid FK locations | филиал того же бизнеса (составной FK / триггер) |
+| name | varchar(200) | непусто; уникально в филиале без учёта регистра |
+| address | varchar(300)? | |
+| distance_m | int? | >= 0 |
+| url | text? | http(s) |
+| note | text? | |
+| active | bool, default true | «убрать» = архив, цены остаются |
+| created_by_id | uuid? FK users | |
+| created_at, updated_at | timestamptz | |
+
+### 60.2 `location_competitor_prices`
+| поле | тип | правило |
+|---|---|---|
+| id | uuid PK | |
+| business_id, location_id | uuid | те же, что у соседа (составной FK `(competitor_id, location_id)`) |
+| competitor_id | uuid | сосед этого филиала |
+| beauty_service_id | uuid? FK beauty_services | ровно одно из двух (CHECK) |
+| menu_item_id | uuid? FK menu_items | позиция того же бизнеса |
+| their_name | varchar(200)? | название у соседа |
+| price_minor | bigint | > 0, минорные единицы |
+| currency | char(3) | валюта филиала |
+| observed_on | date | когда видели цену; не в будущем |
+| source | CompetitorObservationSource | `MANUAL` (тип §23) |
+| created_by_id | uuid? | |
+| observed_at | timestamptz | время ввода |
+
+Уникально `(competitor_id, beauty_service_id, observed_on)` и `(competitor_id, menu_item_id, observed_on)`
+(частичные индексы). Чтение экрана — последняя цена по `observed_on` на пару «сосед, позиция».
+Откат: `DROP TABLE location_competitor_prices, location_competitors`.
+

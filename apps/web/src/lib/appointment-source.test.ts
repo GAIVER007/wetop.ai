@@ -7,5 +7,7 @@ describe('источник записи салона словами', () => {
     expect(appointmentSourceLabel('WEBSITE')).toBe('Сайт');
     expect(appointmentSourceLabel('DESK')).toBe('Администратор');
     expect(appointmentSourceLabel(undefined)).toBe('Администратор');
+    // голосовой агент (DATA_MODEL VOICE-BOOKING): запись внёс он, а не администратор
+    expect(appointmentSourceLabel('VOICE')).toBe('Голосовой агент');
   });
 });

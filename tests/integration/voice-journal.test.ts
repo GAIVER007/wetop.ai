@@ -287,6 +287,51 @@ describe.skipIf(!url)(
     expect([...new Set(rows)].sort()).toEqual(['AppointmentSource', 'ReservationSource', 'RestaurantReservationSource']);
   });
 
+  it('настройка брони из стойки под ролью приложения: только выключатель и лимит, только своя организация (миграция 148)', async () => {
+    const as = async (org: string, statements: Array<[string, unknown[]?]>, expectFail: boolean[]) => {
+      await sql.query('BEGIN');
+      try {
+        await sql.query('SET LOCAL ROLE wetop_app');
+        await sql.query(`SELECT set_config('app.org_id', $1, true)`, [org]);
+        const out: Array<{ ok: boolean; rows?: number }> = [];
+        for (const [i, [text, params]] of statements.entries()) {
+          await sql.query(`SAVEPOINT s${i}`);
+          try {
+            const r = await sql.query(text, params);
+            out.push({ ok: true, rows: r.rowCount ?? 0 });
+          } catch {
+            out.push({ ok: false });
+            await sql.query(`ROLLBACK TO SAVEPOINT s${i}`);
+          }
+        }
+        expect(out.map((o) => !o.ok)).toEqual(expectFail);
+        return out;
+      } finally {
+        await sql.query('ROLLBACK');
+      }
+    };
+    const out = await as(
+      orgA,
+      [
+        [`INSERT INTO voice_profiles (agent_id, organization_id, business_id, booking_enabled, booking_max_per_call) VALUES ($1, $2, $3, true, 2)`, [agentA, orgA, bizA]],
+        [`UPDATE voice_profiles SET booking_enabled = false, booking_max_per_call = 4, updated_at = now() WHERE agent_id = $1`, [agentA]],
+        [`UPDATE voice_profiles SET handoff_phone = '+77001112233' WHERE agent_id = $1`, [agentA]],
+        [`UPDATE voice_profiles SET booking_needs_approval = false WHERE agent_id = $1`, [agentA]],
+        [`INSERT INTO voice_profiles (agent_id, organization_id, business_id) VALUES ($1, $2, $3)`, [agentB, orgB, bizB]],
+      ],
+      [false, false, true, true, true],
+    );
+    expect(out[1]!.rows).toBe(1);
+    // чужая организация: правка строки чужого агента не затрагивает ни одной строки
+    await sql.query(`INSERT INTO voice_profiles (agent_id, organization_id, business_id) VALUES ($1, $2, $3)`, [agentB, orgB, bizB]);
+    try {
+      const other = await as(orgA, [[`UPDATE voice_profiles SET booking_enabled = true WHERE agent_id = $1`, [agentB]]], [false]);
+      expect(other[0]!.rows).toBe(0);
+    } finally {
+      await sql.query(`DELETE FROM voice_profiles WHERE agent_id = $1`, [agentB]);
+    }
+  });
+
   it('агент в архиве событий не принимает', async () => {
     await sql.query(`UPDATE seller_agents SET lifecycle = 'archived' WHERE id = $1`, [agentNoLoc]);
     await expect(ingest.ingest(event({ agentId: agentNoLoc }))).rejects.toMatchObject({ status: 404 });

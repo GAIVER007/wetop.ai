@@ -13,6 +13,7 @@ import { GuestMarks } from './guest-marks';
 import { mutateFoodReservation } from './actions';
 import { ReservationForm } from './reservation-form';
 import { formatPhone } from '../../lib/phone';
+import { foodReservationOrigin } from '../../lib/food-reservation-origin';
 export type ReservationDraft =
   { kind: 'create'; walkIn: boolean; tableId?: string; time?: string } | { kind: 'view'; id: string };
 export function ReservationDrawer({
@@ -117,7 +118,7 @@ export function ReservationDrawer({
               <dt>Стол / зал</dt>
               <dd>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</dd>
               <dt>Источник</dt>
-              <dd>{r.source === 'WALK_IN' ? 'Без брони' : r.employee ? `Принял: ${r.employee.name}` : 'Сотрудник'}</dd>
+              <dd>{foodReservationOrigin(r)}</dd>
               <dt>Заметка</dt>
               <dd>{r.notes || 'Нет заметки'}</dd>
             </dl>

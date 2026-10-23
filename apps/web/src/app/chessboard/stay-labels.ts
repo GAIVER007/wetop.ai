@@ -42,6 +42,7 @@ export function guestNames(
       WALK_IN: 'со стойки',
       PHONE: 'по телефону',
       WEBSITE: 'с сайта',
+      VOICE: 'от голосового агента',
       WHATSAPP: 'из WhatsApp',
       INSTAGRAM: 'из Instagram',
       OTA: 'из канала',

@@ -34,6 +34,7 @@ import { QuickReport } from '../../components/quick-report';
 import { foodQuickReport } from '../../components/quick-report-data';
 import { compareTables } from '../../lib/table-title';
 import { formatPhone } from '../../lib/phone';
+import { foodReservationOrigin } from '../../lib/food-reservation-origin';
 
 
 const ACTIVE = ['BOOKED', 'CONFIRMED', 'SEATED'];
@@ -469,7 +470,7 @@ export function WorkspaceBoard({
                         </td>
                         <td>{r.notes || '—'}</td>
                         <td>{r.servicePeriod.name}</td>
-                        <td>{r.source === 'WALK_IN' ? 'Без брони' : r.employee ? `Принял: ${r.employee.name}` : 'Сотрудник'}</td>
+                        <td>{foodReservationOrigin(r)}</td>
                       </tr>
                     ))}
                   </tbody>

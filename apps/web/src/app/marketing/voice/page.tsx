@@ -3,6 +3,7 @@ import { can } from '@pms/domain';
 import {
   ApiError,
   marketingVoiceApi,
+  type VoiceBookingView,
   type VoiceCallbackRow,
   type VoiceCallsView,
   type VoiceSummaryView,
@@ -20,6 +21,7 @@ import { Tabs } from '../../../components/tabs';
 import { Badge, EmptyState, Table } from '../../../components/ui';
 import { BackToModules } from '../parts';
 import { ChooseLocation, MonthNav } from '../budget/parts';
+import { BookingForm } from './booking-form';
 import { CloseCallbackButton } from './close-button';
 import { callbackStatusLabel, formatDuration, formatPhone, formatWhen, stateBadge, summaryItems } from './format';
 
@@ -30,19 +32,27 @@ import { callbackStatusLabel, formatDuration, formatPhone, formatWhen, stateBadg
  * без звонков стоит «Нет данных» и памятка, как подключить номер.
  */
 type Loaded =
-  | { summary: VoiceSummaryView; calls: VoiceCallsView; callbacks: VoiceCallbackRow[]; done: VoiceCallbackRow[] }
+  | {
+      summary: VoiceSummaryView;
+      calls: VoiceCallsView;
+      callbacks: VoiceCallbackRow[];
+      done: VoiceCallbackRow[];
+      booking: VoiceBookingView | null;
+    }
   | { chooseLocation: true }
   | { error: ReturnType<typeof loadErrorProps> };
 
 async function load(month: string | undefined): Promise<Loaded> {
   try {
-    const [summary, calls, callbacks, done] = await Promise.all([
+    const [summary, calls, callbacks, done, booking] = await Promise.all([
       marketingVoiceApi.summary(month),
       marketingVoiceApi.calls(month, 50, 0),
       marketingVoiceApi.callbacks('NEW', 100),
       marketingVoiceApi.callbacks('DONE', 10),
+      // настройка брони не должна ронять весь экран: без неё вкладка просто не показывается
+      marketingVoiceApi.booking().catch(() => null),
     ]);
-    return { summary, calls, callbacks, done };
+    return { summary, calls, callbacks, done, booking };
   } catch (e) {
     unstable_rethrow(e);
     if (e instanceof ApiError && e.status === 409) return { chooseLocation: true };
@@ -259,6 +269,15 @@ export default async function MarketingVoicePage({ searchParams }: { searchParam
                   ),
                 },
                 { id: 'calls', label: 'Журнал звонков', content: <CallsTable view={loaded.calls} /> },
+                ...(loaded.booking
+                  ? [
+                      {
+                        id: 'booking',
+                        label: 'Бронь по телефону',
+                        content: <BookingForm view={loaded.booking} editable={editable} />,
+                      },
+                    ]
+                  : []),
                 { id: 'setup', label: 'Подключение', content: <SetupNote /> },
               ]}
             />

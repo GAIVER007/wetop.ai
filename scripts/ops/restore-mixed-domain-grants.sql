@@ -81,6 +81,9 @@ BEGIN
     GRANT SELECT ON voice_calls, voice_profiles TO wetop_app;
     GRANT SELECT ON voice_callbacks TO wetop_app;
     GRANT UPDATE (status, done_at, done_by_id) ON voice_callbacks TO wetop_app;
+    -- 148_voice_booking_settings: column grants for the booking switch and the per-call limit
+    GRANT INSERT (agent_id, organization_id, business_id, booking_enabled, booking_max_per_call) ON voice_profiles TO wetop_app;
+    GRANT UPDATE (booking_enabled, booking_max_per_call, updated_at) ON voice_profiles TO wetop_app;
   END IF;
   -- 147_voice_booking_quotes: exact ACL of the voice booking quotes
   IF to_regclass('public.voice_booking_quotes') IS NOT NULL THEN

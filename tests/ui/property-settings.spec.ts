@@ -102,7 +102,8 @@ test('владелец: «Сохранить изменения» ждёт пр�
   const state = main.getByTestId('settings-save-state');
   const form = main.getByTestId('hotel-settings-form');
   await expect(save).toBeDisabled();
-  await expect(state).toHaveText('');
+  // без правок кнопка неактивна и подписана «Нет изменений» (аудит гостиницы 22.10.2026 P1-9)
+  await expect(state).toHaveText('Нет изменений');
   await expect(form.getByLabel('Название объекта')).toHaveValue('Luxx Aparts');
   // валюта и пояс только для чтения: меняет поддержка (ADR-158: поля стоят, но правки не принимают)
   await expect(form.getByLabel('Валюта')).toHaveAttribute('readonly', '');

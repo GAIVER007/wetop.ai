@@ -546,4 +546,59 @@ describe('запуск рекламы (integration)', () => {
     const l = await db.marketingAdLaunch.findUniqueOrThrow({ where: { id } });
     expect(l).toMatchObject({ status: 'FAILED', error: 'Запуск прерван перезапуском сервера' });
   });
+
+  it('«Аудитории» и «Креативы»: успешный запуск с днями кабинета, цена заявки; аудитория для мастера; чужой филиал нет', async () => {
+    const ok = await db.marketingAdLaunch.findFirstOrThrow({
+      where: { locationId: location, status: 'SUCCEEDED', campaignId: { not: null } },
+      orderBy: { createdAt: 'asc' },
+    });
+    const day = (d: string, spend: bigint, leads: number, currency = 'USD') =>
+      db.marketingCampaignStat.create({
+        data: { campaignId: ok.campaignId!, date: new Date(`${d}T00:00:00Z`), impressions: 1000, clicks: 50, leads, source: 'META', spendMinor: spend, spendCurrency: currency },
+      });
+    await day('2026-10-01', 3000n, 4);
+    await day('2026-10-02', 1000n, 0);
+    // день в чужой валюте в расход не складывается
+    await day('2026-10-03', 999_999n, 0, 'KZT');
+    const lib = await as(() => service.library());
+    const row = lib.audiences.find((a) => a.lastLaunchId === ok.id || a.settings.ageMin === 25)!;
+    expect(row).toMatchObject({ label: 'Алматы · 25–54 · все', currency: 'USD' });
+    expect(row.leads).toBeGreaterThanOrEqual(4);
+    expect(lib.audiences.every((a) => a.currency === 'USD')).toBe(true);
+    const creative = lib.creatives.find((c) => c.creativeId === ok.creativeId)!;
+    expect(creative).toMatchObject({ kind: 'IMAGE', fileName: 'offer.jpg' });
+    expect(BigInt(creative.spendMinor)).toBeGreaterThanOrEqual(4000n);
+    expect(BigInt(creative.spendMinor)).toBeLessThan(999_999n);
+    // неудачный запуск в сводку не попал
+    const failed = await db.marketingAdLaunch.findFirstOrThrow({ where: { locationId: location, status: 'FAILED' } });
+    expect(lib.audiences.some((a) => a.lastLaunchId === failed.id)).toBe(false);
+
+    expect(await as(() => service.audienceOf(ok.id))).toEqual({
+      countryCode: 'KZ',
+      cities: [{ key: '1234567', name: 'Алматы' }],
+      ageMin: 25,
+      ageMax: 54,
+      genders: [],
+      advantageAudience: false,
+    });
+    await expect(as(() => service.audienceOf(failed.id))).rejects.toThrow('Запуск не найден');
+    // другой филиал той же организации: чужих запусков не видно
+    const other = randomUUID();
+    await db.location.create({ data: { id: other, businessId: business, name: `Другой ${tag}`, timezone: 'Asia/Almaty', currency: 'KZT' } });
+    try {
+      const foreign = await withSignedInUser(
+        { userId: user, organizationId: org, scope: 'LOCATION', businessId: business, locationId: other, vertical: 'HOSPITALITY' },
+        () => service.library(),
+      );
+      expect(foreign).toEqual({ audiences: [], creatives: [] });
+      await expect(
+        withSignedInUser(
+          { userId: user, organizationId: org, scope: 'LOCATION', businessId: business, locationId: other, vertical: 'HOSPITALITY' },
+          () => service.audienceOf(ok.id),
+        ),
+      ).rejects.toThrow('Запуск не найден');
+    } finally {
+      await db.location.delete({ where: { id: other } });
+    }
+  });
 });

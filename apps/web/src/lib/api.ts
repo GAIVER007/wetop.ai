@@ -4681,6 +4681,30 @@ export interface MarketingAdProposal {
   notes: string[];
 }
 
+export interface MarketingAudienceSettings {
+  countryCode: string;
+  cities: Array<{ key: string; name: string }>;
+  ageMin: number;
+  ageMax: number;
+  genders: number[];
+  advantageAudience: boolean;
+}
+interface MarketingLibraryTotals {
+  currency: string;
+  launches: number;
+  leads: number;
+  clicks: number;
+  impressions: number;
+  spendMinor: string;
+  cplMinor: string | null;
+  lastAt: string;
+  lastLaunchId: string;
+}
+export interface MarketingAdLibrary {
+  audiences: Array<MarketingLibraryTotals & { key: string; label: string; settings: MarketingAudienceSettings }>;
+  creatives: Array<MarketingLibraryTotals & { creativeId: string; kind: 'IMAGE' | 'VIDEO'; fileName: string; bestHeadline: string }>;
+}
+
 export interface MarketingAdLaunchView {
   id: string;
   status: 'RUNNING' | 'SUCCEEDED' | 'FAILED';
@@ -4767,6 +4791,11 @@ export const marketingAdsApi = {
   start: (body: unknown) => sendJson<{ id: string }>('POST', '/marketing/ads/launches', body),
   launch: (id: string) => getJson<MarketingAdLaunchView>(`/marketing/ads/launches/${encodeURIComponent(id)}`),
   launches: () => getJson<MarketingAdLaunchView[]>('/marketing/ads/launches'),
+  /** «Аудитории» и «Креативы»: успешные запуски филиала с результатом кабинета (23.10.2026) */
+  library: () => getJson<MarketingAdLibrary>('/marketing/ads/library'),
+  /** Аудитория прошлого запуска для мастера; право `ads_launch` */
+  audienceOf: (id: string) =>
+    getJson<MarketingAudienceSettings>(`/marketing/ads/launches/${encodeURIComponent(id)}/audience`),
   pause: (campaignId: string) =>
     sendJson<{ status: string }>('POST', `/marketing/ads/campaigns/${encodeURIComponent(campaignId)}/pause`, {}),
   resume: (campaignId: string) =>

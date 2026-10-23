@@ -182,6 +182,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /marketing/ads/geo': 'ads_launch',
   'POST /marketing/ads/launches': 'ads_launch',
   'GET /marketing/ads/launches': 'marketing',
+  // «Аудитории» и «Креативы» (23.10.2026): смотреть с правом раздела, аудитория в мастер только с правом запуска
+  'GET /marketing/ads/library': 'marketing',
+  'GET /marketing/ads/launches/:id/audience': 'ads_launch',
   'GET /marketing/ads/launches/:id': 'marketing',
   'POST /marketing/ads/campaigns/:id/pause': 'ads_launch',
   'POST /marketing/ads/campaigns/:id/resume': 'ads_launch',

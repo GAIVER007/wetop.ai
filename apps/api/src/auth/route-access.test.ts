@@ -78,6 +78,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /auth/login': 'public',
   'POST /auth/register': 'public',
   'POST /auth/email/verify': 'public',
+  'POST /auth/email/verify-code': 'public',
   'POST /auth/email/resend': 'public',
   'POST /auth/logout': 'public',
   'POST /auth/password-reset/request': 'public',
@@ -168,6 +169,13 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'DELETE /marketing/campaigns/:id/stats/:date': 'marketing',
   // ИИ-таргетолог (ADR-MKT-LAUNCH, §57): предложение ИИ ничего не создаёт, но готовит запуск, право запуска
   'POST /marketing/ads/proposal': 'ads_launch',
+  // «Контент»: черновики постов (CONTENT-DRAFTS-20261022), раздел «Маркетинг», в соцсети ничего не публикуется
+  'POST /marketing/content/drafts/proposal': 'marketing',
+  'GET /marketing/content/drafts': 'marketing',
+  'POST /marketing/content/drafts': 'marketing',
+  'PATCH /marketing/content/drafts/:id': 'marketing',
+  'POST /marketing/content/drafts/:id/published': 'marketing',
+  'POST /marketing/content/drafts/:id/archive': 'marketing',
   // запуск тратит деньги: креатив, запуск, «Остановить» и «Включить» под правом запуска; смотреть запуски: право раздела
   'POST /marketing/ads/creatives': 'ads_launch',
   'GET /marketing/ads/assets': 'ads_launch',

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Alert, Badge, Button } from '../../components/ui';
+import { Alert, Badge, Button, EmptyState } from '../../components/ui';
 import { wholeTenge } from '../../lib/dashboard-format';
 import type {
   MenuCategory,
@@ -148,7 +148,7 @@ export function WaiterBoard({
       {notice && <Alert tone="success">{notice}</Alert>}
       {view === 'tables' && !table && (
         <section aria-label="Столы зала" className="waiter-floor">
-          {tables.length === 0 && <p className="muted">В зале пока нет столов: их добавляет руководитель.</p>}
+          {tables.length === 0 && <EmptyState title="В зале пока нет столов" details="Столы добавляет руководитель." />}
           {areas.map((a) => (
             <section key={a.id} aria-label={a.name} className="waiter-area">
               <h2>{a.name}</h2>
@@ -217,7 +217,7 @@ export function WaiterBoard({
       )}
       {view === 'orders' && (
         <section aria-label="Мои открытые заказы" className="waiter-orders" data-testid="waiter-orders">
-          {orders.length === 0 && <p className="muted">Открытых заказов нет</p>}
+          {orders.length === 0 && <EmptyState title="Открытых заказов нет" />}
           {orders.map((o) => (
             <article key={o.id} className="waiter-order" data-testid="waiter-order">
               <header>

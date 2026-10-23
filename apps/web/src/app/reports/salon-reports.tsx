@@ -209,7 +209,7 @@ function RowsPanel({
           </tbody>
         </Table>
       ) : (
-        <p className="muted">В выбранном периоде нет оказанных услуг.</p>
+        <EmptyState title="В выбранном периоде нет оказанных услуг" />
       )}
       {total > rows.length && (
         <Link className="salon-reports__more" href={`/reports?${query}&view=${kind}`}>

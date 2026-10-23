@@ -441,14 +441,14 @@ export function AuthDialog({ texts, urls }: Props) {
           value={form.password}
           onChange={set('password')}
           disabled={pending || done}
-          // ошибка поля и подсказка надёжности вместе: одно значение, иначе второе затирает первое
+          // есть ошибка: описывает она (иначе подсказка затёрла бы ссылку на ошибку из invalidProps);
+          // нет ошибки: подсказка надёжности нового пароля
           aria-describedby={
-            [
-              fieldErrors.password ? errorId('password') : null,
-              autoComplete === 'new-password' ? `${passwordId}-strength` : null,
-            ]
-              .filter(Boolean)
-              .join(' ') || undefined
+            fieldErrors.password
+              ? errorId('password')
+              : autoComplete === 'new-password'
+                ? `${passwordId}-strength`
+                : undefined
           }
         />
         <button

@@ -1,4 +1,4 @@
--- Restore-only ACL companion for mixed migrations132,134-137,140,141,144,147.
+-- Restore-only ACL companion for mixed migrations132,134-137,140,141,144,148.
 -- Not a schema migration. Run after ordinary pure-ACL migrations, inside the restore transaction.
 -- Copy existing privileges exactly; never replay mixed DDL or end the caller's transaction.
 DO $restore_acl$
@@ -82,7 +82,7 @@ BEGIN
     GRANT SELECT, INSERT, UPDATE ON restaurant_payment_items TO wetop_app, wetop_service;
   END IF;
 
-  -- 147_content_drafts: exact ACL of the mixed migration (черновик правится и архивируется, не удаляется)
+  -- 148_content_drafts: exact ACL of the mixed migration (черновик правится и архивируется, не удаляется)
   IF to_regclass('public.content_drafts') IS NOT NULL THEN
     GRANT SELECT, INSERT, UPDATE ON content_drafts TO wetop_app, wetop_service;
     REVOKE DELETE ON content_drafts FROM wetop_app, wetop_service;

@@ -10,7 +10,7 @@
   возвращаются как «проверьте»; факты филиала строками без float; готовый пост собирает домен.
 - **Бот** `apps/ai-seller/src/ai/content_draft.py`, `POST /internal/content-draft` (служебный ключ, тот же каскад и
   учёт расхода, что у `ad-proposal/0`; данные отдельно от правил).
-- **База** миграция `20261023000147_content_drafts` (+ `down.sql`, README): CHECK, триггер неизменности, FORCE RLS,
+- **База** миграция `20261023000148_content_drafts` (+ `down.sql`, README): CHECK, триггер неизменности, FORCE RLS,
   права без DELETE. **На production не применена.**
 - **API** `apps/api/src/content`: `/marketing/content/drafts` (предложение, неделя, создание по `creationId`, правка
   по `expectedRevision`, «опубликован», архив), право `marketing`.

@@ -24,6 +24,8 @@ import { compareTables } from '../../lib/table-title';
 import { CurrentOrder, DishPicker } from './dish-picker';
 import { orderLinesToCart } from '../../lib/food-modifiers';
 import { LineModifiers, SplitBill } from './modifier-parts';
+import { useBranchPaymentMethods } from '../branch-payment-methods/use-branch-methods';
+import { branchMethodsShown } from '../branch-payment-methods/shown';
 
 export interface OrderContext {
   scopeKey: string;
@@ -147,6 +149,8 @@ function PaymentPanel({
   const [error, setError] = useState('');
   const remaining = BigInt(order.totalMinor) - BigInt(order.paidMinor);
   const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
+  // §21.7: оплата только включёнными в филиале способами; возврат прежним способом, поэтому там полный список
+  const accepted = useBranchPaymentMethods(ctx.scopeKey);
   const [amount, setAmount] = useState(String(remaining / 100n));
   const [voiding, setVoiding] = useState<string | null>(null);
   const [reason, setReason] = useState('');
@@ -257,7 +261,7 @@ function PaymentPanel({
         <div className="food-form-row">
           <Field label="Способ">
             <Select value={method} onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}>
-              {FOOD_PAYMENT_METHODS.map((m) => (
+              {branchMethodsShown(FOOD_PAYMENT_METHODS, accepted, method).map((m) => (
                 <option key={m} value={m}>
                   {METHOD_RU[m] ?? m}
                 </option>

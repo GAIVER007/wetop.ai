@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { assertBranchMethodsOpen } from '../food-service/branch-payment-methods';
 import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
@@ -660,6 +661,8 @@ export class BeautyAppointmentsService {
         if (replay.appointmentId !== row.id) throw new ConflictException('Этот ключ оплаты уже использован');
         return;
       }
+      // §21.7: выключенный в филиале способ не принимает оплату записи; бонусы и сертификат не деньги кассы
+      await assertBranchMethodsOpen(tx, locationId, input.method);
       const paid = await this.paidLocked(tx, row.id);
       const a = await tx.appointment.findUniqueOrThrow({
         where: { id: row.id },

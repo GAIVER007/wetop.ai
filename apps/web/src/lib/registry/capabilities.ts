@@ -143,6 +143,8 @@ export const CAPABILITIES: readonly Capability[] = [
   ),
   cap('beauty-settings', ['/beauty-settings'], 'desk', B, 'LOCATION'),
   cap('restaurant-settings', ['/restaurant-settings'], 'property', F, 'LOCATION'),
+  // способы оплаты филиала (§21.7): читает стойка, правят владелец и управляющий (`settings` на API)
+  cap('branch-payment-methods', ['/branch-payment-methods'], 'desk', BF, 'LOCATION'),
   cap('team', ['/team'], 'staff', ALL, 'ORGANIZATION'),
   cap('staff-redirect', ['/staff'], 'staff', ALL, 'ORGANIZATION'),
   cap('connections', ['/connections'], 'settings', H, 'LOCATION'),

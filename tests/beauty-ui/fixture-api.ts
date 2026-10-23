@@ -289,6 +289,8 @@ app.use(
                 await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
                 await tx.auditLog.deleteMany({ where: { organizationId: org } });
                 await tx.onboardingProgress.deleteMany({ where: { location: { business: b } } });
+                // способы оплаты филиала (миграция 151, #807): RESTRICT на филиал, уходят до филиала
+                await tx.branchPaymentMethodSetting.deleteMany({ where: { location: { business: b } } });
                 await tx.marketingExpense.deleteMany({ where: { location: { business: b } } });
                 await tx.marketingBudget.deleteMany({ where: { location: { business: b } } });
                 await tx.membershipScope.deleteMany({ where: { organizationId: org } });

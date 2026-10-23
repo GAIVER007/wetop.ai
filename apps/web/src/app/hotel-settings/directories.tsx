@@ -18,15 +18,20 @@ const label = (method: string) => PAYMENT_METHOD_RU[method] ?? method;
 export function PaymentMethodsForm({
   stored,
   editable,
+  save = savePaymentMethods,
+  scopeKey,
+  note,
 }: {
   stored: PaymentMethodSettingRow[];
   editable: boolean;
+  /** действие сохранения: объект гостиницы (§21.6) по умолчанию, филиал салона и ресторана (§21.7) свой */
+  save?: (prev: DirectoryActionResult | null, form: FormData) => Promise<DirectoryActionResult>;
+  /** филиал, для которого открыта форма: действие сверяет его с текущим, чтобы не записать в чужой */
+  scopeKey?: string;
+  note?: string;
 }) {
   const [list, setList] = useState(stored);
-  const [state, action, pending] = useActionState<DirectoryActionResult | null, FormData>(
-    savePaymentMethods,
-    null,
-  );
+  const [state, action, pending] = useActionState<DirectoryActionResult | null, FormData>(save, null);
   // после сохранения запись объекта перечитана: список снова равен сохранённому
   useEffect(() => setList(stored), [stored]);
   const dirty = !same(list, stored);
@@ -80,6 +85,7 @@ export function PaymentMethodsForm({
   return (
     <form id={SETTINGS_FORM_ID} action={action} data-testid="payment-methods-form">
       <input type="hidden" name="methods" value={JSON.stringify(list)} />
+      {scopeKey && <input type="hidden" name="scopeKey" value={scopeKey} />}
       {state?.error && <Alert boxed>{state.error}</Alert>}
       {none && <Alert boxed>Хотя бы один способ оплаты должен быть включён</Alert>}
       <Table size="sm" className="settings-directory-table settings-payment-table" data-testid="payment-methods-table" aria-label="Список способов оплаты">
@@ -153,9 +159,8 @@ export function PaymentMethodsForm({
         </div>
       )}
       <p className="settings-note">
-        Убранный способ не предлагается при приёме оплаты, в кассе и в запросах оплаты. Прошлые
-        платежи, отчёты и сверка не меняются. Платёж площадки (внешний канал) ставят каналы продаж,
-        он здесь не настраивается.
+        {note ??
+          'Убранный способ не предлагается при приёме оплаты, в кассе и в запросах оплаты. Прошлые платежи, отчёты и сверка не меняются. Платёж площадки (внешний канал) ставят каналы продаж, он здесь не настраивается.'}
       </p>
     </form>
   );

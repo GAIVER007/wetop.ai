@@ -82,6 +82,12 @@ BEGIN
     GRANT SELECT, INSERT, UPDATE ON restaurant_payment_items TO wetop_app, wetop_service;
   END IF;
 
+  -- 151_branch_payment_method_settings: exact ACL of the mixed migration (no DELETE: methods are switched off)
+  IF to_regclass('public.branch_payment_method_settings') IS NOT NULL THEN
+    REVOKE ALL ON branch_payment_method_settings FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON branch_payment_method_settings TO wetop_app, wetop_service;
+  END IF;
+
   -- 146_content_drafts: exact ACL of the mixed migration (draft is archived, never deleted)
   IF to_regclass('public.content_drafts') IS NOT NULL THEN
     REVOKE ALL ON content_drafts FROM wetop_app, wetop_service;

@@ -9,6 +9,8 @@ import { METHOD_RU } from '../../../lib/dashboard-format';
 import { FOOD_PAYMENT_METHODS } from '../../../lib/food-types';
 import { currencySign, formatMoney, inputToMinor } from '../../../lib/money';
 import { findCertificate, sellCertificate } from './actions';
+import { useBranchPaymentMethods } from '../../branch-payment-methods/use-branch-methods';
+import { branchMethodsShown } from '../../branch-payment-methods/shown';
 
 const STATUS: Record<BeautyGiftCertificate['status'], { label: string; tone: 'ok' | 'neutral' | 'warn' | 'danger' }> = {
   ACTIVE: { label: 'Действует', tone: 'ok' },
@@ -136,6 +138,8 @@ export function CertificatesBoard({
 function SellForm({ currency, onSold }: { currency: string; onSold: (c: BeautyGiftCertificate) => void }) {
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState<string>('CASH');
+  // §21.7: сертификат продаётся только включёнными в филиале способами; филиал страницы один, ключ постоянный
+  const accepted = useBranchPaymentMethods('certificates');
   const [months, setMonths] = useState('12');
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -168,7 +172,7 @@ function SellForm({ currency, onSold }: { currency: string; onSold: (c: BeautyGi
       </Field>
       <Field label="Оплата" controlId="certificate-method">
         <Select value={method} onChange={(e) => { setMethod(e.target.value); attempt.current = null; }}>
-          {FOOD_PAYMENT_METHODS.map((m) => (
+          {branchMethodsShown(FOOD_PAYMENT_METHODS, accepted, method).map((m) => (
             <option key={m} value={m}>
               {METHOD_RU[m] ?? m}
             </option>

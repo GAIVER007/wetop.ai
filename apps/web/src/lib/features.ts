@@ -62,6 +62,8 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   '/employees': BF,
   '/employees/shifts': F,
   '/cashbox': BF,
+  // способы оплаты филиала (DATA_MODEL §21.7): салон и ресторан
+  '/branch-payment-methods': BF,
   // зарплата у всех трёх направлений (кабинет горничной 22.10.2026); у гостиницы без выплат из кассы
   '/payroll': ALL_VERTICALS,
   '/staff-schedule': H,

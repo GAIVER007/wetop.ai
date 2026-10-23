@@ -147,6 +147,8 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'menu_item_modifier_groups',
   'restaurant_order_item_modifiers',
   'restaurant_payment_items',
+  // Способы оплаты филиала (DATA_MODEL §21.7, миграция 20261023000151_branch_payment_method_settings)
+  'branch_payment_method_settings',
   // Правила брони столов и закрытые дни (DATA_MODEL §43, миграция 20261013000101_food_booking_rules)
   'food_booking_rules',
   'food_closed_days',

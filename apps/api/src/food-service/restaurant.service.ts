@@ -67,6 +67,7 @@ import type { DbTx, Prisma } from '@pms/database';
 import { actorMay, currentRole, currentUserId, currentVertical } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { BRANCH_CASH_VERTICALS, BRANCH_PAYROLL_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, waiterSelf, type FoodScope, type FoodVertical } from './scope';
+import { assertBranchMethodsOpen } from './branch-payment-methods';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
 import { assertWeekRevision, hoursRevision, hoursRowsRevision } from '../beauty/write-contract';
 import { StockService } from './stock.service';
@@ -1415,6 +1416,8 @@ export class RestaurantService {
     return this.write('desk', async (tx, s) => {
       const id = parsed(() => foodId(idRaw));
       const b = parsed(() => parseFoodPayment(raw));
+      // §21.7: выключенный в филиале способ не принимает новых денег (повтор по ключу ниже не дойдёт до записи)
+      await assertBranchMethodsOpen(tx, s.locationId, b.method);
       const repeat = await tx.restaurantPayment.findUnique({
         where: { locationId_idempotencyKey: { locationId: s.locationId, idempotencyKey: b.idempotencyKey } },
       });
@@ -1655,6 +1658,9 @@ export class RestaurantService {
           return {id:old[0].result_id};
         }
       }
+      // §21.7: приход и перевод «в» выключенный способ запрещены; расход и перевод «из» него выводят прежние деньги
+      if (b.kind === 'INCOME') await assertBranchMethodsOpen(tx, s.locationId, b.method);
+      if (b.kind === 'TRANSFER') await assertBranchMethodsOpen(tx, s.locationId, b.methodTo);
       if (b.kind !== 'INCOME') await this.spendable(tx, s, b.method, b.amount);
       const row = await tx.restaurantCashOperation.create({
         data: {
@@ -1738,6 +1744,8 @@ export class RestaurantService {
       const id = parsed(() => foodId(idRaw));
       const request = parsed(() => foodObject(raw, ['period', 'method', 'amount', 'idempotencyKey']));
       const b = parsed(() => parseFoodPayout({period:request.period,method:request.method,amount:request.amount}));
+      // §21.7: выплата зарплаты выключенным способом не проводится (раньше суммы: причина отказа в способе)
+      await assertBranchMethodsOpen(tx, s.locationId, b.method);
       const enabled = process.env.EXPENSE_LINKS_ENABLED === '1';
       const key = request.idempotencyKey;
       if (enabled && (typeof key !== 'string' || !/^[\x21-\x7e]{1,200}$/.test(key))) throw new BadRequestException('Нужен ключ намерения оплаты');

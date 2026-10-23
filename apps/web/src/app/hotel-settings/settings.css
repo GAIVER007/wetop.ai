@@ -822,9 +822,37 @@
     flex-wrap: wrap;
     justify-content: flex-end;
   }
-  .object-settings .settings-payment-table th:last-child,
+  /* телефон (23.10.2026): название способа строкой, под ним три кнопки в один ряд; не столбиком в три этажа и без
+     разрыва слова («Наличны-е») */
+  .object-settings .settings-payment-table thead {
+    display: none;
+  }
+  .object-settings .settings-payment-table tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+    padding: var(--space-2) 0;
+  }
+  .object-settings .settings-payment-table tbody td {
+    border: 0;
+    padding-block: 0;
+  }
+  .object-settings .settings-payment-table tbody tr + tr {
+    border-top: 1px solid var(--border);
+  }
+  .object-settings .settings-payment-table td:first-child {
+    flex: 1 0 100%;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
   .object-settings .settings-payment-table .settings-actions {
-    width: 66%;
+    flex: 1 0 100%;
+    width: auto;
+  }
+  .object-settings .settings-payment-table .settings-order {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
   }
 }
 /* скрытая подпись «Действия» ищет опору внутри прокрутки, а не вне её (те же грабли, что у долгов и счетов) */

@@ -109,6 +109,7 @@ model Location {
   barSales                  BarSale[]
   servicePeriods            ServicePeriod[]
   foodBookingRules          FoodBookingRules?
+  paymentMethodSettings     BranchPaymentMethodSetting[]
   foodClosedDays            FoodClosedDay[]
   restaurantReservations    RestaurantReservation[]
   restaurantOrders          RestaurantOrder[]
@@ -1778,6 +1779,22 @@ model PaymentMethodSetting {
 
   @@unique([propertyId, method])
   @@map("payment_method_settings")
+}
+
+/// Способы оплаты филиала салона и ресторана (DATA_MODEL §21.7, решение владельца 23.10.2026): шесть денежных
+/// способов кассы филиала (§35). Строк нет: умолчания (все шесть включены). CHECK на набор способов в миграции 151.
+model BranchPaymentMethodSetting {
+  id         String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  locationId String        @map("location_id") @db.Uuid
+  method     PaymentMethod
+  enabled    Boolean       @default(true)
+  sortOrder  Int           @map("sort_order")
+  updatedAt  DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@unique([locationId, method])
+  @@map("branch_payment_method_settings")
 }
 
 /// DATA_MODEL §24 (03.10.2026, ADR-144): счёт Kaspi по телефону, ссылка банка или перевод, привязанные к счёту

@@ -7,6 +7,7 @@ import {
   type BookingPatch,
   type BookingAgentRecord,
   type CallbackRecord,
+  type VoiceBookingRecord,
   type MarketingVoiceRepository,
   type ReadScope,
 } from './marketing-voice.repository';
@@ -62,6 +63,22 @@ export interface VoiceBookingView {
 
 const AGENT_NOT_ACTIVE = 'Агент ИИ-продавца должен быть в состоянии «Действует»';
 const BOOKING_FIELDS = ['enabled', 'maxPerCall'];
+
+export interface VoiceBookingRowView extends Omit<VoiceBookingRecord, 'at'> {
+  at: string;
+}
+
+export interface VoiceBookingsView {
+  timezone: string;
+  days: number;
+  /** Принято за последние 24 часа */
+  last24h: number;
+  rows: VoiceBookingRowView[];
+}
+
+const BOOKINGS_DEFAULT_DAYS = 7;
+const BOOKINGS_MAX_DAYS = 30;
+const BOOKINGS_LIMIT = 50;
 
 export interface VoiceCallbackView {
   id: string;
@@ -168,6 +185,24 @@ export class MarketingVoiceService {
     const limit = intParam(query.limit, 'limit', 1, MAX_LIMIT, MAX_LIMIT);
     const rows = await this.repo.callbacks(scope, status === 'NEW' || status === 'DONE' ? status : null, limit);
     return rows.map(callbackView);
+  }
+
+  /** Брони, принятые голосом: что, когда, статус сейчас. Без имён и телефонов гостей (право `marketing`) */
+  async bookings(query: { days?: unknown }): Promise<VoiceBookingsView> {
+    const scope = await this.repo.scope();
+    const days = intParam(query.days, 'days', 1, BOOKINGS_MAX_DAYS, BOOKINGS_DEFAULT_DAYS);
+    if (typeof query.days === 'string' && query.days !== '' && Number(query.days) > BOOKINGS_MAX_DAYS)
+      throw new BadRequestException(`days: не больше ${BOOKINGS_MAX_DAYS}`);
+    const now = this.now();
+    const rows = await this.repo.voiceBookings(scope, new Date(now.getTime() - days * 86_400_000), BOOKINGS_LIMIT);
+    const dayAgo = now.getTime() - 86_400_000;
+    const sorted = [...rows].sort((a, b) => b.at.getTime() - a.at.getTime());
+    return {
+      timezone: scope.timezone,
+      days,
+      last24h: sorted.filter((r) => r.at.getTime() > dayAgo).length,
+      rows: sorted.map((r) => ({ ...r, at: r.at.toISOString() })),
+    };
   }
 
   async bookingView(): Promise<VoiceBookingView> {

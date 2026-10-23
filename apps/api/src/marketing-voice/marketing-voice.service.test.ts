@@ -50,6 +50,9 @@ class FakeRepo implements MarketingVoiceRepository {
     durationCount: 2,
   };
   closeResult: CallbackRecord | null = { ...CB, status: 'DONE', doneAt: new Date('2026-10-22T06:00:00Z') };
+  async voiceBookings() {
+    return [];
+  }
   async bookingAgent() {
     return null;
   }

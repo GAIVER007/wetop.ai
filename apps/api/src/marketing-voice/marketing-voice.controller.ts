@@ -24,6 +24,12 @@ export class MarketingVoiceController {
     return this.service.callbacks(query);
   }
 
+  /** Брони, принятые голосовым агентом (без данных гостей) */
+  @Get('bookings')
+  bookings(@Query() query: { days?: string }) {
+    return this.service.bookings(query);
+  }
+
   /** Настройка брони по телефону: выключатель и лимит за звонок (срез 4) */
   @Get('booking')
   booking() {

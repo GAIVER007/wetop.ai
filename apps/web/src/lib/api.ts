@@ -4832,7 +4832,35 @@ export interface VoiceBookingView {
   blockers: string[];
 }
 
+/** Бронь, принятая голосовым агентом: без имени и телефона гостя */
+export interface VoiceBookingRow {
+  id: string;
+  kind: 'HOTEL' | 'APPOINTMENT' | 'TABLE';
+  at: string;
+  status: string | null;
+  reference?: string;
+  category?: string;
+  arrival?: string;
+  departure?: string;
+  adults?: number;
+  service?: string;
+  master?: string;
+  startsAt?: string;
+  partySize?: number;
+  period?: string;
+  totalMinor?: string;
+  currency?: string;
+}
+
+export interface VoiceBookingsView {
+  timezone: string;
+  days: number;
+  last24h: number;
+  rows: VoiceBookingRow[];
+}
+
 export const marketingVoiceApi = {
+  bookings: (days = 7) => getJson<VoiceBookingsView>(`/marketing/voice/bookings?days=${days}`),
   booking: () => getJson<VoiceBookingView>('/marketing/voice/booking'),
   saveBooking: (body: { enabled?: boolean; maxPerCall?: number }) =>
     sendJson<VoiceBookingView>('PATCH', '/marketing/voice/booking', body),

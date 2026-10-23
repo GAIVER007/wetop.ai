@@ -1,5 +1,6 @@
 import type { BadgeTone } from '../../../components/ui';
-import type { VoiceSummaryView } from '../../../lib/api';
+import type { VoiceBookingRow, VoiceSummaryView } from '../../../lib/api';
+import { formatMoney } from '../../../lib/money';
 
 export type { VoiceSummaryView };
 
@@ -16,6 +17,52 @@ export function bookingHint(vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE' 
   if (vertical === 'HOSPITALITY')
     return 'Агент проверяет свободные номера и цену проживания и бронирует после явного согласия гостя. Оплату и паспортные данные по телефону он не берёт.';
   return 'У филиала нет агента ИИ-продавца: создайте его, чтобы включить бронь по телефону.';
+}
+
+/** Дата ГГГГ-ММ-ДД → ДД.ММ.ГГГГ (даты проживания без пояса: AGENTS.md §13) */
+const dayText = (iso: string | undefined): string => (iso && /^\d{4}-\d{2}-\d{2}$/.test(iso) ? iso.split('-').reverse().join('.') : DASH);
+
+const GUESTS_ONE = 'гость';
+const guestsText = (n: number | undefined): string => {
+  if (typeof n !== 'number' || !Number.isFinite(n)) return '';
+  const last = n % 10;
+  const word = n % 100 >= 11 && n % 100 <= 14 ? 'гостей' : last === 1 ? GUESTS_ONE : last >= 2 && last <= 4 ? 'гостя' : 'гостей';
+  return `${n} ${word}`;
+};
+
+export function bookingKindLabel(kind: VoiceBookingRow['kind']): string {
+  return kind === 'HOTEL' ? 'Номер' : kind === 'APPOINTMENT' ? 'Запись' : 'Стол';
+}
+
+/** Что забронировано, одной строкой: без имени и телефона гостя (их в списке нет) */
+export function bookingTitle(row: VoiceBookingRow, timezone: string): string {
+  const price = row.totalMinor && row.totalMinor !== '0' ? formatMoney(row.totalMinor, row.currency ?? 'KZT') : null;
+  const parts: Array<string | null | undefined> =
+    row.kind === 'HOTEL'
+      ? [row.category, `${dayText(row.arrival)} – ${dayText(row.departure)}`, guestsText(row.adults), row.reference ? `№ ${row.reference}` : null, price]
+      : row.kind === 'APPOINTMENT'
+        ? [row.service, row.master ? `мастер ${row.master}` : null, row.startsAt ? formatWhen(row.startsAt, timezone) : null, price]
+        : [row.startsAt ? formatWhen(row.startsAt, timezone) : null, guestsText(row.partySize), row.period];
+  return parts.filter((p): p is string => !!p).join(', ');
+}
+
+const BOOKING_STATUS: Record<string, { label: string; tone: BadgeTone }> = {
+  BOOKED: { label: 'Ждёт подтверждения', tone: 'warn' },
+  TENTATIVE: { label: 'Ждёт подтверждения', tone: 'warn' },
+  CONFIRMED: { label: 'Подтверждена', tone: 'ok' },
+  IN_PROGRESS: { label: 'Идёт', tone: 'info' },
+  SEATED: { label: 'За столом', tone: 'info' },
+  CHECKED_IN: { label: 'Заселён', tone: 'info' },
+  DONE: { label: 'Выполнена', tone: 'ok' },
+  COMPLETED: { label: 'Завершена', tone: 'ok' },
+  CHECKED_OUT: { label: 'Выехал', tone: 'ok' },
+  NO_SHOW: { label: 'Не пришёл', tone: 'danger' },
+  CANCELLED: { label: 'Отменена', tone: 'danger' },
+};
+
+/** Статус брони сейчас (администратор мог подтвердить или отменить); неизвестный не выдумывается */
+export function bookingStatus(_kind: VoiceBookingRow['kind'], status: string | null): { label: string; tone: BadgeTone } {
+  return (status && BOOKING_STATUS[status]) || { label: DASH, tone: 'neutral' };
 }
 
 export function formatDuration(seconds: number | null): string {

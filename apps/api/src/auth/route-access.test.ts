@@ -515,6 +515,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /marketing/voice/callbacks': 'marketing',
   'PATCH /marketing/voice/callbacks/:id': 'marketing',
   'GET /marketing/voice/booking': 'marketing',
+  'GET /marketing/voice/bookings': 'marketing',
   'PATCH /marketing/voice/booking': 'marketing',
 
   // ── номерной фонд, тарифы ───────────────────────────────────────────────────────────────

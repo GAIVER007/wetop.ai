@@ -8,13 +8,14 @@ const mocks = vi.hoisted(() => ({
   calls: vi.fn(),
   callbacks: vi.fn(),
   booking: vi.fn(),
+  bookings: vi.fn(),
 }));
 vi.mock('../../../lib/vertical-guard', () => ({ requireFeature: mocks.requireFeature }));
 vi.mock('../../../lib/desk-shell', () => ({ deskShell: mocks.deskShell }));
 vi.mock('next/navigation', () => ({ unstable_rethrow: vi.fn(), useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock('../../../lib/api', async (orig) => ({
   ...(await orig<typeof import('../../../lib/api')>()),
-  marketingVoiceApi: { summary: mocks.summary, calls: mocks.calls, callbacks: mocks.callbacks, closeCallback: vi.fn(), booking: mocks.booking },
+  marketingVoiceApi: { summary: mocks.summary, calls: mocks.calls, callbacks: mocks.callbacks, closeCallback: vi.fn(), booking: mocks.booking, bookings: mocks.bookings },
 }));
 vi.mock('./booking-form', async () => {
   const { createElement } = await import('react');
@@ -69,6 +70,12 @@ beforeEach(() => {
   mocks.requireFeature.mockResolvedValue({ context: { vertical: 'BEAUTY' } });
   mocks.deskShell.mockResolvedValue({ access: { role: 'OWNER' }, readOnly: false });
   mocks.summary.mockResolvedValue(SUMMARY);
+  mocks.bookings.mockResolvedValue({
+    timezone: 'Asia/Almaty',
+    days: 7,
+    last24h: 1,
+    rows: [{ id: 'b1', kind: 'APPOINTMENT', at: '2026-10-22T05:00:00.000Z', status: 'BOOKED', service: 'Стрижка', master: 'Алия', startsAt: '2026-10-24T05:00:00.000Z' }],
+  });
   mocks.booking.mockResolvedValue({ hasAgent: true, vertical: 'BEAUTY', enabled: true, needsApproval: true, maxPerCall: 3, canEnable: true, blockers: [] });
   mocks.calls.mockResolvedValue({ month: '2026-10', timezone: 'Asia/Almaty', total: 1, rows: [CALL] });
   mocks.callbacks.mockImplementation(async (status?: string) => (status === 'DONE' ? [] : [CB]));
@@ -185,5 +192,24 @@ describe('страница «Голосовой агент»', () => {
     const without = await render();
     expect(without).not.toContain('data-booking-form');
     expect(without).toContain('data-testid="voice-summary"');
+  });
+
+  it('вкладка «Брони по телефону»: вид, что, статус словами, число за сутки; имён и телефонов нет', async () => {
+    const html = await render();
+    expect(html).toContain('Брони по телефону (1)');
+    expect(html).toContain('data-testid="voice-bookings"');
+    expect(html).toContain('Запись');
+    expect(html).toContain('Стрижка');
+    expect(html).toContain('Алия');
+    expect(html).toContain('Ждёт подтверждения');
+  });
+
+  it('нет броней: подсказка; список не ответил: вкладки нет, экран цел', async () => {
+    mocks.bookings.mockResolvedValueOnce({ timezone: 'Asia/Almaty', days: 7, last24h: 0, rows: [] });
+    expect(await render()).toContain('data-testid="voice-bookings-empty"');
+    mocks.bookings.mockRejectedValueOnce(new ApiError(500, 'Внутренняя ошибка'));
+    const html = await render();
+    expect(html).not.toContain('data-testid="voice-bookings"');
+    expect(html).toContain('data-testid="voice-summary"');
   });
 });

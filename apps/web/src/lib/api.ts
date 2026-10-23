@@ -731,6 +731,14 @@ export const authApi = {
       body,
       info ? authHeaders(info) : {},
     ),
+  /** Подтверждение почты кодом из письма (22.10.2026): ответ тот же, что у ссылки и у входа */
+  verifyEmailCode: (body: { email: string; code: string }, info?: AuthClientInfo) =>
+    sendJson<{ token: string; expiresAt: string; user: SignedIn }>(
+      'POST',
+      '/auth/email/verify-code',
+      body,
+      info ? authHeaders(info) : {},
+    ),
   /** «Выслать письмо заново»: ответ один и тот же, есть такая почта или нет */
   resendVerification: (body: { email: string }, info?: AuthClientInfo) =>
     sendJson<{ ok: boolean }>('POST', '/auth/email/resend', body, info ? authHeaders(info) : {}),
@@ -4687,6 +4695,58 @@ export interface MarketingAdLaunchView {
   createdAt: string;
   finishedAt: string | null;
 }
+
+/** «Контент»: вариант поста от ИИ (content-draft/0) после правил домена */
+export interface ContentVariantView {
+  hook: string;
+  title: string | null;
+  body: string;
+  hashtags: string[];
+  cta: ContentCtaCode;
+  /** Цифры текста, которых нет в карточке филиала и в теме: «проверьте» */
+  warnings: string[];
+  /** Готовый пост: текст, строка действия из карточки, хештеги */
+  preview: string;
+}
+export type ContentChannelCode = 'INSTAGRAM' | 'FACEBOOK' | 'TELEGRAM' | 'WHATSAPP_STATUS';
+export type ContentCtaCode = 'BOOK_ONLINE' | 'WHATSAPP' | 'CALL' | 'VISIT' | 'NONE';
+export interface ContentDraftView {
+  id: string;
+  channel: ContentChannelCode;
+  topic: string;
+  title: string | null;
+  body: string;
+  hashtags: string[];
+  cta: ContentCtaCode | null;
+  origin: 'AI' | 'MANUAL';
+  plannedOn: string | null;
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  publishedAt: string | null;
+  revision: number;
+  createdAt: string;
+  preview: string;
+}
+export interface ContentWeekView {
+  week: { from: string; to: string };
+  today: string;
+  ctas: ContentCtaCode[];
+  items: ContentDraftView[];
+}
+
+export const contentApi = {
+  /** ИИ предлагает 1–2 варианта; ничего не сохраняет */
+  proposal: (body: unknown) =>
+    sendJson<{ variants: ContentVariantView[]; ctas: ContentCtaCode[] }>('POST', '/marketing/content/drafts/proposal', body),
+  week: (week?: string) =>
+    getJson<ContentWeekView>(`/marketing/content/drafts${week ? `?week=${encodeURIComponent(week)}` : ''}`),
+  create: (body: unknown) => sendJson<ContentDraftView>('POST', '/marketing/content/drafts', body),
+  update: (id: string, body: unknown) =>
+    sendJson<ContentDraftView>('PATCH', `/marketing/content/drafts/${encodeURIComponent(id)}`, body),
+  published: (id: string, expectedRevision: number) =>
+    sendJson<ContentDraftView>('POST', `/marketing/content/drafts/${encodeURIComponent(id)}/published`, { expectedRevision }),
+  archive: (id: string, expectedRevision: number) =>
+    sendJson<ContentDraftView>('POST', `/marketing/content/drafts/${encodeURIComponent(id)}/archive`, { expectedRevision }),
+};
 
 export const marketingAdsApi = {
   assets: () => getJson<MarketingAdAssets>('/marketing/ads/assets'),

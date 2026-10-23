@@ -608,7 +608,7 @@ export async function Overview({ query, today }: { query: AnalyticsQuery; today:
           {p.from !== p.to && ` — ${displayDate(p.to)}`}: тот же расчёт за столько же дней вплотную
           до начала периода. Где «—», в прошлом периоде данных нет.
           {c.unassigned > 0 &&
-            ` Без ячейки ${pluralRu(c.unassigned, ['проживание', 'проживания', 'проживаний'])} — в загрузку не входят.`}
+            ` Без номера ${pluralRu(c.unassigned, ['проживание', 'проживания', 'проживаний'])} — в загрузку не входят.`}
         </p>
       )}
       <div className="dash-grid dash-grid--chart pa-charts">

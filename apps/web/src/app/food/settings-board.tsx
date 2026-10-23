@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { Alert, Button, Field, Input, Select } from '../../components/ui';
+import { Alert, Button, EmptyState, Field, Input, Select } from '../../components/ui';
 import { Icon, type IconName } from '../../components/icon';
 import type { FoodWorkspace, ServicePeriod } from '../../lib/food-types';
 import type { BookingRules } from '@pms/domain';
@@ -335,7 +335,7 @@ function BookingRulesForm({ data, write, booking }: { data: FoodWorkspace; write
       <h3>Закрытые дни</h3>
       <p className="muted">В закрытый день новые брони не принимаются; уже сделанные остаются, отменяет их человек.</p>
       {booking.closedDays.length === 0 ? (
-        <p className="muted">Закрытых дней впереди нет.</p>
+        <EmptyState title="Закрытых дней впереди нет" />
       ) : (
         <ul className="rest-closed-days">
           {booking.closedDays.map((d) => (

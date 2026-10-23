@@ -178,7 +178,7 @@ export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: stri
         <Table>
           <thead>
             <tr>
-              {['Сотрудник', 'Оплата', 'Уборок', 'За уборки', 'Премии', 'Удержания', 'Начислено'].map((h) => (
+              {['Сотрудник', 'Модель', 'Уборок', 'За уборки', 'Премии', 'Удержания', 'Начислено'].map((h) => (
                 <th key={h} scope="col">
                   {h}
                 </th>

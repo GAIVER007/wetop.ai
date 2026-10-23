@@ -199,7 +199,7 @@ function AdjustmentDrawer({
           value={kind}
           options={[
             { value: 'bonus', label: 'Премия' },
-            { value: 'penalty', label: 'Штраф' },
+            { value: 'penalty', label: 'Удержание' },
           ]}
           onChange={setKind}
         />
@@ -269,7 +269,7 @@ function PayoutDrawer({
       <div className="food-form" data-testid="payout">
         {error && <Alert>{error}</Alert>}
         <p className="muted">
-          К выплате за месяц {formatMoney(row.totalMinor, currency)}, выплачено{' '}
+          Начислено за месяц {formatMoney(row.totalMinor, currency)}, выплачено{' '}
           {formatMoney(row.paidMinor, currency)}. Деньги уйдут расходом из кассы.
         </p>
         <Field label="Способ">
@@ -297,7 +297,7 @@ function PayoutDrawer({
   );
 }
 
-/** «Зарплата и финансы» по макету (ADR-159): фонд, премии, штрафы, к выплате; расчёт не хранится (§33.4) */
+/** «Зарплата и финансы» по макету (ADR-159): фонд, премии, удержания, начислено (одни подписи у всех направлений, 23.10.2026); расчёт не хранится (§33.4) */
 export function PayrollBoard({
   scopeKey,
   write,
@@ -322,7 +322,7 @@ export function PayrollBoard({
     <Table>
       <thead>
         <tr>
-          {['Сотрудник', 'Модель', 'Ставка', BASIS[basis].column, 'Премии', 'Штрафы', 'К выплате', 'Выплачено', 'Осталось'].map(
+          {['Сотрудник', 'Модель', 'Ставка', BASIS[basis].column, 'Премии', 'Удержания', 'Начислено', 'Выплачено', 'Осталось'].map(
             (h) => (
               <th key={h}>{h}</th>
             ),
@@ -363,7 +363,7 @@ export function PayrollBoard({
                     label={`Ещё: ${r.name}`}
                     items={[
                       { label: 'Условия оплаты', onSelect: () => setSettings(r) },
-                      { label: 'Премия или штраф', onSelect: () => setAdjust(r) },
+                      { label: 'Премия или удержание', onSelect: () => setAdjust(r) },
                     ]}
                   />
                 </span>

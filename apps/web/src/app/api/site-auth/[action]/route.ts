@@ -13,6 +13,7 @@ import { field, handleSiteAuth, type SiteAuthAction } from '../../../../lib/site
  * - `GET options` — открыта ли регистрация (ADR-055: при сбое — закрыта);
  * - `POST login` — вход паролем, кука сессии, `{ next }`;
  * - `POST register` — регистрация, письмо подтверждения; сессии нет, пока почта не подтверждена;
+ * - `POST verify-code` — код из письма: почта подтверждена, кука сессии, `{ next }`;
  * - `POST resend` — письмо ещё раз; ответ один для любой почты.
  */
 const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> = {
@@ -85,6 +86,23 @@ const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> =
         info,
       );
       return { body: { email: result.email, sent: result.sent } };
+    },
+  },
+  /**
+   * Код из письма (решение владельца 22.10.2026): почта подтверждается, и тем же ответом ставится кука сессии, как
+   * при входе паролем. Рабочий филиал новой организации выбирает сервер (`/scope/resolve`).
+   */
+  'verify-code': {
+    method: 'POST',
+    run: async (body, info) => {
+      const email = field(body, 'email').trim();
+      const code = field(body, 'code').trim();
+      if (!email || !code) throw new ApiError(400, 'Введите код из письма');
+      const result = await authApi.verifyEmailCode({ email, code }, info);
+      return {
+        body: { next: scopeResolvePath('/today') },
+        session: { token: result.token, expiresAt: result.expiresAt },
+      };
     },
   },
   resend: {

@@ -1,7 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import type { BookingSourceView, MarketingSiteSummary, SitePublicationRow } from '../../../lib/api';
-import { Alert, Badge, Button, Field, Notice, Panel, PanelTitle, Select, Stack, Table } from '../../../components/ui';
+import { Alert, Badge, Button, EmptyState, Field, Notice, Panel, PanelTitle, Select, Stack, Table } from '../../../components/ui';
 import { useConfirm } from '../../../components/use-confirm';
 import {
   bookingSourceAction,
@@ -204,7 +204,7 @@ export function PublicationBoard({
             </Button>
           </div>
         ) : (
-          <p className="muted">Нет сайтов с включённой бронью и тарифом.</p>
+          <EmptyState title="Нет сайтов с включённой бронью и тарифом" />
         )}
       </Panel>
 

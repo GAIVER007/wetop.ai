@@ -5,6 +5,7 @@ import type { Db } from '@pms/database';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { SiteFormsService } from '../../apps/api/src/site-forms/site-forms.service';
 import { PrismaVoiceQuoteStore, VoiceBeautyService } from '../../apps/api/src/marketing-voice/voice-beauty.service';
+import { PrismaPhoneLimitStore, VoicePhoneLimit } from '../../apps/api/src/marketing-voice/voice-phone-limit';
 import { PrismaVoiceIngestRepository } from '../../apps/api/src/marketing-voice/voice-ingest.repository';
 import { almatyAt, makeClients, nextMonday, seedUser, url } from './core-security/harness';
 import { seedBeautyFoodWorld, type BeautyFoodWorld } from './core-security/world';
@@ -130,5 +131,62 @@ describe.skipIf(!url)('голосовая запись в салон (integratio
       await service.confirm({ agent, call: c, quote: q.quote, consent: true, guest });
     }
     await expect(quoteFor(c, d, w.ids.eBl1!, '15:00')).rejects.toMatchObject({ status: 409 });
+  });
+
+  describe('суточный лимит на телефон (миграция 149)', () => {
+    const KEY = 'integration-test-hash-key-0123456789';
+    let limited: VoiceBeautyService;
+    let limit: VoicePhoneLimit;
+
+    beforeAll(async () => {
+      const adminPrisma = { db: admin } as unknown as PrismaService;
+      limit = new VoicePhoneLimit(new PrismaPhoneLimitStore(adminPrisma), KEY);
+      const forms = new SiteFormsService({ db: tenant } as unknown as PrismaService, {} as never);
+      limited = new VoiceBeautyService(new PrismaVoiceIngestRepository(adminPrisma), forms, new PrismaVoiceQuoteStore(adminPrisma), limit);
+      await admin.voiceProfile.update({ where: { agentId: agent }, data: { bookingMaxPerPhoneDay: 2 } });
+    });
+
+    const book = async (callId: string, time: string, p: string) => {
+      const q = await limited.quote({ agent, call: callId, service: w.ids.svc, employee: null, startsAt: almatyAt(day(), time) });
+      return { quote: q.quote, run: () => limited.confirm({ agent, call: callId, quote: q.quote, consent: true, guest: { name: 'Лимит', phone: p } }) };
+    };
+
+    it('третья бронь с того же телефона за сутки отказывает, другой телефон проходит, хэш не содержит номер', async () => {
+      const phoneA = '+77025550333';
+      const first = await book(call('lim1'), '10:00', phoneA);
+      const second = await book(call('lim2'), '10:00', '8 (702) 555-03-33');
+      const third = await book(call('lim3'), '10:00', phoneA);
+      await first.run();
+      await second.run();
+      await expect(third.run()).rejects.toMatchObject({ status: 409 });
+      const stored = await admin.voiceBookingQuote.findUniqueOrThrow({ where: { id: first.quote } });
+      expect(stored.guestPhoneHash).toMatch(/^[0-9a-f]{64}$/);
+      expect(stored.guestPhoneHash).toBe(limit.hashOf(phoneA));
+      expect(stored.guestPhoneHash).not.toContain('5550333');
+      expect((await admin.voiceBookingQuote.findUniqueOrThrow({ where: { id: third.quote } })).state).toBe('QUOTED');
+      const other = await book(call('lim4'), '11:00', '+77025550444');
+      await expect(other.run()).resolves.toMatchObject({ status: 'BOOKED' });
+    });
+
+    it('скользящее окно: брони старше 24 часов не считаются; хэши старше 7 дней обнуляются', async () => {
+      const phoneB = '+77025550555';
+      const a = await book(call('win1'), '10:00', phoneB);
+      const b = await book(call('win2'), '10:00', phoneB);
+      await a.run();
+      await b.run();
+      const c = await book(call('win3'), '10:00', phoneB);
+      await expect(c.run()).rejects.toMatchObject({ status: 409 });
+      await admin.voiceBookingQuote.update({ where: { id: a.quote }, data: { updatedAt: new Date(Date.now() - 25 * 3_600_000) } });
+      await expect(c.run()).resolves.toMatchObject({ status: 'BOOKED' });
+      await admin.voiceBookingQuote.update({ where: { id: b.quote }, data: { updatedAt: new Date(Date.now() - 8 * 24 * 3_600_000) } });
+      expect(await limit.purge()).toBeGreaterThanOrEqual(1);
+      expect((await admin.voiceBookingQuote.findUniqueOrThrow({ where: { id: b.quote } })).guestPhoneHash).toBeNull();
+    });
+
+    it('база не принимает хэш у неподтверждённой котировки и не хэш', async () => {
+      const q = await limited.quote({ agent, call: call('chk'), service: w.ids.svc, employee: null, startsAt: almatyAt(day(), '12:00') });
+      await expect(admin.voiceBookingQuote.update({ where: { id: q.quote }, data: { guestPhoneHash: 'a'.repeat(64) } })).rejects.toThrow();
+      await expect(admin.voiceBookingQuote.update({ where: { id: q.quote }, data: { state: 'REJECTED', guestPhoneHash: '+77025550000'.padEnd(64, '0') } })).rejects.toThrow();
+    });
   });
 });

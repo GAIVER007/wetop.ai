@@ -1,10 +1,11 @@
 import 'reflect-metadata';
 import { createHash } from 'node:crypto';
-import { BadRequestException, ConflictException, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, HttpException, HttpStatus, Inject, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { normalizePhone } from '@pms/domain';
 import { SiteFormsService } from '../site-forms/site-forms.service';
 import { VOICE_QUOTE_STORE, VOICE_QUOTE_TTL_MS, type VoiceQuoteStore } from './voice-beauty.service';
 import { obj, str, voiceGate } from './voice-gate';
+import { VoicePhoneLimit } from './voice-phone-limit';
 import { VOICE_INGEST_REPOSITORY, type VoiceIngestRepository } from './voice-ingest.repository';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -14,6 +15,7 @@ const NAME_MAX = 100;
 const COMMENT_MAX = 1000;
 const MAX_PARTY = 50;
 const STALE = 'Предложение устарело: нужна новая проверка свободного и новое согласие';
+const PHONE_REACHED = 'За сутки с этого телефона забронировано максимум: дальше только через администратора';
 const MAX_REACHED = 'За один звонок забронировано максимум: дальше только через администратора';
 
 export interface VoiceFoodAvailability {
@@ -55,6 +57,7 @@ export class VoiceFoodService {
     @Inject(VOICE_INGEST_REPOSITORY) private readonly repo: VoiceIngestRepository,
     @Inject(SiteFormsService) private readonly forms: SiteFormsService,
     @Inject(VOICE_QUOTE_STORE) private readonly store: VoiceQuoteStore,
+    @Optional() @Inject(VoicePhoneLimit) private readonly phoneLimit?: VoicePhoneLimit,
   ) {}
 
   async check(raw: unknown, now: Date = new Date()): Promise<VoiceFoodAvailability> {
@@ -104,6 +107,7 @@ export class VoiceFoodService {
     if (!name || name.length > NAME_MAX) throw new BadRequestException(`guest.name: от 1 до ${NAME_MAX} знаков`);
     if (!phone) throw new BadRequestException('guest.phone: не меньше 10 цифр');
     if (comment.length > COMMENT_MAX) throw new BadRequestException(`guest.comment: не больше ${COMMENT_MAX} знаков`);
+    const phoneHash = this.phoneLimit?.hashOf(phone) ?? null;
     const row = quoteId ? await this.store.find(quoteId) : null;
     if (!row || row.agentId !== agent || row.callRef !== call || row.kind !== 'TABLE') throw new NotFoundException('Предложение не найдено');
     if (row.state === 'REJECTED' || row.state === 'EXPIRED') throw new ConflictException(STALE);
@@ -113,6 +117,7 @@ export class VoiceFoodService {
         throw new ConflictException(STALE);
       }
       if ((await this.store.countConfirmed(agent, call)) >= profile.booking.maxPerCall) throw new ConflictException(MAX_REACHED);
+      if (await this.phoneLimit?.reached(agent, phoneHash, profile.booking.maxPerPhoneDay, now)) throw new ConflictException(PHONE_REACHED);
     }
     const sel = row.selection as { date: string; time: string; partySize: number };
     let booked;
@@ -131,7 +136,7 @@ export class VoiceFoodService {
       }
       throw e;
     }
-    if (row.state === 'QUOTED') await this.store.settle(row.id, 'CONFIRMED', booked.reservationId);
+    if (row.state === 'QUOTED') await this.store.settle(row.id, 'CONFIRMED', booked.reservationId, phoneHash);
     return { status: booked.status, date: booked.date, time: booked.time, partySize: booked.partySize, pendingApproval: booked.status === 'BOOKED' };
   }
 

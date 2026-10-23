@@ -28,6 +28,7 @@ import {
   siteLeadFingerprint,
   timeOffWindow,
   type BeautyBookRequest,
+  type BeautySlotsQuery,
   type FoodReserveRequest,
   type SiteLeadRequest,
 } from '@pms/domain';
@@ -78,7 +79,10 @@ type FormKind = 'beauty' | 'food' | 'lead';
 
 /** Сайт формы с проверенной цепочкой: филиал и бизнес действуют, организация бизнеса та же, что у сайта */
 export interface FormSite {
-  site: SiteRecord;
+  /** Сайт формы; у голоса условный (id и имя): сайта нет, ключи и аудит строятся по этим трём полям */
+  site: Pick<SiteRecord, 'id' | 'name' | 'hosts'>;
+  /** Голосовой агент: источник записи VOICE, заметка и ключ повтора свои. Обычная форма сайта поля не ставит */
+  origin?: 'VOICE';
   organizationId: string;
   businessId: string;
   locationId: string;
@@ -94,6 +98,19 @@ export interface BeautySlotsResult {
   service: { id: string; name: string; durationMinutes: number; priceMinor: string; currency: string };
   employees: Array<{ id: string; name: string }>;
   slots: Array<{ startsAt: string; endsAt: string; time: string; employeeIds: string[] }>;
+}
+
+export interface VoiceBeautyCatalog {
+  timezone: string;
+  currency: string;
+  services: Array<{
+    id: string;
+    name: string;
+    durationMinutes: number;
+    /** Цена филиала; у мастера может отличаться: точную цену отдаёт расчёт окон. null: цены нет */
+    priceMinor: string | null;
+    masters: Array<{ id: string; name: string }>;
+  }>;
 }
 
 export interface BeautyBookResult {
@@ -116,6 +133,10 @@ export interface FoodReserveResult {
   endsAt: string;
   partySize: number;
 }
+
+export type VoiceFoodCheck =
+  | { ok: true; startsAt: string; endsAt: string; period: string }
+  | { ok: false; reason: string };
 
 export interface SiteLeadResult {
   leadId: string;
@@ -158,6 +179,15 @@ export class SiteFormsService {
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const q = parsed.value;
     const fs = await this.formSite(q.siteKey, ctx, 'beauty');
+    return this.slotsFor(fs, q, now);
+  }
+
+  /** Свободные окна услуги в филиале: общий расчёт формы сайта и голосового агента */
+  private slotsFor(
+    fs: FormSite,
+    q: Pick<BeautySlotsQuery, 'serviceId' | 'employeeId' | 'date'>,
+    now: Date,
+  ): Promise<BeautySlotsResult> {
     return withOrganizationScope(fs.organizationId, async () => {
       const db = this.prisma.db;
       const service = await db.beautyService.findFirst({
@@ -315,7 +345,7 @@ export class SiteFormsService {
               price: plan.priceMinor,
               currency: plan.currency,
               notes: this.notes(fs, req.comment),
-              source: 'WEBSITE',
+              source: fs.origin === 'VOICE' ? 'VOICE' : 'WEBSITE',
               creationKey: key,
               creationFingerprint: fingerprint,
               createdById: null,
@@ -358,7 +388,7 @@ export class SiteFormsService {
                 endsAt: plan.endsAt.toISOString(),
                 priceMinor: plan.priceMinor.toString(),
                 currency: plan.currency,
-                source: 'WEBSITE',
+                source: fs.origin === 'VOICE' ? 'VOICE' : 'WEBSITE',
                 trackedSiteId: fs.site.id,
               },
             },
@@ -465,6 +495,159 @@ export class SiteFormsService {
     };
   }
 
+  // ───────────── голосовой агент: тот же расчёт, без сайта ─────────────
+
+  /**
+   * Филиал голосового агента для записи и брони: цепочка та же, что у формы сайта (филиал и бизнес действуют, организация
+   * может писать), сайта нет. Агента и его филиал проверяет вызывающий; здесь только цепочка по филиалу.
+   */
+  async voiceSite(locationId: string, agentId: string, now: Date = new Date()): Promise<FormSite> {
+    const chain = await this.prisma.db.location.findUnique({
+      where: { id: locationId },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        timezone: true,
+        currency: true,
+        business: {
+          select: {
+            id: true,
+            status: true,
+            vertical: true,
+            organizationId: true,
+            organization: { select: { status: true, trialEndsAt: true } },
+          },
+        },
+      },
+    });
+    if (
+      !chain ||
+      chain.status !== 'ACTIVE' ||
+      chain.business.status !== 'ACTIVE' ||
+      !canWrite(chain.business.organization.status, chain.business.organization.trialEndsAt, now)
+    )
+      throw new NotFoundException(NOT_SERVED);
+    return {
+      site: { id: `voice-${agentId}`, name: 'Голосовой агент', hosts: [] },
+      origin: 'VOICE',
+      organizationId: chain.business.organizationId,
+      businessId: chain.business.id,
+      locationId: chain.id,
+      locationName: chain.name,
+      vertical: chain.business.vertical as FormSite['vertical'],
+      timezone: chain.timezone,
+      currency: chain.currency,
+    };
+  }
+
+  /** Услуги филиала и мастера, которые их оказывают: что агент может предложить и к кому записать */
+  async voiceBeautyCatalog(fs: FormSite): Promise<VoiceBeautyCatalog> {
+    return withOrganizationScope(fs.organizationId, async () => {
+      const db = this.prisma.db;
+      const services = await db.beautyService.findMany({
+        where: { businessId: fs.businessId, active: true, locations: { some: { locationId: fs.locationId, enabled: true } } },
+        orderBy: [{ name: 'asc' }, { id: 'asc' }],
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          currency: true,
+          durationMinutes: true,
+          locations: { where: { locationId: fs.locationId }, select: { priceOverride: true, durationOverride: true } },
+          employees: {
+            where: { employee: { status: 'ACTIVE', locations: { some: { locationId: fs.locationId } } } },
+            orderBy: [{ employee: { name: 'asc' } }, { employeeId: 'asc' }],
+            select: { employee: { select: { id: true, name: true } } },
+          },
+        },
+      });
+      return {
+        timezone: fs.timezone,
+        currency: fs.currency,
+        services: services
+          .filter((sv) => sv.employees.length > 0)
+          .map((sv) => {
+            const own = sv.locations[0];
+            const price = own?.priceOverride ?? (sv.currency === fs.currency ? sv.price : null);
+            return {
+              id: sv.id,
+              name: sv.name,
+              durationMinutes: own?.durationOverride ?? sv.durationMinutes,
+              priceMinor: price === null ? null : price.toString(),
+              masters: sv.employees.map((e) => ({ id: e.employee.id, name: e.employee.name })),
+            };
+          }),
+      };
+    });
+  }
+
+  voiceBeautySlots(
+    fs: FormSite,
+    q: Pick<BeautySlotsQuery, 'serviceId' | 'employeeId' | 'date'>,
+    now: Date = new Date(),
+  ): Promise<BeautySlotsResult> {
+    return this.slotsFor(fs, q, now);
+  }
+
+  /** Запись к мастеру (или к любому свободному) от имени звонка: ключ повтора задаёт вызывающий, отпечаток считаем здесь */
+  async voiceBeautyBook(
+    fs: FormSite,
+    req: Omit<BeautyBookRequest, 'siteKey' | 'requestKey'>,
+    key: string,
+    now: Date = new Date(),
+  ): Promise<BeautyBookResult> {
+    if (req.startsAt.getTime() <= now.getTime()) throw new ConflictException('Это время уже прошло');
+    const full: BeautyBookRequest = { ...req, siteKey: 'voice', requestKey: key };
+    const fingerprint = beautyBookFingerprint(full);
+    const result = await withOrganizationScope(fs.organizationId, () => this.writeAppointment(fs, full, key, fingerprint));
+    return result.value;
+  }
+
+  /**
+   * Можно ли принять бронь на дату, время и число гостей: период обслуживания, правила филиала и свободный стол (без названия стола).
+   * Отказ возвращается причиной словами платформы, а не ошибкой: это нормальный ответ на вопрос «есть ли место».
+   */
+  async voiceFoodCheck(
+    fs: FormSite,
+    q: { date: string; time: string; partySize: number },
+    now: Date = new Date(),
+  ): Promise<VoiceFoodCheck> {
+    const startsAt = localInstant(q.date, q.time, fs.timezone);
+    if (!startsAt) throw new BadRequestException('такого времени в этот день нет (перевод часов)');
+    if (startsAt.getTime() <= now.getTime()) return { ok: false, reason: 'Это время уже прошло' };
+    return withOrganizationScope(fs.organizationId, async () => {
+      try {
+        return await this.prisma.db.$transaction(async (tx) => {
+          const { period, bufferMinutes } = await this.planFood(tx, fs, startsAt, q.partySize, now);
+          await this.assertSpareTable(tx, fs, startsAt, period.endsAt, q.partySize, bufferMinutes);
+          return { ok: true as const, startsAt: startsAt.toISOString(), endsAt: period.endsAt.toISOString(), period: period.name };
+        });
+      } catch (e) {
+        if (e instanceof ConflictException) return { ok: false as const, reason: e.message };
+        throw e;
+      }
+    });
+  }
+
+  /** Бронь стола от имени звонка: тот же путь, что у формы сайта, плюс проверка свободного стола; стол не назначается */
+  async voiceFoodReserve(
+    fs: FormSite,
+    req: { date: string; time: string; partySize: number; name: string; phone: string; comment: string | null },
+    key: string,
+    now: Date = new Date(),
+  ): Promise<FoodReserveResult> {
+    const startsAt = localInstant(req.date, req.time, fs.timezone);
+    if (!startsAt) throw new BadRequestException('такого времени в этот день нет (перевод часов)');
+    if (startsAt.getTime() <= now.getTime()) throw new ConflictException('Это время уже прошло');
+    const full: FoodReserveRequest = { ...req, siteKey: 'voice', requestKey: key };
+    const fingerprint = foodReserveFingerprint(full);
+    const result = await withOrganizationScope(fs.organizationId, () =>
+      this.writeReservation(fs, full, startsAt, key, fingerprint, now),
+    );
+    return result.value;
+  }
+
   // ───────────── ресторан: бронь стола ─────────────
 
   async foodReserve(raw: unknown, ctx: RequestContext): Promise<FoodReserveResult> {
@@ -506,44 +689,9 @@ export class SiteFormsService {
         await this.lockChain(tx, fs);
         const twin = await this.reservationReplay(tx, fs, key, fingerprint);
         if (twin) return { value: twin, replayed: true };
-        // период обслуживания, в который бронь помещается целиком (тот же расчёт конца, что у стойки)
-        const periods = await tx.servicePeriod.findMany({
-          where: { locationId: fs.locationId, active: true },
-          orderBy: [{ timeFrom: 'asc' }, { id: 'asc' }],
-        });
-        let period: { id: string; endsAt: Date } | null = null;
-        for (const p of periods) {
-          try {
-            const endsAt = foodEnd(
-              { ...p, timeFrom: clockOf(p.timeFrom), timeTo: clockOf(p.timeTo) },
-              startsAt.toISOString(),
-              fs.timezone,
-            );
-            period = { id: p.id, endsAt };
-            break;
-          } catch {
-            // не этот период
-          }
-        }
-        if (!period) throw new ConflictException('В это время ресторан не принимает брони');
-        // правила брони филиала (§43): закрытый день, горизонт, предел гостей
-        const day = foodLocal(startsAt, fs.timezone).date;
-        const [rulesRow, closed] = await Promise.all([
-          tx.foodBookingRules.findUnique({ where: { locationId: fs.locationId } }),
-          tx.foodClosedDay.findUnique({
-            where: { locationId_day: { locationId: fs.locationId, day: new Date(`${day}T00:00:00Z`) } },
-          }),
-        ]);
-        const violation = bookingRuleViolation({
-          day,
-          today: foodLocal(now, fs.timezone).date,
-          partySize: req.partySize,
-          rules: rulesRow
-            ? { bufferMinutes: rulesRow.bufferMinutes, horizonDays: rulesRow.horizonDays, maxPartySize: rulesRow.maxPartySize }
-            : DEFAULT_BOOKING_RULES,
-          closed: closed !== null,
-        });
-        if (violation) throw new ConflictException(violation);
+        const { period, bufferMinutes } = await this.planFood(tx, fs, startsAt, req.partySize, now);
+        // голос обещает только то, что видит: нужен хотя бы один свободный стол, стол гостю не называется и не назначается
+        if (fs.origin === 'VOICE') await this.assertSpareTable(tx, fs, startsAt, period.endsAt, req.partySize, bufferMinutes);
         const { id: customerId } = await findOrCreateCustomer(
           tx,
           fs.organizationId,
@@ -560,7 +708,7 @@ export class SiteFormsService {
             endsAt: period.endsAt,
             partySize: req.partySize,
             status: 'BOOKED',
-            source: 'WEBSITE',
+            source: fs.origin === 'VOICE' ? 'VOICE' : 'WEBSITE',
             notes: this.notes(fs, req.comment),
             creationKey: key,
             creationFingerprint: fingerprint,
@@ -583,7 +731,7 @@ export class SiteFormsService {
               endsAt: period.endsAt.toISOString(),
               partySize: req.partySize,
               status: 'BOOKED',
-              source: 'WEBSITE',
+              source: fs.origin === 'VOICE' ? 'VOICE' : 'WEBSITE',
               trackedSiteId: fs.site.id,
             },
           },
@@ -601,6 +749,87 @@ export class SiteFormsService {
       }
       throw e;
     }
+  }
+
+  /**
+   * Период обслуживания, в который бронь помещается целиком (тот же расчёт конца, что у стойки), и правила брони филиала (§43):
+   * закрытый день, горизонт, предел гостей. Общий расчёт формы сайта и голосового агента.
+   */
+  private async planFood(
+    tx: DbTx,
+    fs: FormSite,
+    startsAt: Date,
+    partySize: number,
+    now: Date,
+  ): Promise<{ period: { id: string; name: string; endsAt: Date }; bufferMinutes: number }> {
+    const periods = await tx.servicePeriod.findMany({
+      where: { locationId: fs.locationId, active: true },
+      orderBy: [{ timeFrom: 'asc' }, { id: 'asc' }],
+    });
+    let period: { id: string; name: string; endsAt: Date } | null = null;
+    for (const p of periods) {
+      try {
+        const endsAt = foodEnd(
+          { ...p, timeFrom: clockOf(p.timeFrom), timeTo: clockOf(p.timeTo) },
+          startsAt.toISOString(),
+          fs.timezone,
+        );
+        period = { id: p.id, name: p.name, endsAt };
+        break;
+      } catch {
+        // не этот период
+      }
+    }
+    if (!period) throw new ConflictException('В это время ресторан не принимает брони');
+    const day = foodLocal(startsAt, fs.timezone).date;
+    const [rulesRow, closed] = await Promise.all([
+      tx.foodBookingRules.findUnique({ where: { locationId: fs.locationId } }),
+      tx.foodClosedDay.findUnique({
+        where: { locationId_day: { locationId: fs.locationId, day: new Date(`${day}T00:00:00Z`) } },
+      }),
+    ]);
+    const violation = bookingRuleViolation({
+      day,
+      today: foodLocal(now, fs.timezone).date,
+      partySize,
+      rules: rulesRow
+        ? { bufferMinutes: rulesRow.bufferMinutes, horizonDays: rulesRow.horizonDays, maxPartySize: rulesRow.maxPartySize }
+        : DEFAULT_BOOKING_RULES,
+      closed: closed !== null,
+    });
+    if (violation) throw new ConflictException(violation);
+    return { period, bufferMinutes: rulesRow?.bufferMinutes ?? DEFAULT_BOOKING_RULES.bufferMinutes };
+  }
+
+  /**
+   * Свободный стол для брони голосом: активные столы активных зон нужной вместимости без пересечения по времени (с буфером) минус
+   * брони на это же время, которым стол ещё не назначен (их столы назначит администратор). Условие осторожное: лучше отказать, чем пообещать.
+   */
+  private async assertSpareTable(
+    tx: DbTx,
+    fs: FormSite,
+    startsAt: Date,
+    endsAt: Date,
+    partySize: number,
+    bufferMinutes: number,
+  ): Promise<void> {
+    const buffer = bufferMinutes * 60_000;
+    const from = new Date(startsAt.getTime() - buffer);
+    const to = new Date(endsAt.getTime() + buffer);
+    const overlapping = {
+      status: { in: ['BOOKED', 'CONFIRMED', 'SEATED'] as Array<'BOOKED' | 'CONFIRMED' | 'SEATED'> },
+      startsAt: { lt: to },
+      endsAt: { gt: from },
+    };
+    const fitting = await tx.diningTable.findMany({
+      where: { active: true, capacity: { gte: partySize }, area: { locationId: fs.locationId, active: true } },
+      select: { id: true, assignments: { where: { reservation: overlapping }, select: { reservationId: true } } },
+    });
+    const free = fitting.filter((t) => t.assignments.length === 0).length;
+    const unassigned = await tx.restaurantReservation.count({
+      where: { locationId: fs.locationId, ...overlapping, tableAssignment: { is: null } },
+    });
+    if (free - unassigned <= 0) throw new ConflictException('На это время свободных столов нет');
   }
 
   private async reservationReplay(
@@ -821,6 +1050,8 @@ export class SiteFormsService {
 
   /** Заметка записи: откуда и комментарий гостя; контакты в свободном тексте маскируются, пока база не в РК (ADR-074) */
   private notes(fs: FormSite, comment: string | null): string {
+    if (fs.origin === 'VOICE')
+      return 'Бронь по телефону, голосовой ИИ-агент' + (comment ? `. Комментарий: ${freeTextForStorage(comment)}` : '');
     return `С сайта «${fs.site.name}»` + (comment ? `. Комментарий: ${freeTextForStorage(comment)}` : '');
   }
 }

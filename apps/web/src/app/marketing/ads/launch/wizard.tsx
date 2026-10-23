@@ -1,6 +1,6 @@
 'use client';
 import { useActionState, useState, useTransition } from 'react';
-import type { MarketingAdAssets, MarketingAdProposal } from '../../../../lib/api';
+import type { MarketingAdAssets, MarketingAdProposal, MarketingAudienceSettings } from '../../../../lib/api';
 import { currencySign, formatMoney } from '../../../../lib/money';
 import { Segmented } from '../../../../components/segmented';
 import { Switch } from '../../../../components/switch';
@@ -43,7 +43,16 @@ async function saveVideo(file: File): Promise<string> {
   return data.id;
 }
 
-export function LaunchWizard({ assets, country }: { assets: Connected; country: string }) {
+export function LaunchWizard({
+  assets,
+  country,
+  audience = null,
+}: {
+  assets: Connected;
+  country: string;
+  /** Аудитория прошлого запуска из «Аудиторий» (23.10.2026): города, возраст и пол заранее; ИИ их потом может сменить */
+  audience?: MarketingAudienceSettings | null;
+}) {
   const [proposed, propose, proposing] = useActionState(proposeAdAction, NONE);
   const [launched, launch, launching] = useActionState(launchAdAction, NONE);
   const { ask, dialog } = useConfirm();
@@ -51,7 +60,7 @@ export function LaunchWizard({ assets, country }: { assets: Connected; country: 
   const [destination, setDestination] = useState<Destination>('WHATSAPP');
   const [preview, setPreview] = useState<{ url: string; video: boolean } | null>(null);
   const [video, setVideo] = useState<VideoState>({ phase: 'none' });
-  const [cities, setCities] = useState<Array<{ key: string; name: string }>>([]);
+  const [cities, setCities] = useState<Array<{ key: string; name: string }>>(audience?.cities ?? []);
   const [found, setFound] = useState<Array<{ key: string; name: string; region: string }>>([]);
   const [cityQuery, setCityQuery] = useState('');
   const [cityError, setCityError] = useState<string | null>(null);
@@ -63,7 +72,17 @@ export function LaunchWizard({ assets, country }: { assets: Connected; country: 
   const sameCurrency = assets.cabinet.currency === assets.reportingCurrency;
   // предложение ИИ встаёт в поля: ключ полей меняется вместе с ответом, React пересоздаёт их с новыми значениями
   const p: MarketingAdProposal | null = proposed.proposal ?? null;
-  const v = p ?? { headline: '', primaryText: '', description: null, ageMin: 18, ageMax: 65, genders: [], interests: [], welcome: null, notes: [] };
+  const v = p ?? {
+    headline: '',
+    primaryText: '',
+    description: null,
+    ageMin: audience?.ageMin ?? 18,
+    ageMax: audience?.ageMax ?? 65,
+    genders: audience?.genders ?? [],
+    interests: [],
+    welcome: null,
+    notes: [],
+  };
   const gender = v.genders.length === 1 ? String(v.genders[0]) : 'all';
   const fieldsKey = proposed.ok || 'empty';
   const error = launched.error ?? proposed.error;
@@ -228,7 +247,12 @@ export function LaunchWizard({ assets, country }: { assets: Connected; country: 
             </Select>
           </Field>
         </Grid>
-        <Switch name="advantageAudience" label="Разрешить Meta расширять аудиторию" hint="Advantage+: возраст «от» тогда только 18–25, «до» Meta не учитывает" />
+        <Switch
+          name="advantageAudience"
+          label="Разрешить Meta расширять аудиторию"
+          hint="Advantage+: возраст «от» тогда только 18–25, «до» Meta не учитывает"
+          defaultChecked={audience?.advantageAudience ?? false}
+        />
         {p && p.interests.length > 0 && <p className="settings-note">Интересы по мнению ИИ (подсказка): {p.interests.join(', ')}</p>}
         <Stack gap="sm">
           <Grid min={240}>

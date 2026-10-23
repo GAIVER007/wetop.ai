@@ -50,6 +50,7 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
     'Обзор',
     'Реклама',
     'Контент',
+    'Голосовой агент',
     'ИИ-продавец',
     'Анализ конкурентов',
     'Обзор продаж',
@@ -124,10 +125,10 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   await expect(hub.locator('.page__subtitle')).toHaveText(
     'Привлекайте гостей, ведите рекламный бюджет и развивайте бренд гостиницы с помощью ИИ.',
   );
-  // пять модулей одного вида, по порядку (ADR-184: «Конкуренты» в «Продвижении»)
+  // шесть модулей одного вида, по порядку (ADR-184: «Конкуренты» в «Продвижении»; «Голосовой агент» у всех направлений, 22.10.2026)
   const modules = hub.getByTestId('marketing-module');
-  await expect(modules).toHaveCount(5);
-  await expect(modules.getByRole('heading', { level: 2 })).toHaveText(['Сайт и SEO', 'Бюджет', 'Реклама', 'Конкуренты', 'Контент']);
+  await expect(modules).toHaveCount(6);
+  await expect(modules.getByRole('heading', { level: 2 })).toHaveText(['Сайт и SEO', 'Бюджет', 'Реклама', 'Конкуренты', 'Голосовой агент', 'Контент']);
   const competitors = hub.getByTestId('marketing-competitors');
   await expect(competitors.getByTestId('marketing-competitors-status')).toHaveText('Доступно');
   await expect(competitors.getByRole('link', { name: 'Открыть: Конкуренты', exact: true })).toHaveAttribute('href', '/market');
@@ -211,7 +212,10 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   // аудит 21.10.2026 пп. 14, 15, 34: одно имя «Реклама», пустых вкладок нет, итоги строкой вместо плиток
   await expect(ads.getByRole('heading', { level: 1 })).toHaveText('Реклама');
   await expect(menuOf(page).locator('.sidenav__current')).toHaveText('Продвижение');
-  await expect(ads.getByTestId('marketing-ads-soon')).toContainText('Скоро');
+  // «Скоро» больше нет (23.10.2026): «Аудитории» и «Креативы» живые, пока запусков нет, честно пусто
+  await expect(ads.getByTestId('marketing-ads-soon')).toHaveCount(0);
+  await expect(ads.getByTestId('ad-audiences')).toContainText('Пока пусто');
+  await expect(ads.getByTestId('ad-creatives')).toContainText('Пока пусто');
   await expect(ads.getByRole('tab')).toHaveCount(0);
   const metrics = ads.getByTestId('marketing-ads-metrics');
   await expect(metrics.locator('dt')).toHaveText(['Расход кампаний', 'Показы', 'Клики', 'Лиды площадки', 'Доля кликов, цена 1000 показов, цена обращения']);
@@ -250,6 +254,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path)).sort()).toEqual([
     '/marketing/ad-connections/meta',
     '/marketing/ads/launches',
+    '/marketing/ads/library',
     '/marketing/campaigns',
     '/marketing/content/drafts',
   ]);
@@ -416,13 +421,17 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   await expect(hub).toBeVisible();
   // единая система (14.10.2026): бюджет ведётся по филиалу любого направления; SITE-1: «Сайт и SEO» открыт всем,
   // гостиничные экраны сайта (публикация, изображения, бронирование) салону не предлагаются
-  // «Конкуренты» у всех (решение 23.10.2026, п. 5): у салона свой экран загрузки соседей по дням (§60),
-  // не гостиничный /market
-  await expect(hub.getByTestId('marketing-module')).toHaveCount(5);
+  // «Конкуренты» у всех (решение 23.10.2026, п. 5): у салона свой экран загрузки соседей по дням (§60), не гостиничный /market;
+  // «Голосовой агент» (22.10.2026) тоже у всех направлений
+  await expect(hub.getByTestId('marketing-module')).toHaveCount(6);
   await expect(hub.getByTestId('marketing-competitors-status')).toHaveText('Доступно');
   await expect(
     hub.getByTestId('marketing-competitors').getByRole('link', { name: 'Открыть: Конкуренты', exact: true }),
   ).toHaveAttribute('href', '/market/business');
+  await expect(hub.getByTestId('marketing-voice-status')).toHaveText('Доступно');
+  await expect(
+    hub.getByTestId('marketing-voice').getByRole('link', { name: 'Открыть: Голосовой агент', exact: true }),
+  ).toHaveAttribute('href', '/marketing/voice');
   // аудит 21.10.2026 P0-4: «Доступно» только при включённом конструкторе (на стенде он включён)
   await expect(hub.getByTestId('marketing-site-status')).toHaveText('Доступно');
   await expect(hub.getByTestId('marketing-budget-status')).toHaveText('Доступно');

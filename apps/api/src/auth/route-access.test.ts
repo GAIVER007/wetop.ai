@@ -182,6 +182,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /marketing/ads/geo': 'ads_launch',
   'POST /marketing/ads/launches': 'ads_launch',
   'GET /marketing/ads/launches': 'marketing',
+  // «Аудитории» и «Креативы» (23.10.2026): смотреть с правом раздела, аудитория в мастер только с правом запуска
+  'GET /marketing/ads/library': 'marketing',
+  'GET /marketing/ads/launches/:id/audience': 'ads_launch',
   'GET /marketing/ads/launches/:id': 'marketing',
   'POST /marketing/ads/campaigns/:id/pause': 'ads_launch',
   'POST /marketing/ads/campaigns/:id/resume': 'ads_launch',
@@ -514,6 +517,22 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // MKT4: публичный рантайм сайтов, только узкий ключ SITES_RUNTIME_KEY; чтения версии по id нет
   'GET /sites-runtime/current': 'service',
   'GET /sites-runtime/preview': 'service',
+  // голосовой агент: события воркера только узким ключом VOICE_INGEST_KEY, журнал и просьбы по праву marketing
+  'POST /voice/events': 'service',
+  'GET /voice/profile': 'service',
+  'GET /voice/availability': 'service',
+  'GET /voice/beauty-catalog': 'service',
+  'GET /voice/beauty-slots': 'service',
+  'GET /voice/food-availability': 'service',
+  'POST /voice/booking-quotes': 'service',
+  'POST /voice/booking-quotes/confirm': 'service',
+  'GET /marketing/voice/summary': 'marketing',
+  'GET /marketing/voice/calls': 'marketing',
+  'GET /marketing/voice/callbacks': 'marketing',
+  'PATCH /marketing/voice/callbacks/:id': 'marketing',
+  'GET /marketing/voice/booking': 'marketing',
+  'GET /marketing/voice/bookings': 'marketing',
+  'PATCH /marketing/voice/booking': 'marketing',
 
   // ── номерной фонд, тарифы ───────────────────────────────────────────────────────────────
   'GET /inventory/categories': 'property',

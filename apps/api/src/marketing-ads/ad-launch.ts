@@ -31,6 +31,8 @@ import {
   parseLaunchInput,
   toBaseMinor,
   type AdLaunchInput,
+  adLibrary,
+  type AdLibraryLaunch,
 } from '@pms/domain';
 import { meta } from '@pms/integrations';
 import { decryptPii } from '@pms/shared';
@@ -684,6 +686,69 @@ export class AdLaunchService implements OnModuleInit {
     return rows.map((l) => this.toView(l));
   }
 
+  /**
+   * «Аудитории» и «Креативы» (23.10.2026): успешные запуски филиала с днями кабинета их кампаний; без новой таблицы.
+   * Филиал строго из scope; право раздела `marketing`, ничего не пишет.
+   */
+  async library() {
+    const scope = await this.repo.scope();
+    const rows = await this.prisma.db.marketingAdLaunch.findMany({
+      where: { locationId: scope.locationId, status: 'SUCCEEDED' },
+      orderBy: { createdAt: 'desc' },
+      take: 200,
+      select: {
+        id: true,
+        status: true,
+        createdAt: true,
+        currency: true,
+        settings: true,
+        creative: { select: { id: true, kind: true, fileName: true } },
+        campaign: { select: { stats: { select: { spendMinor: true, spendCurrency: true, leads: true, impressions: true, clicks: true } } } },
+      },
+    });
+    const launches: AdLibraryLaunch[] = rows.map((l) => {
+      const days = l.campaign?.stats ?? [];
+      return {
+        id: l.id,
+        status: l.status,
+        createdAt: l.createdAt.toISOString(),
+        currency: l.currency,
+        headline: String((l.settings as { headline?: unknown }).headline ?? ''),
+        settings: l.settings as unknown as AdLibraryLaunch['settings'],
+        creative: l.creative ? { id: l.creative.id, kind: l.creative.kind as 'IMAGE' | 'VIDEO', fileName: l.creative.fileName } : null,
+        stats: days.length
+          ? {
+              // расход кабинета только в валюте запуска: другую валюту не складываем
+              spendMinor: days.reduce((s, d) => s + (d.spendCurrency === l.currency ? (d.spendMinor ?? 0n) : 0n), 0n),
+              leads: days.reduce((s, d) => s + d.leads, 0),
+              impressions: days.reduce((s, d) => s + d.impressions, 0),
+              clicks: days.reduce((s, d) => s + d.clicks, 0),
+            }
+          : null,
+      };
+    });
+    return adLibrary(launches);
+  }
+
+  /** Аудитория прошлого запуска для мастера «Новая кампания»: только настройки показа, без текста и бюджета */
+  async audienceOf(id: string) {
+    const scope = await this.repo.scope();
+    const l = await this.prisma.db.marketingAdLaunch.findFirst({
+      where: { id, locationId: scope.locationId, status: 'SUCCEEDED' },
+      select: { settings: true },
+    });
+    if (!l) throw new NotFoundException('Запуск не найден');
+    const s = l.settings as Record<string, unknown>;
+    return {
+      countryCode: s.countryCode,
+      cities: s.cities ?? [],
+      ageMin: s.ageMin,
+      ageMax: s.ageMax,
+      genders: s.genders ?? [],
+      advantageAudience: s.advantageAudience === true,
+    };
+  }
+
   private toView(l: {
     id: string;
     status: string;
@@ -794,6 +859,18 @@ export class MarketingAdLaunchController {
   @Get('geo')
   geo(@Query('q') q: unknown, @Query('country') country: unknown) {
     return this.launches.geo(q, country);
+  }
+
+  @Access('marketing')
+  @Get('library')
+  library() {
+    return this.launches.library();
+  }
+
+  @Access('ads_launch')
+  @Get('launches/:id/audience')
+  audience(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.launches.audienceOf(id);
   }
 
   @Access('marketing')

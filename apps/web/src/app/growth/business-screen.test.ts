@@ -27,15 +27,19 @@ describe('Разделы роста по направлению бизнеса',
     );
     expect(html).toContain('marketing-hub__modules');
     expect(html).toContain('Сайт и SEO');
-    // «Конкуренты» у всех направлений (решение 23.10.2026, п. 5; DATA_MODEL §60): та же сетка из пяти карточек,
-    // у салона карточка живая и ведёт на загрузку соседей по дням, а не на гостиничный /market
-    expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(5);
+    // «Конкуренты» у всех направлений (решение 23.10.2026, п. 5; DATA_MODEL §60): у салона карточка живая и ведёт на загрузку
+    // соседей по дням, а не на гостиничный /market. «Голосовой агент» (22.10.2026) тоже у всех: модулей шесть, сетка обычная
+    expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(6);
     expect(html).toContain('data-testid="marketing-competitors"');
     expect(html).toMatch(/data-testid="marketing-competitors-status"[^>]*>Доступно</);
     expect(html).toContain('href="/market/business"');
     expect(html).not.toContain('href="/market"');
     expect(html).toContain('Загрузка ближайших салонов по дням');
     expect(html).not.toContain('marketing-hub__modules--four');
+    // ИИ-колл-центр: карточка живая, ведёт на свой экран (есть у всех направлений)
+    expect(html).toMatch(/data-testid="marketing-voice-status"[^>]*>Доступно</);
+    expect(html).toContain('href="/marketing/voice"');
+    expect(html).toContain('Голосовой агент');
     // единая система: бюджет ведётся по филиалу любого направления
     expect(html).toMatch(/data-testid="marketing-budget-status"[^>]*>Доступно</);
     expect(html).toContain('href="/marketing/budget"');
@@ -115,6 +119,9 @@ describe('Разделы роста по направлению бизнеса',
       expect(html).toContain('href="/marketing/ads"');
       expect(html).toContain('href="/marketing/content"');
       expect(html).not.toContain('href="/website');
+      // голосовой агент: все направления (решение владельца 22.10.2026, второе: не только салон)
+      expect(html).toContain('href="/marketing/voice"');
+      expect(html).toMatch(/data-testid="marketing-voice-status"[^>]*>Доступно</);
     });
   }
   it('для салона каталог ведёт к услугам, для ресторана к блюдам', () => {

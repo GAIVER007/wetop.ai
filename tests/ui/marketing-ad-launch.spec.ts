@@ -250,3 +250,62 @@ test('мастер на телефоне: без горизонтальной п
   mkdirSync(SHOTS, { recursive: true });
   await page.screenshot({ path: `${SHOTS}/wizard-light-390.png`, fullPage: true });
 });
+
+test('«Аудитории» и «Креативы»: лучшие по цене заявки сверху, «Запустить снова» открывает мастер с той же аудиторией', async ({ page, request }) => {
+  const at = (d: number) => new Date(Date.now() - d * 86_400_000).toISOString();
+  const almaty = { countryCode: 'KZ', cities: [{ key: '1234567', name: 'Алматы' }], ageMin: 25, ageMax: 45, genders: [], advantageAudience: false };
+  const astana = { countryCode: 'KZ', cities: [{ key: '7654321', name: 'Астана' }], ageMin: 30, ageMax: 50, genders: [2], advantageAudience: false };
+  const row = (id: string, over: Record<string, unknown>) => ({
+    id, status: 'SUCCEEDED', step: 'DONE', headline: 'Осень у гор', dailyBudgetMinor: '500', currency: 'USD', error: null, createdAt: at(3), ...over,
+  });
+  await request.post(`${API}/__test/marketing-budget`, {
+    data: {
+      launches: [
+        row('00000000-0000-4000-a000-0000000b0001', { settings: almaty, creative: { id: 'c1', kind: 'IMAGE', fileName: 'room.jpg' }, stats: { spendMinor: '6000', leads: 4, impressions: 9000, clicks: 120 } }),
+        row('00000000-0000-4000-a000-0000000b0002', { headline: 'Спа для двоих', settings: astana, creative: { id: 'c2', kind: 'VIDEO', fileName: 'spa.mp4' }, stats: { spendMinor: '2000', leads: 4, impressions: 3000, clicks: 80 } }),
+        row('00000000-0000-4000-a000-0000000b0003', { status: 'FAILED', error: 'Meta: Нет способа оплаты', settings: almaty }),
+      ],
+    },
+  });
+  const main = page.getByRole('main');
+  await page.goto('/marketing/ads/meta/callback?code=c0de&state=fixture-state');
+  await page.waitForURL(/\/marketing\/ads\?meta=choose/);
+  await main.getByTestId('meta-choose-save').click();
+  await page.waitForURL(/\/marketing\/ads\?meta=connected/);
+
+  const audiences = main.getByTestId('ad-audience-row');
+  await expect(audiences).toHaveCount(2);
+  await expect(audiences.nth(0)).toContainText('Астана · 30–50 · женщины');
+  await expect(audiences.nth(0)).toContainText('лучшая');
+  await expect(audiences.nth(0)).toContainText('5 USD');
+  await expect(audiences.nth(1)).toContainText('Алматы · 25–45 · все');
+  await expect(audiences.nth(1)).toContainText('15 USD');
+  const creatives = main.getByTestId('ad-creative-row');
+  await expect(creatives).toHaveText([/Видео\s*spa\.mp4.*Спа для двоих/, /Фото\s*room\.jpg.*Осень у гор/]);
+  await axe(page);
+  mkdirSync(SHOTS, { recursive: true });
+  for (const [scheme, width] of [['light', 1440], ['dark', 390]] as const) {
+    await page.emulateMedia({ colorScheme: scheme });
+    await page.setViewportSize({ width, height: 900 });
+    await main.getByTestId('ad-library').scrollIntoViewIfNeeded();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    await main.getByTestId('ad-library').screenshot({ path: `${SHOTS}/library-${scheme}-${width}.png` });
+  }
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+
+  await audiences.nth(0).getByTestId('ad-audience-use').click();
+  await page.waitForURL(/\/marketing\/ads\/launch\?audience=00000000-0000-4000-a000-0000000b0002$/);
+  const wizard = main.getByTestId('ad-wizard');
+  await expect(wizard.getByTestId('ad-age-min')).toHaveValue('30');
+  await expect(wizard.getByTestId('ad-age-max')).toHaveValue('50');
+  await expect(wizard.getByLabel('Пол')).toHaveValue('2');
+  await expect(wizard.getByTestId('ad-cities')).toContainText('Астана');
+  // текст и бюджет не переносятся: их предлагает ИИ и подтверждает человек заново
+  await expect(wizard.getByTestId('ad-headline')).toHaveValue('');
+
+  // неудачный запуск аудиторию не отдаёт: мастер пустой
+  await page.goto('/marketing/ads/launch?audience=00000000-0000-4000-a000-0000000b0003');
+  await expect(wizard.getByTestId('ad-age-min')).toHaveValue('18');
+  await expect(wizard.getByTestId('ad-cities')).toHaveCount(0);
+});

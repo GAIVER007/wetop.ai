@@ -21,7 +21,7 @@ describe('Food workspace isolation', () => {
       // `/finance` ресторану не свой экран: «Финансы» ресторана (аудит 17.10.2026, Д2)
       ['Финансы', ['/restaurant-finance', '/cashbox']],
       ['Настройки', ['/restaurant-settings', '/journal', '/settings']],
-      ['Продвижение', ['/marketing', '/marketing/ads', '/marketing/content', '/ai-agents', '/sales', '/marketing/budget', '/marketing/analytics']],
+      ['Продвижение', ['/marketing', '/marketing/ads', '/marketing/content', '/marketing/voice', '/ai-agents', '/sales', '/marketing/budget', '/marketing/analytics']],
       ['Помощь', ['/help']],
     ]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => [i.href, i.label])).toEqual([

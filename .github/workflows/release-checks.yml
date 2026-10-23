@@ -110,6 +110,10 @@ jobs:
         run: |
           "$RUNNER_TEMP/bot-venv/bin/python" --version
           "$RUNNER_TEMP/bot-venv/bin/python" -m pytest -q -p no:cacheprovider
+      # голосовой воркер (apps/ai-seller/voice): тесты без SDK VideoSDK, файл с SDK сам пропускается без пакета
+      - name: pytest голосового воркера
+        run: |
+          "$RUNNER_TEMP/bot-venv/bin/python" -m pytest -q -p no:cacheprovider voice/tests
 
   db:
     name: миграции · integration · e2e на чистом PostgreSQL 16

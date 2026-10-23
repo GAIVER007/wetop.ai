@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
 import { can } from '@pms/domain';
-import { ApiError, marketingAdsApi, type MarketingAdAssets } from '../../../../lib/api';
+import { ApiError, marketingAdsApi, type MarketingAdAssets, type MarketingAudienceSettings } from '../../../../lib/api';
+import { normalizeSearchParams, type SearchParams } from '../../../../lib/search-params';
 import { deskShell } from '../../../../lib/desk-shell';
 import { loadErrorProps } from '../../../../lib/load-error';
 import { requireFeature } from '../../../../lib/vertical-guard';
@@ -30,8 +31,11 @@ function Back() {
   );
 }
 
-export default async function AdLaunchPage() {
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export default async function AdLaunchPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   await requireFeature('/marketing/ads/launch');
+  const q = normalizeSearchParams(await searchParams);
   const shell = await deskShell();
   const role = shell.access.role;
   const allowed = !shell.readOnly && (role === null || can(role, 'ads_launch'));
@@ -46,8 +50,12 @@ export default async function AdLaunchPage() {
     let assets: MarketingAdAssets | null = null;
     let failure: ReturnType<typeof loadErrorProps> | null = null;
     let chooseLocation = false;
+    // «Запустить снова» из «Аудиторий»: аудитория прошлого запуска; не нашлась, мастер просто пустой
+    let audience: MarketingAudienceSettings | null = null;
     try {
       assets = await marketingAdsApi.assets();
+      const id = q['audience'];
+      if (id && UUID.test(id)) audience = await marketingAdsApi.audienceOf(id).catch(() => null);
     } catch (e) {
       unstable_rethrow(e);
       if (e instanceof ApiError && e.status === 409) chooseLocation = true;
@@ -62,7 +70,7 @@ export default async function AdLaunchPage() {
         Подключите рекламный кабинет через Facebook на странице «Реклама», затем возвращайтесь к запуску.
       </EmptyState>
     ) : (
-      <LaunchWizard assets={assets} country={COUNTRY} />
+      <LaunchWizard assets={assets} country={COUNTRY} audience={audience} />
     );
   }
   return (

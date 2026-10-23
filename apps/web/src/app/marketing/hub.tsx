@@ -18,7 +18,7 @@ import type { SiteBuilderState } from '../../lib/api';
  * `/auth/me` через `requireVertical`, право `marketing` проверяет общий `AccessGate`.
  */
 interface Module {
-  key: 'site' | 'budget' | 'ads' | 'content' | 'competitors';
+  key: 'site' | 'budget' | 'ads' | 'content' | 'competitors' | 'voice';
   testId: string;
   title: string;
   icon: IconName;
@@ -27,7 +27,25 @@ interface Module {
   caps: string[];
 }
 
-const modules = (c: VerticalCopy): Module[] => [
+/** Текст карточки голосового агента по направлению: только то, что агент умеет (docs/voice/voice-channel.md) */
+function voiceCard(c: VerticalCopy, vertical: WebVertical): Pick<Module, 'text' | 'caps'> {
+  if (vertical === 'BEAUTY')
+    return {
+      text: `ИИ принимает звонки ${c.clientsOf}: отвечает по услугам и ценам и собирает просьбы перезвонить.`,
+      caps: ['Ответы по услугам и ценам', 'Просьбы перезвонить', 'Перевод на администратора'],
+    };
+  if (vertical === 'FOOD_SERVICE')
+    return {
+      text: `ИИ принимает звонки ${c.clientsOf}: рассказывает о часах работы и собирает просьбы перезвонить.`,
+      caps: ['Ответы о часах работы', 'Просьбы перезвонить', 'Перевод на администратора'],
+    };
+  return {
+    text: `ИИ принимает звонки ${c.clientsOf}, собирает просьбы перезвонить и переводит на администратора.`,
+    caps: ['Приём звонков', 'Просьбы перезвонить', 'Перевод на администратора'],
+  };
+}
+
+const modules = (c: VerticalCopy, vertical: WebVertical): Module[] => [
   {
     key: 'site',
     testId: 'marketing-site',
@@ -69,6 +87,15 @@ const modules = (c: VerticalCopy): Module[] => [
     href: '/market',
     text: `Загрузка и цены ближайших конкурентов рядом с вашими и подсказки, когда поднять цену.`,
     caps: ['Конкуренты рядом', 'Загрузка по датам', 'Подсказки к цене'],
+  },
+  {
+    // ИИ-колл-центр (решение владельца 22.10.2026): все направления; что агент называет по телефону, зависит от направления
+    key: 'voice',
+    testId: 'marketing-voice',
+    title: 'Голосовой агент',
+    icon: 'chat',
+    href: '/marketing/voice',
+    ...voiceCard(c, vertical),
   },
   {
     key: 'content',
@@ -119,8 +146,9 @@ const BUDGET_MENU = [
 export function liveModules(): Set<Module['key']> {
   return new Set<Module['key']>(
     // «Реклама» живая у всех (кампании МКТ-В3, кабинет Meta), «Контент» с черновиками постов (CONTENT-DRAFTS-20261022)
-    // «Конкуренты» живые у всех: у гостиницы загрузка по ночам (ADR-142), у салона и ресторана по дням (§60)
-    ['site', 'budget', 'ads', 'competitors', 'content'],
+    // «Конкуренты» живые у всех: у гостиницы загрузка по ночам (ADR-142), у салона и ресторана по дням (§60);
+    // «Голосовой агент» у всех направлений (22.10.2026)
+    ['site', 'budget', 'ads', 'voice', 'competitors', 'content'],
   );
 }
 
@@ -232,7 +260,7 @@ export function MarketingHub({
   const PREVIEW = new Set<Module['key']>([]);
   // «Конкуренты» у всех направлений (решение владельца 23.10.2026, п. 5): у гостиницы загрузка по ночам (ADR-142),
   // у салона и ресторана загрузка соседей по дням на своём экране (DATA_MODEL §60)
-  const shown = modules(copy).map((m) =>
+  const shown = modules(copy, vertical).map((m) =>
     m.key === 'competitors' && !hospitality
       ? {
           ...m,

@@ -149,6 +149,7 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
       'beauty_location_hours',
       'client_notifications', 'beauty_reminder_settings',
       'bonus_programs', 'customer_bonus_entries', 'gift_certificates', 'gift_certificate_entries',
+      'voice_calls', 'voice_callbacks', 'voice_profiles',
     ];
     expect(
       rls.rows.filter((row) => beautyTables.includes(row.relname) && !row.relforcerowsecurity).map((row) => row.relname).sort(),

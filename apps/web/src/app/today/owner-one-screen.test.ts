@@ -8,7 +8,7 @@ import type { OwnerSummaryDto } from '../../lib/owner-summary';
 /**
  * Главная на одном экране компьютера (решение владельца 21.10.2026: «не хочу листать, чётко на одном экране»,
  * эскиз ~/sketches/home принят «Да окей четко»): шапка одной строкой, итоги строкой, ниже график слева и
- * справа «Требуют решения» и «Куда уходят деньги».
+ * справа «Требуют решения»; «Куда уходят деньги» строкой внизу, в тот же экран (решение 23.10.2026).
  */
 const money = (amount: string) => ({
   state: 'READY' as const,
@@ -86,13 +86,33 @@ describe('Главная на одном экране', () => {
     expect(totals).not.toContain('<article');
     expect(h).not.toContain('owner-kpis');
   });
-  it('«Куда уходят деньги» справа рядом с графиком, а не отдельной полосой внизу', () => {
+  it('«Куда уходят деньги» строкой внизу на всю ширину, справа от графика только «Требуют решения» (23.10.2026)', () => {
     const h = html();
     const side = h.match(/<aside class="owner-side"[^>]*>([\s\S]*)<\/aside>/)?.[1] ?? '';
     expect(side).toContain('Требуют решения');
-    expect(side).toContain('Куда уходят деньги');
-    expect(side).toContain('Аренда');
-    expect(h.indexOf('Куда уходят деньги')).toBeGreaterThan(h.indexOf('Динамика по дням'));
+    expect(side).not.toContain('Куда уходят деньги');
+    const body = h.indexOf('class="owner-body"');
+    const bottom = h.indexOf('class="owner-panel owner-expense-panel"');
+    expect(bottom).toBeGreaterThan(h.lastIndexOf('</aside>'));
+    expect(bottom).toBeGreaterThan(body);
+    expect(h.slice(bottom)).toContain('Аренда');
+  });
+  it('внизу не больше четырёх статей, остальные ссылкой в «Финансы»: экран не листается', () => {
+    const s = summary();
+    const names = ['Аренда', 'Зарплата', 'Реклама', 'Материалы', 'Связь', 'Налоги'];
+    const c = s.current.paidExpenses.currencies![0]!;
+    c.categories = names.map((categoryName, i) => ({
+      categoryId: `c${i}`,
+      categoryName,
+      paidMinor: String((6 - i) * 1_000_000),
+    }));
+    c.paidMinor = String(21_000_000);
+    const h = html(s);
+    const bottom = h.slice(h.indexOf('owner-expense-panel'));
+    expect(bottom.match(/class="owner-category"/g)).toHaveLength(4);
+    expect(bottom).toContain('Материалы');
+    expect(bottom).not.toContain('Связь');
+    expect(bottom).toContain('Остальные статьи (2) в «Финансах»');
   });
   it('«Требуют решения» короткими строками со ссылкой, без отдельных карточек', () => {
     const h = html();
@@ -101,7 +121,8 @@ describe('Главная на одном экране', () => {
   });
   it('сжатые отступы: высота графика и полей рассчитаны на экран ноутбука', () => {
     const css = readFileSync('apps/web/src/app/today/unified-owner.css', 'utf8');
-    expect(css).toMatch(/\.owner-chart-plot\s*\{[^}]*height:\s*200px/);
+    // 200 → 160 px: полоса «Куда уходят деньги» внизу забирает эти 40 px, экран 1280×720 не листается (23.10.2026)
+    expect(css).toMatch(/\.owner-chart-plot\s*\{[^}]*height:\s*160px/);
     expect(css).toMatch(/\.owner-home\s*\{[^}]*padding:\s*var\(--space-4\)/);
   });
 });

@@ -83,6 +83,6 @@ describe('payroll in the configured currency', () => {
     expect(row.match(/class="btn(?! btn--secondary| btn--ghost| action-menu)[^"]*"/g) ?? []).toHaveLength(1);
     expect(row).toContain('aria-label="Ещё: Synthetic master"');
     expect(row).toContain('>Условия оплаты<');
-    expect(row).toContain('>Премия или штраф<');
+    expect(row).toContain('>Премия или удержание<');
   });
 });

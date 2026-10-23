@@ -1,4 +1,4 @@
--- 142 Журнал голосовых звонков (docs/decisions/2026-10-22-voice-stage2-storage.md, DATA_MODEL VOICE-OWNER-APPROVAL-20261022).
+-- 145 Журнал голосовых звонков (docs/decisions/2026-10-22-voice-stage2-storage.md, DATA_MODEL VOICE-OWNER-APPROVAL-20261022).
 -- Звонки пишет только служебная роль (воркер голоса через API платформы); приложение читает звонки и профиль своей
 -- организации и закрывает просьбы о звонке. Полный телефон только в voice_callbacks, в voice_calls маска.
 -- Время событий ставит приложение (AGENTS.md §13): у received_at нет DEFAULT.

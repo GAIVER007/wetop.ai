@@ -1,7 +1,7 @@
 #!/bin/bash
-# Запуск: bash scripts/ops/check-voice-schema.sh packages/database/prisma/migrations/20261022000142_voice_calls
+# Запуск: bash scripts/ops/check-voice-schema.sh packages/database/prisma/migrations/20261022000145_voice_calls
 # Нужен локальный Postgres 16 на 127.0.0.1:54329 (одноразовый кластер, не dev-база проекта). Роли создаются в кластере.
-# Проверка миграции 142 на одноразовом кластере Postgres 16 со стабами родительских таблиц.
+# Проверка миграции 145 на одноразовом кластере Postgres 16 со стабами родительских таблиц.
 export LC_ALL=en_US.UTF-8
 BIN=/opt/homebrew/opt/postgresql@16/bin
 M=$1

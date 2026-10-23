@@ -4464,7 +4464,7 @@ model GiftCertificateEntry {
   @@map("gift_certificate_entries")
 }
 
-/// 142 Журнал голосовых звонков (docs/decisions/2026-10-22-voice-stage2-storage.md, DATA_MODEL VOICE-OWNER-APPROVAL-20261022)
+/// 145 Журнал голосовых звонков (docs/decisions/2026-10-22-voice-stage2-storage.md, DATA_MODEL VOICE-OWNER-APPROVAL-20261022)
 enum VoiceCallState {
   RECEIVED
   ANSWERED

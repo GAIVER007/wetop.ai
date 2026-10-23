@@ -1,4 +1,4 @@
-# 142 Журнал голосовых звонков
+# 145 Журнал голосовых звонков
 
 Решение: `docs/decisions/2026-10-22-voice-stage2-storage.md`, модель: `DATA_MODEL.md` VOICE-OWNER-APPROVAL-20261022. В production НЕ применено.
 

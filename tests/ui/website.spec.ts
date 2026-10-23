@@ -48,6 +48,7 @@ test('одна точка входа в меню и четыре вкладки 
     '/marketing',
     '/marketing/ads',
     '/marketing/content',
+    '/marketing/voice',
     '/marketing/budget',
     '/marketing/analytics',
   ]);

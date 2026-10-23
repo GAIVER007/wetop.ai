@@ -4685,4 +4685,4 @@ Customer сохраняет исходное nullable поле phone. Добав
 - `VoiceCallback` (`voice_callbacks`): id, organizationId, businessId, voiceCallId, phone (канонический E.164, единственное место полного номера), name (до 100), note (до 500), status (NEW/DONE), doneAt, doneById, createdAt. Уникально (voiceCallId, phone). DONE требует doneAt.
 - `VoiceProfile` (`voice_profiles`): agentId (ключ), organizationId, businessId, greetingTail (до 300), voiceName (до 40, по умолчанию Leda), handoffPhone (E.164, nullable), revision, updatedAt.
 - Доступ: чтение и закрытие просьб по праву `marketing`; запись событий только служебной ролью `wetop_service` (воркер голоса). RLS: ENABLE и FORCE на всех трёх таблицах, `wetop_app` читает свои строки, закрывает просьбы своей организации.
-- Миграция additive: `20261022000142_voice_calls` с `down.sql` (откат только пока таблицы пусты). В production не применена.
+- Миграция additive: `20261022000145_voice_calls` (номер 145: 142-144 заняты поездом #766) с `down.sql` (откат только пока таблицы пусты). В production не применена.

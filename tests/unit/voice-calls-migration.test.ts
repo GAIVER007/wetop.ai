@@ -4,16 +4,16 @@ import { describe, expect, it } from 'vitest';
 import { RLS_TENANT_TABLES } from '@pms/database';
 
 /**
- * Миграция 142 «Журнал голосовых звонков» (docs/decisions/2026-10-22-voice-stage2-storage.md, DATA_MODEL VOICE-OWNER-APPROVAL-20261022).
+ * Миграция 145 «Журнал голосовых звонков» (docs/decisions/2026-10-22-voice-stage2-storage.md, DATA_MODEL VOICE-OWNER-APPROVAL-20261022).
  * Сторож без базы: форму миграции, откат, реестр RLS и схему Prisma держит текст. Поведение в базе (RLS, CHECK, откат)
  * проверено отдельно на чистой базе, запись в docs/status/2026-10-22-voice-schema.md.
  */
 const ROOT = resolve(import.meta.dirname, '../..');
-const DIR = resolve(ROOT, 'packages/database/prisma/migrations/20261022000142_voice_calls');
+const DIR = resolve(ROOT, 'packages/database/prisma/migrations/20261022000145_voice_calls');
 const read = (path: string) => readFileSync(path, 'utf8');
 const TABLES = ['voice_calls', 'voice_callbacks', 'voice_profiles'] as const;
 
-describe('миграция 142 voice_calls', () => {
+describe('миграция 145 voice_calls', () => {
   it('есть migration.sql, down.sql и README', () => {
     for (const file of ['migration.sql', 'down.sql', 'README.md']) expect(existsSync(resolve(DIR, file)), file).toBe(true);
   });
@@ -70,7 +70,7 @@ describe('миграция 142 voice_calls', () => {
   });
 });
 
-describe('откат 142', () => {
+describe('откат 145', () => {
   const down = existsSync(resolve(DIR, 'down.sql')) ? read(resolve(DIR, 'down.sql')) : '';
   it('отказывает, если таблицы используются, и снимает всё созданное', () => {
     expect(down).toContain('RAISE EXCEPTION');

@@ -33,6 +33,7 @@ const routes = [
   '/marketing',
   '/marketing/ads',
   '/marketing/content',
+  '/marketing/voice',
   '/ai-agents',
   '/market',
   '/sales',

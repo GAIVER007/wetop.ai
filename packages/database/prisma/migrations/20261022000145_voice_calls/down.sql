@@ -1,9 +1,9 @@
--- Откат 142: только пока журналом голоса не пользовались. Звонки и просьбы ради отката не удаляют.
+-- Откат 145: только пока журналом голоса не пользовались. Звонки и просьбы ради отката не удаляют.
 BEGIN;
 LOCK TABLE "voice_callbacks", "voice_calls", "voice_profiles" IN ACCESS EXCLUSIVE MODE;
 DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM "voice_callbacks") OR EXISTS (SELECT 1 FROM "voice_calls") OR EXISTS (SELECT 1 FROM "voice_profiles") THEN
-    RAISE EXCEPTION 'Voice journal is in use: export it before rollback of 142';
+    RAISE EXCEPTION 'Voice journal is in use: export it before rollback of 145';
   END IF;
 END $$;
 

@@ -12,7 +12,7 @@ import { MarketingHub, liveModules } from './hub';
  * Карточка живая везде, ведёт на `/marketing/voice`, а текст говорит про то, что агент реально умеет в этом направлении.
  */
 const VERTICALS = ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const;
-const COUNTS = { HOSPITALITY: 6, BEAUTY: 5, FOOD_SERVICE: 5 } as const;
+const COUNTS = { HOSPITALITY: 6, BEAUTY: 6, FOOD_SERVICE: 6 } as const;
 
 describe('«Голосовой агент» во всех направлениях', () => {
   it('реестр функций: экран открыт всем трём направлениям', () => {

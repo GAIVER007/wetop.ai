@@ -496,6 +496,11 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PATCH /market/competitors/:id': 'rates',
   'PUT /market/competitors/:id/occupancy': 'rates',
   'PUT /market/competitors/:id/rates': 'rates',
+  // §60 конкуренты салона и ресторана: смотрит тот, кто видит отчёты; ведёт тот, кто ставит цены
+  'GET /business-market': 'reports',
+  'POST /business-market/competitors': 'rates',
+  'PATCH /business-market/competitors/:id': 'rates',
+  'PUT /business-market/competitors/:id/snapshot': 'rates',
   'GET /market/collector/competitors': 'service',
   'PUT /market/collector/competitors/:id/occupancy': 'service',
   // MKT4: публичный рантайм сайтов, только узкий ключ SITES_RUNTIME_KEY; чтения версии по id нет

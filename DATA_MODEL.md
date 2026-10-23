@@ -4839,7 +4839,7 @@ Customer сохраняет исходное nullable поле phone. Добав
 |---|---|
 | `content_drafts` | черновик поста филиала: канал, тема, текст, хештеги, CTA, происхождение AI/MANUAL, день публикации (DATE пояса филиала), статус DRAFT/PUBLISHED/ARCHIVED, revision |
 
-## 60. Загрузка конкурентов салона и ресторана (ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО; уточнение владельца 23.10.2026 «через Booking и т. д., видеть загруженность»; номер раздела берётся при слиянии)
+## 60. Загрузка конкурентов салона и ресторана (УТВЕРЖДЕНО владельцем 23.10.2026: «через Booking и т. д., видеть загруженность», «да давай делай все варианты»; миграция 20261023000150_location_competitors)
 
 План: `plans/2026-10-23-competitors-business-manual.md`. Гостиничные `competitors`, `competitor_rates`,
 `competitor_occupancy` (§23) не меняются: у них ключ — объект размещения и ночь, здесь — филиал и день.
@@ -4848,7 +4848,8 @@ Customer сохраняет исходное nullable поле phone. Добав
 | поле | тип | правило |
 |---|---|---|
 | id | uuid PK | |
-| business_id | uuid FK businesses | бизнес из сессии |
+| organization_id | uuid FK organizations | организация бизнеса (RLS) |
+| business_id | uuid FK businesses | бизнес из сессии, вертикаль BEAUTY или FOOD_SERVICE |
 | location_id | uuid FK locations | филиал того же бизнеса (составной FK / триггер) |
 | name | varchar(200) | непусто; уникально в филиале без учёта регистра |
 | address | varchar(300)? | |
@@ -4863,7 +4864,7 @@ Customer сохраняет исходное nullable поле phone. Добав
 | поле | тип | правило |
 |---|---|---|
 | id | uuid PK | |
-| business_id, location_id | uuid | те же, что у соседа (составной FK `(competitor_id, location_id)`) |
+| organization_id, location_id | uuid | те же, что у соседа (составной FK `(competitor_id, location_id)`) |
 | competitor_id | uuid | сосед этого филиала |
 | day | date | на какой день смотрели свободные окна/столы |
 | observed_on | date | когда смотрели; `day >= observed_on` |

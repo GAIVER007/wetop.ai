@@ -107,4 +107,14 @@ BEGIN
     REVOKE ALL ON content_drafts FROM wetop_app, wetop_service;
     GRANT SELECT, INSERT, UPDATE ON content_drafts TO wetop_app, wetop_service;
   END IF;
+
+  -- 150_location_competitors: exact ACL of the mixed migration (all-or-none); competitors are archived, never deleted
+  SELECT count(*) INTO installed FROM unnest(ARRAY['location_competitors','location_competitor_snapshots']) AS t(name)
+    WHERE to_regclass('public.' || name) IS NOT NULL;
+  IF installed NOT IN (0,2) THEN RAISE EXCEPTION 'Incomplete location-competitors schema during ACL restore'; END IF;
+  IF installed = 2 THEN
+    REVOKE ALL ON location_competitors, location_competitor_snapshots FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON location_competitors TO wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON location_competitor_snapshots TO wetop_app, wetop_service;
+  END IF;
 END $restore_acl$;

@@ -27,10 +27,14 @@ describe('Разделы роста по направлению бизнеса',
     );
     expect(html).toContain('marketing-hub__modules');
     expect(html).toContain('Сайт и SEO');
-    // аудит 21.10.2026 п. 5: гостиничных «Конкурентов» у салона нет. С «Голосовым агентом» (22.10.2026) модулей
-    // пять: сетка 2 на 2 для четырёх больше не подходит, работает обычная (3 + 2)
-    expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(5);
-    expect(html).not.toContain('marketing-competitors');
+    // «Конкуренты» у всех направлений (решение 23.10.2026, п. 5; DATA_MODEL §60): у салона карточка живая и ведёт на загрузку
+    // соседей по дням, а не на гостиничный /market. «Голосовой агент» (22.10.2026) тоже у всех: модулей шесть, сетка обычная
+    expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(6);
+    expect(html).toContain('data-testid="marketing-competitors"');
+    expect(html).toMatch(/data-testid="marketing-competitors-status"[^>]*>Доступно</);
+    expect(html).toContain('href="/market/business"');
+    expect(html).not.toContain('href="/market"');
+    expect(html).toContain('Загрузка ближайших салонов по дням');
     expect(html).not.toContain('marketing-hub__modules--four');
     // ИИ-колл-центр: карточка живая, ведёт на свой экран (есть у всех направлений)
     expect(html).toMatch(/data-testid="marketing-voice-status"[^>]*>Доступно</);

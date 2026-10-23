@@ -26,6 +26,7 @@ ASK_ADMIN = "Этих данных у меня нет, администрато�
 TransferFn = Callable[[str, str], Awaitable[bool]]
 ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 MAX_ADULTS = 10
+MAX_TABLE_GUESTS = 50
 BAD_DATES = "Даты или число гостей не поняты: уточните дату заезда, дату выезда и число гостей."
 NOT_AVAILABLE = "Этот вариант сейчас недоступен. Предложите другие даты или категорию, либо оставьте просьбу для администратора."
 NEED_QUOTE = "Сначала нужно предложение с условиями: проверьте наличие и назовите условия клиенту."
@@ -119,6 +120,8 @@ class VoiceTools:
         self._slots: dict[str, dict] | None = None
         self._slots_service: str | None = None
         self._slots_masters: dict = {}
+        # ресторан: последняя проверка свободного места этого звонка (дата, время, гостей) и её исход
+        self._table: dict | None = None
 
     def _emit(self, kind: str, *args: str) -> None:
         """Событие в очередь платформы. Сбой отчётности не должен ломать разговор."""
@@ -492,3 +495,100 @@ class VoiceTools:
             return True
         except ValueError:
             return False
+
+    # ---- ресторан: свободное место и бронь
+
+    @staticmethod
+    def _valid_table_input(date_text: str, time_text: str, guests: int) -> bool:
+        return (
+            bool(ISO_DATE.match(date_text or ""))
+            and VoiceTools._valid_date(date_text)
+            and bool(re.match(r"^([01]\d|2[0-3]):[0-5]\d$", time_text or ""))
+            and isinstance(guests, int)
+            and not isinstance(guests, bool)
+            and 1 <= guests <= MAX_TABLE_GUESTS
+        )
+
+    async def check_table(self, date: str, time: str, guests: int) -> str:
+        """Можно ли принять бронь на дату, время и число гостей по расчёту платформы (стол не называется)."""
+        if self._booking is None or not self._profile.can_book:
+            return BOOKING_OFF
+        if not self._valid_table_input(date, time, guests):
+            return BAD_DATES
+        try:
+            data = await self._booking.food_availability(self._route.agent_id, self._call_id, date, time, guests)
+        except BookingRefused:
+            return NOT_AVAILABLE
+        except BookingUnavailable:
+            return BOOKING_OFF
+        except Exception:  # noqa: BLE001
+            logger.warning("check_table: непредвиденный сбой")
+            return BOOKING_OFF
+        self._pending = None
+        if data.get("ok") is True:
+            self._table = {"date": date, "time": time, "guests": guests}
+            period = data.get("period")
+            tail = f" ({period})" if isinstance(period, str) and period else ""
+            return f"Место на {guests} гостей {date} в {time} свободно{tail}. Номер стола не называйте: его назначит администратор."
+        self._table = None
+        reason = data.get("reason")
+        return f"На {date} в {time} на {guests} гостей мест нет: " + (reason if isinstance(reason, str) and reason else "предложите другое время") + ". Предложите другое время."
+
+    async def quote_table(self, date: str, time: str, guests: int) -> str:
+        """Условия брони для проверенного свободного времени; бронью не является."""
+        if self._booking is None or not self._profile.can_book:
+            return BOOKING_OFF
+        if self._table != {"date": date, "time": time, "guests": guests}:
+            return "Сначала проверьте свободное место на это время инструментом check_table."
+        try:
+            quote = await self._booking.food_quote(self._route.agent_id, self._call_id, date, time, guests)
+        except BookingRefused:
+            self._table = None
+            return NOT_AVAILABLE
+        except BookingUnavailable:
+            return BOOKING_OFF
+        except Exception:  # noqa: BLE001
+            logger.warning("quote_table: непредвиденный сбой")
+            return BOOKING_OFF
+        quote_id = quote.get("quote")
+        if not isinstance(quote_id, str):
+            return BOOKING_OFF
+        self._pending = {"quote": quote_id}
+        return (
+            f"Условия: стол на {guests} гостей, {date} в {time}. Это ещё не бронь. Предложение действует 30 минут. Для подтверждения брони "
+            "спросите имя, телефон, пожелание к столу и получите от клиента явное согласие «да». Стол назначит администратор."
+        )
+
+    async def confirm_table(self, name: str, phone: str, comment: str, customer_agreed: bool) -> str:
+        """Забронировать по последним условиям после явного согласия звонящего."""
+        if self._booking is None or not self._profile.can_book:
+            return BOOKING_OFF
+        if self._pending is None or "quote" not in self._pending:
+            return NEED_QUOTE
+        if customer_agreed is not True:
+            return "Нужно явное согласие клиента на условия: переспросите и дождитесь слова «да»."
+        if self._booked >= self._profile.booking_max_per_call:
+            return "За один звонок забронировано максимум, остальное уточнит администратор."
+        clean_name = (name or "").strip()[:100]
+        if not clean_name:
+            return "Нужно имя клиента, уточните его."
+        number = normalize_e164(phone)
+        if number is None:
+            return "Номер телефона не расслышан, попросите клиента повторить его полностью."
+        guest = {"name": clean_name, "phone": number, "comment": (comment or "").strip()[:NOTE_MAX]}
+        try:
+            booked = await self._booking.food_confirm(self._route.agent_id, self._call_id, self._pending["quote"], guest)
+        except BookingRefused:
+            self._pending = None
+            self._table = None
+            return NOT_AVAILABLE
+        except BookingUnavailable:
+            return BOOKING_OFF
+        except Exception:  # noqa: BLE001
+            logger.warning("confirm_table: непредвиденный сбой")
+            return BOOKING_OFF
+        self._pending = None
+        self._table = None
+        self._booked += 1
+        tail = "Бронь ожидает подтверждения администратора, он назначит стол и свяжется с клиентом." if booked.get("pendingApproval") else "Бронь подтверждена, стол назначит администратор."
+        return f"Бронь принята: {booked.get('partySize')} гостей, {booked.get('date')} в {booked.get('time')}. {tail}"

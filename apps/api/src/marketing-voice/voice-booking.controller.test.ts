@@ -9,6 +9,7 @@ import { AuthService } from '../auth/auth.service';
 import { VoiceBookingController } from './voice-booking.controller';
 import { VoiceBeautyService } from './voice-beauty.service';
 import { VoiceBookingRouter } from './voice-booking.router';
+import { VoiceFoodService } from './voice-food.service';
 import { VoiceBookingService } from './voice-booking.service';
 
 /** Ключи голосовой брони разделены: чтение свободного и запись брони разными ключами; общий служебный не входит */
@@ -36,6 +37,7 @@ describe('голосовая бронь: ключи', () => {
         { provide: VoiceBookingService, useValue: service },
         { provide: VoiceBookingRouter, useValue: router },
         { provide: VoiceBeautyService, useValue: beauty },
+        { provide: VoiceFoodService, useValue: { check: vi.fn(async () => ({ ok: true })) } },
         { provide: AuthService, useValue: { whoami: async () => null } },
         { provide: APP_GUARD, useClass: SessionGuard },
       ],
@@ -81,7 +83,7 @@ describe('голосовая бронь: ключи', () => {
       expect(router.confirm).not.toHaveBeenCalled();
     },
   );
-  it.each(['/voice/beauty-catalog', '/voice/beauty-slots'])('справочник и окна салона %s читает ключ приёма событий, ключ записи нет', async (path) => {
+  it.each(['/voice/beauty-catalog', '/voice/beauty-slots', '/voice/food-availability'])('справочник и окна салона %s читает ключ приёма событий, ключ записи нет', async (path) => {
     await request(app.getHttpServer()).get(path).set('x-wetop-service-key', INGEST).expect(200);
     await request(app.getHttpServer()).get(path).set('x-wetop-service-key', BOOK).expect(403);
     await request(app.getHttpServer()).get(path).set('x-wetop-service-key', SERVICE).expect(403);

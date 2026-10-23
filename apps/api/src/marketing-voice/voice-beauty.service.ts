@@ -8,19 +8,16 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  UnprocessableEntityException,
 } from '@nestjs/common';
 import { normalizePhone } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import {
   SiteFormsService,
-  type FormSite,
   type VoiceBeautyCatalog,
 } from '../site-forms/site-forms.service';
+import { UUID, obj, str, voiceGate } from './voice-gate';
 import { VOICE_INGEST_REPOSITORY, type VoiceIngestRepository } from './voice-ingest.repository';
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const CALL_ID = /^[A-Za-z0-9._:-]{1,64}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})$/;
 /** Срок котировки голоса: как у брони из чата (решение владельца 01.10.2026) */
@@ -155,8 +152,6 @@ export interface VoiceVisitBooked {
   pendingApproval: boolean;
 }
 
-const obj = (raw: unknown): Record<string, unknown> => (raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {});
-const str = (v: unknown, max: number): string => (typeof v === 'string' ? v.trim().slice(0, max + 1) : '');
 const localDate = (at: Date, timezone: string): string =>
   new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(at);
 
@@ -300,21 +295,8 @@ export class VoiceBeautyService {
     return id;
   }
 
-  private async gate(b: Record<string, unknown>, now: Date) {
-    const agent = str(b.agent, 36).toLowerCase();
-    if (!UUID.test(agent)) throw new BadRequestException('agent: ожидался UUID');
-    const call = str(b.call, 64);
-    if (!CALL_ID.test(call)) throw new BadRequestException('call: идентификатор звонка, 1-64 знака');
-    const profile = await this.repo.profile(agent);
-    if (profile === null) throw new NotFoundException('Агент не найден');
-    if (profile === 'NO_LOCATION') throw new UnprocessableEntityException('У агента не выбран филиал');
-    if (profile.vertical !== 'BEAUTY') throw new ConflictException('Запись по телефону для этого направления не подключена');
-    if (!profile.booking.enabled) throw new ConflictException('Бронирование по телефону на объекте выключено');
-    const scope = await this.repo.resolveAgent(agent);
-    if (scope === null || scope === 'NO_LOCATION') throw new NotFoundException('Агент не найден');
-    const fs: FormSite = await this.forms.voiceSite(scope.locationId, agent, now);
-    if (fs.organizationId !== profile.organizationId || fs.vertical !== 'BEAUTY') throw new NotFoundException('Агент не найден');
-    return { agent, call, profile, fs };
+  private gate(b: Record<string, unknown>, now: Date) {
+    return voiceGate(this.repo, this.forms, b, now, 'BEAUTY');
   }
 }
 

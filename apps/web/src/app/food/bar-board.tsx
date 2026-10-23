@@ -23,9 +23,9 @@ export function BarBoard({ ctx, orders }: { ctx: OrderContext; orders: OrderView
         <KitchenBoard scopeKey={ctx.scopeKey} timezone={ctx.timezone} write={ctx.write} orders={orders} station="BAR" />
       </section>
       <section className="rest-bar-menu" aria-label="Напитки">
-        <nav className="rest-utabs" aria-label="Категории напитков">
+        <nav className="tabs" aria-label="Категории напитков">
           {cats.map((c) => (
-            <button
+            <button className="tabs__item"
               key={c.id}
               type="button"
               aria-current={category === c.id ? 'page' : undefined}

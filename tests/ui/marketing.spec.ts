@@ -268,6 +268,7 @@ test('контент: ИИ пишет два варианта, лишние ци
   // цифра 30% не из карточки: предупреждение; ссылку брони подставил WETOP, а не модель
   await expect(variants.first()).toContainText('Проверьте цифры: 30%');
   await expect(variants.first()).toContainText('Записаться онлайн: https://salon.example');
+  await page.screenshot({ path: `${SHOTS}/content-variants-light-1440.png`, fullPage: true });
   await variants.first().getByRole('button', { name: 'Взять этот', exact: true }).click();
   const editor = content.getByTestId('content-editor');
   await expect(editor.getByTestId('content-warnings')).toContainText('30%');
@@ -284,6 +285,9 @@ test('контент: ИИ пишет два варианта, лишние ци
   await expect(cards.first()).toContainText('Instagram');
   await cards.first().getByRole('button', { name: 'Отметить опубликованным', exact: true }).click();
   await expect(cards.first()).toContainText('Опубликован');
+  await page.screenshot({ path: `${SHOTS}/content-plan-light-1440.png`, fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: `${SHOTS}/content-plan-light-390.png`, fullPage: true });
 });
 
 test('контент: ИИ недоступен, пост пишется руками и сохраняется без дня', async ({ page, request }) => {

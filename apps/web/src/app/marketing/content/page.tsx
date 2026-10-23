@@ -102,8 +102,8 @@ export default async function MarketingContentPage({ searchParams }: { searchPar
                     <Link className="btn btn--ghost btn--sm" href={`/marketing/content?week=${addDays(week.week.from, -7)}#plan`}>
                       ← Прошлая неделя
                     </Link>
-                    <span>
-                      {week.week.from} — {week.week.to}
+                    <span data-testid="content-week-range">
+                      с {dayLabel(week.week.from)} по {dayLabel(week.week.to)}
                     </span>
                     <Link className="btn btn--ghost btn--sm" href={`/marketing/content?week=${addDays(week.week.from, 7)}#plan`}>
                       Следующая неделя →
@@ -139,5 +139,7 @@ export default async function MarketingContentPage({ searchParams }: { searchPar
   );
 }
 
+const dayLabel = (iso: string) =>
+  new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(`${iso}T00:00:00Z`));
 const addDays = (iso: string, n: number) =>
   new Date(Date.parse(`${iso}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);

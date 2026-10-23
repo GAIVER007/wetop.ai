@@ -3,7 +3,7 @@
   .content-brief,
   .content-editor {
     display: grid;
-    gap: var(--space-3);
+    gap: var(--space-4);
     padding: var(--space-4);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
@@ -12,7 +12,7 @@
   .content-editor__row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: var(--space-3);
+    gap: var(--space-4);
   }
   .content-editor__actions,
   .content-variant__actions {
@@ -27,7 +27,7 @@
   .content-variants {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--space-3);
+    gap: var(--space-4);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -37,7 +37,7 @@
     display: grid;
     gap: var(--space-2);
     align-content: start;
-    padding: var(--space-3);
+    padding: var(--space-4);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     background: var(--surface);
@@ -99,6 +99,9 @@
   @media (max-width: 599px) {
     .content-week {
       grid-template-columns: minmax(0, 1fr);
+    }
+    .content-week__day {
+      min-height: 0;
     }
   }
 }

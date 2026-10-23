@@ -1,4 +1,4 @@
--- Откат CONTENT-DRAFTS-20261022: только пустая таблица; есть черновики — откат останавливается, данные не теряются.
+-- Откат CONTENT-DRAFTS-20261022: только пустая таблица; есть черновики: откат останавливается, данные не теряются.
 DO $$ BEGIN
  IF to_regclass('content_drafts') IS NOT NULL AND EXISTS (SELECT 1 FROM content_drafts) THEN
   RAISE EXCEPTION 'content_drafts is not empty: export drafts before rollback';

@@ -174,8 +174,11 @@ let propertyName = 'Luxx Aparts';
 let connectionState: DataConnection['state'] = 'READY';
 let holdHotel = false;
 const hotelWaiters = new Set<() => void>();
+/** Язык стойки вошедшего (ADR-163, KK1): `POST /auth/locale` меняет, `reset` возвращает русский */
+let uiLocale = 'ru';
 function resetUiAuth() {
   registrationEnabled = true;
+  uiLocale = 'ru';
   uiPassword = 'ui-test-parol';
   uiSessions.clear();
   uiResetTokens.clear();
@@ -7001,6 +7004,7 @@ createServer(async (req, res) => {
         organization,
         expiresAt: uiSessionExpiresAt,
         sessionIssuedAt: uiSessionIssuedAt,
+        locale: uiLocale,
         access: { aiSeller: aiSellerView(who.organizationId) },
         context: {
           scope: scoped ? 'LOCATION' : 'ORGANIZATION',
@@ -9319,6 +9323,14 @@ createServer(async (req, res) => {
         expiresAt: new Date(Date.now() + 12 * 3_600_000).toISOString(),
         user: signedInView(uiUser),
       });
+    }
+    if (path === '/auth/locale' && req.method === 'POST') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите заново: сессия не годится' });
+      if (!['ru', 'kk', 'en'].includes(String(body['locale'])))
+        return send(400, { message: 'Выберите язык системы из списка' });
+      uiLocale = String(body['locale']);
+      return send(200, { locale: uiLocale });
     }
     if (path === '/auth/logout' && req.method === 'POST') {
       const token = sessionOf(req as never);

@@ -8,6 +8,8 @@ const shell = vi.hoisted(() => ({
 }));
 vi.mock('../../lib/desk-shell', () => ({ deskShell: async () => shell }));
 vi.mock('./support-block', () => ({ SupportBlock: () => null }));
+// язык стойки (KK1) читает куку запроса; здесь запроса нет, страница русская
+vi.mock('../../i18n/server', async () => ({ serverT: async () => (await import('../../i18n')).translator('ru') }));
 import HelpPage from './page';
 describe('«Помощь» из меню направления', () => {
   it.each([

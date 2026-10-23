@@ -654,6 +654,8 @@ export const authApi = {
       expiresAt?: string;
       /** Когда выдана сессия; срок `expiresAt` сдвигается работой (Q-153 б), это время нет */
       sessionIssuedAt?: string;
+      /** Язык стойки человека (ADR-163): `ru`, `kk` или `en` */
+      locale?: string;
       access?: DeskAccessView;
       beautyAccess?: BeautyPositionAccess;
       /** Контекст запроса (Platform P2 К1): какой филиал выбран и какое у него направление (Q-254) */
@@ -681,6 +683,7 @@ export const authApi = {
   logout: () => sendJson<{ ok: boolean }>('POST', '/auth/logout', {}),
   changePassword: (body: { currentPassword: string; newPassword: string }) =>
     sendJson<{ ok: boolean }>('POST', '/auth/password', body),
+  changeLocale: (locale: string) => sendJson<{ locale: string }>('POST', '/auth/locale', { locale }),
   /** «Забыли пароль»: ответ один и тот же, есть такая почта или нет */
   requestReset: (body: { email: string }, info?: AuthClientInfo) =>
     sendJson<{ ok: boolean }>(

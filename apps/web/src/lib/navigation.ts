@@ -812,15 +812,17 @@ const HELP_STEPS: Array<{ section: string; item: string | Word; text: (w: HelpWo
 export function helpSteps(
   sections: MenuSection[],
   vertical: WebVertical = 'HOSPITALITY',
+  // язык стойки (KK1): пункт ищется по русскому слову меню, переводится уже найденный путь
+  t: (text: string) => string = (text) => text,
 ): Array<{ path: string; href: string; text: string }> {
   const words = HELP_WORDS[vertical] ?? HELP_WORDS.HOSPITALITY;
   return HELP_STEPS.flatMap((step) => {
     const section = sections.find((s) => s.id === step.section);
     if (!section) return [];
-    if (section.direct) return [{ path: section.label, href: section.items[0]!.href, text: step.text(words) }];
+    if (section.direct) return [{ path: t(section.label), href: section.items[0]!.href, text: step.text(words) }];
     // слово пункта своё у направления (`vertical-copy.ts`), как в меню этого направления
     const item = section.items.find((i) => i.label === wordOf(step.item, vertical));
-    return item ? [{ path: `${section.label} → ${item.label}`, href: item.href, text: step.text(words) }] : [];
+    return item ? [{ path: `${t(section.label)} → ${t(item.label)}`, href: item.href, text: step.text(words) }] : [];
   });
 }
 

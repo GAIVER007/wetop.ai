@@ -69,6 +69,16 @@ describe('меню и подпись по тому, кто вошёл (ADR-083)'
     expect(deskPerson(me({ role: undefined }).user).caption).toBe('Администратор');
     expect(deskPerson(me({ role: 'ADMIN' }).user).caption).toBe('Администратор');
   });
+
+  it('KK1: язык человека из /auth/me переводит роль и пробный срок, русский прежний', () => {
+    const trial = { organization: { status: 'TRIAL', trialEndsAt: new Date(Date.now() + 3 * 86_400_000).toISOString() } };
+    const kk = deskShellOf({ ...me({ platformAdmin: true, ...trial }), locale: 'kk' });
+    expect(kk.person?.caption).toBe('Иесі · бас әкімші');
+    expect(kk.trial).toMatch(/^Сынақ мерзімі: тағы \d күн$/);
+    const ru = deskShellOf({ ...me(trial), locale: 'ru' });
+    expect(ru.person?.caption).toBe('Владелец');
+    expect(ru.trial).toMatch(/^Пробный период: ещё \d дн\.$/);
+  });
 });
 
 /**

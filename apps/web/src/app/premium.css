@@ -224,6 +224,17 @@
     background: var(--danger-soft);
     color: var(--danger);
   }
+  /* язык стойки (KK1): значок и переключатель `.seg` во всю ширину строки меню */
+  .profile-dropdown__locale {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    padding: var(--space-1) var(--space-2);
+    color: var(--muted);
+  }
+  .profile-dropdown__locale .seg {
+    flex: 1;
+  }
   /* «Что нового» (SUP1): точка, пока последняя запись не открыта */
   .whats-new-dot {
     width: 8px;

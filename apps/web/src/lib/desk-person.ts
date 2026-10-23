@@ -8,6 +8,9 @@ import {
 } from '@pms/domain';
 import { CLOSED_ACCESS, UNKNOWN_ACCESS, deskAccessOf, type NavigationAccess } from './navigation';
 import { tourKeyOf } from '../components/shell/tour-steps';
+import { deskLocale, translator, type Translate } from '../i18n';
+
+const asIs: Translate = translator('ru');
 
 /** Кто на смене — подпись в меню вместо «Администратор» (ADR-083): имя, роль и буквы для кружка */
 export interface DeskPerson {
@@ -66,10 +69,14 @@ interface TrialOrganization {
  * Строка о пробном сроке организации (ADR-046, 7 дней). После срока — только факт: перехода в «только чтение» в
  * системе пока нет (Q-144), поэтому строка ничего не обещает и не пугает.
  */
-export function trialLine(org: TrialOrganization | null | undefined, now: Date): string | null {
+export function trialLine(
+  org: TrialOrganization | null | undefined,
+  now: Date,
+  t: Translate = asIs,
+): string | null {
   if (!org || org.status !== 'TRIAL' || !org.trialEndsAt) return null;
   const left = daysLeft(new Date(org.trialEndsAt), now);
-  return left === 0 ? 'Пробный период закончился' : `Пробный период: ещё ${left} дн.`;
+  return left === 0 ? t('Пробный период закончился') : t('Пробный период: ещё {n} дн.', { n: left });
 }
 
 /**
@@ -96,16 +103,18 @@ type MeLike = Parameters<typeof deskAccessOf>[0] & {
     organization?: TrialOrganization | null;
   } | null;
   context?: { vertical?: string | null } | null;
+  /** Язык стойки человека (ADR-163): переводит подпись роли и пробный срок */
+  locale?: string;
 };
 
 const capital = (text: string) => text.charAt(0).toLocaleUpperCase('ru') + text.slice(1);
 
 /** Подпись вошедшего: имя (или почта), роль словом; главный администратор — ещё и это */
-export function deskPerson(user: NonNullable<MeLike['user']>): DeskPerson {
+export function deskPerson(user: NonNullable<MeLike['user']>, t: Translate = asIs): DeskPerson {
   const name = user.name?.trim() || user.email;
   // роли нет (старый API) или она незнакома — администратор: подпись не должна обещать прав, которых нет
   const role = MEMBERSHIP_ROLES[(user.role && parseMembershipRole(user.role)) || 'STAFF'];
-  const caption = capital(role) + (user.platformAdmin === true ? ' · главный администратор' : '');
+  const caption = t(capital(role)) + (user.platformAdmin === true ? ` · ${t('главный администратор')}` : '');
   const words = (user.name?.trim() || user.email.split('@')[0] || '?')
     .split(/[\s._-]+/)
     .filter(Boolean);
@@ -118,10 +127,11 @@ export function deskPerson(user: NonNullable<MeLike['user']>): DeskPerson {
 
 export function deskShellOf(me: MeLike | null): DeskShell {
   if (!me?.user) return CLOSED_SHELL;
+  const t = translator(deskLocale(me.locale));
   return {
     access: deskAccessOf(me),
-    person: deskPerson(me.user),
-    trial: trialLine(me.user.organization, new Date()),
+    person: deskPerson(me.user, t),
+    trial: trialLine(me.user.organization, new Date(), t),
     tourKey: tourKeyOf(me.user.email),
     readOnly: readOnlyOf(me.user.organization, new Date()),
     vertical: me.context?.vertical === 'FOOD_SERVICE' ? 'FOOD_SERVICE' : me.context?.vertical === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY',

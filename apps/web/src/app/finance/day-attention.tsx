@@ -107,13 +107,13 @@ function attentionEvents(input: {
     key: 'unassigned',
     severity: 'critical',
     count: unassigned.length,
-    text: `${pluralRu(unassigned.length, ['бронь', 'брони', 'броней'])} без ячейки`,
+    text: `${pluralRu(unassigned.length, ['бронь', 'брони', 'броней'])} без номера`,
     action: { label: 'Назначить', href: `${chessboard}#unassigned-stays` },
     rows: unassigned.map((u) => ({
       key: `${u.number}-unassigned`,
       name: u.name,
       number: u.number,
-      note: `${u.category}, нет ячейки: назначить номер или койку`,
+      note: `${u.category}, номер не назначен: назначить номер или койку`,
       href: card(u.number, 'booking-actions'),
     })),
   });
@@ -124,10 +124,10 @@ function attentionEvents(input: {
       key: 'not-ready',
       severity: 'critical',
       count: notReady.length,
-      text: `${pluralRu(notReady.length, ['заезд', 'заезда', 'заездов'])} сегодня в неготовую ячейку`,
+      text: `${pluralRu(notReady.length, ['заезд', 'заезда', 'заездов'])} сегодня в неготовый номер`,
       action: { label: 'Открыть календарь', href: chessboard },
       rows: notReady.map((r) =>
-        bookingRow(r, `Ячейка ${r.unitCode}: уборка не проверена`, 'booking-actions'),
+        bookingRow(r, `Номер ${r.unitCode}: уборка не проверена`, 'booking-actions'),
       ),
     });
   }
@@ -176,7 +176,7 @@ function attentionEvents(input: {
       key: 'dirty',
       severity: 'warning',
       count: dirty,
-      text: `${pluralRu(dirty, ['ячейка требует', 'ячейки требуют', 'ячеек требуют'])} уборки`,
+      text: `${pluralRu(dirty, ['номер требует', 'номера требуют', 'номеров требуют'])} уборки`,
       action: { label: 'Открыть уборку', href: chessboard },
     });
   }

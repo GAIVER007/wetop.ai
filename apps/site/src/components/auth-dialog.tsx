@@ -17,6 +17,8 @@ import {
   type AuthFieldErrors,
 } from '../lib/auth-validation';
 import { PHONE_COUNTRIES, PRIVACY_POLICY_PATH, defaultPhoneCountry } from '../lib/phone-countries';
+import { OtpInput, type OtpInputHandle, type OtpStatus } from './otp-input';
+import { PasswordStrengthMeter } from './password-strength';
 
 import styles from './auth-dialog.module.css';
 
@@ -30,7 +32,7 @@ type Props = {
     register: string;
     reset: string;
     app: string;
-    endpoint: Record<'options' | 'login' | 'register' | 'resend' | 'session', string>;
+    endpoint: Record<'options' | 'login' | 'register' | 'resend' | 'session' | 'verifyCode', string>;
   };
 };
 
@@ -106,6 +108,9 @@ export function AuthDialog({ texts, urls }: Props) {
   const [pause, setPause] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordJustSet, setPasswordJustSet] = useState(false);
+  const [codeStatus, setCodeStatus] = useState<OtpStatus>('idle');
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const codeField = useRef<OtpInputHandle>(null);
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -358,6 +363,34 @@ export function AuthDialog({ texts, urls }: Props) {
       return setError({ text: message(res.data, texts.errors.network), fallback: false });
     setResent(true);
     setPause(RESEND_PAUSE_S);
+    // Новое письмо гасит прежний код: поле пустое, ошибка прошлого кода снята
+    setCodeStatus('idle');
+    setCodeError(null);
+    codeField.current?.clear();
+  };
+
+  /**
+   * Код из письма (решение владельца 22.10.2026): шесть цифр введены, стойка подтверждает почту и ставит куку
+   * сессии тем же ответом, как при входе паролем. Затем та же проверка, что сессия сохранилась, и переход в стойку.
+   */
+  const submitCode = async (code: string) => {
+    if (!sent) return;
+    setCodeStatus('pending');
+    setCodeError(null);
+    const res = await post(urls.endpoint.verifyCode, { email: sent.email, code });
+    if (!res) {
+      setCodeStatus('error');
+      return setCodeError(texts.errors.network);
+    }
+    if (!res.ok) {
+      setCodeStatus('error');
+      setCodeError(message(res.data, texts.errors.network));
+      window.setTimeout(() => codeField.current?.clear(), 1200);
+      return;
+    }
+    setCodeStatus('success');
+    setDone(true);
+    window.location.assign(nextUrl(urls.app, res.data.next));
   };
 
   const errorBlock = error && (
@@ -408,6 +441,15 @@ export function AuthDialog({ texts, urls }: Props) {
           value={form.password}
           onChange={set('password')}
           disabled={pending || done}
+          // есть ошибка: описывает она (иначе подсказка затёрла бы ссылку на ошибку из invalidProps);
+          // нет ошибки: подсказка надёжности нового пароля
+          aria-describedby={
+            fieldErrors.password
+              ? errorId('password')
+              : autoComplete === 'new-password'
+                ? `${passwordId}-strength`
+                : undefined
+          }
         />
         <button
           type="button"
@@ -420,6 +462,12 @@ export function AuthDialog({ texts, urls }: Props) {
         </button>
       </span>
       {fieldError('password')}
+      {/* Подсказка надёжности только для нового пароля: при входе она подсказывала бы чужой пароль */}
+      {autoComplete === 'new-password' ? (
+        <div id={`${passwordId}-strength`}>
+          <PasswordStrengthMeter value={form.password} />
+        </div>
+      ) : null}
     </div>
   );
 
@@ -505,6 +553,16 @@ export function AuthDialog({ texts, urls }: Props) {
                   {texts.sent.text.replace('{email}', sent.email)}
                 </p>
                 <p className="auth-dialog__lead">{texts.sent.next}</p>
+                <OtpInput
+                  ref={codeField}
+                  label={texts.sent.codeLabel}
+                  status={codeStatus}
+                  hint={codeStatus === 'pending' ? texts.sent.codeChecking : texts.sent.codeHint}
+                  errorMessage={codeError}
+                  successMessage={texts.sent.codeAccepted}
+                  onComplete={submitCode}
+                />
+                <p className="auth-form__hint">{texts.sent.linkFallback}</p>
               </>
             ) : (
               <p className="auth-dialog__lead">{texts.sent.notSent}</p>
@@ -536,6 +594,8 @@ export function AuthDialog({ texts, urls }: Props) {
                   setSent(null);
                   setError(null);
                   setResent(false);
+                  setCodeStatus('idle');
+                  setCodeError(null);
                 }}
               >
                 {texts.sent.change}

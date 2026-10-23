@@ -9,21 +9,36 @@ import {
 import {
   VERIFY_ALREADY_MESSAGE,
   VERIFY_BAD_LINK_MESSAGE,
+  VERIFY_CODE_BAD_MESSAGE,
+  VERIFY_CODE_EXPIRED_MESSAGE,
+  VERIFY_CODE_LOCKED_MESSAGE,
+  VERIFY_CODE_MAX_ATTEMPTS,
+  VERIFY_CODE_MINUTES,
   VERIFY_EXPIRED_MESSAGE,
   emailVerificationLetter,
   hashSessionToken,
   newSessionToken,
+  normalizeVerificationCode,
   validEmail,
+  verificationCodeKey,
+  verifyCodeExpiry,
   verifyExpiry,
   verifyLink,
   VERIFY_REUSE_WINDOW_MS,
   verifyState,
 } from '@pms/domain';
+import { randomInt } from 'node:crypto';
 import { PrismaService } from '../database/prisma.provider';
 import { APP_URL, MAILER, type Mailer } from './password-reset.service';
 
 /** Не чаще одного письма на человека в минуту: кнопка «выслать заново» не должна заваливать ящик. */
 const REPEAT_SECONDS = 60;
+const CODE_WINDOW_MS = VERIFY_CODE_MINUTES * 60_000;
+
+/** Шесть цифр из криптографического источника, с ведущими нулями: «004213» такой же код, как «904213». */
+export function newVerificationCode(): string {
+  return String(randomInt(0, 1_000_000)).padStart(6, '0');
+}
 
 /**
  * Подтверждение почты при самостоятельной регистрации (решение владельца 20.09.2026).
@@ -35,6 +50,14 @@ const REPEAT_SECONDS = 60;
 @Injectable()
 export class EmailVerificationService {
   private readonly lastSent = new Map<string, number>();
+  /**
+   * Неверные коды по человеку с момента выдачи последнего кода. Пятая ошибка гасит код в базе (`used_at`), поэтому
+   * перезапуск API счётчик сбрасывает, а погашенный код не оживляет. Новое письмо начинает счёт заново. Предел по
+   * адресу посетителя держит контроллер.
+   */
+  private readonly codeFailures = new Map<string, { count: number; since: number }>();
+  /** Генератор кода подменяется только в тестах: настоящий код случаен, а тест должен знать его заранее. */
+  codeSource: () => string = newVerificationCode;
 
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
@@ -55,8 +78,8 @@ export class EmailVerificationService {
     const last = this.lastSent.get(input.email);
     if (last !== undefined && now.getTime() - last < REPEAT_SECONDS * 1_000) return true;
 
-    const link = await this.issue(input.userId, now);
-    const letter = emailVerificationLetter({ name: input.name, link });
+    const { link, code } = await this.issue(input.userId, now);
+    const letter = emailVerificationLetter({ name: input.name, link, code });
     try {
       await this.mailer.send({ to: input.email, subject: letter.subject, text: letter.text });
     } catch {
@@ -164,17 +187,128 @@ export class EmailVerificationService {
     return { userId: row.user.id, organizationId };
   }
 
-  /** Новая ссылка гасит прежние неиспользованные: одна живая ссылка на человека. */
-  private async issue(userId: string, now: Date): Promise<string> {
+  /**
+   * Подтверждение кодом из письма (решение владельца 22.10.2026). Отдаёт то же, что `confirm`: сессию открывает
+   * вызывающий. Ответ на неизвестную почту, чужой, уже подтверждённый или заблокированный адрес один и тот же,
+   * «код не подошёл»: по нему нельзя проверить, есть ли такая почта.
+   */
+  async confirmCode(
+    input: { email: string; code: string },
+    now = new Date(),
+  ): Promise<{ userId: string; organizationId: string }> {
+    const email = validEmail(input.email);
+    const code = normalizeVerificationCode(input.code);
+    if (!email || !code) throw new UnauthorizedException(VERIFY_CODE_BAD_MESSAGE);
+    const user = await this.prisma.db.user.findUnique({ where: { email } });
+    const key = user?.id ?? `unknown:${email}`;
+    const at = now.getTime();
+    if (this.failuresOf(key, at) >= VERIFY_CODE_MAX_ATTEMPTS)
+      throw new UnauthorizedException(VERIFY_CODE_LOCKED_MESSAGE);
+
+    const row = user
+      ? await this.prisma.db.emailVerification.findUnique({
+          where: { tokenHash: hashSessionToken(verificationCodeKey(user.id, code)) },
+          include: {
+            user: {
+              include: {
+                memberships: {
+                  where: { status: 'ACTIVE', organization: { status: { not: 'SUSPENDED' } } },
+                  orderBy: { createdAt: 'asc' },
+                  take: 1,
+                },
+              },
+            },
+          },
+        })
+      : null;
+    const state = row ? verifyState(row, now) : 'used';
+    const organizationId = row?.user?.memberships[0]?.organizationId;
+    if (
+      !user ||
+      !row ||
+      !row.user ||
+      row.userId !== user.id ||
+      state !== 'active' ||
+      row.user.status === 'BLOCKED' ||
+      row.user.emailVerifiedAt !== null ||
+      !organizationId
+    ) {
+      if (this.recordFailure(key, at) >= VERIFY_CODE_MAX_ATTEMPTS) {
+        // Пятая ошибка: живые коды человека гаснут в базе. Ссылка (72 часа) остаётся, её отличает срок.
+        if (user)
+          await this.prisma.db.emailVerification.updateMany({
+            where: { userId: user.id, usedAt: null, expiresAt: { lte: new Date(at + CODE_WINDOW_MS) } },
+            data: { usedAt: now },
+          });
+        throw new UnauthorizedException(VERIFY_CODE_LOCKED_MESSAGE);
+      }
+      throw new UnauthorizedException(
+        row && state === 'expired' ? VERIFY_CODE_EXPIRED_MESSAGE : VERIFY_CODE_BAD_MESSAGE,
+      );
+    }
+
+    await this.prisma.db.user.update({ where: { id: user.id }, data: { emailVerifiedAt: now } });
+    // Код и ссылка из того же письма гаснут вместе: подтверждение одно
+    await this.prisma.db.emailVerification.updateMany({
+      where: { userId: user.id, usedAt: null },
+      data: { usedAt: now },
+    });
+    await this.prisma.db.auditLog.create({
+      data: {
+        userId: user.id,
+        entityType: 'user',
+        entityId: user.id,
+        action: 'user.email.verified',
+        after: { email: row.user.email, method: 'code' },
+      },
+    });
+    this.codeFailures.delete(key);
+    return { userId: user.id, organizationId };
+  }
+
+  /** Сколько неверных кодов набрано и не устарело: старше жизни кода счёт ничего не запрещает. */
+  private failuresOf(key: string, at: number): number {
+    const entry = this.codeFailures.get(key);
+    if (!entry || at - entry.since >= CODE_WINDOW_MS) return 0;
+    return entry.count;
+  }
+
+  private recordFailure(key: string, at: number): number {
+    const count = this.failuresOf(key, at) + 1;
+    const since = count === 1 ? at : this.codeFailures.get(key)!.since;
+    this.codeFailures.set(key, { count, since });
+    // Память не растёт без предела: устаревшие счета убираются, как у `lastSent` (аудит 25.09, М-4)
+    if (this.codeFailures.size > 10_000)
+      for (const [k, e] of this.codeFailures)
+        if (at - e.since >= CODE_WINDOW_MS) this.codeFailures.delete(k);
+    return count;
+  }
+
+  /**
+   * Новое письмо гасит прежние неиспользованные ссылки и коды: одна живая пара на человека. Код заводится раньше
+   * ссылки и на миллисекунду старше: «последней выданной» остаётся ссылка, на этом стоит окно повтора (`confirm`).
+   */
+  private async issue(userId: string, now: Date): Promise<{ link: string; code: string }> {
     await this.prisma.db.emailVerification.updateMany({
       where: { userId, usedAt: null },
       data: { usedAt: now },
     });
+    this.codeFailures.delete(userId);
+    const code = this.codeSource();
+    await this.prisma.db.emailVerification.create({
+      data: {
+        userId,
+        tokenHash: hashSessionToken(verificationCodeKey(userId, code)),
+        expiresAt: verifyCodeExpiry(now),
+        createdAt: new Date(now.getTime() - 1),
+      },
+    });
     const token = newSessionToken();
     await this.prisma.db.emailVerification.create({
-      data: { userId, tokenHash: hashSessionToken(token), expiresAt: verifyExpiry(now) },
+      // Время ссылки задаёт тот же источник, что у кода: часы базы и API могут расходиться на миллисекунды
+      data: { userId, tokenHash: hashSessionToken(token), expiresAt: verifyExpiry(now), createdAt: now },
     });
-    return verifyLink(this.appUrl, token);
+    return { link: verifyLink(this.appUrl, token), code };
   }
 }
 

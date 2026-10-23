@@ -1,4 +1,4 @@
-# 146 Черновики постов «Контента»
+# 147 Черновики постов «Контента»
 
 Решение: `docs/decisions/2026-10-23-content-drafts.md`, модель `docs/marketing/content-drafts-proposal.md` §3.
 В production НЕ применено.

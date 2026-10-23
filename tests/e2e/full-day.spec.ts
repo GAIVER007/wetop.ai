@@ -76,11 +76,16 @@ test('сутки гостя целиком: заезд, услуга на счё
     .getByTestId('guest-form')
     .getByRole('button', { name: 'Сохранить' })
     .click();
+  // сохранение обновляет страницу: пока оно идёт, введённый номер документа стирался (CI main 23.10.2026),
+  // поэтому ждём гражданство в шапке карточки и только потом заполняем документ
+  await expect(page.getByRole('main').getByRole('definition').filter({ hasText: /^KAZ$/ })).toBeVisible();
+  await page.waitForLoadState('networkidle');
   // G5: документы — своя вкладка карточки гостя
   await page.getByRole('main').getByRole('tab', { name: 'Документы', exact: true }).click();
   const doc = page.getByRole('main').getByTestId('document-form');
   await doc.locator('input[name="number"]').fill('N 0000777');
   await doc.locator('input[name="issueCountry"]').fill('KAZ');
+  await expect(doc.locator('input[name="number"]')).toHaveValue('N 0000777');
   await doc.getByRole('button', { name: 'Добавить' }).click();
   await expect(page.getByRole('main').getByTestId('document-row')).toContainText('****0777');
 

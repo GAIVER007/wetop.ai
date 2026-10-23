@@ -158,6 +158,10 @@ export const ACTION_RU: Record<string, string> = {
   'inventory.category.updated': 'Категория номеров изменена',
   'inventory.room.created': 'Номер создан',
   'inventory.room.updated': 'Номер изменён',
+  'content.draft.created': 'Черновик поста создан',
+  'content.draft.updated': 'Черновик поста изменён',
+  'content.draft.published': 'Пост отмечен опубликованным',
+  'content.draft.archived': 'Черновик поста в архиве',
   'market.competitor.created': 'Конкурент добавлен',
   'market.occupancy.collected': 'Загрузка конкурентов собрана',
   'market.occupancy.recorded': 'Загрузка конкурентов внесена',
@@ -230,6 +234,7 @@ export const ENTITY_RU: Record<string, string> = {
   // объект входа, регистрации и смены пароля — учётная запись человека, а не карточка сотрудника (P2-3)
   user: 'Учётная запись',
   Competitor: 'Конкурент',
+  content_draft: 'Черновик поста',
   Location: 'Филиал',
   PaymentRequest: 'Счёт на оплату',
   PromoCode: 'Промокод',

@@ -4,14 +4,14 @@ import { describe, expect, it } from 'vitest';
 import { RLS_TENANT_TABLES } from '@pms/database';
 
 /**
- * Миграция 147 «Котировки голосовой брони, салон и ресторан» (DATA_MODEL VOICE-BOOKING-PROPOSAL-20261023, п. 3, утверждено
+ * Миграция 148 «Котировки голосовой брони, салон и ресторан» (DATA_MODEL VOICE-BOOKING-PROPOSAL-20261023, п. 3, утверждено
  * 23.10.2026). Сторож без базы; поведение в базе проверено на чистой базе (docs/status/2026-10-23-voice-booking-salon.md).
  */
 const ROOT = resolve(import.meta.dirname, '../..');
-const DIR = resolve(ROOT, 'packages/database/prisma/migrations/20261023000147_voice_booking_quotes');
+const DIR = resolve(ROOT, 'packages/database/prisma/migrations/20261023000148_voice_booking_quotes');
 const read = (path: string) => readFileSync(path, 'utf8');
 
-describe('миграция 147 voice_booking_quotes', () => {
+describe('миграция 148 voice_booking_quotes', () => {
   it('есть migration.sql, down.sql и README', () => {
     for (const file of ['migration.sql', 'down.sql', 'README.md']) expect(existsSync(resolve(DIR, file)), file).toBe(true);
   });

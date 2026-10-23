@@ -287,7 +287,7 @@ describe.skipIf(!url)(
     expect([...new Set(rows)].sort()).toEqual(['AppointmentSource', 'ReservationSource', 'RestaurantReservationSource']);
   });
 
-  it('настройка брони из стойки под ролью приложения: только выключатель и лимит, только своя организация (миграция 148)', async () => {
+  it('настройка брони из стойки под ролью приложения: только выключатель и лимит, только своя организация (миграция 149)', async () => {
     const as = async (org: string, statements: Array<[string, unknown[]?]>, expectFail: boolean[]) => {
       await sql.query('BEGIN');
       try {

@@ -188,6 +188,8 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'marketing_ad_launches',
   'marketing_ad_launch_steps',
   'marketing_ad_creatives',
+  // Контент: черновики постов филиала (миграция …146): RLS, FORCE и rls_tenant в своей миграции
+  'content_drafts',
   // Existing policies from 20261004000051_bar_inventory.
   'bar_categories',
   'bar_products',

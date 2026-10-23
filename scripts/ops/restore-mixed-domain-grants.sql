@@ -1,4 +1,4 @@
--- Restore-only ACL companion for mixed migrations132,134-137,140,141,144.
+-- Restore-only ACL companion for mixed migrations132,134-137,140,141,144,146.
 -- Not a schema migration. Run after ordinary pure-ACL migrations, inside the restore transaction.
 -- Copy existing privileges exactly; never replay mixed DDL or end the caller's transaction.
 DO $restore_acl$
@@ -81,11 +81,11 @@ BEGIN
     GRANT SELECT ON voice_calls, voice_profiles TO wetop_app;
     GRANT SELECT ON voice_callbacks TO wetop_app;
     GRANT UPDATE (status, done_at, done_by_id) ON voice_callbacks TO wetop_app;
-    -- 148_voice_booking_settings: column grants for the booking switch and the per-call limit
+    -- 149_voice_booking_settings: column grants for the booking switch and the per-call limit
     GRANT INSERT (agent_id, organization_id, business_id, booking_enabled, booking_max_per_call) ON voice_profiles TO wetop_app;
     GRANT UPDATE (booking_enabled, booking_max_per_call, updated_at) ON voice_profiles TO wetop_app;
   END IF;
-  -- 147_voice_booking_quotes: exact ACL of the voice booking quotes
+  -- 148_voice_booking_quotes: exact ACL of the voice booking quotes
   IF to_regclass('public.voice_booking_quotes') IS NOT NULL THEN
     REVOKE ALL ON voice_booking_quotes FROM wetop_app, wetop_service;
     GRANT SELECT, INSERT, UPDATE ON voice_booking_quotes TO wetop_service;
@@ -100,5 +100,11 @@ BEGIN
     REVOKE ALL ON menu_modifier_groups, menu_modifiers, menu_item_modifier_groups, restaurant_order_item_modifiers, restaurant_payment_items FROM wetop_app, wetop_service;
     GRANT SELECT, INSERT, UPDATE, DELETE ON menu_modifier_groups, menu_modifiers, menu_item_modifier_groups, restaurant_order_item_modifiers TO wetop_app, wetop_service;
     GRANT SELECT, INSERT, UPDATE ON restaurant_payment_items TO wetop_app, wetop_service;
+  END IF;
+
+  -- 146_content_drafts: exact ACL of the mixed migration (draft is archived, never deleted)
+  IF to_regclass('public.content_drafts') IS NOT NULL THEN
+    REVOKE ALL ON content_drafts FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON content_drafts TO wetop_app, wetop_service;
   END IF;
 END $restore_acl$;

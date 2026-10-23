@@ -1,4 +1,4 @@
-# 147 voice_booking_quotes
+# 148 voice_booking_quotes
 
 Котировки голосовой брони для салона (запись к мастеру) и ресторана (бронь на время и гостей). Предложение и утверждение: DATA_MODEL.md,
 `VOICE-BOOKING-PROPOSAL-20261023` п. 3 и `VOICE-BOOKING-OWNER-APPROVAL-20261023`.

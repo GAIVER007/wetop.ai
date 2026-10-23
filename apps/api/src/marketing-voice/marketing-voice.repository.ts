@@ -52,7 +52,7 @@ export interface CallbackRecord {
   doneAt: Date | null;
 }
 
-/** Агент голоса филиала и его настройка брони по телефону (`voice_profiles`, миграции 146 и 148) */
+/** Агент голоса филиала и его настройка брони по телефону (`voice_profiles`, миграции 147 и 149) */
 export interface BookingAgentRecord {
   agentId: string;
   lifecycle: string;

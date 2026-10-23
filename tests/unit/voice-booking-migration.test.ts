@@ -3,15 +3,15 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 /**
- * Миграция 146 «Голосовая бронь, гостиница» (DATA_MODEL VOICE-BOOKING-OWNER-APPROVAL-20261023). Сторож без базы:
+ * Миграция 147 «Голосовая бронь, гостиница» (DATA_MODEL VOICE-BOOKING-OWNER-APPROVAL-20261023). Сторож без базы:
  * форму миграции, откат и схему Prisma держит текст; поведение в базе проверено на чистой базе
  * (docs/status/2026-10-23-voice-booking-hotel.md).
  */
 const ROOT = resolve(import.meta.dirname, '../..');
-const DIR = resolve(ROOT, 'packages/database/prisma/migrations/20261023000146_voice_booking');
+const DIR = resolve(ROOT, 'packages/database/prisma/migrations/20261023000147_voice_booking');
 const read = (path: string) => readFileSync(path, 'utf8');
 
-describe('миграция 146 voice_booking', () => {
+describe('миграция 147 voice_booking', () => {
   it('есть migration.sql, down.sql и README', () => {
     for (const file of ['migration.sql', 'down.sql', 'README.md']) expect(existsSync(resolve(DIR, file)), file).toBe(true);
   });
@@ -47,6 +47,10 @@ describe('миграция 146 voice_booking', () => {
     const down = existsSync(resolve(DIR, 'down.sql')) ? read(resolve(DIR, 'down.sql')) : '';
     expect(down).toMatch(/channel" = 'voice'/);
     expect(down).toMatch(/DROP COLUMN "booking_enabled"/);
+    // перечисления пересоздаются без VOICE (сторож отката scripts/ops/check-migrations.sh сравнивает схему до и после)
+    for (const type of ['ReservationSource', 'RestaurantReservationSource', 'AppointmentSource'])
+      expect(down).toContain(`CREATE TYPE "${type}" AS ENUM`);
+    expect(down).not.toMatch(/AS ENUM \([^)]*'VOICE'/);
     expect(down).toMatch(/CHECK \("channel" IN \('whatsapp', 'widget'\)\)/);
   });
 

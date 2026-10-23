@@ -1,4 +1,4 @@
-# 148 voice_booking_settings
+# 149 voice_booking_settings
 
 Права и политики для настройки голосовой брони из стойки (срез 4 плана `plans/voice-booking-slices-4-5-2026-10-23.md`).
 

@@ -105,7 +105,7 @@ test('/website/* подсвечивает «Маркетинг», а не «Пр
   }
 });
 
-test('хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», из данных только бюджет месяца', async ({
+test('хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», живые реклама и контент, из данных только бюджет месяца', async ({
   page,
   request,
 }) => {
@@ -165,11 +165,11 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   await expect(budgetMenu.getByRole('menuitem')).toHaveText(['Расходы', 'Аналитика маркетинга']);
   await page.keyboard.press('Escape');
 
-  // реклама живая (кампании, кабинет Meta), контент ещё не построен: одна кнопка «Открыть» на свой экран, без меню
+  // реклама (кампании, кабинет Meta) и контент (черновики постов) живые: одна кнопка «Открыть» на свой экран, без меню
   // (аудит 21.10.2026 п. 5: «Скоро» рядом с живой кнопкой у рекламы сбивал с толку)
   for (const [testId, title, href, status] of [
     ['marketing-ads', 'Реклама', '/marketing/ads', 'Доступно'],
-    ['marketing-content', 'Контент', '/marketing/content', 'Скоро'],
+    ['marketing-content', 'Контент', '/marketing/content', 'Доступно'],
   ] as const) {
     const card = hub.getByTestId(testId);
     await expect(card.getByTestId(`${testId}-status`)).toHaveText(status);
@@ -227,14 +227,11 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   await expect(page).toHaveURL(/\/marketing\/content$/);
   const content = main(page);
   await expect(content.getByRole('heading', { level: 1 })).toHaveText('Контент');
-  await expect(content.getByRole('tab')).toHaveText(['Идеи', 'Генерация', 'Медиатека', 'План публикаций', 'Статистика']);
-  await expect(content.getByRole('button', { name: 'Создать контент', exact: true })).toBeDisabled();
-  const formats = content.getByTestId('marketing-content-formats').getByRole('listitem');
-  await expect(formats).toHaveCount(8);
-  await expect(formats.first()).toContainText('Создать с ИИ');
-  const week = content.getByTestId('marketing-content-week').getByRole('listitem');
-  await expect(week).toHaveCount(7);
-  await expect(week).toContainText(Array(7).fill('Пусто'));
+  // CONTENT-DRAFTS-20261022: живой экран, первым «Создать пост»; заглушек «Скоро» и пустой «Статистики» нет
+  await expect(content.getByRole('tab')).toHaveText(['Создать пост', 'План публикаций', 'Идеи', 'Медиатека']);
+  await expect(content.getByTestId('marketing-content-soon')).toHaveCount(0);
+  await expect(content.getByRole('button', { name: 'Написать с ИИ', exact: true })).toBeDisabled();
+  await expect(content.getByRole('button', { name: 'Написать самому', exact: true })).toBeEnabled();
   // медиатека живая: ведёт в изображения сайта (MKT8)
   await content.getByRole('tab', { name: 'Медиатека', exact: true }).click();
   await expect(content.getByRole('link', { name: 'Открыть изображения', exact: true })).toHaveAttribute(
@@ -242,7 +239,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
     '/marketing/site/assets',
   );
 
-  // «Контент» не спрашивает данных, кроме запросов оболочки; «Реклама» спрашивает кампании и последние запуски ИИ-таргетолога
+  // «Контент» читает только неделю черновиков; «Реклама» спрашивает кампании и последние запуски ИИ-таргетолога
   await request.post(`${fixture}/__test/reset`);
   for (const path of ['/marketing/ads', '/marketing/content']) {
     await page.goto(path);
@@ -251,7 +248,67 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   const hits = (await (await request.get(`${fixture}/__test/hits`)).json()) as {
     byPath: Record<string, number>;
   };
-  expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path)).sort()).toEqual(['/marketing/ad-connections/meta', '/marketing/ads/launches', '/marketing/campaigns']);
+  expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path)).sort()).toEqual([
+    '/marketing/ad-connections/meta',
+    '/marketing/ads/launches',
+    '/marketing/campaigns',
+    '/marketing/content/drafts',
+  ]);
+});
+
+test('контент: ИИ пишет два варианта, лишние цифры подсвечены, черновик встаёт на день и переживает перезагрузку', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/reset`);
+  await page.goto('/marketing/content');
+  const content = main(page);
+  await content.getByRole('textbox', { name: /^Тема/ }).fill('Осенний уход за волосами');
+  await content.getByRole('button', { name: 'Написать с ИИ', exact: true }).click();
+  const variants = content.getByTestId('content-variants').getByRole('listitem');
+  await expect(variants).toHaveCount(2);
+  await expect(variants.first()).toContainText('Вариант A');
+  // цифра 30% не из карточки: предупреждение; ссылку брони подставил WETOP, а не модель
+  await expect(variants.first()).toContainText('Проверьте цифры: 30%');
+  await expect(variants.first()).toContainText('Записаться онлайн: https://salon.example');
+  await page.screenshot({ path: `${SHOTS}/content-variants-light-1440.png`, fullPage: true });
+  await variants.first().getByRole('button', { name: 'Взять этот', exact: true }).click();
+  const editor = content.getByTestId('content-editor');
+  await expect(editor.getByTestId('content-warnings')).toContainText('30%');
+  await editor.getByRole('textbox', { name: /^Текст поста/ }).fill('Осень, время ухода. Запишитесь на стрижку.');
+  await editor.getByRole('combobox', { name: /^День публикации/ }).selectOption({ index: 2 });
+  await editor.getByRole('button', { name: 'Сохранить черновик', exact: true }).click();
+  await expect(content.getByTestId('content-saved')).toBeVisible();
+
+  await page.reload();
+  await content.getByRole('tab', { name: 'План публикаций', exact: true }).click();
+  const cards = content.getByTestId('content-plan').getByTestId('content-card');
+  await expect(cards).toHaveCount(1);
+  await expect(cards.first()).toContainText('Осень, время ухода. Запишитесь на стрижку.');
+  await expect(cards.first()).toContainText('Instagram');
+  await cards.first().getByRole('button', { name: 'Отметить опубликованным', exact: true }).click();
+  await expect(cards.first()).toContainText('Опубликован');
+  await page.screenshot({ path: `${SHOTS}/content-plan-light-1440.png`, fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: `${SHOTS}/content-plan-light-390.png`, fullPage: true });
+});
+
+test('контент: ИИ недоступен, пост пишется руками и сохраняется без дня', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/reset`);
+  await request.post(`${fixture}/__test/content-ai`, { data: { down: true } });
+  await page.goto('/marketing/content');
+  const content = main(page);
+  await content.getByRole('textbox', { name: /^Тема/ }).fill('Новая услуга');
+  await content.getByRole('button', { name: 'Написать с ИИ', exact: true }).click();
+  await expect(content.getByRole('alert')).toContainText('ИИ сейчас недоступен');
+  await content.getByRole('button', { name: 'Написать самому', exact: true }).click();
+  const editor = content.getByTestId('content-editor');
+  await editor.getByRole('textbox', { name: /^Текст поста/ }).fill('У нас новая услуга. Приходите.');
+  await editor.getByRole('button', { name: 'Сохранить черновик', exact: true }).click();
+  await expect(content.getByTestId('content-saved')).toBeVisible();
+  await content.getByRole('tab', { name: 'План публикаций', exact: true }).click();
+  await expect(content.getByRole('region', { name: 'Черновики без дня' }).getByTestId('content-card')).toHaveCount(1);
+  await request.post(`${fixture}/__test/content-ai`, { data: { down: false } });
 });
 
 test('администратор (без права marketing): вкладки «Маркетинг» нет, прямой адрес не открывает хаб', async ({

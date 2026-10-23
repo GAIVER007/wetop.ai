@@ -49,7 +49,7 @@ export interface VoiceQuoteRow {
   resultId: string | null;
 }
 
-/** Котировки голоса для салона и ресторана: таблица `voice_booking_quotes` (миграция 147) */
+/** Котировки голоса для салона и ресторана: таблица `voice_booking_quotes` (миграция 148) */
 export interface VoiceQuoteStore {
   countConfirmed(agentId: string, callRef: string): Promise<number>;
   countCreated(agentId: string, callRef: string): Promise<number>;
@@ -105,7 +105,7 @@ export class PrismaVoiceQuoteStore implements VoiceQuoteStore {
   async settle(id: string, state: Exclude<VoiceQuoteState, 'QUOTED'>, resultId?: string, guestPhoneHash?: string | null): Promise<boolean> {
     const done = await this.prisma.db.voiceBookingQuote.updateMany({
       where: { id, state: 'QUOTED' },
-      // хэш телефона только у подтверждённой строки (CHECK миграции 149)
+      // хэш телефона только у подтверждённой строки (CHECK миграции 150)
       data: { state, resultId: resultId ?? null, updatedAt: new Date(), ...(state === 'CONFIRMED' && guestPhoneHash ? { guestPhoneHash } : {}) },
     });
     return done.count > 0;

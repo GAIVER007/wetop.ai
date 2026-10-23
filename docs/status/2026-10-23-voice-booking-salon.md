@@ -3,7 +3,7 @@
 Ветка `claude/voice-booking-salon-20261023` на ветке гостиницы (PR 791). Решения владельца: `docs/decisions/2026-10-23-voice-booking-salon-restaurant.md`.
 
 ## Что сделано
-- **Миграция 147** `voice_booking_quotes` (утверждена в DATA_MODEL): котировки салона и ресторана, RLS, права, откат. Отличие от предложения: звонок текстом `call_ref` (DATA_MODEL VOICE-BOOKING-QUOTES-NOTE-20261023).
+- **Миграция 148** `voice_booking_quotes` (утверждена в DATA_MODEL): котировки салона и ресторана, RLS, права, откат. Отличие от предложения: звонок текстом `call_ref` (DATA_MODEL VOICE-BOOKING-QUOTES-NOTE-20261023).
 - **Формы сайта**: `SiteFormsService` получил входы для голоса (`voiceSite`, `voiceBeautyCatalog`, `voiceBeautySlots`, `voiceBeautyBook`) поверх прежнего расчёта окон и записи
   (график, отпуска, занятость, длительность, цена по филиалу, замок филиала, ключ повтора). Форма сайта не изменилась; запись голоса идёт с источником `VOICE`, заметкой «Бронь по телефону».
 - **API** (`voice-beauty.service.ts`, `voice-booking.router.ts`): `GET /voice/beauty-catalog` (услуги и мастера каждой услуги), `GET /voice/beauty-slots`, а `POST /voice/booking-quotes` и `/confirm`
@@ -12,7 +12,7 @@
 - **Воркер**: `get_masters`, `find_slots`, `quote_visit`, `confirm_visit`; идентификаторы услуг, мастеров и котировки хранятся в воркере и модели не видны; клиент записывается к любому свободному мастеру или к названному.
 
 ## Проверки
-- Red до кода: unit миграции 147, сервис салона (14), Python `test_booking_salon.py`.
+- Red до кода: unit миграции 148, сервис салона (14), Python `test_booking_salon.py`.
 - Интеграция на одноразовом Postgres 16 (настоящий мир салона BL1 с двумя мастерами, RLS): 8 сценариев (справочник, запись BOOKED/VOICE с комментарием и аудитом, повтор, названный мастер, гонка за время, чужая котировка, выключатель, лимит 3).
 - Python: 219 тестов с SDK. `lint` и `typecheck` (кроме прежней ошибки про `xlsx`).
 

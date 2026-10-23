@@ -1,4 +1,4 @@
--- 146 «Голосовая бронь, гостиница» (DATA_MODEL VOICE-BOOKING-OWNER-APPROVAL-20261023). Только добавление.
+-- 147 «Голосовая бронь, гостиница» (DATA_MODEL VOICE-BOOKING-OWNER-APPROVAL-20261023). Только добавление.
 ALTER TYPE "ReservationSource" ADD VALUE IF NOT EXISTS 'VOICE';
 ALTER TYPE "RestaurantReservationSource" ADD VALUE IF NOT EXISTS 'VOICE';
 ALTER TYPE "AppointmentSource" ADD VALUE IF NOT EXISTS 'VOICE';

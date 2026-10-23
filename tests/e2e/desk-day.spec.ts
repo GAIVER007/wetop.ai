@@ -64,7 +64,7 @@ test('главная открывается с корня; заезд на да�
   await expect(unassigned).toHaveAttribute('data-severity', 'critical');
   if (unassignedBefore < 3)
     await expect(unassigned.getByRole('link', { name: new RegExp(number) })).toContainText(
-      'нет ячейки',
+      'номер не назначен',
     );
   // Риски относятся к сегодняшнему дню.
   await expect(page.getByTestId('owner-risks')).toBeVisible();

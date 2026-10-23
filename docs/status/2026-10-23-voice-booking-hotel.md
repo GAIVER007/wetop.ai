@@ -4,7 +4,7 @@
 (DATA_MODEL `VOICE-BOOKING-OWNER-APPROVAL-20261023`), ответы на вопросы плана: `docs/decisions/2026-10-23-voice-booking-answers.md`.
 
 ## Что сделано
-- **Миграция 146** `voice_booking`: значение `VOICE` в `ReservationSource`, `RestaurantReservationSource`, `AppointmentSource`; поля `booking_enabled`
+- **Миграция 147** `voice_booking`: значение `VOICE` в `ReservationSource`, `RestaurantReservationSource`, `AppointmentSource`; поля `booking_enabled`
   (false), `booking_needs_approval` (true), `booking_max_per_call` (3), `booking_max_per_phone_day` (5) в `voice_profiles` с CHECK 1..20;
   канал `voice` у `seller_booking_intents`. Откат `down.sql`, README.
 - **API** (`apps/api/src/marketing-voice/voice-booking.*`): `GET /voice/availability` (ключ приёма событий), `POST /voice/booking-quotes` и
@@ -23,7 +23,7 @@
 - Red до кода: unit миграции (8 из 9 красных), сервис брони (не собирался), Python `test_booking.py` (не собирался).
 - Python: `pytest voice/tests` 208 с SDK. Unit API/авторизация/сайт-бронь: зелёные; `test:record -- unit`: прочие падения только прежние
   (экран клиентов: нет пакета `xlsx`; `launchd-status`), см. ниже. `lint` чистый; `typecheck`: только прежняя ошибка про `xlsx`.
-- Одноразовый Postgres 16: вся цепочка `prisma migrate deploy` вместе с 146, `migrate diff` пустой, откат и повторный накат 146, integration
+- Одноразовый Postgres 16: вся цепочка `prisma migrate deploy` вместе с 147, `migrate diff` пустой, откат и повторный накат 147, integration
   `voice-journal`, `seller-booking-intents` (в том числе канал голоса и подсчёт лимитов), `rls-isolation`: зелёные.
 
 ## Найдено проверкой типов

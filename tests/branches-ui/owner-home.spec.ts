@@ -29,7 +29,8 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     const main = page.locator('main#main-content');
     // строка «Обзор бизнеса» снята: шапка Главной одной строкой (решение владельца 21.10.2026)
     await expect(main.getByRole('heading', { level: 1, name: 'Главная' })).toBeVisible();
-    await expect(main.getByRole('complementary', { name: 'Решения и расходы' })).toBeVisible();
+    await expect(main.getByRole('complementary', { name: 'Решения' })).toBeVisible();
+    await expect(main.getByRole('region', { name: 'Куда уходят деньги' })).toBeVisible();
     await main.getByRole('link', { name: 'Рабочий день' }).click();
     await expect(page).toHaveURL(/\/today\/operations$/);
     await expect(page.locator('main#main-content h1')).toBeVisible();

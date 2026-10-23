@@ -155,7 +155,8 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
       ? financePeriodHref(href, { from: s.period.fromDate, to: s.period.toDate })
       : href;
   // Главная на одном экране компьютера (решение владельца 21.10.2026): шапка строкой, итоги строкой,
-  // ниже график слева и справа «Требуют решения» с «Куда уходят деньги»; листать не нужно
+  // ниже график слева и справа «Требуют решения»; «Куда уходят деньги» строкой внизу на всю ширину
+  // (решение 23.10.2026: «расходы снизу, в один экран»); листать не нужно
   return (
     <main id="main-content" className="owner-home" tabIndex={-1}>
       <header className="owner-bar">
@@ -276,7 +277,7 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
             </p>
           )}
         </section>
-        <aside className="owner-side" aria-label="Решения и расходы">
+        <aside className="owner-side" aria-label="Решения">
           <section className="owner-panel owner-attention" aria-labelledby="owner-attention-title">
             <h2 id="owner-attention-title">Требуют решения</h2>
             <ul className="owner-todo">
@@ -295,65 +296,77 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
               )}
             </ul>
           </section>
-          <section className="owner-panel owner-expense-panel">
-            <div className="owner-panel-heading">
-              <h2>Куда уходят деньги</h2>
-              <a href={finance}>Оплаченные расходы</a>
-            </div>
-            <div className="owner-expenses">
-              {expenses.currencies?.flatMap((c) => {
-                const complete =
-                  expenses.state === 'READY' &&
-                  BigInt(c.paidMinor) > 0n &&
-                  c.categories.every((category) => BigInt(category.paidMinor) >= 0n) &&
-                  c.categories.reduce(
-                    (total, category) => total + BigInt(category.paidMinor),
-                    0n,
-                  ) === BigInt(c.paidMinor);
-                return c.categories.map((category) => {
-                  const name = category.categoryId === null ? 'Без статьи' : category.categoryName;
-                  // Presentation-only bounded share of this currency, never a cross-currency total.
-                  const share = complete
-                    ? Number((BigInt(category.paidMinor) * 10000n) / BigInt(c.paidMinor)) / 100
-                    : null;
-                  return (
-                    <div
-                      key={`${c.currency}:${category.categoryId ?? 'unclassified'}`}
-                      className="owner-category"
-                    >
-                      <h3>{name}</h3>
-                      <strong>
-                        {formatOwnerMoney(category.paidMinor, c.currency)}
-                        {share !== null && (
-                          <span>
-                            {new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(
-                              share,
-                            )}
-                            %
-                          </span>
-                        )}
-                      </strong>
-                      {share !== null && (
-                        <progress
-                          max={100}
-                          value={share}
-                          aria-label={`Доля расходов: ${name}, ${c.currency}`}
-                        />
-                      )}
-                    </div>
-                  );
-                });
-              })}
-            </div>
-            {!expenses.currencies?.length && (
-              <p className="owner-expense-empty">
-                {ownerReason(expenses.reason) ||
-                  'Расходов за период пока нет. Добавьте расход в «Финансах», и здесь появятся статьи.'}
-              </p>
-            )}
-          </section>
         </aside>
       </div>
+      <section className="owner-panel owner-expense-panel" aria-labelledby="owner-expense-title">
+        <div className="owner-panel-heading">
+          <h2 id="owner-expense-title">Куда уходят деньги</h2>
+          <a href={finance}>Оплаченные расходы</a>
+        </div>
+        <div className="owner-expenses">
+          {expenses.currencies?.flatMap((c) => {
+            const complete =
+              expenses.state === 'READY' &&
+              BigInt(c.paidMinor) > 0n &&
+              c.categories.every((category) => BigInt(category.paidMinor) >= 0n) &&
+              c.categories.reduce(
+                (total, category) => total + BigInt(category.paidMinor),
+                0n,
+              ) === BigInt(c.paidMinor);
+            // одна строка внизу экрана: четыре крупные статьи, остальные в «Финансах» (решение 23.10.2026)
+            const top = [...c.categories]
+              .sort((a, b) => (BigInt(b.paidMinor) > BigInt(a.paidMinor) ? 1 : BigInt(b.paidMinor) < BigInt(a.paidMinor) ? -1 : 0))
+              .slice(0, 4);
+            return top.map((category) => {
+              const name = category.categoryId === null ? 'Без статьи' : category.categoryName;
+              // Presentation-only bounded share of this currency, never a cross-currency total.
+              const share = complete
+                ? Number((BigInt(category.paidMinor) * 10000n) / BigInt(c.paidMinor)) / 100
+                : null;
+              return (
+                <div
+                  key={`${c.currency}:${category.categoryId ?? 'unclassified'}`}
+                  className="owner-category"
+                >
+                  <h3>{name}</h3>
+                  <strong>
+                    {formatOwnerMoney(category.paidMinor, c.currency)}
+                    {share !== null && (
+                      <span>
+                        {new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(
+                          share,
+                        )}
+                        %
+                      </span>
+                    )}
+                  </strong>
+                  {share !== null && (
+                    <progress
+                      max={100}
+                      value={share}
+                      aria-label={`Доля расходов: ${name}, ${c.currency}`}
+                    />
+                  )}
+                </div>
+              );
+            });
+          })}
+        </div>
+        {(() => {
+          const rest = (expenses.currencies ?? []).reduce((n, c) => n + Math.max(0, c.categories.length - 4), 0);
+          return rest > 0 ? (
+            <p className="owner-expense-more">
+              <a href={finance}>Остальные статьи ({rest}) в «Финансах»</a>
+            </p>
+          ) : null;
+        })()}
+        {!expenses.currencies?.length && (
+          <p className="owner-expense-empty">
+            {ownerReason(expenses.reason) ||
+              'Расходов за период пока нет. Добавьте расход в «Финансах», и здесь появятся статьи.'}
+          </p>
+        )}
+      </section>
     </main>
   );
 }

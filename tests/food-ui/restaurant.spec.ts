@@ -522,17 +522,17 @@ test('зарплата: оклад + процент, премия и штраф,
   // продажи 3 900, 5 % = 195; оклад 40 000 → к выплате 40 195
   await expect(row).toContainText('40 195 ₸');
   await row.getByRole('button', { name: 'Ещё: Иванова Анна' }).click();
-  await page.getByRole('menuitem', { name: 'Премия или штраф' }).click();
+  await page.getByRole('menuitem', { name: 'Премия или удержание' }).click();
   await dialog.getByLabel('Сумма, ₸').fill('5000');
   await dialog.getByLabel('Причина').fill('Отличная смена');
   await dialog.getByRole('button', { name: 'Начислить' }).click();
   await expect(dialog).not.toBeVisible();
   await expect(page.getByTestId('payroll-bonus')).toContainText('5 000 ₸');
   await expect(page.getByTestId('payroll-total')).toContainText('45 195 ₸');
-  // штраф
+  // удержание (одни подписи зарплаты у всех направлений, 23.10.2026)
   await row.getByRole('button', { name: 'Ещё: Иванова Анна' }).click();
-  await page.getByRole('menuitem', { name: 'Премия или штраф' }).click();
-  await dialog.getByRole('button', { name: 'Штраф' }).click();
+  await page.getByRole('menuitem', { name: 'Премия или удержание' }).click();
+  await dialog.getByRole('button', { name: 'Удержание' }).click();
   await dialog.getByLabel('Сумма, ₸').fill('2000');
   await dialog.getByLabel('Причина').fill('Опоздание');
   await dialog.getByRole('button', { name: 'Начислить' }).click();

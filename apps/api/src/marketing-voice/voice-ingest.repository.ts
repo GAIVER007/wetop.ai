@@ -28,6 +28,13 @@ export interface AgentProfile {
   greetingTail: string;
   voiceName: string;
   handoffPhone: string | null;
+  /** Бронь по телефону (DATA_MODEL VOICE-BOOKING-PROPOSAL-20261023): выключатель и лимиты объекта */
+  booking: {
+    enabled: boolean;
+    needsApproval: boolean;
+    maxPerCall: number;
+    maxPerPhoneDay: number;
+  };
 }
 
 export interface RecordResult {
@@ -79,7 +86,17 @@ export class PrismaVoiceIngestRepository implements VoiceIngestRepository {
         locationId: true,
         lifecycle: true,
         location: { select: { business: { select: { name: true, vertical: true } } } },
-        voiceProfile: { select: { greetingTail: true, voiceName: true, handoffPhone: true } },
+        voiceProfile: {
+          select: {
+            greetingTail: true,
+            voiceName: true,
+            handoffPhone: true,
+            bookingEnabled: true,
+            bookingNeedsApproval: true,
+            bookingMaxPerCall: true,
+            bookingMaxPerPhoneDay: true,
+          },
+        },
       },
     });
     // Звонки принимает только действующий агент (active): черновик, пауза и архив получают 404, как неизвестный.
@@ -94,6 +111,12 @@ export class PrismaVoiceIngestRepository implements VoiceIngestRepository {
       greetingTail: agent.voiceProfile?.greetingTail ?? '',
       voiceName: agent.voiceProfile?.voiceName ?? 'Leda',
       handoffPhone: agent.voiceProfile?.handoffPhone ?? null,
+      booking: {
+        enabled: agent.voiceProfile?.bookingEnabled ?? false,
+        needsApproval: agent.voiceProfile?.bookingNeedsApproval ?? true,
+        maxPerCall: agent.voiceProfile?.bookingMaxPerCall ?? 3,
+        maxPerPhoneDay: agent.voiceProfile?.bookingMaxPerPhoneDay ?? 5,
+      },
     };
   }
 

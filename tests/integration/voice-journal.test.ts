@@ -254,6 +254,8 @@ describe.skipIf(!url)(
       greetingTail: 'Работаем до 20 часов.',
       voiceName: 'Puck',
       handoffPhone: '+77009990000',
+      // бронь по телефону: выключена, первую неделю ждёт подтверждения, лимиты умолчания (DATA_MODEL VOICE-BOOKING)
+      booking: { enabled: false, needsApproval: true, maxPerCall: 3, maxPerPhoneDay: 5 },
     });
     await sql.query(`UPDATE seller_agents SET lifecycle = 'active' WHERE id = $1`, [agentB]);
     expect(await profileRepo.profile(agentB)).toMatchObject({ voiceName: 'Leda', handoffPhone: null, greetingTail: '', vertical: 'BEAUTY' });
@@ -261,6 +263,28 @@ describe.skipIf(!url)(
     expect(await profileRepo.profile(agentB)).toBeNull();
     expect(await profileRepo.profile(agentNoLoc)).toBeNull();
     await sql.query(`DELETE FROM voice_profiles WHERE agent_id = $1`, [agentA]);
+  });
+
+  it('выключатель и лимиты брони по телефону: CHECK 1..20, значения читает профиль', async () => {
+    const profileRepo = new PrismaVoiceIngestRepository({ db } as PrismaService);
+    await sql.query(`UPDATE seller_agents SET lifecycle = 'active' WHERE id = $1`, [agentA]);
+    await sql.query(`INSERT INTO voice_profiles (agent_id, organization_id, business_id) VALUES ($1, $2, $3)`, [agentA, orgA, bizA]);
+    try {
+      await sql.query(`UPDATE voice_profiles SET booking_enabled = true, booking_needs_approval = false, booking_max_per_call = 2, booking_max_per_phone_day = 4 WHERE agent_id = $1`, [agentA]);
+      expect(await profileRepo.profile(agentA)).toMatchObject({ booking: { enabled: true, needsApproval: false, maxPerCall: 2, maxPerPhoneDay: 4 } });
+      for (const bad of ['booking_max_per_call = 0', 'booking_max_per_call = 21', 'booking_max_per_phone_day = 0', 'booking_max_per_phone_day = 21'])
+        await expect(sql.query(`UPDATE voice_profiles SET ${bad} WHERE agent_id = $1`, [agentA])).rejects.toThrow();
+    } finally {
+      await sql.query(`DELETE FROM voice_profiles WHERE agent_id = $1`, [agentA]);
+    }
+  });
+
+  it('источник брони «голос» есть у номеров, столов и записей', async () => {
+    const rows = (await sql.query(
+      `SELECT t.typname, e.enumlabel FROM pg_enum e JOIN pg_type t ON t.oid = e.enumtypid
+       WHERE e.enumlabel = 'VOICE' AND t.typname IN ('ReservationSource', 'RestaurantReservationSource', 'AppointmentSource')`,
+    )).rows.map((r) => r.typname);
+    expect([...new Set(rows)].sort()).toEqual(['AppointmentSource', 'ReservationSource', 'RestaurantReservationSource']);
   });
 
   it('агент в архиве событий не принимает', async () => {

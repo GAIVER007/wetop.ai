@@ -85,6 +85,7 @@ order by a.created_at desc;
 | `VOICE_WETOP_BASE_URL` | публичный адрес API платформы по `https://` (тот же, которым пользуется сайт). Адрес `localhost` из контейнера не годится (там `localhost` это сам воркер), имена соседних контейнеров тоже, а `http://` воркер отвергает при запуске. Проверка до запуска: `docker compose run --rm voice-worker python -c "import os,httpx; print(httpx.get(os.environ['VOICE_WETOP_BASE_URL'] + '/health', timeout=10).status_code)"` (ждём 200) |
 | `VOICE_WETOP_SERVICE_KEY` | значение `SELLER_QUOTE_KEY` из `.env` API: узкий ключ чтения каталога услуг |
 | `VOICE_INGEST_KEY` | ключ из шага 2 |
+| `VOICE_BOOK_KEY` | необязательно: ключ записи брони по телефону из шага 10. Пусто: бронь по телефону не работает, остальное как прежде |
 | `VOICE_OUTBOX_DIR` | в compose уже `/data/calls.outbox` (том), менять не нужно |
 | `VOICE_JOURNAL_PATH` | в compose уже `/data/calls.jsonl` (том) |
 | `VOICE_NUMBER_MAP` | необязательно: JSON-список разрешённых пар `{"+7...": {"organization_id": "...", "agent_id": "..."}}`; пусто = любая пара из metadata, а агента и организацию проверяет платформа |
@@ -140,7 +141,29 @@ cd /полный/путь/apps/ai-seller/voice && docker compose run --rm -T voi
 Ключ `VOICE_INGEST_KEY` при подозрении на утечку заменить: сгенерировать новый (шаг 2), обновить `.env` API и воркера,
 перезапустить оба.
 
-## 10. Что не входит
+## 10. Бронь по телефону, гостиница (по умолчанию выключена)
 
-Запись клиента, бронь номера и стол по телефону (Q-VOICE-5), наличие номеров и цены у гостиницы (Q-VOICE-8), запись и расшифровка разговоров (Q-VOICE-2), исходящие звонки, экран настройки
+Решение и границы: `docs/decisions/2026-10-23-voice-booking-answers.md`. Работает только у гостиницы, остальные направления её не получают.
+
+1. Миграция `20261023000146_voice_booking` (источник брони «голос», выключатель и лимиты в `voice_profiles`, канал `voice` у котировок):
+   порядок и откат в `packages/database/prisma/migrations/20261023000146_voice_booking/README.md`. Применять так же, как в шаге 1, до выкладки API.
+2. Второй секрет `VOICE_BOOK_KEY`, отдельный от ключа приёма событий (`openssl rand -hex 32`). Вписать в `.env` API и в `.env` воркера, перезапустить оба.
+   Ключ пускает на два адреса: `POST /voice/booking-quotes` и `POST /voice/booking-quotes/confirm`.
+3. Включить на объекте (экран настройки появится в срезе 4; пока строкой в базе, SQL Editor). Строка профиля может быть ещё не создана:
+
+```sql
+insert into voice_profiles (agent_id, organization_id, business_id)
+select a.id, a.organization_id, l.business_id
+from seller_agents a join locations l on l.id = a.location_id
+where a.id = '<agent_id>'
+on conflict (agent_id) do update set booking_enabled = true;
+```
+
+   По умолчанию бронь ждёт подтверждения администратора (`booking_needs_approval = true`), лимит 3 брони за звонок. Выключить обратно: `booking_enabled = false`.
+4. У гостиницы должен быть сайт с включённым бронированием и тариф (тот же, что для брони из чата): цены и места агент берёт оттуда. Нет сайта: бронь по телефону отвечает отказом.
+5. Пробный звонок по сценариям (таблица шага 8) плюс: свободные даты, занятая категория, бронь с явным «да», отказ без «да», повтор «да».
+
+## 11. Что не входит
+
+Запись клиента и стол по телефону (Q-VOICE-5, срезы ресторана и салона), отмена и перенос брони по телефону, ограничение по телефону в сутки, запись и расшифровка разговоров (Q-VOICE-2), исходящие звонки, экран настройки
 профиля голоса, оповещение о появлении просьб, 

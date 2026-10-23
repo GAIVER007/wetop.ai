@@ -37,6 +37,7 @@ class VoiceSettings:
     outbox_dir: str
     number_map: NumberMap
     profile: VoiceProfile
+    book_key: str = ""
     port: int = 8081
     max_processes: int = 10
 
@@ -69,5 +70,6 @@ class VoiceSettings:
             or str(Path(env["VOICE_JOURNAL_PATH"].strip()).with_suffix(".outbox")),
             number_map=numbers,
             profile=VoiceProfile.from_env(env),
+            book_key=(env.get("VOICE_BOOK_KEY") or "").strip(),
             port=port,
         )

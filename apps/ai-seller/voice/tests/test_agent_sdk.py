@@ -66,3 +66,15 @@ def test_tool_set_follows_the_vertical(tmp_path, vertical, expected):
     _, _, tools = _tools(tmp_path)
     built = make_function_tools(tools, vertical)
     assert sorted(t._tool_info.name for t in built) == sorted(expected)
+
+
+def test_hotel_gets_booking_tools_only_when_booking_is_on(tmp_path):
+    _, _, tools = _tools(tmp_path)
+    off = sorted(t._tool_info.name for t in make_function_tools(tools, "HOSPITALITY", False))
+    on = sorted(t._tool_info.name for t in make_function_tools(tools, "HOSPITALITY", True))
+    assert off == ["request_callback", "transfer_to_human"]
+    assert on == ["check_availability", "confirm_booking", "quote_stay", "request_callback", "transfer_to_human"]
+    # других направлений бронь по телефону не касается
+    for vertical in ("BEAUTY", "FOOD_SERVICE"):
+        names = [t._tool_info.name for t in make_function_tools(tools, vertical, True)]
+        assert "confirm_booking" not in names

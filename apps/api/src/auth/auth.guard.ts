@@ -113,7 +113,14 @@ const SITES_RUNTIME_ALLOWED = ['/sites-runtime/current', '/sites-runtime/preview
  * `GET /voice/profile` (профиль голоса по агенту). Журнал звонков, просьбы и всё остальное этим ключом не открываются.
  */
 const VOICE_INGEST_ALLOWED = ['/voice/events'];
-const VOICE_INGEST_READ = ['/voice/profile'];
+const VOICE_INGEST_READ = ['/voice/profile', '/voice/availability'];
+
+/**
+ * Ключ записи голоса (`VOICE_BOOK_KEY`, DATA_MODEL VOICE-BOOKING-OWNER-APPROVAL-20261023): только POST котировки брони по
+ * телефону и её подтверждение. Ключ приёма событий на эти адреса не пускается, этот ключ на события и чтение не пускается:
+ * утечка одного не открывает другое.
+ */
+const VOICE_BOOK_ALLOWED = ['/voice/booking-quotes', '/voice/booking-quotes/confirm'];
 
 function marketCollectAllowed(method: unknown, url: unknown): boolean {
   const path = pathOf(url);
@@ -150,6 +157,7 @@ export type ServiceKeyKind =
   | 'market-collect'
   | 'sites-runtime'
   | 'voice-ingest'
+  | 'voice-book'
   | 'unknown';
 
 export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind | null {
@@ -173,6 +181,8 @@ export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind
   if (runtimeKey && sameKey(presented, runtimeKey)) return 'sites-runtime';
   const voiceKey = process.env.VOICE_INGEST_KEY?.trim();
   if (voiceKey && sameKey(presented, voiceKey)) return 'voice-ingest';
+  const voiceBookKey = process.env.VOICE_BOOK_KEY?.trim();
+  if (voiceBookKey && sameKey(presented, voiceBookKey)) return 'voice-book';
   return 'unknown';
 }
 
@@ -294,6 +304,13 @@ export class SessionGuard implements CanActivate {
         return true;
       }
       throw new ForbiddenException('Ключ голосового агента пишет только события звонков и читает профиль агента');
+    }
+    if (key === 'voice-book') {
+      if (postAllowed(VOICE_BOOK_ALLOWED, request.method, request.url)) {
+        request.service = true;
+        return true;
+      }
+      throw new ForbiddenException('Ключ записи голоса создаёт и подтверждает только бронь по телефону');
     }
     if (key === 'unknown') throw new UnauthorizedException('Служебный ключ не подходит');
 

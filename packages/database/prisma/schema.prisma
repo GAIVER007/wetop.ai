@@ -738,6 +738,7 @@ enum ReservationSource {
   INSTAGRAM
   OTA
   WEBSITE
+  VOICE
 }
 
 enum ReservationStatus {
@@ -1817,7 +1818,7 @@ model SellerBookingIntent {
   organizationId      String                   @map("organization_id") @db.Uuid
   propertyId          String                   @map("property_id") @db.Uuid
   conversationId      String                   @map("conversation_id") @db.VarChar(64)
-  /// whatsapp | widget (CHECK в миграции)
+  /// whatsapp | widget | voice (CHECK в миграции)
   channel             String                   @db.VarChar(16)
   channelMessageId    String?                  @map("channel_message_id") @db.VarChar(128)
   accommodationTypeId String                   @map("accommodation_type_id") @db.Uuid
@@ -3158,6 +3159,7 @@ enum AppointmentStatus {
 enum AppointmentSource {
   DESK
   WEBSITE
+  VOICE
 }
 
 enum EmployeeServicePriceType {
@@ -3653,6 +3655,7 @@ enum RestaurantReservationSource {
   WALK_IN
   /// SITE-4 (ADR-185): бронь стола с формы сайта
   WEBSITE
+  VOICE
 }
 
 model DiningArea {
@@ -4686,6 +4689,11 @@ model VoiceProfile {
   greetingTail   String   @default("") @map("greeting_tail") @db.VarChar(300)
   voiceName      String   @default("Leda") @map("voice_name") @db.VarChar(40)
   handoffPhone   String?  @map("handoff_phone") @db.VarChar(16)
+  /// Бронь по телефону (DATA_MODEL VOICE-BOOKING-PROPOSAL-20261023): выключатель, ожидание подтверждения, лимиты
+  bookingEnabled        Boolean @default(false) @map("booking_enabled")
+  bookingNeedsApproval  Boolean @default(true) @map("booking_needs_approval")
+  bookingMaxPerCall     Int     @default(3) @map("booking_max_per_call") @db.SmallInt
+  bookingMaxPerPhoneDay Int     @default(5) @map("booking_max_per_phone_day") @db.SmallInt
   revision       Int      @default(1)
   updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 

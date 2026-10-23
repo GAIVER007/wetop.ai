@@ -4838,3 +4838,40 @@ Customer сохраняет исходное nullable поле phone. Добав
 | Таблица (черновое имя) | Назначение |
 |---|---|
 | `content_drafts` | черновик поста филиала: канал, тема, текст, хештеги, CTA, происхождение AI/MANUAL, день публикации (DATE пояса филиала), статус DRAFT/PUBLISHED/ARCHIVED, revision |
+
+## 60. Загрузка конкурентов салона и ресторана (ПРЕДЛОЖЕНИЕ, НЕ УТВЕРЖДЕНО; уточнение владельца 23.10.2026 «через Booking и т. д., видеть загруженность»; номер раздела берётся при слиянии)
+
+План: `plans/2026-10-23-competitors-business-manual.md`. Гостиничные `competitors`, `competitor_rates`,
+`competitor_occupancy` (§23) не меняются: у них ключ — объект размещения и ночь, здесь — филиал и день.
+
+### 60.1 `location_competitors`
+| поле | тип | правило |
+|---|---|---|
+| id | uuid PK | |
+| business_id | uuid FK businesses | бизнес из сессии |
+| location_id | uuid FK locations | филиал того же бизнеса (составной FK / триггер) |
+| name | varchar(200) | непусто; уникально в филиале без учёта регистра |
+| address | varchar(300)? | |
+| distance_m | int? | >= 0 |
+| url | text? | страница онлайн-записи или брони, http(s) |
+| note | text? | |
+| active | bool, default true | «убрать» = архив, снимки остаются |
+| created_by_id | uuid? FK users | |
+| created_at, updated_at | timestamptz | |
+
+### 60.2 `location_competitor_snapshots`
+| поле | тип | правило |
+|---|---|---|
+| id | uuid PK | |
+| business_id, location_id | uuid | те же, что у соседа (составной FK `(competitor_id, location_id)`) |
+| competitor_id | uuid | сосед этого филиала |
+| day | date | на какой день смотрели свободные окна/столы |
+| observed_on | date | когда смотрели; `day >= observed_on` |
+| level | CompetitorAvailabilityLevel | `SOLD_OUT` / `FEW_LEFT` / `AVAILABLE` (тип §23.1) |
+| free_slots | int? | >= 0, если площадка показывает число |
+| source | CompetitorObservationSource | `MANUAL` / `AI_AGENT` (тип §23) |
+| created_by_id | uuid? | |
+| observed_at | timestamptz | время записи |
+
+Уникально `(competitor_id, day, observed_on)`; ручной ввод того же дня сильнее `AI_AGENT`.
+Откат: `DROP TABLE location_competitor_snapshots, location_competitors`.

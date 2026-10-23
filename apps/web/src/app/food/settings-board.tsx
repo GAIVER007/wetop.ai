@@ -9,7 +9,7 @@ import type { BookingRules } from '@pms/domain';
 import { saveBookingRules, type BookingRulesCommand } from './actions';
 import { saveFoodCatalog } from './actions';
 
-export type SettingsSection = 'hours' | 'bookings';
+export type SettingsSection = 'hours' | 'bookings' | 'reminders';
 
 /** Порядок недели с понедельника; в модели 0 это воскресенье (`getUTCDay`) */
 const WEEK: Array<[number, string]> = [
@@ -32,6 +32,8 @@ const NAV: NavItem[] = [
   { label: 'Основное', icon: 'inventory', href: '/branches' },
   { label: 'Часы работы зала', icon: 'clock', section: 'hours' },
   { label: 'Бронирования', icon: 'booking', section: 'bookings' },
+  // §61 (миграция 152): напоминания гостям о брони, тот же вид, что у салона
+  { label: 'Напоминания гостям', icon: 'send', section: 'reminders' },
   { label: 'Залы и столы', icon: 'board', href: '/dining-areas' },
   // `/website` гостиничный раздел; сайт ресторана собирается в «Продвижении» (аудит 17.10.2026, Д1)
   { label: 'Публичный сайт', icon: 'globe', href: '/marketing/site/editor' },
@@ -55,11 +57,14 @@ export function RestaurantSettings({
   section,
   booking,
   physicalOpening,
+  reminders,
 }: {
   data: FoodWorkspace;
   section: SettingsSection;
   booking?: BookingSettings | undefined;
   physicalOpening?: ReactNode;
+  /** «Напоминания гостям» (§61): форма собирается страницей */
+  reminders?: ReactNode;
 }) {
   const write = data.canProperty && !data.readOnly;
   return (
@@ -88,6 +93,7 @@ export function RestaurantSettings({
         {section === 'bookings' && <Hours data={data} write={write} />}
         {section === 'bookings' && <Bookings data={data} write={write} />}
         {section === 'bookings' && booking && <BookingRulesForm data={data} write={write} booking={booking} />}
+        {section === 'reminders' && reminders}
       </section>
     </div>
   );

@@ -97,7 +97,7 @@ model Location {
   createdAt            DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt            DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  bookingTrackedSite        TrackedSite?                   @relation("LocationBookingSite", fields: [bookingTrackedSiteId], references: [id], onDelete: SetNull)
+  bookingTrackedSite        TrackedSite?                        @relation("LocationBookingSite", fields: [bookingTrackedSiteId], references: [id], onDelete: SetNull)
   diningAreas               DiningArea[]
   barCategories             BarCategory[]
   barProducts               BarProduct[]
@@ -117,7 +117,7 @@ model Location {
   restaurantCashOps         RestaurantCashOperation[]
   restaurantCashChecks      RestaurantCashReconciliation[]
   onboardingProgress        OnboardingProgress?
-  business                  Business                       @relation(fields: [businessId], references: [id])
+  business                  Business                            @relation(fields: [businessId], references: [id])
   property                  Property?
   sellerAgents              SellerAgent[]
   membershipScopes          MembershipScope[]
@@ -143,11 +143,14 @@ model Location {
   /// MKT9.2: лицензия конструктора сайта филиала; выдаёт только главный администратор платформы
   siteBuilderEntitlement    SiteBuilderEntitlement?
   /// SITE-3: сайты счётчика филиала (любое направление)
-  trackedSites              TrackedSite[]                  @relation("LocationTrackedSites")
+  trackedSites              TrackedSite[]                       @relation("LocationTrackedSites")
   /// SITE-5: заявки с сайта без слота
   siteLeads                 SiteLead[]
   clientNotifications       ClientNotification[]
   reminderSettings          BeautyReminderSettings?
+  /// 152: напоминания гостям ресторана
+  restaurantNotifications   RestaurantReservationNotification[]
+  foodReminderSettings      FoodReminderSettings?
 
   @@index([businessId])
   @@index([bookingTrackedSiteId])
@@ -721,28 +724,28 @@ enum HousekeepingStatus {
 /// Единица продажи = ячейка (ADR-013). На объекте 88 = 16 ROOM + 72 BED.
 /// Ничего не выводится из номера единицы — только явные связи (DATA_MODEL принцип 7).
 model InventoryUnit {
-  id                  String             @id @default(uuid()) @db.Uuid
+  id                     String             @id @default(uuid()) @db.Uuid
   /// Объект места (v1.12, ADR-099): дублирует объект категории, чтобы код был уникален внутри объекта
-  propertyId          String             @map("property_id") @db.Uuid
-  physicalRoomId      String             @map("physical_room_id") @db.Uuid
-  accommodationTypeId String             @map("accommodation_type_id") @db.Uuid
-  kind                InventoryUnitKind
+  propertyId             String             @map("property_id") @db.Uuid
+  physicalRoomId         String             @map("physical_room_id") @db.Uuid
+  accommodationTypeId    String             @map("accommodation_type_id") @db.Uuid
+  kind                   InventoryUnitKind
   /// Код места в PMS; уникален внутри объекта (v1.12) — искать только в паре с объектом
-  code                String
-  housekeepingStatus  HousekeepingStatus @default(DIRTY) @map("housekeeping_status")
+  code                   String
+  housekeepingStatus     HousekeepingStatus @default(DIRTY) @map("housekeeping_status")
   /// «Кто убирает» (миграция 143): сотрудник того же бизнеса (триггер); NULL = не назначено
-  housekeepingAssigneeId String?         @map("housekeeping_assignee_id") @db.Uuid
-  active              Boolean            @default(true)
-  createdAt           DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt           DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  housekeepingAssigneeId String?            @map("housekeeping_assignee_id") @db.Uuid
+  active                 Boolean            @default(true)
+  createdAt              DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  property           Property            @relation(fields: [propertyId], references: [id])
-  physicalRoom       PhysicalRoom        @relation(fields: [physicalRoomId], references: [id])
-  accommodationType  AccommodationType   @relation(fields: [accommodationTypeId], references: [id])
-  blocks             InventoryBlock[]
-  housekeepingEvents HousekeepingEvent[]
-  allocations        Allocation[]
-  housekeepingAssignee Employee?        @relation("InventoryUnitHousekeepingAssignee", fields: [housekeepingAssigneeId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  property             Property            @relation(fields: [propertyId], references: [id])
+  physicalRoom         PhysicalRoom        @relation(fields: [physicalRoomId], references: [id])
+  accommodationType    AccommodationType   @relation(fields: [accommodationTypeId], references: [id])
+  blocks               InventoryBlock[]
+  housekeepingEvents   HousekeepingEvent[]
+  allocations          Allocation[]
+  housekeepingAssignee Employee?           @relation("InventoryUnitHousekeepingAssignee", fields: [housekeepingAssigneeId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   @@unique([propertyId, code])
   @@index([housekeepingAssigneeId])
@@ -2588,12 +2591,13 @@ model Organization {
   auditLogs            AuditLog[]
   customers            Customer[]
 
-  sellerBookingIntents   SellerBookingIntent[]
-  siteLeads              SiteLead[]
-  clientNotifications    ClientNotification[]
-  bonusEntries           CustomerBonusEntry[]
-  giftCertificates       GiftCertificate[]
-  giftCertificateEntries GiftCertificateEntry[]
+  sellerBookingIntents    SellerBookingIntent[]
+  siteLeads               SiteLead[]
+  clientNotifications     ClientNotification[]
+  bonusEntries            CustomerBonusEntry[]
+  giftCertificates        GiftCertificate[]
+  restaurantNotifications RestaurantReservationNotification[]
+  giftCertificateEntries  GiftCertificateEntry[]
 
   @@map("organizations")
 }
@@ -3203,13 +3207,14 @@ model Customer {
   createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  organization           Organization            @relation(fields: [organizationId], references: [id])
-  businesses             CustomerBusiness[]
-  appointments           Appointment[]
-  restaurantReservations RestaurantReservation[]
-  clientNotifications    ClientNotification[]
-  bonusEntries           CustomerBonusEntry[]
-  giftCertificatesBought GiftCertificate[]
+  organization            Organization                        @relation(fields: [organizationId], references: [id])
+  businesses              CustomerBusiness[]
+  appointments            Appointment[]
+  restaurantReservations  RestaurantReservation[]
+  clientNotifications     ClientNotification[]
+  bonusEntries            CustomerBonusEntry[]
+  giftCertificatesBought  GiftCertificate[]
+  restaurantNotifications RestaurantReservationNotification[]
 
   @@index([organizationId])
   @@map("customers")
@@ -3244,28 +3249,28 @@ model Employee {
   createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  business         Business                  @relation(fields: [businessId], references: [id])
-  user             User?                     @relation(fields: [userId], references: [id])
-  locations        EmployeeLocation[]
-  services         EmployeeService[]
-  servicePrices    EmployeeServicePrice[]
-  workingHours     WorkingHours[]
-  timeOffs         TimeOff[]
-  appointments     Appointment[]
-  appointmentLines AppointmentLine[]
-  beautyReviews    BeautyAppointmentReview[]
-  restaurantOrders RestaurantOrder[]
-  tableReservations RestaurantReservation[]
-  paySetting       EmployeePaySetting?
-  payAdjustments   EmployeePayAdjustment[]
-  cashPayouts      RestaurantCashOperation[]
-  guestRatings     RestaurantOrderRating[]
-  publicProfile    EmployeePublicProfile?
-  portalMedia      EmployeeMedia[]
-  portfolio        EmployeePortfolioItem[]
-  invites          Invite[]
-  housekeepingUnits  InventoryUnit[]     @relation("InventoryUnitHousekeepingAssignee")
-  housekeepingEvents HousekeepingEvent[] @relation("HousekeepingEventEmployee")
+  business           Business                  @relation(fields: [businessId], references: [id])
+  user               User?                     @relation(fields: [userId], references: [id])
+  locations          EmployeeLocation[]
+  services           EmployeeService[]
+  servicePrices      EmployeeServicePrice[]
+  workingHours       WorkingHours[]
+  timeOffs           TimeOff[]
+  appointments       Appointment[]
+  appointmentLines   AppointmentLine[]
+  beautyReviews      BeautyAppointmentReview[]
+  restaurantOrders   RestaurantOrder[]
+  tableReservations  RestaurantReservation[]
+  paySetting         EmployeePaySetting?
+  payAdjustments     EmployeePayAdjustment[]
+  cashPayouts        RestaurantCashOperation[]
+  guestRatings       RestaurantOrderRating[]
+  publicProfile      EmployeePublicProfile?
+  portalMedia        EmployeeMedia[]
+  portfolio          EmployeePortfolioItem[]
+  invites            Invite[]
+  housekeepingUnits  InventoryUnit[]           @relation("InventoryUnitHousekeepingAssignee")
+  housekeepingEvents HousekeepingEvent[]       @relation("HousekeepingEventEmployee")
 
   @@index([businessId])
   @@map("employees")
@@ -3766,29 +3771,30 @@ model ServicePeriod {
 }
 
 model RestaurantReservation {
-  id                  String                      @id @default(uuid()) @db.Uuid
-  locationId          String                      @map("location_id") @db.Uuid
-  customerId          String                      @map("customer_id") @db.Uuid
-  servicePeriodId     String                      @map("service_period_id") @db.Uuid
-  startsAt            DateTime                    @map("starts_at") @db.Timestamptz(6)
-  endsAt              DateTime                    @map("ends_at") @db.Timestamptz(6)
-  partySize           Int                         @map("party_size")
-  status              RestaurantReservationStatus @default(BOOKED)
-  source              RestaurantReservationSource @default(DESK)
+  id                  String                              @id @default(uuid()) @db.Uuid
+  locationId          String                              @map("location_id") @db.Uuid
+  customerId          String                              @map("customer_id") @db.Uuid
+  servicePeriodId     String                              @map("service_period_id") @db.Uuid
+  startsAt            DateTime                            @map("starts_at") @db.Timestamptz(6)
+  endsAt              DateTime                            @map("ends_at") @db.Timestamptz(6)
+  partySize           Int                                 @map("party_size")
+  status              RestaurantReservationStatus         @default(BOOKED)
+  source              RestaurantReservationSource         @default(DESK)
   notes               String?
-  creationKey         String                      @map("creation_key") @db.VarChar(200)
-  creationFingerprint String                      @map("creation_fingerprint") @db.VarChar(64)
-  createdById         String?                     @map("created_by_id") @db.Uuid
+  creationKey         String                              @map("creation_key") @db.VarChar(200)
+  creationFingerprint String                              @map("creation_fingerprint") @db.VarChar(64)
+  createdById         String?                             @map("created_by_id") @db.Uuid
   /// §33.6: кто принял бронь (официант или выбор у стойки)
-  employeeId          String?                     @map("employee_id") @db.Uuid
-  createdAt           DateTime                    @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt           DateTime                    @updatedAt @map("updated_at") @db.Timestamptz(6)
-  location            Location                    @relation(fields: [locationId], references: [id])
-  customer            Customer                    @relation(fields: [customerId], references: [id])
-  servicePeriod       ServicePeriod               @relation(fields: [servicePeriodId], references: [id])
-  createdBy           User?                       @relation(fields: [createdById], references: [id])
-  employee            Employee?                   @relation(fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  employeeId          String?                             @map("employee_id") @db.Uuid
+  createdAt           DateTime                            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime                            @updatedAt @map("updated_at") @db.Timestamptz(6)
+  location            Location                            @relation(fields: [locationId], references: [id])
+  customer            Customer                            @relation(fields: [customerId], references: [id])
+  servicePeriod       ServicePeriod                       @relation(fields: [servicePeriodId], references: [id])
+  createdBy           User?                               @relation(fields: [createdById], references: [id])
+  employee            Employee?                           @relation(fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: NoAction)
   tableAssignment     TableAssignment?
+  notifications       RestaurantReservationNotification[]
 
   @@unique([locationId, creationKey])
   @@index([employeeId])
@@ -3863,23 +3869,23 @@ model MenuCategory {
 
 /// Блюдо: цена в minor units, `active` — переключатель «в меню», `techNotes` — вкладка «Технология»
 model MenuItem {
-  id          String                @id @default(uuid()) @db.Uuid
-  businessId  String                @map("business_id") @db.Uuid
-  categoryId  String                @map("category_id") @db.Uuid
-  name        String                @db.VarChar(200)
-  weightGrams Int?                  @map("weight_grams")
-  price       BigInt
-  currency    String                @db.Char(3)
-  active      Boolean               @default(true)
-  techNotes   String?               @map("tech_notes")
-  sortOrder   Int                   @default(0) @map("sort_order")
-  createdAt   DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime              @updatedAt @map("updated_at") @db.Timestamptz(6)
-  business    Business              @relation(fields: [businessId], references: [id])
-  category    MenuCategory          @relation(fields: [categoryId], references: [id])
-  ingredients MenuItemIngredient[]
-  photo       MenuItemPhoto?
-  orderItems  RestaurantOrderItem[]
+  id             String                  @id @default(uuid()) @db.Uuid
+  businessId     String                  @map("business_id") @db.Uuid
+  categoryId     String                  @map("category_id") @db.Uuid
+  name           String                  @db.VarChar(200)
+  weightGrams    Int?                    @map("weight_grams")
+  price          BigInt
+  currency       String                  @db.Char(3)
+  active         Boolean                 @default(true)
+  techNotes      String?                 @map("tech_notes")
+  sortOrder      Int                     @default(0) @map("sort_order")
+  createdAt      DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+  business       Business                @relation(fields: [businessId], references: [id])
+  category       MenuCategory            @relation(fields: [categoryId], references: [id])
+  ingredients    MenuItemIngredient[]
+  photo          MenuItemPhoto?
+  orderItems     RestaurantOrderItem[]
   /// §33.7: группы модификаторов блюда
   modifierGroups MenuItemModifierGroup[]
 
@@ -3952,22 +3958,22 @@ model RestaurantOrder {
 
 /// Строка заказа: снимок имени и цены (блюдо могло уйти из меню, снимок остаётся)
 model RestaurantOrderItem {
-  id         String          @id @default(uuid()) @db.Uuid
-  orderId    String          @map("order_id") @db.Uuid
-  menuItemId String?         @map("menu_item_id") @db.Uuid
-  name       String          @db.VarChar(200)
-  price      BigInt
-  qty        Int
-  notes      String?         @db.VarChar(500)
-  sortOrder  Int             @default(0) @map("sort_order")
+  id           String                        @id @default(uuid()) @db.Uuid
+  orderId      String                        @map("order_id") @db.Uuid
+  menuItemId   String?                       @map("menu_item_id") @db.Uuid
+  name         String                        @db.VarChar(200)
+  price        BigInt
+  qty          Int
+  notes        String?                       @db.VarChar(500)
+  sortOrder    Int                           @default(0) @map("sort_order")
   /// §33.6: снимок станции категории при добавлении и свой статус строки
-  station    MenuStation     @default(KITCHEN)
-  status     OrderItemStatus @default(NEW)
-  readyAt    DateTime?       @map("ready_at") @db.Timestamptz(6)
-  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
-  order      RestaurantOrder @relation(fields: [orderId], references: [id])
-  menuItem   MenuItem?       @relation(fields: [menuItemId], references: [id])
+  station      MenuStation                   @default(KITCHEN)
+  status       OrderItemStatus               @default(NEW)
+  readyAt      DateTime?                     @map("ready_at") @db.Timestamptz(6)
+  createdAt    DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  order        RestaurantOrder               @relation(fields: [orderId], references: [id])
+  menuItem     MenuItem?                     @relation(fields: [menuItemId], references: [id])
   /// §33.7: снимок выбранных модификаторов и оплата по позициям
   modifiers    RestaurantOrderItemModifier[]
   paymentItems RestaurantPaymentItem[]
@@ -4063,17 +4069,17 @@ model RestaurantPaymentItem {
 
 /// Оплата труда сотрудника (§33.4, форма §19.2): настройка 1:1 к employees
 model EmployeePaySetting {
-  employeeId  String           @id @map("employee_id") @db.Uuid
-  model       EmployeePayModel @default(FIXED)
-  fixedMinor  BigInt           @default(0) @map("fixed_minor")
-  percent     Int              @default(0) @db.SmallInt
+  employeeId       String           @id @map("employee_id") @db.Uuid
+  model            EmployeePayModel @default(FIXED)
+  fixedMinor       BigInt           @default(0) @map("fixed_minor")
+  percent          Int              @default(0) @db.SmallInt
   /// Сдельно за одну уборку гостиницы (миграция 143), тиыны, CHECK >= 0
-  perCleaningMinor BigInt      @default(0) @map("per_cleaning_minor")
-  currency    String           @db.Char(3)
-  updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
-  updatedById String?          @map("updated_by_id") @db.Uuid
-  employee    Employee         @relation(fields: [employeeId], references: [id])
-  updatedBy   User?            @relation(fields: [updatedById], references: [id])
+  perCleaningMinor BigInt           @default(0) @map("per_cleaning_minor")
+  currency         String           @db.Char(3)
+  updatedAt        DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedById      String?          @map("updated_by_id") @db.Uuid
+  employee         Employee         @relation(fields: [employeeId], references: [id])
+  updatedBy        User?            @relation(fields: [updatedById], references: [id])
 
   @@map("employee_pay_settings")
 }
@@ -4205,10 +4211,10 @@ model RestaurantPayment {
   voidReason     String?       @map("void_reason") @db.VarChar(200)
   createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  location  Location        @relation(fields: [locationId], references: [id])
-  order     RestaurantOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
-  createdBy User?           @relation("RestaurantPaymentCreatedBy", fields: [createdById], references: [id])
-  voidedBy  User?           @relation("RestaurantPaymentVoidedBy", fields: [voidedById], references: [id])
+  location  Location                @relation(fields: [locationId], references: [id])
+  order     RestaurantOrder         @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  createdBy User?                   @relation("RestaurantPaymentCreatedBy", fields: [createdById], references: [id])
+  voidedBy  User?                   @relation("RestaurantPaymentVoidedBy", fields: [voidedById], references: [id])
   /// §33.7: оплаченные позиции (оплата по позициям)
   items     RestaurantPaymentItem[]
 
@@ -4615,4 +4621,48 @@ model GiftCertificateEntry {
   @@unique([paymentId, kind], map: "gift_certificate_entries_payment_kind_key")
   @@index([certificateId, createdAt], map: "gift_certificate_entries_certificate_idx")
   @@map("gift_certificate_entries")
+}
+
+/// 152 Очередь сообщений гостю по брони ресторана (§61): без текста и контактов, текст собирается при отправке
+model RestaurantReservationNotification {
+  id             String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                     @map("organization_id") @db.Uuid
+  locationId     String                     @map("location_id") @db.Uuid
+  reservationId  String                     @map("reservation_id") @db.Uuid
+  customerId     String                     @map("customer_id") @db.Uuid
+  kind           ClientNotificationKind
+  dueAt          DateTime                   @map("due_at") @db.Timestamptz(6)
+  channel        ClientNotificationChannel?
+  state          ClientNotificationState    @default(PENDING)
+  attempts       Int                        @default(0)
+  nextAttemptAt  DateTime?                  @map("next_attempt_at") @db.Timestamptz(6)
+  lastError      String?                    @map("last_error") @db.VarChar(500)
+  sentAt         DateTime?                  @map("sent_at") @db.Timestamptz(6)
+  createdAt      DateTime                   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime                   @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "restaurant_reservation_notifications_organization_fkey")
+  location     Location              @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "restaurant_reservation_notifications_location_fkey")
+  reservation  RestaurantReservation @relation(fields: [reservationId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "restaurant_reservation_notifications_reservation_fkey")
+  customer     Customer              @relation(fields: [customerId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "restaurant_reservation_notifications_customer_fkey")
+
+  @@unique([reservationId, kind, dueAt], map: "restaurant_reservation_notifications_natural_key")
+  @@index([state, dueAt], map: "restaurant_reservation_notifications_state_due_idx")
+  @@index([locationId, dueAt], map: "restaurant_reservation_notifications_location_due_idx")
+  @@map("restaurant_reservation_notifications")
+}
+
+/// 152 Настройки напоминаний филиала ресторана (§61)
+model FoodReminderSettings {
+  locationId           String   @id @map("location_id") @db.Uuid
+  enabled              Boolean  @default(true)
+  hoursBefore          Int[]    @default([24, 2]) @map("hours_before")
+  template             String?
+  whatsappTemplateName String?  @map("whatsapp_template_name") @db.VarChar(100)
+  revision             Int      @default(1)
+  updatedAt            DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "food_reminder_settings_location_fkey")
+
+  @@map("food_reminder_settings")
 }

@@ -53,6 +53,43 @@ const query = (cursor?: string, date?: string, search?: string) => {
   if (search) q.set('q', search);
   return `?${q}`;
 };
+/** Настройки напоминаний гостям ресторана (§61) */
+export interface FoodReminderSettings {
+  locationId: string;
+  configured: boolean;
+  revision: number;
+  enabled: boolean;
+  hoursBefore: number[];
+  template: string | null;
+  defaultTemplate: string;
+  whatsappTemplateName: string | null;
+  whatsappConnected: boolean;
+}
+/** Строка списка напоминаний дня (§61): у «Вручную» и «Ошибка» готовый текст и ссылка wa.me */
+export interface FoodReminderItem {
+  id: string;
+  kind: 'REMINDER' | 'CONFIRMATION';
+  kindLabel: string;
+  state: 'PENDING' | 'SENT' | 'MANUAL' | 'FAILED' | 'CANCELLED';
+  stateLabel: string;
+  channel: 'EMAIL' | 'WHATSAPP' | 'MANUAL' | null;
+  dueAt: string;
+  sentAt: string | null;
+  attempts: number;
+  lastError: string | null;
+  reservationId: string;
+  reservationStartsAt: string;
+  partySize: number;
+  customerName: string;
+  customerPhone: string | null;
+  text: string | null;
+  whatsappUrl: string | null;
+}
+export interface FoodRemindersDay {
+  date: string;
+  timezone: string;
+  items: FoodReminderItem[];
+}
 export const foodApi = {
   areas: (cursor?: string) => getJsonPublic<FoodPage<DiningArea>>(`${base}/areas${query(cursor)}`),
   createArea: (body: AreaInput) => sendJson<DiningArea>('POST', `${base}/areas`, body),
@@ -64,6 +101,18 @@ export const foodApi = {
       `${base}/booking-rules`,
     ),
   setBookingRules: (rules: BookingRules) => sendJson<BookingRules>('PUT', `${base}/booking-rules`, rules),
+  /** Напоминания гостям о брони (§61, миграция 152): настройки филиала, список дня, отметка «Напомнил» */
+  reminderSettings: () => getJsonPublic<FoodReminderSettings>(`${base}/reminder-settings`),
+  saveReminderSettings: (body: {
+    expectedRevision: number;
+    enabled: boolean;
+    hoursBefore: number[];
+    template: string | null;
+    whatsappTemplateName: string | null;
+  }) => sendJson<FoodReminderSettings>('PUT', `${base}/reminder-settings`, body),
+  reminders: (date?: string) =>
+    getJsonPublic<FoodRemindersDay>(`${base}/reminders${date ? `?date=${encodeURIComponent(date)}` : ''}`),
+  reminderDone: (id: string) => sendJson<{ id: string; state: 'SENT' }>('POST', `${base}/reminders/${encodeURIComponent(id)}/done`, {}),
   addClosedDay: (body: { day: string; reason: string | null }) =>
     sendJson<{ id: string }>('POST', `${base}/closed-days`, body),
   removeClosedDay: (id: string) => sendJson<{ ok: true }>('DELETE', idPath('closed-days', id), {}),

@@ -242,6 +242,11 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PATCH /food-service/areas/:id': 'property',
   'PUT /food-service/areas/:id/layout': 'property',
   'GET /food-service/booking-rules': 'desk',
+  // §61: напоминания гостям ресторана (настройки пишет право property, как у салона)
+  'GET /food-service/reminder-settings': 'desk',
+  'PUT /food-service/reminder-settings': 'property',
+  'GET /food-service/reminders': 'desk',
+  'POST /food-service/reminders/:id/done': 'desk',
   'PUT /food-service/booking-rules': 'property',
   'POST /food-service/closed-days': 'property',
   'DELETE /food-service/closed-days/:id': 'property',

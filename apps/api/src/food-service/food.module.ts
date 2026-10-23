@@ -31,6 +31,7 @@ import { RestaurantOpeningController, RestaurantOpeningService } from './opening
 import { RestaurantService } from './restaurant.service';
 import { StockService } from './stock.service';
 import { MenuModifiersService } from './modifiers';
+import { FoodReminderWorker, FoodRemindersController, FoodRemindersService } from './reminders';
 @Controller('food-service')
 @Access('desk')
 @RequiresBusinessCapability('food.tables')
@@ -411,6 +412,7 @@ export class FoodStockController {
     FoodStaffController,
     FoodStockController,
     OrderRatingLinkController,
+    FoodRemindersController,
   ],
   providers: [
     RestaurantOpeningService,
@@ -421,6 +423,8 @@ export class FoodStockController {
     MenuPhotoService,
     MenuModifiersService,
     OrderRatingLinkService,
+    FoodRemindersService,
+    FoodReminderWorker,
     { provide: SITE_ASSET_STORAGE, useFactory: () => siteAssetStorageFromEnv() },
   ],
   exports: [FoodService, RestaurantService],

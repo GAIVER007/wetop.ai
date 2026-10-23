@@ -98,6 +98,9 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   // Салон, миграции 140-141 (docs/decisions/2026-10-21-salon-reminders-loyalty.md): напоминания, бонусы, сертификаты
   'client_notifications',
   'beauty_reminder_settings',
+  // 152: напоминания гостям ресторана
+  'restaurant_reservation_notifications',
+  'food_reminder_settings',
   'bonus_programs',
   'customer_bonus_entries',
   'gift_certificates',

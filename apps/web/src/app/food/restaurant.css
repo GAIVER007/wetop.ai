@@ -1898,4 +1898,95 @@
       max-width: 160px;
     }
   }
+
+  /* «Напоминания гостям» (§61): форма настроек, как у салона, своими классами */
+  .rest-reminders,
+  .rest-reminders__fields {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .rest-reminders h2,
+  .rest-reminders p {
+    margin: 0;
+  }
+  .rest-reminders__fields {
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
+  .rest-reminders__toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+  }
+  .rest-reminders__preview {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .rest-reminders__preview p {
+    white-space: pre-wrap;
+  }
+  .rest-reminders > .btn {
+    justify-self: start;
+  }
+  /* «Напомнить сегодня» на «Бронированиях»: строка на гостя, действия справа */
+  .rest-reminders-today {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .rest-reminders-today h2 {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .rest-reminders-today ul {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rest-reminders-today li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .rest-reminders-today__who {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--text-sm);
+  }
+  .rest-reminders-today__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+  }
+  @media (max-width: 600px) {
+    .rest-reminders-today li {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-2);
+    }
+    .rest-reminders-today__who {
+      white-space: normal;
+    }
+    .rest-reminders-today__actions {
+      flex-wrap: wrap;
+    }
+  }
 }

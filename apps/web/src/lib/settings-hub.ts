@@ -60,7 +60,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     title: 'Клиенты и продажи',
     icon: 'guests',
     links: [
-      { label: 'Напоминания клиентам', at: { BEAUTY: '/beauty-settings#reminders' } },
+      { label: 'Напоминания клиентам', at: { BEAUTY: '/beauty-settings#reminders', FOOD_SERVICE: '/restaurant-settings?section=reminders' } },
       { label: 'Бонусы', at: { BEAUTY: '/beauty-settings#bonuses' } },
       { label: 'Сертификаты', at: { BEAUTY: '/finance/certificates' } },
       { label: 'Каналы продаж', at: { HOSPITALITY: '/channels' } },

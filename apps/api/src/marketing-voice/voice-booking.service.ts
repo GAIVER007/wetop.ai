@@ -41,7 +41,7 @@ export interface VoiceBookingStore {
   countConfirmed(agentId: string, callId: string): Promise<number>;
   countCreated(agentId: string, callId: string): Promise<number>;
   intentOf(intentId: string): Promise<VoiceIntentRow | null>;
-  /** Хэш телефона подтверждённой котировки для суточного лимита (миграция 150) */
+  /** Хэш телефона подтверждённой котировки для суточного лимита (миграция 151) */
   stampPhoneHash(intentId: string, hash: string): Promise<void>;
 }
 

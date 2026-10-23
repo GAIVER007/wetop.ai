@@ -80,6 +80,7 @@ export const ACTION_RU: Record<string, string> = {
   'user.logout': 'Выход из системы',
   'user.organization.switched': 'Организация переключена',
   'user.password.changed': 'Пароль изменён',
+  'user.locale.changed': 'Язык стойки изменён',
   'user.invited': 'Сотрудник приглашён',
   'user.created': 'Сотрудник добавлен',
   'user.blocked': 'Сотрудник заблокирован',

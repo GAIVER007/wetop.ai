@@ -341,6 +341,44 @@ describe('AuthService.logout', () => {
   });
 });
 
+describe('Язык стойки (ADR-163, KK1)', () => {
+  it('whoami отдаёт язык человека, у старой учётки без языка это русский', async () => {
+    const { auth, users } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ locale: 'ru' });
+    users[0]!.locale = 'kk';
+    await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ locale: 'kk' });
+  });
+
+  it('смена языка пишет его человеку и журнал «было/стало»', async () => {
+    const { auth, users, audit } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    await expect(auth.changeLocale(token, 'kk', NOW)).resolves.toBe('kk');
+    expect(users[0]!.locale).toBe('kk');
+    expect(audit.at(-1)!).toMatchObject({
+      action: 'user.locale.changed',
+      userId: 'u-1',
+      entityId: 'u-1',
+      before: { locale: 'ru' },
+      after: { locale: 'kk' },
+    });
+  });
+
+  it('чужой код, пустое значение и не строка отклоняются словами, язык прежний', async () => {
+    const { auth, users } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    for (const bad of ['xx', '', undefined, 7])
+      await expect(auth.changeLocale(token, bad, NOW)).rejects.toThrow(/язык/i);
+    expect(users[0]!.locale ?? 'ru').toBe('ru');
+  });
+
+  it('без живой сессии язык не меняется', async () => {
+    const { auth, users } = service();
+    await expect(auth.changeLocale('чужой-токен', 'kk', NOW)).rejects.toThrow(/Войдите заново/);
+    expect(users[0]!.locale ?? 'ru').toBe('ru');
+  });
+});
+
 describe('AuthService.changePassword', () => {
   it('верный текущий пароль меняет пароль и гасит остальные сессии', async () => {
     const { auth, users, sessions, audit } = service();

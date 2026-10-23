@@ -3,6 +3,7 @@ import { use, type ReactNode } from 'react';
 import type { DeskShell } from '../../lib/desk-person';
 import { Icon } from '../icon';
 import { BranchSwitcher } from './branch-switcher';
+import { useT } from '../../i18n/locale-provider';
 
 /** Server-rendered text slots keep late metadata independent of the interactive shell. */
 export interface PropertyIdentity {
@@ -37,14 +38,15 @@ export function PropertyBlock({
   path?: string;
   close: (() => void) | undefined;
 }) {
+  const t = useT();
   const identity = (
     <>
       <span className="property-mark">
         <Icon name="inventory" />
       </span>
       <div>
-        <strong>{property?.name ?? 'Объект не загружен'}</strong>
-        <span>{property?.address ?? 'Гостиница'}</span>
+        <strong>{property?.name ?? t('Объект не загружен')}</strong>
+        <span>{property?.address ?? t('Гостиница')}</span>
       </div>
     </>
   );

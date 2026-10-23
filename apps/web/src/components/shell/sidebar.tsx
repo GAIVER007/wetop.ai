@@ -13,6 +13,8 @@ import { DataFreshness } from '../data-freshness';
 import { Icon } from '../icon';
 import { GrantedProperty, PropertyBlock, type PropertyIdentity } from './property-block';
 import { cx } from '../ui';
+import { translateSections } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 export type { PropertyIdentity } from './property-block';
 
 /**
@@ -37,13 +39,14 @@ export function Sidebar({
   const [expanded, setExpanded] = useState<string | null | undefined>(undefined);
   const id = useId();
   useEffect(() => setExpanded(undefined), [path]);
+  const t = useT();
   const links: LinksProps = { id, path, active, expanded, setExpanded, close };
   return (
     <div className="sidebar-shell">
       <Suspense fallback={<PropertyBlock property={property} settings={false} close={close} />}>
         <GrantedProperty desk={desk} property={property} close={close} path={path} />
       </Suspense>
-      <nav className="workspace-links" aria-label="Разделы">
+      <nav className="workspace-links" aria-label={t('Разделы')}>
         {/* пока API не ответил — меню как у администратора: пункты появляются, а не исчезают (ADR-107) */}
         <Suspense fallback={null}>
           <GrantedSectionLinks desk={desk} {...links} />
@@ -82,9 +85,10 @@ function GrantedSectionLinks({
   ...props
 }: LinksProps & { desk: Promise<DeskShell> | undefined }) {
   const shell = desk ? use(desk) : null;
+  const t = useT();
   return (
     <SectionLinks
-      sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)}
+      sections={translateSections(menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical), t)}
       {...props}
     />
   );
@@ -180,12 +184,13 @@ function GrantedFooterPerson({ desk }: { desk: Promise<DeskShell> | undefined })
 
 /** Подпись внизу меню: кто вошёл и его роль; вошедшего нет — прежняя «Администратор» */
 function FooterPerson({ person }: { person: DeskPerson | null }) {
+  const t = useT();
   return (
     <>
       <span className="desk-avatar">{person?.initials ?? 'АД'}</span>
       <div>
-        <strong>{person?.name ?? 'Администратор'}</strong>
-        <span>{person?.caption ?? 'Рабочее пространство'}</span>
+        <strong>{person?.name ?? t('Администратор')}</strong>
+        <span>{person?.caption ?? t('Рабочее пространство')}</span>
       </div>
     </>
   );

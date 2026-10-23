@@ -7,14 +7,19 @@ const mocks = vi.hoisted(() => ({
   summary: vi.fn(),
   calls: vi.fn(),
   callbacks: vi.fn(),
+  booking: vi.fn(),
 }));
 vi.mock('../../../lib/vertical-guard', () => ({ requireFeature: mocks.requireFeature }));
 vi.mock('../../../lib/desk-shell', () => ({ deskShell: mocks.deskShell }));
 vi.mock('next/navigation', () => ({ unstable_rethrow: vi.fn(), useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock('../../../lib/api', async (orig) => ({
   ...(await orig<typeof import('../../../lib/api')>()),
-  marketingVoiceApi: { summary: mocks.summary, calls: mocks.calls, callbacks: mocks.callbacks, closeCallback: vi.fn() },
+  marketingVoiceApi: { summary: mocks.summary, calls: mocks.calls, callbacks: mocks.callbacks, closeCallback: vi.fn(), booking: mocks.booking },
 }));
+vi.mock('./booking-form', async () => {
+  const { createElement } = await import('react');
+  return { BookingForm: ({ view }: { view: { enabled: boolean } }) => createElement('i', { 'data-booking-form': String(view.enabled) }) };
+});
 vi.mock('./close-button', async () => {
   const { createElement } = await import('react');
   return { CloseCallbackButton: ({ id }: { id: string }) => createElement('i', { 'data-close-button': id }) };
@@ -64,6 +69,7 @@ beforeEach(() => {
   mocks.requireFeature.mockResolvedValue({ context: { vertical: 'BEAUTY' } });
   mocks.deskShell.mockResolvedValue({ access: { role: 'OWNER' }, readOnly: false });
   mocks.summary.mockResolvedValue(SUMMARY);
+  mocks.booking.mockResolvedValue({ hasAgent: true, vertical: 'BEAUTY', enabled: true, needsApproval: true, maxPerCall: 3, canEnable: true, blockers: [] });
   mocks.calls.mockResolvedValue({ month: '2026-10', timezone: 'Asia/Almaty', total: 1, rows: [CALL] });
   mocks.callbacks.mockImplementation(async (status?: string) => (status === 'DONE' ? [] : [CB]));
 });
@@ -169,5 +175,15 @@ describe('страница «Голосовой агент»', () => {
   it('есть ещё звонки за месяц: подсказка про последние 50', async () => {
     mocks.calls.mockResolvedValue({ month: '2026-10', timezone: 'Asia/Almaty', total: 120, rows: [CALL] });
     expect(await render()).toContain('Показаны последние 1 из 120');
+  });
+
+  it('вкладка «Бронь по телефону» есть, когда API настройки ответил, и не роняет экран, когда не ответил', async () => {
+    const withTab = await render();
+    expect(withTab).toContain('Бронь по телефону');
+    expect(withTab).toContain('data-booking-form="true"');
+    mocks.booking.mockRejectedValueOnce(new ApiError(500, 'Внутренняя ошибка'));
+    const without = await render();
+    expect(without).not.toContain('data-booking-form');
+    expect(without).toContain('data-testid="voice-summary"');
   });
 });

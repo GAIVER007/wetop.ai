@@ -102,3 +102,13 @@ describe('итоги месяца', () => {
     expect(summaryItems(summary({ avgDurationSeconds: null })).find((i) => i.key === 'avg')?.value).toBe('–');
   });
 });
+
+describe('подсказка над выключателем брони', () => {
+  it('своя для каждого направления; без агента просит создать его', async () => {
+    const { bookingHint } = await import('./format');
+    expect(bookingHint('BEAUTY')).toMatch(/мастер/);
+    expect(bookingHint('FOOD_SERVICE')).toMatch(/Номер стола агент не называет/);
+    expect(bookingHint('HOSPITALITY')).toMatch(/свободные номера/);
+    expect(bookingHint(null)).toMatch(/нет агента/);
+  });
+});

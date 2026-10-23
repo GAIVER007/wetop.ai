@@ -1,9 +1,11 @@
 import 'reflect-metadata';
-import { BadRequestException, Inject, Injectable, NotFoundException, Optional } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { monthPeriod, periodBoundsUtc, todayAt } from '@pms/domain';
 import { currentUserId } from '../auth/request-context';
 import {
   MARKETING_VOICE_REPOSITORY,
+  type BookingPatch,
+  type BookingAgentRecord,
   type CallbackRecord,
   type MarketingVoiceRepository,
   type ReadScope,
@@ -45,6 +47,21 @@ export interface VoiceCallView {
   callbackRequested: boolean;
   endReason: string | null;
 }
+
+export interface VoiceBookingView {
+  hasAgent: boolean;
+  vertical: BookingAgentRecord['vertical'] | null;
+  enabled: boolean;
+  /** Первую неделю бронь ждёт подтверждения администратора; из стойки пока не меняется */
+  needsApproval: boolean;
+  maxPerCall: number;
+  canEnable: boolean;
+  /** Что мешает включить: слова для человека */
+  blockers: string[];
+}
+
+const AGENT_NOT_ACTIVE = 'Агент ИИ-продавца должен быть в состоянии «Действует»';
+const BOOKING_FIELDS = ['enabled', 'maxPerCall'];
 
 export interface VoiceCallbackView {
   id: string;
@@ -151,6 +168,58 @@ export class MarketingVoiceService {
     const limit = intParam(query.limit, 'limit', 1, MAX_LIMIT, MAX_LIMIT);
     const rows = await this.repo.callbacks(scope, status === 'NEW' || status === 'DONE' ? status : null, limit);
     return rows.map(callbackView);
+  }
+
+  async bookingView(): Promise<VoiceBookingView> {
+    const scope = await this.repo.scope();
+    return this.bookingFor(scope, await this.repo.bookingAgent(scope));
+  }
+
+  private async bookingFor(scope: ReadScope, agent: BookingAgentRecord | null): Promise<VoiceBookingView> {
+    if (!agent)
+      return { hasAgent: false, vertical: null, enabled: false, needsApproval: true, maxPerCall: 3, canEnable: false, blockers: ['У филиала нет агента ИИ-продавца'] };
+    const blockers = [
+      ...(agent.lifecycle === 'active' ? [] : [AGENT_NOT_ACTIVE]),
+      ...(await this.repo.readiness(scope, agent.vertical)),
+    ];
+    return {
+      hasAgent: true,
+      vertical: agent.vertical,
+      enabled: agent.enabled,
+      needsApproval: agent.needsApproval,
+      maxPerCall: agent.maxPerCall,
+      canEnable: blockers.length === 0,
+      blockers,
+    };
+  }
+
+  /** Выключатель и лимит за звонок. Включить можно только когда всё готово; выключить можно всегда. Автор и время остаются в журнале */
+  async saveBooking(dto: unknown): Promise<VoiceBookingView> {
+    const body = dto && typeof dto === 'object' && !Array.isArray(dto) ? (dto as Record<string, unknown>) : {};
+    const keys = Object.keys(body);
+    if (keys.length === 0 || keys.some((k) => !BOOKING_FIELDS.includes(k)))
+      throw new BadRequestException('Можно менять только выключатель (enabled) и лимит за звонок (maxPerCall)');
+    const patch: BookingPatch = {};
+    if ('enabled' in body) {
+      if (typeof body.enabled !== 'boolean') throw new BadRequestException('enabled: ожидалось true или false');
+      patch.enabled = body.enabled;
+    }
+    if ('maxPerCall' in body) {
+      const n = body.maxPerCall;
+      if (typeof n !== 'number' || !Number.isInteger(n) || n < 1 || n > 20)
+        throw new BadRequestException('maxPerCall: целое число от 1 до 20');
+      patch.maxPerCall = n;
+    }
+    const scope = await this.repo.scope();
+    await this.repo.assertWritable(scope.organizationId);
+    const agent = await this.repo.bookingAgent(scope);
+    if (!agent) throw new NotFoundException('У филиала нет агента ИИ-продавца');
+    if (patch.enabled === true) {
+      const view = await this.bookingFor(scope, agent);
+      if (!view.canEnable) throw new ConflictException(`Включить нельзя: ${view.blockers.join('; ')}`);
+    }
+    await this.repo.saveBooking(scope, agent.agentId, patch, this.userId());
+    return this.bookingFor(scope, await this.repo.bookingAgent(scope));
   }
 
   async closeCallback(id: string, dto: Record<string, unknown>): Promise<VoiceCallbackView> {

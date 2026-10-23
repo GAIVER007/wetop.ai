@@ -24,6 +24,8 @@ import { NO_SHOW_BEFORE_START_MESSAGE, maxRedeem, normalizeCertificateCode } fro
 import { AppointmentMoneyOperation, type PreparedMoneyRequest } from './appointment-money-operation';
 import type { JournalResult } from './journal-actions';
 import { formatPhone } from '../../lib/phone';
+import { useBranchPaymentMethods } from '../branch-payment-methods/use-branch-methods';
+import { branchMethodsShown } from '../branch-payment-methods/shown';
 
 type PayMethod = FoodPaymentMethod | 'BONUS' | 'GIFT_CERTIFICATE';
 
@@ -136,6 +138,8 @@ function AppointmentCardBody({
   const payable =
     canPay && row.status !== 'CANCELLED' && row.status !== 'NO_SHOW' && remaining > 0n;
   const [method, setMethod] = useState<PayMethod>('CASH');
+  // §21.7: оплата записи деньгами только включёнными в филиале способами; бонусы и сертификат отдельно, возврат всеми
+  const accepted = useBranchPaymentMethods(scopeKey);
   const [amount, setAmount] = useState(() => minorToInput(remaining.toString()));
   // бонусы: баланс клиента и сколько можно списать в этот чек (решение 21.10.2026 §2)
   const [bonus, setBonus] = useState<{ balanceMinor: string; maxRedeemPercent: number } | null | 'loading' | 'none'>(null);
@@ -397,7 +401,7 @@ function AppointmentCardBody({
           <h3>Оплата</h3>
           <Field label="Способ">
             <Select disabled={moneyLocked} value={method} onChange={(e) => chooseMethod(e.target.value as PayMethod)}>
-              {FOOD_PAYMENT_METHODS.map((m) => (
+              {branchMethodsShown(FOOD_PAYMENT_METHODS, accepted, method).map((m) => (
                 <option key={m} value={m}>
                   {METHOD_RU[m] ?? m}
                 </option>

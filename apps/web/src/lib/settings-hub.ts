@@ -75,6 +75,8 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     icon: 'system',
     links: [
       { label: 'Способы оплаты и статьи кассы', at: { HOSPITALITY: '/hotel-settings/directories' } },
+      // способы оплаты филиала салона и ресторана (§21.7, 23.10.2026); статей кассы у филиала нет
+      { label: 'Способы оплаты', at: { BEAUTY: '/branch-payment-methods', FOOD_SERVICE: '/branch-payment-methods' } },
       { label: 'Документы и договор', at: { HOSPITALITY: '/hotel-settings/documents' } },
       { label: 'Подключения', at: { HOSPITALITY: '/connections' } },
       { label: 'Неисправности', at: { HOSPITALITY: '/incidents' } },

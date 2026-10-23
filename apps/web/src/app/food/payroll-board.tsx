@@ -25,6 +25,8 @@ import {
   type PayrollView,
 } from '../../lib/food-types';
 import { mutateStaff } from './restaurant-actions';
+import { useBranchPaymentMethods } from '../branch-payment-methods/use-branch-methods';
+import { branchMethodsShown } from '../branch-payment-methods/shown';
 
 /** База процента: у ресторана закрытые заказы, у салона выполненные записи (§19.2) */
 export type PayBasis = 'orders' | 'visits';
@@ -240,6 +242,8 @@ function PayoutDrawer({
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
   const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
+  // §21.7: выплата только включёнными в филиале способами
+  const accepted = useBranchPaymentMethods(scopeKey);
   const [amount, setAmount] = useState(payrollMinorToInput(row.remainingMinor));
   // One drawer is one payment intent; failures keep the same key.
   const [idempotencyKey] = useState(() => crypto.randomUUID());
@@ -274,7 +278,7 @@ function PayoutDrawer({
         </p>
         <Field label="Способ">
           <Select value={method} onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}>
-            {FOOD_PAYMENT_METHODS.map((m) => (
+            {branchMethodsShown(FOOD_PAYMENT_METHODS, accepted, method).map((m) => (
               <option key={m} value={m}>
                 {METHOD_RU[m] ?? m}
               </option>

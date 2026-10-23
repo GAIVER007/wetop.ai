@@ -287,6 +287,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /food-service/orders/:id/rating-link': 'desk',
   'POST /food-service/payments/:id/void': 'refunds',
   'GET /food-service/cash': 'desk',
+  // способы оплаты филиала (§21.7): читает стойка, правят владелец и управляющий
+  'GET /food-service/payment-methods': 'desk',
+  'PUT /food-service/payment-methods': 'settings',
   'POST /food-service/cash/operations': 'desk',
   'POST /food-service/cash/operations/:id/void': 'refunds',
   'POST /food-service/cash/reconciliations': 'desk',

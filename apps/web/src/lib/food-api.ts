@@ -153,6 +153,11 @@ export const restaurantApi = {
   refundOrder: (id: string, body: { method: FoodPaymentMethod; amount: number; reason: string; idempotencyKey: string }) =>
     sendJson<OrderView>('POST', `${idPath('orders', id)}/refunds`, body),
   // период считает сервер (ADR-181); без дат прежние последние 100 строк для экрана «Касса»
+  /** Способы оплаты филиала (DATA_MODEL §21.7): какие принимаются и в каком порядке; все шесть кодов */
+  paymentMethods: () =>
+    getJsonPublic<{ methods: Array<{ method: FoodPaymentMethod; enabled: boolean }> }>(`${base}/payment-methods`),
+  updatePaymentMethods: (methods: Array<{ method: string; enabled: boolean }>) =>
+    sendJson<{ methods: Array<{ method: FoodPaymentMethod; enabled: boolean }> }>('PUT', `${base}/payment-methods`, { methods }),
   cash: (period?: { from: string; to: string }) =>
     getJsonPublic<FoodCashView>(
       `${base}/cash${period ? `?from=${period.from}&to=${period.to}` : ''}`,

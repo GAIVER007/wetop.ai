@@ -10,6 +10,8 @@ import { cartLinePrice, choiceProblem, lineModifiersText, toggleChoice } from '.
 import { FOOD_PAYMENT_METHODS, type FoodPaymentMethod } from '../../lib/food-types';
 import type { MenuItemView, ModifierGroupView, OrderItemInput, OrderView } from '../../lib/food-types';
 import { mutateMenu, mutateOrder } from './restaurant-actions';
+import { useBranchPaymentMethods } from '../branch-payment-methods/use-branch-methods';
+import { branchMethodsShown } from '../branch-payment-methods/shown';
 
 /** Прибавка к цене: «+300 ₸», «−200 ₸», у нулевой пусто */
 export function deltaText(minor: string, currency: string): string {
@@ -352,6 +354,8 @@ export function SplitBill({
   const [guests, setGuests] = useState(String(Math.max(2, order.guestCount)));
   const [paidParts, setPaidParts] = useState(0);
   const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
+  // §21.7: деление счёта платит только включёнными в филиале способами
+  const accepted = useBranchPaymentMethods(scopeKey);
   const [picked, setPicked] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
@@ -409,7 +413,7 @@ export function SplitBill({
         {!closed && remaining > 0n && (
           <Field label="Способ оплаты">
             <Select value={method} onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}>
-              {FOOD_PAYMENT_METHODS.map((m) => (
+              {branchMethodsShown(FOOD_PAYMENT_METHODS, accepted, method).map((m) => (
                 <option key={m} value={m}>
                   {METHOD_RU[m] ?? m}
                 </option>

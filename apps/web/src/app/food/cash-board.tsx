@@ -19,6 +19,8 @@ import { localInput } from '../beauty/time';
 import { dayClock } from '../../lib/human-period';
 import { mutateCash } from '../cashbox/actions';
 import { useConfirm } from '../../components/use-confirm';
+import { useBranchPaymentMethods } from '../branch-payment-methods/use-branch-methods';
+import { branchMethodsShown } from '../branch-payment-methods/shown';
 
 type Kind = 'INCOME' | 'EXPENSE' | 'TRANSFER';
 const KIND_LABEL: Record<Kind, string> = { INCOME: 'Приход', EXPENSE: 'Расход', TRANSFER: 'Перевод' };
@@ -29,15 +31,18 @@ function MethodSelect({
   label,
   value,
   onChange,
+  methods = FOOD_PAYMENT_METHODS,
 }: {
   label: string;
   value: FoodPaymentMethod;
   onChange: (m: FoodPaymentMethod) => void;
+  /** §21.7: приход и перевод «куда» только включёнными способами; расход, «откуда» и сверка всеми */
+  methods?: readonly FoodPaymentMethod[];
 }) {
   return (
     <Field label={label}>
       <Select value={value} onChange={(e) => onChange(e.target.value as FoodPaymentMethod)}>
-        {FOOD_PAYMENT_METHODS.map((m) => (
+        {branchMethodsShown(FOOD_PAYMENT_METHODS, [...methods], value).map((m) => (
           <option key={m} value={m}>
             {methodName(m)}
           </option>
@@ -70,6 +75,7 @@ export function CashBoard({
   const [error, setError] = useState('');
   const [kind, setKind] = useState<Kind>('INCOME');
   const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
+  const accepted = useBranchPaymentMethods(scopeKey);
   const [methodTo, setMethodTo] = useState<FoodPaymentMethod>('KASPI');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
@@ -287,8 +293,13 @@ export function CashBoard({
               onChange={setKind}
             />
             <div className="food-form-row">
-              <MethodSelect label={kind === 'TRANSFER' ? 'Откуда' : 'Способ'} value={method} onChange={setMethod} />
-              {kind === 'TRANSFER' && <MethodSelect label="Куда" value={methodTo} onChange={setMethodTo} />}
+              <MethodSelect
+                label={kind === 'TRANSFER' ? 'Откуда' : 'Способ'}
+                value={method}
+                onChange={setMethod}
+                methods={kind === 'INCOME' ? accepted : FOOD_PAYMENT_METHODS}
+              />
+              {kind === 'TRANSFER' && <MethodSelect label="Куда" value={methodTo} onChange={setMethodTo} methods={accepted} />}
               <Field label={`Сумма, ${currencySign(cash.currency)}`}>
                 <Input inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))} />
               </Field>

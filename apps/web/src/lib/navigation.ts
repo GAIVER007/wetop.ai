@@ -84,6 +84,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       { href: '/stock', label: 'Склад', icon: 'stock', requires: 'desk', description: 'Склад кухни: ингредиенты и остатки' },
       { href: '/payroll', label: 'Зарплата', icon: 'money', requires: 'staff', description: 'Зарплата и финансы' },
       { href: '/cashbox', label: 'Касса', icon: 'money', requires: 'desk', description: 'Касса филиала' },
+      // способы оплаты филиала (DATA_MODEL §21.7, 23.10.2026): ссылка из хаба «Настройки», в верхнем меню пункта нет
+      { href: '/branch-payment-methods', label: 'Способы оплаты', icon: 'money', requires: 'desk', description: 'Какие способы оплаты принимает филиал и в каком порядке.' },
       // подарочные сертификаты салона (решение 21.10.2026 §3): продажа и остатки
       { href: '/finance/certificates', label: 'Сертификаты', icon: 'receipt', requires: 'desk', description: 'Подарочные сертификаты: продажа, остаток и срок.' },
       // макет ресторана из 14 экранов (12.10.2026): бар, финансы и настройки ресторана своими экранами
@@ -715,7 +717,7 @@ const ROW: Array<{
       // «Организации» только главному администратору (отметка `platform`)
       { label: 'Организации', at: ALL('/platform') },
     ],
-    match: ['/settings', '/branches', '/beauty-settings', '/hotel-settings', '/connections', '/channel-manager', '/platform'],
+    match: ['/settings', '/branches', '/beauty-settings', '/hotel-settings', '/branch-payment-methods', '/connections', '/channel-manager', '/platform'],
   },
   {
     // «Продвижение» (ADR-184): бывшие «Маркетинг» и «Продажи»
@@ -865,6 +867,7 @@ const BEAUTY_ROUTES: Array<{ href: string; access: BeautyRouteAccess }> = [
   { href: '/calendar', access: { section: 'journal', legacy: 'desk' } },
   { href: '/payroll', access: { section: 'payroll', legacy: 'staff' } },
   { href: '/cashbox', access: { section: 'finance', legacy: 'desk' } },
+  { href: '/branch-payment-methods', access: { section: 'finance', legacy: 'desk' } },
   { href: '/finance/certificates', access: { section: 'finance', legacy: 'desk' } },
   { href: '/finance', access: { section: 'finance', legacy: 'reports' } },
   { href: '/journal', access: { section: 'settings', legacy: 'journal' } },

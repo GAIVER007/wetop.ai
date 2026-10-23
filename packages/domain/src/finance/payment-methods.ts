@@ -42,34 +42,59 @@ export interface PaymentMethodSetting {
 
 const isConfigurable = (method: string): method is ConfigurablePaymentMethod =>
   (CONFIGURABLE_PAYMENT_METHODS as readonly string[]).includes(method);
-const defaultIndex = (method: string) =>
-  (CONFIGURABLE_PAYMENT_METHODS as readonly string[]).indexOf(method);
+
+/**
+ * Способы оплаты филиала салона и ресторана (DATA_MODEL §21.7, решение владельца 23.10.2026): шесть денежных
+ * способов кассы филиала (§35, `FOOD_PAYMENT_METHODS`) в том же порядке; депозита и гарантии картой у филиала нет.
+ */
+export const BRANCH_PAYMENT_METHODS = [
+  'CASH',
+  'CARD_TERMINAL',
+  'KASPI',
+  'HALYK',
+  'BANK_TRANSFER_PERSON',
+  'BANK_TRANSFER_LEGAL',
+] as const satisfies readonly ConfigurablePaymentMethod[];
 
 /** Умолчания без строк в базе: все восемь включены в системном порядке (У3) */
 export const DEFAULT_PAYMENT_METHOD_SETTINGS: readonly PaymentMethodSetting[] =
   CONFIGURABLE_PAYMENT_METHODS.map((method) => ({ method, enabled: true }));
+/** Умолчания филиала (§21.7): все шесть включены, поэтому выкладка ничего не меняет у филиалов без строк */
+export const DEFAULT_BRANCH_PAYMENT_METHOD_SETTINGS: readonly PaymentMethodSetting[] =
+  BRANCH_PAYMENT_METHODS.map((method) => ({ method, enabled: true }));
 
 /**
- * Строки объекта в полный список: сохранённые по `sortOrder`, недостающие дописываются включёнными
+ * Строки в полный список выбранного набора: сохранённые по `sortOrder`, недостающие дописываются включёнными
  * в системном порядке (строки появились раньше нового способа), чужие и повторные коды отбрасываются.
  */
-export function resolvePaymentMethodSettings(
+function resolveSettings(
+  list: readonly ConfigurablePaymentMethod[],
   rows: ReadonlyArray<{ method: string; enabled: boolean; sortOrder: number }>,
 ): PaymentMethodSetting[] {
+  const inList = (m: string): m is ConfigurablePaymentMethod => (list as readonly string[]).includes(m);
+  const index = (m: string) => (list as readonly string[]).indexOf(m);
   const out: PaymentMethodSetting[] = [];
   const seen = new Set<string>();
   const known = rows
-    .filter((r) => isConfigurable(r.method))
-    .sort((a, b) => a.sortOrder - b.sortOrder || defaultIndex(a.method) - defaultIndex(b.method));
+    .filter((r) => inList(r.method))
+    .sort((a, b) => a.sortOrder - b.sortOrder || index(a.method) - index(b.method));
   for (const r of known) {
     if (seen.has(r.method)) continue;
     seen.add(r.method);
     out.push({ method: r.method as ConfigurablePaymentMethod, enabled: r.enabled });
   }
-  for (const method of CONFIGURABLE_PAYMENT_METHODS)
-    if (!seen.has(method)) out.push({ method, enabled: true });
+  for (const method of list) if (!seen.has(method)) out.push({ method, enabled: true });
   return out;
 }
+
+/** Объект гостиницы (§21.6): восемь способов */
+export const resolvePaymentMethodSettings = (
+  rows: ReadonlyArray<{ method: string; enabled: boolean; sortOrder: number }>,
+): PaymentMethodSetting[] => resolveSettings(CONFIGURABLE_PAYMENT_METHODS, rows);
+/** Филиал салона и ресторана (§21.7): шесть способов */
+export const resolveBranchPaymentMethodSettings = (
+  rows: ReadonlyArray<{ method: string; enabled: boolean; sortOrder: number }>,
+): PaymentMethodSetting[] => resolveSettings(BRANCH_PAYMENT_METHODS, rows);
 
 /** Коды включённых способов в порядке показа */
 export const enabledPaymentMethods = (
@@ -81,10 +106,13 @@ export type PaymentMethodSettingsParse =
   | { ok: false; reason: string };
 
 /**
- * Разбор тела `PUT /hotel/payment-methods`: `{ methods: [{ method, enabled }] }`, все восемь ровно по разу
- * в порядке показа, хотя бы один включён (У4). Тот же разбор зовут API, форма стойки и подставной API.
+ * Разбор тела сохранения: `{ methods: [{ method, enabled }] }`, все способы набора ровно по разу в порядке показа,
+ * хотя бы один включён (У4). Тот же разбор зовут API, форма и подставной API.
  */
-export function parsePaymentMethodSettings(raw: unknown): PaymentMethodSettingsParse {
+function parseSettings(
+  list: readonly ConfigurablePaymentMethod[],
+  raw: unknown,
+): PaymentMethodSettingsParse {
   if (!raw || typeof raw !== 'object') return { ok: false, reason: 'Нечего сохранять' };
   const methods = (raw as { methods?: unknown }).methods;
   if (!Array.isArray(methods))
@@ -96,16 +124,16 @@ export function parsePaymentMethodSettings(raw: unknown): PaymentMethodSettingsP
       item && typeof item === 'object' ? (item as { method?: unknown }).method : undefined;
     const enabled =
       item && typeof item === 'object' ? (item as { enabled?: unknown }).enabled : undefined;
-    if (typeof method !== 'string' || !isConfigurable(method))
+    if (typeof method !== 'string' || !(list as readonly string[]).includes(method))
       return { ok: false, reason: `Неизвестный способ оплаты: ${String(method)}` };
     if (typeof enabled !== 'boolean')
       return { ok: false, reason: `enabled у способа «${paymentMethodRu(method)}»: true или false` };
     if (seen.has(method))
       return { ok: false, reason: `Способ «${paymentMethodRu(method)}» указан дважды` };
     seen.add(method);
-    out.push({ method, enabled });
+    out.push({ method: method as ConfigurablePaymentMethod, enabled });
   }
-  const missing = CONFIGURABLE_PAYMENT_METHODS.filter((m) => !seen.has(m));
+  const missing = list.filter((m) => !seen.has(m));
   if (missing.length > 0)
     return {
       ok: false,
@@ -116,6 +144,13 @@ export function parsePaymentMethodSettings(raw: unknown): PaymentMethodSettingsP
   return { ok: true, value: out };
 }
 
+/** `PUT /hotel/payment-methods` (§21.6): восемь способов объекта */
+export const parsePaymentMethodSettings = (raw: unknown): PaymentMethodSettingsParse =>
+  parseSettings(CONFIGURABLE_PAYMENT_METHODS, raw);
+/** `PUT /food-service/payment-methods` (§21.7): шесть способов филиала */
+export const parseBranchPaymentMethodSettings = (raw: unknown): PaymentMethodSettingsParse =>
+  parseSettings(BRANCH_PAYMENT_METHODS, raw);
+
 /**
  * Правило У5: выключенный способ не принимает новых денег. EXTERNAL и коды вне списка это не дело
  * этого правила (их проверяет перечень способов API).
@@ -125,5 +160,17 @@ export function assertPaymentMethodEnabled(method: string, enabled: readonly str
   if (!enabled.includes(method))
     throw new FinanceRuleError(
       `Способ оплаты «${paymentMethodRu(method)}» выключен в настройках объекта`,
+    );
+}
+
+/**
+ * Правило У5 для филиала (§21.7): выключенный способ не принимает новых денег. BONUS и GIFT_CERTIFICATE это не деньги
+ * кассы и не дело этого правила, их проверяют свои правила лояльности.
+ */
+export function assertBranchPaymentMethodEnabled(method: string, enabled: readonly string[]): void {
+  if (!(BRANCH_PAYMENT_METHODS as readonly string[]).includes(method)) return;
+  if (!enabled.includes(method))
+    throw new FinanceRuleError(
+      `Способ оплаты «${paymentMethodRu(method)}» выключен в настройках филиала`,
     );
 }

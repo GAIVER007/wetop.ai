@@ -27,10 +27,15 @@ describe('Разделы роста по направлению бизнеса',
     );
     expect(html).toContain('marketing-hub__modules');
     expect(html).toContain('Сайт и SEO');
-    // аудит 21.10.2026 п. 5: гостиничных «Конкурентов» у салона нет, сетка 2 на 2
-    expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(4);
-    expect(html).not.toContain('marketing-competitors');
-    expect(html).toContain('marketing-hub__modules--four');
+    // «Конкуренты» у всех направлений (решение 23.10.2026, п. 5): та же сетка из пяти карточек, что у гостиницы;
+    // данных о соседях салона нет, поэтому без кнопки «Открыть» и без чисел
+    expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(5);
+    expect(html).toContain('data-testid="marketing-competitors"');
+    expect(html).toMatch(/data-testid="marketing-competitors-status"[^>]*>Скоро</);
+    expect(html).toContain('Данные о конкурентах для салонов и ресторанов появятся после подключения источника.');
+    expect(html).not.toContain('aria-label="Открыть: Конкуренты"');
+    expect(html).not.toContain('href="/market"');
+    expect(html).not.toContain('marketing-hub__modules--four');
     // единая система: бюджет ведётся по филиалу любого направления
     expect(html).toMatch(/data-testid="marketing-budget-status"[^>]*>Доступно</);
     expect(html).toContain('href="/marketing/budget"');

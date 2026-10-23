@@ -123,6 +123,13 @@ export function liveModules(vertical: WebVertical): Set<Module['key']> {
   );
 }
 
+/**
+ * Салон и ресторан: данных о соседях нет и выдумывать их нельзя (QUESTIONS.md Q-VERT-MARKET-1), поэтому без
+ * кнопки «Открыть» и без чисел, одна строка вместо пустого экрана.
+ */
+const COMPETITORS_PENDING =
+  'Данные о конкурентах для салонов и ресторанов появятся после подключения источника.';
+
 /** Публикация, изображения и бронирование сайта пока гостиничные экраны: меню «⋯» у сайта только у гостиницы */
 function ModuleCard({
   module,
@@ -158,7 +165,9 @@ function ModuleCard({
           </Badge>
         </div>
         <p className="marketing-module__text">
-          {soonForVertical
+          {soonForVertical && module.key === 'competitors'
+            ? module.text
+            : soonForVertical
             ? `${module.text} Для этого направления модуль готовится к подключению.`
             : note
               ? `${module.text} ${note}`
@@ -173,7 +182,11 @@ function ModuleCard({
           ))}
         </ul>
         <div className="marketing-module__foot">
-          {soonForVertical ? (
+          {soonForVertical && module.key === 'competitors' ? (
+            <p className="marketing-module__soon" data-testid="marketing-competitors-pending">
+              {COMPETITORS_PENDING}
+            </p>
+          ) : soonForVertical ? (
             <button className="btn" disabled>
               Скоро <Icon name="arrow" width={16} aria-hidden="true" />
             </button>
@@ -229,8 +242,9 @@ export function MarketingHub({
   const live = liveModules(vertical);
   // Реклама и контент пока «Скоро» у всех направлений; ссылка на экран-превью есть, кнопок действий нет
   const PREVIEW = new Set<Module['key']>(['content']);
-  // «Конкуренты» это гостиничный мониторинг загрузки (ADR-142): салону и ресторану карточку не показываем
-  const shown = modules(copy).filter((m) => hospitality || m.key !== 'competitors');
+  // «Конкуренты» у всех направлений (решение владельца 23.10.2026, п. 5): у гостиницы мониторинг загрузки
+  // (ADR-142), у салона и ресторана карточка честно говорит, что источника данных о соседях пока нет
+  const shown = modules(copy);
   const value = (key: ResultKey) => {
     if (key === 'spent' && spend) return formatMoney(spend.spentMinor, spend.currency);
     return 'Нет данных';

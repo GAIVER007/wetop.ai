@@ -44,6 +44,11 @@
     --module-fill: var(--warning-soft);
     --module-ink: var(--warning);
   }
+  .marketing-module__soon {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
   .marketing-module__body {
     min-height: 280px;
     display: grid;

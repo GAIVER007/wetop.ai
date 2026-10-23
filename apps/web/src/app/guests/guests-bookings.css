@@ -4,53 +4,6 @@
  * аватар с инициалами, нижняя полоса действий, панель. Цвета только токенами, статусы только бейджами из реестров.
  */
 @layer sections {
-  /* ---------- плитки показателей: шесть в ряд, на узком экране переносятся ---------- */
-  .guests-bookings .gb-kpis {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: var(--space-4);
-    margin-bottom: var(--space-4);
-  }
-  .gb-kpis .stat__value {
-    font-size: var(--text-2xl);
-  }
-  /* плитка в три строки (подпись, число, сравнение): значок меньше и ближе, чтобы «к вчерашнему дню» не переносилось */
-  .gb-kpis .stat--icon {
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-  }
-  .gb-kpis .stat__icon {
-    width: 32px;
-    height: 32px;
-  }
-  .gb-kpis .stat__label {
-    margin-bottom: var(--space-1);
-  }
-  /* значок несёт тон, поэтому цветной полосы слева и цветной подсказки у этих плиток нет */
-  .gb-kpis .stat {
-    box-shadow: none;
-  }
-  .gb-kpis .stat__hint {
-    color: var(--muted);
-  }
-  @media (max-width: 1279px) {
-    .guests-bookings .gb-kpis {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-  @media (max-width: 600px) {
-    .guests-bookings .gb-kpis {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: var(--space-2);
-    }
-    .gb-kpis .stat--icon {
-      grid-template-columns: minmax(0, 1fr);
-    }
-    .gb-kpis .stat__icon {
-      display: none;
-    }
-  }
-
   /* ---------- сетка: список слева, панель гостя справа ---------- */
   .gb-layout {
     display: grid;
@@ -575,19 +528,6 @@
    * переключателями, цветные аватары, номер брони ссылкой, панель гостя: вкладки подчёркнуты, подписи и значения
    * двумя колонками слева, разделы через черту, действия видны без прокрутки. Оболочка по UI3.1.
    */
-  .gb-kpis .stat__label {
-    color: var(--text);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-semibold);
-  }
-  .gb-kpis .stat__value {
-    font-weight: var(--weight-bold);
-  }
-  .gb-kpis .stat__icon {
-    width: var(--space-10);
-    height: var(--space-10);
-    border-radius: var(--radius-control);
-  }
 
   /* быстрые виды: выбранный залит главным цветом */
   .gb-views .chip[aria-current='page'] {
@@ -738,19 +678,6 @@
   }
   .gb-table .badge {
     font-size: var(--text-xs);
-  }
-  .gb-kpis .stat__label {
-    font-size: var(--text-xs);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .gb-kpis .stat__hint,
-  .gb-kpis .stat__delta {
-    overflow: hidden;
-    font-size: var(--text-xs);
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
   .gb-chips {
     margin-bottom: var(--space-2);

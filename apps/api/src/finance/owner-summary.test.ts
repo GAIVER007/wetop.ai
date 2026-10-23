@@ -106,6 +106,15 @@ describe('owner summary real cash source', () => {
     expect(result.current.paidExpenses.currencies).toEqual([]);
     expect(db.restaurantCashOperation.findMany).not.toHaveBeenCalled();
   });
+  it('«Требуют решения» считаются за сегодня филиала при любом периоде', async () => {
+    const { db, service } = fixture();
+    Object.assign(db, { barProduct: { findMany: vi.fn().mockResolvedValue([]) }, kitchenProduct: { findMany: vi.fn().mockResolvedValue([]) } });
+    const result = await actor(() => service.report('month', new Date('2026-10-16T03:00:00Z'))) as Awaited<ReturnType<typeof service.report>>;
+    expect(result.attention).toEqual([{ id: 'all-clear', tone: 'ok', text: 'Срочных дел нет', href: '/today/operations', action: 'Открыть день' }]);
+    expect(db.appointment.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: { locationId: 'branch', status: 'DONE', startsAt: { gte: new Date('2026-10-15T19:00:00Z'), lt: new Date('2026-10-16T19:00:00Z') } },
+    }));
+  });
   it('enforces report permission inside the service', async () => {
     const { db, service } = fixture();
     await expect(actor(() => service.report('today'), { role: 'STAFF', scopes: [{ role: 'STAFF', businessId: 'other-business', locationId: null }] })).rejects.toThrow();

@@ -73,26 +73,30 @@ describe('одно меню для всех направлений', () => {
       '/customers',
       '/customers',
     ]);
-    expect(VERTICALS.map((v) => screen(v, 'Клиенты', 'Записи'))).toEqual([
+    // слово пункта своё у направления (аудит 22.10.2026): у ресторана брони столов, меню и доступ
+    const word = (v: (typeof VERTICALS)[number], common: string, food: string) => (v === 'FOOD_SERVICE' ? food : common);
+    expect(VERTICALS.map((v) => screen(v, 'Клиенты', word(v, 'Записи', 'Брони столов')))).toEqual([
       '/reservations',
       '/appointments',
       '/table-reservations',
     ]);
-    expect(VERTICALS.map((v) => screen(v, 'Услуги', 'Каталог'))).toEqual([
+    expect(VERTICALS.map((v) => screen(v, 'Услуги', word(v, 'Каталог', 'Меню')))).toEqual([
       '/inventory',
       '/services',
       '/menu',
     ]);
-    expect(VERTICALS.map((v) => screen(v, 'Персонал', 'Сотрудники'))).toEqual([
+    expect(VERTICALS.map((v) => screen(v, 'Персонал', word(v, 'Сотрудники', 'Доступ и роли')))).toEqual([
       '/team',
       '/team',
       '/team',
     ]);
+    // гостиница: «График работы» и «Зарплата» как у салона и ресторана (решение 22.10.2026, кабинет горничной)
     expect(VERTICALS.map((v) => screen(v, 'Персонал', 'График работы'))).toEqual([
-      undefined,
+      '/staff-schedule',
       '/beauty/schedule',
       '/employees/shifts',
     ]);
+    expect(VERTICALS.map((v) => screen(v, 'Персонал', 'Зарплата'))).toEqual(['/payroll', '/payroll', '/payroll']);
     expect(VERTICALS.map((v) => screen(v, 'Финансы', 'Касса'))).toEqual([
       undefined,
       '/cashbox',

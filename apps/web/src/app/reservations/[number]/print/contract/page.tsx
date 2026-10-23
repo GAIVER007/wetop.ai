@@ -12,6 +12,8 @@ import {
   pickLang,
   propertyParty,
 } from '../forms';
+import { displayDay } from '../../../../../lib/display-date';
+import { humanizeIsoDates } from '../../../../../lib/charge-text';
 
 /**
  * Заготовка договора на проживание — печатная форма RU / KZ по образцу регистрационной карты.
@@ -83,7 +85,7 @@ export default async function PrintContract({
         </span>
         <span>{t.city}</span>
         <span>
-          {t.date}: {now.date}
+          {t.date}: {displayDay(now.date)}
         </span>
       </div>
 
@@ -148,8 +150,8 @@ export default async function PrintContract({
             <tr key={it.id} data-testid="contract-stay">
               <td style={cell}>{it.accommodationTypeName}</td>
               <td style={cell}>{it.unitCode ?? '—'}</td>
-              <td style={cell}>{it.arrivalDate}</td>
-              <td style={cell}>{it.departureDate}</td>
+              <td style={cell}>{displayDay(it.arrivalDate)}</td>
+              <td style={cell}>{displayDay(it.departureDate)}</td>
               <td style={cell}>{nightsBetween(it.arrivalDate, it.departureDate)}</td>
               <td style={{ ...cell, textAlign: 'right' }}>
                 {formatMinor(it.priceMinor, r.currency)}
@@ -190,7 +192,7 @@ export default async function PrintContract({
         </div>
       </div>
       <div style={{ fontSize: 11, color: '#555', marginTop: 24 }}>
-        {t.printedAt}: {now.stamp}
+        {t.printedAt}: {humanizeIsoDates(now.stamp, 'print')}
       </div>
     </main>
   );

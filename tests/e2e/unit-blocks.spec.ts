@@ -45,7 +45,7 @@ test('заблокировать свободную койку на 2 ночи �
   );
 
   await page.goto(`/units/${unitCode}`);
-  await expect(page.getByRole('heading', { name: new RegExp(`Ячейка ${unitCode}`) })).toBeVisible();
+  await expect(page.getByRole('heading', { name: new RegExp(`Номер ${unitCode}`) })).toBeVisible();
   const form = page.getByRole('main').getByTestId('block-form');
   await form.locator('input[name="dateFrom"]').fill(FROM);
   await form.locator('input[name="dateTo"]').fill(TO);

@@ -5,6 +5,7 @@ import { Alert, Button, Field, Input, Select } from '../../components/ui';
 import type { OpeningState } from '../../lib/opening-api';
 import { openingDraft, openingInput } from './opening-input';
 import { saveOpening } from './opening-actions';
+import { zoneLabel } from '../../lib/human-period';
 const days = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
 export function OpeningForm({ initial, scopeKey, timezone, write }: { initial: OpeningState; scopeKey: string; timezone: string; write: boolean }) {
  const [draft,setDraft] = useState(()=>openingDraft(initial.schedule));
@@ -14,8 +15,9 @@ export function OpeningForm({ initial, scopeKey, timezone, write }: { initial: O
  const blocked = !write || pending || !initial.enabled || !!initial.error;
  return <section aria-labelledby="physical-opening-title">
   <h2 id="physical-opening-title">Часы работы зала</h2>
-  <p className="muted">Физическая работа всего филиала, не периоды приёма броней. Часовой пояс: {timezone}. Дни без интервалов закрыты, круглосуточная работа не подставляется.</p>
-  {!initial.enabled ? <p role="status">Учёт физических часов отключён. Расписание недоступно.</p> : <>
+  {/* учёт выключен, пока таблицы часов лежат в migrations-hold (ADR-137, аудит 22.10.2026 P1-6): одна фраза владельцу */}
+  {!initial.enabled ? <p role="status">Часы работы зала настраиваются командой WETOP. Напишите в поддержку, и их включат для вашего ресторана.</p> : <>
+   <p className="muted">Физическая работа всего филиала, не периоды приёма броней. Часовой пояс: {zoneLabel(timezone)}. Дни без интервалов закрыты, круглосуточная работа не подставляется.</p>
    {initial.error && <Alert>{initial.error}</Alert>}
    {!initial.schedule && !initial.error && <p role="status">Расписание не подтверждено. Нет доступного расписания для расчёта загрузки.</p>}
    {initial.schedule && <p className="muted">Подтверждение источника (recorded_at): <time dateTime={initial.schedule.recorded_at}>{initial.schedule.recorded_at}</time>. Загрузка учитывается только с момента захвата (observedAt), не раньше подтверждения. История до наблюдения не восстанавливается.</p>}

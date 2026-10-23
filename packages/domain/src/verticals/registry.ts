@@ -20,7 +20,7 @@ export type VerticalCapability =
   | 'branch.stock'
   /** касса филиала (§35.2, §48): ресторан и салон */
   | 'branch.cash'
-  /** зарплата сотрудников (§33.4, §19.2): ресторан и салон */
+  /** зарплата сотрудников (§33.4, §19.2, §4.1): все три направления; у гостиницы без выплат из кассы */
   | 'branch.payroll';
 export interface VerticalDefinition {
   readonly id: BusinessVertical;
@@ -39,6 +39,8 @@ const DEFINITIONS: Readonly<Record<BusinessVertical, VerticalDefinition>> = Obje
       'hospitality.rates',
       'hospitality.channels',
       'branch.stock',
+      // зарплата гостиницы: начисления тем же расчётом; выплаты из кассы нет (docs/decisions/2026-10-22-hotel-staff-cabinet.md)
+      'branch.payroll',
     ] as const),
   }),
   BEAUTY: Object.freeze({

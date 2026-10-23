@@ -1,4 +1,5 @@
 import type { WebVertical } from './vertical-landing';
+import { verticalCopy, type MenuWords } from './vertical-copy';
 import { featureVerticals } from './features';
 import {
   ORGANIZATION_LEVEL_PERMISSIONS,
@@ -75,6 +76,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       { href: '/dining-areas', label: 'Залы и столы', icon: 'settings', requires: 'desk', description: 'Залы, столы и их вместимость.' },
       // Ресторан по ТЗ владельца 09.10.2026 (ADR-159)
       { href: '/orders', label: 'Заказы', icon: 'receipt', requires: 'desk', description: 'Заказы ресторана' },
+      // официант с телефона (§33.6, 22.10.2026): право «Приём заказов» есть и у «Личного кабинета»
+      { href: '/waiter', label: 'Принять заказ', icon: 'receipt', requires: 'orders', description: 'Стол, меню и отправка заказа на кухню и в бар с телефона.' },
       { href: '/kitchen', label: 'Кухня', icon: 'kitchen', requires: 'desk', description: 'Экран кухни (KDS)' },
       { href: '/menu', label: 'Меню', icon: 'kettle', requires: 'desk', description: 'Меню и техкарты' },
       // Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS)
@@ -124,6 +127,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         icon: 'clock',
         requires: 'desk',
         description: 'Смены сотрудников на неделю.',
+      },
+      {
+        // гостиница: «График работы» горничных и ресепшена (кабинет горничной, решение 22.10.2026)
+        href: '/staff-schedule',
+        label: 'График работы',
+        icon: 'clock',
+        requires: 'desk',
+        description: 'Смены горничных и ресепшена на неделю.',
       },
       {
         href: '/services',
@@ -272,7 +283,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         requires: 'reports',
         label: 'Обзор склада',
         icon: 'stock',
-        description: 'Остатки бара и кухни рядом и что заканчивается.',
+        description: 'Остатки товаров и расходников рядом и что заканчивается.',
       },
       {
         href: '/bar',
@@ -284,9 +295,9 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         href: '/bar/consumables',
         requires: 'reports',
-        label: 'Кухня и расходники',
+        label: 'Расходники',
         icon: 'stock',
-        description: 'Кухня гостиницы и материалы услуг салона: приходы, списания и остатки.',
+        description: 'Продукты и материалы: приходы, списания и остатки.',
       },
       // подстраницы бара пунктами раздела «Склад» (верхнее меню 17.10.2026); право то же, что у `/bar`
       {
@@ -583,12 +594,18 @@ function menuItem(href: string, label?: string): NavigationItem {
  * это прямая ссылка, остальные открывают список у всех направлений. Адреса и права страниц прежние: их держит реестр выше.
  */
 type Screens = Partial<Record<WebVertical, string>>;
+/** слово пункта из `vertical-copy.ts`: «Объект» / «Салон» / «Ресторан» и т. п. */
+type Word = { word: keyof MenuWords };
+function wordOf(label: string | Word, vertical: WebVertical): string {
+  return typeof label === 'string' ? label : verticalCopy(vertical).menu[label.word];
+}
 const ALL = (href: string): Screens => ({ HOSPITALITY: href, BEAUTY: href, FOOD_SERVICE: href });
 const ROW: Array<{
   id: string;
   label: string;
   icon: IconName;
-  items: Array<{ label: string; at: Screens }>;
+  /** подпись пункта: общая строка или слово направления (`vertical-copy.ts`, аудит 22.10.2026) */
+  items: Array<{ label: string | Word; at: Screens }>;
   match?: string[];
 }> = [
   { id: 'today', label: 'Главная', icon: 'today', items: [{ label: 'Главная', at: ALL('/today') }] },
@@ -605,10 +622,10 @@ const ROW: Array<{
     label: 'Персонал',
     icon: 'person',
     items: [
-      { label: 'Специалисты', at: { BEAUTY: '/employees', FOOD_SERVICE: '/employees' } },
-      { label: 'Сотрудники', at: ALL('/team') },
-      { label: 'График работы', at: { BEAUTY: '/beauty/schedule', FOOD_SERVICE: '/employees/shifts' } },
-      { label: 'Зарплата', at: { BEAUTY: '/payroll', FOOD_SERVICE: '/payroll' } },
+      { label: { word: 'specialists' }, at: { BEAUTY: '/employees', FOOD_SERVICE: '/employees' } },
+      { label: { word: 'team' }, at: ALL('/team') },
+      { label: 'График работы', at: { HOSPITALITY: '/staff-schedule', BEAUTY: '/beauty/schedule', FOOD_SERVICE: '/employees/shifts' } },
+      { label: 'Зарплата', at: ALL('/payroll') },
     ],
     match: ['/staff', '/beauty/masters'],
   },
@@ -619,7 +636,7 @@ const ROW: Array<{
     items: [
       { label: 'Клиенты', at: { HOSPITALITY: '/guests', BEAUTY: '/customers', FOOD_SERVICE: '/customers' } },
       {
-        label: 'Записи',
+        label: { word: 'bookings' },
         at: { HOSPITALITY: '/reservations', BEAUTY: '/appointments', FOOD_SERVICE: '/table-reservations' },
       },
     ],
@@ -629,8 +646,9 @@ const ROW: Array<{
     label: 'Услуги',
     icon: 'layers',
     items: [
-      { label: 'Каталог', at: { HOSPITALITY: '/inventory', BEAUTY: '/services', FOOD_SERVICE: '/menu' } },
+      { label: { word: 'catalog' }, at: { HOSPITALITY: '/inventory', BEAUTY: '/services', FOOD_SERVICE: '/menu' } },
       { label: 'Заказы', at: { FOOD_SERVICE: '/orders' } },
+      { label: 'Принять заказ', at: { FOOD_SERVICE: '/waiter' } },
       { label: 'Кухня', at: { FOOD_SERVICE: '/kitchen' } },
       { label: 'Напитки', at: { FOOD_SERVICE: '/drinks' } },
       { label: 'Залы и столы', at: { FOOD_SERVICE: '/dining-areas' } },
@@ -655,11 +673,11 @@ const ROW: Array<{
     items: [
       // пункты в порядке вкладок экрана склада (решение владельца 19.10.2026): одно название в меню и на вкладке
       { label: 'Обзор склада', at: ALL('/warehouse') },
-      { label: 'Бар', at: ALL('/bar') },
-      { label: 'Кухня', at: { HOSPITALITY: '/bar/consumables' } },
+      { label: { word: 'goods' }, at: ALL('/bar') },
       // у ресторана «Кухня» уже раздел «Услуги»: склад кухни называется целиком
       { label: 'Склад кухни', at: { FOOD_SERVICE: '/stock' } },
-      { label: 'Расходники', at: { BEAUTY: '/bar/consumables' } },
+      // гостиница зовёт склад материалов как салон (аудит 22.10.2026): «Кухня» путалась с кухней ресторана
+      { label: 'Расходники', at: { HOSPITALITY: '/bar/consumables', BEAUTY: '/bar/consumables' } },
       { label: 'Приходы', at: ALL('/bar/receipts') },
       { label: 'Номенклатура', at: ALL('/bar/products') },
       { label: 'Поставщики', at: ALL('/bar/suppliers') },
@@ -686,7 +704,7 @@ const ROW: Array<{
     label: 'Настройки',
     icon: 'settings',
     items: [
-      { label: 'Объект', at: { HOSPITALITY: '/hotel-settings', BEAUTY: '/beauty-settings', FOOD_SERVICE: '/restaurant-settings' } },
+      { label: { word: 'place' }, at: { HOSPITALITY: '/hotel-settings', BEAUTY: '/beauty-settings', FOOD_SERVICE: '/restaurant-settings' } },
       { label: 'Каналы продаж', at: { HOSPITALITY: '/channels' } },
       { label: 'Подключения', at: { HOSPITALITY: '/connections' } },
       // право `desk`: администратор видит неисправности (ADR-107)
@@ -723,7 +741,9 @@ const ROW: Array<{
 /** Меню направления из общей таблицы: свои экраны, те же подписи и тот же вид раздела */
 function rowFor(vertical: WebVertical): MenuSection[] {
   return ROW.flatMap(({ items, ...section }) => {
-    const own = items.flatMap((item) => (item.at[vertical] ? [{ href: item.at[vertical]!, label: item.label }] : []));
+    const own = items.flatMap((item) =>
+      item.at[vertical] ? [{ href: item.at[vertical]!, label: wordOf(item.label, vertical) }] : [],
+    );
     // вид раздела общий у всех направлений: Главная, Журнал и Помощь прямые ссылки, остальные открывают список
     if (items.length === 1 && own.length)
       return [{ ...section, direct: true, items: [menuItem(own[0]!.href, section.label)] }];
@@ -782,11 +802,11 @@ const HELP_WORDS: Record<WebVertical, HelpWords> = {
     settings: 'проверьте данные ресторана и часы работы.',
   },
 };
-const HELP_STEPS: Array<{ section: string; item: string; text: (w: HelpWords) => string }> = [
-  { section: 'services', item: 'Каталог', text: (w) => w.catalog },
-  { section: 'staff', item: 'Специалисты', text: () => 'добавьте тех, кто оказывает услуги, назначьте им услуги и рабочие часы.' },
+const HELP_STEPS: Array<{ section: string; item: string | Word; text: (w: HelpWords) => string }> = [
+  { section: 'services', item: { word: 'catalog' }, text: (w) => w.catalog },
+  { section: 'staff', item: { word: 'specialists' }, text: () => 'добавьте тех, кто оказывает услуги, назначьте им услуги и рабочие часы.' },
   { section: 'journal', item: 'Журнал', text: (w) => w.first },
-  { section: 'settings', item: 'Объект', text: (w) => w.settings },
+  { section: 'settings', item: { word: 'place' }, text: (w) => w.settings },
 ];
 
 export function helpSteps(
@@ -798,7 +818,8 @@ export function helpSteps(
     const section = sections.find((s) => s.id === step.section);
     if (!section) return [];
     if (section.direct) return [{ path: section.label, href: section.items[0]!.href, text: step.text(words) }];
-    const item = section.items.find((i) => i.label === step.item);
+    // слово пункта своё у направления (`vertical-copy.ts`), как в меню этого направления
+    const item = section.items.find((i) => i.label === wordOf(step.item, vertical));
     return item ? [{ path: `${section.label} → ${item.label}`, href: item.href, text: step.text(words) }] : [];
   });
 }

@@ -6,6 +6,8 @@ import { wholeTenge } from '../../lib/dashboard-format';
 import { pluralRu } from '../../lib/plural';
 import { foodStatus } from '../../lib/status/food';
 import type { DiningTable, OrderView, RestaurantReservation } from '../../lib/food-types';
+import { formatPhone } from '../../lib/phone';
+import { tableTitle } from '../../lib/table-title';
 
 export type TableKind = 'FREE' | 'OCCUPIED' | 'RESERVED' | 'CLEANING';
 export const KIND_LABEL: Record<TableKind, string> = {
@@ -80,15 +82,15 @@ export function TablePanel({
     <aside
       className="rest-table-panel"
       data-testid="table-panel"
-      aria-label={`Стол ${table.name}`}
+      aria-label={tableTitle(table.name)}
     >
       <div className="rest-table-panel__head">
-        <h2>Стол {table.name}</h2>
+        <h2>{tableTitle(table.name)}</h2>
         <button
           ref={closeButton}
           type="button"
           className="rest-icon-btn"
-          aria-label={`Закрыть: Стол ${table.name}`}
+          aria-label={`Закрыть: ${tableTitle(table.name)}`}
           onClick={close}
         >
           <Icon name="close" />
@@ -105,7 +107,7 @@ export function TablePanel({
         {current && (
           <section aria-label="Текущий визит" className="rest-table-panel__now">
             <strong>{name(current)}</strong>
-            {current.customer.phone && <span>{current.customer.phone}</span>}
+            {current.customer.phone && <span>{formatPhone(current.customer.phone)}</span>}
             <span>
               Время: {clock(current.startsAt)}–{clock(current.endsAt)},{' '}
               {pluralRu(current.partySize, ['гость', 'гостя', 'гостей'])}

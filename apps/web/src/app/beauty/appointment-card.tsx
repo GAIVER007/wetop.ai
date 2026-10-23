@@ -23,6 +23,7 @@ import { beautyStatus } from '../../lib/status/beauty';
 import { NO_SHOW_BEFORE_START_MESSAGE, maxRedeem, normalizeCertificateCode } from '@pms/domain';
 import { AppointmentMoneyOperation, type PreparedMoneyRequest } from './appointment-money-operation';
 import type { JournalResult } from './journal-actions';
+import { formatPhone } from '../../lib/phone';
 
 type PayMethod = FoodPaymentMethod | 'BONUS' | 'GIFT_CERTIFICATE';
 
@@ -137,14 +138,14 @@ function AppointmentCardBody({
   const [method, setMethod] = useState<PayMethod>('CASH');
   const [amount, setAmount] = useState(() => minorToInput(remaining.toString()));
   // бонусы: баланс клиента и сколько можно списать в этот чек (решение 21.10.2026 §2)
-  const [bonus, setBonus] = useState<{ balanceMinor: string; maxRedeemPercent: number } | null | 'loading'>(null);
+  const [bonus, setBonus] = useState<{ balanceMinor: string; maxRedeemPercent: number } | null | 'loading' | 'none'>(null);
   const paidByBonus = (row.payments ?? []).reduce(
     (sum, p) => (p.method === 'BONUS' ? (p.kind === 'INCOME' ? sum + BigInt(p.amountMinor) : sum - BigInt(p.amountMinor)) : sum),
     0n,
   );
   const minOf = (...values: bigint[]) => values.reduce((a, b) => (a < b ? a : b));
   // доля чека минус уже оплаченное бонусами, не больше баланса и остатка к оплате (тот же расчёт, что у API)
-  const bonusMaxRaw = bonus && bonus !== 'loading'
+  const bonusMaxRaw = bonus && bonus !== 'loading' && bonus !== 'none'
     ? minOf(
         maxRedeem(BigInt(row.priceMinor), BigInt(bonus.balanceMinor), bonus.maxRedeemPercent),
         (BigInt(row.priceMinor) * BigInt(bonus.maxRedeemPercent)) / 100n - paidByBonus,
@@ -152,26 +153,30 @@ function AppointmentCardBody({
       )
     : 0n;
   const bonusMax = bonusMaxRaw > 0n ? bonusMaxRaw : 0n;
+  const bonusAvailable = Boolean(bonus && bonus !== 'loading' && bonus !== 'none' && BigInt(bonus.balanceMinor) > 0n);
+  // баланс бонусов читается сразу при открытии оплаты: способ показывается только при балансе больше нуля
+  useEffect(() => {
+    if (!payable || bonus !== null) return;
+    setBonus('loading');
+    let active = true;
+    Promise.resolve()
+      .then(() => customerBonusQuote(row.customer.id))
+      .then((quote) => { if (active && mounted.current) setBonus(quote ?? 'none'); }, () => { if (active && mounted.current) setBonus('none'); });
+    return () => { active = false; };
+  }, [payable, row.customer.id]);
   // сертификат: код и остаток по нему (решение 21.10.2026 §3)
   const [certCode, setCertCode] = useState('');
   const [cert, setCert] = useState<{ balanceMinor: string; status: string; expiresAt: string } | { error: string } | null>(null);
   const chooseMethod = (next: PayMethod) => {
     setMethod(next);
     setCert(null);
-    if (next === 'BONUS' && bonus === null) {
-      setBonus('loading');
-      void customerBonusQuote(row.customer.id).then((quote) => {
-        if (!mounted.current) return;
-        setBonus(quote);
-        if (quote) {
-          const max = minOf(
-            maxRedeem(BigInt(row.priceMinor), BigInt(quote.balanceMinor), quote.maxRedeemPercent),
-            (BigInt(row.priceMinor) * BigInt(quote.maxRedeemPercent)) / 100n - paidByBonus,
-            remaining,
-          );
-          setAmount(minorToInput((max > 0n ? max : 0n).toString()));
-        }
-      });
+    if (next === 'BONUS' && bonus && bonus !== 'loading' && bonus !== 'none') {
+      const max = minOf(
+        maxRedeem(BigInt(row.priceMinor), BigInt(bonus.balanceMinor), bonus.maxRedeemPercent),
+        (BigInt(row.priceMinor) * BigInt(bonus.maxRedeemPercent)) / 100n - paidByBonus,
+        remaining,
+      );
+      setAmount(minorToInput((max > 0n ? max : 0n).toString()));
     }
   };
   const checkCertificate = () => {
@@ -230,7 +235,7 @@ function AppointmentCardBody({
           <dt>Клиент</dt>
           <dd>
             {row.customer.name}
-            {row.customer.phone ? `, ${row.customer.phone}` : ''}
+            {row.customer.phone ? `, ${formatPhone(row.customer.phone)}` : ''}
           </dd>
         </div>
         {row.items?.length ? (
@@ -242,14 +247,20 @@ function AppointmentCardBody({
                   {item.employeeName}, {clock(item.startMinutes)}–{clock(item.endMinutes)} ·{' '}
                   {item.durationMinutes} мин
                 </p>
-                <p>Цена: {formatMoney(item.basePriceMinor, item.currency)}</p>
+                {/* цена один раз (аудит салона 22.10.2026): база и итог строки только при скидке, наценке или
+                    нескольких услугах; итог записи в строке «Оплачено» */}
+                {(BigInt(item.discountMinor) > 0n || BigInt(item.surchargeMinor) > 0n) && (
+                  <p>Цена: {formatMoney(item.basePriceMinor, item.currency)}</p>
+                )}
                 {BigInt(item.discountMinor) > 0n && (
                   <p>Скидка: {formatMoney(item.discountMinor, item.currency)}</p>
                 )}
                 {BigInt(item.surchargeMinor) > 0n && (
                   <p>Наценка: {formatMoney(item.surchargeMinor, item.currency)}</p>
                 )}
-                <strong>{formatMoney(item.priceMinor, item.currency)}</strong>
+                {(row.items!.length > 1 || BigInt(item.discountMinor) > 0n || BigInt(item.surchargeMinor) > 0n) && (
+                  <strong>{formatMoney(item.priceMinor, item.currency)}</strong>
+                )}
               </dd>
             </div>
           ))
@@ -270,10 +281,6 @@ function AppointmentCardBody({
           <dd>
             {day.date}, {clock(row.startMinutes)} до {clock(row.endMinutes)}
           </dd>
-        </div>
-        <div>
-          <dt>Цена</dt>
-          <dd>{formatMoney(row.priceMinor, row.currency)}</dd>
         </div>
         <div>
           <dt>Оплачено</dt>
@@ -395,17 +402,14 @@ function AppointmentCardBody({
                   {METHOD_RU[m] ?? m}
                 </option>
               ))}
-              <option value="BONUS">Бонусы</option>
+              {/* «Бонусы» только когда у клиента есть бонусы (аудит салона 22.10.2026: предлагались при 0) */}
+              {bonusAvailable && <option value="BONUS">Бонусы</option>}
               <option value="GIFT_CERTIFICATE">Сертификат</option>
             </Select>
           </Field>
-          {method === 'BONUS' && (
+          {method === 'BONUS' && bonusAvailable && bonus && bonus !== 'loading' && bonus !== 'none' && (
             <p className="beauty-loyalty-hint" data-testid="pay-bonus-hint">
-              {bonus === 'loading'
-                ? 'Проверяем бонусы клиента…'
-                : bonus === null
-                  ? 'Бонусная программа выключена или бонусов нет.'
-                  : `Бонусов: ${formatMoney(bonus.balanceMinor, row.currency)}. Можно списать: ${formatMoney(bonusMax.toString(), row.currency)}.`}
+              {`Бонусов: ${formatMoney(bonus.balanceMinor, row.currency)}. Можно списать: ${formatMoney(bonusMax.toString(), row.currency)}.`}
             </p>
           )}
           {method === 'GIFT_CERTIFICATE' && (

@@ -52,8 +52,14 @@ export function useLiveReport(values: LiveValues) {
 }
 export const useLive = () => useContext(SaveContext)?.live ?? null;
 
+/** Строка у кнопки: выключенная кнопка без причины выглядела сломанной (аудит 22.10.2026 P1-9) */
+export function saveStateText({ dirty, saved }: SaveState): string {
+  return dirty ? '• Есть несохранённые изменения' : saved ? '✓ Изменения сохранены' : 'Нет изменений';
+}
+
 export function SaveAction() {
-  const { dirty, pending, saved } = useContext(SaveContext)?.state ?? IDLE;
+  const state = useContext(SaveContext)?.state ?? IDLE;
+  const { dirty, pending, saved } = state;
   return (
     <>
       <span
@@ -61,7 +67,7 @@ export function SaveAction() {
         role="status"
         data-testid="settings-save-state"
       >
-        {dirty ? '• Есть несохранённые изменения' : saved ? '✓ Изменения сохранены' : ''}
+        {saveStateText(state)}
       </span>
       <Button
         type="submit"

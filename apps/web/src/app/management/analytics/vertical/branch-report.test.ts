@@ -23,4 +23,18 @@ describe('отчёт филиала в аналитике', () => {
     );
     expect(html).toMatch(/data-testid="period-BOOKED"[^>]*>0</);
   });
+  it('ресторан: «Брони по статусам», а не салонные «Записи» (аудит ресторана 22.10.2026)', () => {
+    const html = renderToStaticMarkup(
+      BranchReport({
+        labels: { BOOKED: 'Бронь' },
+        counts: {},
+        revenue: null,
+        statusTitle: 'Брони по статусам',
+        statusEmpty: 'Броней за период нет.',
+      }),
+    );
+    expect(html).toContain('Брони по статусам, всего 0');
+    expect(html).toContain('Броней за период нет.');
+    expect(html).not.toContain('Записи');
+  });
 });

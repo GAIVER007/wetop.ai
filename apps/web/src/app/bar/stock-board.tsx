@@ -8,6 +8,8 @@ import { Tabs } from '../../components/tabs';
 import { useConfirm } from '../../components/use-confirm';
 import { Badge, Button, Input, Select, Table, cx } from '../../components/ui';
 import { Icon } from '../../components/icon';
+import { useDeskVertical } from '../../components/desk-access';
+import { stockWords } from '../../lib/stock-words';
 import {
   archiveBarProductsAction,
   createBarProductAction,
@@ -559,6 +561,8 @@ function ProductCard({
   canStockMutate: boolean;
 }) {
   const clock = usePropertyClock();
+  // причины списания словами направления: у салона без «Бой» и «Угощение» (аудит 22.10.2026)
+  const reasons = stockWords(useDeskVertical()).writeOffReasons;
   const [state, action, pending] = useActionState(updateBarProductAction, initial);
   const [writeOffState, writeOffAction, writeOffPending] = useActionState(
     writeOffBarAction,
@@ -836,12 +840,9 @@ function ProductCard({
             <option value="" disabled>
               Причина
             </option>
-            <option>Порча</option>
-            <option>Бой</option>
-            <option>Истек срок</option>
-            <option>Угощение</option>
-            <option>Нужды объекта</option>
-            <option>Иное</option>
+            {reasons.map((reason) => (
+              <option key={reason}>{reason}</option>
+            ))}
           </Select>
           <Button type="submit" tone="warning" disabled={writeOffPending}>
             {writeOffPending ? 'Списываем…' : 'Списать'}

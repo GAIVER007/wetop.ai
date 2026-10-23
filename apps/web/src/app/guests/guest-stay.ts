@@ -26,6 +26,18 @@ export function guestNote(row: Pick<GuestDirectoryRow, 'state' | 'staysCount'>):
 }
 
 /** Инициалы для кружка: первая буква фамилии и имени */
+/** «Имя Отчество Фамилия»: так гостя называют на стойке (аудит 22.10.2026 P1-16, было «Фамилия Имя») */
+export function guestDisplayName(g: {
+  firstName: string;
+  lastName: string;
+  middleName?: string | null;
+}): string {
+  return [g.firstName, g.middleName ?? '', g.lastName]
+    .map((w) => w.trim())
+    .filter(Boolean)
+    .join(' ');
+}
+
 export function initials(lastName: string, firstName: string): string {
   const first = (text: string) => text.trim().charAt(0).toLocaleUpperCase('ru');
   return `${first(lastName)}${first(firstName)}` || '?';

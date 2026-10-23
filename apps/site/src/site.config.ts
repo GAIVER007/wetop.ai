@@ -39,7 +39,7 @@ export const siteConfig: SiteConfig = {
     // так и задумано в `lib/site.ts`. Город и почта остаются: по ним пишут в разделе «Как начать».
     name: '',
     city: 'Астана',
-    email: 'zapoinov@bk.ru',
+    email: 'hello@wetop.ai',
     phone: '',
     about: '',
   },

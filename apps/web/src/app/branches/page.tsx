@@ -4,9 +4,6 @@ export default async function BranchesPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  return (
-    <main id="main-content" className="branches-reference-page">
-      <BranchWorkspace query={await searchParams} />
-    </main>
-  );
+  // каркас `Page` (main, h1 «Организация», действия) рисует сам экран, в том числе при ошибке загрузки
+  return <BranchWorkspace query={await searchParams} />;
 }

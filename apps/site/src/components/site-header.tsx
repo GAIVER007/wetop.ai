@@ -1,12 +1,12 @@
 import { ThemeToggle } from './theme-toggle';
 import Link from 'next/link';
-import { getDictionary } from '../i18n';
+import { getDictionary, type Locale } from '../i18n';
 import { loginLink, registerLink } from '../lib/site';
 import { Wordmark } from './brand';
 import { MobileMenu } from './mobile-menu';
 
-export function SiteHeader() {
-  const t = getDictionary();
+export function SiteHeader({ locale = 'ru' }: { locale?: Locale }) {
+  const t = getDictionary(locale);
   const login = loginLink();
   const register = registerLink();
   const links = [
@@ -33,7 +33,7 @@ export function SiteHeader() {
           </ul>
         </nav>
         <div className="site-header__actions">
-          <ThemeToggle />
+          <ThemeToggle labels={{ toggle: t.a11y.theme, light: t.a11y.themeLight, dark: t.a11y.themeDark }} />
           <a
             className="btn btn--ghost btn--sm site-header__login"
             href={login.href}

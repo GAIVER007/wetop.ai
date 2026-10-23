@@ -7,6 +7,7 @@ import { channelMarks } from '../../../channel-marks';
 import { UnitPanel } from '../../../unit-panel';
 import { deskShell } from '../../../../../lib/desk-shell';
 import { mayAccess } from '../../../../../lib/navigation';
+import { loadHousekeepers } from '../../../../../lib/hotel-housekeepers';
 
 /**
  * Панель места (ADR-108, срез I2, ТЗ §13; вид по снимку владельца 09.10): вкладки, быстрые действия,
@@ -21,6 +22,7 @@ export default async function UnitDrawerPage({ params }: { params: Promise<{ cod
   const [marks, shell] = await Promise.all([channelMarks(), deskShell()]);
   const canEditCatalog = mayAccess(shell.access, 'property') && !shell.readOnly;
   const canOperate = mayAccess(shell.access, 'desk') && !shell.readOnly;
+  const housekeepers = canOperate ? await loadHousekeepers() : undefined;
   const roomUnits = await api
     .inventoryUnits()
     .then((all) => all.filter((u) => u.roomNumber === unit.roomNumber))
@@ -41,6 +43,7 @@ export default async function UnitDrawerPage({ params }: { params: Promise<{ cod
         channels={marks.mapped.includes(unit.accommodationTypeCode) ? marks.channels : []}
         canEditCatalog={canEditCatalog}
         canOperate={canOperate}
+        housekeepers={housekeepers}
       />
     </DockedPanel>
   );

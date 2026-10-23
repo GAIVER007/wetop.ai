@@ -715,6 +715,26 @@ describe('виджет бронирования /w/*', () => {
     expect(JSON.stringify(incidents.rows)).not.toContain('203.0.113.77');
   });
 
+  it('демо брони в стойке (аудит 21.10.2026): адрес стойки APP_URL допущен как свой домен для цен и брони', async () => {
+    const prev = process.env.APP_URL;
+    process.env.APP_URL = 'https://app.wetop.ai';
+    try {
+      const quote = await get(
+        `/w/availability?k=${SITE.publicKey}&arrival=2026-09-13&departure=2026-09-15&adults=1`,
+        'https://app.wetop.ai',
+      ).expect(200);
+      expect(quote.headers['access-control-allow-origin']).toBe('https://app.wetop.ai');
+      // чужой адрес по-прежнему не допущен
+      await get(
+        `/w/availability?k=${SITE.publicKey}&arrival=2026-09-13&departure=2026-09-15&adults=1`,
+        'https://evil.local',
+      ).expect(403);
+    } finally {
+      if (prev === undefined) delete process.env.APP_URL;
+      else process.env.APP_URL = prev;
+    }
+  });
+
   it('демо-страница: виджет и счётчик по ключу; сайт без бронирования — 404', async () => {
     const r = await request(app.getHttpServer()).get(`/w/demo?k=${SITE.publicKey}`).expect(200);
     expect(r.text).toContain('/w/widget.js');

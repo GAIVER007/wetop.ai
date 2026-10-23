@@ -14,7 +14,7 @@ describe('Food workspace isolation', () => {
       ['Журнал', ['/floor-plan']],
       ['Персонал', ['/employees', '/team', '/employees/shifts', '/payroll']],
       ['Клиенты', ['/customers', '/table-reservations']],
-      ['Услуги', ['/menu', '/orders', '/kitchen', '/drinks', '/dining-areas']],
+      ['Услуги', ['/menu', '/orders', '/waiter', '/kitchen', '/drinks', '/dining-areas']],
       // `/reports` ресторану перенаправляет на «Аналитику бизнеса» (аудит 17.10.2026, Д2)
       ['Статистика', ['/management/analytics']],
       ['Склад', ['/warehouse', '/bar', '/stock', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
@@ -31,12 +31,12 @@ describe('Food workspace isolation', () => {
       ['/menu', 'Услуги'],
     ]);
     const labels = sections.flatMap((s) => s.items);
-    expect(labels.find((i) => i.href === '/menu')?.label).toBe('Каталог');
+    expect(labels.find((i) => i.href === '/menu')?.label).toBe('Меню');
     expect(labels.find((i) => i.href === '/stock')?.label).toBe('Склад кухни');
-    expect(labels.find((i) => i.href === '/employees')?.label).toBe('Специалисты');
+    expect(labels.find((i) => i.href === '/employees')?.label).toBe('Сотрудники');
     expect(labels.find((i) => i.href === '/employees/shifts')?.label).toBe('График работы');
     expect(labels.find((i) => i.href === '/cashbox')?.label).toBe('Касса');
-    expect(labels.find((i) => i.href === '/table-reservations')?.label).toBe('Записи');
+    expect(labels.find((i) => i.href === '/table-reservations')?.label).toBe('Брони столов');
   });
   it('does not expose Food to existing verticals', () => {
     for (const v of ['BEAUTY', 'HOSPITALITY'] as const) {
@@ -70,6 +70,7 @@ describe('Food workspace isolation', () => {
     expect(routeVertical('/dining-areas')).toBe('FOOD_SERVICE');
     expect(routeVertical('/orders')).toBe('FOOD_SERVICE');
     expect(routeVertical('/kitchen')).toBe('FOOD_SERVICE');
+    expect(routeVertical('/waiter')).toBe('FOOD_SERVICE');
     expect(routeVertical('/stock')).toBe('FOOD_SERVICE');
     expect(routeVertical('/menu')).toBe('FOOD_SERVICE');
     // зарплата общая у ресторана и салона (§19.2)

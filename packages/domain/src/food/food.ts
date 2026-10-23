@@ -127,6 +127,8 @@ export interface FoodCreate {
   tableId: string | null;
   notes: string | null;
   source: 'DESK' | 'WALK_IN';
+  /** §33.6: кто принял бронь (у стойки выбор, у официанта сам) */
+  employeeId?: string | null;
 }
 export function parseFoodCreate(raw: unknown): FoodCreate {
   const b = foodObject(raw, [
@@ -138,6 +140,7 @@ export function parseFoodCreate(raw: unknown): FoodCreate {
     'tableId',
     'notes',
     'source',
+    'employeeId',
   ]);
   if ((b.customerId !== undefined) === (b.customer !== undefined))
     throw new Error('Выберите клиента или создайте нового');
@@ -153,6 +156,8 @@ export function parseFoodCreate(raw: unknown): FoodCreate {
     throw new Error('Неизвестный источник');
   out.source = (b.source ?? 'DESK') as FoodCreate['source'];
   if (out.source === 'WALK_IN' && !out.tableId) throw new Error('Для walk-in нужен стол');
+  // без выбора поле в отпечаток повтора не попадает: прежние ключи брони совпадают
+  if (b.employeeId != null) out.employeeId = foodId(b.employeeId);
   if (b.customerId !== undefined) out.customerId = foodId(b.customerId);
   else {
     const c = foodObject(b.customer, ['firstName', 'lastName', 'phone']);

@@ -53,7 +53,7 @@ interface AuditRow {
 const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
   [null, 'Все'],
   ['Reservation', 'Брони'],
-  ['InventoryUnit', 'Ячейки'],
+  ['InventoryUnit', 'Номера и места'],
   ['Guest', 'Гости'],
   ['Property', 'Объект и каналы'],
   ['TrackedSite', 'Сайт'],

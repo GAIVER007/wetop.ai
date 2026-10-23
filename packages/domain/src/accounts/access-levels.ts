@@ -55,12 +55,14 @@ type Vertical = 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
 const WORDS: Readonly<Record<Vertical, { own: string; work: string[] }>> = {
   BEAUTY: { own: 'Свои записи', work: ['Журнал и записи', 'Клиенты', 'Касса и оплаты', 'Отчёты на просмотр'] },
   FOOD_SERVICE: { own: 'Свои заказы', work: ['Зал, брони и заказы', 'Гости', 'Касса', 'Отчёты на просмотр'] },
-  HOSPITALITY: { own: 'Свои брони', work: ['Шахматка', 'Брони и гости', 'Оплаты и счета', 'Отчёты на просмотр'] },
+  // гостиница: «Личный кабинет» горничной и ресепшена (22.10.2026)
+  HOSPITALITY: { own: 'Свои уборки и задачи', work: ['Шахматка', 'Брони и гости', 'Оплаты и счета', 'Отчёты на просмотр'] },
 };
 
 /** Подписи и «что увидит» уровней словами направления */
 export function accessLevelInfo(vertical: string): Readonly<Record<AccessLevel, AccessLevelInfo>> {
   const w = WORDS[(vertical in WORDS ? vertical : 'HOSPITALITY') as Vertical];
+  const hotel = !(vertical in WORDS) || vertical === 'HOSPITALITY';
   return {
     NONE: {
       label: 'Без входа',
@@ -71,8 +73,8 @@ export function accessLevelInfo(vertical: string): Readonly<Record<AccessLevel, 
     PORTAL: {
       label: 'Личный кабинет',
       hint: 'Видит только своё',
-      sees: [w.own, 'Свой график', 'Своя зарплата', 'Свои отзывы'],
-      denies: ['Чужие данные', 'Касса и отчёты', 'Настройки'],
+      sees: hotel ? [w.own, 'Свой график', 'Своя зарплата'] : [w.own, 'Свой график', 'Своя зарплата', 'Свои отзывы'],
+      denies: hotel ? ['Шахматка, брони и гости', 'Касса и отчёты', 'Настройки'] : ['Чужие данные', 'Касса и отчёты', 'Настройки'],
     },
     STAFF: {
       label: 'Администратор',

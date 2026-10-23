@@ -21,6 +21,7 @@ import { byDay, summarize } from '../budget/derive';
 import { DailyChart } from '../budget/chart';
 import { BudgetTabs, ChooseLocation, MonthNav, platformLabel } from '../budget/parts';
 import { buildAnalyticsReport } from './report';
+import { METRIC } from '../../../lib/metric-words';
 
 /**
  * «Маркетинг → Аналитика» (МКТ-В5a, ADR-MKT-B5a, Q-MKT-ATTR): воронка «Расходы → Обращения → Брони → Выручка»
@@ -131,7 +132,7 @@ export default async function MarketingAnalyticsPage({
             <dd data-testid="man-revenue">{ok ? formatMoney(total.revenueMinor, revenueCurrency) : dash}</dd>
           </div>
           <div>
-            <dt>CPL</dt>
+            <dt>{METRIC.cpl}</dt>
             <dd data-testid="man-cpl">{money(total.cplMinor, rc)}</dd>
           </div>
           <div>
@@ -139,7 +140,7 @@ export default async function MarketingAnalyticsPage({
             <dd data-testid="man-cpb">{money(total.costPerBookingMinor, rc)}</dd>
           </div>
           <div>
-            <dt>ROMI</dt>
+            <dt>{METRIC.romi}</dt>
             <dd data-testid="man-romi">{!ok ? dash : funnel.romiAvailable ? romiText(total.romiPct) : 'Разные валюты'}</dd>
           </div>
         </dl>
@@ -218,7 +219,7 @@ export default async function MarketingAnalyticsPage({
                       Обращения
                     </th>
                     <th scope="col" className="budget-td-num">
-                      CPL
+                      {METRIC.cpl}
                     </th>
                     <th scope="col" className="budget-td-num">
                       {w.many}
@@ -230,7 +231,7 @@ export default async function MarketingAnalyticsPage({
                       Выручка
                     </th>
                     <th scope="col" className="budget-td-num">
-                      ROMI
+                      {METRIC.romi}
                     </th>
                   </tr>
                 </thead>
@@ -302,7 +303,7 @@ export default async function MarketingAnalyticsPage({
                       Лиды
                     </th>
                     <th scope="col" className="budget-td-num">
-                      CPL
+                      {METRIC.cpl}
                     </th>
                     <th scope="col" className="budget-td-num">
                       {w.many}
@@ -314,7 +315,7 @@ export default async function MarketingAnalyticsPage({
                       Выручка
                     </th>
                     <th scope="col" className="budget-td-num">
-                      ROMI
+                      {METRIC.romi}
                     </th>
                   </tr>
                 </thead>
@@ -358,7 +359,7 @@ export default async function MarketingAnalyticsPage({
           <p className="settings-note" data-testid="man-calendar-note">
             По дням: расход в день оплаты, обращение в день заявки или первого предложения ИИ-продавца,
             {hotel ? ' бронь и выручка в день, когда бронь сделали.' : ` ${w.forms[0]} и выручка в день, когда ${w.forms[0]} сделали.`}{' '}
-            Новые клиенты: {w.forms[2]} {copy.clientsOf}, у которых раньше их не было. ROMI одного дня шумный, потому что
+            Новые клиенты: {w.forms[2]} {copy.clientsOf}, у которых раньше их не было. Окупаемость одного дня шумная, потому что
             реклама окупается не в тот же день; смотрите итог месяца.
           </p>
         </section>

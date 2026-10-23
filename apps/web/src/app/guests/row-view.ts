@@ -12,6 +12,7 @@ import {
   stayPayment,
   stayStatus,
   visitsWord,
+  guestDisplayName,
   type StayActions,
 } from './guest-stay';
 
@@ -62,7 +63,7 @@ export function buildRowView(
   const lastWithYear = row.last !== null && row.last.departureDate.slice(0, 4) !== ctx.today.slice(0, 4);
   return {
     id: row.id,
-    name: `${row.lastName} ${row.firstName} ${row.middleName ?? ''}`.trim(),
+    name: guestDisplayName(row),
     initials: initials(row.lastName, row.firstName),
     note: guestNote(row),
     phone: row.phone,

@@ -13,6 +13,8 @@ vi.mock('./forms', () => ({
     createElement('form', { 'data-command': command }, children, createElement('button', { type: 'submit' }, label)),
 }));
 
+vi.mock('../../app/login/actions', () => ({ inviteNewStaffAction: vi.fn() }));
+
 import { PortalManagement } from './management';
 
 const data = (accountLinked = false, access: 'MANAGER' | 'SELF' = 'MANAGER'): EmployeePortalDto => ({
@@ -44,6 +46,7 @@ const data = (accountLinked = false, access: 'MANAGER' | 'SELF' = 'MANAGER'): Em
   appointments: [],
   orders: [],
   reviews: { averageStars: null, count: 0, hasMore: false, items: [] },
+  workRange: 'DAY', workTruncated: false, monthStats: { month: '2026-10', status: 'AVAILABLE', currency: 'KZT', shifts: 20, daysOff: 11, absenceDays: 0, appointmentsDone: 0, servicesDone: 0, ordersClosed: null, tablesServed: null, guests: null, revenueMinor: '0', bonusMinor: '0', percent: null },
   pay: {
     month: '2026-10', status: 'NOT_CONFIGURED', model: null, fixedMinor: null, percent: null,
     percentBasis: null, policyRevision: null, earnedMinor: null, paidMinor: '0', remainingMinor: null,
@@ -85,6 +88,18 @@ describe('E4: привязка входа мастера выбором учас
     }));
     expect(html).not.toContain('data-command="account"');
     expect(html).toContain('data-command="unlink"');
+  });
+
+  it('аудит 22.10.2026: без входа понятное действие «Пригласить в личный кабинет», без «пока недоступен»', () => {
+    const html = renderToStaticMarkup(createElement(ManagementWithOptions, { data: data(), context, accountOptions: [] }));
+    expect(html).not.toContain('пока недоступен');
+    expect(html).not.toContain('существующий вход по коду');
+    expect(html).toContain('Пригласить в личный кабинет');
+    expect(html).toContain('data-testid="portal-invite"');
+    expect(html).toContain('Мастер увидит свои записи, график и зарплату');
+    const linked = renderToStaticMarkup(createElement(ManagementWithOptions, { data: data(true), context }));
+    expect(linked).not.toContain('Пригласить в личный кабинет');
+    expect(linked).toContain('Мастер входит в личный кабинет');
   });
 
   it('не показывает управление аккаунтом сотруднику в своём кабинете', () => {

@@ -45,6 +45,13 @@ test('нет подключения: пустая очередь не выдаё
   await page.goto('/channels');
   await expect(page.getByTestId('channels-state')).toHaveText('не подключены');
   await expect(page.getByRole('main')).not.toContainText('всё ушло в каналы');
+  // слова для владельца вместо кода состояния (аудит 22.10.2026 P1-19); вместо двух выключенных кнопок путь подключить
+  await expect(page.getByRole('main')).not.toContainText('Объект не сопоставлен');
+  await expect(page.getByRole('main')).toContainText('Гостиница ещё не подключена к Booking.com');
+  await expect(page.getByTestId('channel-flush')).toHaveCount(0);
+  await expect(
+    page.getByRole('main').getByRole('link', { name: 'Подключить каналы', includeHidden: true }),
+  ).toHaveAttribute('href', '/connections/channex');
 });
 test('доступ к API в staging не выдаётся за работающий обмен с OTA', async ({ page }) => {
   await page.goto('/channels');

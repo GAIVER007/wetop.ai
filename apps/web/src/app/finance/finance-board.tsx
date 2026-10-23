@@ -1,17 +1,16 @@
 import Link from 'next/link';
-import { Icon, type IconName } from '../../components/icon';
-import { Stat } from '../../components/ui';
+import { Icon } from '../../components/icon';
+import { EmptyState } from '../../components/ui';
 import { LineChart } from '../../components/line-chart';
 import { DonutShare } from '../../components/donut-share';
 import { ShareBar } from '../../components/share-bar';
 import type { PeriodOperations, PeriodReport } from '../../lib/api';
-import { deltaPercent, type Delta } from '../../lib/dashboard-format';
 import { formatMoney } from '../../lib/money';
 
 /**
  * «Финансы» по эталону владельца 13.10.2026 (`design/references/03_finance_analytics/finance_owner_2026-10-13.webp`,
- * DESIGN.md §21): четыре плитки денег со сравнением и линией по дням, динамика доходов и расходов, структура
- * доходов, расходы по категориям, отчёты и переход в аналитику. Все числа из тех же ответов API, что раньше
+ * DESIGN.md §21), без плиток (аудит 22.10.2026 P1-3b): итоги одной строкой, динамика доходов и расходов, структура
+ * доходов, расходы по категориям, отчёты и переход в аналитику; пустой период: одна заглушка с первым шагом. Все числа из тех же ответов API, что раньше
  * («Начислено», кассовые поступления, возвраты и расходы); макетные суммы не переносятся.
  */
 
@@ -43,96 +42,133 @@ export function dailyFlow(rows: PeriodOperations['rows'], from: string, to: stri
 }
 const nextDay = (date: string) => new Date(Date.parse(date) + 86400000).toISOString().slice(0, 10);
 
-/** Линия по дням в плитке: только рисунок, смысл держит число плитки (скрыт от программы чтения) */
-function Spark({ values, tone }: { values: number[]; tone: 'primary' | 'success' | 'danger' | 'violet' }) {
-  if (values.length < 2 || values.every((v) => v === 0)) return null;
-  const max = Math.max(...values);
-  const min = Math.min(...values);
-  const span = max - min || 1;
-  const points = values
-    .map((v, i) => `${((i / (values.length - 1)) * 100).toFixed(2)},${(28 - ((v - min) / span) * 24).toFixed(2)}`)
-    .join(' ');
+/** Итоги периода одной строкой (`money-summary`, как у салона и в «Кассе»): правило владельца «без плиток»,
+ * аудит 22.10.2026 P1-3b. Метки прежних плиток и «Финансового обзора» сохранены на значениях. Возвраты отдельной
+ * строкой (ADR-176); прибыль только когда известны все её части. */
+export function FinanceTotals({
+  charged,
+  income,
+  refunds,
+  expense,
+  balance,
+  currency,
+}: {
+  charged: bigint | null;
+  income: bigint | null;
+  refunds: bigint | null;
+  expense: bigint | null;
+  /** остаток на счетах за всё время, тиыны строкой; `null`: касса не загрузилась */
+  balance: string | null;
+  currency: string;
+}) {
+  const money = (v: bigint | null) =>
+    v === null ? 'Нет данных' : formatMoney(v.toString(), currency);
+  const profit =
+    income !== null && refunds !== null && expense !== null ? income - refunds - expense : null;
+  const item = (id: string, label: string, value: string) => (
+    <div key={id}>
+      <dt>{label}</dt>
+      <dd data-testid={id}>{value}</dd>
+    </div>
+  );
   return (
-    <svg className={`fin-spark fin-spark--${tone}`} viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-      <polyline points={points} />
-    </svg>
+    <dl className="money-summary" data-testid="cash-summary" aria-label="Деньги за период">
+      {item('fin-charged', 'Общий доход', money(charged))}
+      {item('cash-period-income', 'Поступления', money(income))}
+      {item('cash-period-refunds', 'Возвраты', money(refunds))}
+      {item('cash-period-expense', 'Расходы', money(expense))}
+      {profit !== null && item('fin-profit', 'Чистая прибыль', money(profit))}
+      {balance !== null &&
+        item('cash-balance', 'Остаток на счетах', formatMoney(balance, currency))}
+    </dl>
   );
 }
 
-function delta(current: bigint | null, previous: bigint | null): Delta | undefined {
-  if (current === null || previous === null || previous === 0n) return undefined;
-  const d = deltaPercent(current, previous);
-  return { ...d, text: `${d.text} к прошлому периоду` };
+/** «Начислено / Оплачено / Возвращено / К сбору» вкладки «Обзор» одной строкой вместо второго ряда плиток
+ * (аудит 22.10.2026 P1-3b). Каждая сумма по-прежнему ведёт к строкам, из которых сложилась (drill-down F2). */
+export function FinanceAccrualTotals({
+  report,
+  currency,
+  due,
+  dueFailed,
+  hrefs,
+}: {
+  report: Pick<PeriodReport, 'chargedMinor' | 'paidMinor' | 'refundedMinor'>;
+  currency: string;
+  /** «К сбору» из списка долгов (Q-206); `null`: список не загрузился */
+  due: string | null;
+  dueFailed: boolean;
+  hrefs: { charged: string; paid: string; refunded: string; due: string };
+}) {
+  const item = (id: string, testId: string, label: string, href: string, value: string) => (
+    <div key={id}>
+      <dt>{label}</dt>
+      <dd>
+        <a href={href} className="fin-accrual-link" data-testid={`kpi-${id}`}>
+          <span data-testid={testId}>{value}</span>
+        </a>
+      </dd>
+    </div>
+  );
+  return (
+    <dl className="money-summary" data-testid="finance-kpis" aria-label="Итоги периода">
+      {item('charged', 'charged', 'Начислено', hrefs.charged, formatMoney(report.chargedMinor, currency))}
+      {item('paid', 'paid', 'Оплачено', hrefs.paid, formatMoney(report.paidMinor, currency))}
+      {item('refunded', 'refunded', 'Возвращено', hrefs.refunded, formatMoney(report.refundedMinor, currency))}
+      {item(
+        'due',
+        'balance',
+        'К сбору',
+        hrefs.due,
+        due === null ? (dueFailed ? 'Список долгов не загрузился' : 'Нет данных') : formatMoney(due, currency),
+      )}
+    </dl>
+  );
 }
 
-export function FinanceKpis({
-  charged,
-  prevCharged,
-  income,
-  prevIncome,
-  expense,
-  prevExpense,
-  profit,
-  prevProfit,
-  currency,
-  flow,
+/** Месяц без единой брони, оплаты, расхода и долга. Не загрузилось: не «пусто», ошибку видно отдельно */
+export function financeMonthEmpty({
+  report,
+  ops,
+  debts,
 }: {
-  charged: bigint | null;
-  prevCharged: bigint | null;
-  income: bigint | null;
-  prevIncome: bigint | null;
-  expense: bigint | null;
-  prevExpense: bigint | null;
-  profit: bigint | null;
-  prevProfit: bigint | null;
-  currency: string;
-  flow: DayFlow[];
-}) {
-  const money = (v: bigint | null) => (v === null ? '–' : formatMoney(v.toString(), currency));
-  const tile = (
-    id: string,
-    label: string,
-    icon: IconName,
-    tone: 'info' | 'success' | 'danger' | 'neutral',
-    value: bigint | null,
-    prev: bigint | null,
-    spark: number[],
-    sparkTone: 'primary' | 'success' | 'danger' | 'violet',
-  ) => {
-    const d = delta(value, prev);
-    return (
-      <div className="fin-kpi" key={id}>
-        <Stat
-          icon={<Icon name={icon} />}
-          tone={tone}
-          label={label}
-          value={money(value)}
-          testId={`fin-${id}`}
-          {...(d ? { delta: d } : { hint: 'нет базы для сравнения' })}
-        />
-        <Spark values={spark} tone={sparkTone} />
-      </div>
-    );
-  };
-  const inc = flow.map((d) => Number(d.income));
-  const exp = flow.map((d) => Number(d.expense));
-  const cashExp = flow.map((d) => Number(d.cashExpense));
+  report: Pick<PeriodReport, 'chargedMinor' | 'paidMinor' | 'refundedMinor'> | null;
+  ops: Pick<
+    PeriodOperations,
+    'rows' | 'paidMinor' | 'incomeMinor' | 'refundedMinor' | 'expenseMinor'
+  > | null;
+  debts: { count: number } | null;
+}): boolean {
+  if (!report || !ops) return false;
+  const zero = (v: string) => BigInt(v) === 0n;
   return (
-    <section className="fin-kpis" aria-label="Деньги за период">
-      {tile('charged', 'Общий доход', 'receipt', 'info', charged, prevCharged, [], 'primary')}
-      {tile('income', 'Поступления', 'money', 'success', income, prevIncome, inc, 'success')}
-      {tile('expense', 'Расходы', 'coins', 'danger', expense, prevExpense, cashExp, 'danger')}
-      {tile(
-        'profit',
-        'Чистая прибыль',
-        'chart',
-        'neutral',
-        profit,
-        prevProfit,
-        inc.map((v, i) => v - (exp[i] ?? 0)),
-        'violet',
-      )}
-    </section>
+    zero(report.chargedMinor) &&
+    zero(report.paidMinor) &&
+    zero(report.refundedMinor) &&
+    ops.rows.length === 0 &&
+    zero(ops.paidMinor) &&
+    zero(ops.incomeMinor) &&
+    zero(ops.refundedMinor) &&
+    zero(ops.expenseMinor) &&
+    (debts?.count ?? 0) === 0
+  );
+}
+
+/** Пустой месяц: одна заглушка с первым шагом вместо нулевых итогов, графика и таблиц (аудит 22.10.2026 P1-3b) */
+export function FinanceEmptyMonth() {
+  return (
+    <EmptyState
+      className="fin-month-empty"
+      data-testid="finance-empty"
+      title="За этот период денег ещё не было"
+      actions={
+        <Link className="btn" href="/reservations/new">
+          Добавить первую бронь
+        </Link>
+      }
+    >
+      Здесь появятся доходы, оплаты и расходы, когда пройдёт первая бронь или операция кассы.
+    </EmptyState>
   );
 }
 
@@ -148,6 +184,8 @@ export function FinanceDynamics({ flow, currency }: { flow: DayFlow[]; currency:
         testId="fin-dynamics"
         labels={labels}
         format={(v) => formatMoney(String(Math.round(v)), currency)}
+        // ось в целых тенге: шкала пустого периода (0..1 тиын) печатала «0,01 ₸» (аудит 22.10.2026 P1-3b)
+        formatAxis={(v) => formatMoney(String(Math.round(v / 100) * 100), currency)}
         series={[
           {
             name: 'Поступления',
@@ -251,7 +289,8 @@ export function FinanceReports({ exportHref, from, to }: { exportHref: string; f
       <ul>
         {items.map((i) => (
           <li key={i.title}>
-            <Link href={i.href}>
+            {/* CSV не страница: предзагрузка /finance/export отдавала 400 и держала сеть занятой (аудит 22.10.2026) */}
+            <Link href={i.href} prefetch={false}>
               <Icon name="receipt" />
               <span>
                 {i.title}

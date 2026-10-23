@@ -29,12 +29,12 @@ test('3 койки: поле «Гостей на место», подсказк�
   await expect(form.getByTestId('group-hint')).toContainText('3 проживания');
   await expect(form.getByTestId('group-hint')).toContainText('всего 3 гостя');
   const digest = form.getByTestId('booking-digest');
-  await expect(digest).toContainText('3 места, ячейки назначит система, 3 гостя');
+  await expect(digest).toContainText('3 места, номера назначит система, 3 гостя');
   await expect(digest).not.toContainText('1 гость');
 
   await form.getByText('Проверить детали брони', { exact: true }).click();
   await expect(form.getByTestId('booking-summary')).toContainText(
-    'Мужской общий номер, 3 места, ячейки назначит система, 3 гостя',
+    'Мужской общий номер, 3 места, номера назначит система, 3 гостя',
   );
 
   // обратно к одному месту: подсказки группы нет, сводка возвращается к одному гостю
@@ -56,6 +56,6 @@ test('2 номера по 2 гостя: сводка считает 4 госте
   await expect(form.getByText('Гостей на место', { exact: true })).toBeVisible();
   await expect(form.locator('input[name="adults"]')).toHaveValue('2');
   await expect(form.getByTestId('group-hint')).toContainText('всего 4 гостя');
-  await expect(form.getByTestId('booking-digest')).toContainText('2 места, ячейки назначит система, 4 гостя');
+  await expect(form.getByTestId('booking-digest')).toContainText('2 места, номера назначит система, 4 гостя');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
 });

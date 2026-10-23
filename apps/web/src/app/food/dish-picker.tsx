@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { IconField } from '../../components/icon-field';
 import { Icon } from '../../components/icon';
-import { Button, Field, Input } from '../../components/ui';
+import { Button, EmptyState, Field, Input } from '../../components/ui';
 import { wholeTenge } from '../../lib/dashboard-format';
 import type { MenuCategory, MenuItemView, OrderItemInput } from '../../lib/food-types';
 import { addCartLine, cartLineKey, cartLinePrice } from '../../lib/food-modifiers';
@@ -72,7 +72,7 @@ export function DishPicker({
         </IconField>
       </Field>
       {dishes.length === 0 ? (
-        <p className="muted">Блюд не найдено</p>
+        <EmptyState title="Блюд не найдено" />
       ) : (
         <div className="rest-pos-grid">
           {dishes.map((m) => (

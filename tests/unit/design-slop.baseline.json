@@ -138,11 +138,10 @@
     "apps/web/src/app/channels/events/[revisionId]/page.tsx": 1,
     "apps/web/src/app/chessboard/unassigned-drawer.tsx": 1,
     "apps/web/src/app/finance/finance-board.tsx": 2,
-    "apps/web/src/app/food/bar-board.tsx": 2,
+    "apps/web/src/app/food/bar-board.tsx": 1,
     "apps/web/src/app/food/catalog-board.tsx": 1,
     "apps/web/src/app/food/finance-board.tsx": 1,
     "apps/web/src/app/food/menu-board.tsx": 1,
-    "apps/web/src/app/food/order-drawer.tsx": 1,
     "apps/web/src/app/food/reservation-form.tsx": 1,
     "apps/web/src/app/food/table-panel.tsx": 1,
     "apps/web/src/app/food/timeline-board.tsx": 1,
@@ -152,8 +151,7 @@
     "apps/web/src/app/marketing/site/editor/fields.tsx": 1,
     "apps/web/src/app/marketing/site/editor/overlays.tsx": 1,
     "apps/web/src/app/marketing/site/editor/site-facts-card.tsx": 1,
-    "apps/web/src/app/today/food-today.tsx": 2,
-    "apps/web/src/components/shell/search.tsx": 1
+    "apps/web/src/app/today/food-today.tsx": 2
   },
   "control-size-literal": {
     "apps/web/src/app/bar/bar.css": 4,

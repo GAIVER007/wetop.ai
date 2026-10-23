@@ -49,8 +49,9 @@ export function Overlay({
   drawer?: boolean;
   className?: string;
   trapFocus?: boolean;
-  /** ширина (MV8.5 DS1c, DESIGN.md §8.2): md прежняя (окно 560, панель 480), sm и lg из токенов */
-  size?: 'sm' | 'md' | 'lg';
+  /** ширина (MV8.5 DS1c, DESIGN.md §8.2): md прежняя (окно 560, панель 480), sm, lg и xl из токенов;
+   *  xl только у окна брони всех направлений (`BookingShell`, решение 23.10.2026) */
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();

@@ -1810,3 +1810,56 @@
     }
   }
 }
+
+/* «Новая запись» в общем окне брони (решение владельца 23.10.2026, вариант B, `components/booking-shell.tsx`):
+   слева клиент (поиск, быстрые кнопки, имя и фамилия, затем телефон) и заметка, справа услуга, специалист,
+   дата и свободное время кнопками, внизу итог и «Записать». */
+@layer sections {
+  .appointment-form .booking-shell {
+    min-height: 0;
+  }
+  .appointment-form .booking-shell__form,
+  .appointment-form .booking-shell__pick {
+    padding-top: 0;
+  }
+  @media (min-width: 601px) {
+    .appointment-form .booking-shell .appointment-customer-fields {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .appointment-form .booking-shell .appointment-customer-fields > .appointment-customer-quick,
+    .appointment-form .booking-shell .appointment-customer-fields > .appointment-customer-quick + .field {
+      grid-column: 1;
+    }
+  }
+  .appointment-form .booking-shell .appointment-customer-new {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .appointment-form .booking-shell .appointment-customer-new > :nth-child(3) {
+    grid-column: 1 / -1;
+  }
+  .appointment-form .booking-shell .appointment-customer-fields > legend,
+  .appointment-form .booking-shell .appointment-pick > legend {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+  }
+  .appointment-form .booking-shell__footer {
+    bottom: calc(-1 * var(--space-4));
+  }
+  .appointment-form .booking-shell__footer .appointment-form__total {
+    margin: 0;
+    flex: none;
+  }
+  .appointment-form .booking-shell__footer > .btn {
+    width: auto;
+    min-width: 160px;
+    min-height: var(--touch-target);
+  }
+  @media (max-width: 600px) {
+    .appointment-form .booking-shell__footer > .btn {
+      width: 100%;
+    }
+  }
+}

@@ -85,6 +85,25 @@ def make_function_tools(tools: VoiceTools, vertical: str = "BEAUTY", can_book: b
 
         built.extend([get_masters, find_slots, quote_visit, confirm_visit])
 
+    if vertical == "FOOD_SERVICE" and can_book:
+
+        @function_tool(name="check_table")
+        async def check_table(date: str, time: str, guests: int) -> str:
+            """Есть ли свободное место на дату (ГГГГ-ММ-ДД), время (ЧЧ:ММ) и число гостей. Стол по номеру не называй: его назначает администратор."""
+            return await tools.check_table(date, time, guests)
+
+        @function_tool(name="quote_table")
+        async def quote_table(date: str, time: str, guests: int) -> str:
+            """Условия брони для времени, которое check_table показал свободным. Это не бронь: перескажи условия клиенту и спроси согласие."""
+            return await tools.quote_table(date, time, guests)
+
+        @function_tool(name="confirm_table")
+        async def confirm_table(name: str, phone: str, comment: str, customer_agreed: bool) -> str:
+            """Забронировать по последним условиям. Вызывай только после явного «да» клиента; customer_agreed ставь true только в этом случае. comment: пожелание к столу, если есть."""
+            return await tools.confirm_table(name, phone, comment, customer_agreed)
+
+        built.extend([check_table, quote_table, confirm_table])
+
     @function_tool(name="request_callback")
     async def request_callback(name: str, phone: str, note: str = "") -> str:
         """Сохранить просьбу перезвонить: имя клиента, его телефон и коротко чего он хочет. Вызывай, когда клиент хочет записаться или забронировать."""

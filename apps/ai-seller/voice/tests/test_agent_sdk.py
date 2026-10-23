@@ -87,3 +87,11 @@ def test_salon_gets_booking_tools_only_when_booking_is_on(tmp_path):
     assert off == ["get_services", "request_callback", "transfer_to_human"]
     assert on == ["confirm_visit", "find_slots", "get_masters", "get_services", "quote_visit", "request_callback", "transfer_to_human"]
     assert "confirm_visit" not in [t._tool_info.name for t in make_function_tools(tools, "FOOD_SERVICE", True)]
+
+
+def test_restaurant_gets_booking_tools_only_when_booking_is_on(tmp_path):
+    _, _, tools = _tools(tmp_path)
+    off = sorted(t._tool_info.name for t in make_function_tools(tools, "FOOD_SERVICE", False))
+    on = sorted(t._tool_info.name for t in make_function_tools(tools, "FOOD_SERVICE", True))
+    assert off == ["get_service_hours", "request_callback", "transfer_to_human"]
+    assert on == ["check_table", "confirm_table", "get_service_hours", "quote_table", "request_callback", "transfer_to_human"]

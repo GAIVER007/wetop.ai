@@ -133,6 +133,10 @@ export interface FoodReserveResult {
   partySize: number;
 }
 
+export type VoiceFoodCheck =
+  | { ok: true; startsAt: string; endsAt: string; period: string }
+  | { ok: false; reason: string };
+
 export interface SiteLeadResult {
   leadId: string;
   status: 'NEW';
@@ -599,6 +603,50 @@ export class SiteFormsService {
     return result.value;
   }
 
+  /**
+   * Можно ли принять бронь на дату, время и число гостей: период обслуживания, правила филиала и свободный стол (без названия стола).
+   * Отказ возвращается причиной словами платформы, а не ошибкой: это нормальный ответ на вопрос «есть ли место».
+   */
+  async voiceFoodCheck(
+    fs: FormSite,
+    q: { date: string; time: string; partySize: number },
+    now: Date = new Date(),
+  ): Promise<VoiceFoodCheck> {
+    const startsAt = localInstant(q.date, q.time, fs.timezone);
+    if (!startsAt) throw new BadRequestException('такого времени в этот день нет (перевод часов)');
+    if (startsAt.getTime() <= now.getTime()) return { ok: false, reason: 'Это время уже прошло' };
+    return withOrganizationScope(fs.organizationId, async () => {
+      try {
+        return await this.prisma.db.$transaction(async (tx) => {
+          const { period, bufferMinutes } = await this.planFood(tx, fs, startsAt, q.partySize, now);
+          await this.assertSpareTable(tx, fs, startsAt, period.endsAt, q.partySize, bufferMinutes);
+          return { ok: true as const, startsAt: startsAt.toISOString(), endsAt: period.endsAt.toISOString(), period: period.name };
+        });
+      } catch (e) {
+        if (e instanceof ConflictException) return { ok: false as const, reason: e.message };
+        throw e;
+      }
+    });
+  }
+
+  /** Бронь стола от имени звонка: тот же путь, что у формы сайта, плюс проверка свободного стола; стол не назначается */
+  async voiceFoodReserve(
+    fs: FormSite,
+    req: { date: string; time: string; partySize: number; name: string; phone: string; comment: string | null },
+    key: string,
+    now: Date = new Date(),
+  ): Promise<FoodReserveResult> {
+    const startsAt = localInstant(req.date, req.time, fs.timezone);
+    if (!startsAt) throw new BadRequestException('такого времени в этот день нет (перевод часов)');
+    if (startsAt.getTime() <= now.getTime()) throw new ConflictException('Это время уже прошло');
+    const full: FoodReserveRequest = { ...req, siteKey: 'voice', requestKey: key };
+    const fingerprint = foodReserveFingerprint(full);
+    const result = await withOrganizationScope(fs.organizationId, () =>
+      this.writeReservation(fs, full, startsAt, key, fingerprint, now),
+    );
+    return result.value;
+  }
+
   // ───────────── ресторан: бронь стола ─────────────
 
   async foodReserve(raw: unknown, ctx: RequestContext): Promise<FoodReserveResult> {
@@ -640,44 +688,9 @@ export class SiteFormsService {
         await this.lockChain(tx, fs);
         const twin = await this.reservationReplay(tx, fs, key, fingerprint);
         if (twin) return { value: twin, replayed: true };
-        // период обслуживания, в который бронь помещается целиком (тот же расчёт конца, что у стойки)
-        const periods = await tx.servicePeriod.findMany({
-          where: { locationId: fs.locationId, active: true },
-          orderBy: [{ timeFrom: 'asc' }, { id: 'asc' }],
-        });
-        let period: { id: string; endsAt: Date } | null = null;
-        for (const p of periods) {
-          try {
-            const endsAt = foodEnd(
-              { ...p, timeFrom: clockOf(p.timeFrom), timeTo: clockOf(p.timeTo) },
-              startsAt.toISOString(),
-              fs.timezone,
-            );
-            period = { id: p.id, endsAt };
-            break;
-          } catch {
-            // не этот период
-          }
-        }
-        if (!period) throw new ConflictException('В это время ресторан не принимает брони');
-        // правила брони филиала (§43): закрытый день, горизонт, предел гостей
-        const day = foodLocal(startsAt, fs.timezone).date;
-        const [rulesRow, closed] = await Promise.all([
-          tx.foodBookingRules.findUnique({ where: { locationId: fs.locationId } }),
-          tx.foodClosedDay.findUnique({
-            where: { locationId_day: { locationId: fs.locationId, day: new Date(`${day}T00:00:00Z`) } },
-          }),
-        ]);
-        const violation = bookingRuleViolation({
-          day,
-          today: foodLocal(now, fs.timezone).date,
-          partySize: req.partySize,
-          rules: rulesRow
-            ? { bufferMinutes: rulesRow.bufferMinutes, horizonDays: rulesRow.horizonDays, maxPartySize: rulesRow.maxPartySize }
-            : DEFAULT_BOOKING_RULES,
-          closed: closed !== null,
-        });
-        if (violation) throw new ConflictException(violation);
+        const { period, bufferMinutes } = await this.planFood(tx, fs, startsAt, req.partySize, now);
+        // голос обещает только то, что видит: нужен хотя бы один свободный стол, стол гостю не называется и не назначается
+        if (fs.origin === 'VOICE') await this.assertSpareTable(tx, fs, startsAt, period.endsAt, req.partySize, bufferMinutes);
         const { id: customerId } = await findOrCreateCustomer(
           tx,
           fs.organizationId,
@@ -694,7 +707,7 @@ export class SiteFormsService {
             endsAt: period.endsAt,
             partySize: req.partySize,
             status: 'BOOKED',
-            source: 'WEBSITE',
+            source: fs.origin === 'VOICE' ? 'VOICE' : 'WEBSITE',
             notes: this.notes(fs, req.comment),
             creationKey: key,
             creationFingerprint: fingerprint,
@@ -717,7 +730,7 @@ export class SiteFormsService {
               endsAt: period.endsAt.toISOString(),
               partySize: req.partySize,
               status: 'BOOKED',
-              source: 'WEBSITE',
+              source: fs.origin === 'VOICE' ? 'VOICE' : 'WEBSITE',
               trackedSiteId: fs.site.id,
             },
           },
@@ -733,6 +746,87 @@ export class SiteFormsService {
       }
       throw e;
     }
+  }
+
+  /**
+   * Период обслуживания, в который бронь помещается целиком (тот же расчёт конца, что у стойки), и правила брони филиала (§43):
+   * закрытый день, горизонт, предел гостей. Общий расчёт формы сайта и голосового агента.
+   */
+  private async planFood(
+    tx: DbTx,
+    fs: FormSite,
+    startsAt: Date,
+    partySize: number,
+    now: Date,
+  ): Promise<{ period: { id: string; name: string; endsAt: Date }; bufferMinutes: number }> {
+    const periods = await tx.servicePeriod.findMany({
+      where: { locationId: fs.locationId, active: true },
+      orderBy: [{ timeFrom: 'asc' }, { id: 'asc' }],
+    });
+    let period: { id: string; name: string; endsAt: Date } | null = null;
+    for (const p of periods) {
+      try {
+        const endsAt = foodEnd(
+          { ...p, timeFrom: clockOf(p.timeFrom), timeTo: clockOf(p.timeTo) },
+          startsAt.toISOString(),
+          fs.timezone,
+        );
+        period = { id: p.id, name: p.name, endsAt };
+        break;
+      } catch {
+        // не этот период
+      }
+    }
+    if (!period) throw new ConflictException('В это время ресторан не принимает брони');
+    const day = foodLocal(startsAt, fs.timezone).date;
+    const [rulesRow, closed] = await Promise.all([
+      tx.foodBookingRules.findUnique({ where: { locationId: fs.locationId } }),
+      tx.foodClosedDay.findUnique({
+        where: { locationId_day: { locationId: fs.locationId, day: new Date(`${day}T00:00:00Z`) } },
+      }),
+    ]);
+    const violation = bookingRuleViolation({
+      day,
+      today: foodLocal(now, fs.timezone).date,
+      partySize,
+      rules: rulesRow
+        ? { bufferMinutes: rulesRow.bufferMinutes, horizonDays: rulesRow.horizonDays, maxPartySize: rulesRow.maxPartySize }
+        : DEFAULT_BOOKING_RULES,
+      closed: closed !== null,
+    });
+    if (violation) throw new ConflictException(violation);
+    return { period, bufferMinutes: rulesRow?.bufferMinutes ?? DEFAULT_BOOKING_RULES.bufferMinutes };
+  }
+
+  /**
+   * Свободный стол для брони голосом: активные столы активных зон нужной вместимости без пересечения по времени (с буфером) минус
+   * брони на это же время, которым стол ещё не назначен (их столы назначит администратор). Условие осторожное: лучше отказать, чем пообещать.
+   */
+  private async assertSpareTable(
+    tx: DbTx,
+    fs: FormSite,
+    startsAt: Date,
+    endsAt: Date,
+    partySize: number,
+    bufferMinutes: number,
+  ): Promise<void> {
+    const buffer = bufferMinutes * 60_000;
+    const from = new Date(startsAt.getTime() - buffer);
+    const to = new Date(endsAt.getTime() + buffer);
+    const overlapping = {
+      status: { in: ['BOOKED', 'CONFIRMED', 'SEATED'] as Array<'BOOKED' | 'CONFIRMED' | 'SEATED'> },
+      startsAt: { lt: to },
+      endsAt: { gt: from },
+    };
+    const fitting = await tx.diningTable.findMany({
+      where: { active: true, capacity: { gte: partySize }, area: { locationId: fs.locationId, active: true } },
+      select: { id: true, assignments: { where: { reservation: overlapping }, select: { reservationId: true } } },
+    });
+    const free = fitting.filter((t) => t.assignments.length === 0).length;
+    const unassigned = await tx.restaurantReservation.count({
+      where: { locationId: fs.locationId, ...overlapping, tableAssignment: { is: null } },
+    });
+    if (free - unassigned <= 0) throw new ConflictException('На это время свободных столов нет');
   }
 
   private async reservationReplay(

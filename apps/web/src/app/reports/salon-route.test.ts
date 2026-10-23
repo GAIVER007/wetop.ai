@@ -20,10 +20,15 @@ describe('salon reports canonical route', () => {
     expect(result).toMatchObject({ props: { searchParams: params } });
     expect((result.type as { name?: string }).name).toBe('SalonReportsScreen');
   });
-  it('keeps restaurant routing unchanged', async () => {
+  // аудит вертикалей 22.10.2026 п.5: отчёты ресторана это «Аналитика бизнеса» (закрытые заказы, оплаты по способам,
+  // блюда, официанты), а не финансы; период из адреса переносится
+  it('restaurant /reports leads to business analytics, period kept', async () => {
     vertical.value = 'FOOD_SERVICE';
     await expect(ReportsHubPage({ searchParams: Promise.resolve({}) })).rejects.toThrow(
-      'REDIRECT:/restaurant-finance',
+      'REDIRECT:/management/analytics',
     );
+    await expect(
+      ReportsHubPage({ searchParams: Promise.resolve({ from: '2026-10-01', to: '2026-10-18', x: '<b>' }) }),
+    ).rejects.toThrow('REDIRECT:/management/analytics?from=2026-10-01&to=2026-10-18');
   });
 });

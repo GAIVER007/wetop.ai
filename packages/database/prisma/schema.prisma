@@ -1782,7 +1782,7 @@ model PaymentMethodSetting {
 /// Способы оплаты филиала салона и ресторана (DATA_MODEL §21.7, решение владельца 23.10.2026): шесть денежных
 /// способов кассы филиала (§35). Строк нет: умолчания (все шесть включены). CHECK на набор способов в миграции 151.
 model BranchPaymentMethodSetting {
-  id         String        @id @default(uuid()) @db.Uuid
+  id         String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   locationId String        @map("location_id") @db.Uuid
   method     PaymentMethod
   enabled    Boolean       @default(true)

@@ -15,12 +15,14 @@ for (const width of [360, 390, 430]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/chessboard');
     const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
-    // шесть плиток по эталону владельца 13.10.2026: занято, свободно, заезд, выезд, проживание, внимание
+    // сводка дня одной строкой (аудит 22.10.2026 P1-2): занято, свободно, заезд, выезд, проживают, внимание
     await expect(panel.getByText('Дни рождения')).toHaveCount(0);
     // exact: подпись «Требует внимания: долги и задачи» (макет владельца 09.10) содержит это слово в нижнем регистре
     await expect(panel.getByText('Задачи', { exact: true })).toHaveCount(0);
     const panelBox = await panel.boundingBox();
-    expect(panelBox!.height).toBeLessThanOrEqual(280);
+    // строка, а не плитки: на телефоне не больше трёх строк текста
+    expect(panelBox!.height).toBeLessThanOrEqual(80);
+    await expect(panel.locator('.stat')).toHaveCount(0);
     const day = await (await get(`${FIXTURE_API}/desk/today`)).json();
     await expect(panel.getByTestId('day-arrivals')).toHaveText(String(day.counts.arrivals));
     await expect(panel.getByTestId('day-departures')).toHaveText(String(day.counts.departures));
@@ -32,7 +34,7 @@ for (const width of [360, 390, 430]) {
     ).length;
     await expect(panel.getByTestId('day-free')).toHaveText(String(free));
     await page.evaluate(() => document.fonts.ready);
-    const brokenWords = await panel.locator('.stat__label').evaluateAll((labels) => {
+    const brokenWords = await panel.locator('a, span').evaluateAll((labels) => {
       const broken: string[] = [];
       for (const label of labels) {
         const walker = document.createTreeWalker(label, NodeFilter.SHOW_TEXT);
@@ -49,7 +51,7 @@ for (const width of [360, 390, 430]) {
       return broken;
     });
     expect(brokenWords).toEqual([]);
-    await expect(panel.getByRole('link', { name: /^Свободно / })).toBeVisible();
+    await expect(panel.getByRole('link', { name: /^свободно / })).toBeVisible();
     await expect(panel.getByTestId('day-in-house')).toBeVisible();
     const label = page.locator('.board-group-name-text').first();
     await label.scrollIntoViewIfNeeded();
@@ -107,7 +109,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.goto('/chessboard');
     const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
     const AxeBuilder = (await import('@axe-core/playwright')).default;
-    const results = await new AxeBuilder({ page }).include('.board-kpis').analyze();
+    const results = await new AxeBuilder({ page }).include('.board-dayline').analyze();
     expect(results.violations).toEqual([]);
     await expect(panel.getByTestId('day-occupancy')).toHaveText('8%');
     mkdirSync('reports/calendar-mobile-statistics-2026-10-05', { recursive: true });
@@ -124,7 +126,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.goto('/chessboard');
     const AxeBuilder = (await import('@axe-core/playwright')).default;
     const results = await new AxeBuilder({ page })
-      .include('.board-kpis')
+      .include('.board-dayline')
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
       .analyze();
     expect(results.violations).toEqual([]);

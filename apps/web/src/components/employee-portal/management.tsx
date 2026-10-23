@@ -1,6 +1,8 @@
 'use client';
+import { useState, useTransition, type FormEvent } from 'react';
 import type { EmployeePortalDto } from '@pms/domain';
 import { Field, Input, Select } from '../ui';
+import { inviteNewStaffAction } from '../../app/login/actions';
 import { currencySign, minorToInput } from '../../lib/money';
 import { PortalForm, type PortalContext } from './forms';
 export type PortalAccountOption = { userId: string; label: string };
@@ -38,9 +40,12 @@ export function PortalManagement({
     >
       <input type="hidden" name="active" value={data.employee.active ? 'false' : 'true'} />
     </PortalForm>
-    <h3>Доступ сотрудника</h3>
-    <p>{data.employee.accountLinked ? 'Аккаунт привязан.' : 'Аккаунт не привязан. Личный кабинет пока недоступен.'} Используйте существующий вход по коду или приглашение в команду, без создания пароля.</p>
-    <a href="/team">Участники команды и приглашения</a>
+    <h3>Личный кабинет</h3>
+    {/* аудит салона 22.10.2026: вместо «Личный кабинет пока недоступен» одно понятное действие */}
+    {data.employee.accountLinked
+      ? <p>{data.business.vertical === 'BEAUTY' ? 'Мастер' : 'Сотрудник'} входит в личный кабинет и видит свои {data.business.vertical === 'BEAUTY' ? 'записи' : 'заказы'}, график и зарплату.</p>
+      : <PortalInvite data={data} />}
+    <a href="/team">Все приглашения и доступы</a>
     {!data.employee.accountLinked && accountOptions === null && (
       <p role="alert">Не удалось загрузить участников команды. Обновите страницу и попробуйте снова.</p>
     )}
@@ -74,4 +79,42 @@ export function PortalManagement({
       </PortalForm>
     </>}
   </section>;
+}
+
+/** Приглашение в личный кабинет (уровень PORTAL): то же приглашение, что в форме «Новый сотрудник», с привязкой к карточке */
+function PortalInvite({ data }: { data: EmployeePortalDto }) {
+  const beauty = data.business.vertical === 'BEAUTY';
+  const [email, setEmail] = useState(data.employee.email ?? '');
+  const [error, setError] = useState<string | null>(null);
+  const [invited, setInvited] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!email.trim()) {
+      setError('Укажите почту: на неё придёт приглашение.');
+      return;
+    }
+    start(async () => {
+      const result = await inviteNewStaffAction({ employeeId: data.employee.id, level: 'PORTAL', email, allBranches: false });
+      setError(result.error);
+      setInvited(result.invited);
+    });
+  };
+  return <form className="portal-invite" data-testid="portal-invite" onSubmit={submit} noValidate>
+    <p>{beauty ? 'Мастер увидит свои записи, график и зарплату' : 'Сотрудник увидит свои заказы, график и зарплату'}. Пароль он задаст сам по ссылке из письма.</p>
+    <Field label="Почта для приглашения">
+      <Input
+        type="email"
+        name="portalInviteEmail"
+        autoComplete="off"
+        placeholder="name@company.kz"
+        value={email}
+        aria-invalid={error ? true : undefined}
+        onChange={(event) => setEmail(event.target.value)}
+      />
+    </Field>
+    {error && <p role="alert">{error}</p>}
+    {invited && <p role="status">Приглашение отправлено на {invited}.</p>}
+    <button className="btn btn--primary" type="submit" disabled={pending}>{pending ? 'Отправляем…' : 'Пригласить в личный кабинет'}</button>
+  </form>;
 }

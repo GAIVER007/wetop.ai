@@ -10,7 +10,7 @@ import type { PortalAccountOption } from './management';
 import type { BeautyEmployeeServicePriceRow, BeautySchedule } from '../../lib/api';
 import type { BeautyMasterDayStatus } from '../../lib/beauty-master-day-status';
 import './portal.css';
-export async function EmployeePortalScreen({ target, query = {}, locationAssignments, servicePrices, accountOptions, dayStatus }: { target: PortalTarget; query?: { date?: string; month?: string }; locationAssignments?: BeautySchedule['locations'] | null; servicePrices?: BeautyEmployeeServicePriceRow[] | null; accountOptions?: PortalAccountOption[] | null; dayStatus?: BeautyMasterDayStatus }) {
+export async function EmployeePortalScreen({ target, query = {}, locationAssignments, servicePrices, accountOptions, dayStatus }: { target: PortalTarget; query?: { date?: string; month?: string; range?: 'month' }; locationAssignments?: BeautySchedule['locations'] | null; servicePrices?: BeautyEmployeeServicePriceRow[] | null; accountOptions?: PortalAccountOption[] | null; dayStatus?: BeautyMasterDayStatus }) {
   try {
     const [data, headers] = await Promise.all([employeePortalApi.load(target, query), requestScopeHeader()]);
     return <Page title={data.access === 'MANAGER' ? 'Карточка сотрудника' : 'Моя работа'}>

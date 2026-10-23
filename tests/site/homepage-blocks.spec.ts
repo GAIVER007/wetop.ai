@@ -128,12 +128,17 @@ test('«Продажи, маркетинг, ИИ»: примеры подпис�
   await expect(market).toContainText('Маркетинг, который видит рынок');
   await expect(market).toContainText('Средняя цена на 17 октября');
   await expect(market).toContainText('Пример сравнения цен. Данные вымышленные.');
-  await expect(market.getByRole('link', { name: /Смотреть рынок/ })).toHaveAttribute(
-    'href',
-    /\/market$/,
+  // кнопки витрин открывают регистрацию, а не стойку с экраном входа (P1-11)
+  await expect(market.getByRole('link', { name: /Попробовать анализ рынка/ })).toHaveAttribute(
+    'data-auth',
+    'register',
   );
   const ai = page.locator('#ai-sellers');
   await expect(ai).toContainText('ИИ-продавец');
+  await expect(ai.getByRole('link', { name: /Подключить ИИ-продавца/ })).toHaveAttribute(
+    'href',
+    /#register$/,
+  );
   await expect(ai).toContainText('Пример диалога. Данные вымышленные.');
   await expect(ai).toContainText(/Отдельное расширение/);
   // чат-мокап не имитирует интерфейс: внутри панели нет кнопок и полей

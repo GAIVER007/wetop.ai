@@ -26,7 +26,7 @@ export default async function BeautyPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/beauty');
-  const { date, view, appointment, employee, service, status } = normalizeSearchParams(
+  const { date, view, appointment, employee, service, status, new: requestedNew } = normalizeSearchParams(
     await searchParams,
   );
   const filters = new URLSearchParams();
@@ -147,6 +147,7 @@ export default async function BeautyPage({
             ? { creationUnavailableReason: 'Для создания записи нужен доступ к списку клиентов.' }
             : {})}
           appointmentId={appointment}
+          newFor={requestedNew === '1' ? employee : undefined}
           scopeKey={scopeKey}
           views={views}
         />

@@ -235,6 +235,8 @@
   .workspace-search kbd {
     font-family: inherit;
     font-size: var(--text-xs);
+    /* «Ctrl K» в одну строку: в узкой кнопке поиска подсказка переносилась (аудит 22.10.2026 P1-20) */
+    white-space: nowrap;
     padding: 2px 5px;
     border: 1px solid var(--border);
     border-radius: 4px;

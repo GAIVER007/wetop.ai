@@ -15,7 +15,7 @@ import { pluralRu } from '../../lib/plural';
 import { useToast } from '../../components/toast';
 import { bulkHousekeepingAction } from './actions';
 import { FundEditorDialog } from './fund-editor';
-import { HousekeepingBadge, floorRoomText } from './unit-state';
+import { HousekeepingBadge, buildingText, floorText, placeText } from './unit-state';
 import { displayDate } from '../../lib/display-date';
 import { blockTypeLabel } from '../../lib/block-types';
 
@@ -26,9 +26,7 @@ import { blockTypeLabel } from '../../lib/block-types';
  */
 /** Расположение одной строкой; комната — только когда она не повторяет код места (ТЗ §11) */
 function PlaceCell({ unit }: { unit: InventoryUnit }) {
-  const text = [unit.buildingName && `Корпус ${unit.buildingName}`, floorRoomText(unit)]
-    .filter(Boolean)
-    .join(', ');
+  const text = placeText(unit);
   return <span className="inventory-place">{text || '—'}</span>;
 }
 
@@ -313,7 +311,7 @@ export function InventoryCatalog({
           <option value="|">Все корпуса / этажи</option>
           {places.map(([b, f]) => (
             <option key={`${b}|${f}`} value={`${b}|${f}`}>
-              {[b && `Корпус ${b}`, f && `этаж ${f}`].filter(Boolean).join(', ')}
+              {[b && buildingText(b), f && floorText(f)].filter(Boolean).join(', ')}
             </option>
           ))}
         </Select>

@@ -11,6 +11,7 @@ import { UnitActions } from './unit-actions';
 import { UnitFacts } from './unit-facts';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess } from '../../../lib/navigation';
+import { loadHousekeepers } from '../../../lib/hotel-housekeepers';
 import '../../inventory/inventory.css';
 
 /**
@@ -42,15 +43,16 @@ export default async function UnitPage({
     deskShell(),
   ]);
   const canMutate = mayAccess(shell.access, 'desk') && !shell.readOnly;
+  const housekeepers = canMutate ? await loadHousekeepers() : undefined;
   return (
     <Page
       width="medium"
       crumbs={<BackCrumb href="/inventory">Номерной фонд</BackCrumb>}
-      title={`Ячейка ${unit.code}`}
+      title={`Номер ${unit.code}`}
       subtitle={`${unit.kind === 'BED' ? 'Койко-место' : 'Номер'}, категория «${unit.accommodationTypeName}», комната ${unit.roomNumber}${unit.active ? '' : ', выведена из фонда'}`}
     >
       <UnitFacts unit={unit} today={today} />
-      {canMutate && <UnitActions unit={unit} today={today} blockPeriod={blockPeriod} />}
+      {canMutate && <UnitActions unit={unit} today={today} blockPeriod={blockPeriod} housekeepers={housekeepers} />}
       <SectionTitle>Ближайшие проживания, 60 дней</SectionTitle>
       <Table size="sm" data-testid="unit-stays">
         <thead>

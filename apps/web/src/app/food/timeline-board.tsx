@@ -4,12 +4,12 @@ import type { FoodWorkspace, RestaurantReservation } from '../../lib/food-types'
 import { foodStatus } from '../../lib/status/food';
 import { pluralRu } from '../../lib/plural';
 import { localInput } from '../beauty/time';
+import { compareTables, tableTitle } from '../../lib/table-title';
 
 /** Брони, которые держат стол на шкале: отменённые и неявки строку не занимают */
 const ON_TIMELINE = new Set(['BOOKED', 'CONFIRMED', 'SEATED', 'COMPLETED']);
 
-/** Подпись стола: номер «7» читается как «Стол 7», имя «Терраса 2» или «Стол 7» остаётся как есть */
-export const tableTitle = (name: string) => (/^\d/.test(name) ? `Стол ${name}` : name);
+export { tableTitle } from '../../lib/table-title';
 
 /** Минуты от полуночи дня экрана по поясу филиала; бронь через полночь даёт больше 1440 */
 export function minutesOfDay(iso: string, day: string, timezone: string): number {
@@ -67,8 +67,7 @@ export function TimelineBoard({
     )
     .sort(
       (a, b) =>
-        (areaOrder.get(a.areaId) ?? 0) - (areaOrder.get(b.areaId) ?? 0) ||
-        a.sortOrder - b.sortOrder,
+        (areaOrder.get(a.areaId) ?? 0) - (areaOrder.get(b.areaId) ?? 0) || compareTables(a, b),
     );
   const placed = reservations
     .filter((r) => r.table && ON_TIMELINE.has(r.status))

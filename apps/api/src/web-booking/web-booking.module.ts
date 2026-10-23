@@ -21,7 +21,7 @@ import { BookingIntentsService } from './booking-intents.service';
 import { BotQuoteController } from './bot-quote.controller';
 import { TurnstileService } from './turnstile';
 import { WebBookingController } from './web-booking.controller';
-import { WebBookingService } from './web-booking.service';
+import { WebBookingService, appDemoHost } from './web-booking.service';
 
 const HOSTS_CACHE_MS = 30_000;
 
@@ -53,8 +53,13 @@ export class WidgetCorsMiddleware implements NestMiddleware {
     if (origin) {
       const originHost = hostOf(origin);
       const own = req.headers.host ? normalizeHost(req.headers.host) : null;
+      const app = appDemoHost();
       const allowed =
-        !!originHost && (originHost === own || hostMatches(await this.hosts(isSiteFormPath(req)), originHost));
+        !!originHost &&
+        (originHost === own ||
+          // демо брони внутри стойки (`/website/booking/demo`): только пути виджета гостиницы, не формы сайтов
+          (!isSiteFormPath(req) && !!app && normalizeHost(originHost) === app) ||
+          hostMatches(await this.hosts(isSiteFormPath(req)), originHost));
       if (allowed) {
         res.setHeader('Access-Control-Allow-Origin', origin);
         res.setHeader('Vary', 'Origin');

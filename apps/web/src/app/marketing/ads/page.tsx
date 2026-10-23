@@ -30,6 +30,7 @@ import { META_ACCOUNTS_COOKIE } from './meta-cookies';
 import { AdLaunches, loadLaunches } from './launches';
 import { propertyClock } from '../../../lib/property-time';
 import { workspaceTimezone } from '../../../lib/workspace-context';
+import { METRIC } from '../../../lib/metric-words';
 
 /**
  * Модуль «Реклама» (макет Marketing 2.0 владельца 09.10.2026, экран 2; MKT10.4–10.6). Вкладка «Кампании» живая с
@@ -114,7 +115,7 @@ function Campaigns({
           <dd data-testid="ads-leads">{String(total.leads)}</dd>
         </div>
         <div>
-          <dt>CTR, CPM, CPL</dt>
+          <dt>{`${METRIC.ctr}, ${METRIC.cpm.toLowerCase()}, ${METRIC.cpl.toLowerCase()}`}</dt>
           <dd>
             {ctrText(tm.ctrBp)}, {money(tm.cpmMinor)}, {money(tm.cplMinor)}
           </dd>
@@ -140,11 +141,11 @@ function Campaigns({
                 <th scope="col" className="budget-td-num">Расход</th>
                 <th scope="col" className="budget-td-num">Показы</th>
                 <th scope="col" className="budget-td-num">Клики</th>
-                <th scope="col" className="budget-td-num">CTR</th>
-                <th scope="col" className="budget-td-num">CPC</th>
-                <th scope="col" className="budget-td-num">CPM</th>
+                <th scope="col" className="budget-td-num">{METRIC.ctr}</th>
+                <th scope="col" className="budget-td-num">{METRIC.cpc}</th>
+                <th scope="col" className="budget-td-num">{METRIC.cpm}</th>
                 <th scope="col" className="budget-td-num">Лиды</th>
-                <th scope="col" className="budget-td-num">CPL</th>
+                <th scope="col" className="budget-td-num">{METRIC.cpl}</th>
                 {(editable || launchable) && (
                   <th scope="col">
                     <span className="sr-only">Действия</span>

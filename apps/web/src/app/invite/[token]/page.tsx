@@ -48,7 +48,9 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
                 <time dateTime={preview.expiresAt}>
                   {displayDate(preview.expiresAt.slice(0, 10))}
                 </time>
-                . После принятия вы сможете войти по паролю.
+                {/* короткая дата уже кончается точкой («28 окт.»): вторая не нужна (аудит 22.10.2026, P2-1) */}
+                {displayDate(preview.expiresAt.slice(0, 10)).endsWith('.') ? '' : '.'} После принятия вы
+                сможете войти по паролю.
               </span>
             </p>
             <AcceptForm token={rawToken ?? ''} />

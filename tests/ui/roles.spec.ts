@@ -41,6 +41,8 @@ test('администратор: в меню — работа с гостями
       // верхнее меню 17.10.2026 (ADR-TOPNAV-20261017): те же права, новая группировка
       '/today',
       '/chessboard',
+      // «График работы» гостиницы (S10, 22.10.2026): право desk, администратору открыт
+      '/staff-schedule',
       '/guests',
       '/reservations',
       '/management/analytics',
@@ -256,8 +258,9 @@ test('управляющий: журнал и платформа закрыты;
   await expect(drawer.getByTestId('invite-role-fixed')).toContainText(
     'Управляющий приглашает администраторов',
   );
-  // единый блок доступа (20.10.2026): у управляющего только «Администратор», без «Управляющего»
-  await expect(drawer.getByTestId('staff-access').locator('[data-level]')).toHaveCount(1);
+  // единый блок доступа (20.10.2026): у управляющего без «Управляющего»; гостиница с 22.10.2026 ещё «Без входа» и
+  // «Личный кабинет» (горничная, ресепшен)
+  await expect(drawer.getByTestId('staff-access').locator('[data-level]')).toHaveCount(3);
   await expect(drawer.getByRole('radio', { name: /^Управляющий/ })).toHaveCount(0);
   await drawer.getByRole('button', { name: 'Отмена' }).click();
   const rows = main.getByTestId('member-row');
@@ -297,7 +300,7 @@ test('владелец: зовёт управляющего и админист�
   const drawer = page.getByRole('dialog');
   // единый блок доступа (решение владельца 20.10.2026): уровни карточками, по умолчанию «Администратор»
   const access = drawer.getByTestId('staff-access');
-  await expect(access.locator('[data-level]')).toHaveCount(2);
+  await expect(access.locator('[data-level]')).toHaveCount(4);
   await expect(access.getByRole('radio', { name: /^Администратор/ })).toBeChecked();
 
   await drawer.getByLabel('Почта приглашённого').fill('New.Manager@Example.com');

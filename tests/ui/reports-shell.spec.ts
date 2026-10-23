@@ -160,7 +160,7 @@ test('кольца долей: по категориям и источникам
   }
 });
 
-test('линия ADR и RevPAR: итоги периода в списке, таблица значений для программы чтения, детализация меняет число точек', async ({
+test('линия «Средняя цена ночи» и «Доход на номер»: итоги периода в списке, таблица значений для программы чтения, детализация меняет число точек', async ({
   page,
 }) => {
   await page.goto('/reports/overview');
@@ -168,8 +168,10 @@ test('линия ADR и RevPAR: итоги периода в списке, та�
   await expect(chart).toBeVisible();
   await expect(chart.locator('svg')).toHaveAttribute('aria-hidden', 'true');
   const legend = chart.locator('.line__legend');
-  await expect(legend).toContainText('ADR');
-  await expect(legend).toContainText('RevPAR');
+  await expect(legend).toContainText('Средняя цена ночи');
+  await expect(legend).toContainText('Доход на номер');
+  // английских сокращений нет (аудит 22.10.2026 P1-4)
+  await expect(legend).not.toContainText(/ADR|RevPAR/);
   await expect(legend).toContainText('₸');
   const days = await chart.locator('table tbody tr').count();
   expect(days).toBeGreaterThan(20);

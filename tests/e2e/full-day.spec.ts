@@ -90,7 +90,7 @@ test('сутки гостя целиком: заезд, услуга на счё
   await page.getByRole('main').locator('[data-testid^="check-in-"]').click();
   {
     // Q-156 (ADR-068): на живом сиде ячейки не проверены — стойка предупреждает, заселяем после подтверждения
-    const warn = page.getByRole('dialog', { name: /ещё не проверена/ });
+    const warn = page.getByRole('dialog', { name: /ещё не проверен/ });
     if (
       await warn.waitFor({ state: 'visible', timeout: 3000 }).then(
         () => true,

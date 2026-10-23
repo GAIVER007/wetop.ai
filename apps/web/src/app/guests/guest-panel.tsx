@@ -20,7 +20,9 @@ import {
   stayPayment,
   stayStatus,
   visitsWord,
+  guestDisplayName,
 } from './guest-stay';
+import { formatPhone } from '../../lib/phone';
 
 /**
  * Панель выбранного гостя рядом с таблицей «Гостей и бронирований» (план guests-bookings-2026-10-09): кто это, где он
@@ -68,7 +70,7 @@ export async function GuestPanel({
   const actions = readOnly ? null : stayActions(stay);
   const messengers = messengerLinks(g.phone);
   const status = stayStatus(g, today);
-  const name = `${g.lastName} ${g.firstName} ${g.middleName ?? ''}`.trim();
+  const name = guestDisplayName(g);
   const payment = stayPayment(stay);
   const currency = stay?.currency ?? g.currency;
   const visitsShown = g.visits.slice(0, 3);
@@ -82,7 +84,7 @@ export async function GuestPanel({
         <ul className="gb-contact-list">
           <li>
             <Icon name="phone" width={16} height={16} />
-            <span>{g.phone ?? <span className="muted">нет телефона</span>}</span>
+            <span>{g.phone ? formatPhone(g.phone) : <span className="muted">нет телефона</span>}</span>
             {g.phone && <CopyButton text={g.phone} what="телефон" />}
           </li>
           <li>

@@ -2,6 +2,7 @@
 import { useId, type FormEvent, type ReactNode, type RefObject } from 'react';
 import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, type PersonnelKind } from '@pms/domain';
 import { Alert, Button, Field, Input, Select } from '../ui';
+import { formatPhone, formatPhoneInput } from '../../lib/phone';
 
 export interface EmployeeProfileDraft {
   name: string;
@@ -67,7 +68,9 @@ export function EmployeeBasicForm({
         maxLength={key === 'name' ? 200 : key === 'phone' ? 32 : 320}
         type={key === 'email' ? 'email' : key === 'phone' ? 'tel' : 'text'}
         disabled={pending || disabled}
-        onChange={(event) => onChange({ ...draft, [key]: event.target.value })}
+        onChange={(event) =>
+          onChange({ ...draft, [key]: key === 'phone' ? formatPhoneInput(event.target.value) : event.target.value })
+        }
       />
     </Field>
   );
@@ -90,7 +93,7 @@ export function EmployeeBasicForm({
             <dt>Имя</dt>
             <dd>{current.name}</dd>
             <dt>Телефон</dt>
-            <dd>{current.phone || 'Не указан'}</dd>
+            <dd>{current.phone ? formatPhone(current.phone) : 'Не указан'}</dd>
             <dt>Почта</dt>
             <dd>{current.email || 'Не указана'}</dd>
             <dt>Статус</dt>

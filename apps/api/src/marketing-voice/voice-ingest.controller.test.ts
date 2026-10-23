@@ -234,13 +234,14 @@ describe('профиль голоса по агенту: GET /voice/profile', ()
       greetingTail: '',
       voiceName: 'Leda',
       handoffPhone: null,
+      booking: { enabled: false, needsApproval: true, maxPerCall: 3, maxPerPhoneDay: 5 },
     });
   });
 
   it('ответ минимален: без идентификаторов бизнеса и филиала', async () => {
     const res = await get(VOICE_KEY, `?agent=${AGENT_A}`).expect(200);
     expect(Object.keys(res.body).sort()).toEqual(
-      ['agentId', 'greetingTail', 'handoffPhone', 'objectName', 'organizationId', 'vertical', 'voiceName'].sort(),
+      ['agentId', 'booking', 'greetingTail', 'handoffPhone', 'objectName', 'organizationId', 'vertical', 'voiceName'].sort(),
     );
   });
 

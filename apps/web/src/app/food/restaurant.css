@@ -31,18 +31,6 @@
   .rest-dash .food-section-heading a {
     font-size: var(--text-sm);
   }
-  /* плитки дня по макету: подпись, число, изменение слева, без центровки общего `.stats` */
-  .rest-kpis .stat {
-    justify-content: flex-start;
-    text-align: left;
-    min-height: 0;
-  }
-  .rest-kpis .stat__label {
-    margin-bottom: var(--space-1);
-  }
-  .rest-kpis .stat__delta[data-direction='up'] {
-    color: var(--success);
-  }
   .rest-now {
     display: inline-flex;
     align-items: center;
@@ -243,6 +231,25 @@
   .rest-kds-items li small {
     display: block;
     color: var(--text-2);
+  }
+  /* §33.6: у позиции своя кнопка под названием */
+  .rest-kds-items li[data-status] {
+    display: grid;
+    gap: var(--space-1);
+    padding-bottom: var(--space-1);
+    border-bottom: 1px solid var(--border);
+  }
+  .rest-kds-items li[data-status]:last-child {
+    border-bottom: 0;
+  }
+  .rest-kds-line {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .rest-kds-items li .btn {
+    justify-self: stretch;
+    min-height: var(--touch-target);
   }
   .rest-kds-head time {
     color: var(--text-2);
@@ -1344,50 +1351,7 @@
 }
 
 @layer sections {
-  /* ── Вкладки с подчёркиванием по макету (экраны 8, 9, 11, 12): синий текст и черта у текущей ── */
-  .rest-utabs {
-    display: flex;
-    gap: var(--space-1);
-    border-bottom: 1px solid var(--border);
-  }
-  .rest-utabs > a,
-  .rest-utabs > button {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--space-10);
-    padding: 0 var(--space-4);
-    border: 0;
-    background: transparent;
-    color: var(--text-2);
-    font: inherit;
-    font-size: var(--text-sm);
-    text-decoration: none;
-    cursor: pointer;
-    box-shadow: inset 0 -2px 0 transparent;
-  }
-  /* телефон: вкладка — цель касания 44 px; полоса прокручивается сама и не тянет страницу (аудит UI5) */
-  @media (max-width: 600px) {
-    .rest-utabs {
-      max-width: 100%;
-      overflow-x: auto;
-    }
-    .rest-utabs > a,
-    .rest-utabs > button {
-      flex: none;
-      min-height: var(--touch-target);
-    }
-  }
-
-  .rest-utabs > [aria-current='page'] {
-    color: var(--primary);
-    font-weight: var(--weight-semibold);
-    box-shadow: inset 0 -2px 0 var(--primary);
-  }
-  .rest-utabs > a:focus-visible,
-  .rest-utabs > button:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: -2px;
-  }
+  /* Вкладки ресторана — общий `.tabs` (components.css), как в салоне и гостинице (22.10.2026). */
   .rest-finance-total {
     margin-left: auto;
     color: var(--text-2);
@@ -1529,9 +1493,10 @@
 
 @layer sections {
   /* ── Бар (макет, экран 7): текущие заказы слева, витрина напитков справа ── */
+  /* §33.6: экран бармена по позициям сверху на всю ширину, витрина напитков ниже */
   .rest-bar-screen {
     display: grid;
-    grid-template-columns: 340px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-4);
     align-items: start;
   }
@@ -1626,9 +1591,6 @@
   }
   .btn.rest-btn-go:hover:not(:disabled) {
     filter: brightness(0.95);
-  }
-  .rest-pos-menu .rest-utabs {
-    overflow-x: auto;
   }
 }
 
@@ -1815,5 +1777,125 @@
     color: var(--muted);
     font-size: var(--text-xs);
     font-weight: var(--weight-regular);
+  }
+}
+
+@layer sections {
+  /* ── Модификаторы блюд и деление счёта (§33.7) ── */
+  .food-mod-line {
+    display: block;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
+    overflow-wrap: anywhere;
+  }
+  .food-mod-hint {
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .food-mod-group {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-2) 0 0;
+    border: 0;
+    border-top: 1px solid var(--border-soft);
+    min-width: 0;
+  }
+  .food-mod-group legend {
+    display: flex;
+    gap: var(--space-2);
+    align-items: baseline;
+    padding: 0;
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+  .food-mod-group legend small {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
+  }
+  .food-mod-option {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--space-2);
+    align-items: center;
+    min-height: var(--touch-target);
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .food-mod-option input {
+    margin: 0;
+    accent-color: var(--primary);
+  }
+  .food-mod-option small {
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .food-mod-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-lg);
+  }
+  .food-mod-qty {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .food-mod-qty .btn {
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+  }
+  .food-mod-edit-row {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto auto;
+    gap: var(--space-2);
+    align-items: center;
+  }
+  .food-mod-names {
+    max-width: 360px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .food-mod-empty {
+    padding: var(--space-4);
+  }
+  .food-split-left {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .food-split-list {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .food-split-list > li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--touch-target);
+    padding: var(--space-1) 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .food-split-list > li .food-mod-option {
+    flex: 1;
+  }
+  .food-split .btn {
+    min-height: var(--touch-target);
+  }
+  @media (max-width: 600px) {
+    .food-mod-edit-row {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .food-mod-names {
+      max-width: 160px;
+    }
   }
 }

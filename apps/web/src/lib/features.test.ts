@@ -78,3 +78,8 @@ it('customer detail has its own vertical boundary while the customer list remain
 it('kitchen and consumables stock opens for hotel and salon, the restaurant has /stock', () => {
   expect(featureVerticals('/bar/consumables')).toEqual(['HOSPITALITY', 'BEAUTY']);
 });
+
+it('зарплата у всех направлений, график персонала гостиницы свой (кабинет горничной 22.10.2026)', () => {
+  expect(featureVerticals('/payroll')).toEqual(ALL_VERTICALS);
+  expect(featureVerticals('/staff-schedule')).toEqual(['HOSPITALITY']);
+});

@@ -15,7 +15,11 @@ vi.mock('next/cache', () => ({ revalidatePath: revalidate }));
 import { updateGuestAction } from '../../apps/web/src/app/guests/[id]/actions';
 it('revalidates booking cards while sending only submitted original guest fields', async () => {
   const fd = new FormData(); fd.set('citizenship', 'KGZ'); fd.set('nightPrice', '999');
-  await expect(updateGuestAction('synthetic-id', { error: null }, fd)).resolves.toEqual({ error: null });
+  // метка успеха: окно «Изменить гостя» закрывается по ней (аудит 22.10.2026 P2-3)
+  await expect(updateGuestAction('synthetic-id', { error: null }, fd)).resolves.toEqual({
+    error: null,
+    saved: expect.any(Number),
+  });
   expect(update).toHaveBeenCalledWith('synthetic-id', { citizenship: 'KGZ' });
   expect(revalidate).toHaveBeenCalledWith('/reservations/[number]', 'page');
 });

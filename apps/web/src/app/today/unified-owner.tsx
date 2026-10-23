@@ -125,13 +125,6 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
       </main>
     );
   const expenses = s.current.paidExpenses;
-  // путь как в меню: у салона это Журнал (аудит 21.10.2026, п. 10)
-  const operational =
-    s.scope.vertical === 'BEAUTY'
-      ? '/calendar'
-      : s.scope.vertical === 'FOOD_SERVICE'
-        ? '/floor-plan'
-        : '/chessboard';
   // все четыре показателя пусты: вместо плиток «Нет данных» одно пустое состояние с действием (п. 8)
   const noMoney = (v: { currencies?: readonly unknown[] | null }) => !v.currencies?.length;
   const empty =
@@ -155,12 +148,12 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
       : s.period.key === 'week'
         ? 'Средняя загрузка за 7 дней'
         : 'Средняя загрузка за месяц';
-  const expenseNote =
-    s.classificationReason === 'UNCLASSIFIED_EXPENSE_SOURCES'
-      ? 'Есть расходы без статьи.'
-      : s.classificationReason === 'EXPENSE_DOCUMENT_LINKS_NOT_CONNECTED'
-        ? 'Статьи расходов пока недоступны.'
-        : 'Проверьте оплаченные операции за период.';
+  // «Требуют решения»: дела сегодня от API, не больше 4 строк (экран не листается); ссылка в финансы несёт период
+  const attention = (s.attention ?? []).slice(0, 4);
+  const withPeriod = (href: string) =>
+    href === '/finance' || href === '/restaurant-finance'
+      ? financePeriodHref(href, { from: s.period.fromDate, to: s.period.toDate })
+      : href;
   // Главная на одном экране компьютера (решение владельца 21.10.2026): шапка строкой, итоги строкой,
   // ниже график слева и справа «Требуют решения» с «Куда уходят деньги»; листать не нужно
   return (
@@ -169,9 +162,12 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
         <h1>Главная</h1>
         <span className="owner-bar__updated">
           Обновлено{' '}
+          {/* «16 окт., 14:00»: без года и «г.» (аудит 22.10.2026 P2-9) */}
           {new Intl.DateTimeFormat('ru-RU', {
-            dateStyle: 'medium',
-            timeStyle: 'short',
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
             timeZone: s.period.timezone,
           }).format(new Date(s.generatedAt))}
         </span>
@@ -284,18 +280,19 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
           <section className="owner-panel owner-attention" aria-labelledby="owner-attention-title">
             <h2 id="owner-attention-title">Требуют решения</h2>
             <ul className="owner-todo">
-              <li data-state={s.workload.state === 'COMPLETE' ? 'ok' : 'warn'}>
-                <span>
-                  {s.workload.state === 'COMPLETE'
-                    ? 'Загрузка рассчитана за выбранный период.'
-                    : 'Для расчёта загрузки не хватает данных.'}
-                </span>
-                <a href={operational}>Проверить загрузку</a>
-              </li>
-              <li data-state={s.classificationReason ? 'warn' : 'ok'}>
-                <span>{expenseNote}</span>
-                <a href={finance}>Открыть операции</a>
-              </li>
+              {attention.length ? (
+                attention.map((item) => (
+                  <li key={item.id} data-state={item.tone} data-testid={`owner-attention-${item.id}`}>
+                    <span title={item.text}>{item.text}</span>
+                    <a href={withPeriod(item.href)}>{item.action}</a>
+                  </li>
+                ))
+              ) : (
+                <li data-state="ok" data-testid="owner-attention-unavailable">
+                  <span>Дела дня не загрузились, откройте рабочий день</span>
+                  <a href="/today/operations">Открыть день</a>
+                </li>
+              )}
             </ul>
           </section>
           <section className="owner-panel owner-expense-panel">

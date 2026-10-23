@@ -69,7 +69,7 @@ test('карточка ячейки: подзаголовок словами, д
 }) => {
   const main = page.getByRole('main');
   await page.goto('/units/R01');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Ячейка R01');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Номер R01');
   const subtitle = main.locator('.page__subtitle');
   await expect(subtitle).toContainText('комната R1');
   await expect(subtitle).toContainText('Двухместный номер');

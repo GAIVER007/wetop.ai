@@ -95,11 +95,9 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
   await dialog.locator('input[name="durationMinutes"]').fill('30');
   await dialog.getByLabel(/^Цена каталога,/).fill('0');
   await dialog.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(dialog.getByLabel('Филиал оказывает эту услугу')).toBeVisible();
-  await dialog.getByLabel('Филиал оказывает эту услугу').check();
-  await dialog.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
-  await expect(dialog.getByText('Настройки филиала сохранены', { exact: true })).toBeVisible();
-  await page.keyboard.press('Escape');
+  // новая услуга сразу в филиале: окно закрывается само (аудит салона 22.10.2026)
+  await expect(page.getByTestId('toast-stack')).toContainText('Услуга добавлена в филиал');
+  await expect(dialog).toBeHidden();
   await page.getByRole('link', { name: 'Вернуться к настройке салона', exact: true }).click();
   await expect(
     page.getByText('Выполнено 1 из 4 обязательных шагов', { exact: true }),

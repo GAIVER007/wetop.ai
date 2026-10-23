@@ -90,15 +90,15 @@ test('телефон: сводка и управление оставляют с
   await expect(page.getByLabel('Период: по', { exact: true })).toBeVisible();
 });
 
-test('узкий телефон: плитки финансов в две колонки без перелива вбок', async ({ page }) => {
-  // денежный экран по эталону 13.10 (ADR-180): четыре плитки на телефоне парами, свёртка «Отчёты и управление» снята
+test('узкий телефон: итоги финансов столбцом без перелива вбок', async ({ page }) => {
+  // плитки сняты (аудит 22.10.2026 P1-3b): итоги одной строкой `money-summary`, на телефоне в один столбец
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   const columns = await page
-    .locator('.fin-kpis')
+    .getByTestId('cash-summary')
     .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
-  expect(columns).toBe(2);
+  expect(columns).toBe(1);
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
   ).toBeLessThanOrEqual(1);

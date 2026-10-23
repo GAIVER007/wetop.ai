@@ -35,6 +35,7 @@ export default async function StockPage() {
               canDesk: shell.canDesk && !shell.readOnly,
               canProperty: shell.canProperty && !shell.readOnly,
               currency: branch?.currency ?? 'KZT',
+              ...(branch?.timezone ? { timezone: branch.timezone } : {}),
             }}
             products={products.items}
             movements={movements.items}

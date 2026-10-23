@@ -12,13 +12,29 @@ type Scope = { locationId: string; timezone: string; vertical: 'FOOD_SERVICE' | 
 export async function branchStaffRevenue(db: Db, s: Scope, rawPeriod: unknown, now = new Date()) {
   const period = parseRevenuePeriod(rawPeriod);
   const w = revenueWindow(period, now, s.timezone);
+  return { period, fromDate: w.fromDate, toDate: w.toDate, items: revenueSummary(await staffRevenueEntries(db, s, w)) };
+}
+
+/**
+ * Те же деньги за явное окно [from, toExclusive). `employeeId` («только я», кабинет сотрудника, срез S2) сужает
+ * выборку SQL до своих записей или заказов; доли многострочной записи делятся по всем её строкам, как в своде.
+ */
+export async function staffRevenueEntries(
+  db: Db,
+  s: Pick<Scope, 'locationId' | 'vertical'>,
+  w: { from: Date; toExclusive: Date },
+  employeeId?: string,
+): Promise<RevenueEntry[]> {
   const entries: RevenueEntry[] = [];
+  const me = employeeId ?? null;
   if (s.vertical === 'BEAUTY') {
     const money = await db.$queryRaw<Array<{ appointmentId: string; kind: 'INCOME' | 'EXPENSE'; amount: bigint; currency: string }>>`
       SELECT o.appointment_id::text AS "appointmentId", o.kind::text AS kind, o.amount, a.currency
       FROM restaurant_cash_operations o JOIN appointments a ON a.id = o.appointment_id
       WHERE o.location_id = ${s.locationId}::uuid AND o.appointment_id IS NOT NULL AND o.status = 'COMPLETED'
         AND o.kind IN ('INCOME', 'EXPENSE') AND o.occurred_at >= ${w.from} AND o.occurred_at < ${w.toExclusive}
+        AND (${me}::uuid IS NULL OR a.employee_id = ${me}::uuid
+          OR EXISTS (SELECT 1 FROM appointment_lines ml WHERE ml.appointment_id = a.id AND ml.employee_id = ${me}::uuid))
     `;
     const ids = [...new Set(money.map((m) => m.appointmentId))];
     const lines = ids.length
@@ -52,15 +68,17 @@ export async function branchStaffRevenue(db: Db, s: Scope, rawPeriod: unknown, n
       FROM restaurant_payments p JOIN restaurant_orders o ON o.id = p.order_id
       WHERE p.location_id = ${s.locationId}::uuid AND p.status = 'COMPLETED'
         AND p.paid_at >= ${w.from} AND p.paid_at < ${w.toExclusive}
+        AND (${me}::uuid IS NULL OR o.waiter_id = ${me}::uuid)
     `;
     const refunded = await db.$queryRaw<Array<{ waiterId: string | null; amount: bigint; currency: string }>>`
       SELECT o.waiter_id::text AS "waiterId", c.amount, o.currency
       FROM restaurant_cash_operations c JOIN restaurant_orders o ON o.id = c.order_id
       WHERE c.location_id = ${s.locationId}::uuid AND c.order_id IS NOT NULL AND c.kind = 'EXPENSE'
         AND c.status = 'COMPLETED' AND c.occurred_at >= ${w.from} AND c.occurred_at < ${w.toExclusive}
+        AND (${me}::uuid IS NULL OR o.waiter_id = ${me}::uuid)
     `;
     for (const p of paid) entries.push({ employeeId: p.waiterId, currency: p.currency, paidMinor: p.amount, refundedMinor: 0n });
     for (const r of refunded) entries.push({ employeeId: r.waiterId, currency: r.currency, paidMinor: 0n, refundedMinor: r.amount });
   }
-  return { period, fromDate: w.fromDate, toDate: w.toDate, items: revenueSummary(entries) };
+  return me === null ? entries : entries.filter((e) => e.employeeId === me);
 }

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { DIRECTIONS, subtypesOf } from '../lib/landings';
-import { getDictionary } from '../i18n';
+import { getDictionary, type Locale } from '../i18n';
 import { companyName, loginLink } from '../lib/site';
 import { getPublishedPosts } from '../lib/posts';
 import { Wordmark } from './brand';
@@ -12,8 +12,10 @@ import styles from './site-footer.module.css';
  */
 const DIRECTION_COPY = { hotels: 'hotel', salons: 'salon', restaurants: 'restaurant' } as const;
 
-export function SiteFooter() {
-  const t = getDictionary();
+export function SiteFooter({ locale = 'ru' }: { locale?: Locale }) {
+  const t = getDictionary(locale);
+  // Казахские страницы направлений есть у всех 30 адресов «для кого»; главная, блог и правовые только русские
+  const prefix = locale === 'kk' ? '/kk' : '';
   // Год сборки: сайт статический, пересобирается при каждой выкладке.
   const year = new Date().getFullYear();
   const owner = companyName() || t.meta.siteName;
@@ -59,13 +61,13 @@ export function SiteFooter() {
             const own = t[DIRECTION_COPY[direction]];
             return (
               <div key={direction}>
-                <Link className="site-footer__direction" href={`/for/${direction}/`}>
+                <Link className="site-footer__direction" href={`${prefix}/for/${direction}/`}>
                   {own.badge}
                 </Link>
                 <ul>
                   {subtypesOf(direction).map((slug) => (
                     <li key={slug}>
-                      <Link href={`/for/${slug}/`}>{t.segments.items[slug].metaTitle}</Link>
+                      <Link href={`${prefix}/for/${slug}/`}>{t.segments.items[slug].metaTitle}</Link>
                     </li>
                   ))}
                 </ul>
@@ -73,7 +75,7 @@ export function SiteFooter() {
             );
           })}
         </nav>
-        <nav className={`site-footer__legal ${styles.legal}`} aria-label="Правовая информация">
+        <nav className={`site-footer__legal ${styles.legal}`} aria-label={t.a11y.legalNav}>
           <Link href="/privacy/">{t.footer.privacy}</Link>
           <Link href="/terms/">{t.footer.terms}</Link>
         </nav>

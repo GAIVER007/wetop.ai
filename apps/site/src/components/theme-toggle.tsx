@@ -1,6 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
-export function ThemeToggle() {
+export function ThemeToggle({
+  labels,
+}: {
+  labels: { toggle: string; light: string; dark: string };
+}) {
   const [dark, setDark] = useState(false);
   useEffect(() => {
     let saved: string | null = null;
@@ -17,8 +21,8 @@ export function ThemeToggle() {
   return (
     <button
       className="theme-toggle"
-      aria-label="Переключить тему"
-      title={dark ? 'Светлая тема' : 'Тёмная тема'}
+      aria-label={labels.toggle}
+      title={dark ? labels.light : labels.dark}
       onClick={() => {
         const value = !dark;
         setDark(value);

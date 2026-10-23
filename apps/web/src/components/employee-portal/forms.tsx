@@ -128,7 +128,7 @@ const DAYS = ['Воскресенье', 'Понедельник', 'Вторни�
 /** Свой график сотрудник только видит: меняет руководитель (владелец, 17.10.2026) */
 export function PortalWeekView({ week }: { week: PortalWeekDay[] }) {
   return <div data-testid="portal-week-view"><p className="portal-week-help">График меняет руководитель. Нет часов: выходной.</p>
-    <ul className="portal-list">{[1, 2, 3, 4, 5, 6, 0].map(weekday => <li key={weekday}><strong>{DAYS[weekday]}</strong><span>{week.find(d => d.weekday === weekday)?.intervals.map(i => `${i.timeFrom}–${i.timeTo}`).join(', ') || 'Выходной'}</span></li>)}</ul></div>;
+    <ul className="portal-list">{[1, 2, 3, 4, 5, 6, 0].map(weekday => { const hours = week.find(d => d.weekday === weekday)?.intervals.map(i => `${i.timeFrom}–${i.timeTo}`).join(', '); return <li key={weekday} data-testid="portal-week-day" data-off={hours ? undefined : 'true'}><strong>{DAYS[weekday]}</strong><span>{hours || 'Выходной'}</span></li>; })}</ul></div>;
 }
 const weekDays = (week: PortalWeekDay[]) => [1, 2, 3, 4, 5, 6, 0].map(weekday => ({ weekday, intervals: week.find(d => d.weekday === weekday)?.intervals.map(i => ({ ...i })) ?? [] }));
 export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[]; revision: string | null; context: PortalContext }) {

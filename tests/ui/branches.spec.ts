@@ -20,16 +20,21 @@ test('филиалы: создание, сохранение после reload �
   // От 1280 px разделы находятся в шапке, кнопка выдвижного меню скрыта из доступного интерфейса.
   await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toHaveCount(0);
   await expect(page.getByRole('navigation', { name: 'Главное меню', exact: true })).toBeVisible();
+  // Месяц стрелками с русской подписью (P1-1b): «‹ октябрь 2026 ›», без родного поля type=month
+  await expect(page.locator('.org-month input[type="month"]')).toHaveCount(0);
+  await expect(page.locator('.org-month__label')).toHaveText(
+    /^(январь|февраль|март|апрель|май|июнь|июль|август|сентябрь|октябрь|ноябрь|декабрь) \d{4}$/,
+  );
   const monthControls = await page
-    .locator('.org-month a, .org-month input, .org-month button')
+    .locator('.org-month a, .org-month__label')
     .evaluateAll((elements) =>
       elements.map((element) => ({
         height: element.getBoundingClientRect().height,
         bottom: element.getBoundingClientRect().bottom,
       })),
     );
-  expect(monthControls).toHaveLength(4);
-  // Единые поля (21.10.2026): месяц, поле и кнопка той же высоты, что любое поле, из токена --control-h
+  expect(monthControls).toHaveLength(3);
+  // Единые поля (21.10.2026): стрелки и подпись месяца той же высоты, что любое поле, из токена --control-h
   const controlHeight = parseFloat(
     await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--control-h')),
   );

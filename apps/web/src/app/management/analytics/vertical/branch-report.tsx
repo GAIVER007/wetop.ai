@@ -20,6 +20,8 @@ export function BranchReport({
   counts,
   revenue,
   foodPanel,
+  statusTitle = 'Записи по статусам',
+  statusEmpty = 'Записей за период нет.',
 }: {
   labels: Record<string, string>;
   counts: Record<string, number>;
@@ -27,6 +29,9 @@ export function BranchReport({
   revenue: Record<string, string> | null;
   /** панель направления без выручки (ресторан) */
   foodPanel?: ReactNode;
+  /** заголовок блока статусов словами направления: у ресторана «Брони по статусам» */
+  statusTitle?: string;
+  statusEmpty?: string;
 }) {
   const entries = Object.entries(labels);
   const total = entries.reduce((sum, [status]) => sum + (counts[status] ?? 0), 0);
@@ -56,8 +61,8 @@ export function BranchReport({
         ) : (
           (foodPanel ?? null)
         )}
-        <Panel title={`Записи по статусам, всего ${total}`}>
-          {total === 0 && <p className="branch-report__empty">Записей за период нет.</p>}
+        <Panel title={`${statusTitle}, всего ${total}`}>
+          {total === 0 && <p className="branch-report__empty">{statusEmpty}</p>}
           <ul className="branch-report__shares">
             {entries.map(([status, label]) => (
               <li key={status}>

@@ -47,8 +47,8 @@
 .owner-todo li:first-child { border-top: 0; }
 .owner-todo li::before { content: ''; flex: none; width: var(--space-2); height: var(--space-2); border-radius: 50%; background: var(--warning); }
 .owner-todo li[data-state=ok]::before { background: var(--success); }
-.owner-todo span { flex: 1 1 auto; min-width: 0; }
-.owner-todo a { flex: none; }
+.owner-todo span { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.owner-todo a { flex: none; white-space: nowrap; }
 .owner-expense-panel > p { padding: var(--space-2) var(--space-4) var(--space-2); margin: 0; }
 .owner-expenses { display: grid; gap: var(--space-2); padding: var(--space-1) var(--space-4) var(--space-2); }
 .owner-expenses:empty { display: none; }

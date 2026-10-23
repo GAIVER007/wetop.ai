@@ -169,6 +169,6 @@ export function moveQuestion(
         ? `Проживание станет ${money(preview.newPriceMinor)} вместо ${money(preview.currentPriceMinor)}${
             preview.categoryName ? `: категория «${preview.categoryName}»` : ''
           }.`
-        : `С ${displayDate(verdict.fromDate)} ячейка ${source.unitCode} освободится.`,
+        : `С ${displayDate(verdict.fromDate)} номер ${source.unitCode} освободится.`,
   };
 }

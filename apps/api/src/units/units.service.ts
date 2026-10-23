@@ -17,7 +17,11 @@ import {
   type UnitsRepository,
 } from './units.repository';
 
+/** Дата в сообщении человеку: «22.10.2026», не ISO */
+const ruDay = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}`;
+
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const BLOCK_TYPES: BlockType[] = ['MAINTENANCE', 'MANAGEMENT', 'OUT_OF_ORDER', 'OTHER'];
 const HK: HousekeepingStatus[] = ['DIRTY', 'CLEAN', 'INSPECTED'];
 const MAX_BLOCK_NIGHTS = 3 * 366;
@@ -41,14 +45,14 @@ export class UnitsService {
    */
   private assertCode(code: string): void {
     if ([...code].some((ch) => ch.charCodeAt(0) < 32 || ch.charCodeAt(0) === 127))
-      throw new NotFoundException('Ячейка не найдена: в коде недопустимый символ');
+      throw new NotFoundException('Номер не найден: в коде недопустимый символ');
   }
 
   async card(code: string): Promise<UnitCard> {
     this.assertCode(code);
     const today = await this.repo.today();
     const card = await this.repo.card(code, today, plusDays(today, 60));
-    if (!card) throw new NotFoundException(`Ячейка ${code} не найдена`);
+    if (!card) throw new NotFoundException(`Номер ${code} не найден`);
     return card;
   }
 
@@ -73,11 +77,11 @@ export class UnitsService {
       throw new BadRequestException(`type — один из ${BLOCK_TYPES.join(', ')}`);
     this.assertCode(code);
     const unit = await this.repo.unitByCode(code);
-    if (!unit) throw new NotFoundException(`Ячейка ${code} не найдена`);
+    if (!unit) throw new NotFoundException(`Номер ${code} не найден`);
     const busy = await this.repo.staysOverlapping(unit.id, dto.dateFrom!, dto.dateTo!);
     if (busy.length)
       throw new ConflictException(
-        `В ячейке ${code} есть проживание: ${busy.map((b) => `${b.confirmationNumber} (${b.startDate} → ${b.endDate})`).join(', ')} — сначала переселите`,
+        `В номере ${code} есть проживание: ${busy.map((b) => `${b.confirmationNumber} (${ruDay(b.startDate)} – ${ruDay(b.endDate)})`).join(', ')}. Сначала переселите`,
       );
     const before = await this.repo.card(code, dto.dateFrom!, dto.dateTo!);
     const block = {
@@ -101,10 +105,10 @@ export class UnitsService {
   async unblock(code: string, blockId: string): Promise<UnitCard> {
     this.assertCode(code);
     const unit = await this.repo.unitByCode(code);
-    if (!unit) throw new NotFoundException(`Ячейка ${code} не найдена`);
+    if (!unit) throw new NotFoundException(`Номер ${code} не найден`);
     const b = await this.repo.blockById(blockId);
     if (!b || b.unitId !== unit.id)
-      throw new NotFoundException(`Блокировка ${blockId} не найдена у ячейки ${code}`);
+      throw new NotFoundException(`Блокировка не найдена у номера ${code}`);
     await this.repo.deleteBlock(blockId, { unitId: unit.id, before: b });
     await publishAfterCommit(this.publisher, {
       categoryCodes: [unit.accommodationTypeCode],
@@ -124,7 +128,7 @@ export class UnitsService {
       throw new BadRequestException(`status — один из ${HK.join(', ')}`);
     this.assertCode(code);
     const unit = await this.repo.unitByCode(code);
-    if (!unit) throw new NotFoundException(`Ячейка ${code} не найдена`);
+    if (!unit) throw new NotFoundException(`Номер ${code} не найден`);
     const refusal = housekeepingRefusal(unit.housekeepingStatus, dto.status as HousekeepingStatus);
     if (refusal) throw new ConflictException(refusal);
     if (unit.housekeepingStatus !== dto.status) {
@@ -140,6 +144,21 @@ export class UnitsService {
         { status: dto.status },
       );
     }
+    return this.card(code);
+  }
+
+  /** «Кто убирает» (DATA_MODEL §4.1): назначает стойка; null снимает назначение */
+  async setHousekeepingAssignee(code: string, dto: { employeeId?: unknown }): Promise<UnitCard> {
+    const employeeId = dto?.employeeId;
+    if (employeeId !== null && (typeof employeeId !== 'string' || !UUID.test(employeeId)))
+      throw new BadRequestException('Выберите сотрудника');
+    this.assertCode(code);
+    const unit = await this.repo.unitByCode(code);
+    if (!unit) throw new NotFoundException(`Номер ${code} не найден`);
+    const before = unit.housekeepingAssigneeId ?? null;
+    if (employeeId !== null && !(await this.repo.housekeepingEmployee(unit.id, employeeId)))
+      throw new BadRequestException('Сотрудник не найден в этой гостинице');
+    if (before !== employeeId) await this.repo.setHousekeepingAssignee(unit.id, employeeId, before);
     return this.card(code);
   }
 }

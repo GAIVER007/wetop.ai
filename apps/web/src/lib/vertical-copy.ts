@@ -29,12 +29,37 @@ export interface VerticalCopy {
   businessesOf: string;
   /** главная кнопка сайта (SITE-1): «Забронировать» / «Записаться» / «Забронировать стол» */
   bookAction: string;
+  /** что оплачивает клиент, им. мн. ч. для строки итогов «Оплаченные …»: «брони» / «записи» / «заказы» */
+  paidUnits: string;
   /** что продаёт филиал, для карточки фактов: «Номера и цены» / «Услуги и цены» / «Меню и цены» */
   catalogTitle: string;
   /** подсказки-чипы чата первого экрана «Сайт и SEO» (plans/site-seo-flow-2026-10-15.md §1 шаг 2) */
   siteChips: readonly string[];
   /** подсказки-чипы правки готового сайта в простом редакторе (SITE-1): частые просьбы владельца */
   siteEditChips: readonly string[];
+  /** шаг «Персонал» в «Помощи»: кого добавить (у ресторана нет «тех, кто оказывает услуги», аудит 22.10.2026 P2-7) */
+  staffHelp: string;
+  /** подписи меню и хаба настроек, где слово направления своё (аудит 22.10.2026: салон P1, ресторан P2) */
+  menu: MenuWords;
+}
+
+export interface MenuWords {
+  /** «Настройки → …»: экран настроек места */
+  place: string;
+  /** «Услуги → …»: что продаёт филиал */
+  catalog: string;
+  /** «Клиенты → …»: записи или брони */
+  bookings: string;
+  /** «Персонал → …»: кто работает с клиентами */
+  specialists: string;
+  /** «Персонал → …»: учётные записи и доступ (/team) */
+  team: string;
+  /** «Склад → …»: товары на продажу (/bar) */
+  goods: string;
+  /** хаб настроек: каталог */
+  catalogSettings: string;
+  /** хаб настроек: сайт */
+  siteSettings: string;
 }
 
 const COPY: Record<WebVertical, VerticalCopy> = {
@@ -51,9 +76,21 @@ const COPY: Record<WebVertical, VerticalCopy> = {
     photoIcon: 'bed',
     businessesOf: 'гостиниц',
     bookAction: 'Забронировать',
+    paidUnits: 'брони',
     catalogTitle: 'Номера и цены',
     siteChips: ['Сайт с онлайн-бронированием', 'Акцент на семейном отдыхе', 'Покажи трансфер'],
     siteEditChips: ['Сделай тексты короче и проще', 'Сделай первый экран ярче', 'Подчеркни удобное расположение', 'Добавь блок «Почему мы»'],
+    staffHelp: 'добавьте администраторов и горничных, назначьте им рабочие часы.',
+    menu: {
+      place: 'Объект',
+      catalog: 'Каталог',
+      bookings: 'Записи',
+      specialists: 'Специалисты',
+      team: 'Сотрудники',
+      goods: 'Бар',
+      catalogSettings: 'Каталог услуг',
+      siteSettings: 'Сайт и онлайн-запись',
+    },
   },
   BEAUTY: {
     business: 'салон',
@@ -68,9 +105,21 @@ const COPY: Record<WebVertical, VerticalCopy> = {
     photoIcon: 'beauty',
     businessesOf: 'салонов',
     bookAction: 'Записаться',
+    paidUnits: 'записи',
     catalogTitle: 'Услуги и цены',
     siteChips: ['Сайт для записи на услуги', 'Акцент на мастерах', 'Акция на первое посещение'],
     siteEditChips: ['Сделай тексты короче и проще', 'Сделай первый экран ярче', 'Подчеркни опыт мастеров', 'Добавь акцию на первое посещение'],
+    staffHelp: 'добавьте мастеров, назначьте им услуги и рабочие часы.',
+    menu: {
+      place: 'Салон',
+      catalog: 'Каталог',
+      bookings: 'Записи',
+      specialists: 'Специалисты',
+      team: 'Сотрудники',
+      goods: 'Товары',
+      catalogSettings: 'Каталог услуг',
+      siteSettings: 'Сайт и онлайн-запись',
+    },
   },
   FOOD_SERVICE: {
     business: 'ресторан',
@@ -85,9 +134,22 @@ const COPY: Record<WebVertical, VerticalCopy> = {
     photoIcon: 'kitchen',
     businessesOf: 'ресторанов',
     bookAction: 'Забронировать стол',
+    paidUnits: 'заказы',
     catalogTitle: 'Меню и цены',
     siteChips: ['Сайт с меню и бронью столов', 'Акцент на банкетах', 'Покажи бизнес-ланч'],
     siteEditChips: ['Сделай тексты короче и проще', 'Сделай первый экран аппетитнее', 'Расскажи про банкеты', 'Выдели бизнес-ланч'],
+    staffHelp: 'добавьте официантов, поваров и администраторов, задайте им график смен.',
+    menu: {
+      place: 'Ресторан',
+      catalog: 'Меню',
+      bookings: 'Брони столов',
+      specialists: 'Сотрудники',
+      // «Сотрудники» у ресторана уже список людей (/employees): учётные записи называются по делу
+      team: 'Доступ и роли',
+      goods: 'Бар',
+      catalogSettings: 'Меню',
+      siteSettings: 'Сайт и онлайн-бронь',
+    },
   },
 };
 

@@ -16,8 +16,9 @@ import {
 import { Icon } from '../../components/icon';
 import { IconField } from '../../components/icon-field';
 import { wholeTenge } from '../../lib/dashboard-format';
-import type { IngredientInput, MenuCategory, MenuItemView } from '../../lib/food-types';
+import type { IngredientInput, MenuCategory, MenuItemView, MenuStation, ModifierGroupView } from '../../lib/food-types';
 import { dishPhoto, mutateMenu } from './restaurant-actions';
+import { DishModifierGroups, ModifierGroupsTable } from './modifier-parts';
 
 interface Ctx {
   scopeKey: string;
@@ -90,11 +91,14 @@ function DishDrawer({
   ctx,
   categories,
   item,
+  modifierGroups,
   close,
 }: {
   ctx: Ctx;
   categories: MenuCategory[];
   item: MenuItemView | null;
+  /** §33.7: группы добавок бизнеса для раздела «Добавки и размеры» */
+  modifierGroups: ModifierGroupView[];
   close: () => void;
 }) {
   const router = useRouter();
@@ -104,6 +108,7 @@ function DishDrawer({
   const [categoryId, setCategoryId] = useState(item?.categoryId ?? categories[0]?.id ?? '');
   const [price, setPrice] = useState(item ? String(BigInt(item.priceMinor) / 100n) : '');
   const [weight, setWeight] = useState(item?.weightGrams ? String(item.weightGrams) : '');
+  const [groupIds, setGroupIds] = useState<string[]>(item?.modifierGroupIds ?? []);
   function submit() {
     setError('');
     const priceMinor = Math.round(Number(price)) * 100;
@@ -122,11 +127,16 @@ function DishDrawer({
         ctx.scopeKey,
         item ? { kind: 'item', id: item.id, body } : { kind: 'item', body },
       );
-      if (result.error) setError(result.error);
-      else {
-        router.refresh();
-        close();
+      if (result.error) return setError(result.error);
+      // §33.7: группы добавок сохраняются, только если их меняли (и у нового блюда, если отмечены)
+      const before = item?.modifierGroupIds ?? [];
+      const id = item?.id ?? result.item?.id;
+      if (id && groupIds.join(',') !== before.join(',')) {
+        const groups = await mutateMenu(ctx.scopeKey, { kind: 'item-modifier-groups', id, groupIds });
+        if (groups.error) return setError(groups.error);
       }
+      router.refresh();
+      close();
     });
   }
   return (
@@ -160,6 +170,7 @@ function DishDrawer({
         <Field label="Выход, г">
           <Input type="number" min={1} value={weight} onChange={(e) => setWeight(e.target.value)} />
         </Field>
+        <DishModifierGroups groups={modifierGroups.filter((g) => g.active || groupIds.includes(g.id))} value={groupIds} onChange={setGroupIds} />
         {item && ctx.write && <DishPhoto ctx={ctx} item={item} />}
         <div className="food-actions">
           <Button disabled={pending} onClick={submit}>
@@ -359,7 +370,7 @@ function TechCardDrawer({
             <strong>{wholeTenge(String(Math.round(profit * 100)), item.currency)}</strong>
           </div>
           <div>
-            <small>Food cost</small>
+            <small>Себестоимость, %</small>
             <strong>{foodCost === null ? '—' : `${foodCost} %`}</strong>
           </div>
         </div>
@@ -386,10 +397,13 @@ export function MenuBoard({
   categories,
   items,
   stock = [],
+  modifierGroups = [],
 }: {
   ctx: Ctx;
   categories: MenuCategory[];
   items: MenuItemView[];
+  /** §33.7: группы добавок бизнеса (вкладка «Добавки») */
+  modifierGroups?: ModifierGroupView[];
   /** Ингредиенты склада для связи строк техкарты (§38); пусто, если склада нет */
   stock?: StockOption[];
 }) {
@@ -397,11 +411,13 @@ export function MenuBoard({
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
   const [category, setCategory] = useState('');
-  const [view, setView] = useState<'items' | 'categories'>('items');
+  const [view, setView] = useState<'items' | 'categories' | 'modifiers'>('items');
+  const [newGroup, setNewGroup] = useState(false);
   const [search, setSearch] = useState('');
   const [dish, setDish] = useState<MenuItemView | null | 'new'>(null);
   const [tech, setTech] = useState<MenuItemView | null>(null);
   const [newCategory, setNewCategory] = useState<string | null>(null);
+  const [newStation, setNewStation] = useState<MenuStation>('KITCHEN');
   const needle = search.trim().toLocaleLowerCase('ru');
   const list = items.filter(
     (m) =>
@@ -426,9 +442,21 @@ export function MenuBoard({
     if (!name) return;
     setError('');
     start(async () => {
-      const result = await mutateMenu(ctx.scopeKey, { kind: 'category', body: { name } });
+      const result = await mutateMenu(ctx.scopeKey, { kind: 'category', body: { name, station: newStation } });
       if (result.error) setError(result.error);
-      else setNewCategory(null);
+      else {
+        setNewCategory(null);
+        setNewStation('KITCHEN');
+      }
+      router.refresh();
+    });
+  }
+  /** Станция категории (§33.6): куда уходят её позиции, «Кухня» или «Бар»; отправленные позиции не переезжают */
+  function setStation(c: MenuCategory, station: MenuStation) {
+    setError('');
+    start(async () => {
+      const result = await mutateMenu(ctx.scopeKey, { kind: 'category', id: c.id, body: { station } });
+      if (result.error) setError(result.error);
       router.refresh();
     });
   }
@@ -436,20 +464,27 @@ export function MenuBoard({
     <div className="food-workspace" data-testid="menu-board">
       {error && <Alert>{error}</Alert>}
       <div className="rest-bar">
-        <nav className="rest-utabs" aria-label="Меню">
-          <button
+        <nav className="tabs" aria-label="Меню">
+          <button className="tabs__item"
             type="button"
             aria-current={view === 'items' ? 'page' : undefined}
             onClick={() => setView('items')}
           >
             Позиции ({items.length})
           </button>
-          <button
+          <button className="tabs__item"
             type="button"
             aria-current={view === 'categories' ? 'page' : undefined}
             onClick={() => setView('categories')}
           >
             Категории ({categories.filter((c) => c.active).length})
+          </button>
+          <button className="tabs__item"
+            type="button"
+            aria-current={view === 'modifiers' ? 'page' : undefined}
+            onClick={() => setView('modifiers')}
+          >
+            Добавки ({modifierGroups.length})
           </button>
         </nav>
         {ctx.write && (
@@ -457,9 +492,22 @@ export function MenuBoard({
             <Button tone="secondary" onClick={() => setNewCategory('')}>
               + Категория
             </Button>
-            <Button onClick={() => setDish('new')} disabled={!categories.length}>
+            <Button tone="secondary" onClick={() => { setView('modifiers'); setNewGroup(true); }}>
+              + Группа добавок
+            </Button>
+            <Button
+              onClick={() => setDish('new')}
+              disabled={!categories.length}
+              title={categories.length ? undefined : 'Сначала добавьте категорию'}
+              aria-describedby={categories.length ? undefined : 'menu-no-category'}
+            >
               + Добавить блюдо
             </Button>
+            {!categories.length && (
+              <span id="menu-no-category" className="muted">
+                Сначала добавьте категорию
+              </span>
+            )}
           </div>
         )}
       </div>
@@ -467,6 +515,12 @@ export function MenuBoard({
         <div className="food-toolbar">
           <Field label="Название категории">
             <Input value={newCategory} onChange={(e) => setNewCategory(e.target.value)} />
+          </Field>
+          <Field label="Куда уходят заказы">
+            <Select value={newStation} onChange={(e) => setNewStation(e.target.value as MenuStation)}>
+              <option value="KITCHEN">Кухня</option>
+              <option value="BAR">Бар</option>
+            </Select>
           </Field>
           <Button disabled={pending} onClick={addCategory}>
             Сохранить
@@ -482,7 +536,7 @@ export function MenuBoard({
             <IconField icon="search">
               <Input
                 type="search"
-                placeholder="Поиск блюда"
+                placeholder={view === 'modifiers' ? 'Поиск добавки' : 'Поиск блюда'}
                 data-page-search
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -504,11 +558,14 @@ export function MenuBoard({
             </Field>
           )}
         </div>
-        {view === 'categories' ? (
+        {view === 'modifiers' ? (
+          <ModifierGroupsTable ctx={ctx} groups={modifierGroups} items={items} adding={newGroup} setAdding={setNewGroup} needle={needle} />
+        ) : view === 'categories' ? (
           <Table density="compact" caption="Категории меню" captionHidden>
             <thead>
               <tr>
                 <th scope="col">Категория</th>
+                <th scope="col">Станция</th>
                 <th scope="col" className="num">
                   Блюд
                 </th>
@@ -526,6 +583,23 @@ export function MenuBoard({
                     <tr key={c.id}>
                       <td>
                         <strong>{c.name}</strong>
+                      </td>
+                      <td>
+                        {ctx.write ? (
+                          <Select
+                            aria-label={`Станция: ${c.name}`}
+                            value={c.station ?? 'KITCHEN'}
+                            disabled={pending}
+                            onChange={(e) => setStation(c, e.target.value as MenuStation)}
+                          >
+                            <option value="KITCHEN">Кухня</option>
+                            <option value="BAR">Бар</option>
+                          </Select>
+                        ) : c.station === 'BAR' ? (
+                          'Бар'
+                        ) : (
+                          'Кухня'
+                        )}
                       </td>
                       <td className="num">{dishes.length}</td>
                       <td className="num">{dishes.filter((m) => m.active).length}</td>
@@ -556,7 +630,7 @@ export function MenuBoard({
                     Цена
                   </th>
                   <th scope="col" className="num">
-                    Food cost
+                    Себестоимость, %
                   </th>
                   <th scope="col">Статус</th>
                   <th scope="col">
@@ -639,6 +713,7 @@ export function MenuBoard({
           categories={categories.filter((c) => c.active)}
           // свежее блюдо из списка: после загрузки фото список обновился, а снимок в состоянии нет
           item={dish === 'new' ? null : (items.find((i) => i.id === dish.id) ?? dish)}
+          modifierGroups={modifierGroups}
           close={() => setDish(null)}
         />
       )}

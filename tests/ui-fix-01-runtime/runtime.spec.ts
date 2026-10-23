@@ -507,8 +507,9 @@ test.describe('UI-FIX-01 genuine web, Nest API and PostgreSQL', () => {
       page,
       'Начало работы',
       [
-        ['«Услуги → Каталог»', '/menu'],
-        ['«Персонал → Специалисты»', '/employees'],
+        // слова ресторана в меню (аудит 22.10.2026): «Меню» и «Сотрудники»
+        ['«Услуги → Меню»', '/menu'],
+        ['«Персонал → Сотрудники»', '/employees'],
         ['«Журнал»', '/floor-plan'],
       ],
       ['/services', '/calendar', '/rooms/categories', '/inventory'],

@@ -57,40 +57,6 @@
   } /* ссылка внутри приглушённой заметки различима не только цветом (axe link-in-text-block) */
   .finance-note a {
     text-decoration: underline;
-  } /* ---------- четыре итога одним рядом и одной высоты; на узком экране — по два, на телефоне — столбиком */
-  .finance-kpis {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--space-4);
-    margin-bottom: var(--space-6);
-  }
-  .finance-kpis > .stat,
-  .finance-kpi-link > .stat {
-    height: 100%;
-    padding: var(--space-4);
-  }
-  .finance-kpis .stat__value {
-    white-space: nowrap;
-  } /* «К сбору» — ссылка к списку долгов: вся плитка нажимается, текст остаётся текстом */
-  .finance-kpi-link {
-    display: block;
-    color: inherit;
-    text-decoration: none;
-    border-radius: var(--radius);
-  }
-  .finance-kpi-link:hover {
-    text-decoration: none;
-  }
-  .finance-kpi-link:hover > .stat {
-    background: var(--row-hover);
-  }
-  .finance-kpi-link--due > .stat {
-    border-color: var(--warning-border);
-  }
-  @media (max-width: 1100px) {
-    .finance-kpis {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   } /* ---------- «Требует внимания»: строка на дело, цвет — только у полосы слева и значка */
   .finance-attention {
     margin-bottom: var(--space-6);
@@ -310,23 +276,6 @@
       font-size: 13px;
     }
   }
-  .finance-kpis {
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  .finance-kpis .stat {
-    padding: 16px;
-  }
-  .finance-kpis .stat__label {
-    margin-bottom: 4px;
-  }
-  .finance-kpis .stat__value {
-    font-size: 24px;
-  }
-  .finance-kpis .stat__hint {
-    margin-top: 4px;
-    font-size: var(--text-xs);
-  }
   .finance-tabs {
     display: flex;
     /* вкладок пять (REP2 добавил «Услуги»): на телефоне ряд переносится, а не выталкивает экран вбок */
@@ -409,9 +358,6 @@
     .finance-workspace td {
       padding-block: 4px;
     }
-    .finance-kpis {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
     .finance-tab-panel {
       /* высота шапки — из токена: с верхним меню (ADR-134) шапка выросла на 28 px, и обзор перестал помещаться */
       max-height: max(220px, calc(100dvh - var(--header-h) - 388px));
@@ -422,20 +368,6 @@
   @media (max-width: 800px) {
     .finance-workspace .finance-attention__list {
       grid-template-columns: 1fr;
-    }
-    .finance-kpis {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .finance-kpis .stat__value {
-      font-size: 20px;
-      white-space: normal;
-    }
-  } /* После блока ≤800: раньше правило одной колонки стояло выше его и при равной
- * специфичности никогда не выигрывало — узкий телефон оставался с двумя колонками */
-  @media (max-width: 520px) {
-    .finance-kpis {
-      grid-template-columns: minmax(0, 1fr);
-      gap: var(--space-2);
     }
   } /* Телефон: чипы отборов — цели не ниже 44 px (DESIGN.md, правка 19.09) */
   @media (max-width: 600px) {
@@ -450,9 +382,6 @@
       align-items: baseline;
       flex-wrap: wrap;
       gap: 16px;
-    }
-    .finance-kpis .stat {
-      padding: 8px 16px;
     }
   }
   .page:has(.finance-workspace) > .context-help > summary {

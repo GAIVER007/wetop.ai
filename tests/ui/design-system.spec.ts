@@ -208,8 +208,8 @@ test('состояния: пусто говорит что сделать, за�
   await expect(alerts).toHaveCount(2);
   await expect(alerts.nth(0)).toContainText('Проверьте подключение');
   await expect(alerts.nth(0).getByRole('button', { name: 'Повторить загрузку' })).toBeVisible();
-  await expect(alerts.nth(0).getByRole('link', { name: 'Подключения API' })).toBeVisible();
-  await expect(alerts.nth(1)).toContainText('код 404');
+  await expect(alerts.nth(0).getByRole('link', { name: 'Подключения', exact: true })).toBeVisible();
+  await expect(alerts.nth(1)).toContainText('Сервер не принял запрос');
   await expect(alerts.nth(1)).toContainText('проверьте адрес');
-  await expect(alerts.nth(1).getByRole('link', { name: 'Подключения API' })).toHaveCount(0);
+  await expect(alerts.nth(1).getByRole('link', { name: 'Подключения', exact: true })).toHaveCount(0);
 });

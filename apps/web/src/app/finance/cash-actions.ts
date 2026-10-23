@@ -49,6 +49,8 @@ export async function cashOperationAction(
   _prev: CashActionResult,
   fd: FormData,
 ): Promise<CashActionResult> {
+  // своя проверка вместо браузерной «Please fill out this field.» (аудит 22.10.2026 P1-23)
+  if (!s(fd, 'amount')) return { error: 'Укажите сумму', ok: _prev.ok };
   try {
     await financeApi.createCashOperation({
       ...(s(fd, 'idempotencyKey') ? {idempotencyKey:s(fd, 'idempotencyKey')} : {}),
@@ -69,6 +71,7 @@ export async function cashTransferAction(
   _prev: CashActionResult,
   fd: FormData,
 ): Promise<CashActionResult> {
+  if (!s(fd, 'amount')) return { error: 'Укажите сумму', ok: _prev.ok };
   try {
     await financeApi.createCashTransfer({
       ...(s(fd, 'idempotencyKey') ? {idempotencyKey:s(fd, 'idempotencyKey')} : {}),
@@ -89,6 +92,7 @@ export async function cashReconcileAction(
   _prev: CashActionResult,
   fd: FormData,
 ): Promise<CashActionResult> {
+  if (!s(fd, 'counted')) return { error: 'Укажите пересчитанную сумму', ok: _prev.ok };
   try {
     await financeApi.createCashReconciliation({
       ...(s(fd, 'idempotencyKey') ? {idempotencyKey:s(fd, 'idempotencyKey')} : {}),

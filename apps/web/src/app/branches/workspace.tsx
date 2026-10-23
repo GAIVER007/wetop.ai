@@ -9,6 +9,7 @@ import { loadErrorProps } from '../../lib/load-error';
 import { unstable_rethrow } from 'next/navigation';
 import { BranchCreateDialog } from './branch-create-dialog';
 import { ReferenceBoard } from './reference-board';
+import { Page } from '../../components/page';
 export async function BranchWorkspace({
   query,
   createLabel = 'Добавить',
@@ -70,6 +71,10 @@ export async function BranchWorkspace({
     );
   } catch (error) {
     unstable_rethrow(error);
-    return <LoadError testId="branches-load-error" {...loadErrorProps(error)} />;
+    return (
+      <Page title="Организация" width="wide" className="org-page">
+        <LoadError testId="branches-load-error" {...loadErrorProps(error)} />
+      </Page>
+    );
   }
 }

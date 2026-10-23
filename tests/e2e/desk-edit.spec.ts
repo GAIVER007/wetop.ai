@@ -112,7 +112,7 @@ test('групповая бронь на 2 койки → две клетки ш
   await expect(page.locator('[data-testid^="guests-form-"]')).toHaveCount(2);
   for (const item of beforeGuests.items) {
     const guests = page.getByTestId(`guests-form-${item.id}`);
-    await expect(guests).toContainText(`Гости: ${item.unitCode}`);
+    await expect(guests).toContainText(`Гости номера ${item.unitCode}`);
     const adults = guests.getByLabel('Взрослых', { exact: true });
     const children = guests.getByLabel('Детей', { exact: true });
     await expect(adults).toHaveValue('1');

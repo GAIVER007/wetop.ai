@@ -69,13 +69,19 @@ test('M4-A: клиент без записи, повтор номера и со�
   const main = page.getByRole('main');
   await main.getByRole('button', { name: 'Добавить клиента', exact: true }).click();
   let panel = page.getByRole('dialog', { name: 'Добавить клиента' });
-  await panel.getByLabel('Имя', { exact: true }).fill('Тестовый клиент M4');
+  // пустая форма не молчит: сообщения под полями (аудит салона 22.10.2026)
+  await panel.getByRole('button', { name: 'Сохранить клиента', exact: true }).click();
+  await expect(panel.getByText('Укажите имя клиента', { exact: true })).toBeVisible();
+  await expect(panel.getByText('Укажите телефон, например +7 701 000 00 00', { exact: true })).toBeVisible();
+  // текст ошибки входит в имя поля, пока его не поправили: поля по name
+  await panel.locator('input[name="firstName"]').fill('Тестовый клиент M4');
+  await expect(panel.getByText('Укажите имя клиента', { exact: true })).toHaveCount(0);
   await panel.getByLabel('Фамилия', { exact: true }).fill('Синтетический');
-  await panel.getByLabel('Телефон', { exact: true }).fill('8 (700) 000-50-01');
+  await panel.locator('input[name="phone"]').fill('8 (700) 000-50-01');
   await panel.getByRole('button', { name: 'Сохранить клиента', exact: true }).click();
   await expect(panel).not.toBeVisible();
   let row = main.getByRole('row').filter({ hasText: 'Тестовый клиент M4' });
-  await expect(row).toContainText('8 (700) 000-50-01');
+  await expect(row).toContainText('+7 700 000 50 01');
   await expect(row.locator('[data-label="Всего визитов"]')).toHaveText('0');
   await expect(main.getByRole('status').filter({ hasText: 'Клиент создан.' })).toBeVisible();
   await page.screenshot({ path: 'reports/salons-m4a-2026-10-18/customers-375.png', fullPage: true });
@@ -299,6 +305,19 @@ test('Услуги: отмеченные галочкой переносятся
   await page.screenshot({ path: `${SNAPSHOTS}/services-bulk-1440.png`, fullPage: true });
 });
 
+test('пустая новая услуга: сообщения под полями, окно открыто (аудит 22.10.2026)', async ({ page, request }) => {
+  await openSalon(page, request);
+  await page.goto('/beauty/services');
+  await page.getByRole('main').getByRole('button', { name: 'Добавить услугу', exact: true }).click();
+  const panel = page.getByRole('dialog');
+  await panel.getByLabel(/Длительность, минут/).fill('');
+  await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
+  await expect(panel.getByText('Укажите название услуги', { exact: true })).toBeVisible();
+  await expect(panel.getByText('Укажите длительность в минутах, например 60', { exact: true })).toBeVisible();
+  await expect(panel.getByText('Укажите цену, например 5000', { exact: true })).toBeVisible();
+  await expect(panel.getByLabel('Название')).toHaveAttribute('aria-invalid', 'true');
+});
+
 test('ошибки услуги словами, введённое не стирается', async ({ page, request }) => {
   await openSalon(page, request);
   await page.goto('/beauty/services');
@@ -418,7 +437,9 @@ test('типовая услуга подставляет поля, цена вв
   // на приёмке ввели 5000 в поле «тиын» и получили 50 тенге: теперь 5000 это 5 000 тенге
   await panel.getByLabel(/Цена каталога/).fill('5000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(panel.getByRole('status')).toContainText('Услуга добавлена в филиал');
+  // новая услуга сразу в филиале: окно закрывается, итог в уведомлении (аудит салона 22.10.2026)
+  await expect(page.getByTestId('toast-stack')).toContainText('Услуга добавлена в филиал');
+  await expect(panel).toBeHidden();
   await page.goto('/beauty/services');
   await expect(
     page.getByRole('main').locator('[data-service-list="catalog"] .beauty-service-item').filter({ has: page.getByText('Маникюр', { exact: true }) }),
@@ -444,8 +465,9 @@ test('стартовая услуга справа требует цену и п
   await panel.getByLabel(/Цена каталога/).fill('35.50');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
   // типовая услуга сразу попадает в филиал, второй кнопки не нужно (онбординг на живом сайте, 21.10.2026)
-  await expect(panel.getByRole('status')).toContainText('Услуга добавлена в филиал');
-  await expect(panel.getByLabel('Филиал оказывает эту услугу')).toBeChecked();
+  // новая услуга сразу в филиале: окно закрывается, итог в уведомлении (аудит салона 22.10.2026)
+  await expect(page.getByTestId('toast-stack')).toContainText('Услуга добавлена в филиал');
+  await expect(panel).toBeHidden();
   await page.goto('/beauty/services');
   await expect(
     main.locator('[data-service-list="salon"] .beauty-service-item').filter({ has: page.getByText('Стрижка мужская', { exact: true }) }),

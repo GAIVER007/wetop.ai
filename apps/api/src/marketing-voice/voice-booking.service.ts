@@ -7,6 +7,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  Optional,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.provider';
@@ -17,6 +18,7 @@ import {
   type IntentQuote,
 } from '../web-booking/booking-intents.service';
 import { WebBookingService } from '../web-booking/web-booking.service';
+import { VoicePhoneLimit } from './voice-phone-limit';
 import { VOICE_INGEST_REPOSITORY, type AgentProfile, type VoiceIngestRepository } from './voice-ingest.repository';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -39,6 +41,8 @@ export interface VoiceBookingStore {
   countConfirmed(agentId: string, callId: string): Promise<number>;
   countCreated(agentId: string, callId: string): Promise<number>;
   intentOf(intentId: string): Promise<VoiceIntentRow | null>;
+  /** Хэш телефона подтверждённой котировки для суточного лимита (миграция 149) */
+  stampPhoneHash(intentId: string, hash: string): Promise<void>;
 }
 
 @Injectable()
@@ -53,6 +57,13 @@ export class PrismaVoiceBookingStore implements VoiceBookingStore {
 
   countCreated(agentId: string, callId: string): Promise<number> {
     return this.prisma.db.sellerBookingIntent.count({ where: { agentId, conversationId: callId, channel: 'voice' } });
+  }
+
+  async stampPhoneHash(intentId: string, hash: string): Promise<void> {
+    await this.prisma.db.sellerBookingIntent.updateMany({
+      where: { id: intentId, channel: 'voice', state: 'CONFIRMED', guestPhoneHash: null },
+      data: { guestPhoneHash: hash },
+    });
   }
 
   async intentOf(intentId: string): Promise<VoiceIntentRow | null> {
@@ -96,6 +107,7 @@ export class VoiceBookingService {
     @Inject(WebBookingService) private readonly web: WebBookingService,
     @Inject(BookingIntentsService) private readonly intents: BookingIntentsService,
     @Inject(VOICE_BOOKING_STORE) private readonly store: VoiceBookingStore,
+    @Optional() @Inject(VoicePhoneLimit) private readonly phoneLimit?: VoicePhoneLimit,
   ) {}
 
   async availability(raw: unknown, now: Date = new Date()): Promise<VoiceAvailability> {
@@ -157,6 +169,10 @@ export class VoiceBookingService {
       throw new NotFoundException('Предложение не найдено');
     if (row.state !== 'CONFIRMED' && (await this.store.countConfirmed(agent, call)) >= profile.booking.maxPerCall)
       throw new ConflictException('За один звонок забронировано максимум: дальше только через администратора');
+    const phone = obj(b.guest).phone;
+    const phoneHash = this.phoneLimit?.hashOf(phone) ?? null;
+    if (row.state !== 'CONFIRMED' && (await this.phoneLimit?.reached(agent, phoneHash, profile.booking.maxPerPhoneDay, now)))
+      throw new ConflictException('За сутки с этого телефона забронировано максимум: дальше только через администратора');
     const pendingApproval = profile.booking.needsApproval;
     const booking = await this.intents.confirm(
       {
@@ -168,6 +184,7 @@ export class VoiceBookingService {
       now,
       { channels: VOICE_CHANNELS, ...(pendingApproval ? { notes: PENDING_NOTE } : {}) },
     );
+    if (phoneHash && row.state !== 'CONFIRMED') await this.store.stampPhoneHash(intentId, phoneHash);
     return { ...booking, pendingApproval };
   }
 

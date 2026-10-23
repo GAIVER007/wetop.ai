@@ -6,6 +6,7 @@ import { WebBookingModule } from '../web-booking/web-booking.module';
 import { MarketingVoiceController } from './marketing-voice.controller';
 import { MARKETING_VOICE_REPOSITORY, PrismaMarketingVoiceRepository } from './marketing-voice.repository';
 import { MarketingVoiceService } from './marketing-voice.service';
+import { PHONE_HASH_KEY, PHONE_LIMIT_STORE, PrismaPhoneLimitStore, VoicePhoneLimit } from './voice-phone-limit';
 import { PrismaVoiceQuoteStore, VOICE_QUOTE_STORE, VoiceBeautyService } from './voice-beauty.service';
 import { VoiceBookingController } from './voice-booking.controller';
 import { VoiceFoodService } from './voice-food.service';
@@ -29,6 +30,10 @@ import { VoiceIngestService } from './voice-ingest.service';
     VoiceBeautyService,
     VoiceFoodService,
     VoiceBookingRouter,
+    // суточный лимит на телефон (миграция 149): секрет из окружения, пока его нет лимит выключен
+    { provide: PHONE_HASH_KEY, useFactory: () => process.env.VOICE_PHONE_HASH_KEY?.trim() || undefined },
+    { provide: PHONE_LIMIT_STORE, useClass: PrismaPhoneLimitStore },
+    VoicePhoneLimit,
     { provide: MARKETING_VOICE_REPOSITORY, useClass: PrismaMarketingVoiceRepository },
     MarketingVoiceService,
   ],

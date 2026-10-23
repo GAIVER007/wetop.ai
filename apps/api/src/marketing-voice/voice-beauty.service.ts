@@ -8,6 +8,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { normalizePhone } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
@@ -16,6 +17,7 @@ import {
   type VoiceBeautyCatalog,
 } from '../site-forms/site-forms.service';
 import { UUID, obj, str, voiceGate } from './voice-gate';
+import { VoicePhoneLimit } from './voice-phone-limit';
 import { VOICE_INGEST_REPOSITORY, type VoiceIngestRepository } from './voice-ingest.repository';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -55,7 +57,7 @@ export interface VoiceQuoteStore {
   create(row: Omit<VoiceQuoteRow, 'id' | 'state' | 'resultId'>): Promise<VoiceQuoteRow>;
   find(id: string): Promise<VoiceQuoteRow | null>;
   /** Один переход из QUOTED; false: уже не QUOTED */
-  settle(id: string, state: Exclude<VoiceQuoteState, 'QUOTED'>, resultId?: string): Promise<boolean>;
+  settle(id: string, state: Exclude<VoiceQuoteState, 'QUOTED'>, resultId?: string, guestPhoneHash?: string | null): Promise<boolean>;
 }
 
 @Injectable()
@@ -100,10 +102,11 @@ export class PrismaVoiceQuoteStore implements VoiceQuoteStore {
     return found ? toRow(found) : null;
   }
 
-  async settle(id: string, state: Exclude<VoiceQuoteState, 'QUOTED'>, resultId?: string): Promise<boolean> {
+  async settle(id: string, state: Exclude<VoiceQuoteState, 'QUOTED'>, resultId?: string, guestPhoneHash?: string | null): Promise<boolean> {
     const done = await this.prisma.db.voiceBookingQuote.updateMany({
       where: { id, state: 'QUOTED' },
-      data: { state, resultId: resultId ?? null, updatedAt: new Date() },
+      // хэш телефона только у подтверждённой строки (CHECK миграции 149)
+      data: { state, resultId: resultId ?? null, updatedAt: new Date(), ...(state === 'CONFIRMED' && guestPhoneHash ? { guestPhoneHash } : {}) },
     });
     return done.count > 0;
   }
@@ -166,6 +169,7 @@ export class VoiceBeautyService {
     @Inject(VOICE_INGEST_REPOSITORY) private readonly repo: VoiceIngestRepository,
     @Inject(SiteFormsService) private readonly forms: SiteFormsService,
     @Inject(VOICE_QUOTE_STORE) private readonly store: VoiceQuoteStore,
+    @Optional() @Inject(VoicePhoneLimit) private readonly phoneLimit?: VoicePhoneLimit,
   ) {}
 
   async catalog(raw: unknown, now: Date = new Date()): Promise<VoiceBeautyCatalog> {
@@ -248,6 +252,7 @@ export class VoiceBeautyService {
     if (!name || name.length > NAME_MAX) throw new BadRequestException(`guest.name: от 1 до ${NAME_MAX} знаков`);
     if (!phone) throw new BadRequestException('guest.phone: не меньше 10 цифр');
     if (comment.length > COMMENT_MAX) throw new BadRequestException(`guest.comment: не больше ${COMMENT_MAX} знаков`);
+    const phoneHash = this.phoneLimit?.hashOf(phone) ?? null;
     const row = quoteId ? await this.store.find(quoteId) : null;
     if (!row || row.agentId !== agent || row.callRef !== call || row.kind !== 'APPOINTMENT')
       throw new NotFoundException('Предложение не найдено');
@@ -258,6 +263,7 @@ export class VoiceBeautyService {
         throw new ConflictException(STALE);
       }
       if ((await this.store.countConfirmed(agent, call)) >= profile.booking.maxPerCall) throw new ConflictException(MAX_REACHED);
+      if (await this.phoneLimit?.reached(agent, phoneHash, profile.booking.maxPerPhoneDay, now)) throw new ConflictException(PHONE_REACHED);
     }
     const sel = row.selection as { serviceId: string; employeeId: string | null; startsAt: string };
     let booked;
@@ -276,7 +282,7 @@ export class VoiceBeautyService {
       }
       throw e;
     }
-    if (row.state === 'QUOTED') await this.store.settle(row.id, 'CONFIRMED', booked.appointmentId);
+    if (row.state === 'QUOTED') await this.store.settle(row.id, 'CONFIRMED', booked.appointmentId, phoneHash);
     return {
       status: booked.status,
       service: booked.service.name,
@@ -301,4 +307,5 @@ export class VoiceBeautyService {
 }
 
 const STALE = 'Предложение устарело: нужны новые свободные окна и новое согласие';
+const PHONE_REACHED = 'За сутки с этого телефона забронировано максимум: дальше только через администратора';
 const MAX_REACHED = 'За один звонок записано максимум: дальше только через администратора';

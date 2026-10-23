@@ -42,15 +42,17 @@ class FakeStore implements VoiceQuoteStore {
     return made;
   }
   async find(id: string) { return this.rows.get(id) ?? null; }
-  async settle(id: string, state: VoiceQuoteRow['state'], resultId?: string) {
+  hashes = new Map<string, string | null>();
+  async settle(id: string, state: VoiceQuoteRow['state'], resultId?: string, guestPhoneHash?: string | null) {
     const r = this.rows.get(id);
     if (!r || r.state !== 'QUOTED') return false;
     this.rows.set(id, { ...r, state, resultId: resultId ?? null });
+    this.hashes.set(id, guestPhoneHash ?? null);
     return true;
   }
 }
 
-function make(opts: { profile?: AgentProfile | null; slots?: BeautySlotsResult; bookFails?: Error } = {}) {
+function make(opts: { profile?: AgentProfile | null; slots?: BeautySlotsResult; bookFails?: Error; limit?: unknown } = {}) {
   const store = new FakeStore();
   const booked: Array<{ req: unknown; key: string }> = [];
   const slotCalls: unknown[] = [];
@@ -68,7 +70,7 @@ function make(opts: { profile?: AgentProfile | null; slots?: BeautySlotsResult; 
     profile: async () => (opts.profile === undefined ? profile() : opts.profile),
     resolveAgent: async () => ({ organizationId: 'org-a', businessId: 'b', locationId: 'loc' }),
   };
-  const service = new VoiceBeautyService(repo as never, forms, store);
+  const service = new VoiceBeautyService(repo as never, forms, store, opts.limit as never);
   return { service, store, booked, slotCalls };
 }
 
@@ -174,3 +176,27 @@ describe('подтверждение', () => {
     expect(h.booked).toHaveLength(0);
   });
 });
+
+describe('суточный лимит на телефон', () => {
+  const limit = (reached: boolean) => ({ hashOf: (p: string) => `h${p.replace(/\D/g, '')}`, reached: async () => reached });
+  it('лимит достигнут: 409, записи нет, котировка остаётся действующей', async () => {
+    const h = make({ limit: limit(true) });
+    const q = await h.service.quote(quoteBody, NOW);
+    await expect(h.service.confirm(confirmBody(q.quote), NOW)).rejects.toBeInstanceOf(ConflictException);
+    expect(h.booked).toHaveLength(0);
+    expect(h.store.rows.get(q.quote)!.state).toBe('QUOTED');
+  });
+  it('лимит не достигнут: хэш телефона ставится вместе с подтверждением, номера в хэше нет', async () => {
+    const h = make({ limit: limit(false) });
+    const q = await h.service.quote(quoteBody, NOW);
+    await h.service.confirm(confirmBody(q.quote), NOW);
+    expect(h.store.hashes.get(q.quote)).toBe('h77001112233');
+  });
+  it('без лимита (нет секрета): запись проходит, хэша нет', async () => {
+    const h = make();
+    const q = await h.service.quote(quoteBody, NOW);
+    await h.service.confirm(confirmBody(q.quote), NOW);
+    expect(h.store.hashes.get(q.quote)).toBeNull();
+  });
+});
+

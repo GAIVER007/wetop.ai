@@ -48,10 +48,11 @@ interface Harness {
   quotes: unknown[];
   confirms: unknown[];
   availability: unknown[];
+  stamped: Array<{ id: string; hash: string }>;
 }
 
-function make(opts: { profile?: AgentProfile | null; confirmed?: number; created?: number; intent?: { agentId: string; conversationId: string; channel: string; state: string } | null } = {}): Harness {
-  const h: Harness = { service: undefined as never, quotes: [], confirms: [], availability: [] };
+function make(opts: { limit?: unknown; profile?: AgentProfile | null; confirmed?: number; created?: number; intent?: { agentId: string; conversationId: string; channel: string; state: string } | null } = {}): Harness {
+  const h: Harness = { service: undefined as never, quotes: [], confirms: [], availability: [], stamped: [] };
   const repo = { profile: async () => (opts.profile === undefined ? profile() : opts.profile) } as unknown as VoiceIngestRepository;
   const web = {
     quoteForAgent: async (agent: string, raw: unknown) => {
@@ -72,9 +73,12 @@ function make(opts: { profile?: AgentProfile | null; confirmed?: number; created
   const store: VoiceBookingStore = {
     countConfirmed: async () => opts.confirmed ?? 0,
     countCreated: async () => opts.created ?? 0,
+    stampPhoneHash: async (id: string, hash: string) => {
+      h.stamped.push({ id, hash });
+    },
     intentOf: async () => (opts.intent === undefined ? { agentId: AGENT, conversationId: CALL, channel: 'voice', state: 'QUOTED' } : opts.intent),
   };
-  h.service = new VoiceBookingService(repo, web, intents, store);
+  h.service = new VoiceBookingService(repo, web, intents, store, opts.limit as never);
   return h;
 }
 
@@ -180,3 +184,26 @@ describe('подтверждение', () => {
     await expect(replay.service.confirm(confirmBody)).resolves.toMatchObject({ confirmationNumber: 'WT-1' });
   });
 });
+
+describe('суточный лимит на телефон', () => {
+  const limit = (reached: boolean) => ({ hashOf: (p: string) => `h${p.replace(/\D/g, '')}`, reached: async () => reached });
+  it('лимит достигнут: 409, бронь не создаётся', async () => {
+    const h = make({ limit: limit(true) });
+    await expect(h.service.confirm(confirmBody)).rejects.toBeInstanceOf(ConflictException);
+    expect(h.confirms).toHaveLength(0);
+  });
+  it('не достигнут: после брони ставится хэш телефона; повтор уже подтверждённой не считается и не ставит хэш', async () => {
+    const h = make({ limit: limit(false) });
+    await h.service.confirm(confirmBody);
+    expect(h.stamped).toEqual([{ id: INTENT, hash: 'h77001112233' }]);
+    const replay = make({ limit: limit(true), intent: { agentId: AGENT, conversationId: CALL, channel: 'voice', state: 'CONFIRMED' } });
+    await expect(replay.service.confirm(confirmBody)).resolves.toMatchObject({ confirmationNumber: 'WT-1' });
+    expect(replay.stamped).toHaveLength(0);
+  });
+  it('без лимита (нет секрета) хэша нет', async () => {
+    const h = make();
+    await h.service.confirm(confirmBody);
+    expect(h.stamped).toHaveLength(0);
+  });
+});
+

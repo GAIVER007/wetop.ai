@@ -8,6 +8,7 @@ import { MARKETING_VOICE_REPOSITORY, PrismaMarketingVoiceRepository } from './ma
 import { MarketingVoiceService } from './marketing-voice.service';
 import { PrismaVoiceQuoteStore, VOICE_QUOTE_STORE, VoiceBeautyService } from './voice-beauty.service';
 import { VoiceBookingController } from './voice-booking.controller';
+import { VoiceFoodService } from './voice-food.service';
 import { VoiceBookingRouter } from './voice-booking.router';
 import { PrismaVoiceBookingStore, VOICE_BOOKING_STORE, VoiceBookingService } from './voice-booking.service';
 import { VoiceIngestController } from './voice-ingest.controller';
@@ -26,6 +27,7 @@ import { VoiceIngestService } from './voice-ingest.service';
     VoiceBookingService,
     { provide: VOICE_QUOTE_STORE, useClass: PrismaVoiceQuoteStore },
     VoiceBeautyService,
+    VoiceFoodService,
     VoiceBookingRouter,
     { provide: MARKETING_VOICE_REPOSITORY, useClass: PrismaMarketingVoiceRepository },
     MarketingVoiceService,

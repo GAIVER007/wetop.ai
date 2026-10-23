@@ -18,6 +18,7 @@ PATH_QUOTE = "/voice/booking-quotes"
 PATH_CONFIRM = "/voice/booking-quotes/confirm"
 PATH_BEAUTY_CATALOG = "/voice/beauty-catalog"
 PATH_BEAUTY_SLOTS = "/voice/beauty-slots"
+PATH_FOOD_AVAILABILITY = "/voice/food-availability"
 # Отказ по существу: нет мест, цена не задана, лимит звонка, выключено, чужая котировка. Остальное сбой связи или настройки
 REFUSAL_STATUSES = (400, 404, 409, 422, 429)
 
@@ -71,6 +72,20 @@ class VoiceBooking:
         return await self._send("POST", PATH_QUOTE, self._book_key, json=body)
 
     async def beauty_confirm(self, agent: str, call: str, quote: str, guest: dict) -> dict:
+        body = {"agent": agent, "call": call, "quote": quote, "consent": True, "guest": guest}
+        return await self._send("POST", PATH_CONFIRM, self._book_key, json=body)
+
+    # ---- ресторан: проверка свободного читается ключом приёма событий, котировка и бронь ключом записи голоса
+
+    async def food_availability(self, agent: str, call: str, date: str, time: str, party: int) -> dict:
+        params = {"agent": agent, "call": call, "date": date, "time": time, "party": str(party)}
+        return await self._send("GET", PATH_FOOD_AVAILABILITY, self._read_key, params=params)
+
+    async def food_quote(self, agent: str, call: str, date: str, time: str, party: int) -> dict:
+        body = {"agent": agent, "call": call, "date": date, "time": time, "party": party}
+        return await self._send("POST", PATH_QUOTE, self._book_key, json=body)
+
+    async def food_confirm(self, agent: str, call: str, quote: str, guest: dict) -> dict:
         body = {"agent": agent, "call": call, "quote": quote, "consent": True, "guest": guest}
         return await self._send("POST", PATH_CONFIRM, self._book_key, json=body)
 

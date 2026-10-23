@@ -4,6 +4,7 @@ import { Access } from '../auth/access.decorator';
 import { serviceKeyKind } from '../auth/auth.guard';
 import { VoiceBeautyService } from './voice-beauty.service';
 import { VoiceBookingRouter } from './voice-booking.router';
+import { VoiceFoodService } from './voice-food.service';
 import { VoiceBookingService } from './voice-booking.service';
 
 export const VOICE_BOOK_KEY_REQUIRED = 'Бронь по телефону создаёт только голосовой агент по своему ключу записи';
@@ -30,6 +31,7 @@ export class VoiceBookingController {
     @Inject(VoiceBookingService) private readonly service: VoiceBookingService,
     @Inject(VoiceBeautyService) private readonly beauty: VoiceBeautyService,
     @Inject(VoiceBookingRouter) private readonly router: VoiceBookingRouter,
+    @Inject(VoiceFoodService) private readonly food: VoiceFoodService,
   ) {}
 
   @Get('availability')
@@ -53,6 +55,14 @@ export class VoiceBookingController {
   beautySlots(@Req() request: ServiceRequest, @Query() query: Record<string, string>) {
     requireKey(request, 'voice-ingest');
     return this.beauty.slots(query);
+  }
+
+  /** Ресторан: можно ли принять бронь на дату, время и число гостей (период, правила, свободный стол без названия стола) */
+  @Get('food-availability')
+  @Header('Cache-Control', 'no-store')
+  foodAvailability(@Req() request: ServiceRequest, @Query() query: Record<string, string>) {
+    requireKey(request, 'voice-ingest');
+    return this.food.check(query);
   }
 
   @Post('booking-quotes')

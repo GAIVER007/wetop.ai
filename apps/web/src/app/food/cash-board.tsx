@@ -16,6 +16,7 @@ import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
 import { currencySign } from '../../lib/money';
 import { FOOD_PAYMENT_METHODS, type FoodCashView, type FoodPaymentMethod } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
+import { dayClock } from '../../lib/human-period';
 import { mutateCash } from '../cashbox/actions';
 import { useConfirm } from '../../components/use-confirm';
 
@@ -74,7 +75,10 @@ export function CashBoard({
   const [note, setNote] = useState('');
   const [checkMethod, setCheckMethod] = useState<FoodPaymentMethod>('CASH');
   const [counted, setCounted] = useState('');
-  const when = (iso: string) => localInput(iso, timezone).replace('T', ' ').slice(0, 16);
+  const when = (iso: string) => dayClock(iso, timezone);
+  /** Расход и возврат гостю уменьшают кассу: сумма со знаком «−» */
+  const signed = (o: FoodCashView['operations'][number]) =>
+    wholeTenge(o.kind === 'EXPENSE' ? `-${o.amountMinor}` : o.amountMinor, cash.currency);
   const run = (fn: () => ReturnType<typeof mutateCash>, reset: () => void) =>
     start(async () => {
       const result = await fn();
@@ -146,7 +150,7 @@ export function CashBoard({
                 {methodName(o.method)}
                 {o.methodTo ? ` → ${methodName(o.methodTo)}` : ''}
               </td>
-              <td>{wholeTenge(o.amountMinor, cash.currency)}</td>
+              <td>{signed(o)}</td>
               <td>
                 {o.employee ? `${o.employee}, ${o.period}` : (o.note ?? '')}
                 {o.appointmentId && o.appointmentStartsAt && (

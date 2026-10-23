@@ -6,7 +6,7 @@ import { Alert, Button, Field, Input, Select } from '../../../components/ui';
 import type { SharedOnboardingState } from '../../../lib/api';
 import { reloadOnboarding, saveOnboarding } from './actions';
 import { Icon, type IconName } from '../../../components/icon';
-import { setupPath, type BookingPreview, type SetupPathRow } from './setup-path';
+import { setupCountLine, setupPath, type BookingPreview, type SetupPathRow } from './setup-path';
 
 const TITLES: Record<string, string> = {
   profile: 'Основные сведения',
@@ -70,12 +70,6 @@ const NEXT: Array<{ href: string; icon: IconName; title: string; text: string; a
     action: 'Настроить зарплату',
   },
 ];
-const COUNTS: Record<string, string> = {
-  services: 'Доступных услуг',
-  masters: 'Мастеров филиала',
-  skills: 'Назначений услуг',
-  schedule: 'Пригодных сочетаний услуги и графика',
-};
 export function BeautyChecklist({
   initial,
   preview = null,
@@ -359,7 +353,7 @@ export function BeautyChecklist({
                       </p>
                       {status === 'done' && row.id !== 'profile' && (
                         <p className="setup-path__summary">
-                          {COUNTS[row.id]}: {row.count}
+                          {setupCountLine(row.id, row.count)}
                         </p>
                       )}
                       {status === 'done' && row.id === 'profile' && (

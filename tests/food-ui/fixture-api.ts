@@ -102,7 +102,8 @@ for (const [name, path, method] of [
 ] as const) {
   const descriptor = Object.getOwnPropertyDescriptor(FixtureController.prototype, name)!;
   method(path)(FixtureController.prototype, name, descriptor);
-  Access('desk')(FixtureController.prototype, name, descriptor);
+  // как настоящие /auth/me и /branches (право `self`): «Личный кабинет» официанта тоже их получает (§33.6)
+  Access(name === 'me' || name === 'branches' ? 'self' : 'desk')(FixtureController.prototype, name, descriptor);
 }
 Body()(FixtureController.prototype, 'save', 0);
 const module = await Test.createTestingModule({
@@ -216,7 +217,12 @@ app.use(
               });
             }
             if (req.path === '/__test/control') {
-              role = body.role === 'STAFF' ? 'STAFF' : 'OWNER';
+              role = body.role === 'STAFF' ? 'STAFF' : body.role === 'EMPLOYEE' ? 'EMPLOYEE' : 'OWNER';
+              // официант с телефона (§33.6): вход «Личного кабинета» привязан к сотруднику ресторана
+              if (typeof body.employeeId === 'string') {
+                await db.employee.updateMany({ where: { userId: user }, data: { userId: null } });
+                await db.employee.update({ where: { id: body.employeeId }, data: { userId: user } });
+              }
               await db.membership.update({
                 where: { userId_organizationId: { userId: user, organizationId: org } },
                 data: { role },

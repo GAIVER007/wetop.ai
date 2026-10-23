@@ -20,6 +20,7 @@ import {
 import { BLOCK_TYPE_RU } from '../../../lib/block-types';
 import { Icon } from '../../../components/icon';
 import { housekeepingStatus } from '../../../lib/status/housekeeping';
+import { HousekeeperPicker } from './housekeeper-picker';
 
 const TYPES: Array<[string, string]> = Object.entries(BLOCK_TYPE_RU);
 /**
@@ -32,20 +33,23 @@ const TYPES: Array<[string, string]> = Object.entries(BLOCK_TYPE_RU);
 type HkStatus = UnitCard['housekeepingStatus'];
 /** status-hint: что делать дальше одной фразой под шагами; кнопка названа результатом, словом статуса */
 const HK_NEXT: Record<HkStatus, string> = {
-  DIRTY: 'Когда горничная закончит — «Убрано». Доступной ячейка станет после проверки.',
-  CLEAN: 'После осмотра — «Проверено», и ячейка доступна. Если что-то не так — «Требует уборки».',
-  INSPECTED: 'Ячейка доступна для заселения. Испачкали — «Требует уборки», и цикл начнётся заново.',
+  DIRTY: 'Когда горничная закончит — «Убрано». Доступным номер станет после проверки.',
+  CLEAN: 'После осмотра — «Проверено», и номер доступен. Если что-то не так — «Требует уборки».',
+  INSPECTED: 'Номер доступен для заселения. Испачкали — «Требует уборки», и цикл начнётся заново.',
 };
 
 export function UnitActions({
   unit,
   today,
   blockPeriod,
+  housekeepers,
 }: {
   unit: UnitCard;
   today: string;
   /** Период из окошка шахматки (ТЗ v2 §31–32): форма блокировки открывается с ним */
   blockPeriod?: { dateFrom: string; dateTo: string } | undefined;
+  /** Сотрудники гостиницы для «Кто убирает» (22.10.2026); не переданы: выбора нет */
+  housekeepers?: ReadonlyArray<{ id: string; name: string; active: boolean }> | undefined;
 }) {
   const [blockState, blockAction, blockPending] = useActionState<UnitActionResult, FormData>(
     blockUnitAction.bind(null, unit.code),
@@ -70,6 +74,9 @@ export function UnitActions({
           ))}
         </ol>
         <p className="hint">{HK_NEXT[unit.housekeepingStatus]}</p>
+        {housekeepers && (
+          <HousekeeperPicker code={unit.code} current={unit.housekeepingAssignee ?? null} employees={housekeepers} />
+        )}
         <Row>
           {housekeepingTargets(unit.housekeepingStatus).map((k) => (
             <Button
@@ -90,7 +97,7 @@ export function UnitActions({
       </Panel>
       <Panel title="Блокировки (ремонт, вывод из продажи)">
         {unit.blocks.length === 0 && (
-          <p className="sub">Блокировок нет — ячейка в продаже. Закрыть её можно формой ниже.</p>
+          <p className="sub">Блокировок нет, номер в продаже. Закрыть её можно формой ниже.</p>
         )}
         {unit.blocks.map((b) => (
           <Row key={b.id} data-testid="block-row" className="hint--lg">
@@ -110,10 +117,10 @@ export function UnitActions({
               onClick={async () => {
                 // Снятая блокировка возвращает ячейку в продажу — её тут же может занять канал
                 const ok = await ask({
-                  title: `Снять блокировку с ячейки ${unit.code}?`,
+                  title: `Снять блокировку с номера ${unit.code}?`,
                   body: `${displayDate(b.dateFrom)} → ${displayDate(b.dateTo)} · ${
                     TYPES.find(([k]) => k === b.type)?.[1] ?? b.type
-                  }${b.reason ? ` · ${b.reason}` : ''}. Ячейка вернётся в продажу, и её сможет занять бронь.`,
+                  }${b.reason ? ` · ${b.reason}` : ''}. Номер вернётся в продажу, и его сможет занять бронь.`,
                   confirmLabel: 'Снять блокировку',
                 });
                 if (!ok) return;

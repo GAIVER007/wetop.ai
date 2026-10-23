@@ -1,6 +1,6 @@
 import { RequiresBusinessCapability } from '../auth/capability.decorator';
 import 'reflect-metadata';
-import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post, Put } from '@nestjs/common';
 import { UnitsService } from './units.service';
 import { Access } from '../auth/access.decorator';
 
@@ -34,5 +34,11 @@ export class UnitsController {
   @HttpCode(200)
   housekeeping(@Param('code') code: string, @Body() dto: { status?: string }) {
     return this.service.housekeeping(code, dto ?? {});
+  }
+
+  /** «Кто убирает» номер (DATA_MODEL §4.1, кабинет горничной 22.10.2026) */
+  @Put(':code/housekeeping-assignee')
+  housekeepingAssignee(@Param('code') code: string, @Body() dto: { employeeId?: unknown }) {
+    return this.service.setHousekeepingAssignee(code, dto ?? {});
   }
 }

@@ -36,7 +36,9 @@ export interface UnitCard {
     status: string;
     guestLabel: string;
   }>;
-  housekeepingHistory: Array<{ at: string; from: HousekeepingStatus; to: HousekeepingStatus }>;
+  housekeepingHistory: Array<{ at: string; from: HousekeepingStatus; to: HousekeepingStatus; by: string | null }>;
+  /** «Кто убирает» (DATA_MODEL §4.1, миграция 143); null = не назначено */
+  housekeepingAssignee: { id: string; name: string } | null;
   /** Когда место заведено и когда менялось в последний раз (в том числе сменой уборки), UTC ISO */
   createdAt: string;
   updatedAt: string;
@@ -50,8 +52,13 @@ export interface UnitsRepository {
     accommodationTypeId: string;
     accommodationTypeCode: string;
     housekeepingStatus: HousekeepingStatus;
+    housekeepingAssigneeId?: string | null;
   } | null>;
   card(code: string, from: string, to: string): Promise<UnitCard | null>;
+  /** Активный сотрудник того же бизнеса, что объект места (кандидат «Кто убирает») */
+  housekeepingEmployee(unitId: string, employeeId: string): Promise<{ id: string; name: string } | null>;
+  /** Назначение «Кто убирает» и его запись в журнале одной транзакцией */
+  setHousekeepingAssignee(unitId: string, employeeId: string | null, before: string | null): Promise<void>;
   /** Проживания ячейки, пересекающие [from, toExclusive) — блокировать занятую ячейку нельзя */
   staysOverlapping(
     unitId: string,
@@ -117,6 +124,7 @@ export class PrismaUnitsRepository implements UnitsRepository {
           accommodationTypeId: u.accommodationTypeId,
           accommodationTypeCode: u.accommodationType.code,
           housekeepingStatus: u.housekeepingStatus,
+          housekeepingAssigneeId: u.housekeepingAssigneeId,
         }
       : null;
   }
@@ -150,7 +158,12 @@ export class PrismaUnitsRepository implements UnitsRepository {
             },
           },
         },
-        housekeepingEvents: { orderBy: { createdAt: 'desc' }, take: 10 },
+        housekeepingEvents: {
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+          include: { employee: { select: { name: true } }, user: { select: { name: true, email: true } } },
+        },
+        housekeepingAssignee: { select: { id: true, name: true } },
       },
     });
     if (!u) return null;
@@ -189,7 +202,9 @@ export class PrismaUnitsRepository implements UnitsRepository {
         at: e.createdAt.toISOString(),
         from: e.fromStatus,
         to: e.toStatus,
+        by: e.employee?.name ?? e.user?.name ?? e.user?.email ?? null,
       })),
+      housekeepingAssignee: u.housekeepingAssignee,
     };
   }
   async staysOverlapping(unitId: string, from: string, toExclusive: string) {
@@ -238,12 +253,12 @@ export class PrismaUnitsRepository implements UnitsRepository {
       });
       if (busy.length)
         throw new ConflictException(
-          `В ячейке есть проживание: ${busy
-            .map(
-              (a) =>
-                `${a.reservationItem.reservation.confirmationNumber} (${iso(a.startDate)} → ${iso(a.endDate)})`,
-            )
-            .join(', ')} — сначала переселите`,
+          `В номере есть проживание: ${busy
+            .map((a) => {
+              const day = (d: Date) => iso(d).split('-').reverse().join('.');
+              return `${a.reservationItem.reservation.confirmationNumber} (${day(a.startDate)} – ${day(a.endDate)})`;
+            })
+            .join(', ')}. Сначала переселите`,
         );
       // Проверяем проданные проживания, включая ещё не назначенные на ячейку.
       // Уже закрытые ночи повторный блок не расходует: проверяем только новые интервалы.
@@ -327,14 +342,53 @@ export class PrismaUnitsRepository implements UnitsRepository {
       });
     });
   }
+  /**
+   * Статус и событие журнала одной транзакцией. Событие помнит, кто нажал, и чья это уборка: назначенный на место
+   * сотрудник («Кто убирает», DATA_MODEL §4.1), чтобы уборка горничной без входа шла в её сдельную оплату.
+   */
   async setHousekeeping(unitId: string, from: HousekeepingStatus, to: HousekeepingStatus) {
-    await this.prisma.db.$transaction([
-      this.prisma.db.inventoryUnit.update({
-        where: { id: unitId },
+    await this.prisma.db.$transaction(async (tx) => {
+      const changed = await tx.inventoryUnit.updateMany({
+        where: { id: unitId, housekeepingStatus: from },
         data: { housekeepingStatus: to },
-      }),
-      this.prisma.db.housekeepingEvent.create({
-        data: { inventoryUnitId: unitId, fromStatus: from, toStatus: to },
+      });
+      if (!changed.count) return;
+      const unit = await tx.inventoryUnit.findUniqueOrThrow({ where: { id: unitId }, select: { housekeepingAssigneeId: true } });
+      await tx.housekeepingEvent.create({
+        data: {
+          inventoryUnitId: unitId,
+          fromStatus: from,
+          toStatus: to,
+          userId: auditUserId(),
+          employeeId: from === 'DIRTY' && to === 'CLEAN' ? unit.housekeepingAssigneeId : null,
+        },
+      });
+    });
+  }
+  async housekeepingEmployee(unitId: string, employeeId: string) {
+    const unit = await this.prisma.db.inventoryUnit.findUnique({
+      where: { id: unitId },
+      select: { property: { select: { location: { select: { businessId: true } } } } },
+    });
+    const businessId = unit?.property.location?.businessId;
+    if (!businessId) return null;
+    return this.prisma.db.employee.findFirst({
+      where: { id: employeeId, businessId, status: 'ACTIVE' },
+      select: { id: true, name: true },
+    });
+  }
+  async setHousekeepingAssignee(unitId: string, employeeId: string | null, before: string | null) {
+    await this.prisma.db.$transaction([
+      this.prisma.db.inventoryUnit.update({ where: { id: unitId }, data: { housekeepingAssigneeId: employeeId } }),
+      this.prisma.db.auditLog.create({
+        data: {
+          userId: auditUserId(),
+          entityType: 'InventoryUnit',
+          entityId: unitId,
+          action: 'unit.housekeeping_assignee',
+          before: toJson({ employeeId: before }),
+          after: toJson({ employeeId }),
+        },
       }),
     ]);
   }

@@ -30,6 +30,14 @@ describe('«Помощь» из меню направления', () => {
     expect(html).toContain('создайте первую запись');
     expect(html).toContain('длительность');
   });
+  it('ресторан: шаг про персонал без салонного «оказывает услуги» (аудит 22.10.2026, P2-7)', async () => {
+    Object.assign(shell, { vertical: 'FOOD_SERVICE', scopeKey: 'b:l', access: { ...CLOSED_ACCESS, role: 'OWNER' } });
+    const html = renderToStaticMarkup(await HelpPage());
+    expect(html).not.toContain('оказывает услуги');
+    expect(html).toContain('добавьте официантов, поваров и администраторов');
+    Object.assign(shell, { vertical: 'BEAUTY' });
+    expect(renderToStaticMarkup(await HelpPage())).toContain('добавьте мастеров');
+  });
   it('unknown context shows neutral help', async () => {
     shell.scopeKey = undefined;
     const html = renderToStaticMarkup(await HelpPage());

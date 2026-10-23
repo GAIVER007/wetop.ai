@@ -140,7 +140,7 @@ test('occupied selection stays visible and cannot silently become unassigned', a
   await expect(unit).toHaveValue('M03');
   await expect(unit).toHaveAttribute('aria-invalid', 'true');
   await expect(form.getByRole('button', { name: 'Создать бронь', exact: true })).toBeDisabled();
-  await expect(form.getByText(/Выбранная ячейка M03 недоступна/)).toBeVisible();
+  await expect(form.getByText(/Выбранный номер M03 недоступен/)).toBeVisible();
   await unit.selectOption('');
   await expect(form.getByRole('button', { name: 'Создать бронь', exact: true })).toBeEnabled();
 });

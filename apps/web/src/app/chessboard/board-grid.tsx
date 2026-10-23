@@ -767,8 +767,8 @@ export function ChessboardGrid({
         const hk = t.housekeeping as keyof typeof HOUSEKEEPING_RU | undefined;
         if (hk && hk !== 'INSPECTED') {
           const ok = await ask({
-            title: `Ячейка ${t.unitCode} ещё не проверена. Заселить?`,
-            body: `Сейчас ${HOUSEKEEPING_RU[hk]}. Гость заезжает в проверенную ячейку; заселение не запрещено, но нужно ваше подтверждение.`,
+            title: `Номер ${t.unitCode} ещё не проверен. Заселить?`,
+            body: `Сейчас ${HOUSEKEEPING_RU[hk]}. Гость заезжает в проверенный номер; заселение не запрещено, но нужно ваше подтверждение.`,
             confirmLabel: 'Заселить всё равно',
             tone: 'primary',
           });

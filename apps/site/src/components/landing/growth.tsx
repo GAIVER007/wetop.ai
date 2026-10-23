@@ -4,7 +4,6 @@ import aiStyles from './growth-ai.module.css';
 import { getDictionary } from '../../i18n';
 import type { IconName } from '../icon';
 import { registerLink } from '../../lib/site';
-import { siteConfig } from '../../site.config';
 import { Icon } from '../icon';
 import { SectionHeading } from '../section-heading';
 import { typo } from '../typo';
@@ -17,7 +16,8 @@ import { typo } from '../typo';
  */
 export function Growth() {
   const { growth } = getDictionary();
-  const appUrl = siteConfig.appUrl.replace(/\/+$/, '');
+  // Витрины ведут на регистрацию (аудит 22.10.2026, P1-11): ссылка в стойку открывала гостю экран входа
+  const register = registerLink().href;
   return (
     <section id="sales" className="section section--band growth" aria-labelledby="growth-title">
       <div className="container">
@@ -35,11 +35,7 @@ export function Growth() {
             {...growth.sales}
             action={
               <>
-                <a
-                  className="btn btn--primary growth__action"
-                  href={registerLink().href}
-                  data-auth="register"
-                >
+                <a className="btn btn--primary growth__action" href={register} data-auth="register">
                   {growth.sales.action}
                   <Icon name="arrowRight" size={16} />
                 </a>
@@ -54,7 +50,7 @@ export function Growth() {
             tone="marketing"
             {...growth.market}
             action={
-              <a className="btn btn--primary growth__action" href={`${appUrl}/market`}>
+              <a className="btn btn--primary growth__action" href={register} data-auth="register">
                 {growth.market.action}
                 <Icon name="arrowRight" size={16} />
               </a>
@@ -68,7 +64,7 @@ export function Growth() {
             {...growth.ai}
             action={
               <>
-                <a className="btn btn--primary growth__action" href={`${appUrl}/ai-seller/agents`}>
+                <a className="btn btn--primary growth__action" href={register} data-auth="register">
                   {growth.ai.action}
                   <Icon name="arrowRight" size={16} />
                 </a>

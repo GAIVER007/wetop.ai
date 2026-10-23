@@ -36,6 +36,7 @@ const routes: Record<WebVertical, string[]> = {
     '/dining-areas',
     '/orders',
     '/kitchen',
+    '/waiter',
     '/menu',
     '/stock',
     // `/payroll` общий для ресторана и салона (зарплата §19.2): страница сама зовёт requireVertical

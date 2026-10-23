@@ -9,7 +9,9 @@ import {
 } from 'react';
 import {
   MEMBERSHIP_ROLES,
+  accessLevelsFor,
   invitableRoles,
+  type AccessLevel,
   type InviteRole,
   type MembershipRole,
 } from '@pms/domain';
@@ -39,8 +41,10 @@ import {
   toScopes,
   type ScopeModel,
 } from './scope-model';
+import { createHotelEmployeeAction } from '../hotel-staff/actions';
 import {
   inviteAction,
+  inviteNewStaffAction,
   removeMemberAction,
   resendInviteAction,
   revokeInviteAction,
@@ -50,6 +54,7 @@ import {
   setMemberSuspendedAction,
   type TeamActionResult,
 } from '../login/actions';
+import { formatPhone, formatPhoneInput } from '../../lib/phone';
 
 /**
  * «Сотрудники» (TEAM1, план `plans/settings-hub-2026-10-02.md`): команда — видимый раздел, а не секция
@@ -140,8 +145,16 @@ function InviteForm({
   vertical?: string;
 }) {
   const team = useContext(TeamContext);
-  // «Личный кабинет» выдаётся из формы «Новый сотрудник» (вход привязывается к карточке сотрудника), здесь его нет
+  // «Личный кабинет» привязан к карточке сотрудника: у салона и ресторана он выдаётся из формы «Новый сотрудник».
+  // У гостиницы своей формы сотрудника нет, поэтому здесь все четыре уровня (кабинет горничной, решение 22.10.2026):
+  // «Без входа» и «Личный кабинет» сначала создают сотрудника гостиницы, приглашение уходит с его карточкой.
+  const hotel = vertical === 'HOSPITALITY';
   const roles = invitableRoles(role).filter((r) => r !== 'EMPLOYEE');
+  const levels: AccessLevel[] = hotel
+    ? accessLevelsFor(role)
+    : roles.filter((r): r is 'MANAGER' | 'STAFF' => r === 'MANAGER' || r === 'STAFF');
+  const [level, setLevel] = useState<AccessLevel>('STAFF');
+  const personal = level === 'NONE' || level === 'PORTAL';
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -162,6 +175,39 @@ function InviteForm({
         }
         start(async () => {
           setError('');
+          if (personal) {
+            const name = [firstName.trim(), lastName.trim()].filter(Boolean).join(' ');
+            if (!name) {
+              setError('Укажите имя сотрудника.');
+              return;
+            }
+            if (level === 'PORTAL' && !email.trim()) {
+              setError('Для входа в WETOP укажите почту: на неё придёт приглашение.');
+              return;
+            }
+            const created = await createHotelEmployeeAction({
+              name,
+              ...(phone.trim() ? { phone: phone.trim() } : {}),
+              ...(email.trim() ? { email: email.trim() } : {}),
+            });
+            if (created.error || !created.id) {
+              setError(created.error ?? 'Не удалось добавить сотрудника.');
+              return;
+            }
+            if (level === 'PORTAL') {
+              const invited = await inviteNewStaffAction({ employeeId: created.id, level, email: email.trim(), allBranches: false });
+              if (invited.error) {
+                setError(`Сотрудник добавлен, но приглашение не ушло: ${invited.error}`);
+                return;
+              }
+            }
+            setEmail('');
+            setFirstName('');
+            setLastName('');
+            setPhone('');
+            onDone();
+            return;
+          }
           if (restricted && !scopeSelectionValid(structure, model)) {
             setError('Структура доступа изменилась. Проверьте выбранные филиалы.');
             return;
@@ -226,8 +272,8 @@ function InviteForm({
           type="email"
           name="inviteEmail"
           autoComplete="off"
-          placeholder="admin@hotel.com"
-          required
+          placeholder="name@company.kz"
+          required={level !== 'NONE'}
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
@@ -235,9 +281,12 @@ function InviteForm({
       {/* единый блок доступа во всех направлениях (решение владельца 20.10.2026): уровни, «Увидит / Не увидит» */}
       <StaffAccessPicker
         vertical={vertical}
-        levels={roles.filter((r): r is 'MANAGER' | 'STAFF' => r === 'MANAGER' || r === 'STAFF')}
-        value={{ level: inviteRole === 'MANAGER' ? 'MANAGER' : 'STAFF', allBranches: !restricted }}
-        onChange={(next) => setInviteRole(next.level === 'MANAGER' ? 'MANAGER' : 'STAFF')}
+        levels={levels}
+        value={{ level, allBranches: !restricted }}
+        onChange={(next) => {
+          setLevel(next.level);
+          if (next.level === 'MANAGER' || next.level === 'STAFF') setInviteRole(next.level);
+        }}
         branchName={null}
         canAllBranches
         email={email}
@@ -255,12 +304,12 @@ function InviteForm({
           name="invitePhone"
           inputMode="tel"
           autoComplete="off"
-          placeholder="8 701 000 00 00"
+          placeholder="+7 701 000 00 00"
           value={phone}
-          onChange={(event) => setPhone(event.target.value)}
+          onChange={(event) => setPhone(formatPhoneInput(event.target.value))}
         />
       </Field>
-      {structure && (
+      {structure && !personal && (
         <ScopeEditor
           structure={structure}
           roles={roles}
@@ -275,7 +324,7 @@ function InviteForm({
       {error && <Alert>{error}</Alert>}
       <div className="team-invite-form__actions">
         <Button type="submit" disabled={pending || !structure || !team?.ready}>
-          {pending ? 'Отправляю…' : 'Отправить приглашение'}
+          {pending ? 'Отправляю…' : level === 'NONE' ? 'Добавить сотрудника' : 'Отправить приглашение'}
         </Button>
         <Button type="button" tone="secondary" onClick={onDone}>
           Отмена
@@ -367,7 +416,7 @@ export function MembersTable({
                   <span className="staff-person__role team-member-sub">
                     {m.position ?? (m.name ? m.email : roleLabel(m.role))}
                     {/* на телефоне колонки телефона, роли и дат скрыты: они строками под именем */}
-                    {m.phone ? <span className="team-sub-role">{m.phone}</span> : null}
+                    {m.phone ? <span className="team-sub-role">{formatPhone(m.phone)}</span> : null}
                     <span className="team-sub-role">{roleLabel(m.role)}</span>
                     <span className="team-sub-role">
                       {m.lastLoginAt ? `был в системе ${displayDate(m.lastLoginAt.slice(0, 10))}` : 'ещё не входил'}
@@ -381,7 +430,7 @@ export function MembersTable({
             key: 'phone',
             label: 'Телефон',
             className: 'settings-col-wide',
-            cell: (m) => (m.phone ? <a href={`tel:${m.phone}`}>{m.phone}</a> : <span className="muted">не указан</span>),
+            cell: (m) => (m.phone ? <a href={`tel:${m.phone}`}>{formatPhone(m.phone)}</a> : <span className="muted">не указан</span>),
           },
           {
             key: 'role',
@@ -614,7 +663,7 @@ function ScopeForm({
 
 /** Телефон и должность (TEAM2, Q-244): пустое поле стирает значение; отказ API: словами, ввод остаётся */
 function DetailsForm({ member, onDone }: { member: AuthMember; onDone: () => void }) {
-  const [phone, setPhone] = useState(member.phone ?? '');
+  const [phone, setPhone] = useState(formatPhone(member.phone));
   const [position, setPosition] = useState(member.position ?? '');
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
@@ -640,9 +689,9 @@ function DetailsForm({ member, onDone }: { member: AuthMember; onDone: () => voi
           name="memberPhone"
           inputMode="tel"
           autoComplete="off"
-          placeholder="8 701 000 00 00"
+          placeholder="+7 701 000 00 00"
           value={phone}
-          onChange={(event) => setPhone(event.target.value)}
+          onChange={(event) => setPhone(formatPhoneInput(event.target.value))}
         />
       </Field>
       <Field label="Подпись под именем (необязательно)">

@@ -2,6 +2,7 @@ import type { BeautyDay } from '../../lib/api';
 import { beautyStatus } from '../../lib/status/beauty';
 import { localInput } from '../beauty/time';
 import { csvField, csvTenge } from './csv';
+import { appointmentSourceLabel } from '../../lib/appointment-source';
 
 const clock = (minutes: number) =>
   `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
@@ -53,7 +54,7 @@ export function appointmentsCsv(days: CsvDay[]): string {
               : (names.get(a.employeeId) ?? 'Мастер'),
             a.items?.length ? a.items.map((item) => item.serviceName).join(', ') : a.serviceName,
             beautyStatus[a.status].label,
-            a.source === 'WEBSITE' ? 'Сайт' : 'Стойка',
+            appointmentSourceLabel(a.source),
             a.createdByName ?? '',
             a.currency,
             csvTenge(a.priceMinor),

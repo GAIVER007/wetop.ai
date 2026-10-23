@@ -1464,32 +1464,27 @@ body:has(.org-reference) .topmenu {
 }
 .org-month {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: var(--space-1);
 }
-.org-month form {
-  display: flex;
-  align-items: end;
-  gap: var(--space-1);
-}
-.org-month label {
-  display: grid;
-  gap: var(--space-1);
-  color: var(--muted);
-  font-size: var(--text-xs);
-}
-.org-month input {
-  background: var(--surface);
-  color: var(--text);
+/* Подпись месяца «октябрь 2026» между стрелками (P1-1b): своя, а не родное поле type=month */
+.org-month__label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 132px;
+  height: var(--control-h);
+  padding: 0 var(--space-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: var(--space-1);
-  min-height: var(--control-h);
-  max-width: 158px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
   box-sizing: border-box;
 }
 .org-month a,
-.org-month button,
 .org-archive-open {
   display: inline-flex;
   align-items: center;
@@ -1719,49 +1714,17 @@ body:has(.org-reference) .topmenu {
   }
 }
 
-/* Keep month navigation, input and submit on a single baseline. */
-.org-month input,
-.org-month a,
-.org-month button {
+/* Keep month arrows and the month label on a single baseline. */
+.org-month a {
   height: var(--control-h);
   min-height: var(--control-h);
   box-sizing: border-box;
-  font: inherit;
-  font-size: var(--text-sm);
-  line-height: 20px;
-}
-.org-month input {
-  width: 168px;
-  max-width: 168px;
-  padding: var(--space-2) var(--space-2);
-}
-.org-month a {
   width: 40px;
   padding: 0;
   flex: none;
 }
-.org-month button {
-  padding: var(--space-2) var(--space-2);
-  cursor: pointer;
-}
-.org-month label {
-  gap: var(--space-1);
-}
-.org-month label > span {
-  font-size: var(--text-xs);
-  line-height: 16px;
-}
 .org-heading-controls {
   align-items: flex-end;
-}
-@media (max-width: 600px) {
-  .org-month input {
-    width: 152px;
-    max-width: 152px;
-  }
-  .org-month button {
-    padding-inline: var(--space-2);
-  }
 }
 
 .org-reference .org-panel-note {
@@ -2069,8 +2032,7 @@ body:has(.org-reference) .topmenu {
 /* телефон: контролы месяца и «Архив» — цель касания 44 px; хвостом файла, позже правила ~1742 (аудит UI5) */
 @media (max-width: 600px) {
   .org-month a,
-  .org-month button,
-  .org-month input,
+  .org-month__label,
   .org-archive-open {
     height: auto;
     min-height: var(--touch-target);
@@ -2106,25 +2068,13 @@ body:has(.org-reference) .topmenu {
 }
 .org-reference .org-card-footer { margin-top: var(--space-4); }
 
-/* итоги месяца одной строкой вместо ряда плиток (21.10.2026): как строка итогов склада */
-.org-reference .org-totals,
-.org-totals {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-6);
-  margin: 0;
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface-solid);
+/* итоги месяца одной строкой под списком объектов (аудит 22.10.2026 P1-3a): строка `money-summary` из
+   finance/summary.css, здесь только отступ от карточек и пустая фраза */
+.org-reference .org-totals {
+  margin: var(--space-4) 0 var(--space-1);
+}
+.org-reference .org-totals-note {
+  margin: var(--space-4) 0 0;
   color: var(--text-2);
   font-size: var(--text-sm);
-}
-.org-totals i {
-  font-style: normal;
-}
-.org-totals b {
-  color: var(--text);
-  font-weight: var(--weight-semibold);
-  overflow-wrap: anywhere;
 }

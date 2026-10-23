@@ -83,3 +83,18 @@ describe('verified shell scope before domain reads', () => {
     vi.unstubAllEnvs();
   });
 });
+
+// Живой аудит 21.10.2026: «Личный кабинет» без выбранного филиала получал меню администратора гостиницы
+describe('«Личный кабинет» без выбранного филиала', () => {
+  it('роль EMPLOYEE сохраняется: меню и закрытые страницы не становятся «как у администратора»', async () => {
+    me.mockResolvedValue({
+      user: { email: 'e@example.invalid', name: 'Мастер', role: 'EMPLOYEE' },
+      context: null,
+    });
+    const { deskShell } = await import('./desk-shell');
+    const shell = await deskShell();
+    expect(shell.branchNeeded).toBe(true);
+    expect(shell.access.role).toBe('EMPLOYEE');
+    expect(shell.access.unknown).toBeUndefined();
+  });
+});

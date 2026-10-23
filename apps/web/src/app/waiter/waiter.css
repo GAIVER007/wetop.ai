@@ -1,0 +1,177 @@
+@layer sections {
+  /* ── Экран официанта с телефона (§33.6): мобильный первый, кнопки не меньше --touch-target ── */
+  .waiter-board {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+    padding-bottom: var(--space-16);
+  }
+  .waiter-tabs > button {
+    min-height: var(--touch-target);
+  }
+  .waiter-tabs__ready {
+    color: var(--success);
+    font-weight: 600;
+  }
+  .waiter-floor,
+  .waiter-area {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .waiter-area h2 {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .waiter-tables {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .waiter-table {
+    display: grid;
+    gap: var(--space-1);
+    width: 100%;
+    min-height: calc(var(--touch-target) * 2);
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .waiter-table small {
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .waiter-table[data-busy] {
+    border-color: var(--warning-border);
+    background: var(--warning-bg);
+  }
+  .waiter-table[data-mine] {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+  }
+  .waiter-table:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+  }
+  .waiter-take {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .waiter-take__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .waiter-take__head .btn,
+  .waiter-guests .btn {
+    min-height: var(--touch-target);
+    min-width: var(--touch-target);
+  }
+  .waiter-take__title {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .waiter-guests {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-left: auto;
+  }
+  .waiter-take .rest-pos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+  .waiter-take .rest-pos-dish {
+    min-height: var(--touch-target);
+  }
+  .waiter-take .rest-order-qty .btn {
+    min-height: var(--touch-target);
+    min-width: var(--touch-target);
+  }
+  /* корзина прижата к низу экрана телефона: позиции и «Отправить» всегда под рукой */
+  .waiter-cart {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--layer-base);
+    display: grid;
+    gap: var(--space-2);
+    max-height: 50vh;
+    overflow-y: auto;
+    padding: var(--space-2) var(--space-4) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .waiter-send {
+    width: 100%;
+    min-height: var(--touch-target);
+  }
+  .waiter-orders {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .waiter-order {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .waiter-order header,
+  .waiter-order footer {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .waiter-order ul {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .waiter-order li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--touch-target);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-control);
+  }
+  .waiter-order li[data-status='READY'] {
+    background: var(--success-soft);
+    font-weight: 600;
+  }
+  .waiter-order li[data-status='SERVED'] {
+    color: var(--muted);
+  }
+  .waiter-order__name {
+    display: grid;
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+  .waiter-order__name small {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-weight: 400;
+  }
+  .waiter-order__status {
+    font-size: var(--text-sm);
+  }
+  .waiter-order li[data-status='READY'] .waiter-order__status {
+    color: var(--success);
+  }
+  .waiter-order li .btn {
+    min-height: var(--touch-target);
+  }
+}

@@ -58,7 +58,7 @@ test('бронь без ячейки видна в блоке «Без ячей�
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   const number = page.url().split('/').pop()!;
   await cardTab(page, 'Действия');
-  await expect(page.getByText('ячейка не назначена').first()).toBeVisible();
+  await expect(page.getByText('номер не назначен').first()).toBeVisible();
 
   // ── шахматка: строка над сеткой и ящик «Брони без размещения» (ТЗ «Шахматка v2» §11–12) ──────
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);

@@ -20,6 +20,7 @@ import {
   fromPriceMinor,
   fromPriceWindow,
   hostMatches,
+  normalizeHost,
   localDate,
   parseBookingRequest,
   parseQuoteRequest,
@@ -673,7 +674,7 @@ export class WebBookingService {
       throw new NotFoundException('бронирование с сайта выключено или сайт не найден');
     }
     const fromOwnPage = !!ctx.originHost && !!ctx.ownHost && ctx.originHost === ctx.ownHost;
-    if (!fromOwnPage && !hostMatches(site.hosts, ctx.originHost)) {
+    if (!fromOwnPage && !fromAppDemo(ctx.originHost) && !hostMatches(site.hosts, ctx.originHost)) {
       throw new ForbiddenException('запрос не с домена сайта');
     }
     return this.assertServingProperty(site, SITE_NOT_SERVED);
@@ -740,4 +741,24 @@ export class WebBookingService {
       );
     }
   }
+}
+
+/**
+ * Хост стойки (`PUBLIC_APP_URL` или `APP_URL`): демо брони открывается внутри стойки за входом (`/website/booking/demo`),
+ * потому что `/w/demo` на адресе API наружу закрыт намеренно (живой аудит 21.10.2026: «Открыть демо» давал 404). Ключ
+ * сайта, включённое бронирование, тариф, Turnstile и лимиты проверяются как обычно; допускается только этот один хост.
+ */
+export function appDemoHost(env: NodeJS.ProcessEnv = process.env): string | null {
+  const raw = env.PUBLIC_APP_URL?.trim() || env.APP_URL?.trim();
+  if (!raw) return null;
+  try {
+    return normalizeHost(new URL(raw).host);
+  } catch {
+    return null;
+  }
+}
+
+function fromAppDemo(originHost: string | null): boolean {
+  const app = appDemoHost();
+  return !!app && !!originHost && normalizeHost(originHost) === app;
 }

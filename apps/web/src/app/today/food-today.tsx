@@ -2,32 +2,26 @@ import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
-import { BADGE_TONE, Badge, EmptyState, Panel, Stat, Stats } from '../../components/ui';
+import { BADGE_TONE, Badge, EmptyState, Panel } from '../../components/ui';
 import { LineChart } from '../../components/line-chart';
 import { Icon } from '../../components/icon';
 import { loadErrorProps } from '../../lib/load-error';
 import { displayDate } from '../../lib/display-date';
-import { wholeTenge, type Delta } from '../../lib/dashboard-format';
+import { wholeTenge } from '../../lib/dashboard-format';
 import { restaurantApi } from '../../lib/food-api';
 import { selectedWorkspaceBranch } from '../../lib/workspace-context';
 import { localInput } from '../beauty/time';
 import { pluralRu } from '../../lib/plural';
+import { tableTitle } from '../../lib/table-title';
 import { statusLabel, statusTone } from '../../lib/status/types';
 import { foodOrderStatus, foodStatus } from '../../lib/status/food';
 import { loadFoodToday } from './vertical-load';
+import { FoodTodayTotals } from './food-today-totals';
 import { birthdayOn } from '../food/guest-marks';
 import './vertical-today.css';
 import '../food/restaurant.css';
 
-const deltaOf = (pct: number | null): Delta | undefined =>
-  pct === null
-    ? undefined
-    : {
-        direction: pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat',
-        text: `${pct > 0 ? '+' : pct < 0 ? '−' : ''}${Math.abs(pct)} % к вчера`,
-      };
-
-/** «Главная» ресторана по макету владельца (ADR-159): плитки дня, выручка по часам, последние заказы */
+/** «Главная» ресторана по макету владельца (ADR-159): итоги дня строкой, выручка по часам, последние заказы */
 export async function FoodToday() {
   const loaded = await (async () => {
     const branch = await selectedWorkspaceBranch();
@@ -92,8 +86,6 @@ export async function FoodToday() {
       testId: 'today-attention-no-show',
     },
   ].filter((a): a is Exclude<typeof a, false> => Boolean(a));
-  const occupancyPct =
-    t.tablesTotal > 0 ? Math.round((t.tablesOccupied / t.tablesTotal) * 100) : null;
   const hourly = report.hourlyRevenueMinor.map((v) => Number(BigInt(v) / 100n));
   const hourLabels = report.hourlyRevenueMinor.map(
     (_, h) => `${String(h).padStart(2, '0')}:00`,
@@ -120,40 +112,16 @@ export async function FoodToday() {
       }
     >
       <div className="rest-dash" data-testid="food-today">
-        <Stats min={170} className="rest-kpis">
-          <Stat
-            label="Бронирования"
-            value={m.planned}
-            hint="впереди сегодня"
-            testId="today-planned"
-          />
-          <Stat
-            label="Ожидаемые гости"
-            value={expectedGuests}
-            testId="today-expected-guests"
-          />
-          <Stat
-            label="Гости в зале"
-            value={seatedGuests}
-            testId="today-seated-guests"
-          />
-          <Stat
-            label="Свободные столы"
-            value={freeTables}
-            hint={
-              occupancyPct === null
-                ? 'столы не настроены'
-                : `из ${t.tablesTotal}`
-            }
-            testId="today-tables"
-          />
-          <Stat
-            label="Выручка сегодня"
-            value={wholeTenge(t.revenueMinor, report.currency)}
-            delta={deltaOf(t.revenueDeltaPct)}
-            testId="today-revenue"
-          />
-        </Stats>
+        <FoodTodayTotals
+          planned={m.planned}
+          expectedGuests={expectedGuests}
+          seatedGuests={seatedGuests}
+          freeTables={freeTables}
+          tablesTotal={t.tablesTotal}
+          revenueMinor={t.revenueMinor}
+          currency={report.currency}
+          revenueDeltaPct={t.revenueDeltaPct}
+        />
         <div className="rest-dash-main">
           <Panel>
             <div className="food-section-heading">
@@ -182,7 +150,7 @@ export async function FoodToday() {
                       </td>
                       <th scope="row">{u.guest}</th>
                       <td className="muted">{pluralRu(u.partySize, ['гость', 'гостя', 'гостей'])}</td>
-                      <td className="muted">{u.table ? `Стол ${u.table}` : 'Без стола'}</td>
+                      <td className="muted">{u.table ? tableTitle(u.table) : 'Без стола'}</td>
                       <td>
                         <Badge tone={BADGE_TONE[statusTone(foodStatus, u.status)]}>
                           {foodStatus[u.status].label}
@@ -265,7 +233,7 @@ export async function FoodToday() {
               <div className="rest-latest" data-testid="today-latest-orders">
                 {report.latestOrders.map((o) => (
                   <div className="rest-latest-row" key={o.id}>
-                    <strong>{o.table ? `Стол ${o.table.name}` : `Заказ №${o.number}`}</strong>
+                    <strong>{o.table ? tableTitle(o.table.name) : `Заказ №${o.number}`}</strong>
                     <time>{clock(o.openedAt)}</time>
                     <span className="rest-latest-sum">
                       <strong>{wholeTenge(o.totalMinor, o.currency)}</strong>

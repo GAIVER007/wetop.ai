@@ -2,7 +2,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import type { PeriodOperations } from '../../apps/web/src/lib/api';
-import { dailyFlow, FinanceDynamics, FinanceKpis } from '../../apps/web/src/app/finance/finance-board';
+import { dailyFlow, FinanceDynamics, FinanceTotals } from '../../apps/web/src/app/finance/finance-board';
 import { formatMoney } from '../../apps/web/src/lib/money';
 
 type Row = PeriodOperations['rows'][number];
@@ -39,35 +39,15 @@ describe('finance presentation: refunds are not operating expenses', () => {
     expect(flow.reduce((sum, day) => sum + day.expense, 0n)).toBe(730000n);
   });
 
-  it('does not draw a refund as the expenses KPI sparkline', () => {
-    const flow = dailyFlow(returnedPayment, from, to);
-    const html = renderToStaticMarkup(createElement(FinanceKpis, {
-      charged: 730000n, prevCharged: 0n,
-      income: 730000n, prevIncome: 0n,
-      expense: 0n, prevExpense: 0n,
-      profit: 0n, prevProfit: 0n,
-      currency: 'KZT', flow,
+  // плитки со спарклайнами сняты (аудит 22.10.2026 P1-3b): итоги строкой, возврат не попадает в «Расходы»
+  it('keeps a refund out of the expenses total in the one-line summary', () => {
+    const html = renderToStaticMarkup(createElement(FinanceTotals, {
+      charged: 730000n, income: 730000n, refunds: 730000n, expense: 0n,
+      balance: null, currency: 'KZT',
     }));
-    const marker = html.indexOf('data-testid="fin-expense"');
-    expect(marker).toBeGreaterThan(0);
-    const start = html.lastIndexOf('<div class="fin-kpi">', marker);
-    const end = html.indexOf('<div class="fin-kpi">', marker);
-    const expenseTile = html.slice(start, end);
-    expect(expenseTile).toContain(formatMoney('0', 'KZT'));
-    expect(expenseTile).not.toContain('fin-spark');
-  });
-
-  it('still draws genuine cash expenses in the expenses KPI', () => {
-    const flow = dailyFlow([row('EXPENSE', '25000')], from, to);
-    const html = renderToStaticMarkup(createElement(FinanceKpis, {
-      charged: 0n, prevCharged: 0n, income: 0n, prevIncome: 0n,
-      expense: 25000n, prevExpense: 0n, profit: -25000n, prevProfit: 0n,
-      currency: 'KZT', flow,
-    }));
-    const marker = html.indexOf('data-testid="fin-expense"');
-    const tile = html.slice(html.lastIndexOf('<div class="fin-kpi">', marker), html.indexOf('<div class="fin-kpi">', marker));
-    expect(tile).toContain(formatMoney('25000', 'KZT'));
-    expect(tile).toContain('fin-spark--danger');
+    expect(html).toMatch(/data-testid="cash-period-expense"[^>]*>0 ₸</);
+    expect(html).toMatch(/data-testid="cash-period-refunds"[^>]*>7 300 ₸</);
+    expect(html).not.toContain('fin-spark');
   });
 
   it('separates completed cash expenses from refunds and ignores voids and transfers', () => {

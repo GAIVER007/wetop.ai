@@ -83,6 +83,26 @@ describe('organization workspace states', () => {
     expect(html).not.toContain('org-bottom');
     expect(html).toContain('Test object');
   });
+  it('итоги месяца одной строкой под списком объектов, слова салона (аудит 22.10.2026 P1-3a)', () => {
+    const html = renderToStaticMarkup(
+      createElement(ReferenceBoard, {
+        organization: 'Test organization',
+        periodLabel: '',
+        items: [item],
+        businesses: [card],
+        money: [],
+        metrics: {},
+        create: null,
+        preview: false,
+        financial: {
+          from: '2026-10-01', to: '2026-10-31', complete: true, covered: 1, total: 1, orders: 2, rows: [],
+          currencies: [{ currency: 'KZT', receiptsMinor: '100000', expensesMinor: '0', orders: 2, averageMinor: '50000' }],
+        },
+      }),
+    );
+    expect(html.indexOf('Test object')).toBeLessThan(html.indexOf('data-testid="org-totals"'));
+    expect(html).toContain('<dt>Оплаченные записи</dt>');
+  });
   it('keeps a configured existing hotel when the older API omits card metadata', () => {
     const existing = {
       ...item,

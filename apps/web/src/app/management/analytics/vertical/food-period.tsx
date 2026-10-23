@@ -1,8 +1,9 @@
-import { Panel, Stat, Stats, Table } from '../../../../components/ui';
+import { Panel, Table } from '../../../../components/ui';
 import { DayBars } from '../../../../components/day-bars';
 import { DonutShare } from '../../../../components/donut-share';
 import { METHOD_RU, wholeTenge } from '../../../../lib/dashboard-format';
 import type { FoodPeriodReport } from '../../../../lib/food-types';
+import '../../../finance/summary.css';
 
 /** Деньги ресторана за период: закрытые заказы, оплаты по способам (касса §35), блюда и официанты */
 export function FoodPeriodPanel({ report }: { report: FoodPeriodReport }) {
@@ -33,22 +34,34 @@ export function FoodPeriodPanel({ report }: { report: FoodPeriodReport }) {
     );
   return (
     <div className="vertical-food" data-testid="food-period">
-      <Stats min={180} className="vertical-food__kpis" aria-label="Продажи за период">
-        <Stat label="Выручка" value={money(report.revenueMinor)} hint="закрытые заказы" testId="food-period-revenue" />
-        <Stat label="Гостей" value={report.guestsCount ?? '—'} testId="food-period-guests" />
-        <Stat
-          label="Выручка бара"
-          value={money(report.barRevenueMinor ?? '0')}
-          hint="продажи бара"
-          testId="food-period-bar-revenue"
-        />
-        <Stat
-          label="Средний чек"
-          value={report.averageCheckMinor === null ? '—' : money(report.averageCheckMinor)}
-          testId="food-period-check"
-        />
-        <Stat label="Заказов" value={report.ordersCount} testId="food-period-orders" />
-      </Stats>
+      {/* итоги периода одной строкой вместо ряда плиток (правило владельца, аудит ресторана 22.10.2026) */}
+      <dl className="money-summary" aria-label="Продажи за период">
+        <div>
+          <dt>Выручка</dt>
+          <dd>
+            <span data-testid="food-period-revenue">{money(report.revenueMinor)}</span>{' '}
+            <span className="muted">закрытые заказы</span>
+          </dd>
+        </div>
+        <div>
+          <dt>Заказов</dt>
+          <dd data-testid="food-period-orders">{report.ordersCount}</dd>
+        </div>
+        <div>
+          <dt>Гостей</dt>
+          <dd data-testid="food-period-guests">{report.guestsCount ?? '—'}</dd>
+        </div>
+        <div>
+          <dt>Средний чек</dt>
+          <dd data-testid="food-period-check">
+            {report.averageCheckMinor === null ? '—' : money(report.averageCheckMinor)}
+          </dd>
+        </div>
+        <div>
+          <dt>Выручка бара</dt>
+          <dd data-testid="food-period-bar-revenue">{money(report.barRevenueMinor ?? '0')}</dd>
+        </div>
+      </dl>
       {(report.revenueByDay || report.categories) && (
         <div className="vertical-food__charts">
           {report.revenueByDay && (

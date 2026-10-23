@@ -27,14 +27,17 @@ export async function GET(request: Request): Promise<Response> {
   const remembered = lastBranchValue(jar.get(LAST_BRANCH_COOKIE)?.value);
   jar.delete(SCOPE_COOKIE);
   let items: SelectableBranch[] | null = null;
+  let personal = false;
   try {
-    items = (await branchesApi.list()).items;
+    const list = await branchesApi.list();
+    items = list.items;
+    personal = list.personal === true;
   } catch (error) {
     if (!(error instanceof ApiError) || (error.status !== 401 && error.status !== 403)) throw error;
   }
   // `redirect` вызывается вне `try`: он бросает служебное исключение Next
   if (items === null) redirect(publicAuthUrl());
-  const decision = decideScope(items, new URL(request.url).searchParams.get('next'), remembered);
+  const decision = decideScope(items, new URL(request.url).searchParams.get('next'), remembered, { personal });
   if (decision.kind === 'select') {
     jar.set(SCOPE_COOKIE, decision.pointer, scopeCookieOptions(process.env));
     const location = pointerLocation(decision.pointer);

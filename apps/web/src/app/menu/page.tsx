@@ -16,7 +16,7 @@ import '../food/restaurant.css';
 export default async function MenuPage() {
   try {
     const shell = await restaurantShell();
-    const [categories, items, stock, branch] = await Promise.all([
+    const [categories, items, stock, branch, modifierGroups] = await Promise.all([
       completeFoodList<MenuCategory>(restaurantApi.categories),
       completeFoodList<MenuItemView>(restaurantApi.menuItems),
       // склад нужен только для связи техкарты (§38); нет доступа к складу — техкарта без связи
@@ -26,6 +26,8 @@ export default async function MenuPage() {
       ),
       // цены меню в валюте филиала, не всегда тенге (поручение владельца 20.10.2026)
       selectedWorkspaceBranch(),
+      // §33.7: группы добавок бизнеса
+      restaurantApi.modifierGroups().then((r) => r.items),
     ]);
     return (
       <Page title="Меню">
@@ -39,6 +41,7 @@ export default async function MenuPage() {
             categories={categories}
             items={items}
             stock={stock}
+            modifierGroups={modifierGroups}
           />
         </div>
       </Page>

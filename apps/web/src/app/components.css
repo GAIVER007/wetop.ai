@@ -1502,6 +1502,27 @@
   .tbl--nowrap td {
     white-space: nowrap;
   }
+  /* каталог A + подзаголовки категорий B (решение владельца 23.10.2026): строка-подзаголовок внутри таблицы */
+  .tbl .catalog-group th {
+    height: auto;
+    padding: var(--space-2) var(--space-4) var(--space-1);
+    background: var(--surface-muted);
+    color: var(--text);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    border-radius: 0;
+  }
+  .tbl--compact .catalog-group th {
+    padding: var(--space-2) var(--space-2) var(--space-1);
+  }
+  .tbl .catalog-group:hover th {
+    background: var(--surface-muted);
+  }
+  .catalog-group__count {
+    color: var(--muted);
+    font-weight: 400;
+    margin-inline-start: var(--space-1);
+  }
   /* MV8.5 DS1c: плотность, липкие шапка и первая колонка, подпись таблицы */
   .tbl--compact th {
     height: 32px;

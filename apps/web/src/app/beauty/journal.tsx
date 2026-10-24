@@ -4,6 +4,7 @@ import { useOptimistic, useState, useTransition, type ReactNode } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { EmployeeFilter } from '../../components/employee-filter';
 import { QuickReport } from '../../components/quick-report';
+import { JournalExpandButton } from '../../components/journal-expand';
 import { beautyQuickReport } from '../../components/quick-report-data';
 import { Overlay } from '../../components/overlay';
 import { Alert, Badge, Button, EmptyState, Help } from '../../components/ui';
@@ -465,7 +466,10 @@ export function JournalBoard({
         }
         actions={
           <>
-            <span className="journal-head__desk-only">{quickReport}</span>
+            <span className="journal-head__desk-only">
+              <JournalExpandButton />
+              {quickReport}
+            </span>
             <Button
               disabled={
                 filterPending ||

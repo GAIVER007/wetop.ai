@@ -338,3 +338,27 @@
     }
   }
 }
+
+/* «На весь экран» журнала (владелец 24.10.2026, как календарь гостиницы): квадратик перед «Быстрым отчётом»,
+   журнал раскрывается поверх шапки и меню; Esc или повторное нажатие возвращают обычный вид */
+@layer sections {
+  .journal-head__actions .journal-expand {
+    flex: none;
+    width: var(--control-h);
+    height: var(--control-h);
+  }
+  .page.journal-page[data-expanded='true'] {
+    position: fixed;
+    inset: 0;
+    z-index: var(--layer-overlay);
+    height: 100dvh;
+    max-width: none;
+    margin: 0;
+    overflow: auto;
+    background: var(--bg);
+  }
+  body:has(.page.journal-page[data-expanded='true']) {
+    overflow: hidden;
+  }
+}
+

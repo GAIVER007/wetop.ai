@@ -1015,11 +1015,20 @@
     font-size: var(--text-xs);
     font-weight: var(--weight-semibold);
   }
+  /* Зона без схемы (владелец 24.10.2026: «план зала непонятно, отрезано»): тот же зал 16:10 и не ниже 280 px, что и
+     полотно схемы (.rest-fp__layout), столы рядами от верхнего угла; рамка показывает границы зала */
   .rest-fp__tables {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-4) var(--space-6);
+    align-content: flex-start;
     align-items: flex-start;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    min-height: 280px;
+    padding: var(--space-4);
+    border: 1px dashed var(--border-input);
+    border-radius: var(--radius-control);
   }
   /* Схема зала (§42): полотно зоны 16:10, стол стоит центром в своей точке */
   .rest-fp__layout {
@@ -1221,8 +1230,11 @@
     .rest-fp__canvas {
       padding: var(--space-2);
     }
+    /* телефон: 16:10 при высоте 280 px шире экрана (448 px), зал по ширине экрана и не ниже 280 px */
     .rest-fp__tables {
       gap: var(--space-2);
+      aspect-ratio: auto;
+      padding: var(--space-2);
     }
     .rest-fp-table,
     .rest-fp-table[data-shape='long'] {

@@ -20,6 +20,7 @@ import { TablePanel, KIND_LABEL, type TableKind } from './table-panel';
 import { FloorLayoutEditor, SHAPE_CSS, spotStyle } from './floor-layout-editor';
 import { layoutSpots, tableShapeOf } from '@pms/domain';
 import { QuickReport } from '../../components/quick-report';
+import { JournalExpandButton } from '../../components/journal-expand';
 import { DayNav } from '../../components/day-nav';
 import { JournalFilter, JournalHead, JournalSearch } from '../../components/journal-head';
 import { useNarrow } from '../../lib/use-narrow';
@@ -218,6 +219,7 @@ export function WorkspaceBoard({
         actions={
           <>
             {/* на телефоне «Быстрый отчёт» не помещается в строку с «+ Новая бронь»: он в «Фильтрах», как в салоне */}
+            {!narrow && <JournalExpandButton />}
             {!narrow && (
             <QuickReport
               text="Быстрый отчёт"

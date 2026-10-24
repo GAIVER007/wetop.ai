@@ -26,7 +26,7 @@ describe.skipIf(!ENABLED)('«График работы» гостиницы ви
   }, 60_000);
 
   it('руководитель филиала видит в графике себя и сотрудника своего филиала, без чужого филиала', async () => {
-    const res = await w.call('H1_MGR', 'get', '/hotel-staff/shifts', { scope: OWN_SCOPE.H1_MGR });
+    const res = await w.call('H1_MGR', 'get', '/hotel-staff/shifts', { scope: OWN_SCOPE.H1_MGR! });
     expect(res.status, res.text).toBe(200);
     const names = (res.json as { employees: Array<{ name: string }> }).employees.map((e) => e.name);
     const mail = async (part: string) =>
@@ -37,7 +37,7 @@ describe.skipIf(!ENABLED)('«График работы» гостиницы ви
     expect(names).not.toContain(await mail('h2staff'));
     expect(names).not.toContain(await mail('foreign'));
     // повторный заход не плодит карточки
-    const again = await w.call('H1_MGR', 'get', '/hotel-staff/shifts', { scope: OWN_SCOPE.H1_MGR });
+    const again = await w.call('H1_MGR', 'get', '/hotel-staff/shifts', { scope: OWN_SCOPE.H1_MGR! });
     expect((again.json as { employees: unknown[] }).employees).toHaveLength(names.length);
   });
 });

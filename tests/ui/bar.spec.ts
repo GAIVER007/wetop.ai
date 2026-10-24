@@ -34,7 +34,8 @@ test('обзор как на макете: пять KPI, графики, ком�
   await expect(m.getByRole('link', { name: 'Инвентаризация', exact: true })).toBeVisible();
   // на широком экране те же пункты открывает меню «Склад», второго ряда вкладок нет (21.10.2026)
   await expect(m.getByRole('navigation',{name:'Разделы склада'})).toBeHidden();
-  await expect(m.locator('.bar-tabs a')).toHaveCount(7);
+  // 8 пунктов: «Меню бара» гостиницы и салона (DATA_MODEL §62.3, K3 24.10.2026)
+  await expect(m.locator('.bar-tabs a')).toHaveCount(8);
   // Без плиток над списком (аудит 21.10.2026 п.7): итоги месяца строкой под доской, нехватка строкой-предупреждением
   await expect(m.locator('.bar-kpi')).toHaveCount(0);
   const totals = m.getByTestId('bar-totals');

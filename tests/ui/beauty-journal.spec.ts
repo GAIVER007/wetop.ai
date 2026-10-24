@@ -104,7 +104,8 @@ async function openDay(page: Page) {
 async function book(page: Page, time: string, name: string) {
   await page.getByRole('button', { name: `Дина, ${time}, свободно` }).click();
   const panel = page.getByRole('dialog');
-  await panel.getByLabel('Услуга').selectOption({ label: 'Маникюр, 60 мин' });
+  // exact: правая часть окна брони (23.10.2026) называется «Услуга и время»
+  await panel.getByLabel('Услуга', { exact: true }).selectOption({ label: 'Маникюр, 60 мин' });
   await panel.getByLabel('Имя клиента').fill(name);
   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
   // Клик запускает серверное действие: дальше идём только после подтверждения записи (78dac8d64, против флейка)

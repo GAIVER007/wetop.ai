@@ -235,8 +235,9 @@ describe.skipIf(!url)('STAFF-TG: подключение Telegram, вебхук �
         sourceId,
         users.staff,
       );
+    // очередь общая для всех тестов базы: свои строки ставим в начало пачки, чужие не мешают
     const due = (sourceId: string) =>
-      admin.$executeRawUnsafe(`UPDATE staff_notifications SET next_attempt_at = now() - interval '1 second' WHERE source_id = $1::uuid`, sourceId);
+      admin.$executeRawUnsafe(`UPDATE staff_notifications SET next_attempt_at = timestamptz '2000-01-01' WHERE source_id = $1::uuid`, sourceId);
 
     it('без токена бота строка пишется сразу SKIPPED, отправщик не тратит попыток', async () => {
       const sourceId = await appointmentSource();
@@ -255,6 +256,7 @@ describe.skipIf(!url)('STAFF-TG: подключение Telegram, вебхук �
       // в очереди нет ни имени, ни телефона гостя
       const raw = await admin.$queryRawUnsafe<Array<Record<string, unknown>>>(`SELECT * FROM staff_notifications WHERE source_id = $1::uuid`, sourceId);
       expect(JSON.stringify(raw)).not.toMatch(/Айгерим|\+7701/);
+      await due(sourceId);
       const tick = await worker.tick();
       expect(tick.sent).toBeGreaterThanOrEqual(1);
       const sent = sends().map(([, init]) => JSON.parse(String((init as RequestInit).body)) as Record<string, unknown>);
@@ -295,6 +297,7 @@ describe.skipIf(!url)('STAFF-TG: подключение Telegram, вебхук �
         data: { organizationId: w.org, userId: users.staff, role: 'STAFF', businessId: bl3.businessId, locationId: bl3.id },
       });
       try {
+        await due(sourceId);
         await worker.tick();
         expect((await row(sourceId))[0]).toMatchObject({ status: 'SKIPPED', last_error: 'not-recipient', attempts: 0 });
         expect(sends().some(([, init]) => String((init as RequestInit).body).includes('4100001'))).toBe(false);
@@ -307,6 +310,7 @@ describe.skipIf(!url)('STAFF-TG: подключение Telegram, вебхук �
       const sourceId = await appointmentSource();
       await enqueueStaffNotifications(admin, { ...(await target()), sourceId }, { TELEGRAM_STAFF_BOT_TOKEN: TOKEN });
       answers = Array.from({ length: 10 }, () => ({ status: 403, body: { ok: false, error_code: 403, description: 'Forbidden: bot was blocked by the user' } }));
+      await due(sourceId);
       await worker.tick();
       expect((await row(sourceId))[0]).toMatchObject({ status: 'SKIPPED', last_error: 'telegram-403', attempts: 1 });
       const [link] = await admin.$queryRawUnsafe<Array<{ disabled: boolean }>>(

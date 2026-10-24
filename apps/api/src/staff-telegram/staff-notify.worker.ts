@@ -88,7 +88,15 @@ export class StaffNotifyWorker implements OnModuleInit, OnModuleDestroy {
            WHERE status = 'PENDING' AND next_attempt_at <= ${this.now()}
            ORDER BY next_attempt_at, created_at
            LIMIT ${BATCH}`;
-        for (const row of rows) await this.deliver(row, result);
+        for (const row of rows) {
+          // одна сбойная строка не останавливает пачку: остальные сотрудники получают свои сообщения
+          try {
+            await this.deliver(row, result);
+          } catch (e) {
+            result.failed += 1;
+            this.logger.warn(`Уведомление ${row.id} не обработано: ${(e as Error).name}`);
+          }
+        }
       });
     } finally {
       this.busy = false;

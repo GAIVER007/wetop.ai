@@ -9,7 +9,12 @@
  * Переменные (миллисекунды, целое число; 0 — выключить; пусто или ошибка — значение по умолчанию):
  * - `DATABASE_CONNECT_TIMEOUT_MS` — подключение и ожидание свободного места в пуле;
  * - `DATABASE_QUERY_TIMEOUT_MS` — сколько база может молчать на отправленный запрос, потом соединение закрывается;
- * - `DATABASE_KEEPALIVE_DELAY_MS` — через сколько тишины система начинает проверять, жив ли собеседник (TCP keepalive).
+ * - `DATABASE_KEEPALIVE_DELAY_MS` — через сколько тишины система начинает проверять, жив ли собеседник (TCP keepalive);
+ * - `DATABASE_IDLE_TIMEOUT_MS` — через сколько простоя закрывается лишнее соединение сверх тёплого минимума;
+ * - `DATABASE_POOL_MIN` — сколько соединений держать открытыми всегда (штуки, не миллисекунды).
+ *
+ * Тёплый минимум (24.10.2026): умолчание pg закрывало простаивающее соединение через 10 с, и почти каждое нажатие в
+ * стойке открывало новое до Сингапура (TCP, TLS, SCRAM) и будило пул Supavisor: 12 634 подключения за сутки.
  */
 import type { Socket } from 'node:net';
 import pg from 'pg';
@@ -22,6 +27,8 @@ export const DATABASE_POOL_DEFAULTS = {
   connectTimeoutMs: 30_000,
   queryTimeoutMs: 30_000,
   keepAliveDelayMs: 10_000,
+  idleTimeoutMs: 300_000,
+  poolMin: 1,
 } as const;
 
 export interface DatabasePoolTimeouts {
@@ -29,6 +36,10 @@ export interface DatabasePoolTimeouts {
   keepAlive: boolean;
   keepAliveInitialDelayMillis?: number;
   Client?: typeof pg.Client;
+  min: number;
+  idleTimeoutMillis: number;
+  /** Тёплое соединение не держит процесс: скрипт и тест выходят сами, как при прежних 10 с */
+  allowExitOnIdle: true;
 }
 
 type Env = Record<string, string | undefined>;
@@ -44,6 +55,9 @@ export function databasePoolTimeouts(env: Env = process.env): DatabasePoolTimeou
       ? { keepAlive: true, keepAliveInitialDelayMillis: keepAliveDelayMs }
       : { keepAlive: false }),
     ...(queryTimeoutMs > 0 ? { Client: clientWithQueryDeadline(queryTimeoutMs) } : {}),
+    min: milliseconds(env, 'DATABASE_POOL_MIN', DATABASE_POOL_DEFAULTS.poolMin),
+    idleTimeoutMillis: milliseconds(env, 'DATABASE_IDLE_TIMEOUT_MS', DATABASE_POOL_DEFAULTS.idleTimeoutMs),
+    allowExitOnIdle: true,
   };
 }
 

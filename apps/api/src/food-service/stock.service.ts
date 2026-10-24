@@ -80,6 +80,63 @@ function lotView(l: KitchenStockLot) {
   };
 }
 
+/**
+ * Склад кухни по продаже бара (§62.3): тот же FIFO и та же недостача, что у заказа (§38), ссылка `bar_sale_id`.
+ * Возвращает себестоимость списанного. Замок филиала держит вызывающая транзакция продажи.
+ */
+export async function consumeKitchenForBarSale(
+  tx: DbTx,
+  locationId: string,
+  sale: { id: string; reason: string },
+  need: ReadonlyMap<string, bigint>,
+): Promise<bigint> {
+  let total = 0n;
+  if (!need.size) return total;
+  const products = await tx.kitchenProduct.findMany({ where: { id: { in: [...need.keys()] } }, orderBy: { name: 'asc' } });
+  for (const p of products) {
+    const lots = await tx.kitchenStockLot.findMany({
+      where: { locationId, productId: p.id, reversedAt: null, remainingQty: { gt: 0 } },
+    });
+    const available = lots.reduce((sum, l) => sum + milliOf(l.remainingQty), 0n);
+    const { take, shortage } = splitShortage(available, need.get(p.id)!);
+    if (take > 0n) {
+      const { allocations } = allocateStock(
+        lots.map((l) => ({ id: l.id, receivedOn: day(l.receivedOn), createdAt: l.createdAt, remaining: milliOf(l.remainingQty), unitCost: l.unitCost })),
+        take,
+        p.unit,
+      );
+      for (const a of allocations) {
+        const lot = lots.find((l) => l.id === a.lotId)!;
+        await tx.kitchenStockLot.update({ where: { id: a.lotId }, data: { remainingQty: milliText(milliOf(lot.remainingQty) - a.milli) } });
+        await tx.kitchenStockMovement.create({
+          data: { locationId, productId: p.id, lotId: a.lotId, barSaleId: sale.id, kind: 'CONSUMPTION', qty: milliText(-a.milli), cost: -a.cost, reason: sale.reason, createdById: currentUserId() ?? null },
+        });
+        total += a.cost;
+      }
+    }
+    if (shortage > 0n)
+      await tx.kitchenStockMovement.create({
+        data: { locationId, productId: p.id, barSaleId: sale.id, kind: 'SHORTAGE', qty: milliText(-shortage), cost: 0n, reason: `${sale.reason}: не хватило на складе`, createdById: currentUserId() ?? null },
+      });
+  }
+  return total;
+}
+
+/** Возврат продажи бара на склад (§62.3): каждая партия получает списанное назад, недостача гасится без партии */
+export async function returnKitchenForBarSale(tx: DbTx, locationId: string, sale: { id: string; reason: string }) {
+  const spent = await tx.kitchenStockMovement.findMany({ where: { barSaleId: sale.id, locationId, kind: { in: ['CONSUMPTION', 'SHORTAGE'] } } });
+  for (const m of spent) {
+    const milli = -milliOf(m.qty);
+    if (m.lotId) {
+      const lot = await tx.kitchenStockLot.findUniqueOrThrow({ where: { id: m.lotId } });
+      await tx.kitchenStockLot.update({ where: { id: m.lotId }, data: { remainingQty: milliText(milliOf(lot.remainingQty) + milli) } });
+    }
+    await tx.kitchenStockMovement.create({
+      data: { locationId, productId: m.productId, lotId: m.lotId, barSaleId: sale.id, kind: 'CONSUMPTION_RETURN', qty: milliText(milli), cost: -m.cost, reason: sale.reason, createdById: currentUserId() ?? null },
+    });
+  }
+}
+
 @Injectable()
 export class StockService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}

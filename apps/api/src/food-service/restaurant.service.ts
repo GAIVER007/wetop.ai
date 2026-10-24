@@ -66,7 +66,7 @@ import {
 import type { DbTx, Prisma } from '@pms/database';
 import { actorMay, currentRole, currentUserId, currentVertical } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
-import { BRANCH_CASH_VERTICALS, BRANCH_PAYROLL_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, waiterSelf, type FoodScope, type FoodVertical } from './scope';
+import { BRANCH_CASH_VERTICALS, BRANCH_PAYROLL_VERTICALS, MENU_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, waiterSelf, type FoodScope, type FoodVertical } from './scope';
 import { assertBranchMethodsOpen } from './branch-payment-methods';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
 import { assertWeekRevision, hoursRevision, hoursRowsRevision } from '../beauty/write-contract';
@@ -301,7 +301,7 @@ export class RestaurantService {
   async categories(query: unknown) {
     // меню на чтение нужно и официанту (§33.6)
     foodMay('orders');
-    const s = await foodScope(this.prisma.db),
+    const s = await foodScope(this.prisma.db, MENU_VERTICALS),
       p = page(query);
     return paged(
       await this.prisma.db.menuCategory.findMany({
@@ -330,7 +330,7 @@ export class RestaurantService {
         station: row.station,
       });
       return row;
-    });
+    }, MENU_VERTICALS);
   }
 
   async updateCategory(idRaw: string, raw: unknown) {
@@ -358,7 +358,7 @@ export class RestaurantService {
         { name: old.name, sortOrder: old.sortOrder, active: old.active, station: old.station },
       );
       return row;
-    });
+    }, MENU_VERTICALS);
   }
 
   private menuItemView(
@@ -431,7 +431,7 @@ export class RestaurantService {
 
   async menuItems(query: unknown) {
     foodMay('orders');
-    const s = await foodScope(this.prisma.db),
+    const s = await foodScope(this.prisma.db, MENU_VERTICALS),
       p = page(query);
     // официанту (без `desk`) техкарта и себестоимость не нужны (§33.6)
     const desk = actorMay('desk');
@@ -446,7 +446,7 @@ export class RestaurantService {
 
   async menuItem(idRaw: string) {
     foodMay('desk');
-    const s = await foodScope(this.prisma.db),
+    const s = await foodScope(this.prisma.db, MENU_VERTICALS),
       id = parsed(() => foodId(idRaw));
     const row = await this.prisma.db.menuItem.findFirst({
       where: { id, businessId: s.businessId },
@@ -485,7 +485,7 @@ export class RestaurantService {
         categoryId: row.categoryId,
       });
       return this.menuItemOut(row);
-    });
+    }, MENU_VERTICALS);
   }
 
   async updateMenuItem(idRaw: string, raw: unknown) {
@@ -524,7 +524,7 @@ export class RestaurantService {
         { name: old.name, priceMinor: old.price.toString(), active: old.active },
       );
       return this.menuItemOut(row);
-    });
+    }, MENU_VERTICALS);
   }
 
   /** Техкарта сохраняется целиком: состав заменяется одним запросом (§33.1) */
@@ -584,7 +584,7 @@ export class RestaurantService {
         include: { ingredients: true, photo: true, ...itemGroupsInclude },
       });
       return this.menuItemOut(fresh);
-    });
+    }, MENU_VERTICALS);
   }
 
   // ─── Заказы и кухня (§33.2) ───

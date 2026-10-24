@@ -141,6 +141,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /bar/report': 'desk',
   'POST /bar/sales/retail': 'desk',
   'POST /bar/sales/folio': 'desk',
+  // §62.3 «Меню бара»: продажа позиции меню, право как у продажи товара бара
+  'POST /bar/sales/menu': 'desk',
   // сторно гасит кассовую операцию и начисление фолио, как аннулирования в /finance (ADR-181)
   'POST /bar/sales/:id/reverse': 'refunds',
   'POST /bar/write-offs': 'desk',

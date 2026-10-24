@@ -127,7 +127,8 @@ export class FoodReservationsController {
 }
 @Controller('food-service')
 @Access('desk')
-@RequiresBusinessCapability('food.menu')
+// §62.3: меню у всех трёх направлений (у гостиницы и салона «Меню бара»)
+@RequiresBusinessCapability('branch.menu')
 export class FoodMenuController {
   constructor(
     @Inject(RestaurantService) private readonly service: RestaurantService,

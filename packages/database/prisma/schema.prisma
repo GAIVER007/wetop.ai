@@ -1684,25 +1684,34 @@ model BarSale {
   restaurantCashOperation RestaurantCashOperation? @relation(fields: [restaurantCashOperationId], references: [id], onDelete: Restrict)
   charge                  Charge?                  @relation(fields: [chargeId], references: [id], onDelete: Restrict)
   lines                   BarSaleLine[]
+  /// §62.3: расход склада кухни по продаже позиции меню
+  kitchenMovements        KitchenStockMovement[]
 
   @@unique([locationId, idempotencyKey])
   @@index([locationId, createdAt])
   @@map("bar_sales")
 }
 
+/// Строка продажи бара: товар бара или (§62.3) позиция меню, ровно одно (CHECK bar_sale_lines_one_source)
 model BarSaleLine {
-  id            String @id @default(uuid()) @db.Uuid
-  saleId        String @map("sale_id") @db.Uuid
-  productId     String @map("product_id") @db.Uuid
-  quantityUnits BigInt @map("quantity_units")
-  salePrice     BigInt @map("sale_price")
+  id            String  @id @default(uuid()) @db.Uuid
+  saleId        String  @map("sale_id") @db.Uuid
+  productId     String? @map("product_id") @db.Uuid
+  /// §62.3: позиция «Меню бара»; склад кухни списывается по техкарте и добавкам
+  menuItemId    String? @map("menu_item_id") @db.Uuid
+  /// §62.3: снимок выбранных добавок текстом («Американо: Молоко»)
+  note          String? @db.VarChar(500)
+  quantityUnits BigInt  @map("quantity_units")
+  salePrice     BigInt  @map("sale_price")
   revenue       BigInt
   cost          BigInt
 
-  sale    BarSale    @relation(fields: [saleId], references: [id], onDelete: Restrict)
-  product BarProduct @relation(fields: [productId], references: [id], onDelete: Restrict)
+  sale     BarSale     @relation(fields: [saleId], references: [id], onDelete: Restrict)
+  product  BarProduct? @relation(fields: [productId], references: [id], onDelete: Restrict)
+  menuItem MenuItem?   @relation(fields: [menuItemId], references: [id], onDelete: Restrict)
 
   @@unique([saleId, productId])
+  @@index([menuItemId])
   @@map("bar_sale_lines")
 }
 
@@ -2781,10 +2790,10 @@ model User {
   locationCompetitorsCreated         LocationCompetitor[]           @relation("LocationCompetitorCreatedBy")
   locationCompetitorSnapshotsCreated LocationCompetitorSnapshot[]   @relation("LocationCompetitorSnapshotCreatedBy")
 
-  voiceCallbacksDone VoiceCallback[]
-  staffTelegramLink            StaffTelegramLink?
-  staffTelegramLinkCodes       StaffTelegramLinkCode[]
-  staffNotifications           StaffNotification[]
+  voiceCallbacksDone     VoiceCallback[]
+  staffTelegramLink      StaffTelegramLink?
+  staffTelegramLinkCodes StaffTelegramLinkCode[]
+  staffNotifications     StaffNotification[]
 
   @@map("users")
 }
@@ -3993,6 +4002,8 @@ model MenuItem {
   orderItems     RestaurantOrderItem[]
   /// §33.7: группы модификаторов блюда
   modifierGroups MenuItemModifierGroup[]
+  /// §62.3: продажи позиции на баре гостиницы и салона
+  barSaleLines   BarSaleLine[]
 
   @@index([businessId])
   @@index([categoryId])
@@ -4343,6 +4354,8 @@ model KitchenStockMovement {
   appointmentLineId String?             @map("appointment_line_id") @db.Uuid
   /// §62: партия заготовки, ради которой списан ингредиент
   productionLotId   String?             @map("production_lot_id") @db.Uuid
+  /// §62.3: продажа позиции меню на баре
+  barSaleId         String?             @map("bar_sale_id") @db.Uuid
   createdById       String?             @map("created_by_id") @db.Uuid
   createdAt         DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
 
@@ -4350,6 +4363,7 @@ model KitchenStockMovement {
   product         KitchenProduct   @relation(fields: [productId], references: [id])
   lot             KitchenStockLot? @relation(fields: [lotId], references: [id])
   productionLot   KitchenStockLot? @relation("KitchenProductionLot", fields: [productionLotId], references: [id], onDelete: Restrict)
+  barSale         BarSale?         @relation(fields: [barSaleId], references: [id], onDelete: Restrict)
   order           RestaurantOrder? @relation(fields: [orderId], references: [id], onDelete: Restrict)
   appointmentLine AppointmentLine? @relation(fields: [appointmentLineId], references: [id], map: "kitchen_stock_movements_appointment_line_fkey", onDelete: Restrict, onUpdate: NoAction)
   createdBy       User?            @relation(fields: [createdById], references: [id])
@@ -4358,6 +4372,7 @@ model KitchenStockMovement {
   @@index([orderId])
   @@index([appointmentLineId], map: "kitchen_stock_movements_appointment_line_idx")
   @@index([productionLotId])
+  @@index([barSaleId])
   @@index([productId])
   @@index([lotId])
   @@map("kitchen_stock_movements")

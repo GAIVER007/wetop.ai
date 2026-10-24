@@ -3,7 +3,7 @@ import { foodId, milliOf, milliText, parseItemModifierGroups, parseModifierGroup
 import type { DbTx, Prisma } from '@pms/database';
 import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
-import { foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } from './scope';
+import { MENU_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } from './scope';
 
 /**
  * Модификаторы блюд (DATA_MODEL §33.7, миграция 144): группы бизнеса («Размер», «Добавки») с модификаторами и привязка
@@ -60,8 +60,8 @@ export class MenuModifiersService {
   private async write<T>(permission: Permission, fn: (tx: DbTx, s: FoodScope) => Promise<T>): Promise<T> {
     foodMay(permission);
     await foodWritable(this.prisma.db);
-    const s = await foodScope(this.prisma.db);
-    return foodTransaction(this.prisma, s, fn);
+    const s = await foodScope(this.prisma.db, MENU_VERTICALS);
+    return foodTransaction(this.prisma, s, fn, MENU_VERTICALS);
   }
 
   private async audit(tx: DbTx, s: FoodScope, id: string, action: string, after: Prisma.InputJsonObject) {
@@ -72,7 +72,7 @@ export class MenuModifiersService {
 
   async groups() {
     foodMay('orders');
-    const s = await foodScope(this.prisma.db);
+    const s = await foodScope(this.prisma.db, MENU_VERTICALS);
     const rows = await this.prisma.db.menuModifierGroup.findMany({
       where: { businessId: s.businessId },
       include: groupInclude,

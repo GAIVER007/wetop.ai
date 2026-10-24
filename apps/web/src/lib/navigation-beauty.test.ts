@@ -43,7 +43,7 @@ describe('меню салона', () => {
       ['Услуги', ['/services']],
       // Отдельные отчёты салона больше не перенаправляют в аналитику.
       ['Статистика', ['/management/analytics', '/reports']],
-      ['Склад', ['/warehouse', '/bar', '/bar/consumables', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
+      ['Склад', ['/warehouse', '/bar', '/bar/consumables', '/bar/menu', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
       // касса филиала, общая с рестораном (§48, ADR-178 этап 0)
       // «Сертификаты» салона (решение 21.10.2026 §3)
       ['Финансы', ['/finance', '/cashbox', '/finance/certificates']],

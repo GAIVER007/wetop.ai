@@ -16,6 +16,11 @@ describe('canonical business verticals', () => {
     expect(verticalDefinition('BEAUTY').availability).toBe('PILOT');
     expect(verticalDefinition('FOOD_SERVICE').availability).toBe('PILOT');
   });
+  it('§62.3: меню (branch.menu) у всех трёх направлений, заказы ресторана только у ресторана', () => {
+    for (const id of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const) expect(hasVerticalCapability(id, 'branch.menu')).toBe(true);
+    expect(hasVerticalCapability('HOSPITALITY', 'food.orders')).toBe(false);
+    expect(hasVerticalCapability('BEAUTY', 'food.menu')).toBe(false);
+  });
   it('gives the shared branch stock to every vertical', () => {
     for (const id of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const) expect(hasVerticalCapability(id, 'branch.stock')).toBe(true);
   });

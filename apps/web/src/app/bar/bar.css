@@ -430,6 +430,36 @@
     gap: var(--space-2);
     align-items: center;
   }
+  /* «Меню бара» (§62.3): позиция, количество, оплата, гость; добавки строкой ниже */
+  .bar-menu-sale .bar-inline {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    align-items: end;
+  }
+  .bar-menu-mods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-2) 0 0;
+    border: 0;
+  }
+  .bar-menu-mods > legend {
+    padding: 0;
+    font-weight: 600;
+  }
+  .bar-menu-mod {
+    display: inline-flex;
+    gap: var(--space-1);
+    align-items: center;
+    min-height: var(--touch-target);
+  }
+  .bar-menu-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: center;
+    justify-content: flex-end;
+  }
   .bar-inline--folio {
     grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr) minmax(0, 1.5fr) minmax(56px, 0.5fr) auto;
   }

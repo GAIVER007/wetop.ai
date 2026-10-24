@@ -70,6 +70,19 @@ type StaffCommand =
   | { kind: 'adjustment'; id: string; body: { period: string; amountMinor: number; reason: string } }
   | { kind: 'payout'; id: string; body: { period: string; method: FoodPaymentMethod; amount: number; idempotencyKey: string } };
 
+/** §62.3: меню (категории, позиции, техкарты, добавки) у всех трёх направлений, остальное только у ресторана */
+async function menuScope(key: string) {
+  const { context } = await currentMe();
+  const vertical = context?.vertical;
+  if (
+    (vertical !== 'FOOD_SERVICE' && vertical !== 'BEAUTY' && vertical !== 'HOSPITALITY') ||
+    !context?.businessId ||
+    !context.locationId ||
+    key !== `${context.businessId}:${context.locationId}`
+  )
+    throw new ApiError(409, `Выбран другой ${vertical === 'BEAUTY' ? 'салон' : vertical === 'HOSPITALITY' ? 'объект' : 'ресторан'}. Откройте форму заново.`);
+  return vertical;
+}
 async function scope(key: string) {
   const { context } = await currentMe();
   if (
@@ -94,7 +107,7 @@ export async function mutateMenu(
   command: MenuCommand,
 ): Promise<{ error: string | null; item?: MenuItemView }> {
   try {
-    await scope(scopeKey);
+    const vertical = await menuScope(scopeKey);
     let item: MenuItemView | undefined;
     if (command.kind === 'category') {
       if (command.id) await restaurantApi.updateCategory(command.id, command.body);
@@ -109,7 +122,7 @@ export async function mutateMenu(
     } else if (command.kind === 'item-modifier-groups') {
       await restaurantApi.setItemModifierGroups(command.id, command.groupIds);
     } else item = await restaurantApi.replaceIngredients(command.id, command.ingredients);
-    revalidatePath('/menu');
+    revalidatePath(vertical === 'FOOD_SERVICE' ? '/menu' : '/bar/menu');
     return { error: null, ...(item ? { item } : {}) };
   } catch (error) {
     return failure(error);
@@ -259,14 +272,14 @@ export async function dishPhoto(
   form: FormData | null,
 ): Promise<{ error: string | null }> {
   try {
-    await scope(scopeKey);
+    const vertical = await menuScope(scopeKey);
     if (form === null) await dishPhotoApi.remove(id);
     else {
       const file = form.get('file');
       if (!(file instanceof File) || file.size === 0) return { error: 'Выберите файл: JPEG, PNG или WebP' };
       await dishPhotoApi.upload(id, file);
     }
-    revalidatePath('/menu');
+    revalidatePath(vertical === 'FOOD_SERVICE' ? '/menu' : '/bar/menu');
     return { error: null };
   } catch (error) {
     return failure(error);

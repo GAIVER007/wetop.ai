@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "WETOP",
+    "slug": "wetop-mobile",
+    "scheme": "wetop-mobile",
+    "version": "0.1.0",
+    "userInterfaceStyle": "automatic",
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ai.wetop.mobile.dev"
+    },
+    "android": {
+      "package": "ai.wetop.mobile.dev"
+    },
+    "experiments": {
+      "typedRoutes": true
+    },
+    "web": {
+      "output": "single"
+    }
+  }
+}

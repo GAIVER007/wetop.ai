@@ -1,0 +1,37 @@
+import type { KkPart } from './types';
+
+/** KK3: Ресторан: зал, брони столов, сотрудники, касса, финансы, настройки. Ключ русская фраза, значение перевод; правка перевода меняет только значение */
+export const restaurantOps: KkPart = {
+  paths: [
+    'app/food/actions.ts',
+    'app/food/cash-board.tsx',
+    'app/food/customer-marks.tsx',
+    'app/food/customers.tsx',
+    'app/food/day-toolbar.tsx',
+    'app/food/employees-board.tsx',
+    'app/food/employees-screen.tsx',
+    'app/food/finance-board.tsx',
+    'app/food/floor-layout-editor.tsx',
+    'app/food/guest-marks.tsx',
+    'app/food/load.ts',
+    'app/food/payroll-board.tsx',
+    'app/food/rating-parts.tsx',
+    'app/food/reminders-today.tsx',
+    'app/food/reservation-drawer.tsx',
+    'app/food/reservation-form.tsx',
+    'app/food/restaurant-actions.ts',
+    'app/food/restaurant-load.ts',
+    'app/food/screen.tsx',
+    'app/food/settings-board.tsx',
+    'app/food/shifts-board.tsx',
+    'app/food/staff-tabs.tsx',
+    'app/food/table-panel.tsx',
+    'app/food/timeline-board.tsx',
+    'app/restaurant-settings',
+    'app/restaurant-finance',
+    'app/floor-plan',
+    'app/table-reservations',
+    'app/dining-areas',
+  ],
+  phrases: {},
+};

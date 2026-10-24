@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Icon } from './icon';
-import { panelPlacement } from './panel-placement';
+import { panelBox, panelPlacement } from './panel-placement';
 
 const DAY = 86_400_000;
 const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -195,17 +195,27 @@ export function DateRangePopover({
       panel.removeAttribute('data-placed');
       return;
     }
-    const { left, top } = panelPlacement(button, panel.offsetWidth, window.innerWidth);
+    const { left } = panelPlacement(button, panel.offsetWidth, window.innerWidth);
+    // высота по содержимому, а не по уже урезанному окну: иначе при каждом пересчёте окно сжималось бы дальше
+    panel.style.removeProperty('max-height');
+    const { top, maxHeight } = panelBox(button, panel.scrollHeight, window.innerHeight);
     panel.setAttribute('data-placed', '');
     panel.style.left = `${left}px`;
     panel.style.top = `${top}px`;
+    panel.style.maxHeight = `${maxHeight}px`;
   };
   useEffect(() => {
     window.addEventListener('resize', place);
-    window.addEventListener('scroll', place, true);
+    // прокрутка внутри самого окна его не двигает, двигает только прокрутка страницы под ним
+    const onScroll = (event: Event) => {
+      const panel = ref.current?.querySelector('.date-range__panel');
+      if (panel && event.target instanceof Node && panel.contains(event.target)) return;
+      place();
+    };
+    window.addEventListener('scroll', onScroll, true);
     return () => {
       window.removeEventListener('resize', place);
-      window.removeEventListener('scroll', place, true);
+      window.removeEventListener('scroll', onScroll, true);
     };
   });
 

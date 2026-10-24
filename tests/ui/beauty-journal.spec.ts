@@ -116,6 +116,8 @@ async function book(page: Page, time: string, name: string) {
 }
 
 test('запись из пустой клетки появляется в сетке и в списке дня', async ({ page, request }) => {
+  // запись, панель дня, отбор мастера: 4 страницы с холодной сборкой, 45 с мало под нагрузкой
+  test.setTimeout(120_000);
   await readySalon(page, request);
   await openDay(page);
   const main = page.getByRole('main');

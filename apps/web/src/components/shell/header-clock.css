@@ -2,6 +2,7 @@
    акцентом, день недели приглушённо; на узком экране короткая дата без дня недели. */
 @layer sections {
   .header-clock {
+    flex: none;
     display: inline-flex;
     align-items: baseline;
     gap: var(--space-2);
@@ -82,25 +83,21 @@
     .header-clock__time {
       font-size: var(--text-sm);
     }
-    /* узкий телефон: без черты, значок поиска высотой поля, чтобы на 320 px аватар не выезжал за край */
+    /* узкий телефон: без черты; значок поиска остаётся целью касания 44 px (mobile-adaptation, ui31-shell) */
     .header-clock {
       border-left: 0;
     }
-    .workspace .workspace-header .workspace-search.workspace-search--icon {
-      width: var(--control-h);
-      min-width: var(--control-h);
-      height: var(--control-h);
-      min-height: var(--control-h);
-    }
   }
-  /* самые узкие телефоны (строка шапки уже 344 px, экран до 375): только время, дата в подсказке.
-     Запрос по ширине строки шапки, а не экрана: точки перелома экрана остаются 600/960/1280 */
+  /* самые узкие телефоны (до 360 px): часы сжимаются первыми, текст не режется (header-search.spec 320) */
   .workspace-header__row {
     container: header-row / inline-size;
   }
   @container header-row (max-width: 343px) {
     .header-clock__date {
       display: none;
+    }
+    .header-clock {
+      padding-left: 0;
     }
   }
 }

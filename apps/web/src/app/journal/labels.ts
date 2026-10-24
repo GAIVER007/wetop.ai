@@ -117,6 +117,8 @@ export const ACTION_RU: Record<string, string> = {
   // напоминания, бонусы и сертификаты салона (решение 21.10.2026)
   'beauty.reminder_settings.updated': 'Настройки напоминаний клиентам изменены',
   'beauty.reminder.manual_sent': 'Клиенту напомнили вручную',
+  'food.reminder_settings.updated': 'Настройки напоминаний гостям изменены',
+  'food.reminder.manual_sent': 'Гостю напомнили о брони вручную',
   'beauty.bonus_program.updated': 'Бонусная программа изменена',
   'beauty.bonus.adjusted': 'Бонусы клиента изменены вручную',
   'beauty.gift_certificate.sold': 'Подарочный сертификат продан',
@@ -257,6 +259,7 @@ export const ENTITY_RU: Record<string, string> = {
   accommodation_type: 'Категория номеров',
   appointment: 'Запись',
   client_notification: 'Напоминание клиенту',
+  restaurant_reservation_notification: 'Напоминание гостю о брони',
   gift_certificate: 'Подарочный сертификат',
   bar_category: 'Категория бара',
   bar_inventory_count: 'Пересчёт бара',

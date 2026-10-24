@@ -37,6 +37,7 @@ import {
 import type { DbTx, Prisma, DiningArea, DiningTable, ServicePeriod } from '@pms/database';
 import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
+import { syncReservationReminders } from './reminders';
 import { foodMay, foodScope, foodTransaction, foodWritable, waiterSelf, type FoodScope } from './scope';
 import { occupancyCommand, occupancyEnabled, reservationOccupancy } from './occupancy';
 import { customerSearch, customerSearchWhere } from '../customers/search';
@@ -659,6 +660,8 @@ export class FoodService {
         source: r.source,
         employeeId: r.employeeId,
       });
+      // §61: напоминания гостю о брони (гостю с улицы не нужны)
+      await syncReservationReminders(tx, r.id);
       return view(
         await tx.restaurantReservation.findUniqueOrThrow({ where: { id: r.id }, include }),
       );
@@ -723,6 +726,7 @@ export class FoodService {
         data: { ...change, startsAt, endsAt, updatedAt: this.changed(r) },
         include,
       });
+      await syncReservationReminders(tx, r.id);
       await this.audit(
         tx,
         s,
@@ -764,6 +768,7 @@ export class FoodService {
         data: { status: b.status as FoodStatus, updatedAt: this.changed(r) },
         include,
       });
+      await syncReservationReminders(tx, r.id);
       await this.audit(
         tx,
         s,
@@ -834,6 +839,7 @@ export class FoodService {
       if(r){
         if(action!=='RELEASE') await tx.tableAssignment.upsert({where:{reservationId:r.id},create:{reservationId:r.id,tableId:tableId!,assignedById:currentUserId()},update:{tableId:tableId!,assignedAt:new Date(),assignedById:currentUserId()}});
         await tx.restaurantReservation.update({where:{id:r.id},data:{status:action==='RELEASE'?'COMPLETED':'SEATED',updatedAt:this.changed(r)}});
+        await syncReservationReminders(tx, r.id);
         await this.audit(tx,s,r.id,'food.occupancy.'+action.toLowerCase(),{sessionId:result.id,tableId},{status:r.status,tableId:r.tableAssignment?.tableId??null});
       }
       return result;

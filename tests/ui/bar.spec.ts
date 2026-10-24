@@ -219,7 +219,7 @@ test('меню: экраны бара в разделе «Склад», адре
   await expect(nav.locator('.sidenav__section', { hasText: /^Бар$/ })).toHaveCount(0);
   const items = await openSection(page, 'Склад');
   // пункты в порядке вкладок экрана склада (19.10.2026)
-  await expect(items.locator('a')).toHaveText(['Обзор склада', 'Бар', 'Расходники', 'Приходы', 'Номенклатура', 'Поставщики', 'Движение товаров']);
+  await expect(items.locator('a')).toHaveText(['Обзор склада', 'Бар', 'Кухня', 'Приходы', 'Номенклатура', 'Поставщики', 'Движение товаров']);
   await expect(items.getByRole('link', { name: 'Номенклатура', exact: true })).toHaveAttribute('aria-current', 'page');
   // у приходов свой пункт
   await page.goto('/bar/receipts');

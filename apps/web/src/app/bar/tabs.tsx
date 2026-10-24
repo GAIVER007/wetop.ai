@@ -21,12 +21,13 @@ const SECTIONS: Array<{ id: BarSection; href: string; label: string }> = [
 ];
 
 export function barSectionsFor(vertical: WebVertical) {
-  // склад материалов: салон и гостиница зовут его «Расходники» (аудит 22.10.2026); у ресторана он на `/stock` (ADR-STOCK-ALL)
+  // склад кухни (решение владельца 24.10.2026): у салона и гостиницы «Кухня»; у ресторана «Склад кухни» на `/stock`,
+  // его «Кухня» уже экран заказов (ADR-STOCK-ALL)
   const kitchen =
     vertical === 'FOOD_SERVICE'
       ? { id: 'consumables' as const, href: '/stock', label: 'Склад кухни' }
-      : { id: 'consumables' as const, href: '/bar/consumables', label: 'Расходники' };
-  // товары на продажу: у салона «Товары», у гостиницы и ресторана «Бар» (слово из `vertical-copy.ts`)
+      : { id: 'consumables' as const, href: '/bar/consumables', label: 'Кухня' };
+  // товары на продажу: «Бар» у всех направлений (слово из `vertical-copy.ts`)
   const goods = { ...SECTIONS[1]!, label: verticalCopy(vertical).menu.goods };
   return [SECTIONS[0]!, goods, kitchen, ...SECTIONS.slice(2)];
 }

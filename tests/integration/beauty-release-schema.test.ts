@@ -16,7 +16,6 @@ const id = Object.fromEntries(['org', 'business', 'location', 'employee', 'custo
 let db: pg.Client;
 let databaseUrl: string;
 let baseline: unknown;
-let later: string[] = [];
 const databaseName = `salon_release_proof_${randomUUID().replaceAll('-', '')}`;
 
 async function signature() {

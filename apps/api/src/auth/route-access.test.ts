@@ -510,6 +510,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PUT /business-market/competitors/:id/snapshot': 'rates',
   'GET /market/collector/competitors': 'service',
   'PUT /market/collector/competitors/:id/occupancy': 'service',
+  'GET /business-market/collector/competitors': 'service',
+  'PUT /business-market/collector/competitors/:id/days': 'service',
   // MKT4: публичный рантайм сайтов, только узкий ключ SITES_RUNTIME_KEY; чтения версии по id нет
   'GET /sites-runtime/current': 'service',
   'GET /sites-runtime/preview': 'service',

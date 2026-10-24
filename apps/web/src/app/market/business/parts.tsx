@@ -144,6 +144,7 @@ export function SnapshotCell({
   day,
   level,
   freeSlots,
+  collected = false,
   label,
   editable,
   className,
@@ -152,6 +153,8 @@ export function SnapshotCell({
   day: string;
   level: BusinessAvailability | null;
   freeSlots: number | null;
+  /** снимок записал сборщик с площадки (источник AI_AGENT), а не человек */
+  collected?: boolean;
   label: string;
   editable: boolean;
   className: string;
@@ -162,6 +165,7 @@ export function SnapshotCell({
     <>
       <span className="market-cell__value">{label}</span>
       {freeSlots !== null && level !== 'SOLD_OUT' && <span className="market-cell__delta">окон {freeSlots}</span>}
+      {collected && <span className="market-cell__delta" data-testid="bm-cell-collected">ИИ</span>}
     </>
   );
   return (

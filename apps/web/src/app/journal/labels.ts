@@ -169,6 +169,7 @@ export const ACTION_RU: Record<string, string> = {
   'location_competitor.updated': 'Конкурент филиала изменён',
   'location_competitor.archived': 'Конкурент филиала в архиве',
   'location_competitor.snapshot': 'Загрузка конкурента записана',
+  'location_competitor.collected': 'Загрузка конкурента собрана с площадки',
   'market.occupancy.collected': 'Загрузка конкурентов собрана',
   'market.occupancy.recorded': 'Загрузка конкурентов внесена',
   'market.rates.recorded': 'Цены конкурентов внесены',

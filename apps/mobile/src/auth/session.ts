@@ -196,8 +196,38 @@ export class SessionController {
       return;
     await this.run(() => this.resolve(this.epoch, id));
   }
+  async readFood(action: 'tables' | 'orders', cursor?: string): Promise<unknown> {
+    const current = this.state;
+    const token = this.token;
+    const epoch = this.epoch;
+    if (current.kind !== 'ready' || current.branch.vertical !== 'FOOD_SERVICE' || !token)
+      throw new AccessError('forbidden');
+    try {
+      const result = await this.api.food(
+        token,
+        `business=${current.branch.location.businessId};location=${current.branch.locationId}`,
+        action,
+        cursor,
+      );
+      if (
+        epoch !== this.epoch ||
+        this.state.kind !== 'ready' ||
+        this.state.identity !== current.identity
+      )
+        throw new AccessError('forbidden');
+      return result;
+    } catch (error) {
+      if (epoch === this.epoch && error instanceof AccessError && error.kind === 'unauthorized') {
+        ++this.epoch;
+        this.publish({ kind: 'loading' });
+        await this.failure(error, this.epoch);
+      }
+      throw error;
+    }
+  }
   async changeBranch() {
     if (this.state.kind !== 'ready') return;
+    ++this.epoch;
     const { user, branches, organizations, personal } = this.state;
     this.publish({ kind: 'choose', user, branches, organizations, personal });
   }

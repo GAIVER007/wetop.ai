@@ -155,6 +155,14 @@ export function createAccessApi(base: string, fetcher: typeof fetch = fetch): Ac
     logout: async (token) => {
       await request('logout', 'POST', token);
     },
+    food: (token, scope, action, cursor) =>
+      request(
+        `food/${action}${cursor ? '?cursor=' + encodeURIComponent(cursor) : ''}`,
+        'GET',
+        token,
+        undefined,
+        scope,
+      ),
     reset: async (email) => {
       await request('password-reset', 'POST', undefined, { email });
     },

@@ -20,6 +20,7 @@ function Routes() {
         <Stack.Screen name="index" />
         <Stack.Protected guard={ready}>
           <Stack.Screen name="menu" />
+          <Stack.Screen name="restaurant" />
           <Stack.Screen name="design-system" />
         </Stack.Protected>
       </Stack>

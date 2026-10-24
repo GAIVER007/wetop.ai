@@ -29,6 +29,12 @@ export interface AccessApi {
   organizations(token: string): Promise<Organization[]>;
   switchOrganization(token: string, id: string): Promise<Login>;
   logout(token: string): Promise<void>;
+  food(
+    token: string,
+    scope: string,
+    action: 'tables' | 'orders',
+    cursor?: string,
+  ): Promise<unknown>;
   reset(email: string): Promise<void>;
 }
 export interface TokenStore {

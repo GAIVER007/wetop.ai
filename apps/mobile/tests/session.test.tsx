@@ -36,6 +36,7 @@ function fixture() {
       ]),
     switchOrganization: jest.fn(),
     logout: jest.fn().mockResolvedValue(undefined),
+    food: jest.fn(),
     reset: jest.fn().mockResolvedValue(undefined),
   };
   return { api, store, session: new SessionController(api, store) };
@@ -142,4 +143,33 @@ test('personal account with multiple locations must choose its workplace', async
   });
   await session.login('test@example.invalid', 'fixture');
   expect(session.state.kind).toBe('choose');
+});
+
+test('food reads use verified scope and reject a late response after branch selection starts', async () => {
+  const { session, api } = fixture();
+  await session.login('test@example.invalid', 'fixture');
+  let finish!: (v: unknown) => void;
+  api.food.mockReturnValue(
+    new Promise((resolve) => {
+      finish = resolve;
+    }),
+  );
+  const response = session.readFood('tables');
+  expect(api.food).toHaveBeenCalledWith(
+    'fixture-token',
+    'business=biz-01;location=loc-01',
+    'tables',
+    undefined,
+  );
+  await session.changeBranch();
+  finish({ tables: [] });
+  await expect(response).rejects.toThrow();
+});
+test('food unauthorized response clears local access', async () => {
+  const { session, api, store } = fixture();
+  await session.login('test@example.invalid', 'fixture');
+  api.food.mockRejectedValue(new AccessError('unauthorized'));
+  await expect(session.readFood('orders')).rejects.toThrow();
+  expect(session.state.kind).toBe('signed-out');
+  expect(store.clear).toHaveBeenCalled();
 });

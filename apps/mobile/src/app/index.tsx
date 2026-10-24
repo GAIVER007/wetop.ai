@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { Text, View } from 'react-native';
 import { useAccess } from '../auth/provider';
 import { AccessScreen } from '../auth/access-screen';
@@ -29,10 +30,13 @@ export default function HomeScreen() {
           {state.organizations.find((o) => o.current)?.name ?? 'Рабочая организация'}
         </Text>
         <Text style={{ color: theme.secondary, fontSize: 16, lineHeight: 24 }}>
-          Вход и доступ к филиалу подтверждены. Рабочие разделы ещё подключаются; операции пока
-          доступны в веб-версии.
+          Вход и доступ к филиалу подтверждены. Выберите рабочий раздел ниже. Остальные операции
+          пока доступны в веб-версии.
         </Text>
       </View>
+      {state.branch.vertical === 'FOOD_SERVICE' ? (
+        <ActionButton label="Столы и заказы" onPress={() => router.push('/restaurant')} />
+      ) : null}
       {state.branches.length > 1 ? (
         <ActionButton
           secondary

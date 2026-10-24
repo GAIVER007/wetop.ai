@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Icon, type IconName } from './icon';
+import { Input, Select } from './ui';
 import '../app/journal-head.css';
 
 /**
@@ -81,8 +82,7 @@ export function JournalSearch({
   return (
     <label className="journal-search">
       <Icon name="search" className="journal-search__icon" />
-      <input
-        className="inp"
+      <Input
         type="search"
         aria-label={label}
         placeholder={placeholder}
@@ -116,13 +116,13 @@ export function JournalFilter({
   options: Array<{ value: string; label: string }>;
 }) {
   return (
-    <select className="inp journal-filter" aria-label={label} value={value} onChange={(e) => onChange(e.target.value)}>
+    <Select className="journal-filter" aria-label={label} value={value} onChange={(e) => onChange(e.target.value)}>
       <option value="">{allLabel}</option>
       {options.map((o) => (
         <option key={o.value} value={o.value}>
           {o.label}
         </option>
       ))}
-    </select>
+    </Select>
   );
 }

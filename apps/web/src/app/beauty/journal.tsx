@@ -25,7 +25,9 @@ import {
 } from './calendar-columns';
 import { DayNav } from '../../components/day-nav';
 import { JournalFilter, JournalHead, JournalSearch } from '../../components/journal-head';
-import { useNarrow } from '../../lib/use-narrow';
+import { useNarrow, useWide } from '../../lib/use-narrow';
+import { DayPanel } from './day-panel';
+import { masterLoad, shortHour, shortName } from './journal-day';
 import { clock, clockMinutes, instantOf, localInput } from './time';
 import { beautyPeriodRows, moveAppointment } from './journal-actions';
 import { beautyStatus } from '../../lib/status/beauty';
@@ -82,6 +84,9 @@ export function JournalBoard({
   const [compact, setCompact] = useState(false);
   const [query, setQuery] = useState('');
   const narrow = useNarrow();
+  // панель дня справа от сетки: на широком экране (вариант B, 24.10.2026); на телефоне карточка открывается сразу
+  const wide = useWide();
+  const [picked, setPicked] = useState<string | null>(null);
   const PX_PER_MIN = compact ? 1 : 1.5;
   const [panel, setPanel] = useState<Panel>(() => {
     const row = day.appointments.find((item) => item.id === appointmentId);
@@ -185,6 +190,8 @@ export function JournalBoard({
   const segments = appointmentSegments(day.appointments);
   const live = reportRows.filter((a) => a.status !== 'CANCELLED');
   const shown = master ? columns.filter((c) => c.id === master) : columns;
+  // 5 и больше мастеров: узкие колонки, короткие подписи (владелец 24.10.2026: «а если мастеров 5+»)
+  const dense = shown.length >= 5 && !narrow;
   const initials = (name: string) =>
     name
       .split(/\s+/)
@@ -203,9 +210,7 @@ export function JournalBoard({
       className="beauty-now"
       data-testid="beauty-now"
       aria-hidden="true"
-      style={{
-        top: (nowMinutes - from) * PX_PER_MIN,
-      }} /* slop-allow: inline-style положение линии «сейчас» */
+      style={{ top: (nowMinutes - from) * PX_PER_MIN }} /* slop-allow: inline-style положение линии «сейчас» */
     />
   );
   const column = (employee: BeautyDayColumn) => (
@@ -290,11 +295,7 @@ export function JournalBoard({
           <div
             key={`hidden-${a.segmentKey}`}
             className="beauty-tile beauty-tile--hidden"
-            style={{
-              /* slop-allow: inline-style положение и высота скрытой записи из минут визита */
-              top: (a.startMinutes - from) * PX_PER_MIN,
-              height: Math.max(24, a.endMinutes - a.startMinutes) * PX_PER_MIN,
-            }}
+            style={{ top: (a.startMinutes - from) * PX_PER_MIN, height: Math.max(24, a.endMinutes - a.startMinutes) * PX_PER_MIN }} /* slop-allow: inline-style положение и высота скрытой записи из минут визита */
           >
             <span>
               {clock(a.startMinutes)}–{clock(a.endMinutes)}
@@ -324,20 +325,43 @@ export function JournalBoard({
               setDropTarget(null);
             }}
             className={`beauty-tile beauty-tile--${a.status.toLowerCase()}`}
-            style={{
-              top: (a.startMinutes - from) * PX_PER_MIN,
-              height: Math.max(24, a.endMinutes - a.startMinutes) * PX_PER_MIN,
-            }}
+            style={{ top: (a.startMinutes - from) * PX_PER_MIN, height: Math.max(24, a.endMinutes - a.startMinutes) * PX_PER_MIN }} /* slop-allow: inline-style положение и высота записи из минут визита */
             title={`${clock(a.startMinutes)}–${clock(a.endMinutes)}, ${a.customer.name}, ${a.serviceName}, ${formatMoney(a.priceMinor, a.currency)}, ${beautyStatus[a.status].label}`}
-            onClick={() => setPanel({ kind: 'card', row: a.appointment })}
+            onClick={() => {
+              // щелчок открывает карточку, как раньше, и показывает запись в панели дня справа
+              setPicked(a.appointment.id);
+              setPanel({ kind: 'card', row: a.appointment });
+            }}
+            aria-pressed={wide ? picked === a.appointment.id : undefined}
           >
-            <span className="beauty-tile-time">
-              {clock(a.startMinutes)}–{clock(a.endMinutes)}
+            {/* вариант B (24.10.2026): время и статус в строку, клиент крупно, услуга, сумма и оплата */}
+            <span className="beauty-tile-top">
+              <span className="beauty-tile-time">
+                {clock(a.startMinutes)}–{clock(a.endMinutes)}
+              </span>
+              <span className="beauty-tile-status">{beautyStatus[a.status].label}</span>
             </span>
             <strong className="beauty-tile-name">{a.customer.name}</strong>
             <span className="beauty-tile-service">{a.serviceName}</span>
-            <span className="beauty-tile-service">
-              {formatMoney(a.priceMinor, a.currency)} / {beautyStatus[a.status].label}
+            <span className="beauty-tile-money">
+              <b>{formatMoney(a.priceMinor, a.currency)}</b>
+              {a.status !== 'NO_SHOW' && (
+                <span
+                  className={
+                    BigInt(a.appointment.paidMinor || '0') >= BigInt(a.appointment.priceMinor || '0')
+                      ? 'beauty-paid'
+                      : 'beauty-unpaid'
+                  }
+                >
+                  {BigInt(a.appointment.paidMinor || '0') >= BigInt(a.appointment.priceMinor || '0')
+                    ? dense
+                      ? 'Опл.'
+                      : 'Оплачено'
+                    : dense
+                      ? 'Не опл.'
+                      : 'Не оплачено'}
+                </span>
+              )}
             </span>
           </button>
         ))}
@@ -353,11 +377,7 @@ export function JournalBoard({
         <div
           key={m}
           className="beauty-hour"
-          style={
-            /* slop-allow: inline-style высота шага из минут расписания */ {
-              height: STEP * PX_PER_MIN,
-            }
-          }
+          style={{ height: STEP * PX_PER_MIN }} /* slop-allow: inline-style высота шага из минут расписания */
         >
           {clock(m)}
         </div>
@@ -367,7 +387,23 @@ export function JournalBoard({
   const quickReport = (
     <QuickReport
       text="Быстрый отчёт"
-      key={`${day.date}:${master}:${narrow ? 'narrow' : 'wide'}`}
+      key={`${day.date}:${master}:wide`}
+      date={day.date}
+      scope={[
+        day.location.name ?? 'Салон',
+        master
+          ? (columns.find((c) => c.id === master)?.name ?? 'Специалист недоступен')
+          : 'Все специалисты',
+        ...(service || status ? ['С учётом фильтров журнала'] : []),
+      ]}
+      build={buildReport}
+      loadPeriod={beautyPeriodRows}
+    />
+  );
+  const quickReportPhone = (
+    <QuickReport
+      key={`${day.date}:${master}:phone`}
+      text="Быстрый отчёт"
       date={day.date}
       scope={[
         day.location.name ?? 'Салон',
@@ -429,7 +465,7 @@ export function JournalBoard({
         }
         actions={
           <>
-            {!narrow && quickReport}
+            <span className="journal-head__desk-only">{quickReport}</span>
             <Button
               disabled={
                 filterPending ||
@@ -502,18 +538,13 @@ export function JournalBoard({
               allLabel="Все специалисты"
               kind="specialists"
             />
-            {!narrow && serviceFilter}
-            {!narrow && statusFilter}
+            {serviceFilter}
+            {statusFilter}
             <Help
               title={`Фильтры${master || service || status ? `\nАктивных: ${[master, service, status].filter(Boolean).length}` : ''}`}
             >
-              {narrow && (
-                <div className="journal-head__more">
-                  {serviceFilter}
-                  {statusFilter}
-                  {quickReport}
-                </div>
-              )}
+              {/* на телефоне услуга и статус переезжают сюда средствами CSS (без второй копии и без скачка разметки) */}
+              <div className="journal-head__phone-only">{quickReportPhone}</div>
               <Button tone="secondary" aria-pressed={compact} onClick={() => setCompact(!compact)}>
                 Компактный вид
               </Button>
@@ -580,18 +611,15 @@ export function JournalBoard({
       )}
       {/* без специалистов сетку не рисуем: пустая колонка часов ничего не говорит (п. 36) */}
       {columns.length > 0 && (
-        <div className="beauty-layout">
+        <div className={`beauty-layout${wide ? ' beauty-layout--panel' : ''}`}>
           <div className="beauty-board">
             <div
-              className="beauty-grid-day"
+              className={`beauty-grid-day${dense ? ' beauty-grid-day--dense' : ''}`}
               data-testid="beauty-grid"
               role="region"
               aria-label="Расписание дня"
               tabIndex={0}
-              style={{
-                /* slop-allow: inline-style число колонок из количества выбранных мастеров */
-                gridTemplateColumns: `56px repeat(${Math.max(1, shown.length)}, minmax(${shown.length > 6 ? 150 : 180}px, 1fr))`,
-              }}
+              style={{ gridTemplateColumns: `56px repeat(${Math.max(1, shown.length)}, minmax(${shown.length > 6 ? 128 : shown.length >= 5 ? 150 : 180}px, 1fr))` }} /* slop-allow: inline-style число колонок из количества выбранных мастеров */
             >
               <div aria-hidden="true" />
               {shown.map((e) => (
@@ -602,14 +630,17 @@ export function JournalBoard({
                     className="beauty-col-person"
                     aria-pressed={master === e.id}
                     title={
-                      master === e.id ? 'Показать всех специалистов' : `Показать только: ${e.name}`
+                      master === e.id ? `${e.name}: показать всех специалистов` : `Показать только: ${e.name}`
                     }
                     onClick={() => setMaster(master === e.id ? '' : e.id)}
                   >
                     <span className="beauty-avatar" aria-hidden="true">
                       {initials(e.name)}
                     </span>
-                    <span className="beauty-col-person__name">{e.name}</span>
+                    <span className="beauty-col-person__name">
+                      {/* 5+ мастеров: «Айгерим С.», полное имя в подсказке и для экранного диктора */}
+                      {dense ? shortName(e.name) : e.name}
+                    </span>
                     <span className="beauty-col-person__count" data-testid="beauty-col-count">
                       {live.filter((a) => a.employeeId === e.id).length || ''}
                     </span>
@@ -618,11 +649,20 @@ export function JournalBoard({
                     {e.timeOff ? (
                       <Badge>{e.timeOffReason || 'Отсутствие'}</Badge>
                     ) : e.intervals.length ? (
-                      e.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ')
+                      `${e.intervals.map((i) => (dense ? `${shortHour(i.timeFrom)}–${shortHour(i.timeTo)}` : `${i.timeFrom}–${i.timeTo}`)).join(', ')}${masterLoad(e, day.appointments).percent !== null ? `, ${masterLoad(e, day.appointments).percent}%` : ''}`
                     ) : (
                       'Выходной'
                     )}
                   </small>
+                  {masterLoad(e, day.appointments).percent !== null && (
+                    <span
+                      className="beauty-load"
+                      role="img"
+                      aria-label={`Загрузка ${masterLoad(e, day.appointments).percent}%`}
+                    >
+                      <i style={{ width: `${masterLoad(e, day.appointments).percent}%` }} /* slop-allow: inline-style доля загрузки мастера */ />
+                    </span>
+                  )}
                 </h2>
               ))}
               {hours}
@@ -650,6 +690,17 @@ export function JournalBoard({
                 ))}
             </div>
           </div>
+          {wide && (
+            <DayPanel
+              rows={day.appointments}
+              columns={columns}
+              selected={day.appointments.find((r) => r.id === picked) ?? null}
+              nowMinutes={nowMinutes}
+              canUpdate={canUpdate}
+              onOpen={(row) => setPanel({ kind: 'card', row })}
+              onDone={() => router.refresh()}
+            />
+          )}
         </div>
       )}
       <AppointmentEditor

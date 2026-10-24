@@ -287,15 +287,14 @@ export function WorkspaceBoard({
               label="Поиск гостя"
               placeholder={narrow ? 'Гость' : 'Гость, телефон'}
             />
-            {narrow ? (
+            {foodFilters}
+            <span className="journal-head__phone-only">
               <Help
                 title={`Фильтры${area || status || period ? `\nАктивных: ${[area, status, period].filter(Boolean).length}` : ''}`}
               >
-                <div className="journal-head__more">{foodFilters}</div>
+                <span className="sr-only">Зона, смена и статус</span>
               </Help>
-            ) : (
-              foodFilters
-            )}
+            </span>
           </>
         }
         views={
@@ -389,12 +388,7 @@ export function WorkspaceBoard({
                             <div
                               key={t.id}
                               className="rest-fp__spot"
-                              style={spotStyle(
-                                p.x,
-                                p.y,
-                                t.scale ?? 100,
-                                t.rotation ?? 0,
-                              )} /* slop-allow: inline-style место стола из схемы зала */
+                              style={spotStyle(p.x, p.y, t.scale ?? 100, t.rotation ?? 0)} /* slop-allow: inline-style место стола из схемы зала */
                             >
                               {tableCard(t)}
                             </div>

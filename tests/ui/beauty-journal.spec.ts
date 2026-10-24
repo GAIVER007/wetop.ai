@@ -131,9 +131,11 @@ test('запись из пустой клетки появляется в сет
   // журнал на весь экран (решение владельца 20.10.2026): списка специалистов слева нет, сетка во всю ширину,
   // специалист в шапке колонки с числом записей; нажатие на него оставляет только его колонку
   await expect(main.getByRole('complementary', { name: 'Специалисты' })).toHaveCount(0);
+  // сетка и панель дня справа (вариант B, 24.10.2026) вместе занимают всю ширину
   const board = (await main.getByTestId('beauty-grid').boundingBox())!;
+  const dayPanel = (await main.getByRole('complementary', { name: 'Панель дня' }).boundingBox())!;
   const content = (await main.boundingBox())!;
-  expect(board.width).toBeGreaterThan(content.width * 0.85);
+  expect(board.width + dayPanel.width).toBeGreaterThan(content.width * 0.85);
   const person = main.getByTestId('beauty-grid').locator('.beauty-col-person').first();
   await expect(person.getByTestId('beauty-col-count')).toHaveText('1');
   await page.screenshot({ path: `${SNAPSHOTS}/journal-1440.png`, fullPage: true });

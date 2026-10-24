@@ -1,0 +1,289 @@
+/* Журнал салона, вариант B (владелец 24.10.2026, эскиз sketches/salon-journal-2026-10-24/): сетка и панель дня
+   справа на широком экране, загрузка мастера над колонкой, запись карточкой со статусом и оплатой, нерабочее время
+   штриховкой. Только существующие токены. */
+@layer sections {
+  /* сетка и панель дня */
+  .beauty-page .beauty-layout.beauty-layout--panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .beauty-day-panel {
+    position: sticky;
+    top: var(--space-4);
+    display: grid;
+    gap: var(--space-4);
+  }
+  .beauty-day-panel__card {
+    padding: var(--space-4);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .beauty-day-panel__card h3 {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-2);
+    font-size: var(--text-sm);
+  }
+  .beauty-day-panel__card h3 small {
+    color: var(--text-2);
+    font-weight: var(--weight-semibold);
+  }
+  .beauty-day-panel__time {
+    margin: 0;
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-bold);
+    font-variant-numeric: tabular-nums;
+  }
+  .beauty-day-panel__facts {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: var(--space-1) var(--space-2);
+    margin: var(--space-2) 0 var(--space-4);
+    font-size: var(--text-sm);
+  }
+  .beauty-day-panel__facts dt {
+    color: var(--text-2);
+  }
+  .beauty-day-panel__facts dd {
+    margin: 0;
+    font-weight: var(--weight-semibold);
+    overflow-wrap: anywhere;
+  }
+  .beauty-day-panel__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .beauty-day-panel__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .beauty-day-panel__list li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--border-soft);
+  }
+  .beauty-day-panel__list li:first-child {
+    border-top: 0;
+  }
+  .beauty-day-panel__row {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .beauty-day-panel__row time {
+    flex: none;
+    width: var(--space-10);
+    font-weight: var(--weight-bold);
+    font-variant-numeric: tabular-nums;
+  }
+  .beauty-day-panel__who {
+    display: grid;
+    min-width: 0;
+  }
+  .beauty-day-panel__who b,
+  .beauty-day-panel__who small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .beauty-day-panel__who small {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .beauty-day-panel__money {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+  }
+  .beauty-day-panel__money > div {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-2);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  .beauty-day-panel__money small {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .beauty-day-panel__money b {
+    font-size: var(--text-md);
+  }
+  .beauty-paid {
+    color: var(--success);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+  .beauty-unpaid {
+    color: var(--warning);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+  .beauty-day-panel__money b.beauty-unpaid {
+    font-size: var(--text-md);
+  }
+
+  /* загрузка мастера: полоска под часами работы */
+  .beauty-load {
+    display: block;
+    width: 100%;
+    height: var(--space-1);
+    overflow: hidden;
+    border-radius: var(--radius-full);
+    background: var(--border-soft);
+  }
+  .beauty-load > i {
+    display: block;
+    height: 100%;
+    background: var(--primary);
+  }
+
+  /* запись карточкой: полоса и заливка тоном статуса, время и статус в строку, сумма и оплата внизу */
+  .beauty-page .beauty-grid-day .beauty-tile {
+    align-content: start;
+    gap: 0;
+    padding: var(--space-1) var(--space-2);
+    overflow: hidden;
+    border: 0;
+    border-left: 4px solid var(--info);
+    background: var(--surface);
+    box-shadow: none;
+  }
+  .beauty-page .beauty-grid-day .beauty-tile:hover,
+  .beauty-page .beauty-grid-day .beauty-tile[aria-pressed='true'] {
+    z-index: var(--layer-sticky);
+    box-shadow: var(--shadow-floating);
+  }
+  .beauty-page .beauty-grid-day .beauty-tile[aria-pressed='true'] {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+  }
+  .beauty-page .beauty-grid-day .beauty-tile--booked {
+    border-left-color: var(--info);
+    background: var(--primary-soft);
+  }
+  .beauty-page .beauty-grid-day .beauty-tile--confirmed {
+    border-left-color: var(--primary);
+    background: var(--primary-soft);
+  }
+  .beauty-page .beauty-grid-day .beauty-tile--in_progress {
+    border-left-color: var(--success);
+    background: var(--success-soft);
+  }
+  .beauty-page .beauty-grid-day .beauty-tile--done {
+    border-left-color: var(--text-2);
+    background: var(--surface-muted);
+  }
+  .beauty-page .beauty-grid-day .beauty-tile--no_show {
+    border-left-color: var(--danger);
+    background: var(--danger-soft);
+  }
+  .beauty-tile-top {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+  }
+  .beauty-tile-status {
+    color: var(--text-2);
+    font-weight: var(--weight-semibold);
+    white-space: nowrap;
+  }
+  .beauty-page .beauty-grid-day .beauty-tile-name {
+    overflow: hidden;
+    font-size: var(--text-sm);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .beauty-page .beauty-grid-day .beauty-tile .beauty-tile-service {
+    overflow: hidden;
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .beauty-tile-money {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+  }
+
+  /* нерабочее время и перерыв штриховкой, подпись словами остаётся */
+  .beauty-page .beauty-grid-day .beauty-slot--off {
+    opacity: 1;
+    background: repeating-linear-gradient(135deg, var(--surface-muted) 0 6px, var(--border-soft) 6px 12px);
+  }
+  .beauty-page .beauty-grid-day .beauty-slot-state {
+    color: var(--text-2);
+  }
+
+  /* 5 и больше мастеров: колонки уже, карточка в две строки по смыслу, ничего не налезает */
+  .beauty-page .beauty-grid-day--dense .beauty-col-head small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .beauty-page .beauty-grid-day .beauty-tile-time {
+    white-space: nowrap;
+  }
+  .beauty-page .beauty-grid-day .beauty-tile-top {
+    min-width: 0;
+  }
+  .beauty-page .beauty-grid-day .beauty-tile-status {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .beauty-page .beauty-grid-day .beauty-tile-money > * {
+    white-space: nowrap;
+  }
+
+  /* плотный режим: без кружка с инициалами в шапке, статус цветом карточки (слово в подсказке), строки не переносятся */
+  .beauty-page .beauty-grid-day--dense .beauty-col-person .beauty-avatar {
+    display: none;
+  }
+  .beauty-page .beauty-grid-day--dense .beauty-tile-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .beauty-page .beauty-grid-day--dense .beauty-tile-top,
+  .beauty-page .beauty-grid-day--dense .beauty-tile-money {
+    flex-wrap: nowrap;
+  }
+  .beauty-page .beauty-grid-day--dense .beauty-tile-name,
+  .beauty-page .beauty-grid-day--dense .beauty-tile-service {
+    line-height: var(--leading-tight);
+  }
+
+  .beauty-page .beauty-grid-day--dense .beauty-col-head small {
+    padding-left: 0;
+    text-align: left;
+  }
+  .beauty-page .beauty-grid-day--dense .beauty-tile {
+    padding-right: var(--space-1);
+  }
+  .beauty-page .beauty-grid-day--dense .beauty-tile-money {
+    overflow: hidden;
+  }
+}

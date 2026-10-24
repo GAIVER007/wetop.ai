@@ -78,7 +78,8 @@ export function WeekCalendar({
   };
   const visible = (day: BeautyDay) =>
     day.appointments.filter(
-      (r) => matchesAppointment(r, employee, service) && (!status || r.status === status) && found(r),
+      (r) =>
+        matchesAppointment(r, employee, service) && (!status || r.status === status) && found(r),
     );
   const services = [
     ...new Map(days.flatMap((day) => day.services.map((sv) => [sv.id, sv] as const))).values(),
@@ -163,15 +164,25 @@ export function WeekCalendar({
               {
                 key: 'wait',
                 label: 'ждём',
-                value: weekRows.filter((r) => r.status === 'BOOKED' || r.status === 'CONFIRMED').length,
+                value: weekRows.filter((r) => r.status === 'BOOKED' || r.status === 'CONFIRMED')
+                  .length,
               },
-              { key: 'done', label: 'завершено', value: weekRows.filter((r) => r.status === 'DONE').length },
+              {
+                key: 'done',
+                label: 'завершено',
+                value: weekRows.filter((r) => r.status === 'DONE').length,
+              },
             ]}
           />
         }
         filters={
           <>
-            <JournalSearch value={query} onChange={setQuery} label="Поиск в журнале" placeholder={narrow ? 'Клиент' : 'Клиент, телефон'} />
+            <JournalSearch
+              value={query}
+              onChange={setQuery}
+              label="Поиск в журнале"
+              placeholder={narrow ? 'Клиент' : 'Клиент, телефон'}
+            />
             <EmployeeFilter
               options={options}
               value={employee}
@@ -179,16 +190,15 @@ export function WeekCalendar({
               kind="specialists"
               onChange={(id) => router.replace(href(selectedDate, true, id), { scroll: false })}
             />
-            {!narrow && serviceFilter}
-            {!narrow && statusFilter}
-            {narrow && (
-              <Help title={`Фильтры${service || status ? `\nАктивных: ${[service, status].filter(Boolean).length}` : ''}`}>
-                <div className="journal-head__more">
-                  {serviceFilter}
-                  {statusFilter}
-                </div>
+            {serviceFilter}
+            {statusFilter}
+            <span className="journal-head__phone-only">
+              <Help
+                title={`Фильтры${service || status ? `\nАктивных: ${[service, status].filter(Boolean).length}` : ''}`}
+              >
+                <span className="sr-only">Услуга и статус</span>
               </Help>
-            )}
+            </span>
           </>
         }
         views={views}

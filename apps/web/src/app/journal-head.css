@@ -113,11 +113,11 @@
     margin: 0;
   }
   /* «Фильтры» в строке отборов: кнопка той же высоты, что поля; раскрытая панель занимает строку целиком */
-  .journal-head__filters > .context-help {
+  .journal-head__filters .context-help {
     display: contents;
     margin: 0;
   }
-  .journal-head__filters > .context-help > summary {
+  .journal-head__filters .context-help > summary {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
@@ -131,19 +131,26 @@
     white-space: pre-line;
     list-style: none;
   }
-  .journal-head__filters > .context-help > summary::-webkit-details-marker {
+  .journal-head__filters .context-help > summary::-webkit-details-marker {
     display: none;
   }
-  .journal-head__filters > .context-help[open] > summary {
+  .journal-head__filters .context-help[open] > summary {
     border-color: var(--primary);
     color: var(--primary);
   }
-  .journal-head__filters > .context-help > div {
+  .journal-head__filters .context-help > div {
     flex: 1 1 100%;
     order: 10;
     max-width: none;
     padding: var(--space-2) 0 0;
     border-top: 1px solid var(--border-soft);
+  }
+  /* одна копия отборов: на компьютере в строке, на телефоне появляются под «Фильтрами», когда они раскрыты */
+  .journal-head__phone-only {
+    display: none;
+  }
+  .journal-head__desk-only {
+    display: contents;
   }
   .journal-head__more {
     display: grid;
@@ -265,7 +272,7 @@
       grid-column: 1;
       grid-row: 1;
     }
-    .journal-head__filters > .context-help > summary {
+    .journal-head__filters .context-help > summary {
       grid-column: 2;
       grid-row: 1;
       justify-content: center;
@@ -291,9 +298,28 @@
       min-height: var(--touch-target);
       padding: 0 var(--space-2);
     }
-    .journal-head__filters > .context-help > div {
+    .journal-head__filters .context-help > div {
       grid-column: 1 / -1;
       grid-row: 3;
+    }
+    .journal-head__phone-only {
+      display: contents;
+    }
+    .journal-head__desk-only {
+      display: none;
+    }
+    .journal-head__filters > .journal-filter,
+    .journal-head__filters > .rest-shifts,
+    .journal-head__filters > .field {
+      display: none;
+    }
+    .journal-head__filters:has(.context-help[open]) > .journal-filter,
+    .journal-head__filters:has(.context-help[open]) > .rest-shifts,
+    .journal-head__filters:has(.context-help[open]) > .field {
+      display: flex;
+      grid-column: 1 / -1;
+      width: 100%;
+      max-width: none;
     }
     .journal-head__filters {
       padding: var(--space-2);

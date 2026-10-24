@@ -86,7 +86,7 @@ export function MetaCabinet({ view, editable }: { view: MetaConnectionView; edit
 }
 
 /** «Подключить через Facebook»: сразу окно входа, кабинет человек отмечает там (никаких номеров) */
-function ConnectButton({ again = false }: { again?: boolean }) {
+export function ConnectButton({ again = false }: { again?: boolean }) {
   const [state, action, pending] = useFileAction(startMetaAction);
   return (
     <form action={action} data-testid="meta-connect-form">

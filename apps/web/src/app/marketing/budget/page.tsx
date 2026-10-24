@@ -1,234 +1,324 @@
 import Link from 'next/link';
+import { unstable_rethrow } from 'next/navigation';
 import { can } from '@pms/domain';
 import type { SearchParams } from '../../../lib/search-params';
 import { requireFeature } from '../../../lib/vertical-guard';
-import { deskShell } from '../../../lib/desk-shell';
 import { formatMoney } from '../../../lib/money';
-import { marketingCampaignsApi } from '../../../lib/api';
-import { displayDate } from '../../../lib/display-date';
-import { pluralRu } from '../../../lib/plural';
+import { METRIC } from '../../../lib/metric-words';
+import { deskShell } from '../../../lib/desk-shell';
+import { verticalCopy } from '../../../lib/vertical-copy';
+import {
+  marketingBudgetApi,
+  marketingCampaignsApi,
+  metaConnectionApi,
+  type MarketingCampaignView,
+  type MetaConnectionView,
+  type MarketingResultsView,
+} from '../../../lib/api';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
-import { ShareBar } from '../../../components/share-bar';
-import { Badge, EmptyState, SectionTitle, Table } from '../../../components/ui';
+import { Badge, SectionTitle, Table } from '../../../components/ui';
 import { BackToModules } from '../parts';
 import '../marketing.css';
 import './budget.css';
 import '../../finance/summary.css';
 import { loadBudget } from './load';
-import { channelPlan, summarize } from './derive';
-import { BudgetTabs, ChooseLocation, MonthNav, PlatformShares, platformLabel } from './parts';
-import { ExpenseButton, LinesButton, PlanButton } from './drawers';
+import { BUDGET_TITLE, BudgetTabs, ChooseLocation, MonthNav, platformLabel } from './parts';
+import { budgetSummary, type CabinetSum, type Metric, type MoneyMetric } from './summary';
+import { dataSources, type DataSource, type SourceState } from './sources';
+import { ExpenseButton, ImportCsvButton, type ExpenseDefaults } from './drawers';
+import { ConnectButton } from '../ads/meta';
 
 /**
- * «Маркетинг → Бюджет», обзор месяца (МКТ-В1/В2, ТЗ «Модуль Маркетинг» 1.0, экран 2 макета):
- * план, израсходовано, остаток, прогноз конца месяца, дней до конца, рекомендация и распределение
- * по каналам. Все числа считаются из строк журнала (`derive.ts`), сервер производных не хранит.
- * Право `marketing`, как у всего раздела (ADR-MKT-B7); филиал строго из scope (409: «Выберите филиал»).
+ * «Бюджет и аналитика → Сводка» (решение владельца 20.10.2026, `docs/decisions/2026-10-20-budget-analytics-summary.md`):
+ * один экран ответа «сколько потратили и что это принесло». Расход вручную (журнал «Бюджета») и расход кабинета Meta
+ * (§55) стоят раздельно и не складываются (Q-MKT-SUM); заявки, цена заявки и ROMI по каналам считает `summary.ts`.
+ * Данные из трёх настоящих ответов API; упал один источник, остальное показывается, а пропуск назван словами.
  */
-export default async function BudgetPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  await requireFeature('/marketing/budget');
+const quiet = async <T,>(p: Promise<T>): Promise<T | 'error'> => {
+  try {
+    return await p;
+  } catch (error) {
+    unstable_rethrow(error);
+    return 'error';
+  }
+};
+
+const NO_DATA = 'Нет данных';
+const romiText = (v: number) => `${v > 0 ? '+' : ''}${v} %`;
+const cabinetText = (sums: CabinetSum[]) => sums.map((s) => formatMoney(s.amountMinor, s.currency)).join(', ');
+
+/** Ячейка с пропуском: «нет данных» и причина для программы чтения и подсказкой при наведении */
+function Missing({ reason }: { reason: string | null }) {
+  return (
+    <span className="budget-cell-missing" title={reason ?? undefined}>
+      {NO_DATA}
+      {reason && <span className="sr-only">: {reason}</span>}
+    </span>
+  );
+}
+
+const moneyCell = (m: MoneyMetric) => (m.value === null ? <Missing reason={m.reason} /> : formatMoney(m.value, m.currency));
+const romiCell = (m: Metric<number>) => (m.value === null ? <Missing reason={m.reason} /> : romiText(m.value));
+
+export default async function BudgetSummaryPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const me = await requireFeature('/marketing/budget');
+  const copy = verticalCopy(me.context?.vertical);
   const [loaded, shell] = await Promise.all([loadBudget(await searchParams), deskShell()]);
   const role = shell.access.role;
   const editable = !shell.readOnly && (role === null || can(role, 'marketing'));
-  const subtitle = 'План месяца, расходы на продвижение и прогноз: все каналы в одном месте.';
+  const subtitle = 'Сколько потратили на продвижение, сколько пришло заявок и окупается ли каждый канал.';
   if (loaded.chooseLocation || loaded.error)
     return (
-      <Page crumbs={<BackToModules />} title="Бюджет маркетинга" subtitle={subtitle}>
+      <Page crumbs={<BackToModules />} title={BUDGET_TITLE} subtitle={subtitle}>
         {loaded.error ? <LoadError testId="budget-error" {...loaded.error} /> : <ChooseLocation />}
       </Page>
     );
   const view = loaded.view!;
-  // кампании для выбора в форме расхода (§53); не загрузились: форма без выбора, обзор от этого не зависит
-  const campaigns = await marketingCampaignsApi.list(view.month).then((r) => r.campaigns, () => []);
-  const t = summarize(view);
-  const channels = channelPlan(view);
+  const [campaignsView, results, meta] = await Promise.all([
+    quiet(marketingCampaignsApi.list(view.month)),
+    quiet<MarketingResultsView>(marketingBudgetApi.results(view.month)),
+    quiet<MetaConnectionView>(metaConnectionApi.view()),
+  ]);
+  const campaigns: MarketingCampaignView[] | 'error' = campaignsView === 'error' ? 'error' : campaignsView.campaigns;
+  const s = budgetSummary({ view, campaigns, results });
   const rc = view.reportingCurrency;
-  // §52: без общего плана план месяца это сумма каналов
-  const planValue = view.plan ?? (channels.allocated > 0n ? channels.allocated.toString() : null);
-  const money = (v: bigint | null) => (v === null ? '–' : formatMoney(v, rc));
-  const recent = view.expenses.slice(0, 6);
+  const cabinet = s.cabinetSpend;
+  const sources = dataSources({
+    expenses: view.expenses.length,
+    otherAds: [...new Set(view.expenses.map((e) => e.platform))].filter((p) =>
+      ['GOOGLE', 'TIKTOK', 'YOUTUBE'].includes(p),
+    ),
+    meta,
+    results,
+    editable,
+  });
+  const defaults: ExpenseDefaults = {
+    today: view.today,
+    reportingCurrency: rc,
+    locationCurrency: view.locationCurrency,
+    campaigns: campaigns === 'error' ? [] : campaigns,
+  };
+
   return (
-    <Page
-      crumbs={<BackToModules />}
-      title="Бюджет маркетинга"
-      subtitle={subtitle}
-      actions={
-        editable ? (
-          <ExpenseButton
-            primary
-            defaults={{ today: view.today, reportingCurrency: rc, locationCurrency: view.locationCurrency, campaigns }}
-          />
-        ) : undefined
-      }
-    >
-      <div className="budget-screen" data-testid="budget-overview">
+    <Page crumbs={<BackToModules />} title={BUDGET_TITLE} subtitle={subtitle}>
+      <div className="budget-screen" data-testid="budget-summary">
         <div className="budget-head">
-          <BudgetTabs current="overview" month={view.month} />
+          <BudgetTabs current="summary" month={view.month} />
           <MonthNav base="/marketing/budget" month={view.month} />
         </div>
-        {/* план и итоги месяца одной строкой с кнопкой «Задать план», без плиток (аудит 21.10.2026 п. 32) */}
-        <div className="budget-plan-line">
-          <dl className="money-summary">
-            <div>
-              <dt>Общий бюджет</dt>
-              <dd data-testid="budget-plan">{planValue === null ? 'Не задан' : formatMoney(planValue, rc)}</dd>
-              {planValue !== null && t.planUsedPct !== null && (
-                <dd className="budget-plan-used">
-                  <ShareBar
-                    label="Израсходовано от плана"
-                    value={Math.min(100, t.planUsedPct)}
-                    tone={t.planUsedPct > 100 ? 'danger' : 'info'}
-                  />
-                  {t.planUsedPct} %
-                </dd>
+        {/* итоги месяца одной строкой, без плиток (аудит 21.10.2026 п. 32, как «План» и «Аналитика») */}
+        <dl className="money-summary" data-testid="summary-line">
+          <div>
+            <dt>Расход вручную</dt>
+            <dd data-testid="summary-manual">{formatMoney(s.manualSpend.value, rc)}</dd>
+          </div>
+          <div>
+            <dt>Расход кабинета Meta</dt>
+            <dd data-testid="summary-cabinet">
+              {cabinet.value === null ? (
+                <Missing reason={cabinet.reason} />
+              ) : cabinet.value.length === 0 ? (
+                <span className="muted">не подключён</span>
+              ) : (
+                cabinetText(cabinet.value)
               )}
-            </div>
-            <div>
-              <dt>Израсходовано</dt>
-              <dd data-testid="budget-spent">{formatMoney(t.spent, rc)}</dd>
-            </div>
-            <div>
-              <dt>Остаток</dt>
-              <dd data-testid="budget-remainder" className={t.remainder !== null && t.remainder < 0n ? 'budget-td-danger' : undefined}>
-                {t.remainder === null ? '–' : formatMoney(t.remainder, rc)}
-              </dd>
-            </div>
-            <div>
-              <dt>Прогноз конца месяца</dt>
-              <dd data-testid="budget-forecast">{t.forecast === null ? '–' : formatMoney(t.forecast, rc)}</dd>
-            </div>
-          </dl>
-          {editable && <PlanButton month={view.month} plan={view.plan} currency={rc} />}
-        </div>
-        <div className="budget-meta" data-testid="budget-meta">
-          <span>
-            {planValue === null
-              ? 'Задайте план, и появятся остаток и рекомендация. '
-              : ''}
-            До конца месяца {pluralRu(t.daysLeft, ['день', 'дня', 'дней'])}
-          </span>
-          {t.onTrack !== null &&
-            (t.onTrack ? (
-              <Badge tone="ok" data-testid="budget-ontrack">
-                Остаётесь в плане
-              </Badge>
-            ) : (
-              <Badge tone="warn" data-testid="budget-ontrack">
-                Прогноз выше плана
-              </Badge>
-            ))}
-        </div>
-        <section aria-labelledby="budget-lines-title">
-          <div className="budget-recent-head">
-            <SectionTitle id="budget-lines-title">План по каналам</SectionTitle>
-            {editable && (
-              <LinesButton
-                month={view.month}
-                plan={view.plan}
-                lines={view.lines}
-                prevLines={view.prevLines}
-                currency={rc}
-              />
-            )}
+            </dd>
           </div>
-          {view.lines.length === 0 ? (
-            <EmptyState data-testid="budget-lines-empty">
-              Распишите план месяца по каналам, и здесь появится план против факта по каждому.
-            </EmptyState>
+          <div>
+            <dt>{copy.requests}</dt>
+            <dd data-testid="summary-requests">
+              {s.requests.value === null ? <Missing reason={s.requests.reason} /> : String(s.requests.value)}
+            </dd>
+          </div>
+          <div>
+            <dt>{METRIC.cpl}</dt>
+            <dd data-testid="summary-cpr">
+              {s.costPerRequest.value === null ? (
+                <Missing reason={s.costPerRequest.reason} />
+              ) : (
+                formatMoney(s.costPerRequest.value, rc)
+              )}
+            </dd>
+          </div>
+          <div>
+            <dt>{METRIC.romi}</dt>
+            <dd
+              data-testid="summary-romi"
+              className={s.romi.value !== null && s.romi.value < 0 ? 'budget-td-danger' : undefined}
+            >
+              {s.romi.value === null ? <Missing reason={s.romi.reason} /> : romiText(s.romi.value)}
+            </dd>
+          </div>
+        </dl>
+        <Sources sources={sources} month={view.month} defaults={defaults} reportingCurrency={rc} />
+        <p className="settings-note" data-testid="summary-separate-note">
+          Расход вручную и расход кабинета Meta показаны отдельно и не складываются: оплата счёта Meta, записанная в
+          журнал, это те же деньги, что у кабинета.
+        </p>
+
+        <section aria-labelledby="summary-channels-title">
+          <SectionTitle id="summary-channels-title">По каналам</SectionTitle>
+          {s.channels.length === 0 ? (
+            <p className="settings-note" data-testid="summary-channels-empty">
+              В этом месяце нет ни расходов, ни заявок из каналов продвижения. Добавьте расход во вкладке «Расходы»,
+              заявки подтянутся сами.
+            </p>
           ) : (
-            <>
-              <p className="budget-meta" data-testid="budget-lines-summary">
-                <span>
-                  {channels.unallocated === null
-                    ? `План месяца это сумма каналов: ${formatMoney(channels.allocated, rc)}`
-                    : `Распределено ${formatMoney(channels.allocated, rc)} из ${formatMoney(view.plan!, rc)}`}
-                </span>
-                {channels.overAllocated ? (
-                  <Badge tone="warn" data-testid="budget-lines-over">
-                    Каналы больше плана на {formatMoney(-channels.unallocated!, rc)}
-                  </Badge>
-                ) : (
-                  channels.unallocated !== null &&
-                  channels.unallocated > 0n && <span>Не распределено {formatMoney(channels.unallocated, rc)}</span>
-                )}
-              </p>
-              <div className="tbl-wrap" role="region" aria-label="План по каналам" tabIndex={0}>
-                <Table density="normal" aria-label="План по каналам" data-testid="budget-lines">
-                  <thead>
-                    <tr>
-                      <th scope="col">Канал</th>
-                      <th scope="col" className="budget-td-num">
-                        План
-                      </th>
-                      <th scope="col" className="budget-td-num">
-                        Факт
-                      </th>
-                      <th scope="col" className="budget-td-num">
-                        Остаток
-                      </th>
-                      <th scope="col" className="budget-td-num">
-                        Прогноз
-                      </th>
+            <div className="tbl-wrap" role="region" aria-label="Сводка по каналам" tabIndex={0}>
+              <Table density="normal" aria-label="Сводка по каналам" data-testid="summary-channels">
+                <thead>
+                  <tr>
+                    <th scope="col">Канал</th>
+                    <th scope="col" className="budget-td-num">
+                      Расход вручную
+                    </th>
+                    <th scope="col" className="budget-td-num">
+                      Расход кабинета
+                    </th>
+                    <th scope="col" className="budget-td-num">
+                      Заявки
+                    </th>
+                    <th scope="col" className="budget-td-num">
+                      {METRIC.cpl}
+                    </th>
+                    <th scope="col" className="budget-td-num">
+                      Выручка
+                    </th>
+                    <th scope="col" className="budget-td-num">
+                      {METRIC.romi}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {s.channels.map((c) => (
+                    <tr key={c.platform} data-testid={`summary-row-${c.platform}`}>
+                      <td>
+                        <span className="budget-cell-main">{platformLabel(c.platform)}</span>
+                        {c.cabinet.length > 0 && (
+                          <span className="budget-cell-sub">
+                            <Badge tone="info">Кабинет</Badge>
+                          </span>
+                        )}
+                      </td>
+                      <td className="budget-td-num">{formatMoney(c.manualSpendMinor, rc)}</td>
+                      <td className="budget-td-num">{c.cabinet.length > 0 ? cabinetText(c.cabinet) : '–'}</td>
+                      <td className="budget-td-num">
+                        {c.requests.value === null ? (
+                          <Missing reason={c.requests.reason} />
+                        ) : (
+                          <>
+                            {c.requests.value}
+                            {c.requests.platform && <span className="budget-cell-sub">лиды площадки</span>}
+                          </>
+                        )}
+                      </td>
+                      <td className="budget-td-num">{moneyCell(c.costPerRequest)}</td>
+                      <td className="budget-td-num">{moneyCell(c.revenue)}</td>
+                      <td className="budget-td-num">{romiCell(c.romi)}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {channels.rows.map((r) => (
-                      <tr key={r.platform}>
-                        <td>
-                          <span className="budget-cell-main">{platformLabel(r.platform)}</span>
-                          {r.plan === null && <span className="budget-cell-sub">без плана</span>}
-                          {r.over && (
-                            <span className="budget-cell-sub">
-                              <Badge tone="warn">Прогноз выше плана</Badge>
-                            </span>
-                          )}
-                        </td>
-                        <td className="budget-td-num">{money(r.plan)}</td>
-                        <td className="budget-td-num">{formatMoney(r.spent, rc)}</td>
-                        <td className={`budget-td-num${r.remainder !== null && r.remainder < 0n ? ' budget-td-danger' : ''}`}>
-                          {money(r.remainder)}
-                        </td>
-                        <td className="budget-td-num">{money(r.forecast)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
-            </>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr data-testid="summary-total">
+                    <td>
+                      <strong>Итого</strong>
+                    </td>
+                    <td className="budget-td-num">{formatMoney(s.manualSpend.value, rc)}</td>
+                    <td className="budget-td-num">
+                      {cabinet.value && cabinet.value.length > 0 ? cabinetText(cabinet.value) : '–'}
+                    </td>
+                    <td className="budget-td-num">
+                      {s.requests.value === null ? <Missing reason={s.requests.reason} /> : s.requests.value}
+                    </td>
+                    <td className="budget-td-num">{moneyCell(s.costPerRequest)}</td>
+                    <td className="budget-td-num">{moneyCell(s.revenue)}</td>
+                    <td className="budget-td-num">{romiCell(s.romi)}</td>
+                  </tr>
+                </tfoot>
+              </Table>
+            </div>
           )}
-        </section>
-        <section aria-labelledby="budget-shares-title">
-          <SectionTitle id="budget-shares-title">Распределение по каналам</SectionTitle>
-          <PlatformShares expenses={view.expenses} currency={rc} testId="budget-shares" />
-        </section>
-        <section aria-labelledby="budget-recent-title">
-          <div className="budget-recent-head">
-            <SectionTitle id="budget-recent-title">Последние расходы</SectionTitle>
-            <Link href={`/marketing/budget/expenses?month=${view.month}`} className="budget-all-link">
-              Все расходы
-            </Link>
-          </div>
-          {recent.length === 0 ? (
-            <EmptyState data-testid="budget-recent-empty">
-              В этом месяце расходов ещё нет. Добавьте первый, и обзор оживёт.
-            </EmptyState>
-          ) : (
-            <ul className="budget-recent" data-testid="budget-recent">
-              {recent.map((e) => (
-                <li key={e.id} className="panel budget-recent__row">
-                  <span className="budget-recent__what">
-                    <span className="budget-recent__platform">{platformLabel(e.platform)}</span>
-                    <span className="budget-recent__detail">{e.campaign ?? e.category}</span>
-                  </span>
-                  <span className="budget-recent__when">{displayDate(e.date)}</span>
-                  <span className="budget-recent__sum">{formatMoney(e.baseAmount, rc)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <p className="settings-note" data-testid="summary-channels-note">
+            Заявки и выручка канала: брони и обращения из сайта, WhatsApp, Instagram и телефона, как во вкладке
+            «Аналитика». У рекламы своих броней нет: у кабинета Meta видны лиды площадки и цена лида по кабинету в его
+            валюте, окупаемость рекламы появится, когда брони начнут нести метку кампании. Разные валюты не складываются.
+          </p>
         </section>
       </div>
     </Page>
+  );
+}
+
+const STATE: Record<SourceState, { tone: 'ok' | 'warn' | 'danger' | 'neutral' | 'info'; label: string }> = {
+  ok: { tone: 'ok', label: 'Работает' },
+  todo: { tone: 'warn', label: 'Нужно добавить' },
+  error: { tone: 'danger', label: 'Ошибка' },
+  off: { tone: 'neutral', label: 'Недоступно' },
+  manual: { tone: 'info', label: 'Вручную' },
+};
+
+/**
+ * «Откуда берутся цифры»: каждый источник сводки строкой: что он даёт, состояние и кнопка, которая его включает
+ * (добавить расход, загрузить CSV, подключить кабинет Meta). Владелец видит, что сделать, не уходя со сводки.
+ */
+function Sources({
+  sources,
+  month,
+  defaults,
+  reportingCurrency,
+}: {
+  sources: DataSource[];
+  month: string;
+  defaults: ExpenseDefaults;
+  reportingCurrency: string;
+}) {
+  return (
+    <section aria-labelledby="summary-sources-title" data-testid="summary-sources">
+      <SectionTitle id="summary-sources-title">Откуда берутся цифры</SectionTitle>
+      <ul className="budget-sources">
+        {sources.map((src) => (
+          <li key={src.key} className="panel budget-sources__row" data-testid={`source-${src.key}`}>
+            <div className="budget-sources__head">
+              <h3 className="budget-sources__title">{src.title}</h3>
+              <Badge tone={STATE[src.state].tone} data-testid={`source-${src.key}-state`}>
+                {STATE[src.state].label}
+              </Badge>
+            </div>
+            <p className="budget-sources__status" data-testid={`source-${src.key}-status`}>
+              {src.status}
+            </p>
+            <p className="budget-sources__text">{src.text}</p>
+            {src.actions.length > 0 && (
+              <div className="budget-sources__actions">
+                {src.actions.map((a) =>
+                  a === 'add-expense' ? (
+                    <ExpenseButton key={a} primary={src.state === 'todo'} defaults={defaults} />
+                  ) : a === 'import-csv' ? (
+                    <ImportCsvButton key={a} reportingCurrency={reportingCurrency} />
+                  ) : a === 'connect-meta' ? (
+                    <ConnectButton key={a} again={src.state === 'error'} />
+                  ) : (
+                    <Link
+                      key={a}
+                      className="btn btn--ghost btn--sm"
+                      href={
+                        a === 'journal'
+                          ? `/marketing/budget/expenses?month=${month}`
+                          : a === 'open-ads'
+                            ? '/marketing/ads'
+                            : `/marketing/analytics?month=${month}`
+                      }
+                    >
+                      {a === 'journal' ? 'Журнал расходов' : a === 'open-ads' ? 'Открыть «Рекламу»' : 'Открыть аналитику'}
+                    </Link>
+                  ),
+                )}
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

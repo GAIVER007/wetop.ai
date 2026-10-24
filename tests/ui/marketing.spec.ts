@@ -54,16 +54,12 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
     'ИИ-продавец',
     'Анализ конкурентов',
     'Обзор продаж',
-    'Бюджет',
-    'Аналитика маркетинга',
+    'Бюджет и аналитика',
   ]);
-  await expect(items.getByRole('link', { name: 'Бюджет', exact: true })).toHaveAttribute(
+  // один пункт вместо «Бюджета» и «Аналитики маркетинга» (решение владельца 20.10.2026)
+  await expect(items.getByRole('link', { name: 'Бюджет и аналитика', exact: true })).toHaveAttribute(
     'href',
     '/marketing/budget',
-  );
-  await expect(items.getByRole('link', { name: 'Аналитика маркетинга', exact: true })).toHaveAttribute(
-    'href',
-    '/marketing/analytics',
   );
   // Escape закрывает панель и возвращает фокус на кнопку
   await page.keyboard.press('Escape');
@@ -128,7 +124,7 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   // шесть модулей одного вида, по порядку (ADR-184: «Конкуренты» в «Продвижении»; «Голосовой агент» у всех направлений, 22.10.2026)
   const modules = hub.getByTestId('marketing-module');
   await expect(modules).toHaveCount(6);
-  await expect(modules.getByRole('heading', { level: 2 })).toHaveText(['Сайт и SEO', 'Бюджет', 'Реклама', 'Конкуренты', 'Голосовой агент', 'Контент']);
+  await expect(modules.getByRole('heading', { level: 2 })).toHaveText(['Сайт и SEO', 'Бюджет и аналитика', 'Реклама', 'Конкуренты', 'Голосовой агент', 'Контент']);
   const competitors = hub.getByTestId('marketing-competitors');
   await expect(competitors.getByTestId('marketing-competitors-status')).toHaveText('Доступно');
   await expect(competitors.getByRole('link', { name: 'Открыть: Конкуренты', exact: true })).toHaveAttribute('href', '/market');
@@ -155,14 +151,14 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   // «Бюджет»: живой модуль учёта расходов, главная кнопка в раздел, в меню «⋯» журнал и аналитика
   const budget = hub.getByTestId('marketing-budget');
   await expect(budget.getByTestId('marketing-budget-status')).toHaveText('Доступно');
-  await expect(budget.getByRole('link', { name: 'Открыть: Бюджет', exact: true })).toHaveAttribute(
+  await expect(budget.getByRole('link', { name: 'Открыть: Бюджет и аналитика', exact: true })).toHaveAttribute(
     'href',
     '/marketing/budget',
   );
-  const budgetMore = budget.getByRole('button', { name: 'Ещё действия: Бюджет', exact: true });
+  const budgetMore = budget.getByRole('button', { name: 'Ещё действия: Бюджет и аналитика', exact: true });
   await budgetMore.click();
   const budgetMenu = budget.getByRole('menu');
-  await expect(budgetMenu.getByRole('menuitem')).toHaveText(['Расходы', 'Аналитика маркетинга']);
+  await expect(budgetMenu.getByRole('menuitem')).toHaveText(['План', 'Расходы', 'Аналитика']);
   await page.keyboard.press('Escape');
 
   // реклама (кампании, кабинет Meta) и контент (черновики постов) живые: одна кнопка «Открыть» на свой экран, без меню
@@ -440,7 +436,7 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   ).toHaveAttribute('href', '/marketing/site/editor');
   await expect(hub.locator('a[href^="/website"], a[href="/marketing/site"], a[href^="/marketing/site/assets"]')).toHaveCount(0);
   await expect(
-    hub.getByTestId('marketing-budget').getByRole('link', { name: 'Открыть: Бюджет', exact: true }),
+    hub.getByTestId('marketing-budget').getByRole('link', { name: 'Открыть: Бюджет и аналитика', exact: true }),
   ).toHaveAttribute('href', '/marketing/budget');
   await expect(hub).not.toContainText('гостиниц');
   for (const screen of ['ads', 'content'] as const) {

@@ -19,12 +19,12 @@ import '../../finance/summary.css';
 import { loadBudget } from '../budget/load';
 import { byDay, summarize } from '../budget/derive';
 import { DailyChart } from '../budget/chart';
-import { BudgetTabs, ChooseLocation, MonthNav, platformLabel } from '../budget/parts';
+import { BUDGET_TITLE, BudgetTabs, ChooseLocation, MonthNav, platformLabel } from '../budget/parts';
 import { buildAnalyticsReport } from './report';
 import { METRIC } from '../../../lib/metric-words';
 
 /**
- * «Маркетинг → Аналитика» (МКТ-В5a, ADR-MKT-B5a, Q-MKT-ATTR): воронка «Расходы → Обращения → Брони → Выручка»
+ * «Бюджет и аналитика → Аналитика» (с 20.10.2026 вкладка раздела; МКТ-В5a, ADR-MKT-B5a, Q-MKT-ATTR): воронка «Расходы → Обращения → Брони → Выручка»
  * и CPL, стоимость брони, ROMI по выручке из своих данных. Расходы из журнала «Бюджета», результаты каналов
  * из броней, ИИ-продавца и заявок сайта (`GET /marketing/results`), сборка доменной `buildMarketingFunnel`.
  * Реклама без кабинетов (Meta, Google, TikTok, YouTube) показывает только расход: связать её с бронями
@@ -65,7 +65,7 @@ export default async function MarketingAnalyticsPage({
   const subtitle = `Куда уходят деньги и что они приносят: от расходов до ${w.forms[2]} и выручки.`;
   if (loaded.chooseLocation || loaded.error)
     return (
-      <Page crumbs={<BackToModules />} title="Аналитика маркетинга" subtitle={subtitle}>
+      <Page crumbs={<BackToModules />} title={BUDGET_TITLE} subtitle={subtitle}>
         {loaded.error ? <LoadError testId="man-error" {...loaded.error} /> : <ChooseLocation />}
       </Page>
     );
@@ -83,7 +83,7 @@ export default async function MarketingAnalyticsPage({
   const emptyMonth = t.spent === 0n && funnel.rows.length === 0 && (!ok || (total.leads === 0 && total.bookings === 0));
 
   return (
-    <Page crumbs={<BackToModules />} title="Аналитика маркетинга" subtitle={subtitle}>
+    <Page crumbs={<BackToModules />} title={BUDGET_TITLE} subtitle={subtitle}>
       <div className="budget-screen" data-testid="marketing-analytics">
         <div className="budget-head">
           {/* вкладки раздела, как у «Бюджета» (аудит 21.10.2026 п. 6) */}

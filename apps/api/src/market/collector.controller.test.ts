@@ -10,6 +10,9 @@ import { databaseTenant } from '../auth/request-context';
 import { MarketCollectorController } from './collector.controller';
 import { MarketCollectorService } from './collector.service';
 import { MarketController } from './market.controller';
+import { BusinessMarketController } from './business-market.controller';
+import { BusinessMarketService } from './business-market.service';
+import { BusinessCollectorController, BusinessCollectorService } from './business-collector';
 import {
   MARKET_REPOSITORY,
   type CollectorTarget,
@@ -68,13 +71,15 @@ const repo = {
 let app: INestApplication;
 beforeAll(async () => {
   const moduleRef = await Test.createTestingModule({
-    controllers: [MarketCollectorController, MarketController],
+    controllers: [MarketCollectorController, MarketController, BusinessMarketController, BusinessCollectorController],
     providers: [
       { provide: AuthService, useValue: { whoami: async () => null } },
       { provide: MARKET_REPOSITORY, useValue: repo },
       { provide: OWN_OCCUPANCY, useValue: { ownDays: async () => ({}) } },
       MarketService,
       MarketCollectorService,
+      { provide: BusinessMarketService, useValue: {} },
+      { provide: BusinessCollectorService, useValue: {} },
       { provide: APP_GUARD, useClass: SessionGuard },
     ],
   }).compile();
@@ -112,6 +117,12 @@ describe('ключ сборщика (M2a, Q-260)', () => {
     await put(SOSED, [{ date: '2026-10-04', percent: 80 }], null).expect(401);
     await put(SOSED, [{ date: '2026-10-04', percent: 80 }], ACT_KEY).expect(403);
     expect(writes).toEqual([]);
+  });
+
+  it('ключ сборщика открывает соседей салона и ресторана (§60) только списком и записью дней, не их экран', async () => {
+    await server(COLLECT_KEY).get('/business-market').expect(403);
+    await server(COLLECT_KEY).post('/business-market/competitors', { name: 'Чужой' }).expect(403);
+    await server(COLLECT_KEY).put(`/business-market/competitors/${SOSED}/snapshot`, { day: '2026-10-04', level: 'SOLD_OUT' }).expect(403);
   });
 
   it('ключ сборщика не открывает раздел стойки: ни таблицу, ни ручной ввод, ни список конкурентов', async () => {

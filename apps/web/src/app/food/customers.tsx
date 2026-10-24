@@ -92,7 +92,11 @@ export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
               const upcoming = upcomingByCustomer.get(c.id);
               return (
                 <tr key={c.id}>
-                  <td>{name(c)}</td>
+                  <td>
+                    <Link href={`/customers/${c.id}`} prefetch={false}>
+                      {name(c)}
+                    </Link>
+                  </td>
                   <td>{c.phone ? formatPhone(c.phone) : 'Не указан'}</td>
                   <td>{c.visits ?? 0}</td>
                   <td>

@@ -29,11 +29,20 @@ describe('сайт в меню — одно место (ADR-117)', () => {
       ['/ai-agents', 'ИИ-продавец'],
       ['/market', 'Анализ конкурентов'],
       ['/sales', 'Обзор продаж'],
-      // МКТ-В1 (ADR-MKT-B1): учёт бюджета и расходов маркетинга
-      ['/marketing/budget', 'Бюджет'],
-      // «Аналитика маркетинга» (10.10.2026): эффективность источников
-      ['/marketing/analytics', 'Аналитика маркетинга'],
+      // МКТ-В1 (ADR-MKT-B1) и решение владельца 20.10.2026: бюджет и аналитика одним пунктом
+      ['/marketing/budget', 'Бюджет и аналитика'],
     ]);
+  });
+
+  it('«Бюджет и аналитика»: один пункт, вкладки и прежний адрес аналитики подсвечивают его', () => {
+    const labels = sections.flatMap((section) => section.items.map((item) => item.label));
+    expect(labels).not.toContain('Бюджет');
+    expect(labels).not.toContain('Аналитика маркетинга');
+    for (const path of ['/marketing/budget', '/marketing/budget/plan', '/marketing/budget/expenses', '/marketing/analytics'])
+      expect(activeMenuRoute(path)).toBe('/marketing/budget');
+    // адрес аналитики остался в реестре со своим правом: страница не 404 и закрыта тем же правом
+    expect(routeRule('/marketing/analytics')?.requires).toBe('marketing');
+    expect(routeRule('/marketing/budget/plan')?.requires).toBe('marketing');
   });
 
   it('отдельных «Продаж» нет, и сайт пунктом меню не стоит', () => {

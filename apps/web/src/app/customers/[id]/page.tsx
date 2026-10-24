@@ -13,6 +13,8 @@ import { formatMoney } from '../../../lib/money';
 import { mayAccess, mayBeautyAccess } from '../../../lib/navigation';
 import { notFoundOn404 } from '../../../lib/page-error';
 import { requireVertical } from '../../../lib/vertical-guard';
+import { FoodCustomerCard, loadFoodCustomer } from './food-card';
+import type { FoodCustomerDetail } from '../../../lib/food-types';
 import '../../beauty/beauty.css';
 import '../customers.css';
 import { formatPhone } from '../../../lib/phone';
@@ -135,9 +137,19 @@ function BonusHistory({ bonuses }: { bonuses: BeautyCustomerBonuses }) {
 }
 
 export default async function BeautyCustomerPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireVertical(['BEAUTY']);
+  const me = await requireVertical(['BEAUTY', 'FOOD_SERVICE']);
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
+  // ресторан: карточка гостя с историей броней столов (решение владельца 23.10.2026 п. 4)
+  if (me.context?.vertical === 'FOOD_SERVICE') {
+    let food: FoodCustomerDetail;
+    try {
+      food = await loadFoodCustomer(id);
+    } catch (error) {
+      notFoundOn404(error);
+    }
+    return FoodCustomerCard({ detail: food });
+  }
   let detail: BeautyCustomerDetail;
   try {
     detail = await beautyApi.customer(id);

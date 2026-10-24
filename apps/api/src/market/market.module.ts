@@ -7,6 +7,7 @@ import {
   CHESSBOARD_REPOSITORY,
   PrismaChessboardRepository,
 } from '../chessboard/chessboard.repository';
+import { BusinessCollectorController, BusinessCollectorService } from './business-collector';
 import { BusinessMarketController } from './business-market.controller';
 import { BusinessMarketService } from './business-market.service';
 import { MarketCollectorController } from './collector.controller';
@@ -26,7 +27,7 @@ export class ChessboardOwnOccupancy implements OwnOccupancySource {
 }
 
 @Module({
-  controllers: [MarketController, MarketCollectorController, BusinessMarketController],
+  controllers: [MarketController, MarketCollectorController, BusinessMarketController, BusinessCollectorController],
   providers: [
     PrismaService,
     ChessboardService,
@@ -36,6 +37,7 @@ export class ChessboardOwnOccupancy implements OwnOccupancySource {
     MarketService,
     MarketCollectorService,
     BusinessMarketService,
+    BusinessCollectorService,
   ],
 })
 export class MarketModule {}

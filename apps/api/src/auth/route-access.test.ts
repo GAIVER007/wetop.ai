@@ -246,6 +246,11 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PATCH /food-service/areas/:id': 'property',
   'PUT /food-service/areas/:id/layout': 'property',
   'GET /food-service/booking-rules': 'desk',
+  // §61: напоминания гостям ресторана (настройки пишет право property, как у салона)
+  'GET /food-service/reminder-settings': 'desk',
+  'PUT /food-service/reminder-settings': 'property',
+  'GET /food-service/reminders': 'desk',
+  'POST /food-service/reminders/:id/done': 'desk',
   'PUT /food-service/booking-rules': 'property',
   'POST /food-service/closed-days': 'property',
   'DELETE /food-service/closed-days/:id': 'property',
@@ -256,6 +261,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /food-service/service-periods': 'property',
   'PATCH /food-service/service-periods/:id': 'property',
   'GET /food-service/customers': 'desk',
+  'GET /food-service/customers/:id': 'desk',
   'PATCH /food-service/customers/:id': 'desk',
   'GET /food-service/reservations': 'orders',
   'POST /food-service/reservations': 'orders',
@@ -510,6 +516,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PUT /business-market/competitors/:id/snapshot': 'rates',
   'GET /market/collector/competitors': 'service',
   'PUT /market/collector/competitors/:id/occupancy': 'service',
+  'GET /business-market/collector/competitors': 'service',
+  'PUT /business-market/collector/competitors/:id/days': 'service',
   // MKT4: публичный рантайм сайтов, только узкий ключ SITES_RUNTIME_KEY; чтения версии по id нет
   'GET /sites-runtime/current': 'service',
   'GET /sites-runtime/preview': 'service',

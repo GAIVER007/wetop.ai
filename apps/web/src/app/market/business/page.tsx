@@ -152,6 +152,7 @@ export default async function BusinessMarketPage({ searchParams }: { searchParam
                             day={cell.day}
                             level={cell.level}
                             freeSlots={cell.freeSlots}
+                            collected={cell.source === 'AI_AGENT'}
                             label={l ? l.word : 'нет данных'}
                             editable={editable}
                             className={cx('market-cell', l && `market-cell--${l.tone}`)}
@@ -180,8 +181,9 @@ export default async function BusinessMarketPage({ searchParams }: { searchParam
         </>
       )}
       <p className="market-note" data-testid="bm-source-note">
-        Загрузку соседей вносите вы: нажмите на клетку дня. Автоматический сбор свободных окон со страниц записи и брони
-        (Dikidi, YCLIENTS, Restoplace) подключается отдельно; капчи и защиту площадок мы не обходим.
+        Если у соседа в ссылке страница записи Dikidi или брони Restoplace, свободные окна и столы собираются
+        автоматически раз в день (метка «ИИ»). Остальных соседей, в том числе YCLIENTS, вносите вы: нажмите на клетку
+        дня; ваш ввод за сегодня главнее сборщика. Капчи и защиту площадок мы не обходим.
         {archived.length > 0 && ` Убрано из списка: ${archived.length}.`}
       </p>
     </Page>

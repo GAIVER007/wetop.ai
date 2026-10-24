@@ -1,6 +1,8 @@
 /** Local synthetic identity; real Food and Beauty HTTP guards/controllers/services/database. */
 import 'reflect-metadata';
 import '../../apps/api/src/hotel/hotel.module';
+import { CLIENT_REMINDER_MAILER } from '../../apps/api/src/beauty/reminders';
+import { FoodReminderWorker } from '../../apps/api/src/food-service/reminders';
 import { randomUUID } from 'node:crypto';
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -116,6 +118,9 @@ const module = await Test.createTestingModule({
   // фото блюд (§37): хранилище в памяти; адреса подписаны, но картинка в браузере не грузится (проверяется адрес)
   .overrideProvider(SITE_ASSET_STORAGE)
   .useValue(new MemorySiteAssetStorage('https://assets.storage.test'))
+  // §61: почты на стенде нет (null): напоминание без WhatsApp и почты уходит в «Вручную», настоящих писем нет
+  .overrideProvider(CLIENT_REMINDER_MAILER)
+  .useValue(null)
   .compile();
 const app = module.createNestApplication();
 app.use(
@@ -216,6 +221,11 @@ app.use(
                 locations: locations.map((l) => l.id),
               });
             }
+            // §61: один проход воркера напоминаний гостям (на стенде фоновый цикл выключен NODE_ENV=test)
+            if (req.path === '/__test/food-reminders/run') {
+              const ahead = Number.isInteger(body.aheadMinutes) ? Number(body.aheadMinutes) : 0;
+              return res.json(await module.get(FoodReminderWorker).runOnce(new Date(Date.now() + ahead * 60_000)));
+            }
             if (req.path === '/__test/control') {
               role = body.role === 'STAFF' ? 'STAFF' : body.role === 'EMPLOYEE' ? 'EMPLOYEE' : 'OWNER';
               // официант с телефона (§33.6): вход «Личного кабинета» привязан к сотруднику ресторана
@@ -271,6 +281,8 @@ app.use(
                 await tx.diningArea.deleteMany({ where: { location: { business: b } } });
                 await tx.servicePeriod.deleteMany({ where: { location: { business: b } } });
                 await tx.foodBookingRules.deleteMany({ where: { location: { business: b } } });
+                // §61: настройки напоминаний держат филиал (RESTRICT); очередь уходит с бронью (CASCADE)
+                await tx.foodReminderSettings.deleteMany({ where: { location: { business: b } } });
                 await tx.foodClosedDay.deleteMany({ where: { location: { business: b } } });
                 await tx.appointmentLine.deleteMany({ where: { appointment: bl } });
                 await tx.appointment.deleteMany({ where: { location: { business: b } } });

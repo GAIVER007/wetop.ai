@@ -731,7 +731,7 @@
       "FOOD_SERVICE"
     ],
     "branch": "/today",
-    "active": "/marketing/analytics",
+    "active": "/marketing/budget",
     "rule": {
       "href": "/marketing/analytics",
       "label": "Аналитика маркетинга",
@@ -750,7 +750,7 @@
     "active": "/marketing/budget",
     "rule": {
       "href": "/marketing/budget",
-      "label": "Бюджет маркетинга",
+      "label": "Бюджет и аналитика",
       "requires": "marketing"
     }
   },

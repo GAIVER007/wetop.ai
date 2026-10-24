@@ -59,11 +59,12 @@ const modules = (c: VerticalCopy, vertical: WebVertical): Module[] => [
     // МКТ-В1/В2 (ADR-MKT-B1): учёт бюджета и расходов работает с базой
     key: 'budget',
     testId: 'marketing-budget',
-    title: 'Бюджет',
+    // с 20.10.2026 «Бюджет и аналитика»: сводка расходов, заявок и ROMI по каналам первой вкладкой
+    title: 'Бюджет и аналитика',
     icon: 'money',
     href: '/marketing/budget',
-    text: 'Планируйте рекламный бюджет, ведите расходы по каналам и следите за прогнозом месяца.',
-    caps: ['План месяца и прогноз', 'Журнал расходов по каналам', 'Аналитика маркетинга'],
+    text: 'Сколько потратили, сколько пришло заявок, почём заявка и окупается ли каждый канал.',
+    caps: ['Сводка: расход, заявки, окупаемость', 'План месяца и прогноз', 'Журнал расходов по каналам'],
   },
   {
     key: 'ads',
@@ -134,8 +135,9 @@ const SITE_MENU = [
 ];
 
 const BUDGET_MENU = [
+  { label: 'План', href: '/marketing/budget/plan' },
   { label: 'Расходы', href: '/marketing/budget/expenses' },
-  { label: 'Аналитика маркетинга', href: '/marketing/analytics' },
+  { label: 'Аналитика', href: '/marketing/analytics' },
 ];
 
 /**

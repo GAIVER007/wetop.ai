@@ -46,4 +46,12 @@ ALTER TABLE "kitchen_stock_movements"
     AND ("kind" <> 'CONSUMPTION' OR (("order_id" IS NOT NULL) <> ("appointment_line_id" IS NOT NULL)))
   );
 
+-- CREATE OR REPLACE сбрасывает search_path функции: возвращаем как в 089/135
+DO $$
+DECLARE s text := current_schema(); path text;
+BEGIN
+ path := CASE WHEN s='public' THEN 'public, pg_temp' ELSE format('%I, public, pg_temp',s) END;
+ EXECUTE format('ALTER FUNCTION %I.kitchen_stock_guard() SET search_path = %s',s,path);
+END $$;
+
 COMMIT;

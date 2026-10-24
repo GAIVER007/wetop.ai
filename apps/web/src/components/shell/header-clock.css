@@ -83,8 +83,18 @@
       font-size: var(--text-sm);
     }
   }
-  /* самые узкие телефоны: только время, дата в подсказке */
+  /* самые узкие телефоны: только время, дата в подсказке; без черты, значок поиска по высоте касания */
   @media (max-width: 374px) {
+    .header-clock {
+      padding-left: 0;
+      border-left: 0;
+    }
+    /* значок поиска чуть меньше, чтобы аватар не выезжал за край на 320 px */
+    .workspace .workspace-header .workspace-search.workspace-search--icon {
+      width: var(--control-h);
+      min-width: var(--control-h);
+      height: var(--control-h);
+    }
     .header-clock__date {
       display: none;
     }

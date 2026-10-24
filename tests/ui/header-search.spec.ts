@@ -16,7 +16,7 @@ test.beforeEach(async ({ page, request }) => {
   await page.waitForURL('**/today');
 });
 
-for (const width of [1920, 1440, 1366, 1280, 1024, 768, 390, 360]) {
+for (const width of [1920, 1440, 1366, 1280, 1024, 768, 390, 360, 320]) {
   test(`дата и время у знака, поиск значком: ${width}px`, async ({ page }) => {
     mkdirSync(out, { recursive: true });
     await page.setViewportSize({ width, height: 800 });

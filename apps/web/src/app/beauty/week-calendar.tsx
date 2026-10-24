@@ -171,7 +171,7 @@ export function WeekCalendar({
         }
         filters={
           <>
-            <JournalSearch value={query} onChange={setQuery} label="Поиск в журнале" placeholder="Клиент, телефон" />
+            <JournalSearch value={query} onChange={setQuery} label="Поиск в журнале" placeholder={narrow ? 'Клиент' : 'Клиент, телефон'} />
             <EmployeeFilter
               options={options}
               value={employee}

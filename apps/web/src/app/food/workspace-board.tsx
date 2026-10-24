@@ -2,14 +2,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  Alert,
-  Button,
-  EmptyState,
-  Notice,
-  StatusBadge,
-  Table,
-} from '../../components/ui';
+import { Alert, Button, EmptyState, Help, Notice, StatusBadge, Table } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { Segmented } from '../../components/segmented';
 import { Tabs } from '../../components/tabs';
@@ -29,12 +22,12 @@ import { layoutSpots, tableShapeOf } from '@pms/domain';
 import { QuickReport } from '../../components/quick-report';
 import { DayNav } from '../../components/day-nav';
 import { JournalFilter, JournalHead, JournalSearch } from '../../components/journal-head';
+import { useNarrow } from '../../lib/use-narrow';
 import { SummaryLine } from '../../lib/summary-line';
 import { foodQuickReport } from '../../components/quick-report-data';
 import { compareTables } from '../../lib/table-title';
 import { formatPhone } from '../../lib/phone';
 import { foodReservationOrigin } from '../../lib/food-reservation-origin';
-
 
 const ACTIVE = ['BOOKED', 'CONFIRMED', 'SEATED'];
 
@@ -64,6 +57,7 @@ export function WorkspaceBoard({
   const [status, setStatus] = useState('');
   const [area, setArea] = useState('');
   const [view, setView] = useState<'timeline' | 'list'>(listView ? 'list' : 'timeline');
+  const narrow = useNarrow();
   const [panelTable, setPanelTable] = useState<string | null>(null);
   const [cleaningPending, startCleaning] = useTransition();
   const [cleaningError, setCleaningError] = useState<string | null>(null);
@@ -96,7 +90,11 @@ export function WorkspaceBoard({
   const onDay = (r: RestaurantReservation) =>
     localInput(r.startsAt, data.timezone).slice(0, 10) === data.date;
   const unassigned = data.reservations.filter(
-    (r) => !r.table && ACTIVE.includes(r.status) && onDay(r) && (!period || r.servicePeriodId === period),
+    (r) =>
+      !r.table &&
+      ACTIVE.includes(r.status) &&
+      onDay(r) &&
+      (!period || r.servicePeriodId === period),
   );
   const filtered = data.reservations
     .filter(
@@ -141,46 +139,67 @@ export function WorkspaceBoard({
   const spots = (tables: DiningTable[]) =>
     layoutSpots(tables.map((t) => ({ id: t.id, posX: t.posX ?? null, posY: t.posY ?? null })));
   /** Стол на плане: одна разметка для сетки и для схемы зала (§42) */
-  const tableCard = (t: DiningTable) => {                  const r = occupying.find((x) => x.table?.id === t.id);
-                  const order = orderByTable.get(t.id);
-                  const kind = tableKind(t);
-                  const chairs = Math.min(t.capacity, 8);
-                  const caption = r
-                    ? `${clock(r.startsAt)} ${customer(r)}`
-                    : order
-                      ? `Заказ №${order.number}`
-                      : pluralRu(t.capacity, ['место', 'места', 'мест']);
-                  return (
-                    <div
-                      className="rest-fp-table"
-                      data-kind={kind}
-                      data-shape={SHAPE_CSS[tableShapeOf({ capacity: t.capacity, shape: t.shape ?? null })]}
-                      data-selected={panelTable === t.id || undefined}
-                      key={t.id}
-                    >
-                      <span className="rest-chairs" aria-hidden="true">
-                        {Array.from({ length: Math.ceil(chairs / 2) }, (_, i) => (
-                          <i key={i} />
-                        ))}
-                      </span>
-                      <button
-                        type="button"
-                        className="rest-fp-table__body"
-                        aria-label={`${t.name}, ${r ? foodStatus[r.status].label : KIND_LABEL[kind]}`}
-                        data-table-id={t.id}
-                        onClick={() => setPanelTable(t.id)}
-                      >
-                        <strong>{t.name.replace(/^Стол\s+/, '')}</strong>
-                      </button>
-                      <span className="rest-chairs" aria-hidden="true">
-                        {Array.from({ length: Math.floor(chairs / 2) }, (_, i) => (
-                          <i key={i} />
-                        ))}
-                      </span>
-                      <small className="rest-fp-table__caption">{caption}</small>
-                    </div>
-                  );
+  const tableCard = (t: DiningTable) => {
+    const r = occupying.find((x) => x.table?.id === t.id);
+    const order = orderByTable.get(t.id);
+    const kind = tableKind(t);
+    const chairs = Math.min(t.capacity, 8);
+    const caption = r
+      ? `${clock(r.startsAt)} ${customer(r)}`
+      : order
+        ? `Заказ №${order.number}`
+        : pluralRu(t.capacity, ['место', 'места', 'мест']);
+    return (
+      <div
+        className="rest-fp-table"
+        data-kind={kind}
+        data-shape={SHAPE_CSS[tableShapeOf({ capacity: t.capacity, shape: t.shape ?? null })]}
+        data-selected={panelTable === t.id || undefined}
+        key={t.id}
+      >
+        <span className="rest-chairs" aria-hidden="true">
+          {Array.from({ length: Math.ceil(chairs / 2) }, (_, i) => (
+            <i key={i} />
+          ))}
+        </span>
+        <button
+          type="button"
+          className="rest-fp-table__body"
+          aria-label={`${t.name}, ${r ? foodStatus[r.status].label : KIND_LABEL[kind]}`}
+          data-table-id={t.id}
+          onClick={() => setPanelTable(t.id)}
+        >
+          <strong>{t.name.replace(/^Стол\s+/, '')}</strong>
+        </button>
+        <span className="rest-chairs" aria-hidden="true">
+          {Array.from({ length: Math.floor(chairs / 2) }, (_, i) => (
+            <i key={i} />
+          ))}
+        </span>
+        <small className="rest-fp-table__caption">{caption}</small>
+      </div>
+    );
   };
+  // зона, смена и статус: на компьютере в строке отборов, на телефоне в «Фильтрах» (эскиз 24.10.2026)
+  const foodFilters = (
+    <>
+      <JournalFilter
+        label="Зона"
+        allLabel="Все зоны"
+        value={area}
+        onChange={setArea}
+        options={areas.map((a) => ({ value: a.id, label: a.name }))}
+      />
+      <DayToolbar data={data} floor={floor} period={period} setPeriod={setPeriod} />
+      <JournalFilter
+        label="Статус брони"
+        allLabel="Все статусы"
+        value={status}
+        onChange={setStatus}
+        options={Object.entries(foodStatus).map(([value, { label }]) => ({ value, label }))}
+      />
+    </>
+  );
   return (
     <div className="food-workspace rest-ws">
       <JournalHead
@@ -191,22 +210,33 @@ export function WorkspaceBoard({
             date={data.date}
             today={localInput(new Date().toISOString(), data.timezone).slice(0, 10)}
             testId="food-day-nav"
-            onGo={(next) => router.push(`${floor ? '/floor-plan' : '/table-reservations'}?date=${next}`)}
+            onGo={(next) =>
+              router.push(`${floor ? '/floor-plan' : '/table-reservations'}?date=${next}`)
+            }
           />
         }
         actions={
           <>
             <QuickReport
               text="Быстрый отчёт"
-            key={`${data.scopeKey}:${data.date}`}
-            date={data.date}
-            scope={['Бронирования столов', period ? data.periods.find((p) => p.id === period)?.name ?? 'Период' : 'Все периоды', ...(area || status || search ? ['С учётом фильтров'] : [])]}
-            build={() => foodQuickReport(filtered.filter(onDay))}
-          />
+              key={`${data.scopeKey}:${data.date}`}
+              date={data.date}
+              scope={[
+                'Бронирования столов',
+                period
+                  ? (data.periods.find((p) => p.id === period)?.name ?? 'Период')
+                  : 'Все периоды',
+                ...(area || status || search ? ['С учётом фильтров'] : []),
+              ]}
+              build={() => foodQuickReport(filtered.filter(onDay))}
+            />
             {write && (
               <>
                 {floor && (
-                  <Button tone="secondary" onClick={() => setDraft({ kind: 'create', walkIn: true })}>
+                  <Button
+                    tone="secondary"
+                    onClick={() => setDraft({ kind: 'create', walkIn: true })}
+                  >
                     Посадить без брони
                   </Button>
                 )}
@@ -222,15 +252,29 @@ export function WorkspaceBoard({
             label="Сегодня в зале"
             testId="food-day-summary"
             parts={[
-              { key: 'res', label: 'Броней', value: filtered.filter(onDay).filter((r) => ACTIVE.includes(r.status)).length },
+              {
+                key: 'res',
+                label: 'Броней',
+                value: filtered.filter(onDay).filter((r) => ACTIVE.includes(r.status)).length,
+              },
               {
                 key: 'guests',
                 label: 'гостей',
-                value: filtered.filter(onDay).filter((r) => ACTIVE.includes(r.status)).reduce((n, r) => n + r.partySize, 0),
+                value: filtered
+                  .filter(onDay)
+                  .filter((r) => ACTIVE.includes(r.status))
+                  .reduce((n, r) => n + r.partySize, 0),
               },
               { key: 'seated', label: 'сидят', value: count('OCCUPIED') },
-              { key: 'free', label: 'свободно столов', value: count('FREE'), after: ` из ${activeTables.length}` },
-              ...(count('CLEANING') ? [{ key: 'cleaning', label: 'на уборке', value: count('CLEANING') }] : []),
+              {
+                key: 'free',
+                label: 'свободно столов',
+                value: count('FREE'),
+                after: ` из ${activeTables.length}`,
+              },
+              ...(count('CLEANING')
+                ? [{ key: 'cleaning', label: 'на уборке', value: count('CLEANING') }]
+                : []),
             ]}
           />
         }
@@ -241,23 +285,17 @@ export function WorkspaceBoard({
               value={search}
               onChange={setSearch}
               label="Поиск гостя"
-              placeholder="Гость, телефон"
+              placeholder={narrow ? 'Гость' : 'Гость, телефон'}
             />
-            <JournalFilter
-              label="Зона"
-              allLabel="Все зоны"
-              value={area}
-              onChange={setArea}
-              options={areas.map((a) => ({ value: a.id, label: a.name }))}
-            />
-            <DayToolbar data={data} floor={floor} period={period} setPeriod={setPeriod} />
-            <JournalFilter
-              label="Статус брони"
-              allLabel="Все статусы"
-              value={status}
-              onChange={setStatus}
-              options={Object.entries(foodStatus).map(([value, { label }]) => ({ value, label }))}
-            />
+            {narrow ? (
+              <Help
+                title={`Фильтры${area || status || period ? `\nАктивных: ${[area, status, period].filter(Boolean).length}` : ''}`}
+              >
+                <div className="journal-head__more">{foodFilters}</div>
+              </Help>
+            ) : (
+              foodFilters
+            )}
           </>
         }
         views={
@@ -266,7 +304,11 @@ export function WorkspaceBoard({
               label="Зал"
               items={[
                 { href: `/floor-plan?date=${data.date}`, label: 'План зала', current: floor },
-                { href: `/table-reservations?date=${data.date}`, label: 'Расписание', current: !floor },
+                {
+                  href: `/table-reservations?date=${data.date}`,
+                  label: 'Расписание',
+                  current: !floor,
+                },
               ]}
             />
             {!floor && (
@@ -314,7 +356,9 @@ export function WorkspaceBoard({
                     {a.name}
                     <small>
                       {pluralRu(
-                        a.id ? activeTables.filter((t) => t.areaId === a.id).length : activeTables.length,
+                        a.id
+                          ? activeTables.filter((t) => t.areaId === a.id).length
+                          : activeTables.length,
                         ['стол', 'стола', 'столов'],
                       )}
                     </small>
@@ -345,7 +389,12 @@ export function WorkspaceBoard({
                             <div
                               key={t.id}
                               className="rest-fp__spot"
-                              style={spotStyle(p.x, p.y, t.scale ?? 100, t.rotation ?? 0)} /* slop-allow: inline-style место стола из схемы зала */
+                              style={spotStyle(
+                                p.x,
+                                p.y,
+                                t.scale ?? 100,
+                                t.rotation ?? 0,
+                              )} /* slop-allow: inline-style место стола из схемы зала */
                             >
                               {tableCard(t)}
                             </div>
@@ -355,11 +404,14 @@ export function WorkspaceBoard({
                     ) : (
                       <div className="rest-fp__tables">{tables.map((t) => tableCard(t))}</div>
                     )}
-                    {data.canProperty && !data.readOnly && editingArea !== a.id && tables.length > 0 && (
-                      <Button size="sm" tone="secondary" onClick={() => setEditingArea(a.id)}>
-                        {`Расставить столы: ${a.name}`}
-                      </Button>
-                    )}
+                    {data.canProperty &&
+                      !data.readOnly &&
+                      editingArea !== a.id &&
+                      tables.length > 0 && (
+                        <Button size="sm" tone="secondary" onClick={() => setEditingArea(a.id)}>
+                          {`Расставить столы: ${a.name}`}
+                        </Button>
+                      )}
                   </section>
                 );
               })}

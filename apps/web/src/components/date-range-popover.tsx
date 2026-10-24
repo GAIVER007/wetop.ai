@@ -277,7 +277,12 @@ export function DateRangePopover({
             {formatDate(from)} – {formatDate(to)}
           </span>
         )}
-        {onDay && <span className="date-range__label-full">{formatDate(from)}</span>}
+        {/* неделя салона выбирает день, а показывает всю неделю */}
+        {onDay && (
+          <span className="date-range__label-full">
+            {from === to ? formatDate(from) : formatCompactRange(from, to)}
+          </span>
+        )}
         {!onDay && (compact || compactOnMobile) && (
           <span className={compact ? 'date-range__label-wide' : 'date-range__label-compact'}>
             {formatCompactRange(from, to)}

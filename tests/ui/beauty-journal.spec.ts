@@ -98,7 +98,9 @@ async function readySalon(page: Page, request: APIRequestContext) {
 
 async function openDay(page: Page) {
   await page.goto(`/beauty?date=${DAY}`);
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Журнал');
+  // заголовок страницы скрыт визуально, видимый заголовок в единой шапке журнала (решение 24.10.2026)
+  await expect(page.getByRole('main').getByRole('heading', { level: 1, name: 'Журнал' })).toBeAttached();
+  await expect(page.getByTestId('beauty-day-nav')).toBeVisible();
 }
 
 async function book(page: Page, time: string, name: string) {
@@ -399,8 +401,9 @@ test('быстрый отчёт календаря: пустой день, ка�
   await openDay(page);
   const trigger = page.getByRole('button', { name: 'Быстрый отчёт', exact: true });
   await expect(trigger).toBeVisible();
-  await page.getByRole('button', { name: /^Открыть календарь/ }).click();
-  const calendar = page.getByRole('dialog', { name: 'Календарь', exact: true });
+  // день выбирает то же окно, что период календаря гостиницы (единая шапка)
+  await page.getByTestId('beauty-day-nav').getByLabel('Выбрать день').click();
+  const calendar = page.getByLabel('Календарь периода');
   await expect(calendar).toBeVisible();
   await calendar.getByRole('button', { name: 'Следующий месяц' }).click();
   await calendar.getByRole('button', { name: 'Предыдущий месяц' }).click();
@@ -553,7 +556,7 @@ test('быстрый отчёт календаря: выбранный маст�
   });
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Следующий день', exact: true }).click();
-  await expect(page.getByTestId('beauty-day-date')).toHaveValue('2026-10-13');
+  await expect(page).toHaveURL(/date=2026-10-13/);
   await expect(page.locator('.employee-filter summary')).toContainText('Дина');
   await page.getByRole('button', { name: 'Быстрый отчёт', exact: true }).click();
   report = page.getByRole('dialog', { name: /Статистика за/ });

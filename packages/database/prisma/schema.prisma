@@ -4862,6 +4862,7 @@ model VoiceProfile {
 
   @@index([organizationId, businessId], map: "voice_profiles_org_idx")
   @@map("voice_profiles")
+}
 
 /// STAFF-TG-20261020 (DATA_MODEL, план plans/staff-telegram-notifications-2026-10-20.md): личный чат сотрудника с
 /// ботом WETOP. Один на сотрудника; отключение ставит disabled_at, строка остаётся. RLS через членство в организации.

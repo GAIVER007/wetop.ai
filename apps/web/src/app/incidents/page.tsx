@@ -2,6 +2,7 @@ import { requireFeature } from '../../lib/vertical-guard';
 import { guardApi } from '../../lib/api';
 import { countLabel, msg } from '../../i18n';
 import { currentLocale, serverT } from '../../i18n/server';
+import type { Translate } from '../../i18n';
 import { Page } from '../../components/page';
 import { Alert, Panel, SectionTitle, StateBar, StateFact } from '../../components/ui';
 import { LoadError } from '../../components/load-error';
@@ -32,8 +33,8 @@ const atText = (iso: string, clock: PropertyClock) =>
     minute: '2-digit',
   });
 /** Время словами внутри `<time>`: сырое значение остаётся тестам и копированию (§14) */
-const at = (iso: string | null, clock: PropertyClock) =>
-  iso ? <time dateTime={iso}>{clock.when(iso)}</time> : '—';
+const at = (iso: string | null, clock: PropertyClock, t?: Translate) =>
+  iso ? <time dateTime={iso}>{clock.when(iso, t)}</time> : '—';
 
 /** Сколько записей истории читаем: если пришло ровно столько, список обрезан — и это написано на экране */
 const HISTORY_LIMIT = 200;
@@ -145,7 +146,7 @@ async function IncidentContent() {
           label={t('Последний проход')}
           value={
             <>
-              {tick ? at(tick.at, clock) : status ? t('ещё не было') : '—'}
+              {tick ? at(tick.at, clock, t) : status ? t('ещё не было') : '—'}
               {tick && (
                 <span className="state-bar__sub">
                   {checks(tick.checked.length)}
@@ -255,7 +256,7 @@ async function IncidentContent() {
               <li key={i.id} data-testid="incidents-closed-row">
                 <span className="incident-history__title">{i.title}</span>
                 <span className="incident-history__meta">
-                  {t('Замечена')} {at(i.firstSeenAt, clock)}, {t('закрыта')} {at(i.resolvedAt, clock)},{' '}
+                  {t('Замечена')} {at(i.firstSeenAt, clock, t)}, {t('закрыта')} {at(i.resolvedAt, clock, t)},{' '}
                   {i.resolvedBy ? t(RESOLVED_BY_RU[i.resolvedBy]) : t('кем — неизвестно')}.
                   {i.lastFixResult ? ` ${i.lastFixResult}.` : ''}
                 </span>

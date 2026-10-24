@@ -8,7 +8,7 @@ import { formatMoney } from '../../lib/money';
 import { hotelMonthLine, hotelTaskDue, hotelUnitNote } from '../../lib/hotel-cabinet';
 import { cleanUnitAction, taskDoneAction } from '../hotel-staff/actions';
 import { msg } from '../../i18n';
-import { useT } from '../../i18n/locale-provider';
+import { useLocale, useT } from '../../i18n/locale-provider';
 
 const DAYS: Record<number, string> = { 1: msg('Пн'), 2: msg('Вт'), 3: msg('Ср'), 4: msg('Чт'), 5: msg('Пт'), 6: msg('Сб'), 0: msg('Вс') };
 
@@ -20,6 +20,7 @@ const DAYS: Record<number, string> = { 1: msg('Пн'), 2: msg('Вт'), 3: msg('�
 export function HotelCabinet({ data }: { data: HotelStaffCabinetDto }) {
   const router = useRouter();
   const t = useT();
+  const locale = useLocale();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [, start] = useTransition();
@@ -44,7 +45,7 @@ export function HotelCabinet({ data }: { data: HotelStaffCabinetDto }) {
           <p className="muted">{data.property.name}</p>
         </div>
         <p className="hk-cab__month" data-testid="hotel-month-line">
-          {hotelMonthLine(data.month, data.today.slice(0, 4))}
+          {hotelMonthLine(data.month, data.today.slice(0, 4), t, locale)}
         </p>
       </header>
       {error && <Alert>{t(error)}</Alert>}
@@ -96,7 +97,7 @@ export function HotelCabinet({ data }: { data: HotelStaffCabinetDto }) {
                 <div className="hk-cab__what">
                   <strong>{task.title}</strong>
                   {task.note && <span className="muted">{task.note}</span>}
-                  <span className={task.overdue ? 'hk-cab__late' : 'muted'}>{t(hotelTaskDue(task, data.today))}</span>
+                  <span className={task.overdue ? 'hk-cab__late' : 'muted'}>{hotelTaskDue(task, data.today, t, locale)}</span>
                 </div>
                 {!task.done && (
                   <Button

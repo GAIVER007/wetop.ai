@@ -158,7 +158,7 @@ function ChannexConnected({
           <dd data-testid="integration-last-exchange">
             {card.lastExchangeAt ? (
               <time dateTime={card.lastExchangeAt}>
-                {exchangeLine(card.lastExchangeAt, clock, now)}
+                {exchangeLine(card.lastExchangeAt, clock, now, t)}
               </time>
             ) : (
               '—'

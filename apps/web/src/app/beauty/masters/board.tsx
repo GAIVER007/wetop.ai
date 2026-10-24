@@ -150,7 +150,7 @@ export function MastersBoard({
 }) {
   const t = useT();
   const earned = revenue ? revenueCells(revenue.items) : null;
-  const unattributed = revenue ? unattributedLabel(revenue.items, 'BEAUTY') : null;
+  const unattributed = revenue ? unattributedLabel(revenue.items, 'BEAUTY', t) : null;
   const router = useRouter();
   const [editing, setEditing] = useState<Editing>(() => (openNew && canCreate ? { mode: 'new' } : null));
   const [epoch, setEpoch] = useState(0);

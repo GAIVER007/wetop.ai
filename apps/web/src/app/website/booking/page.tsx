@@ -65,7 +65,7 @@ async function SiteBooking({
 }) {
   const t = await serverT();
   const { site, snippet } = card;
-  const state = siteState(card, propertyClock(site.timezone));
+  const state = siteState(card, propertyClock(site.timezone), undefined, t);
   const working = state.booking.state === 'on';
   const demo = working && isOpenableUrl(snippet.bookingDemoUrl);
   const planName = site.bookingRatePlan?.name;
@@ -76,8 +76,8 @@ async function SiteBooking({
         className="state-bar--wide"
         tone={state.booking.tone}
         label={t('Онлайн-бронирование')}
-        value={t(state.booking.value)}
-        summary={working ? t('Бронь сразу в PMS, оплата при заселении') : t(state.booking.note)}
+        value={state.booking.value}
+        summary={working ? t('Бронь сразу в PMS, оплата при заселении') : state.booking.note}
         data-testid="website-booking-state"
         data-state={state.booking.state}
       >

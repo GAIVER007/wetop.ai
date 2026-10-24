@@ -20,7 +20,7 @@ export function ScenariosView({
   /** Перевод страницы (серверный компонент без своего `serverT`: его рендерит и unit-тест) */
   t?: Translate;
 }) {
-  const banner = sellerBanner(status);
+  const banner = sellerBanner(status, t);
   const copy = sellerVerticalUiCopy(vertical);
   const salesTone = banner.tone === 'calm' ? 'ok' : banner.tone === 'alarm' ? 'danger' : 'warn';
   return (
@@ -41,7 +41,7 @@ export function ScenariosView({
           <tr data-testid="seller-scenario-sales">
             <th scope="row">{t('Продажи')}</th>
             <td>
-              <Badge tone={salesTone}>{t(banner.value)}</Badge>
+              <Badge tone={salesTone}>{banner.value}</Badge>
             </td>
             <td>
               {t(copy.scenarioSales)}

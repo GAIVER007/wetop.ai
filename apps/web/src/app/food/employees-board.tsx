@@ -260,7 +260,7 @@ export function EmployeesBoard({
   const locale = useLocale();
   const [draft, setDraft] = useState<FoodEmployee | null | 'new'>(null);
   const earned = revenue ? revenueCells(revenue.items) : null;
-  const unattributed = revenue ? unattributedLabel(revenue.items, 'FOOD_SERVICE') : null;
+  const unattributed = revenue ? unattributedLabel(revenue.items, 'FOOD_SERVICE', t) : null;
   // старые записи без назначения не прячутся и не угадываются: своя вкладка, пока они есть
   const groups = personnelTabs(employees.map((e) => ({ ...e, personnelKind: e.personnelKind ?? null })));
   const initials = (name: string) =>

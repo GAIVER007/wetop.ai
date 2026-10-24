@@ -359,10 +359,10 @@ export function ReservationForm({
                       <PickButton
                         key={tb.id}
                         selected={table === tb.id}
-                        label={t('Выбрать: {table}', { table: tableTitle(tb.name) })}
+                        label={t('Выбрать: {table}', { table: tableTitle(tb.name, t) })}
                         onClick={() => setTable(table === tb.id ? '' : tb.id)}
                       >
-                        {`${tableTitle(tb.name)}, ${countLabel(locale, t, tb.capacity, [msg('место@@стол'), 'места', msg('мест@@стол')])}`}{/* kk-allow: форма склонения */}
+                        {`${tableTitle(tb.name, t)}, ${countLabel(locale, t, tb.capacity, [msg('место@@стол'), 'места', msg('мест@@стол')])}`}{/* kk-allow: форма склонения */}
                       </PickButton>
                     ))}
                   </PickGroup>
@@ -394,7 +394,7 @@ export function ReservationForm({
                   `${date.split('-').reverse().join('.')} ${clockValue}`,
                   countLabel(locale, t, party, [msg('гость'), 'гостя', msg('гостей')]), // kk-allow: форма склонения
                   chosen
-                    ? `${tableTitle(chosen.name)}, ${areaName(chosen.areaId)}`
+                    ? `${tableTitle(chosen.name, t)}, ${areaName(chosen.areaId)}`
                     : walkIn
                       ? t('выберите стол')
                       : t('стол назначим позже'),

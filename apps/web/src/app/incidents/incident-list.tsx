@@ -174,11 +174,11 @@ export function IncidentList({
               )}
               <p className="incident__facts">
                 {i.severity === 'CRITICAL' && <span className="incident__urgent">{t('Срочно.')} </span>}
-                {t('Замечена')} <time dateTime={i.firstSeenAt}>{clock.when(i.firstSeenAt)}</time>.{' '}
+                {t('Замечена')} <time dateTime={i.firstSeenAt}>{clock.when(i.firstSeenAt, t)}</time>.{' '}
                 {repeatWords(i, locale, t)}{' '}
                 {i.alertedAt && (
                   <>
-                    {t('Будильник сработал')} <time dateTime={i.alertedAt}>{clock.when(i.alertedAt)}</time>
+                    {t('Будильник сработал')} <time dateTime={i.alertedAt}>{clock.when(i.alertedAt, t)}</time>
                     .
                   </>
                 )}

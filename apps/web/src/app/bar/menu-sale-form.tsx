@@ -42,7 +42,7 @@ export function MenuSaleForm({
   const active = items.filter((m) => m.active);
   const dish = active.find((m) => m.id === itemId) ?? null;
   const groups = dish?.modifierGroups ?? [];
-  const problem = dish ? choiceProblem(groups, picked) : null;
+  const problem = dish ? choiceProblem(groups, picked, t) : null;
   const count = /^\d+$/.test(qty) ? BigInt(qty) : 0n;
   const total = dish ? cartLinePrice(dish, picked) * count : 0n;
   const toFolio = pay === 'FOLIO';

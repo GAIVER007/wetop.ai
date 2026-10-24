@@ -55,7 +55,7 @@ export function ModifierPicker({
   const [selected, setSelected] = useState<string[]>(initial?.modifierIds ?? []);
   const [notes, setNotes] = useState(initial?.notes ?? '');
   const [qty, setQty] = useState(initial?.qty ?? 1);
-  const problem = choiceProblem(groups, selected);
+  const problem = choiceProblem(groups, selected, t);
   const price = cartLinePrice(dish, selected);
   return (
     <Overlay open onClose={close} title={dish.name} drawer size="sm" trapFocus>

@@ -1,3 +1,4 @@
+import { serverT } from '../../i18n/server';
 import { api, channelsApi } from '../../lib/api';
 import { currentMe, deskShell } from '../../lib/desk-shell';
 import { hotelApi, hotelClock } from '../../lib/hotel-api';
@@ -30,8 +31,9 @@ export interface ChannexState {
  */
 export async function loadChannexState(): Promise<ChannexState> {
   const now = new Date();
-  const [clock, shell, settings, me, connection, webhook, outbox, mapping, summary] =
+  const [t, clock, shell, settings, me, connection, webhook, outbox, mapping, summary] =
     await Promise.all([
+      serverT(),
       hotelClock(),
       deskShell(),
       settle(hotelApi.settings()),
@@ -46,7 +48,7 @@ export async function loadChannexState(): Promise<ChannexState> {
     mapping.ok && summary.ok ? categoryCoverage(mapping.value, summary.value.byCategory) : null;
   const user = me.ok ? me.value.user : null;
   return {
-    card: channexCard({ connection, webhook, outbox, coverage, now }),
+    card: channexCard({ connection, webhook, outbox, coverage, now, t }),
     coverage,
     propertyName: settings.ok ? settings.value.property.name : null,
     clock,

@@ -150,7 +150,7 @@ export function FloorLayoutEditor({
         })}
       </div>
       {current && table && (
-        <div className="rest-fp-editor__fields" aria-label={tableTitle(table.name)} role="group">
+        <div className="rest-fp-editor__fields" aria-label={tableTitle(table.name, t)} role="group">
           <Field label={t('Форма: {name}', { name: table.name })}>
             <Select
               value={current.shape ?? ''}

@@ -112,7 +112,7 @@ export function ReservationDrawer({
               <dd>{r.customer.phone ? formatPhone(r.customer.phone) : t('Не указан')}</dd>
               <dt>{t('Дата / время')}</dt>
               <dd>
-                {visitRange(r.startsAt, r.endsAt, data.timezone)}
+                {visitRange(r.startsAt, r.endsAt, data.timezone, locale)}
               </dd>
               <dt>{t('Период')}</dt>
               <dd>{r.servicePeriod.name}</dd>
@@ -125,7 +125,7 @@ export function ReservationDrawer({
                 {/* «Принял: имя» собирает общий помощник шаблоном, поэтому эта ветка переводится здесь */}
                 {r.source !== 'WALK_IN' && r.employee
                   ? t('Принял: {name}', { name: r.employee.name })
-                  : t(foodReservationOrigin(r))}
+                  : foodReservationOrigin(r, t)}
               </dd>
               <dt>{t('Заметка')}</dt>
               <dd>{r.notes || t('Нет заметки')}</dd>

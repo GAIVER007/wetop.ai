@@ -64,7 +64,7 @@ export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
     }
     const clock = (iso: string) => localInput(iso, shell.timezone).slice(11, 16);
     const bookingText = (r: RestaurantReservation) =>
-      `${r.table ? tableTitle(r.table.name) : t('Без стола')}, ${countLabel(locale, t, r.partySize, [msg('гость'), 'гостя', msg('гостей')])}, ${clock(r.startsAt)}`; // kk-allow: форма склонения
+      `${r.table ? tableTitle(r.table.name, t) : t('Без стола')}, ${countLabel(locale, t, r.partySize, [msg('гость'), 'гостя', msg('гостей')])}, ${clock(r.startsAt)}`; // kk-allow: форма склонения
     const customersTable = (
       list: FoodCustomer[],
       empty = t('Клиенты появятся после первого бронирования'),

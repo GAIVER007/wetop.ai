@@ -42,7 +42,7 @@ function FactsBody({ facts, catalogTitle }: { facts: SiteFacts; catalogTitle: st
   const items = catalog.items.slice(0, CATALOG_SHOWN);
   const more = catalog.items.length - items.length;
   const people = staff.slice(0, STAFF_SHOWN);
-  const hourLines = hoursLines(facts);
+  const hourLines = hoursLines(facts, t);
   return (
     <>
       <dl className="site-facts__list">
@@ -57,7 +57,7 @@ function FactsBody({ facts, catalogTitle }: { facts: SiteFacts; catalogTitle: st
         {items.length ? (
           <ul className="site-facts__items">
             {items.map((item, i) => {
-              const price = catalogPrice(item, formatMoney);
+              const price = catalogPrice(item, formatMoney, t);
               return (
                 <li key={`${item.code}-${i}`}>
                   <span>

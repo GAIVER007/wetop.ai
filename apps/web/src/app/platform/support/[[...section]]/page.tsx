@@ -442,7 +442,7 @@ async function QueueRow({
   const t = await serverT();
   const badge = priorityBadge(item);
   const mode = modeWord(item.mode);
-  const waiting = item.closed ? null : waitingFor(item.waitingSince, now);
+  const waiting = item.closed ? null : waitingFor(item.waitingSince, now, t);
   const who = item.clientName && item.clientName !== '—' ? item.clientName : t('Без подписи');
   const last = item.lastMessage ? `${t(speaker(item.lastMessage.role))}: ${item.lastMessage.text}` : lastMessageLine(null);
   return (

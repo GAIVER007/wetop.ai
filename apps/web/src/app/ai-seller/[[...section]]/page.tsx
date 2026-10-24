@@ -212,13 +212,13 @@ async function SellerStatePill() {
   const status = await settle(sellerApi.status());
   if (!status.ok) return null;
   const t = await serverT();
-  const banner = sellerBanner(status.value);
+  const banner = sellerBanner(status.value, t);
   return (
     <span className="seller-state" data-testid="seller-state">
       <Badge tone={banner.tone === 'calm' ? 'ok' : banner.tone === 'alarm' ? 'danger' : 'warn'}>
-        {t(banner.value)}
+        {banner.value}
       </Badge>
-      <span>{t(banner.title)}</span>
+      <span>{banner.title}</span>
     </span>
   );
 }
@@ -244,6 +244,7 @@ async function SellerScreen({
   vertical: WebVertical;
 }) {
   const t = await serverT();
+  const locale = await currentLocale();
   const status = await settle(sellerApi.status());
   if (!status.ok) return <LoadError testId="seller-error" {...loadErrorProps(status.error)} />;
   if (status.value.state === 'extension-off') {
@@ -252,7 +253,7 @@ async function SellerScreen({
   }
   // напоминание — тому, кто продлевает: владельцу организации (Q-183, ADR-107)
   const reminder =
-    owner && status.value.canConfigure !== false ? extensionReminder(status.value.extension) : null;
+    owner && status.value.canConfigure !== false ? extensionReminder(status.value.extension, t, locale) : null;
   return (
     <Stack>
       {/* на «Подключениях» то же состояние стоит бейджем рядом с ключом */}
@@ -292,7 +293,7 @@ async function SetupView({ status, vertical }: { status: SellerStatus; vertical:
   ]);
   if (!prompt.ok)
     return <LoadError testId="seller-prompt-error-load" {...loadErrorProps(prompt.error)} />;
-  const banner = sellerBanner(status);
+  const banner = sellerBanner(status, t);
   // что осталось до запуска — тому, кто может это сделать: сотруднику и после срока список ни к чему
   const checklist = readOnly
     ? null
@@ -303,13 +304,13 @@ async function SetupView({ status, vertical }: { status: SellerStatus; vertical:
   const copy = sellerVerticalUiCopy(vertical);
   const note =
     prompt.value.applied && prompt.value.updatedAt
-      ? t('Применено {when}', { when: clock.when(prompt.value.updatedAt) })
+      ? t('Применено {when}', { when: clock.when(prompt.value.updatedAt, t) })
       : prompt.value.saved
         ? t('Сохранено, но ещё не у продавца')
         : null;
   return (
     <Stack>
-      {banner.tone === 'alarm' && <Alert data-testid="seller-state-reason">{t(banner.text)}</Alert>}
+      {banner.tone === 'alarm' && <Alert data-testid="seller-state-reason">{banner.text}</Alert>}
       <SetupWizard>
         <Stack>
         <Panel data-testid="seller-setup" aria-labelledby="seller-prompt-title">
@@ -517,7 +518,7 @@ async function ModelView({ status }: { status: SellerStatus }) {
   if (!loaded.ok)
     return <LoadError testId="seller-llm-key-error-load" {...loadErrorProps(loaded.error)} />;
   const checkedAt = loaded.value.checkedAt;
-  const checkedLabel = checkedAt ? propertyClock(timezone).when(checkedAt) : null;
+  const checkedLabel = checkedAt ? propertyClock(timezone).when(checkedAt, t) : null;
   return (
     <Panel data-testid="seller-llm-key" aria-label={t('Ключ модели партнёра')}>
       <LlmKeyForm status={loaded.value} readOnly={readOnly} checkedLabel={checkedLabel} />
@@ -587,12 +588,12 @@ async function WhatsAppView({ status }: { status: SellerStatus }) {
 
 /** Расширение не подключено: вместо экранов — что это и кто подключает; прочитать сохранённое API тоже не даст */
 function ExtensionOff({ status, platform, vertical, t }: { status: SellerStatus; platform: boolean; vertical: WebVertical; t: Translate }) {
-  const banner = sellerBanner(status);
+  const banner = sellerBanner(status, t);
   const copy = sellerVerticalUiCopy(vertical);
   return (
     <EmptyState
       icon={<Icon name="chat" width={32} height={32} />}
-      title={t(banner.title)}
+      title={banner.title}
       data-testid="seller-extension-off"
       actions={
         <Row>
@@ -605,7 +606,7 @@ function ExtensionOff({ status, platform, vertical, t }: { status: SellerStatus;
         </Row>
       }
     >
-      {t(copy.extensionOff)} {t(banner.text)}
+      {t(copy.extensionOff)} {banner.text}
     </EmptyState>
   );
 }
@@ -697,15 +698,15 @@ async function PricesTable({ view }: { view: SellerFactsView }) {
         </thead>
         <tbody>
           {prices.map((p) => {
-            const line = categoryPriceLine(p, facts.currency);
+            const line = categoryPriceLine(p, facts.currency, t);
             return (
               <tr key={p.code}>
                 <td>{p.name}</td>
                 <td>{p.units}</td>
                 <td>{p.capacity}</td>
                 <td>
-                  {t(line.value)}
-                  {line.note && <span className="sub"> — {t(line.note)}</span>}
+                  {line.value}
+                  {line.note && <span className="sub"> — {line.note}</span>}
                 </td>
               </tr>
             );
@@ -758,7 +759,7 @@ async function NotReady({ status, title }: { status: SellerStatus; title: string
       title={title}
       data-testid="seller-not-ready"
     >
-      {t(sellerBanner(status).text)}
+      {sellerBanner(status, t).text}
     </EmptyState>
   );
 }

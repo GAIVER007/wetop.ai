@@ -174,7 +174,7 @@ export async function AnalyticsView({ days, status }: { days: string; status: Se
             </tr>
             <tr>
               <th scope="row">{t('Среднее время первого ответа')}</th>
-              <td data-testid="seller-metric-reply-time">{(day && replyTimeText(day.avgFirstReplySeconds)) ?? DASH}</td>
+              <td data-testid="seller-metric-reply-time">{(day && replyTimeText(day.avgFirstReplySeconds, t)) ?? DASH}</td>
             </tr>
           </tbody>
         </Table>

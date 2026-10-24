@@ -250,7 +250,7 @@ function FolioPanel({
               <td>
                 {(() => {
                   // «проживание Проживание 2026-10-22 → …» → «Проживание 22 окт. – 24 окт.» (аудит 22.10.2026 P1-7)
-                  const line = chargeLine(KIND_RU[c.kind] ?? c.kind, c.description);
+                  const line = chargeLine(KIND_RU[c.kind] ?? c.kind, c.description, 'screen', locale);
                   return (
                     <>
                       {line.kind && <span className="hint">{t(line.kind)}</span>} {line.text}
@@ -1059,7 +1059,7 @@ function EditPaymentDrawer({
           <input type="hidden" name="currency" value={folio.currency} />
           <p className="hint">
             {t('Прежний платёж останется в списке аннулированным, новый проведётся той же датой ({when}).', {
-              when: clock.when(payment.paidAt),
+              when: clock.when(payment.paidAt, t),
             })}
           </p>
           {state.error && <Alert boxed>{state.error}</Alert>}

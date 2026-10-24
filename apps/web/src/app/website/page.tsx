@@ -50,7 +50,7 @@ export default async function WebsiteOverviewPage() {
 
 async function SiteOverview({ card }: { card: TrackedSiteCard }) {
   const t = await serverT();
-  const state = siteState(card, propertyClock(card.site.timezone));
+  const state = siteState(card, propertyClock(card.site.timezone), undefined, t);
   // «Брони с сайта» за этот месяц — то же число, что блок «Брони с сайта» во вкладке «Аналитика» (WEB4, Q-212)
   const report = await analyticsApi.report(card.site.id).catch(() => null);
   return (
@@ -58,7 +58,7 @@ async function SiteOverview({ card }: { card: TrackedSiteCard }) {
       className="state-bar--wide"
       tone={state.overall.tone}
       label={state.host}
-      value={t(state.overall.value)}
+      value={state.overall.value}
       summary={
         <a
           href={`https://${state.host}`}
@@ -75,15 +75,15 @@ async function SiteOverview({ card }: { card: TrackedSiteCard }) {
       <StateFact label={t('Домен')} value={state.host}>
         {t('Подключён')}
       </StateFact>
-      <StateFact label={t('Счётчик')} value={t(state.counter.value)} data-testid="website-counter">
-        {t(state.counter.note)}
+      <StateFact label={t('Счётчик')} value={state.counter.value} data-testid="website-counter">
+        {state.counter.note}
       </StateFact>
       <StateFact
         label={t('Онлайн-бронирование')}
-        value={t(state.booking.value)}
+        value={state.booking.value}
         data-testid="website-booking"
       >
-        {t(state.booking.note)}
+        {state.booking.note}
       </StateFact>
       <StateFact
         label={t('Брони с сайта')}

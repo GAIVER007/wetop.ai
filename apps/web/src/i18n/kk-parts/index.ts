@@ -17,6 +17,8 @@ import { activityOps } from './activity-ops';
 import { platformOrg } from './platform-org';
 import { sellerSite } from './seller-site';
 import { analyticsEntry } from './analytics-entry';
+import { libSellerSite } from './lib-seller-site';
+import { libOps } from './lib-ops';
 import type { KkPart } from './types';
 
 export type { KkPart } from './types';
@@ -42,6 +44,8 @@ export const AREAS: Record<string, KkPart> = {
   'platform-org': platformOrg,
   'seller-site': sellerSite,
   'analytics-entry': analyticsEntry,
+  'lib-seller-site': libSellerSite,
+  'lib-ops': libOps,
 };
 
 export const PARTS: Record<string, Record<string, string>> = Object.fromEntries(

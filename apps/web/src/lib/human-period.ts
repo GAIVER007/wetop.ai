@@ -3,6 +3,7 @@
  * (аудит живого сайта 21.10.2026): «15-21 окт.», «15 окт. - 2 нояб.», «Алматы, UTC+5» вместо «Asia/Almaty».
  * Даты здесь дни (DATE), поэтому формат идёт по UTC и не сдвигается в браузере.
  */
+import { intlLocale, msg, translator, type DeskLocale, type Translate } from '../i18n';
 import { dateFormat } from '../i18n/dates';
 
 type IntlLocale = 'ru-RU' | 'kk-KZ' | 'en-GB';
@@ -21,23 +22,23 @@ export function shortPeriod(from: string, to: string, locale: IntlLocale = 'ru-R
 
 /** Города поясов, где работают клиенты WETOP; остальные берутся из кода пояса */
 const CITY: Record<string, string> = {
-  'Asia/Almaty': 'Алматы', // tz-allow: подпись города в словаре, не вычисление времени
-  'Asia/Qostanay': 'Костанай',
-  'Asia/Aqtobe': 'Актобе',
-  'Asia/Aqtau': 'Актау',
-  'Asia/Atyrau': 'Атырау',
-  'Asia/Oral': 'Уральск',
-  'Asia/Qyzylorda': 'Кызылорда',
-  'Asia/Tashkent': 'Ташкент',
-  'Asia/Bishkek': 'Бишкек',
-  'Asia/Dubai': 'Дубай',
-  'Asia/Qatar': 'Доха',
-  'Asia/Tbilisi': 'Тбилиси',
-  'Asia/Yerevan': 'Ереван',
-  'Asia/Baku': 'Баку',
-  'Europe/Moscow': 'Москва',
-  'Europe/Istanbul': 'Стамбул',
-  'Europe/Minsk': 'Минск',
+  'Asia/Almaty': msg('Алматы'), // tz-allow: подпись города в словаре, не вычисление времени
+  'Asia/Qostanay': msg('Костанай'),
+  'Asia/Aqtobe': msg('Актобе'),
+  'Asia/Aqtau': msg('Актау'),
+  'Asia/Atyrau': msg('Атырау'),
+  'Asia/Oral': msg('Уральск'),
+  'Asia/Qyzylorda': msg('Кызылорда'),
+  'Asia/Tashkent': msg('Ташкент'),
+  'Asia/Bishkek': msg('Бишкек'),
+  'Asia/Dubai': msg('Дубай'),
+  'Asia/Qatar': msg('Доха'),
+  'Asia/Tbilisi': msg('Тбилиси'),
+  'Asia/Yerevan': msg('Ереван'),
+  'Asia/Baku': msg('Баку'),
+  'Europe/Moscow': msg('Москва'),
+  'Europe/Istanbul': msg('Стамбул'),
+  'Europe/Minsk': msg('Минск'),
 };
 
 function offset(timeZone: string): string | null {
@@ -52,32 +53,34 @@ function offset(timeZone: string): string | null {
   }
 }
 
-export function zoneLabel(timeZone: string): string {
+export function zoneLabel(timeZone: string, t: Translate = translator('ru')): string {
   if (timeZone === 'UTC' || timeZone === 'Etc/UTC') return 'UTC';
-  const city = CITY[timeZone] ?? (timeZone.split('/').at(-1) ?? timeZone).replace(/_/g, ' ');
+  const known = CITY[timeZone];
+  const city = known ? t(known) : (timeZone.split('/').at(-1) ?? timeZone).replace(/_/g, ' ');
   const shift = offset(timeZone);
   return shift ? `${city}, ${shift}` : city;
 }
 
-/** Части момента в поясе филиала: «чт», «22 окт.», «19:00» */
-function momentParts(iso: string, timeZone: string): { weekday: string; day: string; time: string } {
+/** Части момента в поясе филиала: «чт», «22 окт.», «19:00»; `locale` даёт день недели и месяц на языке человека */
+function momentParts(iso: string, timeZone: string, locale: DeskLocale): { weekday: string; day: string; time: string } {
   const at = new Date(iso);
-  const weekday = new Intl.DateTimeFormat('ru-RU', { weekday: 'short', timeZone }).format(at);
-  const day = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', timeZone }).format(at);
+  const where = intlLocale(locale);
+  const weekday = dateFormat(where, { weekday: 'short', timeZone }).format(at);
+  const day = dateFormat(where, { day: 'numeric', month: 'short', timeZone }).format(at);
   const time = new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone }).format(at);
   return { weekday, day, time };
 }
 
 /** Момент операции словами в поясе филиала: «22 окт., 01:06» (касса, движения склада) */
-export function dayClock(iso: string, timeZone: string): string {
-  const p = momentParts(iso, timeZone);
+export function dayClock(iso: string, timeZone: string, locale: DeskLocale = 'ru'): string {
+  const p = momentParts(iso, timeZone, locale);
   return `${p.day}, ${p.time}`;
 }
 
 /** Время визита словами: «чт, 22 окт., 19:00–21:00»; через полночь с днём конца */
-export function visitRange(startsAt: string, endsAt: string, timeZone: string): string {
-  const s = momentParts(startsAt, timeZone);
-  const e = momentParts(endsAt, timeZone);
+export function visitRange(startsAt: string, endsAt: string, timeZone: string, locale: DeskLocale = 'ru'): string {
+  const s = momentParts(startsAt, timeZone, locale);
+  const e = momentParts(endsAt, timeZone, locale);
   if (s.day === e.day) return `${s.weekday}, ${s.day}, ${s.time}–${e.time}`;
   return `${s.weekday}, ${s.day}, ${s.time} – ${e.weekday}, ${e.day}, ${e.time}`;
 }

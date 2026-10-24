@@ -375,10 +375,10 @@ export function MembersTable({
   revenue?: StaffRevenue | null;
   revenueNav?: ReactNode;
 }) {
-  const earned = revenue ? revenueCells(revenue.items) : null;
-  const unattributed = revenue ? unattributedLabel(revenue.items, 'HOSPITALITY') : null;
-  const team = useContext(TeamContext);
   const t = useT();
+  const earned = revenue ? revenueCells(revenue.items) : null;
+  const unattributed = revenue ? unattributedLabel(revenue.items, 'HOSPITALITY', t) : null;
+  const team = useContext(TeamContext);
   const { error, pending, run } = useTeamActions();
   const { ask, dialog } = useConfirm();
   const [scoping, setScoping] = useState<AuthMember | null>(null);

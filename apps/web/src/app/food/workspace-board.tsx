@@ -479,7 +479,7 @@ export function WorkspaceBoard({
                         </td>
                         <td>{r.notes || '—'}</td>
                         <td>{r.servicePeriod.name}</td>
-                        <td>{t(foodReservationOrigin(r))}</td>
+                        <td>{foodReservationOrigin(r, t)}</td>
                       </tr>
                     ))}
                   </tbody>

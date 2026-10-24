@@ -83,7 +83,7 @@ export function KitchenBoard({
         </time>
       </div>
       <span className="rest-kds-table">
-        {o.table ? tableTitle(o.table.name) : t('Без стола')}
+        {o.table ? tableTitle(o.table.name, t) : t('Без стола')}
         {o.waiter ? `, ${o.waiter.name}` : ''}
       </span>
       <ul className="rest-kds-items">

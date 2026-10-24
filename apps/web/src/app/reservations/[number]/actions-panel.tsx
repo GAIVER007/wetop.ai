@@ -377,7 +377,7 @@ export function ReservationActions(props: {
             <p>{t('Место вернётся в продажу и уйдёт в каналы.')}</p>
             {cancelReason === 'cancel' && <p>{t('Начисление за проживание сторнируется.')}</p>}
             <p data-testid={cancelReason === 'cancel' ? 'cancel-penalty' : 'no-show-penalty'}>
-              {penaltyText(cancelPreview, cancelReason, props.currency)}
+              {penaltyText(cancelPreview, cancelReason, props.currency, t)}
             </p>
             {cancelState.error && <Alert>{cancelState.error}</Alert>}
           </ConfirmDialog>
@@ -576,7 +576,7 @@ function StayButtons(props: {
     if (
       !(await ask({
         title: t('Продлить на ночь — {category}?', { category: props.item.accommodationTypeName }),
-        body: previewLine(summary),
+        body: previewLine(summary, t, locale),
         confirmLabel: t('Продлить'),
       }))
     )

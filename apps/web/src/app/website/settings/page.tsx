@@ -102,14 +102,14 @@ async function SiteCard({ card }: { card: TrackedSiteCard }) {
   const t = await serverT();
   const { site, status, snippet } = card;
   const clock = propertyClock(site.timezone);
-  const state = siteState(card, clock);
+  const state = siteState(card, clock, undefined, t);
   const counter = COUNTER_TEXT[state.counter.state];
   // Одна плашка состояния вместо пары «Счётчик включён» + «Ожидает первых событий» (ADR-117)
   const badge = !state.connected
     ? { tone: 'warn' as const, text: t('Адрес не указан') }
     : state.counter.state === 'today'
-      ? { tone: 'ok' as const, text: t(state.counter.value) }
-      : { tone: 'neutral' as const, text: t(state.counter.value) };
+      ? { tone: 'ok' as const, text: state.counter.value }
+      : { tone: 'neutral' as const, text: state.counter.value };
   return (
     <Panel
       size="lg"

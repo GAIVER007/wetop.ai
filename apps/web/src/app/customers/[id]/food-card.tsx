@@ -66,7 +66,7 @@ function VisitHistory({
                 <time dateTime={visit.startsAt}>{visitDateTime(visit)}</time>
               </td>
               {branches && <td data-label={t('Филиал')}>{visit.location.name}</td>}
-              <td data-label={t('Стол')}>{visit.table ? `${visit.table.areaName}, ${tableTitle(visit.table.name)}` : t('Без стола')}</td>
+              <td data-label={t('Стол')}>{visit.table ? `${visit.table.areaName}, ${tableTitle(visit.table.name, t)}` : t('Без стола')}</td>
               <td data-label={t('Гостей')}>{visit.partySize}</td>
               <td data-label={t('Статус')}>
                 <StatusBadge kind="food" value={visit.status} />

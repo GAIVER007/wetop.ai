@@ -19,7 +19,7 @@ export function OpeningForm({ initial, scopeKey, timezone, write }: { initial: O
   <h2 id="physical-opening-title">{t('Часы работы зала')}</h2>
   {/* учёт выключен, пока таблицы часов лежат в migrations-hold (ADR-137, аудит 22.10.2026 P1-6): одна фраза владельцу */}
   {!initial.enabled ? <p role="status">{t('Часы работы зала настраиваются командой WETOP. Напишите в поддержку, и их включат для вашего ресторана.')}</p> : <>
-   <p className="muted">{t('Физическая работа всего филиала, не периоды приёма броней. Часовой пояс: {zone}. Дни без интервалов закрыты, круглосуточная работа не подставляется.', { zone: zoneLabel(timezone) })}</p>
+   <p className="muted">{t('Физическая работа всего филиала, не периоды приёма броней. Часовой пояс: {zone}. Дни без интервалов закрыты, круглосуточная работа не подставляется.', { zone: zoneLabel(timezone, t) })}</p>
    {initial.error && <Alert>{t(initial.error)}</Alert>}
    {!initial.schedule && !initial.error && <p role="status">{t('Расписание не подтверждено. Нет доступного расписания для расчёта загрузки.')}</p>}
    {initial.schedule && <p className="muted">{t('Подтверждение источника (recorded_at):')} <time dateTime={initial.schedule.recorded_at}>{initial.schedule.recorded_at}</time>. {t('Загрузка учитывается только с момента захвата (observedAt), не раньше подтверждения. История до наблюдения не восстанавливается.')}</p>}

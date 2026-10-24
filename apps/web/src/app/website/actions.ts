@@ -23,10 +23,10 @@ export async function createSiteAction(
   const t = await serverT();
   const name = String(form.get('name') ?? '').trim();
   // WEB2: один адрес, почищенный так же, как в «Добавить домен»; ещё адреса — списком после подключения
-  const parsed = parseDomainInput(String(form.get('hosts') ?? ''));
+  const parsed = parseDomainInput(String(form.get('hosts') ?? ''), t);
   if ('error' in parsed)
     return {
-      error: t(parsed.error),
+      error: parsed.error,
       message: null,
       values: formValues(form, ['name', 'hosts']),
       attempt: (_prev?.attempt ?? 0) + 1,
@@ -115,12 +115,12 @@ export async function bookingSettingsAction(
  */
 export async function addDomainAction(id: string, raw: string): Promise<SiteActionResult> {
   const t = await serverT();
-  const parsed = parseDomainInput(raw);
-  if ('error' in parsed) return { error: t(parsed.error), message: null };
+  const parsed = parseDomainInput(raw, t);
+  if ('error' in parsed) return { error: parsed.error, message: null };
   try {
     const { site } = await analyticsApi.card(id);
-    const next = hostsAfterAdd(site.hosts, parsed.host);
-    if ('error' in next) return { error: t(next.error), message: null };
+    const next = hostsAfterAdd(site.hosts, parsed.host, t);
+    if ('error' in next) return { error: next.error, message: null };
     const card = await analyticsApi.update(id, { hosts: next.hosts });
     refreshSiteViews();
     const message = next.dropped.length
@@ -137,8 +137,8 @@ export async function removeDomainAction(id: string, host: string): Promise<Site
   const t = await serverT();
   try {
     const { site } = await analyticsApi.card(id);
-    const next = hostsAfterRemove(site.hosts, host);
-    if ('error' in next) return { error: t(next.error), message: null };
+    const next = hostsAfterRemove(site.hosts, host, t);
+    if ('error' in next) return { error: next.error, message: null };
     const card = await analyticsApi.update(id, { hosts: next.hosts });
     refreshSiteViews();
     return {

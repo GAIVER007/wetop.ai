@@ -85,15 +85,15 @@ export function TablePanel({
     <aside
       className="rest-table-panel"
       data-testid="table-panel"
-      aria-label={tableTitle(table.name)}
+      aria-label={tableTitle(table.name, t)}
     >
       <div className="rest-table-panel__head">
-        <h2>{tableTitle(table.name)}</h2>
+        <h2>{tableTitle(table.name, t)}</h2>
         <button
           ref={closeButton}
           type="button"
           className="rest-icon-btn"
-          aria-label={t('Закрыть: {table}', { table: tableTitle(table.name) })}
+          aria-label={t('Закрыть: {table}', { table: tableTitle(table.name, t) })}
           onClick={close}
         >
           <Icon name="close" />

@@ -152,7 +152,7 @@ export default async function JournalPage({
   return (
     <Page
       title={t('История действий')}
-      subtitle={t('Действия сотрудников и изменения денег. Время: {zone}.', { zone: zoneLabel(clock.timezone) })}
+      subtitle={t('Действия сотрудников и изменения денег. Время: {zone}.', { zone: zoneLabel(clock.timezone, t) })}
       actions={<RefreshButton />}
     >
       {desk.vertical !== 'BEAUTY' && <TeamNavigation current="journal" owner />}

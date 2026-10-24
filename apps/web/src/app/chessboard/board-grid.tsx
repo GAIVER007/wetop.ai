@@ -697,7 +697,7 @@ export function ChessboardGrid({
           addedNights === 1
             ? t('Продлить на ночь — {guest}, {unit}?', { guest: p.guest, unit: p.unitCode })
             : t('Продлить на {n} ноч. — {guest}, {unit}?', { n: addedNights, guest: p.guest, unit: p.unitCode }),
-        body: previewLine(summary),
+        body: previewLine(summary, t, locale),
         confirmLabel: t('Продлить'),
       }))
     ) {
@@ -726,7 +726,7 @@ export function ChessboardGrid({
     if (
       !(await ask({
         title: t('Отменить бронь {number}?', { number: p.number }),
-        body: `${t('Место {unit} вернётся в продажу и уйдёт в каналы.', { unit: p.unitCode })} ${t(penaltyText(preview, 'cancel'))}`,
+        body: `${t('Место {unit} вернётся в продажу и уйдёт в каналы.', { unit: p.unitCode })} ${penaltyText(preview, 'cancel', undefined, t)}`,
         confirmLabel: t('Отменить бронь'),
         tone: 'danger',
       }))

@@ -111,7 +111,7 @@ export function WaiterBoard({
       }
       setCart([]);
       setTableId(null);
-      setNotice(t('{table}: заказ отправлен на кухню и в бар', { table: tableTitle(table.name) }));
+      setNotice(t('{table}: заказ отправлен на кухню и в бар', { table: tableTitle(table.name, t) }));
       setView('orders');
       router.refresh();
     });
@@ -167,14 +167,14 @@ export function WaiterBoard({
                       data-mine={tb.mine || undefined}
                       data-testid="waiter-table"
                       disabled={!write}
-                      aria-label={`${tableTitle(tb.name)}, ${tb.mine ? t('мой заказ') : tb.busy ? t('занят') : t('свободен')}`}
+                      aria-label={`${tableTitle(tb.name, t)}, ${tb.mine ? t('мой заказ') : tb.busy ? t('занят') : t('свободен')}`}
                       onClick={() => {
                         setTableId(tb.id);
                         setNotice('');
                         setGuests(Math.min(2, tb.capacity));
                       }}
                     >
-                      <strong>{tableTitle(tb.name)}</strong>
+                      <strong>{tableTitle(tb.name, t)}</strong>
                       <small>{tb.mine ? t('Мой заказ') : tb.busy ? t('Занят') : t('Свободен')}</small>
                       <small>{countLabel(locale, t, tb.capacity, SEAT_FORMS)}</small>
                     </button>
@@ -186,12 +186,12 @@ export function WaiterBoard({
         </section>
       )}
       {view === 'tables' && table && (
-        <section aria-label={t('Заказ: {table}', { table: tableTitle(table.name) })} className="waiter-take">
+        <section aria-label={t('Заказ: {table}', { table: tableTitle(table.name, t) })} className="waiter-take">
           <div className="waiter-take__head">
             <Button tone="secondary" onClick={() => setTableId(null)}>
               {t('← Столы')}
             </Button>
-            <h2 className="waiter-take__title">{tableTitle(table.name)}</h2>
+            <h2 className="waiter-take__title">{tableTitle(table.name, t)}</h2>
             {tableOrder ? (
               <Badge tone="info">{t('Дозаказ к №{n}', { n: tableOrder.number })}</Badge>
             ) : (
@@ -227,7 +227,7 @@ export function WaiterBoard({
             <article key={o.id} className="waiter-order" data-testid="waiter-order">
               <header>
                 <strong>
-                  №{o.number}, {o.table ? tableTitle(o.table.name) : t('Без стола')}
+                  №{o.number}, {o.table ? tableTitle(o.table.name, t) : t('Без стола')}
                 </strong>
                 <time dateTime={o.openedAt}>{clock(o.openedAt)}</time>
               </header>

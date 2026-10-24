@@ -134,7 +134,7 @@ export function TimelineBoard({
         {tables.map((table) => (
           <div className="rest-tl__row" key={table.id}>
             <div className="rest-tl__table">
-              <strong>{tableTitle(table.name)}</strong> <small>({table.capacity})</small>
+              <strong>{tableTitle(table.name, t)}</strong> <small>({table.capacity})</small>
               {!areaId && <span className="sr-only">, {areaName.get(table.areaId)}</span>}
             </div>
             <div className="rest-tl__track">
@@ -142,7 +142,7 @@ export function TimelineBoard({
                 <button
                   type="button"
                   className="rest-tl__slot"
-                  aria-label={t('Новая бронь: {table}', { table: tableTitle(table.name) })}
+                  aria-label={t('Новая бронь: {table}', { table: tableTitle(table.name, t) })}
                   onClick={(e) => pick(e, table.id)}
                 />
               )}

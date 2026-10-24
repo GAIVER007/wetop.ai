@@ -769,7 +769,7 @@ function LocationCard({
             </Select>
           </IconField>
         </Field>
-        <ReadonlyField label={msg('Часовой пояс')} icon="clock" value={zoneLabel(property.timezone)} />
+        <ReadonlyField label={msg('Часовой пояс')} icon="clock" value={zoneLabel(property.timezone, t)} />
         <ReadonlyField label={msg('Валюта')} icon="cash" value={property.currency} />
         <ReadonlyField
           label={msg('Количество номеров')}
@@ -926,7 +926,7 @@ export function StayNote({ timezone }: { timezone: string }) {
   const t = useT();
   return (
     <p className="settings-note">
-      {t('По времени объекта ({zone}). Эти часы печатаются в договоре, их видит гость в модуле бронирования на сайте, по ним отвечает ИИ-продавец.', { zone: zoneLabel(timezone) })}
+      {t('По времени объекта ({zone}). Эти часы печатаются в договоре, их видит гость в модуле бронирования на сайте, по ним отвечает ИИ-продавец.', { zone: zoneLabel(timezone, t) })}
     </p>
   );
 }

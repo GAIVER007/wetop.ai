@@ -73,6 +73,8 @@ describe('язык стойки (ADR-163, KK1)', () => {
     // контекст многозначной фразы: русский экран показывает фразу без него, словари переводят отдельно
     expect(translator('ru')('Вернуть@@деньги')).toBe('Вернуть');
     expect(translator('kk')('Фразы нет@@ни в одном словаре')).toBe('Фразы нет');
+    // значение из справочника по неизвестному ключу (`undefined`) не роняет страницу: перевод отдаёт пустую строку
+    for (const lang of ['ru', 'kk', 'en'] as const) expect(translator(lang)(undefined as unknown as string)).toBe('');
     // EN1: английский третьим языком тем же словарным способом
     expect(translator('en')('Помощь')).toBe('Help');
     expect(translator('en')('Фразы нет в словаре')).toBe('Фразы нет в словаре');

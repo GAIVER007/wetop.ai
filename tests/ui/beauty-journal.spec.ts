@@ -305,6 +305,8 @@ test('отмена спрашивает и освобождает время м�
   await expect(ask).toContainText('Отменить запись: Жанна');
   await expect(ask).toContainText('Время специалиста освободится');
   await ask.getByRole('button', { name: 'Отменить запись', exact: true }).click();
+  // карточка закрывается, когда отмена принята; переход раньше обрывает запрос («Error: aborted»)
+  await expect(card).toHaveCount(0);
 
   await openDay(page);
   await expect(page.getByRole('main').getByTestId('beauty-day-summary')).toContainText(

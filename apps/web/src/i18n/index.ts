@@ -34,11 +34,16 @@ const fill = (text: string, vars?: Vars) =>
  * отдельно от «Вернуть» версии сайта (Refund и Restore). Без контекста одна русская фраза получает один перевод везде.
  */
 const plain = (text: string) => text.replace(/@@[^@]*$/, '');
+/** Значение справочника по неизвестному ключу приходит `undefined`: пустая строка вместо исключения на всю страницу */
+const phrase = (text: unknown): string => (typeof text === 'string' ? text : text == null ? '' : String(text));
 
 export function translator(locale: DeskLocale, dictionary?: Record<string, string>): Translate {
-  if (locale === 'ru') return (text, vars) => fill(plain(text), vars);
+  if (locale === 'ru') return (text, vars) => fill(plain(phrase(text)), vars);
   const words = dictionary ?? DICTIONARIES[locale];
-  return (text, vars) => fill(words[text] ?? plain(text), vars);
+  return (text, vars) => {
+    const key = phrase(text);
+    return fill(words[key] ?? plain(key), vars);
+  };
 }
 
 /**

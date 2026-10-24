@@ -23,7 +23,15 @@ type Locale = DeskLocale | 'ru-RU' | 'kk-KZ' | 'en-GB';
 export function dateFormat(locale: Locale, options: Intl.DateTimeFormatOptions = {}): DateFormat {
   if (locale === 'ru' || locale === 'ru-RU') return new Intl.DateTimeFormat('ru-RU', options);
   // английские данные ICU есть в каждом браузере и в Node: день перед месяцем и 24 часа, как в Казахстане
-  if (locale === 'en' || locale === 'en-GB') return new Intl.DateTimeFormat('en-GB', options);
+  if (locale === 'en' || locale === 'en-GB') {
+    // пробелы вокруг тире у ICU Node и браузера разные (тонкий или обычный): сервер и клиент расходились при гидратации
+    const intl = new Intl.DateTimeFormat('en-GB', options);
+    const plainSpaces = (text: string) => text.replace(/[\u2009\u202f]/g, ' ');
+    return {
+      format: (date) => plainSpaces(intl.format(date)),
+      formatRange: (from, to) => plainSpaces(intl.formatRange(from, to)),
+    };
+  }
   return kazakh(options);
 }
 

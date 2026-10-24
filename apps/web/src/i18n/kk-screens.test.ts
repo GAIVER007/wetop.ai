@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { kk, shell } from './kk';
+import { en } from './en';
 import { AREAS } from './kk-parts';
 
 /**
@@ -55,7 +56,12 @@ describe('KK2: экраны на казахском целиком', () => {
       // допишите перевод в apps/web/src/i18n/kk-parts/<область>.ts
       const leftovers = found.flatMap((f) => f.leftovers);
       if (leftovers.length) expect.fail(`русский мимо t(…)/msg(…), ${leftovers.length}:\n${leftovers.join('\n')}`);
-      const missing = [...new Set(found.flatMap((f) => f.phrases))].filter((phrase) => !kk[phrase]);
+      const phrases = [...new Set(found.flatMap((f) => f.phrases))];
+      const missing = [
+        ...phrases.filter((phrase) => !kk[phrase]).map((phrase) => `kk: ${phrase}`),
+        // EN1: английский словарь apps/web/src/i18n/en-parts/<область>.ts, ключ тот же
+        ...phrases.filter((phrase) => !en[phrase]).map((phrase) => `en: ${phrase}`),
+      ];
       if (missing.length) expect.fail(`нет перевода, ${missing.length}:\n${missing.join('\n')}`);
     });
 

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { hotelToday, validDate } from '../../lib/hotel-api';
 import { periods } from '../../lib/report-periods';
-import { nightsBetween, pluralRu } from '../../lib/plural';
+import { nightsBetween } from '../../lib/plural';
 import { displayDate } from '../../lib/display-date';
 import { dashboardApi, deskApi, financeApi } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
@@ -19,7 +19,7 @@ import { DateInput } from '../../components/date-field';
 import { ReportsTabs } from './reports-tabs';
 import '../directory.css';
 import './reports.css';
-import { msg, type Translate } from '../../i18n';
+import { countLabel, msg, type Translate } from '../../i18n';
 import { currentLocale, serverT } from '../../i18n/server';
 import { intlLocale } from '../../i18n';
 
@@ -54,7 +54,7 @@ export default async function ReportsHubPage({
   const t = await serverT();
   const locale = await currentLocale();
   // у казахского существительное после числа не меняется: «5 күн»
-  const counted = (n: number, forms: [string, string, string]) => (locale === 'kk' ? `${n} ${t(forms[0])}` : pluralRu(n, forms));
+  const counted = (n: number, forms: [string, string, string]) => countLabel(locale, t, n, forms);
   const sp = normalizeSearchParams(await searchParams);
   const cal = periods(await hotelToday());
   const from = sp.from || cal.month.from;
@@ -96,7 +96,7 @@ export default async function ReportsHubPage({
       subtitle={
         valid ? (
           <span data-testid="reports-period">
-            {periodText}, {counted(days, [msg('день'), 'дня', 'дней'])} {/* kk-allow: формы склонения для русского вида */}
+            {periodText}, {counted(days, [msg('день'), 'дня', msg('дней')])} {/* kk-allow: формы склонения для русского вида */}
           </span>
         ) : undefined
       }
@@ -184,7 +184,7 @@ export default async function ReportsHubPage({
               hint={
                 fin
                   ? serviceRow
-                    ? t('{count} за услуги', { count: counted(serviceRow.count, [msg('начисление'), 'начисления', 'начислений']) }) // kk-allow: формы склонения для русского вида
+                    ? t('{count} за услуги', { count: counted(serviceRow.count, [msg('начисление'), 'начисления', msg('начислений')]) }) // kk-allow: формы склонения для русского вида
                     : t('начислений за услуги за период нет')
                   : undefined
               }
@@ -199,7 +199,7 @@ export default async function ReportsHubPage({
               hint={
                 debts
                   ? debts.count > 0
-                    ? t('к сбору по {count}', { count: counted(debts.count, [msg('броне'), 'броням', 'броням']) }) // kk-allow: формы склонения для русского вида
+                    ? t('к сбору по {count}', { count: counted(debts.count, [msg('броне'), 'броням', msg('броням')]) }) // kk-allow: формы склонения для русского вида
                     : t('все брони периода оплачены')
                   : undefined
               }

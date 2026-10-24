@@ -5,7 +5,7 @@
  */
 import { dateFormat } from '../i18n/dates';
 
-type IntlLocale = 'ru-RU' | 'kk-KZ';
+type IntlLocale = 'ru-RU' | 'kk-KZ' | 'en-GB';
 const at = (iso: string) => new Date(`${iso}T12:00:00Z`);
 const fmt = (locale: IntlLocale, options: Intl.DateTimeFormatOptions) =>
   dateFormat(locale, { ...options, timeZone: 'UTC' });

@@ -5,7 +5,6 @@ import { unstable_rethrow } from 'next/navigation';
 import { barApi, type BarReceiptRow, type BarReport, type BarSaleRow } from '../../lib/api';
 import { hotelToday, propertyTimezone } from '../../lib/hotel-api';
 import { formatMoney } from '../../lib/money';
-import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
@@ -24,7 +23,7 @@ import { BarAnalytics } from './bar-analytics';
 import { deskShell } from '../../lib/desk-shell';
 import { barActionAccess } from './action-access';
 import './bar.css';
-import { intlLocale, msg } from '../../i18n';
+import { countLabel, intlLocale, msg } from '../../i18n';
 import { currentLocale, serverT } from '../../i18n/server';
 import { dateFormat } from '../../i18n/dates';
 
@@ -273,7 +272,7 @@ export default async function BarPage({
         <p className="bar-low-warning" role="status" data-testid="bar-low-warning">
           <Icon name="incidents" width={16} height={16} />
           <span>
-            {t('Заканчиваются: {count}.', { count: locale === 'kk' ? `${lowCount} ${t('товар')}` : pluralRu(lowCount, ['товар', 'товара', 'товаров']) })}{' '} {/* kk-allow: формы склонения для русского вида */}
+            {t('Заканчиваются: {count}.', { count: countLabel(locale, t, lowCount, [msg('товар'), 'товара', msg('товаров')]) })}{' '} {/* kk-allow: формы склонения для русского вида */}
             {lowStock.slice(0, 5).map((item, index) => (
               <span key={item.id}>
                 {index > 0 && ', '}

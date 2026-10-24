@@ -18,10 +18,12 @@ export interface DateFormat {
   formatRange(from: Date, to: Date): string;
 }
 
-type Locale = DeskLocale | 'ru-RU' | 'kk-KZ';
+type Locale = DeskLocale | 'ru-RU' | 'kk-KZ' | 'en-GB';
 
 export function dateFormat(locale: Locale, options: Intl.DateTimeFormatOptions = {}): DateFormat {
   if (locale === 'ru' || locale === 'ru-RU') return new Intl.DateTimeFormat('ru-RU', options);
+  // английские данные ICU есть в каждом браузере и в Node: день перед месяцем и 24 часа, как в Казахстане
+  if (locale === 'en' || locale === 'en-GB') return new Intl.DateTimeFormat('en-GB', options);
   return kazakh(options);
 }
 

@@ -182,3 +182,32 @@ describe('деление счёта', () => {
     expect(() => itemsPaymentAmount(lines, [])).toThrow('Отметьте хотя бы одну позицию');
   });
 });
+
+describe('§62.2 продукты добавки', () => {
+  const P1 = '11111111-1111-4111-8111-111111111111',
+    P2 = '22222222-2222-4222-8222-222222222222';
+  it('без поля ingredients продукты не трогаются (undefined); список разбирается в тысячные доли', () => {
+    const g = parseModifierGroupInput({
+      name: 'Добавки',
+      modifiers: [
+        { name: 'Молоко', priceDeltaMinor: 20000, ingredients: [{ productId: P1, normQty: '50' }, { productId: P2, normQty: '0,5' }] },
+        { name: 'Без продуктов', priceDeltaMinor: 0 },
+        { name: 'Снять продукты', priceDeltaMinor: 0, ingredients: [] },
+      ],
+    });
+    expect(g.modifiers!.map((m) => m.ingredients)).toEqual([
+      [
+        { productId: P1, normQty: 50_000n },
+        { productId: P2, normQty: 500n },
+      ],
+      undefined,
+      [],
+    ]);
+  });
+  it('продукт дважды в одной добавке, ноль и больше 20 строк: отказ', () => {
+    const one = (ingredients: unknown) => parseModifierGroupInput({ name: 'X', modifiers: [{ name: 'A', priceDeltaMinor: 0, ingredients }] });
+    expect(() => one([{ productId: P1, normQty: '1' }, { productId: P1, normQty: '2' }])).toThrow(/один раз/);
+    expect(() => one([{ productId: P1, normQty: '0' }])).toThrow(/больше нуля/);
+    expect(() => one(Array.from({ length: 21 }, () => ({ productId: P1, normQty: '1' })))).toThrow(/до 20/);
+  });
+});

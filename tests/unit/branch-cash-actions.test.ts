@@ -68,7 +68,8 @@ describe('branch cash server actions use verified capability context', () => {
       expect(m.operation).not.toHaveBeenCalled();
     },
   );
-  it('does not open restaurant menu operations to beauty', async () => {
+  // §62.3 (решение владельца 24.10.2026, K3): меню открыто салону и гостинице как «Меню бара»; ключ филиала проверяется
+  it('opens the shared bar menu to beauty for its own branch only', async () => {
     expect(
       (
         await mutateMenu('synthetic-business:synthetic-location', {
@@ -76,7 +77,11 @@ describe('branch cash server actions use verified capability context', () => {
           body: { name: 'Synthetic' },
         })
       ).error,
-    ).toBeTruthy();
+    ).toBeNull();
+    expect(m.menu).toHaveBeenCalledOnce();
+    expect(m.revalidate).toHaveBeenCalledWith('/bar/menu');
+    m.menu.mockClear();
+    expect((await mutateMenu('synthetic-business:other-location', { kind: 'category', body: { name: 'Synthetic' } })).error).toMatch(/другой салон/);
     expect(m.menu).not.toHaveBeenCalled();
   });
   it('does not move hotel folio cash into the branch ledger', async () => {

@@ -18,6 +18,8 @@ export type VerticalCapability =
   | 'food.staff'
   | 'food.stock'
   | 'branch.stock'
+  /** меню, техкарты и добавки (§62.3): у ресторана «Меню», у гостиницы и салона «Меню бара» */
+  | 'branch.menu'
   /** касса филиала (§35.2, §48): ресторан и салон */
   | 'branch.cash'
   /** зарплата сотрудников (§33.4, §19.2, §4.1): все три направления; у гостиницы без выплат из кассы */
@@ -39,6 +41,7 @@ const DEFINITIONS: Readonly<Record<BusinessVertical, VerticalDefinition>> = Obje
       'hospitality.rates',
       'hospitality.channels',
       'branch.stock',
+      'branch.menu',
       // зарплата гостиницы: начисления тем же расчётом; выплаты из кассы нет (docs/decisions/2026-10-22-hotel-staff-cabinet.md)
       'branch.payroll',
     ] as const),
@@ -53,6 +56,7 @@ const DEFINITIONS: Readonly<Record<BusinessVertical, VerticalDefinition>> = Obje
       'beauty.employees',
       'beauty.services',
       'branch.stock',
+      'branch.menu',
       'branch.cash',
       'branch.payroll',
     ] as const),
@@ -70,6 +74,7 @@ const DEFINITIONS: Readonly<Record<BusinessVertical, VerticalDefinition>> = Obje
       'food.staff',
       'food.stock',
       'branch.stock',
+      'branch.menu',
       'branch.cash',
       'branch.payroll',
     ] as const),

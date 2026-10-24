@@ -10,7 +10,7 @@ import { useT } from '../../i18n/locale-provider';
  * Вкладки раздела «Бар» (ADR-157): пять подстраниц вместо одного полотна. «Новый приход» живёт под
  * «Приходами» и своей вкладки не имеет. Право у всех одно: пункт меню `/bar` (`routeRule`).
  */
-export type BarSection = 'warehouse' | 'bar' | 'receipts' | 'products' | 'suppliers' | 'operations' | 'consumables';
+export type BarSection = 'warehouse' | 'bar' | 'receipts' | 'products' | 'suppliers' | 'operations' | 'consumables' | 'menu';
 
 // подписи вкладок совпадают с пунктами меню «Склад» (решение владельца 19.10.2026)
 const SECTIONS: Array<{ id: BarSection; href: string; label: string }> = [
@@ -31,7 +31,9 @@ export function barSectionsFor(vertical: WebVertical) {
       : { id: 'consumables' as const, href: '/bar/consumables', label: msg('Кухня') };
   // товары на продажу: «Бар» у всех направлений (слово из `vertical-copy.ts`)
   const goods = { ...SECTIONS[1]!, label: verticalCopy(vertical).menu.goods };
-  return [SECTIONS[0]!, goods, kitchen, ...SECTIONS.slice(2)];
+  // «Меню бара» (§62.3) у гостиницы и салона; у ресторана меню в «Услугах»
+  const menu = vertical === 'FOOD_SERVICE' ? [] : [{ id: 'menu' as const, href: '/bar/menu', label: 'Меню бара' }];
+  return [SECTIONS[0]!, goods, kitchen, ...menu, ...SECTIONS.slice(2)];
 }
 
 export function BarTabs({ current }: { current: BarSection }) {

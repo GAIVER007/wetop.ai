@@ -5225,6 +5225,13 @@ export const barApi = {
       '/bar/sales/retail',
       body,
     ),
+  // §62.3 «Меню бара»: позиция меню за деньги кассы или в счёт гостя гостиницы
+  sellMenu: (body: unknown) =>
+    sendJson<{ id: string; status: 'POSTED' | 'REVERSED'; chargeId?: string; revenueMinor: string; costMinor: string }>(
+      'POST',
+      '/bar/sales/menu',
+      body,
+    ),
   sellToFolio: (body: unknown) =>
     sendJson<{
       id: string;

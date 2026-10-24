@@ -26,6 +26,8 @@ const routes = [
   '/warehouse',
   '/bar',
   '/bar/consumables',
+  // «Меню бара» (§62.3, K3 24.10.2026)
+  '/bar/menu',
   '/bar/operations',
   '/bar/suppliers',
   '/finance',

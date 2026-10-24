@@ -140,7 +140,9 @@ describe('Beauty schema release on a separate owned canonical database', () => {
     db.query("INSERT INTO employee_service_prices(employee_id,service_id,location_id,price_type,price_min_minor,price_max_minor,currency) VALUES($1,$2,$3,'FIXED',123400,123400,'KZT')",[id.employee,id.service,id.location]),/employee service prices exist/));
 
   it('reverses the unused new models in dependency order without losing the legacy appointment', async () => {
-    for(const name of [...later,...names].reverse()) await db.query(readFileSync(resolve(migrations,name,'down.sql'),'utf8'));
+    // строго обратный порядок применения: сначала поздние (с 138), потом салонные 137..133. `[...later,...names].reverse()`
+    // откатывал салонные раньше поздних, и откат 157 не находил CHECK, который уже снял откат 135
+    for(const name of [...names,...later].reverse()) await db.query(readFileSync(resolve(migrations,name,'down.sql'),'utf8'));
     expect(await signature()).toEqual(baseline);
     expect((await db.query('SELECT id,price::text FROM appointments WHERE id=$1',[id.appointment])).rows)
       .toEqual([{id:id.appointment,price:'123400'}]);

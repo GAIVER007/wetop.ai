@@ -174,6 +174,40 @@ export async function sellBarRetailAction(
   }
 }
 
+/** «Меню бара» (§62.3): позиция меню с добавками за деньги кассы или в счёт гостя; ключ продажи из формы (D-KEY) */
+export async function sellBarMenuAction(
+  _previous: BarActionResult,
+  fd: FormData,
+): Promise<BarActionResult> {
+  try {
+    await verifyContext(fd);
+    const folioId = value(fd, 'folioId');
+    const modifierIds = fd.getAll('modifierIds').map((id) => String(id).trim()).filter(Boolean);
+    const sale = await barApi.sellMenu({
+      menuItemId: value(fd, 'menuItemId'),
+      quantityUnits: value(fd, 'quantityUnits'),
+      modifierIds,
+      ...(folioId ? { folioId } : { method: value(fd, 'method') }),
+      idempotencyKey: saleKey(fd),
+    });
+    revalidateBar();
+    revalidatePath('/bar/menu');
+    revalidatePath('/bar/consumables');
+    return {
+      error: null,
+      ok: Date.now(),
+      message:
+        sale.status === 'REVERSED'
+          ? 'Эта продажа уже отменена. Повторного списания нет.'
+          : folioId
+            ? 'Добавлено в счёт гостя, продукты списаны со склада кухни'
+            : 'Продажа записана, касса и склад кухни обновлены',
+    };
+  } catch (error) {
+    return { error: describe(error), ok: _previous.ok };
+  }
+}
+
 export async function sellBarToFolioAction(
   _previous: BarActionResult,
   fd: FormData,

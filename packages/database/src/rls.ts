@@ -143,6 +143,10 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'kitchen_products',
   'kitchen_stock_lots',
   'kitchen_stock_movements',
+  // Заготовки и добавки со склада (DATA_MODEL §62, миграции 155 и 156): RLS через бизнес и группу добавок
+  'kitchen_prep_recipes',
+  'kitchen_prep_recipe_lines',
+  'menu_modifier_ingredients',
   // Касса ресторана (DATA_MODEL §35, ADR-165, миграция 20261011000086_restaurant_cash)
   'restaurant_payments',
   'restaurant_cash_operations',

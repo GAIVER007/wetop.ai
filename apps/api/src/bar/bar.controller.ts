@@ -59,6 +59,9 @@ export class BarController {
   @BeautyAccess('stock','create',{also:[{section:'finance',action:'create'}]})
   @Post('sales/retail') sellRetail(@Body() body: unknown) { return this.service.sellRetail(body); }
   @Post('sales/folio') sellToFolio(@Body() body: unknown) { return this.service.sellToFolio(body); }
+  // §62.3 «Меню бара»: позиция меню со списанием склада кухни; деньги как у продажи товара бара
+  @BeautyAccess('stock','create',{also:[{section:'finance',action:'create'}]})
+  @Post('sales/menu') sellMenu(@Body() body: unknown) { return this.service.sellMenu(body); }
   // сторно гасит кассовую операцию и начисление фолио, поэтому право как у аннулирований /finance (ADR-181)
   @Access('refunds')
   @BeautyAccess('finance','refund')

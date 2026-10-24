@@ -47,6 +47,10 @@ describe('бар: приходы (BAR2)', () => {
       if (!input.folioId.endsWith('001')) return { kind: 'folio_not_found' };
       return { kind: 'posted', id: '61000000-0000-4000-8000-000000000001', status: 'POSTED', chargeId: '91000000-0000-4000-8000-000000000001', revenueMinor: '70000', costMinor: '15000' };
     },
+    async sellMenu(input) {
+      if (!input.menuItemId.endsWith('001')) return { kind: 'not_found' };
+      return { kind: 'posted', id: '62000000-0000-4000-8000-000000000001', status: 'POSTED', revenueMinor: '100000', costMinor: '21000' };
+    },
     async reverseSale(id, restock) {
       return id.endsWith('001') ? { kind: 'reversed', id, status: 'REVERSED', restocked: restock } : { kind: 'not_found' };
     },
@@ -135,6 +139,16 @@ describe('бар: приходы (BAR2)', () => {
     const sold = await request(app.getHttpServer()).post('/bar/sales/retail').send(body).expect(201);
     expect(sold.body.status).toBe('POSTED');
     await request(app.getHttpServer()).post('/bar/sales/retail').send({ ...body, quantityUnits: '13', idempotencyKey: 'sale-2' }).expect(409);
+  });
+
+  it('§62.3 «Меню бара»: продаёт позицию меню, проверяет ключ, добавки и способ оплаты', async () => {
+    const body = { menuItemId: '33000000-0000-4000-8000-000000000001', quantityUnits: '1', modifierIds: [], method: 'CASH', idempotencyKey: 'menu-1' };
+    const sold = await request(app.getHttpServer()).post('/bar/sales/menu').send(body).expect(201);
+    expect(sold.body).toMatchObject({ status: 'POSTED', revenueMinor: '100000' });
+    await request(app.getHttpServer()).post('/bar/sales/menu').send({ ...body, menuItemId: '33000000-0000-4000-8000-000000000002', idempotencyKey: 'menu-2' }).expect(404);
+    await request(app.getHttpServer()).post('/bar/sales/menu').send({ ...body, modifierIds: ['x'], idempotencyKey: 'menu-3' }).expect(400);
+    await request(app.getHttpServer()).post('/bar/sales/menu').send({ ...body, method: 'BITCOIN', idempotencyKey: 'menu-4' }).expect(400);
+    await request(app.getHttpServer()).post('/bar/sales/menu').send({ ...body, idempotencyKey: '' }).expect(400);
   });
 
   it('возвращает продажу и восстанавливает остаток только по флагу', async () => {

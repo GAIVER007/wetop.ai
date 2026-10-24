@@ -1,7 +1,5 @@
-import { blockTypeLabel } from '../../lib/block-types';
-import { displayDate } from '../../lib/display-date';
 import { formatMoney } from '../../lib/money';
-import { pluralRu } from '../../lib/plural';
+import { blockLabel, nightsLabel, RU, shortDate, type Lang } from './lang';
 
 const addDays = (date: string, n: number) => {
   const d = new Date(`${date}T12:00:00Z`);
@@ -37,14 +35,15 @@ export function extensionConflict(
   lastNight: string,
   nights: number,
   itemId: string,
+  lang: Lang = RU,
 ): string | null {
   const until = addDays(lastNight, nights);
   for (const cell of cells) {
     if (cell.date <= lastNight || cell.date > until) continue;
     if (cell.state === 'BLOCKED')
-      return `Недоступно с ${displayDate(cell.date)}: ${blockTypeLabel(cell.blockType)}`;
+      return lang.t('Недоступно с {date}: {reason}', { date: shortDate(lang, cell.date), reason: blockLabel(lang, cell.blockType) });
     if (cell.state === 'OCCUPIED' && cell.itemId !== itemId)
-      return `Занято с ${displayDate(cell.date)}`;
+      return lang.t('Занято с {date}', { date: shortDate(lang, cell.date) });
   }
   return null;
 }
@@ -57,7 +56,8 @@ export function extendLabel(
   lastNight: string,
   nights: number,
   price: { addedMinor: string; currency: string } | undefined,
+  lang: Lang = RU,
 ): string {
-  const head = `До ${displayDate(addDays(lastNight, nights + 1))}, +${pluralRu(nights, ['ночь', 'ночи', 'ночей'])}`;
+  const head = `${lang.t('До {date}', { date: shortDate(lang, addDays(lastNight, nights + 1)) })}, +${nightsLabel(lang, nights)}`;
   return price ? `${head}, +${formatMoney(price.addedMinor, price.currency)}` : head;
 }

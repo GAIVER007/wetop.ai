@@ -15,6 +15,15 @@ import { LocationPicker } from './location-picker';
 import { runErrorText, useGenerationRun } from './run';
 import { SiteFactsCard } from './site-facts-card';
 import { createErrorText } from './vertical-status';
+import { msg } from '../../../../i18n';
+import { useT } from '../../../../i18n/locale-provider';
+
+/** Подпись под шаблонами: слово направления своё в каждом языке, поэтому фраза целиком на направление */
+const DESIGNS_HINT: Record<WebVertical, string> = {
+  HOSPITALITY: msg('Три готовых сайта для гостиниц. Превью собрано из данных филиала: что видно, то и получится.'),
+  BEAUTY: msg('Три готовых сайта для салонов. Превью собрано из данных филиала: что видно, то и получится.'),
+  FOOD_SERVICE: msg('Три готовых сайта для ресторанов. Превью собрано из данных филиала: что видно, то и получится.'),
+};
 
 /**
  * Первый экран «Сайт и SEO» (MKT9.2, SITE-1 по `plans/site-seo-flow-2026-10-15.md` §1 шаги 1–3), как у Lovable:
@@ -45,8 +54,11 @@ export function CreateSite({
   locations: Loaded<SiteLocation[]>;
   readOnly: boolean;
 }) {
+  const t = useT();
   const router = useRouter();
   const copy = verticalCopy(vertical);
+  // подсказки из словаря направления: на экране и в тексте пожелания на языке человека
+  const chips = copy.siteChips.map((chip) => t(chip));
   const [text, setText] = useState('');
   const [phase, setPhase] = useState<Phase>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -86,7 +98,7 @@ export function CreateSite({
       router.refresh();
     } else {
       setPhase('idle');
-      setError(runErrorText(run));
+      setError(runErrorText(run, t));
     }
   });
   const busy = pending || phase === 'starting' || phase === 'building' || phase === 'done';
@@ -102,7 +114,7 @@ export function CreateSite({
       const reply = await createFromTemplateAction(template.id);
       if (!reply.ok) {
         setPhase('idle');
-        setError(createErrorText(vertical, reply));
+        setError(createErrorText(vertical, reply, t));
         return;
       }
       setPhase('done');
@@ -125,7 +137,7 @@ export function CreateSite({
       const reply = await createSiteAction({ briefHash, instruction: text, design: selected() });
       if (!reply.ok) {
         setPhase('idle');
-        setError(createErrorText(vertical, reply));
+        setError(createErrorText(vertical, reply, t));
         return;
       }
       setStartedAt(Date.now());
@@ -147,9 +159,11 @@ export function CreateSite({
     <section className="site-start" aria-labelledby="create-site-title" data-testid="create-site">
       <header className="site-start__head">
         <h2 id="create-site-title" className="site-start__title">
-          Сайт для {locationName}
+          {t('Сайт для {name}', { name: locationName })}
         </h2>
-        <p className="muted">Выберите филиал и один из трёх готовых шаблонов: сайт соберётся сразу из данных филиала, без ИИ. Дальше всё правится в редакторе.</p>
+        <p className="muted">
+          {t('Выберите филиал и один из трёх готовых шаблонов: сайт соберётся сразу из данных филиала, без ИИ. Дальше всё правится в редакторе.')}
+        </p>
       </header>
 
       <div className="site-start__grid">
@@ -164,17 +178,17 @@ export function CreateSite({
           }}
         >
           <h3 id="site-chat-title" className="site-start__step">
-            Пожелания для ИИ (необязательно)
+            {t('Пожелания для ИИ (необязательно)')}
           </h3>
           <label htmlFor="create-site-text" className="sr-only">
-            Опишите, каким должен быть сайт
+            {t('Опишите, каким должен быть сайт')}
           </label>
           <textarea
             id="create-site-text"
             rows={5}
             maxLength={PATCH_INSTRUCTION_MAX}
             className="site-chat__text"
-            placeholder="Например: спокойный сайт, акцент на тишину и чистоту, дружелюбный тон"
+            placeholder={t('Например: спокойный сайт, акцент на тишину и чистоту, дружелюбный тон')}
             value={text}
             disabled={busy || readOnly}
             aria-describedby="site-chat-hint"
@@ -186,8 +200,8 @@ export function CreateSite({
               }
             }}
           />
-          <ChipGroup label="Подсказки" className="site-chat__chips">
-            {copy.siteChips.map((chip) => (
+          <ChipGroup label={t('Подсказки')} className="site-chat__chips">
+            {chips.map((chip) => (
               <Chip key={chip} selected={text.includes(chip)} disabled={busy || readOnly} onClick={() => toggleChip(chip)} data-testid="site-chip">
                 {chip}
               </Chip>
@@ -207,10 +221,10 @@ export function CreateSite({
                   }}
                   data-testid="site-mic"
                 >
-                  {dictation.listening ? 'Остановить диктовку' : 'Надиктовать'}
+                  {dictation.listening ? t('Остановить диктовку') : t('Надиктовать')}
                 </Button>
                 <label className="sr-only" htmlFor="site-dictation-lang">
-                  Язык диктовки
+                  {t('Язык диктовки')}
                 </label>
                 <Select id="site-dictation-lang" value={lang} disabled={dictation.listening || busy} onChange={(e) => setLang(e.currentTarget.value as DictationLang)} className="site-chat__lang">
                   {DICTATION_LANGS.map((l) => (
@@ -220,12 +234,12 @@ export function CreateSite({
                   ))}
                 </Select>
                 <span className="muted" aria-live="polite">
-                  {dictation.listening ? 'Слушаю…' : ''}
+                  {dictation.listening ? t('Слушаю…') : ''}
                 </span>
               </div>
             )}
             <span id="site-chat-hint" className="muted">
-              Без текста сайт создаётся по шаблону сразу. С текстом ИИ доработает выбранный шаблон под ваши пожелания (Ctrl+Enter).
+              {t('Без текста сайт создаётся по шаблону сразу. С текстом ИИ доработает выбранный шаблон под ваши пожелания (Ctrl+Enter).')}
             </span>
           </div>
         </form>
@@ -233,26 +247,26 @@ export function CreateSite({
         <SiteFactsCard vertical={vertical} facts={facts} />
 
         <fieldset className="site-start__designs" aria-describedby="site-designs-hint">
-          <legend className="site-start__step">Шаблон сайта</legend>
+          <legend className="site-start__step">{t('Шаблон сайта')}</legend>
           <p id="site-designs-hint" className="muted">
-            Три готовых сайта для {copy.businessesOf}. Превью собрано из данных филиала: что видно, то и получится.
+            {t(DESIGNS_HINT[vertical])}
           </p>
           <TemplateGallery facts={previewFacts} templates={templates} chosen={template.id} onChoose={setChosen} disabled={busy} />
           <div className="site-start__actions">
             <Button type="button" tone="secondary" disabled={busy || readOnly || !text.trim()} onClick={() => void build()} data-testid="create-site-ai">
-              {phase === 'building' ? 'ИИ собирает…' : 'Собрать с ИИ по описанию'}
+              {phase === 'building' ? t('ИИ собирает…') : t('Собрать с ИИ по описанию')}
             </Button>
             <Button type="button" disabled={busy || readOnly} aria-busy={phase === 'starting' || undefined} onClick={() => void create()} data-testid="create-site-start">
-              {phase === 'starting' || phase === 'done' ? 'Создаём…' : 'Создать сайт'}
+              {phase === 'starting' || phase === 'done' ? t('Создаём…') : t('Создать сайт')}
             </Button>
           </div>
           <p className="muted" data-testid="site-design-chosen" aria-live="polite">
-            Выбран шаблон «{template.name}».
+            {t('Выбран шаблон «{name}».', { name: t(template.name) })}
           </p>
         </fieldset>
       </div>
 
-      {readOnly && <p className="muted">Только чтение: создать сайт нельзя.</p>}
+      {readOnly && <p className="muted">{t('Только чтение: создать сайт нельзя.')}</p>}
       {error && (
         <Alert boxed data-testid="create-site-error">
           {error}
@@ -265,7 +279,7 @@ export function CreateSite({
       )}
       {phase === 'done' && (
         <p role="status" className="muted" data-testid="create-site-done">
-          Сайт создан. Открываем редактор
+          {t('Сайт создан. Открываем редактор')}
         </p>
       )}
       {job.lost && <Alert boxed>{job.lost}</Alert>}

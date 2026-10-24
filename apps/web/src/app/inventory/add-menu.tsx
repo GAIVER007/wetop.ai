@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { ActionMenu } from '../../components/action-menu';
 import type { InventoryCategory } from '../../lib/api';
 import { FundEditorDialog } from './fund-editor';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * «+ Добавить» (ADR-108): одно главное действие экрана вместо ряда равнозначных кнопок.
@@ -10,18 +12,19 @@ import { FundEditorDialog } from './fund-editor';
  * а не абстрактное «Номер / койки». Формы пока прежние (переделка — срез I3).
  */
 export function AddMenu({ categories }: { categories: InventoryCategory[] }) {
+  const t = useT();
   const [open, setOpen] = useState<null | 'room' | 'dorm' | 'category'>(null);
 
   return (
     <>
       <ActionMenu
-        text="Добавить номер"
+        text={msg('Добавить номер')}
         tone="primary"
-        label="Добавить в номерной фонд"
+        label={msg('Добавить в номерной фонд')}
         items={[
-          { label: 'Номер', onSelect: () => setOpen('room') },
-          { label: 'Комнату с койками', onSelect: () => setOpen('dorm') },
-          { label: 'Категорию', onSelect: () => setOpen('category') },
+          { label: t('Номер'), onSelect: () => setOpen('room') },
+          { label: t('Комнату с койками'), onSelect: () => setOpen('dorm') },
+          { label: t('Категорию'), onSelect: () => setOpen('category') },
         ]}
       />
       <FundEditorDialog

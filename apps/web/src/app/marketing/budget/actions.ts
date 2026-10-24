@@ -6,7 +6,8 @@ import { redirect } from 'next/navigation';
 import { META_ACCOUNTS_COOKIE, META_PENDING_COOKIE } from '../ads/meta-cookies';
 import { ApiError, marketingBudgetApi, marketingCampaignsApi, metaConnectionApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
-import { pluralRu } from '../../../lib/plural';
+import { countLabel, msg } from '../../../i18n';
+import { currentLocale, serverT } from '../../../i18n/server';
 
 /** Результат действия раздела «Бюджет»: ошибка словами у формы, введённое не теряется (как в /market) */
 export interface BudgetActionResult {
@@ -56,6 +57,7 @@ export async function saveExpenseAction(
   _prev: BudgetActionResult,
   fd: FormData,
 ): Promise<BudgetActionResult> {
+  const t = await serverT();
   const id = s(fd, 'id');
   try {
     if (id) await marketingBudgetApi.updateExpense(id, expenseBody(fd));
@@ -63,7 +65,7 @@ export async function saveExpenseAction(
   } catch (e) {
     return { error: describe(e), ok: 0, values: echo(fd) };
   }
-  return done(id ? 'Расход сохранён' : 'Расход добавлен');
+  return done(id ? t('Расход сохранён') : t('Расход добавлен'));
 }
 
 /** Предел файла импорта: 1000 строк журнала с запасом; API принимает тело до 1 МБ */
@@ -82,17 +84,18 @@ export async function importExpensesAction(
   _prev: BudgetActionResult,
   fd: FormData,
 ): Promise<BudgetActionResult> {
+  const t = await serverT();
   const file = fd.get('file');
-  if (!(file instanceof File) || file.size === 0) return { error: 'Выберите CSV-файл', ok: 0 };
-  if (file.size > IMPORT_MAX_BYTES) return { error: 'Файл больше 512 КБ: разделите его по месяцам', ok: 0 };
+  if (!(file instanceof File) || file.size === 0) return { error: t('Выберите CSV-файл'), ok: 0 };
+  if (file.size > IMPORT_MAX_BYTES) return { error: t('Файл больше 512 КБ: разделите его по месяцам'), ok: 0 };
   let r: { imported: number; baseTotal: string };
   try {
     r = await marketingBudgetApi.importExpenses(decodeCsv(await file.arrayBuffer()));
   } catch (e) {
     return { error: describe(e), ok: 0 };
   }
-  const n = pluralRu(r.imported, ['расход', 'расхода', 'расходов']);
-  return done(`Загружено ${n} на ${formatMoney(r.baseTotal, s(fd, 'currency'))}`);
+  const n = countLabel(await currentLocale(), t, r.imported, [msg('расход'), 'расхода', msg('расходов')]); // kk-allow: форма склонения
+  return done(t('Загружено {n} на {sum}', { n, sum: formatMoney(r.baseTotal, s(fd, 'currency')) }));
 }
 
 /** Чек к расходу (§51): файл из формы уходит в API, ответ пересобирает страницу, панель остаётся открытой */
@@ -100,26 +103,28 @@ export async function uploadExpenseFileAction(
   _prev: BudgetActionResult,
   fd: FormData,
 ): Promise<BudgetActionResult> {
+  const t = await serverT();
   const file = fd.get('file');
-  if (!(file instanceof File) || file.size === 0) return { error: 'Выберите фото чека или PDF', ok: 0 };
+  if (!(file instanceof File) || file.size === 0) return { error: t('Выберите фото чека или PDF'), ok: 0 };
   try {
     await marketingBudgetApi.uploadFile(s(fd, 'expenseId'), file);
   } catch (e) {
     return { error: describe(e), ok: 0 };
   }
-  return done('Файл приложен к расходу');
+  return done(t('Файл приложен к расходу'));
 }
 
 export async function removeExpenseFileAction(
   _prev: BudgetActionResult,
   fd: FormData,
 ): Promise<BudgetActionResult> {
+  const t = await serverT();
   try {
     await marketingBudgetApi.removeFile(s(fd, 'expenseId'), s(fd, 'fileId'));
   } catch (e) {
     return { error: describe(e), ok: 0 };
   }
-  return done('Файл удалён, запись осталась в журнале организации');
+  return done(t('Файл удалён, запись осталась в журнале организации'));
 }
 
 const campaignBody = (fd: FormData) => ({
@@ -132,6 +137,7 @@ const campaignBody = (fd: FormData) => ({
 
 /** Кампания (§53): создание или правка одной формой */
 export async function saveCampaignAction(_prev: BudgetActionResult, fd: FormData): Promise<BudgetActionResult> {
+  const t = await serverT();
   const id = s(fd, 'id');
   try {
     if (id) await marketingCampaignsApi.update(id, campaignBody(fd));
@@ -140,11 +146,12 @@ export async function saveCampaignAction(_prev: BudgetActionResult, fd: FormData
     return { error: describe(e), ok: 0, values: echo(fd) };
   }
   revalidatePath('/marketing/ads');
-  return done(id ? 'Кампания сохранена' : 'Кампания создана');
+  return done(id ? t('Кампания сохранена') : t('Кампания создана'));
 }
 
 /** День статистики кампании: ввод заменяет строку дня */
 export async function saveCampaignDayAction(_prev: BudgetActionResult, fd: FormData): Promise<BudgetActionResult> {
+  const t = await serverT();
   try {
     await marketingCampaignsApi.setDay(s(fd, 'id'), {
       date: s(fd, 'date'),
@@ -156,24 +163,26 @@ export async function saveCampaignDayAction(_prev: BudgetActionResult, fd: FormD
     return { error: describe(e), ok: 0, values: echo(fd) };
   }
   revalidatePath('/marketing/ads');
-  return done('Статистика дня сохранена');
+  return done(t('Статистика дня сохранена'));
 }
 
 export async function removeCampaignDayAction(_prev: BudgetActionResult, fd: FormData): Promise<BudgetActionResult> {
+  const t = await serverT();
   try {
     await marketingCampaignsApi.removeDay(s(fd, 'id'), s(fd, 'date'));
   } catch (e) {
     return { error: describe(e), ok: 0 };
   }
   revalidatePath('/marketing/ads');
-  return done('День удалён, запись осталась в журнале организации');
+  return done(t('День удалён, запись осталась в журнале организации'));
 }
 
 /** CSV статистики кампании «Дата;Показы;Клики;Лиды»: всё или ничего */
 export async function importCampaignDaysAction(_prev: BudgetActionResult, fd: FormData): Promise<BudgetActionResult> {
+  const t = await serverT();
   const file = fd.get('file');
-  if (!(file instanceof File) || file.size === 0) return { error: 'Выберите CSV-файл', ok: 0 };
-  if (file.size > IMPORT_MAX_BYTES) return { error: 'Файл больше 512 КБ', ok: 0 };
+  if (!(file instanceof File) || file.size === 0) return { error: t('Выберите CSV-файл'), ok: 0 };
+  if (file.size > IMPORT_MAX_BYTES) return { error: t('Файл больше 512 КБ'), ok: 0 };
   let r: { imported: number };
   try {
     r = await marketingCampaignsApi.importDays(s(fd, 'id'), decodeCsv(await file.arrayBuffer()));
@@ -181,7 +190,11 @@ export async function importCampaignDaysAction(_prev: BudgetActionResult, fd: Fo
     return { error: describe(e), ok: 0 };
   }
   revalidatePath('/marketing/ads');
-  return done(`Загружено ${pluralRu(r.imported, ['день', 'дня', 'дней'])} статистики`);
+  return done(
+    t('Загружено {n} статистики', {
+      n: countLabel(await currentLocale(), t, r.imported, [msg('день'), 'дня', msg('дней')]), // kk-allow: форма склонения
+    }),
+  );
 }
 
 /** «Подключить через Facebook» (§55): сразу окно входа, кабинет человек отмечает там; браузер уходит на facebook.com */
@@ -197,9 +210,10 @@ export async function startMetaAction(): Promise<BudgetActionResult> {
 
 /** Выбор кабинета из нескольких, отмеченных в окне Facebook */
 export async function chooseMetaAction(_prev: BudgetActionResult, fd: FormData): Promise<BudgetActionResult> {
+  const t = await serverT();
   const jar = await cookies();
   const pending = jar.get(META_PENDING_COOKIE)?.value ?? '';
-  if (!pending) return { error: 'Выбор кабинета устарел: подключите заново', ok: 0 };
+  if (!pending) return { error: t('Выбор кабинета устарел: подключите заново'), ok: 0 };
   try {
     await metaConnectionApi.choose(pending, s(fd, 'adAccountId'));
   } catch (e) {
@@ -212,6 +226,7 @@ export async function chooseMetaAction(_prev: BudgetActionResult, fd: FormData):
 }
 
 export async function syncMetaAction(): Promise<BudgetActionResult> {
+  const t = await serverT();
   let r: { ok: boolean; days: number; campaigns: number; error: string | null };
   try {
     r = await metaConnectionApi.sync();
@@ -220,29 +235,37 @@ export async function syncMetaAction(): Promise<BudgetActionResult> {
   }
   revalidatePath('/marketing/ads');
   if (!r.ok) return { error: r.error, ok: 0 };
-  return done(`Кабинет обновлён: ${pluralRu(r.campaigns, ['кампания', 'кампании', 'кампаний'])}, ${pluralRu(r.days, ['день', 'дня', 'дней'])}`);
+  const locale = await currentLocale();
+  return done(
+    t('Кабинет обновлён: {campaigns}, {days}', {
+      campaigns: countLabel(locale, t, r.campaigns, [msg('кампания'), 'кампании', msg('кампаний')]), // kk-allow: форма склонения
+      days: countLabel(locale, t, r.days, [msg('день'), 'дня', msg('дней')]), // kk-allow: форма склонения
+    }),
+  );
 }
 
 export async function disconnectMetaAction(): Promise<BudgetActionResult> {
+  const t = await serverT();
   try {
     await metaConnectionApi.disconnect();
   } catch (e) {
     return { error: describe(e), ok: 0 };
   }
   revalidatePath('/marketing/ads');
-  return done('Кабинет отключён: ключ стёрт, кампании и статистика остались');
+  return done(t('Кабинет отключён: ключ стёрт, кампании и статистика остались'));
 }
 
 export async function deleteExpenseAction(
   _prev: BudgetActionResult,
   fd: FormData,
 ): Promise<BudgetActionResult> {
+  const t = await serverT();
   try {
     await marketingBudgetApi.deleteExpense(s(fd, 'id'));
   } catch (e) {
     return { error: describe(e), ok: 0 };
   }
-  return done('Расход удалён, запись об удалении осталась в журнале');
+  return done(t('Расход удалён, запись об удалении осталась в журнале'));
 }
 
 /** «Распределить план»: поле на каждый канал, пустое значит «канала в плане нет» (§52) */
@@ -250,23 +273,25 @@ export async function saveLinesAction(
   _prev: BudgetActionResult,
   fd: FormData,
 ): Promise<BudgetActionResult> {
+  const t = await serverT();
   const lines = MARKETING_PLATFORMS.map((platform) => ({ platform, amount: s(fd, `amount-${platform}`) }));
   try {
     await marketingBudgetApi.setLines({ month: s(fd, 'month'), lines });
   } catch (e) {
     return { error: describe(e), ok: 0, values: echo(fd) };
   }
-  return done('План по каналам сохранён');
+  return done(t('План по каналам сохранён'));
 }
 
 export async function savePlanAction(
   _prev: BudgetActionResult,
   fd: FormData,
 ): Promise<BudgetActionResult> {
+  const t = await serverT();
   try {
     await marketingBudgetApi.setPlan({ month: s(fd, 'month'), amount: s(fd, 'amount') });
   } catch (e) {
     return { error: describe(e), ok: 0, values: echo(fd) };
   }
-  return done('План месяца сохранён');
+  return done(t('План месяца сохранён'));
 }

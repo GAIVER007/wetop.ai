@@ -2,8 +2,9 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/icon';
-import { displayDate } from '../../lib/display-date';
-import { nightsBetween, pluralRu } from '../../lib/plural';
+import { nightsBetween } from '../../lib/plural';
+import { useLocale, useT } from '../../i18n/locale-provider';
+import { nightsLabel, shortDate, type Lang } from './lang';
 import type { FreeMenu } from './range-plan';
 import { Select } from '../../components/ui';
 
@@ -34,6 +35,8 @@ export function FreeMenuPopover({
   readOnly: boolean;
   onClose: () => void;
 }) {
+  const t = useT();
+  const lang: Lang = { t, locale: useLocale() };
   const [period, setPeriod] = useState(() =>
     Math.max(
       0,
@@ -123,7 +126,7 @@ export function FreeMenuPopover({
         <button
           type="button"
           className="icon-button stay-preview__close"
-          aria-label="Закрыть"
+          aria-label={t('Закрыть')}
           onClick={closeWithFocus}
         >
           <Icon name="close" />
@@ -140,9 +143,9 @@ export function FreeMenuPopover({
       )}
       {!readOnly && (
         <label className="field free-menu__arrival">
-          <span>Заезд</span>
+          <span>{t('Заезд')}</span>
           <Select
-            aria-label="Заезд"
+            aria-label={t('Заезд')}
             value={arrival}
             onChange={(event) => {
               setArrival(event.target.value);
@@ -151,7 +154,7 @@ export function FreeMenuPopover({
           >
             {starts.map((start) => (
               <option key={start.date} value={start.date}>
-                {displayDate(start.date)}
+                {shortDate(lang, start.date)}
               </option>
             ))}
           </Select>
@@ -159,40 +162,40 @@ export function FreeMenuPopover({
       )}
       <dl className="free-menu__summary" aria-live="polite">
         <div>
-          <dt>Заезд</dt>
-          <dd>{displayDate(arrival)}</dd>
+          <dt>{t('Заезд')}</dt>
+          <dd>{shortDate(lang, arrival)}</dd>
         </div>
         <div>
-          <dt>Выезд</dt>
+          <dt>{t('Выезд')}</dt>
           <dd data-testid="free-menu-departure" data-date={departure}>
-            {displayDate(departure)}
+            {shortDate(lang, departure)}
           </dd>
         </div>
         <div>
-          <dt>Проживание</dt>
-          <dd>{pluralRu(nightsBetween(arrival, departure), ['ночь', 'ночи', 'ночей'])}</dd>
+          <dt>{t('Проживание')}</dt>
+          <dd>{nightsLabel(lang, nightsBetween(arrival, departure))}</dd>
         </div>
       </dl>
       {!readOnly && (
         <label className="field free-menu__period">
-          <span>Период проживания</span>
+          <span>{t('Период проживания')}</span>
           <Select
             value={period}
             onChange={(event) => setPeriod(Number(event.target.value))}
           >
             {options.map((option, index) => (
               <option key={option.newHref} value={index}>
-                {index === 0 ? `${option.dates}, 1 ночь` : option.dates}
+                {index === 0 ? `${option.dates}, ${nightsLabel(lang, 1)}` : option.dates}
               </option>
             ))}
           </Select>
           <span className="muted">
-            Доступны свободные ночи этого участка. Другие даты можно выбрать в форме брони.
+            {t('Доступны свободные ночи этого участка. Другие даты можно выбрать в форме брони.')}
           </span>
         </label>
       )}
       {readOnly ? (
-        <p className="stay-preview__status">Только чтение: новые брони и блокировки недоступны</p>
+        <p className="stay-preview__status">{t('Только чтение: новые брони и блокировки недоступны')}</p>
       ) : (
         <div className="stay-preview__actions">
           <Link className="btn btn--primary" href={selected.newHref}>

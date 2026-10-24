@@ -8,6 +8,7 @@ import { AnalyticsTabs } from '../tabs';
 import { ChannelsReport, ChannelsSkeleton } from './channels';
 import { parseChannelsQuery } from './query';
 import '../analytics.css';
+import { serverT } from '../../../../i18n/server';
 
 /**
  * «Аналитика → Каналы» (ADR-141): эффективность каналов продаж: доход, ночи и средняя стоимость ночи по
@@ -18,14 +19,17 @@ export default async function ChannelsPage({ searchParams }: { searchParams: Pro
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const query = parseChannelsQuery(sp, today);
+  const t = await serverT();
   return (
     <Page
-      title="Аналитика"
+      title={t('Аналитика')}
       className="analytics-page"
-      subtitle="Какой канал приносит больше дохода и ночей, и по какой средней цене."
+      subtitle={t('Какой канал приносит больше дохода и ночей, и по какой средней цене.')}
     >
       <AnalyticsTabs current="channels" />
-      {query.error && <Alert boxed>{query.error}. Показан текущий месяц.</Alert>}
+      {query.error && (
+        <Alert boxed>{t('{error}. Показан текущий месяц.', { error: t(query.error) })}</Alert>
+      )}
       <Suspense
         key={[query.from, query.to, query.compare, query.compareFrom, query.compareTo, query.channel, query.sort, query.empty].join('|')}
         fallback={<ChannelsSkeleton />}

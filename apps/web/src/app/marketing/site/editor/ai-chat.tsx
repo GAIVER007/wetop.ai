@@ -5,6 +5,8 @@ import { GENERATION_ERROR_TEXT, PATCH_INSTRUCTION_MAX, SECTION_INSTRUCTION_MAX, 
 import type { AssistantPayloadView, DesignDirectionView, SiteConversationItem } from '../../../../lib/api';
 import { Button, Field, Textarea, cx, Input } from '../../../../components/ui';
 import { BUILD_STEPS } from './run';
+import { msg } from '../../../../i18n';
+import { useT } from '../../../../i18n/locale-provider';
 
 /**
  * Вкладка «ИИ» (MKT9.1, MKT9.2): разговор с ИИ сайта как у конструктора. Режимы «Чат» (ответ словами, сайт не меняется),
@@ -13,24 +15,26 @@ import { BUILD_STEPS } from './run';
  */
 export type AiMode = 'CHAT' | 'PLAN' | 'BUILD';
 const MODES: Array<[AiMode, string]> = [
-  ['CHAT', 'Чат'],
-  ['PLAN', 'План'],
-  ['BUILD', 'Сборка'],
+  ['CHAT', msg('Чат')],
+  ['PLAN', msg('План')],
+  ['BUILD', msg('Сборка')],
 ];
 const LABEL: Record<AiMode, string> = {
-  CHAT: 'Спросите ИИ о сайте',
-  PLAN: 'Что вы хотите получить?',
-  BUILD: 'Что изменить на сайте?',
+  CHAT: msg('Спросите ИИ о сайте'),
+  PLAN: msg('Что вы хотите получить?'),
+  BUILD: msg('Что изменить на сайте?'),
 };
 
+/** Текст ошибки по-русски (ключ словаря): показывать через `t(…)`, перевод лежит в словаре области */
 export function errorText(code: string | null): string {
-  return isGenerationErrorCode(code) ? GENERATION_ERROR_TEXT[code] : 'ИИ не смог выполнить задачу';
+  return isGenerationErrorCode(code) ? GENERATION_ERROR_TEXT[code] : msg('ИИ не смог выполнить задачу');
 }
 
 const active = (item: SiteConversationItem) => item.status === 'QUEUED' || item.status === 'RUNNING';
 
 /** Ход сборки словами: шаг по времени работы, последний держится до конца; это подсказка, а не замер */
 export function BuildProgress({ startedAt }: { startedAt: number }) {
+  const t = useT();
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1500);
@@ -38,10 +42,10 @@ export function BuildProgress({ startedAt }: { startedAt: number }) {
   }, []);
   const step = Math.min(BUILD_STEPS.length - 1, Math.floor((now - startedAt) / 4000));
   return (
-    <ol className="ed-steps" aria-label="Ход сборки" data-testid="ed-build-steps">
+    <ol className="ed-steps" aria-label={t('Ход сборки')} data-testid="ed-build-steps">
       {BUILD_STEPS.map((label, i) => (
         <li key={label} className={cx('ed-steps__item', i < step && 'is-done', i === step && 'is-active')} aria-current={i === step ? 'step' : undefined}>
-          {label}
+          {t(label)}
         </li>
       ))}
     </ol>
@@ -60,12 +64,13 @@ export function DesignCards({
   disabled: boolean;
   onChoose: (direction: DesignDirectionView) => void;
 }) {
+  const t = useT();
   const name = useId();
   const [chosen, setChosen] = useState(directions[0]?.id ?? '');
   const picked = directions.find((d) => d.id === chosen);
   return (
     <fieldset className="ed-design" data-testid="ed-design">
-      <legend className="ed-design__legend">Выберите оформление</legend>
+      <legend className="ed-design__legend">{t('Выберите оформление')}</legend>
       <div className="ed-design__cards">
         {directions.map((d) => (
           <label key={d.id} className={cx('ed-design__card', chosen === d.id && 'is-on')} data-testid="ed-design-card">
@@ -92,6 +97,7 @@ function Questions({
   disabled: boolean;
   onAnswer: (answers: Array<{ questionId: string; answer: string }>) => void;
 }) {
+  const t = useT();
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [custom, setCustom] = useState<Record<string, string>>({});
   const value = (id: string) => (answers[id] === '__custom' ? (custom[id] ?? '').trim() : (answers[id] ?? ''));
@@ -117,18 +123,18 @@ function Questions({
           {q.allowCustom && (
             <label className="ed-questions__option">
               <input type="radio" name={`q-${q.id}`} value="__custom" checked={answers[q.id] === '__custom'} onChange={() => setAnswers((a) => ({ ...a, [q.id]: '__custom' }))} />
-              Свой ответ
+              {t('Свой ответ')}
             </label>
           )}
           {answers[q.id] === '__custom' && (
-            <Field label="Ваш ответ" controlId={`q-${q.id}-custom`}>
+            <Field label={t('Ваш ответ')} controlId={`q-${q.id}-custom`}>
               <Input id={`q-${q.id}-custom`} maxLength={400} value={custom[q.id] ?? ''} onChange={(e) => setCustom((c) => ({ ...c, [q.id]: e.currentTarget.value }))} />
             </Field>
           )}
         </fieldset>
       ))}
       <Button type="submit" size="sm" disabled={disabled || !ready} data-testid="ed-questions-send">
-        Ответить
+        {t('Ответить')}
       </Button>
     </form>
   );
@@ -143,6 +149,7 @@ function Plan({
   disabled: boolean;
   onApprove: (instruction: string) => void;
 }) {
+  const t = useT();
   const [instruction, setInstruction] = useState(payload.buildInstruction);
   const [closed, setClosed] = useState(false);
   return (
@@ -157,24 +164,24 @@ function Plan({
       </ol>
       {payload.tradeoffs.length > 0 && (
         <p className="muted">
-          Чем придётся пожертвовать: {payload.tradeoffs.join('; ')}
+          {t('Чем придётся пожертвовать: {list}', { list: payload.tradeoffs.join('; ') })}
         </p>
       )}
       {closed ? (
         <p className="muted" data-testid="ed-plan-closed">
-          План отменён: сайт не менялся.
+          {t('План отменён: сайт не менялся.')}
         </p>
       ) : (
         <>
-          <Field label="Что ИИ сделает при сборке" controlId={`plan-${payload.summary.length}`} hint="Можно поправить перед сборкой.">
+          <Field label={t('Что ИИ сделает при сборке')} controlId={`plan-${payload.summary.length}`} hint={t('Можно поправить перед сборкой.')}>
             <Textarea rows={3} maxLength={PATCH_INSTRUCTION_MAX} value={instruction} disabled={disabled} onChange={(e) => setInstruction(e.currentTarget.value)} />
           </Field>
           <div className="ed-row">
             <Button type="button" size="sm" disabled={disabled || !instruction.trim()} onClick={() => onApprove(instruction)} data-testid="ed-plan-approve">
-              Собрать по плану
+              {t('Собрать по плану')}
             </Button>
             <Button type="button" tone="ghost" size="sm" onClick={() => setClosed(true)} data-testid="ed-plan-cancel">
-              Отменить
+              {t('Отменить')}
             </Button>
           </div>
         </>
@@ -225,6 +232,7 @@ export function AiChat({
   setText: (text: string) => void;
   error: string | null;
 }) {
+  const t = useT();
   const list = useRef<HTMLOListElement>(null);
   const [startedAt] = useState(() => new Map<string, number>());
   useEffect(() => {
@@ -233,7 +241,7 @@ export function AiChat({
   const building = mode === 'BUILD';
   const max = building ? (target ? SECTION_INSTRUCTION_MAX : PATCH_INSTRUCTION_MAX) : SITE_AI_USER_TEXT_MAX;
   const empty = !(building && target) && !text.trim();
-  const blocked = readOnly ? 'Только чтение' : busy ? 'ИИ ещё работает над прошлым запросом' : null;
+  const blocked = readOnly ? t('Только чтение') : busy ? t('ИИ ещё работает над прошлым запросом') : null;
   const send = () => {
     if (blocked || empty) return;
     onSend(text);
@@ -243,25 +251,29 @@ export function AiChat({
 
   return (
     <div className="ed-chat" data-testid="ed-ai">
-      <div className="ed-modes" role="radiogroup" aria-label="Режим ИИ" data-testid="ed-modes">
+      <div className="ed-modes" role="radiogroup" aria-label={t('Режим ИИ')} data-testid="ed-modes">
         {MODES.map(([key, label]) => (
           <button key={key} type="button" role="radio" aria-checked={mode === key} className={cx('ed-modes__btn', mode === key && 'is-on')} onClick={() => setMode(key)}>
-            {label}
+            {t(label)}
           </button>
         ))}
       </div>
       {items.length === 0 ? (
         <div className="ed-chat__empty">
           <p>
-            <b>Напишите, что поменять на сайте.</b>
+            <b>{t('Напишите, что поменять на сайте.')}</b>
           </p>
           <p className="muted">
-            «Сборка» меняет сайт, «План» сначала договаривается, что делать, «Чат» просто отвечает. Чтобы изменить один блок, щёлкните его на сайте справа.
+            {t(
+              '«Сборка» меняет сайт, «План» сначала договаривается, что делать, «Чат» просто отвечает. Чтобы изменить один блок, щёлкните его на сайте справа.',
+            )}
           </p>
-          <p className="muted">ИИ не меняет название, контакты, языки, бронирование и SEO, не придумывает цены и не публикует сайт.</p>
+          <p className="muted">
+            {t('ИИ не меняет название, контакты, языки, бронирование и SEO, не придумывает цены и не публикует сайт.')}
+          </p>
         </div>
       ) : (
-        <ol className="ed-chat__feed" ref={list} aria-label="Разговор с ИИ" data-testid="ed-feed">
+        <ol className="ed-chat__feed" ref={list} aria-label={t('Разговор с ИИ')} data-testid="ed-feed">
           {items.map((item) => {
             const payload = item.payload;
             const revision = revisionOf(item.outputVersionId);
@@ -269,40 +281,50 @@ export function AiChat({
             return (
               <li key={item.id} className="ed-chat__item" data-testid="ed-feed-item" data-kind={item.kind}>
                 <p className="ed-chat__ask">
-                  <span className="ed-chat__mode">{item.kind === 'BUILD' ? (item.fromPlanId ? 'Сборка по плану' : 'Сборка') : item.mode === 'CHAT' ? 'Чат' : item.mode === 'PLAN' ? 'План' : 'Оформление'}</span>
-                  {item.userText ?? (item.target ? 'Обновить блок' : '')}
+                  <span className="ed-chat__mode">
+                    {item.kind === 'BUILD'
+                      ? item.fromPlanId
+                        ? t('Сборка по плану')
+                        : t('Сборка')
+                      : item.mode === 'CHAT'
+                        ? t('Чат')
+                        : item.mode === 'PLAN'
+                          ? t('План')
+                          : t('Оформление')}
+                  </span>
+                  {item.userText ?? (item.target ? t('Обновить блок') : '')}
                 </p>
                 {active(item) &&
                   (item.kind === 'BUILD' ? (
                     <div className="ed-chat__reply" role="status" data-testid="ed-ai-state">
                       <BuildProgress startedAt={startedAt.get(item.id) ?? Date.now()} />
-                      <p className="muted">Если сохранить изменения сейчас, результат ИИ не применится.</p>
+                      <p className="muted">{t('Если сохранить изменения сейчас, результат ИИ не применится.')}</p>
                     </div>
                   ) : (
                     <p className="ed-chat__reply" role="status" data-testid="ed-ai-state">
-                      ИИ думает над ответом
+                      {t('ИИ думает над ответом')}
                     </p>
                   ))}
                 {item.status === 'FAILED' && (
                   <div className="ed-chat__reply ed-chat__reply--error" role="alert" data-testid="ed-ai-error">
-                    <p>{errorText(item.errorCode)}</p>
+                    <p>{t(errorText(item.errorCode))}</p>
                     {item.userText && (
                       <Button type="button" tone="ghost" size="sm" onClick={() => setText(item.userText ?? '')}>
-                        Повторить запрос
+                        {t('Повторить запрос')}
                       </Button>
                     )}
                   </div>
                 )}
                 {item.status === 'SUCCEEDED' && item.kind === 'BUILD' && (
                   <div className="ed-chat__reply" data-testid="ed-ai-done">
-                    <p>Готово: ИИ создал версию {revision ?? ''}. Сайт справа уже с правками.</p>
+                    <p>{t('Готово: ИИ создал версию {n}. Сайт справа уже с правками.', { n: revision ?? '' })}</p>
                     <div className="ed-row">
                       <Button type="button" tone="secondary" size="sm" onClick={() => onShowChanges(item)}>
-                        Что изменилось
+                        {t('Что изменилось')}
                       </Button>
                       {item.id === lastDone?.id && item.baseVersionId && (
                         <Button type="button" tone="ghost" size="sm" disabled={readOnly || busy} onClick={() => onUndo(item)}>
-                          Вернуть как было
+                          {t('Вернуть как было')}
                         </Button>
                       )}
                     </div>
@@ -324,12 +346,12 @@ export function AiChat({
                           }}
                           data-testid="ed-go-build"
                         >
-                          Перейти в сборку
+                          {t('Перейти в сборку')}
                         </Button>
                       )}
                       {payload.suggestPublish && canPublish && (
                         <Link className="btn btn--secondary btn--sm" href="/marketing/site" data-testid="ed-go-publish">
-                          Перейти к публикации
+                          {t('Перейти к публикации')}
                         </Link>
                       )}
                     </div>
@@ -345,7 +367,8 @@ export function AiChat({
                   <div className="ed-chat__reply">
                     {items.some((b) => b.fromPlanId === item.id) ? (
                       <p data-testid="ed-plan-done">
-                        <b>{payload.summary}</b>: собрано по этому плану.
+                        <b>{payload.summary}</b>
+                        {t(': собрано по этому плану.')}
                       </p>
                     ) : (
                       <Plan payload={payload} disabled={readOnly || busy} onApprove={(instruction) => onApprove(item.id, instruction)} />
@@ -354,7 +377,7 @@ export function AiChat({
                 )}
                 {item.status === 'SUCCEEDED' && payload?.kind === 'DESIGN' && (
                   <div className="ed-chat__reply">
-                    <DesignCards directions={payload.directions} actionLabel="Применить оформление" disabled={readOnly} onChoose={onApplyDesign} />
+                    <DesignCards directions={payload.directions} actionLabel={t('Применить оформление')} disabled={readOnly} onChoose={onApplyDesign} />
                   </div>
                 )}
               </li>
@@ -376,16 +399,16 @@ export function AiChat({
       >
         {building && target && (
           <p className="ed-chat__chip" data-testid="ed-ai-target">
-            <span>Блок «{target}»</span>
-            <Button type="button" tone="ghost" size="sm" aria-label="Убрать блок: изменить весь сайт" onClick={onClearTarget}>
-              Весь сайт
+            <span>{t('Блок «{name}»', { name: target })}</span>
+            <Button type="button" tone="ghost" size="sm" aria-label={t('Убрать блок: изменить весь сайт')} onClick={onClearTarget}>
+              {t('Весь сайт')}
             </Button>
           </p>
         )}
         <Field
-          label={building && target ? 'Что изменить в этом блоке?' : LABEL[mode]}
+          label={building && target ? t('Что изменить в этом блоке?') : t(LABEL[mode])}
           controlId="ed-ai-text"
-          hint={blocked ?? (building && target ? 'Можно оставить пустым: ИИ перепишет блок, сохранив его назначение.' : 'Ctrl+Enter отправляет.')}
+          hint={blocked ?? (building && target ? t('Можно оставить пустым: ИИ перепишет блок, сохранив его назначение.') : t('Ctrl+Enter отправляет.'))}
         >
           <Textarea
             rows={3}
@@ -402,7 +425,7 @@ export function AiChat({
           />
         </Field>
         <Button type="submit" disabled={!!blocked || empty} data-testid="ed-ai-send">
-          {building ? (dirty ? 'Сохранить и отправить' : 'Отправить') : mode === 'PLAN' ? 'Составить план' : 'Спросить'}
+          {building ? (dirty ? t('Сохранить и отправить') : t('Отправить')) : mode === 'PLAN' ? t('Составить план') : t('Спросить')}
         </Button>
       </form>
     </div>

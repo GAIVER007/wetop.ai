@@ -10,11 +10,13 @@ import { restaurantShell } from './restaurant-load';
 import { StaffTabs } from './staff-tabs';
 import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../lib/staff-revenue-load';
 import type { StaffRevenuePeriod } from '../../lib/staff-revenue';
+import { serverT } from '../../i18n/server';
 import './food.css';
 import './restaurant.css';
 
 /** «Сотрудники» ресторана: добавление и правка — право «сотрудники» (staff), смотрят все роли стойки */
 export async function FoodEmployeesScreen({ period = 'day' }: { period?: StaffRevenuePeriod } = {}) {
+  const t = await serverT();
   try {
     const shell = await restaurantShell();
     // право назначать считает сервер и кладёт в каждую страницу ответа; берём из первой
@@ -26,7 +28,7 @@ export async function FoodEmployeesScreen({ period = 'day' }: { period?: StaffRe
     });
     const revenue = await loadStaffRevenue('branch', period);
     return (
-      <Page title="Сотрудники">
+      <Page title={t('Сотрудники')}>
         <StaffTabs current="list" />
         <div key={shell.scopeKey}>
           <EmployeesBoard
@@ -50,7 +52,7 @@ export async function FoodEmployeesScreen({ period = 'day' }: { period?: StaffRe
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Сотрудники">
+      <Page title={t('Сотрудники')}>
         <LoadError testId="employees-load-error" {...loadErrorProps(error)} />
       </Page>
     );

@@ -71,7 +71,7 @@ export const dayCustomers: Record<string, string> = {
   "Отменено": 'Canceled',
   "Новый": 'New',
   "Готовится": 'Cooking',
-  "Готово": 'Ready',
+  Готово: 'Done',
   "Подан": 'Served',
   "Оплачен": 'Paid',
   "Отменён": 'Canceled',

@@ -1,3 +1,4 @@
+import { msg } from '../../i18n';
 import { sourceStatus } from '../../lib/status/source';
 
 /**
@@ -7,7 +8,7 @@ import { sourceStatus } from '../../lib/status/source';
 export const SOURCES: ReadonlyArray<readonly [string, string]> = (
   ['DESK', 'PHONE', 'WHATSAPP', 'WALK_IN', 'INSTAGRAM', 'WEBSITE', 'OTA'] as const
 ).map(
-  (k) => [k, k === 'OTA' ? `${sourceStatus.OTA.label} (вручную)` : sourceStatus[k].label] as const,
+  (k) => [k, k === 'OTA' ? msg('Канал продаж (вручную)') : sourceStatus[k].label] as const,
 );
 
 /**

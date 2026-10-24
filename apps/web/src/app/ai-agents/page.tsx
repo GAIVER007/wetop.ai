@@ -17,6 +17,8 @@ import { sellerVerticalUiCopy } from '../../lib/ai-seller';
 import type { WebVertical } from '../../lib/vertical-landing';
 import { supportContacts } from '../../lib/support-contacts';
 import { BackToModules } from '../marketing/parts';
+import { serverT } from '../../i18n/server';
+import type { Translate } from '../../i18n';
 
 /**
  * Каталог «ИИ-агентов» (S0: `plans/ai-agents-wetop-support-2026-09-29.md`, Q-A2; SA1: `plans/business-ai-seller-v2-2026-09-29.md`
@@ -39,20 +41,21 @@ export default async function AiAgentsPage() {
   const off = catalog?.extension?.access === 'off';
   const button = catalog && !off ? createButton(catalog, readOnly) : null;
   const disabledReasonId = 'agent-add-reason';
+  const t = await serverT();
   return (
-    <Page crumbs={<BackToModules />} title="ИИ-продавец" subtitle="Настройка продавцов, инструкции и каналы общения.">
+    <Page crumbs={<BackToModules />} title={t('ИИ-продавец')} subtitle={t('Настройка продавцов, инструкции и каналы общения.')}>
       {failure !== null && (
         <LoadError
           testId="agents-error"
-          title="Не удалось загрузить агентов"
+          title={t('Не удалось загрузить агентов')}
           {...loadErrorProps(failure)}
         />
       )}
       <Stack>
         <Grid min={280}>
-          {off && <OffCard vertical={vertical} />}
+          {off && <OffCard vertical={vertical} t={t} />}
           {catalog?.agents.map((agent) => (
-            <AgentCard key={agent.id} agent={agent} />
+            <AgentCard key={agent.id} agent={agent} t={t} />
           ))}
         </Grid>
         {button && (
@@ -61,7 +64,7 @@ export default async function AiAgentsPage() {
               {button.href !== null ? (
                 <div>
                   <Link className="btn" href={button.href}>
-                    {button.label}
+                    {t(button.label)}
                   </Link>
                 </div>
               ) : (
@@ -73,17 +76,17 @@ export default async function AiAgentsPage() {
                       disabled
                       aria-describedby={disabledReasonId}
                     >
-                      {button.label}
+                      {t(button.label)}
                     </button>
                   </div>
                   <Notice id={disabledReasonId} tone="muted">
-                    {button.reason}
+                    {button.reason ? t(button.reason) : null}
                   </Notice>
                 </>
               )}
               {button.connectHref && (
                 <div>
-                  <Link href={button.connectHref}>Как подключить расширение</Link>
+                  <Link href={button.connectHref}>{t('Как подключить расширение')}</Link>
                 </div>
               )}
             </Stack>
@@ -95,24 +98,24 @@ export default async function AiAgentsPage() {
 }
 
 /** Расширение не подключено: вместо списка что даёт продавец и кнопка в поддержку (Q-SA-1: счёт, цены здесь нет) */
-function OffCard({ vertical }: { vertical: WebVertical }) {
+function OffCard({ vertical, t }: { vertical: WebVertical; t: Translate }) {
   const copy = sellerVerticalUiCopy(vertical);
   const href = supportContacts(process.env)?.whatsapp ?? '/help#support';
   return (
-    <Panel title="Что умеет ИИ-продавец" className="agent-card" data-testid="agent-seller">
+    <Panel title={t('Что умеет ИИ-продавец')} className="agent-card" data-testid="agent-seller">
       <Stack gap="sm">
-        <div>{copy.agentCard}</div>
+        <div>{t(copy.agentCard)}</div>
         <div data-testid="agent-seller-off" className="muted">
-          Расширение не подключено. Его подключает команда WETOP после оплаты по счёту.
+          {t('Расширение не подключено. Его подключает команда WETOP после оплаты по счёту.')}
         </div>
         <div>
           {href.startsWith('/') ? (
             <Link className="btn" href={href} data-testid="agent-seller-ask">
-              Связаться с поддержкой
+              {t('Связаться с поддержкой')}
             </Link>
           ) : (
             <a className="btn" href={href} target="_blank" rel="noreferrer" data-testid="agent-seller-ask">
-              Связаться с поддержкой
+              {t('Связаться с поддержкой')}
             </a>
           )}
         </div>
@@ -121,7 +124,7 @@ function OffCard({ vertical }: { vertical: WebVertical }) {
   );
 }
 
-function AgentCard({ agent }: { agent: AgentCardView }) {
+function AgentCard({ agent, t }: { agent: AgentCardView; t: Translate }) {
   const isSeller = agent.kind === 'seller';
   const channels = channelLines(agent);
   const readiness = agentReadiness(agent);
@@ -136,15 +139,15 @@ function AgentCard({ agent }: { agent: AgentCardView }) {
       <Stack gap="sm">
         <Row>
           <Badge tone={readiness.tone} data-testid="agent-status">
-            {readiness.label}
+            {t(readiness.label)}
           </Badge>
         </Row>
-        <div className="muted">{placementLine(agent)}</div>
-        <p className="agent-card__hint">{readiness.hint}</p>
+        <div className="muted">{t(placementLine(agent))}</div>
+        <p className="agent-card__hint">{t(readiness.hint)}</p>
         {channels.length > 0 && (
           <Row gap="lg" data-testid="agent-channels">
             {channels.map((c) => (
-              <Fact key={c.label} label={c.label} value={c.word} />
+              <Fact key={c.label} label={t(c.label)} value={t(c.word)} />
             ))}
           </Row>
         )}
@@ -152,9 +155,9 @@ function AgentCard({ agent }: { agent: AgentCardView }) {
           <Link
             className="btn btn--secondary"
             href={agentHref(agent)}
-            aria-label={`Открыть: ${agent.name}`}
+            aria-label={t('Открыть: {name}', { name: agent.name })}
           >
-            Открыть
+            {t('Открыть')}
           </Link>
         </div>
       </Stack>

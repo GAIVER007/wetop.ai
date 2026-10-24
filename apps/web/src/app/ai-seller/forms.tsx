@@ -13,14 +13,16 @@ import {
   Textarea,
 } from '../../components/ui';
 import type { SellerKeyState, SellerLlmKeyStatus, SellerWhatsAppView } from '../../lib/api';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 /** Состояние ключа модели словом и тоном; null: ещё не проверялся и ходов не было */
 const KEY_STATE: Record<SellerKeyState, { label: string; tone: BadgeTone }> = {
-  ok: { label: 'Работает', tone: 'ok' },
-  no_credits: { label: 'Закончились деньги', tone: 'danger' },
-  invalid_key: { label: 'Ключ не принят', tone: 'danger' },
-  rate_limited: { label: 'Предел запросов', tone: 'warn' },
-  error: { label: 'Провайдер отказал', tone: 'warn' },
+  ok: { label: msg('Работает'), tone: 'ok' },
+  no_credits: { label: msg('Закончились деньги'), tone: 'danger' },
+  invalid_key: { label: msg('Ключ не принят'), tone: 'danger' },
+  rate_limited: { label: msg('Предел запросов'), tone: 'warn' },
+  error: { label: msg('Провайдер отказал'), tone: 'warn' },
 };
 import {
   restoreVersionAction,
@@ -64,6 +66,7 @@ export function SellerPromptForm({
     savePromptAction,
     null,
   );
+  const t = useT();
   return (
     <form
       key={state?.attempt ?? 0}
@@ -83,7 +86,7 @@ export function SellerPromptForm({
       />
       {readOnly ? (
         <Notice tone="muted" data-testid="seller-read-only">
-          {readOnly}
+          {t(readOnly)}
         </Notice>
       ) : (
         <Row>
@@ -93,7 +96,7 @@ export function SellerPromptForm({
             aria-busy={pending}
             data-testid="seller-prompt-save"
           >
-            {pending ? 'Отправляю…' : 'Сохранить и применить'}
+            {pending ? t('Отправляю…') : t('Сохранить и применить')}
           </Button>
           {note && (
             <span className="sub" data-testid="seller-prompt-state">
@@ -122,9 +125,10 @@ type SimpleAction = (prev: SimpleResult | null, form: FormData) => Promise<Simpl
  */
 export function KnowledgeUploadForm({ upload = uploadKnowledgeAction }: { upload?: SimpleAction }) {
   const [state, action, pending] = useActionState<SimpleResult | null, FormData>(upload, null);
+  const t = useT();
   return (
     <form key={state?.attempt ?? 0} action={action} className="stack stack--sm form-narrow">
-      <Field label="Документ: md, txt, pdf, docx или xlsx, до 10 МБ">
+      <Field label={t('Документ: md, txt, pdf, docx или xlsx, до 10 МБ')}>
         <Input
           type="file"
           name="file"
@@ -135,7 +139,7 @@ export function KnowledgeUploadForm({ upload = uploadKnowledgeAction }: { upload
       </Field>
       <Row>
         <Button type="submit" disabled={pending} aria-busy={pending} data-testid="knowledge-upload">
-          {pending ? 'Загружаю…' : 'Загрузить'}
+          {pending ? t('Загружаю…') : t('Загрузить')}
         </Button>
       </Row>
       {state?.error && <Alert>{state.error}</Alert>}
@@ -156,6 +160,7 @@ export function DialogModeButtons({
 }) {
   const [result, setResult] = useState<SimpleResult | null>(null);
   const [pending, start] = useTransition();
+  const t = useT();
   const run = (action: 'takeover' | 'release') =>
     start(async () => setResult(await switchMode(id, action)));
   return (
@@ -170,7 +175,7 @@ export function DialogModeButtons({
             aria-busy={pending}
             data-testid="dialog-release"
           >
-            {pending ? 'Возвращаю…' : 'Вернуть боту'}
+            {pending ? t('Возвращаю…') : t('Вернуть боту')}
           </Button>
         ) : (
           <Button
@@ -180,7 +185,7 @@ export function DialogModeButtons({
             aria-busy={pending}
             data-testid="dialog-takeover"
           >
-            {pending ? 'Перехватываю…' : 'Перехватить'}
+            {pending ? t('Перехватываю…') : t('Перехватить')}
           </Button>
         )}
       </Row>
@@ -194,7 +199,7 @@ export function DialogModeButtons({
 export function DialogReplyForm({
   id,
   reply = replyAction,
-  label = 'Ответ гостю',
+  label = msg('Ответ гостю'),
 }: {
   id: string;
   reply?: (id: string, prev: SimpleResult | null, form: FormData) => Promise<SimpleResult>;
@@ -205,14 +210,15 @@ export function DialogReplyForm({
     reply.bind(null, id),
     null,
   );
+  const t = useT();
   return (
     <form key={state?.attempt ?? 0} action={action} className="stack stack--sm">
-      <Field label={label}>
+      <Field label={t(label)}>
         <Textarea name="text" rows={3} maxLength={4000} required data-testid="dialog-reply-text" />
       </Field>
       <Row>
         <Button type="submit" disabled={pending} aria-busy={pending} data-testid="dialog-reply">
-          {pending ? 'Отправляю…' : 'Ответить'}
+          {pending ? t('Отправляю…') : t('Ответить')}
         </Button>
       </Row>
       {state?.error && <Alert>{state.error}</Alert>}
@@ -223,6 +229,7 @@ export function DialogReplyForm({
 
 /** Вернуть версию инструкции (SALES2.7): одна кнопка в строке истории, результат словами рядом */
 export function RestoreVersionButton({ id, label }: { id: string; label: string }) {
+  const t = useT();
   const [result, setResult] = useState<SimpleResult | null>(null);
   const [pending, start] = useTransition();
   return (
@@ -233,11 +240,11 @@ export function RestoreVersionButton({ id, label }: { id: string; label: string 
         size="sm"
         disabled={pending}
         aria-busy={pending}
-        aria-label={`Вернуть версию: ${label}`}
+        aria-label={t('Вернуть версию: {label}', { label })}
         data-testid={`prompt-restore-${id}`}
         onClick={() => start(async () => setResult(await restoreVersionAction(id)))}
       >
-        {pending ? 'Возвращаю…' : 'Вернуть'}
+        {pending ? t('Возвращаю…') : t('Вернуть')}
       </Button>
       {result?.error && <Alert>{result.error}</Alert>}
       {result?.message && <Notice data-testid="prompt-restore-result">{result.message}</Notice>}
@@ -261,30 +268,31 @@ export function DialogHandling({
   const [pending, start] = useTransition();
   const [state, action, saving] = useActionState<SimpleResult | null, FormData>(nextStepAction.bind(null, id), null);
   const run = (who: 'me' | null) => start(async () => setResult(await assigneeAction(id, who)));
+  const t = useT();
   return (
     <Stack gap="sm" data-testid="dialog-handling">
       <p data-testid="dialog-assignee">
-        <b>Ответственный:</b> {assignee ?? 'не назначен'}
+        <b>{t('Ответственный:')}</b> {assignee ?? t('не назначен')}
       </p>
       {canAct ? (
         <>
           <Row>
             <Button type="button" tone="secondary" size="sm" onClick={() => run('me')} disabled={pending} data-testid="dialog-assign-me">
-              Взять себе
+              {t('Взять себе')}
             </Button>
             {assignee && (
               <Button type="button" tone="ghost" size="sm" onClick={() => run(null)} disabled={pending} data-testid="dialog-unassign">
-                Снять
+                {t('Снять')}
               </Button>
             )}
           </Row>
           <form key={state?.attempt ?? 0} action={action} className="stack stack--sm">
-            <Field label="Следующий шаг">
-              <Input name="nextStep" maxLength={200} defaultValue={nextStep ?? ''} placeholder="Например, перезвонить до 18:00" data-testid="dialog-next-step" />
+            <Field label={t('Следующий шаг')}>
+              <Input name="nextStep" maxLength={200} defaultValue={nextStep ?? ''} placeholder={t('Например, перезвонить до 18:00')} data-testid="dialog-next-step" />
             </Field>
             <Row>
               <Button type="submit" tone="secondary" size="sm" disabled={saving} aria-busy={saving} data-testid="dialog-next-step-save">
-                Сохранить шаг
+                {t('Сохранить шаг')}
               </Button>
             </Row>
             {state?.error && <Alert>{state.error}</Alert>}
@@ -293,7 +301,7 @@ export function DialogHandling({
         </>
       ) : (
         <p data-testid="dialog-next-step-read">
-          <b>Следующий шаг:</b> {nextStep ?? 'не задан'}
+          <b>{t('Следующий шаг:')}</b> {nextStep ?? t('не задан')}
         </p>
       )}
     </Stack>
@@ -303,14 +311,15 @@ export function DialogHandling({
 /** Добавить внутреннюю заметку (S2.6) */
 export function DialogNoteForm({ id }: { id: string }) {
   const [state, action, pending] = useActionState<SimpleResult | null, FormData>(noteAction.bind(null, id), null);
+  const t = useT();
   return (
     <form key={state?.attempt ?? 0} action={action} className="stack stack--sm">
-      <Field label="Новая заметка">
+      <Field label={t('Новая заметка')}>
         <Textarea name="text" rows={3} maxLength={2000} required data-testid="dialog-note-text" />
       </Field>
       <Row>
         <Button type="submit" tone="secondary" size="sm" disabled={pending} aria-busy={pending} data-testid="dialog-note-add">
-          {pending ? 'Добавляю…' : 'Добавить заметку'}
+          {pending ? t('Добавляю…') : t('Добавить заметку')}
         </Button>
       </Row>
       {state?.error && <Alert>{state.error}</Alert>}
@@ -332,14 +341,14 @@ export interface SandboxWords {
 }
 
 const SELLER_SANDBOX_WORDS: SandboxWords = {
-  asker: 'Гость',
-  bot: 'Продавец',
-  field: 'Сообщение как от гостя',
-  placeholder: 'Здравствуйте, есть места на выходные?',
-  button: 'Спросить продавца',
-  pending: 'Жду ответ продавца…',
-  human: 'Продавец позвал бы человека',
-  label: 'Проверка продавца',
+  asker: msg('Гость'),
+  bot: msg('Продавец'),
+  field: msg('Сообщение как от гостя'),
+  placeholder: msg('Здравствуйте, есть места на выходные?'),
+  button: msg('Спросить продавца'),
+  pending: msg('Жду ответ продавца…'),
+  human: msg('Продавец позвал бы человека'),
+  label: msg('Проверка продавца'),
 };
 
 export function SandboxForm({
@@ -351,21 +360,22 @@ export function SandboxForm({
 }) {
   const [state, action, pending] = useActionState<SandboxResult | null, FormData>(ask, null);
   const history = state?.history ?? [];
+  const t = useT();
   return (
     <Stack>
       {history.length > 0 && (
-        <ol className="seller-transcript" data-testid="sandbox-history" aria-label={words.label}>
+        <ol className="seller-transcript" data-testid="sandbox-history" aria-label={t(words.label)}>
           {history.map((h, i) => (
             <li key={i}>
               <p className="seller-transcript__guest">
-                <b>{words.asker}:</b> {h.question}
+                <b>{t(words.asker)}:</b> {h.question}
               </p>
               <p className="seller-transcript__bot">
-                <b>{words.bot}:</b> {h.reply ?? 'ответа нет'}
+                <b>{t(words.bot)}:</b> {h.reply ?? t('ответа нет')}
               </p>
               {h.needsHuman && (
                 <p className="settings-note">
-                  {words.human}
+                  {t(words.human)}
                   {h.reasons.length ? `: ${h.reasons.join('; ')}` : ''}.
                 </p>
               )}
@@ -374,19 +384,19 @@ export function SandboxForm({
         </ol>
       )}
       <form key={state?.attempt ?? 0} action={action} className="stack stack--sm">
-        <Field label={words.field}>
+        <Field label={t(words.field)}>
           <Textarea
             name="text"
             rows={2}
             maxLength={2000}
             required
-            placeholder={words.placeholder}
+            placeholder={t(words.placeholder)}
             data-testid="sandbox-text"
           />
         </Field>
         <Row>
           <Button type="submit" disabled={pending} aria-busy={pending} data-testid="sandbox-send">
-            {pending ? words.pending : words.button}
+            {pending ? t(words.pending) : t(words.button)}
           </Button>
         </Row>
         {state?.error && <Alert data-testid="sandbox-error">{state.error}</Alert>}
@@ -419,46 +429,44 @@ export function LlmKeyForm({
   // снятие — своя форма со скрытым полем: name на кнопке с formAction-функцией React затирает
   const [cleared, clearAction, clearing] = useActionState<LlmKeyResult | null, FormData>(save, null);
   const busy = saving || checking || clearing;
+  const t = useT();
   // состояние — серверное: удачное действие зовёт refresh(), и props приходят свежими
   return (
     <Stack>
       <p data-testid="seller-llm-key-state">
         {status.set ? (
           <>
-            Ключ установлен, оканчивается на <b>····{status.last4}</b>. Расход модели — на ключе
-            партнёра.
+            {t('Ключ установлен, оканчивается на')} <b>····{status.last4}</b>. {t('Расход модели — на ключе партнёра.')}
           </>
         ) : (
-          <>Ключ не задан: продавец ходит ключом платформы.</>
+          <>{t('Ключ не задан: продавец ходит ключом платформы.')}</>
         )}
       </p>
       <div data-testid="seller-llm-key-health" className="stack stack--sm">
         <Row>
-          <span>Состояние:</span>
+          <span>{t('Состояние:')}</span>
           {status.state ? (
-            <Badge tone={KEY_STATE[status.state].tone}>{KEY_STATE[status.state].label}</Badge>
+            <Badge tone={KEY_STATE[status.state].tone}>{t(KEY_STATE[status.state].label)}</Badge>
           ) : (
-            <Badge>Ещё не проверялся</Badge>
+            <Badge>{t('Ещё не проверялся')}</Badge>
           )}
-          {checkedLabel && <span className="settings-note">проверено {checkedLabel}</span>}
+          {checkedLabel && <span className="settings-note">{t('проверено {when}', { when: checkedLabel })}</span>}
         </Row>
         {status.reason && status.state !== 'ok' && (
           <Alert data-testid="seller-llm-key-health-reason">{status.reason}</Alert>
         )}
       </div>
       <p className="settings-note">
-        Остаток денег на счёте провайдер по API не сообщает: здесь видно, отвечает ли модель с этим
-        ключом. Пустое поле и «Проверить» проверяют сохранённый ключ, введённый ключ проверяется без
-        сохранения. Сохранённый секрет не показывается повторно.
+        {t('Остаток денег на счёте провайдер по API не сообщает: здесь видно, отвечает ли модель с этим ключом. Пустое поле и «Проверить» проверяют сохранённый ключ, введённый ключ проверяется без сохранения. Сохранённый секрет не показывается повторно.')}
       </p>
       <form key={saved?.attempt ?? 0} className="stack stack--sm">
-        <Field label="API-ключ модели">
+        <Field label={t('API-ключ модели')}>
           <Input
             name="key"
             type="password"
             maxLength={200}
             autoComplete="off"
-            placeholder={status.set ? "Ключ сохранён, введите новый только для замены" : "Вставьте ключ модели"}
+            placeholder={status.set ? t('Ключ сохранён, введите новый только для замены') : t('Вставьте ключ модели')}
             data-testid="seller-llm-key-input"
             disabled={readOnly !== null}
           />
@@ -472,7 +480,7 @@ export function LlmKeyForm({
             aria-busy={checking}
             data-testid="seller-llm-key-check"
           >
-            {checking ? 'Проверяем…' : 'Проверить'}
+            {checking ? t('Проверяем…') : t('Проверить')}
           </Button>
           <Button
             type="submit"
@@ -481,10 +489,10 @@ export function LlmKeyForm({
             aria-busy={saving}
             data-testid="seller-llm-key-save"
           >
-            {saving ? 'Сохраняем…' : 'Сохранить'}
+            {saving ? t('Сохраняем…') : t('Сохранить')}
           </Button>
         </Row>
-        {readOnly !== null && <p className="settings-note">{readOnly}</p>}
+        {readOnly !== null && <p className="settings-note">{t(readOnly)}</p>}
         {(saved?.message || checked?.message) && (
           <Notice data-testid="seller-llm-key-message">{saved?.message ?? checked?.message}</Notice>
         )}
@@ -503,7 +511,7 @@ export function LlmKeyForm({
               aria-busy={clearing}
               data-testid="seller-llm-key-clear"
             >
-              Снять ключ
+              {t('Снять ключ')}
             </Button>
           </Row>
         </form>
@@ -513,9 +521,7 @@ export function LlmKeyForm({
       )}
       {cleared?.error && <Alert data-testid="seller-llm-key-error">{cleared.error}</Alert>}
       <p className="settings-note">
-        Ключ хранит только продавец — шифрованным; здесь видны лишь последние 4 знака. Ключ
-        недействителен или кончились средства — продавец гостиницы молчит и раздел предупредит,
-        ключ платформы вместо партнёрского не подставляется.
+        {t('Ключ хранит только продавец — шифрованным; здесь видны лишь последние 4 знака. Ключ недействителен или кончились средства — продавец гостиницы молчит и раздел предупредит, ключ платформы вместо партнёрского не подставляется.')}
       </p>
     </Stack>
   );
@@ -541,21 +547,21 @@ export function WhatsAppForm({
   const [checked, checkAction, checking] = useActionState<WhatsAppResult | null, FormData>(check, null);
   const [off, offAction, offing] = useActionState<WhatsAppResult | null, FormData>(save, null);
   const busy = saving || checking || offing;
+  const t = useT();
   return (
     <Stack>
       <p data-testid="seller-whatsapp-state">
         {status.set ? (
           <>
-            Подключён номер <b>{status.phoneNumberId}</b>: бот отвечает написавшим в WhatsApp.
+            {t('Подключён номер')} <b>{status.phoneNumberId}</b>: {t('бот отвечает написавшим в WhatsApp.')}
           </>
         ) : (
-          <>WhatsApp не подключён. Понадобятся номер, аккаунт Meta Business с проверкой и постоянный токен —
-          их заводит партнёр.</>
+          <>{t('WhatsApp не подключён. Понадобятся номер, аккаунт Meta Business с проверкой и постоянный токен — их заводит партнёр.')}</>
         )}
       </p>
       {status.set && status.webhookUrl && (
         <div data-testid="seller-whatsapp-meta" className="stack stack--sm">
-          <p className="settings-note">В консоли Meta (WhatsApp → Configuration → Webhook) впишите:</p>
+          <p className="settings-note">{t('В консоли Meta (WhatsApp → Configuration → Webhook) впишите:')}</p>
           <ul className="settings-note">
             <li>
               Callback URL: <code>{status.webhookUrl}</code>
@@ -572,12 +578,12 @@ export function WhatsAppForm({
             name="phoneNumberId"
             inputMode="numeric"
             maxLength={64}
-            placeholder="из консоли Meta, только цифры"
+            placeholder={t('из консоли Meta, только цифры')}
             data-testid="seller-whatsapp-phone-id"
             disabled={readOnly !== null}
           />
         </Field>
-        <Field label="Постоянный токен">
+        <Field label={t('Постоянный токен')}>
           <Input
             name="token"
             type="password"
@@ -588,7 +594,7 @@ export function WhatsAppForm({
             disabled={readOnly !== null}
           />
         </Field>
-        <Field label="Секрет приложения (App secret)">
+        <Field label={t('Секрет приложения (App secret)')}>
           <Input
             name="appSecret"
             type="password"
@@ -607,7 +613,7 @@ export function WhatsAppForm({
             aria-busy={checking}
             data-testid="seller-whatsapp-check"
           >
-            {checking ? 'Проверяем…' : 'Проверить'}
+            {checking ? t('Проверяем…') : t('Проверить')}
           </Button>
           <Button
             type="submit"
@@ -616,10 +622,10 @@ export function WhatsAppForm({
             aria-busy={saving}
             data-testid="seller-whatsapp-save"
           >
-            {saving ? 'Подключаем…' : 'Подключить'}
+            {saving ? t('Подключаем…') : t('Подключить')}
           </Button>
         </Row>
-        {readOnly !== null && <p className="settings-note">{readOnly}</p>}
+        {readOnly !== null && <p className="settings-note">{t(readOnly)}</p>}
         {(saved?.message || checked?.message) && (
           <Notice data-testid="seller-whatsapp-message">{saved?.message ?? checked?.message}</Notice>
         )}
@@ -638,7 +644,7 @@ export function WhatsAppForm({
               aria-busy={offing}
               data-testid="seller-whatsapp-disconnect"
             >
-              Отключить
+              {t('Отключить')}
             </Button>
           </Row>
         </form>
@@ -646,10 +652,7 @@ export function WhatsAppForm({
       {off?.message && <Notice data-testid="seller-whatsapp-off">{off.message}</Notice>}
       {off?.error && <Alert data-testid="seller-whatsapp-error">{off.error}</Alert>}
       <p className="settings-note">
-        Токен и секрет приложения хранит только продавец — шифрованными, назад они не показываются.
-        Бот отвечает написавшим в течение суток после их сообщения (окно Cloud API), первым не пишет.
-        Переписка гостей — персональные данные: канал на сайты партнёров включается при базе бота
-        в Казахстане (ADR-009).
+        {t('Токен и секрет приложения хранит только продавец — шифрованными, назад они не показываются. Бот отвечает написавшим в течение суток после их сообщения (окно Cloud API), первым не пишет. Переписка гостей — персональные данные: канал на сайты партнёров включается при базе бота в Казахстане (ADR-009).')}
       </p>
     </Stack>
   );

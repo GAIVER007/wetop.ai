@@ -7,7 +7,8 @@ import { useToast } from '../../components/toast';
 import { Alert, Button } from '../../components/ui';
 import { useConfirm } from '../../components/use-confirm';
 import type { StayAvailability, UnassignedStay } from '../../lib/api';
-import { displayDate } from '../../lib/display-date';
+import { useLocale, useT } from '../../i18n/locale-provider';
+import { shortDate, type Lang } from './lang';
 import { assignUnitAction, previewAction } from '../reservations/actions';
 import { stayAvailabilityAction } from './actions';
 import {
@@ -46,6 +47,8 @@ export function UnassignedStays({
   categories: Category[];
   readOnly: boolean;
 }) {
+  const t = useT();
+  const lang: Lang = { t, locale: useLocale() };
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [free, setFree] = useState<Record<string, Loaded>>({});
@@ -53,7 +56,7 @@ export function UnassignedStays({
   const [done, setDone] = useState<string | null>(null);
   // одно окно подтверждения на весь ящик, а не в каждой карточке
   const { ask, dialog } = useConfirm();
-  const cards = stays.map(unassignedCard);
+  const cards = stays.map((s) => unassignedCard(s, lang));
 
   useEffect(() => {
     const sync = () => {
@@ -123,7 +126,7 @@ export function UnassignedStays({
   }, [open, keys, selected]);
 
   if (cards.length === 0) return null;
-  const summary = unassignedSummary(stays);
+  const summary = unassignedSummary(stays, lang);
   return (
     <>
       <div
@@ -143,13 +146,13 @@ export function UnassignedStays({
           aria-haspopup="dialog"
           onClick={() => setOpen(true)}
         >
-          Разместить
+          {t('Разместить')}
         </Button>
       </div>
       <Overlay
         open={open}
         onClose={close}
-        title="Брони без размещения"
+        title={t('Брони без размещения')}
         drawer
         className="unassigned-drawer"
       >
@@ -211,6 +214,8 @@ function UnassignedCardView({
   onRetry: () => void;
   onAssigned: (text: string) => void;
 }) {
+  const t = useT();
+  const lang: Lang = { t, locale: useLocale() };
   const [chosen, setChosen] = useState<{ unit: string; category: Category } | null>(null);
   const [others, setOthers] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -229,12 +234,12 @@ function UnassignedCardView({
         action: 'move',
         unitCode: unit,
       });
-      const q = crossCategoryQuestion(card, unit, category.name, preview);
+      const q = crossCategoryQuestion(card, unit, category.name, preview, lang);
       if (
         !(await ask({
           title: q.title,
           body: <QuestionBody question={q} />,
-          confirmLabel: 'Разместить',
+          confirmLabel: t('Разместить'),
           tone: 'primary',
         }))
       )
@@ -249,10 +254,10 @@ function UnassignedCardView({
       const r = await assignUnitAction(card.number, card.itemId!, { error: null }, fd);
       start(() => {
         if (r.error) {
-          setError(`Не удалось назначить: ${r.error}`);
+          setError(t('Не удалось назначить: {error}', { error: r.error }));
           return;
         }
-        const text = `Бронь ${card.number} размещена: ${unit}`;
+        const text = t('Бронь {number} размещена: {unit}', { number: card.number, unit });
         toast({ text, tone: 'success' });
         onAssigned(text);
       });
@@ -279,23 +284,23 @@ function UnassignedCardView({
     <li className="unassigned-card" data-testid="unassigned-card" data-selected={selected}>
       <p className="unassigned-card__guest">{card.guest}</p>
       <p className="unassigned-card__dates">
-        <time dateTime={card.arrivalDate}>{displayDate(card.arrivalDate)}</time>
+        <time dateTime={card.arrivalDate}>{shortDate(lang, card.arrivalDate)}</time>
         {' → '}
-        <time dateTime={card.departureDate}>{displayDate(card.departureDate)}</time>, {card.nights}
+        <time dateTime={card.departureDate}>{shortDate(lang, card.departureDate)}</time>, {card.nights}
       </p>
       <p className="unassigned-card__meta">
         {card.category}, {card.status}, <span className="mono">{card.number}</span>
       </p>
       {selected && loaded?.state === 'loading' && (
         <p className="muted" role="status">
-          Ищем свободные места…
+          {t('Ищем свободные места…')}
         </p>
       )}
       {selected && loaded?.state === 'error' && (
         <p className="unassigned-card__problem" role="status">
-          Свободные места не загрузились.{' '}
+          {t('Свободные места не загрузились.')}{' '}
           <Button type="button" tone="ghost" size="sm" onClick={onRetry}>
-            Повторить
+            {t('Повторить')}
           </Button>
         </p>
       )}
@@ -303,15 +308,15 @@ function UnassignedCardView({
         <div className="unassigned-card__free">
           {choice.own.length > 0 ? (
             <>
-              <p className="unassigned-card__label">Свободно</p>
+              <p className="unassigned-card__label">{t('Свободно')}</p>
               <div data-testid="unassigned-free">{units(choice.own, own)}</div>
             </>
           ) : (
             <>
-              <p className="unassigned-card__problem">Нет доступных мест в категории</p>
+              <p className="unassigned-card__problem">{t('Нет доступных мест в категории')}</p>
               {!others && (
                 <Button type="button" tone="secondary" size="sm" onClick={() => setOthers(true)}>
-                  Посмотреть другие категории
+                  {t('Посмотреть другие категории')}
                 </Button>
               )}
             </>
@@ -325,7 +330,7 @@ function UnassignedCardView({
                 </div>
               ))
             ) : (
-              <p className="muted">В других категориях на эти даты мест тоже нет</p>
+              <p className="muted">{t('В других категориях на эти даты мест тоже нет')}</p>
             ))}
         </div>
       )}
@@ -333,11 +338,11 @@ function UnassignedCardView({
       <div className="unassigned-card__actions">
         {!selected && (
           <Button type="button" tone="secondary" size="sm" onClick={onPick}>
-            Подобрать место
+            {t('Подобрать место')}
           </Button>
         )}
         {selected && readOnly && choice && (
-          <p className="muted">Только чтение: назначить место нельзя</p>
+          <p className="muted">{t('Только чтение: назначить место нельзя')}</p>
         )}
         {selected && !readOnly && target && card.itemId && (
           <Button
@@ -346,14 +351,14 @@ function UnassignedCardView({
             disabled={pending}
             onClick={() => void assign(target.unit, target.category)}
           >
-            {pending ? 'Назначаем…' : `Назначить ${target.unit}`}
+            {pending ? t('Назначаем…') : t('Назначить {unit}', { unit: target.unit })}
           </Button>
         )}
         <Link
           className="btn btn--ghost btn--sm"
           href={`/reservations/${encodeURIComponent(card.number)}`}
         >
-          Открыть бронь
+          {t('Открыть бронь')}
         </Link>
       </div>
     </li>

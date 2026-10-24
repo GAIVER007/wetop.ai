@@ -1,4 +1,5 @@
 import type { MarketRates, MarketView } from '../../lib/api';
+import { translator, type Translate } from '../../i18n';
 
 /**
  * Данные графиков экрана «Загрузка конкурентов» (SALES2.3). Загрузка: всё в базисных пунктах (8 550 = 85,5 %). Цены
@@ -108,9 +109,9 @@ export function buildPriceRows(rates: MarketRates): PriceRow[] {
 }
 
 /** Подпись оси цены: «42 тыс.», «950» (в основных единицах валюты) */
-export function shortMoney(minor: number): string {
+export function shortMoney(minor: number, t: Translate = translator('ru')): string {
   const major = minor / 100;
   if (major < 1000) return String(Math.round(major));
   const k = major / 1000;
-  return `${(Number.isInteger(k) ? String(k) : k.toFixed(1)).replace('.', ',')} тыс.`;
+  return t('{n} тыс.', { n: (Number.isInteger(k) ? String(k) : k.toFixed(1)).replace('.', ',') });
 }

@@ -4,15 +4,17 @@ import { Badge, Table } from '../../components/ui';
 import { displayPeriod, displayDay } from '../../lib/display-date';
 import { hotelClock } from '../../lib/hotel-api';
 import { eventTime } from './format';
+import { msg } from '../../i18n';
+import { serverT } from '../../i18n/server';
 
 const KIND_RU: Record<OutboxRow['kind'], string> = {
-  AVAILABILITY: 'остатки',
-  RESTRICTIONS: 'цены и ограничения',
+  AVAILABILITY: msg('остатки'),
+  RESTRICTIONS: msg('цены и ограничения'),
 };
 const STATUS_RU: Record<OutboxRowStatus, string> = {
-  PENDING: 'ждёт',
-  SENT: 'отправлено',
-  FAILED: 'ошибка',
+  PENDING: msg('ждёт'),
+  SENT: msg('отправлено'),
+  FAILED: msg('ошибка'),
 };
 const STATUS_TONE: Record<OutboxRowStatus, 'info' | 'ok' | 'danger'> = {
   PENDING: 'info',
@@ -20,9 +22,9 @@ const STATUS_TONE: Record<OutboxRowStatus, 'info' | 'ok' | 'danger'> = {
   FAILED: 'danger',
 };
 export const OUTBOX_FILTERS: Array<[OutboxRowStatus | '', string]> = [
-  ['', 'все'],
-  ['PENDING', 'ждёт'],
-  ['FAILED', 'ошибка'],
+  ['', msg('все')],
+  ['PENDING', msg('ждёт')],
+  ['FAILED', msg('ошибка')],
 ];
 
 /**
@@ -41,9 +43,10 @@ export async function OutboxTable({
   categoryName: (code: string) => string;
 }) {
   const clock = await hotelClock();
+  const t = await serverT();
   return (
     <div className="stack stack--sm">
-      <div className="row row--inline filters" role="group" aria-label="Очередь: фильтр по статусу">
+      <div className="row row--inline filters" role="group" aria-label={t('Очередь: фильтр по статусу')}>
         {OUTBOX_FILTERS.map(([value, label]) => (
           <Link
             key={value}
@@ -52,16 +55,16 @@ export async function OutboxTable({
             aria-current={filter === value ? 'true' : undefined}
             data-testid={`outbox-filter-${value || 'all'}`}
           >
-            {label}
+            {t(label)}
           </Link>
         ))}
       </div>
       <Table size="sm" className="dir-table dir-table--outbox" data-testid="outbox-table">
         <thead>
           <tr>
-            {['Что', 'Категории', 'Даты', 'Статус', 'Попыток', 'Задача', 'Создано'].map(
+            {[msg('Что'), msg('Категории'), msg('Даты'), msg('Статус'), msg('Попыток'), msg('Задача'), msg('Создано')].map(
               (h) => (
-                <th key={h}>{h}</th>
+                <th key={h}>{t(h)}</th>
               ),
             )}
           </tr>
@@ -70,9 +73,8 @@ export async function OutboxTable({
           {rows === null && (
             <tr>
               <td colSpan={7} className="empty-state" data-testid="outbox-rows-failed">
-                Строки очереди не загрузились: API не ответил. Числа в плитках выше читаются
-                отдельно; обновите страницу или откройте{' '}
-                <Link href="/incidents">неисправности</Link>.
+                {t('Строки очереди не загрузились: API не ответил. Числа в плитках выше читаются отдельно; обновите страницу или откройте')}{' '}
+                <Link href="/incidents">{t('неисправности')}</Link>.
               </td>
             </tr>
           )}
@@ -81,11 +83,11 @@ export async function OutboxTable({
               <td colSpan={7} className="empty-state" data-testid="outbox-empty">
                 {filter ? (
                   <>
-                    Строк со статусом «{STATUS_RU[filter]}» нет.{' '}
-                    <Link href={hrefFor('')}>Показать все строки</Link>
+                    {t('Строк со статусом «{status}» нет.', { status: t(STATUS_RU[filter]) })}{' '}
+                    <Link href={hrefFor('')}>{t('Показать все строки')}</Link>
                   </>
                 ) : (
-                  'Очередь пуста: все изменения цен и остатков уже ушли в каналы. Новая строка появится после правки цены, брони или блокировки.'
+                  t('Очередь пуста: все изменения цен и остатков уже ушли в каналы. Новая строка появится после правки цены, брони или блокировки.')
                 )}
               </td>
             </tr>
@@ -93,8 +95,8 @@ export async function OutboxTable({
           {rows?.map((r) => (
             <tr key={r.id} data-testid="outbox-row">
               <td>
-                {KIND_RU[r.kind]}
-                <div className="cell-sub">сообщений: {r.messages}</div>
+                {t(KIND_RU[r.kind])}
+                <div className="cell-sub">{t('сообщений: {n}', { n: r.messages })}</div>
               </td>
               <td>{r.roomTypes.map(categoryName).join(', ') || '—'}</td>
               <td className="nowrap">
@@ -105,7 +107,7 @@ export async function OutboxTable({
                   : '—'}
               </td>
               <td>
-                <Badge tone={STATUS_TONE[r.status]}>{STATUS_RU[r.status]}</Badge>
+                <Badge tone={STATUS_TONE[r.status]}>{t(STATUS_RU[r.status])}</Badge>
                 {r.lastError && <div className="cell-sub danger-text">{r.lastError}</div>}
               </td>
               <td className="num">{r.attempts}</td>

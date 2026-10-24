@@ -3,6 +3,8 @@ import { normalizeSearchParams, type SearchParams } from '../../../../lib/search
 import { api, chessboardApi, formatMinor, guestsApi } from '../../../../lib/api';
 import { hotelClock } from '../../../../lib/hotel-api';
 import { PrintButton } from './print-button';
+import { msg } from '../../../../i18n';
+import { T as Phrase } from '../../../../i18n/locale-provider';
 import { sourceStatus } from '../../../../lib/status/source';
 import { statusLabel } from '../../../../lib/status/types';
 import { displayDay } from '../../../../lib/display-date';
@@ -15,50 +17,50 @@ import { humanizeIsoDates } from '../../../../lib/charge-text';
  */
 const T = {
   ru: {
-    title: 'Регистрационная карта гостя',
-    property: 'Средство размещения',
-    booking: 'Бронь №',
-    guest: 'Гость',
-    citizenship: 'Гражданство',
-    birthDate: 'Дата рождения',
-    document: 'Документ',
-    phone: 'Телефон',
-    stay: 'Проживание',
-    category: 'Категория',
-    unit: 'Номер / место',
-    arrival: 'Заезд',
-    departure: 'Выезд',
-    nights: 'Ночей',
-    price: 'Стоимость',
-    source: 'Источник брони',
-    consent: 'С правилами проживания ознакомлен(а). Даю согласие на обработку персональных данных.',
-    guestSign: 'Подпись гостя',
-    adminSign: 'Администратор',
-    date: 'Дата',
-    printedAt: 'Сформировано',
+    title: 'Регистрационная карта гостя', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    property: 'Средство размещения', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    booking: 'Бронь №', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    guest: 'Гость', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    citizenship: 'Гражданство', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    birthDate: 'Дата рождения', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    document: 'Документ', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    phone: 'Телефон', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    stay: 'Проживание', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    category: 'Категория', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    unit: 'Номер / место', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    arrival: 'Заезд', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    departure: 'Выезд', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    nights: 'Ночей', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    price: 'Стоимость', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    source: 'Источник брони', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    consent: 'С правилами проживания ознакомлен(а). Даю согласие на обработку персональных данных.', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    guestSign: 'Подпись гостя', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    adminSign: 'Администратор', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    date: 'Дата', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    printedAt: 'Сформировано', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
   },
   kz: {
-    title: 'Қонақтың тіркеу карточкасы',
-    property: 'Орналастыру орны',
-    booking: 'Брондау №',
-    guest: 'Қонақ',
-    citizenship: 'Азаматтығы',
-    birthDate: 'Туған күні',
-    document: 'Құжат',
-    phone: 'Телефон',
-    stay: 'Тұру',
-    category: 'Санат',
-    unit: 'Нөмір / орын',
-    arrival: 'Келу',
-    departure: 'Кету',
-    nights: 'Түн саны',
-    price: 'Құны',
-    source: 'Брондау көзі',
-    consent: 'Тұру ережелерімен таныстым. Дербес деректерді өңдеуге келісім беремін.',
-    guestSign: 'Қонақтың қолы',
-    adminSign: 'Әкімші',
-    date: 'Күні',
-    printedAt: 'Қалыптастырылды',
+    title: 'Қонақтың тіркеу карточкасы', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    property: 'Орналастыру орны', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    booking: 'Брондау №', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    guest: 'Қонақ', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    citizenship: 'Азаматтығы', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    birthDate: 'Туған күні', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    document: 'Құжат', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    phone: 'Телефон', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    stay: 'Тұру', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    category: 'Санат', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    unit: 'Нөмір / орын', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    arrival: 'Келу', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    departure: 'Кету', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    nights: 'Түн саны', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    price: 'Құны', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    source: 'Брондау көзі', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    consent: 'Тұру ережелерімен таныстым. Дербес деректерді өңдеуге келісім беремін.', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    guestSign: 'Қонақтың қолы', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    adminSign: 'Әкімші', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    date: 'Күні', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
+    printedAt: 'Қалыптастырылды', // kk-allow: печатная форма, язык выбирает ссылка RU/KZ
   },
 } as const;
 const nights = (a: string, d: string) => Math.round((Date.parse(d) - Date.parse(a)) / 86_400_000);
@@ -106,7 +108,7 @@ export default async function PrintRegistrationCard({
           fontSize: 13,
         }}
       >
-        <a href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}>← бронь</a>
+        <a href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}><Phrase text={msg('← бронь')} /></a>
         <a href={`?lang=ru`}>RU</a>
         <a href={`?lang=kz`}>KZ</a>
         <PrintButton />

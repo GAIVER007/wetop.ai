@@ -5,7 +5,9 @@ import { useActionState, useCallback, useEffect, useRef, useState } from 'react'
 import { Alert, Button, Field, Grid, Input, Select, Textarea } from '../../../components/ui';
 import { AUTO_UNIT, type PlacementPrefill } from '../../../lib/booking-link';
 import { displayDate } from '../../../lib/display-date';
-import { nightsBetween, pluralRu } from '../../../lib/plural';
+import { nightsBetween } from '../../../lib/plural';
+import { countLabel, intlLocale, msg } from '../../../i18n';
+import { useLocale, useT } from '../../../i18n/locale-provider';
 import {
   createReservationAction,
   findGuestsByPhoneAction,
@@ -22,6 +24,10 @@ import { isStayDate } from '../../../lib/stay-date';
 import { phoneFieldValue, phoneOnInput } from '../../../lib/phone';
 import { BookingShell, PickButton, PickGroup, PickHeading } from '../../../components/booking-shell';
 import { roomChoices, type Housekeeping } from './room-choices';
+
+const NIGHTS: [string, string, string] = [msg('ночь'), 'ночи', msg('ночей')]; // kk-allow: форма склонения
+const GUESTS: [string, string, string] = [msg('гость'), 'гостя', msg('гостей')]; // kk-allow: форма склонения
+const VISITS: [string, string, string] = [msg('визит'), 'визита', msg('визитов')]; // kk-allow: форма склонения
 
 export function NewReservationForm(props: {
   canMutate: boolean;
@@ -46,6 +52,8 @@ export function NewReservationForm(props: {
   housekeeping: Housekeeping;
 }) {
   const router = useRouter();
+  const t = useT();
+  const locale = useLocale();
   const [arrival, setArrival] = useState(props.arrival);
   const [departure, setDeparture] = useState(props.departure);
   const [availability, setAvailability] = useState(props.initialAvailability);
@@ -60,11 +68,11 @@ export function NewReservationForm(props: {
       ? `${props.initialAvailability.arrivalDate} ${props.initialAvailability.departureDate} 0`
       : '',
   );
-  const arrivalError = isStayDate(arrival) ? '' : 'Введите корректную дату';
+  const arrivalError = isStayDate(arrival) ? '' : t('Введите корректную дату');
   const departureError = !isStayDate(departure)
-    ? 'Введите корректную дату'
+    ? t('Введите корректную дату')
     : !arrivalError && departure <= arrival
-      ? 'Дата выезда должна быть позже даты заезда'
+      ? t('Дата выезда должна быть позже даты заезда')
       : '';
   const validDates = !arrivalError && !departureError;
   const fresh =
@@ -90,14 +98,14 @@ export function NewReservationForm(props: {
           lastChecked.current = result.availability && !result.error ? key : '';
           setChecking(false);
           setAvailability(result.availability);
-          setAvailabilityError(result.error);
+          setAvailabilityError(result.error && t(result.error));
         })
         .catch(() => {
           if (!active) return;
           lastChecked.current = '';
           setChecking(false);
           setAvailability(null);
-          setAvailabilityError('Не удалось проверить свободные места.');
+          setAvailabilityError(t('Не удалось проверить свободные места.'));
         });
     }, 200);
     return () => {
@@ -168,7 +176,7 @@ export function NewReservationForm(props: {
       : [];
   });
   const unavailableSelection = unavailable.length > 0;
-  const facts = summarize({ ...props, arrival, departure }, placementIds, snapshot, picked);
+  const facts = summarize({ ...props, arrival, departure }, placementIds, snapshot, picked, locale, t);
   // Правая часть окна (решение 23.10.2026, вариант B): свободные номера кнопками по категориям для первого
   // размещения. Нажатие ставит категорию и номер в поля размещения, поля остаются источником для отправки.
   const [pickRequest, setPickRequest] = useState<{ category: string; unit: string; n: number } | null>(
@@ -181,41 +189,48 @@ export function NewReservationForm(props: {
   const chosenUnit = snapshot['unitCode'] ?? '';
   const guestsWanted = Math.max(1, Number(snapshot['adults'] ?? 1) || 1);
   const group = placementIds.length > 1 || Number(snapshot['quantity'] ?? 1) > 1;
-  const choices = roomChoices(categories, {
-    guests: guestsWanted,
-    housekeeping: props.housekeeping,
-  });
+  const choices = roomChoices(
+    categories,
+    {
+      guests: guestsWanted,
+      housekeeping: props.housekeeping,
+    },
+    locale,
+    t,
+  );
   const anyDirty = choices.some((c) => c.units.some((u) => u.dirty));
   const pick = (
     <>
       <PickHeading
-        title="Свободные номера"
+        title={t('Свободные номера')}
         note={
           !validDates
-            ? 'Укажите даты'
+            ? t('Укажите даты')
             : checking || !fresh
-              ? availabilityError || 'Проверяем свободные номера…'
-              : `${facts.datesText}, ${pluralRu(guestsWanted, ['гость', 'гостя', 'гостей'])}`
+              ? availabilityError || t('Проверяем свободные номера…')
+              : `${facts.datesText}, ${countLabel(locale, t, guestsWanted, GUESTS)}`
         }
       />
       {props.categories.length === 0 && (
-        <Alert tone="warning">Сначала добавьте категории и номера в разделе «Номерной фонд».</Alert>
+        <Alert tone="warning">{t('Сначала добавьте категории и номера в разделе «Номерной фонд».')}</Alert>
       )}
       {props.ratePlans.length === 0 && (
-        <Alert tone="warning">Сначала задайте цену категории в «Категориях номеров».</Alert>
+        <Alert tone="warning">{t('Сначала задайте цену категории в «Категориях номеров».')}</Alert>
       )}
       {unavailable.length > 0 && (
         <Alert tone="warning">
           {unavailable.length === 1
-            ? `Выбранный номер ${unavailable[0]} недоступен`
-            : `Выбранные номера ${unavailable.join(', ')} недоступны`}{' '}
-          на этот период. Выберите другое размещение.
+            ? t('Выбранный номер {unit} недоступен на этот период. Выберите другое размещение.', {
+                unit: unavailable[0]!,
+              })
+            : t('Выбранные номера {units} недоступны на этот период. Выберите другое размещение.', {
+                units: unavailable.join(', '),
+              })}
         </Alert>
       )}
       {group && (
         <p className="booking-pick__muted" data-testid="room-picker-group">
-          Несколько мест или размещений: номера назначит система по порядку, их видно в «Проверить
-          детали брони».
+          {t('Несколько мест или размещений: номера назначит система по порядку, их видно в «Проверить детали брони».')}
         </p>
       )}
       {!group && validDates && (
@@ -228,11 +243,11 @@ export function NewReservationForm(props: {
               selected={c.code === chosenCategory}
               facts={
                 checking || !fresh
-                  ? 'проверяем…'
-                  : `свободно ${c.free}, ${c.why}`
+                  ? t('проверяем…')
+                  : t('свободно {n}, {why}', { n: c.free, why: c.why })
               }
               unavailable={
-                !c.fits ? c.why : fresh && !checking && c.free === 0 ? 'нет свободных' : undefined
+                !c.fits ? c.why : fresh && !checking && c.free === 0 ? t('нет свободных') : undefined
               }
             >
               {c.units.map((u) => (
@@ -240,7 +255,7 @@ export function NewReservationForm(props: {
                   key={u.code}
                   selected={c.code === chosenCategory && u.code === chosenUnit}
                   mark={u.dirty}
-                  label={`Номер ${u.code}${u.dirty ? ', ещё не убран' : ''}`}
+                  label={u.dirty ? t('Номер {unit}, ещё не убран', { unit: u.code }) : t('Номер {unit}', { unit: u.code })}
                   disabled={!props.canMutate || pending}
                   onClick={() =>
                     setPickRequest((r) => ({ category: c.code, unit: u.code, n: (r?.n ?? 0) + 1 }))
@@ -253,13 +268,13 @@ export function NewReservationForm(props: {
                 <PickButton
                   wide
                   selected={c.code === chosenCategory && chosenUnit === ''}
-                  label={`${c.name}: назначить номер позже`}
+                  label={t('{category}: назначить номер позже', { category: c.name })}
                   disabled={!props.canMutate || pending}
                   onClick={() =>
                     setPickRequest((r) => ({ category: c.code, unit: '', n: (r?.n ?? 0) + 1 }))
                   }
                 >
-                  Назначить позже
+                  {t('Назначить позже')}
                 </PickButton>
               )}
             </PickGroup>
@@ -268,7 +283,7 @@ export function NewReservationForm(props: {
             <p className="booking-pick__legend">
               <span>
                 <span className="booking-pick__dot" aria-hidden="true" />
-                номер ещё не убран: выбрать можно, при заселении WETOP напомнит
+                {t('номер ещё не убран: выбрать можно, при заселении WETOP напомнит')}
               </span>
             </p>
           )}
@@ -279,13 +294,13 @@ export function NewReservationForm(props: {
   );
   const form = (
     <>
-      <section className="booking-create__dates" aria-label="Даты проживания">
+      <section className="booking-create__dates" aria-label={t('Даты проживания')}>
         <div className="booking-create__date-fields">
-          <Field label="Заезд">
+          <Field label={t('Заезд')}>
             <DateInput
               name="arrivalDate"
               value={arrival}
-              aria-label="Заезд"
+              aria-label={t('Заезд')}
               aria-invalid={Boolean(arrivalError)}
               aria-describedby={arrivalError ? 'booking-arrival-error' : undefined}
               onChange={(e) => setArrival(e.target.value)}
@@ -299,12 +314,12 @@ export function NewReservationForm(props: {
               </small>
             )}
           </Field>
-          <Field label="Выезд">
+          <Field label={t('Выезд')}>
             <DateInput
               name="departureDate"
               rangeFromName="arrivalDate"
               value={departure}
-              aria-label="Выезд"
+              aria-label={t('Выезд')}
               aria-invalid={Boolean(departureError)}
               aria-describedby={departureError ? 'booking-departure-error' : undefined}
               onChange={(e) => setDeparture(e.target.value)}
@@ -319,14 +334,14 @@ export function NewReservationForm(props: {
             )}
           </Field>
         </div>
-        <div className="booking-create__quick" aria-label="Быстрые даты">
+        <div className="booking-create__quick" aria-label={t('Быстрые даты')}>
           <Button
             type="button"
             size="sm"
             tone="secondary"
             onClick={() => chooseArrival(props.today)}
           >
-            Сегодня
+            {t('Сегодня')}
           </Button>
           <Button
             type="button"
@@ -334,7 +349,7 @@ export function NewReservationForm(props: {
             tone="secondary"
             onClick={() => chooseArrival(plusDays(props.today, 1))}
           >
-            Завтра
+            {t('Завтра')}
           </Button>
           {[1, 2, 3, 7].map((n) => (
             <Button
@@ -346,20 +361,24 @@ export function NewReservationForm(props: {
               aria-pressed={nightsBetween(arrival, departure) === n}
               onClick={() => setDeparture(plusDays(arrival, n))}
             >
-              {pluralRu(n, ['ночь', 'ночи', 'ночей'])}
+              {countLabel(locale, t, n, NIGHTS)}
             </Button>
           ))}
         </div>
         <p data-testid="availability" role="status" className="booking-dates__availability">
           {!validDates
-            ? 'Выезд должен быть позже заезда.'
+            ? t('Выезд должен быть позже заезда.')
             : checking || !fresh
-              ? availabilityError || 'Проверяем свободные места…'
-              : `${pluralRu(availability.nights, ['ночь', 'ночи', 'ночей'])}, свободно ${availability.total.available} из ${availability.total.units}`}
+              ? availabilityError || t('Проверяем свободные места…')
+              : t('{nights}, свободно {available} из {units}', {
+                  nights: countLabel(locale, t, availability.nights, NIGHTS),
+                  available: availability.total.available,
+                  units: availability.total.units,
+                })}
         </p>
         {availabilityError && (
           <Button type="button" tone="secondary" size="sm" onClick={() => setRetry((n) => n + 1)}>
-            Повторить проверку
+            {t('Повторить проверку')}
           </Button>
         )}
       </section>
@@ -372,7 +391,7 @@ export function NewReservationForm(props: {
           data-testid="placement-fields"
         >
           <legend className={placementIds.length === 1 ? 'sr-only' : undefined}>
-            Размещение {index + 1}
+            {t('Размещение {n}', { n: index + 1 })}
           </legend>
           <PlacementFields
             id={id}
@@ -389,13 +408,13 @@ export function NewReservationForm(props: {
               size="sm"
               onClick={() => setPlacementIds((ids) => ids.filter((item) => item !== id))}
             >
-              Удалить размещение {index + 1}
+              {t('Удалить размещение {n}', { n: index + 1 })}
             </Button>
           )}
         </fieldset>
       ))}
       {(picked || props.piiStorage === 'real') && (
-        <h2 className="booking-create__guest-title">Гость</h2>
+        <h2 className="booking-create__guest-title">{t('Гость')}</h2>
       )}
       {picked ? (
         <PickedGuest
@@ -417,13 +436,13 @@ export function NewReservationForm(props: {
         <>
           {/* порядок владельца 23.10.2026: сначала имя, затем телефон; отчество и почта в «Дополнительно» */}
           <div className="booking-guest-fields">
-            <Field label="Имя *">
+            <Field label={t('Имя *')}>
               <Input name="firstName" required defaultValue={kept['firstName'] ?? ''} />
             </Field>
-            <Field label="Фамилия *">
+            <Field label={t('Фамилия *')}>
               <Input name="lastName" required defaultValue={kept['lastName'] ?? ''} />
             </Field>
-            <Field label="Телефон" className="booking-guest-fields__phone">
+            <Field label={t('Телефон')} className="booking-guest-fields__phone">
               <Input
                 type="tel"
                 name="phone"
@@ -439,37 +458,37 @@ export function NewReservationForm(props: {
         </>
       ) : null}
       <details className="booking-create__extras">
-        <summary>Дополнительно</summary>
+        <summary>{t('Дополнительно')}</summary>
         <div className="booking-create__extra-fields">
           <Grid>
             {!picked && props.piiStorage === 'real' && (
               <>
-                <Field label="Отчество">
+                <Field label={t('Отчество')}>
                   <Input name="middleName" defaultValue={kept['middleName'] ?? ''} />
                 </Field>
-                <Field label="Email">
+                <Field label={t('Email')}>
                   <Input type="email" name="email" defaultValue={kept['email'] ?? ''} />
                 </Field>
               </>
             )}
-            <Field label="Источник *">
+            <Field label={t('Источник *')}>
               <Select name="source" required defaultValue={kept['source'] ?? SOURCES[0]![0]}>
                 <option value="" disabled>
-                  Выберите источник
+                  {t('Выберите источник')}
                 </option>
-                {SOURCES.map(([v, t]) => (
+                {SOURCES.map(([v, label]) => (
                   <option key={v} value={v}>
-                    {t}
+                    {t(label)}
                   </option>
                 ))}
               </Select>
             </Field>
             {snapshot['source'] === 'OTA' && (
               <>
-                <Field label="Канал *">
+                <Field label={t('Канал *')}>
                   <Select name="channel" required defaultValue={kept['channel'] ?? ''}>
                     <option value="" disabled>
-                      Выберите канал
+                      {t('Выберите канал')}
                     </option>
                     {CHANNELS.map((c) => (
                       <option key={c} value={c}>
@@ -478,41 +497,40 @@ export function NewReservationForm(props: {
                     ))}
                   </Select>
                 </Field>
-                <Field label="Номер брони в канале *">
+                <Field label={t('Номер брони в канале *')}>
                   <Input
                     name="externalId"
                     required
                     defaultValue={kept['externalId'] ?? ''}
-                    placeholder="как в экстранете"
+                    placeholder={t('как в экстранете')}
                     autoComplete="off"
                   />
                 </Field>
               </>
             )}
-            <Field label="Промокод">
+            <Field label={t('Промокод')}>
               <Input
                 name="promoCode"
                 autoComplete="off"
                 defaultValue={kept['promoCode'] ?? ''}
-                placeholder="Если гость назвал код"
+                placeholder={t('Если гость назвал код')}
               />
             </Field>
           </Grid>
           {snapshot['source'] === 'OTA' && (
             <p className="hint" data-testid="channel-number-hint">
-              Номер брони берётся из экстранета канала. По нему WETOP узнает эту бронь, когда канал
-              подключат к менеджеру каналов, и не создаст вторую.
+              {t('Номер брони берётся из экстранета канала. По нему WETOP узнает эту бронь, когда канал подключат к менеджеру каналов, и не создаст вторую.')}
             </p>
           )}
-          <Field label="Заметки">
+          <Field label={t('Заметки')}>
             <Textarea
               name="notes"
               rows={2}
               defaultValue={kept['notes'] ?? ''}
               placeholder={
                 props.piiStorage === 'real'
-                  ? 'Пожелания гостя и информация для смены'
-                  : 'Пожелания для смены (без персональных данных)'
+                  ? t('Пожелания гостя и информация для смены')
+                  : t('Пожелания для смены (без персональных данных)')
               }
             />
           </Field>
@@ -525,14 +543,14 @@ export function NewReservationForm(props: {
               setPlacementIds((ids) => [...ids, id]);
             }}
           >
-            + Добавить размещение
+            {t('+ Добавить размещение')}
           </Button>
         </div>
       </details>
-      {state.error && <Alert>{state.error}</Alert>}
+      {state.error && <Alert>{t(state.error)}</Alert>}
       <details className="booking-create__review">
-        <summary>Проверить детали брони</summary>
-        {validDates ? <BookingSummary facts={facts} /> : <p>Проверьте даты проживания</p>}
+        <summary>{t('Проверить детали брони')}</summary>
+        {validDates ? <BookingSummary facts={facts} /> : <p>{t('Проверьте даты проживания')}</p>}
       </details>
     </>
   );
@@ -574,18 +592,18 @@ export function NewReservationForm(props: {
       <BookingShell
         form={form}
         pick={pick}
-        pickLabel="Свободные номера"
+        pickLabel={t('Свободные номера')}
         footerClassName="booking-footer"
         footer={
           <>
             <p className="booking-footer__digest" data-testid="booking-digest">
               {validDates
                 ? [facts.datesText, ...facts.placements].join('; ')
-                : 'Проверьте даты проживания'}
+                : t('Проверьте даты проживания')}
             </p>
             <div className="booking-footer__actions">
               {!validDates ? (
-                <span className="booking-create__price">Укажите корректные даты для расчёта</span>
+                <span className="booking-create__price">{t('Укажите корректные даты для расчёта')}</span>
               ) : (
                 <BookingPrice state={quote} />
               )}
@@ -596,7 +614,7 @@ export function NewReservationForm(props: {
                   disabled={pending}
                   onClick={() => router.back()}
                 >
-                  Отмена
+                  {t('Отмена')}
                 </Button>
                 <Button
                   type="submit"
@@ -612,7 +630,7 @@ export function NewReservationForm(props: {
                     props.ratePlans.length === 0
                   }
                 >
-                  {pending ? 'Сохраняю…' : 'Создать бронь'}
+                  {pending ? t('Сохраняю…') : t('Создать бронь')}
                 </Button>
               </div>
             </div>
@@ -628,11 +646,9 @@ export function NewReservationForm(props: {
  * Контакты здесь не правятся — форма брони не переписывает карточку гостя молча.
  */
 function PickedGuest({ guest, onChange }: { guest: BookingGuest; onChange: () => void }) {
-  const facts = [
-    guest.phone,
-    guest.email,
-    pluralRu(guest.visits, ['визит', 'визита', 'визитов']),
-  ].filter(Boolean);
+  const t = useT();
+  const locale = useLocale();
+  const facts = [guest.phone, guest.email, countLabel(locale, t, guest.visits, VISITS)].filter(Boolean);
   return (
     <div className="booking-guest" data-testid="booking-guest">
       <input type="hidden" name="guestId" value={guest.id} />
@@ -642,10 +658,10 @@ function PickedGuest({ guest, onChange }: { guest: BookingGuest; onChange: () =>
         <span className="dir-sub">{facts.join(', ')}</span>
       </div>
       <Button type="button" tone="secondary" size="sm" onClick={onChange}>
-        Другой гость
+        {t('Другой гость')}
       </Button>
       <p className="hint booking-guest__hint">
-        Бронь запишется на этого гостя, нового не появится. Телефон и почту меняют в карточке гостя.
+        {t('Бронь запишется на этого гостя, нового не появится. Телефон и почту меняют в карточке гостя.')}
       </p>
     </div>
   );
@@ -656,6 +672,8 @@ function PickedGuest({ guest, onChange }: { guest: BookingGuest; onChange: () =>
  * шаг «Гость» на найденного; не выбрал — бронь заведёт нового гостя, как раньше.
  */
 function GuestMatches({ phone, onPick }: { phone: string; onPick: (guest: BookingGuest) => void }) {
+  const t = useT();
+  const locale = useLocale();
   const [matches, setMatches] = useState<BookingGuest[]>([]);
   const digits = phone.replace(/\D/g, '');
   useEffect(() => {
@@ -679,42 +697,44 @@ function GuestMatches({ phone, onPick }: { phone: string; onPick: (guest: Bookin
   return (
     <div className="booking-matches" data-testid="guest-matches" role="status">
       <b className="booking-matches__title">
-        {matches.length === 1 ? 'Найден гость с этим телефоном' : 'Найдены гости с этим телефоном'}
+        {matches.length === 1 ? t('Найден гость с этим телефоном') : t('Найдены гости с этим телефоном')}
       </b>
       <ul>
         {matches.map((m) => (
           <li key={m.id} data-testid="guest-match">
             <span className="booking-matches__who">
               <strong>{m.name}</strong>
-              <span className="dir-sub">{pluralRu(m.visits, ['визит', 'визита', 'визитов'])}</span>
+              <span className="dir-sub">{countLabel(locale, t, m.visits, VISITS)}</span>
             </span>
             <Button type="button" tone="secondary" size="sm" onClick={() => onPick(m)}>
-              Выбрать
+              {t('Выбрать')}
             </Button>
           </li>
         ))}
       </ul>
-      <p className="hint">Не тот человек — заполните дальше, и бронь заведёт нового гостя.</p>
+      <p className="hint">{t('Не тот человек — заполните дальше, и бронь заведёт нового гостя.')}</p>
     </div>
   );
 }
 
 function BookingSummary({ facts }: { facts: ReturnType<typeof summarize> }) {
+  const t = useT();
+  const locale = useLocale();
   return (
     <dl className="booking-summary" data-testid="booking-summary">
-      <dt>Даты</dt>
+      <dt>{t('Даты')}</dt>
       <dd>
         {facts.nights > 0 ? (
           <>
-            <time dateTime={facts.arrival}>{displayDate(facts.arrival)}</time> →{' '}
-            <time dateTime={facts.departure}>{displayDate(facts.departure)}</time>,{' '}
-            {pluralRu(facts.nights, ['ночь', 'ночи', 'ночей'])}
+            <time dateTime={facts.arrival}>{displayDate(facts.arrival, 'short', intlLocale(locale))}</time> →{' '}
+            <time dateTime={facts.departure}>{displayDate(facts.departure, 'short', intlLocale(locale))}</time>,{' '}
+            {countLabel(locale, t, facts.nights, NIGHTS)}
           </>
         ) : (
           '—'
         )}
       </dd>
-      <dt>Размещение</dt>
+      <dt>{t('Размещение')}</dt>
       <dd>
         {facts.placements.map((line, index) => (
           <span key={index} className="booking-summary__line">
@@ -722,9 +742,9 @@ function BookingSummary({ facts }: { facts: ReturnType<typeof summarize> }) {
           </span>
         ))}
       </dd>
-      <dt>Источник</dt>
+      <dt>{t('Источник')}</dt>
       <dd>{facts.source}</dd>
-      <dt>Гость</dt>
+      <dt>{t('Гость')}</dt>
       <dd>{facts.guest}</dd>
     </dl>
   );
@@ -751,6 +771,8 @@ function PlacementFields({
   /** выбор кнопкой справа: категория и номер (пустой = назначить позже), `n` различает повторы */
   request?: { category: string; unit: string; n: number } | null;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const field = (name: string) => (id === '0' ? name : `item.${id}.${name}`);
   const selectedUnit = initial?.unit ?? '';
   const [category, setCategory] = useState(
@@ -783,7 +805,7 @@ function PlacementFields({
   );
   return (
     <Grid>
-      <Field label="Категория *">
+      <Field label={t('Категория *')}>
         <Select
           name={field('accommodationTypeCode')}
           value={category}
@@ -795,19 +817,19 @@ function PlacementFields({
         >
           {categories.map((c) => (
             <option key={c.code} value={c.code}>
-              {c.name} (свободно {c.availableUnitCodes.length})
+              {t('{category} (свободно {n})', { category: c.name, n: c.availableUnitCodes.length })}
             </option>
           ))}
         </Select>
       </Field>
       {group ? (
         <div className="field" style={{ justifyContent: 'end' }} data-testid="group-hint">
-          {Number(quantity)} проживания в первых свободных номерах по порядку
-          {Number(quantity) > units.length ? `, свободно только ${units.length}` : ''}; всего{' '}
-          {pluralRu(Number(quantity) * adults, ['гость', 'гостя', 'гостей'])}
+          {t('{n} проживания в первых свободных номерах по порядку', { n: Number(quantity) })}
+          {Number(quantity) > units.length ? t(', свободно только {n}', { n: units.length }) : ''}
+          {t('; всего {guests}', { guests: countLabel(locale, t, Number(quantity) * adults, GUESTS) })}
         </div>
       ) : (
-        <Field label="Номер / койка">
+        <Field label={t('Номер / койка')}>
           <Select
             name={field('unitCode')}
             value={chosenUnit}
@@ -816,11 +838,11 @@ function PlacementFields({
             )}
             onChange={(e) => setChosenUnit(e.target.value)}
           >
-            <option value="">Назначить позже</option>
+            <option value="">{t('Назначить позже')}</option>
             {chosenUnit && chosenUnit !== AUTO_UNIT && !units.includes(chosenUnit) && (
-              <option value={chosenUnit}>{chosenUnit}: недоступно на выбранные даты</option>
+              <option value={chosenUnit}>{t('{unit}: недоступно на выбранные даты', { unit: chosenUnit })}</option>
             )}
-            {units.length > 0 && <option value={AUTO_UNIT}>Первая свободная</option>}
+            {units.length > 0 && <option value={AUTO_UNIT}>{t('Первая свободная')}</option>}
             {units.map((u) => (
               <option key={u} value={u}>
                 {u}
@@ -834,7 +856,7 @@ function PlacementFields({
       {ratePlans.length <= 1 ? (
         <input type="hidden" name={field('ratePlanCode')} value={ratePlans[0]?.code ?? ''} />
       ) : (
-        <Field label="Цена по тарифу *">
+        <Field label={t('Цена по тарифу *')}>
           <Select
             name={field('ratePlanCode')}
             required
@@ -851,7 +873,7 @@ function PlacementFields({
           </Select>
         </Field>
       )}
-      <Field label="Гостей на место">
+      <Field label={t('Гостей на место')}>
         <Input
           type="number"
           name={field('adults')}
@@ -861,7 +883,7 @@ function PlacementFields({
           onChange={(e) => setAdults(Math.max(1, Number(e.target.value) || 1))}
         />
       </Field>
-      <Field label="Количество мест">
+      <Field label={t('Количество мест')}>
         <Input
           type="number"
           name={field('quantity')}
@@ -869,7 +891,7 @@ function PlacementFields({
           max={Math.max(1, units.length)}
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
-          title={`свободно ${units.length} в категории; при 2 и больше номера назначит система`}
+          title={t('свободно {n} в категории; при 2 и больше номера назначит система', { n: units.length })}
         />
       </Field>
     </Grid>

@@ -5,7 +5,8 @@ import { RefreshButton } from '../../components/refresh-button';
 import { EmptyState, Panel } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, msg, type DeskLocale, type Translate } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
 import type { PropertyClock } from '../../lib/property-time';
 import { exchangeLine, type ChannexCard } from '../../lib/integrations';
 import { loadChannexState } from './connection-state';
@@ -42,28 +43,30 @@ export default async function ConnectionsPage({
   const { card: channex, propertyName, clock, now, technical } = state;
   const connected = channex.health === 'off' ? [] : [channex];
   const available = channex.health === 'off' ? [channex] : [];
+  const t = await serverT();
+  const locale = await currentLocale();
   const tabHref = (next: 'connected' | 'available') =>
     next === 'available' ? '/connections?tab=available' : '/connections';
   return (
     <Page
       actions={
         <Link className="btn btn--secondary" href="/incidents">
-          Ошибки системы
+          {t('Ошибки системы')}
         </Link>
       }
-      title="Подключения"
+      title={t('Подключения')}
       className="integrations-page"
       subtitle={
         propertyName
-          ? `Подключения внешних сервисов для ${propertyName}.`
-          : 'Подключения внешних сервисов объекта.'
+          ? t('Подключения внешних сервисов для {name}.', { name: propertyName })
+          : t('Подключения внешних сервисов объекта.')
       }
     >
       <Tabs
-        label="Интеграции"
+        label={t('Интеграции')}
         items={[
-          { href: tabHref('connected'), label: 'Подключённые', current: tab === 'connected', count: connected.length },
-          { href: tabHref('available'), label: 'Доступные', current: tab === 'available', count: available.length },
+          { href: tabHref('connected'), label: t('Подключённые'), current: tab === 'connected', count: connected.length },
+          { href: tabHref('available'), label: t('Доступные'), current: tab === 'available', count: available.length },
         ]}
       />
       {tab === 'connected' ? (
@@ -75,47 +78,49 @@ export default async function ConnectionsPage({
               clock={clock}
               now={now}
               technical={technical}
+              t={t}
+              locale={locale}
             />
           </div>
         ) : (
           <EmptyState
             data-testid="integrations-empty"
             icon={<Icon name="channels" width={32} height={32} />}
-            title="Интеграции ещё не подключены"
+            title={t('Интеграции ещё не подключены')}
             actions={
               <Link className="btn btn--secondary" href={tabHref('available')}>
-                Посмотреть доступные
+                {t('Посмотреть доступные')}
               </Link>
             }
           >
-            Подключите внешние сервисы для обмена бронированиями и другими данными.
+            {t('Подключите внешние сервисы для обмена бронированиями и другими данными.')}
           </EmptyState>
         )
       ) : available.length ? (
         <div className="integration-list" data-testid="integrations-available">
-          <ChannexAvailable readOnly={state.readOnly} />
+          <ChannexAvailable readOnly={state.readOnly} t={t} />
         </div>
       ) : (
         <EmptyState
           data-testid="integrations-available-empty"
           icon={<Icon name="channels" width={32} height={32} />}
-          title="Других доступных интеграций пока нет"
+          title={t('Других доступных интеграций пока нет')}
         >
-          Новые подключения появятся здесь, когда WETOP начнёт их поддерживать.
+          {t('Новые подключения появятся здесь, когда WETOP начнёт их поддерживать.')}
         </EmptyState>
       )}
     </Page>
   );
 }
 
-function CardHead({ health }: { health: ChannexCard['health'] }) {
+function CardHead({ health, t }: { health: ChannexCard['health']; t: Translate }) {
   return (
     <header className="integration-card__head">
       <div>
-        <h2 className="integration-card__name">Менеджер каналов</h2>
-        <p className="integration-card__kind">Booking.com, Trip.com и другие каналы</p>
+        <h2 className="integration-card__name">{t('Менеджер каналов')}</h2>
+        <p className="integration-card__kind">{t('Booking.com, Trip.com и другие каналы')}</p>
       </div>
-      <HealthBadge health={health} />
+      <HealthBadge health={health} t={t} />
     </header>
   );
 }
@@ -126,26 +131,30 @@ function ChannexConnected({
   clock,
   now,
   technical,
+  t,
+  locale,
 }: {
   card: ChannexCard;
   propertyName: string | null;
   clock: PropertyClock;
   now: Date;
   technical: boolean;
+  t: Translate;
+  locale: DeskLocale;
 }) {
   const c = card.connection;
   return (
     <Panel className="integration-card" id="channex-connection" data-testid="integration-channex">
-      <CardHead health={card.health} />
-      <EnvironmentNote environment={c?.environment} />
-      <IssueList issues={card.issues} />
+      <CardHead health={card.health} t={t} />
+      <EnvironmentNote environment={c?.environment} t={t} />
+      <IssueList issues={card.issues} t={t} />
       <dl className="integration-card__facts">
         <div>
-          <dt>Объект</dt>
+          <dt>{t('Объект')}</dt>
           <dd>{propertyName ?? '—'}</dd>
         </div>
         <div>
-          <dt>Последний обмен</dt>
+          <dt>{t('Последний обмен')}</dt>
           <dd data-testid="integration-last-exchange">
             {card.lastExchangeAt ? (
               <time dateTime={card.lastExchangeAt}>
@@ -158,31 +167,36 @@ function ChannexConnected({
         </div>
         {c && (
           <div>
-            <dt>Сопоставлено</dt>
+            <dt>{t('Сопоставлено')}</dt>
             <dd>
-              {pluralRu(c.mappedCategories, ['категория', 'категории', 'категорий'])},{' '}
-              {pluralRu(c.mappedLocalRatePlans, [
-                'тарифный план',
-                'тарифных плана',
-                'тарифных планов',
+              {countLabel(locale, t, c.mappedCategories, [msg('категория'), msg('категории'), msg('категорий')])},{' '}
+              {countLabel(locale, t, c.mappedLocalRatePlans, [
+                msg('тарифный план'),
+                msg('тарифных плана'),
+                msg('тарифных планов'),
               ])}
-              , {pluralRu(c.mappedRatePlans, ['сопоставление', 'сопоставления', 'сопоставлений'])}
+              ,{' '}
+              {countLabel(locale, t, c.mappedRatePlans, [
+                msg('сопоставление'),
+                msg('сопоставления'),
+                msg('сопоставлений'),
+              ])}
             </dd>
           </div>
         )}
       </dl>
       <div className="integration-card__actions">
-        <RefreshButton label="Проверить соединение" />
+        <RefreshButton label={t('Проверить соединение')} />
         <Link className="btn btn--secondary" href="/connections/channex">
-          Настройки
+          {t('Настройки')}
         </Link>
         <Link className="btn btn--ghost" href="/channels">
-          Каналы продаж
+          {t('Каналы продаж')}
         </Link>
       </div>
-      {technical && <TechDetails card={card} clock={clock} />}
+      {technical && <TechDetails card={card} clock={clock} t={t} />}
       <p className="note" data-testid="channel-content-location">
-        {CHANNEX_CONTENT_NOTE}
+        {t(CHANNEX_CONTENT_NOTE)}
       </p>
     </Panel>
   );
@@ -192,16 +206,16 @@ function ChannexConnected({
  * Ключ Channex хранится на сервере установки (ADR-004, ADR-095): подключает поддержка WETOP, поля для ключа в
  * интерфейсе нет. Кнопки «Подключить», которая ничего не подключает, тоже нет.
  */
-function ChannexAvailable({ readOnly }: { readOnly: boolean }) {
+function ChannexAvailable({ readOnly, t }: { readOnly: boolean; t: Translate }) {
   return (
     <Panel className="integration-card" id="channex-connection" data-testid="integration-channex">
-      <CardHead health="off" />
-      <p className="integration-card__about">{CHANNEX_ABOUT}</p>
+      <CardHead health="off" t={t} />
+      <p className="integration-card__about">{t(CHANNEX_ABOUT)}</p>
       <p className="integration-card__how" data-testid="integration-connect">
-        {readOnly ? CHANNEX_READ_ONLY : CHANNEX_SUPPORT}
+        {readOnly ? t(CHANNEX_READ_ONLY) : t(CHANNEX_SUPPORT)}
       </p>
       <p className="note" data-testid="channel-content-location">
-        {CHANNEX_CONTENT_NOTE}
+        {t(CHANNEX_CONTENT_NOTE)}
       </p>
     </Panel>
   );

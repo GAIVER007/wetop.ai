@@ -1,5 +1,7 @@
 import { AmountChip } from '../../components/amount-chip';
 import { financeState } from './finance-state';
+import { msg } from '../../i18n';
+import { T } from '../../i18n/locale-provider';
 
 /**
  * Состояние оплаты словами (ADR-106, DESIGN.md §14): колонка «Финансы» списка и «Оплата» на полосе
@@ -24,7 +26,7 @@ export function FinanceLine({
     case 'unpaid':
       return (
         <span className="warn-text reservations-fin" data-testid={testId}>
-          не оплачено
+          <T text={msg('не оплачено')} />
         </span>
       );
     case 'due':
@@ -42,7 +44,7 @@ export function FinanceLine({
         <AmountChip
           className="reservations-fin"
           tone="refund"
-          label="к возврату"
+          label={msg('к возврату')}
           minor={state.minor}
           currency={row.currency}
           data-testid={testId}
@@ -51,13 +53,13 @@ export function FinanceLine({
     case 'refunded':
       return (
         <span className="muted reservations-fin" data-testid={testId}>
-          возвращено
+          <T text={msg('возвращено')} />
         </span>
       );
     case 'paid':
       return (
         <span className="dir-paid reservations-fin" data-testid={testId}>
-          оплачено
+          <T text={msg('оплачено')} />
         </span>
       );
     default:

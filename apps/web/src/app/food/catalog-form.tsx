@@ -3,6 +3,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
 import { Alert, Button, Field, Input, Select } from '../../components/ui';
+import { useT } from '../../i18n/locale-provider';
 import type { DiningArea, DiningTable, ServicePeriod } from '../../lib/food-types';
 import { weekdays } from '../../lib/food-data';
 import { saveFoodCatalog } from './actions';
@@ -19,20 +20,22 @@ export function CatalogForm({
   scopeKey: string;
   close: () => void;
 }) {
+  const t = useT();
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState('');
   const item = draft.item;
-  const title =
-    draft.kind === 'area' ? 'зал' : draft.kind === 'table' ? 'стол' : 'период обслуживания';
+  const editTitle =
+    draft.kind === 'area' ? t('Изменить зал') : draft.kind === 'table' ? t('Изменить стол') : t('Изменить период обслуживания');
   const newTitle =
-    draft.kind === 'area' ? 'Новый зал' : draft.kind === 'table' ? 'Новый стол' : 'Новый период';
+    draft.kind === 'area' ? t('Новый зал') : draft.kind === 'table' ? t('Новый стол') : t('Новый период');
+  const capacityMessage = t('Нельзя уменьшить вместимость: на этот стол уже есть бронирование на большее число гостей.');
   return (
     <Overlay
       open
       drawer
       trapFocus
-      title={item ? `Изменить ${title}` : newTitle}
+      title={item ? editTitle : newTitle}
       onClose={close}
       className="food-drawer"
     >
@@ -83,8 +86,8 @@ export function CatalogForm({
             const result = await saveFoodCatalog(scopeKey, command);
             if (result.error)
               setError(
-                draft.kind === 'table' && /вместим|capacity/i.test(result.error)
-                  ? 'Нельзя уменьшить вместимость: на этот стол уже есть бронирование на большее число гостей.'
+                draft.kind === 'table' && /вместим|capacity/i.test(result.error) // kk-allow: сверка с ответом API
+                  ? capacityMessage
                   : result.error,
               );
             else {
@@ -94,11 +97,11 @@ export function CatalogForm({
           });
         }}
       >
-        <Field label="Название">
+        <Field label={t('Название')}>
           <Input name="name" defaultValue={item?.name ?? ''} required maxLength={120} />
         </Field>
         {draft.kind !== 'period' && (
-          <Field label="Порядок">
+          <Field label={t('Порядок')}>
             <Input
               name="sortOrder"
               type="number"
@@ -109,10 +112,10 @@ export function CatalogForm({
           </Field>
         )}
         {draft.kind === 'table' && (
-          <Field label="Вместимость">
+          <Field label={t('Вместимость')}>
             <Input
               name="capacity"
-              aria-invalid={!!error && /вместим|capacity/i.test(error)}
+              aria-invalid={error === capacityMessage}
               aria-describedby={error ? 'food-catalog-error' : undefined}
               type="number"
               min={1}
@@ -124,17 +127,17 @@ export function CatalogForm({
         )}
         {draft.kind === 'period' && (
           <>
-            <Field label="День недели">
+            <Field label={t('День недели')}>
               <Select name="weekday" defaultValue={draft.item?.weekday ?? new Date().getDay()}>
                 {weekdays.map((d, i) => (
                   <option key={i} value={i}>
-                    {d}
+                    {t(d)}
                   </option>
                 ))}
               </Select>
             </Field>
             <div className="food-form-row">
-              <Field label="Начало">
+              <Field label={t('Начало')}>
                 <Input
                   name="timeFrom"
                   type="time"
@@ -142,7 +145,7 @@ export function CatalogForm({
                   defaultValue={draft.item?.timeFrom ?? '18:00'}
                 />
               </Field>
-              <Field label="Конец">
+              <Field label={t('Конец')}>
                 <Input
                   name="timeTo"
                   type="time"
@@ -157,9 +160,9 @@ export function CatalogForm({
                 type="checkbox"
                 defaultChecked={draft.item?.endsNextDay ?? false}
               />
-              Заканчивается на следующий день
+              {t('Заканчивается на следующий день')}
             </label>
-            <Field label="Длительность брони, мин">
+            <Field label={t('Длительность брони, мин')}>
               <Input
                 name="duration"
                 type="number"
@@ -173,7 +176,7 @@ export function CatalogForm({
         )}
         <label className="food-check">
           <input name="active" type="checkbox" defaultChecked={item?.active ?? true} />
-          Активен (снимите, чтобы архивировать)
+          {t('Активен (снимите, чтобы архивировать)')}
         </label>
         {error && (
           <Alert id="food-catalog-error" tone="warning">
@@ -181,7 +184,7 @@ export function CatalogForm({
           </Alert>
         )}
         <Button disabled={pending}>
-          {pending ? 'Сохраняем…' : item ? 'Сохранить' : 'Создать'}
+          {pending ? t('Сохраняем…') : item ? t('Сохранить') : t('Создать')}
         </Button>
         {item && (
           <Button
@@ -191,7 +194,7 @@ export function CatalogForm({
             value={item.active ? 'archive' : 'restore'}
             disabled={pending}
           >
-            {item.active ? 'Архивировать' : 'Вернуть'}
+            {item.active ? t('Архивировать') : t('Вернуть')}
           </Button>
         )}
       </form>

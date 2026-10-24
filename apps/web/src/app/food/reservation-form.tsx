@@ -8,7 +8,8 @@ import { instantOf, localInput } from '../beauty/time';
 import { mutateFoodReservation } from './actions';
 import { foodStatus } from '../../lib/status/food';
 import { weekdays } from '../../lib/food-data';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, msg } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
 import { compareTables, tableTitle } from '../../lib/table-title';
 import { formatPhone, phoneOnInput } from '../../lib/phone';
 import { reservationProblem, WALK_IN_GUEST, walkInFirstName } from '../../lib/food-reservation-check';
@@ -37,8 +38,11 @@ export function ReservationForm({
   created: (r: RestaurantReservation) => void;
   onStale: () => void;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const router = useRouter();
   const [pending, start] = useTransition();
+  // своя ошибка хранится русским ключом (по нему подсвечивается поле), переводится при показе
   const [error, setError] = useState('');
   const [key] = useState(() => crypto.randomUUID());
   // гостю без брони карточка клиента не нужна: сразу «Новый», имя по умолчанию «Гость»
@@ -97,9 +101,9 @@ export function ReservationForm({
             period: String(f.get('period') ?? ''),
           });
           if (problem) return setError(problem);
-        } else if (!f.get('period')) return setError('Выберите период обслуживания');
-        if (!f.get('date') || !f.get('time')) return setError('Укажите дату и время');
-        if (!(party >= 1)) return setError('Укажите число гостей');
+        } else if (!f.get('period')) return setError(msg('Выберите период обслуживания'));
+        if (!f.get('date') || !f.get('time')) return setError(msg('Укажите дату и время'));
+        if (!(party >= 1)) return setError(msg('Укажите число гостей'));
         const body = {
           servicePeriodId: String(f.get('period')),
           startsAt: instantOf(`${f.get('date')}T${f.get('time')}`, data.timezone),
@@ -162,7 +166,7 @@ export function ReservationForm({
         const guest = !reservation && (
           <>
             <fieldset className="rest-book__mode">
-              <legend>Гость</legend>
+              <legend>{t('Гость')}</legend>
               <div className="food-inline-actions">
                 <label className="food-check">
                   <input
@@ -171,7 +175,7 @@ export function ReservationForm({
                     checked={mode === 'existing'}
                     onChange={() => setMode('existing')}
                   />
-                  Существующий
+                  {t('Существующий')}
                 </label>
                 <label className="food-check">
                   <input
@@ -180,14 +184,14 @@ export function ReservationForm({
                     checked={mode === 'new'}
                     onChange={() => setMode('new')}
                   />
-                  Новый
+                  {t('Новый')}
                 </label>
               </div>
             </fieldset>
             {mode === 'existing' ? (
-              <Field label="Выбор клиента">
+              <Field label={t('Выбор клиента')}>
                 <Select name="customerId" required defaultValue="">
-                  <option value="">Выберите клиента</option>
+                  <option value="">{t('Выберите клиента')}</option>
                   {data.customers.map((c) => (
                     <option key={c.id} value={c.id}>
                       {[c.firstName, c.lastName].filter(Boolean).join(' ')}
@@ -199,17 +203,17 @@ export function ReservationForm({
             ) : (
               // порядок владельца 23.10.2026 во всех окнах брони: сначала имя, затем телефон
               <div className="rest-book__guest">
-                <Field label="Имя">
+                <Field label={t('Имя')}>
                   <Input
                     name="firstName"
                     {...(walkIn ? { placeholder: WALK_IN_GUEST } : { required: true })}
                     maxLength={100}
                   />
                 </Field>
-                <Field label="Фамилия">
+                <Field label={t('Фамилия')}>
                   <Input name="lastName" maxLength={100} />
                 </Field>
-                <Field label="Телефон" className="rest-book__phone">
+                <Field label={t('Телефон')} className="rest-book__phone">
                   <Input
                     name="phone"
                     type="tel"
@@ -227,10 +231,10 @@ export function ReservationForm({
           <>
             {/* общий FormGrid и обязательность словами Field (MV8.5 DS1c) */}
             <FormGrid columns={2}>
-              <Field label="Дата" required>
+              <Field label={t('Дата')} required>
                 <Input name="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
               </Field>
-              <Field label="Время" required>
+              <Field label={t('Время')} required>
                 <Input
                   name="time"
                   type="time"
@@ -240,26 +244,26 @@ export function ReservationForm({
               </Field>
             </FormGrid>
             <FormGrid columns={2}>
-              <Field label="Период обслуживания">
+              <Field label={t('Период обслуживания')}>
                 <Select
                   name="period"
-                  aria-invalid={!!error && /период|врем|period|time/i.test(error)}
+                  aria-invalid={!!error && /период|врем|period|time/i.test(error)} /* kk-allow: сверка с русским ключом ошибки */
                   aria-describedby={error ? 'food-form-error' : undefined}
                   required
                   value={period}
                   onChange={(e) => setPeriod(e.target.value)}
                 >
-                  <option value="">Выберите период</option>
+                  <option value="">{t('Выберите период')}</option>
                   {periods.map((p) => (
                     <option value={p.id} key={p.id}>
-                      {p.name}, {weekdays[p.weekday]}, {p.timeFrom}–{p.timeTo}
-                      {p.endsNextDay ? ' (+1 день)' : ''}
-                      {!p.active ? ', В архиве' : ''}
+                      {p.name}, {t(weekdays[p.weekday] ?? '')}, {p.timeFrom}–{p.timeTo}
+                      {p.endsNextDay ? ` ${t('(+1 день)')}` : ''}
+                      {!p.active ? `, ${t('В архиве')}` : ''}
                     </option>
                   ))}
                 </Select>
               </Field>
-              <Field label="Количество гостей">
+              <Field label={t('Количество гостей')}>
                 <Input
                   name="partySize"
                   type="number"
@@ -276,9 +280,9 @@ export function ReservationForm({
         const extra = (
           <>
             {!reservation && !walkIn && (data.employees?.length ?? 0) > 0 && (
-              <Field label="Принял бронь">
+              <Field label={t('Принял бронь')}>
                 <Select name="employeeId" defaultValue="">
-                  <option value="">Не указывать</option>
+                  <option value="">{t('Не указывать')}</option>
                   {data.employees!.map((e) => (
                     <option key={e.id} value={e.id}>
                       {e.name}
@@ -287,16 +291,16 @@ export function ReservationForm({
                 </Select>
               </Field>
             )}
-            <Field label="Заметка">
+            <Field label={t('Заметка')}>
               <Textarea name="notes" defaultValue={reservation?.notes ?? ''} maxLength={2000} rows={2} />
             </Field>
             {error && (
               <Alert id="food-form-error" tone="warning">
-                {error}
+                {t(error)}
               </Alert>
             )}
             {!periods.some((p) => p.active) && (
-              <Alert tone="warning">Настройте период обслуживания</Alert>
+              <Alert tone="warning">{t('Настройте период обслуживания')}</Alert>
             )}
           </>
         );
@@ -304,7 +308,7 @@ export function ReservationForm({
           <Button
             disabled={pending || data.readOnly || !data.canDesk || !periods.some((p) => p.active)}
           >
-            {pending ? 'Сохраняем…' : reservation ? 'Сохранить' : walkIn ? 'Посадить' : 'Создать бронь'}
+            {pending ? t('Сохраняем…') : reservation ? t('Сохранить') : walkIn ? t('Посадить') : t('Создать бронь')}
           </Button>
         );
         if (reservation)
@@ -313,7 +317,7 @@ export function ReservationForm({
               {when}
               {extra}
               {submit}
-              <p className="muted">Текущий статус: {foodStatus[reservation.status].label}</p>
+              <p className="muted">{t('Текущий статус: {status}', { status: t(foodStatus[reservation.status].label) })}</p>
             </>
           );
         // Окно брони вариант B (решение владельца 23.10.2026): слева гость, время, гости; справа свободные столы
@@ -332,15 +336,15 @@ export function ReservationForm({
                 {extra}
               </>
             }
-            pickLabel="Доступные столы"
+            pickLabel={t('Доступные столы')}
             pick={
               <>
                 <PickHeading
-                  title={`Доступные столы (${suitable.length})`}
-                  note={`для ${pluralRu(party, ['гостя', 'гостей', 'гостей'])}${clockValue ? ` в ${clockValue}` : ''}${known ? '' : ', занятость этого дня проверит сервер'}`}
+                  title={t('Доступные столы ({n})', { n: suitable.length })}
+                  note={`${t('для {guests}', { guests: countLabel(locale, t, party, [msg('гостя'), 'гостей', msg('гостей')]) })}${clockValue ? ` ${t('в {time}', { time: clockValue })}` : ''}${known ? '' : `, ${t('занятость этого дня проверит сервер')}`}`} /* kk-allow: форма склонения */
                 />
                 {suitable.length === 0 && (
-                  <p className="booking-pick__muted">Свободных столов на это время нет</p>
+                  <p className="booking-pick__muted">{t('Свободных столов на это время нет')}</p>
                 )}
                 {byArea.map(({ area, tables: free }) => (
                   <PickGroup
@@ -348,35 +352,35 @@ export function ReservationForm({
                     title={area.name}
                     testId="table-group"
                     selected={free.some((t) => t.id === table)}
-                    facts={`свободно ${free.length}`}
-                    unavailable={free.length === 0 ? 'нет подходящих столов' : undefined}
+                    facts={t('свободно {n}', { n: free.length })}
+                    unavailable={free.length === 0 ? t('нет подходящих столов') : undefined}
                   >
-                    {free.map((t) => (
+                    {free.map((tb) => (
                       <PickButton
-                        key={t.id}
-                        selected={table === t.id}
-                        label={`Выбрать: ${tableTitle(t.name)}`}
-                        onClick={() => setTable(table === t.id ? '' : t.id)}
+                        key={tb.id}
+                        selected={table === tb.id}
+                        label={t('Выбрать: {table}', { table: tableTitle(tb.name) })}
+                        onClick={() => setTable(table === tb.id ? '' : tb.id)}
                       >
-                        {`${tableTitle(t.name)}, ${pluralRu(t.capacity, ['место', 'места', 'мест'])}`}
+                        {`${tableTitle(tb.name)}, ${countLabel(locale, t, tb.capacity, [msg('место@@стол'), 'места', msg('мест@@стол')])}`}{/* kk-allow: форма склонения */}
                       </PickButton>
                     ))}
                   </PickGroup>
                 ))}
                 {/* полный список: и занятые столы, если администратор сажает вручную; занятость проверит сервер */}
-                <Field label="Стол">
+                <Field label={t('Стол')}>
                   <Select
                     name="tableId"
-                    aria-invalid={!!error && /стол|вместим/i.test(error)}
+                    aria-invalid={!!error && /стол|вместим/i.test(error)} /* kk-allow: сверка с русским ключом ошибки */
                     aria-describedby={error ? 'food-form-error' : undefined}
                     required={walkIn}
                     value={table}
                     onChange={(e) => setTable(e.target.value)}
                   >
-                    <option value="">{walkIn ? 'Выберите стол' : 'Назначить позже'}</option>
-                    {tables.map((t) => (
-                      <option key={t.id} value={t.id} disabled={t.capacity < party}>
-                        {areaName(t.areaId)}, {t.name}, {pluralRu(t.capacity, ['место', 'места', 'мест'])}
+                    <option value="">{walkIn ? t('Выберите стол') : t('Назначить позже')}</option>
+                    {tables.map((tb) => (
+                      <option key={tb.id} value={tb.id} disabled={tb.capacity < party}>
+                        {areaName(tb.areaId)}, {tb.name}, {countLabel(locale, t, tb.capacity, [msg('место@@стол'), 'места', msg('мест@@стол')])}{/* kk-allow: форма склонения */}
                       </option>
                     ))}
                   </Select>
@@ -388,12 +392,12 @@ export function ReservationForm({
                 digestTestId="food-booking-digest"
                 digest={[
                   `${date.split('-').reverse().join('.')} ${clockValue}`,
-                  pluralRu(party, ['гость', 'гостя', 'гостей']),
+                  countLabel(locale, t, party, [msg('гость'), 'гостя', msg('гостей')]), // kk-allow: форма склонения
                   chosen
                     ? `${tableTitle(chosen.name)}, ${areaName(chosen.areaId)}`
                     : walkIn
-                      ? 'выберите стол'
-                      : 'стол назначим позже',
+                      ? t('выберите стол')
+                      : t('стол назначим позже'),
                 ].join('; ')}
               >
                 {submit}

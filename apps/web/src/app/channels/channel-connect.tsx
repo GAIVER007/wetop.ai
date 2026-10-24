@@ -6,12 +6,15 @@ import { ActionMenu, type ActionMenuItem } from '../../components/action-menu';
 import { Alert, Button, Notice } from '../../components/ui';
 import { useConfirm } from '../../components/use-confirm';
 import { connectSessionAction, loadFutureReservationsAction } from './channel-connect-actions';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * Окно Channex внутри WETOP (ADR-140, channel-iframe.md): подключение, сопоставление комнат и тарифов, включение и
  * выключение канала делает Channex — у каждого канала свои шаги. После закрытия окна список перечитывается.
  */
 function useChannexWindow() {
+  const t = useT();
   const router = useRouter();
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -34,21 +37,20 @@ function useChannexWindow() {
           {error}
         </Alert>
       )}
-      <Overlay open={!!url} onClose={close} title="Менеджер каналов" className="channex-window">
+      <Overlay open={!!url} onClose={close} title={t('Менеджер каналов')} className="channex-window">
         <p className="note">
-          Подключение, сопоставление и включение канала выполняются в менеджере каналов. Закройте
-          окно, когда закончите: список каналов обновится.
+          {t('Подключение, сопоставление и включение канала выполняются в менеджере каналов. Закройте окно, когда закончите: список каналов обновится.')}
         </p>
         {url && (
           <iframe
             className="channex-window__frame"
             src={url}
-            title="Подключение канала в менеджере каналов"
+            title={t('Подключение канала в менеджере каналов')}
             data-testid="channex-frame"
           />
         )}
         <Button type="button" tone="secondary" onClick={close}>
-          Готово
+          {t('Готово')}
         </Button>
       </Overlay>
     </>
@@ -58,7 +60,7 @@ function useChannexWindow() {
 
 export function ConnectChannelButton({
   channel,
-  label = 'Подключить канал',
+  label = msg('Подключить канал'),
   tone,
   testId = 'channel-connect',
 }: {
@@ -67,6 +69,7 @@ export function ConnectChannelButton({
   tone?: 'secondary' | undefined;
   testId?: string;
 }) {
+  const t = useT();
   const w = useChannexWindow();
   return (
     <>
@@ -77,7 +80,7 @@ export function ConnectChannelButton({
         disabled={w.pending}
         onClick={() => w.open(channel)}
       >
-        {w.pending ? 'Открываем…' : label}
+        {w.pending ? t('Открываем…') : t(label)}
       </Button>
       {w.view}
     </>
@@ -100,6 +103,7 @@ export function ChannelRowActions({
   /** У канала есть действие `load_future_reservations` (Booking.com, Expedia, Airbnb) */
   canLoadFuture?: boolean;
 }) {
+  const t = useT();
   const w = useChannexWindow();
   const { ask, dialog } = useConfirm();
   const [result, setResult] = useState<{ message: string | null; error: string | null } | null>(
@@ -109,24 +113,24 @@ export function ChannelRowActions({
   const loadFuture = async () => {
     if (!connectionId) return;
     const ok = await ask({
-      title: `Подтянуть будущие брони ${title}?`,
-      body: 'Канал отдаст брони, которые у него уже есть. Они придут как обычные брони из канала, без дублей: уже принятые не задвоятся.',
-      confirmLabel: 'Подтянуть брони',
+      title: t('Подтянуть будущие брони {title}?', { title }),
+      body: t('Канал отдаст брони, которые у него уже есть. Они придут как обычные брони из канала, без дублей: уже принятые не задвоятся.'),
+      confirmLabel: t('Подтянуть брони'),
     });
     if (ok) start(async () => setResult(await loadFutureReservationsAction(connectionId)));
   };
-  const items: ActionMenuItem[] = [{ label: 'Брони канала', href: bookingsHref }];
+  const items: ActionMenuItem[] = [{ label: t('Брони канала'), href: bookingsHref }];
   if (canManage)
     items.push({
-      label: 'Настроить канал',
+      label: t('Настроить канал'),
       onSelect: () => w.open(channel),
       disabled: w.pending,
     });
   if (canManage && canLoadFuture && connectionId)
-    items.push({ label: 'Подтянуть будущие брони', onSelect: () => void loadFuture(), disabled: pending });
+    items.push({ label: t('Подтянуть будущие брони'), onSelect: () => void loadFuture(), disabled: pending });
   return (
     <>
-      <ActionMenu items={items} label={`Действия: ${title}`} size="sm" />
+      <ActionMenu items={items} label={t('Действия: {title}', { title })} size="sm" />
       {result?.message && (
         <Notice data-testid="channel-load-future-result">{result.message}</Notice>
       )}

@@ -1,6 +1,7 @@
 import { ApiError, marketingBudgetApi, type MarketingResultsView } from '../../../../lib/api';
 import { analyticsCsv, buildAnalyticsReport } from '../report';
 import { currentMe } from '../../../../lib/desk-shell';
+import { serverT } from '../../../../i18n/server';
 
 const text = (status: number, body: string) =>
   new Response(body, { status, headers: { 'content-type': 'text/plain; charset=utf-8' } });
@@ -11,12 +12,13 @@ const text = (status: number, body: string) =>
  */
 export async function GET(request: Request) {
   const month = new URL(request.url).searchParams.get('month') ?? '';
-  if (!/^\d{4}-\d{2}$/.test(month)) return text(400, 'Месяц: в виде ГГГГ-ММ.');
+  const t = await serverT();
+  if (!/^\d{4}-\d{2}$/.test(month)) return text(400, t('Месяц: в виде ГГГГ-ММ.'));
   try {
     const view = await marketingBudgetApi.view(month);
     const results: MarketingResultsView | 'error' = await marketingBudgetApi.results(month).catch(() => 'error' as const);
     const vertical = (await currentMe().catch(() => null))?.context?.vertical ?? 'HOSPITALITY';
-    return new Response(analyticsCsv(buildAnalyticsReport(view, results), vertical), {
+    return new Response(analyticsCsv(buildAnalyticsReport(view, results), vertical, t), {
       headers: {
         'content-type': 'text/csv; charset=utf-8',
         'content-disposition': `attachment; filename="wetop-marketing-${month}.csv"`,

@@ -5,6 +5,8 @@ import { mayAccess } from '../../lib/navigation';
 import { localInput } from '../beauty/time';
 import { accessLevelsFor, type AccessLevel } from '@pms/domain';
 import { ApiError } from '../../lib/api-error';
+import { msg } from '../../i18n';
+import { serverT } from '../../i18n/server';
 
 /** Общая обвязка ресторанных экранов (ADR-159): вертикаль, филиал, права, дата дня филиала */
 export interface RestaurantShell {
@@ -35,11 +37,11 @@ export async function restaurantShell(
   if ((vertical !== 'FOOD_SERVICE' && vertical !== 'BEAUTY') || !verticals.includes(vertical) || !me.context?.businessId || !me.context.locationId) {
     // «Личный кабинет» без филиала в рабочий раздел не пускается: это отказ в доступе (403), а не сбой связи,
     // иначе экран ошибки звал «проверить подключение» (аудит 22.10.2026, P1-2)
-    if ((await deskShell()).access.role === 'EMPLOYEE') throw new ApiError(403, 'Раздел недоступен');
-    throw new Error('Выберите ресторан и филиал');
+    if ((await deskShell()).access.role === 'EMPLOYEE') throw new ApiError(403, (await serverT())(msg('Раздел недоступен')));
+    throw new Error((await serverT())(msg('Выберите ресторан и филиал')));
   }
   const [shell, branch] = await Promise.all([deskShell(), selectedWorkspaceBranch()]);
-  if (!branch) throw new ApiError(403, 'Выбранный филиал недоступен');
+  if (!branch) throw new ApiError(403, (await serverT())(msg('Выбранный филиал недоступен')));
   const local = localInput(new Date().toISOString(), branch.timezone);
   const date =
     dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) && !Number.isNaN(Date.parse(dateParam))

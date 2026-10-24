@@ -1,11 +1,13 @@
 import { cx } from '../../../components/ui';
 import { deltaPercent, deltaPoints, type Delta } from '../../../lib/dashboard-format';
+import { msg } from '../../../i18n';
+import { T } from '../../../i18n/locale-provider';
 
 /**
  * Плитка и сравнение вкладок «Аналитики» (ADR-114): одни на «Обзоре» и «Загрузке». Классы — общие `.kpi*`
  * Главной (стили в management/analytics/analytics.css), `data-testid` плитки: `pa-kpi-<id>`.
  */
-export const NO_BASE: Delta = { direction: null, text: 'нет данных для сравнения' };
+export const NO_BASE: Delta = { direction: null, text: msg('нет данных для сравнения') };
 
 /**
  * Сравнение честное (ТЗ §16–17, §27): база — прошлое количество. Ноль в прошлом отрезке — «нет данных для
@@ -28,7 +30,10 @@ export function DeltaMark({ delta, inverse }: { delta: Delta; inverse?: boolean 
   if (!delta.direction)
     return (
       <span className="kpi-delta kpi-delta--none">
-        —<span className="sr-only"> {delta.text}</span>
+        —<span className="sr-only">
+          {' '}
+          <T text={delta.text} />
+        </span>
       </span>
     );
   // у отмен, блокировок и мест без размещения рост — плохо: цвет переворачивается, стрелка — нет

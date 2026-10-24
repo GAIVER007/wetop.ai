@@ -4,10 +4,9 @@
  * переселением; сам вызов остаётся в существующем server action (assignUnitAction), API не меняется.
  */
 import type { ActionPreview } from '../../lib/action-preview';
-import { blockTypeLabel } from '../../lib/block-types';
-import { displayDate } from '../../lib/display-date';
 import { formatMoney } from '../../lib/money';
-import { nightsBetween, pluralRu } from '../../lib/plural';
+import { nightsBetween } from '../../lib/plural';
+import { blockLabel, nightsLabel, RU, shortDate, type Lang } from './lang';
 
 export const DRAG_MIME = 'application/x-pms-stay';
 
@@ -85,7 +84,8 @@ export function decodeDrag(raw: string): DragPayload | null {
  * ночи проживания, а в другую категорию переезжает только всё проживание — тогда переезд с первой
  * ночи плашки. Своих правил нет; за краем окна и при гонке двух администраторов решает сервер (§50).
  */
-export function checkDrop(source: DragSource, row: DropRow): DropVerdict {
+export function checkDrop(source: DragSource, row: DropRow, lang: Lang = RU): DropVerdict {
+  const { t } = lang;
   if (row.unitCode === source.unitCode) return { kind: 'noop' };
   const changesCategory = row.categoryCode !== source.categoryCode;
   const fromDate = changesCategory ? source.plateFrom : source.date;
@@ -95,7 +95,7 @@ export function checkDrop(source: DragSource, row: DropRow): DropVerdict {
       kind: 'blocked',
       fromDate,
       toDate,
-      reason: 'Другая категория: переезжает всё проживание, а заезд раньше окна',
+      reason: t('Другая категория: переезжает всё проживание, а заезд раньше окна'),
     };
   for (const cell of row.cells) {
     if (cell.date < fromDate || cell.date > toDate) continue;
@@ -104,10 +104,10 @@ export function checkDrop(source: DragSource, row: DropRow): DropVerdict {
         kind: 'blocked',
         fromDate,
         toDate,
-        reason: `Недоступно с ${displayDate(cell.date)}: ${blockTypeLabel(cell.blockType)}`,
+        reason: t('Недоступно с {date}: {reason}', { date: shortDate(lang, cell.date), reason: blockLabel(lang, cell.blockType) }),
       };
     if (cell.state === 'OCCUPIED' && cell.itemId !== source.itemId)
-      return { kind: 'blocked', fromDate, toDate, reason: `Занято с ${displayDate(cell.date)}` };
+      return { kind: 'blocked', fromDate, toDate, reason: t('Занято с {date}', { date: shortDate(lang, cell.date) }) };
   }
   return { kind: 'ok', fromDate, toDate, changesCategory };
 }
@@ -142,33 +142,42 @@ export function moveQuestion(
   unitCode: string,
   verdict: Extract<DropVerdict, { kind: 'ok' }>,
   preview: ActionPreview | null,
+  lang: Lang = RU,
 ): MoveQuestion {
+  const { t } = lang;
   const departure = nextDay(verdict.toDate);
   const dates = source.endsAfter
-    ? `с ${displayDate(verdict.fromDate)} до выезда`
-    : `${displayDate(verdict.fromDate)} → ${displayDate(departure)}, ${pluralRu(
+    ? t('с {date} до выезда', { date: shortDate(lang, verdict.fromDate) })
+    : `${shortDate(lang, verdict.fromDate)} → ${shortDate(lang, departure)}, ${nightsLabel(
+        lang,
         nightsBetween(verdict.fromDate, departure),
-        ['ночь', 'ночи', 'ночей'],
       )}`;
   const money = (minor: string) => formatMoney(minor, preview?.currency);
   const diff = BigInt(preview?.differenceMinor ?? '0');
   const abs = (diff < 0n ? -diff : diff).toString();
   const changed = !!preview?.changesCategory && diff !== 0n;
   return {
-    title: `Переселить бронь ${source.number}?`,
+    title: t('Переселить бронь {number}?', { number: source.number }),
     guest: source.guest,
     route: `${source.unitCode} → ${unitCode}`,
     dates,
     money: !preview
-      ? 'Сумму посчитать не удалось — проверьте счёт после переселения.'
+      ? t('Сумму посчитать не удалось — проверьте счёт после переселения.')
       : changed
-        ? `Разница стоимости: ${diff > 0n ? '+' : '−'}${money(abs)}`
-        : 'Стоимость не изменится',
+        ? t('Разница стоимости: {sum}', { sum: `${diff > 0n ? '+' : '−'}${money(abs)}` })
+        : t('Стоимость не изменится'),
     note:
       preview?.changesCategory && preview.newPriceMinor
-        ? `Проживание станет ${money(preview.newPriceMinor)} вместо ${money(preview.currentPriceMinor)}${
-            preview.categoryName ? `: категория «${preview.categoryName}»` : ''
-          }.`
-        : `С ${displayDate(verdict.fromDate)} номер ${source.unitCode} освободится.`,
+        ? preview.categoryName
+          ? t('Проживание станет {next} вместо {current}: категория «{category}».', {
+              next: money(preview.newPriceMinor),
+              current: money(preview.currentPriceMinor),
+              category: preview.categoryName,
+            })
+          : t('Проживание станет {next} вместо {current}.', {
+              next: money(preview.newPriceMinor),
+              current: money(preview.currentPriceMinor),
+            })
+        : t('С {date} номер {unit} освободится.', { date: shortDate(lang, verdict.fromDate), unit: source.unitCode }),
   };
 }

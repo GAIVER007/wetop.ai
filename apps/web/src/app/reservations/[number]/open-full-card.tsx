@@ -1,4 +1,5 @@
 'use client';
+import { useT } from '../../../i18n/locale-provider';
 
 /**
  * «Открыть бронь» из быстрого просмотра (ADR-106, R3; ТЗ «Брони v2» §21): полная страница вместо панели.
@@ -10,6 +11,7 @@
  * Щелчок с модификатором — новая вкладка, как у обычной ссылки.
  */
 export function OpenFullCard({ href }: { href: string }) {
+  const t = useT();
   return (
     <a
       className="btn btn--secondary btn--sm"
@@ -30,7 +32,7 @@ export function OpenFullCard({ href }: { href: string }) {
         window.history.back();
       }}
     >
-      Открыть бронь
+      {t('Открыть бронь')}
     </a>
   );
 }

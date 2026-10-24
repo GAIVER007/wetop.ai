@@ -29,10 +29,16 @@ export type Translate = (text: string, vars?: Vars) => string;
 const fill = (text: string, vars?: Vars) =>
   vars ? text.replace(/\{(\w+)\}/g, (all, key: string) => (key in vars ? String(vars[key]) : all)) : text;
 
+/**
+ * Контекст многозначной фразы: `t('Вернуть@@деньги')` на русском экране показывает «Вернуть», а словари переводят её
+ * отдельно от «Вернуть» версии сайта (Refund и Restore). Без контекста одна русская фраза получает один перевод везде.
+ */
+const plain = (text: string) => text.replace(/@@[^@]*$/, '');
+
 export function translator(locale: DeskLocale, dictionary?: Record<string, string>): Translate {
-  if (locale === 'ru') return fill;
+  if (locale === 'ru') return (text, vars) => fill(plain(text), vars);
   const words = dictionary ?? DICTIONARIES[locale];
-  return (text, vars) => fill(words[text] ?? text, vars);
+  return (text, vars) => fill(words[text] ?? plain(text), vars);
 }
 
 /**
@@ -55,7 +61,7 @@ export function intlLocale(locale: DeskLocale): 'ru-RU' | 'kk-KZ' | 'en-GB' {
  * Первую и третью форму размечайте `msg('…')`, чтобы сторож требовал их перевод.
  */
 export function countLabel(locale: DeskLocale, t: Translate, n: number, forms: [string, string, string]): string {
-  if (locale === 'ru') return pluralRu(n, forms);
+  if (locale === 'ru') return pluralRu(n, forms.map(plain) as [string, string, string]);
   if (locale === 'kk') return `${n} ${t(forms[0])}`;
   return `${n} ${t(n === 1 ? forms[0] : forms[2])}`;
 }

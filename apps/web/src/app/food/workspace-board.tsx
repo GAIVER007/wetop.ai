@@ -17,7 +17,8 @@ import { IconField } from '../../components/icon-field';
 import { Icon } from '../../components/icon';
 import { Segmented } from '../../components/segmented';
 import { Tabs } from '../../components/tabs';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, msg } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
 import { occupiedAt } from '../../lib/food-data';
 import type { DiningTable, FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
 import { instantOf, localInput } from '../beauty/time';
@@ -38,6 +39,20 @@ import { foodReservationOrigin } from '../../lib/food-reservation-origin';
 
 
 const ACTIVE = ['BOOKED', 'CONFIRMED', 'SEATED'];
+const SEAT_FORMS: [string, string, string] = [msg('место@@стол'), 'места', msg('мест@@стол')]; // kk-allow: форма склонения
+const GUEST_FORMS: [string, string, string] = [msg('гость'), 'гостя', msg('гостей')]; // kk-allow: форма склонения
+const TABLE_FORMS: [string, string, string] = [msg('стол'), 'стола', msg('столов')]; // kk-allow: форма склонения
+const COLUMNS = [
+  msg('Время'),
+  msg('Клиент'),
+  msg('Телефон'),
+  msg('Гостей'),
+  msg('Стол'),
+  msg('Статус'),
+  msg('Комментарий'),
+  msg('Период'),
+  msg('Источник'),
+];
 
 /**
  * План зала и расписание броней по макету (экраны 2 и 3). Сверху одна строка: вкладки «План зала /
@@ -56,6 +71,8 @@ export function WorkspaceBoard({
   /** `?view=list`: таблица броней вместо шкалы по столам */
   listView?: boolean;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const router = useRouter();
   const [draft, setDraft] = useState<ReservationDraft | null>(
     startNew && data.canDesk && !data.readOnly ? { kind: 'create', walkIn: false } : null,
@@ -85,14 +102,14 @@ export function WorkspaceBoard({
     };
   }, []);
   useEffect(() => setSwitching(false), [data.scopeKey]);
-  if (switching) return <p role="status">Переключаем ресторан…</p>;
+  if (switching) return <p role="status">{t('Переключаем ресторан…')}</p>;
   const write = data.canDesk && !data.readOnly;
   const at = instantOf(`${data.date}T${data.time}`, data.timezone);
   // занятость стола считается по всем периодам, даже когда отбор периода скрывает брони списка
   const occupying = data.reservations.filter((r) => occupiedAt(r, at));
   const areas = data.areas.filter((a) => a.active).sort((a, b) => a.sortOrder - b.sortOrder);
   const activeTables = data.tables
-    .filter((t) => t.active && areas.some((a) => a.id === t.areaId))
+    .filter((tb) => tb.active && areas.some((a) => a.id === tb.areaId))
     .sort(compareTables);
   const onDay = (r: RestaurantReservation) =>
     localInput(r.startsAt, data.timezone).slice(0, 10) === data.date;
@@ -112,23 +129,23 @@ export function WorkspaceBoard({
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   const customer = (r: RestaurantReservation) =>
     [r.customer.firstName, r.customer.lastName].filter(Boolean).join(' ');
-  const guests = (n: number) => pluralRu(n, ['гость', 'гостя', 'гостей']);
+  const guests = (n: number) => countLabel(locale, t, n, GUEST_FORMS);
   const clock = (iso: string) => localInput(iso, data.timezone).slice(11);
   const open = (r: RestaurantReservation) => setDraft({ kind: 'view', id: r.id });
   const orderByTable = new Map(
     (data.orders ?? []).filter((o) => o.tableId).map((o) => [o.tableId!, o]),
   );
-  const tableKind = (t: DiningTable): TableKind => {
-    const r = occupying.find((r) => r.table?.id === t.id);
-    if (orderByTable.has(t.id) || r?.status === 'SEATED') return 'OCCUPIED';
+  const tableKind = (tb: DiningTable): TableKind => {
+    const r = occupying.find((r) => r.table?.id === tb.id);
+    if (orderByTable.has(tb.id) || r?.status === 'SEATED') return 'OCCUPIED';
     if (r) return 'RESERVED';
-    if (t.needsCleaning) return 'CLEANING';
+    if (tb.needsCleaning) return 'CLEANING';
     return 'FREE';
   };
-  const count = (kind: TableKind) => activeTables.filter((t) => tableKind(t) === kind).length;
-  const toggleCleaning = (t: DiningTable) =>
+  const count = (kind: TableKind) => activeTables.filter((tb) => tableKind(tb) === kind).length;
+  const toggleCleaning = (tb: DiningTable) =>
     startCleaning(async () => {
-      const result = await setTableCleaning(data.scopeKey, t.id, !t.needsCleaning);
+      const result = await setTableCleaning(data.scopeKey, tb.id, !tb.needsCleaning);
       setCleaningError(result.error);
       if (!result.error) router.refresh();
     });
@@ -137,27 +154,27 @@ export function WorkspaceBoard({
     requestAnimationFrame(() =>
       document.querySelector<HTMLElement>(`[data-table-id="${id}"]`)?.focus(),
     );
-  const panel = panelTable ? data.tables.find((t) => t.id === panelTable) : undefined;
+  const panel = panelTable ? data.tables.find((tb) => tb.id === panelTable) : undefined;
   const shown = areas.filter((a) => !area || a.id === area);
   const spots = (tables: DiningTable[]) =>
-    layoutSpots(tables.map((t) => ({ id: t.id, posX: t.posX ?? null, posY: t.posY ?? null })));
+    layoutSpots(tables.map((tb) => ({ id: tb.id, posX: tb.posX ?? null, posY: tb.posY ?? null })));
   /** Стол на плане: одна разметка для сетки и для схемы зала (§42) */
-  const tableCard = (t: DiningTable) => {                  const r = occupying.find((x) => x.table?.id === t.id);
-                  const order = orderByTable.get(t.id);
-                  const kind = tableKind(t);
-                  const chairs = Math.min(t.capacity, 8);
+  const tableCard = (tb: DiningTable) => {                  const r = occupying.find((x) => x.table?.id === tb.id);
+                  const order = orderByTable.get(tb.id);
+                  const kind = tableKind(tb);
+                  const chairs = Math.min(tb.capacity, 8);
                   const caption = r
                     ? `${clock(r.startsAt)} ${customer(r)}`
                     : order
-                      ? `Заказ №${order.number}`
-                      : pluralRu(t.capacity, ['место', 'места', 'мест']);
+                      ? t('Заказ №{n}', { n: order.number })
+                      : countLabel(locale, t, tb.capacity, SEAT_FORMS);
                   return (
                     <div
                       className="rest-fp-table"
                       data-kind={kind}
-                      data-shape={SHAPE_CSS[tableShapeOf({ capacity: t.capacity, shape: t.shape ?? null })]}
-                      data-selected={panelTable === t.id || undefined}
-                      key={t.id}
+                      data-shape={SHAPE_CSS[tableShapeOf({ capacity: tb.capacity, shape: tb.shape ?? null })]}
+                      data-selected={panelTable === tb.id || undefined}
+                      key={tb.id}
                     >
                       <span className="rest-chairs" aria-hidden="true">
                         {Array.from({ length: Math.ceil(chairs / 2) }, (_, i) => (
@@ -167,11 +184,11 @@ export function WorkspaceBoard({
                       <button
                         type="button"
                         className="rest-fp-table__body"
-                        aria-label={`${t.name}, ${r ? foodStatus[r.status].label : KIND_LABEL[kind]}`}
-                        data-table-id={t.id}
-                        onClick={() => setPanelTable(t.id)}
+                        aria-label={`${tb.name}, ${t(r ? foodStatus[r.status].label : KIND_LABEL[kind])}`}
+                        data-table-id={tb.id}
+                        onClick={() => setPanelTable(tb.id)}
                       >
-                        <strong>{t.name.replace(/^Стол\s+/, '')}</strong>
+                        <strong>{tb.name.replace(/^Стол\s+/, '')}</strong>{/* kk-allow: номер стола из названия (данные) */}
                       </button>
                       <span className="rest-chairs" aria-hidden="true">
                         {Array.from({ length: Math.floor(chairs / 2) }, (_, i) => (
@@ -186,34 +203,34 @@ export function WorkspaceBoard({
     <div className="food-workspace rest-ws">
       <div className="rest-bar">
         <Tabs
-          label="Зал"
+          label={t('Зал')}
           items={[
-            { href: `/floor-plan?date=${data.date}`, label: 'План зала', current: floor },
-            { href: `/table-reservations?date=${data.date}`, label: 'Расписание', current: !floor },
+            { href: `/floor-plan?date=${data.date}`, label: t('План зала'), current: floor },
+            { href: `/table-reservations?date=${data.date}`, label: t('Расписание'), current: !floor },
           ]}
         />
-        <div className="rest-bar__controls" role="group" aria-label="День и отборы">
+        <div className="rest-bar__controls" role="group" aria-label={t('День и отборы')}>
           <DayToolbar data={data} floor={floor} period={period} setPeriod={setPeriod} />
           <QuickReport
             key={`${data.scopeKey}:${data.date}`}
             date={data.date}
-            scope={['Бронирования столов', period ? data.periods.find((p) => p.id === period)?.name ?? 'Период' : 'Все периоды', ...(area || status || search ? ['С учётом фильтров'] : [])]}
+            scope={[t('Бронирования столов'), period ? data.periods.find((p) => p.id === period)?.name ?? t('Период') : t('Все периоды'), ...(area || status || search ? [t('С учётом фильтров')] : [])]}
             build={() => foodQuickReport(filtered.filter(onDay))}
           />
           {!floor && (
             <>
               <Segmented
-                label="Вид"
+                label={t('Вид')}
                 value={view}
                 onChange={setView}
                 options={[
-                  { value: 'timeline', label: 'Шкала' },
-                  { value: 'list', label: 'Список' },
+                  { value: 'timeline', label: t('Шкала') },
+                  { value: 'list', label: t('Список') },
                 ]}
               />
-              <Field label={quiet('Зона')}>
+              <Field label={quiet(t('Зона'))}>
                 <Select value={area} onChange={(e) => setArea(e.target.value)}>
-                  <option value="">Все зоны</option>
+                  <option value="">{t('Все зоны')}</option>
                   {areas.map((a) => (
                     <option key={a.id} value={a.id}>
                       {a.name}
@@ -221,21 +238,21 @@ export function WorkspaceBoard({
                   ))}
                 </Select>
               </Field>
-              <Field label={quiet('Статус')}>
+              <Field label={quiet(t('Статус'))}>
                 <Select value={status} onChange={(e) => setStatus(e.target.value)}>
-                  <option value="">Все статусы</option>
+                  <option value="">{t('Все статусы')}</option>
                   {Object.entries(foodStatus).map(([s, { label: l }]) => (
                     <option key={s} value={s}>
-                      {l}
+                      {t(l)}
                     </option>
                   ))}
                 </Select>
               </Field>
-              <Field label={quiet('Поиск гостя')}>
+              <Field label={quiet(t('Поиск гостя'))}>
                 <IconField icon="search">
                   <Input
                     type="search"
-                    placeholder="Поиск гостя"
+                    placeholder={t('Поиск гостя')}
                     data-page-search
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -248,34 +265,34 @@ export function WorkspaceBoard({
             <>
               {floor && (
                 <Button tone="secondary" onClick={() => setDraft({ kind: 'create', walkIn: true })}>
-                  Посадить без брони
+                  {t('Посадить без брони')}
                 </Button>
               )}
               <Button onClick={() => setDraft({ kind: 'create', walkIn: false })}>
-                + Новая бронь
+                {t('+ Новая бронь')}
               </Button>
             </>
           )}
         </div>
       </div>
       {cleaningError && <Alert>{cleaningError}</Alert>}
-      {!data.periods.some((p) => p.active) && <Notice>Настройте период обслуживания</Notice>}
+      {!data.periods.some((p) => p.active) && <Notice>{t('Настройте период обслуживания')}</Notice>}
       {floor ? (
         areas.length === 0 ? (
           <EmptyState
-            title="Сначала добавьте зал и столы"
+            title={t('Сначала добавьте зал и столы')}
             actions={
               data.canProperty && !data.readOnly ? (
                 <Link className="btn" href="/dining-areas">
-                  Добавить зал
+                  {t('Добавить зал')}
                 </Link>
               ) : null
             }
           />
         ) : (
           <div className="rest-fp" data-card={panel ? 'open' : undefined}>
-            <nav className="rest-fp__zones" aria-label="Зоны">
-              {[{ id: '', name: 'Все зоны' }, ...areas].map((a) => (
+            <nav className="rest-fp__zones" aria-label={t('Зоны')}>
+              {[{ id: '', name: t('Все зоны') }, ...areas].map((a) => (
                 <button
                   type="button"
                   key={a.id || 'all'}
@@ -288,9 +305,11 @@ export function WorkspaceBoard({
                   <span className="rest-fp__zone-text">
                     {a.name}
                     <small>
-                      {pluralRu(
-                        a.id ? activeTables.filter((t) => t.areaId === a.id).length : activeTables.length,
-                        ['стол', 'стола', 'столов'],
+                      {countLabel(
+                        locale,
+                        t,
+                        a.id ? activeTables.filter((tb) => tb.areaId === a.id).length : activeTables.length,
+                        TABLE_FORMS,
                       )}
                     </small>
                   </span>
@@ -299,7 +318,7 @@ export function WorkspaceBoard({
             </nav>
             <div className="rest-fp__canvas">
               {shown.map((a) => {
-                const tables = activeTables.filter((t) => t.areaId === a.id);
+                const tables = activeTables.filter((tb) => tb.areaId === a.id);
                 return (
                   <section key={a.id} aria-label={a.name} className="rest-fp__area">
                     {!area && <h2>{a.name}</h2>}
@@ -311,52 +330,52 @@ export function WorkspaceBoard({
                         onClose={() => setEditingArea(null)}
                       />
                     ) : tables.length === 0 ? (
-                      <p className="muted">В этой зоне пока нет столов</p>
-                    ) : tables.some((t) => t.posX != null) ? (
+                      <p className="muted">{t('В этой зоне пока нет столов')}</p>
+                    ) : tables.some((tb) => tb.posX != null) ? (
                       <div className="rest-fp__layout">
-                        {tables.map((t) => {
-                          const p = spots(tables).get(t.id)!;
+                        {tables.map((tb) => {
+                          const p = spots(tables).get(tb.id)!;
                           return (
                             <div
-                              key={t.id}
+                              key={tb.id}
                               className="rest-fp__spot"
-                              style={spotStyle(p.x, p.y, t.scale ?? 100, t.rotation ?? 0)} /* slop-allow: inline-style место стола из схемы зала */
+                              style={spotStyle(p.x, p.y, tb.scale ?? 100, tb.rotation ?? 0)} /* slop-allow: inline-style место стола из схемы зала */
                             >
-                              {tableCard(t)}
+                              {tableCard(tb)}
                             </div>
                           );
                         })}
                       </div>
                     ) : (
-                      <div className="rest-fp__tables">{tables.map((t) => tableCard(t))}</div>
+                      <div className="rest-fp__tables">{tables.map((tb) => tableCard(tb))}</div>
                     )}
                     {data.canProperty && !data.readOnly && editingArea !== a.id && tables.length > 0 && (
                       <Button size="sm" tone="secondary" onClick={() => setEditingArea(a.id)}>
-                        {`Расставить столы: ${a.name}`}
+                        {t('Расставить столы: {name}', { name: a.name })}
                       </Button>
                     )}
                   </section>
                 );
               })}
-              <div className="rest-fp__legend" aria-label="Состояние столов">
+              <div className="rest-fp__legend" aria-label={t('Состояние столов')}>
                 <span data-kind="FREE">
-                  Свободен <strong>{count('FREE')}</strong>
+                  {t('Свободен')} <strong>{count('FREE')}</strong>
                 </span>
                 <span data-kind="OCCUPIED">
-                  Занят <strong>{count('OCCUPIED')}</strong>
+                  {t('Занят')} <strong>{count('OCCUPIED')}</strong>
                 </span>
                 <span data-kind="RESERVED">
-                  Бронь <strong>{count('RESERVED')}</strong>
+                  {t('Бронь')} <strong>{count('RESERVED')}</strong>
                 </span>
                 <span data-kind="CLEANING">
-                  Уборка <strong>{count('CLEANING')}</strong>
+                  {t('Уборка')} <strong>{count('CLEANING')}</strong>
                 </span>
                 <span>
-                  Без стола <strong>{unassigned.length}</strong>
+                  {t('Без стола')} <strong>{unassigned.length}</strong>
                 </span>
               </div>
               {unassigned.length > 0 && (
-                <div className="rest-fp__unassigned" aria-label="Брони без стола">
+                <div className="rest-fp__unassigned" aria-label={t('Брони без стола')}>
                   {unassigned.map((r) => (
                     <button className="food-reservation-card" key={r.id} onClick={() => open(r)}>
                       {clock(r.startsAt)}, {customer(r)}, {guests(r.partySize)}
@@ -425,8 +444,8 @@ export function WorkspaceBoard({
             <EmptyState
               title={
                 data.reservations.length
-                  ? 'Бронирования не найдены'
-                  : 'На этот день бронирований нет'
+                  ? t('Бронирования не найдены')
+                  : t('На этот день бронирований нет')
               }
             />
           ) : (
@@ -435,18 +454,8 @@ export function WorkspaceBoard({
                 <Table>
                   <thead>
                     <tr>
-                      {[
-                        'Время',
-                        'Клиент',
-                        'Телефон',
-                        'Гостей',
-                        'Стол',
-                        'Статус',
-                        'Комментарий',
-                        'Период',
-                        'Источник',
-                      ].map((h) => (
-                        <th key={h}>{h}</th>
+                      {COLUMNS.map((h) => (
+                        <th key={h}>{t(h)}</th>
                       ))}
                     </tr>
                   </thead>
@@ -464,13 +473,13 @@ export function WorkspaceBoard({
                         </td>
                         <td>{r.customer.phone ? formatPhone(r.customer.phone) : '—'}</td>
                         <td>{r.partySize}</td>
-                        <td>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</td>
+                        <td>{r.table ? `${r.table.areaName}, ${r.table.name}` : t('Без стола')}</td>
                         <td>
                           <StatusBadge kind="food" value={r.status} />
                         </td>
                         <td>{r.notes || '—'}</td>
                         <td>{r.servicePeriod.name}</td>
-                        <td>{foodReservationOrigin(r)}</td>
+                        <td>{t(foodReservationOrigin(r))}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -490,9 +499,9 @@ export function WorkspaceBoard({
                     <span>{guests(r.partySize)}</span>
                     {r.customer.phone && <span>{formatPhone(r.customer.phone)}</span>}
                     {r.notes && <small>{r.notes}</small>}
-                    <span>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</span>
+                    <span>{r.table ? `${r.table.areaName}, ${r.table.name}` : t('Без стола')}</span>
                     <small>{r.servicePeriod.name}</small>
-                    {r.employee && <small>Принял: {r.employee.name}</small>}
+                    {r.employee && <small>{t('Принял: {name}', { name: r.employee.name })}</small>}
                   </button>
                 ))}
               </div>

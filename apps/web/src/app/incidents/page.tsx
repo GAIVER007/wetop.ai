@@ -1,6 +1,7 @@
 import { requireFeature } from '../../lib/vertical-guard';
 import { guardApi } from '../../lib/api';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, msg } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
 import { Page } from '../../components/page';
 import { Alert, Panel, SectionTitle, StateBar, StateFact } from '../../components/ui';
 import { LoadError } from '../../components/load-error';
@@ -19,7 +20,7 @@ import './incidents.css';
  * Неисправности системы — одно место (срез 11, ADR-028). Сторож проверяет систему раз в минуту и пишет сюда
  * всё, что сломалось. Технику он чинит сам; брони, места и деньги — только человек; ошибки кода — дежурный агент.
  */
-const RESOLVED_BY_RU = { GUARD: 'сторож', AGENT: 'дежурный агент', STAFF: 'вручную' } as const;
+const RESOLVED_BY_RU = { GUARD: msg('сторож'), AGENT: msg('дежурный агент'), STAFF: msg('вручную') } as const;
 
 /** Время по часам объекта: страница рендерится на сервере, у которого может быть другой пояс */
 const atText = (iso: string, clock: PropertyClock) =>
@@ -47,10 +48,11 @@ const HISTORY_LIMIT = 200;
 export default async function IncidentsPage() {
   // гостиничный экран: салон и ресторан по прямому адресу уходят на свою стартовую (DS2 F1, как `/reports`)
   await requireFeature('/incidents');
+  const t = await serverT();
   return (
     <Page
-      title="Неисправности"
-      subtitle="Состояние системы и задачи для команды."
+      title={t('Неисправности')}
+      subtitle={t('Состояние системы и задачи для команды.')}
       actions={
         <>
           <RefreshButton />
@@ -62,7 +64,7 @@ export default async function IncidentsPage() {
       <Suspense
         fallback={
           <Panel role="status" data-testid="incidents-loading">
-            Читаем состояние сторожа…
+            {t('Читаем состояние сторожа…')}
           </Panel>
         }
       >
@@ -74,6 +76,9 @@ export default async function IncidentsPage() {
 
 async function IncidentContent() {
   const clock = await hotelClock();
+  const locale = await currentLocale();
+  const t = await serverT();
+  const checks = (n: number) => countLabel(locale, t, n, [msg('проверка'), 'проверки', msg('проверок')]); // kk-allow: форма склонения
   const [loadedStatus, open, all] = await Promise.all([
     guardApi.status().then(
       (r) => ({ ok: true as const, r }),
@@ -96,14 +101,14 @@ async function IncidentContent() {
   // требует ли что-то человека прямо сейчас. Тон — по тому же правилу, что цвет числа раньше: §9.
   const summary = status
     ? status.open.total === 0
-      ? 'Сторож ничего не нашёл.'
+      ? t('Сторож ничего не нашёл.')
       : [
-          status.open.critical > 0 ? `срочных ${status.open.critical}` : '',
-          status.open.escalated > 0 ? `ждут человека ${status.open.escalated}` : '',
+          status.open.critical > 0 ? t('срочных {n}', { n: status.open.critical }) : '',
+          status.open.escalated > 0 ? t('ждут человека {n}', { n: status.open.escalated }) : '',
         ]
           .filter(Boolean)
-          .join(', ') || 'сторож разбирается сам'
-    : 'Состояние сторожа не прочиталось.';
+          .join(', ') || t('сторож разбирается сам')
+    : t('Состояние сторожа не прочиталось.');
   const tone =
     status && status.open.escalated + status.open.critical > 0
       ? 'alarm'
@@ -117,36 +122,36 @@ async function IncidentContent() {
       )}
       {status && !status.notifier.configured && (
         <Alert boxed tone="warning" data-testid="notifier-missing">
-          Уведомления не настроены. Неисправности доступны только здесь.
+          {t('Уведомления не настроены. Неисправности доступны только здесь.')}
         </Alert>
       )}
       <StateBar
         tone={tone}
-        label="Открыто"
+        label={t('Открыто')}
         value={<span data-testid="incidents-open">{String(status?.open.total ?? '—')}</span>}
         summary={<span data-testid="incidents-summary">{summary}</span>}
       >
         <StateFact
-          label="Сторож"
+          label={t('Сторож')}
           value={
             <span data-testid="guard-running">
               {status
-                ? `${status.running ? 'работает, проход раз в минуту' : 'выключен'}, технику ${status.autofix ? 'чинит сам' : 'сам не чинит'}`
+                ? `${status.running ? t('работает, проход раз в минуту') : t('выключен')}, ${status.autofix ? t('технику чинит сам') : t('технику сам не чинит')}`
                 : '—'}
             </span>
           }
         />
         <StateFact
-          label="Последний проход"
+          label={t('Последний проход')}
           value={
             <>
-              {tick ? at(tick.at, clock) : status ? 'ещё не было' : '—'}
+              {tick ? at(tick.at, clock) : status ? t('ещё не было') : '—'}
               {tick && (
                 <span className="state-bar__sub">
-                  {pluralRu(tick.checked.length, ['проверка', 'проверки', 'проверок'])}
+                  {checks(tick.checked.length)}
                   {tick.checkErrors.length > 0 && (
                     <span className="danger-text">
-                      , не отработали: {tick.checkErrors.map((e) => e.check).join(', ')}
+                      , {t('не отработали: {checks}', { checks: tick.checkErrors.map((e) => e.check).join(', ') })}
                     </span>
                   )}
                 </span>
@@ -155,13 +160,13 @@ async function IncidentContent() {
           }
         />
         <StateFact
-          label="Будильник"
+          label={t('Будильник')}
           value={
             <>
               {status
                 ? status.notifier.configured
-                  ? `Telegram, ${pluralRu(status.notifier.recipients, ['чат', 'чата', 'чатов'])}`
-                  : 'не настроен'
+                  ? `Telegram, ${countLabel(locale, t, status.notifier.recipients, [msg('чат'), 'чата', msg('чатов')])}` // kk-allow: форма склонения
+                  : t('не настроен')
                 : '—'}
               {tick?.alertError && status?.notifier.configured && (
                 <span className="state-bar__sub danger-text">{tick.alertError}</span>
@@ -171,17 +176,17 @@ async function IncidentContent() {
         />
       </StateBar>
 
-      <SectionTitle>Открытые</SectionTitle>
+      <SectionTitle>{t('Открытые')}</SectionTitle>
       {open === null && (
         <Alert boxed>
-          Список неисправностей не загрузился. Обновите страницу — текущее состояние неизвестно.
+          {t('Список неисправностей не загрузился. Обновите страницу — текущее состояние неизвестно.')}
         </Alert>
       )}
       {open !== null && (
         <>
           {status !== null && status.open.total > open.length && (
             <p className="note">
-              Загружены последние {open.length} из {status.open.total} открытых неисправностей.
+              {t('Загружены последние {n} из {total} открытых неисправностей.', { n: open.length, total: status.open.total })}
             </p>
           )}
           <IncidentList
@@ -214,15 +219,15 @@ async function IncidentContent() {
                 alertedAt,
               }),
             )}
-            emptyTitle="Открытых неисправностей нет"
-            emptyHint={`${tick ? `Последний проход в ${atText(tick.at, clock)}: ${pluralRu(tick.checked.length, ['проверка', 'проверки', 'проверок'])}. ` : ''}${status?.running ? 'Сторож проверяет систему раз в минуту; новые записи появятся здесь.' : 'Автоматический мониторинг сейчас выключен.'}`}
+            emptyTitle={t('Открытых неисправностей нет')}
+            emptyHint={`${tick ? `${t('Последний проход в {at}: {checks}.', { at: atText(tick.at, clock), checks: checks(tick.checked.length) })} ` : ''}${status?.running ? t('Сторож проверяет систему раз в минуту; новые записи появятся здесь.') : t('Автоматический мониторинг сейчас выключен.')}`}
           />
         </>
       )}
 
       {all === null && (
         <Alert boxed>
-          История неисправностей не загрузилась. Это не означает, что закрытых записей нет.
+          {t('История неисправностей не загрузилась. Это не означает, что закрытых записей нет.')}
         </Alert>
       )}
       {/*
@@ -231,19 +236,17 @@ async function IncidentContent() {
        */}
       <details className="incident-history" data-testid="incidents-closed">
         <summary>
-          Закрыты за сутки: {closed?.length ?? '—'}
-          {truncated && ' (показаны не все)'}
+          {t('Закрыты за сутки: {n}', { n: closed?.length ?? '—' })}
+          {truncated && ` ${t('(показаны не все)')}`}
         </summary>
         {truncated && (
           <p className="note" data-testid="incidents-truncated" role="status">
-            Показаны последние {HISTORY_LIMIT} записей истории, и их пришло ровно столько: закрытых
-            за сутки могло быть больше, чем в списке.
+            {t('Показаны последние {n} записей истории, и их пришло ровно столько: закрытых за сутки могло быть больше, чем в списке.', { n: HISTORY_LIMIT })}
           </p>
         )}
         {closed?.length === 0 && (
           <p className="incident-history__empty" data-testid="incidents-closed-empty">
-            За сутки ничего не закрывалось: ни сторож, ни человек не закрывали записей. Закрытые
-            раньше — в истории API, здесь только последние 24 часа.
+            {t('За сутки ничего не закрывалось: ни сторож, ни человек не закрывали записей. Закрытые раньше — в истории API, здесь только последние 24 часа.')}
           </p>
         )}
         {closed && closed.length > 0 && (
@@ -252,8 +255,8 @@ async function IncidentContent() {
               <li key={i.id} data-testid="incidents-closed-row">
                 <span className="incident-history__title">{i.title}</span>
                 <span className="incident-history__meta">
-                  Замечена {at(i.firstSeenAt, clock)}, закрыта {at(i.resolvedAt, clock)},{' '}
-                  {i.resolvedBy ? RESOLVED_BY_RU[i.resolvedBy] : 'кем — неизвестно'}.
+                  {t('Замечена')} {at(i.firstSeenAt, clock)}, {t('закрыта')} {at(i.resolvedAt, clock)},{' '}
+                  {i.resolvedBy ? t(RESOLVED_BY_RU[i.resolvedBy]) : t('кем — неизвестно')}.
                   {i.lastFixResult ? ` ${i.lastFixResult}.` : ''}
                 </span>
               </li>

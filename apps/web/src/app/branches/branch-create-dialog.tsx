@@ -5,6 +5,7 @@ import type { BusinessCardView } from '../../lib/api';
 import type { WebVertical } from '../../lib/vertical-landing';
 import { Icon } from '../../components/icon';
 import { Button } from '../../components/ui';
+import { useT } from '../../i18n/locale-provider';
 export function BranchCreateDialog({
   id,
   label,
@@ -17,6 +18,7 @@ export function BranchCreateDialog({
   newBusinessId: string;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const t = useT();
   const [request, setRequest] = useState({
     id,
     mode: 'BRANCH' as 'BRANCH' | 'BUSINESS',
@@ -45,7 +47,7 @@ export function BranchCreateDialog({
         }}
       >
         <Icon name="plus" />
-        {label}
+        {t(label)}
       </Button>
       <dialog
         id="create-branch-dialog"
@@ -58,13 +60,13 @@ export function BranchCreateDialog({
       >
         <header>
           <div>
-            <h2 id="org-create-title">Добавить бизнес или филиал</h2>
-            <p>Выберите новый бренд или филиал конкретного бизнеса.</p>
+            <h2 id="org-create-title">{t('Добавить бизнес или филиал')}</h2>
+            <p>{t('Выберите новый бренд или филиал конкретного бизнеса.')}</p>
           </div>
           <button
             type="button"
             className="icon-button"
-            aria-label="Закрыть окно добавления"
+            aria-label={t('Закрыть окно добавления')}
             disabled={pending}
             onClick={() => dialog.current?.close()}
           >

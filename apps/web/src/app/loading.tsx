@@ -1,6 +1,10 @@
+'use client';
+import { useT } from '../i18n/locale-provider';
+
 export default function Loading() {
+  const t = useT();
   return (
-    <main id="main-content" className="page" aria-busy="true" aria-label="Загрузка страницы">
+    <main id="main-content" className="page" aria-busy="true" aria-label={t('Загрузка страницы')}>
       <div className="skeleton skeleton-title" />
       <div className="stats">
         {[1, 2, 3, 4, 5].map((n) => (
@@ -13,7 +17,7 @@ export default function Loading() {
         ))}
       </div>
       <span className="sr-only" role="status">
-        Загружаем данные…
+        {t('Загружаем данные…')}
       </span>
     </main>
   );

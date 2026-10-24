@@ -3,16 +3,18 @@ import { formatOccupancy } from '@pms/domain';
 import { displayDate } from '../../lib/display-date';
 import { cx } from '../../components/ui';
 import type { Signal, SignalCell } from './derive';
+import { msg } from '../../i18n';
+import { serverT } from '../../i18n/server';
 
 export const SIGNAL_WORD: Record<Signal, string> = {
-  high: 'высокий спрос',
-  mid: 'обычный спрос',
-  low: 'слабый спрос',
-  shift: 'резкое изменение',
-  none: 'нет данных',
+  high: msg('высокий спрос'),
+  mid: msg('обычный спрос'),
+  low: msg('слабый спрос'),
+  shift: msg('резкое изменение'),
+  none: msg('нет данных'),
 };
 
-const WEEKDAYS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+const WEEKDAYS = [msg('пн'), msg('вт'), msg('ср'), msg('чт'), msg('пт'), msg('сб'), msg('вс')];
 /** колонка дня недели: понедельник первый */
 const column = (date: string) => (new Date(`${date}T00:00:00Z`).getUTCDay() + 6) % 7;
 const pct = (bp: number | null) => (bp === null ? '–' : formatOccupancy(Math.round(bp / 100) * 100));
@@ -22,13 +24,14 @@ const pct = (bp: number | null) => (bp === null ? '–' : formatOccupancy(Math.r
  * загрузка и цвет сигнала рынка. Цвет не единственный носитель: слово сигнала в доступном имени
  * ячейки и в легенде. Щелчок по дате открывает «Историю ночи» (`?night=`), как шапка таблицы.
  */
-export function SignalCalendar({
+export async function SignalCalendar({
   cells,
   nightHref,
 }: {
   cells: SignalCell[];
   nightHref: (date: string) => string;
 }) {
+  const t = await serverT();
   const first = cells[0];
   if (!first) return null;
   const offset = column(first.date);
@@ -36,7 +39,7 @@ export function SignalCalendar({
     <div className="market-calendar" data-testid="market-calendar">
       <ul className="market-calendar__week" aria-hidden="true">
         {WEEKDAYS.map((w) => (
-          <li key={w}>{w}</li>
+          <li key={w}>{t(w)}</li>
         ))}
       </ul>
       <ul className="market-calendar__grid">
@@ -50,7 +53,11 @@ export function SignalCalendar({
               href={nightHref(c.date)}
               scroll={false}
               data-testid={`market-day-${c.date}`}
-              aria-label={`${displayDate(c.date, 'numeric')}: рынок ${SIGNAL_WORD[c.signal]}, у вас ${pct(c.ownBp)}`}
+              aria-label={t('{date}: рынок {signal}, у вас {own}', {
+                date: displayDate(c.date, 'numeric'),
+                signal: t(SIGNAL_WORD[c.signal]),
+                own: pct(c.ownBp),
+              })}
             >
               <span className="market-day__num">{Number(c.date.slice(8, 10))}</span>
               <span className="market-day__own" aria-hidden="true">
@@ -60,26 +67,26 @@ export function SignalCalendar({
           </li>
         ))}
       </ul>
-      <ul className="market-legend" aria-label="Цвет даты">
+      <ul className="market-legend" aria-label={t('Цвет даты')}>
         <li>
           <span className="market-swatch market-day--high" aria-hidden="true" />
-          высокий спрос
+          {t('высокий спрос')}
         </li>
         <li>
           <span className="market-swatch market-day--mid" aria-hidden="true" />
-          обычный
+          {t('обычный')}
         </li>
         <li>
           <span className="market-swatch market-day--low" aria-hidden="true" />
-          слабый
+          {t('слабый')}
         </li>
         <li>
           <span className="market-swatch market-day--shift" aria-hidden="true" />
-          резкое изменение
+          {t('резкое изменение')}
         </li>
         <li>
           <span className="market-swatch market-day--none" aria-hidden="true" />
-          нет данных
+          {t('нет данных')}
         </li>
       </ul>
     </div>

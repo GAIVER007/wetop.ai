@@ -1,11 +1,13 @@
+import { serverT } from '../../../i18n/server';
 import { Page } from '../../../components/page';
 import { LoadingState, Skeleton } from '../../../components/ui';
 
 /** Ожидание карточки брони: заголовок свой, а не родительского раздела, поэтому при загрузке не прыгает (мастер-проход UI, этап 2) */
-export default function Loading() {
+export default async function Loading() {
+  const t = await serverT();
   return (
-    <Page title="Бронь">
-      <LoadingState label="Загружаем бронь…" data-testid="booking-loading">
+    <Page title={t('Бронь')}>
+      <LoadingState label={t('Загружаем бронь…')} data-testid="booking-loading">
         <Skeleton variant="row" />
         <Skeleton variant="text" />
         <Skeleton variant="row" />

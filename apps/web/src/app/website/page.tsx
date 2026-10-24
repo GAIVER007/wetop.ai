@@ -8,6 +8,7 @@ import { Icon } from '../../components/icon';
 import { Notice, StateBar, StateFact, Stack } from '../../components/ui';
 import { MarketingCrumb, WebsiteNotConnected, WebsiteTabs } from './parts';
 import './website.css';
+import { serverT } from '../../i18n/server';
 
 /**
  * «Сайт и онлайн-бронирование → Обзор» (ADR-117, WEB1): как сайт объекта связан с WETOP — одним взглядом.
@@ -16,6 +17,7 @@ import './website.css';
 export default async function WebsiteOverviewPage() {
   // сайт и онлайн-бронь гостиницы; у салона и ресторана сайт в «Продвижении» (аудит 17.10.2026, Д11)
   await requireFeature('/website');
+  const t = await serverT();
   const sites = await analyticsApi.sites();
   const cards = await Promise.all(sites.map((s) => analyticsApi.card(s.id)));
   const connected = cards.filter((c) => primaryHost(c.site));
@@ -23,8 +25,8 @@ export default async function WebsiteOverviewPage() {
   return (
     <Page
       crumbs={<MarketingCrumb />}
-      title={WEBSITE_TITLE}
-      subtitle="Как сайт объекта связан с WETOP: домен, счётчик посещений и брони с сайта."
+      title={t(WEBSITE_TITLE)}
+      subtitle={t('Как сайт объекта связан с WETOP: домен, счётчик посещений и брони с сайта.')}
     >
       <WebsiteTabs current="overview" />
       {connected.length === 0 ? (
@@ -36,8 +38,8 @@ export default async function WebsiteOverviewPage() {
           ))}
           {drafts.map((draft) => (
             <Notice tone="muted" key={draft.site.id} data-testid="website-draft">
-              «{draft.site.name}» — адрес сайта не указан.{' '}
-              <Link href="/website/settings">Указать адрес</Link>
+              {t('«{name}» — адрес сайта не указан.', { name: draft.site.name })}{' '}
+              <Link href="/website/settings">{t('Указать адрес')}</Link>
             </Notice>
           ))}
         </Stack>
@@ -47,6 +49,7 @@ export default async function WebsiteOverviewPage() {
 }
 
 async function SiteOverview({ card }: { card: TrackedSiteCard }) {
+  const t = await serverT();
   const state = siteState(card, propertyClock(card.site.timezone));
   // «Брони с сайта» за этот месяц — то же число, что блок «Брони с сайта» во вкладке «Аналитика» (WEB4, Q-212)
   const report = await analyticsApi.report(card.site.id).catch(() => null);
@@ -55,7 +58,7 @@ async function SiteOverview({ card }: { card: TrackedSiteCard }) {
       className="state-bar--wide"
       tone={state.overall.tone}
       label={state.host}
-      value={state.overall.value}
+      value={t(state.overall.value)}
       summary={
         <a
           href={`https://${state.host}`}
@@ -63,31 +66,31 @@ async function SiteOverview({ card }: { card: TrackedSiteCard }) {
           rel="noreferrer"
           data-testid="website-open"
         >
-          Открыть сайт <Icon name="external" width={14} />
+          {t('Открыть сайт')} <Icon name="external" width={14} />
         </a>
       }
       data-testid="website-overview"
       data-state={state.counter.state}
     >
-      <StateFact label="Домен" value={state.host}>
-        Подключён
+      <StateFact label={t('Домен')} value={state.host}>
+        {t('Подключён')}
       </StateFact>
-      <StateFact label="Счётчик" value={state.counter.value} data-testid="website-counter">
-        {state.counter.note}
+      <StateFact label={t('Счётчик')} value={t(state.counter.value)} data-testid="website-counter">
+        {t(state.counter.note)}
       </StateFact>
       <StateFact
-        label="Онлайн-бронирование"
-        value={state.booking.value}
+        label={t('Онлайн-бронирование')}
+        value={t(state.booking.value)}
         data-testid="website-booking"
       >
-        {state.booking.note}
+        {t(state.booking.note)}
       </StateFact>
       <StateFact
-        label="Брони с сайта"
+        label={t('Брони с сайта')}
         value={report ? String(report.siteReservations.count) : '—'}
         data-testid="website-bookings"
       >
-        {report ? 'новые в этом месяце' : 'отчёт не загрузился'}
+        {report ? t('новые в этом месяце') : t('отчёт не загрузился')}
       </StateFact>
     </StateBar>
   );

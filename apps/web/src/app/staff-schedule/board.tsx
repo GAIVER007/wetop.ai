@@ -6,30 +6,33 @@ import { Button, EmptyState, Table } from '../../components/ui';
 import type { FoodShiftRow } from '../../lib/food-types';
 import { WeekForm } from '../beauty/schedule/board';
 import { loadHotelShift, saveHotelShifts } from '../hotel-staff/actions';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
-const DAYS: Record<number, string> = { 1: 'Пн', 2: 'Вт', 3: 'Ср', 4: 'Чт', 5: 'Пт', 6: 'Сб', 0: 'Вс' };
+const DAYS: Record<number, string> = { 1: msg('Пн'), 2: msg('Вт'), 3: msg('Ср'), 4: msg('Чт'), 5: msg('Пт'), 6: msg('Сб'), 0: msg('Вс') };
 
 /** Неделя каждого сотрудника гостиницы; правка той же формой недели, что у салона и ресторана */
 export function HotelShiftsBoard({ scopeKey, write, employees }: { scopeKey: string; write: boolean; employees: FoodShiftRow[] }) {
+  const t = useT();
   const router = useRouter();
   const [editing, setEditing] = useState<FoodShiftRow | null>(null);
   const days = employees[0]?.week.map((d) => d.weekday) ?? [1, 2, 3, 4, 5, 6, 0];
   if (!employees.length)
-    return <EmptyState title="Сотрудников пока нет" details="Пригласите горничную или администратора в разделе «Персонал → Сотрудники»." />;
+    return <EmptyState title={t('Сотрудников пока нет')} details={t('Пригласите горничную или администратора в разделе «Персонал → Сотрудники».')} />;
   return (
     <>
       <Table data-testid="hotel-shifts">
         <thead>
           <tr>
-            <th scope="col">Сотрудник</th>
+            <th scope="col">{t('Сотрудник')}</th>
             {days.map((d) => (
               <th scope="col" key={d}>
-                {DAYS[d]}
+                {t(DAYS[d] ?? '')}
               </th>
             ))}
             {write && (
               <th scope="col">
-                <span className="sr-only">Действия</span>
+                <span className="sr-only">{t('Действия')}</span>
               </th>
             )}
           </tr>
@@ -43,14 +46,14 @@ export function HotelShiftsBoard({ scopeKey, write, employees }: { scopeKey: str
                   {day.intervals.length ? (
                     day.intervals.map((i) => <div key={i.timeFrom}>{`${i.timeFrom}–${i.timeTo}`}</div>)
                   ) : (
-                    <span className="muted">Выходной</span>
+                    <span className="muted">{t('Выходной')}</span>
                   )}
                 </td>
               ))}
               {write && (
                 <td>
                   <Button size="sm" tone="secondary" onClick={() => setEditing(e)}>
-                    Изменить график
+                    {t('Изменить график')}
                   </Button>
                 </td>
               )}
@@ -58,7 +61,7 @@ export function HotelShiftsBoard({ scopeKey, write, employees }: { scopeKey: str
           ))}
         </tbody>
       </Table>
-      <Overlay open={editing !== null} onClose={() => setEditing(null)} title={`График: ${editing?.name ?? ''}`} drawer>
+      <Overlay open={editing !== null} onClose={() => setEditing(null)} title={t('График: {name}', { name: editing?.name ?? '' })} drawer>
         {editing && (
           <WeekForm
             employeeId={editing.id}

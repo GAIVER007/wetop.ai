@@ -1,5 +1,6 @@
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
+import { serverT } from '../../i18n/server';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { restaurantApi, stockApi } from '../../lib/food-api';
@@ -15,6 +16,7 @@ import '../food/restaurant.css';
 
 /** «Склад» кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS): ингредиенты, приход, списание, инвентаризация */
 export default async function StockPage() {
+  const t = await serverT();
   try {
     const shell = await restaurantShell();
     const [products, movements, branch, dishes] = await Promise.all([
@@ -26,7 +28,7 @@ export default async function StockPage() {
     ]);
     const currency = branch?.currency ?? 'KZT';
     return (
-      <Page title="Склад">
+      <Page title={t('Склад')}>
         <div key={shell.scopeKey}>
           <StockInsightsView insights={buildStockInsights(products.items, dishes)} currency={currency} menuHref="/menu" />
           <StockBoard
@@ -46,7 +48,7 @@ export default async function StockPage() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Склад">
+      <Page title={t('Склад')}>
         <LoadError testId="stock-load-error" {...loadErrorProps(error)} />
       </Page>
     );

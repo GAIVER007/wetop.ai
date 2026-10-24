@@ -5,6 +5,8 @@ import { splitEvenly } from '@pms/domain';
 import { Overlay } from '../../components/overlay';
 import { Alert, Badge, Button, Field, Input, Select, Table } from '../../components/ui';
 import { METHOD_RU } from '../../lib/dashboard-format';
+import type { Translate } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 import { formatMoney } from '../../lib/money';
 import { cartLinePrice, choiceProblem, lineModifiersText, toggleChoice } from '../../lib/food-modifiers';
 import { FOOD_PAYMENT_METHODS, type FoodPaymentMethod } from '../../lib/food-types';
@@ -38,7 +40,7 @@ export function LineModifiers({ modifiers, notes }: { modifiers?: ReadonlyArray<
 export function ModifierPicker({
   dish,
   initial,
-  submitLabel = 'Добавить',
+  submitLabel,
   onSubmit,
   close,
 }: {
@@ -48,6 +50,7 @@ export function ModifierPicker({
   onSubmit: (line: OrderItemInput) => void;
   close: () => void;
 }) {
+  const t = useT();
   const groups = dish.modifierGroups ?? [];
   const [selected, setSelected] = useState<string[]>(initial?.modifierIds ?? []);
   const [notes, setNotes] = useState(initial?.notes ?? '');
@@ -61,7 +64,15 @@ export function ModifierPicker({
           <fieldset key={g.id} className="food-mod-group">
             <legend>
               {g.name}
-              <small>{g.required ? (g.maxSelect === 1 ? 'обязательно, одно' : `обязательно, до ${g.maxSelect}`) : g.maxSelect === 1 ? 'одно на выбор' : `до ${g.maxSelect}`}</small>
+              <small>
+                {g.required
+                  ? g.maxSelect === 1
+                    ? t('обязательно, одно')
+                    : t('обязательно, до {n}', { n: g.maxSelect })
+                  : g.maxSelect === 1
+                    ? t('одно на выбор')
+                    : t('до {n}', { n: g.maxSelect })}
+              </small>
             </legend>
             {g.modifiers.map((m) => (
               <label key={m.id} className="food-mod-option">
@@ -86,21 +97,21 @@ export function ModifierPicker({
             ))}
           </fieldset>
         ))}
-        <Field label="Комментарий">
+        <Field label={t('Комментарий')}>
           <Input
             value={notes}
             maxLength={500}
-            placeholder="Например: без лука"
+            placeholder={t('Например: без лука')}
             onChange={(e) => setNotes(e.target.value)}
           />
         </Field>
         <div className="food-mod-foot">
-          <span className="food-mod-qty" role="group" aria-label="Количество">
-            <Button tone="ghost" aria-label="Меньше" onClick={() => setQty(Math.max(1, qty - 1))}>
+          <span className="food-mod-qty" role="group" aria-label={t('Количество')}>
+            <Button tone="ghost" aria-label={t('Меньше')} onClick={() => setQty(Math.max(1, qty - 1))}>
               −
             </Button>
             <span>{qty}</span>
-            <Button tone="ghost" aria-label="Больше" onClick={() => setQty(Math.min(999, qty + 1))}>
+            <Button tone="ghost" aria-label={t('Больше')} onClick={() => setQty(Math.min(999, qty + 1))}>
               +
             </Button>
           </span>
@@ -116,10 +127,10 @@ export function ModifierPicker({
               close();
             }}
           >
-            {submitLabel}
+            {submitLabel ?? t('Добавить')}
           </Button>
           <Button tone="secondary" onClick={close}>
-            Отмена
+            {t('Отмена')}
           </Button>
         </div>
       </div>
@@ -133,9 +144,9 @@ export type ModifierStockOption = { id: string; name: string; unit: string };
 type DraftIngredient = { productId: string; normQty: string };
 type DraftModifier = { id: string | null; name: string; price: string; active: boolean; ingredients: DraftIngredient[] };
 
-function choiceLabel(g: Pick<ModifierGroupView, 'minSelect' | 'maxSelect'>) {
-  const many = g.maxSelect === 1 ? 'одно' : `до ${g.maxSelect}`;
-  return g.minSelect >= 1 ? `Обязательно, ${many}` : `Можно не выбирать, ${many}`;
+function choiceLabel(g: Pick<ModifierGroupView, 'minSelect' | 'maxSelect'>, t: Translate) {
+  const many = g.maxSelect === 1 ? t('одно') : t('до {n}', { n: g.maxSelect });
+  return g.minSelect >= 1 ? t('Обязательно, {many}', { many }) : t('Можно не выбирать, {many}', { many });
 }
 
 /** Группа добавок: название, обязательность, сколько выбрать, список добавок с прибавкой к цене */
@@ -150,6 +161,7 @@ function ModifierGroupDrawer({
   stock: ModifierStockOption[];
   close: () => void;
 }) {
+  const t = useT();
   const router = useRouter();
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
@@ -172,15 +184,15 @@ function ModifierGroupDrawer({
   function save() {
     setError('');
     const maxSelect = Number(max);
-    if (!name.trim()) return setError('Введите название группы');
-    if (!Number.isInteger(maxSelect) || maxSelect < 1 || maxSelect > 20) return setError('Сколько можно выбрать: от 1 до 20');
+    if (!name.trim()) return setError(t('Введите название группы'));
+    if (!Number.isInteger(maxSelect) || maxSelect < 1 || maxSelect > 20) return setError(t('Сколько можно выбрать: от 1 до 20'));
     const modifiers = [];
     for (const r of rows) {
       const price = Number(r.price.replace(',', '.').replace(/\s/g, '') || '0');
-      if (!r.name.trim()) return setError('У каждой добавки нужно название');
-      if (!Number.isFinite(price)) return setError(`Добавка «${r.name}»: прибавка числом`);
+      if (!r.name.trim()) return setError(t('У каждой добавки нужно название'));
+      if (!Number.isFinite(price)) return setError(t('Добавка «{name}»: прибавка числом', { name: r.name }));
       const ingredients = r.ingredients.map((i) => ({ productId: i.productId, normQty: i.normQty.replace(',', '.').trim() }));
-      if (ingredients.some((i) => !i.productId || !i.normQty)) return setError(`Добавка «${r.name}»: укажите продукт и сколько списать`);
+      if (ingredients.some((i) => !i.productId || !i.normQty)) return setError(t('Добавка «{name}»: укажите продукт и сколько списать', { name: r.name }));
       modifiers.push({
         ...(r.id ? { id: r.id } : {}),
         name: r.name.trim(),
@@ -201,49 +213,49 @@ function ModifierGroupDrawer({
     });
   }
   return (
-    <Overlay open onClose={close} title={group ? `Группа: ${group.name}` : 'Новая группа добавок'} drawer trapFocus>
+    <Overlay open onClose={close} title={group ? t('Группа: {name}', { name: group.name }) : t('Новая группа добавок')} drawer trapFocus>
       <div className="food-form" data-testid="modifier-group-drawer">
         {error && <Alert>{error}</Alert>}
         <div className="food-form-row">
-          <Field label="Название группы">
-            <Input value={name} maxLength={100} placeholder="Размер, Добавки, Соус" onChange={(e) => setName(e.target.value)} />
+          <Field label={t('Название группы')}>
+            <Input value={name} maxLength={100} placeholder={t('Размер, Добавки, Соус')} onChange={(e) => setName(e.target.value)} />
           </Field>
-          <Field label="Сколько можно выбрать">
+          <Field label={t('Сколько можно выбрать')}>
             <Input type="number" min={1} max={20} value={max} onChange={(e) => setMax(e.target.value)} />
           </Field>
         </div>
         <label className="food-check">
           <input type="checkbox" checked={required} onChange={(e) => setRequired(e.target.checked)} />
-          Обязательно выбрать (например, размер)
+          {t('Обязательно выбрать (например, размер)')}
         </label>
         <label className="food-check">
           <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} />
-          Группа включена
+          {t('Группа включена')}
         </label>
-        <h3>Добавки</h3>
+        <h3>{t('Добавки')}</h3>
         {rows.map((r, index) => (
           <div className="food-mod-edit-row" key={r.id ?? `new-${index}`}>
-            <Input aria-label={`Добавка ${index + 1}`} value={r.name} maxLength={100} onChange={(e) => set(index, { name: e.target.value })} />
+            <Input aria-label={t('Добавка {n}', { n: index + 1 })} value={r.name} maxLength={100} onChange={(e) => set(index, { name: e.target.value })} />
             <Input
-              aria-label={`Прибавка к цене ${index + 1}, ${ctx.currencyHint}`}
+              aria-label={t('Прибавка к цене {n}, {currency}', { n: index + 1, currency: ctx.currencyHint })}
               inputMode="decimal"
               value={r.price}
               onChange={(e) => set(index, { price: e.target.value })}
             />
             <label className="food-check">
               <input type="checkbox" checked={r.active} onChange={(e) => set(index, { active: e.target.checked })} />
-              В продаже
+              {t('В продаже')}
             </label>
-            <Button tone="ghost" aria-label={`Убрать добавку ${index + 1}`} onClick={() => setRows(rows.filter((_, i) => i !== index))}>
+            <Button tone="ghost" aria-label={t('Убрать добавку {n}', { n: index + 1 })} onClick={() => setRows(rows.filter((_, i) => i !== index))}>
               ×
             </Button>
             {stock.length > 0 && (
               <div className="food-mod-stock" data-testid="modifier-stock">
-                <small className="muted">Со склада на порцию:</small>
+                <small className="muted">{t('Со склада на порцию:')}</small>
                 {r.ingredients.map((ing, k) => (
                   <span key={k} className="food-mod-stock-row">
                     <Select
-                      aria-label={`Продукт добавки ${index + 1}, строка ${k + 1}`}
+                      aria-label={t('Продукт добавки {n}, строка {row}', { n: index + 1, row: k + 1 })}
                       value={ing.productId}
                       onChange={(e) =>
                         set(index, { ingredients: r.ingredients.map((x, j) => (j === k ? { ...x, productId: e.target.value } : x)) })
@@ -256,7 +268,7 @@ function ModifierGroupDrawer({
                       ))}
                     </Select>
                     <Input
-                      aria-label={`Сколько списать ${index + 1}, строка ${k + 1}`}
+                      aria-label={t('Сколько списать {n}, строка {row}', { n: index + 1, row: k + 1 })}
                       inputMode="decimal"
                       value={ing.normQty}
                       onChange={(e) =>
@@ -266,7 +278,7 @@ function ModifierGroupDrawer({
                     <Button
                       tone="ghost"
                       size="sm"
-                      aria-label={`Убрать продукт ${k + 1} у добавки ${index + 1}`}
+                      aria-label={t('Убрать продукт {row} у добавки {n}', { n: index + 1, row: k + 1 })}
                       onClick={() => set(index, { ingredients: r.ingredients.filter((_, j) => j !== k) })}
                     >
                       ×
@@ -279,24 +291,26 @@ function ModifierGroupDrawer({
                     size="sm"
                     onClick={() => set(index, { ingredients: [...r.ingredients, { productId: stock[0]!.id, normQty: '' }] })}
                   >
-                    + Продукт со склада
+                    {t('+ Продукт со склада')}
                   </Button>
                 )}
               </div>
             )}
           </div>
         ))}
-        <p className="muted">Прибавка к цене блюда в {ctx.currencyHint}: 0 без доплаты, минус для скидки (маленький размер).</p>
-        {stock.length > 0 && <p className="muted">Продукты со склада спишутся вместе с блюдом, когда его отметят «Готово».</p>}
+        <p className="muted">
+          {t('Прибавка к цене блюда в {currency}: 0 без доплаты, минус для скидки (маленький размер).', { currency: ctx.currencyHint })}
+        </p>
+        {stock.length > 0 && <p className="muted">{t('Продукты со склада спишутся вместе с блюдом, когда его отметят «Готово».')}</p>}
         <Button tone="secondary" onClick={() => setRows([...rows, { id: null, name: '', price: '0', active: true, ingredients: [] }])}>
-          + Добавка
+          {t('+ Добавка')}
         </Button>
         <div className="food-actions">
           <Button disabled={pending} onClick={save}>
-            Сохранить
+            {t('Сохранить')}
           </Button>
           <Button tone="secondary" disabled={pending} onClick={close}>
-            Отмена
+            {t('Отмена')}
           </Button>
         </div>
       </div>
@@ -316,6 +330,7 @@ export function ModifierGroupsTable({ ctx, groups: all, items, adding, setAdding
   adding: boolean;
   setAdding: (v: boolean) => void;
 }) {
+  const t = useT();
   const [edit, setEdit] = useState<ModifierGroupView | null>(null);
   const groups = all.filter(
     (g) => !needle || [g.name, ...g.modifiers.map((m) => m.name)].some((n) => n.toLocaleLowerCase('ru').includes(needle)),
@@ -326,24 +341,24 @@ export function ModifierGroupsTable({ ctx, groups: all, items, adding, setAdding
   return (
     <>
       {all.length > 0 && groups.length === 0 ? (
-        <p className="muted food-mod-empty">Группы не найдены</p>
+        <p className="muted food-mod-empty">{t('Группы не найдены')}</p>
       ) : groups.length === 0 ? (
         <p className="muted food-mod-empty">
-          Групп пока нет. Создайте «Размер» (обязательно, одно) или «Добавки» (по желанию), затем отметьте их в окне блюда.
+          {t('Групп пока нет. Создайте «Размер» (обязательно, одно) или «Добавки» (по желанию), затем отметьте их в окне блюда.')}
         </p>
       ) : (
-        <Table density="compact" caption="Группы добавок" captionHidden>
+        <Table density="compact" caption={t('Группы добавок')} captionHidden>
           <thead>
             <tr>
-              <th scope="col">Группа</th>
-              <th scope="col">Выбор</th>
-              <th scope="col">Добавки</th>
+              <th scope="col">{t('Группа')}</th>
+              <th scope="col">{t('Выбор')}</th>
+              <th scope="col">{t('Добавки')}</th>
               <th scope="col" className="num">
-                Блюд
+                {t('Блюд')}
               </th>
-              <th scope="col">Статус</th>
+              <th scope="col">{t('Статус')}</th>
               <th scope="col">
-                <span className="sr-only">Действия</span>
+                <span className="sr-only">{t('Действия')}</span>
               </th>
             </tr>
           </thead>
@@ -353,7 +368,7 @@ export function ModifierGroupsTable({ ctx, groups: all, items, adding, setAdding
                 <td>
                   <strong>{g.name}</strong>
                 </td>
-                <td>{choiceLabel(g)}</td>
+                <td>{choiceLabel(g, t)}</td>
                 <td className="food-mod-names">
                   {g.modifiers
                     .filter((m) => m.active)
@@ -364,11 +379,11 @@ export function ModifierGroupsTable({ ctx, groups: all, items, adding, setAdding
                     .join(', ') || '—'}
                 </td>
                 <td className="num">{used(g.id)}</td>
-                <td>{g.active ? <Badge tone="ok">Включена</Badge> : <Badge>Выключена</Badge>}</td>
+                <td>{g.active ? <Badge tone="ok">{t('Включена')}</Badge> : <Badge>{t('Выключена')}</Badge>}</td>
                 <td>
                   {ctx.write && (
-                    <Button tone="ghost" size="sm" aria-label={`Изменить группу: ${g.name}`} onClick={() => setEdit(g)}>
-                      Изменить
+                    <Button tone="ghost" size="sm" aria-label={t('Изменить группу: {name}', { name: g.name })} onClick={() => setEdit(g)}>
+                      {t('Изменить')}
                     </Button>
                   )}
                 </td>
@@ -394,11 +409,12 @@ export function ModifierGroupsTable({ ctx, groups: all, items, adding, setAdding
 
 /** Раздел «Добавки и размеры» в окне блюда: какие группы предлагать при заказе */
 export function DishModifierGroups({ groups, value, onChange }: { groups: ModifierGroupView[]; value: string[]; onChange: (ids: string[]) => void }) {
+  const t = useT();
   return (
     <fieldset className="food-mod-group" data-testid="dish-modifier-groups">
-      <legend>Добавки и размеры</legend>
+      <legend>{t('Добавки и размеры')}</legend>
       {groups.length === 0 ? (
-        <p className="muted">Групп добавок пока нет: их создают на вкладке «Добавки».</p>
+        <p className="muted">{t('Групп добавок пока нет: их создают на вкладке «Добавки».')}</p>
       ) : (
         groups.map((g) => (
           <label key={g.id} className="food-mod-option">
@@ -408,7 +424,7 @@ export function DishModifierGroups({ groups, value, onChange }: { groups: Modifi
               onChange={(e) => onChange(e.target.checked ? [...value, g.id] : value.filter((x) => x !== g.id))}
             />
             <span>{g.name}</span>
-            <small>{choiceLabel(g)}</small>
+            <small>{choiceLabel(g, t)}</small>
           </label>
         ))
       )}
@@ -431,6 +447,7 @@ export function SplitBill({
   onSaved: (order: OrderView) => void;
   close: () => void;
 }) {
+  const t = useT();
   const router = useRouter();
   const [mode, setMode] = useState<'even' | 'items'>('even');
   const [guests, setGuests] = useState(String(Math.max(2, order.guestCount)));
@@ -477,27 +494,27 @@ export function SplitBill({
     });
   }
   return (
-    <Overlay open onClose={close} title={`Разделить счёт №${order.number}`} drawer trapFocus>
+    <Overlay open onClose={close} title={t('Разделить счёт №{n}', { n: order.number })} drawer trapFocus>
       <div className="food-form food-split" data-testid="split-bill">
         {error && <Alert>{error}</Alert>}
-        <nav className="tabs" aria-label="Как делить">
+        <nav className="tabs" aria-label={t('Как делить')}>
           <button className="tabs__item" type="button" aria-current={mode === 'even' ? 'page' : undefined} onClick={() => setMode('even')}>
-            Поровну
+            {t('Поровну')}
           </button>
           <button className="tabs__item" type="button" aria-current={mode === 'items' ? 'page' : undefined} onClick={() => setMode('items')}>
-            По позициям
+            {t('По позициям')}
           </button>
         </nav>
         <p className="food-split-left">
-          Осталось оплатить: <strong data-testid="split-remaining">{formatMoney(remaining, order.currency)}</strong>
+          {t('Осталось оплатить:')} <strong data-testid="split-remaining">{formatMoney(remaining, order.currency)}</strong>
         </p>
-        {closed && <Alert tone="success">Счёт оплачен полностью, заказ закрыт.</Alert>}
+        {closed && <Alert tone="success">{t('Счёт оплачен полностью, заказ закрыт.')}</Alert>}
         {!closed && remaining > 0n && (
-          <Field label="Способ оплаты">
+          <Field label={t('Способ оплаты')}>
             <Select value={method} onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}>
               {branchMethodsShown(FOOD_PAYMENT_METHODS, accepted, method).map((m) => (
                 <option key={m} value={m}>
-                  {METHOD_RU[m] ?? m}
+                  {t(METHOD_RU[m] ?? m)}
                 </option>
               ))}
             </Select>
@@ -505,7 +522,7 @@ export function SplitBill({
         )}
         {!closed && remaining > 0n && mode === 'even' && (
           <>
-            <Field label="Гостей">
+            <Field label={t('Гостей')}>
               <Input
                 type="number"
                 min={2}
@@ -521,26 +538,26 @@ export function SplitBill({
               <ul className="food-split-list" data-testid="split-even">
                 {parts.map((amount, index) => (
                   <li key={index}>
-                    <span>Гость {paidParts + index + 1}</span>
+                    <span>{t('Гость {n}', { n: paidParts + index + 1 })}</span>
                     <strong>{formatMoney(amount, order.currency)}</strong>
                     {index === 0 && (
                       <Button disabled={pending} onClick={() => pay(amount)}>
-                        Принять {formatMoney(amount, order.currency)}
+                        {t('Принять {sum}', { sum: formatMoney(amount, order.currency) })}
                       </Button>
                     )}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="muted">Укажите от 2 до 50 гостей.</p>
+              <p className="muted">{t('Укажите от 2 до 50 гостей.')}</p>
             )}
-            {paidParts > 0 && <p className="muted">Оплатили гостей: {paidParts}.</p>}
+            {paidParts > 0 && <p className="muted">{t('Оплатили гостей: {n}.', { n: paidParts })}</p>}
           </>
         )}
         {!closed && remaining > 0n && mode === 'items' && (
           <>
             {unpaid.length === 0 ? (
-              <p className="muted">Все позиции уже оплачены по позициям. Остаток можно принять поровну.</p>
+              <p className="muted">{t('Все позиции уже оплачены по позициям. Остаток можно принять поровну.')}</p>
             ) : (
               <ul className="food-split-list" data-testid="split-items">
                 {unpaid.map((i) => (
@@ -548,7 +565,7 @@ export function SplitBill({
                     <label className="food-mod-option">
                       <input
                         type="checkbox"
-                        aria-label={`Оплатить: ${i.name}`}
+                        aria-label={t('Оплатить: {name}', { name: i.name })}
                         checked={picked.includes(i.id)}
                         onChange={(e) => setPicked(e.target.checked ? [...picked, i.id] : picked.filter((x) => x !== i.id))}
                       />
@@ -563,23 +580,25 @@ export function SplitBill({
               </ul>
             )}
             {order.items.some((i) => i.paid) && (
-              <p className="muted">Оплачено по позициям: {order.items.filter((i) => i.paid).map((i) => i.name).join(', ')}.</p>
+              <p className="muted">
+                {t('Оплачено по позициям: {list}.', { list: order.items.filter((i) => i.paid).map((i) => i.name).join(', ') })}
+              </p>
             )}
             <Button
               data-testid="split-items-pay"
               disabled={pending || pickedSum === 0n || pickedSum > remaining}
               onClick={() => pay(pickedSum, picked)}
             >
-              Оплатить выбранное: {formatMoney(pickedSum, order.currency)}
+              {t('Оплатить выбранное: {sum}', { sum: formatMoney(pickedSum, order.currency) })}
             </Button>
           </>
         )}
         {order.status !== 'SERVED' && !closed && remaining === 0n && (
-          <p className="muted">Оплачено полностью: заказ закроется сам, когда его подадут.</p>
+          <p className="muted">{t('Оплачено полностью: заказ закроется сам, когда его подадут.')}</p>
         )}
         <div className="food-actions">
           <Button tone="secondary" onClick={close}>
-            Готово
+            {t('Готово')}
           </Button>
         </div>
       </div>

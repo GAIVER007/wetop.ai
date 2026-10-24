@@ -2,7 +2,8 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { kk, shell } from './kk';
-import { en } from './en';
+import { en, enShell } from './en';
+import { EN_PARTS } from './en-parts';
 import { AREAS } from './kk-parts';
 
 /**
@@ -70,6 +71,18 @@ describe('KK2: экраны на казахском целиком', () => {
     const conflicts: string[] = [];
     for (const [area, part] of Object.entries(AREAS))
       for (const [ru, value] of Object.entries(part.phrases)) {
+        const before = seen.get(ru);
+        if (before !== undefined && before !== value) conflicts.push(`${area}: «${ru}» = «${value}», раньше «${before}»`);
+        seen.set(ru, value);
+      }
+    expect(conflicts).toEqual([]);
+  });
+
+  it('английский тоже не спорит: одна фраза, один перевод; разный смысл разводит контекст `фраза@@контекст`', () => {
+    const seen = new Map<string, string>(Object.entries(enShell));
+    const conflicts: string[] = [];
+    for (const [area, part] of Object.entries(EN_PARTS))
+      for (const [ru, value] of Object.entries(part)) {
         const before = seen.get(ru);
         if (before !== undefined && before !== value) conflicts.push(`${area}: «${ru}» = «${value}», раньше «${before}»`);
         seen.set(ru, value);

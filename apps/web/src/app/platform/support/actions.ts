@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { ApiError, supportApi } from '../../../lib/api';
 import type { SandboxResult, SimpleResult } from '../../ai-seller/actions';
+import { serverT } from '../../../i18n/server';
 
 /**
  * Действия «Платформа → Техподдержка» (ADR-083, Э3): всё через API платформы — адреса и ключа помощника стойка не
@@ -18,12 +19,13 @@ export async function supportModeAction(
   try {
     await supportApi.switchMode(id, action);
     revalidatePath('/platform/support');
+    const t = await serverT();
     return {
       error: null,
       message:
         action === 'takeover'
-          ? 'Диалог ваш: помощник молчит, пока вы не вернёте его ИИ.'
-          : 'Диалог вернули помощнику.',
+          ? t('Диалог ваш: помощник молчит, пока вы не вернёте его ИИ.')
+          : t('Диалог вернули помощнику.'),
       attempt: 0,
     };
   } catch (e) {
@@ -36,7 +38,8 @@ export async function supportCloseAction(id: string): Promise<SimpleResult> {
   try {
     await supportApi.close(id);
     revalidatePath('/platform/support');
-    return { error: null, message: 'Обращение закрыто.', attempt: 0 };
+    const t = await serverT();
+    return { error: null, message: t('Обращение закрыто.'), attempt: 0 };
   } catch (e) {
     return { error: describe(e), message: null, attempt: 0 };
   }
@@ -52,7 +55,8 @@ export async function supportReplyAction(
   try {
     await supportApi.reply(id, text);
     revalidatePath('/platform/support');
-    return { error: null, message: 'Ответ отправлен.', attempt };
+    const t = await serverT();
+    return { error: null, message: t('Ответ отправлен.'), attempt };
   } catch (e) {
     return { error: describe(e), message: null, attempt };
   }
@@ -64,14 +68,16 @@ export async function supportUploadAction(
 ): Promise<SimpleResult> {
   const attempt = (prev?.attempt ?? 0) + 1;
   const file = form.get('file');
+  const t = await serverT();
   if (!(file instanceof File) || file.size === 0)
-    return { error: 'Выберите файл: md, txt, pdf, docx или xlsx', message: null, attempt };
+    return { error: t('Выберите файл: md, txt, pdf, docx или xlsx'), message: null, attempt };
   try {
     const r = await supportApi.uploadKnowledge(file);
     revalidatePath('/platform/support/knowledge');
+    const vars = { source: r.source, n: r.chunks };
     return {
       error: null,
-      message: `${r.created ? 'Загружено' : 'Обновлено'}: «${r.source}», частей ${r.chunks}.`,
+      message: r.created ? t('Загружено: «{source}», частей {n}.', vars) : t('Обновлено: «{source}», частей {n}.', vars),
       attempt,
     };
   } catch (e) {
@@ -95,9 +101,13 @@ export async function supportPromptAction(
   try {
     const r = await supportApi.savePrompt(text);
     revalidatePath('/platform/support/settings');
+    const t = await serverT();
     return {
       error: null,
-      message: `Сохранено: ${r.length} знаков. Следующий ответ помощник даст по новым правилам — проверьте во вкладке «Проверка».`,
+      message: t(
+        'Сохранено: {n} знаков. Следующий ответ помощник даст по новым правилам — проверьте во вкладке «Проверка».',
+        { n: r.length },
+      ),
       attempt,
     };
   } catch (e) {
@@ -113,9 +123,14 @@ export async function supportModelAction(
   try {
     const r = await supportApi.saveModel(String(form.get('model') ?? ''));
     revalidatePath('/platform/support/settings');
+    const t = await serverT();
+    const model = r.model ?? '—';
     return {
       error: null,
-      message: `Модель: ${r.model ?? '—'}${r.previous && r.previous !== r.model ? ` (была ${r.previous})` : ''}.`,
+      message:
+        r.previous && r.previous !== r.model
+          ? t('Модель: {model} (была {previous}).', { model, previous: r.previous })
+          : t('Модель: {model}.', { model }),
       attempt,
     };
   } catch (e) {

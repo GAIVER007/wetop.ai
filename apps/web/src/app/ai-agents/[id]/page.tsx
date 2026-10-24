@@ -11,6 +11,7 @@ import { Badge, Row, Stack } from '../../../components/ui';
 import { ApiError, businessAgentsApi, type BusinessAgentView } from '../../../lib/api';
 import { placement } from '../../../lib/ai-agents';
 import { loadErrorProps } from '../../../lib/load-error';
+import { serverT } from '../../../i18n/server';
 
 /** Настройка конкретного агента; сохранение инструкции не меняет lifecycle. */
 export default async function AgentPage({ params }: { params: Promise<{ id: string }> }) {
@@ -23,10 +24,11 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
     if (error instanceof ApiError && error.status === 404) notFound();
     failure = error;
   }
+  const t = await serverT();
   if (!agent) {
     return (
-      <Page title="ИИ-продавец" crumbs={<BackCrumb href="/ai-agents">ИИ-продавцы</BackCrumb>}>
-        <LoadError testId="agent-error" title="Не удалось загрузить агента" {...loadErrorProps(failure)} />
+      <Page title={t('ИИ-продавец')} crumbs={<BackCrumb href="/ai-agents">{t('ИИ-продавцы')}</BackCrumb>}>
+        <LoadError testId="agent-error" title={t('Не удалось загрузить агента')} {...loadErrorProps(failure)} />
       </Page>
     );
   }
@@ -39,7 +41,7 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
     <Page
       title={agent.name}
       subtitle={placement(agent.business, agent.location)}
-      crumbs={<BackCrumb href="/ai-agents">ИИ-продавцы</BackCrumb>}
+      crumbs={<BackCrumb href="/ai-agents">{t('ИИ-продавцы')}</BackCrumb>}
       width="wide"
     >
       <Stack>
@@ -47,28 +49,28 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
           {/* состояние словом; сырое значение API («active») и метки «Продажи»/«Hospitality» на экран не выводятся */}
           <Badge data-testid="agent-lifecycle">
             {agent.lifecycle === 'draft'
-              ? AGENT_STATUS_WORDS.DRAFT
+              ? t(AGENT_STATUS_WORDS.DRAFT)
               : agent.lifecycle === 'archived'
-                ? 'В архиве'
+                ? t('В архиве')
                 : agent.lifecycle === 'paused'
-                  ? 'На паузе'
-                  : AGENT_STATUS_WORDS.WORKING}
+                  ? t('На паузе')
+                  : t(AGENT_STATUS_WORDS.WORKING)}
           </Badge>
-          <Badge data-testid="agent-vertical">{vertical ? verticalDefinition(vertical).label : 'Направление не определено'}</Badge>
+          <Badge data-testid="agent-vertical">{vertical ? t(verticalDefinition(vertical).label) : t('Направление не определено')}</Badge>
         </Row>
         <div data-testid="agent-tools">
-          <p>{vertical === 'BEAUTY' ? 'Инструменты: активные услуги, цены каталога и длительность.' :
-            vertical === 'FOOD_SERVICE' ? 'Инструменты: периоды обслуживания ресторана.' :
-            vertical === 'HOSPITALITY' ? 'Инструменты: наличие и стоимость проживания, существующий сценарий бронирования.' :
-            'Инструменты направления недоступны.'}</p>
-          <p className="muted">Доступ проверяется сервером при каждом вызове. Черновик и приостановленный агент гостям не отвечают.</p>
+          <p>{vertical === 'BEAUTY' ? t('Инструменты: активные услуги, цены каталога и длительность.') :
+            vertical === 'FOOD_SERVICE' ? t('Инструменты: периоды обслуживания ресторана.') :
+            vertical === 'HOSPITALITY' ? t('Инструменты: наличие и стоимость проживания, существующий сценарий бронирования.') :
+            t('Инструменты направления недоступны.')}</p>
+          <p className="muted">{t('Доступ проверяется сервером при каждом вызове. Черновик и приостановленный агент гостям не отвечают.')}</p>
         </div>
         {instruction ? <InstructionEditor id={id} initial={instruction} vertical={vertical} readOnly={shell.readOnly} /> :
-          <LoadError testId="agent-instruction-error" title="Не удалось загрузить инструкцию" {...loadErrorProps(instructionError)} />}
+          <LoadError testId="agent-instruction-error" title={t('Не удалось загрузить инструкцию')} {...loadErrorProps(instructionError)} />}
         <TelegramPanel id={id} readOnly={shell.readOnly || agent.lifecycle === 'archived'} />
         <div>
           <Link className="btn btn--secondary" href="/ai-agents">
-            К списку агентов
+            {t('К списку агентов')}
           </Link>
         </div>
       </Stack>

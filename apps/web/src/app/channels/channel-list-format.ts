@@ -1,6 +1,7 @@
 import type { BadgeTone } from '../../components/ui';
 import type { ChannelConnectionRow, ChannelOutsideRow } from '../../lib/api';
 import { sourceNames } from '../../lib/hotel-api';
+import { countLabel, msg, translator, type DeskLocale, type Translate } from '../../i18n';
 
 /**
  * Слова раздела «Каналы» (ADR-140). «Работает» — только когда сервер подтвердил фактами (включён, событие канала
@@ -10,38 +11,36 @@ const ddmm = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}`;
 
 export function channelStatusView(
   r: Pick<ChannelConnectionRow, 'status' | 'removalDate' | 'lastEventAt' | 'failedEvents7d'>,
+  t: Translate = translator('ru'),
+  locale: DeskLocale = 'ru',
 ): { label: string; tone: BadgeTone; note: string | null } {
   switch (r.status) {
     case 'WORKING':
-      return { label: 'Работает', tone: 'ok', note: null };
+      return { label: t('Работает'), tone: 'ok', note: null };
     case 'ERRORS':
       return {
-        label: 'Ошибки броней',
+        label: t('Ошибки броней'),
         tone: 'danger',
-        note: `${r.failedEvents7d} ${plural(r.failedEvents7d)} с ошибкой за 7 дней`,
+        note: t('{n} с ошибкой за 7 дней', {
+          n: countLabel(locale, t, r.failedEvents7d, [msg('бронь'), msg('брони'), msg('броней')]),
+        }),
       };
     case 'ENABLED':
-      return { label: 'Включён', tone: 'neutral', note: 'броней из канала не было 30 дней' };
+      return { label: t('Включён'), tone: 'neutral', note: t('броней из канала не было 30 дней') };
     case 'REMOVING':
       return r.removalDate
         ? {
-            label: `Удаляется ${ddmm(r.removalDate)}`,
+            label: t('Удаляется {date}', { date: ddmm(r.removalDate) }),
             tone: 'warn',
-            note: `Менеджер каналов удалит выключенное подключение ${ddmm(r.removalDate)}.${r.removalDate.slice(0, 4)}`,
+            note: t('Менеджер каналов удалит выключенное подключение {date}', {
+              date: `${ddmm(r.removalDate)}.${r.removalDate.slice(0, 4)}`,
+            }),
           }
-        : { label: 'Выключен', tone: 'neutral', note: null };
+        : { label: t('Выключен'), tone: 'neutral', note: null };
     default:
-      return { label: 'Выключен', tone: 'neutral', note: 'цены и остатки в канал не уходят' };
+      return { label: t('Выключен'), tone: 'neutral', note: t('цены и остатки в канал не уходят') };
   }
 }
-
-const plural = (n: number) => {
-  const m10 = n % 10;
-  const m100 = n % 100;
-  if (m10 === 1 && m100 !== 11) return 'бронь';
-  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'брони';
-  return 'броней';
-};
 
 export function matchesChannel(
   r: Pick<ChannelConnectionRow, 'channelTitle' | 'connectionTitle' | 'channelPropertyId'>,
@@ -54,6 +53,10 @@ export function matchesChannel(
   );
 }
 
-export function outsideLabel(r: Pick<ChannelOutsideRow, 'source' | 'label'>): string {
-  return r.label ?? sourceNames[r.source] ?? r.source;
+export function outsideLabel(
+  r: Pick<ChannelOutsideRow, 'source' | 'label'>,
+  t: Translate = translator('ru'),
+): string {
+  // sourceNames из lib/hotel-api: постоянные русские подписи источников, переводятся при показе
+  return r.label ?? (sourceNames[r.source] ? t(sourceNames[r.source]!) : r.source);
 }

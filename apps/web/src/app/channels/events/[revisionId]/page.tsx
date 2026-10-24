@@ -21,6 +21,8 @@ import {
 import { hotelClock } from '../../../../lib/hotel-api';
 import { deskShell } from '../../../../lib/desk-shell';
 import { mayAccess } from '../../../../lib/navigation';
+import { msg } from '../../../../i18n';
+import { serverT } from '../../../../i18n/server';
 
 /** Сумма канала приходит десятичной строкой («16000.00») — в тиыны без float (ADR-008) */
 function decimalToMinor(amount: string): string | null {
@@ -29,8 +31,8 @@ function decimalToMinor(amount: string): string | null {
   return `${m[1]}${m[2]}${(m[3] ?? '').padEnd(2, '0')}`;
 }
 const COLLECT_RU: Record<string, string> = {
-  ota: 'предоплата канала',
-  property: 'оплата на объекте',
+  ota: msg('предоплата канала'),
+  property: msg('оплата на объекте'),
 };
 
 /**
@@ -47,6 +49,7 @@ export default async function RevisionPageView({
   await requireFeature('/channels/events');
   const [clock, shell] = await Promise.all([hotelClock(), deskShell()]);
   const canMutate = mayAccess(shell.access, 'channels') && !shell.readOnly;
+  const t = await serverT();
   // Next не декодирует сегменты адреса: у ревизии Channex вида `test:<время>:<хеш>` сюда приходит
   // `test%3A…`, и повторное кодирование в клиенте API давало 404 на существующую запись
   const revisionId = decodeRouteParam((await params).revisionId);
@@ -80,43 +83,46 @@ export default async function RevisionPageView({
   const prepaid = amountMinor !== null && facts.paymentCollect === 'ota' ? amountMinor : null;
   const guests =
     facts.adults !== null
-      ? `${facts.adults} взр.${facts.children ? `, ${facts.children} дет.` : ''}`
+      ? t('{n} взр.', { n: facts.adults }) + (facts.children ? `, ${t('{n} дет.', { n: facts.children })}` : '')
       : '—';
   return (
     <Page
       width="wide"
-      title="Приём брони из канала"
-      subtitle="Входящая ревизия → бронь → назначенная койка, время объекта"
-      crumbs={<BackCrumb href="/channels/events">События каналов</BackCrumb>}
+      title={t('Приём брони из канала')}
+      subtitle={t('Входящая ревизия → бронь → назначенная койка, время объекта')}
+      crumbs={<BackCrumb href="/channels/events">{t('События каналов')}</BackCrumb>}
     >
       <div className="chain" data-testid="revision-chain">
         <section className="chain__card" aria-labelledby="chain-revision">
           <h2 id="chain-revision" className="chain__title">
-            1. Ревизия из каналов
+            {t('1. Ревизия из каналов')}
           </h2>
           <div className="row row--inline">
-            <Badge tone="info">{EVENT_TYPE_RU[event.type] ?? event.type}</Badge>
-            <Badge>{VIA_RU[event.receivedVia ?? 'PULL'] ?? event.receivedVia}</Badge>
+            <Badge tone="info">{EVENT_TYPE_RU[event.type] ? t(EVENT_TYPE_RU[event.type]!) : event.type}</Badge>
+            <Badge>{VIA_RU[event.receivedVia ?? 'PULL'] ? t(VIA_RU[event.receivedVia ?? 'PULL']!) : event.receivedVia}</Badge>
             <Badge
               tone={EVENT_STATUS_TONE[event.status] ?? 'neutral'}
               data-testid="revision-status"
             >
-              {EVENT_STATUS_RU[event.status] ?? event.status}
+              {EVENT_STATUS_RU[event.status] ? t(EVENT_STATUS_RU[event.status]!) : event.status}
             </Badge>
           </div>
           <div>
-            {facts.otaName ?? 'канал не назван'}, получено {eventTimeFull(event.receivedAt, clock)}
+            {t('{channel}, получено {time}', {
+              channel: facts.otaName ?? t('канал не назван'),
+              time: eventTimeFull(event.receivedAt, clock),
+            })}
           </div>
           <div className="muted mono">
-            unique_id {facts.uniqueId ?? '—'}, ревизия {event.externalEventId}
+            {t('unique_id {id}, ревизия {revision}', { id: facts.uniqueId ?? '—', revision: event.externalEventId })}
           </div>
           <dl className="facts facts--list">
             <div>
-              <dt className="fact__label">Категория</dt>
+              <dt className="fact__label">{t('Категория')}</dt>
               <dd className="fact__value">{categories.join(', ') || '—'}</dd>
             </div>
             <div>
-              <dt className="fact__label">Даты</dt>
+              <dt className="fact__label">{t('Даты')}</dt>
               <dd className="fact__value">
                 {facts.arrivalDate && facts.departureDate
                   ? displayPeriod(facts.arrivalDate, facts.departureDate)
@@ -124,14 +130,14 @@ export default async function RevisionPageView({
               </dd>
             </div>
             <div>
-              <dt className="fact__label">Гостей</dt>
+              <dt className="fact__label">{t('Гостей')}</dt>
               <dd className="fact__value">{guests}</dd>
             </div>
             <div>
-              <dt className="fact__label">Оплата</dt>
+              <dt className="fact__label">{t('Оплата')}</dt>
               <dd className="fact__value" data-testid="revision-amount">
                 {facts.paymentCollect
-                  ? `${COLLECT_RU[facts.paymentCollect] ?? facts.paymentCollect} `
+                  ? `${COLLECT_RU[facts.paymentCollect] ? t(COLLECT_RU[facts.paymentCollect]!) : facts.paymentCollect} `
                   : ''}
                 {amountMinor
                   ? formatMoney(amountMinor, facts.currency ?? 'KZT')
@@ -142,7 +148,7 @@ export default async function RevisionPageView({
           {event.status === 'FAILED' && (
             <div className="callout callout--warn">
               <Icon name="incidents" width={16} height={16} />
-              <span>{event.lastError ?? 'ревизия не обработана'}</span>
+              <span>{event.lastError ?? t('ревизия не обработана')}</span>
               {canMutate && <RetryEventButton revisionId={event.externalEventId} canMutate />}
             </div>
           )}
@@ -152,7 +158,7 @@ export default async function RevisionPageView({
         </div>
         <section className="chain__card" aria-labelledby="chain-reservation">
           <h2 id="chain-reservation" className="chain__title">
-            2. Бронь в PMS
+            {t('2. Бронь в PMS')}
           </h2>
           {reservation ? (
             <>
@@ -167,28 +173,28 @@ export default async function RevisionPageView({
                 </Link>
               </div>
               <div>
-                {displayPeriod(reservation.arrivalDate, reservation.departureDate)}, счёт{' '}
-                {due > 0n ? 'открыт' : 'закрыт'}
+                {displayPeriod(reservation.arrivalDate, reservation.departureDate)},{' '}
+                {due > 0n ? t('счёт открыт') : t('счёт закрыт')}
               </div>
               <dl className="facts facts--list">
                 <div>
-                  <dt className="fact__label">Стоимость</dt>
+                  <dt className="fact__label">{t('Стоимость')}</dt>
                   <dd className="fact__value">{formatMoney(total, reservation.currency)}</dd>
                 </div>
                 <div>
-                  <dt className="fact__label">Предоплата канала</dt>
+                  <dt className="fact__label">{t('Предоплата канала')}</dt>
                   <dd className="fact__value">
                     {prepaid ? formatMoney(prepaid, facts.currency ?? reservation.currency) : '—'}
                   </dd>
                 </div>
                 <div>
-                  <dt className="fact__label">К оплате</dt>
+                  <dt className="fact__label">{t('К оплате')}</dt>
                   <dd className="fact__value" data-testid="revision-due">
                     {formatMoney(due, reservation.currency)}
                   </dd>
                 </div>
                 <div>
-                  <dt className="fact__label">Источник</dt>
+                  <dt className="fact__label">{t('Источник')}</dt>
                   <dd className="fact__value">{reservation.channel ?? reservation.source}</dd>
                 </div>
               </dl>
@@ -198,7 +204,7 @@ export default async function RevisionPageView({
                 <AmountChip
                   minor={prepaid}
                   tone="paid"
-                  label="предоплата канала"
+                  label={t('предоплата канала')}
                   currency={facts.currency ?? reservation.currency}
                 />
               ) : (
@@ -208,8 +214,8 @@ export default async function RevisionPageView({
           ) : (
             <p className="muted" data-testid="revision-no-reservation">
               {event.status === 'FAILED'
-                ? 'Бронь не создана: ревизия не обработана. Исправьте причину слева и нажмите «Обработать заново».'
-                : `Бронь по unique_id ${facts.uniqueId ?? '—'} не найдена.`}
+                ? t('Бронь не создана: ревизия не обработана. Исправьте причину слева и нажмите «Обработать заново».')
+                : t('Бронь по unique_id {id} не найдена.', { id: facts.uniqueId ?? '—' })}
             </p>
           )}
         </section>
@@ -218,33 +224,33 @@ export default async function RevisionPageView({
         </div>
         <section className="chain__card" aria-labelledby="chain-unit">
           <h2 id="chain-unit" className="chain__title">
-            3. Номер в календаре
+            {t('3. Номер в календаре')}
           </h2>
           {reservation?.items.length ? (
             reservation.items.map((it) => (
               <div key={it.id} className="stack stack--sm" data-testid="revision-unit">
                 <div className="row row--inline">
                   <Badge tone={it.unitCode ? 'ok' : 'warn'}>
-                    {it.unitCode ? `${it.unitCode}, ${it.accommodationTypeName}` : 'номер не назначен'}
+                    {it.unitCode ? `${it.unitCode}, ${it.accommodationTypeName}` : t('номер не назначен')}
                   </Badge>
                   <StatusBadge kind="hospitality" value={it.status} />
                 </div>
                 <div>{displayPeriod(it.arrivalDate, it.departureDate)}</div>
                 <div className="muted">
                   {it.unitCode
-                    ? 'назначена автоматически: первая свободная в категории (Q-094)'
-                    : 'место не назначено — в календаре в строке «Без номера»'}
+                    ? t('назначена автоматически: первая свободная в категории (Q-094)')
+                    : t('место не назначено: в календаре в строке «Без номера»')}
                 </div>
                 <Link
                   href={`/chessboard?from=${it.arrivalDate}&to=${it.departureDate}`}
                   className="btn btn--secondary btn--sm"
                 >
-                  Открыть календарь на эти даты
+                  {t('Открыть календарь на эти даты')}
                 </Link>
               </div>
             ))
           ) : (
-            <p className="muted">Проживаний нет — номер появится после создания брони.</p>
+            <p className="muted">{t('Проживаний нет: номер появится после создания брони.')}</p>
           )}
         </section>
       </div>

@@ -4,13 +4,9 @@ import { useState } from 'react';
 import { Badge, EmptyState, Field, Input, Row, Select, Table } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import type { PlatformOrganization, PlatformVertical } from '../../lib/api';
-import {
-  PLATFORM_STATUS_LABEL,
-  PLATFORM_VERTICAL_LABEL,
-  extensionLine,
-  organizationSince,
-  organizationStatusLine,
-} from '../../lib/platform';
+import { PLATFORM_STATUS_LABEL, PLATFORM_VERTICAL_LABEL, organizationSince, organizationStatusLine } from '../../lib/platform';
+import { useT } from '../../i18n/locale-provider';
+import { sellerText, statusText } from './words';
 
 /**
  * Таблица клиентов платформы (срез P1, макет владельца): поиск по названию и почте владельца, отбор по статусу
@@ -31,6 +27,7 @@ export function ClientsTable({
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('');
   const [vertical, setVertical] = useState('');
+  const t = useT();
   const needle = q.trim().toLowerCase();
   const visible = items.filter((o) => {
     if (status && o.status !== status) return false;
@@ -45,39 +42,39 @@ export function ClientsTable({
   return (
     <div className="stack stack--sm">
       <Row align="end" data-testid="platform-clients-filters">
-        <Field label="Поиск" controlId="platform-clients-search">
+        <Field label={t('Поиск')} controlId="platform-clients-search">
           <Input
             type="search"
             value={q}
             onChange={(e) => setQ(e.currentTarget.value)}
-            placeholder="Название или почта владельца"
+            placeholder={t('Название или почта владельца')}
             data-testid="platform-clients-search"
           />
         </Field>
-        <Field label="Статус" controlId="platform-filter-status">
+        <Field label={t('Статус')} controlId="platform-filter-status">
           <Select
             value={status}
             onChange={(e) => setStatus(e.currentTarget.value)}
             data-testid="platform-filter-status"
           >
-            <option value="">Все статусы</option>
+            <option value="">{t('Все статусы')}</option>
             {Object.entries(PLATFORM_STATUS_LABEL).map(([value, label]) => (
               <option key={value} value={value}>
-                {label}
+                {t(label)}
               </option>
             ))}
           </Select>
         </Field>
-        <Field label="Направление" controlId="platform-filter-vertical">
+        <Field label={t('Направление')} controlId="platform-filter-vertical">
           <Select
             value={vertical}
             onChange={(e) => setVertical(e.currentTarget.value)}
             data-testid="platform-filter-vertical"
           >
-            <option value="">Все направления</option>
+            <option value="">{t('Все направления')}</option>
             {Object.entries(PLATFORM_VERTICAL_LABEL).map(([value, label]) => (
               <option key={value} value={value}>
-                {label}
+                {t(label)}
               </option>
             ))}
           </Select>
@@ -85,37 +82,37 @@ export function ClientsTable({
       </Row>
       {filtered && (
         <p className="muted" role="status" data-testid="platform-clients-count">
-          Показано {visible.length} из {items.length}
-          {status && `, статус «${PLATFORM_STATUS_LABEL[status] ?? status}»`}
-          {vertical && `, направление «${PLATFORM_VERTICAL_LABEL[vertical as PlatformVertical]}»`}
+          {t('Показано {n} из {total}', { n: visible.length, total: items.length })}
+          {status && t(', статус «{status}»', { status: t(PLATFORM_STATUS_LABEL[status] ?? status) })}
+          {vertical && t(', направление «{vertical}»', { vertical: t(PLATFORM_VERTICAL_LABEL[vertical as PlatformVertical]) })}
         </p>
       )}
       {visible.length === 0 ? (
         <EmptyState
           icon={<Icon name="search" width={32} height={32} />}
-          title="Под условия поиска никто не попал"
+          title={t('Под условия поиска никто не попал')}
           data-testid="platform-clients-empty"
         >
-          Смягчите поиск или снимите отбор по статусу и направлению.
+          {t('Смягчите поиск или снимите отбор по статусу и направлению.')}
         </EmptyState>
       ) : (
-        <Table aria-label="Организации платформы" data-testid="platform-organizations">
+        <Table aria-label={t('Организации платформы')} data-testid="platform-organizations">
           <thead>
             <tr>
-              <th>Организация</th>
-              <th>Направление</th>
-              <th>Состояние</th>
-              <th>Филиалы</th>
-              <th>Людей</th>
-              <th>Владелец</th>
-              <th>Подключена</th>
-              <th>ИИ-продавец</th>
+              <th>{t('Организация')}</th>
+              <th>{t('Направление')}</th>
+              <th>{t('Состояние')}</th>
+              <th>{t('Филиалы')}</th>
+              <th>{t('Людей')}</th>
+              <th>{t('Владелец')}</th>
+              <th>{t('Подключена')}</th>
+              <th>{t('ИИ-продавец')}</th>
             </tr>
           </thead>
           <tbody>
             {visible.map((o) => {
               const line = organizationStatusLine(o);
-              const seller = extensionLine(o.aiSeller);
+              const seller = sellerText(o.aiSeller, t);
               return (
                 <tr key={o.id} aria-current={o.id === selected ? 'true' : undefined}>
                   <td>
@@ -125,23 +122,23 @@ export function ClientsTable({
                     {o.id === ownId && (
                       <>
                         {' '}
-                        <Badge tone="info">Ваша</Badge>
+                        <Badge tone="info">{t('Ваша')}</Badge>
                       </>
                     )}
                     {o.ownerPending && (
                       <>
                         {' '}
-                        <Badge tone="warn">ждёт пароля</Badge>
+                        <Badge tone="warn">{t('ждёт пароля')}</Badge>
                       </>
                     )}
                   </td>
-                  <td>{o.verticals.map((v) => PLATFORM_VERTICAL_LABEL[v]).join(', ') || 'Не указано'}</td>
+                  <td>{o.verticals.map((v) => t(PLATFORM_VERTICAL_LABEL[v])).join(', ') || t('Не указано')}</td>
                   <td>
-                    <Badge tone={line.tone}>{line.label}</Badge>
+                    <Badge tone={line.tone}>{statusText(o, t)}</Badge>
                   </td>
                   <td>{o.locations}</td>
                   <td>{o.members}</td>
-                  <td>{o.owners.length > 0 ? o.owners.join(', ') : 'Не указан'}</td>
+                  <td>{o.owners.length > 0 ? o.owners.join(', ') : t('Не указан')}</td>
                   <td>
                     <time dateTime={o.createdAt.slice(0, 10)}>{organizationSince(o.createdAt)}</time>
                   </td>

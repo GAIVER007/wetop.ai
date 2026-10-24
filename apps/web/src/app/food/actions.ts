@@ -5,6 +5,8 @@ import { unstable_rethrow } from 'next/navigation';
 import { ApiError } from '../../lib/api';
 import { currentMe } from '../../lib/desk-shell';
 import { foodApi } from '../../lib/food-api';
+import { msg } from '../../i18n';
+import { serverT } from '../../i18n/server';
 import type {
   AreaInput,
   FoodStatus,
@@ -33,15 +35,16 @@ async function scope(key: string) {
     !context.locationId ||
     key !== `${context.businessId}:${context.locationId}`
   )
-    throw new ApiError(409, 'Выбран другой ресторан. Откройте форму заново.');
+    throw new ApiError(409, (await serverT())(msg('Выбран другой ресторан. Откройте форму заново.')));
 }
-function failure(error: unknown) {
+async function failure(error: unknown) {
   unstable_rethrow(error);
+  const t = await serverT();
   const message =
-    error instanceof Error ? error.message : 'Не удалось сохранить. Повторите действие.';
+    error instanceof Error ? error.message : t('Не удалось сохранить. Повторите действие.');
   const stale =
-    error instanceof ApiError && error.status === 409 && /измен|stale|устар/i.test(message);
-  return { error: stale ? 'Бронирование уже изменилось. Данные обновлены.' : message, stale };
+    error instanceof ApiError && error.status === 409 && /измен|stale|устар/i.test(message); // kk-allow: сверка с текстом ответа API
+  return { error: stale ? t('Бронирование уже изменилось. Данные обновлены.') : message, stale };
 }
 export async function saveFoodCatalog(scopeKey: string, command: CatalogCommand) {
   try {
@@ -112,7 +115,7 @@ export async function saveBookingRules(scopeKey: string, command: BookingRulesCo
     revalidatePath('/restaurant-settings');
     return { error: null };
   } catch (error) {
-    return { error: failure(error).error };
+    return { error: (await failure(error)).error };
   }
 }
 

@@ -7,6 +7,7 @@ import { Icon } from '../../components/icon';
 import { StatusBadge, Table, Badge, cx } from '../../components/ui';
 import type { GuestRowView } from './row-view';
 import { formatPhone } from '../../lib/phone';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * Таблица «Гостей и бронирований» (план guests-bookings-2026-10-09). Клиентской её делает только выбор: щелчок по
@@ -38,6 +39,7 @@ export function GuestsTable({
   /** страницы и размер страницы справа от полосы действий: серверная строка приходит детьми (именованным свойством React ругался на ключи) */
   children?: ReactNode;
 }) {
+  const t = useT();
   const router = useRouter();
   const [checked, setChecked] = useState<ReadonlySet<string>>(
     () => new Set(selectedId ? [selectedId] : []),
@@ -57,36 +59,36 @@ export function GuestsTable({
   // причина неактивной кнопки: ничего не отмечено, отмечено несколько (групповых действий нет) или не подходит статусу
   const hint =
     checked.size === 0
-      ? 'Отметьте одну бронь'
+      ? t('Отметьте одну бронь')
       : checked.size > 1
-        ? 'Групповых действий нет: отметьте одну бронь'
-        : 'Не подходит этой брони';
+        ? t('Групповых действий нет: отметьте одну бронь')
+        : t('Не подходит этой брони');
 
   return (
     <>
-      <Table aria-label="Гости и бронирования" data-testid="guests-table" className="gb-table" nowrap>
+      <Table aria-label={t('Гости и бронирования')} data-testid="guests-table" className="gb-table" nowrap>
         <thead>
           <tr>
             <th className="gb-check">
               <input
                 type="checkbox"
-                aria-label="Отметить всех на странице"
+                aria-label={t('Отметить всех на странице')}
                 checked={allChecked}
                 onChange={() => setChecked(allChecked ? new Set() : new Set(rows.map((r) => r.id)))}
               />
             </th>
-            <th>Гость</th>
-            <th className="gb-wide">Контакты</th>
-            <th className="gb-wide">Бронь</th>
-            <th>Проживание / статус</th>
-            <th>Даты</th>
-            <th className="gb-wide">Номер</th>
-            <th className="num gb-opt gb-wide">Гостей</th>
-            <th>Оплата</th>
-            <th className="gb-opt gb-wide">Источник</th>
-            <th className="gb-wide">Последний визит</th>
+            <th>{t('Гость')}</th>
+            <th className="gb-wide">{t('Контакты')}</th>
+            <th className="gb-wide">{t('Бронь')}</th>
+            <th>{t('Проживание / статус')}</th>
+            <th>{t('Даты')}</th>
+            <th className="gb-wide">{t('Номер')}</th>
+            <th className="num gb-opt gb-wide">{t('Гостей')}</th>
+            <th>{t('Оплата')}</th>
+            <th className="gb-opt gb-wide">{t('Источник')}</th>
+            <th className="gb-wide">{t('Последний визит')}</th>
             <th className="gb-more">
-              <span className="sr-only">Действия</span>
+              <span className="sr-only">{t('Действия')}</span>
             </th>
           </tr>
         </thead>
@@ -106,7 +108,7 @@ export function GuestsTable({
                 <td className="gb-check">
                   <input
                     type="checkbox"
-                    aria-label={`Отметить: ${r.name}`}
+                    aria-label={t('Отметить: {name}', { name: r.name })}
                     checked={checked.has(r.id)}
                     onChange={() => toggle(r.id)}
                   />
@@ -171,7 +173,7 @@ export function GuestsTable({
                       {r.unit.code ? (
                         <strong>{r.unit.code}</strong>
                       ) : (
-                        <span className="warn-text">не назначена</span>
+                        <span className="warn-text">{t('не назначена')}</span>
                       )}
                       <small>{r.unit.category}</small>
                     </div>
@@ -199,20 +201,20 @@ export function GuestsTable({
                 </td>
                 <td className="gb-more">
                   <ActionMenu
-                    label={`Действия: ${r.name}`}
+                    label={t('Действия: {name}', { name: r.name })}
                     size="sm"
                     items={[
                       ...(r.booking
-                        ? [{ label: 'Открыть бронь', onSelect: () => router.push(r.booking!.href) }]
+                        ? [{ label: t('Открыть бронь'), onSelect: () => router.push(r.booking!.href) }]
                         : []),
-                      { label: 'Открыть гостя', onSelect: () => router.push(r.openHref) },
+                      { label: t('Открыть гостя'), onSelect: () => router.push(r.openHref) },
                       ...(r.newBookingHref
-                        ? [{ label: 'Новая бронь', onSelect: () => router.push(r.newBookingHref!) }]
+                        ? [{ label: t('Новая бронь'), onSelect: () => router.push(r.newBookingHref!) }]
                         : []),
                       ...(r.whatsapp
                         ? [
                             {
-                              label: 'Написать в WhatsApp',
+                              label: t('Написать в WhatsApp'),
                               onSelect: () => window.open(r.whatsapp!, '_blank', 'noopener'),
                             },
                           ]
@@ -226,24 +228,24 @@ export function GuestsTable({
         </tbody>
       </Table>
       <div className="gb-footer">
-        <div className="gb-bulk" role="toolbar" aria-label="Действия с отмеченными">
+        <div className="gb-bulk" role="toolbar" aria-label={t('Действия с отмеченными')}>
           <span className="gb-bulk__count" data-testid="guests-selected" role="status">
-            Выбрано {checked.size} из {total}
+            {t('Выбрано {n} из {total}', { n: checked.size, total })}
           </span>
           {editable && (
             <>
-              <BulkAction icon="arrival" label="Заселить" href={one?.actions.checkIn} hint={hint} />
-              <BulkAction icon="departure" label="Выселить" href={one?.actions.checkOut} hint={hint} />
-              <BulkAction icon="clock" label="Продлить" href={one?.actions.extend} hint={hint} />
-              <BulkAction icon="plus" label="Добавить услугу" href={one?.actions.service} hint={hint} />
+              <BulkAction icon="arrival" label={t('Заселить')} href={one?.actions.checkIn} hint={hint} />
+              <BulkAction icon="departure" label={t('Выселить')} href={one?.actions.checkOut} hint={hint} />
+              <BulkAction icon="clock" label={t('Продлить')} href={one?.actions.extend} hint={hint} />
+              <BulkAction icon="plus" label={t('Добавить услугу')} href={one?.actions.service} hint={hint} />
             </>
           )}
           <ActionMenu
-            label="Ещё действия"
+            label={t('Ещё действия')}
             size="sm"
             items={[
               {
-                label: 'Снять отметки',
+                label: t('Снять отметки'),
                 disabled: checked.size === 0,
                 onSelect: () => setChecked(new Set()),
               },

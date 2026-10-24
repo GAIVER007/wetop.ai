@@ -7,7 +7,7 @@ describe('approved TZ12 presentation compatibility port', () => {
     expect(text).toContain('rest-hours--editable');
     expect(text).toContain('className="rest-hours__from"');
     expect(text).toContain('className="rest-hours__to"');
-    expect(text).toContain('<span aria-hidden="true">До</span>');
+    expect(text).toContain(`<span aria-hidden="true">{t('До')}</span>`); // KK3: подпись через перевод
     const css = source('food/restaurant.css');
     expect(css).toContain("grid-template-areas: 'day toggle' 'from to'");
     expect(css).toContain('.rest-hours--editable li');

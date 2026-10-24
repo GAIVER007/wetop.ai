@@ -5,6 +5,7 @@ import { Field, Input, Select } from '../../components/ui';
 import { shiftDate } from '../../lib/food-data';
 import type { FoodWorkspace } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
+import { useT } from '../../i18n/locale-provider';
 
 /** Подпись поля только для программы чтения: панель экрана одной строкой, как на макете */
 export const quiet = (text: string) => <span className="sr-only">{text}</span>;
@@ -21,6 +22,7 @@ export function DayToolbar({
   period: string;
   setPeriod: (v: string) => void;
 }) {
+  const t = useT();
   const router = useRouter();
   const path = floor ? '/floor-plan' : '/table-reservations';
   function go(date: string, time?: string) {
@@ -53,7 +55,7 @@ export function DayToolbar({
       />
       {/* план зала: смены карточками с часами, как на эталоне 13.10.2026; на расписании прежний список */}
       {floor && shifts.length > 0 ? (
-        <div className="rest-shifts" role="group" aria-label="Период">
+        <div className="rest-shifts" role="group" aria-label={t('Период')}>
           {shifts.map((p) => (
             <button
               key={p.id}
@@ -70,9 +72,9 @@ export function DayToolbar({
           ))}
         </div>
       ) : (
-        <Field label={quiet('Период')}>
+        <Field label={quiet(t('Период'))}>
           <Select value={period} onChange={(e) => setPeriod(e.target.value)}>
-            <option value="">Все периоды</option>
+            <option value="">{t('Все периоды')}</option>
             {data.periods
               .filter((p) => p.active)
               .map((p) => (
@@ -84,7 +86,7 @@ export function DayToolbar({
         </Field>
       )}
       {floor && (
-        <Field label={quiet('Время плана')}>
+        <Field label={quiet(t('Время плана'))}>
           <Input
             type="time"
             value={data.time}

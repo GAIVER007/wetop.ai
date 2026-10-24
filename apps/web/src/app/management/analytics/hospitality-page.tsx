@@ -9,6 +9,7 @@ import { AnalyticsToolbar } from './toolbar';
 import { Overview, OverviewSkeleton } from './overview';
 import { parseAnalyticsQuery } from './params';
 import './analytics.css';
+import { serverT } from '../../../i18n/server';
 
 /**
  * «Аналитика → Обзор» (ТЗ владельца «Аналитика v2» от 27.09.2026, срез AN1, ADR-114): как работал объект
@@ -23,25 +24,28 @@ export async function HospitalityAnalytics({
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const query = parseAnalyticsQuery(sp, today);
+  const t = await serverT();
   return (
     <Page
       actions={
         <>
           <Link className="btn btn--secondary" href="/management/analytics?scope=organization">
-            Сводка направлений
+            {t('Сводка направлений')}
           </Link>
           <Link className="btn btn--secondary" href="/branches">
-            Все филиалы
+            {t('Все филиалы')}
           </Link>
         </>
       }
       className="analytics-page"
-      title="Аналитика"
-      subtitle="Как работал объект за период и что изменилось."
+      title={t('Аналитика')}
+      subtitle={t('Как работал объект за период и что изменилось.')}
     >
       <AnalyticsTabs current="overview" fund={query.fund} />
       <AnalyticsToolbar query={query} today={today} />
-      {query.period.error && <Alert boxed>{query.period.error}. Показан сегодняшний день.</Alert>}
+      {query.period.error && (
+        <Alert boxed>{t('{error}. Показан сегодняшний день.', { error: t(query.period.error) })}</Alert>
+      )}
       <Suspense
         key={`${query.period.from}|${query.period.to}|${query.fund}|${query.compare}`}
         fallback={<OverviewSkeleton />}

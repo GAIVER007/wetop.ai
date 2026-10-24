@@ -6,6 +6,7 @@
  * Параметры прежних «Гостей v2» (`last`, `visits`, `sort`) страница больше не читает: у экрана нет под них
  * элементов, а скрытый отбор вводил бы в заблуждение. API их по-прежнему понимает.
  */
+import { msg } from '../../i18n';
 export type GuestSection = 'ALL' | 'INHOUSE' | 'EXPECTED' | 'RECENT' | 'NONE';
 export type GuestView = 'all' | 'today' | 'inhouse' | 'expected' | 'departures' | 'attention';
 export type GuestPeriod = '' | 'today' | '7d' | '30d' | 'range';
@@ -35,33 +36,33 @@ export interface GuestFilters {
 }
 
 export const VIEWS: ReadonlyArray<{ id: GuestView; label: string }> = [
-  { id: 'all', label: 'Все' },
-  { id: 'today', label: 'Сегодня' },
-  { id: 'inhouse', label: 'Проживают' },
-  { id: 'expected', label: 'Ожидают' },
-  { id: 'departures', label: 'Выезды' },
-  { id: 'attention', label: 'Проблемные' },
+  { id: 'all', label: msg('Все') },
+  { id: 'today', label: msg('Сегодня') },
+  { id: 'inhouse', label: msg('Проживают') },
+  { id: 'expected', label: msg('Ожидают') },
+  { id: 'departures', label: msg('Выезды') },
+  { id: 'attention', label: msg('Проблемные') },
 ];
 /** Слова состояния гостя в выпадающем «Статус»; на экране это состояние человека, а не статус брони (ТЗ «Гости v2» §15) */
 export const STATES: ReadonlyArray<[GuestSection, string]> = [
-  ['ALL', 'Все статусы'],
-  ['INHOUSE', 'Проживает'],
-  ['EXPECTED', 'Ожидается'],
-  ['RECENT', 'Выехал недавно'],
-  ['NONE', 'Без активного проживания'],
+  ['ALL', msg('Все статусы')],
+  ['INHOUSE', msg('Проживает')],
+  ['EXPECTED', msg('Ожидается')],
+  ['RECENT', msg('Выехал недавно')],
+  ['NONE', msg('Без активного проживания')],
 ];
 export const PERIODS: ReadonlyArray<[GuestPeriod, string]> = [
-  ['', 'Все даты'],
-  ['today', 'Сегодня'],
-  ['7d', '7 дней'],
-  ['30d', '30 дней'],
-  ['range', 'Свои даты'],
+  ['', msg('Все даты')],
+  ['today', msg('Сегодня')],
+  ['7d', msg('7 дней')],
+  ['30d', msg('30 дней')],
+  ['range', msg('Свои даты')],
 ];
 /** Три переключателя под чипами: имя в адресе, подпись, поле отбора */
 export const TOGGLES: ReadonlyArray<{ id: 'debt' | 'fresh' | 'nocontact'; label: string }> = [
-  { id: 'debt', label: 'Только с долгом' },
-  { id: 'fresh', label: 'Только новые' },
-  { id: 'nocontact', label: 'Только без контакта' },
+  { id: 'debt', label: msg('Только с долгом') },
+  { id: 'fresh', label: msg('Только новые') },
+  { id: 'nocontact', label: msg('Только без контакта') },
 ];
 
 // 13-й месяц даёт Invalid Date, его toISOString() бросает RangeError: сначала число
@@ -108,25 +109,25 @@ export function parseGuestFilters(sp: Record<string, string | undefined>): {
     guest: sp.guest ?? '',
   };
   const error = !VIEWS.some((v) => v.id === f.view)
-    ? 'Неизвестный вид списка.'
+    ? msg('Неизвестный вид списка.')
     : !STATES.some(([id]) => id === f.state)
-      ? 'Неизвестный статус гостя.'
+      ? msg('Неизвестный статус гостя.')
       : !/^\d+$/.test(f.page) || Number(f.page) < 1 || Number(f.page) > 10000
-        ? 'Номер страницы должен быть от 1 до 10000.'
+        ? msg('Номер страницы должен быть от 1 до 10000.')
         : !(PAGE_SIZES as readonly number[]).includes(f.size)
-          ? 'Размер страницы: 10, 25 или 50.'
+          ? msg('Размер страницы: 10, 25 или 50.')
           : f.q.length > 120
-            ? 'Поиск: не более 120 символов.'
+            ? msg('Поиск: не более 120 символов.')
             : f.source.length > 64
-              ? 'Источник: не более 64 символов.'
+              ? msg('Источник: не более 64 символов.')
               : !PERIODS.some(([id]) => id === f.period)
-                ? 'Неизвестный период.'
+                ? msg('Неизвестный период.')
                 : f.period === 'range' &&
                     !(isDay(f.from) && isDay(f.to) && f.from <= f.to)
-                  ? 'Период: укажите даты «с» и «по», «с» не позже «по».'
+                  ? msg('Период: укажите даты «с» и «по», «с» не позже «по».')
                   : f.period === 'range' &&
                       Date.parse(f.to) - Date.parse(f.from) > 365 * 86400000
-                    ? 'Период: не длиннее 366 дней.'
+                    ? msg('Период: не длиннее 366 дней.')
                     : null;
   if (error) return { f: { ...DEFAULT_FILTERS }, error };
   // даты нужны только своим периодом: в адресе без него они ничего не значат

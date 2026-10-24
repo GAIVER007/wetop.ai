@@ -5,6 +5,7 @@ import { Alert, Button, Notice, Row, Stack } from '../../../components/ui';
 import { useConfirm } from '../../../components/use-confirm';
 import type { SimpleResult } from '../../ai-seller/actions';
 import { supportCloseAction, supportModeAction } from './actions';
+import { useT } from '../../../i18n/locale-provider';
 
 /**
  * Действия оператора над открытым обращением (S1): «Забрать диалог» или «Вернуть ИИ» — по режиму, и «Закрыть
@@ -15,6 +16,7 @@ export function SupportDialogActions({ id, mode }: { id: string; mode: string })
   const [pending, start] = useTransition();
   const [busy, setBusy] = useState<'mode' | 'close' | null>(null);
   const { ask, dialog } = useConfirm();
+  const t = useT();
 
   const switchMode = (action: 'takeover' | 'release') => {
     setBusy('mode');
@@ -23,10 +25,10 @@ export function SupportDialogActions({ id, mode }: { id: string; mode: string })
 
   const close = async () => {
     const ok = await ask({
-      title: 'Закрыть обращение?',
-      body: 'Диалог уйдёт в «Закрытые» вместе с перепиской. Если человек напишет снова, откроется новое обращение.',
-      confirmLabel: 'Закрыть обращение',
-      cancelLabel: 'Оставить открытым',
+      title: t('Закрыть обращение?'),
+      body: t('Диалог уйдёт в «Закрытые» вместе с перепиской. Если человек напишет снова, откроется новое обращение.'),
+      confirmLabel: t('Закрыть обращение'),
+      cancelLabel: t('Оставить открытым'),
       tone: 'secondary',
     });
     if (!ok) return;
@@ -47,7 +49,7 @@ export function SupportDialogActions({ id, mode }: { id: string; mode: string })
             aria-busy={pending && busy === 'mode'}
             data-testid="dialog-release"
           >
-            {pending && busy === 'mode' ? 'Возвращаю…' : 'Вернуть ИИ'}
+            {pending && busy === 'mode' ? t('Возвращаю…') : t('Вернуть ИИ')}
           </Button>
         ) : (
           <Button
@@ -57,7 +59,7 @@ export function SupportDialogActions({ id, mode }: { id: string; mode: string })
             aria-busy={pending && busy === 'mode'}
             data-testid="dialog-takeover"
           >
-            {pending && busy === 'mode' ? 'Забираю…' : 'Забрать диалог'}
+            {pending && busy === 'mode' ? t('Забираю…') : t('Забрать диалог')}
           </Button>
         )}
         <Button
@@ -68,7 +70,7 @@ export function SupportDialogActions({ id, mode }: { id: string; mode: string })
           aria-busy={pending && busy === 'close'}
           data-testid="dialog-close"
         >
-          {pending && busy === 'close' ? 'Закрываю…' : 'Закрыть обращение'}
+          {pending && busy === 'close' ? t('Закрываю…') : t('Закрыть обращение')}
         </Button>
       </Row>
       {result?.error && <Alert>{result.error}</Alert>}

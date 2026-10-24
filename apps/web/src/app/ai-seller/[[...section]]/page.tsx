@@ -55,7 +55,6 @@ import { sellerApi, type SellerFactsView, type SellerLlmUsage, type SellerStatus
 import { propertyClock } from '../../../lib/property-time';
 import { workspaceTimezone } from '../../../lib/workspace-context';
 import { loadErrorProps } from '../../../lib/load-error';
-import { pluralRu } from '../../../lib/plural';
 import { CopyButton } from '../../website/forms';
 import {
   DialogHandling,
@@ -75,6 +74,9 @@ import { ScenariosView } from './scenarios';
 import '../ai-seller.css';
 import { Tabs } from '../../../components/tabs';
 import { formatPhone } from '../../../lib/phone';
+import { countLabel, intlLocale, msg, type Translate } from '../../../i18n';
+import { dateFormat } from '../../../i18n/dates';
+import { currentLocale, serverT } from '../../../i18n/server';
 
 /**
  * Раздел «ИИ-продавец» (ТЗ ред. 1 §4.1, П6; ADR-079; макет владельца 26.09.2026 — ADR-097). Четыре экрана:
@@ -95,17 +97,17 @@ const settle = <T,>(promise: Promise<T>) =>
   );
 
 const MODES = [
-  { value: '', label: 'Все' },
-  { value: 'needs_human', label: 'Нужен человек' },
-  { value: 'owner_takeover', label: 'Ведёт человек' },
-  { value: 'bot_active', label: 'Ведёт бот' },
+  { value: '', label: msg('Все') },
+  { value: 'needs_human', label: msg('Нужен человек') },
+  { value: 'owner_takeover', label: msg('Ведёт человек') },
+  { value: 'bot_active', label: msg('Ведёт бот') },
 ] as const;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ROLE: Record<string, string> = {
-  user: 'Гость',
-  assistant: 'Продавец',
-  operator: 'Человек',
-  system: 'Система',
+  user: msg('Гость'),
+  assistant: msg('Продавец'),
+  operator: msg('Человек'),
+  system: msg('Система'),
 };
 
 export default async function AiSellerPage({
@@ -116,6 +118,7 @@ export default async function AiSellerPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { section = [] } = await params;
+  const t = await serverT();
   if (section.length > 1) notFound();
   const legacy = SELLER_LEGACY_VIEWS[section[0] ?? ''];
   if (legacy !== undefined) redirect(legacy ? `/ai-seller/${legacy}` : '/ai-seller');
@@ -133,13 +136,13 @@ export default async function AiSellerPage({
   const first = await settle(sellerApi.status());
   if (first.ok && first.value.state === 'extension-off')
     return (
-      <Page title="ИИ-продавец">
-        <ExtensionOff status={first.value} platform={access.platform} vertical={vertical} />
+      <Page title={t('ИИ-продавец')}>
+        <ExtensionOff status={first.value} platform={access.platform} vertical={vertical} t={t} />
       </Page>
     );
   return (
     <Page
-      title="ИИ-продавец"
+      title={t('ИИ-продавец')}
       subtitle={
         <Suspense fallback={null}>
           <SellerStatePill />
@@ -151,12 +154,12 @@ export default async function AiSellerPage({
             {/* переключатель агентов: техподдержка WETOP живёт рядом с продавцом, пункта меню у неё нет */}
             {access.platform && (
               <Link className="btn btn--secondary" href="/platform/support">
-                Техподдержка
+                {t('Техподдержка')}
               </Link>
             )}
             {configure && (
               <Link className="btn btn--secondary" href="/ai-agents">
-                Все агенты
+                {t('Все агенты')}
               </Link>
             )}
           </Row>
@@ -164,10 +167,10 @@ export default async function AiSellerPage({
       }
     >
       <Tabs
-        label="ИИ-продавец"
-        items={tabs.map((item) => ({ href: item.href, label: item.label, current: item.view === view }))}
+        label={t('ИИ-продавец')}
+        items={tabs.map((item) => ({ href: item.href, label: t(item.label), current: item.view === view }))}
       />
-      <Suspense key={view} fallback={<LoadingState label="Спрашиваем продавца…" />}>
+      <Suspense key={view} fallback={<LoadingState label={t('Спрашиваем продавца…')} />}>
         <SellerScreen
           view={view}
           mode={one(query.mode)}
@@ -192,11 +195,14 @@ async function KeyDownAlert({ status }: { status: SellerStatus }) {
   if (!sellerConnected(status) || status.canConfigure === false) return null;
   const key = await settle(sellerApi.llmKey());
   if (!key.ok || (key.value.state !== 'no_credits' && key.value.state !== 'invalid_key')) return null;
-  const reason = key.value.reason ?? 'модель отказала';
+  const t = await serverT();
+  const reason = key.value.reason ?? t('модель отказала');
   return (
     <Alert data-testid="seller-key-down">
-      Продавец не отвечает гостям: {reason.charAt(0).toLowerCase() + reason.slice(1)}. Гости получают «администратор
-      свяжется». <Link href="/ai-seller/connections">Открыть «Модель ИИ»</Link>
+      {t('Продавец не отвечает гостям: {reason}. Гости получают «администратор свяжется».', {
+        reason: reason.charAt(0).toLowerCase() + reason.slice(1),
+      })}{' '}
+      <Link href="/ai-seller/connections">{t('Открыть «Модель ИИ»')}</Link>
     </Alert>
   );
 }
@@ -205,13 +211,14 @@ async function KeyDownAlert({ status }: { status: SellerStatus }) {
 async function SellerStatePill() {
   const status = await settle(sellerApi.status());
   if (!status.ok) return null;
+  const t = await serverT();
   const banner = sellerBanner(status.value);
   return (
     <span className="seller-state" data-testid="seller-state">
       <Badge tone={banner.tone === 'calm' ? 'ok' : banner.tone === 'alarm' ? 'danger' : 'warn'}>
-        {banner.value}
+        {t(banner.value)}
       </Badge>
-      <span>{banner.title}</span>
+      <span>{t(banner.title)}</span>
     </span>
   );
 }
@@ -236,11 +243,12 @@ async function SellerScreen({
   owner: boolean;
   vertical: WebVertical;
 }) {
+  const t = await serverT();
   const status = await settle(sellerApi.status());
   if (!status.ok) return <LoadError testId="seller-error" {...loadErrorProps(status.error)} />;
   if (status.value.state === 'extension-off') {
     const { access } = await deskShell();
-    return <ExtensionOff status={status.value} platform={access.platform} vertical={vertical} />;
+    return <ExtensionOff status={status.value} platform={access.platform} vertical={vertical} t={t} />;
   }
   // напоминание — тому, кто продлевает: владельцу организации (Q-183, ADR-107)
   const reminder =
@@ -257,12 +265,12 @@ async function SellerScreen({
       {view === 'overview' && <OverviewView status={status.value} />}
       {view === '' && <Stack>
         <OverviewView status={status.value} />
-        <details className="seller-setup-disclosure"><summary>Настройка продавца</summary><SetupView status={status.value} vertical={vertical} /></details>
+        <details className="seller-setup-disclosure"><summary>{t('Настройка продавца')}</summary><SetupView status={status.value} vertical={vertical} /></details>
       </Stack>}
       {view === 'dialogs' && <DialogsView status={status.value} mode={mode} id={id} q={q} channel={channel} />}
       {view === 'knowledge' && <KnowledgeView status={status.value} />}
       {view === 'connections' && <ConnectionsView status={status.value} summary vertical={vertical} />}
-      {view === 'scenarios' && <ScenariosView status={status.value} vertical={vertical} />}
+      {view === 'scenarios' && <ScenariosView status={status.value} vertical={vertical} t={t} />}
       {view === 'analytics' && <AnalyticsView days={days} status={status.value} />}
     </Stack>
   );
@@ -273,6 +281,7 @@ async function SellerScreen({
  * и рядом разговор с продавцом до публикации. Пустое окно заполнено черновиком из прежних полей — ничего не теряется.
  */
 async function SetupView({ status, vertical }: { status: SellerStatus; vertical: WebVertical }) {
+  const t = await serverT();
   const readOnly = sellerReadOnlyReason(status);
   const connected = sellerConnected(status);
   const [prompt, profile, key, clock] = await Promise.all([
@@ -294,18 +303,18 @@ async function SetupView({ status, vertical }: { status: SellerStatus; vertical:
   const copy = sellerVerticalUiCopy(vertical);
   const note =
     prompt.value.applied && prompt.value.updatedAt
-      ? `Применено ${clock.when(prompt.value.updatedAt)}`
+      ? t('Применено {when}', { when: clock.when(prompt.value.updatedAt) })
       : prompt.value.saved
-        ? 'Сохранено, но ещё не у продавца'
+        ? t('Сохранено, но ещё не у продавца')
         : null;
   return (
     <Stack>
-      {banner.tone === 'alarm' && <Alert data-testid="seller-state-reason">{banner.text}</Alert>}
+      {banner.tone === 'alarm' && <Alert data-testid="seller-state-reason">{t(banner.text)}</Alert>}
       <SetupWizard>
         <Stack>
         <Panel data-testid="seller-setup" aria-labelledby="seller-prompt-title">
           <SectionTitle first id="seller-prompt-title">
-            Инструкция продавцу
+            {t('Инструкция продавцу')}
           </SectionTitle>
           <SellerPromptForm
             initial={initial}
@@ -315,12 +324,11 @@ async function SetupView({ status, vertical }: { status: SellerStatus; vertical:
           />
           <p className="settings-note seller-setup__note">
             <Icon name="board" width={16} height={16} aria-hidden="true" />
-            {copy.setupData}
+            {t(copy.setupData)}
           </p>
           <p className="settings-note seller-setup__note">
             <Icon name="shield" width={16} height={16} aria-hidden="true" />
-            Защитные правила продавец добавляет всегда: не считает суммы, не обещает за
-            администратора, зовёт человека.
+            {t('Защитные правила продавец добавляет всегда: не считает суммы, не обещает за администратора, зовёт человека.')}
           </p>
         </Panel>
         <PromptVersions canRestore={!readOnly} />
@@ -328,30 +336,28 @@ async function SetupView({ status, vertical }: { status: SellerStatus; vertical:
         <ConnectionsView status={status} vertical={vertical} />
         <Panel data-testid="seller-check" aria-labelledby="seller-check-title">
           <SectionTitle first id="seller-check-title">
-            Проверка
+            {t('Проверка')}
           </SectionTitle>
           {!connected ? (
-            <p className="settings-note">Проверка заработает, когда продавец будет подключён.</p>
+            <p className="settings-note">{t('Проверка заработает, когда продавец будет подключён.')}</p>
           ) : !sellerCanAct(status) ? (
             <p className="settings-note" data-testid="seller-action-closed">
-              Проверка — при действующем расширении.
+              {t('Проверка — при действующем расширении.')}
             </p>
           ) : (
             <SandboxForm />
           )}
         </Panel>
         <Panel>
-          <SectionTitle first>Перед первым разговором с гостем</SectionTitle>
+          <SectionTitle first>{t('Перед первым разговором с гостем')}</SectionTitle>
           {checklist && <SetupChecklist items={checklist} />}
           <p>
-            Применённая инструкция не означает, что канал уже подключён. На шаге «Подключения»
-            проверьте его состояние.
+            {t('Применённая инструкция не означает, что канал уже подключён. На шаге «Подключения» проверьте его состояние.')}
           </p>
           <p>
-            Откройте подключённого бота или чат сайта, отправьте тестовое сообщение и убедитесь, что
-            ответ пришёл. Только после этого начинайте общение с гостями.
+            {t('Откройте подключённого бота или чат сайта, отправьте тестовое сообщение и убедитесь, что ответ пришёл. Только после этого начинайте общение с гостями.')}
           </p>
-          <Link href="/ai-seller/dialogs">Открыть диалоги</Link>
+          <Link href="/ai-seller/dialogs">{t('Открыть диалоги')}</Link>
         </Panel>
       </SetupWizard>
     </Stack>
@@ -360,6 +366,7 @@ async function SetupView({ status, vertical }: { status: SellerStatus; vertical:
 
 /** История инструкции (SALES2.7, DATA_MODEL §33): последние версии с возвратом. Нет версий: честная подсказка, не пустота */
 async function PromptVersions({ canRestore }: { canRestore: boolean }) {
+  const t = await serverT();
   const clock = await hotelClock();
   const loaded = await settle(sellerApi.promptVersions());
   if (!loaded.ok) return null;
@@ -367,23 +374,23 @@ async function PromptVersions({ canRestore }: { canRestore: boolean }) {
   return (
     <Panel data-testid="seller-prompt-versions" aria-labelledby="seller-versions-title">
       <SectionTitle first id="seller-versions-title">
-        Прежние версии инструкции
+        {t('Прежние версии инструкции')}
       </SectionTitle>
       {items.length === 0 ? (
         <p className="settings-note" data-testid="seller-prompt-versions-empty">
-          Версий пока нет. Каждое сохранение с изменённым текстом появится здесь, и к нему можно будет вернуться.
+          {t('Версий пока нет. Каждое сохранение с изменённым текстом появится здесь, и к нему можно будет вернуться.')}
         </p>
       ) : (
-        <Table size="sm" aria-label="Версии инструкции продавца" data-testid="seller-prompt-versions-table">
+        <Table size="sm" aria-label={t('Версии инструкции продавца')} data-testid="seller-prompt-versions-table">
           <thead>
             <tr>
-              <th scope="col">Сохранена</th>
-              <th scope="col">Кто</th>
-              <th scope="col">Начало текста</th>
-              <th scope="col">Знаков</th>
+              <th scope="col">{t('Сохранена')}</th>
+              <th scope="col">{t('Кто')}</th>
+              <th scope="col">{t('Начало текста')}</th>
+              <th scope="col">{t('Знаков')}</th>
               {canRestore && (
                 <th scope="col">
-                  <span className="sr-only">Действие</span>
+                  <span className="sr-only">{t('Действие')}</span>
                 </th>
               )}
             </tr>
@@ -392,12 +399,12 @@ async function PromptVersions({ canRestore }: { canRestore: boolean }) {
             {items.map((v, i) => (
               <tr key={v.id} data-testid={`seller-prompt-version-${i}`}>
                 <td>{clock.moment(v.createdAt)}</td>
-                <td>{v.author ?? 'не указан'}</td>
+                <td>{v.author ?? t('не указан')}</td>
                 <td>{v.preview}</td>
                 <td>{v.length}</td>
                 {canRestore && (
                   <td>
-                    {i === 0 ? <span className="sub">текущая</span> : <RestoreVersionButton id={v.id} label={clock.moment(v.createdAt)} />}
+                    {i === 0 ? <span className="sub">{t('текущая')}</span> : <RestoreVersionButton id={v.id} label={clock.moment(v.createdAt)} />}
                   </td>
                 )}
               </tr>
@@ -417,12 +424,15 @@ const CHECKLIST_ICON: Record<SellerChecklistItem['key'], IconName> = {
 };
 
 /** Что осталось до запуска: сделанное — галочкой, у несделанного — куда идти */
-function SetupChecklist({ items }: { items: SellerChecklistItem[] }) {
+async function SetupChecklist({ items }: { items: SellerChecklistItem[] }) {
+  const t = await serverT();
+  const locale = await currentLocale();
   const left = items.filter((item) => !item.done && item.key !== 'check').length;
+  const steps = countLabel(locale, t, left, [msg('шаг'), 'шага', msg('шагов')]); // kk-allow: форма склонения
   return (
     <Panel data-testid="seller-checklist" aria-labelledby="seller-checklist-title">
       <SectionTitle first id="seller-checklist-title">
-        До запуска — {pluralRu(left, ['шаг', 'шага', 'шагов'])}
+        {t('До запуска — {steps}', { steps })}
       </SectionTitle>
       <ol className="seller-checklist">
         {items.map((item) => (
@@ -438,12 +448,12 @@ function SetupChecklist({ items }: { items: SellerChecklistItem[] }) {
               aria-hidden="true"
             />
             <div>
-              <strong>{item.title}</strong>
-              <span className="sub">{item.hint}</span>
+              <strong>{t(item.title)}</strong>
+              <span className="sub">{t(item.hint)}</span>
             </div>
             {!item.done && item.href && (
               <Link className="btn btn--secondary" href={item.href}>
-                {item.key === 'model' ? 'Вставить ключ' : 'Открыть'}
+                {item.key === 'model' ? t('Вставить ключ') : t('Открыть')}
               </Link>
             )}
           </li>
@@ -455,30 +465,31 @@ function SetupChecklist({ items }: { items: SellerChecklistItem[] }) {
 
 /** «Подключения»: модель, код для сайта и WhatsApp — всё, что связывает продавца с внешним миром, на одном экране */
 async function ConnectionsView({ status, summary = false, vertical }: { status: SellerStatus; summary?: boolean; vertical: WebVertical }) {
+  const t = await serverT();
   return (
     <div className="seller-connection-steps">
       {summary && <ChannelsTable status={status} />}
       <details open>
         <summary>
-          1. Модель ИИ <span>Проверка и сохранение ключа</span>
+          1. {t('Модель ИИ')} <span>{t('Проверка и сохранение ключа')}</span>
         </summary>
         <ModelView status={status} />
       </details>
       <details>
         <summary>
-          2. Telegram <span>Закрытый тест с вашим ботом</span>
+          2. Telegram <span>{t('Закрытый тест с вашим ботом')}</span>
         </summary>
         <TelegramPanel id="working" readOnly={!!sellerReadOnlyReason(status)} />
       </details>
       <details>
         <summary>
-          3. WhatsApp <span>Подключение номера для общения с гостями</span>
+          3. WhatsApp <span>{t('Подключение номера для общения с гостями')}</span>
         </summary>
         <WhatsAppView status={status} />
       </details>
       <details>
         <summary>
-          4. Чат на сайте <span>Код для установки на ваш сайт</span>
+          4. {t('Чат на сайте')} <span>{t('Код для установки на ваш сайт')}</span>
         </summary>
         <EmbedView status={status} vertical={vertical} />
       </details>
@@ -488,13 +499,13 @@ async function ConnectionsView({ status, summary = false, vertical }: { status: 
 
 /** «Модель» (С2): ключ модели самого партнёра — вводится и проверяется здесь, хранится только у бота */
 async function ModelView({ status }: { status: SellerStatus }) {
+  const t = await serverT();
   const readOnly = sellerReadOnlyReason(status);
   if (!sellerConnected(status))
     return (
       <Panel data-testid="seller-llm-key-offline">
         <p className="settings-note">
-          Продавец не подключён к платформе — ключ модели вводится после подключения (адрес и
-          служебный ключ в окружении API).
+          {t('Продавец не подключён к платформе — ключ модели вводится после подключения (адрес и служебный ключ в окружении API).')}
         </p>
       </Panel>
     );
@@ -508,7 +519,7 @@ async function ModelView({ status }: { status: SellerStatus }) {
   const checkedAt = loaded.value.checkedAt;
   const checkedLabel = checkedAt ? propertyClock(timezone).when(checkedAt) : null;
   return (
-    <Panel data-testid="seller-llm-key" aria-label="Ключ модели партнёра">
+    <Panel data-testid="seller-llm-key" aria-label={t('Ключ модели партнёра')}>
       <LlmKeyForm status={loaded.value} readOnly={readOnly} checkedLabel={checkedLabel} />
       {/* расход не загрузился: ключ всё равно настраивается, строка о расходе просто не показывается */}
       {usage.ok && <LlmUsageLine usage={usage.value} />}
@@ -517,39 +528,50 @@ async function ModelView({ status }: { status: SellerStatus }) {
 }
 
 const USD = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
-const MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
 
-/** «2026-10» → «октябрь 2026» */
-function displayMonth(ym: string): string {
+/** «2026-10» → «октябрь 2026» на языке человека (русский: именительный падеж, как раньше) */
+function displayMonth(ym: string, locale: Awaited<ReturnType<typeof currentLocale>>): string {
   const [y, m] = ym.split('-').map(Number);
-  return m && m >= 1 && m <= 12 ? `${MONTHS[m - 1]} ${y}` : ym;
+  if (!y || !m || m < 1 || m > 12) return ym;
+  return dateFormat(intlLocale(locale), { month: 'long', year: 'numeric', timeZone: 'UTC' })
+    .format(new Date(Date.UTC(y, m - 1, 1)))
+    .replace(' г.', ''); // kk-allow: русский Intl дописывает «г.» после года
 }
 
 /** Расход модели за месяц по учёту продавца: ответы, токены и, если у продавца заданы цены, стоимость */
-function LlmUsageLine({ usage }: { usage: SellerLlmUsage }) {
+async function LlmUsageLine({ usage }: { usage: SellerLlmUsage }) {
+  const t = await serverT();
+  const locale = await currentLocale();
   const tokens = new Intl.NumberFormat('ru-RU').format(usage.tokens);
   const cost =
-    usage.costUsd === null ? null : `${usage.costPartial ? 'не меньше ' : '≈ '}${USD.format(usage.costUsd)}`;
+    usage.costUsd === null
+      ? null
+      : usage.costPartial
+        ? t('не меньше {sum}', { sum: USD.format(usage.costUsd) })
+        : `≈ ${USD.format(usage.costUsd)}`;
   return (
     <p className="settings-note" data-testid="seller-llm-usage">
-      Расход за {usage.month ? displayMonth(usage.month) : 'месяц'}:{' '}
-      {pluralRu(usage.replies, ['ответ', 'ответа', 'ответов'])}, {tokens}{' '}
-      {pluralRu(usage.tokens, ['токен', 'токена', 'токенов'], false)}
-      {cost ? `, ${cost}` : ''}. Это учёт продавца, а не счёт провайдера: остаток денег смотрите в кабинете
-      провайдера модели (у OpenAI: Settings, Billing).
+      {t('Расход за {month}: {replies}, {tokens}', {
+        month: usage.month ? displayMonth(usage.month, locale) : t('месяц'),
+        replies: countLabel(locale, t, usage.replies, [msg('ответ'), 'ответа', msg('ответов')]), // kk-allow: форма склонения
+        // число токенов с разделителем разрядов, слово по числу
+        tokens: countLabel(locale, t, usage.tokens, [msg('токен'), 'токена', msg('токенов')]).replace(String(usage.tokens), tokens), // kk-allow: форма склонения
+      })}
+      {cost ? `, ${cost}` : ''}.{' '}
+      {t('Это учёт продавца, а не счёт провайдера: остаток денег смотрите в кабинете провайдера модели (у OpenAI: Settings, Billing).')}
     </p>
   );
 }
 
 /** «WhatsApp» (С3): подключение номера партнёра; токен и секрет живут только у бота */
 async function WhatsAppView({ status }: { status: SellerStatus }) {
+  const t = await serverT();
   const readOnly = sellerReadOnlyReason(status);
   if (!sellerConnected(status))
     return (
       <Panel data-testid="seller-whatsapp-offline">
         <p className="settings-note">
-          Продавец не подключён к платформе — WhatsApp подключается после него (адрес и служебный
-          ключ в окружении API).
+          {t('Продавец не подключён к платформе — WhatsApp подключается после него (адрес и служебный ключ в окружении API).')}
         </p>
       </Panel>
     );
@@ -557,33 +579,33 @@ async function WhatsAppView({ status }: { status: SellerStatus }) {
   if (!loaded.ok)
     return <LoadError testId="seller-whatsapp-error-load" {...loadErrorProps(loaded.error)} />;
   return (
-    <Panel data-testid="seller-whatsapp" aria-label="Подключение WhatsApp">
+    <Panel data-testid="seller-whatsapp" aria-label={t('Подключение WhatsApp')}>
       <WhatsAppForm status={loaded.value} readOnly={readOnly} />
     </Panel>
   );
 }
 
 /** Расширение не подключено: вместо экранов — что это и кто подключает; прочитать сохранённое API тоже не даст */
-function ExtensionOff({ status, platform, vertical }: { status: SellerStatus; platform: boolean; vertical: WebVertical }) {
+function ExtensionOff({ status, platform, vertical, t }: { status: SellerStatus; platform: boolean; vertical: WebVertical; t: Translate }) {
   const banner = sellerBanner(status);
   const copy = sellerVerticalUiCopy(vertical);
   return (
     <EmptyState
       icon={<Icon name="chat" width={32} height={32} />}
-      title={banner.title}
+      title={t(banner.title)}
       data-testid="seller-extension-off"
       actions={
         <Row>
           <Link className="btn" href={platform ? '/platform' : '/platform/support'}>
-            {platform ? 'Управлять доступом' : 'Обратиться в поддержку'}
+            {platform ? t('Управлять доступом') : t('Обратиться в поддержку')}
           </Link>
           <Link className="btn btn--secondary" href="/ai-agents">
-            Все агенты
+            {t('Все агенты')}
           </Link>
         </Row>
       }
     >
-      {copy.extensionOff} {banner.text}
+      {t(copy.extensionOff)} {t(banner.text)}
     </EmptyState>
   );
 }
@@ -593,20 +615,21 @@ function ExtensionOff({ status, platform, vertical }: { status: SellerStatus; pl
  * (ADR-081). Только просмотр — правят в «Настройках объекта», «Тарифах» и «Настройках сайта».
  */
 async function DataView() {
+  const t = await serverT();
   const { vertical } = await deskShell();
   const links = sellerDataLinks(vertical);
   // салон и ресторан: продавец читает каталог своего филиала, гостиничной карточки и тарифа у них нет (Д11)
   if (vertical !== 'HOSPITALITY')
     return (
       <Panel data-testid="seller-data-links">
-        <SectionTitle first>Данные филиала</SectionTitle>
+        <SectionTitle first>{t('Данные филиала')}</SectionTitle>
         <p className="settings-note">
-          Продавец отвечает по услугам, ценам и часам работы филиала. Правка там, продавец получит её сам.
+          {t('Продавец отвечает по услугам, ценам и часам работы филиала. Правка там, продавец получит её сам.')}
         </p>
         <Row>
           {links.map((l) => (
             <Link key={l.href} className="btn btn--secondary" href={l.href}>
-              {l.label}
+              {t(l.label)}
             </Link>
           ))}
         </Row>
@@ -622,17 +645,17 @@ async function DataView() {
         <Row gap="lg" className="row--baseline">
           <SectionTitle first>{facts.object_name}</SectionTitle>
           <Badge tone={applied ? 'ok' : 'warn'} data-testid="seller-facts-applied">
-            {applied ? 'Продавец знает эти данные' : 'Отправим продавцу в течение минуты'}
+            {applied ? t('Продавец знает эти данные') : t('Отправим продавцу в течение минуты')}
           </Badge>
         </Row>
         <Grid min={180}>
-          <Fact label="Адрес" value={facts.address || 'не указан'} />
-          <Fact label="Заезд с" value={facts.check_in} />
-          <Fact label="Выезд до" value={facts.check_out} />
-          <Fact label="Часовой пояс" value={facts.timezone} />
+          <Fact label={t('Адрес')} value={facts.address || t('не указан')} />
+          <Fact label={t('Заезд с')} value={facts.check_in} />
+          <Fact label={t('Выезд до')} value={facts.check_out} />
+          <Fact label={t('Часовой пояс')} value={facts.timezone} />
         </Grid>
         <p className="settings-note">
-          Город входит в адрес. Правка — в карточке объекта, продавец получит её сам.
+          {t('Город входит в адрес. Правка — в карточке объекта, продавец получит её сам.')}
         </p>
       </Panel>
       <Panel>
@@ -641,7 +664,7 @@ async function DataView() {
       <Row>
         {links.map((l) => (
           <Link key={l.href} className="btn btn--secondary" href={l.href}>
-            {l.label}
+            {t(l.label)}
           </Link>
         ))}
       </Row>
@@ -650,26 +673,26 @@ async function DataView() {
 }
 
 /** Категории и цены — ровно то, что продавец скажет гостю, и почему у категории цены нет (ADR-081, Q-179) */
-function PricesTable({ view }: { view: SellerFactsView }) {
+async function PricesTable({ view }: { view: SellerFactsView }) {
+  const t = await serverT();
   const { facts, ratePlan, window, prices } = view;
   return (
     <Stack>
       <SectionTitle first>
-        Категории и цены {ratePlan ? `по тарифу «${ratePlan.name}»` : ''}
+        {ratePlan ? t('Категории и цены по тарифу «{name}»', { name: ratePlan.name }) : t('Категории и цены')}
       </SectionTitle>
       {!ratePlan && (
         <Alert tone="warning" data-testid="seller-no-rate-plan">
-          Тариф сайта не выбран: продавец знает категории, но о цене скажет «уточнит администратор».
-          Выберите тариф виджета бронирования в «Настройках сайта».
+          {t('Тариф сайта не выбран: продавец знает категории, но о цене скажет «уточнит администратор». Выберите тариф виджета бронирования в «Настройках сайта».')}
         </Alert>
       )}
-      <Table aria-label="Категории и цены продавца" data-testid="seller-prices">
+      <Table aria-label={t('Категории и цены продавца')} data-testid="seller-prices">
         <thead>
           <tr>
-            <th>Категория</th>
-            <th>Мест</th>
-            <th>Гостей</th>
-            <th>Продавец скажет гостю</th>
+            <th>{t('Категория')}</th>
+            <th>{t('Мест')}</th>
+            <th>{t('Гостей')}</th>
+            <th>{t('Продавец скажет гостю')}</th>
           </tr>
         </thead>
         <tbody>
@@ -681,8 +704,8 @@ function PricesTable({ view }: { view: SellerFactsView }) {
                 <td>{p.units}</td>
                 <td>{p.capacity}</td>
                 <td>
-                  {line.value}
-                  {line.note && <span className="sub"> — {line.note}</span>}
+                  {t(line.value)}
+                  {line.note && <span className="sub"> — {t(line.note)}</span>}
                 </td>
               </tr>
             );
@@ -690,10 +713,7 @@ function PricesTable({ view }: { view: SellerFactsView }) {
         </tbody>
       </Table>
       <p className="settings-note">
-        Продавец называет цену, только если за {displayPeriod(window.from, window.to)} она не
-        меняется: названная им цена становится обещанием гостю. Иначе он говорит «уточнит
-        администратор». Наличие мест продавец не знает: забронировать гость сможет, когда будет
-        подключена котировка (часть 3 ТЗ).
+        {t('Продавец называет цену, только если за {period} она не меняется: названная им цена становится обещанием гостю. Иначе он говорит «уточнит администратор». Наличие мест продавец не знает: забронировать гость сможет, когда будет подключена котировка (часть 3 ТЗ).', { period: displayPeriod(window.from, window.to) })}
       </p>
     </Stack>
   );
@@ -705,20 +725,21 @@ async function KnowledgeTable({
 }: {
   items: Array<{ source: string; chunks: number; createdAt: string | null }>;
 }) {
+  const t = await serverT();
   const clock = await hotelClock();
   return (
-    <Table aria-label="Документы продавца" data-testid="seller-knowledge">
+    <Table aria-label={t('Документы продавца')} data-testid="seller-knowledge">
       <thead>
         <tr>
-          <th>Документ</th>
-          <th>Частей</th>
-          <th>Загружен</th>
+          <th>{t('Документ')}</th>
+          <th>{t('Частей')}</th>
+          <th>{t('Загружен')}</th>
         </tr>
       </thead>
       <tbody>
         {items.map((d, i) => (
           <tr key={`${d.source}-${i}`}>
-            <td>{knowledgeSourceLabel(d.source)}</td>
+            <td>{t(knowledgeSourceLabel(d.source))}</td>
             <td>{d.chunks}</td>
             <td>{clock.moment(d.createdAt)}</td>
           </tr>
@@ -728,25 +749,27 @@ async function KnowledgeTable({
   );
 }
 
-function NotReady({ status, title }: { status: SellerStatus; title: string }) {
+async function NotReady({ status, title }: { status: SellerStatus; title: string }) {
   if (sellerConnected(status)) return null;
+  const t = await serverT();
   return (
     <EmptyState
       icon={<Icon name="chat" width={32} height={32} />}
       title={title}
       data-testid="seller-not-ready"
     >
-      {sellerBanner(status).text}
+      {t(sellerBanner(status).text)}
     </EmptyState>
   );
 }
 
 /** «Знания»: документы продавца и данные объекта, которые он получает из WETOP сам */
 async function KnowledgeView({ status }: { status: SellerStatus }) {
+  const t = await serverT();
   if (!sellerConnected(status))
     return (
       <Stack>
-        <NotReady status={status} title="Документы появятся, когда продавец будет подключён" />
+        <NotReady status={status} title={t('Документы появятся, когда продавец будет подключён')} />
         <DataView />
       </Stack>
     );
@@ -755,14 +778,13 @@ async function KnowledgeView({ status }: { status: SellerStatus }) {
   return (
     <Stack>
       <Panel>
-        <SectionTitle first>Загрузить документ</SectionTitle>
+        <SectionTitle first>{t('Загрузить документ')}</SectionTitle>
         <p className="settings-note">
-          Прайс, правила, ответы на вопросы — продавец отвечает по ним. Цены и адрес сюда класть не
-          нужно: их продавец берёт из «Данных объекта».
+          {t('Прайс, правила, ответы на вопросы — продавец отвечает по ним. Цены и адрес сюда класть не нужно: их продавец берёт из «Данных объекта».')}
         </p>
         {readOnly ? (
           <Notice tone="muted" data-testid="seller-read-only">
-            {readOnly}
+            {t(readOnly)}
           </Notice>
         ) : (
           <KnowledgeUploadForm />
@@ -771,12 +793,12 @@ async function KnowledgeView({ status }: { status: SellerStatus }) {
       {!loaded.ok ? (
         <LoadError testId="seller-knowledge-error" {...loadErrorProps(loaded.error)} />
       ) : loaded.value.items.length === 0 ? (
-        <EmptyState icon={<Icon name="journal" width={32} height={32} />} title="Документов нет">
-          Загрузите первый документ формой выше.
+        <EmptyState icon={<Icon name="journal" width={32} height={32} />} title={t('Документов нет')}>
+          {t('Загрузите первый документ формой выше.')}
         </EmptyState>
       ) : (
         <Panel>
-          <SectionTitle first>Загружено</SectionTitle>
+          <SectionTitle first>{t('Загружено')}</SectionTitle>
           <KnowledgeTable items={loaded.value.items} />
         </Panel>
       )}
@@ -798,9 +820,10 @@ async function DialogsView({
   q: string;
   channel: string;
 }) {
+  const t = await serverT();
   const clock = await hotelClock();
   if (!sellerConnected(status))
-    return <NotReady status={status} title="Диалоги появятся, когда продавец будет подключён" />;
+    return <NotReady status={status} title={t('Диалоги появятся, когда продавец будет подключён')} />;
   const selected = MODES.some((m) => m.value === mode) ? mode : '';
   const [summary, list, card] = await Promise.all([
     settle(sellerApi.summary()),
@@ -826,41 +849,41 @@ async function DialogsView({
     <Stack>
       {summary.ok && (
         <Grid min={150} data-testid="seller-summary">
-          <Fact label="Диалогов за сутки" value={String(summary.value.dialogs)} />
-          <Fact label="Ответов" value={String(summary.value.replies)} />
-          <Fact label="Лидов с контактом" value={String(summary.value.leads)} />
-          <Fact label="Ответ опоздал" value={String(summary.value.slaBreaches)} />
+          <Fact label={t('Диалогов за сутки')} value={String(summary.value.dialogs)} />
+          <Fact label={t('Ответов')} value={String(summary.value.replies)} />
+          <Fact label={t('Лидов с контактом')} value={String(summary.value.leads)} />
+          <Fact label={t('Ответ опоздал')} value={String(summary.value.slaBreaches)} />
         </Grid>
       )}
-      <nav className="chips" aria-label="Отбор диалогов">
+      <nav className="chips" aria-label={t('Отбор диалогов')}>
         {MODES.map((m) => (
           <Link key={m.value} href={chipHref(m.value)} aria-current={m.value === selected ? 'page' : undefined}>
-            {m.label}
+            {t(m.label)}
           </Link>
         ))}
       </nav>
-      <form method="get" className="seller-dialogs__search" role="search" aria-label="Поиск по диалогам" data-testid="seller-dialogs-search">
+      <form method="get" className="seller-dialogs__search" role="search" aria-label={t('Поиск по диалогам')} data-testid="seller-dialogs-search">
         {selected && <input type="hidden" name="mode" value={selected} />}
-        <Field inline label="Имя гостя">
-          <Input name="q" defaultValue={q} placeholder="Часть имени" />
+        <Field inline label={t('Имя гостя')}>
+          <Input name="q" defaultValue={q} placeholder={t('Часть имени')} />
         </Field>
         {channels.length > 1 && (
-          <Field inline label="Канал">
+          <Field inline label={t('Канал')}>
             <Select name="channel" defaultValue={channel}>
-              <option value="">Все</option>
+              <option value="">{t('Все')}</option>
               {channels.map((ch) => (
                 <option key={ch} value={ch}>
-                  {conversationChannelLabel(ch)}
+                  {t(conversationChannelLabel(ch))}
                 </option>
               ))}
             </Select>
           </Field>
         )}
         <Button type="submit" tone="secondary" size="sm">
-          Найти
+          {t('Найти')}
         </Button>
         {(q || channel) && (
-          <Link href={selected ? `/ai-seller/dialogs?mode=${selected}` : '/ai-seller/dialogs'}>Сбросить</Link>
+          <Link href={selected ? `/ai-seller/dialogs?mode=${selected}` : '/ai-seller/dialogs'}>{t('Сбросить')}</Link>
         )}
       </form>
       <div className="seller-dialogs" data-testid="seller-dialogs-layout">
@@ -868,20 +891,20 @@ async function DialogsView({
           {!list.ok ? (
             <LoadError testId="seller-dialogs-error" {...loadErrorProps(list.error)} />
           ) : all.length === 0 ? (
-            <EmptyState icon={<Icon name="chat" width={32} height={32} />} title="Диалогов нет">
-              Здесь появятся разговоры гостей с продавцом на сайте объекта.
+            <EmptyState icon={<Icon name="chat" width={32} height={32} />} title={t('Диалогов нет')}>
+              {t('Здесь появятся разговоры гостей с продавцом на сайте объекта.')}
             </EmptyState>
           ) : items.length === 0 ? (
-            <EmptyState icon={<Icon name="search" width={32} height={32} />} title="Ничего не найдено" data-testid="seller-dialogs-none">
-              По такому отбору диалогов нет. Измените имя или канал.
+            <EmptyState icon={<Icon name="search" width={32} height={32} />} title={t('Ничего не найдено')} data-testid="seller-dialogs-none">
+              {t('По такому отбору диалогов нет. Измените имя или канал.')}
             </EmptyState>
           ) : (
-            <Table aria-label="Диалоги продавца" data-testid="seller-dialogs">
+            <Table aria-label={t('Диалоги продавца')} data-testid="seller-dialogs">
               <thead>
                 <tr>
-                  <th>Гость</th>
-                  <th>Этап</th>
-                  <th>Последнее</th>
+                  <th>{t('Гость')}</th>
+                  <th>{t('Этап')}</th>
+                  <th>{t('Последнее')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -890,13 +913,13 @@ async function DialogsView({
                   return (
                     <tr key={c.id} aria-selected={c.id === id ? true : undefined}>
                       <td>
-                        <Link href={link({ id: c.id })}>{c.clientName || 'Гость без имени'}</Link>
+                        <Link href={link({ id: c.id })}>{c.clientName || t('Гость без имени')}</Link>
                         <span className="sub">
-                          <Badge tone={m.tone}>{m.label}</Badge>
-                          {c.hasContact && ' оставил контакт'}
+                          <Badge tone={m.tone}>{t(m.label)}</Badge>
+                          {c.hasContact && ` ${t('оставил контакт')}`}
                         </span>
                       </td>
-                      <td>{conversationStageLabel(c.stage)}</td>
+                      <td>{t(conversationStageLabel(c.stage))}</td>
                       <td>{clock.moment(c.lastActivityAt)}</td>
                     </tr>
                   );
@@ -916,7 +939,7 @@ async function DialogsView({
         ) : (
           <div className="seller-dialogs__wide">
             <Notice tone="muted" data-testid="seller-dialog-pick">
-              Выберите диалог слева: здесь появятся переписка и карточка гостя.
+              {t('Выберите диалог слева: здесь появятся переписка и карточка гостя.')}
             </Notice>
           </div>
         )}
@@ -932,6 +955,7 @@ async function DialogCard({
   card: Awaited<ReturnType<typeof sellerApi.conversation>>;
   canAct: boolean;
 }) {
+  const t = await serverT();
   const clock = await hotelClock();
   const m = conversationModeLabel(card.mode);
   const lead = leadFacts(card.leadData);
@@ -939,16 +963,16 @@ async function DialogCard({
     <>
       <Panel data-testid="seller-dialog-card" className="seller-dialogs__chat">
         <Row gap="lg" className="row--baseline">
-          <SectionTitle first>{card.contact.name || 'Гость без имени'}</SectionTitle>
+          <SectionTitle first>{card.contact.name || t('Гость без имени')}</SectionTitle>
           <Badge tone={m.tone} data-testid="seller-dialog-mode">
-            {m.label}
+            {t(m.label)}
           </Badge>
         </Row>
-        <ol className="seller-transcript" aria-label="Переписка">
+        <ol className="seller-transcript" aria-label={t('Переписка')}>
           {card.messages.map((msg, i) => (
             <li key={i}>
               <p className={msg.role === 'user' ? 'seller-transcript__guest' : 'seller-transcript__bot'}>
-                <b>{ROLE[msg.role] ?? msg.role}</b>
+                <b>{ROLE[msg.role] ? t(ROLE[msg.role]!) : msg.role}</b>
                 {msg.at ? <span className="sub"> {clock.moment(msg.at)}</span> : null}: {msg.text}
               </p>
             </li>
@@ -961,57 +985,56 @@ async function DialogCard({
           </>
         ) : (
           <Notice tone="muted" data-testid="seller-dialog-read-only">
-            Срок расширения вышел: переписку видно, но отвечать гостю и перехватывать диалог нельзя.
-            Продлевает администратор WETOP.
+            {t('Срок расширения вышел: переписку видно, но отвечать гостю и перехватывать диалог нельзя. Продлевает администратор WETOP.')}
           </Notice>
         )}
       </Panel>
       <Panel className="seller-dialogs__client" aria-labelledby="seller-client-title" data-testid="seller-dialog-client">
         <SectionTitle first id="seller-client-title">
-          Карточка гостя
+          {t('Карточка гостя')}
         </SectionTitle>
         <dl className="settings-facts">
           <div>
-            <dt>Телефон</dt>
+            <dt>{t('Телефон')}</dt>
             <dd>{card.contact.phone ? formatPhone(card.contact.phone) : '—'}</dd>
           </div>
           <div>
-            <dt>Почта</dt>
+            <dt>{t('Почта')}</dt>
             <dd>{card.contact.email ?? '—'}</dd>
           </div>
           <div>
-            <dt>Канал</dt>
-            <dd>{conversationChannelLabel(card.contact.channel)}</dd>
+            <dt>{t('Канал')}</dt>
+            <dd>{t(conversationChannelLabel(card.contact.channel))}</dd>
           </div>
           <div>
-            <dt>Этап</dt>
-            <dd>{conversationStageLabel(card.stage)}</dd>
+            <dt>{t('Этап')}</dt>
+            <dd>{t(conversationStageLabel(card.stage))}</dd>
           </div>
         </dl>
         {lead.length > 0 && (
           <dl className="settings-facts" data-testid="seller-dialog-lead">
             {lead.map((f) => (
               <div key={f.label}>
-                <dt>{f.label}</dt>
+                <dt>{t(f.label)}</dt>
                 <dd>{f.value}</dd>
               </div>
             ))}
           </dl>
         )}
-        <SectionTitle id="seller-handling-title">Ведение</SectionTitle>
+        <SectionTitle id="seller-handling-title">{t('Ведение')}</SectionTitle>
         <DialogHandling
           id={card.id}
           assignee={card.handling.assignee?.name ?? null}
           nextStep={card.handling.nextStep}
           canAct={canAct}
         />
-        <SectionTitle id="seller-notes-title">Заметки</SectionTitle>
+        <SectionTitle id="seller-notes-title">{t('Заметки')}</SectionTitle>
         {card.notes.length === 0 ? (
           <p className="settings-note" data-testid="dialog-notes-empty">
-            Заметок пока нет. Их видят только сотрудники.
+            {t('Заметок пока нет. Их видят только сотрудники.')}
           </p>
         ) : (
-          <ol className="seller-notes" aria-label="Внутренние заметки" data-testid="dialog-notes">
+          <ol className="seller-notes" aria-label={t('Внутренние заметки')} data-testid="dialog-notes">
             {card.notes.map((n) => (
               <li key={n.id}>
                 <b>{n.author}</b>
@@ -1027,22 +1050,23 @@ async function DialogCard({
 }
 
 /** Без действующего расширения кода нет: продавец, срок которого вышел, на сайт не ставится (Q-183) */
-function ActionClosed({ title }: { title: string }) {
+async function ActionClosed({ title }: { title: string }) {
+  const t = await serverT();
   return (
     <EmptyState
       icon={<Icon name="chat" width={32} height={32} />}
       title={title}
       data-testid="seller-action-closed"
     >
-      Срок расширения «ИИ-продавец» вышел. Продлевает администратор WETOP — после этого всё
-      заработает с теми же настройками.
+      {t('Срок расширения «ИИ-продавец» вышел. Продлевает администратор WETOP — после этого всё заработает с теми же настройками.')}
     </EmptyState>
   );
 }
 
 async function EmbedView({ status, vertical }: { status: SellerStatus; vertical: WebVertical }) {
+  const t = await serverT();
   if (status.state === 'extension-expired')
-    return <ActionClosed title="Код для сайта — при действующем расширении" />;
+    return <ActionClosed title={t('Код для сайта — при действующем расширении')} />;
   const loaded = await settle(sellerApi.embed());
   if (!loaded.ok)
     return <LoadError testId="seller-embed-error" {...loadErrorProps(loaded.error)} />;
@@ -1053,18 +1077,18 @@ async function EmbedView({ status, vertical }: { status: SellerStatus; vertical:
     return (
       <EmptyState
         icon={<Icon name="chat" width={32} height={32} />}
-        title="Кода пока нет"
+        title={t('Кода пока нет')}
         data-testid="seller-embed-empty"
       >
-        Публичный адрес продавца ещё не задан в настройках сервера — его вписывает владелец.
+        {t('Публичный адрес продавца ещё не задан в настройках сервера — его вписывает владелец.')}
       </EmptyState>
     );
   return (
     <Panel data-testid="seller-embed">
-      <SectionTitle first>Чат продавца на сайте объекта</SectionTitle>
+      <SectionTitle first>{t('Чат продавца на сайте объекта')}</SectionTitle>
       <p className="settings-note">
-        Вставьте код перед закрывающим &lt;/body&gt; каждой страницы сайта (в Tilda и WordPress —
-        поле «HTML-код»). {copy.embedIdentity}
+        {t('Вставьте код перед закрывающим </body> каждой страницы сайта (в Tilda и WordPress — поле «HTML-код»).')}{' '}
+        {t(copy.embedIdentity)}
       </p>
       <pre className="code" data-testid="seller-embed-snippet">
         {snippet}
@@ -1074,11 +1098,11 @@ async function EmbedView({ status, vertical }: { status: SellerStatus; vertical:
       </Row>
       {hosts.length > 0 ? (
         <p className="settings-note" data-testid="seller-embed-hosts">
-          Чат откроется на доменах: {hosts.join(', ')}.
+          {t('Чат откроется на доменах: {hosts}.', { hosts: hosts.join(', ') })}
         </p>
       ) : (
         <p className="settings-note" data-testid="seller-embed-no-site">
-          {copy.embedNoSite}
+          {t(copy.embedNoSite)}
         </p>
       )}
     </Panel>

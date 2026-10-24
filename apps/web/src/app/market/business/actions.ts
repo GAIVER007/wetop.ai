@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { ApiError, businessMarketApi, type BusinessAvailability } from '../../../lib/api';
+import { serverT } from '../../../i18n/server';
 
 /** Результат действия «Конкуренты» салона и ресторана: ошибка словами у формы, введённое не теряется */
 export interface BusinessMarketResult {
@@ -28,19 +29,21 @@ const done = (message: string): BusinessMarketResult => {
 export async function saveBusinessCompetitorAction(_: BusinessMarketResult, fd: FormData): Promise<BusinessMarketResult> {
   const body = { name: s(fd, 'name'), address: s(fd, 'address'), distanceM: s(fd, 'distanceM'), url: s(fd, 'url'), note: s(fd, 'note') };
   const id = s(fd, 'id');
+  const t = await serverT();
   try {
     if (id) await businessMarketApi.update(id, body);
     else await businessMarketApi.create(body);
-    return done(id ? 'Конкурент сохранён' : 'Конкурент добавлен');
+    return done(id ? t('Конкурент сохранён') : t('Конкурент добавлен'));
   } catch (e) {
     return { error: describe(e), ok: 0, values: echo(fd) };
   }
 }
 
 export async function archiveBusinessCompetitorAction(_: BusinessMarketResult, fd: FormData): Promise<BusinessMarketResult> {
+  const t = await serverT();
   try {
     await businessMarketApi.update(s(fd, 'id'), { active: false });
-    return done('Конкурент убран из списка');
+    return done(t('Конкурент убран из списка'));
   } catch (e) {
     return { error: describe(e), ok: 0 };
   }
@@ -48,9 +51,10 @@ export async function archiveBusinessCompetitorAction(_: BusinessMarketResult, f
 
 export async function writeBusinessSnapshotAction(_: BusinessMarketResult, fd: FormData): Promise<BusinessMarketResult> {
   const level = s(fd, 'level') as BusinessAvailability | '';
+  const t = await serverT();
   try {
     await businessMarketApi.snapshot(s(fd, 'id'), { day: s(fd, 'day'), level, freeSlots: s(fd, 'freeSlots') });
-    return done('Загрузка соседа сохранена');
+    return done(t('Загрузка соседа сохранена'));
   } catch (e) {
     return { error: describe(e), ok: 0, values: echo(fd) };
   }

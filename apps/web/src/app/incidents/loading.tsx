@@ -1,12 +1,15 @@
+'use client';
+import { useT } from '../../i18n/locale-provider';
 import { Page } from '../../components/page';
 import { LoadingState, Skeleton } from '../../components/ui';
 
 /** Ожидание «Неисправностей» (D4): заголовок сразу, под ним плитки сторожа и строки таблиц. */
 export default function Loading() {
+  const t = useT();
   return (
-    <Page title="Неисправности">
+    <Page title={t('Неисправности')}>
       <LoadingState
-        label="Читаем состояние сторожа и список неисправностей…"
+        label={t('Читаем состояние сторожа и список неисправностей…')}
         data-testid="incidents-loading"
       >
         <div className="stats">

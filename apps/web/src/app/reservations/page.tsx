@@ -12,7 +12,9 @@ import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
-import { nightsBetween, pluralRu } from '../../lib/plural';
+import { nightsBetween } from '../../lib/plural';
+import { countLabel, intlLocale, msg } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
 import { DatesToggle } from './dates-toggle';
 import { DensityScope } from './density-toggle';
 import { FiltersToggle } from './filters-toggle';
@@ -52,6 +54,9 @@ export default async function ReservationsPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/reservations');
+  const t = await serverT();
+  const locale = await currentLocale();
+  const il = intlLocale(locale);
   const sp = normalizeSearchParams(await searchParams);
   // Форма шлёт и пустые поля, и умолчания: адрес после «Показать» чистится одним переходом (R2, ADR-106)
   if (needsCleanup(sp)) redirect(cleanHref(sp));
@@ -66,13 +71,13 @@ export default async function ReservationsPage({
     from <= to &&
     Date.parse(to) - Date.parse(from) <= 365 * 86400000;
   const error = !valid
-    ? 'Выберите корректный период до 366 дней.'
+    ? msg('Выберите корректный период до 366 дней.')
     : !Object.hasOwn(reservationStatuses, status)
-      ? 'Неизвестный статус брони.'
+      ? msg('Неизвестный статус брони.')
       : !/^\d+$/.test(page) || Number(page) < 1 || Number(page) > 10000
-        ? 'Номер страницы должен быть от 1 до 10000.'
+        ? msg('Номер страницы должен быть от 1 до 10000.')
         : q.length > 120
-          ? 'Поиск: не более 120 символов.'
+          ? msg('Поиск: не более 120 символов.')
           : !Object.hasOwn(reservationViews, f.view) ||
               !Object.hasOwn(dateBases, f.date) ||
               !Object.hasOwn(paymentFilters, f.payment) ||
@@ -80,7 +85,7 @@ export default async function ReservationsPage({
               !Object.hasOwn(sortOptions, f.sort) ||
               f.source.length > 64 ||
               f.category.length > 64
-            ? 'Неизвестное условие отбора.'
+            ? msg('Неизвестное условие отбора.')
             : null;
   // Отказ API не выглядит как ноль броней (B5): список ловит его сам, заголовок и фильтры остаются
   // Категории — для списка «Категория» и слов в строке выборки; сбой справочника список не ломает
@@ -104,15 +109,15 @@ export default async function ReservationsPage({
   const withYear = from.slice(0, 4) !== to.slice(0, 4);
   const periodText =
     from === to
-      ? displayDate(from)
-      : `${displayDate(from, withYear ? 'numeric' : 'short')} → ${displayDate(to, withYear ? 'numeric' : 'short')}`;
+      ? displayDate(from, 'short', il)
+      : `${displayDate(from, withYear ? 'numeric' : 'short', il)} → ${displayDate(to, withYear ? 'numeric' : 'short', il)}`;
   // Готовые отрезки — обычные вопросы стойки одним щелчком (owner 21.09); ручной период
   // раскрывается кнопкой «Даты» (ADR-106 по ТЗ «Брони v2» §62: «С/По» не занимают место при пресете)
   const periodPresets: [string, { from: string; to: string }][] = [
-    ['Сегодня', { from: today, to: today }],
-    ['Завтра', { from: plusDays(today, 1), to: plusDays(today, 1) }],
-    ['7 дней', { from: today, to: plusDays(today, 6) }],
-    ['30 дней', { from: today, to: plusDays(today, 29) }],
+    [t('Сегодня'), { from: today, to: today }],
+    [t('Завтра'), { from: plusDays(today, 1), to: plusDays(today, 1) }],
+    [t('{n} дней', { n: 7 }), { from: today, to: plusDays(today, 6) }],
+    [t('{n} дней', { n: 30 }), { from: today, to: plusDays(today, 29) }],
   ];
   const isPreset = periodPresets.some(([, p]) => p.from === from && p.to === to);
   // Виды «Будущие», «Проживают», «Требуют внимания» периода не знают (API их отбирает по фактам);
@@ -134,26 +139,26 @@ export default async function ReservationsPage({
   // Выборка словами (B1): вид или период с основой даты, затем условия — как их назвала форма
   const scopeText =
     f.view === 'future' || f.view === 'inhouse' || f.view === 'attention'
-      ? ` в виде «${reservationViews[f.view]}»`
+      ? t(' в виде «{view}»', { view: t(reservationViews[f.view]!) })
       : f.date === 'arrival'
-        ? ` с заездом ${periodText}`
+        ? t(' с заездом {period}', { period: periodText })
         : f.date === 'departure'
-          ? ` с выездом ${periodText}`
+          ? t(' с выездом {period}', { period: periodText })
           : f.date === 'created'
-            ? `, созданных ${periodText}`
-            : ` на ${periodText}`;
+            ? t(', созданных {period}', { period: periodText })
+            : t(' на {period}', { period: periodText });
   const categoryName = categories.find((c) => c.code === f.category)?.name ?? f.category;
-  const statusText = status !== 'ALL' ? `, статус «${reservationStatuses[status]}»` : '';
+  const statusText = status !== 'ALL' ? t(', статус «{status}»', { status: t(reservationStatuses[status]!) }) : '';
   const conditionText = [
-    f.payment && paymentFilters[f.payment]?.toLowerCase(),
-    f.allocation && allocationFilters[f.allocation]?.toLowerCase(),
-    f.source && `источник «${sourceLabel(f.source)}»`,
-    f.category && `категория «${categoryName}»`,
+    f.payment && t(paymentFilters[f.payment]!).toLowerCase(),
+    f.allocation && t(allocationFilters[f.allocation]!).toLowerCase(),
+    f.source && t('источник «{source}»', { source: t(sourceLabel(f.source)) }),
+    f.category && t('категория «{category}»', { category: categoryName }),
   ]
     .filter(Boolean)
-    .map((t) => `, ${t}`)
+    .map((part) => `, ${part}`)
     .join('');
-  const queryText = q ? `, по запросу «${q}»` : '';
+  const queryText = q ? t(', по запросу «{q}»', { q }) : '';
   // Значение списка «Источник»: канал из списка объекта по подстроке (`booking` → Booking.com)
   const sourceCode = f.source.toUpperCase();
   const sourceValue = Object.hasOwn(sourceNames, sourceCode)
@@ -165,35 +170,35 @@ export default async function ReservationsPage({
   const { readOnly } = await deskShell();
   return (
     <Page
-      title="Брони"
+      title={t('Брони')}
       width="full"
       // В шапке один пункт «Гости и бронирования» (09.10.2026): этот список его вторая половина, назад ведёт кнопка
       actions={
         <>
           <Link href="/guests" className="btn btn--secondary">
-            Гости
+            {t('Гости')}
           </Link>
           {!readOnly && (
             <Link href="/reservations/new" className="btn">
               <Icon name="plus" />
-              Новая бронь
+              {t('Новая бронь')}
             </Link>
           )}
         </>
       }
     >
-      <section className="reservations-controls" aria-label="Фильтры броней">
-        <ChipGroup as="nav" label="Быстрые виды" className="reservations-views">
+      <section className="reservations-controls" aria-label={t('Фильтры броней')}>
+        <ChipGroup as="nav" label={t('Быстрые виды')} className="reservations-views">
           {Object.entries(reservationViews).map(([id, label]) => (
             <Chip key={id} size="sm" href={href({ view: id, page: '1' })} selected={f.view === id}>
-              {id === 'all' ? 'По периоду' : label}
+              {id === 'all' ? t('По периоду') : t(label)}
             </Chip>
           ))}
         </ChipGroup>
         <form method="get">
           {!periodView && <input type="hidden" name="view" value={f.view} />}
           <Toolbar
-            label="Поиск и отбор броней"
+            label={t('Поиск и отбор броней')}
             className="reservations-toolbar"
             search={
               <div className="search-field">
@@ -204,23 +209,23 @@ export default async function ReservationsPage({
                   // обновился бы — поле показывало бы прежний запрос (CI 20.09)
                   key={`q-${q}`}
                   defaultValue={q}
-                  placeholder="Гость, телефон или номер брони"
-                  aria-label="Поиск броней"
+                  placeholder={t('Гость, телефон или номер брони')}
+                  aria-label={t('Поиск броней')}
                 />
               </div>
             }
             filters={
               <>
-                <Field label="Статус" className="reservations-status-mobile">
+                <Field label={t('Статус')} className="reservations-status-mobile">
                   <Select
                     name="status"
                     key={`status-${status}`}
                     defaultValue={status}
-                    aria-label="Статус брони"
+                    aria-label={t('Статус брони')}
                   >
                     {Object.entries(reservationStatuses).map(([id, label]) => (
                       <option key={id} value={id}>
-                        {label}
+                        {t(label)}
                         {counts && (counts[id] ?? 0) > 0 ? ` (${counts[id]})` : ''}
                       </option>
                     ))}
@@ -235,23 +240,23 @@ export default async function ReservationsPage({
                     name="source"
                     key={`source-${sourceValue}`}
                     defaultValue={sourceValue}
-                    aria-label="Источник"
+                    aria-label={t('Источник')}
                   >
-                    <option value="">Все источники</option>
-                    <optgroup label="Каналы продаж">
-                      <option value="OTA">Все каналы продаж</option>
+                    <option value="">{t('Все источники')}</option>
+                    <optgroup label={t('Каналы продаж')}>
+                      <option value="OTA">{t('Все каналы продаж')}</option>
                       {CHANNELS.map((c) => (
                         <option key={c} value={c}>
                           {c}
                         </option>
                       ))}
                     </optgroup>
-                    <optgroup label="Напрямую">
+                    <optgroup label={t('Напрямую')}>
                       {Object.entries(sourceNames)
                         .filter(([id]) => id !== 'OTA')
                         .map(([id, label]) => (
                           <option key={id} value={id}>
-                            {label}
+                            {t(label)}
                           </option>
                         ))}
                     </optgroup>
@@ -266,11 +271,11 @@ export default async function ReservationsPage({
                     name="payment"
                     key={`payment-${f.payment}`}
                     defaultValue={f.payment}
-                    aria-label="Оплата"
+                    aria-label={t('Оплата')}
                   >
                     {Object.entries(paymentFilters).map(([id, label]) => (
                       <option key={id} value={id}>
-                        {label}
+                        {t(label)}
                       </option>
                     ))}
                   </Select>
@@ -278,11 +283,11 @@ export default async function ReservationsPage({
                     name="allocation"
                     key={`allocation-${f.allocation}`}
                     defaultValue={f.allocation}
-                    aria-label="Размещение"
+                    aria-label={t('Размещение')}
                   >
                     {Object.entries(allocationFilters).map(([id, label]) => (
                       <option key={id} value={id}>
-                        {label}
+                        {t(label)}
                       </option>
                     ))}
                   </Select>
@@ -290,9 +295,9 @@ export default async function ReservationsPage({
                     name="category"
                     key={`category-${f.category}`}
                     defaultValue={f.category}
-                    aria-label="Категория"
+                    aria-label={t('Категория')}
                   >
-                    <option value="">Все категории</option>
+                    <option value="">{t('Все категории')}</option>
                     {categories.map((c) => (
                       <option key={c.code} value={c.code}>
                         {c.name}
@@ -306,11 +311,11 @@ export default async function ReservationsPage({
                     name="sort"
                     key={`sort-${f.sort}`}
                     defaultValue={f.sort}
-                    aria-label="Сортировка"
+                    aria-label={t('Сортировка')}
                   >
                     {Object.entries(sortOptions).map(([id, label]) => (
                       <option key={id} value={id}>
-                        {label}
+                        {t(label)}
                       </option>
                     ))}
                   </Select>
@@ -333,11 +338,11 @@ export default async function ReservationsPage({
                       selected: periodView && p.from === from && p.to === to,
                     }))}
                   >
-                    <Field inline label="Дата относится к">
+                    <Field inline label={t('Дата относится к')}>
                       <Select name="date" key={`date-${f.date}`} defaultValue={f.date}>
                         {Object.entries(dateBases).map(([id, label]) => (
                           <option key={id} value={id}>
-                            {label}
+                            {t(label)}
                           </option>
                         ))}
                       </Select>
@@ -348,7 +353,7 @@ export default async function ReservationsPage({
             }
             actions={
               <>
-                <Button tone="secondary">Показать</Button>
+                <Button tone="secondary">{t('Показать')}</Button>
                 {/* H11: тот же отбор в Excel; файл уходит из системы, поэтому без имён и контактов гостей */}
                 {!error && (result?.total ?? 0) > 0 && (
                   <a
@@ -360,7 +365,7 @@ export default async function ReservationsPage({
                     download
                   >
                     <Icon name="down" />
-                    Скачать CSV
+                    {t('Скачать CSV')}
                   </a>
                 )}
               </>
@@ -370,19 +375,19 @@ export default async function ReservationsPage({
       </section>
       {error && (
         <Alert boxed>
-          {error} <Link href="/reservations">Сбросить фильтры</Link>
+          {t(error)} <Link href="/reservations">{t('Сбросить фильтры')}</Link>
         </Alert>
       )}
       {loadError !== null && (
         <LoadError testId="reservations-error" {...loadErrorProps(loadError)} />
       )}
       {result && (
-        <section className="reservations-results" aria-label="Список бронирований">
+        <section className="reservations-results" aria-label={t('Список бронирований')}>
           <DensityScope
             showControl={result.rows.length > 0}
             meta={
               <p className="directory-meta" data-testid="directory-meta">
-                {pluralRu(result.total, ['бронирование', 'бронирования', 'бронирований'])}
+                {countLabel(locale, t, result.total, [msg('бронирование'), 'бронирования', msg('бронирований')]) /* kk-allow: форма склонения */}
                 {scopeText}
                 {statusText}
                 {conditionText}
@@ -391,7 +396,7 @@ export default async function ReservationsPage({
                   <>
                     {' '}
                     <Link href="/reservations" className="reservations-reset">
-                      Сбросить фильтры
+                      {t('Сбросить фильтры')}
                     </Link>
                   </>
                 )}
@@ -401,26 +406,26 @@ export default async function ReservationsPage({
             {/* Иерархия строки (ADR-106): кто и какая бронь → когда → где → откуда → деньги → статус */}
             {result.rows.length > 0 && (
               <Table
-                aria-label="Бронирования"
+                aria-label={t('Бронирования')}
                 data-testid="reservations-table"
                 className="dir-table dir-table--reservations"
                 nowrap
               >
                 <thead>
                   <tr>
-                    <th>Бронь / гость</th>
-                    <th>Проживание</th>
-                    <th>Размещение</th>
-                    <th>Источник</th>
-                    <th className="num">Финансы</th>
-                    <th>Статус</th>
+                    <th>{t('Бронь / гость')}</th>
+                    <th>{t('Проживание')}</th>
+                    <th>{t('Размещение')}</th>
+                    <th>{t('Источник')}</th>
+                    <th className="num">{t('Финансы')}</th>
+                    <th>{t('Статус')}</th>
                   </tr>
                 </thead>
                 <PreviewRows>
                   {result.rows.map((r) => {
                     const nights = nightsBetween(r.arrivalDate, r.departureDate);
                     const itemsCount = r.itemsCount ?? (r.unitCodes.length || 1);
-                    const note = placementNote(r, today);
+                    const note = placementNote(r, today, t);
                     // Вычисляемые пометки дня (§12 ТЗ): не статус в модели, а взгляд стойки на дату
                     const arrivesToday =
                       r.arrivalDate === today &&
@@ -434,33 +439,33 @@ export default async function ReservationsPage({
                             className="dir-guest"
                             prefetch={false}
                             href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}
-                            aria-label={`Открыть бронь ${r.confirmationNumber}`}
+                            aria-label={t('Открыть бронь {number}', { number: r.confirmationNumber })}
                           >
-                            <strong>{r.primaryGuest?.label || 'Гость без имени'}</strong>
+                            <strong>{r.primaryGuest?.label || t('Гость без имени')}</strong>
                             <span className="dir-number">{r.confirmationNumber}</span>
                           </Link>
                         </td>
                         <td className="dir-stay">
                           <span className="reservations-stay-dates">
-                            <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate)}</time>
+                            <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate, 'short', il)}</time>
                             {' → '}
-                            <time dateTime={r.departureDate}>{displayDate(r.departureDate)}</time>
+                            <time dateTime={r.departureDate}>{displayDate(r.departureDate, 'short', il)}</time>
                           </span>
                           {nights > 0 && (
-                            <small>{pluralRu(nights, ['ночь', 'ночи', 'ночей'])}</small>
+                            <small>{countLabel(locale, t, nights, [msg('ночь'), 'ночи', msg('ночей')]) /* kk-allow: форма склонения */}</small>
                           )}
                           {arrivesToday && (
-                            <small className="reservations-flag">заезд сегодня</small>
+                            <small className="reservations-flag">{t('заезд сегодня')}</small>
                           )}
                           {departsToday && (
-                            <small className="reservations-flag">выезд сегодня</small>
+                            <small className="reservations-flag">{t('выезд сегодня')}</small>
                           )}
                         </td>
                         <td>
                           {itemsCount > 1 ? (
                             <span className="dir-unit">
                               <Icon name="bed" />
-                              {pluralRu(itemsCount, ['размещение', 'размещения', 'размещений'])}
+                              {countLabel(locale, t, itemsCount, [msg('размещение'), 'размещения', msg('размещений')]) /* kk-allow: форма склонения */}
                             </span>
                           ) : r.unitCodes.length ? (
                             <span className="dir-unit">
@@ -483,7 +488,7 @@ export default async function ReservationsPage({
                         </td>
                         <td>
                           <span className="source-tag">
-                            {r.channel || sourceNames[r.source] || r.source}
+                            {r.channel || t(sourceNames[r.source] || r.source)}
                           </span>
                         </td>
                         <td className="num nowrap">
@@ -504,24 +509,24 @@ export default async function ReservationsPage({
             {!result.rows.length && (
               <div className="empty-state" data-testid="reservations-empty">
                 <Icon name="booking" />
-                <h3>Бронирований не найдено</h3>
+                <h3>{t('Бронирований не найдено')}</h3>
                 {pageOutOfRange ? (
                   <p>
-                    На этой странице бронирований нет: страниц меньше, чем номер в адресе.{' '}
-                    <Link href={href({ page: '1' })}>К первой странице</Link>
+                    {t('На этой странице бронирований нет: страниц меньше, чем номер в адресе.')}{' '}
+                    <Link href={href({ page: '1' })}>{t('К первой странице')}</Link>
                   </p>
                 ) : (
-                  <p>По выбранным условиям броней нет. Измените даты или сбросьте фильтры.</p>
+                  <p>{t('По выбранным условиям броней нет. Измените даты или сбросьте фильтры.')}</p>
                 )}
                 <div className="empty-state__actions">
                   {q && (
                     <Link href={href({ q: '', page: '1' })} className="btn btn--secondary">
-                      Убрать поиск
+                      {t('Убрать поиск')}
                     </Link>
                   )}
                   {status !== 'ALL' && (
                     <Link href={href({ status: 'ALL', page: '1' })} className="btn btn--secondary">
-                      Все статусы
+                      {t('Все статусы')}
                     </Link>
                   )}
                   {narrowed && (
@@ -535,34 +540,37 @@ export default async function ReservationsPage({
                       })}
                       className="btn btn--secondary"
                     >
-                      Убрать условия отбора
+                      {t('Убрать условия отбора')}
                     </Link>
                   )}
                   <Link href="/reservations" className="btn btn--secondary">
-                    Сбросить фильтры
+                    {t('Сбросить фильтры')}
                   </Link>
                 </div>
               </div>
             )}
             {result.total > result.pageSize && (
-              <nav className="pagination" aria-label="Страницы броней">
+              <nav className="pagination" aria-label={t('Страницы броней')}>
                 {result.page > 1 && (
                   <Link
                     className="btn btn--secondary"
                     href={href({ page: String(result.page - 1) })}
                   >
-                    Назад
+                    {t('Назад')}
                   </Link>
                 )}
                 <span>
-                  Страница {result.page} из {Math.max(1, Math.ceil(result.total / result.pageSize))}
+                  {t('Страница {page} из {pages}', {
+                    page: result.page,
+                    pages: Math.max(1, Math.ceil(result.total / result.pageSize)),
+                  })}
                 </span>
                 {result.page * result.pageSize < result.total && (
                   <Link
                     className="btn btn--secondary"
                     href={href({ page: String(result.page + 1) })}
                   >
-                    Далее
+                    {t('Далее')}
                   </Link>
                 )}
               </nav>

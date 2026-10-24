@@ -2,6 +2,7 @@
 import { useId, useState, type ReactNode } from 'react';
 import { Button } from '../../components/ui';
 import { Icon } from '../../components/icon';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * «С / По» раскрываются по запросу (приём шахматки, ADR-058; ТЗ «Брони v2» §6, §62): при готовом
@@ -17,6 +18,7 @@ export function DatesToggle({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const id = useId();
+  const t = useT();
   return (
     <div className="reservations-dates" data-open={open}>
       <Button
@@ -28,7 +30,7 @@ export function DatesToggle({
         onClick={() => setOpen(!open)}
       >
         <Icon name="board" />
-        Даты
+        {t('Даты')}
       </Button>
       <div id={id} className="reservations-dates__fields" hidden={!open}>
         {children}

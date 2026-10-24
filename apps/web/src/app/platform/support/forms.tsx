@@ -3,6 +3,7 @@ import { useActionState } from 'react';
 import { Alert, Button, Field, Notice, Row, Select, Textarea } from '../../../components/ui';
 import type { SimpleResult } from '../../ai-seller/actions';
 import { supportModelAction, supportPromptAction, type PromptFormResult } from './actions';
+import { useT } from '../../../i18n/locale-provider';
 
 /**
  * Правила ИИ-помощника — текст его системного промпта (ADR-084): кто он, что делает, чего не делает, как отвечает.
@@ -14,6 +15,7 @@ export function SupportPromptForm({ initial, max }: { initial: string; max: numb
     supportPromptAction,
     null,
   );
+  const t = useT();
   return (
     <form
       key={state?.attempt ?? 0}
@@ -21,7 +23,7 @@ export function SupportPromptForm({ initial, max }: { initial: string; max: numb
       className="stack"
       data-testid="support-prompt-form"
     >
-      <Field label="Правила помощника">
+      <Field label={t('Правила помощника')}>
         <Textarea
           name="text"
           rows={18}
@@ -40,7 +42,7 @@ export function SupportPromptForm({ initial, max }: { initial: string; max: numb
           aria-busy={pending}
           data-testid="support-prompt-save"
         >
-          {pending ? 'Сохраняю…' : 'Сохранить правила'}
+          {pending ? t('Сохраняю…') : t('Сохранить правила')}
         </Button>
       </Row>
     </form>
@@ -59,6 +61,7 @@ export function SupportModelForm({
     supportModelAction,
     null,
   );
+  const t = useT();
   return (
     <form
       key={state?.attempt ?? 0}
@@ -66,7 +69,7 @@ export function SupportModelForm({
       className="stack stack--sm form-narrow"
       data-testid="support-model-form"
     >
-      <Field label="Модель">
+      <Field label={t('Модель')}>
         <Select name="model" defaultValue={current ?? models[0] ?? ''}>
           {models.map((m) => (
             <option key={m} value={m}>
@@ -85,7 +88,7 @@ export function SupportModelForm({
           aria-busy={pending}
           data-testid="support-model-save"
         >
-          {pending ? 'Сохраняю…' : 'Сменить модель'}
+          {pending ? t('Сохраняю…') : t('Сменить модель')}
         </Button>
       </Row>
     </form>

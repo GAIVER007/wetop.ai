@@ -1,4 +1,5 @@
 import { LoadingState, Skeleton } from '../../components/ui';
+import { msg } from '../../i18n';
 
 /**
  * Ожидание фонда — без собственного `<Page>`: у фонда параллельный слот `@drawer` (ADR-108), и fallback
@@ -10,7 +11,7 @@ import { LoadingState, Skeleton } from '../../components/ui';
 export default function Loading() {
   return (
     <div className="page" data-testid="inventory-loading">
-      <LoadingState label="Загружаем номерной фонд…">
+      <LoadingState label={msg('Загружаем номерной фонд…')}>
         <Skeleton variant="stat" />
         <Skeleton />
         <Skeleton />

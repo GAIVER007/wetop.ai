@@ -8,6 +8,6 @@ export async function GET() {
   try {
     return Response.json(await getJsonPublic('/system/freshness'));
   } catch {
-    return Response.json({ error: 'Нет связи с API' }, { status: 503 });
+    return Response.json({ error: 'Нет связи с API' }, { status: 503 }); // kk-allow: служебный ответ, на экран не выводится
   }
 }

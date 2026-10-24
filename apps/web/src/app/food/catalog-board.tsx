@@ -3,10 +3,16 @@ import { useEffect, useState } from 'react';
 import { Badge, Button, EmptyState, Panel } from '../../components/ui';
 import type { FoodWorkspace } from '../../lib/food-types';
 import { weekdays } from '../../lib/food-data';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, msg } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
 import { compareTables } from '../../lib/table-title';
 import { CatalogForm, type CatalogDraft } from './catalog-form';
+const TABLE_FORMS: [string, string, string] = [msg('стол'), 'стола', msg('столов')]; // kk-allow: форма склонения
+const SEAT_FORMS: [string, string, string] = [msg('место@@стол'), 'места', msg('мест@@стол')]; // kk-allow: форма склонения
+
 export function CatalogBoard({ data }: { data: FoodWorkspace }) {
+  const t = useT();
+  const locale = useLocale();
   const [tab, setTab] = useState<'areas' | 'periods'>('areas');
   const [switching, setSwitching] = useState(false);
   const [draft, setDraft] = useState<CatalogDraft | null>(null);
@@ -23,43 +29,43 @@ export function CatalogBoard({ data }: { data: FoodWorkspace }) {
       window.removeEventListener('wetop-scope-switch-failed', failed);
     };
   }, []);
-  if (switching) return <p role="status">Переключаем ресторан…</p>;
+  if (switching) return <p role="status">{t('Переключаем ресторан…')}</p>;
   // A refresh may finish after an operator reopens a just-saved catalog item.
   const currentDraft: CatalogDraft | null = !draft?.item
     ? draft
     : draft.kind === 'area'
       ? { ...draft, item: data.areas.find((a) => a.id === draft.item?.id) ?? draft.item }
       : draft.kind === 'table'
-        ? { ...draft, item: data.tables.find((t) => t.id === draft.item?.id) ?? draft.item }
+        ? { ...draft, item: data.tables.find((tb) => tb.id === draft.item?.id) ?? draft.item }
         : { ...draft, item: data.periods.find((p) => p.id === draft.item?.id) ?? draft.item };
   const write = data.canProperty && !data.readOnly;
   const tables = [...data.tables].sort(compareTables);
   return (
     <div className="food-workspace">
-      <nav className="food-tabs" aria-label="Каталог ресторана">
+      <nav className="food-tabs" aria-label={t('Каталог ресторана')}>
         <Button tone="secondary" aria-pressed={tab === 'areas'} onClick={() => setTab('areas')}>
-          Залы и столы
+          {t('Залы и столы')}
         </Button>
         <Button tone="secondary" aria-pressed={tab === 'periods'} onClick={() => setTab('periods')}>
-          Периоды обслуживания
+          {t('Периоды обслуживания')}
         </Button>
       </nav>
       <div className="food-section-heading">
         <p className="muted">
           {tab === 'areas'
-            ? 'Залы, вместимость и порядок столов'
-            : 'Время работы и длительность бронирования'}
+            ? t('Залы, вместимость и порядок столов')
+            : t('Время работы и длительность бронирования')}
         </p>
         {write && (
           <Button onClick={() => setDraft(tab === 'areas' ? { kind: 'area' } : { kind: 'period' })}>
-            {tab === 'areas' ? '+ Добавить зал' : '+ Добавить период'}
+            {tab === 'areas' ? t('+ Добавить зал') : t('+ Добавить период')}
           </Button>
         )}
       </div>
       {tab === 'areas' ? (
         <div className="food-catalog-grid">
           {data.areas.length === 0 ? (
-            <EmptyState title="Сначала добавьте зал и столы" />
+            <EmptyState title={t('Сначала добавьте зал и столы')} />
           ) : (
             [...data.areas]
               .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -69,8 +75,8 @@ export function CatalogBoard({ data }: { data: FoodWorkspace }) {
                     <div>
                       <h2>{area.name}</h2>
                       <span className="muted">
-                        {pluralRu(tables.filter((t) => t.areaId === area.id).length, ['стол', 'стола', 'столов'])} ·{' '}
-                        {area.active ? 'Активен' : 'В архиве'}
+                        {countLabel(locale, t, tables.filter((tb) => tb.areaId === area.id).length, TABLE_FORMS)} ·{' '}
+                        {area.active ? t('Активен') : t('В архиве')}
                       </span>
                     </div>
                     {write && (
@@ -80,7 +86,7 @@ export function CatalogBoard({ data }: { data: FoodWorkspace }) {
                           size="sm"
                           onClick={() => setDraft({ kind: 'area', item: area })}
                         >
-                          Изменить
+                          {t('Изменить')}
                         </Button>
                         {area.active && (
                           <Button
@@ -88,37 +94,37 @@ export function CatalogBoard({ data }: { data: FoodWorkspace }) {
                             size="sm"
                             onClick={() => setDraft({ kind: 'table', areaId: area.id })}
                           >
-                            + Стол
+                            {t('+ Стол')}
                           </Button>
                         )}
                       </div>
                     )}
                   </div>
-                  {tables.filter((t) => t.areaId === area.id).length === 0 ? (
-                    <p className="muted">В этом зале пока нет столов</p>
+                  {tables.filter((tb) => tb.areaId === area.id).length === 0 ? (
+                    <p className="muted">{t('В этом зале пока нет столов')}</p>
                   ) : (
                     <ul className="food-catalog-list">
                       {tables
-                        .filter((t) => t.areaId === area.id)
-                        .map((t) => (
-                          <li key={t.id}>
+                        .filter((tb) => tb.areaId === area.id)
+                        .map((tb) => (
+                          <li key={tb.id}>
                             <div>
-                              <strong>{t.name}</strong>
-                              <span>{pluralRu(t.capacity, ['место', 'места', 'мест'])}</span>
+                              <strong>{tb.name}</strong>
+                              <span>{countLabel(locale, t, tb.capacity, SEAT_FORMS)}</span>
                             </div>
-                            <Badge tone={t.active ? 'ok' : 'neutral'}>
-                              {t.active ? 'Активен' : 'В архиве'}
+                            <Badge tone={tb.active ? 'ok' : 'neutral'}>
+                              {tb.active ? t('Активен') : t('В архиве')}
                             </Badge>
                             {write && (
                               <Button
                                 tone="ghost"
                                 size="sm"
-                                aria-label={`Изменить стол ${t.name}`}
+                                aria-label={t('Изменить стол {name}', { name: tb.name })}
                                 onClick={() =>
-                                  setDraft({ kind: 'table', areaId: area.id, item: t })
+                                  setDraft({ kind: 'table', areaId: area.id, item: tb })
                                 }
                               >
-                                Изменить
+                                {t('Изменить')}
                               </Button>
                             )}
                           </li>
@@ -132,24 +138,24 @@ export function CatalogBoard({ data }: { data: FoodWorkspace }) {
       ) : (
         <div className="food-catalog-grid">
           {data.periods.length === 0 ? (
-            <EmptyState title="Настройте период обслуживания" />
+            <EmptyState title={t('Настройте период обслуживания')} />
           ) : (
             data.periods.map((p) => (
               <Panel key={p.id}>
                 <div className="food-section-heading">
                   <h2>{p.name}</h2>
                   <Badge tone={p.active ? 'ok' : 'neutral'}>
-                    {p.active ? 'Активен' : 'В архиве'}
+                    {p.active ? t('Активен') : t('В архиве')}
                   </Badge>
                 </div>
                 <p>
-                  {weekdays[p.weekday]}, {p.timeFrom}–{p.timeTo}
-                  {p.endsNextDay ? ' (+1 день)' : ''}
+                  {t(weekdays[p.weekday] ?? '')}, {p.timeFrom}–{p.timeTo}
+                  {p.endsNextDay ? t(' (+1 день)') : ''}
                 </p>
-                <p className="muted">Длительность брони {p.defaultDurationMinutes} мин</p>
+                <p className="muted">{t('Длительность брони {n} мин', { n: p.defaultDurationMinutes })}</p>
                 {write && (
                   <Button tone="secondary" onClick={() => setDraft({ kind: 'period', item: p })}>
-                    Изменить
+                    {t('Изменить')}
                   </Button>
                 )}
               </Panel>

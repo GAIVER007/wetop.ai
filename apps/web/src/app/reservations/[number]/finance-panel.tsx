@@ -42,15 +42,17 @@ import {
 import { usePropertyClock } from '../../../components/property-time';
 import { useMay } from '../../../components/desk-access';
 import { displayDate } from '../../../lib/display-date';
-import { DESK_PAYMENT_METHODS, methodInline, methodRu } from '../../../lib/payment-method-label';
+import { DESK_PAYMENT_METHODS, methodRu } from '../../../lib/payment-method-label';
 import { chargeLine } from '../../../lib/charge-text';
 import { useConfirm } from '../../../components/use-confirm';
+import { intlLocale, msg } from '../../../i18n';
+import { useLocale, useT } from '../../../i18n/locale-provider';
 
 const KIND_RU: Record<string, string> = {
-  ACCOMMODATION: 'проживание',
-  SERVICE: 'услуга',
-  PENALTY: 'штраф',
-  ADJUSTMENT: 'корректировка',
+  ACCOMMODATION: msg('проживание'),
+  SERVICE: msg('услуга'),
+  PENALTY: msg('штраф'),
+  ADJUSTMENT: msg('корректировка'),
 };
 export { methodRu };
 /** Способы стойки: без EXTERNAL (его ставят каналы), в порядке настройки объекта (DATA_MODEL §21.6) */
@@ -95,6 +97,7 @@ export function FinancePanel({
   today: string;
   canMutate: boolean;
 }) {
+  const t = useT();
   // включённые способы объекта (§21.6): старый API без поля даёт все восемь
   const methods = useMemo(() => methodOptions(finance.paymentMethods), [finance.paymentMethods]);
   return (
@@ -103,9 +106,12 @@ export function FinancePanel({
       {canMutate && <GroupPayment number={number} folios={finance.folios} methods={methods} />}
       {finance.folios.length > 1 && (
         <div data-testid="finance-total">
-          Итого по брони: начислено {formatMoney(finance.chargedMinor, finance.currency)}, оплачено{' '}
-          {formatMoney(finance.paidMinor, finance.currency)}, возвращено{' '}
-          {formatMoney(finance.refundedMinor, finance.currency)} →{' '}
+          {t('Итого по брони: начислено {charged}, оплачено {paid}, возвращено {refunded}', {
+            charged: formatMoney(finance.chargedMinor, finance.currency),
+            paid: formatMoney(finance.paidMinor, finance.currency),
+            refunded: formatMoney(finance.refundedMinor, finance.currency),
+          })}
+          {' → '}
           <Balance minor={finance.balanceMinor} currency={finance.currency} />
         </div>
       )}
@@ -118,9 +124,10 @@ export function FinancePanel({
 }
 
 function Balance({ minor, currency }: { minor: string; currency: string }) {
+  const t = useT();
   const n = BigInt(minor);
   const cls = n > 0n ? 'warn-text' : n < 0n ? 'info-text' : 'ok-text';
-  const label = n > 0n ? 'к оплате' : n < 0n ? 'переплата' : 'оплачено';
+  const label = n > 0n ? t('к оплате') : n < 0n ? t('переплата') : t('оплачено');
   return (
     <b className={cls} data-testid="folio-balance">
       {formatMoney(minor, currency)} · {label}
@@ -143,6 +150,8 @@ function FolioPanel({
 }) {
   // Дата оплаты и возврата — день по часам объекта, а не срез UTC-строки (волна 3, С-13)
   const clock = usePropertyClock();
+  const t = useT();
+  const locale = useLocale();
   // возврат, сторно, скидка, аннулирование и правка платежа — владелец и управляющий (ADR-107, Q-024); API откажет и так
   const reverse = useMay('refunds') && canMutate;
   // чек по запросу гостя отмечает смена (DATA_MODEL §26); касса пробивает чек сама, WETOP хранит номер
@@ -178,21 +187,23 @@ function FolioPanel({
     <Panel className="folio-panel" data-testid="folio-panel" style={{ gap: 10 }}>
       <Row gap="lg" className="row--baseline">
         <b className="panel__title panel__title--lg">
-          Счёт — {folio.stay.accommodationTypeName},{' '}
-          <time dateTime={folio.stay.arrivalDate}>{displayDate(folio.stay.arrivalDate)}</time>
+          {t('Счёт — {category},', { category: folio.stay.accommodationTypeName })}{' '}
+          <time dateTime={folio.stay.arrivalDate}>{displayDate(folio.stay.arrivalDate, 'short', intlLocale(locale))}</time>
           {' → '}
-          <time dateTime={folio.stay.departureDate}>{displayDate(folio.stay.departureDate)}</time>
+          <time dateTime={folio.stay.departureDate}>{displayDate(folio.stay.departureDate, 'short', intlLocale(locale))}</time>
         </b>
         {!open && (
           // Без подписи закрытый счёт выглядел просто как счёт без форм: администратор не понимал,
           // почему нельзя ни начислить, ни принять оплату
-          <Badge data-testid="folio-closed">счёт закрыт — гость рассчитался и выехал</Badge>
+          <Badge data-testid="folio-closed">{t('счёт закрыт — гость рассчитался и выехал')}</Badge>
         )}
         <span className="sub">
-          начислено {formatMoney(folio.chargedMinor, folio.currency)}, оплачено{' '}
-          {formatMoney(folio.paidMinor, folio.currency)}
+          {t('начислено {charged}, оплачено {paid}', {
+            charged: formatMoney(folio.chargedMinor, folio.currency),
+            paid: formatMoney(folio.paidMinor, folio.currency),
+          })}
           {folio.refundedMinor !== '0'
-            ? `, возвращено ${formatMoney(folio.refundedMinor, folio.currency)}`
+            ? t(', возвращено {sum}', { sum: formatMoney(folio.refundedMinor, folio.currency) })
             : ''}
         </span>
         <span className="ml-auto">
@@ -213,18 +224,18 @@ function FolioPanel({
       )}
 
       <b className="folio-form__title" data-testid="folio-charges-title">
-        Проживание и услуги
+        {t('Проживание и услуги')}
       </b>
-      <Table plain aria-label="Проживание и услуги">
+      <Table plain aria-label={t('Проживание и услуги')}>
         <thead>
           <tr>
-            {['Начисление', 'Дата', 'Кол-во × цена', 'Сумма'].map((h) => (
-              <th key={h} className={h === 'Сумма' ? 'num' : undefined}>
-                {h}
+            {[msg('Начисление'), msg('Дата'), msg('Кол-во × цена'), msg('Сумма')].map((h) => (
+              <th key={h} className={h === 'Сумма' /* kk-allow: сверка с ключом колонки */ ? 'num' : undefined}>
+                {t(h)}
               </th>
             ))}
             <th>
-              <span className="sr-only">Действия</span>
+              <span className="sr-only">{t('Действия')}</span>
             </th>
           </tr>
         </thead>
@@ -242,14 +253,14 @@ function FolioPanel({
                   const line = chargeLine(KIND_RU[c.kind] ?? c.kind, c.description);
                   return (
                     <>
-                      {line.kind && <span className="hint">{line.kind}</span>} {line.text}
+                      {line.kind && <span className="hint">{t(line.kind)}</span>} {line.text}
                     </>
                   );
                 })()}
               </td>
               <td>
                 {c.serviceDate ? (
-                  <time dateTime={c.serviceDate}>{displayDate(c.serviceDate)}</time>
+                  <time dateTime={c.serviceDate}>{displayDate(c.serviceDate, 'short', intlLocale(locale))}</time>
                 ) : (
                   '—'
                 )}
@@ -269,7 +280,7 @@ function FolioPanel({
                     disabled={busy}
                     onClick={() => command(() => voidChargeAction(number, c.id))}
                   >
-                    сторно
+                    {t('сторно')}
                   </Button>
                 )}
                 {mutable && !c.voidedAt && c.kind === 'ACCOMMODATION' && !pricing && (
@@ -281,10 +292,10 @@ function FolioPanel({
                     disabled={busy}
                     onClick={() => setPricing(true)}
                   >
-                    Изменить цену
+                    {t('Изменить цену')}
                   </Button>
                 )}
-                {c.voidedAt && <span className="small">сторнировано</span>}
+                {c.voidedAt && <span className="small">{t('сторнировано')}</span>}
               </td>
             </tr>
           ))}
@@ -311,33 +322,33 @@ function FolioPanel({
           data-testid="charge-form"
           className="folio-form"
         >
-          <b className="folio-form__title">Добавить</b>
+          <b className="folio-form__title">{t('Добавить')}</b>
           <div className="row">
-            <Field inline label="Вид">
+            <Field inline label={t('Вид')}>
               <Select
                 name="kind"
-                aria-label="Вид начисления"
+                aria-label={t('Вид начисления@@счёт')}
                 value={kind}
                 onChange={(e) => setKind(e.target.value)}
               >
-                <option value="SERVICE">Услуга</option>
+                <option value="SERVICE">{t('Услуга')}</option>
                 {/* скидка уменьшает счёт: владелец и управляющий (ADR-107); администратору не предлагаем */}
-                {reverse && <option value="DISCOUNT">Скидка</option>}
-                <option value="PENALTY">Штраф</option>
-                <option value="ADJUSTMENT">Корректировка</option>
+                {reverse && <option value="DISCOUNT">{t('Скидка')}</option>}
+                <option value="PENALTY">{t('Штраф')}</option>
+                <option value="ADJUSTMENT">{t('Корректировка')}</option>
               </Select>
             </Field>
             {kind === 'SERVICE' && (
-              <Field inline label="Услуга">
+              <Field inline label={t('Услуга')}>
                 <Select
                   name="serviceCode"
-                  aria-label="Услуга"
+                  aria-label={t('Услуга')}
                   defaultValue={chargeState.values?.serviceCode ?? services[0]?.code}
                 >
                   {/* у нового отеля услуг ещё нет: пустой список выглядел сломанным (аудит 22.10.2026 P2-2) */}
                   {services.length === 0 && (
                     <option value="" disabled>
-                      Услуг пока нет
+                      {t('Услуг пока нет')}
                     </option>
                   )}
                   {services.map((s) => (
@@ -352,10 +363,10 @@ function FolioPanel({
             {kind === 'DISCOUNT' && (
               <>
                 <input type="hidden" name="baseMinor" value={stayCharge?.amountMinor ?? '0'} />
-                <Field inline label="Процент">
+                <Field inline label={t('Процент')}>
                   <Input
                     name="percent"
-                    aria-label="Процент скидки"
+                    aria-label={t('Процент скидки')}
                     type="number"
                     min={1}
                     max={100}
@@ -365,44 +376,44 @@ function FolioPanel({
                     className="inp--w64"
                   />
                 </Field>
-                <Field inline label="или сумма">
+                <Field inline label={t('или сумма')}>
                   <Input
                     name="amount"
-                    aria-label="Сумма скидки"
+                    aria-label={t('Сумма скидки')}
                     inputMode="decimal"
                     defaultValue={chargeState.values?.amount ?? ''}
-                    placeholder="сумма"
+                    placeholder={t('сумма')}
                     className="inp--w120"
                   />
                 </Field>
-                <Field inline label="Причина">
+                <Field inline label={t('Причина')}>
                   <Input
                     name="description"
-                    aria-label="Причина скидки"
+                    aria-label={t('Причина скидки')}
                     defaultValue={chargeState.values?.description ?? ''}
-                    placeholder="необязательно"
+                    placeholder={t('необязательно')}
                     className="inp--w180"
                   />
                 </Field>
               </>
             )}
             {(kind === 'PENALTY' || kind === 'ADJUSTMENT') && (
-              <Field inline label="За что">
+              <Field inline label={t('За что')}>
                 <Input
                   name="description"
-                  aria-label="Описание начисления"
+                  aria-label={t('Описание начисления')}
                   defaultValue={chargeState.values?.description ?? ''}
-                  placeholder="за что"
+                  placeholder={t('за что')}
                   required
                   className="inp--w180"
                 />
               </Field>
             )}
             {kind !== 'DISCOUNT' && (
-              <Field inline label="Кол-во">
+              <Field inline label={t('Кол-во')}>
                 <Input
                   name="quantity"
-                  aria-label="Количество"
+                  aria-label={t('Количество')}
                   type="number"
                   min={1}
                   step={1}
@@ -412,33 +423,34 @@ function FolioPanel({
               </Field>
             )}
             {(kind === 'PENALTY' || kind === 'ADJUSTMENT') && (
-              <Field inline label="Цена">
+              <Field inline label={t('Цена')}>
                 <Input
                   name="unitPrice"
-                  aria-label="Цена за единицу"
+                  aria-label={t('Цена за единицу')}
                   defaultValue={chargeState.values?.unitPrice ?? ''}
                   // на уменьшение — владелец и управляющий (ADR-107): администратору минус не подсказываем
-                  placeholder={kind === 'ADJUSTMENT' && reverse ? 'сумма (можно −)' : 'сумма'}
+                  placeholder={kind === 'ADJUSTMENT' && reverse ? t('сумма (можно −)') : t('сумма')}
                   required
                   className="inp--w120"
                 />
               </Field>
             )}
-            <Field inline label="Дата">
+            <Field inline label={t('Дата')}>
               <DateInput
                 name="serviceDate"
-                aria-label="Дата услуги"
+                aria-label={t('Дата услуги')}
                 defaultValue={chargeState.values?.serviceDate ?? today}
               />
             </Field>
             <Button type="submit" disabled={busy}>
-              {kind === 'DISCOUNT' ? 'Применить скидку' : 'Начислить'}
+              {kind === 'DISCOUNT' ? t('Применить скидку') : t('Начислить@@счёт')}
             </Button>
           </div>
           {kind === 'DISCOUNT' && stayCharge && (
             <span className="hint" data-testid="discount-hint">
-              Процент считается от проживания {formatMoney(stayCharge.amountMinor, folio.currency)};
-              скидка ляжет в счёт отдельной строкой со знаком минус
+              {t('Процент считается от проживания {sum}; скидка ляжет в счёт отдельной строкой со знаком минус', {
+                sum: formatMoney(stayCharge.amountMinor, folio.currency),
+              })}
             </span>
           )}
         </form>
@@ -447,24 +459,24 @@ function FolioPanel({
       {folio.payments.length > 0 && (
         <>
           <b className="folio-form__title" data-testid="folio-payments-title">
-            Оплаты
+            {t('Оплаты')}
           </b>
-          <Table plain aria-label="Оплаты">
+          <Table plain aria-label={t('Оплаты')}>
             <thead>
               <tr>
                 {[
-                  'Платёж',
-                  'Когда',
-                  'На этот счёт',
-                  'Возвращено',
-                  'Чек',
-                  ...(reverse ? ['Действия'] : []),
+                  msg('Платёж'),
+                  msg('Когда'),
+                  msg('На этот счёт'),
+                  msg('Возвращено'),
+                  msg('Чек'),
+                  ...(reverse ? [msg('Действия')] : []),
                 ].map((h) => (
                   <th
                     key={h}
-                    className={h === 'На этот счёт' || h === 'Возвращено' ? 'num' : undefined}
+                    className={h === 'На этот счёт' || h === 'Возвращено' /* kk-allow: сверка с ключом колонки */ ? 'num' : undefined}
                   >
-                    {h}
+                    {t(h)}
                   </th>
                 ))}
               </tr>
@@ -478,23 +490,23 @@ function FolioPanel({
                   className={p.status === 'VOIDED' ? 'is-void' : undefined}
                 >
                   <td>
-                    {methodRu(p.method)}
+                    {t(methodRu(p.method))}
                     {p.note ? `, ${p.note}` : ''}
                     {p.externalReference ? `, ${p.externalReference}` : ''}
-                    {p.status === 'VOIDED' ? ' — аннулирован' : ''}
+                    {p.status === 'VOIDED' ? t(' — аннулирован') : ''}
                   </td>
                   <td>{clock.moment(p.paidAt)}</td>
                   <td className="num">{formatMoney(p.allocatedMinor, folio.currency)}</td>
                   <td className="num">{formatMoney(p.refundedMinor, folio.currency)}</td>
                   <td data-testid="payment-receipt">
                     {p.receipt ? (
-                      <span title={`отмечен ${clock.moment(p.receipt.issuedAt)}`}>
+                      <span title={t('отмечен {when}', { when: clock.moment(p.receipt.issuedAt) })}>
                         № {p.receipt.number}
                       </span>
                     ) : p.status === 'COMPLETED' && desk ? (
                       <ReceiptForm number={number} paymentId={p.paymentId} onResult={setOther} />
                     ) : (
-                      <span className="muted">нет</span>
+                      <span className="muted">{t('нет')}</span>
                     )}
                   </td>
                   {reverse && (
@@ -510,7 +522,7 @@ function FolioPanel({
                               disabled={busy}
                               onClick={() => setRefunding(p.paymentId)}
                             >
-                              Вернуть
+                              {t('Вернуть@@деньги')}
                             </Button>
                           )}
                           {/* возврата ещё не было: иначе API откажет словами, кнопки не нужны */}
@@ -524,7 +536,7 @@ function FolioPanel({
                                 disabled={busy}
                                 onClick={() => setEditing(p)}
                               >
-                                Изменить
+                                {t('Изменить')}
                               </Button>
                               <Button
                                 type="button"
@@ -535,9 +547,9 @@ function FolioPanel({
                                 disabled={busy}
                                 onClick={async () => {
                                   const ok = await ask({
-                                    title: `Аннулировать платёж ${formatMoney(p.paymentAmountMinor, folio.currency)}?`,
-                                    body: 'Платёж останется в списке со статусом «аннулирован», а сумма вернётся в остаток к оплате. Если деньги на самом деле получены, примите оплату заново или нажмите «Изменить».',
-                                    confirmLabel: 'Аннулировать',
+                                    title: t('Аннулировать платёж {sum}?', { sum: formatMoney(p.paymentAmountMinor, folio.currency) }),
+                                    body: t('Платёж останется в списке со статусом «аннулирован», а сумма вернётся в остаток к оплате. Если деньги на самом деле получены, примите оплату заново или нажмите «Изменить».'),
+                                    confirmLabel: t('Аннулировать'),
                                     tone: 'danger',
                                   });
                                   if (ok)
@@ -546,7 +558,7 @@ function FolioPanel({
                                     );
                                 }}
                               >
-                                Аннулировать
+                                {t('Аннулировать')}
                               </Button>
                             </>
                           )}
@@ -576,13 +588,14 @@ function FolioPanel({
       )}
       {folio.refunds.length > 0 && (
         <div className="hint--lg">
-          Возвраты:{' '}
-          {folio.refunds
-            .map(
-              (r) =>
-                `${formatMoney(r.amountMinor, folio.currency)} (${clock.moment(r.createdAt)}${r.reason ? `, ${r.reason}` : ''})`,
-            )
-            .join('; ')}
+          {t('Возвраты: {list}', {
+            list: folio.refunds
+              .map(
+                (r) =>
+                  `${formatMoney(r.amountMinor, folio.currency)} (${clock.moment(r.createdAt)}${r.reason ? `, ${r.reason}` : ''})`,
+              )
+              .join('; '),
+          })}
         </div>
       )}
 
@@ -592,8 +605,8 @@ function FolioPanel({
           <Row>
             {(
               [
-                ['EARLY_CHECK_IN', 'Ранний заезд', 'early-check-in'],
-                ['LATE_CHECK_OUT', 'Поздний выезд', 'late-check-out'],
+                ['EARLY_CHECK_IN', msg('Ранний заезд'), 'early-check-in'],
+                ['LATE_CHECK_OUT', msg('Поздний выезд'), 'late-check-out'],
               ] as const
             ).map(([extra, label, testId]) => (
               <Button
@@ -603,12 +616,12 @@ function FolioPanel({
                 size="sm"
                 data-testid={`${testId}-${folio.id}`}
                 disabled={busy}
-                title="Услуга на счёт по правилу объекта: доля ночи зависит от времени"
+                title={t('Услуга на счёт по правилу объекта: доля ночи зависит от времени')}
                 onClick={async () => {
                   // правило объекта из внешней системы: ранний заезд до 06:00 — вся ночь, 06:00–11:59 — половина,
                   // с 12:00 бесплатно; поздний выезд 12:01–17:59 — половина, с 18:00 — вся ночь
                   const time = window.prompt(
-                    `${label}: во сколько? (ЧЧ:ММ). Пусто — половина ночи`,
+                    t('{extra}: во сколько? (ЧЧ:ММ). Пусто — половина ночи', { extra: t(label) }),
                     '',
                   );
                   if (time === null) return;
@@ -617,7 +630,7 @@ function FolioPanel({
                   );
                 }}
               >
-                {label}
+                {t(label)}
               </Button>
             ))}
           </Row>
@@ -632,18 +645,18 @@ function FolioPanel({
                 disabled={busy}
                 onClick={async () => {
                   const ok = await ask({
-                    title: 'Закрыть счёт?',
-                    body: 'Баланс нулевой. После закрытия по этому счёту нельзя ни начислить, ни принять оплату — новые начисления пойдут на другой счёт.',
-                    confirmLabel: 'Закрыть счёт',
+                    title: t('Закрыть счёт?'),
+                    body: t('Баланс нулевой. После закрытия по этому счёту нельзя ни начислить, ни принять оплату — новые начисления пойдут на другой счёт.'),
+                    confirmLabel: t('Закрыть счёт'),
                   });
                   if (!ok) return;
                   await command(() => closeFolioAction(number, folio.id));
                 }}
               >
-                Закрыть счёт
+                {t('Закрыть счёт')}
               </Button>
               <span className="hint">
-                баланс нулевой — счёт можно закрыть, если начислений больше не будет
+                {t('баланс нулевой — счёт можно закрыть, если начислений больше не будет')}
               </span>
             </Row>
           )}
@@ -694,6 +707,7 @@ export function PaymentForm({
   busy: boolean;
   onDraftChange?: (dirty: boolean) => void;
 }) {
+  const t = useT();
   const methods = useContext(MethodsContext);
   const { review, onSubmit, onChange } = useMoneyReview(busy, onDraftChange);
   const [method, setMethod] = useState(values?.method ?? methods[0]?.[0] ?? 'CASH');
@@ -701,10 +715,20 @@ export function PaymentForm({
   const [draft, setDraft] = useState<string | null>(values?.amount ?? null);
   const amount = draft ?? suggested;
   const minor = decimalToMinor(amount);
+  // способ строчными внутри фразы, имена банков как есть (как `methodInline`, но на языке человека)
+  const methodLabel = t(methodRu(method));
+  const inline = /^(Kaspi|Halyk)/.test(methodLabel)
+    ? methodLabel
+    : methodLabel.charAt(0).toLocaleLowerCase() + methodLabel.slice(1);
   const digest =
     amount === ''
-      ? 'Введите сумму'
-      : `${minor ? formatMoney(minor, folio.currency) : `${amount} — не число`}, ${methodInline(method)}, на счёт «${folio.stay.accommodationTypeName}» брони ${number}`;
+      ? t('Введите сумму')
+      : t('{sum}, {method}, на счёт «{category}» брони {number}', {
+          sum: minor ? formatMoney(minor, folio.currency) : t('{amount} — не число', { amount }),
+          method: inline,
+          category: folio.stay.accommodationTypeName,
+          number,
+        });
   return (
     <form
       action={action}
@@ -715,29 +739,29 @@ export function PaymentForm({
       data-reviewed={review ? 'true' : undefined}
     >
       <input type="hidden" name="currency" value={folio.currency} />
-      <b className="folio-form__title">Принять оплату</b>
+      <b className="folio-form__title">{t('Принять оплату')}</b>
       <div className="row">
-        <Field inline label="Способ">
+        <Field inline label={t('Способ')}>
           <Select
             name="method"
-            aria-label="Способ оплаты"
+            aria-label={t('Способ оплаты')}
             disabled={busy}
             value={method}
             onChange={(e) => setMethod(e.target.value)}
           >
-            {methods.map(([k, t]) => (
+            {methods.map(([k, label]) => (
               <option key={k} value={k}>
-                {t}
+                {t(label)}
               </option>
             ))}
           </Select>
         </Field>
-        <Field inline label="Сумма">
+        <Field inline label={t('Сумма')}>
           {/* подсказка из баланса не перебивает ввод администратора */}
           <Input
             name="amount"
-            aria-label="Сумма"
-            placeholder="сумма"
+            aria-label={t('Сумма')}
+            placeholder={t('сумма')}
             required
             disabled={busy}
             value={amount}
@@ -745,28 +769,28 @@ export function PaymentForm({
             className="inp--w120"
           />
         </Field>
-        <Field inline label="Примечание">
+        <Field inline label={t('Примечание')}>
           <Input
             name="note"
-            aria-label="Примечание"
+            aria-label={t('Примечание')}
             disabled={busy}
             defaultValue={values?.note ?? ''}
-            placeholder="примечание"
+            placeholder={t('примечание')}
           />
         </Field>
       </div>
       {review && (
-        <section className="panel" aria-label="Проверка оплаты">
-          <b>Проверьте оплату</b>
+        <section className="panel" aria-label={t('Проверка оплаты')}>
+          <b>{t('Проверьте оплату')}</b>
           <p>{digest}</p>
-          {review['note'] && <p>Примечание: {review['note']}</p>}
-          <p className="hint">Оплата будет проведена после подтверждения.</p>
+          {review['note'] && <p>{t('Примечание: {note}', { note: review['note'] })}</p>}
+          <p className="hint">{t('Оплата будет проведена после подтверждения.')}</p>
         </section>
       )}
       <div className="row folio-form__submit">
         {review && (
           <Button type="button" tone="secondary" disabled={busy} onClick={onChange}>
-            Изменить данные
+            {t('Изменить данные')}
           </Button>
         )}
         {!review && (
@@ -779,7 +803,7 @@ export function PaymentForm({
           tone="success"
           disabled={busy || minor === null || BigInt(minor) <= 0n}
         >
-          {busy ? 'Выполняется…' : review ? 'Подтвердить оплату' : 'Проверить оплату'}
+          {busy ? t('Выполняется…') : review ? t('Подтвердить оплату') : t('Проверить оплату')}
         </Button>
       </div>
     </form>
@@ -805,6 +829,7 @@ function StayPriceForm({
   onResult: (r: FinanceActionResult) => void;
   onCancel: () => void;
 }) {
+  const t = useT();
   const [state, action, pending] = useActionState<FinanceActionResult, FormData>(
     async (prev, fd) => {
       const r = await stayPriceAction(number, itemId, prev, fd);
@@ -821,12 +846,12 @@ function StayPriceForm({
       className="folio-form"
     >
       <input type="hidden" name="currency" value={currency} />
-      <b className="folio-form__title">Цена проживания</b>
+      <b className="folio-form__title">{t('Цена проживания')}</b>
       <div className="row">
-        <Field inline label="Новая цена">
+        <Field inline label={t('Новая цена')}>
           <Input
             name="price"
-            aria-label="Цена проживания"
+            aria-label={t('Цена проживания')}
             inputMode="decimal"
             required
             defaultValue={state.values?.price ?? toDecimal(charge.amountMinor)}
@@ -834,15 +859,16 @@ function StayPriceForm({
           />
         </Field>
         <Button type="submit" disabled={pending} aria-busy={pending}>
-          Сохранить цену
+          {t('Сохранить цену')}
         </Button>
         <Button type="button" tone="secondary" onClick={onCancel} disabled={pending}>
-          Отмена
+          {t('Отмена')}
         </Button>
       </div>
       <span className="hint">
-        Сейчас {formatMoney(charge.amountMinor, currency)}. Начисление за проживание перепишется на
-        новую цену; при смене дат или категории цена снова посчитается по тарифу
+        {t('Сейчас {sum}. Начисление за проживание перепишется на новую цену; при смене дат или категории цена снова посчитается по тарифу', {
+          sum: formatMoney(charge.amountMinor, currency),
+        })}
       </span>
     </form>
   );
@@ -858,6 +884,7 @@ function ReceiptForm({
   paymentId: string;
   onResult: (r: FinanceActionResult) => void;
 }) {
+  const t = useT();
   const [state, action, pending] = useActionState<FinanceActionResult, FormData>(
     async (prev, fd) => {
       const r = await receiptAction(number, paymentId, prev, fd);
@@ -875,14 +902,14 @@ function ReceiptForm({
     >
       <Input
         name="receipt"
-        aria-label="Номер чека из кассы"
+        aria-label={t('Номер чека из кассы')}
         defaultValue={state.values?.receipt ?? ''}
-        placeholder="номер чека"
+        placeholder={t('номер чека')}
         required
         className="inp--w110 inp--sm"
       />
       <Button type="submit" tone="secondary" size="sm" disabled={pending}>
-        чек выдан
+        {t('чек выдан')}
       </Button>
     </form>
   );
@@ -909,6 +936,7 @@ export function RefundForm({
   onDraftChange?: (dirty: boolean) => void;
   onPendingChange?: (pending: boolean) => void;
 }) {
+  const t = useT();
   const [state, action, pending] = useActionState<FinanceActionResult, FormData>(
     async (prev, fd) => {
       const r = await refundAction(number, paymentId, folioId, prev, fd);
@@ -934,35 +962,39 @@ export function RefundForm({
       <Input
         disabled={pending}
         name="amount"
-        aria-label="Сумма возврата"
+        aria-label={t('Сумма возврата')}
         defaultValue={state.values?.amount ?? suggested}
-        placeholder="сумма"
+        placeholder={t('сумма')}
         required
         className="inp--w90 inp--sm"
       />
       <Input
         disabled={pending}
         name="reason"
-        aria-label="Причина возврата"
+        aria-label={t('Причина возврата')}
         defaultValue={state.values?.reason ?? ''}
-        placeholder="причина"
+        placeholder={t('причина')}
         className="inp--w110 inp--sm"
       />
       {review && (
-        <section className="panel" aria-label="Проверка возврата">
-          <b>Проверьте возврат</b>
+        <section className="panel" aria-label={t('Проверка возврата')}>
+          <b>{t('Проверьте возврат')}</b>
           <p>
-            Сумма: {review['amount']} {currency}. Причина: {review['reason'] || 'не указана'}.
+            {t('Сумма: {amount} {currency}. Причина: {reason}.', {
+              amount: review['amount'] ?? '',
+              currency,
+              reason: review['reason'] || t('не указана'),
+            })}
           </p>
-          <p className="hint">Возврат будет проведён после подтверждения.</p>
+          <p className="hint">{t('Возврат будет проведён после подтверждения.')}</p>
         </section>
       )}
       <Button type="submit" tone="secondary" size="sm" disabled={pending}>
-        {pending ? 'Выполняется…' : review ? 'Подтвердить возврат' : 'Проверить возврат'}
+        {pending ? t('Выполняется…') : review ? t('Подтвердить возврат') : t('Проверить возврат')}
       </Button>
       {onCancel && (
         <Button type="button" tone="ghost" size="sm" onClick={onCancel} disabled={pending}>
-          Отмена
+          {t('Отмена')}
         </Button>
       )}
     </form>
@@ -988,6 +1020,7 @@ function EditPaymentDrawer({
 }) {
   const grouped = payment.paymentAmountMinor !== payment.allocatedMinor;
   const clock = usePropertyClock();
+  const t = useT();
   const methods = useContext(MethodsContext);
   const [state, action, pending] = useActionState<FinanceActionResult, FormData>(
     async (prev, fd) => {
@@ -998,20 +1031,21 @@ function EditPaymentDrawer({
     INIT,
   );
   return (
-    <Overlay open onClose={onClose} title="Изменить платёж" drawer trapFocus>
+    <Overlay open onClose={onClose} title={t('Изменить платёж')} drawer trapFocus>
       {grouped ? (
         <Stack gap="sm" data-testid="payment-edit-grouped">
           <p>
-            Платёж {formatMoney(payment.paymentAmountMinor, folio.currency)} разложен на несколько
-            счетов, на этот счёт легло {formatMoney(payment.allocatedMinor, folio.currency)}.
+            {t('Платёж {sum} разложен на несколько счетов, на этот счёт легло {part}.', {
+              sum: formatMoney(payment.paymentAmountMinor, folio.currency),
+              part: formatMoney(payment.allocatedMinor, folio.currency),
+            })}
           </p>
           <p className="hint">
-            Такой платёж не правится по частям: аннулируйте его и примите заново общим платежом на
-            нужные счета.
+            {t('Такой платёж не правится по частям: аннулируйте его и примите заново общим платежом на нужные счета.')}
           </p>
           <Row>
             <Button type="button" tone="secondary" onClick={onClose}>
-              Закрыть
+              {t('Закрыть')}
             </Button>
           </Row>
         </Stack>
@@ -1024,20 +1058,21 @@ function EditPaymentDrawer({
         >
           <input type="hidden" name="currency" value={folio.currency} />
           <p className="hint">
-            Прежний платёж останется в списке аннулированным, новый проведётся той же датой (
-            {clock.when(payment.paidAt)}).
+            {t('Прежний платёж останется в списке аннулированным, новый проведётся той же датой ({when}).', {
+              when: clock.when(payment.paidAt),
+            })}
           </p>
           {state.error && <Alert boxed>{state.error}</Alert>}
-          <Field label="Способ оплаты">
+          <Field label={t('Способ оплаты')}>
             <Select name="method" defaultValue={state.values?.method ?? payment.method}>
-              {methods.map(([k, t]) => (
+              {methods.map(([k, label]) => (
                 <option key={k} value={k}>
-                  {t}
+                  {t(label)}
                 </option>
               ))}
             </Select>
           </Field>
-          <Field label={`Сумма, ${folio.currency}`}>
+          <Field label={t('Сумма, {currency}', { currency: folio.currency })}>
             <Input
               name="amount"
               inputMode="decimal"
@@ -1045,15 +1080,15 @@ function EditPaymentDrawer({
               defaultValue={state.values?.amount ?? toDecimal(payment.paymentAmountMinor)}
             />
           </Field>
-          <Field label="Примечание">
+          <Field label={t('Примечание')}>
             <Input name="note" defaultValue={state.values?.note ?? payment.note ?? ''} />
           </Field>
           <div className="settings-service-actions">
             <Button type="button" tone="secondary" onClick={onClose} disabled={pending}>
-              Отмена
+              {t('Отмена')}
             </Button>
             <Button type="submit" disabled={pending} aria-busy={pending}>
-              {pending ? 'Сохраняю…' : 'Сохранить платёж'}
+              {pending ? t('Сохраняю…') : t('Сохранить платёж')}
             </Button>
           </div>
         </form>

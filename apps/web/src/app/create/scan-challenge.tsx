@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef } from 'react';
 import { S } from './strings';
+import { useT } from '../../i18n/locale-provider';
 
 type Turnstile = {
   render: (element: HTMLElement, options: Record<string, unknown>) => string;
@@ -32,6 +33,7 @@ export function ScanChallenge({
   siteKey: string;
   onToken: (value: string) => void;
 }) {
+  const t = useT();
   const element = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let stopped = false;
@@ -55,5 +57,5 @@ export function ScanChallenge({
       if (id) api?.remove(id);
     };
   }, [siteKey, onToken]);
-  return <div ref={element} role="group" aria-label={S.scan.challengeLabel} />;
+  return <div ref={element} role="group" aria-label={t(S.scan.challengeLabel)} />;
 }

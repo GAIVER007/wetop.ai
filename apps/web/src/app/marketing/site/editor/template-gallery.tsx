@@ -5,6 +5,8 @@ import { Overlay } from '../../../../components/overlay';
 import { Button, cx } from '../../../../components/ui';
 import type { SiteFacts } from '../../../../lib/site-facts';
 import { inertPreviewHtml, previewSpec } from '../../../../lib/site-preview-spec';
+import { msg } from '../../../../i18n';
+import { useT } from '../../../../i18n/locale-provider';
 
 /**
  * Шаблоны готовых сайтов картинками (SITE-1, поручение владельца 15.10.2026: «шаблоны должны сразу отображаться, а
@@ -35,11 +37,12 @@ function useTemplateHtml(facts: SiteFacts, templateId: string, spec?: Record<str
 }
 
 function Shot({ facts, template }: { facts: SiteFacts; template: SiteTemplate }) {
+  const t = useT();
   const html = useTemplateHtml(facts, template.id);
   return (
     <span className="site-design__shot" aria-hidden="true">
       {html ? (
-        <iframe className="site-design__frame" title={`Превью: ${template.name}`} srcDoc={html} sandbox="allow-same-origin" tabIndex={-1} data-testid="site-design-frame" />
+        <iframe className="site-design__frame" title={t('Превью: {name}', { name: t(template.name) })} srcDoc={html} sandbox="allow-same-origin" tabIndex={-1} data-testid="site-design-frame" />
       ) : (
         <span className="site-design__frame site-design__frame--empty skeleton" />
       )}
@@ -63,28 +66,32 @@ function TemplateViewer({
   onChoose: () => void;
   disabled: boolean;
 }) {
+  const t = useT();
   const html = useTemplateHtml(facts, template.id);
   const [device, setDevice] = useState<'desktop' | 'phone'>('desktop');
+  const name = t(template.name);
   return (
-    <Overlay open onClose={onClose} title={`Шаблон «${template.name}»`} size="lg" trapFocus className="tpl-viewer">
+    <Overlay open onClose={onClose} title={t('Шаблон «{name}»', { name })} size="lg" trapFocus className="tpl-viewer">
       <div className="tpl-viewer__body" data-testid="tpl-viewer">
-        <p className="muted tpl-viewer__text">{template.description}. Так будет выглядеть ваш сайт с данными филиала из WETOP.</p>
+        <p className="muted tpl-viewer__text">
+          {t('{description}. Так будет выглядеть ваш сайт с данными филиала из WETOP.', { description: t(template.description) })}
+        </p>
         <div className="tpl-viewer__bar">
-          <div className="ed-preview__device" role="group" aria-label="Ширина просмотра">
+          <div className="ed-preview__device" role="group" aria-label={t('Ширина просмотра')}>
             {(
               [
-                ['desktop', 'Компьютер'],
-                ['phone', 'Телефон'],
+                ['desktop', msg('Компьютер')],
+                ['phone', msg('Телефон')],
               ] as const
             ).map(([key, label]) => (
               <button key={key} type="button" className={cx('ed-preview__device-btn', device === key && 'is-on')} aria-pressed={device === key} onClick={() => setDevice(key)}>
-                {label}
+                {t(label)}
               </button>
             ))}
           </div>
           <span className="tpl-viewer__grow" />
           <Button type="button" tone="secondary" onClick={onClose}>
-            Закрыть
+            {t('Закрыть')}
           </Button>
           <Button
             type="button"
@@ -95,12 +102,12 @@ function TemplateViewer({
             }}
             data-testid="tpl-viewer-choose"
           >
-            {chosen ? 'Выбран' : 'Выбрать этот шаблон'}
+            {chosen ? t('Выбран') : t('Выбрать этот шаблон')}
           </Button>
         </div>
         <div className={cx('tpl-viewer__stage', device === 'phone' && 'is-phone')}>
           {html ? (
-            <iframe className="tpl-viewer__frame" title={`Сайт по шаблону «${template.name}»`} srcDoc={html} sandbox="allow-same-origin" data-testid="tpl-viewer-frame" />
+            <iframe className="tpl-viewer__frame" title={t('Сайт по шаблону «{name}»', { name })} srcDoc={html} sandbox="allow-same-origin" data-testid="tpl-viewer-frame" />
           ) : (
             <span className="tpl-viewer__frame skeleton" />
           )}
@@ -126,20 +133,21 @@ export function TemplateGallery({
   /** узкая колонка (простой экран): карточки в один столбец */
   compact?: boolean;
 }) {
+  const t = useT();
   const [open, setOpen] = useState<SiteTemplate | null>(null);
   return (
     <>
       <div
         className={cx('site-design__cards', compact && 'site-design__cards--compact')}
         role="radiogroup"
-        aria-label="Шаблон сайта"
+        aria-label={t('Шаблон сайта')}
         data-testid="site-designs"
         onKeyDown={(e) => {
           // стрелки как у группы радиокнопок: выбор соседнего шаблона и фокус на нём
           const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
           if (!step || disabled || !(e.target as HTMLElement).classList.contains('site-design__pick')) return;
           e.preventDefault();
-          const i = templates.findIndex((t) => t.id === chosen);
+          const i = templates.findIndex((x) => x.id === chosen);
           const next = templates[(i + step + templates.length) % templates.length]!;
           onChoose(next.id);
           const picks = e.currentTarget.querySelectorAll<HTMLButtonElement>('.site-design__pick');
@@ -156,7 +164,7 @@ export function TemplateGallery({
                 role="radio"
                 aria-checked={on}
                 tabIndex={on || (chosen === null && tpl === templates[0]) ? 0 : -1}
-                aria-label={`${tpl.name}: ${tpl.description}`}
+                aria-label={`${t(tpl.name)}: ${t(tpl.description)}`}
                 disabled={disabled}
                 onClick={() => onChoose(tpl.id)}
                 data-testid="setup-template-option"
@@ -164,16 +172,16 @@ export function TemplateGallery({
                 <Shot facts={facts} template={tpl} />
               </button>
               <span className="site-design__name">
-                {tpl.name}
-                {on && <span className="site-design__badge">Выбран</span>}
+                {t(tpl.name)}
+                {on && <span className="site-design__badge">{t('Выбран')}</span>}
               </span>
-              <span className="muted site-design__text">{tpl.description}</span>
+              <span className="muted site-design__text">{t(tpl.description)}</span>
               <span className="site-design__actions">
                 <Button type="button" tone="secondary" size="sm" onClick={() => setOpen(tpl)} data-testid="site-design-view">
-                  Посмотреть
+                  {t('Посмотреть')}
                 </Button>
                 <Button type="button" size="sm" disabled={disabled || on} onClick={() => onChoose(tpl.id)} data-testid="site-design-choose">
-                  {on ? 'Выбран' : 'Выбрать'}
+                  {on ? t('Выбран') : t('Выбрать')}
                 </Button>
               </span>
             </div>

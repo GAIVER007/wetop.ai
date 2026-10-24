@@ -2,9 +2,10 @@
 import { useEffect, useRef, type MouseEvent } from 'react';
 import type { FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
 import { foodStatus } from '../../lib/status/food';
-import { pluralRu } from '../../lib/plural';
 import { localInput } from '../beauty/time';
 import { compareTables, tableTitle } from '../../lib/table-title';
+import { countLabel, msg } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
 
 /** Брони, которые держат стол на шкале: отменённые и неявки строку не занимают */
 const ON_TIMELINE = new Set(['BOOKED', 'CONFIRMED', 'SEATED', 'COMPLETED']);
@@ -56,6 +57,8 @@ export function TimelineBoard({
   onOpen: (r: RestaurantReservation) => void;
   onCreate: ((tableId: string, time: string) => void) | null;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const areaOrder = new Map(data.areas.map((a) => [a.id, a.sortOrder]));
   const areaName = new Map(data.areas.map((a) => [a.id, a.name]));
   const tables = data.tables
@@ -113,38 +116,38 @@ export function TimelineBoard({
     const offset = ((focusMinute - 60 - fromHour * 60) / span) * track.offsetWidth;
     box.scrollLeft = Math.max(0, offset);
   }, [focusMinute, fromHour, span]);
-  if (!tables.length) return <p className="muted">В выбранном зале нет столов</p>;
+  if (!tables.length) return <p className="muted">{t('В выбранном зале нет столов')}</p>;
   return (
     <div className="rest-tl" data-testid="reservations-timeline" ref={scroller}>
       <div
         className="rest-tl__grid"
         style={{ ['--tl-hours' as string]: String(hours.length) }} /* slop-allow: inline-style число часов шкалы из периодов */
         role="group"
-        aria-label="Шкала броней по столам"
+        aria-label={t('Шкала броней по столам')}
       >
-        <div className="rest-tl__corner">Столы</div>
+        <div className="rest-tl__corner">{t('Столы')}</div>
         <div className="rest-tl__hours" aria-hidden="true">
           {hours.map((h) => (
             <span key={h}>{`${String(h % 24).padStart(2, '0')}:00`}</span>
           ))}
         </div>
-        {tables.map((t) => (
-          <div className="rest-tl__row" key={t.id}>
+        {tables.map((table) => (
+          <div className="rest-tl__row" key={table.id}>
             <div className="rest-tl__table">
-              <strong>{tableTitle(t.name)}</strong> <small>({t.capacity})</small>
-              {!areaId && <span className="sr-only">, {areaName.get(t.areaId)}</span>}
+              <strong>{tableTitle(table.name)}</strong> <small>({table.capacity})</small>
+              {!areaId && <span className="sr-only">, {areaName.get(table.areaId)}</span>}
             </div>
             <div className="rest-tl__track">
               {onCreate && (
                 <button
                   type="button"
                   className="rest-tl__slot"
-                  aria-label={`Новая бронь: ${tableTitle(t.name)}`}
-                  onClick={(e) => pick(e, t.id)}
+                  aria-label={t('Новая бронь: {table}', { table: tableTitle(table.name) })}
+                  onClick={(e) => pick(e, table.id)}
                 />
               )}
               {placed
-                .filter((p) => p.r.table!.id === t.id && p.end > fromHour * 60 && p.start < toHour * 60)
+                .filter((p) => p.r.table!.id === table.id && p.end > fromHour * 60 && p.start < toHour * 60)
                 .map(({ r, start, end }) => {
                   const name = [r.customer.firstName, r.customer.lastName].filter(Boolean).join(' ');
                   const left = pct(Math.max(start, fromHour * 60));
@@ -156,7 +159,7 @@ export function TimelineBoard({
                       className="rest-tl__bar"
                       data-status={r.status}
                       style={place} /* slop-allow: inline-style место и длина полосы из времени брони */
-                      aria-label={`${name}, ${clock(r.startsAt)}–${clock(r.endsAt)}, ${pluralRu(r.partySize, ['гость', 'гостя', 'гостей'])}, ${foodStatus[r.status].label}`}
+                      aria-label={`${name}, ${clock(r.startsAt)}–${clock(r.endsAt)}, ${countLabel(locale, t, r.partySize, [msg('гость'), 'гостя', msg('гостей')])}, ${t(foodStatus[r.status].label)}`} /* kk-allow: форма склонения */
                       onClick={() => onOpen(r)}
                     >
                       <span>{name}</span>

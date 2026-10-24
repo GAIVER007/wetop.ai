@@ -3,7 +3,9 @@ import { notFound, redirect } from 'next/navigation';
 import { api, inventoryEditorApi, reservationsApi } from '../../../lib/api';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { hotelToday, nextDay, validDate } from '../../../lib/hotel-api';
-import { nightsBetween, pluralRu } from '../../../lib/plural';
+import { nightsBetween } from '../../../lib/plural';
+import { countLabel, msg } from '../../../i18n';
+import { currentLocale, serverT } from '../../../i18n/server';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import { Page } from '../../../components/page';
 import { FundTabs } from '../../inventory/fund-tabs';
@@ -22,6 +24,7 @@ export default async function RoomsPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/rooms');
+  const [t, locale] = await Promise.all([serverT(), currentLocale()]);
   const { section = [] } = await params;
   if (!section.length) redirect('/inventory');
   if (section.length !== 1 || !['categories', 'availability'].includes(section[0]!)) notFound();
@@ -37,19 +40,19 @@ export default async function RoomsPage({
     const beds = units.length - rooms;
     // разделитель — запятая, а не точка-разделитель: сторож ИИ-слопа, DESIGN.md §14
     const summary = [
-      pluralRu(types.length, ['категория', 'категории', 'категорий']),
-      rooms ? pluralRu(rooms, ['номер', 'номера', 'номеров']) : '',
-      beds ? pluralRu(beds, ['койко-место', 'койко-места', 'койко-мест']) : '',
+      countLabel(locale, t, types.length, [msg('категория'), msg('категории'), msg('категорий')]),
+      rooms ? countLabel(locale, t, rooms, [msg('номер'), msg('номера'), msg('номеров')]) : '',
+      beds ? countLabel(locale, t, beds, [msg('койко-место'), msg('койко-места'), msg('койко-мест')]) : '',
     ]
       .filter(Boolean)
       .join(', ');
     return (
       <Page
-        title="Категории номеров"
+        title={t('Категории номеров')}
         subtitle={
           types.length
             ? summary
-            : 'Категория объединяет номера или койки с одинаковым типом размещения и вместимостью.'
+            : t('Категория объединяет номера или койки с одинаковым типом размещения и вместимостью.')
         }
         actions={canMutate ? <FundEditor categories={types} mode="category" /> : undefined}
       >
@@ -80,11 +83,11 @@ export default async function RoomsPage({
           .then((data) => ({ data, error: null }))
           .catch(() => ({
             data: null,
-            error: 'Не удалось проверить доступность. Повторите поиск.',
+            error: t('Не удалось проверить доступность. Повторите поиск.'),
           }))
       : Promise.resolve({
           data: null,
-          error: `Выезд должен быть позже заезда. Период — не больше ${MAX_CHESSBOARD_DAYS} ночей.`,
+          error: t('Выезд должен быть позже заезда. Период — не больше {n} ночей.', { n: MAX_CHESSBOARD_DAYS }),
         }),
   ]);
   // Ближайшая доступность (AV4) — только когда есть категория, подходящая по вместимости, но без мест на весь
@@ -100,8 +103,8 @@ export default async function RoomsPage({
     : null;
   return (
     <Page
-      title="Свободные места"
-      subtitle="Найдите размещение, свободное на весь период проживания."
+      title={t('Свободные места')}
+      subtitle={t('Найдите размещение, свободное на весь период проживания.')}
     >
       <FundTabs active="availability" />
       <AvailabilityFinder

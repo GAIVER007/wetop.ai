@@ -32,7 +32,7 @@ function seek(video: HTMLVideoElement, at: number): Promise<void> {
     const fail = () => {
       video.removeEventListener('seeked', done);
       video.removeEventListener('error', fail);
-      reject(new Error('Видео не перемотано'));
+      reject(new Error('Видео не перемотано')); // kk-allow: внутренняя ошибка, на экран не выходит (captureVideoFrames отдаёт пустой список)
     };
     video.addEventListener('seeked', done);
     video.addEventListener('error', fail);
@@ -49,7 +49,7 @@ async function capture(file: File): Promise<string[]> {
   try {
     await new Promise<void>((resolve, reject) => {
       video.addEventListener('loadeddata', () => resolve(), { once: true });
-      video.addEventListener('error', () => reject(new Error('Видео не раскодировано')), { once: true });
+      video.addEventListener('error', () => reject(new Error('Видео не раскодировано')), { once: true }); // kk-allow: внутренняя ошибка, на экран не выходит
       video.src = url;
     });
     const size = frameSize(video.videoWidth, video.videoHeight);

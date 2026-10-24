@@ -2,6 +2,7 @@
 import { useId, useState, type ReactNode } from 'react';
 import { Button } from '../../components/ui';
 import { Icon } from '../../components/icon';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * Списки отбора R2 (ADR-106): на широком экране стоят второй строкой панели, кнопка скрыта. На телефоне
@@ -18,6 +19,7 @@ export function FiltersToggle({
 }) {
   const [open, setOpen] = useState(active > 0);
   const id = useId();
+  const t = useT();
   return (
     <div className="reservations-selects" data-open={open}>
       <Button
@@ -29,7 +31,7 @@ export function FiltersToggle({
         onClick={() => setOpen(!open)}
       >
         <Icon name="filter" />
-        Фильтры{active > 0 ? `: ${active}` : ''}
+        {t('Фильтры')}{active > 0 ? `: ${active}` : ''}
       </Button>
       <div id={id} className="reservations-selects__fields">
         {children}

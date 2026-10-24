@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useT } from '../../../i18n/locale-provider';
 
 export interface DailyPoint {
   date: string;
@@ -29,6 +30,7 @@ export function DailyChart({
   testId?: string;
 }) {
   const [hover, setHover] = useState<number | null>(null);
+  const t = useT();
   const W = 720;
   const H = 180;
   const padL = 36;
@@ -140,10 +142,10 @@ export function DailyChart({
           }}
         >
           <div className="chart__tip-date">{h.date}</div>
-          <TipRow k="сессий" v={h.sessions} />
-          <TipRow k="посетителей" v={h.visitors} />
-          <TipRow k="просмотров" v={h.pageviews} />
-          <TipRow k="с мобильных" v={h.mobile} />
+          <TipRow k={t('сессий')} v={h.sessions} />
+          <TipRow k={t('посетителей')} v={h.visitors} />
+          <TipRow k={t('просмотров')} v={h.pageviews} />
+          <TipRow k={t('с мобильных')} v={h.mobile} />
         </div>
       )}
     </div>

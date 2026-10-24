@@ -5,11 +5,12 @@ import { loadErrorProps } from '../../../../lib/load-error';
 import { AgentEditor } from '../editor';
 import '../agents.css';
 import '../../../create/wizard.css';
-
-const back = <BackCrumb href="/ai-seller/agents">Мои ИИ-продавцы</BackCrumb>;
+import { serverT } from '../../../../i18n/server';
 
 export default async function AgentPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const t = await serverT();
+  const back = <BackCrumb href="/ai-seller/agents">{t('Мои ИИ-продавцы')}</BackCrumb>;
   try {
     const agent = await sellerAgentsApi.get(id);
     return (
@@ -21,7 +22,7 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
     if (e instanceof ApiError)
       // заголовок тот же, что у списка: экран не меняет имя на «Карточка агента» при сбое
       return (
-        <Page className="seller-agents" crumbs={back} title="ИИ-продавец">
+        <Page className="seller-agents" crumbs={back} title={t('ИИ-продавец')}>
           <LoadError testId="seller-agent-error" {...loadErrorProps(e)} />
         </Page>
       );

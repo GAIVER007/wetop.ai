@@ -1,5 +1,5 @@
 import type { MarketingResultsView, MetaConnectionView } from '../../../lib/api';
-import { pluralRu } from '../../../lib/plural';
+import { countLabel, msg, translator, type DeskLocale, type Translate } from '../../../i18n';
 import { platformLabel } from './parts';
 
 /**
@@ -28,24 +28,29 @@ export function dataSources(input: {
   meta: MetaConnectionView | 'error';
   results: MarketingResultsView | 'error';
   editable: boolean;
+  /** Язык человека; без него русский */
+  locale?: DeskLocale;
+  t?: Translate;
 }): DataSource[] {
   const { editable } = input;
+  const locale = input.locale ?? 'ru';
+  const t = input.t ?? translator(locale);
   const manual: DataSource =
     input.expenses > 0
       ? {
           key: 'manual',
-          title: 'Расходы вручную',
+          title: t('Расходы вручную'),
           state: 'ok',
-          status: `${pluralRu(input.expenses, ['расход', 'расхода', 'расходов'])} за месяц`,
-          text: 'Всё, что оплачено: реклама, блогеры, креативы, сервисы. Каждый платёж одной строкой с каналом; выписку из банка или Excel можно загрузить CSV-файлом.',
+          status: t('{n} за месяц', { n: countLabel(locale, t, input.expenses, [msg('расход'), 'расхода', msg('расходов')]) }), // kk-allow: форма склонения
+          text: t('Всё, что оплачено: реклама, блогеры, креативы, сервисы. Каждый платёж одной строкой с каналом; выписку из банка или Excel можно загрузить CSV-файлом.'),
           actions: editable ? ['add-expense', 'import-csv', 'journal'] : ['journal'],
         }
       : {
           key: 'manual',
-          title: 'Расходы вручную',
+          title: t('Расходы вручную'),
           state: 'todo',
-          status: 'Расходов за месяц нет',
-          text: 'Начните отсюда: «Добавить расход» на каждый платёж (дата, канал, сумма) или загрузите CSV из банка или Excel. Без расходов цены обращения и окупаемости рекламы нет.',
+          status: t('Расходов за месяц нет'),
+          text: t('Начните отсюда: «Добавить расход» на каждый платёж (дата, канал, сумма) или загрузите CSV из банка или Excel. Без расходов цены обращения и окупаемости рекламы нет.'),
           actions: editable ? ['add-expense', 'import-csv', 'journal'] : ['journal'],
         };
 
@@ -54,46 +59,51 @@ export function dataSources(input: {
   if (m === 'error')
     meta = {
       key: 'meta',
-      title: 'Кабинет Meta (Facebook и Instagram)',
+      title: t('Кабинет Meta (Facebook и Instagram)'),
       state: 'error',
-      status: 'Не удалось узнать',
-      text: 'Состояние кабинета не загрузилось. Откройте «Рекламу» или обновите страницу.',
+      status: t('Не удалось узнать'),
+      text: t('Состояние кабинета не загрузилось. Откройте «Рекламу» или обновите страницу.'),
       actions: ['open-ads'],
     };
   else if (!m.configured)
     meta = {
       key: 'meta',
-      title: 'Кабинет Meta (Facebook и Instagram)',
+      title: t('Кабинет Meta (Facebook и Instagram)'),
       state: 'off',
-      status: 'Пока недоступно',
-      text: 'Подключение появится, когда платформа включит приложение Meta. До тех пор расход Meta вносите вручную.',
+      status: t('Пока недоступно'),
+      text: t('Подключение появится, когда платформа включит приложение Meta. До тех пор расход Meta вносите вручную.'),
       actions: [],
     };
   else if (!m.connection)
     meta = {
       key: 'meta',
-      title: 'Кабинет Meta (Facebook и Instagram)',
+      title: t('Кабинет Meta (Facebook и Instagram)'),
       state: 'todo',
-      status: 'Не подключён',
-      text: 'Подключите один раз через вход Facebook: расход, показы и лиды кампаний будут приходить сами каждую ночь.',
+      status: t('Не подключён'),
+      text: t('Подключите один раз через вход Facebook: расход, показы и лиды кампаний будут приходить сами каждую ночь.'),
       actions: editable ? ['connect-meta'] : [],
     };
   else if (m.connection.status === 'FAILED')
     meta = {
       key: 'meta',
-      title: 'Кабинет Meta (Facebook и Instagram)',
+      title: t('Кабинет Meta (Facebook и Instagram)'),
       state: 'error',
-      status: 'Нужно подключить заново',
-      text: `Сверка остановилась${m.connection.lastError ? `: ${m.connection.lastError}` : ''}. Подключите кабинет заново через Facebook.`,
+      status: t('Нужно подключить заново'),
+      text: m.connection.lastError
+        ? t('Сверка остановилась: {error}. Подключите кабинет заново через Facebook.', { error: m.connection.lastError })
+        : t('Сверка остановилась. Подключите кабинет заново через Facebook.'),
       actions: editable ? ['connect-meta'] : ['open-ads'],
     };
   else
     meta = {
       key: 'meta',
-      title: 'Кабинет Meta (Facebook и Instagram)',
+      title: t('Кабинет Meta (Facebook и Instagram)'),
       state: 'ok',
-      status: `Подключён: ${m.connection.accountName ?? m.connection.adAccountId}, ${m.connection.currency}`,
-      text: 'Расход и лиды кампаний приходят сами каждую ночь. Оплату счёта Meta из банка вносите в расходы вручную: в сводке эти числа стоят отдельно и не складываются.',
+      status: t('Подключён: {account}, {currency}', {
+        account: m.connection.accountName ?? m.connection.adAccountId,
+        currency: m.connection.currency,
+      }),
+      text: t('Расход и лиды кампаний приходят сами каждую ночь. Оплату счёта Meta из банка вносите в расходы вручную: в сводке эти числа стоят отдельно и не складываются.'),
       actions: ['open-ads'],
     };
 
@@ -102,28 +112,28 @@ export function dataSources(input: {
   if (r === 'error')
     results = {
       key: 'results',
-      title: 'Заявки и выручка',
+      title: t('Заявки и выручка'),
       state: 'error',
-      status: 'Не загрузились',
-      text: 'Результаты каналов не загрузились. Обновите страницу.',
+      status: t('Не загрузились'),
+      text: t('Результаты каналов не загрузились. Обновите страницу.'),
       actions: ['open-analytics'],
     };
   else if (!r.supported)
     results = {
       key: 'results',
-      title: 'Заявки и выручка',
+      title: t('Заявки и выручка'),
       state: 'off',
-      status: 'Пока недоступно',
-      text: 'Заявки и выручка по каналам пока считаются по броням гостиницы. Для салона и ресторана появятся со своими записями и заказами; расходы уже видны.',
+      status: t('Пока недоступно'),
+      text: t('Заявки и выручка по каналам пока считаются по броням гостиницы. Для салона и ресторана появятся со своими записями и заказами; расходы уже видны.'),
       actions: [],
     };
   else
     results = {
       key: 'results',
-      title: 'Заявки и выручка',
+      title: t('Заявки и выручка'),
       state: 'ok',
-      status: 'Подтягиваются сами',
-      text: 'Добавлять ничего не нужно: брони, заявки с сайта и диалоги ИИ-продавца по каналам сайт, WhatsApp, Instagram и телефон. Канал брони это её источник.',
+      status: t('Подтягиваются сами'),
+      text: t('Добавлять ничего не нужно: брони, заявки с сайта и диалоги ИИ-продавца по каналам сайт, WhatsApp, Instagram и телефон. Канал брони это её источник.'),
       actions: ['open-analytics'],
     };
 
@@ -131,10 +141,13 @@ export function dataSources(input: {
   if (input.otherAds.length > 0)
     list.push({
       key: 'other-ads',
-      title: 'Другая реклама',
+      title: t('Другая реклама'),
       state: 'manual',
-      status: 'Только вручную',
-      text: `${input.otherAds.map(platformLabel).join(', ')}: кабинеты не подключаются, расход вносите в расходы вручную. Заявки и окупаемость рекламы у них появятся, когда брони начнут нести метку кампании.`,
+      status: t('Только вручную'),
+      text: t(
+        '{platforms}: кабинеты не подключаются, расход вносите в расходы вручную. Заявки и окупаемость рекламы у них появятся, когда брони начнут нести метку кампании.',
+        { platforms: input.otherAds.map((p) => t(platformLabel(p))).join(', ') },
+      ),
       actions: [],
     });
   return list;

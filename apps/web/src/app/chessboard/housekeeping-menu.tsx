@@ -6,6 +6,8 @@ import { ActionMenu } from '../../components/action-menu';
 import { useToast } from '../../components/toast';
 import { housekeepingAction } from '../units/[code]/actions';
 import { housekeepingStatus } from '../../lib/status/housekeeping';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * Уборка в строке ячейки шахматки.
@@ -28,9 +30,9 @@ type Status = 'DIRTY' | 'CLEAN' | 'INSPECTED';
  * называет ячейку и что с ней стало
  */
 const DONE_RU: Record<Status, string> = {
-  DIRTY: 'требует уборки',
-  CLEAN: 'убрана, ждёт проверки',
-  INSPECTED: 'проверена, доступна',
+  DIRTY: msg('требует уборки'),
+  CLEAN: msg('убрана, ждёт проверки'),
+  INSPECTED: msg('проверена, доступна'),
 };
 
 export function HousekeepingMenu({
@@ -41,6 +43,7 @@ export function HousekeepingMenu({
   /** Значок стоит только у ячейки, с которой надо что-то делать; у проверенной его нет */
   status: Exclude<Status, 'INSPECTED'>;
 }) {
+  const t = useT();
   const router = useRouter();
   const { toast } = useToast();
   const [pending, start] = useTransition();
@@ -49,7 +52,7 @@ export function HousekeepingMenu({
       const result = await housekeepingAction(code, next);
       if (result.error) toast({ text: result.error, tone: 'danger' });
       else {
-        toast({ text: `${code} ${DONE_RU[next]}`, tone: 'success' });
+        toast({ text: `${code} ${t(DONE_RU[next])}`, tone: 'success' });
         router.refresh();
       }
     });
@@ -63,14 +66,14 @@ export function HousekeepingMenu({
         size="sm"
         icon={housekeepingStatus[status].icon}
         className="board-hk__menu"
-        label={`Уборка номера ${code}: ${HOUSEKEEPING_RU[status]}`}
+        label={t('Уборка номера {code}: {state}', { code, state: t(HOUSEKEEPING_RU[status]) })}
         items={[
           ...housekeepingTargets(status).map((next) => ({
-            label: housekeepingStatus[next].label,
+            label: t(housekeepingStatus[next].label),
             onSelect: () => set(next),
             disabled: pending,
           })),
-          { label: 'Открыть карточку номера', href: `/units/${encodeURIComponent(code)}` },
+          { label: t('Открыть карточку номера'), href: `/units/${encodeURIComponent(code)}` },
         ]}
       />
     </span>

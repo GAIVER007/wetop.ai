@@ -1,5 +1,6 @@
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
+import { serverT } from '../../i18n/server';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { restaurantApi } from '../../lib/food-api';
@@ -17,6 +18,7 @@ import './waiter.css';
  * Открыт «Личному кабинету» ресторана (право `orders`) и всем ролям стойки.
  */
 export default async function WaiterPage() {
+  const t = await serverT();
   try {
     const shell = await restaurantShell();
     const [floor, categories, menuItems, open] = await Promise.all([
@@ -28,7 +30,7 @@ export default async function WaiterPage() {
     // у стойки API отдаёт все заказы: официант с привязанным сотрудником видит свои
     const mine = floor.me ? open.filter((o) => o.waiter?.id === floor.me!.id) : open;
     return (
-      <Page title="Принять заказ" width="full" className="waiter-page">
+      <Page title={t('Принять заказ')} width="full" className="waiter-page">
         <div key={shell.scopeKey}>
           <WaiterBoard
             scopeKey={shell.scopeKey}
@@ -46,7 +48,7 @@ export default async function WaiterPage() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Принять заказ">
+      <Page title={t('Принять заказ')}>
         <LoadError testId="waiter-load-error" {...loadErrorProps(error)} />
       </Page>
     );

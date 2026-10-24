@@ -5,6 +5,11 @@ import { safeReturnPath } from '../../../../lib/auth-entry';
 import { scopeResolvePath } from '../../../../lib/scope-pointer';
 import { sessionToken } from '../../../../lib/session';
 import { field, handleSiteAuth, type SiteAuthAction } from '../../../../lib/site-auth';
+import { msg, translator } from '../../../../i18n';
+import { cookieLocale } from '../../../../i18n/server';
+
+/** Отказ на языке человека: кука языка, как у остальных страниц без сессии */
+const said = async (text: string) => translator(await cookieLocale())(text);
 
 /**
  * Окно входа и регистрации на wetop.ai (plans/site-auth-dialog-tour-2026-09-27.md, ADR-100). Те же вызовы API,
@@ -46,7 +51,7 @@ const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> =
     run: async (body, info) => {
       const email = field(body, 'email').trim();
       const password = field(body, 'password');
-      if (!email || !password) throw new ApiError(400, 'Введите почту и пароль');
+      if (!email || !password) throw new ApiError(400, await said(msg('Введите почту и пароль')));
       const result = await authApi.login({ email, password }, info);
       // Рабочий филиал выбирает сервер по `GET /branches` (SCOPE-HARDENING), не регистрационный помощник
       return {
@@ -61,7 +66,7 @@ const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> =
       const raw = body as Record<string, unknown> | null;
       const hasVertical = Object.prototype.hasOwnProperty.call(raw ?? {}, 'vertical');
       const vertical = hasVertical ? parseBusinessVertical(raw?.vertical) : undefined;
-      if (hasVertical && !vertical) throw new ApiError(400, 'Выберите направление бизнеса');
+      if (hasVertical && !vertical) throw new ApiError(400, await said(msg('Выберите направление бизнеса')));
       const result = await authApi.register(
         {
           email: field(body, 'email').trim(),
@@ -97,7 +102,7 @@ const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> =
     run: async (body, info) => {
       const email = field(body, 'email').trim();
       const code = field(body, 'code').trim();
-      if (!email || !code) throw new ApiError(400, 'Введите код из письма');
+      if (!email || !code) throw new ApiError(400, await said(msg('Введите код из письма')));
       const result = await authApi.verifyEmailCode({ email, code }, info);
       return {
         body: { next: scopeResolvePath('/today') },
@@ -109,7 +114,7 @@ const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> =
     method: 'POST',
     run: async (body, info) => {
       const email = field(body, 'email').trim();
-      if (!email) throw new ApiError(400, 'Введите почту');
+      if (!email) throw new ApiError(400, await said(msg('Введите почту')));
       await authApi.resendVerification({ email }, info);
       return { body: { ok: true } };
     },
@@ -120,9 +125,9 @@ type Context = { params: Promise<{ action: string }> };
 
 async function handle(request: Request, { params }: Context): Promise<Response> {
   const entry = ACTIONS[(await params).action];
-  if (!entry) return Response.json({ message: 'Не найдено' }, { status: 404 });
+  if (!entry) return Response.json({ message: await said(msg('Не найдено')) }, { status: 404 });
   if (request.method !== 'OPTIONS' && request.method !== entry.method) {
-    return Response.json({ message: 'Метод не поддерживается' }, { status: 405 });
+    return Response.json({ message: await said(msg('Метод не поддерживается')) }, { status: 405 });
   }
   return handleSiteAuth(request, entry.run, process.env);
 }

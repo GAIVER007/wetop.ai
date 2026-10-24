@@ -3,6 +3,7 @@ import type { DashboardPeriod } from '@pms/domain';
 import { formatPercent } from '../../../lib/dashboard-format';
 import { occupancyByKind, type KindOccupancy } from '../../../lib/occupancy-kinds';
 import { Tile, pointsDelta } from './tiles';
+import { translator, type Translate } from '../../../i18n';
 
 /**
  * Плитки загрузки (ADR-155, Q-287): при «Всех» с номерами и койками в фонде это две плитки, у каждой свой знаменатель и
@@ -13,9 +14,11 @@ export function OccupancyTiles({
   c,
   p,
   hint,
+  t = translator('ru'),
 }: {
   c: DashboardPeriod;
   p: DashboardPeriod | null;
+  t?: Translate;
   hint: (o: { occupiedNights: number; sellableNights: number; blockedNights: number }) => ReactNode;
 }) {
   const compare = p !== null;
@@ -36,15 +39,15 @@ export function OccupancyTiles({
       );
     return (
       <>
-        {tile('occupancy', 'Загрузка номеров', now.rooms, before.rooms)}
-        {tile('occupancy-beds', 'Загрузка коек', now.beds, before.beds)}
+        {tile('occupancy', t('Загрузка номеров'), now.rooms, before.rooms)}
+        {tile('occupancy-beds', t('Загрузка коек'), now.beds, before.beds)}
       </>
     );
   }
   return (
     <Tile
       id="occupancy"
-      label="Загрузка"
+      label={t('Загрузка')}
       value={formatPercent(c.occupancy.percent)}
       hint={hint(c.occupancy)}
       delta={pointsDelta(

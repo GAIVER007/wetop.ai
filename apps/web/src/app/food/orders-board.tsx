@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { Button, EmptyState, Field, Input, StatusBadge, Table } from '../../components/ui';
 import { Chip, ChipGroup } from '../../components/chip';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 import { wholeTenge } from '../../lib/dashboard-format';
 import type { OrderStatus, OrderView } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
@@ -15,11 +17,11 @@ import { shiftDate } from '../../lib/food-data';
 
 /** Вкладки макета: Все, Новые, Готовятся (вместе с «Готово»), Поданы, Закрыты (с отменёнными) */
 const VIEWS = [
-  { id: 'all', label: 'Все', statuses: null },
-  { id: 'new', label: 'Новые', statuses: ['NEW'] },
-  { id: 'cooking', label: 'Готовятся', statuses: ['COOKING', 'READY'] },
-  { id: 'served', label: 'Поданы', statuses: ['SERVED'] },
-  { id: 'closed', label: 'Закрыты', statuses: ['CLOSED', 'CANCELLED'] },
+  { id: 'all', label: msg('Все'), statuses: null },
+  { id: 'new', label: msg('Новые'), statuses: ['NEW'] },
+  { id: 'cooking', label: msg('Готовятся'), statuses: ['COOKING', 'READY'] },
+  { id: 'served', label: msg('Поданы'), statuses: ['SERVED'] },
+  { id: 'closed', label: msg('Закрыты'), statuses: ['CLOSED', 'CANCELLED'] },
 ] as const satisfies ReadonlyArray<{ id: string; label: string; statuses: OrderStatus[] | null }>;
 
 export function OrdersBoard({
@@ -31,6 +33,7 @@ export function OrdersBoard({
   orders: OrderView[];
   date: string;
 }) {
+  const t = useT();
   const router = useRouter();
   const params = useSearchParams();
   const employee = params.get('employee') ?? '';
@@ -85,7 +88,7 @@ export function OrdersBoard({
         <QuickReport
           key={`${date}:${employee}`}
           date={date}
-          scope={['Открыты за выбранный день', employee ? (options.find((e) => e.id === employee)?.name ?? 'Сотрудник недоступен') : 'Все сотрудники', selected.label, ...(search ? ['С учётом поиска'] : [])]}
+          scope={[t('Открыты за выбранный день'), employee ? (options.find((e) => e.id === employee)?.name ?? t('Сотрудник недоступен')) : t('Все сотрудники'), t(selected.label), ...(search ? [t('С учётом поиска')] : [])]}
           build={() =>
             orderQuickReport(
               filtered.filter((o) => localInput(o.openedAt, ctx.timezone).slice(0, 10) === date),
@@ -94,7 +97,7 @@ export function OrdersBoard({
         />
       </div>
       <div className="food-section-heading">
-        <ChipGroup label="Статус заказа">
+        <ChipGroup label={t('Статус заказа')}>
           {VIEWS.map((v) => (
             <Chip
               key={v.id}
@@ -102,18 +105,18 @@ export function OrdersBoard({
               count={count(v.statuses)}
               onClick={() => setView(v.id)}
             >
-              {v.label}
+              {t(v.label)}
             </Chip>
           ))}
         </ChipGroup>
         {ctx.write && (
           <div className="food-inline-actions">
-            <Button onClick={() => setDraft({ kind: 'create' })}>+ Новый заказ</Button>
+            <Button onClick={() => setDraft({ kind: 'create' })}>{t('+ Новый заказ')}</Button>
           </div>
         )}
       </div>
       <div className="food-toolbar">
-        <Field label="Поиск по номеру, столу или блюду">
+        <Field label={t('Поиск по номеру, столу или блюду')}>
           <Input
             type="search"
             data-page-search
@@ -124,10 +127,10 @@ export function OrdersBoard({
       </div>
       {filtered.length === 0 ? (
         <EmptyState
-          title={orders.length ? 'Заказы не найдены' : 'На этот день заказов нет'}
+          title={orders.length ? t('Заказы не найдены') : t('На этот день заказов нет')}
           actions={
             ctx.write && !orders.length ? (
-              <Button onClick={() => setDraft({ kind: 'create' })}>Создать первый заказ</Button>
+              <Button onClick={() => setDraft({ kind: 'create' })}>{t('Создать первый заказ')}</Button>
             ) : null
           }
         />
@@ -135,8 +138,8 @@ export function OrdersBoard({
         <Table>
           <thead>
             <tr>
-              {['№', 'Стол', 'Гостей', 'Состав заказа', 'Сумма', 'Статус', 'Время'].map((h) => (
-                <th key={h}>{h}</th>
+              {['№', msg('Стол'), msg('Гостей'), msg('Состав заказа'), msg('Сумма'), msg('Статус'), msg('Время')].map((h) => (
+                <th key={h}>{t(h)}</th>
               ))}
             </tr>
           </thead>

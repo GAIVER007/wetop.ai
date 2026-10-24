@@ -1,9 +1,10 @@
 import type { ActionPreview, StayAvailability, UnassignedStay } from '../../lib/api';
-import { displayDate } from '../../lib/display-date';
 import { formatMoney } from '../../lib/money';
-import { nightsBetween, pluralRu } from '../../lib/plural';
+import { countLabel, msg } from '../../i18n';
+import { nightsBetween } from '../../lib/plural';
 import { hospitalityStatus } from '../../lib/status/hospitality';
 import { statusText } from '../../lib/status/types';
+import { nightsLabel, RU, shortDate, type Lang } from './lang';
 
 /**
  * Правила ящика «Брони без размещения» (ТЗ «Шахматка v2» §11–12, §64). Здесь только слова и выбор мест:
@@ -20,15 +21,20 @@ export interface UnassignedSummary {
   detail: string | null;
 }
 
-export function unassignedSummary(stays: UnassignedStay[]): UnassignedSummary {
+export function unassignedSummary(stays: UnassignedStay[], lang: Lang = RU): UnassignedSummary {
+  const { t, locale } = lang;
   const reservations = new Set(stays.map((s) => s.confirmationNumber)).size;
   return {
     reservations,
     stays: stays.length,
-    text: `${pluralRu(reservations, ['бронь', 'брони', 'броней'])} без назначенного места`,
+    text: t('{count} без назначенного места', {
+      count: countLabel(locale, t, reservations, [msg('бронь'), 'брони', msg('броней')]), // kk-allow: форма склонения
+    }),
     detail:
       stays.length > reservations
-        ? `${pluralRu(stays.length, ['место ждёт', 'места ждут', 'мест ждут'])} назначения`
+        ? t('{count} назначения', {
+            count: countLabel(locale, t, stays.length, [msg('место ждёт'), 'места ждут', msg('мест ждут')]), // kk-allow: форма склонения
+          })
         : null,
   };
 }
@@ -51,18 +57,19 @@ export interface UnassignedCard {
   departureDate: string;
 }
 
-export function unassignedCard(s: UnassignedStay): UnassignedCard {
-  const nights = pluralRu(nightsBetween(s.arrivalDate, s.departureDate), ['ночь', 'ночи', 'ночей']);
+export function unassignedCard(s: UnassignedStay, lang: Lang = RU): UnassignedCard {
+  const { t } = lang;
+  const nights = nightsLabel(lang, nightsBetween(s.arrivalDate, s.departureDate));
   return {
     key: `${s.confirmationNumber}/${s.itemId ?? s.arrivalDate}`,
     number: s.confirmationNumber,
     itemId: s.itemId ?? null,
-    guest: s.guestLabel?.trim() || 'Гость не указан',
-    dates: `${displayDate(s.arrivalDate)} → ${displayDate(s.departureDate)}, ${nights}`,
+    guest: s.guestLabel?.trim() || t('Гость не указан'),
+    dates: `${shortDate(lang, s.arrivalDate)} → ${shortDate(lang, s.departureDate)}, ${nights}`,
     nights,
     category: s.categoryName,
     categoryCode: s.categoryCode,
-    status: statusText(hospitalityStatus, s.status),
+    status: t(statusText(hospitalityStatus, s.status)),
     arrivalDate: s.arrivalDate,
     departureDate: s.departureDate,
   };
@@ -110,23 +117,28 @@ export function crossCategoryQuestion(
   unitCode: string,
   targetCategory: string,
   preview: ActionPreview | null,
+  lang: Lang = RU,
 ): CrossCategoryQuestion {
+  const { t } = lang;
   const money = (minor: string) => formatMoney(minor, preview?.currency);
   const diff = BigInt(preview?.differenceMinor ?? '0');
   const abs = (diff < 0n ? -diff : diff).toString();
   return {
-    title: `Разместить бронь ${card.number} в ${unitCode}?`,
+    title: t('Разместить бронь {number} в {unit}?', { number: card.number, unit: unitCode }),
     guest: card.guest,
     route: `${card.category} → ${targetCategory}`,
     dates: card.dates,
     money: !preview
-      ? 'Сумму посчитать не удалось — проверьте счёт после размещения.'
+      ? t('Сумму посчитать не удалось — проверьте счёт после размещения.')
       : diff !== 0n
-        ? `Разница стоимости: ${diff > 0n ? '+' : '−'}${money(abs)}`
-        : 'Стоимость не изменится',
+        ? t('Разница стоимости: {sum}', { sum: `${diff > 0n ? '+' : '−'}${money(abs)}` })
+        : t('Стоимость не изменится'),
     note:
       preview?.newPriceMinor && diff !== 0n
-        ? `Проживание станет ${money(preview.newPriceMinor)} вместо ${money(preview.currentPriceMinor)}.`
-        : `Бронь займёт ${unitCode} на весь срок.`,
+        ? t('Проживание станет {next} вместо {current}.', {
+            next: money(preview.newPriceMinor),
+            current: money(preview.currentPriceMinor),
+          })
+        : t('Бронь займёт {unit} на весь срок.', { unit: unitCode }),
   };
 }

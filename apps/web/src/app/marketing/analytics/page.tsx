@@ -4,9 +4,9 @@ import { requireFeature } from '../../../lib/vertical-guard';
 import { marketingBudgetApi, type MarketingResultsView } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { deltaPercent } from '../../../lib/dashboard-format';
-import { verticalCopy } from '../../../lib/vertical-copy';
 import type { WebVertical } from '../../../lib/vertical-landing';
-import { pluralRu } from '../../../lib/plural';
+import { countLabel, intlLocale, msg } from '../../../i18n';
+import { currentLocale, serverT } from '../../../i18n/server';
 import { displayDate } from '../../../lib/display-date';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
@@ -44,11 +44,63 @@ const money = (v: bigint | null, currency: string) => (v === null ? dash : forma
 const count = (v: number | null) => (v === null ? dash : String(v));
 const romiText = (v: number | null) => (v === null ? dash : `${v > 0 ? '+' : ''}${v} %`);
 
-/** Слова результата по направлению (аудит 21.10.2026 п. 16): у салона записи, у ресторана брони столов */
-const RESULT_WORDS: Record<WebVertical, { many: string; one: string; forms: [string, string, string]; share: string }> = {
-  HOSPITALITY: { many: 'Брони', one: 'брони', forms: ['бронь', 'брони', 'броней'], share: 'бронью' },
-  BEAUTY: { many: 'Записи', one: 'записи', forms: ['запись', 'записи', 'записей'], share: 'записью' },
-  FOOD_SERVICE: { many: 'Брони столов', one: 'брони стола', forms: ['бронь', 'брони', 'броней'], share: 'бронью' },
+/**
+ * Слова результата по направлению (аудит 21.10.2026 п. 16): у салона записи, у ресторана брони столов. Фразы целиком
+ * (KK3): русские падежи из verticalCopy не подставляются в перевод.
+ */
+interface ResultWords {
+  many: string;
+  cost: string;
+  forms: [string, string, string];
+  subtitle: string;
+  share: string;
+  sourcesEmpty: string;
+  sourcesNote: string;
+  adsNote: string;
+  calendarNote: string;
+}
+const RESULT_WORDS: Record<WebVertical, ResultWords> = {
+  HOSPITALITY: {
+    many: msg('Брони'),
+    cost: msg('Стоимость брони'),
+    forms: [msg('бронь'), 'брони', msg('броней')], // kk-allow: форма склонения
+    subtitle: msg('Куда уходят деньги и что они приносят: от расходов до броней и выручки.'),
+    share: msg('Доля обращений, ставших бронью'),
+    sourcesEmpty: msg('В этом месяце нет ни расходов, ни броней из маркетинговых каналов. Добавьте расходы в «Бюджете», брони подтянутся сами.'),
+    sourcesNote: msg(
+      'Канал брони это её источник: сайт, WhatsApp, Instagram, телефон. Обращения: заявки с сайта, диалоги ИИ-продавца, дошедшие до цены, и брони без ИИ-продавца. Отменённые брони и незаезды в брони и выручку не входят, OTA и стойка в маркетинг не входят.',
+    ),
+    adsNote: msg('Реклама в Meta, Google и TikTok пока показывает только расход: связать её с бронями можно будет после подключения кабинетов.'),
+    calendarNote: msg(
+      'По дням: расход в день оплаты, обращение в день заявки или первого предложения ИИ-продавца, бронь и выручка в день, когда бронь сделали. Новые клиенты: брони гостей, у которых раньше броней не было. Окупаемость одного дня шумная, потому что реклама окупается не в тот же день; смотрите итог месяца.',
+    ),
+  },
+  BEAUTY: {
+    many: msg('Записи'),
+    cost: msg('Стоимость записи'),
+    forms: [msg('запись'), 'записи', msg('записей')], // kk-allow: форма склонения
+    subtitle: msg('Куда уходят деньги и что они приносят: от расходов до записей и выручки.'),
+    share: msg('Доля обращений, ставших записью'),
+    sourcesEmpty: msg('В этом месяце нет ни расходов, ни записей из маркетинговых каналов. Добавьте расходы в «Бюджете», записи подтянутся сами.'),
+    sourcesNote: msg('Канал это источник обращения: сайт, WhatsApp, Instagram, телефон. Отменённые записи в выручку не входят.'),
+    adsNote: msg('Реклама в Meta, Google и TikTok пока показывает только расход: связать её с продажами можно будет после подключения кабинетов.'),
+    calendarNote: msg(
+      'По дням: расход в день оплаты, обращение в день заявки или первого предложения ИИ-продавца, запись и выручка в день, когда запись сделали. Новые клиенты: записи клиентов, у которых раньше записей не было. Окупаемость одного дня шумная, потому что реклама окупается не в тот же день; смотрите итог месяца.',
+    ),
+  },
+  FOOD_SERVICE: {
+    many: msg('Брони столов'),
+    cost: msg('Стоимость брони стола'),
+    forms: [msg('бронь'), 'брони', msg('броней')], // kk-allow: форма склонения
+    subtitle: msg('Куда уходят деньги и что они приносят: от расходов до броней и выручки.'),
+    share: msg('Доля обращений, ставших бронью'),
+    sourcesEmpty: msg('В этом месяце нет ни расходов, ни броней из маркетинговых каналов. Добавьте расходы в «Бюджете», брони столов подтянутся сами.'),
+    sourcesNote: msg('Канал это источник обращения: сайт, WhatsApp, Instagram, телефон. Отменённые брони в выручку не входят.'),
+    adsNote: msg('Реклама в Meta, Google и TikTok пока показывает только расход: связать её с продажами можно будет после подключения кабинетов.'),
+    calendarNote: msg(
+      'По дням: расход в день оплаты, обращение в день заявки или первого предложения ИИ-продавца, бронь и выручка в день, когда бронь сделали. Новые клиенты: брони гостей, у которых раньше броней не было. Окупаемость одного дня шумная, потому что реклама окупается не в тот же день; смотрите итог месяца.',
+    ),
+  },
 };
 
 export default async function MarketingAnalyticsPage({
@@ -58,20 +110,19 @@ export default async function MarketingAnalyticsPage({
 }) {
   const me = await requireFeature('/marketing/analytics');
   const vertical: WebVertical = me.context?.vertical ?? 'HOSPITALITY';
-  const hotel = vertical === 'HOSPITALITY';
-  const copy = verticalCopy(vertical);
   const w = RESULT_WORDS[vertical];
+  const [t, locale] = await Promise.all([serverT(), currentLocale()]);
   const loaded = await loadBudget(await searchParams);
-  const subtitle = `Куда уходят деньги и что они приносят: от расходов до ${w.forms[2]} и выручки.`;
+  const subtitle = t(w.subtitle);
   if (loaded.chooseLocation || loaded.error)
     return (
-      <Page crumbs={<BackToModules />} title={BUDGET_TITLE} subtitle={subtitle}>
+      <Page crumbs={<BackToModules />} title={t(BUDGET_TITLE)} subtitle={subtitle}>
         {loaded.error ? <LoadError testId="man-error" {...loaded.error} /> : <ChooseLocation />}
       </Page>
     );
   const view = loaded.view!;
   const rc = view.reportingCurrency;
-  const t = summarize(view);
+  const sum = summarize(view);
   const prev = BigInt(view.prevSpent);
   const results = await loadResults(view.month);
   const report = buildAnalyticsReport(view, results);
@@ -80,10 +131,10 @@ export default async function MarketingAnalyticsPage({
   const conversion =
     total.leads > 0 ? Math.round((total.bookings * 100) / total.leads) : null;
   // пустой месяц: одно пустое состояние вместо 31 строки нулей (аудит п. 33)
-  const emptyMonth = t.spent === 0n && funnel.rows.length === 0 && (!ok || (total.leads === 0 && total.bookings === 0));
+  const emptyMonth = sum.spent === 0n && funnel.rows.length === 0 && (!ok || (total.leads === 0 && total.bookings === 0));
 
   return (
-    <Page crumbs={<BackToModules />} title={BUDGET_TITLE} subtitle={subtitle}>
+    <Page crumbs={<BackToModules />} title={t(BUDGET_TITLE)} subtitle={subtitle}>
       <div className="budget-screen" data-testid="marketing-analytics">
         <div className="budget-head">
           {/* вкладки раздела, как у «Бюджета» (аудит 21.10.2026 п. 6) */}
@@ -97,100 +148,95 @@ export default async function MarketingAnalyticsPage({
               download
               data-testid="man-export"
             >
-              Выгрузить CSV
+              {t('Выгрузить CSV')}
             </a>
           </div>
         </div>
         {/* итоги месяца одной строкой вместо восьми плиток (аудит п. 33) */}
         <dl className="money-summary" data-testid="man-summary">
           <div>
-            <dt>Расходы на рекламу</dt>
-            <dd data-testid="man-spent">{formatMoney(t.spent, rc)}</dd>
+            <dt>{t('Расходы на рекламу')}</dt>
+            <dd data-testid="man-spent">{formatMoney(sum.spent, rc)}</dd>
             {prev > 0n && (
               <dd className="muted">
-                {deltaPercent(t.spent, prev).text} к прошлому месяцу
+                {t('{delta} к прошлому месяцу', { delta: deltaPercent(sum.spent, prev).text })}
               </dd>
             )}
           </div>
           <div>
-            <dt>Обращения</dt>
+            <dt>{t('Обращения')}</dt>
             <dd data-testid="man-leads">{ok ? String(total.leads) : dash}</dd>
           </div>
           {ok && (
             <div>
-              <dt>Квалифицированные</dt>
-              <dd className="muted">Недостаточно данных</dd>
+              <dt>{t('Квалифицированные')}</dt>
+              <dd className="muted">{t('Недостаточно данных')}</dd>
             </div>
           )}
           <div>
-            <dt>{w.many}</dt>
+            <dt>{t(w.many)}</dt>
             <dd data-testid="man-bookings">{ok ? String(total.bookings) : dash}</dd>
-            {conversion !== null && <dd className="muted">{conversion} % обращений</dd>}
+            {conversion !== null && <dd className="muted">{t('{n} % обращений', { n: conversion })}</dd>}
           </div>
           <div>
-            <dt>Выручка</dt>
+            <dt>{t('Выручка')}</dt>
             <dd data-testid="man-revenue">{ok ? formatMoney(total.revenueMinor, revenueCurrency) : dash}</dd>
           </div>
           <div>
-            <dt>{METRIC.cpl}</dt>
+            <dt>{t(METRIC.cpl)}</dt>
             <dd data-testid="man-cpl">{money(total.cplMinor, rc)}</dd>
           </div>
           <div>
-            <dt>Стоимость {w.one}</dt>
+            <dt>{t(w.cost)}</dt>
             <dd data-testid="man-cpb">{money(total.costPerBookingMinor, rc)}</dd>
           </div>
           <div>
-            <dt>{METRIC.romi}</dt>
-            <dd data-testid="man-romi">{!ok ? dash : funnel.romiAvailable ? romiText(total.romiPct) : 'Разные валюты'}</dd>
+            <dt>{t(METRIC.romi)}</dt>
+            <dd data-testid="man-romi">{!ok ? dash : funnel.romiAvailable ? romiText(total.romiPct) : t('Разные валюты')}</dd>
           </div>
         </dl>
 
         {results === 'error' && (
           <p className="settings-note" role="alert" data-testid="man-results-error">
-            Результаты каналов не загрузились: показываем только расходы. Обновите страницу.
+            {t('Результаты каналов не загрузились: показываем только расходы. Обновите страницу.')}
           </p>
         )}
         {results !== 'error' && !results.supported && (
           <p className="marketing-soon" data-testid="man-results-soon">
-            <Badge tone="info">Скоро</Badge>
-            <span>
-              Обращения и выручка по каналам для салона и ресторана появятся позже. Пока здесь расходы из
-              «Бюджета».
-            </span>
+            <Badge tone="info">{t('Скоро')}</Badge>
+            <span>{t('Обращения и выручка по каналам для салона и ресторана появятся позже. Пока здесь расходы из «Бюджета».')}</span>
           </p>
         )}
 
         {emptyMonth ? (
-          <EmptyState title="В этом месяце пока пусто" data-testid="man-empty">
-            Добавьте расходы на рекламу в «Бюджете»: здесь появятся каналы, дни и окупаемость.
+          <EmptyState title={t('В этом месяце пока пусто')} data-testid="man-empty">
+            {t('Добавьте расходы на рекламу в «Бюджете»: здесь появятся каналы, дни и окупаемость.')}
           </EmptyState>
         ) : (
         <>
         {ok && (
           <section aria-labelledby="man-funnel-title">
-            <SectionTitle id="man-funnel-title">Воронка маркетинга</SectionTitle>
+            <SectionTitle id="man-funnel-title">{t('Воронка маркетинга')}</SectionTitle>
             <ol className="panel panel--lg man-funnel" data-testid="man-funnel">
               <li className="man-funnel__step">
-                <span className="man-funnel__name">Расходы</span>
+                <span className="man-funnel__name">{t('Расходы')}</span>
                 <span className="man-funnel__value">{formatMoney(total.spendMinor, rc)}</span>
               </li>
               <li className="man-funnel__step">
-                <span className="man-funnel__name">Обращения</span>
+                <span className="man-funnel__name">{t('Обращения')}</span>
                 <span className="man-funnel__value">
-                  {pluralRu(total.leads, ['обращение', 'обращения', 'обращений'])}
+                  {countLabel(locale, t, total.leads, [msg('обращение'), 'обращения', msg('обращений')])} {/* kk-allow: форма склонения */}
                 </span>
               </li>
               <li className="man-funnel__step">
-                <span className="man-funnel__name">{w.many}</span>
-                <span className="man-funnel__value">
-                  {pluralRu(total.bookings, w.forms)}
-                </span>
+                <span className="man-funnel__name">{t(w.many)}</span>
+                <span className="man-funnel__value">{countLabel(locale, t, total.bookings, w.forms)}</span>
                 {conversion !== null && (
-                  <ShareBar label={`Доля обращений, ставших ${w.share}`} value={conversion} showValue />
+                  <ShareBar label={t(w.share)} value={conversion} showValue />
                 )}
               </li>
               <li className="man-funnel__step">
-                <span className="man-funnel__name">Выручка</span>
+                <span className="man-funnel__name">{t('Выручка')}</span>
                 <span className="man-funnel__value">
                   {formatMoney(total.revenueMinor, revenueCurrency)}
                 </span>
@@ -200,38 +246,37 @@ export default async function MarketingAnalyticsPage({
         )}
 
         <section aria-labelledby="man-sources-title">
-          <SectionTitle id="man-sources-title">Эффективность каналов</SectionTitle>
+          <SectionTitle id="man-sources-title">{t('Эффективность каналов')}</SectionTitle>
           {funnel.rows.length === 0 ? (
             <p className="settings-note" data-testid="man-sources-empty">
-              В этом месяце нет ни расходов, ни {w.forms[2]} из маркетинговых каналов. Добавьте расходы в
-              «Бюджете», {w.many.toLowerCase()} подтянутся сами.
+              {t(w.sourcesEmpty)}
             </p>
           ) : (
-            <div className="tbl-wrap" role="region" aria-label="Эффективность каналов" tabIndex={0}>
-              <Table density="normal" aria-label="Эффективность каналов" data-testid="man-sources">
+            <div className="tbl-wrap" role="region" aria-label={t('Эффективность каналов')} tabIndex={0}>
+              <Table density="normal" aria-label={t('Эффективность каналов')} data-testid="man-sources">
                 <thead>
                   <tr>
-                    <th scope="col">Канал</th>
+                    <th scope="col">{t('Канал')}</th>
                     <th scope="col" className="budget-td-num">
-                      Расход
+                      {t('Расход')}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      Обращения
+                      {t('Обращения')}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      {METRIC.cpl}
+                      {t(METRIC.cpl)}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      {w.many}
+                      {t(w.many)}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      Стоимость {w.one}
+                      {t(w.cost)}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      Выручка
+                      {t('Выручка')}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      {METRIC.romi}
+                      {t(METRIC.romi)}
                     </th>
                   </tr>
                 </thead>
@@ -239,9 +284,9 @@ export default async function MarketingAnalyticsPage({
                   {funnel.rows.map((r) => (
                     <tr key={r.platform}>
                       <td>
-                        <span className="budget-cell-main">{platformLabel(r.platform)}</span>
+                        <span className="budget-cell-main">{t(platformLabel(r.platform))}</span>
                         {!r.hasResults && (
-                          <span className="budget-cell-sub">ведёт на сайт и в мессенджеры</span>
+                          <span className="budget-cell-sub">{t('ведёт на сайт и в мессенджеры')}</span>
                         )}
                       </td>
                       <td className="budget-td-num">{formatMoney(r.spendMinor, rc)}</td>
@@ -257,7 +302,7 @@ export default async function MarketingAnalyticsPage({
                 <tfoot>
                   <tr data-testid="man-total">
                     <td>
-                      <strong>Итого</strong>
+                      <strong>{t('Итого')}</strong>
                     </td>
                     <td className="budget-td-num">{formatMoney(total.spendMinor, rc)}</td>
                     <td className="budget-td-num">{ok ? String(total.leads) : dash}</td>
@@ -276,46 +321,42 @@ export default async function MarketingAnalyticsPage({
             </div>
           )}
           <p className="settings-note" data-testid="man-sources-note">
-            {hotel
-              ? 'Канал брони это её источник: сайт, WhatsApp, Instagram, телефон. Обращения: заявки с сайта, диалоги ИИ-продавца, дошедшие до цены, и брони без ИИ-продавца. Отменённые брони и незаезды в брони и выручку не входят, OTA и стойка в маркетинг не входят. '
-              : `Канал это источник обращения: сайт, WhatsApp, Instagram, телефон. Отменённые ${w.forms[2]} в выручку не входят. `}
-            Реклама в Meta, Google и TikTok пока показывает только расход: связать её с {hotel ? 'бронями' : 'продажами'} можно
-            будет после подключения кабинетов.
+            {t(w.sourcesNote)} {t(w.adsNote)}
           </p>
         </section>
 
         <section aria-labelledby="man-calendar-title">
-          <SectionTitle id="man-calendar-title">Календарь маркетинга</SectionTitle>
+          <SectionTitle id="man-calendar-title">{t('Календарь маркетинга')}</SectionTitle>
           {calendar.rows.length === 0 ? (
             <p className="settings-note" data-testid="man-calendar-empty">
-              Месяц ещё не начался: дни появятся по мере того, как он идёт.
+              {t('Месяц ещё не начался: дни появятся по мере того, как он идёт.')}
             </p>
           ) : (
-            <div className="tbl-wrap" role="region" aria-label="Календарь маркетинга по дням" tabIndex={0}>
-              <Table density="compact" aria-label="Календарь маркетинга по дням" data-testid="man-calendar">
+            <div className="tbl-wrap" role="region" aria-label={t('Календарь маркетинга по дням')} tabIndex={0}>
+              <Table density="compact" aria-label={t('Календарь маркетинга по дням')} data-testid="man-calendar">
                 <thead>
                   <tr>
-                    <th scope="col">День</th>
+                    <th scope="col">{t('День')}</th>
                     <th scope="col" className="budget-td-num">
-                      Расход
+                      {t('Расход')}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      Лиды
+                      {t('Лиды')}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      {METRIC.cpl}
+                      {t(METRIC.cpl)}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      {w.many}
+                      {t(w.many)}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      Новые клиенты
+                      {t('Новые клиенты')}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      Выручка
+                      {t('Выручка')}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      {METRIC.romi}
+                      {t(METRIC.romi)}
                     </th>
                   </tr>
                 </thead>
@@ -323,7 +364,7 @@ export default async function MarketingAnalyticsPage({
                   {calendar.rows.map((d) => (
                     <tr key={d.date} data-testid={`man-day-${d.date}`}>
                       <td>
-                        <time dateTime={d.date}>{displayDate(d.date)}</time>
+                        <time dateTime={d.date}>{displayDate(d.date, 'short', intlLocale(locale))}</time>
                       </td>
                       <td className="budget-td-num">{formatMoney(d.spendMinor, rc)}</td>
                       <td className="budget-td-num">{ok ? d.leads : dash}</td>
@@ -340,7 +381,7 @@ export default async function MarketingAnalyticsPage({
                 <tfoot>
                   <tr data-testid="man-calendar-total">
                     <td>
-                      <strong>Итого</strong>
+                      <strong>{t('Итого')}</strong>
                     </td>
                     <td className="budget-td-num">{formatMoney(calendar.total.spendMinor, rc)}</td>
                     <td className="budget-td-num">{ok ? calendar.total.leads : dash}</td>
@@ -357,15 +398,12 @@ export default async function MarketingAnalyticsPage({
             </div>
           )}
           <p className="settings-note" data-testid="man-calendar-note">
-            По дням: расход в день оплаты, обращение в день заявки или первого предложения ИИ-продавца,
-            {hotel ? ' бронь и выручка в день, когда бронь сделали.' : ` ${w.forms[0]} и выручка в день, когда ${w.forms[0]} сделали.`}{' '}
-            Новые клиенты: {w.forms[2]} {copy.clientsOf}, у которых раньше их не было. Окупаемость одного дня шумная, потому что
-            реклама окупается не в тот же день; смотрите итог месяца.
+            {t(w.calendarNote)}
           </p>
         </section>
 
         <section aria-labelledby="man-days-title">
-          <SectionTitle id="man-days-title">Расходы по дням</SectionTitle>
+          <SectionTitle id="man-days-title">{t('Расходы по дням')}</SectionTitle>
           <div className="panel panel--lg">
             <DailyChart days={byDay(view.expenses, view.month)} month={view.month} currency={rc} />
           </div>

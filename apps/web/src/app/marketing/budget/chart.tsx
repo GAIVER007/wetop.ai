@@ -1,3 +1,4 @@
+import { serverT } from '../../../i18n/server';
 import { formatMoney } from '../../../lib/money';
 
 /**
@@ -19,7 +20,7 @@ export function niceCeil(max: bigint): bigint {
   return 10n * step;
 }
 
-export function DailyChart({
+export async function DailyChart({
   days,
   month,
   currency,
@@ -28,6 +29,7 @@ export function DailyChart({
   month: string;
   currency: string;
 }) {
+  const t = await serverT();
   const max = niceCeil(days.reduce((m, v) => (v > m ? v : m), 0n));
   const innerW = W - PAD.left - PAD.right;
   const innerH = H - PAD.top - PAD.bottom;
@@ -41,20 +43,20 @@ export function DailyChart({
       <svg
         viewBox={`0 0 ${W} ${H}`}
         role="img"
-        aria-label={`Расходы по дням, ${currency}`}
+        aria-label={t('Расходы по дням, {currency}', { currency })}
         className="budget-chart__svg"
       >
-        {ticks.map((t) => (
-          <g key={t.toString()}>
+        {ticks.map((tick) => (
+          <g key={tick.toString()}>
             <line
               x1={PAD.left}
               x2={W - PAD.right}
-              y1={y(t)}
-              y2={y(t)}
+              y1={y(tick)}
+              y2={y(tick)}
               className="budget-chart__grid"
             />
-            <text x={PAD.left - 8} y={y(t) + 4} textAnchor="end" className="budget-chart__tick">
-              {formatMoney(t, currency)}
+            <text x={PAD.left - 8} y={y(tick) + 4} textAnchor="end" className="budget-chart__tick">
+              {formatMoney(tick, currency)}
             </text>
           </g>
         ))}
@@ -86,9 +88,9 @@ export function DailyChart({
           </text>
         ))}
       </svg>
-      {!hasData && <p className="budget-chart__empty">В этом месяце расходов ещё нет.</p>}
+      {!hasData && <p className="budget-chart__empty">{t('В этом месяце расходов ещё нет.')}</p>}
       <details className="budget-chart__details">
-        <summary>Значения по дням</summary>
+        <summary>{t('Значения по дням')}</summary>
         <ul>
           {days.map((v, i) =>
             v === 0n ? null : (

@@ -3,12 +3,13 @@ import { ApiError, authApi } from '../../../lib/api';
 import { clientInfo, sessionToken } from '../../../lib/session';
 import { publicAuthUrl } from '../../../lib/auth-entry';
 import { AccessPanel } from './access-panel';
+import { msg } from '../../../i18n';
 
 /** Существующие права и API команды/сессий перенесены с публичного экрана входа. */
 const ORGANIZATION_ERRORS: Record<string, string> = {
-  denied: 'Эта организация вам недоступна.',
-  signin: 'Сеанс закончился. Войдите заново.',
-  failed: 'Не удалось перейти. Попробуйте ещё раз.',
+  denied: msg('Эта организация вам недоступна.'),
+  signin: msg('Сеанс закончился. Войдите заново.'),
+  failed: msg('Не удалось перейти. Попробуйте ещё раз.'),
 };
 
 export default async function AccessPage({

@@ -12,6 +12,8 @@ import { UnitFacts } from './unit-facts';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess } from '../../../lib/navigation';
 import { loadHousekeepers } from '../../../lib/hotel-housekeepers';
+import { msg } from '../../../i18n';
+import { serverT } from '../../../i18n/server';
 import '../../inventory/inventory.css';
 
 /**
@@ -27,6 +29,7 @@ export default async function UnitPage({
 }) {
   // гостиничный экран: салон и ресторан по прямому адресу уходят на свою стартовую (DS2 F1, как `/reports`)
   await requireFeature('/units');
+  const t = await serverT();
   const { code } = await params;
   const q = normalizeSearchParams(await searchParams);
   const blockPeriod =
@@ -47,18 +50,21 @@ export default async function UnitPage({
   return (
     <Page
       width="medium"
-      crumbs={<BackCrumb href="/inventory">Номерной фонд</BackCrumb>}
-      title={`Номер ${unit.code}`}
-      subtitle={`${unit.kind === 'BED' ? 'Койко-место' : 'Номер'}, категория «${unit.accommodationTypeName}», комната ${unit.roomNumber}${unit.active ? '' : ', выведена из фонда'}`}
+      crumbs={<BackCrumb href="/inventory">{t('Номерной фонд')}</BackCrumb>}
+      title={t('Номер {code}', { code: unit.code })}
+      subtitle={`${t(
+        unit.kind === 'BED' ? msg('Койко-место, категория «{category}», комната {room}') : msg('Номер, категория «{category}», комната {room}'),
+        { category: unit.accommodationTypeName, room: unit.roomNumber },
+      )}${unit.active ? '' : t(', выведена из фонда')}`}
     >
       <UnitFacts unit={unit} today={today} />
       {canMutate && <UnitActions unit={unit} today={today} blockPeriod={blockPeriod} housekeepers={housekeepers} />}
-      <SectionTitle>Ближайшие проживания, 60 дней</SectionTitle>
+      <SectionTitle>{t('Ближайшие проживания, 60 дней')}</SectionTitle>
       <Table size="sm" data-testid="unit-stays">
         <thead>
           <tr>
-            {['Бронь', 'Заезд', 'Выезд', 'Статус', 'Гость'].map((h) => (
-              <th key={h}>{h}</th>
+            {[msg('Бронь'), msg('Заезд'), msg('Выезд'), msg('Статус'), msg('Гость')].map((h) => (
+              <th key={h}>{t(h)}</th>
             ))}
           </tr>
         </thead>
@@ -66,7 +72,7 @@ export default async function UnitPage({
           {unit.stays.length === 0 && (
             <tr>
               <td colSpan={5} className="muted">
-                Проживаний на 60 дней вперёд нет
+                {t('Проживаний на 60 дней вперёд нет')}
               </td>
             </tr>
           )}

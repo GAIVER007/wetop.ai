@@ -1,43 +1,44 @@
 import { sourceNames } from '../../lib/hotel-api';
 import { CHANNELS } from './sources';
 import { paymentStatus } from '../../lib/status/payment';
+import { msg } from '../../i18n';
 
 /**
  * Отбор «Броней» в адресе (ADR-106, срез R2). Значения совпадают с параметрами GET /hotel/reservations:
  * страница ничего не фильтрует сама, она только переводит адрес в запрос и обратно.
  */
 export const reservationViews: Record<string, string> = {
-  all: 'Все',
-  today: 'Сегодня',
-  future: 'Будущие',
-  inhouse: 'Проживают',
-  attention: 'Требуют внимания',
+  all: msg('Все'),
+  today: msg('Сегодня'),
+  future: msg('Будущие'),
+  inhouse: msg('Проживают'),
+  attention: msg('Требуют внимания'),
 };
 export const dateBases: Record<string, string> = {
-  stay: 'проживание',
-  arrival: 'заезд',
-  departure: 'выезд',
-  created: 'дата создания',
+  stay: msg('проживание'),
+  arrival: msg('заезд'),
+  departure: msg('выезд'),
+  created: msg('дата создания'),
 };
 /** Отбор по оплате: слова из реестра `lib/status/payment` (DS1a), ключи = параметр API */
 export const paymentFilters: Record<string, string> = {
-  '': 'Любая оплата',
+  '': msg('Любая оплата'),
   ...Object.fromEntries(Object.entries(paymentStatus).map(([k, s]) => [k, s.label])),
 };
 export const allocationFilters: Record<string, string> = {
-  '': 'Любое размещение',
-  assigned: 'Размещение назначено',
-  missing: 'Без размещения',
-  room: 'Номер',
-  bed: 'Койко-место',
+  '': msg('Любое размещение'),
+  assigned: msg('Размещение назначено'),
+  missing: msg('Без размещения'),
+  room: msg('Номер'),
+  bed: msg('Койко-место'),
 };
 export const sortOptions: Record<string, string> = {
-  '': 'Поздний заезд первым',
-  arrival: 'Ближайший заезд',
-  departure: 'Ближайший выезд',
-  new: 'Новые брони',
-  amount: 'Сумма',
-  debt: 'Долг',
+  '': msg('Поздний заезд первым'),
+  arrival: msg('Ближайший заезд'),
+  departure: msg('Ближайший выезд'),
+  new: msg('Новые брони'),
+  amount: msg('Сумма'),
+  debt: msg('Долг'),
 };
 
 /** Условия, которые пишутся в адрес только когда заданы; порядок — порядок в адресе */

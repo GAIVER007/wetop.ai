@@ -7,6 +7,7 @@ import { WorkspaceBoard } from './workspace-board';
 import { CatalogBoard } from './catalog-board';
 import { FoodRemindersToday } from './reminders-today';
 import { foodApi, type FoodReminderItem } from '../../lib/food-api';
+import { serverT } from '../../i18n/server';
 import './food.css';
 import './restaurant.css';
 export async function FoodScreen({
@@ -23,7 +24,8 @@ export async function FoodScreen({
   startNew?: boolean;
   listView?: boolean;
 }) {
-  const title = kind === 'floor' ? 'План зала' : kind === 'list' ? 'Бронирования' : 'Залы и столы';
+  const t = await serverT();
+  const title = kind === 'floor' ? t('План зала') : kind === 'list' ? t('Бронирования') : t('Залы и столы');
   try {
     const data = await loadFood(date, time, kind !== 'floor', kind === 'floor');
     // «Напомнить сегодня» (§61): только «Вручную» и «Ошибка»; сбой загрузки не ломает экран, блока просто нет
@@ -38,7 +40,7 @@ export async function FoodScreen({
       <Page
         title={title}
         // эталон владельца 13.10.2026 (зал ресторана): подпись под заголовком плана
-        subtitle={kind === 'floor' ? 'Бронирования столов и загрузка зала' : undefined}
+        subtitle={kind === 'floor' ? t('Бронирования столов и загрузка зала') : undefined}
       >
         <div key={data.scopeKey}>
           {manual && manual.items.length > 0 && (

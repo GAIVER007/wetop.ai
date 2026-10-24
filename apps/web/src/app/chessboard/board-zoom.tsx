@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Icon } from '../../components/icon';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * Масштаб сетки «− 100% +» (образец владельца 09.10.2026). Выбор помнится в браузере; сетка читает
@@ -11,6 +12,7 @@ const KEY = 'wetop.chessboard.zoom';
 const STEPS = [70, 80, 90, 100, 110, 120, 130] as const;
 
 export function BoardZoom() {
+  const t = useT();
   const [percent, setPercent] = useState<number>(100);
   useEffect(() => {
     try {
@@ -38,11 +40,11 @@ export function BoardZoom() {
     }
   };
   return (
-    <div className="board-zoom" role="group" aria-label="Масштаб календаря">
+    <div className="board-zoom" role="group" aria-label={t('Масштаб календаря')}>
       <button
         type="button"
         className="board-zoom__btn"
-        aria-label="Уменьшить масштаб"
+        aria-label={t('Уменьшить масштаб')}
         disabled={percent <= STEPS[0]}
         onClick={() => move(-1)}
       >
@@ -56,7 +58,7 @@ export function BoardZoom() {
       <button
         type="button"
         className="board-zoom__btn"
-        aria-label="Увеличить масштаб"
+        aria-label={t('Увеличить масштаб')}
         disabled={percent >= STEPS[STEPS.length - 1]!}
         onClick={() => move(1)}
       >

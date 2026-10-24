@@ -306,6 +306,14 @@
       flex-wrap: nowrap;
       gap: var(--space-1);
     }
+    /* «День / Неделя» переключателем (24.10.2026): на телефоне без внутреннего отступа рамки, иначе строка выше
+       прежних кнопок и сетка опускается ниже порога компактности (tz12-ui) */
+    .journal-head__views > .tabs {
+      padding: 0;
+    }
+    .journal-head__views > .tabs .tabs__item {
+      min-height: var(--touch-target);
+    }
     .journal-head__views .beauty-calendar-views .btn {
       min-height: var(--touch-target);
       padding: 0 var(--space-2);
@@ -359,6 +367,67 @@
   }
   body:has(.page.journal-page[data-expanded='true']) {
     overflow: hidden;
+  }
+}
+
+/* Как у календаря гостиницы (владелец 24.10.2026: «гостиницы норм выглядит правильно, а салон как-то криво, сделай
+   всё так же, как в гостиницах»; эталон `chessboard/board.css`, блок `.page--board.calendar-page`). Размеры только
+   токенами; сторож `tests/tools/journal-head-look.ts` с тремя наборами (гостиница, салон, ресторан). */
+@layer sections {
+  @media (min-width: 601px) {
+    /* сильнее общего отступа рабочей области (`shell/tab-nav.css`: div.workspace .page), как у .page--board */
+    div.workspace .page.journal-page {
+      padding: var(--space-4) var(--space-6);
+    }
+    /* строка отборов: поля, выборы и кнопки одной высоты и одного шрифта, как поиск и «Фильтры» гостиницы */
+    .journal-head__filters .journal-search > .inp,
+    .journal-head__filters .journal-filter,
+    .journal-head__filters > .field .inp,
+    .journal-head__filters .employee-filter > summary,
+    .journal-head__filters .context-help > summary,
+    .journal-head__filters .journal-head__views .btn {
+      height: var(--control-h);
+      min-height: var(--control-h);
+      font-size: var(--text-sm);
+    }
+    /* выборы слева, поиск тянется за ними, «Фильтры» и вид справа: порядок полосы гостиницы */
+    .journal-head__filters > .employee-filter,
+    .journal-head__filters > .journal-filter,
+    .journal-head__filters > .field,
+    .journal-head__filters > .rest-shifts {
+      order: -1;
+    }
+    .journal-head__filters .context-help > summary {
+      gap: var(--space-2);
+      padding: 0 var(--space-2);
+      border-color: var(--border);
+      background: var(--surface-solid);
+      font-weight: var(--weight-medium);
+    }
+    .journal-head__filters .context-help > summary > svg {
+      flex: none;
+      width: var(--space-4);
+      height: var(--space-4);
+    }
+    /* выборы мягкой рамкой, как «Все категории» и «Все статусы» гостиницы; поиск рамкой поля, как у гостиницы */
+    .journal-head__filters .journal-filter,
+    .journal-head__filters > .field .inp,
+    .journal-head__filters .employee-filter > summary {
+      border-color: var(--border);
+      background-color: var(--surface-solid);
+    }
+  }
+  /* низкий экран ноутбука, как у гостиницы: подзаголовок скрыт, заголовок меньше, отступы плотнее */
+  @media (min-width: 961px) and (max-height: 899px) {
+    div.workspace .page.journal-page {
+      padding-block: var(--space-2);
+    }
+    .journal-head__subtitle {
+      display: none;
+    }
+    .journal-head__title {
+      font-size: var(--text-3xl);
+    }
   }
 }
 

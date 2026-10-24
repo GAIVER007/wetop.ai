@@ -33,7 +33,7 @@ test('ресторан: день по прежним адресам, форма 
   await page.getByLabel('Календарь периода').getByRole('button', { name: /^15 окт/ }).click();
   await expect(page).toHaveURL(/\/floor-plan\?date=2026-10-15$/);
 
-  await page.getByRole('button', { name: '+ Новая бронь', exact: true }).click();
+  await page.getByRole('button', { name: 'Новая бронь', exact: true }).click();
   const dialog = page.getByRole('dialog');
   const grid = dialog.locator('.form-grid');
   await expect(grid.getByLabel('Дата', { exact: true })).toHaveAttribute('required', '');

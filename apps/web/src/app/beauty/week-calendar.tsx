@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useState, type ReactNode } from 'react';
 import { Icon } from '../../components/icon';
-import { JournalFilter, JournalHead, JournalSearch } from '../../components/journal-head';
+import { JournalFilter, JournalHead, JournalSearch, FiltersTitle } from '../../components/journal-head';
 import { DateRangePopover } from '../../components/date-range-popover';
 import { SummaryLine } from '../../lib/summary-line';
 import { useNarrow } from '../../lib/use-narrow';
@@ -30,8 +30,11 @@ export function WeekCalendar({
   selectedDate,
   employees,
   views,
+  canCreate = false,
   today = new Date().toISOString().slice(0, 10),
 }: {
+  /** «Новая запись» в шапке, как в дне и у «Новой брони» гостиницы: открывает выбранный день с формой записи */
+  canCreate?: boolean;
   /** «День / Неделя» в строке отборов единой шапки */
   views?: ReactNode;
   days: BeautyDay[];
@@ -157,6 +160,16 @@ export function WeekCalendar({
             ]}
             build={() => beautyQuickReport(visible(selected))}
           />
+          {canCreate && (
+            <Link
+              className="btn"
+              prefetch={false}
+              href={`${href(selected.date, false)}&new=1`}
+            >
+              <Icon name="plus" aria-hidden="true" />
+              Новая запись
+            </Link>
+          )}
           </>
         }
         summary={
@@ -196,18 +209,15 @@ export function WeekCalendar({
             />
             {serviceFilter}
             {statusFilter}
-            <span className="journal-head__phone-only">
-              <Help
-                title={`Фильтры${service || status ? `\nАктивных: ${[service, status].filter(Boolean).length}` : ''}`}
-              >
-                <span className="sr-only">Услуга и статус</span>
-              </Help>
-            </span>
+            {/* «Фильтры» видны и на компьютере, как в дне и у календаря гостиницы; легенда внутри, как в дне */}
+            <Help title={<FiltersTitle active={[service, status].filter(Boolean).length} />}>
+              <span className="sr-only">Услуга и статус</span>
+              <CalendarLegend />
+            </Help>
           </>
         }
         views={views}
       />
-      <CalendarLegend />
       <div className="beauty-week-calendar">
         {days.map((day) => {
           const masters = new Map(

@@ -22,7 +22,7 @@ import { layoutSpots, tableShapeOf } from '@pms/domain';
 import { QuickReport } from '../../components/quick-report';
 import { JournalExpandButton } from '../../components/journal-expand';
 import { DayNav } from '../../components/day-nav';
-import { JournalFilter, JournalHead, JournalSearch } from '../../components/journal-head';
+import { JournalFilter, JournalHead, JournalSearch, FiltersTitle } from '../../components/journal-head';
 import { useNarrow } from '../../lib/use-narrow';
 import { SummaryLine } from '../../lib/summary-line';
 import { foodQuickReport } from '../../components/quick-report-data';
@@ -246,7 +246,8 @@ export function WorkspaceBoard({
                   </Button>
                 )}
                 <Button onClick={() => setDraft({ kind: 'create', walkIn: false })}>
-                  + Новая бронь
+                  <Icon name="plus" aria-hidden="true" />
+                  Новая бронь
                 </Button>
               </>
             )}
@@ -295,7 +296,7 @@ export function WorkspaceBoard({
             {foodFilters}
             <span className="journal-head__phone-only">
               <Help
-                title={`Фильтры${area || status || period ? `\nАктивных: ${[area, status, period].filter(Boolean).length}` : ''}`}
+                title={<FiltersTitle active={[area, status, period].filter(Boolean).length} />}
               >
                 <span className="sr-only">Зона, смена и статус</span>
                 {narrow && (

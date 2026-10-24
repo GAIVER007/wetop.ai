@@ -46,7 +46,7 @@ test('mobile master filter and visible calendar select the same master', async (
 test('new appointment defaults to the master selected in the desktop filter', async ({ page, request }, testInfo) => {
   const masters = await prepare(page, request);
   await chooseCalendarEmployee(page, masters[1].name);
-  await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
+  await page.getByRole('button', { name: 'Новая запись', exact: true }).click();
   await expect(page.getByRole('dialog').getByRole('combobox', { name: 'Специалист', exact: true })).toHaveValue(masters[1].id);
   await page.screenshot({ path: testInfo.outputPath('selected-master-new-appointment.png') });
 });

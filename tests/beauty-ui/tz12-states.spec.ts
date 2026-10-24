@@ -54,7 +54,7 @@ for (const theme of ['light', 'dark'] as const)
         const timeline = await new AxeBuilder({ page }).include('[data-testid="beauty-mobile-calendar"]').withTags(['wcag2aa']).analyze();
         expect(timeline.violations).toEqual([]);
       }
-      const create = page.getByRole('button', { name: '+ Новая запись', exact: true });
+      const create = page.getByRole('button', { name: 'Новая запись', exact: true });
       const box = (await create.boundingBox())!;
       expect(box.height).toBeGreaterThanOrEqual(44);
       await create.focus();

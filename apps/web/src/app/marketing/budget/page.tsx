@@ -107,37 +107,39 @@ export default async function BudgetSummaryPage({ searchParams }: { searchParams
           <BudgetTabs current="summary" month={view.month} />
           <MonthNav base="/marketing/budget" month={view.month} />
         </div>
-        {/* итоги месяца одной строкой, без плиток (аудит 21.10.2026 п. 32, как «План») */}
-        <dl className="money-summary budget-summary-line">
+        {/* итоги месяца одной строкой, без плиток (аудит 21.10.2026 п. 32, как «План» и «Аналитика») */}
+        <dl className="money-summary" data-testid="summary-line">
           <div>
             <dt>Расход вручную</dt>
             <dd data-testid="summary-manual">{formatMoney(s.manualSpend.value, rc)}</dd>
-            <dd className="muted">Журнал расходов, учтённые в бюджете</dd>
           </div>
           <div>
             <dt>Расход кабинета Meta</dt>
             <dd data-testid="summary-cabinet">
-              {cabinet.value === null ? NO_DATA : cabinet.value.length === 0 ? 'Не подключён' : cabinetText(cabinet.value)}
-            </dd>
-            <dd className="muted">
-              {cabinet.value === null
-                ? cabinet.reason
-                : cabinet.value.length === 0
-                  ? 'Подключите кабинет в «Рекламе»'
-                  : 'По данным кабинета, в его валюте'}
+              {cabinet.value === null ? (
+                <Missing reason={cabinet.reason} />
+              ) : cabinet.value.length === 0 ? (
+                <span className="muted">не подключён</span>
+              ) : (
+                cabinetText(cabinet.value)
+              )}
             </dd>
           </div>
           <div>
             <dt>{copy.requests}</dt>
-            <dd data-testid="summary-requests">{s.requests.value === null ? NO_DATA : String(s.requests.value)}</dd>
-            <dd className="muted">{s.requests.reason ?? 'Обращения из своих каналов'}</dd>
+            <dd data-testid="summary-requests">
+              {s.requests.value === null ? <Missing reason={s.requests.reason} /> : String(s.requests.value)}
+            </dd>
           </div>
           <div>
             <dt>{METRIC.cpl}</dt>
             <dd data-testid="summary-cpr">
-              {s.costPerRequest.value === null ? NO_DATA : formatMoney(s.costPerRequest.value, rc)}
+              {s.costPerRequest.value === null ? (
+                <Missing reason={s.costPerRequest.reason} />
+              ) : (
+                formatMoney(s.costPerRequest.value, rc)
+              )}
             </dd>
-            <dd className="muted">{s.costPerRequest.reason ?? 'Расход вручную на одну заявку'}</dd>
           </div>
           <div>
             <dt>{METRIC.romi}</dt>
@@ -145,9 +147,8 @@ export default async function BudgetSummaryPage({ searchParams }: { searchParams
               data-testid="summary-romi"
               className={s.romi.value !== null && s.romi.value < 0 ? 'budget-td-danger' : undefined}
             >
-              {s.romi.value === null ? NO_DATA : romiText(s.romi.value)}
+              {s.romi.value === null ? <Missing reason={s.romi.reason} /> : romiText(s.romi.value)}
             </dd>
-            <dd className="muted">{s.romi.reason ?? '(выручка − расход) / расход'}</dd>
           </div>
         </dl>
         <Sources sources={sources} month={view.month} defaults={defaults} reportingCurrency={rc} />

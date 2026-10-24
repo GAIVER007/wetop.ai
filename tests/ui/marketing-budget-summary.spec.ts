@@ -202,9 +202,9 @@ test('без результатов каналов (как у салона и р
   const main = await openSummary(page, month);
   await expect(main.getByTestId('summary-manual')).toHaveText('18 000 ₸');
   await expect(main.getByTestId('summary-cabinet')).toHaveText('120 USD');
-  await expect(main.getByTestId('summary-requests')).toHaveText('Нет данных');
-  await expect(main.getByTestId('summary-cpr')).toHaveText('Нет данных');
-  await expect(main.getByTestId('summary-romi')).toHaveText('Нет данных');
+  await expect(main.getByTestId('summary-requests')).toContainText('Нет данных');
+  await expect(main.getByTestId('summary-cpr')).toContainText('Нет данных');
+  await expect(main.getByTestId('summary-romi')).toContainText('Нет данных');
   // не ноль и не −100 %
   await expect(main.getByTestId('summary-romi')).not.toContainText('%');
   await expect(main.getByTestId('summary-row-SITE')).toContainText('4 000 ₸');

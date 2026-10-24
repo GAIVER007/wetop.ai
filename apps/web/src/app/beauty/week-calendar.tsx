@@ -10,6 +10,7 @@ import { beautyStatus } from '../../lib/status/beauty';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { EmployeeFilter } from '../../components/employee-filter';
 import { QuickReport } from '../../components/quick-report';
+import { JournalExpandButton } from '../../components/journal-expand';
 import { beautyQuickReport } from '../../components/quick-report-data';
 import { Help, Panel, StatusBadge } from '../../components/ui';
 import type { BeautyDay, BeautyEmployeeRow } from '../../lib/api';
@@ -141,6 +142,8 @@ export function WeekCalendar({
           </div>
         }
         actions={
+          <>
+          <JournalExpandButton />
           <QuickReport
             text="Быстрый отчёт"
             key={`${selected.date}:${employee}`}
@@ -154,6 +157,7 @@ export function WeekCalendar({
             ]}
             build={() => beautyQuickReport(visible(selected))}
           />
+          </>
         }
         summary={
           <SummaryLine

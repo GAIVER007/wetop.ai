@@ -122,6 +122,7 @@ BEGIN
     REVOKE ALL ON location_competitors, location_competitor_snapshots FROM wetop_app, wetop_service;
     GRANT SELECT, INSERT, UPDATE ON location_competitors TO wetop_app, wetop_service;
     GRANT SELECT, INSERT, UPDATE, DELETE ON location_competitor_snapshots TO wetop_app, wetop_service;
+  END IF;
 
   -- 154 staff_telegram_notifications (STAFF-TG-20261020): the three tables exist together or not at all.
   SELECT count(*) INTO installed FROM unnest(ARRAY[

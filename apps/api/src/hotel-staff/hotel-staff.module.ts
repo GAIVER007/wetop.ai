@@ -41,7 +41,9 @@ export class HotelStaffController {
   @Post('employees') @Access('staff') createEmployee(@Body() b: unknown) {
     return this.restaurant.createEmployee(b, HOTEL);
   }
-  @Get('shifts') shifts() {
+  @Get('shifts') async shifts() {
+    // у гостиницы сотрудники приходят входом из «Персонал → Сотрудники»: карточки для графика заводятся сами
+    await this.service.syncMemberEmployees();
     return this.restaurant.shifts(HOTEL);
   }
   @Put('employees/:id/working-hours') @Access('staff') setShifts(@Param('id') id: string, @Body() b: unknown) {

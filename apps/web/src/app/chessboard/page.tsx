@@ -15,8 +15,9 @@ import { ChessboardGrid } from './board-grid';
 import { BoardMenu } from './board-menu';
 import { BoardZoom } from './board-zoom';
 import { displayDate } from '../../lib/display-date';
-import { hotelClock, validDate } from '../../lib/hotel-api';
+import { hotelClock, propertyCurrency, validDate } from '../../lib/hotel-api';
 import { CalendarWorkspace, CalendarExpandButton } from './calendar-workspace';
+import { HotelQuickReport } from './quick-report';
 import { Icon } from '../../components/icon';
 import { monthPeriod } from './month-period';
 import { deskShell } from '../../lib/desk-shell';
@@ -88,7 +89,7 @@ export default async function ChessboardPage({
     );
   // Плашки конфликтов (срез 7.3, Д3–Д4) — только чтение: сверх мест из открытых неисправностей сторожа,
   // входящие брони, которые PMS не разобрала, — из ленты событий; их отказ шахматку не роняет
-  const [board, incidents, events, shell, day, todayBoard] = await Promise.all([
+  const [board, incidents, events, shell, day, todayBoard, currency] = await Promise.all([
     chessboardApi.board(from, to),
     guardApi.incidents('open').catch(() => null),
     channelsApi.events({ limit: 50, status: 'FAILED' }).catch(() => null),
@@ -97,6 +98,7 @@ export default async function ChessboardPage({
     // Сводка дня над сеткой — та же «На стойке», что на Главной; её отказ календарь не роняет
     deskApi.today().catch(() => null),
     from <= today && today <= to ? null : chessboardApi.board(today, today).catch(() => null),
+    propertyCurrency().catch(() => 'KZT'),
   ]);
   const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
   const failedEvents = events?.total ?? 0;
@@ -201,6 +203,12 @@ export default async function ChessboardPage({
   const actions = (
     <>
       <CalendarExpandButton compact />
+      <HotelQuickReport
+        rows={(todayBoard ?? board).rows}
+        date={today}
+        currency={currency}
+        propertyName="Гостиница"
+      />
       {canMutate && (
         <Link className="btn board-new" href="/reservations/new">
           <Icon name="plus" />

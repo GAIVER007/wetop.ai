@@ -561,15 +561,18 @@ test('TimeOff via manager API with compact employee drawer, server denial and ti
 test('DS1c: day navigation keeps the previous addresses', async ({ page, request }) => {
   await reset(page, request);
   await page.goto('/calendar?date=2026-10-12');
-  const bar = page.locator('.date-bar');
-  await expect(bar.getByTestId('beauty-day-date')).toHaveValue('2026-10-12');
+  // единая шапка журнала (24.10.2026): день в рамке со стрелками, выбор дня в том же окне, что период гостиницы
+  const bar = page.getByTestId('beauty-day-nav');
+  await expect(bar.getByLabel('Выбрать день')).toContainText(/^12 окт/);
   await bar.getByRole('button', { name: 'Следующий день' }).click();
   await expect(page).toHaveURL(/\/calendar\?date=2026-10-13$/);
   await bar.getByRole('button', { name: 'Предыдущий день' }).click();
   await expect(page).toHaveURL(/\/calendar\?date=2026-10-12$/);
-  await bar.getByLabel('Дата', { exact: true }).fill('2026-10-20');
+  await bar.getByLabel('Выбрать день').click();
+  await page.getByLabel('Календарь периода').getByRole('button', { name: /^20 окт/ }).click();
   await expect(page).toHaveURL(/\/calendar\?date=2026-10-20$/);
-  await bar.getByRole('button', { name: 'Сегодня', exact: true }).click();
+  await bar.getByLabel('Выбрать день').click();
+  await page.getByRole('group', { name: 'Готовые периоды' }).getByRole('button', { name: 'Сегодня', exact: true }).click();
   await expect(page).toHaveURL(/\/calendar$/);
 });
 
@@ -621,7 +624,7 @@ test('новая запись: свободное время мастера кн
   await page.goto(`/calendar?date=${day}`);
   await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
   const panel = page.getByRole('dialog');
-  await expect(panel.getByRole('region', { name: 'Услуга и время' })).toBeVisible();
+  await expect(panel.getByRole('region', { name: 'Выбор времени записи' })).toBeVisible();
   await panel.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });
   const slots = panel.getByTestId('slot-group');
   await expect(slots).toBeVisible();

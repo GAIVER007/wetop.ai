@@ -1,0 +1,340 @@
+/* Шапка журнала одна во всех направлениях (владелец 23.10.2026), образец календарь гостиницы (`chessboard/board.css`
+   `.page--board.calendar-page > .page__head`). Компонент `components/journal-head.tsx`. */
+@layer sections {
+  /* заголовок `Page` журнала скрыт визуально: видимый заголовок в `JournalHead` в одной строке с днём */
+  .page.journal-page > .page__head {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .journal-head {
+    display: grid;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+  .journal-head__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .journal-head__heading {
+    min-width: 0;
+  }
+  .journal-head__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-size: var(--text-4xl);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-tight);
+  }
+  .journal-head__icon {
+    flex: none;
+    width: var(--space-8);
+    height: var(--space-8);
+    color: var(--primary);
+  }
+  .journal-head__subtitle {
+    margin: var(--space-1) 0 0;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .journal-head__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .journal-head__actions .btn {
+    min-height: var(--control-h);
+    padding: 0 var(--space-4);
+    font-size: var(--text-sm);
+  }
+  .journal-head__summary .summary-line {
+    margin: 0;
+  }
+  .journal-head__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .journal-head__filters > .field {
+    margin: 0;
+  }
+  /* строка отборов как у календаря гостиницы (24.10.2026): поиск тянется, выборы одной ширины, вид справа */
+  .journal-search {
+    position: relative;
+    display: flex;
+    flex: 1 1 240px;
+    min-width: 180px;
+  }
+  .journal-search > .inp {
+    width: 100%;
+    min-height: var(--control-h);
+    padding-left: var(--space-8);
+  }
+  .journal-search__icon {
+    position: absolute;
+    top: 50%;
+    left: var(--space-2);
+    width: var(--space-4);
+    height: var(--space-4);
+    color: var(--muted);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  .journal-filter {
+    flex: 0 1 200px;
+    min-width: 150px;
+    min-height: var(--control-h);
+  }
+  .journal-head__filters .employee-filter {
+    flex: 0 1 220px;
+  }
+  .journal-head__views {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-left: auto;
+  }
+  .journal-head__views .tabs {
+    margin: 0;
+  }
+  /* «Фильтры» в строке отборов: кнопка той же высоты, что поля; раскрытая панель занимает строку целиком */
+  .journal-head__filters .context-help {
+    display: contents;
+    margin: 0;
+  }
+  .journal-head__filters .context-help > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-h);
+    padding: 0 var(--space-4);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text);
+    font-weight: var(--weight-semibold);
+    white-space: pre-line;
+    list-style: none;
+  }
+  .journal-head__filters .context-help > summary::-webkit-details-marker {
+    display: none;
+  }
+  .journal-head__filters .context-help[open] > summary {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  .journal-head__filters .context-help > div {
+    flex: 1 1 100%;
+    order: 10;
+    max-width: none;
+    padding: var(--space-2) 0 0;
+    border-top: 1px solid var(--border-soft);
+  }
+  /* одна копия отборов: на компьютере в строке, на телефоне появляются под «Фильтрами», когда они раскрыты */
+  .journal-head__phone-only {
+    display: none;
+  }
+  .journal-head__desk-only {
+    display: contents;
+  }
+  .journal-head__more {
+    display: grid;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+  .journal-head__more .journal-filter {
+    width: 100%;
+    max-width: none;
+  }
+  /* отборы раздела внутри карточки шапки: без своей второй рамки и отступов */
+  .journal-page .journal-head__filters .beauty-bar,
+  .journal-page .journal-head__filters .beauty-calendar-toolbar,
+  .journal-page .journal-head__filters .beauty-calendar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .journal-head__filters .tabs,
+  .journal-head__filters .rest-shifts {
+    margin: 0;
+  }
+  /* переход по дням: одна рамка, как период календаря гостиницы */
+  .day-nav.board-period {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-h);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+  }
+  .day-nav.board-period .date-range > summary {
+    min-height: calc(var(--control-h) - 2px);
+    border: 0;
+    background: transparent;
+  }
+  .day-nav.board-period .icon-button {
+    display: inline-grid;
+    place-items: center;
+    width: var(--space-8);
+    height: var(--space-8);
+  }
+  .day-nav__label {
+    padding: 0 var(--space-4);
+    font-size: var(--text-sm);
+    white-space: nowrap;
+  }
+  @media (max-width: 600px) {
+    .journal-head__title {
+      font-size: var(--text-xl);
+    }
+    .journal-head__icon {
+      width: var(--space-6);
+      height: var(--space-6);
+    }
+    .journal-head__subtitle {
+      display: none;
+    }
+    .journal-head__actions {
+      width: 100%;
+    }
+    .journal-head__actions > .day-nav {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .journal-head__actions .btn,
+    .day-nav.board-period .icon-button {
+      min-height: var(--touch-target);
+    }
+    .journal-search {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .journal-search > .inp,
+    .journal-filter {
+      min-height: var(--touch-target);
+    }
+    .journal-head__views {
+      width: 100%;
+      margin-left: 0;
+    }
+    /* телефон, как на эскизе 24.10.2026: «Журнал» и круглый «+» в строку, день на всю ширину, итоги, затем
+       «поиск | Фильтры» и «специалист | вид»; раскрытые «Фильтры» строкой ниже */
+    .journal-head__top {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-2);
+    }
+    .journal-head__actions {
+      display: contents;
+    }
+    .journal-head__actions > .day-nav {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      width: 100%;
+    }
+    .journal-head__actions > .day-nav .date-range {
+      flex: 1 1 auto;
+    }
+    .journal-head__actions > .btn:last-child {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    /* строка 1: поиск и «Фильтры»; строка 2: специалист и вид («День / Неделя» в одну полоску) */
+    .journal-head__filters {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2);
+    }
+    .journal-head__filters > .journal-search {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .journal-head__filters .context-help > summary {
+      grid-column: 2;
+      grid-row: 1;
+      justify-content: center;
+      min-height: var(--touch-target);
+    }
+    .journal-head__filters > .employee-filter {
+      grid-column: 1;
+      grid-row: 2;
+      min-width: 0;
+    }
+    .journal-head__filters > .journal-head__views {
+      grid-column: 2;
+      grid-row: 2;
+      width: auto;
+      flex-wrap: nowrap;
+    }
+    /* ресторан: два переключателя («План зала / Расписание» и «Шкала / Список») не помещаются в правую колонку,
+       им своя строка на всю ширину, иначе поиск сжимается в ноль, а шапка шире экрана */
+    .journal-head__filters > .journal-head__views:has(> .tabs) {
+      grid-column: 1 / -1;
+      grid-row: auto;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .journal-head__actions > .day-nav {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .journal-head__views .beauty-calendar-views {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: var(--space-1);
+    }
+    .journal-head__views .beauty-calendar-views .btn {
+      min-height: var(--touch-target);
+      padding: 0 var(--space-2);
+    }
+    .journal-head__filters .context-help > div {
+      grid-column: 1 / -1;
+      grid-row: 3;
+    }
+    .journal-head__phone-only {
+      display: contents;
+    }
+    .journal-head__desk-only {
+      display: none;
+    }
+    .journal-head__filters > .journal-filter,
+    .journal-head__filters > .rest-shifts,
+    .journal-head__filters > .field {
+      display: none;
+    }
+    .journal-head__filters:has(.context-help[open]) > .journal-filter,
+    .journal-head__filters:has(.context-help[open]) > .rest-shifts,
+    .journal-head__filters:has(.context-help[open]) > .field {
+      display: flex;
+      grid-column: 1 / -1;
+      width: 100%;
+      max-width: none;
+    }
+    .journal-head__filters {
+      padding: var(--space-2);
+    }
+  }
+}

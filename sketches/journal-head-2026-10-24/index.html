@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WETOP: единый журнал (эскиз 24.10.2026)</title>
+<style>
+  :root {
+    --bg: #eaf0f8; --surface: #fff; --border: #d6deea; --border-soft: #e3e9f2; --text: #0f172a; --muted: #64748b;
+    --primary: #0b5bd3; --primary-soft: #e8f0fd; --ok: #0f8a5f; --warn: #b45309; --danger: #c2410c;
+    --r: 12px; --rc: 10px; --h: 40px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.4; -webkit-font-smoothing: antialiased; }
+  button, select, input { font: inherit; color: inherit; }
+  .switcher { flex-wrap: wrap; position: sticky; top: 0; z-index: 50; display: flex; gap: 8px; align-items: center; padding: 8px 24px; background: #0f172a; color: #fff; font-size: 13px; }
+  .switcher b { margin-right: 8px; }
+  .switcher button { padding: 6px 12px; border: 1px solid #334155; border-radius: 8px; background: transparent; cursor: pointer; }
+  .switcher button[aria-pressed="true"] { background: #fff; color: #0f172a; }
+  .switcher .sep { width: 1px; height: 20px; background: #334155; margin: 0 8px; }
+
+  /* шапка приложения (как на живом сайте) */
+  .app { max-width: 1440px; margin: 0 auto; }
+  .topbar { display: flex; align-items: center; gap: 16px; padding: 10px 24px 0; background: #fff; }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 18px; }
+  .logo i { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--primary); color: #fff; font-style: normal; }
+  .logo span { color: var(--primary); margin-left: -8px; }
+  .clock { display: flex; align-items: baseline; gap: 8px; padding-left: 16px; margin-left: 4px; border-left: 1px solid var(--border-soft); white-space: nowrap; }
+  .clock b { font-size: 16px; font-weight: 700; color: var(--text); }
+  .clock span { font-size: 16px; font-weight: 600; color: var(--primary); font-variant-numeric: tabular-nums; }
+  .clock small { font-size: 13px; color: var(--muted); }
+  .gicon { margin-left: auto; }
+  .gicon svg { width: 18px; height: 18px; }
+  .phone .clock { padding-left: 10px; gap: 6px; }
+  .phone .clock b, .phone .clock span { font-size: 14px; }
+  .phone .clock small { display: none; }
+  .phone .gicon { display: none; }
+  .gsearch svg { width: 16px; height: 16px; flex: none; }
+  .gsearch { margin-left: auto; width: 300px; height: 38px; border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; padding: 0 12px; color: var(--muted); gap: 8px; }
+  .branch { border: 1px solid var(--border-soft); border-radius: 10px; padding: 4px 12px; font-size: 12px; line-height: 1.3; }
+  .branch b { display: block; font-size: 13px; }
+  .user { font-size: 12px; color: var(--muted); }
+  .menu { display: flex; gap: 4px; padding: 0 24px; background: #fff; border-bottom: 1px solid var(--border-soft); overflow-x: auto; }
+  .menu a { padding: 10px 12px; color: #334155; text-decoration: none; white-space: nowrap; border-bottom: 2px solid transparent; }
+  .menu a.on { color: var(--primary); border-color: var(--primary); font-weight: 600; }
+
+  main { padding: 16px 24px 24px; }
+
+  /* ===== ЕДИНАЯ ШАПКА ЖУРНАЛА ===== */
+  .jh { display: grid; gap: 8px; margin-bottom: 12px; }
+  .jh-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .jh-title { display: flex; align-items: center; gap: 10px; font-size: 30px; font-weight: 800; line-height: 1.1; }
+  .jh-title svg { width: 30px; height: 30px; color: var(--primary); }
+  .jh-sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .jh-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; position: relative; }
+  .period { display: inline-flex; align-items: center; height: var(--h); border: 1px solid var(--border); border-radius: var(--rc); background: #fff; }
+  .period > button { height: 100%; border: 0; background: transparent; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 0 12px; font-weight: 600; }
+  .period > button.arrow { width: 36px; justify-content: center; padding: 0; color: #334155; }
+  .period > button.arrow:hover, .period > button.main:hover { background: #f1f5fb; }
+  .period .main { border-right: 1px solid var(--border-soft); }
+  .btn { height: var(--h); padding: 0 14px; border-radius: var(--rc); border: 1px solid var(--border); background: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .btn:hover { background: #f5f8fc; }
+  .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
+  .btn.primary:hover { background: #094cb0; }
+  .btn.icon { width: var(--h); padding: 0; justify-content: center; }
+  .btn svg, .period svg { width: 16px; height: 16px; flex: none; }
+
+  .summary { font-size: 14px; color: #1e293b; }
+  .summary a { color: inherit; text-decoration: none; border-bottom: 1px dashed #94a3b8; }
+  .summary a:hover { color: var(--primary); border-color: var(--primary); }
+  .summary b { font-weight: 700; }
+
+  .filters { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fff; border: 1px solid var(--border-soft); border-radius: var(--r); flex-wrap: wrap; position: relative; }
+  .search { flex: 1 1 260px; min-width: 200px; position: relative; }
+  .search input { width: 100%; height: var(--h); border: 1px solid var(--border); border-radius: var(--rc); padding: 0 12px 0 36px; }
+  .search svg { position: absolute; left: 12px; top: 12px; width: 16px; height: 16px; color: var(--muted); }
+  .sel { height: var(--h); border: 1px solid var(--border); border-radius: var(--rc); padding: 0 32px 0 12px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center; appearance: none; cursor: pointer; min-width: 170px; max-width: 220px; }
+  .sel.on { border-color: var(--primary); background-color: var(--primary-soft); color: var(--primary); font-weight: 600; }
+  .who { display: inline-flex; align-items: center; gap: 8px; }
+  .who .sel { padding-left: 34px; }
+  .who-wrap { position: relative; }
+  .who-wrap svg { position: absolute; left: 12px; top: 12px; width: 16px; height: 16px; color: var(--muted); pointer-events: none; z-index: 1; }
+  .count { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--primary); color: #fff; font-size: 12px; font-weight: 700; }
+  .views { margin-left: auto; display: inline-flex; padding: 3px; border-radius: var(--rc); background: #f1f5f9; border: 1px solid var(--border-soft); }
+  .views button { height: 32px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent; cursor: pointer; color: #475569; }
+  .views button[aria-pressed="true"] { background: #fff; color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(15,23,42,.12); }
+  .shifts { display: inline-flex; gap: 6px; }
+  .shift { height: var(--h); padding: 0 12px; border: 1px solid var(--border); border-radius: var(--rc); background: #fff; cursor: pointer; display: grid; align-content: center; text-align: left; line-height: 1.15; }
+  .shift small { color: var(--muted); font-size: 11px; }
+  .shift[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); }
+  .shift[aria-pressed="true"] small { color: var(--primary); }
+
+  .chips { display: none; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+  .chips.show { display: flex; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 14px; background: var(--primary-soft); color: var(--primary); border: 0; cursor: pointer; font-weight: 600; }
+  .chips .reset { border: 0; background: none; color: var(--primary); cursor: pointer; text-decoration: underline; }
+
+  /* окна */
+  .pop { position: absolute; z-index: 30; background: #fff; border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 16px 40px rgba(15,23,42,.18); padding: 14px; display: none; }
+  .pop.show { display: block; }
+  .datepop { top: 46px; right: 0; width: 560px; }
+  .datepop .pp { display: grid; grid-template-columns: 150px 1fr; gap: 14px; }
+  .presets { display: grid; gap: 4px; align-content: start; }
+  .presets button { text-align: left; padding: 8px 10px; border-radius: 8px; border: 0; background: transparent; cursor: pointer; }
+  .presets button.on, .presets button:hover { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+  .cal-head { display: flex; justify-content: space-between; align-items: center; font-weight: 700; margin-bottom: 8px; }
+  .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 13px; }
+  .cal span { padding: 7px 0; border-radius: 8px; }
+  .cal .h { color: var(--muted); font-size: 11px; }
+  .cal .d { cursor: pointer; }
+  .cal .d:hover { background: #f1f5fb; }
+  .cal .in { background: var(--primary-soft); border-radius: 0; }
+  .cal .sel1 { background: var(--primary); color: #fff; font-weight: 700; }
+  .cal .today { outline: 1px solid var(--primary); }
+  .cal .muted { color: #cbd5e1; }
+  .datepop .foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; border-top: 1px solid var(--border-soft); padding-top: 12px; }
+  .filterpop { top: 54px; right: 12px; width: 360px; }
+  .filterpop h4 { font-size: 14px; margin-bottom: 10px; }
+  .filterpop label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .filterpop label .sel { max-width: none; width: 100%; color: var(--text); }
+  .filterpop .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+  .whopop { top: 54px; width: 280px; }
+  .whopop input { width: 100%; height: 36px; border: 1px solid var(--border); border-radius: 8px; padding: 0 10px; margin-bottom: 8px; }
+  .whopop li { list-style: none; display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 8px; cursor: pointer; }
+  .whopop li:hover, .whopop li.on { background: var(--primary-soft); }
+  .av { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #dbe6f7; color: var(--primary); font-weight: 700; font-size: 11px; }
+  .whopop li small { margin-left: auto; color: var(--muted); }
+
+  /* тело журнала: заглушка, чтобы видеть место шапки */
+  .board { background: #fff; border: 1px solid var(--border-soft); border-radius: var(--r); overflow: hidden; }
+  .board table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .board th, .board td { border-bottom: 1px solid var(--border-soft); border-right: 1px solid var(--border-soft); padding: 8px; height: 44px; text-align: left; vertical-align: top; }
+  .board th { background: #f8fafc; color: var(--muted); font-weight: 600; height: 36px; }
+  .board td:first-child, .board th:first-child { width: 180px; font-weight: 600; color: #1e293b; }
+  .plate { display: inline-block; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 12px; }
+  .p1 { background: #dcfce7; color: #166534; } .p2 { background: #dbeafe; color: #1e40af; } .p3 { background: #fef3c7; color: #92400e; } .p4 { background: #f1f5f9; color: #475569; }
+  .note { margin-top: 10px; font-size: 12px; color: var(--muted); }
+
+  /* ===== ТЕЛЕФОН ===== */
+  .phone .topbar { padding: 10px 14px; }
+  .phone .gsearch, .phone .branch, .phone .user, .phone .menu { display: none; }
+  .phone main { padding: 12px 14px; }
+  .phone .jh-title { font-size: 22px; }
+  .phone .jh-title svg { width: 22px; height: 22px; }
+  .phone .jh-sub { display: none; }
+  .phone .jh-top { flex-wrap: nowrap; }
+  .phone .jh-actions { flex-wrap: nowrap; }
+  .phone .jh-actions .wide-only { display: none; }
+  .phone .jh-actions .btn.primary .lbl { display: none; }
+  .phone .jh-actions .btn.primary { width: 44px; height: 44px; padding: 0; justify-content: center; }
+  .phone .filterpop .row .btn { flex: 1; height: 44px; justify-content: center; }
+  .phone .period-row { display: flex !important; }
+  .phone .jh-top .period { display: none; }
+  .period-row { display: none; gap: 8px; }
+  .period-row .period { flex: 1; height: 44px; }
+  .period-row .period .main { flex: 1; justify-content: flex-start; }
+  .period-row .btn { height: 44px; }
+  .phone .filters { padding: 8px; }
+  .phone .filters .wide { display: none; }
+  .phone .search { flex: 1 1 0; min-width: 0; }
+  .phone .filters { flex-wrap: wrap; }
+  .phone .filters > .btn { flex: none; }
+  .phone .search input { height: 44px; }
+  .phone .filters .btn { height: 44px; }
+  .phone .views { margin-left: 0; width: 100%; }
+  .phone .views button { flex: 1; height: 36px; }
+  .phone .datepop { position: fixed; left: 0; right: 0; bottom: 0; top: auto; width: auto; border-radius: 16px 16px 0 0; }
+  .phone .datepop .pp { grid-template-columns: 1fr; }
+  .phone .datepop .presets { grid-template-columns: repeat(3, 1fr); }
+  .phone .filterpop { position: fixed; left: 0; right: 0; bottom: 0; top: auto; width: auto; border-radius: 16px 16px 0 0; }
+  .phone .board td:first-child, .phone .board th:first-child { width: 90px; }
+  .phone-frame { max-width: 390px; margin: 0 auto; background: var(--bg); min-height: 844px; position: relative; overflow: hidden; }
+</style>
+</head>
+<body>
+<div class="switcher">
+  <b>Эскиз единого журнала</b>
+  <button data-v="hotel" aria-pressed="true">Гостиница</button>
+  <button data-v="salon" aria-pressed="false">Салон красоты</button>
+  <button data-v="food" aria-pressed="false">Ресторан</button>
+  <span class="sep"></span>
+  <button data-h="A" aria-pressed="true">Шапка: дата, без второго поиска</button>
+  <button data-h="B" aria-pressed="false">Шапка: дата + значок поиска</button>
+  <button data-h="old" aria-pressed="false">Как сейчас</button>
+  <span class="sep"></span>
+  <button data-d="desk" aria-pressed="true">Компьютер</button>
+  <button data-d="phone" aria-pressed="false">Телефон</button>
+</div>
+<div id="root"></div>
+
+<script>
+const I = {
+  board: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M7 13h2M11 13h2M15 13h2M7 17h2M11 17h2"/></svg>',
+  cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>',
+  left: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"/></svg>',
+  right: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 18 6-6-6-6"/></svg>',
+  down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>',
+  full: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
+  report: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v9l6 4"/><circle cx="12" cy="12" r="9"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+  filter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
+  x: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+};
+
+// одна схема шапки, меняются только слова и наборы выборов
+const V = {
+  hotel: {
+    menu: 'Календарь', branch: ['Luxx Aparts', 'Гостиница'],
+    title: 'Календарь', sub: 'Размещение и брони по дням', mode: 'period', date: '19–25 октября 2026', dateShort: '19–25 окт.',
+    full: true, newLabel: 'Новая бронь',
+    summary: 'Занято <b>7</b> из 88, <b>8%</b>, свободно <a href="#"><b>81</b></a>, заезд <a href="#"><b>3</b></a>, выезд <a href="#"><b>2</b></a>, проживают <a href="#"><b>3</b></a>, требует внимания <a href="#"><b>4</b></a>',
+    search: 'Гость, телефон, бронь, номер',
+    who: { label: 'Категория', all: 'Все категории', icon: false, items: ['Стандарт', 'Двухместный номер', 'Люкс', 'Койко-место'] },
+    what: null,
+    status: { label: 'Статус места', all: 'Все статусы', items: ['Свободен', 'Занят', 'Заезд сегодня', 'Выезд сегодня', 'Грязный', 'Ремонт'] },
+    more: [['Источник брони', ['Все источники', 'Booking.com', 'Сайт', 'Телефон']], ['Оплата', ['Любая', 'Не оплачено', 'Частично', 'Оплачено']], ['Вид строк', ['Обычный', 'Компактный']]],
+    views: ['Неделя', 'Месяц'],
+    board: { head: ['Номера', 'Пн 19', 'Вт 20', 'Ср 21', 'Чт 22', 'Пт 23', 'Сб 24', 'Вс 25'],
+      rows: [['R01 Стандарт', '<span class="plate p1">Айгерим С., 2 ночи</span>', '', '', '<span class="plate p2">Ерлан Б.</span>', '', '', ''], ['R02 Стандарт', '', '<span class="plate p3">Бронь, не оплачено</span>', '', '', '', '', ''], ['R03 Люкс', '', '', '', '', '<span class="plate p2">Марат К., 3 ночи</span>', '', ''], ['R04 Двухместный', '<span class="plate p4">Выехал</span>', '', '', '', '', '', '']] },
+  },
+  salon: {
+    menu: 'Журнал', branch: ['Студия Айна', 'Салон красоты'],
+    title: 'Журнал', sub: 'Расписание специалистов и услуг, Филиал Центр', mode: 'day', date: '24 октября 2026, сб', dateShort: '24 окт., сб',
+    full: true, newLabel: 'Новая запись',
+    summary: 'Записей <a href="#"><b>12</b></a>, пришли <b>5</b>, ждём <a href="#"><b>6</b></a>, не пришёл <b>1</b>, свободных окон <a href="#"><b>9</b></a>, выручка <b>184 000 ₸</b>',
+    search: 'Клиент, телефон, номер записи',
+    who: { label: 'Специалист', all: 'Все специалисты', icon: true, items: ['Айгерим Сапарова', 'Дина Ахметова', 'Мадина Нурлан', 'Сауле Жан'] },
+    what: { label: 'Услуга', all: 'Все услуги', items: ['Маникюр, 60 мин', 'Педикюр, 90 мин', 'Стрижка женская', 'Окрашивание', 'Брови'] },
+    status: { label: 'Статус записи', all: 'Все статусы', items: ['Записан', 'Подтверждена', 'В работе', 'Выполнена', 'Не пришёл'] },
+    more: [['Оплата', ['Любая', 'Не оплачено', 'Оплачено']], ['Источник', ['Все', 'Сайт', 'Instagram', 'Звонок']], ['Вид сетки', ['Обычный', 'Компактный']]],
+    views: ['День', 'Неделя'],
+    board: { head: ['Время', 'Айгерим С.', 'Дина А.', 'Мадина Н.', 'Сауле Ж.'],
+      rows: [['10:00', '<span class="plate p2">Алия, маникюр</span>', '', '<span class="plate p1">Жанна, стрижка</span>', ''], ['11:00', '', '<span class="plate p3">Асель, педикюр</span>', '', '<span class="plate p2">Карина, брови</span>'], ['12:00', '<span class="plate p1">Гульнар, маникюр</span>', '', '', ''], ['13:00', '', '', '<span class="plate p4">Обед</span>', '']] },
+  },
+  food: {
+    menu: 'Журнал', branch: ['Тестовый филиал Центр', 'Ресторан'],
+    title: 'Брони столов', sub: 'План зала и расписание, Филиал Центр', mode: 'day', date: '24 октября 2026, сб', dateShort: '24 окт., сб',
+    full: true, newLabel: 'Новая бронь',
+    summary: 'Броней <a href="#"><b>18</b></a>, гостей <b>64</b>, сидят <a href="#"><b>5</b></a>, ждём <a href="#"><b>9</b></a>, свободно столов <a href="#"><b>11</b></a> из 24, на уборке <b>2</b>',
+    search: 'Гость, телефон, номер брони',
+    who: { label: 'Зона', all: 'Все зоны', icon: false, items: ['Основной зал', 'Веранда', 'VIP', 'Бар'] },
+    what: { label: 'Смена', all: 'Весь день', items: ['Обед 12:00–16:00', 'Ужин 18:00–23:00'] },
+    status: { label: 'Статус брони', all: 'Все статусы', items: ['Ждём', 'Подтверждена', 'Сидят', 'Ушли', 'Не пришли'] },
+    more: [['Гостей', ['Любое число', '1–2', '3–4', '5 и больше']], ['Время плана', ['Сейчас', '19:00', '20:00', '21:00']], ['Источник', ['Все', 'Сайт', 'Звонок', 'Без брони']]],
+    views: ['План зала', 'Расписание'],
+    extra: '<button class="btn wide-only">Посадить без брони</button>',
+    board: { head: ['Столы', '18:00', '19:00', '20:00', '21:00', '22:00'],
+      rows: [['Стол 1 (4)', '<span class="plate p1">Сидят: Ерлан, 4</span>', '', '', '<span class="plate p2">Асхат, 2</span>', ''], ['Стол 2 (2)', '', '<span class="plate p2">Алина, 2</span>', '', '', ''], ['Стол 7 (6)', '', '', '<span class="plate p3">Ждём: Нурсултан, 6</span>', '', ''], ['VIP 1 (8)', '', '', '', '', '<span class="plate p4">Уборка</span>']] },
+  },
+};
+
+let state = { h: 'A', v: 'hotel', d: 'desk', who: '', what: '', status: '', q: '', view: 0, pop: '' };
+
+function select(conf, key) {
+  if (!conf) return '';
+  const val = state[key];
+  const opts = ['<option value="">' + conf.all + '</option>'].concat(conf.items.map((i) => '<option' + (val === i ? ' selected' : '') + '>' + i + '</option>')).join('');
+  return '<select class="sel wide' + (val ? ' on' : '') + '" aria-label="' + conf.label + '" data-k="' + key + '">' + opts + '</select>';
+}
+
+function render() {
+  const c = V[state.v];
+  const phone = state.d === 'phone';
+  const active = ['who', 'what', 'status'].filter((k) => state[k]).length;
+  const whoBtn = c.who.icon
+    ? '<span class="who-wrap wide">' + I.user + '<button class="sel' + (state.who ? ' on' : '') + '" data-pop="who" style="text-align:left;padding-left:34px">' + (state.who || c.who.all) + '</button>' +
+      '<div class="pop whopop' + (state.pop === 'who' ? ' show' : '') + '"><input placeholder="Найти специалиста"><ul>' +
+      ['', ...c.who.items].map((n) => '<li data-who="' + n + '" class="' + (state.who === n ? 'on' : '') + '">' + (n ? '<span class="av">' + n.split(' ').map((w) => w[0]).join('') + '</span>' + n + '<small>3 записи</small>' : '<span class="av">★</span>' + c.who.all) + '</li>').join('') +
+      '</ul></div></span>'
+    : select(c.who, 'who');
+  const what = state.v === 'food'
+    ? '<span class="shifts wide">' + c.what.items.map((s) => { const [n, t] = s.split(' '); return '<button class="shift" data-shift="' + s + '" aria-pressed="' + (state.what === s) + '"><b>' + n + '</b><small>' + t + '</small></button>'; }).join('') + '</span>'
+    : select(c.what, 'what');
+  const chips = ['who', 'what', 'status'].filter((k) => state[k]).map((k) => '<button class="chip" data-clear="' + k + '">' + state[k] + I.x + '</button>').join('');
+  const datePop = '<div class="pop datepop' + (state.pop === 'date' ? ' show' : '') + '"><div class="pp"><div class="presets">' +
+    (c.mode === 'period' ? ['Сегодня', 'Эта неделя', '7 дней', '14 дней', 'Этот месяц', 'Свой период'] : ['Сегодня', 'Завтра', 'Эта неделя', 'Выходные', 'Через неделю', 'Выбрать день']).map((p, i) => '<button class="' + (i === (c.mode === 'period' ? 1 : 0) ? 'on' : '') + '">' + p + '</button>').join('') +
+    '</div><div><div class="cal-head"><button class="btn icon" style="height:30px;width:30px">' + I.left + '</button>Октябрь 2026<button class="btn icon" style="height:30px;width:30px">' + I.right + '</button></div><div class="cal">' +
+    ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((d) => '<span class="h">' + d + '</span>').join('') +
+    '<span class="muted">28</span><span class="muted">29</span><span class="muted">30</span>' +
+    Array.from({ length: 31 }, (_, i) => { const d = i + 1; let cl = 'd'; if (c.mode === 'period') { if (d === 19 || d === 25) cl += ' sel1'; else if (d > 19 && d < 25) cl += ' in'; } else if (d === 24) cl += ' sel1'; if (d === 24 && c.mode === 'period') cl += ' today'; return '<span class="' + cl + '">' + d + '</span>'; }).join('') +
+    '</div></div></div>' + (c.mode === 'period' ? '<div class="foot"><span style="margin-right:auto;color:var(--muted);align-self:center">19–25 октября, 7 дней</span><button class="btn">Отмена</button><button class="btn primary">Показать</button></div>' : '<div class="foot"><span style="margin-right:auto;color:var(--muted);align-self:center">Щелчок по дню сразу открывает его</span></div>') + '</div>';
+  const period = (cls) => '<div class="period ' + (cls || '') + '"><button class="main" data-pop="date">' + I.cal + (phone ? c.dateShort : c.date) + I.down + '</button><button class="arrow" aria-label="Назад">' + I.left + '</button><button class="arrow" aria-label="Вперёд">' + I.right + '</button></div>';
+  const filterPop = '<div class="pop filterpop' + (state.pop === 'filters' ? ' show' : '') + '"><h4>Фильтры</h4>' +
+    (phone ? [c.who, c.what, c.status].filter(Boolean).map((f) => '<label>' + f.label + '<select class="sel"><option>' + f.all + '</option>' + f.items.map((i) => '<option>' + i + '</option>').join('') + '</select></label>').join('') : '') +
+    c.more.map(([l, o]) => '<label>' + l + '<select class="sel">' + o.map((x) => '<option>' + x + '</option>').join('') + '</select></label>').join('') +
+    (phone ? '<label>Отчёт<button class="btn">' + I.report + 'Быстрый отчёт</button></label>' : '') +
+    '<div class="row"><button class="btn" data-reset>Сбросить</button><button class="btn primary" data-close>Готово</button></div></div>';
+
+  const html =
+    '<div class="' + (phone ? 'phone phone-frame' : 'app') + '">' +
+    '<div class="topbar"><div class="logo"><i>W</i>WETOP<span>.AI</span></div>' +
+      (state.h === 'old'
+        ? '<div class="gsearch">' + I.search + 'Поиск клиента, раздела…</div>'
+        : '<div class="clock" title="Время филиала"><b>' + (phone ? '24 окт.' : '24 октября') + '</b><span id="clk">20:00</span><small>суббота</small></div>' +
+          (state.h === 'B' ? '<button class="btn icon gicon" title="Поиск по системе, Ctrl K">' + I.search + '</button>' : '<span style="margin-left:auto"></span>')) +
+      '<div class="branch"><b>' + c.branch[0] + '</b>' + c.branch[1] + '</div><div class="user">Администратор</div></div>' +
+    '<nav class="menu">' + ['Главная', c.menu === 'Календарь' ? 'Календарь' : 'Журнал', 'Персонал', 'Клиенты', 'Услуги', 'Статистика', 'Склад', 'Финансы', 'Настройки', 'Продвижение'].map((m, i) => '<a href="#" class="' + (i === 1 ? 'on' : '') + '">' + m + '</a>').join('') + '</nav>' +
+    '<main><section class="jh" aria-label="Шапка журнала">' +
+      '<div class="jh-top"><div><div class="jh-title">' + I.board + c.title + '</div><div class="jh-sub">' + c.sub + '</div></div>' +
+      '<div class="jh-actions">' + period() + datePop +
+        (c.full ? '<button class="btn icon wide-only" title="Во весь экран">' + I.full + '</button>' : '') +
+        '<button class="btn wide-only">' + I.report + 'Быстрый отчёт</button>' + (c.extra || '') +
+        '<button class="btn primary">' + I.plus + '<span class="lbl">' + c.newLabel + '</span></button></div></div>' +
+      '<div class="period-row">' + period() + '</div>' +
+      '<div class="summary">' + c.summary + '</div>' +
+      '<div class="filters"><label class="search">' + I.search + '<input placeholder="' + (phone ? c.search.split(', ').slice(0, 2).join(', ') : c.search) + '" value="' + state.q + '"></label>' +
+        whoBtn + what + select(c.status, 'status') +
+        '<button class="btn" data-pop="filters">' + I.filter + 'Фильтры' + (active && phone ? ' <span class="count">' + active + '</span>' : '') + '</button>' +
+        '<div class="views">' + c.views.map((v, i) => '<button data-view="' + i + '" aria-pressed="' + (state.view === i) + '">' + v + '</button>').join('') + '</div>' +
+        filterPop + '</div>' +
+      '<div class="chips' + (active ? ' show' : '') + '">Показано по отбору:' + chips + '<button class="reset" data-reset>Сбросить всё</button></div>' +
+    '</section>' +
+    '<div class="board"><table><tr>' + c.board.head.slice(0, phone ? 3 : 99).map((h) => '<th>' + h + '</th>').join('') + '</tr>' +
+      c.board.rows.map((r) => '<tr>' + r.slice(0, phone ? 3 : 99).map((x) => '<td>' + x + '</td>').join('') + '</tr>').join('') + '</table></div>' +
+    '<p class="note">Тело журнала здесь условное: эскиз про шапку. Сетка каждого направления остаётся своей.</p>' +
+    '</main></div>';
+  document.getElementById('root').innerHTML = html;
+}
+
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('button, li');
+  if (!t) { if (!e.target.closest('.pop')) { state.pop = ''; render(); } return; }
+  if (t.dataset.v) { state = { ...state, v: t.dataset.v, who: '', what: '', status: '', view: 0, pop: '' }; }
+  else if (t.dataset.h) { state.h = t.dataset.h; }
+  else if (t.dataset.d) { state.d = t.dataset.d; state.pop = ''; }
+  else if (t.dataset.pop) { state.pop = state.pop === t.dataset.pop ? '' : t.dataset.pop; }
+  else if (t.dataset.view) { state.view = +t.dataset.view; }
+  else if (t.dataset.shift !== undefined) { state.what = state.what === t.dataset.shift ? '' : t.dataset.shift; }
+  else if (t.dataset.who !== undefined) { state.who = t.dataset.who; state.pop = ''; }
+  else if (t.dataset.clear) { state[t.dataset.clear] = ''; }
+  else if (t.hasAttribute('data-reset')) { state.who = state.what = state.status = ''; }
+  else if (t.hasAttribute('data-close')) { state.pop = ''; }
+  else if (t.closest('.pop')) return;
+  document.querySelectorAll('.switcher button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.v === state.v || b.dataset.d === state.d || b.dataset.h === state.h));
+  render();
+});
+document.addEventListener('change', (e) => { const k = e.target.dataset.k; if (k) { state[k] = e.target.value; render(); } });
+// для снимков: ?v=salon&d=phone&pop=date&who=...&status=...
+const p = new URLSearchParams(location.search);
+for (const k of ['h', 'v', 'd', 'pop', 'who', 'what', 'status']) if (p.get(k)) state[k] = p.get(k);
+document.querySelectorAll('.switcher button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.v === state.v || b.dataset.d === state.d || b.dataset.h === state.h));
+render();
+// часы идут по-настоящему (в WETOP: по поясу филиала)
+setInterval(() => { const el = document.getElementById('clk'); if (el && !p.get('frozen')) el.textContent = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }); }, 1000);
+</script>
+</body>
+</html>

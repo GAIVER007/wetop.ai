@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WETOP: журнал салона, 3 варианта (24.10.2026)</title>
+<style>
+  :root {
+    --bg: #eef3f9; --surface: #fff; --border: #d6deea; --soft: #e6ecf4; --text: #0f172a; --text2: #334155; --muted: #64748b;
+    --primary: #0b5bd3; --psoft: #e8f0fd;
+    --booked: #2563eb; --booked-bg: #e7efff; --conf: #0e7490; --conf-bg: #e0f5f9; --work: #15803d; --work-bg: #e3f6ea;
+    --done: #64748b; --done-bg: #f1f4f8; --noshow: #c2410c; --noshow-bg: #fdeee6; --unpaid: #b45309;
+    --r: 12px; --rc: 10px; --h: 40px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.35; -webkit-font-smoothing: antialiased; }
+  button, select, input { font: inherit; color: inherit; }
+  .switcher { position: sticky; top: 0; z-index: 60; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 20px; background: #0f172a; color: #fff; font-size: 13px; }
+  .switcher button { padding: 6px 12px; border: 1px solid #334155; border-radius: 8px; background: transparent; cursor: pointer; color: #fff; }
+  .switcher button[aria-pressed="true"] { background: #fff; color: #0f172a; font-weight: 600; }
+  .switcher .sep { width: 1px; height: 20px; background: #334155; margin: 0 6px; }
+  .app { max-width: 1440px; margin: 0 auto; }
+  .top { display: flex; align-items: center; gap: 14px; height: 52px; padding: 0 24px; background: #fff; }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 18px; }
+  .logo i { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--primary); color: #fff; font-style: normal; }
+  .logo span { color: var(--primary); margin-left: -8px; }
+  .clock { display: flex; align-items: baseline; gap: 8px; padding-left: 14px; border-left: 1px solid var(--soft); white-space: nowrap; }
+  .clock b { font-size: 15px; } .clock span { font-size: 15px; font-weight: 600; color: var(--primary); } .clock small { color: var(--muted); }
+  .top .sp { margin-left: auto; }
+  .ic { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+  .ic svg { width: 17px; height: 17px; }
+  .branch { border: 1px solid var(--soft); border-radius: 10px; padding: 3px 12px; font-size: 12px; } .branch b { display: block; font-size: 13px; }
+  .menu { display: flex; gap: 2px; padding: 0 24px; background: #fff; border-bottom: 1px solid var(--soft); overflow-x: auto; }
+  .menu a { padding: 10px 12px; color: var(--text2); text-decoration: none; white-space: nowrap; border-bottom: 2px solid transparent; }
+  .menu a.on { color: var(--primary); border-color: var(--primary); font-weight: 600; }
+  main { padding: 14px 24px 24px; }
+  /* шапка журнала (одобрена 24.10) */
+  .jh { display: grid; gap: 8px; margin-bottom: 10px; }
+  .jh-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .jh-title { display: flex; align-items: center; gap: 10px; font-size: 26px; font-weight: 800; }
+  .jh-title svg { width: 26px; height: 26px; color: var(--primary); }
+  .jh-actions { display: flex; gap: 8px; align-items: center; }
+  .period { display: inline-flex; align-items: center; height: var(--h); border: 1px solid var(--border); border-radius: var(--rc); background: #fff; }
+  .period button { height: 100%; border: 0; background: none; padding: 0 12px; display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
+  .period .arr { width: 34px; justify-content: center; padding: 0; border-left: 1px solid var(--soft); }
+  .btn { height: var(--h); padding: 0 14px; border-radius: var(--rc); border: 1px solid var(--border); background: #fff; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap; }
+  .btn.pr { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
+  .btn svg, .period svg { width: 16px; height: 16px; }
+  .summary { color: var(--text2); } .summary b { color: var(--text); }
+  .filters { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fff; border: 1px solid var(--soft); border-radius: var(--r); flex-wrap: wrap; }
+  .search { flex: 1 1 220px; position: relative; } .search input { width: 100%; height: var(--h); border: 1px solid var(--border); border-radius: var(--rc); padding: 0 12px 0 34px; }
+  .search svg { position: absolute; left: 11px; top: 12px; width: 16px; height: 16px; color: var(--muted); }
+  .sel { height: var(--h); border: 1px solid var(--border); border-radius: var(--rc); padding: 0 30px 0 12px; background: #fff; min-width: 160px; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 11px center; }
+  .views { margin-left: auto; display: inline-flex; padding: 3px; border-radius: var(--rc); background: #f1f5f9; border: 1px solid var(--soft); }
+  .views button { height: 32px; padding: 0 14px; border: 0; border-radius: 8px; background: none; cursor: pointer; color: #475569; }
+  .views button.on { background: #fff; color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(15,23,42,.12); }
+
+  /* общие элементы записи */
+  .av { display: grid; place-items: center; flex: none; width: 34px; height: 34px; border-radius: 50%; color: #fff; font-weight: 700; font-size: 12px; }
+  .st { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: 6px; white-space: nowrap; }
+  .pay { font-size: 11px; font-weight: 600; color: var(--unpaid); }
+  .pay.ok { color: var(--work); }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+  /* ===== ВАРИАНТ A: колонки мастеров, «чистая сетка» ===== */
+  .A .grid { background: #fff; border: 1px solid var(--soft); border-radius: var(--r); overflow: hidden; }
+  .A .heads { display: grid; border-bottom: 1px solid var(--soft); background: #fff; position: sticky; top: 0; z-index: 5; }
+  .A .head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-left: 1px solid var(--soft); min-width: 0; }
+  .A .head:first-child { border-left: 0; }
+  .A .head .nm { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .A .head .meta { font-size: 12px; color: var(--muted); }
+  .A .load { height: 4px; border-radius: 2px; background: var(--soft); margin-top: 5px; overflow: hidden; }
+  .A .load i { display: block; height: 100%; background: var(--primary); }
+  .A .body { display: grid; position: relative; }
+  .A .times { position: relative; background: #fff; }
+  .A .tm { position: absolute; right: 8px; font-size: 12px; color: var(--muted); transform: translateY(-50%); font-variant-numeric: tabular-nums; }
+  .A .tm.h { color: var(--text2); font-weight: 600; }
+  .A .col { position: relative; border-left: 1px solid var(--soft); }
+  .A .line { position: absolute; left: 0; right: 0; border-top: 1px solid var(--soft); }
+  .A .line.half { border-top-style: dashed; border-color: #eef2f7; }
+  .A .off { position: absolute; left: 0; right: 0; background: repeating-linear-gradient(135deg, #f6f8fb 0 6px, #eef2f7 6px 12px); }
+  .A .off span { position: absolute; top: 6px; left: 8px; font-size: 11px; color: var(--muted); }
+  .A .free { position: absolute; left: 4px; right: 4px; border-radius: 8px; border: 1px dashed transparent; color: transparent; font-size: 12px; display: flex; align-items: center; padding-left: 8px; cursor: pointer; }
+  .A .free:hover { border-color: var(--primary); color: var(--primary); background: var(--psoft); }
+  .A .ev { position: absolute; left: 4px; right: 4px; border-radius: 8px; padding: 5px 8px 5px 10px; border-left: 4px solid; overflow: hidden; cursor: pointer; box-shadow: 0 1px 2px rgba(15,23,42,.06); }
+  .A .ev:hover { box-shadow: 0 4px 12px rgba(15,23,42,.14); z-index: 3; }
+  .A .ev .r1 { display: flex; justify-content: space-between; gap: 6px; font-size: 12px; font-weight: 700; }
+  .A .ev .r1 span { font-weight: 600; color: var(--text2); font-variant-numeric: tabular-nums; }
+  .A .ev .cl { font-weight: 700; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+  .A .ev .sv { font-size: 12px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .A .ev .r3 { display: flex; justify-content: space-between; margin-top: 2px; font-size: 12px; }
+  .A .now { position: absolute; left: 0; right: 0; border-top: 2px solid #e11d48; z-index: 4; }
+  .A .now::before { content: attr(data-t); position: absolute; left: -60px; top: -10px; z-index: 6; background: #e11d48; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 6px; }
+
+  /* ===== ВАРИАНТ B: сетка + панель дня справа ===== */
+  .B .wrap { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 12px; align-items: start; }
+  .B .side { display: grid; gap: 12px; position: sticky; top: 50px; }
+  .B .card { background: #fff; border: 1px solid var(--soft); border-radius: var(--r); padding: 12px 14px; }
+  .B .card h3 { font-size: 14px; display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .B .card h3 small { color: var(--muted); font-weight: 500; }
+  .B .row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--soft); cursor: pointer; }
+  .B .row:first-of-type { border-top: 0; }
+  .B .row time { width: 44px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .B .row .tx { flex: 1; min-width: 0; } .B .row .tx b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .B .row .tx small { color: var(--muted); }
+  .B .row .act { height: 30px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .B .row .act.go { background: var(--work); border-color: var(--work); color: #fff; }
+  .B .detail .dt { font-size: 22px; font-weight: 800; }
+  .B .detail .kv { display: grid; grid-template-columns: 90px 1fr; gap: 6px 10px; margin: 10px 0; font-size: 13px; } .B .detail .kv span { color: var(--muted); }
+  .B .detail .bt { display: flex; gap: 8px; flex-wrap: wrap; }
+  .B .money { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .B .money div { background: #f8fafc; border-radius: 10px; padding: 8px 10px; } .B .money b { display: block; font-size: 16px; } .B .money small { color: var(--muted); }
+
+  /* ===== ВАРИАНТ C: мастера строками, время по горизонтали (как календарь гостиницы) ===== */
+  .C .tl { background: #fff; border: 1px solid var(--soft); border-radius: var(--r); overflow: auto; }
+  .C .tl-in { min-width: 1240px; }
+  .C .scale { display: grid; grid-template-columns: 220px 1fr; border-bottom: 1px solid var(--soft); position: sticky; top: 0; background: #fff; z-index: 3; }
+  .C .scale .hrs { position: relative; height: 34px; }
+  .C .scale .hrs span { position: absolute; top: 9px; font-size: 12px; color: var(--text2); font-weight: 600; transform: translateX(-50%); font-variant-numeric: tabular-nums; }
+  .C .mrow { display: grid; grid-template-columns: 220px 1fr; border-bottom: 1px solid var(--soft); min-height: 78px; }
+  .C .mrow:last-child { border-bottom: 0; }
+  .C .who { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-right: 1px solid var(--soft); }
+  .C .who b { display: block; } .C .who small { color: var(--muted); font-size: 12px; }
+  .C .lane { position: relative; }
+  .C .vl { position: absolute; top: 0; bottom: 0; border-left: 1px solid var(--soft); }
+  .C .vl.half { border-left-style: dashed; border-color: #eef2f7; }
+  .C .off { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, #f6f8fb 0 6px, #eef2f7 6px 12px); }
+  .C .ev { position: absolute; top: 8px; bottom: 8px; border-radius: 8px; border-top: 4px solid; padding: 4px 8px; overflow: hidden; cursor: pointer; }
+  .C .ev b { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .C .ev small { display: block; font-size: 11px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .C .ev .pay { font-size: 11px; }
+  .C .now { position: absolute; top: 0; bottom: 0; border-left: 2px solid #e11d48; z-index: 2; }
+
+  /* ===== ТЕЛЕФОН ===== */
+  .phone { max-width: 390px; margin: 0 auto; min-height: 844px; background: var(--bg); }
+  .phone .top { padding: 0 12px; gap: 8px; }
+  .phone .clock small, .phone .branch, .phone .menu { display: none; }
+  .phone main { padding: 10px 12px; }
+  .phone .jh-title { font-size: 22px; }
+  .phone .jh-top > .jh-actions .period, .phone .jh-top > .jh-actions .wide { display: none; }
+  .phone .btn.pr .lbl { display: none; } .phone .btn.pr { width: 44px; height: 44px; justify-content: center; padding: 0; }
+  .phone .prow { display: flex; } .prow { display: none; } .prow .period { flex: 1; height: 44px; } .prow .period button:first-child { flex: 1; }
+  .phone .filters { padding: 8px; } .phone .filters .wide { display: none; } .phone .search { flex: 1 1 0; min-width: 0; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 8px; scrollbar-width: none; }
+  .chip { display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 5px; border-radius: 22px; background: #fff; border: 1px solid var(--soft); white-space: nowrap; cursor: pointer; flex: none; }
+  .chip .av { width: 30px; height: 30px; font-size: 11px; }
+  .chip.on { border-color: var(--primary); background: var(--psoft); color: var(--primary); font-weight: 600; }
+  .chip small { color: var(--muted); font-weight: 500; }
+  .agenda { display: grid; gap: 8px; }
+  .ag { display: grid; grid-template-columns: 54px 1fr; gap: 10px; background: #fff; border-radius: 12px; border-left: 4px solid; padding: 10px 12px; }
+  .ag time { font-weight: 800; font-size: 15px; font-variant-numeric: tabular-nums; } .ag time small { display: block; font-weight: 500; color: var(--muted); font-size: 12px; }
+  .ag b { display: block; } .ag .sv { color: var(--text2); font-size: 13px; } .ag .ft { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; gap: 6px; }
+  .ag.gap { display: grid; align-items: center; min-height: 44px; border: 1px dashed #b9c6d8; border-left: 1px dashed #b9c6d8; background: rgba(255,255,255,.5); color: var(--primary); font-weight: 600; }
+  .ag.gap time { color: var(--primary); font-size: 14px; }
+  .ag .m { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); } .ag .m i { width: 8px; height: 8px; border-radius: 50%; }
+</style>
+</head>
+<body>
+<div class="switcher">
+  <b style="margin-right:6px">Журнал салона</b>
+  <button data-v="A" aria-pressed="true">A · Чистая сетка</button>
+  <button data-v="B" aria-pressed="false">B · Сетка + панель дня</button>
+  <button data-v="C" aria-pressed="false">C · Лента, как в гостинице</button>
+  <span class="sep"></span>
+  <button data-d="desk" aria-pressed="true">Компьютер</button>
+  <button data-d="phone" aria-pressed="false">Телефон</button>
+</div>
+<div id="root"></div>
+<script>
+const I = {
+  board: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M7 13h2M11 13h2M15 13h2M7 17h2M11 17h2"/></svg>',
+  cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>',
+  l: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"/></svg>',
+  r: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 18 6-6-6-6"/></svg>',
+  d: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>',
+  s: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+  p: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>',
+  f: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>',
+  rep: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v9l6 4"/><circle cx="12" cy="12" r="9"/></svg>',
+  full: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
+  moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg>',
+};
+const ST = {
+  B: ['Записан', 'var(--booked)', 'var(--booked-bg)'], C: ['Подтверждена', 'var(--conf)', 'var(--conf-bg)'],
+  W: ['В работе', 'var(--work)', 'var(--work-bg)'], D: ['Завершена', 'var(--done)', 'var(--done-bg)'], N: ['Не пришёл', 'var(--noshow)', 'var(--noshow-bg)'],
+};
+const M = [
+  { n: 'Айгерим Сапарова', s: 'Маникюр, педикюр', c: '#2563eb', from: 9, to: 18, br: [13, 14] },
+  { n: 'Дина Ахметова', s: 'Стрижки, окрашивание', c: '#9333ea', from: 10, to: 20, br: [14, 14.5] },
+  { n: 'Мадина Нурлан', s: 'Брови, ресницы', c: '#db2777', from: 9, to: 17, br: null },
+  { n: 'Сауле Жанибек', s: 'Массаж, уход', c: '#0d9488', from: 11, to: 20, br: [15, 15.5] },
+  { n: 'Карина Ли', s: 'Маникюр', c: '#ea580c', from: 12, to: 20, br: null },
+];
+// записи: мастер, начало (часы), длительность (мин), клиент, услуга, сумма, статус, оплачено
+const E = [
+  [0, 9, 60, 'Алия Ким', 'Маникюр с покрытием', 12000, 'D', 1], [0, 10.5, 90, 'Жанна Омарова', 'Маникюр + педикюр', 22000, 'W', 0],
+  [0, 14, 60, 'Асель Б.', 'Снятие и покрытие', 9000, 'C', 0], [0, 15.5, 60, 'Гульнар Т.', 'Маникюр', 8000, 'B', 0], [0, 16.5, 90, 'Ирина П.', 'Педикюр', 14000, 'B', 0],
+  [1, 10, 60, 'Камила Р.', 'Стрижка женская', 10000, 'D', 1], [1, 11.5, 150, 'Айжан С.', 'Окрашивание в один тон', 38000, 'W', 0],
+  [1, 15, 60, 'Дана М.', 'Укладка', 7000, 'C', 0], [1, 17, 120, 'Светлана К.', 'Мелирование', 45000, 'B', 0],
+  [2, 9.5, 45, 'Меруерт А.', 'Коррекция бровей', 5000, 'D', 1], [2, 10.5, 90, 'Лаура Н.', 'Наращивание ресниц', 18000, 'N', 0],
+  [2, 12.5, 45, 'Сабина Е.', 'Ламинирование бровей', 9000, 'W', 1], [2, 14, 60, 'Томирис Ж.', 'Окрашивание бровей', 6000, 'C', 0],
+  [3, 11, 60, 'Олжас Т.', 'Массаж спины', 12000, 'D', 1], [3, 12.5, 90, 'Анель К.', 'Уход для лица', 20000, 'W', 0], [3, 16, 60, 'Регина С.', 'Массаж общий', 15000, 'B', 0],
+  [4, 12, 60, 'Виктория Л.', 'Маникюр', 8000, 'D', 1], [4, 13.5, 60, 'Арна Б.', 'Маникюр с дизайном', 11000, 'C', 0], [4, 16, 90, 'Зарина О.', 'Маникюр + педикюр', 21000, 'B', 0],
+];
+const NOW = 12.75; // 12:45
+const t = (h) => String(Math.floor(h)).padStart(2, '0') + ':' + String(Math.round((h % 1) * 60)).padStart(2, '0');
+const ini = (n) => n.split(' ').map((w) => w[0]).join('').slice(0, 2);
+const money = (v) => v.toLocaleString('ru-RU').replace(/,/g, ' ') + ' ₸';
+let state = { v: 'A', d: 'desk', sel: 1, master: 0 };
+
+function head(phone) {
+  const total = E.filter((e) => e[6] !== 'N').reduce((n, e) => n + e[5], 0);
+  return '<section class="jh"><div class="jh-top"><div class="jh-title">' + I.board + 'Журнал</div><div class="jh-actions">' +
+    '<div class="period"><button>' + I.cal + '24 октября, суббота' + I.d + '</button><button class="arr">' + I.l + '</button><button class="arr">' + I.r + '</button></div>' +
+    '<button class="btn wide" title="Во весь экран" style="width:40px;padding:0;justify-content:center">' + I.full + '</button><button class="btn wide">' + I.rep + 'Быстрый отчёт</button>' +
+    '<button class="btn pr">' + I.p + '<span class="lbl">Новая запись</span></button></div></div>' +
+    '<div class="prow"><div class="period"><button>' + I.cal + '24 окт., сб' + I.d + '</button><button class="arr">' + I.l + '</button><button class="arr">' + I.r + '</button></div></div>' +
+    '<div class="summary">Записей <b>19</b>, ждём <b>8</b>, в работе <b>4</b>, завершено <b>6</b>, не пришёл <b>1</b>, свободных окон <b>11</b>, сумма <b>' + money(total) + '</b></div>' +
+    '<div class="filters"><label class="search">' + I.s + '<input placeholder="' + (phone ? 'Клиент' : 'Клиент, телефон') + '"></label>' +
+    '<select class="sel wide"><option>Все специалисты</option></select><select class="sel wide"><option>Все услуги</option></select><select class="sel wide"><option>Все статусы</option></select>' +
+    '<button class="btn">' + I.f + 'Фильтры</button><div class="views' + (phone ? ' wide' : '') + '"><button class="on">День</button><button>Неделя</button></div></div></section>';
+}
+
+const evCard = (e, i, compact) => {
+  const [mi, st, dur, cl, sv, sum, s, paid] = e; const S = ST[s];
+  return '<div class="ev" data-ev="' + i + '" style="background:' + S[2] + ';border-color:' + S[1] + ';' + compact + '">' +
+    '<div class="r1"><span>' + t(st) + '–' + t(st + dur / 60) + '</span><span class="st" style="color:' + S[1] + '">' + S[0] + '</span></div>' +
+    '<div class="cl">' + cl + '</div>' + (dur >= 60 ? '<div class="sv">' + sv + '</div>' : '') +
+    (dur >= 90 ? '<div class="r3"><b>' + money(sum) + '</b><span class="pay' + (paid ? ' ok' : '') + '">' + (paid ? 'Оплачено' : 'Не оплачено') + '</span></div>' : '') + '</div>';
+};
+
+function gridA(masters, from, to, px) {
+  const H = (to - from) * px * 2; // px на 30 мин
+  const y = (h) => (h - from) * px * 2;
+  const cols = 'grid-template-columns: 64px repeat(' + masters.length + ', minmax(0,1fr))';
+  let heads = '<div class="heads" style="' + cols + '"><div></div>' + masters.map((m) => {
+    const mine = E.filter((e) => e[0] === M.indexOf(m) && e[6] !== 'N'); const busy = mine.reduce((n, e) => n + e[2], 0); const pct = Math.round(busy / ((m.to - m.from) * 60) * 100);
+    return '<div class="head"><span class="av" style="background:' + m.c + '">' + ini(m.n) + '</span><div style="min-width:0;flex:1"><div class="nm">' + m.n + '</div><div class="meta">' + t(m.from) + '–' + t(m.to) + ', ' + mine.length + ' зап., ' + pct + '%</div><div class="load"><i style="width:' + pct + '%;background:' + m.c + '"></i></div></div></div>';
+  }).join('') + '</div>';
+  let times = '<div class="times" style="height:' + H + 'px">';
+  for (let h = from; h < to; h += (px < 30 ? 1 : 0.5)) times += '<span class="tm' + (h % 1 ? '' : ' h') + '" style="top:' + (y(h) + (h === from ? 10 : 0)) + 'px">' + t(h) + '</span>';
+  times += '</div>';
+  const cols2 = masters.map((m) => {
+    const mi = M.indexOf(m); let c = '<div class="col" style="height:' + H + 'px">';
+    for (let h = from; h < to; h += 0.5) c += '<div class="line' + (h % 1 ? ' half' : '') + '" style="top:' + y(h) + 'px"></div>';
+    if (m.from > from) c += '<div class="off" style="top:0;height:' + y(m.from) + 'px"><span>Не работает</span></div>';
+    if (m.to < to) c += '<div class="off" style="top:' + y(m.to) + 'px;height:' + (H - y(m.to)) + 'px"><span>Не работает</span></div>';
+    if (m.br) c += '<div class="off" style="top:' + y(m.br[0]) + 'px;height:' + (y(m.br[1]) - y(m.br[0])) + 'px"><span>Перерыв</span></div>';
+    for (let h = m.from; h < m.to; h += 0.5) {
+      const busy = E.some((e) => e[0] === mi && e[1] < h + 0.5 && h < e[1] + e[2] / 60) || (m.br && h >= m.br[0] && h < m.br[1]);
+      if (!busy) c += '<div class="free" style="top:' + (y(h) + 2) + 'px;height:' + (px - 4) + 'px">+ ' + t(h) + '</div>';
+    }
+    E.forEach((e, i) => { if (e[0] === mi) c += evCard(e, i, 'top:' + (y(e[1]) + 2) + 'px;height:' + (e[2] / 30 * px - 4) + 'px'); });
+    return c + '</div>';
+  }).join('');
+  const nowY = y(NOW);
+  return '<div class="grid">' + heads + '<div class="body" style="' + cols + '">' + times + cols2 +
+    '<div class="now" data-t="' + t(NOW) + '" style="top:' + nowY + 'px;left:64px"></div></div></div>' +
+    '<div class="legend">' + Object.values(ST).map((s) => '<span><i style="background:' + s[1] + '"></i>' + s[0] + '</span>').join('') + '<span><i style="background:repeating-linear-gradient(135deg,#f6f8fb 0 3px,#dfe5ee 3px 6px)"></i>Не работает, перерыв</span><span>Наведите на пустую клетку: «+ время» создаёт запись</span></div>';
+}
+
+function sideB() {
+  const e = E[state.sel]; const S = ST[e[6]]; const m = M[e[0]];
+  const next = E.map((x, i) => [x, i]).filter(([x]) => x[1] >= NOW - 0.3 && (x[6] === 'B' || x[6] === 'C')).sort((a, b) => a[0][1] - b[0][1]).slice(0, 5);
+  const unpaid = E.filter((x) => (x[6] === 'D' || x[6] === 'W') && !x[7]);
+  return '<aside class="side">' +
+    '<div class="card detail"><h3>Выбранная запись <small>' + S[0] + '</small></h3><div class="dt">' + t(e[1]) + '–' + t(e[1] + e[2] / 60) + '</div>' +
+    '<div class="kv"><span>Клиент</span><b>' + e[3] + '</b><span>Телефон</span><b>+7 701 234 56 78</b><span>Услуга</span><b>' + e[4] + '</b><span>Мастер</span><b>' + m.n + '</b><span>Сумма</span><b>' + money(e[5]) + ' <span class="pay' + (e[7] ? ' ok' : '') + '">' + (e[7] ? 'оплачено' : 'не оплачено') + '</span></b></div>' +
+    '<div class="bt"><button class="btn pr">Начать</button><button class="btn">Оплата</button><button class="btn">Перенести</button><button class="btn">Ещё</button></div></div>' +
+    '<div class="card"><h3>Ближайшие <small>с 12:30</small></h3>' + next.map(([x, i]) => '<div class="row" data-ev="' + i + '"><time>' + t(x[1]) + '</time><span class="av" style="width:26px;height:26px;font-size:10px;background:' + M[x[0]].c + '">' + ini(M[x[0]].n) + '</span><div class="tx"><b>' + x[3] + '</b><small>' + x[4] + '</small></div><button class="act' + (x[6] === 'C' ? ' go' : '') + '">' + (x[6] === 'C' ? 'Пришла' : 'Подтвердить') + '</button></div>').join('') + '</div>' +
+    '<div class="card"><h3>Деньги за день</h3><div class="money"><div><small>Получено</small><b>' + money(E.filter((x) => x[7]).reduce((n, x) => n + x[5], 0)) + '</b></div><div><small>Ждём оплату</small><b style="color:var(--unpaid)">' + money(unpaid.reduce((n, x) => n + x[5], 0)) + '</b></div></div></div>' +
+    '</aside>';
+}
+
+function laneC() {
+  const from = 9, to = 20, W = 1020; const x = (h) => (h - from) / (to - from) * 100;
+  let s = '<div class="tl"><div class="tl-in"><div class="scale"><div style="padding:8px 12px;font-size:12px;color:var(--muted)">Специалист, загрузка</div><div class="hrs">';
+  for (let h = from; h <= to; h++) s += '<span style="left:' + x(h) + '%">' + t(h) + '</span>';
+  s += '</div></div>';
+  M.forEach((m, mi) => {
+    const mine = E.filter((e) => e[0] === mi && e[6] !== 'N'); const busy = mine.reduce((n, e) => n + e[2], 0); const pct = Math.round(busy / ((m.to - m.from) * 60) * 100);
+    s += '<div class="mrow"><div class="who"><span class="av" style="background:' + m.c + '">' + ini(m.n) + '</span><div><b>' + m.n + '</b><small>' + t(m.from) + '–' + t(m.to) + ', ' + pct + '% загрузки</small></div></div><div class="lane">';
+    for (let h = from; h < to; h += 0.5) s += '<div class="vl' + (h % 1 ? ' half' : '') + '" style="left:' + x(h) + '%"></div>';
+    if (m.from > from) s += '<div class="off" style="left:0;width:' + x(m.from) + '%"></div>';
+    if (m.to < to) s += '<div class="off" style="left:' + x(m.to) + '%;right:0"></div>';
+    if (m.br) s += '<div class="off" style="left:' + x(m.br[0]) + '%;width:' + (x(m.br[1]) - x(m.br[0])) + '%"></div>';
+    E.forEach((e, i) => { if (e[0] !== mi) return; const S = ST[e[6]];
+      s += '<div class="ev" data-ev="' + i + '" style="left:calc(' + x(e[1]) + '% + 2px);width:calc(' + (x(e[1] + e[2] / 60) - x(e[1])) + '% - 4px);background:' + S[2] + ';border-color:' + S[1] + '" title="' + e[3] + ', ' + e[4] + '"><b>' + e[3] + '</b><small>' + t(e[1]) + ' · ' + e[4] + '</small>' + (e[2] >= 60 ? '<small><b style="display:inline">' + money(e[5]) + '</b> <span class="pay' + (e[7] ? ' ok' : '') + '">' + (e[7] ? 'оплачено' : 'не оплачено') + '</span></small>' : '') + '</div>'; });
+    s += '<div class="now" style="left:' + x(NOW) + '%"></div></div></div>';
+  });
+  return s + '</div></div><div class="legend">' + Object.values(ST).map((s) => '<span><i style="background:' + s[1] + '"></i>' + s[0] + '</span>').join('') + '<span>Мастера строками, время слева направо, как календарь гостиницы. Удобно при 6+ мастерах</span></div>';
+}
+
+function phoneBody() {
+  if (state.v === 'C') {
+    // лента всех мастеров: повестка по времени с меткой мастера
+    const rows = E.map((e, i) => [e, i]).sort((a, b) => a[0][1] - b[0][1]);
+    return '<div class="agenda">' + rows.map(([e]) => { const S = ST[e[6]]; const m = M[e[0]];
+      return '<div class="ag" style="border-left-color:' + S[1] + '"><time>' + t(e[1]) + '<small>' + e[2] + ' мин</small></time><div><b>' + e[3] + '</b><div class="sv">' + e[4] + '</div><div class="ft"><span class="m"><i style="background:' + m.c + '"></i>' + m.n.split(' ')[0] + '</span><span class="st" style="color:' + S[1] + ';background:' + S[2] + '">' + S[0] + '</span></div></div></div>'; }).join('') + '</div>';
+  }
+  const mi = state.master; const m = M[mi];
+  let chips = '<div class="chips">' + M.map((x, i) => '<button class="chip' + (i === mi ? ' on' : '') + '" data-m="' + i + '"><span class="av" style="background:' + x.c + '">' + ini(x.n) + '</span>' + x.n.split(' ')[0] + ' <small>' + E.filter((e) => e[0] === i).length + '</small></button>').join('') + '</div>';
+  const mine = E.filter((e) => e[0] === mi).sort((a, b) => a[1] - b[1]);
+  let list = []; let h = m.from;
+  mine.forEach((e) => { if (e[1] - h >= 0.5) list.push(['free', h, e[1]]); list.push(['ev', e]); h = Math.max(h, e[1] + e[2] / 60); });
+  if (m.to - h >= 0.5) list.push(['free', h, m.to]);
+  return chips + (state.v === 'B' ? '<div class="summary" style="margin:0 0 8px">У ' + m.n.split(' ')[0] + ': ' + mine.length + ' записи, свободно ' + list.filter((x) => x[0] === 'free').length + ' окна, ждём оплату <b style="color:var(--unpaid)">' + money(mine.filter((e) => !e[7] && (e[6] === 'W' || e[6] === 'D')).reduce((n, e) => n + e[5], 0)) + '</b></div>' : '') +
+    '<div class="agenda">' + list.map((x) => {
+      if (x[0] === 'free') return '<div class="ag gap"><time>' + t(x[1]) + '</time><div>+ Свободно до ' + t(x[2]) + ', записать</div></div>';
+      const e = x[1]; const S = ST[e[6]];
+      return '<div class="ag" style="border-left-color:' + S[1] + '"><time>' + t(e[1]) + '<small>' + t(e[1] + e[2] / 60) + '</small></time><div><b>' + e[3] + '</b><div class="sv">' + e[4] + '</div><div class="ft"><b>' + money(e[5]) + '</b><span class="st" style="color:' + S[1] + ';background:' + S[2] + '">' + S[0] + '</span></div>' +
+        (state.v === 'B' && (e[6] === 'C' || e[6] === 'B') ? '<div class="ft" style="margin-top:8px"><button class="btn" style="height:36px;flex:1;justify-content:center">Пришла</button><button class="btn" style="height:36px;flex:1;justify-content:center">Позвонить</button></div>' : '') + '</div></div>';
+    }).join('') + '</div>';
+}
+
+function render() {
+  const phone = state.d === 'phone';
+  let body;
+  if (phone) body = phoneBody();
+  else if (state.v === 'A') body = gridA(M, 9, 20, 34);
+  else if (state.v === 'B') body = '<div class="wrap"><div>' + gridA(M.slice(0, 4), 9, 20, 30) + '</div>' + sideB() + '</div>';
+  else body = laneC();
+  document.getElementById('root').innerHTML = '<div class="' + (phone ? 'phone' : 'app') + ' ' + state.v + (state.v === 'B' ? ' A' : '') + '">' +
+    '<div class="top"><div class="logo"><i>W</i>WETOP<span>.AI</span></div><div class="clock"><b>' + (phone ? '24 окт.' : '24 октября') + '</b><span>12:45</span><small>суббота</small></div><span class="sp"></span>' +
+    '<span class="ic">' + I.s + '</span>' + (phone ? '' : '<div class="branch"><b>Студия Айна</b>Салон красоты, Центр</div>') + '<span class="ic">' + I.moon + '</span></div>' +
+    '<nav class="menu">' + ['Главная', 'Журнал', 'Персонал', 'Клиенты', 'Услуги', 'Статистика', 'Склад', 'Финансы', 'Настройки', 'Продвижение'].map((x, i) => '<a href="#" class="' + (i === 1 ? 'on' : '') + '">' + x + '</a>').join('') + '</nav>' +
+    '<main>' + head(phone) + body + '</main></div>';
+}
+document.addEventListener('click', (ev) => {
+  const b = ev.target.closest('[data-v],[data-d],[data-ev],[data-m]'); if (!b) return;
+  if (b.dataset.v) state.v = b.dataset.v; if (b.dataset.d) state.d = b.dataset.d;
+  if (b.dataset.ev) state.sel = +b.dataset.ev; if (b.dataset.m) state.master = +b.dataset.m;
+  document.querySelectorAll('.switcher button').forEach((x) => x.setAttribute('aria-pressed', x.dataset.v === state.v || x.dataset.d === state.d));
+  render();
+});
+const q = new URLSearchParams(location.search); if (q.get('v')) state.v = q.get('v'); if (q.get('d')) state.d = q.get('d');
+document.querySelectorAll('.switcher button').forEach((x) => x.setAttribute('aria-pressed', x.dataset.v === state.v || x.dataset.d === state.d));
+render();
+</script>
+</body>
+</html>

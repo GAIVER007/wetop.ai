@@ -42,6 +42,9 @@ import type {
   StockMovementView,
   StockProductInput,
   StockProductView,
+  PrepRecipeView,
+  PrepRecipeInput,
+  ProductionResult,
   StockReceiptInput,
 } from './food-types';
 const base = '/food-service';
@@ -271,5 +274,11 @@ export const stockApi = {
     sendJson<StockProductView>('POST', `${base}/stock/write-offs`, body),
   inventory: (body: { productId: string; actualQty: string; reason?: string | null }) =>
     sendJson<StockProductView>('POST', `${base}/stock/inventory`, body),
+  // §62 заготовки
+  prepRecipe: (id: string) => getJsonPublic<PrepRecipeView>(`${idPath('stock/products', id)}/recipe`),
+  setPrepRecipe: (id: string, body: PrepRecipeInput) =>
+    sendJson<PrepRecipeView>('PUT', `${idPath('stock/products', id)}/recipe`, body),
+  produce: (body: { productId: string; qty: string; expiresOn?: string | null }) =>
+    sendJson<ProductionResult>('POST', `${base}/stock/productions`, body),
 };
 

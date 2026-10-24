@@ -401,6 +401,19 @@ export class FoodStockController {
   @Post('stock/inventory') inventory(@Body() b: unknown) {
     return this.service.inventory(b);
   }
+  // §62 заготовки: техкарта как справочник (`property`), «Приготовили» как приход (`desk`)
+  @BeautyAccess('stock', 'view')
+  @Get('stock/products/:id/recipe') prepRecipe(@Param('id') id: string) {
+    return this.service.prepRecipe(id);
+  }
+  @BeautyAccess('stock', 'update')
+  @Put('stock/products/:id/recipe') @Access('property') setPrepRecipe(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.setPrepRecipe(id, b);
+  }
+  @BeautyAccess('stock', 'create')
+  @Post('stock/productions') produce(@Body() b: unknown) {
+    return this.service.produce(b);
+  }
 }
 @Module({
   controllers: [

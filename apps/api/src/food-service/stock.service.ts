@@ -21,6 +21,11 @@ import {
   parseKitchenProduct,
   parseKitchenReceipt,
   parseWriteOff,
+  parsePrepRecipe,
+  parseProduction,
+  prepCycle,
+  prepNeed,
+  prepUnitCost,
   stockCost,
   type Permission,
 } from '@pms/domain';
@@ -52,6 +57,7 @@ function productView(p: KitchenProduct, lots: KitchenStockLot[]) {
     unit: p.unit,
     minQty: milliText(minQty),
     active: p.active,
+    kind: p.kind,
     onHand: milliText(onHand),
     valueMinor: value.toString(),
     low: minQty > 0n && onHand < minQty,
@@ -138,9 +144,10 @@ export class StockService {
           unit: b.unit!,
           minQty: milliText(b.minQty ?? 0n),
           active: b.active ?? true,
+          kind: b.kind ?? 'RAW',
         },
       });
-      await this.audit(tx, s, p.id, 'kitchen.product.created', { name: p.name, unit: p.unit });
+      await this.audit(tx, s, p.id, 'kitchen.product.created', { name: p.name, unit: p.unit, kind: p.kind });
       return productView(p, []);
     });
   }
@@ -151,6 +158,13 @@ export class StockService {
       const old = await this.product(tx, s, id, false);
       if (b.unit !== undefined && b.unit !== old.unit && (await tx.kitchenStockLot.count({ where: { productId: id } })) > 0)
         throw new ConflictException('Единицу нельзя сменить: по ингредиенту уже есть приходы');
+      if (
+        b.kind !== undefined &&
+        b.kind !== old.kind &&
+        ((await tx.kitchenStockLot.count({ where: { productId: id } })) > 0 ||
+          (await tx.kitchenPrepRecipe.count({ where: { productId: id } })) > 0)
+      )
+        throw new ConflictException('Вид нельзя сменить: по продукту уже есть приходы или техкарта');
       const p = await tx.kitchenProduct.update({
         where: { id },
         data: {
@@ -158,6 +172,7 @@ export class StockService {
           ...(b.unit !== undefined ? { unit: b.unit } : {}),
           ...(b.minQty !== undefined ? { minQty: milliText(b.minQty) } : {}),
           ...(b.active !== undefined ? { active: b.active } : {}),
+          ...(b.kind !== undefined ? { kind: b.kind } : {}),
         },
       });
       await this.audit(tx, s, id, 'kitchen.product.updated', {
@@ -165,6 +180,7 @@ export class StockService {
         unit: p.unit,
         minQty: p.minQty.toString(),
         active: p.active,
+        kind: p.kind,
       });
       return productView(p, await this.liveLots(tx, s, id));
     });
@@ -270,6 +286,33 @@ export class StockService {
         throw new ConflictException('Из партии уже списано: сторно невозможно, оформите списание');
       const p = await this.product(tx, s, lot.productId, false);
       const qty = milliOf(lot.receivedQty);
+      // партия заготовки (§62): ингредиенты возвращаются в свои партии, недостача гасится возвратом без партии
+      const spent = await tx.kitchenStockMovement.findMany({
+        where: { productionLotId: id, locationId: s.locationId, kind: { in: ['PRODUCTION_OUT', 'SHORTAGE'] } },
+      });
+      for (const m of spent) {
+        const milli = -milliOf(m.qty);
+        if (m.lotId) {
+          const from = await tx.kitchenStockLot.findUniqueOrThrow({ where: { id: m.lotId } });
+          await tx.kitchenStockLot.update({
+            where: { id: m.lotId },
+            data: { remainingQty: milliText(milliOf(from.remainingQty) + milli) },
+          });
+        }
+        await tx.kitchenStockMovement.create({
+          data: {
+            locationId: s.locationId,
+            productId: m.productId,
+            lotId: m.lotId,
+            productionLotId: id,
+            kind: 'REVERSAL',
+            qty: milliText(milli),
+            cost: -m.cost,
+            reason: `Сторно заготовки «${p.name}»`,
+            createdById: currentUserId() ?? null,
+          },
+        });
+      }
       const updated = await tx.kitchenStockLot.update({
         where: { id },
         data: { remainingQty: '0', reversedAt: new Date() },
@@ -440,6 +483,180 @@ export class StockService {
         },
       });
     }
+  }
+
+  /** Техкарта заготовки (§62): выход и ингредиенты с остатком филиала */
+  async prepRecipe(idRaw: string) {
+    foodMay('desk');
+    const s = await foodScope(this.prisma.db, BRANCH_STOCK_VERTICALS);
+    const id = parsed(() => foodId(idRaw));
+    const p = await this.prisma.db.kitchenProduct.findFirst({ where: { id, businessId: s.businessId } });
+    if (!p) throw new NotFoundException('Расходник недоступен');
+    const recipe = await this.prisma.db.kitchenPrepRecipe.findUnique({
+      where: { productId: id },
+      include: { lines: { orderBy: { sortOrder: 'asc' }, include: { ingredient: { select: { name: true, unit: true } } } } },
+    });
+    return {
+      productId: id,
+      kind: p.kind,
+      unit: p.unit,
+      yieldQty: recipe ? milliText(milliOf(recipe.yieldQty)) : null,
+      lines: (recipe?.lines ?? []).map((l) => ({
+        ingredientId: l.ingredientId,
+        ingredientName: l.ingredient.name,
+        unit: l.ingredient.unit,
+        normQty: milliText(milliOf(l.normQty)),
+      })),
+    };
+  }
+
+  /** Сохранить техкарту заготовки целиком: только у вида PREP, ингредиенты своего бизнеса, без циклов */
+  async setPrepRecipe(idRaw: string, raw: unknown) {
+    await this.write('property', async (tx, s) => {
+      const id = parsed(() => foodId(idRaw)),
+        b = parsed(() => parsePrepRecipe(raw));
+      const p = await this.product(tx, s, id, false);
+      if (p.kind !== 'PREP') throw new ConflictException('Продукт не заготовка: техкарта есть только у заготовки');
+      const ingredients = await tx.kitchenProduct.findMany({
+        where: { id: { in: b.lines.map((l) => l.ingredientId) }, businessId: s.businessId },
+      });
+      if (ingredients.length !== b.lines.length) throw new NotFoundException('Ингредиент недоступен');
+      const rows = await tx.kitchenPrepRecipeLine.findMany({
+        where: { recipe: { product: { businessId: s.businessId } } },
+        select: { productId: true, ingredientId: true },
+      });
+      const graph = new Map<string, string[]>();
+      for (const r of rows) if (r.productId !== id) graph.set(r.productId, [...(graph.get(r.productId) ?? []), r.ingredientId]);
+      if (prepCycle(graph, id, b.lines.map((l) => l.ingredientId)))
+        throw new ConflictException('Заготовка не может входить сама в себя, даже по кругу через другую');
+      await tx.kitchenPrepRecipe.upsert({
+        where: { productId: id },
+        create: { productId: id, yieldQty: milliText(b.yieldQty) },
+        update: { yieldQty: milliText(b.yieldQty) },
+      });
+      await tx.kitchenPrepRecipeLine.deleteMany({ where: { productId: id } });
+      await tx.kitchenPrepRecipeLine.createMany({
+        data: b.lines.map((l, i) => ({ productId: id, ingredientId: l.ingredientId, normQty: milliText(l.normQty), sortOrder: i })),
+      });
+      await this.audit(tx, s, id, 'kitchen.prep.recipe_saved', {
+        yieldQty: milliText(b.yieldQty),
+        lines: b.lines.map((l) => ({ ingredientId: l.ingredientId, normQty: milliText(l.normQty) })),
+      });
+    });
+    return this.prepRecipe(idRaw);
+  }
+
+  /**
+   * «Приготовили» (§62, Q-KITCHEN-ALL-2 «а»): ингредиенты по техкарте списываются FIFO в эту же минуту, не хватает:
+   * списать остаток, разницу недостачей (как §38); партия заготовки приходуется по себестоимости списанного.
+   */
+  async produce(raw: unknown) {
+    return this.write('desk', async (tx, s) => {
+      const b = parsed(() => parseProduction(raw));
+      const p = await this.product(tx, s, b.productId);
+      if (p.kind !== 'PREP') throw new ConflictException('Продукт не заготовка: готовить можно только заготовку');
+      const recipe = await tx.kitchenPrepRecipe.findUnique({ where: { productId: p.id }, include: { lines: true } });
+      if (!recipe || recipe.lines.length === 0) throw new ConflictException('У заготовки нет техкарты: сначала укажите состав');
+      const need = prepNeed(
+        recipe.lines.map((l) => ({ ingredientId: l.ingredientId, normQty: milliOf(l.normQty) })),
+        milliOf(recipe.yieldQty),
+        b.qty,
+      );
+      const today = foodLocal(new Date(), s.timezone).date;
+      // партия заводится до расхода, чтобы движения ингредиентов ссылались на неё; цена уточняется после расхода
+      const lot = await tx.kitchenStockLot.create({
+        data: {
+          locationId: s.locationId,
+          productId: p.id,
+          document: 'Приготовлено',
+          receivedOn: new Date(`${today}T00:00:00Z`),
+          receivedQty: milliText(b.qty),
+          remainingQty: milliText(b.qty),
+          unitCost: 1n,
+          expiresOn: b.expiresOn ? new Date(`${b.expiresOn}T00:00:00Z`) : null,
+          createdById: currentUserId() ?? null,
+        },
+      });
+      const reason = `Заготовка «${p.name}»`;
+      let total = 0n;
+      const shortages: Array<{ productId: string; name: string; qty: string }> = [];
+      const ingredients = await tx.kitchenProduct.findMany({ where: { id: { in: [...need.keys()] } }, orderBy: { name: 'asc' } });
+      for (const ing of ingredients) {
+        const lots = await this.liveLots(tx, s, ing.id);
+        const available = lots.reduce((sum, l) => sum + milliOf(l.remainingQty), 0n);
+        const { take, shortage } = splitShortage(available, need.get(ing.id)!);
+        if (take > 0n) {
+          const { allocations } = allocateStock(
+            lots.map((l) => ({
+              id: l.id,
+              receivedOn: day(l.receivedOn),
+              createdAt: l.createdAt,
+              remaining: milliOf(l.remainingQty),
+              unitCost: l.unitCost,
+            })),
+            take,
+            ing.unit,
+          );
+          for (const a of allocations) {
+            const from = lots.find((l) => l.id === a.lotId)!;
+            await tx.kitchenStockLot.update({
+              where: { id: a.lotId },
+              data: { remainingQty: milliText(milliOf(from.remainingQty) - a.milli) },
+            });
+            await tx.kitchenStockMovement.create({
+              data: {
+                locationId: s.locationId,
+                productId: ing.id,
+                lotId: a.lotId,
+                productionLotId: lot.id,
+                kind: 'PRODUCTION_OUT',
+                qty: milliText(-a.milli),
+                cost: -a.cost,
+                reason,
+                createdById: currentUserId() ?? null,
+              },
+            });
+            total += a.cost;
+          }
+        }
+        if (shortage > 0n) {
+          shortages.push({ productId: ing.id, name: ing.name, qty: milliText(shortage) });
+          await tx.kitchenStockMovement.create({
+            data: {
+              locationId: s.locationId,
+              productId: ing.id,
+              productionLotId: lot.id,
+              kind: 'SHORTAGE',
+              qty: milliText(-shortage),
+              cost: 0n,
+              reason: `${reason}: не хватило на складе`,
+              createdById: currentUserId() ?? null,
+            },
+          });
+        }
+      }
+      const unitCost = prepUnitCost(total, b.qty, p.unit);
+      const priced = await tx.kitchenStockLot.update({ where: { id: lot.id }, data: { unitCost } });
+      await tx.kitchenStockMovement.create({
+        data: {
+          locationId: s.locationId,
+          productId: p.id,
+          lotId: lot.id,
+          kind: 'PRODUCTION_IN',
+          qty: milliText(b.qty),
+          cost: total,
+          reason: 'Приготовлено',
+          createdById: currentUserId() ?? null,
+        },
+      });
+      await this.audit(tx, s, p.id, 'kitchen.prep.produced', {
+        lot: lot.id,
+        qty: milliText(b.qty),
+        cost: total.toString(),
+        shortages: shortages.map((x) => ({ productId: x.productId, qty: x.qty })),
+      });
+      return { lot: lotView(priced), costMinor: total.toString(), shortages };
+    });
   }
 
   async writeOff(raw: unknown) {

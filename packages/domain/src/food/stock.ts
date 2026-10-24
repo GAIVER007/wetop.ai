@@ -134,18 +134,27 @@ function stockPrice(v: unknown): bigint {
   return BigInt(raw);
 }
 
+/** Вид продукта склада кухни (§62): сырьё или заготовка со своей техкартой */
+export const KITCHEN_PRODUCT_KINDS = ['RAW', 'PREP'] as const;
+export type KitchenProductKind = (typeof KITCHEN_PRODUCT_KINDS)[number];
 export interface KitchenProductInput {
   name?: string;
   unit?: IngredientUnit;
   minQty?: bigint;
   active?: boolean;
+  kind?: KitchenProductKind;
 }
 export function parseKitchenProduct(raw: unknown, partial = false): KitchenProductInput {
-  const b = foodObject(raw, ['name', 'unit', 'minQty', 'active']);
+  const b = foodObject(raw, ['name', 'unit', 'minQty', 'active', 'kind']);
   const out: KitchenProductInput = {};
   if (!partial || b.name !== undefined) out.name = foodText(b.name, 200);
   if (!partial || b.unit !== undefined) out.unit = stockUnit(b.unit);
   if (b.minQty !== undefined) out.minQty = stockQty(b.minQty, true);
+  if (b.kind !== undefined) {
+    if (typeof b.kind !== 'string' || !KITCHEN_PRODUCT_KINDS.some((k) => k === b.kind))
+      throw new Error('Вид: сырьё или заготовка');
+    out.kind = b.kind as KitchenProductKind;
+  }
   if (b.active !== undefined) {
     if (typeof b.active !== 'boolean') throw new Error('Нужно логическое значение');
     out.active = b.active;

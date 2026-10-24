@@ -4211,16 +4211,26 @@ enum KitchenMovementKind {
   CONSUMPTION
   SHORTAGE
   CONSUMPTION_RETURN
+  /// §62: «Приготовили» заготовку: расход ингредиента и приход партии заготовки
+  PRODUCTION_OUT
+  PRODUCTION_IN
+}
+
+/// §62: сырьё или заготовка со своей техкартой
+enum KitchenProductKind {
+  RAW
+  PREP
 }
 
 /// Ингредиент сети; единица неизменна после первого прихода (проверка API)
 model KitchenProduct {
-  id         String   @id @default(uuid()) @db.Uuid
-  businessId String   @map("business_id") @db.Uuid
-  name       String   @db.VarChar(200)
-  unit       String   @db.VarChar(8)
-  minQty     Decimal  @default(0) @map("min_qty") @db.Decimal(14, 3)
-  active     Boolean  @default(true)
+  id         String             @id @default(uuid()) @db.Uuid
+  businessId String             @map("business_id") @db.Uuid
+  name       String             @db.VarChar(200)
+  unit       String             @db.VarChar(8)
+  minQty     Decimal            @default(0) @map("min_qty") @db.Decimal(14, 3)
+  active     Boolean            @default(true)
+  kind       KitchenProductKind @default(RAW)
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -4229,6 +4239,8 @@ model KitchenProduct {
   movements       KitchenStockMovement[]
   techCardRows    MenuItemIngredient[]
   beautyMaterials BeautyServiceMaterial[]
+  prepRecipe      KitchenPrepRecipe?
+  usedInPreps     KitchenPrepRecipeLine[]
 
   @@unique([businessId, name])
   @@map("kitchen_products")
@@ -4255,9 +4267,40 @@ model KitchenStockLot {
   product   KitchenProduct         @relation(fields: [productId], references: [id])
   createdBy User?                  @relation(fields: [createdById], references: [id])
   movements KitchenStockMovement[]
+  /// §62: движения ингредиентов, списанных ради этой партии заготовки
+  productionMovements KitchenStockMovement[] @relation("KitchenProductionLot")
 
   @@index([locationId, productId])
   @@map("kitchen_stock_lots")
+}
+
+/// §62: техкарта заготовки: норма ингредиентов на выход `yieldQty` (в единице заготовки)
+model KitchenPrepRecipe {
+  productId String   @id @map("product_id") @db.Uuid
+  yieldQty  Decimal  @map("yield_qty") @db.Decimal(14, 3)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  product KitchenProduct          @relation(fields: [productId], references: [id], onDelete: Restrict)
+  lines   KitchenPrepRecipeLine[]
+
+  @@map("kitchen_prep_recipes")
+}
+
+model KitchenPrepRecipeLine {
+  id           String   @id @default(uuid()) @db.Uuid
+  productId    String   @map("product_id") @db.Uuid
+  ingredientId String   @map("ingredient_id") @db.Uuid
+  normQty      Decimal  @map("norm_qty") @db.Decimal(14, 3)
+  sortOrder    Int      @default(0) @map("sort_order")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  recipe     KitchenPrepRecipe @relation(fields: [productId], references: [productId], onDelete: Cascade)
+  ingredient KitchenProduct    @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+
+  @@unique([productId, ingredientId])
+  @@index([ingredientId])
+  @@map("kitchen_prep_recipe_lines")
 }
 
 /// Лента движений склада: только дописывается (REVOKE и триггер kitchen_movements_immutable)
@@ -4273,12 +4316,15 @@ model KitchenStockMovement {
   /// §38: заказ, по которому списано или возвращено
   orderId           String?             @map("order_id") @db.Uuid
   appointmentLineId String?             @map("appointment_line_id") @db.Uuid
+  /// §62: партия заготовки, ради которой списан ингредиент
+  productionLotId   String?             @map("production_lot_id") @db.Uuid
   createdById       String?             @map("created_by_id") @db.Uuid
   createdAt         DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
 
   location        Location         @relation(fields: [locationId], references: [id])
   product         KitchenProduct   @relation(fields: [productId], references: [id])
   lot             KitchenStockLot? @relation(fields: [lotId], references: [id])
+  productionLot   KitchenStockLot? @relation("KitchenProductionLot", fields: [productionLotId], references: [id], onDelete: Restrict)
   order           RestaurantOrder? @relation(fields: [orderId], references: [id], onDelete: Restrict)
   appointmentLine AppointmentLine? @relation(fields: [appointmentLineId], references: [id], map: "kitchen_stock_movements_appointment_line_fkey", onDelete: Restrict, onUpdate: NoAction)
   createdBy       User?            @relation(fields: [createdById], references: [id])
@@ -4286,6 +4332,7 @@ model KitchenStockMovement {
   @@index([locationId, createdAt])
   @@index([orderId])
   @@index([appointmentLineId], map: "kitchen_stock_movements_appointment_line_idx")
+  @@index([productionLotId])
   @@index([productId])
   @@index([lotId])
   @@map("kitchen_stock_movements")

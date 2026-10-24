@@ -507,6 +507,26 @@ export interface StockProductView {
   valueMinor: string;
   low: boolean;
   nearestExpiry: string | null;
+  /** §62: сырьё или заготовка со своей техкартой */
+  kind: StockProductKind;
+}
+export type StockProductKind = 'RAW' | 'PREP';
+/** §62: техкарта заготовки: норма ингредиентов на выход `yieldQty` (в единице заготовки) */
+export interface PrepRecipeView {
+  productId: string;
+  kind: StockProductKind;
+  unit: StockUnit;
+  yieldQty: string | null;
+  lines: Array<{ ingredientId: string; ingredientName: string; unit: StockUnit; normQty: string }>;
+}
+export interface PrepRecipeInput {
+  yieldQty: string;
+  lines: Array<{ ingredientId: string; normQty: string }>;
+}
+export interface ProductionResult {
+  lot: StockLotView;
+  costMinor: string;
+  shortages: Array<{ productId: string; name: string; qty: string }>;
 }
 export interface StockLotView {
   id: string;
@@ -528,7 +548,9 @@ export type StockMovementKind =
   | 'REVERSAL'
   | 'CONSUMPTION'
   | 'SHORTAGE'
-  | 'CONSUMPTION_RETURN';
+  | 'CONSUMPTION_RETURN'
+  | 'PRODUCTION_OUT'
+  | 'PRODUCTION_IN';
 export interface StockMovementView {
   id: string;
   productId: string;
@@ -546,6 +568,7 @@ export interface StockProductInput {
   unit: StockUnit;
   minQty?: string;
   active?: boolean;
+  kind?: StockProductKind;
 }
 export interface StockReceiptInput {
   supplier?: string | null;

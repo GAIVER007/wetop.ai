@@ -327,6 +327,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /food-service/stock/lots/:id/reverse': 'property',
   'POST /food-service/stock/write-offs': 'desk',
   'POST /food-service/stock/inventory': 'desk',
+  // §62 заготовки: техкарта под `property`, «Приготовили» под `desk`
+  'GET /food-service/stock/products/:id/recipe': 'desk',
+  'PUT /food-service/stock/products/:id/recipe': 'property',
+  'POST /food-service/stock/productions': 'desk',
   'GET /beauty/customers': 'desk',
   'GET /beauty/customers/:id': 'desk',
   'POST /beauty/customers': 'desk',

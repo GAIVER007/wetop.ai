@@ -35,7 +35,7 @@ describe('меню: по-русски и с подсказкой без кате
 describe('склад: срок и время движений', () => {
   const product: StockProductView = {
     id: 'p', name: 'Соль', unit: 'г', minQty: '0', active: true, onHand: '10', valueMinor: '100', low: false,
-    nearestExpiry: null,
+    nearestExpiry: null, kind: 'RAW' as const,
   };
   const movement: StockMovementView = {
     id: 'm', productId: 'p', productName: 'Соль', unit: 'г', lotId: null, kind: 'RECEIPT', qty: '10',

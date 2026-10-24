@@ -69,9 +69,9 @@ describe('Beauty goods loader', () => {
     const html = renderToStaticMarkup(await BarPage({ searchParams: Promise.resolve({}) }));
 
     expect(html).toContain('Товары, остатки и продажи');
-    // аудит салона 22.10.2026: склад салона без слова «бар»
-    expect(html).toContain('Склад: товары');
-    expect(html).not.toContain('Склад: бар');
+    // решение владельца 24.10.2026: у салона, как у всех, «Склад: бар»
+    expect(html).toContain('Склад: бар');
+    expect(html).not.toContain('Склад: товары');
     expect(api.folios).not.toHaveBeenCalled();
     expect(api.paymentMethods).toHaveBeenCalledOnce();
     expect(html).not.toContain('Продажа напрямую');

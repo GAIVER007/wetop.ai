@@ -45,6 +45,7 @@ import {
   planBeautyAppointment,
 } from '../beauty/appointments';
 import { findOrCreateCustomer } from '../customers/identity';
+import { enqueueStaffNotifications } from '../staff-telegram/recipients';
 import { TurnstileService, turnstileFailureError } from '../web-booking/turnstile';
 import type { RequestContext } from '../web-booking/web-booking.service';
 import { syncAppointmentReminders } from '../beauty/reminders';
@@ -395,6 +396,8 @@ export class SiteFormsService {
           });
           // напоминания и подтверждение клиенту в той же транзакции (решение 21.10.2026 §1)
           await syncAppointmentReminders(tx, created.id, { confirmation: true });
+          // STAFF-TG: уведомление сотрудникам в той же транзакции (AGENTS.md §11): запись без него не фиксируется
+          await enqueueStaffNotifications(tx, { ...this.staffTarget(fs, 'SITE_APPOINTMENT'), sourceId: created.id, employeeId });
           const value = await this.appointmentReplay(tx, fs, key, fingerprint);
           return { value: value!, replayed: false };
         },
@@ -738,6 +741,7 @@ export class SiteFormsService {
         });
         // §61: бронь с сайта получает подтверждение сразу и напоминания по настройкам филиала
         await syncReservationReminders(tx, r.id, { confirmation: true });
+        await enqueueStaffNotifications(tx, { ...this.staffTarget(fs, 'SITE_TABLE'), sourceId: r.id });
         const value = await this.reservationReplay(tx, fs, key, fingerprint);
         return { value: value!, replayed: false };
       });
@@ -911,6 +915,7 @@ export class SiteFormsService {
             after: { locationId: fs.locationId, trackedSiteId: fs.site.id, kind: req.kind },
           },
         });
+        await enqueueStaffNotifications(tx, { ...this.staffTarget(fs, 'SITE_LEAD'), sourceId: lead.id });
         return { value: { leadId: lead.id, status: 'NEW' as const, createdAt: lead.createdAt.toISOString() }, replayed: false };
       });
     } catch (e) {
@@ -1049,6 +1054,11 @@ export class SiteFormsService {
   }
 
   /** Заметка записи: откуда и комментарий гостя; контакты в свободном тексте маскируются, пока база не в РК (ADR-074) */
+  /** Событие для очереди уведомлений сотрудникам: филиал, бизнес, организация и направление из строки сайта */
+  private staffTarget(fs: FormSite, kind: 'SITE_APPOINTMENT' | 'SITE_TABLE' | 'SITE_LEAD') {
+    return { organizationId: fs.organizationId, businessId: fs.businessId, locationId: fs.locationId, vertical: fs.vertical, kind };
+  }
+
   private notes(fs: FormSite, comment: string | null): string {
     if (fs.origin === 'VOICE')
       return 'Бронь по телефону, голосовой ИИ-агент' + (comment ? `. Комментарий: ${freeTextForStorage(comment)}` : '');

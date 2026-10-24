@@ -120,7 +120,7 @@
     "active": "/bar/consumables",
     "rule": {
       "href": "/bar/consumables",
-      "label": "Расходники",
+      "label": "Кухня",
       "requires": "reports"
     }
   },

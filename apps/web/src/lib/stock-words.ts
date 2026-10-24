@@ -2,11 +2,12 @@ import type { WebVertical } from './vertical-landing';
 import { verticalCopy } from './vertical-copy';
 
 /**
- * Слова склада по направлению (аудит салона 22.10.2026 P1: «Склад: бар», «Остатки бара и кухни», причины «Бой»,
- * «Угощение» в салоне). Экраны склада общие, у салона склад товаров и расходников, у гостиницы и ресторана бар.
+ * Слова склада по направлению. Решение владельца 24.10.2026: на складе у всех направлений «Бар» (товары на продажу) и
+ * «Кухня» (продукты и материалы); у ресторана склад кухни зовётся «Склад кухни», потому что его «Кухня» уже экран
+ * заказов. От аудита салона 22.10.2026 остаются только причины списания салона (без боя и угощения).
  */
 export interface StockWords {
-  /** вкладка и карточка склада товаров на продажу (/bar): «Бар» / «Товары» */
+  /** вкладка и карточка склада товаров на продажу (/bar): «Бар» */
   goods: string;
   /** склад материалов (/bar/consumables или /stock у ресторана) */
   materials: string;
@@ -24,24 +25,21 @@ export interface StockWords {
 
 export function stockWords(vertical: WebVertical): StockWords {
   const goods = verticalCopy(vertical).menu.goods;
+  const common = {
+    goods,
+    materials: vertical === 'FOOD_SERVICE' ? 'Склад кухни' : 'Кухня',
+    goodsTitle: 'Склад: бар',
+    overviewSubtitle: 'Остатки бара и кухни и что заканчивается',
+    overviewOk: 'Остатки бара и кухни выше минимума.',
+  };
   if (vertical === 'BEAUTY')
     return {
-      goods,
-      materials: 'Расходники',
-      goodsTitle: 'Склад: товары',
-      overviewSubtitle: 'Остатки товаров и расходников и что заканчивается',
-      overviewOk: 'Остатки товаров и расходников выше минимума.',
+      ...common,
       materialsNoun: ['позиция', 'позиции', 'позиций'],
       writeOffReasons: ['Порча', 'Истек срок', 'Для работы салона', 'Иное'],
     };
   return {
-    goods,
-    materials: vertical === 'FOOD_SERVICE' ? 'Склад кухни' : 'Расходники',
-    goodsTitle: 'Склад: бар',
-    overviewSubtitle:
-      vertical === 'FOOD_SERVICE' ? 'Остатки бара и кухни и что заканчивается' : 'Остатки бара и расходников и что заканчивается',
-    overviewOk:
-      vertical === 'FOOD_SERVICE' ? 'Остатки бара и кухни выше минимума.' : 'Остатки бара и расходников выше минимума.',
+    ...common,
     materialsNoun: ['продукт', 'продукта', 'продуктов'],
     writeOffReasons: ['Порча', 'Бой', 'Истек срок', 'Угощение', 'Нужды объекта', 'Иное'],
   };

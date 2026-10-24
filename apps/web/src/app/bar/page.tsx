@@ -75,7 +75,7 @@ export default async function BarPage({
   // бар филиала (ADR-178): «в счёт гостя» только у гостиницы; ресторан и салон продают в кассу филиала (§45, §48)
   const vertical = me.context?.vertical ?? 'HOSPITALITY';
   // раздел меню «Склад» у всех направлений (решение владельца 19.10.2026)
-  // аудит салона 22.10.2026: у салона «Склад: товары», у остальных прежний «Склад: бар»
+  // решение владельца 24.10.2026: «Склад: бар» у всех направлений
   const sectionName = stockWords(vertical).goodsTitle;
   const params = await searchParams;
   const productParam = typeof params.product === 'string' ? params.product : null;

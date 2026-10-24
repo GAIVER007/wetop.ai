@@ -31,11 +31,12 @@ describe('меню словами направления', () => {
     expect(label('BEAUTY', '/employees')).toBe('Специалисты');
   });
 
-  it('склад: салон без бара и кухни, у гостиницы «Расходники» как у салона', () => {
-    expect(label('BEAUTY', '/bar')).toBe('Товары');
-    expect(label('BEAUTY', '/bar/consumables')).toBe('Расходники');
+  it('склад: «Бар» и «Кухня» у салона и гостиницы (решение владельца 24.10.2026)', () => {
+    expect(label('BEAUTY', '/bar')).toBe('Бар');
+    expect(label('BEAUTY', '/bar/consumables')).toBe('Кухня');
     expect(label('HOSPITALITY', '/bar')).toBe('Бар');
-    expect(label('HOSPITALITY', '/bar/consumables')).toBe('Расходники');
+    expect(label('HOSPITALITY', '/bar/consumables')).toBe('Кухня');
+    expect(label('FOOD_SERVICE', '/stock')).toBe('Склад кухни');
     expect(label('FOOD_SERVICE', '/bar')).toBe('Бар');
   });
 

@@ -610,3 +610,30 @@ test('Beauty onboarding v2 completes a ready branch and resumes Today', async ({
   await page.goto('/register/setup?entry=1');
   await expect(page).toHaveURL(/\/today$/);
 });
+
+/**
+ * Окно записи вариант B (решение владельца 23.10.2026, одинаково во всех направлениях): слева клиент
+ * (имя, затем телефон), справа услуга, специалист и свободное время кнопками; кнопка времени ставит время записи.
+ */
+test('новая запись: свободное время мастера кнопками справа ставит время', async ({ page, request }) => {
+  await seed(page, request);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(`/calendar?date=${day}`);
+  await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
+  const panel = page.getByRole('dialog');
+  await expect(panel.getByRole('region', { name: 'Услуга и время' })).toBeVisible();
+  await panel.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });
+  const slots = panel.getByTestId('slot-group');
+  await expect(slots).toBeVisible();
+  const first = slots.getByRole('button', { name: /^Время / }).first();
+  const label = (await first.getAttribute('aria-label'))!.replace('Время ', '');
+  await first.click();
+  await expect(first).toHaveAttribute('aria-pressed', 'true');
+  await expect(panel.getByLabel('Время', { exact: true })).toHaveValue(label);
+  await expect(panel.getByTestId('appointment-digest')).toContainText(label);
+  // имя идёт раньше телефона
+  const nameBox = await panel.getByLabel('Имя клиента', { exact: true }).boundingBox();
+  const phoneBox = await panel.locator('[name="phone"]').boundingBox();
+  expect(nameBox!.y).toBeLessThan(phoneBox!.y);
+});
+

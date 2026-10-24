@@ -909,3 +909,101 @@
     }
   } /* телефон: строка канала: карточкой (название сверху, три числа со словом), как «По категориям» Главной */
 }
+
+/* Аналитика без плиток (владелец 23.10.2026: «аналитика в отелях кривая, сделай чётко»; плитки запрещены 20–21.10):
+   показатели одной полосой, у каждого название, число и пояснение в столбик, сравнение рядом с числом; без карточек
+   и теней. Графики с полной подписью дня под столбцами; отборы одной строкой. Тот же вид у «Финансов» отчётов. */
+@layer sections {
+  .analytics-page .kpi-grid.pa-kpis,
+  .kpi-grid.pa-kpis {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: 0 0 var(--space-4);
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .pa-kpis > .kpi,
+  .analytics-page .pa-kpis > .kpi {
+    flex: 1 1 180px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'label label'
+      'value delta'
+      'hint hint';
+    align-items: baseline;
+    gap: var(--space-1) var(--space-2);
+    min-width: 0;
+    padding: var(--space-2) var(--space-4);
+    border: 0;
+    border-right: 1px solid var(--border-soft);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .pa-kpis > .kpi:last-child {
+    border-right: 0;
+  }
+  .pa-kpis .kpi__top {
+    grid-area: label;
+    margin: 0;
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .pa-kpis .kpi__body {
+    grid-area: value;
+    min-height: 0;
+  }
+  .pa-kpis .kpi__value,
+  .analytics-page .pa-kpis .kpi__value,
+  .pa-kpis .kpi--revenue .kpi__value,
+  .pa-kpis .kpi--average .kpi__value {
+    font-size: var(--text-xl);
+    line-height: var(--leading-tight);
+  }
+  .pa-kpis .kpi-delta {
+    grid-area: delta;
+    font-size: var(--text-xs);
+  }
+  .pa-kpis .kpi__hint,
+  .analytics-page .pa-kpis .kpi__hint {
+    grid-area: hint;
+    min-height: 0;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    line-height: var(--leading-base);
+  }
+  /* отборы: полосы в одну строку, переносятся только по ширине */
+  .analytics-page .pa-toolbar__row {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .analytics-page .pa-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  /* график: высота по содержимому, подпись дня под столбцами целиком, без обрезки */
+  .analytics-page .pa-charts .dash-panel {
+    overflow: visible;
+  }
+  .analytics-page .pa-charts .bars {
+    height: 140px;
+  }
+  .analytics-page .pa-charts .bars-day {
+    margin-top: var(--space-6);
+  }
+  .analytics-page .pa-charts .bars-day p {
+    white-space: normal;
+  }
+  @media (max-width: 600px) {
+    .pa-kpis > .kpi {
+      flex-basis: 50%;
+      border-bottom: 1px solid var(--border-soft);
+    }
+  }
+}
+

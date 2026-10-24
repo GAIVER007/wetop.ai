@@ -81,7 +81,7 @@ test('период «Броней»: готовые отрезки ссылка�
   await expect(page.locator('.period-picker').getByLabel('Период: по', { exact: true })).toHaveValue('2026-09-20');
 });
 
-test('размеры окон: «Новая задача» sm, новая бронь 940 px, Escape закрывает и возвращает фокус', async ({
+test('размеры окон: «Новая задача» sm, новая бронь 1080 px (окно брони xl, 23.10.2026), Escape закрывает и возвращает фокус', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -99,7 +99,7 @@ test('размеры окон: «Новая задача» sm, новая бро
   await page.getByRole('link', { name: 'Новая бронь' }).first().click();
   const booking = page.getByRole('dialog', { name: 'Новая бронь' });
   await expect(booking).toBeVisible();
-  expect(Math.round((await booking.boundingBox())!.width)).toBe(940);
+  expect(Math.round((await booking.boundingBox())!.width)).toBe(1080);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1440);
 });
 

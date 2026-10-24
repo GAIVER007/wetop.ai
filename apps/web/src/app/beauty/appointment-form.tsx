@@ -657,7 +657,7 @@ export function AppointmentForm({
       </fieldset>
           </>
         }
-        pickLabel="Услуга и время"
+        pickLabel="Выбор времени записи"
         footer={
           <>
             <p className="appointment-form__total" aria-live="polite">

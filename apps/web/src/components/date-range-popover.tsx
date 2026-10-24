@@ -1,7 +1,7 @@
 'use client';
-
 import { useEffect, useId, useRef, useState } from 'react';
 import { Icon } from './icon';
+import { panelPlacement } from './panel-placement';
 
 const DAY = 86_400_000;
 const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -138,6 +138,8 @@ export function DateRangePopover({
   triggerTestId,
   compactOnMobile = false,
   compact = false,
+  onDay,
+  dayPresets,
 }: {
   from: string;
   to: string;
@@ -148,6 +150,13 @@ export function DateRangePopover({
   compactOnMobile?: boolean;
   /** короткая подпись на любой ширине («13–19 октября 2026»), как на эталоне шахматки 13.10.2026 */
   compact?: boolean;
+  /**
+   * Режим «один день» (журнал салона и ресторана, единая шапка 23.10.2026): тот же вид, щелчок по дню сразу
+   * переходит, без формы и «Применить»
+   */
+  onDay?: (date: string) => void;
+  /** быстрые дни слева в режиме дня («Сегодня», «Завтра», «Эта неделя») */
+  dayPresets?: Array<{ label: string; date?: string; onSelect?: () => void }>;
 }) {
   const ref = useRef<HTMLDetailsElement>(null);
   const trigger = useRef<HTMLElement>(null);
@@ -172,6 +181,33 @@ export function DateRangePopover({
     setError('');
     if (ref.current) ref.current.open = false;
   }, [from, to, today]);
+
+  // окно под кнопкой, но всегда внутри экрана (владелец 23.10.2026): на компьютере место считается при открытии,
+  // на узком экране работает раскладка из CSS (лист снизу)
+  const place = () => {
+    const details = ref.current;
+    const panel = details?.querySelector<HTMLElement>('.date-range__panel');
+    const button = trigger.current?.getBoundingClientRect();
+    if (!details?.open || !panel || !button) return;
+    if (window.innerWidth <= 960) {
+      panel.style.removeProperty('left');
+      panel.style.removeProperty('top');
+      panel.removeAttribute('data-placed');
+      return;
+    }
+    const { left, top } = panelPlacement(button, panel.offsetWidth, window.innerWidth);
+    panel.setAttribute('data-placed', '');
+    panel.style.left = `${left}px`;
+    panel.style.top = `${top}px`;
+  };
+  useEffect(() => {
+    window.addEventListener('resize', place);
+    window.addEventListener('scroll', place, true);
+    return () => {
+      window.removeEventListener('resize', place);
+      window.removeEventListener('scroll', place, true);
+    };
+  });
 
   useEffect(() => {
     const close = (event: MouseEvent | KeyboardEvent) => {
@@ -204,6 +240,11 @@ export function DateRangePopover({
     ? Math.round((parseDate(end)!.getTime() - parseDate(start)!.getTime()) / DAY) + 1
     : 0;
   const chooseDay = (value: string) => {
+    if (onDay) {
+      if (ref.current) ref.current.open = false;
+      onDay(value);
+      return;
+    }
     setSelectedPreset('custom');
     setError('');
     if (!selectingEnd || value < start) {
@@ -222,25 +263,29 @@ export function DateRangePopover({
     <details
       className={`date-range${compactOnMobile ? ' date-range--compact-mobile' : ''}`}
       ref={ref}
+      onToggle={place}
     >
       <summary
         ref={trigger}
         data-testid={triggerTestId}
-        aria-label="Выбрать период"
+        aria-label={onDay ? 'Выбрать день' : 'Выбрать период'}
         aria-controls={`${id}-panel`}
       >
         <Icon name="board" />
-        {!compact && (
+        {!compact && !onDay && (
           <span className="date-range__label-full">
             {formatDate(from)} – {formatDate(to)}
           </span>
         )}
-        {(compact || compactOnMobile) && (
+        {onDay && <span className="date-range__label-full">{formatDate(from)}</span>}
+        {!onDay && (compact || compactOnMobile) && (
           <span className={compact ? 'date-range__label-wide' : 'date-range__label-compact'}>
             {formatCompactRange(from, to)}
           </span>
         )}
-        {compact && <span className="date-range__label-short">{formatShortRange(from, to)}</span>}
+        {compact && !onDay && (
+          <span className="date-range__label-short">{formatShortRange(from, to)}</span>
+        )}
         <Icon name="down" />
       </summary>
       <div className="date-range__panel" id={`${id}-panel`}>
@@ -256,8 +301,24 @@ export function DateRangePopover({
         >
           <div className="date-range__body">
             <div className="date-range__presets" role="group" aria-label="Готовые периоды">
-              <strong>Выберите период</strong>
-              {presets.map(({ value, label }) => (
+              <strong>{onDay ? 'Выберите день' : 'Выберите период'}</strong>
+              {onDay &&
+                (dayPresets ?? [{ label: 'Сегодня', date: today }]).map((preset) => (
+                  <button
+                    key={preset.label}
+                    type="button"
+                    className="date-range__preset"
+                    aria-pressed={preset.date === from}
+                    onClick={() => {
+                      if (ref.current) ref.current.open = false;
+                      if (preset.onSelect) preset.onSelect();
+                      else if (preset.date) onDay(preset.date);
+                    }}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              {!onDay && presets.map(({ value, label }) => (
                 <button
                   key={value}
                   type="button"
@@ -317,7 +378,7 @@ export function DateRangePopover({
                   );
                 })}
               </div>
-              <div className="date-range__inputs">
+              {!onDay && (<div className="date-range__inputs">
                 <label>
                   С
                   <input
@@ -348,10 +409,10 @@ export function DateRangePopover({
                     required
                   />
                 </label>
-              </div>
+              </div>)}
             </div>
           </div>
-          <div className="date-range__footer">
+          {!onDay && (<div className="date-range__footer">
             <span aria-live="polite">
               {valid ? `Выбрано: ${formatCompactRange(start, end)} (${count} дн.)` : 'Выберите даты'}
             </span>
@@ -377,7 +438,7 @@ export function DateRangePopover({
               </button>
             </span>
             {error && <p role="alert">{error}</p>}
-          </div>
+          </div>)}
         </form>
       </div>
     </details>

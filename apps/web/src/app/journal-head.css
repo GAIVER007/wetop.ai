@@ -1,0 +1,144 @@
+/* Шапка журнала одна во всех направлениях (владелец 23.10.2026), образец календарь гостиницы (`chessboard/board.css`
+   `.page--board.calendar-page > .page__head`). Компонент `components/journal-head.tsx`. */
+@layer sections {
+  /* заголовок `Page` журнала скрыт визуально: видимый заголовок в `JournalHead` в одной строке с днём */
+  .page.journal-page > .page__head {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .journal-head {
+    display: grid;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+  .journal-head__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .journal-head__heading {
+    min-width: 0;
+  }
+  .journal-head__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-size: var(--text-4xl);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-tight);
+  }
+  .journal-head__icon {
+    flex: none;
+    width: var(--space-8);
+    height: var(--space-8);
+    color: var(--primary);
+  }
+  .journal-head__subtitle {
+    margin: var(--space-1) 0 0;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .journal-head__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .journal-head__actions .btn {
+    min-height: var(--control-h);
+    padding: 0 var(--space-4);
+    font-size: var(--text-sm);
+  }
+  .journal-head__summary .summary-line {
+    margin: 0;
+  }
+  .journal-head__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .journal-head__filters > .field {
+    margin: 0;
+  }
+  /* отборы раздела внутри карточки шапки: без своей второй рамки и отступов */
+  .journal-page .journal-head__filters .beauty-bar,
+  .journal-page .journal-head__filters .beauty-calendar-toolbar,
+  .journal-page .journal-head__filters .beauty-calendar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .journal-head__filters .tabs,
+  .journal-head__filters .rest-shifts {
+    margin: 0;
+  }
+  /* переход по дням: одна рамка, как период календаря гостиницы */
+  .day-nav.board-period {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-h);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+  }
+  .day-nav.board-period .date-range > summary {
+    min-height: calc(var(--control-h) - 2px);
+    border: 0;
+    background: transparent;
+  }
+  .day-nav.board-period .icon-button {
+    display: inline-grid;
+    place-items: center;
+    width: var(--space-8);
+    height: var(--space-8);
+  }
+  .day-nav__label {
+    padding: 0 var(--space-4);
+    font-size: var(--text-sm);
+    white-space: nowrap;
+  }
+  @media (max-width: 600px) {
+    .journal-head__title {
+      font-size: var(--text-xl);
+    }
+    .journal-head__icon {
+      width: var(--space-6);
+      height: var(--space-6);
+    }
+    .journal-head__subtitle {
+      display: none;
+    }
+    .journal-head__actions {
+      width: 100%;
+    }
+    .journal-head__actions > .day-nav {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .journal-head__actions .btn,
+    .day-nav.board-period .icon-button {
+      min-height: var(--touch-target);
+    }
+    .journal-head__filters {
+      padding: var(--space-2);
+    }
+  }
+}

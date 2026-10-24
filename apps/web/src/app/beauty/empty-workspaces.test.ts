@@ -7,7 +7,7 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh() {} }), useSear
 vi.mock('../../components/overlay', () => ({ Overlay: () => null }));
 vi.mock('./appointment-form', () => ({ AppointmentForm: () => null }));
 vi.mock('./appointment-card', () => ({ AppointmentCard: () => null }));
-vi.mock('./date-bar', () => ({ DateBar: () => null }));
+vi.mock('../../components/day-nav', () => ({ DayNav: () => null }));
 vi.mock('./actions', () => ({}));
 vi.mock('../customers/actions', () => ({ markBeautyCustomer: vi.fn(), applyBeautyCustomerImport: vi.fn(), createBeautyCustomer: vi.fn(), createBeautyCustomerState: vi.fn(), previewBeautyCustomerImport: vi.fn() }));
 vi.mock('../../components/use-confirm', () => ({ useConfirm: () => ({}) }));
@@ -99,7 +99,8 @@ describe('Пустые рабочие экраны салона', () => {
     // причина бледной кнопки видна сразу у кнопки (п. 13)
     expect(html).toContain('title="Сначала добавьте услугу и специалиста с графиком"');
   });
-  it('День и Неделя стоят в одной строке с датой (п. 34)', () => {
+  // с 23.10.2026 (единая шапка журнала) «День / Неделя» в строке отборов рядом со специалистами, день в шапке
+  it('День и Неделя стоят в строке отборов журнала (п. 34, единая шапка 23.10.2026)', () => {
     const html = renderToStaticMarkup(
       createElement(JournalBoard, {
         day,
@@ -109,8 +110,10 @@ describe('Пустые рабочие экраны салона', () => {
         views: createElement('nav', { 'aria-label': 'Вид журнала' }, 'День Неделя'),
       }),
     );
-    const actions = html.slice(html.indexOf('beauty-calendar-actions'), html.indexOf('+ Новая запись'));
-    expect(actions).toContain('aria-label="Вид журнала"');
+    const filters = html.slice(html.indexOf('journal-head__filters'));
+    expect(filters).toContain('beauty-calendar-actions');
+    expect(filters).toContain('aria-label="Вид журнала"');
+    expect(html.indexOf('+ Новая запись')).toBeLessThan(html.indexOf('journal-head__filters'));
   });
   it('сохраняет настоящую колонку мастера без услуг', () => {
     const column = {

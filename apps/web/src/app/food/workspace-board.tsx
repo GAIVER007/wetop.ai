@@ -31,6 +31,8 @@ import { TablePanel, KIND_LABEL, type TableKind } from './table-panel';
 import { FloorLayoutEditor, SHAPE_CSS, spotStyle } from './floor-layout-editor';
 import { layoutSpots, tableShapeOf } from '@pms/domain';
 import { QuickReport } from '../../components/quick-report';
+import { DayNav } from '../../components/day-nav';
+import { JournalHead } from '../../components/journal-head';
 import { foodQuickReport } from '../../components/quick-report-data';
 import { compareTables } from '../../lib/table-title';
 import { formatPhone } from '../../lib/phone';
@@ -184,80 +186,97 @@ export function WorkspaceBoard({
   };
   return (
     <div className="food-workspace rest-ws">
-      <div className="rest-bar">
-        <Tabs
-          label="Зал"
-          items={[
-            { href: `/floor-plan?date=${data.date}`, label: 'План зала', current: floor },
-            { href: `/table-reservations?date=${data.date}`, label: 'Расписание', current: !floor },
-          ]}
-        />
-        <div className="rest-bar__controls" role="group" aria-label="День и отборы">
-          <DayToolbar data={data} floor={floor} period={period} setPeriod={setPeriod} />
-          <QuickReport
+      <JournalHead
+        title={floor ? 'План зала' : 'Бронирования'}
+        subtitle={floor ? 'Бронирования столов и загрузка зала' : 'Расписание столов на день'}
+        nav={
+          <DayNav
+            date={data.date}
+            today={localInput(new Date().toISOString(), data.timezone).slice(0, 10)}
+            testId="food-day-nav"
+            onGo={(next) => router.push(`${floor ? '/floor-plan' : '/table-reservations'}?date=${next}`)}
+          />
+        }
+        actions={
+          <>
+            <QuickReport
+              text="Быстрый отчёт"
             key={`${data.scopeKey}:${data.date}`}
             date={data.date}
             scope={['Бронирования столов', period ? data.periods.find((p) => p.id === period)?.name ?? 'Период' : 'Все периоды', ...(area || status || search ? ['С учётом фильтров'] : [])]}
             build={() => foodQuickReport(filtered.filter(onDay))}
           />
-          {!floor && (
-            <>
-              <Segmented
-                label="Вид"
-                value={view}
-                onChange={setView}
-                options={[
-                  { value: 'timeline', label: 'Шкала' },
-                  { value: 'list', label: 'Список' },
-                ]}
-              />
-              <Field label={quiet('Зона')}>
-                <Select value={area} onChange={(e) => setArea(e.target.value)}>
-                  <option value="">Все зоны</option>
-                  {areas.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.name}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
-              <Field label={quiet('Статус')}>
-                <Select value={status} onChange={(e) => setStatus(e.target.value)}>
-                  <option value="">Все статусы</option>
-                  {Object.entries(foodStatus).map(([s, { label: l }]) => (
-                    <option key={s} value={s}>
-                      {l}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
-              <Field label={quiet('Поиск гостя')}>
-                <IconField icon="search">
-                  <Input
-                    type="search"
-                    placeholder="Поиск гостя"
-                    data-page-search
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </IconField>
-              </Field>
-            </>
-          )}
-          {write && (
-            <>
-              {floor && (
-                <Button tone="secondary" onClick={() => setDraft({ kind: 'create', walkIn: true })}>
-                  Посадить без брони
+            {write && (
+              <>
+                {floor && (
+                  <Button tone="secondary" onClick={() => setDraft({ kind: 'create', walkIn: true })}>
+                    Посадить без брони
+                  </Button>
+                )}
+                <Button onClick={() => setDraft({ kind: 'create', walkIn: false })}>
+                  + Новая бронь
                 </Button>
-              )}
-              <Button onClick={() => setDraft({ kind: 'create', walkIn: false })}>
-                + Новая бронь
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
+              </>
+            )}
+          </>
+        }
+        filters={
+          <>
+            <Tabs
+              label="Зал"
+              items={[
+                { href: `/floor-plan?date=${data.date}`, label: 'План зала', current: floor },
+                { href: `/table-reservations?date=${data.date}`, label: 'Расписание', current: !floor },
+              ]}
+            />
+            <DayToolbar data={data} floor={floor} period={period} setPeriod={setPeriod} />
+            {!floor && (
+              <>
+                <Segmented
+                  label="Вид"
+                  value={view}
+                  onChange={setView}
+                  options={[
+                    { value: 'timeline', label: 'Шкала' },
+                    { value: 'list', label: 'Список' },
+                  ]}
+                />
+                <Field label={quiet('Зона')}>
+                  <Select value={area} onChange={(e) => setArea(e.target.value)}>
+                    <option value="">Все зоны</option>
+                    {areas.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label={quiet('Статус')}>
+                  <Select value={status} onChange={(e) => setStatus(e.target.value)}>
+                    <option value="">Все статусы</option>
+                    {Object.entries(foodStatus).map(([s, { label: l }]) => (
+                      <option key={s} value={s}>
+                        {l}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label={quiet('Поиск гостя')}>
+                  <IconField icon="search">
+                    <Input
+                      type="search"
+                      placeholder="Поиск гостя"
+                      data-page-search
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                    />
+                  </IconField>
+                </Field>
+              </>
+            )}
+          </>
+        }
+      />
       {cleaningError && <Alert>{cleaningError}</Alert>}
       {!data.periods.some((p) => p.active) && <Notice>Настройте период обслуживания</Notice>}
       {floor ? (

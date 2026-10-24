@@ -1,5 +1,8 @@
 'use client';
 import Link from 'next/link';
+import type { ReactNode } from 'react';
+import { Icon } from '../../components/icon';
+import { JournalHead } from '../../components/journal-head';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { EmployeeFilter } from '../../components/employee-filter';
 import { QuickReport } from '../../components/quick-report';
@@ -15,7 +18,10 @@ export function WeekCalendar({
   days,
   selectedDate,
   employees,
+  views,
 }: {
+  /** «День / Неделя» в строке отборов единой шапки */
+  views?: ReactNode;
   days: BeautyDay[];
   selectedDate: string;
   employees: BeautyEmployeeRow[];
@@ -52,34 +58,48 @@ export function WeekCalendar({
   };
   return (
     <div data-testid="beauty-week">
-      <div className="beauty-bar">
-        <EmployeeFilter
-          options={options}
-          value={employee}
-          allLabel="Все специалисты"
-          kind="specialists"
-          onChange={(id) => router.replace(href(selectedDate, true, id), { scroll: false })}
-        />
-        <Link href={shift(-7)} className="btn btn--secondary">
-          Предыдущая неделя
-        </Link>
-        <b>{displayPeriod(first.date, days.at(-1)!.date)}</b>
-        <Link href={shift(7)} className="btn btn--secondary">
-          Следующая неделя
-        </Link>
-        <QuickReport
-          key={`${selected.date}:${employee}`}
-          date={selected.date}
-          scope={[
-            employee
-              ? (options.find((e) => e.id === employee)?.name ?? 'Специалист недоступен')
-              : 'Все специалисты',
-            'Выбранный день',
-            ...(service || status ? ['С учётом фильтров'] : []),
-          ]}
-          build={() => beautyQuickReport(visible(selected))}
-        />
-      </div>
+      <JournalHead
+        title="Журнал"
+        subtitle="Неделя специалистов"
+        nav={
+          <div className="board-period day-nav" role="group" aria-label="Неделя журнала">
+            <b className="day-nav__label">{displayPeriod(first.date, days.at(-1)!.date)}</b>
+            <Link href={shift(-7)} className="icon-button" aria-label="Предыдущая неделя">
+              <Icon name="chevron" className="rotate-left" />
+            </Link>
+            <Link href={shift(7)} className="icon-button" aria-label="Следующая неделя">
+              <Icon name="chevron" />
+            </Link>
+          </div>
+        }
+        actions={
+          <QuickReport
+            text="Быстрый отчёт"
+            key={`${selected.date}:${employee}`}
+            date={selected.date}
+            scope={[
+              employee
+                ? (options.find((e) => e.id === employee)?.name ?? 'Специалист недоступен')
+                : 'Все специалисты',
+              'Выбранный день',
+              ...(service || status ? ['С учётом фильтров'] : []),
+            ]}
+            build={() => beautyQuickReport(visible(selected))}
+          />
+        }
+        filters={
+          <>
+            <EmployeeFilter
+              options={options}
+              value={employee}
+              allLabel="Все специалисты"
+              kind="specialists"
+              onChange={(id) => router.replace(href(selectedDate, true, id), { scroll: false })}
+            />
+            {views}
+          </>
+        }
+      />
       <CalendarLegend />
       <div className="beauty-week-calendar">
         {days.map((day) => {

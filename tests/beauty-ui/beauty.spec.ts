@@ -621,7 +621,7 @@ test('новая запись: свободное время мастера кн
   await page.goto(`/calendar?date=${day}`);
   await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
   const panel = page.getByRole('dialog');
-  await expect(panel.getByRole('region', { name: 'Услуга и время' })).toBeVisible();
+  await expect(panel.getByRole('region', { name: 'Выбор времени записи' })).toBeVisible();
   await panel.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });
   const slots = panel.getByTestId('slot-group');
   await expect(slots).toBeVisible();

@@ -112,11 +112,10 @@ export default async function BeautyPage({
   );
   return (
     <Page
-      className="beauty-page"
+      className="beauty-page journal-page"
       title="Журнал"
       subtitle={`Расписание специалистов и услуг салона${loaded.value.location.name ? `, ${loaded.value.location.name}` : ''}`}
     >
-      {loaded.week && views}
       {manual && manual.items.length > 0 && (
         <RemindersToday
           items={manual.items}
@@ -126,6 +125,7 @@ export default async function BeautyPage({
       )}
       {loaded.week ? (
         <WeekCalendar
+          views={views}
           days={loaded.week}
           employees={loaded.employees}
           selectedDate={loaded.value.date}

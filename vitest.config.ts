@@ -21,7 +21,7 @@ export default defineConfig({
             'scripts/**/*.test.ts',
             'tests/unit/**/*.test.ts',
           ],
-          exclude: ['**/node_modules/**', '**/dist/**', '**/.next/**', 'tests/e2e/**'],
+          exclude: ['**/node_modules/**', '**/dist/**', '**/.next/**', 'tests/e2e/**', 'apps/mobile/**'],
         },
       },
       {

@@ -9,6 +9,7 @@ import type {
   FoodCashOperationInput,
   FoodCashView,
   FoodCustomer,
+  FoodCustomerDetail,
   FoodEmployee,
   FoodPaymentMethod,
   FoodPage,
@@ -133,6 +134,7 @@ export const foodApi = {
   /** `search`: имя или телефон гостя (поиск в шапке, аудит 22.10.2026 P1-4) */
   customers: (cursor?: string, search?: string) =>
     getJsonPublic<FoodPage<FoodCustomer>>(`${base}/customers${query(cursor, undefined, search)}`),
+  customer: (id: string) => getJsonPublic<FoodCustomerDetail>(idPath('customers', id)),
   updateCustomer: (id: string, body: { isVip?: boolean; birthDate?: string | null }) =>
     sendJson<{ id: string }>('PATCH', idPath('customers', id), body),
   reservations: (date: string, cursor?: string) =>

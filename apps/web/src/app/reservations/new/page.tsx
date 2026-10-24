@@ -61,7 +61,7 @@ export default async function NewReservationPage({
   const departure = q.departure ?? (isDate(arrival) ? plusDays(arrival, 1) : '');
   const validDates = isDate(arrival) && isDate(departure) && departure > arrival;
   // Без справочника фонда или тарифов бронь не создать — но это предупреждение на месте, не экран ошибки
-  const [summary, ratePlans, availability, piiStorage, found] = await Promise.all([
+  const [summary, ratePlans, availability, piiStorage, found, units] = await Promise.all([
     api.inventorySummary().catch(() => null),
     reservationsApi.ratePlans().catch(() => null),
     validDates
@@ -70,7 +70,12 @@ export default async function NewReservationPage({
     api.piiStorage(),
     // G6 (ТЗ «Гости v2» §33): «Новая бронь» из карточки гостя приходит с `?guest=` — бронь на него
     q.guest ? guestsApi.preview(q.guest).catch(() => null) : Promise.resolve(null),
+    // уборка номеров для точки «ещё не убран» справа (решение 23.10.2026); без ответа точек просто нет
+    api.inventoryUnits().catch(() => []),
   ]);
+  const housekeeping = Object.fromEntries(
+    (Array.isArray(units) ? units : []).map((u) => [u.code, u.housekeepingStatus]),
+  );
   const guest: BookingGuest | null = found && {
     id: found.id,
     name: [found.lastName, found.firstName, found.middleName].filter(Boolean).join(' '),
@@ -93,7 +98,7 @@ export default async function NewReservationPage({
   });
   return (
     <Page
-      width="medium"
+      width="wide"
       className={`booking-create ${design.screen}`}
       title="Новая бронь"
       embedded={embedded}
@@ -131,6 +136,7 @@ export default async function NewReservationPage({
           ratePlans={ratePlans}
           piiStorage={piiStorage}
           guest={guest}
+          housekeeping={housekeeping}
           canMutate={canMutate}
         />
       )}

@@ -1,5 +1,5 @@
 .screen:global(.page.booking-create) {
-  max-width: 900px;
+  max-width: var(--overlay-w-xl);
   margin-inline: auto;
   min-height: 0;
 }
@@ -112,7 +112,7 @@
   white-space: nowrap;
 }
 .drawer:global(.ui-overlay.ui-drawer) {
-  width: min(940px, calc(100vw - 32px));
+  width: min(var(--overlay-w-xl), calc(100vw - 32px));
   max-width: none;
   background: var(--surface);
   height: auto;
@@ -162,5 +162,61 @@
 @media (max-width: 600px) {
   .form :global(.booking-footer) {
     position: static;
+  }
+}
+
+/* окно брони вариант B (решение 23.10.2026): внутри окна форма без своей рамки, отступы даёт окно */
+.drawer :global(.booking-form) {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.form :global(.booking-shell .booking-create__dates) {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.form :global(.booking-shell .placement-fields) {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.drawer :global(.booking-form .booking-footer) {
+  margin: 0;
+  padding-inline: 0;
+}
+
+/* подвал как у салона и ресторана (окно брони 23.10.2026): сумма слева, суть посередине, кнопки справа */
+@media (min-width: 601px) {
+  .form :global(.booking-shell__footer.booking-footer) {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin: 0;
+    padding: var(--space-4) 0;
+    border-radius: 0;
+  }
+  .form :global(.booking-shell__footer .booking-footer__actions) {
+    display: contents;
+  }
+  .form :global(.booking-shell__footer .booking-create__price) {
+    order: 1;
+    flex: none;
+  }
+  .form :global(.booking-shell__footer .booking-footer__digest) {
+    order: 2;
+    flex: 1;
+    margin: 0;
+    font-size: var(--text-sm);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .form :global(.booking-shell__footer) .buttons {
+    order: 3;
+    margin: 0;
+  }
+  .form :global(.booking-shell .booking-create__quick button) {
+    padding-inline: var(--space-2);
   }
 }

@@ -100,6 +100,9 @@ const ASSISTANT_ACT_ALLOWED = [
  */
 const MARKET_COLLECT_LIST = '/market/collector/competitors';
 const MARKET_COLLECT_WRITE = /^\/market\/collector\/competitors\/[^/]+\/occupancy$/;
+/** Тот же ключ для соседей салона и ресторана (DATA_MODEL §60): список и запись дней одного соседа, больше ничего */
+const BUSINESS_COLLECT_LIST = '/business-market/collector/competitors';
+const BUSINESS_COLLECT_WRITE = /^\/business-market\/collector\/competitors\/[^/]+\/days$/;
 
 /**
  * Ключ публичного рантайма сайтов (`SITES_RUNTIME_KEY`, MKT4, ADR-149): только `GET /sites-runtime/current` и, с MKT7,
@@ -125,8 +128,8 @@ const VOICE_BOOK_ALLOWED = ['/voice/booking-quotes', '/voice/booking-quotes/conf
 function marketCollectAllowed(method: unknown, url: unknown): boolean {
   const path = pathOf(url);
   if (path === null) return false;
-  if (method === 'GET') return path === MARKET_COLLECT_LIST;
-  return method === 'PUT' && MARKET_COLLECT_WRITE.test(path);
+  if (method === 'GET') return path === MARKET_COLLECT_LIST || path === BUSINESS_COLLECT_LIST;
+  return method === 'PUT' && (MARKET_COLLECT_WRITE.test(path) || BUSINESS_COLLECT_WRITE.test(path));
 }
 
 function pathOf(url: unknown): string | null {

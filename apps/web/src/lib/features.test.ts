@@ -70,9 +70,9 @@ describe('реестр функций', () => {
   });
 });
 
-it('customer detail has its own vertical boundary while the customer list remains shared', () => {
+it('customer list and customer card are shared by salon and restaurant (owner 23.10.2026 p. 4)', () => {
   expect(featureVerticals('/customers')).toEqual(['BEAUTY','FOOD_SERVICE']);
-  expect(featureVerticals('/customers/11111111-1111-4111-8111-111111111111')).toEqual(['BEAUTY']);
+  expect(featureVerticals('/customers/11111111-1111-4111-8111-111111111111')).toEqual(['BEAUTY', 'FOOD_SERVICE']);
 });
 
 it('kitchen and consumables stock opens for hotel and salon, the restaurant has /stock', () => {

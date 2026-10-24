@@ -1288,69 +1288,6 @@
 }
 
 @layer sections {
-  /* ── Новая бронь по макету (экран 4): поля слева, доступные столы карточками справа ── */
-  .food-form.rest-book {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: var(--space-6);
-    row-gap: var(--space-4);
-    align-items: start;
-  }
-  .rest-book > * {
-    grid-column: 1;
-  }
-  .rest-book > .rest-book-tables {
-    grid-column: 2;
-    grid-row: 1 / span 12;
-  }
-  .rest-book-tables {
-    display: grid;
-    gap: var(--space-2);
-    align-content: start;
-  }
-  .rest-book-tables h3 {
-    margin: 0;
-    font-size: var(--text-md);
-  }
-  .rest-book-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: var(--space-2);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .rest-book-grid li {
-    display: grid;
-    gap: var(--space-1);
-    padding: var(--space-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--surface-solid);
-  }
-  .rest-book-grid li[data-selected] {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 1px var(--primary);
-  }
-  .rest-book-grid small {
-    color: var(--text-2);
-    font-size: var(--text-xs);
-  }
-  .rest-book-grid .btn {
-    margin-top: var(--space-1);
-  }
-  @media (max-width: 960px) {
-    .food-form.rest-book {
-      grid-template-columns: minmax(0, 1fr);
-    }
-    .rest-book > .rest-book-tables {
-      grid-column: 1;
-      grid-row: auto;
-    }
-  }
-}
-
-@layer sections {
   /* Вкладки ресторана — общий `.tabs` (components.css), как в салоне и гостинице (22.10.2026). */
   .rest-finance-total {
     margin-left: auto;
@@ -1613,60 +1550,6 @@
     background: transparent;
     color: var(--primary);
     box-shadow: inset 0 -2px 0 var(--primary);
-  }
-}
-
-@layer sections {
-  /* полоса шагов новой брони по макету (экран 4): номер в круге, текущий шаг синим с чертой */
-  .rest-steps {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-6);
-    margin: 0;
-    padding: 0 0 var(--space-2);
-    border-bottom: 1px solid var(--border);
-    list-style: none;
-    font-size: var(--text-sm);
-    color: var(--text-2);
-  }
-  .rest-book > .rest-steps {
-    grid-column: 1 / -1;
-    grid-row: 1;
-  }
-  .rest-book > .rest-book-tables {
-    grid-row: 2 / span 12;
-  }
-  .rest-steps li {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-  .rest-steps__n {
-    display: grid;
-    place-items: center;
-    width: var(--space-6);
-    height: var(--space-6);
-    border: 1px solid var(--border-input);
-    border-radius: 50%;
-    font-size: var(--text-xs);
-  }
-  .rest-steps li[data-done] .rest-steps__n {
-    border-color: var(--success);
-    background: var(--success-soft);
-    color: var(--success);
-  }
-  .rest-steps li[aria-current='step'] {
-    color: var(--primary);
-    font-weight: var(--weight-semibold);
-  }
-  .rest-steps li[aria-current='step'] .rest-steps__n {
-    border-color: var(--primary);
-    background: var(--primary-soft);
-  }
-  @media (max-width: 960px) {
-    .rest-book > .rest-book-tables {
-      grid-row: auto;
-    }
   }
 }
 
@@ -1988,5 +1871,38 @@
     .rest-reminders-today__actions {
       flex-wrap: wrap;
     }
+  }
+}
+
+@layer sections {
+  /* Новая бронь стола в общем окне брони (решение владельца 23.10.2026, вариант B, `components/booking-shell.tsx`):
+     слева гость (имя, фамилия, затем телефон), дата, время, период и число гостей; справа свободные столы по залам */
+  .food-form.rest-book {
+    display: block;
+  }
+  .rest-book .booking-shell__form,
+  .rest-book .booking-shell__pick {
+    padding-top: 0;
+  }
+  .rest-book__mode {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .rest-book__mode > legend {
+    padding: 0 0 var(--space-2);
+    font-weight: var(--weight-semibold);
+  }
+  .rest-book__guest {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2) var(--space-4);
+  }
+  .rest-book__phone {
+    grid-column: 1 / -1;
+  }
+  .rest-book .booking-shell__footer {
+    bottom: calc(-1 * var(--space-4));
   }
 }

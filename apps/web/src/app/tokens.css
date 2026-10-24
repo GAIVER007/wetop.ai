@@ -85,6 +85,7 @@
   --drawer-w-sm: 400px;
   --drawer-w-md: 640px;
   --drawer-w-lg: 760px;
+  --overlay-w-xl: 1080px;
   --space-1: 4px;
   --space-2: 8px;
   --space-4: 16px;
@@ -283,6 +284,7 @@
   --drawer-w-sm: 400px;
   --drawer-w-md: 640px;
   --drawer-w-lg: 760px;
+  --overlay-w-xl: 1080px;
   --space-1: 4px;
   --space-2: 8px;
   --space-4: 16px;

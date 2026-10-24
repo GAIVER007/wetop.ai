@@ -60,16 +60,22 @@ export function MonthNav({ base, month }: { base: string; month: string }) {
   );
 }
 
-/** Вкладки раздела маршрутами, как у «Настроек объекта»: Обзор | Расходы | Аналитика */
-export function BudgetTabs({ current, month }: { current: string; month: string }) {
+/** Заголовок раздела на всех вкладках: один пункт меню «Бюджет и аналитика» (решение владельца 20.10.2026) */
+export const BUDGET_TITLE = 'Бюджет и аналитика';
+
+export type BudgetTab = 'summary' | 'plan' | 'expenses' | 'analytics';
+
+/** Вкладки раздела маршрутами, как у «Настроек объекта»: Сводка | План | Расходы | Аналитика */
+export function BudgetTabs({ current, month }: { current: BudgetTab; month: string }) {
   const q = `?month=${month}`;
   const items = [
-    { href: `/marketing/budget${q}`, label: 'Обзор', current: current === 'overview' },
+    { href: `/marketing/budget${q}`, label: 'Сводка', current: current === 'summary' },
+    { href: `/marketing/budget/plan${q}`, label: 'План', current: current === 'plan' },
     { href: `/marketing/budget/expenses${q}`, label: 'Расходы', current: current === 'expenses' },
-    // аналитика выросла в раздел всего маркетинга (10.10.2026); вкладка ведёт туда же
+    // воронка и календарь по дням живут на прежнем адресе «Аналитики маркетинга» (10.10.2026)
     { href: `/marketing/analytics${q}`, label: 'Аналитика', current: current === 'analytics' },
   ];
-  return <Tabs label="Разделы бюджета" items={items} className="budget-tabs" />;
+  return <Tabs label="Разделы бюджета и аналитики" items={items} className="budget-tabs" />;
 }
 
 /** Распределение по платформам: имя, полоса доли, сумма и процент (экраны 2 и 5 макета) */

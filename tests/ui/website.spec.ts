@@ -42,15 +42,14 @@ test('одна точка входа в меню и четыре вкладки 
   const hrefs = await menuLinks(page);
   // MKT2: вход в сайт один, пункт «Маркетинг → Сайт и SEO» ведёт в хаб; у страниц /website/* пункта меню нет
   expect(hrefs.filter((href) => href?.startsWith('/website'))).toEqual([]);
-  // МКТ-В1/В2: в группе «Маркетинг» сайт и SEO, бюджет и аналитика маркетинга; адресов сайта `/website` в меню нет
-  // ADR-184: группа «Продвижение»
+  // МКТ-В1/В2: в группе «Маркетинг» сайт и SEO, «Бюджет и аналитика»; адресов сайта `/website` в меню нет
+  // ADR-184: группа «Продвижение»; решение 20.10.2026: бюджет и аналитика одним пунктом
   expect(hrefs.filter((href) => href?.startsWith('/marketing'))).toEqual([
     '/marketing',
     '/marketing/ads',
     '/marketing/content',
     '/marketing/voice',
     '/marketing/budget',
-    '/marketing/analytics',
   ]);
   expect(hrefs.filter((href) => href?.startsWith('/analytics'))).toEqual([]);
   const tabs = page.getByRole('navigation', { name: TITLE, exact: true });

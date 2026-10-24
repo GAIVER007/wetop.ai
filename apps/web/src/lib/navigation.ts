@@ -423,15 +423,17 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Сайт и SEO, реклама, конкуренты, контент и бюджет в одном разделе.',
       },
       {
-        // МКТ-В1/В2 (ADR-MKT-B1): учёт рекламного бюджета и расходов; право раздела, как у хаба
+        // МКТ-В1/В2 (ADR-MKT-B1): учёт рекламного бюджета и расходов; право раздела, как у хаба.
+        // С 20.10.2026 один пункт «Бюджет и аналитика»: сводка, план, расходы и аналитика вкладками
         href: '/marketing/budget',
         requires: 'marketing',
-        label: 'Бюджет маркетинга',
+        label: 'Бюджет и аналитика',
         icon: 'money',
-        description: 'План месяца и расходы на продвижение по каналам.',
+        description: 'Расходы, заявки, цена обращения и окупаемость рекламы по каналам, план месяца и журнал расходов.',
       },
       {
-        // «Маркетинг → Аналитика» (10.10.2026): эффективность источников; лиды и выручка с этапов В3/В5/В6
+        // «Маркетинг → Аналитика» (10.10.2026): эффективность источников. С 20.10.2026 вкладка «Бюджета и аналитики»:
+        // пункта меню нет, адрес рабочий, подсвечивает «Бюджет и аналитика» (`activeMenuRoute`)
         href: '/marketing/analytics',
         requires: 'marketing',
         label: 'Аналитика маркетинга',
@@ -742,8 +744,8 @@ const ROW: Array<{
       // мониторинг загрузки соседей пока только у гостиницы (ADR-142)
       { label: 'Анализ конкурентов', at: { HOSPITALITY: '/market' } },
       { label: 'Обзор продаж', at: ALL('/sales') },
-      { label: 'Бюджет', at: ALL('/marketing/budget') },
-      { label: 'Аналитика маркетинга', at: ALL('/marketing/analytics') },
+      // один пункт вместо «Бюджета» и «Аналитики маркетинга» (решение владельца 20.10.2026)
+      { label: 'Бюджет и аналитика', at: ALL('/marketing/budget') },
     ],
     match: ['/website', '/ai-seller'],
   },
@@ -1047,6 +1049,8 @@ export function activeMenuRoute(path: string): string | undefined {
   if (route.startsWith('/channels')) return '/channels';
   // сайт объекта, продукт «Маркетинга»: в меню один пункт «Сайт и SEO» (MKT2)
   if (route === '/website') return '/marketing';
+  // «Аналитика маркетинга» вкладка «Бюджета и аналитики» (20.10.2026): пункт меню один
+  if (route === '/marketing/analytics') return '/marketing/budget';
   return route;
 }
 

@@ -242,6 +242,68 @@
     font-size: var(--text-sm);
   }
 
+  /* «Сводка» (20.10.2026): пропуск в ячейке словами «Нет данных», причина при наведении и для программы чтения.
+     Опора `position: relative` держит скрытую причину (sr-only, absolute) внутри прокрутки таблицы */
+  .budget-cell-missing {
+    position: relative;
+    color: var(--muted);
+  }
+
+  /* «Откуда берутся цифры» (20.10.2026): источник карточкой; две колонки от 961 px, на телефоне столбиком */
+  .budget-sources {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 961px) {
+    .budget-sources {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .budget-sources__row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .budget-sources__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .budget-sources__title {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: 600;
+  }
+
+  .budget-sources__status {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .budget-sources__text {
+    margin: 0;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+
+  .budget-sources__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: auto;
+    padding-top: var(--space-2);
+  }
+
   /* «Аналитика маркетинга»: восемь плиток ровно 4 + 4 на компьютере, без сироты во втором ряду */
   @media (min-width: 961px) {
     .man-stats {

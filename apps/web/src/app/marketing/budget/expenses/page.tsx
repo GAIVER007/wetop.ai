@@ -16,7 +16,7 @@ import { BackToModules } from '../../parts';
 import '../../marketing.css';
 import '../budget.css';
 import { loadBudget } from '../load';
-import { BudgetTabs, ChooseLocation, MonthNav, PLATFORM_LABELS, platformLabel } from '../parts';
+import { BUDGET_TITLE, BudgetTabs, ChooseLocation, MonthNav, PLATFORM_LABELS, platformLabel } from '../parts';
 import { ExpenseButton, ExportCsvButton, ImportCsvButton } from '../drawers';
 
 /**
@@ -37,7 +37,7 @@ export default async function BudgetExpensesPage({
   const subtitle = 'Журнал всех расходов на продвижение за месяц.';
   if (loaded.chooseLocation || loaded.error)
     return (
-      <Page crumbs={<BackToModules />} title="Расходы на маркетинг" subtitle={subtitle}>
+      <Page crumbs={<BackToModules />} title={BUDGET_TITLE} subtitle={subtitle}>
         {loaded.error ? <LoadError testId="budget-error" {...loaded.error} /> : <ChooseLocation />}
       </Page>
     );
@@ -64,7 +64,7 @@ export default async function BudgetExpensesPage({
   return (
     <Page
       crumbs={<BackToModules />}
-      title="Расходы на маркетинг"
+      title={BUDGET_TITLE}
       subtitle={subtitle}
       actions={editable ? <ExpenseButton primary defaults={defaults} /> : undefined}
     >

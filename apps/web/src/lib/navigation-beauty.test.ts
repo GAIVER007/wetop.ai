@@ -50,7 +50,7 @@ describe('меню салона', () => {
       // «Подключения» и «Неисправности» только у гостиницы (аудит 17.10.2026, Д1)
       ['Настройки', ['/beauty-settings', '/journal', '/settings']],
       // без «Конкурентов»: мониторинг соседей пока только у гостиницы
-      ['Продвижение', ['/marketing', '/marketing/ads', '/marketing/content', '/marketing/voice', '/ai-agents', '/sales', '/marketing/budget', '/marketing/analytics']],
+      ['Продвижение', ['/marketing', '/marketing/ads', '/marketing/content', '/marketing/voice', '/ai-agents', '/sales', '/marketing/budget']],
       ['Помощь', ['/help']],
     ]);
   });

@@ -125,6 +125,21 @@
     }
   },
   {
+    "route": "/bar/menu",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY"
+    ],
+    "branch": "/today",
+    "active": "/bar/menu",
+    "rule": {
+      "href": "/bar/menu",
+      "label": "Меню бара",
+      "requires": "reports"
+    }
+  },
+  {
     "route": "/bar/operations",
     "vertical": null,
     "features": [

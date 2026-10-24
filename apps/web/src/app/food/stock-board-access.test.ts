@@ -8,7 +8,7 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh() {} }) }));
 vi.mock('../../components/use-confirm', () => ({
   useConfirm: () => ({ ask: vi.fn(), dialog: null }),
 }));
-vi.mock('./stock-actions', () => ({ mutateStock: vi.fn(), loadLots: vi.fn() }));
+vi.mock('./stock-actions', () => ({ mutateStock: vi.fn(), loadLots: vi.fn(), loadPrepRecipe: vi.fn() }));
 
 const product: StockProductView = {
   id: 'synthetic-product',
@@ -19,7 +19,7 @@ const product: StockProductView = {
   onHand: '10',
   valueMinor: '1234',
   low: false,
-  nearestExpiry: null,
+  nearestExpiry: null, kind: 'RAW' as const,
 };
 
 describe('shared stock controls', () => {
@@ -133,5 +133,30 @@ describe('shared stock controls', () => {
     const tools = html.slice(html.indexOf('rest-card__tools'), html.indexOf('<table'));
     expect(tools).toContain('+ Расходник');
     expect(tools).toContain('+ Приход товара');
+  });
+
+  it('§62 заготовки: метка «Заготовка», «Приготовили» и «Техкарта» у заготовки; у сырья их нет; приход только сырья', () => {
+    const prep: StockProductView = { ...product, id: 'synthetic-prep', name: 'Колбаса домашняя', unit: 'г', kind: 'PREP' };
+    const html = renderToStaticMarkup(createElement(StockBoard as never, {
+      ctx: { scopeKey: 's', currency: 'KZT', vertical: 'HOSPITALITY', canProperty: true, canDesk: true },
+      products: [product, prep],
+      movements: [{
+        id: 'm', productId: prep.id, productName: prep.name, unit: 'г', lotId: 'l', kind: 'PRODUCTION_IN',
+        qty: '2500', costMinor: '500500', reason: 'Приготовлено', createdAt: '2026-10-24T10:00:00.000Z',
+      }],
+    }));
+    expect(html.match(/>Заготовка</g)).toHaveLength(1);
+    expect(html).toContain('aria-label="Приготовили: Колбаса домашняя"');
+    expect(html).toContain('aria-label="Техкарта: Колбаса домашняя"');
+    expect(html).not.toContain('aria-label="Приготовили: Synthetic consumable"');
+    expect(html).not.toContain('aria-label="Техкарта: Synthetic consumable"');
+    expect(html).toContain('+ Приход товара');
+    // только заготовки: покупать нечего, кнопки прихода нет
+    const onlyPrep = renderToStaticMarkup(createElement(StockBoard as never, {
+      ctx: { scopeKey: 's', currency: 'KZT', canProperty: true, canDesk: true },
+      products: [prep],
+      movements: [],
+    }));
+    expect(onlyPrep).not.toContain('+ Приход товара');
   });
 });

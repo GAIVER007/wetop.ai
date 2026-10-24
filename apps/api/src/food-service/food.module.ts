@@ -127,7 +127,8 @@ export class FoodReservationsController {
 }
 @Controller('food-service')
 @Access('desk')
-@RequiresBusinessCapability('food.menu')
+// §62.3: меню у всех трёх направлений (у гостиницы и салона «Меню бара»)
+@RequiresBusinessCapability('branch.menu')
 export class FoodMenuController {
   constructor(
     @Inject(RestaurantService) private readonly service: RestaurantService,
@@ -167,6 +168,10 @@ export class FoodMenuController {
   }
   @Get('menu/items') @Access('orders') items(@Query() q: Record<string, unknown>) {
     return this.service.menuItems(q);
+  }
+  // §62.4 (K4): себестоимость и маржа всех позиций меню по текущим ценам склада кухни; только чтение
+  @Get('menu/costing') @Access('desk') costing() {
+    return this.service.menuCosting();
   }
   @Get('menu/items/:id') item(@Param('id') id: string) {
     return this.service.menuItem(id);
@@ -400,6 +405,19 @@ export class FoodStockController {
   @BeautyAccess('stock', 'update')
   @Post('stock/inventory') inventory(@Body() b: unknown) {
     return this.service.inventory(b);
+  }
+  // §62 заготовки: техкарта как справочник (`property`), «Приготовили» как приход (`desk`)
+  @BeautyAccess('stock', 'view')
+  @Get('stock/products/:id/recipe') prepRecipe(@Param('id') id: string) {
+    return this.service.prepRecipe(id);
+  }
+  @BeautyAccess('stock', 'update')
+  @Put('stock/products/:id/recipe') @Access('property') setPrepRecipe(@Param('id') id: string, @Body() b: unknown) {
+    return this.service.setPrepRecipe(id, b);
+  }
+  @BeautyAccess('stock', 'create')
+  @Post('stock/productions') produce(@Body() b: unknown) {
+    return this.service.produce(b);
   }
 }
 @Module({

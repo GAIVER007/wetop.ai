@@ -96,6 +96,10 @@
             "label": "Кухня"
           },
           {
+            "href": "/bar/menu",
+            "label": "Меню бара"
+          },
+          {
             "href": "/bar/receipts",
             "label": "Приходы"
           },
@@ -303,6 +307,10 @@
             "label": "Кухня"
           },
           {
+            "href": "/bar/menu",
+            "label": "Меню бара"
+          },
+          {
             "href": "/bar/receipts",
             "label": "Приходы"
           },
@@ -488,6 +496,10 @@
             "label": "Кухня"
           },
           {
+            "href": "/bar/menu",
+            "label": "Меню бара"
+          },
+          {
             "href": "/bar/receipts",
             "label": "Приходы"
           },
@@ -658,6 +670,10 @@
           {
             "href": "/bar/consumables",
             "label": "Кухня"
+          },
+          {
+            "href": "/bar/menu",
+            "label": "Меню бара"
           },
           {
             "href": "/bar/receipts",
@@ -861,6 +877,10 @@
           {
             "href": "/bar/consumables",
             "label": "Кухня"
+          },
+          {
+            "href": "/bar/menu",
+            "label": "Меню бара"
           },
           {
             "href": "/bar/receipts",
@@ -1068,6 +1088,10 @@
             "label": "Кухня"
           },
           {
+            "href": "/bar/menu",
+            "label": "Меню бара"
+          },
+          {
             "href": "/bar/receipts",
             "label": "Приходы"
           },
@@ -1267,6 +1291,10 @@
             "label": "Кухня"
           },
           {
+            "href": "/bar/menu",
+            "label": "Меню бара"
+          },
+          {
             "href": "/bar/receipts",
             "label": "Приходы"
           },
@@ -1454,6 +1482,10 @@
             "label": "Кухня"
           },
           {
+            "href": "/bar/menu",
+            "label": "Меню бара"
+          },
+          {
             "href": "/bar/receipts",
             "label": "Приходы"
           },
@@ -1628,6 +1660,10 @@
           {
             "href": "/bar/consumables",
             "label": "Кухня"
+          },
+          {
+            "href": "/bar/menu",
+            "label": "Меню бара"
           },
           {
             "href": "/bar/receipts",
@@ -1823,6 +1859,10 @@
           {
             "href": "/bar/consumables",
             "label": "Кухня"
+          },
+          {
+            "href": "/bar/menu",
+            "label": "Меню бара"
           },
           {
             "href": "/bar/receipts",

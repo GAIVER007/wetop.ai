@@ -301,6 +301,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         icon: 'stock',
         description: 'Продукты и материалы: приходы, списания и остатки.',
       },
+      // «Меню бара» гостиницы и салона (DATA_MODEL §62.3): кофе, бутерброды, лимонад с техкартой и добавками
+      {
+        href: '/bar/menu',
+        requires: 'reports',
+        label: 'Меню бара',
+        icon: 'kettle',
+        description: 'Кофе, напитки и закуски: цены, техкарты и добавки, продажа на баре со списанием продуктов.',
+      },
       // подстраницы бара пунктами раздела «Склад» (верхнее меню 17.10.2026); право то же, что у `/bar`
       {
         href: '/bar/products',
@@ -690,6 +698,8 @@ const ROW: Array<{
       { label: 'Склад кухни', at: { FOOD_SERVICE: '/stock' } },
       // решение владельца 24.10.2026: «Кухня» на складе у салона и гостиницы (у ресторана выше «Склад кухни»)
       { label: 'Кухня', at: { HOSPITALITY: '/bar/consumables', BEAUTY: '/bar/consumables' } },
+      // §62.3: у ресторана своё «Меню» в «Услугах»
+      { label: 'Меню бара', at: { HOSPITALITY: '/bar/menu', BEAUTY: '/bar/menu' } },
       { label: 'Приходы', at: ALL('/bar/receipts') },
       { label: 'Номенклатура', at: ALL('/bar/products') },
       { label: 'Поставщики', at: ALL('/bar/suppliers') },

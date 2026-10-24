@@ -4,10 +4,15 @@ import { unstable_rethrow } from 'next/navigation';
 import { ApiError } from '../../lib/api';
 import { currentMe } from '../../lib/desk-shell';
 import { stockApi } from '../../lib/food-api';
-import type { StockLotView, StockProductInput, StockReceiptInput } from '../../lib/food-types';
+import type { PrepRecipeInput, PrepRecipeView, StockLotView, StockProductInput, StockReceiptInput } from '../../lib/food-types';
 
-/** Склад FS2 (DATA_MODEL §34): действия стойки; деньги приходят целыми minor units выбранной валюты. */
+/**
+ * Склад кухни (DATA_MODEL §34, §62): действия стойки у гостиницы, салона и ресторана (ADR-STOCK-ALL); деньги
+ * приходят целыми minor units выбранной валюты.
+ */
 type StockCommand =
+  | { kind: 'produce'; body: { productId: string; qty: string; expiresOn?: string | null } }
+  | { kind: 'recipe'; id: string; body: PrepRecipeInput }
   | { kind: 'product'; id?: string; body: Partial<StockProductInput> }
   | { kind: 'receipt'; body: StockReceiptInput }
   | { kind: 'reverse'; id: string }
@@ -19,14 +24,14 @@ async function scope(key: string) {
   const vertical = context?.vertical;
   if (
     !context ||
-    (vertical !== 'BEAUTY' && vertical !== 'FOOD_SERVICE') ||
+    (vertical !== 'BEAUTY' && vertical !== 'FOOD_SERVICE' && vertical !== 'HOSPITALITY') ||
     !context.businessId ||
     !context.locationId ||
     key !== `${context.businessId}:${context.locationId}`
   )
     throw new ApiError(
       409,
-      `Выбран другой ${context?.vertical === 'BEAUTY' ? 'салон' : 'ресторан'}. Откройте форму заново.`,
+      `Выбран другой ${context?.vertical === 'BEAUTY' ? 'салон' : context?.vertical === 'HOSPITALITY' ? 'объект' : 'ресторан'}. Откройте форму заново.`,
     );
   return vertical;
 }
@@ -54,8 +59,14 @@ export async function mutateStock(
       case 'inventory':
         await stockApi.inventory(command.body);
         break;
+      case 'produce':
+        await stockApi.produce(command.body);
+        break;
+      case 'recipe':
+        await stockApi.setPrepRecipe(command.id, command.body);
+        break;
     }
-    revalidatePath(vertical === 'BEAUTY' ? '/bar/consumables' : '/stock');
+    revalidatePath(vertical === 'FOOD_SERVICE' ? '/stock' : '/bar/consumables');
     return { error: null };
   } catch (error) {
     unstable_rethrow(error);
@@ -76,5 +87,19 @@ export async function loadLots(
   } catch (error) {
     unstable_rethrow(error);
     return { error: error instanceof Error ? error.message : 'Не удалось загрузить партии', items: [] };
+  }
+}
+
+/** Техкарта заготовки для панели (чтение по требованию) */
+export async function loadPrepRecipe(
+  scopeKey: string,
+  productId: string,
+): Promise<{ error: string | null; recipe: PrepRecipeView | null }> {
+  try {
+    await scope(scopeKey);
+    return { error: null, recipe: await stockApi.prepRecipe(productId) };
+  } catch (error) {
+    unstable_rethrow(error);
+    return { error: error instanceof Error ? error.message : 'Не удалось загрузить техкарту', recipe: null };
   }
 }

@@ -141,6 +141,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /bar/report': 'desk',
   'POST /bar/sales/retail': 'desk',
   'POST /bar/sales/folio': 'desk',
+  // §62.3 «Меню бара»: продажа позиции меню, право как у продажи товара бара
+  'POST /bar/sales/menu': 'desk',
   // сторно гасит кассовую операцию и начисление фолио, как аннулирования в /finance (ADR-181)
   'POST /bar/sales/:id/reverse': 'refunds',
   'POST /bar/write-offs': 'desk',
@@ -275,6 +277,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PATCH /food-service/menu/categories/:id': 'property',
   'GET /food-service/menu/items': 'orders',
   'GET /food-service/menu/items/:id': 'desk',
+  'GET /food-service/menu/costing': 'desk',
   'POST /food-service/menu/items': 'property',
   'PATCH /food-service/menu/items/:id': 'property',
   'PUT /food-service/menu/items/:id/ingredients': 'property',
@@ -327,6 +330,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /food-service/stock/lots/:id/reverse': 'property',
   'POST /food-service/stock/write-offs': 'desk',
   'POST /food-service/stock/inventory': 'desk',
+  // §62 заготовки: техкарта под `property`, «Приготовили» под `desk`
+  'GET /food-service/stock/products/:id/recipe': 'desk',
+  'PUT /food-service/stock/products/:id/recipe': 'property',
+  'POST /food-service/stock/productions': 'desk',
   'GET /beauty/customers': 'desk',
   'GET /beauty/customers/:id': 'desk',
   'POST /beauty/customers': 'desk',

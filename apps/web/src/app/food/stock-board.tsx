@@ -18,12 +18,14 @@ import { wholeTenge } from '../../lib/dashboard-format';
 import { formatMoney } from '../../lib/money';
 import type { WebVertical } from '../../lib/vertical-landing';
 import type {
+  PrepRecipeView,
   StockLotView,
   StockMovementView,
+  StockProductKind,
   StockProductView,
   StockUnit,
 } from '../../lib/food-types';
-import { loadLots, mutateStock } from './stock-actions';
+import { loadLots, loadPrepRecipe, mutateStock } from './stock-actions';
 import { dayClock } from '../../lib/human-period';
 import { useConfirm } from '../../components/use-confirm';
 
@@ -72,6 +74,9 @@ const KIND_LABEL: Record<StockMovementView['kind'], string> = {
   CONSUMPTION: 'Расход по заказу',
   SHORTAGE: 'Недостача по заказу',
   CONSUMPTION_RETURN: 'Возврат по отмене',
+  // §62: заготовки
+  PRODUCTION_OUT: 'Расход на заготовку',
+  PRODUCTION_IN: 'Приготовлено',
 };
 
 /** Сумма в выбранной валюте с двумя десятичными знаками, в целых младших единицах. */
@@ -126,6 +131,7 @@ function ProductDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockP
             unit: String(f.get('unit')) as StockUnit,
             minQty: String(f.get('minQty') || '0').replace(',', '.'),
             active: f.get('active') === 'on',
+            kind: String(f.get('kind') || 'RAW') as StockProductKind,
           };
           save.run(() =>
             mutateStock(ctx.scopeKey, product ? { kind: 'product', id: product.id, body } : { kind: 'product', body }),
@@ -134,6 +140,12 @@ function ProductDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockP
       >
         <Field label="Название">
           <Input name="name" required maxLength={200} defaultValue={product?.name ?? ''} />
+        </Field>
+        <Field label="Вид" controlId="stock-product-kind" hint="Заготовку готовят у вас из других продуктов: соус, тесто, колбаса, сироп">
+          <Select name="kind" defaultValue={product?.kind ?? 'RAW'}>
+            <option value="RAW">Покупаем готовым</option>
+            <option value="PREP">Заготовка</option>
+          </Select>
         </Field>
         <div className="food-form-row">
           <Field label="Единица">
@@ -164,7 +176,8 @@ type Line = { productId: string; qty: string; price: string; expiresOn: string }
 function ReceiptDrawer({ ctx, products, close }: { ctx: StockCtx; products: StockProductView[]; close: () => void }) {
   const save = useSave(close);
   const nouns = stockNouns(ctx);
-  const active = products.filter((p) => p.active);
+  // заготовку не покупают: она приходит кнопкой «Приготовили» (§62)
+  const active = products.filter((p) => p.active && p.kind !== 'PREP');
   const blank = (): Line => ({ productId: active[0]?.id ?? '', qty: '', price: '', expiresOn: '' });
   const [lines, setLines] = useState<Line[]>([blank()]);
   const unitOf = (id: string) => active.find((p) => p.id === id)?.unit ?? 'г';
@@ -388,10 +401,139 @@ function LotsDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProd
   );
 }
 
+type RecipeLine = { ingredientId: string; normQty: string };
+/** §62: техкарта заготовки: сколько каждого продукта уходит на выход (например, на 1 000 г колбасы) */
+function RecipeDrawer({
+  ctx,
+  product,
+  products,
+  canEdit,
+  close,
+}: {
+  ctx: StockCtx;
+  product: StockProductView;
+  products: StockProductView[];
+  canEdit: boolean;
+  close: () => void;
+}) {
+  const save = useSave(close);
+  const [recipe, setRecipe] = useState<PrepRecipeView | null>(null);
+  const [yieldQty, setYieldQty] = useState('');
+  const [lines, setLines] = useState<RecipeLine[]>([]);
+  const choices = products.filter((p) => p.id !== product.id && p.active);
+  const unitOf = (id: string) => products.find((p) => p.id === id)?.unit ?? 'г';
+  useEffect(() => {
+    void loadPrepRecipe(ctx.scopeKey, product.id).then((r) => {
+      if (r.error) save.setError(r.error);
+      setRecipe(r.recipe);
+      setYieldQty(r.recipe?.yieldQty ?? '');
+      setLines(
+        r.recipe?.lines.length
+          ? r.recipe.lines.map((l) => ({ ingredientId: l.ingredientId, normQty: l.normQty }))
+          : [{ ingredientId: choices[0]?.id ?? '', normQty: '' }],
+      );
+    });
+  }, [product.id]);
+  const patch = (i: number, part: Partial<RecipeLine>) =>
+    setLines((all) => all.map((l, k) => (k === i ? { ...l, ...part } : l)));
+  return (
+    <Overlay open drawer trapFocus onClose={close} className="food-drawer" title={`Техкарта: ${product.name}`}>
+      {recipe === null && !save.error ? (
+        <p role="status">Загружаем техкарту…</p>
+      ) : (
+        <form
+          className="food-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            save.run(() =>
+              mutateStock(ctx.scopeKey, {
+                kind: 'recipe',
+                id: product.id,
+                body: {
+                  yieldQty: yieldQty.replace(',', '.'),
+                  lines: lines.map((l) => ({ ingredientId: l.ingredientId, normQty: l.normQty.replace(',', '.') })),
+                },
+              }),
+            );
+          }}
+        >
+          <Field label={`Выход, ${product.unit}`} controlId="stock-prep-yield" hint="Сколько заготовки получается из состава ниже">
+            <Input required inputMode="decimal" disabled={!canEdit} value={yieldQty} onChange={(e) => setYieldQty(e.target.value)} />
+          </Field>
+          {lines.map((l, i) => (
+            <fieldset key={i} className="food-form-row" aria-label={`Продукт ${i + 1}`}>
+              <Field label="Продукт">
+                <Select disabled={!canEdit} value={l.ingredientId} onChange={(e) => patch(i, { ingredientId: e.target.value })}>
+                  {choices.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label={`Норма, ${unitOf(l.ingredientId)}`}>
+                <Input required inputMode="decimal" disabled={!canEdit} value={l.normQty} onChange={(e) => patch(i, { normQty: e.target.value })} />
+              </Field>
+              {canEdit && lines.length > 1 && (
+                <Button type="button" tone="ghost" size="sm" onClick={() => setLines((all) => all.filter((_, k) => k !== i))}>
+                  Убрать {i + 1}
+                </Button>
+              )}
+            </fieldset>
+          ))}
+          {canEdit && lines.length < 50 && choices.length > 0 && (
+            <Button type="button" tone="secondary" onClick={() => setLines((all) => [...all, { ingredientId: choices[0]!.id, normQty: '' }])}>
+              + Продукт
+            </Button>
+          )}
+          {save.error && <Alert tone="warning">{save.error}</Alert>}
+          {canEdit && <Button disabled={save.pending}>{save.pending ? 'Сохраняем…' : 'Сохранить техкарту'}</Button>}
+        </form>
+      )}
+    </Overlay>
+  );
+}
+
+/** §62: «Приготовили»: продукты по техкарте уходят со склада сейчас, заготовка приходит партией по их себестоимости */
+function ProduceDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProductView; close: () => void }) {
+  const save = useSave(close);
+  return (
+    <Overlay open drawer trapFocus onClose={close} className="food-drawer" title={`Приготовили: ${product.name}`}>
+      <form
+        className="food-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const f = new FormData(e.currentTarget);
+          save.run(() =>
+            mutateStock(ctx.scopeKey, {
+              kind: 'produce',
+              body: {
+                productId: product.id,
+                qty: String(f.get('qty')).replace(',', '.'),
+                expiresOn: String(f.get('expiresOn')) || null,
+              },
+            }),
+          );
+        }}
+      >
+        <p className="muted">Продукты по техкарте спишутся со склада сейчас. Если чего-то не хватит, спишем остаток и запишем недостачу.</p>
+        <Field label={`Сколько приготовили, ${product.unit}`}>
+          <Input name="qty" required inputMode="decimal" />
+        </Field>
+        <Field label="Годен до">
+          <Input name="expiresOn" type="date" />
+        </Field>
+        {save.error && <Alert tone="warning">{save.error}</Alert>}
+        <Button disabled={save.pending}>{save.pending ? 'Проводим…' : 'Приготовили'}</Button>
+      </form>
+    </Overlay>
+  );
+}
+
 type Draft =
   | { kind: 'product'; product: StockProductView | null }
   | { kind: 'receipt' }
-  | { kind: 'write-off' | 'inventory' | 'lots'; product: StockProductView };
+  | { kind: 'write-off' | 'inventory' | 'lots' | 'recipe' | 'produce'; product: StockProductView };
 
 export function StockBoard({
   ctx,
@@ -423,7 +565,7 @@ export function StockBoard({
           + {nouns.oneTitle}
         </Button>
       )}
-      {canReceive && products.some((p) => p.active) && (
+      {canReceive && products.some((p) => p.active && p.kind !== 'PREP') && (
         <Button onClick={() => setDraft({ kind: 'receipt' })}>+ Приход товара</Button>
       )}
     </div>
@@ -457,7 +599,15 @@ export function StockBoard({
               {shown.map((p) => (
                 // нехватку показывает только значок «Мало» или «Нет на складе», без заливки ячеек (п.41)
                 <tr key={p.id}>
-                  <td>{p.name}</td>
+                  <td>
+                    {p.name}
+                    {p.kind === 'PREP' && (
+                      <>
+                        {' '}
+                        <Badge tone="info">Заготовка</Badge>
+                      </>
+                    )}
+                  </td>
                   <td className="rest-stock-qty">{qtyText(p.onHand, p.unit)}</td>
                   <td className="rest-stock-qty">{qtyText(p.minQty, p.unit)}</td>
                   <td>{stockMoney(p.valueMinor, ctx)}</td>
@@ -475,6 +625,16 @@ export function StockBoard({
                   </td>
                   <td>
                     <div className="food-inline-actions">
+                      {p.kind === 'PREP' && canReceive && p.active && (
+                        <Button tone="ghost" size="sm" aria-label={`Приготовили: ${p.name}`} onClick={() => setDraft({ kind: 'produce', product: p })}>
+                          Приготовили
+                        </Button>
+                      )}
+                      {p.kind === 'PREP' && (
+                        <Button tone="ghost" size="sm" aria-label={`Техкарта: ${p.name}`} onClick={() => setDraft({ kind: 'recipe', product: p })}>
+                          Техкарта
+                        </Button>
+                      )}
                       <Button tone="ghost" size="sm" aria-label={`Партии: ${p.name}`} onClick={() => setDraft({ kind: 'lots', product: p })}>
                         Партии
                       </Button>
@@ -554,6 +714,10 @@ export function StockBoard({
         <QtyDrawer ctx={ctx} product={draft.product} mode={draft.kind} close={close} />
       )}
       {draft?.kind === 'lots' && <LotsDrawer ctx={ctx} product={draft.product} close={close} />}
+      {draft?.kind === 'recipe' && (
+        <RecipeDrawer ctx={ctx} product={draft.product} products={products} canEdit={canUpdateProduct} close={close} />
+      )}
+      {draft?.kind === 'produce' && <ProduceDrawer ctx={ctx} product={draft.product} close={close} />}
     </div>
   );
 }

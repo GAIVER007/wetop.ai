@@ -113,7 +113,8 @@ describe.skipIf(!url)('Kitchen stock: RLS, ownership, append-only ledger', () =>
       });
     }));
 
-  it('принадлежность: склад доступен Food и Beauty, но отклоняет Hospitality и чужие связи', async () =>
+  // §62 (миграция 155): склад кухни у трёх направлений, гостиница тоже (ADR-STOCK-ALL 21.10.2026)
+  it('принадлежность: склад доступен Food, Beauty и Hospitality, но отклоняет чужие связи', async () =>
     rollback(async () => {
       const own = await seed(),
         other = await seed();
@@ -129,7 +130,7 @@ describe.skipIf(!url)('Kitchen stock: RLS, ownership, append-only ledger', () =>
         await expect(db.query(
           `INSERT INTO kitchen_products(id,business_id,name,unit,updated_at) VALUES($1,$2,'Соль','г',now())`,
           [randomUUID(), hospitality.biz],
-        )).rejects.toThrow(/Food or Beauty business required/);
+        )).resolves.toMatchObject({ rowCount: 1 });
       });
       await savepoint(async () => {
         await expect(
@@ -174,6 +175,13 @@ describe.skipIf(!url)('Kitchen stock: RLS, ownership, append-only ledger', () =>
   it('охраняемый откат: с данными отказывает, на пустых таблицах убирает их', async () =>
     rollback(async () => {
       const down = readFileSync(resolve(process.cwd(), 'packages/database/prisma/migrations/20261012000089_kitchen_stock/down.sql'), 'utf8');
+      const strip = (sql: string) => sql.replace(/^[\s\S]*?BEGIN;\s*/, '').replace(/\s*COMMIT;\s*$/, '');
+      const downModifierStock = strip(
+        readFileSync(resolve(process.cwd(), 'packages/database/prisma/migrations/20261024000156_modifier_ingredients/down.sql'), 'utf8'),
+      );
+      const downPrep = strip(
+        readFileSync(resolve(process.cwd(), 'packages/database/prisma/migrations/20261024000155_kitchen_prep/down.sql'), 'utf8'),
+      );
       const downBeautyMaterials = readFileSync(
         resolve(process.cwd(), 'packages/database/prisma/migrations/20261018000135_beauty_materials/down.sql'),
         'utf8',
@@ -184,18 +192,25 @@ describe.skipIf(!url)('Kitchen stock: RLS, ownership, append-only ledger', () =>
       });
       await db.query(`SELECT set_config('wetop.audit_purge','on',true)`);
       await db.query('DELETE FROM kitchen_stock_movements');
+      // §62: техкарты заготовок ссылаются на продукты (в общей схеме могут лежать с других прогонов)
+      // §62.2: продукты добавок тоже ссылаются на продукты склада
+      await db.query('DELETE FROM menu_modifier_ingredients');
+      await db.query('DELETE FROM kitchen_prep_recipe_lines');
+      await db.query('DELETE FROM kitchen_prep_recipes');
       // §38: строки техкарт ссылаются на ингредиенты (в общей схеме могут лежать с других прогонов)
       await db.query('UPDATE menu_item_ingredients SET product_id = NULL WHERE product_id IS NOT NULL');
       await db.query('DELETE FROM beauty_service_materials');
       await db.query('DELETE FROM beauty_service_material_revisions');
       await db.query('DELETE FROM kitchen_stock_lots');
       await db.query('DELETE FROM kitchen_products');
-      // Откат идёт в обратном порядке: Beauty materials, затем §38, затем сам склад.
+      // Откат идёт в обратном порядке: добавки §62.2, заготовки §62, Beauty materials, затем §38, затем сам склад.
       const downConsumption = readFileSync(
         resolve(process.cwd(), 'packages/database/prisma/migrations/20261012000093_kitchen_consumption/down.sql'),
         'utf8',
       );
       await savepoint(async () => {
+        await db.query(downModifierStock);
+        await db.query(downPrep);
         await db.query(downBeautyMaterials);
         await db.query(downConsumption);
         await db.query(down);

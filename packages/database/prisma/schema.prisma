@@ -1684,25 +1684,34 @@ model BarSale {
   restaurantCashOperation RestaurantCashOperation? @relation(fields: [restaurantCashOperationId], references: [id], onDelete: Restrict)
   charge                  Charge?                  @relation(fields: [chargeId], references: [id], onDelete: Restrict)
   lines                   BarSaleLine[]
+  /// §62.3: расход склада кухни по продаже позиции меню
+  kitchenMovements        KitchenStockMovement[]
 
   @@unique([locationId, idempotencyKey])
   @@index([locationId, createdAt])
   @@map("bar_sales")
 }
 
+/// Строка продажи бара: товар бара или (§62.3) позиция меню, ровно одно (CHECK bar_sale_lines_one_source)
 model BarSaleLine {
-  id            String @id @default(uuid()) @db.Uuid
-  saleId        String @map("sale_id") @db.Uuid
-  productId     String @map("product_id") @db.Uuid
-  quantityUnits BigInt @map("quantity_units")
-  salePrice     BigInt @map("sale_price")
+  id            String  @id @default(uuid()) @db.Uuid
+  saleId        String  @map("sale_id") @db.Uuid
+  productId     String? @map("product_id") @db.Uuid
+  /// §62.3: позиция «Меню бара»; склад кухни списывается по техкарте и добавкам
+  menuItemId    String? @map("menu_item_id") @db.Uuid
+  /// §62.3: снимок выбранных добавок текстом («Американо: Молоко»)
+  note          String? @db.VarChar(500)
+  quantityUnits BigInt  @map("quantity_units")
+  salePrice     BigInt  @map("sale_price")
   revenue       BigInt
   cost          BigInt
 
-  sale    BarSale    @relation(fields: [saleId], references: [id], onDelete: Restrict)
-  product BarProduct @relation(fields: [productId], references: [id], onDelete: Restrict)
+  sale     BarSale     @relation(fields: [saleId], references: [id], onDelete: Restrict)
+  product  BarProduct? @relation(fields: [productId], references: [id], onDelete: Restrict)
+  menuItem MenuItem?   @relation(fields: [menuItemId], references: [id], onDelete: Restrict)
 
   @@unique([saleId, productId])
+  @@index([menuItemId])
   @@map("bar_sale_lines")
 }
 
@@ -2781,10 +2790,10 @@ model User {
   locationCompetitorsCreated         LocationCompetitor[]           @relation("LocationCompetitorCreatedBy")
   locationCompetitorSnapshotsCreated LocationCompetitorSnapshot[]   @relation("LocationCompetitorSnapshotCreatedBy")
 
-  voiceCallbacksDone VoiceCallback[]
-  staffTelegramLink            StaffTelegramLink?
-  staffTelegramLinkCodes       StaffTelegramLinkCode[]
-  staffNotifications           StaffNotification[]
+  voiceCallbacksDone     VoiceCallback[]
+  staffTelegramLink      StaffTelegramLink?
+  staffTelegramLinkCodes StaffTelegramLinkCode[]
+  staffNotifications     StaffNotification[]
 
   @@map("users")
 }
@@ -3993,6 +4002,8 @@ model MenuItem {
   orderItems     RestaurantOrderItem[]
   /// §33.7: группы модификаторов блюда
   modifierGroups MenuItemModifierGroup[]
+  /// §62.3: продажи позиции на баре гостиницы и салона
+  barSaleLines   BarSaleLine[]
 
   @@index([businessId])
   @@index([categoryId])
@@ -4110,19 +4121,37 @@ model MenuModifierGroup {
 
 /// §33.7: модификатор группы; `priceDelta` прибавка к цене блюда в minor units (может быть отрицательной)
 model MenuModifier {
-  id         String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  groupId    String                        @map("group_id") @db.Uuid
-  name       String                        @db.VarChar(100)
-  priceDelta BigInt                        @default(0) @map("price_delta")
-  sortOrder  Int                           @default(0) @map("sort_order")
-  active     Boolean                       @default(true)
-  createdAt  DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(6)
-  group      MenuModifierGroup             @relation(fields: [groupId], references: [id], onDelete: Restrict)
-  orderLines RestaurantOrderItemModifier[]
+  id          String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  groupId     String                        @map("group_id") @db.Uuid
+  name        String                        @db.VarChar(100)
+  priceDelta  BigInt                        @default(0) @map("price_delta")
+  sortOrder   Int                           @default(0) @map("sort_order")
+  active      Boolean                       @default(true)
+  createdAt   DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  group       MenuModifierGroup             @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  orderLines  RestaurantOrderItemModifier[]
+  /// §62.2: продукты склада, которые добавка списывает вместе с блюдом
+  ingredients MenuModifierIngredient[]
 
   @@index([groupId])
   @@map("menu_modifiers")
+}
+
+/// §62.2 (миграция 156): норма продукта склада на одну порцию с добавкой; продукт того же бизнеса (триггер)
+model MenuModifierIngredient {
+  id         String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  modifierId String         @map("modifier_id") @db.Uuid
+  productId  String         @map("product_id") @db.Uuid
+  normQty    Decimal        @map("norm_qty") @db.Decimal(14, 3)
+  sortOrder  Int            @default(0) @map("sort_order")
+  createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  modifier   MenuModifier   @relation(fields: [modifierId], references: [id], onDelete: Cascade)
+  product    KitchenProduct @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([modifierId, productId])
+  @@index([productId])
+  @@map("menu_modifier_ingredients")
 }
 
 /// §33.7: группы модификаторов блюда и их порядок
@@ -4217,24 +4246,37 @@ enum KitchenMovementKind {
   CONSUMPTION
   SHORTAGE
   CONSUMPTION_RETURN
+  /// §62: «Приготовили» заготовку: расход ингредиента и приход партии заготовки
+  PRODUCTION_OUT
+  PRODUCTION_IN
+}
+
+/// §62: сырьё или заготовка со своей техкартой
+enum KitchenProductKind {
+  RAW
+  PREP
 }
 
 /// Ингредиент сети; единица неизменна после первого прихода (проверка API)
 model KitchenProduct {
-  id         String   @id @default(uuid()) @db.Uuid
-  businessId String   @map("business_id") @db.Uuid
-  name       String   @db.VarChar(200)
-  unit       String   @db.VarChar(8)
-  minQty     Decimal  @default(0) @map("min_qty") @db.Decimal(14, 3)
-  active     Boolean  @default(true)
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id         String             @id @default(uuid()) @db.Uuid
+  businessId String             @map("business_id") @db.Uuid
+  name       String             @db.VarChar(200)
+  unit       String             @db.VarChar(8)
+  minQty     Decimal            @default(0) @map("min_qty") @db.Decimal(14, 3)
+  active     Boolean            @default(true)
+  kind       KitchenProductKind @default(RAW)
+  createdAt  DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  business        Business                @relation(fields: [businessId], references: [id])
+  business        Business                 @relation(fields: [businessId], references: [id])
   lots            KitchenStockLot[]
   movements       KitchenStockMovement[]
   techCardRows    MenuItemIngredient[]
   beautyMaterials BeautyServiceMaterial[]
+  prepRecipe      KitchenPrepRecipe?
+  usedInPreps     KitchenPrepRecipeLine[]
+  modifierRows    MenuModifierIngredient[]
 
   @@unique([businessId, name])
   @@map("kitchen_products")
@@ -4257,13 +4299,44 @@ model KitchenStockLot {
   createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  location  Location               @relation(fields: [locationId], references: [id])
-  product   KitchenProduct         @relation(fields: [productId], references: [id])
-  createdBy User?                  @relation(fields: [createdById], references: [id])
-  movements KitchenStockMovement[]
+  location            Location               @relation(fields: [locationId], references: [id])
+  product             KitchenProduct         @relation(fields: [productId], references: [id])
+  createdBy           User?                  @relation(fields: [createdById], references: [id])
+  movements           KitchenStockMovement[]
+  /// §62: движения ингредиентов, списанных ради этой партии заготовки
+  productionMovements KitchenStockMovement[] @relation("KitchenProductionLot")
 
   @@index([locationId, productId])
   @@map("kitchen_stock_lots")
+}
+
+/// §62: техкарта заготовки: норма ингредиентов на выход `yieldQty` (в единице заготовки)
+model KitchenPrepRecipe {
+  productId String   @id @map("product_id") @db.Uuid
+  yieldQty  Decimal  @map("yield_qty") @db.Decimal(14, 3)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  product KitchenProduct          @relation(fields: [productId], references: [id], onDelete: Restrict)
+  lines   KitchenPrepRecipeLine[]
+
+  @@map("kitchen_prep_recipes")
+}
+
+model KitchenPrepRecipeLine {
+  id           String   @id @default(uuid()) @db.Uuid
+  productId    String   @map("product_id") @db.Uuid
+  ingredientId String   @map("ingredient_id") @db.Uuid
+  normQty      Decimal  @map("norm_qty") @db.Decimal(14, 3)
+  sortOrder    Int      @default(0) @map("sort_order")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  recipe     KitchenPrepRecipe @relation(fields: [productId], references: [productId], onDelete: Cascade)
+  ingredient KitchenProduct    @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+
+  @@unique([productId, ingredientId])
+  @@index([ingredientId])
+  @@map("kitchen_prep_recipe_lines")
 }
 
 /// Лента движений склада: только дописывается (REVOKE и триггер kitchen_movements_immutable)
@@ -4279,12 +4352,18 @@ model KitchenStockMovement {
   /// §38: заказ, по которому списано или возвращено
   orderId           String?             @map("order_id") @db.Uuid
   appointmentLineId String?             @map("appointment_line_id") @db.Uuid
+  /// §62: партия заготовки, ради которой списан ингредиент
+  productionLotId   String?             @map("production_lot_id") @db.Uuid
+  /// §62.3: продажа позиции меню на баре
+  barSaleId         String?             @map("bar_sale_id") @db.Uuid
   createdById       String?             @map("created_by_id") @db.Uuid
   createdAt         DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
 
   location        Location         @relation(fields: [locationId], references: [id])
   product         KitchenProduct   @relation(fields: [productId], references: [id])
   lot             KitchenStockLot? @relation(fields: [lotId], references: [id])
+  productionLot   KitchenStockLot? @relation("KitchenProductionLot", fields: [productionLotId], references: [id], onDelete: Restrict)
+  barSale         BarSale?         @relation(fields: [barSaleId], references: [id], onDelete: Restrict)
   order           RestaurantOrder? @relation(fields: [orderId], references: [id], onDelete: Restrict)
   appointmentLine AppointmentLine? @relation(fields: [appointmentLineId], references: [id], map: "kitchen_stock_movements_appointment_line_fkey", onDelete: Restrict, onUpdate: NoAction)
   createdBy       User?            @relation(fields: [createdById], references: [id])
@@ -4292,6 +4371,8 @@ model KitchenStockMovement {
   @@index([locationId, createdAt])
   @@index([orderId])
   @@index([appointmentLineId], map: "kitchen_stock_movements_appointment_line_idx")
+  @@index([productionLotId])
+  @@index([barSaleId])
   @@index([productId])
   @@index([lotId])
   @@map("kitchen_stock_movements")

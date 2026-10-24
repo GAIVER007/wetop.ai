@@ -183,6 +183,32 @@ export class BarService {
     if (result.kind === 'insufficient_stock') throw new ConflictException(`Недостаточно товара: доступно ${result.availableUnits}`);
     return result;
   }
+  /** «Меню бара» (§62.3): позиция меню с добавками за деньги кассы или в счёт гостя гостиницы */
+  async sellMenu(raw: unknown) {
+    const body = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+    const menuItemId = typeof body.menuItemId === 'string' ? body.menuItemId : '';
+    const folioId = typeof body.folioId === 'string' && body.folioId ? body.folioId : undefined;
+    const method = typeof body.method === 'string' ? body.method : '';
+    const idempotencyKey = optionalText(body.idempotencyKey);
+    if (!uuid.test(menuItemId)) throw new BadRequestException('Позиция меню не выбрана');
+    if (folioId !== undefined && !uuid.test(folioId)) throw new BadRequestException('Счет гостя не выбран');
+    const modifierIds = body.modifierIds === undefined || body.modifierIds === null ? [] : body.modifierIds;
+    if (!Array.isArray(modifierIds) || modifierIds.length > 50 || modifierIds.some((id) => typeof id !== 'string' || !uuid.test(id)))
+      throw new BadRequestException('Добавки позиции списком до 50');
+    if (!folioId) {
+      if (!(BAR_SALE_METHODS as readonly string[]).includes(method)) throw new BadRequestException('Способ оплаты не поддерживается');
+      await this.assertMethodEnabled(method);
+    }
+    if (!idempotencyKey || idempotencyKey.length > 120) throw new BadRequestException('Нужен ключ повтора продажи');
+    const quantityUnits = integer(body.quantityUnits, 'Количество');
+    if (quantityUnits > 999n) throw new BadRequestException('Количество: не больше 999');
+    const result = await this.repo.sellMenu({ menuItemId, quantityUnits, modifierIds: modifierIds as string[], ...(folioId ? { folioId } : { method }), idempotencyKey });
+    if (result.kind === 'no_cash') throw new ConflictException(NO_SALON_CASH);
+    if (result.kind === 'no_folio') throw new ConflictException('Продажа в счёт гостя есть только у гостиницы');
+    if (result.kind === 'folio_not_found') throw new NotFoundException('Открытый счет гостя не найден');
+    if (result.kind === 'not_found') throw new NotFoundException('Позиция меню не найдена');
+    return result;
+  }
   async reverseSale(id: string, raw: unknown) {
     const body = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
     if (typeof body.restock !== 'boolean') throw new BadRequestException('restock: укажите, вернулся ли товар на склад');

@@ -128,7 +128,10 @@ export function ModifierPicker({
 }
 
 type Ctx = { scopeKey: string; write: boolean; currencyHint: string };
-type DraftModifier = { id: string | null; name: string; price: string; active: boolean };
+/** Продукт склада для выбора в добавке (§62.2) */
+export type ModifierStockOption = { id: string; name: string; unit: string };
+type DraftIngredient = { productId: string; normQty: string };
+type DraftModifier = { id: string | null; name: string; price: string; active: boolean; ingredients: DraftIngredient[] };
 
 function choiceLabel(g: Pick<ModifierGroupView, 'minSelect' | 'maxSelect'>) {
   const many = g.maxSelect === 1 ? 'одно' : `до ${g.maxSelect}`;
@@ -136,7 +139,17 @@ function choiceLabel(g: Pick<ModifierGroupView, 'minSelect' | 'maxSelect'>) {
 }
 
 /** Группа добавок: название, обязательность, сколько выбрать, список добавок с прибавкой к цене */
-function ModifierGroupDrawer({ ctx, group, close }: { ctx: Ctx; group: ModifierGroupView | null; close: () => void }) {
+function ModifierGroupDrawer({
+  ctx,
+  group,
+  stock,
+  close,
+}: {
+  ctx: Ctx;
+  group: ModifierGroupView | null;
+  stock: ModifierStockOption[];
+  close: () => void;
+}) {
   const router = useRouter();
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
@@ -146,8 +159,14 @@ function ModifierGroupDrawer({ ctx, group, close }: { ctx: Ctx; group: ModifierG
   const [active, setActive] = useState(group?.active ?? true);
   const [rows, setRows] = useState<DraftModifier[]>(
     group
-      ? group.modifiers.map((m) => ({ id: m.id, name: m.name, price: String(Number(BigInt(m.priceDeltaMinor)) / 100), active: m.active }))
-      : [{ id: null, name: '', price: '0', active: true }],
+      ? group.modifiers.map((m) => ({
+          id: m.id,
+          name: m.name,
+          price: String(Number(BigInt(m.priceDeltaMinor)) / 100),
+          active: m.active,
+          ingredients: (m.ingredients ?? []).map((i) => ({ productId: i.productId, normQty: i.normQty })),
+        }))
+      : [{ id: null, name: '', price: '0', active: true, ingredients: [] }],
   );
   const set = (index: number, patch: Partial<DraftModifier>) => setRows(rows.map((r, i) => (i === index ? { ...r, ...patch } : r)));
   function save() {
@@ -160,7 +179,16 @@ function ModifierGroupDrawer({ ctx, group, close }: { ctx: Ctx; group: ModifierG
       const price = Number(r.price.replace(',', '.').replace(/\s/g, '') || '0');
       if (!r.name.trim()) return setError('У каждой добавки нужно название');
       if (!Number.isFinite(price)) return setError(`Добавка «${r.name}»: прибавка числом`);
-      modifiers.push({ ...(r.id ? { id: r.id } : {}), name: r.name.trim(), priceDeltaMinor: Math.round(price * 100), active: r.active });
+      const ingredients = r.ingredients.map((i) => ({ productId: i.productId, normQty: i.normQty.replace(',', '.').trim() }));
+      if (ingredients.some((i) => !i.productId || !i.normQty)) return setError(`Добавка «${r.name}»: укажите продукт и сколько списать`);
+      modifiers.push({
+        ...(r.id ? { id: r.id } : {}),
+        name: r.name.trim(),
+        priceDeltaMinor: Math.round(price * 100),
+        active: r.active,
+        // без склада поле не шлём: продукты добавки не трогаются
+        ...(stock.length ? { ingredients } : {}),
+      });
     }
     const body = { name: name.trim(), minSelect: required ? 1 : 0, maxSelect, active, modifiers };
     start(async () => {
@@ -209,10 +237,58 @@ function ModifierGroupDrawer({ ctx, group, close }: { ctx: Ctx; group: ModifierG
             <Button tone="ghost" aria-label={`Убрать добавку ${index + 1}`} onClick={() => setRows(rows.filter((_, i) => i !== index))}>
               ×
             </Button>
+            {stock.length > 0 && (
+              <div className="food-mod-stock" data-testid="modifier-stock">
+                <small className="muted">Со склада на порцию:</small>
+                {r.ingredients.map((ing, k) => (
+                  <span key={k} className="food-mod-stock-row">
+                    <Select
+                      aria-label={`Продукт добавки ${index + 1}, строка ${k + 1}`}
+                      value={ing.productId}
+                      onChange={(e) =>
+                        set(index, { ingredients: r.ingredients.map((x, j) => (j === k ? { ...x, productId: e.target.value } : x)) })
+                      }
+                    >
+                      {stock.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}, {p.unit}
+                        </option>
+                      ))}
+                    </Select>
+                    <Input
+                      aria-label={`Сколько списать ${index + 1}, строка ${k + 1}`}
+                      inputMode="decimal"
+                      value={ing.normQty}
+                      onChange={(e) =>
+                        set(index, { ingredients: r.ingredients.map((x, j) => (j === k ? { ...x, normQty: e.target.value } : x)) })
+                      }
+                    />
+                    <Button
+                      tone="ghost"
+                      size="sm"
+                      aria-label={`Убрать продукт ${k + 1} у добавки ${index + 1}`}
+                      onClick={() => set(index, { ingredients: r.ingredients.filter((_, j) => j !== k) })}
+                    >
+                      ×
+                    </Button>
+                  </span>
+                ))}
+                {r.ingredients.length < 20 && (
+                  <Button
+                    tone="ghost"
+                    size="sm"
+                    onClick={() => set(index, { ingredients: [...r.ingredients, { productId: stock[0]!.id, normQty: '' }] })}
+                  >
+                    + Продукт со склада
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         ))}
         <p className="muted">Прибавка к цене блюда в {ctx.currencyHint}: 0 без доплаты, минус для скидки (маленький размер).</p>
-        <Button tone="secondary" onClick={() => setRows([...rows, { id: null, name: '', price: '0', active: true }])}>
+        {stock.length > 0 && <p className="muted">Продукты со склада спишутся вместе с блюдом, когда его отметят «Готово».</p>}
+        <Button tone="secondary" onClick={() => setRows([...rows, { id: null, name: '', price: '0', active: true, ingredients: [] }])}>
           + Добавка
         </Button>
         <div className="food-actions">
@@ -229,9 +305,11 @@ function ModifierGroupDrawer({ ctx, group, close }: { ctx: Ctx; group: ModifierG
 }
 
 /** Вкладка «Добавки» в «Меню»: группы таблицей, создание и правка */
-export function ModifierGroupsTable({ ctx, groups: all, items, adding, setAdding, needle = '' }: {
+export function ModifierGroupsTable({ ctx, groups: all, items, adding, setAdding, needle = '', stock = [] }: {
   ctx: Ctx;
   groups: ModifierGroupView[];
+  /** §62.2: продукты склада для списания добавкой; пусто, если склада нет */
+  stock?: ModifierStockOption[];
   /** строка поиска экрана «Меню»: по группе и её добавкам */
   needle?: string;
   items: MenuItemView[];
@@ -279,7 +357,10 @@ export function ModifierGroupsTable({ ctx, groups: all, items, adding, setAdding
                 <td className="food-mod-names">
                   {g.modifiers
                     .filter((m) => m.active)
-                    .map((m) => `${m.name} ${deltaText(m.priceDeltaMinor, currency)}`.trim())
+                    .map((m) => {
+                      const used = (m.ingredients ?? []).map((i) => `${i.productName} ${i.normQty.replace('.', ',')} ${i.unit}`).join(', ');
+                      return `${m.name} ${deltaText(m.priceDeltaMinor, currency)}${used ? ` (${used})` : ''}`.trim();
+                    })
                     .join(', ') || '—'}
                 </td>
                 <td className="num">{used(g.id)}</td>
@@ -300,6 +381,7 @@ export function ModifierGroupsTable({ ctx, groups: all, items, adding, setAdding
         <ModifierGroupDrawer
           ctx={ctx}
           group={edit}
+          stock={stock}
           close={() => {
             setEdit(null);
             setAdding(false);

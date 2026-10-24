@@ -42,7 +42,7 @@ const MONTHS_OF = [
 const WEEKDAYS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
 /** размеры всплывающего календаря (см. .date-field__pop): нужны, чтобы не выйти за окно */
 const POP_W = 296;
-const POP_H = 372;
+const POP_H = 412;
 const DAY = 86_400_000;
 
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -70,6 +70,74 @@ const dayLabel = (d: Date) =>
   `${d.getUTCDate()} ${MONTHS_OF[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 
 /**
+ * Подпись поля по-русски (аудит 21.10.2026: родное поле браузера показывало «10/21/2026» и «October 2026»):
+ * «21 октября 2026», «октябрь 2026». Пустое или неполное значение даёт пустую строку.
+ */
+export function ruDateLabel(value: string | null | undefined): string {
+  const d = parse(value);
+  return d ? dayLabel(d) : '';
+}
+export function ruMonthLabel(value: string | null | undefined): string {
+  if (!value || !/^\d{4}-(0[1-9]|1[0-2])$/.test(value)) return '';
+  return `${MONTHS[Number(value.slice(5, 7)) - 1]} ${value.slice(0, 4)}`;
+}
+
+/**
+ * Русская подпись поверх родного поля: родное поле остаётся (ввод, `name`, `fill()` в тестах), его текст
+ * не виден, пока поле не в фокусе. Значение берём из пропсов и из событий `input`/`change` самого поля.
+ */
+function useShownValue(
+  input: { current: HTMLInputElement | null },
+  value: unknown,
+  defaultValue: unknown,
+): string {
+  const initial = typeof value === 'string' ? value : typeof defaultValue === 'string' ? defaultValue : '';
+  const [shown, setShown] = useState(initial);
+  useEffect(() => {
+    if (typeof value === 'string') setShown(value);
+  }, [value]);
+  useEffect(() => {
+    const el = input.current;
+    if (!el) return;
+    setShown(el.value);
+    const sync = () => setShown(el.value);
+    el.addEventListener('input', sync);
+    el.addEventListener('change', sync);
+    return () => {
+      el.removeEventListener('input', sync);
+      el.removeEventListener('change', sync);
+    };
+  }, [input]);
+  return shown;
+}
+
+/**
+ * Поле месяца (аудит 21.10.2026): родное `type="month"` с подписью «октябрь 2026» поверх, как у `DateInput`.
+ */
+export function MonthInput({ className, ...rest }: InputHTMLAttributes<HTMLInputElement>) {
+  const input = useRef<HTMLInputElement>(null);
+  const shown = useShownValue(input, rest.value, rest.defaultValue);
+  const text = ruMonthLabel(shown);
+  return (
+    <span className={className ? `date-field date-field--labelled ${className}` : 'date-field date-field--labelled'}>
+      <input ref={input} type="month" className="inp date-field__input" {...rest} />
+      {/* подпись в data-text и ::before: текст не входит в имя поля из <label> («Месяц расчёта», не «Месяц расчётаоктябрь 2026») */}
+      <span className="date-field__label" aria-hidden="true" data-text={text || 'Выберите месяц'} />
+    </span>
+  );
+}
+
+/**
+ * Описание кнопки календаря с именем поля: у пары «С» / «По» две кнопки рядом, и одинаковое «Открыть календарь»
+ * программа чтения не различала (аудит 22.10.2026, P2-6). Имя поля стоит в описании, а не в имени кнопки: иначе
+ * поиск поля по подписи («Период: с») находил и поле, и кнопку.
+ */
+export function calendarButtonLabel(field: string | undefined): string | undefined {
+  const name = field?.trim();
+  return name ? `для поля «${name}»` : undefined;
+}
+
+/**
  * Поле даты с календарём (DESIGN.md §8). Родное `<input type="date">` остаётся: ввод с клавиатуры,
  * `name` для формы, подписи и `fill()` в тестах — те же. Кнопка справа открывает месяц в стиле стойки;
  * выбор пишет значение в родное поле и шлёт `input`/`change`, чтобы формы и React узнали о нём.
@@ -79,9 +147,12 @@ export function DateInput({
   className,
   rangeFromName,
   defaultOpen,
+  presets,
   id: givenId,
   ...rest
 }: InputHTMLAttributes<HTMLInputElement> & {
+  /** быстрые кнопки в подвале календаря: день (`offsetDays` от сегодня) или своё действие экрана */
+  presets?: Array<{ label: string; offsetDays?: number; onSelect?: () => void }> | undefined;
   /** имя парного поля «с» в той же форме: дни от его даты до выбранной подсвечиваются отрезком */
   rangeFromName?: string | undefined;
   /** календарь раскрыт сразу — только для страницы `/design-system` */
@@ -104,6 +175,11 @@ export function DateInput({
   const pop = useRef<HTMLDivElement>(null);
   /** где стояло поле, когда календарь открыли: сдвинулось — координаты календаря устарели */
   const anchor = useRef<{ top: number; left: number } | null>(null);
+  const shown = useShownValue(input, rest.value, rest.defaultValue);
+  // имя поля для кнопки: своё aria-label сразу (сервер), подпись из <label> — после монтирования
+  const [fieldName, setFieldName] = useState<string | undefined>(
+    typeof rest['aria-label'] === 'string' ? rest['aria-label'] : undefined,
+  );
 
   const rangeFrom = () => {
     if (!rangeFromName || !input.current?.form) return null;
@@ -147,7 +223,10 @@ export function DateInput({
       .map((n) => n.textContent ?? '')
       .join('')
       .trim();
-    if (text) el.setAttribute('aria-label', text);
+    if (text) {
+      el.setAttribute('aria-label', text);
+      setFieldName(text);
+    }
   }, []);
   useEffect(() => {
     if (!open || defaultOpen) return;
@@ -240,13 +319,15 @@ export function DateInput({
     !!from && !!rangeEnd && from.getTime() <= d.getTime() && d.getTime() <= rangeEnd.getTime();
 
   return (
-    <span className={cx('date-field', className)}>
+    <span className={cx('date-field date-field--labelled', className)}>
       <input ref={input} type="date" className="inp date-field__input" id={givenId} {...rest} />
+      <span className="date-field__label" aria-hidden="true" data-text={ruDateLabel(shown) || 'Выберите дату'} />
       <button
         ref={button}
         type="button"
         className="date-field__button"
         aria-label="Открыть календарь"
+        aria-description={calendarButtonLabel(fieldName)}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={open ? popId : undefined}
@@ -365,6 +446,22 @@ export function DateInput({
             >
               Сегодня
             </button>
+            {presets?.map((preset) => (
+              <button
+                key={preset.label}
+                type="button"
+                className="btn btn--ghost btn--xs"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (preset.onSelect) {
+                    close(false);
+                    preset.onSelect();
+                  } else if (preset.offsetDays !== undefined) select(addDays(parse(today)!, preset.offsetDays));
+                }}
+              >
+                {preset.label}
+              </button>
+            ))}
           </div>
         </div>
       )}

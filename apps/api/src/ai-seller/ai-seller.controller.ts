@@ -107,6 +107,13 @@ export class AiSellerController {
     return this.seller.llmKey();
   }
 
+  /** Расход модели за месяц по учёту бота */
+  @Get('llm-usage')
+  @Header('Cache-Control', 'no-store')
+  llmUsage() {
+    return this.seller.llmUsage();
+  }
+
   @Put('llm-key')
   saveLlmKey(@Body() body: { key?: unknown } | undefined) {
     return this.seller.saveLlmKey(body?.key);

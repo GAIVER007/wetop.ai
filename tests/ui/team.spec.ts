@@ -37,7 +37,7 @@ test('владелец: таблица людей с ролями и датам�
   // вошедший владелец — первым, с отметкой «это вы»
   await expect(rows.nth(0)).toContainText('это вы');
   await expect(rows.nth(1)).toContainText('Марат Тестов');
-  await expect(rows.nth(1)).toContainText('управляющий');
+  await expect(rows.nth(1)).toContainText('Управляющий');
   // «Был в системе» — дата последнего входа (формат displayDate); не входил — слова, а не прочерк
   await expect(rows.nth(1)).toContainText('28 сент.');
   await expect(rows.nth(2)).toContainText('ещё не входил');
@@ -56,13 +56,13 @@ test('приглашение — панелью из шапки: почта, р�
   const drawer = page.getByRole('dialog');
   await expect(drawer.getByRole('heading', { name: 'Пригласить сотрудника' })).toBeVisible();
   await drawer.getByLabel('Почта приглашённого').fill('novyj-admin@example.com');
-  await drawer.getByLabel('Должность', { exact: true }).selectOption('MANAGER');
+  await drawer.getByTestId('staff-access').getByRole('radio', { name: /^Управляющий/ }).check();
   await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
   // панель закрылась, приглашение видно в списке ожидающих
   await expect(page.getByRole('dialog')).toHaveCount(0);
   const invites = main.getByTestId('invite-list');
   await expect(invites).toContainText('novyj-admin@example.com');
-  await expect(invites).toContainText('управляющий');
+  await expect(invites).toContainText('Управляющий');
 });
 
 test('ошибка приглашения — словами в панели, ввод не стирается', async ({ page }) => {
@@ -82,7 +82,8 @@ test('«Отключить» — только после подтвержден�
   await page.goto('/team');
   const main = page.getByRole('main');
   const rows = main.getByTestId('member-row');
-  await rows.nth(2).getByRole('button', { name: 'Отключить' }).click();
+  await rows.nth(2).getByRole('button', { name: /^Ещё:/ }).click();
+  await page.getByRole('menuitem', { name: 'Отключить' }).click();
   const confirm = page.getByRole('dialog');
   await expect(confirm).toContainText('потеряет доступ');
   await confirm.getByRole('button', { name: 'Отключить' }).click();
@@ -104,7 +105,7 @@ test('телефон и должность (TEAM2, Q-244): «Изменить»:
   await drawer.getByRole('button', { name: 'Сохранить' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(yurij).toContainText('Старший администратор');
-  await expect(yurij.getByRole('link', { name: '+77015554433' })).toHaveAttribute(
+  await expect(yurij.getByRole('link', { name: '+7 701 555 44 33' })).toHaveAttribute(
     'href',
     'tel:+77015554433',
   );
@@ -120,7 +121,8 @@ test('неверный телефон: словами в панели, введ�
   await drawer.getByLabel('Подпись под именем (необязательно)').fill('Кассир');
   await drawer.getByRole('button', { name: 'Сохранить' }).click();
   await expect(drawer.getByRole('alert')).toContainText('Проверьте телефон');
-  await expect(drawer.getByLabel('Телефон')).toHaveValue('12-34');
+  // поле само ставит формат «+7 …» (владелец 22.10.2026), неполный номер сервер всё равно отклоняет
+  await expect(drawer.getByLabel('Телефон')).toHaveValue('+7 123 4');
   await expect(drawer.getByLabel('Подпись под именем (необязательно)')).toHaveValue('Кассир');
 });
 
@@ -199,20 +201,29 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
-test('«Сотрудники и доступ»: сводка по команде и должность выбором из двух вариантов', async ({
+test('«Сотрудники и доступ»: таблица без плиток и должность выбором из двух вариантов', async ({
   page,
 }) => {
   await signIn(page);
   await page.goto('/team');
   const main = page.getByRole('main');
-  const stats = main.getByTestId('team-stats');
-  await expect(stats.getByTestId('team-stat-total')).toHaveText('3');
-  await expect(stats.getByTestId('team-stat-active')).toHaveText('3');
-  await expect(stats.getByTestId('team-stat-suspended')).toHaveText('0');
-  await expect(stats.getByTestId('team-stat-admins')).toHaveText('1');
+  // плиток сводки нет (владелец 20.10.2026: «убери вообще»): сразу таблица команды
+  await expect(main.getByTestId('team-stats')).toHaveCount(0);
+  await expect(main.locator('.staff-board__stats')).toHaveCount(0);
+  await expect(main.getByTestId('member-row')).toHaveCount(3);
   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
-  const position = page.getByRole('dialog').getByLabel('Должность', { exact: true });
-  await expect(position.locator('option')).toHaveText(['Управляющий', 'Администратор']);
+  // единый блок доступа во всех направлениях (решение владельца 20.10.2026): окно по центру, уровни карточками
+  const dialog = page.getByRole('dialog');
+  const box = (await dialog.boundingBox())!;
+  const viewport = page.viewportSize()!;
+  expect(Math.abs(box.x + box.width / 2 - viewport.width / 2)).toBeLessThan(4);
+  const access = dialog.getByTestId('staff-access');
+  // гостиница (кабинет горничной 22.10.2026): все четыре уровня, «Без входа» и «Личный кабинет» тоже
+  await expect(access.locator('[data-level]')).toHaveCount(4);
+  await expect(access.getByTestId('staff-access-details')).toContainText('Шахматка');
+  await access.getByRole('radio', { name: /^Управляющий/ }).check();
+  await expect(access.getByTestId('staff-access-details')).toContainText('Сотрудники и доступ');
+  await page.screenshot({ path: 'reports/personnel-kind-2026-10-20/team-invite-1440.png' });
   // свободного текста «Должность» в приглашении нет: только выбор
   await expect(page.getByRole('dialog').locator('input[name="memberPosition"]')).toHaveCount(0);
 });
@@ -229,8 +240,9 @@ test('«Роли и права»: вкладка только на чтение,
   await expect(page).toHaveURL(/\/team\/roles$/);
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники');
-  // 15 прав: с ADR-MKT-B7 у маркетинга своё право `marketing`, с DATA_MODEL §57 запуск рекламы `ads_launch`
-  await expect(main.getByTestId('roles-row')).toHaveCount(15);
+  // 16 прав: с ADR-MKT-B7 у маркетинга своё право `marketing`, с DATA_MODEL §57 запуск рекламы `ads_launch`,
+  // с приёмом заказов официантом с телефона (22.10.2026) право `orders`
+  await expect(main.getByTestId('roles-row')).toHaveCount(16);
   const owner = main
     .getByTestId('roles-row')
     .filter({ hasText: 'Управляющие, роли и платные расширения' });
@@ -259,33 +271,32 @@ test('приглашение: «Отправить заново» отзывае
   await page.goto('/team');
   const invites = page.getByRole('main').getByTestId('invite-list');
   const row = invites.locator('li', { hasText: 'zhdet@example.com' });
-  await expect(row).toContainText('администратор');
+  await expect(row).toContainText('Администратор');
   await row.getByRole('button', { name: 'Отправить заново' }).click();
   await expect(invites.locator('li', { hasText: 'zhdet@example.com' })).toHaveCount(1);
   await expect(invites.locator('li', { hasText: 'zhdet@example.com' })).toContainText(
-    'администратор',
+    'Администратор',
   );
 });
 
-test('приостановка доступа: подтверждение, метка, счётчик, возобновление одним действием', async ({
+test('приостановка доступа: подтверждение, метка, возобновление одним действием', async ({
   page,
 }) => {
   await signIn(page);
   await page.goto('/team');
   const main = page.getByRole('main');
   const yurij = main.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
-  await yurij.getByRole('button', { name: 'Приостановить' }).click();
+  await yurij.getByRole('button', { name: /^Ещё:/ }).click();
+  await page.getByRole('menuitem', { name: 'Приостановить' }).click();
   const confirm = page.getByRole('dialog');
   await expect(confirm).toContainText('останется в команде');
   await confirm.getByRole('button', { name: 'Приостановить' }).click();
   await expect(yurij.getByTestId('member-suspended')).toHaveText('Приостановлен');
-  await expect(main.getByTestId('team-stat-suspended')).toHaveText('1');
-  await expect(main.getByTestId('team-stat-active')).toHaveText('2');
   // из команды не ушёл
   await expect(main.getByTestId('member-row')).toHaveCount(3);
-  await yurij.getByRole('button', { name: 'Возобновить' }).click();
+  await yurij.getByRole('button', { name: /^Ещё:/ }).click();
+  await page.getByRole('menuitem', { name: 'Возобновить' }).click();
   await expect(yurij.getByTestId('member-suspended')).toHaveCount(0);
-  await expect(main.getByTestId('team-stat-suspended')).toHaveText('0');
 });
 
 test('приостановка: себе и владельцу кнопки нет, управляющий приостанавливает только администратора', async ({
@@ -296,12 +307,10 @@ test('приостановка: себе и владельцу кнопки не
   await asRole(request, 'MANAGER');
   await page.goto('/team');
   const rows = page.getByRole('main').getByTestId('member-row');
-  await expect(
-    rows.filter({ hasText: 'Марат Тестов' }).getByRole('button', { name: 'Приостановить' }),
-  ).toHaveCount(0);
-  await expect(
-    rows.filter({ hasText: 'Юрий Тестов' }).getByRole('button', { name: 'Приостановить' }),
-  ).toHaveCount(1);
+  // «Приостановить» в меню «⋯» строки (единый экран, 20.10.2026): у управляющего меню нет совсем
+  await expect(rows.filter({ hasText: 'Марат Тестов' }).getByRole('button', { name: /^Ещё:/ })).toHaveCount(0);
+  await rows.filter({ hasText: 'Юрий Тестов' }).getByRole('button', { name: /^Ещё:/ }).click();
+  await expect(page.getByRole('menuitem', { name: 'Приостановить' })).toHaveCount(1);
 });
 
 test('область доступа сотрудника: «Доступ» → выбранные филиалы с ролью по месту → подпись в таблице; очистка', async ({
@@ -321,7 +330,7 @@ test('область доступа сотрудника: «Доступ» → �
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(yurij.getByTestId('member-scope')).toHaveText('Главный филиал, Филиал Алматы');
   // роль членства стала старшей из назначенных
-  await expect(yurij).toContainText('управляющий');
+  await expect(yurij).toContainText('Управляющий');
   // вернуть на всю организацию
   await yurij.getByRole('button', { name: 'Доступ', exact: true }).click();
   await page.getByRole('dialog').getByLabel('Вся организация').check();
@@ -360,7 +369,7 @@ test('приглашение с именем, телефоном и филиал
   await expect(page.getByTestId('invite-list')).toContainText('scoped@example.com');
 });
 
-test('управляющий: «Доступ» только администраторам, в списке ролей один вариант', async ({
+test('управляющий: «Доступ» только администраторам, в списке ролей администратор и личный кабинет', async ({
   page,
   request,
 }) => {
@@ -377,8 +386,10 @@ test('управляющий: «Доступ» только администра
     .click();
   const drawer = page.getByRole('dialog');
   await drawer.getByLabel('Выбранные филиалы').check();
+  // «Личный кабинет» управляющий тоже выдаёт (уровни доступа, решение владельца 20.10.2026), «Управляющего» нет
   await expect(drawer.getByLabel('Главный филиал: роль').locator('option')).toHaveText([
     'Нет доступа',
     'Администратор',
+    'Личный кабинет',
   ]);
 });

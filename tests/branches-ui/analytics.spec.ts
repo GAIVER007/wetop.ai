@@ -193,10 +193,10 @@ for (const width of [1440, 390])
         expect(
           await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
         ).toBe(true);
-        const input = page.getByLabel('С даты', { exact: true });
+        const input = page.getByLabel('Период: с', { exact: true });
         await input.focus();
         await expect(input).toBeFocused();
-        const end = page.getByLabel('По дату', { exact: true });
+        const end = page.getByLabel('Период: по', { exact: true });
         for (let i = 0; i < 10 && !(await end.evaluate((el) => el === document.activeElement)); i++)
           await page.keyboard.press('Tab');
         await expect(end).toBeFocused();

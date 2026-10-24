@@ -12,7 +12,12 @@
     display: grid;
     /* ADR-184: пять модулей; на широком экране 3 + 2, дальше 2 колонки */
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    align-items: stretch;
     gap: var(--space-4);
+  }
+  /* салон и ресторан: четыре модуля ровной сеткой 2 на 2, без пустой ячейки (аудит 21.10.2026 п. 35) */
+  .marketing-hub__modules--four {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .marketing-hub__aside {
     display: grid;
@@ -199,6 +204,15 @@
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-4);
   }
+  .site-off {
+    display: grid;
+    gap: var(--space-4);
+    max-width: 640px;
+  }
+  .site-off p {
+    margin: 0;
+    color: var(--text-2);
+  }
   .marketing-soon {
     display: flex;
     flex-wrap: wrap;
@@ -321,12 +335,16 @@
     background: var(--surface-muted);
     color: var(--muted);
   }
+  /* форматы пока не нажимаются: приглушены и без вида кнопки (аудит 21.10.2026 п. 17) */
+  .marketing-format[aria-disabled='true'] {
+    cursor: default;
+    color: var(--text-2);
+  }
   .marketing-format--create {
     place-items: center;
     align-content: center;
     text-align: center;
     border-style: dashed;
-    color: var(--primary);
   }
   .marketing-week {
     display: grid;
@@ -1905,12 +1923,19 @@
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
   }
+  /* «Дополнить» всегда справа в строке (аудит 21.10.2026 п. 40) */
   .site-facts__gaps li {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-2);
+  }
+  .site-facts__gaps li > span {
+    min-width: 0;
+  }
+  .site-facts__gaps li > .btn {
+    flex: none;
   }
   .site-facts__gaps .btn {
     min-height: var(--touch-target);
@@ -2267,5 +2292,15 @@
   .ed-history__pinned {
     padding-bottom: var(--space-2);
     border-bottom: 1px solid var(--border);
+  }
+}
+
+/* «Аудитории» и «Креативы» карточками (Table stack): подпись числа слева, как у остальных строк карточки */
+@media (max-width: 600px) {
+  .ad-library .tbl--stack td.budget-td-num {
+    text-align: right;
+  }
+  .ad-library .tbl--stack td.budget-td-num::before {
+    text-align: left;
   }
 }

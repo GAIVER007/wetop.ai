@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import type { WizardChatState } from '../../lib/wizard-types';
 import { CHAT } from './strings';
 import { ScanChallenge } from './scan-challenge';
+import { Textarea } from '../../components/ui';
 
 export function ChatStep({
   state,
@@ -85,7 +86,7 @@ export function ChatStep({
           </div>
           <label>
             {CHAT.message}
-            <textarea
+            <Textarea
               value={text}
               maxLength={2000}
               rows={3}

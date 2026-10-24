@@ -5,8 +5,9 @@ import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import { channelsApi, chessboardApi, deskApi, guardApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { UnassignedStays } from './unassigned-drawer';
+import { DayLine } from './day-line';
 import { Page } from '../../components/page';
-import { Alert, Button, Legend, Stat } from '../../components/ui';
+import { Alert, Button, Legend } from '../../components/ui';
 import { Toolbar } from '../../components/toolbar';
 import { DateInput } from '../../components/date-field';
 import { DateRangePopover } from '../../components/date-range-popover';
@@ -87,10 +88,7 @@ export default async function ChessboardPage({
     );
   // Плашки конфликтов (срез 7.3, Д3–Д4) — только чтение: сверх мест из открытых неисправностей сторожа,
   // входящие брони, которые PMS не разобрала, — из ленты событий; их отказ шахматку не роняет
-  const yesterday = new Date(Date.parse(`${today}T12:00:00Z`) - 86400000)
-    .toISOString()
-    .slice(0, 10);
-  const [board, incidents, events, shell, day, todayBoard, yesterdayBoard] = await Promise.all([
+  const [board, incidents, events, shell, day, todayBoard] = await Promise.all([
     chessboardApi.board(from, to),
     guardApi.incidents('open').catch(() => null),
     channelsApi.events({ limit: 50, status: 'FAILED' }).catch(() => null),
@@ -99,8 +97,6 @@ export default async function ChessboardPage({
     // Сводка дня над сеткой — та же «На стойке», что на Главной; её отказ календарь не роняет
     deskApi.today().catch(() => null),
     from <= today && today <= to ? null : chessboardApi.board(today, today).catch(() => null),
-    // тренд загрузки «к вчерашнему дню» (образец владельца 09.10.2026): тот же расчёт за вчера
-    chessboardApi.board(yesterday, yesterday).catch(() => null),
   ]);
   const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
   const failedEvents = events?.total ?? 0;
@@ -148,14 +144,6 @@ export default async function ChessboardPage({
   // «Требует внимания» по образцу владельца: долги и открытые задачи (брони без места вынесены в
   // отдельную строку над сеткой и в окошко «Фильтры»)
   const attention = debtStays + (day?.counts.tasksOpen ?? 0);
-  const yesterdaySummary = yesterdayBoard?.summary[yesterday];
-  const yesterdayUnits = yesterdaySummary
-    ? yesterdaySummary.occupied + yesterdaySummary.free + yesterdaySummary.blocked
-    : 0;
-  const trend =
-    occupancy !== null && yesterdaySummary && yesterdayUnits
-      ? occupancy - Math.round((yesterdaySummary.occupied / yesterdayUnits) * 100)
-      : null;
   const availabilityHref = `/rooms/availability?${new URLSearchParams({
     arrival: board.from,
     departure: new Date(Date.parse(`${board.to}T12:00:00Z`) + 86400000).toISOString().slice(0, 10),
@@ -165,10 +153,10 @@ export default async function ChessboardPage({
   const help = (
     <p className="note">
       <b>Как работать с календарём.</b> В строке категории указано, сколько мест свободно на эту
-      ночь. Ночь выезда ячейку не занимает. Клик по занятой клетке открывает бронь, клик по пустой
+      ночь. Ночь выезда номер не занимает. Клик по занятой клетке открывает бронь, клик по пустой
       открывает форму новой брони на эту дату. Перетащите клетку на другую строку: бронь переселится
-      в ту ячейку с даты взятой клетки (в другую категорию только на всё проживание). Фильтры
-      статусов считаются на {displayDate(board.from)}. Брони без ячейки на сетке не видны, они в
+      в тот номер с даты взятой клетки (в другую категорию только на всё проживание). Фильтры
+      статусов считаются на {displayDate(board.from)}. Брони без номера на сетке не видны, они в
       строке над сеткой: «Разместить» показывает свободные места и назначает.
     </p>
   );
@@ -222,11 +210,10 @@ export default async function ChessboardPage({
     </>
   );
   const kpis = day ? (
-    <DayStats
-      day={day}
+    <DayLine
       today={today}
+      counts={day.counts}
       occupancy={occupancy}
-      trend={trend}
       occupied={todaySummary?.occupied ?? null}
       units={units}
       free={todaySummary?.free ?? null}
@@ -377,110 +364,4 @@ function categoriesOf(
     if (!seen.has(r.unit.accommodationTypeCode))
       seen.set(r.unit.accommodationTypeCode, r.unit.accommodationTypeName);
   return [...seen].map(([code, name]) => ({ code, name }));
-}
-
-function DayStats({
-  day,
-  today,
-  occupancy,
-  trend,
-  occupied,
-  units,
-  free,
-  attention,
-  availabilityHref,
-}: {
-  day: import('../../lib/api').DeskDay;
-  today: string;
-  occupancy: number | null;
-  /** разница загрузки с вчерашним днём, процентных пунктов; без данных за вчера нет */
-  trend: number | null;
-  occupied: number | null;
-  units: number | null;
-  free: number | null;
-  attention: number;
-  availabilityHref: string;
-}) {
-  const dayHref = (date: string) => `/reservations?from=${today}&to=${today}&date=${date}`;
-  const n = (value: number | null | undefined) => (value == null ? '–' : String(value));
-  const share = (value: number | null) =>
-    value === null || !units ? null : `${Math.round((value / units) * 100)}%`;
-  const freeShare = share(free);
-  const stays = (count: number) => pluralRu(count, ['бронь', 'брони', 'броней']).replace(/^\d+\s/, '');
-  const c = day.counts;
-  const more = <Icon name="arrow" className="board-kpis__more" />;
-  // Эталон владельца 13.10.2026 (UI4.2): шесть плиток «Занято, Свободно, Заезд сегодня, Выезд сегодня,
-  // Проживание, Требует внимания» на общем `Stat`; числа те же серверные, макетные не переносятся.
-  return (
-    <section className="board-kpis" role="group" aria-label="Сегодня на объекте">
-      <Stat
-        icon={<Icon name="bed" />}
-        tone="info"
-        label="Занято"
-        value={
-          <>
-            <span data-testid="day-occupied">{n(occupied)}</span>
-            {/* доля без скобок: владелец 06.10.2026 «в скобках убери», эталон 13.10 ставит её рядом с числом */}
-            <span className="board-kpis__share" data-testid="day-occupancy">
-              {occupancy === null ? '–' : `${occupancy}%`}
-            </span>
-          </>
-        }
-        {...(trend !== null && trend !== 0
-          ? {
-              delta: {
-                direction: trend > 0 ? ('up' as const) : ('down' as const),
-                // разница загрузки в процентных пунктах (DESIGN.md §14), минус настоящий
-                text: `${trend > 0 ? `+${trend}` : `−${Math.abs(trend)}`} п.п. за сутки`,
-              },
-            }
-          : { hint: units !== null ? `из ${units} мест` : undefined })}
-      />
-      <Stat
-        icon={<Icon name="inventory" />}
-        tone="success"
-        label="Свободно"
-        href={availabilityHref}
-        value={
-          <>
-            <span data-testid="day-free">{n(free)}</span>
-            {freeShare && <span className="board-kpis__share">{freeShare}</span>}
-          </>
-        }
-        hint={<>Найти места{more}</>}
-      />
-      <Stat
-        icon={<Icon name="arrival" />}
-        tone="info"
-        label="Заезд сегодня"
-        href={dayHref('arrival')}
-        value={<span data-testid="day-arrivals">{c.arrivals}</span>}
-        hint={<>{stays(c.arrivals)}{more}</>}
-      />
-      <Stat
-        icon={<Icon name="departure" />}
-        tone="danger"
-        label="Выезд сегодня"
-        href={dayHref('departure')}
-        value={<span data-testid="day-departures">{c.departures}</span>}
-        hint={<>{stays(c.departures)}{more}</>}
-      />
-      <Stat
-        icon={<Icon name="guests" />}
-        tone="neutral"
-        label="Проживание"
-        href={dayHref('stay')}
-        value={<span data-testid="day-in-house">{c.inHouse}</span>}
-        hint={<>{stays(c.inHouse)}{more}</>}
-      />
-      <Stat
-        icon={<Icon name="incidents" />}
-        tone="danger"
-        label="Требует внимания"
-        href="/chessboard?stays=debt"
-        value={<span data-testid="day-attention">{attention}</span>}
-        hint={<>Долги и задачи{more}</>}
-      />
-    </section>
-  );
 }

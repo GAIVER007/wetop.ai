@@ -9,6 +9,7 @@ import type { MembershipRole } from './roles';
 export type Permission =
   | 'self'
   | 'desk'
+  | 'orders'
   | 'dialogs'
   | 'reports'
   | 'refunds'
@@ -29,6 +30,8 @@ export const PERMISSIONS: Readonly<Record<Permission, { label: string }>> = {
   self: { label: 'Своя учётная запись' },
   // главная, шахматка, брони, гости, заселение и выселение, оплаты и начисления в счёт, печать, ячейка, неисправности
   desk: { label: 'Работа с гостями' },
+  // ресторан: приём заказа на стол с телефона, дозаказ, «Подано», бронь стола; касса и отчёты сюда не входят (§33.6)
+  orders: { label: 'Приём заказов' },
   dialogs: { label: 'Диалоги ИИ-продавца' },
   // статистика и «Оплаты» — на просмотр
   reports: { label: 'Статистика и оплаты' },
@@ -58,16 +61,20 @@ const ALL = Object.keys(PERMISSIONS) as Permission[];
 const ROLE_PERMISSIONS: Readonly<Record<MembershipRole, readonly Permission[]>> = {
   OWNER: ALL,
   MANAGER: ALL.filter((p) => p !== 'owner' && p !== 'journal'),
-  STAFF: ['self', 'desk', 'dialogs', 'reports'],
+  STAFF: ['self', 'desk', 'orders', 'dialogs', 'reports'],
+  // «Личный кабинет» (20.10.2026): только своё; свои записи, график, зарплату и отзывы отдаёт кабинет сотрудника.
+  // Официант ресторана (22.10.2026, §33.6): ещё приём заказов на себя и бронь стола, без кассы и отчётов
+  EMPLOYEE: ['self', 'orders'],
 };
 
-const ROLE_ORDER: readonly MembershipRole[] = ['OWNER', 'MANAGER', 'STAFF'];
+const ROLE_ORDER: readonly MembershipRole[] = ['OWNER', 'MANAGER', 'STAFF', 'EMPLOYEE'];
 
 /** Родительный падеж — для строки отказа «доступ есть у владельца и управляющего» */
 const GENITIVE: Readonly<Record<MembershipRole, string>> = {
   OWNER: 'владельца',
   MANAGER: 'управляющего',
   STAFF: 'администратора',
+  EMPLOYEE: 'сотрудника',
 };
 
 /**

@@ -37,6 +37,7 @@ vi.mock('../tabs', () => ({
 }));
 
 import { EmployeeCabinet } from './cabinet';
+import { servicePricesKey } from './service-prices';
 
 const initial = (access: 'MANAGER' | 'SELF'): EmployeePortalDto => ({
   canUpload: true,
@@ -56,6 +57,7 @@ const initial = (access: 'MANAGER' | 'SELF'): EmployeePortalDto => ({
   timeOffs: [],
   appointments: [],
   orders: [],
+  workRange: 'DAY', workTruncated: false, monthStats: { month: '2026-10', status: 'AVAILABLE', currency: 'KZT', shifts: 20, daysOff: 11, absenceDays: 0, appointmentsDone: 0, servicesDone: 0, ordersClosed: null, tablesServed: null, guests: null, revenueMinor: '0', bonusMinor: '0', percent: null },
   pay: {
     month: '2026-10', status: 'NOT_CONFIGURED', model: null, fixedMinor: null,
     percent: null, percentBasis: null, policyRevision: null, earnedMinor: null,
@@ -97,5 +99,14 @@ describe('цены и длительность услуг мастера', () =>
 
   it('не показывает редактор цен в собственном read-only кабинете мастера', () => {
     expect(render('SELF')).not.toContain('data-testid="portal-service-prices"');
+  });
+});
+
+/** Живой сайт 21.10.2026: после «Сохранить услуги» блок цен писал «Сначала назначьте мастеру услугу» до перезагрузки */
+describe('блок цен мастера обновляется после назначения услуг', () => {
+  it('ключ меняется, когда меняется набор услуг', () => {
+    expect(servicePricesKey([])).not.toBe(servicePricesKey([prices[0]]));
+    expect(servicePricesKey([prices[0], prices[1]])).toBe(servicePricesKey([prices[1], prices[0]]));
+    expect(servicePricesKey([prices[0]])).not.toBe(servicePricesKey([{ ...prices[0], revision: 4 }]));
   });
 });

@@ -48,8 +48,9 @@ test('меню: «Маркетинг» своя группа, в «Продаж�
   // ADR-184 и верхнее меню 17.10.2026: «Продвижение» вместе с бывшими «Продажами»
   await expect(menu.locator('.sidenav__items:not([hidden]) a')).toHaveText([
     'Обзор',
-    'ИИ-таргетолог',
+    'Реклама',
     'Контент',
+    'Голосовой агент',
     'ИИ-продавец',
     'Анализ конкурентов',
     'Обзор продаж',
@@ -100,7 +101,7 @@ test('/website/* подсвечивает «Маркетинг», а не «Пр
   }
 });
 
-test('хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», реклама и контент «Скоро», из данных только бюджет месяца', async ({
+test('хаб Marketing 2.0: четыре модуля с кнопкой «Открыть», живые «Сайт и SEO» и «Бюджет», живые реклама и контент, из данных только бюджет месяца', async ({
   page,
   request,
 }) => {
@@ -111,24 +112,26 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
     byPath: Record<string, number>;
   };
   // единая система (14.10.2026): хаб читает один источник, бюджет филиала за месяц («Потрачено на рекламу»)
-  const business = Object.keys(hits.byPath).filter((path) => !SHELL.has(path));
-  expect(business, `хаб спросил данные: ${JSON.stringify(hits.byPath)}`).toEqual(['/marketing/budget']);
+  // + лицензия конструктора сайта (аудит 21.10.2026 P0-4): значок «Сайт и SEO» по `builder.access`
+  const business = Object.keys(hits.byPath).filter((path) => !SHELL.has(path)).sort();
+  expect(business, `хаб спросил данные: ${JSON.stringify(hits.byPath)}`).toEqual(['/marketing/budget', '/marketing/site']);
 
   const hub = main(page);
   await expect(hub.getByRole('heading', { level: 1 })).toHaveText('Продвижение');
   await expect(hub.locator('.page__subtitle')).toHaveText(
     'Привлекайте гостей, ведите рекламный бюджет и развивайте бренд гостиницы с помощью ИИ.',
   );
-  // пять модулей одного вида, по порядку (ADR-184: «Конкуренты» в «Продвижении»)
+  // шесть модулей одного вида, по порядку (ADR-184: «Конкуренты» в «Продвижении»; «Голосовой агент» у всех направлений, 22.10.2026)
   const modules = hub.getByTestId('marketing-module');
-  await expect(modules).toHaveCount(5);
-  await expect(modules.getByRole('heading', { level: 2 })).toHaveText(['Сайт и SEO', 'Бюджет и аналитика', 'Реклама', 'Конкуренты', 'Контент']);
+  await expect(modules).toHaveCount(6);
+  await expect(modules.getByRole('heading', { level: 2 })).toHaveText(['Сайт и SEO', 'Бюджет и аналитика', 'Реклама', 'Конкуренты', 'Голосовой агент', 'Контент']);
   const competitors = hub.getByTestId('marketing-competitors');
   await expect(competitors.getByTestId('marketing-competitors-status')).toHaveText('Доступно');
   await expect(competitors.getByRole('link', { name: 'Открыть: Конкуренты', exact: true })).toHaveAttribute('href', '/market');
 
   // «Сайт и SEO»: рабочий модуль, главная кнопка ведёт в конструктор, остальное в меню «⋯»
   const site = hub.getByTestId('marketing-site');
+  // аудит 21.10.2026 P0-4: «Доступно» только при включённом конструкторе (на стенде он включён; выключенный в unit-тесте hub)
   await expect(site.getByTestId('marketing-site-status')).toHaveText('Доступно');
   await expect(site.getByRole('listitem')).toHaveText(['ИИ-конструктор сайта', 'Онлайн-бронирование', 'SEO-оптимизация']);
   const builder = site.getByRole('link', { name: 'Открыть: Сайт и SEO', exact: true });
@@ -158,13 +161,14 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   await expect(budgetMenu.getByRole('menuitem')).toHaveText(['План', 'Расходы', 'Аналитика']);
   await page.keyboard.press('Escape');
 
-  // реклама и контент ещё не построены: «Скоро», одна кнопка «Открыть» на свой экран, без «Подключено» и меню
-  for (const [testId, title, href] of [
-    ['marketing-ads', 'Реклама', '/marketing/ads'],
-    ['marketing-content', 'Контент', '/marketing/content'],
+  // реклама (кампании, кабинет Meta) и контент (черновики постов) живые: одна кнопка «Открыть» на свой экран, без меню
+  // (аудит 21.10.2026 п. 5: «Скоро» рядом с живой кнопкой у рекламы сбивал с толку)
+  for (const [testId, title, href, status] of [
+    ['marketing-ads', 'Реклама', '/marketing/ads', 'Доступно'],
+    ['marketing-content', 'Контент', '/marketing/content', 'Доступно'],
   ] as const) {
     const card = hub.getByTestId(testId);
-    await expect(card.getByTestId(`${testId}-status`)).toHaveText('Скоро');
+    await expect(card.getByTestId(`${testId}-status`)).toHaveText(status);
     await expect(card.locator('a, button')).toHaveCount(1);
     await expect(card.getByRole('link', { name: `Открыть: ${title}`, exact: true })).toHaveAttribute('href', href);
     await expect(card).not.toContainText('Подключено');
@@ -201,18 +205,20 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   await main(page).getByRole('link', { name: 'Открыть: Реклама', exact: true }).click();
   await expect(page).toHaveURL(/\/marketing\/ads$/);
   const ads = main(page);
-  await expect(ads.getByRole('heading', { level: 1 })).toHaveText('ИИ-таргетолог');
+  // аудит 21.10.2026 пп. 14, 15, 34: одно имя «Реклама», пустых вкладок нет, итоги строкой вместо плиток
+  await expect(ads.getByRole('heading', { level: 1 })).toHaveText('Реклама');
   await expect(menuOf(page).locator('.sidenav__current')).toHaveText('Продвижение');
-  await expect(ads.getByTestId('marketing-ads-soon')).toContainText('Скоро');
-  await expect(ads.getByRole('tab')).toHaveText(['Кампании', 'Аудитории', 'Креативы', 'Аналитика', 'Настройки']);
+  // «Скоро» больше нет (23.10.2026): «Аудитории» и «Креативы» живые, пока запусков нет, честно пусто
+  await expect(ads.getByTestId('marketing-ads-soon')).toHaveCount(0);
+  await expect(ads.getByTestId('ad-audiences')).toContainText('Пока пусто');
+  await expect(ads.getByTestId('ad-creatives')).toContainText('Пока пусто');
+  await expect(ads.getByRole('tab')).toHaveCount(0);
   const metrics = ads.getByTestId('marketing-ads-metrics');
-  await expect(metrics.locator('.stat__label')).toHaveText(['Расход кампаний', 'Показы', 'Клики', 'Лиды площадки']);
+  await expect(metrics.locator('dt')).toHaveText(['Расход кампаний', 'Показы', 'Клики', 'Лиды площадки', 'Доля кликов, цена 1000 показов, цена обращения']);
   await expect(ads.getByTestId('ads-empty')).toContainText('Кампаний пока нет');
   // кабинет Meta подключается (ADR-MKT-META), кампанию можно создать и вручную (МКТ-В3)
   await expect(ads.getByRole('button', { name: 'Подключить кабинет через Facebook', exact: true })).toBeEnabled();
   await expect(ads.getByRole('button', { name: 'Создать кампанию', exact: true })).toBeEnabled();
-  await ads.getByRole('tab', { name: 'Аудитории', exact: true }).click();
-  await expect(ads.getByRole('tabpanel')).toContainText('Пока пусто');
   await ads.getByRole('link', { name: 'Назад к модулям', exact: true }).click();
   await expect(page).toHaveURL(/\/marketing$/);
 
@@ -220,14 +226,11 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   await expect(page).toHaveURL(/\/marketing\/content$/);
   const content = main(page);
   await expect(content.getByRole('heading', { level: 1 })).toHaveText('Контент');
-  await expect(content.getByRole('tab')).toHaveText(['Идеи', 'Генерация', 'Медиатека', 'План публикаций', 'Статистика']);
-  await expect(content.getByRole('button', { name: 'Создать контент', exact: true })).toBeDisabled();
-  const formats = content.getByTestId('marketing-content-formats').getByRole('listitem');
-  await expect(formats).toHaveCount(8);
-  await expect(formats.first()).toContainText('Создать с ИИ');
-  const week = content.getByTestId('marketing-content-week').getByRole('listitem');
-  await expect(week).toHaveCount(7);
-  await expect(week).toContainText(Array(7).fill('Пусто'));
+  // CONTENT-DRAFTS-20261022: живой экран, первым «Создать пост»; заглушек «Скоро» и пустой «Статистики» нет
+  await expect(content.getByRole('tab')).toHaveText(['Создать пост', 'План публикаций', 'Идеи', 'Медиатека']);
+  await expect(content.getByTestId('marketing-content-soon')).toHaveCount(0);
+  await expect(content.getByRole('button', { name: 'Написать с ИИ', exact: true })).toBeDisabled();
+  await expect(content.getByRole('button', { name: 'Написать самому', exact: true })).toBeEnabled();
   // медиатека живая: ведёт в изображения сайта (MKT8)
   await content.getByRole('tab', { name: 'Медиатека', exact: true }).click();
   await expect(content.getByRole('link', { name: 'Открыть изображения', exact: true })).toHaveAttribute(
@@ -235,7 +238,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
     '/marketing/site/assets',
   );
 
-  // «Контент» не спрашивает данных, кроме запросов оболочки; «Реклама» спрашивает кампании и последние запуски ИИ-таргетолога
+  // «Контент» читает только неделю черновиков; «Реклама» спрашивает кампании и последние запуски ИИ-таргетолога
   await request.post(`${fixture}/__test/reset`);
   for (const path of ['/marketing/ads', '/marketing/content']) {
     await page.goto(path);
@@ -244,7 +247,68 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   const hits = (await (await request.get(`${fixture}/__test/hits`)).json()) as {
     byPath: Record<string, number>;
   };
-  expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path)).sort()).toEqual(['/marketing/ad-connections/meta', '/marketing/ads/launches', '/marketing/campaigns']);
+  expect(Object.keys(hits.byPath).filter((path) => !SHELL.has(path)).sort()).toEqual([
+    '/marketing/ad-connections/meta',
+    '/marketing/ads/launches',
+    '/marketing/ads/library',
+    '/marketing/campaigns',
+    '/marketing/content/drafts',
+  ]);
+});
+
+test('контент: ИИ пишет два варианта, лишние цифры подсвечены, черновик встаёт на день и переживает перезагрузку', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/reset`);
+  await page.goto('/marketing/content');
+  const content = main(page);
+  await content.getByRole('textbox', { name: /^Тема/ }).fill('Осенний уход за волосами');
+  await content.getByRole('button', { name: 'Написать с ИИ', exact: true }).click();
+  const variants = content.getByTestId('content-variants').getByRole('listitem');
+  await expect(variants).toHaveCount(2);
+  await expect(variants.first()).toContainText('Вариант A');
+  // цифра 30% не из карточки: предупреждение; ссылку брони подставил WETOP, а не модель
+  await expect(variants.first()).toContainText('Проверьте цифры: 30%');
+  await expect(variants.first()).toContainText('Записаться онлайн: https://salon.example');
+  await page.screenshot({ path: `${SHOTS}/content-variants-light-1440.png`, fullPage: true });
+  await variants.first().getByRole('button', { name: 'Взять этот', exact: true }).click();
+  const editor = content.getByTestId('content-editor');
+  await expect(editor.getByTestId('content-warnings')).toContainText('30%');
+  await editor.getByRole('textbox', { name: /^Текст поста/ }).fill('Осень, время ухода. Запишитесь на стрижку.');
+  await editor.getByRole('combobox', { name: /^День публикации/ }).selectOption({ index: 2 });
+  await editor.getByRole('button', { name: 'Сохранить черновик', exact: true }).click();
+  await expect(content.getByTestId('content-saved')).toBeVisible();
+
+  await page.reload();
+  await content.getByRole('tab', { name: 'План публикаций', exact: true }).click();
+  const cards = content.getByTestId('content-plan').getByTestId('content-card');
+  await expect(cards).toHaveCount(1);
+  await expect(cards.first()).toContainText('Осень, время ухода. Запишитесь на стрижку.');
+  await expect(cards.first()).toContainText('Instagram');
+  await cards.first().getByRole('button', { name: 'Отметить опубликованным', exact: true }).click();
+  await expect(cards.first()).toContainText('Опубликован');
+  await page.screenshot({ path: `${SHOTS}/content-plan-light-1440.png`, fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: `${SHOTS}/content-plan-light-390.png`, fullPage: true });
+});
+
+test('контент: ИИ недоступен, пост пишется руками и сохраняется без дня', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/reset`);
+  await request.post(`${fixture}/__test/content-ai`, { data: { down: true } });
+  await page.goto('/marketing/content');
+  const content = main(page);
+  await content.getByRole('textbox', { name: /^Тема/ }).fill('Новая услуга');
+  await content.getByRole('button', { name: 'Написать с ИИ', exact: true }).click();
+  await expect(content.getByRole('alert')).toContainText('ИИ сейчас недоступен');
+  await content.getByRole('button', { name: 'Написать самому', exact: true }).click();
+  const editor = content.getByTestId('content-editor');
+  await editor.getByRole('textbox', { name: /^Текст поста/ }).fill('У нас новая услуга. Приходите.');
+  await editor.getByRole('button', { name: 'Сохранить черновик', exact: true }).click();
+  await expect(content.getByTestId('content-saved')).toBeVisible();
+  await content.getByRole('tab', { name: 'План публикаций', exact: true }).click();
+  await expect(content.getByRole('region', { name: 'Черновики без дня' }).getByTestId('content-card')).toHaveCount(1);
+  await request.post(`${fixture}/__test/content-ai`, { data: { down: false } });
 });
 
 test('администратор (без права marketing): вкладки «Маркетинг» нет, прямой адрес не открывает хаб', async ({
@@ -353,7 +417,18 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   await expect(hub).toBeVisible();
   // единая система (14.10.2026): бюджет ведётся по филиалу любого направления; SITE-1: «Сайт и SEO» открыт всем,
   // гостиничные экраны сайта (публикация, изображения, бронирование) салону не предлагаются
-  await expect(hub.getByTestId('marketing-module')).toHaveCount(5);
+  // «Конкуренты» у всех (решение 23.10.2026, п. 5): у салона свой экран загрузки соседей по дням (§60), не гостиничный /market;
+  // «Голосовой агент» (22.10.2026) тоже у всех направлений
+  await expect(hub.getByTestId('marketing-module')).toHaveCount(6);
+  await expect(hub.getByTestId('marketing-competitors-status')).toHaveText('Доступно');
+  await expect(
+    hub.getByTestId('marketing-competitors').getByRole('link', { name: 'Открыть: Конкуренты', exact: true }),
+  ).toHaveAttribute('href', '/market/business');
+  await expect(hub.getByTestId('marketing-voice-status')).toHaveText('Доступно');
+  await expect(
+    hub.getByTestId('marketing-voice').getByRole('link', { name: 'Открыть: Голосовой агент', exact: true }),
+  ).toHaveAttribute('href', '/marketing/voice');
+  // аудит 21.10.2026 P0-4: «Доступно» только при включённом конструкторе (на стенде он включён)
   await expect(hub.getByTestId('marketing-site-status')).toHaveText('Доступно');
   await expect(hub.getByTestId('marketing-budget-status')).toHaveText('Доступно');
   await expect(

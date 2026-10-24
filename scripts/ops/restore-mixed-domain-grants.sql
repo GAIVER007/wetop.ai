@@ -1,4 +1,4 @@
--- Restore-only ACL companion for mixed migrations132,134-137.
+-- Restore-only ACL companion for mixed migrations132,134-137,140,141,144,146.
 -- Not a schema migration. Run after ordinary pure-ACL migrations, inside the restore transaction.
 -- Copy existing privileges exactly; never replay mixed DDL or end the caller's transaction.
 DO $restore_acl$
@@ -47,5 +47,80 @@ BEGIN
     REVOKE ALL ON beauty_location_hours FROM wetop_app, wetop_service;
     GRANT SELECT ON beauty_location_hours TO wetop_app;
     GRANT SELECT, INSERT, UPDATE, DELETE ON beauty_location_hours TO wetop_service;
+  END IF;
+  -- 140_client_notifications: exact ACL of the mixed migration (all-or-none)
+  SELECT count(*) INTO installed FROM unnest(ARRAY['client_notifications','beauty_reminder_settings']) AS t(name)
+    WHERE to_regclass('public.' || name) IS NOT NULL;
+  IF installed NOT IN (0,2) THEN RAISE EXCEPTION 'Incomplete client-notifications schema during ACL restore'; END IF;
+  IF installed = 2 THEN
+    REVOKE ALL ON client_notifications, beauty_reminder_settings FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON client_notifications TO wetop_app;
+    GRANT SELECT, INSERT, UPDATE ON client_notifications TO wetop_service;
+    GRANT SELECT ON beauty_reminder_settings TO wetop_app;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON beauty_reminder_settings TO wetop_service;
+  END IF;
+
+  -- 141_salon_loyalty: exact ACL of the mixed migration (all-or-none)
+  SELECT count(*) INTO installed FROM unnest(ARRAY['bonus_programs','customer_bonus_entries','gift_certificates','gift_certificate_entries']) AS t(name)
+    WHERE to_regclass('public.' || name) IS NOT NULL;
+  IF installed NOT IN (0,4) THEN RAISE EXCEPTION 'Incomplete salon-loyalty schema during ACL restore'; END IF;
+  IF installed = 4 THEN
+    REVOKE ALL ON bonus_programs, customer_bonus_entries, gift_certificates, gift_certificate_entries FROM wetop_app, wetop_service;
+    GRANT SELECT ON bonus_programs TO wetop_app;
+    GRANT SELECT, INSERT, UPDATE ON bonus_programs TO wetop_service;
+    GRANT SELECT, INSERT ON customer_bonus_entries, gift_certificate_entries TO wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON gift_certificates TO wetop_app, wetop_service;
+  END IF;
+  -- 145_voice_calls: exact ACL of the voice journal (all-or-none)
+  SELECT count(*) INTO installed FROM unnest(ARRAY['voice_calls','voice_callbacks','voice_profiles']) AS t(name)
+    WHERE to_regclass('public.' || name) IS NOT NULL;
+  IF installed NOT IN (0,3) THEN RAISE EXCEPTION 'Incomplete voice schema during ACL restore'; END IF;
+  IF installed = 3 THEN
+    REVOKE ALL ON voice_calls, voice_callbacks, voice_profiles FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON voice_calls, voice_callbacks, voice_profiles TO wetop_service;
+    GRANT SELECT ON voice_calls, voice_profiles TO wetop_app;
+    GRANT SELECT ON voice_callbacks TO wetop_app;
+    GRANT UPDATE (status, done_at, done_by_id) ON voice_callbacks TO wetop_app;
+    -- 149_voice_booking_settings: column grants for the booking switch and the per-call limit
+    GRANT INSERT (agent_id, organization_id, business_id, booking_enabled, booking_max_per_call) ON voice_profiles TO wetop_app;
+    GRANT UPDATE (booking_enabled, booking_max_per_call, updated_at) ON voice_profiles TO wetop_app;
+  END IF;
+  -- 148_voice_booking_quotes: exact ACL of the voice booking quotes
+  IF to_regclass('public.voice_booking_quotes') IS NOT NULL THEN
+    REVOKE ALL ON voice_booking_quotes FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON voice_booking_quotes TO wetop_service;
+    GRANT SELECT ON voice_booking_quotes TO wetop_app;
+  END IF;
+
+  -- 144_menu_modifiers_split: exact ACL of the mixed migration (all-or-none)
+  SELECT count(*) INTO installed FROM unnest(ARRAY['menu_modifier_groups','menu_modifiers','menu_item_modifier_groups','restaurant_order_item_modifiers','restaurant_payment_items']) AS t(name)
+    WHERE to_regclass('public.' || name) IS NOT NULL;
+  IF installed NOT IN (0,5) THEN RAISE EXCEPTION 'Incomplete menu-modifiers schema during ACL restore'; END IF;
+  IF installed = 5 THEN
+    REVOKE ALL ON menu_modifier_groups, menu_modifiers, menu_item_modifier_groups, restaurant_order_item_modifiers, restaurant_payment_items FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON menu_modifier_groups, menu_modifiers, menu_item_modifier_groups, restaurant_order_item_modifiers TO wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON restaurant_payment_items TO wetop_app, wetop_service;
+  END IF;
+
+  -- 151_branch_payment_method_settings: exact ACL of the mixed migration (no DELETE: methods are switched off)
+  IF to_regclass('public.branch_payment_method_settings') IS NOT NULL THEN
+    REVOKE ALL ON branch_payment_method_settings FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON branch_payment_method_settings TO wetop_app, wetop_service;
+  END IF;
+
+  -- 146_content_drafts: exact ACL of the mixed migration (draft is archived, never deleted)
+  IF to_regclass('public.content_drafts') IS NOT NULL THEN
+    REVOKE ALL ON content_drafts FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON content_drafts TO wetop_app, wetop_service;
+  END IF;
+
+  -- 150_location_competitors: exact ACL of the mixed migration (all-or-none); competitors are archived, never deleted
+  SELECT count(*) INTO installed FROM unnest(ARRAY['location_competitors','location_competitor_snapshots']) AS t(name)
+    WHERE to_regclass('public.' || name) IS NOT NULL;
+  IF installed NOT IN (0,2) THEN RAISE EXCEPTION 'Incomplete location-competitors schema during ACL restore'; END IF;
+  IF installed = 2 THEN
+    REVOKE ALL ON location_competitors, location_competitor_snapshots FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON location_competitors TO wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON location_competitor_snapshots TO wetop_app, wetop_service;
   END IF;
 END $restore_acl$;

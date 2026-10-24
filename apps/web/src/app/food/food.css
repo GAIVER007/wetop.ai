@@ -168,6 +168,10 @@
   .food-drawer {
     max-width: 520px;
   }
+  /* новая бронь стола: общее окно брони во всю ширину xl (решение 23.10.2026) */
+  .food-drawer.ui-overlay--xl {
+    max-width: calc(100vw - 32px);
+  }
   .food-drawer .overlay-content {
     padding-bottom: 32px;
   }
@@ -234,3 +238,9 @@
     font-size: 18px;
   }
 }
+
+/* Склад кухни: что докупить и блюда (ADR-STOCK-ALL) */
+.stock-insights { display: grid; gap: var(--space-4); margin-bottom: var(--space-4); }
+.stock-insights:empty { display: none; }
+.stock-insights__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-2); }
+.stock-insights__head h2 { margin: 0; font-size: var(--text-lg); }

@@ -1,4 +1,6 @@
 import { MarketingSiteModule } from '../../apps/api/src/marketing-site/marketing-site.module';
+import { HotelStaffModule } from '../../apps/api/src/hotel-staff/hotel-staff.module';
+import { UnitsModule } from '../../apps/api/src/units/units.module';
 import { FinanceModule } from '../../apps/api/src/finance/finance.module';
 import { AiSellerModule } from '../../apps/api/src/ai-seller/ai-seller.module';
 import { SELLER_CONNECTION } from '../../apps/api/src/ai-seller/seller.connection';
@@ -95,7 +97,8 @@ Body()(FixtureController.prototype, 'save', 0);
 const module = await Test.createTestingModule({
   // FinanceModule: настоящий `GET /owner-summary` общей Главной (аудит платформы 17.10.2026, Д6)
   // MarketingSiteModule: медиатека сайта салона и ресторана (аудит платформы 17.10.2026, Д10)
-  imports: [AiSellerModule, FoodModule, BeautyModule, HotelModule, DeskModule, ChessboardModule, FinanceModule, MarketingSiteModule],
+  // HotelStaffModule и UnitsModule: кабинет горничной и «Кто убирает» (решение 22.10.2026)
+  imports: [AiSellerModule, FoodModule, BeautyModule, HotelModule, DeskModule, ChessboardModule, FinanceModule, MarketingSiteModule, HotelStaffModule, UnitsModule],
   controllers: [FixtureController],
 })
   .overrideProvider(SELLER_CONNECTION)
@@ -477,9 +480,21 @@ app.use(
               await db.diningArea.update({ where: { id: closed.id }, data: { active: false } });
               return res.json({ localDay, timezone, food: food!.id, salon: salon!.id });
             }
+            if (req.path === '/__test/maid') {
+              // кабинет горничной (22.10.2026): вход фикстуры привязан к сотруднику гостиницы, номер 101 за ним
+              const hotel = await db.business.findFirstOrThrow({ where: { organizationId: org, vertical: 'HOSPITALITY', status: 'ACTIVE' } });
+              const location = await db.location.findFirstOrThrow({ where: { businessId: hotel.id } });
+              await db.employee.updateMany({ where: { userId: user }, data: { userId: null } });
+              const maid = await db.employee.create({ data: { businessId: hotel.id, name: 'Айгуль Горничная', userId: user, personnelKind: 'OTHER_EMPLOYEE' } });
+              await db.employeeLocation.create({ data: { employeeId: maid.id, locationId: location.id } });
+              const property = await db.property.findFirstOrThrow({ where: { locationId: location.id } });
+              await db.inventoryUnit.update({ where: { propertyId_code: { propertyId: property.id, code: '101' } }, data: { housekeepingAssigneeId: maid.id, housekeepingStatus: 'DIRTY' } });
+              await db.employeePaySetting.create({ data: { employeeId: maid.id, model: 'FIXED', fixedMinor: 15_000_000n, percent: 0, perCleaningMinor: 200_000n, currency: 'KZT' } });
+              return res.json({ employee: maid.id, business: hotel.id, location: location.id });
+            }
             if (req.path === '/__test/control') {
               actorOrg = body.org === 'B' ? orgB : org;
-              role = body.role === 'STAFF' ? 'STAFF' : 'OWNER';
+              role = body.role === 'STAFF' ? 'STAFF' : body.role === 'EMPLOYEE' ? 'EMPLOYEE' : 'OWNER';
               unavailable = body.unavailable === true;
               failCreate = body.failCreate === true;
               await db.organization.update({
@@ -510,12 +525,16 @@ app.use(
                 await tx.locationService.deleteMany({ where: { service: { business: b } } });
                 await tx.customerBusiness.deleteMany({ where: { business: b } });
                 await tx.customer.deleteMany({ where: { organizationId: org } });
+                await tx.employeePaySetting.deleteMany({ where: { employee: { business: b } } });
                 await tx.employee.deleteMany({ where: { business: b } });
                 await tx.beautyService.deleteMany({ where: { business: b } });
                 await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
                 await tx.auditLog.deleteMany({ where: { organizationId: org } });
                 await tx.onboardingProgress.deleteMany({ where: { location: { business: b } } });
+                // способы оплаты филиала (миграция 151, #807): RESTRICT на филиал, уходят до филиала
+                await tx.branchPaymentMethodSetting.deleteMany({ where: { location: { business: b } } });
                 const properties = { organizationId: org };
+                await tx.housekeepingEvent.deleteMany({ where: { inventoryUnit: { property: properties } } });
                 await tx.inventoryUnit.deleteMany({ where: { property: properties } });
                 await tx.physicalRoom.deleteMany({
                   where: { floor: { building: { property: properties } } },

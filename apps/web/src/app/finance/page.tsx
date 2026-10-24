@@ -31,7 +31,6 @@ import {
   Select,
   Help,
   SectionTitle,
-  Stat,
   StatusBadge,
   Table,
 } from '../../components/ui';
@@ -45,14 +44,18 @@ import { DateRangePopover } from '../../components/date-range-popover';
 import {
   AnalyticsCta,
   ExpenseCategories,
+  FinanceAccrualTotals,
   FinanceDynamics,
-  FinanceKpis,
+  FinanceEmptyMonth,
   FinanceReports,
+  FinanceTotals,
   IncomeStructure,
   dailyFlow,
+  financeMonthEmpty,
 } from './finance-board';
 import './finance-board.css';
-import { MoneyOverview, RecentOperations } from './overview';
+import './summary.css';
+import { RecentOperations } from './overview';
 import { FinanceWorkspace } from './workspace';
 import { METHOD_RU, operationKind, operationStatus } from './labels';
 import { operationFilter } from './operation-filter';
@@ -142,8 +145,6 @@ export default async function FinanceReportPage({
     cashLoaded,
     servicesLoaded,
     periodOpsLoaded,
-    prevOpsLoaded,
-    prevReportLoaded,
   ] = await Promise.all([
     valid ? settle(financeApi.report(from, to)) : null,
     valid ? settle(financeApi.debts(from, to)) : null,
@@ -157,9 +158,6 @@ export default async function FinanceReportPage({
     valid && (filter.type || filter.method || filter.source)
       ? settle(financeApi.operations(from, to, { limit: OPS_ALL }))
       : null,
-    valid ? settle(financeApi.operations(prevFrom, prevTo, { limit: 1 })) : null,
-    // «Общий доход» к прошлому периоду: тот же отчёт за отрезок той же длины (эталон «Финансы» 13.10.2026)
-    valid ? settle(financeApi.report(prevFrom, prevTo)) : null,
   ]);
   const r = loaded?.ok ? loaded.r : null;
   const loadError = loaded && !loaded.ok ? loaded.e : null;
@@ -170,7 +168,6 @@ export default async function FinanceReportPage({
   const periodOpsResult = periodOpsLoaded ?? opsLoaded;
   const periodOps = periodOpsResult?.ok ? periodOpsResult.r : null;
   const periodOpsError = periodOpsResult && !periodOpsResult.ok ? periodOpsResult.e : null;
-  const prevOps = prevOpsLoaded?.ok ? prevOpsLoaded.r : null;
   const cashBalances = cashLoaded.ok ? cashLoaded.r : null;
   const cashError = !cashLoaded.ok ? cashLoaded.e : null;
   const services = servicesLoaded?.ok ? servicesLoaded.r : null;
@@ -192,15 +189,10 @@ export default async function FinanceReportPage({
     income,
     refunds,
     expense,
-    prevIncome: prevOps ? BigInt(prevOps.paidMinor) + BigInt(prevOps.incomeMinor) : null,
-    prevRefunds: prevOps ? BigInt(prevOps.refundedMinor) : null,
-    prevExpense: prevOps ? BigInt(prevOps.expenseMinor) : null,
     currency: periodOps?.currency ?? cashBalances?.currency ?? 'KZT',
   };
   // лента ниже по-прежнему начинается с двадцати строк; полный ответ остаётся графику и «Показать все»
   const opsForList = ops && !opsAll ? { ...ops, rows: ops.rows.slice(0, OPS_SHOWN) } : ops;
-  // Q-206: «К сбору» — сумма того же списка долгов, куда ведёт плитка: число сверху всегда равно сумме строк
-  const due = debts ? BigInt(debts.balanceMinor) : 0n;
   const onlyOverdue = sp.debts === 'overdue';
   /** Ссылка на операции с отбором: плитки, способы в таблице и «Требует внимания» ведут сюда (drill-down, F2) */
   const opsHref = (o: {
@@ -223,16 +215,9 @@ export default async function FinanceReportPage({
   if (opParam) exportQuery.set('op', opParam);
   if (filter.method) exportQuery.set('method', filter.method);
   if (srcParam) exportQuery.set('src', srcParam);
-  const prevReport = prevReportLoaded?.ok ? prevReportLoaded.r : null;
   const flow = periodOps ? dailyFlow(periodOps.rows, from, to) : [];
-  const profit =
-    sums.income !== null && sums.refunds !== null && sums.expense !== null
-      ? sums.income - sums.refunds - sums.expense
-      : null;
-  const prevProfit =
-    sums.prevIncome !== null && sums.prevRefunds !== null && sums.prevExpense !== null
-      ? sums.prevIncome - sums.prevRefunds - sums.prevExpense
-      : null;
+  // пустой месяц гостиницы: одна заглушка «Добавить первую бронь» вместо нулей, графика и таблиц (аудит 22.10.2026)
+  const monthEmpty = valid && financeMonthEmpty({ report: r, ops: periodOps, debts });
   const kindLabel = (kind: string) => KINDS.find(([k]) => k === kind)?.[1] ?? kind;
   return (
     <Page
@@ -284,40 +269,32 @@ export default async function FinanceReportPage({
       {/* «Финансы» по эталону владельца 13.10.2026: только деньги. Загрузка, события дня и задачи
           вернулись на «Главную» (/today); числа считаются из тех же ответов API, что раньше */}
       <div className="fin-board" data-testid="finance-board">
-        <FinanceKpis
-          charged={r ? BigInt(r.chargedMinor) : null}
-          prevCharged={prevReport ? BigInt(prevReport.chargedMinor) : null}
-          income={sums.income}
-          prevIncome={sums.prevIncome}
-          expense={sums.expense}
-          prevExpense={sums.prevExpense}
-          profit={profit}
-          prevProfit={prevProfit}
-          currency={sums.currency}
-          flow={flow}
-        />
-        <div className="fin-row fin-row--wide">
-          <FinanceDynamics flow={flow} currency={sums.currency} />
-          <IncomeStructure report={r} kindLabel={kindLabel} />
-        </div>
-        <div className="fin-row fin-row--wide">
-          <RecentOperations ops={periodOps} period={period} />
-          <ExpenseCategories ops={periodOps} allHref={opsHref({ op: 'expense' })} />
-        </div>
-        <div className="fin-row fin-row--three">
-          {/* «Платежи и транзакции» эталона: «Финансовый обзор» с возвратами отдельной строкой
-              (ADR-176) и «Остатком на счетах» по способам */}
-          <MoneyOverview
-            sums={sums}
-            ops={periodOps}
-            from={from}
-            to={to}
-            cash={cashBalances}
-            detailsHref={`${period}&show=1#operations`}
-          />
-          <FinanceReports exportHref={`/finance/export?${exportQuery}`} from={from} to={to} />
-          <AnalyticsCta />
-        </div>
+        {monthEmpty ? (
+          <FinanceEmptyMonth />
+        ) : (
+          <>
+            <FinanceTotals
+              charged={r ? BigInt(r.chargedMinor) : null}
+              income={sums.income}
+              refunds={sums.refunds}
+              expense={sums.expense}
+              balance={cashBalances ? cashBalances.totalMinor : null}
+              currency={sums.currency}
+            />
+            <div className="fin-row fin-row--wide">
+              <FinanceDynamics flow={flow} currency={sums.currency} />
+              <IncomeStructure report={r} kindLabel={kindLabel} />
+            </div>
+            <div className="fin-row fin-row--wide">
+              <RecentOperations ops={periodOps} period={period} />
+              <ExpenseCategories ops={periodOps} allHref={opsHref({ op: 'expense' })} />
+            </div>
+            <div className="fin-row fin-row--wide">
+              <FinanceReports exportHref={`/finance/export?${exportQuery}`} from={from} to={to} />
+              <AnalyticsCta />
+            </div>
+          </>
+        )}
       </div>
       {cashError !== null && (
         <LoadError testId="cash-summary-error" {...loadErrorProps(cashError)} />
@@ -465,76 +442,23 @@ export default async function FinanceReportPage({
         }
         overview={
           <>
-            {r && (
-              <section
-                className="finance-kpis"
-                aria-label="Итоги периода"
-                data-testid="finance-kpis"
-              >
-                {/* Каждая плитка ведёт к строкам, из которых сложилось число (drill-down, ТЗ F2) */}
-                <a
-                  href={`${period}#charges`}
-                  className="finance-kpi-link"
-                  data-testid="kpi-charged"
-                >
-                  <Stat
-                    label="Начислено"
-                    value={formatMoney(r.chargedMinor, cur)}
-                    testId="charged"
-                    hint="проживание, услуги, штрафы"
-                  />
-                </a>
-                <a
-                  href={opsHref({ op: 'payment' })}
-                  className="finance-kpi-link"
-                  data-testid="kpi-paid"
-                >
-                  <Stat
-                    label="Оплачено"
-                    value={formatMoney(r.paidMinor, cur)}
-                    testId="paid"
-                    hint="всеми способами оплаты"
-                  />
-                </a>
-                <a
-                  href={opsHref({ op: 'refund' })}
-                  className="finance-kpi-link"
-                  data-testid="kpi-refunded"
-                >
-                  <Stat
-                    label="Возвращено"
-                    value={formatMoney(r.refundedMinor, cur)}
-                    testId="refunded"
-                    hint={
-                      r.refunds.count
-                        ? `${pluralRu(r.refunds.count, ['возврат', 'возврата', 'возвратов'])} за период`
-                        : 'возвратов за период не было'
-                    }
-                  />
-                </a>
-                <a
-                  href={`${period}#debts`}
-                  className={
-                    due > 0n ? 'finance-kpi-link finance-kpi-link--due' : 'finance-kpi-link'
-                  }
-                  data-testid="kpi-due"
-                >
-                  <Stat
-                    label="К сбору"
-                    value={debts ? formatMoney(debts.balanceMinor, cur) : 'Нет данных'}
-                    testId="balance"
-                    tone={due > 0n ? 'warn' : undefined}
-                    hint={
-                      debtsError !== null
-                        ? 'список долгов не загрузился'
-                        : 'остаток по броням периода'
-                    }
-                  />
-                </a>
-              </section>
+            {r && !monthEmpty && (
+              // итоги одной строкой вместо четырёх плиток (аудит 22.10.2026 P1-3b): каждая сумма ведёт к строкам
+              <FinanceAccrualTotals
+                report={r}
+                currency={cur}
+                due={debts ? debts.balanceMinor : null}
+                dueFailed={debtsError !== null}
+                hrefs={{
+                  charged: `${period}#charges`,
+                  paid: opsHref({ op: 'payment' }),
+                  refunded: opsHref({ op: 'refund' }),
+                  due: `${period}#debts`,
+                }}
+              />
             )}
 
-            {valid && (r || debts) && (
+            {valid && !monthEmpty && (r || debts) && (
               <Attention
                 report={r}
                 debts={debts}
@@ -544,7 +468,8 @@ export default async function FinanceReportPage({
               />
             )}
 
-            {r && (
+            {/* пустой месяц: таблиц из нулей нет, первый шаг в заглушке выше (аудит 22.10.2026 P1-3b) */}
+            {r && !monthEmpty && (
               <div className="finance-structure">
                 <section className="finance-block" id="charges" data-testid="finance-charges">
                   <SectionTitle first>По видам начислений</SectionTitle>

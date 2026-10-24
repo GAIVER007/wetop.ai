@@ -262,6 +262,22 @@
     gap: var(--space-1);
     margin-top: var(--space-1);
   }
+  /* клетка «Конкурентов» салона и ресторана (§60): вся клетка — кнопка правки снимка дня */
+  .bm-cell-button {
+    display: grid;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: inherit;
+    cursor: pointer;
+  }
+  .bm-cell-button:focus-visible {
+    outline: var(--focus-ring-w) solid var(--focus);
+    outline-offset: var(--focus-ring-offset);
+  }
   .market-cell {
     font-variant-numeric: tabular-nums;
     white-space: nowrap;

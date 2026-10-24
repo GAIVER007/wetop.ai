@@ -10,10 +10,13 @@ import { LineChart } from '../../../components/line-chart';
 import { cx } from '../../../components/ui';
 import { formatInt, formatPercent, sourceLabel, wholeTenge } from '../../../lib/dashboard-format';
 import { displayDate } from '../../../lib/display-date';
+import { currencySign } from '../../../lib/money';
+import { propertyCurrency } from '../../../lib/hotel-api';
 import { pluralRu } from '../../../lib/plural';
 import { analyticsHref, type AnalyticsQuery } from './params';
 import { Tile, countDelta, moneyDelta, pointsDelta } from './tiles';
 import { OccupancyTiles } from './occupancy-tiles';
+import { METRIC } from '../../../lib/metric-words';
 
 const b = (v: string) => BigInt(v);
 
@@ -96,46 +99,46 @@ const fullTenge = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 });
 const toTenge = (minor: string | null) => (minor === null ? null : Number(BigInt(minor) / 100n));
 
 /** ADR и RevPAR линиями по точкам периода (RPT2.2c-3, ADR-155, Q-290): день, неделя или месяц, как выбрана детализация */
-function PricePanel({ c, query }: { c: DashboardPeriod; query: AnalyticsQuery }) {
+function PricePanel({ c, query, cur }: { c: DashboardPeriod; query: AnalyticsQuery; cur: string }) {
   const g = query.granularity ?? 'day';
   const buckets = groupDaily(c.daily, g);
   if (c.nights < 2 || buckets.length < 2 || buckets.every((k) => k.adrMinor === null)) return null;
   const axis = (k: DashboardBucket) =>
     g === 'month' ? shortMonth(k.from) : `${k.from.slice(8, 10)}.${k.from.slice(5, 7)}`;
   return (
-    <Panel title="ADR и RevPAR" className="dash-panel pa-wide">
+    <Panel title={`${METRIC.adr} и ${METRIC.revpar.toLowerCase()}`} className="dash-panel pa-wide">
       <LineChart
         testId="pa-chart-price"
         labels={buckets.map((k) =>
           k.to === k.from ? displayDate(k.from) : `${displayDate(k.from)} — ${displayDate(k.to)}`,
         )}
         axisLabels={buckets.map(axis)}
-        format={(v) => `${fullTenge.format(Math.round(v))} ₸`}
+        format={(v) => `${fullTenge.format(Math.round(v))} ${currencySign(cur)}`}
         formatAxis={(v) => compactTenge.format(v)}
         series={[
           {
-            name: 'ADR',
+            name: METRIC.adr,
             values: buckets.map((k) => toTenge(k.adrMinor)),
-            summary: c.adrMinor ? wholeTenge(c.adrMinor) : 'нет данных',
+            summary: c.adrMinor ? wholeTenge(c.adrMinor, cur) : 'нет данных',
           },
           {
-            name: 'RevPAR',
+            name: METRIC.revpar,
             values: buckets.map((k) => toTenge(k.revparMinor)),
             dashed: true,
-            summary: c.revparMinor ? wholeTenge(c.revparMinor) : 'нет данных',
+            summary: c.revparMinor ? wholeTenge(c.revparMinor, cur) : 'нет данных',
           },
         ]}
       />
       <p className="muted dash-note">
-        Цена места делится по ночам проживания. ADR: выручка за ночи на занятые ночи, RevPAR: на
-        ночи, доступные к продаже. В итоге периода и в списке выше число за весь период.
+        Цена места делится по ночам проживания. Средняя цена ночи: выручка за ночи на занятые ночи, доход
+        на номер: на ночи, доступные к продаже. В итоге периода и в списке выше число за весь период.
       </p>
     </Panel>
   );
 }
 
 /** Кольца долей (RPT2.2c-3): начислено за проживание по категориям и стоимость броней по источникам; смысл в списке рядом */
-function SharePanels({ c }: { c: DashboardPeriod }) {
+function SharePanels({ c, cur }: { c: DashboardPeriod; cur: string }) {
   const byCategory = c.categories.map((cat) => ({ label: cat.name, valueMinor: cat.revenueMinor }));
   const bySource = c.sources.map((src) => ({
     label: sourceLabel(src.source, src.channel),
@@ -153,9 +156,9 @@ function SharePanels({ c }: { c: DashboardPeriod }) {
           <DonutShare
             testId="pa-donut-categories"
             items={byCategory}
-            centerValue={wholeTenge(catTotal.toString())}
+            centerValue={wholeTenge(catTotal.toString(), cur)}
             centerLabel="за проживание"
-            amount={wholeTenge}
+            amount={(minor: string) => wholeTenge(minor, cur)}
           />
           <p className="muted dash-note">Начисления за проживание по дню заезда.</p>
         </Panel>
@@ -165,9 +168,9 @@ function SharePanels({ c }: { c: DashboardPeriod }) {
           <DonutShare
             testId="pa-donut-sources"
             items={bySource}
-            centerValue={wholeTenge(srcTotal.toString())}
+            centerValue={wholeTenge(srcTotal.toString(), cur)}
             centerLabel="стоимость броней"
-            amount={wholeTenge}
+            amount={(minor: string) => wholeTenge(minor, cur)}
           />
           <p className="muted dash-note">
             Доля выручки; доля броней по числу показана ниже, в подробностях.
@@ -182,10 +185,12 @@ function SharePanels({ c }: { c: DashboardPeriod }) {
 function KpiRow({
   c,
   p,
+  cur,
   detail = false,
 }: {
   c: DashboardPeriod;
   p: DashboardPeriod | null;
+  cur: string;
   detail?: boolean;
 }) {
   const compare = p !== null;
@@ -212,7 +217,7 @@ function KpiRow({
         <Tile
           id="revenue"
           label="Начислено за проживание"
-          value={wholeTenge(c.revenue.accommodationMinor)}
+          value={wholeTenge(c.revenue.accommodationMinor, cur)}
           hint="начислено за проживание, по дню заезда"
           delta={moneyDelta(c.revenue.accommodationMinor, prev.revenue.accommodationMinor)}
           compare={compare}
@@ -261,7 +266,7 @@ function KpiRow({
         <Tile
           id="average"
           label="Средний чек брони"
-          value={c.bookings.averageMinor ? wholeTenge(c.bookings.averageMinor) : '—'}
+          value={c.bookings.averageMinor ? wholeTenge(c.bookings.averageMinor, cur) : '—'}
           hint="стоимость броней без отмен и незаездов"
           delta={moneyDelta(c.bookings.averageMinor, prev.bookings.averageMinor)}
           compare={compare}
@@ -279,10 +284,12 @@ function UnitEconomics({
   c,
   p,
   query,
+  cur,
 }: {
   c: DashboardPeriod;
   p: DashboardPeriod | null;
   query: AnalyticsQuery;
+  cur: string;
 }) {
   if (c.fund === 'all') {
     if (!(c.funds.rooms > 0 && c.funds.beds > 0)) return null;
@@ -303,16 +310,16 @@ function UnitEconomics({
     >
       <Tile
         id="adr"
-        label={rooms ? 'Средняя цена номера (ADR)' : 'Средняя цена койки'}
-        value={c.adrMinor ? wholeTenge(c.adrMinor) : '—'}
+        label={rooms ? 'Средняя цена номера' : 'Средняя цена койки'}
+        value={c.adrMinor ? wholeTenge(c.adrMinor, cur) : '—'}
         hint={`выручка проживания на проданную ночь ${rooms ? 'номера' : 'койки'}`}
         delta={moneyDelta(c.adrMinor, p?.adrMinor ?? null)}
         compare={p !== null}
       />
       <Tile
         id="revpar"
-        label={rooms ? 'Доход на номер (RevPAR)' : 'Доход на койку'}
-        value={c.revparMinor ? wholeTenge(c.revparMinor) : '—'}
+        label={rooms ? METRIC.revpar : 'Доход на койку'}
+        value={c.revparMinor ? wholeTenge(c.revparMinor, cur) : '—'}
         hint={`выручка проживания на ${rooms ? 'каждый номер' : 'каждую койку'} за ночь`}
         delta={moneyDelta(c.revparMinor, p?.revparMinor ?? null)}
         compare={p !== null}
@@ -388,10 +395,12 @@ function RevenuePanel({
   c,
   today,
   query,
+  cur,
 }: {
   c: DashboardPeriod;
   today: string;
   query: AnalyticsQuery;
+  cur: string;
 }) {
   const max = c.daily.reduce((m, d) => (b(d.revenueMinor) > m ? b(d.revenueMinor) : m), 0n);
   // высота — доля от самого денежного дня; тысячные доли целочисленно, без float над деньгами
@@ -400,7 +409,7 @@ function RevenuePanel({
     <Panel title="Начисления по заездам" className="dash-panel">
       {c.nights === 1 ? (
         <p className="pa-single">
-          <strong data-testid="pa-revenue-day">{wholeTenge(c.revenue.accommodationMinor)}</strong>{' '}
+          <strong data-testid="pa-revenue-day">{wholeTenge(c.revenue.accommodationMinor, cur)}</strong>{' '}
           <span className="muted">начислено за проживания с заездом в этот день</span>
         </p>
       ) : (
@@ -412,12 +421,12 @@ function RevenuePanel({
               ? groupDaily(c.daily, query.granularity).map((k) => ({
                   ...bucketBar(k, query.granularity!),
                   height: bucketHeight(k.revenueMinor, groupDaily(c.daily, query.granularity!)),
-                  facts: `начислено за проживание ${wholeTenge(k.revenueMinor)}, заездов ${k.arrivals}${partialNote(k)}`,
+                  facts: `начислено за проживание ${wholeTenge(k.revenueMinor, cur)}, заездов ${k.arrivals}${partialNote(k)}`,
                 }))
               : c.daily.map((d) => ({
                   date: d.date,
                   height: height(d.revenueMinor),
-                  facts: `начислено за проживание ${wholeTenge(d.revenueMinor)}, заездов ${d.arrivals}`,
+                  facts: `начислено за проживание ${wholeTenge(d.revenueMinor, cur)}, заездов ${d.arrivals}`,
                 }))
           }
         />
@@ -434,7 +443,7 @@ function RevenuePanel({
   );
 }
 
-function SourcesPanel({ c }: { c: DashboardPeriod }) {
+function SourcesPanel({ c, cur }: { c: DashboardPeriod; cur: string }) {
   const top = c.sources.slice(0, 6);
   return (
     <Panel title="Источники броней" className="dash-panel">
@@ -450,7 +459,7 @@ function SourcesPanel({ c }: { c: DashboardPeriod }) {
                 <i style={{ width: `${s.share}%` }} />
               </span>
               <span className="sources__share">{formatPercent(s.share)}</span>
-              <span className="sources__amount">{wholeTenge(s.amountMinor)}</span>
+              <span className="sources__amount">{wholeTenge(s.amountMinor, cur)}</span>
             </li>
           ))}
         </ul>
@@ -468,7 +477,7 @@ function SourcesPanel({ c }: { c: DashboardPeriod }) {
  * Таблица категорий. На одном дне колонки «Загрузка» нет: её уже рисуют полосы «Загрузки по категориям»
  * выше — одно число дважды на экране (правило «Плиток главной» 21.09, DESIGN.md §8).
  */
-function CategoriesPanel({ c }: { c: DashboardPeriod }) {
+function CategoriesPanel({ c, cur }: { c: DashboardPeriod; cur: string }) {
   const withOccupancy = c.nights > 1;
   return (
     <Panel title="Категории" className="dash-panel dash-panel--table">
@@ -517,11 +526,11 @@ function CategoriesPanel({ c }: { c: DashboardPeriod }) {
               </td>
               <td className="num">
                 <span className="dash-cell-word">выручка </span>
-                {wholeTenge(cat.revenueMinor)}
+                {wholeTenge(cat.revenueMinor, cur)}
               </td>
               <td className="num">
                 <span className="dash-cell-word">ср. цена </span>
-                {cat.adrMinor ? wholeTenge(cat.adrMinor) : '—'}
+                {cat.adrMinor ? wholeTenge(cat.adrMinor, cur) : '—'}
               </td>
             </tr>
           ))}
@@ -544,9 +553,13 @@ const hasData = (c: DashboardPeriod) =>
  */
 export async function Overview({ query, today }: { query: AnalyticsQuery; today: string }) {
   const { period, fund } = query;
-  const view = await dashboardApi
-    .period(period.from, period.to, fund, query.category)
-    .catch((error: unknown) => (error instanceof ApiError ? error : Promise.reject(error)));
+  // суммы приходят в валюте объекта: ею же и подписываем (решение владельца 20.10.2026)
+  const [view, cur] = await Promise.all([
+    dashboardApi
+      .period(period.from, period.to, fund, query.category)
+      .catch((error: unknown) => (error instanceof ApiError ? error : Promise.reject(error))),
+    propertyCurrency(),
+  ]);
   if (view instanceof ApiError) return <LoadError testId="pa-error" {...loadErrorProps(view)} />;
   const c = view.current;
   const p = query.compare ? view.previous : null;
@@ -587,7 +600,7 @@ export async function Overview({ query, today }: { query: AnalyticsQuery; today:
   return (
     <>
       <ReportFilters c={c} query={query} />
-      <KpiRow c={c} p={p} />
+      <KpiRow c={c} p={p} cur={cur} />
 
       {p && (
         <p className="kpi-compare muted" data-testid="pa-compare">
@@ -595,21 +608,21 @@ export async function Overview({ query, today }: { query: AnalyticsQuery; today:
           {p.from !== p.to && ` — ${displayDate(p.to)}`}: тот же расчёт за столько же дней вплотную
           до начала периода. Где «—», в прошлом периоде данных нет.
           {c.unassigned > 0 &&
-            ` Без ячейки ${pluralRu(c.unassigned, ['проживание', 'проживания', 'проживаний'])} — в загрузку не входят.`}
+            ` Без номера ${pluralRu(c.unassigned, ['проживание', 'проживания', 'проживаний'])} — в загрузку не входят.`}
         </p>
       )}
       <div className="dash-grid dash-grid--chart pa-charts">
         <OccupancyPanel c={c} today={today} query={query} />
-        <RevenuePanel c={c} today={today} query={query} />
-        <PricePanel c={c} query={query} />
-        <SharePanels c={c} />
+        <RevenuePanel c={c} today={today} query={query} cur={cur} />
+        <PricePanel c={c} query={query} cur={cur} />
+        <SharePanels c={c} cur={cur} />
       </div>
       <details className="pa-details">
         <summary>Подробности: ночи, средний чек, категории и источники</summary>
-        <KpiRow c={c} p={p} detail />
-        <UnitEconomics c={c} p={p} query={query} />
-        <SourcesPanel c={c} />
-        <CategoriesPanel c={c} />
+        <KpiRow c={c} p={p} cur={cur} detail />
+        <UnitEconomics c={c} p={p} query={query} cur={cur} />
+        <SourcesPanel c={c} cur={cur} />
+        <CategoriesPanel c={c} cur={cur} />
       </details>
     </>
   );

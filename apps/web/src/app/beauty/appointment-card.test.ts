@@ -45,3 +45,32 @@ describe('Пояснение недоступной неявки', () => {
     expect(render(row, false)).not.toContain('Можно после начала визита');
   });
 });
+
+describe('аудит салона 22.10.2026: цена один раз, бонусы только при балансе', () => {
+  const priced = { ...row, priceMinor: '800000' };
+  const count = (html: string, text: string) => html.split(text).length - 1;
+  it('одна услуга: цена видна один раз, в строке «Оплачено»', () => {
+    const html = render(priced);
+    expect(count(html, '8 000')).toBe(1);
+    expect(html).toContain('data-testid="beauty-card-paid">0 ₸ из 8 000 ₸');
+  });
+  it('запись из одной строки услуги: без повторов цены', () => {
+    const html = render({
+      ...priced,
+      items: [{
+        id: 'line', serviceId: 'service', serviceName: 'Тестовая услуга', employeeId: 'employee', employeeName: 'Мастер',
+        startMinutes: 1080, endMinutes: 1140, durationMinutes: 60, basePriceMinor: '800000', discountMinor: '0',
+        surchargeMinor: '0', priceMinor: '800000', currency: 'KZT',
+      }],
+    } as BeautyAppointmentRow);
+    expect(count(html, '8 000')).toBe(1);
+  });
+  it('способ «Бонусы» не предлагается, пока не известно, что бонусы есть', () => {
+    const html = renderToStaticMarkup(createElement(AppointmentCard, {
+      day, row: priced, canUpdate: true, canPay: true,
+      scopeKey: JSON.stringify({ organizationId: 'org', businessId: 'business', locationId: 'location' }), onDone() {},
+    }));
+    expect(html).toContain('Оплата записи');
+    expect(html).not.toContain('value="BONUS"');
+  });
+});

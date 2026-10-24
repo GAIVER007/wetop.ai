@@ -24,7 +24,8 @@ describe('approved TZ12 presentation compatibility port', () => {
   it('provides period list search, callable contact and an explicit record action', () => {
     const text = source('appointments/list.tsx');
     expect(text).toContain('className="beauty-period-filter"');
-    expect(text).toContain('Поиск по выбранному периоду.');
+    // подсказка теперь в самом поле поиска (аудит 21.10.2026 п.19)
+    expect(text).toContain('placeholder="Имя или телефон"');
     expect(text).toContain('tel:${r.customer.phone}');
     expect(text).toContain('Открыть запись');
   });
@@ -34,8 +35,11 @@ describe('approved TZ12 presentation compatibility port', () => {
     for (const name of ['Клиент', 'Услуга и время', 'Дополнительно']) expect(text).toContain(`<legend>${name}</legend>`);
     expect(text).toContain('aria-live="polite"');
     expect(text).toContain('<span className="beauty-selection-line">Дата: {date}</span>');
-    expect(text).toMatch(/<span className="beauty-selection-line">\s*Время: \{hour\} \(\{day\.location\.timezone\}\)\s*<\/span>/);
-    expect(text).toContain('appointment-form__footer');
+    // пояс называется словами (zoneLabel), а не кодом IANA: обход живого сайта 21.10.2026
+    expect(text).toMatch(/<span className="beauty-selection-line">\s*Время: \{hour\} \(\{zoneLabel\(day\.location\.timezone\)\}\)\s*<\/span>/);
+    // подвал с итогом и «Записать» с 23.10.2026 общий у окна брони всех направлений (`BookingShell`)
+    expect(text).toContain('<BookingShell');
+    expect(text).toContain('appointment-form__total');
     expect(source('beauty/beauty.css')).toContain('.appointment-editor > .overlay-content');
   });
   it('emphasizes customer identity and makes phone callable without removing metrics', () => {

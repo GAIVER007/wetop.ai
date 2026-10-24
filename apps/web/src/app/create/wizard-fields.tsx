@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent } from 'react';
 import { NICHES, OTHER_NICHE, S } from './strings';
+import { Input, Select, Textarea } from '../../components/ui';
 export const INITIAL_CONFIG = {
   assistantName: '',
   businessName: '',
@@ -37,7 +38,7 @@ export function WizardFields({
     <div className="guest-wizard__fields">
       <label>
         <span>Имя ассистента</span>
-        <input
+        <Input
           value={values.assistantName}
           onChange={change('assistantName')}
           maxLength={40}
@@ -47,7 +48,7 @@ export function WizardFields({
       </label>
       <label>
         <span>Название компании {mark('businessName')}</span>
-        <input
+        <Input
           required
           value={values.businessName}
           onChange={change('businessName')}
@@ -57,7 +58,7 @@ export function WizardFields({
       </label>
       <label>
         <span>Ниша {mark('niche')}</span>
-        <select
+        <Select
           required
           value={selectValue}
           onChange={(e) => {
@@ -77,12 +78,12 @@ export function WizardFields({
             </option>
           ))}
           <option value={OTHER_NICHE}>{S.review.nicheOther}</option>
-        </select>
+        </Select>
       </label>
       {other && (
         <label>
           <span>{S.review.nicheOwn}</span>
-          <input
+          <Input
             required
             value={values.niche}
             onChange={change('niche')}
@@ -93,7 +94,7 @@ export function WizardFields({
       )}
       <label>
         <span>Основная цель {mark('goal')}</span>
-        <input
+        <Input
           value={values.goal}
           onChange={change('goal')}
           maxLength={1000}
@@ -102,7 +103,7 @@ export function WizardFields({
       </label>
       <label className="guest-wizard__wide">
         <span>Описание {mark('description')}</span>
-        <textarea
+        <Textarea
           value={values.description}
           onChange={change('description')}
           maxLength={10000}
@@ -112,7 +113,7 @@ export function WizardFields({
       </label>
       <label className="guest-wizard__wide">
         <span>Ключевые преимущества {mark('advantages')}</span>
-        <textarea
+        <Textarea
           value={values.advantages}
           onChange={change('advantages')}
           maxLength={2000}
@@ -122,21 +123,21 @@ export function WizardFields({
       </label>
       <label>
         <span>Валюта</span>
-        <select value={values.currency} onChange={change('currency')}>
+        <Select value={values.currency} onChange={change('currency')}>
           {['KZT', 'USD', 'EUR', 'RUB', 'GBP'].map((v) => (
             <option key={v}>{v}</option>
           ))}
-        </select>
+        </Select>
       </label>
       <label>
         <span>Часовой пояс</span>
-        <select value={values.timezone} onChange={change('timezone')}>
+        <Select value={values.timezone} onChange={change('timezone')}>
           {/* tz-allow: вариант в списке поясов, человек выбирает сам */}
           <option value="Asia/Almaty">Алматы / Астана (UTC+5)</option>
           <option value="Europe/Moscow">Москва (UTC+3)</option>
           <option value="UTC">UTC</option>
           <option value="Asia/Dubai">Дубай (UTC+4)</option>
-        </select>
+        </Select>
       </label>
     </div>
   );

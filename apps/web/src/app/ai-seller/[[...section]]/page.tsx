@@ -51,7 +51,9 @@ import { hotelClock } from '../../../lib/hotel-api';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess } from '../../../lib/navigation';
 import { displayPeriod } from '../../../lib/display-date';
-import { sellerApi, type SellerFactsView, type SellerStatus } from '../../../lib/api';
+import { sellerApi, type SellerFactsView, type SellerLlmUsage, type SellerStatus } from '../../../lib/api';
+import { propertyClock } from '../../../lib/property-time';
+import { workspaceTimezone } from '../../../lib/workspace-context';
 import { loadErrorProps } from '../../../lib/load-error';
 import { pluralRu } from '../../../lib/plural';
 import { CopyButton } from '../../website/forms';
@@ -72,6 +74,7 @@ import { ChannelsTable } from './channels';
 import { ScenariosView } from './scenarios';
 import '../ai-seller.css';
 import { Tabs } from '../../../components/tabs';
+import { formatPhone } from '../../../lib/phone';
 
 /**
  * Раздел «ИИ-продавец» (ТЗ ред. 1 §4.1, П6; ADR-079; макет владельца 26.09.2026 — ADR-097). Четыре экрана:
@@ -126,6 +129,14 @@ export default async function AiSellerPage({
   const tabs = SELLER_TABS.filter((item) => configure || item.view === 'dialogs');
   const query = await searchParams;
   const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : '');
+  // расширение не подключено: одна карточка без вкладок «Обзор, Настройка, Диалоги…» (аудит 21.10.2026 п. 25)
+  const first = await settle(sellerApi.status());
+  if (first.ok && first.value.state === 'extension-off')
+    return (
+      <Page title="ИИ-продавец">
+        <ExtensionOff status={first.value} platform={access.platform} vertical={vertical} />
+      </Page>
+    );
   return (
     <Page
       title="ИИ-продавец"
@@ -169,6 +180,24 @@ export default async function AiSellerPage({
         />
       </Suspense>
     </Page>
+  );
+}
+
+/**
+ * Продавец не отвечает гостям из-за ключа модели (нет денег на счёте или ключ не принят): плашка на всех вкладках
+ * раздела, 20.10.2026 такой отказ три недели никто не видел. Состояние знает только бот и отдаёт его тем, кто
+ * настраивает продавца; остальным и при сбое запроса плашки нет.
+ */
+async function KeyDownAlert({ status }: { status: SellerStatus }) {
+  if (!sellerConnected(status) || status.canConfigure === false) return null;
+  const key = await settle(sellerApi.llmKey());
+  if (!key.ok || (key.value.state !== 'no_credits' && key.value.state !== 'invalid_key')) return null;
+  const reason = key.value.reason ?? 'модель отказала';
+  return (
+    <Alert data-testid="seller-key-down">
+      Продавец не отвечает гостям: {reason.charAt(0).toLowerCase() + reason.slice(1)}. Гости получают «администратор
+      свяжется». <Link href="/ai-seller/connections">Открыть «Модель ИИ»</Link>
+    </Alert>
   );
 }
 
@@ -218,6 +247,8 @@ async function SellerScreen({
     owner && status.value.canConfigure !== false ? extensionReminder(status.value.extension) : null;
   return (
     <Stack>
+      {/* на «Подключениях» то же состояние стоит бейджем рядом с ключом */}
+      {view !== 'connections' && <KeyDownAlert status={status.value} />}
       {reminder && (
         <Alert tone="warning" data-testid="seller-extension-ending">
           {reminder}
@@ -467,13 +498,46 @@ async function ModelView({ status }: { status: SellerStatus }) {
         </p>
       </Panel>
     );
-  const loaded = await settle(sellerApi.llmKey());
+  const [loaded, usage, timezone] = await Promise.all([
+    settle(sellerApi.llmKey()),
+    settle(sellerApi.llmUsage()),
+    workspaceTimezone(),
+  ]);
   if (!loaded.ok)
     return <LoadError testId="seller-llm-key-error-load" {...loadErrorProps(loaded.error)} />;
+  const checkedAt = loaded.value.checkedAt;
+  const checkedLabel = checkedAt ? propertyClock(timezone).when(checkedAt) : null;
   return (
     <Panel data-testid="seller-llm-key" aria-label="Ключ модели партнёра">
-      <LlmKeyForm status={loaded.value} readOnly={readOnly} />
+      <LlmKeyForm status={loaded.value} readOnly={readOnly} checkedLabel={checkedLabel} />
+      {/* расход не загрузился: ключ всё равно настраивается, строка о расходе просто не показывается */}
+      {usage.ok && <LlmUsageLine usage={usage.value} />}
     </Panel>
+  );
+}
+
+const USD = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+const MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
+
+/** «2026-10» → «октябрь 2026» */
+function displayMonth(ym: string): string {
+  const [y, m] = ym.split('-').map(Number);
+  return m && m >= 1 && m <= 12 ? `${MONTHS[m - 1]} ${y}` : ym;
+}
+
+/** Расход модели за месяц по учёту продавца: ответы, токены и, если у продавца заданы цены, стоимость */
+function LlmUsageLine({ usage }: { usage: SellerLlmUsage }) {
+  const tokens = new Intl.NumberFormat('ru-RU').format(usage.tokens);
+  const cost =
+    usage.costUsd === null ? null : `${usage.costPartial ? 'не меньше ' : '≈ '}${USD.format(usage.costUsd)}`;
+  return (
+    <p className="settings-note" data-testid="seller-llm-usage">
+      Расход за {usage.month ? displayMonth(usage.month) : 'месяц'}:{' '}
+      {pluralRu(usage.replies, ['ответ', 'ответа', 'ответов'])}, {tokens}{' '}
+      {pluralRu(usage.tokens, ['токен', 'токена', 'токенов'], false)}
+      {cost ? `, ${cost}` : ''}. Это учёт продавца, а не счёт провайдера: остаток денег смотрите в кабинете
+      провайдера модели (у OpenAI: Settings, Billing).
+    </p>
   );
 }
 
@@ -909,7 +973,7 @@ async function DialogCard({
         <dl className="settings-facts">
           <div>
             <dt>Телефон</dt>
-            <dd>{card.contact.phone ?? '—'}</dd>
+            <dd>{card.contact.phone ? formatPhone(card.contact.phone) : '—'}</dd>
           </div>
           <div>
             <dt>Почта</dt>

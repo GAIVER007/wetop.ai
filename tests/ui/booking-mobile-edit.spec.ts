@@ -33,8 +33,8 @@ test('fixture UI: mobile guest loads, saves citizenship and survives reload', as
   await editor.getByRole('button', { name: 'Сохранить', exact: true }).click();
   await expect(page.getByTestId('booking-head')).toContainText('гражданство KGZ');
   await expect(page).toHaveURL(original);
-  // A refresh may remount the keyed editor, so close it only if still open.
-  if (await editor.isVisible()) await page.keyboard.press('Escape');
+  // окно закрывается само после «Сохранить» (аудит 22.10.2026 P2-3: оставалось открытым, жали Esc)
+  await expect(editor).toHaveCount(0);
   await page.reload();
   await expect(page.getByTestId('booking-head')).toContainText('гражданство KGZ');
   const reopened = await openEditor(page);

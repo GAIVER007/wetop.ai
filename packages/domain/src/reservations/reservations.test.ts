@@ -14,6 +14,7 @@ import {
   deriveReservationStatus,
   priceStay,
   type StayRestriction,
+  RESERVATION_SOURCES,
 } from './reservations';
 
 describe('priceStay', () => {
@@ -213,5 +214,11 @@ describe('assertRestrictionsAllow (ADR-020: ограничения продаж 
     }
     expect(caught).toBeInstanceOf(RestrictionViolationError);
     expect(caught).toBeInstanceOf(ReservationRuleError);
+  });
+});
+
+describe('источник брони «голос» (DATA_MODEL VOICE-BOOKING)', () => {
+  it('бронь по телефону от голосового агента проходит проверку источника создания брони', () => {
+    expect(RESERVATION_SOURCES).toContain('VOICE');
   });
 });

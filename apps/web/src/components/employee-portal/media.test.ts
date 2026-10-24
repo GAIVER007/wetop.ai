@@ -30,14 +30,16 @@ function data(canUpload: boolean): EmployeePortalDto {
     avatar: null, portfolio: [], services: [], servicesRevision: null, week: [], weekRevision: null,
     scheduleConflicts: { items: [], checkedFrom: '2026-10-18T00:00:00.000Z', checkedCount: 0, truncated: false },
     timeOffs: [], appointments: [], orders: [],
+    workRange: 'DAY', workTruncated: false, monthStats: { month: '2026-10', status: 'AVAILABLE', currency: 'KZT', shifts: 20, daysOff: 11, absenceDays: 0, appointmentsDone: 0, servicesDone: 0, ordersClosed: null, tablesServed: null, guests: null, revenueMinor: '0', bonusMinor: '0', percent: null },
     pay: { status: 'NOT_CONFIGURED', month: '2026-10', currency: 'KZT', model: null, fixedMinor: null, percent: null, percentBasis: null, policyRevision: null, earnedMinor: null, bonusMinor: null, penaltyMinor: null, paidMinor: null, remainingMinor: null, explanation: '', adjustments: [] },
   } as unknown) as EmployeePortalDto;
 }
 
 describe('employee portal photo storage capability', () => {
-  it('does not offer uploads when runtime storage is unavailable', () => {
+  it('does not offer uploads when runtime storage is unavailable, and shows no «coming soon» stub', () => {
     const html = renderToStaticMarkup(createElement(PortalMedia, { data: data(false), context }));
-    expect(html).toContain('Хранилище изображений не подключено');
+    expect(html).not.toContain('пока недоступна');
+    expect(html).not.toContain('подключаем');
     expect(html).not.toContain('data-command="avatar"');
     expect(html).not.toContain('data-command="add-work"');
   });
@@ -46,6 +48,6 @@ describe('employee portal photo storage capability', () => {
     const html = renderToStaticMarkup(createElement(PortalMedia, { data: data(true), context }));
     expect(html).toContain('data-command="avatar"');
     expect(html).toContain('data-command="add-work"');
-    expect(html).not.toContain('Хранилище изображений не подключено');
+    expect(html).not.toContain('Загрузка фото пока недоступна');
   });
 });

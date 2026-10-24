@@ -111,12 +111,31 @@ function specFor(input: SiteBriefInput, locales: string[]): Record<string, any> 
   };
 }
 
+/**
+ * Стартовые часы воркера в тестах. Тесты двигают их вперёд до нескольких минут; если прогон пришёлся на последние
+ * минуты суток UTC, повтор переходил бы полночь и падал BUDGET_DAY_CHANGED вместо проверяемого исхода.
+ */
+function workerClockStart(real: Date = new Date()): Date {
+  const dayEnd = Date.UTC(real.getUTCFullYear(), real.getUTCMonth(), real.getUTCDate() + 1);
+  // те же сутки UTC, что у часов API (бюджет дня и неизвестный расход считаются по суткам), но не ближе часа к полуночи
+  return dayEnd - real.getTime() >= 3_600_000 ? new Date(real) : new Date(real.getTime() - 3_600_000);
+}
+
+describe('часы воркера в тестах сайта', () => {
+  it('у полуночи UTC запас до конца суток не меньше часа', () => {
+    const start = workerClockStart(new Date('2026-10-21T23:59:36Z'));
+    const dayEnd = Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate() + 1);
+    expect(dayEnd - start.getTime()).toBeGreaterThanOrEqual(3_600_000);
+    expect(start.getUTCDate()).toBe(21);
+  });
+});
+
 describe.skipIf(!url)('MKT6 site generation', () => {
   let db: Db, sql: pg.Client, app: INestApplication, base: string, worker: SiteGenerationWorker, briefs: SiteBriefService;
   const fake = fakeBot();
   const orgs: string[] = [];
   const users: string[] = [];
-  let clock = new Date();
+  let clock = workerClockStart();
   const budgetBefore = process.env.SITE_GENERATION_DAILY_TOKEN_BUDGET;
 
   interface World {
@@ -212,7 +231,7 @@ describe.skipIf(!url)('MKT6 site generation', () => {
     await sql.query(`UPDATE generation_runs SET status = 'FAILED', error_code = 'TIMEOUT', finished_at = now() WHERE status = 'RUNNING' AND site_id IN (${sites})`, [orgs]);
     fake.state.requests.length = 0;
     fake.state.replies.length = 0;
-    clock = new Date();
+    clock = workerClockStart();
     if (budgetBefore === undefined) delete process.env.SITE_GENERATION_DAILY_TOKEN_BUDGET;
     else process.env.SITE_GENERATION_DAILY_TOKEN_BUDGET = budgetBefore;
   });

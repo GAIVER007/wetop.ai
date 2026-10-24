@@ -9,14 +9,14 @@ import {
   Field,
   Input,
   Select,
-  Stat,
-  Stats,
   Table,
 } from '../../components/ui';
+import { ActionMenu } from '../../components/action-menu';
+import { MonthInput } from '../../components/date-field';
 import { Tabs } from '../../components/tabs';
 import { Segmented } from '../../components/segmented';
 import { METHOD_RU } from '../../lib/dashboard-format';
-import { formatMoney, inputToMinor, minorToInput } from '../../lib/money';
+import { currencySign, formatMoney, inputToMinor, minorToInput } from '../../lib/money';
 import {
   FOOD_PAYMENT_METHODS,
   type FoodPaymentMethod,
@@ -25,6 +25,8 @@ import {
   type PayrollView,
 } from '../../lib/food-types';
 import { mutateStaff } from './restaurant-actions';
+import { useBranchPaymentMethods } from '../branch-payment-methods/use-branch-methods';
+import { branchMethodsShown } from '../branch-payment-methods/shown';
 
 /** База процента: у ресторана закрытые заказы, у салона выполненные записи (§19.2) */
 export type PayBasis = 'orders' | 'visits';
@@ -36,7 +38,7 @@ const modelLabel = (model: PayModel, basis: PayBasis): string =>
   ({ FIXED: 'Оклад', PERCENT: `Процент от ${BASIS[basis].of}`, FIXED_PLUS_PERCENT: 'Оклад + процент', BONUS_ONLY: 'Только премии' })[model];
 const MODELS: PayModel[] = ['FIXED', 'PERCENT', 'FIXED_PLUS_PERCENT', 'BONUS_ONLY'];
 
-const currencyLabel = (currency: string): string => currency === 'KZT' ? '₸' : currency;
+const currencyLabel = currencySign;
 
 function payrollInputToMinor(value: string, currency: string, allowZero: boolean): number {
   const parsed = inputToMinor(value);
@@ -199,7 +201,7 @@ function AdjustmentDrawer({
           value={kind}
           options={[
             { value: 'bonus', label: 'Премия' },
-            { value: 'penalty', label: 'Штраф' },
+            { value: 'penalty', label: 'Удержание' },
           ]}
           onChange={setKind}
         />
@@ -240,6 +242,8 @@ function PayoutDrawer({
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
   const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
+  // §21.7: выплата только включёнными в филиале способами
+  const accepted = useBranchPaymentMethods(scopeKey);
   const [amount, setAmount] = useState(payrollMinorToInput(row.remainingMinor));
   // One drawer is one payment intent; failures keep the same key.
   const [idempotencyKey] = useState(() => crypto.randomUUID());
@@ -269,12 +273,12 @@ function PayoutDrawer({
       <div className="food-form" data-testid="payout">
         {error && <Alert>{error}</Alert>}
         <p className="muted">
-          К выплате за месяц {formatMoney(row.totalMinor, currency)}, выплачено{' '}
+          Начислено за месяц {formatMoney(row.totalMinor, currency)}, выплачено{' '}
           {formatMoney(row.paidMinor, currency)}. Деньги уйдут расходом из кассы.
         </p>
         <Field label="Способ">
           <Select value={method} onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}>
-            {FOOD_PAYMENT_METHODS.map((m) => (
+            {branchMethodsShown(FOOD_PAYMENT_METHODS, accepted, method).map((m) => (
               <option key={m} value={m}>
                 {METHOD_RU[m] ?? m}
               </option>
@@ -297,7 +301,7 @@ function PayoutDrawer({
   );
 }
 
-/** «Зарплата и финансы» по макету (ADR-159): фонд, премии, штрафы, к выплате; расчёт не хранится (§33.4) */
+/** «Зарплата и финансы» по макету (ADR-159): фонд, премии, удержания, начислено (одни подписи у всех направлений, 23.10.2026); расчёт не хранится (§33.4) */
 export function PayrollBoard({
   scopeKey,
   write,
@@ -314,13 +318,15 @@ export function PayrollBoard({
   const [adjust, setAdjust] = useState<PayrollRow | null>(null);
   const [payout, setPayout] = useState<PayrollRow | null>(null);
   const names = new Map(payroll.rows.map((r) => [r.employeeId, r.name]));
+  const remaining = payroll.rows.reduce((sum, r) => sum + BigInt(r.remainingMinor), 0n).toString();
+  const money = (minor: string) => formatMoney(minor, payroll.currency);
   const staffTable = payroll.rows.length === 0 ? (
     <EmptyState title="Сотрудников пока нет" />
   ) : (
     <Table>
       <thead>
         <tr>
-          {['Сотрудник', 'Модель', 'Ставка', BASIS[basis].column, 'Премии', 'Штрафы', 'К выплате', 'Выплачено', 'Осталось'].map(
+          {['Сотрудник', 'Модель', 'Ставка', BASIS[basis].column, 'Премии', 'Удержания', 'Начислено', 'Выплачено', 'Осталось'].map(
             (h) => (
               <th key={h}>{h}</th>
             ),
@@ -348,25 +354,45 @@ export function PayrollBoard({
             <td>{formatMoney(r.paidMinor, payroll.currency)}</td>
             <td data-testid="payroll-remaining">{formatMoney(r.remainingMinor, payroll.currency)}</td>
             <td>
+              {/* одна главная кнопка, остальное в меню (аудит 21.10.2026, п. 42) */}
               {write && (
                 <span className="food-inline-actions">
-                  <Button tone="ghost" onClick={() => setSettings(r)}>
-                    Оплата
-                  </Button>
-                  <Button tone="ghost" onClick={() => setAdjust(r)}>
-                    Начислить
-                  </Button>
                   {BigInt(r.remainingMinor) > 0n && (
-                    <Button tone="ghost" onClick={() => setPayout(r)}>
+                    <Button size="sm" onClick={() => setPayout(r)}>
                       Выплатить
                     </Button>
                   )}
+                  <ActionMenu
+                    size="sm"
+                    label={`Ещё: ${r.name}`}
+                    items={[
+                      { label: 'Условия оплаты', onSelect: () => setSettings(r) },
+                      { label: 'Премия или удержание', onSelect: () => setAdjust(r) },
+                    ]}
+                  />
                 </span>
               )}
             </td>
           </tr>
         ))}
       </tbody>
+      {/* итоги месяца строкой под таблицей вместо плиток над ней (аудит 21.10.2026, п. 29) */}
+      <tfoot>
+        <tr>
+          <th scope="row">Итого</th>
+          <td colSpan={3} data-testid="payroll-fund">
+            Фонд оплаты {money(payroll.totals.fundMinor)}
+          </td>
+          <td data-testid="payroll-bonus">{money(payroll.totals.bonusMinor)}</td>
+          <td data-testid="payroll-penalty">{money(payroll.totals.penaltyMinor)}</td>
+          <td data-testid="payroll-total">
+            <strong>{money(payroll.totals.payoutMinor)}</strong>
+          </td>
+          <td data-testid="payroll-paid">{money(payroll.totals.paidMinor)}</td>
+          <td>{money(remaining)}</td>
+          <td />
+        </tr>
+      </tfoot>
     </Table>
   );
   const adjustments =
@@ -396,8 +422,8 @@ export function PayrollBoard({
     <div className="food-workspace" data-testid="payroll-board">
       <div className="food-toolbar">
         <Field label="Месяц">
-          <Input
-            type="month"
+          {/* «октябрь 2026» по-русски поверх родного поля: браузер писал «October 2026» (аудит 21.10.2026, п. 4) */}
+          <MonthInput
             value={payroll.month}
             onChange={(e) => {
               if (e.target.value) router.push(`/payroll?month=${e.target.value}`);
@@ -405,38 +431,6 @@ export function PayrollBoard({
           />
         </Field>
       </div>
-      <Stats min={190}>
-        <Stat
-          label="Фонд ЗП"
-          value={formatMoney(payroll.totals.fundMinor, payroll.currency)}
-          hint="оклады и проценты"
-          testId="payroll-fund"
-        />
-        <Stat
-          label="Премии"
-          value={formatMoney(payroll.totals.bonusMinor, payroll.currency)}
-          tone="success"
-          testId="payroll-bonus"
-        />
-        <Stat
-          label="Штрафы"
-          value={formatMoney(payroll.totals.penaltyMinor, payroll.currency)}
-          tone="danger"
-          testId="payroll-penalty"
-        />
-        <Stat
-          label="К выплате"
-          value={formatMoney(payroll.totals.payoutMinor, payroll.currency)}
-          tone="info"
-          testId="payroll-total"
-        />
-        <Stat
-          label="Выплачено"
-          value={formatMoney(payroll.totals.paidMinor, payroll.currency)}
-          hint="из кассы за месяц"
-          testId="payroll-paid"
-        />
-      </Stats>
       <Tabs
         label="Зарплата"
         panels={[

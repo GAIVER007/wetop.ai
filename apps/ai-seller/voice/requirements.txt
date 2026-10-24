@@ -1,0 +1,6 @@
+# Зависимости голосового воркера. Python 3.12 или новее.
+# Отдельно от ../requirements.txt: тяжёлый стек текстового продавца (torch) воркеру не нужен.
+videosdk-agents>=1.0.10
+videosdk-plugins-google>=1.0.10
+httpx
+python-dotenv

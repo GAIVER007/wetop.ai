@@ -1,5 +1,6 @@
 import type { PeriodServices } from '../../lib/api';
 import { csvField, csvTenge } from './csv';
+import { currencySign } from '../../lib/money';
 
 type ServiceRow = PeriodServices['rows'][number];
 
@@ -10,8 +11,8 @@ export const MANUAL_SERVICE_LABEL = 'Начислено вручную';
  * Отчёт по услугам за период (REP2): тот же формат, что у других выгрузок финансов — «;», UTF-8 с BOM,
  * CRLF, суммы вида «12500,50». Имён гостей в отчёте нет по построению: это свод по услугам.
  */
-export function servicesCsv(rows: ServiceRow[]): string {
-  const head = ['Услуга', 'Группа', 'Начислений', 'Штук', 'Сумма, ₸'];
+export function servicesCsv(rows: ServiceRow[], currency = 'KZT'): string {
+  const head = ['Услуга', 'Группа', 'Начислений', 'Штук', `Сумма, ${currencySign(currency)}`];
   const lines = rows.map((x) =>
     [
       x.name ?? MANUAL_SERVICE_LABEL,

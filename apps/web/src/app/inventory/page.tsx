@@ -8,25 +8,18 @@ import { pluralRu } from '../../lib/plural';
 import { AddMenu } from './add-menu';
 import { channelMarks } from './channel-marks';
 import { InventoryCatalog } from './inventory-catalog';
-import { InventoryPeriodSelect, InventorySummaryTiles } from './summary-tiles';
+import { InventorySummaryLine } from './summary-tiles';
 import './inventory.css';
 import { deskShell } from '../../lib/desk-shell';
 import { mayAccess } from '../../lib/navigation';
 
 /** Состав фонда из API; занятость и команды остаются в календаре и карточке места. */
-export default async function InventoryPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+export default async function InventoryPage() {
   await requireFeature('/inventory');
-  const period = Number((await searchParams).period);
-  const days = period === 7 || period === 90 ? period : 30;
-  const [summary, units, categories, trend, occupancy, marks, shell] = await Promise.all([
+  const [summary, units, categories, occupancy, marks, shell] = await Promise.all([
     api.inventorySummary(),
     api.inventoryUnits(),
     inventoryEditorApi.categories(),
-    api.inventoryTrend(days).catch(() => null),
     api.inventoryOccupancy().catch(() => []),
     channelMarks(),
     deskShell(),
@@ -43,7 +36,6 @@ export default async function InventoryPage({
       }
       actions={
         <>
-          <InventoryPeriodSelect days={days} />
           {canEditCatalog && <AddMenu categories={categories} />}
           <Link href="/rooms/categories" className="btn btn--secondary">
             <Icon name="rates" />
@@ -66,7 +58,7 @@ export default async function InventoryPage({
           </ol>
         </section>
       )}
-      <InventorySummaryTiles units={units} trend={trend} />
+      <InventorySummaryLine units={units} />
       <InventoryCatalog
         units={units}
         categories={summary.byCategory}

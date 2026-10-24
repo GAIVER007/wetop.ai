@@ -34,6 +34,18 @@ export function DateBar({ date, path, filters }: { date: string; path: string; f
       onDateChange={(next) => router.push(href(next))}
       inputProps={{ 'data-testid': 'beauty-day-date' }}
       compact
+      presets={[
+        { label: 'Вчера', offsetDays: -1 },
+        { label: 'Завтра', offsetDays: 1 },
+        {
+          label: 'Эта неделя',
+          onSelect: () => {
+            const query = new URLSearchParams(href(date).split('?')[1]);
+            query.set('view', 'week');
+            router.push(`${path}?${query}`);
+          },
+        },
+      ]}
     />
   );
 }

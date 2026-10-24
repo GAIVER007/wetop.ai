@@ -93,8 +93,14 @@ export function parseBeautySlotsQuery(raw: unknown): Parsed<BeautySlotsQuery> {
   };
 }
 
+/** Сколько услуг подряд можно записать с сайта за один визит */
+export const BEAUTY_BOOK_MAX_SERVICES = 5;
+
 export interface BeautyBookRequest extends Contact {
+  /** первая услуга визита (по ней свободные окна и прежние ответы) */
   serviceId: string;
+  /** все услуги визита по порядку, подряд к одному мастеру; одна услуга: [serviceId] */
+  serviceIds: string[];
   /** null: «любой свободный мастер» */
   employeeId: string | null;
   startsAt: Date;
@@ -105,7 +111,19 @@ export function parseBeautyBookRequest(raw: unknown): Parsed<BeautyBookRequest> 
   if (!b) return fail('body is not an object');
   const c = contact(b);
   if (!c.ok) return c;
-  if (typeof b.serviceId !== 'string' || !UUID_RE.test(b.serviceId)) return fail('serviceId: UUID услуги');
+  let serviceIds: string[];
+  if (b.serviceIds !== undefined) {
+    if (!Array.isArray(b.serviceIds) || b.serviceIds.length === 0 || b.serviceIds.length > BEAUTY_BOOK_MAX_SERVICES)
+      return fail(`serviceIds: от 1 до ${BEAUTY_BOOK_MAX_SERVICES} услуг`);
+    if (b.serviceIds.some((id) => typeof id !== 'string' || !UUID_RE.test(id))) return fail('serviceIds: UUID услуг');
+    serviceIds = (b.serviceIds as string[]).map((id) => id.toLowerCase());
+    if (new Set(serviceIds).size !== serviceIds.length) return fail('serviceIds: услуга повторяется');
+    if (b.serviceId !== undefined && (typeof b.serviceId !== 'string' || b.serviceId.toLowerCase() !== serviceIds[0]))
+      return fail('serviceId: первая услуга списка');
+  } else {
+    if (typeof b.serviceId !== 'string' || !UUID_RE.test(b.serviceId)) return fail('serviceId: UUID услуги');
+    serviceIds = [b.serviceId.toLowerCase()];
+  }
   const employee = b.employeeId === undefined || b.employeeId === null || b.employeeId === '' ? null : b.employeeId;
   if (employee !== null && (typeof employee !== 'string' || !UUID_RE.test(employee))) return fail('employeeId: UUID мастера');
   if (typeof b.startsAt !== 'string' || !INSTANT_RE.test(b.startsAt) || Number.isNaN(Date.parse(b.startsAt)))
@@ -114,7 +132,8 @@ export function parseBeautyBookRequest(raw: unknown): Parsed<BeautyBookRequest> 
     ok: true,
     value: {
       ...c.value,
-      serviceId: b.serviceId.toLowerCase(),
+      serviceId: serviceIds[0]!,
+      serviceIds,
       employeeId: employee?.toLowerCase() ?? null,
       startsAt: new Date(b.startsAt),
     },
@@ -123,7 +142,16 @@ export function parseBeautyBookRequest(raw: unknown): Parsed<BeautyBookRequest> 
 
 /** Содержимое записи для отпечатка: без ключа сайта, токена проверки и ловушки */
 export const beautyBookFingerprint = (r: BeautyBookRequest) =>
-  siteFormFingerprint(['beauty', r.serviceId, r.employeeId, r.startsAt.toISOString(), r.name, r.phone, r.comment]);
+  siteFormFingerprint([
+    'beauty',
+    // одна услуга: прежний отпечаток (повтор формы старого сайта узнаётся), несколько: весь состав
+    r.serviceIds.length > 1 ? r.serviceIds.join(',') : r.serviceId,
+    r.employeeId,
+    r.startsAt.toISOString(),
+    r.name,
+    r.phone,
+    r.comment,
+  ]);
 
 // ───────────── ресторан ─────────────
 

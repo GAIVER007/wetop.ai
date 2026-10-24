@@ -80,8 +80,8 @@ test('журнал: дни группами, время без года, объ�
   // объект — одной подписью словом и номером; обрезанных служебных идентификаторов нет
   await expect(first).toContainText('Бронь 20260913-TESTAA');
   await expect(main.getByText(/ui-\w+…/)).toHaveCount(0);
-  await expect(main.getByTestId('journal-row').nth(1)).toContainText('Сотрудник');
-  const deleted = main.getByTestId('journal-row').filter({ hasText: 'бронь создана' });
+  await expect(main.getByTestId('journal-row').nth(1)).toContainText('Учётная запись');
+  const deleted = main.getByTestId('journal-row').filter({ hasText: 'Бронь создана' });
   await expect(deleted).toContainText('20260913-TESTAA');
   await expect(deleted.getByRole('link', { name: '20260913-TESTAA' })).toHaveCount(0);
   await expect(deleted).toContainText('удалена');
@@ -90,7 +90,7 @@ test('журнал: дни группами, время без года, объ�
   const filters = main.getByRole('navigation', { name: 'Раздел истории' });
   await expect(filters).toHaveClass(/chips/);
   const chipHeight = await filters
-    .getByRole('link', { name: 'брони', exact: true })
+    .getByRole('link', { name: 'Брони', exact: true })
     .evaluate((el) => el.getBoundingClientRect().height);
   expect(chipHeight).toBeGreaterThanOrEqual(38);
 
@@ -111,7 +111,7 @@ test('контроль: поиск журнала и переходы досту
   await request.post(`${API}/__test/control`, { data: { delayPath: '/audit', delayMs: 5000 } });
   const start = performance.now();
   await page.goto('/journal?q=TEST', { waitUntil: 'commit' });
-  await page.getByText('Фильтры истории', { exact: true }).click({ timeout: 1500 });
+  // аудит 21.10.2026 п. 38: поле поиска по истории видно сразу, без раскрытия фильтров
   await expect(page.getByLabel('Поиск в истории')).toBeVisible({ timeout: 1500 });
   console.log(`CONTROL_JOURNAL_CONTROLS_MS ${Math.round(performance.now() - start)}`);
   await expect(page.getByTestId('journal-loading')).toBeVisible();

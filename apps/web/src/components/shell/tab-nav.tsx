@@ -11,6 +11,8 @@ import {
 import type { DeskShell } from '../../lib/desk-person';
 import { Icon } from '../icon';
 import { cx } from '../ui';
+import { translateSections } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * Строка разделов в шапке (решение владельца 17.10.2026, черновик `plans/top-nav-draft-2026-10-17.html`): значок над
@@ -27,12 +29,14 @@ export function TabNav({ path, desk }: { path: string; desk?: Promise<DeskShell>
 
 function GrantedTabs({ path, desk }: { path: string; desk: Promise<DeskShell> | undefined }) {
   const shell = desk ? use(desk) : null;
+  const t = useT();
   return (
-    <Tabs sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)} path={path} />
+    <Tabs sections={translateSections(menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical), t)} path={path} />
   );
 }
 
 function Tabs({ sections, path }: { sections: MenuSection[]; path: string }) {
+  const t = useT();
   const active = activeMenuRoute(path);
   const current = activeSectionOf(sections, path)?.id;
   const [open, setOpenState] = useState<string>();
@@ -100,7 +104,7 @@ function Tabs({ sections, path }: { sections: MenuSection[]; path: string }) {
     <nav
       ref={root}
       className="tabnav"
-      aria-label="Главное меню"
+      aria-label={t('Главное меню')}
       onBlur={(event) => {
         if (event.relatedTarget instanceof Node && !event.currentTarget.contains(event.relatedTarget))
           setOpen(undefined);

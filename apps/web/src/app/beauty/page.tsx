@@ -10,6 +10,8 @@ import { currentMe, deskShell } from '../../lib/desk-shell';
 import { mayBeautyAccess } from '../../lib/navigation';
 import { JournalBoard } from './journal';
 import { WeekCalendar } from './week-calendar';
+import { RemindersToday } from './reminders-today';
+import { loadManualReminders } from '../../lib/beauty-reminders';
 import './beauty.css';
 
 /**
@@ -24,7 +26,7 @@ export default async function BeautyPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/beauty');
-  const { date, view, appointment, employee, service, status } = normalizeSearchParams(
+  const { date, view, appointment, employee, service, status, new: requestedNew } = normalizeSearchParams(
     await searchParams,
   );
   const filters = new URLSearchParams();
@@ -78,6 +80,7 @@ export default async function BeautyPage({
       unstable_rethrow(error);
       return { ok: false as const, error };
     });
+  const manual = view === 'week' ? null : await loadManualReminders();
   if (!loaded.ok)
     return (
       <Page title="Салон">
@@ -85,28 +88,42 @@ export default async function BeautyPage({
       </Page>
     );
 
+  // «День / Неделя»: в дне стоят в строке инструментов рядом с датой (аудит 21.10.2026, п. 34). Без предзагрузки:
+  // предзагрузка этих двух адресов на живом сайте висела открытым запросом, и страница не затихала (п. 3)
+  const views = (
+    <nav className="beauty-calendar-views" aria-label="Вид журнала">
+      <Link
+        className="btn btn--secondary"
+        prefetch={false}
+        aria-current={view !== 'week' ? 'page' : undefined}
+        href={`/calendar?date=${loaded.value.date}&${filters}`}
+      >
+        День
+      </Link>
+      <Link
+        className="btn btn--secondary"
+        prefetch={false}
+        aria-current={view === 'week' ? 'page' : undefined}
+        href={`/calendar?date=${loaded.value.date}&view=week&${filters}`}
+      >
+        Неделя
+      </Link>
+    </nav>
+  );
   return (
     <Page
       className="beauty-page"
       title="Журнал"
       subtitle={`Расписание специалистов и услуг салона${loaded.value.location.name ? `, ${loaded.value.location.name}` : ''}`}
     >
-      <nav className="beauty-calendar-views" aria-label="Вид журнала">
-        <Link
-          className="btn btn--secondary"
-          aria-current={view !== 'week' ? 'page' : undefined}
-          href={`/calendar?date=${loaded.value.date}&${filters}`}
-        >
-          День
-        </Link>
-        <Link
-          className="btn btn--secondary"
-          aria-current={view === 'week' ? 'page' : undefined}
-          href={`/calendar?date=${loaded.value.date}&view=week&${filters}`}
-        >
-          Неделя
-        </Link>
-      </nav>
+      {loaded.week && views}
+      {manual && manual.items.length > 0 && (
+        <RemindersToday
+          items={manual.items}
+          timezone={manual.timezone}
+          canUpdate={may('appointments', 'update', 'desk')}
+        />
+      )}
       {loaded.week ? (
         <WeekCalendar
           days={loaded.week}
@@ -130,7 +147,9 @@ export default async function BeautyPage({
             ? { creationUnavailableReason: 'Для создания записи нужен доступ к списку клиентов.' }
             : {})}
           appointmentId={appointment}
+          newFor={requestedNew === '1' ? employee : undefined}
           scopeKey={scopeKey}
+          views={views}
         />
       )}
     </Page>

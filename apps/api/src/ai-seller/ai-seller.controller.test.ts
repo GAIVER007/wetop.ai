@@ -969,8 +969,32 @@ describe('ключ модели партнёра (С2, Q-186; план `plans/se
     });
     connection.seller.replies.llmKeyStatus = { set: true, last4: '7890' };
     const got = await api().get('/ai-seller/llm-key').set(as('session-a')).expect(200);
-    expect(got.body).toEqual({ set: true, last4: '7890' });
+    expect(got.body).toEqual({ set: true, last4: '7890', state: null, reason: null, checkedAt: null });
     expect(got.text).not.toContain('sk-partner');
+  });
+
+  it('состояние ключа от бота: «нет денег» доходит словами, незнакомое состояние не пропускается', async () => {
+    connection.seller.replies.llmKeyStatus = {
+      set: true,
+      last4: '7890',
+      state: 'no_credits',
+      reason: 'На счёте провайдера модели закончились деньги: пополните баланс в его кабинете',
+      checked_at: '2026-10-20T15:51:54+00:00',
+    };
+    const got = await api().get('/ai-seller/llm-key').set(as('session-a')).expect(200);
+    expect(got.body).toMatchObject({ state: 'no_credits', checkedAt: '2026-10-20T15:51:54+00:00' });
+    expect(got.body.reason).toMatch(/пополните баланс/);
+    connection.seller.replies.llmKeyStatus = { set: true, last4: '7890', state: 'drop table' };
+    const odd = await api().get('/ai-seller/llm-key').set(as('session-a')).expect(200);
+    expect(odd.body.state).toBeNull();
+  });
+
+  it('расход за месяц по учёту бота; без цен стоимость null, а не ноль', async () => {
+    connection.seller.replies.llmUsage = { month: '2026-10', replies: 12, tokens: 34567.4, cost_usd: null };
+    const got = await api().get('/ai-seller/llm-usage').set(as('session-a')).expect(200);
+    expect(got.body).toEqual({ month: '2026-10', replies: 12, tokens: 34567, costUsd: null, costPartial: false });
+    expect(got.headers['cache-control']).toBe('no-store');
+    expect(connection.seller.calls).toContainEqual({ op: 'llmUsage', args: [ORG_A] });
   });
 
   it('пустой ключ снимает сохранённый; проверка отдаёт вердикт словами', async () => {
@@ -987,14 +1011,14 @@ describe('ключ модели партнёра (С2, Q-186; план `plans/se
       .set(as('session-a'))
       .send({ key: 'sk-partner-000111' })
       .expect(200);
-    expect(res.body).toEqual({ valid: false, reason: 'Роутер не принял ключ' });
+    expect(res.body).toEqual({ valid: false, state: null, reason: 'Роутер не принял ключ' });
     expect(connection.seller.calls).toContainEqual({
       op: 'checkLlmKey',
       args: [ORG_A, 'sk-partner-000111'],
     });
   });
 
-  it('настройка — владельцу с действующим расширением; пустая проверка — 400 без вызова', async () => {
+  it('настройка владельцу с действующим расширением; пустая проверка идёт сохранённым ключом', async () => {
     const staff = await api()
       .put('/ai-seller/llm-key')
       .set(as('session-staff'))
@@ -1003,9 +1027,12 @@ describe('ключ модели партнёра (С2, Q-186; план `plans/se
     expect(staff.body.message).toBe(SELLER_CONFIGURE_ONLY);
     extensions.access = 'expired';
     await api().get('/ai-seller/llm-key').set(as('session-a')).expect(403);
-    extensions.access = 'active';
-    await api().post('/ai-seller/llm-key/check').set(as('session-a')).send({ key: '' }).expect(400);
     expect(connection.seller.calls).toEqual([]);
+    extensions.access = 'active';
+    connection.seller.replies.checkLlmKey = { valid: true, state: 'ok', reason: null };
+    const saved = await api().post('/ai-seller/llm-key/check').set(as('session-a')).send({ key: '' }).expect(200);
+    expect(saved.body).toEqual({ valid: true, state: 'ok', reason: null });
+    expect(connection.seller.calls).toEqual([{ op: 'checkLlmKey', args: [ORG_A, ''] }]);
   });
 
   it('продавец недоступен — 503 словами, ключ в тексте не всплывает', async () => {

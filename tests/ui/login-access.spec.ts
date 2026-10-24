@@ -194,6 +194,7 @@ test('занятая почта и короткий пароль не созда
   await dialog(page).getByLabel('Почта').fill('new@example.invalid');
   await dialog(page).getByLabel('Пароль', { exact: true }).fill('short');
   await dialog(page).getByRole('button', { name: 'Создать аккаунт' }).click();
-  await expect(dialog(page).getByRole('alert')).toContainText('короче 10');
+  // ошибка короткого пароля под самим полем (P1-1a, 22.10.2026), а не общей плашкой
+  await expect(dialog(page).getByLabel('Пароль', { exact: true })).toHaveAccessibleDescription(/короче 10/);
   expect((await context.cookies(APP)).some((c) => c.name === 'wetop_session')).toBe(false);
 });

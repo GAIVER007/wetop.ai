@@ -7,18 +7,18 @@ it('organizes the menu by tasks: one row of sections shared by all verticals', (
   expect(menuSections.map((s) => [s.label, s.items.map((i) => i.href)])).toEqual([
     ['Главная', ['/today']],
     ['Журнал', ['/chessboard']],
-    ['Персонал', ['/team']],
+    ['Персонал', ['/team', '/staff-schedule', '/payroll']],
     ['Клиенты', ['/guests', '/reservations']],
     ['Услуги', ['/inventory']],
     ['Статистика', ['/management/analytics', '/reports']],
     // «Бар» (ADR-157) стал разделом «Склад»
-    ['Склад', ['/bar', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
+    ['Склад', ['/warehouse', '/bar', '/bar/consumables', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
     ['Финансы', ['/finance', '/reports/finance']],
-    ['Настройки', ['/hotel-settings', '/channels', '/connections', '/incidents', '/journal', '/platform']],
+    ['Настройки', ['/hotel-settings', '/channels', '/connections', '/incidents', '/journal', '/settings', '/platform']],
     // «Продвижение» (ADR-184) вместе с бывшими «Продажами»
     [
       'Продвижение',
-      ['/marketing', '/marketing/ads', '/marketing/content', '/ai-agents', '/market', '/sales', '/marketing/budget'],
+      ['/marketing', '/marketing/ads', '/marketing/content', '/marketing/voice', '/ai-agents', '/market', '/sales', '/marketing/budget'],
     ],
     ['Помощь', ['/help']],
   ]);

@@ -12,14 +12,13 @@ import { loadErrorProps } from '../../../lib/load-error';
 import { formatMoney } from '../../../lib/money';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { requireFeature } from '../../../lib/vertical-guard';
-import { verticalCopy, type VerticalCopy } from '../../../lib/vertical-copy';
 import '../marketing.css';
 import '../budget/budget.css';
+import '../../finance/summary.css';
 import { LoadError } from '../../../components/load-error';
 import { Page } from '../../../components/page';
-import { Tabs } from '../../../components/tabs';
-import { Alert, Badge, EmptyState, Stat, Stats, Table } from '../../../components/ui';
-import { BackToModules, ModuleSoon } from '../parts';
+import { Alert, Badge, EmptyState, Table } from '../../../components/ui';
+import { BackToModules } from '../parts';
 import { ChooseLocation, MonthNav, platformLabel } from '../budget/parts';
 import { CampaignButton, StatsButton } from './campaigns';
 import { CAMPAIGN_STATUS } from './labels';
@@ -29,8 +28,10 @@ import { CampaignStatusButton } from './launch/status-button';
 import Link from 'next/link';
 import { META_ACCOUNTS_COOKIE } from './meta-cookies';
 import { AdLaunches, loadLaunches } from './launches';
+import { AdLibrary, loadLibrary } from './library';
 import { propertyClock } from '../../../lib/property-time';
 import { workspaceTimezone } from '../../../lib/workspace-context';
+import { METRIC } from '../../../lib/metric-words';
 
 /**
  * Модуль «Реклама» (макет Marketing 2.0 владельца 09.10.2026, экран 2; MKT10.4–10.6). Вкладка «Кампании» живая с
@@ -38,7 +39,6 @@ import { workspaceTimezone } from '../../../lib/workspace-context';
  * площадки вручную или CSV, CTR, CPC, CPM и CPL площадки. Кабинеты (Meta и другие) ещё не подключаются: кнопка
  * «Подключить кабинет» и прочие вкладки остаются пустыми состояниями. Право `marketing`, филиал строго из scope.
  */
-const SOON = 'marketing-ads-soon';
 const dash = '–';
 
 type Loaded = { view: MarketingCampaignsView } | { chooseLocation: true } | { error: ReturnType<typeof loadErrorProps> };
@@ -96,17 +96,32 @@ function Campaigns({
   const tm = campaignMetrics({ spendMinor: total.spend, ...total });
   return (
     <div className="marketing-screen__stack">
-      <Stats min={160} data-testid="marketing-ads-metrics">
-        <Stat
-          label="Расход кампаний"
-          value={formatMoney(total.spend, rc)}
-          hint={foreign ? 'без кабинетов в другой валюте: они в таблице' : undefined}
-          testId="ads-spend"
-        />
-        <Stat label="Показы" value={total.impressions.toLocaleString('ru-RU')} hint={`CPM ${money(tm.cpmMinor)}`} testId="ads-impressions" />
-        <Stat label="Клики" value={total.clicks.toLocaleString('ru-RU')} hint={`CTR ${ctrText(tm.ctrBp)}`} testId="ads-clicks" />
-        <Stat label="Лиды площадки" value={String(total.leads)} hint={`CPL ${money(tm.cplMinor)}`} testId="ads-leads" />
-      </Stats>
+      {/* итоги месяца одной строкой вместо плиток (аудит 21.10.2026 п. 34) */}
+      <dl className="money-summary" data-testid="marketing-ads-metrics">
+        <div>
+          <dt>Расход кампаний</dt>
+          <dd data-testid="ads-spend">{formatMoney(total.spend, rc)}</dd>
+        </div>
+        <div>
+          <dt>Показы</dt>
+          <dd data-testid="ads-impressions">{total.impressions.toLocaleString('ru-RU')}</dd>
+        </div>
+        <div>
+          <dt>Клики</dt>
+          <dd data-testid="ads-clicks">{total.clicks.toLocaleString('ru-RU')}</dd>
+        </div>
+        <div>
+          <dt>Лиды площадки</dt>
+          <dd data-testid="ads-leads">{String(total.leads)}</dd>
+        </div>
+        <div>
+          <dt>{`${METRIC.ctr}, ${METRIC.cpm.toLowerCase()}, ${METRIC.cpl.toLowerCase()}`}</dt>
+          <dd>
+            {ctrText(tm.ctrBp)}, {money(tm.cpmMinor)}, {money(tm.cplMinor)}
+          </dd>
+        </div>
+      </dl>
+      {foreign && <p className="settings-note">Расход без кабинетов в другой валюте: они показаны в таблице.</p>}
       <div className="budget-head">
         {editable ? <CampaignButton /> : <span />}
         <MonthNav base="/marketing/ads" month={view.month} />
@@ -126,11 +141,11 @@ function Campaigns({
                 <th scope="col" className="budget-td-num">Расход</th>
                 <th scope="col" className="budget-td-num">Показы</th>
                 <th scope="col" className="budget-td-num">Клики</th>
-                <th scope="col" className="budget-td-num">CTR</th>
-                <th scope="col" className="budget-td-num">CPC</th>
-                <th scope="col" className="budget-td-num">CPM</th>
+                <th scope="col" className="budget-td-num">{METRIC.ctr}</th>
+                <th scope="col" className="budget-td-num">{METRIC.cpc}</th>
+                <th scope="col" className="budget-td-num">{METRIC.cpm}</th>
                 <th scope="col" className="budget-td-num">Лиды</th>
-                <th scope="col" className="budget-td-num">CPL</th>
+                <th scope="col" className="budget-td-num">{METRIC.cpl}</th>
                 {(editable || launchable) && (
                   <th scope="col">
                     <span className="sr-only">Действия</span>
@@ -193,14 +208,11 @@ function Campaigns({
   );
 }
 
-const empty = (text: string) => <EmptyState title="Пока пусто">{text}</EmptyState>;
-
 export default async function MarketingAdsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const me = await requireFeature('/marketing/ads');
-  const copy: VerticalCopy = verticalCopy(me.context?.vertical);
+  await requireFeature('/marketing/ads');
   const q = normalizeSearchParams(await searchParams);
   const month = /^\d{4}-\d{2}$/.test(q['month'] ?? '') ? q['month'] : undefined;
-  const [loaded, shell, cabinet, launches, timezone] = await Promise.all([
+  const [loaded, shell, cabinet, launches, timezone, library] = await Promise.all([
     loadCampaigns(month),
     deskShell(),
     // не загрузилось: плашки кабинета нет, кампании от этого не зависят
@@ -208,6 +220,7 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
     // запуски читаются независимо от кабинета и кампаний: отказ этого источника не ломает остальной экран
     loadLaunches(),
     workspaceTimezone(),
+    loadLibrary(),
   ]);
   const metaResult = q['meta'];
   // выбор из нескольких кабинетов: список из закрытой cookie адреса возврата (заготовка входа живёт 10 минут)
@@ -235,8 +248,8 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
   return (
     <Page
       crumbs={<BackToModules />}
-      title="ИИ-таргетолог"
-      subtitle="Кампании, кабинет Meta, запуск с ИИ и статистика площадок."
+      title="Реклама"
+      subtitle="Кампании Facebook и Instagram: расход, показы, клики и заявки. Запуск с ИИ после вашей проверки."
       actions={
         launchable ? (
           <Link className="btn" href="/marketing/ads/launch" data-testid="ad-new">
@@ -246,10 +259,6 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
       }
     >
       <div className="marketing-screen" data-testid="marketing-ads-screen">
-        <ModuleSoon id={SOON} testId={SOON}>
-          Кампания с ИИ запускается кнопкой в мастере после вашей проверки текста, аудитории и бюджета; остановить её
-          можно здесь же. Аудитории и библиотека креативов в следующих этапах, другие площадки ведутся вручную.
-        </ModuleSoon>
         {metaResult === 'connected' && (
           <Alert tone="success" data-testid="meta-result">
             Кабинет Meta подключён: кампании и дни за последние 28 дней загружены.
@@ -273,16 +282,9 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
         )}
         {cabinet && !(metaResult === 'choose' && choices.length > 0) && <MetaCabinet view={cabinet} editable={editable} />}
         <AdLaunches loaded={launches} clock={propertyClock(timezone)} />
-        <Tabs
-          label="Разделы рекламы"
-          panels={[
-            { id: 'campaigns', label: 'Кампании', content: campaigns },
-            { id: 'audiences', label: 'Аудитории', content: empty(`Аудитории ИИ соберёт из ${copy.clientsOf} и посетителей сайта.`) },
-            { id: 'creatives', label: 'Креативы', content: empty('Картинки и тексты объявлений придут из модуля «Контент».') },
-            { id: 'analytics', label: 'Аналитика', content: empty(`Расходы, заявки и ${copy.conversionTo === 'в бронь' ? 'брони' : copy.conversionTo === 'в запись' ? 'записи' : 'заказы'} по кампаниям появятся после первых запусков.`) },
-            { id: 'settings', label: 'Настройки', content: empty('Рекламный кабинет, лимиты бюджета и уведомления.') },
-          ]}
-        />
+        {/* «Аудитории» и «Креативы» (23.10.2026): итог прошлых запусков, аудиторию можно взять в новую кампанию */}
+        <AdLibrary loaded={library} launchable={launchable} />
+        <section aria-label="Кампании">{campaigns}</section>
       </div>
     </Page>
   );

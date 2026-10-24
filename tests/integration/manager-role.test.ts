@@ -70,10 +70,11 @@ describe.skipIf(!url)(
       });
     }
 
-    it('в типе роли три значения — владелец, управляющий, администратор', async () => {
+    it('в типе роли четыре значения: владелец, управляющий, администратор, личный кабинет', async () => {
       const rows = await db.$queryRaw<Array<{ roles: string }>>`
       SELECT enum_range(NULL::"MembershipRole")::text AS roles`;
-      expect(rows[0]!.roles).toBe('{OWNER,MANAGER,STAFF}');
+      // EMPLOYEE «личный кабинет» добавлен миграцией 139 (уровни доступа, 20.10.2026)
+      expect(rows[0]!.roles).toBe('{OWNER,MANAGER,STAFF,EMPLOYEE}');
     });
 
     it('приглашение хранит роль, по умолчанию — администратор; владельца база не примет', async () => {

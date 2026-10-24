@@ -99,7 +99,7 @@ test('журнал показывает, кто сделал действие, �
 
   await expect(page.getByRole('columnheader', { name: 'Кто' })).toBeVisible();
   await expect(rows.first()).toContainText('Дана Тестова');
-  await expect(rows.first()).toContainText('заселение');
+  await expect(rows.first()).toContainText('Заселение');
 
   // строка без автора — это импорт, сторож или скрипт сверки
   await expect(rows.nth(2)).toContainText('система');
@@ -107,5 +107,5 @@ test('журнал показывает, кто сделал действие, �
 
 test('в журнале есть отбор по сотрудникам, и вход в систему там виден', async ({ page }) => {
   await page.goto('/journal?type=user');
-  await expect(page.getByTestId('journal-row').first()).toContainText('вход в систему');
+  await expect(page.getByTestId('journal-row').first()).toContainText('Вход в систему');
 });

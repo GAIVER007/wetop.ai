@@ -50,6 +50,7 @@ export interface SellerPort {
   llmKeyStatus(orgId: string): Promise<unknown>;
   putLlmKey(orgId: string, key: string): Promise<unknown>;
   checkLlmKey(orgId: string, key: string): Promise<unknown>;
+  llmUsage(orgId: string): Promise<unknown>;
   /** Подключение WhatsApp (С3): статус, поставить/снять, проверка номера и токена */
   whatsappStatus(orgId: string): Promise<unknown>;
   putWhatsApp(

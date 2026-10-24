@@ -18,30 +18,49 @@ const label = (method: string) => PAYMENT_METHOD_RU[method] ?? method;
 export function PaymentMethodsForm({
   stored,
   editable,
+  save = savePaymentMethods,
+  scopeKey,
+  note,
 }: {
   stored: PaymentMethodSettingRow[];
   editable: boolean;
+  /** действие сохранения: объект гостиницы (§21.6) по умолчанию, филиал салона и ресторана (§21.7) свой */
+  save?: (prev: DirectoryActionResult | null, form: FormData) => Promise<DirectoryActionResult>;
+  /** филиал, для которого открыта форма: действие сверяет его с текущим, чтобы не записать в чужой */
+  scopeKey?: string;
+  note?: string;
 }) {
   const [list, setList] = useState(stored);
-  const [state, action, pending] = useActionState<DirectoryActionResult | null, FormData>(
-    savePaymentMethods,
-    null,
-  );
+  const [state, action, pending] = useActionState<DirectoryActionResult | null, FormData>(save, null);
   // после сохранения запись объекта перечитана: список снова равен сохранённому
   useEffect(() => setList(stored), [stored]);
   const dirty = !same(list, stored);
   useSaveReport({ dirty, pending, saved: !!state?.message && !dirty });
   const none = !list.some((m) => m.enabled);
-  const move = (i: number, d: -1 | 1) =>
+  // в таблице только принимаемые способы (22.10.2026, «добавить способ оплаты»): выключенные уходят в список
+  // «Добавить»; в сохранении по-прежнему все коды, порядок выключенных за включёнными
+  const shown = list.filter((m) => m.enabled);
+  const hidden = list.filter((m) => !m.enabled);
+  const [pick, setPick] = useState('');
+  const chosen = hidden.some((m) => m.method === pick) ? pick : (hidden[0]?.method ?? '');
+  const move = (method: string, d: -1 | 1) =>
     setList((was) => {
+      const on = was.filter((m) => m.enabled);
+      const i = on.findIndex((m) => m.method === method);
       const j = i + d;
-      if (j < 0 || j >= was.length) return was;
-      const next = [...was];
-      [next[i], next[j]] = [next[j]!, next[i]!];
-      return next;
+      if (i < 0 || j < 0 || j >= on.length) return was;
+      [on[i], on[j]] = [on[j]!, on[i]!];
+      return [...on, ...was.filter((m) => !m.enabled)];
     });
-  const toggle = (i: number) =>
-    setList((was) => was.map((m, k) => (k === i ? { ...m, enabled: !m.enabled } : m)));
+  const setEnabled = (method: string, enabled: boolean) =>
+    setList((was) => {
+      const target = was.find((m) => m.method === method);
+      if (!target) return was;
+      const rest = was.filter((m) => m.method !== method);
+      const on = rest.filter((m) => m.enabled);
+      const off = rest.filter((m) => !m.enabled);
+      return enabled ? [...on, { ...target, enabled: true }, ...off] : [...on, { ...target, enabled: false }, ...off];
+    });
   if (!editable)
     return (
       <Table size="sm" className="settings-directory-table" data-testid="payment-methods-table" aria-label="Список способов оплаты">
@@ -66,67 +85,82 @@ export function PaymentMethodsForm({
   return (
     <form id={SETTINGS_FORM_ID} action={action} data-testid="payment-methods-form">
       <input type="hidden" name="methods" value={JSON.stringify(list)} />
+      {scopeKey && <input type="hidden" name="scopeKey" value={scopeKey} />}
       {state?.error && <Alert boxed>{state.error}</Alert>}
       {none && <Alert boxed>Хотя бы один способ оплаты должен быть включён</Alert>}
-      <Table size="sm" className="settings-directory-table" data-testid="payment-methods-table" aria-label="Список способов оплаты">
+      <Table size="sm" className="settings-directory-table settings-payment-table" data-testid="payment-methods-table" aria-label="Список способов оплаты">
         <thead>
           <tr>
             <th>Способ</th>
-            <th>Принимаем</th>
             <th>
-              <span className="sr-only">Порядок</span>
+              <span className="sr-only">Действия</span>
             </th>
           </tr>
         </thead>
         <tbody>
-          {list.map((m, i) => (
-            <tr
-              key={m.method}
-              data-testid="payment-method-row"
-              data-method={m.method}
-              data-enabled={m.enabled ? 'true' : 'false'}
-            >
+          {shown.map((m, i) => (
+            <tr key={m.method} data-testid="payment-method-row" data-method={m.method} data-enabled="true">
               <td>{label(m.method)}</td>
-              <td>
-                <label className="settings-check">
-                  <input
-                    type="checkbox"
-                    checked={m.enabled}
-                    onChange={() => toggle(i)}
-                    aria-label={`Принимаем: ${label(m.method)}`}
-                    data-testid="payment-method-toggle"
-                  />
-                  {m.enabled ? 'да' : 'нет'}
-                </label>
-              </td>
-              <td className="settings-order">
-                <Button
-                  type="button"
-                  tone="ghost"
-                  disabled={i === 0}
-                  onClick={() => move(i, -1)}
-                  aria-label={`Выше: ${label(m.method)}`}
-                >
-                  Выше
-                </Button>
-                <Button
-                  type="button"
-                  tone="ghost"
-                  disabled={i === list.length - 1}
-                  onClick={() => move(i, 1)}
-                  aria-label={`Ниже: ${label(m.method)}`}
-                >
-                  Ниже
-                </Button>
+              <td className="settings-actions">
+                <div className="settings-order">
+                  <Button
+                    type="button"
+                    tone="ghost"
+                    disabled={i === 0}
+                    onClick={() => move(m.method, -1)}
+                    aria-label={`Выше: ${label(m.method)}`}
+                  >
+                    Выше
+                  </Button>
+                  <Button
+                    type="button"
+                    tone="ghost"
+                    disabled={i === shown.length - 1}
+                    onClick={() => move(m.method, 1)}
+                    aria-label={`Ниже: ${label(m.method)}`}
+                  >
+                    Ниже
+                  </Button>
+                  <Button
+                    type="button"
+                    tone="ghost"
+                    onClick={() => setEnabled(m.method, false)}
+                    aria-label={`Убрать: ${label(m.method)}`}
+                    data-testid="payment-method-remove"
+                  >
+                    Убрать
+                  </Button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
+      {hidden.length > 0 && (
+        <div className="settings-category-add" data-testid="payment-method-add">
+          <Field label="Добавить способ оплаты">
+            <Select value={chosen} onChange={(e) => setPick(e.target.value)}>
+              {hidden.map((m) => (
+                <option key={m.method} value={m.method}>
+                  {label(m.method)}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Button
+            type="button"
+            tone="secondary"
+            disabled={!chosen}
+            onClick={() => chosen && setEnabled(chosen, true)}
+            aria-label={chosen ? `Добавить способ: ${label(chosen)}` : 'Добавить способ'}
+          >
+            Добавить
+          </Button>
+        </div>
+      )}
       <p className="settings-note">
-        Выключенный способ не предлагается при приёме оплаты, в кассе и в запросах оплаты. Прошлые
-        платежи, отчёты и сверка не меняются. Платёж площадки (внешний канал) ставят каналы продаж, он
-        здесь не настраивается.
+        {note ??
+          'Убранный способ не предлагается при приёме оплаты, в кассе и в запросах оплаты. Прошлые платежи, отчёты и сверка не меняются. Платёж площадки (внешний канал) ставят каналы продаж, он здесь не настраивается.'}
       </p>
     </form>
   );
@@ -210,13 +244,15 @@ export function CashCategoriesEditor({
                 </Badge>
               </td>
               {editable && (
-                <td className="settings-order">
-                  {renaming !== c.id && (
-                    <Button type="button" tone="ghost" onClick={() => setRenaming(c.id)}>
-                      Переименовать
-                    </Button>
-                  )}
-                  <ToggleForm category={c} />
+                <td className="settings-actions">
+                  <div className="settings-order">
+                    {renaming !== c.id && (
+                      <Button type="button" tone="ghost" onClick={() => setRenaming(c.id)}>
+                        Переименовать
+                      </Button>
+                    )}
+                    <ToggleForm category={c} />
+                  </div>
                 </td>
               )}
             </tr>

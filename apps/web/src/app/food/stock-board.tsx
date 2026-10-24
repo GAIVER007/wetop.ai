@@ -12,8 +12,6 @@ import {
   Field,
   Input,
   Select,
-  Stat,
-  Stats,
   Table,
 } from '../../components/ui';
 import { wholeTenge } from '../../lib/dashboard-format';
@@ -26,6 +24,7 @@ import type {
   StockUnit,
 } from '../../lib/food-types';
 import { loadLots, mutateStock } from './stock-actions';
+import { dayClock } from '../../lib/human-period';
 import { useConfirm } from '../../components/use-confirm';
 
 /** Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS) */
@@ -38,6 +37,8 @@ export interface StockCtx {
   canDelete?: boolean;
   currency: string;
   vertical?: WebVertical;
+  /** пояс филиала для времени движений; без него время по UTC, одинаково на сервере и в браузере */
+  timezone?: string;
 }
 
 const stockNouns = (ctx: StockCtx) =>
@@ -414,15 +415,29 @@ export function StockBoard({
   const q = query.trim().toLocaleLowerCase('ru');
   const shown = products.filter((p) => q === '' || p.name.toLocaleLowerCase('ru').includes(q));
 
+  // кнопки в строке поиска над таблицей, а не отдельной строкой с пустым местом (аудит 21.10.2026 п.40)
+  const actions = (canCreateProduct || (canReceive && products.some((p) => p.active))) && (
+    <div className="food-inline-actions">
+      {canCreateProduct && (
+        <Button tone="secondary" onClick={() => setDraft({ kind: 'product', product: null })}>
+          + {nouns.oneTitle}
+        </Button>
+      )}
+      {canReceive && products.some((p) => p.active) && (
+        <Button onClick={() => setDraft({ kind: 'receipt' })}>+ Приход товара</Button>
+      )}
+    </div>
+  );
   const stockTable =
     products.length === 0 ? (
-      <EmptyState title={`Добавьте первый ${nouns.one}`} />
+      <EmptyState title={`Добавьте первый ${nouns.one}`} actions={actions || undefined} />
     ) : (
       <div className="rest-card">
         <div className="rest-card__tools">
           <IconField icon="search">
             <Input aria-label={`Поиск по ${nouns.many}`} placeholder={`Поиск по ${nouns.many}`} value={query} onChange={(e) => setQuery(e.target.value)} />
           </IconField>
+          {actions}
         </div>
         {shown.length === 0 ? (
           <EmptyState title="Ничего не найдено" />
@@ -440,12 +455,13 @@ export function StockBoard({
             </thead>
             <tbody>
               {shown.map((p) => (
-                <tr key={p.id} data-low={(p.active && (p.low || p.onHand === '0')) || undefined}>
+                // нехватку показывает только значок «Мало» или «Нет на складе», без заливки ячеек (п.41)
+                <tr key={p.id}>
                   <td>{p.name}</td>
                   <td className="rest-stock-qty">{qtyText(p.onHand, p.unit)}</td>
                   <td className="rest-stock-qty">{qtyText(p.minQty, p.unit)}</td>
                   <td>{stockMoney(p.valueMinor, ctx)}</td>
-                  <td>{p.nearestExpiry ? <time dateTime={p.nearestExpiry}>{dateText(p.nearestExpiry)}</time> : 'Нет'}</td>
+                  <td>{p.nearestExpiry ? <time dateTime={p.nearestExpiry}>{dateText(p.nearestExpiry)}</time> : '—'}</td>
                   <td>
                     {!p.active ? (
                       <Badge tone="neutral">Не используется</Badge>
@@ -484,6 +500,12 @@ export function StockBoard({
             </tbody>
           </Table>
         )}
+        {/* итог строкой под таблицей вместо трёх плиток над ней (правило владельца «без плиток», п.8) */}
+        <p className="muted" data-testid="stock-totals">
+          {nouns.count}: {products.filter((p) => p.active).length}, стоимость остатка{' '}
+          <b data-testid="stock-value">{stockMoney(total, ctx)}</b>, мало на складе{' '}
+          <b data-testid="stock-low">{low}</b>
+        </p>
       </div>
     );
 
@@ -503,7 +525,7 @@ export function StockBoard({
           {movements.map((m) => (
             <tr key={m.id}>
               <td>
-                <time dateTime={m.createdAt}>{new Date(m.createdAt).toLocaleString('ru-RU', { dateStyle: 'short', timeStyle: 'short' })}</time>
+                <time dateTime={m.createdAt}>{dayClock(m.createdAt, ctx.timezone ?? 'UTC')}</time>
               </td>
               <td>{m.productName}</td>
               <td>{KIND_LABEL[m.kind]}</td>
@@ -518,23 +540,6 @@ export function StockBoard({
 
   return (
     <div className="food-workspace">
-      <Stats min={170} className="rest-kpis">
-        <Stat label={nouns.count} value={String(products.filter((p) => p.active).length)} />
-        <Stat label="Стоимость остатка" value={stockMoney(total, ctx)} tone="info" testId="stock-value" />
-        <Stat label="Мало на складе" value={String(low)} tone={low > 0 ? 'warn' : undefined} testId="stock-low" />
-      </Stats>
-      <div className="food-section-heading rest-actions-end">
-        <div className="food-inline-actions">
-          {canCreateProduct && (
-            <Button tone="secondary" onClick={() => setDraft({ kind: 'product', product: null })}>
-              + {nouns.oneTitle}
-            </Button>
-          )}
-          {canReceive && products.some((p) => p.active) && (
-            <Button onClick={() => setDraft({ kind: 'receipt' })}>+ Приход товара</Button>
-          )}
-        </div>
-      </div>
       <Tabs
         className="rest-tabs-line"
         label="Склад"

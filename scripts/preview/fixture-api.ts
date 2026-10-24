@@ -1,4 +1,5 @@
 import { customerImportFixture, resetCustomerImportFixture } from './customer-import-fixture';
+import { resetSalonLoyaltyFixture, salonLoyaltyFixture } from './salon-loyalty-fixture';
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
@@ -119,6 +120,8 @@ import {
   type MarketingExpenseInput,
   type PriceReading,
   type SiteFacts,
+  adLibrary,
+  type AdLibraryLaunch,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -173,8 +176,11 @@ let propertyName = 'Luxx Aparts';
 let connectionState: DataConnection['state'] = 'READY';
 let holdHotel = false;
 const hotelWaiters = new Set<() => void>();
+/** Язык стойки вошедшего (ADR-163, KK1): `POST /auth/locale` меняет, `reset` возвращает русский */
+let uiLocale = 'ru';
 function resetUiAuth() {
   registrationEnabled = true;
+  uiLocale = 'ru';
   uiPassword = 'ui-test-parol';
   uiSessions.clear();
   uiResetTokens.clear();
@@ -2200,6 +2206,8 @@ interface FixtureInvite {
   lastName?: string | null;
   position?: string | null;
   scopes?: ScopeAssignment[];
+  /** сотрудник из формы «Новый сотрудник» (уровни доступа, 20.10.2026) */
+  employeeId?: string;
 }
 /** Бизнесы и филиалы вымышленной организации для области доступа (DATA_MODEL §31.1) */
 const FIXTURE_STRUCTURE = {
@@ -2968,6 +2976,9 @@ const sellerKnowledgeSeed = () => [
 let sellerKnowledge = sellerKnowledgeSeed();
 // С2: ключ модели партнёра — подставной бот хранит только последние 4 знака
 let sellerLlmKey: string | null = null;
+// подставной бот помнит ключ целиком (только стенд) и последнее состояние: «nocredit» в ключе значит пустой счёт
+let sellerLlmFullKey: string | null = null;
+let sellerLlmKeyState: { state: string; reason: string | null; checkedAt: string } | null = null;
 // С3: подключение WhatsApp — подставной бот выдаёт слово вебхука, токен не хранится
 let sellerWhatsApp: { phoneNumberId: string; verifyToken: string } | null = null;
 const sellerWhatsAppView = () => ({
@@ -3043,6 +3054,8 @@ function resetSeller() {
   sellerSaved = false;
   sellerApplied = false;
   sellerLlmKey = null;
+  sellerLlmFullKey = null;
+  sellerLlmKeyState = null;
   sellerWhatsApp = null;
   sellerUpdatedAt = null;
   sellerPrompt = null;
@@ -4296,6 +4309,18 @@ function read(path: string, q: URLSearchParams): unknown {
       truncated: picked.length > limit,
     };
   }
+  if (path === '/finance/staff-revenue') {
+    // «Сколько принёс» гостиницы (решение 20.10.2026): по создавшему бронь; синтетика стенда, как формат API
+    const period = ['week', 'month'].includes(q.get('period') ?? '') ? q.get('period')! : 'day';
+    const k = period === 'day' ? 1n : period === 'week' ? 5n : 20n;
+    return {
+      period, fromDate: today, toDate: today,
+      items: [
+        { employeeId: 'ui-admin', currency: 'KZT', paidMinor: String(3_000_000n * k), refundedMinor: String(500_000n * k), netMinor: String(2_500_000n * k), name: 'Юрий Тестов' },
+        { employeeId: null, currency: 'KZT', paidMinor: String(1_200_000n * k), refundedMinor: '0', netMinor: String(1_200_000n * k), name: null },
+      ],
+    };
+  }
   if (path === '/finance/cashflow') {
     // Как у API (RPT2.4a): деньги за период по дням из той же ленты, что у «Оплат»; период и предел те же
     const from = q.get('from') || today;
@@ -4970,9 +4995,28 @@ let fixtureMeta: { adAccountId: string; status: 'ACTIVE' | 'FAILED'; lastSyncedA
 /** Запуск ИИ-таргетолога (§57): один на прогон, готов со второго просмотра экрана шагов */
 let fixtureLaunch: { id: string; headline: string; dailyBudgetMinor: string; views: number } | null = null;
 /** Засеянные прошлые запуски (`__test/marketing-budget` → `launches`) и отказ источника списка (`launchesFail`) */
-type FixtureLaunchRow = { id: string; status: 'RUNNING' | 'SUCCEEDED' | 'FAILED'; step: string; headline: string; dailyBudgetMinor: string; currency: string; error: string | null; createdAt: string };
+type FixtureLaunchRow = {
+  id: string; status: 'RUNNING' | 'SUCCEEDED' | 'FAILED'; step: string; headline: string; dailyBudgetMinor: string; currency: string; error: string | null; createdAt: string;
+  /** «Аудитории» и «Креативы» (23.10.2026): настройки показа, креатив и итог кабинета засеянного запуска */
+  settings?: AdLibraryLaunch['settings'];
+  creative?: AdLibraryLaunch['creative'];
+  stats?: { spendMinor: string; leads: number; impressions: number; clicks: number } | null;
+};
 let fixtureLaunches: FixtureLaunchRow[] = [];
 let fixtureLaunchesFail: number | null = null;
+/** «Контент» (CONTENT-DRAFTS-20261022): черновики филиала и выключатель ИИ (`__test/content-ai`) */
+type FixtureContentDraft = {
+  id: string; creationId: string; channel: string; topic: string; title: string | null; body: string; hashtags: string[];
+  cta: string | null; origin: string; plannedOn: string | null; status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  publishedAt: string | null; revision: number; createdAt: string;
+};
+let fixtureContentDrafts: FixtureContentDraft[] = [];
+let fixtureContentAiDown = false;
+const CONTENT_SITE = 'https://salon.example';
+const contentPreview = (d: { body: string; hashtags: string[]; cta: string | null }) =>
+  [d.body, d.cta === 'BOOK_ONLINE' ? `Записаться онлайн: ${CONTENT_SITE}` : d.cta === 'VISIT' ? 'Ждём вас: ул. Абая, 1' : null,
+    d.hashtags.length ? d.hashtags.map((t) => `#${t}`).join(' ') : null].filter(Boolean).join('\n\n');
+const contentDay = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10);
 /** Разбивка плана по каналам (§52): первое число месяца → строки */
 const budgetLines = new Map<string, Array<{ platform: string; amount: string }>>();
 /** МКТ-В5a: результаты каналов по месяцам (засев `__test/marketing-budget` → `results`); нет записи: нули */
@@ -4999,6 +5043,108 @@ const budgetMonthShift = (month: string, shift: number) => {
   const total = (y as number) * 12 + ((m as number) - 1) + shift;
   return `${Math.floor(total / 12)}-${String((total % 12) + 1).padStart(2, '0')}`;
 };
+/**
+ * «Голосовой агент» (срез 4): журнал, просьбы, брони по телефону и настройка брони. Данные вымышленные (ADR-010).
+ * Засев и сброс: `POST /__test/marketing-voice`. Имён и телефонов гостей в списке броней нет, как у настоящего API.
+ */
+type FixtureVoiceBooking = {
+  hasAgent: boolean;
+  vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE' | null;
+  enabled: boolean;
+  needsApproval: boolean;
+  maxPerCall: number;
+  canEnable: boolean;
+  blockers: string[];
+};
+const voiceDefaults = () => ({
+  booking: {
+    hasAgent: true,
+    vertical: 'HOSPITALITY',
+    enabled: false,
+    needsApproval: true,
+    maxPerCall: 3,
+    canEnable: true,
+    blockers: [],
+  } as FixtureVoiceBooking,
+  bookings: [] as Array<Record<string, unknown>>,
+  bookingsFail: false,
+  callbacks: [] as Array<Record<string, unknown>>,
+  calls: [] as Array<Record<string, unknown>>,
+});
+let voiceState = voiceDefaults();
+const VOICE_TZ = 'Asia/Almaty';
+function marketingVoiceRoute(
+  path: string,
+  method: string,
+  q: URLSearchParams,
+  body: Record<string, unknown>,
+): [number, unknown] | null {
+  if (!path.startsWith('/marketing/voice')) return null;
+  if (!can(uiRole, 'marketing')) return [403, { message: accessDeniedMessage('marketing') }];
+  const month = q.get('month') ?? today.slice(0, 7);
+  if (path === '/marketing/voice/summary' && method === 'GET') {
+    const calls = voiceState.calls.length;
+    return [
+      200,
+      {
+        month,
+        timezone: VOICE_TZ,
+        hasData: calls > 0,
+        totals: {
+          calls,
+          answered: calls,
+          ended: calls,
+          rejected: 0,
+          failed: 0,
+          callbacks: voiceState.callbacks.length,
+          transfers: 0,
+          avgDurationSeconds: calls ? 95 : null,
+        },
+      },
+    ];
+  }
+  if (path === '/marketing/voice/calls' && method === 'GET')
+    return [200, { month, timezone: VOICE_TZ, total: voiceState.calls.length, rows: voiceState.calls }];
+  if (path === '/marketing/voice/callbacks' && method === 'GET') {
+    const status = q.get('status');
+    return [200, voiceState.callbacks.filter((c) => !status || c['status'] === status)];
+  }
+  const closing = /^\/marketing\/voice\/callbacks\/([^/]+)$/.exec(path);
+  if (closing && method === 'PATCH') {
+    const row = voiceState.callbacks.find((c) => c['id'] === closing[1]);
+    if (!row) return [404, { message: 'Просьба не найдена' }];
+    row['status'] = 'DONE';
+    row['doneAt'] = new Date().toISOString();
+    return [200, row];
+  }
+  if (path === '/marketing/voice/bookings' && method === 'GET') {
+    if (voiceState.bookingsFail) return [500, { message: 'Внутренняя ошибка' }];
+    const day = Date.now() - 86_400_000;
+    return [
+      200,
+      {
+        timezone: VOICE_TZ,
+        days: Number(q.get('days') ?? 7),
+        last24h: voiceState.bookings.filter((b) => Date.parse(String(b['at'])) > day).length,
+        rows: voiceState.bookings,
+      },
+    ];
+  }
+  if (path === '/marketing/voice/booking' && method === 'GET') return [200, voiceState.booking];
+  if (path === '/marketing/voice/booking' && method === 'PATCH') {
+    const keys = Object.keys(body);
+    if (keys.length === 0 || keys.some((k) => k !== 'enabled' && k !== 'maxPerCall'))
+      return [400, { message: 'Можно менять только выключатель (enabled) и лимит за звонок (maxPerCall)' }];
+    if ('maxPerCall' in body && !(Number.isInteger(body['maxPerCall']) && (body['maxPerCall'] as number) >= 1 && (body['maxPerCall'] as number) <= 20))
+      return [400, { message: 'maxPerCall: целое число от 1 до 20' }];
+    if (body['enabled'] === true && !voiceState.booking.canEnable)
+      return [409, { message: `Включить нельзя: ${voiceState.booking.blockers.join('; ')}` }];
+    if (typeof body['enabled'] === 'boolean') voiceState.booking.enabled = body['enabled'];
+    if (typeof body['maxPerCall'] === 'number') voiceState.booking.maxPerCall = body['maxPerCall'];
+    return [200, voiceState.booking];
+  }
+  return null;
+}
 /** null — маршрут не бюджета; иначе [код, тело] */
 function marketingBudgetRoute(
   path: string,
@@ -5531,6 +5677,8 @@ interface FixtureBeautyEmployee {
   active: boolean;
   locationIds: string[];
   serviceIds: string[];
+  /** Назначение в «Персонале»: SPECIALIST | OTHER_EMPLOYEE | BOTH, null = не назначено (миграция 138) */
+  personnelKind: 'SPECIALIST' | 'OTHER_EMPLOYEE' | 'BOTH' | null;
 }
 /** График мастера и отсутствия в подставном API (срез B4): неделя на филиал, отсутствия на сеть */
 interface FixtureWorkingInterval {
@@ -5709,6 +5857,8 @@ createServer(async (req, res) => {
         ],
       });
     }
+    // приглашения как есть, с сотрудником и областью: проверка формы «Новый сотрудник» (уровни доступа, 20.10.2026)
+    if (path === '/__test/invites' && req.method === 'GET') return send(200, uiInvites);
     if (path === '/__test/hits')
       return send(200, {
         total: [...hits.values()].reduce((a, b) => a + b, 0),
@@ -5861,9 +6011,82 @@ createServer(async (req, res) => {
     }
     // ИИ-таргетолог (§57, ADR-MKT-LAUNCH): мастер, предложение ИИ, запуск в кабинете, «Остановить» и «Включить»;
     // Meta подставная, запуск проходит за один просмотр экрана шагов
+    // «Контент»: черновики постов (CONTENT-DRAFTS-20261022). ИИ подставной: 2 варианта, во втором выдуманные 30%
+    if (path.startsWith('/marketing/content/drafts')) {
+      if (!can(uiRole, 'marketing')) return send(403, { message: accessDeniedMessage('marketing') });
+      const ctas = ['BOOK_ONLINE', 'VISIT', 'NONE'];
+      if (req.method === 'POST' && path === '/marketing/content/drafts/proposal') {
+        if (!String(body['topic'] ?? '').trim()) return send(400, { message: 'Напишите, о чём пост' });
+        if (fixtureContentAiDown) return send(503, { message: 'ИИ сейчас недоступен: попробуйте позже или напишите пост сами' });
+        const v = [
+          { hook: 'Осень, время ухода', title: null, body: 'Осень, время ухода. Скидка 30% на маску всю неделю.', hashtags: ['уход', 'салон'], cta: 'BOOK_ONLINE', warnings: ['30%'] },
+          { hook: 'Волосам нужен отдых', title: null, body: 'Волосам нужен отдых после лета. Приходите на уход.', hashtags: [], cta: 'VISIT', warnings: [] },
+        ];
+        return send(200, { variants: v.map((x) => ({ ...x, preview: contentPreview(x) })), ctas });
+      }
+      const live = () => fixtureContentDrafts.filter((d) => d.status !== 'ARCHIVED');
+      if (req.method === 'GET' && path === '/marketing/content/drafts') {
+        const today = contentDay(0);
+        const dow = new Date(`${today}T00:00:00Z`).getUTCDay();
+        const from = typeof url.searchParams.get('week') === 'string' && url.searchParams.get('week') ? url.searchParams.get('week')! : contentDay(-((dow + 6) % 7));
+        const to = new Date(Date.parse(`${from}T00:00:00Z`) + 6 * 86_400_000).toISOString().slice(0, 10);
+        const items = live().filter((d) => !d.plannedOn || (d.plannedOn >= from && d.plannedOn <= to));
+        return send(200, { week: { from, to }, today, ctas, items: items.map((d) => ({ ...d, preview: contentPreview(d) })) });
+      }
+      if (req.method === 'POST' && path === '/marketing/content/drafts') {
+        if (!String(body['body'] ?? '').trim()) return send(400, { message: 'Напишите текст поста' });
+        const dup = fixtureContentDrafts.find((d) => d.creationId === body['creationId']);
+        if (dup) return send(200, { ...dup, preview: contentPreview(dup) });
+        const d: FixtureContentDraft = {
+          id: `00000000-0000-4000-a000-${String(fixtureContentDrafts.length + 1).padStart(12, '0')}`,
+          creationId: String(body['creationId']), channel: String(body['channel']), topic: String(body['topic'] ?? ''),
+          title: body['title'] ? String(body['title']) : null, body: String(body['body']),
+          hashtags: Array.isArray(body['hashtags']) ? (body['hashtags'] as string[]) : [], cta: (body['cta'] as string | null) ?? null,
+          origin: String(body['origin']), plannedOn: (body['plannedOn'] as string | null) ?? null, status: 'DRAFT',
+          publishedAt: null, revision: 1, createdAt: new Date().toISOString(),
+        };
+        fixtureContentDrafts.push(d);
+        return send(201, { ...d, preview: contentPreview(d) });
+      }
+      const m = /^\/marketing\/content\/drafts\/([^/]+)(\/published|\/archive)?$/.exec(path);
+      const d = m ? fixtureContentDrafts.find((x) => x.id === m[1]) : undefined;
+      if (m && !d) return send(404, { message: 'Черновик не найден' });
+      if (m && d) {
+        if (d.revision !== body['expectedRevision'] || d.status === 'ARCHIVED')
+          return send(409, { message: 'Черновик уже изменили в другом окне: обновите страницу' });
+        if (req.method === 'PATCH' && !m[2])
+          Object.assign(d, { channel: body['channel'], topic: body['topic'], title: body['title'] || null, body: body['body'], hashtags: body['hashtags'], cta: body['cta'] ?? null, plannedOn: body['plannedOn'] ?? null });
+        else if (req.method === 'POST' && m[2] === '/published') Object.assign(d, { status: 'PUBLISHED', publishedAt: new Date().toISOString() });
+        else if (req.method === 'POST' && m[2] === '/archive') d.status = 'ARCHIVED';
+        else return send(405, { message: 'Метод не поддерживается' });
+        d.revision += 1;
+        return send(200, { ...d, preview: contentPreview(d) });
+      }
+    }
     if (path.startsWith('/marketing/ads/')) {
-      if (!can(uiRole, 'ads_launch') && !(req.method === 'GET' && path.startsWith('/marketing/ads/launches')))
-        return send(403, { message: accessDeniedMessage('ads_launch') });
+      const readOnlyAds =
+        req.method === 'GET' &&
+        ((path.startsWith('/marketing/ads/launches') && !path.endsWith('/audience')) || path === '/marketing/ads/library');
+      if (!can(uiRole, 'ads_launch') && !readOnlyAds) return send(403, { message: accessDeniedMessage('ads_launch') });
+      // «Аудитории» и «Креативы»: та же сводка домена, что у API, по засеянным запускам
+      if (req.method === 'GET' && path === '/marketing/ads/library')
+        return send(
+          200,
+          adLibrary(
+            fixtureLaunches
+              .filter((l) => l.settings)
+              .map((l) => ({
+                id: l.id, status: l.status, createdAt: l.createdAt, currency: l.currency, headline: l.headline,
+                settings: l.settings!, creative: l.creative ?? null,
+                stats: l.stats ? { ...l.stats, spendMinor: BigInt(l.stats.spendMinor) } : null,
+              })),
+          ),
+        );
+      const audienceMatch = /^\/marketing\/ads\/launches\/([^/]+)\/audience$/.exec(path);
+      if (req.method === 'GET' && audienceMatch) {
+        const l = fixtureLaunches.find((x) => x.id === audienceMatch[1] && x.status === 'SUCCEEDED' && x.settings);
+        return l ? send(200, l.settings) : send(404, { message: 'Запуск не найден' });
+      }
       if (req.method === 'GET' && path === '/marketing/ads/assets') {
         const base = { reportingCurrency: 'KZT', roomDailyMinor: '5000000' };
         if (!fixtureMeta || fixtureMeta.status !== 'ACTIVE') return send(200, { connected: false, ...base });
@@ -5889,13 +6112,17 @@ createServer(async (req, res) => {
           ageMin: 25,
           ageMax: 54,
           genders: [],
-          interests: ['путешествия'],
+          // для видео подставной ИИ называет, сколько кадров получил: UI-тест сверяет, что кадры дошли до API
+          interests: body['creativeKind'] === 'VIDEO' ? [`кадров видео: ${Array.isArray(body['images']) ? body['images'].length : 0}`] : ['путешествия'],
           welcome: body['destination'] === 'WHATSAPP' ? { text: 'Здравствуйте! Подскажем свободные даты', autofill: 'Хочу узнать цены' } : null,
           notes: [],
         });
       if (req.method === 'POST' && path === '/marketing/ads/creatives') {
-        if (!/Content-Type: image\/(png|jpeg)/i.test(raw.toString('latin1'))) return send(415, { message: 'Креатив: фото JPEG или PNG' });
-        return send(201, { id: '00000000-0000-4000-a000-0000000c0001', fileName: 'Креатив', url: 'about:blank' });
+        const part = raw.toString('latin1');
+        if (!/Content-Type: (image\/(png|jpeg)|video\/(mp4|quicktime))/i.test(part))
+          return send(415, { message: 'Креатив: фото JPEG, PNG или видео MP4, MOV' });
+        const isVideo = /Content-Type: video\//i.test(part);
+        return send(201, { id: isVideo ? '00000000-0000-4000-a000-0000000c0002' : '00000000-0000-4000-a000-0000000c0001', fileName: 'Креатив', url: 'about:blank' });
       }
       if (req.method === 'POST' && path === '/marketing/ads/launches') {
         if (!body['headline']) return send(400, { message: 'Нужен заголовок' });
@@ -6025,6 +6252,18 @@ createServer(async (req, res) => {
         throw e;
       }
     }
+    const voiceResponse = marketingVoiceRoute(path, req.method ?? 'GET', url.searchParams, body);
+    if (voiceResponse) return send(voiceResponse[0], voiceResponse[1]);
+    // засев голосового агента для UI-тестов: настройка брони, брони, просьбы, звонки; пустое тело сбрасывает всё
+    if (path === '/__test/marketing-voice' && req.method === 'POST') {
+      voiceState = voiceDefaults();
+      Object.assign(voiceState.booking, (body['booking'] as Partial<FixtureVoiceBooking> | undefined) ?? {});
+      voiceState.bookings = (body['bookings'] as Array<Record<string, unknown>> | undefined) ?? [];
+      voiceState.bookingsFail = body['bookingsFail'] === true;
+      voiceState.callbacks = (body['callbacks'] as Array<Record<string, unknown>> | undefined) ?? [];
+      voiceState.calls = (body['calls'] as Array<Record<string, unknown>> | undefined) ?? [];
+      return send(200, { ok: true });
+    }
     const budgetResponse = marketingBudgetRoute(path, req.method ?? 'GET', url.searchParams, body);
     if (budgetResponse) return send(budgetResponse[0], budgetResponse[1]);
     // засев бюджета маркетинга для UI-тестов: строки расходов и план месяца
@@ -6124,7 +6363,18 @@ createServer(async (req, res) => {
       ).map((r) => ({ ...r, priceMinor: BigInt(r.priceMinor) }));
       return send(200, { ok: true, today });
     }
+    if (path === '/__test/salon-loyalty') {
+      const seeded = salonLoyaltyFixture({ path, method: req.method, body, locationId: null, query: url.searchParams });
+      if (seeded) return send(seeded.status, seeded.body);
+    }
+    if (path === '/__test/content-ai' && req.method === 'POST') {
+      fixtureContentAiDown = body['down'] === true;
+      return send(200, { down: fixtureContentAiDown });
+    }
     if (path === '/__test/reset') {
+      fixtureContentDrafts = [];
+      fixtureContentAiDown = false;
+      resetSalonLoyaltyFixture();
       categoryPhotos.clear();
       fixtureBranches.length = 0;
       fixtureBusinessCards.clear();
@@ -6139,6 +6389,7 @@ createServer(async (req, res) => {
       resetCustomerImportFixture();
       resetMarket();
       resetMarketingBudget();
+      voiceState = voiceDefaults();
       resetAgentFixture();
       resetBarFixture();
       resetMarketingSiteFixture();
@@ -6728,6 +6979,17 @@ createServer(async (req, res) => {
           });
           if (!check.ok) return send(400, { message: check.reason });
         }
+        // приглашение из формы «Новый сотрудник» (уровни доступа, 20.10.2026): филиал и имя сотрудника, как в API
+        const employeeId = typeof body['employeeId'] === 'string' ? body['employeeId'] : null;
+        const employee = employeeId ? fixtureBeautyEmployees.find((e) => e.id === employeeId) : null;
+        if (employeeId && !employee) return send(400, { message: 'Сотрудник не найден в вашей организации.' });
+        if (employee && parsedScopes.assignments.length === 0 && body['allBranches'] !== true)
+          parsedScopes.assignments = (employee.locationIds.length ? employee.locationIds : [null]).map((locationId) => ({
+            role,
+            businessId: FIXTURE_STRUCTURE.businesses.find((b) => b.locations.some((l) => l.id === locationId))?.id
+              ?? FIXTURE_STRUCTURE.businesses[0]!.id,
+            locationId,
+          }));
         const invite: FixtureInvite = {
           id: `inv-${Date.now()}`,
           email,
@@ -6741,7 +7003,13 @@ createServer(async (req, res) => {
           lastName: typeof body['lastName'] === 'string' ? body['lastName'] : null,
           position: null,
           scopes: parsedScopes.assignments,
+          ...(employee ? { employeeId: employee.id } : {}),
         };
+        if (employee && !invite.firstName) {
+          const [first, ...rest] = employee.name.split(' ');
+          invite.firstName = first ?? null;
+          invite.lastName = rest.join(' ') || null;
+        }
         uiInvites.unshift(invite);
         return send(201, view(invite));
       }
@@ -6901,6 +7169,7 @@ createServer(async (req, res) => {
         organization,
         expiresAt: uiSessionExpiresAt,
         sessionIssuedAt: uiSessionIssuedAt,
+        locale: uiLocale,
         access: { aiSeller: aiSellerView(who.organizationId) },
         context: {
           scope: scoped ? 'LOCATION' : 'ORGANIZATION',
@@ -6949,6 +7218,28 @@ createServer(async (req, res) => {
       });
     }
     // Каталог салона (DATA_MODEL §19.1, срез B3): услуги сети и мастера, цена филиала переопределением
+    if (path === '/food-service/stock/products' && req.method === 'GET') {
+      // склад кухни (ADR-STOCK-ALL): у демонстрации несколько продуктов, один ниже минимума
+      const row = (id: string, name: string, unit: string, minQty: string, onHand: string, valueMinor: string, low: boolean) => ({
+        id, name, unit, minQty, active: true, onHand, valueMinor, low, nearestExpiry: null,
+      });
+      return send(200, { items: [
+        row('k1', 'Мука', 'г', '5000', '12000', '960000', false),
+        row('k2', 'Сливки 20%', 'мл', '3000', '1500', '300000', true),
+        row('k3', 'Яйца', 'шт', '60', '180', '450000', false),
+      ] });
+    }
+    if (path === '/food-service/stock/movements' && req.method === 'GET') return send(200, { items: [] });
+    if (path === '/food-service/staff-revenue' && req.method === 'GET') {
+      // «Сколько принёс» салона (решение 20.10.2026): первому активному мастеру синтетическая сумма за период
+      const period = url.searchParams.get('period') || 'day';
+      const first = fixtureBeautyEmployees.find((e) => e.active);
+      const k = period === 'day' ? 1n : period === 'week' ? 5n : 20n;
+      return send(200, {
+        period, fromDate: '', toDate: '',
+        items: first ? [{ employeeId: first.id, currency: 'KZT', paidMinor: String(800_000n * k), refundedMinor: '0', netMinor: String(800_000n * k) }] : [],
+      });
+    }
     if (path.startsWith('/beauty/')) {
       const current = fixtureBranches.find((b) =>
         String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`),
@@ -6959,6 +7250,9 @@ createServer(async (req, res) => {
       const locationCurrency = current
         ? String((current as Record<string, unknown>)['currency'] ?? 'KZT')
         : null;
+      // напоминания, бонусы и сертификаты салона (решение 21.10.2026): свой модуль стенда
+      const loyalty = salonLoyaltyFixture({ path, method: req.method, body, locationId, query: url.searchParams });
+      if (loyalty) return send(loyalty.status, loyalty.body);
       const effective = (s: FixtureBeautyService) => {
         if (!s.active) return { sellable: false, reason: 'SERVICE_INACTIVE' };
         if (!locationCurrency) return null;
@@ -7050,7 +7344,8 @@ createServer(async (req, res) => {
         return send(200, serviceList());
       }
       if (path === '/beauty/employees' && req.method === 'GET')
-        return send(200, { locationId, items: fixtureBeautyEmployees });
+        // назначать может руководитель (владелец и управляющий), как в API
+        return send(200, { locationId, canAssignPersonnelKind: uiRole !== 'STAFF', items: fixtureBeautyEmployees });
       if (path === '/beauty/employees' && req.method === 'POST') {
         const name = String(body['name'] ?? '').trim();
         if (!name) return send(400, { message: 'Укажите имя мастера' });
@@ -7066,8 +7361,25 @@ createServer(async (req, res) => {
           active: body['active'] !== false,
           locationIds: locationId ? [locationId] : [],
           serviceIds: [],
+          personnelKind: ['SPECIALIST', 'OTHER_EMPLOYEE', 'BOTH'].includes(String(body['personnelKind']))
+            ? (body['personnelKind'] as FixtureBeautyEmployee['personnelKind'])
+            : null,
         };
         fixtureBeautyEmployees.push(row);
+        return send(200, row);
+      }
+      const personnelKind = /^\/beauty\/employees\/([^/]+)\/personnel-kind$/.exec(path);
+      if (personnelKind && req.method === 'PATCH') {
+        if (uiRole === 'STAFF') return send(403, { message: 'Назначение меняет только руководитель' });
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(personnelKind[1]!));
+        if (!row) return send(404, { message: 'Сотрудник не найден' });
+        const kind = String(body['personnelKind'] ?? '');
+        if (!['SPECIALIST', 'OTHER_EMPLOYEE', 'BOTH'].includes(kind))
+          return send(400, { message: 'Назначение: специалист, другой сотрудник или оба' });
+        if (body['expectedProfileRevision'] !== row.profileRevision)
+          return send(409, { message: 'Сотрудник изменён в другом окне. Обновите список и выберите назначение снова.' });
+        row.personnelKind = kind as FixtureBeautyEmployee['personnelKind'];
+        row.profileRevision = new Date().toISOString().replace(/(\.\d{3})Z$/, '$1000Z');
         return send(200, row);
       }
       const patchEmployee = /^\/beauty\/employees\/([^/]+)$/.exec(path);
@@ -7395,6 +7707,16 @@ createServer(async (req, res) => {
             birthdayInDays: null,
           };
         });
+        // поиск в шапке (аудит 22.10.2026 P1-4): как у API, каждое слово в имени или телефоне, до 20 строк
+        const search = (url.searchParams.get('q') ?? '').trim().toLocaleLowerCase('ru');
+        if (search) {
+          const found = items.filter((c) =>
+            search.split(/\s+/).every((word) =>
+              `${c.firstName} ${c.lastName ?? ''} ${c.phone ?? ''}`.toLocaleLowerCase('ru').includes(word),
+            ),
+          );
+          return send(200, { items: found.slice(0, 20) });
+        }
         return send(200, { items });
       }
       if (path === '/beauty/appointments' && req.method === 'GET')
@@ -8217,7 +8539,7 @@ createServer(async (req, res) => {
         req.method === 'GET'
           ? path === '/ai-seller/embed'
             ? 'act'
-            : path === '/ai-seller/llm-key' || path === '/ai-seller/whatsapp'
+            : path === '/ai-seller/llm-key' || path === '/ai-seller/llm-usage' || path === '/ai-seller/whatsapp'
               ? 'configure'
               : 'read'
           : path === '/ai-seller/profile' ||
@@ -8602,22 +8924,34 @@ createServer(async (req, res) => {
         );
       }
       if (path === '/ai-seller/llm-key' && req.method === 'GET')
-        return send(200, { set: sellerLlmKey !== null, last4: sellerLlmKey });
+        return send(200, {
+          set: sellerLlmKey !== null,
+          last4: sellerLlmKey,
+          state: sellerLlmKeyState?.state ?? null,
+          reason: sellerLlmKeyState?.reason ?? null,
+          checkedAt: sellerLlmKeyState?.checkedAt ?? null,
+        });
+      if (path === '/ai-seller/llm-usage' && req.method === 'GET')
+        return send(200, { month: '2026-10', replies: 3, tokens: 12345, costUsd: null, costPartial: false });
       if (path === '/ai-seller/llm-key' && req.method === 'PUT') {
         const key = String(body['key'] ?? '').trim();
         sellerLlmKey = key === '' ? null : key.slice(-4);
+        sellerLlmFullKey = key === '' ? null : key;
+        sellerLlmKeyState = null;
         return send(200, { set: sellerLlmKey !== null, last4: sellerLlmKey });
       }
       if (path === '/ai-seller/llm-key/check' && req.method === 'POST') {
-        const key = String(body['key'] ?? '').trim();
-        if (key === '') return send(400, { message: 'Нечего проверять: ключ пуст' });
-        // подставной роутер: «valid» в ключе — действителен, иначе отказ словами
-        return send(
-          200,
-          key.includes('valid')
-            ? { valid: true, reason: null }
-            : { valid: false, reason: 'Роутер не принял ключ' },
-        );
+        const typed = String(body['key'] ?? '').trim();
+        const key = typed || sellerLlmFullKey || '';
+        if (key === '') return send(400, { message: 'Нечего проверять: ключ не сохранён' });
+        // подставной роутер: «nocredit» значит пустой счёт, «valid» действителен, иначе ключ не принят
+        const verdict = key.includes('nocredit')
+          ? { valid: false, state: 'no_credits', reason: 'На счёте провайдера модели закончились деньги: пополните баланс в его кабинете' }
+          : key.includes('valid')
+            ? { valid: true, state: 'ok', reason: null }
+            : { valid: false, state: 'invalid_key', reason: 'Роутер не принял ключ' };
+        if (!typed) sellerLlmKeyState = { state: verdict.state, reason: verdict.reason, checkedAt: '2026-10-20T15:51:54Z' };
+        return send(200, verdict);
       }
       if (path === '/ai-seller/extract' && req.method === 'POST') {
         // подставной бот «разобрал» рассказ: как у API — только в пустые поля черновика (С1)
@@ -9154,6 +9488,14 @@ createServer(async (req, res) => {
         expiresAt: new Date(Date.now() + 12 * 3_600_000).toISOString(),
         user: signedInView(uiUser),
       });
+    }
+    if (path === '/auth/locale' && req.method === 'POST') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите заново: сессия не годится' });
+      if (!['ru', 'kk', 'en'].includes(String(body['locale'])))
+        return send(400, { message: 'Выберите язык системы из списка' });
+      uiLocale = String(body['locale']);
+      return send(200, { locale: uiLocale });
     }
     if (path === '/auth/logout' && req.method === 'POST') {
       const token = sessionOf(req as never);

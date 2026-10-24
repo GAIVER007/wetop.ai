@@ -18,8 +18,7 @@ export function MetaCabinet({ view, editable }: { view: MetaConnectionView; edit
   if (!view.configured)
     return (
       <p className="settings-note" data-testid="meta-not-configured">
-        Подключение кабинета Meta появится, когда владелец платформы настроит приложение Meta. Кампании можно вести
-        вручную уже сейчас.
+        Подключение Facebook скоро. Кампании можно вести вручную уже сейчас.
       </p>
     );
   if (!c) return editable ? <ConnectButton /> : null;

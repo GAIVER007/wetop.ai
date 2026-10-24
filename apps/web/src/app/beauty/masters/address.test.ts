@@ -17,7 +17,8 @@ vi.mock('next/link', () => ({
   default: ({ href, children, ...props }: { href: string; children: ReactNode }) =>
     createElement('a', { href, ...props }, children),
 }));
-vi.mock('../../../components/ui', () => ({
+vi.mock('../../../components/ui', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../components/ui')>()),
   Button: ({ children, ...props }: { children?: ReactNode }) =>
     createElement('button', props, children),
   Alert: ({ children }: { children?: ReactNode }) => createElement('div', null, children),
@@ -31,6 +32,13 @@ vi.mock('../../../components/employee-workspace/workspace', () => ({
   EmployeeProfile: () => createElement('div', { 'data-testid': 'create-profile' }),
   EmployeeTransitionGuard: ({ children }: { children: ReactNode }) => children,
 }));
+
+// вкладки назначения (решение 20.10.2026) читают адрес в эффекте; здесь эффекты синхронные, поэтому простая замена
+vi.mock('../../../components/tabs', () => ({
+  Tabs: ({ panels }: { panels: Array<{ id: string; content: ReactNode }> }) =>
+    createElement('div', null, panels.map((p) => createElement('section', { key: p.id }, p.content))),
+}));
+vi.mock('../actions', () => ({ assignBeautyPersonnelKind: vi.fn() }));
 
 import { employeeProfileHref, MastersBoard } from './board';
 

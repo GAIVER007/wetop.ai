@@ -90,6 +90,7 @@ HUMAN_ROUTES = [
     ("GET", f"/seller/organizations/{ORG}/llm-key", None),
     ("PUT", f"/seller/organizations/{ORG}/llm-key", {"key": "sk-human-abcd1234"}),
     ("POST", f"/seller/organizations/{ORG}/llm-key/check", {"key": "sk-human-abcd1234"}),
+    ("GET", f"/seller/organizations/{ORG}/llm-usage", None),
     ("PUT", f"/seller/organizations/{ORG}", ORG_BODY),
 ]
 

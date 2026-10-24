@@ -2,6 +2,7 @@
 import { useRef, useState, useTransition, useId } from 'react';
 import { useRouter } from 'next/navigation';
 import { archiveBranch, restoreBranch } from './actions';
+import { Button } from '../../components/ui';
 export function BranchArchiveButton({
   id,
   name,
@@ -31,16 +32,18 @@ export function BranchArchiveButton({
   };
   return (
     <>
-      <button
+      <Button
         type="button"
-        className={restore ? 'org-restore' : 'org-archive'}
+        tone="secondary"
+        size="sm"
+        className={restore ? 'org-restore' : 'org-archive is-danger'}
         onClick={() => {
           setError('');
           dialog.current?.showModal();
         }}
       >
         {restore ? 'Восстановить' : 'Удалить филиал'}
-      </button>
+      </Button>
       <dialog
         ref={dialog}
         className={restore ? 'org-archive-dialog' : 'org-archive-dialog org-archive-dialog--delete'}
@@ -59,12 +62,12 @@ export function BranchArchiveButton({
         </p>
         {error && <p role="alert">{error}</p>}
         <footer>
-          <button type="button" disabled={pending} onClick={() => dialog.current?.close()}>
+          <Button type="button" tone="secondary" disabled={pending} onClick={() => dialog.current?.close()}>
             Отмена
-          </button>
-          <button type="button" disabled={pending} onClick={submit}>
+          </Button>
+          <Button type="button" tone={restore ? 'primary' : 'danger'} disabled={pending} onClick={submit}>
             {pending ? 'Сохраняем…' : restore ? 'Восстановить' : 'Удалить филиал'}
-          </button>
+          </Button>
         </footer>
       </dialog>
     </>

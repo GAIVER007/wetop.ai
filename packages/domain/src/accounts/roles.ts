@@ -5,12 +5,14 @@ import { can } from './permissions';
  * (`permissions.ts`): владелец — всё, управляющий — всё, кроме владельческого, администратор — работа с гостями,
  * диалоги продавца и отчёты на просмотр. `STAFF` в базе прежний, на экране — «администратор».
  */
-export type MembershipRole = 'OWNER' | 'MANAGER' | 'STAFF';
+/** `EMPLOYEE`: «Личный кабинет», только своё (решение владельца 20.10.2026, docs/decisions/2026-10-20-staff-access-levels.md) */
+export type MembershipRole = 'OWNER' | 'MANAGER' | 'STAFF' | 'EMPLOYEE';
 
 export const MEMBERSHIP_ROLES: Readonly<Record<MembershipRole, string>> = {
   OWNER: 'владелец',
   MANAGER: 'управляющий',
   STAFF: 'администратор',
+  EMPLOYEE: 'личный кабинет',
 };
 
 /** Роль, с которой зовут приглашением: владельца приглашением не назначают (`invites.role`, CHECK в базе) */
@@ -26,10 +28,13 @@ export function canConfigureSeller(role: MembershipRole): boolean {
   return can(role, 'seller');
 }
 
-/** Кого может позвать: владелец — управляющих и администраторов, управляющий — администраторов (ADR-107) */
+/**
+ * Кого может позвать: владелец — управляющих, администраторов и сотрудников в личный кабинет, управляющий —
+ * администраторов и сотрудников в кабинет (ADR-107; уровни доступа 20.10.2026)
+ */
 export function invitableRoles(actor: MembershipRole): InviteRole[] {
   if (!canManageStaff(actor)) return [];
-  return can(actor, 'owner') ? ['MANAGER', 'STAFF'] : ['STAFF'];
+  return can(actor, 'owner') ? ['MANAGER', 'STAFF', 'EMPLOYEE'] : ['STAFF', 'EMPLOYEE'];
 }
 
 export function canInvite(actor: MembershipRole, role: MembershipRole): boolean {
@@ -61,14 +66,16 @@ export function identityRole(role: MembershipRole): string {
 /** Роль из команды на сервере: `owner`, `manager` или `staff` в любом регистре */
 export function parseMembershipRole(raw: string): MembershipRole | null {
   const value = raw.trim().toUpperCase();
-  return value === 'OWNER' || value === 'MANAGER' || value === 'STAFF' ? value : null;
+  return value === 'OWNER' || value === 'MANAGER' || value === 'STAFF' || value === 'EMPLOYEE'
+    ? value
+    : null;
 }
 
-/** Роль из формы приглашения: `manager` или `staff` в любом регистре; остальное — не роль приглашения */
+/** Роль из формы приглашения: `manager`, `staff` или `employee` в любом регистре; остальное — не роль приглашения */
 export function parseInviteRole(raw: unknown): InviteRole | null {
   if (typeof raw !== 'string') return null;
   const value = parseMembershipRole(raw);
-  return value === 'MANAGER' || value === 'STAFF' ? value : null;
+  return value === 'MANAGER' || value === 'STAFF' || value === 'EMPLOYEE' ? value : null;
 }
 
 /** Смена роли: у организации всегда остаётся хотя бы один владелец — иначе приглашать и настраивать некому */

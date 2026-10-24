@@ -43,7 +43,9 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await panel.getByLabel(/Длительность, минут/).fill('60');
   await panel.getByLabel(/Цена каталога/).fill('8000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(panel.getByRole('status')).toHaveText('Услуга создана. Включите её в выбранном филиале ниже.');
+  // новая услуга сразу в филиале: окно закрывается, итог в уведомлении (аудит салона 22.10.2026)
+  await expect(page.getByTestId('toast-stack')).toContainText('Услуга добавлена в филиал');
+  await expect(panel).toBeHidden();
   await page.goto('/beauty/services');
   // услуги салона показаны карточками каталога, не строками таблицы
   await main
@@ -97,7 +99,8 @@ async function openDay(page: Page) {
 async function book(page: Page, time: string, name: string, existing = false) {
   await page.getByRole('button', { name: `Дина, ${time}, свободно` }).click();
   const panel = page.getByRole('dialog');
-  await panel.getByLabel('Услуга').selectOption({ label: 'Маникюр, 60 мин' });
+  // exact: правая часть окна брони (23.10.2026) называется «Услуга и время»
+  await panel.getByLabel('Услуга', { exact: true }).selectOption({ label: 'Маникюр, 60 мин' });
   if (existing) await panel.getByLabel('Клиент', { exact: true }).selectOption({ label: name });
   else await panel.getByLabel('Имя клиента').fill(name);
   await panel.getByRole('button', { name: 'Записать', exact: true }).click();

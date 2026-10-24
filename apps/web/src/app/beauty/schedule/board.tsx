@@ -19,6 +19,7 @@ import {
   saveBeautyWorkingHours,
   loadBeautySchedule,
 } from '../actions';
+import { applyWeekPreset, WEEK_PRESETS } from '../../../components/employee-portal/week-presets';
 
 /**
  * График мастеров (поручение владельца 17.10.2026): сетка недели, строки мастера, колонки даты.
@@ -156,8 +157,8 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
         </form>
       )}
       <p className="beauty-note">
-        Переключатель меняет только эту дату. Выходной по графику и часы работы меняются в окне
-        специалиста: нажмите на его имя.
+        Переключатель меняет только эту дату.
+        {canEdit && ' Выходной по графику и часы работы меняются в окне специалиста: нажмите на его имя.'}
       </p>
       {error && <Alert>{error}</Alert>}
       {/* записи в выключенный день не отменяются: тогда это предупреждение, а не просто отметка */}
@@ -188,6 +189,18 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
                   </Button>
                 ) : (
                   <span>{m.name}</span>
+                )}
+                {/* новый специалист без часов (онбординг 21.10.2026): к нему нельзя записаться, кнопка сразу под именем */}
+                {canEdit && m.week.every((w) => w.intervals.length === 0) && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="beauty-week-unset"
+                    data-testid="beauty-week-unset"
+                    onClick={() => setEditing({ master: m })}
+                  >
+                    Задать часы<span className="sr-only">: {m.name}</span>
+                  </Button>
                 )}
               </th>
               {days.map((d) => {
@@ -379,6 +392,30 @@ export function WeekForm({
         Это обычный недельный график: он повторяется каждую неделю. Дни без интервалов: регулярные
         выходные. Новый рабочий день получает часы первого рабочего дня, их можно поправить.
       </p>
+      {/* быстрый шаблон недели (онбординг 21.10.2026): заполняет все дни одним нажатием */}
+      <div className="beauty-week-presets" role="group" aria-label="Быстро заполнить неделю">
+        <span className="beauty-note">Заполнить:</span>
+        {WEEK_PRESETS.map((preset) => (
+          <Button
+            key={preset.label}
+            type="button"
+            size="sm"
+            tone="secondary"
+            onClick={() =>
+              setSlots((prev) =>
+                Object.fromEntries(
+                  applyWeekPreset(
+                    week.map((day) => ({ weekday: day.weekday, intervals: prev[day.weekday] ?? [] })),
+                    preset,
+                  ).map((day) => [day.weekday, day.intervals]),
+                ),
+              )
+            }
+          >
+            {preset.label}
+          </Button>
+        ))}
+      </div>
       {week.map((day) => {
         const rows = slots[day.weekday] ?? [];
         return (

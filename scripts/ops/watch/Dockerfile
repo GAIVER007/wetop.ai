@@ -1,5 +1,5 @@
 # «Сторож сторожа» (plans/slice-12-guard-server.md): Node 24 запускает TypeScript без сборки, зависимостей нет.
-FROM node:24-alpine
+FROM node:24.22.1-alpine
 WORKDIR /app
 COPY watch-logic.ts server.ts ./
 USER node

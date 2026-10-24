@@ -31,6 +31,8 @@ import {
   parseLaunchInput,
   toBaseMinor,
   type AdLaunchInput,
+  adLibrary,
+  type AdLibraryLaunch,
 } from '@pms/domain';
 import { meta } from '@pms/integrations';
 import { decryptPii } from '@pms/shared';
@@ -59,6 +61,8 @@ export const META_WRITER = Symbol('META_WRITER');
 export type MetaWriterPort = Pick<
   meta.MetaAdsWriter,
   | 'uploadImage'
+  | 'uploadVideo'
+  | 'video'
   | 'createCampaign'
   | 'createAdSet'
   | 'createCreative'
@@ -71,10 +75,23 @@ export type MetaWriterFactory = (token: string) => MetaWriterPort;
 export const metaWriterFactory: MetaWriterFactory = (token) =>
   new meta.MetaAdsWriter({ accessToken: token });
 
-/** Фото креатива: JPEG или PNG как есть (Meta получает исходник), до 8 МБ (§57 CHECK) */
+/** Фото креатива: JPEG или PNG как есть (Meta получает исходник), до 8 МБ; видео MP4 или MOV до 200 МБ (§57 CHECK) */
 export const AD_CREATIVE_MAX_BYTES = 8 * 1024 * 1024;
+export const AD_VIDEO_MAX_BYTES = 200 * 1024 * 1024;
 const JPEG = Buffer.from([0xff, 0xd8, 0xff]);
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
+/** MP4 и MOV начинаются с ящика `ftyp` в байтах 4–8; марка `qt  ` в байтах 8–12 это QuickTime */
+const FTYP = Buffer.from('ftyp');
+const QUICKTIME = Buffer.from('qt  ');
+/** Готовность видео в Meta: опрос раз в 5 секунд, не дольше 10 минут (create.md §2.3) */
+export const AD_VIDEO_POLL = Symbol('AD_VIDEO_POLL');
+export interface VideoPoll {
+  intervalMs: number;
+  timeoutMs: number;
+}
+const DEFAULT_VIDEO_POLL: VideoPoll = { intervalMs: 5_000, timeoutMs: 600_000 };
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+const waitText = (ms: number) => (ms >= 60_000 ? `${Math.round(ms / 60_000)} мин` : `${Math.ceil(ms / 1000)} с`);
 /** Запуск дольше этого после старта процесса считается оборванным (техпроект §5) */
 const STALE_MS = 15 * 60_000;
 
@@ -121,6 +138,7 @@ export class AdLaunchService implements OnModuleInit {
     @Inject(MARKETING_BUDGET_REPOSITORY) private readonly repo: MarketingBudgetRepository,
     @Optional() @Inject(SITE_ASSET_STORAGE) private readonly storage: SiteAssetStorage | null,
     @Inject(META_WRITER) private readonly writer: MetaWriterFactory,
+    @Optional() @Inject(AD_VIDEO_POLL) private readonly videoPoll: VideoPoll = DEFAULT_VIDEO_POLL,
   ) {}
 
   onModuleInit(): void {
@@ -149,14 +167,17 @@ export class AdLaunchService implements OnModuleInit {
     return scope;
   }
 
-  /** Фото креатива в закрытое хранилище (как чеки §51); тот же файл филиала второй раз не ложится */
+  /** Фото или видео креатива в закрытое хранилище (как чеки §51); тот же файл филиала второй раз не ложится */
   async uploadCreative(file: { buffer?: Buffer; originalname?: string } | undefined) {
     const body = file?.buffer;
-    if (!body?.length) throw new BadRequestException('Выберите фото креатива');
-    if (body.length > AD_CREATIVE_MAX_BYTES) throw new HttpException('Фото больше 8 МБ', 413);
+    if (!body?.length) throw new BadRequestException('Выберите фото или видео креатива');
+    const video = body.subarray(4, 8).equals(FTYP);
     const png = body.subarray(0, 4).equals(PNG);
-    if (!png && !body.subarray(0, 3).equals(JPEG))
-      throw new HttpException('Креатив: фото JPEG или PNG', 415);
+    if (!video && !png && !body.subarray(0, 3).equals(JPEG))
+      throw new HttpException('Креатив: фото JPEG, PNG или видео MP4, MOV', 415);
+    if (video && body.length > AD_VIDEO_MAX_BYTES) throw new HttpException('Видео больше 200 МБ', 413);
+    if (!video && body.length > AD_CREATIVE_MAX_BYTES) throw new HttpException('Фото больше 8 МБ', 413);
+    const quicktime = video && body.subarray(8, 12).equals(QUICKTIME);
     const scope = await this.scope();
     const storage = this.requireStorage();
     const sha256 = createHash('sha256').update(body).digest('hex');
@@ -172,8 +193,9 @@ export class AdLaunchService implements OnModuleInit {
     });
     if (existing) return view(existing);
     const id = randomUUID();
-    const mimeType = png ? 'image/png' : 'image/jpeg';
-    const key = `marketing-ad-creatives/${scope.locationId}/${id}/${sha256}.${png ? 'png' : 'jpg'}`;
+    const mimeType = video ? (quicktime ? 'video/quicktime' : 'video/mp4') : png ? 'image/png' : 'image/jpeg';
+    const ext = video ? (quicktime ? 'mov' : 'mp4') : png ? 'png' : 'jpg';
+    const key = `marketing-ad-creatives/${scope.locationId}/${id}/${sha256}.${ext}`;
     try {
       await storage.put({ key, body, contentType: mimeType });
     } catch {
@@ -184,7 +206,7 @@ export class AdLaunchService implements OnModuleInit {
         data: {
           id,
           locationId: scope.locationId,
-          kind: 'IMAGE',
+          kind: video ? 'VIDEO' : 'IMAGE',
           fileName: safeFileName(file?.originalname, 'Креатив'),
           mimeType,
           storageRef: key,
@@ -451,14 +473,24 @@ export class AdLaunchService implements OnModuleInit {
       current = next;
     };
     try {
+      const isVideo = l.creative!.kind === 'VIDEO';
       const signed = await this.requireStorage().signedGet(l.creative!.storageRef, 900);
-      const res = await fetch(signed, { signal: AbortSignal.timeout(60_000) });
+      const res = await fetch(signed, { signal: AbortSignal.timeout(isVideo ? 300_000 : 60_000) });
       if (!res.ok) throw new Error('Креатив не прочитан из хранилища');
-      const imageHash = await writer.uploadImage(account, {
-        fileName: l.creative!.fileName,
-        bytes: new Uint8Array(await res.arrayBuffer()),
+      const bytes = new Uint8Array(await res.arrayBuffer());
+      const media: Parameters<MetaWriterPort['createCreative']>[1]['media'] = isVideo
+        ? await this.uploadVideo(writer, account, {
+            fileName: l.creative!.fileName,
+            bytes,
+            mimeType: l.creative!.mimeType,
+          })
+        : {
+            kind: 'IMAGE',
+            imageHash: await writer.uploadImage(account, { fileName: l.creative!.fileName, bytes }),
+          };
+      await this.step(launchId, 'MEDIA', 'OK', {
+        externalId: media.kind === 'VIDEO' ? media.videoId : media.imageHash,
       });
-      await this.step(launchId, 'MEDIA', 'OK', { externalId: imageHash });
       await advance('CAMPAIGN', {});
 
       campaignExt = await writer.createCampaign(account, { name, destination: l.destination });
@@ -487,7 +519,7 @@ export class AdLaunchService implements OnModuleInit {
         destination: l.destination,
         pageId: s.pageId,
         instagramUserId: s.instagramUserId,
-        media: { kind: 'IMAGE', imageHash },
+        media,
         message: s.primaryText,
         headline: s.headline,
         description: s.description,
@@ -545,6 +577,28 @@ export class AdLaunchService implements OnModuleInit {
       });
     } catch (e) {
       await this.fail(launchId, current, campaignExt, writer, e);
+    }
+  }
+
+  /** Видео в кабинет и ожидание, пока Meta его обработает: креатив с видео создаётся только после `ready` */
+  private async uploadVideo(
+    writer: MetaWriterPort,
+    account: string,
+    file: { fileName: string; bytes: Uint8Array; mimeType: string },
+  ) {
+    const videoId = await writer.uploadVideo(account, file);
+    const { intervalMs, timeoutMs } = this.videoPoll;
+    const startedAt = Date.now();
+    for (;;) {
+      const state = await writer.video(videoId);
+      if (state.status === 'ready') {
+        if (!state.picture) throw new Error('Meta не вернула превью видео');
+        return { kind: 'VIDEO' as const, videoId, thumbnailUrl: state.picture };
+      }
+      if (state.status === 'error') throw new Error('Meta не смогла обработать видео: загрузите другой файл');
+      if (Date.now() - startedAt >= timeoutMs)
+        throw new Error(`Видео не обработано за ${waitText(timeoutMs)}: попробуйте файл меньше`);
+      await sleep(intervalMs);
     }
   }
 
@@ -632,6 +686,69 @@ export class AdLaunchService implements OnModuleInit {
     return rows.map((l) => this.toView(l));
   }
 
+  /**
+   * «Аудитории» и «Креативы» (23.10.2026): успешные запуски филиала с днями кабинета их кампаний; без новой таблицы.
+   * Филиал строго из scope; право раздела `marketing`, ничего не пишет.
+   */
+  async library() {
+    const scope = await this.repo.scope();
+    const rows = await this.prisma.db.marketingAdLaunch.findMany({
+      where: { locationId: scope.locationId, status: 'SUCCEEDED' },
+      orderBy: { createdAt: 'desc' },
+      take: 200,
+      select: {
+        id: true,
+        status: true,
+        createdAt: true,
+        currency: true,
+        settings: true,
+        creative: { select: { id: true, kind: true, fileName: true } },
+        campaign: { select: { stats: { select: { spendMinor: true, spendCurrency: true, leads: true, impressions: true, clicks: true } } } },
+      },
+    });
+    const launches: AdLibraryLaunch[] = rows.map((l) => {
+      const days = l.campaign?.stats ?? [];
+      return {
+        id: l.id,
+        status: l.status,
+        createdAt: l.createdAt.toISOString(),
+        currency: l.currency,
+        headline: String((l.settings as { headline?: unknown }).headline ?? ''),
+        settings: l.settings as unknown as AdLibraryLaunch['settings'],
+        creative: l.creative ? { id: l.creative.id, kind: l.creative.kind as 'IMAGE' | 'VIDEO', fileName: l.creative.fileName } : null,
+        stats: days.length
+          ? {
+              // расход кабинета только в валюте запуска: другую валюту не складываем
+              spendMinor: days.reduce((s, d) => s + (d.spendCurrency === l.currency ? (d.spendMinor ?? 0n) : 0n), 0n),
+              leads: days.reduce((s, d) => s + d.leads, 0),
+              impressions: days.reduce((s, d) => s + d.impressions, 0),
+              clicks: days.reduce((s, d) => s + d.clicks, 0),
+            }
+          : null,
+      };
+    });
+    return adLibrary(launches);
+  }
+
+  /** Аудитория прошлого запуска для мастера «Новая кампания»: только настройки показа, без текста и бюджета */
+  async audienceOf(id: string) {
+    const scope = await this.repo.scope();
+    const l = await this.prisma.db.marketingAdLaunch.findFirst({
+      where: { id, locationId: scope.locationId, status: 'SUCCEEDED' },
+      select: { settings: true },
+    });
+    if (!l) throw new NotFoundException('Запуск не найден');
+    const s = l.settings as Record<string, unknown>;
+    return {
+      countryCode: s.countryCode,
+      cities: s.cities ?? [],
+      ageMin: s.ageMin,
+      ageMax: s.ageMax,
+      genders: s.genders ?? [],
+      advantageAudience: s.advantageAudience === true,
+    };
+  }
+
   private toView(l: {
     id: string;
     status: string;
@@ -710,7 +827,7 @@ export class AdLaunchService implements OnModuleInit {
 
 const creativeUpload = () =>
   FileInterceptor('file', {
-    limits: { fileSize: AD_CREATIVE_MAX_BYTES, files: 1, fields: 2, parts: 4 },
+    limits: { fileSize: AD_VIDEO_MAX_BYTES, files: 1, fields: 2, parts: 4 },
   });
 
 /** Запуск тратит деньги: своё право (§57); смотреть запуски можно с правом раздела */
@@ -742,6 +859,18 @@ export class MarketingAdLaunchController {
   @Get('geo')
   geo(@Query('q') q: unknown, @Query('country') country: unknown) {
     return this.launches.geo(q, country);
+  }
+
+  @Access('marketing')
+  @Get('library')
+  library() {
+    return this.launches.library();
+  }
+
+  @Access('ads_launch')
+  @Get('launches/:id/audience')
+  audience(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.launches.audienceOf(id);
   }
 
   @Access('marketing')

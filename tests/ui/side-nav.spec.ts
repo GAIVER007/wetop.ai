@@ -10,6 +10,9 @@ const routes = [
   '/today',
   '/chessboard',
   '/team',
+  // кабинет горничной и ресепшена S10 (22.10.2026): «График работы» и «Зарплата» есть и у гостиницы
+  '/staff-schedule',
+  '/payroll',
   '/guests',
   '/reservations',
   '/inventory',
@@ -17,7 +20,9 @@ const routes = [
   '/management/analytics',
   '/bar/products',
   '/bar/receipts',
+  '/warehouse',
   '/bar',
+  '/bar/consumables',
   '/bar/operations',
   '/bar/suppliers',
   '/finance',
@@ -27,9 +32,11 @@ const routes = [
   '/connections',
   '/incidents',
   '/journal',
+  '/settings',
   '/marketing',
   '/marketing/ads',
   '/marketing/content',
+  '/marketing/voice',
   '/ai-agents',
   '/market',
   '/sales',
@@ -92,6 +99,7 @@ test('UI3.1: кнопка открывает разделы, наведение 
     'Подключения',
     'Неисправности',
     'История действий',
+    'Все настройки',
   ]);
   // 4. щелчок: переход на страницу, панель закрыта
   await items.getByRole('link', { name: 'Каналы продаж', exact: true }).click();
@@ -149,7 +157,7 @@ test('ТЗ §9: клавиатура, ↓ открывает, ↑↓ по раз
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowRight');
   await page.keyboard.press('ArrowDown');
-  await expect(items.getByRole('link', { name: 'Отчеты', exact: true })).toBeFocused();
+  await expect(items.getByRole('link', { name: 'Отчёты', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/reports\/finance$/, { timeout: 30_000 });
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');

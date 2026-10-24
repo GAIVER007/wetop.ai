@@ -1,8 +1,10 @@
 'use client';
 import { startTransition, useActionState, useEffect, useRef, useState } from 'react';
 import { salePriceFromMarkup } from '@pms/domain';
+import { suggestCode } from '../../product-code';
 import type { BarProductRow, BarSupplierRow } from '../../../../lib/api';
 import { formatMoney, minorToInput } from '../../../../lib/money';
+import { receiptMarkupInput } from '../../../../lib/bar-markup';
 import { Button, Field, Input, Select, Textarea } from '../../../../components/ui';
 import { BarContextFields, type BarFormContext } from '../../context';
 import {
@@ -26,22 +28,15 @@ interface LineDraft {
   quantity: string;
   unitCost: string;
   markup: string;
+  /** наценку правили руками: закупка её больше не пересчитывает */
+  markupTouched?: boolean;
 }
 
 let lineKey = 0;
 const emptyLine = (): LineDraft => ({ key: (lineKey += 1), mode: 'existing', productId: '', name: '', code: '', barcode: '', quantity: '', unitCost: '', markup: '0.00' });
 
-const RU_LAT: Record<string, string> = {
-  а: 'A', б: 'B', в: 'V', г: 'G', д: 'D', е: 'E', ё: 'E', ж: 'ZH', з: 'Z', и: 'I', й: 'Y', к: 'K',
-  л: 'L', м: 'M', н: 'N', о: 'O', п: 'P', р: 'R', с: 'S', т: 'T', у: 'U', ф: 'F', х: 'H', ц: 'TS',
-  ч: 'CH', ш: 'SH', щ: 'SCH', ъ: '', ы: 'Y', ь: '', э: 'E', ю: 'YU', я: 'YA',
-};
-/** Код карточки из названия: латиница, цифры и дефис, не длиннее 24 знаков; поле остаётся правимым */
-export function suggestCode(name: string): string {
-  const flat = [...name.toLowerCase()].map((ch) => RU_LAT[ch] ?? ch.toUpperCase()).join('');
-  const code = flat.replace(/[^A-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24).replace(/-+$/g, '');
-  return code || 'TOVAR';
-}
+// код карточки из названия живёт в общем модуле: его зовёт и серверное действие «Новый товар»
+export { suggestCode };
 
 /** Фото уменьшается до 2000 px по длинной стороне: модели столько хватает, а отправка легче */
 async function shrink(file: File): Promise<File> {
@@ -77,6 +72,7 @@ export function NewReceipt({ products, suppliers, today, context }: { products: 
   const [documentDate, setDocumentDate] = useState(today);
   const [supplierGuess, setSupplierGuess] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState('');
   useEffect(() => {
     if (state.ok) {
       setLines([emptyLine()]);
@@ -96,7 +92,6 @@ export function NewReceipt({ products, suppliers, today, context }: { products: 
     if (scan.documentDate) setDocumentDate(scan.documentDate);
     if (scan.lines.length > 0) setLines(scan.lines.map((line) => {
       const product = line.productId ? products.find((p) => p.id === line.productId) : undefined;
-      const markup = product ? (product.markupBasis ?? product.category?.defaultMarkupBasis ?? 0) : 0;
       return {
         key: (lineKey += 1),
         mode: product ? 'existing' as const : 'new' as const,
@@ -106,7 +101,8 @@ export function NewReceipt({ products, suppliers, today, context }: { products: 
         barcode: line.barcode ?? '',
         quantity: line.quantityUnits,
         unitCost: minorToInput(line.unitCostMinor),
-        markup: (markup / 100).toFixed(2),
+        // без своей наценки держим заданную цену продажи товара (аудит салона 22.10.2026)
+        markup: receiptMarkupInput(product, minorToInput(line.unitCostMinor)),
       };
     }));
   }, [scanState.ok, scanState.scan, products]);
@@ -125,11 +121,18 @@ export function NewReceipt({ products, suppliers, today, context }: { products: 
     <form action={action} className="panel bar-receipt-form">
       <section className="bar-scan" aria-label="Распознавание накладной">
         <div className="bar-scan-row">
-          <Field label="Фото накладной или счёта-фактуры" hint="JPG, PNG или WebP до 8 МБ. ИИ прочитает документ и заполнит строки, проверка и проведение остаются за вами." controlId="bar-scan-file">
-            {/* без name: файл уходит только в действие скана, а не со всем приходом */}
-            <input ref={fileInput} id="bar-scan-file" type="file" accept="image/jpeg,image/png,image/webp" className="inp bar-scan-input" />
-          </Field>
-          <Button type="button" tone="secondary" onClick={scan} disabled={scanPending}>{scanPending ? 'Читаю документ…' : 'Распознать и заполнить'}</Button>
+          {/* без name: файл уходит только в действие скана, а не со всем приходом. Своя кнопка вместо «Choose File»
+              браузера (аудит 21.10.2026 п.30): кнопка не может жить внутри label, поэтому поле собрано без Field */}
+          <div className="field">
+            <label htmlFor="bar-scan-file">Фото накладной или счёта-фактуры</label>
+            <input ref={fileInput} id="bar-scan-file" type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" tabIndex={-1} aria-describedby="bar-scan-file-hint" onChange={(event) => setFileName(event.target.files?.[0]?.name ?? '')} />
+            <div className="bar-file-picker">
+              <Button type="button" tone="secondary" onClick={() => fileInput.current?.click()}>Выбрать фото</Button>
+              <Button type="button" onClick={scan} disabled={scanPending || !fileName}>{scanPending ? 'Читаю документ…' : 'Распознать и заполнить'}</Button>
+              <span aria-live="polite">{fileName || 'Фото не выбрано'}</span>
+            </div>
+            <span className="field__hint" id="bar-scan-file-hint">JPG, PNG или WebP до 8 МБ. ИИ прочитает документ и заполнит строки, проверка и проведение остаются за вами.</span>
+          </div>
         </div>
         {scanState.error && <p role="alert" className="bar-error">{scanState.error}</p>}
         {scanState.message && !scanState.error && <p role="status" className="bar-success">{scanState.message}</p>}
@@ -147,8 +150,8 @@ export function NewReceipt({ products, suppliers, today, context }: { products: 
           </Select>
         </Field>
         <Field label="Номер счёта-фактуры" controlId="bar-document"><Input name="documentNumber" id="bar-document" required value={documentNumber} onChange={(event) => setDocumentNumber(event.target.value)} /></Field>
-        <Field label="Дата документа" controlId="bar-document-date"><Input type="date" name="documentDate" id="bar-document-date" required value={documentDate} onChange={(event) => setDocumentDate(event.target.value)} /></Field>
-        <Field label="Дата приёмки" controlId="bar-received-date"><Input type="date" name="receivedDate" id="bar-received-date" defaultValue={today} required /></Field>
+        <Field label="Дата документа" controlId="bar-document-date"><Input type="date" lang="ru" name="documentDate" id="bar-document-date" required value={documentDate} onChange={(event) => setDocumentDate(event.target.value)} /></Field>
+        <Field label="Дата приёмки" controlId="bar-received-date"><Input type="date" lang="ru" name="receivedDate" id="bar-received-date" defaultValue={today} required /></Field>
       </div>
       <div className="bar-lines" aria-label="Товары прихода">
         {lines.map((line, index) => (
@@ -194,11 +197,13 @@ function ReceiptLine({ index, line, products, currency, onChange, remove }: {
   const recommendedPrice = parsedCost !== null && parsedCost > 0n && parsedMarkup !== null
     ? salePriceFromMarkup(parsedCost, parsedMarkup, currency)
     : null;
+  // наценка по товару: своя или категории, иначе та, что сохраняет заданную цену продажи (аудит салона 22.10.2026)
   const pickProduct = (productId: string) => {
     const picked = products.find((item) => item.id === productId);
-    const markup = picked ? (picked.markupBasis ?? picked.category?.defaultMarkupBasis ?? 0) : 0;
-    onChange({ productId, markup: (markup / 100).toFixed(2) });
+    onChange({ productId, markup: receiptMarkupInput(picked, line.unitCost), markupTouched: false });
   };
+  const changeCost = (unitCost: string) =>
+    onChange(product && !line.markupTouched ? { unitCost, markup: receiptMarkupInput(product, unitCost) } : { unitCost });
   return <div className="bar-line" data-line-mode={line.mode}>
     {line.mode === 'existing' ? (
       <Field label="Товар">
@@ -215,13 +220,13 @@ function ReceiptLine({ index, line, products, currency, onChange, remove }: {
       </div>
     )}
     <Field label="Кол-во, шт."><Input name={`quantityUnits.${index}`} inputMode="numeric" pattern="[0-9]+" value={line.quantity} onChange={(event) => onChange({ quantity: event.target.value })} required /></Field>
-    <Field label={`Закупка за 1 шт., ${currency === 'KZT' ? '₸' : currency}`}><Input name={`unitCost.${index}`} inputMode="decimal" value={line.unitCost} onChange={(event) => onChange({ unitCost: event.target.value })} required /></Field>
-    <Field label="Наценка, %"><Input name={`markup.${index}`} inputMode="decimal" value={line.markup} onChange={(event) => onChange({ markup: event.target.value })} required /></Field>
+    <Field label={`Закупка за 1 шт., ${currency === 'KZT' ? '₸' : currency}`}><Input name={`unitCost.${index}`} inputMode="decimal" value={line.unitCost} onChange={(event) => changeCost(event.target.value)} required /></Field>
+    <Field label="Наценка, %"><Input name={`markup.${index}`} inputMode="decimal" value={line.markup} onChange={(event) => onChange({ markup: event.target.value, markupTouched: true })} required /></Field>
     <div className="bar-line-tools">
-      <Button type="button" tone="ghost" size="xs" onClick={() => onChange(line.mode === 'existing' ? { mode: 'new', productId: '', code: line.code || suggestCode(line.name) } : { mode: 'existing' })}>
+      <Button type="button" tone="secondary" onClick={() => onChange(line.mode === 'existing' ? { mode: 'new', productId: '', code: line.code || suggestCode(line.name) } : { mode: 'existing' })}>
         {line.mode === 'existing' ? 'Нет в списке' : 'Выбрать из списка'}
       </Button>
-      {remove && <Button type="button" tone="ghost" size="xs" onClick={remove} aria-label={`Убрать строку ${index + 1}`}>Убрать</Button>}
+      {remove && <Button type="button" tone="ghost" onClick={remove} aria-label={`Убрать строку ${index + 1}`}>Убрать</Button>}
     </div>
     <div className="bar-line-calculation" aria-live="polite">
       <span>Сумма закупки: <b>{purchaseAmount === null ? 'Введите количество и цену' : formatMoney(purchaseAmount, currency)}</b></span>

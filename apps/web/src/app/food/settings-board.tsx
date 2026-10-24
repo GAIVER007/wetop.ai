@@ -2,14 +2,14 @@
 import Link from 'next/link';
 import { useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { Alert, Button, Field, Input, Select } from '../../components/ui';
+import { Alert, Button, EmptyState, Field, Input, Select } from '../../components/ui';
 import { Icon, type IconName } from '../../components/icon';
 import type { FoodWorkspace, ServicePeriod } from '../../lib/food-types';
 import type { BookingRules } from '@pms/domain';
 import { saveBookingRules, type BookingRulesCommand } from './actions';
 import { saveFoodCatalog } from './actions';
 
-export type SettingsSection = 'hours' | 'bookings' | 'notifications';
+export type SettingsSection = 'hours' | 'bookings';
 
 /** Порядок недели с понедельника; в модели 0 это воскресенье (`getUTCDay`) */
 const WEEK: Array<[number, string]> = [
@@ -25,12 +25,14 @@ const WEEK: Array<[number, string]> = [
 type NavItem = { label: string; icon: IconName } & (
   { section: SettingsSection } | { href: string }
 );
+// порядок хаба «Настройки» (21.10.2026): первым путь ко всем настройкам; пустого раздела «Уведомления» нет, у
+// ресторана не было ни одной его настройки, только текст
 const NAV: NavItem[] = [
+  { label: 'Все настройки', icon: 'settings', href: '/settings' },
   { label: 'Основное', icon: 'inventory', href: '/branches' },
   { label: 'Часы работы зала', icon: 'clock', section: 'hours' },
   { label: 'Бронирования', icon: 'booking', section: 'bookings' },
   { label: 'Залы и столы', icon: 'board', href: '/dining-areas' },
-  { label: 'Уведомления', icon: 'mail', section: 'notifications' },
   // `/website` гостиничный раздел; сайт ресторана собирается в «Продвижении» (аудит 17.10.2026, Д1)
   { label: 'Публичный сайт', icon: 'globe', href: '/marketing/site/editor' },
 ];
@@ -86,14 +88,6 @@ export function RestaurantSettings({
         {section === 'bookings' && <Hours data={data} write={write} />}
         {section === 'bookings' && <Bookings data={data} write={write} />}
         {section === 'bookings' && booking && <BookingRulesForm data={data} write={write} booking={booking} />}
-        {section === 'notifications' && (
-          <>
-            <h2 id="rest-settings-title">Уведомления</h2>
-            <p className="muted">
-              Подтверждения, напоминания и отмены уходят гостю через подключённые каналы.
-            </p>
-          </>
-        )}
       </section>
     </div>
   );
@@ -341,7 +335,7 @@ function BookingRulesForm({ data, write, booking }: { data: FoodWorkspace; write
       <h3>Закрытые дни</h3>
       <p className="muted">В закрытый день новые брони не принимаются; уже сделанные остаются, отменяет их человек.</p>
       {booking.closedDays.length === 0 ? (
-        <p className="muted">Закрытых дней впереди нет.</p>
+        <EmptyState title="Закрытых дней впереди нет" />
       ) : (
         <ul className="rest-closed-days">
           {booking.closedDays.map((d) => (

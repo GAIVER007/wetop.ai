@@ -2,7 +2,13 @@
 import { scopeResolvePath } from '../../lib/scope-pointer';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { INVITE_ROLE_MESSAGE, parseInviteRole } from '@pms/domain';
+import {
+  ACCESS_LEVELS,
+  INVITE_ROLE_MESSAGE,
+  inviteRoleOfLevel,
+  parseInviteRole,
+  type AccessLevel,
+} from '@pms/domain';
 import { ApiError, authApi, type AuthInviteExtra, type AuthScope } from '../../lib/api';
 import {
   clearScopeCookie,
@@ -171,6 +177,28 @@ export async function verifyEmailAction(token: string): Promise<AuthActionResult
   redirect(pilot ? '/register/complete' : '/today');
 }
 
+/**
+ * Подтверждение почты кодом из письма (решение владельца 22.10.2026). Дальше всё как у ссылки: кука сессии,
+ * регистрационный помощник выбирает единственный филиал новой организации, иначе выбор филиала решает сервер.
+ */
+export async function verifyEmailCodeAction(email: string, code: string): Promise<AuthActionResult> {
+  let pilot: boolean;
+  let scoped: boolean;
+  try {
+    const result = await authApi.verifyEmailCode({ email, code }, await clientInfo());
+    await setSessionCookie(result.token, result.expiresAt);
+    const context = await authApi.registrationContext(result.token);
+    pilot = Boolean(context && context.vertical !== 'HOSPITALITY');
+    scoped = Boolean(context);
+    if (context)
+      await setScopeCookie(`business=${context.businessId};location=${context.locationId}`);
+  } catch (e) {
+    return { error: errorText(e) };
+  }
+  if (!pilot && !scoped) return { error: null, redirectTo: scopeResolvePath('/today') };
+  return { error: null, redirectTo: pilot ? '/register/complete' : '/today' };
+}
+
 export interface ResendState {
   error: string | null;
   sent: boolean;
@@ -228,6 +256,37 @@ export async function inviteAction(
     return { error: null, email: invite.email };
   } catch (e) {
     return { error: errorText(e), email: null };
+  }
+}
+
+/**
+ * Вход для только что добавленного сотрудника (уровни доступа, решение владельца 20.10.2026): «Без входа» ничего не
+ * шлёт, остальные уровни приглашают на почту с ролью уровня; имя и филиал API берёт из карточки сотрудника, а после
+ * принятия сам привязывает аккаунт. Ошибка приглашения не отменяет созданного сотрудника: её показывают словами.
+ */
+export async function inviteNewStaffAction(input: {
+  employeeId: string;
+  level: string;
+  email: string;
+  allBranches: boolean;
+}): Promise<{ error: string | null; invited: string | null }> {
+  if (!(ACCESS_LEVELS as readonly string[]).includes(input.level))
+    return { error: 'Выберите уровень доступа.', invited: null };
+  const role = inviteRoleOfLevel(input.level as AccessLevel);
+  if (!role) return { error: null, invited: null };
+  if (!input.email.trim())
+    return { error: 'Для входа в WETOP укажите почту: на неё придёт приглашение.', invited: null };
+  const token = await sessionToken();
+  if (!token) return { error: 'Сеанс закончился. Войдите заново.', invited: null };
+  try {
+    const invite = await authApi.invite(token, input.email.trim(), role, await clientInfo(), {
+      employeeId: input.employeeId,
+      ...(input.allBranches ? { allBranches: true } : {}),
+    });
+    revalidatePath('/team');
+    return { error: null, invited: invite.email };
+  } catch (e) {
+    return { error: errorText(e), invited: null };
   }
 }
 

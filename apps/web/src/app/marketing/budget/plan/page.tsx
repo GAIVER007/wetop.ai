@@ -10,10 +10,11 @@ import { pluralRu } from '../../../../lib/plural';
 import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
 import { ShareBar } from '../../../../components/share-bar';
-import { Badge, SectionTitle, Stat, Stats, Table } from '../../../../components/ui';
+import { Badge, EmptyState, SectionTitle, Table } from '../../../../components/ui';
 import { BackToModules } from '../../parts';
 import '../../marketing.css';
 import '../budget.css';
+import '../../../finance/summary.css';
 import { loadBudget } from '../load';
 import { channelPlan, summarize } from '../derive';
 import { BUDGET_TITLE, BudgetTabs, ChooseLocation, MonthNav, PlatformShares, platformLabel } from '../parts';
@@ -66,42 +67,45 @@ export default async function BudgetPlanPage({ searchParams }: { searchParams: P
           <BudgetTabs current="plan" month={view.month} />
           <MonthNav base="/marketing/budget/plan" month={view.month} />
         </div>
-        <Stats min={200}>
-          <Stat
-            label="Общий бюджет"
-            value={planValue === null ? 'Не задан' : formatMoney(planValue, rc)}
-            testId="budget-plan"
-            hint={
-              planValue !== null && t.planUsedPct !== null ? (
-                <span className="budget-plan-used">
+        {/* план и итоги месяца одной строкой с кнопкой «Задать план», без плиток (аудит 21.10.2026 п. 32) */}
+        <div className="budget-plan-line">
+          <dl className="money-summary">
+            <div>
+              <dt>Общий бюджет</dt>
+              <dd data-testid="budget-plan">{planValue === null ? 'Не задан' : formatMoney(planValue, rc)}</dd>
+              {planValue !== null && t.planUsedPct !== null && (
+                <dd className="budget-plan-used">
                   <ShareBar
                     label="Израсходовано от плана"
                     value={Math.min(100, t.planUsedPct)}
                     tone={t.planUsedPct > 100 ? 'danger' : 'info'}
                   />
                   {t.planUsedPct} %
-                </span>
-              ) : (
-                'Задайте план, и появятся остаток и рекомендация'
-              )
-            }
-          />
-          <Stat label="Израсходовано" value={formatMoney(t.spent, rc)} testId="budget-spent" />
-          <Stat
-            label="Остаток"
-            value={t.remainder === null ? '–' : formatMoney(t.remainder, rc)}
-            tone={t.remainder !== null && t.remainder < 0n ? 'danger' : undefined}
-            testId="budget-remainder"
-          />
-          <Stat
-            label="Прогноз конца месяца"
-            value={t.forecast === null ? '–' : formatMoney(t.forecast, rc)}
-            hint={t.forecast === null ? 'Месяц ещё не начался' : 'По темпу прошедших дней'}
-            testId="budget-forecast"
-          />
-        </Stats>
+                </dd>
+              )}
+            </div>
+            <div>
+              <dt>Израсходовано</dt>
+              <dd data-testid="budget-spent">{formatMoney(t.spent, rc)}</dd>
+            </div>
+            <div>
+              <dt>Остаток</dt>
+              <dd data-testid="budget-remainder" className={t.remainder !== null && t.remainder < 0n ? 'budget-td-danger' : undefined}>
+                {t.remainder === null ? '–' : formatMoney(t.remainder, rc)}
+              </dd>
+            </div>
+            <div>
+              <dt>Прогноз конца месяца</dt>
+              <dd data-testid="budget-forecast">{t.forecast === null ? '–' : formatMoney(t.forecast, rc)}</dd>
+            </div>
+          </dl>
+          {editable && <PlanButton month={view.month} plan={view.plan} currency={rc} />}
+        </div>
         <div className="budget-meta" data-testid="budget-meta">
           <span>
+            {planValue === null
+              ? 'Задайте план, и появятся остаток и рекомендация. '
+              : ''}
             До конца месяца {pluralRu(t.daysLeft, ['день', 'дня', 'дней'])}
           </span>
           {t.onTrack !== null &&
@@ -114,7 +118,6 @@ export default async function BudgetPlanPage({ searchParams }: { searchParams: P
                 Прогноз выше плана
               </Badge>
             ))}
-          {editable && <PlanButton month={view.month} plan={view.plan} currency={rc} />}
         </div>
         <section aria-labelledby="budget-lines-title">
           <div className="budget-recent-head">
@@ -130,9 +133,9 @@ export default async function BudgetPlanPage({ searchParams }: { searchParams: P
             )}
           </div>
           {view.lines.length === 0 ? (
-            <p className="settings-note" data-testid="budget-lines-empty">
+            <EmptyState data-testid="budget-lines-empty">
               Распишите план месяца по каналам, и здесь появится план против факта по каждому.
-            </p>
+            </EmptyState>
           ) : (
             <>
               <p className="budget-meta" data-testid="budget-lines-summary">
@@ -197,9 +200,7 @@ export default async function BudgetPlanPage({ searchParams }: { searchParams: P
         </section>
         <section aria-labelledby="budget-shares-title">
           <SectionTitle id="budget-shares-title">Распределение по каналам</SectionTitle>
-          <div className="panel panel--lg">
-            <PlatformShares expenses={view.expenses} currency={rc} testId="budget-shares" />
-          </div>
+          <PlatformShares expenses={view.expenses} currency={rc} testId="budget-shares" />
         </section>
         <section aria-labelledby="budget-recent-title">
           <div className="budget-recent-head">
@@ -209,9 +210,9 @@ export default async function BudgetPlanPage({ searchParams }: { searchParams: P
             </Link>
           </div>
           {recent.length === 0 ? (
-            <p className="settings-note" data-testid="budget-recent-empty">
+            <EmptyState data-testid="budget-recent-empty">
               В этом месяце расходов ещё нет. Добавьте первый, и обзор оживёт.
-            </p>
+            </EmptyState>
           ) : (
             <ul className="budget-recent" data-testid="budget-recent">
               {recent.map((e) => (

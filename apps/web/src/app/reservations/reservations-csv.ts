@@ -1,4 +1,5 @@
 import { sourceNames, type ReservationListRow } from '../../lib/hotel-api';
+import { currencySign } from '../../lib/money';
 import { hospitalityStatus } from '../../lib/status/hospitality';
 import { statusLabel } from '../../lib/status/types';
 import { csvField, csvTenge } from '../finance/csv';
@@ -18,7 +19,8 @@ const nights = (from: string, to: string) =>
  * финансов («;», UTF-8 с BOM, CRLF, суммы вида «12500,50»). Имён и контактов гостей нет: файл уходит из системы
  * (ADR-018, база вне РК), бронь находится по номеру.
  */
-export function reservationsCsv(rows: ReservationListRow[]): string {
+export function reservationsCsv(rows: ReservationListRow[], currency = rows[0]?.currency ?? 'KZT'): string {
+  const sign = currencySign(currency);
   const head = [
     'Бронь',
     'Статус',
@@ -29,9 +31,9 @@ export function reservationsCsv(rows: ReservationListRow[]): string {
     'Ночей',
     'Размещений',
     'Места',
-    'Сумма, ₸',
-    'Оплачено, ₸',
-    'Остаток, ₸',
+    `Сумма, ${sign}`,
+    `Оплачено, ${sign}`,
+    `Остаток, ${sign}`,
   ];
   const lines = rows.map((x) =>
     [

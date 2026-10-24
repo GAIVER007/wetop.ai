@@ -34,16 +34,43 @@ export function HousekeepingBadge({ status }: { status: InventoryUnit['housekeep
   );
 }
 
-/** «этаж 2, комната 201» — комната не пишется, когда повторяет код места (ТЗ §11) */
+/**
+ * Этаж словами без повторов (аудит 22.10.2026 P1-17: было «этаж 1 этаж»): число → «2 этаж», название, где слово
+ * «этаж» уже есть или это не число («Мансарда»), остаётся как ввели.
+ */
+export function floorText(floorName: string): string {
+  const name = floorName.trim();
+  return /^-?\d+$/.test(name) ? `${name} этаж` : name;
+}
+
+/** «Основной корпус» как ввели; одна буква или номер («Б», «2») подписывается словом «Корпус Б» */
+export function buildingText(buildingName: string): string {
+  const name = buildingName.trim();
+  return /корпус/i.test(name) ? name : `Корпус ${name}`;
+}
+
+/** «2 этаж, комната 201» — комната не пишется, когда повторяет код места (ТЗ §11) */
 export function floorRoomText(unit: {
   code: string;
   floorName: string | null;
   roomNumber: string;
 }) {
   return [
-    unit.floorName ? `этаж ${unit.floorName}` : '',
+    unit.floorName ? floorText(unit.floorName) : '',
     unit.roomNumber && unit.roomNumber !== unit.code ? `комната ${unit.roomNumber}` : '',
   ]
+    .filter(Boolean)
+    .join(', ');
+}
+
+/** Расположение одной строкой: «Основной корпус, 1 этаж» */
+export function placeText(unit: {
+  buildingName: string | null;
+  code: string;
+  floorName: string | null;
+  roomNumber: string;
+}) {
+  return [unit.buildingName ? buildingText(unit.buildingName) : '', floorRoomText(unit)]
     .filter(Boolean)
     .join(', ');
 }

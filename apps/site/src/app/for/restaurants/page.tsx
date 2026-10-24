@@ -6,7 +6,8 @@ import { MarketingBlock } from '../../../components/landing/marketing-block';
 import { SubtypeLinks } from '../../../components/landing/subtype-links';
 import { Breadcrumbs } from '../../../components/breadcrumbs';
 import { typo } from '../../../components/typo';
-import { getDictionary } from '../../../i18n';
+import { getDictionary, type Locale } from '../../../i18n';
+import { LangSwitch } from '../../../components/lang-switch';
 import { pageMetadata } from '../../../lib/metadata';
 import { registerLink } from '../../../lib/site';
 
@@ -17,15 +18,27 @@ import { registerLink } from '../../../lib/site';
  * меню с техкартами, смены и зарплата. Текст по §19.9; условий trial нет (ADR-147).
  * Блоки переиспользуют классы `.hotel-*` групповыми селекторами (реестр §19.5, строка `.restaurant-*`).
  */
-export const metadata: Metadata = pageMetadata({
-  path: '/for/restaurants/',
-  image: '/og/restaurant.jpg',
-  title: getDictionary().restaurant.metaTitle,
-  description: getDictionary().restaurant.description,
-});
+export function restaurantsDirectionMetadata(locale: Locale): Metadata {
+  const t = getDictionary(locale);
+  return pageMetadata({
+    path: locale === 'kk' ? '/kk/for/restaurants/' : '/for/restaurants/',
+    locale,
+    languages: {
+      ru: '/for/restaurants/',
+      kk: '/kk/for/restaurants/',
+      'x-default': '/for/restaurants/',
+    },
+    image: '/og/restaurant.jpg',
+    title: t.restaurant.metaTitle,
+    description: t.restaurant.description,
+  });
+}
 
-export default function RestaurantLandingPage() {
-  const t = getDictionary();
+export const metadata: Metadata = restaurantsDirectionMetadata('ru');
+
+export function RestaurantLanding({ locale = 'ru' }: { locale?: Locale }) {
+  const t = getDictionary(locale);
+  const prefix = locale === 'kk' ? '/kk' : '';
   const s = t.restaurant;
   const register = registerLink(undefined, 'FOOD_SERVICE').href;
   return (
@@ -35,9 +48,10 @@ export default function RestaurantLandingPage() {
           label={t.a11y.breadcrumbs}
           trail={[
             { name: t.a11y.crumbHome, path: '/' },
-            { name: t.restaurant.badge, path: '/for/restaurants/' },
+            { name: t.restaurant.badge, path: `${prefix}/for/restaurants/` },
           ]}
         />
+        <LangSwitch locale={locale} ruPath="/for/restaurants/" kkPath="/kk/for/restaurants/" />
         <div className="landing">
           <section className="hotel-hero restaurant-hero" aria-labelledby="restaurant-title">
             <div>
@@ -171,7 +185,11 @@ export default function RestaurantLandingPage() {
             </figure>
           </section>
 
-          <SubtypeLinks direction="restaurants" title={t.segments.typesTitle.restaurants} />
+          <SubtypeLinks
+            direction="restaurants"
+            title={t.segments.typesTitle.restaurants}
+            locale={locale}
+          />
 
           <MarketingBlock
             id="marketing"
@@ -195,4 +213,8 @@ export default function RestaurantLandingPage() {
       </div>
     </div>
   );
+}
+
+export default function RestaurantLandingPage() {
+  return <RestaurantLanding locale="ru" />;
 }

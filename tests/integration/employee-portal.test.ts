@@ -26,7 +26,8 @@ describe('employee portal real persistence and authorization',()=>{
     const off=new EmployeePortalService({db} as PrismaService,null);
     const unavailable=await as('staffA',()=>off.get(null,{}));
     expect((unavailable as typeof unavailable & {canUpload?:boolean}).canUpload).toBe(false);
-    expect(dto.pay.earnedMinor).toBeNull(); expect(dto.pay.status).toBe('NOT_CONFIGURED');
+    // S1: салон считается как в /payroll; без условий оплаты оклад 0, сумма = 0 (не «нет расчёта»)
+    expect(dto.pay.status).toBe('AVAILABLE'); expect(dto.pay.earnedMinor).toBe('0');
     await expect(as('staffA',()=>service.get(f.employeeB,{}))).rejects.toThrow();
     await expect(as('ownerB',()=>service.get(f.employeeA,{}))).rejects.toThrow();
   });
@@ -61,13 +62,14 @@ describe('employee portal real persistence and authorization',()=>{
     dto=await as('ownerA',()=>service.mutate(f.employeeA,'delete-time-off',{},dto.timeOffs[0]!.id));
     expect(dto.timeOffs).toHaveLength(0);
   });
-  it('exposes real pay settings and adjustments but never fabricates Beauty salary',async()=>{
+  it('exposes real pay settings and the same Beauty salary as the manager payroll',async()=>{
     let dto=await as('ownerA',()=>service.mutate(f.employeeA,'pay-settings',{model:'FIXED_PLUS_PERCENT',fixedMinor:'150000',percent:15}));
-    expect(dto.pay.fixedMinor).toBe('150000'); expect(dto.pay.earnedMinor).toBeNull();
+    expect(dto.pay.fixedMinor).toBe('150000');
     await as('ownerA',()=>service.setPolicy({percentBasis:'PAID_COMPLETED_SERVICES'}));
     dto=await as('staffA',()=>service.get(null,{}));
-    expect(dto.pay.status).toBe('UNSUPPORTED_POLICY'); expect(dto.pay.percentBasis).toBe('PAID_COMPLETED_SERVICES');
-    expect(dto.pay.remainingMinor).toBeNull();
+    // фикстура: одна выполненная запись мастера A на 6500 сегодня → 150000 + 15% от 6500
+    expect(dto.pay.status).toBe('AVAILABLE'); expect(dto.pay.percentBasis).toBe('COMPLETED_SERVICES');
+    expect(dto.pay.earnedMinor).toBe(String(150000+975)); expect(dto.pay.remainingMinor).toBe(String(150000+975));
     await expect(as('staffA',()=>service.mutate(null,'pay-settings',{model:'FIXED',fixedMinor:'999',percent:0}))).rejects.toThrow();
     await expect(as('staffA',()=>service.setPolicy({percentBasis:'COMPLETED_SERVICES'}))).rejects.toThrow();
   });

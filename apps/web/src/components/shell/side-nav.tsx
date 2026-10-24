@@ -13,6 +13,8 @@ import type { DeskShell } from '../../lib/desk-person';
 import { DataFreshness } from '../data-freshness';
 import { Icon } from '../icon';
 import { cx } from '../ui';
+import { translateSections } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 /** UI3.1: one trigger, shared access registry, no persistent navigation column. */
 export function SideNav({
@@ -43,9 +45,10 @@ function GrantedMenu({
   dismissKey: string;
 }) {
   const shell = desk ? use(desk) : null;
+  const t = useT();
   return (
     <Menu
-      sections={menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical)}
+      sections={translateSections(menuSectionsFor(shell?.access ?? CLOSED_ACCESS, shell?.vertical), t)}
       path={path}
       dismissKey={dismissKey}
       trial={shell?.trial ?? null}
@@ -64,6 +67,7 @@ function Menu({
   dismissKey: string;
   trial: string | null;
 }) {
+  const t = useT();
   const active = activeMenuRoute(path);
   const place = currentPlace(sections, path);
   const current = place.section;
@@ -152,7 +156,7 @@ function Menu({
     <nav
       ref={root}
       className="sidenav__nav"
-      aria-label="Разделы"
+      aria-label={t('Разделы')}
       onKeyDown={onPanelKey}
       onBlur={(event) => {
         if (
@@ -166,8 +170,8 @@ function Menu({
         ref={trigger}
         type="button"
         className="sidenav__current"
-        aria-label="Открыть меню"
-        title={place.label}
+        aria-label={t('Открыть меню')}
+        title={t(place.label)}
         aria-expanded={open}
         aria-controls={id}
         disabled={!ready}
@@ -181,14 +185,14 @@ function Menu({
         }}
       >
         <Icon name="menu" />
-        <span className="sr-only">{place.label}</span>
+        <span className="sr-only">{t(place.label)}</span>
       </button>
       <div id={id} className="sidenav__panel" hidden={!open} data-open={open || undefined}>
         <div className="sidenav__heading">
-          <strong>Навигация</strong>
+          <strong>{t('Навигация')}</strong>
           <button
             type="button"
-            aria-label="Закрыть меню"
+            aria-label={t('Закрыть меню')}
             onClick={() => {
               setOpen(false);
               trigger.current?.focus();

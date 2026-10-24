@@ -25,9 +25,13 @@ for (const width of [390, 1440]) for (const kind of ['pay', 'refund'] as const) 
     const region = card.getByRole('region', { name: kind === 'pay' ? 'Оплата записи' : 'Возврат по записи', exact: true });
     await region.getByLabel(kind === 'pay' ? 'Сумма, ₸' : 'Сумма возврата, ₸', { exact: true }).fill(kind === 'pay' ? '3000' : '1000');
     if (kind === 'refund') await region.getByLabel('Причина', { exact: true }).fill('  Вымышленная причина денежного повтора  ');
+    // Считаем только денежную команду этой записи: карточка сама зовёт и другие серверные действия (способы оплаты
+    // филиала §21.7, данные клиента), и обрывался их ответ, а не оплаты (CI #807 23.10.2026). Аргументы
+    // денежного действия начинаются с номера записи.
     let first = true; let commands = 0;
     await page.route((target) => target.pathname === '/appointments', async (route) => {
       if (route.request().method() !== 'POST' || !route.request().headers()['next-action']) return route.continue();
+      if (!(route.request().postData() ?? '').startsWith(`["${id}"`)) return route.continue();
       commands++;
       if (!first) return route.continue();
       first = false;
@@ -53,7 +57,10 @@ for (const width of [390, 1440]) for (const kind of ['pay', 'refund'] as const) 
     expect(after.map((op) => ({ id: op.id, kind: op.kind, amount: op.amount, note: op.note })))
       .toEqual(before.map((op) => ({ id: op.id, kind: op.kind, amount: op.amount, note: op.note })));
     expect(commands).toBe(2);
-    await page.reload();
+    // Fresh load of the journal without the card: page.reload() raced the client-side address replace and
+    // reopened the card over the row (CI 39661442107, 39665328615: dialog intercepted the click).
+    await page.goto(`/appointments?date=${date}`);
+    await expect(card).toBeHidden();
     await page.getByRole('button', { name: 'Тест денежный повтор', exact: true }).click();
     await expect(card.getByTestId('beauty-card-paid')).toHaveText('3 000 ₸ из 12 000 ₸');
     if (kind === 'refund') await expect(card.getByTestId('beauty-card-refunded')).toHaveText('1 000 ₸');

@@ -63,14 +63,14 @@ export function HousekeepingMenu({
         size="sm"
         icon={housekeepingStatus[status].icon}
         className="board-hk__menu"
-        label={`Уборка ячейки ${code}: ${HOUSEKEEPING_RU[status]}`}
+        label={`Уборка номера ${code}: ${HOUSEKEEPING_RU[status]}`}
         items={[
           ...housekeepingTargets(status).map((next) => ({
             label: housekeepingStatus[next].label,
             onSelect: () => set(next),
             disabled: pending,
           })),
-          { label: 'Открыть карточку ячейки', href: `/units/${encodeURIComponent(code)}` },
+          { label: 'Открыть карточку номера', href: `/units/${encodeURIComponent(code)}` },
         ]}
       />
     </span>

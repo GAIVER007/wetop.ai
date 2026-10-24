@@ -88,3 +88,23 @@ function nightsWord(n: number): string {
   if (tail >= 2 && tail <= 4 && (hundred < 12 || hundred > 14)) return 'ночи';
   return 'ночей';
 }
+
+/**
+ * Подпись под «Обмен с каналами»: слова для владельца, а не код состояния API (аудит 22.10.2026 P1-19:
+ * было «Объект не сопоставлен.»). Сообщение API остаётся запасным для состояний, которых здесь нет.
+ */
+export function connectionSummary(state: string | undefined, message: string | undefined): string {
+  if (state === 'NO_MAPPING')
+    return 'Гостиница ещё не подключена к Booking.com, Ostrovok и другим каналам.';
+  if (state === 'NO_KEY') return 'Менеджер каналов ещё не подключён.';
+  return `${message ?? 'Не удалось проверить соединение с менеджером каналов'}.`;
+}
+
+/** «Приём броней» из каналов одним словом: без «не зарегистрирован» и имени переменной окружения */
+export function webhookWord(
+  webhook: { registered: boolean; active: boolean; expectedUrl: string | null } | null,
+): string {
+  if (webhook === null) return 'состояние неизвестно';
+  if (webhook.registered) return webhook.active ? 'работает' : 'выключен';
+  return webhook.expectedUrl ? 'не настроен' : 'адрес сервера не задан';
+}

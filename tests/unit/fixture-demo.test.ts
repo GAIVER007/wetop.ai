@@ -1,4 +1,5 @@
 import { spawn, type ChildProcess } from 'node:child_process';
+import { createServer } from 'node:net';
 import { resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -12,7 +13,15 @@ afterEach(() => {
 
 describe('local demo preview', () => {
   it('starts its synthetic API without a database or providers', async () => {
-    const port = 44_000 + (process.pid % 1_000);
+    // Свободный порт от системы: 44000 + pid % 1000 совпадал с занятым портом раннера (EADDRINUSE 44410)
+    const port = await new Promise<number>((done, fail) => {
+      const probe = createServer();
+      probe.once('error', fail);
+      probe.listen(0, '127.0.0.1', () => {
+        const address = probe.address();
+        probe.close(() => done(typeof address === 'object' && address ? address.port : 0));
+      });
+    });
     let stderr = '';
     child = spawn(
       process.execPath,

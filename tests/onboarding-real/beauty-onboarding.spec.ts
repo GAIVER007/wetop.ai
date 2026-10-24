@@ -95,11 +95,9 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
   await dialog.locator('input[name="durationMinutes"]').fill('30');
   await dialog.getByLabel(/^Цена каталога,/).fill('0');
   await dialog.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(dialog.getByLabel('Филиал оказывает эту услугу')).toBeVisible();
-  await dialog.getByLabel('Филиал оказывает эту услугу').check();
-  await dialog.getByRole('button', { name: 'Сохранить для филиала', exact: true }).click();
-  await expect(dialog.getByText('Настройки филиала сохранены', { exact: true })).toBeVisible();
-  await page.keyboard.press('Escape');
+  // новая услуга сразу в филиале: окно закрывается само (аудит салона 22.10.2026)
+  await expect(page.getByTestId('toast-stack')).toContainText('Услуга добавлена в филиал');
+  await expect(dialog).toBeHidden();
   await page.getByRole('link', { name: 'Вернуться к настройке салона', exact: true }).click();
   await expect(
     page.getByText('Выполнено 1 из 4 обязательных шагов', { exact: true }),
@@ -121,7 +119,11 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
   await skills.getByRole('button', { name: 'Сохранить услуги', exact: true }).click();
   await expect(skills.getByRole('status')).toContainText('Сохранено на сервере');
   await goToEmployeesList(page);
-  await expect(page.getByRole('listitem').filter({hasText:'Тестовый Мастер'})).toContainText('Тестовая стрижка');
+  // единый экран персонала (20.10.2026): специалист строкой таблицы, услуги видны категорией или названием
+  // строка видна во вкладке «Все» (открыта первой); в других вкладках та же строка скрыта
+  const masterRow = page.getByRole('tabpanel').getByTestId('staff-row').filter({ hasText: 'Тестовый Мастер' });
+  await expect(masterRow).toBeVisible();
+  await expect(masterRow).not.toContainText('Специализация не указана');
   await page.getByRole('link', { name: 'Вернуться к настройке салона', exact: true }).click();
   await expect(
     page.getByText('Выполнено 3 из 4 обязательных шагов', { exact: true }),

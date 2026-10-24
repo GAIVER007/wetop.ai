@@ -1,0 +1,28 @@
+/* «Помощь» (аудит 21.10.2026 п. 39): первые шаги и поддержка в две колонки, поддержка без огромного отступа */
+@layer sections {
+  .help-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .help-columns > .panel {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-6);
+  }
+  .help-columns ol,
+  .help-columns p {
+    margin: 0;
+  }
+  .help-columns ol {
+    display: grid;
+    gap: var(--space-2);
+    padding-left: var(--space-6);
+  }
+  @media (max-width: 960px) {
+    .help-columns {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

@@ -1,23 +1,25 @@
 'use client';
 import { useRef } from 'react';
 import { Icon } from '../../components/icon';
+import { Button } from '../../components/ui';
 import type { ArchivedBranch } from '../../lib/api';
 import { BranchArchiveButton } from './branch-archive-button';
 export function ArchivedBranches({ items }: { items: ArchivedBranch[] | null }) {
   const dialog = useRef<HTMLDialogElement>(null);
   return (
     <>
-      <button
+      <Button
         type="button"
+        tone="secondary"
         className="org-archive-open"
         onClick={() => dialog.current?.showModal()}
       >
         Архив {items ? `(${items.length})` : ''}
-      </button>
+      </Button>
       <dialog ref={dialog} className="org-archived org-create-dialog" aria-label="Архив объектов">
         <header>
           <h2>Архив объектов</h2>
-          <button type="button" aria-label="Закрыть архив" onClick={() => dialog.current?.close()}>
+          <button type="button" className="icon-button" aria-label="Закрыть архив" onClick={() => dialog.current?.close()}>
             <Icon name="close" />
           </button>
         </header>

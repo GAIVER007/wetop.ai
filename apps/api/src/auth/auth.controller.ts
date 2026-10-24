@@ -175,6 +175,31 @@ export class AuthController {
     });
   }
 
+  /**
+   * Код из письма вместо перехода по ссылке (решение владельца 22.10.2026): окно регистрации остаётся открытым,
+   * человек вводит шесть цифр и сразу входит. Ответ тот же, что у ссылки и у /auth/login. Предел по адресу общий со
+   * ссылкой: оба пути впускают без пароля.
+   */
+  @Public()
+  @Post('email/verify-code')
+  async verifyEmailCode(
+    @Body() body: Record<string, unknown>,
+    @Headers('user-agent') userAgent?: string,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
+  ) {
+    this.ipLimit('verify', AUTH_IP_LIMITS.verifyPerHour, socketIp, cfConnectingIp);
+    const confirmed = await this.verification.confirmCode({
+      email: text(body?.email, 'email'),
+      code: text(body?.code, 'code', 20),
+    });
+    return this.auth.startSession({
+      userId: confirmed.userId,
+      organizationId: confirmed.organizationId,
+      userAgentFamily: sessionDevice(userAgent),
+    });
+  }
+
   /** «Выслать письмо заново». Ответ всегда одинаковый: по нему не узнать, есть ли такая почта. */
   @Public()
   @Post('email/resend')
@@ -338,5 +363,12 @@ export class AuthController {
       newPassword: text(body?.newPassword, 'newPassword', 200),
     });
     return { ok: true };
+  }
+
+  /** Язык стойки себе (ADR-163, KK1). Язык не секрет и не право: отдельного окна попыток не нужно */
+  @Access('self')
+  @Post('locale')
+  async locale(@Headers() headers: Record<string, string>, @Body() body: Record<string, unknown>) {
+    return { locale: await this.auth.changeLocale(tokenFromHeaders(headers) ?? '', body?.locale) };
   }
 }

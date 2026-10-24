@@ -10,7 +10,7 @@ import { settleStreaming } from '../ui/fixtures';
  * Деньги бара в настоящем браузере (A25) на экранах Бар-2 (ADR-157): ожидание, API, независимый SQL и DOM.
  * Прежние носители (единая страница /bar с каталогами и формой прихода) сняты Бар-2; смысл каждого сценария
  * сохранён, носители новые: поставщики /bar/suppliers, товары и своя цена /bar/products, приход
- * /bar/receipts/new, оплата /bar/receipts, продажа и плитки /bar, возвраты и журнал /bar/operations.
+ * /bar/receipts/new, оплата /bar/receipts, окно продажи и итоги строкой /bar, возвраты и журнал /bar/operations.
  * Стенд готовит scripts/ci/runtime-audit.sh (настоящий API, AUTH_REQUIRED=1, без внешней сети).
  */
 const parent = process.env.A28_WORK_DIR ?? process.env.A25_WORK_DIR ?? '';
@@ -60,7 +60,7 @@ async function enter(page: Page, currency: string, path = '/bar') {
 }
 async function overview(page: Page, currency: string) {
   await enter(page, currency);
-  await expect(page.getByRole('heading', { name: 'Склад', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Склад: бар', exact: true })).toBeVisible();
 }
 // Next на время перехода держит в DOM и уходящую страницу: после goto и reload ждём, пока скрытая копия уйдёт,
 // иначе строгий режим находит поле формы дважды (тот же приём в tests/branches-ui/branches.spec.ts)
@@ -103,22 +103,36 @@ const query = async (sql: string, params: unknown[] = []) => {
     await db.end();
   }
 };
-/** Плитка обзора Бара (эталон владельца 13.10.2026): подпись и значение */
-const kpi = (page: Page, label: string) =>
-  page
-    .getByRole('main')
-    .getByRole('region', { name: 'Показатели бара' })
-    .locator('.bar-kpi')
-    .filter({ has: page.locator('.bar-kpi-label', { hasText: label }) });
-const stat = (page: Page, label: string) => kpi(page, label).locator('.bar-kpi-value');
-/** Остаток склада в деньгах: на обзоре такой плитки нет, он в строке товара на /bar/products («Себестоимость остатка»).
- * Читаем textContent: подробности строки свёрнуты в <details>. В сценариях по одному активному товару на филиал. */
+/** Итоги обзора Бара строкой под списком (аудит 21.10.2026 п.7, плитки убраны по правилу владельца): подпись -> значение */
+const totalIds: Record<string, string> = {
+  'Сумма закупок': 'bar-total-purchases',
+  'Выручка бара': 'bar-total-revenue',
+  'Прибыль от продаж': 'bar-total-profit',
+  'Долг поставщикам': 'bar-total-debt',
+};
+const stat = (page: Page, label: string) =>
+  page.getByRole('main').getByTestId('bar-totals').getByTestId(totalIds[label]!);
+/** Остаток склада в деньгах: поле «Себестоимость остатка» карточки товара на обзоре /bar (аудит 21.10.2026 п.16,
+ * закупка и наценка ушли из строки /bar/products в карточку). Значение поля без разрядов, валюта в приставке поля.
+ * В сценариях по одному активному товару на филиал. */
 async function stockCost(page: Page) {
-  await page.goto('/bar/products');
-  return page
-    .getByRole('table', { name: 'Товары бара' })
-    .locator('.bar-row-details p', { hasText: 'Себестоимость остатка' })
-    .first();
+  await page.goto('/bar');
+  await hydrated(page, '.bar-board');
+  const board = page.getByRole('main').getByRole('table', { name: /^Товары и остатки/ });
+  const card = page.getByRole('complementary', { name: /^Карточка товара / });
+  await expect(async () => {
+    if (!(await card.isVisible())) await board.getByRole('button', { name: /^Изменить / }).first().click();
+    await expect(card).toBeVisible({ timeout: 2_000 });
+  }).toPass();
+  const field = card.locator('.bar-card-field').filter({ has: page.locator('label', { hasText: 'Себестоимость остатка' }) });
+  return { value: field.getByLabel('Себестоимость остатка'), currency: field.locator('.bar-affix-suffix') };
+}
+/** Сверка поля себестоимости: число в поле и валюта в приставке; строка для доказательств в том же виде */
+async function expectStockCost(page: Page, value: string, currency: string) {
+  const stock = await stockCost(page);
+  await expect(stock.value).toHaveValue(value);
+  await expect(stock.currency).toHaveText(currency);
+  return `Себестоимость остатка: ${await stock.value.inputValue()} ${(await stock.currency.textContent())!.trim()}`;
 }
 /** Оплачено поставщику: «Расчёты» строки таблицы /bar/suppliers (свёрнуты в <details>, читаем textContent) */
 async function supplierPaid(page: Page, supplier: string) {
@@ -140,10 +154,15 @@ async function hydrated(page: Page, selector: string) {
     selector,
   );
 }
-/** Свёрнутый блок формы (<details> с <summary>): открыть, если ещё закрыт */
-async function openDetails(page: Page, summary: string) {
-  const details = page.locator('details').filter({ has: page.locator('summary', { hasText: summary }) });
-  if (!(await details.evaluate((node: HTMLDetailsElement) => node.open))) await details.locator('summary').click();
+/** Форма справочника в окне по центру: кнопка в шапке подстраницы (аудит 21.10.2026 п.15, п.42). Щелчок до
+ * гидратации теряется, поэтому повторяем, пока окно не откроется. */
+async function openDialog(page: Page, label: string) {
+  const dialog = page.getByRole('dialog', { name: label });
+  await expect(async () => {
+    if (!(await dialog.isVisible())) await page.getByRole('button', { name: label, exact: true }).first().click();
+    await expect(dialog).toBeVisible({ timeout: 2_000 });
+  }).toPass();
+  return dialog;
 }
 
 async function newScope(currency: string, name: string) {
@@ -175,14 +194,14 @@ async function newScope(currency: string, name: string) {
 /** Поставщик на /bar/suppliers, товар со своей ценой 150 на /bar/products: руками, через формы */
 async function createCatalog(page: Page, name: string) {
   await page.goto('/bar/suppliers');
-  await openDetails(page, 'Новый поставщик');
+  await openDialog(page, 'Новый поставщик');
   await hydrated(page, '.bar-supplier-form');
   const supplier = page.locator('.bar-supplier-form');
   await supplier.locator('input[name=name]').fill(name + ' supplier');
   await supplier.getByRole('button', { name: 'Добавить', exact: true }).click();
   await expect(supplier.getByRole('status')).toHaveText('Поставщик добавлен');
   await page.goto('/bar/products');
-  await openDetails(page, 'Новый товар');
+  await openDialog(page, 'Новый товар');
   await hydrated(page, '.bar-product-form');
   const products = page.locator('.bar-product-form');
   await products.locator('input[name=code]').fill(randomUUID());
@@ -214,10 +233,12 @@ const saleForm = (page: Page) => page.locator('#bar-quick-sale .bar-retail-form'
 /** Форма продажи после гидратации: «Продать» включается, когда эффект выставил ключ продажи (D-KEY). Выбор товара до
  * гидратации React сбрасывает к defaultValue, и браузер не отправит форму с пустым обязательным полем. */
 async function openSaleForm(page: Page) {
-  // «Продажа напрямую или в счёт гостя» свёрнута по умолчанию (эталон владельца 13.10.2026)
-  const disclosure = page.locator('#bar-quick-sale');
-  await expect(disclosure).toBeAttached();
-  if (!(await disclosure.evaluate((node: HTMLDetailsElement) => node.open))) await disclosure.locator('summary').click();
+  // продажа открывается окном по кнопке «Продажа» в шапке (аудит 21.10.2026 п.13), якорь #bar-quick-sale
+  const dialog = page.locator('#bar-quick-sale');
+  if (!(await dialog.isVisible().catch(() => false))) {
+    await page.locator('a[href="#bar-quick-sale"]:visible').first().click();
+  }
+  await expect(dialog).toBeVisible();
   return saleForm(page);
 }
 async function readySaleForm(page: Page) {
@@ -238,7 +259,7 @@ async function sell(page: Page, name: string, qty: string) {
     .selectOption({ label: await form.locator('option').filter({ hasText: name }).innerText() });
   await form.locator('input[name=quantityUnits]').fill(qty);
   await form.getByRole('button', { name: 'Продать' }).click();
-  await expect(form.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
+  await expect(form.getByRole('status')).toContainText('Продажа записана');
 }
 async function legacyStock(currency: string, name: string, units = '3', cost = '1000', price = '2000', receiptCurrency = currency) {
   const product = await call(currency, '/bar/products', 'POST', {
@@ -292,7 +313,7 @@ test('UI-01 real KZT user flow and expected/API/SQL/DOM reconciliation', async (
   await page.goto('/bar/products');
   const price = page.locator('tr').filter({ hasText: name }).locator('.bar-price-form');
   await price.locator('input[name=salePrice]').fill('150');
-  await price.getByRole('button', { name: 'Сохранить', exact: true }).click();
+  await price.getByRole('button', { name: 'Сохранить цену', exact: true }).click();
   await expect(price.getByRole('status')).toContainText('Своя цена');
   await sell(page, name, '4');
   const expected = {
@@ -324,9 +345,7 @@ test('UI-01 real KZT user flow and expected/API/SQL/DOM reconciliation', async (
     await expect(stat(page, label)).toHaveText(value);
     dom[label] = await stat(page, label).innerText();
   }
-  const stock = await stockCost(page);
-  await expect(stock).toHaveText('Себестоимость остатка: 120 ₸');
-  dom['Себестоимость остатка'] = (await stock.textContent())!;
+  dom['Себестоимость остатка'] = await expectStockCost(page, '120', '₸');
   const paidCell = await supplierPaid(page, name + ' supplier');
   await expect(paidCell).toHaveText('Оплачено: 300 ₸');
   dom['Оплачено поставщику'] = (await paidCell.textContent())!;
@@ -357,7 +376,7 @@ test('UI-02 real compatible USD retail, stock, history and cash', async ({ page 
   expect(report.currency).toBe('USD');
   for (const [key, value] of Object.entries(expected)) expect(report[key]).toBe(value);
   await expect(stat(page, 'Выручка бара')).toHaveText('20 USD');
-  await expect(await stockCost(page)).toHaveText('Себестоимость остатка: 20 USD');
+  await expectStockCost(page, '20', 'USD');
   await page.goto('/bar/operations');
   await expect(page.locator('tr').filter({ hasText: 'A25 USD goods' }).filter({ hasText: 'Продано' })).toContainText('10 USD');
   await page.goto('/bar/products');
@@ -375,7 +394,7 @@ test('UI-02 real compatible USD retail, stock, history and cash', async ({ page 
   expect(SQL).toEqual({ revenue: '2000', cost: '1000', stock: '2000', cash: '2000' });
   await page.goto('/bar');
   const revenue = await stat(page, 'Выручка бара').innerText();
-  const DOM = { revenue, stock: (await (await stockCost(page)).textContent())! };
+  const DOM = { revenue, stock: await expectStockCost(page, '20', 'USD') };
   expect(DOM).toEqual({ revenue: '20 USD', stock: 'Себестоимость остатка: 20 USD' });
   await page.goto('/finance?show=1#operations');
   await expect(page.locator('body')).toContainText('USD');
@@ -411,7 +430,7 @@ test('UI-03 branch switching clears drafts, including controlled delay and focus
   const switching = page.getByRole('button', { name: new RegExp(scope('KZT').name) }).click();
   try {
     await expect(page.getByRole('status').filter({ hasText: 'Переключаем филиал' })).toBeVisible();
-    await expect(page.locator('.bar-kpi:visible')).toHaveCount(0);
+    await expect(page.locator('[data-testid="bar-totals"]:visible')).toHaveCount(0);
   } finally {
     release();
   }
@@ -437,7 +456,7 @@ test('UI-04 real mixed-history guard is explicit, not zero success', async ({ pa
     expect(response.status).toBe(409);
     await overview(page, 'KZT');
     await expect(page.getByTestId('bar-load-error')).toContainText('История закупок');
-    await expect(page.locator('.bar-kpi')).toHaveCount(0);
+    await expect(page.getByTestId('bar-totals')).toHaveCount(0);
     await page.screenshot({ path: evidence + '/mixed-history-error.png', fullPage: true });
   } finally {
     privateData.scopes.KZT = previous;
@@ -523,12 +542,14 @@ test('UI-09 exact large minor price stays exact in input and DOM', async ({ page
   await newScope('USD', 'A25 exact ' + Date.now());
   await legacyStock('USD', 'A25 exact goods', '1', '9007199254740993', '9007199254740993');
   await overview(page, 'USD');
-  const exact = await stockCost(page);
-  await expect(exact).toHaveText('Себестоимость остатка: 90 071 992 547 409,93 USD');
+  const exact = await expectStockCost(page, '90071992547409.93', 'USD');
+  // в таблице обзора цена продажи выводится с разрядами: точность видна и в форматированной сумме
+  await expect(page.getByRole('main').getByRole('table', { name: /^Товары и остатки/ })).toContainText('90 071 992 547 409,93 USD');
+  await page.goto('/bar/products');
   await expect(page.locator('.bar-price-form input[name=salePrice]').first()).toHaveValue('90071992547409.93');
   writeFileSync(
     evidence + '/large-exact.json',
-    JSON.stringify({ minor: '9007199254740993', expected: 'Себестоимость остатка: 90 071 992 547 409,93 USD', DOM: (await exact.textContent())! }, null, 2),
+    JSON.stringify({ minor: '9007199254740993', expected: 'Себестоимость остатка: 90071992547409.93 USD', DOM: exact }, null, 2),
   );
   privateData.scopes.USD = previous;
   savePrivate();
@@ -551,6 +572,9 @@ for (const width of [390, 1440])
       const quantity = (await readySaleForm(page)).locator('input[name=quantityUnits]');
       await quantity.focus();
       await expect(quantity).toBeFocused();
+      // окно продажи модальное: закрываем, чтобы открыть карточку товара на доске
+      await page.keyboard.press('Escape');
+      await expect(page.locator('#bar-quick-sale')).toHaveCount(0);
       // шторка карточки товара: до (снимок выше) и после открытия; при reduced-motion анимаций в полёте нет
       const board = page.getByRole('main').getByRole('table', { name: 'Товары и остатки бара' });
       await board.getByRole('button', { name: 'Изменить A25 USD goods' }).click();
@@ -579,7 +603,7 @@ test('UI-08 duplicate command, fresh command and REVERSED replay', async ({ page
   await form.getByRole('button', { name: 'Продать' }).dblclick();
   const command = await posted;
   const replay = () => page.request.post(command.url(), { headers: command.headers(), data: command.postDataBuffer()! });
-  await expect(form.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
+  await expect(form.getByRole('status')).toContainText('Продажа записана');
   expect((await call('KZT', '/bar/sales')).length).toBe(1);
   expect((await replay()).status()).toBe(200);
   expect((await call('KZT', '/bar/sales')).length).toBe(1);
@@ -600,7 +624,7 @@ test('UI-08 duplicate command, fresh command and REVERSED replay', async ({ page
   const completed = page.waitForResponse((r) => r.request().method() === 'POST' && new URL(r.url()).pathname === '/bar');
   await form.getByRole('button', { name: 'Продать' }).click();
   await completed;
-  await expect(form.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
+  await expect(form.getByRole('status')).toContainText('Продажа записана');
   await expect.poll(async () => (await call('KZT', '/bar/sales')).length).toBe(2);
   writeFileSync(evidence + '/replay-ui.json', JSON.stringify({ sameKeyCount: 1, newKeyCount: 2, reversedReplayUnchanged: true }));
   privateData.scopes.KZT = previous;
@@ -729,7 +753,7 @@ test('UI-10 empty scope and actual read failure never become successful zeros', 
     await query('REVOKE SELECT ON pms_test.bar_stock_movements FROM wetop_app, wetop_service');
     await page.reload();
     await expect(page.getByRole('main').getByTestId('bar-load-error')).toBeVisible();
-    await expect(page.locator('.bar-kpi')).toHaveCount(0);
+    await expect(page.getByTestId('bar-totals')).toHaveCount(0);
   } finally {
     await query('GRANT SELECT ON pms_test.bar_stock_movements TO wetop_app, wetop_service');
     privateData.scopes.KZT = previous;
@@ -752,11 +776,10 @@ test('UI-09 negative fractional profit and zero stock remain exact', async ({ pa
     await expect(stat(page, 'Прибыль от продаж')).toHaveText('−0,01 USD');
     const revenue = await stat(page, 'Выручка бара').innerText();
     const profit = await stat(page, 'Прибыль от продаж').innerText();
-    const zeroStock = await stockCost(page);
-    await expect(zeroStock).toHaveText('Себестоимость остатка: 0 USD');
+    const zeroStock = await expectStockCost(page, '0', 'USD');
     writeFileSync(
       evidence + '/fraction-negative-zero.json',
-      JSON.stringify({ expected, API: report, DOM: { revenue, stock: (await zeroStock.textContent())!, profit } }),
+      JSON.stringify({ expected, API: report, DOM: { revenue, stock: zeroStock, profit } }),
     );
   } finally {
     privateData.scopes.USD = previous;

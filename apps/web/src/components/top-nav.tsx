@@ -18,6 +18,7 @@ import { DataFreshness, DataFreshnessProvider } from './data-freshness';
 import { ProductTour } from './shell/product-tour';
 import { TOUR_RESTART_EVENT } from './shell/tour-steps';
 import { WhatsNewLink } from './shell/whats-new-link';
+import { useT } from '../i18n/locale-provider';
 
 /** UI3.1: одна строка шапки, скрытое меню и отдельная мобильная поверхность. */
 export function TopNav({
@@ -38,6 +39,7 @@ export function TopNav({
   /** Заданы ли контакты поддержки (SUP1): без них пункта «Связаться с поддержкой» нет */
   support?: boolean;
 }) {
+  const t = useT();
   const path = usePathname() ?? '';
   const menuDestination = useRef<string | null>(null);
   const cancelMenuFocus = useRef<(() => void) | null>(null);
@@ -176,7 +178,7 @@ export function TopNav({
           className={`workspace-header ${path === '/chessboard' ? styles.calendarHeader : ''}`}
         >
           <a className="skip-link" href={scopeSwitching ? '#scope-switch-status' : '#main-content'}>
-            К содержимому
+            {t('К содержимому')}
           </a>
           <div className="workspace-header__row">
             <button
@@ -188,7 +190,7 @@ export function TopNav({
               }}
               disabled={!ready}
               aria-expanded={menu}
-              aria-label="Открыть меню"
+              aria-label={t('Открыть меню')}
             >
               <Icon name="menu" />
             </button>
@@ -200,7 +202,7 @@ export function TopNav({
             <Link
               className="workspace-brand"
               href={landingForVertical(shell?.vertical ?? 'HOSPITALITY')}
-              aria-label="WETOP, стартовый экран"
+              aria-label={t('WETOP, стартовый экран')}
             >
               <span className="workspace-mark">W</span>
               <span className="brand-name">
@@ -214,15 +216,15 @@ export function TopNav({
               <button
                 className="workspace-search"
                 data-tour="search"
-                aria-label={beauty || food ? 'Найти раздел' : 'Найти гостя или бронь'}
+                aria-label={beauty || food ? t('Найти клиента или раздел') : t('Найти гостя или бронь')}
                 onClick={() => setSearch(true)}
               >
                 <Icon name="search" />
                 <span className="workspace-search-full">
-                  {beauty || food ? 'Поиск раздела' : 'Поиск гостя, брони, номера...'}
+                  {beauty || food ? t('Поиск клиента, раздела...') : t('Поиск гостя, брони, номера...')}
                 </span>
                 <span className="workspace-search-short" aria-hidden="true">
-                  Поиск
+                  {t('Поиск')}
                 </span>
                 <kbd>{searchKey}</kbd>
               </button>
@@ -239,15 +241,15 @@ export function TopNav({
               {demo && (
                 <span
                   className="demo-indicator"
-                  title="Вымышленные данные. Изменения не отправляются во внешние сервисы."
+                  title={t('Вымышленные данные. Изменения не отправляются во внешние сервисы.')}
                 >
-                  Демо
+                  {t('Демо')}
                 </span>
               )}
               <button
                 className="icon-button theme-switch"
-                aria-label="Переключить тему"
-                title="Светлая / тёмная тема"
+                aria-label={t('Переключить тему')}
+                title={t('Светлая / тёмная тема')}
                 onClick={() =>
                   setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark')
                 }
@@ -260,7 +262,7 @@ export function TopNav({
                   ref={profileTrigger}
                   className="profile-trigger"
                   data-tour="profile"
-                  aria-label="Меню администратора"
+                  aria-label={t('Меню администратора')}
                   aria-expanded={profile}
                   aria-controls="profile-dropdown"
                   aria-busy={!ready}
@@ -288,7 +290,7 @@ export function TopNav({
                   <>
                     <button
                       className="dropdown-dismiss"
-                      aria-label="Закрыть меню профиля"
+                      aria-label={t('Закрыть меню профиля')}
                       onClick={() => setProfile(false)}
                     />
                     <div
@@ -306,32 +308,33 @@ export function TopNav({
                           «Помощь» и «Профиль» стояли отдельными пунктами меню */}
                       <Link href="/profile" onClick={() => setProfile(false)}>
                         <Icon name="person" />
-                        Профиль
+                        {t('Профиль')}
                       </Link>
-                      <Link href="/help" onClick={() => setProfile(false)}>
-                        <Icon name="help" />
-                        Помощь
-                      </Link>
-                      {support && (
-                        <Link href="/help#support" onClick={() => setProfile(false)}>
-                          <Icon name="chat" />
-                          Связаться с поддержкой
-                        </Link>
-                      )}
-                      <WhatsNewLink vertical={shell?.vertical ?? 'HOSPITALITY'} onClick={() => setProfile(false)} />
-                      {/* «Моя работа» (личный экран сотрудника) здесь, не в разделах (17.10.2026) */}
-                      {(beauty || food) && (
+                      {/* «Моя работа» (личный экран сотрудника) здесь, не в разделах (17.10.2026); у гостиницы с 22.10.2026 */}
+                      {shell?.vertical && (
                         <Link href="/my-work" onClick={() => setProfile(false)}>
                           <Icon name="person" />
-                          Моя работа
+                          {t('Моя работа')}
                         </Link>
                       )}
                       {allowedItem(routeRule('/branches') ?? {}, shell?.access ?? PENDING_ACCESS) && (
                         <Link href="/branches" onClick={() => setProfile(false)}>
                           <Icon name="hotel" />
-                          Филиалы
+                          {t('Филиалы')}
                         </Link>
                       )}
+                      <hr className="profile-dropdown__sep" />
+                      <Link href="/help" onClick={() => setProfile(false)}>
+                        <Icon name="help" />
+                        {t('Помощь')}
+                      </Link>
+                      {support && (
+                        <Link href="/help#support" onClick={() => setProfile(false)}>
+                          <Icon name="chat" />
+                          {t('Связаться с поддержкой')}
+                        </Link>
+                      )}
+                      <WhatsNewLink vertical={shell?.vertical ?? 'HOSPITALITY'} onClick={() => setProfile(false)} />
                       {hospitality && (
                         <button
                           data-testid="tour-restart"
@@ -341,9 +344,10 @@ export function TopNav({
                           }}
                         >
                           <Icon name="help" />
-                          Обучение работе в WETOP
+                          {t('Обучение работе в WETOP')}
                         </button>
                       )}
+                      <hr className="profile-dropdown__sep" />
                       {/* пробный период и свежесть данных: на широком экране панели ☰ нет (18.10.2026), строки здесь */}
                       {shell?.trial && (
                         <span className="profile-dropdown__note" data-testid="profile-trial">
@@ -357,7 +361,7 @@ export function TopNav({
                       {account ?? (
                         <Link href="/login">
                           <Icon name="departure" />
-                          Экран входа
+                          {t('Экран входа')}
                         </Link>
                       )}
                     </div>
@@ -373,8 +377,8 @@ export function TopNav({
           </Suspense>
           {demo && (
             <div className="demo-banner" role="status">
-              Демонстрационный режим{' '}
-              <span>Вымышленные гости и брони · внешние сервисы не вызываются</span>
+              {t('Демонстрационный режим')}{' '}
+              <span>{t('Вымышленные гости и брони · внешние сервисы не вызываются')}</span>
             </div>
           )}
           <div className="workspace-content" hidden={scopeSwitching}>
@@ -382,8 +386,8 @@ export function TopNav({
           </div>
           {scopeSwitching && (
             <main id="scope-switch-status" tabIndex={-1}>
-              <h1>Сегодня</h1>
-              <p role="status">Переключаем филиал…</p>
+              <h1>{t('Сегодня')}</h1>
+              <p role="status">{t('Переключаем филиал…')}</p>
             </main>
           )}
         </div>
@@ -391,7 +395,7 @@ export function TopNav({
           open={menu}
           trapFocus
           onClose={() => setMenu(false)}
-          title="Навигация"
+          title={t('Навигация')}
           className="mobile-navigation"
         >
           <Sidebar property={property} path={path} close={() => setMenu(false)} desk={desk} />
@@ -462,10 +466,12 @@ function GrantedHeaderCaption({ desk }: { desk: Promise<DeskShell> | undefined }
 
 /** Имя и роль словом; вошедшего нет — прежняя «Администратор» */
 function HeaderCaption({ person }: { person: DeskPerson | null }) {
+  const t = useT();
   return (
     <>
-      <strong>{person?.name ?? 'Администратор'}</strong>
-      <small>{person?.caption ?? 'Рабочее пространство'}</small>
+      {/* полное имя и роль в подсказке: в узкой шапке строка обрезается многоточием (аудит 21.10.2026 п. 23) */}
+      <strong title={person?.name ?? undefined}>{person?.name ?? t('Администратор')}</strong>
+      <small title={person?.caption ?? undefined}>{person?.caption ?? t('Рабочее пространство')}</small>
     </>
   );
 }
@@ -489,18 +495,19 @@ function GrantedSearch({
  */
 function GrantedReadOnly({ desk }: { desk: Promise<DeskShell> | undefined }) {
   const shell = desk ? use(desk) : null;
+  const t = useT();
   if (!shell?.readOnly) return null;
   return (
     <div className="read-only-banner" role="status" data-testid="read-only-banner">
       <strong>
         {shell.vertical === 'FOOD_SERVICE'
-          ? 'Режим только для чтения'
-          : 'Пробный период закончился, оплатите подписку.'}
+          ? t('Режим только для чтения')
+          : t('Пробный период закончился, оплатите подписку.')}
       </strong>{' '}
       <span>
         {shell?.vertical !== 'HOSPITALITY'
-          ? 'Данные доступны для просмотра. Для продления подписки обратитесь в поддержку WETOP.'
-          : 'Данные доступны для просмотра, изменения после оплаты. Счёт и реквизиты выставит WETOP, напишите в чат помощника справа внизу.'}
+          ? t('Данные доступны для просмотра. Для продления подписки обратитесь в поддержку WETOP.')
+          : t('Данные доступны для просмотра, изменения после оплаты. Счёт и реквизиты выставит WETOP, напишите в чат помощника справа внизу.')}
       </span>
     </div>
   );

@@ -68,4 +68,21 @@ describe('payroll in the configured currency', () => {
     expect(() => payrollPositiveInputToMinor('0', 'USD')).toThrow('больше нуля');
     expect(() => payrollPositiveInputToMinor('-1', 'USD')).toThrow('USD');
   });
+
+  it('итоги строкой под таблицей вместо плиток, одна главная кнопка в строке, месяц по-русски (аудит 21.10.2026, п. 4, 29, 42)', () => {
+    const html = renderToStaticMarkup(createElement(PayrollBoard, {
+      scopeKey: 'synthetic-business:synthetic-location',
+      write: true,
+      payroll,
+      basis: 'visits',
+    }));
+    expect(html).not.toContain('class="stats');
+    expect(html).toMatch(/<tfoot>[\s\S]*Итого[\s\S]*data-testid="payroll-total"[\s\S]*<\/tfoot>/);
+    expect(html).toContain('октябрь 2026');
+    const row = html.slice(html.indexOf('Synthetic master'), html.indexOf('</tr>', html.indexOf('Synthetic master')));
+    expect(row.match(/class="btn(?! btn--secondary| btn--ghost| action-menu)[^"]*"/g) ?? []).toHaveLength(1);
+    expect(row).toContain('aria-label="Ещё: Synthetic master"');
+    expect(row).toContain('>Условия оплаты<');
+    expect(row).toContain('>Премия или удержание<');
+  });
 });

@@ -1,16 +1,18 @@
 import Link from 'next/link';
 import { Page } from '../../components/page';
 import { Icon, type IconName } from '../../components/icon';
-import { KpiTile } from '../../components/kpi-tile';
 import { Alert, Panel } from '../../components/ui';
 import { MarketingHub } from '../marketing/hub';
+import { BackToModules } from '../marketing/parts';
 import { formatMoney } from '../../lib/money';
 import { pluralRu } from '../../lib/plural';
-import { displayDate } from '../../lib/display-date';
+import { shortPeriod } from '../../lib/human-period';
+import { PeriodBar } from '../../lib/period-bar';
 import { verticalCopy } from '../../lib/vertical-copy';
 import type { BusinessSalesData, Ranked } from './business-sales';
 import '../sales/sales.css';
 import './growth.css';
+import '../finance/summary.css';
 
 type BusinessVertical = 'BEAUTY' | 'FOOD_SERVICE';
 const DASH = '–';
@@ -42,25 +44,23 @@ export function BusinessGrowthScreen({
       : null;
   const period = data?.period;
   const q = (extra: string) => `/sales?${extra}`;
+  const kpi = (testId: string, label: string, value: string, note: string | null, href: string) => (
+    <div key={testId}>
+      <dt>
+        <Link href={href}>{label}</Link>
+      </dt>
+      <dd data-testid={testId}>{value}</dd>
+      {note && <dd className="muted">{note}</dd>}
+    </div>
+  );
   return (
     <Page
+      crumbs={<BackToModules />}
       title="Обзор продаж"
       subtitle={
         period
-          ? `${restaurant ? 'Заказы и брони столов' : 'Записи и оказанные услуги'} за ${displayDate(period.from)} — ${displayDate(period.to)}`
+          ? `${restaurant ? 'Заказы и брони столов' : 'Записи и оказанные услуги'} за ${shortPeriod(period.from, period.to)}`
           : 'Инструменты роста и ИИ-продаж в одном разделе.'
-      }
-      actions={
-        period && (
-          <nav className="chips sales-chips" aria-label="Период продаж" data-testid="sales-period">
-            <Link href={q('days=7')} aria-current={period.preset === '7' ? 'page' : undefined}>
-              7 дней
-            </Link>
-            <Link href={q('days=30')} aria-current={period.preset === '30' ? 'page' : undefined}>
-              30 дней
-            </Link>
-          </nav>
-        )
       }
     >
       <div className="sales-hub growth-hub" data-testid="business-sales">
@@ -70,79 +70,59 @@ export function BusinessGrowthScreen({
           </Alert>
         )}
         {period && (
-          <form className="growth-period" action="/sales" data-testid="sales-custom-period">
-            <label>
-              С
-              <input type="date" name="from" defaultValue={period.from} required />
-            </label>
-            <label>
-              По
-              <input type="date" name="to" defaultValue={period.to} required />
-            </label>
-            <button className="btn btn--secondary" type="submit">
-              Показать
-            </button>
-            <span className="muted">период до 31 дня</span>
-          </form>
+          // один вид выбора периода с «Финансами» (аудит 21.10.2026 п. 22)
+          <PeriodBar
+            path="/sales"
+            from={period.from}
+            to={period.to}
+            today={period.to}
+            testId="sales-period"
+            note="период до 31 дня"
+            presets={[
+              { label: '7 дней', href: q('days=7'), selected: period.preset === '7' },
+              { label: '30 дней', href: q('days=30'), selected: period.preset === '30' },
+            ]}
+          />
         )}
-        <div className="kpi-row" data-testid="sales-kpis">
-          <KpiTile
-            icon="money"
-            label="Выручка"
-            testId="sales-kpi-revenue"
-            value={money(data?.revenueMinor ?? null)}
-            caption={restaurant ? 'закрытые заказы' : 'выполненные записи'}
-            href={restaurant ? '/restaurant-finance' : '/finance'}
-          />
-          <KpiTile
-            icon="check"
-            label={restaurant ? 'Заказов' : 'Оказано услуг'}
-            testId="sales-kpi-sold"
-            value={count(data?.sold)}
-            caption={data?.averageCheckMinor ? `средний чек ${money(data.averageCheckMinor)}` : 'средний чек появится с продажами'}
-            href={restaurant ? '/orders' : '/appointments'}
-          />
-          <KpiTile
-            icon="booking"
-            label={restaurant ? 'Броней столов' : 'Записей'}
-            testId="sales-kpi-bookings"
-            value={count(data?.bookings)}
-            caption={
-              restaurant
-                ? data?.guests != null
-                  ? `${pluralRu(data.guests, ['гость', 'гостя', 'гостей'])} в заказах`
-                  : 'все статусы'
-                : conversion
-                  ? `${conversion} дошли до визита`
-                  : 'все статусы'
-            }
-            href={restaurant ? '/table-reservations' : '/appointments'}
-          />
-          <KpiTile
-            icon="incidents"
-            label="Неявки и отмены"
-            testId="sales-kpi-lost"
-            value={count(data?.lost)}
-            caption={data?.lost ? 'стоит напомнить клиентам о визите' : 'потерь нет'}
-            href={restaurant ? '/table-reservations' : '/appointments'}
-          />
-          <KpiTile
-            icon="chat"
-            label="Диалогов ИИ-продавца"
-            testId="sales-kpi-dialogs"
-            value={dialogs ? String(dialogs.dialogs) : DASH}
-            caption={dialogs ? 'за 24 часа' : seller?.extensionOff ? 'расширение не подключено' : 'ИИ-продавец не подключён'}
-            href="/ai-agents"
-          />
-          <KpiTile
-            icon="guests"
-            label="Лидов"
-            testId="sales-kpi-leads"
-            value={dialogs ? String(dialogs.leads) : DASH}
-            caption={dialogs ? 'оставили контакт за 24 часа' : `контакты ${copy.clientsOf} от ИИ-продавца`}
-            href="/ai-agents"
-          />
-        </div>
+        {/* итоги строкой вместо шести плиток (аудит п. 30) */}
+        <dl className="money-summary" data-testid="sales-kpis">
+          {kpi('sales-kpi-revenue', 'Выручка', money(data?.revenueMinor ?? null), restaurant ? 'закрытые заказы' : 'выполненные записи', restaurant ? '/restaurant-finance' : '/finance')}
+          {kpi(
+            'sales-kpi-sold',
+            restaurant ? 'Заказов' : 'Оказано услуг',
+            count(data?.sold),
+            data?.averageCheckMinor ? `средний чек ${money(data.averageCheckMinor)}` : null,
+            restaurant ? '/orders' : '/appointments',
+          )}
+          {kpi(
+            'sales-kpi-bookings',
+            restaurant ? 'Броней столов' : 'Записей',
+            count(data?.bookings),
+            restaurant
+              ? data?.guests != null
+                ? `${pluralRu(data.guests, ['гость', 'гостя', 'гостей'])} в заказах`
+                : null
+              : conversion
+                ? `${conversion} дошли до визита`
+                : null,
+            restaurant ? '/table-reservations' : '/appointments',
+          )}
+          {kpi('sales-kpi-lost', 'Неявки и отмены', count(data?.lost), null, restaurant ? '/table-reservations' : '/appointments')}
+          {kpi(
+            'sales-kpi-dialogs',
+            'Диалогов ИИ-продавца',
+            dialogs ? String(dialogs.dialogs) : DASH,
+            dialogs ? 'за 24 часа' : seller?.extensionOff ? 'расширение не подключено' : 'не подключён',
+            '/ai-agents',
+          )}
+          {kpi(
+            'sales-kpi-leads',
+            'Лидов',
+            dialogs ? String(dialogs.leads) : DASH,
+            dialogs ? 'за 24 часа' : `контакты ${copy.clientsOf}`,
+            '/ai-agents',
+          )}
+        </dl>
 
         <div className="sales-trio">
           <RankCard

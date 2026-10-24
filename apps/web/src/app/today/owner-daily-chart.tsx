@@ -6,6 +6,9 @@ import { formatOwnerMoney, ownerReason, type DailyMoney } from '../../lib/owner-
 
 type Metric = { label: string; daily?: DailyMoney | undefined; previous?: DailyMoney | undefined };
 
+/** Высота графика: Главная помещается на один экран ноутбука (решение владельца 21.10.2026). */
+const PLOT_H = 200;
+
 /** One metric and currency at a time. Previous days align by position, never by invented hours. */
 export function OwnerDailyChart({ metrics }: { metrics: Metric[] }) {
   const id = useId();
@@ -33,7 +36,7 @@ export function OwnerDailyChart({ metrics }: { metrics: Metric[] }) {
   const range = maximum - minimum || 1n;
   // Only bounded drawing coordinates become Number. Exact monetary amounts remain BigInt/string.
   const geometry = lineGeometry(values.map(series => series.map(n => n === null ? null : Number((n - minimum) * 10000n / range) / 100)), {
-    width: plotWidth, height: 230, pad: { left: 100, right: 18, top: 14, bottom: 32 },
+    width: plotWidth, height: PLOT_H, pad: { left: 100, right: 18, top: 14, bottom: 32 },
   });
   const hasPrevious = values[1]!.some(n => n !== null);
   const hasPoints = known.length > 0 && currency !== undefined;
@@ -70,9 +73,9 @@ export function OwnerDailyChart({ metrics }: { metrics: Metric[] }) {
       {daily?.state !== 'READY' && <p role="status">{metric?.label}: {daily ? ownerReason(daily.reason) || 'Данные периода неполные' : 'Временной ряд не подключён'}{daily?.unresolvedSources ? ` Не определена валюта операций: ${daily.unresolvedSources}.` : ''}</p>}
       {previous?.state === 'PARTIAL' && <p role="status">Предыдущий период: данные неполные</p>}
       {hasPoints ? <>
-        <svg ref={plot} className="owner-chart-plot" viewBox={`0 0 ${plotWidth} 230`} width="100%" role="img" aria-label={`${metric?.label} по дням, ${currency}`}>
+        <svg ref={plot} className="owner-chart-plot" viewBox={`0 0 ${plotWidth} ${PLOT_H}`} width="100%" role="img" aria-label={`${metric?.label} по дням, ${currency}`}>
           {[0, 1, 2, 3, 4].map(tick => {
-            const y = 198 - tick * 46;
+            const y = PLOT_H - 32 - (tick * (PLOT_H - 46)) / 4;
             const amount = minimum + range * BigInt(tick) / 4n;
             return <g key={tick} className="owner-chart-grid"><line x1="100" x2={plotWidth - 18} y1={y} y2={y} /><text x="90" y={y + 4} textAnchor="end">{axisLabel(amount)}<title>{formatOwnerMoney(amount.toString(), currency)}</title></text></g>;
           })}
@@ -80,14 +83,14 @@ export function OwnerDailyChart({ metrics }: { metrics: Metric[] }) {
             {series.segments.map(d => <path key={d} d={d} />)}
             {series.dots.map(point => <circle key={point.index} cx={point.x} cy={point.y} r="3" fill="var(--surface)"><title>{`${rows[point.index]?.[index]?.date}: ${formatOwnerMoney(values[index]![point.index]!.toString(), currency)}`}</title></circle>)}
           </g>)}
-          {rows.map((row, i) => (i === 0 || i === count - 1 || i === Math.floor((count - 1) / 2)) && <text key={i} className="owner-chart-date" x={geometry.xs[i]} y="224" textAnchor={i === 0 ? 'start' : i === count - 1 ? 'end' : 'middle'}>{(row[0] ?? row[1])?.date.slice(5).split('-').reverse().join('.')}<title>{(row[0] ?? row[1])?.date}</title></text>)}
+          {rows.map((row, i) => (i === 0 || i === count - 1 || i === Math.floor((count - 1) / 2)) && <text key={i} className="owner-chart-date" x={geometry.xs[i]} y={PLOT_H - 6} textAnchor={i === 0 ? 'start' : i === count - 1 ? 'end' : 'middle'}>{(row[0] ?? row[1])?.date.slice(5).split('-').reverse().join('.')}<title>{(row[0] ?? row[1])?.date}</title></text>)}
         </svg>
         <details className="owner-chart-table"><summary>Точные дневные суммы, {currency}</summary>
           <table><caption>{metric?.label}, {currency}. Дни периодов сопоставлены по порядку.</caption><thead><tr><th scope="col">Дата</th><th scope="col">Текущий период</th>{hasPrevious && <><th scope="col">Дата сравнения</th><th scope="col">Предыдущий период</th></>}</tr></thead><tbody>
             {rows.map((row, i) => <tr key={i}><th scope="row">{row[0]?.date ?? 'Нет данных'}</th><td>{row[0] && row[0].unresolvedSources !== 0 ? 'Данные неполные' : values[0]![i] === null ? 'Нет данных' : formatOwnerMoney(values[0]![i]!.toString(), currency)}</td>{hasPrevious && <><td>{row[1]?.date ?? 'Нет данных'}</td><td>{row[1] && row[1].unresolvedSources !== 0 ? 'Данные неполные' : values[1]![i] === null ? 'Нет данных' : formatOwnerMoney(values[1]![i]!.toString(), currency)}</td></>}</tr>)}
           </tbody></table>
         </details>
-      </> : <div className="owner-chart-empty" role="status"><strong>Нет данных для графика</strong><p>Нет операций с подтверждённой валютой за период. Недоступные источники не означают ноль.</p></div>}
+      </> : <div className="owner-chart-empty" role="status"><strong>Нет данных для графика</strong><p>За этот период ещё нет операций. График появится после первой оплаты или расхода.</p></div>}
       <p className="owner-chart-foot">По дням в часовом поясе филиала, текущий день неполный{!hasPrevious && ', сравнение недоступно'}</p>
     </div>
   </div>;

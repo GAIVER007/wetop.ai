@@ -5,10 +5,11 @@ import {
   mkdtempSync,
   readFileSync,
   readdirSync,
+  rmSync,
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
+import { basename, dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
 import { shardSpecs, workerPorts } from './worker-ports';
 
 export type UiWorkerRuntime = {
@@ -217,6 +218,19 @@ function loadExistingRuntime(
   return { root, runtimeParent, workers, specialTests: [...SPECIAL_TESTS], manifestPath };
 }
 
+/**
+ * Временную копию убирает процесс, который её создал, при своём завершении (уборка 22.10.2026: каждый локальный
+ * прогон оставлял в workspace копию ~56 МБ, их набралось 20). Процессы-исполнители получают копию через
+ * UI_ISOLATED_RUNTIME_ROOT и её не трогают. rmSync не идёт по символическим ссылкам: node_modules, packages, scripts
+ * и tests/* исходного дерева остаются целы. UI_KEEP_RUNTIME=1 оставляет копию для разбора.
+ */
+function removeOnExit(root: string, runtimeParent: string): void {
+  if (process.env.UI_KEEP_RUNTIME === '1') return;
+  if (dirname(root) !== runtimeParent || !basename(root).startsWith('.wetop-main-ui-'))
+    throw new Error('isolated UI runtime outside UI_RUNTIME_PARENT');
+  process.once('exit', () => rmSync(root, { recursive: true, force: true }));
+}
+
 /** Creates two external, origin-only test mirrors and disjoint app runtimes. */
 export function prepareIsolatedUiWorkers(repoRoot: string): IsolatedUiWorkers {
   const fixtureBase = configuredPort('UI_FIXTURE_PORT', 4311);
@@ -232,6 +246,7 @@ export function prepareIsolatedUiWorkers(repoRoot: string): IsolatedUiWorkers {
     return loadExistingRuntime(repoRoot, runtimeParent, resolve(existingRoot));
 
   const root = mkdtempSync(join(runtimeParent, '.wetop-main-ui-'));
+  removeOnExit(root, runtimeParent);
   const sourceUi = join(repoRoot, 'tests/ui');
   const allSpecs = readdirSync(sourceUi)
     .filter((name) => name.endsWith('.spec.ts'))

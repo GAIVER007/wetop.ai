@@ -1,6 +1,8 @@
 'use client';
-import { useId, type FormEvent, type RefObject } from 'react';
-import { Alert, Button, Field, Input } from '../ui';
+import { useId, type FormEvent, type ReactNode, type RefObject } from 'react';
+import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, type PersonnelKind } from '@pms/domain';
+import { Alert, Button, Field, Input, Select } from '../ui';
+import { formatPhone, formatPhoneInput } from '../../lib/phone';
 
 export interface EmployeeProfileDraft {
   name: string;
@@ -21,6 +23,9 @@ export function EmployeeBasicForm({
   error,
   current,
   formRef,
+  personnelKind,
+  onPersonnelKindChange,
+  access = null,
 }: {
   draft: EmployeeProfileDraft;
   onChange: (draft: EmployeeProfileDraft) => void;
@@ -32,6 +37,11 @@ export function EmployeeBasicForm({
   error: string | null;
   current: EmployeeProfileDraft | null;
   formRef: RefObject<HTMLFormElement | null>;
+  /** Назначение нового сотрудника: явный выбор руководителя в форме создания (решение 20.10.2026) */
+  personnelKind?: PersonnelKind;
+  onPersonnelKindChange?: (kind: PersonnelKind) => void;
+  /** блок «Доступ в WETOP» под назначением (решение 20.10.2026) */
+  access?: ReactNode;
 }) {
   const prefix = useId();
   const problem =
@@ -58,7 +68,9 @@ export function EmployeeBasicForm({
         maxLength={key === 'name' ? 200 : key === 'phone' ? 32 : 320}
         type={key === 'email' ? 'email' : key === 'phone' ? 'tel' : 'text'}
         disabled={pending || disabled}
-        onChange={(event) => onChange({ ...draft, [key]: event.target.value })}
+        onChange={(event) =>
+          onChange({ ...draft, [key]: key === 'phone' ? formatPhoneInput(event.target.value) : event.target.value })
+        }
       />
     </Field>
   );
@@ -81,7 +93,7 @@ export function EmployeeBasicForm({
             <dt>Имя</dt>
             <dd>{current.name}</dd>
             <dt>Телефон</dt>
-            <dd>{current.phone || 'Не указан'}</dd>
+            <dd>{current.phone ? formatPhone(current.phone) : 'Не указан'}</dd>
             <dt>Почта</dt>
             <dd>{current.email || 'Не указана'}</dd>
             <dt>Статус</dt>
@@ -109,6 +121,27 @@ export function EmployeeBasicForm({
           Специалист работает
         </label>
       )}
+      {creating && personnelKind && onPersonnelKindChange && (
+        <Field
+          label="Кто это"
+          controlId={`${prefix}-personnelKind`}
+          hint="Специалист принимает клиентов, другой сотрудник помогает в работе салона."
+        >
+          <Select
+            name="personnelKind"
+            value={personnelKind}
+            disabled={pending || disabled}
+            onChange={(event) => onPersonnelKindChange(event.target.value as PersonnelKind)}
+          >
+            {PERSONNEL_KINDS.map((value) => (
+              <option key={value} value={value}>
+                {PERSONNEL_KIND_LABELS[value]}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      )}
+      {creating && access}
       {creating && (
         <p className="employee-workspace-note">
           Услуги и рабочее время можно настроить после создания.

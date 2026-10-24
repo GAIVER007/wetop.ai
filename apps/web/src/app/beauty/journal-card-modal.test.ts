@@ -8,10 +8,13 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
   usePathname: () => '/calendar',
 }));
-vi.mock('./appointment-editor', () => ({ AppointmentEditor: () => null }));
+vi.mock('./appointment-editor', () => ({
+  AppointmentEditor: ({ open, employeeId }: { open: boolean; employeeId: string }) =>
+    open ? createElement('div', { 'data-testid': 'synthetic-new-form', 'data-employee': employeeId }) : null,
+}));
 vi.mock('./appointment-card', () => ({ AppointmentCard: () => createElement('div', null, 'Synthetic appointment card') }));
 vi.mock('./date-bar', () => ({ DateBar: () => null }));
-vi.mock('./journal-actions', () => ({ moveAppointment: vi.fn() }));
+vi.mock('./journal-actions', () => ({ moveAppointment: vi.fn(), beautyPeriodRows: vi.fn() }));
 vi.mock('../../components/quick-report', () => ({ QuickReport: () => null }));
 
 import { JournalBoard } from './journal';
@@ -59,4 +62,15 @@ it('offers an accessible compact calendar toggle', () => {
     day, customers: [], employees: [], readOnly: false,
   }));
   expect(html).toMatch(/aria-pressed="false"[^>]*>Компактный вид/);
+});
+
+it('аудит 22.10.2026: «Новая запись» из карточки мастера открывает форму к этому мастеру', () => {
+  const html = renderToStaticMarkup(createElement(JournalBoard, {
+    day, customers: [], employees: [], readOnly: false, newFor: 'synthetic-master',
+  }));
+  expect(html).toContain('data-testid="synthetic-new-form" data-employee="synthetic-master"');
+  const closed = renderToStaticMarkup(createElement(JournalBoard, {
+    day, customers: [], employees: [], readOnly: false, newFor: 'unknown-master',
+  }));
+  expect(closed).not.toContain('synthetic-new-form');
 });

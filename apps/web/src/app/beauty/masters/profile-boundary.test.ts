@@ -16,7 +16,8 @@ vi.mock('next/link', () => ({
   default: ({ href, children }: { href: string; children: ReactNode }) =>
     createElement('a', { href }, children),
 }));
-vi.mock('../../../components/ui', () => ({
+vi.mock('../../../components/ui', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../components/ui')>()),
   Alert: ({ children }: { children: ReactNode }) => createElement('div', { role: 'alert' }, children),
   Badge: ({ children }: { children: ReactNode }) => createElement('span', null, children),
   Button: ({ children, ...props }: { children: ReactNode }) => createElement('button', props, children),
@@ -108,6 +109,7 @@ function portal(active: boolean): EmployeePortalDto {
     scheduleConflicts: { items: [], checkedFrom: '2026-10-18', checkedCount: 0, truncated: false },
     timeOffs: [], appointments: [], orders: [],
     reviews: { averageStars: null, count: 0, hasMore: false, items: [] },
+    workRange: 'DAY', workTruncated: false, monthStats: { month: '2026-10', status: 'AVAILABLE', currency: 'KZT', shifts: 20, daysOff: 11, absenceDays: 0, appointmentsDone: 0, servicesDone: 0, ordersClosed: null, tablesServed: null, guests: null, revenueMinor: '0', bonusMinor: '0', percent: null },
     pay: {
       month: '2026-10', status: 'NOT_CONFIGURED', model: null, fixedMinor: null,
       percent: null, percentBasis: null, policyRevision: null, earnedMinor: null,
@@ -132,12 +134,15 @@ describe('beauty master profile boundary', () => {
   });
 
   it('keeps active/archive separate from working today', () => {
-    const active = renderBoard();
-    const archived = renderBoard(employee(false));
+    const body = (html: string) => html.split('<tbody>')[1]!.split('</tbody>')[0]!;
+    const active = body(renderBoard());
+    const archived = body(renderBoard(employee(false)));
 
-    expect(active).toContain('Активен');
+    // единый экран персонала (20.10.2026): статус строки «На смене» у активного, «В архиве» у архивного, не вместе
     expect(active).toContain('На смене');
+    expect(active).not.toContain('>В архиве<');
     expect(archived).toContain('В архиве');
+    expect(archived).not.toContain('>На смене<');
     expect(archived).not.toContain('Работает');
   });
 

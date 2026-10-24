@@ -499,7 +499,10 @@ class CascadeClient:
                             tokens.add(call)
                         report(CallUsage(call.input, call.cached, call.output, complete=complete) if complete
                                else CallUsage(None, None, None, complete=False))
-                    return HTTP_ERROR, f"HTTP {exc.status_code}", tokens
+                    # Код поставщика (insufficient_quota, invalid_api_key) без тела: по нему владелец видит
+                    # состояние своего ключа (src/ai/key_state.py), а тело ошибки в журнал не идёт.
+                    code = getattr(exc, "code", None) or getattr(exc, "type", None)
+                    return HTTP_ERROR, f"HTTP {exc.status_code}" + (f" {code}" if code else ""), tokens
 
                 call = _usage_of(response)
                 tokens.add(call)

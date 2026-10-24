@@ -1,6 +1,6 @@
 @layer sections {
   .page.booking-create {
-    max-width: 960px;
+    max-width: var(--overlay-w-xl);
   }
   .booking-create .booking-form {
     padding: 16px;
@@ -267,6 +267,51 @@
     .booking-create textarea,
     .booking-create .btn {
       scroll-margin-block: 100px;
+    }
+  }
+  /* Окно брони вариант B (решение 23.10.2026): слева даты и гость, справа номера кнопками */
+  .booking-create .booking-shell__form,
+  .booking-create .booking-shell__pick {
+    gap: var(--space-4);
+  }
+  .booking-create .booking-shell__form {
+    padding-top: 0;
+  }
+  .booking-create .booking-shell__pick {
+    padding-top: 0;
+  }
+  .booking-create .booking-guest-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2) var(--space-4);
+  }
+  .booking-create .booking-guest-fields__phone {
+    grid-column: 1 / -1;
+  }
+  .booking-create .booking-shell__form .placement-fields .grid-auto {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .booking-create .booking-shell__form .placement-fields .grid-auto > * {
+    grid-column: auto;
+  }
+  .booking-create .booking-rooms {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .booking-create .booking-shell__footer.booking-footer {
+    margin: 0;
+    padding-inline: 0;
+    border-radius: 0;
+  }
+  /* телефон: 88 кнопок номеров под формой уводили «Создать бронь» далеко вниз; номер выбирают полями
+     «Категория» и «Номер / койка» слева, кнопки номеров только с 601 px */
+  @media (max-width: 600px) {
+    .booking-create .booking-rooms,
+    .booking-create .booking-shell__pick > .booking-pick__head {
+      display: none;
+    }
+    .booking-create .booking-shell__pick {
+      padding: 0;
     }
   }
 }

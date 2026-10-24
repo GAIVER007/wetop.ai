@@ -4,6 +4,7 @@ import { can } from '@pms/domain';
 import type { SearchParams } from '../../../lib/search-params';
 import { requireFeature } from '../../../lib/vertical-guard';
 import { formatMoney } from '../../../lib/money';
+import { METRIC } from '../../../lib/metric-words';
 import { deskShell } from '../../../lib/desk-shell';
 import { verticalCopy } from '../../../lib/vertical-copy';
 import {
@@ -16,10 +17,11 @@ import {
 } from '../../../lib/api';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
-import { Badge, SectionTitle, Stat, Stats, Table } from '../../../components/ui';
+import { Badge, SectionTitle, Table } from '../../../components/ui';
 import { BackToModules } from '../parts';
 import '../marketing.css';
 import './budget.css';
+import '../../finance/summary.css';
 import { loadBudget } from './load';
 import { BUDGET_TITLE, BudgetTabs, ChooseLocation, MonthNav, platformLabel } from './parts';
 import { budgetSummary, type CabinetSum, type Metric, type MoneyMetric } from './summary';
@@ -105,51 +107,49 @@ export default async function BudgetSummaryPage({ searchParams }: { searchParams
           <BudgetTabs current="summary" month={view.month} />
           <MonthNav base="/marketing/budget" month={view.month} />
         </div>
-        <Stats min={180} className="budget-summary-stats">
-          <Stat
-            label="Расход вручную"
-            value={formatMoney(s.manualSpend.value, rc)}
-            hint="Журнал расходов, учтённые в бюджете"
-            testId="summary-manual"
-          />
-          <Stat
-            label="Расход кабинета Meta"
-            value={
-              cabinet.value === null ? NO_DATA : cabinet.value.length === 0 ? 'Не подключён' : cabinetText(cabinet.value)
-            }
-            size={cabinet.value === null || cabinet.value.length === 0 ? 'sm' : undefined}
-            hint={
-              cabinet.value === null
+        {/* итоги месяца одной строкой, без плиток (аудит 21.10.2026 п. 32, как «План») */}
+        <dl className="money-summary budget-summary-line">
+          <div>
+            <dt>Расход вручную</dt>
+            <dd data-testid="summary-manual">{formatMoney(s.manualSpend.value, rc)}</dd>
+            <dd className="muted">Журнал расходов, учтённые в бюджете</dd>
+          </div>
+          <div>
+            <dt>Расход кабинета Meta</dt>
+            <dd data-testid="summary-cabinet">
+              {cabinet.value === null ? NO_DATA : cabinet.value.length === 0 ? 'Не подключён' : cabinetText(cabinet.value)}
+            </dd>
+            <dd className="muted">
+              {cabinet.value === null
                 ? cabinet.reason
                 : cabinet.value.length === 0
                   ? 'Подключите кабинет в «Рекламе»'
-                  : 'По данным кабинета, в его валюте'
-            }
-            testId="summary-cabinet"
-          />
-          <Stat
-            label={copy.requests}
-            value={s.requests.value === null ? NO_DATA : String(s.requests.value)}
-            size={s.requests.value === null ? 'sm' : undefined}
-            hint={s.requests.reason ?? 'Обращения из своих каналов'}
-            testId="summary-requests"
-          />
-          <Stat
-            label="Цена заявки"
-            value={s.costPerRequest.value === null ? NO_DATA : formatMoney(s.costPerRequest.value, rc)}
-            size={s.costPerRequest.value === null ? 'sm' : undefined}
-            hint={s.costPerRequest.reason ?? 'Расход вручную на одну заявку'}
-            testId="summary-cpr"
-          />
-          <Stat
-            label="ROMI"
-            value={s.romi.value === null ? NO_DATA : romiText(s.romi.value)}
-            size={s.romi.value === null ? 'sm' : undefined}
-            tone={s.romi.value !== null && s.romi.value < 0 ? 'danger' : undefined}
-            hint={s.romi.reason ?? '(выручка − расход) / расход'}
-            testId="summary-romi"
-          />
-        </Stats>
+                  : 'По данным кабинета, в его валюте'}
+            </dd>
+          </div>
+          <div>
+            <dt>{copy.requests}</dt>
+            <dd data-testid="summary-requests">{s.requests.value === null ? NO_DATA : String(s.requests.value)}</dd>
+            <dd className="muted">{s.requests.reason ?? 'Обращения из своих каналов'}</dd>
+          </div>
+          <div>
+            <dt>{METRIC.cpl}</dt>
+            <dd data-testid="summary-cpr">
+              {s.costPerRequest.value === null ? NO_DATA : formatMoney(s.costPerRequest.value, rc)}
+            </dd>
+            <dd className="muted">{s.costPerRequest.reason ?? 'Расход вручную на одну заявку'}</dd>
+          </div>
+          <div>
+            <dt>{METRIC.romi}</dt>
+            <dd
+              data-testid="summary-romi"
+              className={s.romi.value !== null && s.romi.value < 0 ? 'budget-td-danger' : undefined}
+            >
+              {s.romi.value === null ? NO_DATA : romiText(s.romi.value)}
+            </dd>
+            <dd className="muted">{s.romi.reason ?? '(выручка − расход) / расход'}</dd>
+          </div>
+        </dl>
         <Sources sources={sources} month={view.month} defaults={defaults} reportingCurrency={rc} />
         <p className="settings-note" data-testid="summary-separate-note">
           Расход вручную и расход кабинета Meta показаны отдельно и не складываются: оплата счёта Meta, записанная в
@@ -179,13 +179,13 @@ export default async function BudgetSummaryPage({ searchParams }: { searchParams
                       Заявки
                     </th>
                     <th scope="col" className="budget-td-num">
-                      Цена заявки
+                      {METRIC.cpl}
                     </th>
                     <th scope="col" className="budget-td-num">
                       Выручка
                     </th>
                     <th scope="col" className="budget-td-num">
-                      ROMI
+                      {METRIC.romi}
                     </th>
                   </tr>
                 </thead>
@@ -241,7 +241,7 @@ export default async function BudgetSummaryPage({ searchParams }: { searchParams
           <p className="settings-note" data-testid="summary-channels-note">
             Заявки и выручка канала: брони и обращения из сайта, WhatsApp, Instagram и телефона, как во вкладке
             «Аналитика». У рекламы своих броней нет: у кабинета Meta видны лиды площадки и цена лида по кабинету в его
-            валюте, ROMI появится, когда брони начнут нести метку кампании. Разные валюты не складываются.
+            валюте, окупаемость рекламы появится, когда брони начнут нести метку кампании. Разные валюты не складываются.
           </p>
         </section>
       </div>

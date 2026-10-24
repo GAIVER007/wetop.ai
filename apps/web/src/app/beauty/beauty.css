@@ -205,6 +205,17 @@
     align-items: center;
     flex-wrap: wrap;
   }
+  /* выбор назначения в строке: на всю ширину карточки, ошибка под ним */
+  .beauty-master-card__kind {
+    display: grid;
+    gap: var(--space-1);
+  }
+  /* «Принёс за период» (решение 20.10.2026): сумма в одну строку */
+  .beauty-master-card__earned {
+    margin: 0;
+    font-size: var(--text-sm);
+    white-space: nowrap;
+  }
   .beauty-master-card__skills {
     color: var(--text-2);
     font-size: var(--text-sm);
@@ -1434,4 +1445,421 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
+}
+
+/* Журнал салона на весь экран (решение владельца 20.10.2026: «не нравится, что слева список сотрудников, сделай
+   удобно на весь экран»): списка слева нет, специалист в шапке своей колонки (нажать: только он), сетка на всю
+   ширину и высоту окна, свободная клетка подсказывает время, линия «сейчас» на сегодняшнем дне. */
+@layer sections {
+  .beauty-page .beauty-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .beauty-page .beauty-board {
+    padding: 0;
+    overflow: hidden;
+  }
+  @media (min-width: 601px) {
+    .beauty-page .beauty-grid-day {
+      margin-top: 0;
+      max-height: calc(100dvh - 220px);
+      min-height: 480px;
+      padding: 0 var(--space-2) var(--space-2) 0;
+    }
+  }
+  .beauty-page .beauty-col-head {
+    gap: var(--space-1);
+    margin: 0;
+    padding: var(--space-2) var(--space-1);
+    border-bottom: 1px solid var(--border-soft);
+    background: var(--surface);
+  }
+  .beauty-col-person {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    min-width: 0;
+    padding: var(--space-1);
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    text-align: left;
+    cursor: pointer;
+  }
+  .beauty-col-person:hover {
+    background: var(--row-hover);
+  }
+  .beauty-col-person[aria-pressed='true'] {
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .beauty-col-person__name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .beauty-col-person__count:not(:empty) {
+    min-width: var(--space-6);
+    padding: 0 var(--space-1);
+    border-radius: var(--radius-full);
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: var(--text-xs);
+    text-align: center;
+  }
+  .beauty-page .beauty-col-head small {
+    padding-left: calc(var(--space-8) + var(--space-2) + var(--space-1));
+    font-size: var(--text-xs);
+  }
+  .beauty-page .beauty-col-body {
+    border-color: var(--border-soft);
+    border-radius: 0;
+  }
+  .beauty-page .beauty-slot {
+    border-top-color: var(--border-soft);
+  }
+  .beauty-page .beauty-slot-free::after {
+    content: attr(data-time);
+    display: none;
+    padding: 0 var(--space-2);
+    color: var(--primary);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+  .beauty-page .beauty-slot-free {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .beauty-page .beauty-slot-free:hover::after,
+  .beauty-page .beauty-slot-free:focus-visible::after {
+    display: inline;
+  }
+  .beauty-now {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: var(--layer-sticky);
+    height: 0;
+    border-top: 2px solid var(--danger);
+    pointer-events: none;
+  }
+  /* «Напомнить сегодня» (решение 21.10.2026 §1): строка на клиента, действия справа */
+  .beauty-reminders-today {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .beauty-reminders-today h2 {
+    margin: 0;
+    font-size: var(--text-md);
+  }
+  .beauty-reminders-today ul {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .beauty-reminders-today li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .beauty-reminders-today__who {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--text-sm);
+  }
+  .beauty-reminders-today__kind {
+    font-weight: 600;
+  }
+  .beauty-reminders-today__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+  }
+  /* бонусы клиента и оплата бонусами, сертификатом */
+  .beauty-bonus-balance {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .beauty-loyalty-hint {
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+  /* «Финансы → Сертификаты» (решение 21.10.2026 §3) */
+  .beauty-certificates {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .beauty-certificates__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .beauty-certificates__lookup {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-2);
+  }
+  .beauty-certificates__table td {
+    white-space: nowrap;
+  }
+  .beauty-certificates__sell,
+  .beauty-certificates__sold {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .beauty-certificates__sold p {
+    margin: 0;
+  }
+  .beauty-certificates__code {
+    font-size: var(--text-lg);
+    letter-spacing: 0.1em;
+  }
+}
+
+/* График: быстрые шаблоны недели и кнопка «Задать часы» у нового специалиста (онбординг 21.10.2026) */
+@layer sections {
+  .beauty-week-presets {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .beauty-week-grid th .beauty-week-unset {
+    display: flex;
+    margin-top: var(--space-1);
+  }
+}
+
+
+/* Журнал салона, аудит 21.10.2026 (п. 13-15, 34-36): одна строка инструментов, подписанный отчёт,
+   «Фильтры» как соседние кнопки, пустое состояние карточкой вместо пустой сетки */
+@layer sections {
+  .beauty-calendar-actions > .beauty-calendar-views {
+    margin: 0;
+    gap: var(--space-1);
+  }
+  .beauty-calendar-wide > .quick-report-trigger {
+    margin-left: 0;
+  }
+  .beauty-calendar-toolbar > .context-help > summary {
+    border-color: var(--border);
+    background: var(--surface);
+    color: var(--text-2);
+    font-weight: 500;
+  }
+  .beauty-calendar-toolbar > .context-help > summary:hover {
+    border-color: var(--border-input);
+    background: var(--row-hover);
+    color: var(--text);
+  }
+  .beauty-setup-empty {
+    margin-block: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  @media (max-width: 600px) {
+    .beauty-calendar-actions > .beauty-calendar-views {
+      grid-column: 1 / -1;
+    }
+  }
+  /* «День / Неделя» и подписанный «Быстрый отчёт» удлинили строку инструментов: на 1440 «Фильтры» уезжали
+     за край экрана и давали горизонтальную прокрутку. Строка переносится, «Фильтры» уходят под неё. */
+  @media (min-width: 1280px) {
+    .beauty-page .beauty-calendar-toolbar {
+      flex-wrap: wrap;
+    }
+    .beauty-calendar-toolbar .beauty-calendar-actions {
+      flex: 1 1 auto;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+    .beauty-calendar-toolbar > .context-help {
+      flex: 0 0 auto;
+    }
+    .beauty-calendar-toolbar > .context-help[open] {
+      flex: 1 1 100%;
+    }
+  }
+}
+
+/* График недели, аудит 21.10.2026 (п. 41): стрелки недели как у дня в Журнале */
+@layer sections {
+  .beauty-week-nav.date-bar {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .beauty-week-nav__range {
+    min-width: 12rem;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+  }
+  @media (max-width: 600px) {
+    .beauty-week-nav.date-bar {
+      display: grid;
+      grid-template-columns: auto 44px minmax(0, 1fr) 44px;
+      gap: var(--space-1);
+    }
+    .beauty-week-nav.date-bar > .beauty-week-nav__range {
+      grid-column: auto;
+      grid-row: auto;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+/* Журнал на телефоне: «День / Неделя» рядом с «Фильтрами», «Новая запись» рядом с выбором специалиста.
+   Раньше вид занимал отдельную строку, а кнопка ещё одну, и сетка начиналась ниже 422 px (tz12 compact controls). */
+@layer sections {
+  @media (max-width: 600px) {
+    .beauty-calendar-toolbar .beauty-calendar-actions > .beauty-calendar-views {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    .beauty-calendar-toolbar .beauty-calendar-actions > .btn {
+      grid-area: 1 / 2;
+      min-width: 0;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+  }
+}
+
+/* «Новая запись» компактнее (21.10.2026): клиент одной группой, имя и фамилия в ряд, «Итого» над кнопкой,
+   без прокрутки на ноутбуке при одной услуге. */
+@layer sections {
+  .appointment-form {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+  }
+  .appointment-form fieldset {
+    gap: var(--space-2);
+  }
+  .appointment-form .appointment-customer-fields > * {
+    grid-column: 1 / -1;
+  }
+  .appointment-customer-new {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  /* быстрые кнопки и выбор клиента в одном ряду: на ноутбуке «Новая запись» без лишней прокрутки */
+  @media (min-width: 601px) {
+    .appointment-form .appointment-customer-fields {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: end;
+    }
+    .appointment-form .appointment-customer-fields > .appointment-customer-quick {
+      grid-column: 1;
+    }
+    .appointment-form .appointment-customer-fields > .appointment-customer-quick + .field {
+      grid-column: 2;
+    }
+  }
+  .appointment-form .appointment-customer-fields > legend {
+    padding-bottom: 0;
+  }
+  .appointment-form fieldset:last-of-type > legend {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .appointment-form__footer {
+    display: grid;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+  }
+  .appointment-form__total {
+    margin: 0;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 600px) {
+    .appointment-customer-new {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+/* «Новая запись» в общем окне брони (решение владельца 23.10.2026, вариант B, `components/booking-shell.tsx`):
+   слева клиент (поиск, быстрые кнопки, имя и фамилия, затем телефон) и заметка, справа услуга, специалист,
+   дата и свободное время кнопками, внизу итог и «Записать». */
+@layer sections {
+  .appointment-form .booking-shell {
+    min-height: 0;
+  }
+  .appointment-form .booking-shell__form,
+  .appointment-form .booking-shell__pick {
+    padding-top: 0;
+  }
+  @media (min-width: 601px) {
+    .appointment-form .booking-shell .appointment-customer-fields {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .appointment-form .booking-shell .appointment-customer-fields > .appointment-customer-quick,
+    .appointment-form .booking-shell .appointment-customer-fields > .appointment-customer-quick + .field {
+      grid-column: 1;
+    }
+  }
+  .appointment-form .booking-shell .appointment-customer-new {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .appointment-form .booking-shell .appointment-customer-new > :nth-child(3) {
+    grid-column: 1 / -1;
+  }
+  .appointment-form .booking-shell .appointment-customer-fields > legend,
+  .appointment-form .booking-shell .appointment-pick > legend {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+  }
+  .appointment-form .booking-shell__footer {
+    bottom: calc(-1 * var(--space-4));
+  }
+  .appointment-form .booking-shell__footer .appointment-form__total {
+    margin: 0;
+    flex: none;
+  }
+  .appointment-form .booking-shell__footer > .btn {
+    width: auto;
+    min-width: 160px;
+    min-height: var(--touch-target);
+  }
+  @media (max-width: 600px) {
+    .appointment-form .booking-shell__footer > .btn {
+      width: 100%;
+    }
+  }
 }

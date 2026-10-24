@@ -147,6 +147,9 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
       'beauty_service_materials', 'beauty_service_material_revisions',
       'beauty_positions', 'beauty_position_permissions', 'beauty_position_assignments',
       'beauty_location_hours',
+      'client_notifications', 'beauty_reminder_settings',
+      'bonus_programs', 'customer_bonus_entries', 'gift_certificates', 'gift_certificate_entries',
+      'voice_calls', 'voice_callbacks', 'voice_profiles',
     ];
     expect(
       rls.rows.filter((row) => beautyTables.includes(row.relname) && !row.relforcerowsecurity).map((row) => row.relname).sort(),

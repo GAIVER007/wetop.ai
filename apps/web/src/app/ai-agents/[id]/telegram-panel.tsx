@@ -2,6 +2,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import type { TelegramStatusView } from '../../../lib/api';
 import { telegramAction } from './actions';
+import { Input } from '../../../components/ui';
 /** ID тестировщиков: только числа, без повторов, не больше 20 (как обещает подсказка у поля) */
 export const MAX_TESTERS = 20;
 export function parseTesterIds(raw: string): { ids: string[]; error: string | null } {
@@ -114,7 +115,7 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
       <div className="agent-telegram__fields">
         <label>
           Токен из @BotFather
-          <input
+          <Input
             type="password"
             autoComplete="off"
             value={token}
@@ -130,7 +131,7 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
         </label>
         <label>
           Telegram ID тестировщиков
-          <input
+          <Input
             value={ids}
             disabled={pending || readOnly}
             onChange={(e) => setIds(e.target.value)}

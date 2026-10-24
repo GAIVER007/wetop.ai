@@ -3,10 +3,12 @@ import { createHash, randomUUID } from 'node:crypto';
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { parseCreatePersonnelKind, parsePersonnelKindCommand, writePersonnelKind } from '../beauty/personnel-kind';
 import {
   foodId,
   foodInt,
@@ -15,6 +17,11 @@ import {
   ingredientCost,
   orderDelayed,
   orderNext,
+  itemNext,
+  orderStatusFromItems,
+  parseItemStatusCommand,
+  type ItemStatus,
+  type MenuStation,
   orderPayment,
   parseOrderRating,
   parseWorkingHoursWeek,
@@ -41,30 +48,67 @@ import {
   parseOrderItems,
   parsePayAdjustment,
   parsePaySettings,
-  payrollTotals,
   techCardTotals,
   timeOffWindow,
   foodLocal,
   type OrderStatus,
   type FoodPaymentMethod,
   type Permission,
+  canManageStaff,
+  canWrite,
+  parsePersonnelKind,
+  checkModifierChoice,
+  linePrice,
+  orderLineKey,
+  itemsPaymentAmount,
+  type ChosenModifier,
 } from '@pms/domain';
 import type { DbTx, Prisma } from '@pms/database';
-import { currentUserId } from '../auth/request-context';
+import { actorMay, currentRole, currentUserId, currentVertical } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
-import { BRANCH_CASH_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } from './scope';
+import { BRANCH_CASH_VERTICALS, BRANCH_PAYROLL_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, waiterSelf, type FoodScope, type FoodVertical } from './scope';
+import { assertBranchMethodsOpen } from './branch-payment-methods';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
 import { assertWeekRevision, hoursRevision, hoursRowsRevision } from '../beauty/write-contract';
 import { StockService } from './stock.service';
+import { branchStaffRevenue } from './staff-revenue';
+import { monthPayrollRows, type MonthPayrollDb } from './month-payroll';
+import { reverseLoyaltyForVoid } from '../beauty/loyalty';
 
 /** Срок ссылки на оценку с телефона гостя (§40) */
 const RATING_LINK_TTL_MS = 72 * 3_600_000;
+/** §33.7: группы модификаторов блюда с модификаторами, по порядку блюда */
+const itemGroupsInclude = {
+  modifierGroups: {
+    orderBy: { sortOrder: 'asc' as const },
+    include: { group: { include: { modifiers: { orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }] as Prisma.MenuModifierOrderByWithRelationInput[] } } } },
+  },
+} as const;
 const OPEN_STATUSES: OrderStatus[] = ['NEW', 'COOKING', 'READY', 'SERVED'];
+/** Строка заказа из запроса после проверки (§33.6, §33.7) */
+interface OrderLineData {
+  key: string;
+  menuItemId: string;
+  name: string;
+  price: bigint;
+  qty: number;
+  notes: string | null;
+  sortOrder: number;
+  station: MenuStation;
+  modifiers: ChosenModifier[];
+}
 const orderInclude = {
   table: { include: { area: { select: { name: true } } } },
   waiter: { select: { id: true, name: true } },
-  items: { orderBy: { sortOrder: 'asc' as const } },
-  payments: { orderBy: { paidAt: 'asc' as const } },
+  // §33.7: снимок модификаторов строки и её действующая оплата по позициям
+  items: {
+    orderBy: { sortOrder: 'asc' as const },
+    include: {
+      modifiers: { orderBy: { sortOrder: 'asc' as const } },
+      paymentItems: { where: { releasedAt: null }, select: { paymentId: true } },
+    },
+  },
+  payments: { orderBy: { paidAt: 'asc' as const }, include: { items: { select: { orderItemId: true } } } },
   // возвраты после закрытия (§56)
   refunds: { orderBy: { occurredAt: 'asc' as const }, select: { id: true, method: true, amount: true, status: true, note: true, occurredAt: true } },
   rating: true,
@@ -117,6 +161,18 @@ function orderView(r: OrderRow, now = new Date()) {
       priceMinor: i.price.toString(),
       qty: i.qty,
       notes: i.notes,
+      // §33.6: станция и статус строки
+      station: i.station,
+      status: i.status,
+      readyAt: i.readyAt,
+      // §33.7: выбранные модификаторы (снимок) и оплачена ли строка по позициям
+      modifiers: i.modifiers.map((m) => ({
+        modifierId: m.modifierId,
+        groupName: m.groupName,
+        name: m.name,
+        priceDeltaMinor: m.priceDelta.toString(),
+      })),
+      paid: i.paymentItems.length > 0,
     })),
     // §39: оценка гостя после оплаты
     rating: r.rating
@@ -129,6 +185,8 @@ function orderView(r: OrderRow, now = new Date()) {
       status: p.status,
       paidAt: p.paidAt,
       voidReason: p.voidReason,
+      // §33.7: позиции, оплаченные этим платежом (пусто у оплаты суммой)
+      itemIds: p.items.map((x) => x.orderItemId),
     })),
     refunds: r.refunds.map((p) => ({
       id: p.id,
@@ -208,7 +266,7 @@ export class RestaurantService {
   private async write<T>(
     permission: Permission,
     fn: (tx: DbTx, s: FoodScope) => Promise<T>,
-    verticals?: typeof BRANCH_CASH_VERTICALS,
+    verticals?: readonly FoodVertical[],
   ): Promise<T> {
     foodMay(permission);
     await foodWritable(this.prisma.db);
@@ -241,7 +299,8 @@ export class RestaurantService {
   // ─── Меню и техкарты (§33.1) ───
 
   async categories(query: unknown) {
-    foodMay('desk');
+    // меню на чтение нужно и официанту (§33.6)
+    foodMay('orders');
     const s = await foodScope(this.prisma.db),
       p = page(query);
     return paged(
@@ -263,10 +322,12 @@ export class RestaurantService {
           name: b.name!,
           sortOrder: b.sortOrder ?? 0,
           active: b.active ?? true,
+          station: b.station ?? 'KITCHEN',
         },
       });
       await this.audit(tx, s, 'menu_category', row.id, 'food.menu_category.created', {
         name: row.name,
+        station: row.station,
       });
       return row;
     });
@@ -284,6 +345,7 @@ export class RestaurantService {
           ...(b.name !== undefined ? { name: b.name } : {}),
           ...(b.sortOrder !== undefined ? { sortOrder: b.sortOrder } : {}),
           ...(b.active !== undefined ? { active: b.active } : {}),
+          ...(b.station !== undefined ? { station: b.station } : {}),
         },
       });
       await this.audit(
@@ -292,15 +354,17 @@ export class RestaurantService {
         'menu_category',
         id,
         'food.menu_category.updated',
-        { name: row.name, sortOrder: row.sortOrder, active: row.active },
-        { name: old.name, sortOrder: old.sortOrder, active: old.active },
+        { name: row.name, sortOrder: row.sortOrder, active: row.active, station: row.station },
+        { name: old.name, sortOrder: old.sortOrder, active: old.active, station: old.station },
       );
       return row;
     });
   }
 
   private menuItemView(
-    row: Prisma.MenuItemGetPayload<{ include: { ingredients: true, photo: true } }> | Prisma.MenuItemGetPayload<object>,
+    row: (Prisma.MenuItemGetPayload<{ include: { ingredients: true, photo: true } }> | Prisma.MenuItemGetPayload<object>) & {
+      modifierGroups?: Prisma.MenuItemModifierGroupGetPayload<{ include: typeof itemGroupsInclude.modifierGroups.include }>[];
+    },
   ) {
     const ingredients =
       'ingredients' in row
@@ -323,6 +387,20 @@ export class RestaurantService {
       techNotes: row.techNotes,
       sortOrder: row.sortOrder,
       updatedAt: row.updatedAt,
+      // §33.7: группы модификаторов блюда по порядку; для выбора только активные группы и модификаторы
+      modifierGroupIds: (row.modifierGroups ?? []).map((l) => l.groupId),
+      modifierGroups: (row.modifierGroups ?? [])
+        .filter((l) => l.group.active)
+        .map((l) => ({
+          id: l.group.id,
+          name: l.group.name,
+          minSelect: l.group.minSelect,
+          maxSelect: l.group.maxSelect,
+          required: l.group.minSelect >= 1,
+          modifiers: l.group.modifiers
+            .filter((m) => m.active)
+            .map((m) => ({ id: m.id, name: m.name, priceDeltaMinor: m.priceDelta.toString() })),
+        })),
       ...(ingredients
         ? {
             ingredients: ingredients.map((i) => ({
@@ -352,12 +430,14 @@ export class RestaurantService {
   }
 
   async menuItems(query: unknown) {
-    foodMay('desk');
+    foodMay('orders');
     const s = await foodScope(this.prisma.db),
       p = page(query);
+    // официанту (без `desk`) техкарта и себестоимость не нужны (§33.6)
+    const desk = actorMay('desk');
     const rows = await this.prisma.db.menuItem.findMany({
-      where: { ...(p.cursor ? { id: { gt: p.cursor } } : {}), businessId: s.businessId },
-      include: { ingredients: true, photo: true },
+      where: { ...(p.cursor ? { id: { gt: p.cursor } } : {}), businessId: s.businessId, ...(desk ? {} : { active: true }) },
+      include: { ingredients: desk, photo: true, ...itemGroupsInclude },
       orderBy: { id: 'asc' },
       take: p.limit + 1,
     });
@@ -370,7 +450,7 @@ export class RestaurantService {
       id = parsed(() => foodId(idRaw));
     const row = await this.prisma.db.menuItem.findFirst({
       where: { id, businessId: s.businessId },
-      include: { ingredients: true, photo: true },
+      include: { ingredients: true, photo: true, ...itemGroupsInclude },
     });
     if (!row) throw new NotFoundException('Блюдо не найдено');
     return this.menuItemOut(row);
@@ -397,7 +477,7 @@ export class RestaurantService {
           techNotes: b.techNotes ?? null,
           sortOrder: b.sortOrder ?? 0,
         },
-        include: { ingredients: true, photo: true },
+        include: { ingredients: true, photo: true, ...itemGroupsInclude },
       });
       await this.audit(tx, s, 'menu_item', row.id, 'food.menu_item.created', {
         name: row.name,
@@ -432,7 +512,7 @@ export class RestaurantService {
           ...(b.techNotes !== undefined ? { techNotes: b.techNotes } : {}),
           ...(b.sortOrder !== undefined ? { sortOrder: b.sortOrder } : {}),
         },
-        include: { ingredients: true, photo: true },
+        include: { ingredients: true, photo: true, ...itemGroupsInclude },
       });
       await this.audit(
         tx,
@@ -457,7 +537,7 @@ export class RestaurantService {
       const rows = body.ingredients.map((r) => parsed(() => parseIngredientInput(r)));
       const old = await tx.menuItem.findFirst({
         where: { id, businessId: s.businessId },
-        include: { ingredients: true, photo: true },
+        include: { ingredients: true, photo: true, ...itemGroupsInclude },
       });
       if (!old) throw new NotFoundException('Блюдо не найдено');
       // §38: ингредиент склада своего бизнеса и той же единицы, иначе слова, а не ошибка триггера
@@ -501,7 +581,7 @@ export class RestaurantService {
       );
       const fresh = await tx.menuItem.findUniqueOrThrow({
         where: { id },
-        include: { ingredients: true, photo: true },
+        include: { ingredients: true, photo: true, ...itemGroupsInclude },
       });
       return this.menuItemOut(fresh);
     });
@@ -510,10 +590,12 @@ export class RestaurantService {
   // ─── Заказы и кухня (§33.2) ───
 
   async orders(query: unknown) {
-    foodMay('desk');
+    foodMay('orders');
     const s = await foodScope(this.prisma.db),
       p = page(query, ['date', 'open']);
-    const where: Prisma.RestaurantOrderWhereInput = { locationId: s.locationId };
+    const me = await waiterSelf(this.prisma.db, s);
+    // официант видит только свои заказы (§33.6)
+    const where: Prisma.RestaurantOrderWhereInput = { locationId: s.locationId, ...(me ? { waiterId: me.id } : {}) };
     if (p.q.open === '1') where.status = { in: OPEN_STATUSES };
     else {
       const date = dayParam(p.q.date);
@@ -531,27 +613,136 @@ export class RestaurantService {
     return paged(rows.map((r) => orderView(r, now)), p.limit);
   }
 
+  /** Столы зала для экрана официанта (§33.6): занят открытым заказом или посаженной бронью; «мой» = мой заказ */
+  async waiterTables() {
+    foodMay('orders');
+    const s = await foodScope(this.prisma.db);
+    const userId = currentUserId();
+    const me = actorMay('desk')
+      ? userId
+        ? await this.prisma.db.employee.findFirst({
+            where: { userId, businessId: s.businessId, status: 'ACTIVE' },
+            select: { id: true, name: true },
+          })
+        : null
+      : await waiterSelf(this.prisma.db, s);
+    const [tables, open, seated] = await Promise.all([
+      this.prisma.db.diningTable.findMany({
+        where: { active: true, area: { locationId: s.locationId, active: true } },
+        include: { area: { select: { id: true, name: true, sortOrder: true } } },
+        orderBy: [{ area: { sortOrder: 'asc' } }, { sortOrder: 'asc' }, { name: 'asc' }],
+      }),
+      this.prisma.db.restaurantOrder.findMany({
+        where: { locationId: s.locationId, status: { in: OPEN_STATUSES }, tableId: { not: null } },
+        select: { tableId: true, waiterId: true },
+      }),
+      this.prisma.db.tableAssignment.findMany({
+        where: { reservation: { locationId: s.locationId, status: 'SEATED' } },
+        select: { tableId: true },
+      }),
+    ]);
+    const busy = new Set([...open.map((o) => o.tableId), ...seated.map((a) => a.tableId)]);
+    const mine = new Set(open.filter((o) => me && o.waiterId === me.id).map((o) => o.tableId));
+    return {
+      me: me ?? null,
+      tables: tables.map((t) => ({
+        id: t.id,
+        name: t.name,
+        capacity: t.capacity,
+        areaId: t.area.id,
+        areaName: t.area.name,
+        busy: busy.has(t.id),
+        mine: mine.has(t.id),
+        needsCleaning: t.needsCleaning,
+      })),
+    };
+  }
+
+  /**
+   * Строки заказа из запроса (§33.6, §33.7): блюдо своего бизнеса, станция категории, проверка модификаторов по группам
+   * блюда, цена строки = цена блюда + прибавки (замораживается). Ключ строки = блюдо + модификаторы + комментарий.
+   */
   private async orderItemsData(tx: DbTx, s: FoodScope, items: ReturnType<typeof parseOrderItems>) {
     const ids = [...new Set(items.map((i) => i.menuItemId))];
     const dishes = await tx.menuItem.findMany({
       where: { id: { in: ids }, businessId: s.businessId, active: true },
+      include: { category: { select: { station: true } }, ...itemGroupsInclude },
     });
     const byId = new Map(dishes.map((d) => [d.id, d]));
     for (const id of ids) if (!byId.has(id)) throw new NotFoundException('Блюдо недоступно');
     let total = 0n;
     const data = items.map((i, index) => {
       const dish = byId.get(i.menuItemId)!;
-      total += dish.price * BigInt(i.qty);
+      const groups = dish.modifierGroups
+        .filter((l) => l.group.active)
+        .map((l) => ({ ...l.group, modifiers: l.group.modifiers }));
+      let chosen: ChosenModifier[];
+      let price: bigint;
+      try {
+        chosen = checkModifierChoice(groups, i.modifierIds);
+        price = linePrice(dish.price, chosen.map((m) => m.priceDelta));
+      } catch (e) {
+        throw new BadRequestException(`${dish.name}: ${e instanceof Error ? e.message : 'выбор недоступен'}`);
+      }
+      total += price * BigInt(i.qty);
       return {
+        key: orderLineKey(dish.id, chosen.map((m) => m.modifierId), i.notes),
         menuItemId: dish.id,
         name: dish.name,
-        price: dish.price,
+        price,
         qty: i.qty,
         notes: i.notes,
         sortOrder: index,
+        // §33.6: снимок станции категории
+        station: dish.category.station as MenuStation,
+        modifiers: chosen,
       };
     });
     return { data, total };
+  }
+
+  /** Данные строки для Prisma: без ключа, с вложенным снимком модификаторов */
+  private lineCreate(d: OrderLineData, qty = d.qty, sortOrder = d.sortOrder) {
+    return {
+      menuItemId: d.menuItemId,
+      name: d.name,
+      price: d.price,
+      qty,
+      notes: d.notes,
+      sortOrder,
+      station: d.station,
+      ...(d.modifiers.length ? { modifiers: { create: d.modifiers } } : {}),
+    };
+  }
+
+  /**
+   * Статус заказа и отметки переходов из строк (§33.6). Вызывается после любой смены строк в той же транзакции;
+   * заказ CLOSED и CANCELLED строками не двигается.
+   */
+  private derived(r: { status: OrderStatus; cookingAt: Date | null; readyAt: Date | null; servedAt: Date | null }, statuses: ItemStatus[]) {
+    const status = orderStatusFromItems(statuses);
+    const now = new Date();
+    return {
+      status,
+      ...(status !== 'NEW' && !r.cookingAt ? { cookingAt: now } : {}),
+      ...((status === 'READY' || status === 'SERVED') && !r.readyAt ? { readyAt: now } : {}),
+      ...(status === 'SERVED' && !r.servedAt ? { servedAt: now } : {}),
+    };
+  }
+
+  /** «Готово» строк (§33.6, §38): склад списывается по техкарте только этих строк, у каждой ровно один раз */
+  private async readyItems(
+    tx: DbTx,
+    s: FoodScope,
+    r: { id: string; number: number },
+    items: Array<{ id: string; menuItemId: string | null; qty: number }>,
+  ) {
+    if (!items.length) return;
+    await this.stock.consumeForOrder(tx, s, { id: r.id, number: r.number, items });
+    await tx.restaurantOrderItem.updateMany({
+      where: { id: { in: items.map((i) => i.id) }, orderId: r.id, status: { in: ['NEW', 'COOKING'] } },
+      data: { status: 'READY', readyAt: new Date() },
+    });
   }
 
   private async checkTableAndWaiter(
@@ -577,8 +768,11 @@ export class RestaurantService {
   }
 
   async createOrder(raw: unknown) {
-    return this.write('desk', async (tx, s) => {
+    return this.write('orders', async (tx, s) => {
       const b = parsed(() => parseOrderCreate(raw));
+      // официант принимает заказ только на себя (§33.6)
+      const me = await waiterSelf(tx, s);
+      if (me) b.waiterId = me.id;
       await this.checkTableAndWaiter(tx, s, b.tableId, b.waiterId);
       const { data, total } = await this.orderItemsData(tx, s, b.items);
       const last = await tx.restaurantOrder.aggregate({
@@ -596,7 +790,7 @@ export class RestaurantService {
           total,
           currency: s.currency,
           createdById: currentUserId(),
-          items: { create: data },
+          items: { create: data.map((d) => this.lineCreate(d)) },
         },
         include: orderInclude,
       });
@@ -606,13 +800,13 @@ export class RestaurantService {
         waiterId: row.waiterId,
         guestCount: row.guestCount,
         totalMinor: row.total.toString(),
-        items: data.map((i) => ({ name: i.name, qty: i.qty })),
+        items: data.map((i) => ({ name: i.name, qty: i.qty, modifiers: i.modifiers.map((m) => m.name) })),
       });
       return orderView(row);
     });
   }
 
-  private async lockedOrder(tx: DbTx, s: FoodScope, idRaw: string, b: Record<string, unknown>) {
+  private async lockedOrder(tx: DbTx, s: FoodScope, idRaw: string, b: Record<string, unknown>, waiterId?: string) {
     const id = parsed(() => foodId(idRaw));
     const expected = parsed(() => {
       if (typeof b.expectedStatus !== 'string') throw new Error('Нужен ожидаемый статус');
@@ -621,7 +815,7 @@ export class RestaurantService {
     });
     await tx.$queryRaw`SELECT id FROM restaurant_orders WHERE id=${id}::uuid AND location_id=${s.locationId}::uuid FOR UPDATE`;
     const r = await tx.restaurantOrder.findFirst({
-      where: { id, locationId: s.locationId },
+      where: { id, locationId: s.locationId, ...(waiterId ? { waiterId } : {}) },
       include: orderInclude,
     });
     if (!r) throw new NotFoundException('Заказ не найден');
@@ -635,7 +829,8 @@ export class RestaurantService {
   }
 
   async updateOrder(idRaw: string, raw: unknown) {
-    return this.write('desk', async (tx, s) => {
+    return this.write('orders', async (tx, s) => {
+      const me = await waiterSelf(tx, s);
       const b = parsed(() =>
         foodObject(raw, [
           'expectedStatus',
@@ -647,11 +842,11 @@ export class RestaurantService {
           'items',
         ]),
       );
-      const r = await this.lockedOrder(tx, s, idRaw, b);
+      const r = await this.lockedOrder(tx, s, idRaw, b, me?.id);
       if (r.status === 'CLOSED' || r.status === 'CANCELLED')
         throw new ConflictException('Завершённый заказ изменять нельзя');
-      if (b.items !== undefined && r.status !== 'NEW' && r.status !== 'COOKING')
-        throw new ConflictException('Состав заморожен после готовности');
+      if (me && b.waiterId !== undefined) b.waiterId = me.id;
+
       const tableId = b.tableId === undefined ? r.tableId : b.tableId === null ? null : parsed(() => foodId(b.tableId));
       const waiterId = b.waiterId === undefined ? r.waiterId : b.waiterId === null ? null : parsed(() => foodId(b.waiterId));
       await this.checkTableAndWaiter(
@@ -661,15 +856,15 @@ export class RestaurantService {
         waiterId === r.waiterId ? null : waiterId,
       );
       let total = r.total;
+      let derived: ReturnType<RestaurantService['derived']> | Record<string, never> = {};
       if (b.items !== undefined) {
         const items = parsed(() => parseOrderItems(b.items));
         const next = await this.orderItemsData(tx, s, items);
-        await tx.restaurantOrderItem.deleteMany({ where: { orderId: r.id } });
-        for (const data of next.data)
-          await tx.restaurantOrderItem.create({ data: { ...data, orderId: r.id } });
-        total = next.total;
+        total = await this.replaceItems(tx, r, next.data);
         if (total < orderPaid(r))
           throw new ConflictException('Состав нельзя уменьшить ниже оплаченной суммы');
+        const fresh = await tx.restaurantOrderItem.findMany({ where: { orderId: r.id }, select: { status: true } });
+        derived = this.derived(r, fresh.map((i) => i.status));
       }
       const row = await tx.restaurantOrder.update({
         where: { id: r.id },
@@ -681,6 +876,7 @@ export class RestaurantService {
           notes:
             b.notes === undefined ? r.notes : b.notes === null ? null : parsed(() => foodText(b.notes, 4000)),
           total,
+          ...derived,
           updatedAt: this.bumped(r),
         },
         include: orderInclude,
@@ -698,6 +894,95 @@ export class RestaurantService {
     });
   }
 
+  /**
+   * Новый состав заказа (§33.6): готовые и поданные строки остаются как есть (приготовлены, склад списан), строки в
+   * работе остаются, пока их количество покрыто новым составом; остальное количество уходит новыми строками на свою
+   * станцию. Возвращает сумму заказа.
+   */
+  private async replaceItems(tx: DbTx, r: OrderRow, data: OrderLineData[]): Promise<bigint> {
+    // §33.7: строка узнаётся по блюду, выбранным модификаторам и комментарию
+    const keyOf = (i: OrderRow['items'][number]) =>
+      i.menuItemId ? orderLineKey(i.menuItemId, i.modifiers.map((m) => m.modifierId ?? m.name), i.notes) : null;
+    const want = new Map<string, number>();
+    for (const d of data) want.set(d.key, (want.get(d.key) ?? 0) + d.qty);
+    const keep: OrderRow['items'] = [];
+    // оплаченные по позициям строки остаются как есть (§33.7), готовые и поданные тоже (§33.6)
+    const frozen = r.items.filter((i) => i.paymentItems.length > 0 || i.status === 'READY' || i.status === 'SERVED');
+    for (const i of frozen) {
+      const key = keyOf(i);
+      const left = key ? (want.get(key) ?? 0) : 0;
+      if (key && left < i.qty)
+        throw new ConflictException(i.paymentItems.length > 0 ? 'Оплаченные позиции убрать нельзя' : 'Готовые позиции убрать нельзя');
+      if (key) want.set(key, left - i.qty);
+      keep.push(i);
+    }
+    for (const i of r.items.filter((x) => x.status === 'COOKING' && !keep.includes(x))) {
+      const key = keyOf(i);
+      const left = key ? (want.get(key) ?? 0) : 0;
+      if (key && left >= i.qty) {
+        want.set(key, left - i.qty);
+        keep.push(i);
+      }
+    }
+    const kept = new Set(keep.map((i) => i.id));
+    await tx.restaurantOrderItem.deleteMany({ where: { orderId: r.id, id: { notIn: [...kept] } } });
+    let sortOrder = keep.reduce((m, i) => Math.max(m, i.sortOrder), -1) + 1;
+    let total = keep.reduce((sum, i) => sum + i.price * BigInt(i.qty), 0n);
+    for (const d of data) {
+      const qty = Math.min(d.qty, want.get(d.key) ?? 0);
+      if (qty <= 0) continue;
+      want.set(d.key, (want.get(d.key) ?? 0) - qty);
+      await tx.restaurantOrderItem.create({ data: { ...this.lineCreate(d, qty, sortOrder++), orderId: r.id } });
+      total += d.price * BigInt(qty);
+    }
+    return total;
+  }
+
+  /** Кухня и бар двигают свою строку (§33.6); статус заказа выводится из строк, «Готово» списывает склад строки */
+  async orderItemStatus(idRaw: string, itemIdRaw: string, raw: unknown) {
+    return this.write('orders', async (tx, s) => {
+      const id = parsed(() => foodId(idRaw)),
+        itemId = parsed(() => foodId(itemIdRaw)),
+        b = parsed(() => parseItemStatusCommand(raw));
+      // официант только подаёт свои позиции; «Принять» и «Готово» у кухни и бара (стойка, §33.6)
+      const me = await waiterSelf(tx, s);
+      if (me && b.status !== 'SERVED') throw new ForbiddenException('Готовность отмечают кухня и бар');
+      await tx.$queryRaw`SELECT id FROM restaurant_orders WHERE id=${id}::uuid AND location_id=${s.locationId}::uuid FOR UPDATE`;
+      const r = await tx.restaurantOrder.findFirst({
+        where: { id, locationId: s.locationId, ...(me ? { waiterId: me.id } : {}) },
+        include: orderInclude,
+      });
+      if (!r) throw new NotFoundException('Заказ не найден');
+      if (r.updatedAt.toISOString() !== b.expectedUpdatedAt)
+        throw new ConflictException('Заказ уже изменён, обновите данные');
+      if (r.status === 'CLOSED' || r.status === 'CANCELLED')
+        throw new ConflictException('Завершённый заказ изменять нельзя');
+      const line = r.items.find((i) => i.id === itemId);
+      if (!line) throw new NotFoundException('Позиция не найдена');
+      if (!itemNext(line.status).includes(b.status))
+        throw new ConflictException('Переход позиции недоступен');
+      if (b.status === 'READY') await this.readyItems(tx, s, r, [line]);
+      else
+        await tx.restaurantOrderItem.update({ where: { id: line.id }, data: { status: b.status } });
+      const statuses = r.items.map((i) => (i.id === line.id ? b.status : i.status));
+      const row = await tx.restaurantOrder.update({
+        where: { id: r.id },
+        data: { ...this.derived(r, statuses), updatedAt: this.bumped(r) },
+        include: orderInclude,
+      });
+      await this.audit(
+        tx,
+        s,
+        'restaurant_order',
+        r.id,
+        'food.order.item_status',
+        { itemId: line.id, station: line.station, status: b.status, orderStatus: row.status },
+        { status: line.status, orderStatus: r.status },
+      );
+      return orderView(row);
+    });
+  }
+
   async orderStatus(idRaw: string, raw: unknown) {
     return this.write('desk', async (tx, s) => {
       const b = parsed(() => foodObject(raw, ['expectedStatus', 'expectedUpdatedAt', 'status']));
@@ -709,9 +994,14 @@ export class RestaurantService {
         throw new ConflictException('Заказ не оплачен полностью');
       if (status === 'CANCELLED' && orderPaid(r) > 0n)
         throw new ConflictException('Сначала аннулируйте оплаты заказа');
-      // §38: «Готово» списывает склад по техкартам ровно один раз, отмена после «Готово» возвращает
-      if (status === 'READY') await this.stock.consumeForOrder(tx, s, r);
-      if (status === 'CANCELLED' && r.status === 'READY') await this.stock.returnForOrder(tx, s, r);
+      // §38, §33.6: «Готово» целиком готовит и списывает только ещё не готовые строки; отмена возвращает списанное
+      if (status === 'READY')
+        await this.readyItems(tx, s, r, r.items.filter((i) => i.status === 'NEW' || i.status === 'COOKING'));
+      if (status === 'COOKING')
+        await tx.restaurantOrderItem.updateMany({ where: { orderId: r.id, status: 'NEW' }, data: { status: 'COOKING' } });
+      if (status === 'SERVED')
+        await tx.restaurantOrderItem.updateMany({ where: { orderId: r.id, status: { not: 'SERVED' } }, data: { status: 'SERVED' } });
+      if (status === 'CANCELLED') await this.stock.returnForOrder(tx, s, r);
       const stampField = (
         { COOKING: 'cookingAt', READY: 'readyAt', SERVED: 'servedAt', CLOSED: 'closedAt' } as const
       )[status as 'COOKING' | 'READY' | 'SERVED' | 'CLOSED'];
@@ -891,12 +1181,19 @@ export class RestaurantService {
       take: p.limit + 1,
     });
     const profiles = new Map((await readEmployeeCommon(this.prisma.db, s.businessId)).map(row => [row.id, row]));
-    return paged(
+    // назначение «специалист / другой сотрудник / оба» (решение владельца 20.10.2026): право считает сервер
+    const role = currentRole();
+    const org = role && canManageStaff(role) && actorMay('staff')
+      ? await this.prisma.db.organization.findUnique({ where: { id: s.organizationId }, select: { status: true, trialEndsAt: true } })
+      : null;
+    const canAssignPersonnelKind = Boolean(org && canWrite(org.status, org.trialEndsAt, new Date()));
+    const result = paged(
       rows.map((r) => {
         const todayHours = r.workingHours.filter(h => h.weekday === new Date(`${local.date}T12:00:00Z`).getUTCDay()).sort((a,b) => a.timeFrom.getTime()-b.timeFrom.getTime());
         const fit = resolveWorkingTime({ startsAt: new Date(), timezone: s.timezone, supported: true, employeeActive: r.status === 'ACTIVE', worksHere: r.locations.some(l => l.locationId === s.locationId), workingHours: r.workingHours.map(h => ({ weekday: h.weekday, timeFrom: clockText(h.timeFrom), timeTo: clockText(h.timeTo) })), timeOffs: r.timeOffs.map(t => ({ dateFrom: t.dateFrom.toISOString().slice(0,10), dateTo: t.dateTo.toISOString().slice(0,10) })) });
         return {
           ...profiles.get(r.id)!,
+          personnelKind: r.personnelKind === null ? null : parsePersonnelKind(r.personnelKind),
           shift: todayHours.map(h => `${clockText(h.timeFrom)}–${clockText(h.timeTo)}`).join(', ') || null,
           onShift: fit.ok,
           workingTimeStatus: fit.ok ? 'WORKING' : fit.reason,
@@ -907,14 +1204,30 @@ export class RestaurantService {
       }),
       p.limit,
     );
+    return { ...result, canAssignPersonnelKind };
+  }
+
+  /** Назначение сотрудника ресторана: те же правила и версия профиля, что у салона (beauty/personnel-kind.ts) */
+  async assignPersonnelKind(idRaw: string, raw: unknown) {
+    const input = parsePersonnelKindCommand(raw);
+    return this.write('staff', async (tx, s) => {
+      const role = currentRole();
+      if (!role || !canManageStaff(role)) throw new ForbiddenException('Назначение меняет только руководитель');
+      const id = parsed(() => foodId(idRaw));
+      const { before, after } = await writePersonnelKind(tx, s, id, input);
+      await this.audit(tx, s, 'employee', id, 'food.employee.personnel_kind',
+        { personnelKind: after.personnelKind }, { personnelKind: before.personnelKind });
+      return { id, personnelKind: after.personnelKind, profileRevision: after.profileRevision };
+    });
   }
 
   // ─── График смен (Q-REST-11): недельный шаблон в `working_hours`, как у мастеров салона (§19.1) ───
 
   /** Неделя каждого действующего сотрудника этого филиала */
-  async shifts() {
+  /** График смен; гостиница зовёт тот же расчёт со своим направлением (hotel-staff, 22.10.2026) */
+  async shifts(verticals: readonly FoodVertical[] = ['FOOD_SERVICE']) {
     foodMay('desk');
-    const s = await foodScope(this.prisma.db);
+    const s = await foodScope(this.prisma.db, verticals);
     const rows = await this.prisma.db.employee.findMany({
       where: { businessId: s.businessId, status: 'ACTIVE', locations: { some: { locationId: s.locationId } } },
       include: {
@@ -940,7 +1253,7 @@ export class RestaurantService {
   }
 
   /** Неделя целиком: список заменяет прежний график сотрудника в этом филиале */
-  async setShifts(idRaw: string, raw: unknown) {
+  async setShifts(idRaw: string, raw: unknown, verticals?: readonly FoodVertical[]) {
     return this.write('staff', async (tx, s) => {
       const id = parsed(() => foodId(idRaw));
       const week = parseWorkingHoursWeek(raw);
@@ -968,15 +1281,18 @@ export class RestaurantService {
       });
       await touchEmployeeSourceRevision(tx, id);
       return { week: weekTemplate(week.value), weekRevision: await hoursRevision(tx, id, s.locationId) };
-    });
+    }, verticals);
   }
 
-  async createEmployee(raw: unknown) {
+  /** Новый сотрудник филиала; гостиница зовёт со своим направлением (hotel-staff, 22.10.2026) */
+  async createEmployee(raw: unknown, verticals?: readonly FoodVertical[]) {
     return this.write('staff', async (tx, s) => {
-      const b = parsed(() => foodObject(raw, ['name', 'phone', 'email']));
+      const b = parsed(() => foodObject(raw, ['name', 'phone', 'email', 'personnelKind']));
+      const personnelKind = parseCreatePersonnelKind(b);
       const row = await tx.employee.create({
         data: {
           businessId: s.businessId,
+          personnelKind,
           name: parsed(() => foodText(b.name, 200)),
           phone: b.phone == null ? null : parsed(() => foodText(b.phone, 32)),
           email: b.email == null ? null : parsed(() => foodText(b.email, 320)),
@@ -985,7 +1301,7 @@ export class RestaurantService {
       await tx.employeeLocation.create({ data: { employeeId: row.id, locationId: s.locationId } });
       await this.audit(tx, s, 'employee', row.id, 'food.employee.created', { name: row.name });
       return row;
-    });
+    }, verticals);
   }
 
   async updateEmployee(idRaw: string, raw: unknown) {
@@ -1100,6 +1416,8 @@ export class RestaurantService {
     return this.write('desk', async (tx, s) => {
       const id = parsed(() => foodId(idRaw));
       const b = parsed(() => parseFoodPayment(raw));
+      // §21.7: выключенный в филиале способ не принимает новых денег (повтор по ключу ниже не дойдёт до записи)
+      await assertBranchMethodsOpen(tx, s.locationId, b.method);
       const repeat = await tx.restaurantPayment.findUnique({
         where: { locationId_idempotencyKey: { locationId: s.locationId, idempotencyKey: b.idempotencyKey } },
       });
@@ -1113,11 +1431,20 @@ export class RestaurantService {
       if (!r) throw new NotFoundException('Заказ не найден');
       const result = (() => {
         try {
+          // §33.7: оплата по позициям: сумма равна отмеченным неоплаченным строкам этого заказа
+          if (b.itemIds) {
+            const due = itemsPaymentAmount(
+              r.items.map((i) => ({ id: i.id, price: i.price, qty: i.qty, paid: i.paymentItems.length > 0 })),
+              b.itemIds,
+            );
+            if (due !== b.amount) throw new Error('Сумма не совпадает с отмеченными позициями');
+          }
           return orderPayment(r.status, r.total, orderPaid(r), b.amount);
         } catch (e) {
           throw new ConflictException(e instanceof Error ? e.message : 'Оплата недоступна');
         }
       })();
+      const lines = new Map(r.items.map((i) => [i.id, i]));
       const payment = await tx.restaurantPayment.create({
         data: {
           locationId: s.locationId,
@@ -1127,6 +1454,16 @@ export class RestaurantService {
           currency: r.currency,
           idempotencyKey: b.idempotencyKey,
           createdById: currentUserId(),
+          ...(b.itemIds
+            ? {
+                items: {
+                  create: b.itemIds.map((orderItemId) => ({
+                    orderItemId,
+                    amount: lines.get(orderItemId)!.price * BigInt(lines.get(orderItemId)!.qty),
+                  })),
+                },
+              }
+            : {}),
         },
       });
       const row = await tx.restaurantOrder.update({
@@ -1143,6 +1480,7 @@ export class RestaurantService {
         amountMinor: payment.amount.toString(),
         paidMinor: result.paidAfter.toString(),
         closed: result.close,
+        ...(b.itemIds ? { itemIds: b.itemIds } : {}),
       });
       return orderView(row);
     });
@@ -1320,6 +1658,9 @@ export class RestaurantService {
           return {id:old[0].result_id};
         }
       }
+      // §21.7: приход и перевод «в» выключенный способ запрещены; расход и перевод «из» него выводят прежние деньги
+      if (b.kind === 'INCOME') await assertBranchMethodsOpen(tx, s.locationId, b.method);
+      if (b.kind === 'TRANSFER') await assertBranchMethodsOpen(tx, s.locationId, b.methodTo);
       if (b.kind !== 'INCOME') await this.spendable(tx, s, b.method, b.amount);
       const row = await tx.restaurantCashOperation.create({
         data: {
@@ -1361,6 +1702,8 @@ export class RestaurantService {
         where: { id },
         data: { status: 'VOIDED', voidedAt: new Date(), voidedById: currentUserId() },
       });
+      // салон: бонусы и сертификат по этой операции возвращаются в той же транзакции (решение 21.10.2026)
+      await reverseLoyaltyForVoid(tx, op);
       await this.audit(tx, s, 'restaurant_cash', id, 'food.cash.voided', { amountMinor: op.amount.toString() });
       return { id };
     }, BRANCH_CASH_VERTICALS);
@@ -1392,10 +1735,17 @@ export class RestaurantService {
 
   /** Выплата зарплаты из кассы: не больше «осталось» за месяц (§35.3) */
   async payout(idRaw: string, raw: unknown) {
+    // гостиница: начисления без выплаты из кассы филиала (касса объекта §21 другая; решение 22.10.2026)
+    if (currentVertical() === 'HOSPITALITY') {
+      foodMay('staff');
+      throw new ConflictException('Выплата из кассы у гостиницы пока не подключена: начисления видны, выплату проведите в кассе объекта');
+    }
     return this.write('staff', async (tx, s) => {
       const id = parsed(() => foodId(idRaw));
       const request = parsed(() => foodObject(raw, ['period', 'method', 'amount', 'idempotencyKey']));
       const b = parsed(() => parseFoodPayout({period:request.period,method:request.method,amount:request.amount}));
+      // §21.7: выплата зарплаты выключенным способом не проводится (раньше суммы: причина отказа в способе)
+      await assertBranchMethodsOpen(tx, s.locationId, b.method);
       const enabled = process.env.EXPENSE_LINKS_ENABLED === '1';
       const key = request.idempotencyKey;
       if (enabled && (typeof key !== 'string' || !/^[\x21-\x7e]{1,200}$/.test(key))) throw new BadRequestException('Нужен ключ намерения оплаты');
@@ -1456,6 +1806,23 @@ export class RestaurantService {
   }
 
   // ─── Отчёт ресторана за период (Аналитика) ───
+
+  /**
+   * «Сколько принёс сотрудник» салона и ресторана (docs/decisions/2026-10-20-personnel-revenue.md):
+   * оплачено минус возвраты за день, неделю или месяц по часам филиала
+   */
+  async staffRevenue(query: unknown, now = new Date()) {
+    foodMay('reports');
+    const s = await foodScope(this.prisma.db, BRANCH_CASH_VERTICALS);
+    const q = parsed(() => foodObject(query, ['period']));
+    const vertical = currentVertical() === 'BEAUTY' ? 'BEAUTY' : 'FOOD_SERVICE';
+    try {
+      return await branchStaffRevenue(this.prisma.db, { ...s, vertical }, q.period, now);
+    } catch (e) {
+      if (e instanceof RangeError) throw new BadRequestException(e.message);
+      throw e;
+    }
+  }
 
   /** Деньги и продажи за период по поясу филиала: закрытые заказы, оплаты по способам, блюда, официанты */
   async periodReport(query: unknown) {
@@ -1608,78 +1975,15 @@ export class RestaurantService {
   // ─── Зарплата (§33.4) ───
 
   /** К выплате за месяц по сотрудникам бизнеса (§33.4) и выплачено из кассы филиала (§35.3) */
-  private async monthPayroll(
-    db: Pick<DbTx, 'employee' | 'restaurantOrder' | 'appointmentLine' | 'employeePayAdjustment' | 'restaurantCashOperation'>,
-    s: FoodScope,
-    month: unknown,
-  ) {
+  private async monthPayroll(db: MonthPayrollDb, s: FoodScope, month: unknown) {
     const m = monthParam(month);
-    const w = timeOffWindow({ dateFrom: m.from, dateTo: m.to, timezone: s.timezone });
-    const period = new Date(`${m.from}T00:00:00Z`);
-    const [employees, orders, adjustments, payouts] = await Promise.all([
-      db.employee.findMany({
-        where: { businessId: s.businessId },
-        include: { paySetting: true },
-        orderBy: { id: 'asc' },
-      }),
-      // зарплата принадлежит бизнесу (ADR-181): процент и «выплачено» по всем филиалам,
-      // иначе бизнес с двумя филиалами показывает и может выплатить один оклад дважды
-      // база процента: у ресторана закрытые заказы официанта, у салона выполненные записи мастера (§19.2)
-      s.vertical === 'BEAUTY'
-        ? db.appointmentLine
-            .groupBy({
-              by: ['employeeId'],
-              where: {
-                appointment: {
-                  location: { businessId: s.businessId },
-                  status: 'DONE',
-                  startsAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
-                },
-              },
-              _sum: { priceMinor: true },
-            })
-            .then((rows) => rows.map((r) => ({ waiterId: r.employeeId, _sum: { total: r._sum.priceMinor } })))
-        : db.restaurantOrder.groupBy({
-            by: ['waiterId'],
-            where: {
-              location: { businessId: s.businessId },
-              status: 'CLOSED',
-              waiterId: { not: null },
-              closedAt: { gte: w.fromUtc, lt: w.toUtcExclusive },
-            },
-            _sum: { total: true },
-          }),
-      db.employeePayAdjustment.findMany({
-        where: { employee: { businessId: s.businessId }, period },
-        orderBy: { createdAt: 'asc' },
-      }),
-      db.restaurantCashOperation.groupBy({
-        by: ['employeeId'],
-        where: {
-          location: { businessId: s.businessId },
-          period,
-          status: 'COMPLETED',
-          employeeId: { not: null },
-        },
-        _sum: { amount: true },
-      }),
-    ]);
-    const salesByWaiter = new Map(orders.map((o) => [o.waiterId!, o._sum.total ?? 0n]));
-    const paidByEmployee = new Map(payouts.map((p) => [p.employeeId!, p._sum.amount ?? 0n]));
-    const rows = employees.map((e) => {
-      const setting = e.paySetting
-        ? { model: e.paySetting.model, fixedMinor: e.paySetting.fixedMinor, percent: e.paySetting.percent }
-        : { model: 'FIXED' as const, fixedMinor: 0n, percent: 0 };
-      const sales = salesByWaiter.get(e.id) ?? 0n;
-      const adj = adjustments.filter((a) => a.employeeId === e.id).map((a) => a.amountMinor);
-      return { e, setting, sales, t: payrollTotals(setting, sales, adj), paid: paidByEmployee.get(e.id) ?? 0n };
-    });
+    const { period, rows, adjustments } = await monthPayrollRows(db, s, m);
     return { m, period, rows, adjustments };
   }
 
   async payroll(query: unknown) {
     foodMay('staff');
-    const s = await foodScope(this.prisma.db, BRANCH_CASH_VERTICALS);
+    const s = await foodScope(this.prisma.db, BRANCH_PAYROLL_VERTICALS);
     const q = parsed(() => foodObject(query, ['month']));
     const { m, rows, adjustments } = await this.monthPayroll(this.prisma.db, s, q.month);
     let fund = 0n,
@@ -1687,8 +1991,8 @@ export class RestaurantService {
       penalty = 0n,
       payout = 0n,
       paidTotal = 0n;
-    const out = rows.map(({ e, setting, sales, t, paid }) => {
-        fund += t.base + t.percentPart;
+    const out = rows.map(({ e, setting, perCleaningMinor, sales, cleanings, t, paid }) => {
+        fund += t.base + t.percentPart + t.piece;
         bonus += t.bonus;
         penalty += t.penalty;
         payout += t.total;
@@ -1701,6 +2005,9 @@ export class RestaurantService {
           fixedMinor: setting.fixedMinor.toString(),
           percent: setting.percent,
           salesMinor: sales.toString(),
+          perCleaningMinor: perCleaningMinor.toString(),
+          cleanings,
+          pieceMinor: t.piece.toString(),
           baseMinor: t.base.toString(),
           percentMinor: t.percentPart.toString(),
           bonusMinor: t.bonus.toString(),
@@ -1713,6 +2020,9 @@ export class RestaurantService {
     return {
       month: m.month,
       currency: s.currency,
+      vertical: s.vertical,
+      /** выплата из кассы филиала есть у салона и ресторана; у гостиницы только начисления */
+      payouts: s.vertical !== 'HOSPITALITY',
       totals: {
         fundMinor: fund.toString(),
         bonusMinor: bonus.toString(),
@@ -1745,6 +2055,7 @@ export class RestaurantService {
           model: b.model,
           fixedMinor: b.fixedMinor,
           percent: b.percent,
+          perCleaningMinor: b.perCleaningMinor ?? 0n,
           currency: s.currency,
           updatedById: currentUserId(),
         },
@@ -1752,6 +2063,7 @@ export class RestaurantService {
           model: b.model,
           fixedMinor: b.fixedMinor,
           percent: b.percent,
+          ...(b.perCleaningMinor === undefined ? {} : { perCleaningMinor: b.perCleaningMinor }),
           updatedById: currentUserId(),
         },
       });
@@ -1761,13 +2073,13 @@ export class RestaurantService {
         'employee_pay',
         id,
         'food.pay_settings.saved',
-        { model: row.model, fixedMinor: row.fixedMinor.toString(), percent: row.percent },
+        { model: row.model, fixedMinor: row.fixedMinor.toString(), percent: row.percent, perCleaningMinor: row.perCleaningMinor.toString() },
         old
-          ? { model: old.model, fixedMinor: old.fixedMinor.toString(), percent: old.percent }
+          ? { model: old.model, fixedMinor: old.fixedMinor.toString(), percent: old.percent, perCleaningMinor: old.perCleaningMinor.toString() }
           : undefined,
       );
-      return { ...row, fixedMinor: row.fixedMinor.toString() };
-    }, BRANCH_CASH_VERTICALS);
+      return { ...row, fixedMinor: row.fixedMinor.toString(), perCleaningMinor: row.perCleaningMinor.toString() };
+    }, BRANCH_PAYROLL_VERTICALS);
   }
 
   async addPayAdjustment(idRaw: string, raw: unknown) {
@@ -1791,6 +2103,6 @@ export class RestaurantService {
         reason: b.reason,
       });
       return { ...row, amountMinor: row.amountMinor.toString() };
-    }, BRANCH_CASH_VERTICALS);
+    }, BRANCH_PAYROLL_VERTICALS);
   }
 }

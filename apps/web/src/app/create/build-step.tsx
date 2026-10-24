@@ -4,6 +4,7 @@ import { ChatStep } from './chat-step';
 import { GenerationStep } from './generation-step';
 import type { WizardState } from '../../lib/wizard-types';
 import { S } from './strings';
+import { Textarea } from '../../components/ui';
 
 /** Сборка, необязательный опрос и тест по актуальной инструкции и знаниям. */
 export function BuildStep({
@@ -76,7 +77,7 @@ export function BuildStep({
           <fieldset>
             <legend>{question.title}</legend>
             {question.kind === 'text' ? (
-              <textarea
+              <Textarea
                 aria-label={question.title}
                 rows={3}
                 maxLength={1000}

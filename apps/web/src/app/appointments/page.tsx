@@ -9,7 +9,9 @@ import { mayBeautyAccess } from '../../lib/navigation';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { calendarColumns } from '../beauty/calendar-columns';
 import { AppointmentsList } from './list';
+import { CustomerSectionTabs } from '../customers/section-tabs';
 import '../beauty/beauty.css';
+import './appointments.css';
 
 function readOnlyDay(
   data: Awaited<ReturnType<typeof beautyApi.period>>,
@@ -63,7 +65,7 @@ export default async function AppointmentsPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/appointments');
-  const { date, from, to } = normalizeSearchParams(await searchParams);
+  const { date, from, to, create, customer } = normalizeSearchParams(await searchParams);
   const shell = await deskShell();
   const me = await currentMe();
   const may = (
@@ -96,8 +98,9 @@ export default async function AppointmentsPage({
       <Page
         className="beauty-page"
         title="Записи"
-        subtitle={periodData.location.name ?? 'Записи филиала'}
+        subtitle="Все записи филиала за выбранный период: поиск, фильтры и оплата."
       >
+        <CustomerSectionTabs access={shell.access} current="appointments" />
         <AppointmentsList
           key={scopeKey}
           scopeKey={scopeKey}
@@ -111,6 +114,8 @@ export default async function AppointmentsPage({
           canRefund={may('finance', 'refund', 'refunds')}
           canIssueReview={may('reviews', 'create', 'staff')}
           canAdjustPrice={may('services', 'update', 'rates')}
+          openCreate={create === '1' && canCreate}
+          {...(create === '1' && customer ? { createFor: customer } : {})}
           {...(requestedCreate && !canCreate
             ? {
                 creationUnavailableReason:

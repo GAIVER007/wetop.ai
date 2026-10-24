@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { latestWhatsNew, WHATS_NEW_SEEN_KEY } from '../../lib/whats-new';
 import type { WebVertical } from '../../lib/vertical-landing';
 import { Icon } from '../icon';
+import { useT } from '../../i18n/locale-provider';
 
 function seen(): string | null {
   try {
@@ -16,16 +17,17 @@ function seen(): string | null {
 
 /** «Что нового» в меню профиля (SUP1): точка, пока в браузере не отмечена последняя запись своего направления */
 export function WhatsNewLink({ vertical, onClick }: { vertical: WebVertical; onClick: () => void }) {
+  const t = useT();
   const latest = latestWhatsNew(vertical);
   const [unread, setUnread] = useState(false);
   useEffect(() => setUnread(!!latest && (seen() ?? '') < latest), [latest]);
   return (
     <Link href="/whats-new" onClick={onClick}>
       <Icon name="star" />
-      Что нового
+      {t('Что нового')}
       {unread && (
         <span className="whats-new-dot" data-testid="whats-new-dot">
-          <span className="sr-only">есть новое</span>
+          <span className="sr-only">{t('есть новое')}</span>
         </span>
       )}
     </Link>

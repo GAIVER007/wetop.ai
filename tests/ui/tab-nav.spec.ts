@@ -56,6 +56,7 @@ test('наведение открывает список, щелчок ведё�
     'Подключения',
     'Неисправности',
     'История действий',
+    'Все настройки',
   ]);
   // щелчок мышью по открытому наведением разделу список не закрывает
   await settings.click();
@@ -85,7 +86,7 @@ test('клавиатура: стрелка вниз открывает спис�
     await expect(list.getByRole('link', { name: 'Обзор', exact: true })).toBeFocused({ timeout: 1_000 });
   }).toPass({ timeout: 15_000 });
   await page.keyboard.press('ArrowDown');
-  await expect(list.getByRole('link', { name: 'ИИ-таргетолог', exact: true })).toBeFocused();
+  await expect(list.getByRole('link', { name: 'Реклама', exact: true })).toBeFocused();
   await page.keyboard.press('End');
   await expect(list.getByRole('link', { name: 'Бюджет и аналитика', exact: true })).toBeFocused();
   await page.keyboard.press('Escape');
@@ -93,7 +94,7 @@ test('клавиатура: стрелка вниз открывает спис�
   await expect(promo).toBeFocused();
 });
 
-test('меню под именем: «Моя работа» у салона и ресторана, свежесть данных и пробный период', async ({
+test('меню под именем: «Моя работа» у всех направлений, свежесть данных и пробный период', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -101,8 +102,8 @@ test('меню под именем: «Моя работа» у салона и �
   await page.locator('.profile-trigger').click();
   const dropdown = page.locator('#profile-dropdown');
   await expect(dropdown.getByRole('link', { name: 'Помощь', exact: true })).toHaveAttribute('href', '/help');
-  // у гостиницы своей «Моей работы» нет
-  await expect(dropdown.getByRole('link', { name: 'Моя работа', exact: true })).toHaveCount(0);
+  // у гостиницы своя «Моя работа» с 22.10.2026: кабинет горничной и ресепшена
+  await expect(dropdown.getByRole('link', { name: 'Моя работа', exact: true })).toHaveAttribute('href', '/my-work');
 });
 
 for (const theme of ['light', 'dark'] as const) {

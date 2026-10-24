@@ -6,3 +6,5 @@ export * from './slots';
 export * from './payment';
 export * from './customers';
 export * from './access';
+export * from './reminders';
+export * from './loyalty';

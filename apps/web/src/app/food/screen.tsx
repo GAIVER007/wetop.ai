@@ -5,6 +5,8 @@ import { loadErrorProps } from '../../lib/load-error';
 import { loadFood } from './load';
 import { WorkspaceBoard } from './workspace-board';
 import { CatalogBoard } from './catalog-board';
+import { FoodRemindersToday } from './reminders-today';
+import { foodApi, type FoodReminderItem } from '../../lib/food-api';
 import './food.css';
 import './restaurant.css';
 export async function FoodScreen({
@@ -24,6 +26,14 @@ export async function FoodScreen({
   const title = kind === 'floor' ? 'План зала' : kind === 'list' ? 'Бронирования' : 'Залы и столы';
   try {
     const data = await loadFood(date, time, kind !== 'floor', kind === 'floor');
+    // «Напомнить сегодня» (§61): только «Вручную» и «Ошибка»; сбой загрузки не ломает экран, блока просто нет
+    const manual =
+      kind === 'catalog'
+        ? null
+        : await foodApi
+            .reminders()
+            .then((d) => ({ timezone: d.timezone, items: d.items.filter((i: FoodReminderItem) => i.state === 'MANUAL' || i.state === 'FAILED') }))
+            .catch(() => null);
     return (
       <Page
         title={title}
@@ -31,6 +41,9 @@ export async function FoodScreen({
         subtitle={kind === 'floor' ? 'Бронирования столов и загрузка зала' : undefined}
       >
         <div key={data.scopeKey}>
+          {manual && manual.items.length > 0 && (
+            <FoodRemindersToday items={manual.items} timezone={manual.timezone} canUpdate={data.canDesk && !data.readOnly} />
+          )}
           {kind === 'catalog' ? (
             <CatalogBoard data={data} />
           ) : (

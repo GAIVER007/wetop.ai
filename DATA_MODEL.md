@@ -4917,6 +4917,45 @@ Customer сохраняет исходное nullable поле phone. Добав
 Уникально `(competitor_id, day, observed_on)`; ручной ввод того же дня сильнее `AI_AGENT`.
 Откат: `DROP TABLE location_competitor_snapshots, location_competitors`.
 
+## 61. Напоминания гостям ресторана о брони (УТВЕРЖДЕНО владельцем 23.10.2026: «Да, делай по этой схеме (миграция 152, 2 новые таблицы)»; `docs/decisions/2026-10-23-restaurant-reminders.md`)
+
+Миграция `20261023000152_restaurant_reminders`. Очередь и настройки салона (миграция 140) не меняются.
+
+### 61.1 `restaurant_reservation_notifications`
+
+| Поле | Тип | Правило |
+|---|---|---|
+| `id` | `uuid` PK | `gen_random_uuid()` |
+| `organization_id` | `uuid` FK organizations | организация бизнеса ресторана |
+| `location_id` | `uuid` FK locations | филиал брони |
+| `reservation_id` | `uuid` FK restaurant_reservations | `ON DELETE CASCADE` (только служебная очистка брони) |
+| `customer_id` | `uuid` FK customers | гость брони |
+| `kind` | `ClientNotificationKind` | только `REMINDER`, `CONFIRMATION` (CHECK) |
+| `due_at` | `timestamptz` | плановое время; ключ `(reservation_id, kind, due_at)` уникален |
+| `channel` | `ClientNotificationChannel` NULL | `EMAIL`, `WHATSAPP`, `MANUAL` |
+| `state` | `ClientNotificationState` | `PENDING` → `SENT` / `MANUAL` / `FAILED` / `CANCELLED`; удаления нет |
+| `attempts`, `next_attempt_at`, `last_error`, `sent_at` | | повтор с паузой 5, 10, 20 минут…, до 5 попыток; ошибка без контактов |
+
+Триггер: ключ строки неизменен; вставка только для брони того же филиала, гостя и организации, бизнес `FOOD_SERVICE`.
+Текста и контактов в строке нет: текст собирается при отправке. RLS ENABLE + FORCE по `organization_id`;
+`wetop_app` и `wetop_service`: SELECT, INSERT, UPDATE.
+
+### 61.2 `food_reminder_settings`
+
+PK `location_id` (филиал ресторана, триггер), `enabled` (по умолчанию да), `hours_before int[]` (1–3 значения по
+1–168, по умолчанию 24 и 2), `template` (до 1000 знаков, пусто = текст по умолчанию), `whatsapp_template_name`,
+`revision` (защита от перезаписи). Нет строки = умолчания. `wetop_app` только SELECT, пишет `wetop_service`.
+
+### 61.3 Правила
+
+- Очередь пересчитывается в транзакции брони: создание (стойка, сайт), перенос, статус, посадка, освобождение.
+- Напоминания нужны броням `BOOKED` и `CONFIRMED`, не `WALK_IN`; уход из этих статусов снимает ждущее (`CANCELLED`).
+- Бронь с сайта (`WEBSITE`) получает `CONFIRMATION` сразу при создании.
+- Канал: шаблон WhatsApp филиала при подключённом номере, иначе почта гостя, иначе `MANUAL` (список «Напомнить
+  сегодня» с текстом и wa.me, отметка «Напомнил» переводит в `SENT`/`MANUAL` с записью в журнал).
+- Подстановки текста: `{имя} {дата} {время} {гостей} {ресторан} {адрес} {телефон}`; дата и время по поясу филиала.
+
+
 ## STAFF-TG-20261020: уведомления сотрудникам о бронях с сайта в Telegram (УТВЕРЖДЕНО 20.10.2026)
 
 Основание: поручение владельца 15.10.2026 «сотрудникам сообщать в Telegram о брони с сайта; сам Telegram подключим позже, логику делай», план `plans/staff-telegram-notifications-2026-10-20.md`. Владелец ответил «да» на три таблицы 20.10.2026 и «делай сейчас: база, API, очередь, экран Уведомления, бот подключим позже».

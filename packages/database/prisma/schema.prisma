@@ -72,12 +72,11 @@ model Business {
   bonusEntries              CustomerBonusEntry[]
   giftCertificates          GiftCertificate[]
   locationCompetitors       LocationCompetitor[]
+  voiceCalls                VoiceCall[]
+  voiceCallbacks            VoiceCallback[]
+  voiceProfiles             VoiceProfile[]
 
   @@index([organizationId])
-  voiceCalls     VoiceCall[]
-  voiceCallbacks VoiceCallback[]
-  voiceProfiles  VoiceProfile[]
-
   @@map("businesses")
 }
 
@@ -102,7 +101,7 @@ model Location {
   createdAt            DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt            DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  bookingTrackedSite        TrackedSite?                   @relation("LocationBookingSite", fields: [bookingTrackedSiteId], references: [id], onDelete: SetNull)
+  bookingTrackedSite        TrackedSite?                        @relation("LocationBookingSite", fields: [bookingTrackedSiteId], references: [id], onDelete: SetNull)
   diningAreas               DiningArea[]
   barCategories             BarCategory[]
   barProducts               BarProduct[]
@@ -123,7 +122,7 @@ model Location {
   restaurantCashOps         RestaurantCashOperation[]
   restaurantCashChecks      RestaurantCashReconciliation[]
   onboardingProgress        OnboardingProgress?
-  business                  Business                       @relation(fields: [businessId], references: [id])
+  business                  Business                            @relation(fields: [businessId], references: [id])
   property                  Property?
   sellerAgents              SellerAgent[]
   membershipScopes          MembershipScope[]
@@ -149,20 +148,22 @@ model Location {
   /// MKT9.2: лицензия конструктора сайта филиала; выдаёт только главный администратор платформы
   siteBuilderEntitlement    SiteBuilderEntitlement?
   /// SITE-3: сайты счётчика филиала (любое направление)
-  trackedSites              TrackedSite[]                  @relation("LocationTrackedSites")
+  trackedSites              TrackedSite[]                       @relation("LocationTrackedSites")
   /// SITE-5: заявки с сайта без слота
   siteLeads                 SiteLead[]
   clientNotifications       ClientNotification[]
   reminderSettings          BeautyReminderSettings?
   competitors               LocationCompetitor[]
+  /// 152: напоминания гостям ресторана
+  restaurantNotifications   RestaurantReservationNotification[]
+  foodReminderSettings      FoodReminderSettings?
+  voiceCalls                VoiceCall[]
+  voiceBookingQuotes        VoiceBookingQuote[]
   /// STAFF-TG-20261020: уведомления сотрудникам о бронях с сайта
   staffNotifications        StaffNotification[]
 
   @@index([businessId])
   @@index([bookingTrackedSiteId])
-  voiceCalls VoiceCall[]
-  voiceBookingQuotes VoiceBookingQuote[]
-
   @@map("locations")
 }
 
@@ -2683,10 +2684,11 @@ model Organization {
   giftCertificateEntries      GiftCertificateEntry[]
   locationCompetitors         LocationCompetitor[]
   locationCompetitorSnapshots LocationCompetitorSnapshot[]
+  restaurantNotifications     RestaurantReservationNotification[]
 
-  voiceCalls     VoiceCall[]
-  voiceCallbacks VoiceCallback[]
-  voiceProfiles  VoiceProfile[]
+  voiceCalls         VoiceCall[]
+  voiceCallbacks     VoiceCallback[]
+  voiceProfiles      VoiceProfile[]
   voiceBookingQuotes VoiceBookingQuote[]
   staffNotifications StaffNotification[]
 
@@ -3110,14 +3112,13 @@ model SellerAgent {
   workingProfile SellerProfile?
   promptVersions SellerPromptVersion[]
 
-  bookingIntents SellerBookingIntent[]
+  bookingIntents     SellerBookingIntent[]
+  voiceCalls         VoiceCall[]
+  voiceProfile       VoiceProfile?
+  voiceBookingQuotes VoiceBookingQuote[]
 
   @@index([organizationId])
   @@index([locationId])
-  voiceCalls   VoiceCall[]
-  voiceProfile VoiceProfile?
-  voiceBookingQuotes VoiceBookingQuote[]
-
   @@map("seller_agents")
 }
 
@@ -3310,13 +3311,14 @@ model Customer {
   createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  organization           Organization            @relation(fields: [organizationId], references: [id])
-  businesses             CustomerBusiness[]
-  appointments           Appointment[]
-  restaurantReservations RestaurantReservation[]
-  clientNotifications    ClientNotification[]
-  bonusEntries           CustomerBonusEntry[]
-  giftCertificatesBought GiftCertificate[]
+  organization            Organization                        @relation(fields: [organizationId], references: [id])
+  businesses              CustomerBusiness[]
+  appointments            Appointment[]
+  restaurantReservations  RestaurantReservation[]
+  clientNotifications     ClientNotification[]
+  bonusEntries            CustomerBonusEntry[]
+  giftCertificatesBought  GiftCertificate[]
+  restaurantNotifications RestaurantReservationNotification[]
 
   @@index([organizationId])
   @@map("customers")
@@ -3874,29 +3876,30 @@ model ServicePeriod {
 }
 
 model RestaurantReservation {
-  id                  String                      @id @default(uuid()) @db.Uuid
-  locationId          String                      @map("location_id") @db.Uuid
-  customerId          String                      @map("customer_id") @db.Uuid
-  servicePeriodId     String                      @map("service_period_id") @db.Uuid
-  startsAt            DateTime                    @map("starts_at") @db.Timestamptz(6)
-  endsAt              DateTime                    @map("ends_at") @db.Timestamptz(6)
-  partySize           Int                         @map("party_size")
-  status              RestaurantReservationStatus @default(BOOKED)
-  source              RestaurantReservationSource @default(DESK)
+  id                  String                              @id @default(uuid()) @db.Uuid
+  locationId          String                              @map("location_id") @db.Uuid
+  customerId          String                              @map("customer_id") @db.Uuid
+  servicePeriodId     String                              @map("service_period_id") @db.Uuid
+  startsAt            DateTime                            @map("starts_at") @db.Timestamptz(6)
+  endsAt              DateTime                            @map("ends_at") @db.Timestamptz(6)
+  partySize           Int                                 @map("party_size")
+  status              RestaurantReservationStatus         @default(BOOKED)
+  source              RestaurantReservationSource         @default(DESK)
   notes               String?
-  creationKey         String                      @map("creation_key") @db.VarChar(200)
-  creationFingerprint String                      @map("creation_fingerprint") @db.VarChar(64)
-  createdById         String?                     @map("created_by_id") @db.Uuid
+  creationKey         String                              @map("creation_key") @db.VarChar(200)
+  creationFingerprint String                              @map("creation_fingerprint") @db.VarChar(64)
+  createdById         String?                             @map("created_by_id") @db.Uuid
   /// §33.6: кто принял бронь (официант или выбор у стойки)
-  employeeId          String?                     @map("employee_id") @db.Uuid
-  createdAt           DateTime                    @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt           DateTime                    @updatedAt @map("updated_at") @db.Timestamptz(6)
-  location            Location                    @relation(fields: [locationId], references: [id])
-  customer            Customer                    @relation(fields: [customerId], references: [id])
-  servicePeriod       ServicePeriod               @relation(fields: [servicePeriodId], references: [id])
-  createdBy           User?                       @relation(fields: [createdById], references: [id])
-  employee            Employee?                   @relation(fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  employeeId          String?                             @map("employee_id") @db.Uuid
+  createdAt           DateTime                            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime                            @updatedAt @map("updated_at") @db.Timestamptz(6)
+  location            Location                            @relation(fields: [locationId], references: [id])
+  customer            Customer                            @relation(fields: [customerId], references: [id])
+  servicePeriod       ServicePeriod                       @relation(fields: [servicePeriodId], references: [id])
+  createdBy           User?                               @relation(fields: [createdById], references: [id])
+  employee            Employee?                           @relation(fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: NoAction)
   tableAssignment     TableAssignment?
+  notifications       RestaurantReservationNotification[]
 
   @@unique([locationId, creationKey])
   @@index([employeeId])
@@ -4746,34 +4749,34 @@ enum VoiceDirection {
 
 /// Звонок голосового агента; телефон звонящего только маской, события пишет служебная роль
 model VoiceCall {
-  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId   String         @map("organization_id") @db.Uuid
-  businessId       String         @map("business_id") @db.Uuid
-  locationId       String?        @map("location_id") @db.Uuid
-  agentId          String         @map("agent_id") @db.Uuid
-  externalCallId   String         @map("external_call_id") @db.VarChar(128)
-  direction        VoiceDirection @default(INBOUND)
-  dialedNumber     String?        @map("dialed_number") @db.VarChar(16)
-  callerMasked     String?        @map("caller_masked") @db.VarChar(12)
-  state            VoiceCallState
+  id                String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String         @map("organization_id") @db.Uuid
+  businessId        String         @map("business_id") @db.Uuid
+  locationId        String?        @map("location_id") @db.Uuid
+  agentId           String         @map("agent_id") @db.Uuid
+  externalCallId    String         @map("external_call_id") @db.VarChar(128)
+  direction         VoiceDirection @default(INBOUND)
+  dialedNumber      String?        @map("dialed_number") @db.VarChar(16)
+  callerMasked      String?        @map("caller_masked") @db.VarChar(12)
+  state             VoiceCallState
   /// UTC, ставит приложение (AGENTS.md §13)
-  receivedAt       DateTime       @map("received_at") @db.Timestamptz(6)
-  answeredAt       DateTime?      @map("answered_at") @db.Timestamptz(6)
-  endedAt          DateTime?      @map("ended_at") @db.Timestamptz(6)
-  durationSeconds  Int?           @map("duration_seconds")
-  endReason        String?        @map("end_reason") @db.VarChar(40)
-  transferRequested Boolean       @default(false) @map("transfer_requested")
-  callbackRequested Boolean       @default(false) @map("callback_requested")
-  consentAnnounced Boolean        @default(true) @map("consent_announced")
-  errorCode        String?        @map("error_code") @db.VarChar(40)
-  retryCount       Int            @default(0) @map("retry_count")
-  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  receivedAt        DateTime       @map("received_at") @db.Timestamptz(6)
+  answeredAt        DateTime?      @map("answered_at") @db.Timestamptz(6)
+  endedAt           DateTime?      @map("ended_at") @db.Timestamptz(6)
+  durationSeconds   Int?           @map("duration_seconds")
+  endReason         String?        @map("end_reason") @db.VarChar(40)
+  transferRequested Boolean        @default(false) @map("transfer_requested")
+  callbackRequested Boolean        @default(false) @map("callback_requested")
+  consentAnnounced  Boolean        @default(true) @map("consent_announced")
+  errorCode         String?        @map("error_code") @db.VarChar(40)
+  retryCount        Int            @default(0) @map("retry_count")
+  createdAt         DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_calls_organization_fkey")
-  business     Business         @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_calls_business_fkey")
-  location     Location?        @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_calls_location_fkey")
-  agent        SellerAgent      @relation(fields: [agentId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_calls_agent_fkey")
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_calls_organization_fkey")
+  business     Business        @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_calls_business_fkey")
+  location     Location?       @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_calls_location_fkey")
+  agent        SellerAgent     @relation(fields: [agentId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_calls_agent_fkey")
   callbacks    VoiceCallback[]
 
   @@unique([agentId, externalCallId], map: "voice_calls_agent_call_key")
@@ -4842,19 +4845,19 @@ model VoiceCallback {
 
 /// Профиль голоса по агенту: снимает ограничение «один номер на воркер»
 model VoiceProfile {
-  agentId        String   @id @map("agent_id") @db.Uuid
-  organizationId String   @map("organization_id") @db.Uuid
-  businessId     String   @map("business_id") @db.Uuid
-  greetingTail   String   @default("") @map("greeting_tail") @db.VarChar(300)
-  voiceName      String   @default("Leda") @map("voice_name") @db.VarChar(40)
-  handoffPhone   String?  @map("handoff_phone") @db.VarChar(16)
+  agentId               String   @id @map("agent_id") @db.Uuid
+  organizationId        String   @map("organization_id") @db.Uuid
+  businessId            String   @map("business_id") @db.Uuid
+  greetingTail          String   @default("") @map("greeting_tail") @db.VarChar(300)
+  voiceName             String   @default("Leda") @map("voice_name") @db.VarChar(40)
+  handoffPhone          String?  @map("handoff_phone") @db.VarChar(16)
   /// Бронь по телефону (DATA_MODEL VOICE-BOOKING-PROPOSAL-20261023): выключатель, ожидание подтверждения, лимиты
-  bookingEnabled        Boolean @default(false) @map("booking_enabled")
-  bookingNeedsApproval  Boolean @default(true) @map("booking_needs_approval")
-  bookingMaxPerCall     Int     @default(3) @map("booking_max_per_call") @db.SmallInt
-  bookingMaxPerPhoneDay Int     @default(5) @map("booking_max_per_phone_day") @db.SmallInt
-  revision       Int      @default(1)
-  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  bookingEnabled        Boolean  @default(false) @map("booking_enabled")
+  bookingNeedsApproval  Boolean  @default(true) @map("booking_needs_approval")
+  bookingMaxPerCall     Int      @default(3) @map("booking_max_per_call") @db.SmallInt
+  bookingMaxPerPhoneDay Int      @default(5) @map("booking_max_per_phone_day") @db.SmallInt
+  revision              Int      @default(1)
+  updatedAt             DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   agent        SellerAgent  @relation(fields: [agentId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_profiles_agent_fkey")
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "voice_profiles_organization_fkey")
@@ -4862,6 +4865,50 @@ model VoiceProfile {
 
   @@index([organizationId, businessId], map: "voice_profiles_org_idx")
   @@map("voice_profiles")
+}
+
+/// 152 Очередь сообщений гостю по брони ресторана (§61): без текста и контактов, текст собирается при отправке
+model RestaurantReservationNotification {
+  id             String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                     @map("organization_id") @db.Uuid
+  locationId     String                     @map("location_id") @db.Uuid
+  reservationId  String                     @map("reservation_id") @db.Uuid
+  customerId     String                     @map("customer_id") @db.Uuid
+  kind           ClientNotificationKind
+  dueAt          DateTime                   @map("due_at") @db.Timestamptz(6)
+  channel        ClientNotificationChannel?
+  state          ClientNotificationState    @default(PENDING)
+  attempts       Int                        @default(0)
+  nextAttemptAt  DateTime?                  @map("next_attempt_at") @db.Timestamptz(6)
+  lastError      String?                    @map("last_error") @db.VarChar(500)
+  sentAt         DateTime?                  @map("sent_at") @db.Timestamptz(6)
+  createdAt      DateTime                   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime                   @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "restaurant_reservation_notifications_organization_fkey")
+  location     Location              @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "restaurant_reservation_notifications_location_fkey")
+  reservation  RestaurantReservation @relation(fields: [reservationId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "restaurant_reservation_notifications_reservation_fkey")
+  customer     Customer              @relation(fields: [customerId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "restaurant_reservation_notifications_customer_fkey")
+
+  @@unique([reservationId, kind, dueAt], map: "restaurant_reservation_notifications_natural_key")
+  @@index([state, dueAt], map: "restaurant_reservation_notifications_state_due_idx")
+  @@index([locationId, dueAt], map: "restaurant_reservation_notifications_location_due_idx")
+  @@map("restaurant_reservation_notifications")
+}
+
+/// 152 Настройки напоминаний филиала ресторана (§61)
+model FoodReminderSettings {
+  locationId           String   @id @map("location_id") @db.Uuid
+  enabled              Boolean  @default(true)
+  hoursBefore          Int[]    @default([24, 2]) @map("hours_before")
+  template             String?
+  whatsappTemplateName String?  @map("whatsapp_template_name") @db.VarChar(100)
+  revision             Int      @default(1)
+  updatedAt            DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "food_reminder_settings_location_fkey")
+
+  @@map("food_reminder_settings")
 }
 
 /// STAFF-TG-20261020 (DATA_MODEL, план plans/staff-telegram-notifications-2026-10-20.md): личный чат сотрудника с

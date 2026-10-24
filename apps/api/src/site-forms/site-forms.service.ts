@@ -49,6 +49,7 @@ import { enqueueStaffNotifications } from '../staff-telegram/recipients';
 import { TurnstileService, turnstileFailureError } from '../web-booking/turnstile';
 import type { RequestContext } from '../web-booking/web-booking.service';
 import { syncAppointmentReminders } from '../beauty/reminders';
+import { syncReservationReminders } from '../food-service/reminders';
 
 /**
  * Формы управляемого сайта салона и ресторана и заявка «Перезвоните мне» (SITE-4, SITE-5; ADR-185, план
@@ -738,6 +739,8 @@ export class SiteFormsService {
             },
           },
         });
+        // §61: бронь с сайта получает подтверждение сразу и напоминания по настройкам филиала
+        await syncReservationReminders(tx, r.id, { confirmation: true });
         await enqueueStaffNotifications(tx, { ...this.staffTarget(fs, 'SITE_TABLE'), sourceId: r.id });
         const value = await this.reservationReplay(tx, fs, key, fingerprint);
         return { value: value!, replayed: false };

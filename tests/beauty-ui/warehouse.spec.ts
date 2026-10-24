@@ -1,6 +1,6 @@
 import { expect, test, type APIRequestContext } from '@playwright/test';
 
-/** Склад салона (ADR-STOCK-ALL, 21.10.2026): «Расходники» в обзоре склада и «Докупить» на их экране; настоящие контроллеры и база */
+/** Склад салона (ADR-STOCK-ALL, 21.10.2026; названия 24.10.2026): «Бар» и «Кухня» в обзоре склада и «Докупить»; настоящие контроллеры и база */
 const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '26814'}`;
 const shots = process.env.WAREHOUSE_SHOTS ?? '';
 type Fixture = { business: string; locations: string[] };
@@ -17,7 +17,7 @@ async function post(request: APIRequestContext, headers: Record<string, string>,
   return JSON.parse(text);
 }
 
-test('салон: обзор склада зовёт кухню «Расходники», расходники ниже минимума просят закупку', async ({ page, request }) => {
+test('салон: обзор склада показывает «Бар» и «Кухню», кухня ниже минимума просит закупку', async ({ page, request }) => {
   const reset = await request.post(`${api}/__test/reset`);
   const fixture = JSON.parse(await reset.text()) as Fixture;
   const pointer = `business=${fixture.business};location=${fixture.locations[0]}`;
@@ -30,15 +30,15 @@ test('салон: обзор склада зовёт кухню «Расходн
   await page.goto('/warehouse');
   await expect(page.getByRole('heading', { level: 1, name: 'Склад' })).toBeVisible();
   const materials = page.locator('[data-warehouse="kitchen"]');
-  await expect(materials).toContainText('Расходники');
+  await expect(materials).toContainText('Кухня');
   // у салона расходники считаются «позициями», не «продуктами» (аудит салона 22.10.2026, слова склада)
   await expect(materials).toContainText('Докупить: 1 позиция');
   await expect(materials).toContainText('Шампунь профессиональный');
   await expect(materials).toHaveAttribute('href', '/bar/consumables');
-  // в этом стенде модуль бара не подключён (404): карточка бара говорит об этом словами и не прячет «Расходники»
+  // в этом стенде модуль бара не подключён (404): карточка бара говорит об этом словами и не прячет «Кухню»
   await expect(page.locator('[data-warehouse="bar"]')).toContainText('Остатки не загрузились');
-  // у салона склад бара называется «Товары» (аудит салона 22.10.2026)
-  await expect(page.getByText('Остатки склада «Товары» не загрузились.', { exact: false })).toBeVisible();
+  // у салона склад товаров на продажу называется «Бар», как у гостиницы и ресторана (решение владельца 24.10.2026)
+  await expect(page.getByText('Остатки склада «Бар» не загрузились.', { exact: false })).toBeVisible();
   if (shots) await page.screenshot({ path: `${shots}/salon-warehouse.png`, fullPage: true });
 
   await materials.click();

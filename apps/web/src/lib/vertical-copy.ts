@@ -116,7 +116,7 @@ const COPY: Record<WebVertical, VerticalCopy> = {
       bookings: 'Записи',
       specialists: 'Специалисты',
       team: 'Сотрудники',
-      goods: 'Товары',
+      goods: 'Бар',
       catalogSettings: 'Каталог услуг',
       siteSettings: 'Сайт и онлайн-запись',
     },

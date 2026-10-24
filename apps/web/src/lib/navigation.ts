@@ -285,7 +285,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         requires: 'reports',
         label: 'Обзор склада',
         icon: 'stock',
-        description: 'Остатки товаров и расходников рядом и что заканчивается.',
+        description: 'Остатки бара и кухни рядом и что заканчивается.',
       },
       {
         href: '/bar',
@@ -297,7 +297,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         href: '/bar/consumables',
         requires: 'reports',
-        label: 'Расходники',
+        label: 'Кухня',
         icon: 'stock',
         description: 'Продукты и материалы: приходы, списания и остатки.',
       },
@@ -688,8 +688,8 @@ const ROW: Array<{
       { label: { word: 'goods' }, at: ALL('/bar') },
       // у ресторана «Кухня» уже раздел «Услуги»: склад кухни называется целиком
       { label: 'Склад кухни', at: { FOOD_SERVICE: '/stock' } },
-      // гостиница зовёт склад материалов как салон (аудит 22.10.2026): «Кухня» путалась с кухней ресторана
-      { label: 'Расходники', at: { HOSPITALITY: '/bar/consumables', BEAUTY: '/bar/consumables' } },
+      // решение владельца 24.10.2026: «Кухня» на складе у салона и гостиницы (у ресторана выше «Склад кухни»)
+      { label: 'Кухня', at: { HOSPITALITY: '/bar/consumables', BEAUTY: '/bar/consumables' } },
       { label: 'Приходы', at: ALL('/bar/receipts') },
       { label: 'Номенклатура', at: ALL('/bar/products') },
       { label: 'Поставщики', at: ALL('/bar/suppliers') },

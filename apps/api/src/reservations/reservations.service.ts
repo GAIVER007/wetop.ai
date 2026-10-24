@@ -458,11 +458,17 @@ export class ReservationsService {
   create(dto: CreateReservationDto, opts: { preview: true }): Promise<ReservationQuote>;
   create(
     dto: CreateReservationDto,
-    opts?: { guestPrepared?: boolean; onReplay?: () => void },
+    opts?: { guestPrepared?: boolean; onReplay?: () => void; notifyStaff?: boolean },
   ): Promise<ReservationCard>;
   async create(
     dto: CreateReservationDto,
-    opts: { guestPrepared?: boolean; preview?: boolean; onReplay?: () => void } = {},
+    opts: {
+      guestPrepared?: boolean;
+      preview?: boolean;
+      onReplay?: () => void;
+      /** STAFF-TG: бронь с сайта ставит уведомление сотрудникам в той же транзакции (AGENTS.md §11) */
+      notifyStaff?: boolean;
+    } = {},
   ): Promise<ReservationCard | ReservationQuote> {
     const key = dto.creationKey;
     if (key !== undefined && (typeof key !== 'string' || !CREATION_KEY_RE.test(key)))
@@ -726,6 +732,7 @@ export class ReservationsService {
           action: 'reservation.create',
           after: card,
         });
+        if (opts.notifyStaff) await repo.enqueueStaffSiteBooking?.(created.id);
         return card;
       }),
     );

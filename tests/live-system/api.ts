@@ -15,6 +15,7 @@ process.env.PII_STORAGE = 'real';
 for (const flag of [
   'CHANNEX_PULL',
   'CHANNEX_OUTBOX_WORKER',
+  'STAFF_NOTIFY_WORKER',
   'CHANNEX_FULL_SYNC',
   'CHANNEX_WEBHOOK_HEALTH',
   'GUARD',

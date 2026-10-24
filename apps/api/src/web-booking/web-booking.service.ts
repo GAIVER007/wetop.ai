@@ -502,6 +502,8 @@ export class WebBookingService {
     const card = await asSite(site, () =>
       this.reservations.create(input, {
         guestPrepared: true,
+        // STAFF-TG: уведомление сотрудникам о брони с сайта пишется в транзакции самой брони
+        notifyStaff: true,
         onReplay: () => {
           replayed = true;
         },

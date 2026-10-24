@@ -716,6 +716,14 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /w/beauty/book': 'public',
   'POST /w/food/reserve': 'public',
   'POST /w/lead': 'public',
+  // STAFF-TG-20261020: вебхук бота уведомлений, пускает секрет X-Telegram-Bot-Api-Secret-Token
+  'POST /telegram/staff/webhook': 'public',
+  // «Профиль → Уведомления»: своё подключение Telegram
+  'GET /profile/telegram': 'self',
+  'POST /profile/telegram/code': 'self',
+  'PATCH /profile/telegram': 'self',
+  'DELETE /profile/telegram': 'self',
+  'POST /profile/telegram/test': 'self',
   'GET /w/demo': 'public',
   'GET /bot/availability': 'public',
   // H14 (ADR-144): страница статуса сервиса без входа

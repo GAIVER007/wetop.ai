@@ -1135,7 +1135,8 @@ kind              вид неисправности, ровно виды POLICY 
                   outbox.failed | outbox.stuck | ari.delta.lost | event.failed | event.rejected |
                   sync.missing | db.down | stay.overbooked | stay.unassigned | api.error |
                   reconciliation.fail | tests.failing | web.down | ari.oversell | backup.stale |
-                  booking.flood     (v1.10: брони с сайта упёрлись в предел за час — С-7 ТЗ аудита)
+                  booking.flood     (v1.10: брони с сайта упёрлись в предел за час, С-7 ТЗ аудита) |
+                  staff.notify.failed (STAFF-TG-20261020: уведомление сотруднику в Telegram не ушло за шесть попыток)
 class             A | B | C        A — техника, сторож чинит сам; B — данные, будит человека;
                                    C — код, исправляет дежурный агент в ветке без выката
 severity          CRITICAL | WARNING
@@ -4954,3 +4955,17 @@ PK `location_id` (филиал ресторана, триггер), `enabled` (�
   сегодня» с текстом и wa.me, отметка «Напомнил» переводит в `SENT`/`MANUAL` с записью в журнал).
 - Подстановки текста: `{имя} {дата} {время} {гостей} {ресторан} {адрес} {телефон}`; дата и время по поясу филиала.
 
+
+## STAFF-TG-20261020: уведомления сотрудникам о бронях с сайта в Telegram (УТВЕРЖДЕНО 20.10.2026)
+
+Основание: поручение владельца 15.10.2026 «сотрудникам сообщать в Telegram о брони с сайта; сам Telegram подключим позже, логику делай», план `plans/staff-telegram-notifications-2026-10-20.md`. Владелец ответил «да» на три таблицы 20.10.2026 и «делай сейчас: база, API, очередь, экран Уведомления, бот подключим позже».
+
+1. `StaffTelegramLink` (`staff_telegram_links`): `userId` PK/FK User (удаление пользователя удаляет привязку), `chatId` bigint (номер личного чата с ботом), `username` varchar(64) null, `linkedAt` UTC, `disabledAt` null, `siteBookings` boolean default true (переключатель «Брони с сайта»). Один чат на сотрудника; повторная привязка перезаписывает чат и снимает `disabledAt`. Отключение (`/stop`, кнопка «Отключить», ответ Telegram 403) ставит `disabledAt`, строка не удаляется.
+2. `StaffTelegramLinkCode` (`staff_telegram_link_codes`): `codeHash` char(64) PK (SHA-256 одноразового кода, сам код наружу только при выдаче), `userId` FK User, `expiresAt` UTC (выдача плюс 15 минут), `usedAt` null. Новый код гасит прежние неиспользованные коды того же сотрудника (их `expiresAt` становится моментом выдачи нового).
+3. `StaffNotification` (`staff_notifications`, очередь и журнал по AGENTS.md §11): `id` uuid, `organizationId`, `locationId`, `kind` (`SITE_BOOKING_HOTEL`, `SITE_APPOINTMENT`, `SITE_TABLE`, `SITE_LEAD`), `sourceId` uuid (бронь, запись, бронь стола или заявка), `recipientUserId`, `status` (`PENDING`, `SENT`, `FAILED`, `SKIPPED`), `attempts`, `nextAttemptAt`, `lastError` varchar(300) null (код ошибки без персональных данных), `createdAt` (время события), `sentAt` null. UNIQUE (`kind`, `sourceId`, `recipientUserId`): повтор события не дублирует сообщение. Текста сообщения, имени и телефона гостя в строке нет: текст собирается при отправке из самой брони (ADR-018).
+
+Изоляция: RLS с FORCE. Привязка и коды видны роли `wetop_app` только для сотрудников с членством в текущей организации (`memberships.organization_id = app_current_org()`); очередь по своей организации и филиалу своей организации. Служебная роль (вебхук бота и отправщик) работает без организации. Права `wetop_app`: привязка SELECT/UPDATE, коды SELECT/INSERT/UPDATE, очередь SELECT/INSERT; удаления нет.
+
+Правила: строка очереди пишется в той же транзакции, что и бронь с сайта, по одной на сотрудника с действующей привязкой, включённым переключателем и правом видеть брони этого филиала по существующей модели прав (членство, область доступа, должности салона). Права и привязка повторно проверяются при отправке; не прошло: `SKIPPED`. Отправщик раз в 10 с, до 6 попыток с нарастающей паузой (около часа), затем `FAILED` и неисправность в журнале платформы. Без токена бота отправщик не работает и попыток не тратит.
+
+Миграция `20261024000154_staff_telegram_notifications`: обычная аддитивная, старый код таблиц не читает. Backup, проверка RLS и откат `down.sql` только пока таблицы пусты: README миграции.

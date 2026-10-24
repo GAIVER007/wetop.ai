@@ -7,7 +7,9 @@ import { Badge } from '../../components/ui';
 import type { ExtensionAccessView } from '../../lib/api';
 import type { DeskPerson } from '../../lib/desk-person';
 import { extensionLine } from '../../lib/platform';
+import type { StaffTelegramStatus } from '../../lib/api';
 import Link from 'next/link';
+import { TelegramNotifications } from './telegram-panel';
 
 /**
  * «Настройки рабочего места»: тема, доступ и расширения организации. Кто вошёл и что открыто организации — от
@@ -17,9 +19,12 @@ export function ProfileView({
   person,
   seller,
   hospitality = true,
+  telegram = null,
 }: {
   person: DeskPerson | null;
   seller: ExtensionAccessView | null;
+  /** «Уведомления»: своё подключение Telegram (STAFF-TG-20261020); null до входа или при сбое API */
+  telegram?: StaffTelegramStatus | null;
   /** ИИ-продавец пока работает только у гостиницы: салону и ресторану вкладка расширений не нужна */
   hospitality?: boolean;
 }) {
@@ -85,6 +90,11 @@ export function ProfileView({
                 </Link>
               </section>
             ),
+          },
+          {
+            id: 'notifications',
+            label: 'Уведомления',
+            content: <TelegramNotifications initial={telegram} />,
           },
           ...(hospitality
             ? [

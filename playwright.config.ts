@@ -122,6 +122,10 @@ export default defineConfig({
             GUARD_HEARTBEAT_URL: '',
             TELEGRAM_BOT_TOKEN: '',
             TELEGRAM_CHAT_ID: '',
+            // STAFF-TG: тестовый стенд не шлёт сотрудникам в Telegram; экран показывает «бот подключается»
+            TELEGRAM_STAFF_BOT_TOKEN: '',
+            TELEGRAM_STAFF_WEBHOOK_SECRET: '',
+            STAFF_NOTIFY_WORKER: 'off',
             // Замок выключается только явным «0» (ADR-095): без него стойка production-сборки требовала бы вход
             ...(AUTH ? { AUTH_REQUIRED: '1', SERVICE_API_KEY: SERVICE_KEY } : { AUTH_REQUIRED: '0' }),
           },

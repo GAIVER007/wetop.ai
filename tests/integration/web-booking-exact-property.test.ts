@@ -414,4 +414,33 @@ describe.skipIf(!local)('публичная бронь: сайты всех ор
     expect(mails.length - before).toBe(1);
     expect(ts.calls).toEqual(['undefined', 'l-1']);
   }, 60_000);
+
+  // STAFF-TG-20261020: бронь с сайта ставит уведомление сотрудникам организации сайта в той же транзакции
+  it('STAFF-TG: бронь с сайта B ставит строку очереди сотруднику с привязкой; повтор ключа второй не даёт', async () => {
+    const staff = randomUUID();
+    await db.user.create({ data: { id: staff, email: `${staff}@example.invalid` } });
+    await db.membership.create({ data: { userId: staff, organizationId: orgM, role: 'STAFF' } });
+    await db.$executeRawUnsafe(`INSERT INTO staff_telegram_links(user_id, chat_id) VALUES($1::uuid, 910000001)`, staff);
+    try {
+      const svc = service();
+      // свои даты: единственный номер B на даты bookBody уже продан предыдущими проверками
+      const body = { ...bookBody(B), arrival: day(55), departure: day(56) };
+      const booked = await svc.book(body, ctx(B));
+      await svc.book(body, ctx(B));
+      const reservation = await db.reservation.findFirstOrThrow({
+        where: { confirmationNumber: booked.confirmationNumber },
+        select: { id: true },
+      });
+      const rows = await db.$queryRawUnsafe<Array<{ recipient_user_id: string; kind: string; location_id: string }>>(
+        `SELECT recipient_user_id::text, kind::text, location_id::text FROM staff_notifications WHERE source_id = $1::uuid`,
+        reservation.id,
+      );
+      expect(rows).toEqual([{ recipient_user_id: staff, kind: 'SITE_BOOKING_HOTEL', location_id: B.locationId }]);
+    } finally {
+      await db.$executeRawUnsafe(`DELETE FROM staff_notifications WHERE recipient_user_id = $1::uuid`, staff);
+      await db.$executeRawUnsafe(`DELETE FROM staff_telegram_links WHERE user_id = $1::uuid`, staff);
+      await db.membership.deleteMany({ where: { userId: staff } });
+      await db.user.deleteMany({ where: { id: staff } });
+    }
+  });
 });

@@ -32,6 +32,7 @@ import { RestaurantService } from './restaurant.service';
 import { StockService } from './stock.service';
 import { MenuModifiersService } from './modifiers';
 import { BranchPaymentMethodsController, BranchPaymentMethodsService } from './branch-payment-methods';
+import { FoodCustomerDetailController, FoodCustomerDetailService } from './customer-detail';
 @Controller('food-service')
 @Access('desk')
 @RequiresBusinessCapability('food.tables')
@@ -413,6 +414,7 @@ export class FoodStockController {
     FoodStaffController,
     FoodStockController,
     OrderRatingLinkController,
+    FoodCustomerDetailController,
   ],
   providers: [
     RestaurantOpeningService,
@@ -424,6 +426,7 @@ export class FoodStockController {
     MenuModifiersService,
     BranchPaymentMethodsService,
     OrderRatingLinkService,
+    FoodCustomerDetailService,
     { provide: SITE_ASSET_STORAGE, useFactory: () => siteAssetStorageFromEnv() },
   ],
   exports: [FoodService, RestaurantService],

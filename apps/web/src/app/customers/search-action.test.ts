@@ -30,11 +30,11 @@ describe('поиск клиентов в шапке салона и рестор
     expect(foodCustomers).not.toHaveBeenCalled();
   });
 
-  it('ресторан: гости из API ресторана, ссылка открывает «Клиентов» с этим гостем', async () => {
+  it('ресторан: гости из API ресторана, ссылка открывает карточку гостя (решение 23.10.2026 п. 4)', async () => {
     deskShell.mockResolvedValue({ vertical: 'FOOD_SERVICE' });
     const [hit] = await searchCustomers('700 000');
     expect(foodCustomers).toHaveBeenCalledWith(undefined, '700 000');
-    expect(hit?.href).toBe('/customers?q=%2B7+700+000+10+01');
+    expect(hit?.href).toBe('/customers/c-1');
     expect(beautyCustomers).not.toHaveBeenCalled();
   });
 
@@ -48,10 +48,11 @@ describe('поиск клиентов в шапке салона и рестор
     expect(await searchCustomers('Тест')).toEqual([]);
   });
 
-  it('не больше пяти строк; гость без телефона ищется по имени', () => {
+  it('не больше пяти строк; салон и ресторан ведут на карточку клиента (решение 23.10.2026 п. 4)', () => {
     const many = Array.from({ length: 8 }, (_, i) => ({ ...row, id: `c-${i}` }));
     expect(customerHits('BEAUTY', many)).toHaveLength(5);
-    expect(customerHits('FOOD_SERVICE', [{ ...row, phone: null }])[0]?.href).toBe(
+    expect(customerHits('FOOD_SERVICE', [{ ...row, id: 'g-1', phone: null }])[0]?.href).toBe('/customers/g-1');
+    expect(customerHits('HOSPITALITY', [{ ...row, phone: null }])[0]?.href).toBe(
       '/customers?q=%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D0%B0%D1%8F+%D0%9A%D0%BB%D0%B8%D0%B5%D0%BD%D1%82%D0%BA%D0%B0',
     );
     expect(customerQueryReady(' a ')).toBe(false);

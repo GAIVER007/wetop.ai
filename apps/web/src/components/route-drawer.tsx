@@ -14,7 +14,7 @@ export function RouteDrawer({
 }: {
   children: ReactNode;
   title?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }) {
   const router = useRouter();
   return (

@@ -16,8 +16,8 @@ export const CUSTOMER_HITS_SHOWN = 5;
 export const customerQueryReady = (query: string) => query.trim().length >= 2;
 
 /**
- * Строки клиентов в ссылки окна поиска. Салон: карточка клиента с визитами и записями. Ресторан: своей карточки
- * у гостя нет, ссылка открывает «Клиентов» с этим гостем в списке (`?q=`).
+ * Строки клиентов в ссылки окна поиска: карточка клиента. У салона визиты и записи, у ресторана брони столов
+ * (решение владельца 23.10.2026 п. 4); у гостиницы своей карточки нет, ссылка открывает «Клиентов» (`?q=`).
  */
 export function customerHits(
   vertical: WebVertical,
@@ -30,7 +30,7 @@ export function customerHits(
       label,
       hint: row.phone,
       href:
-        vertical === 'BEAUTY'
+        vertical === 'BEAUTY' || vertical === 'FOOD_SERVICE'
           ? `/customers/${encodeURIComponent(row.id)}`
           : `/customers?${new URLSearchParams({ q: row.phone ?? label })}`,
     };

@@ -37,7 +37,9 @@ describe('approved TZ12 presentation compatibility port', () => {
     expect(text).toContain('<span className="beauty-selection-line">Дата: {date}</span>');
     // пояс называется словами (zoneLabel), а не кодом IANA: обход живого сайта 21.10.2026
     expect(text).toMatch(/<span className="beauty-selection-line">\s*Время: \{hour\} \(\{zoneLabel\(day\.location\.timezone\)\}\)\s*<\/span>/);
-    expect(text).toContain('appointment-form__footer');
+    // подвал с итогом и «Записать» с 23.10.2026 общий у окна брони всех направлений (`BookingShell`)
+    expect(text).toContain('<BookingShell');
+    expect(text).toContain('appointment-form__total');
     expect(source('beauty/beauty.css')).toContain('.appointment-editor > .overlay-content');
   });
   it('emphasizes customer identity and makes phone callable without removing metrics', () => {

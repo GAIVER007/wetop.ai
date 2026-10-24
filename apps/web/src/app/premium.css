@@ -403,6 +403,11 @@
   .ui-drawer.ui-overlay--lg {
     width: min(var(--drawer-w-lg), calc(100vw - 32px));
   }
+  /* окно брони всех направлений: форма слева, выбор кнопками справа (решение 23.10.2026) */
+  .ui-overlay--xl,
+  .ui-drawer.ui-overlay--xl {
+    width: min(var(--overlay-w-xl), calc(100vw - 32px));
+  }
   .command-input {
     display: flex;
     align-items: center;

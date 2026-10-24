@@ -52,6 +52,32 @@ export interface FoodCustomer {
   /** Через сколько дней день рождения по дате филиала: 0 сегодня */
   birthdayInDays?: number | null;
 }
+/** Карточка клиента ресторана `GET /food-service/customers/:id`: история из броней столов, без сумм (Q-FOOD-CUSTOMER-1) */
+export interface FoodCustomerDetail {
+  customer: {
+    id: string;
+    firstName: string;
+    lastName: string | null;
+    phone: string | null;
+    email: string | null;
+    notes: string | null;
+    status: string;
+    isVip: boolean;
+    birthDate: string | null;
+  };
+  visits: Array<{
+    id: string;
+    startsAt: string;
+    endsAt: string;
+    partySize: number;
+    status: FoodStatus;
+    source: string;
+    notes: string | null;
+    location: { id: string; name: string; timezone: string };
+    table: { name: string; areaName: string } | null;
+  }>;
+  historyTruncated: boolean;
+}
 export interface RestaurantReservation {
   id: string;
   locationId: string;

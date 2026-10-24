@@ -5,15 +5,19 @@ import { loadPortalWeek, savePortal } from '../../app/my-work/actions';
 import { Alert, Button, Input } from '../ui';
 import { useConfirm } from '../use-confirm';
 import { employeeFormSignature } from '../employee-workspace/workspace';
+import { applyWeekPreset, weekProblem, WEEK_PRESETS } from './week-presets';
 export type PortalContext = {
   target: { employeeId: string | null }; scope: string; onSaved: (data: EmployeePortalDto) => void;
 };
-export function PortalForm({ context, command, children, label = 'Сохранить', revision, profileRevision, testId }: {
+export function PortalForm({ context, command, children, label = 'Сохранить', revision, profileRevision, testId, validate }: {
   context: PortalContext; command: string; children?: ReactNode; label?: string; revision?: string | null; profileRevision?: string; testId?: string;
+  /** своя проверка до отправки, словами по-русски; браузерную подсказку тогда выключаем (аудит 21.10.2026, п. 2) */
+  validate?: () => string | null;
 }) {
   const [pending, start] = useTransition();
   const { ask, dialog } = useConfirm();
   const [error, setError] = useState('');
+  const [invalid, setInvalid] = useState('');
   const [saved, setSaved] = useState(false);
   // Dirty drafts keep their starting version; untouched forms can follow a sibling save.
   const [expectedRevision, setRevision] = useState(revision ?? '');
@@ -46,13 +50,21 @@ export function PortalForm({ context, command, children, label = 'Сохрани
   // An untouched form follows the latest version; PortalWeek passes a newer one only when its hours match the server.
   const formRevision = dirty ? expectedRevision : (revision ?? expectedRevision);
   return <><form ref={formRef} data-testid={testId ?? `portal-${command}-form`} className="portal-form" data-employee-transition-form
+    noValidate={validate ? true : undefined}
     onReset={event => event.preventDefault()}
     onChange={() => {
       if (!dirty) setRevision(revision ?? expectedRevision);
-      setDirty(true); setSaved(false);
+      setDirty(true); setSaved(false); setInvalid('');
     }}
     onSubmit={event => {
       event.preventDefault();
+      const problem = validate?.();
+      if (problem) {
+        // «Сохранено» не показываем, пока проверка не прошла
+        setSaved(false); setError(''); setInvalid(problem);
+        return;
+      }
+      setInvalid('');
       const element = event.currentTarget;
       const snapshot = employeeFormSignature(element);
       const form = new FormData(element);
@@ -97,6 +109,7 @@ export function PortalForm({ context, command, children, label = 'Сохрани
       <Button type="submit" disabled={pending}>{pending ? 'Сохраняем…' : label}</Button>
     </fieldset>
     {(pending || saved) && <p role="status">{pending ? 'Ждём подтверждение сервера…' : 'Сохранено на сервере'}</p>}
+    {invalid && <Alert>{invalid}</Alert>}
     {error && <Alert>{error}</Alert>}
 
     {error && <p>Ввод не сброшен. При конфликте откройте карточку в новой вкладке и сравните изменения.</p>}
@@ -115,7 +128,7 @@ const DAYS = ['Воскресенье', 'Понедельник', 'Вторни�
 /** Свой график сотрудник только видит: меняет руководитель (владелец, 17.10.2026) */
 export function PortalWeekView({ week }: { week: PortalWeekDay[] }) {
   return <div data-testid="portal-week-view"><p className="portal-week-help">График меняет руководитель. Нет часов: выходной.</p>
-    <ul className="portal-list">{[1, 2, 3, 4, 5, 6, 0].map(weekday => <li key={weekday}><strong>{DAYS[weekday]}</strong><span>{week.find(d => d.weekday === weekday)?.intervals.map(i => `${i.timeFrom}–${i.timeTo}`).join(', ') || 'Выходной'}</span></li>)}</ul></div>;
+    <ul className="portal-list">{[1, 2, 3, 4, 5, 6, 0].map(weekday => { const hours = week.find(d => d.weekday === weekday)?.intervals.map(i => `${i.timeFrom}–${i.timeTo}`).join(', '); return <li key={weekday} data-testid="portal-week-day" data-off={hours ? undefined : 'true'}><strong>{DAYS[weekday]}</strong><span>{hours || 'Выходной'}</span></li>; })}</ul></div>;
 }
 const weekDays = (week: PortalWeekDay[]) => [1, 2, 3, 4, 5, 6, 0].map(weekday => ({ weekday, intervals: week.find(d => d.weekday === weekday)?.intervals.map(i => ({ ...i })) ?? [] }));
 export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[]; revision: string | null; context: PortalContext }) {
@@ -133,8 +146,13 @@ export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[];
   const [readError, setReadError] = useState('');
   const [reading, reread] = useTransition();
   const intervals = days.flatMap(day => day.intervals.map(slot => ({ weekday: day.weekday, ...slot })));
-  return <><PortalForm key={originalRevision} context={context} command="week" revision={base} label="Сохранить график">
+  return <><PortalForm key={originalRevision} context={context} command="week" revision={base} label="Сохранить график" validate={() => weekProblem(hours.current)}>
     <p className="portal-week-help">Рабочие часы по дням. Нет интервалов: выходной.</p>
+    {/* быстрый шаблон недели (онбординг 21.10.2026): заполняет все дни, дальше можно поправить день */}
+    <div className="portal-week-presets" role="group" aria-label="Быстро заполнить неделю">
+      <span>Заполнить:</span>
+      {WEEK_PRESETS.map((preset) => <Button key={preset.label} type="button" size="sm" tone="secondary" onClick={() => setDays(prev => applyWeekPreset(prev, preset))}>{preset.label}</Button>)}
+    </div>
     <input type="hidden" name="intervals" value={JSON.stringify(intervals)} />
     {days.map(day => <div className="portal-week-row" key={day.weekday} role="group" aria-label={DAYS[day.weekday]}>
       <strong><span className="portal-day-full">{DAYS[day.weekday]}</span><abbr className="portal-day-short" title={DAYS[day.weekday]}>{['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][day.weekday]}</abbr></strong>

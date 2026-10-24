@@ -41,6 +41,9 @@ import {
 import { DevAgentation } from '../components/dev-agentation';
 import { inter } from './fonts';
 import { PWA_THEME } from '../lib/pwa';
+import { translator } from '../i18n';
+import { LocaleProvider } from '../i18n/locale-provider';
+import { cookieLocale, currentLocale, serverT } from '../i18n/server';
 
 export const metadata = {
   title: 'WETOP: рабочее пространство',
@@ -64,21 +67,23 @@ export const viewport = {
 
 async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
   const shell = await deskShell();
-  if (shell.branchNeeded) return field === 'name' ? 'Выберите филиал' : 'Откройте список филиалов';
-  if (shell.access.unknown) return 'Филиал недоступен';
+  const t = await serverT();
+  if (shell.branchNeeded) return field === 'name' ? t('Выберите филиал') : t('Откройте список филиалов');
+  if (shell.access.unknown) return t('Филиал недоступен');
   if (shell.vertical !== 'HOSPITALITY') {
     const branch = await selectedWorkspaceBranch().catch(() => null);
     return branch
       ? field === 'name'
         ? branch.name
-        : (branch.address ?? (branch.vertical === 'FOOD_SERVICE' ? 'Ресторан' : 'Салон'))
-      : 'Выберите филиал';
+        : (branch.address ?? t(branch.vertical === 'FOOD_SERVICE' ? 'Ресторан' : 'Салон'))
+      : t('Выберите филиал');
   }
   const hotel = await hotelApi.settings().catch((error: unknown) => {
     if (error instanceof ApiError) return null;
     throw error;
   });
-  return hotel?.property[field] ?? (field === 'name' ? 'Объект не загружен' : 'Настройки объекта');
+  // подпись под названием, пока адрес не заполнен: вид бизнеса, как «Салон» и «Ресторан» (аудит 22.10.2026 P1-20)
+  return hotel?.property[field] ?? t(field === 'name' ? 'Объект не загружен' : 'Гостиница');
 }
 
 /** Общий shell и параллельная карточка используют одну тему и существующие server actions. */
@@ -95,18 +100,21 @@ export default async function RootLayout({
   // Защищённая оболочка здесь не нужна: её запросы `/hotel/settings` и `/auth/me`
   // при включённом замке уводят на `/login` раньше, чем токен подтверждения дойдёт до API.
   if (isPublicEntryPath(path)) {
+    const locale = await cookieLocale();
     return (
-      <html lang="ru" className={inter.variable} suppressHydrationWarning>
+      <html lang={locale} className={inter.variable} suppressHydrationWarning>
         <head>
           <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         </head>
         <body>
           <ClearAssistantOnPublicEntry />
-          <ThemeProvider>
-            <ToastProvider>
-              <PublicEntryExit>{children}</PublicEntryExit>
-            </ToastProvider>
-          </ThemeProvider>
+          <LocaleProvider locale={locale}>
+            <ThemeProvider>
+              <ToastProvider>
+                <PublicEntryExit>{children}</PublicEntryExit>
+              </ToastProvider>
+            </ThemeProvider>
+          </LocaleProvider>
           {process.env.APP_UI_TEST !== '1' && <DevAgentation />}
         </body>
       </html>
@@ -124,26 +132,28 @@ export default async function RootLayout({
       unstable_rethrow(error);
       if (!(error instanceof ApiError)) throw error;
       const denied = error.status === 403;
+      const locale = await cookieLocale();
+      const t = translator(locale);
       return (
-        <html lang="ru" suppressHydrationWarning>
+        <html lang={locale} suppressHydrationWarning>
           <head>
             <script dangerouslySetInnerHTML={{ __html: themeScript }} />
           </head>
           <body>
             <ThemeProvider>
-              <Page title={denied ? 'Нет доступа' : 'Нет связи с сервером'} width="narrow">
+              <Page title={denied ? t('Нет доступа') : t('Нет связи с сервером')} width="narrow">
                 <section className="empty-state" role="alert">
                   <p>
                     {denied
-                      ? 'Сервер отклонил запрос. Проверьте права и выбранный филиал.'
-                      : 'Проверьте подключение и повторите загрузку. Ваша сессия сохранена.'}
+                      ? t('Сервер отклонил запрос. Проверьте права и выбранный филиал.')
+                      : t('Проверьте подключение и повторите загрузку. Ваша сессия сохранена.')}
                   </p>
                   <div className="row">
                     <a
                       className="btn"
                       href={safeReturnPath(requestHeaders.get('x-wetop-return') ?? path)}
                     >
-                      Повторить загрузку
+                      {t('Повторить загрузку')}
                     </a>
                     {denied && (
                       <a
@@ -152,7 +162,7 @@ export default async function RootLayout({
                           safeReturnPath(requestHeaders.get('x-wetop-return') ?? path),
                         )}
                       >
-                        Выбрать филиал
+                        {t('Выбрать филиал')}
                       </a>
                     )}
                   </div>
@@ -169,8 +179,11 @@ export default async function RootLayout({
   // Пояс объекта для календарей и времени в клиентских компонентах (С-13) — тоже обещанием. Отказ API или
   // уход на вход здесь не решаются: их решает заголовок объекта ниже, а часам хватит пояса платформы
   const timezone = workspaceTimezone().catch(() => FALLBACK_TIMEZONE);
+  // язык человека (ADR-163, KK1): `users.locale` из того же `/auth/me`, иначе кука
+  const locale = await currentLocale();
+  const t = translator(locale);
   return (
-    <html lang="ru" className={inter.variable} suppressHydrationWarning>
+    <html lang={locale} className={inter.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
@@ -186,6 +199,7 @@ export default async function RootLayout({
           <Suspense fallback={null}>
             <OnboardingGate />
           </Suspense>
+          <LocaleProvider locale={locale}>
           <ThemeProvider>
             <PropertyTimeProvider timezone={timezone}>
               {/* кто вошёл — кнопкам и закрытым по роли страницам (ADR-107): то же обещание, что у меню */}
@@ -204,12 +218,12 @@ export default async function RootLayout({
                     support={supportContacts(process.env) !== null}
                     property={{
                       name: (
-                        <Suspense fallback="Объект не загружен">
+                        <Suspense fallback={t('Объект не загружен')}>
                           <ProjectProperty field="name" />
                         </Suspense>
                       ),
                       address: (
-                        <Suspense fallback="Настройки объекта">
+                        <Suspense fallback={t('Гостиница')}>
                           <ProjectProperty field="address" />
                         </Suspense>
                       ),
@@ -222,6 +236,7 @@ export default async function RootLayout({
               </DeskAccessProvider>
             </PropertyTimeProvider>
           </ThemeProvider>
+          </LocaleProvider>
           {/* Чат ИИ-помощника на каждом экране (ТЗ П2): без ASSISTANT_URL ничего не рисует */}
           <Suspense fallback={null}>
             <WorkspaceAssistant desk={desk} />

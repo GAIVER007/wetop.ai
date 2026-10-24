@@ -59,7 +59,7 @@ describe('organization workspace states', () => {
     expect(html).not.toContain('Поиск бизнесов и филиалов');
     expect(html).toContain('Test project');
     expect(html).toContain('Second project');
-    expect(html.indexOf('Test archive')).toBeLessThan(html.indexOf('org-kpis'));
+    expect(html.indexOf('Test archive')).toBeLessThan(html.indexOf('org-totals'));
   });
   it('separates address and capacity without inventing an operating status', () => {
     const hotel = {
@@ -72,6 +72,8 @@ describe('organization workspace states', () => {
     const html = render([hotel], []);
     expect(html).toMatch(/class="org-branch-address"[^>]*>Test street, 12<\/small>/);
     expect(html).toContain('Номеров и коек: 88');
+    // имя и одна строка сведений у любого направления: ёмкость отеля внутри той же строки, что адрес
+    expect(html).toMatch(/class="org-branch-meta"><small[^>]*>Test street, 12<\/small><span class="org-branch-capacity">/);
     expect(html).toContain('Категорий: 5');
     expect(html).toContain('aria-label="Открыть объект: Test hotel"');
     expect(html).not.toContain('class="org-dot"');
@@ -82,6 +84,26 @@ describe('organization workspace states', () => {
     expect(html).not.toContain('Результаты по объектам');
     expect(html).not.toContain('org-bottom');
     expect(html).toContain('Test object');
+  });
+  it('итоги месяца одной строкой под списком объектов, слова салона (аудит 22.10.2026 P1-3a)', () => {
+    const html = renderToStaticMarkup(
+      createElement(ReferenceBoard, {
+        organization: 'Test organization',
+        periodLabel: '',
+        items: [item],
+        businesses: [card],
+        money: [],
+        metrics: {},
+        create: null,
+        preview: false,
+        financial: {
+          from: '2026-10-01', to: '2026-10-31', complete: true, covered: 1, total: 1, orders: 2, rows: [],
+          currencies: [{ currency: 'KZT', receiptsMinor: '100000', expensesMinor: '0', orders: 2, averageMinor: '50000' }],
+        },
+      }),
+    );
+    expect(html.indexOf('Test object')).toBeLessThan(html.indexOf('data-testid="org-totals"'));
+    expect(html).toContain('<dt>Оплаченные записи</dt>');
   });
   it('keeps a configured existing hotel when the older API omits card metadata', () => {
     const existing = {
@@ -111,6 +133,6 @@ describe('organization workspace states', () => {
     expect(html).toContain('Test project');
     expect(html).toContain('Объекты ещё не добавлены');
     expect(html).toContain('Редактировать: Test project');
-    expect(html).not.toContain('class="org-open"');
+    expect(html).not.toContain('org-open');
   });
 });

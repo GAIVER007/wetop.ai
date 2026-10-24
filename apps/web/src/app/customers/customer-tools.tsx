@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Alert, Button, Field, Input, Notice, Stack } from '../../components/ui';
 import { Overlay } from '../../components/overlay';
 import { createBeautyCustomer, type CustomerActionResult } from './actions';
+import { phoneOnInput } from '../../lib/phone';
 
 export function BeautyCustomerTools({
   canEdit,
@@ -52,11 +53,9 @@ export function BeautyCustomerTools({
   };
   return (
     <>
-      <div className="beauty-customer-tools">
-        {showCreate && <Button type="button" onClick={() => open('create')}>Добавить клиента</Button>}
-        <Button type="button" tone="secondary" onClick={() => open('import')}>Импортировать клиентов</Button>
-        <span className="muted">CSV или XLSX (Excel) с колонками «Имя» и «Телефон», до 50 000 строк.</span>
-      </div>
+      {/* кнопки встают в панель списка рядом с «Скачать Excel» (аудит 21.10.2026 п.44), подсказка о файле в окне импорта */}
+      {showCreate && <Button type="button" onClick={() => open('create')}>Добавить клиента</Button>}
+      <Button type="button" tone="secondary" onClick={() => open('import')}>Импортировать клиентов</Button>
 
       {showCreate && <Overlay open={mode === 'create'} onClose={close} title="Добавить клиента" trapFocus>
         <form className="settings-form" onSubmit={submitCreate}>
@@ -69,7 +68,7 @@ export function BeautyCustomerTools({
               <Input name="lastName" maxLength={100} autoComplete="family-name" />
             </Field>
             <Field label="Телефон" controlId="beauty-customer-phone" required>
-              <Input name="phone" type="tel" maxLength={32} autoComplete="tel" inputMode="tel" />
+              <Input name="phone" type="tel" maxLength={32} autoComplete="tel" inputMode="tel" placeholder="+7 701 000 00 00" onInput={phoneOnInput} />
             </Field>
             {result?.error && <Alert>{result.error}</Alert>}
             {result?.message && <Notice>{result.message}</Notice>}
@@ -82,6 +81,7 @@ export function BeautyCustomerTools({
       </Overlay>}
 
       <Overlay open={mode === 'import'} onClose={close} title="Импортировать клиентов" trapFocus size="lg">
+        <p className="muted">CSV или XLSX (Excel) с колонками «Имя» и «Телефон», до 50 000 строк.</p>
         {importHistory}
       </Overlay>
     </>

@@ -1,0 +1,9 @@
+**23.10.2026, ветка `claude/voice-agent-20261022` (PR 772): миграция журнала звонков переименована в `20261022000145_voice_calls`, UI-спеки меню обновлены.**
+
+Причина 1 (сообщение Hermes в PR 772): поезд #766 несёт миграции `20261022000142_order_item_station`, `...143_hotel_staff_cabinet`, `...144_menu_modifiers_split`, а голосовая называлась `...142_voice_calls`. Проверено: в ветке `hermes/platform-train-20261022` действительно 142-144. Миграция голоса переименована в 145 (содержимое не менялось, только номер в имени и заголовках), обновлены упоминания: тесты `voice-calls-migration` и `voice-deploy-files`, `scripts/ops/check-voice-schema.sh`, `restore-mixed-domain-grants.sql` (комментарий), `schema.prisma` (комментарий), `docs/ops/voice-release.md`, `DATA_MODEL.md`. Старые записи в `docs/status/` и `docs/decisions/` с номером 142 оставлены как история. Два текстовых конфликта с #766 (`scripts/ops/restore-mixed-domain-grants.sql`, `tests/ui/marketing.spec.ts`) останутся при слиянии второго из двух PR: оба дописывают блок в конец файла, разрешаются сохранением обоих блоков.
+
+Причина 2 (CI на вершине 91d16c2f3): четыре UI-теста меню (`side-nav.spec.ts:67`, `navigation.spec.ts:66`, `website.spec.ts:40`, `marketing.spec.ts:24`) держали списки пунктов «Продвижения» без нового «Голосового агента» (пункт открыт всем направлениям решением владельца 22.10.2026). Это устаревшие ожидания, не дефект: в списки добавлен `/marketing/voice` (метка «Голосовой агент»).
+
+Доказательства: `test:record -- unit` и `lint` ниже; сценарная проверка миграции на одноразовом Postgres 16 (`scripts/ops/check-voice-schema.sh`) 24 проверки, провалов 0; вся цепочка миграций применяется чисто; integration `voice-journal` и `rls-isolation` 16 из 16.
+
+Не проверено: Playwright на стенде (UI-спеки обновлены по тексту ошибок CI, сами не запускались).

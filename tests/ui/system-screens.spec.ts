@@ -29,21 +29,21 @@ test('журнал: выборка словами, разделы чипами, 
   );
   // раздел — чипом с текущим состоянием, выборка пересчитана
   const filters = main.getByRole('navigation', { name: 'Раздел истории' });
-  await filters.getByRole('link', { name: 'сотрудники', exact: true }).click();
+  await filters.getByRole('link', { name: 'Сотрудники', exact: true }).click();
   await expect(page).toHaveURL(/type=user/);
-  await expect(filters.getByRole('link', { name: 'сотрудники', exact: true })).toHaveAttribute(
+  await expect(filters.getByRole('link', { name: 'Сотрудники', exact: true })).toHaveAttribute(
     'aria-current',
     'true',
   );
-  await expect(main.getByTestId('journal-meta')).toHaveText('1 операция, раздел «сотрудники»');
+  await expect(main.getByTestId('journal-meta')).toHaveText('1 операция, раздел «Сотрудники»');
   // пусто по условиям — условие названо, путь к последним операциям
   await page.goto('/journal?q=нет-такого&type=Reservation');
   const empty = main.getByTestId('journal-empty');
   // 21.09: пустой результат — общее пустое состояние, условие названо в тексте, а не в ячейке таблицы
   await expect(empty).toContainText('По этим условиям операций нет');
-  await expect(empty).toContainText('по запросу «нет-такого», раздел «брони»');
+  await expect(empty).toContainText('по запросу «нет-такого», раздел «Брони»');
   await expect(main.getByTestId('journal-meta')).toContainText(
-    '0 операций, по запросу «нет-такого», раздел «брони» (поиск по всей истории)',
+    '0 операций, по запросу «нет-такого», раздел «Брони» (поиск по всей истории)',
   );
   await empty.getByRole('link', { name: 'Показать последние операции' }).click();
   await expect(main.getByTestId('journal-row')).toHaveCount(3);
@@ -203,7 +203,7 @@ test('аналитика и статистика: пустое состояни�
   await page.goto('/management/analytics/occupancy?date=2026-09-25');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Аналитика');
   await expect(main.getByTestId('pa-period')).toContainText('25 сентября 2026');
-  await expect(main.getByLabel('Период: с')).toHaveValue('2026-09-25');
+  await expect(main.getByLabel('Период: с', { exact: true })).toHaveValue('2026-09-25');
   const statsFailure = main.getByTestId('statistics-error');
   await expect(statsFailure).toContainText('Проверьте подключение и повторите запрос');
   await expect(main.locator('.kpi__value')).toHaveCount(0);

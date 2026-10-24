@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { SITE_EDITOR_SECTIONS } from '@pms/domain';
 import type { SiteAssetView, SiteChangeView, SiteVersionMeta } from '../../../../lib/api';
 import { Overlay } from '../../../../components/overlay';
-import { Badge, Button, Grid } from '../../../../components/ui';
+import { Badge, Button, Grid, Input } from '../../../../components/ui';
 import type { AssetKind } from './fields';
 
 /**
@@ -172,7 +172,7 @@ function BookmarkControl({
       <label className="sr-only" htmlFor={`bm-${version.id}`}>
         Подпись закладки версии {version.revision}
       </label>
-      <input id={`bm-${version.id}`} className="inp" maxLength={120} value={label} placeholder="Например: перед акцией" onChange={(e) => setLabel(e.currentTarget.value)} />
+      <Input id={`bm-${version.id}`} maxLength={120} value={label} placeholder="Например: перед акцией" onChange={(e) => setLabel(e.currentTarget.value)} />
       <Button type="submit" size="sm" disabled={disabled || !label.trim()} data-testid="ed-bookmark-save">
         Сохранить
       </Button>

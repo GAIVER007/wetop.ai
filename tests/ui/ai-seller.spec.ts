@@ -363,12 +363,16 @@ test('«Подключения» → «Модель» (С2): проверить,
   // действительный — сохраняется; наружу — только последние 4 знака
   await page.getByTestId('seller-llm-key-input').fill('sk-valid-key-7890');
   await page.getByTestId('seller-llm-key-check').click();
-  await expect(page.getByTestId('seller-llm-key-message')).toContainText('Ключ действителен');
+  await expect(page.getByTestId('seller-llm-key-message')).toContainText('Ключ работает');
   await page.getByTestId('seller-llm-key-input').fill('sk-valid-key-7890');
   await page.getByTestId('seller-llm-key-save').click();
   await expect(page.getByTestId('seller-llm-key-message')).toContainText('оканчивается на 7890');
   await expect(page.getByTestId('seller-llm-key-state')).toContainText('····7890');
   await expect(page.locator('body')).not.toContainText('sk-valid-key-7890');
+  // состояние ключа и расход: новый ключ ещё не проверялся, расход по учёту продавца
+  await expect(page.getByTestId('seller-llm-key-health')).toContainText('Ещё не проверялся');
+  await expect(page.getByTestId('seller-llm-usage')).toContainText('12');
+  await expect(page.getByTestId('seller-llm-usage')).toContainText('не счёт провайдера');
   // шаг чек-листа «Подключить модель» сделан
   await page.goto('/ai-seller');
   await expect(page.getByTestId('seller-checklist-model')).toHaveAttribute('data-state', 'done');
@@ -377,6 +381,32 @@ test('«Подключения» → «Модель» (С2): проверить,
   await page.getByTestId('seller-llm-key-clear').click();
   await expect(page.getByTestId('seller-llm-key-cleared')).toContainText('Ключ снят');
   await expect(page.getByTestId('seller-llm-key-state')).toContainText('Ключ не задан');
+});
+
+test('«Модель»: пустой счёт у сохранённого ключа виден словами и бейджем (20.10.2026)', async ({ page }) => {
+  await page.goto('/ai-seller/connections');
+  await page.getByTestId('seller-llm-key-input').fill('sk-nocredit-key-5555');
+  await page.getByTestId('seller-llm-key-save').click();
+  await expect(page.getByTestId('seller-llm-key-state')).toContainText('····5555');
+  // пустое поле и «Проверить»: проверка сохранённого ключа, её итог остаётся на экране
+  await page.getByTestId('seller-llm-key-check').click();
+  await expect(page.getByTestId('seller-llm-key-error')).toContainText('пополните баланс');
+  await expect(page.getByTestId('seller-llm-key-health')).toContainText('Закончились деньги');
+  await expect(page.getByTestId('seller-llm-key-health-reason')).toContainText('пополните баланс');
+  await expect(page.getByTestId('seller-llm-key-health')).toContainText('проверено');
+  // на других вкладках раздела плашка: продавец не отвечает гостям, ссылка ведёт к ключу
+  await page.goto('/ai-seller/overview');
+  await expect(page.getByTestId('seller-key-down')).toContainText('Продавец не отвечает гостям');
+  await expect(page.getByTestId('seller-key-down')).toContainText('пополните баланс');
+  await page.getByTestId('seller-key-down').getByRole('link', { name: 'Открыть «Модель ИИ»' }).click();
+  await expect(page).toHaveURL(/\/ai-seller\/connections$/);
+  await expect(page.getByTestId('seller-key-down')).toHaveCount(0);
+  // ключ заменили: прежнее состояние сброшено, плашки нет
+  await page.getByTestId('seller-llm-key-input').fill('sk-valid-key-7890');
+  await page.getByTestId('seller-llm-key-save').click();
+  await expect(page.getByTestId('seller-llm-key-state')).toContainText('····7890');
+  await page.goto('/ai-seller/overview');
+  await expect(page.getByTestId('seller-key-down')).toHaveCount(0);
 });
 
 test('ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка', async ({ page }) => {

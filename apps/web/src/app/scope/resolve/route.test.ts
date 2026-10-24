@@ -82,3 +82,13 @@ it('несколько филиалов: последний выбранный �
     expect.objectContaining({ httpOnly: true, path: '/', maxAge: expect.any(Number) }),
   );
 });
+
+it('«Личный кабинет» (personal): несколько филиалов, первый выбирается сам и ведёт в «Мою работу»', async () => {
+  const L2 = '33333333-3333-4333-8333-333333333333';
+  vi.spyOn(branchesApi, 'list').mockResolvedValue({
+    items: [item('BEAUTY'), item('BEAUTY', L2)],
+    personal: true,
+  } as never);
+  expect(await run('/today')).toBe('/my-work');
+  expect(jar.set).toHaveBeenCalledWith('wetop_scope', `business=${B};location=${L}`, expect.any(Object));
+});

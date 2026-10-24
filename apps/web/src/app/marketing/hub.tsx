@@ -7,6 +7,7 @@ import { Badge } from '../../components/ui';
 import { formatMoney } from '../../lib/money';
 import { verticalCopy, type VerticalCopy } from '../../lib/vertical-copy';
 import type { WebVertical } from '../../lib/vertical-landing';
+import type { SiteBuilderState } from '../../lib/api';
 
 /**
  * Хаб «Маркетинг» (MKT2, ADR-149; макет Marketing 2.0 владельца 09.10.2026, plans/mkt10-marketing-2-audit-2026-10-09.md):
@@ -17,7 +18,7 @@ import type { WebVertical } from '../../lib/vertical-landing';
  * `/auth/me` через `requireVertical`, право `marketing` проверяет общий `AccessGate`.
  */
 interface Module {
-  key: 'site' | 'budget' | 'ads' | 'content' | 'competitors';
+  key: 'site' | 'budget' | 'ads' | 'content' | 'competitors' | 'voice';
   testId: string;
   title: string;
   icon: IconName;
@@ -26,7 +27,25 @@ interface Module {
   caps: string[];
 }
 
-const modules = (c: VerticalCopy): Module[] => [
+/** Текст карточки голосового агента по направлению: только то, что агент умеет (docs/voice/voice-channel.md) */
+function voiceCard(c: VerticalCopy, vertical: WebVertical): Pick<Module, 'text' | 'caps'> {
+  if (vertical === 'BEAUTY')
+    return {
+      text: `ИИ принимает звонки ${c.clientsOf}: отвечает по услугам и ценам и собирает просьбы перезвонить.`,
+      caps: ['Ответы по услугам и ценам', 'Просьбы перезвонить', 'Перевод на администратора'],
+    };
+  if (vertical === 'FOOD_SERVICE')
+    return {
+      text: `ИИ принимает звонки ${c.clientsOf}: рассказывает о часах работы и собирает просьбы перезвонить.`,
+      caps: ['Ответы о часах работы', 'Просьбы перезвонить', 'Перевод на администратора'],
+    };
+  return {
+    text: `ИИ принимает звонки ${c.clientsOf}, собирает просьбы перезвонить и переводит на администратора.`,
+    caps: ['Приём звонков', 'Просьбы перезвонить', 'Перевод на администратора'],
+  };
+}
+
+const modules = (c: VerticalCopy, vertical: WebVertical): Module[] => [
   {
     key: 'site',
     testId: 'marketing-site',
@@ -52,7 +71,7 @@ const modules = (c: VerticalCopy): Module[] => [
     title: 'Реклама',
     icon: 'channels',
     href: '/marketing/ads',
-    text: 'Запускайте рекламные кампании в Facebook и Instagram с помощью ИИ-таргетолога.',
+    text: 'Ведите рекламные кампании в Facebook и Instagram: расход, показы, клики и заявки в одном месте.',
     caps: [
       'Подключение рекламных кабинетов',
       'Автоматическая настройка и оптимизация',
@@ -70,13 +89,22 @@ const modules = (c: VerticalCopy): Module[] => [
     caps: ['Конкуренты рядом', 'Загрузка по датам', 'Подсказки к цене'],
   },
   {
+    // ИИ-колл-центр (решение владельца 22.10.2026): все направления; что агент называет по телефону, зависит от направления
+    key: 'voice',
+    testId: 'marketing-voice',
+    title: 'Голосовой агент',
+    icon: 'chat',
+    href: '/marketing/voice',
+    ...voiceCard(c, vertical),
+  },
+  {
     key: 'content',
     testId: 'marketing-content',
     title: 'Контент',
     icon: 'journal',
     href: '/marketing/content',
-    text: 'Создавайте фото, тексты, видео и посты с помощью ИИ. Планируйте публикации во все соцсети.',
-    caps: ['Генерация фото и видео', 'Готовые шаблоны постов', 'Планировщик публикаций'],
+    text: 'Тексты постов с ИИ по данным вашего филиала. Правьте, ставьте на день недели и копируйте в соцсети.',
+    caps: ['Пост с ИИ: два варианта', 'Проверка цифр по карточке', 'План публикаций на неделю'],
   },
 ];
 
@@ -115,9 +143,12 @@ const BUDGET_MENU = [
  * зависит). «Сайт и SEO» с SITE-1 открыт всем направлениям: первый экран (филиал, факты, чат, дизайны) работает у
  * всех, а создание сайта салона и ресторана честно говорит словами сервера, пока API их не подключит.
  */
-export function liveModules(vertical: WebVertical): Set<Module['key']> {
+export function liveModules(): Set<Module['key']> {
   return new Set<Module['key']>(
-    vertical === 'HOSPITALITY' ? ['site', 'budget', 'competitors'] : ['site', 'budget'],
+    // «Реклама» живая у всех (кампании МКТ-В3, кабинет Meta), «Контент» с черновиками постов (CONTENT-DRAFTS-20261022)
+    // «Конкуренты» живые у всех: у гостиницы загрузка по ночам (ADR-142), у салона и ресторана по дням (§60);
+    // «Голосовой агент» у всех направлений (22.10.2026)
+    ['site', 'budget', 'ads', 'voice', 'competitors', 'content'],
   );
 }
 
@@ -125,11 +156,16 @@ export function liveModules(vertical: WebVertical): Set<Module['key']> {
 function ModuleCard({
   module,
   live,
+  badge,
+  note,
   soonForVertical,
   hospitality,
 }: {
   module: Module;
   live: boolean;
+  /** свой значок вместо «Доступно» (конструктор сайта выключен) */
+  badge?: { text: string; tone: 'warn' | 'info' } | undefined;
+  note?: string | undefined;
   soonForVertical: boolean;
   hospitality: boolean;
 }) {
@@ -146,14 +182,16 @@ function ModuleCard({
             <Icon name={module.icon} />
           </span>
           <h2 id={headingId}>{module.title}</h2>
-          <Badge tone={live ? 'ok' : 'info'} data-testid={`${module.testId}-status`}>
-            {live ? 'Доступно' : 'Скоро'}
+          <Badge tone={badge?.tone ?? (live ? 'ok' : 'info')} data-testid={`${module.testId}-status`}>
+            {badge?.text ?? (live ? 'Доступно' : 'Скоро')}
           </Badge>
         </div>
         <p className="marketing-module__text">
           {soonForVertical
             ? `${module.text} Для этого направления модуль готовится к подключению.`
-            : module.text}
+            : note
+              ? `${module.text} ${note}`
+              : module.text}
         </p>
         <ul className="marketing-module__caps">
           {module.caps.map((cap) => (
@@ -173,7 +211,8 @@ function ModuleCard({
               Открыть <Icon name="arrow" width={16} aria-hidden="true" />
             </Link>
           )}
-          {live && module.key !== 'competitors' && (module.key !== 'site' || hospitality) && (
+          {/* меню «⋯» только у гостиницы (её экраны сайта); у салона и ресторана действия карточек одинаковые */}
+          {hospitality && live && (module.key === 'site' || module.key === 'budget') && (
             <ActionMenu
               label={`Ещё действия: ${module.title}`}
               items={module.key === 'budget' ? BUDGET_MENU : SITE_MENU}
@@ -185,19 +224,52 @@ function ModuleCard({
   );
 }
 
+/**
+ * Значок «Сайт и SEO» по лицензии конструктора филиала (живой аудит 21.10.2026 P0-4: конструктор выключен у новых
+ * бизнесов, а карточка писала «Доступно»). Состояние неизвестно (ошибка чтения): прежний «Доступно».
+ */
+function siteBadge(builder: SiteBuilderState | null | undefined) {
+  if (builder?.access === 'off')
+    return {
+      badge: { text: 'Подключает WETOP', tone: 'warn' as const },
+      note: 'Конструктор сайта подключает команда WETOP: откройте раздел и напишите нам.',
+    };
+  if (builder?.access === 'expired')
+    return {
+      badge: { text: 'Срок вышел', tone: 'warn' as const },
+      note: 'Срок конструктора сайта вышел: сайт работает, менять его нельзя до продления.',
+    };
+  return { badge: undefined, note: undefined };
+}
+
 export function MarketingHub({
   vertical,
   spend = null,
+  builder = null,
 }: {
   vertical: WebVertical;
+  /** лицензия конструктора сайта филиала; null: не прочитана */
+  builder?: SiteBuilderState | null;
   /** расходы месяца из бюджета филиала; null: бюджет не прочитан (нет филиала или ошибка) */
   spend?: HubSpend | null;
 }) {
   const hospitality = vertical === 'HOSPITALITY';
   const copy = verticalCopy(vertical);
-  const live = liveModules(vertical);
-  // Реклама и контент пока «Скоро» у всех направлений; ссылка на экран-превью есть, кнопок действий нет
-  const PREVIEW = new Set<Module['key']>(['ads', 'content']);
+  const live = liveModules();
+  // экранов-превью без живых данных больше нет: «Контент» с 23.10.2026 пишет и хранит черновики постов
+  const PREVIEW = new Set<Module['key']>([]);
+  // «Конкуренты» у всех направлений (решение владельца 23.10.2026, п. 5): у гостиницы загрузка по ночам (ADR-142),
+  // у салона и ресторана загрузка соседей по дням на своём экране (DATA_MODEL §60)
+  const shown = modules(copy, vertical).map((m) =>
+    m.key === 'competitors' && !hospitality
+      ? {
+          ...m,
+          href: '/market/business',
+          text: `Загрузка ближайших ${copy.businessesOf} по дням: когда у соседей всё занято, цену можно поднять.`,
+          caps: ['Конкуренты рядом', 'Загрузка по дням', 'Подсказки к цене'],
+        }
+      : m,
+  );
   const value = (key: ResultKey) => {
     if (key === 'spent' && spend) return formatMoney(spend.spentMinor, spend.currency);
     return 'Нет данных';
@@ -211,12 +283,13 @@ export function MarketingHub({
         className="marketing-hub"
         data-testid={hospitality ? 'marketing-hub' : 'business-marketing'}
       >
-        <div className="marketing-hub__modules">
-          {modules(copy).map((m) => (
+        <div className={shown.length === 4 ? 'marketing-hub__modules marketing-hub__modules--four' : 'marketing-hub__modules'}>
+          {shown.map((m) => (
             <ModuleCard
               key={m.key}
               module={m}
               live={live.has(m.key)}
+              {...(m.key === 'site' ? siteBadge(builder) : {})}
               soonForVertical={!live.has(m.key) && !PREVIEW.has(m.key)}
               hospitality={hospitality}
             />
@@ -257,12 +330,13 @@ export function MarketingHub({
                 </>
               ) : (
                 <>
-                  Показатели филиала: <Link href="/management/analytics">Аналитика</Link>.
+                  Подробно по каналам: <Link href="/marketing/analytics">Аналитика маркетинга</Link>.
                 </>
               )}{' '}
               Переходы и доход с рекламы появятся после подключения рекламных кабинетов.
             </p>
           </section>
+          {hospitality && (
           <section className="panel marketing-start" aria-labelledby="marketing-start-title">
             <div className="marketing-start__head">
               <span className="marketing-start__icon" aria-hidden="true">
@@ -271,9 +345,7 @@ export function MarketingHub({
               <div className="marketing-start__body">
                 <h2 id="marketing-start-title">Больше {copy.clientsAcc}, меньше рутины</h2>
                 <p>
-                  {hospitality
-                    ? 'Сайт, реклама и контент в одном рабочем пространстве. Доступность указана в каждом модуле.'
-                    : `Начните с сайта: WETOP уже знает ${copy.catalogTitle.toLowerCase()} филиала и предложит три дизайна.`}
+                  Сайт, реклама и контент в одном рабочем пространстве. Доступность указана в каждом модуле.
                 </p>
               </div>
             </div>
@@ -284,6 +356,7 @@ export function MarketingHub({
               Начать с сайта
             </Link>
           </section>
+          )}
         </aside>
       </div>
     </Page>

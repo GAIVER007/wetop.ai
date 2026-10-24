@@ -6,6 +6,7 @@ const api = vi.hoisted(() => ({
   categories: vi.fn(), stock: vi.fn(), suppliers: vi.fn(), folios: vi.fn(), receipts: vi.fn(),
   sales: vi.fn(), movements: vi.fn(), report: vi.fn(), paymentMethods: vi.fn(),
 }));
+const kitchen = vi.hoisted(() => ({ products: vi.fn() }));
 
 vi.mock('next/navigation', () => ({
   unstable_rethrow() {},
@@ -15,6 +16,7 @@ vi.mock('../../lib/vertical-guard', () => ({
   requireFeature: async () => ({ context: { vertical: 'BEAUTY' } }),
 }));
 vi.mock('../../lib/api', () => ({ barApi: api }));
+vi.mock('../../lib/food-api', () => ({ stockApi: kitchen }));
 vi.mock('../../lib/hotel-api', () => ({
   hotelToday: async () => '2026-10-18',
   propertyTimezone: async () => 'UTC',
@@ -38,13 +40,17 @@ vi.mock('./tabs', () => ({ BarTabs: () => null }));
 vi.mock('./stock-board', () => ({ StockBoard: () => createElement('div', null, 'goods') }));
 vi.mock('./bar-analytics', () => ({ BarAnalytics: () => null }));
 vi.mock('./analytics-disclosure', () => ({ AnalyticsDisclosure: ({ children }: { children: unknown }) => children }));
-vi.mock('./sale-disclosure', () => ({ SaleDisclosure: ({ children }: { children: unknown }) => children }));
+vi.mock('./sale-disclosure', () => ({
+  SaleDisclosure: ({ children }: { children: unknown }) => children,
+  SaleDialog: ({ children }: { children: unknown }) => children,
+}));
 
 import BarPage from './page';
 
 describe('Beauty goods loader', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    kitchen.products.mockResolvedValue({ items: [] });
     api.categories.mockResolvedValue([]);
     api.stock.mockResolvedValue([]);
     api.suppliers.mockResolvedValue([]);
@@ -63,8 +69,26 @@ describe('Beauty goods loader', () => {
     const html = renderToStaticMarkup(await BarPage({ searchParams: Promise.resolve({}) }));
 
     expect(html).toContain('Товары, остатки и продажи');
+    // аудит салона 22.10.2026: склад салона без слова «бар»
+    expect(html).toContain('Склад: товары');
+    expect(html).not.toContain('Склад: бар');
     expect(api.folios).not.toHaveBeenCalled();
     expect(api.paymentMethods).toHaveBeenCalledOnce();
     expect(html).not.toContain('Продажа напрямую');
+  });
+
+  it('аудит 21.10.2026 п.7, п.14, п.28: без плиток, пустой склад ведёт к добавлению товара, месяц без «Г.»', async () => {
+    api.report.mockResolvedValue({
+      currency: 'USD', purchasesMinor: '0', revenueMinor: '0', grossProfitMinor: '0',
+      supplierDebtMinor: '0', popular: [],
+      month: { monthStart: '2026-10-01', purchasesMinor: '0', revenueMinor: '0', grossProfitMinor: '0' },
+    });
+    const html = renderToStaticMarkup(await BarPage({ searchParams: Promise.resolve({}) }));
+    expect(html).not.toContain('bar-kpi');
+    expect(html).toContain('data-testid="bar-totals"');
+    expect(html).not.toContain('кнопкой «Добавить товар»');
+    expect(html).toContain('Октябрь 2026 г.');
+    expect(html).not.toContain('Популярные товары');
+    expect(html).toContain('page--wide');
   });
 });

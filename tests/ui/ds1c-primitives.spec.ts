@@ -73,15 +73,15 @@ test('период «Броней»: готовые отрезки ссылка�
   const picker = page.locator('.period-picker');
   await expect(picker).toBeVisible();
   await expect(picker.getByRole('navigation', { name: 'Готовые периоды' })).toBeVisible();
-  await expect(picker.getByLabel('Период: с')).toHaveValue('2026-09-10');
-  await picker.getByLabel('Период: по').fill('2026-09-20');
+  await expect(picker.getByLabel('Период: с', { exact: true })).toHaveValue('2026-09-10');
+  await picker.getByLabel('Период: по', { exact: true }).fill('2026-09-20');
   await page.getByRole('button', { name: 'Показать', exact: true }).click();
   await expect(page).toHaveURL(/from=2026-09-10/);
   await expect(page).toHaveURL(/to=2026-09-20/);
-  await expect(page.locator('.period-picker').getByLabel('Период: по')).toHaveValue('2026-09-20');
+  await expect(page.locator('.period-picker').getByLabel('Период: по', { exact: true })).toHaveValue('2026-09-20');
 });
 
-test('размеры окон: «Новая задача» sm, новая бронь 940 px, Escape закрывает и возвращает фокус', async ({
+test('размеры окон: «Новая задача» sm, новая бронь 1080 px, Escape закрывает и возвращает фокус', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -99,7 +99,8 @@ test('размеры окон: «Новая задача» sm, новая бро
   await page.getByRole('link', { name: 'Новая бронь' }).first().click();
   const booking = page.getByRole('dialog', { name: 'Новая бронь' });
   await expect(booking).toBeVisible();
-  expect(Math.round((await booking.boundingBox())!.width)).toBe(940);
+  // окно брони одного вида (docs/decisions/2026-10-23-booking-window.md): --overlay-w-xl 1080 px
+  expect(Math.round((await booking.boundingBox())!.width)).toBe(1080);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1440);
 });
 

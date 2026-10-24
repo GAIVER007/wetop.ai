@@ -109,10 +109,10 @@ describe('Food portal payroll uses an authorized viewing branch, not invented UT
       percent: null, earnedMinor: null, paidMinor: null, remainingMinor: null, bonusMinor: null, penaltyMinor: null, adjustments: [] });
   });
 
-  it('finance UI distinguishes branch selection from unsupported Beauty policy', () => {
+  it('finance UI distinguishes branch selection and no longer claims the salon calculation is unavailable', () => {
     const ui = readFileSync('apps/web/src/components/employee-portal/cabinet.tsx', 'utf8');
     expect(ui).toContain("data.pay.status==='SELECT_LOCATION'");
     expect(ui).toContain('Выберите филиал в общем переключателе филиалов');
-    expect(ui).toContain('Автоматический расчёт для салона пока недоступен');
+    expect(ui).not.toContain('Автоматический расчёт для салона пока недоступен');
   });
 });

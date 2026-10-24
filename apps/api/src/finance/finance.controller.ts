@@ -66,6 +66,13 @@ export class FinanceController {
     });
   }
 
+  /** «Сколько принёс сотрудник» (docs/decisions/2026-10-20-personnel-revenue.md): по создавшему бронь */
+  @Access('reports')
+  @Get('staff-revenue')
+  staffRevenue(@Query('period') period?: string) {
+    return this.service.staffRevenue(period);
+  }
+
   /** Деньги за период по дням: поступления, возвраты, расходы и поток раздельно (RPT2.4a, ADR-155) */
   @Access('reports')
   @BeautyAccess('finance', 'view')

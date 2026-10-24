@@ -211,3 +211,24 @@ export function parseInventory(raw: unknown): InventoryInput {
     unitCost: b.unitCost == null ? null : stockPrice(b.unitCost),
   };
 }
+
+/**
+ * Сколько целых порций блюда хватит из остатков склада (ADR-STOCK-ALL). `onHand` в тысячных долях единицы техкарты
+ * (г, мл, шт), как `milliOf`. Строки без связи со складом (`productId` пуст) ничего не списывают и не ограничивают;
+ * без единой связанной строки порции неизвестны (`null`). Продукта нет в остатках, значит ноль порций.
+ */
+export function dishPortions(
+  rows: ReadonlyArray<{ productId?: string | null; name: string; normQty: string }>,
+  onHand: ReadonlyMap<string, bigint>,
+): { portions: number | null; limiting: string | null } {
+  let best: { portions: bigint; name: string } | null = null;
+  for (const row of rows) {
+    if (!row.productId) continue;
+    const norm = stockQty(row.normQty, true);
+    if (norm === 0n) continue;
+    const have = onHand.get(row.productId) ?? 0n;
+    const portions = have <= 0n ? 0n : have / norm;
+    if (!best || portions < best.portions) best = { portions, name: row.name };
+  }
+  return best ? { portions: Number(best.portions), limiting: best.name } : { portions: null, limiting: null };
+}

@@ -14,4 +14,5 @@ export const sourceStatus: StatusRegistry<ReservationSource> = {
   WALK_IN: { label: 'Без предварительной брони', short: 'Без брони', tone: 'neutral' },
   INSTAGRAM: { label: 'Instagram', short: 'IG', tone: 'neutral', proper: true },
   WEBSITE: { label: 'Сайт', short: 'Сайт', tone: 'neutral' },
+  VOICE: { label: 'Голосовой агент', short: 'Голос', tone: 'neutral' },
 };

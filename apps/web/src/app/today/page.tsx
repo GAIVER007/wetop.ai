@@ -34,6 +34,8 @@ export default async function TodayPage({
   searchParams?: Promise<{ period?: string }>;
 }) {
   const me = await requireFeature('/today');
+  // «Личный кабинет» (роль EMPLOYEE, решение владельца 20.10.2026): рабочего дня ему не видно, сразу «Моя работа»
+  if (me.user && deskAccessOf(me).role === 'EMPLOYEE') redirect('/my-work');
   if (
     ownerSummaryEnabled(process.env.APP_UNIFIED_OWNER_HOME) &&
     me.user &&

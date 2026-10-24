@@ -1,0 +1,93 @@
+import { createElement, type ReactNode } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { describe, expect, it, vi } from 'vitest';
+import type { FoodEmployee } from '../../lib/food-types';
+
+// «Сотрудники» ресторана: вкладки по назначению (решение владельца 20.10.2026) и выбор назначения у строки
+vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
+vi.mock('./restaurant-actions', () => ({ mutateStaff: vi.fn(), assignFoodPersonnelKind: vi.fn() }));
+vi.mock('../../components/use-confirm', () => ({ useConfirm: () => ({ ask: vi.fn(), dialog: null }) }));
+vi.mock('../../components/tabs', () => ({
+  Tabs: ({ panels }: { panels: Array<{ id: string; label: string; content: ReactNode }> }) =>
+    createElement(
+      'div',
+      null,
+      createElement('nav', null, panels.map((p) => createElement('span', { key: p.id, 'data-tab': p.id }, p.label))),
+      panels.map((p) => createElement('section', { key: p.id, 'data-panel': p.id }, p.content)),
+    ),
+}));
+
+import { EmployeesBoard } from './employees-board';
+
+const person = (id: string, name: string, personnelKind: 'SPECIALIST' | 'OTHER_EMPLOYEE' | 'BOTH' | null): FoodEmployee => ({
+  id: `22222222-2222-4222-8222-22222222222${id}`,
+  profileRevision: '2026-10-20T10:00:00.000000Z',
+  name, phone: null, email: null, status: 'ACTIVE', shift: null, onShift: false, salesTodayMinor: '0',
+  personnelKind,
+});
+const items = [
+  person('1', 'Айгерим Повар', 'SPECIALIST'),
+  person('2', 'Бауыржан Кассир', 'OTHER_EMPLOYEE'),
+  person('3', 'Вика Оба', 'BOTH'),
+  person('4', 'Гани Старый', null),
+];
+const render = (canAssignPersonnelKind: boolean, list = items) =>
+  renderToStaticMarkup(createElement(EmployeesBoard, {
+    scopeKey: 'b:l', write: true, employees: list, branchName: 'Зал', canAssignPersonnelKind,
+  }));
+const panel = (html: string, id: string) => html.split(`data-panel="${id}"`)[1]!.split('</section>')[0]!;
+
+describe('ресторан: назначение в «Сотрудниках»', () => {
+  // единый экран (вариант A, 20.10.2026): «Все» первой, затем «Не назначено», пока есть старые записи
+  it('вкладки: «Все», «Не назначено», «оба» в обеих группах', () => {
+    const html = render(true);
+    expect([...html.matchAll(/data-tab="(\w+)">([^<]+)</g)].map((m) => m[2])).toEqual([
+      'Все', 'Не назначено', 'Специалисты', 'Другие сотрудники',
+    ]);
+    expect(panel(html, 'specialists')).toContain('Вика Оба');
+    expect(panel(html, 'specialists')).not.toContain('Бауыржан Кассир');
+    expect(panel(html, 'employees')).toContain('Вика Оба');
+    expect(panel(html, 'employees')).not.toContain('Айгерим Повар');
+    expect(panel(html, 'unassigned')).toContain('Гани Старый');
+  });
+  it('руководитель выбирает назначение, без права только метка', () => {
+    expect(render(true)).toContain('aria-label="Назначение: Гани Старый"');
+    const readonly = render(false);
+    expect(readonly).not.toContain('aria-label="Назначение:');
+    expect(panel(readonly, 'specialists')).toContain('Специалист');
+  });
+  it('без старых записей вкладки «Не назначено» нет', () => {
+    expect(render(true, items.slice(0, 3))).not.toContain('data-tab="unassigned"');
+  });
+
+  // замечание владельца 20.10.2026 «кривые переносы»: строка в одну линию, филиал один раз над таблицей
+  it('строка без переносов: филиал над таблицей, а не колонкой; действия одной группой', () => {
+    const html = render(true);
+    expect(html).toContain('Филиал: Зал');
+    expect(html).not.toContain('>Филиал</th>');
+    expect(html).toMatch(/class="[^"]*\btbl--nowrap\b[^"]*staff-board__table/);
+    expect(html).toContain('class="staff-actions rest-staff-actions"');
+  });
+
+  // «сколько принёс» (решение владельца 20.10.2026): оплачено минус возвраты за выбранный период
+  it('колонка «Принёс» берёт суммы из свода, без денег прочерк; заказы без официанта строкой', () => {
+    const html = renderToStaticMarkup(createElement(EmployeesBoard, {
+      scopeKey: 'b:l', write: true, employees: items, branchName: 'Зал', canAssignPersonnelKind: false,
+      revenue: {
+        period: 'week', fromDate: '2026-10-19', toDate: '2026-10-25',
+        items: [
+          { employeeId: items[0]!.id, currency: 'KZT', paidMinor: '1000000', refundedMinor: '100000', netMinor: '900000' },
+          { employeeId: null, currency: 'KZT', paidMinor: '200000', refundedMinor: '0', netMinor: '200000' },
+        ],
+      },
+    }));
+    expect(html).toContain('Принёс за неделю');
+    expect(html).not.toContain('Продажи сегодня');
+    expect(panel(html, 'specialists')).toContain('9 000 ₸');
+    expect(html).toContain('Заказы без официанта: 2 000 ₸');
+  });
+  it('без права на отчёты колонки «Принёс» нет', () => {
+    const html = render(false);
+    expect(html).not.toContain('Принёс');
+  });
+});

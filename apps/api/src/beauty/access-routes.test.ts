@@ -12,6 +12,8 @@ import { BeautyCatalogController } from './beauty.module';
 import { BeautyCustomerDetailController } from './customer-detail';
 import { BeautyCustomerImportController } from './customer-import';
 import { BeautyLocationHoursController } from './location-hours';
+import { BeautyLoyaltyController } from './loyalty';
+import { BeautyRemindersController } from './reminders';
 import { BeautyPublicReviewsController, BeautyReviewInvitationController } from './reviews';
 import { BeautyScheduleController } from './schedule';
 
@@ -76,6 +78,7 @@ describe('Beauty route action metadata', () => {
       serviceMaterials: { section: 'services', action: 'view' },
       setServiceMaterials: { section: 'services', action: 'update' },
       employees: { section: 'employees', action: 'view' },
+      assignPersonnelKind: { section: 'employees', action: 'update' },
       createEmployee: { section: 'employees', action: 'create' },
       updateEmployee: { section: 'employees', action: 'update' },
       setEmployeeServices: { section: 'employees', action: 'update' },
@@ -96,6 +99,21 @@ describe('Beauty route action metadata', () => {
     });
     expectRoutes(BeautyReviewInvitationController, {
       issue: { section: 'reviews', action: 'create' },
+    });
+    expectRoutes(BeautyRemindersController, {
+      settings: { section: 'settings', action: 'view' },
+      saveSettings: { section: 'settings', action: 'update' },
+      day: { section: 'journal', action: 'view' },
+      done: { section: 'appointments', action: 'update' },
+    });
+    expectRoutes(BeautyLoyaltyController, {
+      program: { section: 'settings', action: 'view' },
+      saveProgram: { section: 'settings', action: 'update' },
+      customerBonuses: { section: 'customers', action: 'view' },
+      adjust: { section: 'customers', action: 'update', managerOnly: true },
+      certificates: { section: 'finance', action: 'view' },
+      lookup: { section: 'finance', action: 'view' },
+      sell: { section: 'finance', action: 'create' },
     });
   });
 
@@ -160,7 +178,7 @@ describe('Beauty route action metadata', () => {
     }, false);
   });
   it('classifies the actual Beauty branch cash, payroll and warehouse endpoints',()=>{
-    expectRoutes(BranchCashController,{cash:{section:'finance',action:'view'},cashOperation:{section:'finance',action:'create'},voidCashOperation:{section:'finance',action:'refund'},cashReconciliation:{section:'finance',action:'update'}});
+    expectRoutes(BranchCashController,{cash:{section:'finance',action:'view'},staffRevenue:{section:'finance',action:'view'},cashOperation:{section:'finance',action:'create'},voidCashOperation:{section:'finance',action:'refund'},cashReconciliation:{section:'finance',action:'update'}});
     expectRoutes(BranchPayrollController,{payroll:{section:'payroll',action:'view'},paySettings:{section:'payroll',action:'update'},payAdjustment:{section:'payroll',action:'update'},payout:{section:'payroll',action:'create',also:[{section:'finance',action:'create'}]}});
     expectRoutes(BarController,{paymentMethods:{section:'stock',action:'view'},stock:{section:'stock',action:'view'},products:{section:'stock',action:'view'},createProduct:{section:'stock',action:'create'},updateProduct:{section:'stock',action:'update'},writeOff:{section:'stock',action:'update'},inventoryCount:{section:'stock',action:'update'},sellRetail:{section:'stock',action:'create',also:[{section:'finance',action:'create'}]},reverseSale:{section:'finance',action:'refund'}}, false);
     expect(requirement(BarController,'folios')).toBeUndefined();

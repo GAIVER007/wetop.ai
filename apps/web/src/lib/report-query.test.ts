@@ -81,7 +81,9 @@ describe('страницы отчётов закрыты для салона и 
     const src = readFileSync(new URL('../app/reports/page.tsx', import.meta.url), 'utf8');
     // охрана по реестру функций (У1): `/reports` открыт всем направлениям
     const guard = src.indexOf("requireFeature('/reports')");
-    const food = src.indexOf("redirect('/restaurant-finance')");
+    // ресторан уводится в «Аналитику бизнеса», а не в финансы (аудит вертикалей 22.10.2026 п.5)
+    const food = src.indexOf('redirect(`/management/analytics');
+    expect(src).not.toContain("redirect('/restaurant-finance')");
     const beauty = src.indexOf('return <SalonReportsScreen');
     const hotel = src.indexOf('await hotelToday()');
     expect(guard).toBeGreaterThan(-1);

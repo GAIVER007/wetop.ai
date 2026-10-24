@@ -1,4 +1,5 @@
 import { EmployeePortalModule } from './employee-portal/employee-portal.module';
+import { HotelStaffModule } from './hotel-staff/hotel-staff.module';
 import { SharedOnboardingModule } from './onboarding/onboarding.module';
 import { WizardModule } from './wizard/wizard.module';
 import 'reflect-metadata';
@@ -31,6 +32,8 @@ import { InventoryModule } from './inventory/inventory.module';
 import { FoodModule } from './food-service/food.module';
 import { MarketingBudgetModule } from './marketing-budget/marketing-budget.module';
 import { MarketingAdsModule } from './marketing-ads/marketing-ads.module';
+import { MarketingVoiceModule } from './marketing-voice/marketing-voice.module';
+import { ContentModule } from './content/content.module';
 import { MarketingSiteModule } from './marketing-site/marketing-site.module';
 import { SitesRuntimeModule } from './sites-runtime/sites-runtime.module';
 import { BeautyModule } from './beauty/beauty.module';
@@ -60,10 +63,13 @@ import { DataConnectionModule } from './database/connection';
     InventoryModule,
     BeautyModule,
     EmployeePortalModule,
+    HotelStaffModule,
     FoodModule,
     MarketingSiteModule,
     MarketingBudgetModule,
     MarketingAdsModule,
+    MarketingVoiceModule,
+    ContentModule,
     SitesRuntimeModule,
     HotelModule,
     PropertyMediaModule,

@@ -12,9 +12,9 @@ export function StaffTabs({ current }: { current: 'list' | 'shifts' | 'payroll' 
     { href: '/staff', label: 'Роли и доступы', id: 'roles' },
   ];
   return (
-    <nav className="rest-utabs rest-staff-tabs" aria-label="Раздел сотрудников">
+    <nav className="tabs rest-staff-tabs" aria-label="Раздел сотрудников">
       {items.map((i) => (
-        <Link key={i.href} href={i.href} aria-current={current === i.id ? 'page' : undefined}>
+        <Link className="tabs__item" key={i.href} href={i.href} aria-current={current === i.id ? 'page' : undefined}>
           {i.label}
         </Link>
       ))}

@@ -11,6 +11,8 @@ import { BarCommandForm } from '../command-form';
 import { ProductPriceForm } from '../product-price-form';
 import { CategoryForm, ProductForm } from './catalog-forms';
 import { BarTabs } from '../tabs';
+import { CatalogDialog } from '../catalog-dialog';
+import Link from 'next/link';
 import { deskShell } from '../../../lib/desk-shell';
 import { barActionAccess } from '../action-access';
 import '../bar.css';
@@ -34,18 +36,8 @@ export default async function BarProductsPage() {
     a.active === b.active ? a.name.localeCompare(b.name, 'ru') : a.active ? -1 : 1);
   // раздел меню «Склад» у всех направлений (решение владельца 19.10.2026)
   const sectionName = 'Склад';
-  return <Page width="wide" className="bar-subpage" title={`${sectionName}: номенклатура`} subtitle="Карточки товаров с остатками и ценой. Цена правится прямо в строке.">
-    <BarTabs current="products" />
-    {(rights.createCatalog || rights.archiveCatalog) && <div className="bar-catalog-grid">
-      {rights.createCatalog && (
-      <details className="panel bar-details">
-        <summary>Новый товар</summary>
-        <ProductForm categories={categories.value.filter((category) => category.active)} context={context} />
-      </details>
-      )}
-      {rights.createCatalog && (
-      <details className="panel bar-details">
-        <summary>Категории и наценка</summary>
+  return <Page width="wide" className="bar-subpage" title={`${sectionName}: номенклатура`} subtitle="Карточки товаров с остатками и ценой. Цена правится прямо в строке." actions={rights.createCatalog ? <>
+      <CatalogDialog label="Категории и наценка" tone="secondary">
         <p className="bar-muted">Наценка категории наследуется товаром, у товара её можно переопределить.</p>
         <CategoryForm context={context} />
         {categories.value.length > 0 && <ul className="bar-catalog-list">{categories.value.map((category) => <li key={category.id}>
@@ -57,20 +49,28 @@ export default async function BarProductsPage() {
             <Button type="submit" tone="ghost" size="xs">{category.active ? 'В архив' : 'Восстановить'}</Button>
           </BarCommandForm>}
         </li>)}</ul>}
-      </details>
-      )}
-    </div>}
+      </CatalogDialog>
+      <CatalogDialog label="Новый товар" hash="new-product">
+        <ProductForm categories={categories.value.filter((category) => category.active)} context={context} />
+      </CatalogDialog>
+    </> : undefined}>
+    <BarTabs current="products" />
     <section className="bar-products-table">
       <SectionTitle>Каталог и остатки</SectionTitle>
       {rows.length === 0
-        ? <EmptyState icon={<Icon name="inventory" />} title="Товаров пока нет">Добавьте первый товар в форме выше или загрузите накладную во вкладке «Приходы».</EmptyState>
+        ? <EmptyState icon={<Icon name="inventory" />} title="Товаров пока нет">Добавьте первый товар кнопкой «Новый товар» вверху или загрузите накладную во вкладке «Приходы».</EmptyState>
         : <Table density="compact" sticky="header" aria-label={`Товары ${shell.vertical === 'BEAUTY' ? 'склада' : 'бара'}`}>
-            <thead><tr><th>Товар</th><th>Остаток</th><th>Цена продажи</th><th>Подробности</th><th>Действия</th></tr></thead>
+            <thead><tr><th>Товар</th><th>Остаток</th><th>Цена продажи</th><th>Действия</th></tr></thead>
             <tbody>{rows.map((item) => <tr key={item.id} className={item.active ? undefined : 'is-void'}>
-              <td><b>{item.name}</b><small>{item.code}{item.category ? `, ${item.category.name}` : ''}</small></td>
+              {/* название и код на разных строках (п.17); закупка и наценка в карточке товара на обзоре (п.16) */}
+              <td className="bar-product-name">
+                {item.active && rights.updateCatalog
+                  ? <Link href={`/bar?product=${item.id}`} prefetch={false} title="Закупка, наценка и остатки"><b>{item.name}</b></Link>
+                  : <b>{item.name}</b>}
+                <small>Код {item.code}{item.category ? `, ${item.category.name}` : ''}</small>
+              </td>
               <td><Badge tone={!item.active ? 'neutral' : low(item) ? 'warn' : 'ok'}>{item.availableUnits} шт.</Badge><small>Минимум: {item.minimumStockUnits} шт.</small></td>
               <td>{item.active && rights.updateCatalog ? <ProductPriceForm productId={item.id} salePrice={item.salePrice} context={context} /> : formatMoney(item.salePrice, context.currency)}</td>
-              <td><details className="bar-row-details"><summary>Закупка и наценка</summary><p>Себестоимость остатка: {formatMoney(item.stockCostMinor, context.currency)}</p><p>Наценка: {item.markupBasis === null ? (item.category ? `${item.category.defaultMarkupBasis / 100}% из категории` : 'нет') : `${item.markupBasis / 100}%`}</p></details></td>
               <td>{rights.archiveCatalog && <BarCommandForm context={context} action={toggleBarCatalogAction}>
                 <input type="hidden" name="kind" value="product" />
                 <input type="hidden" name="id" value={item.id} />

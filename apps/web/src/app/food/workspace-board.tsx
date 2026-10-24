@@ -32,6 +32,9 @@ import { FloorLayoutEditor, SHAPE_CSS, spotStyle } from './floor-layout-editor';
 import { layoutSpots, tableShapeOf } from '@pms/domain';
 import { QuickReport } from '../../components/quick-report';
 import { foodQuickReport } from '../../components/quick-report-data';
+import { compareTables } from '../../lib/table-title';
+import { formatPhone } from '../../lib/phone';
+import { foodReservationOrigin } from '../../lib/food-reservation-origin';
 
 
 const ACTIVE = ['BOOKED', 'CONFIRMED', 'SEATED'];
@@ -90,7 +93,7 @@ export function WorkspaceBoard({
   const areas = data.areas.filter((a) => a.active).sort((a, b) => a.sortOrder - b.sortOrder);
   const activeTables = data.tables
     .filter((t) => t.active && areas.some((a) => a.id === t.areaId))
-    .sort((x, y) => x.sortOrder - y.sortOrder);
+    .sort(compareTables);
   const onDay = (r: RestaurantReservation) =>
     localInput(r.startsAt, data.timezone).slice(0, 10) === data.date;
   const unassigned = data.reservations.filter(
@@ -459,7 +462,7 @@ export function WorkspaceBoard({
                           </Button>
                           <GuestMarks customer={r.customer} day={data.date} />
                         </td>
-                        <td>{r.customer.phone ?? '—'}</td>
+                        <td>{r.customer.phone ? formatPhone(r.customer.phone) : '—'}</td>
                         <td>{r.partySize}</td>
                         <td>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</td>
                         <td>
@@ -467,7 +470,7 @@ export function WorkspaceBoard({
                         </td>
                         <td>{r.notes || '—'}</td>
                         <td>{r.servicePeriod.name}</td>
-                        <td>{r.source === 'WALK_IN' ? 'Без брони' : 'Сотрудник'}</td>
+                        <td>{foodReservationOrigin(r)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -485,10 +488,11 @@ export function WorkspaceBoard({
                     <strong>{customer(r)}</strong>
                     <GuestMarks customer={r.customer} day={data.date} />
                     <span>{guests(r.partySize)}</span>
-                    {r.customer.phone && <span>{r.customer.phone}</span>}
+                    {r.customer.phone && <span>{formatPhone(r.customer.phone)}</span>}
                     {r.notes && <small>{r.notes}</small>}
                     <span>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</span>
                     <small>{r.servicePeriod.name}</small>
+                    {r.employee && <small>Принял: {r.employee.name}</small>}
                   </button>
                 ))}
               </div>

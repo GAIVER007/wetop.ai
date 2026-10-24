@@ -1,22 +1,70 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PENDING_ACCESS, menuSectionsFor, type NavigationAccess } from '../../lib/navigation';
 import type { WebVertical } from '../../lib/vertical-landing';
-import { Icon } from '../icon';
+import { Icon, type IconName } from '../icon';
 import { Overlay } from '../overlay';
+import { customerQueryReady, type CustomerHit } from '../../lib/customer-hits';
+import { searchCustomers } from '../../app/customers/search-action';
+import { translator, type Translate } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
+
+const asIs = translator('ru');
+
 /**
  * Разделы для быстрого перехода: меню своего направления (аудит платформы 17.10.2026, Д3), без повторов адреса.
  * Раньше список всегда строился по гостиничному меню и салону предлагал «Календарь» шахматки.
+ * На казахском (KK1) раздел находится и по переводу, и по русскому слову, подпись переведённая.
  */
-export function searchMatches(access: NavigationAccess, vertical: WebVertical, query: string) {
+export function searchMatches(access: NavigationAccess, vertical: WebVertical, query: string, t: Translate = asIs) {
   const q = query.toLocaleLowerCase('ru');
   return menuSectionsFor(access, vertical)
     .flatMap((section) => section.items)
     .filter((item, index, items) => items.findIndex((other) => other.href === item.href) === index)
-    .filter((n) => n.label.toLocaleLowerCase('ru').includes(q))
+    .filter((n) => [t(n.label), n.label].some((label) => label.toLocaleLowerCase('ru').includes(q)))
+    .map((n) => ({ ...n, label: t(n.label) }))
     .slice(0, 6);
+}
+
+/** Что можно найти по введённому тексту: гость всегда, бронь и номер только если в запросе есть цифра */
+export function entityResults(query: string, t: Translate = asIs) {
+  const q = query.trim();
+  if (!q) return [];
+  const code = encodeURIComponent(q);
+  const rows: { href: string; label: string; icon: IconName }[] = [
+    { href: `/guests?q=${code}`, label: t('Гость: {q}', { q }), icon: 'person' },
+  ];
+  if (/\d/.test(q)) {
+    rows.push(
+      { href: `/reservations/${code}`, label: t('Бронь №{q}', { q }), icon: 'booking' },
+      { href: `/units/${code}`, label: t('Номер или койка {q}', { q }), icon: 'hotel' },
+    );
+  }
+  return rows;
+}
+
+/** Клиенты по запросу с паузой 250 мс; устаревший ответ (запрос уже другой) отбрасывается */
+function useCustomerHits(query: string, find: (query: string) => Promise<CustomerHit[]>) {
+  const [state, setState] = useState<{ query: string; hits: CustomerHit[] }>({ query: '', hits: [] });
+  const q = query.trim();
+  useEffect(() => {
+    if (!customerQueryReady(q)) return;
+    let live = true;
+    const timer = setTimeout(() => {
+      find(q).then(
+        (hits) => live && setState({ query: q, hits }),
+        () => live && setState({ query: q, hits: [] }),
+      );
+    }, 250);
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
+  }, [q, find]);
+  if (!customerQueryReady(q)) return { hits: [] as CustomerHit[], pending: false };
+  return { hits: state.query === q ? state.hits : [], pending: state.query !== q };
 }
 
 export function GlobalSearch({
@@ -24,91 +72,137 @@ export function GlobalSearch({
   close,
   access = PENDING_ACCESS,
   vertical = 'HOSPITALITY',
+  findCustomers = searchCustomers,
 }: {
   open: boolean;
   close: () => void;
   /** Разделы, закрытые вошедшему (ADR-083, ADR-107), поиск не предлагает; пока API не ответил — как администратору */
   access?: NavigationAccess | undefined;
-  /** Направление филиала: его меню в быстром переходе; поиск гостя, брони и номера пока только у гостиницы */
+  /** Направление филиала: его меню в результатах. Гостиница: гость, бронь и номер ссылками; салон и ресторан:
+   * клиенты из API своего бизнеса (аудит 22.10.2026 P1-4) */
   vertical?: WebVertical | undefined;
+  /** Поиск клиентов салона и ресторана; подменяется в тестах */
+  findCustomers?: (query: string) => Promise<CustomerHit[]>;
 }) {
+  const t = useT();
   const [query, setQuery] = useState('');
-  const [kind, setKind] = useState('guest');
+  const customers = useCustomerHits(open && vertical !== 'HOSPITALITY' ? query : '', findCustomers);
   const router = useRouter();
-  const matches = searchMatches(access, vertical, query);
-  // экраны записей и броней столов запрос `q` не принимают (контракт с их владельцем): салон и ресторан
-  // ищут раздел, Enter открывает первое совпадение
-  const entities = vertical === 'HOSPITALITY';
+  const list = useRef<HTMLDivElement>(null);
+  const field = useRef<HTMLInputElement>(null);
+  // окно открывается сразу в строке ввода и без прошлого запроса
+  useEffect(() => {
+    if (!open) return;
+    setQuery('');
+    const frame = requestAnimationFrame(() => field.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [open]);
+  const typed = query.trim().length > 0;
+  const entities =
+    vertical === 'HOSPITALITY'
+      ? entityResults(query, t)
+      : customers.hits.map((hit) => ({
+          href: hit.href,
+          label: hit.hint ? `${hit.label}, ${hit.hint}` : hit.label,
+          icon: 'person' as IconName,
+        }));
+  const sections = typed ? searchMatches(access, vertical, query, t) : [];
+  const first = entities[0] ?? sections[0];
+  const move = (key: string) => {
+    const items = [...(list.current?.querySelectorAll<HTMLElement>('a') ?? [])];
+    if (!items.length) return;
+    const at = items.indexOf(document.activeElement as HTMLElement);
+    const next = key === 'ArrowDown' ? at + 1 : at - 1;
+    items[Math.max(0, Math.min(items.length - 1, next))]?.focus();
+  };
   return (
-    <Overlay open={open} onClose={close} title="Быстрый поиск" className="command-palette">
+    <Overlay open={open} onClose={close} title={t('Быстрый поиск')} className="command-palette">
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          const q = query.trim();
-          if (!q) return;
-          if (!entities) {
-            if (!matches[0]) return;
-            close();
-            router.push(matches[0].href);
-            return;
-          }
+          if (!first) return;
           close();
-          router.push(
-            kind === 'booking'
-              ? `/reservations/${encodeURIComponent(q)}`
-              : kind === 'unit'
-                ? `/units/${encodeURIComponent(q)}`
-                : `/guests?q=${encodeURIComponent(q)}`,
-          );
+          router.push(first.href);
         }}
       >
         <div className="command-input">
           <Icon name="search" />
           <input
             className="inp"
+            ref={field}
             name="query"
-            aria-label="Запрос"
+            aria-label={t('Запрос')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={entities ? 'Поиск гостя, брони, номера...' : 'Название раздела'}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                move(e.key);
+              }
+            }}
+            placeholder={
+              vertical === 'HOSPITALITY'
+                ? t('Гость, бронь, номер или раздел')
+                : t('Имя или телефон клиента, раздел')
+            }
             autoComplete="off"
-            required
           />
         </div>
-        {entities && (
-          <label className="field">
-            Искать
-            <select
-              className="inp"
-              name="kind"
-              value={kind}
-              onChange={(e) => setKind(e.target.value)}
-            >
-              <option value="guest">Гостя по имени, телефону или email</option>
-              <option value="booking">Бронь по номеру</option>
-              <option value="unit">Номер или койку по коду</option>
-            </select>
-          </label>
-        )}
-        <button className="btn" type="submit">
-          <Icon name="search" />
-          Найти
-        </button>
       </form>
-      <div className="command-links">
-        <span className="eyebrow">Быстрый переход</span>
-        {matches.map((item) => (
-          <Link key={item.href} href={item.href} onClick={close}>
-            <Icon name={item.icon} />
-            <span>{item.label}</span>
-            <Icon name="arrow" width={16} />
-          </Link>
-        ))}
-        {!matches.length && <p className="muted">Нет разделов с таким названием</p>}
+      <div
+        className="command-links"
+        ref={list}
+        onKeyDown={(e) => {
+          if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+          e.preventDefault();
+          move(e.key);
+        }}
+      >
+        {entities.length > 0 && (
+          <>
+            <span className="eyebrow">{vertical === 'HOSPITALITY' ? t('Найти') : t('Клиенты')}</span>
+            {entities.map((item) => (
+              <Link key={item.href} href={item.href} onClick={close}>
+                <Icon name={item.icon} />
+                <span>{item.label}</span>
+                <Icon name="arrow" width={16} />
+              </Link>
+            ))}
+          </>
+        )}
+        {vertical !== 'HOSPITALITY' && typed && !customers.pending && !entities.length &&
+          customerQueryReady(query) && <p className="muted">{t('Клиентов с таким именем или телефоном нет')}{/* slop-allow: muted-empty ответ поиска строкой в выпадающем списке, не пустой экран */}</p>}
+        {typed && (vertical === 'HOSPITALITY' || sections.length > 0 || !entities.length) && (
+          <>
+            <span className="eyebrow">{t('Разделы')}</span>
+            {sections.map((item) => (
+              <Link key={item.href} href={item.href} onClick={close}>
+                <Icon name={item.icon} />
+                <span>{item.label}</span>
+                <Icon name="arrow" width={16} />
+              </Link>
+            ))}
+            {/* найдены клиенты: «Нет разделов» не пугает пустым ответом (аудит 22.10.2026 P1-4) */}
+            {!sections.length && (vertical === 'HOSPITALITY' || !entities.length) && (
+              <p className="muted">{t('Нет разделов с таким названием')}{/* slop-allow: muted-empty ответ поиска строкой в выпадающем списке, не пустой экран */}</p>
+            )}
+          </>
+        )}
+        {!typed && (
+          <p className="muted command-hint">
+            {vertical === 'HOSPITALITY'
+              ? t('Начните вводить: имя или телефон гостя, номер брони, код номера или название раздела.')
+              : t('Начните вводить: имя или телефон клиента или название раздела.')}
+          </p>
+        )}
       </div>
       <div className="command-foot">
-        <kbd>esc</kbd> закрыть{' '}
-        <span>{entities ? 'Поиск по текущему объекту' : 'Разделы текущего филиала'}</span>
+        <span>
+          <kbd>↵</kbd> {t('открыть')}
+        </span>
+        <span>
+          <kbd>esc</kbd> {t('закрыть')}
+        </span>
       </div>
     </Overlay>
   );

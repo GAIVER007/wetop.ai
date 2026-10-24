@@ -52,6 +52,32 @@ export interface FoodCustomer {
   /** Через сколько дней день рождения по дате филиала: 0 сегодня */
   birthdayInDays?: number | null;
 }
+/** Карточка клиента ресторана `GET /food-service/customers/:id`: история из броней столов, без сумм (Q-FOOD-CUSTOMER-1) */
+export interface FoodCustomerDetail {
+  customer: {
+    id: string;
+    firstName: string;
+    lastName: string | null;
+    phone: string | null;
+    email: string | null;
+    notes: string | null;
+    status: string;
+    isVip: boolean;
+    birthDate: string | null;
+  };
+  visits: Array<{
+    id: string;
+    startsAt: string;
+    endsAt: string;
+    partySize: number;
+    status: FoodStatus;
+    source: string;
+    notes: string | null;
+    location: { id: string; name: string; timezone: string };
+    table: { name: string; areaName: string } | null;
+  }>;
+  historyTruncated: boolean;
+}
 export interface RestaurantReservation {
   id: string;
   locationId: string;
@@ -68,6 +94,8 @@ export interface RestaurantReservation {
   servicePeriod: ServicePeriod;
   table: (DiningTable & { areaName: string }) | null;
   nextStatuses: FoodStatus[];
+  /** §33.6: кто принял бронь (официант сам, у стойки выбор); старый ответ API без поля */
+  employee?: { id: string; name: string } | null;
 }
 export interface FoodToken {
   expectedStatus: FoodStatus;
@@ -92,6 +120,8 @@ export interface ReservationInput {
   tableId?: string;
   notes?: string | null;
   source: 'DESK' | 'WALK_IN';
+  /** §33.6: кто принял бронь, необязательно */
+  employeeId?: string;
 }
 export type ReservationPatch = FoodToken &
   Partial<Pick<ReservationInput, 'servicePeriodId' | 'startsAt' | 'partySize' | 'notes'>>;
@@ -112,15 +142,38 @@ export interface FoodWorkspace extends FoodCatalog {
   readOnly: boolean;
   canDesk: boolean;
   canProperty: boolean;
+  /** §33.6: сотрудники для «Принял» в форме брони; пусто, если список не загрузился */
+  employees?: Array<{ id: string; name: string }>;
 }
 
 // ── Ресторан v2 (§33, ADR-159): меню, заказы, кухня, сотрудники, зарплата ──
 export type OrderStatus = 'NEW' | 'COOKING' | 'READY' | 'SERVED' | 'CLOSED' | 'CANCELLED';
+/** Станция ресторана (§33.6): кухня или бар */
+export type MenuStation = 'KITCHEN' | 'BAR';
+/** Статус позиции заказа на своей станции (§33.6) */
+export type OrderItemStatus = 'NEW' | 'COOKING' | 'READY' | 'SERVED';
 export interface MenuCategory {
   id: string;
   name: string;
   sortOrder: number;
   active: boolean;
+  /** §33.6: куда уходят позиции категории; старый ответ API без поля = кухня */
+  station?: MenuStation;
+}
+/** Стол на экране официанта (§33.6) */
+export interface WaiterTable {
+  id: string;
+  name: string;
+  capacity: number;
+  areaId: string;
+  areaName: string;
+  busy: boolean;
+  mine: boolean;
+  needsCleaning: boolean;
+}
+export interface WaiterTables {
+  me: { id: string; name: string } | null;
+  tables: WaiterTable[];
 }
 export interface MenuIngredient {
   id: string;
@@ -153,11 +206,50 @@ export interface MenuItemView {
   totals?: MenuTotals | null;
   /** Подписанный адрес фото блюда на время (§37); null, если фото нет или хранилище выключено */
   photoUrl?: string | null;
+  /** §33.7: группы добавок блюда (все привязанные) и активные для выбора; старый ответ API без полей */
+  modifierGroupIds?: string[];
+  modifierGroups?: MenuItemModifierGroup[];
+}
+/** §33.7: группа добавок блюда для выбора в заказе (только активные модификаторы) */
+export interface MenuItemModifierGroup {
+  id: string;
+  name: string;
+  minSelect: number;
+  maxSelect: number;
+  required: boolean;
+  modifiers: Array<{ id: string; name: string; priceDeltaMinor: string }>;
+}
+/** §33.7: группа добавок бизнеса в «Меню» → «Добавки» */
+export interface ModifierGroupView {
+  id: string;
+  name: string;
+  minSelect: number;
+  maxSelect: number;
+  required: boolean;
+  sortOrder: number;
+  active: boolean;
+  updatedAt: string;
+  modifiers: Array<{ id: string; name: string; priceDeltaMinor: string; sortOrder: number; active: boolean }>;
+}
+export interface ModifierGroupInput {
+  name: string;
+  minSelect: number;
+  maxSelect: number;
+  active?: boolean;
+  modifiers: Array<{ id?: string | null; name: string; priceDeltaMinor: number; active?: boolean }>;
+}
+/** §33.7: снимок выбранной добавки у позиции заказа */
+export interface OrderItemModifierView {
+  modifierId: string | null;
+  groupName: string;
+  name: string;
+  priceDeltaMinor: string;
 }
 export interface MenuCategoryInput {
   name: string;
   sortOrder?: number;
   active?: boolean;
+  station?: MenuStation;
 }
 export interface MenuItemInput {
   categoryId: string;
@@ -182,6 +274,13 @@ export interface OrderItemView {
   priceMinor: string;
   qty: number;
   notes: string | null;
+  /** §33.6: станция и статус позиции; старый ответ API без полей */
+  station?: MenuStation;
+  status?: OrderItemStatus;
+  readyAt?: string | null;
+  /** §33.7: выбранные добавки и оплачена ли позиция по позициям */
+  modifiers?: OrderItemModifierView[];
+  paid?: boolean;
 }
 export interface OrderView {
   id: string;
@@ -235,6 +334,8 @@ export interface OrderPaymentView {
   status: 'COMPLETED' | 'VOIDED';
   paidAt: string;
   voidReason: string | null;
+  /** §33.7: позиции, оплаченные этим платежом */
+  itemIds?: string[];
 }
 /** Возврат по закрытому заказу (§56): расход кассы филиала */
 export interface OrderRefundView {
@@ -299,6 +400,8 @@ export interface OrderItemInput {
   menuItemId: string;
   qty: number;
   notes?: string | null;
+  /** §33.7: выбранные добавки */
+  modifierIds?: string[];
 }
 export interface OrderCreateInput {
   tableId?: string | null;
@@ -340,6 +443,8 @@ export interface FoodEmployee {
   salesTodayMinor: string;
   /** §39: рейтинг по оценкам гостей; average null, пока оценок нет */
   rating?: { average: number | null; count: number };
+  /** Назначение в «Персонале» (решение владельца 20.10.2026); null = не назначено */
+  personnelKind?: 'SPECIALIST' | 'OTHER_EMPLOYEE' | 'BOTH' | null;
 }
 /** График смен (Q-REST-11): неделя с понедельника, у выходного дня список пуст */
 export interface FoodShiftWeekDay {

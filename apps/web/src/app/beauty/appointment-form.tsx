@@ -5,6 +5,10 @@ import type { BeautyAppointmentRow, BeautyCustomerRow, BeautyDay } from '../../l
 import { formatMoney, inputToMinor, minorToInput } from '../../lib/money';
 import { createAppointment, moveAppointment } from './journal-actions';
 import { instantOf, localInput } from './time';
+import { zoneLabel } from '../../lib/human-period';
+import { formatPhone, formatPhoneInput } from '../../lib/phone';
+import { BookingShell, PickButton, PickGroup } from '../../components/booking-shell';
+import { freeSlots } from './free-slots';
 
 // A5 (паритет с zapis.kz): кого выбирали в прошлый раз на этой вкладке; удобство, не данные
 let lastPickedCustomerId: string | null = null;
@@ -225,6 +229,37 @@ export function AppointmentForm({
   useEffect(() => {
     if (state?.message && !state.error) onDone();
   }, [state, onDone]);
+  // Справа свободное время мастера первой услуги (решение 23.10.2026, окно брони вариант B): по записям дня
+  // журнала; длительность всего визита, если все услуги у него, иначе первой услуги
+  const slotMaster = day.columns.find((c) => c.id === lines[0]?.employeeId);
+  const firstDuration = Number(
+    lines[0]?.duration || (lines[0] ? effectiveFor(lines[0]).duration : 0) || 0,
+  );
+  const slotDuration = lines.every((line) => line.employeeId === lines[0]?.employeeId)
+    ? totalMinutes
+    : firstDuration;
+  const nowLocal = localInput(new Date().toISOString(), day.location.timezone);
+  const slots =
+    slotMaster && date === day.date && slotDuration > 0
+      ? freeSlots(
+          slotMaster,
+          day.appointments.filter((a) => a.id !== editing?.id),
+          slotDuration,
+          nowLocal.slice(0, 10) === day.date
+            ? Number(nowLocal.slice(11, 13)) * 60 + Number(nowLocal.slice(14, 16))
+            : undefined,
+        )
+      : [];
+  const chosenServices = lines
+    .map((line) => day.services.find((service) => service.id === line.serviceId)?.name)
+    .filter(Boolean);
+  const digest = [
+    chosenServices.join(', ') || 'Услуга не выбрана',
+    slotMaster?.name,
+    `${date.split('-').reverse().join('.')} ${hour}`,
+  ]
+    .filter(Boolean)
+    .join('; ');
   return (
     <form
       action={action}
@@ -244,6 +279,9 @@ export function AppointmentForm({
       <input type="hidden" name="scopeKey" value={initial.current.scopeKey} />
       {editing && <input type="hidden" name="id" value={editing.id} />}
       <input type="hidden" name="items" value={JSON.stringify(payload)} />
+      <BookingShell
+        form={
+          <>
       {!editing && (
         <fieldset className="appointment-customer-fields">
           <legend>Клиент</legend>
@@ -269,7 +307,7 @@ export function AppointmentForm({
                     setCustomerSearch('');
                   }}
                 >
-                  {`${[c.firstName, c.lastName].filter(Boolean).join(' ')}${c.phone ? `, ${c.phone}` : ''}`}
+                  {`${[c.firstName, c.lastName].filter(Boolean).join(' ')}${c.phone ? `, ${formatPhone(c.phone)}` : ''}`}
                 </Button>
               ))}
             </div>
@@ -296,6 +334,15 @@ export function AppointmentForm({
             >
               Последний клиент
             </Button>
+            <Button
+              type="button"
+              size="sm"
+              tone="ghost"
+              aria-pressed={!customerId}
+              onClick={() => setCustomerId('')}
+            >
+              + Новый клиент
+            </Button>
           </div>
           <Field label="Клиент">
             <Select
@@ -313,14 +360,14 @@ export function AppointmentForm({
               )}
               {matchingCustomers.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {`${[c.firstName, c.lastName].filter(Boolean).join(' ')}${c.phone ? `, ${c.phone}` : ''}`}
+                  {`${[c.firstName, c.lastName].filter(Boolean).join(' ')}${c.phone ? `, ${formatPhone(c.phone)}` : ''}`}
                   {c.status === 'ARCHIVED' ? ' (в архиве)' : ''}
                 </option>
               ))}
             </Select>
           </Field>
           {!customerId && (
-            <>
+            <div className="appointment-customer-new">
               <Field label="Имя клиента">
                 <Input name="firstName" {...field('firstName')} required maxLength={100} />
               </Field>
@@ -328,13 +375,26 @@ export function AppointmentForm({
                 <Input name="lastName" {...field('lastName')} maxLength={100} />
               </Field>
               <Field label="Телефон">
-                <Input name="phone" {...field('phone')} type="tel" maxLength={32} />
+                <Input
+                  name="phone"
+                  value={draft.phone}
+                  onChange={(e) => setDraft({ ...draft, phone: formatPhoneInput(e.target.value) })}
+                  type="tel"
+                  inputMode="tel"
+                  placeholder="+7 701 000 00 00"
+                  maxLength={32}
+                />
               </Field>
-            </>
+            </div>
           )}
         </fieldset>
       )}
-      <fieldset>
+      {state?.error && <Alert>{state.error}</Alert>}
+          </>
+        }
+        pick={
+          <>
+      <fieldset className="appointment-pick">
         <legend>Услуга и время</legend>
         {lines.map((line, index) => {
           const effective = effectiveFor(line);
@@ -346,7 +406,7 @@ export function AppointmentForm({
           ].sort((a, b) => a - b);
           return (
             <fieldset key={line.key} className="appointment-service-line">
-              <legend>Услуга {index + 1}</legend>
+              <legend className={lines.length === 1 ? 'sr-only' : undefined}>Услуга {index + 1}</legend>
               <Field label="Услуга">
                 <Select
                   aria-label={index === 0 ? 'Услуга' : `Услуга ${index + 1}`}
@@ -507,12 +567,15 @@ export function AppointmentForm({
                   </div>
                 </details>
               )}
-              <p>
-                Стоимость:{' '}
-                {lineTotal(line) === null
-                  ? 'Проверьте сумму'
-                  : formatMoney(String(lineTotal(line)), day.location.currency)}
-              </p>
+              {/* до выбора услуги строки нет (аудит салона 22.10.2026: «Проверьте сумму» на пустой форме) */}
+              {line.serviceId && (
+                <p>
+                  Стоимость:{' '}
+                  {lineTotal(line) === null
+                    ? 'Проверьте сумму'
+                    : formatMoney(String(lineTotal(line)), day.location.currency)}
+                </p>
+              )}
               {lines.length > 1 && (
                 <Button
                   type="button"
@@ -534,15 +597,6 @@ export function AppointmentForm({
         >
           Добавить услугу
         </Button>
-        <p aria-live="polite">
-          <strong>
-            Итого:{' '}
-            {validMoney
-              ? formatMoney(total.toString(), day.location.currency)
-              : 'Проверьте суммы услуг'}
-            {validDuration && totalMinutes > 0 ? `, ${durationText(totalMinutes)}` : ''}
-          </strong>
-        </p>
         <div className="beauty-fields-pair">
           <Field label="Дата">
             <Input type="date" required value={date} onChange={(e) => setDate(e.target.value)} />
@@ -556,36 +610,81 @@ export function AppointmentForm({
           name="startsAt"
           value={instantOf(`${date}T${hour}`, day.location.timezone)}
         />
+        {slotMaster ? (
+          <PickGroup
+            title={`Свободное время: ${slotMaster.name}`}
+            facts={slotDuration > 0 ? durationText(slotDuration) : undefined}
+            testId="slot-group"
+            unavailable={
+              date !== day.date
+                ? 'на другой день время проверится при сохранении'
+                : slotMaster.timeOff
+                  ? 'выходной'
+                  : slots.length === 0
+                    ? 'свободного времени нет'
+                    : undefined
+            }
+          >
+            {slots.map((slot) => (
+              <PickButton
+                key={slot}
+                selected={hour === slot}
+                label={`Время ${slot}`}
+                disabled={pending}
+                onClick={() => setHour(slot)}
+              >
+                {slot}
+              </PickButton>
+            ))}
+          </PickGroup>
+        ) : null}
         <p className="beauty-note">
-          Время филиала: {day.location.timezone}. Доступность подтвердится при сохранении.
+          Время филиала: {zoneLabel(day.location.timezone)}. Доступность подтвердится при сохранении.
         </p>
-        <p className="beauty-note" aria-live="polite">
+        <p className="beauty-note sr-only" aria-live="polite">
           Выбрано:
           <span className="beauty-selection-line">Дата: {date}</span>
           <span className="beauty-selection-line">
-            Время: {hour} ({day.location.timezone})
+            Время: {hour} ({zoneLabel(day.location.timezone)})
           </span>
         </p>
       </fieldset>
-      <fieldset>
+      <fieldset className="appointment-note">
         <legend>Дополнительно</legend>
         <Field label="Заметка">
           <Input name="notes" {...field('notes')} maxLength={2000} />
         </Field>
       </fieldset>
-      {state?.error && <Alert>{state.error}</Alert>}
-      <div className="appointment-form__footer">
-        {/* ТЗ-1.1 F02: кнопка активна всегда; невалидная форма не отправляется (onSubmit выше), занятость решает сервер */}
-        <Button type="submit" disabled={pending || state?.outcome === 'unknown'}>
-          {pending
-            ? editing
-              ? 'Сохраняем…'
-              : 'Записываем…'
-            : editing
-              ? 'Сохранить изменения'
-              : 'Записать'}
-        </Button>
-      </div>
+          </>
+        }
+        pickLabel="Услуга и время"
+        footer={
+          <>
+            <p className="appointment-form__total" aria-live="polite">
+              <strong>
+                Итого:{' '}
+                {validMoney
+                  ? formatMoney(total.toString(), day.location.currency)
+                  : 'Проверьте суммы услуг'}
+                {validDuration && totalMinutes > 0 ? `, ${durationText(totalMinutes)}` : ''}
+              </strong>
+            </p>
+            <p className="booking-shell__digest" data-testid="appointment-digest">
+              {digest}
+            </p>
+            {/* ТЗ-1.1 F02: кнопка активна всегда; невалидная форма не отправляется (onSubmit выше), занятость решает сервер */}
+            <Button type="submit" disabled={pending || state?.outcome === 'unknown'}>
+              {pending
+                ? editing
+                  ? 'Сохраняем…'
+                  : 'Записываем…'
+                : editing
+                  ? 'Сохранить изменения'
+                  : 'Записать'}
+            </Button>
+          </>
+        }
+      />
     </form>
   );
 }

@@ -33,12 +33,9 @@ async function reset(page: Page, request: APIRequestContext) {
   return f;
 }
 async function expectEmptyCalendar(page: Page) {
-  const grid = page.getByTestId('beauty-grid');
-  await expect(grid).toBeVisible();
-  await expect(grid.getByTestId('beauty-empty-timeline')).toBeVisible();
-  await expect(grid).toContainText('09:00');
-  await expect(grid).toContainText('17:30');
-  await expect(grid.locator('.beauty-tile, .beauty-slot-free')).toHaveCount(0);
+  // без специалистов сетку не рисуем: одно пустое состояние с кнопками (аудит 21.10.2026, п. 15, 16, 36)
+  await expect(page.getByTestId('beauty-grid')).toHaveCount(0);
+  await expect(page.locator('.beauty-tile, .beauty-slot-free')).toHaveCount(0);
   await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
   const setup = page.getByRole('status').filter({ hasText: 'Для новой записи нужны услуги' });
   await expect(setup.getByRole('link', { name: 'Добавить услугу', exact: true })).toHaveAttribute(
@@ -47,7 +44,7 @@ async function expectEmptyCalendar(page: Page) {
   );
   await expect(setup.getByRole('link', { name: 'Добавить специалиста', exact: true })).toHaveAttribute(
     'href',
-    '/employees',
+    '/employees?new=1',
   );
 }
 async function seed(page: Page, request: APIRequestContext, fixture?: Fixture) {
@@ -130,22 +127,18 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await panel.getByLabel('Название', { exact: true }).fill('Тестовая стрижка');
   await panel.getByLabel(/Цена каталога/).fill('12000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(
-    page.locator('[data-service-list="catalog"] .beauty-service-item').filter({
-      has: page.getByText('Тестовая стрижка', { exact: true }),
-    }),
-  ).toContainText('12 000');
-  await panel.getByRole('button', { name: 'Закрыть: Новая услуга', exact: true }).click();
+  // новая услуга сразу в филиале: окно закрывается само, итог в уведомлении (аудит салона 22.10.2026)
+  await expect(page.getByTestId('toast-stack')).toContainText('Услуга добавлена в филиал');
   await expect(panel).toBeHidden();
   await expect(page).toHaveURL(/\/services$/);
+  await expect(
+    page.locator('[data-service-list="salon"] .beauty-service-item').filter({
+      has: page.getByText('Тестовая стрижка', { exact: true }),
+    }),
+  ).not.toContainText('12 000');
+  // созданная услуга не открывается заново после перезагрузки: незавершённой настройки нет
   await page.reload();
-  // Незавершённая настройка филиала возобновляет созданную услугу в той же карточке.
-  panel = page.getByRole('dialog');
-  await expect(panel.getByLabel('Название', { exact: true })).toHaveValue('Тестовая стрижка');
-  await expect(panel.getByLabel(/Цена каталога/)).toHaveValue('12000');
-  await panel.getByLabel('Филиал оказывает эту услугу').check();
-  await panel.getByRole('button', { name: 'Сохранить для филиала' }).click();
-  await expect(panel.getByRole('status')).toContainText('Настройки филиала сохранены');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.goto('/employees');
   await page.getByRole('button', { name: 'Добавить специалиста' }).click();
   panel = page.getByRole('dialog');
@@ -154,7 +147,12 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   // Создание открывает полную карточку специалиста отдельной страницей, не диалог.
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   let profile = page.getByTestId('employee-manager');
-  await profile.getByRole('tab', {name:'Услуги',exact:true}).click();
+  // новый мастер: карточка подсказывает оставшиеся шаги и открывает нужную вкладку (онбординг 21.10.2026)
+  const setup = profile.getByTestId('portal-setup-steps');
+  await expect(setup).toContainText('Чтобы к мастеру могли записаться');
+  await setup.getByRole('link', { name: 'Назначьте услуги' }).click();
+  await expect(profile.getByRole('tab', { name: 'Услуги', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await page.screenshot({ path: 'reports/master-setup-steps-1440.png' });
   await profile.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   const assignForm = profile.getByTestId('portal-services-form');
   await assignForm.getByRole('checkbox', { name: /^Тестовая стрижка(?:\s|$)/ }).check();
@@ -164,8 +162,10 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await page.goto('/employees');
   await expect(page).toHaveURL(/\/employees$/);
   await page.reload();
+  // единый экран персонала (20.10.2026): строка таблицы во вкладке «Все»
   await page
-    .getByRole('listitem')
+    .getByRole('tabpanel')
+    .getByTestId('staff-row')
     .filter({ hasText: 'Тестовый мастер Анна' })
     .getByRole('link', { name: 'Открыть' })
     .click();
@@ -265,7 +265,7 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   const csv = await exported.text();
   // C2 (a98cf2fc5): после статуса идут источник записи и автор
   expect(csv).toContain('Статус;Источник;Автор;Валюта;Цена;Оплачено;Возвращено');
-  expect(csv).toMatch(/Завершена;Стойка;[^;\r\n]*;KZT;12000,00;5000,00;2000,00/);
+  expect(csv).toMatch(/Завершена;Администратор;[^;\r\n]*;KZT;12000,00;5000,00;2000,00/);
   expect(csv).not.toContain('Тестовая клиентка');
   await page.goto('/customers');
   await expect(page.getByRole('main')).toContainText('Тестовая клиентка');
@@ -496,8 +496,10 @@ test('TimeOff via manager API with compact employee drawer, server denial and ti
 }) => {
   const f = await seed(page, request);
   await page.goto('/employees');
+  // единый экран персонала (20.10.2026): строка таблицы во вкладке «Все»
   await page
-    .getByRole('listitem')
+    .getByRole('tabpanel')
+    .getByTestId('staff-row')
     .filter({ hasText: 'Тестовый мастер Анна' })
     .getByRole('link', { name: 'Открыть' })
     .click();
@@ -608,3 +610,30 @@ test('Beauty onboarding v2 completes a ready branch and resumes Today', async ({
   await page.goto('/register/setup?entry=1');
   await expect(page).toHaveURL(/\/today$/);
 });
+
+/**
+ * Окно записи вариант B (решение владельца 23.10.2026, одинаково во всех направлениях): слева клиент
+ * (имя, затем телефон), справа услуга, специалист и свободное время кнопками; кнопка времени ставит время записи.
+ */
+test('новая запись: свободное время мастера кнопками справа ставит время', async ({ page, request }) => {
+  await seed(page, request);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(`/calendar?date=${day}`);
+  await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
+  const panel = page.getByRole('dialog');
+  await expect(panel.getByRole('region', { name: 'Услуга и время' })).toBeVisible();
+  await panel.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });
+  const slots = panel.getByTestId('slot-group');
+  await expect(slots).toBeVisible();
+  const first = slots.getByRole('button', { name: /^Время / }).first();
+  const label = (await first.getAttribute('aria-label'))!.replace('Время ', '');
+  await first.click();
+  await expect(first).toHaveAttribute('aria-pressed', 'true');
+  await expect(panel.getByLabel('Время', { exact: true })).toHaveValue(label);
+  await expect(panel.getByTestId('appointment-digest')).toContainText(label);
+  // имя идёт раньше телефона
+  const nameBox = await panel.getByLabel('Имя клиента', { exact: true }).boundingBox();
+  const phoneBox = await panel.locator('[name="phone"]').boundingBox();
+  expect(nameBox!.y).toBeLessThan(phoneBox!.y);
+});
+

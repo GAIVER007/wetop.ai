@@ -26,24 +26,26 @@ test('обзор как на макете: пять KPI, графики, ком�
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/bar');
   const m = main(page);
-  await expect(m.getByRole('heading', { level: 1 })).toHaveText('Склад');
+  await expect(m.getByRole('heading', { level: 1 })).toHaveText('Склад: бар');
   // Приход, продажа, инвентаризация в шапке; добавление товара у списка.
   await expect(m.getByRole('button', { name: 'Добавить товар', exact: true })).toBeVisible();
   await expect(m.getByRole('link', { name: 'Приход', exact: true })).toHaveAttribute('href', '/bar/receipts/new');
   await expect(m.getByRole('link', { name: 'Продажа', exact: true })).toBeVisible();
   await expect(m.getByRole('link', { name: 'Инвентаризация', exact: true })).toBeVisible();
-  await expect(m.getByRole('navigation',{name:'Разделы бара'})).toBeVisible();
-  await expect(m.getByRole('navigation', { name: 'Разделы бара' }).getByRole('link')).toHaveCount(5);
-  // Пять плиток текущего макета, без выдуманных данных.
-  const kpis = m.getByRole('region', { name: 'Показатели бара' });
-  await expect(kpis.locator('.bar-kpi-label')).toHaveText([
-    'Сумма закупок', 'Выручка бара', 'Прибыль от продаж', 'Долг поставщикам', 'Заканчиваются',
-  ]);
-  await expect(kpis.locator('.bar-kpi',{hasText:'Сумма закупок'})).toContainText('412 800 ₸');
+  // на широком экране те же пункты открывает меню «Склад», второго ряда вкладок нет (21.10.2026)
+  await expect(m.getByRole('navigation',{name:'Разделы склада'})).toBeHidden();
+  await expect(m.locator('.bar-tabs a')).toHaveCount(7);
+  // Без плиток над списком (аудит 21.10.2026 п.7): итоги месяца строкой под доской, нехватка строкой-предупреждением
+  await expect(m.locator('.bar-kpi')).toHaveCount(0);
+  const totals = m.getByTestId('bar-totals');
+  await expect(totals).toContainText('закупки 412 800 ₸');
+  await expect(totals).toContainText('выручка 1 245 600 ₸');
+  await expect(totals).toContainText('прибыль от продаж 623 400 ₸');
+  await expect(totals).toContainText('долг поставщикам 68 400 ₸');
   await expect(m.getByRole('heading', {name:'Продажи по дням',exact:true})).toBeVisible();
-  await expect(kpis.locator('.bar-kpi', { hasText: 'Выручка бара' })).toContainText('1 245 600 ₸');
-  await expect(kpis.locator('.bar-kpi', { hasText: 'Прибыль от продаж' })).toContainText('623 400 ₸');
-  await expect(kpis.locator('.bar-kpi--alarm')).toContainText('2');
+  await expect(m.getByTestId('bar-low-warning')).toContainText('Заканчиваются: 2 товара');
+  // «Топ товаров» один раз: нижний дубль «Популярные товары» убран (п.12)
+  await expect(m.getByRole('heading', { name: 'Популярные товары', exact: true })).toHaveCount(0);
   // доска: шесть товаров макета, поставщик и фактическая наценка, статус словом
   const board = m.getByRole('region', { name: 'Товары и остатки бара' });
   await expect(board.locator('tbody tr')).toHaveCount(6);
@@ -61,13 +63,13 @@ test('обзор как на макете: пять KPI, графики, ком�
   await expect(card.getByLabel('Наценка')).toHaveValue('88');
   await expect(card.getByLabel('Артикул (SKU)')).toHaveValue('CC-050');
   // Дополнительные сведения доступны по раскрытию.
-  await m.getByText('Приходы и популярные товары',{exact:true}).click();
+  await m.getByText('Последние приходы',{exact:true}).click();
   const receipts = m.getByRole('region', { name: 'Последние приходы поставщиков' });
   await expect(receipts.locator('tbody tr')).toHaveCount(4);
   await expect(receipts.locator('tbody tr', { hasText: 'П-000122' })).toContainText('Не оплачен');
   await expect(m.getByRole('link', { name: 'Все приходы' })).toHaveAttribute('href', '/bar/receipts');
-  await expect(m.locator('.bar-popular li').first()).toContainText('Coca-Cola 0.5');
-  await expect(m.locator('.bar-popular li').first()).toContainText('142 шт.');
+  await expect(m.locator('.bar-top-products li').first()).toContainText('Coca-Cola 0.5');
+  await expect(m.locator('.bar-top-products li').first()).toContainText('142 шт.');
   // ничего не уезжает вбок
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
   await page.screenshot({ path: `${SHOTS}/overview-1440.png`, fullPage: true });
@@ -79,11 +81,15 @@ test('быстрая продажа одной строкой и фильтры 
   await page.goto('/bar');
   const m = main(page);
   await m.getByRole('link', {name:'Продажа',exact:true}).click();
-  const sale = m.locator('#bar-quick-sale').getByRole('tabpanel',{name:'Продажа напрямую',exact:true});
+  // продажа открывается окном по центру (аудит 21.10.2026 п.13)
+  const sale = page.getByRole('dialog', { name: 'Продажа' }).getByRole('tabpanel',{name:'Продажа напрямую',exact:true});
   await expect(sale.getByLabel('Количество, шт.')).toHaveValue('1');
   await sale.getByLabel('Товар').selectOption({ index: 1 });
   await sale.getByRole('button', { name: 'Продать' }).click();
-  await expect(sale.locator('.bar-success[role="status"]')).toContainText('Продажа записана');
+  await expect(sale.getByRole('status')).toContainText('Продажа записана');
+  // окно продажи модальное: закрываем его, прежде чем фильтровать доску под ним
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog', { name: 'Продажа' })).toHaveCount(0);
   const board = m.getByRole('region', { name: 'Товары и остатки бара' });
   await m.getByLabel('Поиск товара').fill('red');
   await expect(board.locator('tbody tr')).toHaveCount(1);
@@ -213,7 +219,7 @@ test('меню: экраны бара в разделе «Склад», адре
   await expect(nav.locator('.sidenav__section', { hasText: /^Бар$/ })).toHaveCount(0);
   const items = await openSection(page, 'Склад');
   // пункты в порядке вкладок экрана склада (19.10.2026)
-  await expect(items.locator('a')).toHaveText(['Обзор склада', 'Приходы', 'Номенклатура', 'Поставщики', 'Движение товаров']);
+  await expect(items.locator('a')).toHaveText(['Обзор склада', 'Бар', 'Расходники', 'Приходы', 'Номенклатура', 'Поставщики', 'Движение товаров']);
   await expect(items.getByRole('link', { name: 'Номенклатура', exact: true })).toHaveAttribute('aria-current', 'page');
   // у приходов свой пункт
   await page.goto('/bar/receipts');
@@ -270,21 +276,25 @@ test('подстраницы: оплата долга в приходах, но�
   await expect(row).toContainText('Оплачено');
   await page.goto('/bar/products');
   const products = main(page);
-  await products.locator('summary').filter({hasText:'Новый товар'}).click();
-  const productForm = products.locator('.bar-product-form');
-  await productForm.getByLabel('Код', { exact: true }).fill('TEA-1');
+  // «Новый товар» кнопкой в шапке, форма в окне; код подставляется из названия (аудит 21.10.2026 п.2, п.15)
+  await products.getByRole('button', { name: 'Новый товар', exact: true }).click();
+  const productForm = page.getByRole('dialog', { name: 'Новый товар' }).locator('.bar-product-form');
   await productForm.getByLabel('Название').fill('Чай чёрный');
+  // подсказка «Заполняется из названия» входит в подпись поля, поэтому имя начинается с «Код»
+  await expect(productForm.getByRole('textbox', { name: /^Код(\s|$)/ })).toHaveValue('CHAY-CHERNYY');
   await productForm.getByLabel('Начальная цена, ₸').fill('500');
   await productForm.getByRole('button', { name: 'Добавить товар' }).click();
   await expect(productForm.getByRole('status')).toContainText('Товар добавлен');
+  await page.keyboard.press('Escape');
   await expect(products.getByRole('region', { name: 'Товары бара' })).toContainText('Чай чёрный');
   await page.goto('/bar/suppliers');
   const suppliers = main(page);
   await expect(suppliers.getByRole('region', { name: 'Поставщики бара' })).toContainText('Global Drinks');
-  await suppliers.locator('summary').filter({hasText:'Новый поставщик'}).click();
-  await suppliers.getByLabel('Название').fill('ИП Снабжение');
-  await suppliers.getByRole('button', { name: 'Добавить' }).click();
-  await expect(suppliers.getByRole('status').first()).toContainText('Поставщик добавлен');
+  await suppliers.getByRole('button', { name: 'Новый поставщик', exact: true }).click();
+  const supplierDialog = page.getByRole('dialog', { name: 'Новый поставщик' });
+  await supplierDialog.getByLabel('Название').fill('ИП Снабжение');
+  await supplierDialog.getByRole('button', { name: 'Добавить' }).click();
+  await expect(supplierDialog.getByRole('status').first()).toContainText('Поставщик добавлен');
   await expect(suppliers.getByRole('region', { name: 'Поставщики бара' })).toContainText('ИП Снабжение');
 });
 

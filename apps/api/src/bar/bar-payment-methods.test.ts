@@ -10,10 +10,11 @@ import { BarService } from './bar.service';
  */
 const PRODUCT = '30000000-0000-4000-8000-000000000001';
 const RECEIPT = '10000000-0000-4000-8000-000000000001';
-function service(enabled: string[] | null) {
+function service(enabled: string[] | null, branch: string[] | null = null) {
   const calls: string[] = [];
   const repo = {
     enabledPaymentMethods: async () => enabled,
+    enabledBranchPaymentMethods: async () => branch,
     sellRetail: async (input: { method: string }) => {
       calls.push(`sale:${input.method}`);
       return { kind: 'not_found' as const };
@@ -52,6 +53,17 @@ describe('бар: способ оплаты против настройки об
       sale: ['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON'],
       supplier: ['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL'],
     });
+  });
+  it('бар салона и ресторана: способы филиала (§21.7), выключенный отказывает словами филиала', async () => {
+    const { svc, calls } = service(null, ['KASPI', 'CASH']);
+    await expect(svc.sellRetail(sale('HALYK'))).rejects.toMatchObject({
+      constructor: BadRequestException,
+      message: 'Способ оплаты «Halyk» выключен в настройках филиала',
+    });
+    expect(calls).toEqual([]);
+    expect((await svc.paymentMethods()).sale).toEqual(['KASPI', 'CASH']);
+    await expect(svc.sellRetail(sale('KASPI'))).rejects.toBeInstanceOf(NotFoundException);
+    expect(calls).toEqual(['sale:KASPI']);
   });
   it('способ вне списка бара отказывает как раньше, даже если объект его включил', async () => {
     const { svc } = service(['DEPOSIT', 'CASH']);

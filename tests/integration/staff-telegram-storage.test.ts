@@ -5,14 +5,14 @@ import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 /**
- * STAFF-TG-20261020 (DATA_MODEL, миграция 20261020000139_staff_telegram_notifications): привязка Telegram, коды и
+ * STAFF-TG-20261020 (DATA_MODEL, миграция 20261024000154_staff_telegram_notifications): привязка Telegram, коды и
  * очередь уведомлений. Держит FORCE RLS, права ролей, уникальность события на сотрудника и отказ отката с данными.
  * Все данные вымышленные и живут в откатываемой транзакции.
  */
 const url = process.env.DATABASE_URL;
 const MIGRATION = resolve(
   import.meta.dirname,
-  '../../packages/database/prisma/migrations/20261020000139_staff_telegram_notifications',
+  '../../packages/database/prisma/migrations/20261024000154_staff_telegram_notifications',
 );
 const TABLES = ['staff_notifications', 'staff_telegram_link_codes', 'staff_telegram_links'];
 class Rollback extends Error {}

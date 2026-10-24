@@ -11,6 +11,9 @@ import {
   assertRefundWithin,
   folioBalance,
   zonedStartOfDay,
+  revenueWindow,
+  type RevenueEntry,
+  type RevenuePeriod,
 } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyIdRef, propertyRef, propertyToday } from '../database/property-ref';
@@ -27,6 +30,11 @@ export type PaymentMethod =
   | 'DEPOSIT'
   | 'HALYK'
   | 'KASPI';
+/**
+ * Способ из таблиц гостиницы. BONUS и GIFT_CERTIFICATE (салон, миграция 141) туда не пускает CHECK базы,
+ * поэтому сужение типа здесь безопасно.
+ */
+const hotelMethod = (method: string): PaymentMethod => method as PaymentMethod;
 /** Поддерживаемые способы оплаты (DATA_MODEL §6). */
 export const PAYMENT_METHODS: readonly PaymentMethod[] = [
   'CASH',
@@ -295,6 +303,14 @@ export interface AuditEntry {
 }
 
 export interface FinanceRepository {
+  /**
+   * «Сколько принёс сотрудник» гостиницы (docs/decisions/2026-10-20-personnel-revenue.md): оплаты броней и возвраты
+   * за окно периода по поясу объекта; сотрудник = кто создал бронь (журнал reservation.create), null = каналы и сайт
+   */
+  staffRevenueEntries(
+    period: RevenuePeriod,
+    now: Date,
+  ): Promise<{ fromDate: string; toDate: string; entries: RevenueEntry[]; names: Record<string, string> }>;
   /** Ячейка проживания по счёту; null — ячейка не назначена */
   stayUnitCode(reservationItemId: string): Promise<StayUnitRef | null>;
   /** Блоки доплат за соседнюю ночь с этой причиной («<услуга>, бронь <номер>») — любые ячейки, новые первыми */
@@ -488,7 +504,7 @@ const toFolio = (f: FolioRow): FolioRecord => ({
     paymentId: a.paymentId,
     amountMinor: a.amount,
     payment: {
-      method: a.payment.method,
+      method: hotelMethod(a.payment.method),
       status: a.payment.status,
       amountMinor: a.payment.amount,
       paidAt: a.payment.paidAt.toISOString(),
@@ -517,6 +533,51 @@ export class PrismaFinanceRepository implements FinanceRepository {
   }
   async today(): Promise<string> {
     return propertyToday(this.prisma.db, this.propertyName);
+  }
+  async staffRevenueEntries(period: RevenuePeriod, now: Date) {
+    const { id: propertyId } = await this.property();
+    const w = revenueWindow(period, now, await this.timezone());
+    // сотрудник брони: первая запись журнала о создании; нет записи или без пользователя: каналы и сайт
+    const paid = await this.prisma.db.$queryRaw<Array<{ userId: string | null; amount: bigint; currency: string }>>`
+      SELECT c.user_id::text AS "userId", pa.amount, p.currency
+      FROM payments p
+      JOIN payment_allocations pa ON pa.payment_id = p.id
+      JOIN folios f ON f.id = pa.folio_id
+      JOIN reservation_items ri ON ri.id = f.reservation_item_id
+      LEFT JOIN LATERAL (
+        SELECT l.user_id FROM audit_logs l
+        WHERE l.entity_type = 'Reservation' AND l.entity_id = ri.reservation_id::text AND l.action = 'reservation.create'
+        ORDER BY l.created_at LIMIT 1
+      ) c ON true
+      WHERE p.property_id = ${propertyId}::uuid AND p.status = 'COMPLETED'
+        AND p.paid_at >= ${w.from} AND p.paid_at < ${w.toExclusive}
+    `;
+    const refunded = await this.prisma.db.$queryRaw<Array<{ userId: string | null; amount: bigint; currency: string }>>`
+      SELECT c.user_id::text AS "userId", r.amount, f.currency
+      FROM refunds r
+      JOIN folios f ON f.id = r.folio_id
+      JOIN reservation_items ri ON ri.id = f.reservation_item_id
+      JOIN reservations res ON res.id = ri.reservation_id
+      LEFT JOIN LATERAL (
+        SELECT l.user_id FROM audit_logs l
+        WHERE l.entity_type = 'Reservation' AND l.entity_id = ri.reservation_id::text AND l.action = 'reservation.create'
+        ORDER BY l.created_at LIMIT 1
+      ) c ON true
+      WHERE res.property_id = ${propertyId}::uuid AND r.created_at >= ${w.from} AND r.created_at < ${w.toExclusive}
+    `;
+    const ids = [...new Set([...paid, ...refunded].map((x) => x.userId).filter((x): x is string => x !== null))];
+    const users = ids.length
+      ? await this.prisma.db.user.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, email: true } })
+      : [];
+    return {
+      fromDate: w.fromDate,
+      toDate: w.toDate,
+      names: Object.fromEntries(users.map((u) => [u.id, u.name?.trim() || u.email])),
+      entries: [
+        ...paid.map((x) => ({ employeeId: x.userId, currency: x.currency, paidMinor: x.amount, refundedMinor: 0n })),
+        ...refunded.map((x) => ({ employeeId: x.userId, currency: x.currency, paidMinor: 0n, refundedMinor: x.amount })),
+      ],
+    };
   }
   private async timezone(): Promise<string> {
     return (await propertyRef(this.prisma.db, this.propertyName)).timezone;
@@ -621,8 +682,8 @@ export class PrismaFinanceRepository implements FinanceRepository {
     });
     const byMethod = new Map<PaymentMethod, { count: number; amountMinor: bigint }>();
     for (const p of payments) {
-      const v = byMethod.get(p.method) ?? { count: 0, amountMinor: 0n };
-      byMethod.set(p.method, { count: v.count + 1, amountMinor: v.amountMinor + p.amount });
+      const v = byMethod.get(hotelMethod(p.method)) ?? { count: 0, amountMinor: 0n };
+      byMethod.set(hotelMethod(p.method), { count: v.count + 1, amountMinor: v.amountMinor + p.amount });
     }
     const refunds = await this.prisma.db.refund.findMany({
       where: {
@@ -980,7 +1041,7 @@ export class PrismaFinanceRepository implements FinanceRepository {
     return p
       ? {
           id: p.id,
-          method: p.method,
+          method: hotelMethod(p.method),
           status: p.status,
           amountMinor: p.amount,
           currency: p.currency,
@@ -1381,8 +1442,8 @@ export class PrismaFinanceRepository implements FinanceRepository {
     return {
       id: o.id,
       kind: o.kind,
-      method: o.method,
-      methodTo: o.methodTo,
+      method: hotelMethod(o.method),
+      methodTo: o.methodTo === null ? null : hotelMethod(o.methodTo),
       amountMinor: o.amount,
       status: o.status,
       relatedId: o.relatedId,

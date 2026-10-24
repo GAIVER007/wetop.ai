@@ -9,7 +9,7 @@ export type ReservationStatus =
   'TENTATIVE' | 'CONFIRMED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED' | 'NO_SHOW';
 
 export type ReservationSource =
-  'DESK' | 'PHONE' | 'WHATSAPP' | 'WALK_IN' | 'INSTAGRAM' | 'OTA' | 'WEBSITE';
+  'DESK' | 'PHONE' | 'WHATSAPP' | 'WALK_IN' | 'INSTAGRAM' | 'OTA' | 'WEBSITE' | 'VOICE';
 
 export const RESERVATION_SOURCES: readonly ReservationSource[] = [
   'DESK',
@@ -19,6 +19,7 @@ export const RESERVATION_SOURCES: readonly ReservationSource[] = [
   'INSTAGRAM',
   'OTA',
   'WEBSITE',
+  'VOICE',
 ];
 
 export class ReservationRuleError extends Error {

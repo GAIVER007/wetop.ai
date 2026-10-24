@@ -30,8 +30,13 @@
     transform: translateY(-2px);
   }
   .motion :global(.btn:active) {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.97);
   }
+}
+/* Отклик на само нажатие (apple-design §1): прижатие быстрее обычного перехода, возврат обычным ходом */
+.motion :global(.btn:active),
+.motion :global(.card:active) {
+  transition-duration: 100ms;
 }
 @media (prefers-reduced-motion: no-preference) {
   .motion :global([data-site-enter]) {

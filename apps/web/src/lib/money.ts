@@ -49,3 +49,8 @@ export function formatMinor(minor: string, currency = 'KZT'): string {
   const int = digits.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   return `${neg ? '−' : ''}${int},${digits.slice(-2)} ${currency === 'KZT' ? '₸' : currency}`;
 }
+
+/** Знак валюты в подписи поля или колонки: тенге значком «₸», остальные кодом (USD, AED). Валюта объекта, не всегда тенге */
+export function currencySign(currency = 'KZT'): string {
+  return currency === 'KZT' ? '₸' : currency;
+}

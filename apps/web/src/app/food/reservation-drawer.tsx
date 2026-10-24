@@ -8,9 +8,12 @@ import { pluralRu } from '../../lib/plural';
 import { foodStatusActions } from '../../lib/food-data';
 import type { FoodStatus, FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
+import { visitRange } from '../../lib/human-period';
 import { GuestMarks } from './guest-marks';
 import { mutateFoodReservation } from './actions';
 import { ReservationForm } from './reservation-form';
+import { formatPhone } from '../../lib/phone';
+import { foodReservationOrigin } from '../../lib/food-reservation-origin';
 export type ReservationDraft =
   { kind: 'create'; walkIn: boolean; tableId?: string; time?: string } | { kind: 'view'; id: string };
 export function ReservationDrawer({
@@ -88,7 +91,7 @@ export function ReservationDrawer({
               : 'Новая бронь'
         }
         onClose={close}
-        size={r ? 'md' : 'lg'}
+        size={r ? 'md' : 'xl'}
         className="food-drawer"
       >
         {r ? (
@@ -103,11 +106,10 @@ export function ReservationDrawer({
             </div>
             <dl>
               <dt>Телефон</dt>
-              <dd>{r.customer.phone ?? 'Не указан'}</dd>
+              <dd>{r.customer.phone ? formatPhone(r.customer.phone) : 'Не указан'}</dd>
               <dt>Дата / время</dt>
               <dd>
-                {localInput(r.startsAt, data.timezone).replace('T', ', ')}–
-                {localInput(r.endsAt, data.timezone).slice(11)}
+                {visitRange(r.startsAt, r.endsAt, data.timezone)}
               </dd>
               <dt>Период</dt>
               <dd>{r.servicePeriod.name}</dd>
@@ -116,7 +118,7 @@ export function ReservationDrawer({
               <dt>Стол / зал</dt>
               <dd>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</dd>
               <dt>Источник</dt>
-              <dd>{r.source === 'WALK_IN' ? 'Без брони' : 'Сотрудник'}</dd>
+              <dd>{foodReservationOrigin(r)}</dd>
               <dt>Заметка</dt>
               <dd>{r.notes || 'Нет заметки'}</dd>
             </dl>

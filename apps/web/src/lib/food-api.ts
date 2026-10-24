@@ -9,6 +9,7 @@ import type {
   FoodCashOperationInput,
   FoodCashView,
   FoodCustomer,
+  FoodCustomerDetail,
   FoodEmployee,
   FoodPaymentMethod,
   FoodPage,
@@ -20,12 +21,16 @@ import type {
   MenuCategoryInput,
   MenuItemInput,
   MenuItemView,
+  ModifierGroupInput,
+  ModifierGroupView,
   OrderCreateInput,
   OrderPatch,
+  OrderItemStatus,
   OrderStatus,
   OrderToken,
   OrderView,
   PayModel,
+  WaiterTables,
   PayrollView,
   PeriodInput,
   ReservationInput,
@@ -42,10 +47,11 @@ import type {
 const base = '/food-service';
 const idPath = (collection: string, id: string) =>
   `${base}/${collection}/${encodeURIComponent(id)}`;
-const query = (cursor?: string, date?: string) => {
+const query = (cursor?: string, date?: string, search?: string) => {
   const q = new URLSearchParams({ limit: '100' });
   if (cursor) q.set('cursor', cursor);
   if (date) q.set('date', date);
+  if (search) q.set('q', search);
   return `?${q}`;
 };
 export const foodApi = {
@@ -76,8 +82,10 @@ export const foodApi = {
     sendJson<ServicePeriod>('POST', `${base}/service-periods`, body),
   updatePeriod: (id: string, body: Partial<PeriodInput>) =>
     sendJson<ServicePeriod>('PATCH', idPath('service-periods', id), body),
-  customers: (cursor?: string) =>
-    getJsonPublic<FoodPage<FoodCustomer>>(`${base}/customers${query(cursor)}`),
+  /** `search`: имя или телефон гостя (поиск в шапке, аудит 22.10.2026 P1-4) */
+  customers: (cursor?: string, search?: string) =>
+    getJsonPublic<FoodPage<FoodCustomer>>(`${base}/customers${query(cursor, undefined, search)}`),
+  customer: (id: string) => getJsonPublic<FoodCustomerDetail>(idPath('customers', id)),
   updateCustomer: (id: string, body: { isVip?: boolean; birthDate?: string | null }) =>
     sendJson<{ id: string }>('PATCH', idPath('customers', id), body),
   reservations: (date: string, cursor?: string) =>
@@ -112,6 +120,14 @@ export const restaurantApi = {
     sendJson<MenuItemView>('PATCH', idPath('menu/items', id), body),
   replaceIngredients: (id: string, ingredients: IngredientInput[]) =>
     sendJson<MenuItemView>('PUT', `${idPath('menu/items', id)}/ingredients`, { ingredients }),
+  /** Модификаторы блюд (§33.7): группы бизнеса и группы блюда */
+  modifierGroups: () => getJsonPublic<{ items: ModifierGroupView[] }>(`${base}/menu/modifier-groups`),
+  createModifierGroup: (body: ModifierGroupInput) =>
+    sendJson<ModifierGroupView>('POST', `${base}/menu/modifier-groups`, body),
+  updateModifierGroup: (id: string, body: Partial<ModifierGroupInput>) =>
+    sendJson<ModifierGroupView>('PATCH', idPath('menu/modifier-groups', id), body),
+  setItemModifierGroups: (id: string, groupIds: string[]) =>
+    sendJson<{ menuItemId: string; modifierGroupIds: string[] }>('PUT', `${idPath('menu/items', id)}/modifier-groups`, { groupIds }),
   orders: (date: string, cursor?: string) =>
     getJsonPublic<FoodPage<OrderView>>(`${base}/orders${query(cursor, date)}`),
   openOrders: (cursor?: string) =>
@@ -121,7 +137,12 @@ export const restaurantApi = {
     sendJson<OrderView>('PATCH', idPath('orders', id), body),
   orderStatus: (id: string, body: OrderToken & { status: OrderStatus }) =>
     sendJson<OrderView>('POST', `${idPath('orders', id)}/status`, body),
-  payOrder: (id: string, body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string }) =>
+  /** Кухня и бар двигают свою позицию, официант отмечает «Подано» (§33.6) */
+  itemStatus: (id: string, itemId: string, body: { status: OrderItemStatus; expectedUpdatedAt: string }) =>
+    sendJson<OrderView>('POST', `${idPath('orders', id)}/items/${encodeURIComponent(itemId)}/status`, body),
+  /** Столы зала для экрана официанта (§33.6) */
+  waiterTables: () => getJsonPublic<WaiterTables>(`${base}/waiter/tables`),
+  payOrder: (id: string, body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string; itemIds?: string[] }) =>
     sendJson<OrderView>('POST', `${idPath('orders', id)}/payments`, body),
   rateOrder: (id: string, body: { stars: number; comment: string | null }) =>
     sendJson<OrderView>('POST', `${idPath('orders', id)}/rating`, body),
@@ -134,6 +155,11 @@ export const restaurantApi = {
   refundOrder: (id: string, body: { method: FoodPaymentMethod; amount: number; reason: string; idempotencyKey: string }) =>
     sendJson<OrderView>('POST', `${idPath('orders', id)}/refunds`, body),
   // период считает сервер (ADR-181); без дат прежние последние 100 строк для экрана «Касса»
+  /** Способы оплаты филиала (DATA_MODEL §21.7): какие принимаются и в каком порядке; все шесть кодов */
+  paymentMethods: () =>
+    getJsonPublic<{ methods: Array<{ method: FoodPaymentMethod; enabled: boolean }> }>(`${base}/payment-methods`),
+  updatePaymentMethods: (methods: Array<{ method: string; enabled: boolean }>) =>
+    sendJson<{ methods: Array<{ method: FoodPaymentMethod; enabled: boolean }> }>('PUT', `${base}/payment-methods`, { methods }),
   cash: (period?: { from: string; to: string }) =>
     getJsonPublic<FoodCashView>(
       `${base}/cash${period ? `?from=${period.from}&to=${period.to}` : ''}`,
@@ -151,7 +177,16 @@ export const restaurantApi = {
   report: (date: string) => getJsonPublic<FoodReport>(`${base}/report?date=${date}`),
   employees: (cursor?: string) =>
     getJsonPublic<FoodPage<FoodEmployee>>(`${base}/employees${query(cursor)}`),
-  createEmployee: (body: { name: string; phone?: string | null; email?: string | null }) =>
+  assignEmployeePersonnelKind: (
+    id: string,
+    body: { personnelKind: 'SPECIALIST' | 'OTHER_EMPLOYEE' | 'BOTH'; expectedProfileRevision: string },
+  ) => sendJson<{ id: string }>('PATCH', `${idPath('employees', id)}/personnel-kind`, body),
+  createEmployee: (body: {
+    name: string;
+    phone?: string | null;
+    email?: string | null;
+    personnelKind?: 'SPECIALIST' | 'OTHER_EMPLOYEE' | 'BOTH';
+  }) =>
     sendJson<FoodEmployee>('POST', `${base}/employees`, body),
   updateEmployee: (
     id: string,

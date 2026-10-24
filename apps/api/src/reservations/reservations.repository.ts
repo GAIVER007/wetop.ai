@@ -49,7 +49,7 @@ export class AllocationOverlapError extends Error {
     readonly unitId: string,
     readonly unitCode?: string,
   ) {
-    super(`Ячейка ${unitCode ?? unitId} уже занята на эти ночи`);
+    super(`Номер ${unitCode ?? unitId} уже занят на эти ночи`);
   }
 }
 

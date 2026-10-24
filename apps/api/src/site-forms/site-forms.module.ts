@@ -133,5 +133,7 @@ export class SiteLeadsController {
   imports: [AnalyticsModule],
   controllers: [SiteFormsController, SiteLeadsController],
   providers: [PrismaService, SiteFormsService, SiteLeadsService, TurnstileService],
+  // голосовая запись в салон и бронь стола считают окна и пишут тем же путём (DATA_MODEL VOICE-BOOKING)
+  exports: [SiteFormsService],
 })
 export class SiteFormsModule {}

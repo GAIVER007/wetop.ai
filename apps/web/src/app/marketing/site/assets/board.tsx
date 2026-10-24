@@ -1,7 +1,7 @@
 'use client';
 import { useActionState, useState, useTransition } from 'react';
 import type { ChannexPhotoChoice, SiteAssetLibrary, SiteAssetView } from '../../../../lib/api';
-import { Alert, Badge, Button, Field, Grid, Input, Notice, Panel, PanelTitle, Select, Stack } from '../../../../components/ui';
+import { Alert, Badge, Button, EmptyState, Field, Grid, Input, Notice, Panel, PanelTitle, Select, Stack } from '../../../../components/ui';
 import { useConfirm } from '../../../../components/use-confirm';
 import {
   channexPhotosAction,
@@ -172,7 +172,7 @@ export function AssetLibrary({
               {CHANNEX_STATE[photos.state] ?? 'Фото менеджера каналов сейчас недоступны'}
             </p>
           ) : photos.photos.length === 0 ? (
-            <p className="muted">В менеджере каналов нет фото этой гостиницы.</p>
+            <EmptyState title="В менеджере каналов нет фото этой гостиницы" />
           ) : (
             <Stack gap="sm">
               <ul className="asset-import" aria-label="Фото гостиницы в менеджере каналов">

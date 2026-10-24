@@ -9,7 +9,7 @@ export default async function OperationsPage() {
   if (!c?.locationId || !c.businessId) return <p>Выберите филиал для рабочих инструментов.</p>;
   const content =
     c.vertical === 'BEAUTY' ? (
-      <BeautyToday />
+      <BeautyToday operations />
     ) : c.vertical === 'FOOD_SERVICE' ? (
       <FoodToday />
     ) : c.vertical === 'HOSPITALITY' ? (

@@ -41,12 +41,16 @@ test('администратор: в меню — работа с гостями
       // верхнее меню 17.10.2026 (ADR-TOPNAV-20261017): те же права, новая группировка
       '/today',
       '/chessboard',
+      // «График работы» гостиницы (S10, 22.10.2026): право desk, администратору открыт
+      '/staff-schedule',
       '/guests',
       '/reservations',
       '/management/analytics',
       '/reports',
       // «Склад» в порядке вкладок экрана (ad793ebf6, решение владельца 19.10.2026)
+      '/warehouse',
       '/bar',
+      '/bar/consumables',
       '/bar/receipts',
       '/bar/products',
       '/bar/suppliers',
@@ -54,6 +58,8 @@ test('администратор: в меню — работа с гостями
       '/finance',
       '/reports/finance',
       '/incidents',
+      // хаб «Все настройки» (21.10.2026): ему открыт, внутри только его ссылки
+      '/settings',
       // «Продвижение»: администратору продавец, конкуренты (право `reports`) и обзор продаж
       '/ai-agents',
       '/market',
@@ -252,12 +258,15 @@ test('управляющий: журнал и платформа закрыты;
   await expect(drawer.getByTestId('invite-role-fixed')).toContainText(
     'Управляющий приглашает администраторов',
   );
-  await expect(drawer.getByLabel('Должность', { exact: true })).toHaveCount(0);
+  // единый блок доступа (20.10.2026): у управляющего без «Управляющего»; гостиница с 22.10.2026 ещё «Без входа» и
+  // «Личный кабинет» (горничная, ресепшен)
+  await expect(drawer.getByTestId('staff-access').locator('[data-level]')).toHaveCount(3);
+  await expect(drawer.getByRole('radio', { name: /^Управляющий/ })).toHaveCount(0);
   await drawer.getByRole('button', { name: 'Отмена' }).click();
   const rows = main.getByTestId('member-row');
   await expect(rows).toHaveCount(3);
   await expect(
-    rows.filter({ hasText: 'Марат Тестов' }).getByRole('button', { name: 'Отключить' }),
+    rows.filter({ hasText: 'Марат Тестов' }).getByRole('button', { name: /^Ещё:/ }),
   ).toHaveCount(0);
   await expect(rows.filter({ hasText: 'Дана Тестова' })).toContainText('это вы');
   // роль меняет только владелец
@@ -273,7 +282,8 @@ test('управляющий: журнал и платформа закрыты;
     .click();
   await expect(invites).not.toContainText('zhdet@example.com');
 
-  await rows.filter({ hasText: 'Юрий Тестов' }).getByRole('button', { name: 'Отключить' }).click();
+  await rows.filter({ hasText: 'Юрий Тестов' }).getByRole('button', { name: /^Ещё:/ }).click();
+  await page.getByRole('menuitem', { name: 'Отключить' }).click();
   await page
     .locator('dialog[open][data-testid="confirm-dialog"]')
     .getByRole('button', { name: 'Отключить' })
@@ -288,28 +298,29 @@ test('владелец: зовёт управляющего и админист�
   const main = page.getByRole('main');
   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
   const drawer = page.getByRole('dialog');
-  const role = drawer.getByLabel('Должность', { exact: true });
-  await expect(role.locator('option')).toHaveText(['Управляющий', 'Администратор']);
-  await expect(role).toHaveValue('STAFF');
+  // единый блок доступа (решение владельца 20.10.2026): уровни карточками, по умолчанию «Администратор»
+  const access = drawer.getByTestId('staff-access');
+  await expect(access.locator('[data-level]')).toHaveCount(4);
+  await expect(access.getByRole('radio', { name: /^Администратор/ })).toBeChecked();
 
   await drawer.getByLabel('Почта приглашённого').fill('New.Manager@Example.com');
-  await role.selectOption('MANAGER');
+  await access.getByRole('radio', { name: /^Управляющий/ }).check();
   await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
   // панель закрылась, приглашение — в «Ожидают ответа» с ролью словом
   await expect(page.getByRole('dialog')).toHaveCount(0);
   const invites = main.getByTestId('invite-list');
   await expect(invites.locator('li', { hasText: 'new.manager@example.com' })).toContainText(
-    'управляющий',
+    'Управляющий',
   );
-  await expect(invites.locator('li', { hasText: 'boss@example.com' })).toContainText('управляющий');
+  await expect(invites.locator('li', { hasText: 'boss@example.com' })).toContainText('Управляющий');
   await expect(invites.locator('li', { hasText: 'zhdet@example.com' })).toContainText(
-    'администратор',
+    'Администратор',
   );
 
   const admin = main.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
-  await expect(admin).toContainText('администратор');
+  await expect(admin).toContainText('Администратор');
   await admin.getByRole('combobox', { name: 'Должность: Юрий Тестов' }).selectOption('MANAGER');
-  await expect(admin).toContainText('управляющий');
+  await expect(admin).toContainText('Управляющий');
   await shot(page, 'team-owner');
 });
 

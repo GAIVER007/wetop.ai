@@ -7,28 +7,23 @@
     margin-bottom: var(--space-4);
   }
 
-  .beauty-service-dual-toolbar > p {
-    grid-column: 1;
-    margin: 0;
-    color: var(--muted);
-  }
-
-  .beauty-service-dual-toolbar > .btn {
-    grid-column: 3;
-    grid-row: 1;
-  }
-
   .beauty-service-archive-filter {
-    grid-column: 2;
-    grid-row: 1;
     min-height: 44px;
   }
 
+  /* переключатель колонок нужен только телефону (аудит 21.10.2026 п.47) */
+  .beauty-service-mobile-view {
+    display: none;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+
+  /* колонки по высоте своего содержимого, без стрелок между ними (п.38) */
   .beauty-service-transfer-board {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 52px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: var(--space-4);
-    align-items: stretch;
+    align-items: start;
     margin-top: var(--space-4);
   }
 
@@ -62,8 +57,37 @@
 
   .beauty-service-items {
     display: grid;
+    gap: var(--space-1);
+    margin-top: var(--space-2);
+  }
+  /* подзаголовок категории в списке (каталог A + B, 23.10.2026) */
+  .beauty-service-group {
+    margin: var(--space-2) 0 0;
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text);
+    background: var(--surface-muted);
+    border-radius: var(--radius-sm);
+  }
+  .beauty-service-group:first-child {
+    margin-top: 0;
+  }
+
+  .beauty-service-bulk {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
     gap: var(--space-2);
     margin-top: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+
+  .beauty-service-bulk .beauty-check {
+    min-height: 36px;
   }
 
   .beauty-service-item {
@@ -71,11 +95,27 @@
     grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--space-2);
     align-items: center;
-    min-height: 72px;
-    padding: var(--space-2);
+    min-height: 52px;
+    padding: var(--space-1) var(--space-2);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
     background: var(--surface-muted);
+  }
+
+  .beauty-service-item:has(.beauty-service-check) {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .beauty-service-item:has(.beauty-service-check:checked) {
+    border-color: var(--primary);
+    background: var(--surface);
+  }
+
+  .beauty-service-check {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    accent-color: var(--primary);
   }
 
   .beauty-service-item[draggable='true'] {
@@ -86,41 +126,40 @@
     cursor: grabbing;
   }
 
-  .beauty-service-item-body,
-  .beauty-service-item-actions {
-    display: grid;
-    gap: var(--space-1);
+  /* одна строка на услугу: «Название, 45 мин, Волосы | Добавить» (п.39) */
+  .beauty-service-item-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-2);
+    align-items: baseline;
     min-width: 0;
   }
 
-  .beauty-service-item-body > b,
-  .beauty-service-item-body > span,
-  .beauty-service-item-body > small {
+  .beauty-service-item-body > b {
     overflow-wrap: anywhere;
   }
 
   .beauty-service-item-body > span,
   .beauty-service-item-body > small {
     color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  .beauty-service-item-body > .beauty-service-warn {
+    color: var(--warning);
+    font-weight: var(--weight-bold);
   }
 
   .beauty-service-item-actions {
-    justify-items: stretch;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    align-items: center;
+    justify-content: flex-end;
   }
 
-  .beauty-service-transfer-form .btn,
-  .beauty-service-item-actions > .btn {
-    width: 100%;
+  .beauty-service-item .btn {
     min-height: 44px;
-  }
-
-  .beauty-service-transfer-hint {
-    display: grid;
-    place-content: center;
-    gap: var(--space-2);
-    color: var(--primary);
-    font-size: var(--text-xl);
-    font-weight: var(--weight-bold);
   }
 
   .beauty-service-empty {
@@ -200,27 +239,8 @@
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .beauty-service-dual-toolbar > p,
-    .beauty-service-dual-toolbar > .btn,
-    .beauty-service-archive-filter {
-      grid-column: 1;
-      grid-row: auto;
-    }
-
     .beauty-service-dual-toolbar > .btn {
       width: 100%;
-    }
-
-    .beauty-service-list--salon {
-      grid-row: 1;
-    }
-
-    .beauty-service-transfer-hint {
-      display: none;
-    }
-
-    .beauty-service-list--catalog {
-      grid-row: 2;
     }
 
     .beauty-material-stock,
@@ -230,16 +250,47 @@
   }
 
   @media (max-width: 600px) {
+    .beauty-service-mobile-view {
+      display: flex;
+    }
+
+    .beauty-service-transfer-board[data-mobile-view='catalog'] .beauty-service-list--salon,
+    .beauty-service-transfer-board[data-mobile-view='salon'] .beauty-service-list--catalog {
+      display: none;
+    }
+
     .beauty-service-list {
       padding: var(--space-2);
+    }
+
+    .beauty-service-item-actions {
+      justify-content: flex-start;
+    }
+
+    /* крупный шрифт на 320 px: подписи кнопок переносятся, строка не шире экрана */
+    .beauty-service-item .btn,
+    .beauty-service-bulk .btn {
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .beauty-service-item-actions,
+    .beauty-service-bulk {
+      min-width: 0;
     }
 
     .beauty-service-item {
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .beauty-service-item-actions,
-    .beauty-service-transfer-form {
+    /* колонка галочки фиксирована: иначе широкие кнопки действий растягивают её, а название выпадает за экран */
+    .beauty-service-item:has(.beauty-service-check) {
+      grid-template-columns: 20px minmax(0, 1fr);
+    }
+
+    .beauty-service-item-actions {
+      grid-column: 1 / -1;
       width: 100%;
     }
 
@@ -251,6 +302,28 @@
     .beauty-material-row > .btn,
     .beauty-material-form > .btn {
       width: 100%;
+    }
+  }
+}
+
+@layer sections {
+  .beauty-service-item-body .beauty-popularity {
+    display: inline;
+  }
+}
+
+/* Переключатель «Каталог / В филиале (N)» на 320 px при крупном шрифте: кнопки делят строку и переносят подпись */
+@layer sections {
+  @media (max-width: 600px) {
+    .beauty-service-mobile-view {
+      flex-wrap: wrap;
+    }
+    .beauty-service-mobile-view > .btn {
+      flex: 1 1 auto;
+      min-width: 0;
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
   }
 }

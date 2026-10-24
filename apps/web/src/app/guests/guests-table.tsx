@@ -6,6 +6,7 @@ import { ActionMenu } from '../../components/action-menu';
 import { Icon } from '../../components/icon';
 import { StatusBadge, Table, Badge, cx } from '../../components/ui';
 import type { GuestRowView } from './row-view';
+import { formatPhone } from '../../lib/phone';
 
 /**
  * Таблица «Гостей и бронирований» (план guests-bookings-2026-10-09). Клиентской её делает только выбор: щелчок по
@@ -128,7 +129,7 @@ export function GuestsTable({
                   </Link>
                 </td>
                 <td className="gb-contacts gb-wide">
-                  <span>{r.phone ?? '–'}</span>
+                  <span>{r.phone ? formatPhone(r.phone) : '–'}</span>
                   {r.email && <small>{r.email}</small>}
                 </td>
                 <td className="gb-wide">

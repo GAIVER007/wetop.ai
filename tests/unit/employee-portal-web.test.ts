@@ -22,13 +22,18 @@ describe('employee portal frontend boundaries', () => {
     expect(actions).toContain('parsePaySettings');
     expect(actions).toContain('requestScopeHeader');
   });
-  it('shows the own week read-only, without dated exceptions, and keeps affected appointments', () => {
+  it('shows the own week and absences read-only (S3, владелец 21.10.2026) and keeps affected appointments', () => {
     const ui = source('components/employee-portal/cabinet.tsx');
-    expect(ui).not.toContain('data-testid="portal-time-offs"');
+    // отсутствия видны списком, но сотрудник их не ставит: формы нет, график меняет руководитель
+    expect(ui).toContain('data-testid="portal-time-offs"');
+    expect(ui).toContain('portalAbsences(data.timeOffs');
+    expect(ui).toContain('shortPeriod(');
     expect(ui).not.toContain('command="time-off"');
+    expect(source('components/employee-portal/forms.tsx')).toContain("{hours || 'Выходной'}");
     expect(ui).toContain('<PortalWeekView');
     expect(ui).toContain('data.scheduleConflicts.items.map');
-    expect(ui).toContain('Записи не отменены');
+    // служебная фраза «Проверяем… Записи не отменены» снята (аудит салона 22.10.2026); конфликт назван словами
+    expect(ui).toContain('Есть записи вне графика или в дни отсутствия');
     expect(ui).toContain('scheduleConflicts.truncated');
   });
   it('keeps self pay read-only and separates waiter orders from beauty services', () => {

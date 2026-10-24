@@ -1,12 +1,13 @@
 'use client';
 import { useActionState, useState, useTransition } from 'react';
-import type { MarketingAdAssets, MarketingAdProposal } from '../../../../lib/api';
-import { formatMoney } from '../../../../lib/money';
+import type { MarketingAdAssets, MarketingAdProposal, MarketingAudienceSettings } from '../../../../lib/api';
+import { currencySign, formatMoney } from '../../../../lib/money';
 import { Segmented } from '../../../../components/segmented';
 import { Switch } from '../../../../components/switch';
 import { Alert, Button, Field, Grid, Input, Select, Stack, Textarea } from '../../../../components/ui';
 import { useConfirm } from '../../../../components/use-confirm';
 import { launchAdAction, proposeAdAction, searchCityAction, type LaunchActionResult } from './actions';
+import { captureVideoFrames } from './video-frames';
 
 /**
  * Мастер «Новая кампания с ИИ» (DATA_MODEL §57, ADR-MKT-LAUNCH, техпроект §7): куда ведёт реклама, фото и пара фраз,
@@ -22,15 +23,44 @@ const DESTINATIONS: Array<{ value: Destination; label: string }> = [
   { value: 'WEBSITE', label: 'Сайт' },
 ];
 const NONE: LaunchActionResult = { error: null, ok: 0 };
+/** В мастере видео до 100 МБ: больше не пройдёт через Cloudflare (тело запроса 100 МБ); API принимает до 200 МБ (§57) */
+const VIDEO_MAX_BYTES = 100 * 1024 * 1024;
+const VIDEO_TYPES = ['video/mp4', 'video/quicktime'];
 
-export function LaunchWizard({ assets, country }: { assets: Connected; country: string }) {
+/** Видео креатива: сохраняется на сервере сразу при выборе (в действие формы такой файл не пройдёт), кадры для ИИ снимает браузер */
+type VideoState =
+  | { phase: 'none' }
+  | { phase: 'loading' }
+  | { phase: 'ready'; creativeId: string; frames: string[] }
+  | { phase: 'error'; message: string };
+
+async function saveVideo(file: File): Promise<string> {
+  const body = new FormData();
+  body.append('file', file, file.name);
+  const res = await fetch('/marketing/ads/creatives', { method: 'POST', body });
+  const data = (await res.json().catch(() => ({}))) as { id?: string; error?: string };
+  if (!res.ok || !data.id) throw new Error(data.error ?? 'Не удалось сохранить видео, повторите позже');
+  return data.id;
+}
+
+export function LaunchWizard({
+  assets,
+  country,
+  audience = null,
+}: {
+  assets: Connected;
+  country: string;
+  /** Аудитория прошлого запуска из «Аудиторий» (23.10.2026): города, возраст и пол заранее; ИИ их потом может сменить */
+  audience?: MarketingAudienceSettings | null;
+}) {
   const [proposed, propose, proposing] = useActionState(proposeAdAction, NONE);
   const [launched, launch, launching] = useActionState(launchAdAction, NONE);
   const { ask, dialog } = useConfirm();
   const [requestKey] = useState(() => crypto.randomUUID());
   const [destination, setDestination] = useState<Destination>('WHATSAPP');
-  const [preview, setPreview] = useState<string | null>(null);
-  const [cities, setCities] = useState<Array<{ key: string; name: string }>>([]);
+  const [preview, setPreview] = useState<{ url: string; video: boolean } | null>(null);
+  const [video, setVideo] = useState<VideoState>({ phase: 'none' });
+  const [cities, setCities] = useState<Array<{ key: string; name: string }>>(audience?.cities ?? []);
   const [found, setFound] = useState<Array<{ key: string; name: string; region: string }>>([]);
   const [cityQuery, setCityQuery] = useState('');
   const [cityError, setCityError] = useState<string | null>(null);
@@ -42,7 +72,17 @@ export function LaunchWizard({ assets, country }: { assets: Connected; country: 
   const sameCurrency = assets.cabinet.currency === assets.reportingCurrency;
   // предложение ИИ встаёт в поля: ключ полей меняется вместе с ответом, React пересоздаёт их с новыми значениями
   const p: MarketingAdProposal | null = proposed.proposal ?? null;
-  const v = p ?? { headline: '', primaryText: '', description: null, ageMin: 18, ageMax: 65, genders: [], interests: [], welcome: null, notes: [] };
+  const v = p ?? {
+    headline: '',
+    primaryText: '',
+    description: null,
+    ageMin: audience?.ageMin ?? 18,
+    ageMax: audience?.ageMax ?? 65,
+    genders: audience?.genders ?? [],
+    interests: [],
+    welcome: null,
+    notes: [],
+  };
   const gender = v.genders.length === 1 ? String(v.genders[0]) : 'all';
   const fieldsKey = proposed.ok || 'empty';
   const error = launched.error ?? proposed.error;
@@ -55,6 +95,13 @@ export function LaunchWizard({ assets, country }: { assets: Connected; country: 
       <input type="hidden" name="cities" value={JSON.stringify(cities)} />
       <input type="hidden" name="cityName" value={cities[0]?.name ?? ''} />
       <input type="hidden" name="proposal" value={p ? JSON.stringify(p) : ''} />
+      {preview?.video && (
+        <>
+          <input type="hidden" name="creativeKind" value="VIDEO" />
+          <input type="hidden" name="creativeId" value={video.phase === 'ready' ? video.creativeId : ''} />
+          {video.phase === 'ready' && video.frames.map((f, i) => <input key={i} type="hidden" name="frame" value={f} />)}
+        </>
+      )}
       <input type="hidden" name="instagramUserId" value={page?.instagramUserId ?? ''} />
       <Stack>
         <h2 className="budget-files__title">1. Куда ведёт реклама</h2>
@@ -90,23 +137,57 @@ export function LaunchWizard({ assets, country }: { assets: Connected; country: 
 
         <h2 className="budget-files__title">2. Креатив и оффер</h2>
         <Grid min={240}>
-          <Field label="Фото креатива" controlId="ad-creative" required hint="JPEG или PNG до 8 МБ">
+          <Field label="Фото или видео креатива" controlId="ad-creative" required hint="Фото JPEG или PNG до 8 МБ, видео MP4 или MOV до 100 МБ">
             <Input
-              name="creative"
+              // видео в форме не едет: его номер и кадры лежат в скрытых полях (выше), файл сохраняется отдельно
+              name={preview?.video ? undefined : 'creative'}
               type="file"
-              accept="image/jpeg,image/png"
+              accept="image/jpeg,image/png,video/mp4,video/quicktime"
               data-testid="ad-creative"
               onChange={(e) => {
                 const f = e.target.files?.[0];
-                setPreview(f ? URL.createObjectURL(f) : null);
+                if (preview) URL.revokeObjectURL(preview.url);
+                if (!f) {
+                  setPreview(null);
+                  setVideo({ phase: 'none' });
+                  return;
+                }
+                const isVideo = VIDEO_TYPES.includes(f.type);
+                setPreview({ url: URL.createObjectURL(f), video: isVideo });
+                if (!isVideo) {
+                  setVideo({ phase: 'none' });
+                  return;
+                }
+                if (f.size > VIDEO_MAX_BYTES) {
+                  setVideo({ phase: 'error', message: 'Видео больше 100 МБ: выберите файл меньше' });
+                  return;
+                }
+                setVideo({ phase: 'loading' });
+                Promise.all([saveVideo(f), captureVideoFrames(f)]).then(
+                  ([creativeId, frames]) => setVideo({ phase: 'ready', creativeId, frames }),
+                  (err: unknown) => setVideo({ phase: 'error', message: err instanceof Error ? err.message : 'Не удалось сохранить видео' }),
+                );
               }}
             />
           </Field>
-          {preview && (
-            // превью локального файла до загрузки: адрес blob, оптимизатор картинок Next тут не нужен
-            <img src={preview} alt="Превью креатива" className="ad-wizard__preview" />
-          )}
+          {preview &&
+            (preview.video ? (
+              // превью локального файла до загрузки: адрес blob
+              <video src={preview.url} aria-label="Превью видео" className="ad-wizard__preview" muted controls playsInline />
+            ) : (
+              <img src={preview.url} alt="Превью креатива" className="ad-wizard__preview" />
+            ))}
         </Grid>
+        {preview?.video && (
+          <p className="settings-note" role="status" data-testid="ad-video-status">
+            {video.phase === 'loading' && 'Сохраняю видео…'}
+            {video.phase === 'ready' &&
+              (video.frames.length >= 2
+                ? 'Видео сохранено. Кадры для ИИ сняты.'
+                : 'Видео сохранено. Кадры для ИИ снять не удалось: текст объявления можно написать руками.')}
+            {video.phase === 'error' && video.message}
+          </p>
+        )}
         <Field label="Об оффере в двух словах" controlId="ad-offer" hint="Что предлагаете и кому: ИИ напишет текст по фото и этим словам">
           <Textarea name="offer" rows={2} maxLength={500} data-testid="ad-offer" />
         </Field>
@@ -166,7 +247,12 @@ export function LaunchWizard({ assets, country }: { assets: Connected; country: 
             </Select>
           </Field>
         </Grid>
-        <Switch name="advantageAudience" label="Разрешить Meta расширять аудиторию" hint="Advantage+: возраст «от» тогда только 18–25, «до» Meta не учитывает" />
+        <Switch
+          name="advantageAudience"
+          label="Разрешить Meta расширять аудиторию"
+          hint="Advantage+: возраст «от» тогда только 18–25, «до» Meta не учитывает"
+          defaultChecked={audience?.advantageAudience ?? false}
+        />
         {p && p.interests.length > 0 && <p className="settings-note">Интересы по мнению ИИ (подсказка): {p.interests.join(', ')}</p>}
         <Stack gap="sm">
           <Grid min={240}>
@@ -229,7 +315,7 @@ export function LaunchWizard({ assets, country }: { assets: Connected; country: 
         <h2 className="budget-files__title">4. Бюджет и запуск</h2>
         <Grid min={240}>
           <Field
-            label={`Бюджет в день, ${assets.cabinet.currency}`}
+            label={`Бюджет в день, ${currencySign(assets.cabinet.currency)}`}
             controlId="ad-budget"
             required
             hint={
@@ -254,7 +340,7 @@ export function LaunchWizard({ assets, country }: { assets: Connected; country: 
         <div>
           <Button
             type="button"
-            disabled={launching || !pageId}
+            disabled={launching || !pageId || (preview?.video === true && video.phase !== 'ready')}
             aria-busy={launching}
             data-testid="ad-launch"
             onClick={async (e) => {

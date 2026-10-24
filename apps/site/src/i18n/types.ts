@@ -57,6 +57,14 @@ export type Dictionary = {
     menu: string;
     breadcrumbs: string;
     crumbHome: string;
+    /** Переключатель языка страницы: подпись ссылки на казахскую и русскую версии. */
+    switchToKk: string;
+    switchToRu: string;
+    /** Правовые ссылки в подвале и переключатель темы в шапке (каркас казахских страниц, P1-12). */
+    legalNav: string;
+    theme: string;
+    themeLight: string;
+    themeDark: string;
   };
   nav: {
     product: string;
@@ -484,6 +492,12 @@ export type Dictionary = {
       /** `{seconds}` — сколько ждать до следующей отправки. */
       wait: string;
       change: string;
+      /** Поле кода из письма (22.10.2026) */
+      codeLabel: string;
+      codeHint: string;
+      codeChecking: string;
+      codeAccepted: string;
+      linkFallback: string;
     };
     fields: {
       email: string;
@@ -510,6 +524,16 @@ export type Dictionary = {
     };
     errors: {
       required: string;
+      /** Ошибка под полем: формы окна с noValidate, браузер своего сообщения не показывает (P1-1a) */
+      fields: {
+        email: string;
+        emailFormat: string;
+        password: string;
+        passwordShort: string;
+        name: string;
+        businessName: string;
+        phone: string;
+      };
       privacy: string;
       network: string;
       /** Ссылка на ту же форму на отдельной странице стойки — на случай сбоя окна. */

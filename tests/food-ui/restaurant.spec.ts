@@ -137,14 +137,14 @@ test('меню: категория и блюдо с экрана, переклю
   await dialog.getByLabel('Единица').nth(1).selectOption('шт');
   await dialog.getByLabel('Цена за единицу').nth(1).fill('10');
   const totals = dialog.getByTestId('tech-totals');
-  await expect(totals).toContainText('Food cost');
+  await expect(totals).toContainText('Себестоимость, %');
   await expect(totals).toContainText('28 %');
   await expect(totals).toContainText('255 %');
   await dialog.getByLabel('Технология приготовления').fill('Варить 9 минут, смешать.');
   await dialog.getByRole('button', { name: 'Сохранить техкарту' }).click();
   await expect(dialog).not.toBeVisible();
-  // таблица меню (экран 8): food cost своей колонкой
-  await expect(pastaRow.getByRole('cell').nth(3)).toHaveText('28 %');
+  // таблица меню (экран 8): food cost своей колонкой; с 23.10 перед ценой колонка «Выход» (каталог A, #800)
+  await expect(pastaRow.getByRole('cell').nth(4)).toHaveText('28 %');
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);
 });
@@ -265,7 +265,7 @@ test('заказы: создание с экрана, оплата частям�
   // рейтинг официанта по оценкам гостей на экране «Сотрудники»
   await page.goto('/employees');
   await expect(
-    page.locator('tbody tr', { hasText: waiter.name }).getByTestId('employee-rating'),
+    page.getByRole('tabpanel').locator('tbody tr', { hasText: waiter.name }).getByTestId('employee-rating'),
   ).toContainText('4 ★, 1 оценка');
   // «Финансы»: возврат гостю своей вкладкой, в «Расходах» его нет (§56, как ADR-176)
   await page.goto('/restaurant-finance');
@@ -286,12 +286,12 @@ test('кухня: колонки KDS и переходы кнопками', asyn
   });
   await page.goto('/kitchen');
   const newCol = page.getByRole('region', { name: 'Новые' });
-  // карточка по макету (экран 6): номер и время в шапке, стол, позиция и количество справа
-  await expect(newCol.getByRole('listitem')).toHaveText('Паста Карбонара×1');
+  // карточка по макету (экран 6): номер и время в шапке, стол, позиция и количество справа; кнопка у позиции (§33.6)
+  await expect(newCol.getByTestId('kds-line')).toContainText('Паста Карбонара×1');
   await expect(newCol).toContainText('Стол 7');
-  await newCol.getByRole('button', { name: 'Принять' }).click();
+  await newCol.getByRole('button', { name: 'Принять: Паста Карбонара' }).click();
   const cooking = page.getByRole('region', { name: 'Готовятся' });
-  await expect(cooking.getByRole('listitem')).toHaveText('Паста Карбонара×1');
+  await expect(cooking.getByTestId('kds-line')).toContainText('Паста Карбонара×1');
   await cooking.getByRole('button', { name: 'Готово' }).click();
   const ready = page.getByRole('region', { name: 'Готово' });
   await ready.getByRole('button', { name: 'Отметить как выдано' }).click();
@@ -369,11 +369,9 @@ test('бронирования: шкала по столам, бронь пол�
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Новая бронь' })).toBeVisible();
   await expect(dialog.locator('select[name="tableId"]')).toHaveValue(table.id);
-  // полоса шагов макета (экран 4): «Основное» заполнено датой, временем и периодом, «Стол» выбран кликом
-  const steps = dialog.getByRole('list', { name: 'Шаги брони' });
-  await expect(steps.getByRole('listitem').nth(0)).toHaveAttribute('data-done', 'true');
-  await expect(steps.getByRole('listitem').nth(2)).toHaveAttribute('data-done', 'true');
-  await expect(steps.getByRole('listitem').nth(1)).toHaveAttribute('aria-current', 'step');
+  // окно брони вариант B (решение 23.10.2026): слева гость и время, справа столы по залам, внизу суть брони
+  await expect(dialog.getByRole('region', { name: 'Доступные столы' })).toBeVisible();
+  await expect(dialog.getByTestId('food-booking-digest')).toContainText('Стол 7');
   // подбор столов по макету (экран 4): на 19:00 стол 7 занят бронью Ольги, свободных нет
   await dialog.getByLabel('Время', { exact: true }).fill('19:00');
   await expect(dialog.getByRole('heading', { name: 'Доступные столы (0)' })).toBeVisible();
@@ -426,24 +424,75 @@ test('план зала: заказ занимает стол, уборка вк
   expect(axe.violations).toEqual([]);
 });
 
-test('сотрудники: список с продажами, добавление и правка', async ({ page, request }) => {
+test('сотрудники: «Принёс» за период, добавление и правка', async ({ page, request }) => {
   const { headers, table, pasta, waiter } = await seed(page, request);
-  await post(request, headers, '/food-service/orders', {
+  // «Принёс» = оплачено минус возвраты (решение владельца 20.10.2026): заказ официанта оплачен, второй без официанта
+  const paid = await post(request, headers, '/food-service/orders', {
     tableId: table.id,
     waiterId: waiter.id,
     guestCount: 2,
     items: [{ menuItemId: pasta.id, qty: 1 }],
   });
+  expect((await serveAndPay(request, headers, paid)).status).toBe('CLOSED');
+  await post(request, headers, '/food-service/orders', {
+    tableId: table.id,
+    waiterId: waiter.id,
+    guestCount: 1,
+    items: [{ menuItemId: pasta.id, qty: 1 }],
+  });
   await page.goto('/employees');
-  const row = page.locator('tbody tr', { hasText: 'Иванова Анна' });
-  await expect(row).toContainText('390 ₸');
+  // единый экран (вариант A, 20.10.2026): открыта вкладка «Все», таблица одна на вкладку
+  const row = page.getByRole('tabpanel').locator('tbody tr', { hasText: 'Иванова Анна' });
+  await expect(page.getByRole('tabpanel').locator('thead')).toContainText('Принёс сегодня');
+  await expect(row.getByTestId('employee-earned')).toHaveText('390 ₸');
+  const periods = page.getByRole('navigation', { name: 'Период для «Принёс»' });
+  await periods.getByRole('link', { name: 'Месяц' }).click();
+  await expect(page).toHaveURL(/\/employees\?period=month$/, { timeout: 90_000 });
+  await expect(page.getByRole('tabpanel').locator('thead')).toContainText('Принёс за месяц');
+  await expect(row.getByTestId('employee-earned')).toHaveText('390 ₸');
+  await expect(periods.getByRole('link', { name: 'Месяц' })).toHaveAttribute('aria-current', 'page');
   await expect(row).toContainText('Не на смене');
+  // назначение (решение владельца 20.10.2026): официант из seed без назначения стоит во вкладке «Не назначено»
+  const tabs = page.getByRole('tablist', { name: 'Назначение в персонале' });
+  await expect(tabs.getByRole('tab', { name: /^Все/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(tabs.getByRole('tab', { name: /^Не назначено/ })).toHaveText('Не назначено1');
   await page.getByRole('button', { name: '+ Добавить сотрудника' }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя и фамилия').fill('Петров Максим');
+  await expect(dialog.getByLabel('Кто это')).toHaveValue('OTHER_EMPLOYEE');
+  // «Доступ в WETOP» (решение владельца 20.10.2026): другой сотрудник по умолчанию без входа, официант в кабинет
+  const access = dialog.getByTestId('staff-access');
+  await expect(access.getByRole('radio', { name: /^Без входа/ })).toBeChecked();
+  await dialog.getByLabel('Кто это').selectOption('SPECIALIST');
+  // без почты войти нельзя: «Без входа», с почтой у официанта по умолчанию «Личный кабинет»
+  await expect(access.getByRole('radio', { name: /^Без входа/ })).toBeChecked();
+  await dialog.getByLabel('Почта').fill('max@example.invalid');
+  await expect(access.getByRole('radio', { name: /^Личный кабинет/ })).toBeChecked();
+  await expect(access.getByTestId('staff-access-details')).toContainText('Свои заказы');
+  await page.screenshot({ path: 'reports/personnel-kind-2026-10-20/staff-access-food-1440.png', fullPage: true });
+  await dialog.getByLabel('Кто это').selectOption('OTHER_EMPLOYEE');
+  await dialog.getByLabel('Почта').fill('');
+  await access.getByRole('radio', { name: /^Без входа/ }).check();
   await dialog.getByRole('button', { name: 'Сохранить' }).click();
   await expect(dialog).not.toBeVisible();
-  await expect(page.locator('tbody tr', { hasText: 'Петров Максим' })).toBeVisible();
+  await tabs.getByRole('tab', { name: /^Другие сотрудники/ }).click();
+  await expect(page.getByRole('tabpanel').locator('tbody tr', { hasText: 'Петров Максим' })).toBeVisible();
+  // руководитель назначает старую запись: вкладка «Не назначено» пропадает, официант среди специалистов
+  await tabs.getByRole('tab', { name: /^Не назначено/ }).click();
+  await page.getByRole('tabpanel').getByLabel('Назначение: Иванова Анна').selectOption('SPECIALIST');
+  await expect(tabs.getByRole('tab')).toHaveText(['Все2', 'Специалисты1', 'Другие сотрудники1']);
+  await expect(page.getByRole('tabpanel').getByLabel('Назначение: Иванова Анна')).toHaveValue('SPECIALIST');
+  await page.screenshot({ path: 'reports/personnel-kind-2026-10-20/food-employees-1440.png', fullPage: true });
+  // строка в одну линию (замечание владельца 20.10.2026 «кривые переносы»): имя, телефон и действия без переносов
+  const line = page.getByRole('tabpanel').locator('tbody tr', { hasText: 'Иванова Анна' });
+  for (const cell of await line.locator('td').all()) {
+    const box = await cell.boundingBox();
+    expect(box!.height, await cell.innerText()).toBeLessThan(60);
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: 'reports/personnel-kind-2026-10-20/food-employees-390.png', fullPage: true });
+  await page.setViewportSize({ width: 1440, height: 1000 });
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);
 });
@@ -459,7 +508,9 @@ test('зарплата: оклад + процент, премия и штраф,
   expect((await serveAndPay(request, headers, order)).status).toBe('CLOSED');
   await page.goto('/payroll');
   const row = page.locator('tbody tr', { hasText: 'Иванова Анна' });
-  await row.getByRole('button', { name: 'Оплата' }).click();
+  // одна главная кнопка в строке, остальное в меню «Ещё» (аудит 21.10.2026, п. 42)
+  await row.getByRole('button', { name: 'Ещё: Иванова Анна' }).click();
+  await page.getByRole('menuitem', { name: 'Условия оплаты' }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Модель оплаты').selectOption('FIXED_PLUS_PERCENT');
   await dialog.getByLabel('Оклад за месяц, ₸').fill('40000');
@@ -468,16 +519,18 @@ test('зарплата: оклад + процент, премия и штраф,
   await expect(dialog).not.toBeVisible();
   // продажи 3 900, 5 % = 195; оклад 40 000 → к выплате 40 195
   await expect(row).toContainText('40 195 ₸');
-  await row.getByRole('button', { name: 'Начислить' }).click();
+  await row.getByRole('button', { name: 'Ещё: Иванова Анна' }).click();
+  await page.getByRole('menuitem', { name: 'Премия или удержание' }).click();
   await dialog.getByLabel('Сумма, ₸').fill('5000');
   await dialog.getByLabel('Причина').fill('Отличная смена');
   await dialog.getByRole('button', { name: 'Начислить' }).click();
   await expect(dialog).not.toBeVisible();
   await expect(page.getByTestId('payroll-bonus')).toContainText('5 000 ₸');
   await expect(page.getByTestId('payroll-total')).toContainText('45 195 ₸');
-  // штраф
-  await row.getByRole('button', { name: 'Начислить' }).click();
-  await dialog.getByRole('button', { name: 'Штраф' }).click();
+  // удержание (одни подписи зарплаты у всех направлений, 23.10.2026)
+  await row.getByRole('button', { name: 'Ещё: Иванова Анна' }).click();
+  await page.getByRole('menuitem', { name: 'Премия или удержание' }).click();
+  await dialog.getByRole('button', { name: 'Удержание' }).click();
   await dialog.getByLabel('Сумма, ₸').fill('2000');
   await dialog.getByLabel('Причина').fill('Опоздание');
   await dialog.getByRole('button', { name: 'Начислить' }).click();
@@ -563,6 +616,10 @@ test('отчёт за период: выручка, средний чек, оп�
   ]);
   await page.goto('/management/analytics');
   await expect(page.getByTestId('food-period-days')).toBeVisible();
+  await expect(page.getByTestId('food-period-categories')).toContainText('Паста');
+  // «Все отчёты» ресторана (аудит вертикалей 22.10.2026 п.5): /reports ведёт сюда же, период сохраняется
+  await page.goto(`/reports?from=${yesterday}&to=${day}`);
+  await expect(page).toHaveURL(new RegExp(`/management/analytics\\?from=${yesterday}&to=${day}$`));
   await expect(page.getByTestId('food-period-categories')).toContainText('Паста');
   const bad = await request.get(`${api}/food-service/period-report?from=${day}&to=2000-01-01`, { headers });
   expect(bad.status()).toBe(400);
@@ -826,7 +883,7 @@ test('зарплата салона (§19.2): та же доска, процен
   await scope(page, f.beauty, f.locations[3]!);
   await page.goto('/today');
   await page.goto('/payroll');
-  await expect(page.getByRole('main').getByRole('cell', { name: 'Мастер Дина' })).toBeVisible();
+  await expect(page.getByRole('main').getByRole('cell', { name: 'Мастер Дина', exact: true })).toBeVisible();
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Зарплата', level: 1 })).toBeVisible();
   await expect(main).toContainText('процент от выполненных записей');
@@ -945,6 +1002,13 @@ test('клиенты: вкладки, «Постоянный гость» от �
   expect(second.ok()).toBe(true);
   await page.goto('/customers');
   await expect(page.getByRole('tab', { name: /Все/ })).toBeVisible();
+  // панель как у салона (аудит 22.10.2026 P1-5): поиск и «Добавить клиента» (гость создаётся вместе с бронью)
+  const bar = page.getByTestId('food-customers-bar');
+  await expect(bar.getByRole('searchbox', { name: 'Поиск по имени или телефону' })).toBeVisible();
+  await expect(bar.getByRole('link', { name: 'Добавить клиента', exact: true })).toHaveAttribute(
+    'href',
+    '/table-reservations?new=1',
+  );
   // скрытые панели вкладок остаются в DOM: ищем строку только в видимой панели
   const row = page.getByRole('tabpanel').locator('tbody tr', { hasText: 'Сергей Иванов' });
   await expect(row).toContainText('Постоянный гость');
@@ -973,6 +1037,33 @@ test('клиенты: вкладки, «Постоянный гость» от �
   await expect(page.getByRole('tabpanel')).toContainText('Сергей Иванов');
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);
+  // поиск в шапке (аудит 22.10.2026 P1-4): ищет гостей ресторана по имени и телефону, а не только разделы
+  await page.getByRole('button', { name: 'Найти клиента или раздел', exact: true }).click();
+  const search = page.getByRole('dialog', { name: 'Быстрый поиск' });
+  await search.getByRole('textbox', { name: 'Запрос' }).fill('8 700 123');
+  const hit = search.getByRole('link', { name: /Сергей Иванов/ });
+  await expect(hit).toBeVisible();
+  await hit.click();
+  // карточка гостя ресторана (решение владельца 23.10.2026 п. 4): поиск ведёт прямо на неё
+  await expect(page).toHaveURL(`/customers/${r1.customerId}`);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Сергей Иванов');
+  await expect(page.getByRole('main')).toContainText('Постоянный гость');
+  await page.getByRole('tab', { name: /История броней/ }).click();
+  const history = page.getByRole('tabpanel', { name: /История броней/ }).getByRole('table');
+  await expect(history.locator('tbody tr')).toHaveCount(2);
+  await expect(history).toContainText('Завершено');
+  await expect(history).not.toContainText('₸');
+  expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.setViewportSize({ width: 1280, height: 720 });
+  // из списка «Клиентов» имя гостя тоже ведёт на карточку
+  await page.goto('/customers?q=8%20700%20123');
+  await expect(page.getByTestId('food-customers-query')).toContainText('Найдено');
+  await expect(page.getByRole('tabpanel').getByRole('link', { name: 'Сергей Иванов', exact: true })).toHaveAttribute(
+    'href',
+    `/customers/${r1.customerId}`,
+  );
   // метки видит смена: в бронях дня и строкой на «Главной» (вторая бронь клиента сегодня активна)
   await page.goto(`/table-reservations?date=${localDay}&view=list`);
   await expect(page.getByTestId('guest-marks').first()).toContainText('VIP');
@@ -1000,8 +1091,8 @@ test('навигация ресторана: пункты макета на ме
 
 test('бар, финансы и настройки ресторана по макету (экраны 7, 12, 13)', async ({ page, request }) => {
   const { headers, table, pasta } = await seed(page, request);
-  // бар: категория «Напитки» и напиток; плитка открывает заказ с этим напитком
-  const drinks = await post(request, headers, '/food-service/menu/categories', { name: 'Напитки' });
+  // бар: категория «Напитки» станции «Бар» (§33.6) и напиток; плитка открывает заказ с этим напитком
+  const drinks = await post(request, headers, '/food-service/menu/categories', { name: 'Напитки', station: 'BAR' });
   const mojito = await post(request, headers, '/food-service/menu/items', {
     categoryId: drinks.id,
     name: 'Мохито',
@@ -1016,7 +1107,7 @@ test('бар, финансы и настройки ресторана по ма�
     ],
   });
   await page.goto('/drinks');
-  const current = page.getByRole('region', { name: /Текущие заказы/ });
+  const current = page.getByRole('region', { name: 'Заказы бара' });
   await expect(current).toContainText(`№${order.number}`);
   await expect(current).toContainText('Мохито×2');
   await expect(current).not.toContainText('Паста');

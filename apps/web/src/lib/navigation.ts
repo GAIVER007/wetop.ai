@@ -1,4 +1,5 @@
 import type { WebVertical } from './vertical-landing';
+import { verticalCopy, type MenuWords } from './vertical-copy';
 import { featureVerticals } from './features';
 import {
   ORGANIZATION_LEVEL_PERMISSIONS,
@@ -68,18 +69,25 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
   {
     label: 'Рабочее место',
     items: [
-      { href: '/my-work', label: 'Моя работа', icon: 'person', requires: 'desk', description: 'Личный профиль, собственный график и оплата труда.' },
+      // «Личный кабинет» (роль EMPLOYEE, 20.10.2026) открывает только своё: пункт по праву `self`
+      { href: '/my-work', label: 'Моя работа', icon: 'person', requires: 'self', description: 'Личный профиль, собственный график и оплата труда.' },
       { href: '/floor-plan', label: 'План зала', icon: 'board', requires: 'desk', description: 'Столы зала сейчас: свободны, забронированы, заняты, ждут уборки.' },
       { href: '/table-reservations', label: 'Бронирования', icon: 'booking', requires: 'desk', description: 'Брони столов на день: время, гости, стол и статус.' },
       { href: '/dining-areas', label: 'Залы и столы', icon: 'settings', requires: 'desk', description: 'Залы, столы и их вместимость.' },
       // Ресторан по ТЗ владельца 09.10.2026 (ADR-159)
       { href: '/orders', label: 'Заказы', icon: 'receipt', requires: 'desk', description: 'Заказы ресторана' },
+      // официант с телефона (§33.6, 22.10.2026): право «Приём заказов» есть и у «Личного кабинета»
+      { href: '/waiter', label: 'Принять заказ', icon: 'receipt', requires: 'orders', description: 'Стол, меню и отправка заказа на кухню и в бар с телефона.' },
       { href: '/kitchen', label: 'Кухня', icon: 'kitchen', requires: 'desk', description: 'Экран кухни (KDS)' },
       { href: '/menu', label: 'Меню', icon: 'kettle', requires: 'desk', description: 'Меню и техкарты' },
       // Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS)
       { href: '/stock', label: 'Склад', icon: 'stock', requires: 'desk', description: 'Склад кухни: ингредиенты и остатки' },
       { href: '/payroll', label: 'Зарплата', icon: 'money', requires: 'staff', description: 'Зарплата и финансы' },
       { href: '/cashbox', label: 'Касса', icon: 'money', requires: 'desk', description: 'Касса филиала' },
+      // способы оплаты филиала (DATA_MODEL §21.7, 23.10.2026): ссылка из хаба «Настройки», в верхнем меню пункта нет
+      { href: '/branch-payment-methods', label: 'Способы оплаты', icon: 'money', requires: 'desk', description: 'Какие способы оплаты принимает филиал и в каком порядке.' },
+      // подарочные сертификаты салона (решение 21.10.2026 §3): продажа и остатки
+      { href: '/finance/certificates', label: 'Сертификаты', icon: 'receipt', requires: 'desk', description: 'Подарочные сертификаты: продажа, остаток и срок.' },
       // макет ресторана из 14 экранов (12.10.2026): бар, финансы и настройки ресторана своими экранами
       { href: '/drinks', label: 'Напитки', icon: 'breakfast', requires: 'desk', description: 'Напитки: заказы бара и витрина' },
       { href: '/restaurant-finance', label: 'Финансы', icon: 'money', requires: 'reports', description: 'Выручка, расходы и поступления ресторана' },
@@ -121,6 +129,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         icon: 'clock',
         requires: 'desk',
         description: 'Смены сотрудников на неделю.',
+      },
+      {
+        // гостиница: «График работы» горничных и ресепшена (кабинет горничной, решение 22.10.2026)
+        href: '/staff-schedule',
+        label: 'График работы',
+        icon: 'clock',
+        requires: 'desk',
+        description: 'Смены горничных и ресепшена на неделю.',
       },
       {
         href: '/services',
@@ -265,6 +281,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Доходы, поступления, расходы, прибыль, операции, касса и отчёты.',
       },
       {
+        href: '/warehouse',
+        requires: 'reports',
+        label: 'Обзор склада',
+        icon: 'stock',
+        description: 'Остатки товаров и расходников рядом и что заканчивается.',
+      },
+      {
         href: '/bar',
         requires: 'reports',
         label: 'Бар',
@@ -276,7 +299,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         requires: 'reports',
         label: 'Расходники',
         icon: 'stock',
-        description: 'Материалы услуг, приходы, списания и остатки салона.',
+        description: 'Продукты и материалы: приходы, списания и остатки.',
       },
       // подстраницы бара пунктами раздела «Склад» (верхнее меню 17.10.2026); право то же, что у `/bar`
       {
@@ -431,6 +454,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Посты, фото и план публикаций.',
       },
       {
+        // Голосовой агент (ИИ-колл-центр, решение владельца 22.10.2026): все направления, видимость задаёт features.ts
+        href: '/marketing/voice',
+        requires: 'marketing',
+        label: 'Голосовой агент',
+        icon: 'chat',
+        description: 'ИИ принимает звонки: отвечает по услугам и ценам, собирает просьбы перезвонить.',
+      },
+      {
         // Фишка №1 (ADR-142): загрузка ближайших отелей рядом со своей; с ADR-184 в «Продвижении»
         href: '/market',
         requires: 'reports',
@@ -452,6 +483,15 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
   {
     label: 'Система',
     items: [
+      {
+        // хаб «Настройки» (поручение владельца 21.10.2026): все настройки направления карточками, одна таблица
+        // `settings-hub.ts`; ссылки хаба наследуют право своих страниц, сам хаб видит любой работник стойки
+        href: '/settings',
+        requires: 'desk',
+        label: 'Все настройки',
+        icon: 'settings',
+        description: 'Все настройки бизнеса на одной странице: основные, журнал, клиенты и система.',
+      },
       {
         href: '/hotel-settings',
         requires: 'settings',
@@ -564,12 +604,18 @@ function menuItem(href: string, label?: string): NavigationItem {
  * это прямая ссылка, остальные открывают список у всех направлений. Адреса и права страниц прежние: их держит реестр выше.
  */
 type Screens = Partial<Record<WebVertical, string>>;
+/** слово пункта из `vertical-copy.ts`: «Объект» / «Салон» / «Ресторан» и т. п. */
+type Word = { word: keyof MenuWords };
+function wordOf(label: string | Word, vertical: WebVertical): string {
+  return typeof label === 'string' ? label : verticalCopy(vertical).menu[label.word];
+}
 const ALL = (href: string): Screens => ({ HOSPITALITY: href, BEAUTY: href, FOOD_SERVICE: href });
 const ROW: Array<{
   id: string;
   label: string;
   icon: IconName;
-  items: Array<{ label: string; at: Screens }>;
+  /** подпись пункта: общая строка или слово направления (`vertical-copy.ts`, аудит 22.10.2026) */
+  items: Array<{ label: string | Word; at: Screens }>;
   match?: string[];
 }> = [
   { id: 'today', label: 'Главная', icon: 'today', items: [{ label: 'Главная', at: ALL('/today') }] },
@@ -586,10 +632,10 @@ const ROW: Array<{
     label: 'Персонал',
     icon: 'person',
     items: [
-      { label: 'Специалисты', at: { BEAUTY: '/employees', FOOD_SERVICE: '/employees' } },
-      { label: 'Сотрудники', at: ALL('/team') },
-      { label: 'График работы', at: { BEAUTY: '/beauty/schedule', FOOD_SERVICE: '/employees/shifts' } },
-      { label: 'Зарплата', at: { BEAUTY: '/payroll', FOOD_SERVICE: '/payroll' } },
+      { label: { word: 'specialists' }, at: { BEAUTY: '/employees', FOOD_SERVICE: '/employees' } },
+      { label: { word: 'team' }, at: ALL('/team') },
+      { label: 'График работы', at: { HOSPITALITY: '/staff-schedule', BEAUTY: '/beauty/schedule', FOOD_SERVICE: '/employees/shifts' } },
+      { label: 'Зарплата', at: ALL('/payroll') },
     ],
     match: ['/staff', '/beauty/masters'],
   },
@@ -600,7 +646,7 @@ const ROW: Array<{
     items: [
       { label: 'Клиенты', at: { HOSPITALITY: '/guests', BEAUTY: '/customers', FOOD_SERVICE: '/customers' } },
       {
-        label: 'Записи',
+        label: { word: 'bookings' },
         at: { HOSPITALITY: '/reservations', BEAUTY: '/appointments', FOOD_SERVICE: '/table-reservations' },
       },
     ],
@@ -610,8 +656,9 @@ const ROW: Array<{
     label: 'Услуги',
     icon: 'layers',
     items: [
-      { label: 'Каталог', at: { HOSPITALITY: '/inventory', BEAUTY: '/services', FOOD_SERVICE: '/menu' } },
+      { label: { word: 'catalog' }, at: { HOSPITALITY: '/inventory', BEAUTY: '/services', FOOD_SERVICE: '/menu' } },
       { label: 'Заказы', at: { FOOD_SERVICE: '/orders' } },
+      { label: 'Принять заказ', at: { FOOD_SERVICE: '/waiter' } },
       { label: 'Кухня', at: { FOOD_SERVICE: '/kitchen' } },
       { label: 'Напитки', at: { FOOD_SERVICE: '/drinks' } },
       { label: 'Залы и столы', at: { FOOD_SERVICE: '/dining-areas' } },
@@ -635,9 +682,12 @@ const ROW: Array<{
     icon: 'stock',
     items: [
       // пункты в порядке вкладок экрана склада (решение владельца 19.10.2026): одно название в меню и на вкладке
+      { label: 'Обзор склада', at: ALL('/warehouse') },
+      { label: { word: 'goods' }, at: ALL('/bar') },
+      // у ресторана «Кухня» уже раздел «Услуги»: склад кухни называется целиком
       { label: 'Склад кухни', at: { FOOD_SERVICE: '/stock' } },
-      { label: 'Обзор склада', at: ALL('/bar') },
-      { label: 'Расходники', at: { BEAUTY: '/bar/consumables' } },
+      // гостиница зовёт склад материалов как салон (аудит 22.10.2026): «Кухня» путалась с кухней ресторана
+      { label: 'Расходники', at: { HOSPITALITY: '/bar/consumables', BEAUTY: '/bar/consumables' } },
       { label: 'Приходы', at: ALL('/bar/receipts') },
       { label: 'Номенклатура', at: ALL('/bar/products') },
       { label: 'Поставщики', at: ALL('/bar/suppliers') },
@@ -651,9 +701,12 @@ const ROW: Array<{
     items: [
       // пункты называются по экранам (решение владельца 19.10.2026): касса филиала (§35.2, §48) у салона и
       // ресторана; «Финансы» каждого направления; у гостиницы касса внутри её «Финансов»
-      { label: 'Касса', at: { BEAUTY: '/cashbox', FOOD_SERVICE: '/cashbox' } },
+      // порядок у всех одинаков (20.10.2026): обзор первым, рабочий экран кассы, отчёты последними
       { label: 'Обзор финансов', at: { HOSPITALITY: '/finance', BEAUTY: '/finance', FOOD_SERVICE: '/restaurant-finance' } },
-      { label: 'Отчеты', at: { HOSPITALITY: '/reports/finance' } },
+      { label: 'Касса', at: { BEAUTY: '/cashbox', FOOD_SERVICE: '/cashbox' } },
+      // подарочные сертификаты салона (решение 21.10.2026 §3)
+      { label: 'Сертификаты', at: { BEAUTY: '/finance/certificates' } },
+      { label: 'Отчёты', at: { HOSPITALITY: '/reports/finance' } },
     ],
   },
   {
@@ -661,16 +714,18 @@ const ROW: Array<{
     label: 'Настройки',
     icon: 'settings',
     items: [
-      { label: 'Объект', at: { HOSPITALITY: '/hotel-settings', BEAUTY: '/beauty-settings', FOOD_SERVICE: '/restaurant-settings' } },
+      { label: { word: 'place' }, at: { HOSPITALITY: '/hotel-settings', BEAUTY: '/beauty-settings', FOOD_SERVICE: '/restaurant-settings' } },
       { label: 'Каналы продаж', at: { HOSPITALITY: '/channels' } },
       { label: 'Подключения', at: { HOSPITALITY: '/connections' } },
       // право `desk`: администратор видит неисправности (ADR-107)
       { label: 'Неисправности', at: { HOSPITALITY: '/incidents' } },
       { label: 'История действий', at: ALL('/journal') },
+      // хаб со всеми настройками направления карточками (21.10.2026): последним рабочим пунктом, порядок прочих прежний
+      { label: 'Все настройки', at: ALL('/settings') },
       // «Организации» только главному администратору (отметка `platform`)
       { label: 'Организации', at: ALL('/platform') },
     ],
-    match: ['/branches', '/beauty-settings', '/hotel-settings', '/connections', '/channel-manager', '/platform'],
+    match: ['/settings', '/branches', '/beauty-settings', '/hotel-settings', '/branch-payment-methods', '/connections', '/channel-manager', '/platform'],
   },
   {
     // «Продвижение» (ADR-184): бывшие «Маркетинг» и «Продажи»
@@ -679,8 +734,10 @@ const ROW: Array<{
     icon: 'send',
     items: [
       { label: 'Обзор', at: ALL('/marketing') },
-      { label: 'ИИ-таргетолог', at: ALL('/marketing/ads') },
+      { label: 'Реклама', at: ALL('/marketing/ads') },
       { label: 'Контент', at: ALL('/marketing/content') },
+      // голосовой агент (ИИ-колл-центр): все направления (решение владельца 22.10.2026)
+      { label: 'Голосовой агент', at: ALL('/marketing/voice') },
       { label: 'ИИ-продавец', at: ALL('/ai-agents') },
       // мониторинг загрузки соседей пока только у гостиницы (ADR-142)
       { label: 'Анализ конкурентов', at: { HOSPITALITY: '/market' } },
@@ -696,7 +753,9 @@ const ROW: Array<{
 /** Меню направления из общей таблицы: свои экраны, те же подписи и тот же вид раздела */
 function rowFor(vertical: WebVertical): MenuSection[] {
   return ROW.flatMap(({ items, ...section }) => {
-    const own = items.flatMap((item) => (item.at[vertical] ? [{ href: item.at[vertical]!, label: item.label }] : []));
+    const own = items.flatMap((item) =>
+      item.at[vertical] ? [{ href: item.at[vertical]!, label: wordOf(item.label, vertical) }] : [],
+    );
     // вид раздела общий у всех направлений: Главная, Журнал и Помощь прямые ссылки, остальные открывают список
     if (items.length === 1 && own.length)
       return [{ ...section, direct: true, items: [menuItem(own[0]!.href, section.label)] }];
@@ -736,20 +795,46 @@ export function phoneNavigationFor(vertical: WebVertical = 'HOSPITALITY'): Navig
  * всех направлений, путь и ссылка берутся из меню направления. Нет экрана или права, нет шага; новое направление
  * получает справку вместе с меню.
  */
-const HELP_STEPS: Array<{ section: string; item: string; text: string }> = [
-  { section: 'services', item: 'Каталог', text: 'заполните то, что продаёте: названия, длительность или вместимость и цены.' },
-  { section: 'staff', item: 'Специалисты', text: 'добавьте тех, кто оказывает услуги, назначьте им услуги и рабочие часы.' },
-  { section: 'journal', item: 'Журнал', text: 'создайте первую запись или бронь.' },
-  { section: 'settings', item: 'Объект', text: 'проверьте данные объекта, часы работы и подключения.' },
+type HelpWords = { catalog: string; first: string; settings: string };
+/** Слова шагов по направлению (аудит живого сайта 21.10.2026 п. 12): без «длительность или вместимость», «запись или бронь» */
+const HELP_WORDS: Record<WebVertical, HelpWords> = {
+  HOSPITALITY: {
+    catalog: 'заполните номера: названия, вместимость и цены.',
+    first: 'создайте первую бронь.',
+    settings: 'проверьте данные гостиницы, часы заезда и выезда и подключения.',
+  },
+  BEAUTY: {
+    catalog: 'заполните услуги: названия, длительность и цены.',
+    first: 'создайте первую запись.',
+    settings: 'проверьте режим работы салона, его данные и доступ сотрудников.',
+  },
+  FOOD_SERVICE: {
+    catalog: 'заполните меню: блюда и цены.',
+    first: 'создайте первую бронь стола.',
+    settings: 'проверьте данные ресторана и часы работы.',
+  },
+};
+const HELP_STEPS: Array<{ section: string; item: string | Word; text: (w: HelpWords) => string }> = [
+  { section: 'services', item: { word: 'catalog' }, text: (w) => w.catalog },
+  { section: 'staff', item: { word: 'specialists' }, text: () => 'добавьте тех, кто оказывает услуги, назначьте им услуги и рабочие часы.' },
+  { section: 'journal', item: 'Журнал', text: (w) => w.first },
+  { section: 'settings', item: { word: 'place' }, text: (w) => w.settings },
 ];
 
-export function helpSteps(sections: MenuSection[]): Array<{ path: string; href: string; text: string }> {
+export function helpSteps(
+  sections: MenuSection[],
+  vertical: WebVertical = 'HOSPITALITY',
+  // язык стойки (KK1): пункт ищется по русскому слову меню, переводится уже найденный путь
+  t: (text: string) => string = (text) => text,
+): Array<{ path: string; href: string; text: string }> {
+  const words = HELP_WORDS[vertical] ?? HELP_WORDS.HOSPITALITY;
   return HELP_STEPS.flatMap((step) => {
     const section = sections.find((s) => s.id === step.section);
     if (!section) return [];
-    if (section.direct) return [{ path: section.label, href: section.items[0]!.href, text: step.text }];
-    const item = section.items.find((i) => i.label === step.item);
-    return item ? [{ path: `${section.label} → ${item.label}`, href: item.href, text: step.text }] : [];
+    if (section.direct) return [{ path: t(section.label), href: section.items[0]!.href, text: step.text(words) }];
+    // слово пункта своё у направления (`vertical-copy.ts`), как в меню этого направления
+    const item = section.items.find((i) => i.label === wordOf(step.item, vertical));
+    return item ? [{ path: `${t(section.label)} → ${t(item.label)}`, href: item.href, text: step.text(words) }] : [];
   });
 }
 
@@ -783,6 +868,7 @@ interface BeautyRouteAccess {
 
 const BEAUTY_ROUTES: Array<{ href: string; access: BeautyRouteAccess }> = [
   { href: '/beauty-settings', access: { section: 'settings', legacy: 'desk' } },
+  { href: '/settings', access: { section: 'settings', legacy: 'desk' } },
   { href: '/beauty/schedule', access: { section: 'journal', legacy: 'desk' } },
   { href: '/beauty/masters', access: { section: 'employees', legacy: 'desk' } },
   { href: '/beauty/services', access: { section: 'services', legacy: 'desk' } },
@@ -793,8 +879,11 @@ const BEAUTY_ROUTES: Array<{ href: string; access: BeautyRouteAccess }> = [
   { href: '/calendar', access: { section: 'journal', legacy: 'desk' } },
   { href: '/payroll', access: { section: 'payroll', legacy: 'staff' } },
   { href: '/cashbox', access: { section: 'finance', legacy: 'desk' } },
+  { href: '/branch-payment-methods', access: { section: 'finance', legacy: 'desk' } },
+  { href: '/finance/certificates', access: { section: 'finance', legacy: 'desk' } },
   { href: '/finance', access: { section: 'finance', legacy: 'reports' } },
   { href: '/journal', access: { section: 'settings', legacy: 'journal' } },
+  { href: '/warehouse', access: { section: 'stock', legacy: 'reports' } },
   { href: '/bar', access: { section: 'stock', legacy: 'reports' } },
   { href: '/beauty', access: { section: 'journal', legacy: 'desk' } },
   { href: '/today', access: { section: 'journal', legacy: 'desk' } },
@@ -811,7 +900,8 @@ function beautyRouteAccess(path: string): BeautyRouteAccess | undefined {
 function personalBeautyWork(access: NavigationAccess): boolean {
   if (access.role === 'OWNER') return true;
   const projection = access.beautyAccess;
-  if (!projection || projection.mode === 'LEGACY') return mayAccess(access, 'desk');
+  // «Личный кабинет» (EMPLOYEE): только своя работа, другие разделы закрыты правами роли
+  if (!projection || projection.mode === 'LEGACY') return mayAccess(access, 'desk') || access.role === 'EMPLOYEE';
   if (!projection.assigned) return false;
   return projection.permissions.some(
     (permission) =>
@@ -859,7 +949,9 @@ export function allowedItem(
 
 /** Право, открытое всем ролям, страницу не закрывает: проверять его незачем */
 export function openToEveryRole(requires: NavigationRequirement | undefined): boolean {
-  return !requires || (requires !== 'platform' && rolesWith(requires).length === 3);
+  // «Личный кабинет» (EMPLOYEE) в счёт не идёт: его пускают только в «Мою работу» (`employeeHome`), а ради него не
+  // заставляем каждую рабочую страницу ждать `/auth/me`
+  return !requires || (requires !== 'platform' && rolesWith(requires).filter((r) => r !== 'EMPLOYEE').length === 3);
 }
 
 /**

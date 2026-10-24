@@ -133,7 +133,7 @@ export function AppointmentEditor({
       open={open}
       onClose={() => request(onClose)}
       title={form.editing ? 'Изменить запись' : 'Новая запись'}
-      size="lg"
+      size="xl"
       className="appointment-editor"
     >
       <AppointmentForm {...form} onStateChange={changed} onDone={onDone} />

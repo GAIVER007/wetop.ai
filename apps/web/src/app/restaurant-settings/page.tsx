@@ -10,7 +10,7 @@ import { loadOpening } from './opening-actions';
 import '../food/food.css';
 import '../food/restaurant.css';
 
-const SECTIONS: SettingsSection[] = ['hours', 'bookings', 'notifications'];
+const SECTIONS: SettingsSection[] = ['hours', 'bookings'];
 
 /** «Настройки ресторана» по макету владельца (экран 13): разделы слева, часы работы по дням справа */
 export default async function RestaurantSettingsPage({

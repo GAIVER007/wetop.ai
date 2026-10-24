@@ -15,6 +15,10 @@ import {
   parseScopeAssignments,
   membershipRoleFor,
   validateAssignments,
+  ACCESS_ALL_BRANCHES_MESSAGE,
+  INVITE_EMPLOYEE_LINKED_MESSAGE,
+  INVITE_EMPLOYEE_MISSING_MESSAGE,
+  type InviteRole,
   type ScopeAssignment,
   type MembershipRole,
   checkSession,
@@ -203,6 +207,18 @@ export class AccountsService {
     // имя, телефон, должность и назначения приглашения (DATA_MODEL §31.3): ошибки формы словами, до любой записи
     const extra = parseInviteExtra(rawExtra);
     if (!extra.ok) return { ok: false, reason: 'invalid', message: extra.message };
+    // приглашение из формы «Новый сотрудник» (уровни доступа, решение владельца 20.10.2026): имя из карточки, по
+    // умолчанию только филиалы сотрудника, «Все филиалы» без назначений; после принятия аккаунт сам привяжется
+    const employeeLink = await this.inviteEmployee(who, rawExtra, role);
+    if (!employeeLink.ok) return { ok: false, reason: 'invalid', message: employeeLink.message };
+    if (employeeLink.employee) {
+      const [first, ...rest] = employeeLink.employee.name.split(' ');
+      if (!extra.firstName && !extra.lastName) {
+        extra.firstName = first || null;
+        extra.lastName = rest.join(' ') || null;
+      }
+      if (extra.scopes.length === 0) extra.scopes = employeeLink.scopes;
+    }
     let inviteRole: MembershipRole = role;
     if (extra.scopes.length > 0) {
       const structure = await this.repo.organizationStructure(who.organizationId);
@@ -238,6 +254,7 @@ export class AccountsService {
       phone: extra.phone,
       position: extra.position,
       scopes: extra.scopes,
+      ...(employeeLink.employee ? { employeeId: employeeLink.employee.id } : {}),
     });
     const link = `${this.appUrl.replace(/\/+$/, '')}/invite/${token}`;
     try {
@@ -499,7 +516,7 @@ export class AccountsService {
       userId,
       role,
       by: who.userId,
-      from: ['MANAGER', 'STAFF'],
+      from: ['MANAGER', 'STAFF', 'EMPLOYEE'],
     });
     if (write.outcome === 'missing') return { ok: false, reason: 'missing' };
     if (write.outcome === 'role') return { ok: false, reason: 'owner-target' };
@@ -521,6 +538,37 @@ export class AccountsService {
    * снятое членство (С-10). Замок входа читает заголовки, а этот контроллер — сначала куку: без этих проверок по куке
    * действовала бы сессия, которую замок не видел.
    */
+  /** Сотрудник из тела приглашения: своей организации, ещё без входа; назначения по его филиалам */
+  private async inviteEmployee(
+    who: SessionRecord,
+    raw: unknown,
+    role: InviteRole,
+  ): Promise<
+    | { ok: true; employee: null }
+    | { ok: true; employee: { id: string; name: string }; scopes: ScopeAssignment[] }
+    | { ok: false; message: string }
+  > {
+    const b = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+    if (b.employeeId === undefined || b.employeeId === null || b.employeeId === '') return { ok: true, employee: null };
+    if (typeof b.employeeId !== 'string' || !UUID_RE.test(b.employeeId))
+      return { ok: false, message: INVITE_EMPLOYEE_MISSING_MESSAGE };
+    const employee = await this.repo.employeeForInvite(who.organizationId, b.employeeId);
+    if (!employee) return { ok: false, message: INVITE_EMPLOYEE_MISSING_MESSAGE };
+    if (employee.userId) return { ok: false, message: INVITE_EMPLOYEE_LINKED_MESSAGE };
+    const allBranches = b.allBranches === true;
+    if (allBranches && who.role !== 'OWNER') {
+      // «Все филиалы» выдаёт только тот, кто сам без ограничения по филиалам
+      const me = (await this.repo.members(who.organizationId)).find((m) => m.userId === who.userId);
+      if (!me || me.scopes.length > 0) return { ok: false, message: ACCESS_ALL_BRANCHES_MESSAGE };
+    }
+    const scopes: ScopeAssignment[] = allBranches
+      ? []
+      : employee.locationIds.length > 0
+        ? employee.locationIds.map((locationId) => ({ role, businessId: employee.businessId, locationId }))
+        : [{ role, businessId: employee.businessId, locationId: null }];
+    return { ok: true, employee: { id: employee.id, name: employee.name }, scopes };
+  }
+
   private async liveSession(token: string | null): Promise<SessionRecord | null> {
     if (!token) return null;
     for (const hash of this.tokenHashes(token)) {
@@ -606,6 +654,7 @@ const knownOf = (s: OrganizationStructure) =>
   s.businesses.map((b) => ({ businessId: b.id, locationIds: b.locations.map((l) => l.id) }));
 
 const NAME_MESSAGE = 'Имя и фамилия: не длиннее 100 знаков.';
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Необязательное в приглашении: имя, фамилия, телефон, должность, назначения (DATA_MODEL §31.3) */
 function parseInviteExtra(raw: unknown):

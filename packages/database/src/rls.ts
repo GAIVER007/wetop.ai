@@ -95,6 +95,17 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'beauty_position_permissions',
   'beauty_position_assignments',
   'beauty_location_hours',
+  // Салон, миграции 140-141 (docs/decisions/2026-10-21-salon-reminders-loyalty.md): напоминания, бонусы, сертификаты
+  'client_notifications',
+  'beauty_reminder_settings',
+  'bonus_programs',
+  'voice_calls',
+  'voice_callbacks',
+  'voice_profiles',
+  'voice_booking_quotes',
+  'customer_bonus_entries',
+  'gift_certificates',
+  'gift_certificate_entries',
   // Approved portal tables: tenant policies already installed by migration128.
   'employee_public_profiles',
   'employee_media',
@@ -107,6 +118,9 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'competitors',
   'competitor_occupancy',
   'competitor_rates',
+  // §60 конкуренты салона и ресторана: политики в миграции 20261023000150_location_competitors
+  'location_competitors',
+  'location_competitor_snapshots',
   // Food Service v1, migration 55.
   'dining_areas',
   'dining_tables',
@@ -131,6 +145,14 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'restaurant_cash_operations',
   'restaurant_cash_reconciliations',
   'restaurant_order_ratings',
+  // Модификаторы блюд и оплата по позициям (DATA_MODEL §33.7, миграция 20261022000144_menu_modifiers_split)
+  'menu_modifier_groups',
+  'menu_modifiers',
+  'menu_item_modifier_groups',
+  'restaurant_order_item_modifiers',
+  'restaurant_payment_items',
+  // Способы оплаты филиала (DATA_MODEL §21.7, миграция 20261023000151_branch_payment_method_settings)
+  'branch_payment_method_settings',
   // Правила брони столов и закрытые дни (DATA_MODEL §43, миграция 20261013000101_food_booking_rules)
   'food_booking_rules',
   'food_closed_days',
@@ -171,6 +193,8 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'marketing_ad_launches',
   'marketing_ad_launch_steps',
   'marketing_ad_creatives',
+  // Контент: черновики постов филиала (миграция …146): RLS, FORCE и rls_tenant в своей миграции
+  'content_drafts',
   // Existing policies from 20261004000051_bar_inventory.
   'bar_categories',
   'bar_products',
@@ -183,7 +207,7 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'bar_supplier_payments',
   'bar_suppliers',
   // STAFF-TG-20261020: привязка Telegram и коды через членство в организации, очередь уведомлений через Location →
-  // Business (миграция 20261020000139_staff_telegram_notifications, RLS с FORCE)
+  // Business (миграция 20261024000154_staff_telegram_notifications, RLS с FORCE)
   'staff_telegram_links',
   'staff_telegram_link_codes',
   'staff_notifications',

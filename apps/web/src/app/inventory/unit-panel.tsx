@@ -11,7 +11,7 @@ import { UnitActions } from '../units/[code]/unit-actions';
 import type { ChannelMark } from './channel-marks';
 import { FundEditor } from './fund-editor';
 import { PhotoGallery } from './photo-gallery';
-import { HousekeepingBadge, UnitStateBadge, floorRoomText } from './unit-state';
+import { HousekeepingBadge, UnitStateBadge, buildingText, floorRoomText } from './unit-state';
 
 /**
  * Панель места по снимку владельца 09.10: фото-блок, вкладки «Информация», «Койко-места», «Бронь / Гости»,
@@ -50,6 +50,7 @@ export function UnitPanel({
   channels,
   canEditCatalog,
   canOperate,
+  housekeepers,
 }: {
   unit: UnitCard;
   today: string;
@@ -64,11 +65,13 @@ export function UnitPanel({
   channels: ChannelMark[];
   canEditCatalog: boolean;
   canOperate: boolean;
+  /** «Кто убирает» (22.10.2026): сотрудники гостиницы для выбора */
+  housekeepers?: ReadonlyArray<{ id: string; name: string; active: boolean }> | undefined;
 }) {
   const { current, next } = unitNow(unit.stays, today);
   const block = unit.blocks.find((b) => b.dateFrom <= today && today < b.dateTo) ?? null;
   const floorRoom = floorRoomText(unit);
-  const place = [unit.buildingName && `Корпус ${unit.buildingName}`, floorRoom]
+  const place = [unit.buildingName && buildingText(unit.buildingName), floorRoom]
     .filter(Boolean)
     .join(', ');
   const info = (
@@ -80,7 +83,7 @@ export function UnitPanel({
         <Row icon="rates" label="Расположение" testId="unit-place">
           {place ? (
             <span className="inventory-place">
-              {unit.buildingName && <span>Корпус {unit.buildingName}</span>}
+              {unit.buildingName && <span>{buildingText(unit.buildingName)}</span>}
               {floorRoom && <span className="inventory-state-note">{floorRoom}</span>}
             </span>
           ) : (
@@ -98,6 +101,9 @@ export function UnitPanel({
         </Row>
         <Row icon="dirty" label="Состояние уборки" testId="unit-hk">
           <HousekeepingBadge status={unit.housekeepingStatus} />
+        </Row>
+        <Row icon="guests" label="Кто убирает" testId="unit-hk-assignee">
+          {unit.housekeepingAssignee?.name ?? 'Не назначено'}
         </Row>
         <Row icon="channels" label="Каналы продаж" testId="unit-channels">
           {channels.length ? (
@@ -150,7 +156,7 @@ export function UnitPanel({
       {canOperate && (
         <>
           <h3 className="unit-subhead">Уборка и блокировки</h3>
-          <UnitActions unit={unit} today={today} />
+          <UnitActions unit={unit} today={today} housekeepers={housekeepers} />
         </>
       )}
     </div>

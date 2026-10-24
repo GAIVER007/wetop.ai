@@ -10,12 +10,20 @@ import { deskShell } from '../../lib/desk-shell';
 import { mayBeautyAccess } from '../../lib/navigation';
 import { BeautyCustomerTools } from './customer-tools';
 import { ImportCustomers } from './import-customers';
+import { CustomerSectionTabs } from './section-tabs';
 import '../beauty/beauty.css';
 
 /** Клиенты салона по макету ТЗ (09.10.2026): сегменты, визиты и средний чек считает API по DONE */
-export default async function CustomersPage() {
+export default async function CustomersPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+} = {}) {
   const me = await requireFeature('/customers');
-  if (me.context?.vertical === 'FOOD_SERVICE') return <FoodCustomers />;
+  if (me.context?.vertical === 'FOOD_SERVICE') {
+    const q = (await searchParams)?.q;
+    return <FoodCustomers query={typeof q === 'string' ? q.slice(0, 100) : ''} />;
+  }
   try {
     const [{ items }, shell] = await Promise.all([beautyApi.customers(), deskShell()]);
     const canCreate = !shell.readOnly
@@ -29,15 +37,7 @@ export default async function CustomersPage() {
         title="Клиенты"
         subtitle="Клиенты этого бизнеса, их визиты и средний чек."
       >
-        {/* Локальная проверка CSV доступна праву customers.create; журнальный импорт ниже остаётся OWNER (SL4-M4B) */}
-        <BeautyCustomerTools
-          canEdit={canCreate}
-          scopeKey={shell.scopeKey ?? ''}
-          showCreate={false}
-          importHistory={canCreate ? (
-            <ImportCustomers businessId={me.context?.businessId ?? ''} canImport={canImport} />
-          ) : undefined}
-        />
+        <CustomerSectionTabs access={shell.access} current="customers" />
         <BeautyCustomersTable
           key={me.context?.businessId}
           items={items}
@@ -45,6 +45,17 @@ export default async function CustomersPage() {
           canCreate={canCreate}
           canEdit={canUpdate}
           scopeKey={shell.scopeKey ?? ''}
+          tools={
+            // Локальная проверка CSV доступна праву customers.create; журнальный импорт остаётся OWNER (SL4-M4B)
+            <BeautyCustomerTools
+              canEdit={canCreate}
+              scopeKey={shell.scopeKey ?? ''}
+              showCreate={false}
+              importHistory={canCreate ? (
+                <ImportCustomers businessId={me.context?.businessId ?? ''} canImport={canImport} />
+              ) : undefined}
+            />
+          }
         />
       </Page>
     );

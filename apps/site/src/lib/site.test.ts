@@ -7,7 +7,7 @@ import {
   resetLink,
   siteAuthEndpoint,
 } from './site';
-import type { SiteConfig } from '../site.config';
+import { siteConfig, type SiteConfig } from '../site.config';
 
 const config = (over: Partial<SiteConfig> = {}): SiteConfig => ({
   siteUrl: 'https://wetop.ai',
@@ -118,5 +118,11 @@ describe('окно входа: адреса стойки', () => {
     expect(appPath('https://evil.example/today', config())).toBe('https://app.wetop.ai/today');
     expect(appPath('//evil.example', config())).toBe('https://app.wetop.ai/today');
     expect(appPath(undefined, config())).toBe('https://app.wetop.ai/today');
+  });
+});
+
+describe('контактная почта сайта', () => {
+  it('рабочая почта домена, а не личная (аудит 22.10.2026, P1-10)', () => {
+    expect(siteConfig.company.email).toBe('hello@wetop.ai');
   });
 });

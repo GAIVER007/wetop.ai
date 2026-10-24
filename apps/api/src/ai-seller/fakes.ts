@@ -121,6 +121,9 @@ export class FakeSeller implements SellerPort {
   putLlmKey(orgId: string, key: string) {
     return this.call('putLlmKey', orgId, key);
   }
+  llmUsage(orgId: string) {
+    return this.call('llmUsage', orgId);
+  }
   checkLlmKey(orgId: string, key: string) {
     return this.call('checkLlmKey', orgId, key);
   }

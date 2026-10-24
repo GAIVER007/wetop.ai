@@ -1,0 +1,13 @@
+# Исключения сборки образа воркера (BuildKit читает этот файл вместо apps/ai-seller/.dockerignore).
+# Секреты лежат в voice/.env на сервере рядом с compose.yml и в образ попасть не должны: в образе их нет, ключи приходят
+# через env_file при запуске. Корневой .dockerignore исключает .env только в корне контекста, не в voice/, поэтому здесь явно.
+**/.env
+**/.env.*
+!**/env.example
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+voice/tests
+voice/*.jsonl
+voice/*.outbox
+voice/data

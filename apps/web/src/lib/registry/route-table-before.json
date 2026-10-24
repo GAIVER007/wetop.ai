@@ -1,0 +1,1221 @@
+[
+  {
+    "route": "/ai-agents",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/ai-agents",
+    "active": "/ai-agents",
+    "rule": {
+      "href": "/ai-agents",
+      "label": "ИИ-продавцы",
+      "requires": "dialogs"
+    }
+  },
+  {
+    "route": "/ai-seller",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/ai-seller",
+    "active": "/ai-agents",
+    "rule": {
+      "href": "/ai-agents",
+      "label": "ИИ-продавцы",
+      "requires": "dialogs"
+    }
+  },
+  {
+    "route": "/ai-seller/agents",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/ai-seller",
+    "active": "/ai-agents",
+    "rule": {
+      "href": "/ai-seller/agents",
+      "label": "Агенты ИИ-продавца",
+      "requires": "seller"
+    }
+  },
+  {
+    "route": "/ai-seller/connections",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/ai-seller",
+    "active": "/ai-agents",
+    "rule": {
+      "href": "/ai-seller/connections",
+      "label": "Подключения ИИ-продавца",
+      "requires": "seller"
+    }
+  },
+  {
+    "route": "/ai-seller/knowledge",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/ai-seller",
+    "active": "/ai-agents",
+    "rule": {
+      "href": "/ai-seller/knowledge",
+      "label": "Знания ИИ-продавца",
+      "requires": "seller"
+    }
+  },
+  {
+    "route": "/appointments",
+    "vertical": "BEAUTY",
+    "features": [
+      "BEAUTY"
+    ],
+    "branch": "/today",
+    "active": "/appointments",
+    "rule": {
+      "href": "/appointments",
+      "label": "Записи",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/bar",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/bar",
+    "rule": {
+      "href": "/bar",
+      "label": "Бар",
+      "requires": "reports"
+    }
+  },
+  {
+    "route": "/bar/consumables",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY"
+    ],
+    "branch": "/today",
+    "active": "/bar/consumables",
+    "rule": {
+      "href": "/bar/consumables",
+      "label": "Расходники",
+      "requires": "reports"
+    }
+  },
+  {
+    "route": "/bar/operations",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/bar/operations",
+    "rule": {
+      "href": "/bar/operations",
+      "label": "Движение товаров",
+      "requires": "reports"
+    }
+  },
+  {
+    "route": "/bar/products",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/bar/products",
+    "rule": {
+      "href": "/bar/products",
+      "label": "Номенклатура",
+      "requires": "reports"
+    }
+  },
+  {
+    "route": "/bar/receipts",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/bar/receipts",
+    "rule": {
+      "href": "/bar/receipts",
+      "label": "Приходы",
+      "requires": "reports"
+    }
+  },
+  {
+    "route": "/bar/suppliers",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/bar/suppliers",
+    "rule": {
+      "href": "/bar/suppliers",
+      "label": "Поставщики",
+      "requires": "reports"
+    }
+  },
+  {
+    "route": "/beauty",
+    "vertical": "BEAUTY",
+    "features": [
+      "BEAUTY"
+    ],
+    "branch": "/today",
+    "active": "/beauty",
+    "rule": {
+      "href": "/beauty",
+      "label": "Салон",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/beauty-settings",
+    "vertical": null,
+    "features": [
+      "BEAUTY"
+    ],
+    "branch": "/today",
+    "active": "/beauty-settings",
+    "rule": {
+      "href": "/beauty-settings",
+      "label": "Настройки салона",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/beauty/masters",
+    "vertical": "BEAUTY",
+    "features": [
+      "BEAUTY"
+    ],
+    "branch": "/today",
+    "active": "/beauty/masters",
+    "rule": {
+      "href": "/beauty/masters",
+      "label": "Мастера",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/beauty/schedule",
+    "vertical": "BEAUTY",
+    "features": [
+      "BEAUTY"
+    ],
+    "branch": "/today",
+    "active": "/beauty/schedule",
+    "rule": {
+      "href": "/beauty/schedule",
+      "label": "График работы",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/beauty/services",
+    "vertical": "BEAUTY",
+    "features": [
+      "BEAUTY"
+    ],
+    "branch": "/today",
+    "active": "/beauty/services",
+    "rule": {
+      "href": "/beauty/services",
+      "label": "Услуги салона",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/branch-payment-methods",
+    "vertical": null,
+    "features": [
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/branch-payment-methods",
+    "rule": {
+      "href": "/branch-payment-methods",
+      "label": "Способы оплаты",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/calendar",
+    "vertical": "BEAUTY",
+    "features": [
+      "BEAUTY"
+    ],
+    "branch": "/today",
+    "active": "/calendar",
+    "rule": {
+      "href": "/calendar",
+      "label": "Журнал",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/cashbox",
+    "vertical": null,
+    "features": [
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/cashbox",
+    "rule": {
+      "href": "/cashbox",
+      "label": "Касса",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/channels",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/channels",
+    "active": "/channels",
+    "rule": {
+      "href": "/channels",
+      "label": "Каналы продаж",
+      "requires": "channels"
+    }
+  },
+  {
+    "route": "/channels/connections",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/channels/connections",
+    "active": "/channels",
+    "rule": {
+      "href": "/channels/connections",
+      "label": "Подключения",
+      "requires": "channels"
+    }
+  },
+  {
+    "route": "/channels/events",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/channels/events",
+    "active": "/channels",
+    "rule": {
+      "href": "/channels/events",
+      "label": "События",
+      "requires": "channels"
+    }
+  },
+  {
+    "route": "/channels/mapping",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/channels/mapping",
+    "active": "/channels",
+    "rule": {
+      "href": "/channels/mapping",
+      "label": "Сопоставление",
+      "requires": "channels"
+    }
+  },
+  {
+    "route": "/channels/sync",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/channels/sync",
+    "active": "/channels",
+    "rule": {
+      "href": "/channels/sync",
+      "label": "Синхронизация",
+      "requires": "channels"
+    }
+  },
+  {
+    "route": "/chessboard",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/chessboard",
+    "active": "/chessboard",
+    "rule": {
+      "href": "/chessboard",
+      "label": "Календарь",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/connections",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/connections",
+    "active": "/connections",
+    "rule": {
+      "href": "/connections",
+      "label": "Подключения",
+      "requires": "settings"
+    }
+  },
+  {
+    "route": "/customers",
+    "vertical": null,
+    "features": [
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/customers",
+    "rule": {
+      "href": "/customers",
+      "label": "Клиенты",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/dining-areas",
+    "vertical": "FOOD_SERVICE",
+    "features": [
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/dining-areas",
+    "rule": {
+      "href": "/dining-areas",
+      "label": "Залы и столы",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/drinks",
+    "vertical": "FOOD_SERVICE",
+    "features": [
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/drinks",
+    "rule": {
+      "href": "/drinks",
+      "label": "Напитки",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/employees",
+    "vertical": null,
+    "features": [
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/employees",
+    "rule": {
+      "href": "/employees",
+      "label": "Специалисты",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/employees/shifts",
+    "vertical": null,
+    "features": [
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/employees/shifts",
+    "rule": {
+      "href": "/employees/shifts",
+      "label": "График работы",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/finance",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/finance",
+    "active": "/finance",
+    "rule": {
+      "href": "/finance",
+      "label": "Финансы",
+      "requires": "reports"
+    }
+  },
+  {
+    "route": "/finance/certificates",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "BEAUTY"
+    ],
+    "branch": "/today",
+    "active": "/finance/certificates",
+    "rule": {
+      "href": "/finance/certificates",
+      "label": "Сертификаты",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/floor-plan",
+    "vertical": "FOOD_SERVICE",
+    "features": [
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/floor-plan",
+    "rule": {
+      "href": "/floor-plan",
+      "label": "План зала",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/guests",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/guests",
+    "active": "/guests",
+    "rule": {
+      "href": "/guests",
+      "label": "Гости и бронирования",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/help",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/help",
+    "rule": {
+      "href": "/help",
+      "label": "Помощь",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/hotel-settings",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/hotel-settings",
+    "active": "/hotel-settings",
+    "rule": {
+      "href": "/hotel-settings",
+      "label": "Настройки объекта",
+      "requires": "settings"
+    }
+  },
+  {
+    "route": "/hotel-settings/directories",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/hotel-settings/directories",
+    "active": "/hotel-settings",
+    "rule": {
+      "href": "/hotel-settings/directories",
+      "label": "Справочники",
+      "requires": "settings"
+    }
+  },
+  {
+    "route": "/hotel-settings/services",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/hotel-settings/services",
+    "active": "/hotel-settings",
+    "rule": {
+      "href": "/hotel-settings/services",
+      "label": "Услуги",
+      "requires": "settings"
+    }
+  },
+  {
+    "route": "/hotel-settings/stay",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/hotel-settings/stay",
+    "active": "/hotel-settings",
+    "rule": {
+      "href": "/hotel-settings/stay",
+      "label": "Проживание",
+      "requires": "settings"
+    }
+  },
+  {
+    "route": "/incidents",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/incidents",
+    "active": "/incidents",
+    "rule": {
+      "href": "/incidents",
+      "label": "Неисправности",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/inventory",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/inventory",
+    "active": "/inventory",
+    "rule": {
+      "href": "/inventory",
+      "label": "Номерной фонд",
+      "requires": "property"
+    }
+  },
+  {
+    "route": "/journal",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/journal",
+    "active": "/journal",
+    "rule": {
+      "href": "/journal",
+      "label": "История действий",
+      "requires": "journal"
+    }
+  },
+  {
+    "route": "/kitchen",
+    "vertical": "FOOD_SERVICE",
+    "features": [
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/kitchen",
+    "rule": {
+      "href": "/kitchen",
+      "label": "Кухня",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/management/analytics",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/management/analytics",
+    "active": "/management/analytics",
+    "rule": {
+      "href": "/management/analytics",
+      "label": "Аналитика",
+      "requires": "reports"
+    }
+  },
+  {
+    "route": "/market",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/today",
+    "active": "/market",
+    "rule": {
+      "href": "/market",
+      "label": "Анализ конкурентов",
+      "requires": "reports"
+    }
+  },
+  {
+    "route": "/marketing",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/marketing",
+    "rule": {
+      "href": "/marketing",
+      "label": "Продвижение",
+      "requires": "marketing"
+    }
+  },
+  {
+    "route": "/marketing/ads",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/marketing/ads",
+    "rule": {
+      "href": "/marketing/ads",
+      "label": "Реклама",
+      "requires": "marketing"
+    }
+  },
+  {
+    "route": "/marketing/analytics",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/marketing/analytics",
+    "rule": {
+      "href": "/marketing/analytics",
+      "label": "Аналитика маркетинга",
+      "requires": "marketing"
+    }
+  },
+  {
+    "route": "/marketing/budget",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/marketing/budget",
+    "rule": {
+      "href": "/marketing/budget",
+      "label": "Бюджет маркетинга",
+      "requires": "marketing"
+    }
+  },
+  {
+    "route": "/marketing/content",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/marketing/content",
+    "rule": {
+      "href": "/marketing/content",
+      "label": "Контент",
+      "requires": "marketing"
+    }
+  },
+  {
+    "route": "/marketing/voice",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/marketing/voice",
+    "rule": {
+      "href": "/marketing/voice",
+      "label": "Голосовой агент",
+      "requires": "marketing"
+    }
+  },
+  {
+    "route": "/menu",
+    "vertical": "FOOD_SERVICE",
+    "features": [
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/menu",
+    "rule": {
+      "href": "/menu",
+      "label": "Меню",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/my-work",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/my-work",
+    "rule": {
+      "href": "/my-work",
+      "label": "Моя работа",
+      "requires": "self"
+    }
+  },
+  {
+    "route": "/orders",
+    "vertical": "FOOD_SERVICE",
+    "features": [
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/orders",
+    "rule": {
+      "href": "/orders",
+      "label": "Заказы",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/payroll",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/payroll",
+    "rule": {
+      "href": "/payroll",
+      "label": "Зарплата",
+      "requires": "staff"
+    }
+  },
+  {
+    "route": "/platform",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/platform",
+    "active": "/platform",
+    "rule": {
+      "href": "/platform",
+      "label": "Организации",
+      "requires": "platform"
+    }
+  },
+  {
+    "route": "/platform/support",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/platform/support",
+    "rule": {
+      "href": "/platform/support",
+      "label": "Техподдержка WETOP",
+      "requires": "platform"
+    }
+  },
+  {
+    "route": "/profile",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/profile",
+    "rule": {
+      "href": "/profile",
+      "label": "Профиль",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/reports",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/reports",
+    "rule": {
+      "href": "/reports",
+      "label": "Отчёты",
+      "requires": "reports"
+    }
+  },
+  {
+    "route": "/reports/finance",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/today",
+    "active": "/reports/finance",
+    "rule": {
+      "href": "/reports/finance",
+      "label": "Финансовый отчёт",
+      "requires": "reports"
+    }
+  },
+  {
+    "route": "/reservations",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/reservations",
+    "active": "/reservations",
+    "rule": {
+      "href": "/reservations",
+      "label": "Брони",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/restaurant-finance",
+    "vertical": "FOOD_SERVICE",
+    "features": [
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/restaurant-finance",
+    "rule": {
+      "href": "/restaurant-finance",
+      "label": "Финансы",
+      "requires": "reports"
+    }
+  },
+  {
+    "route": "/restaurant-settings",
+    "vertical": "FOOD_SERVICE",
+    "features": [
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/restaurant-settings",
+    "rule": {
+      "href": "/restaurant-settings",
+      "label": "Настройки",
+      "requires": "property"
+    }
+  },
+  {
+    "route": "/rooms",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/rooms",
+    "active": "/inventory",
+    "rule": {
+      "href": "/rooms",
+      "label": "Управление номерами",
+      "requires": "property"
+    }
+  },
+  {
+    "route": "/rooms/availability",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/rooms/availability",
+    "active": "/inventory",
+    "rule": {
+      "href": "/rooms/availability",
+      "label": "Свободные места",
+      "requires": "property"
+    }
+  },
+  {
+    "route": "/rooms/categories",
+    "vertical": "HOSPITALITY",
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/rooms/categories",
+    "active": "/inventory",
+    "rule": {
+      "href": "/rooms/categories",
+      "label": "Категории номеров",
+      "requires": "property"
+    }
+  },
+  {
+    "route": "/sales",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/sales",
+    "rule": {
+      "href": "/sales",
+      "label": "Обзор продаж",
+      "requires": "reports"
+    }
+  },
+  {
+    "route": "/services",
+    "vertical": "BEAUTY",
+    "features": [
+      "BEAUTY"
+    ],
+    "branch": "/today",
+    "active": "/services",
+    "rule": {
+      "href": "/services",
+      "label": "Услуги",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/settings",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/settings",
+    "rule": {
+      "href": "/settings",
+      "label": "Все настройки",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/staff",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/staff",
+    "rule": {
+      "href": "/staff",
+      "label": "Сотрудники",
+      "requires": "staff"
+    }
+  },
+  {
+    "route": "/staff-schedule",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/today",
+    "active": "/staff-schedule",
+    "rule": {
+      "href": "/staff-schedule",
+      "label": "График работы",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/stock",
+    "vertical": "FOOD_SERVICE",
+    "features": [
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/stock",
+    "rule": {
+      "href": "/stock",
+      "label": "Склад",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/table-reservations",
+    "vertical": "FOOD_SERVICE",
+    "features": [
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/table-reservations",
+    "rule": {
+      "href": "/table-reservations",
+      "label": "Бронирования",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/tasks",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/today",
+    "active": "/tasks",
+    "rule": {
+      "href": "/tasks",
+      "label": "Задачи",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/team",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/team",
+    "active": "/team",
+    "rule": {
+      "href": "/team",
+      "label": "Сотрудники",
+      "requires": "staff"
+    }
+  },
+  {
+    "route": "/today",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/today",
+    "rule": {
+      "href": "/today",
+      "label": "Сегодня",
+      "requires": "desk"
+    }
+  },
+  {
+    "route": "/waiter",
+    "vertical": "FOOD_SERVICE",
+    "features": [
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/waiter",
+    "rule": {
+      "href": "/waiter",
+      "label": "Принять заказ",
+      "requires": "orders"
+    }
+  },
+  {
+    "route": "/warehouse",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/warehouse",
+    "rule": {
+      "href": "/warehouse",
+      "label": "Обзор склада",
+      "requires": "reports"
+    }
+  },
+  {
+    "route": "/website",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY"
+    ],
+    "branch": "/website",
+    "active": "/marketing",
+    "rule": {
+      "href": "/website",
+      "label": "Сайт и онлайн-бронирование",
+      "requires": "marketing"
+    }
+  },
+  {
+    "route": "/whats-new",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": null,
+    "rule": {
+      "href": "/whats-new",
+      "label": "Что нового",
+      "requires": "desk"
+    }
+  }
+]

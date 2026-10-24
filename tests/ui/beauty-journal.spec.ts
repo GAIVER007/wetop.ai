@@ -46,9 +46,9 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await panel.getByLabel(/Длительность, минут/).fill('60');
   await panel.getByLabel(/Цена каталога/).fill('8000');
   await panel.getByRole('button', { name: 'Сохранить услугу', exact: true }).click();
-  await expect(panel.getByRole('status')).toHaveText(
-    'Услуга создана. Включите её в выбранном филиале ниже.',
-  );
+  // новая услуга сразу в филиале: окно закрывается, итог в уведомлении (аудит салона 22.10.2026)
+  await expect(page.getByTestId('toast-stack')).toContainText('Услуга добавлена в филиал');
+  await expect(panel).toBeHidden();
   await page.goto('/beauty/services');
   // услуги салона показаны карточками каталога, не строками таблицы
   await main
@@ -104,7 +104,8 @@ async function openDay(page: Page) {
 async function book(page: Page, time: string, name: string) {
   await page.getByRole('button', { name: `Дина, ${time}, свободно` }).click();
   const panel = page.getByRole('dialog');
-  await panel.getByLabel('Услуга').selectOption({ label: 'Маникюр, 60 мин' });
+  // exact: правая часть окна брони (23.10.2026) называется «Услуга и время»
+  await panel.getByLabel('Услуга', { exact: true }).selectOption({ label: 'Маникюр, 60 мин' });
   await panel.getByLabel('Имя клиента').fill(name);
   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
   // Клик запускает серверное действие: дальше идём только после подтверждения записи (78dac8d64, против флейка)
@@ -125,7 +126,20 @@ test('запись из пустой клетки появляется в сет
   await expect(tile).toContainText('10:00');
   await expect(tile).toContainText('Маникюр');
   await expect(main.getByTestId('beauty-grid')).toContainText('Айгуль');
+  // журнал на весь экран (решение владельца 20.10.2026): списка специалистов слева нет, сетка во всю ширину,
+  // специалист в шапке колонки с числом записей; нажатие на него оставляет только его колонку
+  await expect(main.getByRole('complementary', { name: 'Специалисты' })).toHaveCount(0);
+  const board = (await main.getByTestId('beauty-grid').boundingBox())!;
+  const content = (await main.boundingBox())!;
+  expect(board.width).toBeGreaterThan(content.width * 0.85);
+  const person = main.getByTestId('beauty-grid').locator('.beauty-col-person').first();
+  await expect(person.getByTestId('beauty-col-count')).toHaveText('1');
   await page.screenshot({ path: `${SNAPSHOTS}/journal-1440.png`, fullPage: true });
+  await person.click();
+  await expect(person).toHaveAttribute('aria-pressed', 'true');
+  await expect(main.getByTestId('beauty-grid').locator('.beauty-col-person')).toHaveCount(1);
+  await person.click();
+  await expect(person).toHaveAttribute('aria-pressed', 'false');
 });
 
 test('неделя показывает запись и открывает её карточку, телефон без прокрутки вбок', async ({
@@ -259,12 +273,16 @@ test('состояния записи идут по жизни, из выпол�
   let card = page.getByRole('dialog');
   await expect(card.getByTestId('beauty-card-status')).toHaveText('Записан');
   await card.getByRole('button', { name: 'Подтвердить', exact: true }).click();
+  // карточка закрывается после ответа сервера; переход раньше обрывал запрос (CI 22.10.2026, карточка теперь
+  // сразу читает бонусы клиента, ответ стал дольше)
+  await expect(page.getByRole('dialog')).toHaveCount(0);
 
   await openDay(page);
   await page.getByRole('main').getByRole('button').filter({ hasText: 'Сауле' }).first().click();
   card = page.getByRole('dialog');
   await expect(card.getByTestId('beauty-card-status')).toHaveText('Подтверждена');
   await card.getByRole('button', { name: 'Завершить', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
 
   await openDay(page);
   await page.getByRole('main').getByRole('button').filter({ hasText: 'Сауле' }).first().click();
@@ -305,6 +323,8 @@ test('перенос меняет время записи', async ({ page, reque
   const card = page.getByRole('dialog');
   await card.getByTestId('beauty-move-start').fill(`${DAY}T15:00`);
   await card.getByRole('button', { name: 'Перенести', exact: true }).click();
+  // переход раньше ответа сервера обрывал перенос (CI 22.10.2026): ждём закрытия карточки
+  await expect(page.getByRole('dialog')).toHaveCount(0);
 
   await openDay(page);
   await expect(
@@ -344,6 +364,32 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
+test('быстрый отчёт календаря: неделя, месяц и свой период меняют заголовок и данные', async ({
+  page,
+  request,
+}) => {
+  await openSalon(page, request);
+  await openDay(page);
+  await page.getByRole('button', { name: 'Быстрый отчёт', exact: true }).click();
+  const report = page.getByRole('dialog', { name: /Статистика за/ });
+  await report.getByRole('button', { name: 'Неделя', exact: true }).click();
+  await expect(report.getByRole('button', { name: 'Неделя', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(page.getByRole('dialog', { name: /Статистика за \d+–\d+ / })).toBeVisible();
+  await report.getByRole('button', { name: 'Прошлый месяц', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: /Статистика за \d+–\d+ / })).toBeVisible();
+  await report.getByRole('button', { name: 'Свой период', exact: true }).click();
+  await expect(report.getByLabel('С', { exact: true })).toBeVisible();
+  await report.getByLabel('С', { exact: true }).fill('2026-10-01');
+  await report.getByLabel('По', { exact: true }).fill('2026-12-31');
+  await report.getByRole('button', { name: 'Показать' }).click();
+  await expect(report.getByRole('alert')).toContainText('не длиннее 62 дней');
+  await report.getByRole('button', { name: 'День', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: /Статистика за \d+ \S+ \d{4}$/ })).toBeVisible();
+});
+
 test('быстрый отчёт календаря: пустой день, календарь месяца, темы и телефон', async ({
   page,
   request,
@@ -353,7 +399,7 @@ test('быстрый отчёт календаря: пустой день, ка�
   await openDay(page);
   const trigger = page.getByRole('button', { name: 'Быстрый отчёт', exact: true });
   await expect(trigger).toBeVisible();
-  await page.getByRole('button', { name: 'Открыть календарь', exact: true }).click();
+  await page.getByRole('button', { name: /^Открыть календарь/ }).click();
   const calendar = page.getByRole('dialog', { name: 'Календарь', exact: true });
   await expect(calendar).toBeVisible();
   await calendar.getByRole('button', { name: 'Следующий месяц' }).click();
@@ -372,6 +418,14 @@ test('быстрый отчёт календаря: пустой день, ка�
       await expect(report).toContainText('Средний чек');
       await expect(report).toContainText('Оплата наличными');
       await expect(report).toContainText('Оплата безналом');
+      await expect(report).toContainText('Сумма записей');
+      await expect(report.getByRole('button', { name: 'День', exact: true })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
+      // «Закрыть» получает фокус при открытии, до любых действий внутри отчёта
+      await expect(report.getByRole('button', { name: /Закрыть/ })).toBeFocused();
+      await report.getByText('Лояльность и WETOP', { exact: true }).click();
       await expect(report.getByRole('region', { name: 'Лояльность' })).toContainText('Нет данных');
       await expect(report.getByRole('region', { name: 'WETOP' })).toContainText('Нет данных');
       await expect(report).not.toContainText('Zapis');
@@ -388,7 +442,7 @@ test('быстрый отчёт календаря: пустой день, ка�
         path: `reports/calendar-quick-report-2026-10-17/beauty-${width}-${colorScheme}.png`,
         fullPage: false,
       });
-      await expect(report.getByRole('button', { name: /Закрыть/ })).toBeFocused();
+      await report.getByRole('button', { name: /Закрыть/ }).focus();
       await page.keyboard.press('Shift+Tab');
       await expect(report.locator('.reference-info summary').last()).toBeFocused();
       await page.keyboard.press('Enter');
@@ -463,6 +517,7 @@ test('быстрый отчёт календаря: выбранный маст�
     .first()
     .click();
   await page.getByRole('dialog').getByRole('button', { name: 'Подтвердить', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await openDay(page);
   await page
     .getByRole('main')
@@ -471,6 +526,7 @@ test('быстрый отчёт календаря: выбранный маст�
     .first()
     .click();
   await page.getByRole('dialog').getByRole('button', { name: 'Завершить', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await openDay(page);
   await page.locator('.employee-filter summary').click();
   await page.getByRole('searchbox', { name: 'Поиск специалиста' }).fill('Дин');

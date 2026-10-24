@@ -24,7 +24,7 @@ vi.mock('./forms', () => ({
 vi.mock('./media', () => ({ PortalMedia: () => null }));
 vi.mock('./management', () => ({ PortalManagement: () => null }));
 vi.mock('./locations', () => ({ EmployeeLocationsForm: () => null }));
-vi.mock('./service-prices', () => ({ EmployeeServicePrices: () => null }));
+vi.mock('./service-prices', () => ({ EmployeeServicePrices: () => null, servicePricesKey: () => '' }));
 vi.mock('../tabs', () => ({
   Tabs: ({ panels }: { panels: Array<{ label: string; content: ReactNode }> }) => createElement(
     'div',
@@ -53,6 +53,7 @@ function initial(reviews: unknown): EmployeePortalDto {
     timeOffs: [],
     appointments: [],
     orders: [],
+    workRange: 'DAY', workTruncated: false, monthStats: { month: '2026-10', status: 'AVAILABLE', currency: 'KZT', shifts: 20, daysOff: 11, absenceDays: 0, appointmentsDone: 0, servicesDone: 0, ordersClosed: null, tablesServed: null, guests: null, revenueMinor: '0', bonusMinor: '0', percent: null },
     pay: {
       month: '2026-10', status: 'NOT_CONFIGURED', model: null, fixedMinor: null,
       percent: null, percentBasis: null, policyRevision: null, earnedMinor: null,

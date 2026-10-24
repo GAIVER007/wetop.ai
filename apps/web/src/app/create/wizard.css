@@ -92,17 +92,10 @@
     gap: var(--space-2);
     font-size: var(--text-sm);
   }
-  .guest-wizard__chat textarea,
-  .guest-wizard__fields input,
-  .guest-wizard__fields textarea,
-  .guest-wizard__fields select {
+  /* Поля мастера рисует общий .inp (Input/Select/Textarea): здесь только ширина в сетке */
+  .guest-wizard__chat .inp,
+  .guest-wizard__fields .inp {
     width: 100%;
-    min-width: 0;
-    padding: var(--space-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-control);
-    background: var(--surface-muted);
-    min-height: var(--touch-target);
   }
   .guest-wizard__wide {
     grid-column: 1/-1;
@@ -201,15 +194,9 @@
     margin-top: var(--space-6);
     font-size: var(--text-sm);
   }
-  .guest-wizard__url input,
-  .guest-wizard__survey textarea {
+  .guest-wizard__url .inp,
+  .guest-wizard__survey .inp {
     width: 100%;
-    min-width: 0;
-    padding: var(--space-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-control);
-    background: var(--surface-muted);
-    min-height: var(--touch-target);
   }
   .guest-wizard__field-error {
     color: var(--danger);

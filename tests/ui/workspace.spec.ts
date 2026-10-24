@@ -33,7 +33,10 @@ async function noPageOverflow(page: Page) {
 test('все разделы, карточки и печать открываются; desktop/mobile без переполнения', async ({
   page,
 }) => {
-  test.setTimeout(180_000);
+  // ~100 переходов по всем разделам в двух ширинах: на раннерах GitHub 23.10.2026 три запуска подряд
+  // (39994754819 дважды, 39995700285) упёрлись в 180 с на разных разделах, локально 1,6–1,7 мин. Проверки те же,
+  // запас как у «доступности всех разделов» (accessibility.spec.ts, 360 с)
+  test.setTimeout(300_000);
   mkdirSync(screenshots, { recursive: true });
   const errors: string[] = [];
   // отказ measure приходит и как console.error, и как необработанное исключение страницы
@@ -261,8 +264,8 @@ test('показатели за период: готовые отрезки и �
   await expect(page.getByTestId('pa-chart-categories')).toBeVisible();
   // свой отрезок — три дня; старый адрес с периодом переносит его на «Обзор»
   await page.getByText('Период', { exact: true }).click();
-  await page.getByLabel('Период: с').fill('2026-09-01');
-  await page.getByLabel('Период: по').fill('2026-09-03');
+  await page.getByLabel('Период: с', { exact: true }).fill('2026-09-01');
+  await page.getByLabel('Период: по', { exact: true }).fill('2026-09-03');
   await page.getByTestId('pa-range-form').getByRole('button', { name: 'Применить' }).click();
   await expect(page).toHaveURL(/period=custom&from=2026-09-01&to=2026-09-03/);
   await expect(page.getByTestId('pa-period')).toContainText('3 дня');
@@ -275,7 +278,8 @@ test('показатели за период: готовые отрезки и �
   await expect(page.getByRole('main').getByTestId('pa-chart-categories')).toBeVisible();
   await page.getByRole('button', { name: 'Найти гостя или бронь' }).click();
   await page.getByLabel('Запрос', { exact: true }).fill('Тест');
-  await page.getByRole('button', { name: 'Найти', exact: true }).click();
+  // кнопки «Найти» в окне больше нет (20.10.2026): Enter открывает первый результат, поиск гостя
+  await page.getByLabel('Запрос', { exact: true }).press('Enter');
   await expect(page).toHaveURL(/\/guests\?q=/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Гости и бронирования');
   await page.setViewportSize({ width: 390, height: 844 });
@@ -336,7 +340,7 @@ test('шахматка: подсказка внутри окошка «Филь�
   await expect(help).not.toHaveAttribute('open', '');
   await help.locator('summary').click();
   await expect(help).toHaveAttribute('open', '');
-  await expect(help).toContainText('Ночь выезда ячейку не занимает');
+  await expect(help).toContainText('Ночь выезда номер не занимает');
   await page.keyboard.press('Escape');
   await expect(pop).toBeHidden();
   // «Сбросить» появляется, когда есть отбор, и до неё достаёт мышь
@@ -415,7 +419,7 @@ test('карточка: профиль гостя и заселение прох
   await page.getByTestId('check-in-ui-item').filter({ visible: true }).click();
   // Q-156 (ADR-068): R01 требует уборки — стойка предупреждает и заселяет после подтверждения
   await page
-    .getByRole('dialog', { name: 'Ячейка R01 ещё не проверена. Заселить?' })
+    .getByRole('dialog', { name: 'Номер R01 ещё не проверен. Заселить?' })
     .getByRole('button', { name: 'Заселить всё равно' })
     .click();
   // §8 «сделал — и что?»: карточка перерисовывается молча, итог называет уведомление (срез 7.4)
@@ -439,12 +443,12 @@ test('экран ошибки различает отклонённый запр
   });
   await page.goto('/inventory');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
-  await expect(page.getByRole('main')).toContainText('Сервер отклонил запрос (код 404)');
+  await expect(page.getByRole('main')).toContainText('Сервер не принял запрос');
   await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
   await page.goto('/inventory');
   await expect(page.getByRole('main')).toContainText('Проверьте подключение');
-  await expect(page.getByText('Сервер отклонил запрос')).toHaveCount(0);
+  await expect(page.getByText('Сервер не принял запрос')).toHaveCount(0);
 });
 
 test('сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь', async ({
@@ -919,8 +923,9 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await expect(page.getByTestId('channel-bookings')).toHaveText('0');
   await expect(page.getByTestId('channel-report-empty')).toContainText('Нет бронирований');
   await page.goto('/finance');
-  for (const id of ['charged', 'paid', 'refunded', 'balance'])
-    await expect(page.getByRole('main').getByTestId(id)).toHaveText('0 ₸');
+  // пустой месяц одной заглушкой вместо нулевых итогов (аудит 22.10.2026, финансы без плиток)
+  await expect(page.getByRole('main').getByTestId('finance-empty')).toContainText('За этот период денег ещё не было');
+  await expect(page.getByRole('main').getByTestId('charged')).toHaveCount(0);
   // Номерной фонд с PR #66 — `/inventory`; `/rooms` уводит туда потоком, и переход в пути обрывал следующий goto
   await page.goto('/inventory');
   for (const id of ['total-units', 'rooms', 'beds', 'on-sale', 'blocks', 'needs-cleaning'])
@@ -1469,7 +1474,7 @@ test('новая бронь: резюме выбора обновляется п
     .getAttribute('value'))!;
   await unitSelect.selectOption(unitCode);
   await expect(summary).toContainText(categoryName);
-  await expect(summary).toContainText(`ячейка ${unitCode}`);
+  await expect(summary).toContainText(`номер ${unitCode}`);
   await form.locator('.booking-create__extras > summary').click();
   await form.getByLabel('Источник *').selectOption('PHONE');
   await expect(summary).toContainText('Телефон');
@@ -1483,7 +1488,7 @@ test('новая бронь: резюме выбора обновляется п
     '',
   );
   await expect(summary).toContainText(roomName);
-  await expect(summary).not.toContainText(`ячейка ${unitCode}`);
+  await expect(summary).not.toContainText(`номер ${unitCode}`);
   // окно 700 px: форма длиннее экрана, но кнопка создания видна, пока прокручено к её началу
   await form.getByLabel('Источник *').scrollIntoViewIfNeeded();
   await expect(form.getByRole('button', { name: 'Создать бронь' })).toBeInViewport();
@@ -1517,7 +1522,8 @@ test('гости D1: выборка и пустота словами, стату
   const main = page.getByRole('main');
   await expect(main.getByTestId('guests-meta')).toContainText('по запросу «Тест»');
   const row = main.getByTestId('guests-table').locator('tbody tr').first();
-  await expect(row).toContainText('Гость Тестовый');
+  // имя «Имя Фамилия» (аудит гостиницы 22.10.2026 P1-17)
+  await expect(row).toContainText('Тестовый Гость');
   await expect(row.locator('time').first()).toHaveAttribute('datetime', /\d{4}-\d{2}-\d{2}/);
   await expect(main.getByRole('link', { name: 'Сбросить фильтры' })).toBeVisible();
 
@@ -1600,7 +1606,7 @@ test('финансы F1: период в подзаголовке, четыре 
   const kpis = main.getByTestId('finance-kpis');
   await expect(kpis.getByTestId('charged')).toHaveText('24 000 ₸');
   await expect(kpis.getByTestId('paid')).toHaveText('8 000 ₸');
-  await expect(kpis).toContainText('возвратов за период не было');
+  await expect(kpis.getByTestId('refunded')).toHaveText('0 ₸');
   // Q-206: «К сбору» — полный остаток броней периода, то же число, что итог списка долгов, а не разность итогов
   const debts = (await (
     await request.get(`${fixture}/finance/debts?from=2026-09-01&to=2026-09-30`, {
@@ -1610,7 +1616,6 @@ test('финансы F1: период в подзаголовке, четыре 
   await expect(kpis.getByTestId('balance')).toContainText('₸');
   const due = Number((await kpis.getByTestId('balance').innerText()).replace(/[^\d]/g, ''));
   expect(due * 100).toBe(Number(debts.balanceMinor));
-  await expect(kpis).toContainText('остаток по броням периода');
   await expect(main.getByTestId('finance-charges')).toContainText('По видам начислений');
   // готовые отрезки: ссылка ведёт на период в адресе, активный отмечен
   // с 09.10 в main две ссылки «Сегодня» (навигация «Период обзора» в шапке и «Готовые периоды»

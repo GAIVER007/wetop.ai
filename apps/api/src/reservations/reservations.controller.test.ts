@@ -1246,7 +1246,7 @@ describe('manual reservation API', () => {
       `/reservations/${n}/items/${itemId}/move-preview?unitCode=9003`,
     ).expect(200);
     expect(blocked.body).toMatchObject({ changesCategory: false, newMinor: null });
-    expect(blocked.body.problem).toContain('заблокирована');
+    expect(blocked.body.problem).toBe('Номер 9003 заблокирован на эти даты');
     // занятая ячейка ДРУГОЙ категории: окно называет категорию цели, а не текущую
     const neighbour = await post(
       '/reservations',
@@ -1271,7 +1271,7 @@ describe('manual reservation API', () => {
       toCategory: { code: 'category-twin', name: 'Тестовая двойная' },
       newMinor: null,
     });
-    expect(busyOther.body.problem).toContain('занята');
+    expect(busyOther.body.problem).toContain('занят');
     // соседа убираем: дальше эта же ячейка нужна свободной для настоящего переселения
     await post(`/reservations/${neighbour.body.confirmationNumber}/cancel`).expect(200);
     await get(`/reservations/${n}/items/${itemId}/move-preview`).expect(400);
@@ -1403,7 +1403,8 @@ describe('manual reservation API', () => {
       .post(`/reservations/${n}/items/${itemId}/check-out`)
       .send({})
       .expect(409);
-    expect(refused.body.message).toContain('12 500,00 ₸');
+    // сумма без копеек, как везде на экране (аудит 22.10.2026 P1-6: было «12 500,00 ₸»)
+    expect(refused.body.message).toContain('На счёте долг 12 500 ₸.');
 
     const done = await request(app.getHttpServer())
       .post(`/reservations/${n}/items/${itemId}/check-out`)

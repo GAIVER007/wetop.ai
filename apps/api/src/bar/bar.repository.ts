@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { branchPaymentSettings } from '../food-service/branch-payment-methods';
 import { createHotelCash } from '../finance/hotel-cash';
 import { FolioClosedError, lockOpenFolios } from '@pms/database';
 /* eslint-disable @typescript-eslint/no-explicit-any -- Prisma Client in this dirty tree is stale; remove after the shared generate step. */
@@ -80,6 +81,8 @@ export interface BarRepository {
   report(): Promise<unknown>;
   /** Включённые способы объекта бара в порядке настройки (§21.6); `null` у бара без объекта: настройки нет */
   enabledPaymentMethods(): Promise<string[] | null>;
+  /** Способы оплаты филиала салона и ресторана (§21.7); у гостиницы null: там правило объекта */
+  enabledBranchPaymentMethods(): Promise<string[] | null>;
   sellRetail(input: BarRetailSaleInput): Promise<{ kind: 'not_found' | 'no_cash' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED' | 'REVERSED'; revenueMinor: string; costMinor: string }>;
   sellToFolio(input: BarFolioSaleInput): Promise<{ kind: 'folio_not_found' | 'product_not_found' | 'no_folio' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED' | 'REVERSED'; chargeId: string; revenueMinor: string; costMinor: string }>;
   reverseSale(id: string, restock: boolean, reason: string): Promise<{ kind: 'not_found' | 'already_reversed' } | { kind: 'reversed'; id: string; status: 'REVERSED'; restocked: boolean }>;
@@ -125,6 +128,11 @@ export class PrismaBarRepository implements BarRepository {
       select: { method: true, enabled: true, sortOrder: true },
     });
     return enabledPaymentMethods(resolvePaymentMethodSettings(rows));
+  }
+  async enabledBranchPaymentMethods(): Promise<string[] | null> {
+    const { propertyId, locationId, vertical } = await this.scope();
+    if (propertyId || (vertical !== 'FOOD_SERVICE' && vertical !== 'BEAUTY')) return null;
+    return enabledPaymentMethods(await branchPaymentSettings(this.prisma.db, locationId));
   }
   /** Остатки кассы ресторана по способам (§35, §45): тот же расчёт, что у самой кассы */
   private async restaurantBalances(tx: any, locationId: string) {

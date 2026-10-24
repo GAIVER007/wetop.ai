@@ -130,10 +130,11 @@ export async function hydrated(target: Locator): Promise<void> {
 
 /**
  * «Меню администратора» в шапке: нажать, когда React оживил кнопку, и убедиться, что меню раскрылось. Спеки открывают
- * меню профиля только так (сторож `tests/unit/ui-profile-menu.test.ts`); возвращает саму кнопку.
+ * меню профиля только так (сторож `tests/unit/ui-profile-menu.test.ts`); возвращает саму кнопку. Название кнопки
+ * на языке стойки: на казахском «Әкімші мәзірі» (KK1, `tests/ui/desk-kk.spec.ts`).
  */
 export async function openProfileMenu(page: Page): Promise<Locator> {
-  const menu = page.getByRole('button', { name: 'Меню администратора' });
+  const menu = page.getByRole('button', { name: /^(Меню администратора|Әкімші мәзірі)$/ });
   await hydrated(menu);
   await menu.click();
   await expect(menu).toHaveAttribute('aria-expanded', 'true');

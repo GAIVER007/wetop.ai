@@ -49,6 +49,15 @@ describe('остатки кассы по способам (§35.2)', () => {
     expect(b.KASPI).toBe(4000n);
     expect(b.CARD_TERMINAL).toBe(0n);
   });
+  it('бонусы и сертификат не деньги в кассе: в остатках их нет (решение 21.10.2026)', () => {
+    const b = foodCashBalances([], [
+      { kind: 'INCOME', method: 'BONUS', methodTo: null, amount: 500n, status: 'COMPLETED' },
+      { kind: 'INCOME', method: 'GIFT_CERTIFICATE', methodTo: null, amount: 700n, status: 'COMPLETED' },
+      { kind: 'INCOME', method: 'CASH', methodTo: null, amount: 100n, status: 'COMPLETED' },
+    ]);
+    expect(Object.keys(b).sort()).toEqual([...FOOD_PAYMENT_METHODS].sort());
+    expect(b.CASH).toBe(100n);
+  });
 });
 
 describe('выплата зарплаты (§35.3)', () => {
@@ -66,6 +75,7 @@ describe('разбор запросов кассы', () => {
       method: 'CASH',
       amount: 5000n,
       idempotencyKey: key,
+      itemIds: null,
     });
     expect(() => parseFoodPayment({ method: 'DEPOSIT', amount: 5000, idempotencyKey: key })).toThrow();
     expect(() => parseFoodPayment({ method: 'CASH', amount: 50.5, idempotencyKey: key })).toThrow();

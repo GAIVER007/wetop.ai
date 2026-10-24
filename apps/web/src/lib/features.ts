@@ -13,6 +13,7 @@ const H: readonly WebVertical[] = ['HOSPITALITY'];
 const B: readonly WebVertical[] = ['BEAUTY'];
 const F: readonly WebVertical[] = ['FOOD_SERVICE'];
 const BF: readonly WebVertical[] = ['BEAUTY', 'FOOD_SERVICE'];
+const HB: readonly WebVertical[] = ['HOSPITALITY', 'BEAUTY'];
 
 const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   // гостиница: фонд, брони, каналы, настройки объекта, гостиничные отчёты и сайт с онлайн-бронью
@@ -30,10 +31,15 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   '/incidents': H,
   '/hotel-settings': H,
   '/beauty-settings': B,
-  '/customers/[id]': B,
+  // карточка клиента у салона и ресторана (решение владельца 23.10.2026 п. 4)
+  '/customers/[id]': BF,
   '/onboarding': H,
   '/market': H,
+  // конкуренты салона и ресторана (DATA_MODEL §60): свой экран, гостиница остаётся на /market (ADR-142)
+  '/market/business': BF,
   '/website': H,
+  // голосовой агент (ИИ-колл-центр): все направления (решение владельца 22.10.2026, второе: не только салон)
+  '/marketing/voice': ALL_VERTICALS,
   '/marketing/site': H,
   '/marketing/site/assets': ALL_VERTICALS,
   '/marketing/site/editor': ALL_VERTICALS,
@@ -51,19 +57,26 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   '/appointments': B,
   '/services': B,
   '/beauty': B,
-  '/bar/consumables': B,
+  // склад кухни и расходников у гостиницы и салона; ресторан ведёт его на `/stock` (ADR-STOCK-ALL)
+  '/bar/consumables': HB,
+  '/finance/certificates': B,
   // салон и ресторан
   '/customers': BF,
   '/employees': BF,
   '/employees/shifts': F,
   '/cashbox': BF,
-  '/payroll': BF,
+  // способы оплаты филиала (DATA_MODEL §21.7): салон и ресторан
+  '/branch-payment-methods': BF,
+  // зарплата у всех трёх направлений (кабинет горничной 22.10.2026); у гостиницы без выплат из кассы
+  '/payroll': ALL_VERTICALS,
+  '/staff-schedule': H,
   // ресторан
   '/floor-plan': F,
   '/table-reservations': F,
   '/dining-areas': F,
   '/orders': F,
   '/kitchen': F,
+  '/waiter': F,
   '/drinks': F,
   '/menu': F,
   '/stock': F,

@@ -8,17 +8,19 @@ import {
   Field,
   Input,
   Select,
-  Stat,
-  Stats,
   Table,
 } from '../../components/ui';
 import { Tabs } from '../../components/tabs';
 import { Segmented } from '../../components/segmented';
 import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
+import { currencySign } from '../../lib/money';
 import { FOOD_PAYMENT_METHODS, type FoodCashView, type FoodPaymentMethod } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
+import { dayClock } from '../../lib/human-period';
 import { mutateCash } from '../cashbox/actions';
 import { useConfirm } from '../../components/use-confirm';
+import { useBranchPaymentMethods } from '../branch-payment-methods/use-branch-methods';
+import { branchMethodsShown } from '../branch-payment-methods/shown';
 
 type Kind = 'INCOME' | 'EXPENSE' | 'TRANSFER';
 const KIND_LABEL: Record<Kind, string> = { INCOME: 'Приход', EXPENSE: 'Расход', TRANSFER: 'Перевод' };
@@ -29,15 +31,18 @@ function MethodSelect({
   label,
   value,
   onChange,
+  methods = FOOD_PAYMENT_METHODS,
 }: {
   label: string;
   value: FoodPaymentMethod;
   onChange: (m: FoodPaymentMethod) => void;
+  /** §21.7: приход и перевод «куда» только включёнными способами; расход, «откуда» и сверка всеми */
+  methods?: readonly FoodPaymentMethod[];
 }) {
   return (
     <Field label={label}>
       <Select value={value} onChange={(e) => onChange(e.target.value as FoodPaymentMethod)}>
-        {FOOD_PAYMENT_METHODS.map((m) => (
+        {branchMethodsShown(FOOD_PAYMENT_METHODS, [...methods], value).map((m) => (
           <option key={m} value={m}>
             {methodName(m)}
           </option>
@@ -70,12 +75,16 @@ export function CashBoard({
   const [error, setError] = useState('');
   const [kind, setKind] = useState<Kind>('INCOME');
   const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
+  const accepted = useBranchPaymentMethods(scopeKey);
   const [methodTo, setMethodTo] = useState<FoodPaymentMethod>('KASPI');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [checkMethod, setCheckMethod] = useState<FoodPaymentMethod>('CASH');
   const [counted, setCounted] = useState('');
-  const when = (iso: string) => localInput(iso, timezone).replace('T', ' ').slice(0, 16);
+  const when = (iso: string) => dayClock(iso, timezone);
+  /** Расход и возврат гостю уменьшают кассу: сумма со знаком «−» */
+  const signed = (o: FoodCashView['operations'][number]) =>
+    wholeTenge(o.kind === 'EXPENSE' ? `-${o.amountMinor}` : o.amountMinor, cash.currency);
   const run = (fn: () => ReturnType<typeof mutateCash>, reset: () => void) =>
     start(async () => {
       const result = await fn();
@@ -88,7 +97,7 @@ export function CashBoard({
     });
   function operation() {
     const minor = tenge(amount);
-    if (minor === null) return setError('Сумма в тенге, целое число больше нуля');
+    if (minor === null) return setError(amount ? 'Сумма должна быть больше нуля' : 'Введите сумму');
     let storageKey = '';
     run(
       async () => {
@@ -116,7 +125,7 @@ export function CashBoard({
     );
   }
   function reconcile() {
-    if (!/^\d+$/.test(counted)) return setError('Пересчитано: целое число тенге');
+    if (!/^\d+$/.test(counted)) return setError(counted ? 'Пересчитано: целое число' : 'Введите пересчитанную сумму');
     run(
       () => mutateCash(scopeKey, { kind: 'reconcile', body: { method: checkMethod, counted: Number(counted) * 100 } }),
       () => setCounted(''),
@@ -147,7 +156,7 @@ export function CashBoard({
                 {methodName(o.method)}
                 {o.methodTo ? ` → ${methodName(o.methodTo)}` : ''}
               </td>
-              <td>{wholeTenge(o.amountMinor, cash.currency)}</td>
+              <td>{signed(o)}</td>
               <td>
                 {o.employee ? `${o.employee}, ${o.period}` : (o.note ?? '')}
                 {o.appointmentId && o.appointmentStartsAt && (
@@ -248,20 +257,35 @@ export function CashBoard({
     <div className="food-workspace" data-testid="cash-board">
       {dialog}
       {error && <Alert>{error}</Alert>}
-      <Stats min={170}>
-        <Stat label="Всего в кассе" value={wholeTenge(String(total), cash.currency)} tone="info" testId="cash-total" />
-        {cash.balances.map((b) => (
-          <Stat
-            key={b.method}
-            label={methodName(b.method)}
-            value={wholeTenge(b.balanceMinor, cash.currency)}
-            testId={`cash-${b.method}`}
-          />
-        ))}
-      </Stats>
+      {/* аудит 21.10.2026 п. 26: вместо ряда плиток итог строкой и остатки по способам в таблице */}
+      <dl className="money-summary">
+        <div>
+          <dt>Всего в кассе</dt>
+          <dd data-testid="cash-total">{wholeTenge(String(total), cash.currency)}</dd>
+        </div>
+      </dl>
+      {cash.balances.length > 0 && (
+        <Table aria-label="Остатки по способам оплаты" data-testid="cash-balances">
+          <thead>
+            <tr>
+              <th>Способ оплаты</th>
+              <th>Остаток</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cash.balances.map((b) => (
+              <tr key={b.method}>
+                <td>{methodName(b.method)}</td>
+                <td data-testid={`cash-${b.method}`}>{wholeTenge(b.balanceMinor, cash.currency)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
       {write && (
         <div className="rest-cash-forms">
-          <section className="food-form" aria-label="Операция кассы">
+          <section className="panel food-form" aria-labelledby="cash-op-title">
+            <h2 id="cash-op-title" className="panel__title">Операция кассы</h2>
             <Segmented
               label="Вид операции"
               value={kind}
@@ -269,9 +293,14 @@ export function CashBoard({
               onChange={setKind}
             />
             <div className="food-form-row">
-              <MethodSelect label={kind === 'TRANSFER' ? 'Откуда' : 'Способ'} value={method} onChange={setMethod} />
-              {kind === 'TRANSFER' && <MethodSelect label="Куда" value={methodTo} onChange={setMethodTo} />}
-              <Field label="Сумма, ₸">
+              <MethodSelect
+                label={kind === 'TRANSFER' ? 'Откуда' : 'Способ'}
+                value={method}
+                onChange={setMethod}
+                methods={kind === 'INCOME' ? accepted : FOOD_PAYMENT_METHODS}
+              />
+              {kind === 'TRANSFER' && <MethodSelect label="Куда" value={methodTo} onChange={setMethodTo} methods={accepted} />}
+              <Field label={`Сумма, ${currencySign(cash.currency)}`}>
                 <Input inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))} />
               </Field>
             </div>
@@ -284,10 +313,12 @@ export function CashBoard({
               </Button>
             </div>
           </section>
-          <section className="food-form" aria-label="Сверка кассы">
+          <section className="panel food-form" aria-labelledby="cash-check-title">
+            <h2 id="cash-check-title" className="panel__title">Сверка кассы</h2>
+            <p className="muted">Пересчитайте деньги одного способа: WETOP покажет разницу с остатком.</p>
             <div className="food-form-row">
-              <MethodSelect label="Сверка, способ" value={checkMethod} onChange={setCheckMethod} />
-              <Field label="Пересчитано, ₸">
+              <MethodSelect label="Способ" value={checkMethod} onChange={setCheckMethod} />
+              <Field label={`Пересчитано, ${currencySign(cash.currency)}`}>
                 <Input inputMode="numeric" value={counted} onChange={(e) => setCounted(e.target.value.replace(/\D/g, ''))} />
               </Field>
             </div>

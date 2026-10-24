@@ -26,11 +26,11 @@ test('форма брони: детализация цены по дням, су
 });
 
 for (const width of [1280, 1366, 1440]) {
-  test(`календарь ${width}px: заголовок с периодом в одну строку, шесть плиток, полоса фильтров, сетка`, async ({
+  test(`календарь ${width}px: заголовок с периодом в одну строку, строка итогов дня, полоса фильтров, сетка`, async ({
     page,
   }) => {
     // Эталон владельца 13.10.2026 (UI4.2): заголовок слева и период, «Сегодня», «Новая бронь» справа одной
-    // строкой; под ним шесть плиток в один ряд; затем полоса фильтров; затем сетка.
+    // строкой; под ним итоги дня одной строкой (аудит 22.10.2026); затем полоса фильтров; затем сетка.
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/chessboard');
     const panel = page.getByRole('group', { name: 'Сегодня на объекте' });
@@ -45,12 +45,11 @@ for (const width of [1280, 1366, 1440]) {
     expect(p.y + p.height).toBeLessThanOrEqual(bar.y + 1);
     expect(bar.height).toBeLessThanOrEqual(56);
     expect(bar.y + bar.height).toBeLessThanOrEqual(grid.y + 1);
-    expect(grid.y).toBeLessThanOrEqual(360);
-    const tops = await panel
-      .locator('.stat')
-      .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top)));
-    expect(tops).toHaveLength(6);
-    expect(new Set(tops).size).toBe(1);
+    // 384 как в chessboard-week C1 (поручение 02.10): шапка от 1280 px в две строки, 88 px (20.10.2026)
+    expect(grid.y).toBeLessThanOrEqual(384);
+    // сводка дня одной строкой вместо шести плиток (аудит 22.10.2026 P1-2)
+    await expect(panel.locator('.stat')).toHaveCount(0);
+    expect(p.height).toBeLessThanOrEqual(32);
     // период и «Новая бронь» на одной линии с заголовком; ярлык «Сегодня» снят в #506 (пресет внутри периода)
     const lineTops = await page
       .locator('main > .page__head')

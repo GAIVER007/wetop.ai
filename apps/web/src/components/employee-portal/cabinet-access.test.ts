@@ -24,7 +24,7 @@ vi.mock('./forms', () => ({
 vi.mock('./media', () => ({ PortalMedia: () => createElement('div', { 'data-testid': 'portal-media' }) }));
 vi.mock('./management', () => ({ PortalManagement: () => createElement('div', { 'data-testid': 'portal-management' }) }));
 vi.mock('./locations', () => ({ EmployeeLocationsForm: () => createElement('div', { 'data-testid': 'portal-locations-form' }) }));
-vi.mock('./service-prices', () => ({ EmployeeServicePrices: () => null }));
+vi.mock('./service-prices', () => ({ EmployeeServicePrices: () => null, servicePricesKey: () => '' }));
 vi.mock('./reviews', () => ({ EmployeeReviews: () => createElement('div', { 'data-testid': 'portal-reviews' }) }));
 vi.mock('../tabs', () => ({
   Tabs: ({ panels }: { panels: Array<{ id: string; label: string; content: ReactNode }> }) => createElement(
@@ -78,6 +78,7 @@ function dto(access: 'SELF' | 'MANAGER', sectionAccess: EmployeePortalSectionAcc
     appointments: [],
     orders: [],
     reviews: { averageStars: null, count: 0, hasMore: false, items: [] },
+    workRange: 'DAY', workTruncated: false, monthStats: { month: '2026-10', status: 'AVAILABLE', currency: 'KZT', shifts: 20, daysOff: 11, absenceDays: 0, appointmentsDone: 0, servicesDone: 0, ordersClosed: null, tablesServed: null, guests: null, revenueMinor: '0', bonusMinor: '0', percent: null },
     pay: {
       status: 'NOT_CONFIGURED', month: '2026-10', currency: 'KZT', model: null, fixedMinor: null,
       percent: null, percentBasis: null, policyRevision: null, earnedMinor: null, bonusMinor: null,
@@ -126,7 +127,9 @@ describe('Beauty employee cabinet access projection', () => {
       scope: 'synthetic-scope',
     }));
 
-    expect(html).toContain('Управление сотрудником');
+    // карточка у руководителя без бейджа «Управление сотрудником» (аудит 21.10.2026, п. 25)
+    expect(html).toContain('data-testid="employee-manager"');
+    expect(html).not.toContain('Управление сотрудником');
     expect(html).not.toContain('data-testid="portal-own-work"');
     expect(html).not.toContain('data-testid="portal-reviews"');
     expect(html).not.toContain('data-testid="portal-week"');
@@ -156,5 +159,50 @@ describe('Beauty employee cabinet access projection', () => {
 
     expect(html).toContain('data-testid="employee-day-status">График недоступен');
     expect(html).not.toContain('data-testid="employee-day-status">Выходной');
+  });
+
+  it('аудит 21.10.2026, п. 25-27: филиал один раз, «Специалист», без «Мои» у руководителя, месяц только в оплате', () => {
+    const data = dto('MANAGER', { ...limited, appointmentsView: true, servicesView: true, payrollView: true, employeesView: true });
+    data.location = { ...data.location!, name: data.business.name };
+    const html = renderToStaticMarkup(createElement(EmployeeCabinet, {
+      initial: data,
+      target: { employeeId: '11111111-1111-4111-8111-111111111111' },
+      scope: 'synthetic-scope',
+    }));
+    const meta = html.slice(html.indexOf('portal-identity-meta'), html.indexOf('</ul>', html.indexOf('portal-identity-meta')));
+    expect(meta.split('Synthetic Beauty').length - 1).toBe(1);
+    expect(meta).toContain('Специалист');
+    expect(meta).not.toContain('Мастер');
+    expect(html).not.toContain('Мои записи');
+    expect(html).not.toContain('Мои услуги');
+    expect(html).not.toContain('Мои финансы');
+    expect(html).not.toContain('Месяц оплаты труда');
+    expect(html).not.toContain('ожидает одобрения');
+    expect(html).toContain('Месяц расчёта');
+  });
+
+  describe('аудит салона 22.10.2026: карточка мастера без заглушек и служебных текстов', () => {
+    const full = { ...limited, journalUpdate: true, appointmentsView: true, employeesView: true, employeesUpdate: true };
+    const render = (data: EmployeePortalDto) => renderToStaticMarkup(createElement(EmployeeCabinet, {
+      initial: data, target: { employeeId: data.employee.id }, scope: 'synthetic-scope',
+    }));
+
+    it('без хранилища фото вкладки «Фото и работы» нет', () => {
+      expect(render({ ...dto('MANAGER', full), canUpload: false })).not.toContain('data-testid="portal-media"');
+      expect(render(dto('MANAGER', full))).toContain('data-testid="portal-media"');
+    });
+
+    it('вкладка «График» говорит человеческими словами', () => {
+      const html = render(dto('MANAGER', full));
+      expect(html).not.toContain('Проверяем предстоящие собственные записи');
+      expect(html).toContain('Записей вне нового графика нет.');
+    });
+
+    it('пустые «Записи» руководителя ведут к новой записи к этому мастеру', () => {
+      const html = render(dto('MANAGER', full));
+      expect(html).toContain('data-testid="portal-work-new"');
+      expect(html).toContain('href="/calendar?employee=11111111-1111-4111-8111-111111111111&amp;new=1"');
+      expect(render(dto('SELF', full))).not.toContain('data-testid="portal-work-new"');
+    });
   });
 });

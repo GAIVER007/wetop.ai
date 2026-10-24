@@ -110,6 +110,10 @@ jobs:
         run: |
           "$RUNNER_TEMP/bot-venv/bin/python" --version
           "$RUNNER_TEMP/bot-venv/bin/python" -m pytest -q -p no:cacheprovider
+      # голосовой воркер (apps/ai-seller/voice): тесты без SDK VideoSDK, файл с SDK сам пропускается без пакета
+      - name: pytest голосового воркера
+        run: |
+          "$RUNNER_TEMP/bot-venv/bin/python" -m pytest -q -p no:cacheprovider voice/tests
 
   db:
     name: миграции · integration · e2e на чистом PostgreSQL 16
@@ -118,7 +122,8 @@ jobs:
     # Нужен `services: postgres`, то есть Docker внутри раннера: своему раннеру сокет Docker не даём, это root
     # на машине, где рядом боевая стойка и чужие проекты.
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    # 20.10.2026 задача шла 27-29 минут при пределе 30 и снималась по времени на медленном раннере (PR #743)
+    timeout-minutes: 45
     services:
       postgres:
         image: postgres:16

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useEffect, useId, useRef, useState } from 'react';
 import { GENERATION_ERROR_TEXT, PATCH_INSTRUCTION_MAX, SECTION_INSTRUCTION_MAX, SITE_AI_USER_TEXT_MAX, isGenerationErrorCode } from '@pms/domain';
 import type { AssistantPayloadView, DesignDirectionView, SiteConversationItem } from '../../../../lib/api';
-import { Button, Field, Textarea, cx } from '../../../../components/ui';
+import { Button, Field, Textarea, cx, Input } from '../../../../components/ui';
 import { BUILD_STEPS } from './run';
 
 /**
@@ -122,7 +122,7 @@ function Questions({
           )}
           {answers[q.id] === '__custom' && (
             <Field label="Ваш ответ" controlId={`q-${q.id}-custom`}>
-              <input id={`q-${q.id}-custom`} className="inp" maxLength={400} value={custom[q.id] ?? ''} onChange={(e) => setCustom((c) => ({ ...c, [q.id]: e.currentTarget.value }))} />
+              <Input id={`q-${q.id}-custom`} maxLength={400} value={custom[q.id] ?? ''} onChange={(e) => setCustom((c) => ({ ...c, [q.id]: e.currentTarget.value }))} />
             </Field>
           )}
         </fieldset>

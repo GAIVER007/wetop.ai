@@ -3,6 +3,8 @@ import { deskShell } from '../../lib/desk-shell';
 import { selectedWorkspaceBranch } from '../../lib/workspace-context';
 import { mayAccess } from '../../lib/navigation';
 import { localInput } from '../beauty/time';
+import { accessLevelsFor, type AccessLevel } from '@pms/domain';
+import { ApiError } from '../../lib/api-error';
 
 /** Общая обвязка ресторанных экранов (ADR-159): вертикаль, филиал, права, дата дня филиала */
 export interface RestaurantShell {
@@ -18,6 +20,10 @@ export interface RestaurantShell {
   canRefunds: boolean;
   /** Направление филиала: касса (§48) открыта и салону */
   vertical: 'FOOD_SERVICE' | 'BEAUTY';
+  /** Уровни доступа, которые может выдать вошедший при добавлении сотрудника (решение 20.10.2026) */
+  accessLevels: AccessLevel[];
+  /** «Все филиалы» в «Доступе в WETOP»: только владелец и сотрудник без ограничения по филиалам */
+  canAllBranches: boolean;
 }
 
 export async function restaurantShell(
@@ -26,10 +32,14 @@ export async function restaurantShell(
 ): Promise<RestaurantShell> {
   const me = await requireVertical([...verticals]);
   const vertical = me.context?.vertical;
-  if ((vertical !== 'FOOD_SERVICE' && vertical !== 'BEAUTY') || !verticals.includes(vertical) || !me.context?.businessId || !me.context.locationId)
+  if ((vertical !== 'FOOD_SERVICE' && vertical !== 'BEAUTY') || !verticals.includes(vertical) || !me.context?.businessId || !me.context.locationId) {
+    // «Личный кабинет» без филиала в рабочий раздел не пускается: это отказ в доступе (403), а не сбой связи,
+    // иначе экран ошибки звал «проверить подключение» (аудит 22.10.2026, P1-2)
+    if ((await deskShell()).access.role === 'EMPLOYEE') throw new ApiError(403, 'Раздел недоступен');
     throw new Error('Выберите ресторан и филиал');
+  }
   const [shell, branch] = await Promise.all([deskShell(), selectedWorkspaceBranch()]);
-  if (!branch) throw new Error('Выбранный филиал недоступен');
+  if (!branch) throw new ApiError(403, 'Выбранный филиал недоступен');
   const local = localInput(new Date().toISOString(), branch.timezone);
   const date =
     dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) && !Number.isNaN(Date.parse(dateParam))
@@ -46,5 +56,7 @@ export async function restaurantShell(
     canStaff: mayAccess(shell.access, 'staff'),
     canRefunds: mayAccess(shell.access, 'refunds'),
     vertical,
+    accessLevels: shell.access.role ? accessLevelsFor(shell.access.role) : [],
+    canAllBranches: shell.access.role === 'OWNER' || (mayAccess(shell.access, 'staff') && shell.access.restricted !== true),
   };
 }

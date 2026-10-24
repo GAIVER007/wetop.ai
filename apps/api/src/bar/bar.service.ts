@@ -2,7 +2,8 @@ import 'reflect-metadata';
 import { salePriceFromMarkup } from '@pms/domain';
 import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { BAR_REPOSITORY, type BarCategoryInput, type BarProductInput, type BarReceiptInput, type BarRepository, type BarSupplierInput } from './bar.repository';
-import { BAR_SALE_METHODS, BAR_SUPPLIER_METHODS, FinanceRuleError, assertPaymentMethodEnabled, barPaymentMethods } from '@pms/domain';
+import { BAR_SALE_METHODS, BAR_SUPPLIER_METHODS, FinanceRuleError, assertPaymentMethodEnabled,
+  assertBranchPaymentMethodEnabled, barPaymentMethods } from '@pms/domain';
 
 /** Деньги бара идут в кассу гостиницы или филиала (§45, §48); без кассы склад работает, продажи и оплаты нет */
 const NO_SALON_CASH = 'У этого филиала нет кассы: продажи и оплаты бара недоступны';
@@ -133,15 +134,18 @@ export class BarService {
   report() { return this.repo.report(); }
   /** Списки форм бара (ADR-185): включённые объектом способы в его порядке, только те, что бар принимает */
   async paymentMethods() {
-    const enabled = await this.repo.enabledPaymentMethods();
+    const enabled = (await this.repo.enabledPaymentMethods()) ?? (await this.repo.enabledBranchPaymentMethods());
     return { sale: barPaymentMethods(enabled, BAR_SALE_METHODS), supplier: barPaymentMethods(enabled, BAR_SUPPLIER_METHODS) };
   }
   /** Выключенный у объекта способ не принимает денег (У5 §21.6), теми же словами, что касса объекта; без объекта правила нет */
   private async assertMethodEnabled(method: string): Promise<void> {
     const enabled = await this.repo.enabledPaymentMethods();
-    if (!enabled) return;
+    // салон и ресторан: способы филиала (§21.7), свои слова «в настройках филиала»
+    const branch = enabled ? null : await this.repo.enabledBranchPaymentMethods();
+    if (!enabled && !branch) return;
     try {
-      assertPaymentMethodEnabled(method, enabled);
+      if (enabled) assertPaymentMethodEnabled(method, enabled);
+      else assertBranchPaymentMethodEnabled(method, branch!);
     } catch (error) {
       if (error instanceof FinanceRuleError) throw new BadRequestException(error.message);
       throw error;

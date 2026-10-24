@@ -3,7 +3,7 @@ import { Fact, Grid, Panel } from '../../../components/ui';
 import { displayDate } from '../../../lib/display-date';
 import { pluralRu } from '../../../lib/plural';
 import { unitNow } from '../../../lib/unit-now';
-import { HousekeepingBadge, UnitStateBadge, floorRoomText } from '../../inventory/unit-state';
+import { HousekeepingBadge, UnitStateBadge, buildingText, floorRoomText } from '../../inventory/unit-state';
 
 type Stay = UnitCard['stays'][number];
 
@@ -39,7 +39,7 @@ export function UnitFacts({ unit, today }: { unit: UnitCard; today: string }) {
           value={
             unit.buildingName || floorRoom ? (
               <span className="inventory-place">
-                {unit.buildingName && <span>Корпус {unit.buildingName}</span>}
+                {unit.buildingName && <span>{buildingText(unit.buildingName)}</span>}
                 {floorRoom && <span className="inventory-state-note">{floorRoom}</span>}
               </span>
             ) : (

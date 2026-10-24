@@ -6,16 +6,17 @@ import { restaurantApi } from '../../lib/food-api';
 import { completeFoodList } from '../../lib/food-data';
 import type { OrderView } from '../../lib/food-types';
 import { KitchenBoard } from '../food/kitchen-board';
+import { stationLines } from '../../lib/food-stations';
 import { restaurantShell } from '../food/restaurant-load';
 import '../food/food.css';
 import '../food/restaurant.css';
 
-/** «Кухня (KDS)» по макету владельца (ADR-159): SERVED и CLOSED кухню уже не касаются */
+/** «Кухня (KDS)» по макету владельца (ADR-159): только позиции станции «Кухня» (§33.6), поданные уходят с экрана */
 export default async function KitchenPage() {
   try {
     const shell = await restaurantShell();
     const open = await completeFoodList<OrderView>((cursor) => restaurantApi.openOrders(cursor));
-    const kitchen = open.filter((o) => o.status !== 'SERVED');
+    const kitchen = open.filter((o) => stationLines(o, 'KITCHEN').length > 0);
     return (
       <Page title="Кухня">
         <div key={shell.scopeKey}>
@@ -24,6 +25,7 @@ export default async function KitchenPage() {
             timezone={shell.timezone}
             write={shell.canDesk && !shell.readOnly}
             orders={kitchen}
+            station="KITCHEN"
           />
         </div>
       </Page>

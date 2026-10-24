@@ -4,6 +4,8 @@ import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, createPropertyInChain, type Db } from '@pms/database';
 import { deleteOrganizationChain } from '../tools/property-owner';
+import { PrismaVoiceBookingStore } from '../../apps/api/src/marketing-voice/voice-booking.service';
+import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
@@ -84,6 +86,27 @@ describe.skipIf(!url)('намерения брони продавца (integrati
   it('котировка записывается; по умолчанию QUOTED без брони', async () => {
     const row = await db.sellerBookingIntent.create({ data: intent() });
     expect(row).toMatchObject({ state: 'QUOTED', reservationId: null, channelMessageId: null });
+  });
+
+  it('канал голоса принимается (DATA_MODEL VOICE-BOOKING), беседа = внешний ID звонка', async () => {
+    const row = await db.sellerBookingIntent.create({
+      data: intent({ channel: 'voice', conversationId: 'call-voice-1', requestHash: 'b'.repeat(64) }),
+    });
+    expect(row).toMatchObject({ channel: 'voice', state: 'QUOTED' });
+  });
+
+  it('лимиты голоса считаются из котировок звонка: свой агент, свой звонок, только канал голоса', async () => {
+    const store = new PrismaVoiceBookingStore({ db } as PrismaService);
+    const call = `call-limit-${org.slice(0, 8)}`;
+    await db.sellerBookingIntent.create({ data: intent({ channel: 'voice', conversationId: call, requestHash: 'c'.repeat(64) }) });
+    await db.sellerBookingIntent.create({ data: intent({ channel: 'voice', conversationId: call, requestHash: 'd'.repeat(64) }) });
+    await db.sellerBookingIntent.create({ data: intent({ channel: 'whatsapp', conversationId: call, requestHash: 'e'.repeat(64) }) });
+    expect(await store.countCreated(agent, call)).toBe(2);
+    expect(await store.countConfirmed(agent, call)).toBe(0);
+    expect(await store.countCreated(randomUUID(), call)).toBe(0);
+    const [one] = await db.sellerBookingIntent.findMany({ where: { conversationId: call, channel: 'voice' }, select: { id: true } });
+    expect(await store.intentOf(one!.id)).toEqual({ agentId: agent, conversationId: call, channel: 'voice', state: 'QUOTED' });
+    expect(await store.intentOf(randomUUID())).toBeNull();
   });
 
   it.each([

@@ -1,46 +1,106 @@
 'use client';
-import { useState, useTransition } from 'react';
+import { useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { IconField } from '../../components/icon-field';
 import { Overlay } from '../../components/overlay';
 import { useConfirm } from '../../components/use-confirm';
-import {
-  Alert,
-  Badge,
-  Button,
-  EmptyState,
-  Field,
-  Input,
-  Select,
-  Table,
-} from '../../components/ui';
+import { Alert, Badge, Button, Field, Input, Select } from '../../components/ui';
+import { StaffBoard, type StaffColumn } from '../../components/staff-board';
+import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, personnelTabs, type PersonnelKind } from '@pms/domain';
 import { pluralRu } from '../../lib/plural';
-import { wholeTenge } from '../../lib/dashboard-format';
+import { periodTitle, revenueCells, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
 import type { FoodEmployee } from '../../lib/food-types';
-import { mutateStaff } from './restaurant-actions';
+import { assignFoodPersonnelKind, mutateStaff } from './restaurant-actions';
+import { inviteNewStaffAction } from '../login/actions';
+import { StaffAccessPicker, staffAccessDraft, type StaffAccessDraft } from '../../components/staff-access-picker';
+import type { AccessLevel } from '@pms/domain';
+import { formatPhone, formatPhoneInput } from '../../lib/phone';
+
+/**
+ * Назначение строки (DATA_MODEL.md, решения 18.10 и 20.10.2026): руководитель выбирает «специалист», «другой
+ * сотрудник» или «оба», остальные видят только метку. Право считает сервер, PATCH проверяет его ещё раз.
+ */
+function KindCell({ scopeKey, employee, canAssign }: { scopeKey: string; employee: FoodEmployee; canAssign: boolean }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [error, setError] = useState('');
+  const kind = employee.personnelKind ?? null;
+  if (!canAssign) return <Badge>{kind ? PERSONNEL_KIND_LABELS[kind] : 'Не назначено'}</Badge>;
+  return (
+    <>
+      <Select
+        className="rest-staff-kind"
+        aria-label={`Назначение: ${employee.name}`}
+        value={kind ?? ''}
+        disabled={pending}
+        aria-busy={pending || undefined}
+        onChange={(e) => {
+          const next = e.target.value;
+          setError('');
+          start(async () => {
+            const result = await assignFoodPersonnelKind(scopeKey, employee.id, next, employee.profileRevision);
+            if (result.error) setError(result.error);
+            router.refresh();
+          });
+        }}
+      >
+        {kind === null && (
+          <option value="" disabled>
+            Не назначено
+          </option>
+        )}
+        {PERSONNEL_KINDS.map((value) => (
+          <option key={value} value={value}>
+            {PERSONNEL_KIND_LABELS[value]}
+          </option>
+        ))}
+      </Select>
+      {error && <Alert>{error}</Alert>}
+    </>
+  );
+}
+
+export interface StaffAccessOptions {
+  /** уровни, которые может выдать вошедший; пусто: блока «Доступ в WETOP» нет */
+  levels: AccessLevel[];
+  canAllBranches: boolean;
+  branchName: string | null;
+  vertical: string;
+}
 
 function EmployeeDrawer({
   scopeKey,
   employee,
   close,
+  access,
 }: {
   scopeKey: string;
   employee: FoodEmployee | null;
   close: () => void;
+  access?: StaffAccessOptions | undefined;
 }) {
   const router = useRouter();
   const { ask, dialog } = useConfirm();
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
   const [name, setName] = useState(employee?.name ?? '');
-  const [phone, setPhone] = useState(employee?.phone ?? '');
+  const [phone, setPhone] = useState(formatPhone(employee?.phone));
   const [email, setEmail] = useState(employee?.email ?? '');
   const [status, setStatus] = useState(employee?.status ?? 'ACTIVE');
+  // назначение нового сотрудника выбирает руководитель; по умолчанию «Другой сотрудник»: у ресторана это чаще
+  const [personnelKind, setPersonnelKind] = useState<PersonnelKind>('OTHER_EMPLOYEE');
+  // доступ по умолчанию от назначения (решение 20.10.2026): специалист в кабинет, другой сотрудник без входа
+  const [accessDraft, setAccessDraft] = useState<StaffAccessDraft>(() => staffAccessDraft('OTHER_EMPLOYEE', ''));
+  const [accessTouched, setAccessTouched] = useState(false);
+  const showAccess = !employee && !!access && access.levels.length > 0;
   const [expectedProfileRevision] = useState(employee?.profileRevision ?? '');
   function submit() {
     setError('');
     if (!name.trim()) {
       setError('Имя обязательно');
+      return;
+    }
+    if (showAccess && accessDraft.level !== 'NONE' && !email.trim()) {
+      setError('Для входа в WETOP укажите почту: на неё придёт приглашение.');
       return;
     }
     start(async () => {
@@ -53,10 +113,21 @@ function EmployeeDrawer({
         scopeKey,
         employee
           ? { kind: 'edit', id: employee.id, body: { ...body, status, expectedProfileRevision } }
-          : { kind: 'create', body },
+          : { kind: 'create', body: { ...body, personnelKind } },
       );
       if (result.error) setError(result.error);
-      else {
+      else if (showAccess && result.createdId && accessDraft.level !== 'NONE') {
+        const invited = await inviteNewStaffAction({
+          employeeId: result.createdId,
+          level: accessDraft.level,
+          email: email.trim(),
+          allBranches: accessDraft.allBranches,
+        });
+        router.refresh();
+        // сотрудник уже создан: ошибку приглашения показываем, а не прячем, повторить можно в «Сотрудники и доступ»
+        if (invited.error) setError(`Сотрудник добавлен, но приглашение не отправлено: ${invited.error}`);
+        else close();
+      } else {
         router.refresh();
         close();
       }
@@ -88,12 +159,52 @@ function EmployeeDrawer({
         </Field>
         <div className="food-form-row">
           <Field label="Телефон">
-            <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+            <Input type="tel" inputMode="tel" placeholder="+7 701 000 00 00" value={phone} onChange={(e) => setPhone(formatPhoneInput(e.target.value))} />
           </Field>
           <Field label="Почта">
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (!accessTouched) setAccessDraft(staffAccessDraft(personnelKind, e.target.value));
+              }}
+            />
           </Field>
         </div>
+        {!employee && (
+          <Field label="Кто это">
+            <Select
+              value={personnelKind}
+              onChange={(e) => {
+                const next = e.target.value as PersonnelKind;
+                setPersonnelKind(next);
+                if (!accessTouched) setAccessDraft(staffAccessDraft(next, email));
+              }}
+            >
+              {PERSONNEL_KINDS.map((value) => (
+                <option key={value} value={value}>
+                  {PERSONNEL_KIND_LABELS[value]}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
+        {showAccess && access && (
+          <StaffAccessPicker
+            vertical={access.vertical}
+            levels={access.levels}
+            value={accessDraft}
+            onChange={(next) => {
+              setAccessTouched(true);
+              setAccessDraft(next);
+            }}
+            branchName={access.branchName}
+            canAllBranches={access.canAllBranches}
+            email={email}
+            disabled={pending}
+          />
+        )}
         {employee && (
           <Field label="Статус">
             <Select value={status} onChange={(e) => setStatus(e.target.value)}>
@@ -116,27 +227,37 @@ function EmployeeDrawer({
   );
 }
 
-/** «Сотрудники» ресторана по макету (ADR-159): смены из графика, продажи из заказов; рейтинга нет (Q-REST-2) */
+/**
+ * «Сотрудники» ресторана: единый экран персонала (вариант A, решение владельца 20.10.2026,
+ * docs/decisions/2026-10-20-unified-staff-screen.md). Смены из графика, «Принёс» из оплат, рейтинг из оценок.
+ */
 export function EmployeesBoard({
   scopeKey,
   write,
   employees,
   branchName,
+  canAssignPersonnelKind = false,
+  revenue = null,
+  revenueNav = null,
+  access,
 }: {
   scopeKey: string;
   write: boolean;
   employees: FoodEmployee[];
   branchName: string;
+  canAssignPersonnelKind?: boolean;
+  /** «Сколько принёс» за период (решение 20.10.2026); null = нет права на отчёты, колонки нет */
+  revenue?: StaffRevenue | null;
+  /** переключатель периода (серверные ссылки) */
+  revenueNav?: ReactNode;
+  /** «Доступ в WETOP» в форме нового сотрудника (решение 20.10.2026) */
+  access?: StaffAccessOptions;
 }) {
-  const [search, setSearch] = useState('');
-  const [onlyShift, setOnlyShift] = useState(false);
   const [draft, setDraft] = useState<FoodEmployee | null | 'new'>(null);
-  const needle = search.trim().toLocaleLowerCase('ru');
-  const list = employees.filter(
-    (e) =>
-      (!needle || `${e.name} ${e.phone ?? ''}`.toLocaleLowerCase('ru').includes(needle)) &&
-      (!onlyShift || e.onShift),
-  );
+  const earned = revenue ? revenueCells(revenue.items) : null;
+  const unattributed = revenue ? unattributedLabel(revenue.items, 'FOOD_SERVICE') : null;
+  // старые записи без назначения не прячутся и не угадываются: своя вкладка, пока они есть
+  const groups = personnelTabs(employees.map((e) => ({ ...e, personnelKind: e.personnelKind ?? null })));
   const initials = (name: string) =>
     name
       .split(/\s+/)
@@ -144,105 +265,110 @@ export function EmployeesBoard({
       .map((w) => w[0] ?? '')
       .join('')
       .toUpperCase();
+  const columns: StaffColumn<FoodEmployee>[] = [
+    {
+      key: 'name',
+      label: 'Сотрудник',
+      cell: (e) => (
+        <span className="staff-person">
+          <span className="staff-person__avatar" aria-hidden="true">
+            {initials(e.name)}
+          </span>
+          <span>
+            <strong>{e.name}</strong>
+            <span className="staff-person__role">{e.phone ? formatPhone(e.phone) : 'Телефон не указан'}</span>
+          </span>
+          {e.status === 'ARCHIVED' && <Badge>В архиве</Badge>}
+        </span>
+      ),
+    },
+    {
+      key: 'kind',
+      label: 'Назначение',
+      cell: (e) => <KindCell scopeKey={scopeKey} employee={e} canAssign={canAssignPersonnelKind && write} />,
+    },
+    { key: 'shift', label: 'Смена сегодня', cell: (e) => e.shift ?? 'Выходной' },
+    {
+      key: 'status',
+      label: 'Статус',
+      cell: (e) => <Badge tone={e.onShift ? 'ok' : 'neutral'}>{e.onShift ? 'На смене' : 'Не на смене'}</Badge>,
+    },
+    {
+      key: 'earned',
+      label: revenue ? `Принёс ${periodTitle(revenue.period)}` : '',
+      align: 'end',
+      hidden: !earned,
+      cell: (e) => (earned?.get(e.id) ? <strong data-testid="employee-earned">{earned.get(e.id)}</strong> : null),
+    },
+    {
+      key: 'rating',
+      label: 'Рейтинг',
+      align: 'end',
+      cell: (e) =>
+        e.rating?.average != null ? (
+          <span data-testid="employee-rating">
+            {`${String(e.rating.average).replace('.', ',')} ★, ${pluralRu(e.rating.count, ['оценка', 'оценки', 'оценок'])}`}
+          </span>
+        ) : null,
+    },
+    {
+      key: 'actions',
+      label: <span className="sr-only">Действия</span>,
+      align: 'end',
+      cell: (e) =>
+        write ? (
+          <span className="staff-actions rest-staff-actions">
+            <a
+              className="btn btn--secondary btn--sm"
+              href={`/employees/${encodeURIComponent(e.id)}/profile`}
+              aria-label={`Карточка сотрудника: ${e.name}`}
+            >
+              Карточка
+            </a>
+            <Button tone="ghost" size="sm" onClick={() => setDraft(e)} aria-label={`Изменить: ${e.name}`}>
+              Изменить
+            </Button>
+          </span>
+        ) : null,
+    },
+  ];
   return (
     <div className="food-workspace rest-ws" data-testid="employees-board">
-      {write && (
-        <div className="food-section-heading rest-actions-end">
-          <Button onClick={() => setDraft('new')}>+ Добавить сотрудника</Button>
-        </div>
-      )}
-      <div className="rest-card">
-        <div className="rest-card__tools">
-          <Field label={<span className="sr-only">Поиск по сотрудникам</span>}>
-            <IconField icon="search">
-              <Input
-                type="search"
-                placeholder="Поиск сотрудника"
-                data-page-search
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </IconField>
-          </Field>
-          <Field label={<span className="sr-only">Смена</span>}>
-            <Select
-              value={onlyShift ? 'shift' : 'all'}
-              onChange={(e) => setOnlyShift(e.target.value === 'shift')}
-            >
-              <option value="all">Все сотрудники</option>
-              <option value="shift">На смене сейчас</option>
-            </Select>
-          </Field>
-        </div>
-        {list.length === 0 ? (
-          <EmptyState
-            title={employees.length ? 'Сотрудники не найдены' : 'Сотрудников пока нет'}
-            actions={
-              write && !employees.length ? (
-                <Button onClick={() => setDraft('new')}>Добавить первого сотрудника</Button>
-              ) : null
-            }
-          />
-        ) : (
-          <Table density="compact" caption="Сотрудники ресторана" captionHidden>
-            <thead>
-              <tr>
-                {['Сотрудник', 'Телефон', 'Филиал', 'Смена сегодня', 'Статус', 'Продажи сегодня', 'Рейтинг'].map(
-                  (h) => (
-                    <th key={h} scope="col">
-                      {h}
-                    </th>
-                  ),
-                )}
-                <th scope="col">
-                  <span className="sr-only">Действия</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {list.map((e) => (
-                <tr key={e.id}>
-                  <td>
-                    <span className="rest-person">
-                      <span className="rest-avatar" aria-hidden="true">
-                        {initials(e.name)}
-                      </span>
-                      <strong>{e.name}</strong>
-                      {e.status === 'ARCHIVED' && <Badge>В архиве</Badge>}
-                    </span>
-                  </td>
-                  <td>{e.phone ?? '—'}</td>
-                  <td>{branchName}</td>
-                  <td>{e.shift ?? 'Выходной'}</td>
-                  <td>
-                    <Badge tone={e.onShift ? 'ok' : 'neutral'}>
-                      {e.onShift ? 'На смене' : 'Не на смене'}
-                    </Badge>
-                  </td>
-                  <td>{wholeTenge(e.salesTodayMinor)}</td>
-                  <td data-testid="employee-rating">
-                    {e.rating?.average != null
-                      ? `${String(e.rating.average).replace('.', ',')} ★, ${pluralRu(e.rating.count, ['оценка', 'оценки', 'оценок'])}`
-                      : 'Оценок нет'}
-                  </td>
-                  <td>
-                    {write && <a href={`/employees/${encodeURIComponent(e.id)}/profile`}>Карточка сотрудника</a>}
-                    {write && (
-                      <Button tone="ghost" size="sm" onClick={() => setDraft(e)}>
-                        Изменить
-                      </Button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        )}
-      </div>
+      <StaffBoard<FoodEmployee>
+        caption="Сотрудники ресторана"
+        actions={write ? <Button onClick={() => setDraft('new')}>+ Добавить сотрудника</Button> : null}
+        tabs={[
+          { id: 'all', label: 'Все', rows: employees, empty: 'Сотрудников пока нет' },
+          ...groups.map((g) => ({
+          id: g.key,
+          label: g.key === 'unassigned' ? 'Не назначено' : g.label,
+          rows: g.items as FoodEmployee[],
+          ...(g.key === 'unassigned'
+            ? { note: 'Укажите, кто это: специалист, другой сотрудник или оба. Назначение не меняет смены, оплату и права.' }
+            : {}),
+          empty: employees.length
+            ? g.key === 'specialists'
+              ? 'Специалистов пока нет.'
+              : 'Других сотрудников пока нет.'
+            : 'Сотрудников пока нет',
+          })),
+        ]}
+        columns={columns}
+        search={(e) => `${e.name} ${e.phone ?? ''}`}
+        searchPlaceholder="Поиск сотрудника"
+        period={
+          <span className="staff-board__period">
+            <span className="muted rest-staff-branch">Филиал: {branchName}</span>
+            {revenue && revenueNav}
+          </span>
+        }
+        footer={unattributed ? <span data-testid="employees-unattributed">{unattributed}</span> : null}
+      />
       {draft && (
         <EmployeeDrawer
           scopeKey={scopeKey}
           employee={draft === 'new' ? null : draft}
+          access={access}
           close={() => setDraft(null)}
         />
       )}

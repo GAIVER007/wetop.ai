@@ -10,7 +10,15 @@ import {
 import type { Dictionary } from '../i18n/types';
 import { Icon, type IconName } from './icon';
 import type { AuthMode } from '../lib/site';
+import {
+  authFieldErrors,
+  firstInvalidField,
+  type AuthField,
+  type AuthFieldErrors,
+} from '../lib/auth-validation';
 import { PHONE_COUNTRIES, PRIVACY_POLICY_PATH, defaultPhoneCountry } from '../lib/phone-countries';
+import { OtpInput, type OtpInputHandle, type OtpStatus } from './otp-input';
+import { PasswordStrengthMeter } from './password-strength';
 
 import styles from './auth-dialog.module.css';
 
@@ -24,7 +32,7 @@ type Props = {
     register: string;
     reset: string;
     app: string;
-    endpoint: Record<'options' | 'login' | 'register' | 'resend' | 'session', string>;
+    endpoint: Record<'options' | 'login' | 'register' | 'resend' | 'session' | 'verifyCode', string>;
   };
 };
 
@@ -100,6 +108,9 @@ export function AuthDialog({ texts, urls }: Props) {
   const [pause, setPause] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordJustSet, setPasswordJustSet] = useState(false);
+  const [codeStatus, setCodeStatus] = useState<OtpStatus>('idle');
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const codeField = useRef<OtpInputHandle>(null);
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -124,11 +135,46 @@ export function AuthDialog({ texts, urls }: Props) {
   }, []);
   const optionsAsked = useRef(false);
   const passwordId = useId();
+  const fieldIdBase = useId();
+  // Ошибки под полями (P1-1a): формы с noValidate, браузер не пишет «Please fill out this field.»
+  const [fieldErrors, setFieldErrors] = useState<AuthFieldErrors>({});
+  const fieldId = (field: AuthField) =>
+    field === 'password' ? passwordId : `${fieldIdBase}-${field}`;
+  const errorId = (field: AuthField) => `${fieldIdBase}-${field}-error`;
+  /** Пустые и неверные поля: ошибка под каждым, фокус в первое сверху. true — можно отправлять. */
+  const checkFields = (formMode: AuthMode): boolean => {
+    const errors = authFieldErrors(
+      formMode,
+      {
+        email: form.email,
+        password: form.password,
+        name: form.name,
+        businessName: form.hotelName,
+        phone: form.phone,
+      },
+      texts.errors.fields,
+    );
+    setFieldErrors(errors);
+    const first = firstInvalidField(formMode, errors);
+    if (first) document.getElementById(fieldId(first))?.focus();
+    return first === null;
+  };
+  const invalidProps = (field: AuthField) =>
+    fieldErrors[field]
+      ? { 'aria-invalid': true as const, 'aria-describedby': errorId(field) }
+      : {};
+  const fieldError = (field: AuthField) =>
+    fieldErrors[field] ? (
+      <span className="auth-field__error" id={errorId(field)}>
+        {fieldErrors[field]}
+      </span>
+    ) : null;
 
   const open = useCallback(
     (next: AuthMode) => {
       setMode(next);
       setError(null);
+      setFieldErrors({});
       setIsOpen(true);
       if (!optionsAsked.current) {
         optionsAsked.current = true;
@@ -199,17 +245,33 @@ export function AuthDialog({ texts, urls }: Props) {
   const switchTo = (next: AuthMode) => {
     setMode(next);
     setError(null);
+    setFieldErrors({});
   };
 
+  const FIELD_OF: Partial<Record<keyof typeof form, AuthField>> = {
+    email: 'email',
+    password: 'password',
+    name: 'name',
+    hotelName: 'businessName',
+    phone: 'phone',
+  };
   const set = (key: keyof typeof form) => (event: { target: { value: string } }) => {
     const value = event.target.value;
     setForm((f) => ({ ...f, [key]: value }));
+    // исправленное поле больше не горит красным; остальные ошибки остаются до отправки
+    const field = FIELD_OF[key];
+    if (field && fieldErrors[field])
+      setFieldErrors((errors) => {
+        const next = { ...errors };
+        delete next[field];
+        return next;
+      });
   };
 
   const submitLogin = async (event: FormEvent) => {
     event.preventDefault();
-    if (!form.email.trim() || !form.password)
-      return setError({ text: texts.errors.required, fallback: false });
+    setError(null);
+    if (!checkFields('login')) return;
     setPending(true);
     setError(null);
     const next = new URLSearchParams(window.location.search).get('next') ?? '/today';
@@ -272,9 +334,8 @@ export function AuthDialog({ texts, urls }: Props) {
       privacyAccepted,
       locale: form.language,
     };
-    if (!body.email || !body.name || !body.businessName || !body.password || !body.phone) {
-      return setError({ text: texts.errors.required, fallback: false });
-    }
+    setError(null);
+    if (!checkFields('register')) return;
     if (!privacyAccepted) return setError({ text: texts.errors.privacy, fallback: false });
     setPending(true);
     setError(null);
@@ -302,6 +363,34 @@ export function AuthDialog({ texts, urls }: Props) {
       return setError({ text: message(res.data, texts.errors.network), fallback: false });
     setResent(true);
     setPause(RESEND_PAUSE_S);
+    // Новое письмо гасит прежний код: поле пустое, ошибка прошлого кода снята
+    setCodeStatus('idle');
+    setCodeError(null);
+    codeField.current?.clear();
+  };
+
+  /**
+   * Код из письма (решение владельца 22.10.2026): шесть цифр введены, стойка подтверждает почту и ставит куку
+   * сессии тем же ответом, как при входе паролем. Затем та же проверка, что сессия сохранилась, и переход в стойку.
+   */
+  const submitCode = async (code: string) => {
+    if (!sent) return;
+    setCodeStatus('pending');
+    setCodeError(null);
+    const res = await post(urls.endpoint.verifyCode, { email: sent.email, code });
+    if (!res) {
+      setCodeStatus('error');
+      return setCodeError(texts.errors.network);
+    }
+    if (!res.ok) {
+      setCodeStatus('error');
+      setCodeError(message(res.data, texts.errors.network));
+      window.setTimeout(() => codeField.current?.clear(), 1200);
+      return;
+    }
+    setCodeStatus('success');
+    setDone(true);
+    window.location.assign(nextUrl(urls.app, res.data.next));
   };
 
   const errorBlock = error && (
@@ -342,6 +431,7 @@ export function AuthDialog({ texts, urls }: Props) {
           name="password"
           autoComplete={autoComplete}
           required
+          {...invalidProps('password')}
           minLength={autoComplete === 'new-password' ? 10 : undefined}
           placeholder={
             autoComplete === 'new-password'
@@ -351,6 +441,15 @@ export function AuthDialog({ texts, urls }: Props) {
           value={form.password}
           onChange={set('password')}
           disabled={pending || done}
+          // есть ошибка: описывает она (иначе подсказка затёрла бы ссылку на ошибку из invalidProps);
+          // нет ошибки: подсказка надёжности нового пароля
+          aria-describedby={
+            fieldErrors.password
+              ? errorId('password')
+              : autoComplete === 'new-password'
+                ? `${passwordId}-strength`
+                : undefined
+          }
         />
         <button
           type="button"
@@ -362,13 +461,23 @@ export function AuthDialog({ texts, urls }: Props) {
           {showPassword ? texts.fields.hide : texts.fields.show}
         </button>
       </span>
+      {fieldError('password')}
+      {/* Подсказка надёжности только для нового пароля: при входе она подсказывала бы чужой пароль */}
+      {autoComplete === 'new-password' ? (
+        <div id={`${passwordId}-strength`}>
+          <PasswordStrengthMeter value={form.password} />
+        </div>
+      ) : null}
     </div>
   );
 
   const emailField = (
-    <label className="auth-field">
-      <span className="auth-field__label">{texts.fields.email}</span>
+    <div className="auth-field">
+      <label className="auth-field__label" htmlFor={fieldId('email')}>
+        {texts.fields.email}
+      </label>
       <input
+        id={fieldId('email')}
         className="auth-field__input"
         type="email"
         name="email"
@@ -377,12 +486,14 @@ export function AuthDialog({ texts, urls }: Props) {
         // Окно открылось — курсор сразу в почте (вход) или в имени (регистрация)
         autoFocus={mode === 'login'}
         required
+        {...invalidProps('email')}
         placeholder={texts.fields.emailPlaceholder}
         value={form.email}
         onChange={set('email')}
         disabled={pending || done}
       />
-    </label>
+      {fieldError('email')}
+    </div>
   );
 
   return (
@@ -442,6 +553,16 @@ export function AuthDialog({ texts, urls }: Props) {
                   {texts.sent.text.replace('{email}', sent.email)}
                 </p>
                 <p className="auth-dialog__lead">{texts.sent.next}</p>
+                <OtpInput
+                  ref={codeField}
+                  label={texts.sent.codeLabel}
+                  status={codeStatus}
+                  hint={codeStatus === 'pending' ? texts.sent.codeChecking : texts.sent.codeHint}
+                  errorMessage={codeError}
+                  successMessage={texts.sent.codeAccepted}
+                  onComplete={submitCode}
+                />
+                <p className="auth-form__hint">{texts.sent.linkFallback}</p>
               </>
             ) : (
               <p className="auth-dialog__lead">{texts.sent.notSent}</p>
@@ -473,6 +594,8 @@ export function AuthDialog({ texts, urls }: Props) {
                   setSent(null);
                   setError(null);
                   setResent(false);
+                  setCodeStatus('idle');
+                  setCodeError(null);
                 }}
               >
                 {texts.sent.change}
@@ -582,37 +705,47 @@ export function AuthDialog({ texts, urls }: Props) {
                       </span>
                     </p>
                   )}
-                  <label className="auth-field">
-                    <span className="auth-field__label">{texts.fields.name}</span>
+                  <div className="auth-field">
+                    <label className="auth-field__label" htmlFor={fieldId('name')}>
+                      {texts.fields.name}
+                    </label>
                     <input
+                      id={fieldId('name')}
                       className="auth-field__input"
                       type="text"
                       name="name"
                       autoComplete="name"
                       autoFocus
                       required
+                      {...invalidProps('name')}
                       maxLength={200}
                       placeholder={texts.fields.namePlaceholder}
                       value={form.name}
                       onChange={set('name')}
                       disabled={pending}
                     />
-                  </label>
-                  <label className="auth-field">
-                    <span className="auth-field__label">{texts.fields.hotel}</span>
+                    {fieldError('name')}
+                  </div>
+                  <div className="auth-field">
+                    <label className="auth-field__label" htmlFor={fieldId('businessName')}>
+                      {texts.fields.hotel}
+                    </label>
                     <input
+                      id={fieldId('businessName')}
                       className="auth-field__input"
                       type="text"
                       name="businessName"
                       autoComplete="organization"
                       required
+                      {...invalidProps('businessName')}
                       maxLength={200}
                       placeholder={texts.fields.hotelPlaceholder}
                       value={form.hotelName}
                       onChange={set('hotelName')}
                       disabled={pending}
                     />
-                  </label>
+                    {fieldError('businessName')}
+                  </div>
                   <div className="auth-row">
                     <div className="auth-field">
                       <label className="auth-field__label" htmlFor="auth-country">
@@ -658,19 +791,23 @@ export function AuthDialog({ texts, urls }: Props) {
                   <p className="auth-form__hint" id="auth-language-note">
                     {texts.fields.languageNote}
                   </p>
-                  <label className="auth-field">
-                    <span className="auth-field__label">{texts.fields.phone}</span>
+                  <div className="auth-field">
+                    <label className="auth-field__label" htmlFor={fieldId('phone')}>
+                      {texts.fields.phone}
+                    </label>
                     <span className="auth-field__password auth-phone">
                       <span className="auth-phone__code" aria-hidden="true">
                         {PHONE_COUNTRIES.find((c) => c.code === form.phoneCountry)?.dial ?? '+7'}
                       </span>
                       <input
+                        id={fieldId('phone')}
                         className="auth-field__input"
                         type="tel"
                         inputMode="tel"
                         name="phone"
                         autoComplete="tel-national"
                         required
+                        {...invalidProps('phone')}
                         maxLength={40}
                         placeholder={form.phoneCountry === 'QA' ? '5550 1234' : form.phoneCountry === 'AE' ? '50 123 4567' : texts.fields.phonePlaceholder}
                         value={form.phone}
@@ -678,7 +815,8 @@ export function AuthDialog({ texts, urls }: Props) {
                         disabled={pending}
                       />
                     </span>
-                  </label>
+                    {fieldError('phone')}
+                  </div>
                   {emailField}
                   {passwordField('new-password')}
                   <label className="auth-consent">

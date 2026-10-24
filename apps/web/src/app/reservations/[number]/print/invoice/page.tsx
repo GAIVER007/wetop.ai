@@ -12,6 +12,8 @@ import {
   propertyParty,
   sumMinor,
 } from '../forms';
+import { displayDay } from '../../../../../lib/display-date';
+import { humanizeIsoDates, stayRangeText } from '../../../../../lib/charge-text';
 
 /**
  * Заготовка счёта на оплату — печатная форма RU / KZ. Номер счёта = номер брони. Строки — начисления
@@ -80,7 +82,7 @@ export default async function PrintInvoice({
         {t.title} — {t.number} {r.confirmationNumber}
       </h1>
       <div style={{ textAlign: 'center', fontSize: 13, marginBottom: 14 }}>
-        {t.date}: {now.date}
+        {t.date}: {displayDay(now.date)}
       </div>
 
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -108,7 +110,7 @@ export default async function PrintInvoice({
               <br />
               {t.stay}:{' '}
               {r.items
-                .map((it) => `${it.accommodationTypeName} ${it.arrivalDate} → ${it.departureDate}`)
+                .map((it) => `${it.accommodationTypeName} ${stayRangeText(it.arrivalDate, it.departureDate, 'print')}`)
                 .join('; ')}
             </td>
           </tr>
@@ -146,8 +148,8 @@ export default async function PrintInvoice({
           {lines.map((x, i) => (
             <tr key={x.id} data-testid="invoice-line" data-kind={x.kind}>
               <td style={cell}>{i + 1}</td>
-              <td style={cell}>{x.description}</td>
-              <td style={cell}>{x.serviceDate ?? '—'}</td>
+              <td style={cell}>{humanizeIsoDates(x.description, 'print')}</td>
+              <td style={cell}>{x.serviceDate ? displayDay(x.serviceDate) : '—'}</td>
               <td style={{ ...cell, textAlign: 'right' }}>{x.quantity}</td>
               <td style={{ ...cell, textAlign: 'right' }}>
                 {formatMinor(x.unitPriceMinor, finance.currency)}
@@ -180,7 +182,7 @@ export default async function PrintInvoice({
 
       <div style={{ marginTop: 32, fontSize: 13 }}>{t.signature}: ______________________</div>
       <div style={{ fontSize: 11, color: '#555', marginTop: 24 }}>
-        {t.printedAt}: {now.stamp}
+        {t.printedAt}: {humanizeIsoDates(now.stamp, 'print')}
       </div>
     </main>
   );

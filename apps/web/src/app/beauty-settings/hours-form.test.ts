@@ -29,3 +29,25 @@ it('does not offer schedule changes to a reader', () => {
   expect(html).toContain('Режим работы салона');
   expect(html).not.toContain('Сохранить режим');
 });
+
+it('аудит 21.10.2026 пп. 8, 37: пояс словами, копирование на все дни и «Сохранить» внутри карточки', () => {
+  const html = renderToStaticMarkup(
+    createElement(SalonHoursForm, { initial: { ...initial, configured: true, intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] }, scopeKey: 'synthetic', canEdit: true }),
+  );
+  expect(html).not.toContain('Asia/Almaty');
+  expect(html).toMatch(/Алматы, UTC\+\d/);
+  expect(html).toContain('Скопировать понедельник на все дни');
+  const week = html.slice(html.indexOf('salon-hours-week'));
+  expect(week.indexOf('Сохранить режим')).toBeLessThan(week.indexOf('</fieldset>'));
+});
+
+it('аудит 21.10.2026 п. 2: из настроек салона есть путь к профилю, специалистам, доступу и истории', async () => {
+  // путь идёт через хаб «Настройки» (21.10.2026): одна ссылка отсюда, а в хабе салона все четыре экрана
+  const { SettingsLinks } = await import('./settings-links');
+  const html = renderToStaticMarkup(createElement(SettingsLinks));
+  expect(html).toContain('href="/settings"');
+  const { settingsGroupsFor } = await import('../../lib/settings-hub');
+  const { CLOSED_ACCESS } = await import('../../lib/navigation');
+  const hub = settingsGroupsFor({ ...CLOSED_ACCESS, role: 'OWNER' }, 'BEAUTY').flatMap((g) => g.links.map((l) => l.href));
+  for (const href of ['/branches', '/employees', '/team', '/journal']) expect(hub).toContain(href);
+});

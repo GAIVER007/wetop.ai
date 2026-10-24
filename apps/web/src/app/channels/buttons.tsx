@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { Alert, Button, Notice, Row, Stack, Select } from '../../components/ui';
 import { channelAction, retryEventAction, type ChannelActionResult } from './actions';
@@ -37,13 +38,18 @@ export function ChannelButtons({
     canMutate && start(async () =>
       setResult(await channelAction(kind, kind === 'setup' ? ratePlanCode : undefined)),
     );
-  // Одна причина на группу: без соединения не работает ничего, без ключа — настройка, без адреса — webhook
-  const noConnection = !connected
-    ? 'Нет соединения с менеджером каналов: проверьте ключ и подключение.'
-    : '';
   return (
     <Stack gap="sm">
-      {group !== 'setup' && (
+      {group !== 'setup' && !connected && (
+        // без подключения две выключенные кнопки ничего не объясняли (аудит 22.10.2026 P1-19): один путь подключить
+        <section className="channel-actions" aria-label="Обмен с каналами">
+          <p className="note">
+            Каналы ещё не подключены, поэтому обмен вручную недоступен.{' '}
+            <Link href="/connections/channex">Подключить каналы</Link>
+          </p>
+        </section>
+      )}
+      {group !== 'setup' && connected && (
         <section className="channel-actions" aria-label="Обмен с каналами">
           <h3 className="channel-actions__title">Обмен прямо сейчас</h3>
           <Row>
@@ -65,7 +71,6 @@ export function ChannelButtons({
               Забрать брони из каналов
             </Button>
           </Row>
-          {noConnection && <p className="note">{noConnection}</p>}
         </section>
       )}
       {group !== 'exchange' && (

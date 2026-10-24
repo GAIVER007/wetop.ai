@@ -15,20 +15,31 @@ test('филиалы: создание, сохранение после reload �
       .locator('.org-heading-controls')
       .evaluate((element) => getComputedStyle(element).display),
   ).toBe('flex');
-  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(900);
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(932);
+  // 932 = 900 + 32: от 1280 px шапка в две строки 88 px вместо 56 (20.10.2026)
   // От 1280 px разделы находятся в шапке, кнопка выдвижного меню скрыта из доступного интерфейса.
   await expect(page.getByRole('button', { name: 'Открыть меню', exact: true })).toHaveCount(0);
   await expect(page.getByRole('navigation', { name: 'Главное меню', exact: true })).toBeVisible();
+  // Месяц стрелками с русской подписью (P1-1b): «‹ октябрь 2026 ›», без родного поля type=month
+  await expect(page.locator('.org-month input[type="month"]')).toHaveCount(0);
+  await expect(page.locator('.org-month__label')).toHaveText(
+    /^(январь|февраль|март|апрель|май|июнь|июль|август|сентябрь|октябрь|ноябрь|декабрь) \d{4}$/,
+  );
   const monthControls = await page
-    .locator('.org-month a, .org-month input, .org-month button')
+    .locator('.org-month a, .org-month__label')
     .evaluateAll((elements) =>
       elements.map((element) => ({
         height: element.getBoundingClientRect().height,
         bottom: element.getBoundingClientRect().bottom,
       })),
     );
-  expect(monthControls).toHaveLength(4);
-  expect(monthControls.every((control) => control.height === 40)).toBe(true);
+  expect(monthControls).toHaveLength(3);
+  // Единые поля (21.10.2026): стрелки и подпись месяца той же высоты, что любое поле, из токена --control-h
+  const controlHeight = parseFloat(
+    await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--control-h')),
+  );
+  expect(controlHeight).toBeGreaterThan(0);
+  expect(monthControls.every((control) => control.height === controlHeight)).toBe(true);
   expect(
     monthControls.every((control) => Math.abs(control.bottom - monthControls[0]!.bottom) < 1),
   ).toBe(true);
@@ -56,7 +67,7 @@ test('филиалы: создание, сохранение после reload �
     );
     if (width >= 1024) {
       expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(
-        900,
+        932,
       );
       const card = await main.locator('.org-card').first().boundingBox();
       expect(card).not.toBeNull();

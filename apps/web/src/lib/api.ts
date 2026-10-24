@@ -654,6 +654,8 @@ export const authApi = {
       expiresAt?: string;
       /** Когда выдана сессия; срок `expiresAt` сдвигается работой (Q-153 б), это время нет */
       sessionIssuedAt?: string;
+      /** Язык стойки человека (ADR-163): `ru`, `kk` или `en` */
+      locale?: string;
       access?: DeskAccessView;
       beautyAccess?: BeautyPositionAccess;
       /** Контекст запроса (Platform P2 К1): какой филиал выбран и какое у него направление (Q-254) */
@@ -681,6 +683,7 @@ export const authApi = {
   logout: () => sendJson<{ ok: boolean }>('POST', '/auth/logout', {}),
   changePassword: (body: { currentPassword: string; newPassword: string }) =>
     sendJson<{ ok: boolean }>('POST', '/auth/password', body),
+  changeLocale: (locale: string) => sendJson<{ locale: string }>('POST', '/auth/locale', { locale }),
   /** «Забыли пароль»: ответ один и тот же, есть такая почта или нет */
   requestReset: (body: { email: string }, info?: AuthClientInfo) =>
     sendJson<{ ok: boolean }>(
@@ -728,6 +731,14 @@ export const authApi = {
     sendJson<{ token: string; expiresAt: string; user: SignedIn }>(
       'POST',
       '/auth/email/verify',
+      body,
+      info ? authHeaders(info) : {},
+    ),
+  /** Подтверждение почты кодом из письма (22.10.2026): ответ тот же, что у ссылки и у входа */
+  verifyEmailCode: (body: { email: string; code: string }, info?: AuthClientInfo) =>
+    sendJson<{ token: string; expiresAt: string; user: SignedIn }>(
+      'POST',
+      '/auth/email/verify-code',
       body,
       info ? authHeaders(info) : {},
     ),
@@ -1437,7 +1448,9 @@ export interface UnitCard {
     status: string;
     guestLabel: string;
   }>;
-  housekeepingHistory: Array<{ at: string; from: string; to: string }>;
+  housekeepingHistory: Array<{ at: string; from: string; to: string; by?: string | null }>;
+  /** «Кто убирает» (DATA_MODEL §4.1, 22.10.2026); старый API поля не шлёт */
+  housekeepingAssignee?: { id: string; name: string } | null;
   /** Заведено и последнее изменение, UTC ISO */
   createdAt: string;
   updatedAt: string;
@@ -2971,6 +2984,24 @@ export const businessAgentsApi = {
     sendJson<BusinessAgentView>('POST', '/ai-seller/agents', input, { 'idempotency-key': key }),
 };
 
+/** Состояние ключа модели у продавца: последнее, что видели ход модели или проверка (остаток счёта по API не узнать) */
+export type SellerKeyState = 'ok' | 'no_credits' | 'invalid_key' | 'rate_limited' | 'error';
+export interface SellerLlmKeyStatus {
+  set: boolean;
+  last4: string | null;
+  state: SellerKeyState | null;
+  reason: string | null;
+  checkedAt: string | null;
+}
+export interface SellerLlmUsage {
+  month: string | null;
+  replies: number;
+  tokens: number;
+  /** null: у продавца не заданы цены моделей (LLM_PRICES) */
+  costUsd: number | null;
+  costPartial: boolean;
+}
+
 export const sellerApi = {
   status: () => getJson<SellerStatus>('/ai-seller/status'),
   /** Каталог AI-агентов организации (SA1): только чтение, права `dialogs` */
@@ -2988,11 +3019,14 @@ export const sellerApi = {
   extract: (story: string) =>
     sendJson<SellerExtractResult>('POST', '/ai-seller/extract', { story }),
   /** Ключ модели партнёра (С2): хранит бот, наружу — «установлен + последние 4 знака» */
-  llmKey: () => getJson<{ set: boolean; last4: string | null }>('/ai-seller/llm-key'),
+  llmKey: () => getJson<SellerLlmKeyStatus>('/ai-seller/llm-key'),
+  /** Расход модели за месяц по учёту продавца (не счёт поставщика) */
+  llmUsage: () => getJson<SellerLlmUsage>('/ai-seller/llm-usage'),
   saveLlmKey: (key: string) =>
     sendJson<{ set: boolean; last4: string | null }>('PUT', '/ai-seller/llm-key', { key }),
+  /** Пустой ключ: проверить сохранённый */
   checkLlmKey: (key: string) =>
-    sendJson<{ valid: boolean; reason: string | null }>('POST', '/ai-seller/llm-key/check', {
+    sendJson<{ valid: boolean; state: SellerKeyState | null; reason: string | null }>('POST', '/ai-seller/llm-key/check', {
       key,
     }),
   /** Подключение WhatsApp (С3): токен и секрет Meta живут только у бота */
@@ -3443,6 +3477,10 @@ export interface AuthInviteExtra {
   phone?: string;
   position?: string;
   scopes?: AuthScope[];
+  /** Сотрудник из формы «Новый сотрудник»: имя и филиал берутся из карточки, вход привяжется сам (20.10.2026) */
+  employeeId?: string;
+  /** «Все филиалы» вместо филиала сотрудника */
+  allBranches?: boolean;
 }
 
 /** Бизнесы и филиалы организации для назначений */
@@ -3634,6 +3672,8 @@ export const branchesApi = {
       businesses?: BusinessCardView[];
       items: BranchItem[];
       canCreate: boolean;
+      // «Личный кабинет»: стойка сама выбирает его филиал и ведёт в «Мою работу»
+      personal?: boolean;
     }>('/branches'),
   create: (body: {
     id: string;
@@ -3688,6 +3728,8 @@ export interface BeautyEmployeeRow {
   serviceIds: string[];
   servicesRevision?: string;
   profileRevision?: string;
+  /** Назначение в «Персонале» (DATA_MODEL.md, 18.10.2026); null = не назначено */
+  personnelKind?: 'SPECIALIST' | 'OTHER_EMPLOYEE' | 'BOTH' | null;
 }
 
 export interface BeautyEmployeeServicePriceRow {
@@ -3791,6 +3833,8 @@ export interface BeautyAppointmentRow {
   paidMinor: string;
   paidCashMinor?: string;
   paidNonCashMinor?: string;
+  /** оплачено бонусами и сертификатом (не деньги в кассе, решение 21.10.2026) */
+  paidLoyaltyMinor?: string;
   /** возвращено по выполненной записи (§54), действующие расходы */
   refundedMinor: string;
   currency: string;
@@ -3973,6 +4017,80 @@ export interface BeautyAppointmentHistoryResponse {
   truncated: boolean;
 }
 
+/** Напоминания клиентам салона (решение 21.10.2026 §1) */
+export interface BeautyReminderSettings {
+  locationId: string;
+  configured: boolean;
+  revision: number;
+  enabled: boolean;
+  hoursBefore: number[];
+  template: string | null;
+  defaultTemplate: string;
+  whatsappTemplateName: string | null;
+  whatsappConnected: boolean;
+}
+export interface BeautyReminderItem {
+  id: string;
+  kind: 'REMINDER' | 'CONFIRMATION' | 'REVIEW_REQUEST';
+  /** «Напомнить о записи», «Подтвердить запись», «Попросить отзыв» */
+  kindLabel: string;
+  state: 'PENDING' | 'SENT' | 'MANUAL' | 'FAILED' | 'CANCELLED';
+  stateLabel: string;
+  channel: 'EMAIL' | 'WHATSAPP' | 'MANUAL' | null;
+  dueAt: string;
+  sentAt: string | null;
+  attempts: number;
+  lastError: string | null;
+  appointmentId: string;
+  appointmentStartsAt: string;
+  customerName: string;
+  customerPhone: string | null;
+  text: string | null;
+  whatsappUrl: string | null;
+}
+export interface BeautyRemindersDay {
+  date: string;
+  timezone: string;
+  items: BeautyReminderItem[];
+}
+/** Бонусы и сертификаты салона (решение 21.10.2026 §2-3) */
+export interface BeautyBonusProgram {
+  businessId: string;
+  configured: boolean;
+  revision: number;
+  enabled: boolean;
+  accrualPercent: number;
+  maxRedeemPercent: number;
+  expiresDays: number | null;
+}
+export interface BeautyCustomerBonuses {
+  customerId: string;
+  currency: string;
+  program: { enabled: boolean; accrualPercent: number; maxRedeemPercent: number; expiresDays: number | null };
+  balanceMinor: string;
+  entries: Array<{
+    id: string;
+    kind: 'ACCRUAL' | 'REDEEM' | 'REVERSAL' | 'ADJUSTMENT';
+    amountMinor: string;
+    currency: string;
+    expiresAt: string | null;
+    appointmentId: string | null;
+    reason: string | null;
+    createdAt: string;
+    createdByName: string | null;
+  }>;
+}
+export interface BeautyGiftCertificate {
+  id: string;
+  code: string;
+  initialMinor: string;
+  balanceMinor: string;
+  currency: string;
+  expiresAt: string;
+  status: 'ACTIVE' | 'USED' | 'EXPIRED' | 'VOID';
+  createdAt: string;
+  buyer: { id: string; name: string } | null;
+}
 export interface BeautyLocationHoursResponse {
   location: { id: string; name: string | null; timezone: string };
   configured: boolean;
@@ -4052,12 +4170,45 @@ export const beautyApi = {
       { expectedRevision },
     ),
   locationHours: () => getJson<BeautyLocationHoursResponse>('/beauty/location-hours'),
+  reminderSettings: () => getJson<BeautyReminderSettings>('/beauty/reminder-settings'),
+  saveReminderSettings: (body: {
+    expectedRevision: number;
+    enabled: boolean;
+    hoursBefore: number[];
+    template: string | null;
+    whatsappTemplateName: string | null;
+  }) => sendJson<BeautyReminderSettings>('PUT', '/beauty/reminder-settings', body),
+  reminders: (date?: string) =>
+    getJson<BeautyRemindersDay>(`/beauty/reminders${date ? `?date=${encodeURIComponent(date)}` : ''}`),
+  reminderDone: (id: string) =>
+    sendJson<{ id: string; state: 'SENT' }>('POST', `/beauty/reminders/${encodeURIComponent(id)}/done`, {}),
+  bonusProgram: () => getJson<BeautyBonusProgram>('/beauty/bonus-program'),
+  saveBonusProgram: (body: {
+    expectedRevision: number;
+    enabled: boolean;
+    accrualPercent: number;
+    maxRedeemPercent: number;
+    expiresDays: number | null;
+  }) => sendJson<BeautyBonusProgram>('PUT', '/beauty/bonus-program', body),
+  customerBonuses: (id: string) =>
+    getJson<BeautyCustomerBonuses>(`/beauty/customers/${encodeURIComponent(id)}/bonuses`),
+  adjustBonuses: (id: string, body: { amountMinor: string; reason: string }) =>
+    sendJson<BeautyCustomerBonuses>('POST', `/beauty/customers/${encodeURIComponent(id)}/bonuses/adjustments`, body),
+  giftCertificates: () => getJson<{ currency: string | null; items: BeautyGiftCertificate[] }>('/beauty/gift-certificates'),
+  giftCertificateLookup: (code: string) =>
+    getJson<BeautyGiftCertificate>(`/beauty/gift-certificates/lookup?code=${encodeURIComponent(code)}`),
+  sellGiftCertificate: (body: { amountMinor: number; method: string; months?: number; idempotencyKey: string }) =>
+    sendJson<BeautyGiftCertificate>('POST', '/beauty/gift-certificates', body),
   saveLocationHours: (body: { expectedRevision: number; intervals: BeautyLocationHoursResponse['intervals'] }) => sendJson<BeautyLocationHoursResponse>('PUT', '/beauty/location-hours', body),
   appointmentHistory: (id: string) => getJson<BeautyAppointmentHistoryResponse>(`/beauty/appointments/${encodeURIComponent(id)}/history`),
   issueReviewInvitation: (id: string) => sendJson<{ reviewPath: string; expiresAt: string; masterCount: number }>(
     'POST', `/beauty/appointments/${encodeURIComponent(id)}/review-invitation`, {},
   ),
-  customers: () => getJson<{ items: BeautyCustomerRow[] }>('/beauty/customers'),
+  /** `q`: поиск по имени и телефону в шапке (аудит 22.10.2026 P1-4); API отдаёт до 20 совпадений */
+  customers: (filter: { q?: string } = {}) =>
+    getJson<{ items: BeautyCustomerRow[] }>(
+      `/beauty/customers${filter.q ? `?${new URLSearchParams({ q: filter.q })}` : ''}`,
+    ),
   customer: (id: string) => getJson<BeautyCustomerDetail>(`/beauty/customers/${encodeURIComponent(id)}`),
   createCustomer: (body: { firstName: string; lastName: string; phone: string }) =>
     sendJson<{ id: string; created: boolean }>('POST', '/beauty/customers', body),
@@ -4125,7 +4276,14 @@ export const beautyApi = {
       body,
     ),
   employees: () =>
-    getJson<{ locationId: string | null; items: BeautyEmployeeRow[] }>('/beauty/employees'),
+    getJson<{ locationId: string | null; canAssignPersonnelKind?: boolean; items: BeautyEmployeeRow[] }>(
+      '/beauty/employees',
+    ),
+  assignEmployeePersonnelKind: (
+    id: string,
+    body: { personnelKind: NonNullable<BeautyEmployeeRow['personnelKind']>; expectedProfileRevision: string },
+  ) =>
+    sendJson<BeautyEmployeeRow>('PATCH', `/beauty/employees/${encodeURIComponent(id)}/personnel-kind`, body),
   createEmployee: (body: unknown) => sendJson<BeautyEmployeeRow>('POST', '/beauty/employees', body),
   updateEmployee: (id: string, body: unknown) =>
     sendJson<BeautyEmployeeRow>('PATCH', `/beauty/employees/${encodeURIComponent(id)}`, body),
@@ -4212,7 +4370,7 @@ export const beautyApi = {
       status,
     }),
   /** Оплата записи в кассу филиала (§49) */
-  payAppointment: (id: string, body: { method: string; amount: number; idempotencyKey: string }) =>
+  payAppointment: (id: string, body: { method: string; amount: number; idempotencyKey: string; certificateCode?: string }) =>
     sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/payments`, body),
   /** Возврат по выполненной записи (§54) */
   refundAppointment: (id: string, body: { method: string; amount: number; reason: string; idempotencyKey: string }) =>
@@ -4354,6 +4512,54 @@ export const salesApi = {
   summary: (from: string, to: string) =>
     getJson<SalesSummary>(
       `/sales/summary?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    ),
+};
+
+/** «Конкуренты» салона и ресторана (DATA_MODEL §60): соседи филиала и снимки дня */
+export type BusinessAvailability = 'SOLD_OUT' | 'FEW_LEFT' | 'AVAILABLE';
+export interface BusinessCompetitor {
+  id: string;
+  name: string;
+  address: string | null;
+  distanceM: number | null;
+  url: string | null;
+  note: string | null;
+  active: boolean;
+}
+export interface BusinessMarketView {
+  today: string;
+  competitors: BusinessCompetitor[];
+  board: {
+    days: string[];
+    competitors: Array<{
+      id: string;
+      name: string;
+      url: string | null;
+      distanceM: number | null;
+      platform: string | null;
+      lastObservedOn: string | null;
+      cells: Array<{ day: string; level: BusinessAvailability | null; freeSlots: number | null; source: 'MANUAL' | 'AI_AGENT' | null; observedOn: string | null }>;
+    }>;
+    market: Array<{ day: string; withData: number; tight: number; full: boolean }>;
+    summary: { competitors: number; withData: number; fullDays: number; lastObservedOn: string | null };
+  };
+}
+export const businessMarketApi = {
+  board: (q: { from?: string; days?: number } = {}) => {
+    const qs = new URLSearchParams();
+    if (q.from) qs.set('from', q.from);
+    if (q.days) qs.set('days', String(q.days));
+    const tail = qs.toString();
+    return getJson<BusinessMarketView>(`/business-market${tail ? `?${tail}` : ''}`);
+  },
+  create: (body: Record<string, unknown>) => sendJson<BusinessCompetitor>('POST', '/business-market/competitors', body),
+  update: (id: string, body: Record<string, unknown>) =>
+    sendJson<BusinessCompetitor>('PATCH', `/business-market/competitors/${encodeURIComponent(id)}`, body),
+  snapshot: (id: string, body: { day: string; level?: BusinessAvailability | ''; freeSlots?: string }) =>
+    sendJson<{ day: string; level: BusinessAvailability; freeSlots: number | null }>(
+      'PUT',
+      `/business-market/competitors/${encodeURIComponent(id)}/snapshot`,
+      body,
     ),
 };
 
@@ -4526,6 +4732,30 @@ export interface MarketingAdProposal {
   notes: string[];
 }
 
+export interface MarketingAudienceSettings {
+  countryCode: string;
+  cities: Array<{ key: string; name: string }>;
+  ageMin: number;
+  ageMax: number;
+  genders: number[];
+  advantageAudience: boolean;
+}
+interface MarketingLibraryTotals {
+  currency: string;
+  launches: number;
+  leads: number;
+  clicks: number;
+  impressions: number;
+  spendMinor: string;
+  cplMinor: string | null;
+  lastAt: string;
+  lastLaunchId: string;
+}
+export interface MarketingAdLibrary {
+  audiences: Array<MarketingLibraryTotals & { key: string; label: string; settings: MarketingAudienceSettings }>;
+  creatives: Array<MarketingLibraryTotals & { creativeId: string; kind: 'IMAGE' | 'VIDEO'; fileName: string; bestHeadline: string }>;
+}
+
 export interface MarketingAdLaunchView {
   id: string;
   status: 'RUNNING' | 'SUCCEEDED' | 'FAILED';
@@ -4540,6 +4770,58 @@ export interface MarketingAdLaunchView {
   createdAt: string;
   finishedAt: string | null;
 }
+
+/** «Контент»: вариант поста от ИИ (content-draft/0) после правил домена */
+export interface ContentVariantView {
+  hook: string;
+  title: string | null;
+  body: string;
+  hashtags: string[];
+  cta: ContentCtaCode;
+  /** Цифры текста, которых нет в карточке филиала и в теме: «проверьте» */
+  warnings: string[];
+  /** Готовый пост: текст, строка действия из карточки, хештеги */
+  preview: string;
+}
+export type ContentChannelCode = 'INSTAGRAM' | 'FACEBOOK' | 'TELEGRAM' | 'WHATSAPP_STATUS';
+export type ContentCtaCode = 'BOOK_ONLINE' | 'WHATSAPP' | 'CALL' | 'VISIT' | 'NONE';
+export interface ContentDraftView {
+  id: string;
+  channel: ContentChannelCode;
+  topic: string;
+  title: string | null;
+  body: string;
+  hashtags: string[];
+  cta: ContentCtaCode | null;
+  origin: 'AI' | 'MANUAL';
+  plannedOn: string | null;
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  publishedAt: string | null;
+  revision: number;
+  createdAt: string;
+  preview: string;
+}
+export interface ContentWeekView {
+  week: { from: string; to: string };
+  today: string;
+  ctas: ContentCtaCode[];
+  items: ContentDraftView[];
+}
+
+export const contentApi = {
+  /** ИИ предлагает 1–2 варианта; ничего не сохраняет */
+  proposal: (body: unknown) =>
+    sendJson<{ variants: ContentVariantView[]; ctas: ContentCtaCode[] }>('POST', '/marketing/content/drafts/proposal', body),
+  week: (week?: string) =>
+    getJson<ContentWeekView>(`/marketing/content/drafts${week ? `?week=${encodeURIComponent(week)}` : ''}`),
+  create: (body: unknown) => sendJson<ContentDraftView>('POST', '/marketing/content/drafts', body),
+  update: (id: string, body: unknown) =>
+    sendJson<ContentDraftView>('PATCH', `/marketing/content/drafts/${encodeURIComponent(id)}`, body),
+  published: (id: string, expectedRevision: number) =>
+    sendJson<ContentDraftView>('POST', `/marketing/content/drafts/${encodeURIComponent(id)}/published`, { expectedRevision }),
+  archive: (id: string, expectedRevision: number) =>
+    sendJson<ContentDraftView>('POST', `/marketing/content/drafts/${encodeURIComponent(id)}/archive`, { expectedRevision }),
+};
 
 export const marketingAdsApi = {
   assets: () => getJson<MarketingAdAssets>('/marketing/ads/assets'),
@@ -4560,10 +4842,118 @@ export const marketingAdsApi = {
   start: (body: unknown) => sendJson<{ id: string }>('POST', '/marketing/ads/launches', body),
   launch: (id: string) => getJson<MarketingAdLaunchView>(`/marketing/ads/launches/${encodeURIComponent(id)}`),
   launches: () => getJson<MarketingAdLaunchView[]>('/marketing/ads/launches'),
+  /** «Аудитории» и «Креативы»: успешные запуски филиала с результатом кабинета (23.10.2026) */
+  library: () => getJson<MarketingAdLibrary>('/marketing/ads/library'),
+  /** Аудитория прошлого запуска для мастера; право `ads_launch` */
+  audienceOf: (id: string) =>
+    getJson<MarketingAudienceSettings>(`/marketing/ads/launches/${encodeURIComponent(id)}/audience`),
   pause: (campaignId: string) =>
     sendJson<{ status: string }>('POST', `/marketing/ads/campaigns/${encodeURIComponent(campaignId)}/pause`, {}),
   resume: (campaignId: string) =>
     sendJson<{ status: string }>('POST', `/marketing/ads/campaigns/${encodeURIComponent(campaignId)}/resume`, {}),
+};
+
+/** Голосовой агент: итоги месяца, журнал звонков и просьбы перезвонить (API `/marketing/voice`, право `marketing`) */
+export interface VoiceSummaryView {
+  month: string;
+  timezone: string;
+  hasData: boolean;
+  totals: {
+    calls: number;
+    answered: number;
+    ended: number;
+    rejected: number;
+    failed: number;
+    callbacks: number;
+    transfers: number;
+    /** null: усреднять нечего */
+    avgDurationSeconds: number | null;
+  };
+}
+
+export interface VoiceCallRow {
+  id: string;
+  receivedAt: string;
+  callerMasked: string | null;
+  state: string;
+  direction: string;
+  durationSeconds: number | null;
+  transferRequested: boolean;
+  callbackRequested: boolean;
+  endReason: string | null;
+}
+
+export interface VoiceCallsView {
+  month: string;
+  timezone: string;
+  total: number;
+  rows: VoiceCallRow[];
+}
+
+export interface VoiceCallbackRow {
+  id: string;
+  callId: string;
+  phone: string;
+  name: string;
+  note: string;
+  status: 'NEW' | 'DONE';
+  createdAt: string;
+  doneAt: string | null;
+}
+
+/** Настройка брони по телефону (срез 4): выключатель, лимит за звонок и причины, почему включить нельзя */
+export interface VoiceBookingView {
+  hasAgent: boolean;
+  vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE' | null;
+  enabled: boolean;
+  needsApproval: boolean;
+  maxPerCall: number;
+  canEnable: boolean;
+  blockers: string[];
+}
+
+/** Бронь, принятая голосовым агентом: без имени и телефона гостя */
+export interface VoiceBookingRow {
+  id: string;
+  kind: 'HOTEL' | 'APPOINTMENT' | 'TABLE';
+  at: string;
+  status: string | null;
+  reference?: string;
+  category?: string;
+  arrival?: string;
+  departure?: string;
+  adults?: number;
+  service?: string;
+  master?: string;
+  startsAt?: string;
+  partySize?: number;
+  period?: string;
+  totalMinor?: string;
+  currency?: string;
+}
+
+export interface VoiceBookingsView {
+  timezone: string;
+  days: number;
+  last24h: number;
+  rows: VoiceBookingRow[];
+}
+
+export const marketingVoiceApi = {
+  bookings: (days = 7) => getJson<VoiceBookingsView>(`/marketing/voice/bookings?days=${days}`),
+  booking: () => getJson<VoiceBookingView>('/marketing/voice/booking'),
+  saveBooking: (body: { enabled?: boolean; maxPerCall?: number }) =>
+    sendJson<VoiceBookingView>('PATCH', '/marketing/voice/booking', body),
+  summary: (month?: string) =>
+    getJson<VoiceSummaryView>(`/marketing/voice/summary${month ? `?month=${encodeURIComponent(month)}` : ''}`),
+  calls: (month?: string, limit = 50, offset = 0) =>
+    getJson<VoiceCallsView>(
+      `/marketing/voice/calls?limit=${limit}&offset=${offset}${month ? `&month=${encodeURIComponent(month)}` : ''}`,
+    ),
+  callbacks: (status?: 'NEW' | 'DONE', limit = 100) =>
+    getJson<VoiceCallbackRow[]>(`/marketing/voice/callbacks?limit=${limit}${status ? `&status=${status}` : ''}`),
+  closeCallback: (id: string) =>
+    sendJson<VoiceCallbackRow>('PATCH', `/marketing/voice/callbacks/${encodeURIComponent(id)}`, { status: 'DONE' }),
 };
 
 export const marketingCampaignsApi = {

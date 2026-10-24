@@ -2,10 +2,9 @@
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
-import { IconField } from '../../components/icon-field';
-import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Input, Select, StatusBadge, Textarea } from '../../components/ui';
 import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
+import { currencySign } from '../../lib/money';
 import type {
   DiningArea,
   DiningTable,
@@ -21,6 +20,12 @@ import { localInput } from '../beauty/time';
 import { mutateOrder, orderRatingLink } from './restaurant-actions';
 import { useConfirm } from '../../components/use-confirm';
 import { QrCode, StarsInput } from './rating-parts';
+import { compareTables } from '../../lib/table-title';
+import { CurrentOrder, DishPicker } from './dish-picker';
+import { orderLinesToCart } from '../../lib/food-modifiers';
+import { LineModifiers, SplitBill } from './modifier-parts';
+import { useBranchPaymentMethods } from '../branch-payment-methods/use-branch-methods';
+import { branchMethodsShown } from '../branch-payment-methods/shown';
 
 export interface OrderContext {
   scopeKey: string;
@@ -144,6 +149,8 @@ function PaymentPanel({
   const [error, setError] = useState('');
   const remaining = BigInt(order.totalMinor) - BigInt(order.paidMinor);
   const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
+  // §21.7: оплата только включёнными в филиале способами; возврат прежним способом, поэтому там полный список
+  const accepted = useBranchPaymentMethods(ctx.scopeKey);
   const [amount, setAmount] = useState(String(remaining / 100n));
   const [voiding, setVoiding] = useState<string | null>(null);
   const [reason, setReason] = useState('');
@@ -156,7 +163,7 @@ function PaymentPanel({
   const [refundReason, setRefundReason] = useState('');
   function refund() {
     const tenge = Number(refundAmount);
-    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма в тенге, целое число больше нуля');
+    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма: целое число больше нуля');
     if (!refundReason.trim()) return setError('Укажите причину возврата');
     start(async () =>
       done(
@@ -185,7 +192,7 @@ function PaymentPanel({
   };
   function pay() {
     const tenge = Number(amount);
-    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма в тенге, целое число больше нуля');
+    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма: целое число больше нуля');
     start(async () =>
       done(
         await mutateOrder(ctx.scopeKey, {
@@ -254,14 +261,14 @@ function PaymentPanel({
         <div className="food-form-row">
           <Field label="Способ">
             <Select value={method} onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}>
-              {FOOD_PAYMENT_METHODS.map((m) => (
+              {branchMethodsShown(FOOD_PAYMENT_METHODS, accepted, method).map((m) => (
                 <option key={m} value={m}>
                   {METHOD_RU[m] ?? m}
                 </option>
               ))}
             </Select>
           </Field>
-          <Field label="Сумма, ₸">
+          <Field label={`Сумма, ${currencySign(order.currency)}`}>
             <Input
               inputMode="numeric"
               value={amount}
@@ -274,7 +281,7 @@ function PaymentPanel({
         </div>
       )}
       {open && remaining === 0n && order.status !== 'SERVED' && (
-        <p className="muted">Оплачено полностью: заказ закроется сам, когда его подадут.</p>
+        <p className="muted">Оплачено полностью. Когда заказ подадут, нажмите «Закрыть заказ».</p>
       )}
       {refundable && (
         <section className="food-form" aria-label="Возврат по заказу">
@@ -288,7 +295,7 @@ function PaymentPanel({
                 ))}
               </Select>
             </Field>
-            <Field label="Сумма возврата, ₸">
+            <Field label={`Сумма возврата, ${currencySign(order.currency)}`}>
               <Input inputMode="numeric" value={refundAmount} onChange={(e) => setRefundAmount(e.target.value.replace(/\D/g, ''))} />
             </Field>
           </div>
@@ -304,141 +311,6 @@ function PaymentPanel({
   );
 }
 
-/** Выбор блюд по макету POS (экран 5): вкладки категорий, поиск, плитки с фото и ценой; щелчок добавляет порцию */
-function DishPicker({
-  ctx,
-  items,
-  setItems,
-}: {
-  ctx: OrderContext;
-  items: OrderItemInput[];
-  setItems: (items: OrderItemInput[]) => void;
-}) {
-  const [category, setCategory] = useState('');
-  const [query, setQuery] = useState('');
-  const q = query.trim().toLocaleLowerCase('ru');
-  const dishes = ctx.menuItems.filter(
-    (m) =>
-      m.active &&
-      (!category || m.categoryId === category) &&
-      (!q || m.name.toLocaleLowerCase('ru').includes(q)),
-  );
-  const add = (id: string) => {
-    const index = items.findIndex((i) => i.menuItemId === id);
-    if (index >= 0)
-      setItems(items.map((item, i) => (i === index ? { ...item, qty: item.qty + 1 } : item)));
-    else setItems([...items, { menuItemId: id, qty: 1 }]);
-  };
-  return (
-    <div className="rest-pos-menu">
-      <nav className="rest-utabs" aria-label="Категории меню">
-        <button type="button" aria-current={!category ? 'page' : undefined} onClick={() => setCategory('')}>
-          Все блюда
-        </button>
-        {ctx.categories
-          .filter((c) => c.active)
-          .map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              aria-current={category === c.id ? 'page' : undefined}
-              onClick={() => setCategory(c.id)}
-            >
-              {c.name}
-            </button>
-          ))}
-      </nav>
-      <Field label={<span className="sr-only">Поиск блюда</span>}>
-        <IconField icon="search">
-          <Input
-            type="search"
-            placeholder="Поиск блюда"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </IconField>
-      </Field>
-      {dishes.length === 0 ? (
-        <p className="muted">Блюд не найдено</p>
-      ) : (
-        <div className="rest-pos-grid">
-          {dishes.map((m) => (
-            <button
-              type="button"
-              className="rest-pos-dish"
-              key={m.id}
-              aria-label={`Добавить: ${m.name}, ${wholeTenge(m.priceMinor, m.currency)}`}
-              onClick={() => add(m.id)}
-            >
-              {m.photoUrl ? (
-                <img src={m.photoUrl} alt="" width={160} height={120} />
-              ) : (
-                <span className="rest-pos-dish__ph" aria-hidden="true">
-                  <Icon name="kettle" />
-                </span>
-              )}
-              <span className="rest-pos-dish__name">{m.name}</span>
-              <strong>{wholeTenge(m.priceMinor, m.currency)}</strong>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/** Текущий заказ справа: строки с количеством, итог по ценам меню */
-function CurrentOrder({
-  ctx,
-  items,
-  setItems,
-}: {
-  ctx: OrderContext;
-  items: OrderItemInput[];
-  setItems: (items: OrderItemInput[]) => void;
-}) {
-  const byId = new Map(ctx.menuItems.map((m) => [m.id, m]));
-  const total = items.reduce(
-    (acc, i) => acc + BigInt(byId.get(i.menuItemId)?.priceMinor ?? '0') * BigInt(i.qty),
-    0n,
-  );
-  const change = (index: number, qty: number) => {
-    if (qty <= 0) setItems(items.filter((_, i) => i !== index));
-    else setItems(items.map((item, i) => (i === index ? { ...item, qty } : item)));
-  };
-  return (
-    <div className="rest-order-items">
-      <h3>
-        Текущий заказ <small>({items.reduce((acc, i) => acc + i.qty, 0)})</small>
-      </h3>
-      {items.length === 0 && <p className="muted">Выберите блюда слева</p>}
-      {items.map((item, index) => {
-        const m = byId.get(item.menuItemId);
-        return (
-          <div className="rest-order-item rest-order-item--pos" key={item.menuItemId}>
-            <span className="rest-order-qty">
-              <Button tone="ghost" aria-label="Меньше" onClick={() => change(index, item.qty - 1)}>
-                −
-              </Button>
-              <span aria-label="Количество">{item.qty}</span>
-              <Button tone="ghost" aria-label="Больше" onClick={() => change(index, item.qty + 1)}>
-                +
-              </Button>
-            </span>
-            <strong>{m?.name ?? 'Блюдо'}</strong>
-            <span className="rest-tech-cost">
-              {m ? wholeTenge(String(BigInt(m.priceMinor) * BigInt(item.qty)), m.currency) : '—'}
-            </span>
-          </div>
-        );
-      })}
-      <div className="rest-order-total">
-        <span>Итого</span>
-        <strong data-testid="order-draft-total">{wholeTenge(String(total))}</strong>
-      </div>
-    </div>
-  );
-}
 
 export function OrderDrawer({
   ctx,
@@ -454,6 +326,8 @@ export function OrderDrawer({
   const [saved, setSaved] = useState<OrderView | null>(null);
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
+  // §33.7: «Разделить счёт» поровну или по позициям
+  const [splitting, setSplitting] = useState(false);
   const initial = draft.kind === 'view' ? draft.order : null;
   const order =
     saved && (!initial || Date.parse(saved.updatedAt) >= Date.parse(initial.updatedAt))
@@ -467,9 +341,7 @@ export function OrderDrawer({
   const [guestCount, setGuestCount] = useState(order?.guestCount ?? 2);
   const [notes, setNotes] = useState(order?.notes ?? '');
   const [items, setItems] = useState<OrderItemInput[]>(
-    order?.items
-      .filter((i) => i.menuItemId)
-      .map((i) => ({ menuItemId: i.menuItemId!, qty: i.qty, notes: i.notes })) ??
+    (order ? orderLinesToCart(order.items) : undefined) ??
       (draft.kind === 'create' ? (draft.items ?? []) : []),
   );
   const areaName = useMemo(
@@ -593,7 +465,7 @@ export function OrderDrawer({
                 <div className="rest-order-item" key={i.id}>
                   <strong>
                     {i.name}
-                    {i.notes ? <small>, {i.notes}</small> : null}
+                    <LineModifiers modifiers={i.modifiers} notes={i.notes} />
                   </strong>
                   <span>× {i.qty}</span>
                   <span className="rest-tech-cost">
@@ -609,6 +481,12 @@ export function OrderDrawer({
               </div>
             </div>
             <PaymentPanel ctx={ctx} order={order} onSaved={setSaved} />
+            {ctx.write && order.status !== 'CLOSED' && order.status !== 'CANCELLED' && BigInt(order.totalMinor) > BigInt(order.paidMinor) && (
+              <Button tone="secondary" data-testid="split-bill-open" onClick={() => setSplitting(true)}>
+                Разделить счёт
+              </Button>
+            )}
+            {splitting && <SplitBill scopeKey={ctx.scopeKey} order={order} onSaved={setSaved} close={() => setSplitting(false)} />}
             <RatingPanel ctx={ctx} order={order} onSaved={setSaved} />
             {ctx.write && (
               <div className="food-actions">
@@ -643,6 +521,7 @@ export function OrderDrawer({
                     <option value="">Без стола</option>
                     {ctx.tables
                       .filter((t) => t.active)
+                      .sort(compareTables)
                       .map((t) => (
                         <option key={t.id} value={t.id}>
                           {tableLabel(t)}

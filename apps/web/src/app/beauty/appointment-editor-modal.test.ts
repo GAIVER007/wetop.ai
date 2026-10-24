@@ -19,7 +19,7 @@ describe('AppointmentEditor modal placement', () => {
       time: '10:00',
     }));
 
-    expect(html).toContain('class="ui-overlay  ui-overlay--lg appointment-editor"');
+    expect(html).toContain('class="ui-overlay  ui-overlay--xl appointment-editor"');
     expect(html).not.toContain('ui-drawer');
     expect(html).toContain('data-testid="confirm-dialog"');
   });

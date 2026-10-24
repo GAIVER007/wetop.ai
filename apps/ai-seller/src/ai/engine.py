@@ -21,6 +21,7 @@ import sqlalchemy as sa
 
 from src import dependencies
 from src.ai import budget
+from src.ai import key_state
 from src.ai import lead as lead_rules
 from src.ai.context import HistoryTurn, build_messages
 from src.ai.engine_types import IncomingMessage, Status, Turn, TurnOutcome
@@ -316,6 +317,11 @@ class Engine:
         finally:
             # Списание при любом исходе: неудачный ответ оплачен так же, как удачный (ревизия 26.09).
             await self._settle_tokens(budget_key, reserved, getattr(t.result, "tokens_used", None))
+        # Состояние ключа организации для экрана «Модель ИИ»: удачный ход значит ключ работает, отказ с кодом говорит какой
+        state = None
+        if t.result is not None:
+            state = key_state.OK if t.result.ok else key_state.from_attempts(t.result.attempts)
+            await key_state.record(self._redis, t.incoming.org_uuid(), state)
         if t.result is None or not t.result.ok or t.result.parsed is None:
             # Клиенту нейтральная фраза, не текст ошибки; владельцу — алерт llm_down (шаг 8).
             reason = "exception" if t.result is None else (t.result.error or "no_reply")
@@ -324,8 +330,10 @@ class Engine:
             # Р1 (решение владельца 02.10): фраза обещает администратора — диалог помечен для сотрудника
             self._mark_for_staff(t)
             who_key, who = await self._who(t)
-            t.alerts.append(("llm_down", _llm_down_body(who, reason, getattr(t.result, "attempts", None) or []),
-                             f"llm_down:{who_key}"))
+            body = _llm_down_body(who, reason, getattr(t.result, "attempts", None) or [])
+            if state in (key_state.NO_CREDITS, key_state.INVALID_KEY):
+                body += f" Похоже: {key_state.REASONS[state].lower()}."
+            t.alerts.append(("llm_down", body, f"llm_down:{who_key}"))
             return
 
     async def _reserve_tokens(self, key: str) -> int | None:

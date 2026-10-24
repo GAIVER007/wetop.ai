@@ -79,9 +79,11 @@ test('отмена заранее — без штрафа, незаезд — с
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, plus(21), plus(24)));
   // тариф со штрафом в первую ночь — по политике, а не по коду объекта (Q-103)
-  await f2
-    .locator('select[name="ratePlanCode"]')
-    .selectOption(await ratePlanWithPenalty(request, 'FIRST_NIGHT'));
+  // при одном тарифе поле скрыто (решение 23.10.2026), тогда проверяем, что уходит именно он
+  const penaltyPlan = await ratePlanWithPenalty(request, 'FIRST_NIGHT');
+  const plan = f2.locator('[name="ratePlanCode"]');
+  if ((await plan.evaluate((el) => el.tagName)) === 'SELECT') await plan.selectOption(penaltyPlan);
+  else await expect(plan).toHaveValue(penaltyPlan);
   const unit = f2.locator('select[name="unitCode"]');
   await unit.selectOption(await unitOption(unit));
   await f2.locator('input[name="firstName"]').fill('Гость');

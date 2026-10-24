@@ -282,13 +282,18 @@ function addDays(date: string, n: number): string {
   return x.toISOString().slice(0, 10);
 }
 
-/** Сумма в тиынах → «12 000,00 ₸» для сообщения администратору. */
+/** Сумма в тиынах → «12 000 ₸» для сообщения администратору; копейки только когда они есть (как formatMoney стойки). */
 function formatMinorRu(minor: bigint): string {
   const neg = minor < 0n;
-  const d = (neg ? -minor : minor).toString().padStart(3, '0');
-  const int = d.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-  return `${neg ? '−' : ''}${int},${d.slice(-2)} ₸`;
+  const abs = neg ? -minor : minor;
+  const int = (abs / 100n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  const cents = abs % 100n;
+  return `${neg ? '−' : ''}${int}${cents ? `,${cents.toString().padStart(2, '0')}` : ''} ₸`;
 }
+
+/** Дата проживания в сообщении человеку: «22.10.2026», не ISO (аудит 22.10.2026) */
+const ruDay = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}`;
+const ruRange = (from: string, to: string) => `${ruDay(from)} – ${ruDay(to)}`;
 
 async function guarded<T>(fn: () => Promise<T> | T): Promise<T> {
   try {
@@ -506,7 +511,7 @@ export class ReservationsService {
         throw new BadRequestException('items[].quantity — целое ≥ 1 (число мест в категории)');
       if ((it.quantity ?? 1) > 1 && it.unitCode)
         throw new BadRequestException(
-          'items[].unitCode задаётся только для одного места: при quantity > 1 ячейки назначает система',
+          'Номер выбирается только для одного места: при нескольких местах номера назначает система',
         );
       if (it.autoAssign && it.unitCode)
         throw new BadRequestException('items[].autoAssign и unitCode не сочетаются');
@@ -619,7 +624,7 @@ export class ReservationsService {
             ).filter((u) => !pickedUnits.has(u.id));
             if (free.length < quantity)
               throw new ConflictException(
-                `В категории ${type.name} на ${dates.arrivalDate} → ${dates.departureDate} свободно только ${free.length} из ${quantity} мест`,
+                `В категории ${type.name} на ${ruRange(dates.arrivalDate, dates.departureDate)} свободно только ${free.length} из ${quantity} мест`,
               );
             for (const unit of free.slice(0, quantity)) {
               pickedUnits.add(unit.id);
@@ -638,18 +643,18 @@ export class ReservationsService {
             const unit = await repo.unitByCode(it.unitCode);
             if (!unit || !unit.active)
               throw new UnprocessableEntityException(
-                `Ячейка ${it.unitCode} не найдена или неактивна`,
+                `Номер ${it.unitCode} не найден или выключен`,
               );
             if (unit.accommodationTypeId !== type.id)
               throw new UnprocessableEntityException(
-                `Ячейка ${it.unitCode} принадлежит другой категории`,
+                `Номер ${it.unitCode} из другой категории`,
               );
             if (await repo.hasBlockOverlap(unit.id, dates.arrivalDate, dates.departureDate))
-              throw new ConflictException(`Ячейка ${it.unitCode} заблокирована на эти даты`);
+              throw new ConflictException(`Номер ${it.unitCode} заблокирован на эти даты`);
             if (await repo.hasAllocationOverlap(unit.id, dates.arrivalDate, dates.departureDate))
-              throw new ConflictException(`Ячейка ${it.unitCode} занята на выбранные даты`);
+              throw new ConflictException(`Номер ${it.unitCode} занят на выбранные даты`);
             if (pickedUnits.has(unit.id))
-              throw new ConflictException(`Ячейка ${it.unitCode} указана в брони дважды`);
+              throw new ConflictException(`Номер ${it.unitCode} указан в брони дважды`);
             pickedUnits.add(unit.id);
             unitId = unit.id;
           } else if (it.autoAssign) {
@@ -935,7 +940,7 @@ export class ReservationsService {
       if (!q.unitCode) throw new BadRequestException('unitCode обязателен для action=move');
       const unit = await repo.unitByCode(q.unitCode);
       if (!unit || !unit.active)
-        throw new UnprocessableEntityException(`Ячейка ${q.unitCode} не найдена или неактивна`);
+        throw new UnprocessableEntityException(`Номер ${q.unitCode} не найден или выключен`);
       const changesCategory = unit.accommodationTypeId !== item.accommodationTypeId;
       if (!changesCategory)
         return {
@@ -947,7 +952,7 @@ export class ReservationsService {
         };
       const target = await repo.categoryById(unit.accommodationTypeId);
       if (!target || !target.active)
-        throw new UnprocessableEntityException(`Категория ячейки ${q.unitCode} неактивна`);
+        throw new UnprocessableEntityException(`Категория номера ${q.unitCode} выключена`);
       const planId = await this.resolvePlanId(repo, item, q.ratePlanCode);
       if (!(await repo.ratePlanCoversType(planId, target.id)))
         throw new UnprocessableEntityException(`Тариф не действует на категорию ${target.name}`);
@@ -1022,12 +1027,12 @@ export class ReservationsService {
           // Блокировки лежат в отдельной таблице, ограничение базы их не ловит — спрашиваем явно
           if (await repo.hasBlockOverlap(last.unitId, item.departureDate, departureDate))
             throw new ConflictException(
-              `Ячейка ${last.unitCode} заблокирована на ${item.departureDate} → ${departureDate}`,
+              `Номер ${last.unitCode} заблокирован на ${ruRange(item.departureDate, departureDate)}`,
             );
           if (
             await repo.hasAllocationOverlap(last.unitId, item.departureDate, departureDate, item.id)
           )
-            throw new ConflictException(`Ячейка ${last.unitCode} занята на новые ночи`);
+            throw new ConflictException(`Номер ${last.unitCode} занят на новые ночи`);
           await repo.replaceAllocationDates(last.id, last.startDate, departureDate);
         }
         // У брони без тарифа выбранный тариф записывается: дальше в нём продлевают, штраф — его (Q-201)
@@ -1080,7 +1085,7 @@ export class ReservationsService {
         const before = await repo.card(number);
         const unit = await repo.unitByCode(dto.unitCode!);
         if (!unit || !unit.active)
-          throw new UnprocessableEntityException(`Ячейка ${dto.unitCode} не найдена или неактивна`);
+          throw new UnprocessableEntityException(`Номер ${dto.unitCode} не найден или выключен`);
         const changesCategory = unit.accommodationTypeId !== item.accommodationTypeId;
         const fromDate = dto.fromDate ?? item.arrivalDate;
         if (fromDate < item.arrivalDate || fromDate >= item.departureDate)
@@ -1092,7 +1097,7 @@ export class ReservationsService {
             'Переселение в другую категорию возможно только на всё проживание: у проживания одна категория',
           );
         if (await repo.hasBlockOverlap(unit.id, fromDate, item.departureDate))
-          throw new ConflictException(`Ячейка ${dto.unitCode} заблокирована на эти даты`);
+          throw new ConflictException(`Номер ${dto.unitCode} заблокирован на эти даты`);
 
         let repriced: bigint | null = null;
         if (changesCategory) {
@@ -1160,8 +1165,8 @@ export class ReservationsService {
     if (left < need)
       throw new ConflictException(
         need > 1
-          ? `В категории ${type.name} на ${dates.arrivalDate} → ${dates.departureDate} свободно только ${left} из ${need} мест`
-          : `В категории ${type.name} на ${dates.arrivalDate} → ${dates.departureDate} мест нет: всё продано, часть броней канала ещё без ячейки`,
+          ? `В категории ${type.name} на ${ruRange(dates.arrivalDate, dates.departureDate)} свободно только ${left} из ${need} мест`
+          : `В категории ${type.name} на ${ruRange(dates.arrivalDate, dates.departureDate)} мест нет: всё продано, часть броней канала ещё без номера`,
       );
   }
 
@@ -1453,7 +1458,7 @@ export class ReservationsService {
     if (unit.accommodationTypeId === item.accommodationTypeId) return null;
     const target = await repo.categoryById(unit.accommodationTypeId);
     if (!target || !target.active)
-      throw new UnprocessableEntityException(`Категория ячейки ${unit.code} неактивна`);
+      throw new UnprocessableEntityException(`Категория номера ${unit.code} выключена`);
     const adults = Math.max(1, item.adults || item.guestsCount);
     assertFits(target, adults, item.children);
     const planId = await this.resolvePlanId(repo, item, ratePlanCode);
@@ -1499,11 +1504,11 @@ export class ReservationsService {
       try {
         assertCanAssign(item.status);
         if (!unit || !unit.active)
-          throw new UnprocessableEntityException(`Ячейка ${q.unitCode} не найдена или неактивна`);
+          throw new UnprocessableEntityException(`Номер ${q.unitCode} не найден или выключен`);
         if (await repo.hasBlockOverlap(unit.id, item.arrivalDate, item.departureDate))
-          throw new ConflictException(`Ячейка ${unit.code} заблокирована на эти даты`);
+          throw new ConflictException(`Номер ${unit.code} заблокирован на эти даты`);
         if (await repo.hasAllocationOverlap(unit.id, item.arrivalDate, item.departureDate, item.id))
-          throw new ConflictException(`Ячейка ${unit.code} занята на эти даты`);
+          throw new ConflictException(`Номер ${unit.code} занят на эти даты`);
         const r = await this.repriceForUnit(repo, item, unit, q.ratePlanCode);
         newMinor = r ? r.price.totalMinor : item.priceMinor;
       } catch (e) {

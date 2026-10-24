@@ -24,6 +24,8 @@ function makeFakes() {
   const blockAudits: unknown[] = [];
   const separateAudits: string[] = [];
   let hk: 'DIRTY' | 'CLEAN' | 'INSPECTED' = 'DIRTY';
+  let assignee: string | null = null;
+  const MAID = '11111111-1111-4111-8111-111111111111';
   const unit = { id: 'u1', code: '9001', accommodationTypeId: 'type-1', accommodationTypeCode: 'category-single' };
   const card = (): UnitCard => ({
     id: 'u1',
@@ -54,6 +56,7 @@ function makeFakes() {
       },
     ],
     housekeepingHistory: [],
+    housekeepingAssignee: assignee ? { id: assignee, name: 'Горничная' } : null,
     createdAt: '2026-01-12T09:30:00.000Z',
     updatedAt: '2026-03-20T05:24:00.000Z',
   });
@@ -63,7 +66,7 @@ function makeFakes() {
       return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
     },
     async unitByCode(code) {
-      return code === '9001' ? { ...unit, housekeepingStatus: hk } : null;
+      return code === '9001' ? { ...unit, housekeepingStatus: hk, housekeepingAssigneeId: assignee } : null;
     },
     async card(code) {
       return code === '9001' ? card() : null;
@@ -93,6 +96,13 @@ function makeFakes() {
     async setHousekeeping(_id, _from, to) {
       hk = to;
     },
+    async housekeepingEmployee(_unit, employeeId) {
+      return employeeId === MAID ? { id: MAID, name: 'Горничная' } : null;
+    },
+    async setHousekeepingAssignee(_unit, employeeId) {
+      assignee = employeeId;
+      audits.push('unit.housekeeping_assignee');
+    },
     async audit(_e, action) {
       audits.push(action);
       separateAudits.push(action);
@@ -106,7 +116,7 @@ function makeFakes() {
       return 0;
     },
   };
-  return { repo, publisher, blocks, published, audits, blockAudits, separateAudits };
+  return { repo, publisher, blocks, published, audits, blockAudits, separateAudits, MAID };
 }
 
 describe('units API: blocks and housekeeping', () => {
@@ -133,6 +143,19 @@ describe('units API: blocks and housekeeping', () => {
   });
   afterAll(async () => {
     await app.close();
+  });
+
+  it('PUT /units/:code/housekeeping-assignee: «Кто убирает» только сотрудник этой гостиницы, null снимает', async () => {
+    const server = app.getHttpServer();
+    await request(server).put('/units/9001/housekeeping-assignee').send({ employeeId: 'nope' }).expect(400);
+    await request(server).put('/units/9001/housekeeping-assignee').send({ employeeId: '22222222-2222-4222-8222-222222222222' }).expect(400);
+    await request(server).put('/units/0000/housekeeping-assignee').send({ employeeId: fakes.MAID }).expect(404);
+    const res = await request(server).put('/units/9001/housekeeping-assignee').send({ employeeId: fakes.MAID }).expect(200);
+    expect(res.body.housekeepingAssignee).toEqual({ id: fakes.MAID, name: 'Горничная' });
+    await request(server).put('/units/9001/housekeeping-assignee').send({ employeeId: fakes.MAID }).expect(200);
+    expect(fakes.audits.filter((a) => a === 'unit.housekeeping_assignee')).toHaveLength(1);
+    const off = await request(server).put('/units/9001/housekeeping-assignee').send({ employeeId: null }).expect(200);
+    expect(off.body.housekeepingAssignee).toBeNull();
   });
 
   it('GET /units/:code returns the card; 404 for unknown', async () => {

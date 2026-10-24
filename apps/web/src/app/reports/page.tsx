@@ -34,10 +34,15 @@ export default async function ReportsHubPage({
   searchParams: Promise<SearchParams>;
 }) {
   const me = await requireFeature('/reports');
-  // Ресторан: перенаправление на финансы ресторана (выручка, расходы — основной отчёт)
+  // Ресторан: отчёты это «Аналитика бизнеса» (закрытые заказы, оплаты по способам, блюда, официанты), а не финансы
+  // (аудит вертикалей 22.10.2026 п.5); период из адреса переносится, прочие параметры нет
   if (me.context?.vertical === 'FOOD_SERVICE') {
     const { redirect } = await import('next/navigation');
-    redirect('/restaurant-finance');
+    const q = normalizeSearchParams(await searchParams);
+    const period = new URLSearchParams();
+    if (validDate(q.from ?? '')) period.set('from', q.from!);
+    if (validDate(q.to ?? '')) period.set('to', q.to!);
+    redirect(`/management/analytics${period.size ? `?${period}` : ''}`);
   }
   // Отчёты салона используют собственный защищённый источник, не гостиничные итоги.
   if (me.context?.vertical === 'BEAUTY') {

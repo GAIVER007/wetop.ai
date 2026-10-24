@@ -260,6 +260,22 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
       ).items.map((c) => c.id),
     ).toEqual([customer]);
   });
+  // аудит 22.10.2026 P1-4: поиск в шапке салона ищет клиентов по имени и телефону только в своём бизнесе
+  it('customer search by name stays inside CustomerBusiness and organization', async () => {
+    await run(() => appointments.create(input()));
+    expect((await run(() => catalog.customers({ q: 'synthetic CLI' }))).items.map((c) => c.id)).toEqual([customer]);
+    expect((await run(() => catalog.customers({ q: 'Nobody-matches-this' }))).items).toEqual([]);
+    expect(
+      (await run(() => catalog.customers({ q: 'Synthetic' }), { businessId: secondBusiness, locationId: otherLocation }))
+        .items,
+    ).toEqual([]);
+    const foreign = await db.customer.create({
+      data: { organizationId: foreignOrg, firstName: 'Synthetic client foreign' },
+    });
+    expect((await run(() => catalog.customers({ q: 'Synthetic client' }))).items.map((c) => c.id)).toEqual([customer]);
+    await db.customer.delete({ where: { id: foreign.id } });
+    await expect(run(() => catalog.customers({ q: 'x'.repeat(101) }))).rejects.toMatchObject({ status: 400 });
+  });
   it('archived customer cannot receive a new appointment or visibility link', async () => {
     await db.customer.update({ where: { id: customer }, data: { status: 'ARCHIVED' } });
     try {
@@ -530,6 +546,8 @@ describe.skipIf(!url)('MV4 Beauty acceptance on PostgreSQL', () => {
       'beauty_location_hours_guard',
       'beauty_time_in_hours',
       'beauty_appointment_location_hours_guard',
+      // 140 напоминания клиентам (решение 21.10.2026)
+      'beauty_reminder_settings_guard',
       ...(heldTables.length === 3 ? [
         'beauty_appointment_changed',
         'beauty_capacity_changed',

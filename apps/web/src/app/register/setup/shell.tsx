@@ -7,16 +7,18 @@ import { Alert, Button, Field, Input } from '../../../components/ui';
 import { OnboardingForm, type Row } from '../../onboarding/onboarding-form';
 import type { SharedOnboardingState, OnboardingStatus } from '../../../lib/api';
 import { BeautyChecklist } from './beauty-checklist';
+import type { BookingPreview } from './setup-path';
 import { progressRequest, recoveryDecision, sameProgressScope, type Command, type ProgressReply } from './command';
 
 export function OnboardingShell(props: {
   initial: SharedOnboardingState;
   hotel: OnboardingStatus | null;
+  preview?: BookingPreview | null;
 }) {
   return props.initial.vertical === 'BEAUTY' ? (
-    <BeautyChecklist initial={props.initial} />
+    <BeautyChecklist initial={props.initial} preview={props.preview ?? null} />
   ) : (
-    <LegacyOnboardingShell {...props} />
+    <LegacyOnboardingShell initial={props.initial} hotel={props.hotel} />
   );
 }
 

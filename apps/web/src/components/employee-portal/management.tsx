@@ -1,7 +1,9 @@
 'use client';
+import { useState, useTransition, type FormEvent } from 'react';
 import type { EmployeePortalDto } from '@pms/domain';
 import { Field, Input, Select } from '../ui';
-import { minorToInput } from '../../lib/money';
+import { inviteNewStaffAction } from '../../app/login/actions';
+import { currencySign, minorToInput } from '../../lib/money';
 import { PortalForm, type PortalContext } from './forms';
 export type PortalAccountOption = { userId: string; label: string };
 
@@ -38,9 +40,12 @@ export function PortalManagement({
     >
       <input type="hidden" name="active" value={data.employee.active ? 'false' : 'true'} />
     </PortalForm>
-    <h3>Доступ сотрудника</h3>
-    <p>{data.employee.accountLinked ? 'Аккаунт привязан.' : 'Аккаунт не привязан. Личный кабинет пока недоступен.'} Используйте существующий вход по коду или приглашение в команду, без создания пароля.</p>
-    <a href="/team">Участники команды и приглашения</a>
+    <h3>Личный кабинет</h3>
+    {/* аудит салона 22.10.2026: вместо «Личный кабинет пока недоступен» одно понятное действие */}
+    {data.employee.accountLinked
+      ? <p>{data.business.vertical === 'BEAUTY' ? 'Мастер' : 'Сотрудник'} входит в личный кабинет и видит свои {data.business.vertical === 'BEAUTY' ? 'записи' : 'заказы'}, график и зарплату.</p>
+      : <PortalInvite data={data} />}
+    <a href="/team">Все приглашения и доступы</a>
     {!data.employee.accountLinked && accountOptions === null && (
       <p role="alert">Не удалось загрузить участников команды. Обновите страницу и попробуйте снова.</p>
     )}
@@ -55,23 +60,61 @@ export function PortalManagement({
             {accountOptions.map((option) => <option key={option.userId} value={option.userId}>{option.label}</option>)}
           </Select>
         </Field>
-        <p>Сервер повторно проверит активное членство, подтверждённый вход и доступ к филиалу.</p>
+        <p>Привязать можно только участника, у которого есть вход и доступ к этому филиалу.</p>
       </PortalForm>
     )}
     {data.employee.accountLinked && <PortalForm context={context} command="unlink" label="Отвязать аккаунт" />}
     <h3>Условия оплаты труда</h3>
     <PortalForm context={context} command="pay" label="Сохранить условия оплаты">
       <Field label="Модель оплаты"><Select name="model" defaultValue={data.pay.model ?? ''} required><option value="" disabled>Выберите модель</option><option value="FIXED">Фиксированная</option><option value="PERCENT">Процент</option><option value="FIXED_PLUS_PERCENT">Фиксированная + процент</option><option value="BONUS_ONLY">Только бонусы</option></Select></Field>
-      <Field label={`Фиксированная ставка, ${data.pay.currency === 'KZT' ? '₸' : data.pay.currency}`}><Input name="fixedAmount" inputMode="decimal" required defaultValue={data.pay.fixedMinor === null ? '' : minorToInput(data.pay.fixedMinor)} /></Field>
+      <Field label={`Фиксированная ставка, ${currencySign(data.pay.currency)}`}><Input name="fixedAmount" inputMode="decimal" required defaultValue={data.pay.fixedMinor === null ? '' : minorToInput(data.pay.fixedMinor)} /></Field>
       <Field label="Процент, от 0 до 100"><Input name="percent" type="number" min={0} max={100} step={1} required defaultValue={data.pay.percent ?? ''} /></Field>
-      <p>Введите сумму в выбранной валюте. Расчёт выполняет сервер.</p>
+      <p>Сумма в валюте филиала. Зарплату за месяц WETOP посчитает сам.</p>
     </PortalForm>
     {data.business.vertical === 'BEAUTY' && <>
       <h3>База процента для бизнеса</h3>
-      <p>Настройка общая для бизнеса, а не только для этого сотрудника. Неподдерживаемые закрытые периоды и возвраты не рассчитываются в браузере.</p>
+      <p>Настройка общая для всех специалистов бизнеса: от какой суммы считать процент.</p>
       <PortalForm context={context} command="pay-policy" revision={data.pay.policyRevision} label="Сохранить базу процента">
         <Field label="База процента"><Select name="percentBasis" required defaultValue={data.pay.percentBasis ?? ''}><option value="" disabled>Не настроена</option><option value="COMPLETED_SERVICES">Стоимость оказанных услуг</option><option value="PAID_COMPLETED_SERVICES">Оплаченные оказанные услуги</option></Select></Field>
       </PortalForm>
     </>}
   </section>;
+}
+
+/** Приглашение в личный кабинет (уровень PORTAL): то же приглашение, что в форме «Новый сотрудник», с привязкой к карточке */
+function PortalInvite({ data }: { data: EmployeePortalDto }) {
+  const beauty = data.business.vertical === 'BEAUTY';
+  const [email, setEmail] = useState(data.employee.email ?? '');
+  const [error, setError] = useState<string | null>(null);
+  const [invited, setInvited] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!email.trim()) {
+      setError('Укажите почту: на неё придёт приглашение.');
+      return;
+    }
+    start(async () => {
+      const result = await inviteNewStaffAction({ employeeId: data.employee.id, level: 'PORTAL', email, allBranches: false });
+      setError(result.error);
+      setInvited(result.invited);
+    });
+  };
+  return <form className="portal-invite" data-testid="portal-invite" onSubmit={submit} noValidate>
+    <p>{beauty ? 'Мастер увидит свои записи, график и зарплату' : 'Сотрудник увидит свои заказы, график и зарплату'}. Пароль он задаст сам по ссылке из письма.</p>
+    <Field label="Почта для приглашения">
+      <Input
+        type="email"
+        name="portalInviteEmail"
+        autoComplete="off"
+        placeholder="name@company.kz"
+        value={email}
+        aria-invalid={error ? true : undefined}
+        onChange={(event) => setEmail(event.target.value)}
+      />
+    </Field>
+    {error && <p role="alert">{error}</p>}
+    {invited && <p role="status">Приглашение отправлено на {invited}.</p>}
+    <button className="btn btn--primary" type="submit" disabled={pending}>{pending ? 'Отправляем…' : 'Пригласить в личный кабинет'}</button>
+  </form>;
 }

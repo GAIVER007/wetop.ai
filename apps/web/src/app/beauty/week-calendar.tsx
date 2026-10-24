@@ -10,6 +10,8 @@ import { displayDate, displayPeriod } from '../../lib/display-date';
 import { CalendarLegend } from './calendar-legend';
 import { clock } from './time';
 import { calendarColumns, matchesAppointment } from './calendar-columns';
+import { useLocale, useT } from '../../i18n/locale-provider';
+import { intlLocale } from '../../i18n';
 
 export function WeekCalendar({
   days,
@@ -21,13 +23,15 @@ export function WeekCalendar({
   employees: BeautyEmployeeRow[];
 }) {
   const router = useRouter();
+  const t = useT();
+  const locale = intlLocale(useLocale());
   const params = useSearchParams();
   const employee = params.get('employee') ?? '';
   const service = params.get('service') ?? '';
   const status = params.get('status') ?? '';
   const options = [
     ...new Map(
-      days.flatMap((day) => calendarColumns(day, employees).map((c) => [c.id, c] as const)),
+      days.flatMap((day) => calendarColumns(day, employees, t).map((c) => [c.id, c] as const)),
     ).values(),
   ];
   const href = (date: string, week = true, master = employee) => {
@@ -56,26 +60,26 @@ export function WeekCalendar({
         <EmployeeFilter
           options={options}
           value={employee}
-          allLabel="Все специалисты"
+          allLabel={t('Все специалисты')}
           kind="specialists"
           onChange={(id) => router.replace(href(selectedDate, true, id), { scroll: false })}
         />
         <Link href={shift(-7)} className="btn btn--secondary">
-          Предыдущая неделя
+          {t('Предыдущая неделя')}
         </Link>
         <b>{displayPeriod(first.date, days.at(-1)!.date)}</b>
         <Link href={shift(7)} className="btn btn--secondary">
-          Следующая неделя
+          {t('Следующая неделя')}
         </Link>
         <QuickReport
           key={`${selected.date}:${employee}`}
           date={selected.date}
           scope={[
             employee
-              ? (options.find((e) => e.id === employee)?.name ?? 'Специалист недоступен')
-              : 'Все специалисты',
-            'Выбранный день',
-            ...(service || status ? ['С учётом фильтров'] : []),
+              ? (options.find((e) => e.id === employee)?.name ?? t('Специалист недоступен'))
+              : t('Все специалисты'),
+            t('Выбранный день'),
+            ...(service || status ? [t('С учётом фильтров')] : []),
           ]}
           build={() => beautyQuickReport(visible(selected))}
         />
@@ -84,15 +88,15 @@ export function WeekCalendar({
       <div className="beauty-week-calendar">
         {days.map((day) => {
           const masters = new Map(
-            calendarColumns(day, employees).map((master) => [master.id, master.name]),
+            calendarColumns(day, employees, t).map((master) => [master.id, master.name]),
           );
           const rows = visible(day).sort(
             (a, b) => a.startMinutes - b.startMinutes || a.id.localeCompare(b.id),
           );
           return (
-            <Panel key={day.date} title={displayDate(day.date, 'full')}>
+            <Panel key={day.date} title={displayDate(day.date, 'full', locale)}>
               <Link className="btn btn--secondary" href={href(day.date, false)}>
-                Открыть день
+                {t('Открыть день')}
               </Link>
               {rows.length ? (
                 <ul className="beauty-week-appointments">
@@ -112,13 +116,13 @@ export function WeekCalendar({
                               {item.serviceName} ·{' '}
                               {item.employeeName ||
                                 masters.get(item.employeeId) ||
-                                'Специалист недоступен'}
+                                t('Специалист недоступен')}
                             </span>
                           ))
                         ) : (
                           <>
                             <span>{row.serviceName}</span>
-                            <span>{masters.get(row.employeeId) ?? 'Специалист недоступен'}</span>
+                            <span>{masters.get(row.employeeId) ?? t('Специалист недоступен')}</span>
                           </>
                         )}
                         <StatusBadge kind="beauty" value={row.status} />
@@ -127,7 +131,7 @@ export function WeekCalendar({
                   ))}
                 </ul>
               ) : (
-                <p className="beauty-note">Записей нет</p>
+                <p className="beauty-note">{t('Записей нет')}</p>
               )}
             </Panel>
           );

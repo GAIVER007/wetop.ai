@@ -18,10 +18,10 @@ describe('retail form safe initial render', () => {
     const html = renderToStaticMarkup(createElement(SaleForm, { stock: [], context: { propertyId: 'synthetic', currency: 'KZT' }, methods: ['CASH'], recoveryScope: ['o', 'b', 'l', 'u', 'p', 'KZT', '2026-10-19T08:00:00.000Z'], expiresAt: '2099-01-01' }));
     expect(html.match(/role="status"/g) ?? []).toHaveLength(1);
     const source = readFileSync(fileURLToPath(new URL('./sale-form.tsx', import.meta.url)), 'utf8');
-    expect(source).toMatch(/<section role="region" aria-label="Исходная продажа" data-testid="retail-recovery-panel">/);
+    expect(source).toMatch(/<section role="region" aria-label=\{t\('Исходная продажа'\)\} data-testid="retail-recovery-panel">/);
     expect(source).not.toMatch(/<section role="status"/);
     expect(source).not.toContain('className="bar-success"');
     // текст успеха сервера идёт в единственный статус вместо «Результат подтверждён.»
-    expect(source).toContain("intent?.status === 'confirmed' ? (state.message ?? 'Результат подтверждён.')");
+    expect(source).toContain("intent?.status === 'confirmed' ? (state.message ?? t('Результат подтверждён.'))");
   });
 });

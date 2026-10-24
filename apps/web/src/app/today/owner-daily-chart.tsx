@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { lineGeometry } from '../../lib/line-geometry';
 import { formatOwnerMoney, ownerReason, type DailyMoney } from '../../lib/owner-summary';
+import { useT } from '../../i18n/locale-provider';
 
 type Metric = { label: string; daily?: DailyMoney | undefined; previous?: DailyMoney | undefined };
 
@@ -11,6 +12,7 @@ const PLOT_H = 200;
 
 /** One metric and currency at a time. Previous days align by position, never by invented hours. */
 export function OwnerDailyChart({ metrics }: { metrics: Metric[] }) {
+  const t = useT();
   const id = useId();
   const [selected, setSelected] = useState(0);
   const [chosenCurrency, setCurrency] = useState('');
@@ -59,21 +61,21 @@ export function OwnerDailyChart({ metrics }: { metrics: Metric[] }) {
   };
   return <div className="owner-chart">
     <div className="owner-chart-toolbar">
-      <div className="owner-chart-tabs" role="tablist" aria-label="Данные графика">
+      <div className="owner-chart-tabs" role="tablist" aria-label={t('Данные графика')}>
         {metrics.map((m, index) => <button key={m.label} type="button" role="tab" id={`${id}-tab-${index}`} aria-controls={`${id}-panel`} aria-selected={selected === index} tabIndex={selected === index ? 0 : -1}
           onClick={() => setSelected(index)} onKeyDown={event => {
             const next = event.key === 'ArrowRight' ? (index + 1) % metrics.length : event.key === 'ArrowLeft' ? (index + metrics.length - 1) % metrics.length : event.key === 'Home' ? 0 : event.key === 'End' ? metrics.length - 1 : null;
             if (next !== null) { event.preventDefault(); setSelected(next); document.getElementById(`${id}-tab-${next}`)?.focus(); }
           }}>{m.label}</button>)}
       </div>
-      <div className="owner-chart-legend"><span>Текущий период</span>{hasPrevious && <span className="owner-chart-previous">Предыдущий</span>}</div>
+      <div className="owner-chart-legend"><span>{t('Текущий период')}</span>{hasPrevious && <span className="owner-chart-previous">{t('Предыдущий')}</span>}</div>
     </div>
     <div role="tabpanel" id={`${id}-panel`} aria-labelledby={`${id}-tab-${selected}`} tabIndex={0}>
-      {currencies.length > 1 && <label className="owner-chart-currency">Валюта: <select value={currency} onChange={event => setCurrency(event.target.value)}>{currencies.map(c => <option key={c}>{c}</option>)}</select></label>}
-      {daily?.state !== 'READY' && <p role="status">{metric?.label}: {daily ? ownerReason(daily.reason) || 'Данные периода неполные' : 'Временной ряд не подключён'}{daily?.unresolvedSources ? ` Не определена валюта операций: ${daily.unresolvedSources}.` : ''}</p>}
-      {previous?.state === 'PARTIAL' && <p role="status">Предыдущий период: данные неполные</p>}
+      {currencies.length > 1 && <label className="owner-chart-currency">{t('Валюта:')} <select value={currency} onChange={event => setCurrency(event.target.value)}>{currencies.map(c => <option key={c}>{c}</option>)}</select></label>}
+      {daily?.state !== 'READY' && <p role="status">{metric?.label}: {daily ? t(ownerReason(daily.reason)) || t('Данные периода неполные') : t('Временной ряд не подключён')}{daily?.unresolvedSources ? ` ${t('Не определена валюта операций: {n}.', { n: daily.unresolvedSources })}` : ''}</p>}
+      {previous?.state === 'PARTIAL' && <p role="status">{t('Предыдущий период: данные неполные')}</p>}
       {hasPoints ? <>
-        <svg ref={plot} className="owner-chart-plot" viewBox={`0 0 ${plotWidth} ${PLOT_H}`} width="100%" role="img" aria-label={`${metric?.label} по дням, ${currency}`}>
+        <svg ref={plot} className="owner-chart-plot" viewBox={`0 0 ${plotWidth} ${PLOT_H}`} width="100%" role="img" aria-label={t('{metric} по дням, {currency}', { metric: String(metric?.label), currency: String(currency) })}>
           {[0, 1, 2, 3, 4].map(tick => {
             const y = PLOT_H - 32 - (tick * (PLOT_H - 46)) / 4;
             const amount = minimum + range * BigInt(tick) / 4n;
@@ -85,13 +87,13 @@ export function OwnerDailyChart({ metrics }: { metrics: Metric[] }) {
           </g>)}
           {rows.map((row, i) => (i === 0 || i === count - 1 || i === Math.floor((count - 1) / 2)) && <text key={i} className="owner-chart-date" x={geometry.xs[i]} y={PLOT_H - 6} textAnchor={i === 0 ? 'start' : i === count - 1 ? 'end' : 'middle'}>{(row[0] ?? row[1])?.date.slice(5).split('-').reverse().join('.')}<title>{(row[0] ?? row[1])?.date}</title></text>)}
         </svg>
-        <details className="owner-chart-table"><summary>Точные дневные суммы, {currency}</summary>
-          <table><caption>{metric?.label}, {currency}. Дни периодов сопоставлены по порядку.</caption><thead><tr><th scope="col">Дата</th><th scope="col">Текущий период</th>{hasPrevious && <><th scope="col">Дата сравнения</th><th scope="col">Предыдущий период</th></>}</tr></thead><tbody>
-            {rows.map((row, i) => <tr key={i}><th scope="row">{row[0]?.date ?? 'Нет данных'}</th><td>{row[0] && row[0].unresolvedSources !== 0 ? 'Данные неполные' : values[0]![i] === null ? 'Нет данных' : formatOwnerMoney(values[0]![i]!.toString(), currency)}</td>{hasPrevious && <><td>{row[1]?.date ?? 'Нет данных'}</td><td>{row[1] && row[1].unresolvedSources !== 0 ? 'Данные неполные' : values[1]![i] === null ? 'Нет данных' : formatOwnerMoney(values[1]![i]!.toString(), currency)}</td></>}</tr>)}
+        <details className="owner-chart-table"><summary>{t('Точные дневные суммы, {currency}', { currency: currency ?? '' })}</summary>
+          <table><caption>{t('{metric}, {currency}. Дни периодов сопоставлены по порядку.', { metric: metric?.label ?? '', currency: currency ?? '' })}</caption><thead><tr><th scope="col">{t('Дата')}</th><th scope="col">{t('Текущий период')}</th>{hasPrevious && <><th scope="col">{t('Дата сравнения')}</th><th scope="col">{t('Предыдущий период')}</th></>}</tr></thead><tbody>
+            {rows.map((row, i) => <tr key={i}><th scope="row">{row[0]?.date ?? t('Нет данных')}</th><td>{row[0] && row[0].unresolvedSources !== 0 ? t('Данные неполные') : values[0]![i] === null ? t('Нет данных') : formatOwnerMoney(values[0]![i]!.toString(), currency)}</td>{hasPrevious && <><td>{row[1]?.date ?? t('Нет данных')}</td><td>{row[1] && row[1].unresolvedSources !== 0 ? t('Данные неполные') : values[1]![i] === null ? t('Нет данных') : formatOwnerMoney(values[1]![i]!.toString(), currency)}</td></>}</tr>)}
           </tbody></table>
         </details>
-      </> : <div className="owner-chart-empty" role="status"><strong>Нет данных для графика</strong><p>За этот период ещё нет операций. График появится после первой оплаты или расхода.</p></div>}
-      <p className="owner-chart-foot">По дням в часовом поясе филиала, текущий день неполный{!hasPrevious && ', сравнение недоступно'}</p>
+      </> : <div className="owner-chart-empty" role="status"><strong>{t('Нет данных для графика')}</strong><p>{t('За этот период ещё нет операций. График появится после первой оплаты или расхода.')}</p></div>}
+      <p className="owner-chart-foot">{t('По дням в часовом поясе филиала, текущий день неполный')}{!hasPrevious && t(', сравнение недоступно')}</p>
     </div>
   </div>;
 }

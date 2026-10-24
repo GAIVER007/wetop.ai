@@ -23,6 +23,7 @@ import { clock, clockMinutes, instantOf } from './time';
 import { beautyPeriodRows, moveAppointment } from './journal-actions';
 import { beautyStatus } from '../../lib/status/beauty';
 import { CalendarLegend } from './calendar-legend';
+import { useT } from '../../i18n/locale-provider';
 
 const STEP = 30;
 type Panel =
@@ -66,7 +67,8 @@ export function JournalBoard({
   /** «День / Неделя» в строке инструментов рядом с датой (аудит 21.10.2026, п. 34) */
   views?: ReactNode;
 }) {
-  const columns = calendarColumns(day, employees);
+  const t = useT();
+  const columns = calendarColumns(day, employees, t);
   const [compact, setCompact] = useState(false);
   const PX_PER_MIN = compact ? 1 : 1.5;
   const [panel, setPanel] = useState<Panel>(() => {
@@ -127,7 +129,7 @@ export function JournalBoard({
       minute: '2-digit',
       hourCycle: 'h23',
     }).formatToParts(new Date());
-    const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '';
+    const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
     if (`${get('year')}-${get('month')}-${get('day')}` !== day.date) return null;
     return Number(get('hour')) * 60 + Number(get('minute'));
   });
@@ -225,14 +227,14 @@ export function JournalBoard({
           >
             {!works &&
               (m === from || employee.intervals.some((i) => clockMinutes(i.timeTo) === m)) && (
-                <span className="beauty-slot-state">Вне графика</span>
+                <span className="beauty-slot-state">{t('Вне графика')}</span>
               )}
             {works && !occupied && (
               <button
                 type="button"
                 className="beauty-slot-free"
                 disabled={!canCreate}
-                aria-label={`${employee.name}, ${clock(m)}, свободно`}
+                aria-label={t('{name}, {time}, свободно', { name: employee.name, time: clock(m) })}
                 data-time={`+ ${clock(m)}`}
                 onClick={() => setPanel({ kind: 'new', employeeId: employee.id, time: clock(m) })}
               />
@@ -261,7 +263,7 @@ export function JournalBoard({
             <span>
               {clock(a.startMinutes)}–{clock(a.endMinutes)}
             </span>
-            <strong>Занято, скрыто фильтром</strong>
+            <strong>{t('Занято, скрыто фильтром')}</strong>
           </div>
         ))}
       {appointmentSegments(live)
@@ -290,7 +292,7 @@ export function JournalBoard({
               top: (a.startMinutes - from) * PX_PER_MIN,
               height: Math.max(24, a.endMinutes - a.startMinutes) * PX_PER_MIN,
             }}
-            title={`${clock(a.startMinutes)}–${clock(a.endMinutes)}, ${a.customer.name}, ${a.serviceName}, ${formatMoney(a.priceMinor, a.currency)}, ${beautyStatus[a.status].label}`}
+            title={`${clock(a.startMinutes)}–${clock(a.endMinutes)}, ${a.customer.name}, ${a.serviceName}, ${formatMoney(a.priceMinor, a.currency)}, ${t(beautyStatus[a.status].label)}`}
             onClick={() => setPanel({ kind: 'card', row: a.appointment })}
           >
             <span className="beauty-tile-time">
@@ -299,7 +301,7 @@ export function JournalBoard({
             <strong className="beauty-tile-name">{a.customer.name}</strong>
             <span className="beauty-tile-service">{a.serviceName}</span>
             <span className="beauty-tile-service">
-              {formatMoney(a.priceMinor, a.currency)} / {beautyStatus[a.status].label}
+              {formatMoney(a.priceMinor, a.currency)} / {t(beautyStatus[a.status].label)}
             </span>
           </button>
         ))}
@@ -322,7 +324,7 @@ export function JournalBoard({
             options={columns}
             value={master}
             onChange={setMaster}
-            allLabel="Все специалисты"
+            allLabel={t('Все специалисты')}
             kind="specialists"
           />
           <DateBar date={day.date} path="/calendar" filters={filters} />
@@ -330,19 +332,19 @@ export function JournalBoard({
           {/* Вид и отчёт: в панели на широком экране, в «Фильтрах» на телефоне (сетка дня на первом экране). */}
           <span className="beauty-calendar-wide">
             <Button tone="secondary" aria-pressed={compact} onClick={() => setCompact(!compact)}>
-              Компактный вид
+              {t('Компактный вид')}
             </Button>
             {/* у кнопки отчёта был только значок: видимая подпись (аудит 21.10.2026, п. 14) */}
             <QuickReport
-              text="Быстрый отчёт"
+              text={t('Быстрый отчёт')}
               key={`${day.date}:${master}:wide`}
               date={day.date}
               scope={[
-                day.location.name ?? 'Салон',
+                day.location.name ?? t('Салон'),
                 master
-                  ? (columns.find((c) => c.id === master)?.name ?? 'Специалист недоступен')
-                  : 'Все специалисты',
-                ...(service || status ? ['С учётом фильтров журнала'] : []),
+                  ? (columns.find((c) => c.id === master)?.name ?? t('Специалист недоступен'))
+                  : t('Все специалисты'),
+                ...(service || status ? [t('С учётом фильтров журнала')] : []),
               ]}
               build={buildReport}
               loadPeriod={beautyPeriodRows}
@@ -355,43 +357,43 @@ export function JournalBoard({
               !day.columns.some((c) => c.id === selected) ||
               !day.services.length
             }
-            title={notReady ? 'Сначала добавьте услугу и специалиста с графиком' : undefined}
+            title={notReady ? t('Сначала добавьте услугу и специалиста с графиком') : undefined}
             onClick={() =>
               setPanel({ kind: 'new', employeeId: selected, time: clock(day.bounds.fromMinutes) })
             }
           >
-            + Новая запись
+            {t('+ Новая запись')}
           </Button>
         </div>
         <Help
-          title={`Фильтры${master || service || status ? `\nАктивных: ${[master, service, status].filter(Boolean).length}` : ''}`}
+          title={`${t('Фильтры')}${master || service || status ? `\n${t('Активных: {n}', { n: [master, service, status].filter(Boolean).length })}` : ''}`}
         >
           <div className="beauty-calendar-narrow">
           <Button tone="secondary" aria-pressed={compact} onClick={() => setCompact(!compact)}>
-            Компактный вид
+            {t('Компактный вид')}
           </Button>
           <QuickReport
             key={`${day.date}:${master}:narrow`}
             date={day.date}
             scope={[
-              day.location.name ?? 'Салон',
+              day.location.name ?? t('Салон'),
               master
-                ? (columns.find((c) => c.id === master)?.name ?? 'Специалист недоступен')
-                : 'Все специалисты',
-              ...(service || status ? ['С учётом фильтров журнала'] : []),
+                ? (columns.find((c) => c.id === master)?.name ?? t('Специалист недоступен'))
+                : t('Все специалисты'),
+              ...(service || status ? [t('С учётом фильтров журнала')] : []),
             ]}
             build={buildReport}
             loadPeriod={beautyPeriodRows}
           />
           </div>
           <div className="beauty-filters">
-            <Field label={<span>Услуга</span>}>
+            <Field label={<span>{t('Услуга')}</span>}>
               <Select
-                aria-label="Услуга"
+                aria-label={t('Услуга')}
                 value={service}
                 onChange={(e) => setService(e.target.value)}
               >
-                <option value="">Все услуги</option>
+                <option value="">{t('Все услуги')}</option>
                 {day.services.map((sv) => (
                   <option key={sv.id} value={sv.id}>
                     {sv.name}
@@ -399,18 +401,18 @@ export function JournalBoard({
                 ))}
               </Select>
             </Field>
-            <Field label={<span>Статус</span>}>
+            <Field label={<span>{t('Статус')}</span>}>
               <Select
-                aria-label="Статус записи"
+                aria-label={t('Статус записи')}
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
               >
-                <option value="">Все статусы</option>
+                <option value="">{t('Все статусы')}</option>
                 {Object.entries(beautyStatus)
                   .filter(([key]) => key !== 'CANCELLED')
                   .map(([key, st]) => (
                     <option key={key} value={key}>
-                      {st.label}
+                      {t(st.label)}
                     </option>
                   ))}
               </Select>
@@ -418,8 +420,9 @@ export function JournalBoard({
           </div>
           <CalendarLegend />
           <p className="beauty-note">
-            Свободно: пустая клетка. Вне графика: нет доступной кнопки. Скрытые занятые интервалы
-            обозначены текстом.
+            {t(
+              'Свободно: пустая клетка. Вне графика: нет доступной кнопки. Скрытые занятые интервалы обозначены текстом.',
+            )}
           </p>
         </Help>
       </div>
@@ -429,7 +432,7 @@ export function JournalBoard({
             {[
               columns.find((c) => c.id === master)?.name,
               day.services.find((s) => s.id === service)?.name,
-              status ? beautyStatus[status as keyof typeof beautyStatus]?.label : '',
+              status ? t(beautyStatus[status as keyof typeof beautyStatus]?.label ?? '') : '',
             ]
               .filter(Boolean)
               .map((label, index) => (
@@ -444,19 +447,19 @@ export function JournalBoard({
               applyFilters({ employee: '', service: '', status: '' });
             }}
           >
-            Сбросить фильтры
+            {t('Сбросить фильтры')}
           </Button>
         </div>
       )}
       <p className="beauty-note" data-testid="beauty-day-summary">
         {live.length
-          ? `Записей: ${live.length}`
+          ? t('Записей: {n}', { n: live.length })
           : service || status || master
-            ? 'По выбранным фильтрам записей не найдено'
-            : 'Записей на этот день нет'}
+            ? t('По выбранным фильтрам записей не найдено')
+            : t('Записей на этот день нет')}
       </p>
       {creationUnavailableReason && <Alert>{creationUnavailableReason}</Alert>}
-      {moving && <p role="status">Переносим запись…</p>}
+      {moving && <p role="status">{t('Переносим запись…')}</p>}
       {moveError && <Alert>{moveError}</Alert>}
       {notReady && (
         <EmptyState
@@ -466,18 +469,18 @@ export function JournalBoard({
             <>
               {!day.services.length && (
                 <Link className="btn btn--secondary" href="/services">
-                  Добавить услугу
+                  {t('Добавить услугу')}
                 </Link>
               )}
               {!columns.length && (
                 <Link className="btn btn--secondary" href="/employees?new=1">
-                  Добавить специалиста
+                  {t('Добавить специалиста')}
                 </Link>
               )}
             </>
           }
         >
-          Для новой записи нужны услуги и специалисты с рабочим графиком.
+          {t('Для новой записи нужны услуги и специалисты с рабочим графиком.')}
         </EmptyState>
       )}
       {/* без специалистов сетку не рисуем: пустая колонка часов ничего не говорит (п. 36) */}
@@ -488,7 +491,7 @@ export function JournalBoard({
             className="beauty-grid-day"
             data-testid="beauty-grid"
             role="region"
-            aria-label="Расписание дня"
+            aria-label={t('Расписание дня')}
             tabIndex={0}
             style={{
               /* slop-allow: inline-style число колонок из количества выбранных мастеров */
@@ -503,7 +506,7 @@ export function JournalBoard({
                   type="button"
                   className="beauty-col-person"
                   aria-pressed={master === e.id}
-                  title={master === e.id ? 'Показать всех специалистов' : `Показать только: ${e.name}`}
+                  title={master === e.id ? t('Показать всех специалистов') : t('Показать только: {name}', { name: e.name })}
                   onClick={() => setMaster(master === e.id ? '' : e.id)}
                 >
                   <span className="beauty-avatar" aria-hidden="true">
@@ -516,11 +519,11 @@ export function JournalBoard({
                 </button>
                 <small>
                   {e.timeOff ? (
-                    <Badge>{e.timeOffReason || 'Отсутствие'}</Badge>
+                    <Badge>{e.timeOffReason || t('Отсутствие')}</Badge>
                   ) : e.intervals.length ? (
                     e.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ')
                   ) : (
-                    'Выходной'
+                    t('Выходной')
                   )}
                 </small>
               </h2>
@@ -538,9 +541,9 @@ export function JournalBoard({
                   <p className="beauty-current-master">{e.name}</p>
                   <p className="beauty-note">
                     {e.timeOff
-                      ? e.timeOffReason || 'Отсутствие'
+                      ? e.timeOffReason || t('Отсутствие')
                       : e.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ') ||
-                        'Выходной'}
+                        t('Выходной')}
                   </p>
                   <div className="beauty-mobile-timeline">
                     {hours}
@@ -566,7 +569,7 @@ export function JournalBoard({
       <Overlay
         open={panel?.kind === 'card'}
         onClose={() => setPanel(null)}
-        title={panel?.kind === 'card' ? 'Запись' : 'Новая запись'}
+        title={panel?.kind === 'card' ? t('Запись') : t('Новая запись')}
         size="lg"
         className="appointment-card-modal"
       >

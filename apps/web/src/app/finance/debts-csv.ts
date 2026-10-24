@@ -24,16 +24,16 @@ const nights = (from: string, to: string) =>
 export function debtsCsv(rows: DebtRow[], currency = 'KZT'): string {
   const sign = currencySign(currency);
   const head = [
-    'Бронь',
-    'Статус',
-    'Заезд',
-    'Выезд',
-    'Ночей',
-    `Начислено, ${sign}`,
-    `Оплачено, ${sign}`,
-    `Возвращено, ${sign}`,
-    `Остаток, ${sign}`,
-    'Просрочено',
+    'Бронь', // kk-allow: заголовки выгрузки для бухгалтерии
+    'Статус', // kk-allow: заголовки выгрузки для бухгалтерии
+    'Заезд', // kk-allow: заголовки выгрузки для бухгалтерии
+    'Выезд', // kk-allow: заголовки выгрузки для бухгалтерии
+    'Ночей', // kk-allow: заголовки выгрузки для бухгалтерии
+    `Начислено, ${sign}`, // kk-allow: заголовки выгрузки для бухгалтерии
+    `Оплачено, ${sign}`, // kk-allow: заголовки выгрузки для бухгалтерии
+    `Возвращено, ${sign}`, // kk-allow: заголовки выгрузки для бухгалтерии
+    `Остаток, ${sign}`, // kk-allow: заголовки выгрузки для бухгалтерии
+    'Просрочено', // kk-allow: заголовки выгрузки для бухгалтерии
   ];
   const lines = rows.map((x) =>
     [
@@ -46,7 +46,7 @@ export function debtsCsv(rows: DebtRow[], currency = 'KZT'): string {
       csvTenge(x.paidMinor),
       csvTenge(x.refundedMinor),
       csvTenge(x.balanceMinor),
-      x.overdue ? 'да' : '',
+      x.overdue ? 'да' : '', // kk-allow: значение выгрузки для бухгалтерии
     ]
       .map(csvField)
       .join(';'),

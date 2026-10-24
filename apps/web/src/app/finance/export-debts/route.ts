@@ -1,5 +1,6 @@
 import { financeApi } from '../../../lib/api';
 import { ApiError } from '../../../lib/api-error';
+import { serverT } from '../../../i18n/server';
 import { validDate } from '../../../lib/hotel-api';
 import { debtsCsv } from '../debts-csv';
 
@@ -15,15 +16,19 @@ export async function GET(request: Request) {
   const q = new URL(request.url).searchParams;
   const from = q.get('from') ?? '';
   const to = q.get('to') ?? '';
-  if (!validDate(from) || !validDate(to) || from > to)
-    return text(400, 'Проверьте даты: окончание периода должно быть не раньше начала.');
+  if (!validDate(from) || !validDate(to) || from > to) {
+    const t = await serverT();
+    return text(400, t('Проверьте даты: окончание периода должно быть не раньше начала.'));
+  }
   try {
     const debts = await financeApi.debts(from, to);
-    if (debts.truncated)
+    if (debts.truncated) {
+      const t = await serverT();
       return text(
         422,
-        `Долгов за период больше ${debts.rows.length} — укоротите период и выгрузите по частям.`,
+        t('Долгов за период больше {n} — укоротите период и выгрузите по частям.', { n: debts.rows.length }),
       );
+    }
     return new Response(debtsCsv(debts.rows, debts.currency), {
       headers: {
         'content-type': 'text/csv; charset=utf-8',

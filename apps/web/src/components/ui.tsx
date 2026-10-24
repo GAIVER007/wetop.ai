@@ -13,6 +13,8 @@ import Link from 'next/link';
 import { cloneElement, isValidElement } from 'react';
 import type { Delta } from '../lib/dashboard-format';
 import { Icon, type IconName } from './icon';
+import { msg } from '../i18n';
+import { Labelled, T } from '../i18n/locale-provider';
 import { beautyStatus } from '../lib/status/beauty';
 import { foodOrderStatus, foodStatus } from '../lib/status/food';
 import { hospitalityStatus } from '../lib/status/hospitality';
@@ -31,10 +33,12 @@ import { statusLabel, statusTone, type StatusRegistry, type StatusTone } from '.
 export const cx = (...parts: Array<string | false | null | undefined>) =>
   parts.filter(Boolean).join(' ');
 
-export function Help({ children, title = 'Подробнее' }: { children: ReactNode; title?: string }) {
+export function Help({ children, title = msg('Подробнее') }: { children: ReactNode; title?: string }) {
   return (
     <details className="context-help">
-      <summary>{title}</summary>
+      <summary>
+        <T text={title} />
+      </summary>
       <div>{children}</div>
     </details>
   );
@@ -134,7 +138,11 @@ export function Field({
         // ни в имя поля, ни в текст подписи; для читалки обязательность говорит родное `required`
         <span className={cx('field__label', required && 'field__label--required')}>
           {label}
-          {!required && <span className="field__optional">необязательно</span>}
+          {!required && (
+            <span className="field__optional">
+              <T text={msg('необязательно')} />
+            </span>
+          )}
         </span>
       )}
       {control}
@@ -355,11 +363,11 @@ export function Table(props: LegacyTableProps | CanonicalTableProps) {
   } = props;
   const name = caption ?? rest['aria-label'];
   return (
-    <div
+    <Labelled
       className="table-scroll"
       tabIndex={0}
       role="region"
-      aria-label={name || 'Таблица, прокрутка по горизонтали'}
+      label={name || msg('Таблица, прокрутка по горизонтали')}
     >
       <table
         className={cx(
@@ -377,11 +385,13 @@ export function Table(props: LegacyTableProps | CanonicalTableProps) {
         {...rest}
       >
         {caption && (
-          <caption className={captionHidden ? 'sr-only' : 'tbl__caption'}>{caption}</caption>
+          <caption className={captionHidden ? 'sr-only' : 'tbl__caption'}>
+            <T text={caption} />
+          </caption>
         )}
         {children}
       </table>
-    </div>
+    </Labelled>
   );
 }
 
@@ -424,7 +434,7 @@ export function StatusBadge({
   const registry: StatusRegistry<string> = STATUS_REGISTRY[kind];
   return (
     <Badge tone={BADGE_TONE[statusTone(registry, value)]} {...rest}>
-      {statusLabel(registry, value)}
+      <T text={statusLabel(registry, value)} />
     </Badge>
   );
 }
@@ -637,7 +647,7 @@ export function Skeleton({
  * той формы, что займёт содержимое (по умолчанию — строки таблицы). Слово, а не крутилка (§8).
  */
 export function LoadingState({
-  label = 'Загружаем данные…',
+  label = msg('Загружаем данные…'),
   rows = 3,
   className,
   children,
@@ -647,7 +657,7 @@ export function LoadingState({
     <div className={cx('loading-state', className)} aria-busy="true" {...rest}>
       {children ?? Array.from({ length: rows }, (_, i) => <Skeleton key={i} />)}
       <span className="sr-only" role="status">
-        {label}
+        <T text={label} />
       </span>
     </div>
   );

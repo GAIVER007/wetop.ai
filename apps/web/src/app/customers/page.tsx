@@ -11,6 +11,7 @@ import { mayBeautyAccess } from '../../lib/navigation';
 import { BeautyCustomerTools } from './customer-tools';
 import { ImportCustomers } from './import-customers';
 import { CustomerSectionTabs } from './section-tabs';
+import { serverT } from '../../i18n/server';
 import '../beauty/beauty.css';
 
 /** Клиенты салона по макету ТЗ (09.10.2026): сегменты, визиты и средний чек считает API по DONE */
@@ -24,6 +25,7 @@ export default async function CustomersPage({
     const q = (await searchParams)?.q;
     return <FoodCustomers query={typeof q === 'string' ? q.slice(0, 100) : ''} />;
   }
+  const t = await serverT();
   try {
     const [{ items }, shell] = await Promise.all([beautyApi.customers(), deskShell()]);
     const canCreate = !shell.readOnly
@@ -34,10 +36,10 @@ export default async function CustomersPage({
     return (
       <Page
         className="beauty-page"
-        title="Клиенты"
-        subtitle="Клиенты этого бизнеса, их визиты и средний чек."
+        title={t('Клиенты')}
+        subtitle={t('Клиенты этого бизнеса, их визиты и средний чек.')}
       >
-        <CustomerSectionTabs access={shell.access} current="customers" />
+        <CustomerSectionTabs access={shell.access} current="customers" t={t} />
         <BeautyCustomersTable
           key={me.context?.businessId}
           items={items}
@@ -62,7 +64,7 @@ export default async function CustomersPage({
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Клиенты">
+      <Page title={t('Клиенты')}>
         <LoadError testId="beauty-customers-error" {...loadErrorProps(error)} />
       </Page>
     );

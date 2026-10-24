@@ -19,6 +19,9 @@ import { DateInput } from '../../components/date-field';
 import { ReportsTabs } from './reports-tabs';
 import '../directory.css';
 import './reports.css';
+import { msg, type Translate } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
+import { intlLocale } from '../../i18n';
 
 /** Тот же предел, что у отчётов API: год с запасом */
 const MAX_REPORT_DAYS = 366;
@@ -48,6 +51,10 @@ export default async function ReportsHubPage({
   if (me.context?.vertical === 'BEAUTY') {
     return <SalonReportsScreen searchParams={await searchParams} />;
   }
+  const t = await serverT();
+  const locale = await currentLocale();
+  // у казахского существительное после числа не меняется: «5 күн»
+  const counted = (n: number, forms: [string, string, string]) => (locale === 'kk' ? `${n} ${t(forms[0])}` : pluralRu(n, forms));
   const sp = normalizeSearchParams(await searchParams);
   const cal = periods(await hotelToday());
   const from = sp.from || cal.month.from;
@@ -73,7 +80,7 @@ export default async function ReportsHubPage({
   const periodText =
     from === to
       ? displayDate(from, 'numeric')
-      : `${displayDate(from, withYear ? 'numeric' : 'short')} → ${displayDate(to, withYear ? 'numeric' : 'short')}`;
+      : `${displayDate(from, withYear ? 'numeric' : 'short', intlLocale(locale))} → ${displayDate(to, withYear ? 'numeric' : 'short', intlLocale(locale))}`;
   const q = `from=${from}&to=${to}`;
   const analyticsQ = `period=custom&${q}`;
   const preset = (p: { from: string; to: string }) => `/reports?from=${p.from}&to=${p.to}`;
@@ -85,42 +92,42 @@ export default async function ReportsHubPage({
   const topSource = d && [...d.sources].sort((a, b) => b.count - a.count)[0];
   return (
     <Page
-      title="Отчёты"
+      title={t('Отчёты')}
       subtitle={
         valid ? (
           <span data-testid="reports-period">
-            {periodText}, {pluralRu(days, ['день', 'дня', 'дней'])}
+            {periodText}, {counted(days, [msg('день'), 'дня', 'дней'])} {/* kk-allow: формы склонения для русского вида */}
           </span>
         ) : undefined
       }
     >
       <ReportsTabs current="documents" />
-      <section className="reports-controls" aria-label="Период">
+      <section className="reports-controls" aria-label={t('Период')}>
         <form method="get" className="reports-toolbar" data-testid="reports-period-form">
-          <Field inline label="С">
+          <Field inline label={t('С')}>
             <DateInput
               key={`from-${from}`}
               name="from"
               defaultValue={from}
-              aria-label="Период: с"
+              aria-label={t('Период: с')}
             />
           </Field>
-          <Field inline label="По">
+          <Field inline label={t('По')}>
             <DateInput
               key={`to-${to}`}
               name="to"
               rangeFromName="from"
               defaultValue={to}
-              aria-label="Период: по"
+              aria-label={t('Период: по')}
             />
           </Field>
-          <nav className="directory-filters reports-presets" aria-label="Готовые периоды">
+          <nav className="directory-filters reports-presets" aria-label={t('Готовые периоды')}>
             {(
               [
-                ['Сегодня', { from: cal.today, to: cal.today }],
-                ['7 дней', cal.week],
-                ['Этот месяц', cal.month],
-                ['Прошлый месяц', cal.prevMonth],
+                [msg('Сегодня'), { from: cal.today, to: cal.today }],
+                [msg('7 дней'), cal.week],
+                [msg('Этот месяц'), cal.month],
+                [msg('Прошлый месяц'), cal.prevMonth],
               ] as const
             ).map(([label, p]) => (
               <Link
@@ -129,152 +136,164 @@ export default async function ReportsHubPage({
                 className={isPreset(p) ? 'is-active' : ''}
                 aria-current={isPreset(p) ? 'page' : undefined}
               >
-                {label}
+                {t(label)}
               </Link>
             ))}
           </nav>
-          <Button tone="secondary">Показать</Button>
+          <Button tone="secondary">{t('Показать')}</Button>
         </form>
         <p className="reports-note">
-          Деньги — как на «Оплатах»: начисления по дате услуги, оплаты по дате операции. Загрузка и
-          брони — как в «Аналитике»: по заездам периода.
+          {t('Деньги: как на «Оплатах», начисления по дате услуги, оплаты по дате операции. Загрузка и брони: как в «Аналитике», по заездам периода.')}
         </p>
       </section>
 
       {tooLong && (
         <Alert boxed>
-          Период отчёта — не больше года ({MAX_REPORT_DAYS} дней) за один запрос. Укоротите период.
+          {t('Период отчёта: не больше года ({n} дней) за один запрос. Укоротите период.', { n: MAX_REPORT_DAYS })}
         </Alert>
       )}
       {!dates && (
-        <Alert boxed>Проверьте даты: окончание периода должно быть не раньше начала.</Alert>
+        <Alert boxed>{t('Проверьте даты: окончание периода должно быть не раньше начала.')}</Alert>
       )}
 
       {valid && (
         <>
-          <Group title="Деньги">
+          <Group title={t('Деньги')}>
             <ReportCard
+              t={t}
               href={`/finance?${q}`}
               testId="report-finance"
-              title="Финансы за период"
+              title={t('Финансы за период')}
               value={fin && formatMoney(fin.chargedMinor, cur)}
-              hint="начислено: проживание, услуги, штрафы"
+              hint={t('начислено: проживание, услуги, штрафы')}
             />
             <ReportCard
+              t={t}
               href={`/finance?${q}#operations`}
               testId="report-operations"
-              title="Оплаты и возвраты"
+              title={t('Оплаты и возвраты')}
               value={fin && formatMoney(fin.paidMinor, cur)}
-              hint="оплачено за период, с выгрузкой CSV"
+              hint={t('оплачено за период, с выгрузкой CSV')}
             />
             <ReportCard
+              t={t}
               href={`/finance?${q}#services`}
               testId="report-services"
-              title="Отчёт по услугам"
+              title={t('Отчёт по услугам')}
               value={fin && formatMoney(serviceRow?.amountMinor ?? '0', cur)}
               hint={
                 fin
                   ? serviceRow
-                    ? `${pluralRu(serviceRow.count, ['начисление', 'начисления', 'начислений'])} за услуги`
-                    : 'начислений за услуги за период нет'
+                    ? t('{count} за услуги', { count: counted(serviceRow.count, [msg('начисление'), 'начисления', 'начислений']) }) // kk-allow: формы склонения для русского вида
+                    : t('начислений за услуги за период нет')
                   : undefined
               }
             />
             <ReportCard
+              t={t}
               href={`/finance?${q}#debts`}
               testId="report-debts"
-              title="Долги"
+              title={t('Долги')}
               warn={due > 0n}
               value={debts && formatMoney(debts.balanceMinor, cur)}
               hint={
                 debts
                   ? debts.count > 0
-                    ? `к сбору по ${pluralRu(debts.count, ['броне', 'броням', 'броням'])}`
-                    : 'все брони периода оплачены'
+                    ? t('к сбору по {count}', { count: counted(debts.count, [msg('броне'), 'броням', 'броням']) }) // kk-allow: формы склонения для русского вида
+                    : t('все брони периода оплачены')
                   : undefined
               }
             />
             <ReportCard
+              t={t}
               href="/reports/form-910"
               testId="report-form910"
-              title="Доход для формы 910"
-              hint="по полугодиям, для бухгалтера"
+              title={t('Доход для формы 910')}
+              hint={t('по полугодиям, для бухгалтера')}
             />
           </Group>
-          <Group title="Загрузка и продажи">
+          <Group title={t('Загрузка и продажи')}>
             <ReportCard
+              t={t}
               href={`/management/analytics?${analyticsQ}`}
               testId="report-overview"
-              title="Обзор периода"
+              title={t('Обзор периода')}
               value={d && formatInt(d.bookings.total)}
               hint={
                 d
                   ? d.bookings.averageMinor
-                    ? `брони за период, средний чек ${formatMoney(d.bookings.averageMinor, cur)}`
-                    : 'брони за период'
+                    ? t('брони за период, средний чек {amount}', { amount: formatMoney(d.bookings.averageMinor, cur) })
+                    : t('брони за период')
                   : undefined
               }
             />
             <ReportCard
+              t={t}
               href={`/management/analytics/occupancy?${analyticsQ}`}
               testId="report-occupancy"
-              title="Загрузка"
+              title={t('Загрузка')}
               value={d && formatPercent(d.occupancy.percent)}
               hint={
                 d
-                  ? `занято ${formatInt(d.occupancy.occupiedNights)} из ${formatInt(d.occupancy.sellableNights)} ночей к продаже`
+                  ? t('занято {occupied} из {sellable} ночей к продаже', { occupied: formatInt(d.occupancy.occupiedNights), sellable: formatInt(d.occupancy.sellableNights) })
                   : undefined
               }
             />
             <ReportCard
+              t={t}
               href="/market"
               testId="report-market"
-              title="Анализ конкурентов"
-              hint="ваша загрузка рядом с ближайшими отелями на каждую ночь, подсказки к цене"
+              title={t('Анализ конкурентов')}
+              hint={t('ваша загрузка рядом с ближайшими отелями на каждую ночь, подсказки к цене')}
             />
             <ReportCard
+              t={t}
               href={`/management/analytics/channels?${q}`}
               testId="report-sources"
-              title="Источники броней"
-              value={d && (topSource ? sourceLabel(topSource.source, topSource.channel) : '—')}
+              title={t('Источники броней')}
+              value={d && (topSource ? t(sourceLabel(topSource.source, topSource.channel)) : '—')}
               hint={
                 d
                   ? topSource
-                    ? `главный источник, ${formatPercent(topSource.share)} заездов`
-                    : 'заездов за период нет'
+                    ? t('главный источник, {share} заездов', { share: formatPercent(topSource.share) })
+                    : t('заездов за период нет')
                   : undefined
               }
             />
           </Group>
-          <Group title="День">
+          <Group title={t('День')}>
             <ReportCard
+              t={t}
               href="/finance"
               testId="report-day"
-              title="Сводка дня"
+              title={t('Сводка дня')}
               value={day && `${day.counts.arrivals} / ${day.counts.departures}`}
-              hint="заезды / выезды сегодня, в «Финансах»"
+              hint={t('заезды / выезды сегодня, в «Финансах»')}
             />
             <ReportCard
+              t={t}
               href="/reservations?view=inhouse"
               testId="report-inhouse"
-              title="Список проживающих"
+              title={t('Список проживающих')}
               value={day && formatInt(day.counts.inHouse)}
-              hint="проживаний сейчас, в «Бронях»"
+              hint={t('проживаний сейчас, в «Бронях»')}
             />
             <ReportCard
+              t={t}
               href="/reports/print?form=day"
               testId="report-print"
-              title="Печать"
-              hint="сводка дня и список проживающих на бумагу, RU и KZ"
+              title={t('Печать')}
+              hint={t('сводка дня и список проживающих на бумагу, RU и KZ')}
             />
           </Group>
           {mayAccess(shell.access, 'settings') && (
-            <Group title="Сайт">
+            <Group title={t('Сайт')}>
               <ReportCard
+              t={t}
                 href="/website/analytics"
                 testId="report-website"
-                title="Аналитика сайта"
-                hint="посещения, воронка и брони с сайта — период на самом экране"
+                title={t('Аналитика сайта')}
+                hint={t('посещения, воронка и брони с сайта, период на самом экране')}
               />
             </Group>
           )}
@@ -307,7 +326,9 @@ function ReportCard({
   hint,
   warn,
   testId,
+  t,
 }: {
+  t: Translate;
   href: string;
   title: string;
   value?: string | null;
@@ -328,7 +349,7 @@ function ReportCard({
       {value !== undefined && (
         <span className="report-card__value">{value === null ? '—' : value}</span>
       )}
-      <span className="report-card__hint">{value === null ? 'не загрузилось' : hint}</span>
+      <span className="report-card__hint">{value === null ? t('не загрузилось') : hint}</span>
     </Link>
   );
 }

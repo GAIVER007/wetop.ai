@@ -6,16 +6,18 @@ import type { BeautyLocationHoursResponse } from '../../lib/api';
 import { localInput } from '../beauty/time';
 import { zoneLabel } from '../../lib/human-period';
 import { saveSalonHours } from './actions';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 type Interval = BeautyLocationHoursResponse['intervals'][number] & { key: number };
 const DAYS = [
-  [1, 'Понедельник'],
-  [2, 'Вторник'],
-  [3, 'Среда'],
-  [4, 'Четверг'],
-  [5, 'Пятница'],
-  [6, 'Суббота'],
-  [0, 'Воскресенье'],
+  [1, msg('Понедельник')],
+  [2, msg('Вторник')],
+  [3, msg('Среда')],
+  [4, msg('Четверг')],
+  [5, msg('Пятница')],
+  [6, msg('Суббота')],
+  [0, msg('Воскресенье')],
 ] as const;
 export function SalonHoursForm({
   initial,
@@ -26,6 +28,7 @@ export function SalonHoursForm({
   scopeKey: string;
   canEdit: boolean;
 }) {
+  const t = useT();
   const [state, action, pending] = useActionState(saveSalonHours, null);
   const data = state?.data ?? initial;
   const [rows, setRows] = useState<Interval[]>(() =>
@@ -39,13 +42,14 @@ export function SalonHoursForm({
   }, [state]);
   return (
     <form action={action} className="salon-hours-form">
-      <h2>Режим работы салона</h2>
+      <h2>{t('Режим работы салона')}</h2>
       <p>
-        Время: {zoneLabel(initial.location.timezone)}. Запись должна попадать в часы салона и график
-        мастера.
+        {t('Время: {zone}. Запись должна попадать в часы салона и график мастера.', {
+          zone: zoneLabel(initial.location.timezone),
+        })}
       </p>
       {!data.configured && (
-        <p>Режим пока не настроен. До сохранения доступность определяется графиками мастеров.</p>
+        <p>{t('Режим пока не настроен. До сохранения доступность определяется графиками мастеров.')}</p>
       )}
       <input type="hidden" name="scopeKey" value={scopeKey} />
       <input type="hidden" name="revision" value={data.revision} />
@@ -57,21 +61,22 @@ export function SalonHoursForm({
         )}
       />
       <fieldset disabled={!canEdit || pending} className="salon-hours-week">
-        <legend className="sr-only">Недельный режим работы</legend>
-        {DAYS.map(([weekday, name]) => {
+        <legend className="sr-only">{t('Недельный режим работы')}</legend>
+        {DAYS.map(([weekday, dayName]) => {
+          const name = t(dayName);
           const own = rows.filter((row) => row.weekday === weekday);
           return (
             <section key={weekday} className="salon-hours-day" aria-label={name}>
               <h3>{name}</h3>
               <div className="salon-hours-day-content">
-                {!own.length && <p>{data.configured ? 'Выходной' : 'Интервалы не заданы'}</p>}
+                {!own.length && <p>{data.configured ? t('Выходной') : t('Интервалы не заданы')}</p>}
                 {own.map((row, index) => (
                   <div className="salon-hours-interval" key={row.key}>
-                    <Field label="С">
+                    <Field label={t('С')}>
                       <Input
                         type="time"
                         required
-                        aria-label={`Начало: ${name}, интервал ${index + 1}`}
+                        aria-label={t('Начало: {day}, интервал {n}', { day: name, n: index + 1 })}
                         value={row.timeFrom}
                         onChange={(event) =>
                           setRows((all) =>
@@ -84,11 +89,11 @@ export function SalonHoursForm({
                         }
                       />
                     </Field>
-                    <Field label="До">
+                    <Field label={t('До')}>
                       <Input
                         type="time"
                         required
-                        aria-label={`Конец: ${name}, интервал ${index + 1}`}
+                        aria-label={t('Конец: {day}, интервал {n}', { day: name, n: index + 1 })}
                         value={row.timeTo}
                         onChange={(event) =>
                           setRows((all) =>
@@ -104,9 +109,9 @@ export function SalonHoursForm({
                         type="button"
                         tone="ghost"
                         onClick={() => setRows((all) => all.filter((item) => item.key !== row.key))}
-                        aria-label={`Удалить интервал ${index + 1}: ${name}`}
+                        aria-label={t('Удалить интервал {n}: {day}', { n: index + 1, day: name })}
                       >
-                        Удалить
+                        {t('Удалить')}
                       </Button>
                     )}
                   </div>
@@ -123,9 +128,9 @@ export function SalonHoursForm({
                       { key: nextKey.current++, weekday, timeFrom: '', timeTo: '' },
                     ])
                   }
-                  aria-label={`Добавить интервал: ${name}`}
+                  aria-label={t('Добавить интервал: {day}', { day: name })}
                 >
-                  Добавить интервал
+                  {t('Добавить интервал')}
                 </Button>
               )}
             </section>
@@ -134,15 +139,15 @@ export function SalonHoursForm({
         {canEdit && (
           <div className="salon-hours-foot">
             {!rows.length && (
-              <p>Если сохранить пустой график, все дни станут выходными для новых записей.</p>
+              <p>{t('Если сохранить пустой график, все дни станут выходными для новых записей.')}</p>
             )}
             {state?.error && <Alert>{state.error}</Alert>}
             {state?.data && (
-              <Alert tone="success">Режим работы сохранён. Существующие записи не перенесены.</Alert>
+              <Alert tone="success">{t('Режим работы сохранён. Существующие записи не перенесены.')}</Alert>
             )}
             <div className="salon-hours-actions">
               <Button type="submit" disabled={pending}>
-                {pending ? 'Сохраняем…' : 'Сохранить режим'}
+                {pending ? t('Сохраняем…') : t('Сохранить режим')}
               </Button>
               <Button
                 type="button"
@@ -160,7 +165,7 @@ export function SalonHoursForm({
                   })
                 }
               >
-                Скопировать понедельник на все дни
+                {t('Скопировать понедельник на все дни')}
               </Button>
             </div>
           </div>
@@ -168,9 +173,9 @@ export function SalonHoursForm({
       </fieldset>
       {!canEdit && state?.error && <Alert>{state.error}</Alert>}
       {data.conflicts.length > 0 && (
-        <section aria-label="Записи вне нового режима">
-          <h3>Записи вне режима работы</h3>
-          <p>Проверьте эти визиты. Их время сохранено.</p>
+        <section aria-label={t('Записи вне нового режима')}>
+          <h3>{t('Записи вне режима работы')}</h3>
+          <p>{t('Проверьте эти визиты. Их время сохранено.')}</p>
           <ul>
             {data.conflicts.map((visit) => (
               <li key={visit.id}>
@@ -184,7 +189,7 @@ export function SalonHoursForm({
             ))}
           </ul>
           {data.conflictsTruncated && (
-            <p>Показаны первые 100 конфликтов. Проверьте остальные записи в журнале.</p>
+            <p>{t('Показаны первые 100 конфликтов. Проверьте остальные записи в журнале.')}</p>
           )}
         </section>
       )}

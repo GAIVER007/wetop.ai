@@ -1,15 +1,17 @@
 'use client';
 
 import { useSyncExternalStore, type ReactNode } from 'react';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 type View = 'overview' | 'operations' | 'debts' | 'services' | 'cash';
 const tabs = [
-  { id: 'overview', label: 'Обзор', hash: '#overview' },
-  { id: 'operations', label: 'Операции', hash: '#operations' },
-  { id: 'debts', label: 'Долги', hash: '#debts' },
+  { id: 'overview', label: msg('Обзор'), hash: '#overview' },
+  { id: 'operations', label: msg('Операции'), hash: '#operations' },
+  { id: 'debts', label: msg('Долги'), hash: '#debts' },
   // REP2: отчёт по услугам — свод начислений-услуг периода
-  { id: 'services', label: 'Услуги', hash: '#services' },
-  { id: 'cash', label: 'Касса', hash: '#cash' },
+  { id: 'services', label: msg('Услуги'), hash: '#services' },
+  { id: 'cash', label: msg('Касса'), hash: '#cash' },
 ] as const;
 function subscribe(notify: () => void) {
   window.addEventListener('hashchange', notify);
@@ -36,6 +38,7 @@ export function FinanceWorkspace({
   services: ReactNode;
   cash: ReactNode;
 }) {
+  const t = useT();
   const hash = useSyncExternalStore(
     subscribe,
     () => window.location.hash,
@@ -57,7 +60,7 @@ export function FinanceWorkspace({
   return (
     <div className="finance-workspace finance-more">
       <div id="finance-details">
-        <div className="finance-tabs" role="tablist" aria-label="Детализация финансов">
+        <div className="finance-tabs" role="tablist" aria-label={t('Детализация финансов')}>
           {tabs.map((tab, index) => (
             <button
               key={tab.id}
@@ -85,7 +88,7 @@ export function FinanceWorkspace({
                 }
               }}
             >
-              {tab.label}
+              {t(tab.label)}
             </button>
           ))}
         </div>

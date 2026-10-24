@@ -3,6 +3,9 @@ import { useState, type ReactNode } from 'react';
 import { Button, cx } from './ui';
 import { Icon } from './icon';
 import { displayDate } from '../lib/display-date';
+import { intlLocale, type DeskLocale } from '../i18n';
+import { useLocale, useT } from '../i18n/locale-provider';
+import { dateFormat } from '../i18n/dates';
 
 export interface DayBar {
   /** Первый день столбика: у дневного графика единственный */
@@ -18,6 +21,19 @@ export interface DayBar {
 }
 
 const dayOfMonth = (iso: string) => Number(iso.slice(8, 10));
+/** Дата дня на языке человека: русский вид прежний (`displayDate`), казахский с месяцами по-казахски */
+function dayDate(iso: string, style: 'short' | 'full', locale: DeskLocale): string {
+  if (locale === 'ru') return displayDate(iso, style);
+  const date = new Date(`${iso}T00:00:00Z`);
+  if (!Number.isFinite(date.getTime())) return iso;
+  return dateFormat(intlLocale(locale), {
+    timeZone: 'UTC',
+    day: 'numeric',
+    month: style === 'full' ? 'long' : 'short',
+    ...(style === 'full' ? { weekday: 'long', year: 'numeric' } : {}),
+  }).format(date);
+}
+
 const weekend = (iso: string) => [0, 6].includes(new Date(`${iso}T00:00:00Z`).getUTCDay());
 
 /**
@@ -37,6 +53,8 @@ export function DayBars({
   today: string;
   testId: string;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const todayIndex = days.findIndex((d) => d.date === today);
   const [active, setActive] = useState(todayIndex >= 0 ? todayIndex : days.length - 1);
   const dense = days.length > 31;
@@ -73,7 +91,7 @@ export function DayBars({
             tone="secondary"
             size="sm"
             className="bars-day__prev"
-            aria-label={grouped ? 'Предыдущий период' : 'Предыдущий день'}
+            aria-label={grouped ? t('Предыдущий период') : t('Предыдущий день')}
             disabled={active === 0}
             onClick={() => setActive(active - 1)}
           >
@@ -82,17 +100,17 @@ export function DayBars({
           <p data-testid={`${testId}-day`} aria-live="polite">
             <strong>
               {day.to && day.to !== day.date
-                ? `${displayDate(day.date)} — ${displayDate(day.to)}`
-                : displayDate(day.date, 'full')}
+                ? `${dayDate(day.date, 'short', locale)} — ${dayDate(day.to, 'short', locale)}`
+                : dayDate(day.date, 'full', locale)}
             </strong>
-            {day.date > today && <span className="muted">, по броням</span>}
+            {day.date > today && <span className="muted">{t(', по броням')}</span>}
             <span>: {day.facts}</span>
           </p>
           <Button
             type="button"
             tone="secondary"
             size="sm"
-            aria-label={grouped ? 'Следующий период' : 'Следующий день'}
+            aria-label={grouped ? t('Следующий период') : t('Следующий день')}
             disabled={active === days.length - 1}
             onClick={() => setActive(active + 1)}
           >

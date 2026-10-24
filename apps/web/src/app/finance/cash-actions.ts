@@ -1,6 +1,8 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { ApiError, financeApi } from '../../lib/api';
+import { msg } from '../../i18n';
+import { serverT } from '../../i18n/server';
 
 /** Результат действия кассы (§21): ошибка словами у формы, введённое не теряется */
 export interface CashActionResult {
@@ -11,29 +13,31 @@ export interface CashActionResult {
 }
 
 const FIELD_LABELS: Record<string, string> = {
-  amount: 'Сумма',
-  method: 'Способ',
-  from: 'Откуда',
-  to: 'Куда',
-  categoryId: 'Статья',
-  note: 'Комментарий',
-  name: 'Название статьи',
-  kind: 'Тип',
+  amount: msg('Сумма'),
+  method: msg('Способ'),
+  from: msg('Откуда'),
+  to: msg('Куда'),
+  categoryId: msg('Статья'),
+  note: msg('Комментарий'),
+  name: msg('Название статьи'),
+  kind: msg('Тип'),
 };
-const humanize = (message: string) => {
+const humanize = async (message: string) => {
+  const t = await serverT();
   const m = /^([A-Za-z.]+) — (.+)$/s.exec(message);
   const label = m && FIELD_LABELS[m[1]!.replace('commission.', '')];
-  return label ? `Поле «${label}»: ${m![2]}` : message;
+  return label ? t('Поле «{label}»: {message}', { label: t(label), message: m![2]! }) : message;
 };
-const describe = (e: unknown) =>
-  e instanceof ApiError ? humanize(e.message) : e instanceof Error ? e.message : String(e);
+const describe = async (e: unknown) =>
+  e instanceof ApiError ? await humanize(e.message) : e instanceof Error ? e.message : String(e);
 const s = (fd: FormData, k: string) => {
   const v = fd.get(k);
   return typeof v === 'string' && v.trim() !== '' ? v.trim() : undefined;
 };
-const done = (message: string): CashActionResult => {
+const done = async (message: string): Promise<CashActionResult> => {
   revalidatePath('/finance');
-  return { error: null, ok: Date.now(), message };
+  const t = await serverT();
+  return { error: null, ok: Date.now(), message: t(message) };
 };
 
 /** Комиссия из формы: сумма или процент; пустые поля — комиссии нет */
@@ -50,7 +54,10 @@ export async function cashOperationAction(
   fd: FormData,
 ): Promise<CashActionResult> {
   // своя проверка вместо браузерной «Please fill out this field.» (аудит 22.10.2026 P1-23)
-  if (!s(fd, 'amount')) return { error: 'Укажите сумму', ok: _prev.ok };
+  if (!s(fd, 'amount')) {
+    const t = await serverT();
+    return { error: t('Укажите сумму'), ok: _prev.ok };
+  }
   try {
     await financeApi.createCashOperation({
       ...(s(fd, 'idempotencyKey') ? {idempotencyKey:s(fd, 'idempotencyKey')} : {}),
@@ -62,16 +69,19 @@ export async function cashOperationAction(
       ...(commissionOf(fd) ? { commission: commissionOf(fd) } : {}),
     });
   } catch (e) {
-    return { error: describe(e), ok: _prev.ok };
+    return { error: await describe(e), ok: _prev.ok };
   }
-  return done(s(fd, 'kind') === 'EXPENSE' ? 'Расход записан.' : 'Поступление записано.');
+  return done(s(fd, 'kind') === 'EXPENSE' ? msg('Расход записан.') : msg('Поступление записано.'));
 }
 
 export async function cashTransferAction(
   _prev: CashActionResult,
   fd: FormData,
 ): Promise<CashActionResult> {
-  if (!s(fd, 'amount')) return { error: 'Укажите сумму', ok: _prev.ok };
+  if (!s(fd, 'amount')) {
+    const t = await serverT();
+    return { error: t('Укажите сумму'), ok: _prev.ok };
+  }
   try {
     await financeApi.createCashTransfer({
       ...(s(fd, 'idempotencyKey') ? {idempotencyKey:s(fd, 'idempotencyKey')} : {}),
@@ -82,9 +92,9 @@ export async function cashTransferAction(
       ...(commissionOf(fd) ? { commission: commissionOf(fd) } : {}),
     });
   } catch (e) {
-    return { error: describe(e), ok: _prev.ok };
+    return { error: await describe(e), ok: _prev.ok };
   }
-  return done('Перевод записан.');
+  return done(msg('Перевод записан.'));
 }
 
 /** Сверка кассы (§21.4): снимок «по системе» и факт; расхождение — поправкой по галочке */
@@ -92,7 +102,10 @@ export async function cashReconcileAction(
   _prev: CashActionResult,
   fd: FormData,
 ): Promise<CashActionResult> {
-  if (!s(fd, 'counted')) return { error: 'Укажите пересчитанную сумму', ok: _prev.ok };
+  if (!s(fd, 'counted')) {
+    const t = await serverT();
+    return { error: t('Укажите пересчитанную сумму'), ok: _prev.ok };
+  }
   try {
     await financeApi.createCashReconciliation({
       ...(s(fd, 'idempotencyKey') ? {idempotencyKey:s(fd, 'idempotencyKey')} : {}),
@@ -102,9 +115,9 @@ export async function cashReconcileAction(
       adjust: fd.get('adjust') === 'on',
     });
   } catch (e) {
-    return { error: describe(e), ok: _prev.ok };
+    return { error: await describe(e), ok: _prev.ok };
   }
-  return done('Сверка записана.');
+  return done(msg('Сверка записана.'));
 }
 
 /** Аннулирование операции кассы (право как у возврата): комиссия снимается вместе с основной */
@@ -112,9 +125,9 @@ export async function voidCashOperationAction(id: string): Promise<CashActionRes
   try {
     await financeApi.voidCashOperation(id);
   } catch (e) {
-    return { error: describe(e), ok: 0 };
+    return { error: await describe(e), ok: 0 };
   }
-  return done('Операция аннулирована.');
+  return done(msg('Операция аннулирована.'));
 }
 
 /** Аннулировать платёж гостя из ленты операций (план finance-payments-direct 07.10.2026): без возвратов и чека */
@@ -125,5 +138,6 @@ export async function voidPaymentAction(id: string): Promise<CashActionResult> {
     return { error: e instanceof ApiError ? e.message : String(e), ok: 0 };
   }
   revalidatePath('/finance');
-  return { error: null, ok: Date.now(), message: 'Платёж аннулирован.' };
+  const t = await serverT();
+  return { error: null, ok: Date.now(), message: t('Платёж аннулирован.') };
 }

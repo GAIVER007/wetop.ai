@@ -7,6 +7,7 @@ import { Button, Input } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { minorToInput } from '../../lib/money';
 import { setBarProductPriceAction, type BarActionResult } from './actions';
+import { useT } from '../../i18n/locale-provider';
 
 const initial: BarActionResult = { error: null, ok: 0 };
 
@@ -23,6 +24,7 @@ export function ProductPriceForm({
   productId: string;
   salePrice: string;
 }) {
+  const t = useT();
   const [state, action, pending] = useBarAction(setBarProductPriceAction, initial);
   // сохранённая цена приходит с сервера после revalidate; по ней решаем, менялось ли поле
   const saved = useRef(minorToInput(salePrice));
@@ -35,7 +37,7 @@ export function ProductPriceForm({
         name="salePrice"
         inputMode="decimal"
         defaultValue={minorToInput(salePrice)}
-        aria-label={`Своя цена продажи в ${context.currency}`}
+        aria-label={t('Своя цена продажи в {currency}', { currency: context.currency })}
         required
         onBlur={(event) => {
           const value = event.currentTarget.value.trim();
@@ -43,7 +45,7 @@ export function ProductPriceForm({
           event.currentTarget.form?.requestSubmit();
         }}
       />
-      <Button type="submit" size="xs" tone="ghost" disabled={pending} aria-label="Сохранить цену" title="Сохранить цену">
+      <Button type="submit" size="xs" tone="ghost" disabled={pending} aria-label={t('Сохранить цену')} title={t('Сохранить цену')}>
         <Icon name="check" width={16} height={16} />
       </Button>
       {state.error && (

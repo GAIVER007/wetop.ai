@@ -11,6 +11,7 @@ import { isIsoDate, todayAt } from '@pms/domain';
 import { ScheduleBoard, type WeekGridData } from './board';
 import { mondayOf } from './week';
 import { SalonSetupLink, salonSetupPending } from '../masters/setup-link';
+import { serverT } from '../../../i18n/server';
 import '../beauty.css';
 
 /**
@@ -26,6 +27,7 @@ export default async function BeautySchedulePage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/beauty/schedule');
+  const t = await serverT();
   const { week, group, onboarding } = normalizeSearchParams(await searchParams);
   const [shell, setupPending] = await Promise.all([deskShell(), salonSetupPending(onboarding === '1')]);
   const loaded = await loadGrid(
@@ -41,7 +43,7 @@ export default async function BeautySchedulePage({
   );
   if (!loaded.ok)
     return (
-      <Page title="График работы">
+      <Page title={t('График работы')}>
         <LoadError testId="beauty-schedule-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
@@ -50,11 +52,11 @@ export default async function BeautySchedulePage({
   return (
     <Page
       className="beauty-page"
-      title="График работы"
+      title={t('График работы')}
       subtitle={
         loaded.value.location
-          ? `Кто работает в филиале «${loaded.value.location.name ?? 'без имени'}» по дням недели.`
-          : 'График специалистов. Филиал пока не выбран.'
+          ? t('Кто работает в филиале «{name}» по дням недели.', { name: loaded.value.location.name ?? t('без имени') })
+          : t('График специалистов. Филиал пока не выбран.')
       }
     >
       {setupPending && <SalonSetupLink />}

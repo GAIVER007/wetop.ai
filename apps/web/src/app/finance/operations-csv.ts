@@ -11,13 +11,13 @@ type Operation = PeriodOperations['rows'][number];
  * файл уходит из системы, бронь находится по номеру.
  */
 export function operationsCsv(rows: Operation[], currency = 'KZT'): string {
-  const head = ['Дата', 'Время', 'Тип', 'Статус', 'Способ', `Сумма, ${currencySign(currency)}`, 'Бронь', 'Статья', 'Комментарий'];
+  const head = ['Дата', 'Время', 'Тип', 'Статус', 'Способ', `Сумма, ${currencySign(currency)}`, 'Бронь', 'Статья', 'Комментарий']; // kk-allow: заголовки выгрузки для бухгалтерии
   const lines = rows.map((o) => {
     const [day = '', time = ''] = o.localAt.split(' ');
     const [y, m, d] = day.split('-');
     const booking = o.confirmationNumber
       ? o.reservations > 1
-        ? `${o.confirmationNumber} и ещё ${o.reservations - 1}`
+        ? `${o.confirmationNumber} и ещё ${o.reservations - 1}` // kk-allow: текст выгрузки для бухгалтерии
         : o.confirmationNumber
       : '';
     const method =

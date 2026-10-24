@@ -1,5 +1,6 @@
 'use client';
 import type { ComponentProps, InputHTMLAttributes } from 'react';
+import { useT } from '../i18n/locale-provider';
 import { Icon } from './icon';
 import { Button, Field, Input } from './ui';
 import { DateInput } from './date-field';
@@ -37,18 +38,19 @@ export function DateBar({
   /** быстрые кнопки в календаре (только с `calendar`) */
   presets?: ComponentProps<typeof DateInput>['presets'];
 }) {
+  const t = useT();
   const DateControl = calendar ? DateInput : Input;
   return (
     <div className={className ? `date-bar ${className}` : 'date-bar'}>
       {onToday && (
         <Button tone="secondary" type="button" onClick={onToday}>
-          Сегодня
+          {t('Сегодня')}
         </Button>
       )}
-      <Button tone="ghost" type="button" aria-label="Предыдущий день" onClick={onPrevious}>
+      <Button tone="ghost" type="button" aria-label={t('Предыдущий день')} onClick={onPrevious}>
         <Icon name="back" />
       </Button>
-      <Field label={compact ? <span className="sr-only">Дата</span> : 'Дата'}>
+      <Field label={compact ? <span className="sr-only">{t('Дата')}</span> : t('Дата')}>
         <DateControl
           {...(calendar && presets ? { presets } : {})}
           {...inputProps}
@@ -59,7 +61,7 @@ export function DateBar({
           }}
         />
       </Field>
-      <Button tone="ghost" type="button" aria-label="Следующий день" onClick={onNext}>
+      <Button tone="ghost" type="button" aria-label={t('Следующий день')} onClick={onNext}>
         <Icon name="chevron" />
       </Button>
     </div>

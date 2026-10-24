@@ -1,4 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../i18n/server', async () => ({
+  serverT: async () => (await import('../../../i18n')).translator('ru'),
+  currentLocale: async () => 'ru',
+}));
 
 const m = vi.hoisted(() => ({ financePeriod: vi.fn(), day: vi.fn() }));
 vi.mock('../../../lib/api', () => ({ beautyApi: { financePeriod: m.financePeriod, day: m.day } }));

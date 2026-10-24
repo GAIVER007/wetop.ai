@@ -1,38 +1,15 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
+import { intlLocale, msg, type DeskLocale } from '../i18n';
+import { useLocale, useT } from '../i18n/locale-provider';
 import { Icon } from './icon';
+import { dateFormat } from '../i18n/dates';
 
 const DAY = 86_400_000;
-const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-const months = [
-  'января',
-  'февраля',
-  'марта',
-  'апреля',
-  'мая',
-  'июня',
-  'июля',
-  'августа',
-  'сентября',
-  'октября',
-  'ноября',
-  'декабря',
-];
-const monthTitles = [
-  'Январь',
-  'Февраль',
-  'Март',
-  'Апрель',
-  'Май',
-  'Июнь',
-  'Июль',
-  'Август',
-  'Сентябрь',
-  'Октябрь',
-  'Ноябрь',
-  'Декабрь',
-];
+const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']; // kk-allow: русские месяцы и дни недели для ru; казахские даёт Intl kk-KZ (inLocale ниже)
+const months = 'января февраля марта апреля мая июня июля августа сентября октября ноября декабря'.split(' '); // kk-allow: русские месяцы и дни недели для ru; казахские даёт Intl kk-KZ (inLocale ниже)
+const monthTitles = 'Январь Февраль Март Апрель Май Июнь Июль Август Сентябрь Октябрь Ноябрь Декабрь'.split(' '); // kk-allow: русские месяцы и дни недели для ru; казахские даёт Intl kk-KZ (inLocale ниже)
 
 function parseDate(value: string): Date | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
@@ -94,6 +71,25 @@ function formatShortRange(from: string, to: string): string {
   return `${start.getUTCDate()} ${short(start.getUTCMonth())} – ${end.getUTCDate()} ${short(end.getUTCMonth())}`;
 }
 
+/** Даты на языке человека не по-русски: месяцы и отрезок собирает `Intl` (казахский порядок слов свой) */
+const inLocale = (locale: DeskLocale, options: Intl.DateTimeFormatOptions) =>
+  dateFormat(intlLocale(locale), { timeZone: 'UTC', ...options });
+const LONG = { day: 'numeric', month: 'long', year: 'numeric' } as const;
+function localeRange(from: string, to: string, locale: DeskLocale, options: Intl.DateTimeFormatOptions): string {
+  const start = parseDate(from);
+  const end = parseDate(to);
+  if (!start || !end) return `${from} – ${to}`;
+  return inLocale(locale, options).formatRange(start, end);
+}
+const dateIn = (value: string, locale: DeskLocale) => {
+  const date = parseDate(value);
+  return locale === 'ru' || !date ? formatDate(value) : inLocale(locale, LONG).format(date);
+};
+const compactIn = (from: string, to: string, locale: DeskLocale) =>
+  locale === 'ru' ? formatCompactRange(from, to) : localeRange(from, to, locale, LONG);
+const shortIn = (from: string, to: string, locale: DeskLocale) =>
+  locale === 'ru' ? formatShortRange(from, to) : localeRange(from, to, locale, { day: 'numeric', month: 'short' });
+
 export type DateRangePreset = 'today' | '7' | '14' | '30' | 'month' | 'custom';
 
 export function presetRange(
@@ -120,12 +116,12 @@ function activePreset(from: string, to: string, today: string): DateRangePreset 
 }
 
 const presets: { value: DateRangePreset; label: string }[] = [
-  { value: 'today', label: 'Сегодня' },
-  { value: '7', label: '7 дней' },
-  { value: '14', label: '14 дней' },
-  { value: '30', label: '30 дней' },
-  { value: 'month', label: 'Текущий месяц' },
-  { value: 'custom', label: 'Произвольный период' },
+  { value: 'today', label: msg('Сегодня') },
+  { value: '7', label: msg('7 дней') },
+  { value: '14', label: msg('14 дней') },
+  { value: '30', label: msg('30 дней') },
+  { value: 'month', label: msg('Текущий месяц') },
+  { value: 'custom', label: msg('Произвольный период') },
 ];
 
 /** Один контрол периода. Today передаёт экран по часовому поясу объекта. */
@@ -149,6 +145,8 @@ export function DateRangePopover({
   /** короткая подпись на любой ширине («13–19 октября 2026»), как на эталоне шахматки 13.10.2026 */
   compact?: boolean;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const ref = useRef<HTMLDetailsElement>(null);
   const trigger = useRef<HTMLElement>(null);
   const id = useId();
@@ -226,21 +224,21 @@ export function DateRangePopover({
       <summary
         ref={trigger}
         data-testid={triggerTestId}
-        aria-label="Выбрать период"
+        aria-label={t('Выбрать период')}
         aria-controls={`${id}-panel`}
       >
         <Icon name="board" />
         {!compact && (
           <span className="date-range__label-full">
-            {formatDate(from)} – {formatDate(to)}
+            {dateIn(from, locale)} – {dateIn(to, locale)}
           </span>
         )}
         {(compact || compactOnMobile) && (
           <span className={compact ? 'date-range__label-wide' : 'date-range__label-compact'}>
-            {formatCompactRange(from, to)}
+            {compactIn(from, to, locale)}
           </span>
         )}
-        {compact && <span className="date-range__label-short">{formatShortRange(from, to)}</span>}
+        {compact && <span className="date-range__label-short">{shortIn(from, to, locale)}</span>}
         <Icon name="down" />
       </summary>
       <div className="date-range__panel" id={`${id}-panel`}>
@@ -250,13 +248,13 @@ export function DateRangePopover({
           onSubmit={(event) => {
             if (!valid || (maxDays && count > maxDays)) {
               event.preventDefault();
-              setError(!valid ? 'Выберите корректный период' : `Не более ${maxDays} дней`);
+              setError(!valid ? t('Выберите корректный период') : t('Не более {n} дней', { n: String(maxDays) }));
             }
           }}
         >
           <div className="date-range__body">
-            <div className="date-range__presets" role="group" aria-label="Готовые периоды">
-              <strong>Выберите период</strong>
+            <div className="date-range__presets" role="group" aria-label={t('Готовые периоды')}>
+              <strong>{t('Выберите период')}</strong>
               {presets.map(({ value, label }) => (
                 <button
                   key={value}
@@ -275,24 +273,35 @@ export function DateRangePopover({
                     }
                   }}
                 >
-                  {label}
+                  {t(label)}
                 </button>
               ))}
             </div>
-            <div className="date-range__calendar" aria-label="Календарь периода">
+            <div className="date-range__calendar" aria-label={t('Календарь периода')}>
               <div className="date-range__month">
-                <button type="button" onClick={() => changeMonth(-1)} aria-label="Предыдущий месяц">
+                <button type="button" onClick={() => changeMonth(-1)} aria-label={t('Предыдущий месяц')}>
                   <Icon name="back" />
                 </button>
                 <strong>
-                  {monthTitles[view.getUTCMonth()]} {view.getUTCFullYear()}
+                  {locale === 'ru' ? (
+                    <>
+                      {monthTitles[view.getUTCMonth()]} {view.getUTCFullYear()}
+                    </>
+                  ) : (
+                    inLocale(locale, { month: 'long', year: 'numeric' }).format(view)
+                  )}
                 </strong>
-                <button type="button" onClick={() => changeMonth(1)} aria-label="Следующий месяц">
+                <button type="button" onClick={() => changeMonth(1)} aria-label={t('Следующий месяц')}>
                   <Icon name="chevron" />
                 </button>
               </div>
               <div className="date-range__days">
-                {weekdays.map((day) => (
+                {(locale === 'ru'
+                  ? weekdays
+                  : Array.from({ length: 7 }, (_, i) =>
+                      inLocale(locale, { weekday: 'short' }).format(new Date(Date.UTC(2024, 0, 1 + i))),
+                    )
+                ).map((day) => (
                   <span key={day} className="date-range__weekday">
                     {day}
                   </span>
@@ -308,7 +317,7 @@ export function DateRangePopover({
                       data-in-range={value >= start && value <= end}
                       data-edge={value === start || value === end}
                       data-today={value === today}
-                      aria-label={formatDate(value)}
+                      aria-label={dateIn(value, locale)}
                       aria-pressed={value === start || value === end}
                       onClick={() => chooseDay(value)}
                     >
@@ -319,11 +328,11 @@ export function DateRangePopover({
               </div>
               <div className="date-range__inputs">
                 <label>
-                  С
+                  {t('С')}
                   <input
                     name="from"
                     type="date"
-                    aria-label="Период: с"
+                    aria-label={t('Период: с')}
                     value={start}
                     onChange={(event) => {
                       setStart(event.target.value);
@@ -334,11 +343,11 @@ export function DateRangePopover({
                   />
                 </label>
                 <label>
-                  По
+                  {t('По')}
                   <input
                     name="to"
                     type="date"
-                    aria-label="Период: по"
+                    aria-label={t('Период: по')}
                     value={end}
                     onChange={(event) => {
                       setEnd(event.target.value);
@@ -353,7 +362,9 @@ export function DateRangePopover({
           </div>
           <div className="date-range__footer">
             <span aria-live="polite">
-              {valid ? `Выбрано: ${formatCompactRange(start, end)} (${count} дн.)` : 'Выберите даты'}
+              {valid
+                ? t('Выбрано: {range} ({count} дн.)', { range: compactIn(start, end, locale), count })
+                : t('Выберите даты')}
             </span>
             <span className="date-range__actions">
               <button
@@ -370,10 +381,10 @@ export function DateRangePopover({
                   trigger.current?.focus();
                 }}
               >
-                Отмена
+                {t('Отмена')}
               </button>
               <button className="btn" type="submit">
-                Применить
+                {t('Применить')}
               </button>
             </span>
             {error && <p role="alert">{error}</p>}

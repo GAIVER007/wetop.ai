@@ -9,6 +9,7 @@ vi.mock('../../lib/hotel-api', () => ({ hotelApi: { settings: vi.fn() } }));
 vi.mock('../../lib/desk-shell', () => ({ currentMe: vi.fn(async () => ({ user: { id: 'user-1', organizationId: 'org-1' }, context: { businessId: 'business-1', locationId: 'location-1' }, expiresAt: '2099-01-01T00:00:00Z', sessionIssuedAt: '2026-10-19T08:00:00.000Z' })) }));
 vi.mock('../../lib/workspace-context', () => ({ selectedWorkspaceBranch: vi.fn() }));
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
+vi.mock('../../i18n/server', async () => ({ serverT: async () => (await import('../../i18n')).translator('ru'), currentLocale: async () => 'ru' }));
 vi.mock('../../lib/api', () => ({
   ApiError: class ApiError extends Error {},
   barApi: { createCategory: vi.fn(), createProduct: vi.fn(), createReceipt: vi.fn(), postReceipt: vi.fn(), scanReceipt: vi.fn(), sellRetail: vi.fn(), sellToFolio: vi.fn(), payReceipt: vi.fn(), inventoryCount: vi.fn(), setProductPrice: vi.fn(), updateProduct: vi.fn() },

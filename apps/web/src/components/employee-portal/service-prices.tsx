@@ -8,11 +8,13 @@ import {
   saveEmployeeServicePrice,
 } from '../../app/my-work/actions';
 import { Field, Input } from '../ui';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 const sourceLabel: Record<BeautyEmployeeServicePriceRow['source'], string> = {
-  MASTER: 'Своя цена мастера',
-  LOCATION: 'Цена филиала',
-  CATALOG: 'Цена каталога',
+  MASTER: msg('Своя цена мастера'),
+  LOCATION: msg('Цена филиала'),
+  CATALOG: msg('Цена каталога'),
 };
 
 /**
@@ -32,12 +34,13 @@ export function EmployeeServicePrices({
   scope: string;
   initial: readonly BeautyEmployeeServicePriceRow[];
 }) {
+  const t = useT();
   const [items, setItems] = useState<BeautyEmployeeServicePriceRow[]>([...initial]);
   const [savedServiceId, setSavedServiceId] = useState<string | null>(null);
   return <div className="portal-service-prices" data-testid="portal-service-prices">
-    <h3>Цена и длительность у мастера</h3>
-    <p>Настройка действует для выбранного филиала. Суммы вводятся в валюте филиала.</p>
-    {!items.length && <p>Сначала назначьте мастеру услугу в этом филиале.</p>}
+    <h3>{t('Цена и длительность у мастера')}</h3>
+    <p>{t('Настройка действует для выбранного филиала. Суммы вводятся в валюте филиала.')}</p>
+    {!items.length && <p>{t('Сначала назначьте мастеру услугу в этом филиале.')}</p>}
     {items.map((row) => <ServicePriceForm
       key={`${row.serviceId}:${row.revision ?? 0}:${row.priceType}`}
       row={row}
@@ -68,6 +71,7 @@ function ServicePriceForm({
   onSaving: () => void;
   onSaved: (items: BeautyEmployeeServicePriceRow[]) => void;
 }) {
+  const t = useT();
   const [priceType, setPriceType] = useState(row.priceType);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -93,37 +97,37 @@ function ServicePriceForm({
 
   return <form action={save} className="portal-service-price-form">
     <header>
-      <div><strong>{row.serviceName}</strong><small>{sourceLabel[row.source]}</small></div>
-      <span>{row.sellable ? 'Доступна для записи' : 'Пока недоступна'}</span>
+      <div><strong>{row.serviceName}</strong><small>{t(sourceLabel[row.source])}</small></div>
+      <span>{row.sellable ? t('Доступна для записи') : t('Пока недоступна')}</span>
     </header>
     <input type="hidden" name="serviceId" value={row.serviceId} />
     <input type="hidden" name="currency" value={row.currency} />
     <input type="hidden" name="expectedRevision" value={row.revision ?? 0} />
-    <Field label="Тип цены">
+    <Field label={t('Тип цены')}>
       <select name="priceType" value={priceType} onChange={(event) => setPriceType(event.target.value as BeautyEmployeeServicePriceRow['priceType'])}>
-        <option value="FIXED">Фиксированная</option>
-        <option value="RANGE">Диапазон</option>
-        <option value="FREE">Бесплатно</option>
-        <option value="UNFIXED">Цена не задана</option>
+        <option value="FIXED">{t('Фиксированная')}</option>
+        <option value="RANGE">{t('Диапазон')}</option>
+        <option value="FREE">{t('Бесплатно')}</option>
+        <option value="UNFIXED">{t('Цена не задана')}</option>
       </select>
     </Field>
-    {priceType === 'FIXED' && <Field label={`Цена, ${row.currency}`}>
+    {priceType === 'FIXED' && <Field label={t('Цена, {currency}', { currency: row.currency })}>
       <Input name="priceMin" inputMode="decimal" defaultValue={minValue} required />
     </Field>}
     {priceType === 'RANGE' && <>
-      <Field label={`Цена от, ${row.currency}`}><Input name="priceMin" inputMode="decimal" defaultValue={minValue} required /></Field>
-      <Field label={`Цена до, ${row.currency}`}><Input name="priceMax" inputMode="decimal" defaultValue={maxValue} required /></Field>
+      <Field label={t('Цена от, {currency}', { currency: row.currency })}><Input name="priceMin" inputMode="decimal" defaultValue={minValue} required /></Field>
+      <Field label={t('Цена до, {currency}', { currency: row.currency })}><Input name="priceMax" inputMode="decimal" defaultValue={maxValue} required /></Field>
     </>}
-    {priceType === 'FREE' && <><p className="portal-service-price-note">Бесплатно</p><input type="hidden" name="priceMin" value="0" /></>}
-    {priceType === 'UNFIXED' && <p className="portal-service-price-note">Цена не задана, её нужно указать при записи.</p>}
-    <Field label="Длительность, минут">
+    {priceType === 'FREE' && <><p className="portal-service-price-note">{t('Бесплатно')}</p><input type="hidden" name="priceMin" value="0" /></>}
+    {priceType === 'UNFIXED' && <p className="portal-service-price-note">{t('Цена не задана, её нужно указать при записи.')}</p>}
+    <Field label={t('Длительность, минут')}>
       <Input name="durationMinutes" type="number" min={1} max={1440} step={1} defaultValue={row.durationMinutes} required />
     </Field>
     <div className="portal-service-price-actions">
-      <button className="btn" type="submit" disabled={pending}>{pending ? 'Сохраняем…' : 'Сохранить'}</button>
-      {row.revision !== null && <button className="btn btn--secondary" type="button" disabled={pending} onClick={remove}>Сбросить свою цену</button>}
+      <button className="btn" type="submit" disabled={pending}>{pending ? t('Сохраняем…') : t('Сохранить')}</button>
+      {row.revision !== null && <button className="btn btn--secondary" type="button" disabled={pending} onClick={remove}>{t('Сбросить свою цену')}</button>}
     </div>
-    {error && <p role="alert">{error}</p>}
-    {saved && <p role="status">Сохранено</p>}
+    {error && <p role="alert">{t(error)}</p>}
+    {saved && <p role="status">{t('Сохранено')}</p>}
   </form>;
 }

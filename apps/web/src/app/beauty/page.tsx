@@ -12,6 +12,7 @@ import { JournalBoard } from './journal';
 import { WeekCalendar } from './week-calendar';
 import { RemindersToday } from './reminders-today';
 import { loadManualReminders } from '../../lib/beauty-reminders';
+import { serverT } from '../../i18n/server';
 import './beauty.css';
 
 /**
@@ -26,6 +27,7 @@ export default async function BeautyPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/beauty');
+  const t = await serverT();
   const { date, view, appointment, employee, service, status, new: requestedNew } = normalizeSearchParams(
     await searchParams,
   );
@@ -83,7 +85,7 @@ export default async function BeautyPage({
   const manual = view === 'week' ? null : await loadManualReminders();
   if (!loaded.ok)
     return (
-      <Page title="Салон">
+      <Page title={t('Салон')}>
         <LoadError testId="beauty-journal-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
@@ -91,14 +93,14 @@ export default async function BeautyPage({
   // «День / Неделя»: в дне стоят в строке инструментов рядом с датой (аудит 21.10.2026, п. 34). Без предзагрузки:
   // предзагрузка этих двух адресов на живом сайте висела открытым запросом, и страница не затихала (п. 3)
   const views = (
-    <nav className="beauty-calendar-views" aria-label="Вид журнала">
+    <nav className="beauty-calendar-views" aria-label={t('Вид журнала')}>
       <Link
         className="btn btn--secondary"
         prefetch={false}
         aria-current={view !== 'week' ? 'page' : undefined}
         href={`/calendar?date=${loaded.value.date}&${filters}`}
       >
-        День
+        {t('День')}
       </Link>
       <Link
         className="btn btn--secondary"
@@ -106,15 +108,19 @@ export default async function BeautyPage({
         aria-current={view === 'week' ? 'page' : undefined}
         href={`/calendar?date=${loaded.value.date}&view=week&${filters}`}
       >
-        Неделя
+        {t('Неделя')}
       </Link>
     </nav>
   );
   return (
     <Page
       className="beauty-page"
-      title="Журнал"
-      subtitle={`Расписание специалистов и услуг салона${loaded.value.location.name ? `, ${loaded.value.location.name}` : ''}`}
+      title={t('Журнал')}
+      subtitle={
+        loaded.value.location.name
+          ? t('Расписание специалистов и услуг салона, {name}', { name: loaded.value.location.name })
+          : t('Расписание специалистов и услуг салона')
+      }
     >
       {loaded.week && views}
       {manual && manual.items.length > 0 && (
@@ -144,7 +150,7 @@ export default async function BeautyPage({
           canIssueReview={may('reviews', 'create', 'staff')}
           canAdjustPrice={may('services', 'update', 'rates')}
           {...(requestedCreate && !canReadCustomers
-            ? { creationUnavailableReason: 'Для создания записи нужен доступ к списку клиентов.' }
+            ? { creationUnavailableReason: t('Для создания записи нужен доступ к списку клиентов.') }
             : {})}
           appointmentId={appointment}
           newFor={requestedNew === '1' ? employee : undefined}

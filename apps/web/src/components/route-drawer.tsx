@@ -1,6 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
+import { msg } from '../i18n';
 import { Overlay } from './overlay';
 import design from '../app/reservations/new/new-reservation.module.css';
 /**
@@ -9,7 +10,7 @@ import design from '../app/reservations/new/new-reservation.module.css';
  */
 export function RouteDrawer({
   children,
-  title = 'Бронирование',
+  title = msg('Бронирование'),
   size = 'md',
 }: {
   children: ReactNode;
@@ -24,7 +25,7 @@ export function RouteDrawer({
       title={title}
       drawer
       size={size}
-      className={`booking-drawer ${title === 'Новая бронь' ? design.drawer : ''}`}
+      className={`booking-drawer ${title === 'Новая бронь' ? design.drawer : ''}`} // kk-allow: сверка с заголовком, который передал экран
     >
       {children}
     </Overlay>

@@ -1,13 +1,14 @@
 import type { BeautyAppointmentRow, BeautyDay, BeautyEmployeeRow } from '../../lib/api';
+import { translator, type Translate } from '../../i18n';
 /** Historical appointments remain visible after a master is archived or unassigned. */
-export function calendarColumns(day: BeautyDay, employees: BeautyEmployeeRow[]) {
+export function calendarColumns(day: BeautyDay, employees: BeautyEmployeeRow[], t: Translate = translator('ru')) {
   const columns = [...day.columns];
   for (const appointment of appointmentSegments(day.appointments)) {
     if (columns.some((c) => c.id === appointment.employeeId)) continue;
     const employee = employees.find((e) => e.id === appointment.employeeId);
     columns.push({
       id: appointment.employeeId,
-      name: `${employee?.name ?? 'Специалист'} (не принимает)`,
+      name: t('{name} (не принимает)', { name: employee?.name ?? t('Специалист') }),
       intervals: [],
       timeOff: false,
       timeOffReason: null,

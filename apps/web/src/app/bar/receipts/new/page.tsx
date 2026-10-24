@@ -12,6 +12,7 @@ import { BarTabs } from '../../tabs';
 import { deskShell } from '../../../../lib/desk-shell';
 import { barActionAccess } from '../../action-access';
 import '../../bar.css';
+import { serverT } from '../../../../i18n/server';
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
 
@@ -21,6 +22,7 @@ const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true 
  */
 export default async function BarNewReceiptPage() {
   await requireFeature('/bar/receipts/new');
+  const t = await serverT();
   const [products, suppliers, today, shell] = await Promise.all([
     settle(barApi.products()), settle(barApi.suppliers()), hotelToday(), deskShell(),
   ]);
@@ -31,18 +33,18 @@ export default async function BarNewReceiptPage() {
   if (!products.ok || !suppliers.ok) return null;
   // контекст денежных форм: сервер сверяет объект и валюту (D-CUR); у салона вместо объекта филиал
   const context = await loadBarContext();
-  return <Page width="wide" className="bar-subpage" title="Новый приход" subtitle="Счёт-фактура или накладная поставщика: загрузите фото, ИИ заполнит строки, либо внесите руками." crumbs={
-    <Link href="/bar/receipts" prefetch={false}>← Приходы</Link>
+  return <Page width="wide" className="bar-subpage" title={t('Новый приход')} subtitle={t('Счёт-фактура или накладная поставщика: загрузите фото, ИИ заполнит строки, либо внесите руками.')} crumbs={
+    <Link href="/bar/receipts" prefetch={false}>← {t('Приходы')}</Link>
   }>
     <BarTabs current="receipts" />
     {!canMutate
       ? <Alert boxed>{shell.access.unknown
-          ? 'Не удалось проверить права. Повторите загрузку страницы.'
+          ? t('Не удалось проверить права. Повторите загрузку страницы.')
           : shell.readOnly
-            ? 'Организация работает в режиме чтения. Приходы доступны для просмотра в журнале.'
-            : 'Нет права создавать приходы. Журнал доступен для просмотра.'}</Alert>
+            ? t('Организация работает в режиме чтения. Приходы доступны для просмотра в журнале.')
+            : t('Нет права создавать приходы. Журнал доступен для просмотра.')}</Alert>
       : suppliers.value.filter((supplier) => supplier.active).length === 0
-      ? <EmptyState icon={<Icon name="guests" />} title="Сначала добавьте поставщика">Приход привязывается к поставщику: заведите его на вкладке <Link href="/bar/suppliers" prefetch={false}>«Поставщики»</Link>.</EmptyState>
+      ? <EmptyState icon={<Icon name="guests" />} title={t('Сначала добавьте поставщика')}>{t('Приход привязывается к поставщику: заведите его на вкладке')} <Link href="/bar/suppliers" prefetch={false}>{t('«Поставщики»')}</Link>.</EmptyState>
       : <NewReceipt products={products.value} suppliers={suppliers.value} today={today} context={context} />}
   </Page>;
 }

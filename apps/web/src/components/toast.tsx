@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useT } from '../i18n/locale-provider';
 import { Icon } from './icon';
 import { cx } from './ui';
 
@@ -62,6 +63,7 @@ export function ToastRegion({
   dismiss: (id: number) => void;
   className?: string | undefined;
 }) {
+  const t = useT();
   return (
     <div
       className={cx('toast-region', className)}
@@ -69,14 +71,14 @@ export function ToastRegion({
       aria-relevant="additions"
       data-testid="toast-stack"
     >
-      {items.map((t) => (
-        <div key={t.id} className={cx('toast', t.tone && `toast--${t.tone}`)} role="status">
-          <span className="toast__text">{t.text}</span>
+      {items.map((item) => (
+        <div key={item.id} className={cx('toast', item.tone && `toast--${item.tone}`)} role="status">
+          <span className="toast__text">{item.text}</span>
           <button
             type="button"
             className="toast__close"
-            aria-label="Закрыть уведомление"
-            onClick={() => dismiss(t.id)}
+            aria-label={t('Закрыть уведомление')}
+            onClick={() => dismiss(item.id)}
           >
             <Icon name="close" width={16} height={16} />
           </button>

@@ -1,6 +1,7 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { DateBar as SharedDateBar } from '../../components/date-bar';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * День журнала салона: общий `DateBar` (MV8.5 DS1c). Адрес дня и «Сегодня» держит экран: `?date=` у
@@ -8,6 +9,7 @@ import { DateBar as SharedDateBar } from '../../components/date-bar';
  */
 export function DateBar({ date, path, filters }: { date: string; path: string; filters?: Record<string, string> }) {
   const router = useRouter();
+  const t = useT();
   const params = useSearchParams();
   const href = (next?: string) => {
     const query = new URLSearchParams(params.toString());
@@ -35,10 +37,10 @@ export function DateBar({ date, path, filters }: { date: string; path: string; f
       inputProps={{ 'data-testid': 'beauty-day-date' }}
       compact
       presets={[
-        { label: 'Вчера', offsetDays: -1 },
-        { label: 'Завтра', offsetDays: 1 },
+        { label: t('Вчера'), offsetDays: -1 },
+        { label: t('Завтра'), offsetDays: 1 },
         {
-          label: 'Эта неделя',
+          label: t('Эта неделя'),
           onSelect: () => {
             const query = new URLSearchParams(href(date).split('?')[1]);
             query.set('view', 'week');

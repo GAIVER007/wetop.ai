@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../i18n/server', async () => ({ serverT: async () => (await import('../../../i18n')).translator('ru'), currentLocale: async () => 'ru' }));
 import { POST } from './route';
 
 const { customers, deskShell, exportBeautyCustomersXlsx, ApiError } = vi.hoisted(() => ({

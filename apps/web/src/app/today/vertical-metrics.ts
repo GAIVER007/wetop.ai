@@ -2,6 +2,7 @@ import type { BeautyAppointmentRow, BeautyDay } from '../../lib/api';
 import type { DiningArea, DiningTable, RestaurantReservation } from '../../lib/food-types';
 import { occupiedAt } from '../../lib/food-data';
 import { localInput } from '../beauty/time';
+import { msg } from '../../i18n';
 
 /**
  * Показатели экрана «Сегодня» салона и ресторана (MV8, набор утверждён владельцем). Только счёт статусов из
@@ -12,8 +13,8 @@ import { localInput } from '../beauty/time';
 const UPCOMING_LIMIT = 5;
 const ACTIVE_BEAUTY = new Set<BeautyAppointmentRow['status']>(['BOOKED', 'CONFIRMED']);
 const ACTIVE_FOOD = new Set<RestaurantReservation['status']>(['BOOKED', 'CONFIRMED']);
-export const UNAVAILABLE_MASTER = 'Мастер недоступен';
-export const DAY_CHANGED_MESSAGE = 'Сутки филиала сменились. Обновите страницу.';
+export const UNAVAILABLE_MASTER = msg('Мастер недоступен');
+export const DAY_CHANGED_MESSAGE = msg('Сутки филиала сменились. Обновите страницу.');
 
 /** Текущая минута суток филиала */
 export function localMinute(nowIso: string, timezone: string): number {

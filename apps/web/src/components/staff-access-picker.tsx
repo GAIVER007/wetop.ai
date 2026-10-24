@@ -5,6 +5,7 @@ import {
   defaultAccessLevel,
   type AccessLevel,
 } from '@pms/domain';
+import { useT } from '../i18n/locale-provider';
 
 /**
  * «Доступ в WETOP» в форме «Новый сотрудник» всех направлений (решение владельца 20.10.2026,
@@ -53,14 +54,15 @@ export function StaffAccessPicker({
   /** имя поля уровня в форме (иначе своё на каждый экземпляр) */
   name?: string;
 }) {
+  const t = useT();
   const id = useId();
   const info = accessLevelInfo(vertical);
   const chosen = info[value.level];
   const withLogin = value.level !== 'NONE';
   return (
     <fieldset className="staff-access" data-testid="staff-access" disabled={disabled}>
-      <legend className="staff-access__legend">Доступ в WETOP</legend>
-      <div className="staff-access__levels" role="radiogroup" aria-label="Уровень доступа">
+      <legend className="staff-access__legend">{t('Доступ в WETOP')}</legend>
+      <div className="staff-access__levels" role="radiogroup" aria-label={t('Уровень доступа')}>
         {levels.map((level) => (
           <label
             key={level}
@@ -74,27 +76,27 @@ export function StaffAccessPicker({
               checked={value.level === level}
               onChange={() => onChange({ ...value, level })}
             />
-            <span className="staff-access__title">{info[level].label}</span>
-            <span className="staff-access__hint">{info[level].hint}</span>
+            <span className="staff-access__title">{t(info[level].label)}</span>
+            <span className="staff-access__hint">{t(info[level].hint)}</span>
           </label>
         ))}
       </div>
       {withLogin && (
         <div className="staff-access__details" data-testid="staff-access-details">
           <div>
-            <p className="staff-access__caption">Увидит</p>
+            <p className="staff-access__caption">{t('Увидит')}</p>
             <ul>
               {chosen.sees.map((s) => (
-                <li key={s}>{s}</li>
+                <li key={s}>{t(s)}</li>
               ))}
             </ul>
           </div>
           {chosen.denies.length > 0 && (
             <div>
-              <p className="staff-access__caption">Не увидит</p>
+              <p className="staff-access__caption">{t('Не увидит')}</p>
               <ul className="staff-access__denies">
                 {chosen.denies.map((s) => (
-                  <li key={s}>{s}</li>
+                  <li key={s}>{t(s)}</li>
                 ))}
               </ul>
             </div>
@@ -102,7 +104,7 @@ export function StaffAccessPicker({
         </div>
       )}
       {withLogin && showWhere && (
-        <div className="staff-access__where" role="radiogroup" aria-label="Где работает">
+        <div className="staff-access__where" role="radiogroup" aria-label={t('Где работает')}>
           <label>
             <input
               type="radio"
@@ -110,7 +112,9 @@ export function StaffAccessPicker({
               checked={!value.allBranches}
               onChange={() => onChange({ ...value, allBranches: false })}
             />
-            {branchName ? `Только филиал «${branchName}»` : 'Только этот филиал'}
+            {branchName
+              ? t('Только филиал «{branch}»', { branch: branchName })
+              : t('Только этот филиал')}
           </label>
           {canAllBranches && (
             <label>
@@ -120,7 +124,7 @@ export function StaffAccessPicker({
                 checked={value.allBranches}
                 onChange={() => onChange({ ...value, allBranches: true })}
               />
-              Все филиалы
+              {t('Все филиалы')}
             </label>
           )}
         </div>
@@ -128,8 +132,10 @@ export function StaffAccessPicker({
       {withLogin && (
         <p className="staff-access__invite" data-testid="staff-access-invite">
           {email.trim()
-            ? `Приглашение придёт на ${email.trim()}. После принятия вход сам привяжется к этому сотруднику.`
-            : 'Укажите почту выше: на неё придёт приглашение для входа.'}
+            ? t('Приглашение придёт на {email}. После принятия вход сам привяжется к этому сотруднику.', {
+                email: email.trim(),
+              })
+            : t('Укажите почту выше: на неё придёт приглашение для входа.')}
         </p>
       )}
     </fieldset>

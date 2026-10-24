@@ -3,15 +3,19 @@
  * (аудит живого сайта 21.10.2026): «15-21 окт.», «15 окт. - 2 нояб.», «Алматы, UTC+5» вместо «Asia/Almaty».
  * Даты здесь дни (DATE), поэтому формат идёт по UTC и не сдвигается в браузере.
  */
-const dayFmt = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', timeZone: 'UTC' });
-const dayMonthFmt = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', timeZone: 'UTC' });
-const at = (iso: string) => new Date(`${iso}T12:00:00Z`);
-const dayMonth = (iso: string) => dayMonthFmt.format(at(iso));
+import { dateFormat } from '../i18n/dates';
 
-export function shortPeriod(from: string, to: string): string {
+type IntlLocale = 'ru-RU' | 'kk-KZ';
+const at = (iso: string) => new Date(`${iso}T12:00:00Z`);
+const fmt = (locale: IntlLocale, options: Intl.DateTimeFormatOptions) =>
+  dateFormat(locale, { ...options, timeZone: 'UTC' });
+
+/** `locale` даёт месяц на языке человека (KK2: `intlLocale(locale)` из `i18n`), без него по-русски */
+export function shortPeriod(from: string, to: string, locale: IntlLocale = 'ru-RU'): string {
+  const dayMonth = (iso: string) => fmt(locale, { day: 'numeric', month: 'short' }).format(at(iso));
   if (from === to) return dayMonth(from);
   if (from.slice(0, 4) !== to.slice(0, 4)) return `${dayMonth(from)} ${from.slice(0, 4)} - ${dayMonth(to)} ${to.slice(0, 4)}`;
-  if (from.slice(0, 7) === to.slice(0, 7)) return `${dayFmt.format(at(from))}-${dayMonth(to)}`;
+  if (from.slice(0, 7) === to.slice(0, 7)) return `${fmt(locale, { day: 'numeric' }).format(at(from))}-${dayMonth(to)}`;
   return `${dayMonth(from)} - ${dayMonth(to)}`;
 }
 

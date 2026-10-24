@@ -55,6 +55,8 @@ import {
   type TeamActionResult,
 } from '../login/actions';
 import { formatPhone, formatPhoneInput } from '../../lib/phone';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * «Сотрудники» (TEAM1, план `plans/settings-hub-2026-10-02.md`): команда — видимый раздел, а не секция
@@ -81,6 +83,7 @@ export function TeamProvider({
   /** направление филиала: слова «Увидит» в блоке доступа */
   vertical?: string;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [scopeSwitching, setScopeSwitching] = useState(false);
   useEffect(() => {
@@ -110,7 +113,7 @@ export function TeamProvider({
     >
       {children}
       {role && (
-        <Overlay open={open} onClose={() => setOpen(false)} title="Пригласить сотрудника" size="lg">
+        <Overlay open={open} onClose={() => setOpen(false)} title={t('Пригласить сотрудника')} size="lg">
           <InviteForm role={role} structure={structure} onDone={() => setOpen(false)} vertical={vertical} />
         </Overlay>
       )}
@@ -120,6 +123,7 @@ export function TeamProvider({
 
 export function InviteButton() {
   const ctx = useContext(TeamContext);
+  const t = useT();
   return (
     <Button
       type="button"
@@ -128,7 +132,7 @@ export function InviteButton() {
       onClick={() => ctx?.openInvite()}
     >
       <Icon name="plus" />
-      Пригласить сотрудника
+      {t('Пригласить сотрудника')}
     </Button>
   );
 }
@@ -145,6 +149,7 @@ function InviteForm({
   vertical?: string;
 }) {
   const team = useContext(TeamContext);
+  const t = useT();
   // «Личный кабинет» привязан к карточке сотрудника: у салона и ресторана он выдаётся из формы «Новый сотрудник».
   // У гостиницы своей формы сотрудника нет, поэтому здесь все четыре уровня (кабинет горничной, решение 22.10.2026):
   // «Без входа» и «Личный кабинет» сначала создают сотрудника гостиницы, приглашение уходит с его карточкой.
@@ -170,7 +175,7 @@ function InviteForm({
       onSubmit={(event) => {
         event.preventDefault();
         if (!structure || pending || !team?.ready) {
-          setError('Сначала загрузите структуру доступа.');
+          setError(msg('Сначала загрузите структуру доступа.'));
           return;
         }
         start(async () => {
@@ -178,11 +183,11 @@ function InviteForm({
           if (personal) {
             const name = [firstName.trim(), lastName.trim()].filter(Boolean).join(' ');
             if (!name) {
-              setError('Укажите имя сотрудника.');
+              setError(msg('Укажите имя сотрудника.'));
               return;
             }
             if (level === 'PORTAL' && !email.trim()) {
-              setError('Для входа в WETOP укажите почту: на неё придёт приглашение.');
+              setError(msg('Для входа в WETOP укажите почту: на неё придёт приглашение.'));
               return;
             }
             const created = await createHotelEmployeeAction({
@@ -191,13 +196,13 @@ function InviteForm({
               ...(email.trim() ? { email: email.trim() } : {}),
             });
             if (created.error || !created.id) {
-              setError(created.error ?? 'Не удалось добавить сотрудника.');
+              setError(created.error ?? msg('Не удалось добавить сотрудника.'));
               return;
             }
             if (level === 'PORTAL') {
               const invited = await inviteNewStaffAction({ employeeId: created.id, level, email: email.trim(), allBranches: false });
               if (invited.error) {
-                setError(`Сотрудник добавлен, но приглашение не ушло: ${invited.error}`);
+                setError(t('Сотрудник добавлен, но приглашение не ушло: {error}', { error: t(invited.error) }));
                 return;
               }
             }
@@ -209,7 +214,7 @@ function InviteForm({
             return;
           }
           if (restricted && !scopeSelectionValid(structure, model)) {
-            setError('Структура доступа изменилась. Проверьте выбранные филиалы.');
+            setError(msg('Структура доступа изменилась. Проверьте выбранные филиалы.'));
             return;
           }
           // область: выбранные места с одной должностью; «вся организация» — без назначений (DATA_MODEL §31.1)
@@ -218,7 +223,7 @@ function InviteForm({
               ? toScopes(structure, model).map((s) => ({ ...s, role: inviteRole }))
               : [];
           if (restricted && scopes.length === 0) {
-            setError('Отметьте хотя бы один филиал или выберите «Вся организация».');
+            setError(msg('Отметьте хотя бы один филиал или выберите «Вся организация».'));
             return;
           }
           const result = await inviteAction(
@@ -246,10 +251,9 @@ function InviteForm({
       }}
     >
       <p className="muted">
-        Ссылка-приглашение действует 7 дней. Должность определяет, что человек видит и может на
-        стойке.
+        {t('Ссылка-приглашение действует 7 дней. Должность определяет, что человек видит и может на стойке.')}
       </p>
-      <Field label="Имя">
+      <Field label={t('Имя')}>
         <Input
           name="inviteFirstName"
           autoComplete="off"
@@ -258,7 +262,7 @@ function InviteForm({
           onChange={(event) => setFirstName(event.target.value)}
         />
       </Field>
-      <Field label="Фамилия">
+      <Field label={t('Фамилия')}>
         <Input
           name="inviteLastName"
           autoComplete="off"
@@ -267,7 +271,7 @@ function InviteForm({
           onChange={(event) => setLastName(event.target.value)}
         />
       </Field>
-      <Field label="Почта приглашённого">
+      <Field label={t('Почта приглашённого')}>
         <Input
           type="email"
           name="inviteEmail"
@@ -295,10 +299,10 @@ function InviteForm({
       />
       {roles.length <= 1 && (
         <p className="muted" data-testid="invite-role-fixed">
-          Управляющий приглашает администраторов; управляющих приглашает владелец.
+          {t('Управляющий приглашает администраторов; управляющих приглашает владелец.')}
         </p>
       )}
-      <Field label="Телефон (необязательно)">
+      <Field label={t('Телефон (необязательно)')}>
         <Input
           type="tel"
           name="invitePhone"
@@ -320,14 +324,14 @@ function InviteForm({
           fixedRole={inviteRole}
         />
       )}
-      {!structure && <Alert>Сначала загрузите структуру доступа.</Alert>}
-      {error && <Alert>{error}</Alert>}
+      {!structure && <Alert>{t('Сначала загрузите структуру доступа.')}</Alert>}
+      {error && <Alert>{t(error)}</Alert>}
       <div className="team-invite-form__actions">
         <Button type="submit" disabled={pending || !structure || !team?.ready}>
-          {pending ? 'Отправляю…' : level === 'NONE' ? 'Добавить сотрудника' : 'Отправить приглашение'}
+          {pending ? t('Отправляю…') : level === 'NONE' ? t('Добавить сотрудника') : t('Отправить приглашение')}
         </Button>
         <Button type="button" tone="secondary" onClick={onDone}>
-          Отмена
+          {t('Отмена')}
         </Button>
       </div>
     </form>
@@ -374,6 +378,7 @@ export function MembersTable({
   const earned = revenue ? revenueCells(revenue.items) : null;
   const unattributed = revenue ? unattributedLabel(revenue.items, 'HOSPITALITY') : null;
   const team = useContext(TeamContext);
+  const t = useT();
   const { error, pending, run } = useTeamActions();
   const { ask, dialog } = useConfirm();
   const [scoping, setScoping] = useState<AuthMember | null>(null);
@@ -381,22 +386,22 @@ export function MembersTable({
   const [editing, setEditing] = useState<AuthMember | null>(null);
   const rows = members.map((m) => ({ ...m, id: m.userId }));
   return (
-    <section className="settings-catalog" aria-label="Люди организации">
+    <section className="settings-catalog" aria-label={t('Люди организации')}>
       <StaffBoard<AuthMember & { id: string }>
-        caption="Сотрудники организации"
+        caption={t('Сотрудники организации')}
         tableTestId="team-table"
         rowTestId="member-row"
-        notice={error ? <Alert boxed>{error}</Alert> : null}
-        tabs={[{ id: 'all', label: 'Все', rows, empty: 'В организации пока никого нет' }]}
+        notice={error ? <Alert boxed>{t(error)}</Alert> : null}
+        tabs={[{ id: 'all', label: t('Все'), rows, empty: t('В организации пока никого нет') }]}
         search={(m) => `${m.name ?? ''} ${m.email} ${m.phone ?? ''}`}
         // короткая подсказка: длинная обрезалась в поле («…телеф», аудит 21.10.2026, п. 22)
-        searchPlaceholder="Имя, почта, телефон"
+        searchPlaceholder={t('Имя, почта, телефон')}
         period={revenue ? revenueNav : null}
         footer={unattributed ? <span data-testid="team-unattributed">{unattributed}</span> : null}
         columns={[
           {
             key: 'name',
-            label: 'Сотрудник',
+            label: t('Сотрудник'),
             cell: (m) => (
               <span className="staff-person">
                 <span className="staff-person__avatar" aria-hidden="true">
@@ -404,22 +409,22 @@ export function MembersTable({
                 </span>
                 <span>
                   <b>{who(m)}</b>
-                  {m.you ? ' — это вы' : ''}
+                  {m.you ? t(' — это вы') : ''}
                   {m.suspended ? (
                     <>
                       {' '}
                       <Badge tone="warn" data-testid="member-suspended">
-                        Приостановлен
+                        {t('Приостановлен')}
                       </Badge>
                     </>
                   ) : null}
                   <span className="staff-person__role team-member-sub">
-                    {m.position ?? (m.name ? m.email : roleLabel(m.role))}
+                    {m.position ?? (m.name ? m.email : t(roleLabel(m.role)))}
                     {/* на телефоне колонки телефона, роли и дат скрыты: они строками под именем */}
                     {m.phone ? <span className="team-sub-role">{formatPhone(m.phone)}</span> : null}
-                    <span className="team-sub-role">{roleLabel(m.role)}</span>
+                    <span className="team-sub-role">{t(roleLabel(m.role))}</span>
                     <span className="team-sub-role">
-                      {m.lastLoginAt ? `был в системе ${displayDate(m.lastLoginAt.slice(0, 10))}` : 'ещё не входил'}
+                      {m.lastLoginAt ? t('был в системе {date}', { date: displayDate(m.lastLoginAt.slice(0, 10)) }) : t('ещё не входил')}
                     </span>
                   </span>
                 </span>
@@ -428,53 +433,53 @@ export function MembersTable({
           },
           {
             key: 'phone',
-            label: 'Телефон',
+            label: t('Телефон'),
             className: 'settings-col-wide',
-            cell: (m) => (m.phone ? <a href={`tel:${m.phone}`}>{formatPhone(m.phone)}</a> : <span className="muted">не указан</span>),
+            cell: (m) => (m.phone ? <a href={`tel:${m.phone}`}>{formatPhone(m.phone)}</a> : <span className="muted">{t('не указан')}</span>),
           },
           {
             key: 'role',
-            label: 'Должность',
+            label: t('Должность'),
             className: 'settings-col-wide',
             cell: (m) =>
               m.roleEditable ? (
                 <Select
-                  aria-label={`Должность: ${who(m)}`}
+                  aria-label={t('Должность: {name}', { name: who(m) })}
                   value={m.role}
                   disabled={pending}
                   onChange={(event) => run(() => setMemberRoleAction(m.userId, event.target.value))}
                 >
-                  <option value="MANAGER">{capital(MEMBERSHIP_ROLES.MANAGER)}</option>
-                  <option value="STAFF">{capital(MEMBERSHIP_ROLES.STAFF)}</option>
-                  <option value="EMPLOYEE">{capital(MEMBERSHIP_ROLES.EMPLOYEE)}</option>
+                  <option value="MANAGER">{t(capital(MEMBERSHIP_ROLES.MANAGER))}</option>
+                  <option value="STAFF">{t(capital(MEMBERSHIP_ROLES.STAFF))}</option>
+                  <option value="EMPLOYEE">{t(capital(MEMBERSHIP_ROLES.EMPLOYEE))}</option>
                 </Select>
               ) : (
-                roleLabel(m.role)
+                t(roleLabel(m.role))
               ),
           },
           {
             key: 'scope',
-            label: 'Доступ',
+            label: t('Доступ'),
             className: 'settings-col-wide',
             testId: 'member-scope',
             hidden: !withScope,
-            cell: (m) => scopeSummary(m.scopes, structure),
+            cell: (m) => scopeSummary(m.scopes, structure, t),
           },
           {
             key: 'joined',
-            label: 'В организации с',
+            label: t('В организации с'),
             className: 'settings-col-wide',
             cell: (m) => displayDate(m.joinedAt.slice(0, 10)),
           },
           {
             key: 'login',
-            label: 'Был в системе',
+            label: t('Был в системе'),
             className: 'settings-col-wide',
-            cell: (m) => (m.lastLoginAt ? displayDate(m.lastLoginAt.slice(0, 10)) : 'ещё не входил'),
+            cell: (m) => (m.lastLoginAt ? displayDate(m.lastLoginAt.slice(0, 10)) : t('ещё не входил')),
           },
           {
             key: 'earned',
-            label: revenue ? `Принёс ${periodTitle(revenue.period)}` : '',
+            label: revenue ? t('Принёс {period}', { period: t(periodTitle(revenue.period)) }) : '',
             align: 'end',
             testId: 'member-earned',
             hidden: !earned,
@@ -482,7 +487,7 @@ export function MembersTable({
           },
           {
             key: 'actions',
-            label: <span className="sr-only">Действия</span>,
+            label: <span className="sr-only">{t('Действия')}</span>,
             align: 'end',
             className: 'team-row-actions',
             cell: (m) => (
@@ -495,7 +500,7 @@ export function MembersTable({
                     disabled={pending}
                     onClick={() => setEditing(m)}
                   >
-                    Изменить
+                    {t('Изменить')}
                   </Button>
                 )}
                 {withScope && m.scopesEditable && (
@@ -508,25 +513,25 @@ export function MembersTable({
                       if (team?.ready) setScoping(m);
                     }}
                   >
-                    Доступ
+                    {t('Доступ')}
                   </Button>
                 )}
                 {(m.suspendable || m.removable) && (
                   <ActionMenu
                     size="sm"
-                    label={`Ещё: ${who(m)}`}
+                    label={t('Ещё: {name}', { name: who(m) })}
                     items={[
                       ...(m.suspendable
                         ? [
                             {
-                              label: m.suspended ? 'Возобновить' : 'Приостановить',
+                              label: m.suspended ? t('Возобновить') : t('Приостановить'),
                               disabled: pending,
                               onSelect: async () => {
                                 if (m.suspended) return run(() => setMemberSuspendedAction(m.userId, false));
                                 const ok = await ask({
-                                  title: `Приостановить доступ: ${who(m)}?`,
-                                  body: 'Человек останется в команде, но не сможет войти: его сеансы погаснут сразу. Вернуть доступ можно одним действием.',
-                                  confirmLabel: 'Приостановить',
+                                  title: t('Приостановить доступ: {name}?', { name: who(m) }),
+                                  body: t('Человек останется в команде, но не сможет войти: его сеансы погаснут сразу. Вернуть доступ можно одним действием.'),
+                                  confirmLabel: t('Приостановить'),
                                 });
                                 if (ok) run(() => setMemberSuspendedAction(m.userId, true));
                               },
@@ -536,14 +541,14 @@ export function MembersTable({
                       ...(m.removable
                         ? [
                             {
-                              label: 'Отключить',
+                              label: t('Отключить'),
                               tone: 'danger' as const,
                               disabled: pending,
                               onSelect: async () => {
                                 const ok = await ask({
-                                  title: `Отключить: ${who(m)}?`,
-                                  body: 'Человек сразу потеряет доступ к организации: его сеансы погаснут на следующем действии. Позвать снова можно приглашением.',
-                                  confirmLabel: 'Отключить',
+                                  title: t('Отключить: {name}?', { name: who(m) }),
+                                  body: t('Человек сразу потеряет доступ к организации: его сеансы погаснут на следующем действии. Позвать снова можно приглашением.'),
+                                  confirmLabel: t('Отключить'),
                                 });
                                 if (ok) run(() => removeMemberAction(m.userId));
                               },
@@ -563,7 +568,7 @@ export function MembersTable({
         drawer
         open={scoping !== null}
         onClose={() => setScoping(null)}
-        title={scoping ? `Доступ: ${who(scoping)}` : ''}
+        title={scoping ? t('Доступ: {name}', { name: who(scoping) }) : ''}
       >
         {scoping && structure && actorRole && (
           <ScopeForm
@@ -602,6 +607,7 @@ function ScopeForm({
   onDone: () => void;
 }) {
   const team = useContext(TeamContext);
+  const t = useT();
   const [restricted, setRestricted] = useState(member.scopes.length > 0);
   const [model, setModel] = useState<ScopeModel>(fromScopes(member.scopes));
   const [error, setError] = useState('');
@@ -612,16 +618,16 @@ function ScopeForm({
       onSubmit={(event) => {
         event.preventDefault();
         if (!team?.ready) {
-          setError('Структура доступа изменилась. Обновите страницу и повторите.');
+          setError(msg('Структура доступа изменилась. Обновите страницу и повторите.'));
           return;
         }
         if (restricted && !scopeSelectionValid(structure, model)) {
-          setError('Структура доступа изменилась. Проверьте выбранные филиалы.');
+          setError(msg('Структура доступа изменилась. Проверьте выбранные филиалы.'));
           return;
         }
         const scopes = restricted ? toScopes(structure, model) : [];
         if (restricted && scopes.length === 0) {
-          setError('Выберите хотя бы одно место или «Вся организация».');
+          setError(msg('Выберите хотя бы одно место или «Вся организация».'));
           return;
         }
         start(async () => {
@@ -637,8 +643,7 @@ function ScopeForm({
       }}
     >
       <p className="muted">
-        Права даёт должность в каждом месте. Сотрудник видит и меняет данные только там, где ему
-        назначен доступ.
+        {t('Права даёт должность в каждом месте. Сотрудник видит и меняет данные только там, где ему назначен доступ.')}
       </p>
       <ScopeEditor
         structure={structure}
@@ -648,13 +653,13 @@ function ScopeForm({
         model={model}
         onModel={setModel}
       />
-      {error && <Alert>{error}</Alert>}
+      {error && <Alert>{t(error)}</Alert>}
       <div className="team-invite-form__actions">
         <Button type="submit" disabled={pending || !team?.ready}>
-          {pending ? 'Сохраняю…' : 'Сохранить'}
+          {pending ? t('Сохраняю…') : t('Сохранить')}
         </Button>
         <Button type="button" tone="secondary" onClick={onDone}>
-          Отмена
+          {t('Отмена')}
         </Button>
       </div>
     </form>
@@ -663,6 +668,7 @@ function ScopeForm({
 
 /** Телефон и должность (TEAM2, Q-244): пустое поле стирает значение; отказ API: словами, ввод остаётся */
 function DetailsForm({ member, onDone }: { member: AuthMember; onDone: () => void }) {
+  const t = useT();
   const [phone, setPhone] = useState(formatPhone(member.phone));
   const [position, setPosition] = useState(member.position ?? '');
   const [error, setError] = useState('');
@@ -681,9 +687,9 @@ function DetailsForm({ member, onDone }: { member: AuthMember; onDone: () => voi
       }}
     >
       <p className="muted">
-        Права даёт должность из списка (управляющий или администратор), подпись их не меняет.
+        {t('Права даёт должность из списка (управляющий или администратор), подпись их не меняет.')}
       </p>
-      <Field label="Телефон">
+      <Field label={t('Телефон')}>
         <Input
           type="tel"
           name="memberPhone"
@@ -694,23 +700,23 @@ function DetailsForm({ member, onDone }: { member: AuthMember; onDone: () => voi
           onChange={(event) => setPhone(formatPhoneInput(event.target.value))}
         />
       </Field>
-      <Field label="Подпись под именем (необязательно)">
+      <Field label={t('Подпись под именем (необязательно)')}>
         <Input
           name="memberPosition"
           autoComplete="off"
           maxLength={100}
-          placeholder="Старший администратор"
+          placeholder={t('Старший администратор')}
           value={position}
           onChange={(event) => setPosition(event.target.value)}
         />
       </Field>
-      {error && <Alert>{error}</Alert>}
+      {error && <Alert>{t(error)}</Alert>}
       <div className="team-invite-form__actions">
         <Button type="submit" disabled={pending}>
-          {pending ? 'Сохраняю…' : 'Сохранить'}
+          {pending ? t('Сохраняю…') : t('Сохранить')}
         </Button>
         <Button type="button" tone="secondary" onClick={onDone}>
-          Отмена
+          {t('Отмена')}
         </Button>
       </div>
     </form>
@@ -718,19 +724,20 @@ function DetailsForm({ member, onDone }: { member: AuthMember; onDone: () => voi
 }
 
 export function PendingInvites({ invites }: { invites: AuthInvite[] }) {
+  const t = useT();
   const { error, pending, run } = useTeamActions();
   return (
     <section className="team-invites" aria-labelledby="team-invites-heading">
-      <h2 id="team-invites-heading">Ожидают ответа</h2>
-      {error && <Alert>{error}</Alert>}
+      <h2 id="team-invites-heading">{t('Ожидают ответа')}</h2>
+      {error && <Alert>{t(error)}</Alert>}
       {invites.length > 0 ? (
-        <ul className="login-invite-list" data-testid="invite-list" aria-label="Приглашения">
+        <ul className="login-invite-list" data-testid="invite-list" aria-label={t('Приглашения')}>
           {invites.map((i) => (
             <li key={i.id} className="login-team-row">
               <span className="login-team-row__who">
                 <b>{i.email}</b>{' '}
                 <span className="muted">
-                  {roleLabel(i.role ?? 'STAFF')}, ждёт ответа до{' '}
+                  {t('{role}, ждёт ответа до', { role: t(roleLabel(i.role ?? 'STAFF')) })}{' '}
                   <time dateTime={i.expiresAt}>{displayDate(i.expiresAt.slice(0, 10))}</time>
                 </span>
               </span>
@@ -752,7 +759,7 @@ export function PendingInvites({ invites }: { invites: AuthInvite[] }) {
                       )
                     }
                   >
-                    Отправить заново
+                    {t('Отправить заново')}
                   </Button>
                   <Button
                     type="button"
@@ -761,7 +768,7 @@ export function PendingInvites({ invites }: { invites: AuthInvite[] }) {
                     disabled={pending}
                     onClick={() => run(() => revokeInviteAction(i.id))}
                   >
-                    Отозвать
+                    {t('Отозвать')}
                   </Button>
                 </span>
               )}
@@ -770,7 +777,7 @@ export function PendingInvites({ invites }: { invites: AuthInvite[] }) {
         </ul>
       ) : (
         <p className="muted" data-testid="invite-empty">
-          Ожидающих приглашений нет.
+          {t('Ожидающих приглашений нет.')}
         </p>
       )}
     </section>

@@ -3,18 +3,46 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationShell } from '../navigation/navigation-shell';
 import { useTheme } from '../theme/theme';
-
-export default function RootLayout() {
+import { AccessProvider, useAccess } from '../auth/provider';
+function Routes() {
   const theme = useTheme();
   const path = usePathname();
-  return <SafeAreaProvider>
-    <StatusBar style="auto" />
-    <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1, backgroundColor: theme.surface }}>
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.background } }} />
-      {path === '/' || path === '/menu' ? <NavigationShell
-        items={[{ id: 'today', label: 'Сегодня', icon: 'today' }, { id: 'menu', label: 'Меню', icon: 'menu' }]}
-        selectedId={path === '/' ? 'today' : 'menu'}
-        onSelect={(id) => router.replace(id === 'today' ? '/' : '/menu')} /> : null}
+  const { state } = useAccess();
+  const ready = state.kind === 'ready';
+  return (
+    <SafeAreaView
+      edges={['bottom', 'left', 'right']}
+      style={{ flex: 1, backgroundColor: theme.surface }}
+    >
+      <Stack
+        screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.background } }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Protected guard={ready}>
+          <Stack.Screen name="menu" />
+          <Stack.Screen name="design-system" />
+        </Stack.Protected>
+      </Stack>
+      {ready && (path === '/' || path === '/menu') ? (
+        <NavigationShell
+          items={[
+            { id: 'today', label: 'Кабинет', icon: 'today' },
+            { id: 'menu', label: 'Профиль', icon: 'menu' },
+          ]}
+          selectedId={path === '/' ? 'today' : 'menu'}
+          onSelect={(id) => router.replace(id === 'today' ? '/' : '/menu')}
+        />
+      ) : null}
     </SafeAreaView>
-  </SafeAreaProvider>;
+  );
+}
+export default function RootLayout() {
+  return (
+    <SafeAreaProvider>
+      <StatusBar style="auto" />
+      <AccessProvider>
+        <Routes />
+      </AccessProvider>
+    </SafeAreaProvider>
+  );
 }

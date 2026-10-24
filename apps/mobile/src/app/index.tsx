@@ -1,29 +1,54 @@
-import { router } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
-import { useTheme } from '../theme/theme';
+import { Text, View } from 'react-native';
+import { useAccess } from '../auth/provider';
+import { AccessScreen } from '../auth/access-screen';
 import { Screen } from '../ui/screen';
 import { ActionButton } from '../ui/action-button';
-
+import { useTheme } from '../theme/theme';
+const verticals: Record<string, string> = {
+  FOOD_SERVICE: 'Ресторан',
+  BEAUTY: 'Салон красоты',
+  HOSPITALITY: 'Отель или хостел',
+};
 export default function HomeScreen() {
+  const { state, session } = useAccess();
   const theme = useTheme();
-  return <Screen title="Сегодня" subtitle="Ваш рабочий день, всё важное рядом.">
-    <View style={[styles.notice, { backgroundColor: theme.primarySoft }]}>
-      <Text style={[styles.noticeText, { color: theme.primary }]}>Демонстрация · без рабочих данных</Text>
-    </View>
-    <View style={[styles.panel, { backgroundColor: theme.surface }]}>
-      <Text style={[styles.eyebrow, { color: theme.secondary }]}>РАБОЧЕЕ ПРОСТРАНСТВО</Text>
-      <Text accessibilityRole="header" style={[styles.title, { color: theme.text }]}>Спокойный старт каждого дня</Text>
-      <Text style={[styles.body, { color: theme.secondary }]}>Здесь появится сводка вашего бизнеса. Подключение учётной записи будет доступно на следующем этапе.</Text>
-      <View style={[styles.separator, { backgroundColor: theme.border }]} />
-      <Text style={[styles.body, { color: theme.text }]}>Сейчас можно посмотреть интерфейс и его поведение в разных состояниях.</Text>
-      <ActionButton label="Посмотреть состояния" onPress={() => router.push('/design-system')} />
-    </View>
-    <Text style={[styles.footnote, { color: theme.secondary }]}>Гостиница, салон или ресторан. Одно приложение для ежедневной работы.</Text>
-  </Screen>;
+  if (state.kind !== 'ready') return <AccessScreen />;
+  return (
+    <Screen title="Рабочее место" subtitle={state.user.name ?? state.user.email}>
+      <View style={{ padding: 20, borderRadius: 20, gap: 14, backgroundColor: theme.surface }}>
+        <Text style={{ color: theme.secondary, fontSize: 14 }}>
+          {verticals[state.branch.vertical] ?? state.branch.vertical}
+        </Text>
+        <Text
+          accessibilityRole="header"
+          style={{ color: theme.text, fontSize: 24, fontWeight: '700' }}
+        >
+          {state.branch.name}
+        </Text>
+        <Text style={{ color: theme.secondary, fontSize: 16 }}>
+          {state.organizations.find((o) => o.current)?.name ?? 'Рабочая организация'}
+        </Text>
+        <Text style={{ color: theme.secondary, fontSize: 16, lineHeight: 24 }}>
+          Вход и доступ к филиалу подтверждены. Рабочие разделы ещё подключаются; операции пока
+          доступны в веб-версии.
+        </Text>
+      </View>
+      {state.branches.length > 1 ? (
+        <ActionButton
+          secondary
+          label="Сменить филиал"
+          onPress={() => {
+            void session.changeBranch();
+          }}
+        />
+      ) : null}
+      <ActionButton
+        secondary
+        label="Обновить доступ"
+        onPress={() => {
+          void session.retry();
+        }}
+      />
+    </Screen>
+  );
 }
-const styles = StyleSheet.create({
-  notice: { borderRadius: 10, padding: 12 }, noticeText: { fontSize: 14, fontWeight: '600' },
-  panel: { padding: 24, borderRadius: 20, gap: 20 }, eyebrow: { fontSize: 12, fontWeight: '700', letterSpacing: 1 },
-  title: { fontSize: 28, fontWeight: '600' }, body: { fontSize: 16, lineHeight: 24 },
-  separator: { height: StyleSheet.hairlineWidth }, footnote: { fontSize: 14, lineHeight: 21, paddingHorizontal: 8 },
-});

@@ -6,7 +6,8 @@
     "version": "0.1.0",
     "userInterfaceStyle": "automatic",
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-secure-store"
     ],
     "ios": {
       "supportsTablet": true,

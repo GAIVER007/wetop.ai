@@ -99,5 +99,12 @@
     .header-clock {
       padding-left: 0;
     }
+    /* на 320 px шапка сходилась впритык (запас 6 px), а со шрифтами раннера GitHub выходила на 2 px за экран:
+       промежутки между часами, лупой и профилем вдвое уже, запас около 18 px (release-customer-reflow, tz12) */
+    .header-clock,
+    .workspace .workspace-header .workspace-search.workspace-search--icon,
+    .workspace-header__row > .header-tools {
+      margin-left: calc(var(--space-1) * -1);
+    }
   }
 }

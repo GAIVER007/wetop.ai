@@ -49,6 +49,10 @@ import {
   parsePayAdjustment,
   parsePaySettings,
   techCardTotals,
+  menuCosting,
+  milliOf,
+  stockUnitPrice,
+  type CostingPrice,
   timeOffWindow,
   foodLocal,
   type OrderStatus,
@@ -442,6 +446,70 @@ export class RestaurantService {
       take: p.limit + 1,
     });
     return paged(await Promise.all(rows.map((r) => this.menuItemOut(r))), p.limit);
+  }
+
+  /**
+   * Себестоимость и маржа меню (§62.4, срез K4): по каждой позиции продукты по текущей цене склада кухни филиала
+   * (средняя по остатку, у заготовки цена её партий), иначе цена техкарты; добавки своей себестоимостью. Только чтение.
+   */
+  async menuCosting() {
+    foodMay('desk');
+    const s = await foodScope(this.prisma.db, MENU_VERTICALS);
+    const db = this.prisma.db;
+    const [items, products, lots] = await Promise.all([
+      db.menuItem.findMany({
+        where: { businessId: s.businessId },
+        include: {
+          category: { select: { name: true } },
+          ingredients: { orderBy: { id: 'asc' } },
+          modifierGroups: { orderBy: { sortOrder: 'asc' }, include: { group: { include: { modifiers: { where: { active: true }, orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }], include: { ingredients: { include: { product: { select: { name: true } } } } } } } } } },
+        },
+        orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+      }),
+      db.kitchenProduct.findMany({ where: { businessId: s.businessId }, select: { id: true, unit: true } }),
+      db.kitchenStockLot.findMany({ where: { locationId: s.locationId, reversedAt: null }, select: { productId: true, remainingQty: true, unitCost: true, receivedOn: true } }),
+    ]);
+    const byProduct = new Map<string, Array<{ remaining: bigint; unitCost: bigint; receivedOn: string }>>();
+    for (const l of lots) {
+      const list = byProduct.get(l.productId) ?? [];
+      list.push({ remaining: milliOf(l.remainingQty), unitCost: l.unitCost, receivedOn: l.receivedOn.toISOString() });
+      byProduct.set(l.productId, list);
+    }
+    const prices = new Map<string, CostingPrice>();
+    for (const p of products) {
+      const price = stockUnitPrice(byProduct.get(p.id) ?? []);
+      if (price !== null) prices.set(p.id, { unit: p.unit, unitCost: price });
+    }
+    const out = items.map((item) => {
+      const seen = new Set<string>();
+      const modifiers = item.modifierGroups
+        .filter((l) => l.group.active)
+        .flatMap((l) => l.group.modifiers)
+        .filter((m) => (seen.has(m.id) ? false : (seen.add(m.id), true)));
+      const c = menuCosting(
+        {
+          price: item.price,
+          ingredients: item.ingredients.map((i) => ({ productId: i.productId, name: i.name, normQty: i.normQty.toString(), unit: i.unit, unitCost: i.unitCost })),
+          modifiers: modifiers.map((m) => ({ id: m.id, name: m.name, priceDelta: m.priceDelta, ingredients: m.ingredients.map((r) => ({ productId: r.productId, name: r.product.name, normQty: r.normQty.toString() })) })),
+        },
+        prices,
+      );
+      return {
+        id: item.id,
+        name: item.name,
+        categoryName: item.category.name,
+        active: item.active,
+        priceMinor: item.price.toString(),
+        costMinor: c.costMinor.toString(),
+        profitMinor: c.profitMinor.toString(),
+        foodCostPct: c.foodCostPct,
+        marginPct: c.marginPct,
+        lines: c.lines.map((l) => ({ ...l, costMinor: l.costMinor.toString() })),
+        modifiers: c.modifiers.map((m) => ({ id: m.id, name: m.name, priceDeltaMinor: m.priceDeltaMinor.toString(), costMinor: m.costMinor.toString(), profitMinor: m.profitMinor.toString() })),
+        missing: c.missing,
+      };
+    });
+    return { currency: s.currency, items: out };
   }
 
   async menuItem(idRaw: string) {

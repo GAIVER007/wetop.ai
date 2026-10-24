@@ -277,6 +277,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PATCH /food-service/menu/categories/:id': 'property',
   'GET /food-service/menu/items': 'orders',
   'GET /food-service/menu/items/:id': 'desk',
+  'GET /food-service/menu/costing': 'desk',
   'POST /food-service/menu/items': 'property',
   'PATCH /food-service/menu/items/:id': 'property',
   'PUT /food-service/menu/items/:id/ingredients': 'property',

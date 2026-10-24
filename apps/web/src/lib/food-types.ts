@@ -621,3 +621,23 @@ export interface FoodPeriodReport {
   /** продажи по категориям меню, по убыванию */
   categories?: Array<{ name: string; revenueMinor: string }>;
 }
+
+/** Себестоимость и маржа позиции меню (DATA_MODEL §62.4, K4): склад кухни, иначе техкарта; суммы minor units строкой */
+export interface MenuCostingRow {
+  id: string;
+  name: string;
+  categoryName: string;
+  active: boolean;
+  priceMinor: string;
+  costMinor: string;
+  profitMinor: string;
+  foodCostPct: number | null;
+  marginPct: number | null;
+  lines: Array<{ name: string; normQty: string; unit: string; costMinor: string; source: 'STOCK' | 'CARD' | 'NONE' }>;
+  modifiers: Array<{ id: string; name: string; priceDeltaMinor: string; costMinor: string; profitMinor: string }>;
+  missing: string[];
+}
+export interface MenuCostingReport {
+  currency: string;
+  items: MenuCostingRow[];
+}

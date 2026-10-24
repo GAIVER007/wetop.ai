@@ -169,6 +169,10 @@ export class FoodMenuController {
   @Get('menu/items') @Access('orders') items(@Query() q: Record<string, unknown>) {
     return this.service.menuItems(q);
   }
+  // §62.4 (K4): себестоимость и маржа всех позиций меню по текущим ценам склада кухни; только чтение
+  @Get('menu/costing') @Access('desk') costing() {
+    return this.service.menuCosting();
+  }
   @Get('menu/items/:id') item(@Param('id') id: string) {
     return this.service.menuItem(id);
   }

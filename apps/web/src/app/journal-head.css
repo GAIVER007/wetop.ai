@@ -289,6 +289,18 @@
       width: auto;
       flex-wrap: nowrap;
     }
+    /* ресторан: два переключателя («План зала / Расписание» и «Шкала / Список») не помещаются в правую колонку,
+       им своя строка на всю ширину, иначе поиск сжимается в ноль, а шапка шире экрана */
+    .journal-head__filters > .journal-head__views:has(> .tabs) {
+      grid-column: 1 / -1;
+      grid-row: auto;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .journal-head__actions > .day-nav {
+      min-width: 0;
+      max-width: 100%;
+    }
     .journal-head__views .beauty-calendar-views {
       display: flex;
       flex-wrap: nowrap;

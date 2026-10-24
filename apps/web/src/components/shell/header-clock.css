@@ -93,5 +93,14 @@
       min-height: var(--control-h);
     }
   }
-
+  /* самые узкие телефоны (строка шапки уже 344 px, экран до 375): только время, дата в подсказке.
+     Запрос по ширине строки шапки, а не экрана: точки перелома экрана остаются 600/960/1280 */
+  .workspace-header__row {
+    container: header-row / inline-size;
+  }
+  @container header-row (max-width: 343px) {
+    .header-clock__date {
+      display: none;
+    }
+  }
 }

@@ -217,6 +217,8 @@ export function WorkspaceBoard({
         }
         actions={
           <>
+            {/* на телефоне «Быстрый отчёт» не помещается в строку с «+ Новая бронь»: он в «Фильтрах», как в салоне */}
+            {!narrow && (
             <QuickReport
               text="Быстрый отчёт"
               key={`${data.scopeKey}:${data.date}`}
@@ -230,6 +232,7 @@ export function WorkspaceBoard({
               ]}
               build={() => foodQuickReport(filtered.filter(onDay))}
             />
+            )}
             {write && (
               <>
                 {floor && (
@@ -293,6 +296,23 @@ export function WorkspaceBoard({
                 title={`Фильтры${area || status || period ? `\nАктивных: ${[area, status, period].filter(Boolean).length}` : ''}`}
               >
                 <span className="sr-only">Зона, смена и статус</span>
+                {narrow && (
+                  <div className="journal-head__phone-only">
+                    <QuickReport
+                      text="Быстрый отчёт"
+                      key={`${data.scopeKey}:${data.date}:phone`}
+                      date={data.date}
+                      scope={[
+                        'Бронирования столов',
+                        period
+                          ? (data.periods.find((p) => p.id === period)?.name ?? 'Период')
+                          : 'Все периоды',
+                        ...(area || status || search ? ['С учётом фильтров'] : []),
+                      ]}
+                      build={() => foodQuickReport(filtered.filter(onDay))}
+                    />
+                  </div>
+                )}
               </Help>
             </span>
           </>

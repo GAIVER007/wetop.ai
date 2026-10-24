@@ -3,7 +3,7 @@ import { dateFormat, type DateFormat } from '../i18n/dates';
 type IntlLocale = 'ru-RU' | 'kk-KZ';
 const STYLES = {
   short: { timeZone: 'UTC', day: 'numeric', month: 'short' },
-  /** §14: основной формат даты — 20.09.2026; «20 сент.» — только в таблицах и на плашках */
+  /** §14: основной формат даты 20.09.2026; «20 сент.» только в таблицах и на плашках */
   numeric: { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' },
   full: { timeZone: 'UTC', day: 'numeric', month: 'long', weekday: 'long', year: 'numeric' },
 } as const satisfies Record<string, Intl.DateTimeFormatOptions>;

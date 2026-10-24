@@ -179,8 +179,9 @@ export async function sellBarMenuAction(
   _previous: BarActionResult,
   fd: FormData,
 ): Promise<BarActionResult> {
+  const t = await serverT();
   try {
-    await verifyContext(fd);
+    await verifyContext(fd, t);
     const folioId = value(fd, 'folioId');
     const modifierIds = fd.getAll('modifierIds').map((id) => String(id).trim()).filter(Boolean);
     const sale = await barApi.sellMenu({
@@ -188,7 +189,7 @@ export async function sellBarMenuAction(
       quantityUnits: value(fd, 'quantityUnits'),
       modifierIds,
       ...(folioId ? { folioId } : { method: value(fd, 'method') }),
-      idempotencyKey: saleKey(fd),
+      idempotencyKey: saleKey(fd, t),
     });
     revalidateBar();
     revalidatePath('/bar/menu');
@@ -198,13 +199,13 @@ export async function sellBarMenuAction(
       ok: Date.now(),
       message:
         sale.status === 'REVERSED'
-          ? 'Эта продажа уже отменена. Повторного списания нет.'
+          ? t('Эта продажа уже отменена. Повторного списания нет.')
           : folioId
-            ? 'Добавлено в счёт гостя, продукты списаны со склада кухни'
-            : 'Продажа записана, касса и склад кухни обновлены',
+            ? t('Добавлено в счёт гостя, продукты списаны со склада кухни')
+            : t('Продажа записана, касса и склад кухни обновлены'),
     };
   } catch (error) {
-    return { error: describe(error), ok: _previous.ok };
+    return { error: describe(error, t), ok: _previous.ok };
   }
 }
 

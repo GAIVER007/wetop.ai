@@ -32,7 +32,7 @@ export function barSectionsFor(vertical: WebVertical) {
   // товары на продажу: «Бар» у всех направлений (слово из `vertical-copy.ts`)
   const goods = { ...SECTIONS[1]!, label: verticalCopy(vertical).menu.goods };
   // «Меню бара» (§62.3) у гостиницы и салона; у ресторана меню в «Услугах»
-  const menu = vertical === 'FOOD_SERVICE' ? [] : [{ id: 'menu' as const, href: '/bar/menu', label: 'Меню бара' }];
+  const menu = vertical === 'FOOD_SERVICE' ? [] : [{ id: 'menu' as const, href: '/bar/menu', label: msg('Меню бара') }];
   return [SECTIONS[0]!, goods, kitchen, ...menu, ...SECTIONS.slice(2)];
 }
 

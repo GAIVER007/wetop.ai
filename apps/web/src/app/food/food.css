@@ -244,3 +244,11 @@
 .stock-insights:empty { display: none; }
 .stock-insights__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-2); }
 .stock-insights__head h2 { margin: 0; font-size: var(--text-lg); }
+/* Себестоимость и маржа меню (DATA_MODEL §62.4, K4) */
+.food-costing { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+.food-costing-head h2 { margin: 0; font-size: var(--text-lg); }
+.food-costing-head p { margin: 0; }
+.food-muted { color: var(--muted); }
+.food-costing-details > summary { cursor: pointer; }
+.food-costing-lines { margin: var(--space-1) 0 0; padding-left: var(--space-4); display: grid; gap: var(--space-1); }
+

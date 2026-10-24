@@ -46,6 +46,7 @@ import type {
   PrepRecipeInput,
   ProductionResult,
   StockReceiptInput,
+  MenuCostingReport,
 } from './food-types';
 const base = '/food-service';
 const idPath = (collection: string, id: string) =>
@@ -166,6 +167,8 @@ export const restaurantApi = {
   menuItems: (cursor?: string) =>
     getJsonPublic<FoodPage<MenuItemView>>(`${base}/menu/items${query(cursor)}`),
   menuItem: (id: string) => getJsonPublic<MenuItemView>(idPath('menu/items', id)),
+  /** §62.4 (K4): себестоимость и маржа меню по текущим ценам склада кухни */
+  menuCosting: () => getJsonPublic<MenuCostingReport>(`${base}/menu/costing`),
   createMenuItem: (body: MenuItemInput) =>
     sendJson<MenuItemView>('POST', `${base}/menu/items`, body),
   updateMenuItem: (id: string, body: Partial<MenuItemInput>) =>

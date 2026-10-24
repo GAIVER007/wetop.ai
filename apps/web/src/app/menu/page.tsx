@@ -6,6 +6,7 @@ import { restaurantApi, stockApi } from '../../lib/food-api';
 import { completeFoodList } from '../../lib/food-data';
 import type { MenuCategory, MenuItemView } from '../../lib/food-types';
 import { MenuBoard } from '../food/menu-board';
+import { MenuCostingPanel } from '../food/menu-costing';
 import { restaurantShell } from '../food/restaurant-load';
 import { currencySign } from '../../lib/money';
 import { selectedWorkspaceBranch } from '../../lib/workspace-context';
@@ -16,7 +17,7 @@ import '../food/restaurant.css';
 export default async function MenuPage() {
   try {
     const shell = await restaurantShell();
-    const [categories, items, stock, branch, modifierGroups] = await Promise.all([
+    const [categories, items, stock, branch, modifierGroups, costing] = await Promise.all([
       completeFoodList<MenuCategory>(restaurantApi.categories),
       completeFoodList<MenuItemView>(restaurantApi.menuItems),
       // склад нужен только для связи техкарты (§38); нет доступа к складу — техкарта без связи
@@ -28,6 +29,8 @@ export default async function MenuPage() {
       selectedWorkspaceBranch(),
       // §33.7: группы добавок бизнеса
       restaurantApi.modifierGroups().then((r) => r.items),
+      // §62.4 (K4): себестоимость по складу; нет права `desk` или отказ, блока нет
+      shell.canDesk ? restaurantApi.menuCosting().catch(() => null) : Promise.resolve(null),
     ]);
     return (
       <Page title="Меню">
@@ -43,6 +46,7 @@ export default async function MenuPage() {
             stock={stock}
             modifierGroups={modifierGroups}
           />
+          {costing && <MenuCostingPanel report={costing} />}
         </div>
       </Page>
     );

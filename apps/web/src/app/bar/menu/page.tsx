@@ -11,6 +11,7 @@ import { currencySign } from '../../../lib/money';
 import { mayAccess, mayBeautyAccess } from '../../../lib/navigation';
 import { requireFeature } from '../../../lib/vertical-guard';
 import { MenuBoard } from '../../food/menu-board';
+import { MenuCostingPanel } from '../../food/menu-costing';
 import { BarTabs } from '../tabs';
 import { loadBarContext } from '../load-context';
 import { barActionAccess } from '../action-access';
@@ -27,7 +28,7 @@ export default async function BarMenuPage() {
   const me = await requireFeature('/bar/menu');
   try {
     const vertical = me.context?.vertical === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY';
-    const [shell, context, categories, items, stock, modifierGroups, methods, folios] = await Promise.all([
+    const [shell, context, categories, items, stock, modifierGroups, methods, folios, costing] = await Promise.all([
       deskShell(),
       loadBarContext(),
       completeFoodList<MenuCategory>(restaurantApi.categories),
@@ -40,6 +41,8 @@ export default async function BarMenuPage() {
       restaurantApi.modifierGroups().then((r) => r.items),
       barApi.paymentMethods().then((r) => r.sale),
       vertical === 'HOSPITALITY' ? barApi.folios() : Promise.resolve([]),
+      // §62.4 (K4): себестоимость по складу кухни; отказ (нет права) прячет блок
+      restaurantApi.menuCosting().catch(() => null),
     ]);
     if (!shell.scopeKey) throw new Error('Сначала выберите филиал');
     // правка меню: салон по матрице должностей («Склад»), гостиница по роли `property`, как справочник склада кухни
@@ -68,6 +71,7 @@ export default async function BarMenuPage() {
             stock={stock}
             modifierGroups={modifierGroups}
           />
+          {costing && <MenuCostingPanel report={costing} />}
         </div>
       </Page>
     );

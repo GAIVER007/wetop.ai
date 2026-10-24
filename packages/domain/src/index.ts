@@ -32,6 +32,7 @@ export * from "./food/modifiers";
 export * from "./food/stock";
 export * from "./food/consumption";
 export * from "./food/prep";
+export * from "./food/costing";
 export * from "./food/ratings";
 export * from "./food/cash";
 export * from "./food/customer-marks";

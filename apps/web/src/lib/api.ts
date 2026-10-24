@@ -5022,3 +5022,18 @@ export const branchLifecycleApi = {
   restore: (id: string) =>
     sendJson('POST', `/branches/locations/${encodeURIComponent(id)}/restore`, {}),
 };
+
+/** «Профиль → Уведомления» (STAFF-TG-20261020): своё подключение к боту WETOP в Telegram */
+export interface StaffTelegramStatus {
+  botConfigured: boolean;
+  botUsername: string | null;
+  link: { username: string | null; linkedAt: string; siteBookings: boolean } | null;
+}
+export const staffTelegramApi = {
+  status: () => getJson<StaffTelegramStatus>('/profile/telegram'),
+  code: () => sendJson<{ code: string; link: string; expiresAt: string }>('POST', '/profile/telegram/code', {}),
+  setSiteBookings: (siteBookings: boolean) =>
+    sendJson<StaffTelegramStatus>('PATCH', '/profile/telegram', { siteBookings }),
+  disconnect: () => sendJson<StaffTelegramStatus>('DELETE', '/profile/telegram', {}),
+  test: () => sendJson<{ delivered: true }>('POST', '/profile/telegram/test', {}),
+};

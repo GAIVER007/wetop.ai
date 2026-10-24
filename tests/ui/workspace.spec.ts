@@ -33,7 +33,10 @@ async function noPageOverflow(page: Page) {
 test('все разделы, карточки и печать открываются; desktop/mobile без переполнения', async ({
   page,
 }) => {
-  test.setTimeout(180_000);
+  // ~100 переходов по всем разделам в двух ширинах: на раннерах GitHub 23.10.2026 три запуска подряд
+  // (39994754819 дважды, 39995700285) упёрлись в 180 с на разных разделах, локально 1,6–1,7 мин. Проверки те же,
+  // запас как у «доступности всех разделов» (accessibility.spec.ts, 360 с)
+  test.setTimeout(300_000);
   mkdirSync(screenshots, { recursive: true });
   const errors: string[] = [];
   // отказ measure приходит и как console.error, и как необработанное исключение страницы

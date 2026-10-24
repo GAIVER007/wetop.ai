@@ -1046,9 +1046,26 @@ test('клиенты: вкладки, «Постоянный гость» от �
   const hit = search.getByRole('link', { name: /Сергей Иванов/ });
   await expect(hit).toBeVisible();
   await hit.click();
-  await expect(page).toHaveURL(/\/customers\?q=/);
+  // карточка гостя ресторана (решение владельца 23.10.2026 п. 4): поиск ведёт прямо на неё
+  await expect(page).toHaveURL(`/customers/${r1.customerId}`);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Сергей Иванов');
+  await expect(page.getByRole('main')).toContainText('Постоянный гость');
+  await page.getByRole('tab', { name: /История броней/ }).click();
+  const history = page.getByRole('tabpanel', { name: /История броней/ }).getByRole('table');
+  await expect(history.locator('tbody tr')).toHaveCount(2);
+  await expect(history).toContainText('Завершено');
+  await expect(history).not.toContainText('₸');
+  expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.setViewportSize({ width: 1280, height: 720 });
+  // из списка «Клиентов» имя гостя тоже ведёт на карточку
+  await page.goto('/customers?q=8%20700%20123');
   await expect(page.getByTestId('food-customers-query')).toContainText('Найдено');
-  await expect(page.getByRole('tabpanel').locator('tbody tr')).toHaveCount(1);
+  await expect(page.getByRole('tabpanel').getByRole('link', { name: 'Сергей Иванов', exact: true })).toHaveAttribute(
+    'href',
+    `/customers/${r1.customerId}`,
+  );
   // метки видит смена: в бронях дня и строкой на «Главной» (вторая бронь клиента сегодня активна)
   await page.goto(`/table-reservations?date=${localDay}&view=list`);
   await expect(page.getByTestId('guest-marks').first()).toContainText('VIP');

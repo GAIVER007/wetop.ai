@@ -215,6 +215,20 @@
       min-width: 0;
       width: 100%;
     }
+    /* «Сегодня», стрелки и дата в одну строку на 358 px: кнопки не сжимаются, поле даты берёт остаток */
+    .calendar-toolbar > .date-bar > .btn {
+      flex: none;
+      padding-inline: var(--space-2);
+    }
+    .calendar-toolbar > .date-bar > .field {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .calendar-toolbar > .date-bar .inp,
+    .calendar-toolbar > .date-bar .date-field {
+      width: 100%;
+      min-width: 0;
+    }
     .quick-report-trigger {
       flex-shrink: 0;
     }

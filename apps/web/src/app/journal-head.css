@@ -283,6 +283,11 @@
       grid-row: 2;
       min-width: 0;
     }
+    /* «Все специалисты» целиком на 390: кнопка уже на ширину своих отступов, а не текста (обход 24.10.2026) */
+    .journal-head__filters > .employee-filter > summary {
+      gap: var(--space-1);
+      padding-inline: var(--space-2);
+    }
     .journal-head__filters > .journal-head__views {
       grid-column: 2;
       grid-row: 2;
@@ -290,8 +295,9 @@
       flex-wrap: nowrap;
     }
     /* ресторан: два переключателя («План зала / Расписание» и «Шкала / Список») не помещаются в правую колонку,
-       им своя строка на всю ширину, иначе поиск сжимается в ноль, а шапка шире экрана */
-    .journal-head__filters > .journal-head__views:has(> .tabs) {
+       им своя строка на всю ширину, иначе поиск сжимается в ноль, а шапка шире экрана. «День / Неделя»
+       салона (тоже `Tabs`, метка «Вид журнала») остаётся справа от специалиста, иначе «Все специалисты» обрезается */
+    .journal-head__filters > .journal-head__views:has(> .tabs):not(:has(> .tabs[aria-label='Вид журнала'])) {
       grid-column: 1 / -1;
       grid-row: auto;
       width: 100%;
@@ -313,6 +319,7 @@
     }
     .journal-head__views > .tabs .tabs__item {
       min-height: var(--touch-target);
+      padding-inline: var(--space-2);
     }
     .journal-head__views .beauty-calendar-views .btn {
       min-height: var(--touch-target);

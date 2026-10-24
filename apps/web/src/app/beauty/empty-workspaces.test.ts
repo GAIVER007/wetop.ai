@@ -95,7 +95,8 @@ describe('Пустые рабочие экраны салона', () => {
     expect(html).toMatch(/<a[^>]*class="btn[^"]*"[^>]*href="\/services"[^>]*>Добавить услугу<\/a>/);
     expect(html).toMatch(/<a[^>]*class="btn[^"]*"[^>]*href="\/employees\?new=1"[^>]*>Добавить специалиста<\/a>/);
     expect(html).not.toContain('beauty-slot-free');
-    expect(html).toMatch(/disabled=""[^>]*>\+ Новая запись/);
+    // «Новая запись» со значком плюса, как «Новая бронь» гостиницы (24.10.2026)
+    expect(html).toMatch(/disabled=""[^>]*>(?:<svg[^>]*>.*?<\/svg>)?Новая запись/);
     // причина бледной кнопки видна сразу у кнопки (п. 13)
     expect(html).toContain('title="Сначала добавьте услугу и специалиста с графиком"');
   });
@@ -115,7 +116,7 @@ describe('Пустые рабочие экраны салона', () => {
     expect(filters).toContain('aria-label="Вид журнала"');
     expect(filters.indexOf('aria-label="Поиск в журнале"')).toBeLessThan(filters.indexOf('aria-label="Услуга"'));
     expect(filters.indexOf('aria-label="Статус записи"')).toBeLessThan(filters.indexOf('aria-label="Вид журнала"'));
-    expect(html.indexOf('+ Новая запись')).toBeLessThan(html.indexOf('journal-head__filters'));
+    expect(html.indexOf('Новая запись')).toBeLessThan(html.indexOf('journal-head__filters'));
   });
   it('сохраняет настоящую колонку мастера без услуг', () => {
     const column = {

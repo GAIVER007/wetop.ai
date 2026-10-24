@@ -4,7 +4,7 @@ for (const entry of ['calendar','appointments']) {
   test(`F02 ${entry} unknown response stays open and cannot repeat command`, async ({page,request})=>{
     test.setTimeout(120000);
     const f=await seed(page,request);await page.goto(`/${entry}?date=${date}`);
-    await page.getByRole('button',{name:'+ Новая запись',exact:true}).click();
+    await page.getByRole('button',{name:'Новая запись',exact:true}).click();
     const p=page.getByRole('dialog',{name:'Новая запись',exact:true});
     await p.getByLabel('Имя клиента',{exact:true}).fill('Тест потерянный ответ');
     await p.getByLabel('Услуга',{exact:true}).selectOption(f.services[0].id);
@@ -33,7 +33,7 @@ for (const entry of ['calendar','appointments']) {
     test.setTimeout(120000);
     await seed(page,request);await page.goto(`/${entry}?date=${date}`);
     await page.evaluate(()=>history.pushState({...history.state},'',location.href+'&step=1'));
-    await page.getByRole('button',{name:'+ Новая запись',exact:true}).click();
+    await page.getByRole('button',{name:'Новая запись',exact:true}).click();
     const p=page.getByRole('dialog',{name:'Новая запись',exact:true});
     await p.getByLabel('Имя клиента',{exact:true}).fill('Тест переход');
     const confirm=page.getByRole('dialog',{name:'Закрыть без сохранения?',exact:true});
@@ -52,7 +52,7 @@ for (const entry of ['calendar','appointments']) {
     await p.getByRole('button',{name:'Закрыть: Новая запись',exact:true}).click();
     await confirm.getByRole('button',{name:'Закрыть без сохранения',exact:true}).click();
     await page.evaluate(()=>history.back());await expect(page).not.toHaveURL(/step=1/);
-    await page.getByRole('button',{name:'+ Новая запись',exact:true}).click();
+    await page.getByRole('button',{name:'Новая запись',exact:true}).click();
     await p.getByLabel('Имя клиента',{exact:true}).fill('Тест вперёд');
     await page.evaluate(()=>history.forward());await expect(confirm).toBeVisible();
     await confirm.getByRole('button',{name:'Продолжить заполнение'}).click();

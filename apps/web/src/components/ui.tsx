@@ -31,7 +31,7 @@ import { statusLabel, statusTone, type StatusRegistry, type StatusTone } from '.
 export const cx = (...parts: Array<string | false | null | undefined>) =>
   parts.filter(Boolean).join(' ');
 
-export function Help({ children, title = 'Подробнее' }: { children: ReactNode; title?: string }) {
+export function Help({ children, title = 'Подробнее' }: { children: ReactNode; title?: ReactNode }) {
   return (
     <details className="context-help">
       <summary>{title}</summary>

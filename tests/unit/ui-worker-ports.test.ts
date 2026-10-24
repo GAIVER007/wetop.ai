@@ -1,3 +1,5 @@
+import { readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { authPorts, shardSpecs, workerPorts } from '../ui/worker-ports';
 
@@ -32,7 +34,9 @@ describe('порты UI-стендов', () => {
 
   it('пересечение ролей или workers останавливает запуск, а не делит сервер', () => {
     // proxy первого worker совпал бы с api второго
-    expect(() => authPorts({ AUTH_PROXY_PORT: '4314' })).toThrow(/proxy worker 0: порт 4314|api worker 1: порт 4314/);
+    expect(() => authPorts({ AUTH_PROXY_PORT: '4314' })).toThrow(
+      /proxy worker 0: порт 4314|api worker 1: порт 4314/,
+    );
     expect(() => workerPorts({ fixture: 4311, web: 4311, site: 3002 }, 1)).toThrow(/уже назначен/);
   });
 
@@ -49,6 +53,24 @@ describe('порты UI-стендов', () => {
       for (const worker of [0, 1])
         expect(part.filter((_, i) => i % 2 === worker).length).toBeGreaterThanOrEqual(15);
     expect(shardSpecs(specs, undefined)).toBe(specs);
-    for (const bad of ['0/3', '4/3', '1', 'a/b']) expect(() => shardSpecs(specs, bad)).toThrow(/UI_SHARD/);
+    for (const bad of ['0/3', '4/3', '1', 'a/b'])
+      expect(() => shardSpecs(specs, bad)).toThrow(/UI_SHARD/);
+  });
+
+  it('два обхода всех разделов (доступность и «все разделы») всегда в разных частях', () => {
+    // 23.10.2026 новый desk-kk.spec.ts сдвинул круг, и оба обхода сели в часть 3/5 к одному next dev:
+    // release-checks 39994754819, 40006629233, 40006997821, 40008057689, 40009112400 краснели только в 3/5
+    const specs = readdirSync(join(__dirname, '../ui'))
+      .filter((name) => name.endsWith('.spec.ts'))
+      .sort();
+    for (const extra of [[], ['a0.spec.ts'], ['a0.spec.ts', 'a1.spec.ts'], ['zz.spec.ts']]) {
+      const all = [...specs, ...extra].sort();
+      const parts = [1, 2, 3, 4, 5].map((n) => shardSpecs(all, `${n}/5`));
+      expect(parts.flat().sort()).toEqual(all);
+      const owner = (file: string) => parts.findIndex((part) => part.includes(file));
+      expect(owner('accessibility.spec.ts')).not.toBe(owner('workspace.spec.ts'));
+      const sizes = parts.map((part) => part.length);
+      expect(Math.max(...sizes) - Math.min(...sizes)).toBeLessThanOrEqual(1);
+    }
   });
 });

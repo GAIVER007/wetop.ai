@@ -6,14 +6,10 @@ import {
   Alert,
   Button,
   EmptyState,
-  Field,
-  Input,
   Notice,
-  Select,
   StatusBadge,
   Table,
 } from '../../components/ui';
-import { IconField } from '../../components/icon-field';
 import { Icon } from '../../components/icon';
 import { Segmented } from '../../components/segmented';
 import { Tabs } from '../../components/tabs';
@@ -22,7 +18,7 @@ import { occupiedAt } from '../../lib/food-data';
 import type { DiningTable, FoodWorkspace, RestaurantReservation } from '../../lib/food-types';
 import { instantOf, localInput } from '../beauty/time';
 import { ReservationDrawer, type ReservationDraft } from './reservation-drawer';
-import { DayToolbar, quiet } from './day-toolbar';
+import { DayToolbar } from './day-toolbar';
 import { foodStatus } from '../../lib/status/food';
 import { setTableCleaning } from './restaurant-actions';
 import { GuestMarks } from './guest-marks';
@@ -32,7 +28,8 @@ import { FloorLayoutEditor, SHAPE_CSS, spotStyle } from './floor-layout-editor';
 import { layoutSpots, tableShapeOf } from '@pms/domain';
 import { QuickReport } from '../../components/quick-report';
 import { DayNav } from '../../components/day-nav';
-import { JournalHead } from '../../components/journal-head';
+import { JournalFilter, JournalHead, JournalSearch } from '../../components/journal-head';
+import { SummaryLine } from '../../lib/summary-line';
 import { foodQuickReport } from '../../components/quick-report-data';
 import { compareTables } from '../../lib/table-title';
 import { formatPhone } from '../../lib/phone';
@@ -220,7 +217,50 @@ export function WorkspaceBoard({
             )}
           </>
         }
+        summary={
+          <SummaryLine
+            label="Сегодня в зале"
+            testId="food-day-summary"
+            parts={[
+              { key: 'res', label: 'Броней', value: filtered.filter(onDay).filter((r) => ACTIVE.includes(r.status)).length },
+              {
+                key: 'guests',
+                label: 'гостей',
+                value: filtered.filter(onDay).filter((r) => ACTIVE.includes(r.status)).reduce((n, r) => n + r.partySize, 0),
+              },
+              { key: 'seated', label: 'сидят', value: count('OCCUPIED') },
+              { key: 'free', label: 'свободно столов', value: count('FREE'), after: ` из ${activeTables.length}` },
+              ...(count('CLEANING') ? [{ key: 'cleaning', label: 'на уборке', value: count('CLEANING') }] : []),
+            ]}
+          />
+        }
         filters={
+          <>
+            {/* порядок отборов как у календаря гостиницы: поиск, где, когда, статус (решение 24.10.2026) */}
+            <JournalSearch
+              value={search}
+              onChange={setSearch}
+              label="Поиск гостя"
+              placeholder="Гость, телефон"
+            />
+            <JournalFilter
+              label="Зона"
+              allLabel="Все зоны"
+              value={area}
+              onChange={setArea}
+              options={areas.map((a) => ({ value: a.id, label: a.name }))}
+            />
+            <DayToolbar data={data} floor={floor} period={period} setPeriod={setPeriod} />
+            <JournalFilter
+              label="Статус брони"
+              allLabel="Все статусы"
+              value={status}
+              onChange={setStatus}
+              options={Object.entries(foodStatus).map(([value, { label }]) => ({ value, label }))}
+            />
+          </>
+        }
+        views={
           <>
             <Tabs
               label="Зал"
@@ -229,50 +269,16 @@ export function WorkspaceBoard({
                 { href: `/table-reservations?date=${data.date}`, label: 'Расписание', current: !floor },
               ]}
             />
-            <DayToolbar data={data} floor={floor} period={period} setPeriod={setPeriod} />
             {!floor && (
-              <>
-                <Segmented
-                  label="Вид"
-                  value={view}
-                  onChange={setView}
-                  options={[
-                    { value: 'timeline', label: 'Шкала' },
-                    { value: 'list', label: 'Список' },
-                  ]}
-                />
-                <Field label={quiet('Зона')}>
-                  <Select value={area} onChange={(e) => setArea(e.target.value)}>
-                    <option value="">Все зоны</option>
-                    {areas.map((a) => (
-                      <option key={a.id} value={a.id}>
-                        {a.name}
-                      </option>
-                    ))}
-                  </Select>
-                </Field>
-                <Field label={quiet('Статус')}>
-                  <Select value={status} onChange={(e) => setStatus(e.target.value)}>
-                    <option value="">Все статусы</option>
-                    {Object.entries(foodStatus).map(([s, { label: l }]) => (
-                      <option key={s} value={s}>
-                        {l}
-                      </option>
-                    ))}
-                  </Select>
-                </Field>
-                <Field label={quiet('Поиск гостя')}>
-                  <IconField icon="search">
-                    <Input
-                      type="search"
-                      placeholder="Поиск гостя"
-                      data-page-search
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                    />
-                  </IconField>
-                </Field>
-              </>
+              <Segmented
+                label="Вид"
+                value={view}
+                onChange={setView}
+                options={[
+                  { value: 'timeline', label: 'Шкала' },
+                  { value: 'list', label: 'Список' },
+                ]}
+              />
             )}
           </>
         }

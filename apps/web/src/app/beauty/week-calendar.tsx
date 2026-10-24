@@ -1,30 +1,43 @@
 'use client';
 import Link from 'next/link';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Icon } from '../../components/icon';
-import { JournalHead } from '../../components/journal-head';
+import { JournalFilter, JournalHead, JournalSearch } from '../../components/journal-head';
+import { DateRangePopover } from '../../components/date-range-popover';
+import { SummaryLine } from '../../lib/summary-line';
+import { useNarrow } from '../../lib/use-narrow';
+import { beautyStatus } from '../../lib/status/beauty';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { EmployeeFilter } from '../../components/employee-filter';
 import { QuickReport } from '../../components/quick-report';
 import { beautyQuickReport } from '../../components/quick-report-data';
-import { Panel, StatusBadge } from '../../components/ui';
+import { Help, Panel, StatusBadge } from '../../components/ui';
 import type { BeautyDay, BeautyEmployeeRow } from '../../lib/api';
-import { displayDate, displayPeriod } from '../../lib/display-date';
+import { displayDate } from '../../lib/display-date';
 import { CalendarLegend } from './calendar-legend';
 import { clock } from './time';
 import { calendarColumns, matchesAppointment } from './calendar-columns';
+
+const plusDays = (date: string, n: number) => {
+  const at = new Date(`${date}T12:00:00Z`);
+  at.setUTCDate(at.getUTCDate() + n);
+  return at.toISOString().slice(0, 10);
+};
 
 export function WeekCalendar({
   days,
   selectedDate,
   employees,
   views,
+  today = new Date().toISOString().slice(0, 10),
 }: {
   /** «День / Неделя» в строке отборов единой шапки */
   views?: ReactNode;
   days: BeautyDay[];
   selectedDate: string;
   employees: BeautyEmployeeRow[];
+  /** сегодня по поясу филиала: быстрые недели в окне выбора */
+  today?: string;
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -45,10 +58,52 @@ export function WeekCalendar({
     else query.delete('employee');
     return `/calendar?${query}`;
   };
+  const [query, setQuery] = useState('');
+  const narrow = useNarrow();
+  // отборы недели в адресе, как у дня: услуга и статус переживают переход «День / Неделя»
+  const setParam = (key: 'service' | 'status', value: string) => {
+    const next = new URLSearchParams(params.toString());
+    if (value) next.set(key, value);
+    else next.delete(key);
+    router.replace(`/calendar?${next}`, { scroll: false });
+  };
+  const found = (r: BeautyDay['appointments'][number]) => {
+    const q = query.trim().toLocaleLowerCase('ru');
+    if (!q) return true;
+    const digits = q.replace(/\D/g, '');
+    return (
+      r.customer.name.toLocaleLowerCase('ru').includes(q) ||
+      (digits.length >= 3 && (r.customer.phone ?? '').replace(/\D/g, '').includes(digits))
+    );
+  };
   const visible = (day: BeautyDay) =>
     day.appointments.filter(
-      (r) => matchesAppointment(r, employee, service) && (!status || r.status === status),
+      (r) => matchesAppointment(r, employee, service) && (!status || r.status === status) && found(r),
     );
+  const services = [
+    ...new Map(days.flatMap((day) => day.services.map((sv) => [sv.id, sv] as const))).values(),
+  ];
+  const serviceFilter = (
+    <JournalFilter
+      label="Услуга"
+      allLabel="Все услуги"
+      value={service}
+      onChange={(v) => setParam('service', v)}
+      options={services.map((sv) => ({ value: sv.id, label: sv.name }))}
+    />
+  );
+  const statusFilter = (
+    <JournalFilter
+      label="Статус записи"
+      allLabel="Все статусы"
+      value={status}
+      onChange={(v) => setParam('status', v)}
+      options={Object.entries(beautyStatus)
+        .filter(([key]) => key !== 'CANCELLED')
+        .map(([value, st]) => ({ value, label: st.label }))}
+    />
+  );
+  const weekRows = days.flatMap((day) => visible(day)).filter((r) => r.status !== 'CANCELLED');
   const selected = days.find((d) => d.date === selectedDate) ?? days[0]!;
   const first = days[0]!;
   const shift = (delta: number) => {
@@ -63,7 +118,19 @@ export function WeekCalendar({
         subtitle="Неделя специалистов"
         nav={
           <div className="board-period day-nav" role="group" aria-label="Неделя журнала">
-            <b className="day-nav__label">{displayPeriod(first.date, days.at(-1)!.date)}</b>
+            <DateRangePopover
+              from={first.date}
+              to={days.at(-1)!.date}
+              today={today}
+              compact
+              onDay={(date) => router.push(href(date))}
+              dayPresets={[
+                { label: 'Эта неделя', date: today },
+                { label: 'Следующая неделя', date: plusDays(today, 7) },
+                { label: 'День', onSelect: () => router.push(href(selectedDate, false)) },
+              ]}
+              triggerTestId="week-nav-button"
+            />
             <Link href={shift(-7)} className="icon-button" aria-label="Предыдущая неделя">
               <Icon name="chevron" className="rotate-left" />
             </Link>
@@ -87,8 +154,24 @@ export function WeekCalendar({
             build={() => beautyQuickReport(visible(selected))}
           />
         }
+        summary={
+          <SummaryLine
+            label="Итоги недели"
+            testId="beauty-week-summary"
+            parts={[
+              { key: 'all', label: 'Записей за неделю', value: weekRows.length },
+              {
+                key: 'wait',
+                label: 'ждём',
+                value: weekRows.filter((r) => r.status === 'BOOKED' || r.status === 'CONFIRMED').length,
+              },
+              { key: 'done', label: 'завершено', value: weekRows.filter((r) => r.status === 'DONE').length },
+            ]}
+          />
+        }
         filters={
           <>
+            <JournalSearch value={query} onChange={setQuery} label="Поиск в журнале" placeholder="Клиент, телефон" />
             <EmployeeFilter
               options={options}
               value={employee}
@@ -96,9 +179,19 @@ export function WeekCalendar({
               kind="specialists"
               onChange={(id) => router.replace(href(selectedDate, true, id), { scroll: false })}
             />
-            {views}
+            {!narrow && serviceFilter}
+            {!narrow && statusFilter}
+            {narrow && (
+              <Help title={`Фильтры${service || status ? `\nАктивных: ${[service, status].filter(Boolean).length}` : ''}`}>
+                <div className="journal-head__more">
+                  {serviceFilter}
+                  {statusFilter}
+                </div>
+              </Help>
+            )}
           </>
         }
+        views={views}
       />
       <CalendarLegend />
       <div className="beauty-week-calendar">

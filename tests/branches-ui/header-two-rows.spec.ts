@@ -59,7 +59,7 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
       const cut = await page.evaluate(() =>
         [
           ...document.querySelectorAll<HTMLElement>(
-            '.tabnav, .tabnav__tab, .workspace-search, .workspace-header__property strong, .workspace-header__property span, .profile-caption strong, .profile-caption small',
+            '.tabnav, .tabnav__tab, .header-clock, .workspace-search, .workspace-header__property strong, .workspace-header__property span, .profile-caption strong, .profile-caption small',
           ),
         ]
           .filter((el) => el.scrollWidth > el.clientWidth + 1)
@@ -69,9 +69,10 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
       ).toBe(true);
-      // поиск словом и подсказкой клавиши, не одной иконкой; в календаре гостиницы у экрана свой поиск (ADR шапки)
-      if (branch.route !== '/chessboard')
-        await expect(page.locator('.workspace-search .workspace-search-full')).toBeVisible();
+      // у знака дата и время филиала (владелец 24.10.2026, вариант A), поиск по системе значком лупы и Ctrl K
+      await expect(page.getByTestId('header-clock')).toBeVisible();
+      await expect(page.getByTestId('header-clock').locator('time')).toHaveText(/^\d{2}:\d{2}$/);
+      if (branch.route !== '/chessboard') await expect(page.locator('.workspace-search')).toBeVisible();
       seen[`${vertical}-${width}`] = await tabs.allTextContents();
       await page.screenshot({
         path: `${shots}/${vertical}-${width}.png`,

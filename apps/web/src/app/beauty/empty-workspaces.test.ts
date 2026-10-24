@@ -100,7 +100,7 @@ describe('Пустые рабочие экраны салона', () => {
     expect(html).toContain('title="Сначала добавьте услугу и специалиста с графиком"');
   });
   // с 23.10.2026 (единая шапка журнала) «День / Неделя» в строке отборов рядом со специалистами, день в шапке
-  it('День и Неделя стоят в строке отборов журнала (п. 34, единая шапка 23.10.2026)', () => {
+  it('День и Неделя стоят в строке отборов журнала справа, после поиска и выборов (п. 34, единая шапка 24.10.2026)', () => {
     const html = renderToStaticMarkup(
       createElement(JournalBoard, {
         day,
@@ -111,8 +111,10 @@ describe('Пустые рабочие экраны салона', () => {
       }),
     );
     const filters = html.slice(html.indexOf('journal-head__filters'));
-    expect(filters).toContain('beauty-calendar-actions');
+    expect(filters).toContain('journal-head__views');
     expect(filters).toContain('aria-label="Вид журнала"');
+    expect(filters.indexOf('aria-label="Поиск в журнале"')).toBeLessThan(filters.indexOf('aria-label="Услуга"'));
+    expect(filters.indexOf('aria-label="Статус записи"')).toBeLessThan(filters.indexOf('aria-label="Вид журнала"'));
     expect(html.indexOf('+ Новая запись')).toBeLessThan(html.indexOf('journal-head__filters'));
   });
   it('сохраняет настоящую колонку мастера без услуг', () => {

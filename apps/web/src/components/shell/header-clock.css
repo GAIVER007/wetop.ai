@@ -1,0 +1,92 @@
+/* Дата и время филиала у знака WETOP (владелец 24.10.2026, вариант A). Чёткий текст: дата основным цветом, время
+   акцентом, день недели приглушённо; на узком экране короткая дата без дня недели. */
+@layer sections {
+  .header-clock {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    min-width: 0;
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--border);
+    white-space: nowrap;
+    color: var(--text);
+  }
+  .header-clock:empty {
+    min-width: var(--space-16);
+    border-left-color: transparent;
+  }
+  .header-clock__date {
+    font-size: var(--text-md);
+    font-weight: var(--weight-bold);
+  }
+  .header-clock__short {
+    display: none;
+  }
+  .header-clock__time {
+    color: var(--primary);
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+  }
+  .header-clock__weekday {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  /* значок поиска по системе: квадратная кнопка той же высоты, что филиал и профиль */
+  .workspace .workspace-header .workspace-search.workspace-search--icon {
+    display: inline-grid;
+    flex: none;
+    justify-content: center;
+    place-items: center;
+    flex: none;
+    width: var(--touch-target);
+    min-width: var(--touch-target);
+    height: var(--touch-target);
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text-2);
+  }
+  .workspace .workspace-header .workspace-search.workspace-search--icon:hover {
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+  .workspace .workspace-header .workspace-search.workspace-search--icon svg {
+    width: var(--space-4);
+    height: var(--space-4);
+  }
+  @media (max-width: 1279px) {
+    .header-clock {
+      margin-right: auto;
+    }
+  }
+  @media (max-width: 960px) {
+    .header-clock__weekday {
+      display: none;
+    }
+  }
+  @media (max-width: 600px) {
+    .header-clock {
+      padding-left: var(--space-2);
+      gap: var(--space-1);
+    }
+    .header-clock__long {
+      display: none;
+    }
+    .header-clock__short {
+      display: inline;
+    }
+    .header-clock__date,
+    .header-clock__time {
+      font-size: var(--text-sm);
+    }
+  }
+  /* самые узкие телефоны: только время, дата в подсказке */
+  @media (max-width: 374px) {
+    .header-clock__date {
+      display: none;
+    }
+  }
+}

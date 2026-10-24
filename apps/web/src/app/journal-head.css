@@ -72,6 +72,55 @@
   .journal-head__filters > .field {
     margin: 0;
   }
+  /* строка отборов как у календаря гостиницы (24.10.2026): поиск тянется, выборы одной ширины, вид справа */
+  .journal-search {
+    position: relative;
+    display: flex;
+    flex: 1 1 240px;
+    min-width: 180px;
+  }
+  .journal-search > .inp {
+    width: 100%;
+    min-height: var(--control-h);
+    padding-left: var(--space-8);
+  }
+  .journal-search__icon {
+    position: absolute;
+    top: 50%;
+    left: var(--space-2);
+    width: var(--space-4);
+    height: var(--space-4);
+    color: var(--muted);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  .journal-filter {
+    flex: 0 1 200px;
+    min-width: 150px;
+    min-height: var(--control-h);
+  }
+  .journal-head__filters .employee-filter {
+    flex: 0 1 220px;
+  }
+  .journal-head__views {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-left: auto;
+  }
+  .journal-head__views .tabs {
+    margin: 0;
+  }
+  .journal-head__more {
+    display: grid;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+  .journal-head__more .journal-filter {
+    width: 100%;
+    max-width: none;
+  }
   /* отборы раздела внутри карточки шапки: без своей второй рамки и отступов */
   .journal-page .journal-head__filters .beauty-bar,
   .journal-page .journal-head__filters .beauty-calendar-toolbar,
@@ -136,6 +185,18 @@
     .journal-head__actions .btn,
     .day-nav.board-period .icon-button {
       min-height: var(--touch-target);
+    }
+    .journal-search {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .journal-search > .inp,
+    .journal-filter {
+      min-height: var(--touch-target);
+    }
+    .journal-head__views {
+      width: 100%;
+      margin-left: 0;
     }
     .journal-head__filters {
       padding: var(--space-2);

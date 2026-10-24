@@ -10,6 +10,7 @@ import { GrantedProperty, PropertyBlock, type PropertyIdentity } from './shell/p
 import { SideNav } from './shell/side-nav';
 import { TabNav } from './shell/tab-nav';
 import { GlobalSearch } from './shell/search';
+import { HeaderClock } from './shell/header-clock';
 import styles from './top-nav.module.css';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
@@ -212,22 +213,20 @@ export function TopNav({
 
             {/* строка разделов (решение владельца 17.10.2026): от 1280 px, уже выдвижное меню слева */}
             <TabNav path={path} desk={desk} />
+            {/* дата и время филиала у знака (владелец 24.10.2026, вариант A): второго поля поиска в шапке нет, ищут
+                в строке отборов журнала; поиск по системе открывает Ctrl K или значок лупы на телефоне */}
+            <HeaderClock />
+            {/* в календаре гостиницы у экрана свой поиск (ADR шапки), значка там нет, Ctrl K работает */}
             {path !== '/chessboard' && (
-              <button
-                className="workspace-search"
-                data-tour="search"
-                aria-label={beauty || food ? t('Найти клиента или раздел') : t('Найти гостя или бронь')}
-                onClick={() => setSearch(true)}
-              >
-                <Icon name="search" />
-                <span className="workspace-search-full">
-                  {beauty || food ? t('Поиск клиента, раздела...') : t('Поиск гостя, брони, номера...')}
-                </span>
-                <span className="workspace-search-short" aria-hidden="true">
-                  {t('Поиск')}
-                </span>
-                <kbd>{searchKey}</kbd>
-              </button>
+            <button
+              className="workspace-search workspace-search--icon"
+              data-tour="search"
+              aria-label={beauty || food ? t('Найти клиента или раздел') : t('Найти гостя или бронь')}
+              title={`${beauty || food ? t('Найти клиента или раздел') : t('Найти гостя или бронь')} (${searchKey})`}
+              onClick={() => setSearch(true)}
+            >
+              <Icon name="search" />
+            </button>
             )}
             {/* филиал справа, рядом с профилем (верхнее меню 17.10.2026); до 960 px он вверху меню телефона */}
             <div className="workspace-header__property">

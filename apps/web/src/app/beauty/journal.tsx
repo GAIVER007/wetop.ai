@@ -6,7 +6,7 @@ import { EmployeeFilter } from '../../components/employee-filter';
 import { QuickReport } from '../../components/quick-report';
 import { beautyQuickReport } from '../../components/quick-report-data';
 import { Overlay } from '../../components/overlay';
-import { Alert, Badge, Button, EmptyState, Field, Help, Select } from '../../components/ui';
+import { Alert, Badge, Button, EmptyState, Help } from '../../components/ui';
 import type {
   BeautyAppointmentRow,
   BeautyCustomerRow,
@@ -19,7 +19,8 @@ import { AppointmentCard } from './appointment-card';
 import { AppointmentEditor } from './appointment-editor';
 import { appointmentSegments, calendarColumns, matchesAppointment, mobileDefaultMaster } from './calendar-columns';
 import { DayNav } from '../../components/day-nav';
-import { JournalHead } from '../../components/journal-head';
+import { JournalFilter, JournalHead, JournalSearch } from '../../components/journal-head';
+import { useNarrow } from '../../lib/use-narrow';
 import { clock, clockMinutes, instantOf, localInput } from './time';
 import { beautyPeriodRows, moveAppointment } from './journal-actions';
 import { beautyStatus } from '../../lib/status/beauty';
@@ -74,6 +75,8 @@ export function JournalBoard({
 }) {
   const columns = calendarColumns(day, employees);
   const [compact, setCompact] = useState(false);
+  const [query, setQuery] = useState('');
+  const narrow = useNarrow();
   const PX_PER_MIN = compact ? 1 : 1.5;
   const [panel, setPanel] = useState<Panel>(() => {
     const row = day.appointments.find((item) => item.id === appointmentId);
@@ -149,8 +152,18 @@ export function JournalBoard({
   const to = Math.ceil(day.bounds.toMinutes / STEP) * STEP;
   const slots = Array.from({ length: (to - from) / STEP }, (_, i) => from + i * STEP);
   const height = (to - from) * PX_PER_MIN;
+  // поиск в строке отборов: имя или телефон клиента (единая шапка 24.10.2026)
+  const found = (a: BeautyAppointmentRow) => {
+    const q = query.trim().toLocaleLowerCase('ru');
+    if (!q) return true;
+    const digits = q.replace(/\D/g, '');
+    return (
+      a.customer.name.toLocaleLowerCase('ru').includes(q) ||
+      (digits.length >= 3 && (a.customer.phone ?? '').replace(/\D/g, '').includes(digits))
+    );
+  };
   const reportRows = day.appointments.filter(
-    (a) => matchesAppointment(a, master, service) && (!status || a.status === status),
+    (a) => matchesAppointment(a, master, service) && (!status || a.status === status) && found(a),
   );
   const buildReport = (periodRows?: unknown[]) =>
     beautyQuickReport(
@@ -328,6 +341,26 @@ export function JournalBoard({
       ))}
     </div>
   );
+  const serviceFilter = (
+    <JournalFilter
+      label="Услуга"
+      allLabel="Все услуги"
+      value={service}
+      onChange={setService}
+      options={day.services.map((sv) => ({ value: sv.id, label: sv.name }))}
+    />
+  );
+  const statusFilter = (
+    <JournalFilter
+      label="Статус записи"
+      allLabel="Все статусы"
+      value={status}
+      onChange={setStatus}
+      options={Object.entries(beautyStatus)
+        .filter(([key]) => key !== 'CANCELLED')
+        .map(([value, st]) => ({ value, label: st.label }))}
+    />
+  );
   return (
     <>
       <JournalHead
@@ -379,81 +412,70 @@ export function JournalBoard({
           </>
         }
         summary={
-          <p className="beauty-note" data-testid="beauty-day-summary">
-            {live.length
-              ? `Записей: ${live.length}`
-              : service || status || master
-                ? 'По выбранным фильтрам записей не найдено'
-                : 'Записей на этот день нет'}
+          <p className="summary-line" role="group" aria-label="Итоги дня">
+            <span data-testid="beauty-day-summary">
+              {live.length
+                ? `Записей: ${live.length}`
+                : service || status || master || query
+                  ? 'По выбранным фильтрам записей не найдено'
+                  : 'Записей на этот день нет'}
+            </span>
+            {live.length > 0 && (
+              <>
+                {', ждём '}
+                <b>{live.filter((a) => a.status === 'BOOKED' || a.status === 'CONFIRMED').length}</b>
+                {', в работе '}
+                <b>{live.filter((a) => a.status === 'IN_PROGRESS').length}</b>
+                {', завершено '}
+                <b>{live.filter((a) => a.status === 'DONE').length}</b>
+                {live.some((a) => a.status === 'NO_SHOW') && (
+                  <>
+                    {', не пришли '}
+                    <b>{live.filter((a) => a.status === 'NO_SHOW').length}</b>
+                  </>
+                )}
+                {', сумма '}
+                <b>
+                  {formatMoney(
+                    String(live.filter((a) => a.status !== 'NO_SHOW').reduce((n, a) => n + Number(a.priceMinor), 0)),
+                    live[0]!.currency,
+                  )}
+                </b>
+              </>
+            )}
           </p>
         }
         filters={
-          <div className="beauty-bar beauty-calendar-toolbar">
-            <div className="beauty-calendar-actions">
-              <EmployeeFilter
-                options={columns}
-                value={master}
-                onChange={setMaster}
-                allLabel="Все специалисты"
-                kind="specialists"
-              />
-              {views}
-              <span className="beauty-calendar-wide">
-                <Button tone="secondary" aria-pressed={compact} onClick={() => setCompact(!compact)}>
-                  Компактный вид
-                </Button>
-              </span>
-            </div>
+          <>
+            {/* порядок как у календаря гостиницы: поиск, кто, что, статус, «Фильтры»; на телефоне выборы в «Фильтрах» */}
+            <JournalSearch value={query} onChange={setQuery} label="Поиск в журнале" placeholder="Клиент, телефон" />
+            <EmployeeFilter
+              options={columns}
+              value={master}
+              onChange={setMaster}
+              allLabel="Все специалисты"
+              kind="specialists"
+            />
+            {!narrow && serviceFilter}
+            {!narrow && statusFilter}
             <Help
               title={`Фильтры${master || service || status ? `\nАктивных: ${[master, service, status].filter(Boolean).length}` : ''}`}
             >
-              <div className="beauty-calendar-narrow">
-                <Button tone="secondary" aria-pressed={compact} onClick={() => setCompact(!compact)}>
-                  Компактный вид
-                </Button>
-              </div>
-              <div className="beauty-filters">
-                <Field label={<span>Услуга</span>}>
-                  <Select
-                    aria-label="Услуга"
-                    value={service}
-                    onChange={(e) => setService(e.target.value)}
-                  >
-                    <option value="">Все услуги</option>
-                    {day.services.map((sv) => (
-                      <option key={sv.id} value={sv.id}>
-                        {sv.name}
-                      </option>
-                    ))}
-                  </Select>
-                </Field>
-                <Field label={<span>Статус</span>}>
-                  <Select
-                    aria-label="Статус записи"
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                  >
-                    <option value="">Все статусы</option>
-                    {Object.entries(beautyStatus)
-                      .filter(([key]) => key !== 'CANCELLED')
-                      .map(([key, st]) => (
-                        <option key={key} value={key}>
-                          {st.label}
-                        </option>
-                      ))}
-                  </Select>
-                </Field>
-              </div>
+              {narrow && <div className="journal-head__more">{serviceFilter}{statusFilter}</div>}
+              <Button tone="secondary" aria-pressed={compact} onClick={() => setCompact(!compact)}>
+                Компактный вид
+              </Button>
               <CalendarLegend />
               <p className="beauty-note">
                 Свободно: пустая клетка. Вне графика: нет доступной кнопки. Скрытые занятые интервалы
                 обозначены текстом.
               </p>
             </Help>
-          </div>
+          </>
         }
+        views={views}
       />
-      {(master || service || status) && (
+      {(master || service || status || query) && (
         <div className="beauty-active-filters" role="status">
           <span>
             {[
@@ -471,6 +493,7 @@ export function JournalBoard({
           <Button
             tone="secondary"
             onClick={() => {
+              setQuery('');
               applyFilters({ employee: '', service: '', status: '' });
             }}
           >

@@ -27,7 +27,8 @@ export type IncidentKind =
   | 'web.down'
   | 'ari.oversell'
   | 'backup.stale'
-  | 'booking.flood';
+  | 'booking.flood'
+  | 'staff.notify.failed';
 
 export interface FixPolicy {
   /** Сколько раз сторож пробует сам, дальше — будит */
@@ -176,6 +177,12 @@ export const POLICY: Record<IncidentKind, KindPolicy> = {
    * брони и решает; сутки тишины закрывают строку сами.
    */
   'booking.flood': { class: 'B', severity: 'WARNING', close: { by: 'quiet', afterMs: 24 * HOUR } },
+  /**
+   * Уведомление сотруднику о брони с сайта в Telegram не ушло за шесть попыток (STAFF-TG-20261020, AGENTS.md §11):
+   * Telegram недоступен или отвечает ошибкой. Бронь при этом записана, сотрудник видит её в WETOP. Чинить сторожу
+   * нечего; сутки тишины закрывают строку.
+   */
+  'staff.notify.failed': { class: 'B', severity: 'WARNING', close: { by: 'quiet', afterMs: 24 * HOUR } },
 };
 
 /** Что заметила проверка. Без ФИО, телефонов и секретов — только номера и коды. */

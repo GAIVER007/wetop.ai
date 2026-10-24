@@ -159,6 +159,8 @@ model Location {
   foodReminderSettings      FoodReminderSettings?
   voiceCalls                VoiceCall[]
   voiceBookingQuotes        VoiceBookingQuote[]
+  /// STAFF-TG-20261020: уведомления сотрудникам о бронях с сайта
+  staffNotifications        StaffNotification[]
 
   @@index([businessId])
   @@index([bookingTrackedSiteId])
@@ -2688,6 +2690,7 @@ model Organization {
   voiceCallbacks     VoiceCallback[]
   voiceProfiles      VoiceProfile[]
   voiceBookingQuotes VoiceBookingQuote[]
+  staffNotifications StaffNotification[]
 
   @@map("organizations")
 }
@@ -2779,6 +2782,9 @@ model User {
   locationCompetitorSnapshotsCreated LocationCompetitorSnapshot[]   @relation("LocationCompetitorSnapshotCreatedBy")
 
   voiceCallbacksDone VoiceCallback[]
+  staffTelegramLink            StaffTelegramLink?
+  staffTelegramLinkCodes       StaffTelegramLinkCode[]
+  staffNotifications           StaffNotification[]
 
   @@map("users")
 }
@@ -4903,4 +4909,77 @@ model FoodReminderSettings {
   location Location @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "food_reminder_settings_location_fkey")
 
   @@map("food_reminder_settings")
+}
+
+/// STAFF-TG-20261020 (DATA_MODEL, план plans/staff-telegram-notifications-2026-10-20.md): личный чат сотрудника с
+/// ботом WETOP. Один на сотрудника; отключение ставит disabled_at, строка остаётся. RLS через членство в организации.
+model StaffTelegramLink {
+  userId       String    @id @map("user_id") @db.Uuid
+  chatId       BigInt    @map("chat_id")
+  username     String?   @db.VarChar(64)
+  linkedAt     DateTime  @default(now()) @map("linked_at") @db.Timestamptz(6)
+  disabledAt   DateTime? @map("disabled_at") @db.Timestamptz(6)
+  /// Переключатель «Брони с сайта»
+  siteBookings Boolean   @default(true) @map("site_bookings")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([chatId])
+  @@map("staff_telegram_links")
+}
+
+/// Одноразовый код привязки Telegram: 8 символов, 15 минут, в базе только SHA-256 (STAFF-TG-20261020)
+model StaffTelegramLinkCode {
+  codeHash  String    @id @map("code_hash") @db.Char(64)
+  userId    String    @map("user_id") @db.Uuid
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId])
+  @@map("staff_telegram_link_codes")
+}
+
+/// Очередь и журнал уведомлений сотрудникам (AGENTS.md §11). Текста и персональных данных гостя нет: сообщение
+/// собирается при отправке из брони. Повтор события не дублирует строку (kind, source_id, recipient_user_id).
+model StaffNotification {
+  /// id выдаёт база: строки пишутся и SQL-вставкой с ON CONFLICT DO NOTHING (повтор события)
+  id              String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String                  @map("organization_id") @db.Uuid
+  locationId      String                  @map("location_id") @db.Uuid
+  kind            StaffNotificationKind
+  sourceId        String                  @map("source_id") @db.Uuid
+  recipientUserId String                  @map("recipient_user_id") @db.Uuid
+  status          StaffNotificationStatus @default(PENDING)
+  attempts        Int                     @default(0)
+  nextAttemptAt   DateTime                @default(now()) @map("next_attempt_at") @db.Timestamptz(6)
+  /// Код ошибки без персональных данных
+  lastError       String?                 @map("last_error") @db.VarChar(300)
+  createdAt       DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  sentAt          DateTime?               @map("sent_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  location     Location     @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  recipient    User         @relation(fields: [recipientUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@unique([kind, sourceId, recipientUserId])
+  @@index([status, nextAttemptAt])
+  @@index([organizationId, createdAt])
+  @@index([locationId])
+  @@map("staff_notifications")
+}
+
+enum StaffNotificationKind {
+  SITE_BOOKING_HOTEL
+  SITE_APPOINTMENT
+  SITE_TABLE
+  SITE_LEAD
+}
+
+enum StaffNotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
 }

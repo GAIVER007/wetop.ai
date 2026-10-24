@@ -1373,6 +1373,18 @@ function applyChannelShowcase() {
     },
   ];
 }
+/**
+ * «Профиль → Уведомления» (STAFF-TG-20261020). Бот подключён: `POST /__test/control { staffBot: true }`; по умолчанию
+ * токена нет, как на стенде до BotFather. `/__test/staff-telegram/link` имитирует /start в Telegram. Сбрасывается reset.
+ */
+let staffBot = false;
+let staffTelegramLink: { username: string | null; linkedAt: string; siteBookings: boolean } | null = null;
+let staffTelegramCode: string | null = null;
+const staffTelegramStatus = () => ({
+  botConfigured: staffBot,
+  botUsername: staffBot ? 'wetop_staff_bot' : null,
+  link: staffTelegramLink,
+});
 let siteDeleted = false;
 let groupFixture = false;
 let paid = new Map<string, bigint>();
@@ -6375,6 +6387,9 @@ createServer(async (req, res) => {
       fixtureContentDrafts = [];
       fixtureContentAiDown = false;
       resetSalonLoyaltyFixture();
+      staffBot = false;
+      staffTelegramLink = null;
+      staffTelegramCode = null;
       categoryPhotos.clear();
       fixtureBranches.length = 0;
       fixtureBusinessCards.clear();
@@ -6594,6 +6609,7 @@ createServer(async (req, res) => {
             };
         }
       if (typeof body['bookingDemoUrl'] === 'string') siteBookingDemoUrl = body['bookingDemoUrl'];
+      if (typeof body['staffBot'] === 'boolean') staffBot = body['staffBot'];
       // MKT7: сайт счётчика управляемого сайта WETOP; старый путь отвечает 409, как API
       if (body['siteManaged'] === true) site = { ...site, managed: true } as typeof site;
       // ИИ-продавец: не подключён, последний отказ (приёмка ТЗ §4.4 «продавец недоступен»)
@@ -7152,6 +7168,43 @@ createServer(async (req, res) => {
       if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите в систему' });
       // Базовая UI-организация не создаёт Business/Location нового онбординга.
       return send(200, null);
+    }
+    // STAFF-TG-20261020: своё подключение Telegram; /start в Telegram имитирует `POST /__test/staff-telegram/link`
+    if (path === '/__test/staff-telegram/link' && req.method === 'POST') {
+      if (!staffTelegramCode) return send(409, { message: 'кода нет' });
+      staffTelegramCode = null;
+      staffTelegramLink = { username: 'dana_test', linkedAt: new Date().toISOString(), siteBookings: true };
+      return send(200, staffTelegramStatus());
+    }
+    if (path === '/profile/telegram' || path.startsWith('/profile/telegram/')) {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите в систему' });
+      if (path === '/profile/telegram' && req.method === 'GET') return send(200, staffTelegramStatus());
+      if (path === '/profile/telegram/code' && req.method === 'POST') {
+        if (!staffBot) return send(503, { message: 'Бот WETOP подключается администратором платформы' });
+        staffTelegramCode = 'K7QW3MZP';
+        return send(201, {
+          code: staffTelegramCode,
+          link: `https://t.me/wetop_staff_bot?start=${staffTelegramCode}`,
+          expiresAt: new Date(Date.now() + 15 * 60_000).toISOString(),
+        });
+      }
+      if (path === '/profile/telegram' && req.method === 'PATCH') {
+        if (!staffTelegramLink) return send(404, { message: 'Telegram не подключён' });
+        if (typeof body['siteBookings'] !== 'boolean') return send(400, { message: 'siteBookings: true или false' });
+        staffTelegramLink = { ...staffTelegramLink, siteBookings: body['siteBookings'] };
+        return send(200, staffTelegramStatus());
+      }
+      if (path === '/profile/telegram' && req.method === 'DELETE') {
+        staffTelegramLink = null;
+        return send(200, staffTelegramStatus());
+      }
+      if (path === '/profile/telegram/test' && req.method === 'POST') {
+        if (!staffBot) return send(503, { message: 'Бот WETOP подключается администратором платформы' });
+        if (!staffTelegramLink) return send(404, { message: 'Telegram не подключён' });
+        return send(200, { delivered: true });
+      }
+      return send(405, { message: 'метод не поддерживается' });
     }
     if (path === '/auth/me') {
       const token = sessionOf(req as never);

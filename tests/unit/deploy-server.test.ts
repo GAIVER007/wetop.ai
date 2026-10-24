@@ -442,6 +442,34 @@ describe('контекст сборки', () => {
       expect(path.test(closed), closed).toBe(false);
   });
 
+  // STAFF-TG-20261020: Telegram доставляет обновления бота уведомлений на один путь API; остальное наружу закрыто
+  it('вебхук бота уведомлений сотрудникам наружу ровно одним путём, экран профиля и соседние пути нет', () => {
+    const rules = withoutComments(read('deploy/cloudflared.example.yml'));
+    const api = [...rules.matchAll(/- hostname: api\.wetop\.ai\n\s+path: (\S+)\n\s+service: (\S+)/g)];
+    const open = (path: string) => api.some((m) => new RegExp(m[1]!).test(path));
+    expect(open('/telegram/staff/webhook')).toBe(true);
+    for (const closed of [
+      '/telegram/staff/webhook/x',
+      '/telegram/staff/webhookx',
+      '/telegram/staff',
+      '/x/telegram/staff/webhook',
+      '/profile/telegram',
+      '/profile/telegram/code',
+      '/profile/telegram/test',
+    ])
+      expect(open(closed), closed).toBe(false);
+  });
+
+  it('токен и секрет бота уведомлений: в .env для API, в процесс стойки не уходят', () => {
+    const example = read('.env.example');
+    for (const name of ['TELEGRAM_STAFF_BOT_TOKEN', 'TELEGRAM_STAFF_WEBHOOK_SECRET'])
+      expect(example, `${name} в .env.example`).toMatch(new RegExp(`^${name}=$`, 'm'));
+    const web = withoutComments(service('web'));
+    expect(web).not.toMatch(/TELEGRAM_STAFF/);
+    // API получает .env целиком (env_file), отдельной строки в compose не нужно и секрета там быть не должно
+    expect(withoutComments(service('api'))).not.toMatch(/TELEGRAM_STAFF/);
+  });
+
   // MKT1B BOOK-3: образец туннеля обязан пропускать наружу каждый путь, который зовёт публичный виджет брони, иначе
   // на краю туннеля `/w/config` получает 404, Turnstile не рисуется и обязательная проверка отказывает каждой брони
   it('виджет брони наружу целиком: все пути, которые зовёт widget.js, проходят туннель, демо-страницы нет', () => {

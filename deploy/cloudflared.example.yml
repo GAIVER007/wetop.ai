@@ -45,6 +45,11 @@ ingress:
   - hostname: api.wetop.ai
     path: ^/channels/channex/webhook$
     service: http://api:3001
+  # Бот уведомлений сотрудникам (STAFF-TG, docs/ops/staff-telegram-bot.md): Telegram шлёт обновления на один путь, API
+  # сверяет секрет X-Telegram-Bot-Api-Secret-Token; экран «Уведомления» (/profile/telegram) наружу не выходит
+  - hostname: api.wetop.ai
+    path: ^/telegram/staff/webhook$
+    service: http://api:3001
   # ИИ-помощник (ADR-081, docs/assistant/README.md §3): наружу только чат (/widget/*) и живость (/health). Панель
   # бота и /internal/* — только внутренняя сеть wetop-internal.
   - hostname: assistant.wetop.ai

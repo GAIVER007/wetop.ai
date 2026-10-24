@@ -34,7 +34,7 @@ function sources(dir: string): Array<{ rel: string; text: string }> {
 const TOUCHES = /INCIDENTS_REPOSITORY|IncidentsRepository|systemIncident|system_incidents/;
 
 describe('инциденты сторожа не доходят до обычной организации', () => {
-  it('таблицу читают только сторож и ворота служебной роли, из бронирования с сайта — одна запись', () => {
+  it('таблицу читают только сторож и ворота служебной роли, из бронирования с сайта и уведомлений сотрудникам — одна запись', () => {
     const touching = sources(API_SRC)
       .filter((f) => TOUCHES.test(f.text))
       .map((f) => f.rel)
@@ -46,12 +46,17 @@ describe('инциденты сторожа не доходят до обычн�
       'guard/guard.service.ts',
       'guard/incidents.repository.ts',
       'health/health.module.ts',
+      'staff-telegram/staff-notify.worker.ts',
+      'staff-telegram/staff-telegram.module.ts',
       'web-booking/web-booking.module.ts',
       'web-booking/web-booking.service.ts',
     ]);
-    const booking = sources(API_SRC).find((f) => f.rel === 'web-booking/web-booking.service.ts')!.text;
-    const calls = [...booking.matchAll(/this\.incidents\.(\w+)\(/g)].map((m) => m[1]);
-    expect(new Set(calls)).toEqual(new Set(['record']));
+    // бронь с сайта и отправщик уведомлений сотрудникам (STAFF-TG-20261020) только пишут неисправность, не читают
+    for (const rel of ['web-booking/web-booking.service.ts', 'staff-telegram/staff-notify.worker.ts']) {
+      const text = sources(API_SRC).find((f) => f.rel === rel)!.text;
+      const calls = [...text.matchAll(/this\.incidents\.(\w+)\(/g)].map((m) => m[1]);
+      expect(new Set(calls), rel).toEqual(new Set(['record']));
+    }
     // Страница статуса сервиса (H14, ADR-144) публичная: читает открытые неисправности, но наружу отдаёт только виды,
     // сведённые доменной `publicStatus` в четыре слова. Ни заголовков, ни подробностей, ни объекта в ответе нет.
     const health = sources(API_SRC).find((f) => f.rel === 'health/health.module.ts')!.text;

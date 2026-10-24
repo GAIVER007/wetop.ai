@@ -250,7 +250,8 @@ API отвечал на запросы, ни один из которых не �
 2. **Выключить всё фоновое.** У копии не должно быть ни сторожа, ни опроса ленты Channex, ни очереди ARI,
    ни полной выгрузки, ни проверки webhook: `GUARD=off`, `CHANNEX_PULL=off`, `CHANNEX_OUTBOX_WORKER=off`,
    `CHANNEX_FULL_SYNC=off`, `CHANNEX_WEBHOOK_HEALTH=off`, `ANALYTICS_RETENTION=off` (суточная очистка счётчика сайта,
-   с 24.09.2026), плюс `deploy/ari.env` с `CHANNEX_ARI=off`.
+   с 24.09.2026), `STAFF_NOTIFY_WORKER=off` (уведомления сотрудникам в Telegram, с 20.10.2026), плюс `deploy/ari.env`
+   с `CHANNEX_ARI=off`.
    Иначе две копии тянут одну ленту, сторожат один адрес и чинят наперегонки.
 
 Фоновые задачи у копии не поднимать: две копии на одной базе создают гонки за одни и те же записи.

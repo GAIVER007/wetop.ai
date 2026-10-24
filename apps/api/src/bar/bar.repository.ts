@@ -5,13 +5,14 @@ import { FolioClosedError, lockOpenFolios } from '@pms/database';
 /* eslint-disable @typescript-eslint/no-explicit-any -- Prisma Client in this dirty tree is stale; remove after the shared generate step. */
 import { createHash, randomUUID } from 'node:crypto';
 import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { allocateFifo, enabledPaymentMethods, foodCashBalances, foodLocal, LUXX_APARTS_PROPERTY, resolvePaymentMethodSettings, salePriceFromMarkup, surplusUnitCost, zonedStartOfDay } from '@pms/domain';
+import { allocateFifo, checkModifierChoice, linePrice, orderConsumption, enabledPaymentMethods, foodCashBalances, foodLocal, LUXX_APARTS_PROPERTY, resolvePaymentMethodSettings, salePriceFromMarkup, surplusUnitCost, zonedStartOfDay } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyRef } from '../database/property-ref';
 import { currentLocationId, currentOrganizationId, currentVertical } from '../auth/request-context';
 import { growthPercent, monthBounds, shiftDate } from './bar-period';
 import { auditUserId } from '../accounts/actor';
 import { assertBeautyOperation, runWithBeautyWriteAuthorization } from '../beauty/access';
+import { consumeKitchenForBarSale, returnKitchenForBarSale } from '../food-service/stock.service';
 
 export interface BarReceiptInput {
   supplierId: string;
@@ -57,6 +58,9 @@ export interface BarSupplierInput {
 }
 export interface BarRetailSaleInput { productId: string; quantityUnits: bigint; method: string; idempotencyKey: string }
 export interface BarFolioSaleInput { folioId: string; productId: string; quantityUnits: bigint; idempotencyKey: string }
+/** §62.3: продажа позиции «Меню бара»: за деньги кассы (`method`) или в счёт гостя (`folioId`, только гостиница) */
+export interface BarMenuSaleInput { menuItemId: string; quantityUnits: bigint; modifierIds: string[]; method?: string; folioId?: string; idempotencyKey: string }
+export type BarMenuSaleResult = { kind: 'not_found' | 'no_cash' | 'no_folio' | 'folio_not_found' } | { kind: 'posted'; id: string; status: 'POSTED' | 'REVERSED'; chargeId?: string; revenueMinor: string; costMinor: string };
 export interface BarWriteOffInput { productId: string; quantityUnits: bigint; reason: string }
 export interface BarSupplierPaymentInput { amountMinor: bigint; method: string; note: string | null; /** ключ повтора (§50, ADR-186 M6) */ idempotencyKey: string }
 export interface BarInventoryCountInput { productId: string; actualUnits: bigint; reason: string; /** цена излишка вручную, тиын за шт (ADR-175) */ unitCostMinor: bigint | null }
@@ -85,6 +89,7 @@ export interface BarRepository {
   enabledBranchPaymentMethods(): Promise<string[] | null>;
   sellRetail(input: BarRetailSaleInput): Promise<{ kind: 'not_found' | 'no_cash' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED' | 'REVERSED'; revenueMinor: string; costMinor: string }>;
   sellToFolio(input: BarFolioSaleInput): Promise<{ kind: 'folio_not_found' | 'product_not_found' | 'no_folio' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; status: 'POSTED' | 'REVERSED'; chargeId: string; revenueMinor: string; costMinor: string }>;
+  sellMenu(input: BarMenuSaleInput): Promise<BarMenuSaleResult>;
   reverseSale(id: string, restock: boolean, reason: string): Promise<{ kind: 'not_found' | 'already_reversed' } | { kind: 'reversed'; id: string; status: 'REVERSED'; restocked: boolean }>;
   writeOff(input: BarWriteOffInput): Promise<{ kind: 'not_found' } | { kind: 'insufficient_stock'; availableUnits: bigint } | { kind: 'posted'; id: string; movementsCreated: number; costMinor: string }>;
   payReceipt(id: string, input: BarSupplierPaymentInput): Promise<{ kind: 'not_found' | 'not_posted' | 'no_cash' } | { kind: 'overpayment'; dueAmount: bigint } | { kind: 'insufficient_cash'; available: bigint } | { kind: 'paid'; id: string; receiptId: string; paidAmount: string; dueAmount: string }>;
@@ -398,9 +403,23 @@ export class PrismaBarRepository implements BarRepository {
     return { currency, purchasesMinor: purchases.toString(), supplierPaidMinor: paid.toString(), revenueMinor: revenue.toString(), costMinor: cost.toString(), grossProfitMinor: (revenue - cost).toString(), writeOffMinor: writeOff.toString(), stockCostMinor: stockCost.toString(), supplierDebtMinor: (purchases - paid).toString(), month, popular };
   }
   /** Повтор продажи тем же ключом (D-KEY): ключ уникален по филиалу (§44), исходная операция возвращается как есть */
-  private async replaySale(tx: any, locationId: string, input: BarRetailSaleInput | BarFolioSaleInput) {
+  private async replaySale(tx: any, locationId: string, input: BarRetailSaleInput | BarFolioSaleInput | BarMenuSaleInput) {
     const sale = await tx.barSale.findFirst({ where: { locationId, idempotencyKey: input.idempotencyKey }, include: { lines: true, cashOperation: { select: { method: true } }, restaurantCashOperation: { select: { method: true } } } });
     if (!sale) return null;
+    if ('menuItemId' in input) {
+      // §62.3: тот же ключ для другой позиции, количества, добавок или способа оплаты: отказ
+      const line = sale.lines[0];
+      const cashMethod = sale.cashOperation?.method ?? sale.restaurantCashOperation?.method;
+      const toFolio = Boolean(input.folioId);
+      const chosen = [...input.modifierIds].map((x) => x.toLowerCase()).sort().join(',');
+      const posted = await tx.auditLog.findFirst({ where: { entityType: 'bar_sale', entityId: sale.id, action: { in: ['bar.sale.menu_posted', 'bar.sale.menu_folio_posted'] } }, select: { after: true } });
+      const before = ((posted?.after as { modifierIds?: string[] } | null)?.modifierIds ?? []).map((x) => x.toLowerCase()).sort().join(',');
+      if (sale.lines.length !== 1 || line.menuItemId !== input.menuItemId.toLowerCase() || line.quantityUnits !== input.quantityUnits ||
+        before !== chosen ||
+        (toFolio ? sale.folioId !== input.folioId!.toLowerCase() || !sale.chargeId : sale.folioId !== null || cashMethod !== input.method))
+        throw new ConflictException('Ключ повтора уже использован для другой продажи');
+      return { kind: 'posted' as const, id: sale.id, status: sale.status as 'POSTED' | 'REVERSED', ...(sale.chargeId ? { chargeId: sale.chargeId as string } : {}), revenueMinor: sale.totalRevenue.toString(), costMinor: sale.totalCost.toString() };
+    }
     const folio = 'folioId' in input;
     const line = sale.lines[0];
     const cashMethod = sale.cashOperation?.method ?? sale.restaurantCashOperation?.method;
@@ -410,7 +429,7 @@ export class PrismaBarRepository implements BarRepository {
       throw new ConflictException('Ключ повтора уже использован для другой продажи');
     return { kind: 'posted' as const, id: sale.id, status: sale.status as 'POSTED' | 'REVERSED', ...(folio ? { chargeId: sale.chargeId as string } : {}), revenueMinor: sale.totalRevenue.toString(), costMinor: sale.totalCost.toString() };
   }
-  private async saleTransaction<T>(locationId: string, input: BarRetailSaleInput | BarFolioSaleInput, run: (tx: any) => Promise<T>): Promise<T> {
+  private async saleTransaction<T>(locationId: string, input: BarRetailSaleInput | BarFolioSaleInput | BarMenuSaleInput, run: (tx: any) => Promise<T>): Promise<T> {
     try { return await this.prisma.db.$transaction(tx=>runWithBeautyWriteAuthorization(tx,()=>run(tx))); }
     catch (error) {
       const e = error as { code?: string; meta?: { modelName?: string; target?: string[]; driverAdapterError?: { cause?: { constraint?: { index?: string } } } } };
@@ -502,6 +521,74 @@ export class PrismaBarRepository implements BarRepository {
       return { kind: 'posted' as const, id: sale.id, status: 'POSTED' as const, chargeId: charge.id, revenueMinor: revenue.toString(), costMinor: fifo.totalCostMinor.toString() };
     });
   }
+  /**
+   * «Меню бара» (§62.3, Q-KITCHEN-ALL-1 «а»): позиция меню бизнеса филиала с добавками, цена = позиция + прибавки,
+   * деньги как у продажи товара бара (касса гостиницы или филиала, у гостиницы ещё счёт гостя), склад кухни по техкарте
+   * и добавкам списывается в той же транзакции; нехватка пишется недостачей, продажа не останавливается.
+   */
+  async sellMenu(input: BarMenuSaleInput): Promise<BarMenuSaleResult> {
+    const { propertyId, locationId, vertical, timezone } = await this.scope();
+    if (input.folioId ? !propertyId : !propertyId && vertical !== 'FOOD_SERVICE' && vertical !== 'BEAUTY')
+      return { kind: input.folioId ? 'no_folio' : 'no_cash' };
+    const serviceDate = new Date(`${foodLocal(new Date(), timezone).date}T00:00:00Z`);
+    return this.saleTransaction(locationId, input, async (tx) => {
+      // одна запись склада и кассы филиала за раз, как у кассы ресторана и склада кухни
+      await tx.$queryRaw`SELECT id FROM locations WHERE id = ${locationId}::uuid FOR UPDATE`;
+      const replay = await this.replaySale(tx, locationId, input);
+      if (replay) return replay;
+      const location = await tx.location.findUniqueOrThrow({ where: { id: locationId }, select: { businessId: true } });
+      const item = await tx.menuItem.findFirst({
+        where: { id: input.menuItemId, businessId: location.businessId, active: true },
+        include: {
+          ingredients: { where: { productId: { not: null } }, select: { productId: true, normQty: true } },
+          modifierGroups: { orderBy: { sortOrder: 'asc' }, include: { group: { include: { modifiers: { orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }], include: { ingredients: { select: { productId: true, normQty: true } } } } } } } },
+        },
+      });
+      if (!item) return { kind: 'not_found' as const };
+      const groups = item.modifierGroups.filter((l: any) => l.group.active).map((l: any) => l.group);
+      let chosen;
+      let price: bigint;
+      try {
+        chosen = checkModifierChoice(groups, input.modifierIds);
+        price = linePrice(item.price, chosen.map((m) => m.priceDelta));
+      } catch (e) {
+        throw new BadRequestException(`${item.name}: ${e instanceof Error ? e.message : 'выбор недоступен'}`);
+      }
+      if (price <= 0n) throw new BadRequestException(`${item.name}: цена продажи должна быть больше нуля`);
+      const revenue = price * input.quantityUnits;
+      if (revenue > 9_223_372_036_854_775_807n) throw new BadRequestException('Сумма продажи превышает диапазон Int64');
+      const currency = await this.currency(tx, locationId);
+      this.compatible(item.currency, currency);
+      const pickedMods = groups.flatMap((g: any) => g.modifiers).filter((m: any) => chosen.some((c) => c.modifierId === m.id));
+      const label = chosen.length ? `${item.name}: ${chosen.map((c) => c.name).join(', ')}` : item.name;
+      let folio: any = null;
+      let link: Record<string, string>;
+      if (input.folioId) {
+        await tx.$queryRaw`SELECT f.id FROM folios f JOIN reservation_items i ON i.id = f.reservation_item_id JOIN reservations r ON r.id = i.reservation_id WHERE f.id = ${input.folioId}::uuid AND r.property_id = ${propertyId}::uuid AND f.status = 'OPEN' FOR UPDATE OF f`;
+        folio = await tx.folio.findFirst({ where: { id: input.folioId, status: 'OPEN', reservationItem: { reservation: { propertyId: propertyId! } } } });
+        if (!folio) return { kind: 'folio_not_found' as const };
+        this.compatible(folio.currency, currency);
+        const charge = await tx.charge.create({ data: { folioId: folio.id, kind: 'SERVICE', description: `Бар: ${label}`.slice(0, 500), quantity: Number(input.quantityUnits), unitPrice: price, amount: revenue, serviceDate, createdBy: auditUserId() } });
+        link = { folioId: folio.id, chargeId: charge.id };
+      } else {
+        const note = `Бар: ${label}`.slice(0, 500);
+        link = propertyId
+          ? { cashOperationId: (await createHotelCash(tx, { propertyId, kind: 'INCOME', method: input.method as import('../finance/finance.repository').PaymentMethod, amount: revenue, note, createdById: auditUserId() })).id }
+          : { restaurantCashOperationId: (await tx.restaurantCashOperation.create({ data: { locationId, kind: 'INCOME', method: input.method, amount: revenue, currency, note, createdById: auditUserId() } })).id };
+      }
+      // себестоимость считается после списания: продажа создаётся с нулём и уточняется той же транзакцией
+      const sale = await tx.barSale.create({ data: { propertyId, locationId, ...link, idempotencyKey: input.idempotencyKey, status: 'POSTED', currency, totalRevenue: revenue, totalCost: 0n, createdById: auditUserId() } });
+      const need = orderConsumption([{ qty: Number(input.quantityUnits), ingredients: [
+        ...item.ingredients.map((r: any) => ({ productId: r.productId, normQty: r.normQty.toString() })),
+        ...pickedMods.flatMap((m: any) => m.ingredients.map((r: any) => ({ productId: r.productId, normQty: r.normQty.toString() }))),
+      ] }]);
+      const cost = await consumeKitchenForBarSale(tx, locationId, { id: sale.id, reason: `Бар: ${label}`.slice(0, 500) }, need);
+      await tx.barSaleLine.create({ data: { saleId: sale.id, menuItemId: item.id, note: label.slice(0, 500), quantityUnits: input.quantityUnits, salePrice: price, revenue, cost } });
+      await tx.barSale.update({ where: { id: sale.id }, data: { totalCost: cost } });
+      await tx.auditLog.create({ data: { userId: auditUserId(), entityType: 'bar_sale', entityId: sale.id, action: input.folioId ? 'bar.sale.menu_folio_posted' : 'bar.sale.menu_posted', after: { menuItemId: item.id, modifierIds: input.modifierIds, quantityUnits: input.quantityUnits.toString(), revenue: revenue.toString(), cost: cost.toString(), ...(folio ? { folioId: folio.id } : {}) } } });
+      return { kind: 'posted' as const, id: sale.id, status: 'POSTED' as const, ...(link.chargeId ? { chargeId: link.chargeId } : {}), revenueMinor: revenue.toString(), costMinor: cost.toString() };
+    });
+  }
   async reverseSale(id: string, restock: boolean, reason: string) {
     const { propertyId, locationId } = await this.scope();
     return this.prisma.db.$transaction(tx=>runWithBeautyWriteAuthorization(tx,async () => {
@@ -521,6 +608,8 @@ export class PrismaBarRepository implements BarRepository {
         }
       }
       const movements = await (tx as any).barStockMovement.findMany({ where: { locationId, sourceType: 'BAR_SALE', sourceId: id, kind: 'SALE' } });
+      // §62.3: продажа позиции меню возвращает продукты склада кухни, если их вернули на склад
+      if (restock && movements.length === 0) await returnKitchenForBarSale(tx, locationId, { id, reason: `Возврат продажи бара: ${reason}` });
       if (restock) for (const movement of movements) {
         await tx.$queryRaw`SELECT id FROM bar_stock_lots WHERE id = ${movement.lotId}::uuid FOR UPDATE`;
         await (tx as any).barStockLot.update({ where: { id: movement.lotId }, data: { remainingUnits: { increment: -movement.units } } });

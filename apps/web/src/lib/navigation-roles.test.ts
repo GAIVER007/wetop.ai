@@ -45,7 +45,7 @@ describe('меню по ролям', () => {
       ['clients', ['/guests', '/reservations']],
       ['stats', ['/management/analytics', '/reports']],
       // склад на экранах бара: администратор смотрит, как все отчёты (право `reports`)
-      ['stock', ['/warehouse', '/bar', '/bar/consumables', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
+      ['stock', ['/warehouse', '/bar', '/bar/consumables', '/bar/menu', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
       ['money', ['/finance', '/reports/finance']],
       // право `desk`: хаб «Все настройки» (в нём только открытые ему ссылки) и неисправности; остальные настройки закрыты
       ['settings', ['/incidents', '/settings']],
@@ -64,6 +64,8 @@ describe('меню по ролям', () => {
       ['/warehouse', 'Обзор склада'],
       ['/bar', 'Бар'],
       ['/bar/consumables', 'Кухня'],
+      // «Меню бара» (§62.3): кофе и закуски гостиницы и салона
+      ['/bar/menu', 'Меню бара'],
       ['/bar/receipts', 'Приходы'],
       ['/bar/products', 'Номенклатура'],
       ['/bar/suppliers', 'Поставщики'],

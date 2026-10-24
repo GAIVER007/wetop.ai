@@ -49,6 +49,10 @@ import {
   parsePayAdjustment,
   parsePaySettings,
   techCardTotals,
+  menuCosting,
+  milliOf,
+  stockUnitPrice,
+  type CostingPrice,
   timeOffWindow,
   foodLocal,
   type OrderStatus,
@@ -66,7 +70,7 @@ import {
 import type { DbTx, Prisma } from '@pms/database';
 import { actorMay, currentRole, currentUserId, currentVertical } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
-import { BRANCH_CASH_VERTICALS, BRANCH_PAYROLL_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, waiterSelf, type FoodScope, type FoodVertical } from './scope';
+import { BRANCH_CASH_VERTICALS, BRANCH_PAYROLL_VERTICALS, MENU_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable, waiterSelf, type FoodScope, type FoodVertical } from './scope';
 import { assertBranchMethodsOpen } from './branch-payment-methods';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
 import { assertWeekRevision, hoursRevision, hoursRowsRevision } from '../beauty/write-contract';
@@ -301,7 +305,7 @@ export class RestaurantService {
   async categories(query: unknown) {
     // меню на чтение нужно и официанту (§33.6)
     foodMay('orders');
-    const s = await foodScope(this.prisma.db),
+    const s = await foodScope(this.prisma.db, MENU_VERTICALS),
       p = page(query);
     return paged(
       await this.prisma.db.menuCategory.findMany({
@@ -330,7 +334,7 @@ export class RestaurantService {
         station: row.station,
       });
       return row;
-    });
+    }, MENU_VERTICALS);
   }
 
   async updateCategory(idRaw: string, raw: unknown) {
@@ -358,7 +362,7 @@ export class RestaurantService {
         { name: old.name, sortOrder: old.sortOrder, active: old.active, station: old.station },
       );
       return row;
-    });
+    }, MENU_VERTICALS);
   }
 
   private menuItemView(
@@ -431,7 +435,7 @@ export class RestaurantService {
 
   async menuItems(query: unknown) {
     foodMay('orders');
-    const s = await foodScope(this.prisma.db),
+    const s = await foodScope(this.prisma.db, MENU_VERTICALS),
       p = page(query);
     // официанту (без `desk`) техкарта и себестоимость не нужны (§33.6)
     const desk = actorMay('desk');
@@ -444,9 +448,73 @@ export class RestaurantService {
     return paged(await Promise.all(rows.map((r) => this.menuItemOut(r))), p.limit);
   }
 
+  /**
+   * Себестоимость и маржа меню (§62.4, срез K4): по каждой позиции продукты по текущей цене склада кухни филиала
+   * (средняя по остатку, у заготовки цена её партий), иначе цена техкарты; добавки своей себестоимостью. Только чтение.
+   */
+  async menuCosting() {
+    foodMay('desk');
+    const s = await foodScope(this.prisma.db, MENU_VERTICALS);
+    const db = this.prisma.db;
+    const [items, products, lots] = await Promise.all([
+      db.menuItem.findMany({
+        where: { businessId: s.businessId },
+        include: {
+          category: { select: { name: true } },
+          ingredients: { orderBy: { id: 'asc' } },
+          modifierGroups: { orderBy: { sortOrder: 'asc' }, include: { group: { include: { modifiers: { where: { active: true }, orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }], include: { ingredients: { include: { product: { select: { name: true } } } } } } } } } },
+        },
+        orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+      }),
+      db.kitchenProduct.findMany({ where: { businessId: s.businessId }, select: { id: true, unit: true } }),
+      db.kitchenStockLot.findMany({ where: { locationId: s.locationId, reversedAt: null }, select: { productId: true, remainingQty: true, unitCost: true, receivedOn: true } }),
+    ]);
+    const byProduct = new Map<string, Array<{ remaining: bigint; unitCost: bigint; receivedOn: string }>>();
+    for (const l of lots) {
+      const list = byProduct.get(l.productId) ?? [];
+      list.push({ remaining: milliOf(l.remainingQty), unitCost: l.unitCost, receivedOn: l.receivedOn.toISOString() });
+      byProduct.set(l.productId, list);
+    }
+    const prices = new Map<string, CostingPrice>();
+    for (const p of products) {
+      const price = stockUnitPrice(byProduct.get(p.id) ?? []);
+      if (price !== null) prices.set(p.id, { unit: p.unit, unitCost: price });
+    }
+    const out = items.map((item) => {
+      const seen = new Set<string>();
+      const modifiers = item.modifierGroups
+        .filter((l) => l.group.active)
+        .flatMap((l) => l.group.modifiers)
+        .filter((m) => (seen.has(m.id) ? false : (seen.add(m.id), true)));
+      const c = menuCosting(
+        {
+          price: item.price,
+          ingredients: item.ingredients.map((i) => ({ productId: i.productId, name: i.name, normQty: i.normQty.toString(), unit: i.unit, unitCost: i.unitCost })),
+          modifiers: modifiers.map((m) => ({ id: m.id, name: m.name, priceDelta: m.priceDelta, ingredients: m.ingredients.map((r) => ({ productId: r.productId, name: r.product.name, normQty: r.normQty.toString() })) })),
+        },
+        prices,
+      );
+      return {
+        id: item.id,
+        name: item.name,
+        categoryName: item.category.name,
+        active: item.active,
+        priceMinor: item.price.toString(),
+        costMinor: c.costMinor.toString(),
+        profitMinor: c.profitMinor.toString(),
+        foodCostPct: c.foodCostPct,
+        marginPct: c.marginPct,
+        lines: c.lines.map((l) => ({ ...l, costMinor: l.costMinor.toString() })),
+        modifiers: c.modifiers.map((m) => ({ id: m.id, name: m.name, priceDeltaMinor: m.priceDeltaMinor.toString(), costMinor: m.costMinor.toString(), profitMinor: m.profitMinor.toString() })),
+        missing: c.missing,
+      };
+    });
+    return { currency: s.currency, items: out };
+  }
+
   async menuItem(idRaw: string) {
     foodMay('desk');
-    const s = await foodScope(this.prisma.db),
+    const s = await foodScope(this.prisma.db, MENU_VERTICALS),
       id = parsed(() => foodId(idRaw));
     const row = await this.prisma.db.menuItem.findFirst({
       where: { id, businessId: s.businessId },
@@ -485,7 +553,7 @@ export class RestaurantService {
         categoryId: row.categoryId,
       });
       return this.menuItemOut(row);
-    });
+    }, MENU_VERTICALS);
   }
 
   async updateMenuItem(idRaw: string, raw: unknown) {
@@ -524,7 +592,7 @@ export class RestaurantService {
         { name: old.name, priceMinor: old.price.toString(), active: old.active },
       );
       return this.menuItemOut(row);
-    });
+    }, MENU_VERTICALS);
   }
 
   /** Техкарта сохраняется целиком: состав заменяется одним запросом (§33.1) */
@@ -584,7 +652,7 @@ export class RestaurantService {
         include: { ingredients: true, photo: true, ...itemGroupsInclude },
       });
       return this.menuItemOut(fresh);
-    });
+    }, MENU_VERTICALS);
   }
 
   // ─── Заказы и кухня (§33.2) ───

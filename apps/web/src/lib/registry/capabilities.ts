@@ -98,6 +98,8 @@ export const CAPABILITIES: readonly Capability[] = [
   cap('warehouse', ['/warehouse'], 'reports', ALL, 'LOCATION'),
   cap('bar', ['/bar'], 'reports', ALL, 'LOCATION'),
   cap('bar-consumables', ['/bar/consumables'], 'reports', HB, 'LOCATION'),
+  // «Меню бара» (DATA_MODEL §62.3): гостиница и салон
+  cap('bar-menu', ['/bar/menu'], 'reports', HB, 'LOCATION'),
   cap('bar-products', ['/bar/products'], 'reports', ALL, 'LOCATION'),
   cap('bar-operations', ['/bar/operations'], 'reports', ALL, 'LOCATION'),
   cap('bar-receipts', ['/bar/receipts'], 'reports', ALL, 'LOCATION'),

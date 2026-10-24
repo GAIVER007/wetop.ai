@@ -42,7 +42,11 @@ import type {
   StockMovementView,
   StockProductInput,
   StockProductView,
+  PrepRecipeView,
+  PrepRecipeInput,
+  ProductionResult,
   StockReceiptInput,
+  MenuCostingReport,
 } from './food-types';
 const base = '/food-service';
 const idPath = (collection: string, id: string) =>
@@ -163,6 +167,8 @@ export const restaurantApi = {
   menuItems: (cursor?: string) =>
     getJsonPublic<FoodPage<MenuItemView>>(`${base}/menu/items${query(cursor)}`),
   menuItem: (id: string) => getJsonPublic<MenuItemView>(idPath('menu/items', id)),
+  /** §62.4 (K4): себестоимость и маржа меню по текущим ценам склада кухни */
+  menuCosting: () => getJsonPublic<MenuCostingReport>(`${base}/menu/costing`),
   createMenuItem: (body: MenuItemInput) =>
     sendJson<MenuItemView>('POST', `${base}/menu/items`, body),
   updateMenuItem: (id: string, body: Partial<MenuItemInput>) =>
@@ -271,5 +277,11 @@ export const stockApi = {
     sendJson<StockProductView>('POST', `${base}/stock/write-offs`, body),
   inventory: (body: { productId: string; actualQty: string; reason?: string | null }) =>
     sendJson<StockProductView>('POST', `${base}/stock/inventory`, body),
+  // §62 заготовки
+  prepRecipe: (id: string) => getJsonPublic<PrepRecipeView>(`${idPath('stock/products', id)}/recipe`),
+  setPrepRecipe: (id: string, body: PrepRecipeInput) =>
+    sendJson<PrepRecipeView>('PUT', `${idPath('stock/products', id)}/recipe`, body),
+  produce: (body: { productId: string; qty: string; expiresOn?: string | null }) =>
+    sendJson<ProductionResult>('POST', `${base}/stock/productions`, body),
 };
 

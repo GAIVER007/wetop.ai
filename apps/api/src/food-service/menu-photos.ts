@@ -11,7 +11,7 @@ import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { AssetImageError, processSiteImage } from '../marketing-site/asset-image';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
-import { foodMay, foodScope, foodTransaction, foodWritable } from './scope';
+import { MENU_VERTICALS, foodMay, foodScope, foodTransaction, foodWritable } from './scope';
 
 /**
  * Фото блюда (DATA_MODEL §37, ADR-167): одно на блюдо. Хранилище и обработка как у фото объекта (`hotel/property-media`):
@@ -47,7 +47,7 @@ export class MenuPhotoService {
     const id = this.itemId(idRaw);
     if (!file?.buffer?.length) throw new BadRequestException('Выберите файл: JPEG, PNG или WebP');
     const storage = this.requireStorage();
-    const s = await foodScope(this.prisma.db);
+    const s = await foodScope(this.prisma.db, MENU_VERTICALS);
     const item = await this.prisma.db.menuItem.findFirst({
       where: { id, businessId: s.businessId },
       select: { id: true },
@@ -100,7 +100,7 @@ export class MenuPhotoService {
           },
         });
         return old?.storageRef ?? null;
-      });
+      }, MENU_VERTICALS);
     } catch (error) {
       await storage.delete(key).catch(() => undefined);
       throw error;
@@ -113,7 +113,7 @@ export class MenuPhotoService {
     foodMay('property');
     await foodWritable(this.prisma.db);
     const id = this.itemId(idRaw);
-    const s = await foodScope(this.prisma.db);
+    const s = await foodScope(this.prisma.db, MENU_VERTICALS);
     const ref = await foodTransaction(this.prisma, s, async (tx) => {
       const row = await tx.menuItemPhoto.findFirst({
         where: { menuItemId: id, menuItem: { businessId: s.businessId } },
@@ -131,7 +131,7 @@ export class MenuPhotoService {
         },
       });
       return row.storageRef;
-    });
+    }, MENU_VERTICALS);
     await this.storage?.delete(ref).catch(() => undefined);
     return { deleted: true as const };
   }

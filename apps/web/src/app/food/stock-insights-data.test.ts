@@ -3,7 +3,7 @@ import type { MenuItemView, StockProductView } from '../../lib/food-types';
 import { buildStockInsights } from './stock-insights-data';
 
 const product = (id: string, name: string, onHand: string, minQty: string, low: boolean, active = true): StockProductView => ({
-  id, name, unit: 'г', minQty, active, onHand, valueMinor: '0', low, nearestExpiry: null,
+  id, name, unit: 'г', minQty, active, onHand, valueMinor: '0', low, nearestExpiry: null, kind: 'RAW' as const,
 });
 const dish = (id: string, name: string, pct: number | null, rows: Array<[string | null, string, string]>, active = true): MenuItemView => ({
   id, categoryId: 'c', name, weightGrams: null, priceMinor: '320000', currency: 'KZT', active, techNotes: null,

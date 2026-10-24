@@ -29,6 +29,8 @@ export function foodMay(permission: Permission) {
 export const BRANCH_CASH_VERTICALS = ['FOOD_SERVICE', 'BEAUTY'] as const;
 /** Склад кухни и расходников (`branch.stock`) открыт всем трём направлениям (ADR-STOCK-ALL, 21.10.2026) */
 export const BRANCH_STOCK_VERTICALS = ['FOOD_SERVICE', 'BEAUTY', 'HOSPITALITY'] as const;
+/** Меню, техкарты и добавки (`branch.menu`): у всех трёх, у гостиницы и салона «Меню бара» (DATA_MODEL §62.3) */
+export const MENU_VERTICALS = BRANCH_STOCK_VERTICALS;
 /**
  * Зарплата (`branch.payroll`): начисления у всех трёх направлений (docs/decisions/2026-10-22-hotel-staff-cabinet.md);
  * выплата из кассы филиала только там, где касса филиала (BRANCH_CASH_VERTICALS)

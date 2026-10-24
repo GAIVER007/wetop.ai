@@ -1,4 +1,5 @@
 import { foodId, foodInt, foodObject, foodText } from './food';
+import { stockQty } from './stock';
 
 /**
  * Модификаторы блюд и деление счёта (DATA_MODEL §33.7, миграция 144). Деньги bigint minor units (ADR-008).
@@ -76,6 +77,19 @@ export interface ModifierInput {
   priceDelta: bigint;
   active: boolean;
   sortOrder: number;
+  /** §62.2: продукты склада на порцию; undefined: не менять, пустой список: снять */
+  ingredients?: Array<{ productId: string; normQty: bigint }>;
+}
+
+/** §62.2: продукты добавки на одну порцию, до 20 строк, каждый продукт один раз */
+function modifierIngredients(raw: unknown): Array<{ productId: string; normQty: bigint }> {
+  if (!Array.isArray(raw) || raw.length > 20) throw new Error('Продукты добавки списком до 20');
+  const rows = raw.map((row) => {
+    const r = foodObject(row, ['productId', 'normQty']);
+    return { productId: foodId(r.productId), normQty: stockQty(r.normQty) };
+  });
+  if (new Set(rows.map((r) => r.productId)).size !== rows.length) throw new Error('Каждый продукт добавки указывается один раз');
+  return rows;
 }
 export interface ModifierGroupInput {
   name?: string;
@@ -103,7 +117,7 @@ export function parseModifierGroupInput(raw: unknown, partial = false): Modifier
       throw new Error(`Добавки группы списком до ${MODIFIERS_PER_GROUP}`);
     const names = new Set<string>();
     out.modifiers = b.modifiers.map((row, index) => {
-      const m = foodObject(row, ['id', 'name', 'priceDeltaMinor', 'active']);
+      const m = foodObject(row, ['id', 'name', 'priceDeltaMinor', 'active', 'ingredients']);
       const name = foodText(m.name, 100);
       const key = name.toLocaleLowerCase('ru');
       if (names.has(key)) throw new Error(`Добавка «${name}» повторяется`);
@@ -115,6 +129,7 @@ export function parseModifierGroupInput(raw: unknown, partial = false): Modifier
         priceDelta: delta(m.priceDeltaMinor ?? 0),
         active: m.active === undefined ? true : (m.active as boolean),
         sortOrder: index,
+        ...(m.ingredients === undefined ? {} : { ingredients: modifierIngredients(m.ingredients) }),
       };
     });
   }

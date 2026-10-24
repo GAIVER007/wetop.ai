@@ -229,14 +229,34 @@ export interface ModifierGroupView {
   sortOrder: number;
   active: boolean;
   updatedAt: string;
-  modifiers: Array<{ id: string; name: string; priceDeltaMinor: string; sortOrder: number; active: boolean }>;
+  modifiers: Array<{
+    id: string;
+    name: string;
+    priceDeltaMinor: string;
+    sortOrder: number;
+    active: boolean;
+    /** §62.2: продукты склада на порцию; старый ответ API без поля */
+    ingredients?: ModifierIngredientView[];
+  }>;
+}
+export interface ModifierIngredientView {
+  productId: string;
+  productName: string;
+  unit: string;
+  normQty: string;
 }
 export interface ModifierGroupInput {
   name: string;
   minSelect: number;
   maxSelect: number;
   active?: boolean;
-  modifiers: Array<{ id?: string | null; name: string; priceDeltaMinor: number; active?: boolean }>;
+  modifiers: Array<{
+    id?: string | null;
+    name: string;
+    priceDeltaMinor: number;
+    active?: boolean;
+    ingredients?: Array<{ productId: string; normQty: string }>;
+  }>;
 }
 /** §33.7: снимок выбранной добавки у позиции заказа */
 export interface OrderItemModifierView {

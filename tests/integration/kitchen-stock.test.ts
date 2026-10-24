@@ -176,6 +176,9 @@ describe.skipIf(!url)('Kitchen stock: RLS, ownership, append-only ledger', () =>
     rollback(async () => {
       const down = readFileSync(resolve(process.cwd(), 'packages/database/prisma/migrations/20261012000089_kitchen_stock/down.sql'), 'utf8');
       const strip = (sql: string) => sql.replace(/^[\s\S]*?BEGIN;\s*/, '').replace(/\s*COMMIT;\s*$/, '');
+      const downModifierStock = strip(
+        readFileSync(resolve(process.cwd(), 'packages/database/prisma/migrations/20261024000156_modifier_ingredients/down.sql'), 'utf8'),
+      );
       const downPrep = strip(
         readFileSync(resolve(process.cwd(), 'packages/database/prisma/migrations/20261024000155_kitchen_prep/down.sql'), 'utf8'),
       );
@@ -190,6 +193,8 @@ describe.skipIf(!url)('Kitchen stock: RLS, ownership, append-only ledger', () =>
       await db.query(`SELECT set_config('wetop.audit_purge','on',true)`);
       await db.query('DELETE FROM kitchen_stock_movements');
       // §62: техкарты заготовок ссылаются на продукты (в общей схеме могут лежать с других прогонов)
+      // §62.2: продукты добавок тоже ссылаются на продукты склада
+      await db.query('DELETE FROM menu_modifier_ingredients');
       await db.query('DELETE FROM kitchen_prep_recipe_lines');
       await db.query('DELETE FROM kitchen_prep_recipes');
       // §38: строки техкарт ссылаются на ингредиенты (в общей схеме могут лежать с других прогонов)
@@ -198,12 +203,13 @@ describe.skipIf(!url)('Kitchen stock: RLS, ownership, append-only ledger', () =>
       await db.query('DELETE FROM beauty_service_material_revisions');
       await db.query('DELETE FROM kitchen_stock_lots');
       await db.query('DELETE FROM kitchen_products');
-      // Откат идёт в обратном порядке: заготовки §62, Beauty materials, затем §38, затем сам склад.
+      // Откат идёт в обратном порядке: добавки §62.2, заготовки §62, Beauty materials, затем §38, затем сам склад.
       const downConsumption = readFileSync(
         resolve(process.cwd(), 'packages/database/prisma/migrations/20261012000093_kitchen_consumption/down.sql'),
         'utf8',
       );
       await savepoint(async () => {
+        await db.query(downModifierStock);
         await db.query(downPrep);
         await db.query(downBeautyMaterials);
         await db.query(downConsumption);

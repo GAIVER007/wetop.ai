@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { foodId, parseItemModifierGroups, parseModifierGroupInput, type Permission } from '@pms/domain';
+import { foodId, milliOf, milliText, parseItemModifierGroups, parseModifierGroupInput, type ModifierInput, type Permission } from '@pms/domain';
 import type { DbTx, Prisma } from '@pms/database';
 import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
@@ -10,7 +10,13 @@ import { foodMay, foodScope, foodTransaction, foodWritable, type FoodScope } fro
  * групп к блюду. Читает всё, у кого есть меню (`orders`), меняет право меню (`property`). Модификаторы не удаляются:
  * пропавший из списка выключается (строки заказов держат на него ссылку).
  */
-const groupInclude = { modifiers: { orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }] as Prisma.MenuModifierOrderByWithRelationInput[] } } as const;
+const groupInclude = {
+  modifiers: {
+    orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }] as Prisma.MenuModifierOrderByWithRelationInput[],
+    // §62.2: продукты склада, которые добавка списывает вместе с блюдом
+    include: { ingredients: { orderBy: { sortOrder: 'asc' as const }, include: { product: { select: { name: true, unit: true } } } } },
+  },
+} as const;
 type GroupRow = Prisma.MenuModifierGroupGetPayload<{ include: typeof groupInclude }>;
 
 export function modifierGroupView(g: GroupRow) {
@@ -29,6 +35,12 @@ export function modifierGroupView(g: GroupRow) {
       priceDeltaMinor: m.priceDelta.toString(),
       sortOrder: m.sortOrder,
       active: m.active,
+      ingredients: m.ingredients.map((i) => ({
+        productId: i.productId,
+        productName: i.product.name,
+        unit: i.product.unit,
+        normQty: milliText(milliOf(i.normQty)),
+      })),
     })),
   };
 }
@@ -69,6 +81,19 @@ export class MenuModifiersService {
     return { items: rows.map(modifierGroupView) };
   }
 
+  /** §62.2: продукты добавки только своего бизнеса; заменяются целиком, если поле прислано */
+  private async setIngredients(tx: DbTx, s: FoodScope, modifierId: string, m: ModifierInput) {
+    if (m.ingredients === undefined) return;
+    const ids = m.ingredients.map((i) => i.productId);
+    const found = await tx.kitchenProduct.count({ where: { id: { in: ids }, businessId: s.businessId } });
+    if (found !== ids.length) throw new NotFoundException(`Добавка «${m.name}»: продукт склада не найден`);
+    await tx.menuModifierIngredient.deleteMany({ where: { modifierId } });
+    if (ids.length)
+      await tx.menuModifierIngredient.createMany({
+        data: m.ingredients.map((i, sortOrder) => ({ modifierId, productId: i.productId, normQty: milliText(i.normQty), sortOrder })),
+      });
+  }
+
   private async nameFree(tx: DbTx, s: FoodScope, name: string, except?: string) {
     const same = await tx.menuModifierGroup.findFirst({
       where: { businessId: s.businessId, name: { equals: name, mode: 'insensitive' }, ...(except ? { id: { not: except } } : {}) },
@@ -81,7 +106,7 @@ export class MenuModifiersService {
     return this.write('property', async (tx, s) => {
       const b = parsed(() => parseModifierGroupInput(raw));
       await this.nameFree(tx, s, b.name!);
-      const row = await tx.menuModifierGroup.create({
+      const created = await tx.menuModifierGroup.create({
         data: {
           businessId: s.businessId,
           name: b.name!,
@@ -93,13 +118,19 @@ export class MenuModifiersService {
             create: b.modifiers!.map((m) => ({ name: m.name, priceDelta: m.priceDelta, sortOrder: m.sortOrder, active: m.active })),
           },
         },
-        include: groupInclude,
+        include: { modifiers: true },
       });
+      for (const m of b.modifiers!) {
+        const made = created.modifiers.find((x) => x.sortOrder === m.sortOrder)!;
+        await this.setIngredients(tx, s, made.id, m);
+      }
+      const row = await tx.menuModifierGroup.findUniqueOrThrow({ where: { id: created.id }, include: groupInclude });
       await this.audit(tx, s, row.id, 'food.modifier_group.created', {
         name: row.name,
         minSelect: row.minSelect,
         maxSelect: row.maxSelect,
         modifiers: row.modifiers.map((m) => `${m.name} ${m.priceDelta}`),
+        ingredients: row.modifiers.flatMap((m) => m.ingredients.map((i) => `${m.name}: ${i.product.name} ${milliText(milliOf(i.normQty))}`)),
       });
       return modifierGroupView(row);
     });
@@ -123,8 +154,10 @@ export class MenuModifiersService {
         await tx.menuModifier.updateMany({ where: { groupId: id, id: { notIn: [...listed] as string[] } }, data: { active: false } });
         for (const m of b.modifiers) {
           const data = { name: m.name, priceDelta: m.priceDelta, sortOrder: m.sortOrder, active: m.active };
-          if (m.id) await tx.menuModifier.update({ where: { id: m.id }, data });
-          else await tx.menuModifier.create({ data: { ...data, groupId: id } });
+          const saved = m.id
+            ? await tx.menuModifier.update({ where: { id: m.id }, data })
+            : await tx.menuModifier.create({ data: { ...data, groupId: id } });
+          await this.setIngredients(tx, s, saved.id, m);
         }
       }
       const activeCount = await tx.menuModifier.count({ where: { groupId: id, active: true } });

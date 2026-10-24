@@ -4104,19 +4104,37 @@ model MenuModifierGroup {
 
 /// §33.7: модификатор группы; `priceDelta` прибавка к цене блюда в minor units (может быть отрицательной)
 model MenuModifier {
-  id         String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  groupId    String                        @map("group_id") @db.Uuid
-  name       String                        @db.VarChar(100)
-  priceDelta BigInt                        @default(0) @map("price_delta")
-  sortOrder  Int                           @default(0) @map("sort_order")
-  active     Boolean                       @default(true)
-  createdAt  DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(6)
-  group      MenuModifierGroup             @relation(fields: [groupId], references: [id], onDelete: Restrict)
-  orderLines RestaurantOrderItemModifier[]
+  id          String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  groupId     String                        @map("group_id") @db.Uuid
+  name        String                        @db.VarChar(100)
+  priceDelta  BigInt                        @default(0) @map("price_delta")
+  sortOrder   Int                           @default(0) @map("sort_order")
+  active      Boolean                       @default(true)
+  createdAt   DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  group       MenuModifierGroup             @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  orderLines  RestaurantOrderItemModifier[]
+  /// §62.2: продукты склада, которые добавка списывает вместе с блюдом
+  ingredients MenuModifierIngredient[]
 
   @@index([groupId])
   @@map("menu_modifiers")
+}
+
+/// §62.2 (миграция 156): норма продукта склада на одну порцию с добавкой; продукт того же бизнеса (триггер)
+model MenuModifierIngredient {
+  id         String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  modifierId String         @map("modifier_id") @db.Uuid
+  productId  String         @map("product_id") @db.Uuid
+  normQty    Decimal        @map("norm_qty") @db.Decimal(14, 3)
+  sortOrder  Int            @default(0) @map("sort_order")
+  createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  modifier   MenuModifier   @relation(fields: [modifierId], references: [id], onDelete: Cascade)
+  product    KitchenProduct @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([modifierId, productId])
+  @@index([productId])
+  @@map("menu_modifier_ingredients")
 }
 
 /// §33.7: группы модификаторов блюда и их порядок
@@ -4231,16 +4249,17 @@ model KitchenProduct {
   minQty     Decimal            @default(0) @map("min_qty") @db.Decimal(14, 3)
   active     Boolean            @default(true)
   kind       KitchenProductKind @default(RAW)
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt  DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  business        Business                @relation(fields: [businessId], references: [id])
+  business        Business                 @relation(fields: [businessId], references: [id])
   lots            KitchenStockLot[]
   movements       KitchenStockMovement[]
   techCardRows    MenuItemIngredient[]
   beautyMaterials BeautyServiceMaterial[]
   prepRecipe      KitchenPrepRecipe?
   usedInPreps     KitchenPrepRecipeLine[]
+  modifierRows    MenuModifierIngredient[]
 
   @@unique([businessId, name])
   @@map("kitchen_products")
@@ -4263,10 +4282,10 @@ model KitchenStockLot {
   createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  location  Location               @relation(fields: [locationId], references: [id])
-  product   KitchenProduct         @relation(fields: [productId], references: [id])
-  createdBy User?                  @relation(fields: [createdById], references: [id])
-  movements KitchenStockMovement[]
+  location            Location               @relation(fields: [locationId], references: [id])
+  product             KitchenProduct         @relation(fields: [productId], references: [id])
+  createdBy           User?                  @relation(fields: [createdById], references: [id])
+  movements           KitchenStockMovement[]
   /// §62: движения ингредиентов, списанных ради этой партии заготовки
   productionMovements KitchenStockMovement[] @relation("KitchenProductionLot")
 

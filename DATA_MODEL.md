@@ -4984,3 +4984,17 @@ PK `location_id` (филиал ресторана, триггер), `enabled` (�
 - Права: техкарта заготовки как справочник (`property`, у салона матрица `stock`), «Приготовили» как приход (`desk`).
   RLS ENABLE + FORCE на новых таблицах, журнал `kitchen.prep.recipe_saved`, `kitchen.prep.produced`.
 
+### 62.2 Добавки списывают продукты (срез K2, миграция 20261024000156_modifier_ingredients; утверждено в том же «Да» 24.10.2026)
+
+- **`menu_modifier_ingredients`**: `id` uuid PK, `modifier_id` FK `menu_modifiers` (ON DELETE CASCADE),
+  `product_id` FK `kitchen_products` (ON DELETE RESTRICT), `norm_qty` numeric(14,3) > 0 на одну порцию,
+  `sort_order`. UNIQUE `(modifier_id, product_id)`; продукт того же бизнеса, что группа добавки (триггер
+  `menu_modifier_ingredient_guard`, и API). RLS ENABLE + FORCE.
+- Продукты задаются в окне группы добавок («Со склада на порцию»), до 20 на добавку. Поле не прислано: продукты не
+  меняются; пустой список: снимаются.
+- **Списание**: при «Готово» строки заказа (§38) к техкарте блюда прибавляются продукты каждой выбранной добавки
+  (по ссылке снимка `restaurant_order_item_modifiers.modifier_id`), норма × количество строки; тот же FIFO,
+  недостача и возврат при отмене, движения `CONSUMPTION` / `SHORTAGE` / `CONSUMPTION_RETURN` с `order_id`. Деньги и
+  цена строки не меняются (прибавка к цене как в §33.7).
+- Норма берётся из текущей добавки в момент «Готово» (как техкарта блюда §38): снимка норм в строке нет.
+

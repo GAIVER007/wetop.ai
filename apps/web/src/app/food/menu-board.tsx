@@ -560,7 +560,7 @@ export function MenuBoard({
           )}
         </div>
         {view === 'modifiers' ? (
-          <ModifierGroupsTable ctx={ctx} groups={modifierGroups} items={items} adding={newGroup} setAdding={setNewGroup} needle={needle} />
+          <ModifierGroupsTable ctx={ctx} groups={modifierGroups} items={items} adding={newGroup} setAdding={setNewGroup} needle={needle} stock={stock} />
         ) : view === 'categories' ? (
           <Table density="compact" caption="Категории меню" captionHidden>
             <thead>

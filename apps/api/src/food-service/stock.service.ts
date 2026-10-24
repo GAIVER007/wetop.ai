@@ -383,20 +383,34 @@ export class StockService {
   async consumeForOrder(
     tx: DbTx,
     s: FoodScope,
-    order: { id: string; number: number; items: Array<{ menuItemId: string | null; qty: number }> },
+    order: { id: string; number: number; items: Array<{ id?: string; menuItemId: string | null; qty: number }> },
   ) {
     const menuIds = [...new Set(order.items.map((i) => i.menuItemId).filter((x): x is string => !!x))];
-    if (!menuIds.length) return;
+    const lineIds = order.items.map((i) => i.id).filter((x): x is string => !!x);
+    if (!menuIds.length && !lineIds.length) return;
     const rows = await tx.menuItemIngredient.findMany({
       where: { menuItemId: { in: menuIds }, productId: { not: null } },
       select: { menuItemId: true, productId: true, normQty: true },
     });
+    // §62.2: выбранные добавки строки списывают свои продукты вместе с блюдом (снимок строки держит ссылку)
+    const chosen = lineIds.length
+      ? await tx.restaurantOrderItemModifier.findMany({
+          where: { orderItemId: { in: lineIds }, modifierId: { not: null } },
+          select: { orderItemId: true, modifier: { select: { ingredients: { select: { productId: true, normQty: true } } } } },
+        })
+      : [];
     const need = orderConsumption(
       order.items.map((i) => ({
         qty: i.qty,
-        ingredients: rows
-          .filter((r) => r.menuItemId === i.menuItemId)
-          .map((r) => ({ productId: r.productId, normQty: r.normQty.toString() })),
+        ingredients: [
+          ...rows
+            .filter((r) => r.menuItemId === i.menuItemId)
+            .map((r) => ({ productId: r.productId, normQty: r.normQty.toString() })),
+          ...chosen
+            .filter((c) => i.id && c.orderItemId === i.id)
+            .flatMap((c) => c.modifier?.ingredients ?? [])
+            .map((r) => ({ productId: r.productId, normQty: r.normQty.toString() })),
+        ],
       })),
     );
     if (!need.size) return;

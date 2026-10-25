@@ -31,21 +31,6 @@
   .rest-dash .food-section-heading a {
     font-size: var(--text-sm);
   }
-  .rest-now {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-control);
-    background: var(--surface);
-    color: var(--text-2);
-    font-size: var(--text-sm);
-  }
-  .rest-now strong {
-    color: var(--text);
-    font-variant-numeric: tabular-nums;
-  }
   .rest-dash-main {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
@@ -1589,13 +1574,6 @@
       width: 100%;
       min-width: 0;
     }
-  }
-}
-
-@layer sections {
-  /* полоса вкладок сотрудников над содержимым страницы, с отступом снизу */
-  .rest-staff-tabs {
-    margin-bottom: var(--space-4);
   }
 }
 

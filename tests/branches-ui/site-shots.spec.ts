@@ -253,7 +253,7 @@ test('день салона и план зала для лендингов', asy
   await page.setViewportSize({ width: 1440, height: 640 });
   await page.goto('/floor-plan');
   await shoot(page, 'restaurant-floor', async () => {
-    await expect(page.getByRole('heading', { name: 'План зала', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Журнал', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: /^Стол 5/ })).toBeVisible();
   });
 });

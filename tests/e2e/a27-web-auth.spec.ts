@@ -1134,7 +1134,7 @@ test('owner can open and reload protected routes through the real branch and nav
 
   for (const [route, heading] of [
     ['/today', 'Главная'],
-    ['/chessboard', 'Календарь'],
+    ['/chessboard', 'Журнал'],
     ['/reservations', 'Брони'],
   ] as const) {
     await page.goto(`${web}${route}`, { waitUntil: 'domcontentloaded' });
@@ -1172,7 +1172,7 @@ test('owner can open and reload protected routes through the real branch and nav
   const topMenu = page.locator('nav.topmenu');
   await topMenu.getByRole('link', { name: 'Календарь', exact: true }).click();
   await expect(page).toHaveURL(/\/chessboard(?:[?#]|$)/);
-  await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Журнал', exact: true })).toBeVisible();
   const sameIdentityDocument = await page.evaluate((sentinel) => {
     const values = window as unknown as {
       __a27SameIdentityDocument?: string;
@@ -1349,7 +1349,7 @@ test('mounted owner tab refreshes identity and permissions on client navigation 
     .getByRole('link', { name: 'Календарь', exact: true })
     .click();
   await expect(ownerTab).toHaveURL(/\/chessboard(?:[?#]|$)/);
-  await expect(ownerTab.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
+  await expect(ownerTab.getByRole('heading', { name: 'Журнал', exact: true })).toBeVisible();
   await ownerTab.getByRole('button', { name: 'Меню администратора' }).click();
   const staffIdentity = await ownerTab.locator('.profile-dropdown').innerText();
   expect(staffIdentity.includes('A26 synthetic owner')).toBe(false);

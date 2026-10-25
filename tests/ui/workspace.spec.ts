@@ -48,8 +48,8 @@ test('все разделы, карточки и печать открывают
   });
   const routes: Array<[string, string]> = [
     ['/today', 'Главная'],
-    ['/chessboard', 'Календарь'],
-    ['/guests?q=Тест', 'Гости'],
+    ['/chessboard', 'Журнал'],
+    ['/guests?q=Тест', 'Клиенты'],
     ['/guests/ui-guest', 'Гость'],
     [`/reservations/${booking}`, `Бронь ${booking}`],
     ['/reservations/new?unit=M03', 'Новая бронь'],
@@ -281,7 +281,7 @@ test('показатели за период: готовые отрезки и �
   // кнопки «Найти» в окне больше нет (20.10.2026): Enter открывает первый результат, поиск гостя
   await page.getByLabel('Запрос', { exact: true }).press('Enter');
   await expect(page).toHaveURL(/\/guests\?q=/);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Гости и бронирования');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Клиенты');
   await page.setViewportSize({ width: 390, height: 844 });
   const openMenu = page.getByRole('button', { name: 'Открыть меню' });
   await openMenu.click();

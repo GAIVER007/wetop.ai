@@ -13,6 +13,7 @@ import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../lib/staff-revenue
 import { revenuePeriodParam } from '../../lib/staff-revenue';
 import { serverT } from '../../i18n/server';
 import { translator } from '../../i18n';
+import { verticalCopy } from '../../lib/vertical-copy';
 import './team.css';
 
 /**
@@ -67,7 +68,8 @@ export default async function TeamPage({
       vertical={'context' in me && typeof me.context?.vertical === 'string' ? me.context.vertical : 'HOSPITALITY'}
     >
       <Page
-        title={t('Сотрудники')}
+        // заголовок равен пункту меню своего направления («Доступ и роли» у ресторана), эталон салона 25.10.2026
+        title={t(verticalCopy('context' in me ? me.context?.vertical : null).menu.team)}
         subtitle={
           me.user?.organization?.name
             ? t('{name}: команда, должности и приглашения', { name: me.user.organization.name })

@@ -125,4 +125,95 @@ describe('restaurant creation request replay', () => {
       }),
     ).toBe(1);
   });
+  it('prepayment replay records one payment, rejects excess and closes only after serving', async () => {
+    const created = await at(() =>
+      service.createOrder({
+        guestCount: 1,
+        creationRequestKey: randomUUID(),
+        items: [{ menuItemId, qty: 1 }],
+      }),
+    );
+    const partial = { amount: 400, method: 'CASH', idempotencyKey: randomUUID() };
+    const paid = await at(() => service.payOrder(created.id, partial));
+    expect(paid.paidMinor).toBe('400');
+    // Simulate a discarded response, then repeat the identical saved payload.
+    expect((await at(() => service.payOrder(created.id, partial))).paidMinor).toBe('400');
+    expect(await db.restaurantPayment.count({ where: { orderId: created.id } })).toBe(1);
+    await expect(
+      at(() =>
+        service.payOrder(created.id, { ...partial, amount: 601, idempotencyKey: randomUUID() }),
+      ),
+    ).rejects.toThrow();
+    expect(await db.restaurantPayment.count({ where: { orderId: created.id } })).toBe(1);
+    let current = await at(() =>
+      service.payOrder(created.id, { ...partial, amount: 600, idempotencyKey: randomUUID() }),
+    );
+    expect(current.paidMinor).toBe('1000');
+    expect(current.status).toBe('NEW');
+    for (const status of ['COOKING', 'READY', 'SERVED']) {
+      const previous = current;
+      current = await at(() =>
+        service.orderStatus(previous.id, {
+          expectedStatus: previous.status,
+          expectedUpdatedAt: previous.updatedAt.toISOString(),
+          status,
+        }),
+      );
+    }
+    expect(current.status).toBe('SERVED');
+    await expect(
+      at(() =>
+        service.orderStatus(created.id, {
+          expectedStatus: 'SERVED',
+          expectedUpdatedAt: created.updatedAt.toISOString(),
+          status: 'CLOSED',
+        }),
+      ),
+    ).rejects.toMatchObject({ status: 409 });
+    const close = {
+      expectedStatus: 'SERVED',
+      expectedUpdatedAt: current.updatedAt.toISOString(),
+      status: 'CLOSED',
+    };
+    const closed = await at(() => service.orderStatus(created.id, close));
+    expect(closed.status).toBe('CLOSED');
+    expect(closed.paidMinor).toBe(closed.totalMinor);
+    await expect(at(() => service.orderStatus(created.id, close))).rejects.toMatchObject({
+      status: 409,
+    });
+    expect(await db.restaurantPayment.count({ where: { orderId: created.id } })).toBe(2);
+  });
+  it('full payment after serving closes once and replay does not charge again', async () => {
+    let current = await at(() =>
+      service.createOrder({
+        guestCount: 1,
+        creationRequestKey: randomUUID(),
+        items: [{ menuItemId, qty: 1 }],
+      }),
+    );
+    for (const status of ['COOKING', 'READY', 'SERVED']) {
+      const previous = current;
+      current = await at(() =>
+        service.orderStatus(previous.id, {
+          expectedStatus: previous.status,
+          expectedUpdatedAt: previous.updatedAt.toISOString(),
+          status,
+        }),
+      );
+    }
+    const id = current.id;
+    await expect(
+      at(() =>
+        service.orderStatus(id, {
+          expectedStatus: 'SERVED',
+          expectedUpdatedAt: current.updatedAt.toISOString(),
+          status: 'CLOSED',
+        }),
+      ),
+    ).rejects.toMatchObject({ status: 409 });
+    const payment = { amount: 1000, method: 'CASH', idempotencyKey: randomUUID() };
+    expect((await at(() => service.payOrder(id, payment))).status).toBe('CLOSED');
+    expect((await at(() => service.payOrder(id, payment))).status).toBe('CLOSED');
+    expect(await db.restaurantPayment.count({ where: { orderId: id } })).toBe(1);
+  });
 });

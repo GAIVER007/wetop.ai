@@ -60,8 +60,9 @@ async function addMaster(page: Page, name: string) {
   const main = page.getByRole('main');
   await main.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   const panel = page.getByRole('dialog');
-  await panel.getByLabel('Имя мастера').fill(name);
-  await panel.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await panel.getByLabel('Имя').fill(name);
+  await panel.getByRole('combobox', { name: 'Уровень доступа' }).selectOption('NONE');
+  await panel.getByRole('button', { name: 'Добавить сотрудника', exact: true }).click();
   await expect(page.getByRole('status').filter({hasText:'Специалист создан'})).toBeVisible();
 }
 

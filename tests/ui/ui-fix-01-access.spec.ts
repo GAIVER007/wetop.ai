@@ -34,7 +34,8 @@ test('C-P1-1: recovery allows explicit organization scope', async ({ page, reque
   await expect(page.getByTestId('team-invite')).toBeEnabled();
   await page.getByTestId('team-invite').click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByLabel('Почта приглашённого').fill('ui-fix-01@example.invalid');
+  await dialog.getByLabel('Имя', { exact: true }).fill('Тестовый');
+  await dialog.getByLabel('Почта для входа').fill('ui-fix-01@example.invalid');
   await dialog.getByRole('button', { name: 'Отправить приглашение' }).click();
   await expect(page.getByTestId('invite-list')).toContainText('ui-fix-01@example.invalid');
 });
@@ -72,7 +73,8 @@ test('scope switch closes the old invitation and blocks commands until recovery'
   await page.getByTestId('team-invite').click();
   const form = page.locator('form.team-invite-form');
   await expect(form).toBeVisible();
-  await form.getByLabel('Почта приглашённого').fill('switch-pending@example.invalid');
+  await form.getByLabel('Имя', { exact: true }).fill('Тестовый');
+  await form.getByLabel('Почта для входа').fill('switch-pending@example.invalid');
   await page.evaluate(() => window.dispatchEvent(new Event('wetop-scope-switch')));
   await expect(form).not.toBeVisible();
   await expect(form).toHaveCount(0);

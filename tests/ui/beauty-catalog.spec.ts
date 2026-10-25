@@ -341,8 +341,9 @@ test('мастер добавляется, а карточка показыва�
   const main = page.getByRole('main');
   await main.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   const panel = page.getByRole('dialog');
-  await panel.getByLabel('Имя мастера').fill('Дина');
-  await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
+  await panel.getByLabel('Имя').fill('Дина');
+  await panel.getByRole('combobox', { name: 'Уровень доступа' }).selectOption('NONE');
+  await panel.getByRole('button', {name:'Добавить сотрудника',exact:true}).click();
   // Карточка мастера остаётся страницей /employees/<id>/profile (решение владельца 20.10).
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   const employeeId = page.url().split('/').at(-2)!;

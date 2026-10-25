@@ -56,3 +56,15 @@ describe('StaffAccessPicker: блок «Доступ в WETOP»', () => {
     expect(staffAccessDraft('SPECIALIST', 'a@b.kz')).toEqual({ level: 'PORTAL', allBranches: false });
   });
 });
+
+// Approved compact variant keeps permissions available without overwhelming the form.
+describe('compact staff access', () => {
+  it('matches reference with a select, no-login row and no extra disclosures', () => {
+    const html = render({ compact: true });
+    expect(html).toContain('<select');
+    expect(html).not.toContain('<details');
+    expect(html).toContain('Доступ в приложение');
+    expect(html).not.toContain('class="staff-access__level');
+    for (const label of ['Без входа', 'Личный кабинет', 'Администратор', 'Управляющий']) expect(html).toContain(label);
+  });
+});

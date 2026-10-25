@@ -3766,3 +3766,123 @@
     }
   }
 }
+
+/* Compact staff forms approved by owner, 25.10.2026. */
+@layer components {
+  .staff-access--compact {
+    padding: var(--space-4) 0 0;
+    border: 0;
+    border-top: 1px solid var(--border);
+    border-radius: 0;
+    gap: var(--space-2);
+  }
+  .staff-access--compact .staff-access__legend { padding: 0; }
+  .staff-access__permissions summary { cursor: pointer; color: var(--primary); font-size: var(--text-sm); }
+  .staff-access__permissions[open] .staff-access__details { padding-top: var(--space-2); }
+  .staff-phone { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: var(--space-2); min-width: 0; }
+  .staff-phone .inp { min-width: 0; width: 100%; }
+  .staff-form-names { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+  .employee-workspace-actions, .team-invite-form__actions {
+    border-top: 1px solid var(--border); padding-top: var(--space-4); justify-content: flex-end;
+  }
+  .employee-workspace-actions .btn--secondary, .team-invite-form__actions .btn--secondary { order: -1; }
+  .team-invite-form > .muted, .team-invite-form > .employee-workspace-note { margin: 0; }
+  @media (max-width: 600px) {
+    .staff-form-names { grid-template-columns: minmax(0, 1fr); }
+    .employee-workspace-actions .btn, .team-invite-form__actions .btn { min-height: var(--touch-target); }
+  }
+}
+
+@layer sections {
+  .ui-overlay:has(.team-invite-form) > .overlay-content,
+  .ui-overlay:has(.employee-workspace-form--creating) > .overlay-content {
+    background: var(--surface-solid);
+  }
+}
+
+/* Exact owner-selected reference, 25.10.2026. */
+@layer sections {
+  .ui-overlay.staff-form-dialog {
+    width: min(690px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    background: var(--surface-solid);
+    border-radius: 14px;
+    font-size: var(--text-lg);
+    line-height: 1.4;
+  }
+  .staff-form-dialog .overlay-heading {
+    padding: 24px 28px 12px;
+    border: 0;
+    background: var(--surface-solid);
+  }
+  .staff-form-dialog .overlay-heading h2 { font-size: var(--text-4xl); font-weight: 700; }
+  .staff-form-dialog .overlay-content { padding: 12px 28px 22px; }
+  .staff-form-dialog :is(.employee-workspace-form, .team-invite-form) { gap: 20px; }
+  .staff-form-dialog :is(h3, p, fieldset) { margin: 0; }
+  .staff-form-dialog .field { gap: 8px; color: var(--text); }
+  .staff-form-dialog :is(.field__label, .staff-access__legend, .staff-personnel-kind legend, .team-scope legend) { font-weight: 500; color: var(--text); }
+  .staff-form-dialog .staff-form-section-title { font-size: var(--text-lg); font-weight: 600; margin-top: 8px; }
+  .staff-form-dialog .field__label--required::after { color: var(--danger); }
+  .staff-form-dialog .inp {
+    min-height: 48px; height: 48px; border-color: var(--border); border-radius: 8px;
+    background-color: var(--surface-solid); padding: 10px 16px; font-size: var(--text-lg); box-shadow: none;
+  }
+  .staff-form-dialog .staff-phone { gap: 0; grid-template-columns: 94px minmax(0, 1fr); }
+  .staff-form-dialog .staff-phone select { border-radius: 8px 0 0 8px; background-color: var(--surface-muted); }
+  .staff-form-dialog .staff-phone input[type='tel'] { border-radius: 0 8px 8px 0; border-left: 0; }
+  .staff-form-dialog .employee-workspace-contacts { gap: 20px; }
+  .staff-form-dialog :is(.field__hint, .employee-workspace-note, .staff-access__invite) { color: var(--muted); font-size: var(--text-md); line-height: 1.4; }
+  .staff-form-dialog .employee-workspace-note { margin-top: -12px; }
+  .staff-personnel-kind { border: 0; border-top: 1px solid var(--border); padding: 20px 0 0; min-width: 0; }
+  .staff-personnel-kind legend { float: left; width: 100%; margin-bottom: 8px; }
+  .staff-choice-row { clear: both; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .staff-choice { display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; min-height: 50px; cursor: pointer; }
+  .staff-choice:has(input:checked), .staff-form-dialog .team-scope__row:has(input:checked) { border-color: var(--primary); color: var(--primary); background: var(--primary-soft); font-weight: 600; }
+  .staff-choice input { accent-color: var(--primary); margin: 0; width: 18px; height: 18px; flex-shrink: 0; }
+  .staff-choice--no-login { align-items: flex-start; margin-top: 8px; }
+  .staff-choice--no-login small { display: block; color: var(--muted); font-weight: 400; font-size: var(--text-sm); margin-top: 4px; }
+  .staff-form-dialog .staff-access--compact { padding: 0; border: 0; gap: 8px; }
+  .staff-form-dialog .staff-access__legend { float: left; width: 100%; margin-bottom: 8px; }
+  .staff-form-dialog .staff-access--compact > .inp { clear: both; }
+  .staff-form-dialog .team-scope { border: 0; padding: 0; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .staff-form-dialog .team-scope legend { float: left; width: 100%; margin-bottom: 8px; }
+  .staff-form-dialog .team-scope__row { border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; min-height: 50px; }
+  .staff-form-dialog .team-scope__tree { grid-column: 1 / -1; }
+  .staff-form-dialog .staff-form-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid var(--border); padding-top: 16px; margin-top: 4px; }
+  .staff-form-dialog .staff-form-footer > p { font-size: var(--text-sm); color: var(--muted); }
+  .staff-form-dialog :is(.employee-workspace-actions, .team-invite-form__actions) { border: 0; padding: 0; gap: 14px; flex-wrap: nowrap; }
+  .staff-form-dialog .staff-form-footer .btn { min-height: 46px; border-radius: 8px; padding-inline: 18px; font-size: var(--text-sm); white-space: nowrap; }
+  .staff-form-dialog .staff-form-footer .btn--secondary { background: var(--surface-muted); border-color: transparent; }
+  .staff-form-dialog .team-invite-form > .staff-access { border-top: 1px solid var(--border); padding-top: 20px; margin-top: 4px; }
+  @media (max-width: 600px) {
+    .ui-overlay.staff-form-dialog { width: calc(100vw - 16px); }
+    .staff-form-dialog .overlay-heading { padding: 20px 16px 8px; }
+    .staff-form-dialog .overlay-heading h2 { font-size: var(--text-2xl); }
+    .staff-form-dialog .overlay-content { padding: 12px 16px 20px; }
+    .staff-form-dialog .staff-form-names { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .staff-form-dialog .staff-form-footer { flex-wrap: wrap; }
+    .staff-form-dialog .staff-form-footer > p { flex-basis: 100%; }
+    .staff-form-dialog .staff-form-footer > div { margin-left: auto; }
+    .staff-choice { padding: 12px; }
+  }
+}
+
+@layer sections {
+  .staff-form-dialog :is(.employee-workspace-form--creating, .team-invite-form) {
+    display: flex;
+    flex-direction: column;
+    min-height: 760px;
+  }
+  .staff-form-dialog .staff-form-footer { margin-top: auto; }
+  @media (max-height: 920px), (max-width: 600px) {
+    .staff-form-dialog :is(.employee-workspace-form--creating, .team-invite-form) { min-height: 0; }
+    .staff-form-dialog .staff-form-footer { margin-top: 4px; }
+  }
+}
+
+@layer sections {
+  .staff-form-dialog .team-scope { display: block; }
+  .staff-form-dialog .team-scope legend { float: none; }
+  .staff-form-dialog .team-scope__tree { margin-top: 16px; }
+  .staff-form-dialog .team-scope__row input { width: 18px; height: 18px; accent-color: var(--primary); }
+}

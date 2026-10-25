@@ -3,6 +3,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useId,
   useState,
   useTransition,
   type ReactNode,
@@ -15,23 +16,22 @@ import {
   type InviteRole,
   type MembershipRole,
 } from '@pms/domain';
-import {
-  Alert,
-  Badge,
-  Button,
-  Field,
-  Input,
-  Select,
-} from '../../components/ui';
+import { Alert, Badge, Button, Field, Input, Select } from '../../components/ui';
 import { Overlay } from '../../components/overlay';
 import { StaffBoard } from '../../components/staff-board';
+import { PhoneInput } from '../../components/phone-input';
 import { StaffAccessPicker } from '../../components/staff-access-picker';
 import { ActionMenu } from '../../components/action-menu';
 import { Icon } from '../../components/icon';
 import { useConfirm } from '../../components/use-confirm';
 import type { AuthAccessStructure, AuthInvite, AuthMember } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
-import { periodTitle, revenueCells, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
+import {
+  periodTitle,
+  revenueCells,
+  unattributedLabel,
+  type StaffRevenue,
+} from '../../lib/staff-revenue';
 import { ScopeEditor } from './scope-editor';
 import {
   fromScopes,
@@ -113,8 +113,19 @@ export function TeamProvider({
     >
       {children}
       {role && (
-        <Overlay open={open} onClose={() => setOpen(false)} title={t('Пригласить сотрудника')} size="lg">
-          <InviteForm role={role} structure={structure} onDone={() => setOpen(false)} vertical={vertical} />
+        <Overlay
+          open={open}
+          onClose={() => setOpen(false)}
+          title={t('Пригласить сотрудника')}
+          className="staff-form-dialog"
+          size="md"
+        >
+          <InviteForm
+            role={role}
+            structure={structure}
+            onDone={() => setOpen(false)}
+            vertical={vertical}
+          />
         </Overlay>
       )}
     </TeamContext.Provider>
@@ -149,6 +160,8 @@ function InviteForm({
   vertical?: string;
 }) {
   const team = useContext(TeamContext);
+  const emailId = useId();
+  const phoneId = useId();
   const t = useT();
   // «Личный кабинет» привязан к карточке сотрудника: у салона и ресторана он выдаётся из формы «Новый сотрудник».
   // У гостиницы своей формы сотрудника нет, поэтому здесь все четыре уровня (кабинет горничной, решение 22.10.2026):
@@ -200,9 +213,18 @@ function InviteForm({
               return;
             }
             if (level === 'PORTAL') {
-              const invited = await inviteNewStaffAction({ employeeId: created.id, level, email: email.trim(), allBranches: false });
+              const invited = await inviteNewStaffAction({
+                employeeId: created.id,
+                level,
+                email: email.trim(),
+                allBranches: false,
+              });
               if (invited.error) {
-                setError(t('Сотрудник добавлен, но приглашение не ушло: {error}', { error: t(invited.error) }));
+                setError(
+                  t('Сотрудник добавлен, но приглашение не ушло: {error}', {
+                    error: t(invited.error),
+                  }),
+                );
                 return;
               }
             }
@@ -250,33 +272,44 @@ function InviteForm({
         });
       }}
     >
-      <p className="muted">
-        {t('Ссылка-приглашение действует 7 дней. Должность определяет, что человек видит и может на стойке.')}
-      </p>
-      <Field label={t('Имя')}>
-        <Input
-          name="inviteFirstName"
-          autoComplete="off"
-          maxLength={100}
-          value={firstName}
-          onChange={(event) => setFirstName(event.target.value)}
-        />
+      <h3 className="staff-form-section-title">{t('Контакты')}</h3>
+      <div className="staff-form-names">
+        <Field label={t('Имя')} required>
+          <Input
+            name="inviteFirstName"
+            required
+            placeholder={t('Введите имя')}
+            autoComplete="off"
+            maxLength={100}
+            value={firstName}
+            onChange={(event) => setFirstName(event.target.value)}
+          />
+        </Field>
+        <Field label={t('Фамилия')}>
+          <Input
+            name="inviteLastName"
+            placeholder={t('Введите фамилию')}
+            autoComplete="off"
+            maxLength={100}
+            value={lastName}
+            onChange={(event) => setLastName(event.target.value)}
+          />
+        </Field>
+      </div>
+      <Field label={t('Телефон')} controlId={phoneId}>
+        <PhoneInput name="invitePhone" value={phone} onChange={setPhone} disabled={pending} />
       </Field>
-      <Field label={t('Фамилия')}>
-        <Input
-          name="inviteLastName"
-          autoComplete="off"
-          maxLength={100}
-          value={lastName}
-          onChange={(event) => setLastName(event.target.value)}
-        />
-      </Field>
-      <Field label={t('Почта приглашённого')}>
+      <Field
+        label={t('Почта для входа')}
+        controlId={emailId}
+        required={level !== 'NONE'}
+        hint={level !== 'NONE' ? t('Отправим приглашение на эту почту') : undefined}
+      >
         <Input
           type="email"
           name="inviteEmail"
           autoComplete="off"
-          placeholder="name@company.kz"
+          placeholder="example@example.com"
           required={level !== 'NONE'}
           value={email}
           onChange={(event) => setEmail(event.target.value)}
@@ -284,6 +317,7 @@ function InviteForm({
       </Field>
       {/* единый блок доступа во всех направлениях (решение владельца 20.10.2026): уровни, «Увидит / Не увидит» */}
       <StaffAccessPicker
+        compact
         vertical={vertical}
         levels={levels}
         value={{ level, allBranches: !restricted }}
@@ -302,19 +336,9 @@ function InviteForm({
           {t('Управляющий приглашает администраторов; управляющих приглашает владелец.')}
         </p>
       )}
-      <Field label={t('Телефон (необязательно)')}>
-        <Input
-          type="tel"
-          name="invitePhone"
-          inputMode="tel"
-          autoComplete="off"
-          placeholder="+7 701 000 00 00"
-          value={phone}
-          onChange={(event) => setPhone(formatPhoneInput(event.target.value))}
-        />
-      </Field>
       {structure && !personal && (
         <ScopeEditor
+          compact
           structure={structure}
           roles={roles}
           restricted={restricted}
@@ -326,14 +350,21 @@ function InviteForm({
       )}
       {!structure && <Alert>{t('Сначала загрузите структуру доступа.')}</Alert>}
       {error && <Alert>{t(error)}</Alert>}
-      <div className="team-invite-form__actions">
-        <Button type="submit" disabled={pending || !structure || !team?.ready}>
-          {pending ? t('Отправляю…') : level === 'NONE' ? t('Добавить сотрудника') : t('Отправить приглашение')}
-        </Button>
-        <Button type="button" tone="secondary" onClick={onDone}>
-          {t('Отмена')}
-        </Button>
-      </div>
+      <footer className="staff-form-footer">
+        <p>{t('Приглашение действует 7 дней')}</p>
+        <div className="team-invite-form__actions">
+          <Button type="submit" disabled={pending || !structure || !team?.ready}>
+            {pending
+              ? t('Отправляю…')
+              : level === 'NONE'
+                ? t('Добавить сотрудника')
+                : t('Отправить приглашение')}
+          </Button>
+          <Button type="button" tone="secondary" onClick={onDone}>
+            {t('Отмена')}
+          </Button>
+        </div>
+      </footer>
     </form>
   );
 }
@@ -424,7 +455,11 @@ export function MembersTable({
                     {m.phone ? <span className="team-sub-role">{formatPhone(m.phone)}</span> : null}
                     <span className="team-sub-role">{t(roleLabel(m.role))}</span>
                     <span className="team-sub-role">
-                      {m.lastLoginAt ? t('был в системе {date}', { date: displayDate(m.lastLoginAt.slice(0, 10)) }) : t('ещё не входил')}
+                      {m.lastLoginAt
+                        ? t('был в системе {date}', {
+                            date: displayDate(m.lastLoginAt.slice(0, 10)),
+                          })
+                        : t('ещё не входил')}
                     </span>
                   </span>
                 </span>
@@ -435,7 +470,12 @@ export function MembersTable({
             key: 'phone',
             label: t('Телефон'),
             className: 'settings-col-wide',
-            cell: (m) => (m.phone ? <a href={`tel:${m.phone}`}>{formatPhone(m.phone)}</a> : <span className="muted">{t('не указан')}</span>),
+            cell: (m) =>
+              m.phone ? (
+                <a href={`tel:${m.phone}`}>{formatPhone(m.phone)}</a>
+              ) : (
+                <span className="muted">{t('не указан')}</span>
+              ),
           },
           {
             key: 'role',
@@ -475,7 +515,8 @@ export function MembersTable({
             key: 'login',
             label: t('Был в системе'),
             className: 'settings-col-wide',
-            cell: (m) => (m.lastLoginAt ? displayDate(m.lastLoginAt.slice(0, 10)) : t('ещё не входил')),
+            cell: (m) =>
+              m.lastLoginAt ? displayDate(m.lastLoginAt.slice(0, 10)) : t('ещё не входил'),
           },
           {
             key: 'earned',
@@ -527,10 +568,13 @@ export function MembersTable({
                               label: m.suspended ? t('Возобновить') : t('Приостановить'),
                               disabled: pending,
                               onSelect: async () => {
-                                if (m.suspended) return run(() => setMemberSuspendedAction(m.userId, false));
+                                if (m.suspended)
+                                  return run(() => setMemberSuspendedAction(m.userId, false));
                                 const ok = await ask({
                                   title: t('Приостановить доступ: {name}?', { name: who(m) }),
-                                  body: t('Человек останется в команде, но не сможет войти: его сеансы погаснут сразу. Вернуть доступ можно одним действием.'),
+                                  body: t(
+                                    'Человек останется в команде, но не сможет войти: его сеансы погаснут сразу. Вернуть доступ можно одним действием.',
+                                  ),
                                   confirmLabel: t('Приостановить'),
                                 });
                                 if (ok) run(() => setMemberSuspendedAction(m.userId, true));
@@ -547,7 +591,9 @@ export function MembersTable({
                               onSelect: async () => {
                                 const ok = await ask({
                                   title: t('Отключить: {name}?', { name: who(m) }),
-                                  body: t('Человек сразу потеряет доступ к организации: его сеансы погаснут на следующем действии. Позвать снова можно приглашением.'),
+                                  body: t(
+                                    'Человек сразу потеряет доступ к организации: его сеансы погаснут на следующем действии. Позвать снова можно приглашением.',
+                                  ),
                                   confirmLabel: t('Отключить'),
                                 });
                                 if (ok) run(() => removeMemberAction(m.userId));
@@ -643,7 +689,9 @@ function ScopeForm({
       }}
     >
       <p className="muted">
-        {t('Права даёт должность в каждом месте. Сотрудник видит и меняет данные только там, где ему назначен доступ.')}
+        {t(
+          'Права даёт должность в каждом месте. Сотрудник видит и меняет данные только там, где ему назначен доступ.',
+        )}
       </p>
       <ScopeEditor
         structure={structure}

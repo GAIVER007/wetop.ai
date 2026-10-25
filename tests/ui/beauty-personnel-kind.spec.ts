@@ -152,18 +152,19 @@ test('новый сотрудник: назначение выбирается �
     .getByRole('button', { name: 'Добавить специалиста', exact: true })
     .click();
   const dialog = page.getByRole('dialog');
-  const kind = dialog.getByLabel('Кто это');
-  await expect(kind).toHaveValue('SPECIALIST');
-  await kind.selectOption('BOTH');
-  await dialog.getByLabel('Имя мастера').fill('Ержан Новый');
+  const kind = dialog.getByRole('radio', { name: 'Специалист', exact: true });
+  await expect(kind).toBeChecked();
+  await dialog.getByRole('radio', { name: 'Другой сотрудник', exact: true }).check();
+  await dialog.getByLabel('Имя').fill('Ержан Новый');
   // без почты по умолчанию «Без входа»: приглашение не нужно (уровни доступа, 20.10.2026)
-  await expect(dialog.getByTestId('staff-access').getByRole('radio', { name: /^Без входа/ })).toBeChecked();
-  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await expect(dialog.getByTestId('staff-access').getByRole('combobox', { name: 'Уровень доступа' })).toHaveValue('NONE');
+  await dialog.getByRole('combobox', { name: 'Уровень доступа' }).selectOption('NONE');
+  await dialog.getByRole('button', { name: 'Добавить сотрудника', exact: true }).click();
   // карточка мастера остаётся отдельной страницей (решение владельца 20.10.2026)
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/, { timeout: 90_000 });
   await page.goto('/employees');
-  await expect(tablist(page).getByRole('tab')).toHaveText(['Все1', 'Специалисты1', 'Другие сотрудники1']);
-  await expect(panel(page).getByLabel('Назначение: Ержан Новый')).toHaveValue('BOTH');
+  await expect(tablist(page).getByRole('tab')).toHaveText(['Все1', 'Специалисты0', 'Другие сотрудники1']);
+  await expect(panel(page).getByLabel('Назначение: Ержан Новый')).toHaveValue('OTHER_EMPLOYEE');
 });
 
 // доступ при добавлении (решение владельца 20.10.2026, docs/decisions/2026-10-20-staff-access-levels.md)
@@ -178,35 +179,33 @@ test('новый специалист: «Доступ в WETOP», по умол�
   const access = dialog.getByTestId('staff-access');
   await expect(access.getByRole('group', { name: 'Доступ в WETOP' }).or(access)).toBeVisible();
   // четыре уровня; без почты войти нельзя, поэтому пока почты нет, «Без входа»; почта включает кабинет специалиста
-  await expect(access.locator('[data-level]')).toHaveCount(4);
-  await expect(access.getByRole('radio', { name: /^Без входа/ })).toBeChecked();
+  await expect(access.getByRole('option')).toHaveCount(4);
+  await expect(access.getByRole('combobox', { name: 'Уровень доступа' })).toHaveValue('PORTAL');
   await dialog.getByLabel('Почта').fill('karina@example.invalid');
-  await expect(access.getByRole('radio', { name: /^Личный кабинет/ })).toBeChecked();
-  await expect(access.getByTestId('staff-access-details')).toContainText('Свои записи');
-  await expect(access.getByTestId('staff-access-details')).toContainText('Не увидит');
-  await expect(access.getByRole('radio', { name: /^Только филиал/ })).toBeChecked();
-  await expect(access.getByRole('radio', { name: 'Все филиалы' })).toBeVisible();
-  // другой сотрудник: по умолчанию без входа, пока владелец сам не выбрал уровень
-  await dialog.getByLabel('Кто это').selectOption('OTHER_EMPLOYEE');
-  await expect(access.getByRole('radio', { name: /^Без входа/ })).toBeChecked();
+  await expect(access.getByRole('combobox', { name: 'Уровень доступа' })).toHaveValue('PORTAL');
   await expect(access.getByTestId('staff-access-details')).toHaveCount(0);
-  await dialog.getByLabel('Кто это').selectOption('SPECIALIST');
-  await expect(access.getByRole('radio', { name: /^Личный кабинет/ })).toBeChecked();
+  await expect(access.getByRole('radio', { name: /^Только филиал/ })).toHaveCount(0);
+  // другой сотрудник: по умолчанию без входа, пока владелец сам не выбрал уровень
+  await dialog.getByRole('radio', { name: 'Другой сотрудник', exact: true }).check();
+  await expect(access.getByRole('combobox', { name: 'Уровень доступа' })).toHaveValue('NONE');
+  await expect(access.getByTestId('staff-access-details')).toHaveCount(0);
+  await dialog.getByRole('radio', { name: 'Специалист', exact: true }).check();
+  await expect(access.getByRole('combobox', { name: 'Уровень доступа' })).toHaveValue('PORTAL');
   // администратор: другой список «увидит»
-  await access.getByRole('radio', { name: /^Администратор/ }).check();
-  await expect(access.getByTestId('staff-access-details')).toContainText('Клиенты');
-  await access.getByRole('radio', { name: /^Личный кабинет/ }).check();
-  await expect(access.getByTestId('staff-access-invite')).toContainText('karina@example.invalid');
+  await access.getByRole('combobox', { name: 'Уровень доступа' }).selectOption('STAFF');
+  await expect(access).toContainText('Сможет выполнять ежедневную работу');
+  await access.getByRole('combobox', { name: 'Уровень доступа' }).selectOption('PORTAL');
+  await expect(dialog.getByLabel('Почта для входа')).toHaveValue('karina@example.invalid');
   await page.screenshot({ path: `${SNAPSHOTS}/staff-access-beauty-1440.png`, fullPage: true });
   // выбранный вручную кабинет без почты не создаёт: подсказка словами
-  await dialog.getByLabel('Имя мастера').fill('Карина Доступ');
+  await dialog.getByLabel('Имя').fill('Карина Доступ');
   await dialog.getByLabel('Почта').fill('');
-  await expect(access.getByRole('radio', { name: /^Личный кабинет/ })).toBeChecked();
-  await expect(access.getByTestId('staff-access-invite')).toContainText('Укажите почту');
-  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
-  await expect(dialog).toContainText('Для входа в WETOP укажите почту');
+  await expect(access.getByRole('combobox', { name: 'Уровень доступа' })).toHaveValue('PORTAL');
+  await expect(dialog.getByLabel('Почта для входа')).toHaveAttribute('required', '');
+  await dialog.getByRole('button', { name: 'Создать и пригласить', exact: true }).click();
+  expect(await dialog.getByLabel('Почта для входа').evaluate((input: HTMLInputElement) => input.validity.valueMissing)).toBe(true);
   await dialog.getByLabel('Почта').fill('karina@example.invalid');
-  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await dialog.getByRole('button', { name: 'Создать и пригласить', exact: true }).click();
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/, { timeout: 90_000 });
   // приглашение ушло с ролью «личный кабинет», сотрудником и только этим филиалом
   const invites = (await (await request.get(`${FIXTURE_API}/__test/invites`)).json()) as Array<{

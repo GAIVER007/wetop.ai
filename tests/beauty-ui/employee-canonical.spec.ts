@@ -60,8 +60,9 @@ test('create, canonical links and legacy addresses use one full employee profile
   await page.goto('/employees');
   await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   const creation = page.getByRole('dialog', { name: 'Новый специалист', exact: true });
-  await creation.getByLabel('Имя мастера', { exact: true }).fill('Тестовый новый мастер');
-  await creation.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await creation.getByLabel('Имя', { exact: true }).fill('Тестовый новый мастер');
+  await creation.getByRole('combobox', { name: 'Уровень доступа' }).selectOption('NONE');
+  await creation.getByRole('button', { name: 'Добавить сотрудника', exact: true }).click();
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   const createdUrl = page.url();
   const id = createdUrl.split('/').at(-2)!;
@@ -138,7 +139,7 @@ test('lost create response is recovered once and redirects to the saved full pro
   await page.goto('/employees');
   await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   const creation = page.getByRole('dialog', { name: 'Новый специалист', exact: true });
-  await creation.getByLabel('Имя мастера').fill('Тестовый потерянный ответ');
+  await creation.getByLabel('Имя').fill('Тестовый потерянный ответ');
   let intercepted = false;
   let finishLostResponse = () => {};
   const lostResponse = new Promise<void>((resolve) => { finishLostResponse = resolve; });
@@ -149,7 +150,8 @@ test('lost create response is recovered once and redirects to the saved full pro
     await route.abort('failed');
     finishLostResponse();
   });
-  await creation.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await creation.getByRole('combobox', { name: 'Уровень доступа' }).selectOption('NONE');
+  await creation.getByRole('button', { name: 'Добавить сотрудника', exact: true }).click();
   await expect.poll(async () => (await employees(request, fixture.headers)).length).toBe(1);
   await lostResponse;
   await page.unroute('**/employees');
@@ -165,7 +167,7 @@ test('dirty creation still uses the save-before-leaving guard', async ({ page, r
   await page.goto('/employees');
   await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   const creation = page.getByRole('dialog', { name: 'Новый специалист', exact: true });
-  await creation.getByLabel('Имя мастера').fill('Тестовый мастер перед закрытием');
+  await creation.getByLabel('Имя').fill('Тестовый мастер перед закрытием');
   await creation.getByRole('button', { name: 'Закрыть: Новый специалист' }).click();
   const confirm = page.getByRole('dialog', { name: 'Несохранённые изменения', exact: true });
   await confirm.getByRole('button', { name: 'Сохранить и перейти', exact: true }).click();

@@ -1,3 +1,4 @@
+import { PhoneInputExample } from '../../components/phone-input';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { Page } from '../../components/page';
@@ -465,7 +466,10 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
             </Field>
           </FormGrid>
         </State>
-        <State name="disabled" note="required не задан: прежний вид, пока форма не переведена; плотность compact">
+        <State
+          name="disabled"
+          note="required не задан: прежний вид, пока форма не переведена; плотность compact"
+        >
           <FormGrid columns={3} density="compact">
             <Field label="Телефон">
               <Input />
@@ -500,7 +504,10 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
             />
           </form>
         </State>
-        <State name="error" note="ошибку называет экран: у поля (errors.to) или у отрезка (errors.period)">
+        <State
+          name="error"
+          note="ошибку называет экран: у поля (errors.to) или у отрезка (errors.period)"
+        >
           <form className="kit-form-inline" action="#">
             <PeriodPicker
               from="2026-09-24"
@@ -624,7 +631,10 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
             </tbody>
           </Table>
         </State>
-        <State name="default" note="новый вход: плотная, липкие шапка и колонка, скрытая подпись (DS1c)">
+        <State
+          name="default"
+          note="новый вход: плотная, липкие шапка и колонка, скрытая подпись (DS1c)"
+        >
           <Table
             size="sm"
             density="compact"
@@ -863,7 +873,11 @@ function Kit({ theme }: { theme: 'light' | 'dark' | 'contrast' }) {
         <State name="default" note="выключатель, чип-флажок, поле со значком">
           <div className="kit-row">
             <Switch name="kit-switch-off" label="Можно с питомцами" />
-            <CheckChip name="kit-chip" value="wifi" icon={<Icon name="wifi" width={16} height={16} />}>
+            <CheckChip
+              name="kit-chip"
+              value="wifi"
+              icon={<Icon name="wifi" width={16} height={16} />}
+            >
               Wi-Fi
             </CheckChip>
             <IconField icon="phone">
@@ -1376,6 +1390,10 @@ export default function DesignSystemPage() {
       subtitle="Компоненты стойки в восьми состояниях, светлая, тёмная и контрастная темы. Правила: DESIGN.md. Только при разработке."
       width="full"
     >
+      <section aria-label="Телефон с кодом страны">
+        <h2>Телефон с кодом страны</h2>
+        <PhoneInputExample />
+      </section>
       <ThemeSwitcher>
         <div className="kit-theme" data-theme="light" data-testid="kit-light">
           <h2 className="kit-theme__title">Светлая тема</h2>

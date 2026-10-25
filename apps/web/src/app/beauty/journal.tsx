@@ -709,6 +709,7 @@ export function JournalBoard({
               columns={columns}
               selected={day.appointments.find((r) => r.id === picked) ?? null}
               nowMinutes={nowMinutes}
+              currency={day.location.currency}
               canUpdate={canUpdate}
               onOpen={(row) => setPanel({ kind: 'card', row })}
               onDone={() => router.refresh()}

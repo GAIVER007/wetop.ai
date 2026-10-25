@@ -92,6 +92,9 @@ describe('деньги за день', () => {
   it('бонусы и сертификат в «получено» не входят: это не деньги в кассе (paidMinor API их включает)', () => {
     expect(dayMoney([row({ status: 'DONE', priceMinor: '1000000', paidMinor: '1000000', paidLoyaltyMinor: '300000' })])).toEqual({ received: 700000n, waiting: 0n, currency: 'KZT' });
   });
+  it('пустой день в валюте филиала, а не в тенге (салон в Катаре видел «0 ₸»)', () => {
+    expect(dayMoney([], 'QAR')).toEqual({ received: 0n, waiting: 0n, currency: 'QAR' });
+  });
 });
 
 describe('shortName: имя мастера в узкой колонке (5+ мастеров)', () => {

@@ -232,7 +232,14 @@ export class BeautyAppointmentsService {
     }
 
     const employees = await this.prisma.db.employee.findMany({
-      where: { businessId: scope.businessId, status: 'ACTIVE', locations: { some: { locationId } } },
+      where: {
+        businessId: scope.businessId,
+        status: 'ACTIVE',
+        locations: { some: { locationId } },
+        // «другой сотрудник» (администратор, кассир) клиентов не принимает: колонкой журнала не идёт.
+        // Его старые записи журнал всё равно покажет колонкой «(не принимает)» (calendarColumns на стойке).
+        OR: [{ personnelKind: null }, { personnelKind: { not: 'OTHER_EMPLOYEE' } }],
+      },
       orderBy: { name: 'asc' },
       select: {
         id: true,

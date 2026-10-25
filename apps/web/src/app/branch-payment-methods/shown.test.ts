@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { branchMethodsAll, branchMethodsShown } from './shown';
+import { branchMethodsAll, branchMethodsShown, cashMethodsShown } from './shown';
 
 const ALL = ['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL'] as const;
 
@@ -24,5 +24,24 @@ describe('способы в форме приёма денег филиала (�
     expect(branchMethodsAll(withOther, null)).toEqual([...ALL]);
     expect(branchMethodsAll(withOther, ['CASH', 'OTHER'])).toEqual([...withOther]);
     expect(branchMethodsAll(withOther, ['CASH'], ['OTHER'])).toEqual([...withOther]);
+  });
+});
+
+describe('способы в остатках кассы, сверке и расходе филиала', () => {
+  const balances = [
+    { method: 'CASH', balanceMinor: '50000' },
+    { method: 'KASPI', balanceMinor: '0' },
+    { method: 'HALYK', balanceMinor: '1200' },
+    { method: 'BANK_TRANSFER_LEGAL', balanceMinor: '0' },
+  ];
+  it('выключенный способ с нулём не показывается (салону в Катаре не нужен Kaspi с 0)', () => {
+    expect(cashMethodsShown(balances, ['CASH', 'BANK_TRANSFER_LEGAL']).map((b) => b.method)).toEqual([
+      'CASH',
+      'HALYK',
+      'BANK_TRANSFER_LEGAL',
+    ]);
+  });
+  it('выключенный способ с деньгами остаётся: деньги не прячем, их можно перевести или потратить', () => {
+    expect(cashMethodsShown(balances, ['CASH']).map((b) => b.method)).toContain('HALYK');
   });
 });

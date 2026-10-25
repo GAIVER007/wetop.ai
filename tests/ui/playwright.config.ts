@@ -8,6 +8,8 @@ const repoRoot = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const isolated = prepareIsolatedUiWorkers(repoRoot);
 const selectedWorkers = selectUiRuntimes(isolated.workers, process.env.UI_RUNTIME_WORKERS);
 const uiExecutable = process.env.UI_BROWSER_EXECUTABLE || process.env.CHROMIUM_PATH;
+// медленный общий сервер: первая компиляция /today без кэша Turbopack дольше двух минут; на GitHub умолчание
+const serverTimeout = Number(process.env.UI_WEB_SERVER_TIMEOUT_MS) || 120_000;
 const fontResponses = process.env.NEXT_FONT_GOOGLE_MOCKED_RESPONSES;
 type WebServer = {
   command: string;
@@ -58,7 +60,7 @@ const webServers = selectedWorkers.flatMap((worker): WebServer[] => [
     },
     url: `${worker.webOrigin}/today`,
     reuseExistingServer: false,
-    timeout: 120_000,
+    timeout: serverTimeout,
   },
   {
     command: `npm exec -w apps/site -- next dev --webpack --port ${worker.sitePort} --hostname 127.0.0.1`,
@@ -71,7 +73,7 @@ const webServers = selectedWorkers.flatMap((worker): WebServer[] => [
     },
     url: worker.siteOrigin,
     reuseExistingServer: false,
-    timeout: 120_000,
+    timeout: serverTimeout,
   },
 ]);
 

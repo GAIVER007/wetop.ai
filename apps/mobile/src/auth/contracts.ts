@@ -32,7 +32,7 @@ export interface AccessApi {
   food(
     token: string,
     scope: string,
-    action: 'tables' | 'orders',
+    action: 'tables' | 'orders' | 'categories' | 'items',
     cursor?: string,
   ): Promise<unknown>;
   reset(email: string): Promise<void>;

@@ -196,7 +196,10 @@ export class SessionController {
       return;
     await this.run(() => this.resolve(this.epoch, id));
   }
-  async readFood(action: 'tables' | 'orders', cursor?: string): Promise<unknown> {
+  async readFood(
+    action: 'tables' | 'orders' | 'categories' | 'items',
+    cursor?: string,
+  ): Promise<unknown> {
     const current = this.state;
     const token = this.token;
     const epoch = this.epoch;

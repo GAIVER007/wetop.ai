@@ -138,6 +138,10 @@ function RestaurantWorkspace({ personal, name }: { personal: boolean; name: stri
         ListHeaderComponent={
           <View style={{ gap: 16, paddingBottom: 8 }}>
             <ActionButton secondary label="В кабинет" onPress={() => router.replace('/')} />
+            <ActionButton
+              label="Меню кухни и бара"
+              onPress={() => router.push('/restaurant-menu')}
+            />
             <View style={{ gap: 6 }}>
               <Text accessibilityRole="header" style={{ ...title, fontSize: 28 }}>
                 {personal ? 'Мои заказы' : 'Работа ресторана'}

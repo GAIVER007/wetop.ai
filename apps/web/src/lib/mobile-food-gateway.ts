@@ -8,10 +8,13 @@ const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 const UUID_RE = new RegExp(`^${UUID}$`, 'i');
 const LOCATION_SCOPE = new RegExp(`^business=${UUID};location=${UUID}$`, 'i');
 const MINOR_UNITS = /^\d+$/;
+const SIGNED_MINOR_UNITS = /^-?\d+$/;
 
 const ACTIONS = {
   tables: '/food-service/waiter/tables',
   orders: '/food-service/orders',
+  categories: '/food-service/menu/categories',
+  items: '/food-service/menu/items',
 } as const;
 
 type FoodAction = keyof typeof ACTIONS;
@@ -55,6 +58,25 @@ function minorUnits(value: unknown): string {
   const result = string(value);
   if (!MINOR_UNITS.test(result)) throw new InvalidUpstreamResponse();
   return result;
+}
+
+function signedMinorUnits(value: unknown): string {
+  const result = string(value);
+  if (!SIGNED_MINOR_UNITS.test(result)) throw new InvalidUpstreamResponse();
+  return result;
+}
+
+function nullableInteger(value: unknown, minimum = 0): number | null {
+  return value === null ? null : integer(value, minimum);
+}
+
+function nullableNonEmptyString(value: unknown): string | null {
+  return value === null ? null : nonEmptyString(value);
+}
+
+function station(value: unknown): 'KITCHEN' | 'BAR' {
+  if (value !== 'KITCHEN' && value !== 'BAR') throw new InvalidUpstreamResponse();
+  return value;
 }
 
 function nullableNamed(value: unknown): JsonRecord | null {
@@ -123,6 +145,79 @@ function ordersDto(value: unknown): JsonRecord {
   return { items: source.items.map(orderDto), nextCursor };
 }
 
+function nextCursorOf(source: JsonRecord): string | null {
+  const nextCursor = source.nextCursor;
+  if (nextCursor !== null && (typeof nextCursor !== 'string' || !UUID_RE.test(nextCursor)))
+    throw new InvalidUpstreamResponse();
+  return nextCursor;
+}
+
+function categoriesDto(value: unknown): JsonRecord {
+  const source = record(value);
+  if (!Array.isArray(source.items)) throw new InvalidUpstreamResponse();
+  return {
+    items: source.items.map((entry) => {
+      const category = record(entry);
+      return {
+        id: nonEmptyString(category.id),
+        name: nonEmptyString(category.name),
+        sortOrder: integer(category.sortOrder, Number.MIN_SAFE_INTEGER),
+        active: boolean(category.active),
+        station: station(category.station),
+      };
+    }),
+    nextCursor: nextCursorOf(source),
+  };
+}
+
+function modifierGroupDto(value: unknown): JsonRecord {
+  const group = record(value);
+  if (!Array.isArray(group.modifiers)) throw new InvalidUpstreamResponse();
+  const minSelect = integer(group.minSelect);
+  const maxSelect = integer(group.maxSelect, 1);
+  const required = boolean(group.required);
+  if (minSelect > maxSelect || required !== (minSelect >= 1)) throw new InvalidUpstreamResponse();
+  return {
+    id: nonEmptyString(group.id),
+    name: nonEmptyString(group.name),
+    minSelect,
+    maxSelect,
+    required,
+    modifiers: group.modifiers.map((entry) => {
+      const modifier = record(entry);
+      return {
+        id: nonEmptyString(modifier.id),
+        name: nonEmptyString(modifier.name),
+        priceDeltaMinor: signedMinorUnits(modifier.priceDeltaMinor),
+      };
+    }),
+  };
+}
+
+function menuItemDto(value: unknown): JsonRecord {
+  const item = record(value);
+  if (!Array.isArray(item.modifierGroups)) throw new InvalidUpstreamResponse();
+  return {
+    id: nonEmptyString(item.id),
+    categoryId: nonEmptyString(item.categoryId),
+    name: nonEmptyString(item.name),
+    weightGrams: nullableInteger(item.weightGrams, 1),
+    priceMinor: minorUnits(item.priceMinor),
+    currency: nonEmptyString(item.currency),
+    active: boolean(item.active),
+    sortOrder: integer(item.sortOrder, Number.MIN_SAFE_INTEGER),
+    updatedAt: nonEmptyString(item.updatedAt),
+    photoUrl: nullableNonEmptyString(item.photoUrl),
+    modifierGroups: item.modifierGroups.map(modifierGroupDto),
+  };
+}
+
+function menuItemsDto(value: unknown): JsonRecord {
+  const source = record(value);
+  if (!Array.isArray(source.items)) throw new InvalidUpstreamResponse();
+  return { items: source.items.map(menuItemDto), nextCursor: nextCursorOf(source) };
+}
+
 function bearerOf(request: Request): string | null {
   const authorization = request.headers.get('authorization') ?? '';
   if (!authorization.startsWith('Bearer ')) return null;
@@ -150,9 +245,9 @@ function upstreamPath(request: Request, action: FoodAction): string | Response {
     return json({ message: 'Некорректный запрос' }, 400);
   const cursor = cursorValues[0];
   if (cursor !== undefined && !UUID_RE.test(cursor)) return json({ message: 'Некорректный запрос' }, 400);
-  const query = new URLSearchParams({ open: '1', limit: '100' });
+  const query = new URLSearchParams(action === 'orders' ? { open: '1', limit: '100' } : { limit: '100' });
   if (cursor) query.set('cursor', cursor);
-  return `${ACTIONS.orders}?${query.toString()}`;
+  return `${ACTIONS[action]}?${query.toString()}`;
 }
 
 function endpoint(env: MobileFoodGatewayEnv, path: string): string | null {
@@ -261,7 +356,10 @@ export async function handleMobileFoodGateway(
   }
 
   try {
-    return json(action === 'tables' ? tablesDto(parsed) : ordersDto(parsed), 200);
+    if (action === 'tables') return json(tablesDto(parsed), 200);
+    if (action === 'orders') return json(ordersDto(parsed), 200);
+    if (action === 'categories') return json(categoriesDto(parsed), 200);
+    return json(menuItemsDto(parsed), 200);
   } catch {
     return json({ message: 'Некорректный ответ сервера' }, 502);
   }

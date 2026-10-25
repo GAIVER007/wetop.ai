@@ -132,6 +132,93 @@ describe('mobile food gateway boundary', () => {
     });
   });
 
+  it('filters paged menu categories and keeps the verified station field', async () => {
+    const fetcher = vi.fn(async (url: string) => {
+      expect(url).toBe(`http://127.0.0.1:3001/food-service/menu/categories?limit=100&cursor=${L}`);
+      return upstream({
+        items: [{
+          id: 'category-1', businessId: B, name: 'Drinks', sortOrder: 2,
+          active: true, station: 'BAR', createdAt: 'drop', updatedAt: 'drop',
+        }],
+        nextCursor: L,
+        internal: 'drop',
+      });
+    });
+    const response = await handleMobileFoodGateway(
+      request(`categories?cursor=${L}`, { headers: authorized() }),
+      'categories', ENABLED, fetcher,
+    );
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      items: [{ id: 'category-1', name: 'Drinks', sortOrder: 2, active: true, station: 'BAR' }],
+      nextCursor: L,
+    });
+  });
+
+  it('filters paged menu items, photos and active modifier choices without exposing tech cards', async () => {
+    const fetcher = vi.fn(async (url: string) => {
+      expect(url).toBe('http://127.0.0.1:3001/food-service/menu/items?limit=100');
+      return upstream({
+        items: [{
+          id: 'menu-1', categoryId: 'category-1', name: 'Coffee', weightGrams: null,
+          priceMinor: '900719925474099300', currency: 'KZT', active: true, techNotes: 'drop',
+          sortOrder: 1, updatedAt: '2026-10-24T10:00:00.000Z',
+          photoUrl: 'https://cdn.example.test/coffee.jpg?signature=temporary',
+          modifierGroupIds: ['group-1'], ingredients: [{ secret: 'drop' }], totals: { costMinor: 'drop' },
+          modifierGroups: [{
+            id: 'group-1', name: 'Milk', minSelect: 0, maxSelect: 2, required: false,
+            internal: 'drop', modifiers: [
+              { id: 'modifier-1', name: 'Oat', priceDeltaMinor: '20000', sortOrder: 0, active: true },
+              { id: 'modifier-2', name: 'No milk', priceDeltaMinor: '-10000', sortOrder: 1, active: true },
+            ],
+          }],
+        }],
+        nextCursor: null,
+      });
+    });
+    const response = await handleMobileFoodGateway(
+      request('items', { headers: authorized() }),
+      'items', ENABLED, fetcher,
+    );
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      items: [{
+        id: 'menu-1', categoryId: 'category-1', name: 'Coffee', weightGrams: null,
+        priceMinor: '900719925474099300', currency: 'KZT', active: true, sortOrder: 1,
+        updatedAt: '2026-10-24T10:00:00.000Z',
+        photoUrl: 'https://cdn.example.test/coffee.jpg?signature=temporary',
+        modifierGroups: [{
+          id: 'group-1', name: 'Milk', minSelect: 0, maxSelect: 2, required: false,
+          modifiers: [
+            { id: 'modifier-1', name: 'Oat', priceDeltaMinor: '20000' },
+            { id: 'modifier-2', name: 'No milk', priceDeltaMinor: '-10000' },
+          ],
+        }],
+      }],
+      nextCursor: null,
+    });
+  });
+
+  it('rejects malformed menu money and modifier DTOs', async () => {
+    const fetcher = vi.fn(async () => upstream({
+      items: [{
+        id: 'menu-1', categoryId: 'category-1', name: 'Coffee', weightGrams: 200,
+        priceMinor: '10000', currency: 'KZT', active: true, sortOrder: 1,
+        updatedAt: '2026-10-24T10:00:00.000Z', photoUrl: null,
+        modifierGroups: [{
+          id: 'group-1', name: 'Milk', minSelect: 0, maxSelect: 1, required: false,
+          modifiers: [{ id: 'modifier-1', name: 'Oat', priceDeltaMinor: 1.5 }],
+        }],
+      }],
+      nextCursor: null,
+    }));
+    const response = await handleMobileFoodGateway(
+      request('items', { headers: authorized() }),
+      'items', ENABLED, fetcher,
+    );
+    expect(response.status).toBe(502);
+  });
+
   it('rejects malformed cursors without calling upstream', async () => {
     const fetcher = vi.fn();
     const response = await handleMobileFoodGateway(

@@ -265,12 +265,12 @@ function OverviewScreen({ timezone, branch }: { timezone: string; branch: string
                   )}
                 </View>
               ))}
-              <Text style={heading}>Сотрудники</Text>
+              <Text style={heading}>Официанты по закрытым заказам</Text>
               {stats.waiters.slice(0, 5).map((row, index) => (
                 <View key={`${row.name}:${index}`} style={card}>
                   <Text style={heading}>{row.name}</Text>
                   <Text style={muted}>
-                    Заказов: {row.orders} · продажи: {money(row.revenueMinor, stats.currency)}
+                    Заказов: {row.orders} · сумма заказов: {money(row.revenueMinor, stats.currency)}
                   </Text>
                 </View>
               ))}

@@ -40,7 +40,7 @@ export interface AccessApi {
   food(
     token: string,
     scope: string,
-    action: 'tables' | 'orders' | 'categories' | 'items' | 'cash' | 'shifts',
+    action: 'tables' | 'orders' | 'categories' | 'items' | 'cash' | 'shifts' | 'payment-methods',
     cursor?: string,
   ): Promise<unknown>;
   staffRevenue(token: string, scope: string, period: 'day' | 'week' | 'month'): Promise<unknown>;

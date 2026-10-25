@@ -236,7 +236,7 @@ export class SessionController {
     }
   }
   readFood(
-    action: 'tables' | 'orders' | 'categories' | 'items' | 'cash' | 'shifts',
+    action: 'tables' | 'orders' | 'categories' | 'items' | 'cash' | 'shifts' | 'payment-methods',
     cursor?: string,
   ): Promise<unknown> {
     return this.scopedFood((token, scope) => this.api.food(token, scope, action, cursor));

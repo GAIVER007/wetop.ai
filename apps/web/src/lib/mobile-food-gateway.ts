@@ -1,4 +1,4 @@
-import { parseOrderCreate } from '@pms/domain';
+import { parseOrderCreate, FOOD_PAYMENT_METHODS } from '@pms/domain';
 
 export type MobileFoodGatewayEnv = Record<string, string | undefined>;
 type MobileFetch = (input: string, init: RequestInit) => Promise<Response>;
@@ -13,6 +13,7 @@ const MINOR_UNITS = /^\d+$/;
 const SIGNED_MINOR_UNITS = /^-?\d+$/;
 
 const ACTIONS = {
+  'payment-methods': '/food-service/payment-methods',
   serve: '/food-service/orders',
   tables: '/food-service/waiter/tables',
   orders: '/food-service/orders',
@@ -143,6 +144,23 @@ function orderDto(value: unknown): JsonRecord {
     updatedAt: nonEmptyString(order.updatedAt),
     delayed: boolean(order.delayed),
     items: order.items.map(orderItemDto),
+  };
+}
+
+function paymentMethodsDto(value: unknown): JsonRecord {
+  const source = record(value);
+  if (!Array.isArray(source.methods) || source.methods.length > FOOD_PAYMENT_METHODS.length)
+    throw new InvalidUpstreamResponse();
+  const seen = new Set<string>();
+  return {
+    methods: source.methods.map((value) => {
+      const row = record(value);
+      const method = nonEmptyString(row.method);
+      if (!(FOOD_PAYMENT_METHODS as readonly string[]).includes(method) || seen.has(method))
+        throw new InvalidUpstreamResponse();
+      seen.add(method);
+      return { method, enabled: boolean(row.enabled), sortOrder: integer(row.sortOrder) };
+    }),
   };
 }
 
@@ -435,7 +453,12 @@ function hasServiceCredential(request: Request): boolean {
 
 function upstreamPath(request: Request, action: FoodAction): string | Response {
   const params = new URL(request.url).searchParams;
-  if (action === 'tables' || action === 'cash' || action === 'shifts') {
+  if (
+    action === 'tables' ||
+    action === 'cash' ||
+    action === 'shifts' ||
+    action === 'payment-methods'
+  ) {
     if ([...params].length) return json({ message: 'Некорректный запрос' }, 400);
     return ACTIONS[action];
   }
@@ -679,6 +702,7 @@ export async function handleMobileFoodGateway(
 
   try {
     if (mutating) return json(orderDto(parsed), creating ? 201 : 200);
+    if (action === 'payment-methods') return json(paymentMethodsDto(parsed), 200);
     if (action === 'tables') return json(tablesDto(parsed), 200);
     if (action === 'orders') return json(ordersDto(parsed), 200);
     if (action === 'categories') return json(categoriesDto(parsed), 200);

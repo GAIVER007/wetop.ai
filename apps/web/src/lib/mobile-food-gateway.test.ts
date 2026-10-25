@@ -897,3 +897,50 @@ it('returns filtered serving confirmation and preserves server authorization den
   expect(denied.status).toBe(403);
   expect(JSON.stringify(await denied.json())).not.toContain('private');
 });
+
+describe('mobile payment preparation', () => {
+  it('reads only actual branch methods without pagination or private metadata', async () => {
+    const fetcher = vi.fn(async () =>
+      upstream({
+        methods: [
+          { method: 'CASH', enabled: true, sortOrder: 1, private: 'hidden' },
+          { method: 'KASPI', enabled: false, sortOrder: 0 },
+        ],
+      }),
+    );
+    const result = await handleMobileFoodGateway(
+      request('payment-methods', { headers: authorized() }),
+      'payment-methods',
+      ENABLED,
+      fetcher,
+    );
+    expect(result.status).toBe(200);
+    expect((fetcher.mock.calls[0] as unknown as [string, RequestInit])[0]).toBe(
+      'http://127.0.0.1:3001/food-service/payment-methods',
+    );
+    expect(await result.json()).toEqual({
+      methods: [
+        { method: 'CASH', enabled: true, sortOrder: 1 },
+        { method: 'KASPI', enabled: false, sortOrder: 0 },
+      ],
+    });
+  });
+  it('does not invent methods from malformed or unsupported settings', async () => {
+    for (const methods of [
+      [{ method: 'AGGREGATOR', enabled: true, sortOrder: 0 }],
+      [{ method: 'CASH', enabled: 'yes', sortOrder: 0 }],
+      [
+        { method: 'CASH', enabled: true, sortOrder: 0 },
+        { method: 'CASH', enabled: false, sortOrder: 1 },
+      ],
+    ]) {
+      const result = await handleMobileFoodGateway(
+        request('payment-methods', { headers: authorized() }),
+        'payment-methods',
+        ENABLED,
+        async () => upstream({ methods }),
+      );
+      expect(result.status).toBe(502);
+    }
+  });
+});

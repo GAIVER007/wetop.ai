@@ -16,7 +16,6 @@ const EVERYTHING = { aiSeller: true, platform: true, role: 'OWNER' } as const;
 const SHELL_FILES = [
   'components/top-nav.tsx',
   'components/shell/account-menu.tsx',
-  'components/shell/locale-switch.tsx',
   'components/shell/side-nav.tsx',
   'components/shell/tab-nav.tsx',
   'components/shell/sidebar.tsx',

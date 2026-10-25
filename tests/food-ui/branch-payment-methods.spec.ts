@@ -33,7 +33,9 @@ test('ресторан: убрать Halyk, поднять Kaspi, сохрани
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Способы оплаты', level: 1 })).toBeVisible();
   await expect(rows(page)).toHaveCount(6);
-  await expect(main.getByTestId('payment-method-add')).toHaveCount(0);
+  // все шесть включены, «Добавить» предлагает только выключенное по умолчанию «Другое»
+  await expect(main.getByTestId('payment-method-add')).toBeVisible();
+  await expect(main.getByLabel('Добавить способ оплаты').locator('option')).toHaveText(['Другое']);
   const save = main.getByRole('button', { name: 'Сохранить изменения' });
   await expect(save).toBeDisabled();
 
@@ -41,7 +43,9 @@ test('ресторан: убрать Halyk, поднять Kaspi, сохрани
   await main.getByRole('button', { name: 'Выше: Kaspi' }).click();
   await expect(rows(page)).toHaveCount(5);
   await expect(rows(page).nth(1)).toHaveAttribute('data-method', 'KASPI');
+  // в «Добавить» первым Halyk (только что убран), за ним выключенное по умолчанию «Другое»
   await expect(main.getByLabel('Добавить способ оплаты')).toHaveValue('HALYK');
+  await expect(main.getByLabel('Добавить способ оплаты').locator('option')).toHaveText(['Halyk', 'Другое']);
   await save.click();
   await expect(main.getByTestId('settings-save-state')).toHaveText('✓ Изменения сохранены');
 
@@ -63,6 +67,7 @@ test('ресторан: убрать Halyk, поднять Kaspi, сохрани
   const income = ops.getByLabel('Способ');
   await expect(income.locator('option')).toHaveText(['Наличные', 'Kaspi', 'Карта (терминал)', 'Перевод от физлица', 'Перевод от юрлица']);
   await ops.getByRole('button', { name: 'Расход' }).click();
+  // расход прежними шестью: «Другое» не включено и остатка по нему нет
   await expect(ops.getByLabel('Способ').locator('option')).toHaveCount(6);
 
   const refused = await request.post(`${api}/food-service/cash/operations`, {
@@ -77,6 +82,43 @@ test('ресторан: убрать Halyk, поднять Kaspi, сохрани
   await page.goto('/today');
   await page.goto('/branch-payment-methods');
   await expect(rows(page)).toHaveCount(6);
+});
+
+test('«Другое» (PAYMENT-OTHER-20261025): выключено по умолчанию, включается и принимает деньги в кассу', async ({
+  page,
+  request,
+}) => {
+  const f = await reset(page, request);
+  const headers = { 'x-wetop-scope': pointer(f.business, f.locations[0]!) };
+  const before = await (await request.get(`${api}/food-service/payment-methods`, { headers })).json();
+  expect(before.methods.find((m: { method: string }) => m.method === 'OTHER')).toEqual({ method: 'OTHER', enabled: false });
+  const refused = await request.post(`${api}/food-service/cash/operations`, {
+    headers,
+    data: { kind: 'INCOME', method: 'OTHER', amount: 100 },
+  });
+  expect(refused.status()).toBe(400);
+  expect((await refused.json()).message).toBe('Способ оплаты «Другое» выключен в настройках филиала');
+
+  await page.goto('/today');
+  await page.goto('/branch-payment-methods');
+  const main = page.getByRole('main');
+  await main.getByLabel('Добавить способ оплаты').selectOption('OTHER');
+  await main.getByRole('button', { name: 'Добавить способ: Другое', exact: true }).click();
+  await expect(rows(page)).toHaveCount(7);
+  await main.getByRole('button', { name: 'Сохранить изменения' }).click();
+  await expect(main.getByTestId('settings-save-state')).toHaveText('✓ Изменения сохранены');
+
+  await page.goto('/cashbox');
+  const ops = page.getByRole('region', { name: 'Операция кассы' });
+  await ops.getByRole('button', { name: 'Приход' }).click();
+  await expect(ops.getByLabel('Способ').locator('option')).toContainText(['Другое']);
+  const taken = await request.post(`${api}/food-service/cash/operations`, {
+    headers,
+    data: { kind: 'INCOME', method: 'OTHER', amount: 100 },
+  });
+  expect(taken.status()).toBeLessThan(300);
+  await page.reload();
+  await expect(page.getByTestId('cash-OTHER')).toBeVisible();
 });
 
 test('способы оплаты: доступность и телефон, светлая и тёмная', async ({ page, request }) => {

@@ -5,7 +5,7 @@
 }
 .form:global(.booking-form) {
   display: grid;
-  gap: var(--space-6);
+  gap: var(--space-4);
   padding: var(--space-6);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -31,16 +31,21 @@
     height: auto;
     min-height: var(--touch-target);
   }
+  .form :global(.input),
+  .form :global(.select) {
+    min-height: var(--touch-target);
+  }
 }
 .form :global(.field) {
-  gap: var(--space-2);
+  gap: var(--space-1);
   font-size: var(--text-sm);
   min-width: 0;
 }
+/* поля плотнее (замечание владельца 25.10.2026 «много пустого места»): высота поля как во всей стойке */
 .form :global(.input),
 .form :global(.select) {
-  min-height: 46px;
-  font-size: var(--text-lg);
+  min-height: var(--control-h);
+  font-size: var(--text-md);
   padding: var(--space-2) var(--space-4);
 }
 .form :global(.grid-auto) {
@@ -65,7 +70,7 @@
 .form :global(.booking-create__review) {
   border: 1px solid var(--border);
   border-radius: var(--radius-control);
-  padding: var(--space-4) var(--space-4);
+  padding: var(--space-2) var(--space-4);
 }
 .form :global(details > summary) {
   min-height: 24px;
@@ -218,5 +223,15 @@
   }
   .form :global(.booking-shell .booking-create__quick button) {
     padding-inline: var(--space-2);
+  }
+  /* быстрые даты одной строкой: «Сегодня», «Завтра» и ночи без переноса «7 ночей» на вторую */
+  .form :global(.booking-shell .booking-create__quick) {
+    flex-wrap: nowrap;
+    gap: var(--space-1);
+  }
+  .form :global(.booking-shell .booking-create__quick button) {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
   }
 }

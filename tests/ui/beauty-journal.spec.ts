@@ -140,6 +140,14 @@ test('запись из пустой клетки появляется в сет
   expect(board.width + dayPanel.width).toBeGreaterThan(content.width * 0.85);
   const person = main.getByTestId('beauty-grid').locator('.beauty-col-person').first();
   await expect(person.getByTestId('beauty-col-count')).toHaveText('1');
+  // журнал на ПК в один экран (ТЗ 25.10.2026, п. 9): страница не прокручивается, сетка и панель дня листаются внутри
+  expect(await page.evaluate(() => document.scrollingElement!.scrollHeight <= window.innerHeight + 1)).toBe(true);
+  const scrolls = await main.getByTestId('beauty-grid').evaluate((grid) => getComputedStyle(grid).overflowY);
+  expect(['auto', 'scroll']).toContain(scrolls);
+  const panelScrolls = await main
+    .getByRole('complementary', { name: 'Панель дня' })
+    .evaluate((panel) => getComputedStyle(panel).overflowY);
+  expect(['auto', 'scroll']).toContain(panelScrolls);
   await page.screenshot({ path: `${SNAPSHOTS}/journal-1440.png`, fullPage: true });
   await person.click();
   await expect(person).toHaveAttribute('aria-pressed', 'true');

@@ -310,3 +310,32 @@
     padding-right: var(--space-1);
   }
 }
+
+/* Журнал на ПК в один экран (п. 9): сетка дня и панель дня справа прокручиваются каждая внутри себя, часы и
+   шапка мастеров липкие внутри сетки; общий слой `.journal-screen` в `journal-head.css` */
+@layer sections {
+  @media (min-width: 961px) {
+    div.workspace .beauty-page.journal-screen > .beauty-layout.journal-screen__board {
+      grid-template-rows: minmax(0, 1fr);
+      align-items: stretch;
+      overflow: hidden;
+    }
+    .beauty-page.journal-screen .journal-screen__board > .beauty-board {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .beauty-page.journal-screen .journal-screen__board .beauty-grid-day {
+      flex: 1 1 0;
+      min-height: 0;
+      max-height: none;
+      overflow: auto;
+    }
+    .journal-screen .beauty-day-panel {
+      position: static;
+      align-content: start;
+      min-height: 0;
+      overflow-y: auto;
+    }
+  }
+}

@@ -606,7 +606,7 @@ export function JournalBoard({
       )}
       {/* без специалистов сетку не рисуем: пустая колонка часов ничего не говорит (п. 36) */}
       {columns.length > 0 && (
-        <div className={`beauty-layout${wide ? ' beauty-layout--panel' : ''}`}>
+        <div className={`beauty-layout journal-screen__board${wide ? ' beauty-layout--panel' : ''}`}>
           <div className="beauty-board">
             <div
               className={`beauty-grid-day${dense ? ' beauty-grid-day--dense' : ''}`}

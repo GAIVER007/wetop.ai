@@ -30,13 +30,14 @@ export const PAYMENT_METHOD_RU: Record<string, string> = {
   DEPOSIT: 'Депозит',
   CARD_GUARANTEE: 'Гарантия картой',
   EXTERNAL: 'Внешний канал',
+  OTHER: 'Другое',
   BONUS: 'Бонусы',
   GIFT_CERTIFICATE: 'Сертификат',
 };
 export const paymentMethodRu = (method: string): string => PAYMENT_METHOD_RU[method] ?? method;
 
 export interface PaymentMethodSetting {
-  method: ConfigurablePaymentMethod;
+  method: BranchPaymentMethod;
   enabled: boolean;
 }
 
@@ -54,24 +55,30 @@ export const BRANCH_PAYMENT_METHODS = [
   'HALYK',
   'BANK_TRANSFER_PERSON',
   'BANK_TRANSFER_LEGAL',
-] as const satisfies readonly ConfigurablePaymentMethod[];
+  // «Другое» (PAYMENT-OTHER-20261025, миграция 158): ссылка на оплату, кошелёк, приложение банка; деньги кассы
+  'OTHER',
+] as const satisfies readonly BranchPaymentMethod[];
+export type BranchPaymentMethod = ConfigurablePaymentMethod | 'OTHER';
+
+/** Новые способы без строки в базе выключены: у действующих филиалов ничего не появляется само */
+const OFF_BY_DEFAULT: ReadonlySet<string> = new Set(['OTHER']);
 
 /** Умолчания без строк в базе: все восемь включены в системном порядке (У3) */
 export const DEFAULT_PAYMENT_METHOD_SETTINGS: readonly PaymentMethodSetting[] =
   CONFIGURABLE_PAYMENT_METHODS.map((method) => ({ method, enabled: true }));
-/** Умолчания филиала (§21.7): все шесть включены, поэтому выкладка ничего не меняет у филиалов без строк */
+/** Умолчания филиала (§21.7): прежние шесть включены, «Другое» выключено, поэтому выкладка ничего не меняет */
 export const DEFAULT_BRANCH_PAYMENT_METHOD_SETTINGS: readonly PaymentMethodSetting[] =
-  BRANCH_PAYMENT_METHODS.map((method) => ({ method, enabled: true }));
+  BRANCH_PAYMENT_METHODS.map((method) => ({ method, enabled: !OFF_BY_DEFAULT.has(method) }));
 
 /**
  * Строки в полный список выбранного набора: сохранённые по `sortOrder`, недостающие дописываются включёнными
  * в системном порядке (строки появились раньше нового способа), чужие и повторные коды отбрасываются.
  */
 function resolveSettings(
-  list: readonly ConfigurablePaymentMethod[],
+  list: readonly BranchPaymentMethod[],
   rows: ReadonlyArray<{ method: string; enabled: boolean; sortOrder: number }>,
 ): PaymentMethodSetting[] {
-  const inList = (m: string): m is ConfigurablePaymentMethod => (list as readonly string[]).includes(m);
+  const inList = (m: string): m is BranchPaymentMethod => (list as readonly string[]).includes(m);
   const index = (m: string) => (list as readonly string[]).indexOf(m);
   const out: PaymentMethodSetting[] = [];
   const seen = new Set<string>();
@@ -81,9 +88,9 @@ function resolveSettings(
   for (const r of known) {
     if (seen.has(r.method)) continue;
     seen.add(r.method);
-    out.push({ method: r.method as ConfigurablePaymentMethod, enabled: r.enabled });
+    out.push({ method: r.method as BranchPaymentMethod, enabled: r.enabled });
   }
-  for (const method of list) if (!seen.has(method)) out.push({ method, enabled: true });
+  for (const method of list) if (!seen.has(method)) out.push({ method, enabled: !OFF_BY_DEFAULT.has(method) });
   return out;
 }
 
@@ -99,7 +106,7 @@ export const resolveBranchPaymentMethodSettings = (
 /** Коды включённых способов в порядке показа */
 export const enabledPaymentMethods = (
   settings: readonly PaymentMethodSetting[],
-): ConfigurablePaymentMethod[] => settings.filter((s) => s.enabled).map((s) => s.method);
+): BranchPaymentMethod[] => settings.filter((s) => s.enabled).map((s) => s.method);
 
 export type PaymentMethodSettingsParse =
   | { ok: true; value: PaymentMethodSetting[] }
@@ -110,7 +117,7 @@ export type PaymentMethodSettingsParse =
  * хотя бы один включён (У4). Тот же разбор зовут API, форма и подставной API.
  */
 function parseSettings(
-  list: readonly ConfigurablePaymentMethod[],
+  list: readonly BranchPaymentMethod[],
   raw: unknown,
 ): PaymentMethodSettingsParse {
   if (!raw || typeof raw !== 'object') return { ok: false, reason: 'Нечего сохранять' };
@@ -131,7 +138,7 @@ function parseSettings(
     if (seen.has(method))
       return { ok: false, reason: `Способ «${paymentMethodRu(method)}» указан дважды` };
     seen.add(method);
-    out.push({ method: method as ConfigurablePaymentMethod, enabled });
+    out.push({ method: method as BranchPaymentMethod, enabled });
   }
   const missing = list.filter((m) => !seen.has(m));
   if (missing.length > 0)

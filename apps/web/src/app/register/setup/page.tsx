@@ -47,6 +47,7 @@ export default async function SetupPage({
     redirect(landingForVertical(state.vertical));
   if (
     state.vertical === 'BEAUTY' &&
+    entry !== 'reopen' &&
     state.readiness?.ready &&
     (state.storedFlowVersion !== 2 || (state.completedFlowVersion === 2 && entry === '1'))
   )

@@ -159,7 +159,8 @@ test('неделя показывает запись и открывает её 
   await page.goto(`/calendar?date=${DAY}&view=week`);
   const week = page.getByTestId('beauty-week');
   await expect(week).toBeVisible();
-  await expect(week.getByRole('link', { name: 'Открыть день', exact: true })).toHaveCount(7);
+  // неделя строкой месячного календаря: семь дней, номер дня открывает день
+  await expect(week.getByRole('link', { name: /^Открыть день: / })).toHaveCount(7);
   await page.screenshot({
     path: 'reports/beauty-continuation-2026-10-14/week-1440.png',
     fullPage: true,

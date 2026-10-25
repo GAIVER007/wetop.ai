@@ -2,6 +2,7 @@
  * «Сколько принёс сотрудник» на экранах персонала (docs/decisions/2026-10-20-personnel-revenue.md): оплачено минус
  * возвраты за день, неделю или месяц. Суммы считает сервер в тиынах; здесь только подписи, валюты не смешиваются.
  */
+import { msg, translator, type Translate } from '../i18n';
 import { formatMoney } from './money';
 
 export type StaffRevenuePeriod = 'day' | 'week' | 'month';
@@ -21,9 +22,9 @@ export interface StaffRevenue {
 }
 
 export const STAFF_REVENUE_PERIODS: ReadonlyArray<{ value: StaffRevenuePeriod; label: string; title: string }> = [
-  { value: 'day', label: 'День', title: 'сегодня' },
-  { value: 'week', label: 'Неделя', title: 'за неделю' },
-  { value: 'month', label: 'Месяц', title: 'за месяц' },
+  { value: 'day', label: msg('День'), title: msg('сегодня') },
+  { value: 'week', label: msg('Неделя'), title: msg('за неделю') },
+  { value: 'month', label: msg('Месяц'), title: msg('за месяц') },
 ];
 
 export function revenuePeriodParam(raw: string | string[] | undefined): StaffRevenuePeriod {
@@ -50,18 +51,19 @@ export function revenueCells(items: readonly StaffRevenueItem[]): Map<string, st
 }
 
 const UNATTRIBUTED: Record<'BEAUTY' | 'FOOD_SERVICE' | 'HOSPITALITY', string> = {
-  BEAUTY: 'Без мастера',
-  FOOD_SERVICE: 'Заказы без официанта',
-  HOSPITALITY: 'Брони из каналов и сайта',
+  BEAUTY: msg('Без мастера'),
+  FOOD_SERVICE: msg('Заказы без официанта'),
+  HOSPITALITY: msg('Брони из каналов и сайта'),
 };
 
 /** Деньги без сотрудника не теряются: отдельной строкой под списком; нет таких денег = null */
 export function unattributedLabel(
   items: readonly StaffRevenueItem[],
   vertical: keyof typeof UNATTRIBUTED,
+  t: Translate = translator('ru'),
 ): string | null {
   const parts = items.filter((i) => i.employeeId === null).map((i) => formatMoney(i.netMinor, i.currency));
-  return parts.length ? `${UNATTRIBUTED[vertical]}: ${parts.join(' · ')}` : null;
+  return parts.length ? `${t(UNATTRIBUTED[vertical])}: ${parts.join(' · ')}` : null;
 }
 
 /** Сколько принесли все за период, включая деньги без сотрудника; валюты не смешиваются: «12 000 ₸ · 50 USD» */

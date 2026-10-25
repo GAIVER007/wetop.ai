@@ -15,6 +15,7 @@ import { Page } from '../../../../components/page';
 import { EmptyState } from '../../../../components/ui';
 import { ChooseLocation } from '../../budget/parts';
 import { LaunchWizard } from './wizard';
+import { serverT } from '../../../../i18n/server';
 
 /**
  * «Реклама → Новая кампания с ИИ» (DATA_MODEL §57, ADR-MKT-LAUNCH): мастер запуска в подключённом кабинете Meta.
@@ -22,11 +23,12 @@ import { LaunchWizard } from './wizard';
  */
 const COUNTRY = 'KZ';
 
-function Back() {
+async function Back() {
+  const t = await serverT();
   return (
     <Link href="/marketing/ads" className="marketing-back">
       <Icon name="back" width={16} aria-hidden="true" />
-      Назад к рекламе
+      {t('Назад к рекламе')}
     </Link>
   );
 }
@@ -37,13 +39,14 @@ export default async function AdLaunchPage({ searchParams }: { searchParams: Pro
   await requireFeature('/marketing/ads/launch');
   const q = normalizeSearchParams(await searchParams);
   const shell = await deskShell();
+  const t = await serverT();
   const role = shell.access.role;
   const allowed = !shell.readOnly && (role === null || can(role, 'ads_launch'));
   let content;
   if (!allowed) {
     content = (
-      <EmptyState title="Запуск рекламы недоступен" data-testid="ad-launch-denied">
-        Запускать и останавливать рекламу могут владелец и управляющий.
+      <EmptyState title={t('Запуск рекламы недоступен')} data-testid="ad-launch-denied">
+        {t('Запускать и останавливать рекламу могут владелец и управляющий.')}
       </EmptyState>
     );
   } else {
@@ -66,8 +69,8 @@ export default async function AdLaunchPage({ searchParams }: { searchParams: Pro
     ) : failure ? (
       <LoadError testId="ad-launch-error" {...failure} />
     ) : !assets?.connected ? (
-      <EmptyState title="Кабинет Meta не подключён" data-testid="ad-launch-no-cabinet">
-        Подключите рекламный кабинет через Facebook на странице «Реклама», затем возвращайтесь к запуску.
+      <EmptyState title={t('Кабинет Meta не подключён')} data-testid="ad-launch-no-cabinet">
+        {t('Подключите рекламный кабинет через Facebook на странице «Реклама», затем возвращайтесь к запуску.')}
       </EmptyState>
     ) : (
       <LaunchWizard assets={assets} country={COUNTRY} audience={audience} />
@@ -76,8 +79,8 @@ export default async function AdLaunchPage({ searchParams }: { searchParams: Pro
   return (
     <Page
       crumbs={<Back />}
-      title="Новая кампания с ИИ"
-      subtitle="Фото и пара фраз: ИИ предложит текст и аудиторию, вы проверите и запустите в Meta."
+      title={t('Новая кампания с ИИ')}
+      subtitle={t('Фото и пара фраз: ИИ предложит текст и аудиторию, вы проверите и запустите в Meta.')}
     >
       <div className="marketing-screen" data-testid="ad-launch-screen">
         {content}

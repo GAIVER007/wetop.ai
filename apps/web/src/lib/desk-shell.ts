@@ -9,10 +9,13 @@ import { UNKNOWN_SHELL, deskShellOf, type DeskShell } from './desk-person';
  * Один `/auth/me` на отрисовку: меню, подпись и «Выйти» спрашивают одно и то же (бюджет рейсов —
  * `tests/ui/requests.spec.ts`). Отказ API здесь не превращается в «никто не вошёл» — это решает вызывающий.
  */
+/** Сам запрос `/auth/me`, один на отрисовку и без решений о входе: его делят `currentMe` и язык стойки (`i18n/server`) */
+export const meOnce = cache(() => authApi.me());
+
 export const currentMe = cache(async () => {
   let me: Awaited<ReturnType<typeof authApi.me>>;
   try {
-    me = await authApi.me();
+    me = await meOnce();
   } catch (error) {
     // Only an invalid session requests login. Permission and network failures stay distinct.
     if (error instanceof ApiError && error.status === 401) await redirectToLoginIfRequired();

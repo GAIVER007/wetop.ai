@@ -1,12 +1,13 @@
 'use client';
-import { useState, useTransition, type ReactNode } from 'react';
+import { useEffect, useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
 import { useConfirm } from '../../components/use-confirm';
 import { Alert, Badge, Button, Field, Input, Select } from '../../components/ui';
 import { StaffBoard, type StaffColumn } from '../../components/staff-board';
 import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, personnelTabs, type PersonnelKind } from '@pms/domain';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, msg } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
 import { periodTitle, revenueCells, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
 import type { FoodEmployee } from '../../lib/food-types';
 import { assignFoodPersonnelKind, mutateStaff } from './restaurant-actions';
@@ -20,16 +21,17 @@ import { formatPhone, formatPhoneInput } from '../../lib/phone';
  * сотрудник» или «оба», остальные видят только метку. Право считает сервер, PATCH проверяет его ещё раз.
  */
 function KindCell({ scopeKey, employee, canAssign }: { scopeKey: string; employee: FoodEmployee; canAssign: boolean }) {
+  const t = useT();
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState('');
   const kind = employee.personnelKind ?? null;
-  if (!canAssign) return <Badge>{kind ? PERSONNEL_KIND_LABELS[kind] : 'Не назначено'}</Badge>;
+  if (!canAssign) return <Badge>{kind ? t(PERSONNEL_KIND_LABELS[kind]) : t('Не назначено')}</Badge>;
   return (
     <>
       <Select
         className="rest-staff-kind"
-        aria-label={`Назначение: ${employee.name}`}
+        aria-label={t('Назначение: {name}', { name: employee.name })}
         value={kind ?? ''}
         disabled={pending}
         aria-busy={pending || undefined}
@@ -45,12 +47,12 @@ function KindCell({ scopeKey, employee, canAssign }: { scopeKey: string; employe
       >
         {kind === null && (
           <option value="" disabled>
-            Не назначено
+            {t('Не назначено')}
           </option>
         )}
         {PERSONNEL_KINDS.map((value) => (
           <option key={value} value={value}>
-            {PERSONNEL_KIND_LABELS[value]}
+            {t(PERSONNEL_KIND_LABELS[value])}
           </option>
         ))}
       </Select>
@@ -78,6 +80,7 @@ function EmployeeDrawer({
   close: () => void;
   access?: StaffAccessOptions | undefined;
 }) {
+  const t = useT();
   const router = useRouter();
   const { ask, dialog } = useConfirm();
   const [error, setError] = useState('');
@@ -96,11 +99,11 @@ function EmployeeDrawer({
   function submit() {
     setError('');
     if (!name.trim()) {
-      setError('Имя обязательно');
+      setError(t('Имя обязательно'));
       return;
     }
     if (showAccess && accessDraft.level !== 'NONE' && !email.trim()) {
-      setError('Для входа в WETOP укажите почту: на неё придёт приглашение.');
+      setError(t('Для входа в WETOP укажите почту: на неё придёт приглашение.'));
       return;
     }
     start(async () => {
@@ -125,7 +128,7 @@ function EmployeeDrawer({
         });
         router.refresh();
         // сотрудник уже создан: ошибку приглашения показываем, а не прячем, повторить можно в «Сотрудники и доступ»
-        if (invited.error) setError(`Сотрудник добавлен, но приглашение не отправлено: ${invited.error}`);
+        if (invited.error) setError(t('Сотрудник добавлен, но приглашение не отправлено: {error}', { error: invited.error }));
         else close();
       } else {
         router.refresh();
@@ -137,7 +140,7 @@ function EmployeeDrawer({
     <Overlay
       open
       onClose={close}
-      title={employee ? 'Изменить сотрудника' : 'Новый сотрудник'}
+      title={employee ? t('Изменить сотрудника') : t('Новый сотрудник')}
       drawer
       className="food-drawer"
       trapFocus
@@ -145,23 +148,23 @@ function EmployeeDrawer({
       <div className="food-form" data-testid="employee-drawer">
         {error && <Alert>{error}</Alert>}
         {employee && <input type="hidden" name="expectedProfileRevision" value={expectedProfileRevision} />}
-        {error && employee && <><p>Ввод сохранён. Сравните актуальный профиль перед повтором.</p><Button tone="secondary" onClick={async () => {
+        {error && employee && <><p>{t('Ввод сохранён. Сравните актуальный профиль перед повтором.')}</p><Button tone="secondary" onClick={async () => {
           if (!(await ask({
-            title: 'Отменить черновик профиля?',
-            body: 'Несохранённые изменения будут потеряны. Вместо них загрузится актуальный профиль сотрудника.',
-            confirmLabel: 'Отменить черновик и загрузить профиль',
-            cancelLabel: 'Оставить черновик',
+            title: t('Отменить черновик профиля?'),
+            body: t('Несохранённые изменения будут потеряны. Вместо них загрузится актуальный профиль сотрудника.'),
+            confirmLabel: t('Отменить черновик и загрузить профиль'),
+            cancelLabel: t('Оставить черновик'),
           }))) return;
           window.location.reload();
-        }}>Отменить черновик и загрузить профиль</Button></>}
-        <Field label="Имя и фамилия">
+        }}>{t('Отменить черновик и загрузить профиль')}</Button></>}
+        <Field label={t('Имя и фамилия')}>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
         </Field>
         <div className="food-form-row">
-          <Field label="Телефон">
+          <Field label={t('Телефон')}>
             <Input type="tel" inputMode="tel" placeholder="+7 701 000 00 00" value={phone} onChange={(e) => setPhone(formatPhoneInput(e.target.value))} />
           </Field>
-          <Field label="Почта">
+          <Field label={t('Почта')}>
             <Input
               type="email"
               value={email}
@@ -173,7 +176,7 @@ function EmployeeDrawer({
           </Field>
         </div>
         {!employee && (
-          <Field label="Кто это">
+          <Field label={t('Кто это')}>
             <Select
               value={personnelKind}
               onChange={(e) => {
@@ -184,7 +187,7 @@ function EmployeeDrawer({
             >
               {PERSONNEL_KINDS.map((value) => (
                 <option key={value} value={value}>
-                  {PERSONNEL_KIND_LABELS[value]}
+                  {t(PERSONNEL_KIND_LABELS[value])}
                 </option>
               ))}
             </Select>
@@ -206,24 +209,36 @@ function EmployeeDrawer({
           />
         )}
         {employee && (
-          <Field label="Статус">
+          <Field label={t('Статус')}>
             <Select value={status} onChange={(e) => setStatus(e.target.value)}>
-              <option value="ACTIVE">Работает</option>
-              <option value="ARCHIVED">В архиве</option>
+              <option value="ACTIVE">{t('Работает')}</option>
+              <option value="ARCHIVED">{t('В архиве')}</option>
             </Select>
           </Field>
         )}
         <div className="food-actions">
           <Button disabled={pending} onClick={submit}>
-            Сохранить
+            {t('Сохранить')}
           </Button>
           <Button tone="secondary" disabled={pending} onClick={close}>
-            Отмена
+            {t('Отмена')}
           </Button>
         </div>
       </div>
       {dialog}
     </Overlay>
+  );
+}
+
+/** «Добавить сотрудника» в шапке страницы, как «Добавить специалиста» салона (эталон владельца 25.10.2026).
+ * Окно живёт в списке: кнопка шлёт событие, список его открывает. */
+const NEW_EMPLOYEE_EVENT = 'wetop-new-food-employee';
+export function NewEmployeeButton() {
+  const t = useT();
+  return (
+    <Button type="button" onClick={() => window.dispatchEvent(new Event(NEW_EMPLOYEE_EVENT))}>
+      {t('Добавить сотрудника')}
+    </Button>
   );
 }
 
@@ -253,9 +268,17 @@ export function EmployeesBoard({
   /** «Доступ в WETOP» в форме нового сотрудника (решение 20.10.2026) */
   access?: StaffAccessOptions;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [draft, setDraft] = useState<FoodEmployee | null | 'new'>(null);
+  useEffect(() => {
+    if (!write) return;
+    const startNew = () => setDraft('new');
+    window.addEventListener(NEW_EMPLOYEE_EVENT, startNew);
+    return () => window.removeEventListener(NEW_EMPLOYEE_EVENT, startNew);
+  }, [write]);
   const earned = revenue ? revenueCells(revenue.items) : null;
-  const unattributed = revenue ? unattributedLabel(revenue.items, 'FOOD_SERVICE') : null;
+  const unattributed = revenue ? unattributedLabel(revenue.items, 'FOOD_SERVICE', t) : null;
   // старые записи без назначения не прячутся и не угадываются: своя вкладка, пока они есть
   const groups = personnelTabs(employees.map((e) => ({ ...e, personnelKind: e.personnelKind ?? null })));
   const initials = (name: string) =>
@@ -268,7 +291,7 @@ export function EmployeesBoard({
   const columns: StaffColumn<FoodEmployee>[] = [
     {
       key: 'name',
-      label: 'Сотрудник',
+      label: t('Сотрудник'),
       cell: (e) => (
         <span className="staff-person">
           <span className="staff-person__avatar" aria-hidden="true">
@@ -276,44 +299,44 @@ export function EmployeesBoard({
           </span>
           <span>
             <strong>{e.name}</strong>
-            <span className="staff-person__role">{e.phone ? formatPhone(e.phone) : 'Телефон не указан'}</span>
+            <span className="staff-person__role">{e.phone ? formatPhone(e.phone) : t('Телефон не указан')}</span>
           </span>
-          {e.status === 'ARCHIVED' && <Badge>В архиве</Badge>}
+          {e.status === 'ARCHIVED' && <Badge>{t('В архиве')}</Badge>}
         </span>
       ),
     },
     {
       key: 'kind',
-      label: 'Назначение',
+      label: t('Назначение'),
       cell: (e) => <KindCell scopeKey={scopeKey} employee={e} canAssign={canAssignPersonnelKind && write} />,
     },
-    { key: 'shift', label: 'Смена сегодня', cell: (e) => e.shift ?? 'Выходной' },
+    { key: 'shift', label: t('Смена сегодня'), cell: (e) => e.shift ?? t('Выходной') },
     {
       key: 'status',
-      label: 'Статус',
-      cell: (e) => <Badge tone={e.onShift ? 'ok' : 'neutral'}>{e.onShift ? 'На смене' : 'Не на смене'}</Badge>,
+      label: t('Статус'),
+      cell: (e) => <Badge tone={e.onShift ? 'ok' : 'neutral'}>{e.onShift ? t('На смене') : t('Не на смене')}</Badge>,
     },
     {
       key: 'earned',
-      label: revenue ? `Принёс ${periodTitle(revenue.period)}` : '',
+      label: revenue ? t('Принёс {period}', { period: t(periodTitle(revenue.period)) }) : '',
       align: 'end',
       hidden: !earned,
       cell: (e) => (earned?.get(e.id) ? <strong data-testid="employee-earned">{earned.get(e.id)}</strong> : null),
     },
     {
       key: 'rating',
-      label: 'Рейтинг',
+      label: t('Рейтинг'),
       align: 'end',
       cell: (e) =>
         e.rating?.average != null ? (
           <span data-testid="employee-rating">
-            {`${String(e.rating.average).replace('.', ',')} ★, ${pluralRu(e.rating.count, ['оценка', 'оценки', 'оценок'])}`}
+            {`${String(e.rating.average).replace('.', ',')} ★, ${countLabel(locale, t, e.rating.count, [msg('оценка'), 'оценки', msg('оценок')])}`}{/* kk-allow: форма склонения */}
           </span>
         ) : null,
     },
     {
       key: 'actions',
-      label: <span className="sr-only">Действия</span>,
+      label: <span className="sr-only">{t('Действия')}</span>,
       align: 'end',
       cell: (e) =>
         write ? (
@@ -321,12 +344,12 @@ export function EmployeesBoard({
             <a
               className="btn btn--secondary btn--sm"
               href={`/employees/${encodeURIComponent(e.id)}/profile`}
-              aria-label={`Карточка сотрудника: ${e.name}`}
+              aria-label={t('Карточка сотрудника: {name}', { name: e.name })}
             >
-              Карточка
+              {t('Карточка')}
             </a>
-            <Button tone="ghost" size="sm" onClick={() => setDraft(e)} aria-label={`Изменить: ${e.name}`}>
-              Изменить
+            <Button tone="ghost" size="sm" onClick={() => setDraft(e)} aria-label={t('Изменить: {name}', { name: e.name })}>
+              {t('Изменить')}
             </Button>
           </span>
         ) : null,
@@ -335,30 +358,29 @@ export function EmployeesBoard({
   return (
     <div className="food-workspace rest-ws" data-testid="employees-board">
       <StaffBoard<FoodEmployee>
-        caption="Сотрудники ресторана"
-        actions={write ? <Button onClick={() => setDraft('new')}>+ Добавить сотрудника</Button> : null}
+        caption={t('Сотрудники ресторана')}
         tabs={[
-          { id: 'all', label: 'Все', rows: employees, empty: 'Сотрудников пока нет' },
+          { id: 'all', label: t('Все'), rows: employees, empty: t('Сотрудников пока нет') },
           ...groups.map((g) => ({
           id: g.key,
-          label: g.key === 'unassigned' ? 'Не назначено' : g.label,
+          label: g.key === 'unassigned' ? t('Не назначено') : t(g.label),
           rows: g.items as FoodEmployee[],
           ...(g.key === 'unassigned'
-            ? { note: 'Укажите, кто это: специалист, другой сотрудник или оба. Назначение не меняет смены, оплату и права.' }
+            ? { note: t('Укажите, кто это: специалист, другой сотрудник или оба. Назначение не меняет смены, оплату и права.') }
             : {}),
           empty: employees.length
             ? g.key === 'specialists'
-              ? 'Специалистов пока нет.'
-              : 'Других сотрудников пока нет.'
-            : 'Сотрудников пока нет',
+              ? t('Специалистов пока нет.')
+              : t('Других сотрудников пока нет.')
+            : t('Сотрудников пока нет'),
           })),
         ]}
         columns={columns}
         search={(e) => `${e.name} ${e.phone ?? ''}`}
-        searchPlaceholder="Поиск сотрудника"
+        searchPlaceholder={t('Поиск сотрудника')}
         period={
           <span className="staff-board__period">
-            <span className="muted rest-staff-branch">Филиал: {branchName}</span>
+            <span className="muted rest-staff-branch">{t('Филиал: {name}', { name: branchName })}</span>
             {revenue && revenueNav}
           </span>
         }

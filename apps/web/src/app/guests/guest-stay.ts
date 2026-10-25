@@ -1,7 +1,8 @@
 import { shiftDate } from '@pms/domain';
 import type { GuestDirectoryRow, GuestMainStay } from '../../lib/api';
 import type { Delta } from '../../lib/dashboard-format';
-import { displayDate } from '../../lib/display-date';
+import { countLabel, msg } from '../../i18n';
+import { RU, shortDate, type Lang } from '../chessboard/lang';
 import { financeState } from '../reservations/finance-state';
 import type { PaymentState } from '../../lib/status/payment';
 
@@ -20,9 +21,9 @@ export const REGULAR_GUEST_VISITS = 2;
 export const isRegularGuest = (visits: number) => visits >= REGULAR_GUEST_VISITS;
 
 /** Подпись под именем: «Постоянный гость», «Новый гость»; у гостя без активного проживания так и сказано */
-export function guestNote(row: Pick<GuestDirectoryRow, 'state' | 'staysCount'>): string {
-  if (row.state === 'NONE') return 'Без активного проживания';
-  return isRegularGuest(row.staysCount) ? 'Постоянный гость' : 'Новый гость';
+export function guestNote(row: Pick<GuestDirectoryRow, 'state' | 'staysCount'>, { t }: Lang = RU): string {
+  if (row.state === 'NONE') return t('Без активного проживания');
+  return isRegularGuest(row.staysCount) ? t('Постоянный гость') : t('Новый гость');
 }
 
 /** Инициалы для кружка: первая буква фамилии и имени */
@@ -52,30 +53,32 @@ type BadgeTone = 'neutral' | 'info' | 'ok' | 'warn' | 'danger';
 export function stayStatus(
   row: Pick<GuestDirectoryRow, 'state' | 'stay' | 'last'>,
   today: string,
+  lang: Lang = RU,
 ): { word: string; tone: BadgeTone; note: string | null } | null {
+  const { t } = lang;
   if (row.state === 'INHOUSE') {
     return row.stay?.departureDate === today
-      ? { word: 'Выезд сегодня', tone: 'warn', note: null }
-      : { word: 'Проживает', tone: 'ok', note: null };
+      ? { word: t('Выезд сегодня'), tone: 'warn', note: null }
+      : { word: t('Проживает'), tone: 'ok', note: null };
   }
   if (row.state === 'EXPECTED') {
     const arrival = row.stay?.arrivalDate;
     const note = !arrival
       ? null
       : arrival === today
-        ? 'Заезд сегодня'
+        ? t('Заезд сегодня')
         : arrival === shiftDate(today, 1)
-          ? 'Завтра'
+          ? t('Завтра')
           : arrival < today
-            ? `Заезд был ${displayDate(arrival)}`
-            : displayDate(arrival);
-    return { word: 'Ожидается', tone: 'info', note };
+            ? t('Заезд был {date}', { date: shortDate(lang, arrival) })
+            : shortDate(lang, arrival);
+    return { word: t('Ожидается'), tone: 'info', note };
   }
   if (row.state === 'RECENT')
     return {
-      word: 'Завершено',
+      word: t('Завершено'),
       tone: 'neutral',
-      note: row.last ? displayDate(row.last.departureDate) : null,
+      note: row.last ? shortDate(lang, row.last.departureDate) : null,
     };
   return null;
 }
@@ -148,24 +151,21 @@ export function stayActions(stay: GuestMainStay | null): StayActions {
 }
 
 /** «5 визитов», «Первый визит»: подпись под датой последнего визита */
-export function visitsWord(count: number): string {
-  if (count <= 1) return 'Первый визит';
-  const d = count % 10;
-  const h = count % 100;
-  const word = h >= 11 && h <= 14 ? 'визитов' : d === 1 ? 'визит' : d >= 2 && d <= 4 ? 'визита' : 'визитов';
-  return `${count} ${word}`;
+export function visitsWord(count: number, { t, locale }: Lang = RU): string {
+  if (count <= 1) return t('Первый визит');
+  return countLabel(locale, t, count, [msg('визит'), 'визита', msg('визитов')]); // kk-allow: форма склонения
 }
 
 /**
  * Сравнение числа заездов или выездов со вчерашним днём словами со знаком: «+1 к вчерашнему дню». Считается по датам
  * брони с обеих сторон; у «Проживают» сравнения нет (истории статусов в модели нет, Q-GB-3).
  */
-export function vsYesterday(today: number, yesterday: number): Delta {
+export function vsYesterday(today: number, yesterday: number, { t }: Lang = RU): Delta {
   const diff = today - yesterday;
-  if (diff === 0) return { direction: 'flat', text: 'Как вчера' };
+  if (diff === 0) return { direction: 'flat', text: t('Как вчера') };
   return {
     direction: diff > 0 ? 'up' : 'down',
-    text: `${diff > 0 ? '+' : '\u2212'}${Math.abs(diff)} к вчерашнему дню`,
+    text: t('{n} к вчерашнему дню', { n: `${diff > 0 ? '+' : '\u2212'}${Math.abs(diff)}` }),
   };
 }
 

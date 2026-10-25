@@ -1,4 +1,5 @@
 import { unstable_rethrow } from 'next/navigation';
+import { msg } from '../../i18n';
 import {
   branchFoodPeriod,
   branchReportDay,
@@ -105,7 +106,7 @@ export function beautySales(days: BeautyDay[]) {
       visitMasters.set(item.employeeId, (visitMasters.get(item.employeeId) ?? 0n) + BigInt(item.priceMinor));
     }
     for (const [employeeId, price] of visitMasters)
-      add(masters, names.get(employeeId) ?? 'Мастер', price.toString());
+      add(masters, names.get(employeeId) ?? 'Мастер', price.toString()); // kk-allow: запасное имя исполнителя идёт строкой рейтинга вместе с именами из API (данные)
   }
   return {
     currency: days.at(-1)?.location.currency ?? done[0]?.currency ?? 'KZT',
@@ -197,7 +198,7 @@ export async function loadBusinessSales(
     top: [],
     team: [],
     seller,
-    error: branch ? null : 'Выберите филиал, чтобы увидеть продажи.',
+    error: branch ? null : msg('Выберите филиал, чтобы увидеть продажи.'),
   };
   if (!branch) return empty;
   const dates = periodDates(period.from, period.to);
@@ -212,10 +213,10 @@ export async function loadBusinessSales(
     return {
       ...empty,
       ...foodSales(report, reservations),
-      error: report || reservations ? null : 'Не удалось получить данные ресторана. Обновите страницу.',
+      error: report || reservations ? null : msg('Не удалось получить данные ресторана. Обновите страницу.'),
     };
   } catch (error) {
     unstable_rethrow(error);
-    return { ...empty, error: 'Не удалось получить данные филиала. Обновите страницу.' };
+    return { ...empty, error: msg('Не удалось получить данные филиала. Обновите страницу.') };
   }
 }

@@ -2406,72 +2406,87 @@
     line-height: 1.2;
     overflow-wrap: anywhere;
   }
+  /* шапка: номер брони и кнопки связи одной строкой (замечание владельца 25.10.2026 «много пустого места») */
+  .stay-panel__sub {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
   .stay-panel__number {
     margin: 0;
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
   }
   .stay-panel__contacts {
     display: flex;
-    gap: var(--space-2);
-    margin: var(--space-1) 0 var(--space-2);
+    gap: var(--space-1);
   }
   .stay-panel__round {
     display: inline-grid;
     place-items: center;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border: 1px solid var(--border);
     border-radius: 9999px;
     background: var(--surface-solid);
     color: var(--text);
   }
+  .stay-panel__round svg {
+    width: 16px;
+    height: 16px;
+  }
   .stay-panel__round:hover {
     background: var(--row-hover);
   }
+  /* факты плитками в две колонки: подпись сверху, значение под ней; оплата и заметки во всю ширину */
   .stay-panel__facts {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-2);
     margin: 0;
   }
   .stay-panel__group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
+    display: contents;
   }
   .stay-panel__row {
     display: grid;
-    grid-template-columns: 24px minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
-      'icon label value'
-      'icon . value';
-    align-items: start;
-    column-gap: var(--space-2);
+      'label'
+      'value';
+    align-content: start;
+    margin: 0;
+    min-width: 0;
+  }
+  .stay-panel__row--wide {
+    grid-column: 1 / -1;
   }
   .stay-panel__icon {
-    grid-area: icon;
+    display: inline-flex;
     color: var(--muted);
   }
   .stay-panel__icon svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
   }
   .stay-panel__row dt {
     grid-area: label;
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
     color: var(--muted);
     font-size: var(--text-xs);
   }
   .stay-panel__row dd {
     grid-area: value;
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--space-2);
     margin: 0;
     font-size: var(--text-sm);
     font-weight: var(--weight-semibold);
-    text-align: right;
     overflow-wrap: anywhere;
   }
   .stay-panel__row dd small {
@@ -2499,12 +2514,19 @@
     color: var(--warning);
     font-size: var(--text-sm);
   }
+  /* главное действие во всю ширину, остальные парой под ним */
   .stay-panel__actions {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-2);
     margin-top: auto;
     padding-top: var(--space-1);
+  }
+  .stay-panel__actions > :first-child:not(:only-child):nth-last-child(odd) {
+    grid-column: 1 / -1;
+  }
+  .stay-panel__actions > :only-child {
+    grid-column: 1 / -1;
   }
   .stay-panel__actions .btn {
     justify-content: center;

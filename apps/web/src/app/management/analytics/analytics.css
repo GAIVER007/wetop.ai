@@ -826,13 +826,29 @@
   .pa-sort:hover {
     text-decoration: underline;
   }
+  /* компактно (владелец 25.10.2026: «название канала слева, справа статистика», каналов бывает около 50): канал
+     в одну строку; брони рядом с названием, доля рядом с числом; под числом только «было» при сравнении */
   .pa-channels__share,
   .pa-channels__bookings,
   .pa-channels__before {
-    display: block;
     font-size: var(--text-xs);
     color: var(--text-2);
     font-variant-numeric: tabular-nums;
+  }
+  .pa-channels__share,
+  .pa-channels__bookings {
+    margin-left: var(--space-1);
+  }
+  .pa-channels__before {
+    display: block;
+  }
+  .pa-channels-table tbody td,
+  .pa-channels-table tfoot td,
+  .pa-channels-table tfoot th {
+    padding-block: var(--space-1);
+  }
+  .pa-channels-table td.dash-table__name {
+    white-space: nowrap;
   }
   .pa-channels__before .kpi-delta {
     margin-left: var(--space-1);

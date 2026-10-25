@@ -8,6 +8,7 @@ import { Icon } from '../../components/icon';
 import { saveBusinessCard } from './actions';
 import type { BusinessCardView } from './reference-board';
 import { Button, Input, Textarea } from '../../components/ui';
+import { useT } from '../../i18n/locale-provider';
 export function BusinessCardEditor({
   business,
   onClose,
@@ -18,6 +19,7 @@ export function BusinessCardEditor({
   branches?: BranchItem[];
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const t = useT();
   const [error, setError] = useState('');
   const [pending, startTransition] = useTransition();
   const [preview, setPreview] = useState<string | null>(business.coverUrl);
@@ -56,24 +58,24 @@ export function BusinessCardEditor({
     >
       <header>
         <div>
-          <h2 id="org-editor-title">Редактировать карточку</h2>
+          <h2 id="org-editor-title">{t('Редактировать карточку')}</h2>
           <p>{business.name}</p>
         </div>
-        <button type="button" className="icon-button" aria-label="Закрыть редактор" disabled={pending} onClick={onClose}>
+        <button type="button" className="icon-button" aria-label={t('Закрыть редактор')} disabled={pending} onClick={onClose}>
           <Icon name="close" />
         </button>
       </header>
       <Tabs
-        label="Редактирование бизнеса"
+        label={t('Редактирование бизнеса')}
         panels={[
           {
             id: 'business-card',
-            label: 'Карточка бизнеса',
+            label: t('Карточка бизнеса'),
             content: (
               <form onSubmit={submit} className="org-editor-form">
                 <div className="org-editor-fields">
                   <label>
-                    Название бизнеса
+                    {t('Название бизнеса')}
                     <Input
                       name="name"
                       required
@@ -83,7 +85,7 @@ export function BusinessCardEditor({
                     />
                   </label>
                   <label>
-                    Описание
+                    {t('Описание')}
                     <Textarea
                       name="description"
                       maxLength={1000}
@@ -91,25 +93,25 @@ export function BusinessCardEditor({
                       defaultValue={business.description ?? ''}
                       disabled={pending}
                     />
-                    <small>До 1000 символов</small>
+                    <small>{t('До 1000 символов')}</small>
                   </label>
                 </div>
-                <section className="org-editor-cover" aria-label="Обложка бизнеса">
-                  <h3>Обложка бизнеса</h3>
+                <section className="org-editor-cover" aria-label={t('Обложка бизнеса')}>
+                  <h3>{t('Обложка бизнеса')}</h3>
                   <div className="org-editor-photo">
                     {preview ? (
-                      <img src={preview} alt="Предпросмотр обложки" />
+                      <img src={preview} alt={t('Предпросмотр обложки')} />
                     ) : (
                       <div>
                         <Icon name="image" />
                         <span>
-                          {business.hasCover ? 'Обложка временно недоступна' : 'Обложка не выбрана'}
+                          {business.hasCover ? t('Обложка временно недоступна') : t('Обложка не выбрана')}
                         </span>
                       </div>
                     )}
                   </div>
                   <label>
-                    Выбрать обложку
+                    {t('Выбрать обложку')}
                     <input
                       type="file"
                       name="file"
@@ -119,12 +121,12 @@ export function BusinessCardEditor({
                         const file = e.target.files?.[0];
                         if (!file) return;
                         if (file.size > 5 * 1024 * 1024) {
-                          setError('Фото должно быть не больше 5 МБ.');
+                          setError(t('Фото должно быть не больше 5 МБ.'));
                           e.target.value = '';
                           return;
                         }
                         if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-                          setError('Выберите JPEG, PNG или WebP.');
+                          setError(t('Выберите JPEG, PNG или WebP.'));
                           e.target.value = '';
                           return;
                         }
@@ -137,8 +139,8 @@ export function BusinessCardEditor({
                     />
                     <small>
                       {business.canUpload
-                        ? 'JPEG, PNG или WebP, до 5 МБ'
-                        : 'Загрузка фото недоступна: хранилище ещё не подключено.'}
+                        ? t('JPEG, PNG или WebP, до 5 МБ')
+                        : t('Загрузка фото недоступна: хранилище ещё не подключено.')}
                     </small>
                   </label>
                   {(preview || business.hasCover) && !removeCover && (
@@ -156,7 +158,7 @@ export function BusinessCardEditor({
                         if (input) input.value = '';
                       }}
                     >
-                      Убрать обложку
+                      {t('Убрать обложку')}
                     </Button>
                   )}
                 </section>
@@ -167,10 +169,10 @@ export function BusinessCardEditor({
                 )}
                 <footer>
                   <Button type="button" tone="secondary" onClick={onClose} disabled={pending}>
-                    Отмена
+                    {t('Отмена')}
                   </Button>
                   <Button type="submit" disabled={pending}>
-                    {pending ? 'Сохраняем…' : 'Сохранить изменения'}
+                    {pending ? t('Сохраняем…') : t('Сохранить изменения')}
                   </Button>
                 </footer>
               </form>
@@ -178,14 +180,13 @@ export function BusinessCardEditor({
           },
           {
             id: 'business-branches',
-            label: 'Объекты и филиалы',
+            label: t('Объекты и филиалы'),
             count: branches.length,
             content: (
               <section className="org-editor-branches">
-                <h3>Объекты и филиалы</h3>
+                <h3>{t('Объекты и филиалы')}</h3>
                 <p>
-                  Откройте филиал для работы или измените его настройки. Удалённый филиал можно
-                  восстановить из архива.
+                  {t('Откройте филиал для работы или измените его настройки. Удалённый филиал можно восстановить из архива.')}
                 </p>
                 {branches.length ? (
                   <ul>
@@ -193,13 +194,13 @@ export function BusinessCardEditor({
                       <li key={branch.locationId}>
                         <div className="org-editor-branch-info">
                           <strong>{branch.name}</strong>
-                          <small>{branch.address || 'Адрес не указан'}</small>
+                          <small>{branch.address || t('Адрес не указан')}</small>
                         </div>
                         <div className="org-editor-branch-actions">
                           <form action={selectBranch}>
                             <input type="hidden" name="id" value={branch.id} />
                             <Button type="submit" tone="secondary" size="sm" className="org-editor-open">
-                              Открыть филиал
+                              {t('Открыть филиал')}
                             </Button>
                           </form>
                           {branch.vertical === 'HOSPITALITY' && (
@@ -207,7 +208,7 @@ export function BusinessCardEditor({
                               <input type="hidden" name="id" value={branch.id} />
                               <input type="hidden" name="returnTo" value="/hotel-settings" />
                               <Button type="submit" tone="secondary" size="sm" className="org-editor-settings">
-                                Редактировать филиал
+                                {t('Редактировать филиал')}
                               </Button>
                             </form>
                           )}
@@ -218,8 +219,7 @@ export function BusinessCardEditor({
                   </ul>
                 ) : (
                   <p>
-                    Активных объектов пока нет. Архивные можно восстановить в разделе «Архив
-                    объектов».
+                    {t('Активных объектов пока нет. Архивные можно восстановить в разделе «Архив объектов».')}
                   </p>
                 )}
               </section>

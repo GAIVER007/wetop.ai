@@ -8,7 +8,9 @@ import { displayDate } from '../../lib/display-date';
 import { hotelToday } from '../../lib/hotel-api';
 import { messengerLinks } from '../../lib/format';
 import { formatMoney } from '../../lib/money';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, intlLocale, msg } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
+import { nightsLabel, type Lang } from '../chessboard/lang';
 import { Icon } from '../../components/icon';
 import { Tabs } from '../../components/tabs';
 import { Badge, EmptyState, StatusBadge } from '../../components/ui';
@@ -38,6 +40,10 @@ export async function GuestPanel({
   /** ссылка закрытия: тот же список с `guest=none` */
   closeHref: string;
 }) {
+  const t = await serverT();
+  const locale = await currentLocale();
+  const lang: Lang = { t, locale };
+  const date = (iso: string, style: 'short' | 'numeric' = 'short') => displayDate(iso, style, intlLocale(locale));
   const [loaded, today, { readOnly }] = await Promise.all([
     guestsApi.preview(id).then(
       (guest) => ({ ok: true as const, guest }),
@@ -54,14 +60,14 @@ export async function GuestPanel({
       <div className="gb-panel__card" data-testid="guest-panel-error">
         <EmptyState
           icon={<Icon name="guests" />}
-          title="Гость не открылся"
+          title={t('Гость не открылся')}
           actions={
             <Link className="btn btn--secondary" href={closeHref}>
-              Закрыть
+              {t('Закрыть')}
             </Link>
           }
         >
-          Гостя нет в базе организации или сервер не ответил. Выберите другого гостя в списке.
+          {t('Гостя нет в базе организации или сервер не ответил. Выберите другого гостя в списке.')}
         </EmptyState>
       </div>
     );
@@ -69,7 +75,7 @@ export async function GuestPanel({
   const stay = g.stay;
   const actions = readOnly ? null : stayActions(stay);
   const messengers = messengerLinks(g.phone);
-  const status = stayStatus(g, today);
+  const status = stayStatus(g, today, lang);
   const name = guestDisplayName(g);
   const payment = stayPayment(stay);
   const currency = stay?.currency ?? g.currency;
@@ -80,23 +86,23 @@ export async function GuestPanel({
 
   const info = (
     <div className="gb-panel__body">
-      <PanelSection title="Контакты" action={{ href: `/guests/${encodeURIComponent(g.id)}`, label: 'Изменить' }}>
+      <PanelSection title={t('Контакты')} action={{ href: `/guests/${encodeURIComponent(g.id)}`, label: t('Изменить') }}>
         <ul className="gb-contact-list">
           <li>
             <Icon name="phone" width={16} height={16} />
-            <span>{g.phone ? formatPhone(g.phone) : <span className="muted">нет телефона</span>}</span>
-            {g.phone && <CopyButton text={g.phone} what="телефон" />}
+            <span>{g.phone ? formatPhone(g.phone) : <span className="muted">{t('нет телефона')}</span>}</span>
+            {g.phone && <CopyButton text={g.phone} what={t('телефон')} />}
           </li>
           <li>
             <Icon name="mail" width={16} height={16} />
-            <span>{g.email ?? <span className="muted">нет почты</span>}</span>
-            {g.email && <CopyButton text={g.email} what="почту" />}
+            <span>{g.email ?? <span className="muted">{t('нет почты')}</span>}</span>
+            {g.email && <CopyButton text={g.email} what={t('почту')} />}
           </li>
           {messengers && (
             <li>
               <Icon name="chat" width={16} height={16} />
               <a href={messengers.whatsapp} target="_blank" rel="noreferrer">
-                Написать в WhatsApp
+                {t('Написать в WhatsApp')}
               </a>
             </li>
           )}
@@ -104,17 +110,17 @@ export async function GuestPanel({
       </PanelSection>
 
       <PanelSection
-        title="Бронь"
+        title={t('Бронь')}
         action={
           stay?.confirmationNumber
-            ? { href: `/reservations/${encodeURIComponent(stay.confirmationNumber)}`, label: 'Открыть' }
+            ? { href: `/reservations/${encodeURIComponent(stay.confirmationNumber)}`, label: t('Открыть') }
             : undefined
         }
       >
         {stay ? (
           <dl className="gb-facts" data-testid="guest-panel-stay">
             <div>
-              <dt>Номер брони</dt>
+              <dt>{t('Номер брони')}</dt>
               <dd>
                 {stay.confirmationNumber ? (
                   <Link href={`/reservations/${encodeURIComponent(stay.confirmationNumber)}`} prefetch={false}>
@@ -126,46 +132,47 @@ export async function GuestPanel({
               </dd>
             </div>
             <div>
-              <dt>Номер и категория</dt>
+              <dt>{t('Номер и категория')}</dt>
               <dd>
-                {stay.unitCode ? <strong>{stay.unitCode}</strong> : <span className="warn-text">не назначена</span>}{' '}
+                {stay.unitCode ? <strong>{stay.unitCode}</strong> : <span className="warn-text">{t('не назначена')}</span>}{' '}
                 <span className="muted">{stay.accommodationTypeName}</span>
               </dd>
             </div>
             <div>
-              <dt>Даты проживания</dt>
+              <dt>{t('Даты проживания')}</dt>
               <dd>
-                <time dateTime={stay.arrivalDate}>{displayDate(stay.arrivalDate, stayStyle)}</time>
+                <time dateTime={stay.arrivalDate}>{date(stay.arrivalDate, stayStyle)}</time>
                 {' → '}
-                <time dateTime={stay.departureDate}>{displayDate(stay.departureDate, stayStyle)}</time>{' '}
-                <span className="muted">({pluralRu(stay.nights, ['ночь', 'ночи', 'ночей'])})</span>
+                <time dateTime={stay.departureDate}>{date(stay.departureDate, stayStyle)}</time>{' '}
+                <span className="muted">({nightsLabel(lang, stay.nights)})</span>
               </dd>
             </div>
             <div>
-              <dt>Количество гостей</dt>
+              <dt>{t('Количество гостей')}</dt>
               <dd>
-                {pluralRu(stay.adults, ['взрослый', 'взрослых', 'взрослых'])}
-                {stay.children > 0 && `, ${pluralRu(stay.children, ['ребёнок', 'ребёнка', 'детей'])}`}
+                {countLabel(locale, t, stay.adults, [msg('взрослый'), 'взрослых', msg('взрослых')]) /* kk-allow: форма склонения */}
+                {stay.children > 0 &&
+                  `, ${countLabel(locale, t, stay.children, [msg('ребёнок'), 'ребёнка', msg('детей')])}` /* kk-allow: форма склонения */}
               </dd>
             </div>
             <div>
-              <dt>Источник</dt>
-              <dd>{sourceLabel(stay.source, stay.channel)}</dd>
+              <dt>{t('Источник')}</dt>
+              <dd>{t(sourceLabel(stay.source, stay.channel))}</dd>
             </div>
           </dl>
         ) : (
           <p className="muted" data-testid="guest-panel-nostay">
             {g.lastCancelledAt
-              ? `Бронь на ${displayDate(g.lastCancelledAt)} отменена, других проживаний нет.`
-              : 'Проживаний нет: гость появится здесь после брони.'}
+              ? t('Бронь на {date} отменена, других проживаний нет.', { date: date(g.lastCancelledAt) })
+              : t('Проживаний нет: гость появится здесь после брони.')}
           </p>
         )}
       </PanelSection>
 
       {stay && (
         <PanelSection
-          title="Оплата"
-          action={actions?.service ? { href: actions.service, label: 'Счёт' } : undefined}
+          title={t('Оплата')}
+          action={actions?.service ? { href: actions.service, label: t('Счёт') } : undefined}
         >
           {stay.money ? (
             <div data-testid="guest-panel-payment">
@@ -176,15 +183,15 @@ export async function GuestPanel({
               )}
               <dl className="gb-facts">
                 <div>
-                  <dt>Общая сумма</dt>
+                  <dt>{t('Общая сумма')}</dt>
                   <dd className="num">{formatMoney(stay.money.chargedMinor, currency)}</dd>
                 </div>
                 <div>
-                  <dt>Оплачено</dt>
+                  <dt>{t('Оплачено')}</dt>
                   <dd className="num">{formatMoney(stay.money.paidMinor, currency)}</dd>
                 </div>
                 <div>
-                  <dt>Долг</dt>
+                  <dt>{t('Долг')}</dt>
                   <dd className={BigInt(stay.money.balanceMinor) > 0n ? 'num warn-text' : 'num'}>
                     {formatMoney(BigInt(stay.money.balanceMinor) > 0n ? stay.money.balanceMinor : '0', currency)}
                   </dd>
@@ -193,73 +200,77 @@ export async function GuestPanel({
             </div>
           ) : (
             <p className="muted" data-testid="guest-panel-payment">
-              Счёта по проживанию нет.
+              {t('Счёта по проживанию нет.')}
             </p>
           )}
         </PanelSection>
       )}
 
       <PanelSection
-        title="История проживания"
-        action={g.visits.length > 3 || g.staysCount > 3 ? { href: '#history', label: `Все визиты (${g.staysCount})` } : undefined}
+        title={t('История проживания')}
+        action={
+          g.visits.length > 3 || g.staysCount > 3
+            ? { href: '#history', label: t('Все визиты ({n})', { n: g.staysCount }) }
+            : undefined
+        }
       >
         {visitsShown.length ? (
           <ul className="gb-visits" data-testid="guest-panel-visits">
             {visitsShown.map((v) => (
               <li key={`${v.confirmationNumber}-${v.arrivalDate}`}>
-                <time dateTime={v.arrivalDate}>{displayDate(v.arrivalDate, yearOf(v.arrivalDate) ? 'numeric' : 'short')}</time>
+                <time dateTime={v.arrivalDate}>{date(v.arrivalDate, yearOf(v.arrivalDate) ? 'numeric' : 'short')}</time>
                 <span>
                   <strong>{v.unitCode ?? '–'}</strong> <span className="muted">{v.accommodationTypeName}</span>
                 </span>
-                <span className="muted">{pluralRu(v.nights, ['ночь', 'ночи', 'ночей'])}</span>
+                <span className="muted">{nightsLabel(lang, v.nights)}</span>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="muted">Состоявшихся визитов пока нет.</p>
+          <p className="muted">{t('Состоявшихся визитов пока нет.')}</p>
         )}
       </PanelSection>
 
       <div className="gb-panel__actions" data-testid="guest-panel-actions">
         {actions?.open && (
           <Link className="btn gb-panel__primary" href={actions.open} prefetch={false}>
-            Открыть бронь
+            {t('Открыть бронь')}
           </Link>
         )}
         {actions?.checkOut && (
           <Link className="btn btn--secondary" href={actions.checkOut} prefetch={false}>
-            Выселить
+            {t('Выселить')}
           </Link>
         )}
         {actions?.checkIn && (
           <Link className="btn btn--secondary" href={actions.checkIn} prefetch={false}>
-            Заселить
+            {t('Заселить')}
           </Link>
         )}
         {actions?.extend && (
           <Link className="btn btn--secondary" href={actions.extend} prefetch={false}>
-            Продлить
+            {t('Продлить')}
           </Link>
         )}
         {actions?.relocate && (
           <Link className="btn btn--secondary" href={actions.relocate} prefetch={false}>
-            Переселить
+            {t('Переселить')}
           </Link>
         )}
         {actions?.service && (
           <Link className="btn btn--secondary" href={actions.service} prefetch={false}>
-            Добавить услугу
+            {t('Добавить услугу')}
           </Link>
         )}
         {!readOnly && !actions?.open && (
           <Link className="btn gb-panel__primary" href={`/reservations/new?guest=${encodeURIComponent(g.id)}`}>
             <Icon name="plus" />
-            Новая бронь
+            {t('Новая бронь')}
           </Link>
         )}
         {messengers && (
           <a className="btn btn--secondary gb-panel__wide" href={messengers.whatsapp} target="_blank" rel="noreferrer">
-            Написать в WhatsApp
+            {t('Написать в WhatsApp')}
           </a>
         )}
       </div>
@@ -276,19 +287,19 @@ export async function GuestPanel({
                 {s.description}
                 {s.quantity > 1 && ` × ${s.quantity}`}
               </span>
-              <span className="muted">{s.serviceDate ? displayDate(s.serviceDate) : ''}</span>
+              <span className="muted">{s.serviceDate ? date(s.serviceDate) : ''}</span>
               <span className="num">{formatMoney(s.amountMinor, currency)}</span>
             </li>
           ))}
         </ul>
       ) : (
         <p className="muted" data-testid="guest-panel-services-empty">
-          В счёте основного проживания услуг нет.
+          {t('В счёте основного проживания услуг нет.')}
         </p>
       )}
       {actions?.service && (
         <Link className="btn btn--secondary" href={actions.service} prefetch={false}>
-          Добавить услугу
+          {t('Добавить услугу')}
         </Link>
       )}
     </div>
@@ -306,15 +317,15 @@ export async function GuestPanel({
               <span>
                 <strong>{v.unitCode ?? '–'}</strong> <span className="muted">{v.accommodationTypeName}</span>
               </span>
-              <span className="muted">{pluralRu(v.nights, ['ночь', 'ночи', 'ночей'])}</span>
+              <span className="muted">{nightsLabel(lang, v.nights)}</span>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="muted">Состоявшихся визитов пока нет.</p>
+        <p className="muted">{t('Состоявшихся визитов пока нет.')}</p>
       )}
       <Link className="btn btn--secondary" href={`/guests/${encodeURIComponent(g.id)}`}>
-        Открыть гостя
+        {t('Открыть гостя')}
       </Link>
     </div>
   );
@@ -327,11 +338,11 @@ export async function GuestPanel({
         </p>
       ) : (
         <p className="muted" data-testid="guest-panel-notes">
-          Заметок нет.
+          {t('Заметок нет.')}
         </p>
       )}
       <Link className="btn btn--secondary" href={`/guests/${encodeURIComponent(g.id)}`}>
-        Открыть карточку гостя
+        {t('Открыть карточку гостя')}
       </Link>
     </div>
   );
@@ -348,22 +359,22 @@ export async function GuestPanel({
             {status && <Badge tone={status.tone}>{status.word}</Badge>}
           </h2>
           <p className="muted gb-panel__sub">
-            <span>{guestNote(g)}</span>
-            <span>{visitsWord(g.staysCount)}</span>
+            <span>{guestNote(g, lang)}</span>
+            <span>{visitsWord(g.staysCount, lang)}</span>
           </p>
         </div>
-        <Link className="gb-panel__close" href={closeHref} scroll={false} aria-label="Закрыть панель гостя">
+        <Link className="gb-panel__close" href={closeHref} scroll={false} aria-label={t('Закрыть панель гостя')}>
           <Icon name="close" width={18} height={18} />
         </Link>
       </header>
       <Tabs
         key={g.id}
-        label="Панель гостя"
+        label={t('Панель гостя')}
         panels={[
-          { id: 'info', label: 'Информация', content: info },
-          { id: 'services', label: 'Услуги', content: services },
-          { id: 'history', label: 'История', content: history },
-          { id: 'notes', label: 'Заметки', content: notes },
+          { id: 'info', label: t('Информация'), content: info },
+          { id: 'services', label: t('Услуги'), content: services },
+          { id: 'history', label: t('История'), content: history },
+          { id: 'notes', label: t('Заметки'), content: notes },
         ]}
       />
     </div>

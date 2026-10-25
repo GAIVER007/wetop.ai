@@ -27,6 +27,7 @@ import { publishSimpleAction, saveDraftAction, uploadSitePhotoAction } from './a
 import type { Spec } from './fields';
 import { SitePreview } from './preview';
 import { TemplateGallery } from './template-gallery';
+import { useT } from '../../../../i18n/locale-provider';
 
 /**
  * Простой экран сайта (SITE-1, решение владельца 15.10.2026): сайт это зеркало данных WETOP (услуги, цены, мастера,
@@ -41,7 +42,7 @@ interface Base {
 }
 type SaveState = 'saved' | 'pending' | 'saving' | 'error' | 'conflict';
 const AUTOSAVE_MS = 1000;
-const asImage = (a: SiteAssetView): SimpleImage => ({ assetId: a.id, alt: { ru: a.defaultAlt?.ru?.trim() || 'Фото' } });
+const asImage = (a: SiteAssetView): SimpleImage => ({ assetId: a.id, alt: { ru: a.defaultAlt?.ru?.trim() || 'Фото' } }); // kk-allow: подпись ru-версии самого сайта, не текст стойки
 
 export function SimpleSiteSetup({
   vertical,
@@ -65,6 +66,7 @@ export function SimpleSiteSetup({
   /** Можно ли публиковать (аудит 17.10.2026, Д10, `publishTarget`): у салона и ресторана пока причина */
   publish?: { href: string } | { reason: string };
 }) {
+  const t = useT();
   const templates = useMemo(() => siteTemplatesFor(vertical), [vertical]);
   const [base, setBase] = useState<Base>(initialBase);
   const [spec, setSpec] = useState<Spec>(initialBase.spec);
@@ -160,14 +162,14 @@ export function SimpleSiteSetup({
     next = setAboutText(next, locale, c.about);
     apply(next as Spec);
     setCopyIndex((i) => (i + 1) % SITE_COPY_COUNT(vertical));
-    setNotice('Текст подставлен. Поправьте под себя: цифры, гарантии и акции должны быть правдой.');
+    setNotice(t('Текст подставлен. Поправьте под себя: цифры, гарантии и акции должны быть правдой.'));
   };
 
   const publish = async () => {
     const ok = await ask({
-      title: publishedId ? 'Обновить сайт?' : 'Опубликовать сайт?',
-      body: 'Посетители увидят сайт таким, как справа. Цены, услуги и часы и дальше будут обновляться сами из WETOP.',
-      confirmLabel: 'Опубликовать',
+      title: publishedId ? t('Обновить сайт?') : t('Опубликовать сайт?'),
+      body: t('Посетители увидят сайт таким, как справа. Цены, услуги и часы и дальше будут обновляться сами из WETOP.'),
+      confirmLabel: t('Опубликовать'),
     });
     if (!ok) return;
     setBusy('publish');
@@ -177,33 +179,33 @@ export function SimpleSiteSetup({
     const r = await publishSimpleAction(head.id);
     setBusy(null);
     if (!r.ok) {
-      setError(r.needsSetup ? `${r.message}. Откройте «Публикация», чтобы выбрать тариф.` : r.message);
+      setError(r.needsSetup ? t('{message}. Откройте «Публикация», чтобы выбрать тариф.', { message: r.message }) : r.message);
       return;
     }
     setPublishedId(head.id);
     if (r.url) setUrl(r.url);
-    setNotice('Сайт опубликован.');
+    setNotice(t('Сайт опубликован.'));
   };
 
   const statusText =
     state === 'saving' || state === 'pending'
-      ? 'Сохраняем…'
+      ? t('Сохраняем…')
       : state === 'conflict'
-        ? 'Сайт изменили в другой вкладке: обновите страницу'
+        ? t('Сайт изменили в другой вкладке: обновите страницу')
         : state === 'error'
-          ? 'Не сохранено'
+          ? t('Не сохранено')
           : publishedId && publishedId === base.id
-            ? 'Сохранено и опубликовано'
+            ? t('Сохранено и опубликовано')
             : publishedId
-              ? 'Сохранено, есть неопубликованные изменения'
-              : 'Сохранено, ещё не опубликован';
+              ? t('Сохранено, есть неопубликованные изменения')
+              : t('Сохранено, ещё не опубликован');
   const live = !!publishedId && publishedId === base.id;
   const photos = assets.filter((a) => a.kind === 'IMAGE' && a.previewUrl);
 
   return (
     <div className="setup" data-testid="site-setup">
       {dialog}
-      <section className="setup__steps" aria-label="Настройка сайта">
+      <section className="setup__steps" aria-label={t('Настройка сайта')}>
         <header className="setup__head">
           <div>
             <h2 className="setup__title">{locationName}</h2>
@@ -213,7 +215,7 @@ export function SimpleSiteSetup({
           </div>
         </header>
         <p className="setup__mirror" data-testid="setup-mirror">
-          Услуги, цены, мастера, часы и контакты сайт берёт из WETOP сам. Поменяли в WETOP, сайт обновится без публикации.
+          {t('Услуги, цены, мастера, часы и контакты сайт берёт из WETOP сам. Поменяли в WETOP, сайт обновится без публикации.')}
         </p>
         {error && (
           <Alert boxed tone="warning" role="alert" data-testid="setup-error">
@@ -228,7 +230,8 @@ export function SimpleSiteSetup({
 
         <fieldset className="setup__step" disabled={readOnly || !!busy} data-testid="setup-template">
           <legend>
-            <span className="setup__n">1</span>Шаблон
+            <span className="setup__n">1</span>
+            {t('Шаблон')}
           </legend>
           {facts ? (
             <TemplateGallery
@@ -243,7 +246,7 @@ export function SimpleSiteSetup({
               compact
             />
           ) : (
-            <div className="setup__tpls" role="radiogroup" aria-label="Шаблон сайта">
+            <div className="setup__tpls" role="radiogroup" aria-label={t('Шаблон сайта')}>
               {templates.map((tpl) => (
                 <button
                   key={tpl.id}
@@ -258,8 +261,8 @@ export function SimpleSiteSetup({
                   data-testid="setup-template-option"
                 >
                   <span className={cx('ed-design__swatch', `is-${tpl.direction.theme.preset.toLowerCase()}`)} aria-hidden="true" />
-                  <b>{tpl.name}</b>
-                  <span className="muted">{tpl.description}</span>
+                  <b>{t(tpl.name)}</b>
+                  <span className="muted">{t(tpl.description)}</span>
                 </button>
               ))}
             </div>
@@ -268,21 +271,22 @@ export function SimpleSiteSetup({
 
         <fieldset className="setup__step" disabled={readOnly || !!busy} data-testid="setup-photos">
           <legend>
-            <span className="setup__n">2</span>Фото
+            <span className="setup__n">2</span>
+            {t('Фото')}
           </legend>
           <div className="setup__photo-row">
             <div className="setup__cover">
               {st.heroPhoto && assetUrls[st.heroPhoto.assetId] ? (
-                <img src={assetUrls[st.heroPhoto.assetId]} alt={st.heroPhoto.alt[locale] ?? 'Обложка'} />
+                <img src={assetUrls[st.heroPhoto.assetId]} alt={st.heroPhoto.alt[locale] ?? t('Обложка')} />
               ) : (
-                <span className="muted">Нет обложки</span>
+                <span className="muted">{t('Нет обложки')}</span>
               )}
             </div>
             <div className="setup__photo-actions">
-              <b>Обложка сайта</b>
-              <span className="muted">Большое фото на первом экране</span>
+              <b>{t('Обложка сайта')}</b>
+              <span className="muted">{t('Большое фото на первом экране')}</span>
               <label className="btn btn--secondary btn--sm setup__file">
-                {st.heroPhoto ? 'Заменить обложку' : 'Загрузить обложку'}
+                {st.heroPhoto ? t('Заменить обложку') : t('Загрузить обложку')}
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
@@ -297,23 +301,29 @@ export function SimpleSiteSetup({
               </label>
               {st.heroPhoto && (
                 <Button type="button" tone="ghost" size="sm" onClick={() => apply(setHeroPhoto(specRef.current, null) as Spec)}>
-                  Убрать обложку
+                  {t('Убрать обложку')}
                 </Button>
               )}
             </div>
           </div>
           <div className="setup__gallery-head">
-            <b>Галерея работ</b>
-            <span className="muted">{st.gallery.length >= 3 ? `${st.gallery.length} фото на сайте` : 'Появится на сайте от 3 фото'}</span>
+            <b>{t('Галерея работ')}</b>
+            <span className="muted">
+              {st.gallery.length >= 3 ? t('{n} фото на сайте', { n: st.gallery.length }) : t('Появится на сайте от 3 фото')}
+            </span>
           </div>
           <div className="setup__thumbs" data-testid="setup-gallery">
             {st.gallery.map((img, i) => (
               <div key={`${img.assetId}-${i}`} className="setup__thumb">
-                {assetUrls[img.assetId] ? <img src={assetUrls[img.assetId]} alt={img.alt[locale] ?? 'Фото'} /> : <span className="muted">Фото</span>}
+                {assetUrls[img.assetId] ? (
+                  <img src={assetUrls[img.assetId]} alt={img.alt[locale] ?? t('Фото')} />
+                ) : (
+                  <span className="muted">{t('Фото')}</span>
+                )}
                 <button
                   type="button"
                   className="setup__thumb-x"
-                  aria-label="Убрать фото из галереи"
+                  aria-label={t('Убрать фото из галереи')}
                   onClick={() => apply(setGalleryPhotos(specRef.current, st.gallery.filter((_, j) => j !== i)) as Spec)}
                 >
                   ×
@@ -321,7 +331,7 @@ export function SimpleSiteSetup({
               </div>
             ))}
             <label className="setup__thumb setup__thumb--add">
-              <span>{busy === 'upload' ? 'Загружаем…' : '+ Добавить фото'}</span>
+              <span>{busy === 'upload' ? t('Загружаем…') : t('+ Добавить фото')}</span>
               <input
                 type="file"
                 multiple
@@ -338,7 +348,7 @@ export function SimpleSiteSetup({
           </div>
           {photos.length > 0 && (
             <details className="setup__library">
-              <summary>Выбрать из загруженных ({photos.length})</summary>
+              <summary>{t('Выбрать из загруженных ({n})', { n: photos.length })}</summary>
               <div className="setup__thumbs">
                 {photos.map((a) => {
                   const inGallery = st.gallery.some((g) => g.assetId === a.id);
@@ -348,7 +358,7 @@ export function SimpleSiteSetup({
                       type="button"
                       className={cx('setup__thumb', inGallery && 'is-on')}
                       aria-pressed={inGallery}
-                      aria-label={inGallery ? 'Убрать из галереи' : 'Добавить в галерею'}
+                      aria-label={inGallery ? t('Убрать из галереи') : t('Добавить в галерею')}
                       onClick={() =>
                         apply(
                           setGalleryPhotos(
@@ -369,21 +379,22 @@ export function SimpleSiteSetup({
 
         <fieldset className="setup__step" disabled={readOnly || !!busy} data-testid="setup-texts">
           <legend>
-            <span className="setup__n">3</span>Тексты
+            <span className="setup__n">3</span>
+            {t('Тексты')}
           </legend>
           <Button type="button" tone="secondary" size="sm" onClick={suggest} data-testid="setup-suggest">
-            ✦ Предложить текст
+            {t('✦ Предложить текст')}
           </Button>
           <TextBox
             id="setup-heading"
-            label="Заголовок"
+            label={t('Заголовок')}
             value={st.heroHeading}
             max={80}
             onCommit={(v) => apply(setHeroText(specRef.current, 'heading', locale, v) as Spec)}
           />
           <TextBox
             id="setup-sub"
-            label="Подзаголовок: главная выгода"
+            label={t('Подзаголовок: главная выгода')}
             value={st.heroSubheading}
             max={200}
             rows={2}
@@ -391,8 +402,8 @@ export function SimpleSiteSetup({
           />
           <TextBox
             id="setup-about"
-            label="О нас"
-            hint="Абзацы через пустую строку. Пусто, блока нет."
+            label={t('О нас')}
+            hint={t('Абзацы через пустую строку. Пусто, блока нет.')}
             value={st.about}
             max={1800}
             rows={5}
@@ -402,7 +413,8 @@ export function SimpleSiteSetup({
 
         <fieldset className="setup__step" disabled={readOnly || !!busy} data-testid="setup-blocks">
           <legend>
-            <span className="setup__n">4</span>Блоки на сайте
+            <span className="setup__n">4</span>
+            {t('Блоки на сайте')}
           </legend>
           {SIMPLE_BLOCKS.map((b) => {
             const on = st.blocks[b.type] === true;
@@ -418,8 +430,8 @@ export function SimpleSiteSetup({
                   data-testid={`setup-block-${b.type}`}
                 />
                 <span>
-                  <b>{b.label}</b>
-                  <span className="muted">{possible ? b.hint : 'Нет данных в WETOP'}</span>
+                  <b>{t(b.label)}</b>
+                  <span className="muted">{possible ? t(b.hint) : t('Нет данных в WETOP')}</span>
                 </span>
               </label>
             );
@@ -429,11 +441,11 @@ export function SimpleSiteSetup({
         <div className="setup__step setup__publish" data-testid="setup-publish">
           <div className="setup__publish-head">
             <span className="setup__n">5</span>
-            <b>Публикация</b>
+            <b>{t('Публикация')}</b>
           </div>
           {url && (
             <p className="setup__url">
-              Адрес:{' '}
+              {t('Адрес:')}{' '}
               <a href={url} target="_blank" rel="noreferrer" data-testid="setup-url">
                 {url.replace(/^https?:\/\//, '')}
               </a>
@@ -446,7 +458,7 @@ export function SimpleSiteSetup({
             onClick={() => void publish()}
             data-testid="setup-publish-btn"
           >
-            {busy === 'publish' ? 'Публикуем…' : live ? 'Опубликовано' : publishedId ? 'Обновить сайт' : 'Опубликовать сайт'}
+            {busy === 'publish' ? t('Публикуем…') : live ? t('Опубликовано') : publishedId ? t('Обновить сайт') : t('Опубликовать сайт')}
           </Button>
           {'reason' in publishTo && (
             <p className="muted" id="setup-publish-reason" data-testid="setup-publish-reason">
@@ -455,16 +467,16 @@ export function SimpleSiteSetup({
           )}
           <ul className="setup__more">
             <li>
-              <Link href="/marketing/site">Публикация и домен</Link>
+              <Link href="/marketing/site">{t('Публикация и домен')}</Link>
             </li>
             <li>
-              <Link href="/marketing/site/editor?full=1">Расширенный режим</Link>
+              <Link href="/marketing/site/editor?full=1">{t('Расширенный режим')}</Link>
             </li>
           </ul>
         </div>
       </section>
 
-      <section className="setup__site" aria-label="Сайт">
+      <section className="setup__site" aria-label={t('Сайт')}>
         <SitePreview
           spec={spec}
           pageId={null}

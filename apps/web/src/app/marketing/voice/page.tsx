@@ -30,6 +30,8 @@ import {
   bookingTitle,
   callbackStatusLabel,
   formatDuration, formatPhone, formatWhen, stateBadge, summaryItems } from './format';
+import { msg, type DeskLocale, type Translate } from '../../../i18n';
+import { currentLocale, serverT } from '../../../i18n/server';
 
 /**
  * Модуль «Голосовой агент» (ИИ-колл-центр, docs/voice/voice-channel.md, DATA_MODEL VOICE-OWNER-APPROVAL-20261022).
@@ -72,20 +74,21 @@ async function load(month: string | undefined): Promise<Loaded> {
 const telDigits = (phone: string) => phone.replace(/[^+\d]/g, '');
 
 const SETUP_STEPS = [
-  'Номер у SIP-провайдера (например Twilio) и шлюзы в панели VideoSDK.',
-  'Правило маршрутизации: звонок на ваш номер идёт на агента-воркера, в metadata правила указаны организация и агент.',
-  'Агент ИИ-продавца этого филиала в состоянии «Действует».',
-  'Ключ приёма событий и запуск воркера на сервере: делает владелец, значения ключей здесь не вводятся.',
+  msg('Номер у SIP-провайдера (например Twilio) и шлюзы в панели VideoSDK.'),
+  msg('Правило маршрутизации: звонок на ваш номер идёт на агента-воркера, в metadata правила указаны организация и агент.'),
+  msg('Агент ИИ-продавца этого филиала в состоянии «Действует».'),
+  msg('Ключ приёма событий и запуск воркера на сервере: делает владелец, значения ключей здесь не вводятся.'),
 ];
+const NO_DATA = msg('Нет данных');
 
-function Summary({ summary }: { summary: VoiceSummaryView }) {
+function Summary({ summary, t, locale }: { summary: VoiceSummaryView; t: Translate; locale: DeskLocale }) {
   return (
     <dl className="money-summary" data-testid="voice-summary">
-      {summaryItems(summary).map((item) => (
+      {summaryItems(summary, locale).map((item) => (
         <div key={item.key}>
-          <dt>{item.label}</dt>
-          <dd data-testid={`voice-summary-${item.key}`} className={item.value === 'Нет данных' ? 'muted' : undefined}>
-            {item.value}
+          <dt>{t(item.label)}</dt>
+          <dd data-testid={`voice-summary-${item.key}`} className={item.value === NO_DATA ? 'muted' : undefined}>
+            {t(item.value)}
           </dd>
         </div>
       ))}
@@ -93,20 +96,21 @@ function Summary({ summary }: { summary: VoiceSummaryView }) {
   );
 }
 
-function SetupNote() {
+function SetupNote({ t }: { t: Translate }) {
   return (
     <section className="panel" aria-labelledby="voice-setup-title" data-testid="voice-setup">
       <h2 id="voice-setup-title" className="marketing-screen__title">
-        Как подключить голосового агента
+        {t('Как подключить голосового агента')}
       </h2>
       <ol className="settings-note">
         {SETUP_STEPS.map((step) => (
-          <li key={step}>{step}</li>
+          <li key={step}>{t(step)}</li>
         ))}
       </ol>
       <p className="settings-note">
-        Агент называет себя ИИ-помощником и предупреждает, что разговор записывается. Пока бронь по телефону выключена, он записи, брони и заказа
-        стола не оформляет: собирает имя и номер и оставляет просьбу перезвонить. Включается она во вкладке «Бронь по телефону».
+        {t(
+          'Агент называет себя ИИ-помощником и предупреждает, что разговор записывается. Пока бронь по телефону выключена, он записи, брони и заказа стола не оформляет: собирает имя и номер и оставляет просьбу перезвонить. Включается она во вкладке «Бронь по телефону».',
+        )}
       </p>
     </section>
   );
@@ -117,7 +121,9 @@ function CallbackList({
   editable,
   done,
   timezone,
+  t,
 }: {
+  t: Translate;
   rows: VoiceCallbackRow[];
   editable: boolean;
   done: VoiceCallbackRow[];
@@ -127,22 +133,22 @@ function CallbackList({
   return (
     <div className="marketing-screen__stack">
       {rows.length === 0 ? (
-        <EmptyState title="Просьб перезвонить нет" data-testid="voice-callbacks-empty">
-          Когда клиент попросит записать его или перезвонить, просьба появится здесь с номером и пожеланием.
+        <EmptyState title={t('Просьб перезвонить нет')} data-testid="voice-callbacks-empty">
+          {t('Когда клиент попросит записать его или перезвонить, просьба появится здесь с номером и пожеланием.')}
         </EmptyState>
       ) : (
-        <div className="tbl-wrap" role="region" aria-label="Просьбы перезвонить" tabIndex={0}>
-          <Table density="normal" aria-label="Просьбы перезвонить" data-testid="voice-callbacks">
+        <div className="tbl-wrap" role="region" aria-label={t('Просьбы перезвонить')} tabIndex={0}>
+          <Table density="normal" aria-label={t('Просьбы перезвонить')} data-testid="voice-callbacks">
             <thead>
               <tr>
-                <th scope="col">Клиент</th>
-                <th scope="col">Телефон</th>
-                <th scope="col">Пожелание</th>
-                <th scope="col">Получена</th>
-                <th scope="col">Статус</th>
+                <th scope="col">{t('Клиент')}</th>
+                <th scope="col">{t('Телефон')}</th>
+                <th scope="col">{t('Пожелание')}</th>
+                <th scope="col">{t('Получена')}</th>
+                <th scope="col">{t('Статус')}</th>
                 {editable && (
                   <th scope="col">
-                    <span className="sr-only">Действия</span>
+                    <span className="sr-only">{t('Действия')}</span>
                   </th>
                 )}
               </tr>
@@ -157,7 +163,7 @@ function CallbackList({
                   <td>{c.note || '–'}</td>
                   <td>{formatWhen(c.createdAt, timezone)}</td>
                   <td>
-                    <Badge tone={c.status === 'NEW' ? 'warn' : 'ok'}>{callbackStatusLabel(c.status)}</Badge>
+                    <Badge tone={c.status === 'NEW' ? 'warn' : 'ok'}>{t(callbackStatusLabel(c.status))}</Badge>
                   </td>
                   {editable && (
                     <td>
@@ -172,7 +178,7 @@ function CallbackList({
       )}
       {done.length > 0 && (
         <p className="settings-note" data-testid="voice-callbacks-done">
-          Недавно обработано: {done.map((c) => `${c.name || formatPhone(c.phone)}`).join(', ')}.
+          {t('Недавно обработано: {names}.', { names: done.map((c) => `${c.name || formatPhone(c.phone)}`).join(', ') })}
         </p>
       )}
     </div>
@@ -180,26 +186,30 @@ function CallbackList({
 }
 
 /** Брони, принятые агентом по телефону: что, когда, статус сейчас. Имён и телефонов гостей здесь нет (карточка брони по своим правам) */
-function BookingsList({ view }: { view: VoiceBookingsView }) {
+function BookingsList({ view, t, locale }: { view: VoiceBookingsView; t: Translate; locale: DeskLocale }) {
   if (view.rows.length === 0)
     return (
-      <EmptyState title="Броней по телефону пока нет" data-testid="voice-bookings-empty">
-        Когда агент примет бронь, она появится здесь с видом, временем и статусом. Включить приём броней можно во вкладке «Бронь по телефону».
+      <EmptyState title={t('Броней по телефону пока нет')} data-testid="voice-bookings-empty">
+        {t('Когда агент примет бронь, она появится здесь с видом, временем и статусом. Включить приём броней можно во вкладке «Бронь по телефону».')}
       </EmptyState>
     );
   return (
     <div className="marketing-screen__stack">
       <p className="settings-note" data-testid="voice-bookings-note">
-        За {view.days} дней принято {view.rows.length}, за последние сутки {view.last24h}. Имена и телефоны гостей смотрите в карточке брони.
+        {t('За {days} дней принято {count}, за последние сутки {last}. Имена и телефоны гостей смотрите в карточке брони.', {
+          days: view.days,
+          count: view.rows.length,
+          last: view.last24h,
+        })}
       </p>
-      <div className="tbl-wrap" role="region" aria-label="Брони по телефону" tabIndex={0}>
-        <Table density="normal" aria-label="Брони по телефону" data-testid="voice-bookings">
+      <div className="tbl-wrap" role="region" aria-label={t('Брони по телефону')} tabIndex={0}>
+        <Table density="normal" aria-label={t('Брони по телефону')} data-testid="voice-bookings">
           <thead>
             <tr>
-              <th scope="col">Принята</th>
-              <th scope="col">Вид</th>
-              <th scope="col">Что</th>
-              <th scope="col">Статус</th>
+              <th scope="col">{t('Принята')}</th>
+              <th scope="col">{t('Вид')}</th>
+              <th scope="col">{t('Что')}</th>
+              <th scope="col">{t('Статус')}</th>
             </tr>
           </thead>
           <tbody>
@@ -208,10 +218,10 @@ function BookingsList({ view }: { view: VoiceBookingsView }) {
               return (
                 <tr key={r.id} data-testid={`voice-booking-${r.id}`}>
                   <td>{formatWhen(r.at, view.timezone)}</td>
-                  <td>{bookingKindLabel(r.kind)}</td>
-                  <td>{bookingTitle(r, view.timezone) || '–'}</td>
+                  <td>{t(bookingKindLabel(r.kind))}</td>
+                  <td>{bookingTitle(r, view.timezone, locale) || '–'}</td>
                   <td>
-                    <Badge tone={status.tone}>{status.label}</Badge>
+                    <Badge tone={status.tone}>{t(status.label)}</Badge>
                   </td>
                 </tr>
               );
@@ -223,24 +233,26 @@ function BookingsList({ view }: { view: VoiceBookingsView }) {
   );
 }
 
-function CallsTable({ view }: { view: VoiceCallsView }) {
+function CallsTable({ view, t, locale }: { view: VoiceCallsView; t: Translate; locale: DeskLocale }) {
   if (view.rows.length === 0)
     return (
-      <EmptyState title="Звонков за месяц нет" data-testid="voice-calls-empty">
-        Когда агент примет первый звонок, он появится в журнале. Подключение номера описано во вкладке «Подключение».
+      <EmptyState title={t('Звонков за месяц нет')} data-testid="voice-calls-empty">
+        {t('Когда агент примет первый звонок, он появится в журнале. Подключение номера описано во вкладке «Подключение».')}
       </EmptyState>
     );
   return (
     <div className="marketing-screen__stack">
-      <div className="tbl-wrap" role="region" aria-label="Журнал звонков" tabIndex={0}>
-        <Table density="normal" aria-label="Журнал звонков" data-testid="voice-calls">
+      <div className="tbl-wrap" role="region" aria-label={t('Журнал звонков')} tabIndex={0}>
+        <Table density="normal" aria-label={t('Журнал звонков')} data-testid="voice-calls">
           <thead>
             <tr>
-              <th scope="col">Время</th>
-              <th scope="col">Звонивший</th>
-              <th scope="col">Состояние</th>
-              <th scope="col" className="budget-td-num">Разговор</th>
-              <th scope="col">Итог</th>
+              <th scope="col">{t('Время')}</th>
+              <th scope="col">{t('Звонивший')}</th>
+              <th scope="col">{t('Состояние')}</th>
+              <th scope="col" className="budget-td-num">
+                {t('Разговор')}
+              </th>
+              <th scope="col">{t('Итог')}</th>
             </tr>
           </thead>
           <tbody>
@@ -251,11 +263,11 @@ function CallsTable({ view }: { view: VoiceCallsView }) {
                   <td>{formatWhen(r.receivedAt, view.timezone)}</td>
                   <td>{r.callerMasked ?? '–'}</td>
                   <td>
-                    <Badge tone={badge.tone}>{badge.label}</Badge>
+                    <Badge tone={badge.tone}>{t(badge.label)}</Badge>
                   </td>
-                  <td className="budget-td-num">{formatDuration(r.durationSeconds)}</td>
+                  <td className="budget-td-num">{formatDuration(r.durationSeconds, locale)}</td>
                   <td>
-                    {[r.callbackRequested ? 'просьба перезвонить' : null, r.transferRequested ? 'переведён на человека' : null]
+                    {[r.callbackRequested ? t('просьба перезвонить') : null, r.transferRequested ? t('переведён на человека') : null]
                       .filter(Boolean)
                       .join(', ') || '–'}
                   </td>
@@ -267,7 +279,7 @@ function CallsTable({ view }: { view: VoiceCallsView }) {
       </div>
       {view.total > view.rows.length && (
         <p className="settings-note" data-testid="voice-calls-more">
-          Показаны последние {view.rows.length} из {view.total} звонков месяца.
+          {t('Показаны последние {shown} из {total} звонков месяца.', { shown: view.rows.length, total: view.total })}
         </p>
       )}
     </div>
@@ -276,26 +288,29 @@ function CallsTable({ view }: { view: VoiceCallsView }) {
 
 /** Что агент называет по телефону, зависит от направления (docs/voice/voice-channel.md) */
 const SUBTITLE: Record<string, string> = {
-  BEAUTY:
+  BEAUTY: msg(
     'ИИ-помощник принимает телефонные звонки: отвечает по услугам и ценам, записывает клиентов (если включена бронь по телефону), собирает просьбы перезвонить и переводит на администратора.',
-  FOOD_SERVICE:
+  ),
+  FOOD_SERVICE: msg(
     'ИИ-помощник принимает телефонные звонки: рассказывает о часах работы, бронирует (если включена бронь по телефону), собирает просьбы перезвонить и переводит на администратора.',
-  HOSPITALITY:
+  ),
+  HOSPITALITY: msg(
     'ИИ-помощник принимает телефонные звонки, бронирует номера (если включена бронь по телефону), собирает просьбы перезвонить и переводит на администратора.',
+  ),
 };
 
 export default async function MarketingVoicePage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const me = await requireFeature('/marketing/voice');
   const q = normalizeSearchParams(await searchParams);
   const month = /^\d{4}-\d{2}$/.test(q['month'] ?? '') ? q['month'] : undefined;
-  const [loaded, shell] = await Promise.all([load(month), deskShell()]);
+  const [loaded, shell, t, locale] = await Promise.all([load(month), deskShell(), serverT(), currentLocale()]);
   const role = shell.access.role;
   const editable = !shell.readOnly && (role === null || can(role, 'marketing'));
   return (
     <Page
       crumbs={<BackToModules />}
-      title="Голосовой агент"
-      subtitle={SUBTITLE[me.context?.vertical ?? 'HOSPITALITY'] ?? SUBTITLE['HOSPITALITY']}
+      title={t('Голосовой агент')}
+      subtitle={t(SUBTITLE[me.context?.vertical ?? 'HOSPITALITY'] ?? SUBTITLE['HOSPITALITY']!)}
     >
       <div className="marketing-screen" data-testid="marketing-voice-screen">
         {'summary' in loaded ? (
@@ -304,19 +319,20 @@ export default async function MarketingVoicePage({ searchParams }: { searchParam
               <span />
               <MonthNav base="/marketing/voice" month={loaded.summary.month} />
             </div>
-            <Summary summary={loaded.summary} />
+            <Summary summary={loaded.summary} t={t} locale={locale} />
             <Tabs
-              label="Разделы голосового агента"
+              label={t('Разделы голосового агента')}
               panels={[
                 {
                   id: 'callbacks',
-                  label: `Просьбы перезвонить${loaded.callbacks.length ? ` (${loaded.callbacks.length})` : ''}`,
+                  label: `${t('Просьбы перезвонить')}${loaded.callbacks.length ? ` (${loaded.callbacks.length})` : ''}`,
                   content: (
                     <CallbackList
                       rows={loaded.callbacks}
                       editable={editable}
                       done={loaded.done}
                       timezone={loaded.summary.timezone}
+                      t={t}
                     />
                   ),
                 },
@@ -324,22 +340,22 @@ export default async function MarketingVoicePage({ searchParams }: { searchParam
                   ? [
                       {
                         id: 'bookings',
-                        label: `Брони по телефону${loaded.bookings.last24h ? ` (${loaded.bookings.last24h})` : ''}`,
-                        content: <BookingsList view={loaded.bookings} />,
+                        label: `${t('Брони по телефону')}${loaded.bookings.last24h ? ` (${loaded.bookings.last24h})` : ''}`,
+                        content: <BookingsList view={loaded.bookings} t={t} locale={locale} />,
                       },
                     ]
                   : []),
-                { id: 'calls', label: 'Журнал звонков', content: <CallsTable view={loaded.calls} /> },
+                { id: 'calls', label: t('Журнал звонков'), content: <CallsTable view={loaded.calls} t={t} locale={locale} /> },
                 ...(loaded.booking
                   ? [
                       {
                         id: 'booking',
-                        label: 'Бронь по телефону',
+                        label: t('Бронь по телефону'),
                         content: <BookingForm view={loaded.booking} editable={editable} />,
                       },
                     ]
                   : []),
-                { id: 'setup', label: 'Подключение', content: <SetupNote /> },
+                { id: 'setup', label: t('Подключение'), content: <SetupNote t={t} /> },
               ]}
             />
           </>

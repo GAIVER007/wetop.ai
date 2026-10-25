@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useT } from '../i18n/locale-provider';
 
 /**
  * «На весь экран» журнала (владелец 24.10.2026: «добавь везде на всех экранах квадратик, который расширяет экран
@@ -9,6 +10,7 @@ import { useEffect, useRef, useState } from 'react';
  * повторное нажатие или Esc возвращают обычный вид. Esc при открытом окне закрывает окно, а не полный экран.
  */
 export function JournalExpandButton() {
+  const t = useT();
   const button = useRef<HTMLButtonElement>(null);
   const [expanded, setExpanded] = useState(false);
   useEffect(() => {
@@ -34,13 +36,13 @@ export function JournalExpandButton() {
       type="button"
       className="icon-button journal-expand"
       aria-pressed={expanded}
-      title={expanded ? 'Выйти из полного экрана' : 'На весь экран'}
+      title={expanded ? t('Выйти из полного экрана') : t('На весь экран')}
       onClick={() => setExpanded((value) => !value)}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
         <path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" />
       </svg>
-      <span className="sr-only">{expanded ? 'Выйти из полного экрана' : 'На весь экран'}</span>
+      <span className="sr-only">{expanded ? t('Выйти из полного экрана') : t('На весь экран')}</span>
     </button>
   );
 }

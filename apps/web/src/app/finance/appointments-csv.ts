@@ -19,17 +19,17 @@ export type CsvDay = Pick<BeautyDay, 'date' | 'columns' | 'appointments'> & {
 
 export function appointmentsCsv(days: CsvDay[]): string {
   const head = [
-    'Дата',
-    'Время',
-    'Мастер',
-    'Услуга',
-    'Статус',
-    'Источник',
-    'Автор',
-    'Валюта',
-    'Цена',
-    'Оплачено',
-    'Возвращено',
+    'Дата', // kk-allow: заголовки выгрузки для бухгалтерии
+    'Время', // kk-allow: заголовки выгрузки для бухгалтерии
+    'Мастер', // kk-allow: заголовки выгрузки для бухгалтерии
+    'Услуга', // kk-allow: заголовки выгрузки для бухгалтерии
+    'Статус', // kk-allow: заголовки выгрузки для бухгалтерии
+    'Источник', // kk-allow: заголовки выгрузки для бухгалтерии
+    'Автор', // kk-allow: заголовки выгрузки для бухгалтерии
+    'Валюта', // kk-allow: заголовки выгрузки для бухгалтерии
+    'Цена', // kk-allow: заголовки выгрузки для бухгалтерии
+    'Оплачено', // kk-allow: заголовки выгрузки для бухгалтерии
+    'Возвращено', // kk-allow: заголовки выгрузки для бухгалтерии
   ];
   const seen = new Set<string>();
   const lines = [...days]
@@ -51,7 +51,7 @@ export function appointmentsCsv(days: CsvDay[]): string {
             clock(a.startMinutes),
             a.items?.length
               ? [...new Set(a.items.map((item) => item.employeeName))].join(', ')
-              : (names.get(a.employeeId) ?? 'Мастер'),
+              : (names.get(a.employeeId) ?? 'Мастер'), // kk-allow: значение выгрузки для бухгалтерии
             a.items?.length ? a.items.map((item) => item.serviceName).join(', ') : a.serviceName,
             beautyStatus[a.status].label,
             appointmentSourceLabel(a.source),

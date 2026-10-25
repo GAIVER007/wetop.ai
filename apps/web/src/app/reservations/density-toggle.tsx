@@ -1,12 +1,14 @@
 'use client';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Segmented, type SegmentOption } from '../../components/segmented';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 const KEY = 'wetop.reservations.density';
 type Density = 'normal' | 'compact';
 const DENSITIES: ReadonlyArray<SegmentOption<Density>> = [
-  { value: 'normal', label: 'Обычно' },
-  { value: 'compact', label: 'Компактно' },
+  { value: 'normal', label: msg('Обычно') },
+  { value: 'compact', label: msg('Компактно') },
 ];
 
 /**
@@ -23,6 +25,7 @@ export function DensityScope({
   showControl: boolean;
   children: ReactNode;
 }) {
+  const t = useT();
   const [density, setDensity] = useState<Density>('normal');
   useEffect(() => {
     try {
@@ -45,11 +48,11 @@ export function DensityScope({
         {meta}
         {showControl && (
           <Segmented
-            label="Плотность строк"
+            label={t('Плотность строк')}
             size="sm"
             className="reservations-density"
             value={density}
-            options={DENSITIES}
+            options={DENSITIES.map((o) => ({ ...o, label: t(o.label) }))}
             onChange={pick}
           />
         )}

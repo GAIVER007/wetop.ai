@@ -11,6 +11,7 @@ import '../finance/owner-dashboard.css';
 import '../finance/attention.css';
 import '../finance/overview.css';
 import './hospitality-home.css';
+import { serverT } from '../../i18n/server';
 
 /**
  * Главная гостиницы (решение владельца 13.10.2026, поверх ADR-152): «Финансы» по эталону стали чисто
@@ -18,6 +19,7 @@ import './hospitality-home.css';
  * Блоки те же, что стояли на «Обзоре бизнеса», расчёты не менялись.
  */
 export async function HospitalityToday() {
+  const t = await serverT();
   const cal = periods(await hotelToday());
   const period = `/finance?from=${cal.month.from}&to=${cal.month.to}`;
   const debts = await financeApi.debts(cal.month.from, cal.month.to).catch(() => null);
@@ -25,8 +27,8 @@ export async function HospitalityToday() {
   const currency = homeCurrency(debts, debts?.currency ?? (await propertyCurrency()));
   return (
     <Page
-      title="Главная"
-      subtitle="Загрузка, события дня и задачи объекта"
+      title={t('Главная')}
+      subtitle={t('Загрузка, события дня и задачи объекта')}
       width="full"
     >
       <div className="biz-overview hospitality-home" data-testid="owner-dashboard">
@@ -34,7 +36,7 @@ export async function HospitalityToday() {
           <Suspense
             fallback={
               <div className="owner-load owner-surface">
-                <OwnerPlaceholder variant="load" label="Загружаем загрузку…" />
+                <OwnerPlaceholder variant="load" label={t('Загружаем загрузку…')} />
               </div>
             }
           >
@@ -43,7 +45,7 @@ export async function HospitalityToday() {
           <Suspense
             fallback={
               <div className="biz-today owner-surface">
-                <OwnerPlaceholder variant="today" label="Загружаем события дня…" />
+                <OwnerPlaceholder variant="today" label={t('Загружаем события дня…')} />
               </div>
             }
           >

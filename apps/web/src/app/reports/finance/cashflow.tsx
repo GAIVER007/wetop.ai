@@ -8,6 +8,8 @@ import { displayDate } from '../../../lib/display-date';
 import { formatMoney } from '../../../lib/money';
 import type { AnalyticsQuery } from '../../management/analytics/params';
 import { NO_BASE, Tile } from '../../management/analytics/tiles';
+import type { Translate } from '../../../i18n';
+import { serverT } from '../../../i18n/server';
 
 const b = (v: string) => BigInt(v);
 
@@ -17,13 +19,14 @@ const b = (v: string) => BigInt(v);
  * на «Оплатах» и в «Документах»: здесь их нет, чтобы разные показатели не смешивались. Источник один: общая лента денег.
  */
 export async function CashFlowReport({ query }: { query: AnalyticsQuery }) {
+  const t = await serverT();
   const { period } = query;
   const data = await financeApi
     .cashflow(period.from, period.to)
     .catch((error: unknown) => (error instanceof ApiError ? error : Promise.reject(error)));
   if (data instanceof ApiError) return <LoadError testId="cf-error" {...loadErrorProps(data)} />;
   const money = (v: string) => formatMoney(v, data.currency);
-  const t = data.totals;
+  const sum = data.totals;
   const empty = data.days.every(
     (d) =>
       d.receiptsMinor === '0' &&
@@ -35,94 +38,93 @@ export async function CashFlowReport({ query }: { query: AnalyticsQuery }) {
     <>
       {data.truncated && (
         <Alert boxed>
-          Операций за период больше, чем отдаёт отчёт: итоги неполные. Выберите период покороче.
+          {t('Операций за период больше, чем отдаёт отчёт: итоги неполные. Выберите период покороче.')}
         </Alert>
       )}
-      <section className="kpi-grid pa-kpis" aria-label="Деньги за период" data-testid="cf-kpis">
+      <section className="kpi-grid pa-kpis" aria-label={t('Деньги за период')} data-testid="cf-kpis">
         <Tile
           id="cf-receipts"
-          label="Поступления"
-          value={money(t.receiptsMinor)}
-          hint={`в кассе ${money(t.receiptsCashMinor)}, вне кассы ${money(t.receiptsOffCashMinor)}`}
+          label={t('Поступления')}
+          value={money(sum.receiptsMinor)}
+          hint={t('в кассе {cash}, вне кассы {offCash}', { cash: money(sum.receiptsCashMinor), offCash: money(sum.receiptsOffCashMinor) })}
           delta={NO_BASE}
           compare={false}
         />
         <Tile
           id="cf-refunds"
-          label="Возвраты"
-          value={money(t.refundsMinor)}
-          hint={`из кассы ${money(t.refundsCashMinor)}`}
+          label={t('Возвраты')}
+          value={money(sum.refundsMinor)}
+          hint={t('из кассы {amount}', { amount: money(sum.refundsCashMinor) })}
           delta={NO_BASE}
           compare={false}
         />
         <Tile
           id="cf-net"
-          label="Чистые поступления"
-          value={money(t.netReceiptsMinor)}
-          hint="поступления минус возвраты"
+          label={t('Чистые поступления')}
+          value={money(sum.netReceiptsMinor)}
+          hint={t('поступления минус возвраты')}
           delta={NO_BASE}
           compare={false}
         />
         <Tile
           id="cf-income"
-          label="Приход кассы"
-          value={money(t.incomeMinor)}
-          hint="поступления мимо броней"
+          label={t('Приход кассы')}
+          value={money(sum.incomeMinor)}
+          hint={t('поступления мимо броней')}
           delta={NO_BASE}
           compare={false}
         />
         <Tile
           id="cf-expense"
-          label="Расходы"
-          value={money(t.expenseMinor)}
-          hint="расходы кассы, комиссии в их числе"
+          label={t('Расходы')}
+          value={money(sum.expenseMinor)}
+          hint={t('расходы кассы, комиссии в их числе')}
           delta={NO_BASE}
           compare={false}
         />
         <Tile
           id="cf-flow"
-          label="Денежный поток"
-          value={money(t.cashFlowMinor)}
-          hint="по кассе: оплаты в кассу минус возвраты плюс приход минус расходы"
+          label={t('Денежный поток')}
+          value={money(sum.cashFlowMinor)}
+          hint={t('по кассе: оплаты в кассу минус возвраты плюс приход минус расходы')}
           delta={NO_BASE}
           compare={false}
         />
       </section>
       <p className="muted dash-note" data-testid="cf-basis">
-        По дате операции в сутках объекта. Оплаты вне кассы (площадка, депозит, гарантия картой)
-        входят в поступления и не входят в денежный поток. Переводы между кассами в потоке не
-        показаны. Начисления и долги это другие показатели: <Link href="/finance">«Оплаты»</Link>,{' '}
-        <Link href="/reports">«Документы»</Link>.
+        {t('По дате операции в сутках объекта. Оплаты вне кассы (площадка, депозит, гарантия картой) входят в поступления и не входят в денежный поток. Переводы между кассами в потоке не показаны. Начисления и долги это другие показатели:')}{' '}
+        <Link href="/finance">{t('«Оплаты»')}</Link>,{' '}
+        <Link href="/reports">{t('«Документы»')}</Link>.
       </p>
       {empty ? (
-        <EmptyState data-testid="cf-empty" title="За период нет денежных операций">
-          Выберите другой период: в этом нет ни оплат, ни возвратов, ни операций кассы.
+        <EmptyState data-testid="cf-empty" title={t('За период нет денежных операций')}>
+          {t('Выберите другой период: в этом нет ни оплат, ни возвратов, ни операций кассы.')}
         </EmptyState>
       ) : (
         <div className="pa-cashflow">
-          <DaysTable data={data} />
-          <ExpensesPanel data={data} />
+          <DaysTable data={data} t={t} />
+          <ExpensesPanel data={data} t={t} />
         </div>
       )}
     </>
   );
 }
 
-function DaysTable({ data }: { data: PeriodCashFlow }) {
+function DaysTable({ data, t }: { data: PeriodCashFlow; t: Translate }) {
   const money = (v: string) => formatMoney(v, data.currency);
-  const t = data.totals;
+  const sum = data.totals;
   return (
-    <Panel title="По дням" className="dash-panel dash-panel--table">
+    <Panel title={t('По дням')} className="dash-panel dash-panel--table">
       <Table className="dash-table" nowrap data-testid="cf-days">
         <thead>
           <tr>
-            <th>День</th>
-            <th className="num">Поступления</th>
-            <th className="num">Возвраты</th>
-            <th className="num">Чистые</th>
-            <th className="num">Приход кассы</th>
-            <th className="num">Расходы</th>
-            <th className="num">Поток</th>
+            <th>{t('День')}</th>
+            <th className="num">{t('Поступления')}</th>
+            <th className="num">{t('Возвраты')}</th>
+            <th className="num">{t('Чистые')}</th>
+            <th className="num">{t('Приход кассы')}</th>
+            <th className="num">{t('Расходы')}</th>
+            <th className="num">{t('Поток')}</th>
           </tr>
         </thead>
         <tbody>
@@ -140,13 +142,13 @@ function DaysTable({ data }: { data: PeriodCashFlow }) {
         </tbody>
         <tfoot>
           <tr data-testid="cf-total">
-            <th>Итого</th>
-            <td className="num">{money(t.receiptsMinor)}</td>
-            <td className="num">{money(t.refundsMinor)}</td>
-            <td className="num">{money(t.netReceiptsMinor)}</td>
-            <td className="num">{money(t.incomeMinor)}</td>
-            <td className="num">{money(t.expenseMinor)}</td>
-            <td className="num">{money(t.cashFlowMinor)}</td>
+            <th>{t('Итого')}</th>
+            <td className="num">{money(sum.receiptsMinor)}</td>
+            <td className="num">{money(sum.refundsMinor)}</td>
+            <td className="num">{money(sum.netReceiptsMinor)}</td>
+            <td className="num">{money(sum.incomeMinor)}</td>
+            <td className="num">{money(sum.expenseMinor)}</td>
+            <td className="num">{money(sum.cashFlowMinor)}</td>
           </tr>
         </tfoot>
       </Table>
@@ -154,22 +156,22 @@ function DaysTable({ data }: { data: PeriodCashFlow }) {
   );
 }
 
-function ExpensesPanel({ data }: { data: PeriodCashFlow }) {
+function ExpensesPanel({ data, t }: { data: PeriodCashFlow; t: Translate }) {
   const money = (v: string) => formatMoney(v, data.currency);
   const total = b(data.totals.expenseMinor);
   return (
-    <Panel title="Расходы по статьям" className="dash-panel">
+    <Panel title={t('Расходы по статьям')} className="dash-panel">
       {data.expensesByCategory.length === 0 ? (
         <p className="muted" data-testid="cf-no-expenses">
-          Расходов за период не было.
+          {t('Расходов за период не было.')}
         </p>
       ) : (
         <ul className="pa-expenses" data-testid="cf-expenses">
           {data.expensesByCategory.map((x) => (
             <li key={x.category}>
-              <span>{x.category}</span>
+              <span>{t(x.category)}</span>
               <ShareBar
-                label={`${x.category}: доля расходов`}
+                label={t('{category}: доля расходов', { category: t(x.category) })}
                 value={Number((b(x.amountMinor) * 1000n) / (total || 1n))}
                 max={1000}
               />
@@ -182,7 +184,8 @@ function ExpensesPanel({ data }: { data: PeriodCashFlow }) {
   );
 }
 
-export function CashFlowSkeleton() {
+export async function CashFlowSkeleton() {
+  const t = await serverT();
   return (
     <div className="pa-skeleton" aria-busy="true" data-testid="cf-loading">
       <div className="kpi-grid pa-kpis">
@@ -192,7 +195,7 @@ export function CashFlowSkeleton() {
       </div>
       <Skeleton className="pa-skeleton__chart" />
       <span className="sr-only" role="status">
-        Считаем деньги за период…
+        {t('Считаем деньги за период…')}
       </span>
     </div>
   );

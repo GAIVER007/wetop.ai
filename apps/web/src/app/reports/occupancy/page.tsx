@@ -12,6 +12,7 @@ import { ReportsTabs } from '../reports-tabs';
 import '../../management/analytics/analytics.css';
 import '../../directory.css';
 import '../reports.css';
+import { serverT } from '../../../i18n/server';
 
 /** «Отчёты → occupancy» (RPT2.2c-1): тот же экран, что в «Аналитике», под адресом раздела «Отчёты» */
 export default async function ReportsOccupancyPage({
@@ -20,19 +21,20 @@ export default async function ReportsOccupancyPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/reports/occupancy');
+  const t = await serverT();
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const query = parseAnalyticsQuery(sp, today, 'occupancy', '/reports');
   return (
     <ReportScopeFrame>
       <Page
-        title="Отчёты"
+        title={t('Отчёты')}
         className="analytics-page"
-        subtitle="Сколько мест занято, свободно и закрыто за день или период."
+        subtitle={t('Сколько мест занято, свободно и закрыто за день или период.')}
       >
         <ReportsTabs current="occupancy" fund={query.fund} />
         <AnalyticsToolbar query={query} today={today} />
-        {query.period.error && <Alert boxed>{query.period.error}. Показан сегодняшний день.</Alert>}
+        {query.period.error && <Alert boxed>{t('{error}. Показан сегодняшний день.', { error: t(query.period.error) })}</Alert>}
         <Suspense
           key={`${query.period.from}|${query.period.to}|${query.fund}|${query.compare}`}
           fallback={<OccupancySkeleton />}

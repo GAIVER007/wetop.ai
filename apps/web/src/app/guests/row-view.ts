@@ -3,7 +3,8 @@ import { messengerLinks } from '../../lib/format';
 import { sourceLabel } from '../../lib/dashboard-format';
 import { displayDate } from '../../lib/display-date';
 import { formatMoney } from '../../lib/money';
-import { pluralRu } from '../../lib/plural';
+import { intlLocale } from '../../i18n';
+import { nightsLabel, RU, type Lang } from '../chessboard/lang';
 import type { PaymentState } from '../../lib/status/payment';
 import {
   guestNote,
@@ -45,19 +46,21 @@ export interface GuestRowView {
 }
 
 /** «7 окт.» и «12 окт.», с годом, когда проживание не в текущем году: даты в таблице без года вводили бы в заблуждение */
-function stayRange(from: string, to: string, today: string) {
+function stayRange(from: string, to: string, today: string, lang: Lang) {
   const year = today.slice(0, 4);
   const style = from.slice(0, 4) === year && to.slice(0, 4) === year ? 'short' : 'numeric';
+  const locale = intlLocale(lang.locale);
   return {
-    from: { iso: from, text: displayDate(from, style) },
-    to: { iso: to, text: displayDate(to, style) },
+    from: { iso: from, text: displayDate(from, style, locale) },
+    to: { iso: to, text: displayDate(to, style, locale) },
   };
 }
 
 export function buildRowView(
   row: GuestDirectoryRow,
-  ctx: { today: string; selectHref: (id: string) => string; readOnly: boolean },
+  ctx: { today: string; selectHref: (id: string) => string; readOnly: boolean; lang?: Lang },
 ): GuestRowView {
+  const lang = ctx.lang ?? RU;
   const stay = row.stay;
   const payment = stayPayment(stay);
   const lastWithYear = row.last !== null && row.last.departureDate.slice(0, 4) !== ctx.today.slice(0, 4);
@@ -65,7 +68,7 @@ export function buildRowView(
     id: row.id,
     name: guestDisplayName(row),
     initials: initials(row.lastName, row.firstName),
-    note: guestNote(row),
+    note: guestNote(row, lang),
     phone: row.phone,
     email: row.email,
     whatsapp: messengerLinks(row.phone)?.whatsapp ?? null,
@@ -75,20 +78,20 @@ export function buildRowView(
           href: `/reservations/${encodeURIComponent(stay.confirmationNumber)}`,
         }
       : null,
-    status: stayStatus(row, ctx.today),
+    status: stayStatus(row, ctx.today, lang),
     dates: stay
       ? {
-          ...stayRange(stay.arrivalDate, stay.departureDate, ctx.today),
-          nights: pluralRu(stay.nights, ['ночь', 'ночи', 'ночей']),
+          ...stayRange(stay.arrivalDate, stay.departureDate, ctx.today, lang),
+          nights: nightsLabel(lang, stay.nights),
         }
       : null,
     unit: stay ? { code: stay.unitCode, category: stay.accommodationTypeName } : null,
     guests: stay ? String(stay.adults + stay.children) : null,
     payment: payment ? { state: payment.state, amount: formatMoney(payment.minor, stay!.currency) } : null,
-    source: stay ? sourceLabel(stay.source, stay.channel) : null,
+    source: stay ? lang.t(sourceLabel(stay.source, stay.channel)) : null,
     lastVisit: {
-      date: row.last ? displayDate(row.last.departureDate, lastWithYear ? 'numeric' : 'short') : null,
-      visits: visitsWord(row.staysCount),
+      date: row.last ? displayDate(row.last.departureDate, lastWithYear ? 'numeric' : 'short', intlLocale(lang.locale)) : null,
+      visits: visitsWord(row.staysCount, lang),
     },
     selectHref: ctx.selectHref(row.id),
     openHref: `/guests/${encodeURIComponent(row.id)}`,

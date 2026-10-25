@@ -3,6 +3,10 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import type { BeautyAppointmentRow, BeautyDay } from '../../lib/api';
 
 vi.mock('next/navigation', () => ({ unstable_rethrow: vi.fn() }));
+vi.mock('../../i18n/server', async () => ({
+  serverT: async () => (await import('../../i18n')).translator('ru'),
+  currentLocale: async () => 'ru',
+}));
 vi.mock('../../lib/api', async (original) => {
   const actual = await original<typeof import('../../lib/api')>();
   return { ...actual, beautyApi: { ...actual.beautyApi, financeDay: vi.fn() } };

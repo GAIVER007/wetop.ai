@@ -21,6 +21,8 @@ import { SalesSummary, DocumentsSummary } from '../object-summaries';
 import { withCardDefaults, formText } from '../card-model';
 import { SaveAction, SettingsSave } from '../settings-save';
 import { currentMe, deskShell } from '../../../lib/desk-shell';
+import { msg } from '../../../i18n';
+import { serverT } from '../../../i18n/server';
 import '../settings.css';
 
 /**
@@ -29,12 +31,12 @@ import '../settings.css';
  * ушли к тарифам — это свойство тарифного плана (SET4); старый адрес ведёт на «Цены и ограничения».
  */
 const tabs = [
-  { view: '', href: '/hotel-settings', label: 'Основное' },
-  { view: 'stay', href: '/hotel-settings/stay', label: 'Проживание' },
-  { view: 'services', href: '/hotel-settings/services', label: 'Услуги' },
-  { view: 'sales', href: '/hotel-settings/sales', label: 'Продажи и каналы' },
-  { view: 'documents', href: '/hotel-settings/documents', label: 'Документы' },
-  { view: 'directories', href: '/hotel-settings/directories', label: 'Справочники' },
+  { view: '', href: '/hotel-settings', label: msg('Основное') },
+  { view: 'stay', href: '/hotel-settings/stay', label: msg('Проживание') },
+  { view: 'services', href: '/hotel-settings/services', label: msg('Услуги') },
+  { view: 'sales', href: '/hotel-settings/sales', label: msg('Продажи и каналы') },
+  { view: 'documents', href: '/hotel-settings/documents', label: msg('Документы') },
+  { view: 'directories', href: '/hotel-settings/directories', label: msg('Справочники') },
 ] as const;
 const settle = <T,>(promise: Promise<T>) =>
   promise.then(
@@ -51,6 +53,7 @@ export default async function HotelSettingsPage({
   params: Promise<{ section?: string[] }>;
 }) {
   await requireFeature('/hotel-settings');
+  const t = await serverT();
   const { section = [] } = await params;
   if (section.length > 1) notFound();
   const view = section[0] ?? '';
@@ -69,7 +72,7 @@ export default async function HotelSettingsPage({
   ]);
   const media = mediaRead?.ok ? mediaRead.value : null;
   const previewPhotos = (media?.photos ?? []).flatMap((p) =>
-    p.url ? [{ id: p.id, url: p.url, alt: p.alt ?? 'Фото объекта' }] : [],
+    p.url ? [{ id: p.id, url: p.url, alt: p.alt ?? t('Фото объекта') }] : [],
   );
   // Правят владелец и управляющий — право `settings` (ТЗ ux-retention п. 3.1, ADR-107); администратору раздел закрыт
   // целиком (`AccessGate`). Никто не вошёл или вход не ответил — только просмотр: API без человека сведений не меняет.
@@ -99,9 +102,9 @@ export default async function HotelSettingsPage({
   const platformAdmin = me.ok && me.value.user?.platformAdmin === true;
   const propertyName = loaded.ok ? loaded.value.property.name : null;
   const crumbs = (
-    <nav aria-label="Путь" className="obj-crumbs">
+    <nav aria-label={t('Путь')} className="obj-crumbs">
       <Icon name="hotel" width={16} height={16} />
-      {platformAdmin ? <Link href="/platform">Организации</Link> : <span>Организации</span>}
+      {platformAdmin ? <Link href="/platform">{t('Организации')}</Link> : <span>{t('Организации')}</span>}
       {organization && (
         <>
           <Icon name="chevron" width={14} height={14} />
@@ -115,7 +118,7 @@ export default async function HotelSettingsPage({
         </>
       )}
       <Icon name="chevron" width={14} height={14} />
-      <span aria-current="page">Настройки объекта</span>
+      <span aria-current="page">{t('Настройки объекта')}</span>
     </nav>
   );
   const capacity = loaded.ok ? (loaded.value.capacity ?? null) : null;
@@ -123,21 +126,21 @@ export default async function HotelSettingsPage({
     <SettingsSave>
       <ServiceEditor currency={loaded.ok ? loaded.value.property.currency : 'KZT'}>
         <Page
-          title="Настройки объекта"
+          title={t('Настройки объекта')}
           className="object-settings"
           crumbs={crumbs}
-          subtitle="Здесь вы настраиваете данные филиала, правила проживания, описание и услуги. Информация используется на всех каналах продаж и в коммуникациях с гостями."
+          subtitle={t('Здесь вы настраиваете данные филиала, правила проживания, описание и услуги. Информация используется на всех каналах продаж и в коммуникациях с гостями.')}
           actions={actions}
         >
           <Tabs
-            label="Настройки объекта"
-            items={tabs.map((item) => ({ ...item, current: item.view === view }))}
+            label={t('Настройки объекта')}
+            items={tabs.map((item) => ({ ...item, label: t(item.label), current: item.view === view }))}
           />
           {view === 'services' ? (
             <Suspense
               fallback={
                 <Panel data-testid="settings-loading" role="status">
-                  Читаем настройки объекта…
+                  {t('Читаем настройки объекта…')}
                 </Panel>
               }
             >
@@ -147,7 +150,7 @@ export default async function HotelSettingsPage({
             <Suspense
               fallback={
                 <Panel data-testid="settings-loading" role="status">
-                  Читаем справочники объекта…
+                  {t('Читаем справочники объекта…')}
                 </Panel>
               }
             >
@@ -162,7 +165,7 @@ export default async function HotelSettingsPage({
                 editable={editable}
                 capacity={capacity}
               />
-              {!owner && <Notice tone="muted">{OWNER_ONLY}</Notice>}
+              {!owner && <Notice tone="muted">{t(OWNER_ONLY)}</Notice>}
             </div>
           ) : view === 'sales' ? (
             <SalesSummary property={withCardDefaults(loaded.value.property)} />
@@ -179,7 +182,7 @@ export default async function HotelSettingsPage({
                 photoSlot={<PhotosBlock media={media} editable={mayEdit} />}
                 contractSlot={<ContractBlock media={media} editable={mayEdit} />}
               />
-              {!owner && <Notice tone="muted">{OWNER_ONLY}</Notice>}
+              {!owner && <Notice tone="muted">{t(OWNER_ONLY)}</Notice>}
             </div>
           )}
         </Page>
@@ -189,7 +192,7 @@ export default async function HotelSettingsPage({
 }
 
 type Property = HotelSettings['property'];
-const OWNER_ONLY = 'Сведения меняют владелец и управляющий.';
+const OWNER_ONLY = msg('Сведения меняют владелец и управляющий.');
 
 /** Значения для предпросмотра, пока форма не открыта: из записи объекта */
 function previewValues(p: Property): Record<string, string> {
@@ -200,6 +203,7 @@ function previewValues(p: Property): Record<string, string> {
 }
 
 async function Services({ editable }: { editable: boolean }) {
+  const t = await serverT();
   // весь каталог, с архивными (SET3); выбор услуги в счёте берёт только активные — `/finance/services`
   const loaded = await settle(Promise.all([serviceCatalogApi.list(), hotelApi.settings()]));
   if (!loaded.ok) return <LoadError testId="services-error" {...loadErrorProps(loaded.error)} />;
@@ -207,7 +211,7 @@ async function Services({ editable }: { editable: boolean }) {
   return (
     <>
       <p className="settings-note settings-lead">
-        Дополнительные товары и услуги, которые можно добавить в счёт гостя.
+        {t('Дополнительные товары и услуги, которые можно добавить в счёт гостя.')}
       </p>
       <ServicesCatalog
         services={services}
@@ -217,11 +221,11 @@ async function Services({ editable }: { editable: boolean }) {
       <Panel className="settings-service-help" data-testid="service-hint">
         <Icon name="receipt" />
         <div>
-          <h2>Начислить услугу гостю</h2>
-          <p>Откройте бронь, вкладку «Счета», и выберите услугу.</p>
+          <h2>{t('Начислить услугу гостю')}</h2>
+          <p>{t('Откройте бронь, вкладку «Счета», и выберите услугу.')}</p>
         </div>
         <Link className="btn btn--secondary" href="/guests?state=inhouse">
-          Найти проживающего гостя
+          {t('Найти проживающего гостя')}
         </Link>
       </Panel>
     </>
@@ -230,6 +234,7 @@ async function Services({ editable }: { editable: boolean }) {
 
 /** «Справочники» (ADR-185): способы оплаты объекта и статьи кассы; по одному запросу на каждый */
 async function Directories({ editable }: { editable: boolean }) {
+  const t = await serverT();
   const loaded = await settle(Promise.all([paymentMethodsApi.get(), financeApi.cashCategories()]));
   if (!loaded.ok)
     return <LoadError testId="directories-error" {...loadErrorProps(loaded.error)} />;
@@ -241,9 +246,9 @@ async function Directories({ editable }: { editable: boolean }) {
         aria-labelledby="settings-payment-methods"
         data-testid="payment-methods"
       >
-        <h2 id="settings-payment-methods">Способы оплаты</h2>
+        <h2 id="settings-payment-methods">{t('Способы оплаты')}</h2>
         <p className="settings-note">
-          Какие способы стойка предлагает при приёме денег и в каком порядке.
+          {t('Какие способы стойка предлагает при приёме денег и в каком порядке.')}
         </p>
         <PaymentMethodsForm stored={methods.methods} editable={editable} />
       </Panel>
@@ -253,14 +258,13 @@ async function Directories({ editable }: { editable: boolean }) {
         aria-labelledby="settings-cash-categories"
         data-testid="cash-categories"
       >
-        <h2 id="settings-cash-categories">Статьи кассы</h2>
+        <h2 id="settings-cash-categories">{t('Статьи кассы')}</h2>
         <p className="settings-note">
-          Статьи поступлений и расходов кассы. Удаления нет: статья выключается, прошлые операции
-          хранят её.
+          {t('Статьи поступлений и расходов кассы. Удаления нет: статья выключается, прошлые операции хранят её.')}
         </p>
         <CashCategoriesEditor categories={categories} editable={editable} />
       </Panel>
-      {!editable && <Notice tone="muted">{OWNER_ONLY}</Notice>}
+      {!editable && <Notice tone="muted">{t(OWNER_ONLY)}</Notice>}
     </div>
   );
 }

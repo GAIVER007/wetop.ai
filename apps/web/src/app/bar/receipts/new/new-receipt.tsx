@@ -13,6 +13,7 @@ import {
   type BarActionResult,
   type BarScanActionResult,
 } from '../../actions';
+import { useT } from '../../../../i18n/locale-provider';
 
 const initial: BarActionResult = { error: null, ok: 0 };
 const scanInitial: BarScanActionResult = { error: null, ok: 0 };
@@ -64,6 +65,7 @@ const parseMinor = (raw: string) => {
 const parseBasis = parseMinor;
 
 export function NewReceipt({ products, suppliers, today, context }: { products: BarProductRow[]; suppliers: BarSupplierRow[]; today: string; context: BarFormContext }) {
+  const t = useT();
   const [state, action, pending] = useActionState(createBarReceiptAction, initial);
   const [scanState, scanDispatch, scanPending] = useActionState(scanBarReceiptAction, scanInitial);
   const [lines, setLines] = useState<LineDraft[]>(() => [emptyLine()]);
@@ -119,19 +121,19 @@ export function NewReceipt({ products, suppliers, today, context }: { products: 
     setLines((all) => all.map((line) => (line.key === key ? { ...line, ...part } : line)));
   return (
     <form action={action} className="panel bar-receipt-form">
-      <section className="bar-scan" aria-label="Распознавание накладной">
+      <section className="bar-scan" aria-label={t('Распознавание накладной')}>
         <div className="bar-scan-row">
           {/* без name: файл уходит только в действие скана, а не со всем приходом. Своя кнопка вместо «Choose File»
               браузера (аудит 21.10.2026 п.30): кнопка не может жить внутри label, поэтому поле собрано без Field */}
           <div className="field">
-            <label htmlFor="bar-scan-file">Фото накладной или счёта-фактуры</label>
+            <label htmlFor="bar-scan-file">{t('Фото накладной или счёта-фактуры')}</label>
             <input ref={fileInput} id="bar-scan-file" type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" tabIndex={-1} aria-describedby="bar-scan-file-hint" onChange={(event) => setFileName(event.target.files?.[0]?.name ?? '')} />
             <div className="bar-file-picker">
-              <Button type="button" tone="secondary" onClick={() => fileInput.current?.click()}>Выбрать фото</Button>
-              <Button type="button" onClick={scan} disabled={scanPending || !fileName}>{scanPending ? 'Читаю документ…' : 'Распознать и заполнить'}</Button>
-              <span aria-live="polite">{fileName || 'Фото не выбрано'}</span>
+              <Button type="button" tone="secondary" onClick={() => fileInput.current?.click()}>{t('Выбрать фото')}</Button>
+              <Button type="button" onClick={scan} disabled={scanPending || !fileName}>{scanPending ? t('Читаю документ…') : t('Распознать и заполнить')}</Button>
+              <span aria-live="polite">{fileName || t('Фото не выбрано')}</span>
             </div>
-            <span className="field__hint" id="bar-scan-file-hint">JPG, PNG или WebP до 8 МБ. ИИ прочитает документ и заполнит строки, проверка и проведение остаются за вами.</span>
+            <span className="field__hint" id="bar-scan-file-hint">{t('JPG, PNG или WebP до 8 МБ. ИИ прочитает документ и заполнит строки, проверка и проведение остаются за вами.')}</span>
           </div>
         </div>
         {scanState.error && <p role="alert" className="bar-error">{scanState.error}</p>}
@@ -143,17 +145,17 @@ export function NewReceipt({ products, suppliers, today, context }: { products: 
       <BarContextFields context={context} />
       <input type="hidden" name="lineCount" value={lines.length} />
       <div className="bar-form-grid">
-        <Field label="Поставщик" controlId="bar-supplier" {...(supplierGuess ? { hint: `В документе: «${supplierGuess}». Такого поставщика ещё нет: заведите его на вкладке «Поставщики»` } : {})}>
+        <Field label={t('Поставщик')} controlId="bar-supplier" {...(supplierGuess ? { hint: t('В документе: «{name}». Такого поставщика ещё нет: заведите его на вкладке «Поставщики»', { name: supplierGuess }) } : {})}>
           <Select name="supplierId" id="bar-supplier" required value={supplierId} onChange={(event) => setSupplierId(event.target.value)}>
-            <option value="" disabled>Выберите</option>
+            <option value="" disabled>{t('Выберите')}</option>
             {suppliers.filter((supplier) => supplier.active).map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}
           </Select>
         </Field>
-        <Field label="Номер счёта-фактуры" controlId="bar-document"><Input name="documentNumber" id="bar-document" required value={documentNumber} onChange={(event) => setDocumentNumber(event.target.value)} /></Field>
-        <Field label="Дата документа" controlId="bar-document-date"><Input type="date" lang="ru" name="documentDate" id="bar-document-date" required value={documentDate} onChange={(event) => setDocumentDate(event.target.value)} /></Field>
-        <Field label="Дата приёмки" controlId="bar-received-date"><Input type="date" lang="ru" name="receivedDate" id="bar-received-date" defaultValue={today} required /></Field>
+        <Field label={t('Номер счёта-фактуры')} controlId="bar-document"><Input name="documentNumber" id="bar-document" required value={documentNumber} onChange={(event) => setDocumentNumber(event.target.value)} /></Field>
+        <Field label={t('Дата документа')} controlId="bar-document-date"><Input type="date" lang="ru" name="documentDate" id="bar-document-date" required value={documentDate} onChange={(event) => setDocumentDate(event.target.value)} /></Field>
+        <Field label={t('Дата приёмки')} controlId="bar-received-date"><Input type="date" lang="ru" name="receivedDate" id="bar-received-date" defaultValue={today} required /></Field>
       </div>
-      <div className="bar-lines" aria-label="Товары прихода">
+      <div className="bar-lines" aria-label={t('Товары прихода')}>
         {lines.map((line, index) => (
           <ReceiptLine
             key={line.key}
@@ -167,14 +169,14 @@ export function NewReceipt({ products, suppliers, today, context }: { products: 
         ))}
       </div>
       <div className="bar-line-actions">
-        <Button type="button" tone="secondary" onClick={() => setLines((all) => [...all, emptyLine()])}>Добавить строку</Button>
-        <Button type="button" tone="ghost" onClick={() => setLines((all) => [...all, { ...emptyLine(), mode: 'new' }])}>Строка с новым товаром</Button>
+        <Button type="button" tone="secondary" onClick={() => setLines((all) => [...all, emptyLine()])}>{t('Добавить строку')}</Button>
+        <Button type="button" tone="ghost" onClick={() => setLines((all) => [...all, { ...emptyLine(), mode: 'new' }])}>{t('Строка с новым товаром')}</Button>
       </div>
-      <Field label="Комментарий" controlId="bar-note"><Textarea name="note" id="bar-note" rows={2} /></Field>
-      <label className="bar-check"><input type="checkbox" name="postNow" defaultChecked /> Сразу провести и добавить на склад</label>
+      <Field label={t('Комментарий')} controlId="bar-note"><Textarea name="note" id="bar-note" rows={2} /></Field>
+      <label className="bar-check"><input type="checkbox" name="postNow" defaultChecked /> {t('Сразу провести и добавить на склад')}</label>
       {state.error && <p role="alert" className="bar-error">{state.error}</p>}
       {state.message && <p role="status" className="bar-success">{state.message}</p>}
-      <Button type="submit" disabled={pending || suppliers.length === 0}>{pending ? 'Сохраняем…' : 'Сохранить приход'}</Button>
+      <Button type="submit" disabled={pending || suppliers.length === 0}>{pending ? t('Сохраняем…') : t('Сохранить приход')}</Button>
     </form>
   );
 }
@@ -188,6 +190,7 @@ function ReceiptLine({ index, line, products, currency, onChange, remove }: {
   onChange: (part: Partial<LineDraft>) => void;
   remove?: () => void;
 }) {
+  const t = useT();
   const product = products.find((item) => item.id === line.productId);
   const parsedCost = parseMinor(line.unitCost);
   const parsedQuantity = /^\d+$/.test(line.quantity) ? BigInt(line.quantity) : null;
@@ -206,34 +209,34 @@ function ReceiptLine({ index, line, products, currency, onChange, remove }: {
     onChange(product && !line.markupTouched ? { unitCost, markup: receiptMarkupInput(product, unitCost) } : { unitCost });
   return <div className="bar-line" data-line-mode={line.mode}>
     {line.mode === 'existing' ? (
-      <Field label="Товар">
+      <Field label={t('Товар')}>
         <Select name={`productId.${index}`} required value={line.productId} onChange={(event) => pickProduct(event.target.value)}>
-          <option value="" disabled>Выберите товар</option>
+          <option value="" disabled>{t('Выберите товар')}</option>
           {products.filter((item) => item.active).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
         </Select>
       </Field>
     ) : (
       <div className="bar-line-new">
-        <Field label="Новый товар: название"><Input name={`newName.${index}`} required value={line.name} onChange={(event) => onChange({ name: event.target.value, code: suggestCode(event.target.value) })} /></Field>
-        <Field label="Код карточки"><Input name={`newCode.${index}`} required value={line.code} onChange={(event) => onChange({ code: event.target.value })} /></Field>
-        <Field label="Штрихкод"><Input name={`newBarcode.${index}`} value={line.barcode} onChange={(event) => onChange({ barcode: event.target.value })} /></Field>
+        <Field label={t('Новый товар: название')}><Input name={`newName.${index}`} required value={line.name} onChange={(event) => onChange({ name: event.target.value, code: suggestCode(event.target.value) })} /></Field>
+        <Field label={t('Код карточки')}><Input name={`newCode.${index}`} required value={line.code} onChange={(event) => onChange({ code: event.target.value })} /></Field>
+        <Field label={t('Штрихкод')}><Input name={`newBarcode.${index}`} value={line.barcode} onChange={(event) => onChange({ barcode: event.target.value })} /></Field>
       </div>
     )}
-    <Field label="Кол-во, шт."><Input name={`quantityUnits.${index}`} inputMode="numeric" pattern="[0-9]+" value={line.quantity} onChange={(event) => onChange({ quantity: event.target.value })} required /></Field>
-    <Field label={`Закупка за 1 шт., ${currency === 'KZT' ? '₸' : currency}`}><Input name={`unitCost.${index}`} inputMode="decimal" value={line.unitCost} onChange={(event) => changeCost(event.target.value)} required /></Field>
-    <Field label="Наценка, %"><Input name={`markup.${index}`} inputMode="decimal" value={line.markup} onChange={(event) => onChange({ markup: event.target.value, markupTouched: true })} required /></Field>
+    <Field label={t('Кол-во, шт.')}><Input name={`quantityUnits.${index}`} inputMode="numeric" pattern="[0-9]+" value={line.quantity} onChange={(event) => onChange({ quantity: event.target.value })} required /></Field>
+    <Field label={t('Закупка за 1 шт., {currency}', { currency: currency === 'KZT' ? '₸' : currency })}><Input name={`unitCost.${index}`} inputMode="decimal" value={line.unitCost} onChange={(event) => changeCost(event.target.value)} required /></Field>
+    <Field label={t('Наценка, %')}><Input name={`markup.${index}`} inputMode="decimal" value={line.markup} onChange={(event) => onChange({ markup: event.target.value, markupTouched: true })} required /></Field>
     <div className="bar-line-tools">
       <Button type="button" tone="secondary" onClick={() => onChange(line.mode === 'existing' ? { mode: 'new', productId: '', code: line.code || suggestCode(line.name) } : { mode: 'existing' })}>
-        {line.mode === 'existing' ? 'Нет в списке' : 'Выбрать из списка'}
+        {line.mode === 'existing' ? t('Нет в списке') : t('Выбрать из списка')}
       </Button>
-      {remove && <Button type="button" tone="ghost" onClick={remove} aria-label={`Убрать строку ${index + 1}`}>Убрать</Button>}
+      {remove && <Button type="button" tone="ghost" onClick={remove} aria-label={t('Убрать строку {n}', { n: index + 1 })}>{t('Убрать')}</Button>}
     </div>
     <div className="bar-line-calculation" aria-live="polite">
-      <span>Сумма закупки: <b>{purchaseAmount === null ? 'Введите количество и цену' : formatMoney(purchaseAmount, currency)}</b></span>
-      <span>Рекомендованная продажа: <b>{recommendedPrice === null ? 'Введите цену и наценку' : formatMoney(recommendedPrice, currency)}</b></span>
+      <span>{t('Сумма закупки:')} <b>{purchaseAmount === null ? t('Введите количество и цену') : formatMoney(purchaseAmount, currency)}</b></span>
+      <span>{t('Рекомендованная продажа:')} <b>{recommendedPrice === null ? t('Введите цену и наценку') : formatMoney(recommendedPrice, currency)}</b></span>
       {line.mode === 'new'
-        ? <small>Карточка товара создастся вместе с приходом: рекомендованная цена станет ценой продажи.</small>
-        : <small>{product ? 'После проведения рекомендованная цена станет текущей. Её можно изменить во вкладке «Товары».' : 'Выберите товар или нажмите «Нет в списке», чтобы создать карточку.'}</small>}
+        ? <small>{t('Карточка товара создастся вместе с приходом: рекомендованная цена станет ценой продажи.')}</small>
+        : <small>{product ? t('После проведения рекомендованная цена станет текущей. Её можно изменить во вкладке «Товары».') : t('Выберите товар или нажмите «Нет в списке», чтобы создать карточку.')}</small>}
     </div>
   </div>;
 }

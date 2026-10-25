@@ -1,5 +1,6 @@
 import { onboardingFlow } from '@pms/domain';
 import type { SharedOnboardingState } from '../../../lib/api';
+import { msg } from '../../../i18n';
 export type Command = {
   action: 'save' | 'next' | 'back' | 'complete';
   draft: Record<string, unknown>;
@@ -70,7 +71,7 @@ export async function progressRequest(command?: Command): Promise<ProgressReply>
     return {
       status: 503,
       error:
-        'Нет связи с API. Введённые данные сохранены в форме. Повторите после восстановления связи.',
+        msg('Нет связи с API. Введённые данные сохранены в форме. Повторите после восстановления связи.'),
     };
   }
 }

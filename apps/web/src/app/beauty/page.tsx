@@ -12,6 +12,7 @@ import { JournalBoard } from './journal';
 import { WeekCalendar } from './week-calendar';
 import { RemindersToday } from './reminders-today';
 import { loadManualReminders } from '../../lib/beauty-reminders';
+import { serverT } from '../../i18n/server';
 import './beauty.css';
 
 /**
@@ -26,6 +27,7 @@ export default async function BeautyPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/beauty');
+  const t = await serverT();
   const { date, view, appointment, employee, service, status, new: requestedNew } = normalizeSearchParams(
     await searchParams,
   );
@@ -83,7 +85,7 @@ export default async function BeautyPage({
   const manual = view === 'week' ? null : await loadManualReminders();
   if (!loaded.ok)
     return (
-      <Page title="Салон">
+      <Page title={t('Салон')}>
         <LoadError testId="beauty-journal-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
@@ -94,18 +96,22 @@ export default async function BeautyPage({
   // «в каждой вертикали всё по-разному выглядит»
   const views = (
     <Tabs
-      label="Вид журнала"
+      label={t('Вид журнала')}
       items={[
-        { href: `/calendar?date=${loaded.value.date}&${filters}`, label: 'День', current: view !== 'week' },
-        { href: `/calendar?date=${loaded.value.date}&view=week&${filters}`, label: 'Неделя', current: view === 'week' },
+        { href: `/calendar?date=${loaded.value.date}&${filters}`, label: t('День'), current: view !== 'week' },
+        { href: `/calendar?date=${loaded.value.date}&view=week&${filters}`, label: t('Неделя'), current: view === 'week' },
       ]}
     />
   );
   return (
     <Page
       className="beauty-page journal-page"
-      title="Журнал"
-      subtitle={`Расписание специалистов и услуг салона${loaded.value.location.name ? `, ${loaded.value.location.name}` : ''}`}
+      title={t('Журнал')}
+      subtitle={
+        loaded.value.location.name
+          ? t('Расписание специалистов и услуг салона, {name}', { name: loaded.value.location.name })
+          : t('Расписание специалистов и услуг салона')
+      }
     >
       {manual && manual.items.length > 0 && (
         <RemindersToday
@@ -136,7 +142,7 @@ export default async function BeautyPage({
           canIssueReview={may('reviews', 'create', 'staff')}
           canAdjustPrice={may('services', 'update', 'rates')}
           {...(requestedCreate && !canReadCustomers
-            ? { creationUnavailableReason: 'Для создания записи нужен доступ к списку клиентов.' }
+            ? { creationUnavailableReason: t('Для создания записи нужен доступ к списку клиентов.') }
             : {})}
           appointmentId={appointment}
           newFor={requestedNew === '1' ? employee : undefined}

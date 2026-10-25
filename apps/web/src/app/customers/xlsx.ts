@@ -4,6 +4,7 @@ import * as yauzl from 'yauzl';
 import * as XLSX from 'xlsx';
 import type { BeautyCustomerRow } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
+import { translator, type Translate } from '../../i18n';
 
 const MAX_FILE_BYTES = 100 * 1024;
 const MAX_ENTRIES = 100;
@@ -20,10 +21,10 @@ export class BeautyCustomerXlsxError extends Error {
 
 const invalid = (message: string): BeautyCustomerXlsxError => new BeautyCustomerXlsxError(message);
 
-async function validateXlsxContainer(bytes: Uint8Array): Promise<void> {
-  if (bytes.byteLength === 0) throw invalid('Выберите XLSX-файл');
-  if (bytes.byteLength > MAX_FILE_BYTES) throw invalid('Файл должен быть не больше 100 КБ');
-  if (bytes[0] !== 0x50 || bytes[1] !== 0x4b) throw invalid('Файл не является XLSX');
+async function validateXlsxContainer(bytes: Uint8Array, t: Translate): Promise<void> {
+  if (bytes.byteLength === 0) throw invalid(t('Выберите XLSX-файл'));
+  if (bytes.byteLength > MAX_FILE_BYTES) throw invalid(t('Файл должен быть не больше 100 КБ'));
+  if (bytes[0] !== 0x50 || bytes[1] !== 0x4b) throw invalid(t('Файл не является XLSX'));
 
   await new Promise<void>((resolve, reject) => {
     yauzl.fromBuffer(
@@ -31,7 +32,7 @@ async function validateXlsxContainer(bytes: Uint8Array): Promise<void> {
       { lazyEntries: true, validateEntrySizes: true, decodeStrings: true },
       (openError, zip) => {
         if (openError || !zip) {
-          reject(invalid('Файл не является корректным XLSX'));
+          reject(invalid(t('Файл не является корректным XLSX')));
           return;
         }
         let settled = false;
@@ -47,36 +48,36 @@ async function validateXlsxContainer(bytes: Uint8Array): Promise<void> {
           if (error) reject(error);
           else resolve();
         };
-        zip.on('error', () => finish(invalid('Файл не является корректным XLSX')));
+        zip.on('error', () => finish(invalid(t('Файл не является корректным XLSX'))));
         zip.on('end', () => {
           const regularXlsx = contentTypes.includes(
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml',
           );
           const strictXlsx = contentTypes.includes('application/vnd.ms-excel.sheet.main+xml');
           if (!hasWorkbook || (!regularXlsx && !strictXlsx)) {
-            finish(invalid('ZIP-файл не является XLSX-книгой'));
+            finish(invalid(t('ZIP-файл не является XLSX-книгой')));
             return;
           }
           finish();
         });
         zip.on('entry', (entry) => {
           entries += 1;
-          if (entries > MAX_ENTRIES) return finish(invalid('В XLSX слишком много файлов'));
+          if (entries > MAX_ENTRIES) return finish(invalid(t('В XLSX слишком много файлов')));
           if ((entry.generalPurposeBitFlag & 0x1) !== 0) {
-            return finish(invalid('Зашифрованные XLSX-файлы не поддерживаются'));
+            return finish(invalid(t('Зашифрованные XLSX-файлы не поддерживаются')));
           }
           if (entry.fileName.includes('\\') || entry.fileName.split('/').includes('..')) {
-            return finish(invalid('XLSX содержит недопустимый путь'));
+            return finish(invalid(t('XLSX содержит недопустимый путь')));
           }
           if (entry.uncompressedSize > MAX_ENTRY_BYTES) {
-            return finish(invalid('Один из файлов XLSX слишком большой'));
+            return finish(invalid(t('Один из файлов XLSX слишком большой')));
           }
           declaredTotal += entry.uncompressedSize;
-          if (declaredTotal > MAX_TOTAL_BYTES) return finish(invalid('Распакованный XLSX слишком большой'));
+          if (declaredTotal > MAX_TOTAL_BYTES) return finish(invalid(t('Распакованный XLSX слишком большой')));
           if (entry.fileName === 'xl/workbook.xml') hasWorkbook = true;
 
           zip.openReadStream(entry, (streamError, stream) => {
-            if (streamError || !stream) return finish(invalid('Не удалось прочитать XLSX'));
+            if (streamError || !stream) return finish(invalid(t('Не удалось прочитать XLSX')));
             let entryBytes = 0;
             const contentChunks: Buffer[] = [];
             stream.on('data', (chunk: Buffer) => {
@@ -84,10 +85,10 @@ async function validateXlsxContainer(bytes: Uint8Array): Promise<void> {
               actualTotal += chunk.byteLength;
               if (entry.fileName === '[Content_Types].xml') contentChunks.push(chunk);
               if (entryBytes > MAX_ENTRY_BYTES || actualTotal > MAX_TOTAL_BYTES) {
-                stream.destroy(invalid('Распакованный XLSX слишком большой'));
+                stream.destroy(invalid(t('Распакованный XLSX слишком большой')));
               }
             });
-            stream.on('error', () => finish(invalid('Не удалось безопасно прочитать XLSX')));
+            stream.on('error', () => finish(invalid(t('Не удалось безопасно прочитать XLSX'))));
             stream.on('end', () => {
               if (entry.fileName === '[Content_Types].xml') {
                 contentTypes = Buffer.concat(contentChunks).toString('utf8');
@@ -116,8 +117,11 @@ function denseCells(sheet: XLSX.WorkSheet): XLSX.CellObject[] {
     .map(([, cell]) => cell as XLSX.CellObject);
 }
 
-export async function parseBeautyCustomersXlsx(bytes: Uint8Array): Promise<string> {
-  await validateXlsxContainer(bytes);
+export async function parseBeautyCustomersXlsx(
+  bytes: Uint8Array,
+  t: Translate = translator('ru'),
+): Promise<string> {
+  await validateXlsxContainer(bytes, t);
   let book: XLSX.WorkBook;
   try {
     book = XLSX.read(bytes, {
@@ -130,47 +134,60 @@ export async function parseBeautyCustomersXlsx(bytes: Uint8Array): Promise<strin
       bookVBA: false,
     });
   } catch {
-    throw invalid('Не удалось прочитать XLSX');
+    throw invalid(t('Не удалось прочитать XLSX'));
   }
   const sheetName = book.SheetNames[0];
   const sheet = sheetName ? book.Sheets[sheetName] : undefined;
-  if (!sheet) throw invalid('В XLSX нет листа с клиентами');
+  if (!sheet) throw invalid(t('В XLSX нет листа с клиентами'));
   const fullRef = sheet['!fullref'] ?? sheet['!ref'];
-  if (!fullRef) throw invalid('В XLSX нет данных');
+  if (!fullRef) throw invalid(t('В XLSX нет данных'));
   const range = XLSX.utils.decode_range(fullRef);
   const dataRows = range.e.r - range.s.r;
   const columns = range.e.c - range.s.c + 1;
-  if (columns > 50) throw invalid(`В XLSX должно быть не больше 50 столбцов, в файле ${columns}`);
+  if (columns > 50) throw invalid(t('В XLSX должно быть не больше 50 столбцов, в файле {n}', { n: columns }));
   if (dataRows > MAX_DATA_ROWS) {
-    throw invalid(`За раз не больше ${MAX_DATA_ROWS} строк, в файле ${dataRows}`);
+    throw invalid(t('За раз не больше {max} строк, в файле {n}', { max: MAX_DATA_ROWS, n: dataRows }));
   }
   if (denseCells(sheet).some((cell) => typeof cell.f === 'string' && cell.f.length > 0)) {
-    throw invalid('XLSX с формулами не поддерживается, замените формулы значениями');
+    throw invalid(t('XLSX с формулами не поддерживается, замените формулы значениями'));
   }
 
   const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, raw: false, defval: '' });
   const header = rows[0]?.map((cell) => String(cell).trim().toLocaleLowerCase('ru')) ?? [];
-  const nameAt = header.indexOf('имя');
-  const phoneAt = header.indexOf('телефон');
-  if (nameAt < 0) throw invalid('В файле нет колонки «Имя»');
-  if (phoneAt < 0) throw invalid('В файле нет колонки «Телефон»');
+  const nameAt = header.indexOf('имя'); // kk-allow: заголовок колонки в файле клиента, сверка с данными
+  const phoneAt = header.indexOf('телефон'); // kk-allow: заголовок колонки в файле клиента, сверка с данными
+  if (nameAt < 0) throw invalid(t('В файле нет колонки «Имя»'));
+  if (phoneAt < 0) throw invalid(t('В файле нет колонки «Телефон»'));
   const body = rows.slice(1).map((row) => [String(row[nameAt] ?? '').trim(), String(row[phoneAt] ?? '').trim()]);
-  return [['Имя', 'Телефон'], ...body]
+  return [['Имя', 'Телефон'], ...body] // kk-allow: заголовок CSV для разбора API, не текст экрана
     .map((row) => row.map(csvCell).join(';'))
     .join('\r\n');
 }
 
-export function exportBeautyCustomersXlsx(rows: BeautyCustomerRow[]): Uint8Array {
+export function exportBeautyCustomersXlsx(
+  rows: BeautyCustomerRow[],
+  t: Translate = translator('ru'),
+): Uint8Array {
   const values = [
-    ['Имя', 'Телефон', 'Последний визит', 'Всего визитов', 'Средний чек', 'Статус', 'VIP', 'День рождения'],
+    [
+      // kk-allow: «Имя» и «Телефон» читает импорт клиентов, выгрузку можно загрузить обратно на любом языке
+      'Имя', // kk-allow: колонка, которую ищет импорт
+      'Телефон', // kk-allow: колонка, которую ищет импорт
+      t('Последний визит'),
+      t('Всего визитов'),
+      t('Средний чек'),
+      t('Статус'),
+      'VIP',
+      t('День рождения'),
+    ],
     ...rows.map((row) => [
       [row.firstName, row.lastName].filter(Boolean).join(' '),
       row.phone ?? '',
       row.lastVisitLocalDate ?? '',
       row.visits,
       row.avgCheckMinor ? formatMoney(row.avgCheckMinor, row.avgCheckCurrency ?? 'KZT') : '',
-      row.status === 'ACTIVE' ? 'Активен' : 'В архиве',
-      row.isVip ? 'Да' : 'Нет',
+      row.status === 'ACTIVE' ? t('Активен') : t('В архиве'),
+      row.isVip ? t('Да') : t('Нет'),
       row.birthDate ?? '',
     ]),
   ];
@@ -180,6 +197,6 @@ export function exportBeautyCustomersXlsx(rows: BeautyCustomerRow[]): Uint8Array
     { wch: 18 }, { wch: 14 }, { wch: 8 }, { wch: 16 },
   ];
   const book = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(book, sheet, 'Клиенты');
+  XLSX.utils.book_append_sheet(book, sheet, t('Клиенты'));
   return new Uint8Array(XLSX.write(book, { bookType: 'xlsx', type: 'array', compression: true }));
 }

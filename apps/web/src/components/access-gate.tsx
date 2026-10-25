@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Suspense, type ReactNode } from 'react';
 import { MEMBERSHIP_ROLES, accessDeniedMessage, type Permission } from '@pms/domain';
+import { useT } from '../i18n/locale-provider';
 import { useDeskAccessWhen } from './desk-access';
 import { Icon } from './icon';
 import { Page } from './page';
@@ -17,6 +18,7 @@ import { carriesBeautyAccess, openToEveryRole, pageOpen, routeRule } from '../li
  * (сбой `/auth/me`) — страница открывается: «нет доступа» было бы неправдой, а данных без права API не отдаст.
  */
 export function AccessGate({ children }: { children: ReactNode }) {
+  const t = useT();
   const path = usePathname() ?? '/';
   const rule = routeRule(path);
   const check =
@@ -27,7 +29,7 @@ export function AccessGate({ children }: { children: ReactNode }) {
   // страницу под собой — нет; будь здесь `children` то голым, то в обёртке, React пересоздавал бы страницу под
   // панелью при переходе между адресами с проверкой и без, и она теряла бы фильтры и прокрутку.
   return (
-    <Suspense fallback={check ? <LoadingState label="Проверяем доступ…" /> : null}>
+    <Suspense fallback={check ? <LoadingState label={t('Проверяем доступ…')} /> : null}>
       <RoleCheck check={check}>{children}</RoleCheck>
     </Suspense>
   );
@@ -63,20 +65,22 @@ export function NoAccess({
   role: keyof typeof MEMBERSHIP_ROLES | null;
   homeHref?: string;
 }) {
+  const t = useT();
   return (
-    <Page title={label}>
+    <Page title={t(label)}>
       <EmptyState
         data-testid="no-access"
         icon={<Icon name="shield" width={32} height={32} />}
-        title="Нет доступа"
+        title={t('Нет доступа')}
         actions={
           <Link className="btn btn--secondary" href={homeHref}>
-            {homeHref === '/my-work' ? 'Моя работа' : 'На главную'}
+            {homeHref === '/my-work' ? t('Моя работа') : t('На главную')}
           </Link>
         }
       >
         {accessDeniedMessage(requires)}
-        {role && ` Ваша роль — ${MEMBERSHIP_ROLES[role]}; роль меняет владелец организации.`}
+        {role &&
+          ` ${t('Ваша роль — {role}; роль меняет владелец организации.', { role: t(MEMBERSHIP_ROLES[role]) })}`}
       </EmptyState>
     </Page>
   );

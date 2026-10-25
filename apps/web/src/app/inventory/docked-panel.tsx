@@ -2,6 +2,7 @@
 import { useEffect, useId, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Icon } from '../../components/icon';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * Панель места рядом со списком (снимок владельца 09.10): появляется, когда выбрано место (адрес `/units/<код>`), и исчезает, когда адрес другой; на широком экране закреплена колонкой справа,
@@ -9,6 +10,7 @@ import { Icon } from '../../components/icon';
  * назад, как у RouteDrawer: Escape, кнопка «Закрыть». Не модальна: фокус не запирается.
  */
 export function DockedPanel({ title, children }: { title: string; children: ReactNode }) {
+  const t = useT();
   const router = useRouter();
   const pathname = usePathname();
   const titleId = useId();
@@ -35,7 +37,7 @@ export function DockedPanel({ title, children }: { title: string; children: Reac
         <button
           type="button"
           className="icon-button"
-          aria-label={`Закрыть: ${title}`}
+          aria-label={t('Закрыть: {title}', { title })}
           onClick={() => router.back()}
         >
           <Icon name="close" />

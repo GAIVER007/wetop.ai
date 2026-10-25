@@ -20,6 +20,8 @@ import {
 import { BarContextFields, type BarFormContext } from './context';
 import { STATUS_LABEL, STATUS_TONE, recommendedPriceMinor, stockStatusOf } from './stock-status';
 import { suggestCode } from './receipts/new/new-receipt';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * «Товары и остатки» с карточкой товара колонкой справа (ADR-157, макет владельца 09.10.2026). Слева доска
@@ -29,16 +31,16 @@ const initial: BarActionResult = { error: null, ok: 0 };
 /** Знак валюты в поле суммы: тенге значком, остальные кодом (как formatMoney) */
 const currencySign = (currency: string) => (currency === 'KZT' ? '₸' : currency);
 const PERIODS = [
-  { id: 'all', label: 'За все время', days: null },
-  { id: '30', label: 'За 30 дней', days: 30 },
-  { id: '7', label: 'За 7 дней', days: 7 },
+  { id: 'all', label: msg('За все время'), days: null },
+  { id: '30', label: msg('За 30 дней'), days: 30 },
+  { id: '7', label: msg('За 7 дней'), days: 7 },
 ] as const;
 const MOVEMENT_LABEL: Record<BarMovementRow['kind'], string> = {
-  RECEIPT: 'Приход',
-  SALE: 'Продажа',
-  WRITE_OFF: 'Списание',
-  SALE_RETURN: 'Возврат',
-  INVENTORY_ADJUSTMENT: 'Инвентаризация',
+  RECEIPT: msg('Приход'),
+  SALE: msg('Продажа'),
+  WRITE_OFF: msg('Списание'),
+  SALE_RETURN: msg('Возврат'),
+  INVENTORY_ADJUSTMENT: msg('Инвентаризация'),
 };
 
 const normalized = (value: string) => value.toLowerCase().replace(/\s+/g, ' ').trim();
@@ -97,6 +99,7 @@ export function StockBoard({
   /** UI-FIX-01: право движения остатка (desk) и не режим чтения */
   canStockMutate: boolean;
 }) {
+  const t = useT();
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<{ field: 'name' | 'stock'; descending: boolean } | null>(null);
   const toggleSort = (field: 'name' | 'stock') =>
@@ -159,8 +162,8 @@ export function StockBoard({
     if (
       !(await ask({
         title,
-        body: 'Товар уйдёт в архив: остатки, приходы и продажи сохраняются, вернуть можно на вкладке «Товары».',
-        confirmLabel: 'Удалить в архив',
+        body: t('Товар уйдёт в архив: остатки, приходы и продажи сохраняются, вернуть можно на вкладке «Товары».'),
+        confirmLabel: t('Удалить в архив'),
         tone: 'danger',
       }))
     )
@@ -186,14 +189,14 @@ export function StockBoard({
       <div className="bar-main-left">
         <section className="panel bar-board" aria-labelledby="bar-board-title">
           <header className="bar-board-head">
-            <div className="bar-category-pills" role="group" aria-label="Категории товаров">
+            <div className="bar-category-pills" role="group" aria-label={t('Категории товаров')}>
               <Button
                 type="button"
                 tone={categoryId === '' ? 'primary' : 'secondary'}
                 aria-pressed={categoryId === ''}
                 onClick={() => setCategoryId('')}
               >
-                Все товары
+                {t('Все товары')}
               </Button>
               {categories
                 .filter((c) => c.active)
@@ -212,29 +215,29 @@ export function StockBoard({
             {canCatalogMutate && (
               <Button type="button" onClick={() => setSelected('new')}>
                 <Icon name="plus" width={16} height={16} />
-                Добавить товар
+                {t('Добавить товар')}
               </Button>
             )}
           </header>
           <h2 id="bar-board-title" className="sr-only">
-            Товары и остатки
+            {t('Товары и остатки')}
           </h2>
           <div className="bar-board-filters">
             <span className="bar-select-search bar-board-search">
               <Icon name="search" width={16} height={16} />
               <Input
-                aria-label="Поиск товара"
-                placeholder="Поиск по названию, SKU или поставщику…"
+                aria-label={t('Поиск товара')}
+                placeholder={t('Поиск по названию, SKU или поставщику…')}
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
               />
             </span>
             <Select
-              aria-label="Категория"
+              aria-label={t('Категория')}
               value={categoryId}
               onChange={(event) => setCategoryId(event.target.value)}
             >
-              <option value="">Все категории</option>
+              <option value="">{t('Все категории')}</option>
               {categories
                 .filter((category) => category.active)
                 .map((category) => (
@@ -244,11 +247,11 @@ export function StockBoard({
                 ))}
             </Select>
             <Select
-              aria-label="Поставщик"
+              aria-label={t('Поставщик')}
               value={supplierId}
               onChange={(event) => setSupplierId(event.target.value)}
             >
-              <option value="">Все поставщики</option>
+              <option value="">{t('Все поставщики')}</option>
               {suppliers
                 .filter((supplier) => supplier.active)
                 .map((supplier) => (
@@ -258,25 +261,25 @@ export function StockBoard({
                 ))}
             </Select>
             <Select
-              aria-label="Статус остатка"
+              aria-label={t('Статус остатка')}
               value={status}
               onChange={(event) => setStatus(event.target.value)}
             >
-              <option value="">Все статусы</option>
-              <option value="ok">В норме</option>
-              <option value="low">Заканчивается</option>
-              <option value="out">Нет в наличии</option>
+              <option value="">{t('Все статусы')}</option>
+              <option value="ok">{t('В норме')}</option>
+              <option value="low">{t('Заканчивается')}</option>
+              <option value="out">{t('Нет в наличии')}</option>
             </Select>
             <span className="bar-select-search">
               <Icon name="board" width={16} height={16} />
               <Select
-                aria-label="Период последнего прихода"
+                aria-label={t('Период последнего прихода')}
                 value={period}
                 onChange={(event) => setPeriod(event.target.value as typeof period)}
               >
                 {PERIODS.map((entry) => (
                   <option key={entry.id} value={entry.id}>
-                    {entry.label}
+                    {t(entry.label)}
                   </option>
                 ))}
               </Select>
@@ -294,23 +297,23 @@ export function StockBoard({
               setPeriod('all');
             }}
           >
-            Сбросить фильтры
+            {t('Сбросить фильтры')}
           </Button>
           {canCatalogMutate && checked.size > 0 && (
-            <div className="bar-bulk" role="toolbar" aria-label="Отмеченные товары">
-              <span>Отмечено: {checked.size}</span>
+            <div className="bar-bulk" role="toolbar" aria-label={t('Отмеченные товары')}>
+              <span>{t('Отмечено: {n}', { n: checked.size })}</span>
               <Button
                 type="button"
                 tone="danger"
                 size="sm"
                 onClick={() =>
-                  void archive([...checked], `Удалить отмеченные товары (${checked.size})?`)
+                  void archive([...checked], t('Удалить отмеченные товары ({n})?', { n: checked.size }))
                 }
               >
-                <Icon name="trash" width={16} height={16} /> Удалить
+                <Icon name="trash" width={16} height={16} /> {t('Удалить')}
               </Button>
               <Button type="button" tone="ghost" size="sm" onClick={() => setChecked(new Set())}>
-                Снять отметку
+                {t('Снять отметку')}
               </Button>
             </div>
           )}
@@ -321,17 +324,17 @@ export function StockBoard({
           )}
           {rows.length === 0 ? (
             <p className="bar-muted" role="status">
-              По такому отбору товаров нет. Снимите фильтры или добавьте товар.
+              {t('По такому отбору товаров нет. Снимите фильтры или добавьте товар.')}
             </p>
           ) : (
-            <Table density="compact" sticky="header" aria-label="Товары и остатки бара">
+            <Table density="compact" sticky="header" aria-label={t('Товары и остатки бара')}>
               <thead>
                 <tr>
                   {canCatalogMutate && (
                     <th className="bar-col-check">
                       <input
                         type="checkbox"
-                        aria-label="Отметить все товары"
+                        aria-label={t('Отметить все товары')}
                         checked={allChecked}
                         onChange={() =>
                           setChecked(allChecked ? new Set() : new Set(rows.map((item) => item.id)))
@@ -349,10 +352,10 @@ export function StockBoard({
                     }
                   >
                     <button type="button" className="bar-sort" onClick={() => toggleSort('name')}>
-                      Товар {sort?.field === 'name' ? (sort.descending ? '↓' : '↑') : '↕'}
+                      {t('Товар')} {sort?.field === 'name' ? (sort.descending ? '↓' : '↑') : '↕'}
                     </button>
                   </th>
-                  <th>Категория</th>
+                  <th>{t('Категория')}</th>
                   <th
                     aria-sort={
                       sort?.field === 'stock'
@@ -363,14 +366,14 @@ export function StockBoard({
                     }
                   >
                     <button type="button" className="bar-sort" onClick={() => toggleSort('stock')}>
-                      Остаток {sort?.field === 'stock' ? (sort.descending ? '↓' : '↑') : '↕'}
+                      {t('Остаток')} {sort?.field === 'stock' ? (sort.descending ? '↓' : '↑') : '↕'}
                     </button>
                   </th>
-                  <th>Ед.</th>
-                  <th>Цена продажи</th>
-                  <th>Цена закупки</th>
-                  <th>Статус</th>
-                  <th>Действия</th>
+                  <th>{t('Ед.')}</th>
+                  <th>{t('Цена продажи')}</th>
+                  <th>{t('Цена закупки')}</th>
+                  <th>{t('Статус')}</th>
+                  <th>{t('Действия')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -379,16 +382,16 @@ export function StockBoard({
                   return (
                     <tr key={item.id} className={selected === item.id ? 'is-active' : undefined}>
                       {canCatalogMutate && (
-                        <td data-label="Выбор" className="bar-col-check">
+                        <td data-label={t('Выбор')} className="bar-col-check">
                           <input
                             type="checkbox"
-                            aria-label={`Отметить ${item.name}`}
+                            aria-label={t('Отметить {name}', { name: item.name })}
                             checked={checked.has(item.id)}
                             onChange={() => toggle(item.id)}
                           />
                         </td>
                       )}
-                      <td data-label="Товар">
+                      <td data-label={t('Товар')}>
                         <button
                           type="button"
                           className="bar-product-link"
@@ -398,29 +401,29 @@ export function StockBoard({
                           <b>{item.name}</b>
                         </button>
                       </td>
-                      <td data-label="Категория">{item.category?.name ?? 'нет'}</td>
-                      <td data-label="Остаток">
+                      <td data-label={t('Категория')}>{item.category?.name ?? t('нет')}</td>
+                      <td data-label={t('Остаток')}>
                         <b className={`bar-units bar-units--${state}`}>{item.availableUnits}</b>
                       </td>
-                      <td data-label="Ед.">шт.</td>
-                      <td data-label="Цена продажи">
+                      <td data-label={t('Ед.')}>{t('шт.')}</td>
+                      <td data-label={t('Цена продажи')}>
                         <b>{formatMoney(item.salePrice, context.currency)}</b>
                       </td>
-                      <td data-label="Цена закупки">
+                      <td data-label={t('Цена закупки')}>
                         {item.lastUnitCostMinor === null
-                          ? 'нет'
+                          ? t('нет')
                           : formatMoney(item.lastUnitCostMinor, context.currency)}
                       </td>
-                      <td data-label="Статус">
-                        <Badge tone={STATUS_TONE[state]}>{STATUS_LABEL[state]}</Badge>
+                      <td data-label={t('Статус')}>
+                        <Badge tone={STATUS_TONE[state]}>{t(STATUS_LABEL[state])}</Badge>
                       </td>
-                      <td data-label="Действия" className="bar-row-actions">
+                      <td data-label={t('Действия')} className="bar-row-actions">
                         {canCatalogMutate && (
                           <Button
                             type="button"
                             tone="ghost"
                             size="xs"
-                            aria-label={`Изменить ${item.name}`}
+                            aria-label={t('Изменить {name}', { name: item.name })}
                             onClick={() => select(item.id)}
                           >
                             <Icon name="edit" width={16} height={16} />
@@ -428,22 +431,22 @@ export function StockBoard({
                         )}
                         {(canCatalogMutate || canStockMutate) && (
                           <ActionMenu
-                            label={`Действия: ${item.name}`}
+                            label={t('Действия: {name}', { name: item.name })}
                             size="sm"
                             items={[
                               ...(canCatalogMutate
-                                ? [{ label: 'Изменить', onSelect: () => select(item.id) }]
+                                ? [{ label: t('Изменить'), onSelect: () => select(item.id) }]
                                 : []),
                               ...(canStockMutate
-                                ? [{ label: 'Списать', onSelect: () => select(item.id, true) }]
+                                ? [{ label: t('Списать'), onSelect: () => select(item.id, true) }]
                                 : []),
                               ...(canCatalogMutate
                                 ? [
                                     {
-                                      label: 'Удалить',
+                                      label: t('Удалить'),
                                       tone: 'danger' as const,
                                       onSelect: () =>
-                                        void archive([item.id], `Удалить «${item.name}»?`),
+                                        void archive([item.id], t('Удалить «{name}»?', { name: item.name })),
                                     },
                                   ]
                                 : []),
@@ -465,10 +468,10 @@ export function StockBoard({
           className="panel bar-card"
           aria-label={
             selected === 'new'
-              ? 'Новый товар'
+              ? t('Новый товар')
               : current
-                ? `Карточка товара ${current.name}`
-                : 'Карточка товара'
+                ? t('Карточка товара {name}', { name: current.name })
+                : t('Карточка товара')
           }
         >
           {selected === 'new' && canCatalogMutate ? (
@@ -483,7 +486,7 @@ export function StockBoard({
               writeOffOpen={writeOffOpen}
               onWriteOff={setWriteOffOpen}
               onClose={() => setSelected(null)}
-              onDelete={() => void archive([current.id], `Удалить «${current.name}»?`)}
+              onDelete={() => void archive([current.id], t('Удалить «{name}»?', { name: current.name }))}
               canCatalogMutate={canCatalogMutate}
               canStockMutate={canStockMutate}
             />
@@ -491,12 +494,11 @@ export function StockBoard({
             <div className="bar-card-empty">
               <Icon name="product" width={32} height={32} />
               <p>
-                Выберите товар в таблице: здесь откроется его карточка с ценами, остатком и
-                историей.
+                {t('Выберите товар в таблице: здесь откроется его карточка с ценами, остатком и историей.')}
               </p>
               {canCatalogMutate && (
                 <Button type="button" onClick={() => setSelected('new')}>
-                  <Icon name="plus" width={16} height={16} /> Добавить товар
+                  <Icon name="plus" width={16} height={16} /> {t('Добавить товар')}
                 </Button>
               )}
             </div>
@@ -560,6 +562,7 @@ function ProductCard({
   canCatalogMutate: boolean;
   canStockMutate: boolean;
 }) {
+  const t = useT();
   const clock = usePropertyClock();
   // причины списания словами направления: у салона без «Бой» и «Угощение» (аудит 22.10.2026)
   const reasons = stockWords(useDeskVertical()).writeOffReasons;
@@ -577,17 +580,19 @@ function ProductCard({
   const reprice = () => {
     const match = /^(\d+)(?:[.,](\d{1,2}))?$/.exec(markup.trim());
     if (!product.lastUnitCostMinor) {
-      setPriceNote('Закупочной цены ещё нет: сначала занесите приход.');
+      setPriceNote(t('Закупочной цены ещё нет: сначала занесите приход.'));
       return;
     }
     if (!match) {
-      setPriceNote('Укажите наценку в процентах.');
+      setPriceNote(t('Укажите наценку в процентах.'));
       return;
     }
     const basis = BigInt(match[1]!) * 100n + BigInt((match[2] ?? '').padEnd(2, '0') || '0');
     setPrice(minorToInput(recommendedPriceMinor(product.lastUnitCostMinor, basis, context.currency)));
     setPriceNote(
-      `Цена пересчитана от закупки и наценки, вверх до ${context.currency === 'KZT' ? '10 тенге' : `целого ${context.currency}`}. Нажмите «Сохранить».`,
+      context.currency === 'KZT'
+        ? t('Цена пересчитана от закупки и наценки, вверх до 10 тенге. Нажмите «Сохранить».')
+        : t('Цена пересчитана от закупки и наценки, вверх до целого {currency}. Нажмите «Сохранить».', { currency: context.currency }),
     );
   };
   const id = (name: string) => `bar-card-${name}`;
@@ -598,7 +603,7 @@ function ProductCard({
       <input type="hidden" name="unitsPerPackage" value={String(product.unitsPerPackage)} />
       <input type="hidden" name="barcode" value={product.barcode ?? ''} />
       <div className="bar-card-grid">
-        <CardField label="Название товара" htmlFor={id('name')}>
+        <CardField label={t('Название товара')} htmlFor={id('name')}>
           <Input
             id={id('name')}
             name="name"
@@ -607,44 +612,44 @@ function ProductCard({
             required
           />
         </CardField>
-        <CardField label="Категория" htmlFor={id('category')}>
+        <CardField label={t('Категория')} htmlFor={id('category')}>
           <Select
             id={id('category')}
             name="categoryId"
             defaultValue={product.categoryId ?? ''}
             disabled={!canCatalogMutate}
           >
-            <option value="">Без категории</option>
+            <option value="">{t('Без категории')}</option>
             {/* N6 (ADR-186): своя архивная категория остаётся в списке, иначе сохранение молча её сотрёт */}
             {categories
               .filter((category) => category.active || category.id === product.categoryId)
               .map((category) => (
                 <option key={category.id} value={category.id}>
-                  {category.active ? category.name : `${category.name} (в архиве)`}
+                  {category.active ? category.name : t('{name} (в архиве)', { name: category.name })}
                 </option>
               ))}
           </Select>
         </CardField>
         <div className="bar-card-wide">
-          <CardField label="Поставщик" htmlFor={id('supplier')}>
+          <CardField label={t('Поставщик')} htmlFor={id('supplier')}>
             <Input
               id={id('supplier')}
-              value={product.lastSupplier?.name ?? 'Приходов ещё не было'}
+              value={product.lastSupplier?.name ?? t('Приходов ещё не было')}
               readOnly
-              title="Поставщик последнего прихода"
+              title={t('Поставщик последнего прихода')}
             />
           </CardField>
         </div>
-        <CardField label="Артикул (SKU)" htmlFor={id('sku')}>
+        <CardField label={t('Артикул (SKU)')} htmlFor={id('sku')}>
           <Input id={id('sku')} value={product.code} readOnly />
         </CardField>
-        <CardField label="Ед. измерения" htmlFor={id('unit')}>
-          <Input id={id('unit')} value="шт." readOnly />
+        <CardField label={t('Ед. измерения')} htmlFor={id('unit')}>
+          <Input id={id('unit')} value={t('шт.')} readOnly />
         </CardField>
-        <CardField label="Текущий остаток" htmlFor={id('stock')}>
+        <CardField label={t('Текущий остаток')} htmlFor={id('stock')}>
           <Input id={id('stock')} value={product.availableUnits} readOnly />
         </CardField>
-        <CardField label="Мин. остаток" htmlFor={id('min')}>
+        <CardField label={t('Мин. остаток')} htmlFor={id('min')}>
           <Input
             id={id('min')}
             name="minimumStockUnits"
@@ -654,19 +659,19 @@ function ProductCard({
             required
           />
         </CardField>
-        <CardField label="Закупочная цена" htmlFor={id('cost')}>
+        <CardField label={t('Закупочная цена')} htmlFor={id('cost')}>
           <Affix suffix={currencySign(context.currency)}>
             <Input
               id={id('cost')}
               value={
                 product.lastUnitCostMinor === null ? '' : minorToInput(product.lastUnitCostMinor)
               }
-              placeholder="нет"
+              placeholder={t('нет')}
               readOnly
             />
           </Affix>
         </CardField>
-        <CardField label="Цена продажи" htmlFor={id('price')}>
+        <CardField label={t('Цена продажи')} htmlFor={id('price')}>
           <Affix suffix={currencySign(context.currency)}>
             <Input
               id={id('price')}
@@ -679,7 +684,7 @@ function ProductCard({
             />
           </Affix>
         </CardField>
-        <CardField label="Наценка" htmlFor={id('markup')}>
+        <CardField label={t('Наценка')} htmlFor={id('markup')}>
           <Affix suffix="%">
             <Input
               id={id('markup')}
@@ -689,7 +694,7 @@ function ProductCard({
                 setMarkup(event.target.value);
                 setMarkupTouched(true);
               }}
-              placeholder="из категории"
+              placeholder={t('из категории')}
               readOnly={!canCatalogMutate}
             />
           </Affix>
@@ -699,27 +704,27 @@ function ProductCard({
           name="markup"
           value={product.markupBasis !== null || markupTouched ? markup : ''}
         />
-        <CardField label="Себестоимость остатка" htmlFor={id('stock-cost')}>
+        <CardField label={t('Себестоимость остатка')} htmlFor={id('stock-cost')}>
           <Affix suffix={currencySign(context.currency)}>
             <Input id={id('stock-cost')} value={minorToInput(product.stockCostMinor)} readOnly />
           </Affix>
         </CardField>
-        <CardField label="Последний приход" htmlFor={id('last')}>
+        <CardField label={t('Последний приход')} htmlFor={id('last')}>
           <Affix suffix={<Icon name="board" width={16} height={16} />}>
             <Input
               id={id('last')}
               value={dayRu(product.lastReceivedDate)}
-              placeholder="нет"
+              placeholder={t('нет')}
               readOnly
             />
           </Affix>
         </CardField>
-        <CardField label="Срок годности" htmlFor={id('expiry')}>
+        <CardField label={t('Срок годности')} htmlFor={id('expiry')}>
           <Affix suffix={<Icon name="board" width={16} height={16} />}>
             <Input
               id={id('expiry')}
               value={dayRu(product.nearestExpiry)}
-              placeholder="не указан"
+              placeholder={t('не указан')}
               readOnly
             />
           </Affix>
@@ -742,14 +747,14 @@ function ProductCard({
       )}
       {canCatalogMutate && (
         <Button type="submit" className="bar-card-save" disabled={pending}>
-          {pending ? 'Сохраняю…' : 'Сохранить'}
+          {pending ? t('Сохраняю…') : t('Сохранить')}
         </Button>
       )}
       {(canCatalogMutate || canStockMutate) && (
         <div className="bar-card-actions">
           {canCatalogMutate && (
             <Button type="button" tone="secondary" onClick={reprice}>
-              <Icon name="tag" width={16} height={16} /> Изменить цены
+              <Icon name="tag" width={16} height={16} /> {t('Изменить цены')}
             </Button>
           )}
           {canStockMutate && (
@@ -759,7 +764,7 @@ function ProductCard({
               onClick={() => onWriteOff(!writeOffOpen)}
               aria-expanded={writeOffOpen}
             >
-              <Icon name="writeoff" width={16} height={16} /> Списать
+              <Icon name="writeoff" width={16} height={16} /> {t('Списать')}
             </Button>
           )}
           {canCatalogMutate && (
@@ -767,14 +772,14 @@ function ProductCard({
               type="button"
               tone="secondary"
               disabled
-              title="Склад у объекта один: перемещать товар некуда"
+              title={t('Склад у объекта один: перемещать товар некуда')}
             >
-              <Icon name="move" width={16} height={16} /> Переместить
+              <Icon name="move" width={16} height={16} /> {t('Переместить')}
             </Button>
           )}
           {canCatalogMutate && (
             <Button type="button" tone="danger" onClick={onDelete}>
-              <Icon name="trash" width={16} height={16} /> Удалить
+              <Icon name="trash" width={16} height={16} /> {t('Удалить')}
             </Button>
           )}
         </div>
@@ -783,17 +788,17 @@ function ProductCard({
   );
   const history =
     movements.length === 0 ? (
-      <p className="bar-muted">Движений по товару пока нет.</p>
+      <p className="bar-muted">{t('Движений по товару пока нет.')}</p>
     ) : (
       <ol className="bar-history">
         {movements.map((movement) => (
           <li key={movement.id}>
             <span className="bar-history-when">{clock.full(movement.createdAt)}</span>
-            <b>{MOVEMENT_LABEL[movement.kind]}</b>
+            <b>{t(MOVEMENT_LABEL[movement.kind])}</b>
             <span>
-              {movement.units.startsWith('-') ? movement.units : `+${movement.units}`} шт.
+              {t('{n} шт.', { n: movement.units.startsWith('-') ? movement.units : `+${movement.units}` })}
             </span>
-            <span className="bar-muted">{movement.note ?? ''}</span>
+            <span className="bar-muted">{movement.note ? t(movement.note) : ''}</span>
           </li>
         ))}
       </ol>
@@ -808,44 +813,44 @@ function ProductCard({
           tone="ghost"
           size="xs"
           onClick={onClose}
-          aria-label="Закрыть карточку"
+          aria-label={t('Закрыть карточку')}
         >
           <Icon name="close" width={16} height={16} />
         </Button>
       </header>
       <Tabs
-        label="Карточка товара"
+        label={t('Карточка товара')}
         panels={[
-          { id: 'bar-info', label: 'Информация', content: info },
-          { id: 'bar-history', label: 'История', content: history },
+          { id: 'bar-info', label: t('Информация'), content: info },
+          { id: 'bar-history', label: t('История'), content: history },
         ]}
       />
       {canStockMutate && writeOffOpen && (
         <form
           action={writeOffAction}
           className="bar-card-writeoff"
-          aria-label={`Списание: ${product.name}`}
+          aria-label={t('Списание: {name}', { name: product.name })}
         >
           <BarContextFields context={context} />
           <input type="hidden" name="productId" value={product.id} />
           <Input
             name="quantityUnits"
-            aria-label="Списать, шт."
+            aria-label={t('Списать, шт.')}
             inputMode="numeric"
             pattern="[0-9]+"
             defaultValue="1"
             required
           />
-          <Select name="reason" aria-label="Причина списания" required defaultValue="">
+          <Select name="reason" aria-label={t('Причина списания')} required defaultValue="">
             <option value="" disabled>
-              Причина
+              {t('Причина')}
             </option>
             {reasons.map((reason) => (
-              <option key={reason}>{reason}</option>
+              <option key={reason} value={reason}>{t(reason)}</option>
             ))}
           </Select>
           <Button type="submit" tone="warning" disabled={writeOffPending}>
-            {writeOffPending ? 'Списываем…' : 'Списать'}
+            {writeOffPending ? t('Списываем…') : t('Списать')}
           </Button>
           {writeOffState.error && (
             <p role="alert" className="bar-error">
@@ -872,6 +877,7 @@ function NewProductCard({
   categories: BarCategoryRow[];
   onClose: () => void;
 }) {
+  const t = useT();
   const [state, action, pending] = useActionState(createBarProductAction, initial);
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
@@ -881,13 +887,13 @@ function NewProductCard({
     <>
       <header className="bar-card-head">
         <ProductAvatar name={name || '+'} size="lg" />
-        <h3>Новый товар</h3>
+        <h3>{t('Новый товар')}</h3>
         <Button
           type="button"
           tone="ghost"
           size="xs"
           onClick={onClose}
-          aria-label="Закрыть карточку"
+          aria-label={t('Закрыть карточку')}
         >
           <Icon name="close" width={16} height={16} />
         </Button>
@@ -895,7 +901,7 @@ function NewProductCard({
       <form action={action} className="bar-card-form">
         <BarContextFields context={context} />
         <div className="bar-card-grid">
-          <CardField label="Название товара" htmlFor={id('name')}>
+          <CardField label={t('Название товара')} htmlFor={id('name')}>
             <Input
               id={id('name')}
               name="name"
@@ -907,9 +913,9 @@ function NewProductCard({
               required
             />
           </CardField>
-          <CardField label="Категория" htmlFor={id('category')}>
+          <CardField label={t('Категория')} htmlFor={id('category')}>
             <Select id={id('category')} name="categoryId" defaultValue="">
-              <option value="">Без категории</option>
+              <option value="">{t('Без категории')}</option>
               {categories
                 .filter((category) => category.active)
                 .map((category) => (
@@ -919,7 +925,7 @@ function NewProductCard({
                 ))}
             </Select>
           </CardField>
-          <CardField label="Артикул (SKU)" htmlFor={id('code')}>
+          <CardField label={t('Артикул (SKU)')} htmlFor={id('code')}>
             <Input
               id={id('code')}
               name="code"
@@ -932,29 +938,29 @@ function NewProductCard({
             />
           </CardField>
 
-          <CardField label="Цена продажи" htmlFor={id('price')}>
+          <CardField label={t('Цена продажи')} htmlFor={id('price')}>
             <Affix suffix={currencySign(context.currency)}>
               <Input id={id('price')} name="salePrice" inputMode="decimal" required />
             </Affix>
           </CardField>
         </div>
         <details className="bar-details">
-          <summary>Дополнительные параметры</summary>
+          <summary>{t('Дополнительные параметры')}</summary>
           <div className="bar-card-grid">
-            <CardField label="Штрихкод" htmlFor={id('barcode')}>
+            <CardField label={t('Штрихкод')} htmlFor={id('barcode')}>
               <Input id={id('barcode')} name="barcode" inputMode="numeric" />
             </CardField>
-            <CardField label="Наценка" htmlFor={id('markup')}>
+            <CardField label={t('Наценка')} htmlFor={id('markup')}>
               <Affix suffix="%">
                 <Input
                   id={id('markup')}
                   name="markup"
                   inputMode="decimal"
-                  placeholder="из категории"
+                  placeholder={t('из категории')}
                 />
               </Affix>
             </CardField>
-            <CardField label="Мин. остаток" htmlFor={id('min')}>
+            <CardField label={t('Мин. остаток')} htmlFor={id('min')}>
               <Input
                 id={id('min')}
                 name="minimumStockUnits"
@@ -963,7 +969,7 @@ function NewProductCard({
                 required
               />
             </CardField>
-            <CardField label="Штук в упаковке" htmlFor={id('units')}>
+            <CardField label={t('Штук в упаковке')} htmlFor={id('units')}>
               <Input
                 id={id('units')}
                 name="unitsPerPackage"
@@ -975,7 +981,7 @@ function NewProductCard({
           </div>
         </details>
         <p className="bar-muted">
-          Остаток появится с первым приходом: «Приход» в шапке или фото накладной.
+          {t('Остаток появится с первым приходом: «Приход» в шапке или фото накладной.')}
         </p>
         {state.error && (
           <p role="alert" className="bar-error">
@@ -989,10 +995,10 @@ function NewProductCard({
         )}
         <div className="bar-form-actions">
           <Button type="button" tone="secondary" onClick={onClose}>
-            Отмена
+            {t('Отмена')}
           </Button>
           <Button type="submit" className="bar-card-save" disabled={pending}>
-            {pending ? 'Сохраняю…' : 'Сохранить'}
+            {pending ? t('Сохраняю…') : t('Сохранить')}
           </Button>
         </div>
       </form>

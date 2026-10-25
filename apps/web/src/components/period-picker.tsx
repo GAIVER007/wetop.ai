@@ -1,4 +1,6 @@
+'use client';
 import type { ReactNode } from 'react';
+import { useT } from '../i18n/locale-provider';
 import { Chip, ChipGroup } from './chip';
 import { DateInput } from './date-field';
 import { Field } from './ui';
@@ -47,40 +49,41 @@ export function PeriodPicker({
   /** класс ряда готовых отрезков, если экран прячет его на телефоне */
   presetsClassName?: string;
 }) {
+  const t = useT();
   const periodError = errors?.period ?? error;
   return (
     <div className={className ? `period-picker ${className}` : 'period-picker'}>
       {presets && presets.length > 0 && (
         <ChipGroup
           as="nav"
-          label="Готовые периоды"
+          label={t('Готовые периоды')}
           className={presetsClassName ? `period-picker__presets ${presetsClassName}` : 'period-picker__presets'}
         >
           {presets.map((p) => (
             <Chip key={p.label} size="sm" href={p.href} selected={p.selected}>
-              {p.label}
+              {t(p.label)}
             </Chip>
           ))}
         </ChipGroup>
       )}
-      <Field inline label="С" controlId={`period-${fromName}`} error={errors?.from}>
+      <Field inline label={t('С')} controlId={`period-${fromName}`} error={errors?.from}>
         <DateInput
           key={`from-${from}`}
           id={`period-${fromName}`}
           name={fromName}
           defaultValue={from}
-          aria-label="Период: с"
+          aria-label={t('Период: с')}
           {...(onFromChange ? { onChange: (e) => onFromChange(e.target.value) } : {})}
         />
       </Field>
-      <Field inline label="По" controlId={`period-${toName}`} error={errors?.to}>
+      <Field inline label={t('По')} controlId={`period-${toName}`} error={errors?.to}>
         <DateInput
           key={`to-${to}`}
           id={`period-${toName}`}
           name={toName}
           rangeFromName={fromName}
           defaultValue={to}
-          aria-label="Период: по"
+          aria-label={t('Период: по')}
           {...(onToChange ? { onChange: (e) => onToChange(e.target.value) } : {})}
         />
       </Field>

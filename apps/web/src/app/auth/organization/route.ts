@@ -4,6 +4,10 @@ import { readBoundedText } from '../../../lib/bounded-body';
 import { sessionCookieHeader } from '../../../lib/site-auth';
 import { SESSION_COOKIE } from '../../../lib/session-cookie';
 import { clearScopeCookieHeader, scopeResolvePath } from '../../../lib/scope-pointer';
+import { msg } from '../../../i18n';
+import { serverT } from '../../../i18n/server';
+
+const refuse = async (text: string, status: number) => new Response((await serverT())(text), { status });
 
 /**
  * Переход в другую свою организацию (один аккаунт в нескольких организациях, DATA_MODEL §13.5). Обычная форма и ответ
@@ -14,11 +18,11 @@ import { clearScopeCookieHeader, scopeResolvePath } from '../../../lib/scope-poi
 export async function POST(request: Request): Promise<Response> {
   const origin = new URL(process.env.APP_URL || request.url).origin;
   if (request.headers.get('origin') !== origin)
-    return new Response('Запрос не с приложения WETOP', { status: 403 });
+    return refuse(msg('Запрос не с приложения WETOP'), 403);
   if (request.headers.get('content-type')?.split(';')[0] !== 'application/x-www-form-urlencoded')
-    return new Response('Нужна форма', { status: 415 });
+    return refuse(msg('Нужна форма'), 415);
   const body = await readBoundedText(request, 1_024);
-  if (!body.ok) return new Response('Слишком большой запрос', { status: 413 });
+  if (!body.ok) return refuse(msg('Слишком большой запрос'), 413);
   const organizationId = (new URLSearchParams(body.text).get('organizationId') ?? '').trim();
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   const back = (reason: string) =>

@@ -17,6 +17,7 @@ import {
 import { Icon } from '../../components/icon';
 import { IconField } from '../../components/icon-field';
 import { wholeTenge } from '../../lib/dashboard-format';
+import { useT } from '../../i18n/locale-provider';
 import type { IngredientInput, MenuCategory, MenuItemView, MenuStation, ModifierGroupView } from '../../lib/food-types';
 import { dishPhoto, mutateMenu } from './restaurant-actions';
 import { DishModifierGroups, ModifierGroupsTable } from './modifier-parts';
@@ -27,7 +28,7 @@ interface Ctx {
   currencyHint: string;
 }
 
-const UNITS = ['г', 'мл', 'шт'] as const;
+const UNITS = ['г', 'мл', 'шт'] as const; // kk-allow: единицы как значения API; подпись переводится при показе
 type Row = {
   name: string;
   normQty: string;
@@ -43,11 +44,12 @@ function rowCost(row: Row): number {
   const qty = Number(row.normQty.replace(',', '.'));
   const cost = Number(row.unitCost);
   if (!Number.isFinite(qty) || !Number.isFinite(cost) || qty <= 0 || cost < 0) return 0;
-  return row.unit === 'шт' ? qty * cost : (qty * cost) / 1000;
+  return row.unit === 'шт' ? qty * cost : (qty * cost) / 1000; // kk-allow: значение единицы
 }
 
 /** Фото блюда (§37): превью, загрузка заменяет прежнее, «Убрать фото» */
 function DishPhoto({ ctx, item }: { ctx: Ctx; item: MenuItemView }) {
+  const t = useT();
   const router = useRouter();
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
@@ -61,26 +63,26 @@ function DishPhoto({ ctx, item }: { ctx: Ctx; item: MenuItemView }) {
       }
     });
   return (
-    <section className="rest-dish-photo" aria-label="Фото блюда" data-testid="dish-photo">
+    <section className="rest-dish-photo" aria-label={t('Фото блюда')} data-testid="dish-photo">
       {error && <Alert>{error}</Alert>}
       {item.photoUrl ? (
         <img src={item.photoUrl} alt={item.name} width={160} height={120} />
       ) : (
-        <p className="muted">Фото пока нет. JPEG, PNG или WebP до 10 МБ.</p>
+        <p className="muted">{t('Фото пока нет. JPEG, PNG или WebP до 10 МБ.')}</p>
       )}
       <form action={(form) => run(form)} className="food-actions">
         <Input
           type="file"
           name="file"
           accept="image/jpeg,image/png,image/webp"
-          aria-label="Файл фото блюда"
+          aria-label={t('Файл фото блюда')}
         />
         <Button type="submit" disabled={pending}>
-          {item.photoUrl ? 'Заменить фото' : 'Загрузить фото'}
+          {item.photoUrl ? t('Заменить фото') : t('Загрузить фото')}
         </Button>
         {item.photoUrl && (
           <Button tone="secondary" disabled={pending} onClick={() => run(null)}>
-            Убрать фото
+            {t('Убрать фото')}
           </Button>
         )}
       </form>
@@ -102,6 +104,7 @@ function DishDrawer({
   modifierGroups: ModifierGroupView[];
   close: () => void;
 }) {
+  const t = useT();
   const router = useRouter();
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
@@ -114,7 +117,7 @@ function DishDrawer({
     setError('');
     const priceMinor = Math.round(Number(price)) * 100;
     if (!name.trim() || !categoryId || !Number.isFinite(priceMinor) || priceMinor < 0) {
-      setError('Заполните название, категорию и цену');
+      setError(t('Заполните название, категорию и цену'));
       return;
     }
     start(async () => {
@@ -144,18 +147,18 @@ function DishDrawer({
     <Overlay
       open
       onClose={close}
-      title={item ? 'Изменить блюдо' : 'Новое блюдо'}
+      title={item ? t('Изменить блюдо') : t('Новое блюдо')}
       drawer
       className="food-drawer"
       trapFocus
     >
       <div className="food-form" data-testid="dish-drawer">
         {error && <Alert>{error}</Alert>}
-        <Field label="Название">
+        <Field label={t('Название')}>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
         </Field>
         <div className="food-form-row">
-          <Field label="Категория">
+          <Field label={t('Категория')}>
             <Select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -164,21 +167,21 @@ function DishDrawer({
               ))}
             </Select>
           </Field>
-          <Field label={`Цена, ${ctx.currencyHint}`}>
+          <Field label={t('Цена, {currency}', { currency: ctx.currencyHint })}>
             <Input type="number" min={0} value={price} onChange={(e) => setPrice(e.target.value)} />
           </Field>
         </div>
-        <Field label="Выход, г">
+        <Field label={t('Выход, г')}>
           <Input type="number" min={1} value={weight} onChange={(e) => setWeight(e.target.value)} />
         </Field>
         <DishModifierGroups groups={modifierGroups.filter((g) => g.active || groupIds.includes(g.id))} value={groupIds} onChange={setGroupIds} />
         {item && ctx.write && <DishPhoto ctx={ctx} item={item} />}
         <div className="food-actions">
           <Button disabled={pending} onClick={submit}>
-            Сохранить
+            {t('Сохранить')}
           </Button>
           <Button tone="secondary" disabled={pending} onClick={close}>
-            Отмена
+            {t('Отмена')}
           </Button>
         </div>
       </div>
@@ -197,6 +200,7 @@ function TechCardDrawer({
   stock: StockOption[];
   close: () => void;
 }) {
+  const t = useT();
   const router = useRouter();
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
@@ -204,7 +208,7 @@ function TechCardDrawer({
     (item.ingredients ?? []).map((i) => ({
       name: i.name,
       normQty: i.normQty,
-      unit: (UNITS as readonly string[]).includes(i.unit) ? (i.unit as Row['unit']) : 'г',
+      unit: (UNITS as readonly string[]).includes(i.unit) ? (i.unit as Row['unit']) : 'г', // kk-allow: значение единицы
       unitCost: String(BigInt(i.unitCostMinor) / 100n),
       productId: i.productId ?? null,
     })),
@@ -224,7 +228,7 @@ function TechCardDrawer({
       const qty = r.normQty.replace(',', '.').trim();
       const cost = Math.round(Number(r.unitCost)) * 100;
       if (!r.name.trim() || !qty || !Number.isFinite(cost) || cost < 0) {
-        setError('У каждой строки нужны название, норма и цена');
+        setError(t('У каждой строки нужны название, норма и цена'));
         return;
       }
       ingredients.push({
@@ -262,7 +266,7 @@ function TechCardDrawer({
     <Overlay
       open
       onClose={close}
-      title={`Калькуляция: ${item.name}`}
+      title={t('Калькуляция: {name}', { name: item.name })}
       drawer
       size="lg"
       className="food-drawer"
@@ -270,41 +274,41 @@ function TechCardDrawer({
     >
       <div className="food-form" data-testid="tech-card">
         {error && <Alert>{error}</Alert>}
-        <h3>Ингредиенты</h3>
+        <h3>{t('Ингредиенты')}</h3>
         <div className="rest-tech-grid rest-tech-head" aria-hidden="true">
-          <span>Ингредиент</span>
-          <span>Норма</span>
-          <span>Ед.</span>
-          <span>Цена за ед., {ctx.currencyHint}</span>
-          <span className="rest-tech-cost">Стоимость</span>
+          <span>{t('Ингредиент')}</span>
+          <span>{t('Норма')}</span>
+          <span>{t('Ед.')}</span>
+          <span>{t('Цена за ед., {currency}', { currency: ctx.currencyHint })}</span>
+          <span className="rest-tech-cost">{t('Стоимость')}</span>
           <span />
         </div>
         {rows.map((r, index) => (
           <div className="rest-tech-grid" key={index}>
             <Input
-              aria-label={`Ингредиент ${index + 1}`}
+              aria-label={t('Ингредиент {n}', { n: index + 1 })}
               value={r.name}
               onChange={(e) => set(index, { name: e.target.value })}
             />
             <Input
-              aria-label="Норма"
+              aria-label={t('Норма')}
               inputMode="decimal"
               value={r.normQty}
               onChange={(e) => set(index, { normQty: e.target.value })}
             />
             <Select
-              aria-label="Единица"
+              aria-label={t('Единица')}
               value={r.unit}
               onChange={(e) => set(index, { unit: e.target.value as Row['unit'], productId: null })}
             >
               {UNITS.map((u) => (
                 <option key={u} value={u}>
-                  {u}
+                  {t(u)}
                 </option>
               ))}
             </Select>
             <Input
-              aria-label="Цена за единицу"
+              aria-label={t('Цена за единицу')}
               type="number"
               min={0}
               value={r.unitCost}
@@ -315,7 +319,7 @@ function TechCardDrawer({
             </span>
             <Button
               tone="ghost"
-              aria-label="Убрать строку"
+              aria-label={t('Убрать строку')}
               onClick={() => setRows(rows.filter((_, i) => i !== index))}
             >
               ×
@@ -323,7 +327,7 @@ function TechCardDrawer({
             {stock.length > 0 && (
               <Select
                 className="rest-tech-link"
-                aria-label={`Склад для строки ${index + 1}`}
+                aria-label={t('Склад для строки {n}', { n: index + 1 })}
                 value={r.productId ?? ''}
                 onChange={(e) => {
                   const p = stock.find((x) => x.id === e.target.value);
@@ -333,12 +337,12 @@ function TechCardDrawer({
                   });
                 }}
               >
-                <option value="">Не списывать со склада</option>
+                <option value="">{t('Не списывать со склада')}</option>
                 {stock
                   .filter((p) => p.unit === r.unit)
                   .map((p) => (
                     <option key={p.id} value={p.id}>
-                      Списывать со склада: {p.name}
+                      {t('Списывать со склада: {name}', { name: p.name })}
                     </option>
                   ))}
               </Select>
@@ -348,44 +352,44 @@ function TechCardDrawer({
         <Button
           tone="secondary"
           onClick={() =>
-            setRows([...rows, { name: '', normQty: '', unit: 'г', unitCost: '', productId: null }])
+            setRows([...rows, { name: '', normQty: '', unit: 'г', unitCost: '', productId: null }]) // kk-allow: значение единицы
           }
         >
-          + Ингредиент
+          {t('+ Ингредиент')}
         </Button>
         <div className="rest-tech-totals" data-testid="tech-totals">
           <div>
-            <small>Себестоимость</small>
+            <small>{t('Себестоимость')}</small>
             <strong>{wholeTenge(String(Math.round(cost * 100)), item.currency)}</strong>
           </div>
           <div>
-            <small>Цена в меню</small>
+            <small>{t('Цена в меню')}</small>
             <strong>{wholeTenge(item.priceMinor, item.currency)}</strong>
           </div>
           <div>
-            <small>Наценка</small>
+            <small>{t('Наценка')}</small>
             <strong>{margin === null ? '—' : `${margin} %`}</strong>
           </div>
           <div>
-            <small>Прибыль</small>
+            <small>{t('Прибыль')}</small>
             <strong>{wholeTenge(String(Math.round(profit * 100)), item.currency)}</strong>
           </div>
           <div>
-            <small>Себестоимость, %</small>
+            <small>{t('Себестоимость, %')}</small>
             <strong>{foodCost === null ? '—' : `${foodCost} %`}</strong>
           </div>
         </div>
-        <Field label="Технология приготовления">
+        <Field label={t('Технология приготовления')}>
           <Textarea rows={4} value={tech} onChange={(e) => setTech(e.target.value)} />
         </Field>
         <div className="food-actions">
           {ctx.write ? (
             <Button disabled={pending} onClick={save}>
-              Сохранить техкарту
+              {t('Сохранить техкарту')}
             </Button>
           ) : null}
           <Button tone="secondary" disabled={pending} onClick={close}>
-            Закрыть
+            {t('Закрыть')}
           </Button>
         </div>
       </div>
@@ -408,6 +412,7 @@ export function MenuBoard({
   /** Ингредиенты склада для связи строк техкарты (§38); пусто, если склада нет */
   stock?: StockOption[];
 }) {
+  const t = useT();
   const router = useRouter();
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
@@ -465,48 +470,48 @@ export function MenuBoard({
     <div className="food-workspace" data-testid="menu-board">
       {error && <Alert>{error}</Alert>}
       <div className="rest-bar">
-        <nav className="tabs" aria-label="Меню">
+        <nav className="tabs" aria-label={t('Меню')}>
           <button className="tabs__item"
             type="button"
             aria-current={view === 'items' ? 'page' : undefined}
             onClick={() => setView('items')}
           >
-            Позиции ({items.length})
+            {t('Позиции')} ({items.length})
           </button>
           <button className="tabs__item"
             type="button"
             aria-current={view === 'categories' ? 'page' : undefined}
             onClick={() => setView('categories')}
           >
-            Категории ({categories.filter((c) => c.active).length})
+            {t('Категории')} ({categories.filter((c) => c.active).length})
           </button>
           <button className="tabs__item"
             type="button"
             aria-current={view === 'modifiers' ? 'page' : undefined}
             onClick={() => setView('modifiers')}
           >
-            Добавки ({modifierGroups.length})
+            {t('Добавки')} ({modifierGroups.length})
           </button>
         </nav>
         {ctx.write && (
           <div className="food-inline-actions">
             <Button tone="secondary" onClick={() => setNewCategory('')}>
-              + Категория
+              {t('+ Категория')}
             </Button>
             <Button tone="secondary" onClick={() => { setView('modifiers'); setNewGroup(true); }}>
-              + Группа добавок
+              {t('+ Группа добавок')}
             </Button>
             <Button
               onClick={() => setDish('new')}
               disabled={!categories.length}
-              title={categories.length ? undefined : 'Сначала добавьте категорию'}
+              title={categories.length ? undefined : t('Сначала добавьте категорию')}
               aria-describedby={categories.length ? undefined : 'menu-no-category'}
             >
-              + Добавить блюдо
+              {t('+ Добавить блюдо')}
             </Button>
             {!categories.length && (
               <span id="menu-no-category" className="muted">
-                Сначала добавьте категорию
+                {t('Сначала добавьте категорию')}
               </span>
             )}
           </div>
@@ -514,30 +519,30 @@ export function MenuBoard({
       </div>
       {newCategory !== null && (
         <div className="food-toolbar">
-          <Field label="Название категории">
+          <Field label={t('Название категории')}>
             <Input value={newCategory} onChange={(e) => setNewCategory(e.target.value)} />
           </Field>
-          <Field label="Куда уходят заказы">
+          <Field label={t('Куда уходят заказы')}>
             <Select value={newStation} onChange={(e) => setNewStation(e.target.value as MenuStation)}>
-              <option value="KITCHEN">Кухня</option>
-              <option value="BAR">Бар</option>
+              <option value="KITCHEN">{t('Кухня')}</option>
+              <option value="BAR">{t('Бар')}</option>
             </Select>
           </Field>
           <Button disabled={pending} onClick={addCategory}>
-            Сохранить
+            {t('Сохранить')}
           </Button>
           <Button tone="ghost" onClick={() => setNewCategory(null)}>
-            Отмена
+            {t('Отмена')}
           </Button>
         </div>
       )}
       <div className="rest-card">
         <div className="rest-card__tools">
-          <Field label={<span className="sr-only">Поиск по блюдам</span>}>
+          <Field label={<span className="sr-only">{t('Поиск по блюдам')}</span>}>
             <IconField icon="search">
               <Input
                 type="search"
-                placeholder={view === 'modifiers' ? 'Поиск добавки' : 'Поиск блюда'}
+                placeholder={view === 'modifiers' ? t('Поиск добавки') : t('Поиск блюда')}
                 data-page-search
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -545,9 +550,9 @@ export function MenuBoard({
             </IconField>
           </Field>
           {view === 'items' && (
-            <Field label={<span className="sr-only">Категория меню</span>}>
+            <Field label={<span className="sr-only">{t('Категория меню')}</span>}>
               <Select value={category} onChange={(e) => setCategory(e.target.value)}>
-                <option value="">Все категории</option>
+                <option value="">{t('Все категории')}</option>
                 {categories
                   .filter((c) => c.active)
                   .map((c) => (
@@ -562,16 +567,16 @@ export function MenuBoard({
         {view === 'modifiers' ? (
           <ModifierGroupsTable ctx={ctx} groups={modifierGroups} items={items} adding={newGroup} setAdding={setNewGroup} needle={needle} stock={stock} />
         ) : view === 'categories' ? (
-          <Table density="compact" caption="Категории меню" captionHidden>
+          <Table density="compact" caption={t('Категории меню')} captionHidden>
             <thead>
               <tr>
-                <th scope="col">Категория</th>
-                <th scope="col">Станция</th>
+                <th scope="col">{t('Категория')}</th>
+                <th scope="col">{t('Станция')}</th>
                 <th scope="col" className="num">
-                  Блюд
+                  {t('Блюд')}
                 </th>
                 <th scope="col" className="num">
-                  В меню
+                  {t('В меню')}
                 </th>
               </tr>
             </thead>
@@ -588,18 +593,18 @@ export function MenuBoard({
                       <td>
                         {ctx.write ? (
                           <Select
-                            aria-label={`Станция: ${c.name}`}
+                            aria-label={t('Станция: {name}', { name: c.name })}
                             value={c.station ?? 'KITCHEN'}
                             disabled={pending}
                             onChange={(e) => setStation(c, e.target.value as MenuStation)}
                           >
-                            <option value="KITCHEN">Кухня</option>
-                            <option value="BAR">Бар</option>
+                            <option value="KITCHEN">{t('Кухня')}</option>
+                            <option value="BAR">{t('Бар')}</option>
                           </Select>
                         ) : c.station === 'BAR' ? (
-                          'Бар'
+                          t('Бар')
                         ) : (
-                          'Кухня'
+                          t('Кухня')
                         )}
                       </td>
                       <td className="num">{dishes.length}</td>
@@ -611,34 +616,34 @@ export function MenuBoard({
           </Table>
         ) : list.length === 0 ? (
           <EmptyState
-            title={items.length ? 'Блюда не найдены' : 'Меню пока пустое'}
+            title={items.length ? t('Блюда не найдены') : t('Меню пока пустое')}
             actions={
               ctx.write && !items.length ? (
                 <Button onClick={() => (categories.length ? setDish('new') : setNewCategory(''))}>
-                  {categories.length ? 'Добавить блюдо' : 'Сначала добавить категорию'}
+                  {categories.length ? t('Добавить блюдо') : t('Сначала добавить категорию')}
                 </Button>
               ) : null
             }
           />
         ) : (
           <div className="rest-menu-list" data-testid="menu-list">
-            <Table density="compact" caption="Блюда меню" captionHidden>
+            <Table density="compact" caption={t('Блюда меню')} captionHidden>
               <thead>
                 <tr>
-                  <th scope="col">Название</th>
-                  <th scope="col">Категория</th>
+                  <th scope="col">{t('Название')}</th>
+                  <th scope="col">{t('Категория')}</th>
                   <th scope="col" className="num">
-                    Выход
+                    {t('Выход')}
                   </th>
                   <th scope="col" className="num">
-                    Цена
+                    {t('Цена')}
                   </th>
                   <th scope="col" className="num">
-                    Себестоимость, %
+                    {t('Себестоимость, %')}
                   </th>
-                  <th scope="col">Статус</th>
+                  <th scope="col">{t('Статус')}</th>
                   <th scope="col">
-                    <span className="sr-only">Действия</span>
+                    <span className="sr-only">{t('Действия')}</span>
                   </th>
                 </tr>
               </thead>
@@ -667,8 +672,8 @@ export function MenuBoard({
                         </span>
                       </span>
                     </td>
-                    <td>{categoryName.get(m.categoryId) ?? 'Без категории'}</td>
-                    <td className="num">{m.weightGrams ? `${m.weightGrams} г` : '—'}</td>
+                    <td>{categoryName.get(m.categoryId) ?? t('Без категории')}</td>
+                    <td className="num">{m.weightGrams ? t('{n} г', { n: m.weightGrams }) : '—'}</td>
                     <td className="num rest-menu-price">{wholeTenge(m.priceMinor, m.currency)}</td>
                     <td className="num">
                       {m.totals?.foodCostPct != null && m.totals.costMinor !== '0'
@@ -678,14 +683,14 @@ export function MenuBoard({
                     <td>
                       <span className="rest-menu-status">
                         {m.active ? (
-                          <Badge tone="ok">Активно</Badge>
+                          <Badge tone="ok">{t('Активно')}</Badge>
                         ) : (
-                          <Badge>Скрыто из меню</Badge>
+                          <Badge>{t('Скрыто из меню')}</Badge>
                         )}
                         {ctx.write && (
                           <label className="switch">
                             <span className="switch__text">
-                              <span className="switch__label sr-only">В меню</span>
+                              <span className="switch__label sr-only">{t('В меню')}</span>
                             </span>
                             <input
                               className="switch__input"
@@ -703,11 +708,11 @@ export function MenuBoard({
                     <td>
                       <span className="rest-menu-actions">
                         <Button tone="secondary" size="sm" onClick={() => setTech(m)}>
-                          Техкарта
+                          {t('Техкарта')}
                         </Button>
                         {ctx.write && (
                           <Button tone="ghost" size="sm" onClick={() => setDish(m)}>
-                            Изменить
+                            {t('Изменить')}
                           </Button>
                         )}
                       </span>

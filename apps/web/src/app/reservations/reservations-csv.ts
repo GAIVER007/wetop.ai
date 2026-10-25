@@ -22,18 +22,18 @@ const nights = (from: string, to: string) =>
 export function reservationsCsv(rows: ReservationListRow[], currency = rows[0]?.currency ?? 'KZT'): string {
   const sign = currencySign(currency);
   const head = [
-    'Бронь',
-    'Статус',
-    'Источник',
-    'Канал',
-    'Заезд',
-    'Выезд',
-    'Ночей',
-    'Размещений',
-    'Места',
-    `Сумма, ${sign}`,
-    `Оплачено, ${sign}`,
-    `Остаток, ${sign}`,
+    'Бронь', // kk-allow: шапка CSV остаётся русской
+    'Статус', // kk-allow: шапка CSV остаётся русской
+    'Источник', // kk-allow: шапка CSV остаётся русской
+    'Канал', // kk-allow: шапка CSV остаётся русской
+    'Заезд', // kk-allow: шапка CSV остаётся русской
+    'Выезд', // kk-allow: шапка CSV остаётся русской
+    'Ночей', // kk-allow: шапка CSV остаётся русской
+    'Размещений', // kk-allow: шапка CSV остаётся русской
+    'Места', // kk-allow: шапка CSV остаётся русской
+    `Сумма, ${sign}`, // kk-allow: шапка CSV остаётся русской
+    `Оплачено, ${sign}`, // kk-allow: шапка CSV остаётся русской
+    `Остаток, ${sign}`, // kk-allow: шапка CSV остаётся русской
   ];
   const lines = rows.map((x) =>
     [

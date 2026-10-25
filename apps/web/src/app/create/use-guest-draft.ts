@@ -4,6 +4,7 @@ import type { WizardState } from '../../lib/wizard-types';
 import { INITIAL_CONFIG, type WizardConfig } from './wizard-fields';
 import { guessRegional } from './regional';
 import { S, STEPS, type StepKey } from './strings';
+import { msg } from '../../i18n';
 
 const STORAGE_KEY = 'wetop.wizard.token';
 class WizardRequestError extends Error {
@@ -24,7 +25,7 @@ async function call<T = WizardState>(body: unknown): Promise<T> {
   const data = await response.json();
   if (!response.ok)
     throw new WizardRequestError(
-      typeof data.message === 'string' ? data.message : 'Не удалось сохранить. Повторите запрос',
+      typeof data.message === 'string' ? data.message : msg('Не удалось сохранить. Повторите запрос'),
       response.status,
     );
   return data as T;
@@ -104,7 +105,7 @@ export function useGuestDraft() {
       setReady(true);
     } catch (e) {
       setExpired(e instanceof WizardRequestError && e.status === 401);
-      setError(e instanceof Error ? e.message : 'Не удалось открыть мастер');
+      setError(e instanceof Error ? e.message : msg('Не удалось открыть мастер'));
     } finally {
       setBusy(false);
       opening.current = false;
@@ -139,7 +140,7 @@ export function useGuestDraft() {
         setSavedJson(snapshot);
         if (patch) setValues(payload);
         setStep(nextStep);
-        setSaved('Черновик сохранён');
+        setSaved(msg('Черновик сохранён'));
         return true;
       } catch (e) {
         if (e instanceof WizardRequestError && e.status === 409) {
@@ -152,7 +153,7 @@ export function useGuestDraft() {
             /* retry after reconnect */
           }
         }
-        setError(e instanceof Error ? e.message : 'Не удалось сохранить черновик');
+        setError(e instanceof Error ? e.message : msg('Не удалось сохранить черновик'));
         return false;
       } finally {
         saving.current = false;
@@ -227,7 +228,7 @@ export function useGuestDraft() {
       setScanning(true);
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : 'Не удалось прочитать сайт. Заполните данные вручную',
+        e instanceof Error ? e.message : msg('Не удалось прочитать сайт. Заполните данные вручную'),
       );
     } finally {
       setBusy(false);
@@ -321,7 +322,7 @@ export function useGuestDraft() {
       setGenerationPolling(true);
       return true;
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Не удалось отправить сообщение');
+      setError(e instanceof Error ? e.message : msg('Не удалось отправить сообщение'));
       return false;
     } finally {
       setBusy(false);
@@ -354,7 +355,7 @@ export function useGuestDraft() {
       localStorage.removeItem(STORAGE_KEY);
       location.assign('/ai-seller/agents/' + encodeURIComponent(result.id));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Не удалось сохранить агента');
+      setError(e instanceof Error ? e.message : msg('Не удалось сохранить агента'));
     } finally {
       setBusy(false);
     }
@@ -365,7 +366,7 @@ export function useGuestDraft() {
       setExpired(false);
       void open();
     } catch {
-      setError('Разрешите хранение данных сайта, чтобы сохранить черновик');
+      setError(msg('Разрешите хранение данных сайта, чтобы сохранить черновик'));
     }
   }
   return {

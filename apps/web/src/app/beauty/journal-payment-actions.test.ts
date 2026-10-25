@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+// язык стойки (KK2) читает куку запроса; здесь запроса нет, тексты русские
+vi.mock('../../i18n/server', async () => ({ serverT: async () => (await import('../../i18n')).translator('ru'), currentLocale: async () => 'ru' }));
 const mocks = vi.hoisted(() => ({ pay: vi.fn(), refund: vi.fn(), me: vi.fn(), revalidate: vi.fn() }));
 vi.mock('next/cache', () => ({ revalidatePath: mocks.revalidate }));
 vi.mock('../../lib/api', () => ({

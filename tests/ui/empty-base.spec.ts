@@ -16,9 +16,9 @@ test.beforeEach(async ({ request }) => {
 });
 
 const SCREENS: Array<{ route: string; title: RegExp; says?: RegExp }> = [
-  { route: '/chessboard', title: /Календарь/ },
-  { route: '/reservations', title: /Брони|Бронирован/, says: /нет|не найден/i },
-  { route: '/guests', title: /Гости/, says: /нет|не найден/i },
+  { route: '/chessboard', title: /Журнал/ },
+  { route: '/reservations', title: /Записи/, says: /нет|не найден/i },
+  { route: '/guests', title: /Клиенты/, says: /нет|не найден/i },
   { route: '/rooms', title: /номер/i },
   { route: '/rooms/categories', title: /Категории/ },
   { route: '/rooms/availability', title: /Свободные места/ },

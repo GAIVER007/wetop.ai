@@ -3,6 +3,8 @@ import { normalizeSearchParams, type SearchParams } from '../../../../../lib/sea
 import { chessboardApi, formatMinor, guestsApi } from '../../../../../lib/api';
 import { hotelApi, hotelClock } from '../../../../../lib/hotel-api';
 import { PrintButton } from '../print-button';
+import { msg } from '../../../../../i18n';
+import { T } from '../../../../../i18n/locale-provider';
 import {
   CONTRACT_T,
   DRAFT_BANNER,
@@ -68,11 +70,11 @@ export default async function PrintContract({
           fontSize: 13,
         }}
       >
-        <a href={back}>← бронь</a>
+        <a href={back}><T text={msg('← бронь')} /></a>
         <a href="?lang=ru">RU</a>
         <a href="?lang=kz">KZ</a>
-        <a href={`${back}/print?lang=${l}`}>регистрационная карта</a>
-        <a href={`${back}/print/invoice?lang=${l}`}>счёт</a>
+        <a href={`${back}/print?lang=${l}`}><T text={msg('регистрационная карта')} /></a>
+        <a href={`${back}/print/invoice?lang=${l}`}><T text={msg('счёт')} /></a>
         <PrintButton />
       </div>
       <div data-testid="draft-banner" style={banner}>

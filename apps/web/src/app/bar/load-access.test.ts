@@ -16,6 +16,7 @@ vi.mock('../../lib/vertical-guard', () => ({
   requireFeature: async () => ({ context: { vertical: 'BEAUTY' } }),
 }));
 vi.mock('../../lib/api', () => ({ barApi: api }));
+vi.mock('../../i18n/server', async () => ({ serverT: async () => (await import('../../i18n')).translator('ru'), currentLocale: async () => 'ru' }));
 vi.mock('../../lib/food-api', () => ({ stockApi: kitchen }));
 vi.mock('../../lib/hotel-api', () => ({
   hotelToday: async () => '2026-10-18',

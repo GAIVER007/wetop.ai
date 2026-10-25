@@ -7,6 +7,7 @@ import {
   ONBOARDING_LATER_MAX_AGE_SECONDS,
 } from '../../lib/onboarding-later';
 import { cookieSecure } from '../../lib/session-cookie';
+import { msg } from '../../i18n';
 
 export interface ProvisionState {
   error: string | null;
@@ -20,7 +21,7 @@ export async function provisionHotel(
     await onboardingApi.provision({ currency: 'KZT', categories });
   } catch (e) {
     return {
-      error: e instanceof ApiError ? e.message : 'Нет связи с сервером. Попробуйте ещё раз.',
+      error: e instanceof ApiError ? e.message : msg('Нет связи с сервером. Попробуйте ещё раз.'),
     };
   }
   // redirect бросает служебное исключение — снаружи try, чтобы не принять его за ошибку

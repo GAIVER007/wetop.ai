@@ -13,7 +13,8 @@ import {
 import { parseServiceInput, type ServiceInputField } from '@pms/domain';
 import type { CatalogService } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, msg } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
 import { Overlay } from '../../components/overlay';
 import { Alert, Badge, Button, Field, Input, Select, Table } from '../../components/ui';
 import { Icon } from '../../components/icon';
@@ -60,7 +61,7 @@ export function ServiceEditor({ children, currency }: { children: ReactNode; cur
           open
           drawer
           className="settings-service-drawer"
-          title={editing.mode === 'new' ? 'Новая услуга' : editing.service.name}
+          title={editing.mode === 'new' ? msg('Новая услуга') : editing.service.name}
           onClose={() => setEditing(null)}
         >
           <ServiceForm
@@ -81,11 +82,12 @@ export function ServiceEditor({ children, currency }: { children: ReactNode; cur
 }
 
 export function AddServiceButton() {
+  const t = useT();
   const ctx = useContext(EditorContext);
   return (
     <Button type="button" data-testid="service-add" onClick={() => ctx?.open({ mode: 'new' })}>
       <Icon name="plus" />
-      Добавить услугу
+      {t('Добавить услугу')}
     </Button>
   );
 }
@@ -107,6 +109,8 @@ export function ServicesCatalog({
   currency: string;
   editable: boolean;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const ctx = useContext(EditorContext);
   const [query, setQuery] = useState('');
   const [group, setGroup] = useState('all');
@@ -128,39 +132,39 @@ export function ServicesCatalog({
   );
   const filtered = query !== '' || group !== 'all' || status !== 'active';
   return (
-    <section className="settings-catalog" aria-label="Каталог услуг">
+    <section className="settings-catalog" aria-label={t('Каталог услуг')}>
       <div className="settings-toolbar">
-        <Field label="Найти услугу">
+        <Field label={t('Найти услугу')}>
           <Input
             type="search"
-            placeholder="Название или группа"
+            placeholder={t('Название или группа')}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
         </Field>
-        <Field label="Группа">
+        <Field label={t('Группа')}>
           <Select value={group} onChange={(event) => setGroup(event.target.value)}>
-            <option value="all">Все группы</option>
+            <option value="all">{t('Все группы')}</option>
             {groups.map((g) => (
               <option key={g} value={g}>
                 {g}
               </option>
             ))}
-            <option value={NO_GROUP}>Без группы</option>
+            <option value={NO_GROUP}>{t('Без группы')}</option>
           </Select>
         </Field>
-        <Field label="Статус">
+        <Field label={t('Статус')}>
           <Select
             value={status}
             onChange={(event) => setStatus(event.target.value as typeof status)}
           >
-            <option value="active">Активные</option>
-            <option value="archived">В архиве</option>
-            <option value="all">Все</option>
+            <option value="active">{t('Активные')}</option>
+            <option value="archived">{t('В архиве')}</option>
+            <option value="all">{t('Все')}</option>
           </Select>
         </Field>
         <span className="settings-count" data-testid="services-count">
-          {pluralRu(rows.length, ['услуга', 'услуги', 'услуг'])}
+          {countLabel(locale, t, rows.length, [msg('услуга'), msg('услуги'), msg('услуг')])}
         </span>
         <span
           className="settings-save-state settings-save-state--saved"
@@ -178,17 +182,17 @@ export function ServicesCatalog({
               setStatus('active');
             }}
           >
-            Сбросить отбор
+            {t('Сбросить отбор')}
           </Button>
         )}
       </div>
       <Table data-testid="services-table" className="settings-table settings-table--services">
         <thead>
           <tr>
-            <th>Услуга</th>
-            <th className="settings-col-wide">Группа</th>
-            <th className="num">Цена</th>
-            <th className="settings-col-wide">Статус</th>
+            <th>{t('Услуга')}</th>
+            <th className="settings-col-wide">{t('Группа')}</th>
+            <th className="num">{t('Цена')}</th>
+            <th className="settings-col-wide">{t('Статус')}</th>
           </tr>
         </thead>
         <tbody>
@@ -210,7 +214,7 @@ export function ServicesCatalog({
                 {(s.group || !s.active) && (
                   <span className="cell-sub settings-service-sub">
                     {s.group && <span>{s.group}</span>}
-                    {!s.active && <Badge tone="neutral">в архиве</Badge>}
+                    {!s.active && <Badge tone="neutral">{t('в архиве')}</Badge>}
                   </span>
                 )}
               </td>
@@ -218,7 +222,7 @@ export function ServicesCatalog({
               <td className="num">{formatMoney(s.priceMinor, currency)}</td>
               <td className="settings-col-wide">
                 <Badge tone={s.active ? 'ok' : 'neutral'}>
-                  {s.active ? 'активна' : 'в архиве'}
+                  {s.active ? t('активна') : t('в архиве')}
                 </Badge>
               </td>
             </tr>
@@ -231,8 +235,8 @@ export function ServicesCatalog({
                 data-testid={services.length ? 'services-no-results' : 'services-empty'}
               >
                 {services.length
-                  ? 'Ничего не найдено. Измените отбор или сбросьте его.'
-                  : 'Услуг в каталоге пока нет.'}
+                  ? t('Ничего не найдено. Измените отбор или сбросьте его.')
+                  : t('Услуг в каталоге пока нет.')}
               </td>
             </tr>
           )}
@@ -264,6 +268,7 @@ function ServiceForm({
   onCancel: () => void;
   onSaved: (text: string) => void;
 }) {
+  const t = useT();
   const [state, action, pending] = useActionState<ServiceActionResult | null, FormData>(
     saveService,
     null,
@@ -281,9 +286,11 @@ function ServiceForm({
     if (!state?.saved || reported.current === state) return;
     reported.current = state;
     onSaved(
-      service ? `Услуга «${state.saved.name}» сохранена` : `Услуга «${state.saved.name}» добавлена`,
+      service
+        ? t('Услуга «{name}» сохранена', { name: state.saved.name })
+        : t('Услуга «{name}» добавлена', { name: state.saved.name }),
     );
-  }, [state, service, onSaved]);
+  }, [state, service, onSaved, t]);
   const kept = state?.values;
   const value = (name: string, current: string) => kept?.[name] ?? current;
   const problem = local ?? (state?.error ? { field: state.field, error: state.error } : null);
@@ -314,7 +321,7 @@ function ServiceForm({
     >
       {service && <input type="hidden" name="code" value={service.code} />}
       {problem && !problem.field && <Alert boxed>{problem.error}</Alert>}
-      <Field label="Название">
+      <Field label={t('Название')}>
         <Input
           name="name"
           required
@@ -324,12 +331,12 @@ function ServiceForm({
         />
         {fieldError('name')}
       </Field>
-      <Field label="Группа">
+      <Field label={t('Группа')}>
         <Input
           name="group"
           list={listId}
           maxLength={100}
-          placeholder="Например, Минибар"
+          placeholder={t('Например, Минибар')}
           defaultValue={value('group', service?.group ?? '')}
           {...invalid('group')}
         />
@@ -340,7 +347,7 @@ function ServiceForm({
           <option key={g} value={g} />
         ))}
       </datalist>
-      <Field label={`Цена, ${currency === 'KZT' ? '₸' : currency}`}>
+      <Field label={t('Цена, {currency}', { currency: currency === 'KZT' ? '₸' : currency })}>
         <Input
           name="price"
           inputMode="decimal"
@@ -351,28 +358,28 @@ function ServiceForm({
         />
         {fieldError('price')}
       </Field>
-      <Field label="Статус">
+      <Field label={t('Статус')}>
         <Select
           name="active"
           defaultValue={value('active', String(service?.active ?? true))}
           {...invalid('active')}
         >
-          <option value="true">Активна</option>
-          <option value="false">В архиве</option>
+          <option value="true">{t('Активна')}</option>
+          <option value="false">{t('В архиве')}</option>
         </Select>
         {fieldError('active')}
       </Field>
       <p className="settings-note">
         {service
-          ? 'Новая цена и название — для следующих начислений; уже выставленные счета не меняются. Услугу в архиве нельзя выбрать в счёте.'
-          : 'Услугу можно будет выбрать в счёте гостя сразу после сохранения.'}
+          ? t('Новая цена и название — для следующих начислений; уже выставленные счета не меняются. Услугу в архиве нельзя выбрать в счёте.')
+          : t('Услугу можно будет выбрать в счёте гостя сразу после сохранения.')}
       </p>
       <div className="settings-service-actions">
         <Button type="button" tone="secondary" onClick={onCancel}>
-          Отмена
+          {t('Отмена')}
         </Button>
         <Button type="submit" disabled={pending} aria-busy={pending}>
-          {pending ? 'Сохраняю…' : service ? 'Сохранить' : 'Создать'}
+          {pending ? t('Сохраняю…') : service ? t('Сохранить') : t('Создать')}
         </Button>
       </div>
     </form>

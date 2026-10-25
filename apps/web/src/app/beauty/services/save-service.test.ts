@@ -4,6 +4,8 @@ import { saveBeautyService } from '../actions';
 
 // Онбординг на живом сайте 21.10.2026: «← Настроить» у типовой услуги обещает «добавить в филиал», а услуга
 // оставалась только в каталоге («В филиале: 0»), и шаг «Добавьте услуги» не засчитывался
+// язык стойки (KK2) читает куку запроса; здесь запроса нет, тексты русские
+vi.mock('../../../i18n/server', async () => ({ serverT: async () => (await import('../../../i18n')).translator('ru'), currentLocale: async () => 'ru' }));
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 afterEach(() => vi.restoreAllMocks());
 const form = (values: Record<string, string>) => {

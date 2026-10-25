@@ -5,6 +5,8 @@ import { unstable_rethrow } from 'next/navigation';
 import { ApiError, dishPhotoApi } from '../../lib/api';
 import { currentMe } from '../../lib/desk-shell';
 import { foodApi, restaurantApi } from '../../lib/food-api';
+import { msg } from '../../i18n';
+import { serverT } from '../../i18n/server';
 import type {
   FoodCashOperationInput,
   FoodPaymentMethod,
@@ -80,7 +82,16 @@ async function menuScope(key: string) {
     !context.locationId ||
     key !== `${context.businessId}:${context.locationId}`
   )
-    throw new ApiError(409, `Выбран другой ${vertical === 'BEAUTY' ? 'салон' : vertical === 'HOSPITALITY' ? 'объект' : 'ресторан'}. Откройте форму заново.`);
+    throw new ApiError(
+      409,
+      (await serverT())(
+        vertical === 'BEAUTY'
+          ? msg('Выбран другой салон. Откройте форму заново.')
+          : vertical === 'HOSPITALITY'
+            ? msg('Выбран другой объект. Откройте форму заново.')
+            : msg('Выбран другой ресторан. Откройте форму заново.'),
+      ),
+    );
   return vertical;
 }
 async function scope(key: string) {
@@ -91,15 +102,16 @@ async function scope(key: string) {
     !context.locationId ||
     key !== `${context.businessId}:${context.locationId}`
   )
-    throw new ApiError(409, 'Выбран другой ресторан. Откройте форму заново.');
+    throw new ApiError(409, (await serverT())(msg('Выбран другой ресторан. Откройте форму заново.')));
 }
-function failure(error: unknown) {
+async function failure(error: unknown) {
   unstable_rethrow(error);
+  const t = await serverT();
   const message =
-    error instanceof Error ? error.message : 'Не удалось сохранить. Повторите действие.';
+    error instanceof Error ? error.message : t('Не удалось сохранить. Повторите действие.');
   const stale =
-    error instanceof ApiError && error.status === 409 && /измен|stale|устар/i.test(message);
-  return { error: stale ? 'Заказ уже изменился. Данные обновлены.' : message, stale };
+    error instanceof ApiError && error.status === 409 && /измен|stale|устар/i.test(message); // kk-allow: сверка с текстом ответа API
+  return { error: stale ? t('Заказ уже изменился. Данные обновлены.') : message, stale };
 }
 
 export async function mutateMenu(
@@ -226,7 +238,7 @@ export async function assignFoodPersonnelKind(
   expectedProfileRevision: string,
 ): Promise<{ error: string | null }> {
   if (personnelKind !== 'SPECIALIST' && personnelKind !== 'OTHER_EMPLOYEE' && personnelKind !== 'BOTH')
-    return { error: 'Выберите назначение: специалист, другой сотрудник или оба.' };
+    return { error: (await serverT())(msg('Выберите назначение: специалист, другой сотрудник или оба.')) };
   try {
     await scope(scopeKey);
     await restaurantApi.assignEmployeePersonnelKind(id, { personnelKind, expectedProfileRevision });
@@ -234,7 +246,7 @@ export async function assignFoodPersonnelKind(
     return { error: null };
   } catch (error) {
     if (error instanceof ApiError && error.status === 409)
-      return { error: 'Сотрудника изменили в другом окне. Список обновлён, выберите назначение ещё раз.' };
+      return { error: (await serverT())(msg('Сотрудника изменили в другом окне. Список обновлён, выберите назначение ещё раз.')) };
     return failure(error);
   }
 }
@@ -276,7 +288,7 @@ export async function dishPhoto(
     if (form === null) await dishPhotoApi.remove(id);
     else {
       const file = form.get('file');
-      if (!(file instanceof File) || file.size === 0) return { error: 'Выберите файл: JPEG, PNG или WebP' };
+      if (!(file instanceof File) || file.size === 0) return { error: (await serverT())(msg('Выберите файл: JPEG, PNG или WebP')) };
       await dishPhotoApi.upload(id, file);
     }
     revalidatePath(vertical === 'FOOD_SERVICE' ? '/menu' : '/bar/menu');
@@ -296,16 +308,16 @@ export async function saveFoodShifts(
   try {
     intervals = JSON.parse(String(form.get('intervals') ?? '[]'));
   } catch {
-    return { error: 'Не удалось прочитать график. Обновите страницу перед повтором.' };
+    return { error: (await serverT())(msg('Не удалось прочитать график. Обновите страницу перед повтором.')) };
   }
   try {
     await scope(scopeKey);
     const saved = await restaurantApi.setShifts(String(form.get('id') ?? ''), intervals, String(form.get('expectedRevision') ?? ''));
     for (const path of ['/employees', '/employees/shifts', '/today']) revalidatePath(path);
-    return { message: 'График сохранён', revision: saved.weekRevision };
+    return { message: (await serverT())(msg('График сохранён')), revision: saved.weekRevision };
   } catch (error) {
-    const { error: message } = failure(error);
-    return { error: message ?? 'Не удалось сохранить график' };
+    const { error: message } = await failure(error);
+    return { error: message ?? (await serverT())(msg('Не удалось сохранить график')) };
   }
 }
 
@@ -321,7 +333,7 @@ export async function saveFloorLayout(
     for (const path of ['/floor-plan', '/dining-areas', '/today']) revalidatePath(path);
     return { error: null };
   } catch (error) {
-    return { error: failure(error).error };
+    return { error: (await failure(error)).error };
   }
 }
 
@@ -331,7 +343,7 @@ export async function loadFoodShift(scopeKey: string, employeeId: string) {
   try {
     await scope(scopeKey);
     const row = (await restaurantApi.shifts()).employees.find(e => e.id === employeeId);
-    return row ? { data: { week: row.week, weekRevision: row.weekRevision, location: { id: scopeKey } } } : { error: 'Сотрудник не найден' };
+    return row ? { data: { week: row.week, weekRevision: row.weekRevision, location: { id: scopeKey } } } : { error: (await serverT())(msg('Сотрудник не найден')) };
   } catch (error) {
     return failure(error);
   }

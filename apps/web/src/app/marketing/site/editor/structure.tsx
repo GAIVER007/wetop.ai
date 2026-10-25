@@ -16,6 +16,7 @@ import {
 } from '@pms/domain';
 import { Alert, Button, Field, Select, cx } from '../../../../components/ui';
 import { useEditor } from './fields';
+import { useT } from '../../../../i18n/locale-provider';
 
 /**
  * Структура сайта (MKT9 §12, §19–§27; MKT9.1: вкладка «Блоки», настройки сайта своей вкладкой): страницы и секции
@@ -38,6 +39,7 @@ export function Structure({
   /** Страница, открытая в просмотре справа: её секции раскрыты, пока ничего не выбрано */
   shownPage: number;
 }) {
+  const t = useT();
   const c = useEditor();
   const [blocked, setBlocked] = useState<{ title: string; refs: SpecReference[] } | null>(null);
   const [addType, setAddType] = useState('about');
@@ -50,8 +52,13 @@ export function Structure({
   const removePage = async (i: number) => {
     const page = pages[i]!;
     const refs = pageReferences(c.spec, String(page['id']), c.defaultLocale);
-    if (refs.length) return setBlocked({ title: `Страницу «${localizedText(page['title'], c.defaultLocale)}» нельзя удалить: на неё ссылаются`, refs });
-    if (!(await ask('Удалить страницу?', 'Страница и её секции уйдут из черновика. Опубликованный сайт не изменится до публикации.'))) return;
+    if (refs.length)
+      return setBlocked({
+        title: t('Страницу «{name}» нельзя удалить: на неё ссылаются', { name: localizedText(page['title'], c.defaultLocale) }),
+        refs,
+      });
+    if (!(await ask(t('Удалить страницу?'), t('Страница и её секции уйдут из черновика. Опубликованный сайт не изменится до публикации.'))))
+      return;
     setBlocked(null);
     setPages(pages.filter((_, j) => j !== i));
     select({ kind: 'site' });
@@ -60,8 +67,11 @@ export function Structure({
     const section = sectionsOf(i)[j]!;
     const refs = sectionReferences(c.spec, String(pages[i]!['id']), String(section['id']), c.defaultLocale);
     if (refs.length)
-      return setBlocked({ title: `Секцию «${localizedText(section['heading'], c.defaultLocale)}» нельзя удалить: на неё ссылаются`, refs });
-    if (!(await ask('Удалить секцию?', 'Секция уйдёт из черновика. Опубликованный сайт не изменится до публикации.'))) return;
+      return setBlocked({
+        title: t('Секцию «{name}» нельзя удалить: на неё ссылаются', { name: localizedText(section['heading'], c.defaultLocale) }),
+        refs,
+      });
+    if (!(await ask(t('Удалить секцию?'), t('Секция уйдёт из черновика. Опубликованный сайт не изменится до публикации.')))) return;
     setBlocked(null);
     setSections(i, sectionsOf(i).filter((_, k) => k !== j));
     select({ kind: 'page', page: i });
@@ -81,7 +91,7 @@ export function Structure({
   };
 
   return (
-    <nav className="ed-structure" aria-label="Структура сайта" data-testid="ed-structure">
+    <nav className="ed-structure" aria-label={t('Структура сайта')} data-testid="ed-structure">
       {blocked && (
         <Alert boxed data-testid="ed-blocked">
           <b>{blocked.title}</b>
@@ -91,15 +101,15 @@ export function Structure({
             ))}
           </ul>
           <Button type="button" tone="ghost" size="sm" onClick={() => setBlocked(null)}>
-            Понятно
+            {t('Понятно')}
           </Button>
         </Alert>
       )}
-      <h3 className="ed-structure__title">Страницы и блоки</h3>
+      <h3 className="ed-structure__title">{t('Страницы и блоки')}</h3>
       <ol className="ed-tree">
         {pages.map((page, i) => {
           const home = page['isHome'] === true;
-          const title = localizedText(page['title'], c.defaultLocale) || 'Без названия';
+          const title = localizedText(page['title'], c.defaultLocale) || t('Без названия');
           const pageOn = selection.kind === 'page' && selection.page === i;
           return (
             <li key={String(page['id'])} data-testid="ed-page">
@@ -111,17 +121,17 @@ export function Structure({
                   onClick={() => select({ kind: 'page', page: i })}
                 >
                   {title}
-                  {home ? ' (главная)' : ''}
+                  {home ? t(' (главная)') : ''}
                 </button>
                 <span className="ed-item-controls">
-                  <Button type="button" tone="ghost" size="sm" aria-label={`Страница «${title}»: выше`} disabled={c.readOnly || i === 0} onClick={() => setPages(moveItem(pages, i, i - 1))}>
+                  <Button type="button" tone="ghost" size="sm" aria-label={t('Страница «{title}»: выше', { title })} disabled={c.readOnly || i === 0} onClick={() => setPages(moveItem(pages, i, i - 1))}>
                     ↑
                   </Button>
-                  <Button type="button" tone="ghost" size="sm" aria-label={`Страница «${title}»: ниже`} disabled={c.readOnly || i === pages.length - 1} onClick={() => setPages(moveItem(pages, i, i + 1))}>
+                  <Button type="button" tone="ghost" size="sm" aria-label={t('Страница «{title}»: ниже', { title })} disabled={c.readOnly || i === pages.length - 1} onClick={() => setPages(moveItem(pages, i, i + 1))}>
                     ↓
                   </Button>
-                  <Button type="button" tone="ghost" size="sm" aria-label={`Страница «${title}»: удалить`} disabled={c.readOnly || home} onClick={() => void removePage(i)}>
-                    Удалить
+                  <Button type="button" tone="ghost" size="sm" aria-label={t('Страница «{title}»: удалить', { title })} disabled={c.readOnly || home} onClick={() => void removePage(i)}>
+                    {t('Удалить')}
                   </Button>
                 </span>
               </div>
@@ -129,7 +139,8 @@ export function Structure({
                 <ol className="ed-tree ed-tree--sections">
                   {sectionsOf(i).map((section, j) => {
                     const on = selection.kind === 'section' && selection.page === i && selection.section === j;
-                    const type = SITE_EDITOR_SECTIONS[String(section['type'])]?.label ?? String(section['type']);
+                    const label = SITE_EDITOR_SECTIONS[String(section['type'])]?.label;
+                    const type = label ? t(label) : String(section['type']);
                     const heading = localizedText(section['heading'], c.defaultLocale);
                     const name = heading ? `${type}: ${heading}` : type;
                     const list = sectionsOf(i);
@@ -145,27 +156,27 @@ export function Structure({
                             {name}
                           </button>
                           <span className="ed-item-controls">
-                            <Button type="button" tone="ghost" size="sm" aria-label={`${name}: выше`} disabled={c.readOnly || j === 0} onClick={() => { setSections(i, moveItem(list, j, j - 1)); select({ kind: 'section', page: i, section: j - 1 }); }}>
+                            <Button type="button" tone="ghost" size="sm" aria-label={t('{name}: выше', { name })} disabled={c.readOnly || j === 0} onClick={() => { setSections(i, moveItem(list, j, j - 1)); select({ kind: 'section', page: i, section: j - 1 }); }}>
                               ↑
                             </Button>
-                            <Button type="button" tone="ghost" size="sm" aria-label={`${name}: ниже`} disabled={c.readOnly || j === list.length - 1} onClick={() => { setSections(i, moveItem(list, j, j + 1)); select({ kind: 'section', page: i, section: j + 1 }); }}>
+                            <Button type="button" tone="ghost" size="sm" aria-label={t('{name}: ниже', { name })} disabled={c.readOnly || j === list.length - 1} onClick={() => { setSections(i, moveItem(list, j, j + 1)); select({ kind: 'section', page: i, section: j + 1 }); }}>
                               ↓
                             </Button>
                             <Button
                               type="button"
                               tone="ghost"
                               size="sm"
-                              aria-label={`${name}: копия`}
+                              aria-label={t('{name}: копия', { name })}
                               disabled={c.readOnly || list.length >= 30 || section['type'] === 'hero' || section['type'] === 'booking'}
                               onClick={() => {
                                 setSections(i, [...list.slice(0, j + 1), duplicateSection(section, specIds(c.spec)), ...list.slice(j + 1)]);
                                 select({ kind: 'section', page: i, section: j + 1 });
                               }}
                             >
-                              Копия
+                              {t('Копия')}
                             </Button>
-                            <Button type="button" tone="ghost" size="sm" aria-label={`${name}: удалить`} disabled={c.readOnly || list.length <= 1} onClick={() => void removeSection(i, j)}>
-                              Удалить
+                            <Button type="button" tone="ghost" size="sm" aria-label={t('{name}: удалить', { name })} disabled={c.readOnly || list.length <= 1} onClick={() => void removeSection(i, j)}>
+                              {t('Удалить')}
                             </Button>
                           </span>
                         </div>
@@ -173,17 +184,17 @@ export function Structure({
                     );
                   })}
                   <li className="ed-add">
-                    <Field label="Новая секция" controlId={`ed-add-type-${i}`}>
+                    <Field label={t('Новая секция')} controlId={`ed-add-type-${i}`}>
                       <Select value={addType} disabled={c.readOnly} onChange={(e) => setAddType(e.currentTarget.value)}>
-                        {SITE_EDITOR_SECTION_TYPES.map((t) => (
-                          <option key={t} value={t}>
-                            {SITE_EDITOR_SECTIONS[t]!.label}
+                        {SITE_EDITOR_SECTION_TYPES.map((type) => (
+                          <option key={type} value={type}>
+                            {t(SITE_EDITOR_SECTIONS[type]!.label)}
                           </option>
                         ))}
                       </Select>
                     </Field>
                     <Button type="button" tone="secondary" size="sm" disabled={c.readOnly || sectionsOf(i).length >= 30} onClick={() => addSection(i)} data-testid="ed-add-section">
-                      Добавить секцию
+                      {t('Добавить секцию')}
                     </Button>
                   </li>
                 </ol>
@@ -208,7 +219,7 @@ export function Structure({
           select({ kind: 'page', page: pages.length });
         }}
       >
-        Добавить страницу
+        {t('Добавить страницу')}
       </Button>
     </nav>
   );

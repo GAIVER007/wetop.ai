@@ -19,6 +19,8 @@ import { loadDeskDay } from './desk-section';
 import { loadGuardStatus } from './guard-status';
 import { DashboardDetails, DashboardRefresh } from './owner-controls';
 import { DayAttention, attentionCount } from './day-attention';
+import { intlLocale, msg } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
 
 /**
  * «Обзор бизнеса» (план plans/finance-overview-2026-10-09.md, по макету владельца 09.10.2026):
@@ -55,12 +57,12 @@ export interface OverviewSums {
 /** Слово периода для подписи плитки выручки: «за месяц», «за 7 дней», «сегодня», «за период» */
 export function periodWord(kind: 'today' | 'week' | 'month' | 'custom'): string {
   return kind === 'today'
-    ? 'сегодня'
+    ? msg('сегодня')
     : kind === 'week'
-      ? 'за 7 дней'
+      ? msg('за 7 дней')
       : kind === 'month'
-        ? 'за месяц'
-        : 'за период';
+        ? msg('за месяц')
+        : msg('за период');
 }
 
 export async function BizKpis({
@@ -94,64 +96,65 @@ export async function BizKpis({
       ? prevIncome - prevRefunds - prevExpense
       : null;
   const money = (v: bigint | null) => (v === null ? '—' : formatMoney(v.toString(), currency));
+  const t = await serverT();
   return (
-    <section className="biz-kpis" aria-label="Ключевые показатели">
+    <section className="biz-kpis" aria-label={t('Ключевые показатели')}>
       <Stat
-        label={`Выручка ${periodLabel}`}
+        label={t('Выручка {period}', { period: t(periodLabel) })}
         value={money(income)}
         icon={<Icon name="analytics" />}
         testId="biz-revenue"
         delta={moneyDelta(income, prevIncome)}
-        hint="к прошлому периоду"
+        hint={t('к прошлому периоду')}
       />
       <Stat
-        label="Чистая прибыль"
+        label={t('Чистая прибыль')}
         value={money(profit)}
         icon={<Icon name="money" />}
         testId="biz-profit"
         delta={moneyDelta(profit, prevProfit)}
-        hint="поступления минус возвраты и расходы"
+        hint={t('поступления минус возвраты и расходы')}
       />
       <Stat
-        label="Загрузка сегодня"
+        label={t('Загрузка сегодня')}
         value={percent === null ? '—' : formatPercent(percent)}
         icon={<Icon name="board" />}
         testId="biz-occupancy"
         delta={percent !== null && prev ? deltaPoints(percent, prev.occupancy.percent) : undefined}
-        hint="к вчера"
+        hint={t('к вчера')}
       />
       <Stat
-        label="Заезды сегодня"
+        label={t('Заезды сегодня')}
         value={counts ? String(counts.arrivals) : '—'}
         icon={<Icon name="arrival" />}
         testId="biz-arrivals-kpi"
         delta={counts ? intDelta(counts.arrivals, prev ? prev.arrivals.count : null) : undefined}
-        hint="к вчера"
+        hint={t('к вчера')}
       />
       <Stat
-        label="Выезды сегодня"
+        label={t('Выезды сегодня')}
         value={counts ? String(counts.departures) : '—'}
         icon={<Icon name="departure" />}
         testId="biz-departures-kpi"
         delta={
           counts ? intDelta(counts.departures, prev ? prev.departures.count : null) : undefined
         }
-        hint="к вчера"
+        hint={t('к вчера')}
       />
       <Stat
-        label="К оплате / Долги"
+        label={t('К оплате / Долги')}
         value={debts ? formatMoney(debts.balanceMinor, currency) : '—'}
         icon={<Icon name="card" />}
         testId="biz-due"
         tone={debts && BigInt(debts.balanceMinor) > 0n ? 'warning' : undefined}
-        hint="остаток по броням периода"
+        hint={t('остаток по броням периода')}
       />
       <Stat
-        label="Свободно мест"
+        label={t('Свободно мест')}
         value={summary ? String(summary.free) : '—'}
         icon={<Icon name="bed" />}
         testId="biz-free"
-        hint={summary ? `из ${total}` : 'данные фонда недоступны'}
+        hint={summary ? t('из {n}', { n: total }) : t('данные фонда недоступны')}
       />
     </section>
   );
@@ -159,7 +162,7 @@ export async function BizKpis({
 
 const nextDay = (date: string) => new Date(Date.parse(date) + 86400000).toISOString().slice(0, 10);
 
-export function PaymentMethods({
+export async function PaymentMethods({
   report,
   opsHref,
 }: {
@@ -173,26 +176,27 @@ export function PaymentMethods({
       })
     : [];
   const paid = report ? BigInt(report.paidMinor) : 0n;
+  const t = await serverT();
   return (
     <section className="biz-methods" aria-labelledby="biz-methods-title">
       <header className="biz-card__head">
-        <h2 id="biz-methods-title">Поступления по способам оплаты</h2>
+        <h2 id="biz-methods-title">{t('Поступления по способам оплаты')}</h2>
         <a className="card-heading__link" href={opsHref('')}>
-          Подробнее
+          {t('Подробнее')}
         </a>
       </header>
       {!report ? (
-        <p className="biz-card__note">Итоги периода не загрузились</p>
+        <p className="biz-card__note">{t('Итоги периода не загрузились')}</p>
       ) : rows.length === 0 ? (
-        <p className="biz-card__note">Оплат за период нет</p>
+        <p className="biz-card__note">{t('Оплат за период нет')}</p>
       ) : (
         <ul className="biz-methods__list">
           {rows.map((row) => (
             <li key={row.method}>
-              <a href={opsHref(row.method)}>{METHOD_RU[row.method] ?? row.method}</a>
+              <a href={opsHref(row.method)}>{t(METHOD_RU[row.method] ?? row.method)}</a>
               <strong>{formatMoney(row.amountMinor, report.currency)}</strong>
               <ShareBar
-                label={`Доля способа «${METHOD_RU[row.method] ?? row.method}»`}
+                label={t('Доля способа «{method}»', { method: t(METHOD_RU[row.method] ?? row.method) })}
                 value={paid > 0n ? Number((BigInt(row.amountMinor) * 100n) / paid) : 0}
                 showValue
               />
@@ -218,33 +222,34 @@ export async function TodayCard({
   currency: string;
 }) {
   const day = await loadDeskDay(date);
+  const t = await serverT();
   if (day instanceof ApiError)
     return (
       <section className="biz-today" aria-labelledby="biz-today-title">
         <header className="biz-card__head">
-          <h2 id="biz-today-title">Сегодня</h2>
+          <h2 id="biz-today-title">{t('Сегодня')}</h2>
         </header>
         <Alert boxed tone="warning" data-testid="desk-error">
-          Данные сегодняшнего дня не загрузились.
+          {t('Данные сегодняшнего дня не загрузились.')}
           <div className="owner-error-actions">
-            <DashboardRefresh label="Повторить" />
-            <Link href="/reservations">Открыть брони</Link>
+            <DashboardRefresh label={t('Повторить')} />
+            <Link href="/reservations">{t('Открыть брони')}</Link>
           </div>
         </Alert>
       </section>
     );
   const tiles: Array<[string, IconName, number, string]> = [
-    ['Заезды', 'arrival', day.counts.arrivals, `/reservations?arrival=${date}`],
-    ['Выезды', 'departure', day.counts.departures, `/reservations?departure=${date}`],
-    ['Ожидают заселения', 'clock', day.counts.toCheckIn, `/reservations?arrival=${date}`],
-    ['Ожидают выезда', 'booking', day.counts.toCheckOut, `/reservations?departure=${date}`],
+    [msg('Заезды'), 'arrival', day.counts.arrivals, `/reservations?arrival=${date}`],
+    [msg('Выезды'), 'departure', day.counts.departures, `/reservations?departure=${date}`],
+    [msg('Ожидают заселения'), 'clock', day.counts.toCheckIn, `/reservations?arrival=${date}`],
+    [msg('Ожидают выезда'), 'booking', day.counts.toCheckOut, `/reservations?departure=${date}`],
   ];
-  const testIds: Record<string, string> = { Заезды: 'biz-arrivals', Выезды: 'biz-departures' };
+  const testIds: Record<string, string> = { Заезды: 'biz-arrivals', Выезды: 'biz-departures' }; // kk-allow: ключи сверки с русской подписью, не текст экрана
   return (
     <section className="biz-today" aria-labelledby="biz-today-title">
       <header className="biz-card__head">
-        <h2 id="biz-today-title">Сегодня</h2>
-        <span className="biz-card__caption">{displayDate(date, 'full')}</span>
+        <h2 id="biz-today-title">{t('Сегодня')}</h2>
+        <span className="biz-card__caption">{displayDate(date, 'full', intlLocale(await currentLocale()))}</span>
       </header>
       <div className="biz-today__tiles">
         {tiles.map(([label, icon, count, href]) => (
@@ -252,7 +257,7 @@ export async function TodayCard({
             <span className="biz-today__icon" aria-hidden="true">
               <Icon name={icon} />
             </span>
-            <span className="biz-today__label">{label}</span>
+            <span className="biz-today__label">{t(label)}</span>
             <strong {...(testIds[label] ? { 'data-testid': testIds[label] } : {})}>{count}</strong>
           </Link>
         ))}
@@ -263,14 +268,14 @@ export async function TodayCard({
             <Icon name="card" />
           </span>
           <span>
-            Брони без оплаты <b>{debts.count}</b>
+            {t('Брони без оплаты')} <b>{debts.count}</b>
           </span>
           <strong>{formatMoney(debts.balanceMinor, currency)}</strong>
           <Icon name="chevron" width={16} height={16} aria-hidden="true" />
         </Link>
       )}
       <p className="biz-card__note">
-        К оплате у выезжающих:{' '}
+        {t('К оплате у выезжающих:')}{' '}
         <strong data-testid="c-debt">{formatMoney(day.debtMinor, currency)}</strong>
       </p>
     </section>
@@ -293,6 +298,7 @@ export async function AttentionCard({
     loadGuardStatus(),
     loadPeriod(date, end),
   ]);
+  const t = await serverT();
   const lowDays =
     outlook instanceof ApiError ? [] : outlook.current.daily.filter((d) => d.percent < 40);
   const rows: Array<{
@@ -307,8 +313,8 @@ export async function AttentionCard({
     rows.push({
       key: 'unpaid',
       count: debts.count,
-      title: 'Брони без оплаты',
-      caption: `на сумму ${formatMoney(debts.balanceMinor, debts.currency)}`,
+      title: t('Брони без оплаты'),
+      caption: t('на сумму {sum}', { sum: formatMoney(debts.balanceMinor, debts.currency) }),
       href: `${period}#debts`,
       tone: 'warning',
     });
@@ -316,8 +322,8 @@ export async function AttentionCard({
     rows.push({
       key: 'overdue',
       count: debts.overdue.count,
-      title: 'Просроченные платежи',
-      caption: 'время выезда прошло, остаток не оплачен',
+      title: t('Просроченные платежи'),
+      caption: t('время выезда прошло, остаток не оплачен'),
       href: `${period}&debts=overdue#debts`,
       tone: 'danger',
     });
@@ -327,8 +333,8 @@ export async function AttentionCard({
     rows.push({
       key: 'dirty',
       count: dirty,
-      title: 'Нужна уборка',
-      caption: pluralRu(dirty, ['место ждёт уборки', 'места ждут уборки', 'мест ждут уборки']),
+      title: t('Нужна уборка'),
+      caption: pluralRu(dirty, [t('место ждёт уборки'), t('места ждут уборки'), t('мест ждут уборки')]),
       href: '/chessboard',
       tone: 'warning',
     });
@@ -336,8 +342,8 @@ export async function AttentionCard({
     rows.push({
       key: 'low-load',
       count: lowDays.length,
-      title: 'Низкая загрузка',
-      caption: `${displayDate(lowDays[0]!.date)} и дальше: ниже 40 %`,
+      title: t('Низкая загрузка'),
+      caption: t('{date} и дальше: ниже 40 %', { date: displayDate(lowDays[0]!.date) }),
       href: `/chessboard?from=${lowDays[0]!.date}&to=${lowDays[0]!.date}`,
       tone: 'info',
     });
@@ -345,11 +351,11 @@ export async function AttentionCard({
     rows.push({
       key: 'tasks',
       count: day.counts.tasksOpen,
-      title: 'Задачи',
+      title: t('Задачи'),
       caption: pluralRu(day.counts.tasksOpen, [
-        'открытая задача со сроком',
-        'открытые задачи со сроком',
-        'открытых задач со сроком',
+        t('открытая задача со сроком'),
+        t('открытые задачи со сроком'),
+        t('открытых задач со сроком'),
       ]),
       href: '/tasks',
       tone: 'info',
@@ -362,11 +368,11 @@ export async function AttentionCard({
       data-testid="owner-risks"
     >
       <header className="biz-card__head">
-        <h2 id="biz-attention-title">Что требует внимания</h2>
+        <h2 id="biz-attention-title">{t('Что требует внимания')}</h2>
       </header>
       {rows.length === 0 ? (
         <p className="biz-card__note">
-          <Icon name="check" aria-hidden="true" /> Сейчас всё спокойно
+          <Icon name="check" aria-hidden="true" /> {t('Сейчас всё спокойно')}
         </p>
       ) : (
         <ul className="biz-attention__list">
@@ -386,8 +392,8 @@ export async function AttentionCard({
       )}
       {attention && (
         <DashboardDetails
-          title="Требуют внимания"
-          label="Все задачи"
+          title={t('Требуют внимания')}
+          label={t('Все задачи')}
           count={attentionCount(attention)}
         >
           <DayAttention {...attention} />
@@ -399,35 +405,36 @@ export async function AttentionCard({
 
 const RECENT_SHOWN = 7;
 
-export function RecentOperations({
+export async function RecentOperations({
   ops,
   period,
 }: {
   ops: PeriodOperations | null;
   period: string;
 }) {
+  const t = await serverT();
   return (
     <section className="biz-recent" aria-labelledby="biz-recent-title" data-testid="recent-ops">
       <header className="biz-card__head">
-        <h2 id="biz-recent-title">Последние операции</h2>
+        <h2 id="biz-recent-title">{t('Последние операции')}</h2>
         <a className="card-heading__link" href={`${period}&show=1#operations`}>
-          Все операции
+          {t('Все операции')}
         </a>
       </header>
       {!ops ? (
-        <p className="biz-card__note">Операции за период не загрузились</p>
+        <p className="biz-card__note">{t('Операции за период не загрузились')}</p>
       ) : ops.rows.length === 0 ? (
-        <p className="biz-card__note">Операций за период нет</p>
+        <p className="biz-card__note">{t('Операций за период нет')}</p>
       ) : (
-        <Table size="sm" className="biz-recent__table" aria-label="Таблица последних операций">
+        <Table size="sm" className="biz-recent__table" aria-label={t('Таблица последних операций')}>
           <thead>
             <tr>
-              <th>Дата и время</th>
-              <th>Тип</th>
-              <th>Описание</th>
-              <th className="num">Сумма</th>
-              <th>Способ</th>
-              <th>Статус</th>
+              <th>{t('Дата и время')}</th>
+              <th>{t('Тип')}</th>
+              <th>{t('Описание')}</th>
+              <th className="num">{t('Сумма')}</th>
+              <th>{t('Способ')}</th>
+              <th>{t('Статус')}</th>
             </tr>
           </thead>
           <tbody>
@@ -436,13 +443,13 @@ export function RecentOperations({
               const minus = o.kind === 'REFUND' || o.kind === 'EXPENSE';
               return (
                 <tr key={`${o.kind}-${o.id}`} data-testid="recent-op-row">
-                  <td data-label="Дата и время">
+                  <td data-label={t('Дата и время')}>
                     <time dateTime={o.at}>
                       {displayDate(opDay)}, {time}
                     </time>
                   </td>
-                  <td data-label="Тип">{operationKind(o.kind)}</td>
-                  <td data-label="Описание">
+                  <td data-label={t('Тип')}>{t(operationKind(o.kind))}</td>
+                  <td data-label={t('Описание')}>
                     {o.guestLabel || o.category || '—'}
                     {o.confirmationNumber && (
                       <Link
@@ -455,19 +462,19 @@ export function RecentOperations({
                     )}
                   </td>
                   <td
-                    data-label="Сумма"
+                    data-label={t('Сумма')}
                     className={`num ${minus ? 'biz-recent__amount--out' : 'biz-recent__amount--in'}`}
                   >
                     {minus ? '−' : '+'}
                     {formatMoney(o.amountMinor, ops.currency)}
                   </td>
-                  <td data-label="Способ">
+                  <td data-label={t('Способ')}>
                     {o.kind === 'TRANSFER' && o.methodTo
-                      ? `${METHOD_RU[o.method] ?? o.method} → ${METHOD_RU[o.methodTo] ?? o.methodTo}`
-                      : (METHOD_RU[o.method] ?? o.method)}
+                      ? `${t(METHOD_RU[o.method] ?? o.method)} → ${t(METHOD_RU[o.methodTo] ?? o.methodTo)}`
+                      : t(METHOD_RU[o.method] ?? o.method)}
                   </td>
-                  <td data-label="Статус">
-                    <Badge tone="neutral">{operationStatus(o.kind, o.status)}</Badge>
+                  <td data-label={t('Статус')}>
+                    <Badge tone="neutral">{t(operationStatus(o.kind, o.status))}</Badge>
                   </td>
                 </tr>
               );

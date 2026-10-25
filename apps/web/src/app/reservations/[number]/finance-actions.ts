@@ -3,6 +3,8 @@ import { revalidatePath } from 'next/cache';
 import { FinanceRuleError, discountMinor, parseMoney } from '@pms/domain';
 import { ApiError, financeApi, reservationsApi } from '../../../lib/api';
 import { currencySign } from '../../../lib/money';
+import { msg, type Translate } from '../../../i18n';
+import { serverT } from '../../../i18n/server';
 
 export interface FinanceActionResult {
   error: string | null;
@@ -15,31 +17,31 @@ export interface FinanceActionResult {
 }
 /** Подписи полей формы: отказ API называет поле кодом (`amount — …`), администратор видит подпись */
 const FIELD_LABELS: Record<string, string> = {
-  amount: 'Сумма',
-  method: 'Способ оплаты',
-  note: 'Примечание',
-  kind: 'Вид начисления',
-  serviceCode: 'Услуга',
-  description: 'Описание',
-  quantity: 'Количество',
-  unitPrice: 'Цена',
-  serviceDate: 'Дата услуги',
-  reason: 'Причина',
-  allocations: 'Распределение по счетам',
-  extra: 'Доплата',
-  price: 'Цена проживания',
-  percent: 'Процент скидки',
+  amount: msg('Сумма'),
+  method: msg('Способ оплаты'),
+  note: msg('Примечание'),
+  kind: msg('Вид начисления@@счёт'),
+  serviceCode: msg('Услуга'),
+  description: msg('Описание'),
+  quantity: msg('Количество'),
+  unitPrice: msg('Цена'),
+  serviceDate: msg('Дата услуги'),
+  reason: msg('Причина'),
+  allocations: msg('Распределение по счетам'),
+  extra: msg('Доплата'),
+  price: msg('Цена проживания'),
+  percent: msg('Процент скидки'),
 };
-const humanize = (message: string) => {
+const humanize = (message: string, t: Translate) => {
   const m = /^([A-Za-z]+) — (.+)$/s.exec(message);
   const label = m && FIELD_LABELS[m[1]!];
-  return label ? `Поле «${label}»: ${m![2]}` : message;
+  return label ? t('Поле «{label}»: {message}', { label: t(label), message: t(m![2]!) }) : t(message);
 };
-const describe = (e: unknown) =>
+const describe = (e: unknown, t: Translate) =>
   e instanceof ApiError || e instanceof FinanceRuleError
-    ? humanize(e.message)
+    ? humanize(e.message, t)
     : e instanceof Error
-      ? e.message
+      ? t(e.message)
       : String(e);
 const s = (fd: FormData, k: string) => {
   const v = fd.get(k);
@@ -50,8 +52,9 @@ const rejected = (
   prev: FinanceActionResult,
   fd: FormData,
   keys: string[],
+  t: Translate,
 ): FinanceActionResult => ({
-  error: describe(error),
+  error: describe(error, t),
   ok: prev.ok,
   attempt: (prev.attempt ?? 0) + 1,
   values: Object.fromEntries(
@@ -97,16 +100,16 @@ function discountCharge(fd: FormData): {
   let description: string;
   if (percentRaw) {
     const percent = Number(percentRaw.replace(',', '.'));
-    if (!Number.isInteger(percent)) throw new FinanceRuleError('percent — целое число от 1 до 100');
+    if (!Number.isInteger(percent)) throw new FinanceRuleError(`percent — ${msg('целое число от 1 до 100')}`);
     minor = discountMinor(BigInt(s(fd, 'baseMinor') ?? '0'), percent);
-    description = `Скидка ${percent}% на проживание${reason ? `: ${reason}` : ''}`;
+    description = `Скидка ${percent}% на проживание${reason ? `: ${reason}` : ''}`; // kk-allow: подпись начисления хранится в счёте и печатается
   } else if (amountRaw) {
     minor = parseMoney(amountRaw);
-    description = `Скидка${reason ? `: ${reason}` : ''}`;
+    description = `Скидка${reason ? `: ${reason}` : ''}`; // kk-allow: подпись начисления хранится в счёте и печатается
   } else {
-    throw new FinanceRuleError('percent — процент скидки или amount — её сумма');
+    throw new FinanceRuleError(`percent — ${msg('процент скидки или amount — её сумма')}`);
   }
-  if (minor <= 0n) throw new FinanceRuleError('amount — скидка должна быть больше нуля');
+  if (minor <= 0n) throw new FinanceRuleError(`amount — ${msg('скидка должна быть больше нуля')}`);
   return { description, unitPrice: minorToDecimal(-minor) };
 }
 
@@ -116,6 +119,7 @@ export async function addChargeAction(
   _prev: FinanceActionResult,
   fd: FormData,
 ): Promise<FinanceActionResult> {
+  const t = await serverT();
   const kind = s(fd, 'kind');
   const keys = [
     'kind',
@@ -137,7 +141,7 @@ export async function addChargeAction(
         unitPrice: discount.unitPrice,
         serviceDate: s(fd, 'serviceDate'),
       });
-      return done(number, 'Скидка записана в счёт.');
+      return done(number, t('Скидка записана в счёт.'));
     }
     await financeApi.addCharge(folioId, {
       kind,
@@ -148,9 +152,9 @@ export async function addChargeAction(
       serviceDate: s(fd, 'serviceDate'),
     });
   } catch (e) {
-    return rejected(e, _prev, fd, keys);
+    return rejected(e, _prev, fd, keys, t);
   }
-  return done(number, 'Начисление добавлено в счёт.');
+  return done(number, t('Начисление добавлено в счёт.'));
 }
 
 /** Цена проживания целиком (У6): начисление переписывает система, при смене дат цена снова по тарифу */
@@ -160,13 +164,14 @@ export async function stayPriceAction(
   _prev: FinanceActionResult,
   fd: FormData,
 ): Promise<FinanceActionResult> {
+  const t = await serverT();
   try {
     await reservationsApi.updateItem(number, itemId, { price: s(fd, 'price') ?? '' });
   } catch (e) {
-    return rejected(e, _prev, fd, ['price']);
+    return rejected(e, _prev, fd, ['price'], t);
   }
   revalidatePath('/chessboard');
-  return done(number, `Цена проживания изменена: ${money(s(fd, 'price'), s(fd, 'currency'))}. Счёт ниже пересчитан.`);
+  return done(number, t('Цена проживания изменена: {sum}. Счёт ниже пересчитан.', { sum: money(s(fd, 'price'), s(fd, 'currency')) }));
 }
 
 /** Аннулировать платёж (У1–У4): деньги уходят из оплаченного, строка остаётся со статусом «аннулирован» */
@@ -175,13 +180,14 @@ export async function voidPaymentAction(
   paymentId: string,
   reason: string | null,
 ): Promise<FinanceActionResult> {
+  const t = await serverT();
   try {
     await financeApi.voidPayment(paymentId, reason);
   } catch (e) {
-    return { error: describe(e), ok: 0 };
+    return { error: describe(e, t), ok: 0 };
   }
   revalidatePath('/finance');
-  return done(number, 'Платёж аннулирован. Баланс счёта ниже пересчитан.');
+  return done(number, t('Платёж аннулирован. Баланс счёта ниже пересчитан.'));
 }
 
 /** Заменить платёж: поправили способ, сумму или примечание; дата платежа остаётся прежней */
@@ -191,6 +197,7 @@ export async function replacePaymentAction(
   _prev: FinanceActionResult,
   fd: FormData,
 ): Promise<FinanceActionResult> {
+  const t = await serverT();
   try {
     await financeApi.replacePayment(paymentId, {
       method: s(fd, 'method'),
@@ -198,19 +205,23 @@ export async function replacePaymentAction(
       note: s(fd, 'note') ?? null,
     });
   } catch (e) {
-    return rejected(e, _prev, fd, ['method', 'amount', 'note']);
+    return rejected(e, _prev, fd, ['method', 'amount', 'note'], t);
   }
   revalidatePath('/finance');
-  return done(number, `Платёж изменён: ${money(s(fd, 'amount'), s(fd, 'currency'))}. Прежний остался в списке аннулированным.`);
+  return done(
+    number,
+    t('Платёж изменён: {sum}. Прежний остался в списке аннулированным.', { sum: money(s(fd, 'amount'), s(fd, 'currency')) }),
+  );
 }
 export async function voidChargeAction(
   number: string,
   chargeId: string,
 ): Promise<FinanceActionResult> {
+  const t = await serverT();
   try {
     await financeApi.voidCharge(chargeId);
   } catch (e) {
-    return { error: describe(e), ok: 0 };
+    return { error: describe(e, t), ok: 0 };
   }
   return done(number);
 }
@@ -219,10 +230,11 @@ export async function closeFolioAction(
   number: string,
   folioId: string,
 ): Promise<FinanceActionResult> {
+  const t = await serverT();
   try {
     await financeApi.closeFolio(folioId);
   } catch (e) {
-    return { error: describe(e), ok: 0 };
+    return { error: describe(e, t), ok: 0 };
   }
   return done(number);
 }
@@ -232,6 +244,7 @@ export async function payAction(
   _prev: FinanceActionResult,
   fd: FormData,
 ): Promise<FinanceActionResult> {
+  const t = await serverT();
   try {
     const amount = s(fd, 'amount');
     await financeApi.pay({
@@ -241,9 +254,9 @@ export async function payAction(
       allocations: [{ folioId, amount }],
     });
   } catch (e) {
-    return rejected(e, _prev, fd, ['method', 'amount', 'note']);
+    return rejected(e, _prev, fd, ['method', 'amount', 'note'], t);
   }
-  return done(number, `Оплата принята: ${money(s(fd, 'amount'), s(fd, 'currency'))}. Баланс счёта ниже пересчитан.`);
+  return done(number, t('Оплата принята: {sum}. Баланс счёта ниже пересчитан.', { sum: money(s(fd, 'amount'), s(fd, 'currency')) }));
 }
 
 /** Один платёж на выбранные открытые счета. Совпадение сумм проверяет существующий API. */
@@ -253,6 +266,7 @@ export async function payGroupAction(
   prev: FinanceActionResult,
   fd: FormData,
 ): Promise<FinanceActionResult> {
+  const t = await serverT();
   const keys = ['method', 'amount', 'note', ...folioIds.map((id) => `allocation.${id}`)];
   const values = Object.fromEntries(keys.map((key) => [key, s(fd, key) ?? '']));
   try {
@@ -266,7 +280,7 @@ export async function payGroupAction(
       }),
     });
   } catch (e) {
-    return { error: describe(e), ok: prev.ok, attempt: (prev.attempt ?? 0) + 1, values };
+    return { error: describe(e, t), ok: prev.ok, attempt: (prev.attempt ?? 0) + 1, values };
   }
   return done(number);
 }
@@ -277,6 +291,7 @@ export async function refundAction(
   _prev: FinanceActionResult,
   fd: FormData,
 ): Promise<FinanceActionResult> {
+  const t = await serverT();
   try {
     await financeApi.refund(paymentId, {
       folioId,
@@ -284,7 +299,7 @@ export async function refundAction(
       reason: s(fd, 'reason') ?? null,
     });
   } catch (e) {
-    return rejected(e, _prev, fd, ['amount', 'reason']);
+    return rejected(e, _prev, fd, ['amount', 'reason'], t);
   }
   return done(number);
 }
@@ -296,10 +311,11 @@ export async function receiptAction(
   _prev: FinanceActionResult,
   fd: FormData,
 ): Promise<FinanceActionResult> {
+  const t = await serverT();
   try {
     await financeApi.issueReceipt(paymentId, s(fd, 'receipt') ?? '');
   } catch (e) {
-    return rejected(e, _prev, fd, ['receipt']);
+    return rejected(e, _prev, fd, ['receipt'], t);
   }
   return done(number);
 }
@@ -311,10 +327,11 @@ export async function stayExtraAction(
   extra: 'EARLY_CHECK_IN' | 'LATE_CHECK_OUT',
   time?: string,
 ): Promise<FinanceActionResult> {
+  const t = await serverT();
   try {
     await financeApi.addStayExtra(folioId, extra, time);
   } catch (e) {
-    return { error: describe(e), ok: 0 };
+    return { error: describe(e, t), ok: 0 };
   }
   return done(number);
 }
@@ -325,6 +342,7 @@ export async function createPaymentRequestAction(
   prev: FinanceActionResult,
   fd: FormData,
 ): Promise<FinanceActionResult> {
+  const t = await serverT();
   try {
     await financeApi.createPaymentRequest(number, {
       folioId: s(fd, 'folioId'),
@@ -334,9 +352,9 @@ export async function createPaymentRequestAction(
       note: s(fd, 'note') ?? null,
     });
   } catch (e) {
-    return rejected(e, prev, fd, ['folioId', 'method', 'amount', 'link', 'note']);
+    return rejected(e, prev, fd, ['folioId', 'method', 'amount', 'link', 'note'], t);
   }
-  return done(number, `Запрос на ${money(s(fd, 'amount'), s(fd, 'currency'))} создан. Отправьте гостю текст ниже.`);
+  return done(number, t('Запрос на {sum} создан. Отправьте гостю текст ниже.', { sum: money(s(fd, 'amount'), s(fd, 'currency')) }));
 }
 
 /** «Оплачено»: запрос превращается в обычный платёж на счёт проживания одной транзакцией */
@@ -345,12 +363,13 @@ export async function markPaymentRequestPaidAction(
   id: string,
   prev: FinanceActionResult,
 ): Promise<FinanceActionResult> {
+  const t = await serverT();
   try {
     await financeApi.markPaymentRequestPaid(id);
   } catch (e) {
-    return { error: describe(e), ok: prev.ok, attempt: (prev.attempt ?? 0) + 1 };
+    return { error: describe(e, t), ok: prev.ok, attempt: (prev.attempt ?? 0) + 1 };
   }
-  return done(number, 'Оплата по запросу принята, баланс счёта пересчитан.');
+  return done(number, t('Оплата по запросу принята, баланс счёта пересчитан.'));
 }
 
 export async function cancelPaymentRequestAction(
@@ -358,10 +377,11 @@ export async function cancelPaymentRequestAction(
   id: string,
   prev: FinanceActionResult,
 ): Promise<FinanceActionResult> {
+  const t = await serverT();
   try {
     await financeApi.cancelPaymentRequest(id);
   } catch (e) {
-    return { error: describe(e), ok: prev.ok, attempt: (prev.attempt ?? 0) + 1 };
+    return { error: describe(e, t), ok: prev.ok, attempt: (prev.attempt ?? 0) + 1 };
   }
-  return done(number, 'Запрос отменён.');
+  return done(number, t('Запрос отменён.'));
 }

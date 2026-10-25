@@ -4,6 +4,7 @@ import type { WizardChatState } from '../../lib/wizard-types';
 import { CHAT } from './strings';
 import { ScanChallenge } from './scan-challenge';
 import { Textarea } from '../../components/ui';
+import { useT } from '../../i18n/locale-provider';
 
 export function ChatStep({
   state,
@@ -18,6 +19,7 @@ export function ChatStep({
   onMessage: (text: string, requestId: string, challenge: string) => Promise<boolean>;
   onRefresh: () => void;
 }) {
+  const t = useT();
   const [text, setText] = useState('');
   const [challenge, setChallenge] = useState('');
   const [challengeKey, setChallengeKey] = useState(0);
@@ -42,27 +44,27 @@ export function ChatStep({
   }
   return (
     <section className="guest-wizard__chat" aria-labelledby="guest-chat-title">
-      <h2 id="guest-chat-title">{CHAT.title}</h2>
-      <p>{CHAT.note}</p>
-      <p role="status">{CHAT.remaining(left, state.limit)}</p>
-      <div role="log" aria-label={CHAT.conversation} aria-live="polite">
+      <h2 id="guest-chat-title">{t(CHAT.title)}</h2>
+      <p>{t(CHAT.note)}</p>
+      <p role="status">{t(CHAT.remaining, { left, limit: state.limit })}</p>
+      <div role="log" aria-label={t(CHAT.conversation)} aria-live="polite">
         {state.messages.map((m) => (
           <article key={`${m.requestId}:${m.role}`}>
-            <h3>{m.role === 'user' ? CHAT.you : CHAT.assistant}</h3>
+            <h3>{t(m.role === 'user' ? CHAT.you : CHAT.assistant)}</h3>
             <p className="guest-wizard__generated-text">{m.text}</p>
             {m.sources.length > 0 && (
               <details>
-                <summary>{CHAT.sources}</summary>
+                <summary>{t(CHAT.sources)}</summary>
                 <p>{m.sources.join(', ')}</p>
               </details>
             )}
           </article>
         ))}
       </div>
-      {waiting && <p role="status">{CHAT.waiting}</p>}
-      {state.failed.length > 0 && <p>{CHAT.failed}</p>}
+      {waiting && <p role="status">{t(CHAT.waiting)}</p>}
+      {state.failed.length > 0 && <p>{t(CHAT.failed)}</p>}
       {!left ? (
-        <p>{CHAT.exhausted}</p>
+        <p>{t(CHAT.exhausted)}</p>
       ) : (
         <form
           className="guest-wizard__chat-form"
@@ -71,21 +73,21 @@ export function ChatStep({
             void submit();
           }}
         >
-          <div className="guest-wizard__chips" aria-label={CHAT.examples}>
+          <div className="guest-wizard__chips" aria-label={t(CHAT.examples)}>
             {CHAT.suggestions.map((question) => (
               <button
                 key={question}
                 type="button"
                 className="btn btn--secondary"
                 disabled={busy || sending || waiting}
-                onClick={() => setText(question)}
+                onClick={() => setText(t(question))}
               >
-                {question}
+                {t(question)}
               </button>
             ))}
           </div>
           <label>
-            {CHAT.message}
+            {t(CHAT.message)}
             <Textarea
               value={text}
               maxLength={2000}
@@ -100,7 +102,7 @@ export function ChatStep({
             className="btn"
             disabled={busy || sending || waiting || !text.trim() || !challenge}
           >
-            {CHAT.send}
+            {t(CHAT.send)}
           </button>
         </form>
       )}
@@ -110,7 +112,7 @@ export function ChatStep({
         disabled={busy || sending}
         onClick={onRefresh}
       >
-        {CHAT.refresh}
+        {t(CHAT.refresh)}
       </button>
     </section>
   );

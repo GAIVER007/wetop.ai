@@ -1,6 +1,7 @@
 import { AUTO_UNIT } from '../../../lib/booking-link';
 import { displayDate } from '../../../lib/display-date';
-import { nightsBetween, pluralRu } from '../../../lib/plural';
+import { nightsBetween } from '../../../lib/plural';
+import { countLabel, intlLocale, msg, translator, type DeskLocale, type Translate } from '../../../i18n';
 import { SOURCES } from '../sources';
 import type { BookingGuest } from '../actions';
 
@@ -18,6 +19,8 @@ export function summarize(
   placementIds: string[],
   snapshot: Record<string, string>,
   picked: BookingGuest | null,
+  locale: DeskLocale = 'ru',
+  t: Translate = translator(locale),
 ) {
   const dash = '—';
   const nights = nightsBetween(props.arrival, props.departure);
@@ -31,16 +34,18 @@ export function summarize(
     const unit = snapshot[field('unitCode')];
     const where =
       quantity > 1
-        ? `${pluralRu(quantity, ['место', 'места', 'мест'])}, номера назначит система`
+        ? t('{places}, номера назначит система', {
+            places: countLabel(locale, t, quantity, [msg('место'), 'места', msg('мест')]), // kk-allow: форма склонения
+          })
         : unit === AUTO_UNIT
-          ? 'номер назначит система'
+          ? t('номер назначит система')
           : unit
-            ? `номер ${unit}`
-            : 'номер назначим позже';
+            ? t('номер {unit}', { unit })
+            : t('номер назначим позже');
     // WET-02 (ТЗ QA 01.10.2026): `adults` относится к одному месту, `quantity` размножает размещение,
     // так же создаёт бронь API: гостей в размещении столько, сколько мест, умноженных на гостей на место
     const guests = quantity * adults;
-    return `${category?.name ?? dash}, ${where}, ${pluralRu(guests, ['гость', 'гостя', 'гостей'])}`;
+    return `${category?.name ?? dash}, ${where}, ${countLabel(locale, t, guests, [msg('гость'), 'гостя', msg('гостей')])}`; // kk-allow: форма склонения
   });
   return {
     nights,
@@ -48,14 +53,14 @@ export function summarize(
     departure: props.departure,
     datesText:
       nights > 0
-        ? `${displayDate(props.arrival)} → ${displayDate(props.departure)}, ${pluralRu(nights, ['ночь', 'ночи', 'ночей'])}`
+        ? `${displayDate(props.arrival, 'short', intlLocale(locale))} → ${displayDate(props.departure, 'short', intlLocale(locale))}, ${countLabel(locale, t, nights, [msg('ночь'), 'ночи', msg('ночей')])}` // kk-allow: форма склонения
         : dash,
     placements,
-    source: SOURCES.find(([value]) => value === snapshot['source'])?.[1] ?? dash,
+    source: t(SOURCES.find(([value]) => value === snapshot['source'])?.[1] ?? dash),
     guest: picked
       ? picked.name
       : props.piiStorage === 'real'
         ? [snapshot['lastName'], snapshot['firstName']].filter(Boolean).join(' ').trim() || dash
-        : 'Автоматическая карточка',
+        : t('Автоматическая карточка'),
   };
 }

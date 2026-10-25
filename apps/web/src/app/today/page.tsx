@@ -21,6 +21,8 @@ import { HospitalityToday } from './hospitality-today';
 import { TodayScopeContent } from './scope-content';
 import { Page } from '../../components/page';
 import { Alert } from '../../components/ui';
+import { translator } from '../../i18n';
+import { currentLocale } from '../../i18n/server';
 
 /**
  * Рабочий экран дня (MV8): один адрес на все направления. Экран выбирает подтверждённое направление
@@ -42,8 +44,10 @@ export default async function TodayPage({
     mayAccess(deskAccessOf(me), 'reports')
   ) {
     const c = me.context;
+    const locale = await currentLocale();
+    const t = translator(locale);
     if (c?.vertical && !TODAY_VERTICALS.includes(c.vertical))
-      return <p>Направление не поддерживается</p>;
+      return <p>{t('Направление не поддерживается')}</p>;
     if (!c?.businessId || !c.locationId) redirect('/branches');
     const period = ownerPeriod((await searchParams)?.period);
     const owner = await readOwnerSummary(period).then(
@@ -58,23 +62,24 @@ export default async function TodayPage({
     if (owner.summary)
       return (
         <TodayScopeContent key={`${c.businessId}:${c.locationId}`}>
-          <OwnerSummaryView summary={owner.summary} />
+          <OwnerSummaryView summary={owner.summary} locale={locale} />
         </TodayScopeContent>
       );
     if (!owner.closed)
       return (
         // общий каркас `Page`: один `main#main-content`, куда ведёт «К содержимому» (Д6)
-        <Page title="Главная">
+        <Page title={t('Главная')}>
           <Alert>
-            Не удалось загрузить сводку. Данные не заменены нулями. Проверьте подключение и доступ к
-            отчётам выбранного филиала.
+            {t(
+              'Не удалось загрузить сводку. Данные не заменены нулями. Проверьте подключение и доступ к отчётам выбранного филиала.',
+            )}
           </Alert>
           <p>
             <a className="btn" href={`/today?period=${period}`}>
-              Повторить
+              {t('Повторить')}
             </a>{' '}
             <a className="btn btn--secondary" href="/today/operations">
-              Рабочий день
+              {t('Рабочий день')}
             </a>
           </p>
         </Page>

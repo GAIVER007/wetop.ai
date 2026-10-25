@@ -4,6 +4,8 @@ import { Icon } from '../../components/icon';
 import { Segmented, type SegmentOption } from '../../components/segmented';
 import { Button, Select } from '../../components/ui';
 import type { ChessboardRow } from '../../lib/api';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 import {
   NO_FILTERS,
   STAY_FLAGS,
@@ -20,17 +22,17 @@ const GAP = 6;
 const EDGE = 8;
 
 export const KIND_OPTIONS: ReadonlyArray<readonly [BoardFilters['kind'], string]> = [
-  ['', 'Все'],
-  ['ROOM', 'Номера'],
-  ['BED', 'Койки'],
+  ['', msg('Все')],
+  ['ROOM', msg('Номера')],
+  ['BED', msg('Койки')],
 ];
 
 /** Вид строк (ТЗ v2 §38): из строки над сеткой переключатель убрал владелец 09.10.2026, живёт здесь */
 export type BoardView = 'compact' | 'normal' | 'detailed';
 export const VIEW_OPTIONS: ReadonlyArray<SegmentOption<BoardView>> = [
-  { value: 'compact', label: 'Компактный' },
-  { value: 'normal', label: 'Обычный' },
-  { value: 'detailed', label: 'Подробный' },
+  { value: 'compact', label: msg('Компактный') },
+  { value: 'normal', label: msg('Обычный') },
+  { value: 'detailed', label: msg('Подробный') },
 ];
 
 /**
@@ -78,6 +80,7 @@ export function BoardFiltersPopover({
   /** restoreFocus — вернуть курсор на «Фильтры» (клавиатура, крестик), но не при щелчке мимо */
   onClose: (restoreFocus: boolean) => void;
 }) {
+  const t = useT();
   const ref = useRef<HTMLDivElement>(null);
   const [draft, setDraft] = useState<BoardFilters>(applied);
   const baseId = useId();
@@ -157,7 +160,7 @@ export function BoardFiltersPopover({
     return (
       <div className="board-filters-pop__group" role="group" aria-labelledby={id}>
         <p className="board-filters-pop__label" id={id}>
-          {label}
+          {t(label)}
         </p>
         <div className="chips">
           {options.map((o) => (
@@ -169,7 +172,7 @@ export function BoardFiltersPopover({
             >
               {/* выбор виден не только цветом (WCAG 1.4.1): у выбранного — галочка */}
               {pressed(o.key) && <Icon name="check" />}
-              {o.label}
+              {t(o.label)}
             </button>
           ))}
         </div>
@@ -182,17 +185,17 @@ export function BoardFiltersPopover({
       ref={ref}
       popover="manual"
       role="dialog"
-      aria-label="Фильтры календаря"
+      aria-label={t('Фильтры календаря')}
       tabIndex={-1}
       className="board-filters-pop"
       data-testid="board-filters-pop"
     >
       <div className="board-filters-pop__head">
-        <h2 className="board-filters-pop__title">Фильтры</h2>
+        <h2 className="board-filters-pop__title">{t('Фильтры')}</h2>
         <button
           type="button"
           className="icon-button"
-          aria-label="Закрыть фильтры"
+          aria-label={t('Закрыть фильтры')}
           onClick={() => onClose(true)}
         >
           <Icon name="close" />
@@ -201,13 +204,13 @@ export function BoardFiltersPopover({
       <div className="board-filters-pop__body">
         <div className="board-filters-pop__narrow">
           <label className="field">
-            <span>Категория</span>
+            <span>{t('Категория')}</span>
             <Select
-              aria-label="Категория в календаре"
+              aria-label={t('Категория в календаре')}
               value={draft.category}
               onChange={(e) => setDraft((d) => ({ ...d, category: e.target.value }))}
             >
-              <option value="">Все категории</option>
+              <option value="">{t('Все категории')}</option>
               {categories.map((c) => (
                 <option key={c.code} value={c.code}>
                   {c.name}
@@ -218,7 +221,7 @@ export function BoardFiltersPopover({
           <label className="field">
             <span>{stateLabel}</span>
             <Select
-              aria-label="Места в календаре"
+              aria-label={t('Места в календаре')}
               value={draft.state}
               onChange={(e) => setDraft((d) => ({ ...d, state: e.target.value as UnitState }))}
             >
@@ -232,14 +235,14 @@ export function BoardFiltersPopover({
         </div>
         {group(
           'kind',
-          'Тип места',
+          msg('Тип места'),
           KIND_OPTIONS.map(([key, label]) => ({ key, label })),
           (key) => draft.kind === key,
           (key) => setDraft((d) => ({ ...d, kind: key as BoardFilters['kind'] })),
         )}
         {group(
           'stays',
-          'Брони',
+          msg('Брони'),
           STAY_FLAGS.map(([key, label]) => ({ key, label })),
           (key) => draft.stays.includes(key as StayFlag),
           (key) => toggle('stays', key as StayFlag),
@@ -247,7 +250,7 @@ export function BoardFiltersPopover({
         {sources.length > 0 &&
           group(
             'sources',
-            'Источник',
+            msg('Источник'),
             sources,
             (key) => draft.sources.includes(key),
             (key) => toggle('sources', key),
@@ -255,7 +258,7 @@ export function BoardFiltersPopover({
         {statuses.length > 0 &&
           group(
             'statuses',
-            'Статус брони',
+            msg('Статус брони'),
             statuses,
             (key) => draft.statuses.includes(key),
             (key) => toggle('statuses', key),
@@ -263,18 +266,18 @@ export function BoardFiltersPopover({
         {/* Вид: настройка показа, не отбор. Меняет сетку сразу, «Применить» его не ждёт */}
         <div className="board-filters-pop__group">
           <p className="board-filters-pop__label" id={`${baseId}-view`}>
-            Вид строк
+            {t('Вид строк')}
           </p>
           <Segmented
-            label="Вид строк календаря"
+            label={t('Вид строк календаря')}
             value={view}
-            options={VIEW_OPTIONS}
+            options={VIEW_OPTIONS.map((o) => ({ ...o, label: t(o.label) }))}
             onChange={onView}
           />
         </div>
         {help && (
           <details className="board-filters-pop__help">
-            <summary>Как работать с календарём</summary>
+            <summary>{t('Как работать с календарём')}</summary>
             <Fragment key="help">{help}</Fragment>
           </details>
         )}
@@ -286,7 +289,7 @@ export function BoardFiltersPopover({
             onClick={() => onClose(false)}
           >
             <Icon name="incidents" />
-            Брони без назначенного места: {unassigned}
+            {t('Брони без назначенного места: {n}', { n: unassigned })}
           </a>
         )}
       </div>
@@ -297,13 +300,13 @@ export function BoardFiltersPopover({
           role="status"
           aria-live="polite"
         >
-          Подходит {matched} из {rows.length} мест
+          {t('Подходит {matched} из {total} мест', { matched, total: rows.length })}
         </span>
         <Button type="button" tone="ghost" onClick={() => setDraft(NO_FILTERS)}>
-          Сбросить
+          {t('Сбросить')}
         </Button>
         <Button type="button" onClick={() => onApply(draft)}>
-          Применить
+          {t('Применить')}
         </Button>
       </div>
     </div>

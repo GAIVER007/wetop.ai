@@ -1,21 +1,24 @@
+'use client';
 import type { UnitCard } from '../../../lib/api';
 import { Fact, Grid, Panel } from '../../../components/ui';
 import { displayDate } from '../../../lib/display-date';
-import { pluralRu } from '../../../lib/plural';
+import { countLabel, msg } from '../../../i18n';
+import { useLocale, useT } from '../../../i18n/locale-provider';
 import { unitNow } from '../../../lib/unit-now';
 import { HousekeepingBadge, UnitStateBadge, buildingText, floorRoomText } from '../../inventory/unit-state';
 
 type Stay = UnitCard['stays'][number];
 
 function StayLine({ stay, living }: { stay: Stay; living: boolean }) {
-  const who = stay.guestLabel || 'гость';
+  const t = useT();
+  const who = stay.guestLabel || t('гость');
   return (
     <span className="unit-stay-line">
       <span>
-        {living ? `живёт ${who}` : `ждём ${who}`}, выезд{' '}
+        {t(living ? msg('живёт {guest}, выезд') : msg('ждём {guest}, выезд'), { guest: who })}{' '}
         <time dateTime={stay.endDate}>{displayDate(stay.endDate, 'numeric')}</time>
       </span>
-      <span className="inventory-state-note">бронь {stay.confirmationNumber}</span>
+      <span className="inventory-state-note">{t('бронь {n}', { n: stay.confirmationNumber })}</span>
     </span>
   );
 }
@@ -26,20 +29,22 @@ function StayLine({ stay, living }: { stay: Stay; living: boolean }) {
  * отдельных запросов нет.
  */
 export function UnitFacts({ unit, today }: { unit: UnitCard; today: string }) {
+  const t = useT();
+  const locale = useLocale();
   const { current, next } = unitNow(unit.stays, today);
   const block = unit.blocks.find((b) => b.dateFrom <= today && today < b.dateTo) ?? null;
-  const floorRoom = floorRoomText(unit);
+  const floorRoom = floorRoomText(unit, t);
   return (
     <Panel data-testid="unit-facts" className="unit-facts">
       <Grid min={150}>
-        <Fact label="Категория" value={unit.accommodationTypeName} testId="unit-category" />
+        <Fact label={t('Категория')} value={unit.accommodationTypeName} testId="unit-category" />
         <Fact
-          label="Расположение"
+          label={t('Расположение')}
           testId="unit-place"
           value={
             unit.buildingName || floorRoom ? (
               <span className="inventory-place">
-                {unit.buildingName && <span>{buildingText(unit.buildingName)}</span>}
+                {unit.buildingName && <span>{buildingText(unit.buildingName, t)}</span>}
                 {floorRoom && <span className="inventory-state-note">{floorRoom}</span>}
               </span>
             ) : (
@@ -48,12 +53,12 @@ export function UnitFacts({ unit, today }: { unit: UnitCard; today: string }) {
           }
         />
         <Fact
-          label="Вместимость"
+          label={t('Вместимость')}
           testId="unit-capacity"
-          value={pluralRu(unit.capacity, ['гость', 'гостя', 'гостей'])}
+          value={countLabel(locale, t, unit.capacity, [msg('гость'), msg('гостя'), msg('гостей')])}
         />
         <Fact
-          label="Состояние"
+          label={t('Состояние')}
           testId="unit-state"
           value={
             <UnitStateBadge
@@ -63,23 +68,23 @@ export function UnitFacts({ unit, today }: { unit: UnitCard; today: string }) {
           }
         />
         <Fact
-          label="Уборка"
+          label={t('Уборка')}
           testId="unit-hk"
           value={<HousekeepingBadge status={unit.housekeepingStatus} />}
         />
         <Fact
-          label="Сейчас"
+          label={t('Сейчас')}
           testId="unit-now"
           value={
             current ? (
               <StayLine stay={current} living={current.status === 'CHECKED_IN'} />
             ) : (
-              'свободно'
+              t('свободно')
             )
           }
         />
         <Fact
-          label="Следующее проживание"
+          label={t('Следующее проживание')}
           testId="unit-next"
           value={
             next ? (
@@ -88,13 +93,13 @@ export function UnitFacts({ unit, today }: { unit: UnitCard; today: string }) {
                   <time dateTime={next.startDate}>{displayDate(next.startDate, 'numeric')}</time>
                   {' → '}
                   <time dateTime={next.endDate}>{displayDate(next.endDate, 'numeric')}</time>
-                  {`, ${next.guestLabel || 'гость'}`}
+                  {`, ${next.guestLabel || t('гость')}`}
                 </span>
-                <span className="inventory-state-note">бронь {next.confirmationNumber}</span>
+                <span className="inventory-state-note">{t('бронь {n}', { n: next.confirmationNumber })}</span>
               </span>
             ) : (
               // карточка читает проживания на 60 дней вперёд (UnitsService.card) — дальше не видно
-              'нет на 60 дней вперёд'
+              t('нет на 60 дней вперёд')
             )
           }
         />

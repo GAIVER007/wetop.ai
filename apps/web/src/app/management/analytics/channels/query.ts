@@ -1,6 +1,7 @@
 import type { ChannelEfficiency, ChannelEfficiencyRow, ChannelEfficiencySort } from '@pms/domain';
 import { sourceNames } from '../../../../lib/hotel-api';
 import { csvField, csvTenge } from '../../../finance/csv';
+import { msg, translator, type Translate } from '../../../../i18n';
 
 /**
  * «Аналитика → Каналы» (ADR-141): адрес отчёта «Эффективность каналов», подписи строк и CSV.
@@ -43,8 +44,8 @@ export function sameDatesYearBefore(date: string): string {
 function range(from: string | undefined, to: string | undefined, fallback: [string, string]) {
   if (from === undefined && to === undefined) return { from: fallback[0], to: fallback[1], error: null };
   if (!isDate(from) || !isDate(to))
-    return { from: fallback[0], to: fallback[1], error: 'Даты периода: в виде ДД.ММ.ГГГГ' };
-  if (to < from) return { from: fallback[0], to: fallback[1], error: 'Окончание периода раньше начала' };
+    return { from: fallback[0], to: fallback[1], error: msg('Даты периода: в виде ДД.ММ.ГГГГ') };
+  if (to < from) return { from: fallback[0], to: fallback[1], error: msg('Окончание периода раньше начала') };
   return { from, to, error: null };
 }
 
@@ -90,13 +91,21 @@ export function channelLabel(row: Pick<ChannelEfficiencyRow, 'label' | 'source'>
 
 const pct = (v: number) => String(v).replace('.', ',');
 
-export function channelsCsv(report: ChannelEfficiency): string {
-  const head = ['Канал', 'Брони', 'Доход', 'Доля дохода, %', 'Ночи', 'Доля ночей, %', 'Средняя стоимость ночи'];
+export function channelsCsv(report: ChannelEfficiency, t: Translate = translator('ru')): string {
+  const head = [
+    t('Канал'),
+    t('Брони'),
+    t('Доход'),
+    t('Доля дохода, %'),
+    t('Ночи'),
+    t('Доля ночей, %'),
+    t('Средняя стоимость ночи'),
+  ];
   const lines = [head.join(';')];
   for (const r of report.rows)
     lines.push(
       [
-        csvField(channelLabel(r)),
+        csvField(t(channelLabel(r))),
         String(r.bookings),
         csvTenge(r.revenueMinor),
         pct(r.revenueShare),
@@ -105,16 +114,16 @@ export function channelsCsv(report: ChannelEfficiency): string {
         r.adrMinor === null ? '' : csvTenge(r.adrMinor),
       ].join(';'),
     );
-  const t = report.totals;
+  const total = report.totals;
   lines.push(
     [
-      'Итого',
-      String(t.bookings),
-      csvTenge(t.revenueMinor),
-      t.nights > 0 || t.revenueMinor !== '0' ? '100' : '0',
-      String(t.nights),
-      t.nights > 0 ? '100' : '0',
-      t.adrMinor === null ? '' : csvTenge(t.adrMinor),
+      t('Итого'),
+      String(total.bookings),
+      csvTenge(total.revenueMinor),
+      total.nights > 0 || total.revenueMinor !== '0' ? '100' : '0',
+      String(total.nights),
+      total.nights > 0 ? '100' : '0',
+      total.adrMinor === null ? '' : csvTenge(total.adrMinor),
     ].join(';'),
   );
   return `\uFEFF${lines.join('\r\n')}\r\n`;

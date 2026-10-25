@@ -11,7 +11,8 @@ import type {
   OrderView,
   WaiterTable,
 } from '../../lib/food-types';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, msg } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
 import { localInput } from '../beauty/time';
 import { CurrentOrder, DishPicker } from '../food/dish-picker';
 import { mutateOrder } from '../food/restaurant-actions';
@@ -21,12 +22,14 @@ import { LineModifiers } from '../food/modifier-parts';
 
 /** Слова статуса позиции для официанта (§33.6): «Готово к выдаче» значит пора нести гостю */
 export const ITEM_STATUS_LABEL: Record<OrderItemStatus, string> = {
-  NEW: 'Отправлено',
-  COOKING: 'Готовится',
-  READY: 'Готово к выдаче',
-  SERVED: 'Подано',
+  NEW: msg('Отправлено'),
+  COOKING: msg('Готовится'),
+  READY: msg('Готово к выдаче'),
+  SERVED: msg('Подано'),
 };
-const STATION_LABEL = { KITCHEN: 'Кухня', BAR: 'Бар' } as const;
+const STATION_LABEL = { KITCHEN: msg('Кухня'), BAR: msg('Бар') } as const;
+const SEAT_FORMS: [string, string, string] = [msg('место@@стол'), 'места', msg('мест@@стол')]; // kk-allow: форма склонения
+const GUEST_FORMS: [string, string, string] = [msg('гость'), 'гостя', msg('гостей')]; // kk-allow: форма склонения
 /** Автообновление экрана: статусы позиций меняют кухня и бар */
 const REFRESH_MS = 15_000;
 
@@ -53,6 +56,8 @@ export function WaiterBoard({
   menuItems: MenuItemView[];
   orders: OrderView[];
 }) {
+  const t = useT();
+  const locale = useLocale();
   const router = useRouter();
   const [view, setView] = useState<'tables' | 'orders'>('tables');
   const [tableId, setTableId] = useState<string | null>(null);
@@ -65,15 +70,15 @@ export function WaiterBoard({
     const timer = setInterval(() => router.refresh(), REFRESH_MS);
     return () => clearInterval(timer);
   }, [router]);
-  const table = tables.find((t) => t.id === tableId) ?? null;
+  const table = tables.find((tb) => tb.id === tableId) ?? null;
   const tableOrder = table ? orders.find((o) => o.tableId === table.id) : undefined;
   const ready = orders.reduce((n, o) => n + o.items.filter((i) => i.status === 'READY').length, 0);
   const areas = useMemo(() => {
     const out: Array<{ id: string; name: string; tables: WaiterTable[] }> = [];
-    for (const t of tables) {
-      const area = out.find((a) => a.id === t.areaId);
-      if (area) area.tables.push(t);
-      else out.push({ id: t.areaId, name: t.areaName, tables: [t] });
+    for (const tb of tables) {
+      const area = out.find((a) => a.id === tb.areaId);
+      if (area) area.tables.push(tb);
+      else out.push({ id: tb.areaId, name: tb.areaName, tables: [tb] });
     }
     return out;
   }, [tables]);
@@ -106,7 +111,7 @@ export function WaiterBoard({
       }
       setCart([]);
       setTableId(null);
-      setNotice(`${tableTitle(table.name)}: заказ отправлен на кухню и в бар`);
+      setNotice(t('{table}: заказ отправлен на кухню и в бар', { table: tableTitle(table.name, t) }));
       setView('orders');
       router.refresh();
     });
@@ -128,50 +133,50 @@ export function WaiterBoard({
 
   return (
     <div className="waiter-board" data-testid="waiter-board">
-      <nav className="tabs waiter-tabs" aria-label="Экран официанта">
+      <nav className="tabs waiter-tabs" aria-label={t('Экран официанта')}>
         <button className="tabs__item"
           type="button"
           aria-current={view === 'tables' ? 'page' : undefined}
           onClick={() => setView('tables')}
         >
-          Столы
+          {t('Столы')}
         </button>
         <button className="tabs__item"
           type="button"
           aria-current={view === 'orders' ? 'page' : undefined}
           onClick={() => setView('orders')}
         >
-          Мои заказы ({orders.length}){ready > 0 && <span className="waiter-tabs__ready">, готово {ready}</span>}
+          {t('Мои заказы')} ({orders.length}){ready > 0 && <span className="waiter-tabs__ready">{t(', готово {n}', { n: ready })}</span>}
         </button>
       </nav>
       {error && <Alert>{error}</Alert>}
       {notice && <Alert tone="success">{notice}</Alert>}
       {view === 'tables' && !table && (
-        <section aria-label="Столы зала" className="waiter-floor">
-          {tables.length === 0 && <EmptyState title="В зале пока нет столов" details="Столы добавляет руководитель." />}
+        <section aria-label={t('Столы зала')} className="waiter-floor">
+          {tables.length === 0 && <EmptyState title={t('В зале пока нет столов')} details={t('Столы добавляет руководитель.')} />}
           {areas.map((a) => (
             <section key={a.id} aria-label={a.name} className="waiter-area">
               <h2>{a.name}</h2>
               <ul className="waiter-tables">
-                {a.tables.map((t) => (
-                  <li key={t.id}>
+                {a.tables.map((tb) => (
+                  <li key={tb.id}>
                     <button
                       type="button"
                       className="waiter-table"
-                      data-busy={t.busy || undefined}
-                      data-mine={t.mine || undefined}
+                      data-busy={tb.busy || undefined}
+                      data-mine={tb.mine || undefined}
                       data-testid="waiter-table"
                       disabled={!write}
-                      aria-label={`${tableTitle(t.name)}, ${t.mine ? 'мой заказ' : t.busy ? 'занят' : 'свободен'}`}
+                      aria-label={`${tableTitle(tb.name, t)}, ${tb.mine ? t('мой заказ') : tb.busy ? t('занят') : t('свободен')}`}
                       onClick={() => {
-                        setTableId(t.id);
+                        setTableId(tb.id);
                         setNotice('');
-                        setGuests(Math.min(2, t.capacity));
+                        setGuests(Math.min(2, tb.capacity));
                       }}
                     >
-                      <strong>{tableTitle(t.name)}</strong>
-                      <small>{t.mine ? 'Мой заказ' : t.busy ? 'Занят' : 'Свободен'}</small>
-                      <small>{pluralRu(t.capacity, ['место', 'места', 'мест'])}</small>
+                      <strong>{tableTitle(tb.name, t)}</strong>
+                      <small>{tb.mine ? t('Мой заказ') : tb.busy ? t('Занят') : t('Свободен')}</small>
+                      <small>{countLabel(locale, t, tb.capacity, SEAT_FORMS)}</small>
                     </button>
                   </li>
                 ))}
@@ -181,21 +186,21 @@ export function WaiterBoard({
         </section>
       )}
       {view === 'tables' && table && (
-        <section aria-label={`Заказ: ${tableTitle(table.name)}`} className="waiter-take">
+        <section aria-label={t('Заказ: {table}', { table: tableTitle(table.name, t) })} className="waiter-take">
           <div className="waiter-take__head">
             <Button tone="secondary" onClick={() => setTableId(null)}>
-              ← Столы
+              {t('← Столы')}
             </Button>
-            <h2 className="waiter-take__title">{tableTitle(table.name)}</h2>
+            <h2 className="waiter-take__title">{tableTitle(table.name, t)}</h2>
             {tableOrder ? (
-              <Badge tone="info">Дозаказ к №{tableOrder.number}</Badge>
+              <Badge tone="info">{t('Дозаказ к №{n}', { n: tableOrder.number })}</Badge>
             ) : (
-              <span className="waiter-guests" role="group" aria-label="Гостей">
-                <Button tone="ghost" aria-label="Меньше гостей" onClick={() => setGuests(Math.max(1, guests - 1))}>
+              <span className="waiter-guests" role="group" aria-label={t('Гостей')}>
+                <Button tone="ghost" aria-label={t('Меньше гостей')} onClick={() => setGuests(Math.max(1, guests - 1))}>
                   −
                 </Button>
-                <span>{pluralRu(guests, ['гость', 'гостя', 'гостей'])}</span>
-                <Button tone="ghost" aria-label="Больше гостей" onClick={() => setGuests(Math.min(50, guests + 1))}>
+                <span>{countLabel(locale, t, guests, GUEST_FORMS)}</span>
+                <Button tone="ghost" aria-label={t('Больше гостей')} onClick={() => setGuests(Math.min(50, guests + 1))}>
                   +
                 </Button>
               </span>
@@ -210,19 +215,19 @@ export function WaiterBoard({
               disabled={pending || !cart.length || !write}
               onClick={send}
             >
-              {pending ? 'Отправляем…' : tableOrder ? 'Дозаказать' : 'Отправить'}
+              {pending ? t('Отправляем…') : tableOrder ? t('Дозаказать') : t('Отправить')}
             </Button>
           </div>
         </section>
       )}
       {view === 'orders' && (
-        <section aria-label="Мои открытые заказы" className="waiter-orders" data-testid="waiter-orders">
-          {orders.length === 0 && <EmptyState title="Открытых заказов нет" />}
+        <section aria-label={t('Мои открытые заказы')} className="waiter-orders" data-testid="waiter-orders">
+          {orders.length === 0 && <EmptyState title={t('Открытых заказов нет')} />}
           {orders.map((o) => (
             <article key={o.id} className="waiter-order" data-testid="waiter-order">
               <header>
                 <strong>
-                  №{o.number}, {o.table ? tableTitle(o.table.name) : 'Без стола'}
+                  №{o.number}, {o.table ? tableTitle(o.table.name, t) : t('Без стола')}
                 </strong>
                 <time dateTime={o.openedAt}>{clock(o.openedAt)}</time>
               </header>
@@ -232,24 +237,24 @@ export function WaiterBoard({
                     <span className="waiter-order__name">
                       {i.name} ×{i.qty}
                       <LineModifiers modifiers={i.modifiers} notes={i.notes} />
-                      <small>{STATION_LABEL[i.station ?? 'KITCHEN']}</small>
+                      <small>{t(STATION_LABEL[i.station ?? 'KITCHEN'])}</small>
                     </span>
-                    <span className="waiter-order__status">{ITEM_STATUS_LABEL[i.status ?? 'NEW']}</span>
+                    <span className="waiter-order__status">{t(ITEM_STATUS_LABEL[i.status ?? 'NEW'])}</span>
                     {i.status === 'READY' && write && (
                       <Button
                         size="sm"
                         disabled={pending}
-                        aria-label={`Подано: ${i.name}`}
+                        aria-label={t('Подано: {name}', { name: i.name })}
                         onClick={() => served(o, i.id)}
                       >
-                        Подано
+                        {t('Подано')}
                       </Button>
                     )}
                   </li>
                 ))}
               </ul>
               <footer>
-                <span>Итого</span>
+                <span>{t('Итого')}</span>
                 <strong>{wholeTenge(o.totalMinor, o.currency)}</strong>
               </footer>
             </article>

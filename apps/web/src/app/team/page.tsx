@@ -11,6 +11,9 @@ import { currentMe } from '../../lib/desk-shell';
 import { InviteButton, MembersTable, PendingInvites, TeamProvider } from './team-board';
 import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../lib/staff-revenue-load';
 import { revenuePeriodParam } from '../../lib/staff-revenue';
+import { serverT } from '../../i18n/server';
+import { translator } from '../../i18n';
+import { verticalCopy } from '../../lib/vertical-copy';
 import './team.css';
 
 /**
@@ -24,6 +27,11 @@ import './team.css';
 export default async function TeamPage({
   searchParams,
 }: { searchParams?: Promise<{ period?: string | string[] }> } = {}) {
+  // язык не прочитался (вне запроса Next): страница русская, как до перевода; переходы Next идут дальше
+  const t = await serverT().catch((error: unknown) => {
+    unstable_rethrow(error);
+    return translator('ru');
+  });
   const token = await sessionToken();
   const me = await currentMe().catch((error: unknown) => {
     unstable_rethrow(error);
@@ -60,11 +68,12 @@ export default async function TeamPage({
       vertical={'context' in me && typeof me.context?.vertical === 'string' ? me.context.vertical : 'HOSPITALITY'}
     >
       <Page
-        title="Сотрудники"
+        // заголовок равен пункту меню своего направления («Доступ и роли» у ресторана), эталон салона 25.10.2026
+        title={t(verticalCopy('context' in me ? me.context?.vertical : null).menu.team)}
         subtitle={
           me.user?.organization?.name
-            ? `${me.user.organization.name}: команда, должности и приглашения`
-            : 'Команда, должности и приглашения'
+            ? t('{name}: команда, должности и приглашения', { name: me.user.organization.name })
+            : t('Команда, должности и приглашения')
         }
         actions={team ? <InviteButton /> : undefined}
       >
@@ -73,9 +82,8 @@ export default async function TeamPage({
             <TeamNavigation current="team" owner={role === 'OWNER'} />
             {!structure && (
               <Notice role="alert">
-                Не удалось загрузить структуру доступа. Приглашения и изменение области доступа
-                недоступны.
-                <RefreshButton label="Повторить загрузку" />
+                {t('Не удалось загрузить структуру доступа. Приглашения и изменение области доступа недоступны.')}
+                <RefreshButton label={t('Повторить загрузку')} />
               </Notice>
             )}
             <MembersTable
@@ -89,7 +97,7 @@ export default async function TeamPage({
           </>
         ) : (
           <Notice tone="muted">
-            Приглашать и отключать сотрудников могут владелец и управляющий.
+            {t('Приглашать и отключать сотрудников могут владелец и управляющий.')}
           </Notice>
         )}
       </Page>

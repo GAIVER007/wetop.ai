@@ -5,28 +5,31 @@ import { RefreshButton } from '../../../components/refresh-button';
 import { Page } from '../../../components/page';
 import { Badge, EmptyState } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
+import { msg } from '../../../i18n';
+import { serverT } from '../../../i18n/server';
 
 /** Состояние агента словом: сырое значение из API («active») на экран не попадает */
 const LIFECYCLE: Record<string, { label: string; tone: 'neutral' | 'ok' | 'warn' }> = {
-  draft: { label: 'Черновик', tone: 'neutral' },
-  active: { label: 'Работает', tone: 'ok' },
-  paused: { label: 'На паузе', tone: 'warn' },
-  archived: { label: 'В архиве', tone: 'neutral' },
+  draft: { label: msg('Черновик'), tone: 'neutral' },
+  active: { label: msg('Работает'), tone: 'ok' },
+  paused: { label: msg('На паузе'), tone: 'warn' },
+  archived: { label: msg('В архиве'), tone: 'neutral' },
 };
 
 const FAILURE: Record<number, { title: string; text: string }> = {
   503: {
-    title: 'Создание агентов пока недоступно',
-    text: 'Новый каталог ещё не подключён в этой среде. Настройки продавца гостиницы доступны отдельно.',
+    title: msg('Создание агентов пока недоступно'),
+    text: msg('Новый каталог ещё не подключён в этой среде. Настройки продавца гостиницы доступны отдельно.'),
   },
-  401: { title: 'Войдите в аккаунт', text: 'Откройте вход в этой же среде и вернитесь к списку.' },
+  401: { title: msg('Войдите в аккаунт'), text: msg('Откройте вход в этой же среде и вернитесь к списку.') },
   403: {
-    title: 'Нужен доступ владельца',
-    text: 'Управление агентами доступно владельцу организации с активным доступом.',
+    title: msg('Нужен доступ владельца'),
+    text: msg('Управление агентами доступно владельцу организации с активным доступом.'),
   },
 };
 
 export default async function AgentsPage() {
+  const t = await serverT();
   let items: Awaited<ReturnType<typeof sellerAgentsApi.list>>['items'] = [];
   let failure: number | null = null;
   try {
@@ -37,83 +40,83 @@ export default async function AgentsPage() {
   }
   const failed = failure
     ? (FAILURE[failure] ?? {
-        title: 'Не удалось загрузить агентов',
-        text: 'Повторите загрузку. Сохранённые настройки не изменены.',
+        title: msg('Не удалось загрузить агентов'),
+        text: msg('Повторите загрузку. Сохранённые настройки не изменены.'),
       })
     : null;
   return (
     <Page
       className="seller-agents"
-      title="Мои ИИ-продавцы"
-      subtitle="Создание и настройка помощников для вашего бизнеса."
+      title={t('Мои ИИ-продавцы')}
+      subtitle={t('Создание и настройка помощников для вашего бизнеса.')}
       actions={
         !failure && (
           <Link className="btn btn--primary" href="/ai-seller/agents/new">
-            Создать агента
+            {t('Создать агента')}
           </Link>
         )
       }
     >
-      <nav className="seller-agents__nav" aria-label="Рабочее пространство ИИ-продавцов">
+      <nav className="seller-agents__nav" aria-label={t('Рабочее пространство ИИ-продавцов')}>
         <Link href="/ai-seller/agents" aria-current="page">
-          Мои агенты
+          {t('Мои агенты')}
         </Link>
-        <Link href="/ai-seller">Продавец гостиницы</Link>
+        <Link href="/ai-seller">{t('Продавец гостиницы')}</Link>
       </nav>
       {failed ? (
         <EmptyState
           role="status"
           icon={<Icon name="chat" width={32} height={32} />}
-          title={failed.title}
+          title={t(failed.title)}
           actions={
             <>
               <Link className="btn" href={failure === 401 ? '/login' : '/ai-seller'}>
-                {failure === 401 ? 'Войти' : 'Настроить продавца гостиницы'}
+                {failure === 401 ? t('Войти') : t('Настроить продавца гостиницы')}
               </Link>
               <RefreshButton />
             </>
           }
         >
-          {failed.text}
+          {t(failed.text)}
         </EmptyState>
       ) : items.length === 0 ? (
         <EmptyState
           icon={<Icon name="chat" width={32} height={32} />}
-          title="Начните с первого агента"
+          title={t('Начните с первого агента')}
           actions={
             <Link className="btn btn--primary" href="/ai-seller/agents/new">
-              Создать первого агента
+              {t('Создать первого агента')}
             </Link>
           }
         >
-          Расскажите о компании и задаче: настройки сохранятся в черновике вашей организации.
+          {t('Расскажите о компании и задаче: настройки сохранятся в черновике вашей организации.')}
         </EmptyState>
       ) : (
         <>
-          <div className="seller-agents__count">Всего агентов: {items.length}</div>
+          <div className="seller-agents__count">{t('Всего агентов: {n}', { n: items.length })}</div>
           <div className="seller-agents__grid">
             {items.map((agent) => {
-              const state = LIFECYCLE[agent.lifecycle] ?? { label: 'Черновик', tone: 'neutral' };
+              const state = LIFECYCLE[agent.lifecycle] ?? { label: msg('Черновик'), tone: 'neutral' };
               return (
                 <article key={agent.id}>
                   <div className="seller-agents__card-top">
                     <span className="seller-agents__symbol" aria-hidden="true">
                       <Icon name="chat" />
                     </span>
-                    <Badge tone={state.tone}>{state.label}</Badge>
+                    <Badge tone={state.tone}>{t(state.label)}</Badge>
                   </div>
                   <h2>
                     <Link href={`/ai-seller/agents/${agent.id}`}>{agent.name}</Link>
                   </h2>
-                  <p>{agent.profile.businessName || 'Компания не указана'}</p>
+                  <p>{agent.profile.businessName || t('Компания не указана')}</p>
                   <dl>
-                    <dt>Сценарий</dt>
-                    <dd>{agent.scenario === 'support' ? 'Поддержка клиентов' : 'Продажи'}</dd>
-                    <dt>Задача</dt>
-                    <dd>{agent.profile.goal || 'Добавьте задачу в настройках'}</dd>
+                    <dt>{t('Сценарий')}</dt>
+                    <dd>{agent.scenario === 'support' ? t('Поддержка клиентов') : t('Продажи')}</dd>
+                    <dt>{t('Задача')}</dt>
+                    <dd>{agent.profile.goal || t('Добавьте задачу в настройках')}</dd>
                   </dl>
                   <Link className="btn btn--secondary" href={`/ai-seller/agents/${agent.id}`}>
-                    Открыть настройки
+                    {t('Открыть настройки')}
                   </Link>
                 </article>
               );

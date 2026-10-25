@@ -5,9 +5,9 @@ import { loadErrorProps } from '../../lib/load-error';
 import { restaurantApi } from '../../lib/food-api';
 import { PayrollBoard } from '../food/payroll-board';
 import { restaurantShell } from '../food/restaurant-load';
-import { StaffTabs } from '../food/staff-tabs';
 import { requireFeature } from '../../lib/vertical-guard';
 import { HotelPayrollPage } from './hotel-page';
+import { serverT } from '../../i18n/server';
 import '../food/food.css';
 import '../food/restaurant.css';
 
@@ -18,6 +18,7 @@ export default async function PayrollPage({
   searchParams: Promise<{ month?: string }>;
 }) {
   const { month } = await searchParams;
+  const t = await serverT();
   // зарплата у всех направлений (кабинет горничной, решение 22.10.2026); гостиница своим экраном начислений
   const me = await requireFeature('/payroll');
   if (me.context?.vertical === 'HOSPITALITY') return <HotelPayrollPage month={month} />;
@@ -29,11 +30,13 @@ export default async function PayrollPage({
     const payroll = await restaurantApi.payroll(chosen);
     return (
       <Page
-        title="Зарплата"
-        subtitle={`Оклады, процент от ${salon ? 'выполненных записей' : 'заказов'}, премии и штрафы. Выплата уходит расходом из кассы`}
+        title={t('Зарплата')}
+        subtitle={
+          salon
+            ? t('Оклады, процент от выполненных записей, премии и штрафы. Выплата уходит расходом из кассы')
+            : t('Оклады, процент от заказов, премии и штрафы. Выплата уходит расходом из кассы')
+        }
       >
-        {/* вкладки сотрудников ресторана ведут на его экраны (график смен): у салона их нет */}
-        {!salon && <StaffTabs current="payroll" />}
         <div key={shell.scopeKey}>
           <PayrollBoard
             scopeKey={shell.scopeKey}
@@ -47,7 +50,7 @@ export default async function PayrollPage({
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Зарплата">
+      <Page title={t('Зарплата')}>
         <LoadError testId="payroll-load-error" {...loadErrorProps(error)} />
       </Page>
     );

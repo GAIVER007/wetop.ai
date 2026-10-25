@@ -11,6 +11,8 @@ import type { AccessLevel } from '@pms/domain';
 import { Overlay } from '../overlay';
 import { Alert, Button } from '../ui';
 import { rovingIndex } from '../tabs';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 import './workspace.css';
 
 const fields = (row: BeautyEmployeeRow | null): EmployeeProfileDraft => ({
@@ -35,6 +37,7 @@ export function EmployeeProfile({
   /** «Доступ в WETOP» в форме нового сотрудника (решение владельца 20.10.2026) */
   access?: { levels: AccessLevel[]; canAllBranches: boolean; branchName: string | null } | undefined;
 }) {
+  const t = useT();
   const [original, setOriginal] = useState(() => fields(row));
   const [draft, setDraft] = useState(original);
   const [revision, setRevision] = useState(row?.profileRevision);
@@ -63,7 +66,7 @@ export function EmployeeProfile({
     const switched = () => {
       requestVersion.current++;
       setPending(false);
-      setError('Филиал изменяется. Ответ прежнего запроса не будет применён к форме.');
+      setError(msg('Филиал изменяется. Ответ прежнего запроса не будет применён к форме.'));
     };
     window.addEventListener('wetop-scope-switch', switched);
     return () => window.removeEventListener('wetop-scope-switch', switched);
@@ -95,17 +98,17 @@ export function EmployeeProfile({
       return;
     }
     if (showAccess && accessDraft.level !== 'NONE' && !draft.email.trim()) {
-      setError('Для входа в WETOP укажите почту: на неё придёт приглашение.');
+      setError(msg('Для входа в WETOP укажите почту: на неё придёт приглашение.'));
       finish(false);
       return;
     }
     if (row && !revision) {
-      setError('Обновите профиль через «Отмена» перед сохранением.');
+      setError(msg('Обновите профиль через «Отмена» перед сохранением.'));
       finish(false);
       return;
     }
     if (!row && !creation.id) {
-      setError(creation.error || 'Подготавливаем создание.');
+      setError(creation.error || msg('Подготавливаем создание.'));
       finish(false);
       return;
     }
@@ -138,7 +141,7 @@ export function EmployeeProfile({
       const result = await saveBeautyEmployee(null, data);
       if (!alive.current || version !== requestVersion.current) return;
       if (result.error || !result.employee) {
-        setError(result.error || 'Не удалось получить сохранённый профиль. Повторите сохранение.');
+        setError(result.error || msg('Не удалось получить сохранённый профиль. Повторите сохранение.'));
         setCurrent(result.currentEmployee ?? null);
         finish(false);
         return;
@@ -160,7 +163,7 @@ export function EmployeeProfile({
         // специалист уже создан: ошибку приглашения показываем, пригласить заново можно в «Сотрудники и доступ»
         if (invited.error) {
           setCreated(saved);
-          setError(`Специалист добавлен, но приглашение не отправлено: ${invited.error}`);
+          setError(t('Специалист добавлен, но приглашение не отправлено: {error}', { error: invited.error }));
           return;
         }
       }
@@ -168,7 +171,7 @@ export function EmployeeProfile({
     } catch {
       if (alive.current && version === requestVersion.current) {
         setError(
-          'Не удалось подтвердить сохранение. Ваш ввод сохранён в форме. Повторите попытку.',
+          msg('Не удалось подтвердить сохранение. Ваш ввод сохранён в форме. Повторите попытку.'),
         );
         finish(false);
       }
@@ -192,7 +195,7 @@ export function EmployeeProfile({
       const result = await loadBeautyEmployee(row.id);
       if (!alive.current || version !== requestVersion.current) return;
       if (!result.employee || result.locationId !== scopeKey) {
-        setError(result.error || 'Филиал изменён. Откройте профиль в текущем филиале.');
+        setError(result.error || msg('Филиал изменён. Откройте профиль в текущем филиале.'));
         return;
       }
       setDraft(fields(result.employee));
@@ -203,7 +206,7 @@ export function EmployeeProfile({
       finish(true, fields(result.employee));
     } catch {
       if (alive.current && version === requestVersion.current)
-        setError('Не удалось обновить профиль. Черновик сохранён, повторите загрузку.');
+        setError(msg('Не удалось обновить профиль. Черновик сохранён, повторите загрузку.'));
     } finally {
       if (alive.current && version === requestVersion.current) setPending(false);
     }
@@ -261,7 +264,7 @@ export function EmployeeProfile({
       />
       {created && (
         <Button tone="secondary" onClick={() => onSaved(created)}>
-          Открыть карточку специалиста
+          {t('Открыть карточку специалиста')}
         </Button>
       )}
     </>
@@ -311,6 +314,7 @@ export function EmployeeTransitionGuard({
   register: (request: (action: () => void) => void) => void;
   discard: () => void;
 }) {
+  const t = useT();
   const root = useRef<HTMLDivElement>(null);
   const baselines = useRef(new WeakMap<HTMLFormElement, string>());
   const submitted = useRef(new WeakMap<HTMLFormElement, string>());
@@ -442,7 +446,7 @@ export function EmployeeTransitionGuard({
     for (const form of dirty()) {
       if (!(await submit(form))) {
         setSaving(false);
-        setError('Сохранение не завершено. Исправьте ошибку в форме или оставайтесь в карточке.');
+        setError(t('Сохранение не завершено. Исправьте ошибку в форме или оставайтесь в карточке.'));
         return;
       }
     }
@@ -500,12 +504,12 @@ export function EmployeeTransitionGuard({
         onClose={() => {
           if (!saving) setDestination(null);
         }}
-        title="Несохранённые изменения"
+        title={t('Несохранённые изменения')}
         trapFocus
         size="sm"
       >
         <div data-employee-confirm>
-          <p>Сохранить изменения перед переходом?</p>
+          <p>{t('Сохранить изменения перед переходом?')}</p>
           {error && <Alert>{error}</Alert>}
           <div className="employee-workspace-actions">
             <Button
@@ -514,7 +518,7 @@ export function EmployeeTransitionGuard({
                 void leave();
               }}
             >
-              {saving ? 'Сохраняем…' : 'Сохранить и перейти'}
+              {saving ? t('Сохраняем…') : t('Сохранить и перейти')}
             </Button>
             <Button
               tone="secondary"
@@ -529,10 +533,10 @@ export function EmployeeTransitionGuard({
                 action?.();
               }}
             >
-              Не сохранять
+              {t('Не сохранять')}
             </Button>
             <Button tone="secondary" disabled={saving} onClick={() => setDestination(null)}>
-              Остаться
+              {t('Остаться')}
             </Button>
           </div>
         </div>

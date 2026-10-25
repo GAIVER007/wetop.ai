@@ -5,7 +5,6 @@ import { unstable_rethrow } from 'next/navigation';
 import { barApi, type BarReceiptRow, type BarReport, type BarSaleRow } from '../../lib/api';
 import { hotelToday, propertyTimezone } from '../../lib/hotel-api';
 import { formatMoney } from '../../lib/money';
-import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
@@ -24,6 +23,9 @@ import { BarAnalytics } from './bar-analytics';
 import { deskShell } from '../../lib/desk-shell';
 import { barActionAccess } from './action-access';
 import './bar.css';
+import { countLabel, intlLocale, msg } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
+import { dateFormat } from '../../i18n/dates';
 
 const settle = <T,>(promise: Promise<T>) =>
   promise.then(
@@ -35,11 +37,11 @@ const settle = <T,>(promise: Promise<T>) =>
   );
 
 const receiptBadge = (receipt: BarReceiptRow) => {
-  if (receipt.status === 'DRAFT') return { tone: 'neutral' as const, label: 'Черновик' };
-  if (BigInt(receipt.dueAmount) <= 0n) return { tone: 'ok' as const, label: 'Оплачен' };
+  if (receipt.status === 'DRAFT') return { tone: 'neutral' as const, label: msg('Черновик') };
+  if (BigInt(receipt.dueAmount) <= 0n) return { tone: 'ok' as const, label: msg('Оплачен') };
   return BigInt(receipt.paidAmount) > 0n
-    ? { tone: 'warn' as const, label: 'Оплачен частично' }
-    : { tone: 'danger' as const, label: 'Не оплачен' };
+    ? { tone: 'warn' as const, label: msg('Оплачен частично') }
+    : { tone: 'danger' as const, label: msg('Не оплачен') };
 };
 const dayRu = (date: string) => `${date.slice(8, 10)}.${date.slice(5, 7)}.${date.slice(0, 4)}`;
 
@@ -72,11 +74,13 @@ export default async function BarPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requireFeature('/bar');
+  const t = await serverT();
+  const locale = await currentLocale();
   // бар филиала (ADR-178): «в счёт гостя» только у гостиницы; ресторан и салон продают в кассу филиала (§45, §48)
   const vertical = me.context?.vertical ?? 'HOSPITALITY';
   // раздел меню «Склад» у всех направлений (решение владельца 19.10.2026)
   // решение владельца 24.10.2026: «Склад: бар» у всех направлений
-  const sectionName = stockWords(vertical).goodsTitle;
+  const sectionName = t(stockWords(vertical).goodsTitle);
   const params = await searchParams;
   const productParam = typeof params.product === 'string' ? params.product : null;
   const [categories, stock, suppliers, folios, receipts, sales, movements, report, paymentMethods, today, shell] =
@@ -144,12 +148,12 @@ export default async function BarPage({
   const popular = popularOf(r, sales.value);
   // «Октябрь 2026 г.»: заглавная только у первой буквы, без text-transform (аудит 21.10.2026 п.28)
   const monthName = r.month
-    ? new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
+    ? dateFormat(intlLocale(locale), { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
         new Date(`${r.month.monthStart}T12:00:00Z`),
       )
-    : 'текущий месяц';
+    : t('текущий месяц');
   const monthLabel = monthName.charAt(0).toLocaleUpperCase('ru') + monthName.slice(1);
-  const periodWord = r.month ? `За ${monthName}` : 'За всё время';
+  const periodWord = r.month ? t('За {month}', { month: monthName }) : t('За всё время');
   const saleForm = (
     <SaleForm key={JSON.stringify([me.user?.id, me.context, me.sessionIssuedAt, context])} stock={stock.value} context={context} methods={paymentMethods.value.sale} recoveryScope={[me.user?.organizationId ?? '', me.context?.businessId ?? '', me.context?.locationId ?? '', me.user?.id ?? '', context.propertyId, context.currency, me.sessionIssuedAt ?? '']} expiresAt={me.expiresAt ?? ''} />
   );
@@ -157,10 +161,10 @@ export default async function BarPage({
   const totals = (
     <p className="bar-totals" data-testid="bar-totals">
       <span>{periodWord}:</span>
-      <span>закупки <b data-testid="bar-total-purchases">{money(r.month?.purchasesMinor ?? r.purchasesMinor)}</b></span>
-      <span>выручка <b data-testid="bar-total-revenue">{money(monthRevenue)}</b></span>
-      <span>прибыль от продаж <b data-testid="bar-total-profit">{money(monthProfit)}</b> (без прочих расходов)</span>
-      <span>долг поставщикам <b data-testid="bar-total-debt">{money(r.supplierDebtMinor)}</b></span>
+      <span>{t('закупки')} <b data-testid="bar-total-purchases">{money(r.month?.purchasesMinor ?? r.purchasesMinor)}</b></span>
+      <span>{t('выручка')} <b data-testid="bar-total-revenue">{money(monthRevenue)}</b></span>
+      <span>{t('прибыль от продаж')} <b data-testid="bar-total-profit">{money(monthProfit)}</b> {t('(без прочих расходов)')}</span>
+      <span>{t('долг поставщикам')} <b data-testid="bar-total-debt">{money(r.supplierDebtMinor)}</b></span>
     </p>
   );
   const bottom = (
@@ -168,26 +172,26 @@ export default async function BarPage({
       <section className="panel bar-bottom-panel" aria-labelledby="bar-receipts-title">
         <header className="bar-bottom-head">
           <h2 id="bar-receipts-title" className="bar-panel-title">
-            Приходы от поставщиков
+            {t('Приходы от поставщиков')}
           </h2>
           <Link href="/bar/receipts" prefetch={false} className="bar-link">
-            Все приходы <Icon name="arrow" width={16} height={16} />
+            {t('Все приходы')} <Icon name="arrow" width={16} height={16} />
           </Link>
         </header>
         {lastReceipts.length === 0 ? (
           <p className="bar-muted">
-            Приходов пока нет: занесите первую счёт-фактуру кнопкой «Приход» вверху страницы.
+            {t('Приходов пока нет: занесите первую счёт-фактуру кнопкой «Приход» вверху страницы.')}
           </p>
         ) : (
-          <Table density="compact" aria-label="Последние приходы поставщиков" plain>
+          <Table density="compact" aria-label={t('Последние приходы поставщиков')} plain>
             <thead>
               <tr>
-                <th>Дата</th>
-                <th>Поставщик</th>
-                <th>№ документа</th>
-                <th>Товаров</th>
-                <th>Сумма</th>
-                <th>Статус</th>
+                <th>{t('Дата')}</th>
+                <th>{t('Поставщик')}</th>
+                <th>{t('№ документа')}</th>
+                <th>{t('Товаров')}</th>
+                <th>{t('Сумма')}</th>
+                <th>{t('Статус')}</th>
               </tr>
             </thead>
             <tbody>
@@ -201,7 +205,7 @@ export default async function BarPage({
                     <td>{receipt._count.lines}</td>
                     <td>{money(receipt.totalAmount)}</td>
                     <td>
-                      <Badge tone={badge.tone}>{badge.label}</Badge>
+                      <Badge tone={badge.tone}>{t(badge.label)}</Badge>
                     </td>
                   </tr>
                 );
@@ -217,17 +221,17 @@ export default async function BarPage({
       width="wide"
       className="bar-page"
       title={sectionName}
-      subtitle="Товары, остатки и продажи"
+      subtitle={t('Товары, остатки и продажи')}
       actions={
         <>
           {rights.receiveStock && (
               <Link className="btn" href="/bar/receipts/new" prefetch={false}>
-                <Icon name="plus" width={16} height={16} /> Приход
+                <Icon name="plus" width={16} height={16} /> {t('Приход')}
               </Link>
           )}
           {canSell && (
               <a className="btn btn--secondary" href="#bar-quick-sale">
-                <Icon name="plus" width={16} height={16} /> Продажа
+                <Icon name="plus" width={16} height={16} /> {t('Продажа')}
               </a>
           )}
           {rights.operateStock && (
@@ -236,7 +240,7 @@ export default async function BarPage({
                 href="/bar/operations#bar-inventory"
                 prefetch={false}
               >
-                <Icon name="plus" width={16} height={16} /> Инвентаризация
+                <Icon name="plus" width={16} height={16} /> {t('Инвентаризация')}
               </Link>
           )}
           <span className="bar-period-label">
@@ -246,20 +250,20 @@ export default async function BarPage({
         </>
       }
     >
-      <nav className="bar-mobile-actions" aria-label={`Быстрые действия ${vertical === 'BEAUTY' ? 'склада' : 'бара'}`}>
+      <nav className="bar-mobile-actions" aria-label={vertical === 'BEAUTY' ? t('Быстрые действия склада') : t('Быстрые действия бара')}>
         {rights.receiveStock && <Link href="/bar/receipts/new" className="btn btn--secondary" prefetch={false}>
-          Приход
+          {t('Приход')}
         </Link>}
         {canSell && <a href="#bar-quick-sale" className="btn">
-          Продажа
+          {t('Продажа')}
         </a>}
         {rights.operateStock && <Link
           href="/bar/operations#bar-inventory"
           className="btn btn--secondary"
           prefetch={false}
-          aria-label="Инвентаризация"
+          aria-label={t('Инвентаризация')}
         >
-          Пересчёт
+          {t('Пересчёт')}
         </Link>}
       </nav>
       <BarTabs current="bar" />
@@ -268,14 +272,14 @@ export default async function BarPage({
         <p className="bar-low-warning" role="status" data-testid="bar-low-warning">
           <Icon name="incidents" width={16} height={16} />
           <span>
-            Заканчиваются: {pluralRu(lowCount, ['товар', 'товара', 'товаров'])}.{' '}
+            {t('Заканчиваются: {count}.', { count: countLabel(locale, t, lowCount, [msg('товар'), 'товара', msg('товаров')]) })}{' '} {/* kk-allow: формы склонения для русского вида */}
             {lowStock.slice(0, 5).map((item, index) => (
               <span key={item.id}>
                 {index > 0 && ', '}
-                <Link href={`/bar?product=${item.id}`} prefetch={false}>{item.name}</Link> ({item.availableUnits} шт.)
+                <Link href={`/bar?product=${item.id}`} prefetch={false}>{item.name}</Link> ({t('{n} шт.', { n: item.availableUnits })})
               </span>
             ))}
-            {lowCount > 5 && ' и другие'}
+            {lowCount > 5 && ` ${t('и другие')}`}
           </span>
         </p>
       )}
@@ -289,19 +293,19 @@ export default async function BarPage({
       </AnalyticsDisclosure>
       {canSell && (
         // одна кнопка «Продажа» в шапке открывает окно продажи (аудит 21.10.2026 п.13); вкладки только у гостиницы
-        <SaleDialog title={vertical === 'HOSPITALITY' ? 'Продажа' : 'Продажа напрямую'}>
-          <section className="bar-sales" aria-label={`Продажи ${vertical === 'BEAUTY' ? 'склада' : 'бара'}`}>
+        <SaleDialog title={vertical === 'HOSPITALITY' ? t('Продажа') : t('Продажа напрямую')}>
+          <section className="bar-sales" aria-label={vertical === 'BEAUTY' ? t('Продажи склада') : t('Продажи бара')}>
             {vertical === 'HOSPITALITY' ? (
               <Tabs
-                label="Способ продажи"
+                label={t('Способ продажи')}
                 panels={[
-                  { id: 'bar-retail', label: 'Продажа напрямую', content: saleForm },
+                  { id: 'bar-retail', label: t('Продажа напрямую'), content: saleForm },
                   {
                     id: 'bar-folio',
-                    label: 'В счёт гостя',
+                    label: t('В счёт гостя'),
                     content:
                       folios.value.length === 0 ? (
-                        <p className="bar-muted">Открытых счетов нет. Доступна продажа напрямую.</p>
+                        <p className="bar-muted">{t('Открытых счетов нет. Доступна продажа напрямую.')}</p>
                       ) : (
                         <FolioSaleForm stock={stock.value} folios={folios.value} context={context} />
                       ),
@@ -318,21 +322,21 @@ export default async function BarPage({
         <>
           <EmptyState
             icon={<Icon name="product" />}
-            title="Товаров пока нет"
+            title={t('Товаров пока нет')}
             actions={
               rights.createCatalog || rights.receiveStock ? (
                 <>
                   {rights.createCatalog && (
-                    <Link className="btn" href="/bar/products#new-product" prefetch={false}>Добавить товар</Link>
+                    <Link className="btn" href="/bar/products#new-product" prefetch={false}>{t('Добавить товар')}</Link>
                   )}
                   {rights.receiveStock && (
-                    <Link className="btn btn--secondary" href="/bar/receipts/new" prefetch={false}>Приход по накладной</Link>
+                    <Link className="btn btn--secondary" href="/bar/receipts/new" prefetch={false}>{t('Приход по накладной')}</Link>
                   )}
                 </>
               ) : undefined
             }
           >
-            Заведите товар вручную или загрузите фото накладной: товары появятся вместе с приходом.
+            {t('Заведите товар вручную или загрузите фото накладной: товары появятся вместе с приходом.')}
           </EmptyState>
           {totals}
           {bottom}
@@ -353,7 +357,7 @@ export default async function BarPage({
             <>
               {totals}
               <details className="bar-details">
-                <summary>Последние приходы</summary>
+                <summary>{t('Последние приходы')}</summary>
                 {bottom}
               </details>
             </>

@@ -10,7 +10,10 @@ import { Icon, type IconName } from '../../components/icon';
 import { messengerLinks } from '../../lib/format';
 import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
-import { nightsBetween, pluralRu } from '../../lib/plural';
+import { nightsBetween } from '../../lib/plural';
+import { countLabel, msg } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
+import { nightsLabel, shortDate, type Lang } from './lang';
 import { stayPreviewAction, type StayPreviewData } from './actions';
 import { hospitalityStatus } from '../../lib/status/hospitality';
 import { statusLabel } from '../../lib/status/types';
@@ -106,6 +109,9 @@ function StayPanel({
   onCommand: (command: PreviewCommand, target: PreviewTarget) => void;
   onEditStateChange?: (dirty: boolean, pending: boolean) => void;
 }) {
+  const t = useT();
+  const locale = useLocale();
+  const lang: Lang = { t, locale };
   const ref = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<StayPreviewData | null | undefined>(undefined);
   const [financeOpen, setFinanceOpen] = useState(false);
@@ -118,17 +124,17 @@ function StayPanel({
       if (
         financeDirty &&
         !(await ask({
-          title: 'Закрыть без проведения?',
-          body: 'Введённые данные будут отменены. Оплата или возврат не проведены.',
-          confirmLabel: 'Закрыть без проведения',
-          cancelLabel: 'Продолжить ввод',
+          title: t('Закрыть без проведения?'),
+          body: t('Введённые данные будут отменены. Оплата или возврат не проведены.'),
+          confirmLabel: t('Закрыть без проведения'),
+          cancelLabel: t('Продолжить ввод'),
         }))
       )
         return false;
       onClose(restoreFocus);
       return true;
     },
-    [pending, financePending, financeDirty, ask, onClose],
+    [pending, financePending, financeDirty, ask, onClose, t],
   );
 
   useEffect(() => {
@@ -211,24 +217,29 @@ function StayPanel({
   const unready =
     expected && target.housekeeping !== undefined && target.housekeeping !== 'INSPECTED';
   const today = target.arrivalToday
-    ? 'заезд сегодня'
+    ? t('заезд сегодня')
     : target.departureToday
-      ? 'выезд сегодня'
+      ? t('выезд сегодня')
       : '';
-  const places = target.unitKind === 'BED' ? 'Койка' : 'Номер';
+  const places = target.unitKind === 'BED' ? t('Койка') : t('Номер');
   // Даты, гости и счёт показываются в предпросмотре выбранной брони.
   const nights = data ? nightsBetween(data.arrivalDate, data.departureDate) : 0;
   const messenger = messengerLinks(target.phone);
   const guests = data
     ? [
-        data.adults > 0 ? pluralRu(data.adults, ['взрослый', 'взрослых', 'взрослых']) : '',
-        data.children > 0 ? pluralRu(data.children, ['ребёнок', 'ребёнка', 'детей']) : '',
+        data.adults > 0
+          ? countLabel(locale, t, data.adults, [msg('взрослый'), 'взрослых', msg('взрослых')]) // kk-allow: форма склонения
+          : '',
+        data.children > 0
+          ? countLabel(locale, t, data.children, [msg('ребёнок'), 'ребёнка', msg('детей')]) // kk-allow: форма склонения
+          : '',
       ]
         .filter(Boolean)
         .join(', ')
     : '';
-  const row = (icon: IconName, label: string, children: React.ReactNode, testId?: string) => (
-    <dl className="stay-panel__row" data-testid={testId}>
+  // Компактная панель (замечание владельца 25.10.2026 «много пустого места»): факты плитками в две колонки
+  const row = (icon: IconName, label: string, children: React.ReactNode, testId?: string, wide = false) => (
+    <dl className={wide ? 'stay-panel__row stay-panel__row--wide' : 'stay-panel__row'} data-testid={testId}>
       <dt>
         <span className="stay-panel__icon" aria-hidden="true">
           <Icon name={icon} />
@@ -242,7 +253,7 @@ function StayPanel({
     <div
       ref={ref}
       role="dialog"
-      aria-label={`Бронь: ${target.guest}`}
+      aria-label={t('Бронь: {guest}', { guest: target.guest })}
       tabIndex={-1}
       className={`stay-panel ${design.preview}`}
       data-testid="stay-preview"
@@ -256,13 +267,13 @@ function StayPanel({
           data-status={target.status}
         >
           <Icon name={PANEL_STATUS_ICON[target.status] ?? 'booking'} width={14} height={14} />
-          {statusLabel(hospitalityStatus, target.status)}
+          {t(statusLabel(hospitalityStatus, target.status))}
           {today && `, ${today}`}
         </span>
         <button
           type="button"
           className="icon-button stay-panel__close"
-          aria-label="Закрыть предпросмотр"
+          aria-label={t('Закрыть предпросмотр')}
           onClick={() => void requestClose(true)}
         >
           <Icon name="close" />
@@ -271,14 +282,15 @@ function StayPanel({
       <h2 className="stay-panel__guest" data-testid="preview-guest">
         {target.guest}
       </h2>
-      <p className="stay-panel__number">Бронь №{target.number}</p>
+      <div className="stay-panel__sub">
+      <p className="stay-panel__number">{t('Бронь №{number}', { number: target.number })}</p>
       <div className="stay-panel__contacts">
         {target.phone && (
           <a
             className="stay-panel__round"
             href={`tel:${target.phone.replace(/[^\d+]/g, '')}`}
-            aria-label="Позвонить гостю"
-            title="Позвонить гостю"
+            aria-label={t('Позвонить гостю')}
+            title={t('Позвонить гостю')}
           >
             <Icon name="phone" />
           </a>
@@ -289,68 +301,71 @@ function StayPanel({
             href={messenger.whatsapp}
             target="_blank"
             rel="noreferrer"
-            aria-label="Написать гостю в WhatsApp"
-            title="Написать гостю в WhatsApp"
+            aria-label={t('Написать гостю в WhatsApp')}
+            title={t('Написать гостю в WhatsApp')}
           >
             <Icon name="chat" />
           </a>
         )}
       </div>
+      </div>
       <div className="stay-panel__facts">
         <div data-testid="preview-dates" className="stay-panel__group">
           {row(
             'arrival',
-            'Заезд',
+            t('Заезд'),
             data === undefined
-              ? 'Загружаю…'
+              ? t('Загружаю…')
               : data
                 ? displayDate(data.arrivalDate, 'numeric')
-                : 'в карточке брони',
+                : t('в карточке брони'),
           )}
           {row(
             'departure',
-            'Выезд',
+            t('Выезд'),
             data === undefined ? (
-              'Загружаю…'
+              t('Загружаю…')
             ) : data ? (
               <>
                 {displayDate(data.departureDate, 'numeric')}
-                <small>{pluralRu(nights, ['ночь', 'ночи', 'ночей'])}</small>
+                <small>{nightsLabel(lang, nights)}</small>
               </>
             ) : (
-              'в карточке брони'
+              t('в карточке брони')
             ),
           )}
         </div>
-        {row('bed', places, `${target.unitCode} (${target.categoryName})`, 'preview-place')}
-        {data && guests && row('guests', 'Гости', guests)}
+        {row('bed', places, <>{target.unitCode}<small>{target.categoryName}</small></>, 'preview-place')}
+        {data && guests && row('guests', t('Гости'), guests)}
         <div data-testid="preview-sums" aria-live="polite" className="stay-panel__group">
           {data === undefined
-            ? row('money', 'Оплачено', 'Загружаю…')
+            ? row('money', t('Оплачено'), t('Загружаю…'), undefined, true)
             : data?.money
               ? row(
                   'money',
-                  'Оплачено',
+                  t('Оплачено'),
                   <>
-                    {money(data.money.paidMinor)}
+                    <span>{money(data.money.paidMinor)}</span>
                     <span className="stay-panel__pill" data-tone={balance > 0n ? 'due' : 'paid'}>
                       {balance > 0n
-                        ? `Долг ${money(balance.toString())}`
+                        ? t('Долг {sum}', { sum: money(balance.toString()) })
                         : balance < 0n
-                          ? `К возврату ${money((-balance).toString())}`
-                          : 'Оплачен'}
+                          ? t('К возврату {sum}', { sum: money((-balance).toString()) })
+                          : t('Оплачен')}
                     </span>
-                    <small>Итого {money(data.money.chargedMinor)}</small>
+                    <small>{t('Итого {sum}', { sum: money(data.money.chargedMinor) })}</small>
                   </>,
+                  undefined,
+                  true,
                 )
-              : row('money', 'Суммы', 'не загрузились, откройте бронь')}
+              : row('money', t('Суммы'), t('не загрузились, откройте бронь'), undefined, true)}
         </div>
-        {target.sourceName && row('channels', 'Источник', target.sourceName)}
-        {data?.notes && row('journal', 'Заметки', data.notes)}
+        {target.sourceName && row('channels', t('Источник'), t(target.sourceName))}
+        {data?.notes && row('journal', t('Заметки'), data.notes, undefined, true)}
       </div>
       {unready && (
         <p className="stay-panel__warn" data-testid="preview-unready">
-          {places} не проверен после уборки
+          {target.unitKind === 'BED' ? t('Койка не проверен после уборки') : t('Номер не проверен после уборки')}
         </p>
       )}
       {error && <Alert data-testid="preview-error">{error}</Alert>}
@@ -373,19 +388,19 @@ function StayPanel({
             disabled={financeDirty || financePending}
             onClick={() => setFinanceOpen(false)}
           >
-            Назад к брони
+            {t('Назад к брони')}
           </Button>
         </>
       ) : (
         <div className="stay-panel__actions" aria-busy={pending}>
           {!readOnly && expected && (
             <Button type="button" disabled={pending} onClick={() => onCommand('check-in', target)}>
-              {pending ? 'Выполняется…' : 'Заселить'}
+              {pending ? t('Выполняется…') : t('Заселить')}
             </Button>
           )}
           {!readOnly && target.status === 'CHECKED_IN' && (
             <Button type="button" disabled={pending} onClick={() => onCommand('check-out', target)}>
-              {pending ? 'Выполняется…' : 'Выселить'}
+              {pending ? t('Выполняется…') : t('Выселить')}
             </Button>
           )}
           {!readOnly && live && (
@@ -396,20 +411,20 @@ function StayPanel({
                 disabled={pending}
                 onClick={() => setFinanceOpen(true)}
               >
-                Оплата / возврат
+                {t('Оплата / возврат')}
               </Button>
             </>
           )}
           {target.status === 'CHECKED_OUT' && (
             <Button type="button" tone="secondary" onClick={() => setFinanceOpen(true)}>
-              Оплата / возврат
+              {t('Оплата / возврат')}
             </Button>
           )}
           <Link
             className="btn btn--secondary"
             href={!readOnly && live ? `${card}#booking-actions` : card}
           >
-            {!readOnly && live ? 'Редактировать бронь' : 'Открыть бронь'}
+            {!readOnly && live ? t('Редактировать бронь') : t('Открыть бронь')}
           </Link>
         </div>
       )}
@@ -434,6 +449,9 @@ function StayWindow({
   onCommand: (command: PreviewCommand, target: PreviewTarget) => void;
   onEditStateChange?: (dirty: boolean, pending: boolean) => void;
 }) {
+  const t = useT();
+  const locale = useLocale();
+  const lang: Lang = { t, locale };
   const ref = useRef<HTMLDivElement>(null);
   // где стояла плашка, когда окно встало на место: закрываемся по её сдвигу, а не по факту scroll
   const placed = useRef<{ top: number; left: number } | null>(null);
@@ -448,17 +466,17 @@ function StayWindow({
       if (
         financeDirty &&
         !(await ask({
-          title: 'Закрыть без проведения?',
-          body: 'Введённые данные будут отменены. Оплата или возврат не проведены.',
-          confirmLabel: 'Закрыть без проведения',
-          cancelLabel: 'Продолжить ввод',
+          title: t('Закрыть без проведения?'),
+          body: t('Введённые данные будут отменены. Оплата или возврат не проведены.'),
+          confirmLabel: t('Закрыть без проведения'),
+          cancelLabel: t('Продолжить ввод'),
         }))
       )
         return false;
       onClose(restoreFocus);
       return true;
     },
-    [pending, financePending, financeDirty, ask, onClose],
+    [pending, financePending, financeDirty, ask, onClose, t],
   );
 
   useEffect(() => {
@@ -595,9 +613,9 @@ function StayWindow({
   const unready =
     expected && target.housekeeping !== undefined && target.housekeeping !== 'INSPECTED';
   const today = target.arrivalToday
-    ? 'заезд сегодня'
+    ? t('заезд сегодня')
     : target.departureToday
-      ? 'выезд сегодня'
+      ? t('выезд сегодня')
       : '';
 
   return (
@@ -605,7 +623,7 @@ function StayWindow({
       ref={ref}
       popover="manual"
       role="dialog"
-      aria-label={`Бронь: ${target.guest}`}
+      aria-label={t('Бронь: {guest}', { guest: target.guest })}
       tabIndex={-1}
       className="stay-preview"
       data-testid="stay-preview"
@@ -618,7 +636,7 @@ function StayWindow({
         <button
           type="button"
           className="icon-button stay-preview__close"
-          aria-label="Закрыть предпросмотр"
+          aria-label={t('Закрыть предпросмотр')}
           disabled={pending || financePending}
           onClick={() => void requestClose(true)}
         >
@@ -631,77 +649,77 @@ function StayWindow({
         data-status={target.status}
         role="status"
       >
-        {statusLabel(hospitalityStatus, target.status)}
+        {t(statusLabel(hospitalityStatus, target.status))}
         {today && `, ${today}`}
       </p>
       <dl className="stay-preview__facts">
         <div>
-          <dt>Даты</dt>
+          <dt>{t('Даты')}</dt>
           <dd data-testid="preview-dates">
             {data === undefined
-              ? 'Загружаю…'
+              ? t('Загружаю…')
               : data
-                ? `${displayDate(data.arrivalDate)} → ${displayDate(data.departureDate)}, ${pluralRu(
+                ? `${shortDate(lang, data.arrivalDate)} → ${shortDate(lang, data.departureDate)}, ${nightsLabel(
+                    lang,
                     nightsBetween(data.arrivalDate, data.departureDate),
-                    ['ночь', 'ночи', 'ночей'],
                   )}`
-                : 'в карточке брони'}
+                : t('в карточке брони')}
           </dd>
         </div>
         <div>
-          <dt>Размещение</dt>
+          <dt>{t('Размещение')}</dt>
           <dd data-testid="preview-place">
-            {target.unitKind === 'BED' ? 'Койка' : 'Номер'} {target.unitCode}, {target.categoryName}
+            {target.unitKind === 'BED' ? t('Койка {code}', { code: target.unitCode }) : t('Номер {code}', { code: target.unitCode })}, {target.categoryName}
           </dd>
         </div>
         {target.sourceName && (
           <div>
-            <dt>Источник</dt>
-            <dd>{target.sourceName}</dd>
+            <dt>{t('Источник')}</dt>
+            <dd>{t(target.sourceName)}</dd>
           </div>
         )}
       </dl>
       <dl className="stay-preview__sums" data-testid="preview-sums" aria-live="polite">
         {data === undefined ? (
           <div>
-            <dt>Суммы</dt>
-            <dd>Загружаю…</dd>
+            <dt>{t('Суммы')}</dt>
+            <dd>{t('Загружаю…')}</dd>
           </div>
         ) : data?.money ? (
           <>
             <div>
-              <dt>Итого</dt>
+              <dt>{t('Итого')}</dt>
               <dd>{money(data.money.chargedMinor)}</dd>
             </div>
             <div>
-              <dt>Оплачено</dt>
+              <dt>{t('Оплачено')}</dt>
               <dd>{money(data.money.paidMinor)}</dd>
             </div>
             {BigInt(data.money.refundedMinor) > 0n && (
               <div>
-                <dt>Возвращено</dt>
+                <dt>{t('Возвращено')}</dt>
                 <dd>{money(data.money.refundedMinor)}</dd>
               </div>
             )}
             <div className={balance > 0n ? 'is-due' : undefined}>
-              <dt>{balance > 0n ? 'Долг' : balance < 0n ? 'К возврату' : 'Остаток'}</dt>
+              <dt>{balance > 0n ? t('Долг') : balance < 0n ? t('К возврату') : t('Остаток')}</dt>
               <dd>
                 {balance === 0n
-                  ? 'оплачено полностью'
+                  ? t('оплачено полностью')
                   : money((balance < 0n ? -balance : balance).toString())}
               </dd>
             </div>
           </>
         ) : (
           <div>
-            <dt>Суммы</dt>
-            <dd>не загрузились, откройте бронь</dd>
+            <dt>{t('Суммы')}</dt>
+            <dd>{t('не загрузились, откройте бронь')}</dd>
           </div>
         )}
       </dl>
       {unready && (
         <p className="stay-preview__warn" data-testid="preview-unready">
-          {target.unitKind === 'BED' ? 'Койка' : 'Номер'} не проверен после уборки
+          {target.unitKind === 'BED' ? t('Койка не проверен после уборки') : t('Номер не проверен после уборки')}
         </p>
       )}
       {error && <Alert data-testid="preview-error">{error}</Alert>}
@@ -724,19 +742,19 @@ function StayWindow({
             disabled={financeDirty || financePending}
             onClick={() => setFinanceOpen(false)}
           >
-            Назад к брони
+            {t('Назад к брони')}
           </Button>
         </>
       ) : (
         <div className="stay-preview__actions" aria-busy={pending}>
           {!readOnly && expected && (
             <Button type="button" disabled={pending} onClick={() => onCommand('check-in', target)}>
-              {pending ? 'Выполняется…' : 'Заселить'}
+              {pending ? t('Выполняется…') : t('Заселить')}
             </Button>
           )}
           {!readOnly && target.status === 'CHECKED_IN' && (
             <Button type="button" disabled={pending} onClick={() => onCommand('check-out', target)}>
-              {pending ? 'Выполняется…' : 'Выселить'}
+              {pending ? t('Выполняется…') : t('Выселить')}
             </Button>
           )}
           {!readOnly && live && (
@@ -747,20 +765,20 @@ function StayWindow({
                 disabled={pending}
                 onClick={() => setFinanceOpen(true)}
               >
-                Оплата / возврат
+                {t('Оплата / возврат')}
               </Button>
             </>
           )}
           {target.status === 'CHECKED_OUT' && (
             <Button type="button" tone="secondary" onClick={() => setFinanceOpen(true)}>
-              Оплата / возврат
+              {t('Оплата / возврат')}
             </Button>
           )}
           <Link
             className="btn btn--secondary"
             href={!readOnly && live ? `${card}#booking-actions` : card}
           >
-            {!readOnly && live ? 'Редактировать бронь' : 'Открыть бронь'}
+            {!readOnly && live ? t('Редактировать бронь') : t('Открыть бронь')}
           </Link>
         </div>
       )}

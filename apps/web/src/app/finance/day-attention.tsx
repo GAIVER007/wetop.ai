@@ -5,13 +5,15 @@ import { pluralRu } from '../../lib/plural';
 import { displayDate } from '../../lib/display-date';
 import { Icon } from '../../components/icon';
 import { Badge, type BadgeTone } from '../../components/ui';
+import { msg, translator, type Translate } from '../../i18n';
+import { serverT } from '../../i18n/server';
 
 type Severity = 'critical' | 'warning' | 'info';
 
 const SEVERITY: Record<Severity, { word: string; tone: BadgeTone; rank: number }> = {
-  critical: { word: 'Критично', tone: 'danger', rank: 0 },
-  warning: { word: 'Важно', tone: 'warn', rank: 1 },
-  info: { word: 'К сведению', tone: 'neutral', rank: 2 },
+  critical: { word: msg('Критично'), tone: 'danger', rank: 0 },
+  warning: { word: msg('Важно'), tone: 'warn', rank: 1 },
+  info: { word: msg('К сведению'), tone: 'neutral', rank: 2 },
 };
 
 /** Строк броней под событием; остальное — «ещё N» и ссылка действия */
@@ -45,12 +47,15 @@ const waiting = (r: DeskRow) => r.status === 'CONFIRMED' || r.status === 'TENTAT
  * «не готово» — уборка ≠ «проверено». С чем человек ничего не может сделать, сюда не попадает: у каждой строки действие.
  * Уборка и инциденты — текущее состояние, поэтому только на сегодня.
  */
-function attentionEvents(input: {
-  day: DeskDay;
-  board: Chessboard | null;
-  guard: GuardStatus | null;
-  isToday: boolean;
-}): AttentionEvent[] {
+function attentionEvents(
+  input: {
+    day: DeskDay;
+    board: Chessboard | null;
+    guard: GuardStatus | null;
+    isToday: boolean;
+  },
+  t: Translate = translator('ru'),
+): AttentionEvent[] {
   const { day, board, guard, isToday } = input;
   const chessboard = `/chessboard?from=${day.date}&to=${day.date}`;
   const arrivals = day.arrivals.filter(waiting);
@@ -78,8 +83,8 @@ function attentionEvents(input: {
       key: 'incidents-critical',
       severity: 'critical',
       count: guard.open.critical,
-      text: `${pluralRu(guard.open.critical, ['критичная неисправность', 'критичные неисправности', 'критичных неисправностей'])} системы`,
-      action: { label: 'Посмотреть', href: '/incidents' },
+      text: t('{count} системы', { count: pluralRu(guard.open.critical, [t('критичная неисправность'), t('критичные неисправности'), t('критичных неисправностей')]) }),
+      action: { label: t('Посмотреть'), href: '/incidents' },
     });
   // Без ячейки: календарь дня знает все такие брони, день стойки — только заезды; имя гостя берём из дня стойки
   const known = new Map(
@@ -107,13 +112,13 @@ function attentionEvents(input: {
     key: 'unassigned',
     severity: 'critical',
     count: unassigned.length,
-    text: `${pluralRu(unassigned.length, ['бронь', 'брони', 'броней'])} без номера`,
-    action: { label: 'Назначить', href: `${chessboard}#unassigned-stays` },
+    text: t('{count} без номера', { count: pluralRu(unassigned.length, [t('бронь'), t('брони'), t('броней')]) }),
+    action: { label: t('Назначить'), href: `${chessboard}#unassigned-stays` },
     rows: unassigned.map((u) => ({
       key: `${u.number}-unassigned`,
       name: u.name,
       number: u.number,
-      note: `${u.category}, номер не назначен: назначить номер или койку`,
+      note: t('{category}, номер не назначен: назначить номер или койку', { category: u.category }),
       href: card(u.number, 'booking-actions'),
     })),
   });
@@ -124,10 +129,10 @@ function attentionEvents(input: {
       key: 'not-ready',
       severity: 'critical',
       count: notReady.length,
-      text: `${pluralRu(notReady.length, ['заезд', 'заезда', 'заездов'])} сегодня в неготовый номер`,
-      action: { label: 'Открыть календарь', href: chessboard },
+      text: t('{count} сегодня в неготовый номер', { count: pluralRu(notReady.length, [t('заезд'), t('заезда'), t('заездов')]) }),
+      action: { label: t('Открыть календарь'), href: chessboard },
       rows: notReady.map((r) =>
-        bookingRow(r, `Номер ${r.unitCode}: уборка не проверена`, 'booking-actions'),
+        bookingRow(r, t('Номер {unit}: уборка не проверена', { unit: r.unitCode ?? '' }), 'booking-actions'),
       ),
     });
   }
@@ -137,12 +142,12 @@ function attentionEvents(input: {
     key: 'no-show',
     severity: 'warning',
     count: day.overdueArrivals.length,
-    text: `${pluralRu(day.overdueArrivals.length, ['гость не заехал', 'гостя не заехали', 'гостей не заехали'])} вовремя`,
-    action: { label: 'Брони с проблемами', href: '/reservations?view=attention' },
+    text: t('{count} вовремя', { count: pluralRu(day.overdueArrivals.length, [t('гость не заехал'), t('гостя не заехали'), t('гостей не заехали')]) }),
+    action: { label: t('Брони с проблемами'), href: '/reservations?view=attention' },
     rows: day.overdueArrivals.map((r) =>
       bookingRow(
         r,
-        `Не заехал ${displayDate(r.arrivalDate)}: заселить или отметить незаезд`,
+        t('Не заехал {date}: заселить или отметить незаезд', { date: displayDate(r.arrivalDate) }),
         'booking-actions',
         'overdue-arrival',
       ),
@@ -153,10 +158,10 @@ function attentionEvents(input: {
     key: 'departure-debt',
     severity: 'warning',
     count: departureDebt.length,
-    text: `${pluralRu(departureDebt.length, ['уезжающий', 'уезжающих', 'уезжающих'])} с долгом`,
-    action: { label: 'Выезды дня', href: `/reservations?departure=${day.date}` },
+    text: t('{count} с долгом', { count: pluralRu(departureDebt.length, [t('уезжающий'), t('уезжающих'), t('уезжающих')]) }),
+    action: { label: t('Выезды дня'), href: `/reservations?departure=${day.date}` },
     rows: departureDebt.map((r) =>
-      bookingRow(r, `К оплате ${formatMoney(r.balanceMinor)}`, 'booking-finance'),
+      bookingRow(r, t('К оплате {sum}', { sum: formatMoney(r.balanceMinor) }), 'booking-finance'),
     ),
   });
   const arrivalDebt = arrivals.filter((r) => BigInt(r.balanceMinor) > 0n);
@@ -164,10 +169,10 @@ function attentionEvents(input: {
     key: 'arrival-debt',
     severity: 'warning',
     count: arrivalDebt.length,
-    text: `${pluralRu(arrivalDebt.length, ['заезд', 'заезда', 'заездов'])} без оплаты`,
-    action: { label: 'Заезды дня', href: `/reservations?arrival=${day.date}` },
+    text: t('{count} без оплаты', { count: pluralRu(arrivalDebt.length, [t('заезд'), t('заезда'), t('заездов')]) }),
+    action: { label: t('Заезды дня'), href: `/reservations?arrival=${day.date}` },
     rows: arrivalDebt.map((r) =>
-      bookingRow(r, `К оплате ${formatMoney(r.balanceMinor)}`, 'booking-finance'),
+      bookingRow(r, t('К оплате {sum}', { sum: formatMoney(r.balanceMinor) }), 'booking-finance'),
     ),
   });
   if (isToday && board) {
@@ -176,8 +181,8 @@ function attentionEvents(input: {
       key: 'dirty',
       severity: 'warning',
       count: dirty,
-      text: `${pluralRu(dirty, ['номер требует', 'номера требуют', 'номеров требуют'])} уборки`,
-      action: { label: 'Открыть уборку', href: chessboard },
+      text: t('{count} уборки', { count: pluralRu(dirty, [t('номер требует'), t('номера требуют'), t('номеров требуют')]) }),
+      action: { label: t('Открыть уборку'), href: chessboard },
     });
   }
   if (isToday && guard)
@@ -185,8 +190,8 @@ function attentionEvents(input: {
       key: 'incidents',
       severity: 'warning',
       count: guard.open.total - guard.open.critical,
-      text: `${pluralRu(guard.open.total - guard.open.critical, ['открытая неисправность', 'открытые неисправности', 'открытых неисправностей'])} системы`,
-      action: { label: 'Посмотреть', href: '/incidents' },
+      text: t('{count} системы', { count: pluralRu(guard.open.total - guard.open.critical, [t('открытая неисправность'), t('открытые неисправности'), t('открытых неисправностей')]) }),
+      action: { label: t('Посмотреть'), href: '/incidents' },
     });
 
   // Info. Без ячейки — уже строкой выше: причина «нет ячейки» стоит первой и прятала бы карточки
@@ -197,12 +202,12 @@ function attentionEvents(input: {
     key: 'cards',
     severity: 'info',
     count: cards.length,
-    text: `${pluralRu(cards.length, ['карточка гостя', 'карточки гостей', 'карточек гостей'])} не готовы к заселению`,
-    action: { label: 'Заезды дня', href: `/reservations?arrival=${day.date}` },
+    text: t('{count} не готовы к заселению', { count: pluralRu(cards.length, [t('карточка гостя'), t('карточки гостей'), t('карточек гостей')]) }),
+    action: { label: t('Заезды дня'), href: `/reservations?arrival=${day.date}` },
     rows: cards.map((r) =>
       bookingRow(
         r,
-        r.blockedReason || `Заполнить карточки: ${r.guestsRecorded} из ${r.adults}`,
+        r.blockedReason || t('Заполнить карточки: {done} из {total}', { done: r.guestsRecorded, total: r.adults }),
         'booking-actions',
       ),
     ),
@@ -221,13 +226,14 @@ export function attentionCount(input: Parameters<typeof attentionEvents>[0]): nu
  * важности: смена видит, что критичного нет, а не одно слово «всё в порядке». День без броней и без событий разбивку
  * не показывает — считать там нечего.
  */
-export function DayAttention(props: {
+export async function DayAttention(props: {
   day: DeskDay;
   board: Chessboard | null;
   guard: GuardStatus | null;
   isToday: boolean;
 }) {
-  const events = attentionEvents(props);
+  const t = await serverT();
+  const events = attentionEvents(props, t);
   const total = events.reduce((n, e) => n + e.count, 0);
   const bySeverity = (s: Severity) =>
     events.filter((e) => e.severity === s).reduce((n, e) => n + e.count, 0);
@@ -235,9 +241,9 @@ export function DayAttention(props: {
   const hasDay =
     day.arrivals.length + day.departures.length + day.inHouse.length > 0 || events.length > 0;
   return (
-    <section className="attention-card" id="day-attention" aria-label="Требуют внимания">
+    <section className="attention-card" id="day-attention" aria-label={t('Требуют внимания')}>
       <div className="attention-heading">
-        <h2>Требуют внимания</h2>
+        <h2>{t('Требуют внимания')}</h2>
         <span className="attention-count" data-state={total ? 'on' : 'off'}>
           {total}
         </span>
@@ -247,7 +253,7 @@ export function DayAttention(props: {
           {(Object.keys(SEVERITY) as Severity[]).map((s) => (
             <li key={s} data-severity={s} data-state={bySeverity(s) ? 'on' : 'off'}>
               <strong>{bySeverity(s)}</strong>
-              <span>{SEVERITY[s].word}</span>
+              <span>{t(SEVERITY[s].word)}</span>
             </li>
           ))}
         </ul>
@@ -255,8 +261,8 @@ export function DayAttention(props: {
       {events.length === 0 ? (
         <div className="attention-empty">
           <Icon name="check" />
-          <strong>Всё в порядке</strong>
-          <p>Нет просроченных заездов, долгов и незавершённых операций.</p>
+          <strong>{t('Всё в порядке')}</strong>
+          <p>{t('Нет просроченных заездов, долгов и незавершённых операций.')}</p>
         </div>
       ) : (
         <div className="attention-list">
@@ -270,7 +276,7 @@ export function DayAttention(props: {
               data-count={e.count}
             >
               <div className="attention-event__head">
-                <Badge tone={SEVERITY[e.severity].tone}>{SEVERITY[e.severity].word}</Badge>
+                <Badge tone={SEVERITY[e.severity].tone}>{t(SEVERITY[e.severity].word)}</Badge>
                 <span className="attention-event__text">{e.text}</span>
                 <Link
                   className="card-heading__link"
@@ -299,14 +305,14 @@ export function DayAttention(props: {
                 </Link>
               ))}
               {e.rows && e.rows.length > ROWS ? (
-                <span className="attention-event__more">ещё {e.rows.length - ROWS}</span>
+                <span className="attention-event__more">{t('ещё {n}', { n: e.rows.length - ROWS })}</span>
               ) : null}
             </div>
           ))}
         </div>
       )}
       <div className="attention-footer">
-        <Icon name="clock" /> По данным выбранного дня
+        <Icon name="clock" /> {t('По данным выбранного дня')}
       </div>
     </section>
   );

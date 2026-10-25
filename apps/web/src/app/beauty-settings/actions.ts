@@ -2,11 +2,13 @@
 import { unstable_rethrow } from 'next/navigation';
 import { parseWorkingHoursWeek } from '@pms/domain';
 import { ApiError, authApi, beautyApi, type BeautyLocationHoursResponse } from '../../lib/api';
+import { serverT } from '../../i18n/server';
 
 export async function saveSalonHours(
   _previous: { data?: BeautyLocationHoursResponse; error?: string } | null,
   form: FormData,
 ): Promise<{ data?: BeautyLocationHoursResponse; error?: string }> {
+  const t = await serverT();
   try {
     const expected = JSON.parse(String(form.get('scopeKey') ?? '')) as Record<string, unknown>;
     const me = await authApi.me();
@@ -18,14 +20,14 @@ export async function saveSalonHours(
       me.context?.businessId !== expected.businessId ||
       me.context?.locationId !== expected.locationId
     )
-      return { error: 'Контекст изменён. Откройте настройки нужного филиала.' };
+      return { error: t('Контекст изменён. Откройте настройки нужного филиала.') };
     const parsed = parseWorkingHoursWeek({
       intervals: JSON.parse(String(form.get('intervals') ?? '')),
     });
     if (!parsed.ok) return { error: parsed.reason };
     const revision = Number(form.get('revision'));
     if (!Number.isSafeInteger(revision) || revision < 0)
-      return { error: 'Обновите страницу перед сохранением.' };
+      return { error: t('Обновите страницу перед сохранением.') };
     return {
       data: await beautyApi.saveLocationHours({
         expectedRevision: revision,
@@ -38,7 +40,7 @@ export async function saveSalonHours(
       error:
         error instanceof ApiError
           ? error.message
-          : 'Не удалось сохранить режим работы. Ввод сохранён.',
+          : t('Не удалось сохранить режим работы. Ввод сохранён.'),
     };
   }
 }

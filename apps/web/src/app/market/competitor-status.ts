@@ -1,3 +1,5 @@
+import { translator, type Translate } from '../../i18n';
+
 export type StatusTone = 'success' | 'warning' | 'neutral';
 
 const dayOf = (iso: string) => Date.parse(`${iso}T00:00:00Z`) / 86_400_000;
@@ -10,11 +12,12 @@ export function competitorStatus(
   today: string,
   occupancyOn: string | null,
   ratesOn: string | null,
+  t: Translate = translator('ru'),
 ): { tone: StatusTone; label: string } {
   const last = [occupancyOn, ratesOn].filter((d): d is string => d !== null).sort().at(-1) ?? null;
-  if (!last) return { tone: 'neutral', label: 'Нет данных' };
-  if (dayOf(today) - dayOf(last) <= 1) return { tone: 'success', label: 'Актуально' };
-  return { tone: 'warning', label: `Устарели, с ${last.slice(8, 10)}.${last.slice(5, 7)}` };
+  if (!last) return { tone: 'neutral', label: t('Нет данных') };
+  if (dayOf(today) - dayOf(last) <= 1) return { tone: 'success', label: t('Актуально') };
+  return { tone: 'warning', label: t('Устарели, с {date}', { date: `${last.slice(8, 10)}.${last.slice(5, 7)}` }) };
 }
 
 /** 50 → «+5 %», −125 → «−12,5 %»; без сравнения это тире */

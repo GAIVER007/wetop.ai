@@ -1,6 +1,7 @@
 import { beautyStatus } from '../../../../lib/status/beauty';
 import { foodStatus } from '../../../../lib/status/food';
 import type { StatusRegistry } from '../../../../lib/status/types';
+import { msg } from '../../../../i18n';
 /** MV9: local date enumeration, status counts and approved DONE price snapshots. */
 export const MAX_PERIOD_DAYS = 31;
 const DAY = 86400000;
@@ -9,9 +10,9 @@ export function periodDates(from: string, to: string): string[] {
     /^\d{4}-\d{2}-\d{2}$/.test(s) &&
     Number.isFinite(Date.parse(s + 'T00:00:00Z')) &&
     new Date(s + 'T00:00:00Z').toISOString().slice(0, 10) === s;
-  if (!valid(from) || !valid(to) || to < from) throw new Error('Укажите корректный период');
+  if (!valid(from) || !valid(to) || to < from) throw new Error(msg('Укажите корректный период'));
   const count = (Date.parse(to) - Date.parse(from)) / DAY + 1;
-  if (count > MAX_PERIOD_DAYS) throw new Error('Выберите период не длиннее 31 дня');
+  if (count > MAX_PERIOD_DAYS) throw new Error(msg('Выберите период не длиннее 31 дня'));
   return Array.from({ length: count }, (_, i) =>
     new Date(Date.parse(from) + i * DAY).toISOString().slice(0, 10),
   );
@@ -42,7 +43,7 @@ function counters<T extends string>(
   const seen = new Set<string>();
   for (const row of rows) {
     if (!row.id || seen.has(row.id) || !Object.hasOwn(labels, row.status))
-      throw new Error('Некорректный ответ отчёта');
+      throw new Error(msg('Некорректный ответ отчёта'));
     seen.add(row.id);
     counts[row.status as T]++;
   }
@@ -55,7 +56,7 @@ export function beautyPeriod(
   const totals = new Map<string, bigint>();
   for (const r of rows.filter((r) => r.status === 'DONE')) {
     if (!/^\d+$/.test(r.priceMinor) || !/^[A-Z]{3}$/.test(r.currency))
-      throw new Error('Некорректная цена записи');
+      throw new Error(msg('Некорректная цена записи'));
     totals.set(r.currency, (totals.get(r.currency) ?? 0n) + BigInt(r.priceMinor));
   }
   const revenue = Object.fromEntries(

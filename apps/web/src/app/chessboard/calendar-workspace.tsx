@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useT } from '../../i18n/locale-provider';
 
 const Expansion = createContext({ expanded: false, toggle: () => {} });
 
@@ -14,6 +15,7 @@ export function CalendarWorkspace({
   children: ReactNode;
   nativeLayout?: boolean;
 }) {
+  const t = useT();
   const [expanded, setExpanded] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -79,7 +81,7 @@ export function CalendarWorkspace({
         {nativeLayout ? children : <div className="calendar-workspace__main">{children}</div>}
         {summary && (
           <details className="calendar-workspace__summary" open>
-            <summary>Сводка дня</summary>
+            <summary>{t('Сводка дня')}</summary>
             {summary}
           </details>
         )}
@@ -89,6 +91,7 @@ export function CalendarWorkspace({
 }
 
 export function CalendarExpandButton({ compact = false }: { compact?: boolean }) {
+  const t = useT();
   const { expanded, toggle } = useContext(Expansion);
   return (
     <button
@@ -111,7 +114,7 @@ export function CalendarExpandButton({ compact = false }: { compact?: boolean })
         </svg>
       )}
       <span className={compact ? 'sr-only' : undefined}>
-        {expanded ? 'Выйти из полного экрана' : 'На весь экран'}
+        {expanded ? t('Выйти из полного экрана') : t('На весь экран')}
       </span>
     </button>
   );

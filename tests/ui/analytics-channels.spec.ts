@@ -68,7 +68,8 @@ test('вкладка «Каналы»: строки по каналам за м�
   const total = main.getByTestId('pa-channels-total');
   await expect(total).toContainText('Итого');
   await expect(total).toContainText('100 %');
-  const nightsCell = (await total.locator('td').nth(1).innerText()).split('\n')[0]!;
+  // число ночей отдельно от доли: они в одной строке (компактный вид 25.10.2026)
+  const nightsCell = await total.locator('td').nth(1).locator('.pa-channels__value').innerText();
   expect(digits(nightsCell)).toBe(current.totals.nights);
   expect(current.totals.nights).toBe(current.rows.reduce((s, r) => s + r.nights, 0));
   expect(BigInt(current.totals.revenueMinor)).toBe(
@@ -114,6 +115,40 @@ test('отбор по каналу, каналы без броней и срав
   await expect(page).toHaveURL(/compare=1/);
   await expect(main.getByTestId('pa-channels-meta')).toContainText('сравнение с');
   await expect(main.getByTestId('pa-channels-total')).toContainText('было');
+});
+
+test('компактно: канал в одну строку, название слева, доход, ночи и цена ночи справа', async ({ page }) => {
+  // владелец 25.10.2026: «сделать компактнее… название канала слева, справа статистика»; каналов бывает около 50
+  for (const [width, compare] of [[1440, false], [1280, false], [1440, true]] as const) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`/management/analytics/channels${compare ? '?compare=1' : ''}`);
+    const rows = page.getByTestId('pa-channels-row');
+    await expect(rows.first()).toBeVisible();
+    const look = await rows.evaluateAll((trs) =>
+      trs.map((tr) => {
+        const [name, ...nums] = [...tr.querySelectorAll<HTMLElement>('td')];
+        const line = parseFloat(getComputedStyle(name!).lineHeight);
+        const top = (el: Element) => el.getBoundingClientRect().top;
+        return {
+          height: tr.getBoundingClientRect().height,
+          line,
+          // доля и брони на одной строке со своим числом и названием, а не строкой ниже
+          bookingsInline: Math.abs(top(name!.querySelector('.pa-channels__bookings')!) - top(name!)) < line,
+          sharesInline: nums
+            .map((td) => td.querySelector('.pa-channels__share'))
+            .every((share, i) => !share || Math.abs(share.getBoundingClientRect().bottom - nums[i]!.querySelector('.pa-channels__value')!.getBoundingClientRect().bottom) < 4),
+          nameLeft: name!.getBoundingClientRect().right <= nums[0]!.getBoundingClientRect().left + 1,
+        };
+      }),
+    );
+    for (const row of look) {
+      expect(row.bookingsInline).toBe(true);
+      expect(row.sharesInline).toBe(true);
+      expect(row.nameLeft).toBe(true);
+      // без сравнения строка в одну линию текста (плюс отступы), со сравнением не выше двух
+      expect(row.height).toBeLessThanOrEqual(row.line * (compare ? 2 : 1) + 20);
+    }
+  }
 });
 
 test('CSV: те же строки и итог, с разделителем «;» и BOM', async ({ page, request }) => {

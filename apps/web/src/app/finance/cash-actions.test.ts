@@ -1,4 +1,8 @@
 import {it,expect,vi} from 'vitest';
+vi.mock('../../i18n/server', async () => ({
+  serverT: async () => (await import('../../i18n')).translator('ru'),
+  currentLocale: async () => 'ru',
+}));
 const api=vi.hoisted(()=>({createCashOperation:vi.fn(),createCashTransfer:vi.fn(),createCashReconciliation:vi.fn()}));
 vi.mock('../../lib/api',()=>({financeApi:api,ApiError:class extends Error{}}));
 vi.mock('next/cache',()=>({revalidatePath:vi.fn()}));

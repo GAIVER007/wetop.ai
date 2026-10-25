@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import type { MarketCell, MarketCompetitor, MarketNightHistory, MarketRates } from '../../lib/api';
 import { minorToInput } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, intlLocale, msg, type DeskLocale } from '../../i18n';
+import { dateFormat } from '../../i18n/dates';
+import { useLocale, useT } from '../../i18n/locale-provider';
 import { Icon } from '../../components/icon';
 import { Overlay } from '../../components/overlay';
 import { Tabs } from '../../components/tabs';
@@ -31,11 +33,12 @@ function useMarketAction(
   serverAction: (prev: MarketActionResult, fd: FormData) => Promise<MarketActionResult>,
   close: () => void,
 ) {
+  const t = useT();
   const { toast } = useToast();
   const [state, action, pending] = useActionState(
     async (prev: MarketActionResult, fd: FormData) => {
       const next = await serverAction(prev, fd);
-      if (next.ok) toast({ text: next.message ?? 'Сохранено', tone: 'success' });
+      if (next.ok) toast({ text: next.message ?? t('Сохранено'), tone: 'success' });
       return next;
     },
     NONE,
@@ -60,8 +63,9 @@ export function CompetitorButton({
   /** Хаб «Продажи» ведёт сюда ссылкой `/market?add=1`: окно нового конкурента открыто сразу */
   defaultOpen?: boolean | undefined;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(defaultOpen === true);
-  const label = competitor ? 'Изменить' : 'Добавить конкурента';
+  const label = competitor ? t('Изменить') : t('Добавить конкурента');
   return (
     <>
       <Button
@@ -70,7 +74,7 @@ export function CompetitorButton({
         size={competitor ? 'xs' : undefined}
         onClick={() => setOpen(true)}
         data-testid={competitor ? `market-edit-${competitor.id}` : 'market-add'}
-        aria-label={competitor ? `Изменить: ${competitor.name}` : undefined}
+        aria-label={competitor ? t('Изменить: {name}', { name: competitor.name }) : undefined}
       >
         {!competitor && <Icon name="plus" />}
         {label}
@@ -80,17 +84,17 @@ export function CompetitorButton({
           open
           drawer
           className="settings-service-drawer market-competitor-drawer"
-          title={competitor ? competitor.name : 'Новый конкурент'}
+          title={competitor ? competitor.name : t('Новый конкурент')}
           onClose={() => setOpen(false)}
         >
           {competitor ? (
             <CompetitorForm competitor={competitor} onClose={() => setOpen(false)} />
           ) : (
             <Tabs
-              label="Как добавить конкурента"
+              label={t('Как добавить конкурента')}
               panels={[
-                { id: 'manual', label: 'Ручной выбор', content: <CompetitorForm onClose={() => setOpen(false)} /> },
-                { id: 'ai', label: 'AI-поиск', content: <AiSearchPanel /> },
+                { id: 'manual', label: t('Ручной выбор'), content: <CompetitorForm onClose={() => setOpen(false)} /> },
+                { id: 'ai', label: t('AI-поиск'), content: <AiSearchPanel /> },
               ]}
             />
           )}
@@ -102,14 +106,14 @@ export function CompetitorButton({
 
 /** Поиск новых соседей ещё не подключён; мониторинг добавленных конкурентов выполняет отдельный сборщик. */
 function AiSearchPanel() {
+  const t = useT();
   return (
     <div className="market-ai-search" data-testid="market-ai-search">
-      <Field label="Поиск соседних отелей">
-        <Input disabled placeholder="Название, район или адрес" aria-describedby="market-ai-note" />
+      <Field label={t('Поиск соседних отелей')}>
+        <Input disabled placeholder={t('Название, район или адрес')} aria-describedby="market-ai-note" />
       </Field>
       <p className="settings-note" id="market-ai-note">
-        Автоматический поиск новых соседей пока не подключён. Добавьте конкурента вручную и укажите
-        ссылку на Ostrovok. Сборщик отслеживает наличие мест у добавленных конкурентов после настройки запуска.
+        {t('Автоматический поиск новых соседей пока не подключён. Добавьте конкурента вручную и укажите ссылку на Ostrovok. Сборщик отслеживает наличие мест у добавленных конкурентов после настройки запуска.')}
       </p>
     </div>
   );
@@ -122,6 +126,8 @@ function CompetitorForm({
   competitor?: MarketCompetitor | undefined;
   onClose: () => void;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [state, action, pending] = useMarketAction(saveCompetitorAction, onClose);
   const [archived, archive, archiving] = useMarketAction(archiveCompetitorAction, onClose);
   const { ask, dialog } = useConfirm();
@@ -135,8 +141,8 @@ function CompetitorForm({
       <form action={action} className="settings-service-form market-competitor-form" data-testid="market-competitor-form">
         {error && <Alert boxed>{error}</Alert>}
         {competitor && <input type="hidden" name="id" value={competitor.id} />}
-        <p className="settings-note">Добавьте название и ссылку. Остальные поля можно заполнить позже.</p>
-        <Field label="Название отеля">
+        <p className="settings-note">{t('Добавьте название и ссылку. Остальные поля можно заполнить позже.')}</p>
+        <Field label={t('Название отеля')}>
           <Input
             name="name"
             required
@@ -147,74 +153,74 @@ function CompetitorForm({
           />
         </Field>
         <div className="market-form-grid">
-        <Field label="Тип объекта">
+        <Field label={t('Тип объекта')}>
           <Input
             name="category"
             maxLength={60}
             list="market-categories"
-            placeholder="Отель, хостел, апартаменты"
+            placeholder={t('Отель, хостел, апартаменты')}
             defaultValue={v('category', competitor?.category)}
             data-testid="market-category"
           />
           <datalist id="market-categories">
-            {['Отель 5★', 'Отель 4★', 'Отель 3★', 'Мини-отель', 'Хостел', 'Апартаменты'].map((o) => (
+            {['Отель 5★', 'Отель 4★', 'Отель 3★', 'Мини-отель', 'Хостел', 'Апартаменты'].map((o) => ( // kk-allow: подсказки значения, уходят в данные конкурента как есть
               <option key={o} value={o} />
             ))}
           </datalist>
         </Field>
-        <Field className="market-form-wide" label="Адрес">
+        <Field className="market-form-wide" label={t('Адрес')}>
           <Input name="address" maxLength={200} defaultValue={v('address', competitor?.address)} />
         </Field>
-        <Field className="market-form-wide" label="Ссылка на площадку" controlId="market-url" hint="Страница конкурента на Ostrovok или другой площадке">
+        <Field className="market-form-wide" label={t('Ссылка на площадку')} controlId="market-url" hint={t('Страница конкурента на Ostrovok или другой площадке')}>
           <Input name="url" type="url" defaultValue={v('url', competitor?.url)} placeholder="https://ostrovok.ru/hotel/…" data-testid="market-url" />
         </Field>
-        <Field label="Номеров у соседа" controlId="market-units" hint="Сколько номеров он продаёт всего">
+        <Field label={t('Номеров у соседа')} controlId="market-units" hint={t('Сколько номеров он продаёт всего')}>
           <Input name="unitsTotal" inputMode="numeric" defaultValue={v('unitsTotal', competitor?.unitsTotal)} />
         </Field>
-        <Field label="Расстояние, метров" controlId="market-distance" hint="Список идёт от ближайших">
+        <Field label={t('Расстояние, метров')} controlId="market-distance" hint={t('Список идёт от ближайших')}>
           <Input name="distanceM" inputMode="numeric" defaultValue={v('distanceM', competitor?.distanceM)} data-testid="market-distance" />
         </Field>
         </div>
         <details className="market-form-details">
-          <summary>Дополнительные сведения</summary>
+          <summary>{t('Дополнительные сведения')}</summary>
           <div className="market-form-grid">
-        <Field label="Район">
+        <Field label={t('Район')}>
           <Input name="district" maxLength={80} defaultValue={v('district', competitor?.district)} data-testid="market-district" />
         </Field>
-        <Field label="Заметка">
+        <Field label={t('Заметка')}>
           <Textarea name="note" rows={2} maxLength={500} defaultValue={v('note', competitor?.note)} />
         </Field>
           </div>
         </details>
         <fieldset className="market-monitoring" data-testid="market-monitoring">
-          <legend>Мониторинг</legend>
-          <Field label="Что отслеживать">
+          <legend>{t('Мониторинг')}</legend>
+          <Field label={t('Что отслеживать')}>
             <Select name="monitoring" defaultValue={v('monitoring', competitor?.monitoring ?? 'BOTH')} data-testid="market-monitoring-kind">
-              <option value="BOTH">Загрузку и цены</option>
-              <option value="OCCUPANCY">Только загрузку</option>
-              <option value="PRICE">Только цены</option>
+              <option value="BOTH">{t('Загрузку и цены')}</option>
+              <option value="OCCUPANCY">{t('Только загрузку')}</option>
+              <option value="PRICE">{t('Только цены')}</option>
             </Select>
           </Field>
-          <Field label="Источник данных">
+          <Field label={t('Источник данных')}>
             <Input
               name="dataSource"
               maxLength={40}
               list="market-sources"
-              placeholder="Откуда берёте цифры"
+              placeholder={t('Откуда берёте цифры')}
               defaultValue={v('dataSource', competitor?.dataSource)}
             />
             <datalist id="market-sources">
-              {['Вручную', 'Файл CSV', 'Поставщик данных'].map((o) => (
+              {['Вручную', 'Файл CSV', 'Поставщик данных'].map((o) => ( // kk-allow: подсказки значения, уходят в данные конкурента как есть
                 <option key={o} value={o} />
               ))}
             </datalist>
           </Field>
-          <Field label="Как часто обновлять">
+          <Field label={t('Как часто обновлять')}>
             <Select name="refreshHours" defaultValue={v('refreshHours', competitor?.refreshHours)}>
-              <option value="">Не задано</option>
+              <option value="">{t('Не задано')}</option>
               {[1, 2, 6, 12, 24].map((h) => (
                 <option key={h} value={h}>
-                  Раз в {pluralRu(h, ['час', 'часа', 'часов'])}
+                  {t('Раз в {n}', { n: countLabel(locale, t, h, [msg('час'), msg('часа'), msg('часов')]) })}
                 </option>
               ))}
             </Select>
@@ -225,19 +231,18 @@ function CompetitorForm({
               name="autoRefresh"
               defaultChecked={state.values ? state.values['autoRefresh'] === 'on' : (competitor?.autoRefresh ?? false)}
             />
-            Обновлять автоматически
+            {t('Обновлять автоматически')}
           </label>
           <p className="settings-note" data-testid="market-auto-note">
-            Включите обновление и укажите ссылку на Ostrovok для сбора наличия мест. Сборщик запускается
-            отдельно по расписанию; эта настройка сама его не запускает. Автоматический сбор цен пока не подключён.
+            {t('Включите обновление и укажите ссылку на Ostrovok для сбора наличия мест. Сборщик запускается отдельно по расписанию; эта настройка сама его не запускает. Автоматический сбор цен пока не подключён.')}
           </p>
         </fieldset>
         <div className="settings-service-actions">
           <Button type="button" tone="secondary" onClick={onClose}>
-            Отмена
+            {t('Отмена')}
           </Button>
           <Button type="submit" disabled={pending} aria-busy={pending} data-testid="market-save">
-            {pending ? 'Сохраняю…' : competitor ? 'Сохранить' : 'Добавить'}
+            {pending ? t('Сохраняю…') : competitor ? t('Сохранить') : t('Добавить')}
           </Button>
         </div>
       </form>
@@ -245,7 +250,7 @@ function CompetitorForm({
         <form ref={archiveForm} action={archive} className="market-archive">
           <input type="hidden" name="id" value={competitor.id} />
           <p className="settings-note">
-            Убранный конкурент пропадёт из таблицы; внесённая загрузка сохранится в истории.
+            {t('Убранный конкурент пропадёт из таблицы; внесённая загрузка сохранится в истории.')}
           </p>
           <Button
             type="button"
@@ -254,15 +259,15 @@ function CompetitorForm({
             data-testid="market-archive"
             onClick={async () => {
               const yes = await ask({
-                title: `Убрать «${competitor.name}» из списка?`,
-                body: 'Внесённая загрузка останется в истории.',
-                confirmLabel: 'Убрать',
+                title: t('Убрать «{name}» из списка?', { name: competitor.name }),
+                body: t('Внесённая загрузка останется в истории.'),
+                confirmLabel: t('Убрать'),
                 tone: 'danger',
               });
               if (yes) archiveForm.current?.requestSubmit();
             }}
           >
-            {archiving ? 'Убираю…' : 'Убрать из списка'}
+            {archiving ? t('Убираю…') : t('Убрать из списка')}
           </Button>
           {dialog}
         </form>
@@ -279,6 +284,7 @@ export function OccupancyButton({
   competitor: { id: string; name: string };
   cells: MarketCell[];
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -288,16 +294,16 @@ export function OccupancyButton({
         tone="secondary"
         onClick={() => setOpen(true)}
         data-testid={`market-enter-${competitor.id}`}
-        aria-label={`Внести загрузку: ${competitor.name}`}
+        aria-label={t('Внести загрузку: {name}', { name: competitor.name })}
       >
-        Внести загрузку
+        {t('Внести загрузку')}
       </Button>
       {open && (
         <Overlay
           open
           drawer
           className="settings-service-drawer"
-          title={`Загрузка: ${competitor.name}`}
+          title={t('Загрузка: {name}', { name: competitor.name })}
           onClose={() => setOpen(false)}
         >
           <OccupancyForm competitor={competitor} cells={cells} onClose={() => setOpen(false)} />
@@ -317,6 +323,7 @@ export function RatesButton({
   cells: MarketRates['board']['competitors'][number]['cells'];
   currency: string;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -326,16 +333,16 @@ export function RatesButton({
         tone="secondary"
         onClick={() => setOpen(true)}
         data-testid={`market-rates-${competitor.id}`}
-        aria-label={`Внести цены: ${competitor.name}`}
+        aria-label={t('Внести цены: {name}', { name: competitor.name })}
       >
-        Внести цены
+        {t('Внести цены')}
       </Button>
       {open && (
         <Overlay
           open
           drawer
           className="settings-service-drawer"
-          title={`Цены: ${competitor.name}`}
+          title={t('Цены: {name}', { name: competitor.name })}
           onClose={() => setOpen(false)}
         >
           <RatesForm competitor={competitor} cells={cells} currency={currency} onClose={() => setOpen(false)} />
@@ -356,6 +363,8 @@ function RatesForm({
   currency: string;
   onClose: () => void;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [state, action, pending] = useMarketAction(writeRatesAction, onClose);
   const sign = currency === 'KZT' ? '₸' : currency;
   return (
@@ -363,22 +372,21 @@ function RatesForm({
       {state.error && <Alert boxed>{state.error}</Alert>}
       <input type="hidden" name="id" value={competitor.id} />
       <p className="settings-note">
-        Цена за ночь в {sign}, например 42 000. Запишется снимком сегодняшнего дня: завтра увидите, как
-        изменилась цена. Очистите поле, чтобы снять сегодняшнее значение.
+        {t('Цена за ночь в {sign}, например 42 000. Запишется снимком сегодняшнего дня: завтра увидите, как изменилась цена. Очистите поле, чтобы снять сегодняшнее значение.', { sign })}
       </p>
       <div className="market-entry-grid">
         {cells.map((c) => {
           const was = c.priceMinor === null ? '' : minorToInput(c.priceMinor);
           return (
             <label key={c.date} className="market-entry">
-              <span className="market-entry__date">{dayLabel(c.date)}</span>
+              <span className="market-entry__date">{dayLabel(c.date, locale)}</span>
               <input type="hidden" name={`was:${c.date}`} value={was} />
               <span className="market-entry__field">
                 <Input
                   name={`r:${c.date}`}
                   inputMode="decimal"
                   defaultValue={state.values?.[`r:${c.date}`] ?? was}
-                  aria-label={`Цена на ${displayDate(c.date, 'numeric')}, ${sign}`}
+                  aria-label={t('Цена на {date}, {sign}', { date: displayDate(c.date, 'numeric'), sign })}
                   data-testid={`market-r-${c.date}`}
                 />
                 <span aria-hidden="true">{sign}</span>
@@ -389,10 +397,10 @@ function RatesForm({
       </div>
       <div className="settings-service-actions">
         <Button type="button" tone="secondary" onClick={onClose}>
-          Отмена
+          {t('Отмена')}
         </Button>
         <Button type="submit" disabled={pending} aria-busy={pending} data-testid="market-rates-save">
-          {pending ? 'Сохраняю…' : 'Сохранить'}
+          {pending ? t('Сохраняю…') : t('Сохранить')}
         </Button>
       </div>
     </form>
@@ -400,8 +408,13 @@ function RatesForm({
 }
 
 /** «Суббота, 3 октября»: день недели с большой буквы, без года */
-const dayLabel = (date: string) => {
-  const text = displayDate(date, 'full').replace(/ \d{4} г\.$/, '');
+const dayLabel = (date: string, locale: DeskLocale) => {
+  const text = dateFormat(intlLocale(locale), {
+    timeZone: 'UTC',
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date(`${date}T00:00:00Z`));
   return text.charAt(0).toUpperCase() + text.slice(1);
 };
 
@@ -418,6 +431,8 @@ function OccupancyForm({
   cells: MarketCell[];
   onClose: () => void;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [state, action, pending] = useMarketAction(writeOccupancyAction, onClose);
   const form = useRef<HTMLFormElement>(null);
   const [all, setAll] = useState('');
@@ -433,38 +448,36 @@ function OccupancyForm({
       {state.error && <Alert boxed>{state.error}</Alert>}
       <input type="hidden" name="id" value={competitor.id} />
       <p className="settings-note">
-        Процент занятых номеров на ночь, от 0 до 100. Запишется снимком сегодняшнего дня: завтра
-        увидите, как изменилась загрузка. Заполненные поля сохраняются все: так вы подтверждаете,
-        что сегодня проверили и значение то же. Очистите поле, чтобы снять сегодняшнее значение.
+        {t('Процент занятых номеров на ночь, от 0 до 100. Запишется снимком сегодняшнего дня: завтра увидите, как изменилась загрузка. Заполненные поля сохраняются все: так вы подтверждаете, что сегодня проверили и значение то же. Очистите поле, чтобы снять сегодняшнее значение.')}
       </p>
       <div className="market-fill">
-        <Field inline label="Все ночи">
+        <Field inline label={t('Все ночи')}>
           <span className="market-entry__field">
             <Input
               inputMode="decimal"
               value={all}
               onChange={(e) => setAll(e.target.value)}
-              aria-label="Одно значение для всех ночей, процентов"
+              aria-label={t('Одно значение для всех ночей, процентов')}
               data-testid="market-fill-value"
             />
             <span aria-hidden="true">%</span>
           </span>
         </Field>
         <Button type="button" size="sm" tone="secondary" onClick={fillAll} data-testid="market-fill">
-          Заполнить все ночи
+          {t('Заполнить все ночи')}
         </Button>
       </div>
       <div className="market-entry-grid">
         {cells.map((c) => (
           <label key={c.date} className="market-entry">
-            <span className="market-entry__date">{dayLabel(c.date)}</span>
+            <span className="market-entry__date">{dayLabel(c.date, locale)}</span>
             <input type="hidden" name={`was:${c.date}`} value={percentText(c.bp)} />
             <span className="market-entry__field">
               <Input
                 name={`p:${c.date}`}
                 inputMode="decimal"
                 defaultValue={state.values?.[`p:${c.date}`] ?? percentText(c.bp)}
-                aria-label={`Загрузка на ${displayDate(c.date, 'numeric')}, процентов`}
+                aria-label={t('Загрузка на {date}, процентов', { date: displayDate(c.date, 'numeric') })}
                 data-testid={`market-p-${c.date}`}
               />
               <span aria-hidden="true">%</span>
@@ -474,10 +487,10 @@ function OccupancyForm({
       </div>
       <div className="settings-service-actions">
         <Button type="button" tone="secondary" onClick={onClose}>
-          Отмена
+          {t('Отмена')}
         </Button>
         <Button type="submit" disabled={pending} aria-busy={pending} data-testid="market-occupancy-save">
-          {pending ? 'Сохраняю…' : 'Сохранить'}
+          {pending ? t('Сохраняю…') : t('Сохранить')}
         </Button>
       </div>
     </form>
@@ -499,6 +512,8 @@ export function NightDrawer({
   history: MarketNightHistory | null;
   closeHref: string;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const router = useRouter();
   const close = () => router.replace(closeHref, { scroll: false });
   return (
@@ -506,35 +521,37 @@ export function NightDrawer({
       open
       drawer
       className="settings-service-drawer market-night"
-      title={`История ночи: ${dayLabel(date)}`}
+      title={t('История ночи: {day}', { day: dayLabel(date, locale) })}
       onClose={close}
     >
       {!history ? (
-        <Alert boxed>История ночи не загрузилась. Закройте панель и откройте снова.</Alert>
+        <Alert boxed>{t('История ночи не загрузилась. Закройте панель и откройте снова.')}</Alert>
       ) : history.days.length === 0 ? (
         <p className="settings-note" data-testid="market-night-empty">
-          На эту ночь снимков ещё нет. Внесите загрузку соседей, и здесь появится, как они заполняются
-          день за днём.
+          {t('На эту ночь снимков ещё нет. Внесите загрузку соседей, и здесь появится, как они заполняются день за днём.')}
         </p>
       ) : (
         <>
           <p className="settings-note" data-testid="market-night-pickup">
             {history.pickupBp === null
-              ? 'Пока один день снимков: темп рынка появится со вторым.'
-              : `Рынок за ${pluralRu(history.days.length, ['день', 'дня', 'дней'])} снимков: ${formatPoints(Math.round(history.pickupBp / 100) * 100)}`}
+              ? t('Пока один день снимков: темп рынка появится со вторым.')
+              : t('Рынок за {days} снимков: {points}', {
+                  days: countLabel(locale, t, history.days.length, [msg('день'), msg('дня'), msg('дней')]),
+                  points: formatPoints(Math.round(history.pickupBp / 100) * 100),
+                })}
             {' '}
-            Бледным: значение перенесено с прошлого снимка, в этот день соседа не проверяли.
+            {t('Бледным: значение перенесено с прошлого снимка, в этот день соседа не проверяли.')}
           </p>
-          <Table size="sm" className="market-night-table" aria-label="Загрузка ночи по дням снимков" data-testid="market-night-table">
+          <Table size="sm" className="market-night-table" aria-label={t('Загрузка ночи по дням снимков')} data-testid="market-night-table">
             <thead>
               <tr>
-                <th scope="col">Снимок</th>
+                <th scope="col">{t('Снимок')}</th>
                 {history.competitors.map((c) => (
                   <th key={c.id} scope="col">
                     {c.name}
                   </th>
                 ))}
-                <th scope="col">Рынок</th>
+                <th scope="col">{t('Рынок')}</th>
               </tr>
             </thead>
             <tbody>

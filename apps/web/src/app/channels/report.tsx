@@ -8,7 +8,9 @@ import {
 } from '../../lib/hotel-api';
 import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
-import { nightsBetween, pluralRu } from '../../lib/plural';
+import { nightsBetween } from '../../lib/plural';
+import { countLabel, intlLocale, msg } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import {
@@ -33,6 +35,9 @@ import { ChannelTotals } from './channel-totals';
  */
 export async function ChannelReport({ sp }: { sp: Record<string, string | undefined> }) {
   const today = await hotelToday();
+  const t = await serverT();
+  const locale = await currentLocale();
+  const il = intlLocale(locale);
   const from = sp.from ?? `${today.slice(0, 7)}-01`;
   const to = sp.to ?? today;
   const status = sp.status ?? 'ALL';
@@ -56,8 +61,8 @@ export async function ChannelReport({ sp }: { sp: Record<string, string | undefi
   const withYear = from.slice(0, 4) !== to.slice(0, 4);
   const periodText = valid
     ? from === to
-      ? displayDate(from, 'numeric')
-      : `${displayDate(from, withYear ? 'numeric' : 'short')} → ${displayDate(to, withYear ? 'numeric' : 'short')}`
+      ? displayDate(from, 'numeric', il)
+      : `${displayDate(from, withYear ? 'numeric' : 'short', il)} → ${displayDate(to, withYear ? 'numeric' : 'short', il)}`
     : '';
   const totals = report?.rows.reduce(
     (r, row) => ({
@@ -72,10 +77,15 @@ export async function ChannelReport({ sp }: { sp: Record<string, string | undefi
     money.set(row.currency, (money.get(row.currency) ?? 0n) + BigInt(row.amountMinor));
   return (
     <section className="stack stack--sm channels-report" aria-labelledby="channel-report-title">
-      <SectionTitle id="channel-report-title">Брони по источникам</SectionTitle>
+      <SectionTitle id="channel-report-title">{t('Брони по источникам')}</SectionTitle>
       {valid && (
         <p className="note" data-testid="channel-period">
-          {`Брони с заездом ${periodText}, ${pluralRu(nightsBetween(from, to) + 1, ['день', 'дня', 'дней'])}, ${reservationStatuses[status]!.toLowerCase()}`}
+          {t('Брони с заездом {period}, {days}, {status}', {
+            period: periodText,
+            days: countLabel(locale, t, nightsBetween(from, to) + 1, [msg('день'), msg('дня'), msg('дней')]),
+            // reservationStatuses из lib/hotel-api: постоянные русские подписи, переводятся при показе
+            status: t(reservationStatuses[status]!).toLowerCase(),
+          })}
         </p>
       )}
       <form
@@ -84,25 +94,25 @@ export async function ChannelReport({ sp }: { sp: Record<string, string | undefi
         className="row filter-bar channels-period"
         data-testid="channel-period-form"
       >
-        <Field label="Заезд с">
+        <Field label={t('Заезд с')}>
           <DateInput name="from" defaultValue={from} required />
         </Field>
-        <Field label="Заезд по">
+        <Field label={t('Заезд по')}>
           <DateInput name="to" rangeFromName="from" defaultValue={to} required />
         </Field>
-        <Field label="Статус брони">
+        <Field label={t('Статус брони')}>
           <Select name="status" defaultValue={status}>
             {Object.entries(reservationStatuses).map(([value, label]) => (
               <option key={value} value={value}>
-                {label}
+                {t(label)}
               </option>
             ))}
           </Select>
         </Field>
-        <Button type="submit">Показать</Button>
+        <Button type="submit">{t('Показать')}</Button>
       </form>
       {!valid && (
-        <Alert boxed>Выберите корректные даты, период до 366 дней и статус из списка.</Alert>
+        <Alert boxed>{t('Выберите корректные даты, период до 366 дней и статус из списка.')}</Alert>
       )}
       {loadError !== null && (
         <LoadError testId="channel-report-error" {...loadErrorProps(loadError)} />
@@ -114,17 +124,18 @@ export async function ChannelReport({ sp }: { sp: Record<string, string | undefi
             cancelled={totals.cancelled}
             noShow={totals.noShow}
             money={money}
+            t={t}
           />
           {report.rows.length > 0 && (
             <Table className="dir-table dir-table--channel-report" data-testid="channel-report">
               <thead>
                 <tr>
-                  <th>Источник</th>
-                  <th className="num">Брони</th>
-                  <th className="num">Отмены</th>
-                  <th className="num">Незаезды</th>
-                  <th className="num">Стоимость броней</th>
-                  <th>Доля броней</th>
+                  <th>{t('Источник')}</th>
+                  <th className="num">{t('Брони')}</th>
+                  <th className="num">{t('Отмены')}</th>
+                  <th className="num">{t('Незаезды')}</th>
+                  <th className="num">{t('Стоимость броней')}</th>
+                  <th>{t('Доля броней')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -133,9 +144,9 @@ export async function ChannelReport({ sp }: { sp: Record<string, string | undefi
                     <td>
                       {/* Канал различается названием: кружок с первой буквой — тот же аватар, от которого
                         справочники отказались 15.09, а логотипы каналов мы не вставляем (§7) */}
-                      <strong>{row.channel ?? sourceNames[row.source] ?? row.source}</strong>
+                      <strong>{row.channel ?? (sourceNames[row.source] ? t(sourceNames[row.source]!) : row.source)}</strong>
                       <div className="cell-sub">
-                        {sourceNames[row.source] ?? row.source}, {row.currency}
+                        {sourceNames[row.source] ? t(sourceNames[row.source]!) : row.source}, {row.currency}
                       </div>
                     </td>
                     <td className="num">
@@ -150,7 +161,7 @@ export async function ChannelReport({ sp }: { sp: Record<string, string | undefi
                           min="0"
                           max={totals.count || 1}
                           value={row.count}
-                          aria-label={`Доля: ${row.count} из ${totals.count} броней`}
+                          aria-label={t('Доля: {count} из {total} броней', { count: row.count, total: totals.count })}
                         />
                         <span>
                           {totals.count ? Math.round((row.count / totals.count) * 100) : 0}%
@@ -165,7 +176,14 @@ export async function ChannelReport({ sp }: { sp: Record<string, string | undefi
           {!report.rows.length && (
             <EmptyState
               icon={<Icon name="channels" />}
-              title={`Нет бронирований с заездом ${periodText}${status !== 'ALL' ? ` со статусом «${reservationStatuses[status]}»` : ''}`}
+              title={
+                status !== 'ALL'
+                  ? t('Нет бронирований с заездом {period} со статусом «{status}»', {
+                      period: periodText,
+                      status: t(reservationStatuses[status]!),
+                    })
+                  : t('Нет бронирований с заездом {period}', { period: periodText })
+              }
               data-testid="channel-report-empty"
               actions={
                 status !== 'ALL' ? (
@@ -173,23 +191,21 @@ export async function ChannelReport({ sp }: { sp: Record<string, string | undefi
                     href={`/channels?from=${from}&to=${to}&status=ALL`}
                     className="btn btn--secondary"
                   >
-                    Показать все статусы
+                    {t('Показать все статусы')}
                   </Link>
                 ) : undefined
               }
             >
-              Расширьте период: источники появляются по сохранённым броням.
+              {t('Расширьте период: источники появляются по сохранённым броням.')}
             </EmptyState>
           )}
-          <Help title="Как считаются показатели">
-            Стоимость броней включает отмены и незаезды при выборе всех статусов.
+          <Help title={t('Как считаются показатели')}>
+            {t('Стоимость броней включает отмены и незаезды при выборе всех статусов.')}
             <Link href={`/finance?from=${from}&to=${to}`}>
               {' '}
-              Фактические оплаты за период — в финансах.
+              {t('Фактические оплаты за период: в финансах.')}
             </Link>{' '}
-            Одна коммерческая бронь считается один раз, даже если в ней несколько мест. Источники
-            появляются по сохранённым броням: наличие строки Booking.com или Trip.com не означает,
-            что канал сейчас подключён. Валюты считаются отдельно.
+            {t('Одна коммерческая бронь считается один раз, даже если в ней несколько мест. Источники появляются по сохранённым броням: наличие строки Booking.com или Trip.com не означает, что канал сейчас подключён. Валюты считаются отдельно.')}
           </Help>
         </>
       )}

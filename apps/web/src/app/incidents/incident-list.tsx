@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import type { Incident } from '../../lib/api';
 import { usePropertyClock } from '../../components/property-time';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, msg } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
 import { Badge, Button, EmptyState, Field, Input, cx, type BadgeTone } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { IncidentButtons } from './buttons';
@@ -37,11 +38,11 @@ export type IncidentRow = Pick<
 >;
 
 const STATUS_RU: Record<Incident['status'], string> = {
-  OPEN: 'замечена',
-  FIXING: 'сторож чинит',
-  ESCALATED: 'ждёт человека',
-  ACKNOWLEDGED: 'принято',
-  RESOLVED: 'закрыта',
+  OPEN: msg('замечена'),
+  FIXING: msg('сторож чинит'),
+  ESCALATED: msg('ждёт человека'),
+  ACKNOWLEDGED: msg('принято'),
+  RESOLVED: msg('закрыта'),
 };
 const STATUS_TONE: Record<Incident['status'], BadgeTone> = {
   OPEN: 'info',
@@ -54,10 +55,10 @@ const STATUS_TONE: Record<Incident['status'], BadgeTone> = {
 /** Чипы отбора: они же счётчики — отдельных плиток с теми же числами над списком больше нет */
 type Chip = 'ALL' | 'CRITICAL' | 'ESCALATED' | 'ACKNOWLEDGED';
 const CHIPS: ReadonlyArray<readonly [Chip, string, (i: IncidentRow) => boolean]> = [
-  ['ALL', 'Все', () => true],
-  ['CRITICAL', 'Срочные', (i) => i.severity === 'CRITICAL'],
-  ['ESCALATED', 'Ждут человека', (i) => i.status === 'ESCALATED'],
-  ['ACKNOWLEDGED', 'Принятые', (i) => i.status === 'ACKNOWLEDGED'],
+  ['ALL', msg('Все'), () => true],
+  ['CRITICAL', msg('Срочные'), (i) => i.severity === 'CRITICAL'],
+  ['ESCALATED', msg('Ждут человека'), (i) => i.status === 'ESCALATED'],
+  ['ACKNOWLEDGED', msg('Принятые'), (i) => i.status === 'ACKNOWLEDGED'],
 ];
 
 export function IncidentList({
@@ -70,6 +71,8 @@ export function IncidentList({
   emptyHint: string;
 }) {
   const clock = usePropertyClock();
+  const t = useT();
+  const locale = useLocale();
   const [chip, setChip] = useState<Chip>('ALL');
   const [query, setQuery] = useState('');
   const needle = query.trim().toLocaleLowerCase('ru');
@@ -83,9 +86,10 @@ export function IncidentList({
     )
     .sort(incidentOrder);
   const conditions = [
-    needle ? `по запросу «${query.trim()}»` : '',
-    chip === 'ALL' ? '' : `отбор «${chipLabel}»`,
+    needle ? t('по запросу «{q}»', { q: query.trim() }) : '',
+    chip === 'ALL' ? '' : t('отбор «{chip}»', { chip: chipLabel ? t(chipLabel) : '' }),
   ].filter(Boolean);
+  const found = countLabel(locale, t, rows.length, [msg('неисправность'), 'неисправности', msg('неисправностей')]); // kk-allow: форма склонения
   const reset = () => {
     setChip('ALL');
     setQuery('');
@@ -99,7 +103,7 @@ export function IncidentList({
     );
 
   return (
-    <section className="incidents" aria-label="Открытые неисправности">
+    <section className="incidents" aria-label={t('Открытые неисправности')}>
       <div className="incidents__controls">
         <div className="chips" data-testid="incidents-filter">
           {CHIPS.map(([id, label, test]) => {
@@ -113,15 +117,15 @@ export function IncidentList({
                 aria-pressed={chip === id}
                 onClick={() => setChip(id)}
               >
-                {label} <span className="chips__count">{count}</span>
+                {t(label)} <span className="chips__count">{count}</span>
               </button>
             );
           })}
         </div>
-        <Field label="Поиск неисправности" className="incidents__search">
+        <Field label={t('Поиск неисправности')} className="incidents__search">
           <Input
             type="search"
-            placeholder="Название или результат проверки"
+            placeholder={t('Название или результат проверки')}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
@@ -129,21 +133,21 @@ export function IncidentList({
       </div>
       {conditions.length > 0 && (
         <p className="control-result" role="status">
-          {`${pluralRu(rows.length, ['неисправность', 'неисправности', 'неисправностей'])} ${conditions.join(', ')}`}
+          {`${found} ${conditions.join(', ')}`}
         </p>
       )}
       {rows.length === 0 ? (
         <EmptyState
           icon={<Icon name="search" />}
-          title="По этим условиям открытых неисправностей нет"
+          title={t('По этим условиям открытых неисправностей нет')}
           data-testid="incidents-filter-empty"
           actions={
             <Button tone="secondary" type="button" onClick={reset}>
-              Сбросить фильтры
+              {t('Сбросить фильтры')}
             </Button>
           }
         >
-          {`Ничего не нашлось ${conditions.join(', ')}. Открытых всего ${incidents.length}.`}
+          {t('Ничего не нашлось {conditions}. Открытых всего {n}.', { conditions: conditions.join(', '), n: incidents.length })}
         </EmptyState>
       ) : (
         <ul className="incident-cards">
@@ -159,27 +163,27 @@ export function IncidentList({
               <div className="incident__head">
                 <h3 className="incident__title">{incidentHeadline(i.title).headline}</h3>
                 <Badge tone={STATUS_TONE[i.status]} data-testid="incident-status">
-                  {STATUS_RU[i.status]}
+                  {t(STATUS_RU[i.status])}
                 </Badge>
               </div>
               {incidentHeadline(i.title).details && (
                 <details className="incident__details">
-                  <summary>Технические подробности</summary>
+                  <summary>{t('Технические подробности')}</summary>
                   <pre>{incidentHeadline(i.title).details}</pre>
                 </details>
               )}
               <p className="incident__facts">
-                {i.severity === 'CRITICAL' && <span className="incident__urgent">Срочно. </span>}
-                Замечена <time dateTime={i.firstSeenAt}>{clock.when(i.firstSeenAt)}</time>.{' '}
-                {repeatWords(i)}{' '}
+                {i.severity === 'CRITICAL' && <span className="incident__urgent">{t('Срочно.')} </span>}
+                {t('Замечена')} <time dateTime={i.firstSeenAt}>{clock.when(i.firstSeenAt, t)}</time>.{' '}
+                {repeatWords(i, locale, t)}{' '}
                 {i.alertedAt && (
                   <>
-                    Будильник сработал <time dateTime={i.alertedAt}>{clock.when(i.alertedAt)}</time>
+                    {t('Будильник сработал')} <time dateTime={i.alertedAt}>{clock.when(i.alertedAt, t)}</time>
                     .
                   </>
                 )}
               </p>
-              <p className="incident__guard">{guardWords(i)}</p>
+              <p className="incident__guard">{guardWords(i, locale, t)}</p>
               <div className="incident__actions">
                 <IncidentButtons id={i.id} canAcknowledge={i.status !== 'ACKNOWLEDGED'} />
               </div>

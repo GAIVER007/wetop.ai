@@ -19,7 +19,7 @@ test('отказ API: заголовок и фильтры на месте, по
   await request.post(`${API}/__test/control`, { data: { failPath: '/hotel/reservations' } });
   await page.goto(`/reservations?from=${today}&to=${today}&status=CONFIRMED&q=Тестовый`);
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Брони');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Записи');
   await expect(main.getByLabel('Поиск броней')).toHaveValue('Тестовый');
   const failure = main.getByTestId('reservations-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
@@ -62,7 +62,7 @@ test('пока список идёт — скелетон с подписью с
   await expect(loading).toBeVisible();
   await expect(loading).toHaveAttribute('aria-busy', 'true');
   await expect(loading.getByRole('status')).toHaveText('Загружаем список броней…');
-  await expect(page.getByRole('heading', { name: 'Брони', level: 1 }).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Записи', level: 1 }).first()).toBeVisible();
   await expect(page.getByRole('main').getByTestId('reservations-table')).toBeVisible();
   await expect(loading).toHaveCount(0);
 });

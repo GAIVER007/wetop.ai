@@ -28,13 +28,15 @@ import {
 } from './actions';
 import { useConfirm } from '../../../components/use-confirm';
 import { phoneFieldValue, phoneOnInput } from '../../../lib/phone';
+import { msg } from '../../../i18n';
+import { useT } from '../../../i18n/locale-provider';
 
 const DOC_TYPES: Array<[string, string]> = [
-  ['PASSPORT', 'паспорт'],
-  ['ID_CARD', 'удостоверение личности'],
-  ['RESIDENCE_PERMIT', 'вид на жительство'],
-  ['BIRTH_CERTIFICATE', 'свидетельство о рождении'],
-  ['OTHER', 'другое'],
+  ['PASSPORT', msg('паспорт')],
+  ['ID_CARD', msg('удостоверение личности')],
+  ['RESIDENCE_PERMIT', msg('вид на жительство')],
+  ['BIRTH_CERTIFICATE', msg('свидетельство о рождении')],
+  ['OTHER', msg('другое')],
 ];
 const docTypeName = (type: string) => DOC_TYPES.find(([k]) => k === type)?.[1] ?? type;
 
@@ -55,6 +57,7 @@ export function GuestProfileForm({
   /** окно над бронью закрывается после сохранения (аудит 22.10.2026 P2-3); вкладка гостя остаётся открытой */
   onSaved?: () => void;
 }) {
+  const t = useT();
   const personal = piiStorage === 'real';
   const [pState, pAction, pPending] = useActionState<GuestActionResult, FormData>(
     updateGuestAction.bind(null, guest.id),
@@ -74,38 +77,39 @@ export function GuestProfileForm({
       data-testid="guest-form"
       className="panel"
     >
-      <PanelTitle>Профиль</PanelTitle>
+      <PanelTitle>{t('Профиль')}</PanelTitle>
       {!personal && (
         <Notice data-testid="guest-pseudonymized">
-          Пока база WETOP не в Казахстане, имя, контакты, заметки и документы гостя в ней не
-          хранятся. Менять можно гражданство и пол; личность сверяйте по документу на заселении.
+          {t(
+            'Пока база WETOP не в Казахстане, имя, контакты, заметки и документы гостя в ней не хранятся. Менять можно гражданство и пол; личность сверяйте по документу на заселении.',
+          )}
         </Notice>
       )}
       <fieldset className="guest-form-fields" disabled={readOnly}>
         <Grid gap="sm">
           {personal && (
             <>
-              <Field label="Фамилия *">
+              <Field label={t('Фамилия *')}>
                 <Input
                   name="lastName"
                   defaultValue={pState.values?.lastName ?? guest.lastName}
                   required
                 />
               </Field>
-              <Field label="Имя *">
+              <Field label={t('Имя *')}>
                 <Input
                   name="firstName"
                   defaultValue={pState.values?.firstName ?? guest.firstName}
                   required
                 />
               </Field>
-              <Field label="Отчество">
+              <Field label={t('Отчество')}>
                 <Input
                   name="middleName"
                   defaultValue={pState.values?.middleName ?? guest.middleName ?? ''}
                 />
               </Field>
-              <Field label="Дата рождения">
+              <Field label={t('Дата рождения')}>
                 <DateInput
                   name="birthDate"
                   defaultValue={pState.values?.birthDate ?? guest.birthDate ?? ''}
@@ -113,7 +117,7 @@ export function GuestProfileForm({
               </Field>
             </>
           )}
-          <Field label="Гражданство (ISO alpha-3, напр. KAZ) *для заселения">
+          <Field label={t('Гражданство (ISO alpha-3, напр. KAZ) *для заселения')}>
             <Input
               name="citizenship"
               defaultValue={pState.values?.citizenship ?? guest.citizenship ?? ''}
@@ -122,16 +126,16 @@ export function GuestProfileForm({
               className="inp--upper"
             />
           </Field>
-          <Field label="Пол">
+          <Field label={t('Пол')}>
             <Select name="gender" defaultValue={pState.values?.gender ?? guest.gender}>
-              <option value="UNKNOWN">не указан</option>
-              <option value="MALE">мужской</option>
-              <option value="FEMALE">женский</option>
+              <option value="UNKNOWN">{t('не указан')}</option>
+              <option value="MALE">{t('мужской')}</option>
+              <option value="FEMALE">{t('женский')}</option>
             </Select>
           </Field>
           {personal && (
             <>
-              <Field label="Телефон">
+              <Field label={t('Телефон')}>
                 <Input name="phone" type="tel" inputMode="tel" placeholder="+7 701 000 00 00" onInput={phoneOnInput} defaultValue={phoneFieldValue(pState.values?.phone ?? guest.phone)} />
               </Field>
               <Field label="Email">
@@ -141,7 +145,7 @@ export function GuestProfileForm({
           )}
         </Grid>
         {personal && (
-          <Field label="Заметки о госте">
+          <Field label={t('Заметки о госте')}>
             <Textarea
               name="notes"
               defaultValue={pState.values?.notes ?? guest.notes ?? ''}
@@ -153,7 +157,7 @@ export function GuestProfileForm({
       {!readOnly && (
         <Row>
           <Button type="submit" disabled={pPending}>
-            Сохранить
+            {t('Сохранить')}
           </Button>
           {pState.error && <Alert>{pState.error}</Alert>}
         </Row>
@@ -179,6 +183,7 @@ export function GuestDocuments({
   /** YYYY-MM-DD по часам объекта: «просрочен» считается от него, а не от часов браузера */
   today: string;
 }) {
+  const t = useT();
   const personal = piiStorage === 'real';
   const [dState, dAction, dPending] = useActionState<GuestActionResult, FormData>(
     addDocumentAction.bind(null, guest.id),
@@ -192,12 +197,12 @@ export function GuestDocuments({
   const { ask, dialog } = useConfirm();
   return (
     <Stack>
-      <Panel title="Документы" id="guest-documents">
+      <Panel title={t('Документы')} id="guest-documents">
         {guest.documents.length === 0 && (
-          <EmptyState title="Документов нет">
+          <EmptyState title={t('Документов нет')}>
             {personal && !readOnly
-              ? 'Добавьте паспорт или удостоверение формой ниже — без документа гостя не заселить.'
-              : 'Без документа гостя не заселить.'}
+              ? t('Добавьте паспорт или удостоверение формой ниже — без документа гостя не заселить.')
+              : t('Без документа гостя не заселить.')}
           </EmptyState>
         )}
         {guest.documents.length > 0 && (
@@ -206,15 +211,15 @@ export function GuestDocuments({
               const expired = d.expiresAt !== null && d.expiresAt < today;
               const facts = [
                 d.issueCountry,
-                d.issuedAt ? `выдан ${displayDay(d.issuedAt)}` : null,
-                d.expiresAt ? `действителен до ${displayDay(d.expiresAt)}` : null,
+                d.issuedAt ? t('выдан {date}', { date: displayDay(d.issuedAt) }) : null,
+                d.expiresAt ? t('действителен до {date}', { date: displayDay(d.expiresAt) }) : null,
               ].filter(Boolean);
               return (
                 <li key={d.id} className="guest-doc" data-testid="document-row">
                   <div className="guest-doc__main">
-                    <strong>{docTypeName(d.type)}</strong>
+                    <strong>{t(docTypeName(d.type))}</strong>
                     <b className="mono">{d.numberMasked}</b>
-                    {expired && <Badge tone="danger">просрочен</Badge>}
+                    {expired && <Badge tone="danger">{t('просрочен')}</Badge>}
                   </div>
                   {facts.length > 0 && <span className="dir-sub">{facts.join(', ')}</span>}
                   {!readOnly && (
@@ -227,15 +232,18 @@ export function GuestDocuments({
                       onClick={async () => {
                         // Документ хранится в шифровании и восстановлению не подлежит — вносить заново руками
                         const ok = await ask({
-                          title: 'Удалить документ гостя?',
-                          body: `${docTypeName(d.type)} ${d.numberMasked} исчезнет с карточки. Вернуть его можно будет только вводом заново, а без документа гостя не заселить.`,
-                          confirmLabel: 'Удалить документ',
+                          title: t('Удалить документ гостя?'),
+                          body: t(
+                            '{document} {number} исчезнет с карточки. Вернуть его можно будет только вводом заново, а без документа гостя не заселить.',
+                            { document: t(docTypeName(d.type)), number: d.numberMasked },
+                          ),
+                          confirmLabel: t('Удалить документ'),
                         });
                         if (!ok) return;
                         await remove(() => deleteDocumentAction(guest.id, d.id));
                       }}
                     >
-                      удалить
+                      {t('удалить')}
                     </Button>
                   )}
                 </li>
@@ -245,7 +253,7 @@ export function GuestDocuments({
         )}
         {!personal && (
           <p className="sub" data-testid="documents-pseudonymized">
-            Документы гостей в WETOP не вносятся, пока база не в Казахстане.
+            {t('Документы гостей в WETOP не вносятся, пока база не в Казахстане.')}
           </p>
         )}
         {personal && !readOnly && (
@@ -257,38 +265,38 @@ export function GuestDocuments({
           >
             <Select
               name="type"
-              aria-label="Тип документа"
+              aria-label={t('Тип документа')}
               defaultValue={dState.values?.type ?? 'PASSPORT'}
             >
-              {DOC_TYPES.map(([k, t]) => (
+              {DOC_TYPES.map(([k, label]) => (
                 <option key={k} value={k}>
-                  {t}
+                  {t(label)}
                 </option>
               ))}
             </Select>
             <Input
               name="number"
               defaultValue={dState.values?.number ?? ''}
-              aria-label="Номер документа"
-              placeholder="Номер документа"
+              aria-label={t('Номер документа')}
+              placeholder={t('Номер документа')}
               required
             />
             <Input
               name="issueCountry"
               defaultValue={dState.values?.issueCountry ?? ''}
-              aria-label="Страна выдачи"
-              placeholder="страна, KAZ"
+              aria-label={t('Страна выдачи')}
+              placeholder={t('страна, KAZ')}
               maxLength={3}
               className="inp--w90 inp--upper"
             />
-            <Field label="Дата выдачи">
+            <Field label={t('Дата выдачи')}>
               <DateInput name="issuedAt" defaultValue={dState.values?.issuedAt ?? ''} />
             </Field>
-            <Field label="Действителен до">
+            <Field label={t('Действителен до')}>
               <DateInput name="expiresAt" defaultValue={dState.values?.expiresAt ?? ''} />
             </Field>
             <Button type="submit" disabled={dPending || deletePending}>
-              Добавить
+              {t('Добавить')}
             </Button>
           </form>
         )}

@@ -2,6 +2,8 @@
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Alert, Badge, Button } from '../../components/ui';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 import type { MenuStation, OrderItemStatus, OrderItemView, OrderView } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
 import { stationLines } from '../../lib/food-stations';
@@ -10,9 +12,9 @@ import { mutateOrder } from './restaurant-actions';
 import { LineModifiers } from './modifier-parts';
 
 const COLUMNS: ReadonlyArray<{ id: OrderItemStatus; title: string; action: OrderItemStatus; button: string }> = [
-  { id: 'NEW', title: 'Новые', action: 'COOKING', button: 'Принять' },
-  { id: 'COOKING', title: 'Готовятся', action: 'READY', button: 'Готово' },
-  { id: 'READY', title: 'Готово', action: 'SERVED', button: 'Отметить как выдано' },
+  { id: 'NEW', title: msg('Новые'), action: 'COOKING', button: msg('Принять') },
+  { id: 'COOKING', title: msg('Готовятся'), action: 'READY', button: msg('Готово@@кухня') },
+  { id: 'READY', title: msg('Готово@@кухня'), action: 'SERVED', button: msg('Отметить как выдано') },
 ];
 /** Автообновление: новые позиции от официантов появляются без перезагрузки (§33.6) */
 const REFRESH_MS = 15_000;
@@ -39,6 +41,7 @@ export function KitchenBoard({
   orders: OrderView[];
   station?: MenuStation;
 }) {
+  const t = useT();
   const router = useRouter();
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
@@ -80,7 +83,7 @@ export function KitchenBoard({
         </time>
       </div>
       <span className="rest-kds-table">
-        {o.table ? tableTitle(o.table.name) : 'Без стола'}
+        {o.table ? tableTitle(o.table.name, t) : t('Без стола')}
         {o.waiter ? `, ${o.waiter.name}` : ''}
       </span>
       <ul className="rest-kds-items">
@@ -101,18 +104,18 @@ export function KitchenBoard({
                   size="sm"
                   tone={status === 'COOKING' ? 'primary' : 'secondary'}
                   disabled={pending}
-                  aria-label={`${action.button}: ${i.name}`}
+                  aria-label={`${t(action.button)}: ${i.name}`}
                   onClick={() => transition(o, i, action.action)}
                 >
-                  {action.button}
+                  {t(action.button)}
                 </Button>
               )}
             </li>
           );
         })}
       </ul>
-      <small className="muted">{minutesAgo(o.openedAt, now)} мин в работе</small>
-      {col === 'DELAYED' && <Badge tone="danger">Задерживается</Badge>}
+      <small className="muted">{t('{n} мин в работе', { n: minutesAgo(o.openedAt, now) })}</small>
+      {col === 'DELAYED' && <Badge tone="danger">{t('Задерживается')}</Badge>}
     </article>
   );
   const delayed = mine.filter(late);
@@ -126,17 +129,17 @@ export function KitchenBoard({
             .map((o) => [o, stationLines(o, station).filter((i) => (i.status ?? 'NEW') === col.id)] as const)
             .filter(([, lines]) => lines.length > 0);
           return (
-            <section className="rest-kds-col" data-col={col.id} key={col.id} aria-label={col.title}>
+            <section className="rest-kds-col" data-col={col.id} key={col.id} aria-label={t(col.title)}>
               <h2>
-                {col.title} ({list.length})
+                {t(col.title)} ({list.length})
               </h2>
               {list.map(([o, lines]) => card(o, lines, col.id))}
-              {list.length === 0 && <p className="muted">Пусто</p>}
+              {list.length === 0 && <p className="muted">{t('Пусто')}</p>}
             </section>
           );
         })}
-        <section className="rest-kds-col" data-col="DELAYED" aria-label="Задерживаются">
-          <h2>Задерживаются ({delayed.length})</h2>
+        <section className="rest-kds-col" data-col="DELAYED" aria-label={t('Задерживаются')}>
+          <h2>{t('Задерживаются')} ({delayed.length})</h2>
           {delayed.map((o) =>
             card(
               o,
@@ -144,7 +147,7 @@ export function KitchenBoard({
               'DELAYED',
             ),
           )}
-          {delayed.length === 0 && <p className="muted">{station === 'BAR' ? 'Бар успевает' : 'Кухня успевает'}</p>}
+          {delayed.length === 0 && <p className="muted">{station === 'BAR' ? t('Бар успевает') : t('Кухня успевает')}</p>}
         </section>
       </div>
     </div>

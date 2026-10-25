@@ -6,6 +6,10 @@ import { DonutShare } from '../../components/donut-share';
 import { ShareBar } from '../../components/share-bar';
 import type { PeriodOperations, PeriodReport } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
+import { msg, translator, type Translate } from '../../i18n';
+import { dateFormat } from '../../i18n/dates';
+
+const RU = translator('ru');
 
 /**
  * «Финансы» по эталону владельца 13.10.2026 (`design/references/03_finance_analytics/finance_owner_2026-10-13.webp`,
@@ -52,7 +56,10 @@ export function FinanceTotals({
   expense,
   balance,
   currency,
+  t = RU,
 }: {
+  /** перевод подписей; по умолчанию русский (тесты рендерят без запроса) */
+  t?: Translate;
   charged: bigint | null;
   income: bigint | null;
   refunds: bigint | null;
@@ -62,7 +69,7 @@ export function FinanceTotals({
   currency: string;
 }) {
   const money = (v: bigint | null) =>
-    v === null ? 'Нет данных' : formatMoney(v.toString(), currency);
+    v === null ? t('Нет данных') : formatMoney(v.toString(), currency);
   const profit =
     income !== null && refunds !== null && expense !== null ? income - refunds - expense : null;
   const item = (id: string, label: string, value: string) => (
@@ -72,14 +79,14 @@ export function FinanceTotals({
     </div>
   );
   return (
-    <dl className="money-summary" data-testid="cash-summary" aria-label="Деньги за период">
-      {item('fin-charged', 'Общий доход', money(charged))}
-      {item('cash-period-income', 'Поступления', money(income))}
-      {item('cash-period-refunds', 'Возвраты', money(refunds))}
-      {item('cash-period-expense', 'Расходы', money(expense))}
-      {profit !== null && item('fin-profit', 'Чистая прибыль', money(profit))}
+    <dl className="money-summary" data-testid="cash-summary" aria-label={t('Деньги за период')}>
+      {item('fin-charged', t('Общий доход'), money(charged))}
+      {item('cash-period-income', t('Поступления'), money(income))}
+      {item('cash-period-refunds', t('Возвраты'), money(refunds))}
+      {item('cash-period-expense', t('Расходы'), money(expense))}
+      {profit !== null && item('fin-profit', t('Чистая прибыль'), money(profit))}
       {balance !== null &&
-        item('cash-balance', 'Остаток на счетах', formatMoney(balance, currency))}
+        item('cash-balance', t('Остаток на счетах'), formatMoney(balance, currency))}
     </dl>
   );
 }
@@ -92,7 +99,11 @@ export function FinanceAccrualTotals({
   due,
   dueFailed,
   hrefs,
+  t = RU,
 }: {
+  /** перевод подписей; по умолчанию русский (тесты рендерят без запроса) */
+  t?: Translate;
+
   report: Pick<PeriodReport, 'chargedMinor' | 'paidMinor' | 'refundedMinor'>;
   currency: string;
   /** «К сбору» из списка долгов (Q-206); `null`: список не загрузился */
@@ -111,16 +122,16 @@ export function FinanceAccrualTotals({
     </div>
   );
   return (
-    <dl className="money-summary" data-testid="finance-kpis" aria-label="Итоги периода">
-      {item('charged', 'charged', 'Начислено', hrefs.charged, formatMoney(report.chargedMinor, currency))}
-      {item('paid', 'paid', 'Оплачено', hrefs.paid, formatMoney(report.paidMinor, currency))}
-      {item('refunded', 'refunded', 'Возвращено', hrefs.refunded, formatMoney(report.refundedMinor, currency))}
+    <dl className="money-summary" data-testid="finance-kpis" aria-label={t('Итоги периода')}>
+      {item('charged', 'charged', t('Начислено'), hrefs.charged, formatMoney(report.chargedMinor, currency))}
+      {item('paid', 'paid', t('Оплачено'), hrefs.paid, formatMoney(report.paidMinor, currency))}
+      {item('refunded', 'refunded', t('Возвращено'), hrefs.refunded, formatMoney(report.refundedMinor, currency))}
       {item(
         'due',
         'balance',
-        'К сбору',
+        t('К сбору'),
         hrefs.due,
-        due === null ? (dueFailed ? 'Список долгов не загрузился' : 'Нет данных') : formatMoney(due, currency),
+        due === null ? (dueFailed ? t('Список долгов не загрузился') : t('Нет данных')) : formatMoney(due, currency),
       )}
     </dl>
   );
@@ -155,31 +166,40 @@ export function financeMonthEmpty({
 }
 
 /** Пустой месяц: одна заглушка с первым шагом вместо нулевых итогов, графика и таблиц (аудит 22.10.2026 P1-3b) */
-export function FinanceEmptyMonth() {
+export function FinanceEmptyMonth({ t = RU }: { t?: Translate } = {}) {
   return (
     <EmptyState
       className="fin-month-empty"
       data-testid="finance-empty"
-      title="За этот период денег ещё не было"
+      title={t('За этот период денег ещё не было')}
       actions={
         <Link className="btn" href="/reservations/new">
-          Добавить первую бронь
+          {t('Добавить первую бронь')}
         </Link>
       }
     >
-      Здесь появятся доходы, оплаты и расходы, когда пройдёт первая бронь или операция кассы.
+      {t('Здесь появятся доходы, оплаты и расходы, когда пройдёт первая бронь или операция кассы.')}
     </EmptyState>
   );
 }
 
-const SHORT_DAY = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', timeZone: 'UTC' });
-
-export function FinanceDynamics({ flow, currency }: { flow: DayFlow[]; currency: string }) {
-  const labels = flow.map((d) => SHORT_DAY.format(new Date(`${d.date}T00:00:00Z`)));
+export function FinanceDynamics({
+  flow,
+  currency,
+  t = RU,
+  locale = 'ru-RU',
+}: {
+  flow: DayFlow[];
+  currency: string;
+  t?: Translate;
+  locale?: 'ru-RU' | 'kk-KZ' | 'en-GB';
+}) {
+  const shortDay = dateFormat(locale, { day: 'numeric', month: 'short', timeZone: 'UTC' });
+  const labels = flow.map((d) => shortDay.format(new Date(`${d.date}T00:00:00Z`)));
   const sum = (key: 'income' | 'expense') => flow.reduce((a, d) => a + d[key], 0n).toString();
   return (
     <section className="fin-card fin-dynamics" aria-labelledby="fin-dynamics-title">
-      <h2 id="fin-dynamics-title">Динамика поступлений, возвратов и расходов</h2>
+      <h2 id="fin-dynamics-title">{t('Динамика поступлений, возвратов и расходов')}</h2>
       <LineChart
         testId="fin-dynamics"
         labels={labels}
@@ -188,12 +208,12 @@ export function FinanceDynamics({ flow, currency }: { flow: DayFlow[]; currency:
         formatAxis={(v) => formatMoney(String(Math.round(v / 100) * 100), currency)}
         series={[
           {
-            name: 'Поступления',
+            name: t('Поступления'),
             values: flow.map((d) => Number(d.income)),
             summary: formatMoney(sum('income'), currency),
           },
           {
-            name: 'Возвраты и расходы',
+            name: t('Возвраты и расходы'),
             values: flow.map((d) => Number(d.expense)),
             dashed: true,
             summary: formatMoney(sum('expense'), currency),
@@ -207,25 +227,27 @@ export function FinanceDynamics({ flow, currency }: { flow: DayFlow[]; currency:
 export function IncomeStructure({
   report,
   kindLabel,
+  t = RU,
 }: {
   report: PeriodReport | null;
   kindLabel: (kind: string) => string;
+  t?: Translate;
 }) {
   const currency = report?.currency ?? 'KZT';
   const items = (report?.chargesByKind ?? []).map((k) => ({ label: kindLabel(k.kind), valueMinor: k.amountMinor }));
   return (
     <section className="fin-card fin-structure" aria-labelledby="fin-structure-title">
-      <h2 id="fin-structure-title">Структура доходов</h2>
+      <h2 id="fin-structure-title">{t('Структура доходов')}</h2>
       {items.some((i) => BigInt(i.valueMinor) > 0n) ? (
         <DonutShare
           testId="fin-structure"
           items={items}
-          centerLabel="Общий доход"
+          centerLabel={t('Общий доход')}
           centerValue={formatMoney(report?.chargedMinor ?? '0', currency)}
           amount={(v) => formatMoney(v, currency)}
         />
       ) : (
-        <p className="muted">За период начислений нет.</p>
+        <p className="muted">{t('За период начислений нет.')}</p>
       )}
     </section>
   );
@@ -234,15 +256,17 @@ export function IncomeStructure({
 export function ExpenseCategories({
   ops,
   allHref,
+  t = RU,
 }: {
   ops: PeriodOperations | null;
   allHref: string;
+  t?: Translate;
 }) {
   const currency = ops?.currency ?? 'KZT';
   const byCategory = new Map<string, bigint>();
   for (const row of ops?.rows ?? []) {
     if (row.kind !== 'EXPENSE' || row.status !== 'COMPLETED') continue;
-    const key = row.category ?? 'Прочие';
+    const key = row.category ?? t('Прочие');
     byCategory.set(key, (byCategory.get(key) ?? 0n) + BigInt(row.amountMinor));
   }
   const rows = [...byCategory.entries()].sort((a, b) => (a[1] < b[1] ? 1 : -1));
@@ -250,13 +274,13 @@ export function ExpenseCategories({
   return (
     <section className="fin-card fin-expenses" aria-labelledby="fin-expenses-title">
       <header className="fin-card__head">
-        <h2 id="fin-expenses-title">Расходы по категориям</h2>
+        <h2 id="fin-expenses-title">{t('Расходы по категориям')}</h2>
         <Link href={allHref}>
-          Все расходы <Icon name="arrow" />
+          {t('Все расходы')} <Icon name="arrow" />
         </Link>
       </header>
       {rows.length === 0 ? (
-        <p className="muted">Расходов за период нет.</p>
+        <p className="muted">{t('Расходов за период нет.')}</p>
       ) : (
         <ul className="fin-expenses__list">
           {rows.slice(0, 5).map(([name, value]) => {
@@ -266,7 +290,7 @@ export function ExpenseCategories({
                 <span className="fin-expenses__name">{name}</span>
                 <strong>{formatMoney(value.toString(), currency)}</strong>
                 <span className="muted">{Math.round(share)}%</span>
-                <ShareBar label={`${name}: доля расходов`} value={share} />
+                <ShareBar label={t('{name}: доля расходов', { name })} value={share} />
               </li>
             );
           })}
@@ -276,16 +300,26 @@ export function ExpenseCategories({
   );
 }
 
-export function FinanceReports({ exportHref, from, to }: { exportHref: string; from: string; to: string }) {
+export function FinanceReports({
+  exportHref,
+  from,
+  to,
+  t = RU,
+}: {
+  exportHref: string;
+  from: string;
+  to: string;
+  t?: Translate;
+}) {
   const range = `from=${from}&to=${to}`;
   const items: Array<{ href: string; title: string; action: string }> = [
-    { href: `/reports/finance?${range}`, title: 'Финансовый отчёт за период', action: 'Открыть' },
-    { href: exportHref, title: 'Движение денежных средств', action: 'Скачать CSV' },
-    { href: `/reports/overview?${range}`, title: 'Сводный отчёт', action: 'Открыть' },
+    { href: `/reports/finance?${range}`, title: msg('Финансовый отчёт за период'), action: msg('Открыть') },
+    { href: exportHref, title: msg('Движение денежных средств'), action: msg('Скачать CSV') },
+    { href: `/reports/overview?${range}`, title: msg('Сводный отчёт'), action: msg('Открыть') },
   ];
   return (
     <section className="fin-card fin-reports" aria-labelledby="fin-reports-title">
-      <h2 id="fin-reports-title">Финансовые отчёты</h2>
+      <h2 id="fin-reports-title">{t('Финансовые отчёты')}</h2>
       <ul>
         {items.map((i) => (
           <li key={i.title}>
@@ -293,8 +327,8 @@ export function FinanceReports({ exportHref, from, to }: { exportHref: string; f
             <Link href={i.href} prefetch={false}>
               <Icon name="receipt" />
               <span>
-                {i.title}
-                <small>{i.action}</small>
+                {t(i.title)}
+                <small>{t(i.action)}</small>
               </span>
             </Link>
           </li>
@@ -304,15 +338,15 @@ export function FinanceReports({ exportHref, from, to }: { exportHref: string; f
   );
 }
 
-export function AnalyticsCta() {
+export function AnalyticsCta({ t = RU }: { t?: Translate } = {}) {
   return (
     <section className="fin-card fin-cta" aria-labelledby="fin-cta-title">
       <Icon name="chart" className="fin-cta__icon" />
       <div>
-        <h2 id="fin-cta-title">Аналитика и прогнозы</h2>
-        <p>Загрузка, выручка, брони и каналы за период со сравнением и прогнозом загрузки.</p>
+        <h2 id="fin-cta-title">{t('Аналитика и прогнозы')}</h2>
+        <p>{t('Загрузка, выручка, брони и каналы за период со сравнением и прогнозом загрузки.')}</p>
         <Link className="btn" href="/management/analytics">
-          Перейти к аналитике <Icon name="arrow" />
+          {t('Перейти к аналитике')} <Icon name="arrow" />
         </Link>
       </div>
     </section>

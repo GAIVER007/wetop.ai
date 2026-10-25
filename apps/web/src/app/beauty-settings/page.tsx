@@ -9,12 +9,14 @@ import { requireFeature } from '../../lib/vertical-guard';
 import { SalonHoursForm } from './hours-form';
 import { SettingsLinks } from './settings-links';
 import { BonusProgramForm, ReminderSettingsForm } from './loyalty-forms';
+import { serverT } from '../../i18n/server';
 import './settings.css';
 
 export default async function BeautySettingsPage() {
   await requireFeature('/beauty-settings');
   const me = await currentMe();
   const shell = await deskShell();
+  const t = await serverT();
   try {
     const [initial, reminders, bonuses] = await Promise.all([
       beautyApi.locationHours(),
@@ -29,7 +31,7 @@ export default async function BeautySettingsPage() {
       locationId: me.context?.locationId,
     });
     return (
-      <Page title="Настройки салона" subtitle={initial.location.name ?? 'Выбранный филиал'}>
+      <Page title={t('Настройки салона')} subtitle={initial.location.name ?? t('Выбранный филиал')}>
         <SettingsLinks />
         {/* компактно (поручение 21.10.2026): режим работы слева, напоминания и бонусы справа; на телефоне столбиком */}
         <div className="salon-settings-stack">
@@ -50,7 +52,7 @@ export default async function BeautySettingsPage() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Настройки салона">
+      <Page title={t('Настройки салона')}>
         <LoadError testId="beauty-settings-error" {...loadErrorProps(error)} />
       </Page>
     );

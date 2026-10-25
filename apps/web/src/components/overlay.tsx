@@ -6,6 +6,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
 } from 'react';
+import { useT } from '../i18n/locale-provider';
 import { Icon } from './icon';
 
 export function trapDialogFocus(e: ReactKeyboardEvent<HTMLDialogElement>) {
@@ -54,6 +55,7 @@ export function Overlay({
   size?: 'sm' | 'md' | 'lg' | 'xl';
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const t = useT();
   const titleId = useId();
   useEffect(() => {
     const element = dialog.current;
@@ -98,11 +100,11 @@ export function Overlay({
       }}
     >
       <div className="overlay-heading">
-        <h2 id={titleId}>{title}</h2>
+        <h2 id={titleId}>{t(title)}</h2>
         <button
           type="button"
           className="icon-button"
-          aria-label={`Закрыть: ${title}`}
+          aria-label={t('Закрыть: {title}', { title: t(title) })}
           onClick={onClose}
         >
           <Icon name="close" />

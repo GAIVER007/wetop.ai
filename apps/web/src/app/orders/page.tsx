@@ -1,5 +1,6 @@
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
+import { serverT } from '../../i18n/server';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { foodApi, restaurantApi } from '../../lib/food-api';
@@ -24,6 +25,7 @@ export default async function OrdersPage({
 }: {
   searchParams: Promise<{ date?: string }>;
 }) {
+  const t = await serverT();
   const { date } = await searchParams;
   try {
     const shell = await restaurantShell(date);
@@ -51,7 +53,7 @@ export default async function OrdersPage({
       menuItems,
     };
     return (
-      <Page title="Заказы">
+      <Page title={t('Заказы')}>
         <div key={shell.scopeKey}>
           <OrdersBoard ctx={ctx} orders={merged} date={shell.date} />
         </div>
@@ -60,7 +62,7 @@ export default async function OrdersPage({
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Заказы">
+      <Page title={t('Заказы')}>
         <LoadError testId="orders-load-error" {...loadErrorProps(error)} />
       </Page>
     );

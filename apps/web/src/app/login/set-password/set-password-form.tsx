@@ -5,21 +5,23 @@ import { AuthShell } from '../../../components/auth-shell';
 import { Icon } from '../../../components/icon';
 import { setPassword, type SetPasswordState } from '../actions';
 import { Input } from '../../../components/ui';
+import { useT } from '../../../i18n/locale-provider';
 
 export function SetPasswordForm({ token }: { token: string }) {
+  const t = useT();
   const [state, submit, pending] = useActionState<SetPasswordState, FormData>(setPassword, {
     error: null,
   });
   return (
     <AuthShell
       story={{
-        eyebrow: 'Доступ к рабочему месту',
+        eyebrow: t('Доступ к рабочему месту'),
         title: (
           <>
-            Придумайте <br /> себе пароль.
+            {t('Придумайте')} <br /> {t('себе пароль.')}
           </>
         ),
-        text: 'Его не знает никто, кроме вас: в системе хранится только отпечаток.',
+        text: t('Его не знает никто, кроме вас: в системе хранится только отпечаток.'),
       }}
     >
       <span className="round-icon">
@@ -27,47 +29,47 @@ export function SetPasswordForm({ token }: { token: string }) {
       </span>
       {token ? (
         <>
-          <h2>Новый пароль</h2>
-          <p>Не короче 10 символов, не только из цифр</p>
+          <h2>{t('Новый пароль')}</h2>
+          <p>{t('Не короче 10 символов, не только из цифр')}</p>
           <form action={submit}>
             <input type="hidden" name="token" value={token} />
             <label className="field">
-              Пароль
+              {t('Пароль')}
               <Input
                 type="password"
                 name="password"
-                aria-label="Пароль"
+                aria-label={t('Пароль')}
                 autoComplete="new-password"
                 required
               />
             </label>
             <label className="field">
-              Пароль ещё раз
+              {t('Пароль ещё раз')}
               <Input
                 type="password"
                 name="again"
-                aria-label="Пароль ещё раз"
+                aria-label={t('Пароль ещё раз')}
                 autoComplete="new-password"
                 required
               />
             </label>
             {state.error && (
               <p className="alert" role="alert">
-                {state.error}
+                {t(state.error)}
               </p>
             )}
             <button className="btn" type="submit" disabled={pending}>
-              {pending ? 'Сохраняем…' : 'Сохранить пароль'}
+              {pending ? t('Сохраняем…') : t('Сохранить пароль')}
               <Icon name="arrow" width={16} />
             </button>
           </form>
         </>
       ) : (
         <>
-          <h2>Ссылка неполная</h2>
-          <p>Откройте ссылку из письма целиком — в ней есть одноразовый ключ.</p>
+          <h2>{t('Ссылка неполная')}</h2>
+          <p>{t('Откройте ссылку из письма целиком — в ней есть одноразовый ключ.')}</p>
           <Link className="btn" href="/login/reset">
-            Прислать новую ссылку
+            {t('Прислать новую ссылку')}
             <Icon name="arrow" width={16} />
           </Link>
         </>

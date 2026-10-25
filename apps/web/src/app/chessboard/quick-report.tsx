@@ -3,6 +3,7 @@ import type { ChessboardRow } from '../../lib/api';
 import { QuickReport } from '../../components/quick-report';
 import { hotelQuickReport } from '../../components/quick-report-data';
 import { loadHotelReportRows } from './report-actions';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * «Быстрый отчёт» календаря гостиницы (владелец 23.10.2026: во всех направлениях одна кнопка): отчёт дня по видимому
@@ -19,11 +20,12 @@ export function HotelQuickReport({
   currency: string;
   propertyName: string;
 }) {
+  const t = useT();
   return (
     <QuickReport
-      text="Быстрый отчёт"
+      text={t('Быстрый отчёт')}
       date={date}
-      scope={[propertyName, 'Все номера']}
+      scope={[propertyName, t('Все номера')]}
       build={(periodRows) =>
         periodRows
           ? hotelQuickReport((periodRows as Array<{ rows: ChessboardRow[]; from: string; to: string }>)[0]!.rows, {
@@ -37,7 +39,7 @@ export function HotelQuickReport({
         const result = await loadHotelReportRows(from, to);
         return result.rows
           ? { rows: [{ rows: result.rows, from, to }] }
-          : { error: result.error ?? 'Не удалось загрузить брони за период.' };
+          : { error: result.error ?? t('Не удалось загрузить брони за период.') };
       }}
     />
   );

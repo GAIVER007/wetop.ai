@@ -16,6 +16,7 @@ import type {
   SiteFactsVertical,
   SiteLocationListItem,
 } from '@pms/domain';
+import { msg, translator, type Translate } from '../i18n';
 
 export type { SiteFacts, SiteFactsCatalogItem, SiteFactsGap };
 export type SiteVertical = SiteFactsVertical;
@@ -89,26 +90,28 @@ const money = (minor: string) => ({ minor, currency: KZT });
 /** Код позиции каталога для документа сайта: id из данных, иначе порядковый */
 const code = (id: string | undefined, prefix: string, i: number) => (id && /^[A-Za-z0-9_-]{1,64}$/.test(id) ? id : `${prefix}-${i + 1}`);
 
-const WEEKDAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+const WEEKDAYS = [msg('Вс'), msg('Пн'), msg('Вт'), msg('Ср'), msg('Чт'), msg('Пт'), msg('Сб')];
 /** Строки недели для карточки с понедельника: «Пн 10:00–20:00»; одинаковые дни не склеиваются, чтобы не врать */
-export function weekHours(days: SiteFactsHoursDay[]): string[] {
+export function weekHours(days: SiteFactsHoursDay[], t: Translate = translator('ru')): string[] {
   const order = [1, 2, 3, 4, 5, 6, 0];
   return order
     .map((day) => {
       const own = days.filter((r) => r.weekday === day).sort((a, b) => (a.open < b.open ? -1 : 1));
-      return own.length ? `${WEEKDAYS[day]} ${own.map((r) => `${r.open}–${r.close}`).join(', ')}` : null;
+      return own.length ? `${t(WEEKDAYS[day] ?? '')} ${own.map((r) => `${r.open}–${r.close}`).join(', ')}` : null;
     })
     .filter((x): x is string => x !== null);
 }
 
 /** Часы для карточки: у гостиницы заезд и выезд, у остальных неделя */
-export function hoursLines(facts: SiteFacts): string[] {
+export function hoursLines(facts: SiteFacts, t: Translate = translator('ru')): string[] {
   if (facts.vertical === 'HOSPITALITY') {
     const { checkInTime: inT, checkOutTime: outT } = facts.hours;
-    const line = [inT ? `Заезд с ${inT}` : null, outT ? `выезд до ${outT}` : null].filter(Boolean).join(', ');
+    const line = [inT ? t('Заезд с {time}', { time: inT }) : null, outT ? t('выезд до {time}', { time: outT }) : null]
+      .filter(Boolean)
+      .join(', ');
     return line ? [line] : [];
   }
-  return weekHours(facts.hours.days);
+  return weekHours(facts.hours.days, t);
 }
 
 /** Один интервал на день: самое раннее начало и самый поздний конец */
@@ -126,12 +129,12 @@ function dayHull(rows: Array<{ weekday: number; from: string; to: string }>): Si
 }
 
 const GAP = {
-  phone: (href: string): SiteFactsGap => ({ key: 'phone', label: 'Нет телефона: посетитель не сможет позвонить', href }),
-  address: (href: string): SiteFactsGap => ({ key: 'address', label: 'Нет адреса: на сайте не будет карты и контактов', href }),
-  photos: (href: string): SiteFactsGap => ({ key: 'photos', label: 'Нет фото: сайт соберётся без галереи', href }),
+  phone: (href: string): SiteFactsGap => ({ key: 'phone', label: msg('Нет телефона: посетитель не сможет позвонить'), href }),
+  address: (href: string): SiteFactsGap => ({ key: 'address', label: msg('Нет адреса: на сайте не будет карты и контактов'), href }),
+  photos: (href: string): SiteFactsGap => ({ key: 'photos', label: msg('Нет фото: сайт соберётся без галереи'), href }),
   hours: (href: string, label: string): SiteFactsGap => ({ key: 'hours', label, href }),
   catalog: (href: string, label: string): SiteFactsGap => ({ key: 'catalog', label, href }),
-  staff: (href: string): SiteFactsGap => ({ key: 'staff', label: 'Нет мастеров: блок «Мастера» не появится', href }),
+  staff: (href: string): SiteFactsGap => ({ key: 'staff', label: msg('Нет мастеров: блок «Мастера» не появится'), href }),
 };
 const emptyHours = { days: [] as SiteFactsHoursDay[], checkInTime: null, checkOutTime: null };
 
@@ -155,9 +158,9 @@ async function hospitalityFacts(locationId: string, src: SiteFactsSource): Promi
   const gaps: SiteFactsGap[] = [];
   if (!id.phone) gaps.push(GAP.phone('/hotel-settings'));
   if (!id.address) gaps.push(GAP.address('/hotel-settings'));
-  if (!items.length) gaps.push(GAP.catalog('/rooms/categories', 'Нет категорий номеров: нечего показать в каталоге'));
-  else if (!items.some((i) => i.priceFrom)) gaps.push(GAP.catalog('/rates', 'Нет цен: на сайте не будет цены «от»'));
-  if (!stay?.checkInTime && !stay?.checkOutTime) gaps.push(GAP.hours('/hotel-settings/stay', 'Нет времени заезда и выезда'));
+  if (!items.length) gaps.push(GAP.catalog('/rooms/categories', msg('Нет категорий номеров: нечего показать в каталоге')));
+  else if (!items.some((i) => i.priceFrom)) gaps.push(GAP.catalog('/rates', msg('Нет цен: на сайте не будет цены «от»')));
+  if (!stay?.checkInTime && !stay?.checkOutTime) gaps.push(GAP.hours('/hotel-settings/stay', msg('Нет времени заезда и выезда')));
   if (!photosCount) gaps.push(GAP.photos('/marketing/site/assets'));
   return {
     vertical: 'HOSPITALITY',
@@ -192,13 +195,13 @@ async function beautyFacts(locationId: string, src: SiteFactsSource): Promise<Si
   const gaps: SiteFactsGap[] = [];
   if (!branch?.address) gaps.push(GAP.address('/branches'));
   gaps.push(GAP.phone('/branches'));
-  if (!items.length) gaps.push(GAP.catalog('/services', 'Нет услуг с ценой в этом филиале'));
+  if (!items.length) gaps.push(GAP.catalog('/services', msg('Нет услуг с ценой в этом филиале')));
   if (!staff.length) gaps.push(GAP.staff('/employees'));
-  if (!days.length) gaps.push(GAP.hours('/beauty/schedule', 'Нет графика работы'));
+  if (!days.length) gaps.push(GAP.hours('/beauty/schedule', msg('Нет графика работы')));
   gaps.push(GAP.photos('/marketing/site/assets'));
   return {
     vertical: 'BEAUTY',
-    location: { id: locationId, name: branch?.name ?? 'Салон', address: branch?.address ?? null, phone: null, whatsapp: null, city: null },
+    location: { id: locationId, name: branch?.name ?? msg('Салон'), address: branch?.address ?? null, phone: null, whatsapp: null, city: null },
     catalog: { kind: 'services', items },
     staff,
     hours: { ...emptyHours, days },
@@ -227,12 +230,12 @@ async function foodFacts(locationId: string, src: SiteFactsSource): Promise<Site
   const gaps: SiteFactsGap[] = [];
   if (!branch?.address) gaps.push(GAP.address('/branches'));
   gaps.push(GAP.phone('/branches'));
-  if (!items.length) gaps.push(GAP.catalog('/menu', 'Меню пустое: на сайте не будет блюд и цен'));
-  if (!days.length) gaps.push(GAP.hours('/restaurant-settings', 'Нет часов работы'));
+  if (!items.length) gaps.push(GAP.catalog('/menu', msg('Меню пустое: на сайте не будет блюд и цен')));
+  if (!days.length) gaps.push(GAP.hours('/restaurant-settings', msg('Нет часов работы')));
   if (!photosCount) gaps.push(GAP.photos('/menu'));
   return {
     vertical: 'FOOD_SERVICE',
-    location: { id: locationId, name: branch?.name ?? 'Ресторан', address: branch?.address ?? null, phone: null, whatsapp: null, city: null },
+    location: { id: locationId, name: branch?.name ?? msg('Ресторан'), address: branch?.address ?? null, phone: null, whatsapp: null, city: null },
     catalog: { kind: 'menu', items },
     staff: [],
     hours: { ...emptyHours, days },
@@ -251,14 +254,14 @@ export async function loadSiteFacts(locationId: string, vertical: SiteVertical, 
   try {
     return { ok: true, data: (await src.facts(locationId)) as SiteFacts, source: 'api' };
   } catch (e) {
-    if (statusOf(e) !== 404) return { ok: false, status: statusOf(e), message: messageOf(e, 'Не удалось получить данные филиала') };
+    if (statusOf(e) !== 404) return { ok: false, status: statusOf(e), message: messageOf(e, msg('Не удалось получить данные филиала')) };
   }
   try {
     const data =
       vertical === 'BEAUTY' ? await beautyFacts(locationId, src) : vertical === 'FOOD_SERVICE' ? await foodFacts(locationId, src) : await hospitalityFacts(locationId, src);
     return { ok: true, data, source: 'fallback' };
   } catch (e) {
-    return { ok: false, status: statusOf(e), message: messageOf(e, 'Не удалось получить данные филиала') };
+    return { ok: false, status: statusOf(e), message: messageOf(e, msg('Не удалось получить данные филиала')) };
   }
 }
 
@@ -272,7 +275,7 @@ export async function loadSiteLocations(
     const reply = (await src.locations()) as { items: SiteLocation[] } | SiteLocation[];
     return { ok: true, data: Array.isArray(reply) ? reply : reply.items, source: 'api' };
   } catch (e) {
-    if (statusOf(e) !== 404) return { ok: false, status: statusOf(e), message: messageOf(e, 'Не удалось получить список филиалов') };
+    if (statusOf(e) !== 404) return { ok: false, status: statusOf(e), message: messageOf(e, msg('Не удалось получить список филиалов')) };
   }
   try {
     const branches = await fallback();
@@ -287,13 +290,17 @@ export async function loadSiteLocations(
       })),
     };
   } catch (e) {
-    return { ok: false, status: statusOf(e), message: messageOf(e, 'Не удалось получить список филиалов') };
+    return { ok: false, status: statusOf(e), message: messageOf(e, msg('Не удалось получить список филиалов')) };
   }
 }
 
 /** Цена позиции каталога для карточки: «12 500 ₸», «от 12 500 ₸»; без цены: null. Только целые тиыны */
-export function catalogPrice(item: SiteFactsCatalogItem, format: (minor: string) => string): string | null {
+export function catalogPrice(
+  item: SiteFactsCatalogItem,
+  format: (minor: string) => string,
+  t: Translate = translator('ru'),
+): string | null {
   const m = item.price ?? item.priceFrom;
   if (!m || !/^\d+$/.test(m.minor)) return null;
-  return item.price ? format(m.minor) : `от ${format(m.minor)}`;
+  return item.price ? format(m.minor) : t('от {price}', { price: format(m.minor) });
 }

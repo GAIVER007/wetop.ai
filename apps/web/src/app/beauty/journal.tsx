@@ -34,6 +34,7 @@ import { clock, clockMinutes, instantOf, localInput } from './time';
 import { beautyPeriodRows, moveAppointment } from './journal-actions';
 import { beautyStatus } from '../../lib/status/beauty';
 import { CalendarLegend } from './calendar-legend';
+import { useT } from '../../i18n/locale-provider';
 
 const STEP = 30;
 const shiftDay = (date: string, n: number) => {
@@ -82,7 +83,8 @@ export function JournalBoard({
   /** «День / Неделя» в строке инструментов рядом с датой (аудит 21.10.2026, п. 34) */
   views?: ReactNode;
 }) {
-  const columns = calendarColumns(day, employees);
+  const t = useT();
+  const columns = calendarColumns(day, employees, t);
   const [compact, setCompact] = useState(false);
   const [query, setQuery] = useState('');
   const narrow = useNarrow();
@@ -160,7 +162,7 @@ export function JournalBoard({
       minute: '2-digit',
       hourCycle: 'h23',
     }).formatToParts(new Date());
-    const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '';
+    const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
     if (`${get('year')}-${get('month')}-${get('day')}` !== day.date) return null;
     return Number(get('hour')) * 60 + Number(get('minute'));
   });
@@ -270,14 +272,14 @@ export function JournalBoard({
           >
             {!works &&
               (m === from || employee.intervals.some((i) => clockMinutes(i.timeTo) === m)) && (
-                <span className="beauty-slot-state">Вне графика</span>
+                <span className="beauty-slot-state">{t('Вне графика')}</span>
               )}
             {works && !occupied && (
               <button
                 type="button"
                 className="beauty-slot-free"
                 disabled={!canCreate}
-                aria-label={`${employee.name}, ${clock(m)}, свободно`}
+                aria-label={t('{name}, {time}, свободно', { name: employee.name, time: clock(m) })}
                 data-time={`+ ${clock(m)}`}
                 onClick={() => setPanel({ kind: 'new', employeeId: employee.id, time: clock(m) })}
               />
@@ -302,7 +304,7 @@ export function JournalBoard({
             <span>
               {clock(a.startMinutes)}–{clock(a.endMinutes)}
             </span>
-            <strong>Занято, скрыто фильтром</strong>
+            <strong>{t('Занято, скрыто фильтром')}</strong>
           </div>
         ))}
       {appointmentSegments(live)
@@ -357,11 +359,11 @@ export function JournalBoard({
                 >
                   {BigInt(a.appointment.paidMinor || '0') >= BigInt(a.appointment.priceMinor || '0')
                     ? dense
-                      ? 'Опл.'
-                      : 'Оплачено'
+                      ? t('Опл.')
+                      : t('Оплачено')
                     : dense
-                      ? 'Не опл.'
-                      : 'Не оплачено'}
+                      ? t('Не опл.')
+                      : t('Не оплачено')}
                 </span>
               )}
             </span>
@@ -388,15 +390,15 @@ export function JournalBoard({
   );
   const quickReport = (
     <QuickReport
-      text="Быстрый отчёт"
+      text={t('Быстрый отчёт')}
       key={`${day.date}:${master}:wide`}
       date={day.date}
       scope={[
-        day.location.name ?? 'Салон',
+        day.location.name ?? t('Салон'),
         master
-          ? (columns.find((c) => c.id === master)?.name ?? 'Специалист недоступен')
-          : 'Все специалисты',
-        ...(service || status ? ['С учётом фильтров журнала'] : []),
+          ? (columns.find((c) => c.id === master)?.name ?? t('Специалист недоступен'))
+          : t('Все специалисты'),
+        ...(service || status ? [t('С учётом фильтров журнала')] : []),
       ]}
       build={buildReport}
       loadPeriod={beautyPeriodRows}
@@ -405,14 +407,14 @@ export function JournalBoard({
   const quickReportPhone = (
     <QuickReport
       key={`${day.date}:${master}:phone`}
-      text="Быстрый отчёт"
+      text={t('Быстрый отчёт')}
       date={day.date}
       scope={[
-        day.location.name ?? 'Салон',
+        day.location.name ?? t('Салон'),
         master
-          ? (columns.find((c) => c.id === master)?.name ?? 'Специалист недоступен')
-          : 'Все специалисты',
-        ...(service || status ? ['С учётом фильтров журнала'] : []),
+          ? (columns.find((c) => c.id === master)?.name ?? t('Специалист недоступен'))
+          : t('Все специалисты'),
+        ...(service || status ? [t('С учётом фильтров журнала')] : []),
       ]}
       build={buildReport}
       loadPeriod={beautyPeriodRows}
@@ -420,8 +422,8 @@ export function JournalBoard({
   );
   const serviceFilter = (
     <JournalFilter
-      label="Услуга"
-      allLabel="Все услуги"
+      label={t('Услуга')}
+      allLabel={t('Все услуги')}
       value={service}
       onChange={setService}
       options={day.services.map((sv) => ({ value: sv.id, label: sv.name }))}
@@ -429,8 +431,8 @@ export function JournalBoard({
   );
   const statusFilter = (
     <JournalFilter
-      label="Статус записи"
-      allLabel="Все статусы"
+      label={t('Статус записи')}
+      allLabel={t('Все статусы')}
       value={status}
       onChange={setStatus}
       options={Object.entries(beautyStatus)
@@ -441,8 +443,12 @@ export function JournalBoard({
   return (
     <>
       <JournalHead
-        title="Журнал"
-        subtitle={`Расписание специалистов и услуг${day.location.name ? `, ${day.location.name}` : ''}`}
+        title={t('Журнал')}
+        subtitle={
+          day.location.name
+            ? t('Расписание специалистов и услуг, {name}', { name: day.location.name })
+            : t('Расписание специалистов и услуг')
+        }
         nav={
           <DayNav
             date={day.date}
@@ -450,16 +456,16 @@ export function JournalBoard({
             testId="beauty-day-nav"
             onGo={(next) => router.push(dayHref(next))}
             presets={[
-              { label: 'Сегодня', onSelect: () => router.push(dayHref()) },
+              { label: t('Сегодня'), onSelect: () => router.push(dayHref()) },
               {
-                label: 'Завтра',
+                label: t('Завтра'),
                 date: shiftDay(
                   localInput(new Date().toISOString(), day.location.timezone).slice(0, 10),
                   1,
                 ),
               },
               {
-                label: 'Эта неделя',
+                label: t('Эта неделя'),
                 onSelect: () => router.push(`${dayHref(day.date)}&view=week`),
               },
             ]}
@@ -478,42 +484,42 @@ export function JournalBoard({
                 !day.columns.some((c) => c.id === selected) ||
                 !day.services.length
               }
-              title={notReady ? 'Сначала добавьте услугу и специалиста с графиком' : undefined}
+              title={notReady ? t('Сначала добавьте услугу и специалиста с графиком') : undefined}
               onClick={() =>
                 setPanel({ kind: 'new', employeeId: selected, time: clock(day.bounds.fromMinutes) })
               }
             >
               <Icon name="plus" aria-hidden="true" />
-              Новая запись
+              {t('Новая запись')}
             </Button>
           </>
         }
         summary={
-          <p className="summary-line" role="group" aria-label="Итоги дня">
+          <p className="summary-line" role="group" aria-label={t('Итоги дня')}>
             <span data-testid="beauty-day-summary">
               {live.length
-                ? `Записей: ${live.length}`
+                ? t('Записей: {n}', { n: live.length })
                 : service || status || master || query
-                  ? 'По выбранным фильтрам записей не найдено'
-                  : 'Записей на этот день нет'}
+                  ? t('По выбранным фильтрам записей не найдено')
+                  : t('Записей на этот день нет')}
             </span>
             {live.length > 0 && (
               <>
-                {', ждём '}
+                {`, ${t('ждём')} `}
                 <b>
                   {live.filter((a) => a.status === 'BOOKED' || a.status === 'CONFIRMED').length}
                 </b>
-                {', в работе '}
+                {`, ${t('в работе@@запись')} `}
                 <b>{live.filter((a) => a.status === 'IN_PROGRESS').length}</b>
-                {', завершено '}
+                {`, ${t('завершено')} `}
                 <b>{live.filter((a) => a.status === 'DONE').length}</b>
                 {live.some((a) => a.status === 'NO_SHOW') && (
                   <>
-                    {', не пришли '}
+                    {`, ${t('не пришли')} `}
                     <b>{live.filter((a) => a.status === 'NO_SHOW').length}</b>
                   </>
                 )}
-                {', сумма '}
+                {`, ${t('сумма')} `}
                 <b>
                   {formatMoney(
                     String(
@@ -534,14 +540,14 @@ export function JournalBoard({
             <JournalSearch
               value={query}
               onChange={setQuery}
-              label="Поиск в журнале"
-              placeholder={narrow ? 'Клиент' : 'Клиент, телефон'}
+              label={t('Поиск в журнале')}
+              placeholder={narrow ? t('Клиент') : t('Клиент, телефон')}
             />
             <EmployeeFilter
               options={columns}
               value={master}
               onChange={setMaster}
-              allLabel="Все специалисты"
+              allLabel={t('Все специалисты')}
               kind="specialists"
             />
             {serviceFilter}
@@ -552,12 +558,11 @@ export function JournalBoard({
               {/* на телефоне услуга и статус переезжают сюда средствами CSS (без второй копии и без скачка разметки) */}
               <div className="journal-head__phone-only">{quickReportPhone}</div>
               <Button tone="secondary" aria-pressed={compact} onClick={() => setCompact(!compact)}>
-                Компактный вид
+                {t('Компактный вид')}
               </Button>
               <CalendarLegend />
               <p className="beauty-note">
-                Свободно: пустая клетка. Вне графика: нет доступной кнопки. Скрытые занятые
-                интервалы обозначены текстом.
+                {t('Свободно: пустая клетка. Вне графика: нет доступной кнопки. Скрытые занятые интервалы обозначены текстом.')}
               </p>
             </Help>
           </>
@@ -570,7 +575,7 @@ export function JournalBoard({
             {[
               columns.find((c) => c.id === master)?.name,
               day.services.find((s) => s.id === service)?.name,
-              status ? beautyStatus[status as keyof typeof beautyStatus]?.label : '',
+              status ? t(beautyStatus[status as keyof typeof beautyStatus]?.label ?? '') : '',
             ]
               .filter(Boolean)
               .map((label, index) => (
@@ -586,12 +591,12 @@ export function JournalBoard({
               applyFilters({ employee: '', service: '', status: '' });
             }}
           >
-            Сбросить фильтры
+            {t('Сбросить фильтры')}
           </Button>
         </div>
       )}
       {creationUnavailableReason && <Alert>{creationUnavailableReason}</Alert>}
-      {moving && <p role="status">Переносим запись…</p>}
+      {moving && <p role="status">{t('Переносим запись…')}</p>}
       {moveError && <Alert>{moveError}</Alert>}
       {notReady && (
         <EmptyState
@@ -601,18 +606,18 @@ export function JournalBoard({
             <>
               {!day.services.length && (
                 <Link className="btn btn--secondary" href="/services">
-                  Добавить услугу
+                  {t('Добавить услугу')}
                 </Link>
               )}
               {!columns.length && (
                 <Link className="btn btn--secondary" href="/employees?new=1">
-                  Добавить специалиста
+                  {t('Добавить специалиста')}
                 </Link>
               )}
             </>
           }
         >
-          Для новой записи нужны услуги и специалисты с рабочим графиком.
+          {t('Для новой записи нужны услуги и специалисты с рабочим графиком.')}
         </EmptyState>
       )}
       {/* без специалистов сетку не рисуем: пустая колонка часов ничего не говорит (п. 36) */}
@@ -623,7 +628,7 @@ export function JournalBoard({
               className={`beauty-grid-day${dense ? ' beauty-grid-day--dense' : ''}`}
               data-testid="beauty-grid"
               role="region"
-              aria-label="Расписание дня"
+              aria-label={t('Расписание дня')}
               tabIndex={0}
               style={{ gridTemplateColumns: `56px repeat(${Math.max(1, shown.length)}, minmax(${shown.length > 6 ? 128 : shown.length >= 5 ? 150 : 180}px, 1fr))` }} /* slop-allow: inline-style число колонок из количества выбранных мастеров */
             >
@@ -636,7 +641,9 @@ export function JournalBoard({
                     className="beauty-col-person"
                     aria-pressed={master === e.id}
                     title={
-                      master === e.id ? `${e.name}: показать всех специалистов` : `Показать только: ${e.name}`
+                      master === e.id
+                        ? t('{name}: показать всех специалистов', { name: e.name })
+                        : t('Показать только: {name}', { name: e.name })
                     }
                     onClick={() => setMaster(master === e.id ? '' : e.id)}
                   >
@@ -653,18 +660,18 @@ export function JournalBoard({
                   </button>
                   <small>
                     {e.timeOff ? (
-                      <Badge>{e.timeOffReason || 'Отсутствие'}</Badge>
+                      <Badge>{e.timeOffReason || t('Отсутствие')}</Badge>
                     ) : e.intervals.length ? (
                       `${e.intervals.map((i) => (dense ? `${shortHour(i.timeFrom)}–${shortHour(i.timeTo)}` : `${i.timeFrom}–${i.timeTo}`)).join(', ')}${masterLoad(e, day.appointments).percent !== null ? `, ${masterLoad(e, day.appointments).percent}%` : ''}`
                     ) : (
-                      'Выходной'
+                      t('Выходной')
                     )}
                   </small>
                   {masterLoad(e, day.appointments).percent !== null && (
                     <span
                       className="beauty-load"
                       role="img"
-                      aria-label={`Загрузка ${masterLoad(e, day.appointments).percent}%`}
+                      aria-label={t('Загрузка {n}%', { n: masterLoad(e, day.appointments).percent ?? 0 })}
                     >
                       <i style={{ width: `${masterLoad(e, day.appointments).percent}%` }} /* slop-allow: inline-style доля загрузки мастера */ />
                     </span>
@@ -684,9 +691,9 @@ export function JournalBoard({
                     <p className="beauty-current-master">{e.name}</p>
                     <p className="beauty-note">
                       {e.timeOff
-                        ? e.timeOffReason || 'Отсутствие'
+                        ? e.timeOffReason || t('Отсутствие')
                         : e.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ') ||
-                          'Выходной'}
+                          t('Выходной')}
                     </p>
                     <div className="beauty-mobile-timeline">
                       {hours}
@@ -723,7 +730,7 @@ export function JournalBoard({
       <Overlay
         open={panel?.kind === 'card'}
         onClose={() => setPanel(null)}
-        title={panel?.kind === 'card' ? 'Запись' : 'Новая запись'}
+        title={panel?.kind === 'card' ? t('Запись') : t('Новая запись')}
         size="lg"
         className="appointment-card-modal"
       >

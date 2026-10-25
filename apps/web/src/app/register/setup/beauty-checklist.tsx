@@ -7,13 +7,15 @@ import type { SharedOnboardingState } from '../../../lib/api';
 import { reloadOnboarding, saveOnboarding } from './actions';
 import { Icon, type IconName } from '../../../components/icon';
 import { setupCountLine, setupPath, type BookingPreview, type SetupPathRow } from './setup-path';
+import { msg } from '../../../i18n';
+import { useLocale, useT } from '../../../i18n/locale-provider';
 
 const TITLES: Record<string, string> = {
-  profile: 'Основные сведения',
-  services: 'Добавьте услуги',
-  masters: 'Добавьте мастера',
-  skills: 'Назначьте услуги мастерам',
-  schedule: 'Настройте рабочее время',
+  profile: msg('Основные сведения'),
+  services: msg('Добавьте услуги'),
+  masters: msg('Добавьте мастера'),
+  skills: msg('Назначьте услуги мастерам'),
+  schedule: msg('Настройте рабочее время'),
 };
 const ROUTES: Record<string, string> = {
   services: '/services?onboarding=1',
@@ -22,52 +24,52 @@ const ROUTES: Record<string, string> = {
   schedule: '/beauty/schedule?onboarding=1',
 };
 const STEP_NAMES: Record<string, string> = {
-  services: 'услуги',
-  masters: 'мастера',
-  skills: 'услуги мастеров',
-  schedule: 'рабочее время',
+  services: msg('услуги'),
+  masters: msg('мастера'),
+  skills: msg('услуги мастеров'),
+  schedule: msg('рабочее время'),
 };
 const ACTIONS: Record<string, string> = {
-  services: 'Добавить услугу',
-  masters: 'Добавить специалиста',
-  skills: 'Назначить услуги',
-  schedule: 'Настроить график',
+  services: msg('Добавить услугу'),
+  masters: msg('Добавить специалиста'),
+  skills: msg('Назначить услуги'),
+  schedule: msg('Настроить график'),
 };
 const HINTS: Record<string, string> = {
-  profile: 'Название, страна и валюта: от них зависят время записей и цены.',
-  services: 'Что вы делаете и сколько это стоит. Можно взять из готового списка и поправить цену.',
-  masters: 'Кто принимает клиентов. Достаточно имени, остальное можно заполнить позже.',
-  skills: 'Отметьте, какие услуги делает каждый мастер. Без этого к нему нельзя записаться.',
-  schedule: 'Когда мастера принимают. Шаблон «Пн-Пт 10:00-19:00» в один клик.',
+  profile: msg('Название, страна и валюта: от них зависят время записей и цены.'),
+  services: msg('Что вы делаете и сколько это стоит. Можно взять из готового списка и поправить цену.'),
+  masters: msg('Кто принимает клиентов. Достаточно имени, остальное можно заполнить позже.'),
+  skills: msg('Отметьте, какие услуги делает каждый мастер. Без этого к нему нельзя записаться.'),
+  schedule: msg('Когда мастера принимают. Шаблон «Пн-Пт 10:00-19:00» в один клик.'),
 };
 const NEXT: Array<{ href: string; icon: IconName; title: string; text: string; action: string }> = [
   {
     href: '/beauty-settings',
     icon: 'clock',
-    title: 'Часы работы салона',
-    text: 'Журнал и онлайн-запись показывают время только внутри этих часов.',
-    action: 'Указать часы',
+    title: msg('Часы работы салона'),
+    text: msg('Журнал и онлайн-запись показывают время только внутри этих часов.'),
+    action: msg('Указать часы'),
   },
   {
     href: '/marketing/site/editor',
     icon: 'globe',
-    title: 'Сайт с онлайн-записью',
-    text: 'Шаблон за минуту: услуги, мастера и цены берутся из WETOP.',
-    action: 'Сделать сайт',
+    title: msg('Сайт с онлайн-записью'),
+    text: msg('Шаблон за минуту: услуги, мастера и цены берутся из WETOP.'),
+    action: msg('Сделать сайт'),
   },
   {
     href: '/employees',
     icon: 'guests',
-    title: 'Вход для мастеров',
-    text: 'Мастер видит свои записи, график, зарплату и отзывы.',
-    action: 'Открыть персонал',
+    title: msg('Вход для мастеров'),
+    text: msg('Мастер видит свои записи, график, зарплату и отзывы.'),
+    action: msg('Открыть персонал'),
   },
   {
     href: '/payroll',
     icon: 'money',
-    title: 'Оплата труда',
-    text: 'Оклад и процент с услуг: зарплата считается сама.',
-    action: 'Настроить зарплату',
+    title: msg('Оплата труда'),
+    text: msg('Оклад и процент с услуг: зарплата считается сама.'),
+    action: msg('Настроить зарплату'),
   },
 ];
 export function BeautyChecklist({
@@ -77,6 +79,8 @@ export function BeautyChecklist({
   initial: SharedOnboardingState;
   preview?: BookingPreview | null;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [state, setState] = useState(initial);
   // Страна организации задаёт умолчания только для ещё не заполненного пояса (Q-SCHED-3).
   const [draft, setDraft] = useState(() => withCountry(initial.draft, initial.organizationCountry));
@@ -138,7 +142,7 @@ export function BeautyChecklist({
         return;
       }
       accept(result.state, true);
-      setNotice(action === 'complete' ? 'Настройка завершена' : 'Сохранено');
+      setNotice(action === 'complete' ? msg('Настройка завершена') : msg('Сохранено'));
     });
   const refresh = (compare = false) =>
     start(async () => {
@@ -156,14 +160,14 @@ export function BeautyChecklist({
       }
     });
   const field = (key: string, label: string) => (
-    <Field label={label} required>
+    <Field label={t(label)} required>
       <Input
         value={String(draft[key] ?? '')}
         maxLength={200}
         disabled={pending || !state.canEdit}
         onChange={(e) => {
           setDraft({ ...draft, [key]: e.target.value });
-          setNotice('Есть несохранённые изменения');
+          setNotice(msg('Есть несохранённые изменения'));
         }}
       />
     </Field>
@@ -173,8 +177,8 @@ export function BeautyChecklist({
   if (changingScope)
     return (
       <main id="main-content" className="onboarding setup-shell">
-        <h1>Переключаем филиал</h1>
-        <p role="status">Загружаем его настройки…</p>
+        <h1>{t('Переключаем филиал')}</h1>
+        <p role="status">{t('Загружаем его настройки…')}</p>
       </main>
     );
   const path = setupPath({
@@ -187,16 +191,16 @@ export function BeautyChecklist({
   const profileForm = (
     <form
       className="setup-fields"
-      aria-label="Основные сведения"
+      aria-label={t('Основные сведения')}
       onSubmit={(e) => {
         e.preventDefault();
         save('apply-profile');
       }}
     >
       <div className="setup-fields__grid">
-        {field('businessName', 'Название салона')}
-        {field('locationName', 'Название филиала')}
-        <Field label="Страна" required>
+        {field('businessName', msg('Название салона'))}
+        {field('locationName', msg('Название филиала'))}
+        <Field label={t('Страна')} required>
           <Select
             value={countryOf({ zone: String(draft.timezone ?? '') })?.code ?? ''}
             disabled={pending || !state.canEdit}
@@ -207,16 +211,16 @@ export function BeautyChecklist({
             }}
           >
             {!countryOf({ zone: String(draft.timezone ?? '') }) && (
-              <option value="">Выберите страну</option>
+              <option value="">{t('Выберите страну')}</option>
             )}
             {SUPPORTED_COUNTRIES.map((c) => (
               <option key={c.code} value={c.code}>
-                {c.label}
+                {t(c.label)}
               </option>
             ))}
           </Select>
         </Field>
-        <Field label="Валюта" required>
+        <Field label={t('Валюта')} required>
           <Select
             value={String(draft.currency ?? '')}
             disabled={pending || !state.canEdit}
@@ -224,34 +228,36 @@ export function BeautyChecklist({
           >
             {currencyOptions(String(draft.currency ?? '')).map((o) => (
               <option key={o.value} value={o.value}>
-                {o.label}
+                {t(o.label)}
               </option>
             ))}
           </Select>
         </Field>
-        <Field label="Часовой пояс">
+        <Field label={t('Часовой пояс')}>
           <Input
             readOnly
             value={
-              timezoneOptions(String(draft.timezone ?? '')).find((o) => o.value === draft.timezone)
-                ?.label ?? ''
+              t(
+                timezoneOptions(String(draft.timezone ?? '')).find((o) => o.value === draft.timezone)
+                  ?.label ?? '',
+              )
             }
           />
         </Field>
       </div>
       <p className="setup-help">
-        Название салона общее для всех филиалов. Пояс и валюта задаются страной.
+        {t('Название салона общее для всех филиалов. Пояс и валюта задаются страной.')}
       </p>
       {state.canEdit && (
         <div className="onboarding__actions">
           <Button type="submit" disabled={pending}>
-            Сохранить и продолжить
+            {t('Сохранить и продолжить')}
           </Button>
           <Button type="button" tone="secondary" disabled={pending} onClick={() => save('save')}>
-            Сохранить черновик
+            {t('Сохранить черновик')}
           </Button>
           <Button type="button" tone="ghost" disabled={pending} onClick={() => save('back')}>
-            Назад
+            {t('Назад')}
           </Button>
         </div>
       )}
@@ -261,7 +267,7 @@ export function BeautyChecklist({
     if (row.id === 'profile') return null;
     if (row.status === 'locked')
       return (
-        <p className="setup-path__note">Для этого шага нужны права владельца или управляющего.</p>
+        <p className="setup-path__note">{t('Для этого шага нужны права владельца или управляющего.')}</p>
       );
     const href = ROUTES[row.id]!;
     if (row.status === 'done')
@@ -269,15 +275,15 @@ export function BeautyChecklist({
         <Link
           className="btn btn--ghost btn--sm setup-path__edit"
           href={href}
-          aria-label={`Изменить: ${STEP_NAMES[row.id]}`}
+          aria-label={t('Изменить: {step}', { step: t(STEP_NAMES[row.id]!) })}
         >
-          Изменить
+          {t('Изменить')}
         </Link>
       );
     if (row.status !== 'current') return null;
     return (
       <Link className="btn" href={href}>
-        {ACTIONS[row.id]}
+        {t(ACTIONS[row.id]!)}
       </Link>
     );
   };
@@ -287,7 +293,7 @@ export function BeautyChecklist({
       className="onboarding setup-shell setup-b"
       data-testid="beauty-onboarding"
     >
-      <section className="setup-b__region" aria-label="Первые шаги">
+      <section className="setup-b__region" aria-label={t('Первые шаги')}>
         <header className="setup-b__head">
           <p className="setup-b__salon">
             {String(state.draft.locationName ?? state.draft.businessName ?? '')}
@@ -295,24 +301,23 @@ export function BeautyChecklist({
           <div className="setup-b__title">
             <h1 ref={heading} tabIndex={-1}>
               {welcome
-                ? 'Добро пожаловать в WETOP'
+                ? t('Добро пожаловать в WETOP')
                 : ready
-                  ? 'Салон готов к работе'
-                  : 'Подготовьте салон к работе'}
+                  ? t('Салон готов к работе')
+                  : t('Подготовьте салон к работе')}
             </h1>
             {welcome && (
               <p className="setup-b__lead">
-                Пять коротких шагов, около 5 минут. Справа видно, как клиент увидит вашу
-                онлайн-запись.
+                {t('Пять коротких шагов, около 5 минут. Справа видно, как клиент увидит вашу онлайн-запись.')}
               </p>
             )}
           </div>
           {!welcome && state.profileApplied && (
             <div className="setup-b__progress">
-              <p role="status">Выполнено {done} из 4 обязательных шагов</p>
+              <p role="status">{t('Выполнено {done} из 4 обязательных шагов', { done })}</p>
               <progress className="setup-b__bar" max={4} value={done} aria-hidden="true" />
               <Button tone="ghost" size="sm" disabled={pending} onClick={() => refresh()}>
-                Обновить проверку
+                {t('Обновить проверку')}
               </Button>
             </div>
           )}
@@ -321,14 +326,15 @@ export function BeautyChecklist({
           <div className="setup-b__main">
             {completed && !state.readiness?.ready && (
               <Alert boxed>
-                Настройка ранее завершена. Сейчас часть данных требует исправления. Рабочее
-                пространство остаётся доступным.
+                {t(
+                  'Настройка ранее завершена. Сейчас часть данных требует исправления. Рабочее пространство остаётся доступным.',
+                )}
               </Alert>
             )}
             {state.profileApplied && !state.readiness && (
-              <Alert boxed>Не удалось определить готовность. Обновите проверку.</Alert>
+              <Alert boxed>{t('Не удалось определить готовность. Обновите проверку.')}</Alert>
             )}
-            <ol className="setup-path" aria-label="Шаги настройки">
+            <ol className="setup-path" aria-label={t('Шаги настройки')}>
               {path.map((row, i) => {
                 const status = welcome ? 'todo' : row.status;
                 return (
@@ -341,19 +347,19 @@ export function BeautyChecklist({
                       {status === 'done' ? <Icon name="check" width={16} height={16} /> : i + 1}
                     </span>
                     <div className="setup-path__body">
-                      <h2>{TITLES[row.id]}</h2>
+                      <h2>{t(TITLES[row.id]!)}</h2>
                       <p className="setup-path__sr">
                         {status === 'done'
-                          ? 'Готово'
+                          ? t('Готово')
                           : status === 'current'
-                            ? 'Сейчас'
+                            ? t('Сейчас')
                             : status === 'locked'
-                              ? 'Недоступно'
-                              : 'Дальше'}
+                              ? t('Недоступно')
+                              : t('Дальше')}
                       </p>
                       {status === 'done' && row.id !== 'profile' && (
                         <p className="setup-path__summary">
-                          {setupCountLine(row.id, row.count)}
+                          {setupCountLine(row.id, row.count, locale, t)}
                         </p>
                       )}
                       {status === 'done' && row.id === 'profile' && (
@@ -363,7 +369,7 @@ export function BeautyChecklist({
                         </p>
                       )}
                       {(status === 'current' || welcome) && (
-                        <p className="setup-path__hint">{HINTS[row.id]}</p>
+                        <p className="setup-path__hint">{t(HINTS[row.id]!)}</p>
                       )}
                       {status === 'current' && row.id === 'profile' && !welcome && profileForm}
                     </div>
@@ -376,11 +382,11 @@ export function BeautyChecklist({
               <div className="onboarding__actions">
                 {state.canEdit && (
                   <Button disabled={pending} onClick={() => save('next')}>
-                    {state.updatedAt ? 'Продолжить настройку' : 'Настроить салон'}
+                    {state.updatedAt ? t('Продолжить настройку') : t('Настроить салон')}
                   </Button>
                 )}
                 <Link className="btn btn--secondary" href="/today">
-                  Посмотреть рабочее пространство
+                  {t('Посмотреть рабочее пространство')}
                 </Link>
               </div>
             ) : (
@@ -389,10 +395,10 @@ export function BeautyChecklist({
                   {ready ? (
                     <>
                       <Link className="btn" href="/today">
-                        Перейти к работе
+                        {t('Перейти к работе')}
                       </Link>
                       <Link className="btn btn--secondary" href="/calendar">
-                        Открыть календарь
+                        {t('Открыть календарь')}
                       </Link>
                     </>
                   ) : (
@@ -402,15 +408,15 @@ export function BeautyChecklist({
                           disabled={pending || !state.readiness?.ready}
                           onClick={() => save('complete')}
                         >
-                          Завершить настройку
+                          {t('Завершить настройку')}
                         </Button>
                       )}
                       <Link className="btn btn--secondary" href="/today">
-                        {completed ? 'Перейти к работе' : 'Посмотреть рабочее пространство'}
+                        {completed ? t('Перейти к работе') : t('Посмотреть рабочее пространство')}
                       </Link>
                       {!state.readiness?.ready && (
                         <span className="setup-b__why">
-                          Завершить можно, когда готовы все четыре шага
+                          {t('Завершить можно, когда готовы все четыре шага')}
                         </span>
                       )}
                     </>
@@ -426,7 +432,7 @@ export function BeautyChecklist({
                 className="setup-next"
                 data-testid="beauty-setup-next"
               >
-                <h2 id="setup-next-heading">Дальше: чтобы клиенты записывались сами</h2>
+                <h2 id="setup-next-heading">{t('Дальше: чтобы клиенты записывались сами')}</h2>
                 <ul className="setup-next__list">
                   {NEXT.map((item) => (
                     <li key={item.href}>
@@ -435,10 +441,10 @@ export function BeautyChecklist({
                           <Icon name={item.icon} width={20} height={20} />
                         </span>
                         <span>
-                          <strong>{item.title}</strong>
-                          <span>{item.text}</span>
+                          <strong>{t(item.title)}</strong>
+                          <span>{t(item.text)}</span>
                         </span>
-                        <span className="setup-next__go">{item.action}</span>
+                        <span className="setup-next__go">{t(item.action)}</span>
                       </Link>
                     </li>
                   ))}
@@ -454,37 +460,40 @@ export function BeautyChecklist({
         </div>
         {!state.canEdit && (
           <p role="status">
-            Основные сведения и завершение доступны владельцу или управляющему. Отдельные действия
-            определяются вашими правами.
+            {t(
+              'Основные сведения и завершение доступны владельцу или управляющему. Отдельные действия определяются вашими правами.',
+            )}
           </p>
         )}
         {error && (
           <div ref={errorBox} tabIndex={-1}>
-            <Alert boxed>{error}</Alert>
+            <Alert boxed>{t(error)}</Alert>
             <Button tone="secondary" disabled={pending} onClick={() => refresh(true)}>
-              Сравнить с сохранёнными данными
+              {t('Сравнить с сохранёнными данными')}
             </Button>
           </div>
         )}
         {latest && (
-          <section className="panel" aria-label="Сравнение данных">
-            <h2>Сохранено на сервере</h2>
+          <section className="panel" aria-label={t('Сравнение данных')}>
+            <h2>{t('Сохранено на сервере')}</h2>
             <dl>
               {Object.entries(latest.draft).map(([key, value]) => (
                 <div key={key}>
                   <dt>
-                    {{
-                      businessName: 'Название салона',
-                      locationName: 'Филиал',
-                      currency: 'Валюта',
-                      timezone: 'Часовой пояс',
-                    }[key] ?? key}
+                    {t(
+                      {
+                        businessName: msg('Название салона'),
+                        locationName: msg('Филиал'),
+                        currency: msg('Валюта'),
+                        timezone: msg('Часовой пояс'),
+                      }[key] ?? key,
+                    )}
                   </dt>
                   <dd>{String(value)}</dd>
                 </div>
               ))}
             </dl>
-            <p>Ваш ввод сохранён в форме. Ничего не отправлено поверх изменений другого окна.</p>
+            <p>{t('Ваш ввод сохранён в форме. Ничего не отправлено поверх изменений другого окна.')}</p>
             <Button
               tone="secondary"
               onClick={() => {
@@ -492,12 +501,12 @@ export function BeautyChecklist({
                 setError(null);
               }}
             >
-              Принять сохранённые данные
+              {t('Принять сохранённые данные')}
             </Button>
           </section>
         )}
         <p className="sr-only" role="status" aria-live="polite">
-          {pending ? 'Сохраняем…' : notice}
+          {pending ? t('Сохраняем…') : t(notice)}
         </p>
       </section>
     </main>
@@ -514,6 +523,7 @@ function BookingPreviewCard({
   name: string;
   ready: boolean;
 }) {
+  const t = useT();
   const services = preview?.services ?? [];
   const masters = preview?.masters ?? [];
   return (
@@ -522,32 +532,32 @@ function BookingPreviewCard({
       aria-labelledby="setup-preview-heading"
       data-testid="setup-preview"
     >
-      <h2 id="setup-preview-heading">Так клиент увидит онлайн-запись</h2>
+      <h2 id="setup-preview-heading">{t('Так клиент увидит онлайн-запись')}</h2>
       <div className="setup-preview__phone">
-        <p className="setup-preview__name">{name || 'Ваш салон'}</p>
+        <p className="setup-preview__name">{name || t('Ваш салон')}</p>
         <div>
-          <h3>Услуга</h3>
+          <h3>{t('Услуга')}</h3>
           {services.length ? (
             <ul className="setup-preview__services">
               {services.map((s) => (
                 <li key={s.name}>
                   <span>
                     {s.name}
-                    <small>{s.minutes} мин</small>
+                    <small>{t('{n} мин', { n: s.minutes })}</small>
                   </span>
                   <b>{s.price}</b>
                 </li>
               ))}
               {preview && preview.moreServices > 0 && (
-                <li className="setup-preview__more">и ещё {preview.moreServices}</li>
+                <li className="setup-preview__more">{t('и ещё {n}', { n: preview.moreServices })}</li>
               )}
             </ul>
           ) : (
-            <span className="setup-preview__empty">Появится после шага «Услуги»</span>
+            <span className="setup-preview__empty">{t('Появится после шага «Услуги»')}</span>
           )}
         </div>
         <div>
-          <h3>Мастер</h3>
+          <h3>{t('Мастер')}</h3>
           {masters.length ? (
             <ul className="setup-preview__masters">
               {masters.map((m) => (
@@ -558,25 +568,25 @@ function BookingPreviewCard({
               ))}
             </ul>
           ) : (
-            <span className="setup-preview__empty">Появится после шага «Мастера»</span>
+            <span className="setup-preview__empty">{t('Появится после шага «Мастера»')}</span>
           )}
         </div>
         <div>
-          <h3>Время</h3>
+          <h3>{t('Время')}</h3>
           {ready ? (
-            <p className="setup-preview__ok">Свободное время считается по графику мастеров</p>
+            <p className="setup-preview__ok">{t('Свободное время считается по графику мастеров')}</p>
           ) : (
-            <span className="setup-preview__empty">Появится после шага «Рабочие часы»</span>
+            <span className="setup-preview__empty">{t('Появится после шага «Рабочие часы»')}</span>
           )}
         </div>
         <span className={`btn setup-preview__cta${ready ? '' : ' is-off'}`} aria-hidden="true">
-          Записаться
+          {t('Записаться')}
         </span>
       </div>
       <p className="setup-preview__foot">
         {ready
-          ? 'Клиенты уже могут записываться: через сайт WETOP или по ссылке.'
-          : 'Превью заполняется по мере шагов слева.'}
+          ? t('Клиенты уже могут записываться: через сайт WETOP или по ссылке.')
+          : t('Превью заполняется по мере шагов слева.')}
       </p>
     </aside>
   );

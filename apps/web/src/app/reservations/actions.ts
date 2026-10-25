@@ -11,6 +11,7 @@ import {
 } from '../../lib/api';
 import type { ActionPreview } from '../../lib/api';
 import { AUTO_UNIT } from '../../lib/booking-link';
+import { msg } from '../../i18n';
 
 export interface ActionResult {
   error: string | null;
@@ -76,7 +77,7 @@ export async function createReservationAction(
       ids.some((id) => !/^\d+$/.test(id)) ||
       new Set(ids).size !== ids.length
     ) {
-      throw new Error('Некорректный список размещений. Обновите форму.');
+      throw new Error(msg('Некорректный список размещений. Обновите форму.'));
     }
     const items = ids.map((id) => {
       const prefix = id === '0' ? '' : `item.${id}.`;

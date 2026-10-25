@@ -5,6 +5,7 @@ import type { DiningArea, DiningTable, RestaurantReservation } from '../../lib/f
 import { selectedWorkspaceBranch } from '../../lib/workspace-context';
 import { instantOf, localInput } from '../beauty/time';
 import { assertSameLocalDay, beautyToday, foodToday, localMinute } from './vertical-metrics';
+import { msg } from '../../i18n';
 
 /**
  * Данные экрана «Сегодня» салона и ресторана (MV8). Момент `nowIso` снимается один раз на запрос, все счёты
@@ -24,7 +25,7 @@ export async function loadBeautyToday(nowIso: string) {
 /** Ресторан: день филиала и вчерашний день (брони через полночь), все страницы списков до конца */
 export async function loadFoodToday(nowIso: string) {
   const branch = await selectedWorkspaceBranch();
-  if (!branch) throw new Error('Выбранный филиал недоступен');
+  if (!branch) throw new Error(msg('Выбранный филиал недоступен'));
   const date = localInput(nowIso, branch.timezone).slice(0, 10);
   const reservations = (d: string) =>
     completeFoodList<RestaurantReservation>(

@@ -3,8 +3,8 @@
  * ночи выделены и что написать в окошке. Команд здесь нет — окошко ведёт на существующие формы брони
  * и блокировки, уже заполненные; проверку доступности делает форма и сервер, как и раньше.
  */
-import { displayDate } from '../../lib/display-date';
-import { nightsBetween, pluralRu } from '../../lib/plural';
+import { nightsBetween } from '../../lib/plural';
+import { nightsLabel, RU, shortDate, type Lang } from './lang';
 
 /**
  * Выделение от клетки, где прижали мышь, до клетки под мышью — только по свободным ночам подряд: на
@@ -52,24 +52,23 @@ export function freeMenuModel(
   unit: { code: string; kind: 'ROOM' | 'BED'; categoryName: string },
   fromDate: string,
   lastDate: string,
+  lang: Lang = RU,
 ): FreeMenu {
+  const { t } = lang;
   const departure = nextDay(lastDate);
   const single = fromDate === lastDate;
   const bed = unit.kind === 'BED';
   const code = encodeURIComponent(unit.code);
   return {
     single,
-    title: `${bed ? 'Койка' : 'Номер'} ${unit.code}`,
+    title: bed ? t('Койка {code}', { code: unit.code }) : t('Номер {code}', { code: unit.code }),
     category: unit.categoryName,
     dates: single
-      ? displayDate(fromDate)
-      : `${displayDate(fromDate)} → ${displayDate(departure)}, ${pluralRu(
-          nightsBetween(fromDate, departure),
-          ['ночь', 'ночи', 'ночей'],
-        )}`,
-    state: single ? (bed ? 'Свободна' : 'Свободен') : null,
-    createLabel: single ? 'Новая бронь' : 'Создать бронь',
-    blockLabel: single ? 'Блокировка' : 'Заблокировать',
+      ? shortDate(lang, fromDate)
+      : `${shortDate(lang, fromDate)} → ${shortDate(lang, departure)}, ${nightsLabel(lang, nightsBetween(fromDate, departure))}`,
+    state: single ? (bed ? t('Свободна') : t('Свободен')) : null,
+    createLabel: single ? t('Новая бронь') : t('Создать бронь'),
+    blockLabel: single ? t('Блокировка') : t('Заблокировать'),
     newHref: `/reservations/new?arrival=${fromDate}&departure=${departure}&unit=${code}`,
     blockHref: `/units/${code}?blockFrom=${fromDate}&blockTo=${departure}#block-form`,
   };

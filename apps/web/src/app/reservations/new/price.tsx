@@ -4,6 +4,8 @@ import { formatMoney } from '../../../lib/money';
 import { bookingQuote } from './availability';
 import { AUTO_UNIT } from '../../../lib/booking-link';
 import { displayDate } from '../../../lib/display-date';
+import { intlLocale, msg } from '../../../i18n';
+import { useLocale, useT } from '../../../i18n/locale-provider';
 
 export function useBookingQuote(
   arrival: string,
@@ -58,7 +60,7 @@ export function useBookingQuote(
             setResult({
               key,
               quote: null,
-              error: 'Не удалось рассчитать стоимость. Повторите расчёт.',
+              error: msg('Не удалось рассчитать стоимость. Повторите расчёт.'),
             });
         });
     }, 250);
@@ -77,19 +79,20 @@ export function useBookingQuote(
 }
 
 export function BookingPrice({ state }: { state: ReturnType<typeof useBookingQuote> }) {
+  const t = useT();
   return (
     <span className="booking-create__price" role="status">
       {state.quote ? (
         <>
-          <small>За весь срок</small>
+          <small>{t('За весь срок')}</small>
           <strong>{formatMoney(state.quote.totalMinor, state.quote.currency)}</strong>
         </>
       ) : (
-        <small>{state.error || 'Рассчитываем стоимость…'}</small>
+        <small>{state.error ? t(state.error) : t('Рассчитываем стоимость…')}</small>
       )}
       {state.error && (
         <button type="button" className="btn btn--secondary btn--sm" onClick={state.retry}>
-          Повторить расчёт
+          {t('Повторить расчёт')}
         </button>
       )}
     </span>
@@ -101,25 +104,30 @@ export function BookingPrice({ state }: { state: ReturnType<typeof useBookingQuo
  * по всей брони из того же расчёта, что итог; средняя — целым тиыном вниз, сумма ночей равна итогу.
  */
 export function PriceByNight({ state }: { state: ReturnType<typeof useBookingQuote> }) {
+  const t = useT();
+  const locale = useLocale();
   const nights = state.quote?.nights ?? [];
   if (!state.quote || nights.length === 0) return null;
   const { currency, totalMinor } = state.quote;
   const average = BigInt(totalMinor) / BigInt(nights.length);
   return (
     <details className="booking-create__nights" data-testid="price-by-night">
-      <summary>Детализация цены по дням</summary>
+      <summary>{t('Детализация цены по дням')}</summary>
       <table className="booking-create__nights-table">
         <tbody>
           {nights.map((n) => (
             <tr key={n.date}>
-              <th scope="row">{displayDate(n.date, 'full')}</th>
+              <th scope="row">{displayDate(n.date, 'full', intlLocale(locale))}</th>
               <td>{formatMoney(n.priceMinor, currency)}</td>
             </tr>
           ))}
         </tbody>
       </table>
       <p className="booking-create__nights-sum" data-testid="price-by-night-sum">
-        Всего ночей: {nights.length}, средняя стоимость ночи: {formatMoney(average.toString(), currency)}
+        {t('Всего ночей: {n}, средняя стоимость ночи: {average}', {
+          n: nights.length,
+          average: formatMoney(average.toString(), currency),
+        })}
       </p>
     </details>
   );

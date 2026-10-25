@@ -3,12 +3,14 @@ import type { OwnerSummaryDto, Workload } from '../../lib/owner-summary';
 import { formatOwnerMoney, ownerReason } from '../../lib/owner-summary';
 import './unified-owner.css';
 import { OwnerDailyChart } from './owner-daily-chart';
+import { intlLocale, msg, translator, type DeskLocale, type Translate } from '../../i18n';
+import { dateFormat } from '../../i18n/dates';
 const periods = [
-  ['today', 'Сегодня'],
-  ['week', '7 дней'],
-  ['month', 'Месяц'],
+  ['today', msg('Сегодня')],
+  ['week', msg('7 дней')],
+  ['month', msg('Месяц')],
 ] as const;
-function MoneyValue({ value }: { value: OwnerSummaryDto['current']['revenue'] }) {
+function MoneyValue({ value, t }: { value: OwnerSummaryDto['current']['revenue']; t: Translate }) {
   return (
     <>
       <strong className="owner-value">
@@ -16,23 +18,25 @@ function MoneyValue({ value }: { value: OwnerSummaryDto['current']['revenue'] })
           ? value.currencies.map((c) => (
               <span key={c.currency}>{formatOwnerMoney(c.amountMinor, c.currency)}</span>
             ))
-          : 'Нет данных'}
+          : t('Нет данных')}
       </strong>
-      {value.state !== 'READY' && <small>{ownerReason(value.reason)}</small>}
+      {value.state !== 'READY' && <small>{ownerReason(value.reason, t)}</small>}
     </>
   );
 }
 function MoneyComparison({
   value,
   reason,
+  t,
 }: {
   value: NonNullable<OwnerSummaryDto['comparisons']>['revenue'] | undefined;
   reason: string | null;
+  t: Translate;
 }) {
   if (!value?.currencies?.length)
     return (
-      <small title={ownerReason(reason ?? value?.reason) || undefined}>
-        Нет данных для сравнения
+      <small title={ownerReason(reason ?? value?.reason, t) || undefined}>
+        {t('Нет данных для сравнения')}
       </small>
     );
   return (
@@ -41,7 +45,7 @@ function MoneyComparison({
         if (c.deltaMinor === null)
           return (
             <small key={c.currency}>
-              {value.currencies!.length > 1 ? `${c.currency}: ` : ''}Нет данных для сравнения
+              {value.currencies!.length > 1 ? `${c.currency}: ` : ''}{t('Нет данных для сравнения')}
             </small>
           );
         const amount = BigInt(c.deltaMinor),
@@ -49,53 +53,55 @@ function MoneyComparison({
           absolute = rate === null ? null : rate < 0n ? -rate : rate;
         return (
           <small key={c.currency}>
-            К предыдущему: {amount > 0n ? '+' : ''}
+            {t('К предыдущему:')} {amount > 0n ? '+' : ''}
             {formatOwnerMoney(c.deltaMinor, c.currency)}
             {rate !== null && absolute !== null
               ? ` (${rate > 0n ? '+' : rate < 0n ? '-' : ''}${absolute / 100n},${(absolute % 100n).toString().padStart(2, '0')}%)`
-              : ' (процент недоступен: предыдущая сумма равна нулю)'}
+              : ` (${t('процент недоступен: предыдущая сумма равна нулю')})`}
           </small>
         );
       })}
     </>
   );
 }
-function WorkloadValue({ value }: { value: Workload }) {
+function WorkloadValue({ value, t }: { value: Workload; t: Translate }) {
   const valid = value.state === 'COMPLETE' && value.percent != null;
   const fmt = (n: number) => new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(n);
   // пояснение расчёта во всплывающей подсказке: строка итогов остаётся одной строкой (Главная на одном экране)
   const basis =
     value.basis === 'BOOKED_SCHEDULE'
-      ? 'Записанное время мастеров / сохранённое расписание'
+      ? t('Записанное время мастеров / сохранённое расписание')
       : value.basis === 'ACTUAL_TABLE_OCCUPANCY'
-        ? 'Фактическая занятость столов / доступное время'
+        ? t('Фактическая занятость столов / доступное время')
         : value.basis === 'SELLABLE_NIGHTS'
-          ? 'Наблюдаемая загрузка фонда'
+          ? t('Наблюдаемая загрузка фонда')
           : '';
   const counted =
     !value.funds && value.numerator !== null
-      ? `Учтено ${fmt(Number(value.numerator) / 60000)} из ${fmt(Number(value.denominator) / 60000)} ${
-          value.unit === 'TABLE_MILLISECOND' ? 'столо-минут' : 'минут мастеров'
-        }. ${valid ? 'Отношение сумм мощностей за период.' : 'Итоговый процент периода недоступен.'}`
+      ? `${t('Учтено {done} из {total} {unit}.', {
+          done: fmt(Number(value.numerator) / 60000),
+          total: fmt(Number(value.denominator) / 60000),
+          unit: value.unit === 'TABLE_MILLISECOND' ? t('столо-минут') : t('минут мастеров'),
+        })} ${valid ? t('Отношение сумм мощностей за период.') : t('Итоговый процент периода недоступен.')}`
       : '';
   const reason =
-    value.state === 'UNAVAILABLE' ? 'Нет данных для расчёта' : ownerReason(value.reason);
+    value.state === 'UNAVAILABLE' ? t('Нет данных для расчёта') : ownerReason(value.reason, t);
   return (
     <>
       <span
         className="owner-totals__load"
         title={[valid ? basis : '', counted].filter(Boolean).join(' ') || undefined}
       >
-        <strong className="owner-value">{valid ? `${fmt(value.percent!)}%` : 'Нет данных'}</strong>
-        {valid && <progress max={100} value={value.percent!} aria-label="Доля занятой мощности" />}
+        <strong className="owner-value">{valid ? `${fmt(value.percent!)}%` : t('Нет данных')}</strong>
+        {valid && <progress max={100} value={value.percent!} aria-label={t('Доля занятой мощности')} />}
       </span>
       {reason && <small>{reason}</small>}
       {value.funds?.map((f) => (
         <small key={f.unit}>
-          {f.unit === 'ROOM_NIGHT' ? 'Номеро-ночи' : 'Койко-ночи'}:{' '}
+          {f.unit === 'ROOM_NIGHT' ? t('Номеро-ночи') : t('Койко-ночи')}:{' '}
           {f.numerator === null
-            ? 'нет данных'
-            : `${f.numerator} из ${f.denominator} (неполная история)`}
+            ? t('нет данных')
+            : t('{done} из {total} (неполная история)', { done: f.numerator, total: String(f.denominator) })}
         </small>
       ))}
     </>
@@ -103,12 +109,12 @@ function WorkloadValue({ value }: { value: Workload }) {
 }
 
 /** Период словами: «21 октября», «1-16 октября», «28 сентября - 4 октября» (живой сайт 21.10.2026: ISO-даты на главной) */
-export function humanPeriod(from: string, to: string): string {
+export function humanPeriod(from: string, to: string, locale: DeskLocale = 'ru'): string {
   const d = (iso: string) => new Date(`${iso}T12:00:00Z`);
   const day = (iso: string) =>
-    new Intl.DateTimeFormat('ru-RU', { day: 'numeric', timeZone: 'UTC' }).format(d(iso));
+    dateFormat(intlLocale(locale), { day: 'numeric', timeZone: 'UTC' }).format(d(iso));
   const dayMonth = (iso: string) =>
-    new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(
+    dateFormat(intlLocale(locale), { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(
       d(iso),
     );
   if (from === to) return dayMonth(from);
@@ -116,12 +122,19 @@ export function humanPeriod(from: string, to: string): string {
   return `${dayMonth(from)} - ${dayMonth(to)}`;
 }
 
-export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
+export function OwnerSummaryView({
+  summary: s,
+  locale = 'ru',
+}: {
+  summary: OwnerSummaryDto;
+  locale?: DeskLocale;
+}) {
+  const t = translator(locale);
   if (!['BEAUTY', 'FOOD_SERVICE', 'HOSPITALITY'].includes(s.scope.vertical))
     return (
       <main id="main-content" className="owner-home" tabIndex={-1}>
-        <h1>Главная</h1>
-        <p role="status">Направление не поддерживается</p>
+        <h1>{t('Главная')}</h1>
+        <p role="status">{t('Направление не поддерживается')}</p>
       </main>
     );
   const expenses = s.current.paidExpenses;
@@ -134,20 +147,20 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
     !(s.workload.state === 'COMPLETE' && s.workload.percent != null);
   const firstStep =
     s.scope.vertical === 'BEAUTY'
-      ? { href: '/calendar', label: 'Добавить первую запись' }
+      ? { href: '/calendar', label: t('Добавить первую запись') }
       : s.scope.vertical === 'FOOD_SERVICE'
-        ? { href: '/floor-plan', label: 'Открыть зал' }
-        : { href: '/chessboard', label: 'Добавить первую бронь' };
+        ? { href: '/floor-plan', label: t('Открыть зал') }
+        : { href: '/chessboard', label: t('Добавить первую бронь') };
   const finance = financePeriodHref(
     s.scope.vertical === 'FOOD_SERVICE' ? '/restaurant-finance' : '/finance',
     { from: s.period.fromDate, to: s.period.toDate },
   );
   const loadLabel =
     s.period.key === 'today'
-      ? 'Загрузка сегодня'
+      ? t('Загрузка сегодня')
       : s.period.key === 'week'
-        ? 'Средняя загрузка за 7 дней'
-        : 'Средняя загрузка за месяц';
+        ? t('Средняя загрузка за 7 дней')
+        : t('Средняя загрузка за месяц');
   // «Требуют решения»: дела сегодня от API, не больше 4 строк (экран не листается); ссылка в финансы несёт период
   const attention = (s.attention ?? []).slice(0, 4);
   const withPeriod = (href: string) =>
@@ -160,11 +173,11 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
   return (
     <main id="main-content" className="owner-home" tabIndex={-1}>
       <header className="owner-bar">
-        <h1>Главная</h1>
+        <h1>{t('Главная')}</h1>
         <span className="owner-bar__updated">
-          Обновлено{' '}
+          {t('Обновлено')}{' '}
           {/* «16 окт., 14:00»: без года и «г.» (аудит 22.10.2026 P2-9) */}
-          {new Intl.DateTimeFormat('ru-RU', {
+          {dateFormat(intlLocale(locale), {
             day: 'numeric',
             month: 'short',
             hour: '2-digit',
@@ -172,29 +185,29 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
             timeZone: s.period.timezone,
           }).format(new Date(s.generatedAt))}
         </span>
-        <nav className="seg" aria-label="Период отчёта">
+        <nav className="seg" aria-label={t('Период отчёта')}>
           {periods.map(([key, label]) => (
             <a
               key={key}
               className={s.period.key === key ? 'seg__item is-on' : 'seg__item'}
               aria-current={s.period.key === key ? 'page' : undefined}
               href={`/today?period=${key}`}
-              title={key === 'month' ? 'С начала календарного месяца' : undefined}
+              title={key === 'month' ? t('С начала календарного месяца') : undefined}
             >
-              {label}
+              {t(label)}
             </a>
           ))}
         </nav>
         <time className="owner-bar__period" dateTime={s.period.fromDate}>
-          {humanPeriod(s.period.fromDate, s.period.toDate)}
+          {humanPeriod(s.period.fromDate, s.period.toDate, locale)}
         </time>
         <div className="owner-bar__actions">
           {/* экраны дня (записи, зал, заезды) уехали с Главной сюда: без ссылки до них было не дойти (Д6) */}
           <a className="btn btn--secondary" href="/today/operations">
-            Рабочий день
+            {t('Рабочий день')}
           </a>
           <a className="btn btn--secondary" href={finance}>
-            Отчёт за период
+            {t('Отчёт за период')}
           </a>
         </div>
       </header>
@@ -202,31 +215,32 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
         <section
           className="owner-panel owner-empty"
           data-testid="owner-empty"
-          aria-label="Показатели руководителя"
+          aria-label={t('Показатели руководителя')}
         >
           <div>
-            <h2>За этот период пока нет данных</h2>
-            <p>Выручка, оплаты, расходы и загрузка появятся здесь после первых операций.</p>
+            <h2>{t('За этот период пока нет данных')}</h2>
+            <p>{t('Выручка, оплаты, расходы и загрузка появятся здесь после первых операций.')}</p>
           </div>
           <a className="btn btn--primary" href={firstStep.href}>
             {firstStep.label}
           </a>
         </section>
       ) : (
-        <section className="owner-panel owner-totals" aria-label="Показатели руководителя">
-          <div title="Начисления, не полученные оплаты">
-            <h2>Выручка</h2>
-            <MoneyValue value={s.current.revenue} />
-            <MoneyComparison value={s.comparisons?.revenue} reason={s.comparisonReason} />
+        <section className="owner-panel owner-totals" aria-label={t('Показатели руководителя')}>
+          <div title={t('Начисления, не полученные оплаты')}>
+            <h2>{t('Выручка')}</h2>
+            <MoneyValue value={s.current.revenue} t={t} />
+            <MoneyComparison value={s.comparisons?.revenue} reason={s.comparisonReason} t={t} />
           </div>
-          <div title="Полученные оплаты, не выручка">
-            <h2>Поступления</h2>
-            <MoneyValue value={s.current.receipts} />
-            <MoneyComparison value={s.comparisons?.receipts} reason={s.comparisonReason} />
+          <div title={t('Полученные оплаты, не выручка')}>
+            <h2>{t('Поступления')}</h2>
+            <MoneyValue value={s.current.receipts} t={t} />
+            <MoneyComparison value={s.comparisons?.receipts} reason={s.comparisonReason} t={t} />
           </div>
-          <div title="Только завершённые расходные операции">
-            <h2>Оплаченные расходы</h2>
+          <div title={t('Только завершённые расходные операции')}>
+            <h2>{t('Оплаченные расходы')}</h2>
             <MoneyValue
+              t={t}
               value={{
                 ...expenses,
                 currencies:
@@ -236,34 +250,34 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
                   })) ?? null,
               }}
             />
-            <MoneyComparison value={s.comparisons?.paidExpenses} reason={s.comparisonReason} />
+            <MoneyComparison value={s.comparisons?.paidExpenses} reason={s.comparisonReason} t={t} />
           </div>
           <div>
             <h2>{loadLabel}</h2>
-            <WorkloadValue value={s.workload} />
+            <WorkloadValue value={s.workload} t={t} />
           </div>
         </section>
       )}
       <div className="owner-body">
         <section className="owner-panel owner-dynamics">
           <div className="owner-panel-heading">
-            <h2>Динамика по дням</h2>
-            <a href={finance}>Финансовый отчёт</a>
+            <h2>{t('Динамика по дням')}</h2>
+            <a href={finance}>{t('Финансовый отчёт')}</a>
           </div>
           <OwnerDailyChart
             metrics={[
               {
-                label: 'Выручка',
+                label: t('Выручка'),
                 daily: s.current.revenue.daily,
                 previous: s.previous?.revenue.daily,
               },
               {
-                label: 'Поступления',
+                label: t('Поступления'),
                 daily: s.current.receipts.daily,
                 previous: s.previous?.receipts.daily,
               },
               {
-                label: 'Оплаченные расходы',
+                label: t('Оплаченные расходы'),
                 daily: expenses.daily,
                 previous: s.previous?.paidExpenses.daily,
               },
@@ -271,15 +285,15 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
           />
           {s.previous && (
             <p className="owner-dynamics__note">
-              Сравнение с периодом{' '}
-              {humanPeriod(s.previous.period.fromDate, s.previous.period.toDate)}, до того же
-              времени.
+              {t('Сравнение с периодом {period}, до того же времени.', {
+                period: humanPeriod(s.previous.period.fromDate, s.previous.period.toDate, locale),
+              })}
             </p>
           )}
         </section>
-        <aside className="owner-side" aria-label="Решения">
+        <aside className="owner-side" aria-label={t('Решения')}>
           <section className="owner-panel owner-attention" aria-labelledby="owner-attention-title">
-            <h2 id="owner-attention-title">Требуют решения</h2>
+            <h2 id="owner-attention-title">{t('Требуют решения')}</h2>
             <ul className="owner-todo">
               {attention.length ? (
                 attention.map((item) => (
@@ -290,8 +304,8 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
                 ))
               ) : (
                 <li data-state="ok" data-testid="owner-attention-unavailable">
-                  <span>Дела дня не загрузились, откройте рабочий день</span>
-                  <a href="/today/operations">Открыть день</a>
+                  <span>{t('Дела дня не загрузились, откройте рабочий день')}</span>
+                  <a href="/today/operations">{t('Открыть день')}</a>
                 </li>
               )}
             </ul>
@@ -300,8 +314,8 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
       </div>
       <section className="owner-panel owner-expense-panel" aria-labelledby="owner-expense-title">
         <div className="owner-panel-heading">
-          <h2 id="owner-expense-title">Куда уходят деньги</h2>
-          <a href={finance}>Оплаченные расходы</a>
+          <h2 id="owner-expense-title">{t('Куда уходят деньги')}</h2>
+          <a href={finance}>{t('Оплаченные расходы')}</a>
         </div>
         <div className="owner-expenses">
           {expenses.currencies?.flatMap((c) => {
@@ -318,7 +332,7 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
               .sort((a, b) => (BigInt(b.paidMinor) > BigInt(a.paidMinor) ? 1 : BigInt(b.paidMinor) < BigInt(a.paidMinor) ? -1 : 0))
               .slice(0, 4);
             return top.map((category) => {
-              const name = category.categoryId === null ? 'Без статьи' : category.categoryName;
+              const name = category.categoryId === null ? t('Без статьи') : category.categoryName;
               // Presentation-only bounded share of this currency, never a cross-currency total.
               const share = complete
                 ? Number((BigInt(category.paidMinor) * 10000n) / BigInt(c.paidMinor)) / 100
@@ -344,7 +358,7 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
                     <progress
                       max={100}
                       value={share}
-                      aria-label={`Доля расходов: ${name}, ${c.currency}`}
+                      aria-label={t('Доля расходов: {name}, {currency}', { name, currency: c.currency })}
                     />
                   )}
                 </div>
@@ -356,14 +370,14 @@ export function OwnerSummaryView({ summary: s }: { summary: OwnerSummaryDto }) {
           const rest = (expenses.currencies ?? []).reduce((n, c) => n + Math.max(0, c.categories.length - 4), 0);
           return rest > 0 ? (
             <p className="owner-expense-more">
-              <a href={finance}>Остальные статьи ({rest}) в «Финансах»</a>
+              <a href={finance}>{t('Остальные статьи ({rest}) в «Финансах»', { rest })}</a>
             </p>
           ) : null;
         })()}
         {!expenses.currencies?.length && (
           <p className="owner-expense-empty">
-            {ownerReason(expenses.reason) ||
-              'Расходов за период пока нет. Добавьте расход в «Финансах», и здесь появятся статьи.'}
+            {ownerReason(expenses.reason, t) ||
+              t('Расходов за период пока нет. Добавьте расход в «Финансах», и здесь появятся статьи.')}
           </p>
         )}
       </section>

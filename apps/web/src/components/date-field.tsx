@@ -7,39 +7,16 @@ import {
   type InputHTMLAttributes,
   type KeyboardEvent,
 } from 'react';
+import { intlLocale, translator, type DeskLocale, type Translate } from '../i18n';
+import { useLocale, useT } from '../i18n/locale-provider';
 import { Icon } from './icon';
 import { usePropertyClock } from './property-time';
 import { cx } from './ui';
+import { dateFormat } from '../i18n/dates';
 
-const MONTHS = [
-  'январь',
-  'февраль',
-  'март',
-  'апрель',
-  'май',
-  'июнь',
-  'июль',
-  'август',
-  'сентябрь',
-  'октябрь',
-  'ноябрь',
-  'декабрь',
-];
-const MONTHS_OF = [
-  'января',
-  'февраля',
-  'марта',
-  'апреля',
-  'мая',
-  'июня',
-  'июля',
-  'августа',
-  'сентября',
-  'октября',
-  'ноября',
-  'декабря',
-];
-const WEEKDAYS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+const MONTHS = 'январь февраль март апрель май июнь июль август сентябрь октябрь ноябрь декабрь'.split(' '); // kk-allow: русские месяцы и дни недели для ru; казахские даёт Intl kk-KZ (localeDate ниже)
+const MONTHS_OF = 'января февраля марта апреля мая июня июля августа сентября октября ноября декабря'.split(' '); // kk-allow: русские месяцы и дни недели для ru; казахские даёт Intl kk-KZ (localeDate ниже)
+const WEEKDAYS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс']; // kk-allow: русские месяцы и дни недели для ru; казахские даёт Intl kk-KZ (localeDate ниже)
 /** размеры всплывающего календаря (см. .date-field__pop): нужны, чтобы не выйти за окно */
 const POP_W = 296;
 const POP_H = 412;
@@ -82,6 +59,29 @@ export function ruMonthLabel(value: string | null | undefined): string {
   return `${MONTHS[Number(value.slice(5, 7)) - 1]} ${value.slice(0, 4)}`;
 }
 
+/** Подписи на языке человека: русские прежние (`ruDateLabel`, `ruMonthLabel`), казахские через `Intl` kk-KZ */
+const localeDate = (d: Date, locale: DeskLocale, options: Intl.DateTimeFormatOptions) =>
+  dateFormat(intlLocale(locale), { timeZone: 'UTC', ...options }).format(d);
+const dayLabelIn = (d: Date, locale: DeskLocale) =>
+  locale === 'ru' ? dayLabel(d) : localeDate(d, locale, { day: 'numeric', month: 'long', year: 'numeric' });
+const monthTitleIn = (d: Date, locale: DeskLocale) =>
+  locale === 'ru'
+    ? `${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`
+    : localeDate(d, locale, { month: 'long', year: 'numeric' });
+/** 1 января 2024 года понедельник: от него семь дней недели на языке человека */
+const weekdaysIn = (locale: DeskLocale) =>
+  locale === 'ru'
+    ? WEEKDAYS
+    : Array.from({ length: 7 }, (_, i) => localeDate(new Date(Date.UTC(2024, 0, 1 + i)), locale, { weekday: 'short' }));
+export function dateLabelIn(value: string | null | undefined, locale: DeskLocale): string {
+  const d = parse(value);
+  return d ? dayLabelIn(d, locale) : '';
+}
+export function monthLabelIn(value: string | null | undefined, locale: DeskLocale): string {
+  if (locale === 'ru' || !value || !/^\d{4}-(0[1-9]|1[0-2])$/.test(value)) return ruMonthLabel(value);
+  return monthTitleIn(new Date(`${value}-01T00:00:00Z`), locale);
+}
+
 /**
  * Русская подпись поверх родного поля: родное поле остаётся (ввод, `name`, `fill()` в тестах), его текст
  * не виден, пока поле не в фокусе. Значение берём из пропсов и из событий `input`/`change` самого поля.
@@ -116,13 +116,15 @@ function useShownValue(
  */
 export function MonthInput({ className, ...rest }: InputHTMLAttributes<HTMLInputElement>) {
   const input = useRef<HTMLInputElement>(null);
+  const t = useT();
+  const locale = useLocale();
   const shown = useShownValue(input, rest.value, rest.defaultValue);
-  const text = ruMonthLabel(shown);
+  const text = monthLabelIn(shown, locale);
   return (
     <span className={className ? `date-field date-field--labelled ${className}` : 'date-field date-field--labelled'}>
       <input ref={input} type="month" className="inp date-field__input" {...rest} />
       {/* подпись в data-text и ::before: текст не входит в имя поля из <label> («Месяц расчёта», не «Месяц расчётаоктябрь 2026») */}
-      <span className="date-field__label" aria-hidden="true" data-text={text || 'Выберите месяц'} />
+      <span className="date-field__label" aria-hidden="true" data-text={text || t('Выберите месяц')} />
     </span>
   );
 }
@@ -132,9 +134,12 @@ export function MonthInput({ className, ...rest }: InputHTMLAttributes<HTMLInput
  * программа чтения не различала (аудит 22.10.2026, P2-6). Имя поля стоит в описании, а не в имени кнопки: иначе
  * поиск поля по подписи («Период: с») находил и поле, и кнопку.
  */
-export function calendarButtonLabel(field: string | undefined): string | undefined {
+export function calendarButtonLabel(
+  field: string | undefined,
+  t: Translate = translator('ru'),
+): string | undefined {
   const name = field?.trim();
-  return name ? `для поля «${name}»` : undefined;
+  return name ? t('для поля «{name}»', { name }) : undefined;
 }
 
 /**
@@ -158,6 +163,8 @@ export function DateInput({
   /** календарь раскрыт сразу — только для страницы `/design-system` */
   defaultOpen?: boolean | undefined;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const autoId = useId();
   const popId = `${autoId}-calendar`;
   // Сегодня по часам объекта, как считает остальная стойка (С-13): пояс — из настроек объекта
@@ -321,13 +328,13 @@ export function DateInput({
   return (
     <span className={cx('date-field date-field--labelled', className)}>
       <input ref={input} type="date" className="inp date-field__input" id={givenId} {...rest} />
-      <span className="date-field__label" aria-hidden="true" data-text={ruDateLabel(shown) || 'Выберите дату'} />
+      <span className="date-field__label" aria-hidden="true" data-text={dateLabelIn(shown, locale) || t('Выберите дату')} />
       <button
         ref={button}
         type="button"
         className="date-field__button"
-        aria-label="Открыть календарь"
-        aria-description={calendarButtonLabel(fieldName)}
+        aria-label={t('Открыть календарь')}
+        aria-description={calendarButtonLabel(fieldName, t)}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={open ? popId : undefined}
@@ -349,7 +356,7 @@ export function DateInput({
           popover={defaultOpen ? undefined : 'manual'}
           style={pos && !defaultOpen ? { top: pos.top, left: pos.left } : undefined}
           role="dialog"
-          aria-label="Календарь"
+          aria-label={t('Календарь')}
           onKeyDown={onKey}
           onMouseLeave={() => setHover(null)}
         >
@@ -357,7 +364,7 @@ export function DateInput({
             <button
               type="button"
               className="date-field__nav date-field__nav--prev"
-              aria-label="Предыдущий месяц"
+              aria-label={t('Предыдущий месяц')}
               onClick={(e) => {
                 e.preventDefault();
                 setView(addMonths(view, -1));
@@ -366,12 +373,12 @@ export function DateInput({
               <Icon name="chevron" width={16} height={16} />
             </button>
             <strong aria-live="polite">
-              {MONTHS[view.getUTCMonth()]} {view.getUTCFullYear()}
+              {monthTitleIn(view, locale)}
             </strong>
             <button
               type="button"
               className="date-field__nav"
-              aria-label="Следующий месяц"
+              aria-label={t('Следующий месяц')}
               onClick={(e) => {
                 e.preventDefault();
                 setView(addMonths(view, 1));
@@ -380,10 +387,10 @@ export function DateInput({
               <Icon name="chevron" width={16} height={16} />
             </button>
           </div>
-          <table className="date-field__grid" role="grid" aria-label="Дни месяца">
+          <table className="date-field__grid" role="grid" aria-label={t('Дни месяца')}>
             <thead>
               <tr>
-                {WEEKDAYS.map((w) => (
+                {weekdaysIn(locale).map((w) => (
                   <th key={w} scope="col">
                     {w}
                   </th>
@@ -412,7 +419,7 @@ export function DateInput({
                             inRange(d) && 'is-range',
                           )}
                           tabIndex={key === iso(cursor) ? 0 : -1}
-                          aria-label={dayLabel(d)}
+                          aria-label={dayLabelIn(d, locale)}
                           aria-current={key === today ? 'date' : undefined}
                           disabled={disabled}
                           onClick={(e) => {
@@ -444,7 +451,7 @@ export function DateInput({
                 select(parse(today)!);
               }}
             >
-              Сегодня
+              {t('Сегодня')}
             </button>
             {presets?.map((preset) => (
               <button
@@ -459,7 +466,7 @@ export function DateInput({
                   } else if (preset.offsetDays !== undefined) select(addDays(parse(today)!, preset.offsetDays));
                 }}
               >
-                {preset.label}
+                {t(preset.label)}
               </button>
             ))}
           </div>

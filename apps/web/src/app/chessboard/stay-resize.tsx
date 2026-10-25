@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { ExtendPreview } from '../../lib/api';
 import { extendPreviewAction } from '../reservations/actions';
 import { extendLabel, extensionConflict, extensionNights } from './extend-plan';
+import { useLocale, useT } from '../../i18n/locale-provider';
+import type { Lang } from './lang';
 
 /** Клетки строки брони: по ним конфликт виден до отпускания (ТЗ v2 §29) */
 type RowCells = Parameters<typeof extensionConflict>[0];
@@ -37,6 +39,8 @@ export function StayResize({
   onExtend: (nights: number) => void;
   onRefuse: (message: string) => void;
 }) {
+  const t = useT();
+  const lang: Lang = { t, locale: useLocale() };
   const [nights, setNights] = useState(0);
   const selected = useRef(0);
   const active = useRef(false);
@@ -49,10 +53,10 @@ export function StayResize({
   };
   /** Своя клетка сетки или ответ сервера (ночи за краем окна, гонка с другим администратором) */
   const conflictFor = (value: number): string | null => {
-    const local = extensionConflict(cells, lastNight, value, itemId);
+    const local = extensionConflict(cells, lastNight, value, itemId, lang);
     if (local) return local;
     const server = prices.current.get(value);
-    return server && !server.nextNightsFree ? 'Занято на новые ночи' : null;
+    return server && !server.nextNightsFree ? t('Занято на новые ночи') : null;
   };
   const finish = () => {
     const value = selected.current;
@@ -63,7 +67,10 @@ export function StayResize({
     if (conflict) {
       const why = conflict.charAt(0).toLowerCase() + conflict.slice(1);
       onRefuse(
-        `Не удалось продлить проживание: место ${unitCode} ${why}. Выберите меньше ночей или переселите гостя.`,
+        t('Не удалось продлить проживание: место {unit} {why}. Выберите меньше ночей или переселите гостя.', {
+          unit: unitCode,
+          why,
+        }),
       );
       return;
     }
@@ -95,8 +102,8 @@ export function StayResize({
         type="button"
         className="board-stay-resize"
         disabled={disabled}
-        aria-label={`Продлить проживание ${guest}: перетяните вправо или выберите ночи стрелками и нажмите Enter`}
-        title="Потяните вправо для продления. Стрелки → / ← и Enter — с клавиатуры"
+        aria-label={t('Продлить проживание {guest}: перетяните вправо или выберите ночи стрелками и нажмите Enter', { guest })}
+        title={t('Потяните вправо для продления. Стрелки → / ← и Enter — с клавиатуры')}
         onPointerDown={(event) => {
           if (event.button !== 0) return;
           event.preventDefault();
@@ -163,11 +170,12 @@ export function StayResize({
           role="status"
         >
           {conflict
-            ? `${conflict} — продлить нельзя`
+            ? t('{reason} — продлить нельзя', { reason: conflict })
             : extendLabel(
                 lastNight,
                 nights,
                 price?.addedMinor ? { addedMinor: price.addedMinor, currency: 'KZT' } : undefined,
+                lang,
               )}
         </span>
       )}

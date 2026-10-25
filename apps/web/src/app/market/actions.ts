@@ -1,7 +1,8 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { ApiError, marketApi } from '../../lib/api';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, msg } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
 
 /** Результат действия раздела «Загрузка конкурентов»: ошибка словами у формы, введённое не теряется */
 export interface MarketActionResult {
@@ -49,25 +50,27 @@ export async function saveCompetitorAction(
   fd: FormData,
 ): Promise<MarketActionResult> {
   const id = s(fd, 'id');
+  const t = await serverT();
   try {
     if (id) await marketApi.updateCompetitor(id, competitorBody(fd));
     else await marketApi.createCompetitor(competitorBody(fd));
   } catch (e) {
     return { error: describe(e), ok: 0, values: echo(fd) };
   }
-  return done(id ? 'Конкурент сохранён' : 'Конкурент добавлен');
+  return done(id ? t('Конкурент сохранён') : t('Конкурент добавлен'));
 }
 
 export async function archiveCompetitorAction(
   _prev: MarketActionResult,
   fd: FormData,
 ): Promise<MarketActionResult> {
+  const t = await serverT();
   try {
     await marketApi.updateCompetitor(s(fd, 'id'), { active: false });
   } catch (e) {
     return { error: describe(e), ok: 0 };
   }
-  return done('Конкурент убран из списка, история сохранена');
+  return done(t('Конкурент убран из списка, история сохранена'));
 }
 
 /**
@@ -78,6 +81,8 @@ export async function writeOccupancyAction(
   _prev: MarketActionResult,
   fd: FormData,
 ): Promise<MarketActionResult> {
+  const t = await serverT();
+  const locale = await currentLocale();
   const entries: Array<{ date: string; percent: string | null }> = [];
   for (const [key, value] of fd.entries()) {
     if (!key.startsWith('p:') || typeof value !== 'string') continue;
@@ -86,13 +91,17 @@ export async function writeOccupancyAction(
     if (now !== '') entries.push({ date, percent: now });
     else if (s(fd, `was:${date}`) !== '') entries.push({ date, percent: null });
   }
-  if (entries.length === 0) return { error: 'Заполните загрузку хотя бы на одну ночь', ok: 0, values: echo(fd) };
+  if (entries.length === 0) return { error: t('Заполните загрузку хотя бы на одну ночь'), ok: 0, values: echo(fd) };
   try {
     await marketApi.writeOccupancy(s(fd, 'id'), entries);
   } catch (e) {
     return { error: describe(e), ok: 0, values: echo(fd) };
   }
-  return done(`Загрузка сохранена: ${pluralRu(entries.length, ['ночь', 'ночи', 'ночей'])}`);
+  return done(
+    t('Загрузка сохранена: {nights}', {
+      nights: countLabel(locale, t, entries.length, [msg('ночь'), msg('ночи'), msg('ночей')]),
+    }),
+  );
 }
 
 /** Цены по ночам: поля `r:<дата>`, правила те же, что у загрузки (заполненное уходит, очищенное снимает) */
@@ -100,6 +109,8 @@ export async function writeRatesAction(
   _prev: MarketActionResult,
   fd: FormData,
 ): Promise<MarketActionResult> {
+  const t = await serverT();
+  const locale = await currentLocale();
   const entries: Array<{ date: string; price: string | null }> = [];
   for (const [key, value] of fd.entries()) {
     if (!key.startsWith('r:') || typeof value !== 'string') continue;
@@ -108,11 +119,15 @@ export async function writeRatesAction(
     if (now !== '') entries.push({ date, price: now });
     else if (s(fd, `was:${date}`) !== '') entries.push({ date, price: null });
   }
-  if (entries.length === 0) return { error: 'Заполните цену хотя бы на одну ночь', ok: 0, values: echo(fd) };
+  if (entries.length === 0) return { error: t('Заполните цену хотя бы на одну ночь'), ok: 0, values: echo(fd) };
   try {
     await marketApi.writeRates(s(fd, 'id'), entries);
   } catch (e) {
     return { error: describe(e), ok: 0, values: echo(fd) };
   }
-  return done(`Цены сохранены: ${pluralRu(entries.length, ['ночь', 'ночи', 'ночей'])}`);
+  return done(
+    t('Цены сохранены: {nights}', {
+      nights: countLabel(locale, t, entries.length, [msg('ночь'), msg('ночи'), msg('ночей')]),
+    }),
+  );
 }

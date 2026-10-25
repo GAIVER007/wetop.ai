@@ -17,6 +17,8 @@ import {
   Stack,
 } from '../../../components/ui';
 import { CopyButton } from '../../website/forms';
+import { msg } from '../../../i18n';
+import { useT } from '../../../i18n/locale-provider';
 import {
   cancelPaymentRequestAction,
   createPaymentRequestAction,
@@ -27,28 +29,28 @@ import {
 const INIT: FinanceActionResult = { error: null, ok: 0 };
 /** Способы запроса: живые деньги, у которых бывает счёт или ссылка (DATA_MODEL §24) */
 const METHODS: Array<[PaymentRequest['method'], string]> = [
-  ['KASPI', 'Kaspi: счёт по номеру телефона'],
-  ['HALYK', 'Halyk: ссылка на оплату'],
-  ['BANK_TRANSFER_PERSON', 'Перевод по реквизитам'],
-  ['CARD_TERMINAL', 'Картой на стойке'],
+  ['KASPI', msg('Kaspi: счёт по номеру телефона')],
+  ['HALYK', msg('Halyk: ссылка на оплату')],
+  ['BANK_TRANSFER_PERSON', msg('Перевод по реквизитам')],
+  ['CARD_TERMINAL', msg('Картой на стойке')],
 ];
 const METHOD_SHORT: Record<PaymentRequest['method'], string> = {
   KASPI: 'Kaspi',
   HALYK: 'Halyk',
-  BANK_TRANSFER_PERSON: 'перевод',
-  CARD_TERMINAL: 'карта на стойке',
+  BANK_TRANSFER_PERSON: msg('перевод'),
+  CARD_TERMINAL: msg('карта на стойке'),
 };
 const STATUS: Record<PaymentRequest['status'], { label: string; tone: 'warn' | 'ok' | 'neutral' }> =
   {
-    PENDING: { label: 'ждёт оплаты', tone: 'warn' },
-    PAID: { label: 'оплачен', tone: 'ok' },
-    CANCELLED: { label: 'отменён', tone: 'neutral' },
+    PENDING: { label: msg('ждёт оплаты'), tone: 'warn' },
+    PAID: { label: msg('оплачен'), tone: 'ok' },
+    CANCELLED: { label: msg('отменён'), tone: 'neutral' },
   };
 const LANGS: Array<[MessageLang, string]> = [
-  ['ru', 'Русский'],
-  ['kk', 'Казахский'],
-  ['en', 'Английский'],
-  ['zh', 'Китайский'],
+  ['ru', msg('Русский')],
+  ['kk', msg('Казахский')],
+  ['en', msg('Английский')],
+  ['zh', msg('Китайский')],
 ];
 /** «1200000» → «12000»; остаток в поле суммы по умолчанию */
 const minorToDecimal = (minor: string) => {
@@ -78,6 +80,7 @@ export function PaymentRequestsPanel({
   folios: FinanceFolio[];
   canMutate: boolean;
 }) {
+  const t = useT();
   const openFolios = folios.filter((f) => f.status === 'OPEN');
   const [folioId, setFolioId] = useState(openFolios[0]?.id ?? '');
   // способы запроса, которые объект принимает (§21.6); выключенный не предлагается
@@ -111,24 +114,22 @@ export function PaymentRequestsPanel({
       open={pendingRequests.length > 0 || undefined}
     >
       <summary className="bold" data-testid="payment-requests-toggle">
-        Отправить гостю счёт на оплату
+        {t('Отправить гостю счёт на оплату')}
         {pendingRequests.length > 0 && (
           <>
             {' '}
             <Badge tone="warn" data-testid="payment-requests-pending">
-              ждут оплаты: {pendingRequests.length}
+              {t('ждут оплаты: {n}', { n: pendingRequests.length })}
             </Badge>
           </>
         )}
       </summary>
       <p className="hint">
-        Kaspi по номеру телефона, ссылка банка или реквизиты перевода: выставьте счёт и отправьте
-        гостю готовый текст. Когда деньги пришли, нажмите «Оплачено»: оплата ляжет на счёт
-        проживания. Оплату на месте принимайте выше, без запроса.
+        {t('Kaspi по номеру телефона, ссылка банка или реквизиты перевода: выставьте счёт и отправьте гостю готовый текст. Когда деньги пришли, нажмите «Оплачено»: оплата ляжет на счёт проживания. Оплату на месте принимайте выше, без запроса.')}
       </p>
       {requests === null && (
         <Alert boxed tone="warning">
-          Запросы оплаты не загрузились. Обновите страницу.
+          {t('Запросы оплаты не загрузились. Обновите страницу.')}
         </Alert>
       )}
       {error && (
@@ -145,16 +146,16 @@ export function PaymentRequestsPanel({
       {(requests ?? []).length > 0 && (
         <Stack gap="sm">
           <Row className="row--baseline">
-            <span className="hint">Язык текста для гостя</span>
+            <span className="hint">{t('Язык текста для гостя')}</span>
             <Select
-              aria-label="Язык текста для гостя"
+              aria-label={t('Язык текста для гостя')}
               value={lang}
               onChange={(e) => setLang(e.target.value as MessageLang)}
               data-testid="payment-request-lang"
             >
               {LANGS.map(([code, label]) => (
                 <option key={code} value={code}>
-                  {label}
+                  {t(label)}
                 </option>
               ))}
             </Select>
@@ -178,8 +179,8 @@ export function PaymentRequestsPanel({
               >
                 <Row className="row--baseline">
                   <b className="num">{formatMoney(r.amountMinor, r.currency)}</b>
-                  <span>{METHOD_SHORT[r.method]}</span>
-                  <Badge tone={STATUS[r.status].tone}>{STATUS[r.status].label}</Badge>
+                  <span>{t(METHOD_SHORT[r.method])}</span>
+                  <Badge tone={STATUS[r.status].tone}>{t(STATUS[r.status].label)}</Badge>
                   {canMutate && r.status === 'PENDING' && (
                     <span className="ml-auto">
                       <Row>
@@ -190,16 +191,16 @@ export function PaymentRequestsPanel({
                           data-testid="payment-request-paid"
                           onClick={async () => {
                             const ok = await ask({
-                              title: `Деньги по запросу пришли: ${formatMoney(r.amountMinor, r.currency)}?`,
-                              body: 'Оплата ляжет на счёт проживания как обычный платёж. Отменить её можно только возвратом.',
-                              confirmLabel: 'Оплачено',
+                              title: t('Деньги по запросу пришли: {sum}?', { sum: formatMoney(r.amountMinor, r.currency) }),
+                              body: t('Оплата ляжет на счёт проживания как обычный платёж. Отменить её можно только возвратом.'),
+                              confirmLabel: t('Оплачено'),
                               tone: 'primary',
                             });
                             if (ok)
                               command(() => markPaymentRequestPaidAction(number, r.id, other));
                           }}
                         >
-                          Оплачено
+                          {t('Оплачено')}
                         </Button>
                         <Button
                           type="button"
@@ -209,14 +210,14 @@ export function PaymentRequestsPanel({
                           data-testid="payment-request-cancel"
                           onClick={async () => {
                             const ok = await ask({
-                              title: `Отменить запрос на ${formatMoney(r.amountMinor, r.currency)}?`,
-                              body: 'Если счёт уже выставлен в Kaspi или банке, отмените его и там.',
-                              confirmLabel: 'Отменить запрос',
+                              title: t('Отменить запрос на {sum}?', { sum: formatMoney(r.amountMinor, r.currency) }),
+                              body: t('Если счёт уже выставлен в Kaspi или банке, отмените его и там.'),
+                              confirmLabel: t('Отменить запрос'),
                             });
                             if (ok) command(() => cancelPaymentRequestAction(number, r.id, other));
                           }}
                         >
-                          Отменить
+                          {t('Отменить')}
                         </Button>
                       </Row>
                     </span>
@@ -227,7 +228,7 @@ export function PaymentRequestsPanel({
                     <p className="hint--lg" data-testid="payment-request-text">
                       {text}
                     </p>
-                    <CopyButton text={text} label="Скопировать текст для гостя" />
+                    <CopyButton text={text} label={t('Скопировать текст для гостя')} />
                   </>
                 )}
               </div>
@@ -237,12 +238,12 @@ export function PaymentRequestsPanel({
       )}
 
       {!canMutate ? null : openFolios.length === 0 ? (
-        <p className="hint">Открытых счетов нет: запрос оплаты выставлять не на что.</p>
+        <p className="hint">{t('Открытых счетов нет: запрос оплаты выставлять не на что.')}</p>
       ) : (
         <form action={formAction} className="stack stack--sm" data-testid="payment-request-form">
           <Row>
             {openFolios.length > 1 && (
-              <Field label="Счёт">
+              <Field label={t('Счёт')}>
                 <Select name="folioId" value={folioId} onChange={(e) => setFolioId(e.target.value)}>
                   {openFolios.map((f) => (
                     <option key={f.id} value={f.id}>
@@ -254,7 +255,7 @@ export function PaymentRequestsPanel({
             )}
             {openFolios.length === 1 && <input type="hidden" name="folioId" value={folioId} />}
             {folio && <input type="hidden" name="currency" value={folio.currency} />}
-            <Field label="Как оплатит гость">
+            <Field label={t('Как оплатит гость')}>
               <Select
                 name="method"
                 value={method}
@@ -263,12 +264,12 @@ export function PaymentRequestsPanel({
               >
                 {methods.map(([code, label]) => (
                   <option key={code} value={code}>
-                    {label}
+                    {t(label)}
                   </option>
                 ))}
               </Select>
             </Field>
-            <Field label={`Сумма, ${currencySign(folio?.currency)}`}>
+            <Field label={t('Сумма, {currency}', { currency: currencySign(folio?.currency) })}>
               <Input
                 key={`${folioId}-${state.ok}`}
                 name="amount"
@@ -280,7 +281,7 @@ export function PaymentRequestsPanel({
             </Field>
           </Row>
           {method !== 'KASPI' && method !== 'CARD_TERMINAL' && (
-            <Field label="Ссылка банка, необязательно">
+            <Field label={t('Ссылка банка, необязательно')}>
               <Input
                 key={`link-${state.ok}`}
                 name="link"
@@ -293,13 +294,12 @@ export function PaymentRequestsPanel({
           )}
           {method === 'KASPI' && (
             <p className="hint">
-              Счёт выставляется в приложении Kaspi Pay на номер гостя; здесь запрос учитывается и
-              превращается в оплату.
+              {t('Счёт выставляется в приложении Kaspi Pay на номер гостя; здесь запрос учитывается и превращается в оплату.')}
             </p>
           )}
           <Row>
             <Button type="submit" disabled={busy} data-testid="payment-request-create">
-              Создать запрос
+              {t('Создать запрос')}
             </Button>
           </Row>
         </form>

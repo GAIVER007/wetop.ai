@@ -9,6 +9,7 @@ import {
 } from '@pms/domain';
 import type { MarketingBudgetView, MarketingResultsView } from '../../../lib/api';
 import { csvTenge } from '../../finance/csv';
+import { msg, translator, type Translate } from '../../../i18n';
 
 /**
  * Числа «Аналитики маркетинга» одним расчётом для экрана и выгрузки CSV (МКТ-В5a, МКТ-В6 «отчёты и экспорт»):
@@ -77,18 +78,26 @@ const num = (v: number | null) => (v === null ? '' : String(v));
  * Выгрузка в Excel (правила ADR-113: «;», UTF-8 с BOM, деньги с запятой): блок каналов и блок дней, каждый с
  * итогом, как на экране. Без результатов каналов обращения, брони и выручка пустые, а не нули.
  */
-export function analyticsCsv(r: AnalyticsReport, vertical: string = 'HOSPITALITY'): string {
+export function analyticsCsv(r: AnalyticsReport, vertical: string = 'HOSPITALITY', t: Translate = translator('ru')): string {
   // слова результата по направлению (аудит 21.10.2026 п. 16): у салона записи, у ресторана брони столов
-  const [many, one] =
-    vertical === 'BEAUTY' ? ['Записи', 'записи'] : vertical === 'FOOD_SERVICE' ? ['Брони столов', 'брони стола'] : ['Брони', 'брони'];
+  const [manyRu, costRu] =
+    vertical === 'BEAUTY'
+      ? [msg('Записи'), msg('Стоимость записи, {currency}')]
+      : vertical === 'FOOD_SERVICE'
+        ? [msg('Брони столов'), msg('Стоимость брони стола, {currency}')]
+        : [msg('Брони'), msg('Стоимость брони, {currency}')];
+  const many = t(manyRu);
   const rc = r.reportingCurrency;
   const rev = r.revenueCurrency;
+  const spent = t('Расход, {currency}', { currency: rc });
+  const cpl = t('CPL, {currency}', { currency: rc });
+  const revenue = t('Выручка, {currency}', { currency: rev });
   const res = <T>(v: T) => (r.ok ? v : null);
   const romi = (v: number | null) => num(r.ok && r.funnel.romiAvailable ? v : null);
   const lines = [
-    ['Канал', `Расход, ${rc}`, 'Обращения', `CPL, ${rc}`, many, `Стоимость ${one}, ${rc}`, `Выручка, ${rev}`, 'ROMI, %'],
+    [t('Канал'), spent, t('Обращения'), cpl, many, t(costRu, { currency: rc }), revenue, 'ROMI, %'],
     ...r.funnel.rows.map((f) => [
-      MARKETING_PLATFORM_LABELS[f.platform as MarketingPlatform] ?? f.platform,
+      t(MARKETING_PLATFORM_LABELS[f.platform as MarketingPlatform] ?? f.platform),
       money(f.spendMinor),
       num(res(f.leads)),
       money(res(f.cplMinor)),
@@ -98,10 +107,10 @@ export function analyticsCsv(r: AnalyticsReport, vertical: string = 'HOSPITALITY
       romi(f.romiPct),
     ]),
   ];
-  const t = r.funnel.total;
-  lines.push(['Итого', money(t.spendMinor), num(res(t.leads)), money(res(t.cplMinor)), num(res(t.bookings)), money(res(t.costPerBookingMinor)), money(res(t.revenueMinor)), romi(t.romiPct)]);
+  const total = r.funnel.total;
+  lines.push([t('Итого'), money(total.spendMinor), num(res(total.leads)), money(res(total.cplMinor)), num(res(total.bookings)), money(res(total.costPerBookingMinor)), money(res(total.revenueMinor)), romi(total.romiPct)]);
   lines.push([]);
-  lines.push(['День', `Расход, ${rc}`, 'Лиды', `CPL, ${rc}`, many, 'Новые клиенты', `Выручка, ${rev}`, 'ROMI, %']);
+  lines.push([t('День'), spent, t('Лиды'), cpl, many, t('Новые клиенты'), revenue, 'ROMI, %']);
   const day = (label: string, d: MarketingDays['total']) => [
     label,
     money(d.spendMinor),
@@ -113,6 +122,6 @@ export function analyticsCsv(r: AnalyticsReport, vertical: string = 'HOSPITALITY
     romi(d.romiPct),
   ];
   for (const d of r.calendar.rows) lines.push(day(d.date, d));
-  lines.push(day('Итого', r.calendar.total));
+  lines.push(day(t('Итого'), r.calendar.total));
   return `\uFEFF${lines.map((l) => l.join(';')).join('\r\n')}\r\n`;
 }

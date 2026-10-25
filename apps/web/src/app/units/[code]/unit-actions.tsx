@@ -21,6 +21,8 @@ import { BLOCK_TYPE_RU } from '../../../lib/block-types';
 import { Icon } from '../../../components/icon';
 import { housekeepingStatus } from '../../../lib/status/housekeeping';
 import { HousekeeperPicker } from './housekeeper-picker';
+import { intlLocale, msg } from '../../../i18n';
+import { useLocale, useT } from '../../../i18n/locale-provider';
 
 const TYPES: Array<[string, string]> = Object.entries(BLOCK_TYPE_RU);
 /**
@@ -33,9 +35,9 @@ const TYPES: Array<[string, string]> = Object.entries(BLOCK_TYPE_RU);
 type HkStatus = UnitCard['housekeepingStatus'];
 /** status-hint: что делать дальше одной фразой под шагами; кнопка названа результатом, словом статуса */
 const HK_NEXT: Record<HkStatus, string> = {
-  DIRTY: 'Когда горничная закончит — «Убрано». Доступным номер станет после проверки.',
-  CLEAN: 'После осмотра — «Проверено», и номер доступен. Если что-то не так — «Требует уборки».',
-  INSPECTED: 'Номер доступен для заселения. Испачкали — «Требует уборки», и цикл начнётся заново.',
+  DIRTY: msg('Когда горничная закончит, нажмите «Убрано». Доступным номер станет после проверки.'),
+  CLEAN: msg('После осмотра нажмите «Проверено», и номер доступен. Если что-то не так, «Требует уборки».'),
+  INSPECTED: msg('Номер доступен для заселения. Испачкали: «Требует уборки», и цикл начнётся заново.'),
 };
 
 export function UnitActions({
@@ -51,6 +53,8 @@ export function UnitActions({
   /** Сотрудники гостиницы для «Кто убирает» (22.10.2026); не переданы: выбора нет */
   housekeepers?: ReadonlyArray<{ id: string; name: string; active: boolean }> | undefined;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [blockState, blockAction, blockPending] = useActionState<UnitActionResult, FormData>(
     blockUnitAction.bind(null, unit.code),
     { error: null },
@@ -61,19 +65,19 @@ export function UnitActions({
   return (
     <Stack>
       {other.error && <Alert>{other.error}</Alert>}
-      <Panel title="Уборка" data-testid="housekeeping-panel">
+      <Panel title={t('Уборка')} data-testid="housekeeping-panel">
         <p className="sub hk-now">
           <Icon name={housekeepingStatus[unit.housekeepingStatus].icon} />
-          Сейчас {HOUSEKEEPING_RU[unit.housekeepingStatus]}
+          {t('Сейчас {status}', { status: t(HOUSEKEEPING_RU[unit.housekeepingStatus]) })}
         </p>
-        <ol className="hk-flow" aria-label="Порядок уборки">
+        <ol className="hk-flow" aria-label={t('Порядок уборки')}>
           {HOUSEKEEPING_FLOW.map((s) => (
             <li key={s} aria-current={s === unit.housekeepingStatus ? 'step' : undefined}>
-              {HOUSEKEEPING_RU[s]}
+              {t(HOUSEKEEPING_RU[s])}
             </li>
           ))}
         </ol>
-        <p className="hint">{HK_NEXT[unit.housekeepingStatus]}</p>
+        <p className="hint">{t(HK_NEXT[unit.housekeepingStatus])}</p>
         {housekeepers && (
           <HousekeeperPicker code={unit.code} current={unit.housekeepingAssignee ?? null} employees={housekeepers} />
         )}
@@ -90,14 +94,14 @@ export function UnitActions({
               onClick={() => start(async () => setOther(await housekeepingAction(unit.code, k)))}
             >
               <Icon name={housekeepingStatus[k].icon} />
-              {housekeepingStatus[k].label}
+              {t(housekeepingStatus[k].label)}
             </Button>
           ))}
         </Row>
       </Panel>
-      <Panel title="Блокировки (ремонт, вывод из продажи)">
+      <Panel title={t('Блокировки (ремонт, вывод из продажи)')}>
         {unit.blocks.length === 0 && (
-          <p className="sub">Блокировок нет, номер в продаже. Закрыть её можно формой ниже.</p>
+          <p className="sub">{t('Блокировок нет, номер в продаже. Закрыть её можно формой ниже.')}</p>
         )}
         {unit.blocks.map((b) => (
           <Row key={b.id} data-testid="block-row" className="hint--lg">
@@ -105,7 +109,7 @@ export function UnitActions({
               <time dateTime={b.dateFrom}>{displayDate(b.dateFrom, 'numeric')}</time>
               {' → '}
               <time dateTime={b.dateTo}>{displayDate(b.dateTo, 'numeric')}</time>
-              {`, ${TYPES.find(([k]) => k === b.type)?.[1] ?? b.type}`}
+              {`, ${t(TYPES.find(([k]) => k === b.type)?.[1] ?? b.type)}`}
               {b.reason ? `, ${b.reason}` : ''}
             </span>
             <Button
@@ -117,17 +121,17 @@ export function UnitActions({
               onClick={async () => {
                 // Снятая блокировка возвращает ячейку в продажу — её тут же может занять канал
                 const ok = await ask({
-                  title: `Снять блокировку с номера ${unit.code}?`,
-                  body: `${displayDate(b.dateFrom)} → ${displayDate(b.dateTo)} · ${
-                    TYPES.find(([k]) => k === b.type)?.[1] ?? b.type
-                  }${b.reason ? ` · ${b.reason}` : ''}. Номер вернётся в продажу, и его сможет занять бронь.`,
-                  confirmLabel: 'Снять блокировку',
+                  title: t('Снять блокировку с номера {code}?', { code: unit.code }),
+                  body: `${displayDate(b.dateFrom, 'short', intlLocale(locale))} → ${displayDate(b.dateTo, 'short', intlLocale(locale))} · ${t(
+                    TYPES.find(([k]) => k === b.type)?.[1] ?? b.type,
+                  )}${b.reason ? ` · ${b.reason}` : ''}. ${t('Номер вернётся в продажу, и его сможет занять бронь.')}`,
+                  confirmLabel: t('Снять блокировку'),
                 });
                 if (!ok) return;
                 start(async () => setOther(await unblockUnitAction(unit.code, b.id)));
               }}
             >
-              снять
+              {t('снять')}
             </Button>
           </Row>
         ))}
@@ -138,14 +142,14 @@ export function UnitActions({
           data-testid="block-form"
           className="row unit-block-form"
         >
-          <Field label="Блокировка с">
+          <Field label={t('Блокировка с')}>
             <DateInput
               name="dateFrom"
               defaultValue={blockState.values?.dateFrom ?? blockPeriod?.dateFrom ?? today}
               required
             />
           </Field>
-          <Field label="До (не включая)">
+          <Field label={t('До (не включая)')}>
             <DateInput
               name="dateTo"
               rangeFromName="dateFrom"
@@ -153,20 +157,20 @@ export function UnitActions({
               required
             />
           </Field>
-          <Field label="Тип блокировки">
+          <Field label={t('Тип блокировки')}>
             <Select name="type" defaultValue={blockState.values?.type ?? 'MAINTENANCE'}>
-              {TYPES.map(([k, t]) => (
+              {TYPES.map(([k, label]) => (
                 <option key={k} value={k}>
-                  {t}
+                  {t(label)}
                 </option>
               ))}
             </Select>
           </Field>
-          <Field label="Причина">
+          <Field label={t('Причина')}>
             <Input name="reason" defaultValue={blockState.values?.reason ?? ''} />
           </Field>
           <Button type="submit" disabled={blockPending || pending}>
-            Заблокировать
+            {t('Заблокировать')}
           </Button>
         </form>
         {blockState.error && <Alert>{blockState.error}</Alert>}

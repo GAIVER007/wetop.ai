@@ -21,7 +21,7 @@ describe('Продвижение без плиток и служебных сл�
     }
   });
   it('реклама называется «Реклама», пустые вкладки спрятаны, текст без «следующих этапов»', () => {
-    expect(ads).toContain('title="Реклама"');
+    expect(ads).toContain("title={t('Реклама')}");
     expect(ads).not.toContain('ИИ-таргетолог"');
     expect(ads).not.toContain("label: 'Аудитории'");
     expect(ads).not.toContain("label: 'Креативы'");

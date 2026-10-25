@@ -12,6 +12,8 @@ import { displayDate } from '../../lib/display-date';
 import { shortPeriod } from '../../lib/human-period';
 import { PeriodBar } from '../../lib/period-bar';
 import { EmptyState, SectionTitle, Table } from '../../components/ui';
+import { intlLocale, msg, type Translate } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
 import './finance.css';
 import './summary.css';
 import '../sales/sales.css';
@@ -68,7 +70,7 @@ export function buildBeautyFinance(days: BeautyDay[]): BeautyFinanceView {
     const counted = new Set<string>();
     for (const item of a.items?.length ? a.items : [a]) {
       const master = masters.get(item.employeeId) ?? {
-        name: names.get(item.employeeId) ?? 'Мастер', count: 0, revenue: 0n,
+        name: names.get(item.employeeId) ?? msg('Мастер'), count: 0, revenue: 0n,
       };
       if (!counted.has(item.employeeId)) master.count += 1;
       counted.add(item.employeeId);
@@ -113,6 +115,7 @@ export function buildBeautyFinanceGroups(days: BeautyDay[]): BeautyFinanceView[]
 
 async function loadPeriod(params: SearchParams): Promise<{ views: BeautyFinanceView[]; today: string; from: string; to: string }> {
   // Только API знает текущую дату филиала; сегодняшний ответ повторно не запрашиваем.
+  const t = await serverT();
   const first = await beautyApi.financeDay();
   const { dates, from, to } = financeDateRange(params, first.date, { period: 'week', maxDays: MAX_DAYS });
   const days: BeautyDay[] = new Array(dates.length);
@@ -127,7 +130,7 @@ async function loadPeriod(params: SearchParams): Promise<{ views: BeautyFinanceV
         const day = date === first.date ? first : await beautyApi.financeDay(date);
         if (day.date !== date || day.location.id !== first.location.id ||
             day.location.timezone !== first.location.timezone) {
-          throw new ApiError(502, 'Данные периода не совпадают с филиалом отчёта.');
+          throw new ApiError(502, t('Данные периода не совпадают с филиалом отчёта.'));
         }
         days[index] = day;
       } catch (error) {
@@ -144,13 +147,14 @@ const timeOf = (iso: string, timeZone: string) =>
   new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone }).format(new Date(iso));
 
 export async function BeautyFinanceScreen({ searchParams = {} }: { searchParams?: SearchParams } = {}) {
+  const t = await serverT();
   let period: Awaited<ReturnType<typeof loadPeriod>>;
   try {
     period = await loadPeriod(searchParams);
   } catch (error: unknown) {
     unstable_rethrow(error);
     return (
-      <Page title="Финансы">
+      <Page title={t('Финансы')}>
         <LoadError testId="beauty-finance-error" {...loadErrorProps(error)} />
       </Page>
     );
@@ -158,77 +162,86 @@ export async function BeautyFinanceScreen({ searchParams = {} }: { searchParams?
   const { views, today, from, to } = period;
   return (
     <Page
-      title="Финансы"
-      subtitle={`Стоимость услуг за ${shortPeriod(from, to)}`}
+      title={t('Финансы')}
+      subtitle={t('Стоимость услуг за {period}', { period: shortPeriod(from, to, intlLocale(await currentLocale())) })}
       actions={
         // записи периода экрана в CSV (Q-BS-6), без имён клиентов
         <a className="btn btn--secondary" href={`/finance/export-appointments?from=${from}&to=${to}`} download>
-          Выгрузить записи (CSV)
+          {t('Выгрузить записи (CSV)')}
         </a>
       }
     >
-      <PeriodBar path="/finance" from={from} to={to} today={today} testId="finance-period" note="период до 31 дня" />
-      {views.length > 1 && <p>Итоги показаны отдельно по валютам записей. Пересчёт валют не выполняется.</p>}
-      {views.map((group) => <BeautyFinanceReport key={group.currency} view={group} multiple={views.length > 1} />)}
+      <PeriodBar path="/finance" from={from} to={to} today={today} testId="finance-period" note={t('период до 31 дня')} />
+      {views.length > 1 && <p>{t('Итоги показаны отдельно по валютам записей. Пересчёт валют не выполняется.')}</p>}
+      {views.map((group) => <BeautyFinanceReport key={group.currency} view={group} multiple={views.length > 1} t={t} />)}
     </Page>
   );
 }
 
 
-function BeautyFinanceReport({ view, multiple }: { view: BeautyFinanceView; multiple: boolean }) {
+function BeautyFinanceReport({
+  view,
+  multiple,
+  t,
+}: {
+  view: BeautyFinanceView;
+  multiple: boolean;
+  t: Translate;
+}) {
   const avg = view.done.length ? view.revenue / BigInt(view.done.length) : 0n;
   const money = (value: bigint) => formatMoney(value, view.currency);
   // аудит 21.10.2026 п. 29: дни без оказанных услуг не занимают строки нулями
   const days = [...view.days].reverse().filter((d) => d.done > 0);
   return (
-      <section data-testid="beauty-finance" aria-label={`Финансы, ${view.currency}`}>
+      <section data-testid="beauty-finance" aria-label={t('Финансы, {currency}', { currency: view.currency })}>
         {multiple && <SectionTitle>{view.currency}</SectionTitle>}
         {/* итоги одной строкой вместо плиток (решение владельца: без декоративных плиток над списками) */}
         <dl className="money-summary" data-testid="beauty-finance-summary">
           <div>
-            <dt>Стоимость оказанных услуг</dt>
+            <dt>{t('Стоимость оказанных услуг')}</dt>
             <dd data-testid="beauty-revenue">{money(view.revenue)}</dd>
           </div>
           {view.refunded > 0n && (
             <div>
-              <dt>Возвраты</dt>
+              <dt>{t('Возвраты')}</dt>
               <dd data-testid="beauty-refunded">{money(view.refunded)}</dd>
             </div>
           )}
           <div>
-            <dt>Выполнено записей</dt>
+            <dt>{t('Выполнено записей')}</dt>
             <dd data-testid="beauty-services-count">
               <Link href="/appointments">{view.done.length}</Link>
             </dd>
           </div>
           <div>
-            <dt>Средняя стоимость записи</dt>
+            <dt>{t('Средняя стоимость записи')}</dt>
             <dd data-testid="beauty-avg">{money(avg)}</dd>
           </div>
           <div>
-            <dt>Ожидается по записям</dt>
+            <dt>{t('Ожидается по записям')}</dt>
             <dd data-testid="beauty-expected">
               <Link href="/calendar">{money(view.expected)}</Link>
             </dd>
           </div>
           <div>
-            <dt>Стоимость отмен и неявок</dt>
+            <dt>{t('Стоимость отмен и неявок')}</dt>
             <dd data-testid="beauty-lost">{money(view.lost)}</dd>
           </div>
         </dl>
 
-        <SectionTitle>По дням</SectionTitle>
+        <SectionTitle>{t('По дням')}</SectionTitle>
         {days.length === 0 ? (
-          <EmptyState title="За период услуги не оказаны">
-            Дни появятся здесь, когда записи отметят как выполненные в <Link href="/calendar">календаре</Link>.
+          <EmptyState title={t('За период услуги не оказаны')}>
+            {t('Дни появятся здесь, когда записи отметят как выполненные в')}{' '}
+            <Link href="/calendar">{t('календаре')}</Link>.
           </EmptyState>
         ) : (
           <Table>
             <thead>
               <tr>
-                <th>День</th>
-                <th>Записей</th>
-                <th>Стоимость оказанных услуг</th>
+                <th>{t('День')}</th>
+                <th>{t('Записей')}</th>
+                <th>{t('Стоимость оказанных услуг')}</th>
               </tr>
             </thead>
             <tbody>
@@ -242,7 +255,7 @@ function BeautyFinanceReport({ view, multiple }: { view: BeautyFinanceView; mult
             </tbody>
             <tfoot>
               <tr>
-                <th scope="row">Итого</th>
+                <th scope="row">{t('Итого')}</th>
                 <td>{view.done.length}</td>
                 <td>{money(view.revenue)}</td>
               </tr>
@@ -250,25 +263,25 @@ function BeautyFinanceReport({ view, multiple }: { view: BeautyFinanceView; mult
           </Table>
         )}
 
-        <SectionTitle>По мастерам</SectionTitle>
+        <SectionTitle>{t('По мастерам')}</SectionTitle>
         {view.masters.length === 0 ? (
-          <EmptyState title="Пока нет оказанных услуг">
-            Стоимость услуг по мастерам появится, когда записи отметят как выполненные в{' '}
-            <Link href="/calendar">календаре</Link>.
+          <EmptyState title={t('Пока нет оказанных услуг')}>
+            {t('Стоимость услуг по мастерам появится, когда записи отметят как выполненные в')}{' '}
+            <Link href="/calendar">{t('календаре')}</Link>.
           </EmptyState>
         ) : (
           <Table>
             <thead>
               <tr>
-                <th>Мастер</th>
-                <th>Записей</th>
-                <th>Стоимость оказанных услуг</th>
+                <th>{t('Мастер')}</th>
+                <th>{t('Записей')}</th>
+                <th>{t('Стоимость оказанных услуг')}</th>
               </tr>
             </thead>
             <tbody>
               {view.masters.map((m) => (
                 <tr key={m.name}>
-                  <td>{m.name}</td>
+                  <td>{t(m.name)}</td>
                   <td>{m.count}</td>
                   <td>{money(m.revenue)}</td>
                 </tr>
@@ -277,18 +290,18 @@ function BeautyFinanceReport({ view, multiple }: { view: BeautyFinanceView; mult
           </Table>
         )}
 
-        <SectionTitle>Выполненные записи</SectionTitle>
+        <SectionTitle>{t('Выполненные записи')}</SectionTitle>
         {view.done.length === 0 ? (
-          <EmptyState title="Нет выполненных записей за период" />
+          <EmptyState title={t('Нет выполненных записей за период')} />
         ) : (
           <Table>
             <thead>
               <tr>
-                <th>Дата</th>
-                <th>Время</th>
-                <th>Клиент</th>
-                <th>Услуга</th>
-                <th>Сумма</th>
+                <th>{t('Дата')}</th>
+                <th>{t('Время')}</th>
+                <th>{t('Клиент')}</th>
+                <th>{t('Услуга')}</th>
+                <th>{t('Сумма')}</th>
               </tr>
             </thead>
             <tbody>
@@ -305,7 +318,8 @@ function BeautyFinanceReport({ view, multiple }: { view: BeautyFinanceView; mult
           </Table>
         )}
         <p className="settings-note beauty-finance__note">
-          Суммы посчитаны по ценам на момент записи, это не поступления денег. Отмены и неявки показаны для сведения. Фактические поступления и возвраты: в <Link href="/cashbox">кассе</Link>. Оплата труда ведётся отдельно.
+          {t('Суммы посчитаны по ценам на момент записи, это не поступления денег. Отмены и неявки показаны для сведения. Фактические поступления и возвраты: в')}{' '}
+          <Link href="/cashbox">{t('кассе')}</Link>. {t('Оплата труда ведётся отдельно.')}
         </p>
       </section>
   );

@@ -32,6 +32,8 @@ import { AdLibrary, loadLibrary } from './library';
 import { propertyClock } from '../../../lib/property-time';
 import { workspaceTimezone } from '../../../lib/workspace-context';
 import { METRIC } from '../../../lib/metric-words';
+import { serverT } from '../../../i18n/server';
+import { msg } from '../../../i18n';
 
 /**
  * Модуль «Реклама» (макет Marketing 2.0 владельца 09.10.2026, экран 2; MKT10.4–10.6). Вкладка «Кампании» живая с
@@ -55,7 +57,7 @@ async function loadCampaigns(month: string | undefined): Promise<Loaded> {
 
 const ctrText = (bp: number | null) => (bp === null ? dash : `${(bp / 100).toFixed(2).replace('.', ',')} %`);
 
-function Campaigns({
+async function Campaigns({
   view,
   editable,
   launchable,
@@ -67,6 +69,7 @@ function Campaigns({
   launchable: boolean;
   today: string;
 }) {
+  const t = await serverT();
   const rc = view.reportingCurrency;
   const money = (v: bigint | null) => (v === null ? dash : formatMoney(v, rc));
   // у кампании из кабинета показатели считает расход кабинета (ADR-MKT-META), у ручной её расходы из журнала
@@ -85,11 +88,11 @@ function Campaigns({
   // плитки в валюте отчётности: кабинет в другой валюте в сумму не входит, его числа в таблице
   const foreign = rows.some((r) => r.currency !== rc);
   const total = rows.reduce(
-    (t, r) => ({
-      spend: t.spend + (r.currency === rc ? r.spend : 0n),
-      impressions: t.impressions + r.c.impressions,
-      clicks: t.clicks + r.c.clicks,
-      leads: t.leads + r.c.leads,
+    (sum, r) => ({
+      spend: sum.spend + (r.currency === rc ? r.spend : 0n),
+      impressions: sum.impressions + r.c.impressions,
+      clicks: sum.clicks + r.c.clicks,
+      leads: sum.leads + r.c.leads,
     }),
     { spend: 0n, impressions: 0, clicks: 0, leads: 0 },
   );
@@ -99,56 +102,55 @@ function Campaigns({
       {/* итоги месяца одной строкой вместо плиток (аудит 21.10.2026 п. 34) */}
       <dl className="money-summary" data-testid="marketing-ads-metrics">
         <div>
-          <dt>Расход кампаний</dt>
+          <dt>{t('Расход кампаний')}</dt>
           <dd data-testid="ads-spend">{formatMoney(total.spend, rc)}</dd>
         </div>
         <div>
-          <dt>Показы</dt>
+          <dt>{t('Показы')}</dt>
           <dd data-testid="ads-impressions">{total.impressions.toLocaleString('ru-RU')}</dd>
         </div>
         <div>
-          <dt>Клики</dt>
+          <dt>{t('Клики')}</dt>
           <dd data-testid="ads-clicks">{total.clicks.toLocaleString('ru-RU')}</dd>
         </div>
         <div>
-          <dt>Лиды площадки</dt>
+          <dt>{t('Лиды площадки')}</dt>
           <dd data-testid="ads-leads">{String(total.leads)}</dd>
         </div>
         <div>
-          <dt>{`${METRIC.ctr}, ${METRIC.cpm.toLowerCase()}, ${METRIC.cpl.toLowerCase()}`}</dt>
+          <dt>{`${t(METRIC.ctr)}, ${t(METRIC.cpm).toLowerCase()}, ${t(METRIC.cpl).toLowerCase()}`}</dt>
           <dd>
             {ctrText(tm.ctrBp)}, {money(tm.cpmMinor)}, {money(tm.cplMinor)}
           </dd>
         </div>
       </dl>
-      {foreign && <p className="settings-note">Расход без кабинетов в другой валюте: они показаны в таблице.</p>}
+      {foreign && <p className="settings-note">{t('Расход без кабинетов в другой валюте: они показаны в таблице.')}</p>}
       <div className="budget-head">
         {editable ? <CampaignButton /> : <span />}
         <MonthNav base="/marketing/ads" month={view.month} />
       </div>
       {rows.length === 0 ? (
-        <EmptyState title="Кампаний пока нет" data-testid="ads-empty">
-          Создайте кампанию, привяжите к ней расходы в «Бюджете» и вносите показы, клики и лиды из кабинета площадки
-          по дням или файлом CSV.
+        <EmptyState title={t('Кампаний пока нет')} data-testid="ads-empty">
+          {t('Создайте кампанию, привяжите к ней расходы в «Бюджете» и вносите показы, клики и лиды из кабинета площадки по дням или файлом CSV.')}
         </EmptyState>
       ) : (
-        <div className="tbl-wrap" role="region" aria-label="Кампании" tabIndex={0}>
-          <Table density="normal" aria-label="Кампании месяца" data-testid="marketing-ads-campaigns">
+        <div className="tbl-wrap" role="region" aria-label={t('Кампании')} tabIndex={0}>
+          <Table density="normal" aria-label={t('Кампании месяца')} data-testid="marketing-ads-campaigns">
             <thead>
               <tr>
-                <th scope="col">Кампания</th>
-                <th scope="col">Статус</th>
-                <th scope="col" className="budget-td-num">Расход</th>
-                <th scope="col" className="budget-td-num">Показы</th>
-                <th scope="col" className="budget-td-num">Клики</th>
-                <th scope="col" className="budget-td-num">{METRIC.ctr}</th>
-                <th scope="col" className="budget-td-num">{METRIC.cpc}</th>
-                <th scope="col" className="budget-td-num">{METRIC.cpm}</th>
-                <th scope="col" className="budget-td-num">Лиды</th>
-                <th scope="col" className="budget-td-num">{METRIC.cpl}</th>
+                <th scope="col">{t('Кампания')}</th>
+                <th scope="col">{t('Статус')}</th>
+                <th scope="col" className="budget-td-num">{t('Расход')}</th>
+                <th scope="col" className="budget-td-num">{t('Показы')}</th>
+                <th scope="col" className="budget-td-num">{t('Клики')}</th>
+                <th scope="col" className="budget-td-num">{t(METRIC.ctr)}</th>
+                <th scope="col" className="budget-td-num">{t(METRIC.cpc)}</th>
+                <th scope="col" className="budget-td-num">{t(METRIC.cpm)}</th>
+                <th scope="col" className="budget-td-num">{t('Лиды')}</th>
+                <th scope="col" className="budget-td-num">{t(METRIC.cpl)}</th>
                 {(editable || launchable) && (
                   <th scope="col">
-                    <span className="sr-only">Действия</span>
+                    <span className="sr-only">{t('Действия')}</span>
                   </th>
                 )}
               </tr>
@@ -159,16 +161,16 @@ function Campaigns({
                   <td>
                     <span className="budget-cell-main">{c.name}</span>
                     <span className="budget-cell-sub">
-                      {platformLabel(c.platform)}
-                      {cabinet && <Badge tone="info">Кабинет</Badge>}
+                      {t(platformLabel(c.platform))}
+                      {cabinet && <Badge tone="info">{t('Кабинет')}</Badge>}
                     </span>
                   </td>
                   <td>
-                    <Badge tone={c.status === 'ACTIVE' ? 'ok' : undefined}>{CAMPAIGN_STATUS[c.status]}</Badge>
+                    <Badge tone={c.status === 'ACTIVE' ? 'ok' : undefined}>{t(CAMPAIGN_STATUS[c.status])}</Badge>
                   </td>
                   <td className="budget-td-num">
                     {formatMoney(spend, currency)}
-                    {cabinet && <span className="budget-cell-sub">в журнале {formatMoney(c.spend, rc)}</span>}
+                    {cabinet && <span className="budget-cell-sub">{t('в журнале {sum}', { sum: formatMoney(c.spend, rc) })}</span>}
                   </td>
                   <td className="budget-td-num">{c.impressions.toLocaleString('ru-RU')}</td>
                   <td className="budget-td-num">{c.clicks.toLocaleString('ru-RU')}</td>
@@ -183,7 +185,7 @@ function Campaigns({
                         launchable && c.status !== 'FINISHED' ? (
                           <CampaignStatusButton campaignId={c.id} name={c.name} active={c.status === 'ACTIVE'} />
                         ) : (
-                          <span className="budget-cell-sub">обновляет кабинет</span>
+                          <span className="budget-cell-sub">{t('обновляет кабинет')}</span>
                         )
                       ) : editable && (
                         <>
@@ -200,9 +202,7 @@ function Campaigns({
         </div>
       )}
       <p className="settings-note" data-testid="ads-note">
-        Расход ручной кампании это её расходы из «Бюджета» за месяц; у кампании из кабинета расход по кабинету, а «в
-        журнале» показывает привязанные списания. Лиды площадки это заявки по данным площадки, а не наши обращения из
-        «Аналитики маркетинга».
+        {t('Расход ручной кампании это её расходы из «Бюджета» за месяц; у кампании из кабинета расход по кабинету, а «в журнале» показывает привязанные списания. Лиды площадки это заявки по данным площадки, а не наши обращения из «Аналитики маркетинга».')}
       </p>
     </div>
   );
@@ -222,6 +222,7 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
     workspaceTimezone(),
     loadLibrary(),
   ]);
+  const t = await serverT();
   const metaResult = q['meta'];
   // выбор из нескольких кабинетов: список из закрытой cookie адреса возврата (заготовка входа живёт 10 минут)
   let choices: Array<{ adAccountId: string; name: string; currency: string }> = [];
@@ -248,12 +249,12 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
   return (
     <Page
       crumbs={<BackToModules />}
-      title="Реклама"
-      subtitle="Кампании Facebook и Instagram: расход, показы, клики и заявки. Запуск с ИИ после вашей проверки."
+      title={t('Реклама')}
+      subtitle={t('Кампании Facebook и Instagram: расход, показы, клики и заявки. Запуск с ИИ после вашей проверки.')}
       actions={
         launchable ? (
           <Link className="btn" href="/marketing/ads/launch" data-testid="ad-new">
-            Новая кампания с ИИ
+            {t('Новая кампания с ИИ')}
           </Link>
         ) : undefined
       }
@@ -261,30 +262,30 @@ export default async function MarketingAdsPage({ searchParams }: { searchParams:
       <div className="marketing-screen" data-testid="marketing-ads-screen">
         {metaResult === 'connected' && (
           <Alert tone="success" data-testid="meta-result">
-            Кабинет Meta подключён: кампании и дни за последние 28 дней загружены.
+            {t('Кабинет Meta подключён: кампании и дни за последние 28 дней загружены.')}
           </Alert>
         )}
         {metaResult === 'failed' && (
           <Alert boxed data-testid="meta-result">
-            Кабинет не подключён: {q['reason'] ?? 'попробуйте ещё раз'}
+            {t('Кабинет не подключён: {reason}', { reason: t(q['reason'] ?? msg('попробуйте ещё раз')) })}
           </Alert>
         )}
         {metaResult === 'cancelled' && (
           <p className="settings-note" data-testid="meta-result">
-            Вход в Facebook отменён: кабинет не подключён.
+            {t('Вход в Facebook отменён: кабинет не подключён.')}
           </p>
         )}
         {metaResult === 'choose' && editable && choices.length > 0 && <MetaChoose accounts={choices} />}
         {metaResult === 'choose' && choices.length === 0 && (
           <p className="settings-note" data-testid="meta-result">
-            Выбор кабинета устарел: подключите заново.
+            {t('Выбор кабинета устарел: подключите заново.')}
           </p>
         )}
         {cabinet && !(metaResult === 'choose' && choices.length > 0) && <MetaCabinet view={cabinet} editable={editable} />}
         <AdLaunches loaded={launches} clock={propertyClock(timezone)} />
         {/* «Аудитории» и «Креативы» (23.10.2026): итог прошлых запусков, аудиторию можно взять в новую кампанию */}
         <AdLibrary loaded={library} launchable={launchable} />
-        <section aria-label="Кампании">{campaigns}</section>
+        <section aria-label={t('Кампании')}>{campaigns}</section>
       </div>
     </Page>
   );

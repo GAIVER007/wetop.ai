@@ -7,7 +7,7 @@ describe('approved TZ12 presentation compatibility port', () => {
     expect(text).toContain('rest-hours--editable');
     expect(text).toContain('className="rest-hours__from"');
     expect(text).toContain('className="rest-hours__to"');
-    expect(text).toContain('<span aria-hidden="true">До</span>');
+    expect(text).toContain(`<span aria-hidden="true">{t('До')}</span>`); // KK3: подпись через перевод
     const css = source('food/restaurant.css');
     expect(css).toContain("grid-template-areas: 'day toggle' 'from to'");
     expect(css).toContain('.rest-hours--editable li');
@@ -25,18 +25,18 @@ describe('approved TZ12 presentation compatibility port', () => {
     const text = source('appointments/list.tsx');
     expect(text).toContain('className="beauty-period-filter"');
     // подсказка теперь в самом поле поиска (аудит 21.10.2026 п.19)
-    expect(text).toContain('placeholder="Имя или телефон"');
+    expect(text).toContain("placeholder={t('Имя или телефон')}"); // KK2: текст через перевод
     expect(text).toContain('tel:${r.customer.phone}');
-    expect(text).toContain('Открыть запись');
+    expect(text).toContain("t('Открыть запись')");
   });
   it('groups the shared editor and keeps its scoped save footer reachable', () => {
     const text = source('beauty/appointment-form.tsx');
     // Группа «Услуга и время» (341554556, решение 19.10): название группы сверяется с tests/beauty-ui/tz12-ui.spec.ts
-    for (const name of ['Клиент', 'Услуга и время', 'Дополнительно']) expect(text).toContain(`<legend>${name}</legend>`);
+    for (const name of ['Клиент', 'Услуга и время', 'Дополнительно']) expect(text).toContain(`<legend>{t('${name}')}</legend>`);
     expect(text).toContain('aria-live="polite"');
-    expect(text).toContain('<span className="beauty-selection-line">Дата: {date}</span>');
+    expect(text).toContain("<span className=\"beauty-selection-line\">{t('Дата: {date}', { date })}</span>");
     // пояс называется словами (zoneLabel), а не кодом IANA: обход живого сайта 21.10.2026
-    expect(text).toMatch(/<span className="beauty-selection-line">\s*Время: \{hour\} \(\{zoneLabel\(day\.location\.timezone\)\}\)\s*<\/span>/);
+    expect(text).toMatch(/<span className="beauty-selection-line">\s*\{t\('Время: \{time\} \(\{zone\}\)', \{ time: hour, zone: zoneLabel\(day\.location\.timezone, t\) \}\)\}\s*<\/span>/);
     // подвал с итогом и «Записать» с 23.10.2026 общий у окна брони всех направлений (`BookingShell`)
     expect(text).toContain('<BookingShell');
     expect(text).toContain('appointment-form__total');
@@ -46,8 +46,8 @@ describe('approved TZ12 presentation compatibility port', () => {
     const text = source('customers/beauty-table.tsx');
     expect(text).toContain('tel:${row.phone}');
     expect(text).toMatch(/<strong>\s*<Link href=\{`\/customers\/\$\{encodeURIComponent\(row.id\)\}`\}>\s*\{\[row.firstName, row.lastName\]/);
-    expect(text).toContain('data-label="Средний чек"');
-    expect(text).toContain('data-label="Последний визит"');
+    expect(text).toContain("data-label={t('Средний чек')}");
+    expect(text).toContain("data-label={t('Последний визит')}");
   });
   it('puts effective branch service information before subordinate catalog details', () => {
     const text = source('beauty/services/board.tsx');

@@ -26,6 +26,7 @@ import type { JournalResult } from './journal-actions';
 import { formatPhone } from '../../lib/phone';
 import { useBranchPaymentMethods } from '../branch-payment-methods/use-branch-methods';
 import { branchMethodsShown } from '../branch-payment-methods/shown';
+import { useT } from '../../i18n/locale-provider';
 
 type PayMethod = FoodPaymentMethod | 'BONUS' | 'GIFT_CERTIFICATE';
 
@@ -59,6 +60,7 @@ function AppointmentCardBody({
   scopeKey?: string;
   onDone: () => void;
 }) {
+  const t = useT();
   const [editing, setEditing] = useState(false);
   const [repeating, setRepeating] = useState(false);
   const [state, action, pending] = useActionState(moveAppointment, null);
@@ -87,18 +89,18 @@ function AppointmentCardBody({
           ? await payAppointment(row.id, request.method, request.amountMinor, request.idempotencyKey, scopeKey, request.certificateCode)
           : await refundAppointment(row.id, request.method, request.amountMinor, request.reason!, request.idempotencyKey, scopeKey);
       } catch {
-        result = { outcome: 'unknown', error: 'Ответ потерян. Результат операции не подтверждён.' };
+        result = { outcome: 'unknown', error: t('Ответ потерян. Результат операции не подтверждён.') };
       }
       const confirmed = operation.settle(result);
       // A late response belongs to the original keyed card, not the next appointment/scope.
       if (!mounted.current) return;
       setMoneyStatus(confirmed ? 'confirmed' : operation.status);
       if (!confirmed) {
-        setError(result?.error ?? 'Результат операции не подтверждён.');
+        setError(result?.error ?? t('Результат операции не подтверждён.'));
         return;
       }
       try { onDone(); } catch {
-        setError('Операция подтверждена. Обновите страницу, чтобы увидеть актуальный остаток.');
+        setError(t('Операция подтверждена. Обновите страницу, чтобы увидеть актуальный остаток.'));
       }
     });
   };
@@ -125,11 +127,11 @@ function AppointmentCardBody({
   const [reason, setReason] = useState('');
   const refund = () => {
     const minorText = inputToMinor(refundAmount);
-    if (minorText === null) return setError('Введите сумму, не больше двух знаков после запятой');
+    if (minorText === null) return setError(t('Введите сумму, не больше двух знаков после запятой'));
     const minor = BigInt(minorText || '0');
-    if (minor <= 0n) return setError('Сумма должна быть больше нуля');
-    if (minor > BigInt(Number.MAX_SAFE_INTEGER)) return setError('Сумма слишком большая');
-    if (!reason.trim()) return setError('Укажите причину возврата');
+    if (minor <= 0n) return setError(t('Сумма должна быть больше нуля'));
+    if (minor > BigInt(Number.MAX_SAFE_INTEGER)) return setError(t('Сумма слишком большая'));
+    if (!reason.trim()) return setError(t('Укажите причину возврата'));
     const operation = money.current;
     const request = operation?.begin({ kind: 'refund', method: refundMethod, amountMinor: Number(minor), reason: reason.trim() });
     if (operation && request) runMoney(request, operation);
@@ -185,7 +187,7 @@ function AppointmentCardBody({
   };
   const checkCertificate = () => {
     const code = normalizeCertificateCode(certCode);
-    if (!code) return setCert({ error: 'Код сертификата: 8 знаков' });
+    if (!code) return setCert({ error: t('Код сертификата: 8 знаков') });
     void lookupCertificate(code).then((found) => {
       if (!mounted.current) return;
       setCert(found);
@@ -197,13 +199,13 @@ function AppointmentCardBody({
   };
   const pay = () => {
     const minorText = inputToMinor(amount);
-    if (minorText === null) return setError('Введите сумму, не больше двух знаков после запятой');
+    if (minorText === null) return setError(t('Введите сумму, не больше двух знаков после запятой'));
     const minor = BigInt(minorText || '0');
-    if (minor <= 0n) return setError('Сумма должна быть больше нуля');
-    if (minor > BigInt(Number.MAX_SAFE_INTEGER)) return setError('Сумма слишком большая');
-    if (method === 'BONUS' && minor > bonusMax) return setError(`Бонусами можно оплатить не больше ${formatMoney(bonusMax.toString(), row.currency)}`);
+    if (minor <= 0n) return setError(t('Сумма должна быть больше нуля'));
+    if (minor > BigInt(Number.MAX_SAFE_INTEGER)) return setError(t('Сумма слишком большая'));
+    if (method === 'BONUS' && minor > bonusMax) return setError(t('Бонусами можно оплатить не больше {amount}', { amount: formatMoney(bonusMax.toString(), row.currency) }));
     const certificateCode = method === 'GIFT_CERTIFICATE' ? normalizeCertificateCode(certCode) : null;
-    if (method === 'GIFT_CERTIFICATE' && !certificateCode) return setError('Введите код сертификата: 8 знаков');
+    if (method === 'GIFT_CERTIFICATE' && !certificateCode) return setError(t('Введите код сертификата: 8 знаков'));
     const operation = money.current;
     const request = operation?.begin({
       kind: 'pay', method, amountMinor: Number(minor), ...(certificateCode ? { certificateCode } : {}),
@@ -218,9 +220,9 @@ function AppointmentCardBody({
   const change = async (status: BeautyAppointmentRow['status']) => {
     if (status === 'CANCELLED') {
       const ok = await ask({
-        title: `Отменить запись: ${row.customer.name}, ${clock(row.startMinutes)}?`,
-        body: 'Время специалиста освободится.',
-        confirmLabel: 'Отменить запись',
+        title: t('Отменить запись: {name}, {time}?', { name: row.customer.name, time: clock(row.startMinutes) }),
+        body: t('Время специалиста освободится.'),
+        confirmLabel: t('Отменить запись'),
         tone: 'danger',
       });
       if (!ok) return;
@@ -236,7 +238,7 @@ function AppointmentCardBody({
     <div className="beauty-form">
       <dl className="beauty-facts">
         <div>
-          <dt>Клиент</dt>
+          <dt>{t('Клиент')}</dt>
           <dd>
             {row.customer.name}
             {row.customer.phone ? `, ${formatPhone(row.customer.phone)}` : ''}
@@ -249,18 +251,18 @@ function AppointmentCardBody({
               <dd>
                 <p>
                   {item.employeeName}, {clock(item.startMinutes)}–{clock(item.endMinutes)} ·{' '}
-                  {item.durationMinutes} мин
+                  {t('{n} мин', { n: item.durationMinutes })}
                 </p>
                 {/* цена один раз (аудит салона 22.10.2026): база и итог строки только при скидке, наценке или
                     нескольких услугах; итог записи в строке «Оплачено» */}
                 {(BigInt(item.discountMinor) > 0n || BigInt(item.surchargeMinor) > 0n) && (
-                  <p>Цена: {formatMoney(item.basePriceMinor, item.currency)}</p>
+                  <p>{t('Цена: {amount}', { amount: formatMoney(item.basePriceMinor, item.currency) })}</p>
                 )}
                 {BigInt(item.discountMinor) > 0n && (
-                  <p>Скидка: {formatMoney(item.discountMinor, item.currency)}</p>
+                  <p>{t('Скидка: {amount}', { amount: formatMoney(item.discountMinor, item.currency) })}</p>
                 )}
                 {BigInt(item.surchargeMinor) > 0n && (
-                  <p>Наценка: {formatMoney(item.surchargeMinor, item.currency)}</p>
+                  <p>{t('Наценка: {amount}', { amount: formatMoney(item.surchargeMinor, item.currency) })}</p>
                 )}
                 {(row.items!.length > 1 || BigInt(item.discountMinor) > 0n || BigInt(item.surchargeMinor) > 0n) && (
                   <strong>{formatMoney(item.priceMinor, item.currency)}</strong>
@@ -271,40 +273,42 @@ function AppointmentCardBody({
         ) : (
           <>
             <div>
-              <dt>Услуга</dt>
+              <dt>{t('Услуга')}</dt>
               <dd>{row.serviceName}</dd>
             </div>
             <div>
-              <dt>Специалист</dt>
-              <dd>{master?.name ?? 'не найден'}</dd>
+              <dt>{t('Специалист')}</dt>
+              <dd>{master?.name ?? t('не найден')}</dd>
             </div>
           </>
         )}
         <div>
-          <dt>Время</dt>
+          <dt>{t('Время')}</dt>
           <dd>
-            {day.date}, {clock(row.startMinutes)} до {clock(row.endMinutes)}
+            {t('{date}, {from} до {to}', { date: day.date, from: clock(row.startMinutes), to: clock(row.endMinutes) })}
           </dd>
         </div>
         <div>
-          <dt>Оплачено</dt>
+          <dt>{t('Оплачено')}</dt>
           <dd data-testid="beauty-card-paid">
-            {formatMoney(row.paidMinor, row.currency)} из{' '}
-            {formatMoney(row.priceMinor, row.currency)}
+            {t('{paid} из {price}', {
+              paid: formatMoney(row.paidMinor, row.currency),
+              price: formatMoney(row.priceMinor, row.currency),
+            })}
           </dd>
         </div>
         {(row.payments?.length ?? 0) > 0 && (
           <div>
-            <dt>Платежи</dt>
+            <dt>{t('Платежи')}</dt>
             <dd data-testid="beauty-card-payments">
               {/* A4 (паритет с zapis.kz): каждый платёж строкой; аннулирование по-прежнему в «Кассе» */}
               <ul className="beauty-card-payments">
                 {row.payments!.map((payment) => (
                   <li key={payment.id}>
                     {localInput(payment.at, day.location.timezone).slice(11, 16)},{' '}
-                    {METHOD_RU[payment.method as keyof typeof METHOD_RU] ?? payment.method},{' '}
+                    {t(METHOD_RU[payment.method as keyof typeof METHOD_RU] ?? payment.method)},{' '}
                     {formatMoney(payment.amountMinor, row.currency)}
-                    {payment.kind === 'EXPENSE' ? ' (Возврат)' : ''}
+                    {payment.kind === 'EXPENSE' ? t(' (Возврат)') : ''}
                   </li>
                 ))}
               </ul>
@@ -313,19 +317,19 @@ function AppointmentCardBody({
         )}
         {BigInt(row.refundedMinor) > 0n && (
           <div>
-            <dt>Возвращено</dt>
+            <dt>{t('Возвращено')}</dt>
             <dd data-testid="beauty-card-refunded">
               {formatMoney(row.refundedMinor, row.currency)}
             </dd>
           </div>
         )}
         <div>
-          <dt>Состояние</dt>
-          <dd data-testid="beauty-card-status">{beautyStatus[row.status].label}</dd>
+          <dt>{t('Состояние')}</dt>
+          <dd data-testid="beauty-card-status">{t(beautyStatus[row.status].label)}</dd>
         </div>
         {row.notes && (
           <div>
-            <dt>Заметка</dt>
+            <dt>{t('Заметка')}</dt>
             <dd>{row.notes}</dd>
           </div>
         )}
@@ -340,9 +344,9 @@ function AppointmentCardBody({
         <ReviewInvitation appointmentId={row.id} scopeKey={scopeKey} />
       )}
       {canCreate && (
-        <section aria-label="Повторная запись">
+        <section aria-label={t('Повторная запись')}>
           <Button type="button" tone="secondary" onClick={() => setRepeating(true)}>
-            Повторить запись
+            {t('Повторить запись')}
           </Button>
           <AppointmentEditor
             open={repeating}
@@ -358,9 +362,9 @@ function AppointmentCardBody({
         </section>
       )}
       {canUpdate && canAdjustPrice && row.next.length > 0 && (
-        <section aria-label="Редактирование услуг">
+        <section aria-label={t('Редактирование услуг')}>
           <Button type="button" tone="secondary" onClick={() => setEditing(true)}>
-            Изменить услуги
+            {t('Изменить услуги')}
           </Button>
           <AppointmentEditor
             open={editing}
@@ -386,39 +390,42 @@ function AppointmentCardBody({
               disabled={busy}
               onClick={() => void change(status)}
             >
-              {ACTION_WORD[status]}
+              {t(ACTION_WORD[status])}
             </Button>
           ))}
         </div>
       )}
 
       {canUpdate && (row.status === 'BOOKED' || row.status === 'CONFIRMED') && !row.next.includes('NO_SHOW') && (
-        <p className="muted">{beautyStatus.NO_SHOW.label}: {NO_SHOW_BEFORE_START_MESSAGE}</p>
+        <p className="muted">{t(beautyStatus.NO_SHOW.label)}: {t(NO_SHOW_BEFORE_START_MESSAGE)}</p>
       )}
 
       {payable && (
-        <section className="beauty-form" aria-label="Оплата записи">
-          <h3>Оплата</h3>
-          <Field label="Способ">
+        <section className="beauty-form" aria-label={t('Оплата записи')}>
+          <h3>{t('Оплата')}</h3>
+          <Field label={t('Способ')}>
             <Select disabled={moneyLocked} value={method} onChange={(e) => chooseMethod(e.target.value as PayMethod)}>
               {branchMethodsShown(FOOD_PAYMENT_METHODS, accepted, method).map((m) => (
                 <option key={m} value={m}>
-                  {METHOD_RU[m] ?? m}
+                  {t(METHOD_RU[m] ?? m)}
                 </option>
               ))}
               {/* «Бонусы» только когда у клиента есть бонусы (аудит салона 22.10.2026: предлагались при 0) */}
-              {bonusAvailable && <option value="BONUS">Бонусы</option>}
-              <option value="GIFT_CERTIFICATE">Сертификат</option>
+              {bonusAvailable && <option value="BONUS">{t('Бонусы')}</option>}
+              <option value="GIFT_CERTIFICATE">{t('Сертификат')}</option>
             </Select>
           </Field>
           {method === 'BONUS' && bonusAvailable && bonus && bonus !== 'loading' && bonus !== 'none' && (
             <p className="beauty-loyalty-hint" data-testid="pay-bonus-hint">
-              {`Бонусов: ${formatMoney(bonus.balanceMinor, row.currency)}. Можно списать: ${formatMoney(bonusMax.toString(), row.currency)}.`}
+              {t('Бонусов: {balance}. Можно списать: {max}.', {
+                balance: formatMoney(bonus.balanceMinor, row.currency),
+                max: formatMoney(bonusMax.toString(), row.currency),
+              })}
             </p>
           )}
           {method === 'GIFT_CERTIFICATE' && (
             <>
-              <Field label="Код сертификата">
+              <Field label={t('Код сертификата')}>
                 <Input
                   disabled={moneyLocked}
                   value={certCode}
@@ -428,37 +435,39 @@ function AppointmentCardBody({
                 />
               </Field>
               <Button type="button" tone="secondary" disabled={moneyLocked || !certCode.trim()} onClick={checkCertificate}>
-                Проверить
+                {t('Проверить')}
               </Button>
               {cert && (
                 <p className="beauty-loyalty-hint" data-testid="pay-certificate-hint">
                   {'error' in cert
                     ? cert.error
                     : cert.status === 'ACTIVE'
-                      ? `Остаток сертификата: ${formatMoney(cert.balanceMinor, row.currency)}. Если остатка не хватает, спишется сколько есть.`
+                      ? t('Остаток сертификата: {amount}. Если остатка не хватает, спишется сколько есть.', {
+                          amount: formatMoney(cert.balanceMinor, row.currency),
+                        })
                       : cert.status === 'EXPIRED'
-                        ? 'Срок сертификата истёк'
-                        : 'Сертификат уже использован'}
+                        ? t('Срок сертификата истёк')
+                        : t('Сертификат уже использован')}
                 </p>
               )}
             </>
           )}
-          <Field label={`Сумма, ${currencyLabel}`}>
+          <Field label={t('Сумма, {currency}', { currency: currencyLabel })}>
             <Input disabled={moneyLocked} inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </Field>
           <Button type="button" disabled={moneyLocked} onClick={pay}>
-            Принять оплату
+            {t('Принять оплату')}
           </Button>
           {BigInt(row.paidMinor) > 0n && (
-            <p className="muted">Аннулировать оплату можно в «Кассе».</p>
+            <p className="muted">{t('Аннулировать оплату можно в «Кассе».')}</p>
           )}
         </section>
       )}
 
       {refundable && (
-        <section className="beauty-form" aria-label="Возврат по записи">
-          <h3>Возврат</h3>
-          <Field label="Способ возврата">
+        <section className="beauty-form" aria-label={t('Возврат по записи')}>
+          <h3>{t('Возврат')}</h3>
+          <Field label={t('Способ возврата')}>
             <Select
               disabled={moneyLocked}
               value={refundMethod}
@@ -466,12 +475,12 @@ function AppointmentCardBody({
             >
               {FOOD_PAYMENT_METHODS.map((m) => (
                 <option key={m} value={m}>
-                  {METHOD_RU[m] ?? m}
+                  {t(METHOD_RU[m] ?? m)}
                 </option>
               ))}
             </Select>
           </Field>
-          <Field label={`Сумма возврата, ${currencyLabel}`}>
+          <Field label={t('Сумма возврата, {currency}', { currency: currencyLabel })}>
             <Input
               disabled={moneyLocked}
               inputMode="decimal"
@@ -479,11 +488,11 @@ function AppointmentCardBody({
               onChange={(e) => setRefundAmount(e.target.value)}
             />
           </Field>
-          <Field label="Причина">
+          <Field label={t('Причина')}>
             <Input disabled={moneyLocked} value={reason} maxLength={300} onChange={(e) => setReason(e.target.value)} />
           </Field>
           <Button type="button" tone="danger" disabled={moneyLocked} onClick={refund}>
-            Оформить возврат
+            {t('Оформить возврат')}
           </Button>
         </section>
       )}
@@ -491,8 +500,8 @@ function AppointmentCardBody({
       {canUpdate && row.next.length > 0 && (
         <form action={action} className="beauty-form">
           <input type="hidden" name="id" value={row.id} />
-          <h3>Перенести</h3>
-          <Field label={row.items && row.items.length > 1 ? 'Специалист первой услуги' : 'Специалист'}>
+          <h3>{t('Перенести')}</h3>
+          <Field label={row.items && row.items.length > 1 ? t('Специалист первой услуги') : t('Специалист')}>
             <Select name="employeeId" defaultValue={row.employeeId}>
               {day.columns.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -501,7 +510,7 @@ function AppointmentCardBody({
               ))}
             </Select>
           </Field>
-          <Field label="Начало">
+          <Field label={t('Начало')}>
             <Input
               type="datetime-local"
               value={localStart}
@@ -516,19 +525,27 @@ function AppointmentCardBody({
           />
           {state?.error && <Alert>{state.error}</Alert>}
           <Button type="submit" tone="secondary" disabled={pending}>
-            {pending ? 'Переносим…' : 'Перенести'}
+            {pending ? t('Переносим…') : t('Перенести')}
           </Button>
         </form>
       )}
 
       {moneyStatus === 'blocked' && (canPay || canRefund) && (
-        <Alert>Безопасная отправка недоступна или осталась неподтверждённая операция. Сверьте историю и кассу. Новая оплата или возврат заблокированы; если хранилище вкладки недоступно, разрешите его до отправки.</Alert>
+        <Alert>
+          {t(
+            'Безопасная отправка недоступна или осталась неподтверждённая операция. Сверьте историю и кассу. Новая оплата или возврат заблокированы; если хранилище вкладки недоступно, разрешите его до отправки.',
+          )}
+        </Alert>
       )}
       {moneyStatus === 'unknown' && (
-        <section aria-label="Восстановление денежной операции">
-          <Alert>Результат не подтверждён. Повтор отправит ту же сумму, способ и причину с прежним ключом. После закрытия формы сначала сверьте историю и кассу.</Alert>
+        <section aria-label={t('Восстановление денежной операции')}>
+          <Alert>
+            {t(
+              'Результат не подтверждён. Повтор отправит ту же сумму, способ и причину с прежним ключом. После закрытия формы сначала сверьте историю и кассу.',
+            )}
+          </Alert>
           <Button type="button" tone="secondary" disabled={busy || (moneyKind === 'pay' ? !canPay : !canRefund)} onClick={retryMoney}>
-            Повторить ту же операцию
+            {t('Повторить ту же операцию')}
           </Button>
         </section>
       )}

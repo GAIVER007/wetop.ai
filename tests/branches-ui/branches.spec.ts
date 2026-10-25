@@ -115,12 +115,12 @@ test.describe('SCOPE-HARDENING: server-chosen branch scope', () => {
     await request.post(`${api}/__test/control`, { data: { org: 'B' } });
     await page.goto('/floor-plan');
     await expect(page).toHaveURL(/\/floor-plan$/);
-    await expect(page.getByRole('heading', { name: 'План зала', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Журнал', exact: true })).toBeVisible();
     expect(await scopeCookie(page)).toBe(
       `business=${f.foodB.business};location=${f.foodB.location}`,
     );
     await page.reload();
-    await expect(page.getByRole('heading', { name: 'План зала', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Журнал', exact: true })).toBeVisible();
     expect(await scopeCookie(page)).toBe(
       `business=${f.foodB.business};location=${f.foodB.location}`,
     );
@@ -194,7 +194,7 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
     timezone: 'Asia/Almaty',
   });
   await page.goto('/floor-plan');
-  await expect(page.getByRole('heading', { name: 'План зала', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Журнал', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toContainText(
     'Тестовый филиал Центр',
   );
@@ -210,7 +210,7 @@ test('real branches -> selectBranch cookie -> selectedWorkspaceBranch Food timez
   await page.reload();
   await expect(page.getByRole('main').getByTestId('food-today')).toBeVisible();
   await page.goto('/floor-plan');
-  await expect(page.getByRole('heading', { name: 'План зала', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Журнал', exact: true })).toBeVisible();
   await choose(page, 'Другой тестовый бизнес');
   await expect(page.getByRole('button', { name: 'Выбрать филиал', exact: true })).toContainText(
     'Другой тестовый бизнес',

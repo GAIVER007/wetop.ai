@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { unstable_rethrow } from 'next/navigation';
 import { ApiError, beautyApi, type BeautyGiftCertificate } from '../../../lib/api';
+import { serverT } from '../../../i18n/server';
 
 /** Продажа сертификата: одна попытка = один ключ повтора (передаёт форма) */
 export async function sellCertificate(input: {
@@ -17,7 +18,8 @@ export async function sellCertificate(input: {
     return { data };
   } catch (error) {
     unstable_rethrow(error);
-    return { error: error instanceof ApiError ? error.message : 'Не удалось продать сертификат. Проверьте кассу.' };
+    const t = await serverT();
+    return { error: error instanceof ApiError ? error.message : t('Не удалось продать сертификат. Проверьте кассу.') };
   }
 }
 
@@ -26,6 +28,7 @@ export async function findCertificate(code: string): Promise<{ data: BeautyGiftC
     return { data: await beautyApi.giftCertificateLookup(code) };
   } catch (error) {
     unstable_rethrow(error);
-    return { error: error instanceof ApiError ? error.message : 'Не удалось проверить сертификат' };
+    const t = await serverT();
+    return { error: error instanceof ApiError ? error.message : t('Не удалось проверить сертификат') };
   }
 }

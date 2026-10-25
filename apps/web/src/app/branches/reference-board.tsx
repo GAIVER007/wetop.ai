@@ -9,6 +9,8 @@ import { selectBranch } from './actions';
 import { groupBusinessBranches } from './business-groups';
 import { BusinessCardEditor } from './business-card-editor';
 import type { BusinessCardView } from '../../lib/api';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 export type { BusinessCardView } from '../../lib/api';
 type Metric = { money: string[]; occupancy: string };
 type Props = {
@@ -25,14 +27,14 @@ type Props = {
   archive?: ReactNode;
 };
 const directions = [
-  ['HOSPITALITY', 'Отели'],
-  ['BEAUTY', 'Салоны красоты'],
-  ['FOOD_SERVICE', 'Рестораны'],
+  ['HOSPITALITY', msg('Отели')],
+  ['BEAUTY', msg('Салоны красоты')],
+  ['FOOD_SERVICE', msg('Рестораны')],
 ] as const;
 const businessLabels: Record<BranchItem['vertical'], string> = {
-  HOSPITALITY: 'Гостиничный бизнес',
-  BEAUTY: 'Салон красоты',
-  FOOD_SERVICE: 'Ресторанный бизнес',
+  HOSPITALITY: msg('Гостиничный бизнес'),
+  BEAUTY: msg('Салон красоты'),
+  FOOD_SERVICE: msg('Ресторанный бизнес'),
 };
 const businessIcons: Record<BranchItem['vertical'], IconName> = {
   HOSPITALITY: 'bed',
@@ -50,11 +52,12 @@ export function ReferenceBoard({
   archive,
 }: Props) {
   const [editing, setEditing] = useState<BusinessCardView | null>(null);
+  const t = useT();
   const groups = groupBusinessBranches(items, businesses).map((group) => ({
     ...group,
     card: businesses.find((b) => b.id === group.id) ?? {
       id: group.id,
-      name: group.branches[0]?.name ?? businessLabels[group.vertical],
+      name: group.branches[0]?.name ?? t(businessLabels[group.vertical]),
       vertical: group.vertical,
       description: null,
       coverUrl: null,
@@ -81,17 +84,17 @@ export function ReferenceBoard({
   };
   return (
     <Page
-      title="Организация"
+      title={t('Организация')}
       width="wide"
       className="org-page"
       subtitle={
         <>
           {organization}.{' '}
           {singleProject
-            ? 'Ваш проект уже создан. Добавляйте филиалы и направления, когда они понадобятся.'
-            : 'Управляйте бизнесами и объектами в одном месте.'}
+            ? t('Ваш проект уже создан. Добавляйте филиалы и направления, когда они понадобятся.')
+            : t('Управляйте бизнесами и объектами в одном месте.')}
           {preview && (
-            <small className="org-preview-note">Локальный просмотр, вымышленные данные</small>
+            <small className="org-preview-note">{t('Локальный просмотр, вымышленные данные')}</small>
           )}
         </>
       }
@@ -105,7 +108,7 @@ export function ReferenceBoard({
     >
     <section
       className={`org-reference ${singleProject ? 'org-reference--single' : ''} ${!hasHospitality ? 'org-reference--service' : ''} ${!groups.length ? 'org-reference--empty' : ''}`}
-      aria-label="Бизнесы и филиалы организации"
+      aria-label={t('Бизнесы и филиалы организации')}
     >
       {visible.length ? (
         <div className="org-cards">
@@ -128,12 +131,12 @@ export function ReferenceBoard({
                     </span>
                     <div>
                       <h2 title={group.card.name}>{group.card.name}</h2>
-                      <p className="org-muted org-business-kind">{businessLabels[group.vertical]}</p>
+                      <p className="org-muted org-business-kind">{t(businessLabels[group.vertical])}</p>
                     </div>
                   </div>
                   <p className="org-address">
                     <Icon name="pin" />
-                    {group.branches[0]?.address || 'Адрес не указан'}
+                    {group.branches[0]?.address || t('Адрес не указан')}
                   </p>
                   {group.card.description && (
                     <p className="org-description" title={group.card.description}>
@@ -143,8 +146,8 @@ export function ReferenceBoard({
                   <div className="org-branches-heading">
                     <strong>
                       {group.branches.length === 1
-                        ? 'Ваш объект'
-                        : `Объекты (${group.branches.length})`}
+                        ? t('Ваш объект')
+                        : t('Объекты ({n})', { n: group.branches.length })}
                     </strong>
                     {create && (
                       <Button
@@ -154,24 +157,24 @@ export function ReferenceBoard({
                         className="org-add-link"
                         onClick={() => openCreate(group.vertical, group.id)}
                       >
-                        + Добавить
+                        {t('+ Добавить')}
                       </Button>
                     )}
                   </div>
                   <div
                     className="org-branch-rows"
                     tabIndex={0}
-                    aria-label={`Филиалы: ${group.card.name}`}
+                    aria-label={t('Филиалы: {name}', { name: group.card.name })}
                   >
                     {!group.branches.length && (
                       <p className="org-chart-empty">
-                        Объекты ещё не добавлены. Добавьте первый объект, чтобы начать работу.
+                        {t('Объекты ещё не добавлены. Добавьте первый объект, чтобы начать работу.')}
                       </p>
                     )}
                     {group.branches.map((branch) => (
                       <form key={branch.id} action={selectBranch}>
                         <input type="hidden" name="id" value={branch.id} />
-                        <button type="submit" aria-label={`Открыть объект: ${branch.name}`}>
+                        <button type="submit" aria-label={t('Открыть объект: {name}', { name: branch.name })}>
                           <span className="org-branch-symbol">
                             <Icon name={businessIcons[branch.vertical]} />
                           </span>
@@ -183,12 +186,12 @@ export function ReferenceBoard({
                                 className="org-branch-address"
                                 title={branch.address || undefined}
                               >
-                                {branch.address || 'Адрес не указан'}
+                                {branch.address || t('Адрес не указан')}
                               </small>
                               {branch.vertical === 'HOSPITALITY' && (
                                 <span className="org-branch-capacity">
-                                  <span>Номеров и коек: {branch._count.inventoryUnits}</span>
-                                  <span>Категорий: {branch._count.accommodationTypes}</span>
+                                  <span>{t('Номеров и коек: {n}', { n: branch._count.inventoryUnits })}</span>
+                                  <span>{t('Категорий: {n}', { n: branch._count.accommodationTypes })}</span>
                                 </span>
                               )}
                             </span>
@@ -203,7 +206,7 @@ export function ReferenceBoard({
                       <form action={selectBranch}>
                         <input type="hidden" name="id" value={group.branches[0]?.id} />
                         <Button type="submit" tone="secondary" size="sm" className="org-open">
-                          Открыть <Icon name="arrow" />
+                          {t('Открыть')} <Icon name="arrow" />
                         </Button>
                       </form>
                     )}
@@ -213,11 +216,11 @@ export function ReferenceBoard({
                         tone="secondary"
                         size="sm"
                         className="org-edit"
-                        aria-label={`Редактировать: ${group.card.name}`}
+                        aria-label={t('Редактировать: {name}', { name: group.card.name })}
                         onClick={() => setEditing(group.card)}
                       >
                         <Icon name="edit" />
-                        <span>Редактировать</span>
+                        <span>{t('Редактировать')}</span>
                       </Button>
                     )}
                   </div>
@@ -227,11 +230,11 @@ export function ReferenceBoard({
           })}
           {singleProject && create && (
             <aside className="org-growth">
-              <h2>Структура проекта</h2>
+              <h2>{t('Структура проекта')}</h2>
               <p>
                 {items.length
-                  ? 'Один объект уже готов к работе. Филиалы и другие направления добавляются по необходимости.'
-                  : 'Бизнес создан. Добавьте первый объект, чтобы начать работу.'}
+                  ? t('Один объект уже готов к работе. Филиалы и другие направления добавляются по необходимости.')
+                  : t('Бизнес создан. Добавьте первый объект, чтобы начать работу.')}
               </p>
               <Button
                 type="button"
@@ -239,16 +242,16 @@ export function ReferenceBoard({
                 onClick={() => openCreate(groups[0]?.vertical, groups[0]?.id)}
               >
                 <Icon name="pin" />
-                {items.length ? 'Добавить филиал' : 'Добавить первый объект'}
+                {items.length ? t('Добавить филиал') : t('Добавить первый объект')}
               </Button>
-              <h3>Добавить направление бизнеса</h3>
-              <p>Выберите направление и заполните данные первого объекта.</p>
+              <h3>{t('Добавить направление бизнеса')}</h3>
+              <p>{t('Выберите направление и заполните данные первого объекта.')}</p>
               {directions
                 .filter(([vertical]) => vertical !== groups[0]?.vertical)
                 .map(([vertical, label]) => (
                   <Button type="button" tone="secondary" key={vertical} onClick={() => openCreate(vertical)}>
                     <Icon name={businessIcons[vertical]} />
-                    {label}
+                    {t(label)}
                   </Button>
                 ))}
             </aside>
@@ -258,16 +261,16 @@ export function ReferenceBoard({
         <EmptyState
           className="org-empty"
           role="status"
-          title="Пока нет доступных проектов"
+          title={t('Пока нет доступных проектов')}
           details={
             create
-              ? 'Добавьте первый объект. Направление бизнеса будет создано вместе с ним.'
-              : 'Попросите владельца предоставить доступ к проекту.'
+              ? t('Добавьте первый объект. Направление бизнеса будет создано вместе с ним.')
+              : t('Попросите владельца предоставить доступ к проекту.')
           }
           actions={
             create ? (
               <Button type="button" onClick={() => openCreate()}>
-                Добавить первый объект
+                {t('Добавить первый объект')}
               </Button>
             ) : null
           }

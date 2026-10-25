@@ -15,6 +15,8 @@ import { beautyApi, type BeautyPositionsWorkspace } from '../../../lib/api';
 import { deskAccessOf, mayBeautyAccess } from '../../../lib/navigation';
 import { sessionToken } from '../../../lib/session';
 import { PositionsBoard } from './positions-board';
+import { msg } from '../../../i18n';
+import { serverT } from '../../../i18n/server';
 import '../team.css';
 
 /**
@@ -31,21 +33,22 @@ const ROLES: readonly MembershipRole[] = ['OWNER', 'MANAGER', 'STAFF'];
  */
 const VERTICAL_LABELS: Partial<Record<'BEAUTY' | 'FOOD_SERVICE', Partial<Record<Permission, string>>>> = {
   BEAUTY: {
-    desk: 'Записи и клиенты',
-    property: 'Мастера, услуги и график',
-    reports: 'Аналитика и оплаты',
-    settings: 'Настройки филиала',
+    desk: msg('Записи и клиенты'),
+    property: msg('Мастера, услуги и график'),
+    reports: msg('Аналитика и оплаты'),
+    settings: msg('Настройки филиала'),
   },
   FOOD_SERVICE: {
-    desk: 'Зал, брони и заказы',
-    property: 'Меню, залы и столы',
-    reports: 'Аналитика и касса',
-    settings: 'Настройки филиала',
+    desk: msg('Зал, брони и заказы'),
+    property: msg('Меню, залы и столы'),
+    reports: msg('Аналитика и касса'),
+    settings: msg('Настройки филиала'),
   },
 };
 const HOTEL_ONLY: readonly Permission[] = ['dialogs', 'rates', 'channels', 'seller'];
 
 export default async function TeamRolesPage() {
+  const t = await serverT();
   const token = await sessionToken();
   const me = await currentMe().catch(() => null);
   const role = me?.user?.role ? parseMembershipRole(me.user.role) : null;
@@ -87,7 +90,7 @@ export default async function TeamRolesPage() {
       !!routeAccess && mayBeautyAccess(routeAccess, 'employees', 'delete', { legacy: 'staff' });
   }
   return (
-    <Page title="Сотрудники" subtitle="Роли и права: что разрешено каждой должности">
+    <Page title={t('Сотрудники')} subtitle={t('Роли и права: что разрешено каждой должности')}>
       {allowed ? (
         <>
           <TeamNavigation current="roles" owner={role === 'OWNER'} />
@@ -102,34 +105,33 @@ export default async function TeamRolesPage() {
                 canArchive={canArchiveBeauty}
               />
             ) : (
-              <Alert boxed>Не удалось загрузить должности выбранного салона.</Alert>
+              <Alert boxed>{t('Не удалось загрузить должности выбранного салона.')}</Alert>
             )
           ) : (
             <>
               <p className="muted">
-                Права даёт должность, отдельному человеку их не выдают. Менять набор прав ролей здесь
-                нельзя.
+                {t('Права даёт должность, отдельному человеку их не выдают. Менять набор прав ролей здесь нельзя.')}
               </p>
               <Table data-testid="roles-table" className="settings-table">
                 <thead>
                   <tr>
-                    <th>Раздел</th>
+                    <th>{t('Раздел')}</th>
                     {ROLES.map((r) => (
-                      <th key={r}>{capital(MEMBERSHIP_ROLES[r])}</th>
+                      <th key={r}>{t(capital(MEMBERSHIP_ROLES[r]))}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((p) => (
                     <tr key={p} data-testid="roles-row">
-                      <td>{labels[p] ?? PERMISSIONS[p].label}</td>
+                      <td>{t(labels[p] ?? PERMISSIONS[p].label)}</td>
                       {ROLES.map((r) => (
                         <td key={r}>
                           {can(r, p) ? (
-                            <span aria-label="разрешено">Да</span>
+                            <span aria-label={t('разрешено')}>{t('Да')}</span>
                           ) : (
-                            <span className="muted" aria-label="не разрешено">
-                              Нет
+                            <span className="muted" aria-label={t('не разрешено')}>
+                              {t('Нет')}
                             </span>
                           )}
                         </td>
@@ -142,7 +144,7 @@ export default async function TeamRolesPage() {
           )}
         </>
       ) : (
-        <Notice tone="muted">Роли и права видят владелец и управляющий.</Notice>
+        <Notice tone="muted">{t('Роли и права видят владелец и управляющий.')}</Notice>
       )}
     </Page>
   );

@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
+vi.mock('../../../i18n/server', async () => ({ serverT: async () => (await import('../../../i18n')).translator('ru'), currentLocale: async () => 'ru' }));
 
 vi.mock('next/navigation', () => ({ notFound: () => { throw new Error('404'); }, useRouter: () => ({ refresh() {} }) }));
 vi.mock('../../../lib/vertical-guard', () => ({ requireVertical: async () => ({ context: { vertical: 'FOOD_SERVICE' } }) }));

@@ -10,9 +10,12 @@ import { completeFoodList, validFoodReservation } from '../../lib/food-data';
 import type { FoodCustomer, RestaurantReservation } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
 import { tableTitle } from '../../lib/table-title';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, intlLocale, msg, type DeskLocale, type Translate } from '../../i18n';
+import { dateFormat } from '../../i18n/dates';
+import { currentLocale, serverT } from '../../i18n/server';
 import { restaurantShell } from './restaurant-load';
 import { CustomerMarks } from './customer-marks';
+import { CustomerSectionTabs } from '../customers/section-tabs';
 import { matchesCustomerQuery } from '../../lib/customer-hits';
 import './food.css';
 import './restaurant.css';
@@ -25,20 +28,25 @@ import { formatPhone } from '../../lib/phone';
 const name = (c: { firstName: string; lastName: string | null }) =>
   [c.firstName, c.lastName].filter(Boolean).join(' ');
 
-/** Дата рождения `ГГГГ-ММ-ДД` как «12 октября» */
-const dayMonth = (iso: string) =>
-  new Date(`${iso}T12:00:00Z`).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', timeZone: 'UTC' });
-const birthdayText = (c: FoodCustomer) =>
+/** Дата рождения `ГГГГ-ММ-ДД` как «12 октября» на языке человека */
+const dayMonth = (iso: string, locale: DeskLocale) =>
+  dateFormat(intlLocale(locale), { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date(`${iso}T12:00:00Z`));
+const birthdayText = (c: FoodCustomer, t: Translate, locale: DeskLocale) =>
   !c.birthDate
     ? '—'
     : c.birthdayInDays === 0
-      ? `${dayMonth(c.birthDate)}, сегодня`
+      ? t('{date}, сегодня', { date: dayMonth(c.birthDate, locale) })
       : (c.birthdayInDays ?? 99) <= 7
-        ? `${dayMonth(c.birthDate)}, через ${pluralRu(c.birthdayInDays!, ['день', 'дня', 'дней'])}`
-        : dayMonth(c.birthDate);
+        ? t('{date}, через {days}', {
+            date: dayMonth(c.birthDate, locale),
+            days: countLabel(locale, t, c.birthdayInDays!, [msg('день'), 'дня', msg('дней')]), // kk-allow: форма склонения
+          })
+        : dayMonth(c.birthDate, locale);
 
 /** «Клиенты и бронирования» по макету (ADR-159): постоянный гость от двух визитов, VIP и дни рождения (§36) */
 export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
+  const t = await serverT();
+  const locale = await currentLocale();
   try {
     const shell = await restaurantShell();
     const write = shell.canDesk && !shell.readOnly;
@@ -57,10 +65,10 @@ export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
     }
     const clock = (iso: string) => localInput(iso, shell.timezone).slice(11, 16);
     const bookingText = (r: RestaurantReservation) =>
-      `${r.table ? tableTitle(r.table.name) : 'Без стола'}, ${pluralRu(r.partySize, ['гость', 'гостя', 'гостей'])}, ${clock(r.startsAt)}`;
+      `${r.table ? tableTitle(r.table.name, t) : t('Без стола')}, ${countLabel(locale, t, r.partySize, [msg('гость'), 'гостя', msg('гостей')])}, ${clock(r.startsAt)}`; // kk-allow: форма склонения
     const customersTable = (
       list: FoodCustomer[],
-      empty = 'Клиенты появятся после первого бронирования',
+      empty = t('Клиенты появятся после первого бронирования'),
     ) =>
       list.length === 0 ? (
         <EmptyState
@@ -68,7 +76,7 @@ export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
           actions={
             write && customers.length === 0 ? (
               <Link className="btn" href={NEW_BOOKING}>
-                Создать первую бронь
+                {t('Создать первую бронь')}
               </Link>
             ) : undefined
           }
@@ -77,12 +85,12 @@ export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
         <Table>
           <thead>
             <tr>
-              {['Клиент', 'Телефон', 'Визиты', 'Метка', 'День рождения', 'Бронь на сегодня'].map((h) => (
-                <th key={h}>{h}</th>
+              {[msg('Клиент'), msg('Телефон'), msg('Визиты'), msg('Метка'), msg('День рождения'), msg('Бронь на сегодня')].map((h) => (
+                <th key={h}>{t(h)}</th>
               ))}
               {write && (
                 <th>
-                  <span className="sr-only">Действия</span>
+                  <span className="sr-only">{t('Действия')}</span>
                 </th>
               )}
             </tr>
@@ -97,16 +105,16 @@ export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
                       {name(c)}
                     </Link>
                   </td>
-                  <td>{c.phone ? formatPhone(c.phone) : 'Не указан'}</td>
+                  <td>{c.phone ? formatPhone(c.phone) : t('Не указан')}</td>
                   <td>{c.visits ?? 0}</td>
                   <td>
                     <span className="food-inline-actions">
                       {c.isVip && <Badge tone="warn">VIP</Badge>}
-                      {(c.visits ?? 0) >= 2 && <Badge tone="info">Постоянный гость</Badge>}
+                      {(c.visits ?? 0) >= 2 && <Badge tone="info">{t('Постоянный гость')}</Badge>}
                       {!c.isVip && (c.visits ?? 0) < 2 && '—'}
                     </span>
                   </td>
-                  <td data-testid="customer-birthday">{birthdayText(c)}</td>
+                  <td data-testid="customer-birthday">{birthdayText(c, t, locale)}</td>
                   <td>{upcoming ? bookingText(upcoming) : '—'}</td>
                   {write && (
                     <td>
@@ -130,10 +138,10 @@ export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
     const bookings =
       reservations.length === 0 ? (
         <EmptyState
-          title="Броней на сегодня нет"
+          title={t('Броней на сегодня нет')}
           actions={
             <Link className="btn" href="/table-reservations">
-              Открыть бронирования
+              {t('Открыть бронирования')}
             </Link>
           }
         />
@@ -141,8 +149,8 @@ export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
         <Table>
           <thead>
             <tr>
-              {['Время', 'Клиент', 'Гостей', 'Стол', 'Статус'].map((h) => (
-                <th key={h}>{h}</th>
+              {[msg('Время'), msg('Клиент'), msg('Гостей'), msg('Стол'), msg('Статус')].map((h) => (
+                <th key={h}>{t(h)}</th>
               ))}
             </tr>
           </thead>
@@ -156,7 +164,7 @@ export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
                   </td>
                   <td>{name(r.customer)}</td>
                   <td>{r.partySize}</td>
-                  <td>{r.table ? `${r.table.areaName}, ${r.table.name}` : 'Без стола'}</td>
+                  <td>{r.table ? `${r.table.areaName}, ${r.table.name}` : t('Без стола')}</td>
                   <td>
                     <StatusBadge kind="food" value={r.status} />
                   </td>
@@ -175,9 +183,11 @@ export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
       .sort((a, b) => a.birthdayInDays! - b.birthdayInDays!);
     return (
       <Page
-        title="Клиенты"
-        subtitle="Клиенты и бронирования. Новый клиент добавляется вместе с бронью стола"
+        title={t('Клиенты')}
+        subtitle={t('Клиенты и бронирования. Новый клиент добавляется вместе с бронью стола')}
       >
+        {/* вкладки раздела, как «Клиенты | Записи» салона (эталон 25.10.2026) */}
+        <CustomerSectionTabs access={shell.access} vertical="FOOD_SERVICE" current="/customers" t={t} />
         {/* панель как у салона (аудит 22.10.2026 P1-5): поиск слева, действия справа. Отдельного создания и импорта
             гостей у API ресторана нет: гость появляется вместе с бронью, поэтому «Добавить клиента» открывает её форму */}
         <div className="beauty-customers-bar" data-testid="food-customers-bar">
@@ -187,59 +197,59 @@ export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
               name="q"
               defaultValue={search}
               maxLength={100}
-              aria-label="Поиск по имени или телефону"
-              placeholder="Имя или телефон"
+              aria-label={t('Поиск по имени или телефону')}
+              placeholder={t('Имя или телефон')}
             />
             <Button type="submit" tone="secondary">
-              Найти
+              {t('Найти')}
             </Button>
           </form>
           {write && (
             <div className="beauty-customers-bar__actions">
               <Link className="btn" href={NEW_BOOKING}>
-                Добавить клиента
+                {t('Добавить клиента')}
               </Link>
             </div>
           )}
         </div>
         <div className="food-workspace" data-testid="food-customers">
           <Tabs
-            label="Клиенты и бронирования"
+            label={t('Клиенты и бронирования')}
             panels={[
               {
                 id: 'all',
-                label: 'Все',
+                label: t('Все'),
                 count: found.length,
                 content: (
                   <>
                     {search && (
                       <p className="muted" data-testid="food-customers-query">
-                        Найдено по запросу «{search}»: {found.length}.{' '}
-                        <Link href="/customers">Показать всех</Link>
+                        {t('Найдено по запросу «{query}»: {n}.', { query: search, n: found.length })}{' '}
+                        <Link href="/customers">{t('Показать всех')}</Link>
                       </p>
                     )}
-                    {customersTable(found, search ? 'Клиентов с таким именем или телефоном нет' : undefined)}
+                    {customersTable(found, search ? t('Клиентов с таким именем или телефоном нет') : undefined)}
                   </>
                 ),
               },
               {
                 id: 'bookings',
-                label: 'Бронирования',
+                label: t('Бронирования'),
                 count: reservations.length,
                 content: bookings,
               },
               {
                 id: 'regular',
-                label: 'Постоянные гости',
+                label: t('Постоянные гости'),
                 count: regulars.length,
                 content: customersTable(regulars),
               },
-              { id: 'vip', label: 'VIP', count: vips.length, content: customersTable(vips, 'VIP-гостей пока нет: метка ставится кнопкой «Изменить»') },
+              { id: 'vip', label: 'VIP', count: vips.length, content: customersTable(vips, t('VIP-гостей пока нет: метка ставится кнопкой «Изменить»')) },
               {
                 id: 'birthdays',
-                label: 'Дни рождения',
+                label: t('Дни рождения'),
                 count: birthdays.length,
-                content: customersTable(birthdays, 'В ближайшую неделю дней рождения нет'),
+                content: customersTable(birthdays, t('В ближайшую неделю дней рождения нет')),
               },
             ]}
           />
@@ -249,7 +259,7 @@ export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Клиенты">
+      <Page title={t('Клиенты')}>
         <LoadError testId="food-customers-error" {...loadErrorProps(error)} />
       </Page>
     );

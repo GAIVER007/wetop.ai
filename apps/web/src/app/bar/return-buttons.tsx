@@ -4,6 +4,7 @@ import { Button } from '../../components/ui';
 import { useConfirm } from '../../components/use-confirm';
 import { reverseBarSaleAction } from './actions';
 import type { BarFormContext } from './context';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * Возврат продажи бара с подтверждением (ADR-182, DESIGN.md §14): сторно гасит кассовую операцию
@@ -21,16 +22,17 @@ export function BarReturnButtons({
   context: BarFormContext;
   canRestock: boolean;
 }) {
+  const t = useT();
   const { ask, dialog } = useConfirm();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const reverse = async (restock: boolean) => {
     const confirmed = await ask({
-      title: `Вернуть продажу на ${amountText}?`,
+      title: t('Вернуть продажу на {amount}?', { amount: amountText }),
       body: restock
-        ? 'Продажа будет сторнирована: деньги уйдут из кассы, товар вернётся на остаток.'
-        : 'Продажа будет сторнирована: деньги уйдут из кассы, товар на остаток не вернётся (непригоден).',
-      confirmLabel: restock ? 'Вернуть на склад' : 'Вернуть без склада',
+        ? t('Продажа будет сторнирована: деньги уйдут из кассы, товар вернётся на остаток.')
+        : t('Продажа будет сторнирована: деньги уйдут из кассы, товар на остаток не вернётся (непригоден).'),
+      confirmLabel: restock ? t('Вернуть на склад') : t('Вернуть без склада'),
       tone: 'danger',
     });
     if (!confirmed) return;
@@ -39,7 +41,7 @@ export function BarReturnButtons({
     fd.set('barCurrency', context.currency);
     fd.set('id', saleId);
     fd.set('restock', String(restock));
-    fd.set('reason', restock ? 'Возврат продажи, товар пригоден' : 'Возврат продажи, товар непригоден');
+    fd.set('reason', restock ? 'Возврат продажи, товар пригоден' : 'Возврат продажи, товар непригоден'); // kk-allow: причина сторно хранится в журнале операций
     start(async () => {
       // отказ сервера (объект или валюта формы устарели, касса не даёт вернуть) показываем словами, а не молчим
       const result = await reverseBarSaleAction(fd);
@@ -51,11 +53,11 @@ export function BarReturnButtons({
       {dialog}
       {canRestock && (
         <Button type="button" tone="ghost" size="xs" disabled={pending} onClick={() => reverse(true)}>
-          Вернуть на склад
+          {t('Вернуть на склад')}
         </Button>
       )}
       <Button type="button" tone="ghost" size="xs" disabled={pending} onClick={() => reverse(false)}>
-        Без возврата на склад
+        {t('Без возврата на склад')}
       </Button>
       {error && <p role="alert" className="bar-error">{error}</p>}
     </div>

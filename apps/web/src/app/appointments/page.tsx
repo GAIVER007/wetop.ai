@@ -10,11 +10,13 @@ import { normalizeSearchParams, type SearchParams } from '../../lib/search-param
 import { calendarColumns } from '../beauty/calendar-columns';
 import { AppointmentsList } from './list';
 import { CustomerSectionTabs } from '../customers/section-tabs';
+import { serverT } from '../../i18n/server';
 import '../beauty/beauty.css';
 import './appointments.css';
 
 function readOnlyDay(
   data: Awaited<ReturnType<typeof beautyApi.period>>,
+  unknownEmployee: string,
 ): BeautyDay {
   const columns = new Map<string, BeautyDay['columns'][number]>();
   const services = new Map<string, BeautyDay['services'][number]>();
@@ -25,7 +27,7 @@ function readOnlyDay(
     for (const line of lines) {
       columns.set(line.employeeId, {
         id: line.employeeId,
-        name: 'employeeName' in line ? line.employeeName : 'Специалист',
+        name: 'employeeName' in line ? line.employeeName : unknownEmployee,
         intervals: [],
         timeOff: false,
         timeOffReason: null,
@@ -65,6 +67,7 @@ export default async function AppointmentsPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/appointments');
+  const t = await serverT();
   const { date, from, to, create, customer } = normalizeSearchParams(await searchParams);
   const shell = await deskShell();
   const me = await currentMe();
@@ -90,17 +93,17 @@ export default async function AppointmentsPage({
       canReadEmployees ? beautyApi.employees() : Promise.resolve({ items: [] }),
       canCreate ? beautyApi.customers() : Promise.resolve({ items: [] }),
     ]);
-    const periodDay = readOnlyDay(periodData);
+    const periodDay = readOnlyDay(periodData, t('Специалист'));
     const listDay = creationDay
       ? { ...creationDay, appointments: periodData.appointments }
       : periodDay;
     return (
       <Page
         className="beauty-page"
-        title="Записи"
-        subtitle="Все записи филиала за выбранный период: поиск, фильтры и оплата."
+        title={t('Записи')}
+        subtitle={t('Все записи филиала за выбранный период: поиск, фильтры и оплата.')}
       >
-        <CustomerSectionTabs access={shell.access} current="appointments" />
+        <CustomerSectionTabs access={shell.access} vertical={shell.vertical} current="/appointments" t={t} />
         <AppointmentsList
           key={scopeKey}
           scopeKey={scopeKey}
@@ -118,8 +121,9 @@ export default async function AppointmentsPage({
           {...(create === '1' && customer ? { createFor: customer } : {})}
           {...(requestedCreate && !canCreate
             ? {
-                creationUnavailableReason:
+                creationUnavailableReason: t(
                   'Для создания записи нужен доступ к календарю и списку клиентов.',
+                ),
               }
             : {})}
         />
@@ -128,7 +132,7 @@ export default async function AppointmentsPage({
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Записи">
+      <Page title={t('Записи')}>
         <LoadError testId="beauty-appointments-error" {...loadErrorProps(error)} />
       </Page>
     );

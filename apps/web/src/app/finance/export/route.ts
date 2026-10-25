@@ -1,5 +1,6 @@
 import { financeApi } from '../../../lib/api';
 import { ApiError } from '../../../lib/api-error';
+import { serverT } from '../../../i18n/server';
 import { validDate } from '../../../lib/hotel-api';
 import { operationsCsv } from '../operations-csv';
 import { operationFilter } from '../operation-filter';
@@ -18,16 +19,20 @@ export async function GET(request: Request) {
   const q = new URL(request.url).searchParams;
   const from = q.get('from') ?? '';
   const to = q.get('to') ?? '';
-  if (!validDate(from) || !validDate(to) || from > to)
-    return text(400, 'Проверьте даты: окончание периода должно быть не раньше начала.');
+  if (!validDate(from) || !validDate(to) || from > to) {
+    const t = await serverT();
+    return text(400, t('Проверьте даты: окончание периода должно быть не раньше начала.'));
+  }
   const { type, method, source } = operationFilter(q.get('op'), q.get('method'), q.get('src'));
   try {
     const ops = await financeApi.operations(from, to, { type, method, source, limit: MAX_ROWS });
-    if (ops.truncated)
+    if (ops.truncated) {
+      const t = await serverT();
       return text(
         422,
-        `Операций за период больше ${MAX_ROWS.toLocaleString('ru-RU')} — укоротите период и выгрузите по частям.`,
+        t('Операций за период больше {n} — укоротите период и выгрузите по частям.', { n: MAX_ROWS.toLocaleString('ru-RU') }),
       );
+    }
     return new Response(operationsCsv(ops.rows, ops.currency), {
       headers: {
         'content-type': 'text/csv; charset=utf-8',

@@ -12,6 +12,7 @@ import { ReportsTabs } from '../reports-tabs';
 import '../../management/analytics/analytics.css';
 import '../../directory.css';
 import '../reports.css';
+import { serverT } from '../../../i18n/server';
 
 /** «Отчёты → units» (RPT2.2c-1): тот же экран, что в «Аналитике», под адресом раздела «Отчёты» */
 export default async function ReportsUnitsPage({
@@ -20,19 +21,20 @@ export default async function ReportsUnitsPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/reports/units');
+  const t = await serverT();
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const query = parseAnalyticsQuery(sp, today, 'units', '/reports');
   return (
     <ReportScopeFrame>
       <Page
-        title="Отчёты"
+        title={t('Отчёты')}
         className="analytics-page"
-        subtitle="Сколько ночей занято и сколько заездов было у каждого места."
+        subtitle={t('Сколько ночей занято и сколько заездов было у каждого места.')}
       >
         <ReportsTabs current="units" fund={query.fund} />
         <AnalyticsToolbar query={query} today={today} noCompare />
-        {query.period.error && <Alert boxed>{query.period.error}. Показан сегодняшний день.</Alert>}
+        {query.period.error && <Alert boxed>{t('{error}. Показан сегодняшний день.', { error: t(query.period.error) })}</Alert>}
         <Suspense
           key={`${query.period.from}|${query.period.to}|${query.fund}`}
           fallback={<UnitsSkeleton />}

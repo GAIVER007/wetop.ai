@@ -15,6 +15,7 @@ vi.mock('../../lib/desk-shell', () => ({
 vi.mock('../../lib/workspace-context', () => ({ selectedWorkspaceBranch: select }));
 vi.mock('./salon-report-data', () => ({ loadSalonReport: load }));
 vi.mock('next/navigation', () => ({ unstable_rethrow: () => {} }));
+vi.mock('../../i18n/server', async () => ({ serverT: async () => (await import('../../i18n')).translator('ru'), currentLocale: async () => 'ru' }));
 import { SalonReportsScreen } from './salon-reports';
 beforeEach(() => {
   state.role = 'OWNER';

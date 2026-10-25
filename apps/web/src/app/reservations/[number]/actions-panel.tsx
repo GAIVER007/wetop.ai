@@ -25,7 +25,6 @@ import type {
 } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { penaltyText } from '../../../lib/penalty-text';
-import { pluralRu } from '../../../lib/plural';
 import {
   assignUnitAction,
   cancelPreviewAction,
@@ -46,6 +45,8 @@ import { useToast } from '../../../components/toast';
 import { useMay } from '../../../components/desk-access';
 import { previewAction } from '../actions';
 import { displayDate } from '../../../lib/display-date';
+import { countLabel, intlLocale, msg, type DeskLocale } from '../../../i18n';
+import { useLocale, useT } from '../../../i18n/locale-provider';
 
 const OPEN = new Set(['TENTATIVE', 'CONFIRMED']);
 
@@ -99,8 +100,8 @@ function useQuickTarget(panel: RefObject<HTMLElement | null>) {
 
 /** Дата словами стойки: 20.09.2026 (DESIGN.md §14) */
 /** «25 окт.»: как даты в шапке брони и шахматке (аудит 22.10.2026 P2-4, было «25.10.2026») */
-const dd = (iso: string) => displayDate(iso, 'short');
-const NIGHTS: [string, string, string] = ['ночь', 'ночи', 'ночей'];
+const dd = (iso: string, locale: DeskLocale) => displayDate(iso, 'short', intlLocale(locale));
+const NIGHTS: [string, string, string] = [msg('ночь'), 'ночи', msg('ночей')]; // kk-allow: форма склонения
 
 export function ReservationActions(props: {
   number: string;
@@ -137,6 +138,7 @@ export function ReservationActions(props: {
     availableGroups: Array<{ code: string; name: string; units: string[] }>;
   }>;
 }) {
+  const t = useT();
   // Как в API (changeDates): без явного выбора пересчёт идёт по тарифу первого неотменённого проживания (Б1)
   const current = props.items.find((it) => it.status !== 'CANCELLED' && it.ratePlanCode);
   // тариф брони — её цена и штраф: выбирают владелец и управляющий (Q-200), администратор меняет даты в том же тарифе;
@@ -197,7 +199,7 @@ export function ReservationActions(props: {
         )
         .map((it) => (
           <Stack key={it.id} gap="sm">
-            <StayGuestsForm number={props.number} item={it} />
+            {/* главное действие первым (замечание владельца 25.10.2026): заселить, выселить, продлить */}
             <StayButtons
               number={props.number}
               currency={props.currency}
@@ -205,6 +207,7 @@ export function ReservationActions(props: {
               ratePlans={props.ratePlans}
               onCancel={openCancel}
             />
+            <StayGuestsForm number={props.number} item={it} />
             <AssignForm
               number={props.number}
               currency={props.currency}
@@ -223,15 +226,15 @@ export function ReservationActions(props: {
           action={datesAction}
           className="panel"
         >
-          <PanelTitle>Изменить даты</PanelTitle>
+          <PanelTitle>{t('Изменить даты')}</PanelTitle>
           <Row>
-            <Field label="Заезд">
+            <Field label={t('Заезд')}>
               <DateInput
                 name="arrivalDate"
                 defaultValue={datesState.values?.arrivalDate ?? props.arrivalDate}
               />
             </Field>
-            <Field label="Выезд">
+            <Field label={t('Выезд')}>
               <DateInput
                 name="departureDate"
                 rangeFromName="arrivalDate"
@@ -241,17 +244,17 @@ export function ReservationActions(props: {
             {datePlans.length > 0 && (
               <Select
                 name="ratePlanCode"
-                aria-label="Тариф для пересчёта"
+                aria-label={t('Тариф для пересчёта')}
                 defaultValue={datesState.values?.ratePlanCode ?? ''}
                 required={!current}
               >
                 {current ? (
                   <option value="">
-                    — оставить текущий тариф: {current.ratePlanName ?? current.ratePlanCode} —
+                    {t('— оставить текущий тариф: {plan} —', { plan: current.ratePlanName ?? current.ratePlanCode ?? '' })}
                   </option>
                 ) : (
                   <option value="" disabled>
-                    — выберите тариф —
+                    {t('— выберите тариф —')}
                   </option>
                 )}
                 {datePlans.map((p) => (
@@ -263,17 +266,17 @@ export function ReservationActions(props: {
             )}
             {(datePlans.length > 0 || current) && (
               <Button type="submit" disabled={datesPending}>
-                Пересчитать и сохранить
+                {t('Пересчитать и сохранить')}
               </Button>
             )}
           </Row>
           {!current && (
             <p className="hint" data-testid="dates-no-plan">
               {choosePlan
-                ? 'У брони нет тарифа — выберите, по какому пересчитать цену.'
+                ? t('У брони нет тарифа — выберите, по какому пересчитать цену.')
                 : datePlans.length > 0
-                  ? 'У брони нет тарифа — выберите тариф со штрафом за отмену: он запишется в бронь, менять его будут владелец или управляющий.'
-                  : 'У брони нет тарифа, а тарифа со штрафом за отмену нет: даты пересчитывают владелец или управляющий.'}
+                  ? t('У брони нет тарифа — выберите тариф со штрафом за отмену: он запишется в бронь, менять его будут владелец или управляющий.')
+                  : t('У брони нет тарифа, а тарифа со штрафом за отмену нет: даты пересчитывают владелец или управляющий.')}
             </p>
           )}
           {datesState.error && <Alert>{datesState.error}</Alert>}
@@ -290,10 +293,9 @@ export function ReservationActions(props: {
       {canEdit && (
         // Опасное действие названо до окна: что необратимо и что покажем перед подтверждением (B3)
         <div className="panel panel--danger" data-testid="cancel-panel">
-          <PanelTitle>Отмена брони</PanelTitle>
+          <PanelTitle>{t('Отмена брони')}</PanelTitle>
           <p className="hint">
-            Необратимо: место вернётся в продажу и уйдёт в каналы. Штраф по тарифу, если он положен,
-            покажем до подтверждения.
+            {t('Необратимо: место вернётся в продажу и уйдёт в каналы. Штраф по тарифу, если он положен, покажем до подтверждения.')}
           </p>
           <div>
             <Button
@@ -303,15 +305,15 @@ export function ReservationActions(props: {
               data-testid="cancel-reservation"
               onClick={() => openCancel()}
             >
-              Отменить бронь
+              {t('Отменить бронь')}
             </Button>
           </div>
           {cancelState.error && <Alert>{cancelState.error}</Alert>}
           <ConfirmDialog
             open={cancelOpen}
-            title={`Отменить бронь ${props.number}?`}
-            confirmLabel={cancelReason === 'cancel' ? 'Подтвердить отмену' : 'Подтвердить незаезд'}
-            cancelLabel="Оставить"
+            title={t('Отменить бронь {number}?', { number: props.number })}
+            confirmLabel={cancelReason === 'cancel' ? t('Подтвердить отмену') : t('Подтвердить незаезд')}
+            cancelLabel={t('Оставить')}
             pending={cancelPending}
             confirmDisabled={
               cancelPreview === undefined || (cancelReason === 'no_show' && !cancelItemId)
@@ -329,8 +331,8 @@ export function ReservationActions(props: {
                   toast({
                     text:
                       cancelReason === 'cancel'
-                        ? `Бронь ${props.number} отменена`
-                        : 'Незаезд отмечен, место вернулось в продажу',
+                        ? t('Бронь {number} отменена', { number: props.number })
+                        : t('Незаезд отмечен, место вернулось в продажу'),
                     tone: 'success',
                   });
                 return r;
@@ -339,7 +341,7 @@ export function ReservationActions(props: {
             }}
           >
             <label>
-              Причина отмены
+              {t('Причина отмены')}
               <Select
                 value={cancelReason}
                 disabled={cancelPending}
@@ -348,15 +350,15 @@ export function ReservationActions(props: {
                   setCancelReason(e.target.value as 'cancel' | 'no_show');
                 }}
               >
-                <option value="cancel">Отказ от бронирования</option>
+                <option value="cancel">{t('Отказ от бронирования')}</option>
                 <option value="no_show" disabled={!expectedItems.length}>
-                  Незаезд гостя
+                  {t('Незаезд гостя')}
                 </option>
               </Select>
             </label>
             {cancelReason === 'no_show' && expectedItems.length > 1 && (
               <label>
-                Проживание
+                {t('Проживание')}
                 <Select
                   value={cancelItemId}
                   disabled={cancelPending}
@@ -373,10 +375,10 @@ export function ReservationActions(props: {
                 </Select>
               </label>
             )}
-            <p>Место вернётся в продажу и уйдёт в каналы.</p>
-            {cancelReason === 'cancel' && <p>Начисление за проживание сторнируется.</p>}
+            <p>{t('Место вернётся в продажу и уйдёт в каналы.')}</p>
+            {cancelReason === 'cancel' && <p>{t('Начисление за проживание сторнируется.')}</p>}
             <p data-testid={cancelReason === 'cancel' ? 'cancel-penalty' : 'no-show-penalty'}>
-              {penaltyText(cancelPreview, cancelReason, props.currency)}
+              {penaltyText(cancelPreview, cancelReason, props.currency, t)}
             </p>
             {cancelState.error && <Alert>{cancelState.error}</Alert>}
           </ConfirmDialog>
@@ -403,6 +405,7 @@ function EditForm(props: {
     updateReservationAction.bind(null, props.number),
     { error: null },
   );
+  const t = useT();
   const [source, setSource] = useState(state.values?.source ?? props.source);
   const channexBooking = fromChannex(props.externalId);
   return (
@@ -412,30 +415,30 @@ function EditForm(props: {
       className="panel"
       data-testid="edit-reservation-form"
     >
-      <PanelTitle>Заметки и источник</PanelTitle>
+      <PanelTitle>{t('Заметки и источник')}</PanelTitle>
       <Row>
-        <Field inline label="Источник">
+        <Field inline label={t('Источник')}>
           <Select
             name="source"
             defaultValue={state.values?.source ?? props.source}
             onChange={(e) => setSource(e.target.value)}
           >
-            {SOURCES.map(([v, t]) => (
+            {SOURCES.map(([v, label]) => (
               <option key={v} value={v}>
-                {t}
+                {t(label)}
               </option>
             ))}
           </Select>
         </Field>
         {source === 'OTA' && !channexBooking && (
           <>
-            <Field inline label="Канал">
+            <Field inline label={t('Канал')}>
               <Select
                 name="channel"
                 defaultValue={state.values?.channel ?? props.channel ?? ''}
                 data-testid="edit-channel"
               >
-                <option value="">— не указан —</option>
+                <option value="">{t('— не указан —')}</option>
                 {CHANNELS.map((c) => (
                   <option key={c} value={c}>
                     {c}
@@ -443,11 +446,11 @@ function EditForm(props: {
                 ))}
               </Select>
             </Field>
-            <Field inline label="Номер брони в канале">
+            <Field inline label={t('Номер брони в канале')}>
               <Input
                 name="externalId"
                 defaultValue={state.values?.externalId ?? props.externalId ?? ''}
-                placeholder="как в экстранете"
+                placeholder={t('как в экстранете')}
                 autoComplete="off"
                 data-testid="edit-external-id"
               />
@@ -456,7 +459,7 @@ function EditForm(props: {
         )}
         {channexBooking && (
           <span className="hint" data-testid="channex-booking-id">
-            из канала: {props.externalId}
+            {t('из канала: {id}', { id: props.externalId ?? '' })}
           </span>
         )}
         <Textarea
@@ -464,14 +467,14 @@ function EditForm(props: {
           rows={2}
           placeholder={
             props.piiStorage === 'real'
-              ? 'Заметки'
-              : 'Заметки — без имён и телефонов гостя: почта и телефоны маскируются'
+              ? t('Заметки')
+              : t('Заметки — без имён и телефонов гостя: почта и телефоны маскируются')
           }
           defaultValue={state.values?.notes ?? props.notes ?? ''}
           className="inp--grow"
         />
         <Button type="submit" disabled={pending}>
-          Сохранить
+          {t('Сохранить')}
         </Button>
       </Row>
       {state.error && <Alert>{state.error}</Alert>}
@@ -499,6 +502,8 @@ function StayButtons(props: {
   ratePlans: RatePlanOption[];
   onCancel: (itemId: string) => void;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const { state, run: command, pending } = useCommand<ActionResult>({ error: null });
   const { ask, dialog } = useConfirm();
   const { toast } = useToast();
@@ -542,20 +547,25 @@ function StayButtons(props: {
     !!preview && (!preview.nextNightsFree || (!!preview.problem && !preview.ratePlanRequired));
   const extendHint =
     preview === undefined
-      ? 'Считаю сумму…'
+      ? t('Считаю сумму…')
       : preview === null
-        ? 'Сумма не загрузилась — цена появится на счёте после продления'
+        ? t('Сумма не загрузилась — цена появится на счёте после продления')
         : !preview.nextNightsFree
-          ? `${preview.unitCode ? `Номер ${preview.unitCode}` : 'Номер'} занят ${dd(props.item.departureDate)} — сначала переселите`
+          ? preview.unitCode
+            ? t('Номер {unit} занят {date} — сначала переселите', {
+                unit: preview.unitCode,
+                date: dd(props.item.departureDate, locale),
+              })
+            : t('Номер занят {date} — сначала переселите', { date: dd(props.item.departureDate, locale) })
           : preview.ratePlanRequired
             ? extendPlans.length > 0
-              ? 'выберите тариф для новой ночи'
-              : 'У брони нет тарифа, а тарифа со штрафом за отмену нет: продлевают владелец или управляющий.'
+              ? t('выберите тариф для новой ночи')
+              : t('У брони нет тарифа, а тарифа со штрафом за отмену нет: продлевают владелец или управляющий.')
             : preview.problem
               ? preview.problem
-              : `до ${dd(preview.departureDate)}${
+              : `${t('до {date}', { date: dd(preview.departureDate, locale) })}${
                   preview.addedMinor
-                    ? `, +${formatMoney(preview.addedMinor, props.currency)} на счёт`
+                    ? t(', +{sum} на счёт', { sum: formatMoney(preview.addedMinor, props.currency) })
                     : ''
                 }`;
   const extend = async () => {
@@ -566,9 +576,9 @@ function StayButtons(props: {
     });
     if (
       !(await ask({
-        title: `Продлить на ночь — ${props.item.accommodationTypeName}?`,
-        body: previewLine(summary),
-        confirmLabel: 'Продлить',
+        title: t('Продлить на ночь — {category}?', { category: props.item.accommodationTypeName }),
+        body: previewLine(summary, t, locale),
+        confirmLabel: t('Продлить'),
       }))
     )
       return;
@@ -582,8 +592,8 @@ function StayButtons(props: {
       );
       if (!r.error && p)
         setDone(
-          `Проживание продлено до ${dd(p.departureDate)}${
-            p.addedMinor ? `, +${formatMoney(p.addedMinor, props.currency)} на счёт` : ''
+          `${t('Проживание продлено до {date}', { date: dd(p.departureDate, locale) })}${
+            p.addedMinor ? t(', +{sum} на счёт', { sum: formatMoney(p.addedMinor, props.currency) }) : ''
           }`,
         );
       return r;
@@ -598,23 +608,23 @@ function StayButtons(props: {
   const checkOut = async () => {
     if (
       !(await ask({
-        title: `Выселить из ${props.item.unitCode}?`,
-        body: 'После подтверждения проживание завершится. Если есть долг, его покажем отдельно до выселения.',
-        confirmLabel: 'Выселить',
+        title: t('Выселить из {unit}?', { unit: props.item.unitCode ?? '' }),
+        body: t('После подтверждения проживание завершится. Если есть долг, его покажем отдельно до выселения.'),
+        confirmLabel: t('Выселить'),
         tone: 'primary',
       }))
     )
       return;
     return command(async () => {
       const r = await stayAction(props.number, props.item.id, 'check-out');
-      if (r.error && r.error.includes('долг')) {
+      if (r.error && r.error.includes('долг')) { // kk-allow: сверка с текстом отказа API, он не переводится
         setDebt({ open: true, message: r.error });
         return { error: null };
       }
       // §8 «сделал — и что?»: карточка перерисовывается молча, уведомление называет итог и ячейку
       if (!r.error)
         toast({
-          text: `Гость выселен, ${props.item.unitCode ?? '—'}`,
+          text: t('Гость выселен, {unit}', { unit: props.item.unitCode ?? '—' }),
           tone: 'success',
         });
       return r;
@@ -625,7 +635,8 @@ function StayButtons(props: {
     <div className="panel">
       {dialog}
       <PanelTitle>
-        {props.item.accommodationTypeName} — {props.item.unitCode ? `номер ${props.item.unitCode}` : 'номер не назначен'}
+        {props.item.accommodationTypeName} —{' '}
+        {props.item.unitCode ? t('номер {unit}', { unit: props.item.unitCode }) : t('номер не назначен')}
       </PanelTitle>
       <Row>
         {expected && (
@@ -638,18 +649,20 @@ function StayButtons(props: {
               const hk = props.item.unitHousekeepingStatus;
               if (hk && hk !== 'INSPECTED') {
                 const ok = await ask({
-                  title: `Номер ${props.item.unitCode} ещё не проверен. Заселить?`,
-                  body: `Сейчас ${HOUSEKEEPING_RU[hk]}. Гость заезжает в проверенный номер; заселение не запрещено, но нужно ваше подтверждение.`,
-                  confirmLabel: 'Заселить всё равно',
+                  title: t('Номер {unit} ещё не проверен. Заселить?', { unit: props.item.unitCode ?? '' }),
+                  body: t('Сейчас {state}. Гость заезжает в проверенный номер; заселение не запрещено, но нужно ваше подтверждение.', {
+                    state: t(HOUSEKEEPING_RU[hk]),
+                  }),
+                  confirmLabel: t('Заселить всё равно'),
                   // заселение — не отмена и не долг: тон основной, а не тревоги (DESIGN.md §9)
                   tone: 'primary',
                 });
                 if (!ok) return;
               } else if (
                 !(await ask({
-                  title: `Заселить в ${props.item.unitCode}?`,
-                  body: `Бронь ${props.number}. После подтверждения статус изменится на «Заселён».`,
-                  confirmLabel: 'Заселить',
+                  title: t('Заселить в {unit}?', { unit: props.item.unitCode ?? '' }),
+                  body: t('Бронь {number}. После подтверждения статус изменится на «Заселён».', { number: props.number }),
+                  confirmLabel: t('Заселить'),
                   tone: 'primary',
                 }))
               )
@@ -657,14 +670,14 @@ function StayButtons(props: {
               void command(async () => {
                 const r = await stayAction(props.number, props.item.id, 'check-in');
                 if (!r.error)
-                  toast({ text: `Гость заселён, ${props.item.unitCode ?? '—'}`, tone: 'success' });
+                  toast({ text: t('Гость заселён, {unit}', { unit: props.item.unitCode ?? '—' }), tone: 'success' });
                 return r;
               });
             }}
             disabled={pending || !props.item.unitCode}
-            title={props.item.unitCode ? '' : 'Сначала назначьте номер'}
+            title={props.item.unitCode ? '' : t('Сначала назначьте номер')}
           >
-            Заселить
+            {t('Заселить')}
           </Button>
         )}
         {props.item.status === 'CHECKED_IN' && (
@@ -675,18 +688,18 @@ function StayButtons(props: {
             disabled={pending}
             onClick={checkOut}
           >
-            Выселить
+            {t('Выселить')}
           </Button>
         )}
         {live && needsPlan && extendPlans.length > 0 && (
           <Select
-            aria-label="Тариф для продления"
+            aria-label={t('Тариф для продления')}
             data-quick-action={`extend-plan:${props.item.id}`}
             value={extendPlan}
             onChange={(e) => setExtendPlan(e.target.value)}
           >
             <option value="" disabled>
-              — тариф для новой ночи —
+              {t('— тариф для новой ночи —')}
             </option>
             {extendPlans.map((p) => (
               <option key={p.code} value={p.code}>
@@ -705,13 +718,13 @@ function StayButtons(props: {
             onClick={extend}
             title={
               !needsPlan
-                ? 'Выезд на сутки позже, цена по календарю'
+                ? t('Выезд на сутки позже, цена по календарю')
                 : extendPlans.length > 0
-                  ? 'У проживания нет тарифа: выберите тариф для новой ночи'
-                  : 'У проживания нет тарифа: продлевают владелец или управляющий'
+                  ? t('У проживания нет тарифа: выберите тариф для новой ночи')
+                  : t('У проживания нет тарифа: продлевают владелец или управляющий')
             }
           >
-            Продлить на ночь
+            {t('Продлить на ночь')}
           </Button>
         )}
         {live && (
@@ -727,7 +740,7 @@ function StayButtons(props: {
             disabled={pending}
             onClick={() => props.onCancel(props.item.id)}
           >
-            Отменить бронь
+            {t('Отменить бронь')}
           </Button>
         )}
       </Row>
@@ -739,9 +752,9 @@ function StayButtons(props: {
       {state.error && <Alert>{state.error}</Alert>}
       <ConfirmDialog
         open={debt.open}
-        title="Выселить с долгом?"
-        confirmLabel="Выселить с долгом"
-        cancelLabel="Оставить"
+        title={t('Выселить с долгом?')}
+        confirmLabel={t('Выселить с долгом')}
+        cancelLabel={t('Оставить')}
         pending={pending}
         onCancel={() => setDebt({ open: false, message: '' })}
         onConfirm={async () => {
@@ -751,8 +764,8 @@ function StayButtons(props: {
       >
         <p data-testid="debt-amount">
           {props.item.debtMinor && BigInt(props.item.debtMinor) > 0n
-            ? `Долг ${formatMoney(props.item.debtMinor, props.currency)} останется на счёте`
-            : 'Долг останется на счёте'}
+            ? t('Долг {sum} останется на счёте', { sum: formatMoney(props.item.debtMinor, props.currency) })
+            : t('Долг останется на счёте')}
         </p>
         <p className="hint">{debt.message}</p>
       </ConfirmDialog>
@@ -782,6 +795,8 @@ function AssignForm(props: {
     assignUnitAction.bind(null, props.number, props.item.id),
     { error: null },
   );
+  const t = useT();
+  const locale = useLocale();
   // другой тариф при смене категории — выбор цены: владелец и управляющий (Q-200); проживанию без тарифа администратор
   // назначает тариф со штрафом (Q-201)
   const mayChangePlan = useMay('rates');
@@ -818,23 +833,24 @@ function AssignForm(props: {
     setMove(null);
     formRef.current?.requestSubmit();
   };
-  const lower = (s: string) => s.charAt(0).toLocaleLowerCase('ru') + s.slice(1);
+  const lower = (s: string) => s.charAt(0).toLocaleLowerCase() + s.slice(1);
   const moveText = !move
     ? ''
     : move.preview === undefined
-      ? 'Считаю новую сумму…'
+      ? t('Считаю новую сумму…')
       : move.preview === null
-        ? 'Сумма не загрузилась — цена пересчитается при переселении'
+        ? t('Сумма не загрузилась — цена пересчитается при переселении')
         : move.preview.ratePlanRequired
-          ? 'Выберите тариф при смене категории: без него цену не посчитать'
+          ? t('Выберите тариф при смене категории: без него цену не посчитать')
           : move.preview.newMinor === null
-            ? (move.preview.problem ?? 'Сумма не посчитана — цена пересчитается при переселении')
+            ? (move.preview.problem ?? t('Сумма не посчитана — цена пересчитается при переселении'))
             : move.preview.problem
               ? move.preview.problem
-              : `Новая сумма за ${pluralRu(move.preview.nights, NIGHTS)} ${formatMoney(
-                  move.preview.newMinor,
-                  props.currency,
-                )} (было ${formatMoney(move.preview.currentMinor, props.currency)})`;
+              : t('Новая сумма за {nights} {sum} (было {before})', {
+                  nights: countLabel(locale, t, move.preview.nights, NIGHTS),
+                  sum: formatMoney(move.preview.newMinor, props.currency),
+                  before: formatMoney(move.preview.currentMinor, props.currency),
+                });
   return (
     <form
       key={`${props.item.unitCode ?? '-'}-${props.arrivalDate}-${state.attempt ?? 0}`}
@@ -845,20 +861,20 @@ function AssignForm(props: {
       data-testid="assign-form"
     >
       <PanelTitle>
-        {props.item.unitCode ? `Переселить из ${props.item.unitCode}` : 'Назначить номер'} —{' '}
+        {props.item.unitCode ? t('Переселить из {unit}', { unit: props.item.unitCode }) : t('Назначить номер')} —{' '}
         {props.item.accommodationTypeName}
       </PanelTitle>
       <Row>
         <Select
           name="unitCode"
-          aria-label="Свободный номер"
+          aria-label={t('Свободный номер')}
           data-testid={`assign-unit-${props.item.id}`}
           data-quick-action={`move:${props.item.id}`}
           required
           defaultValue={state.values?.unitCode ?? ''}
         >
           <option value="" disabled>
-            — свободный номер —
+            {t('— свободный номер —')}
           </option>
           {props.item.availableGroups.map((g) => (
             <optgroup
@@ -866,7 +882,7 @@ function AssignForm(props: {
               label={
                 g.code === props.item.accommodationTypeCode
                   ? g.name
-                  : `${g.name} — с пересчётом цены`
+                  : t('{category} — с пересчётом цены', { category: g.name })
               }
             >
               {g.units.map((u) => (
@@ -878,9 +894,9 @@ function AssignForm(props: {
           ))}
         </Select>
         {movePlans.length > 0 && (
-          <Field label="Тариф при смене категории">
+          <Field label={t('Тариф при смене категории')}>
             <Select name="ratePlanCode" defaultValue={state.values?.ratePlanCode ?? ''}>
-              <option value="">Тариф проживания</option>
+              <option value="">{t('Тариф проживания')}</option>
               {movePlans.map((plan) => (
                 <option key={plan.code} value={plan.code}>
                   {plan.name} ({plan.currency})
@@ -889,32 +905,34 @@ function AssignForm(props: {
             </Select>
           </Field>
         )}
-        <Field inline label="с даты">
+        <Field inline label={t('с даты')}>
           <DateInput name="fromDate" defaultValue={state.values?.fromDate ?? props.arrivalDate} />
         </Field>
         <Button type="submit" disabled={pending}>
-          {props.item.unitCode ? 'Переселить' : 'Назначить'}
+          {props.item.unitCode ? t('Переселить') : t('Назначить')}
         </Button>
       </Row>
       <div className="hint">
-        Номер другой категории пересчитает цену по её календарю; такое переселение возможно только
-        на всё проживание целиком — сумму покажем до подтверждения.
+        {t('Номер другой категории пересчитает цену по её календарю; такое переселение возможно только на всё проживание целиком — сумму покажем до подтверждения.')}
       </div>
       {state.error && <Alert>{state.error}</Alert>}
       <ConfirmDialog
         open={!!move}
         title={
           move
-            ? `Переселить в ${lower(move.preview?.toCategory?.name ?? move.groupName)} ${move.unitCode}?`
+            ? t('Переселить в {category} {unit}?', {
+                category: lower(move.preview?.toCategory?.name ?? move.groupName),
+                unit: move.unitCode,
+              })
             : ''
         }
-        confirmLabel="Переселить и пересчитать"
+        confirmLabel={t('Переселить и пересчитать')}
         tone="info"
         pending={pending}
         onCancel={() => setMove(null)}
         onConfirm={confirmMove}
       >
-        <p>Счёт будет пересчитан по тарифу новой категории на весь срок проживания.</p>
+        <p>{t('Счёт будет пересчитан по тарифу новой категории на весь срок проживания.')}</p>
         <p data-testid="move-amount">{moveText}</p>
       </ConfirmDialog>
     </form>
@@ -928,6 +946,7 @@ function StayGuestsForm({
   number: string;
   item: { id: string; unitCode: string | null; adults: number; children: number };
 }) {
+  const t = useT();
   const [state, action, pending] = useActionState<ActionResult, FormData>(
     updateStayGuestsAction.bind(null, number, item.id),
     { error: null },
@@ -939,9 +958,9 @@ function StayGuestsForm({
       data-testid={`guests-form-${item.id}`}
       key={`${item.adults}/${item.children}/${state.attempt ?? 0}`}
     >
-      <PanelTitle>{item.unitCode ? `Гости номера ${item.unitCode}` : 'Гости'}</PanelTitle>
+      <PanelTitle>{item.unitCode ? t('Гости номера {unit}', { unit: item.unitCode }) : t('Гости')}</PanelTitle>
       <Row>
-        <Field label="Взрослых">
+        <Field label={t('Взрослых')}>
           <Input
             name="adults"
             type="number"
@@ -951,7 +970,7 @@ function StayGuestsForm({
             defaultValue={state.values?.adults ?? item.adults}
           />
         </Field>
-        <Field label="Детей">
+        <Field label={t('Детей')}>
           <Input
             name="children"
             type="number"
@@ -962,7 +981,7 @@ function StayGuestsForm({
           />
         </Field>
         <Button type="submit" disabled={pending}>
-          Сохранить
+          {t('Сохранить')}
         </Button>
       </Row>
       {state.error && <Alert>{state.error}</Alert>}

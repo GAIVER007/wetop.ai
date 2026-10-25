@@ -247,12 +247,16 @@ test('«Гости и бронирования»: одна вкладка мен
   // подразделы левого меню (ADR-161): каждый адрес один раз, текущий помечен
   const menu = page.locator('.sidenav__nav');
   await expect(menu.locator('[aria-current="page"]')).toHaveText('Клиенты');
-  await main.getByRole('link', { name: 'Список броней', exact: true }).click();
+  // вкладки раздела «Клиенты | Записи», как у салона (эталон 25.10.2026), вместо кнопок «Список броней» и «Гости»
+  const tabs = main.getByRole('navigation', { name: 'Клиенты и записи' });
+  await expect(tabs.getByRole('link', { name: 'Клиенты', exact: true })).toHaveAttribute('aria-current', 'page');
+  await tabs.getByRole('link', { name: 'Записи', exact: true }).click();
   await expect(page).toHaveURL(/\/reservations$/);
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Брони');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Записи');
   await expect(menu.locator('[aria-current="page"]')).toHaveText('Записи');
-  // обратно: кнопка на списке броней ведёт на экран гостей
-  await main.getByRole('link', { name: 'Гости', exact: true }).click();
+  await expect(tabs.getByRole('link', { name: 'Записи', exact: true })).toHaveAttribute('aria-current', 'page');
+  // обратно той же полосой вкладок
+  await tabs.getByRole('link', { name: 'Клиенты', exact: true }).click();
   await expect(page).toHaveURL(/\/guests$/);
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Гости и бронирования');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Клиенты');
 });

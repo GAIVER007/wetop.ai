@@ -9,6 +9,9 @@ import {
   saveDraftAction,
   type ContentActionResult,
 } from './actions';
+import { intlLocale, msg, type DeskLocale } from '../../../i18n';
+import { dateFormat } from '../../../i18n/dates';
+import { useLocale, useT } from '../../../i18n/locale-provider';
 
 /**
  * «Контент» (CONTENT-DRAFTS-20261022): тема → 1–2 варианта ИИ → правка → черновик на день недели. Ничего не
@@ -18,24 +21,25 @@ export const CHANNEL_LABEL: Record<ContentChannelCode, string> = {
   INSTAGRAM: 'Instagram',
   FACEBOOK: 'Facebook',
   TELEGRAM: 'Telegram',
-  WHATSAPP_STATUS: 'Статус WhatsApp',
+  WHATSAPP_STATUS: msg('Статус WhatsApp'),
 };
 export const CTA_LABEL: Record<ContentCtaCode, string> = {
-  BOOK_ONLINE: 'Записаться онлайн',
-  WHATSAPP: 'Написать в WhatsApp',
-  CALL: 'Позвонить',
-  VISIT: 'Прийти по адресу',
-  NONE: 'Без кнопки',
+  BOOK_ONLINE: msg('Записаться онлайн'),
+  WHATSAPP: msg('Написать в WhatsApp'),
+  CALL: msg('Позвонить'),
+  VISIT: msg('Прийти по адресу'),
+  NONE: msg('Без кнопки'),
 };
 const NONE: ContentActionResult = { error: null, ok: 0 };
-const WEEK = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+const WEEK = [msg('Пн'), msg('Вт'), msg('Ср'), msg('Чт'), msg('Пт'), msg('Сб'), msg('Вс')];
 
 const addDays = (iso: string, n: number) =>
   new Date(Date.parse(`${iso}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
-const dayLabel = (iso: string) =>
-  new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(`${iso}T00:00:00Z`));
+const dayLabel = (iso: string, locale: DeskLocale) =>
+  dateFormat(intlLocale(locale), { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(`${iso}T00:00:00Z`));
 
 function CopyButton({ text }: { text: string }) {
+  const t = useT();
   const [done, setDone] = useState(false);
   return (
     <Button
@@ -52,7 +56,7 @@ function CopyButton({ text }: { text: string }) {
         }
       }}
     >
-      {done ? 'Скопировано' : 'Скопировать'}
+      {done ? t('Скопировано') : t('Скопировать')}
     </Button>
   );
 }
@@ -84,6 +88,8 @@ function DraftEditor({
   onDone: () => void;
   onCancel: () => void;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const id = useId();
   const creationId = useMemo(() => crypto.randomUUID(), []);
   const [state, save, saving] = useActionState(saveDraftAction, NONE);
@@ -93,7 +99,7 @@ function DraftEditor({
   return (
     <form action={save} className="content-editor" data-testid="content-editor" aria-labelledby={`${id}-title`}>
       <h3 id={`${id}-title`} className="marketing-screen__title">
-        {value.id ? 'Черновик поста' : 'Новый пост'}
+        {value.id ? t('Черновик поста') : t('Новый пост')}
       </h3>
       {value.id ? (
         <>
@@ -107,61 +113,62 @@ function DraftEditor({
       <input type="hidden" name="topic" value={value.topic} />
       {value.warnings.length > 0 && (
         <Alert tone="warning" data-testid="content-warnings">
-          Проверьте цифры, которых нет в карточке филиала: {value.warnings.join(', ')}. Исправьте или удалите их перед
-          публикацией.
+          {t('Проверьте цифры, которых нет в карточке филиала: {numbers}. Исправьте или удалите их перед публикацией.', {
+            numbers: value.warnings.join(', '),
+          })}
         </Alert>
       )}
       <div className="content-editor__row">
-        <Field label="Канал" controlId={`${id}-channel`} required>
+        <Field label={t('Канал')} controlId={`${id}-channel`} required>
           <Select name="channel" defaultValue={value.channel}>
             {Object.entries(CHANNEL_LABEL).map(([k, v]) => (
               <option key={k} value={k}>
-                {v}
+                {t(v)}
               </option>
             ))}
           </Select>
         </Field>
-        <Field label="День публикации" controlId={`${id}-day`} required={false}>
+        <Field label={t('День публикации')} controlId={`${id}-day`} required={false}>
           <Select name="plannedOn" defaultValue={value.plannedOn}>
-            <option value="">Без дня</option>
+            <option value="">{t('Без дня')}</option>
             {days.map((d, i) => (
               <option key={d} value={d}>
-                {WEEK[i]}, {dayLabel(d)}
+                {t(WEEK[i]!)}, {dayLabel(d, locale)}
               </option>
             ))}
           </Select>
         </Field>
-        <Field label="Кнопка действия" controlId={`${id}-cta`} required={false}>
+        <Field label={t('Кнопка действия')} controlId={`${id}-cta`} required={false}>
           <Select name="cta" defaultValue={value.cta}>
             {ctas.map((c) => (
               <option key={c} value={c}>
-                {CTA_LABEL[c]}
+                {t(CTA_LABEL[c])}
               </option>
             ))}
           </Select>
         </Field>
       </div>
-      <Field label="Заголовок" controlId={`${id}-heading`} required={false}>
+      <Field label={t('Заголовок')} controlId={`${id}-heading`} required={false}>
         <Input name="title" maxLength={200} defaultValue={value.title} />
       </Field>
       <Field
-        label="Текст поста"
+        label={t('Текст поста')}
         controlId={`${id}-body`}
         required
-        hint="До 2 200 знаков. Ссылку брони, телефон и адрес WETOP добавит сам по кнопке действия."
+        hint={t('До 2 200 знаков. Ссылку брони, телефон и адрес WETOP добавит сам по кнопке действия.')}
       >
         <Textarea name="body" rows={10} maxLength={2200} defaultValue={value.body} />
       </Field>
-      <Field label="Хештеги" controlId={`${id}-tags`} required={false} hint="Через пробел или запятую, до 10">
+      <Field label={t('Хештеги')} controlId={`${id}-tags`} required={false} hint={t('Через пробел или запятую, до 10')}>
         <Input name="hashtags" defaultValue={value.hashtags} />
       </Field>
-      {state.error && <Alert>{state.error}</Alert>}
+      {state.error && <Alert>{t(state.error)}</Alert>}
       <div className="content-editor__actions">
         <Button type="submit" disabled={saving}>
-          {saving ? 'Сохраняем…' : 'Сохранить черновик'}
+          {saving ? t('Сохраняем…') : t('Сохранить черновик')}
         </Button>
         <Button type="button" tone="ghost" onClick={onCancel} disabled={saving}>
-          Отмена
+          {t('Отмена')}
         </Button>
       </div>
     </form>
@@ -175,18 +182,19 @@ function Variants({
   variants: ContentVariantView[];
   onPick: (v: ContentVariantView) => void;
 }) {
+  const t = useT();
   return (
     <ul className="content-variants" data-testid="content-variants">
       {variants.map((v, i) => (
         <li key={i} className="content-variant">
           <div className="content-variant__head">
-            <strong>Вариант {String.fromCharCode(65 + i)}</strong>
-            {v.warnings.length > 0 && <Badge tone="warn">Проверьте цифры: {v.warnings.join(', ')}</Badge>}
+            <strong>{t('Вариант {letter}', { letter: String.fromCharCode(65 + i) })}</strong>
+            {v.warnings.length > 0 && <Badge tone="warn">{t('Проверьте цифры: {numbers}', { numbers: v.warnings.join(', ') })}</Badge>}
           </div>
           <p className="content-variant__text">{v.preview}</p>
           <div className="content-variant__actions">
             <Button type="button" size="sm" onClick={() => onPick(v)}>
-              Взять этот
+              {t('Взять этот')}
             </Button>
             <CopyButton text={v.preview} />
           </div>
@@ -198,6 +206,7 @@ function Variants({
 
 /** ИИ недоступен (нет ключа, бюджет): API отвечает словами, кнопка «Написать самому» работает всегда */
 export function ContentStudio({ ctas, days }: { ctas: ContentCtaCode[]; days: string[] }) {
+  const t = useT();
   const id = useId();
   const [state, propose, thinking] = useActionState(proposeContentAction, NONE);
   const [topic, setTopic] = useState('');
@@ -219,44 +228,44 @@ export function ContentStudio({ ctas, days }: { ctas: ContentCtaCode[]; days: st
   return (
     <div className="marketing-screen__stack" data-testid="content-studio">
       {saved > 0 && !editor && (
-        <Notice data-testid="content-saved">Черновик сохранён. Он в плане публикаций на вкладке «План публикаций».</Notice>
+        <Notice data-testid="content-saved">{t('Черновик сохранён. Он в плане публикаций на вкладке «План публикаций».')}</Notice>
       )}
       <form action={propose} className="content-brief" aria-labelledby={`${id}-brief`}>
         <h2 id={`${id}-brief`} className="marketing-screen__title">
-          О чём пост
+          {t('О чём пост')}
         </h2>
         <Field
-          label="Тема"
+          label={t('Тема')}
           controlId={`${id}-topic`}
           required
-          hint="Например: осенний уход, новая услуга, свободные окна на выходных. Цены и скидки ИИ берёт только из карточки."
+          hint={t('Например: осенний уход, новая услуга, свободные окна на выходных. Цены и скидки ИИ берёт только из карточки.')}
         >
           <Textarea name="topic" rows={3} maxLength={500} value={topic} onChange={(e) => setTopic(e.target.value)} />
         </Field>
         <div className="content-editor__row">
-          <Field label="Канал" controlId={`${id}-ch`} required>
+          <Field label={t('Канал')} controlId={`${id}-ch`} required>
             <Select name="channel" value={channel} onChange={(e) => setChannel(e.target.value as ContentChannelCode)}>
               {Object.entries(CHANNEL_LABEL).map(([k, v]) => (
                 <option key={k} value={k}>
-                  {v}
+                  {t(v)}
                 </option>
               ))}
             </Select>
           </Field>
-          <Field label="Тон" controlId={`${id}-tone`} required>
+          <Field label={t('Тон')} controlId={`${id}-tone`} required>
             <Select name="tone" defaultValue="FRIENDLY">
-              <option value="FRIENDLY">Дружелюбный</option>
-              <option value="BUSINESS">Деловой</option>
+              <option value="FRIENDLY">{t('Дружелюбный')}</option>
+              <option value="BUSINESS">{t('Деловой')}</option>
             </Select>
           </Field>
         </div>
-        {state.error && <Alert>{state.error}</Alert>}
+        {state.error && <Alert>{t(state.error)}</Alert>}
         <div className="content-editor__actions">
           <Button type="submit" disabled={thinking || !topic.trim()}>
-            {thinking ? 'ИИ пишет…' : 'Написать с ИИ'}
+            {thinking ? t('ИИ пишет…') : t('Написать с ИИ')}
           </Button>
           <Button type="button" tone="secondary" onClick={() => setEditor(blank('MANUAL'))} disabled={thinking}>
-            Написать самому
+            {t('Написать самому')}
           </Button>
         </div>
       </form>
@@ -293,6 +302,7 @@ export function ContentStudio({ ctas, days }: { ctas: ContentCtaCode[]; days: st
 }
 
 function DraftCard({ d, ctas, days }: { d: ContentDraftView; ctas: ContentCtaCode[]; days: string[] }) {
+  const t = useT();
   const [editing, setEditing] = useState(false);
   const [pubState, markPublished, publishing] = useActionState(publishedDraftAction, NONE);
   const [archState, archive, archiving] = useActionState(archiveDraftAction, NONE);
@@ -321,25 +331,25 @@ function DraftCard({ d, ctas, days }: { d: ContentDraftView; ctas: ContentCtaCod
   return (
     <article className="content-card" data-testid="content-card">
       <div className="content-variant__head">
-        <Badge tone="info">{CHANNEL_LABEL[d.channel]}</Badge>
-        {d.status === 'PUBLISHED' ? <Badge tone="ok">Опубликован</Badge> : <Badge>Черновик</Badge>}
-        {d.origin === 'AI' && <Badge>ИИ</Badge>}
+        <Badge tone="info">{t(CHANNEL_LABEL[d.channel])}</Badge>
+        {d.status === 'PUBLISHED' ? <Badge tone="ok">{t('Опубликован')}</Badge> : <Badge>{t('Черновик')}</Badge>}
+        {d.origin === 'AI' && <Badge>{t('ИИ')}</Badge>}
       </div>
       {d.title && <strong>{d.title}</strong>}
       <p className="content-card__text">{d.body}</p>
-      {(pubState.error || archState.error) && <Alert>{pubState.error || archState.error}</Alert>}
+      {(pubState.error || archState.error) && <Alert>{t((pubState.error || archState.error)!)}</Alert>}
       <div className="content-variant__actions">
         <CopyButton text={d.preview} />
         {d.status === 'DRAFT' && (
           <>
             <Button type="button" tone="secondary" size="sm" onClick={() => setEditing(true)}>
-              Изменить
+              {t('Изменить')}
             </Button>
             <form action={markPublished}>
               <input type="hidden" name="id" value={d.id} />
               <input type="hidden" name="expectedRevision" value={d.revision} />
               <Button type="submit" tone="secondary" size="sm" disabled={publishing}>
-                Отметить опубликованным
+                {t('Отметить опубликованным')}
               </Button>
             </form>
           </>
@@ -348,7 +358,7 @@ function DraftCard({ d, ctas, days }: { d: ContentDraftView; ctas: ContentCtaCod
           <input type="hidden" name="id" value={d.id} />
           <input type="hidden" name="expectedRevision" value={d.revision} />
           <Button type="submit" tone="ghost" size="sm" disabled={archiving}>
-            В архив
+            {t('В архив')}
           </Button>
         </form>
       </div>
@@ -367,20 +377,22 @@ export function ContentPlan({
   today: string;
   ctas: ContentCtaCode[];
 }) {
+  const t = useT();
+  const locale = useLocale();
   const days = Array.from({ length: 7 }, (_, i) => addDays(from, i));
   const unplanned = items.filter((d) => !d.plannedOn);
   return (
     <div className="marketing-screen__stack" data-testid="content-plan">
-      <ol className="content-week" aria-label="План публикаций по дням">
+      <ol className="content-week" aria-label={t('План публикаций по дням')}>
         {days.map((day, i) => {
           const list = items.filter((d) => d.plannedOn === day);
           return (
             <li key={day} className="content-week__day" aria-current={day === today ? 'date' : undefined}>
               <span className="marketing-week__name">
-                {WEEK[i]}, {dayLabel(day)}
+                {t(WEEK[i]!)}, {dayLabel(day, locale)}
               </span>
               {list.length === 0 ? (
-                <span className="marketing-week__empty">Пусто</span>
+                <span className="marketing-week__empty">{t('Пусто')}</span>
               ) : (
                 list.map((d) => <DraftCard key={`${d.id}-${d.revision}`} d={d} ctas={ctas} days={days} />)
               )}
@@ -389,8 +401,8 @@ export function ContentPlan({
         })}
       </ol>
       {unplanned.length > 0 && (
-        <section aria-label="Черновики без дня" className="marketing-screen__stack">
-          <h3 className="marketing-screen__title">Без дня</h3>
+        <section aria-label={t('Черновики без дня')} className="marketing-screen__stack">
+          <h3 className="marketing-screen__title">{t('Без дня')}</h3>
           {unplanned.map((d) => (
             <DraftCard key={`${d.id}-${d.revision}`} d={d} ctas={ctas} days={days} />
           ))}

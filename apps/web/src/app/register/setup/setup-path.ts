@@ -4,7 +4,7 @@
  */
 import type { BeautyEmployeeRow, BeautyServiceRow } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
-import { pluralRu } from '../../../lib/plural';
+import { countLabel, msg, translator, type DeskLocale, type Translate } from '../../../i18n';
 
 export type SetupStepId = 'profile' | 'services' | 'masters' | 'skills' | 'schedule';
 export type SetupStatus = 'done' | 'current' | 'todo' | 'locked';
@@ -90,15 +90,24 @@ export function bookingPreview(
 }
 
 /** Итог выполненного шага настройки словами владельца (аудит салона 22.10.2026: «Пригодных сочетаний услуги и графика: 8») */
-export function setupCountLine(id: Exclude<SetupStepId, 'profile'>, count: number): string {
+export function setupCountLine(
+  id: Exclude<SetupStepId, 'profile'>,
+  count: number,
+  locale: DeskLocale = 'ru',
+  t: Translate = translator('ru'),
+): string {
   switch (id) {
     case 'services':
-      return `Услуг в филиале: ${count}`;
+      return t('Услуг в филиале: {n}', { n: count });
     case 'masters':
-      return `Мастеров: ${count}`;
+      return t('Мастеров: {n}', { n: count });
     case 'skills':
-      return `Услуг назначено мастерам: ${count}`;
+      return t('Услуг назначено мастерам: {n}', { n: count });
     case 'schedule':
-      return `Можно записаться: ${pluralRu(count, ['вариант', 'варианта', 'вариантов'])} услуги и мастера`;
+      return t('Можно записаться: {variants} услуги и мастера', {
+        variants: countLabel(locale, t, count, VARIANT_FORMS),
+      });
   }
 }
+
+const VARIANT_FORMS: [string, string, string] = [msg('вариант'), 'варианта', msg('вариантов')]; // kk-allow: форма склонения

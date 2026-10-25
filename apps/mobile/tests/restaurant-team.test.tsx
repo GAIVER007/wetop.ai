@@ -53,3 +53,22 @@ test('paid contribution from a former shift member is not silently lost', () => 
   });
   expect(unlistedRevenue([], revenue)).toEqual([{ currency: 'KZT', netMinor: '75' }]);
 });
+
+test('closed-order count joins by employee ID, not by matching names', () => {
+  const shifts = readShifts({
+    employees: [
+      { id: 'a', name: 'Сотрудник', week: [] },
+      { id: 'b', name: 'Сотрудник', week: [] },
+    ],
+  });
+  expect(
+    teamRows(
+      shifts,
+      null,
+      new Map([
+        ['a', 3],
+        ['b', 1],
+      ]),
+    ).map((row) => row.orders),
+  ).toEqual([3, 1]);
+});

@@ -33,7 +33,9 @@ test('owner reports preserve canonical closed-order revenue separately from paym
       BAR: [{ name: 'Кофе', qty: 10, revenueMinor: '120000' }],
     },
     revenueByDay: [{ date: '2026-10-24', revenueMinor: '1200000', orders: 20 }],
-    waiters: [{ name: 'Тестовый сотрудник', orders: 5, revenueMinor: '400000' }],
+    waiters: [
+      { waiterId: 'employee-1', name: 'Тестовый сотрудник', orders: 5, revenueMinor: '400000' },
+    ],
   });
   expect(period.revenueMinor).toBe('1200000');
   expect(period.payments[0]?.amountMinor).toBe('500000');

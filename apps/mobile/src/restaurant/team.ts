@@ -79,10 +79,15 @@ export function readStaffRevenue(value: unknown): StaffRevenue {
     }),
   };
 }
-export function teamRows(shifts: Shift[], revenue: StaffRevenue | null) {
+export function teamRows(
+  shifts: Shift[],
+  revenue: StaffRevenue | null,
+  counts: Map<string, number> | null = null,
+) {
   return shifts.map((shift) => ({
     ...shift,
     net: revenue?.items.filter((row) => row.employeeId === shift.id) ?? [],
+    orders: counts?.get(shift.id) ?? (counts ? 0 : null),
   }));
 }
 

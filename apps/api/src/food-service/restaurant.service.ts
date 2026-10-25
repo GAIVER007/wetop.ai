@@ -2040,6 +2040,7 @@ export class RestaurantService {
         .sort((a, b) => Number(BigInt(b.revenueMinor) - BigInt(a.revenueMinor)) || a.name.localeCompare(b.name, 'ru')),
       waiters: waiters
         .map((x) => ({
+          waiterId: x.waiterId!,
           name: names.get(x.waiterId!) ?? '—',
           orders: x._count._all,
           revenueMinor: (x._sum.total ?? 0n).toString(),

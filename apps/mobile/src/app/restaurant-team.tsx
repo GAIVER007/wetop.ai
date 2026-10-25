@@ -4,7 +4,7 @@ import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { useAccess } from '../auth/provider';
 import { accessMessage } from '../auth/session';
 import { money } from '../restaurant/data';
-import { localDate } from '../restaurant/reports';
+import { localDate, readAnalytics } from '../restaurant/reports';
 import {
   readShifts,
   readStaffRevenue,
@@ -36,6 +36,8 @@ function Team({ timezone, branch }: { timezone: string; branch: string }) {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [revenue, setRevenue] = useState<StaffRevenue | null>(null);
   const [revenueError, setRevenueError] = useState('');
+  const [ordersError, setOrdersError] = useState('');
+  const [orderCounts, setOrderCounts] = useState<Map<string, number> | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const today = localDate(new Date(), timezone);
@@ -45,6 +47,8 @@ function Team({ timezone, branch }: { timezone: string; branch: string }) {
     setLoading(true);
     setError('');
     setRevenueError('');
+    setOrdersError('');
+    setOrderCounts(null);
     setRevenue(null);
     void (async () => {
       try {
@@ -55,8 +59,19 @@ function Team({ timezone, branch }: { timezone: string; branch: string }) {
         if (!active) return;
         if (shiftValue.status === 'rejected') throw shiftValue.reason;
         setShifts(readShifts(shiftValue.value));
-        if (revenueValue.status === 'fulfilled') setRevenue(readStaffRevenue(revenueValue.value));
-        else setRevenueError(accessMessage(revenueValue.reason));
+        if (revenueValue.status === 'fulfilled') {
+          const report = readStaffRevenue(revenueValue.value);
+          setRevenue(report);
+          try {
+            const orders = readAnalytics(
+              await session.readReport('analytics', report.fromDate, report.toDate),
+            );
+            if (active)
+              setOrderCounts(new Map(orders.waiters.map((row) => [row.waiterId, row.orders])));
+          } catch (cause) {
+            if (active) setOrdersError(accessMessage(cause));
+          }
+        } else setRevenueError(accessMessage(revenueValue.reason));
       } catch (cause) {
         if (active) setError(accessMessage(cause));
       } finally {
@@ -70,7 +85,7 @@ function Team({ timezone, branch }: { timezone: string; branch: string }) {
   const card = { padding: 16, borderRadius: 16, gap: 8, backgroundColor: theme.surface } as const;
   const heading = { fontSize: 18, fontWeight: '700', color: theme.text } as const;
   const secondary = { fontSize: 14, lineHeight: 21, color: theme.secondary } as const;
-  const rows = teamRows(shifts, revenue);
+  const rows = teamRows(shifts, revenue, orderCounts);
   return (
     <Screen title="Команда ресторана" subtitle={branch}>
       <ActionButton
@@ -125,6 +140,11 @@ function Team({ timezone, branch }: { timezone: string; branch: string }) {
           <Text style={{ ...secondary, color: theme.danger }}>{error}</Text>
         </View>
       ) : null}
+      {ordersError ? (
+        <View style={card}>
+          <Text style={secondary}>Число закрытых заказов недоступно: {ordersError}</Text>
+        </View>
+      ) : null}
       {revenueError ? (
         <View style={card}>
           <Text style={secondary}>Показатель «Принёс» недоступен: {revenueError}</Text>
@@ -152,6 +172,9 @@ function Team({ timezone, branch }: { timezone: string; branch: string }) {
                     ? slots.map((slot) => `${slot.timeFrom}–${slot.timeTo}`).join(', ')
                     : 'нет смены'}
                 </Text>
+                {row.orders !== null ? (
+                  <Text style={secondary}>Закрыто заказов: {row.orders}</Text>
+                ) : null}
                 {revenue ? (
                   <Text style={secondary}>
                     Принёс:{' '}

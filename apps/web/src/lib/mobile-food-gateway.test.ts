@@ -560,7 +560,9 @@ describe('mobile restaurant report boundary', () => {
           BAR: [{ name: 'Кофе', qty: 10, revenueMinor: '120000' }],
         },
         revenueByDay: [{ date: '2026-10-24', revenueMinor: '1200000', orders: 20 }],
-        waiters: [{ name: 'Тестовый сотрудник', orders: 5, revenueMinor: '400000' }],
+        waiters: [
+          { waiterId: 'employee-1', name: 'Тестовый сотрудник', orders: 5, revenueMinor: '400000' },
+        ],
         internal: 'drop',
       });
     });
@@ -583,6 +585,7 @@ describe('mobile restaurant report boundary', () => {
     expect(period.revenueMinor).toBe('1200000');
     expect(period.payments[0].amountMinor).toBe('500000');
     expect(period.topByStation.BAR[0].name).toBe('Кофе');
+    expect(period.waiters[0].waiterId).toBe('employee-1');
     expect(JSON.stringify(period)).not.toContain('drop');
   });
 });

@@ -268,6 +268,7 @@ function analyticsDto(value: unknown): JsonRecord {
     waiters: source.waiters.map((value) => {
       const row = record(value);
       return {
+        waiterId: nonEmptyString(row.waiterId),
         name: nonEmptyString(row.name),
         orders: integer(row.orders),
         revenueMinor: minorUnits(row.revenueMinor),

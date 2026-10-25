@@ -26,7 +26,7 @@ export type Analytics = {
     BAR: { name: string; qty: number; revenueMinor: string }[];
   };
   revenueByDay: { date: string; revenueMinor: string; orders: number }[];
-  waiters: { name: string; orders: number; revenueMinor: string }[];
+  waiters: { waiterId: string; name: string; orders: number; revenueMinor: string }[];
 };
 import { AccessError } from '../auth/contracts';
 function obj(v: unknown): Record<string, unknown> {
@@ -102,7 +102,12 @@ export function readAnalytics(value: unknown): Analytics {
     }),
     waiters: rows(v.waiters, (value) => {
       const r = obj(value);
-      return { name: str(r.name), orders: number(r.orders), revenueMinor: minor(r.revenueMinor) };
+      return {
+        waiterId: str(r.waiterId),
+        name: str(r.name),
+        orders: number(r.orders),
+        revenueMinor: minor(r.revenueMinor),
+      };
     }),
   };
 }

@@ -281,9 +281,11 @@ test('подстраницы: оплата долга в приходах, но�
   await products.getByRole('button', { name: 'Новый товар', exact: true }).click();
   const productForm = page.getByRole('dialog', { name: 'Новый товар' }).locator('.bar-product-form');
   await productForm.getByLabel('Название').fill('Чай чёрный');
+  // код, штрихкод, упаковка и своя наценка в свёрнутом «Ещё» (владелец 25.10.2026)
+  await productForm.locator('summary', { hasText: 'Ещё' }).click();
   // подсказка «Заполняется из названия» входит в подпись поля, поэтому имя начинается с «Код»
   await expect(productForm.getByRole('textbox', { name: /^Код(\s|$)/ })).toHaveValue('CHAY-CHERNYY');
-  await productForm.getByLabel('Начальная цена, ₸').fill('500');
+  await productForm.getByLabel('Цена продажи, ₸').fill('500');
   await productForm.getByRole('button', { name: 'Добавить товар' }).click();
   await expect(productForm.getByRole('status')).toContainText('Товар добавлен');
   await page.keyboard.press('Escape');

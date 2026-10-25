@@ -1,18 +1,16 @@
 import { requireFeature } from '../../../lib/vertical-guard';
 import { unstable_rethrow } from 'next/navigation';
 import { barApi } from '../../../lib/api';
-import { formatMoney } from '../../../lib/money';
 import { Page } from '../../../components/page';
-import { Badge, Button, EmptyState, SectionTitle, Table } from '../../../components/ui';
+import { Button, EmptyState, SectionTitle } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
 import { toggleBarCatalogAction } from '../actions';
 import { loadBarContext } from '../load-context';
 import { BarCommandForm } from '../command-form';
-import { ProductPriceForm } from '../product-price-form';
 import { CategoryForm, ProductForm } from './catalog-forms';
+import { ProductsTable } from './products-table';
 import { BarTabs } from '../tabs';
 import { CatalogDialog } from '../catalog-dialog';
-import Link from 'next/link';
 import { deskShell } from '../../../lib/desk-shell';
 import { barActionAccess } from '../action-access';
 import '../bar.css';
@@ -32,8 +30,6 @@ export default async function BarProductsPage() {
   if (!categories.ok || !stock.ok) return null;
   // контекст денежных форм: сервер сверяет объект и валюту (D-CUR); у салона вместо объекта филиал
   const context = await loadBarContext();
-  const low = (item: { availableUnits: string; minimumStockUnits: string }) =>
-    BigInt(item.availableUnits) <= BigInt(item.minimumStockUnits);
   const rows = [...stock.value].sort((a, b) =>
     a.active === b.active ? a.name.localeCompare(b.name, 'ru') : a.active ? -1 : 1);
   // раздел меню «Склад» у всех направлений (решение владельца 19.10.2026)
@@ -60,26 +56,7 @@ export default async function BarProductsPage() {
       <SectionTitle>{t('Каталог и остатки')}</SectionTitle>
       {rows.length === 0
         ? <EmptyState icon={<Icon name="inventory" />} title={t('Товаров пока нет')}>{t('Добавьте первый товар кнопкой «Новый товар» вверху или загрузите накладную во вкладке «Приходы».')}</EmptyState>
-        : <Table density="compact" sticky="header" aria-label={shell.vertical === 'BEAUTY' ? t('Товары склада') : t('Товары бара')}>
-            <thead><tr><th>{t('Товар')}</th><th>{t('Остаток')}</th><th>{t('Цена продажи')}</th><th>{t('Действия')}</th></tr></thead>
-            <tbody>{rows.map((item) => <tr key={item.id} className={item.active ? undefined : 'is-void'}>
-              {/* название и код на разных строках (п.17); закупка и наценка в карточке товара на обзоре (п.16) */}
-              <td className="bar-product-name">
-                {item.active && rights.updateCatalog
-                  ? <Link href={`/bar?product=${item.id}`} prefetch={false} title={t('Закупка, наценка и остатки')}><b>{item.name}</b></Link>
-                  : <b>{item.name}</b>}
-                <small>{t('Код {code}', { code: item.code })}{item.category ? `, ${item.category.name}` : ''}</small>
-              </td>
-              <td><Badge tone={!item.active ? 'neutral' : low(item) ? 'warn' : 'ok'}>{t('{n} шт.', { n: item.availableUnits })}</Badge><small>{t('Минимум: {n} шт.', { n: item.minimumStockUnits })}</small></td>
-              <td>{item.active && rights.updateCatalog ? <ProductPriceForm productId={item.id} salePrice={item.salePrice} context={context} /> : formatMoney(item.salePrice, context.currency)}</td>
-              <td>{rights.archiveCatalog && <BarCommandForm context={context} action={toggleBarCatalogAction}>
-                <input type="hidden" name="kind" value="product" />
-                <input type="hidden" name="id" value={item.id} />
-                <input type="hidden" name="active" value={String(!item.active)} />
-                <Button type="submit" tone="ghost" size="xs">{item.active ? t('В архив') : t('Восстановить')}</Button>
-              </BarCommandForm>}</td>
-            </tr>)}</tbody>
-          </Table>}
+        : <ProductsTable rows={rows} categories={categories.value} context={context} rights={{ updateCatalog: rights.updateCatalog, archiveCatalog: rights.archiveCatalog }} label={shell.vertical === 'BEAUTY' ? t('Товары склада') : t('Товары бара')} />}
     </section>
   </Page>;
 }

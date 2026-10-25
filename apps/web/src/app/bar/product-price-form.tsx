@@ -1,5 +1,5 @@
 'use client';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useBarAction } from './use-bar-action';
 import { BarContextFields, type BarFormContext } from './context';
 
@@ -13,7 +13,8 @@ const initial: BarActionResult = { error: null, ok: 0 };
 
 /**
  * Цена продажи в строке номенклатуры (аудит 21.10.2026 п.16): сохраняется при уходе с поля или Enter, без синей кнопки
- * «Сохранить» в каждой строке; маленькая кнопка-галочка остаётся для мыши и читалки.
+ * «Сохранить» в каждой строке; маленькая кнопка-галочка высотой с поле появляется только у изменённой цены
+ * (владелец 25.10.2026: пустая растянутая кнопка в каждой строке выглядела криво).
  */
 export function ProductPriceForm({
   productId,
@@ -29,25 +30,35 @@ export function ProductPriceForm({
   // сохранённая цена приходит с сервера после revalidate; по ней решаем, менялось ли поле
   const saved = useRef(minorToInput(salePrice));
   saved.current = minorToInput(salePrice);
+  const [value, setValue] = useState<string | null>(null);
+  const dirty = value !== null && value.trim() !== '' && value.trim() !== saved.current;
   return (
     <form onSubmit={action} className="bar-price-form">
       <BarContextFields context={context} />
       <input type="hidden" name="id" value={productId} />
-      <Input
-        name="salePrice"
-        inputMode="decimal"
-        defaultValue={minorToInput(salePrice)}
-        aria-label={t('Своя цена продажи в {currency}', { currency: context.currency })}
-        required
-        onBlur={(event) => {
-          const value = event.currentTarget.value.trim();
-          if (!value || value === saved.current || pending) return;
-          event.currentTarget.form?.requestSubmit();
-        }}
-      />
-      <Button type="submit" size="xs" tone="ghost" disabled={pending} aria-label={t('Сохранить цену')} title={t('Сохранить цену')}>
-        <Icon name="check" width={16} height={16} />
-      </Button>
+      <span className="bar-price-form__field">
+        <Input
+          name="salePrice"
+          inputMode="decimal"
+          defaultValue={minorToInput(salePrice)}
+          aria-label={t('Своя цена продажи в {currency}', { currency: context.currency })}
+          required
+          onChange={(event) => setValue(event.currentTarget.value)}
+          onBlur={(event) => {
+            const value = event.currentTarget.value.trim();
+            if (!value || value === saved.current || pending) return;
+            event.currentTarget.form?.requestSubmit();
+          }}
+        />
+        <span className="bar-price-form__suffix" aria-hidden="true">
+          {context.currency === 'KZT' ? '₸' : context.currency}
+        </span>
+      </span>
+      {dirty && (
+        <Button type="submit" size="xs" tone="secondary" className="bar-price-form__save" disabled={pending} aria-label={t('Сохранить цену')} title={t('Сохранить цену')}>
+          <Icon name="check" width={16} height={16} />
+        </Button>
+      )}
       {state.error && (
         <small role="alert" className="bar-error">
           {state.error}

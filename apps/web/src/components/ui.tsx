@@ -33,12 +33,11 @@ import { statusLabel, statusTone, type StatusRegistry, type StatusTone } from '.
 export const cx = (...parts: Array<string | false | null | undefined>) =>
   parts.filter(Boolean).join(' ');
 
-export function Help({ children, title = msg('Подробнее') }: { children: ReactNode; title?: string }) {
+export function Help({ children, title = msg('Подробнее') }: { children: ReactNode; title?: ReactNode }) {
   return (
     <details className="context-help">
-      <summary>
-        <T text={title} />
-      </summary>
+      {/* строка переводится здесь, разметку (счётчик «Фильтры») переводит тот, кто её собрал */}
+      <summary>{typeof title === 'string' ? <T text={title} /> : title}</summary>
       <div>{children}</div>
     </details>
   );

@@ -36,7 +36,7 @@ async function expectEmptyCalendar(page: Page) {
   // без специалистов сетку не рисуем: одно пустое состояние с кнопками (аудит 21.10.2026, п. 15, 16, 36)
   await expect(page.getByTestId('beauty-grid')).toHaveCount(0);
   await expect(page.locator('.beauty-tile, .beauty-slot-free')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Новая запись', exact: true })).toBeDisabled();
   const setup = page.getByRole('status').filter({ hasText: 'Для новой записи нужны услуги' });
   await expect(setup.getByRole('link', { name: 'Добавить услугу', exact: true })).toHaveAttribute(
     'href',
@@ -100,7 +100,7 @@ async function seed(page: Page, request: APIRequestContext, fixture?: Fixture) {
   return { ...f, headers, employee: readyEmployee, service };
 }
 async function book(page: Page, name = 'Тестовая клиентка', time = '10:00') {
-  await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
+  await page.getByRole('button', { name: 'Новая запись', exact: true }).click();
   const panel = page.getByRole('dialog');
   await panel.getByLabel('Имя клиента', { exact: true }).fill(name);
   await panel.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });
@@ -321,7 +321,7 @@ test('overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY', 
   await expect(page.getByRole('button', { name: 'Добавить специалиста', exact: true })).toHaveCount(0);
   await request.post(`${api}/__test/control`, { data: { readOnly: true } });
   await page.goto(`/calendar?date=${day}`);
-  await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Новая запись', exact: true })).toBeDisabled();
   await page.locator('.beauty-grid-day .beauty-tile').click();
   await expect(page.getByRole('dialog')).toContainText('Тестовая клиентка');
   await expect(page.getByRole('dialog').getByRole('button', { name: 'Подтвердить' })).toHaveCount(
@@ -336,7 +336,7 @@ test('existing customer can be selected for another appointment without duplicat
   const f = await seed(page, request);
   await page.goto(`/calendar?date=${day}`);
   await expect(await book(page)).toBeHidden();
-  await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
+  await page.getByRole('button', { name: 'Новая запись', exact: true }).click();
   const panel = page.getByRole('dialog');
   await panel.getByLabel('Телефон или имя', { exact: true }).fill('Несуществующий клиент');
   await expect(panel.getByLabel('Клиент', { exact: true }).locator('option')).toHaveCount(1);
@@ -476,7 +476,7 @@ test('archived service and employee preserve historical calendar appointments', 
   expect(archived.ok(), `archive employee: HTTP ${archived.status()}, safe error ${JSON.stringify(safeError)}`).toBe(true);
   await page.reload();
   await expect(page.locator('.beauty-grid-day .beauty-tile')).toContainText('Тестовая клиентка');
-  await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Новая запись', exact: true })).toBeDisabled();
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByTestId('beauty-mobile-calendar')).toContainText('Тестовая клиентка');
   await page.goto(`/calendar?date=${day}&view=week`);
@@ -561,15 +561,18 @@ test('TimeOff via manager API with compact employee drawer, server denial and ti
 test('DS1c: day navigation keeps the previous addresses', async ({ page, request }) => {
   await reset(page, request);
   await page.goto('/calendar?date=2026-10-12');
-  const bar = page.locator('.date-bar');
-  await expect(bar.getByTestId('beauty-day-date')).toHaveValue('2026-10-12');
+  // единая шапка журнала (24.10.2026): день в рамке со стрелками, выбор дня в том же окне, что период гостиницы
+  const bar = page.getByTestId('beauty-day-nav');
+  await expect(bar.getByLabel('Выбрать день')).toContainText(/^12 окт/);
   await bar.getByRole('button', { name: 'Следующий день' }).click();
   await expect(page).toHaveURL(/\/calendar\?date=2026-10-13$/);
   await bar.getByRole('button', { name: 'Предыдущий день' }).click();
   await expect(page).toHaveURL(/\/calendar\?date=2026-10-12$/);
-  await bar.getByLabel('Дата', { exact: true }).fill('2026-10-20');
+  await bar.getByLabel('Выбрать день').click();
+  await page.getByLabel('Календарь периода').getByRole('button', { name: /^20 окт/ }).click();
   await expect(page).toHaveURL(/\/calendar\?date=2026-10-20$/);
-  await bar.getByRole('button', { name: 'Сегодня', exact: true }).click();
+  await bar.getByLabel('Выбрать день').click();
+  await page.getByRole('group', { name: 'Готовые периоды' }).getByRole('button', { name: 'Сегодня', exact: true }).click();
   await expect(page).toHaveURL(/\/calendar$/);
 });
 
@@ -606,7 +609,7 @@ test('Beauty onboarding v2 completes a ready branch and resumes Today', async ({
   await expect(page.getByTestId('beauty-today')).toBeVisible();
   await page.goto(`/calendar?date=${day}`);
   await expect(page.getByTestId('beauty-grid')).toBeVisible();
-  await expect(page.getByRole('button', { name: '+ Новая запись', exact: true })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Новая запись', exact: true })).toBeEnabled();
   await page.goto('/register/setup?entry=1');
   await expect(page).toHaveURL(/\/today$/);
 });
@@ -619,9 +622,9 @@ test('новая запись: свободное время мастера кн
   await seed(page, request);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(`/calendar?date=${day}`);
-  await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
+  await page.getByRole('button', { name: 'Новая запись', exact: true }).click();
   const panel = page.getByRole('dialog');
-  await expect(panel.getByRole('region', { name: 'Услуга и время' })).toBeVisible();
+  await expect(panel.getByRole('region', { name: 'Выбор времени записи' })).toBeVisible();
   await panel.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });
   const slots = panel.getByTestId('slot-group');
   await expect(slots).toBeVisible();

@@ -6,7 +6,7 @@ for (const entry of ['calendar', 'appointments']) {
     test.setTimeout(180000);
     await seed(page, request);
     await page.goto(`/${entry}?date=${date}`);
-    const open = () => page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
+    const open = () => page.getByRole('button', { name: 'Новая запись', exact: true }).click();
     const panel = page.getByRole('dialog', { name: 'Новая запись', exact: true });
     await open();
     await page.keyboard.press('Escape');
@@ -44,7 +44,7 @@ for (const entry of ['calendar', 'appointments']) {
   test(`F02 ${entry} validation conflict success and double click`, async ({ page, request }) => {
     const f = await seed(page, request); await f.book('10:00');
     await page.goto(`/${entry}?date=${date}`);
-    await page.getByRole('button', { name: '+ Новая запись', exact: true }).click();
+    await page.getByRole('button', { name: 'Новая запись', exact: true }).click();
     const p = page.getByRole('dialog', { name:'Новая запись',exact:true });
     await p.getByRole('button', {name:'Записать',exact:true}).click();
     await expect(p).toBeVisible();
@@ -62,7 +62,7 @@ for (const entry of ['calendar', 'appointments']) {
   });
   test(`F02 ${entry} cross tab scope switch rejects stale form without POST`, async ({page,request})=>{
     const f=await seed(page,request);await page.goto(`/${entry}?date=${date}`);
-    await page.getByRole('button',{name:'+ Новая запись',exact:true}).click();
+    await page.getByRole('button',{name:'Новая запись',exact:true}).click();
     const p=page.getByRole('dialog',{name:'Новая запись',exact:true});
     await p.getByLabel('Имя клиента',{exact:true}).fill('Тест старый филиал');
     await p.getByLabel('Услуга',{exact:true}).selectOption(f.services[0].id);

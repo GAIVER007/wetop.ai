@@ -401,4 +401,8 @@ export const hotelBoard: Record<string, string> = {
   'отменена': 'canceled',
   'незаезд': 'no-show',
   'убрано': 'cleaned',
+  // merge of main 24.10: unified journal head
+  "Все номера": "All rooms",
+  "Не удалось загрузить брони за период.": "Could not load bookings for the period.",
+  "Не удалось загрузить брони за период. Повторите попытку.": "Could not load bookings for the period. Please try again.",
 };

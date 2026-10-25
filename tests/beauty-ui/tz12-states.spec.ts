@@ -20,7 +20,7 @@ test('empty one dense no result and real API error remain distinct', async ({ pa
   await f.book('10:00');
   await page.reload();
   await expect(page.getByTestId('beauty-day-summary')).toHaveText('Записей: 1');
-  await page.locator('.beauty-calendar-toolbar').getByText('Фильтры', { exact: true }).click();
+  // единая шапка: на компьютере статус в строке отборов, на телефоне в «Фильтрах»
   await page.getByLabel('Статус записи', { exact: true }).selectOption('DONE');
   await expect(page.getByTestId('beauty-day-summary')).toContainText('По выбранным фильтрам');
   const db = new pg.Client({ connectionString: process.env.DATABASE_URL });
@@ -54,7 +54,7 @@ for (const theme of ['light', 'dark'] as const)
         const timeline = await new AxeBuilder({ page }).include('[data-testid="beauty-mobile-calendar"]').withTags(['wcag2aa']).analyze();
         expect(timeline.violations).toEqual([]);
       }
-      const create = page.getByRole('button', { name: '+ Новая запись', exact: true });
+      const create = page.getByRole('button', { name: 'Новая запись', exact: true });
       const box = (await create.boundingBox())!;
       expect(box.height).toBeGreaterThanOrEqual(44);
       await create.focus();

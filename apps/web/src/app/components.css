@@ -3043,6 +3043,12 @@
     background: var(--surface-elevated);
     box-shadow: var(--shadow-floating);
   }
+  /* место окна считает `panelPlacement` при открытии: под кнопкой и всегда внутри экрана (23.10.2026) */
+  .date-range__panel[data-placed] {
+    position: fixed;
+    right: auto;
+    max-height: calc(100dvh - var(--space-8));
+  }
   .date-range__body {
     display: grid;
     grid-template-columns: 205px minmax(0, 1fr);

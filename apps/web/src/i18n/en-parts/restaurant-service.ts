@@ -387,4 +387,12 @@ export const restaurantService: Record<string, string> = {
   'столов': 'tables',
   '← Столы': '← Tables',
   'Без брони': 'Walk-in',
+  // merge of main 24.10: unified journal head
+  "Расписание столов на день": "Table schedule for the day",
+  "Сегодня в зале": "Today in the hall",
+  "сидят": "seated",
+  "свободно столов": "tables free",
+  "на уборке": "being cleaned",
+  "Гость, телефон": "Guest, phone",
+  "Зона, смена и статус": "Area, shift and status",
 };

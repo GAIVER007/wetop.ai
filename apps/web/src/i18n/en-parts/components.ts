@@ -186,4 +186,16 @@ export const components: Record<string, string> = {
   "Всё, кроме владельческого": 'Everything except owner-only',
   "Всё, что у администратора": 'Everything an administrator has',
   "Платные расширения и управляющие": 'Paid add-ons and managers',
+  // merge of main 24.10: unified journal head
+  "Выбрать день": "Select day",
+  "Выберите день": "Choose a day",
+  "Броней": "Bookings",
+  "Заездов": "Arrivals",
+  "Выездов": "Departures",
+  "Не оплачено по броням": "Unpaid on bookings",
+  "Остаток к оплате по броням, которые живут в выбранные дни, как плашка суммы на календаре.": "Balance due on bookings staying on the selected days, as on the calendar amount badge.",
+  "Брони считаются по календарю номеров: бронь без назначенного номера в отчёт не входит. Начисления и оплаты за период смотрите в «Финансах».": "Bookings are counted from the room calendar: a booking without an assigned room is not included. See charges and payments for the period in Finance.",
+  "День журнала": "Journal day",
+  "Период и действия журнала": "Journal period and actions",
+  "Отборы журнала": "Journal filters",
 };

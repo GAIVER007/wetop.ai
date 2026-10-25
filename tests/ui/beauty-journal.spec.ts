@@ -98,7 +98,9 @@ async function readySalon(page: Page, request: APIRequestContext) {
 
 async function openDay(page: Page) {
   await page.goto(`/beauty?date=${DAY}`);
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Журнал');
+  // заголовок страницы скрыт визуально, видимый заголовок в единой шапке журнала (решение 24.10.2026)
+  await expect(page.getByRole('main').getByRole('heading', { level: 1, name: 'Журнал' })).toBeAttached();
+  await expect(page.getByTestId('beauty-day-nav')).toBeVisible();
 }
 
 async function book(page: Page, time: string, name: string) {
@@ -114,6 +116,8 @@ async function book(page: Page, time: string, name: string) {
 }
 
 test('запись из пустой клетки появляется в сетке и в списке дня', async ({ page, request }) => {
+  // запись, панель дня, отбор мастера: 4 страницы с холодной сборкой, 45 с мало под нагрузкой
+  test.setTimeout(120_000);
   await readySalon(page, request);
   await openDay(page);
   const main = page.getByRole('main');
@@ -129,9 +133,11 @@ test('запись из пустой клетки появляется в сет
   // журнал на весь экран (решение владельца 20.10.2026): списка специалистов слева нет, сетка во всю ширину,
   // специалист в шапке колонки с числом записей; нажатие на него оставляет только его колонку
   await expect(main.getByRole('complementary', { name: 'Специалисты' })).toHaveCount(0);
+  // сетка и панель дня справа (вариант B, 24.10.2026) вместе занимают всю ширину
   const board = (await main.getByTestId('beauty-grid').boundingBox())!;
+  const dayPanel = (await main.getByRole('complementary', { name: 'Панель дня' }).boundingBox())!;
   const content = (await main.boundingBox())!;
-  expect(board.width).toBeGreaterThan(content.width * 0.85);
+  expect(board.width + dayPanel.width).toBeGreaterThan(content.width * 0.85);
   const person = main.getByTestId('beauty-grid').locator('.beauty-col-person').first();
   await expect(person.getByTestId('beauty-col-count')).toHaveText('1');
   await page.screenshot({ path: `${SNAPSHOTS}/journal-1440.png`, fullPage: true });
@@ -401,8 +407,9 @@ test('быстрый отчёт календаря: пустой день, ка�
   await openDay(page);
   const trigger = page.getByRole('button', { name: 'Быстрый отчёт', exact: true });
   await expect(trigger).toBeVisible();
-  await page.getByRole('button', { name: /^Открыть календарь/ }).click();
-  const calendar = page.getByRole('dialog', { name: 'Календарь', exact: true });
+  // день выбирает то же окно, что период календаря гостиницы (единая шапка)
+  await page.getByTestId('beauty-day-nav').getByLabel('Выбрать день').click();
+  const calendar = page.getByLabel('Календарь периода');
   await expect(calendar).toBeVisible();
   await calendar.getByRole('button', { name: 'Следующий месяц' }).click();
   await calendar.getByRole('button', { name: 'Предыдущий месяц' }).click();
@@ -555,7 +562,7 @@ test('быстрый отчёт календаря: выбранный маст�
   });
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Следующий день', exact: true }).click();
-  await expect(page.getByTestId('beauty-day-date')).toHaveValue('2026-10-13');
+  await expect(page).toHaveURL(/date=2026-10-13/);
   await expect(page.locator('.employee-filter summary')).toContainText('Дина');
   await page.getByRole('button', { name: 'Быстрый отчёт', exact: true }).click();
   report = page.getByRole('dialog', { name: /Статистика за/ });

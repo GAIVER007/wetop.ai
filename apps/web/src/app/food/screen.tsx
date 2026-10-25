@@ -41,6 +41,8 @@ export async function FoodScreen({
         title={title}
         // эталон владельца 13.10.2026 (зал ресторана): подпись под заголовком плана
         subtitle={kind === 'floor' ? t('Бронирования столов и загрузка зала') : undefined}
+        // журнал (план зала и расписание): видимая шапка общая `JournalHead` (23.10.2026)
+        className={kind === 'catalog' ? '' : 'journal-page'}
       >
         <div key={data.scopeKey}>
           {manual && manual.items.length > 0 && (

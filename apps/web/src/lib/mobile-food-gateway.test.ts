@@ -944,3 +944,63 @@ describe('mobile payment preparation', () => {
     }
   });
 });
+
+describe('mobile payment submission', () => {
+  const env = { ...ENABLED, MOBILE_ORDER_PAYMENT_ENABLED: '1' };
+  const body = { orderId: B, method: 'CASH', amount: 1234, idempotencyKey: 'payment-one' };
+  const req = (value: unknown = body) =>
+    request('pay', {
+      method: 'POST',
+      headers: authorized({ 'content-type': 'application/json' }),
+      body: JSON.stringify(value),
+    });
+  it('forwards exact integer amount and original key once to order payment endpoint', async () => {
+    const fetcher = vi.fn(async () => upstream({ message: 'not allowed' }, 403));
+    const result = await handleMobileFoodGateway(req(), 'pay', env, fetcher);
+    expect(result.status).toBe(403);
+    const [url, init] = fetcher.mock.calls[0]! as unknown as [string, RequestInit];
+    expect(url).toBe(`http://127.0.0.1:3001/food-service/orders/${B}/payments`);
+    expect(JSON.parse(init.body as string)).toEqual({
+      method: 'CASH',
+      amount: 1234,
+      idempotencyKey: 'payment-one',
+      itemIds: null,
+    });
+    expect(new Headers(init.headers).get('authorization')).toBe(`Bearer ${TOKEN}`);
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+  it('rejects malformed money, missing key, foreign path and extra fields without upstream', async () => {
+    const fetcher = vi.fn();
+    for (const value of [
+      { ...body, amount: 1.1 },
+      { ...body, amount: Number.MAX_SAFE_INTEGER + 1 },
+      { ...body, idempotencyKey: '' },
+      { ...body, orderId: '../other' },
+      { ...body, total: 1 },
+    ])
+      expect((await handleMobileFoodGateway(req(value), 'pay', env, fetcher)).status).toBe(400);
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it('keeps payment disabled separately and rejects GET mutations', async () => {
+    const fetcher = vi.fn();
+    expect((await handleMobileFoodGateway(req(), 'pay', ENABLED, fetcher)).status).toBe(405);
+    expect(
+      (
+        await handleMobileFoodGateway(
+          request('pay', { headers: authorized() }),
+          'pay',
+          env,
+          fetcher,
+        )
+      ).status,
+    ).toBe(405);
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it('lost reply stays unknown with no automatic retry', async () => {
+    const fetcher = vi.fn().mockRejectedValue(new Error('lost'));
+    const result = await handleMobileFoodGateway(req(), 'pay', env, fetcher);
+    expect(result.status).toBe(503);
+    expect(await result.json()).toMatchObject({ outcome: 'unknown' });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+});

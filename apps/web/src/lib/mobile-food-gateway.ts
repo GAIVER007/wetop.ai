@@ -1,4 +1,4 @@
-import { parseOrderCreate, FOOD_PAYMENT_METHODS } from '@pms/domain';
+import { parseOrderCreate, parseFoodPayment, FOOD_PAYMENT_METHODS } from '@pms/domain';
 
 export type MobileFoodGatewayEnv = Record<string, string | undefined>;
 type MobileFetch = (input: string, init: RequestInit) => Promise<Response>;
@@ -14,6 +14,7 @@ const SIGNED_MINOR_UNITS = /^-?\d+$/;
 
 const ACTIONS = {
   'payment-methods': '/food-service/payment-methods',
+  pay: '/food-service/orders',
   serve: '/food-service/orders',
   tables: '/food-service/waiter/tables',
   orders: '/food-service/orders',
@@ -580,10 +581,16 @@ export async function handleMobileFoodGateway(
     request.method === 'POST' && action === 'orders' && env.MOBILE_ORDER_CREATE_ENABLED === '1';
   const serving =
     request.method === 'POST' && action === 'serve' && env.MOBILE_ORDER_SERVE_ENABLED === '1';
-  const mutating = creating || serving;
-  if ((!mutating && request.method !== 'GET') || (action === 'serve' && !serving))
+  const paying =
+    request.method === 'POST' && action === 'pay' && env.MOBILE_ORDER_PAYMENT_ENABLED === '1';
+  const mutating = creating || serving || paying;
+  if (
+    (!mutating && request.method !== 'GET') ||
+    (action === 'serve' && !serving) ||
+    (action === 'pay' && !paying)
+  )
     return json({ message: 'Метод не поддерживается' }, 405, {
-      allow: action === 'serve' ? 'POST' : 'GET',
+      allow: action === 'serve' || action === 'pay' ? 'POST' : 'GET',
     });
   if (hasServiceCredential(request)) return json({ message: 'Служебные ключи запрещены' }, 403);
 
@@ -594,7 +601,7 @@ export async function handleMobileFoodGateway(
     return json({ message: 'Некорректный рабочий контекст' }, 400);
 
   let body: string | undefined;
-  let servePath: string | undefined;
+  let mutationPath: string | undefined;
   if (mutating) {
     if (new URL(request.url).search) return json({ message: 'Некорректный запрос' }, 400);
     if (
@@ -614,7 +621,14 @@ export async function handleMobileFoodGateway(
     }
     if (text === null) return json({ message: 'Запрос слишком большой' }, 413);
     try {
-      if (serving) {
+      if (paying) {
+        const { orderId, ...fields } = record(JSON.parse(text));
+        if (typeof orderId !== 'string' || !UUID_RE.test(orderId))
+          throw new InvalidUpstreamResponse();
+        const payment = parseFoodPayment(fields);
+        mutationPath = `/food-service/orders/${orderId}/payments`;
+        body = JSON.stringify({ ...payment, amount: Number(payment.amount) });
+      } else if (serving) {
         const input = record(JSON.parse(text));
         if (
           Object.keys(input).some(
@@ -629,7 +643,7 @@ export async function handleMobileFoodGateway(
           !Number.isFinite(Date.parse(input.expectedUpdatedAt))
         )
           throw new InvalidUpstreamResponse();
-        servePath = `/food-service/orders/${input.orderId}/items/${input.itemId}/status`;
+        mutationPath = `/food-service/orders/${input.orderId}/items/${input.itemId}/status`;
         body = JSON.stringify({ status: 'SERVED', expectedUpdatedAt: input.expectedUpdatedAt });
       } else {
         const input = parseOrderCreate(JSON.parse(text));
@@ -645,12 +659,14 @@ export async function handleMobileFoodGateway(
       {
         message: serving
           ? 'Результат не подтверждён. Обновите заказ перед следующим действием.'
-          : 'Результат отправки не подтверждён. Повторяйте только с прежним ключом заказа.',
+          : paying
+            ? 'Результат оплаты не подтверждён. Повторяйте только исходный платёж с прежним ключом.'
+            : 'Результат отправки не подтверждён. Повторяйте только с прежним ключом заказа.',
         outcome: 'unknown',
       },
       status,
     );
-  const path = servePath ?? (creating ? ACTIONS.orders : upstreamPath(request, action));
+  const path = mutationPath ?? (creating ? ACTIONS.orders : upstreamPath(request, action));
   if (path instanceof Response) return path;
   const url = endpoint(env, path);
   if (!url) return json({ message: 'Сервис временно недоступен. Попробуйте ещё раз.' }, 503);

@@ -1,3 +1,4 @@
+import type { PendingPayment } from '../restaurant/pending-payment';
 import type { PendingOrder } from '../restaurant/pending-order';
 export type User = {
   id: string;
@@ -52,6 +53,7 @@ export interface AccessApi {
     itemId: string,
     expectedUpdatedAt: string,
   ): Promise<unknown>;
+  payOrder(token: string, scope: string, request: PendingPayment['request']): Promise<unknown>;
   reset(email: string): Promise<void>;
 }
 export interface TokenStore {

@@ -91,7 +91,8 @@ test('подсказка поиска: «⌘ K» на Mac, «Ctrl K» на ос�
     Object.defineProperty(navigator, 'platform', { get: () => 'Win32' });
   });
   await page.goto('/finance');
-  await expect(page.locator('.workspace-search kbd')).toHaveText('Ctrl K');
+  // шапка 24.10.2026: у знака дата и время, поиск значком лупы, клавиши в подсказке значка
+  await expect(page.locator('.workspace-search')).toHaveAttribute('title', /\(Ctrl K\)$/);
 });
 
 /**

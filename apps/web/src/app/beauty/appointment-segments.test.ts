@@ -11,7 +11,7 @@ vi.mock('next/navigation', () => ({
 }));
 vi.mock('./appointment-editor', () => ({ AppointmentEditor: () => null }));
 vi.mock('./appointment-card', () => ({ AppointmentCard: () => createElement('div', null, 'Synthetic appointment card') }));
-vi.mock('./date-bar', () => ({ DateBar: () => null }));
+vi.mock('../../components/day-nav', () => ({ DayNav: () => null }));
 vi.mock('./journal-actions', () => ({ moveAppointment: vi.fn(), beautyPeriodRows: vi.fn() }));
 vi.mock('../../components/quick-report', () => ({ QuickReport: () => null }));
 

@@ -3,6 +3,7 @@ import { useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
+import { Icon } from '../../components/icon';
 import {
   Alert,
   Button,
@@ -232,7 +233,8 @@ export function AppointmentsList({
             </Button>
           </form>
           <Button disabled={!canStart} onClick={() => setCreating(true)}>
-            {t('+ Новая запись')}
+            <Icon name="plus" aria-hidden="true" />
+            {t('Новая запись')}
           </Button>
         </div>
         {creationUnavailableReason && <Alert>{creationUnavailableReason}</Alert>}

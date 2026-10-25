@@ -108,11 +108,12 @@ test('9. размеры шрифта на главной и в «Аналити�
     // блоки владельца держат утверждённую шкалу; у сводки кассы своё утверждённое оформление 05.10
     for (const block of ['.owner-load', '.biz-today', '.biz-attention'])
       expect(await offScale(main.locator(block)), `${block}, ширина ${width}`).toEqual([]);
-    // «Показатели за период» с AN2 — «Аналитика» (ADR-114): шесть плиток в ряд, число --text-3xl (26 px)
+    // «Показатели за период» (ADR-114) без плиток с 23.10.2026 (docs/decisions/2026-10-23-unified-journal.md):
+    // одна полоса, число --text-xl (19 px) на шкале
     await page.goto('/management/analytics?period=week');
     await expect(main.getByTestId('pa-chart-occupancy')).toBeVisible();
     expect(await offScale(main), `аналитика, обзор, ширина ${width}`).toEqual([]);
-    if (width === 1440) expect(await fontSize(main.getByTestId('pa-kpi-occupancy'))).toBe('26px');
+    if (width === 1440) expect(await fontSize(main.getByTestId('pa-kpi-occupancy'))).toBe('19px');
     await page.goto('/management/analytics/occupancy');
     await expect(main.getByTestId('statistics-table')).toBeVisible();
     expect(await offScale(main), `аналитика, загрузка, ширина ${width}`).toEqual([]);

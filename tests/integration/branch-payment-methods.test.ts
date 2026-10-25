@@ -44,11 +44,14 @@ describe('способы оплаты филиала (integration, §21.7)', () 
       },
       fn,
     );
+  // прежние шесть и «Другое» последним (PAYMENT-OTHER-20261025): без строки «Другое» выключено
   const six = (off: string[] = [], order?: string[]) =>
-    (order ?? ['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL']).map((method) => ({
-      method,
-      enabled: !off.includes(method),
-    }));
+    [...(order ?? ['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL']), 'OTHER'].map(
+      (method) => ({
+        method,
+        enabled: method !== 'OTHER' && !off.includes(method),
+      }),
+    );
 
   beforeAll(async () => {
     db = createPrismaClient(url);
@@ -139,7 +142,7 @@ describe('способы оплаты филиала (integration, §21.7)', () 
     }
   });
 
-  it('API: без строк все шесть; сохранение порядка и включения, журнал, повтор без изменений не пишет', async () => {
+  it('API: без строк прежние шесть, «Другое» выключено; сохранение порядка и включения, журнал, повтор без изменений не пишет', async () => {
     expect((await as('FOOD_SERVICE', () => methods.get())).methods).toEqual(six());
     await expect(as('FOOD_SERVICE', () => methods.update({ methods: six(['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL']) }))).rejects.toThrow(
       'Хотя бы один способ оплаты должен быть включён',
@@ -187,5 +190,26 @@ describe('способы оплаты филиала (integration, §21.7)', () 
     ).rejects.toThrow('Способ оплаты «Kaspi» выключен в настройках филиала');
     const sold = await as('BEAUTY', () => loyalty.sell({ amountMinor: 500000, method: 'CASH', idempotencyKey: randomUUID() }));
     expect(sold).toBeTruthy();
+  });
+
+  it('«Другое» (миграция 158): выключено, пока не включили; включённое принимает деньги в кассу; гостиница его не принимает', async () => {
+    const off = 'Способ оплаты «Другое» выключен в настройках филиала';
+    await expect(as('FOOD_SERVICE', () => food.cashOperation({ kind: 'INCOME', method: 'OTHER', amount: 100 }))).rejects.toThrow(off);
+    const on = six().map((m) => ({ ...m, enabled: m.method === 'OTHER' ? true : m.enabled }));
+    expect((await as('FOOD_SERVICE', () => methods.update({ methods: on }))).methods).toEqual(on);
+    await as('FOOD_SERVICE', () => food.cashOperation({ kind: 'INCOME', method: 'OTHER', amount: 2500, note: 'ссылка на оплату' }));
+    const cash = await as('FOOD_SERVICE', () => food.cash({}));
+    const other = cash.balances.find((b: { method: string }) => b.method === 'OTHER');
+    expect(BigInt(other?.balanceMinor ?? '0') > 0n).toBe(true);
+    // гостиница: таблицы объекта закрыты для OTHER проверками базы (миграция 158)
+    const checks = await db.$queryRawUnsafe<Array<{ conname: string }>>(
+      `SELECT conname FROM pg_constraint WHERE conname LIKE '%method_not_other' ORDER BY conname`,
+    );
+    expect(checks.map((c) => c.conname)).toEqual([
+      'cash_operations_method_not_other',
+      'cash_reconciliations_method_not_other',
+      'payment_method_settings_method_not_other',
+      'payments_method_not_other',
+    ]);
   });
 });

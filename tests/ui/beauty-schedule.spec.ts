@@ -121,15 +121,12 @@ test('«Сделать рабочим» и «Сохранить» сохраня
 });
 
 /** Понедельник текущей недели, как его считает страница по умолчанию */
-/**
- * Понедельник недели, которую показывает сетка: она считает «сегодня» в поясе филиала (Asia/Almaty у стенда), а не
- * по часам браузера. По часам раннера (UTC) вечер воскресенья давал прошлую неделю, и запись ложилась не в ту среду
- * (гейт PR #852, 21:00 UTC = 02:00 понедельника в Алматы).
- */
 async function thisMonday(page: Page) {
+  // неделя салона по его часовому поясу (Алматы), как у страницы: по часам раннера (UTC) с 19:00 до полуночи
+  // воскресенья «эта неделя» теста была прошлой неделей страницы (гейт #863, 25.10.2026, 20:00 UTC)
   return page.evaluate(() => {
-    const [y, m, day] = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date()).split('-').map(Number);
-    const d = new Date(Date.UTC(y!, m! - 1, day!, 12));
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+    const d = new Date(`${today}T12:00:00Z`);
     d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
     return d.toISOString().slice(0, 10);
   });

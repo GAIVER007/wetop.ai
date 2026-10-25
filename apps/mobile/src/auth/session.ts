@@ -1,3 +1,4 @@
+import type { PendingOrder } from '../restaurant/pending-order';
 import {
   AccessError,
   type AccessApi,
@@ -245,6 +246,9 @@ export class SessionController {
   }
   readStaffRevenue(period: 'day' | 'week' | 'month'): Promise<unknown> {
     return this.scopedFood((token, scope) => this.api.staffRevenue(token, scope, period));
+  }
+  createOrder(request: PendingOrder['request']): Promise<unknown> {
+    return this.scopedFood((token, scope) => this.api.createOrder(token, scope, request));
   }
   async changeBranch() {
     if (this.state.kind !== 'ready') return;

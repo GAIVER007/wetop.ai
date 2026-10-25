@@ -1,3 +1,4 @@
+import type { PendingOrder } from '../restaurant/pending-order';
 export type User = {
   id: string;
   name: string | null;
@@ -43,6 +44,7 @@ export interface AccessApi {
     cursor?: string,
   ): Promise<unknown>;
   staffRevenue(token: string, scope: string, period: 'day' | 'week' | 'month'): Promise<unknown>;
+  createOrder(token: string, scope: string, request: PendingOrder['request']): Promise<unknown>;
   reset(email: string): Promise<void>;
 }
 export interface TokenStore {

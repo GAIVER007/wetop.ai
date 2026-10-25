@@ -39,6 +39,7 @@ function fixture() {
     food: jest.fn(),
     report: jest.fn(),
     staffRevenue: jest.fn(),
+    createOrder: jest.fn(),
     reset: jest.fn().mockResolvedValue(undefined),
   };
   return { api, store, session: new SessionController(api, store) };
@@ -229,3 +230,44 @@ test.each(['rotation', 'context', 'user'])(
     expect(api.logout).toHaveBeenCalledWith('rotated');
   },
 );
+
+test('order creation requires ready context and rejects late results after branch change', async () => {
+  const { session, api } = fixture();
+  const request = { creationRequestKey: 'attempt-1', tableId: null, guestCount: 1, items: [] };
+  await expect(session.createOrder(request)).rejects.toMatchObject({ kind: 'forbidden' });
+  expect(api.createOrder).not.toHaveBeenCalled();
+  await session.login('test@example.invalid', 'fixture');
+  let resolve!: (value: unknown) => void;
+  api.createOrder.mockImplementation(
+    () =>
+      new Promise((done) => {
+        resolve = done;
+      }),
+  );
+  const result = session.createOrder(request);
+  expect(api.createOrder).toHaveBeenCalledWith(
+    'fixture-token',
+    'business=biz-01;location=loc-01',
+    request,
+  );
+  await session.changeBranch();
+  resolve({ id: 'order' });
+  await expect(result).rejects.toMatchObject({ kind: 'forbidden' });
+});
+
+test('order creation with expired session clears access without retry', async () => {
+  const { session, api, store } = fixture();
+  await session.login('test@example.invalid', 'fixture');
+  api.createOrder.mockRejectedValue(new AccessError('unauthorized'));
+  await expect(
+    session.createOrder({
+      creationRequestKey: 'attempt-1',
+      tableId: null,
+      guestCount: 1,
+      items: [],
+    }),
+  ).rejects.toMatchObject({ kind: 'unauthorized' });
+  expect(api.createOrder).toHaveBeenCalledTimes(1);
+  expect(store.clear).toHaveBeenCalled();
+  expect(session.state.kind).toBe('signed-out');
+});

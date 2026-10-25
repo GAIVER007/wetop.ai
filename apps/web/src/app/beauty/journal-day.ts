@@ -61,6 +61,21 @@ export function dayMoney(
   return { received, waiting, currency: rows[0]?.currency ?? fallbackCurrency };
 }
 
+/**
+ * Оплата на плашке записи (владелец 25.10.2026: «400 QAR Не опл…» обрезалось в узкой колонке): короткое слово, которое
+ * помещается всегда, и полное для подсказки и читалки. Неявка денег не ждёт, оплаты на ней нет.
+ */
+export function tilePayment(
+  row: Pick<BeautyAppointmentRow, 'status' | 'priceMinor' | 'paidMinor'>,
+): { kind: 'paid' | 'partial' | 'debt'; word: string; full: string } | null {
+  if (row.status === 'NO_SHOW') return null;
+  const paid = BigInt(row.paidMinor || '0');
+  const price = BigInt(row.priceMinor || '0');
+  if (paid >= price) return { kind: 'paid', word: msg('Оплачено'), full: msg('Оплачено') };
+  if (paid > 0n) return { kind: 'partial', word: msg('Частично'), full: msg('Оплачено частично') };
+  return { kind: 'debt', word: msg('Долг'), full: msg('Не оплачено') };
+}
+
 /** Имя мастера в узкой колонке, когда мастеров 5 и больше: «Айгерим С.» (полное имя в подсказке) */
 export function shortName(name: string): string {
   const [first, second] = name.trim().split(/\s+/);

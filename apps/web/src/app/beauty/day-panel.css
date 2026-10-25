@@ -196,10 +196,13 @@
     border-left-color: var(--danger);
     background: var(--danger-soft);
   }
+  /* плашка читается целиком (владелец 25.10.2026): время и клиент сверху (клиент переносится, а не режется),
+     услуга своей строкой до двух строк, внизу цена, оплата точкой со словом и статус; ничего не обрезается троеточием */
   .beauty-tile-top {
     display: flex;
-    justify-content: space-between;
-    gap: var(--space-1);
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--space-1);
     font-size: var(--text-xs);
   }
   .beauty-tile-status {
@@ -208,23 +211,53 @@
     white-space: nowrap;
   }
   .beauty-page .beauty-grid-day .beauty-tile-name {
-    overflow: hidden;
+    min-width: 0;
     font-size: var(--text-sm);
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: var(--leading-tight);
+    overflow-wrap: anywhere;
   }
   .beauty-page .beauty-grid-day .beauty-tile .beauty-tile-service {
+    display: -webkit-box;
     overflow: hidden;
     color: var(--text-2);
     font-size: var(--text-xs);
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: var(--leading-tight);
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
   .beauty-tile-money {
     display: flex;
-    justify-content: space-between;
-    gap: var(--space-1);
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 var(--space-1);
     font-size: var(--text-xs);
+  }
+  .beauty-tile-pay {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-weight: var(--weight-semibold);
+    white-space: nowrap;
+  }
+  .beauty-tile-dot {
+    flex: none;
+    width: var(--space-2);
+    height: var(--space-2);
+    border-radius: var(--radius-full);
+    background: currentColor;
+  }
+  .beauty-tile-pay--paid {
+    color: var(--success);
+  }
+  .beauty-tile-pay--partial {
+    color: var(--info);
+  }
+  .beauty-tile-pay--debt {
+    color: var(--warning);
+  }
+  .beauty-tile-money > .beauty-tile-status {
+    margin-left: auto;
   }
 
   /* нерабочее время и перерыв штриховкой, подпись словами остаётся */
@@ -248,10 +281,6 @@
   .beauty-page .beauty-grid-day .beauty-tile-top {
     min-width: 0;
   }
-  .beauty-page .beauty-grid-day .beauty-tile-status {
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
   .beauty-page .beauty-grid-day .beauty-tile-money > * {
     white-space: nowrap;
   }
@@ -268,10 +297,6 @@
     clip-path: inset(50%);
     white-space: nowrap;
   }
-  .beauty-page .beauty-grid-day--dense .beauty-tile-top,
-  .beauty-page .beauty-grid-day--dense .beauty-tile-money {
-    flex-wrap: nowrap;
-  }
   .beauty-page .beauty-grid-day--dense .beauty-tile-name,
   .beauty-page .beauty-grid-day--dense .beauty-tile-service {
     line-height: var(--leading-tight);
@@ -283,8 +308,5 @@
   }
   .beauty-page .beauty-grid-day--dense .beauty-tile {
     padding-right: var(--space-1);
-  }
-  .beauty-page .beauty-grid-day--dense .beauty-tile-money {
-    overflow: hidden;
   }
 }

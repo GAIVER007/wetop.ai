@@ -31,7 +31,7 @@ import { DayNav } from '../../components/day-nav';
 import { JournalFilter, JournalHead, JournalSearch, FiltersTitle } from '../../components/journal-head';
 import { useNarrow, useWide } from '../../lib/use-narrow';
 import { DayPanel } from './day-panel';
-import { masterLoad, shortHour, shortName } from './journal-day';
+import { masterLoad, shortHour, shortName, tilePayment } from './journal-day';
 import { clock, clockMinutes, instantOf, localInput } from './time';
 import { beautyPeriodRows, moveAppointment } from './journal-actions';
 import { beautyStatus } from '../../lib/status/beauty';
@@ -319,7 +319,14 @@ export function JournalBoard({
             }}
             className={`beauty-tile beauty-tile--${a.status.toLowerCase()}`}
             style={{ top: (a.startMinutes - from) * PX_PER_MIN, height: Math.max(24, a.endMinutes - a.startMinutes) * PX_PER_MIN }} /* slop-allow: inline-style положение и высота записи из минут визита */
-            title={`${clock(a.startMinutes)}–${clock(a.endMinutes)}, ${a.customer.name}, ${a.serviceName}, ${formatMoney(a.priceMinor, a.currency)}, ${beautyStatus[a.status].label}`}
+            title={[
+              `${clock(a.startMinutes)}–${clock(a.endMinutes)}`,
+              a.customer.name,
+              a.serviceName,
+              formatMoney(a.priceMinor, a.currency),
+              ...(tilePayment(a.appointment) ? [t(tilePayment(a.appointment)!.full)] : []),
+              t(beautyStatus[a.status].label),
+            ].join(', ')}
             onClick={() => {
               // щелчок открывает карточку, как раньше, и показывает запись в панели дня справа
               setPicked(a.appointment.id);
@@ -327,34 +334,32 @@ export function JournalBoard({
             }}
             aria-pressed={wide ? picked === a.appointment.id : undefined}
           >
-            {/* вариант B (24.10.2026): время и статус в строку, клиент крупно, услуга, сумма и оплата */}
+            {/* плашка читается целиком (владелец 25.10.2026): время и клиент сверху, услуга своей строкой (две, если
+                хватает высоты), цена и оплата значком «точка + слово», полное слово в подсказке; статус словом */}
             <span className="beauty-tile-top">
               <span className="beauty-tile-time">
                 {clock(a.startMinutes)}–{clock(a.endMinutes)}
               </span>
-              <span className="beauty-tile-status">{beautyStatus[a.status].label}</span>
+              <strong className="beauty-tile-name">{a.customer.name}</strong>
             </span>
-            <strong className="beauty-tile-name">{a.customer.name}</strong>
             <span className="beauty-tile-service">{a.serviceName}</span>
             <span className="beauty-tile-money">
               <b>{formatMoney(a.priceMinor, a.currency)}</b>
-              {a.status !== 'NO_SHOW' && (
-                <span
-                  className={
-                    BigInt(a.appointment.paidMinor || '0') >= BigInt(a.appointment.priceMinor || '0')
-                      ? 'beauty-paid'
-                      : 'beauty-unpaid'
-                  }
-                >
-                  {BigInt(a.appointment.paidMinor || '0') >= BigInt(a.appointment.priceMinor || '0')
-                    ? dense
-                      ? t('Опл.')
-                      : t('Оплачено')
-                    : dense
-                      ? t('Не опл.')
-                      : t('Не оплачено')}
-                </span>
-              )}
+              {(() => {
+                const pay = tilePayment(a.appointment);
+                return (
+                  pay && (
+                    <span
+                      className={`beauty-tile-pay beauty-tile-pay--${pay.kind}`}
+                      title={t(pay.full)}
+                    >
+                      <span className="beauty-tile-dot" aria-hidden="true"></span>
+                      {t(pay.word)}
+                    </span>
+                  )
+                );
+              })()}
+              <span className="beauty-tile-status">{t(beautyStatus[a.status].label)}</span>
             </span>
           </button>
         ))}

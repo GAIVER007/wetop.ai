@@ -12,7 +12,8 @@ const headers = { 'x-wetop-test-client': '1' };
 
 test.beforeEach(async ({ page, request }) => {
   await request.post(`${fixture}/__test/reset`);
-  await page.goto('/login');
+  // /login ведёт на вход wetop.ai (объединение входа): тест входит запасным входом, как остальные UI-тесты
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();

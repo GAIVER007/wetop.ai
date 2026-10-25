@@ -56,6 +56,8 @@ test('positions: CRUD matrix, assignment, revoke history, stale revision and res
 
     await page.getByLabel('Название должности', { exact: true }).fill('Тестовый администратор');
     await page.getByRole('checkbox', { name: 'Клиенты: Удаление', exact: true }).check();
+    // возврат денег владелец включает явно: отдельное право сохраняется вместе с должностью
+    await page.getByRole('checkbox', { name: /Возврат оплаты/ }).check();
     await page.getByRole('button', { name: 'Создать должность', exact: true }).click();
     await expect(page.getByText('Должность создана', { exact: true })).toBeVisible();
 

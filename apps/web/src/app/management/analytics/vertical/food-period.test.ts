@@ -4,7 +4,10 @@ import { describe, expect, it } from 'vitest';
 import { FoodPeriodPanel } from './food-period';
 import type { FoodPeriodReport } from '../../../../lib/food-types';
 
-/** Аналитика ресторана без плиток (аудит ресторана 22.10.2026): итоги периода одной строкой, testid прежние */
+/**
+ * Аналитика ресторана: с 25.10.2026 пульт владельца (вариант A, решение владельца) с четырьмя плитками вместо строки
+ * итогов (правило 22.10.2026 заменено этим решением). testid прежних цифр сохранены.
+ */
 describe('продажи ресторана за период', () => {
   const report = {
     from: '2026-10-01',
@@ -24,8 +27,8 @@ describe('продажи ресторана за период', () => {
     waiters: [],
   } as unknown as FoodPeriodReport;
   const html = renderToStaticMarkup(FoodPeriodPanel({ report }));
-  it('итоги строкой money-summary, без Stat', () => {
-    expect(html).toContain('class="money-summary');
+  it('четыре плитки пульта, без прежних Stat', () => {
+    expect(html.match(/class="kpi kpi--/g)).toHaveLength(4);
     expect(html).not.toContain('class="stat');
     expect(html).toMatch(/data-testid="food-period-revenue"[^>]*>5 600 ₸/);
     expect(html).toMatch(/data-testid="food-period-guests"[^>]*>4</);

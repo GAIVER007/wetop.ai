@@ -150,7 +150,9 @@ test('salon reports overview fits one laptop screen and presets switch the perio
   await expect(page.getByTestId('salon-report-cost-KZT')).toHaveText('12 000,00 KZT');
 });
 
-test('salon analytics fits one laptop screen: one control row, statuses and revenue side by side', async ({
+// Пульт владельца (вариант A, решение владельца 25.10.2026) заменил правило «аналитика на один экран»: главные цифры
+// и подсказки в первом экране ноутбука, разборы по мастерам, услугам и оплатам ниже прокруткой.
+test('salon analytics owner dashboard: four key figures and what-to-do in the first laptop screen', async ({
   page,
   request,
 }, info) => {
@@ -161,8 +163,10 @@ test('salon analytics fits one laptop screen: one control row, statuses and reve
   await expect(main.getByTestId('vertical-analytics')).toBeVisible();
   await expect(main.getByTestId('period-DONE')).toHaveText('1');
   await expect(main.getByTestId('revenue-KZT')).toHaveText('12 000,00 KZT');
-  await page.screenshot({ path: info.outputPath('salon-analytics-one-screen.png') });
-  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(900);
+  for (const id of ['revenue', 'average', 'load', 'repeat'])
+    await expect(main.getByTestId(`pa-kpi-${id}`)).toBeInViewport();
+  await expect(main.getByTestId('pult-insights')).toBeInViewport();
+  await page.screenshot({ path: info.outputPath('salon-analytics-pult.png'), fullPage: true });
   await main.getByRole('link', { name: 'Вчера', exact: true }).click();
   await expect(page).toHaveURL(/from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}/);
   await main.getByRole('link', { name: 'Все филиалы', exact: true }).click();

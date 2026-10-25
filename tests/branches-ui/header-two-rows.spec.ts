@@ -43,7 +43,9 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
       await page.setViewportSize({ width, height: 900 });
       const header = page.locator('.workspace-header');
       const tabs = page.locator('.tabnav .tabnav__tab');
-      await expect(tabs).toHaveCount(11);
+      // у салона «Продвижение» скрыто до готовности (запуск первых салонов 25.10.2026): 10 разделов, у прочих 11
+      await expect(tabs).toHaveCount(vertical === 'beauty' ? 10 : 11);
+      if (vertical === 'beauty') await expect(tabs.filter({ hasText: 'Продвижение' })).toHaveCount(0);
       // две строки: 48 px управление + 40 px разделы, переменная шапки совпадает с высотой
       const height = (await header.boundingBox())!.height;
       expect(height).toBe(88);

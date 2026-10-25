@@ -49,7 +49,8 @@ test('positions: CRUD matrix, assignment, revoke history, stale revision and res
     await page.goto('/team/roles');
     await expect(page.getByRole('heading', { name: 'Должности салона', exact: true })).toBeVisible();
     await expect(page.getByLabel('Название должности', { exact: true })).toHaveValue('Администратор');
-    await expect(page.getByRole('checkbox', { name: /Возврат оплаты/ })).toBeChecked();
+    // шаблон администратора без возврата денег (владелец 25.10.2026): возврат включает владелец отдельно
+    await expect(page.getByRole('checkbox', { name: /Возврат оплаты/ })).not.toBeChecked();
     await expect(page.getByText('Календарь и график', { exact: true })).toBeVisible();
     await expect(page.getByText('Отзывы', { exact: true })).toBeVisible();
 

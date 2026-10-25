@@ -659,3 +659,138 @@ describe('mobile restaurant team boundary', () => {
     expect(JSON.stringify(body)).not.toContain('drop');
   });
 });
+
+describe('mobile order creation', () => {
+  const enabled = { ...ENABLED, MOBILE_ORDER_CREATE_ENABLED: '1' };
+  const body = {
+    creationRequestKey: 'attempt-001',
+    guestCount: 1,
+    items: [{ menuItemId: B, qty: 1 }],
+  };
+  const create = (value: unknown = body, headers: HeadersInit = authorized()) =>
+    request('orders', {
+      method: 'POST',
+      headers: { ...headers, 'content-type': 'application/json' },
+      body: JSON.stringify(value),
+    });
+  const order = {
+    id: B,
+    number: 1,
+    status: 'NEW',
+    table: null,
+    waiter: null,
+    guestCount: 1,
+    totalMinor: '1000',
+    paidMinor: '0',
+    currency: 'KZT',
+    updatedAt: '2026-10-25T00:00:00Z',
+    delayed: false,
+    items: [],
+  };
+  it('forwards one keyed request with only bearer and scope and returns a filtered order', async () => {
+    const fetcher = vi.fn(async () =>
+      upstream({ ...order, creationRequestHash: 'private', notes: 'private' }, 201),
+    );
+    const response = await handleMobileFoodGateway(
+      create(body, authorized({ cookie: 'private', 'x-forwarded-for': '1.2.3.4' })),
+      'orders',
+      enabled,
+      fetcher,
+    );
+    expect(response.status).toBe(201);
+    expect(await response.json()).toEqual(order);
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    const [url, init] = fetcher.mock.calls[0]! as unknown as [string, RequestInit];
+    expect(url).toBe('http://127.0.0.1:3001/food-service/orders');
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(init.body as string)).toMatchObject(body);
+    expect(new Headers(init.headers).get('cookie')).toBeNull();
+    expect(new Headers(init.headers).get('x-forwarded-for')).toBeNull();
+  });
+  it('requires a key and rejects client prices before contacting the API', async () => {
+    const fetcher = vi.fn();
+    for (const value of [
+      { guestCount: 1, items: body.items },
+      { ...body, total: 1 },
+      { ...body, creationRequestKey: '' },
+    ])
+      expect(
+        (await handleMobileFoodGateway(create(value), 'orders', enabled, fetcher)).status,
+      ).toBe(400);
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it('keeps creation disabled separately and rejects unauthenticated calls', async () => {
+    const fetcher = vi.fn();
+    expect((await handleMobileFoodGateway(create(), 'orders', ENABLED, fetcher)).status).toBe(405);
+    expect(
+      (await handleMobileFoodGateway(create(body, {}), 'orders', enabled, fetcher)).status,
+    ).toBe(401);
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it('marks a lost or invalid response as unknown and never retries upstream', async () => {
+    for (const fetcher of [
+      vi.fn().mockRejectedValue(new Error('timeout')),
+      vi.fn(async () => upstream({ invalid: true }, 201)),
+      vi.fn(async () => upstream({ message: 'private' }, 500)),
+    ]) {
+      const response = await handleMobileFoodGateway(create(), 'orders', enabled, fetcher);
+      expect([502, 503]).toContain(response.status);
+      expect(await response.json()).toMatchObject({ outcome: 'unknown' });
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    }
+  });
+  it('preserves conflict status without leaking upstream details', async () => {
+    const response = await handleMobileFoodGateway(create(), 'orders', enabled, async () =>
+      upstream({ message: 'private' }, 409),
+    );
+    expect(response.status).toBe(409);
+    expect(JSON.stringify(await response.json())).not.toContain('private');
+  });
+  it('rejects query strings and oversized request bodies before upstream', async () => {
+    const fetcher = vi.fn();
+    const query = request('orders?cursor=' + L, {
+      method: 'POST',
+      headers: authorized(),
+      body: JSON.stringify(body),
+    });
+    expect((await handleMobileFoodGateway(query, 'orders', enabled, fetcher)).status).toBe(400);
+    expect(
+      (
+        await handleMobileFoodGateway(
+          create({ ...body, notes: 'x'.repeat(600000) }),
+          'orders',
+          enabled,
+          fetcher,
+        )
+      ).status,
+    ).toBe(413);
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+});
+
+it('cancels a stalled create upload before contacting upstream', async () => {
+  vi.useFakeTimers();
+  const cancel = vi.fn();
+  const body = new ReadableStream<Uint8Array>({ cancel });
+  const fetcher = vi.fn();
+  const req = new Request('https://app.wetop.ai/api/mobile/v1/food/orders', {
+    method: 'POST',
+    headers: authorized({ 'content-type': 'application/json' }),
+    body,
+    duplex: 'half',
+  } as RequestInit);
+  try {
+    const pending = handleMobileFoodGateway(
+      req,
+      'orders',
+      { ...ENABLED, MOBILE_ORDER_CREATE_ENABLED: '1' },
+      fetcher,
+    );
+    await vi.advanceTimersByTimeAsync(10001);
+    expect((await pending).status).toBe(400);
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(fetcher).not.toHaveBeenCalled();
+  } finally {
+    vi.useRealTimers();
+  }
+});

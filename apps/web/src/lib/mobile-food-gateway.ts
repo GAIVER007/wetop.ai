@@ -1,3 +1,5 @@
+import { parseOrderCreate } from '@pms/domain';
+
 export type MobileFoodGatewayEnv = Record<string, string | undefined>;
 type MobileFetch = (input: string, init: RequestInit) => Promise<Response>;
 type JsonRecord = Record<string, unknown>;
@@ -492,31 +494,45 @@ function endpoint(env: MobileFoodGatewayEnv, path: string): string | null {
   }
 }
 
-async function boundedResponse(response: Response): Promise<string | null> {
+async function boundedResponse(
+  response: Response | Request,
+  signal?: AbortSignal,
+): Promise<string | null> {
   const declared = response.headers.get('content-length');
   if (declared !== null && (!/^\d+$/.test(declared) || Number(declared) > RESPONSE_LIMIT))
     return null;
   if (!response.body) return '';
   const reader = response.body.getReader();
-  const chunks: Uint8Array[] = [];
-  let total = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    total += value.byteLength;
-    if (total > RESPONSE_LIMIT) {
-      await reader.cancel();
-      return null;
+  const cancel = () => {
+    void reader.cancel().catch(() => {});
+  };
+  signal?.addEventListener('abort', cancel, { once: true });
+  try {
+    const chunks: Uint8Array[] = [];
+    let total = 0;
+    for (;;) {
+      signal?.throwIfAborted();
+      const { done, value } = await reader.read();
+      signal?.throwIfAborted();
+      if (done) break;
+      total += value.byteLength;
+      if (total > RESPONSE_LIMIT) {
+        await reader.cancel();
+        return null;
+      }
+      chunks.push(value);
     }
-    chunks.push(value);
+    const bytes = new Uint8Array(total);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    return new TextDecoder().decode(bytes);
+  } finally {
+    signal?.removeEventListener('abort', cancel);
+    reader.releaseLock();
   }
-  const bytes = new Uint8Array(total);
-  let offset = 0;
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  return new TextDecoder().decode(bytes);
 }
 
 function errorMessage(status: number): string {
@@ -536,7 +552,9 @@ export async function handleMobileFoodGateway(
   if (env.MOBILE_GATEWAY_ENABLED !== '1') return json({ message: 'Не найдено' }, 404);
   if (!Object.hasOwn(ACTIONS, rawAction)) return json({ message: 'Не найдено' }, 404);
   const action = rawAction as FoodAction;
-  if (request.method !== 'GET')
+  const creating =
+    request.method === 'POST' && action === 'orders' && env.MOBILE_ORDER_CREATE_ENABLED === '1';
+  if (request.method !== 'GET' && !creating)
     return json({ message: 'Метод не поддерживается' }, 405, { allow: 'GET' });
   if (hasServiceCredential(request)) return json({ message: 'Служебные ключи запрещены' }, 403);
 
@@ -546,7 +564,42 @@ export async function handleMobileFoodGateway(
   if (scope.length > 200 || !LOCATION_SCOPE.test(scope))
     return json({ message: 'Некорректный рабочий контекст' }, 400);
 
-  const path = upstreamPath(request, action);
+  let body: string | undefined;
+  if (creating) {
+    if (new URL(request.url).search) return json({ message: 'Некорректный запрос' }, 400);
+    if (
+      request.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() !==
+      'application/json'
+    )
+      return json({ message: 'Нужен JSON' }, 415);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
+    let text: string | null;
+    try {
+      text = await boundedResponse(request, controller.signal);
+    } catch {
+      return json({ message: 'Не удалось прочитать запрос' }, 400);
+    } finally {
+      clearTimeout(timer);
+    }
+    if (text === null) return json({ message: 'Запрос слишком большой' }, 413);
+    try {
+      const input = parseOrderCreate(JSON.parse(text));
+      if (!input.creationRequestKey) return json({ message: 'Нужен ключ создания заказа' }, 400);
+      body = JSON.stringify(input);
+    } catch {
+      return json({ message: 'Проверьте данные заказа' }, 400);
+    }
+  }
+  const uncertain = (status: number) =>
+    json(
+      {
+        message: 'Результат отправки не подтверждён. Повторяйте только с прежним ключом заказа.',
+        outcome: 'unknown',
+      },
+      status,
+    );
+  const path = creating ? ACTIONS.orders : upstreamPath(request, action);
   if (path instanceof Response) return path;
   const url = endpoint(env, path);
   if (!url) return json({ message: 'Сервис временно недоступен. Попробуйте ещё раз.' }, 503);
@@ -559,36 +612,45 @@ export async function handleMobileFoodGateway(
   const userAgent = request.headers.get('user-agent')?.trim();
   if (userAgent) headers.set('user-agent', userAgent.slice(0, 300));
 
+  if (creating) headers.set('content-type', 'application/json');
   let upstream: Response;
   try {
     upstream = await fetcher(url, {
-      method: 'GET',
+      method: creating ? 'POST' : 'GET',
+      ...(body !== undefined ? { body } : {}),
       headers,
       cache: 'no-store',
       redirect: 'error',
       signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
   } catch {
+    if (creating) return uncertain(503);
     return json({ message: 'Нет связи с сервером. Попробуйте ещё раз.' }, 503);
   }
 
   const text = await boundedResponse(upstream).catch(() => null);
-  if (text === null) return json({ message: 'Некорректный ответ сервера' }, 502);
+  if (text === null)
+    return creating ? uncertain(502) : json({ message: 'Некорректный ответ сервера' }, 502);
   let parsed: unknown;
   try {
     parsed = text ? JSON.parse(text) : null;
   } catch {
+    if (creating) return uncertain(502);
     return json({ message: 'Некорректный ответ сервера' }, 502);
   }
 
   if (!upstream.ok) {
+    if (creating && upstream.status >= 500) return uncertain(503);
     if (upstream.status >= 500)
       return json({ message: 'Сервис временно недоступен. Попробуйте ещё раз.' }, 503);
-    const status = [400, 401, 403, 404, 422, 429].includes(upstream.status) ? upstream.status : 400;
+    const status = [400, 401, 403, 404, 409, 422, 429].includes(upstream.status)
+      ? upstream.status
+      : 400;
     return json({ message: errorMessage(status) }, status);
   }
 
   try {
+    if (creating) return json(orderDto(parsed), 201);
     if (action === 'tables') return json(tablesDto(parsed), 200);
     if (action === 'orders') return json(ordersDto(parsed), 200);
     if (action === 'categories') return json(categoriesDto(parsed), 200);
@@ -599,6 +661,7 @@ export async function handleMobileFoodGateway(
     if (action === 'staff-revenue') return json(staffRevenueDto(parsed), 200);
     return json(menuItemsDto(parsed), 200);
   } catch {
+    if (creating) return uncertain(502);
     return json({ message: 'Некорректный ответ сервера' }, 502);
   }
 }

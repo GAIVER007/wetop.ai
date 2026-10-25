@@ -8,6 +8,8 @@ import { CatalogBoard } from './catalog-board';
 import { FoodRemindersToday } from './reminders-today';
 import { foodApi, type FoodReminderItem } from '../../lib/food-api';
 import { serverT } from '../../i18n/server';
+import { deskShell } from '../../lib/desk-shell';
+import { CustomerSectionTabs } from '../customers/section-tabs';
 import './food.css';
 import './restaurant.css';
 export async function FoodScreen({
@@ -45,6 +47,10 @@ export async function FoodScreen({
         className={kind === 'catalog' ? '' : 'journal-page'}
       >
         <div key={data.scopeKey}>
+          {/* «Брони столов» вторая вкладка раздела «Клиенты», как «Записи» салона (эталон 25.10.2026) */}
+          {kind === 'list' && (
+            <CustomerSectionTabs access={(await deskShell()).access} vertical="FOOD_SERVICE" current="/table-reservations" t={t} />
+          )}
           {manual && manual.items.length > 0 && (
             <FoodRemindersToday items={manual.items} timezone={manual.timezone} canUpdate={data.canDesk && !data.readOnly} />
           )}

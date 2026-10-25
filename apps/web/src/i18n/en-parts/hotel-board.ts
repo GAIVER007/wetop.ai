@@ -376,7 +376,6 @@ export const hotelBoard: Record<string, string> = {
   'Предыдущая страница': 'Previous page',
   'Страница {n}': 'Page {n}',
   'Следующая страница': 'Next page',
-  'Список броней': 'Booking list',
   'Не удалось загрузить гостей': 'Could not load guests',
   'Список гостей': 'Guest list',
   'Поиск и отбор гостей': 'Search and filter guests',

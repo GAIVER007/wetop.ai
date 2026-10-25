@@ -1,30 +1,65 @@
 import { Panel, Table } from '../../../../components/ui';
 import { DayBars } from '../../../../components/day-bars';
 import { DonutShare } from '../../../../components/donut-share';
-import { METHOD_RU, wholeTenge } from '../../../../lib/dashboard-format';
+import { METHOD_RU, deltaPoints, wholeTenge } from '../../../../lib/dashboard-format';
 import type { FoodPeriodReport } from '../../../../lib/food-types';
-import '../../../finance/summary.css';
+import { DeltaMark, Tile, countDelta, moneyDelta, NO_BASE } from '../tiles';
 import { msg, translator, type Translate } from '../../../../i18n';
+import { Facts, InsightsPanel, ShareList } from './pult-view';
+import { foodInsights } from './pult';
 
-/** Деньги ресторана за период: закрытые заказы, оплаты по способам (касса §35), блюда и официанты */
+/** Фудкост в процентных пунктах, как у долей на «Обзоре» */
+const foodCostDelta = (now: number, was: number) => deltaPoints(now, was);
+
+const TONES = {
+  BOOKED: 'info',
+  CONFIRMED: 'info',
+  SEATED: 'warning',
+  COMPLETED: 'success',
+  CANCELLED: 'neutral',
+  NO_SHOW: 'danger',
+} as const;
+
+/**
+ * Пульт ресторана (вариант A, решение владельца 25.10.2026), раньше «продажи за период» строкой и столбик панелей.
+ * Плитки: выручка, средний чек, заказы и гости, фудкост. Рядом с графиком подсказки, ниже брони, оплаты, категории,
+ * блюда, официанты и недостачи. `data-testid` прежних цифр сохранены (`food-period-*`).
+ */
 export function FoodPeriodPanel({
   report,
+  previous = null,
+  counts = null,
+  labels = null,
   t = translator('ru'),
 }: {
   report: FoodPeriodReport;
+  /** тот же отчёт за прошлый отрезок: сравнение плиток; null, если не загрузился */
+  previous?: FoodPeriodReport | null;
+  /** брони по статусам за период */
+  counts?: Record<string, number> | null;
+  labels?: Record<string, string> | null;
   t?: Translate;
 }) {
   const money = (minor: string) => wholeTenge(minor, report.currency);
+  const compare = previous !== null;
+  const base = previous ?? report;
+  const statusTotal = counts ? Object.values(counts).reduce((a, b) => a + b, 0) : 0;
+  const days = report.revenueByDay ?? [];
+  const maxDay = days.reduce(
+    (m, d) => (BigInt(d.revenueMinor) > m ? BigInt(d.revenueMinor) : m),
+    0n,
+  );
   const table = (heads: string[], rows: Array<Array<string | number>>, empty: string) =>
     rows.length === 0 ? (
-      // не EmptyState: его заголовок h3 под панелью ломает порядок заголовков (axe heading-order)
-      <p className="muted">{t(empty)}</p>
+      <p className="pult-empty">{t(empty)}</p>
     ) : (
       <Table>
         <thead>
           <tr>
-            {heads.map((h) => (
-              <th key={h}>{t(h)}</th>
+            {heads.map((h, i) => (
+              <th key={h} className={i ? 'num' : undefined}>
+                {t(h)}
+              </th>
             ))}
           </tr>
         </thead>
@@ -32,7 +67,9 @@ export function FoodPeriodPanel({
           {rows.map((r, n) => (
             <tr key={n}>
               {r.map((c, i) => (
-                <td key={i}>{c}</td>
+                <td key={i} className={i ? 'num' : undefined}>
+                  {c}
+                </td>
               ))}
             </tr>
           ))}
@@ -40,121 +77,195 @@ export function FoodPeriodPanel({
       </Table>
     );
   return (
-    <div className="vertical-food" data-testid="food-period">
-      {/* итоги периода одной строкой вместо ряда плиток (правило владельца, аудит ресторана 22.10.2026) */}
-      <dl className="money-summary" aria-label={t('Продажи за период')}>
-        <div>
-          <dt>{t('Выручка')}</dt>
-          <dd>
-            <span data-testid="food-period-revenue">{money(report.revenueMinor)}</span>{' '}
-            <span className="muted">{t('закрытые заказы')}</span>
-          </dd>
-        </div>
-        <div>
-          <dt>{t('Заказов')}</dt>
-          <dd data-testid="food-period-orders">{report.ordersCount}</dd>
-        </div>
-        <div>
-          <dt>{t('Гостей')}</dt>
-          <dd data-testid="food-period-guests">{report.guestsCount ?? '—'}</dd>
-        </div>
-        <div>
-          <dt>{t('Средний чек')}</dt>
-          <dd data-testid="food-period-check">
-            {report.averageCheckMinor === null ? '—' : money(report.averageCheckMinor)}
-          </dd>
-        </div>
-        <div>
-          <dt>{t('Выручка бара')}</dt>
-          <dd data-testid="food-period-bar-revenue">{money(report.barRevenueMinor ?? '0')}</dd>
-        </div>
-      </dl>
-      {(report.revenueByDay || report.categories) && (
-        <div className="vertical-food__charts">
-          {report.revenueByDay && (
-            <Panel title={t('Выручка по дням')}>
-              {report.revenueByDay.some((d) => d.revenueMinor !== '0') ? (
-                <DayBars
-                  testId="food-period-days"
-                  today={report.to}
-                  days={(() => {
-                    const max = Math.max(...report.revenueByDay.map((d) => Number(d.revenueMinor)));
-                    return report.revenueByDay.map((d) => ({
-                      date: d.date,
-                      height: max > 0 ? Math.round((Number(d.revenueMinor) / max) * 100) : 0,
-                      facts: t('{sum}, заказов {n}', { sum: money(d.revenueMinor), n: d.orders }),
-                    }));
-                  })()}
-                />
-              ) : (
-                <p className="muted">{t('Закрытых заказов за период нет')}</p>
-              )}
-            </Panel>
+    <div className="pult vertical-food" data-testid="food-period">
+      <section className="kpi-grid" aria-label={t('Главные цифры периода')}>
+        <article className="kpi kpi--revenue">
+          <div className="kpi__top">
+            <span>{t('Выручка')}</span>
+          </div>
+          <div className="kpi__body">
+            <strong className="kpi__value" data-testid="food-period-revenue">
+              {money(report.revenueMinor)}
+            </strong>
+          </div>
+          <div className="kpi__hint">
+            {t('закрытые заказы, из них бар')}{' '}
+            <span data-testid="food-period-bar-revenue">
+              {money(report.barRevenueMinor ?? '0')}
+            </span>
+          </div>
+          {compare && <DeltaMark delta={moneyDelta(report.revenueMinor, base.revenueMinor)} />}
+        </article>
+        <article className="kpi kpi--average">
+          <div className="kpi__top">
+            <span>{t('Средний чек')}</span>
+          </div>
+          <div className="kpi__body">
+            <strong className="kpi__value" data-testid="food-period-check">
+              {report.averageCheckMinor === null ? '—' : money(report.averageCheckMinor)}
+            </strong>
+          </div>
+          <div className="kpi__hint">{t('выручка на один закрытый заказ')}</div>
+          {compare && (
+            <DeltaMark delta={moneyDelta(report.averageCheckMinor, base.averageCheckMinor)} />
           )}
-          {report.categories && (
-            <Panel title={t('Продажи по категориям')}>
-              {report.categories.length ? (
-                <DonutShare
-                  testId="food-period-categories"
-                  items={report.categories.map((c) => ({ label: c.name, valueMinor: c.revenueMinor }))}
-                  centerLabel={t('выручка')}
-                  centerValue={money(report.revenueMinor)}
-                  amount={money}
-                />
-              ) : (
-                <p className="muted">{t('Закрытых заказов за период нет')}</p>
-              )}
-            </Panel>
+        </article>
+        <article className="kpi kpi--orders">
+          <div className="kpi__top">
+            <span>{t('Заказов')}</span>
+          </div>
+          <div className="kpi__body">
+            <strong className="kpi__value" data-testid="food-period-orders">
+              {report.ordersCount}
+            </strong>
+          </div>
+          <div className="kpi__hint">
+            {t('гостей')} <span data-testid="food-period-guests">{report.guestsCount ?? '—'}</span>
+          </div>
+          {compare && <DeltaMark delta={countDelta(report.ordersCount, base.ordersCount)} />}
+        </article>
+        <Tile
+          id="foodcost"
+          label={t('Фудкост')}
+          value={report.foodCostPct === null ? '—' : `${report.foodCostPct}%`}
+          hint={t('валовая прибыль {sum}', { sum: money(report.grossProfitMinor) })}
+          delta={
+            report.foodCostPct !== null && base.foodCostPct !== null && previous
+              ? foodCostDelta(report.foodCostPct, base.foodCostPct)
+              : NO_BASE
+          }
+          inverse
+          compare={compare}
+        />
+      </section>
+
+      <div className="pult-row pult-row--main">
+        <Panel title={t('Выручка по дням')}>
+          {maxDay > 0n ? (
+            <DayBars
+              testId="food-period-days"
+              today={report.to}
+              days={days.map((d) => ({
+                date: d.date,
+                height: Number((BigInt(d.revenueMinor) * 100n) / maxDay),
+                facts: t('{sum}, заказов {n}', { sum: money(d.revenueMinor), n: d.orders }),
+              }))}
+            />
+          ) : (
+            <p className="pult-empty">{t('Закрытых заказов за период нет')}</p>
           )}
-        </div>
-      )}
-      <Panel title={t('Себестоимость и прибыль')}>
-        <dl className="vertical-food__facts">
-          <div>
-            <dt>{t('Себестоимость')}</dt>
-            <dd data-testid="food-period-cost">{money(report.costMinor)}</dd>
-          </div>
-          <div>
-            <dt>{t('Валовая прибыль')}</dt>
-            <dd data-testid="food-period-profit">{money(report.grossProfitMinor)}</dd>
-          </div>
-          <div>
-            <dt>{t('Фудкост')}</dt>
-            <dd data-testid="food-period-foodcost">
-              {report.foodCostPct === null ? '—' : `${report.foodCostPct} %`}
-            </dd>
-          </div>
-        </dl>
-        <p className="muted">{t('Себестоимость списана со склада по заказам периода.')}</p>
-      </Panel>
-      <Panel title={t('Оплаты по способам')}>
-        {table(
-          [msg('Способ'), msg('Платежей'), msg('Сумма')],
-          report.payments.map((p) => [t(METHOD_RU[p.method] ?? p.method), p.count, money(p.amountMinor)]),
-          msg('Оплат за период нет'),
+        </Panel>
+        <InsightsPanel items={foodInsights(report, counts ?? {})} money={money} t={t} />
+      </div>
+
+      <div className="pult-row pult-row--three">
+        {counts && labels && (
+          <Panel title={t('{title}, всего {n}', { title: t('Брони по статусам'), n: statusTotal })}>
+            <ShareList
+              t={t}
+              empty={msg('Броней за период нет.')}
+              rows={Object.entries(labels).map(([status, label]) => ({
+                key: status,
+                label: t(label),
+                value: counts[status] ?? 0,
+                text: counts[status] ?? 0,
+                tone: TONES[status as keyof typeof TONES] ?? 'neutral',
+                testId: `period-${status}`,
+              }))}
+            />
+            {statusTotal === 0 && (
+              <ul className="sr-only">
+                {Object.keys(labels).map((status) => (
+                  <li key={status} data-testid={`period-${status}`}>
+                    0
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
         )}
-      </Panel>
-      <Panel title={t('Популярные блюда')}>
-        {table(
-          [msg('Блюдо'), msg('Порций'), msg('Выручка')],
-          report.topDishes.map((d) => [d.name, d.qty, money(d.revenueMinor)]),
-          msg('Закрытых заказов за период нет'),
+        <Panel title={t('Оплаты по способам')}>
+          <ShareList
+            t={t}
+            empty={msg('Оплат за период нет')}
+            rows={report.payments.map((p) => ({
+              key: p.method,
+              label: t(METHOD_RU[p.method] ?? p.method),
+              value: Number(BigInt(p.amountMinor) / 100n),
+              text: money(p.amountMinor),
+            }))}
+          />
+        </Panel>
+        <Panel title={t('Себестоимость и прибыль')}>
+          <Facts
+            rows={[
+              {
+                label: t('Себестоимость'),
+                value: money(report.costMinor),
+                testId: 'food-period-cost',
+              },
+              {
+                label: t('Валовая прибыль'),
+                value: money(report.grossProfitMinor),
+                testId: 'food-period-profit',
+              },
+              {
+                label: t('Фудкост'),
+                value: report.foodCostPct === null ? '—' : `${report.foodCostPct} %`,
+                testId: 'food-period-foodcost',
+              },
+            ]}
+          />
+          <p className="pult-note muted">
+            {t('Себестоимость списана со склада по заказам периода.')}
+          </p>
+        </Panel>
+      </div>
+
+      <div className="pult-row pult-row--two">
+        <Panel title={t('Популярные блюда')}>
+          {table(
+            [msg('Блюдо'), msg('Порций'), msg('Выручка')],
+            report.topDishes.map((d) => [d.name, d.qty, money(d.revenueMinor)]),
+            msg('Закрытых заказов за период нет'),
+          )}
+        </Panel>
+        {report.categories && (
+          <Panel title={t('Продажи по категориям')}>
+            {report.categories.length ? (
+              <DonutShare
+                testId="food-period-categories"
+                items={report.categories.map((c) => ({
+                  label: c.name,
+                  valueMinor: c.revenueMinor,
+                }))}
+                centerLabel={t('выручка')}
+                centerValue={money(report.revenueMinor)}
+                amount={money}
+              />
+            ) : (
+              <p className="pult-empty">{t('Закрытых заказов за период нет')}</p>
+            )}
+          </Panel>
         )}
-      </Panel>
-      <Panel title={t('Недостачи по заказам')}>
-        {table(
-          [msg('Ингредиент'), msg('Не хватило')],
-          report.shortages.map((x) => [x.name, `${x.qty} ${x.unit}`]),
-          msg('Недостач за период нет'),
-        )}
-      </Panel>
-      <Panel title={t('Официанты')}>
-        {table(
-          [msg('Официант'), msg('Заказов'), msg('Выручка')],
-          report.waiters.map((w) => [w.name, w.orders, money(w.revenueMinor)]),
-          msg('Заказов с официантом за период нет'),
-        )}
-      </Panel>
+      </div>
+
+      <div className="pult-row pult-row--two">
+        <Panel title={t('Официанты')}>
+          {table(
+            [msg('Официант'), msg('Заказов'), msg('Выручка')],
+            report.waiters.map((w) => [w.name, w.orders, money(w.revenueMinor)]),
+            msg('Заказов с официантом за период нет'),
+          )}
+        </Panel>
+        <Panel title={t('Недостачи по заказам')}>
+          {table(
+            [msg('Ингредиент'), msg('Не хватило')],
+            report.shortages.map((x) => [x.name, `${x.qty} ${x.unit}`]),
+            msg('Недостач за период нет'),
+          )}
+        </Panel>
+      </div>
     </div>
   );
 }

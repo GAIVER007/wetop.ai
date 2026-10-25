@@ -462,7 +462,7 @@ test('сбой карточки брони показывает ошибку в�
   await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toContainText('Не удалось загрузить данные');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Брони');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Записи');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await dialog.getByRole('button', { name: 'Повторить загрузку' }).click();
   await expect(dialog.getByRole('tab', { name: 'Обзор', exact: true })).toBeVisible();

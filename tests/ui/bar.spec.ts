@@ -50,6 +50,8 @@ test('обзор как на макете: пять KPI, графики, ком�
   // доска: шесть товаров макета, поставщик и фактическая наценка, статус словом
   const board = m.getByRole('region', { name: 'Товары и остатки бара' });
   await expect(board.locator('tbody tr')).toHaveCount(6);
+  // обзор без открытой карточки помещается на один экран 1440×900 без прокрутки страницы (владелец 25.10.2026)
+  expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(true);
   const cola = board.locator('tbody tr', { hasText: 'Coca-Cola 0.5' });
   await expect(cola).toContainText('320 ₸');
   await expect(cola).toContainText('В норме');
@@ -63,8 +65,8 @@ test('обзор как на макете: пять KPI, графики, ком�
   await expect(card.getByLabel('Поставщик')).toHaveValue('FoodMaster');
   await expect(card.getByLabel('Наценка')).toHaveValue('88');
   await expect(card.getByLabel('Артикул (SKU)')).toHaveValue('CC-050');
-  // Дополнительные сведения доступны по раскрытию.
-  await m.getByText('Последние приходы',{exact:true}).click();
+  // приходы колонкой рядом с остатками, без раскрытия (владелец 25.10.2026: обзор на один экран)
+  await expect(m.getByRole('heading', { name: 'Приходы от поставщиков', exact: true })).toBeVisible();
   const receipts = m.getByRole('region', { name: 'Последние приходы поставщиков' });
   await expect(receipts.locator('tbody tr')).toHaveCount(4);
   await expect(receipts.locator('tbody tr', { hasText: 'П-000122' })).toContainText('Не оплачен');

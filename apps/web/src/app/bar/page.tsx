@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { requireFeature } from '../../lib/vertical-guard';
 import { stockWords } from '../../lib/stock-words';
 import { unstable_rethrow } from 'next/navigation';
-import { barApi, type BarReceiptRow, type BarReport, type BarSaleRow } from '../../lib/api';
+import { barApi, type BarReport, type BarSaleRow } from '../../lib/api';
 import { hotelToday, propertyTimezone } from '../../lib/hotel-api';
 import { formatMoney } from '../../lib/money';
 import { Page } from '../../components/page';
@@ -11,7 +11,6 @@ import { loadErrorProps } from '../../lib/load-error';
 import { Tabs } from '../../components/tabs';
 import { BarTabs } from './tabs';
 import { loadBarContext } from './load-context';
-import { Badge, EmptyState, Table } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { SaleForm } from './sale-form';
 import { FolioSaleForm } from './folio-sale-form';
@@ -20,6 +19,7 @@ import { stockStatusOf } from './stock-status';
 import { AnalyticsDisclosure } from './analytics-disclosure';
 import { SaleDialog } from './sale-disclosure';
 import { BarAnalytics } from './bar-analytics';
+import { OverviewEmpty, ReceiptsAside } from './overview-parts';
 import { deskShell } from '../../lib/desk-shell';
 import { barActionAccess } from './action-access';
 import './bar.css';
@@ -35,15 +35,6 @@ const settle = <T,>(promise: Promise<T>) =>
       return { ok: false as const, error };
     },
   );
-
-const receiptBadge = (receipt: BarReceiptRow) => {
-  if (receipt.status === 'DRAFT') return { tone: 'neutral' as const, label: msg('Черновик') };
-  if (BigInt(receipt.dueAmount) <= 0n) return { tone: 'ok' as const, label: msg('Оплачен') };
-  return BigInt(receipt.paidAmount) > 0n
-    ? { tone: 'warn' as const, label: msg('Оплачен частично') }
-    : { tone: 'danger' as const, label: msg('Не оплачен') };
-};
-const dayRu = (date: string) => `${date.slice(8, 10)}.${date.slice(5, 7)}.${date.slice(0, 4)}`;
 
 /** Популярные за 30 дней: из отчёта API; старый API без поля, тогда из последних продаж */
 function popularOf(report: BarReport, sales: BarSaleRow[]): Array<{ name: string; units: string }> {
@@ -157,7 +148,7 @@ export default async function BarPage({
   const saleForm = (
     <SaleForm key={JSON.stringify([me.user?.id, me.context, me.sessionIssuedAt, context])} stock={stock.value} context={context} methods={paymentMethods.value.sale} recoveryScope={[me.user?.organizationId ?? '', me.context?.businessId ?? '', me.context?.locationId ?? '', me.user?.id ?? '', context.propertyId, context.currency, me.sessionIssuedAt ?? '']} expiresAt={me.expiresAt ?? ''} />
   );
-  // итоги месяца строкой под списком, без плиток (аудит 21.10.2026 п.7)
+  // итоги месяца одной строкой сразу под шапкой, без плиток (аудит 21.10.2026 п.7, владелец 25.10.2026)
   const totals = (
     <p className="bar-totals" data-testid="bar-totals">
       <span>{periodWord}:</span>
@@ -167,66 +158,23 @@ export default async function BarPage({
       <span>{t('долг поставщикам')} <b data-testid="bar-total-debt">{money(r.supplierDebtMinor)}</b></span>
     </p>
   );
-  const bottom = (
-    <div className="bar-bottom">
-      <section className="panel bar-bottom-panel" aria-labelledby="bar-receipts-title">
-        <header className="bar-bottom-head">
-          <h2 id="bar-receipts-title" className="bar-panel-title">
-            {t('Приходы от поставщиков')}
-          </h2>
-          <Link href="/bar/receipts" prefetch={false} className="bar-link">
-            {t('Все приходы')} <Icon name="arrow" width={16} height={16} />
-          </Link>
-        </header>
-        {lastReceipts.length === 0 ? (
-          <p className="bar-muted">
-            {t('Приходов пока нет: занесите первую счёт-фактуру кнопкой «Приход» вверху страницы.')}
-          </p>
-        ) : (
-          <Table density="compact" aria-label={t('Последние приходы поставщиков')} plain>
-            <thead>
-              <tr>
-                <th>{t('Дата')}</th>
-                <th>{t('Поставщик')}</th>
-                <th>{t('№ документа')}</th>
-                <th>{t('Товаров')}</th>
-                <th>{t('Сумма')}</th>
-                <th>{t('Статус')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lastReceipts.map((receipt) => {
-                const badge = receiptBadge(receipt);
-                return (
-                  <tr key={receipt.id}>
-                    <td>{dayRu(receipt.receivedDate.slice(0, 10))}</td>
-                    <td>{receipt.supplier.name}</td>
-                    <td>{receipt.documentNumber}</td>
-                    <td>{receipt._count.lines}</td>
-                    <td>{money(receipt.totalAmount)}</td>
-                    <td>
-                      <Badge tone={badge.tone}>{t(badge.label)}</Badge>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Table>
-        )}
-      </section>
-    </div>
-  );
+  // приходы колонкой справа от остатков, без раскрывашки (владелец 25.10.2026)
+  const receiptsAside = <ReceiptsAside receipts={lastReceipts} currency={r.currency} />;
   return (
     <Page
       width="wide"
       className="bar-page"
       title={sectionName}
-      subtitle={t('Товары, остатки и продажи')}
       actions={
         <>
           {rights.receiveStock && (
               <Link className="btn" href="/bar/receipts/new" prefetch={false}>
                 <Icon name="plus" width={16} height={16} /> {t('Приход')}
+              </Link>
+          )}
+          {rights.createCatalog && (
+              <Link className="btn btn--secondary" href="/bar/products#new-product" prefetch={false}>
+                <Icon name="plus" width={16} height={16} /> {t('Новый товар')}
               </Link>
           )}
           {canSell && (
@@ -267,6 +215,7 @@ export default async function BarPage({
         </Link>}
       </nav>
       <BarTabs current="bar" />
+      {totals}
       {/* без плиток над списком (правило владельца, аудит 21.10.2026 п.7): предупреждение строкой, только когда есть что сказать */}
       {lowCount > 0 && (
         <p className="bar-low-warning" role="status" data-testid="bar-low-warning">
@@ -318,52 +267,27 @@ export default async function BarPage({
           </section>
         </SaleDialog>
       )}
-      {stock.value.length === 0 ? (
-        <>
-          <EmptyState
-            icon={<Icon name="product" />}
-            title={t('Товаров пока нет')}
-            actions={
-              rights.createCatalog || rights.receiveStock ? (
-                <>
-                  {rights.createCatalog && (
-                    <Link className="btn" href="/bar/products#new-product" prefetch={false}>{t('Добавить товар')}</Link>
-                  )}
-                  {rights.receiveStock && (
-                    <Link className="btn btn--secondary" href="/bar/receipts/new" prefetch={false}>{t('Приход по накладной')}</Link>
-                  )}
-                </>
-              ) : undefined
-            }
-          >
-            {t('Заведите товар вручную или загрузите фото накладной: товары появятся вместе с приходом.')}
-          </EmptyState>
-          {totals}
-          {bottom}
-        </>
-      ) : (
-        <StockBoard
-          key={productParam ?? 'first'}
-          context={context}
-          stock={stock.value}
-          categories={categories.value}
-          suppliers={suppliers.value}
-          movements={movements.value}
-          today={today}
-          initialProduct={canCatalogMutate ? (productParam ?? null) : null}
-          canCatalogMutate={canCatalogMutate}
-          canStockMutate={rights.operateStock}
-          bottom={
-            <>
-              {totals}
-              <details className="bar-details">
-                <summary>{t('Последние приходы')}</summary>
-                {bottom}
-              </details>
-            </>
-          }
-        />
-      )}
+      {/* остатки 2fr и приходы 1fr в один ряд, чтобы обзор помещался на один экран ПК (владелец 25.10.2026) */}
+      <div className="bar-overview-grid">
+        {stock.value.length === 0 ? (
+          <OverviewEmpty canCreate={rights.createCatalog} canReceive={rights.receiveStock} />
+        ) : (
+          <StockBoard
+            key={productParam ?? 'first'}
+            context={context}
+            stock={stock.value}
+            categories={categories.value}
+            suppliers={suppliers.value}
+            movements={movements.value}
+            today={today}
+            initialProduct={canCatalogMutate ? (productParam ?? null) : null}
+            canCatalogMutate={canCatalogMutate}
+            canStockMutate={rights.operateStock}
+            bottom={null}
+          />
+        )}
+        {receiptsAside}
+      </div>
     </Page>
   );
 }

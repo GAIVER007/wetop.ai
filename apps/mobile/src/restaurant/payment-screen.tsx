@@ -16,6 +16,7 @@ const labels: Record<PaymentMethod, string> = {
   HALYK: 'Halyk',
   BANK_TRANSFER_PERSON: 'Перевод физлица',
   BANK_TRANSFER_LEGAL: 'Перевод юрлица',
+  OTHER: 'Другое',
 };
 export function PaymentScreen({
   order,

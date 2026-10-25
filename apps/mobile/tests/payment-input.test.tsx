@@ -22,3 +22,18 @@ test('offers only enabled server methods in configured order with no fallback', 
     readPaymentMethods({ methods: [{ method: 'AGGREGATOR', enabled: true, sortOrder: 0 }] }),
   ).toThrow();
 });
+
+test('accepts the server OTHER setting while keeping it unavailable unless enabled', () => {
+  const methods = [
+    'CASH',
+    'CARD_TERMINAL',
+    'KASPI',
+    'HALYK',
+    'BANK_TRANSFER_PERSON',
+    'BANK_TRANSFER_LEGAL',
+    'OTHER',
+  ].map((method, sortOrder) => ({ method, sortOrder, enabled: false }));
+  expect(readPaymentMethods({ methods })).toEqual([]);
+  methods[6]!.enabled = true;
+  expect(readPaymentMethods({ methods })).toEqual(['OTHER']);
+});

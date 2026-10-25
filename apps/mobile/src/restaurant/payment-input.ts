@@ -7,6 +7,7 @@ export const PAYMENT_METHODS = [
   'HALYK',
   'BANK_TRANSFER_PERSON',
   'BANK_TRANSFER_LEGAL',
+  'OTHER',
 ] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 export function readPaymentMethods(value: unknown): PaymentMethod[] {

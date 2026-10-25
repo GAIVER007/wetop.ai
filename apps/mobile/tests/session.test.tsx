@@ -40,6 +40,7 @@ function fixture() {
     report: jest.fn(),
     staffRevenue: jest.fn(),
     createOrder: jest.fn(),
+    serveItem: jest.fn(),
     reset: jest.fn().mockResolvedValue(undefined),
   };
   return { api, store, session: new SessionController(api, store) };
@@ -270,4 +271,31 @@ test('order creation with expired session clears access without retry', async ()
   expect(api.createOrder).toHaveBeenCalledTimes(1);
   expect(store.clear).toHaveBeenCalled();
   expect(session.state.kind).toBe('signed-out');
+});
+
+test('serving uses verified scope and rejects late results after branch change', async () => {
+  const { session, api } = fixture();
+  await expect(session.serveItem('order', 'item', 'version')).rejects.toMatchObject({
+    kind: 'forbidden',
+  });
+  expect(api.serveItem).not.toHaveBeenCalled();
+  await session.login('test@example.invalid', 'fixture');
+  let resolve!: (value: unknown) => void;
+  api.serveItem.mockImplementation(
+    () =>
+      new Promise((done) => {
+        resolve = done;
+      }),
+  );
+  const pending = session.serveItem('order', 'item', 'version');
+  expect(api.serveItem).toHaveBeenCalledWith(
+    'fixture-token',
+    'business=biz-01;location=loc-01',
+    'order',
+    'item',
+    'version',
+  );
+  await session.changeBranch();
+  resolve({ id: 'order' });
+  await expect(pending).rejects.toMatchObject({ kind: 'forbidden' });
 });

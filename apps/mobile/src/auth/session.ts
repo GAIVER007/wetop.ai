@@ -250,6 +250,11 @@ export class SessionController {
   createOrder(request: PendingOrder['request']): Promise<unknown> {
     return this.scopedFood((token, scope) => this.api.createOrder(token, scope, request));
   }
+  serveItem(orderId: string, itemId: string, expectedUpdatedAt: string): Promise<unknown> {
+    return this.scopedFood((token, scope) =>
+      this.api.serveItem(token, scope, orderId, itemId, expectedUpdatedAt),
+    );
+  }
   async changeBranch() {
     if (this.state.kind !== 'ready') return;
     ++this.epoch;

@@ -45,6 +45,13 @@ export interface AccessApi {
   ): Promise<unknown>;
   staffRevenue(token: string, scope: string, period: 'day' | 'week' | 'month'): Promise<unknown>;
   createOrder(token: string, scope: string, request: PendingOrder['request']): Promise<unknown>;
+  serveItem(
+    token: string,
+    scope: string,
+    orderId: string,
+    itemId: string,
+    expectedUpdatedAt: string,
+  ): Promise<unknown>;
   reset(email: string): Promise<void>;
 }
 export interface TokenStore {

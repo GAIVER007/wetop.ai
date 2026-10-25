@@ -794,3 +794,106 @@ it('cancels a stalled create upload before contacting upstream', async () => {
     vi.useRealTimers();
   }
 });
+
+describe('mobile serve position', () => {
+  const env = { ...ENABLED, MOBILE_ORDER_SERVE_ENABLED: '1' };
+  const body = { orderId: B, itemId: L, expectedUpdatedAt: '2026-10-25T12:00:00.000Z' };
+  const req = (value: unknown = body) =>
+    request('serve', {
+      method: 'POST',
+      headers: authorized({ 'content-type': 'application/json' }),
+      body: JSON.stringify(value),
+    });
+  it('forwards only SERVED with the original version and bearer scope', async () => {
+    const fetcher = vi.fn(async () => upstream({ message: 'conflict' }, 409));
+    const result = await handleMobileFoodGateway(req(), 'serve', env, fetcher);
+    expect(result.status).toBe(409);
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    const [url, init] = fetcher.mock.calls[0]! as unknown as [string, RequestInit];
+    expect(url).toBe(`http://127.0.0.1:3001/food-service/orders/${B}/items/${L}/status`);
+    expect(JSON.parse(init.body as string)).toEqual({
+      status: 'SERVED',
+      expectedUpdatedAt: body.expectedUpdatedAt,
+    });
+    expect(new Headers(init.headers).get('x-wetop-scope')).toBe(SCOPE);
+  });
+  it('rejects arbitrary statuses, paths, fields and empty versions before upstream', async () => {
+    const fetcher = vi.fn();
+    for (const value of [
+      { ...body, status: 'READY' },
+      { ...body, itemId: '../payments' },
+      { ...body, expectedUpdatedAt: '' },
+    ])
+      expect((await handleMobileFoodGateway(req(value), 'serve', env, fetcher)).status).toBe(400);
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it('stays disabled independently and never allows a GET mutation', async () => {
+    const fetcher = vi.fn();
+    expect((await handleMobileFoodGateway(req(), 'serve', ENABLED, fetcher)).status).toBe(405);
+    expect(
+      (
+        await handleMobileFoodGateway(
+          request('serve', { headers: authorized() }),
+          'serve',
+          env,
+          fetcher,
+        )
+      ).status,
+    ).toBe(405);
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it('lost response requires refresh instead of retry with a new version', async () => {
+    const fetcher = vi.fn().mockRejectedValue(new Error('lost'));
+    const result = await handleMobileFoodGateway(req(), 'serve', env, fetcher);
+    expect(result.status).toBe(503);
+    expect(await result.json()).toMatchObject({ outcome: 'unknown' });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+});
+
+it('returns filtered serving confirmation and preserves server authorization denial', async () => {
+  const env = { ...ENABLED, MOBILE_ORDER_SERVE_ENABLED: '1' };
+  const req = () =>
+    request('serve', {
+      method: 'POST',
+      headers: authorized({ 'content-type': 'application/json' }),
+      body: JSON.stringify({
+        orderId: B,
+        itemId: L,
+        expectedUpdatedAt: '2026-10-25T00:00:00.000Z',
+      }),
+    });
+  const order = {
+    id: B,
+    number: 1,
+    status: 'SERVED',
+    table: null,
+    waiter: null,
+    guestCount: 1,
+    totalMinor: '100',
+    paidMinor: '0',
+    currency: 'KZT',
+    updatedAt: '2026-10-25T00:01:00.000Z',
+    delayed: false,
+    items: [
+      {
+        id: L,
+        name: 'Кофе',
+        qty: 1,
+        priceMinor: '100',
+        station: 'BAR',
+        status: 'SERVED',
+        private: 'hidden',
+      },
+    ],
+    private: 'hidden',
+  };
+  const result = await handleMobileFoodGateway(req(), 'serve', env, async () => upstream(order));
+  expect(result.status).toBe(200);
+  expect(JSON.stringify(await result.json())).not.toContain('hidden');
+  const denied = await handleMobileFoodGateway(req(), 'serve', env, async () =>
+    upstream({ message: 'private' }, 403),
+  );
+  expect(denied.status).toBe(403);
+  expect(JSON.stringify(await denied.json())).not.toContain('private');
+});

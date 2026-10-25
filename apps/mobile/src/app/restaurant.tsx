@@ -1,3 +1,4 @@
+import { ServeControls } from '../restaurant/serve-controls';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -114,6 +115,19 @@ function RestaurantWorkspace({
             </Text>
           </View>
         ))}
+        <ServeControls
+          key={`${detail.id}:${detail.updatedAt}`}
+          order={detail}
+          send={(orderId, itemId, version) => session.serveItem(orderId, itemId, version)}
+          onUpdated={(next) => {
+            setDetail(next);
+            setOrders((old) => old.map((order) => (order.id === next.id ? next : order)));
+          }}
+          onRefresh={() => {
+            setDetail(null);
+            void load();
+          }}
+        />
         <View style={card}>
           <Text style={secondary}>Сумма заказа</Text>
           <Text style={title}>{money(detail.totalMinor, detail.currency)}</Text>

@@ -13,6 +13,7 @@ const MINOR_UNITS = /^\d+$/;
 const SIGNED_MINOR_UNITS = /^-?\d+$/;
 
 const ACTIONS = {
+  serve: '/food-service/orders',
   tables: '/food-service/waiter/tables',
   orders: '/food-service/orders',
   categories: '/food-service/menu/categories',
@@ -554,8 +555,13 @@ export async function handleMobileFoodGateway(
   const action = rawAction as FoodAction;
   const creating =
     request.method === 'POST' && action === 'orders' && env.MOBILE_ORDER_CREATE_ENABLED === '1';
-  if (request.method !== 'GET' && !creating)
-    return json({ message: 'Метод не поддерживается' }, 405, { allow: 'GET' });
+  const serving =
+    request.method === 'POST' && action === 'serve' && env.MOBILE_ORDER_SERVE_ENABLED === '1';
+  const mutating = creating || serving;
+  if ((!mutating && request.method !== 'GET') || (action === 'serve' && !serving))
+    return json({ message: 'Метод не поддерживается' }, 405, {
+      allow: action === 'serve' ? 'POST' : 'GET',
+    });
   if (hasServiceCredential(request)) return json({ message: 'Служебные ключи запрещены' }, 403);
 
   const bearer = bearerOf(request);
@@ -565,7 +571,8 @@ export async function handleMobileFoodGateway(
     return json({ message: 'Некорректный рабочий контекст' }, 400);
 
   let body: string | undefined;
-  if (creating) {
+  let servePath: string | undefined;
+  if (mutating) {
     if (new URL(request.url).search) return json({ message: 'Некорректный запрос' }, 400);
     if (
       request.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() !==
@@ -584,9 +591,28 @@ export async function handleMobileFoodGateway(
     }
     if (text === null) return json({ message: 'Запрос слишком большой' }, 413);
     try {
-      const input = parseOrderCreate(JSON.parse(text));
-      if (!input.creationRequestKey) return json({ message: 'Нужен ключ создания заказа' }, 400);
-      body = JSON.stringify(input);
+      if (serving) {
+        const input = record(JSON.parse(text));
+        if (
+          Object.keys(input).some(
+            (key) => !['orderId', 'itemId', 'expectedUpdatedAt'].includes(key),
+          ) ||
+          typeof input.orderId !== 'string' ||
+          !UUID_RE.test(input.orderId) ||
+          typeof input.itemId !== 'string' ||
+          !UUID_RE.test(input.itemId) ||
+          typeof input.expectedUpdatedAt !== 'string' ||
+          !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(input.expectedUpdatedAt) ||
+          !Number.isFinite(Date.parse(input.expectedUpdatedAt))
+        )
+          throw new InvalidUpstreamResponse();
+        servePath = `/food-service/orders/${input.orderId}/items/${input.itemId}/status`;
+        body = JSON.stringify({ status: 'SERVED', expectedUpdatedAt: input.expectedUpdatedAt });
+      } else {
+        const input = parseOrderCreate(JSON.parse(text));
+        if (!input.creationRequestKey) return json({ message: 'Нужен ключ создания заказа' }, 400);
+        body = JSON.stringify(input);
+      }
     } catch {
       return json({ message: 'Проверьте данные заказа' }, 400);
     }
@@ -594,12 +620,14 @@ export async function handleMobileFoodGateway(
   const uncertain = (status: number) =>
     json(
       {
-        message: 'Результат отправки не подтверждён. Повторяйте только с прежним ключом заказа.',
+        message: serving
+          ? 'Результат не подтверждён. Обновите заказ перед следующим действием.'
+          : 'Результат отправки не подтверждён. Повторяйте только с прежним ключом заказа.',
         outcome: 'unknown',
       },
       status,
     );
-  const path = creating ? ACTIONS.orders : upstreamPath(request, action);
+  const path = servePath ?? (creating ? ACTIONS.orders : upstreamPath(request, action));
   if (path instanceof Response) return path;
   const url = endpoint(env, path);
   if (!url) return json({ message: 'Сервис временно недоступен. Попробуйте ещё раз.' }, 503);
@@ -612,11 +640,11 @@ export async function handleMobileFoodGateway(
   const userAgent = request.headers.get('user-agent')?.trim();
   if (userAgent) headers.set('user-agent', userAgent.slice(0, 300));
 
-  if (creating) headers.set('content-type', 'application/json');
+  if (mutating) headers.set('content-type', 'application/json');
   let upstream: Response;
   try {
     upstream = await fetcher(url, {
-      method: creating ? 'POST' : 'GET',
+      method: mutating ? 'POST' : 'GET',
       ...(body !== undefined ? { body } : {}),
       headers,
       cache: 'no-store',
@@ -624,23 +652,23 @@ export async function handleMobileFoodGateway(
       signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
   } catch {
-    if (creating) return uncertain(503);
+    if (mutating) return uncertain(503);
     return json({ message: 'Нет связи с сервером. Попробуйте ещё раз.' }, 503);
   }
 
   const text = await boundedResponse(upstream).catch(() => null);
   if (text === null)
-    return creating ? uncertain(502) : json({ message: 'Некорректный ответ сервера' }, 502);
+    return mutating ? uncertain(502) : json({ message: 'Некорректный ответ сервера' }, 502);
   let parsed: unknown;
   try {
     parsed = text ? JSON.parse(text) : null;
   } catch {
-    if (creating) return uncertain(502);
+    if (mutating) return uncertain(502);
     return json({ message: 'Некорректный ответ сервера' }, 502);
   }
 
   if (!upstream.ok) {
-    if (creating && upstream.status >= 500) return uncertain(503);
+    if (mutating && upstream.status >= 500) return uncertain(503);
     if (upstream.status >= 500)
       return json({ message: 'Сервис временно недоступен. Попробуйте ещё раз.' }, 503);
     const status = [400, 401, 403, 404, 409, 422, 429].includes(upstream.status)
@@ -650,7 +678,7 @@ export async function handleMobileFoodGateway(
   }
 
   try {
-    if (creating) return json(orderDto(parsed), 201);
+    if (mutating) return json(orderDto(parsed), creating ? 201 : 200);
     if (action === 'tables') return json(tablesDto(parsed), 200);
     if (action === 'orders') return json(ordersDto(parsed), 200);
     if (action === 'categories') return json(categoriesDto(parsed), 200);
@@ -661,7 +689,7 @@ export async function handleMobileFoodGateway(
     if (action === 'staff-revenue') return json(staffRevenueDto(parsed), 200);
     return json(menuItemsDto(parsed), 200);
   } catch {
-    if (creating) return uncertain(502);
+    if (mutating) return uncertain(502);
     return json({ message: 'Некорректный ответ сервера' }, 502);
   }
 }

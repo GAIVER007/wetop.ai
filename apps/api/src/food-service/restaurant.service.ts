@@ -839,8 +839,28 @@ export class RestaurantService {
   async createOrder(raw: unknown) {
     return this.write('orders', async (tx, s) => {
       const b = parsed(() => parseOrderCreate(raw));
-      // официант принимает заказ только на себя (§33.6)
+      // Проверяем действующие права до возврата ранее созданного заказа.
       const me = await waiterSelf(tx, s);
+      const key = b.creationRequestKey;
+      const userId = currentUserId();
+      if (key && !userId) throw new ForbiddenException('Нужна учётная запись');
+      const hash = key ? createHash('sha256').update(JSON.stringify({
+        version: 1, locationId: s.locationId, userId,
+        tableId: b.tableId, waiterId: b.waiterId, guestCount: b.guestCount, notes: b.notes,
+        items: b.items.map(i => ({ menuItemId: i.menuItemId, qty: i.qty, notes: i.notes, modifierIds: [...i.modifierIds].sort() })),
+      })).digest('hex') : null;
+      // foodTransaction уже держит блокировку филиала, поиск выполняется после неё.
+      if (key) {
+        const existing = await tx.restaurantOrder.findFirst({
+          where: { locationId: s.locationId, creationRequestKey: key }, include: orderInclude,
+        });
+        if (existing) {
+          if (existing.creationRequestHash !== hash || existing.createdById !== userId)
+            throw new ConflictException('Ключ уже использован для другого запроса');
+          if (me && existing.waiterId !== me.id) throw new ForbiddenException('Заказ недоступен');
+          return orderView(existing);
+        }
+      }
       if (me) b.waiterId = me.id;
       await this.checkTableAndWaiter(tx, s, b.tableId, b.waiterId);
       const { data, total } = await this.orderItemsData(tx, s, b.items);
@@ -852,6 +872,8 @@ export class RestaurantService {
         data: {
           locationId: s.locationId,
           number: (last._max.number ?? 0) + 1,
+          creationRequestKey: key ?? null,
+          creationRequestHash: hash,
           tableId: b.tableId,
           waiterId: b.waiterId,
           guestCount: b.guestCount,

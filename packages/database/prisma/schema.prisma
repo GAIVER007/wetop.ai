@@ -4032,6 +4032,8 @@ model MenuItemIngredient {
 
 /// Заказ: номер по филиалу, статусная машина §33.2, `total` — снимок суммы строк
 model RestaurantOrder {
+  creationRequestKey   String? @map("creation_request_key") @db.VarChar(100)
+  creationRequestHash  String? @map("creation_request_hash") @db.Char(64)
   id                   String                    @id @default(uuid()) @db.Uuid
   locationId           String                    @map("location_id") @db.Uuid
   number               Int
@@ -4064,6 +4066,7 @@ model RestaurantOrder {
   stockMovements       KitchenStockMovement[]
   rating               RestaurantOrderRating?
 
+  @@unique([locationId, creationRequestKey])
   @@unique([locationId, number])
   @@index([locationId, openedAt])
   @@index([locationId, status])

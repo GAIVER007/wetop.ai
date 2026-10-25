@@ -237,8 +237,9 @@ function StayPanel({
         .filter(Boolean)
         .join(', ')
     : '';
-  const row = (icon: IconName, label: string, children: React.ReactNode, testId?: string) => (
-    <dl className="stay-panel__row" data-testid={testId}>
+  // Компактная панель (замечание владельца 25.10.2026 «много пустого места»): факты плитками в две колонки
+  const row = (icon: IconName, label: string, children: React.ReactNode, testId?: string, wide = false) => (
+    <dl className={wide ? 'stay-panel__row stay-panel__row--wide' : 'stay-panel__row'} data-testid={testId}>
       <dt>
         <span className="stay-panel__icon" aria-hidden="true">
           <Icon name={icon} />
@@ -281,6 +282,7 @@ function StayPanel({
       <h2 className="stay-panel__guest" data-testid="preview-guest">
         {target.guest}
       </h2>
+      <div className="stay-panel__sub">
       <p className="stay-panel__number">{t('Бронь №{number}', { number: target.number })}</p>
       <div className="stay-panel__contacts">
         {target.phone && (
@@ -305,6 +307,7 @@ function StayPanel({
             <Icon name="chat" />
           </a>
         )}
+      </div>
       </div>
       <div className="stay-panel__facts">
         <div data-testid="preview-dates" className="stay-panel__group">
@@ -332,17 +335,17 @@ function StayPanel({
             ),
           )}
         </div>
-        {row('bed', places, `${target.unitCode} (${target.categoryName})`, 'preview-place')}
+        {row('bed', places, <>{target.unitCode}<small>{target.categoryName}</small></>, 'preview-place')}
         {data && guests && row('guests', t('Гости'), guests)}
         <div data-testid="preview-sums" aria-live="polite" className="stay-panel__group">
           {data === undefined
-            ? row('money', t('Оплачено'), t('Загружаю…'))
+            ? row('money', t('Оплачено'), t('Загружаю…'), undefined, true)
             : data?.money
               ? row(
                   'money',
                   t('Оплачено'),
                   <>
-                    {money(data.money.paidMinor)}
+                    <span>{money(data.money.paidMinor)}</span>
                     <span className="stay-panel__pill" data-tone={balance > 0n ? 'due' : 'paid'}>
                       {balance > 0n
                         ? t('Долг {sum}', { sum: money(balance.toString()) })
@@ -352,11 +355,13 @@ function StayPanel({
                     </span>
                     <small>{t('Итого {sum}', { sum: money(data.money.chargedMinor) })}</small>
                   </>,
+                  undefined,
+                  true,
                 )
-              : row('money', t('Суммы'), t('не загрузились, откройте бронь'))}
+              : row('money', t('Суммы'), t('не загрузились, откройте бронь'), undefined, true)}
         </div>
         {target.sourceName && row('channels', t('Источник'), t(target.sourceName))}
-        {data?.notes && row('journal', t('Заметки'), data.notes)}
+        {data?.notes && row('journal', t('Заметки'), data.notes, undefined, true)}
       </div>
       {unready && (
         <p className="stay-panel__warn" data-testid="preview-unready">

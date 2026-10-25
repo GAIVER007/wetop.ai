@@ -199,7 +199,7 @@ export function ReservationActions(props: {
         )
         .map((it) => (
           <Stack key={it.id} gap="sm">
-            <StayGuestsForm number={props.number} item={it} />
+            {/* главное действие первым (замечание владельца 25.10.2026): заселить, выселить, продлить */}
             <StayButtons
               number={props.number}
               currency={props.currency}
@@ -207,6 +207,7 @@ export function ReservationActions(props: {
               ratePlans={props.ratePlans}
               onCancel={openCancel}
             />
+            <StayGuestsForm number={props.number} item={it} />
             <AssignForm
               number={props.number}
               currency={props.currency}

@@ -215,6 +215,12 @@ export function QuickReport({
                     <dt>{t(data.itemLabel)}</dt>
                     <dd>{data.total}</dd>
                   </div>
+                  {data.counts?.map((c) => (
+                    <div key={c.label}>
+                      <dt>{c.label}</dt>
+                      <dd>{c.value}</dd>
+                    </div>
+                  ))}
                 </dl>
                 <h3>{t('Статусы')}</h3>
                 <dl className="quick-report-statuses">

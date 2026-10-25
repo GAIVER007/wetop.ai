@@ -1,6 +1,8 @@
 @layer sections {
   .food-workspace {
     display: grid;
+    /* колонка не шире экрана: полоса даты заказов на телефоне раздвигала все блоки за край (24.10.2026) */
+    grid-template-columns: minmax(0, 1fr);
     gap: 24px;
     min-width: 0;
   }

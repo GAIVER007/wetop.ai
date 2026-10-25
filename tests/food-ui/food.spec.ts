@@ -93,7 +93,7 @@ async function seed(page: Page, request: APIRequestContext) {
 async function create(page: Page, walkIn = false) {
   await page.goto(`/floor-plan?date=${date}&time=19:00`);
   await page
-    .getByRole('button', { name: walkIn ? 'Посадить без брони' : '+ Новая бронь', exact: true })
+    .getByRole('button', { name: walkIn ? 'Посадить без брони' : 'Новая бронь', exact: true })
     .click();
   const dialog = page.getByRole('dialog');
   await dialog.getByRole('radio', { name: 'Новый', exact: true }).check();
@@ -265,7 +265,7 @@ test('overlap and archived catalog preserve creation draft and idempotency key',
     ).ok(),
   ).toBe(true);
   await page.goto(`/floor-plan?date=${date}&time=19:00`);
-  await page.getByRole('button', { name: '+ Новая бронь', exact: true }).click();
+  await page.getByRole('button', { name: 'Новая бронь', exact: true }).click();
   const d = page.getByRole('dialog');
   await d.getByRole('radio', { name: 'Новый', exact: true }).check();
   await d.getByLabel('Имя', { exact: true }).fill('Сохранённый черновик');
@@ -424,11 +424,11 @@ test('READ_ONLY and STAFF permissions on real API', async ({ page, request }) =>
     ).status(),
   ).toBe(403);
   await page.goto(`/floor-plan?date=${date}&time=19:00`);
-  await expect(page.getByRole('button', { name: '+ Новая бронь', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Новая бронь', exact: true })).toBeVisible();
   await request.post(`${api}/__test/control`, { data: { readOnly: true } });
   await page.reload();
   await expect(page.getByTestId('read-only-banner')).toContainText('Режим только для чтения');
-  await expect(page.getByRole('button', { name: '+ Новая бронь', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Новая бронь', exact: true })).toHaveCount(0);
   expect(
     (
       await request.post(`${api}/food-service/reservations`, {
@@ -674,7 +674,7 @@ test('creation 503 keeps the draft and retry key; invalid period stays inline', 
 }) => {
   const { headers } = await seed(page, request);
   await page.goto(`/floor-plan?date=${date}&time=19:00`);
-  await page.getByRole('button', { name: '+ Новая бронь', exact: true }).click();
+  await page.getByRole('button', { name: 'Новая бронь', exact: true }).click();
   const d = page.getByRole('dialog');
   await d.getByLabel('Имя', { exact: true }).fill('Повтор синтетический');
   await d.getByLabel('Заметка').fill('Сохранённый ввод');

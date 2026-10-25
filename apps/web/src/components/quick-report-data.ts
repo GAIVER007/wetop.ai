@@ -2,6 +2,7 @@ import { msg } from '../i18n';
 import { beautyPeriod, foodPeriod } from '../app/management/analytics/vertical/metrics';
 import { beautyStatus } from '../lib/status/beauty';
 import { foodOrderStatus, foodStatus } from '../lib/status/food';
+import { hospitalityStatus } from '../lib/status/hospitality';
 import type { StatusPresentation } from '../lib/status/types';
 import type { OrderView } from '../lib/food-types';
 
@@ -9,6 +10,8 @@ export interface QuickReportData {
   total: number;
   clients: number | null;
   itemLabel: string;
+  /** дополнительные счётчики рядом с общим числом («Заездов», «Выездов» у гостиницы) */
+  counts?: Array<{ label: string; value: number }>;
   statuses: Array<{ key: string; label: string; count: number; tone: string }>;
   money: Array<{ label: string; values: Record<string, string>; hint: string }>;
   note: string;
@@ -217,5 +220,68 @@ export function orderQuickReport(
     statuses: statuses(foodOrderStatus, counts),
     money,
     note: msg('Скидки и бонусы: отдельный учёт в заказах пока не ведётся. Уникальные клиенты не определяются по заказам. Движения денег за конкретную дату смотрите в кассе.'),
+  };
+}
+
+type HotelCell = {
+  date: string;
+  state: string;
+  itemId?: string;
+  itemStatus?: string;
+  guestLabel?: string;
+  isArrival?: boolean;
+  isLastNight?: boolean;
+  balanceMinor?: string;
+};
+
+/**
+ * «Быстрый отчёт» гостиницы (владелец 23.10.2026: «кнопка быстрый отчёт должна быть во всех вертикалях»): по клеткам
+ * календаря за отрезок. Бронь считается один раз, заезд по клетке с `isArrival`, выезд по последней ночи; долг по
+ * уникальным броням из `balanceMinor` (тот же, что плашкой на клетке).
+ */
+export function hotelQuickReport(
+  rows: Array<{ cells: HotelCell[] }>,
+  period: { from: string; to: string; currency: string },
+): QuickReportData {
+  const stays = new Map<string, { status: string; arrival: boolean; leaving: boolean; balance: string; guest: string }>();
+  for (const row of rows)
+    for (const cell of row.cells) {
+      if (cell.date < period.from || cell.date > period.to || cell.state !== 'OCCUPIED' || !cell.itemId) continue;
+      const seen = stays.get(cell.itemId);
+      stays.set(cell.itemId, {
+        status: cell.itemStatus ?? seen?.status ?? 'CONFIRMED',
+        arrival: (seen?.arrival ?? false) || !!cell.isArrival,
+        leaving: (seen?.leaving ?? false) || !!cell.isLastNight,
+        balance: cell.balanceMinor && /^\d+$/.test(cell.balanceMinor) ? cell.balanceMinor : (seen?.balance ?? '0'),
+        guest: cell.guestLabel ?? seen?.guest ?? '',
+      });
+    }
+  const counts: Record<string, number> = {};
+  let arrivals = 0;
+  let departures = 0;
+  let debt = 0n;
+  for (const stay of stays.values()) {
+    counts[stay.status] = (counts[stay.status] ?? 0) + 1;
+    if (stay.arrival) arrivals += 1;
+    if (stay.leaving) departures += 1;
+    debt += BigInt(stay.balance);
+  }
+  return {
+    total: stays.size,
+    clients: new Set([...stays.values()].map((s) => s.guest).filter(Boolean)).size,
+    itemLabel: msg('Броней'),
+    counts: [
+      { label: msg('Заездов'), value: arrivals },
+      { label: msg('Выездов'), value: departures },
+    ],
+    statuses: statuses(hospitalityStatus, counts),
+    money: [
+      {
+        label: msg('Не оплачено по броням'),
+        values: debt > 0n ? { [period.currency]: debt.toString() } : {},
+        hint: msg('Остаток к оплате по броням, которые живут в выбранные дни, как плашка суммы на календаре.'),
+      },
+    ],
+    note: msg('Брони считаются по календарю номеров: бронь без назначенного номера в отчёт не входит. Начисления и оплаты за период смотрите в «Финансах».'),
   };
 }

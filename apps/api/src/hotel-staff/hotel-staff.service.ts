@@ -209,4 +209,61 @@ export class HotelStaffService {
     };
   }
 
+
+  /**
+   * Сотрудники гостиницы приглашаются входом (администратор, руководитель, «Личный кабинет»), без карточки сотрудника,
+   * и «График работы» их не видел (владелец 23.10.2026). Каждому, у кого есть доступ к этому филиалу (владелец и
+   * руководитель всей организации, назначение на бизнес или на этот филиал), заводится карточка, привязанная ко входу,
+   * и место работы в филиале. Уже привязанная карточка не дублируется; архивная не возвращается.
+   */
+  async syncMemberEmployees() {
+    foodMay('desk');
+    if (!actorMay('staff')) return;
+    const s = await foodScope(this.prisma.db, HOTEL);
+    await foodTransaction(
+      this.prisma,
+      s,
+      async (tx, scope) => {
+        const members = await tx.membership.findMany({
+          where: { organizationId: scope.organizationId, status: 'ACTIVE' },
+          select: { userId: true, role: true, user: { select: { name: true, email: true } } },
+        });
+        const scopes = await tx.membershipScope.findMany({
+          where: { organizationId: scope.organizationId, userId: { in: members.map((m) => m.userId) } },
+          select: { userId: true, businessId: true, locationId: true },
+        });
+        const here = members.filter((m) => {
+          const own = scopes.filter((r) => r.userId === m.userId);
+          if (own.length === 0) return m.role === 'OWNER' || m.role === 'MANAGER';
+          return own.some(
+            (r) => r.businessId === scope.businessId && (r.locationId === null || r.locationId === scope.locationId),
+          );
+        });
+        if (!here.length) return;
+        const existing = await tx.employee.findMany({
+          where: { businessId: scope.businessId, userId: { in: here.map((m) => m.userId) } },
+          select: { id: true, userId: true, status: true, locations: { select: { locationId: true } } },
+        });
+        for (const m of here) {
+          const card = existing.find((e) => e.userId === m.userId);
+          if (card) {
+            if (card.status === 'ACTIVE' && !card.locations.some((l) => l.locationId === scope.locationId))
+              await tx.employeeLocation.create({ data: { employeeId: card.id, locationId: scope.locationId } });
+            continue;
+          }
+          const created = await tx.employee.create({
+            data: {
+              businessId: scope.businessId,
+              userId: m.userId,
+              name: (m.user.name?.trim() || m.user.email).slice(0, 200),
+              email: m.user.email,
+              personnelKind: 'OTHER_EMPLOYEE',
+            },
+          });
+          await tx.employeeLocation.create({ data: { employeeId: created.id, locationId: scope.locationId } });
+        }
+      },
+      HOTEL,
+    );
+  }
 }

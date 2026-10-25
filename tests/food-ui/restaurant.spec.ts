@@ -890,7 +890,8 @@ test('зарплата салона (§19.2): та же доска, процен
   await scope(page, f.beauty, f.locations[3]!);
   await page.goto('/today');
   await page.goto('/payroll');
-  await expect(page.getByRole('main').getByRole('cell', { name: 'Мастер Дина', exact: true })).toBeVisible();
+  // имя сотрудника заголовком строки (вариант A, 25.10.2026): читалка называет строку по имени
+  await expect(page.getByRole('main').getByRole('rowheader', { name: 'Мастер Дина', exact: true })).toBeVisible();
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Зарплата', level: 1 })).toBeVisible();
   // процент салона от выполненных записей (вариант A владельца 25.10.2026: колонка процента по базе направления)

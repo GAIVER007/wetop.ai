@@ -3823,7 +3823,9 @@
   .staff-form-dialog :is(.field__label, .staff-access__legend, .staff-personnel-kind legend, .team-scope legend) { font-weight: 500; color: var(--text); }
   .staff-form-dialog .staff-form-section-title { font-size: var(--text-lg); font-weight: 600; margin-top: var(--space-2); }
   .staff-form-dialog .field__label--required::after { color: var(--danger); }
-  .staff-form-dialog .inp {
+  /* .ui-overlay: на телефоне `.employee-workspace-form .inp` (workspace.css, тот же слой, грузится позже) опускал поле
+     до 44 px; высота окна по образцу 48 px держится на всех ширинах (onboarding-compatibility, 320/390/600) */
+  .ui-overlay.staff-form-dialog .inp {
     min-height: calc(var(--touch-target) + var(--space-1)); height: calc(var(--touch-target) + var(--space-1)); border-color: var(--border); border-radius: var(--radius-sm);
     background-color: var(--surface-solid); padding: calc(var(--space-2) + var(--space-1) / 2) var(--space-4); font-size: var(--text-lg); box-shadow: none;
   }

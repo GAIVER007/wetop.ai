@@ -193,7 +193,7 @@ describe('shared stock controls', () => {
     const idle: StockProductView = { ...product, id: 'synthetic-idle-food', name: 'Старый ингредиент', active: false };
     const ctx = { scopeKey: 's', currency: 'KZT', canDesk: true, canProperty: true };
     const html = renderToStaticMarkup(createElement(StockBoard as never, { ctx, products: [product, idle], movements: [] }));
-    expect(html).toContain('class="bar-products-tools"');
+    expect(html).toMatch(/class="[^"]*\bbar-products-tools\b/);
     expect(html).toMatch(/<table[^>]*class="[^"]*bar-products-grid/);
     expect(html).toMatch(/<th class="bar-products-grid__name">/);
     expect(html).not.toContain('Старый ингредиент');

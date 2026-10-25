@@ -635,7 +635,8 @@ export function StockBoard({
       </>
     ) : (
       <div className="rest-card">
-        <div className="bar-products-tools">
+        {/* строка поиска с кнопками (аудит 21.10.2026 п.40) в виде /bar (владелец 25.10.2026) */}
+        <div className="rest-card__tools bar-products-tools">
           <IconField icon="search">
             <Input aria-label={t(nouns.search)} placeholder={t(nouns.search)} value={query} onChange={(e) => setQuery(e.target.value)} />
           </IconField>

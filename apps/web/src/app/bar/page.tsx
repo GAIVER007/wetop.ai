@@ -165,6 +165,7 @@ export default async function BarPage({
       width="wide"
       className="bar-page"
       title={sectionName}
+      subtitle={t('Товары, остатки и продажи')}
       actions={
         <>
           {rights.receiveStock && (

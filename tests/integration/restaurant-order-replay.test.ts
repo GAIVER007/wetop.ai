@@ -1,7 +1,8 @@
+import { handleMobileGateway } from '../../apps/web/src/lib/mobile-gateway';
 import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
-import { hashSessionToken, newSessionToken } from '@pms/domain';
+import { hashSessionToken, hashPassword } from '@pms/domain';
 import { AuthModule } from '../../apps/api/src/auth/auth.module';
 import { AuthService } from '../../apps/api/src/auth/auth.service';
 import { SessionGuard } from '../../apps/api/src/auth/auth.guard';
@@ -308,16 +309,13 @@ describe('restaurant creation request replay', () => {
       appConnectionString: appUrl.toString(),
     });
     const prisma = { db: scoped } as PrismaService;
-    const token = newSessionToken();
-    await db.membership.create({ data: { userId: user, organizationId: org, role: 'OWNER' } });
-    await db.session.create({
-      data: {
-        userId: user,
-        organizationId: org,
-        tokenHash: hashSessionToken(token),
-        expiresAt: new Date(Date.now() + 3600000),
-      },
+    const password = `Synthetic-${randomUUID()}!`;
+    const email = `replay-${user}@example.invalid`;
+    await db.user.update({
+      where: { id: user },
+      data: { passwordHash: hashPassword(password), emailVerifiedAt: new Date() },
     });
+    await db.membership.create({ data: { userId: user, organizationId: org, role: 'OWNER' } });
     const module = await Test.createTestingModule({ imports: [AuthModule, FoodModule] })
       .overrideProvider(PrismaService)
       .useValue(prisma)
@@ -339,6 +337,32 @@ describe('restaurant creation request replay', () => {
         MOBILE_ORDER_SERVE_ENABLED: '1',
         APP_API_URL: base,
       };
+      const loginResponse = await handleMobileGateway(
+        new Request('http://127.0.0.1/mobile/login', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'cf-connecting-ip': '203.0.113.7' },
+          body: JSON.stringify({ email, password }),
+        }),
+        'login',
+        { ...env, MOBILE_GATEWAY_TRUSTED_PROXY: 'cloudflare' },
+      );
+      expect(loginResponse.status).toBe(200);
+      const login = await loginResponse.json();
+      const token = login.token as string;
+      expect(typeof token).toBe('string');
+      expect(login.user.id).toBe(user);
+      const meResponse = await handleMobileGateway(
+        new Request('http://127.0.0.1/mobile/me', {
+          headers: {
+            authorization: `Bearer ${token}`,
+            'x-wetop-scope': `business=${business};location=${location}`,
+          },
+        }),
+        'me',
+        env,
+      );
+      expect(meResponse.status).toBe(200);
+      expect((await meResponse.json()).user.id).toBe(user);
       const call = (action: string, body: unknown, bearer = token) =>
         handleMobileFoodGateway(
           new Request(`http://127.0.0.1/mobile/${action}`, {

@@ -132,8 +132,8 @@ test('create then immediate services tab uses one canonical profile without prof
  await page.goto('/employees?onboarding=1');
  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
  const dialog = page.getByRole('dialog');
- await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Диагностики');
- await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+ await dialog.getByLabel('Имя', { exact: true }).fill('Мастер Диагностики');
+ await dialog.getByRole('radio', { name: /^Без входа/ }).check();await dialog.getByRole('button', { name: 'Добавить сотрудника', exact: true }).click();
  await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
  const canonicalUrl = page.url();
  await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -188,7 +188,7 @@ test('create then immediate services tab uses one canonical profile without prof
 });
 
 test('Employee mobile typography, confirmed scope and create cancellation',async ({page})=>{
- const {businessName}=await registered(page,'BEAUTY');
+ await registered(page,'BEAUTY');
  await page.getByRole('button',{name:'Настроить салон',exact:true}).click();
  await page.getByRole('button',{name:'Сохранить и продолжить',exact:true}).click();
  await expect(page.getByText('Выполнено 0 из 4 обязательных шагов',{exact:true})).toBeVisible();
@@ -197,18 +197,18 @@ test('Employee mobile typography, confirmed scope and create cancellation',async
  const panel=page.getByRole('dialog',{name:'Новый специалист',exact:true});
  for(const width of [320,390,600]){
   await page.setViewportSize({width,height:width===320?568:844});
-  expect(await panel.getByLabel('Имя мастера',{exact:true}).evaluate(el=>getComputedStyle(el).fontSize)).toBe('17px');
+  expect(await panel.getByLabel('Имя',{exact:true}).evaluate(el=>getComputedStyle(el).fontSize)).toBe('17px');
   // CSS contract: 44px tap target; the centred dialog can render it at 43.99998 (subpixel), so compare whole pixels
-  expect(await panel.getByLabel('Имя мастера',{exact:true}).evaluate(el=>getComputedStyle(el).minHeight)).toBe('44px');
-  expect(Math.round((await panel.getByLabel('Имя мастера',{exact:true}).boundingBox())!.height)).toBeGreaterThanOrEqual(44);
+  expect(await panel.getByLabel('Имя',{exact:true}).evaluate(el=>getComputedStyle(el).minHeight)).toBe('48px');
+  expect(Math.round((await panel.getByLabel('Имя',{exact:true}).boundingBox())!.height)).toBeGreaterThanOrEqual(44);
  }
- await expect(panel.getByRole('region',{name:'Бизнес и филиал',exact:true})).toContainText(businessName);
- await panel.getByLabel('Имя мастера',{exact:true}).fill('Черновик Мастера');
+ await expect(panel.getByRole('region',{name:'Бизнес и филиал',exact:true})).toHaveCount(0);
+ await panel.getByLabel('Имя',{exact:true}).fill('Черновик Мастера');
  await panel.getByRole('button',{name:'Отмена',exact:true}).click();
  const confirm=page.getByRole('dialog',{name:'Несохранённые изменения',exact:true});
  await expect(confirm).toBeVisible();
  await confirm.getByRole('button',{name:'Остаться',exact:true}).click();
- await expect(panel.getByLabel('Имя мастера',{exact:true})).toHaveValue('Черновик Мастера');
+ await expect(panel.getByLabel('Имя',{exact:true})).toHaveValue('Черновик Мастера');
  await panel.getByRole('button',{name:'Отмена',exact:true}).click();
  await confirm.getByRole('button',{name:'Не сохранять',exact:true}).click();
  await expect(panel).toHaveCount(0);

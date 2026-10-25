@@ -168,6 +168,7 @@ test('dirty creation still uses the save-before-leaving guard', async ({ page, r
   await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   const creation = page.getByRole('dialog', { name: 'Новый специалист', exact: true });
   await creation.getByLabel('Имя').fill('Тестовый мастер перед закрытием');
+  await creation.getByRole('radio', { name: /^Без входа/ }).check();
   await creation.getByRole('button', { name: 'Закрыть: Новый специалист' }).click();
   const confirm = page.getByRole('dialog', { name: 'Несохранённые изменения', exact: true });
   await confirm.getByRole('button', { name: 'Сохранить и перейти', exact: true }).click();

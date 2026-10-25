@@ -123,9 +123,11 @@ test('«Сделать рабочим» и «Сохранить» сохраня
 
 /** Понедельник текущей недели, как его считает страница по умолчанию */
 async function thisMonday(page: Page) {
+  // неделя салона по его часовому поясу (Алматы), как у страницы: по часам раннера (UTC) с 19:00 до полуночи
+  // воскресенья «эта неделя» теста была прошлой неделей страницы (гейт #863, 25.10.2026, 20:00 UTC)
   return page.evaluate(() => {
-    const now = new Date();
-    const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 12));
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+    const d = new Date(`${today}T12:00:00Z`);
     d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
     return d.toISOString().slice(0, 10);
   });

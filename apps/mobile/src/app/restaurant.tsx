@@ -1,3 +1,4 @@
+import { PaymentPanel } from '../restaurant/payment-panel';
 import { ServeControls } from '../restaurant/serve-controls';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
@@ -50,6 +51,7 @@ function RestaurantWorkspace({
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState('');
   const [tab, setTab] = useState<'orders' | 'tables'>('orders');
+  const [payment, setPayment] = useState(false);
   const [detail, setDetail] = useState<RestaurantOrder | null>(null);
   const request = useRef(0);
   const locked = useRef(false);
@@ -93,6 +95,23 @@ function RestaurantWorkspace({
   const card = { padding: 18, borderRadius: 16, backgroundColor: theme.surface, gap: 8 } as const;
   const title = { fontSize: 18, fontWeight: '700', color: theme.text } as const;
   const secondary = { fontSize: 14, lineHeight: 21, color: theme.secondary } as const;
+  if (payment && detail)
+    return (
+      <PaymentPanel
+        order={detail}
+        onBack={(updated) => {
+          if (updated)
+            setOrders((old) =>
+              updated.status === 'CLOSED' || updated.status === 'CANCELLED'
+                ? old.filter((item) => item.id !== updated.id)
+                : old.map((item) => (item.id === updated.id ? updated : item)),
+            );
+          setPayment(false);
+          setDetail(null);
+          void load();
+        }}
+      />
+    );
   if (detail)
     return (
       <Screen title={`Заказ №${detail.number}`} subtitle={detail.table?.name ?? 'Заказ со стойки'}>
@@ -133,9 +152,15 @@ function RestaurantWorkspace({
           <Text style={title}>{money(detail.totalMinor, detail.currency)}</Text>
           <Text style={secondary}>Оплачено: {money(detail.paidMinor, detail.currency)}</Text>
         </View>
+        {canSeeCash &&
+        detail.status !== 'CLOSED' &&
+        detail.status !== 'CANCELLED' &&
+        BigInt(detail.totalMinor) > BigInt(detail.paidMinor) ? (
+          <ActionButton label="Принять оплату" onPress={() => setPayment(true)} />
+        ) : null}
         <Text style={secondary}>
-          Показан последний загруженный состав. Изменение заказа и расчёт пока доступны в
-          веб-версии.
+          Показан последний загруженный состав. Для проверки актуального состояния обновите список
+          заказов.
         </Text>
       </Screen>
     );

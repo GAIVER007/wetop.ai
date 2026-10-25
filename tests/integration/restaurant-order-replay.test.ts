@@ -1,9 +1,20 @@
+import 'reflect-metadata';
+import { Test } from '@nestjs/testing';
+import { Reflector } from '@nestjs/core';
+import { hashSessionToken, newSessionToken } from '@pms/domain';
+import { AuthModule } from '../../apps/api/src/auth/auth.module';
+import { AuthService } from '../../apps/api/src/auth/auth.service';
+import { SessionGuard } from '../../apps/api/src/auth/auth.guard';
+import { RoleGuard } from '../../apps/api/src/auth/role.guard';
+import { AuthorInterceptor } from '../../apps/api/src/auth/author.interceptor';
+import { FoodModule } from '../../apps/api/src/food-service/food.module';
+import { handleMobileFoodGateway } from '../../apps/web/src/lib/mobile-food-gateway';
 import { randomUUID } from 'node:crypto';
-import { beforeAll, afterAll, describe, expect, it } from 'vitest';
+import { beforeAll, afterAll, describe, expect, it, vi } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
 import { RestaurantService } from '../../apps/api/src/food-service/restaurant.service';
 import { StockService } from '../../apps/api/src/food-service/stock.service';
-import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
+import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { databaseTenant, withSignedInUser } from '../../apps/api/src/auth/request-context';
 import { isLocalDatabase } from '../tools/seed-local';
 
@@ -285,6 +296,126 @@ describe('restaurant creation request replay', () => {
       expect(await db.restaurantPayment.count({ where: { orderId: created.id } })).toBe(1);
     } finally {
       await scoped.$disconnect();
+    }
+  });
+  it('passes a real bearer through the mobile gateway to authenticated HTTP and restricted PostgreSQL', async () => {
+    vi.stubEnv('AUTH_REQUIRED', '1');
+    const appUrl = new URL(url!);
+    appUrl.username = 'wetop_app';
+    appUrl.password = '';
+    const scoped = createPrismaClient(url, undefined, {
+      of: databaseTenant,
+      appConnectionString: appUrl.toString(),
+    });
+    const prisma = { db: scoped } as PrismaService;
+    const token = newSessionToken();
+    await db.membership.create({ data: { userId: user, organizationId: org, role: 'OWNER' } });
+    await db.session.create({
+      data: {
+        userId: user,
+        organizationId: org,
+        tokenHash: hashSessionToken(token),
+        expiresAt: new Date(Date.now() + 3600000),
+      },
+    });
+    const module = await Test.createTestingModule({ imports: [AuthModule, FoodModule] })
+      .overrideProvider(PrismaService)
+      .useValue(prisma)
+      .compile();
+    const app = module.createNestApplication({ logger: false });
+    try {
+      app.useGlobalGuards(
+        new SessionGuard(app.get(Reflector), app.get(AuthService)),
+        new RoleGuard(app.get(Reflector)),
+      );
+      app.useGlobalInterceptors(new AuthorInterceptor(prisma));
+      await app.listen(0, '127.0.0.1');
+      const base = await app.getUrl();
+      const env = {
+        MOBILE_GATEWAY_ENABLED: '1',
+        MOBILE_ORDER_CREATE_ENABLED: '1',
+        MOBILE_ORDER_PAYMENT_ENABLED: '1',
+        MOBILE_ORDER_CLOSE_ENABLED: '1',
+        MOBILE_ORDER_SERVE_ENABLED: '1',
+        APP_API_URL: base,
+      };
+      const call = (action: string, body: unknown, bearer = token) =>
+        handleMobileFoodGateway(
+          new Request(`http://127.0.0.1/mobile/${action}`, {
+            method: 'POST',
+            headers: {
+              authorization: `Bearer ${bearer}`,
+              'x-wetop-scope': `business=${business};location=${location}`,
+              'content-type': 'application/json',
+            },
+            body: JSON.stringify(body),
+          }),
+          action,
+          env,
+        );
+      const input = {
+        guestCount: 1,
+        creationRequestKey: randomUUID(),
+        items: [{ menuItemId, qty: 1 }],
+      };
+      expect((await call('orders', input, 'synthetic-invalid')).status).toBe(401);
+      const response = await call('orders', input);
+      expect(response.status).toBe(201);
+      const created = await response.json();
+      const replay = await call('orders', input);
+      expect(replay.status).toBe(201);
+      expect((await replay.json()).id).toBe(created.id);
+      const payment = {
+        orderId: created.id,
+        amount: 1000,
+        method: 'CASH',
+        idempotencyKey: randomUUID(),
+      };
+      expect((await call('pay', payment)).status).toBe(200);
+      const paidAgain = await call('pay', payment);
+      expect(paidAgain.status).toBe(200);
+      expect((await paidAgain.json()).paidMinor).toBe('1000');
+      expect(await db.restaurantPayment.count({ where: { orderId: created.id } })).toBe(1);
+      let current = await (await call('pay', payment)).json();
+      for (const status of ['COOKING', 'READY']) {
+        const changed = await fetch(`${base}/food-service/orders/${created.id}/status`, {
+          method: 'POST',
+          headers: {
+            authorization: `Bearer ${token}`,
+            'x-wetop-scope': `business=${business};location=${location}`,
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            status,
+            expectedStatus: current.status,
+            expectedUpdatedAt: current.updatedAt,
+          }),
+        });
+        expect(changed.status).toBe(201);
+        current = await changed.json();
+      }
+      const served = await call('serve', {
+        orderId: created.id,
+        itemId: current.items[0].id,
+        expectedUpdatedAt: current.updatedAt,
+      });
+      expect(served.status).toBe(200);
+      current = await served.json();
+      expect(current.status).toBe('SERVED');
+      const closing = { orderId: created.id, expectedUpdatedAt: current.updatedAt };
+      const closed = await call('close', closing);
+      expect(closed.status).toBe(200);
+      expect((await closed.json()).status).toBe('CLOSED');
+      expect((await call('close', closing)).status).toBe(409);
+      await db.session.updateMany({
+        where: { tokenHash: hashSessionToken(token) },
+        data: { revokedAt: new Date() },
+      });
+      expect((await call('pay', payment)).status).toBe(401);
+    } finally {
+      await app.close();
+      await scoped.$disconnect();
+      vi.unstubAllEnvs();
     }
   });
 });

@@ -22,6 +22,7 @@ const names: Record<string, string> = {
   HALYK: 'Halyk',
   BANK_TRANSFER_PERSON: 'Перевод физлица',
   BANK_TRANSFER_LEGAL: 'Перевод юрлица',
+  OTHER: 'Другое',
 };
 function period(today: string, mode: 'today' | 'week' | 'month'): { from: string; to: string } {
   if (mode === 'today') return { from: today, to: today };

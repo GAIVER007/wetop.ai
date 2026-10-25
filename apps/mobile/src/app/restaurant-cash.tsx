@@ -16,6 +16,7 @@ const methods: Record<string, string> = {
   HALYK: 'Halyk',
   BANK_TRANSFER_PERSON: 'Перевод физлица',
   BANK_TRANSFER_LEGAL: 'Перевод юрлица',
+  OTHER: 'Другое',
 };
 export default function RestaurantCashRoute() {
   const { state } = useAccess();

@@ -14,6 +14,7 @@ const SIGNED_MINOR_UNITS = /^-?\d+$/;
 
 const ACTIONS = {
   'payment-methods': '/food-service/payment-methods',
+  close: '/food-service/orders',
   pay: '/food-service/orders',
   serve: '/food-service/orders',
   tables: '/food-service/waiter/tables',
@@ -583,14 +584,17 @@ export async function handleMobileFoodGateway(
     request.method === 'POST' && action === 'serve' && env.MOBILE_ORDER_SERVE_ENABLED === '1';
   const paying =
     request.method === 'POST' && action === 'pay' && env.MOBILE_ORDER_PAYMENT_ENABLED === '1';
-  const mutating = creating || serving || paying;
+  const closing =
+    request.method === 'POST' && action === 'close' && env.MOBILE_ORDER_CLOSE_ENABLED === '1';
+  const mutating = creating || serving || paying || closing;
   if (
     (!mutating && request.method !== 'GET') ||
     (action === 'serve' && !serving) ||
-    (action === 'pay' && !paying)
+    (action === 'pay' && !paying) ||
+    (action === 'close' && !closing)
   )
     return json({ message: 'Метод не поддерживается' }, 405, {
-      allow: action === 'serve' || action === 'pay' ? 'POST' : 'GET',
+      allow: action === 'serve' || action === 'pay' || action === 'close' ? 'POST' : 'GET',
     });
   if (hasServiceCredential(request)) return json({ message: 'Служебные ключи запрещены' }, 403);
 
@@ -628,23 +632,37 @@ export async function handleMobileFoodGateway(
         const payment = parseFoodPayment(fields);
         mutationPath = `/food-service/orders/${orderId}/payments`;
         body = JSON.stringify({ ...payment, amount: Number(payment.amount) });
-      } else if (serving) {
+      } else if (serving || closing) {
         const input = record(JSON.parse(text));
         if (
           Object.keys(input).some(
-            (key) => !['orderId', 'itemId', 'expectedUpdatedAt'].includes(key),
+            (key) =>
+              !(
+                closing
+                  ? ['orderId', 'expectedUpdatedAt']
+                  : ['orderId', 'itemId', 'expectedUpdatedAt']
+              ).includes(key),
           ) ||
           typeof input.orderId !== 'string' ||
           !UUID_RE.test(input.orderId) ||
-          typeof input.itemId !== 'string' ||
-          !UUID_RE.test(input.itemId) ||
+          (!closing && (typeof input.itemId !== 'string' || !UUID_RE.test(input.itemId))) ||
           typeof input.expectedUpdatedAt !== 'string' ||
           !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(input.expectedUpdatedAt) ||
           !Number.isFinite(Date.parse(input.expectedUpdatedAt))
         )
           throw new InvalidUpstreamResponse();
-        mutationPath = `/food-service/orders/${input.orderId}/items/${input.itemId}/status`;
-        body = JSON.stringify({ status: 'SERVED', expectedUpdatedAt: input.expectedUpdatedAt });
+        mutationPath = closing
+          ? `/food-service/orders/${input.orderId}/status`
+          : `/food-service/orders/${input.orderId}/items/${input.itemId}/status`;
+        body = JSON.stringify(
+          closing
+            ? {
+                status: 'CLOSED',
+                expectedStatus: 'SERVED',
+                expectedUpdatedAt: input.expectedUpdatedAt,
+              }
+            : { status: 'SERVED', expectedUpdatedAt: input.expectedUpdatedAt },
+        );
       } else {
         const input = parseOrderCreate(JSON.parse(text));
         if (!input.creationRequestKey) return json({ message: 'Нужен ключ создания заказа' }, 400);
@@ -657,11 +675,12 @@ export async function handleMobileFoodGateway(
   const uncertain = (status: number) =>
     json(
       {
-        message: serving
-          ? 'Результат не подтверждён. Обновите заказ перед следующим действием.'
-          : paying
-            ? 'Результат оплаты не подтверждён. Повторяйте только исходный платёж с прежним ключом.'
-            : 'Результат отправки не подтверждён. Повторяйте только с прежним ключом заказа.',
+        message:
+          serving || closing
+            ? 'Результат не подтверждён. Обновите заказ перед следующим действием.'
+            : paying
+              ? 'Результат оплаты не подтверждён. Повторяйте только исходный платёж с прежним ключом.'
+              : 'Результат отправки не подтверждён. Повторяйте только с прежним ключом заказа.',
         outcome: 'unknown',
       },
       status,

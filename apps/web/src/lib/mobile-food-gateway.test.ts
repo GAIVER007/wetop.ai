@@ -1004,3 +1004,65 @@ describe('mobile payment submission', () => {
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('mobile prepaid order closing', () => {
+  const env = { ...ENABLED, MOBILE_ORDER_CLOSE_ENABLED: '1' };
+  const body = { orderId: B, expectedUpdatedAt: '2026-10-25T00:00:00.000Z' };
+  const req = (value: unknown = body) =>
+    request('close', {
+      method: 'POST',
+      headers: authorized({ 'content-type': 'application/json' }),
+      body: JSON.stringify(value),
+    });
+  it('forwards only the served-to-closed transition with the original version and scope', async () => {
+    const fetcher = vi.fn(async () => upstream({}, 409));
+    expect((await handleMobileFoodGateway(req(), 'close', env, fetcher)).status).toBe(409);
+    const [url, init] = fetcher.mock.calls[0]! as unknown as [string, RequestInit];
+    expect(url).toBe(`http://127.0.0.1:3001/food-service/orders/${B}/status`);
+    expect(JSON.parse(init.body as string)).toEqual({
+      status: 'CLOSED',
+      expectedStatus: 'SERVED',
+      expectedUpdatedAt: body.expectedUpdatedAt,
+    });
+    expect(new Headers(init.headers).get('authorization')).toBe(`Bearer ${TOKEN}`);
+    expect(new Headers(init.headers).get('x-wetop-scope')).toBe(`business=${B};location=${L}`);
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+  it('rejects disabled closing, GET and caller-selected transitions', async () => {
+    const fetcher = vi.fn();
+    expect((await handleMobileFoodGateway(req(), 'close', ENABLED, fetcher)).status).toBe(405);
+    expect(
+      (
+        await handleMobileFoodGateway(
+          request('close', { headers: authorized() }),
+          'close',
+          env,
+          fetcher,
+        )
+      ).status,
+    ).toBe(405);
+    for (const value of [
+      { ...body, status: 'CANCELLED' },
+      { ...body, expectedStatus: 'READY' },
+      { ...body, orderId: '../other' },
+      { orderId: B },
+      { ...body, expectedUpdatedAt: 'bad' },
+    ]) {
+      expect((await handleMobileFoodGateway(req(value), 'close', env, fetcher)).status).toBe(400);
+    }
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it('preserves permission denial and never retries an uncertain close', async () => {
+    expect(
+      (await handleMobileFoodGateway(req(), 'close', env, async () => upstream({}, 403))).status,
+    ).toBe(403);
+    const fetcher = vi.fn().mockRejectedValue(new Error('lost'));
+    const result = await handleMobileFoodGateway(req(), 'close', env, fetcher);
+    expect(result.status).toBe(503);
+    expect(await result.json()).toMatchObject({
+      outcome: 'unknown',
+      message: expect.stringContaining('Обновите заказ'),
+    });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+});

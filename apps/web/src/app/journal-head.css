@@ -465,5 +465,21 @@
       min-height: 0;
       overflow: auto;
     }
+    /* промежуточная обёртка между страницей и доской (ресторан: срез по `scopeKey` и колонка экрана) сама колонка,
+       чтобы остаток высоты дошёл до доски */
+    div.workspace .page.journal-screen .journal-screen__pass {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 0;
+      min-height: 0;
+    }
+    div.workspace .page.journal-screen .journal-screen__pass > * {
+      flex: none;
+    }
+    div.workspace .page.journal-screen .journal-screen__pass > .journal-screen__board {
+      flex: 1 1 0;
+      min-height: 0;
+      overflow: auto;
+    }
   }
 }

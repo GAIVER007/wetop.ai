@@ -131,4 +131,17 @@ describe('журнал в один экран на ПК: общий слой', (
     const css = source('app/beauty/day-panel.css');
     expect(css).toMatch(/\.journal-screen \.beauty-day-panel \{[^}]*overflow-y: auto;/);
   });
+  it('ресторан: журнал и расписание собраны слоем одного экрана, план зала и шкала листаются внутри', () => {
+    const screen = source('app/food/screen.tsx');
+    expect(screen).toContain("'journal-page journal-screen'");
+    expect(screen).toContain('<div key={data.scopeKey} className={kind === \'catalog\' ? undefined : \'journal-screen__pass\'}>');
+    const board = source('app/food/workspace-board.tsx');
+    expect(board).toContain('food-workspace rest-ws journal-screen__pass');
+    expect(board).toContain('rest-fp journal-screen__board');
+    expect(board).toContain('<div className="journal-screen__board">');
+    const css = source('app/journal-head.css');
+    const desk = css.slice(css.indexOf('@media (min-width: 961px) {\n    div.workspace .page.journal-screen'));
+    expect(desk).toMatch(/\.page\.journal-screen \.journal-screen__pass \{[^}]*flex: 1 1 0;[^}]*min-height: 0;/);
+    expect(desk).toMatch(/\.journal-screen__pass > \.journal-screen__board \{[^}]*overflow: auto;/);
+  });
 });

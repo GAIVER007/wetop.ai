@@ -87,9 +87,11 @@ export function useCitizenshipPrompt(save: (code: string) => Promise<{ error: st
     resolve?.(ok);
   };
 
-  const dialog = (
+  // окно в разметке только пока спрашиваем: на шахматке и в карточке уже есть своё окно подтверждения с тем же
+  // data-testid, и второе закрытое мешало бы им (CI #844: strict mode в chessboard-drag)
+  const dialog = guest === null ? null : (
     <ConfirmDialog
-      open={guest !== null}
+      open
       title="Укажите гражданство гостя"
       confirmLabel="Сохранить и заселить"
       cancelLabel="Не сейчас"

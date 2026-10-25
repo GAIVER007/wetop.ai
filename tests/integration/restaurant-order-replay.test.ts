@@ -4,7 +4,7 @@ import { createPrismaClient, type Db } from '@pms/database';
 import { RestaurantService } from '../../apps/api/src/food-service/restaurant.service';
 import { StockService } from '../../apps/api/src/food-service/stock.service';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
-import { withSignedInUser } from '../../apps/api/src/auth/request-context';
+import { databaseTenant, withSignedInUser } from '../../apps/api/src/auth/request-context';
 import { isLocalDatabase } from '../tools/seed-local';
 
 // Requires an owned loopback PostgreSQL with migrations applied. Never a shared dev database.
@@ -215,5 +215,76 @@ describe('restaurant creation request replay', () => {
     expect((await at(() => service.payOrder(id, payment))).status).toBe('CLOSED');
     expect((await at(() => service.payOrder(id, payment))).status).toBe('CLOSED');
     expect(await db.restaurantPayment.count({ where: { orderId: id } })).toBe(1);
+  });
+  it('executes mobile payment boundaries as wetop_app and isolates foreign organizations', async () => {
+    const appUrl = new URL(url!);
+    appUrl.username = 'wetop_app';
+    appUrl.password = '';
+    const scoped = createPrismaClient(url, undefined, {
+      of: databaseTenant,
+      appConnectionString: appUrl.toString(),
+    });
+    const prisma = { db: scoped } as unknown as PrismaService;
+    const restricted = new RestaurantService(prisma, null, new StockService(prisma));
+    try {
+      const roles = await at(
+        () =>
+          scoped.$queryRaw<
+            Array<{ role: string; rolsuper: boolean; rolbypassrls: boolean }>
+          >`SELECT current_user AS role, rolsuper, rolbypassrls FROM pg_roles WHERE rolname=current_user`,
+      );
+      expect(roles).toEqual([{ role: 'wetop_app', rolsuper: false, rolbypassrls: false }]);
+      const created = await at(() =>
+        restricted.createOrder({
+          guestCount: 1,
+          creationRequestKey: randomUUID(),
+          items: [{ menuItemId, qty: 1 }],
+        }),
+      );
+      const employee = {
+        userId: user,
+        organizationId: org,
+        role: 'EMPLOYEE' as const,
+        scope: 'LOCATION' as const,
+        businessId: business,
+        locationId: location,
+        vertical: 'FOOD_SERVICE' as const,
+      };
+      const payment = { amount: 1000, method: 'CASH', idempotencyKey: randomUUID() };
+      await expect(
+        withSignedInUser(employee, () => restricted.payOrder(created.id, payment)),
+      ).rejects.toMatchObject({ status: 403 });
+      await expect(
+        withSignedInUser(employee, () =>
+          restricted.orderStatus(created.id, {
+            expectedStatus: 'SERVED',
+            expectedUpdatedAt: created.updatedAt.toISOString(),
+            status: 'CLOSED',
+          }),
+        ),
+      ).rejects.toMatchObject({ status: 403 });
+      const foreign = {
+        ...employee,
+        role: 'OWNER' as const,
+        organizationId: randomUUID(),
+        businessId: randomUUID(),
+        locationId: randomUUID(),
+      };
+      expect(
+        await withSignedInUser(foreign, () =>
+          scoped.restaurantOrder.findUnique({ where: { id: created.id } }),
+        ),
+      ).toBeNull();
+      await expect(
+        withSignedInUser(foreign, () => restricted.payOrder(created.id, payment)),
+      ).rejects.toThrow();
+      expect(await db.restaurantPayment.count({ where: { orderId: created.id } })).toBe(0);
+      const paid = await at(() => restricted.payOrder(created.id, payment));
+      expect(paid.paidMinor).toBe('1000');
+      expect((await at(() => restricted.payOrder(created.id, payment))).paidMinor).toBe('1000');
+      expect(await db.restaurantPayment.count({ where: { orderId: created.id } })).toBe(1);
+    } finally {
+      await scoped.$disconnect();
+    }
   });
 });

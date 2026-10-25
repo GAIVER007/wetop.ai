@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
 import { sharedOnboardingApi } from '../../../lib/api';
+import { serverT } from '../../../i18n/server';
 
 /**
  * «Вернуться к настройке салона» (аудит живого сайта 21.10.2026, п. 17): ссылка висела всегда, даже когда
@@ -20,10 +21,11 @@ export async function salonSetupPending(requested: boolean): Promise<boolean> {
     );
 }
 
-export function SalonSetupLink() {
+export async function SalonSetupLink() {
+  const t = await serverT();
   return (
     <p>
-      <Link href="/register/setup">Вернуться к настройке салона</Link>
+      <Link href="/register/setup">{t('Вернуться к настройке салона')}</Link>
     </p>
   );
 }

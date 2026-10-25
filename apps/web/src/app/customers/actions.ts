@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { ApiError, authApi, beautyApi, type BeautyCustomerImportPreview } from '../../lib/api';
 import { deskShell } from '../../lib/desk-shell';
 import { BeautyCustomerXlsxError, parseBeautyCustomersXlsx } from './xlsx';
+import { serverT } from '../../i18n/server';
 
 export type CustomerActionResult = { error: string | null; message?: string };
 export type CustomerImportPreviewResult = CustomerActionResult & { preview?: BeautyCustomerImportPreview };
@@ -21,14 +22,16 @@ async function assertCustomerScope(form: FormData): Promise<void> {
   const captured = String(form.get('scopeKey') ?? '');
   const current = (await deskShell()).scopeKey;
   if (!captured || !current || captured !== current) {
-    throw new ApiError(409, 'Филиал изменился. Обновите страницу и повторите действие.');
+    const t = await serverT();
+    throw new ApiError(409, t('Филиал изменился. Обновите страницу и повторите действие.'));
   }
 }
 
 async function customerFileCsv(form: FormData): Promise<string> {
+  const t = await serverT();
   const file = form.get('file');
-  if (!(file instanceof File) || file.size === 0) throw new ApiError(400, 'Выберите CSV- или XLSX-файл');
-  if (file.size > 100 * 1024) throw new ApiError(400, 'Файл должен быть не больше 100 КБ');
+  if (!(file instanceof File) || file.size === 0) throw new ApiError(400, t('Выберите CSV- или XLSX-файл'));
+  if (file.size > 100 * 1024) throw new ApiError(400, t('Файл должен быть не больше 100 КБ'));
   const bytes = await file.arrayBuffer();
   const data = new Uint8Array(bytes);
   const isXlsx = file.name.toLocaleLowerCase('ru').endsWith('.xlsx')
@@ -36,7 +39,7 @@ async function customerFileCsv(form: FormData): Promise<string> {
     || (data[0] === 0x50 && data[1] === 0x4b);
   if (isXlsx) {
     try {
-      return await parseBeautyCustomersXlsx(data);
+      return await parseBeautyCustomersXlsx(data, t);
     } catch (error) {
       if (error instanceof BeautyCustomerXlsxError) throw new ApiError(400, error.message);
       throw error;
@@ -67,13 +70,14 @@ async function createCustomer(
   form: unknown,
   stateAction: boolean,
 ): Promise<CustomerActionResult | CreateCustomerState> {
-  if (!(form instanceof FormData)) return { error: 'Не удалось прочитать форму клиента' };
+  const t = await serverT();
+  if (!(form instanceof FormData)) return { error: t('Не удалось прочитать форму клиента') };
   try {
     if (stateAction) {
       const expectedBusinessId = String(form.get('businessId') ?? '');
       const { context } = await authApi.me();
       if (!expectedBusinessId || context?.businessId !== expectedBusinessId)
-        return { error: 'Бизнес изменён. Закройте форму и откройте её в текущем салоне.' };
+        return { error: t('Бизнес изменён. Закройте форму и откройте её в текущем салоне.') };
     } else {
       await assertCustomerScope(form);
     }
@@ -87,7 +91,9 @@ async function createCustomer(
       ? result
       : {
           error: null,
-          message: result.created ? 'Клиент добавлен' : 'Клиент уже есть. Используем существующую карточку.',
+          message: result.created
+            ? t('Клиент добавлен')
+            : t('Клиент уже есть. Используем существующую карточку.'),
         };
   } catch (error) {
     return { error: messageOf(error) };
@@ -108,9 +114,14 @@ export async function applyBeautyCustomerImport(form: FormData): Promise<Custome
     await assertCustomerScope(form);
     const result = await beautyApi.importCustomers(await customerFileCsv(form));
     revalidatePath('/customers');
+    const t = await serverT();
     return {
       error: null,
-      message: `Создано: ${result.created}. Добавлено в салон: ${result.linked}. Уже были: ${result.alreadyExists}.`,
+      message: t('Создано: {created}. Добавлено в салон: {linked}. Уже были: {existing}.', {
+        created: result.created,
+        linked: result.linked,
+        existing: result.alreadyExists,
+      }),
     };
   } catch (error) {
     return { error: messageOf(error) };

@@ -3,6 +3,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 
 const status = vi.hoisted(() => vi.fn());
+// язык стойки (KK2) читает куку запроса; здесь запроса нет, тексты русские
+vi.mock('../../../i18n/server', async () => ({ serverT: async () => (await import('../../../i18n')).translator('ru'), currentLocale: async () => 'ru' }));
 vi.mock('next/navigation', () => ({ unstable_rethrow: () => {} }));
 vi.mock('../../../lib/vertical-guard', () => ({ requireFeature: async () => ({}) }));
 vi.mock('../../../lib/desk-shell', () => ({ deskShell: async () => ({ readOnly: false, access: { role: 'OWNER' } }) }));

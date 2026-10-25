@@ -1,6 +1,8 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+// язык стойки (KK2) читает куку запроса; здесь запроса нет, тексты русские
+vi.mock('../../i18n/server', async () => ({ serverT: async () => (await import('../../i18n')).translator('ru'), currentLocale: async () => 'ru' }));
 import { authApi, beautyApi, type BeautyDay } from '../../lib/api';
 import { AppointmentForm, appointmentLineDefaults } from './appointment-form';
 import { createAppointment, moveAppointment } from './journal-actions';

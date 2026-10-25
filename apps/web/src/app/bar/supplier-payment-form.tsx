@@ -6,6 +6,7 @@ import { BarContextFields, type BarFormContext } from './context';
 import { Button, Field, Input, Select } from '../../components/ui';
 import { payBarSupplierAction, type BarActionResult } from './actions';
 import { barMethodRu } from '@pms/domain';
+import { useT } from '../../i18n/locale-provider';
 
 const initial: BarActionResult = { error: null, ok: 0 };
 // Mirror actions.ts value(...).trim() + minor(): identity only, not the submitted amount.
@@ -31,6 +32,7 @@ export function SupplierPaymentForm({
   dueAmount: string;
   methods: string[];
 }) {
+  const t = useT();
   const [state, action, pending] = useBarAction(payBarSupplierAction, initial);
   const intentSlots = useRef<string[] | null>(null);
   // Keep an unpersisted candidate stable if storage writes fail and the user retries.
@@ -52,7 +54,7 @@ export function SupplierPaymentForm({
         // The command succeeded. Do not turn it into a failure or permit a new payment.
         cleanupBlocked.current = true;
         setCleanupWarning(
-          'Платёж записан, но не удалось очистить ключ повтора. Не отправляйте другой платёж: обновите страницу и сверьте оплату перед продолжением.',
+          t('Платёж записан, но не удалось очистить ключ повтора. Не отправляйте другой платёж: обновите страницу и сверьте оплату перед продолжением.'),
         );
       }
     }
@@ -65,7 +67,7 @@ export function SupplierPaymentForm({
     // Canonical identity uses the same accepted syntax and integer minor units as the action.
     const amount = intentMinor(String(data.get('amount') ?? ''));
     if (amount === null) {
-      setStorageError('Сумма: укажите сумму в валюте операции, не более двух знаков после запятой');
+      setStorageError(t('{field}: укажите сумму в валюте операции, не более двух знаков после запятой', { field: t('Сумма') }));
       return;
     }
     const method = String(data.get('method') ?? '').trim();
@@ -114,7 +116,7 @@ export function SupplierPaymentForm({
       }
       if (stored.size > 1) {
         setStorageError(
-          'Платёж не отправлен: найдены разные ключи повтора одной суммы. Сначала сверьте оплаты; автоматический выбор ключа небезопасен.',
+          t('Платёж не отправлен: найдены разные ключи повтора одной суммы. Сначала сверьте оплаты; автоматический выбор ключа небезопасен.'),
         );
         return;
       }
@@ -124,7 +126,7 @@ export function SupplierPaymentForm({
       draftKeys.current.delete(slot);
     } catch {
       setStorageError(
-        'Платёж не отправлен: недоступно хранилище ключа повтора. Разрешите хранилище браузера и повторите попытку. Если ранее отправляли этот платёж, сначала сверьте оплату.',
+        t('Платёж не отправлен: недоступно хранилище ключа повтора. Разрешите хранилище браузера и повторите попытку. Если ранее отправляли этот платёж, сначала сверьте оплату.'),
       );
       return;
     }
@@ -139,7 +141,7 @@ export function SupplierPaymentForm({
   if (methods.length === 0)
     return (
       <p role="status" className="bar-muted" data-testid="bar-no-methods">
-        В настройках объекта нет способа оплаты, который принимает бар
+        {t('В настройках объекта нет способа оплаты, который принимает бар')}
       </p>
     );
   return (
@@ -147,20 +149,20 @@ export function SupplierPaymentForm({
       <input type="hidden" name="idempotencyKey" defaultValue="" />
       <BarContextFields context={context} />
       <input type="hidden" name="receiptId" value={receiptId} />
-      <Field label={`Сумма, ${context.currency}`}>
+      <Field label={t('Сумма, {currency}', { currency: context.currency })}>
         <Input name="amount" inputMode="decimal" defaultValue={tenge(dueAmount)} required />
       </Field>
-      <Field label="Способ">
+      <Field label={t('Способ')}>
         <Select name="method" defaultValue={preferred}>
           {methods.map((method) => (
             <option key={method} value={method}>
-              {barMethodRu(method)}
+              {t(barMethodRu(method))}
             </option>
           ))}
         </Select>
       </Field>
       <Button type="submit" size="xs" disabled={pending || !!cleanupWarning}>
-        {pending ? 'Запись…' : 'Оплатить'}
+        {pending ? t('Запись…') : t('Оплатить')}
       </Button>
       {(storageError || cleanupWarning) && (
         <p role="alert" className="bar-error">

@@ -4,17 +4,18 @@ import { DEFAULT_REMINDER_TEMPLATE, REMINDER_PLACEHOLDERS, renderReminder } from
 import { Alert, Button, Field, Input, Textarea } from '../../components/ui';
 import type { BeautyBonusProgram, BeautyReminderSettings } from '../../lib/api';
 import { saveBonusProgram, saveReminderSettings } from './loyalty-actions';
+import { useT } from '../../i18n/locale-provider';
 
 /** Пример для предпросмотра: вымышленный клиент (AGENTS.md §8) */
 const SAMPLE = {
-  имя: 'Айгуль',
-  услуга: 'Стрижка',
-  дата: '23 октября',
-  время: '10:30',
-  мастер: 'Дина',
-  салон: 'Ваш салон',
-  адрес: 'ул. Абая, 10',
-  телефон: '+7 700 000 00 00',
+  имя: 'Айгуль', // kk-allow: образец предпросмотра: ключ это подстановка шаблона, значение вымышленное
+  услуга: 'Стрижка', // kk-allow: образец предпросмотра, как выше
+  дата: '23 октября', // kk-allow: образец предпросмотра, как выше
+  время: '10:30', // kk-allow: образец предпросмотра, как выше
+  мастер: 'Дина', // kk-allow: образец предпросмотра, как выше
+  салон: 'Ваш салон', // kk-allow: образец предпросмотра, как выше
+  адрес: 'ул. Абая, 10', // kk-allow: образец предпросмотра, как выше
+  телефон: '+7 700 000 00 00', // kk-allow: образец предпросмотра, как выше
 };
 
 export function ReminderSettingsForm({
@@ -26,37 +27,37 @@ export function ReminderSettingsForm({
   scopeKey: string;
   canEdit: boolean;
 }) {
+  const t = useT();
   const [state, action, pending] = useActionState(saveReminderSettings, null);
   const data = state?.data ?? initial;
   const [template, setTemplate] = useState(initial.template ?? '');
   const preview = useMemo(() => renderReminder(template || DEFAULT_REMINDER_TEMPLATE, SAMPLE), [template]);
   return (
     <form action={action} className="salon-hours-form salon-loyalty-form" data-testid="reminder-settings">
-      <h2>Напоминания клиентам</h2>
+      <h2>{t('Напоминания клиентам')}</h2>
       <p>
-        Клиент получает напоминание о записи. Если у клиента есть почта, письмо уходит само. WhatsApp уходит сам,
-        когда номер салона подключён и указан одобренный шаблон. Иначе напоминание появится в журнале в списке
-        «Напомнить сегодня» с кнопкой «Написать в WhatsApp».
+        {t('Клиент получает напоминание о записи. Если у клиента есть почта, письмо уходит само. WhatsApp уходит сам, когда номер салона подключён и указан одобренный шаблон. Иначе напоминание появится в журнале в списке «Напомнить сегодня» с кнопкой «Написать в WhatsApp».')}
       </p>
       <p className="muted" data-testid="review-request-note">
-        Через 2 часа после визита со статусом «Выполнено» клиент получает просьбу оценить визит со ссылкой на отзыв
-        (с 10:00 до 21:00). Выключение напоминаний выключает и её.
+        {t('Через 2 часа после визита со статусом «Выполнено» клиент получает просьбу оценить визит со ссылкой на отзыв (с 10:00 до 21:00). Выключение напоминаний выключает и её.')}
       </p>
       <input type="hidden" name="scopeKey" value={scopeKey} />
       <input type="hidden" name="revision" value={data.revision} />
       <fieldset disabled={!canEdit || pending} className="salon-loyalty-fields">
-        <legend className="sr-only">Настройки напоминаний</legend>
+        <legend className="sr-only">{t('Настройки напоминаний')}</legend>
         <label className="salon-loyalty-toggle">
           <input type="checkbox" name="enabled" defaultChecked={data.enabled} />
-          Напоминать клиентам о записи
+          {t('Напоминать клиентам о записи')}
         </label>
-        <Field label="За сколько часов до записи" controlId="reminder-hours" hint="Через запятую, например 24, 2">
+        <Field label={t('За сколько часов до записи')} controlId="reminder-hours" hint={t('Через запятую, например 24, 2')}>
           <Input name="hoursBefore" defaultValue={data.hoursBefore.join(', ')} inputMode="numeric" />
         </Field>
         <Field
-          label="Текст напоминания"
+          label={t('Текст напоминания')}
           controlId="reminder-template"
-          hint={`Можно вставить: ${REMINDER_PLACEHOLDERS.map((p) => `{${p}}`).join(' ')}. Пусто: текст по умолчанию.`}
+          hint={t('Можно вставить: {list}. Пусто: текст по умолчанию.', {
+            list: REMINDER_PLACEHOLDERS.map((p) => `{${p}}`).join(' '),
+          })}
         >
           <Textarea
             name="template"
@@ -67,27 +68,27 @@ export function ReminderSettingsForm({
             onChange={(event) => setTemplate(event.target.value)}
           />
         </Field>
-        <div className="salon-loyalty-preview" aria-label="Как увидит клиент">
-          <span className="muted">Как увидит клиент</span>
+        <div className="salon-loyalty-preview" aria-label={t('Как увидит клиент')}>
+          <span className="muted">{t('Как увидит клиент')}</span>
           <p data-testid="reminder-preview">{preview}</p>
         </div>
         <Field
-          label="Шаблон WhatsApp"
+          label={t('Шаблон WhatsApp')}
           controlId="reminder-wa-template"
           hint={
             data.whatsappConnected
-              ? 'Имя шаблона, одобренного в кабинете Meta'
-              : 'Номер WhatsApp салона пока не подключён: напоминания будут в списке «Напомнить сегодня»'
+              ? t('Имя шаблона, одобренного в кабинете Meta')
+              : t('Номер WhatsApp салона пока не подключён: напоминания будут в списке «Напомнить сегодня»')
           }
         >
           <Input name="whatsappTemplateName" defaultValue={data.whatsappTemplateName ?? ''} placeholder="salon_reminder" />
         </Field>
       </fieldset>
       {state?.error && <Alert>{state.error}</Alert>}
-      {state?.data && <Alert tone="success">Напоминания сохранены. Будущие записи получат новое расписание.</Alert>}
+      {state?.data && <Alert tone="success">{t('Напоминания сохранены. Будущие записи получат новое расписание.')}</Alert>}
       {canEdit && (
         <Button type="submit" disabled={pending}>
-          {pending ? 'Сохраняем…' : 'Сохранить напоминания'}
+          {pending ? t('Сохраняем…') : t('Сохранить напоминания')}
         </Button>
       )}
     </form>
@@ -103,40 +104,40 @@ export function BonusProgramForm({
   scopeKey: string;
   canEdit: boolean;
 }) {
+  const t = useT();
   const [state, action, pending] = useActionState(saveBonusProgram, null);
   const data = state?.data ?? initial;
   return (
     <form action={action} className="salon-hours-form salon-loyalty-form" data-testid="bonus-settings">
-      <h2>Бонусы</h2>
+      <h2>{t('Бонусы')}</h2>
       <p>
-        Клиент получает бонусы с оплаченной суммы и может оплатить ими часть следующего визита. 1 бонус равен 1
-        единице валюты филиала.
+        {t('Клиент получает бонусы с оплаченной суммы и может оплатить ими часть следующего визита. 1 бонус равен 1 единице валюты филиала.')}
       </p>
       <input type="hidden" name="scopeKey" value={scopeKey} />
       <input type="hidden" name="revision" value={data.revision} />
       <fieldset disabled={!canEdit || pending} className="salon-loyalty-fields">
-        <legend className="sr-only">Настройки бонусов</legend>
+        <legend className="sr-only">{t('Настройки бонусов')}</legend>
         <label className="salon-loyalty-toggle">
           <input type="checkbox" name="enabled" defaultChecked={data.enabled} />
-          Начислять и принимать бонусы
+          {t('Начислять и принимать бонусы')}
         </label>
         <div className="salon-loyalty-row">
-          <Field label="Начислять, % от оплаты" controlId="bonus-accrual">
+          <Field label={t('Начислять, % от оплаты')} controlId="bonus-accrual">
             <Input name="accrualPercent" type="number" min={0} max={100} step={1} defaultValue={data.accrualPercent} />
           </Field>
-          <Field label="Оплатить бонусами, % чека" controlId="bonus-redeem">
+          <Field label={t('Оплатить бонусами, % чека')} controlId="bonus-redeem">
             <Input name="maxRedeemPercent" type="number" min={0} max={100} step={1} defaultValue={data.maxRedeemPercent} />
           </Field>
-          <Field label="Срок бонусов, дней" controlId="bonus-expiry" hint="Пусто: без срока">
+          <Field label={t('Срок бонусов, дней')} controlId="bonus-expiry" hint={t('Пусто: без срока')}>
             <Input name="expiresDays" type="number" min={1} max={3650} step={1} defaultValue={data.expiresDays ?? ''} />
           </Field>
         </div>
       </fieldset>
       {state?.error && <Alert>{state.error}</Alert>}
-      {state?.data && <Alert tone="success">Бонусы сохранены.</Alert>}
+      {state?.data && <Alert tone="success">{t('Бонусы сохранены.')}</Alert>}
       {canEdit && (
         <Button type="submit" disabled={pending}>
-          {pending ? 'Сохраняем…' : 'Сохранить бонусы'}
+          {pending ? t('Сохраняем…') : t('Сохранить бонусы')}
         </Button>
       )}
     </form>

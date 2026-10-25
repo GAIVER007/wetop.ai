@@ -6,6 +6,8 @@ import { displayDate } from '../../lib/display-date';
 import { Icon } from '../../components/icon';
 import { DashboardRefresh, ForecastDetails } from './owner-controls';
 import { OwnerPlaceholder } from './owner-loading';
+import { intlLocale } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
 
 /** Один запрос показателей на отрисовку: обзор, прогноз и плитки читают общий кэш */
 export const loadPeriod = cache((from: string, to: string) =>
@@ -26,25 +28,27 @@ export async function OwnerOutlook({ today }: { today: string }) {
   end.setUTCDate(end.getUTCDate() + 6);
   const to = end.toISOString().slice(0, 10);
   const result = await loadPeriod(today, to);
+  const t = await serverT();
+  const locale = intlLocale(await currentLocale());
   return (
     <div className="owner-outlook">
       <header>
-        <h3>Прогноз загрузки на 7 дней</h3>
+        <h3>{t('Прогноз загрузки на 7 дней')}</h3>
         {!(result instanceof ApiError) && (
           <ForecastDetails>
             <p className="owner-forecast-note">
-              По текущим броням. Выберите день, чтобы открыть календарь.
+              {t('По текущим броням. Выберите день, чтобы открыть календарь.')}
             </p>
             <ol className="owner-forecast-days">
               {result.current.daily.map((day) => (
                 <li key={day.date}>
                   <Link href={`/chessboard?from=${day.date}&to=${day.date}`}>
                     <span className="owner-forecast-date">
-                      <strong>{displayDate(day.date, 'full')}</strong>
+                      <strong>{displayDate(day.date, 'full', locale)}</strong>
                       <span className="owner-forecast-counts">
-                        <span>Занято {day.occupied}</span>
-                        <span>Свободно {day.free}</span>
-                        {day.blocked > 0 && <span>Недоступно {day.blocked}</span>}
+                        <span>{t('Занято {n}', { n: day.occupied })}</span>
+                        <span>{t('Свободно {n}', { n: day.free })}</span>
+                        {day.blocked > 0 && <span>{t('Недоступно {n}', { n: day.blocked })}</span>}
                       </span>
                     </span>
                     <strong className="owner-forecast-percent">{formatPercent(day.percent)}</strong>
@@ -58,19 +62,19 @@ export async function OwnerOutlook({ today }: { today: string }) {
       </header>
       {result instanceof ApiError ? (
         <div className="owner-error-actions">
-          <p className="owner-caption">Прогноз загрузки недоступен</p>
-          <DashboardRefresh label="Повторить" />
+          <p className="owner-caption">{t('Прогноз загрузки недоступен')}</p>
+          <DashboardRefresh label={t('Повторить')} />
         </div>
       ) : (
-        <ol className="owner-week" data-testid="owner-outlook-chart" aria-label="Загрузка по дням">
+        <ol className="owner-week" data-testid="owner-outlook-chart" aria-label={t('Загрузка по дням')}>
           {result.current.daily.map((day) => (
             <li
               key={day.date}
-              aria-label={`${displayDate(day.date, 'full')}: ${formatPercent(day.percent)}, свободно ${day.free}`}
+              aria-label={t('{date}: {percent}, свободно {free}', { date: displayDate(day.date, 'full', locale), percent: formatPercent(day.percent), free: day.free })}
             >
               <Link
                 href={`/chessboard?from=${day.date}&to=${day.date}`}
-                aria-label={`${displayDate(day.date, 'full')}: загрузка ${formatPercent(day.percent)}, свободно ${day.free}. Открыть календарь`}
+                aria-label={t('{date}: загрузка {percent}, свободно {free}. Открыть календарь', { date: displayDate(day.date, 'full', locale), percent: formatPercent(day.percent), free: day.free })}
                 aria-current={day.date === today ? 'date' : undefined}
               >
                 <strong>{formatPercent(day.percent)}</strong>
@@ -79,8 +83,8 @@ export async function OwnerOutlook({ today }: { today: string }) {
                 </div>
                 <span>
                   {day.date === today
-                    ? 'Сегодня'
-                    : new Date(`${day.date}T00:00:00Z`).toLocaleDateString('ru-RU', {
+                    ? t('Сегодня')
+                    : new Date(`${day.date}T00:00:00Z`).toLocaleDateString(locale, {
                         weekday: 'short',
                         timeZone: 'UTC',
                       })}
@@ -99,12 +103,13 @@ export async function OwnerLoad({ date }: { date: string }) {
   const summary = board?.summary[date];
   const total = summary ? summary.occupied + summary.free + summary.blocked : 0;
   const percent = summary && total > 0 ? Math.round((summary.occupied * 1000) / total) / 10 : null;
+  const t = await serverT();
   return (
     <section className="owner-load owner-surface" aria-labelledby="owner-load-title">
       <header className="owner-section-head">
-        <h2 id="owner-load-title">Загрузка и операционные показатели</h2>
+        <h2 id="owner-load-title">{t('Загрузка и операционные показатели')}</h2>
         <Link href={`/management/analytics/occupancy?date=${date}`} className="card-heading__link">
-          Подробнее
+          {t('Подробнее')}
         </Link>
       </header>
       <div className="owner-load-main">
@@ -114,15 +119,15 @@ export async function OwnerLoad({ date }: { date: string }) {
             data-empty={percent === null}
             data-testid="c-occupancy"
           >
-            {percent === null ? 'Нет данных' : formatPercent(percent)}
+            {percent === null ? t('Нет данных') : formatPercent(percent)}
           </strong>
           <dl className="owner-load-counts">
             <div>
-              <dt>Занято</dt>
+              <dt>{t('Занято')}</dt>
               <dd>{summary?.occupied ?? '…'}</dd>
             </div>
             <div>
-              <dt>Свободно</dt>
+              <dt>{t('Свободно')}</dt>
               <dd data-testid="c-free">{summary?.free ?? '…'}</dd>
             </div>
           </dl>
@@ -141,23 +146,23 @@ export async function OwnerLoad({ date }: { date: string }) {
           </svg>
           <div>
             <strong>{summary ? total : '…'}</strong>
-            <span>мест всего</span>
+            <span>{t('мест всего')}</span>
           </div>
         </div>
       </div>
-      {summary?.blocked ? <p className="owner-blocked">Недоступно: {summary.blocked}</p> : null}
+      {summary?.blocked ? <p className="owner-blocked">{t('Недоступно: {n}', { n: summary.blocked })}</p> : null}
       {!summary && (
         <div className="owner-error-actions">
-          <p className="owner-caption">Данные фонда недоступны</p>
-          <DashboardRefresh label="Повторить" />
+          <p className="owner-caption">{t('Данные фонда недоступны')}</p>
+          <DashboardRefresh label={t('Повторить')} />
         </div>
       )}
       <details className="finance-disclosure">
-        <summary>Прогноз загрузки</summary>
+        <summary>{t('Прогноз загрузки')}</summary>
         <Suspense
           fallback={
             <div className="owner-outlook">
-              <OwnerPlaceholder variant="outlook" label="Загружаем прогноз…" />
+              <OwnerPlaceholder variant="outlook" label={t('Загружаем прогноз…')} />
             </div>
           }
         >

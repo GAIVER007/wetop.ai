@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import type { BeautySchedule } from '../../lib/api';
 import { saveBeautyEmployeeLocations } from '../../app/beauty/actions';
 import { Alert, Button } from '../ui';
+import { useT } from '../../i18n/locale-provider';
 
 export function EmployeeLocationsForm({
   employeeId,
@@ -13,6 +14,7 @@ export function EmployeeLocationsForm({
   locations: BeautySchedule['locations'];
 }) {
   const router = useRouter();
+  const t = useT();
   const [state, action, pending] = useActionState(
     async (
       previous: Awaited<ReturnType<typeof saveBeautyEmployeeLocations>> | null,
@@ -29,7 +31,7 @@ export function EmployeeLocationsForm({
     <form action={action} className="beauty-form">
       <input type="hidden" name="id" value={employeeId} />
       <fieldset className="beauty-skills" disabled={pending}>
-        <legend>Где мастер работает</legend>
+        <legend>{t('Где мастер работает')}</legend>
         {locations.map((location) => (
           <label key={location.id} className="beauty-check">
             <input
@@ -43,13 +45,12 @@ export function EmployeeLocationsForm({
         ))}
       </fieldset>
       <p className="beauty-note">
-        Снятый филиал забирает и график мастера в нём. Если там остались будущие записи, филиал
-        не снимется: сначала разберитесь с записями.
+        {t('Снятый филиал забирает и график мастера в нём. Если там остались будущие записи, филиал не снимется: сначала разберитесь с записями.')}
       </p>
-      {state?.error && <Alert>{state.error}</Alert>}
-      {state?.message && <p role="status">{state.message}</p>}
+      {state?.error && <Alert>{t(state.error)}</Alert>}
+      {state?.message && <p role="status">{t(state.message)}</p>}
       <Button type="submit" disabled={pending}>
-        {pending ? 'Сохраняем…' : 'Сохранить филиалы'}
+        {pending ? t('Сохраняем…') : t('Сохранить филиалы')}
       </Button>
     </form>
   );

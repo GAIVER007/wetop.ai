@@ -4,6 +4,7 @@ import { Alert, Button } from '../../components/ui';
 import { AppointmentHistory } from '../../components/beauty/appointment-history';
 import type { BeautyAppointmentHistoryResponse } from '../../lib/api';
 import { loadAppointmentHistory } from './appointment-history-actions';
+import { useT } from '../../i18n/locale-provider';
 
 export function AppointmentHistoryPanel({
   appointmentId,
@@ -15,8 +16,9 @@ export function AppointmentHistoryPanel({
   const [history, setHistory] = useState<BeautyAppointmentHistoryResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const t = useT();
   return (
-    <section aria-label="История изменений записи">
+    <section aria-label={t('История изменений записи')}>
       <Button
         type="button"
         tone="secondary"
@@ -30,7 +32,7 @@ export function AppointmentHistoryPanel({
           })
         }
       >
-        {pending ? 'Загружаем историю…' : history ? 'Обновить историю' : 'История изменений'}
+        {pending ? t('Загружаем историю…') : history ? t('Обновить историю') : t('История изменений')}
       </Button>
       {error && <Alert>{error}</Alert>}
       {history && <AppointmentHistory history={history} />}

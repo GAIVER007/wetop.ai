@@ -2,6 +2,8 @@
 import { revalidatePath } from 'next/cache';
 import { ApiError, authApi, beautyApi, type BeautyAppointmentRow } from '../../lib/api';
 import { MAX_PERIOD_DAYS, periodDays } from '../../components/quick-report-period';
+import type { Translate } from '../../i18n';
+import { serverT } from '../../i18n/server';
 
 /**
  * Журнал записей салона (срез B5): создание записи, перенос и состояние.
@@ -26,6 +28,7 @@ export async function createAppointment(
   _prev: JournalResult | null,
   form: FormData,
 ): Promise<JournalResult> {
+  const t = await serverT();
   // The initial scope is a guard, never an authority. API still checks all permissions.
   try {
     const expected = JSON.parse(text(form, 'scopeKey')) as Record<string, unknown>;
@@ -41,12 +44,12 @@ export async function createAppointment(
       return {
         outcome: 'rejected',
         error:
-          'Контекст изменён. Закройте старую форму и откройте запись в нужном филиале. Ввод сохранён.',
+          t('Контекст изменён. Закройте старую форму и откройте запись в нужном филиале. Ввод сохранён.'),
       };
   } catch {
     return {
       outcome: 'rejected',
-      error: 'Не удалось проверить исходный контекст. Ввод сохранён, команда не отправлена.',
+      error: t('Не удалось проверить исходный контекст. Ввод сохранён, команда не отправлена.'),
     };
   }
   let selection: Record<string, unknown> = {
@@ -74,7 +77,7 @@ export async function createAppointment(
     } catch {
       return {
         outcome: 'rejected',
-        error: 'Проверьте список услуг и мастеров. Ввод сохранён, команда не отправлена.',
+        error: t('Проверьте список услуг и мастеров. Ввод сохранён, команда не отправлена.'),
       };
     }
   }
@@ -91,7 +94,7 @@ export async function createAppointment(
     if (!saved?.appointments?.some((row) => typeof row.id === 'string' && row.id))
       return {
         outcome: 'unknown',
-        error: 'Результат не подтверждён. Проверьте список записей перед повторным созданием.',
+        error: t('Результат не подтверждён. Проверьте список записей перед повторным созданием.'),
       };
     revalidatePath('/calendar');
     revalidatePath('/appointments');
@@ -99,14 +102,14 @@ export async function createAppointment(
     revalidatePath('/services');
     revalidatePath('/customers');
     revalidatePath('/beauty');
-    return { message: 'Запись создана' };
+    return { message: t('Запись создана') };
   } catch (e) {
     return e instanceof ApiError && e.status >= 400 && e.status < 500
       ? { outcome: 'rejected', error: e.message }
       : {
           outcome: 'unknown',
           error:
-            'Результат не подтверждён. Проверьте список записей перед повторным созданием. Автоматического повтора нет.',
+            t('Результат не подтверждён. Проверьте список записей перед повторным созданием. Автоматического повтора нет.'),
         };
   }
 }
@@ -115,6 +118,7 @@ export async function moveAppointment(
   _prev: JournalResult | null,
   form: FormData,
 ): Promise<JournalResult> {
+  const t = await serverT();
   try {
     let changes: Record<string, unknown> = { employeeId: text(form, 'employeeId') };
     if (form.has('items')) {
@@ -126,7 +130,7 @@ export async function moveAppointment(
           (item) => !item || typeof item !== 'object' || !item.employeeId || !item.serviceId,
         )
       )
-        return { outcome: 'rejected', error: 'Проверьте услуги и мастеров.' };
+        return { outcome: 'rejected', error: t('Проверьте услуги и мастеров.') };
       changes = { items, notes: text(form, 'notes') };
     }
     await beautyApi.moveAppointment(text(form, 'id'), {
@@ -139,9 +143,9 @@ export async function moveAppointment(
     revalidatePath('/services');
     revalidatePath('/customers');
     revalidatePath('/beauty');
-    return { message: 'Запись перенесена' };
+    return { message: t('Запись перенесена') };
   } catch (e) {
-    return failed(e, 'Не удалось перенести запись.');
+    return failed(e, t('Не удалось перенести запись.'));
   }
 }
 
@@ -155,9 +159,9 @@ async function moneyScopeMatches(scope: string): Promise<boolean> {
       me.context?.businessId === expected.businessId && me.context?.locationId === expected.locationId);
   } catch { return false; }
 }
-const unknownMoneyResult = (): JournalResult => ({
+const unknownMoneyResult = (t: Translate): JournalResult => ({
   outcome: 'unknown',
-  error: 'Результат операции не подтверждён. Не создавайте новую оплату или возврат. Повторите ту же операцию либо сверьте историю и кассу.',
+  error: t('Результат операции не подтверждён. Не создавайте новую оплату или возврат. Повторите ту же операцию либо сверьте историю и кассу.'),
 });
 function moneyRevalidate() {
   try {
@@ -178,21 +182,22 @@ export async function payAppointment(
   scope: string,
   certificateCode?: string,
 ): Promise<JournalResult> {
+  const t = await serverT();
   if (!(await moneyScopeMatches(scope)))
-    return { outcome: 'rejected', error: 'Не удалось подтвердить исходный филиал. Команда не отправлена.' };
+    return { outcome: 'rejected', error: t('Не удалось подтвердить исходный филиал. Команда не отправлена.') };
   try {
     const saved = await beautyApi.payAppointment(id, {
       method, amount: amountMinor, idempotencyKey, ...(certificateCode ? { certificateCode } : {}),
     });
     if (!Array.isArray(saved?.appointments) || !saved.appointments.some((row) => row.id === id))
-      return unknownMoneyResult();
+      return unknownMoneyResult(t);
     moneyRevalidate();
-    return { message: 'Оплата принята' };
+    return { message: t('Оплата принята') };
   } catch (e) {
     // бонусы и сертификат: явный отказ API (лимит, срок, код) значит ничего не записано, причину видно сразу
     if (LOYALTY_METHODS.has(method) && e instanceof ApiError && [400, 404, 409].includes(e.status))
       return { outcome: 'rejected', error: e.message };
-    return unknownMoneyResult();
+    return unknownMoneyResult(t);
   }
 }
 
@@ -210,11 +215,12 @@ export async function customerBonusQuote(customerId: string): Promise<{ balanceM
 
 /** Остаток сертификата по коду для формы оплаты */
 export async function lookupCertificate(code: string): Promise<{ balanceMinor: string; status: string; expiresAt: string } | { error: string }> {
+  const t = await serverT();
   try {
     const c = await beautyApi.giftCertificateLookup(code);
     return { balanceMinor: c.balanceMinor, status: c.status, expiresAt: c.expiresAt };
   } catch (e) {
-    return { error: e instanceof ApiError ? e.message : 'Не удалось проверить сертификат' };
+    return { error: e instanceof ApiError ? e.message : t('Не удалось проверить сертификат') };
   }
 }
 
@@ -227,20 +233,22 @@ export async function refundAppointment(
   idempotencyKey: string,
   scope: string,
 ): Promise<JournalResult> {
+  const t = await serverT();
   if (!(await moneyScopeMatches(scope)))
-    return { outcome: 'rejected', error: 'Не удалось подтвердить исходный филиал. Команда не отправлена.' };
+    return { outcome: 'rejected', error: t('Не удалось подтвердить исходный филиал. Команда не отправлена.') };
   try {
     const saved = await beautyApi.refundAppointment(id, { method, amount: amountMinor, reason, idempotencyKey });
     if (!Array.isArray(saved?.appointments) || !saved.appointments.some((row) => row.id === id))
-      return unknownMoneyResult();
+      return unknownMoneyResult(t);
     moneyRevalidate();
-    return { message: 'Возврат оформлен' };
+    return { message: t('Возврат оформлен') };
   } catch {
-    return unknownMoneyResult();
+    return unknownMoneyResult(t);
   }
 }
 
 export async function setAppointmentStatus(id: string, status: string): Promise<JournalResult> {
+  const t = await serverT();
   try {
     await beautyApi.setAppointmentStatus(id, status);
     revalidatePath('/calendar');
@@ -249,9 +257,9 @@ export async function setAppointmentStatus(id: string, status: string): Promise<
     revalidatePath('/services');
     revalidatePath('/customers');
     revalidatePath('/beauty');
-    return { message: 'Состояние записи изменено' };
+    return { message: t('Состояние записи изменено') };
   } catch (e) {
-    return failed(e, 'Не удалось изменить состояние записи.');
+    return failed(e, t('Не удалось изменить состояние записи.'));
   }
 }
 
@@ -263,8 +271,9 @@ export async function beautyPeriodRows(
   from: string,
   to: string,
 ): Promise<{ rows?: BeautyAppointmentRow[]; error?: string }> {
+  const t = await serverT();
   const days = periodDays(from, to);
-  if (!days) return { error: `Выберите период не длиннее ${MAX_PERIOD_DAYS} дней.` };
+  if (!days) return { error: t('Выберите период не длиннее {n} дней.', { n: MAX_PERIOD_DAYS }) };
   try {
     const rows: BeautyAppointmentRow[] = [];
     for (let i = 0; i < days.length; i += 8) {
@@ -273,6 +282,6 @@ export async function beautyPeriodRows(
     }
     return { rows };
   } catch (e) {
-    return failed(e, 'Не удалось загрузить записи за период. Повторите попытку.');
+    return failed(e, t('Не удалось загрузить записи за период. Повторите попытку.'));
   }
 }

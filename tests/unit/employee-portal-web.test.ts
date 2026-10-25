@@ -29,7 +29,7 @@ describe('employee portal frontend boundaries', () => {
     expect(ui).toContain('portalAbsences(data.timeOffs');
     expect(ui).toContain('shortPeriod(');
     expect(ui).not.toContain('command="time-off"');
-    expect(source('components/employee-portal/forms.tsx')).toContain("{hours || 'Выходной'}");
+    expect(source('components/employee-portal/forms.tsx')).toContain("{hours || t('Выходной')}");
     expect(ui).toContain('<PortalWeekView');
     expect(ui).toContain('data.scheduleConflicts.items.map');
     // служебная фраза «Проверяем… Записи не отменены» снята (аудит салона 22.10.2026); конфликт назван словами
@@ -60,8 +60,8 @@ describe('salon terminology regression', () => {
     const board = source('app/beauty/schedule/board.tsx');
     expect(board).not.toContain('Добавить нерабочие дни');
     expect(board).toContain('обычный недельный график');
-    expect(board).toContain('>С</span>');
-    expect(board).toContain('>До</span>');
+    expect(board).toContain(">{t('С')}</span>");
+    expect(board).toContain(">{t('До')}</span>");
     expect(board).toContain('beauty-week-grid');
     const masters = source('app/beauty/masters/board.tsx');
     expect(masters).not.toContain('Изменения на даты');

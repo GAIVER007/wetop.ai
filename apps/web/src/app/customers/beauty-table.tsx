@@ -19,6 +19,9 @@ import {
   type BeautyCustomerSegmentFilter,
 } from './customer-filter';
 import { formatPhone } from '../../lib/phone';
+import { intlLocale, type DeskLocale, type Translate } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
+import { dateFormat } from '../../i18n/dates';
 
 /**
  * Клиенты салона по макету ТЗ (09.10.2026): телефон, последний визит, всего визитов, средний чек и
@@ -28,16 +31,19 @@ import { formatPhone } from '../../lib/phone';
 export const REGULAR_FROM = BEAUTY_REGULAR_CUSTOMER_VISITS;
 
 // как у ресторана (food/customers.tsx): «15 марта», без года
-const dayMonth = (iso: string) =>
-  new Date(`${iso}T12:00:00Z`).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', timeZone: 'UTC' });
-const birthday = (row: BeautyCustomerRow) =>
+const dayMonth = (iso: string, locale: DeskLocale) =>
+  dateFormat(intlLocale(locale), { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date(`${iso}T12:00:00Z`));
+const birthday = (row: BeautyCustomerRow, t: Translate, locale: DeskLocale) =>
   !row.birthDate
-    ? 'Не указан'
+    ? t('Не указан')
     : row.birthdayInDays === 0
-      ? `${dayMonth(row.birthDate)}, сегодня`
+      ? t('{date}, сегодня', { date: dayMonth(row.birthDate, locale) })
       : (row.birthdayInDays ?? 99) <= 7
-        ? `${dayMonth(row.birthDate)}, через ${pluralRu(row.birthdayInDays!, ['день', 'дня', 'дней'])}`
-        : dayMonth(row.birthDate);
+        ? t('{date}, через {days}', {
+            date: dayMonth(row.birthDate, locale),
+            days: pluralRu(row.birthdayInDays!, [t('день'), t('дня'), t('дней')]),
+          })
+        : dayMonth(row.birthDate, locale);
 
 const segment = (row: BeautyCustomerRow) => customerSegment(row);
 
@@ -57,6 +63,8 @@ export function BeautyCustomersTable({
   scopeKey?: string;
   businessId?: string;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const router = useRouter();
   const [creating, setCreating] = useState(false);
   const [saved, setSaved] = useState<{ id: string; created: boolean } | null>(null);
@@ -82,7 +90,7 @@ export function BeautyCustomersTable({
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ scopeKey, query, segment: filter }),
       });
-      if (!response.ok) throw new Error((await response.text()) || 'Не удалось выгрузить клиентов');
+      if (!response.ok) throw new Error((await response.text()) || t('Не удалось выгрузить клиентов'));
       const url = URL.createObjectURL(await response.blob());
       const link = document.createElement('a');
       link.href = url;
@@ -90,7 +98,7 @@ export function BeautyCustomersTable({
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {
-      setExportError(error instanceof Error ? error.message : 'Не удалось выгрузить клиентов');
+      setExportError(error instanceof Error ? error.message : t('Не удалось выгрузить клиентов'));
     } finally {
       setExporting(false);
     }
@@ -105,21 +113,21 @@ export function BeautyCustomersTable({
           <Input
             id={searchId}
             type="search"
-            aria-label="Поиск по имени или телефону"
-            placeholder="Имя или телефон"
+            aria-label={t('Поиск по имени или телефону')}
+            placeholder={t('Имя или телефон')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
           <Select
-            aria-label="Сегмент"
+            aria-label={t('Сегмент')}
             value={filter}
             onChange={(e) => setFilter(e.target.value as BeautyCustomerSegmentFilter)}
           >
-            <option value="all">Все клиенты</option>
-            <option value="new">Новые</option>
-            <option value="regular">Постоянные</option>
+            <option value="all">{t('Все клиенты')}</option>
+            <option value="new">{t('Новые')}</option>
+            <option value="regular">{t('Постоянные')}</option>
             <option value="vip">VIP</option>
-            <option value="archived">В архиве</option>
+            <option value="archived">{t('В архиве')}</option>
           </Select>
         </div>
         <div className="beauty-customers-bar__actions">
@@ -132,39 +140,39 @@ export function BeautyCustomersTable({
             disabled={exporting || !scopeKey}
             aria-busy={exporting}
           >
-            Скачать Excel
+            {t('Скачать Excel')}
           </Button>
-          {canCreate && <Button type="button" onClick={() => setCreating(true)}>Добавить клиента</Button>}
+          {canCreate && <Button type="button" onClick={() => setCreating(true)}>{t('Добавить клиента')}</Button>}
         </div>
       </div>
       {exportError && <Alert>{exportError}</Alert>}
-      {saved && <p role="status">{saved.created ? 'Клиент создан.' : 'Клиент уже есть. Используем существующую карточку.'}</p>}
+      {saved && <p role="status">{saved.created ? t('Клиент создан.') : t('Клиент уже есть. Используем существующую карточку.')}</p>}
       {items.length === 0 ? (
         <EmptyState
-          title="Клиентов пока нет"
-          actions={canCreate ? <Button type="button" onClick={() => setCreating(true)}>Добавить первого клиента</Button> : undefined}
+          title={t('Клиентов пока нет')}
+          actions={canCreate ? <Button type="button" onClick={() => setCreating(true)}>{t('Добавить первого клиента')}</Button> : undefined}
         >
-          Добавьте первого клиента или импортируйте список из CSV или Excel.
+          {t('Добавьте первого клиента или импортируйте список из CSV или Excel.')}
         </EmptyState>
       ) : (
       <>
       <Table className="beauty-customers-table">
         <thead>
           <tr>
-            <th>Клиент</th>
-            <th>Телефон</th>
-            <th className="beauty-col-wide">Последний визит</th>
-            <th>Всего визитов</th>
-            <th className="beauty-col-wide">Средний чек</th>
-            <th>Статус</th>
-            <th>День рождения</th>
-            {canEdit && <th><span className="sr-only">Действия</span></th>}
+            <th>{t('Клиент')}</th>
+            <th>{t('Телефон')}</th>
+            <th className="beauty-col-wide">{t('Последний визит')}</th>
+            <th>{t('Всего визитов')}</th>
+            <th className="beauty-col-wide">{t('Средний чек')}</th>
+            <th>{t('Статус')}</th>
+            <th>{t('День рождения')}</th>
+            {canEdit && <th><span className="sr-only">{t('Действия')}</span></th>}
           </tr>
         </thead>
         <tbody>
           {rows.length === 0 && (
             <tr>
-              <td colSpan={canEdit ? 8 : 7}>Никого не нашли. Поменяйте поиск или сегмент.</td>
+              <td colSpan={canEdit ? 8 : 7}>{t('Никого не нашли. Поменяйте поиск или сегмент.')}</td>
             </tr>
           )}
           {rows.map((row) => {
@@ -172,7 +180,7 @@ export function BeautyCustomersTable({
             const visitDate = row.lastVisitLocalDate;
             return (
               <tr key={row.id} id={`customer-${row.id}`} tabIndex={-1}>
-                <td data-label="Клиент">
+                <td data-label={t('Клиент')}>
                   <strong>
                     <Link href={`/customers/${encodeURIComponent(row.id)}`}>
                       {[row.firstName, row.lastName].filter(Boolean).join(' ')}
@@ -180,26 +188,28 @@ export function BeautyCustomersTable({
                   </strong>{' '}
                   {row.isVip && <Badge tone="warn">VIP</Badge>}
                 </td>
-                <td data-label="Телефон" className="beauty-customer-contact">{row.phone ? <a href={`tel:${row.phone}`}>{formatPhone(row.phone)}</a> : 'Не указан'}</td>
-                <td data-label="Последний визит" className="beauty-col-wide">
+                <td data-label={t('Телефон')} className="beauty-customer-contact">{row.phone ? <a href={`tel:${row.phone}`}>{formatPhone(row.phone)}</a> : t('Не указан')}</td>
+                <td data-label={t('Последний визит')} className="beauty-col-wide">
                   {visitDate ? (
                     <time dateTime={visitDate}>
-                      {displayDate(visitDate)}
+                      {locale === 'ru'
+                        ? displayDate(visitDate)
+                        : dateFormat(intlLocale(locale), { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(`${visitDate}T00:00:00Z`))}
                     </time>
                   ) : (
-                    row.lastVisitAt ? 'Дата визита недоступна' : 'Визитов не было'
+                    row.lastVisitAt ? t('Дата визита недоступна') : t('Визитов не было')
                   )}
                 </td>
-                <td data-label="Всего визитов">{row.visits}</td>
-                <td data-label="Средний чек" className="beauty-col-wide">
+                <td data-label={t('Всего визитов')}>{row.visits}</td>
+                <td data-label={t('Средний чек')} className="beauty-col-wide">
                   {row.avgCheckMinor
                     ? formatMoney(row.avgCheckMinor, row.avgCheckCurrency ?? 'KZT')
-                    : 'Нет данных'}
+                    : t('Нет данных')}
                 </td>
-                <td data-label="Статус">
-                  <Badge tone={s.tone}>{s.label}</Badge>
+                <td data-label={t('Статус')}>
+                  <Badge tone={s.tone}>{t(s.label)}</Badge>
                 </td>
-                <td data-label="День рождения" data-testid="customer-birthday">{birthday(row)}</td>
+                <td data-label={t('День рождения')} data-testid="customer-birthday">{birthday(row, t, locale)}</td>
                 {canEdit && (
                   <td>
                     <CustomerMarks
@@ -216,12 +226,12 @@ export function BeautyCustomersTable({
       </Table>
       <p role="status" className="beauty-customers-total">
         {rows.length === items.length
-          ? `Всего: ${pluralRu(items.length, ['клиент', 'клиента', 'клиентов'])}`
-          : `Показано ${rows.length} из ${items.length}`}
+          ? t('Всего: {count}', { count: pluralRu(items.length, [t('клиент'), t('клиента'), t('клиентов')]) })
+          : t('Показано {shown} из {total}', { shown: rows.length, total: items.length })}
       </p>
       </>
       )}
-      {canCreate && <Overlay open={creating} onClose={() => setCreating(false)} title="Добавить клиента" drawer trapFocus>
+      {canCreate && <Overlay open={creating} onClose={() => setCreating(false)} title={t('Добавить клиента')} drawer trapFocus>
         {creating && <CreateCustomer key={businessId} businessId={businessId} onSaved={onSaved} />}
       </Overlay>}
     </>

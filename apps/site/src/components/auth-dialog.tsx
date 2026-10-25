@@ -78,9 +78,10 @@ const VERTICAL_TILES: Record<BusinessVertical, { icon: IconName; label: string }
   FOOD_SERVICE: { icon: 'food', label: 'Ресторан' },
 };
 
-/** Выбор сохраняется в существующем поле locale профиля. */
+/** Выбор сохраняется в существующем поле locale профиля. Казахский с KK2: стойка салона на нём целиком */
 const LANGUAGES = [
   { code: 'ru', label: 'Русский' },
+  { code: 'kk', label: 'Қазақша' },
   { code: 'en', label: 'English' },
 ] as const;
 const REGISTRATION_COUNTRIES = PHONE_COUNTRIES.filter((c) => ['KZ', 'AE', 'QA'].includes(c.code));
@@ -128,7 +129,13 @@ export function AuthDialog({ texts, urls }: Props) {
       Intl.DateTimeFormat().resolvedOptions().timeZone,
     );
     const query = new URLSearchParams(window.location.search);
-    setForm((f) => ({ ...f, phoneCountry: REGISTRATION_COUNTRIES.some((c) => c.code === country) ? country : 'KZ', email: query.get('email') ?? '' }));
+    setForm((f) => ({
+      ...f,
+      phoneCountry: REGISTRATION_COUNTRIES.some((c) => c.code === country) ? country : 'KZ',
+      email: query.get('email') ?? '',
+      // с казахской страницы сайта (/kk/…) человек приходит за казахским кабинетом
+      ...(window.location.pathname.startsWith('/kk/') ? { language: 'kk' } : {}),
+    }));
     setVertical(parseBusinessVertical(query.get('vertical')) ?? 'HOSPITALITY');
     setPasswordJustSet(query.get('password') === 'set');
     setChoosable(window.location.pathname === '/');

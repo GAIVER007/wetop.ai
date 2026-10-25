@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
 import { isPublicEntryPath } from '../lib/public-entry';
+import { msg } from '../i18n';
 import { LoadingState } from './ui';
 
 /**
@@ -54,7 +55,7 @@ export function WorkspaceSessionBoundary({
 
   return (
     <>
-      {checking && <LoadingState label="Проверяем сессию…" />}
+      {checking && <LoadingState label={msg('Проверяем сессию…')} />}
       <div className="workspace-session-boundary" hidden={checking} inert={checking}>
         {children}
       </div>
@@ -79,7 +80,7 @@ export function PublicEntryExit({ children }: { children: ReactNode }) {
   }, [leaving, pathname, router]);
   return (
     <>
-      {leaving && <LoadingState label="Открываем рабочее пространство…" />}
+      {leaving && <LoadingState label={msg('Открываем рабочее пространство…')} />}
       <div className="workspace-session-boundary" hidden={leaving} inert={leaving}>
         {children}
       </div>

@@ -9,6 +9,7 @@ import {
   loadBeautyServiceMaterials,
   saveBeautyServiceMaterials,
 } from './material-actions';
+import { useT } from '../../../i18n/locale-provider';
 
 type MaterialDraft = { productId: string; normQty: string; unit: BeautyMaterialUnit };
 const quantity = /^\d{1,9}(?:[.,]\d{1,3})?$/;
@@ -27,6 +28,7 @@ export function ServiceMaterials({
   scopeKey: string;
   initial?: BeautyServiceMaterials;
 }) {
+  const t = useT();
   const [data, setData] = useState<BeautyServiceMaterials | null>(initial ?? null);
   const [rows, setRows] = useState<MaterialDraft[]>(initial ? draftsFrom(initial) : []);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -63,8 +65,8 @@ export function ServiceMaterials({
   const addable = available.find((product) => !rows.some((row) => row.productId === product.id));
   const costByProduct = new Map(data?.items.map((item) => [item.productId, item]) ?? []);
 
-  if (loading) return <p role="status">Загружаем техкарту…</p>;
-  if (loadError || !data) return <Alert>{loadError ?? 'Техкарта недоступна.'}</Alert>;
+  if (loading) return <p role="status">{t('Загружаем техкарту…')}</p>;
+  if (loadError || !data) return <Alert>{loadError ?? t('Техкарта недоступна.')}</Alert>;
 
   const patch = (index: number, change: Partial<MaterialDraft>) =>
     setRows((current) => current.map((row, position) => position === index ? { ...row, ...change } : row));
@@ -78,12 +80,12 @@ export function ServiceMaterials({
         const normalized = rows.map((row) => ({ ...row, normQty: row.normQty.replace(',', '.') }));
         if (normalized.some((row) => !row.productId || !quantity.test(row.normQty) || /^0+(?:\.0+)?$/.test(row.normQty))) {
           event.preventDefault();
-          setLocalError('Укажите товар и положительную норму, не больше трёх знаков после запятой.');
+          setLocalError(t('Укажите товар и положительную норму, не больше трёх знаков после запятой.'));
           return;
         }
         if (new Set(normalized.map((row) => row.productId)).size !== normalized.length) {
           event.preventDefault();
-          setLocalError('Один товар можно добавить в техкарту только один раз.');
+          setLocalError(t('Один товар можно добавить в техкарту только один раз.'));
           return;
         }
         setLocalError(null);
@@ -94,7 +96,7 @@ export function ServiceMaterials({
       <input type="hidden" name="expectedRevision" value={data.revision} />
       <input type="hidden" name="items" value={JSON.stringify(rows.map((row) => ({ ...row, normQty: row.normQty.replace(',', '.') })))} />
       <div className="beauty-material-heading">
-        <div><h3>Материалы</h3><p>Норма расхода на одну услугу «{serviceName}».</p></div>
+        <div><h3>{t('Материалы')}</h3><p>{t('Норма расхода на одну услугу «{name}».', { name: serviceName })}</p></div>
         <Button
           type="button"
           tone="secondary"
@@ -103,11 +105,11 @@ export function ServiceMaterials({
             if (addable) setRows([...rows, { productId: addable.id, normQty: '', unit: addable.unit }]);
           }}
         >
-          Добавить материал
+          {t('Добавить материал')}
         </Button>
       </div>
 
-      {rows.length === 0 && <p className="beauty-material-empty">Материалы не добавлены.</p>}
+      {rows.length === 0 && <p className="beauty-material-empty">{t('Материалы не добавлены.')}</p>}
       <div className="beauty-material-rows">
         {rows.map((row, index) => {
           const selected = data.products.find((product) => product.id === row.productId);
@@ -115,9 +117,9 @@ export function ServiceMaterials({
           const unchanged = saved?.normQty === row.normQty.replace(',', '.') && saved.unit === row.unit;
           return (
             <div className="beauty-material-row" key={`${row.productId}:${index}`}>
-              <Field label={`Материал ${index + 1}`}>
+              <Field label={t('Материал {n}', { n: index + 1 })}>
                 <Select
-                  aria-label={`Материал ${index + 1}`}
+                  aria-label={t('Материал {n}', { n: index + 1 })}
                   value={row.productId}
                   onChange={(event) => {
                     const product = data.products.find((candidate) => candidate.id === event.target.value);
@@ -125,34 +127,34 @@ export function ServiceMaterials({
                   }}
                 >
                   {data.products.filter((product) => product.active || product.id === row.productId).map((product) => (
-                    <option key={product.id} value={product.id}>{product.name}{product.active ? '' : ' (в архиве)'}</option>
+                    <option key={product.id} value={product.id}>{product.name}{product.active ? '' : ` (${t('в архиве')})`}</option>
                   ))}
                 </Select>
               </Field>
-              <Field label={`Норма, ${row.unit}`}>
+              <Field label={t('Норма, {unit}', { unit: t(row.unit) })}>
                 <Input
-                  aria-label={`Норма, ${row.unit}, материал ${index + 1}`}
+                  aria-label={t('Норма, {unit}, материал {n}', { unit: t(row.unit), n: index + 1 })}
                   inputMode="decimal"
                   value={row.normQty}
                   onChange={(event) => patch(index, { normQty: event.target.value })}
                 />
               </Field>
               <div className="beauty-material-stock">
-                <span>Остаток</span><strong>{selected?.onHand ?? saved?.onHand ?? '0'} {row.unit}</strong>
+                <span>{t('Остаток')}</span><strong>{selected?.onHand ?? saved?.onHand ?? '0'} {t(row.unit)}</strong>
               </div>
               <div className="beauty-material-cost">
-                <span>Себестоимость нормы</span>
+                <span>{t('Себестоимость нормы')}</span>
                 <strong>{unchanged && saved?.costMinor !== null && saved?.costMinor !== undefined
                   ? formatMoney(saved.costMinor, data.currency)
-                  : unchanged ? 'Нет цены или остатка' : 'После сохранения'}</strong>
+                  : unchanged ? t('Нет цены или остатка') : t('После сохранения')}</strong>
               </div>
               <Button
                 type="button"
                 tone="secondary"
-                aria-label={`Убрать материал ${index + 1}`}
+                aria-label={t('Убрать материал {n}', { n: index + 1 })}
                 onClick={() => setRows((current) => current.filter((_, position) => position !== index))}
               >
-                Убрать
+                {t('Убрать')}
               </Button>
             </div>
           );
@@ -160,21 +162,21 @@ export function ServiceMaterials({
       </div>
 
       <div className="beauty-material-total">
-        <span>Плановая себестоимость услуги</span>
-        <strong>{dirty ? 'После сохранения' : data.totalCostMinor === null
-          ? 'Себестоимость не рассчитана'
+        <span>{t('Плановая себестоимость услуги')}</span>
+        <strong>{dirty ? t('После сохранения') : data.totalCostMinor === null
+          ? t('Себестоимость не рассчитана')
           : formatMoney(data.totalCostMinor, data.currency)}</strong>
       </div>
-      {!dirty && data.missingCost && <Alert>Для части материалов нет цены партии или не хватает остатка.</Alert>}
+      {!dirty && data.missingCost && <Alert>{t('Для части материалов нет цены партии или не хватает остатка.')}</Alert>}
       {!available.length && (
         <p>
-          На складе нет расходников для добавления.{' '}
-          <Link href="/bar/consumables" prefetch={false}>Добавить расходник</Link>
+          {t('На складе нет расходников для добавления.')}{' '}
+          <Link href="/bar/consumables" prefetch={false}>{t('Добавить расходник')}</Link>
         </p>
       )}
       {(localError ?? state?.error) && <Alert>{localError ?? state?.error}</Alert>}
       {!localError && state?.message && <p role="status">{state.message}</p>}
-      <Button type="submit" disabled={pending || !dirty}>{pending ? 'Сохраняем…' : 'Сохранить техкарту'}</Button>
+      <Button type="submit" disabled={pending || !dirty}>{pending ? t('Сохраняем…') : t('Сохранить техкарту')}</Button>
     </form>
   );
 }

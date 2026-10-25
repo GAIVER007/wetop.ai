@@ -8,6 +8,7 @@ import { currentMe } from '../../lib/desk-shell';
 import { readOnlyOf } from '../../lib/desk-person';
 import { restaurantApi } from '../../lib/food-api';
 import type { FoodCashOperationInput, FoodPaymentMethod } from '../../lib/food-types';
+import { serverT } from '../../i18n/server';
 
 type CashCommand =
   | { kind: 'operation'; body: FoodCashOperationInput }
@@ -22,6 +23,7 @@ export async function mutateCash(
   scopeKey: string,
   command: CashCommand,
 ): Promise<{ error: string | null }> {
+  const t = await serverT();
   try {
     const me = await currentMe();
     const c = me.context;
@@ -31,7 +33,7 @@ export async function mutateCash(
       !['BEAUTY', 'FOOD_SERVICE'].includes(c.vertical ?? '') ||
       scopeKey !== `${c.businessId}:${c.locationId}`
     )
-      throw new ApiError(409, 'Выбран другой филиал. Откройте форму заново.');
+      throw new ApiError(409, t('Выбран другой филиал. Откройте форму заново.'));
     // В салоне с назначенными должностями решает должность, как в API (request-context.ts): операция —
     // finance.create, возврат — finance.refund, сверка — finance.update. Иначе — старая роль, как раньше.
     const assigned = c.vertical === 'BEAUTY' && me.beautyAccess?.mode === 'ASSIGNED';
@@ -46,7 +48,7 @@ export async function mutateCash(
           return role !== null && can(role, command.kind === 'void' ? 'refunds' : 'desk');
         })();
     if (!allowed || readOnlyOf(me.user?.organization, new Date()))
-      throw new ApiError(403, 'Нет права на эту кассовую операцию.');
+      throw new ApiError(403, t('Нет права на эту кассовую операцию.'));
     // Reuse existing branch-ledger endpoints; no restaurant menu/order capability is granted here.
     if (command.kind === 'operation') await restaurantApi.cashOperation(command.body);
     else if (command.kind === 'void') await restaurantApi.voidCashOperation(command.id);
@@ -59,7 +61,7 @@ export async function mutateCash(
       error:
         error instanceof Error
           ? error.message
-          : 'Не удалось подтвердить операцию. Повторите с тем же черновиком.',
+          : t('Не удалось подтвердить операцию. Повторите с тем же черновиком.'),
     };
   }
 }

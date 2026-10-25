@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiError, authApi, beautyApi } from '../../../lib/api';
 import { loadBeautyServiceMaterials, saveBeautyServiceMaterials } from './material-actions';
 
+// язык стойки (KK2) читает куку запроса; здесь запроса нет, тексты русские
+vi.mock('../../../i18n/server', async () => ({ serverT: async () => (await import('../../../i18n')).translator('ru'), currentLocale: async () => 'ru' }));
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 vi.mock('../../../lib/api', () => ({
   ApiError: class ApiError extends Error {

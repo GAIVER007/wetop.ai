@@ -11,6 +11,8 @@ import { mayAccess } from '../../../lib/navigation';
 import { pluralRu } from '../../../lib/plural';
 import { tableTitle } from '../../../lib/table-title';
 import { formatPhone } from '../../../lib/phone';
+import type { Translate } from '../../../i18n';
+import { serverT } from '../../../i18n/server';
 
 type Visit = FoodCustomerDetail['visits'][number];
 
@@ -27,36 +29,46 @@ const visitDateTime = (visit: Visit) =>
 /** Визит ресторана: гость посажен или бронь завершена (то же правило, что «Постоянный гость» в списке, ADR-159) */
 const isVisit = (visit: Visit) => visit.status === 'SEATED' || visit.status === 'COMPLETED';
 
-function VisitHistory({ visits, truncated, branches }: { visits: Visit[]; truncated: boolean; branches: boolean }) {
+function VisitHistory({
+  visits,
+  truncated,
+  branches,
+  t,
+}: {
+  visits: Visit[];
+  truncated: boolean;
+  branches: boolean;
+  t: Translate;
+}) {
   if (visits.length === 0)
     return (
-      <EmptyState icon={<Icon name="booking" />} title="Броней пока нет">
-        Первая появится после брони стола для этого гостя.
+      <EmptyState icon={<Icon name="booking" />} title={t('Броней пока нет')}>
+        {t('Первая появится после брони стола для этого гостя.')}
       </EmptyState>
     );
   return (
     <>
-      {truncated && <p className="muted">Показаны последние 100 броней.</p>}
+      {truncated && <p className="muted">{t('Показаны последние 100 броней.')}</p>}
       <Table className="beauty-customer-history" data-testid="food-customer-history">
         <thead>
           <tr>
-            <th>Дата и время</th>
-            {branches && <th>Филиал</th>}
-            <th>Стол</th>
-            <th>Гостей</th>
-            <th>Статус</th>
+            <th>{t('Дата и время')}</th>
+            {branches && <th>{t('Филиал')}</th>}
+            <th>{t('Стол')}</th>
+            <th>{t('Гостей')}</th>
+            <th>{t('Статус')}</th>
           </tr>
         </thead>
         <tbody>
           {visits.map((visit) => (
             <tr key={visit.id}>
-              <td data-label="Дата и время">
+              <td data-label={t('Дата и время')}>
                 <time dateTime={visit.startsAt}>{visitDateTime(visit)}</time>
               </td>
-              {branches && <td data-label="Филиал">{visit.location.name}</td>}
-              <td data-label="Стол">{visit.table ? `${visit.table.areaName}, ${tableTitle(visit.table.name)}` : 'Без стола'}</td>
-              <td data-label="Гостей">{visit.partySize}</td>
-              <td data-label="Статус">
+              {branches && <td data-label={t('Филиал')}>{visit.location.name}</td>}
+              <td data-label={t('Стол')}>{visit.table ? `${visit.table.areaName}, ${tableTitle(visit.table.name)}` : t('Без стола')}</td>
+              <td data-label={t('Гостей')}>{visit.partySize}</td>
+              <td data-label={t('Статус')}>
                 <StatusBadge kind="food" value={visit.status} />
               </td>
             </tr>
@@ -73,6 +85,7 @@ function VisitHistory({ visits, truncated, branches }: { visits: Visit[]; trunca
  */
 export async function FoodCustomerCard({ detail }: { detail: FoodCustomerDetail }) {
   const shell = await deskShell();
+  const t = await serverT();
   const customer = detail.customer;
   const name = [customer.firstName, customer.lastName].filter(Boolean).join(' ');
   const canEdit = !shell.readOnly && mayAccess(shell.access, 'desk');
@@ -83,36 +96,37 @@ export async function FoodCustomerCard({ detail }: { detail: FoodCustomerDetail 
   const overview = (
     <>
       <p className="beauty-customer-contacts">
-        {customer.phone ? <a href={`tel:${customer.phone}`}>{formatPhone(customer.phone)}</a> : <span>Телефон не указан</span>}
+        {customer.phone ? <a href={`tel:${customer.phone}`}>{formatPhone(customer.phone)}</a> : <span>{t('Телефон не указан')}</span>}
         {customer.email && <span>{customer.email}</span>}
-        {visits >= 2 ? <Badge tone="info">Постоянный гость</Badge> : <Badge tone="neutral">Новый</Badge>}
+        {visits >= 2 ? <Badge tone="info">{t('Постоянный гость')}</Badge> : <Badge tone="neutral">{t('Новый')}</Badge>}
         {customer.isVip && <Badge tone="warn">VIP</Badge>}
         <span>
-          Визитов: {count}
-          {detail.visits.length > visits && `, всего ${pluralRu(detail.visits.length, ['бронь', 'брони', 'броней'])}`}
+          {t('Визитов: {n}', { n: count })}
+          {detail.visits.length > visits &&
+            t(', всего {count}', { count: pluralRu(detail.visits.length, [t('бронь'), t('брони'), t('броней')]) })}
         </span>
       </p>
       {customer.notes && (
         <>
-          <SectionTitle>Заметки</SectionTitle>
+          <SectionTitle>{t('Заметки')}</SectionTitle>
           <p className="beauty-customer-notes">{customer.notes}</p>
         </>
       )}
-      <SectionTitle>Последние брони</SectionTitle>
-      <VisitHistory visits={detail.visits.slice(0, 3)} truncated={false} branches={branches} />
+      <SectionTitle>{t('Последние брони')}</SectionTitle>
+      <VisitHistory visits={detail.visits.slice(0, 3)} truncated={false} branches={branches} t={t} />
     </>
   );
   return (
     <Page
       className="beauty-page"
       width="wide"
-      crumbs={<BackCrumb href="/customers">Клиенты</BackCrumb>}
+      crumbs={<BackCrumb href="/customers">{t('Клиенты')}</BackCrumb>}
       title={name}
       actions={
         <>
           {canBook && customer.status === 'ACTIVE' && (
             <Link className="btn" prefetch={false} href="/table-reservations?new=1">
-              Забронировать стол
+              {t('Забронировать стол')}
             </Link>
           )}
           {canEdit && (
@@ -125,14 +139,14 @@ export async function FoodCustomerCard({ detail }: { detail: FoodCustomerDetail 
       }
     >
       <Tabs
-        label="Разделы карточки клиента"
+        label={t('Разделы карточки клиента')}
         panels={[
-          { id: 'customer-overview', label: 'Обзор', content: overview },
+          { id: 'customer-overview', label: t('Обзор'), content: overview },
           {
             id: 'customer-visits',
-            label: 'История броней',
+            label: t('История броней'),
             count: detail.visits.length,
-            content: <VisitHistory visits={detail.visits} truncated={detail.historyTruncated} branches={branches} />,
+            content: <VisitHistory visits={detail.visits} truncated={detail.historyTruncated} branches={branches} t={t} />,
           },
         ]}
       />

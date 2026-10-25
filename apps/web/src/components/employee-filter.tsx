@@ -1,17 +1,26 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { msg } from '../i18n';
+import { useT } from '../i18n/locale-provider';
 import { Icon } from './icon';
 import { Button, Input } from './ui';
 import './quick-report.css';
 
 /** Слова фильтра: у салона это специалисты (меню «Персонал → Специалисты», 18.10.2026), у ресторана сотрудники */
 const WORDS = {
-  staff: { one: 'сотрудника', unavailable: 'Сотрудник недоступен', list: 'Сотрудники', none: 'Сотрудники не найдены' },
+  staff: {
+    pick: msg('Выбрать сотрудника: {name}'),
+    search: msg('Поиск сотрудника'),
+    unavailable: msg('Сотрудник недоступен'),
+    list: msg('Сотрудники'),
+    none: msg('Сотрудники не найдены'),
+  },
   specialists: {
-    one: 'специалиста',
-    unavailable: 'Специалист недоступен',
-    list: 'Специалисты',
-    none: 'Специалисты не найдены',
+    pick: msg('Выбрать специалиста: {name}'),
+    search: msg('Поиск специалиста'),
+    unavailable: msg('Специалист недоступен'),
+    list: msg('Специалисты'),
+    none: msg('Специалисты не найдены'),
   },
 };
 
@@ -19,7 +28,7 @@ export function EmployeeFilter({
   options,
   value,
   onChange,
-  allLabel = 'Все сотрудники',
+  allLabel = msg('Все сотрудники'),
   kind = 'staff',
 }: {
   options: Array<{ id: string; name: string }>;
@@ -28,12 +37,13 @@ export function EmployeeFilter({
   allLabel?: string;
   kind?: keyof typeof WORDS;
 }) {
+  const t = useT();
   const words = WORDS[kind];
   const details = useRef<HTMLDetailsElement>(null);
   const [search, setSearch] = useState('');
   const label = value
-    ? (options.find((e) => e.id === value)?.name ?? words.unavailable)
-    : allLabel;
+    ? (options.find((e) => e.id === value)?.name ?? t(words.unavailable))
+    : t(allLabel);
   useEffect(() => {
     const outside = (event: PointerEvent) => {
       if (
@@ -66,7 +76,7 @@ export function EmployeeFilter({
         }
       }}
     >
-      <summary className="btn btn--secondary" aria-label={`Выбрать ${words.one}: ${label}`}>
+      <summary className="btn btn--secondary" aria-label={t(words.pick, { name: label })}>
         <Icon name="person" />
         <span>{label}</span>
         <Icon name="down" />
@@ -74,14 +84,14 @@ export function EmployeeFilter({
       <div className="employee-filter-menu">
         <Input
           type="search"
-          aria-label={`Поиск ${words.one}`}
-          placeholder="Найти по имени"
+          aria-label={t(words.search)}
+          placeholder={t('Найти по имени')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <div className="employee-filter-list" aria-label={words.list}>
+        <div className="employee-filter-list" aria-label={t(words.list)}>
           <Button tone="ghost" aria-pressed={!value} onClick={() => choose('')}>
-            {allLabel}
+            {t(allLabel)}
           </Button>
           {options
             .filter((e) =>
@@ -100,7 +110,7 @@ export function EmployeeFilter({
           {search &&
             !options.some((e) =>
               e.name.toLocaleLowerCase('ru').includes(search.trim().toLocaleLowerCase('ru')),
-            ) && <p role="status">{words.none}</p>}
+            ) && <p role="status">{t(words.none)}</p>}
         </div>
       </div>
     </details>

@@ -1,5 +1,6 @@
 import { beautyApi } from '../../../lib/api';
 import { ApiError } from '../../../lib/api-error';
+import { serverT } from '../../../i18n/server';
 import { validDate } from '../../../lib/hotel-api';
 import { appointmentsCsv, type CsvDay } from '../appointments-csv';
 
@@ -24,12 +25,17 @@ export async function GET(request: Request) {
   const q = new URL(request.url).searchParams;
   const from = q.get('from') ?? '';
   const to = q.get('to') ?? '';
-  if (!validDate(from) || !validDate(to) || from > to)
-    return text(400, 'Проверьте даты: окончание периода должно быть не раньше начала.');
+  if (!validDate(from) || !validDate(to) || from > to) {
+    const t = await serverT();
+    return text(400, t('Проверьте даты: окончание периода должно быть не раньше начала.'));
+  }
   let count = 0;
   for (let d = from; d <= to; d = plusDay(d)) {
     count += 1;
-    if (count > MAX_DAYS) return text(422, `Период длиннее ${MAX_DAYS} дней: выгрузите по частям.`);
+    if (count > MAX_DAYS) {
+      const t = await serverT();
+      return text(422, t('Период длиннее {n} дней: выгрузите по частям.', { n: MAX_DAYS }));
+    }
   }
   try {
     const period = await beautyApi.financePeriod(from, to);

@@ -3,6 +3,7 @@ import { ApiError, beautyApi } from '../../../lib/api';
 import { deskShell } from '../../../lib/desk-shell';
 import { filterBeautyCustomers, type BeautyCustomerSegmentFilter } from '../customer-filter';
 import { exportBeautyCustomersXlsx } from '../xlsx';
+import { serverT } from '../../../i18n/server';
 
 const MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 const SEGMENTS = new Set<BeautyCustomerSegmentFilter>(['all', 'new', 'regular', 'vip', 'archived']);
@@ -17,31 +18,32 @@ export function GET() {
 }
 
 export async function POST(request: Request) {
+  const t = await serverT();
   const contentLength = Number(request.headers.get('content-length') ?? 0);
-  if (Number.isFinite(contentLength) && contentLength > 4096) return text(413, 'Слишком большой запрос');
+  if (Number.isFinite(contentLength) && contentLength > 4096) return text(413, t('Слишком большой запрос'));
   let raw: unknown;
   try {
     raw = await request.json();
   } catch {
-    return text(400, 'Неверные параметры выгрузки');
+    return text(400, t('Неверные параметры выгрузки'));
   }
-  if (!raw || typeof raw !== 'object') return text(400, 'Неверные параметры выгрузки');
+  if (!raw || typeof raw !== 'object') return text(400, t('Неверные параметры выгрузки'));
   const body = raw as Record<string, unknown>;
   const scopeKey = typeof body.scopeKey === 'string' ? body.scopeKey : '';
   const query = typeof body.query === 'string' ? body.query : '';
   const segment = typeof body.segment === 'string' && SEGMENTS.has(body.segment as BeautyCustomerSegmentFilter)
     ? body.segment as BeautyCustomerSegmentFilter
     : null;
-  if (!scopeKey || query.length > 120 || !segment) return text(400, 'Неверные параметры выгрузки');
+  if (!scopeKey || query.length > 120 || !segment) return text(400, t('Неверные параметры выгрузки'));
 
   const shell = await deskShell();
   if (!shell.scopeKey || shell.scopeKey !== scopeKey) {
-    return text(409, 'Филиал изменился. Обновите страницу и повторите выгрузку.');
+    return text(409, t('Филиал изменился. Обновите страницу и повторите выгрузку.'));
   }
   try {
     const { items } = await beautyApi.customers();
     const selected = filterBeautyCustomers(items, { query, segment });
-    const bytes = exportBeautyCustomersXlsx(selected);
+    const bytes = exportBeautyCustomersXlsx(selected, t);
     const date = new Date().toISOString().slice(0, 10);
     return new Response(Buffer.from(bytes), {
       headers: {

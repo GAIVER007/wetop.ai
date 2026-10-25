@@ -1,7 +1,9 @@
+'use client';
 import Link from 'next/link';
 import type { BarSaleRow, BarStockRow } from '../../lib/api';
 import { propertyClock } from '../../lib/property-time';
 import { ProductAvatar } from './stock-board';
+import { useT } from '../../i18n/locale-provider';
 
 /** Only visual grouping of the existing journal and popular-product report. */
 export function BarAnalytics({
@@ -15,6 +17,7 @@ export function BarAnalytics({
   popular: Array<{ name: string; units: string }>;
   timezone: string;
 }) {
+  const t = useT();
   const clock = propertyClock(timezone);
   const days = new Map<string, number>();
   for (const sale of sales.filter((sale) => sale.status === 'POSTED')) {
@@ -26,7 +29,7 @@ export function BarAnalytics({
   const categories = new Map<string, bigint>();
   for (const product of popular) {
     const category =
-      stock.find((item) => item.name === product.name)?.category?.name ?? 'Без категории';
+      stock.find((item) => item.name === product.name)?.category?.name ?? t('Без категории');
     categories.set(category, (categories.get(category) ?? 0n) + BigInt(product.units));
   }
   const total = [...categories.values()].reduce((sum, units) => sum + units, 0n);
@@ -38,18 +41,18 @@ export function BarAnalytics({
     return part;
   });
   return (
-    <section className="bar-analytics" aria-label="Аналитика бара">
+    <section className="bar-analytics" aria-label={t('Аналитика бара')}>
       <section className="panel bar-chart-panel">
         <header>
-          <h2>Продажи по дням</h2>
-          <span className="bar-muted">По записям журнала</span>
+          <h2>{t('Продажи по дням')}</h2>
+          <span className="bar-muted">{t('По записям журнала')}</span>
         </header>
         {series.length ? (
           <>
             <div
               className="bar-day-chart"
               role="img"
-              aria-label={series.map(([day, count]) => `${day}: ${count} продаж`).join(', ')}
+              aria-label={series.map(([day, count]) => t('{day}: {n} продаж', { day, n: count })).join(', ')}
             >
               {series.map(([day, count]) => (
                 <div className="bar-day-column" key={day}>
@@ -65,15 +68,15 @@ export function BarAnalytics({
                 </div>
               ))}
             </div>
-            <p className="bar-muted">Загруженные продажи, без возвратов</p>
+            <p className="bar-muted">{t('Загруженные продажи, без возвратов')}</p>
           </>
         ) : (
-          <p className="bar-chart-empty">Продажи появятся после первой операции</p>
+          <p className="bar-chart-empty">{t('Продажи появятся после первой операции')}</p>
         )}
       </section>
       <section className="panel bar-chart-panel">
         <header>
-          <h2>Продажи по категориям</h2>
+          <h2>{t('Продажи по категориям')}</h2>
         </header>
         {total > 0n ? (
           <>
@@ -81,7 +84,7 @@ export function BarAnalytics({
               <svg
                 viewBox="0 0 120 120"
                 role="img"
-                aria-label="Распределение популярных товаров по категориям"
+                aria-label={t('Распределение популярных товаров по категориям')}
               >
                 <circle
                   cx="60"
@@ -110,7 +113,7 @@ export function BarAnalytics({
                   {total.toString()}
                 </text>
                 <text className="bar-donut-caption" x="60" y="74" textAnchor="middle">
-                  шт.
+                  {t('шт.')}
                 </text>
               </svg>
               <ul>
@@ -123,17 +126,17 @@ export function BarAnalytics({
                 ))}
               </ul>
             </div>
-            <p className="bar-muted">По популярным товарам за 30 дней</p>
+            <p className="bar-muted">{t('По популярным товарам за 30 дней')}</p>
           </>
         ) : (
-          <p className="bar-chart-empty">Пока нет данных по категориям</p>
+          <p className="bar-chart-empty">{t('Пока нет данных по категориям')}</p>
         )}
       </section>
       <section className="panel bar-chart-panel bar-top-products">
         <header>
-          <h2>Топ товаров</h2>
+          <h2>{t('Топ товаров')}</h2>
           <Link href="/bar/products" prefetch={false}>
-            Все
+            {t('Все')}
           </Link>
         </header>
         {popular.length ? (
@@ -142,14 +145,14 @@ export function BarAnalytics({
               <li key={product.name}>
                 <ProductAvatar name={product.name} />
                 <b>{product.name}</b>
-                <span>{product.units} шт.</span>
+                <span>{t('{n} шт.', { n: product.units })}</span>
               </li>
             ))}
           </ol>
         ) : (
-          <p className="bar-chart-empty">Пока нет популярных товаров</p>
+          <p className="bar-chart-empty">{t('Пока нет популярных товаров')}</p>
         )}
-        <p className="bar-muted">За последние 30 дней</p>
+        <p className="bar-muted">{t('За последние 30 дней')}</p>
       </section>
     </section>
   );

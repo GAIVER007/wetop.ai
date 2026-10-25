@@ -12,6 +12,7 @@ import { CashFlowReport, CashFlowSkeleton } from './cashflow';
 import '../../management/analytics/analytics.css';
 import '../../directory.css';
 import '../reports.css';
+import { serverT } from '../../../i18n/server';
 
 /** «Отчёты → Финансы» (RPT2.4a): деньги за период по дням, `docs/metrics.md` §2 */
 export default async function ReportsFinancePage({
@@ -20,19 +21,20 @@ export default async function ReportsFinancePage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/reports/finance');
+  const t = await serverT();
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const query = parseAnalyticsQuery(sp, today, 'finance', '/reports');
   return (
     <ReportScopeFrame>
       <Page
-        title="Отчёты"
+        title={t('Отчёты')}
         className="analytics-page"
-        subtitle="Сколько денег поступило, вернулось и ушло за период."
+        subtitle={t('Сколько денег поступило, вернулось и ушло за период.')}
       >
         <ReportsTabs current="finance" />
         <AnalyticsToolbar query={query} today={today} noCompare noFund />
-        {query.period.error && <Alert boxed>{query.period.error}. Показан сегодняшний день.</Alert>}
+        {query.period.error && <Alert boxed>{t('{error}. Показан сегодняшний день.', { error: t(query.period.error) })}</Alert>}
         <Suspense key={`${query.period.from}|${query.period.to}`} fallback={<CashFlowSkeleton />}>
           <CashFlowReport query={query} />
         </Suspense>

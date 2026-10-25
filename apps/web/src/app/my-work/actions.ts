@@ -8,6 +8,7 @@ import { requestScopeHeader } from '../../lib/scope-pointer';
 import { ApiError } from '../../lib/api-error';
 import { beautyApi, type BeautyEmployeeServicePriceRow } from '../../lib/api';
 import { inputToMinor } from '../../lib/money';
+import { msg } from '../../i18n';
 export interface PortalResult { data?: EmployeePortalDto; error?: string }
 const text = (form: FormData, key: string) => String(form.get(key) ?? '').trim();
 const checked = (form: FormData, key: string) => form.get(key) === 'on';
@@ -16,15 +17,15 @@ const managerCommands = new Set(['publication', 'account', 'unlink', 'pay', 'pay
 export async function savePortal(target: PortalTarget, scope: string, command: string, form: FormData): Promise<PortalResult> {
   try {
     const currentScope = (await requestScopeHeader())['x-wetop-scope'] ?? '';
-    if (scope !== currentScope) return { error: 'Филиал изменился. Откройте карточку заново; ввод сохранён.' };
+    if (scope !== currentScope) return { error: msg('Филиал изменился. Откройте карточку заново; ввод сохранён.') };
     const current = await employeePortalApi.load(target);
-    if (managerCommands.has(command) && current.access !== 'MANAGER') return { error: 'Эту настройку меняет руководитель.' };
+    if (managerCommands.has(command) && current.access !== 'MANAGER') return { error: msg('Эту настройку меняет руководитель.') };
     const revision = text(form, 'expectedRevision');
     let data: EmployeePortalDto;
     switch (command) {
       case 'profile':
         if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(text(form, 'expectedProfileRevision')))
-          return { error: 'Исходная версия профиля отсутствует. Загрузите актуальные данные; ввод сохранён.' };
+          return { error: msg('Исходная версия профиля отсутствует. Загрузите актуальные данные; ввод сохранён.') };
         data = await employeePortalApi.profile(target, {
         name: text(form, 'name'), phone: text(form, 'phone') || null, email: text(form, 'email') || null,
         headline: text(form, 'headline'), biography: text(form, 'biography'),
@@ -33,8 +34,8 @@ export async function savePortal(target: PortalTarget, scope: string, command: s
       }); break;
       case 'avatar': case 'add-work': {
         const file = form.get('file');
-        if (!(file instanceof File) || !file.size) return { error: 'Выберите изображение.' };
-        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) return { error: 'Нужно JPG, PNG или WebP до 5 МиБ.' };
+        if (!(file instanceof File) || !file.size) return { error: msg('Выберите изображение.') };
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) return { error: msg('Нужно JPG, PNG или WebP до 5 МиБ.') };
         const upload = new FormData(); upload.set('file', file);
         if (command === 'add-work') {
           upload.set('title', text(form, 'title')); upload.set('description', text(form, 'description'));
@@ -67,7 +68,7 @@ export async function savePortal(target: PortalTarget, scope: string, command: s
       case 'remove-time-off': data = await employeePortalApi.removeTimeOff(target, text(form, 'timeOffId')); break;
       case 'account': {
         const userId = text(form, 'userId');
-        if (!/^[0-9a-f-]{36}$/i.test(userId)) return { error: 'Выберите подтверждённого участника команды. Идентификатор не создаёт аккаунт.' };
+        if (!/^[0-9a-f-]{36}$/i.test(userId)) return { error: msg('Выберите подтверждённого участника команды. Идентификатор не создаёт аккаунт.') };
         data = await employeePortalApi.account(target, userId); break;
       }
       case 'unlink': data = await employeePortalApi.unlink(target); break;
@@ -76,16 +77,16 @@ export async function savePortal(target: PortalTarget, scope: string, command: s
         try {
           fixedMinor = parseMoney(text(form, 'fixedAmount').replace(/\s/g, ''));
         } catch {
-          return { error: 'Введите фиксированную ставку, не больше двух знаков после запятой.' };
+          return { error: msg('Введите фиксированную ставку, не больше двух знаков после запятой.') };
         }
         if (fixedMinor < 0n || fixedMinor > BigInt(Number.MAX_SAFE_INTEGER))
-          return { error: 'Введите допустимую фиксированную ставку.' };
+          return { error: msg('Введите допустимую фиксированную ставку.') };
         const input = parsePaySettings({ model: text(form, 'model'), fixedMinor: Number(fixedMinor), percent: Number(text(form, 'percent')) });
         data = await employeePortalApi.pay(target, { ...input, fixedMinor: input.fixedMinor.toString() }); break;
       }
       case 'pay-policy': {
         const basis = text(form, 'percentBasis');
-        if (basis !== 'COMPLETED_SERVICES' && basis !== 'PAID_COMPLETED_SERVICES') return { error: 'Выберите базу процента.' };
+        if (basis !== 'COMPLETED_SERVICES' && basis !== 'PAID_COMPLETED_SERVICES') return { error: msg('Выберите базу процента.') };
         await employeePortalApi.payPolicy(basis, revision || undefined);
         data = await employeePortalApi.load(target); break;
       }
@@ -94,23 +95,23 @@ export async function savePortal(target: PortalTarget, scope: string, command: s
         await beautyApi.updateEmployee(current.employee.id, { active: text(form, 'active') === 'true' });
         data = await employeePortalApi.load(target); break;
       }
-      default: return { error: 'Неизвестное действие.' };
+      default: return { error: msg('Неизвестное действие.') };
     }
     return { data };
   } catch (error) {
     unstable_rethrow(error);
-    return { error: error instanceof ApiError && error.status < 500 ? error.message : 'Не удалось подтвердить сохранение. Ввод сохранён. Проверьте результат перед повтором.' };
+    return { error: error instanceof ApiError && error.status < 500 ? error.message : msg('Не удалось подтвердить сохранение. Ввод сохранён. Проверьте результат перед повтором.') };
   }
 }
 
 /** Read-only comparison. The draft's original revision is never refreshed by savePortal. */
 export async function loadPortalWeek(target: PortalTarget, scope: string): Promise<PortalResult> {
   try {
-    if (scope !== ((await requestScopeHeader())['x-wetop-scope'] ?? '')) return { error: 'Филиал изменился. Откройте карточку заново.' };
+    if (scope !== ((await requestScopeHeader())['x-wetop-scope'] ?? '')) return { error: msg('Филиал изменился. Откройте карточку заново.') };
     return { data: await employeePortalApi.load(target) };
   } catch (error) {
     unstable_rethrow(error);
-    return { error: 'Не удалось перечитать график. Ваш ввод сохранён.' };
+    return { error: msg('Не удалось перечитать график. Ваш ввод сохранён.') };
   }
 }
 
@@ -135,7 +136,7 @@ function servicePriceError(error: unknown): ServicePriceActionResult {
   return {
     error: error instanceof ApiError && error.status < 500
       ? error.message
-      : 'Не удалось подтвердить сохранение. Ввод сохранён. Проверьте результат перед повтором.',
+      : msg('Не удалось подтвердить сохранение. Ввод сохранён. Проверьте результат перед повтором.'),
   };
 }
 
@@ -146,7 +147,7 @@ export async function saveEmployeeServicePrice(
 ): Promise<ServicePriceActionResult> {
   try {
     if (await servicePriceScopeChanged(scope)) {
-      return { error: 'Филиал изменился. Откройте карточку заново; ввод сохранён.' };
+      return { error: msg('Филиал изменился. Откройте карточку заново; ввод сохранён.') };
     }
     const serviceId = text(form, 'serviceId');
     const priceType = text(form, 'priceType') as BeautyEmployeeServicePriceRow['priceType'];
@@ -154,16 +155,16 @@ export async function saveEmployeeServicePrice(
     const durationMinutes = Number(text(form, 'durationMinutes'));
     const currency = text(form, 'currency').toUpperCase();
     if (!/^[0-9a-f-]{36}$/i.test(employeeId) || !/^[0-9a-f-]{36}$/i.test(serviceId)) {
-      return { error: 'Услуга или мастер не найдены.' };
+      return { error: msg('Услуга или мастер не найдены.') };
     }
-    if (!employeePriceTypes.has(priceType)) return { error: 'Выберите тип цены.' };
+    if (!employeePriceTypes.has(priceType)) return { error: msg('Выберите тип цены.') };
     if (!Number.isInteger(expectedRevision) || expectedRevision < 0) {
-      return { error: 'Версия цены устарела. Перезагрузите карточку.' };
+      return { error: msg('Версия цены устарела. Перезагрузите карточку.') };
     }
     if (!Number.isInteger(durationMinutes) || durationMinutes <= 0 || durationMinutes > 1440) {
-      return { error: 'Укажите длительность от 1 до 1440 минут.' };
+      return { error: msg('Укажите длительность от 1 до 1440 минут.') };
     }
-    if (!/^[A-Z]{3}$/.test(currency)) return { error: 'Валюта услуги не определена.' };
+    if (!/^[A-Z]{3}$/.test(currency)) return { error: msg('Валюта услуги не определена.') };
 
     let priceMinMinor: string | null = null;
     let priceMaxMinor: string | null = null;
@@ -174,9 +175,9 @@ export async function saveEmployeeServicePrice(
       const min = inputToMinor(text(form, 'priceMin'));
       const max = priceType === 'RANGE' ? inputToMinor(text(form, 'priceMax')) : min;
       if (min === null || min === '' || max === null || max === '') {
-        return { error: 'Введите цену, не больше двух знаков после запятой.' };
+        return { error: msg('Введите цену, не больше двух знаков после запятой.') };
       }
-      if (BigInt(max) < BigInt(min)) return { error: 'Максимальная цена должна быть не меньше минимальной.' };
+      if (BigInt(max) < BigInt(min)) return { error: msg('Максимальная цена должна быть не меньше минимальной.') };
       priceMinMinor = min;
       priceMaxMinor = max;
     }
@@ -203,15 +204,15 @@ export async function removeEmployeeServicePrice(
 ): Promise<ServicePriceActionResult> {
   try {
     if (await servicePriceScopeChanged(scope)) {
-      return { error: 'Филиал изменился. Откройте карточку заново.' };
+      return { error: msg('Филиал изменился. Откройте карточку заново.') };
     }
     const serviceId = text(form, 'serviceId');
     const expectedRevision = Number(text(form, 'expectedRevision'));
     if (!/^[0-9a-f-]{36}$/i.test(employeeId) || !/^[0-9a-f-]{36}$/i.test(serviceId)) {
-      return { error: 'Услуга или мастер не найдены.' };
+      return { error: msg('Услуга или мастер не найдены.') };
     }
     if (!Number.isInteger(expectedRevision) || expectedRevision <= 0) {
-      return { error: 'Своя цена мастера ещё не сохранена.' };
+      return { error: msg('Своя цена мастера ещё не сохранена.') };
     }
     const items = await beautyApi.removeEmployeeServicePrice(employeeId, serviceId, { expectedRevision });
     revalidatePath(`/employees/${employeeId}/profile`);

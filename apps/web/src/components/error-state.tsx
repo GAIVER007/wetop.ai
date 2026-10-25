@@ -1,5 +1,7 @@
 'use client';
 import Link from 'next/link';
+import { msg } from '../i18n';
+import { useT } from '../i18n/locale-provider';
 import { Icon } from './icon';
 import { EmptyState } from './ui';
 import { apiErrorStatus } from '../lib/api-error';
@@ -20,6 +22,7 @@ export function ErrorState({
   /** Что именно не загрузилось («Не удалось загрузить гостей», ТЗ «Гости v2» §43); без него — как было */
   title?: string | undefined;
 }) {
+  const t = useT();
   const status = apiErrorStatus(error.digest);
   // Нет прав (аудит 22.10.2026, P1-2): один понятный текст, без кода, «Подключений» и повтора — тот же
   // запрос с теми же правами даст тот же отказ
@@ -29,19 +32,19 @@ export function ErrorState({
   const hotel = useDeskVertical() === 'HOSPITALITY';
   if (denied)
     return (
-      <EmptyState role="alert" icon={<Icon name="lock" width={32} height={32} />} title={title}>
-        {FORBIDDEN_TEXT}
+      <EmptyState role="alert" icon={<Icon name="lock" width={32} height={32} />} title={title && t(title)}>
+        {t(FORBIDDEN_TEXT)}
       </EmptyState>
     );
   return (
     <EmptyState
       role="alert"
       icon={<Icon name="channels" width={32} height={32} />}
-      title={title}
+      title={title && t(title)}
       details={
         error.digest && (
           <details>
-            <summary>Код ошибки</summary>
+            <summary>{t('Код ошибки')}</summary>
             {error.digest}
           </details>
         )
@@ -49,22 +52,24 @@ export function ErrorState({
       actions={
         <>
           <button className="btn" onClick={() => retry()}>
-            Повторить загрузку
+            {t('Повторить загрузку')}
           </button>
           {!rejected && hotel && (
             <Link href="/connections" className="btn btn--secondary">
-              Подключения
+              {t('Подключения')}
             </Link>
           )}
         </>
       }
     >
       {rejected
-        ? 'Сервер не принял запрос: проверьте адрес страницы и даты в нём. Повтор с теми же данными даст тот же ответ.'
-        : 'Проверьте подключение и повторите запрос.'}
+        ? t(
+            'Сервер не принял запрос: проверьте адрес страницы и даты в нём. Повтор с теми же данными даст тот же ответ.',
+          )
+        : t('Проверьте подключение и повторите запрос.')}
     </EmptyState>
   );
 }
 
 /** Текст отказа в доступе: тот же, что на экране ошибки макета (`app/layout.tsx`). */
-export const FORBIDDEN_TEXT = 'Этот раздел вам недоступен. Попросите руководителя открыть доступ.';
+export const FORBIDDEN_TEXT = msg('Этот раздел вам недоступен. Попросите руководителя открыть доступ.');

@@ -26,6 +26,8 @@ import {
   updateBeautyPosition,
   type PositionActionState,
 } from './position-actions';
+import { msg, type Translate } from '../../../i18n';
+import { useT } from '../../../i18n/locale-provider';
 import './positions.css';
 
 const OWN_SECTIONS = new Set<BeautySection>(['journal', 'appointments', 'payroll', 'reviews']);
@@ -33,7 +35,7 @@ const CRUD_ACTIONS = BEAUTY_ACTIONS.filter((action) => action !== 'refund');
 
 export const POSITION_TEMPLATES = {
   master: {
-    name: 'Мастер',
+    name: msg('Мастер'),
     permissions: [
       { section: 'journal', action: 'view', scope: 'OWN' },
       { section: 'appointments', action: 'view', scope: 'OWN' },
@@ -42,7 +44,7 @@ export const POSITION_TEMPLATES = {
     ] satisfies BeautyPermission[],
   },
   administrator: {
-    name: 'Администратор',
+    name: msg('Администратор'),
     permissions: [
       { section: 'journal', action: 'view', scope: 'BUSINESS' },
       { section: 'journal', action: 'create', scope: 'BUSINESS' },
@@ -78,9 +80,9 @@ const draftOf = (position: BeautyPositionRow): Draft => ({
   permissions: position.permissions.map((permission) => ({ ...permission })),
 });
 
-const templateDraft = (template: keyof typeof POSITION_TEMPLATES): Draft => ({
+const templateDraft = (template: keyof typeof POSITION_TEMPLATES, t: Translate): Draft => ({
   id: null,
-  name: POSITION_TEMPLATES[template].name,
+  name: t(POSITION_TEMPLATES[template].name),
   revision: 0,
   permissions: POSITION_TEMPLATES[template].permissions.map((permission) => ({ ...permission })),
 });
@@ -109,10 +111,11 @@ export function PositionsBoard({
   canUpdate?: boolean;
   canArchive?: boolean;
 }) {
+  const t = useT();
   const [workspace, setWorkspace] = useState(initial);
   const firstPosition = initial.positions.find((position) => !position.archivedAt) ?? initial.positions[0];
   const [draft, setDraft] = useState<Draft>(() =>
-    firstPosition ? draftOf(firstPosition) : templateDraft('administrator'),
+    firstPosition ? draftOf(firstPosition) : templateDraft('administrator', t),
   );
   const [state, setState] = useState<PositionActionState>(null);
   const [busy, setBusy] = useState(false);
@@ -184,9 +187,9 @@ export function PositionsBoard({
 
   const archivePosition = async () => {
     if (!draft.id || !(await ask({
-      title: `Архивировать должность «${draft.name}»?`,
-      body: 'Должность исчезнет из новых назначений. Активные назначения нужно снять заранее.',
-      confirmLabel: 'Архивировать должность',
+      title: t('Архивировать должность «{name}»?', { name: draft.name }),
+      body: t('Должность исчезнет из новых назначений. Активные назначения нужно снять заранее.'),
+      confirmLabel: t('Архивировать должность'),
     }))) return;
     const form = positionForm();
     await run(() => archiveBeautyPosition(state, form));
@@ -234,9 +237,9 @@ export function PositionsBoard({
   const revoke = async (assignment: BeautyPositionAssignmentRow) => {
     const member = workspace.members.find((item) => item.userId === assignment.userId);
     if (!(await ask({
-      title: `Отозвать должность у ${member ? memberLabel(member) : 'сотрудника'}?`,
-      body: 'Назначение останется в истории. Старая роль не вернёт доступ к салону.',
-      confirmLabel: 'Отозвать доступ',
+      title: member ? t('Отозвать должность у {name}?', { name: memberLabel(member) }) : t('Отозвать должность у сотрудника?'),
+      body: t('Назначение останется в истории. Старая роль не вернёт доступ к салону.'),
+      confirmLabel: t('Отозвать доступ'),
     }))) return;
     const form = new FormData();
     form.set('scopeKey', scopeKey);
@@ -252,55 +255,55 @@ export function PositionsBoard({
       <section className="panel beauty-positions__editor" aria-labelledby="beauty-position-heading">
         <div className="beauty-positions__heading">
           <div>
-            <h2 id="beauty-position-heading">Должности салона</h2>
-            <p className="muted">Выберите должность, проверьте права и сохраните изменения.</p>
+            <h2 id="beauty-position-heading">{t('Должности салона')}</h2>
+            <p className="muted">{t('Выберите должность, проверьте права и сохраните изменения.')}</p>
           </div>
-          {!canManageAny && <span className="beauty-positions__readonly">Только просмотр</span>}
+          {!canManageAny && <span className="beauty-positions__readonly">{t('Только просмотр')}</span>}
         </div>
 
         <div className="beauty-positions__picker">
-          <Field label="Выбрать должность" controlId="beauty-position-select">
+          <Field label={t('Выбрать должность')} controlId="beauty-position-select">
             <Select
               id="beauty-position-select"
               value={draft.id ?? ''}
               onChange={(event) => choosePosition(event.target.value)}
             >
-              {!draft.id && <option value="">Новая должность, проверьте перед созданием</option>}
+              {!draft.id && <option value="">{t('Новая должность, проверьте перед созданием')}</option>}
               {workspace.positions.map((position) => (
                 <option key={position.id} value={position.id}>
-                  {position.name}{position.archivedAt ? ' (архив)' : ''}
+                  {position.name}{position.archivedAt ? t(' (архив)') : ''}
                 </option>
               ))}
             </Select>
           </Field>
           {canCreate && (
-            <div className="beauty-positions__templates" aria-label="Шаблоны новой должности">
+            <div className="beauty-positions__templates" aria-label={t('Шаблоны новой должности')}>
               <Button
                 type="button"
                 tone="secondary"
                 onClick={() => {
-                  setDraft(templateDraft('master'));
+                  setDraft(templateDraft('master', t));
                   setState(null);
                 }}
               >
-                Новая должность мастера
+                {t('Новая должность мастера')}
               </Button>
               <Button
                 type="button"
                 tone="secondary"
                 onClick={() => {
-                  setDraft(templateDraft('administrator'));
+                  setDraft(templateDraft('administrator', t));
                   setState(null);
                 }}
               >
-                Новая должность администратора
+                {t('Новая должность администратора')}
               </Button>
             </div>
           )}
         </div>
 
         <form onSubmit={savePosition} className="beauty-position-form">
-          <Field label="Название должности" controlId="beauty-position-name" required>
+          <Field label={t('Название должности')} controlId="beauty-position-name" required>
             <Input
               id="beauty-position-name"
               name="positionName"
@@ -314,40 +317,40 @@ export function PositionsBoard({
             />
           </Field>
 
-          <div className="beauty-position-matrix" role="group" aria-label="Права должности">
+          <div className="beauty-position-matrix" role="group" aria-label={t('Права должности')}>
             <div className="beauty-position-permission-row beauty-position-permission-row--head" aria-hidden="true">
-              <span>Раздел</span>
-              {CRUD_ACTIONS.map((action) => <span key={action}>{BEAUTY_ACTION_LABELS[action]}</span>)}
+              <span>{t('Раздел')}</span>
+              {CRUD_ACTIONS.map((action) => <span key={action}>{t(BEAUTY_ACTION_LABELS[action])}</span>)}
             </div>
             {BEAUTY_SECTIONS.map((section) => (
               <div className="beauty-position-permission-row" key={section}>
-                <strong>{BEAUTY_SECTION_LABELS[section]}</strong>
+                <strong>{t(BEAUTY_SECTION_LABELS[section])}</strong>
                 {CRUD_ACTIONS.map((action) => {
                   const permission = permissionOf(draft, section, action);
                   const canOwn = action === 'view' && OWN_SECTIONS.has(section);
                   return (
                     <div className="beauty-position-permission" key={action}>
                       <label>
-                        <span className="beauty-position-permission__mobile">{BEAUTY_ACTION_LABELS[action]}</span>
+                        <span className="beauty-position-permission__mobile">{t(BEAUTY_ACTION_LABELS[action])}</span>
                         <input
                           type="checkbox"
                           name={`permission:${section}:${action}`}
                           checked={!!permission}
                           disabled={!canEditDraft || busy}
                           onChange={(event) => setPermission(section, action, event.target.checked, canOwn ? 'OWN' : 'BUSINESS')}
-                          aria-label={`${BEAUTY_SECTION_LABELS[section]}: ${BEAUTY_ACTION_LABELS[action]}`}
+                          aria-label={`${t(BEAUTY_SECTION_LABELS[section])}: ${t(BEAUTY_ACTION_LABELS[action])}`}
                         />
                       </label>
                       {canOwn && (
                         <Select
                           name={`scope:${section}:${action}`}
-                          aria-label={`${BEAUTY_SECTION_LABELS[section]}: область просмотра`}
+                          aria-label={t('{section}: область просмотра', { section: t(BEAUTY_SECTION_LABELS[section]) })}
                           value={permission?.scope ?? 'OWN'}
                           disabled={!permission || !canEditDraft || busy}
                           onChange={(event) => setPermission(section, action, true, event.target.value as BeautyPermissionScope)}
                         >
-                          <option value="OWN">Только своё</option>
-                          <option value="BUSINESS">Весь салон</option>
+                          <option value="OWN">{t('Только своё')}</option>
+                          <option value="BUSINESS">{t('Весь салон')}</option>
                         </Select>
                       )}
                     </div>
@@ -366,19 +369,19 @@ export function PositionsBoard({
               onChange={(event) => setPermission('finance', 'refund', event.target.checked, 'BUSINESS')}
             />
             <span>
-              <strong>Возврат оплаты</strong>
-              <small>Отдельное право администратора на возврат денег клиенту.</small>
+              <strong>{t('Возврат оплаты')}</strong>
+              <small>{t('Отдельное право администратора на возврат денег клиенту.')}</small>
             </span>
           </label>
 
           {canEditDraft && (
             <div className="beauty-positions__actions">
               <Button type="submit" disabled={busy || !draft.name.trim()}>
-                {draft.id ? 'Сохранить должность' : 'Создать должность'}
+                {draft.id ? t('Сохранить должность') : t('Создать должность')}
               </Button>
               {draft.id && canArchive && (
                 <Button type="button" tone="danger" disabled={busy} onClick={() => void archivePosition()}>
-                  Архивировать
+                  {t('Архивировать')}
                 </Button>
               )}
             </div>
@@ -389,14 +392,14 @@ export function PositionsBoard({
       <section className="panel beauty-positions__assignments" aria-labelledby="beauty-assignment-heading">
         <div className="beauty-positions__heading">
           <div>
-            <h2 id="beauty-assignment-heading">Назначения сотрудников</h2>
-            <p className="muted">Доступ действует только в выбранном салоне или филиале.</p>
+            <h2 id="beauty-assignment-heading">{t('Назначения сотрудников')}</h2>
+            <p className="muted">{t('Доступ действует только в выбранном салоне или филиале.')}</p>
           </div>
         </div>
 
         {canUpdate && (
           <form className="beauty-assignment-form" onSubmit={assign}>
-            <Field label="Сотрудник" controlId="beauty-assignment-user" required>
+            <Field label={t('Сотрудник')} controlId="beauty-assignment-user" required>
               <Select
                 id="beauty-assignment-user"
                 name="assignmentUserId"
@@ -408,13 +411,13 @@ export function PositionsBoard({
                   setState(null);
                 }}
               >
-                <option value="">Выберите сотрудника</option>
+                <option value="">{t('Выберите сотрудника')}</option>
                 {workspace.members.map((member) => (
                   <option key={member.userId} value={member.userId}>{memberLabel(member)}</option>
                 ))}
               </Select>
             </Field>
-            <Field label="Должность" controlId="beauty-assignment-position" required>
+            <Field label={t('Должность')} controlId="beauty-assignment-position" required>
               <Select
                 id="beauty-assignment-position"
                 name="assignmentPositionId"
@@ -425,13 +428,13 @@ export function PositionsBoard({
                   setState(null);
                 }}
               >
-                <option value="">Выберите должность</option>
+                <option value="">{t('Выберите должность')}</option>
                 {activePositions.map((position) => (
                   <option key={position.id} value={position.id}>{position.name}</option>
                 ))}
               </Select>
             </Field>
-            <Field label="Филиал" controlId="beauty-assignment-location" required>
+            <Field label={t('Филиал')} controlId="beauty-assignment-location" required>
               <Select
                 id="beauty-assignment-location"
                 name="assignmentLocationId"
@@ -442,7 +445,7 @@ export function PositionsBoard({
                   setState(null);
                 }}
               >
-                <option value="" disabled={!selectedMember?.businessWide}>Весь салон</option>
+                <option value="" disabled={!selectedMember?.businessWide}>{t('Весь салон')}</option>
                 {allowedLocations.map((location) => (
                   <option key={location.id} value={location.id}>{location.name}</option>
                 ))}
@@ -457,13 +460,13 @@ export function PositionsBoard({
                 (!selectedMember?.businessWide && !assignmentLocationId)
               }
             >
-              Сохранить назначение
+              {t('Сохранить назначение')}
             </Button>
           </form>
         )}
 
         <div className="beauty-assignment-list">
-          {workspace.assignments.length === 0 && <Notice tone="muted">Назначений пока нет.</Notice>}
+          {workspace.assignments.length === 0 && <Notice tone="muted">{t('Назначений пока нет.')}</Notice>}
           {workspace.assignments.map((assignment) => {
             const member = workspace.members.find((item) => item.userId === assignment.userId);
             const position = workspace.positions.find((item) => item.id === assignment.positionId);
@@ -472,17 +475,17 @@ export function PositionsBoard({
             return (
               <article className="beauty-assignment" key={assignment.id}>
                 <div>
-                  <strong>{member ? memberLabel(member) : 'Сотрудник недоступен'}</strong>
-                  <p>{position?.name ?? 'Должность недоступна'}, {location?.name ?? 'Весь салон'}</p>
+                  <strong>{member ? memberLabel(member) : t('Сотрудник недоступен')}</strong>
+                  <p>{position?.name ?? t('Должность недоступна')}, {location?.name ?? t('Весь салон')}</p>
                   {revoked && (
                     <p className="beauty-assignment__revoked">
-                      <span>Отозвано</span>. Старая роль не вернёт доступ.
+                      <span>{t('Отозвано')}</span>. {t('Старая роль не вернёт доступ.')}
                     </p>
                   )}
                 </div>
                 {canUpdate && !revoked && (
                   <Button type="button" tone="danger" size="sm" disabled={busy} onClick={() => void revoke(assignment)}>
-                    Отозвать доступ
+                    {t('Отозвать доступ')}
                   </Button>
                 )}
               </article>
@@ -491,8 +494,8 @@ export function PositionsBoard({
         </div>
       </section>
 
-      {state?.error && <Alert boxed>{state.error}</Alert>}
-      {state?.message && <Alert tone="success" boxed>{state.message}</Alert>}
+      {state?.error && <Alert boxed>{t(state.error)}</Alert>}
+      {state?.message && <Alert tone="success" boxed>{t(state.message)}</Alert>}
       {dialog}
     </div>
   );

@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import { msg } from '../i18n';
+import { T } from '../i18n/locale-provider';
 
 /**
  * Каталог по варианту A с подзаголовками категорий из B (решение владельца 23.10.2026,
@@ -17,7 +19,7 @@ export function groupCatalog<T>(
   rows: readonly T[],
   categoryOf: (row: T) => string | null | undefined,
   categories: readonly { id: string; name: string }[],
-  noneLabel = 'Без категории',
+  noneLabel: string = msg('Без категории'),
 ): CatalogGroup<T>[] {
   const known = new Map(categories.map((c) => [c.id, c.name]));
   const byKey = new Map<string, T[]>();
@@ -43,7 +45,7 @@ export function CatalogGroupRow({ name, count, columns }: { name: ReactNode; cou
   return (
     <tr className="catalog-group">
       <th scope="colgroup" colSpan={columns}>
-        {name} <span className="catalog-group__count">{count}</span>
+        {typeof name === 'string' ? <T text={name} /> : name} <span className="catalog-group__count">{count}</span>
       </th>
     </tr>
   );

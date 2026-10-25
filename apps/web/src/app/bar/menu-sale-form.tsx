@@ -10,6 +10,7 @@ import { formatMoney } from '../../lib/money';
 import { Button, Field, Input, Select } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { sellBarMenuAction, type BarActionResult } from './actions';
+import { useT } from '../../i18n/locale-provider';
 
 const initial: BarActionResult = { error: null, ok: 0 };
 
@@ -30,6 +31,7 @@ export function MenuSaleForm({
   /** открытые счета гостей; пусто у салона */
   folios: BarFolioRow[];
 }) {
+  const t = useT();
   const [state, action, pending] = useBarAction(sellBarMenuAction, initial);
   const [key, setKey] = useState('');
   const [itemId, setItemId] = useState('');
@@ -57,7 +59,7 @@ export function MenuSaleForm({
         <input key={id} type="hidden" name="modifierIds" value={id} />
       ))}
       <div className="bar-inline bar-retail-fields">
-        <Field label="Позиция меню">
+        <Field label={t('Позиция меню')}>
           <Select
             name="menuItemId"
             required
@@ -68,7 +70,7 @@ export function MenuSaleForm({
             }}
           >
             <option value="" disabled>
-              Выберите позицию
+              {t('Выберите позицию')}
             </option>
             {active.map((m) => (
               <option key={m.id} value={m.id}>
@@ -77,24 +79,24 @@ export function MenuSaleForm({
             ))}
           </Select>
         </Field>
-        <Field label="Количество">
+        <Field label={t('Количество')}>
           <Input name="quantityUnits" inputMode="numeric" pattern="[0-9]+" required value={qty} onChange={(e) => setQty(e.target.value)} className="bar-qty" />
         </Field>
-        <Field label="Оплата">
+        <Field label={t('Оплата')}>
           <Select name={toFolio ? undefined : 'method'} value={pay} onChange={(e) => setPay(e.target.value)}>
             {methods.map((m) => (
               <option key={m} value={m}>
-                {barMethodRu(m)}
+                {t(barMethodRu(m))}
               </option>
             ))}
-            {folios.length > 0 && <option value="FOLIO">В счёт гостя</option>}
+            {folios.length > 0 && <option value="FOLIO">{t('В счёт гостя')}</option>}
           </Select>
         </Field>
         {toFolio && (
-          <Field label="Гость">
+          <Field label={t('Гость')}>
             <Select name="folioId" required defaultValue="">
               <option value="" disabled>
-                Выберите гостя
+                {t('Выберите гостя')}
               </option>
               {folios.map((f) => (
                 <option key={f.id} value={f.id}>
@@ -109,7 +111,7 @@ export function MenuSaleForm({
         <fieldset key={g.id} className="bar-menu-mods">
           <legend>
             {g.name}
-            {g.required && <small> обязательно</small>}
+            {g.required && <small> {t('обязательно')}</small>}
           </legend>
           {g.modifiers.map((m) => (
             <label key={m.id} className="bar-menu-mod">
@@ -127,15 +129,15 @@ export function MenuSaleForm({
       <div className="bar-menu-foot">
         {dish && (
           <strong data-testid="bar-menu-total">
-            Итого: {formatMoney(total, dish.currency)}
+            {t('Итого: {sum}', { sum: formatMoney(total, dish.currency) })}
           </strong>
         )}
         {problem && <span className="bar-muted">{problem}</span>}
         <Button type="submit" disabled={pending || !key || !dish || !!problem || count < 1n || !pay}>
-          <Icon name="cart" width={16} height={16} /> {pending ? 'Выполняется…' : toFolio ? 'В счёт гостя' : 'Продать'}
+          <Icon name="cart" width={16} height={16} /> {pending ? t('Выполняется…') : toFolio ? t('В счёт гостя') : t('Продать')}
         </Button>
       </div>
-      {active.length === 0 && <p className="bar-muted">Меню пустое: добавьте позиции ниже.</p>}
+      {active.length === 0 && <p className="bar-muted">{t('Меню пустое: добавьте позиции ниже.')}</p>}
       {state.error && <p role="alert" className="bar-error">{state.error}</p>}
       {state.message && <p role="status" className="bar-success">{state.message}</p>}
     </form>

@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import type { NavigationItem } from '../lib/navigation';
 import { Icon, type IconName } from './icon';
+import { msg } from '../i18n';
+import { T } from '../i18n/locale-provider';
 import { Badge } from './ui';
 
 export function SectionCards({ items }: { items: NavigationItem[] }) {
@@ -12,8 +14,14 @@ export function SectionCards({ items }: { items: NavigationItem[] }) {
             <Icon name={item.icon} />
           </span>
           <div>
-            <div className="section-card-title">{item.label}</div>
-            {item.pending && <Badge>Ещё не подключено</Badge>}
+            <div className="section-card-title">
+              <T text={item.label} />
+            </div>
+            {item.pending && (
+              <Badge>
+                <T text={msg('Ещё не подключено')} />
+              </Badge>
+            )}
           </div>
           <Icon name="arrow" className="section-card-arrow" />
         </Link>
@@ -27,7 +35,9 @@ export function FeaturePending({ icon, text }: { icon: IconName; text: string })
       <span className="section-card-icon">
         <Icon name={icon} />
       </span>
-      <Badge>Ещё не подключено</Badge>
+      <Badge>
+        <T text={msg('Ещё не подключено')} />
+      </Badge>
       <p>{text}</p>
     </section>
   );

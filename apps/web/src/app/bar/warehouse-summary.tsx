@@ -1,7 +1,9 @@
+'use client';
 import Link from 'next/link';
 import { Badge } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { pluralRu } from '../../lib/plural';
+import { useLocale, useT } from '../../i18n/locale-provider';
 
 export interface WarehouseCard {
   id: 'bar' | 'kitchen';
@@ -23,8 +25,12 @@ export interface WarehouseCard {
  * (докупить N и какие) или «Всё в порядке»; общие числа мелким шрифтом (ADR-STOCK-ALL, 21.10.2026).
  */
 export function WarehouseSummary({ cards }: { cards: WarehouseCard[] }) {
+  const t = useT();
+  const locale = useLocale();
+  // у казахского существительное после числа не меняется: «5 тауар»
+  const counted = (n: number, noun: WarehouseCard['noun']) => (locale === 'kk' ? `${n} ${t(noun[0])}` : pluralRu(n, noun, true));
   return (
-    <section className="bar-warehouses" aria-label="Остатки по складам">
+    <section className="bar-warehouses" aria-label={t('Остатки по складам')}>
       {cards.map((card) => {
         const low = card.lowNames.length;
         return (
@@ -33,36 +39,38 @@ export function WarehouseSummary({ cards }: { cards: WarehouseCard[] }) {
               <Icon name={card.id === 'bar' ? 'receipt' : 'stock'} width={20} height={20} />
               <b>{card.title}</b>
               {card.items === null ? (
-                <Badge tone="neutral">Нет данных</Badge>
+                <Badge tone="neutral">{t('Нет данных')}</Badge>
               ) : card.items === 0 ? (
-                <Badge tone="neutral">Пусто</Badge>
+                <Badge tone="neutral">{t('Пусто')}</Badge>
               ) : low > 0 ? (
-                <Badge tone="warn">Нужна закупка</Badge>
+                <Badge tone="warn">{t('Нужна закупка')}</Badge>
               ) : (
-                <Badge tone="ok">В норме</Badge>
+                <Badge tone="ok">{t('В норме')}</Badge>
               )}
             </span>
             {card.items === null ? (
-              <span className="bar-warehouse-body">Остатки не загрузились</span>
+              <span className="bar-warehouse-body">{t('Остатки не загрузились')}</span>
             ) : (
               <>
                 <span className="bar-warehouse-title">
                   {card.items === 0
-                    ? 'Пока пусто'
+                    ? t('Пока пусто')
                     : low > 0
-                      ? `Докупить: ${pluralRu(low, card.noun, true)}`
-                      : 'Всё в порядке'}
+                      ? t('Докупить: {count}', { count: counted(low, card.noun) })
+                      : t('Всё в порядке')}
                 </span>
                 {low > 0 && (
                   <span className="bar-warehouse-body">
                     {card.lowNames.slice(0, 3).join(', ')}
-                    {low > 3 ? ` и ещё ${low - 3}` : ''}
+                    {low > 3 ? ` ${t('и ещё {n}', { n: low - 3 })}` : ''}
                   </span>
                 )}
                 <span className="bar-warehouse-foot">
                   {card.items === 0
-                    ? 'Позиций на складе нет: добавьте первую или оформите приход'
-                    : `Всего на складе: ${pluralRu(card.items, card.noun, true)}${card.value ? ` на ${card.value}` : ''}`}
+                    ? t('Позиций на складе нет: добавьте первую или оформите приход')
+                    : card.value
+                      ? t('Всего на складе: {count} на {value}', { count: counted(card.items, card.noun), value: card.value })
+                      : t('Всего на складе: {count}', { count: counted(card.items, card.noun) })}
                 </span>
               </>
             )}

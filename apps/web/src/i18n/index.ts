@@ -29,6 +29,20 @@ export function translator(locale: DeskLocale, dictionary: Record<string, string
   return locale === 'kk' ? (text, vars) => fill(dictionary[text] ?? text, vars) : fill;
 }
 
+/**
+ * Пометка «эта фраза переводится» для текста вне разметки: подписи статусов, колонок, варианты списков. Возвращает
+ * фразу как есть, переводит её `t(…)` там, где она показывается. Сторож `kk-screens.test.ts` видит `msg('…')` как
+ * переведённую фразу и требует её в словаре.
+ */
+export function msg<T extends string>(text: T): T {
+  return text;
+}
+
+/** Локаль `Intl` для дат и чисел на языке человека: месяцы и дни недели по-казахски на казахском экране */
+export function intlLocale(locale: DeskLocale): 'ru-RU' | 'kk-KZ' {
+  return locale === 'kk' ? 'kk-KZ' : 'ru-RU';
+}
+
 /** Меню на языке человека: подписи разделов и пунктов. Права, адреса и подсветку решает русский реестр до перевода */
 export function translateSections<S extends { label: string; items: Array<{ label: string }> }>(
   sections: S[],

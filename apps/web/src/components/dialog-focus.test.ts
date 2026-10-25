@@ -12,6 +12,12 @@ vi.mock('react', async (importOriginal) => ({
   useRef: () => ({ current: null }),
 }));
 
+// Компонент вызывается как функция вне отрисовки: язык человека подставляется без контекста (русский)
+vi.mock('../i18n/locale-provider', async (importOriginal) => {
+  const { translator } = await import('../i18n');
+  return { ...(await importOriginal<object>()), useT: () => translator('ru'), useLocale: () => 'ru' };
+});
+
 afterEach(() => vi.unstubAllGlobals());
 
 function fixture() {

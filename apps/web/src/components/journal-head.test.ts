@@ -67,17 +67,17 @@ describe('единая шапка журнала: части и порядок',
     [
       'салон, день',
       'app/beauty/journal.tsx',
-      [/<DayNav/, /summary=\{\s*<(SummaryLine|p className="summary-line")/, /<JournalSearch/, /<EmployeeFilter/, /<JournalFilter[^>]*?label="Услуга"/s, /<JournalFilter[^>]*?label="Статус записи"/s, /views=\{views\}/],
+      [/<DayNav/, /summary=\{\s*<(SummaryLine|p className="summary-line")/, /<JournalSearch/, /<EmployeeFilter/, /<JournalFilter[^>]*?label=(?:"Услуга"|\{t\('Услуга'\)\})/s, /<JournalFilter[^>]*?label=(?:"Статус записи"|\{t\('Статус записи'\)\})/s, /views=\{views\}/],
     ],
     [
       'салон, неделя',
       'app/beauty/week-calendar.tsx',
-      [/<DateRangePopover|<WeekNav/, /summary=\{\s*<(SummaryLine|p className="summary-line")/, /<JournalSearch/, /<EmployeeFilter/, /<JournalFilter[^>]*?label="Услуга"/s, /<JournalFilter[^>]*?label="Статус записи"/s, /views=\{views\}/],
+      [/<DateRangePopover|<WeekNav/, /summary=\{\s*<(SummaryLine|p className="summary-line")/, /<JournalSearch/, /<EmployeeFilter/, /<JournalFilter[^>]*?label=(?:"Услуга"|\{t\('Услуга'\)\})/s, /<JournalFilter[^>]*?label=(?:"Статус записи"|\{t\('Статус записи'\)\})/s, /views=\{views\}/],
     ],
     [
       'ресторан, план и расписание',
       'app/food/workspace-board.tsx',
-      [/<DayNav/, /summary=\{\s*<SummaryLine/, /<JournalSearch/, /<JournalFilter[^>]*?label="Зона"/s, /<JournalFilter[^>]*?label="Статус брони"/s, /views=\{/],
+      [/<DayNav/, /summary=\{\s*<SummaryLine/, /<JournalSearch/, /<JournalFilter[^>]*?label=(?:"Зона"|\{t\('Зона'\)\})/s, /<JournalFilter[^>]*?label=(?:"Статус брони"|\{t\('Статус брони'\)\})/s, /views=\{/],
     ],
   ];
   for (const [name, rel, parts] of journals) {

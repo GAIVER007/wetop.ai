@@ -60,6 +60,8 @@ import { FinanceWorkspace } from './workspace';
 import { METHOD_RU, operationKind, operationStatus } from './labels';
 import { operationFilter } from './operation-filter';
 import { unstable_rethrow } from 'next/navigation';
+import { intlLocale, msg, type Translate } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
 
 /** Тот же предел, что у `/finance/report`: год с запасом (волна 4) */
 const MAX_REPORT_DAYS = 366;
@@ -74,10 +76,10 @@ type OpParam = 'payment' | 'refund' | 'income' | 'expense' | 'transfer';
 
 /** Четыре вида начислений всегда в одном порядке: владелец видит всю структуру, а не только ненулевое */
 const KINDS: Array<[string, string]> = [
-  ['ACCOMMODATION', 'Проживание'],
-  ['SERVICE', 'Услуги'],
-  ['PENALTY', 'Штрафы'],
-  ['ADJUSTMENT', 'Корректировки'],
+  ['ACCOMMODATION', msg('Проживание')],
+  ['SERVICE', msg('Услуги')],
+  ['PENALTY', msg('Штрафы')],
+  ['ADJUSTMENT', msg('Корректировки')],
 ];
 
 // Границы месяцев и недели от «сегодня» объекта — общие с хабом «Отчёты» (REP1)
@@ -113,6 +115,8 @@ export default async function FinanceReportPage({
     return <BeautyFinanceScreen searchParams={requested} />;
   }
   const sp = normalizeSearchParams(requested);
+  const t = await serverT();
+  const locale = intlLocale(await currentLocale());
   const cal = periods(await hotelToday());
   const yesterday = new Date(`${cal.today}T00:00:00Z`);
   yesterday.setUTCDate(yesterday.getUTCDate() - 1);
@@ -218,11 +222,11 @@ export default async function FinanceReportPage({
   const flow = periodOps ? dailyFlow(periodOps.rows, from, to) : [];
   // пустой месяц гостиницы: одна заглушка «Добавить первую бронь» вместо нулей, графика и таблиц (аудит 22.10.2026)
   const monthEmpty = valid && financeMonthEmpty({ report: r, ops: periodOps, debts });
-  const kindLabel = (kind: string) => KINDS.find(([k]) => k === kind)?.[1] ?? kind;
+  const kindLabel = (kind: string) => t(KINDS.find(([k]) => k === kind)?.[1] ?? kind);
   return (
     <Page
-      title="Финансы"
-      subtitle="Доходы, расходы и финансовые показатели вашего бизнеса"
+      title={t('Финансы')}
+      subtitle={t('Доходы, расходы и финансовые показатели вашего бизнеса')}
       width="full"
       actions={
         <>
@@ -242,14 +246,14 @@ export default async function FinanceReportPage({
                 <Link
                   className="icon-button"
                   href={preset({ from: prevFrom, to: prevTo })}
-                  aria-label="Предыдущий период"
+                  aria-label={t('Предыдущий период')}
                 >
                   <Icon name="chevron" className="rotate-left" />
                 </Link>
                 <Link
                   className="icon-button"
                   href={preset({ from: plusDays(to, 1), to: plusDays(to, days) })}
-                  aria-label="Следующий период"
+                  aria-label={t('Следующий период')}
                 >
                   <Icon name="chevron" />
                 </Link>
@@ -261,7 +265,7 @@ export default async function FinanceReportPage({
             href={`/finance/export?${exportQuery}`}
             data-testid="finance-export-top"
           >
-            Экспорт
+            {t('Экспорт')}
           </a>
         </>
       }
@@ -270,7 +274,7 @@ export default async function FinanceReportPage({
           вернулись на «Главную» (/today); числа считаются из тех же ответов API, что раньше */}
       <div className="fin-board" data-testid="finance-board">
         {monthEmpty ? (
-          <FinanceEmptyMonth />
+          <FinanceEmptyMonth t={t} />
         ) : (
           <>
             <FinanceTotals
@@ -280,18 +284,19 @@ export default async function FinanceReportPage({
               expense={sums.expense}
               balance={cashBalances ? cashBalances.totalMinor : null}
               currency={sums.currency}
+              t={t}
             />
             <div className="fin-row fin-row--wide">
-              <FinanceDynamics flow={flow} currency={sums.currency} />
-              <IncomeStructure report={r} kindLabel={kindLabel} />
+              <FinanceDynamics flow={flow} currency={sums.currency} t={t} locale={locale} />
+              <IncomeStructure report={r} kindLabel={kindLabel} t={t} />
             </div>
             <div className="fin-row fin-row--wide">
               <RecentOperations ops={periodOps} period={period} />
-              <ExpenseCategories ops={periodOps} allHref={opsHref({ op: 'expense' })} />
+              <ExpenseCategories ops={periodOps} allHref={opsHref({ op: 'expense' })} t={t} />
             </div>
             <div className="fin-row fin-row--wide">
-              <FinanceReports exportHref={`/finance/export?${exportQuery}`} from={from} to={to} />
-              <AnalyticsCta />
+              <FinanceReports exportHref={`/finance/export?${exportQuery}`} from={from} to={to} t={t} />
+              <AnalyticsCta t={t} />
             </div>
           </>
         )}
@@ -303,7 +308,7 @@ export default async function FinanceReportPage({
         <LoadError testId="cash-period-error" {...loadErrorProps(periodOpsError)} />
       )}
 
-      <section className="finance-controls" id="finance-filters" aria-label="Фильтры операций">
+      <section className="finance-controls" id="finance-filters" aria-label={t('Фильтры операций')}>
         <form
           method="get"
           action="/finance#operations"
@@ -320,33 +325,33 @@ export default async function FinanceReportPage({
             }}
           />
           <input type="hidden" name="show" value="1" />
-          <Field inline label="С">
+          <Field inline label={t('С')}>
             <DateInput
               key={`from-${from}`}
               name="from"
               defaultValue={from}
-              aria-label="Период: с"
+              aria-label={t('Период: с')}
             />
           </Field>
-          <Field inline label="По">
+          <Field inline label={t('По')}>
             <DateInput
               key={`to-${to}`}
               name="to"
               rangeFromName="from"
               defaultValue={to}
-              aria-label="Период: по"
+              aria-label={t('Период: по')}
             />
           </Field>
           {/* Готовые отрезки — ссылками: период виден в адресе и в подзаголовке */}
-          <nav className="directory-filters finance-presets" aria-label="Готовые периоды">
-            <span className="finance-presets__label">Период:</span>
+          <nav className="directory-filters finance-presets" aria-label={t('Готовые периоды')}>
+            <span className="finance-presets__label">{t('Период:')}</span>
             {(
               [
-                ['Сегодня', { from: cal.today, to: cal.today }],
-                ['Вчера', { from: yesterdayDate, to: yesterdayDate }],
-                ['Неделя', cal.week],
-                ['Месяц', cal.month],
-                ['Прошлый месяц', cal.prevMonth],
+                [msg('Сегодня'), { from: cal.today, to: cal.today }],
+                [msg('Вчера'), { from: yesterdayDate, to: yesterdayDate }],
+                [msg('Неделя'), cal.week],
+                [msg('Месяц'), cal.month],
+                [msg('Прошлый месяц'), cal.prevMonth],
               ] as const
             ).map(([label, p]) => (
               <Link
@@ -355,36 +360,36 @@ export default async function FinanceReportPage({
                 className={isPreset(p) ? 'is-active' : ''}
                 aria-current={isPreset(p) ? 'page' : undefined}
               >
-                {label}
+                {t(label)}
               </Link>
             ))}
           </nav>
-          <Field label="Тип операции">
+          <Field label={t('Тип операции')}>
             <Select
               name="op"
-              aria-label="Тип операции"
+              aria-label={t('Тип операции')}
               key={`op-${opParam}`}
               defaultValue={opParam ?? ''}
             >
-              <option value="">Все операции</option>
-              <option value="payment">Оплаты</option>
-              <option value="refund">Возвраты</option>
-              <option value="income">Поступления кассы</option>
-              <option value="expense">Расходы кассы</option>
-              <option value="transfer">Переводы</option>
+              <option value="">{t('Все операции')}</option>
+              <option value="payment">{t('Оплаты')}</option>
+              <option value="refund">{t('Возвраты')}</option>
+              <option value="income">{t('Поступления кассы')}</option>
+              <option value="expense">{t('Расходы кассы')}</option>
+              <option value="transfer">{t('Переводы')}</option>
             </Select>
           </Field>
-          <Field label="Способ оплаты">
+          <Field label={t('Способ оплаты')}>
             <Select
               name="method"
-              aria-label="Способ оплаты"
+              aria-label={t('Способ оплаты')}
               key={`method-${filter.method}`}
               defaultValue={filter.method ?? ''}
             >
-              <option value="">Все способы</option>
+              <option value="">{t('Все способы')}</option>
               {Object.entries(METHOD_RU).map(([value, label]) => (
                 <option key={value} value={value}>
-                  {label}
+                  {t(label)}
                 </option>
               ))}
             </Select>
@@ -392,25 +397,25 @@ export default async function FinanceReportPage({
           <details className="finance-extra-filters" key={`extra-${srcParam}`} open={!!srcParam}>
             <summary>
               <Icon name="chevron" />
-              Дополнительные фильтры{srcParam ? ' (1)' : ''}
+              {t('Дополнительные фильтры')}{srcParam ? ' (1)' : ''}
             </summary>
-            <Field label="Источник">
+            <Field label={t('Источник')}>
               <Select
                 name="src"
-                aria-label="Источник"
+                aria-label={t('Источник')}
                 key={`src-${srcParam}`}
                 defaultValue={srcParam ?? ''}
               >
-                <option value="">Все источники</option>
-                <option value="bookings">Брони</option>
-                <option value="cash">Касса</option>
+                <option value="">{t('Все источники')}</option>
+                <option value="bookings">{t('Брони')}</option>
+                <option value="cash">{t('Касса')}</option>
               </Select>
             </Field>
           </details>
           <div className="finance-filter-actions">
-            <Button>Показать</Button>
+            <Button>{t('Показать')}</Button>
             <Link href={period} className="btn btn--ghost finance-reset">
-              Сбросить фильтр
+              {t('Сбросить фильтр')}
             </Link>
           </div>
         </form>
@@ -418,18 +423,17 @@ export default async function FinanceReportPage({
 
       {tooLong && (
         <Alert boxed>
-          Период отчёта — не больше года ({MAX_REPORT_DAYS} дней) за один запрос. Укоротите период:
-          за год и дольше это уже выгрузка, а не экран.
+          {t('Период отчёта — не больше года ({n} дней) за один запрос. Укоротите период: за год и дольше это уже выгрузка, а не экран.', { n: MAX_REPORT_DAYS })}
         </Alert>
       )}
       {!dates && (
-        <Alert boxed>Проверьте даты: окончание периода должно быть не раньше начала.</Alert>
+        <Alert boxed>{t('Проверьте даты: окончание периода должно быть не раньше начала.')}</Alert>
       )}
       {loadError !== null && <LoadError testId="finance-error" {...loadErrorProps(loadError)} />}
 
       {opsError !== null && (
         <Alert boxed>
-          Операции не загрузились. <a href={`${period}#operations`}>Открыть детали ошибки</a>
+          {t('Операции не загрузились.')} <a href={`${period}#operations`}>{t('Открыть детали ошибки')}</a>
         </Alert>
       )}
       <FinanceWorkspace
@@ -455,6 +459,7 @@ export default async function FinanceReportPage({
                   refunded: opsHref({ op: 'refund' }),
                   due: `${period}#debts`,
                 }}
+                t={t}
               />
             )}
 
@@ -472,16 +477,16 @@ export default async function FinanceReportPage({
             {r && !monthEmpty && (
               <div className="finance-structure">
                 <section className="finance-block" id="charges" data-testid="finance-charges">
-                  <SectionTitle first>По видам начислений</SectionTitle>
+                  <SectionTitle first>{t('По видам начислений')}</SectionTitle>
                   <MoneyTable
                     testId="charges-table"
-                    label="Начисления по видам"
-                    head={['Вид', 'Штук', 'Сумма']}
+                    label={t('Начисления по видам')}
+                    head={[t('Вид'), t('Штук'), t('Сумма')]}
                     cur={cur}
                     rows={KINDS.map(([kind, label]) => {
                       const x = r.chargesByKind.find((c) => c.kind === kind);
                       return {
-                        label,
+                        label: t(label),
                         count: x?.count ?? 0,
                         amountMinor: x?.amountMinor ?? '0',
                         // REP2: у услуг есть свой отчёт — строка ведёт на вкладку
@@ -491,13 +496,13 @@ export default async function FinanceReportPage({
                     total={r.chargedMinor}
                   />
                   <details className="finance-category-details">
-                    <summary>Проживание по категориям</summary>
+                    <summary>{t('Проживание по категориям')}</summary>
                     <MoneyTable
                       testId="category-table"
-                      label="Проживание по категориям"
-                      head={['Категория', 'Проживаний', 'Сумма']}
+                      label={t('Проживание по категориям')}
+                      head={[t('Категория'), t('Проживаний'), t('Сумма')]}
                       cur={cur}
-                      empty="Начислений за проживание за период нет"
+                      empty={t('Начислений за проживание за период нет')}
                       rows={byAmount(r.accommodationByCategory).map((x) => ({
                         label: x.category,
                         count: x.count,
@@ -507,15 +512,15 @@ export default async function FinanceReportPage({
                   </details>
                 </section>
                 <section className="finance-block" data-testid="finance-money">
-                  <SectionTitle first>Оплаты по способам</SectionTitle>
+                  <SectionTitle first>{t('Оплаты по способам')}</SectionTitle>
                   <MoneyTable
                     testId="payments-table"
-                    label="Оплаты по способам"
-                    head={['Способ', 'Операций', 'Сумма']}
+                    label={t('Оплаты по способам')}
+                    head={[t('Способ'), t('Операций'), t('Сумма')]}
                     cur={cur}
-                    empty="Оплат за период нет"
+                    empty={t('Оплат за период нет')}
                     rows={byAmount(r.paymentsByMethod).map((x) => ({
-                      label: METHOD_RU[x.method] ?? x.method,
+                      label: t(METHOD_RU[x.method] ?? x.method),
                       count: x.count,
                       amountMinor: x.amountMinor,
                       href: opsHref({ op: 'payment', method: x.method }),
@@ -525,23 +530,18 @@ export default async function FinanceReportPage({
                 </section>
               </div>
             )}
-            <Help title="Как считаются суммы">
+            <Help title={t('Как считаются суммы')}>
               <p>
-                Оплаты , по дате оплаты, возвраты , по дате возврата, время , по часам объекта.
-                Аннулированная оплата остаётся в списке со своим статусом, но в «Оплачено» не
-                входит.
+                {t('Оплаты , по дате оплаты, возвраты , по дате возврата, время , по часам объекта. Аннулированная оплата остаётся в списке со своим статусом, но в «Оплачено» не входит.')}
               </p>
               <p>
-                «К сбору» , полный текущий остаток по броням, у которых есть начисления за период,
-                как в карточке брони. Это та же сумма, что в списке «Брони с остатком к сбору».
+                {t('«К сбору» , полный текущий остаток по броням, у которых есть начисления за период, как в карточке брони. Это та же сумма, что в списке «Брони с остатком к сбору».')}
               </p>
               <p>
-                «Просрочено» , остаток не оплачен, а время выезда по часам объекта уже прошло или
-                гость уже выехал. У отменённых броней и незаездов срока нет: их остаток , просто к
-                сбору.
+                {t('«Просрочено» , остаток не оплачен, а время выезда по часам объекта уже прошло или гость уже выехал. У отменённых броней и незаездов срока нет: их остаток , просто к сбору.')}
               </p>
               <p>
-                У броней из внешних каналов проверьте предоплату площадки перед взысканием остатка.
+                {t('У броней из внешних каналов проверьте предоплату площадки перед взысканием остатка.')}
               </p>
             </Help>
           </>
@@ -557,23 +557,23 @@ export default async function FinanceReportPage({
               >
                 <div className="finance-debts__head">
                   <SectionTitle first id="debts-title">
-                    Брони с остатком к сбору
+                    {t('Брони с остатком к сбору')}
                   </SectionTitle>
                   {debts && debts.count > 0 && (
-                    <nav className="directory-filters finance-chips" aria-label="Отбор долгов">
+                    <nav className="directory-filters finance-chips" aria-label={t('Отбор долгов')}>
                       <Link
                         href={`${period}#debts`}
                         className={onlyOverdue ? '' : 'is-active'}
                         aria-current={onlyOverdue ? undefined : 'page'}
                       >
-                        Все<span className="finance-chips__count">{debts.count}</span>
+                        {t('Все')}<span className="finance-chips__count">{debts.count}</span>
                       </Link>
                       <Link
                         href={`${period}&debts=overdue#debts`}
                         className={onlyOverdue ? 'is-active' : ''}
                         aria-current={onlyOverdue ? 'page' : undefined}
                       >
-                        Просрочено
+                        {t('Просрочено')}
                         <span className="finance-chips__count">{debts.overdue.count}</span>
                       </Link>
                     </nav>
@@ -587,7 +587,7 @@ export default async function FinanceReportPage({
                       download
                     >
                       <Icon name="down" />
-                      Скачать CSV
+                      {t('Скачать CSV')}
                     </a>
                   )}
                 </div>
@@ -618,7 +618,7 @@ export default async function FinanceReportPage({
               >
                 <div className="finance-debts__head">
                   <SectionTitle first id="operations-title">
-                    Операции за период
+                    {t('Операции за период')}
                   </SectionTitle>
                   {/* Файл уходит из системы: без имён гостей, бронь — номером (ADR-113, F2) */}
                   <a
@@ -628,7 +628,7 @@ export default async function FinanceReportPage({
                     download
                   >
                     <Icon name="down" />
-                    Скачать CSV
+                    {t('Скачать CSV')}
                   </a>
                 </div>
                 {opsError !== null && (
@@ -661,7 +661,7 @@ export default async function FinanceReportPage({
               >
                 <div className="finance-debts__head">
                   <SectionTitle first id="services-title">
-                    Услуги за период
+                    {t('Услуги за период')}
                   </SectionTitle>
                   {services && services.rows.length > 0 && (
                     <a
@@ -671,7 +671,7 @@ export default async function FinanceReportPage({
                       download
                     >
                       <Icon name="down" />
-                      Скачать CSV
+                      {t('Скачать CSV')}
                     </a>
                   )}
                 </div>
@@ -681,14 +681,14 @@ export default async function FinanceReportPage({
                 {services &&
                   (services.rows.length === 0 ? (
                     <p className="finance-debts__empty" data-testid="services-empty">
-                      Начислений за услуги за период нет.
+                      {t('Начислений за услуги за период нет.')}
                     </p>
                   ) : (
                     <>
                       <p className="finance-debts__meta" data-testid="services-meta">
-                        {pluralRu(services.count, ['начисление', 'начисления', 'начислений'])} за
-                        услуги, итого <strong>{formatMoney(services.totalMinor, cur)}</strong> — как
-                        строка «Услуги» в обзоре: по дате услуги.
+                        {t('{count} за услуги, итого', { count: pluralRu(services.count, [t('начисление'), t('начисления'), t('начислений')]) })}{' '}
+                        <strong>{formatMoney(services.totalMinor, cur)}</strong>{' '}
+                        {t('— как строка «Услуги» в обзоре: по дате услуги.')}
                       </p>
                       <Table
                         size="sm"
@@ -697,18 +697,18 @@ export default async function FinanceReportPage({
                       >
                         <thead>
                           <tr>
-                            <th>Услуга</th>
-                            <th>Группа</th>
-                            <th className="num">Начислений</th>
-                            <th className="num">Штук</th>
-                            <th className="num">Сумма</th>
+                            <th>{t('Услуга')}</th>
+                            <th>{t('Группа')}</th>
+                            <th className="num">{t('Начислений')}</th>
+                            <th className="num">{t('Штук')}</th>
+                            <th className="num">{t('Сумма')}</th>
                           </tr>
                         </thead>
                         <tbody>
                           {services.rows.map((x) => (
                             <tr key={x.code ?? '@manual'} data-testid="service-row">
                               <td>
-                                {x.name ?? <span className="muted">{MANUAL_SERVICE_LABEL}</span>}
+                                {x.name ?? <span className="muted">{t(MANUAL_SERVICE_LABEL)}</span>}
                               </td>
                               <td>{x.group ?? <span className="muted">—</span>}</td>
                               <td className="num">{x.charges}</td>
@@ -719,7 +719,7 @@ export default async function FinanceReportPage({
                         </tbody>
                         <tfoot>
                           <tr className="finance-row--total">
-                            <th scope="row">Итого</th>
+                            <th scope="row">{t('Итого')}</th>
                             <td />
                             <td className="num">{services.count}</td>
                             <td className="num">
@@ -740,7 +740,7 @@ export default async function FinanceReportPage({
         cash={
           <section className="finance-block" id="cash" aria-labelledby="cash-title">
             <SectionTitle first id="cash-title">
-              Касса
+              {t('Касса')}
             </SectionTitle>
             {cashError !== null && <LoadError testId="cash-error" {...loadErrorProps(cashError)} />}
             {cashBalances && (
@@ -766,7 +766,7 @@ export default async function FinanceReportPage({
  * нет: у наличных нет отметки проверки, до отдельного решения о кассе строки не будет. Возвраты — справкой
  * со ссылкой на их список (F2).
  */
-function Attention({
+async function Attention({
   report,
   debts,
   debtsFailed,
@@ -779,6 +779,7 @@ function Attention({
   period: string;
   refundsHref: string;
 }) {
+  const t = await serverT();
   const cur = debts?.currency ?? report?.currency ?? '';
   const items: Array<{ key: string; tone: 'danger' | 'warn' | 'info'; body: ReactNode }> = [];
   if (debts && debts.count > 0)
@@ -787,8 +788,8 @@ function Attention({
       tone: 'warn',
       body: (
         <Link href={`${period}#debts`}>
-          <strong>{formatMoney(debts.balanceMinor, cur)} к сбору</strong> —{' '}
-          {pluralRu(debts.count, ['бронь', 'брони', 'броней'])}
+          <strong>{t('{sum} к сбору', { sum: formatMoney(debts.balanceMinor, cur) })}</strong> —{' '}
+          {pluralRu(debts.count, [t('бронь'), t('брони'), t('броней')])}
         </Link>
       ),
     });
@@ -799,9 +800,9 @@ function Attention({
       body: (
         <Link href={`${period}&debts=overdue#debts`}>
           <strong>
-            {pluralRu(debts.overdue.count, ['бронь', 'брони', 'броней'])} с просроченным долгом
+            {t('{count} с просроченным долгом', { count: pluralRu(debts.overdue.count, [t('бронь'), t('брони'), t('броней')]) })}
           </strong>{' '}
-          — {formatMoney(debts.overdue.balanceMinor, cur)}, время выезда прошло
+          — {t('{sum}, время выезда прошло', { sum: formatMoney(debts.overdue.balanceMinor, cur) })}
         </Link>
       ),
     });
@@ -809,7 +810,7 @@ function Attention({
     items.push({
       key: 'failed',
       tone: 'warn',
-      body: <span>Список долгов по броням не загрузился — долги ниже не проверены</span>,
+      body: <span>{t('Список долгов по броням не загрузился — долги ниже не проверены')}</span>,
     });
   if (report && report.refunds.count > 0)
     items.push({
@@ -817,8 +818,7 @@ function Attention({
       tone: 'info',
       body: (
         <Link href={refundsHref}>
-          {pluralRu(report.refunds.count, ['возврат', 'возврата', 'возвратов'])} за период на{' '}
-          {formatMoney(report.refunds.amountMinor, cur)}
+          {t('{count} за период на {sum}', { count: pluralRu(report.refunds.count, [t('возврат'), t('возврата'), t('возвратов')]), sum: formatMoney(report.refunds.amountMinor, cur) })}
         </Link>
       ),
     });
@@ -829,12 +829,12 @@ function Attention({
       data-testid="finance-attention"
     >
       <h2 id="finance-attention-title" className="finance-attention__title">
-        Требует внимания
+        {t('Требует внимания')}
       </h2>
       {items.length === 0 ? (
         <p className="finance-attention__empty">
           <Icon name="check" />
-          За период проблем не найдено
+          {t('За период проблем не найдено')}
         </p>
       ) : (
         <ul className="finance-attention__list">
@@ -850,7 +850,7 @@ function Attention({
   );
 }
 
-function DebtList({
+async function DebtList({
   debts,
   onlyOverdue,
   showAll,
@@ -863,6 +863,7 @@ function DebtList({
   period: string;
   canPay: boolean;
 }) {
+  const t = await serverT();
   const cur = debts.currency;
   const rows = onlyOverdue ? debts.rows.filter((x) => x.overdue) : debts.rows;
   const shown = showAll ? rows : rows.slice(0, DEBTS_SHOWN);
@@ -871,32 +872,32 @@ function DebtList({
     return (
       <p className="finance-debts__empty" data-testid="debts-empty">
         <Icon name="check" />
-        Все брони с начислениями за период оплачены.
+        {t('Все брони с начислениями за период оплачены.')}
       </p>
     );
   return (
     <>
       <p className="finance-debts__meta" data-testid="debts-meta">
-        {pluralRu(total.count, ['бронь', 'брони', 'броней'])}
-        {onlyOverdue ? ' с просроченным долгом' : ''}, остаток{' '}
-        <strong>{formatMoney(total.balanceMinor, cur)}</strong>. Остаток — по всему счёту брони, как
-        в карточке; «Оплачено» — за вычетом возвратов.
+        {pluralRu(total.count, [t('бронь'), t('брони'), t('броней')])}
+        {onlyOverdue ? ` ${t('с просроченным долгом')}` : ''}, {t('остаток')}{' '}
+        <strong>{formatMoney(total.balanceMinor, cur)}</strong>.{' '}
+        {t('Остаток — по всему счёту брони, как в карточке; «Оплачено» — за вычетом возвратов.')}
       </p>
       {rows.length === 0 ? (
-        <p className="finance-debts__empty">Просроченных долгов за период нет.</p>
+        <p className="finance-debts__empty">{t('Просроченных долгов за период нет.')}</p>
       ) : (
         <Table size="sm" className="finance-debts__table" data-testid="debts-table">
           <thead>
             <tr>
-              <th>Бронь</th>
-              <th>Гость</th>
-              <th>Проживание</th>
-              <th className="num">Начислено</th>
-              <th className="num">Оплачено</th>
-              <th className="num">Остаток</th>
-              <th>Статус</th>
+              <th>{t('Бронь')}</th>
+              <th>{t('Гость')}</th>
+              <th>{t('Проживание')}</th>
+              <th className="num">{t('Начислено')}</th>
+              <th className="num">{t('Оплачено')}</th>
+              <th className="num">{t('Остаток')}</th>
+              <th>{t('Статус')}</th>
               <th>
-                <span className="sr-only">Действия</span>
+                <span className="sr-only">{t('Действия')}</span>
               </th>
             </tr>
           </thead>
@@ -915,7 +916,7 @@ function DebtList({
                   <td className="finance-debts__stay">
                     <time dateTime={x.arrivalDate}>{displayDate(x.arrivalDate)}</time> →{' '}
                     <time dateTime={x.departureDate}>{displayDate(x.departureDate)}</time>
-                    {nights > 0 && <small>{pluralRu(nights, ['ночь', 'ночи', 'ночей'])}</small>}
+                    {nights > 0 && <small>{pluralRu(nights, [t('ночь'), t('ночи'), t('ночей')])}</small>}
                   </td>
                   <td className="num">{formatMoney(x.chargedMinor, cur)}</td>
                   <td className="num">
@@ -925,7 +926,7 @@ function DebtList({
                     <strong data-testid="debt-balance">{formatMoney(x.balanceMinor, cur)}</strong>
                     {x.overdue && (
                       <small className="finance-debts__overdue" data-testid="debt-overdue">
-                        просрочено
+                        {t('просрочено')}
                       </small>
                     )}
                   </td>
@@ -935,11 +936,11 @@ function DebtList({
                   <td className="finance-debts__actions">
                     {canPay && (
                       <Link href={`${card}#booking-finance`} className="btn btn--secondary btn--sm">
-                        Принять оплату
+                        {t('Принять оплату')}
                       </Link>
                     )}
                     <Link href={card} className="btn btn--ghost btn--sm">
-                      Открыть
+                      {t('Открыть')}
                     </Link>
                   </td>
                 </tr>
@@ -954,13 +955,12 @@ function DebtList({
           className="finance-debts__more"
           data-testid="debts-more"
         >
-          Показать все {rows.length}
+          {t('Показать все {n}', { n: rows.length })}
         </Link>
       )}
       {debts.truncated && showAll && (
         <p className="finance-debts__note">
-          Показаны первые {debts.rows.length} из {debts.count}. Укоротите период, чтобы увидеть
-          остальные.
+          {t('Показаны первые {shown} из {total}. Укоротите период, чтобы увидеть остальные.', { shown: debts.rows.length, total: debts.count })}
         </p>
       )}
     </>
@@ -968,17 +968,17 @@ function DebtList({
 }
 
 /** Строка операции для вопроса подтверждения: «Расход 5 000 ₸, Kaspi, Зарплата» или «Оплата 12 000 ₸, Kaspi, бронь …» */
-function cashSummary(o: PeriodOperations['rows'][number], cur: string): string {
+function cashSummary(o: PeriodOperations['rows'][number], cur: string, t: Translate): string {
   const where =
     o.kind === 'TRANSFER'
-      ? `${METHOD_RU[o.method] ?? o.method} → ${METHOD_RU[o.methodTo ?? ''] ?? o.methodTo}`
-      : (METHOD_RU[o.method] ?? o.method);
+      ? `${t(METHOD_RU[o.method] ?? o.method)} → ${t(METHOD_RU[o.methodTo ?? ''] ?? o.methodTo ?? '')}`
+      : t(METHOD_RU[o.method] ?? o.method);
   return [
-    operationKind(o.kind),
+    t(operationKind(o.kind)),
     formatMoney(o.amountMinor, cur),
     where,
     o.category,
-    o.confirmationNumber ? `бронь ${o.confirmationNumber}` : null,
+    o.confirmationNumber ? t('бронь {number}', { number: o.confirmationNumber }) : null,
   ]
     .filter(Boolean)
     .join(', ');
@@ -989,7 +989,7 @@ function cashSummary(o: PeriodOperations['rows'][number], cur: string): string {
  * по отбору, таблица новыми первыми. Возврат и расход — с минусом (DESIGN.md §14), аннулированное —
  * приглушено и в суммы не входит.
  */
-function Operations({
+async function Operations({
   ops,
   type,
   method,
@@ -1013,6 +1013,7 @@ function Operations({
   srcParam: 'bookings' | 'cash' | undefined;
   mayVoidCash: boolean;
 }) {
+  const t = await serverT();
   const cur = ops.currency;
   const keep = (o?: { op?: OpParam | undefined; src?: 'bookings' | 'cash' | undefined }) => ({
     ...((o && 'op' in o ? o.op : opParam) ? { op: (o && 'op' in o ? o.op : opParam)! } : {}),
@@ -1024,25 +1025,25 @@ function Operations({
     <>
       {ops.rows.length > 0 && (
         <p className="finance-debts__meta" data-testid="ops-meta">
-          Найдено: {pluralRu(ops.total, ['операция', 'операции', 'операций'])}
-          {filtered ? ' по отбору' : ''}
+          {t('Найдено: {count}', { count: pluralRu(ops.total, [t('операция'), t('операции'), t('операций')]) })}
+          {filtered ? ` ${t('по отбору')}` : ''}
         </p>
       )}
       {ops.rows.length === 0 ? (
         <p className="finance-debts__empty" data-testid="ops-empty">
-          Операций не найдено.
+          {t('Операций не найдено.')}
         </p>
       ) : (
         <Table size="sm" className="finance-ops__table" data-testid="ops-table">
           <thead>
             <tr>
-              <th>Дата и время</th>
-              <th>Тип</th>
-              <th>Бронь</th>
-              <th>Гость / статья</th>
-              <th>Способ</th>
-              <th className="num">Сумма</th>
-              <th>Статус</th>
+              <th>{t('Дата и время')}</th>
+              <th>{t('Тип')}</th>
+              <th>{t('Бронь')}</th>
+              <th>{t('Гость / статья')}</th>
+              <th>{t('Способ')}</th>
+              <th className="num">{t('Сумма')}</th>
+              <th>{t('Статус')}</th>
             </tr>
           </thead>
           <tbody>
@@ -1057,13 +1058,13 @@ function Operations({
                   data-testid="op-row"
                   data-kind={o.kind}
                 >
-                  <td className="finance-debts__stay" data-label="Дата и время">
+                  <td className="finance-debts__stay" data-label={t('Дата и время')}>
                     <time dateTime={o.at}>
                       {displayDate(day)}, {time}
                     </time>
                   </td>
-                  <td data-label="Тип">{operationKind(o.kind)}</td>
-                  <td data-label="Бронь">
+                  <td data-label={t('Тип')}>{t(operationKind(o.kind))}</td>
+                  <td data-label={t('Бронь')}>
                     {o.confirmationNumber ? (
                       <Link
                         href={`/reservations/${encodeURIComponent(o.confirmationNumber)}#booking-finance`}
@@ -1075,30 +1076,30 @@ function Operations({
                       <span className="muted">—</span>
                     )}
                     {o.reservations > 1 && (
-                      <small className="muted"> и ещё {o.reservations - 1}</small>
+                      <small className="muted"> {t('и ещё {n}', { n: o.reservations - 1 })}</small>
                     )}
                   </td>
-                  <td data-label="Гость / статья">
+                  <td data-label={t('Гость / статья')}>
                     {o.guestLabel || o.category || <span className="muted">—</span>}
                     {isCash && o.note && <small className="muted cell-sub">{o.note}</small>}
                   </td>
-                  <td data-label="Способ">
+                  <td data-label={t('Способ')}>
                     {o.kind === 'TRANSFER' && o.methodTo
-                      ? `${METHOD_RU[o.method] ?? o.method} → ${METHOD_RU[o.methodTo] ?? o.methodTo}`
-                      : (METHOD_RU[o.method] ?? o.method)}
+                      ? `${t(METHOD_RU[o.method] ?? o.method)} → ${t(METHOD_RU[o.methodTo] ?? o.methodTo)}`
+                      : t(METHOD_RU[o.method] ?? o.method)}
                   </td>
-                  <td className="num" data-label="Сумма" data-testid="op-amount">
+                  <td className="num" data-label={t('Сумма')} data-testid="op-amount">
                     {minus(o.kind) ? '−' : ''}
                     {formatMoney(o.amountMinor, cur)}
                   </td>
-                  <td data-label="Статус">
-                    <Badge tone="neutral">{operationStatus(o.kind, o.status)}</Badge>
+                  <td data-label={t('Статус')}>
+                    <Badge tone="neutral">{t(operationStatus(o.kind, o.status))}</Badge>
                     {isCash && !voided && mayVoidCash && (
-                      <VoidCashOperation id={o.id} summary={cashSummary(o, cur)} />
+                      <VoidCashOperation id={o.id} summary={cashSummary(o, cur, t)} />
                     )}
                     {/* платёж гостя: то же право, что у возврата (план finance-payments-direct 07.10.2026) */}
                     {o.kind === 'PAYMENT' && !voided && mayVoidCash && (
-                      <VoidPaymentOperation id={o.id} summary={cashSummary(o, cur)} />
+                      <VoidPaymentOperation id={o.id} summary={cashSummary(o, cur, t)} />
                     )}
                   </td>
                 </tr>
@@ -1114,20 +1115,20 @@ function Operations({
           data-testid="ops-more"
         >
           {ops.total > OPS_ALL
-            ? `Показать последние ${OPS_ALL} из ${ops.total}`
-            : `Показать все ${ops.total}`}
+            ? t('Показать последние {shown} из {total}', { shown: OPS_ALL, total: ops.total })
+            : t('Показать все {n}', { n: ops.total })}
         </Link>
       )}
       {all && ops.truncated && (
         <p className="finance-debts__note">
-          Показаны последние {ops.rows.length} из {ops.total}. Полный список — в выгрузке CSV.
+          {t('Показаны последние {shown} из {total}. Полный список — в выгрузке CSV.', { shown: ops.rows.length, total: ops.total })}
         </p>
       )}
     </>
   );
 }
 
-function MoneyTable({
+async function MoneyTable({
   head,
   label,
   rows,
@@ -1145,6 +1146,7 @@ function MoneyTable({
   /** строка «Итого» — сверка с плиткой над таблицей */
   total?: string | undefined;
 }) {
+  const t = await serverT();
   return (
     <Table size="sm" data-testid={testId} aria-label={label}>
       <thead>
@@ -1181,7 +1183,7 @@ function MoneyTable({
       {total !== undefined && (
         <tfoot>
           <tr className="finance-row--total">
-            <th scope="row">Итого</th>
+            <th scope="row">{t('Итого')}</th>
             <td className="num">{rows.reduce((a, x) => a + x.count, 0)}</td>
             <td className="num" data-testid={`${testId}-total`}>
               {formatMoney(total, cur)}

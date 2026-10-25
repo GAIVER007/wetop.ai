@@ -1,3 +1,4 @@
+import { msg } from '../../i18n';
 import { branchReportDay, type BeautyDay, type BranchItem } from '../../lib/api';
 import { localInput } from '../beauty/time';
 import { beautyPeriod, periodDates } from '../management/analytics/vertical/metrics';
@@ -27,7 +28,7 @@ export function buildSalonReport(days: BeautyDay[]) {
     minor: string,
     first: boolean,
   ) => {
-    if (!id || !/^\d+$/.test(minor)) throw new Error('Некорректная строка услуг отчёта');
+    if (!id || !/^\d+$/.test(minor)) throw new Error(msg('Некорректная строка услуг отчёта'));
     const key = `${currency}:${id}`;
     const value = map.get(key) ?? { id, name, currency, visits: 0, services: 0, costMinor: '0' };
     value.visits += first ? 1 : 0;
@@ -49,7 +50,7 @@ export function buildSalonReport(days: BeautyDay[]) {
       items.some((item) => !/^\d+$/.test(item.priceMinor)) ||
       items.reduce((sum, item) => sum + BigInt(item.priceMinor), 0n) !== BigInt(row.priceMinor)
     )
-      throw new Error('Стоимость услуг не совпадает с записью');
+      throw new Error(msg('Стоимость услуг не совпадает с записью'));
     const seenMasters = new Set<string>();
     const seenServices = new Set<string>();
     for (const item of items) {
@@ -68,7 +69,7 @@ export function buildSalonReport(days: BeautyDay[]) {
       add(
         masters,
         item.employeeId,
-        historicalName ?? names.get(item.employeeId) ?? 'Мастер',
+        historicalName ?? names.get(item.employeeId) ?? msg('Мастер'),
         row.currency,
         item.priceMinor,
         !seenMasters.has(item.employeeId),
@@ -101,7 +102,7 @@ export async function loadSalonReport(branch: BranchItem, dates: string[]) {
     !dates.length ||
     periodDates(dates[0]!, dates.at(-1)!).join(',') !== dates.join(',')
   )
-    throw new Error('Некорректная область отчёта');
+    throw new Error(msg('Некорректная область отчёта'));
   const days: BeautyDay[] = [];
   for (const date of dates) {
     const day = (await branchReportDay(branch, date)) as BeautyDay;
@@ -112,7 +113,7 @@ export async function loadSalonReport(branch: BranchItem, dates: string[]) {
       !Array.isArray(day.columns) ||
       !Array.isArray(day.appointments)
     )
-      throw new Error('Контекст отчёта изменился. Обновите страницу.');
+      throw new Error(msg('Контекст отчёта изменился. Обновите страницу.'));
     // Calendar days include tails from earlier dates. Attribute a visit only to its local start day.
     days.push({
       ...day,

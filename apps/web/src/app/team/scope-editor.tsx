@@ -3,6 +3,7 @@ import { MEMBERSHIP_ROLES, type InviteRole } from '@pms/domain';
 import { Select } from '../../components/ui';
 import type { AuthAccessStructure } from '../../lib/api';
 import type { ScopeModel } from './scope-model';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * Редактор области доступа (DATA_MODEL §31.1, Q-286, Q-287). Две формы:
@@ -27,6 +28,7 @@ export function ScopeEditor({
   onModel: (next: ScopeModel) => void;
   fixedRole?: InviteRole | undefined;
 }) {
+  const t = useT();
   const set = (key: string, role: InviteRole | '') => onModel({ ...model, [key]: role });
   const capital = (r: InviteRole) =>
     MEMBERSHIP_ROLES[r].charAt(0).toLocaleUpperCase('ru') + MEMBERSHIP_ROLES[r].slice(1);
@@ -48,10 +50,10 @@ export function ScopeEditor({
           value={model[key] ?? ''}
           onChange={(e) => set(key, e.target.value as InviteRole | '')}
         >
-          <option value="">Нет доступа</option>
+          <option value="">{t('Нет доступа')}</option>
           {roles.map((r) => (
             <option key={r} value={r}>
-              {capital(r)}
+              {t(capital(r))}
             </option>
           ))}
         </Select>
@@ -59,7 +61,7 @@ export function ScopeEditor({
     );
   return (
     <fieldset className="team-scope" data-testid="scope-editor">
-      <legend>Доступ</legend>
+      <legend>{t('Доступ')}</legend>
       <label className="team-scope__row">
         <input
           type="radio"
@@ -67,7 +69,7 @@ export function ScopeEditor({
           checked={!restricted}
           onChange={() => onRestricted(false)}
         />
-        Вся организация
+        {t('Вся организация')}
       </label>
       <label className="team-scope__row">
         <input
@@ -76,20 +78,20 @@ export function ScopeEditor({
           checked={restricted}
           onChange={() => onRestricted(true)}
         />
-        Выбранные филиалы
+        {t('Выбранные филиалы')}
       </label>
       {restricted && (
         <div className="team-scope__tree">
           {structure.businesses.map((b) => (
             <fieldset key={b.id} className="team-scope__business">
               <legend>{b.name}</legend>
-              {place(`b:${b.id}`, `Весь бизнес: ${b.name}`, `Весь бизнес ${b.name}: роль`)}
+              {place(`b:${b.id}`, t('Весь бизнес: {name}', { name: b.name }), t('Весь бизнес {name}: роль', { name: b.name }))}
               {!model[`b:${b.id}`] &&
-                b.locations.map((l) => place(`l:${l.id}`, l.name, `${l.name}: роль`))}
+                b.locations.map((l) => place(`l:${l.id}`, l.name, t('{name}: роль', { name: l.name })))}
             </fieldset>
           ))}
           <p className="muted">
-            Управлять командой, ролями и общим журналом можно только без ограничения по филиалам.
+            {t('Управлять командой, ролями и общим журналом можно только без ограничения по филиалам.')}
           </p>
         </div>
       )}

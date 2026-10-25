@@ -4,9 +4,17 @@ import { cache } from 'react';
 import { currentMe } from '../lib/desk-shell';
 import { LOCALE_COOKIE, deskLocale, translator, type DeskLocale, type Translate } from './index';
 
-/** Язык по куке: страницы без сессии (вход, ссылки из писем) и сбой `/auth/me` */
+/**
+ * Язык по куке: страницы без сессии (вход, ссылки из писем) и сбой `/auth/me`. Вне запроса Next (unit-тесты,
+ * служебный вызов) куки нет: язык русский. Управление Next (динамическая отрисовка) пропускается дальше.
+ */
 export async function cookieLocale(): Promise<DeskLocale> {
-  return deskLocale((await cookies()).get(LOCALE_COOKIE)?.value);
+  try {
+    return deskLocale((await cookies()).get(LOCALE_COOKIE)?.value);
+  } catch (error) {
+    unstable_rethrow(error);
+    return 'ru';
+  }
 }
 
 /**

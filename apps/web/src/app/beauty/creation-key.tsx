@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useT } from '../../i18n/locale-provider';
 const storageKey = (scope: string, kind: string) => `wetop:beauty:create:${scope}:${kind}`;
 export function pendingCreation(scope: string, kind: string): string | null {
   try {
@@ -20,6 +21,7 @@ export function clearPendingCreation(scope: string, kind: string, expectedId: st
 export function useCreationKey(scope: string, kind: string, existing: boolean) {
   const [id, setId] = useState('');
   const [error, setError] = useState('');
+  const t = useT();
   useEffect(() => {
     if (existing) return;
     try {
@@ -29,10 +31,10 @@ export function useCreationKey(scope: string, kind: string, existing: boolean) {
       setId(saved);
     } catch {
       setError(
-        'Для безопасного продолжения разрешите хранение данных этой вкладки. Объект ещё не создан.',
+        t('Для безопасного продолжения разрешите хранение данных этой вкладки. Объект ещё не создан.'),
       );
     }
-  }, [scope, kind, existing]);
+  }, [scope, kind, existing, t]);
   const clear = () => {
     try {
       clearPendingCreation(scope, kind, id);

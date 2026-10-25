@@ -1,5 +1,7 @@
 'use client';
 import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { msg } from '../i18n';
+import { useT } from '../i18n/locale-provider';
 import { trapDialogFocus } from './overlay';
 import { Button, type ButtonTone } from './ui';
 
@@ -14,7 +16,7 @@ export function ConfirmDialog({
   title,
   children,
   confirmLabel,
-  cancelLabel = 'Оставить как есть',
+  cancelLabel = msg('Оставить как есть'),
   tone = 'danger',
   pending = false,
   confirmDisabled = false,
@@ -33,6 +35,7 @@ export function ConfirmDialog({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const t = useT();
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const bodyId = useId();
@@ -63,7 +66,7 @@ export function ConfirmDialog({
       {open && (
         <div className="confirm-dialog__body">
           <h2 id={titleId} className="confirm-dialog__title">
-            {title}
+            {t(title)}
           </h2>
           {children && (
             <div id={bodyId} className="confirm-dialog__text">
@@ -78,7 +81,7 @@ export function ConfirmDialog({
               disabled={pending}
               data-autofocus
             >
-              {cancelLabel}
+              {t(cancelLabel)}
             </Button>
             <Button
               type="button"
@@ -86,7 +89,7 @@ export function ConfirmDialog({
               onClick={onConfirm}
               disabled={pending || confirmDisabled}
             >
-              {pending ? 'Выполняю…' : confirmLabel}
+              {pending ? t('Выполняю…') : t(confirmLabel)}
             </Button>
           </div>
         </div>

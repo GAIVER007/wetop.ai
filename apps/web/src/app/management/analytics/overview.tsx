@@ -20,6 +20,8 @@ import { countLabel, intlLocale, msg, type DeskLocale, type Translate } from '..
 import { dateFormat } from '../../../i18n/dates';
 import { currentLocale, serverT } from '../../../i18n/server';
 import { T } from '../../../i18n/locale-provider';
+import { hotelInsights } from './vertical/pult';
+import { InsightsPanel } from './vertical/pult-view';
 
 const b = (v: string) => BigInt(v);
 
@@ -710,8 +712,12 @@ export async function Overview({ query, today }: { query: AnalyticsQuery; today:
             })}`}
         </p>
       )}
-      <div className="dash-grid dash-grid--chart pa-charts">
+      {/* Пульт владельца (вариант A, 25.10.2026): что сделать сейчас, рядом с цифрами, как у салона и ресторана */}
+      <div className="pult-row pult-row--main pa-pult">
         <OccupancyPanel c={c} today={today} query={query} t={t} locale={locale} />
+        <InsightsPanel items={hotelInsights(c)} money={(minor) => wholeTenge(minor, cur)} t={t} />
+      </div>
+      <div className="dash-grid dash-grid--chart pa-charts">
         <RevenuePanel c={c} today={today} query={query} cur={cur} t={t} locale={locale} />
         <PricePanel c={c} query={query} cur={cur} t={t} locale={locale} />
         <SharePanels c={c} cur={cur} t={t} />

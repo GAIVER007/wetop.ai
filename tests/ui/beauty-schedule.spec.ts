@@ -120,14 +120,12 @@ test('«Сделать рабочим» и «Сохранить» сохраня
   await expect(cell(page, 'Дина', 0)).toContainText('09:00–18:00');
 });
 
-/** Понедельник текущей недели, как его считает страница по умолчанию */
+/** Неделя показанного филиала: часы браузера могут быть ещё в предыдущем дне. */
 async function thisMonday(page: Page) {
-  return page.evaluate(() => {
-    const now = new Date();
-    const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 12));
-    d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
-    return d.toISOString().slice(0, 10);
-  });
+  const href = await page.getByRole('main').getByRole('link', { name: 'Следующая неделя', exact: true }).getAttribute('href');
+  const nextMonday = new URL(href!, page.url()).searchParams.get('week');
+  expect(nextMonday).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  return new Date(Date.parse(`${nextMonday}T12:00:00Z`) - 7 * 86_400_000).toISOString().slice(0, 10);
 }
 
 async function masterId(page: Page, request: APIRequestContext, name: string) {

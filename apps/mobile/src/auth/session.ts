@@ -256,6 +256,11 @@ export class SessionController {
       this.api.serveItem(token, scope, orderId, itemId, expectedUpdatedAt),
     );
   }
+  closeOrder(orderId: string, expectedUpdatedAt: string): Promise<unknown> {
+    return this.scopedFood((token, scope) =>
+      this.api.closeOrder(token, scope, orderId, expectedUpdatedAt),
+    );
+  }
   payOrder(request: PendingPayment['request']): Promise<unknown> {
     return this.scopedFood((token, scope) => this.api.payOrder(token, scope, request));
   }

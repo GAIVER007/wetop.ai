@@ -42,6 +42,7 @@ function fixture() {
     createOrder: jest.fn(),
     serveItem: jest.fn(),
     payOrder: jest.fn(),
+    closeOrder: jest.fn(),
     reset: jest.fn().mockResolvedValue(undefined),
   };
   return { api, store, session: new SessionController(api, store) };

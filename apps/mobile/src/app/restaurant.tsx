@@ -1,3 +1,4 @@
+import { CloseControls } from '../restaurant/close-controls';
 import { PaymentPanel } from '../restaurant/payment-panel';
 import { ServeControls } from '../restaurant/serve-controls';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -157,6 +158,21 @@ function RestaurantWorkspace({
         detail.status !== 'CANCELLED' &&
         BigInt(detail.totalMinor) > BigInt(detail.paidMinor) ? (
           <ActionButton label="Принять оплату" onPress={() => setPayment(true)} />
+        ) : null}
+        {canSeeCash ? (
+          <CloseControls
+            key={`close:${detail.id}:${detail.updatedAt}`}
+            order={detail}
+            send={(orderId, version) => session.closeOrder(orderId, version)}
+            onUpdated={(next) => {
+              setDetail(next);
+              setOrders((old) => old.filter((order) => order.id !== next.id));
+            }}
+            onRefresh={() => {
+              setDetail(null);
+              void load();
+            }}
+          />
         ) : null}
         <Text style={secondary}>
           Показан последний загруженный состав. Для проверки актуального состояния обновите список

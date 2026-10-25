@@ -176,6 +176,8 @@ export function createAccessApi(base: string, fetcher: typeof fetch = fetch): Ac
     createOrder: (token, scope, payload) => request('food/orders', 'POST', token, payload, scope),
     serveItem: (token, scope, orderId, itemId, expectedUpdatedAt) =>
       request('food/serve', 'POST', token, { orderId, itemId, expectedUpdatedAt }, scope),
+    closeOrder: (token, scope, orderId, expectedUpdatedAt) =>
+      request('food/close', 'POST', token, { orderId, expectedUpdatedAt }, scope),
     payOrder: (token, scope, payload) => request('food/pay', 'POST', token, payload, scope),
     reset: async (email) => {
       await request('password-reset', 'POST', undefined, { email });

@@ -53,6 +53,12 @@ export interface AccessApi {
     itemId: string,
     expectedUpdatedAt: string,
   ): Promise<unknown>;
+  closeOrder(
+    token: string,
+    scope: string,
+    orderId: string,
+    expectedUpdatedAt: string,
+  ): Promise<unknown>;
   payOrder(token: string, scope: string, request: PendingPayment['request']): Promise<unknown>;
   reset(email: string): Promise<void>;
 }

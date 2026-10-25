@@ -56,7 +56,9 @@ describe('employee salary in configured currency major units', () => {
       context: { target, scope: 'synthetic-scope', onSaved: vi.fn() },
     }));
 
-    expect(html).toContain('Фиксированная ставка, USD');
+    // те же подписи, что окно «Оплата» в «Зарплате» (владелец 25.10.2026): «Только оклад» показывает одно поле оклада
+    expect(html).toContain('Оклад за месяц, USD');
+    expect(html).toContain('<input type="hidden" name="percent" value="0"/>');
     expect(html).toContain('name="fixedAmount"');
     expect(html).toContain('value="1234.56"');
     expect(html).not.toContain('minor units');

@@ -442,4 +442,15 @@ export const portalTeam: Record<string, string> = {
   "Создание": 'Create',
   "Изменение": 'Edit',
   "Удаление": 'Delete',
+  // общий экран «Сотрудники» салона и ресторана (U2)
+  "Ждёт ответа": 'Awaiting response',
+  "С доступом": 'With access',
+  "Входа в WETOP пока нет ни у кого": 'Nobody can sign in to WETOP yet',
+  "Ждут приглашения": 'Invited',
+  "Без карточки сотрудника": 'No employee card',
+  "Приглашён": 'Invited',
+  "Дать доступ: {name}": 'Give access: {name}',
+  "Дать доступ": 'Give access',
+  "Доступ в WETOP: {name}": 'WETOP access: {name}',
+  "Изменить контакты": 'Edit contacts',
 };

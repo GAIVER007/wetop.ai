@@ -39,7 +39,7 @@ export default async function CustomersPage({
         title={t('Клиенты')}
         subtitle={t('Клиенты этого бизнеса, их визиты и средний чек.')}
       >
-        <CustomerSectionTabs access={shell.access} current="customers" t={t} />
+        <CustomerSectionTabs access={shell.access} vertical={shell.vertical} current="/customers" t={t} />
         <BeautyCustomersTable
           key={me.context?.businessId}
           items={items}

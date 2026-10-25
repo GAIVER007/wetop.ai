@@ -11,10 +11,26 @@ vi.mock('next/navigation', () => ({ unstable_rethrow: vi.fn(), useRouter: () => 
 vi.mock('./restaurant-load', () => ({ restaurantShell: shell }));
 vi.mock('../../lib/food-api', () => ({ foodApi: { customers, reservations } }));
 vi.mock('./customer-marks', () => ({ CustomerMarks: () => null }));
-vi.mock('../../components/tabs', () => ({
-  Tabs: ({ panels }: { panels: Array<{ id: string; content: unknown }> }) =>
-    panels.find((p) => p.id === 'all')?.content ?? null,
-}));
+vi.mock('../../components/tabs', async () => {
+  const { createElement } = await import('react');
+  return {
+    // вкладки-маршруты рисуются ссылками, вкладки-панели отдают панель «Все»
+    Tabs: ({
+      panels,
+      items,
+    }: {
+      panels?: Array<{ id: string; content: unknown }>;
+      items?: Array<{ href: string; label: string; current?: boolean }>;
+    }) =>
+      items
+        ? createElement(
+            'nav',
+            null,
+            items.map((i) => createElement('a', { key: i.href, href: i.href, 'aria-current': i.current ? 'page' : undefined }, i.label)),
+          )
+        : (panels?.find((p) => p.id === 'all')?.content ?? null),
+  };
+});
 import { FoodCustomers } from './customers';
 
 const guest: FoodCustomer = {
@@ -31,9 +47,16 @@ describe('«Клиенты» ресторана: панель действий �
   beforeEach(() => {
     shell.mockResolvedValue({
       date: '2026-10-22', timezone: 'Asia/Almaty', scopeKey: 'b:l', readOnly: false, canDesk: true,
+      access: { aiSeller: false, platform: false, role: 'OWNER' },
     });
     customers.mockResolvedValue({ items: [guest], nextCursor: null });
     reservations.mockResolvedValue({ items: [], nextCursor: null });
+  });
+
+  it('вкладки раздела «Клиенты | Брони столов», как «Клиенты | Записи» салона (эталон 25.10.2026)', async () => {
+    const html = await render();
+    expect(html).toContain('<a href="/customers" aria-current="page">Клиенты</a>');
+    expect(html).toContain('<a href="/table-reservations">Брони столов</a>');
   });
 
   it('поиск по имени или телефону и «Добавить клиента» через новую бронь', async () => {
@@ -54,6 +77,7 @@ describe('«Клиенты» ресторана: панель действий �
   it('только чтение: панели действий нет, поиск остаётся', async () => {
     shell.mockResolvedValue({
       date: '2026-10-22', timezone: 'Asia/Almaty', scopeKey: 'b:l', readOnly: true, canDesk: true,
+      access: { aiSeller: false, platform: false, role: 'OWNER' },
     });
     const html = await render();
     expect(html).toMatch(/<input[^>]*name="q"/);

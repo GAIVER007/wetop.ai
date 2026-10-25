@@ -24,6 +24,7 @@ import { GuestsTable } from './guests-table';
 import { PageSize } from './page-size';
 import { pageWindow } from './guest-stay';
 import { GuestsSummary } from './guests-summary';
+import { CustomerSectionTabs } from '../customers/section-tabs';
 import { buildRowView } from './row-view';
 import {
   DEFAULT_FILTERS,
@@ -46,7 +47,7 @@ import './guests-bookings.css';
  * «Гости и бронирования» (поручение владельца 09.10.2026 по макету, план plans/guests-bookings-2026-10-09.md): один
  * экран вместо двух вкладок «Брони» и «Гости». Одна строка таблицы это гость и его основное проживание (заселён сейчас,
  * иначе ближайшее, иначе последнее); справа панель выбранного гостя. Классический список броней с экспортом и всеми
- * отборами остаётся: кнопка «Список броней» в шапке. Отбор целиком в адресе (`filters.ts`).
+ * отборами остаётся: вкладка «Записи» раздела (эталон салона 25.10.2026). Отбор целиком в адресе (`filters.ts`).
  */
 export default async function GuestsPage({
   searchParams,
@@ -61,7 +62,8 @@ export default async function GuestsPage({
   // Форма и ссылки шлют пустые поля и умолчания: такой адрес чистится одним переходом, им можно делиться
   if (!error && needsCleanup(sp)) redirect(guestsHref(f, { page: f.page, guest: f.guest }));
   const rawQ = error ? '' : (sp.q ?? '');
-  const [today, { readOnly }] = await Promise.all([hotelToday(), deskShell()]);
+  const [today, shell] = await Promise.all([hotelToday(), deskShell()]);
+  const { readOnly } = shell;
   // Отказ API не выглядит как пустая база (B5): заголовок, поиск и отборы остаются
   const loaded = !error
     ? await guestsApi.directory(directoryQuery(f)).then(
@@ -168,9 +170,6 @@ export default async function GuestsPage({
       // классический список броней. «Только чтение» (ADR-102): бронь создать нельзя, кнопка не рисуется
       actions={
         <>
-          <Link className="btn btn--secondary" href="/reservations">
-            {t('Список броней')}
-          </Link>
           {!readOnly && (
             <Link className="btn" href="/reservations/new">
               <Icon name="plus" />
@@ -180,6 +179,8 @@ export default async function GuestsPage({
         </>
       }
     >
+      {/* вкладки раздела вместо кнопки «Список броней», как «Клиенты | Записи» салона (эталон 25.10.2026) */}
+      <CustomerSectionTabs access={shell.access} vertical={shell.vertical} current="/guests" t={t} />
       {error && (
         <Alert boxed>
           {t(error)} <Link href={reset}>{t('Сбросить фильтры')}</Link>

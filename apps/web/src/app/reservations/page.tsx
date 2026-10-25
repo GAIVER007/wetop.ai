@@ -21,6 +21,7 @@ import { FiltersToggle } from './filters-toggle';
 import { PreviewRows } from './preview-rows';
 import { FinanceLine } from './finance-line';
 import { deskShell } from '../../lib/desk-shell';
+import { CustomerSectionTabs } from '../customers/section-tabs';
 import { inventoryEditorApi } from '../../lib/api';
 import {
   allocationFilters,
@@ -167,17 +168,14 @@ export default async function ReservationsPage({
       f.source);
   // «Только чтение» (ADR-102): запись держит API, полосу — оболочка; страница лишь не показывает
   // «Новую бронь» — действие, которого нельзя, не рисуется вовсе (приём ИИ-продавца, DESIGN.md §8)
-  const { readOnly } = await deskShell();
+  const shell = await deskShell();
+  const { readOnly } = shell;
   return (
     <Page
-      title={t('Брони')}
+      title={t('Записи')}
       width="full"
-      // В шапке один пункт «Гости и бронирования» (09.10.2026): этот список его вторая половина, назад ведёт кнопка
       actions={
         <>
-          <Link href="/guests" className="btn btn--secondary">
-            {t('Гости')}
-          </Link>
           {!readOnly && (
             <Link href="/reservations/new" className="btn">
               <Icon name="plus" />
@@ -187,6 +185,8 @@ export default async function ReservationsPage({
         </>
       }
     >
+      {/* вкладки раздела вместо кнопки «Гости», как «Клиенты | Записи» салона (эталон 25.10.2026) */}
+      <CustomerSectionTabs access={shell.access} vertical={shell.vertical} current="/reservations" t={t} />
       <section className="reservations-controls" aria-label={t('Фильтры броней')}>
         <ChipGroup as="nav" label={t('Быстрые виды')} className="reservations-views">
           {Object.entries(reservationViews).map(([id, label]) => (

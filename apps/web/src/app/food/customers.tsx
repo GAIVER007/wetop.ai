@@ -15,6 +15,7 @@ import { dateFormat } from '../../i18n/dates';
 import { currentLocale, serverT } from '../../i18n/server';
 import { restaurantShell } from './restaurant-load';
 import { CustomerMarks } from './customer-marks';
+import { CustomerSectionTabs } from '../customers/section-tabs';
 import { matchesCustomerQuery } from '../../lib/customer-hits';
 import './food.css';
 import './restaurant.css';
@@ -185,6 +186,8 @@ export async function FoodCustomers({ query = '' }: { query?: string } = {}) {
         title={t('Клиенты')}
         subtitle={t('Клиенты и бронирования. Новый клиент добавляется вместе с бронью стола')}
       >
+        {/* вкладки раздела, как «Клиенты | Записи» салона (эталон 25.10.2026) */}
+        <CustomerSectionTabs access={shell.access} vertical="FOOD_SERVICE" current="/customers" t={t} />
         {/* панель как у салона (аудит 22.10.2026 P1-5): поиск слева, действия справа. Отдельного создания и импорта
             гостей у API ресторана нет: гость появляется вместе с бронью, поэтому «Добавить клиента» открывает её форму */}
         <div className="beauty-customers-bar" data-testid="food-customers-bar">

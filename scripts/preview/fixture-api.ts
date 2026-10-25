@@ -891,7 +891,9 @@ function seedAnalyticsHistory() {
       const roll = rnd();
       const free = busy.has(u.code) && dep > add(today, -3);
       const stay = roll < fill && !free;
-      const lost = !stay && !free && roll > 0.93;
+      // отмены: в этом месяце доля выше прошлого при любой дате прогона (тест «рост отмен — красный»): прежний общий
+      // порог 0,93 давал направление по случаю, 25.10.2026 стрелка ушла вниз и валила analytics-v2 у всех PR
+      const lost = !stay && !free && roll > [0.95, 0.95, 0.85][shift]!;
       if (stay || lost) {
         n += 1;
         const r = cardSeed();

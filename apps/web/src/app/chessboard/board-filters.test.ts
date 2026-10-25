@@ -101,6 +101,13 @@ describe('поиск (§10, §41)', () => {
     expect(stayMatchesSearch(cell, searchNeedle('701-111')!)).toBe(true);
     expect(stayMatchesSearch(cell, searchNeedle('Другой')!)).toBe(false);
   });
+  it('имя в любом порядке слов, ё=е, имя с частью телефона (владелец 25.10.2026)', () => {
+    const cell = stay({ guestLabel: 'Тестова Алёна', guestPhone: '+974 5186 5708' });
+    expect(stayMatchesSearch(cell, searchNeedle('алена тестова')!)).toBe(true);
+    expect(stayMatchesSearch(cell, searchNeedle('Алена 5186')!)).toBe(true);
+    expect(stayMatchesSearch(cell, searchNeedle('5186 5708')!)).toBe(true);
+    expect(stayMatchesSearch(cell, searchNeedle('Алена 9999')!)).toBe(false);
+  });
 });
 
 describe('filterRows — какие строки мест видны', () => {

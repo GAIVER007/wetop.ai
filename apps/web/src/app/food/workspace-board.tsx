@@ -22,6 +22,7 @@ import { FloorLayoutEditor, SHAPE_CSS, spotStyle } from './floor-layout-editor';
 import { layoutSpots, tableShapeOf } from '@pms/domain';
 import { QuickReport } from '../../components/quick-report';
 import { JournalExpandButton } from '../../components/journal-expand';
+import { matchesCustomer } from '../../lib/customer-match';
 import { DayNav } from '../../components/day-nav';
 import { JournalFilter, JournalHead, JournalSearch, FiltersTitle } from '../../components/journal-head';
 import { useNarrow } from '../../lib/use-narrow';
@@ -120,9 +121,10 @@ export function WorkspaceBoard({
         (!period || r.servicePeriodId === period) &&
         (!status || r.status === status) &&
         (!area || r.table?.areaId === area) &&
-        `${r.customer.firstName} ${r.customer.lastName ?? ''} ${r.customer.phone ?? ''}`
-          .toLocaleLowerCase('ru')
-          .includes(search.toLocaleLowerCase('ru')),
+        matchesCustomer(search, {
+          name: `${r.customer.firstName} ${r.customer.lastName ?? ''}`,
+          phone: r.customer.phone,
+        }),
     )
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   const customer = (r: RestaurantReservation) =>

@@ -6,6 +6,7 @@ import { JournalFilter, JournalHead, JournalSearch, FiltersTitle } from '../../c
 import { DateRangePopover } from '../../components/date-range-popover';
 import { SummaryLine } from '../../lib/summary-line';
 import { useNarrow } from '../../lib/use-narrow';
+import { matchesCustomer } from '../../lib/customer-match';
 import { beautyStatus } from '../../lib/status/beauty';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { EmployeeFilter } from '../../components/employee-filter';
@@ -75,15 +76,7 @@ export function WeekCalendar({
     else next.delete(key);
     router.replace(`/calendar?${next}`, { scroll: false });
   };
-  const found = (r: BeautyDay['appointments'][number]) => {
-    const q = query.trim().toLocaleLowerCase('ru');
-    if (!q) return true;
-    const digits = q.replace(/\D/g, '');
-    return (
-      r.customer.name.toLocaleLowerCase('ru').includes(q) ||
-      (digits.length >= 3 && (r.customer.phone ?? '').replace(/\D/g, '').includes(digits))
-    );
-  };
+  const found = (r: BeautyDay['appointments'][number]) => matchesCustomer(query, r.customer);
   const visible = (day: BeautyDay) =>
     day.appointments.filter(
       (r) =>

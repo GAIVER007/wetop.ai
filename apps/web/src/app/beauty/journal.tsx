@@ -17,6 +17,7 @@ import type {
   BeautyEmployeeRow,
 } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
+import { matchesCustomer } from '../../lib/customer-match';
 import { AppointmentCard } from './appointment-card';
 import { AppointmentEditor } from './appointment-editor';
 import {
@@ -171,15 +172,7 @@ export function JournalBoard({
   const slots = Array.from({ length: (to - from) / STEP }, (_, i) => from + i * STEP);
   const height = (to - from) * PX_PER_MIN;
   // поиск в строке отборов: имя или телефон клиента (единая шапка 24.10.2026)
-  const found = (a: BeautyAppointmentRow) => {
-    const q = query.trim().toLocaleLowerCase('ru');
-    if (!q) return true;
-    const digits = q.replace(/\D/g, '');
-    return (
-      a.customer.name.toLocaleLowerCase('ru').includes(q) ||
-      (digits.length >= 3 && (a.customer.phone ?? '').replace(/\D/g, '').includes(digits))
-    );
-  };
+  const found = (a: BeautyAppointmentRow) => matchesCustomer(query, a.customer);
   const reportRows = day.appointments.filter(
     (a) => matchesAppointment(a, master, service) && (!status || a.status === status) && found(a),
   );

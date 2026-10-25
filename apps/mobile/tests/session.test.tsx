@@ -131,7 +131,16 @@ test('organization rotation persists new token before requesting context', async
     { id: 'org-02', name: 'Two', role: 'OWNER', current: false },
   ]);
   await session.login('test@example.invalid', 'fixture');
-  api.switchOrganization.mockResolvedValue({ token: 'rotated', expiresAt: '2030', user });
+  const rotatedUser = { ...user, organizationId: 'org-02' };
+  api.switchOrganization.mockResolvedValue({
+    token: 'rotated',
+    expiresAt: '2030',
+    user: rotatedUser,
+  });
+  api.me.mockResolvedValue({
+    user: rotatedUser,
+    context: { businessId: 'biz-01', locationId: 'loc-01', vertical: 'FOOD_SERVICE' },
+  });
   await session.switchOrganization('org-02');
   expect(store.write).toHaveBeenLastCalledWith('rotated');
   expect(api.branches).toHaveBeenLastCalledWith('rotated');
@@ -193,3 +202,30 @@ test('report uses verified scope and rejects a late answer after branch change',
   finish({});
   await expect(response).rejects.toThrow();
 });
+
+test.each(['rotation', 'context', 'user'])(
+  'organization switch rejects mismatched %s identity',
+  async (mismatch) => {
+    const { session, api, store } = fixture();
+    api.organizations.mockResolvedValue([
+      { id: 'org-01', name: 'One', role: 'OWNER', current: true },
+      { id: 'org-02', name: 'Two', role: 'OWNER', current: false },
+    ]);
+    await session.login('test@example.invalid', 'fixture');
+    const rotatedUser = { ...user, organizationId: 'org-02' };
+    api.switchOrganization.mockResolvedValue({
+      token: 'rotated',
+      expiresAt: '2030',
+      user:
+        mismatch === 'rotation'
+          ? user
+          : mismatch === 'user'
+            ? { ...rotatedUser, id: 'other-user' }
+            : rotatedUser,
+    });
+    await session.switchOrganization('org-02');
+    expect(session.state.kind).toBe('error');
+    expect(store.clear).toHaveBeenCalled();
+    expect(api.logout).toHaveBeenCalledWith('rotated');
+  },
+);

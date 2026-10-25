@@ -73,12 +73,21 @@ export class SessionController {
       }
     } else this.publish({ kind: 'error', message: accessMessage(error) });
   }
-  private async resolve(epoch: number, chosen?: string) {
+  private async resolve(
+    epoch: number,
+    chosen?: string,
+    expected?: Pick<User, 'id' | 'organizationId'>,
+  ) {
     const token = this.token;
     if (!token) return;
     const me = await this.api.me(token);
     if (epoch !== this.epoch) return;
     if (!me.user) throw new AccessError('unauthorized');
+    if (
+      expected &&
+      (me.user.id !== expected.id || me.user.organizationId !== expected.organizationId)
+    )
+      throw new AccessError('invalid');
     const [list, organizations] = await Promise.all([
       this.api.branches(token),
       this.api.organizations(token),
@@ -251,6 +260,7 @@ export class SessionController {
     )
       return;
     const old = this.token;
+    const userId = this.state.user.id;
     await this.run(async () => {
       const epoch = this.epoch;
       let next;
@@ -263,6 +273,11 @@ export class SessionController {
       if (epoch !== this.epoch) {
         await this.api.logout(next.token).catch(() => {});
         return;
+      }
+      if (next.user.id !== userId || next.user.organizationId !== id) {
+        await this.clear();
+        await this.api.logout(next.token).catch(() => {});
+        throw new AccessError('invalid');
       }
       this.token = null;
       try {
@@ -277,7 +292,13 @@ export class SessionController {
         return;
       }
       this.token = next.token;
-      await this.resolve(epoch);
+      try {
+        await this.resolve(epoch, undefined, { id: userId, organizationId: id });
+      } catch (error) {
+        if (epoch === this.epoch) await this.clear();
+        await this.api.logout(next.token).catch(() => {});
+        throw error;
+      }
     });
   }
   async logout() {

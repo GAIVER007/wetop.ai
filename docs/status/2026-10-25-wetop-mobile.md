@@ -13,3 +13,5 @@
 Команда дополнена количеством закрытых заказов за период. Серверный period-report отдаёт waiterId, мобильный gateway фильтрует его, соединение по имени исключено.
 
 Проверки счётчика: mobile 46/46, gateway 17/17, mobile-types, API/Web typecheck, lint, Expo export iOS/Android/Web.
+
+Дополнительно проверена смена организации: ответ ротации и me сверяются с выбранной организацией и текущим пользователем. RED: 3 ошибки; GREEN: mobile 49/49, типы и lint. Решение: docs/decisions/2026-10-25-mobile-organization-validation.md. MOBILE-FOOD-1 и MOBILE-FOOD-2 остаются открыты.

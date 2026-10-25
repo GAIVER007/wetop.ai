@@ -88,7 +88,7 @@ export function useCitizenshipPrompt(save: (code: string) => Promise<{ error: st
   };
 
   // окно в разметке только пока спрашиваем: на шахматке и в карточке уже есть своё окно подтверждения с тем же
-  // data-testid, и второе закрытое мешало бы им (CI #844: strict mode в chessboard-drag)
+  // data-testid, и второе закрытое мешало бы им (гейт PR 844: strict mode в chessboard-drag)
   const dialog = guest === null ? null : (
     <ConfirmDialog
       open

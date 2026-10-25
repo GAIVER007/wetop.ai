@@ -1,5 +1,4 @@
 import { Suspense } from 'react';
-import Link from 'next/link';
 import { Page } from '../../components/page';
 import { financeApi } from '../../lib/api';
 import { hotelToday, propertyCurrency } from '../../lib/hotel-api';
@@ -30,12 +29,6 @@ export async function HospitalityToday() {
     <Page
       title={t('Главная')}
       subtitle={t('Загрузка, события дня и задачи объекта')}
-      // главное действие справа, как «+ Новая запись» салона (эталон владельца 25.10.2026)
-      actions={
-        <Link className="btn btn--primary" href="/reservations/new">
-          {t('+ Новая бронь')}
-        </Link>
-      }
       width="full"
     >
       <div className="biz-overview hospitality-home" data-testid="owner-dashboard">

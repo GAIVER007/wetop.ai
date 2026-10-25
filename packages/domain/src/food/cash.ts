@@ -9,6 +9,8 @@ export const FOOD_PAYMENT_METHODS = [
   'HALYK',
   'BANK_TRANSFER_PERSON',
   'BANK_TRANSFER_LEGAL',
+  // «Другое» (PAYMENT-OTHER-20261025): ссылка на оплату, кошелёк; по умолчанию выключено в настройках филиала
+  'OTHER',
 ] as const;
 export type FoodPaymentMethod = (typeof FOOD_PAYMENT_METHODS)[number];
 export const FOOD_CASH_KINDS = ['INCOME', 'EXPENSE', 'TRANSFER'] as const;

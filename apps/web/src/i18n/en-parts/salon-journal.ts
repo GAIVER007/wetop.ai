@@ -119,6 +119,8 @@ export const salonJournal: Record<string, string> = {
   "Услуга не выбрана": 'No service selected',
   "Телефон или имя": 'Phone or name',
   "Найденные клиенты": 'Clients found',
+  "Убрать клиента": 'Remove client',
+  "Частично": 'Partial',
   "Гость": 'Guest',
   "Последний клиент": 'Last client',
   "+ Новый клиент": '+ New client',

@@ -77,7 +77,7 @@ it('аудит 22.10.2026: «Новая запись» из карточки м�
 
 it('плашка записи (владелец 25.10.2026): время и клиент сверху, услуга своей строкой, цена и оплата значком', () => {
   const html = renderToStaticMarkup(createElement(JournalBoard, {
-    day: { ...day, appointments: [{ ...day.appointments[0], paidMinor: '2500' }] },
+    day: { ...day, appointments: [{ ...day.appointments[0]!, paidMinor: '2500' }] },
     customers: [], employees: [], readOnly: false,
   }));
   const tile = html.slice(html.indexOf('class="beauty-tile beauty-tile--booked"'));

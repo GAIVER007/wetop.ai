@@ -110,7 +110,8 @@ test('report: centered multi-service appointment, per-master occupancy and exact
   await expect(card.getByText('Запись создана', { exact: true })).toBeVisible();
   await card.getByRole('button', { name: 'Повторить запись', exact: true }).click();
   const repeated = page.getByRole('dialog', { name: 'Новая запись', exact: true });
-  await expect(repeated.getByLabel('Клиент', { exact: true })).toHaveValue(row.customer.id);
+  await expect(repeated.locator('input[type="hidden"][name="customerId"]')).toHaveValue(row.customer.id);
+  await expect(repeated.getByTestId('appointment-customer-chip')).toBeVisible();
   await expect(repeated.getByLabel('Услуга 3', { exact: true })).toHaveValue(f.services[0]!.id);
   await repeated.locator('input[type="date"]').fill('2026-10-23');
   await repeated.getByRole('button', { name: 'Записать', exact: true }).click();

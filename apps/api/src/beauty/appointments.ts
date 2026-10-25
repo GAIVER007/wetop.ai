@@ -33,6 +33,7 @@ import {
   planAppointment,
   statusChange,
   timeOffWindow,
+  dayOffsetUtc,
   type AppointmentPlan,
   type AppointmentItemInput,
   type AppointmentStatus,
@@ -87,6 +88,9 @@ function boundsOf(dayHours: Array<{ timeFrom: string; timeTo: string }>, visible
   };
 }
 const MAX_PERIOD_DAYS = 366;
+/** «Давно не были» на пульте: последний визит от 46 до 180 дней назад (эскиз владельца 25.10.2026) */
+const LAPSED_AFTER_DAYS = 46;
+const LAPSED_MAX_DAYS = 180;
 
 const customerFullName = (customer: { firstName: string; lastName: string | null }) =>
   [customer.firstName, customer.lastName]
@@ -378,6 +382,87 @@ export class BeautyAppointmentsService {
       appointments: rows.map((row) => {
         const date = localDate(row.startsAt, scope.locationTimezone!);
         return { ...appointmentView(row, scope.locationTimezone!, date), localDate: date };
+      }),
+    };
+  }
+
+  /**
+   * Сводка для пульта «Аналитики» (вариант A, решение владельца 25.10.2026): оценки мастеров, новые и повторные
+   * клиенты, «давно не были» и доля вернувшихся по мастеру. Только числа и id мастеров, без имён и телефонов
+   * клиентов. Клиент новый, если первый завершённый визит в филиале попал в период. «Давно не были»: последний
+   * завершённый визит от 46 до 180 дней до конца периода, при этом в периоде визита нет.
+   */
+  async insights(rawFrom?: string, rawTo?: string) {
+    mayBeauty('desk');
+    const scope = await beautyScope(this.prisma, true);
+    if (!scope.locationId || !scope.locationTimezone) throw new ConflictException('Сначала выберите филиал');
+    const period = checkedPeriod(rawFrom, rawTo);
+    const tz = scope.locationTimezone;
+    const window = timeOffWindow({ dateFrom: period.from, dateTo: period.to, timezone: tz });
+    const lapse = timeOffWindow({
+      dateFrom: dayOffsetUtc(period.to, -(LAPSED_MAX_DAYS - 1)),
+      dateTo: dayOffsetUtc(period.to, -LAPSED_AFTER_DAYS),
+      timezone: tz,
+    });
+    const db = this.prisma.db;
+    const [reviews, done, history] = await Promise.all([
+      db.beautyAppointmentReview.findMany({
+        where: { submittedAt: { gte: window.fromUtc, lt: window.toUtcExclusive }, appointment: { locationId: scope.locationId } },
+        select: { employeeId: true, stars: true },
+      }),
+      db.appointment.findMany({
+        where: { locationId: scope.locationId, status: 'DONE', startsAt: { gte: window.fromUtc, lt: window.toUtcExclusive } },
+        select: { customerId: true, employeeId: true, lines: { select: { employeeId: true } } },
+      }),
+      db.appointment.groupBy({
+        by: ['customerId'],
+        where: { locationId: scope.locationId, status: 'DONE', startsAt: { lt: window.toUtcExclusive } },
+        _min: { startsAt: true },
+        _max: { startsAt: true },
+      }),
+    ]);
+    const first = new Map(history.map((h) => [h.customerId, h._min.startsAt]));
+    const isNew = (customerId: string) => {
+      const at = first.get(customerId);
+      return !at || at >= window.fromUtc;
+    };
+    const customers = new Set(done.map((a) => a.customerId));
+    const perEmployee = new Map<string, Set<string>>();
+    for (const a of done) {
+      const masters = a.lines.length ? a.lines.map((l) => l.employeeId) : [a.employeeId];
+      for (const m of new Set(masters)) {
+        const set = perEmployee.get(m) ?? new Set<string>();
+        set.add(a.customerId);
+        perEmployee.set(m, set);
+      }
+    }
+    const stars = new Map<string, { sum: number; count: number }>();
+    for (const r of reviews) {
+      const x = stars.get(r.employeeId) ?? { sum: 0, count: 0 };
+      x.sum += r.stars;
+      x.count += 1;
+      stars.set(r.employeeId, x);
+    }
+    const tenths = (sum: number, count: number) => (count ? Math.round((sum * 10) / count) : null);
+    const lapsed = history.filter(
+      (h) => h._max.startsAt && h._max.startsAt >= lapse.fromUtc && h._max.startsAt < lapse.toUtcExclusive,
+    ).length;
+    const newCount = [...customers].filter(isNew).length;
+    const total = reviews.reduce((sum, r) => sum + r.stars, 0);
+    return {
+      period,
+      reviews: { count: reviews.length, avgTenths: tenths(total, reviews.length) },
+      customers: { total: customers.size, new: newCount, repeat: customers.size - newCount, lapsed },
+      employees: [...new Set([...perEmployee.keys(), ...stars.keys()])].sort().map((employeeId) => {
+        const served = [...(perEmployee.get(employeeId) ?? [])];
+        const s = stars.get(employeeId);
+        return {
+          employeeId,
+          customers: served.length,
+          returning: served.filter((c) => !isNew(c)).length,
+          reviews: s?.count ?? 0,
+          avgTenths: s ? tenths(s.sum, s.count) : null,
+        };
       }),
     };
   }
@@ -1247,6 +1332,11 @@ export class BeautyAppointmentsController {
   @Get('finance/appointments') @BeautyAccess('finance', 'view') async financePeriod(@Query('from') from?: string, @Query('to') to?: string) {
     const period = await this.service.period(from, to);
     return { ...period, appointments: period.appointments.map(financialAppointment) };
+  }
+  // пульт «Аналитики» (вариант A, 25.10.2026): числа без персональных данных клиентов, видит тот, кто видит журнал
+  @BeautyAccess('journal', 'view')
+  @Get('appointments/insights') insights(@Query('from') from?: string, @Query('to') to?: string) {
+    return this.service.insights(from, to);
   }
   @BeautyAccess('appointments', 'view')
   @Get('appointments/period') period(@Query('from') from?: string, @Query('to') to?: string) {

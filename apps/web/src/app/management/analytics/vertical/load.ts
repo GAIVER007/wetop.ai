@@ -1,4 +1,5 @@
 import { unstable_rethrow } from 'next/navigation';
+import { branchBeautyInsights } from '../../../../lib/api';
 import {
   branchFoodPeriod,
   branchReportDay,
@@ -73,6 +74,21 @@ export async function loadPreviousPeriod(
         days: [] as BeautyDay[],
       };
     return { food: null, days: (await loadBranchPeriod(branch, dates)).days };
+  } catch (error) {
+    unstable_rethrow(error);
+    return null;
+  }
+}
+
+/** Сводка салона (оценки, новые и повторные, «давно не были»); сбой даёт null, пульт рисуется без этих строк */
+export async function loadBeautyInsights(
+  branch: Pick<BranchItem, 'locationId' | 'location' | 'vertical'>,
+  from: string,
+  to: string,
+) {
+  if (branch.vertical !== 'BEAUTY') return null;
+  try {
+    return await branchBeautyInsights(branch, from, to);
   } catch (error) {
     unstable_rethrow(error);
     return null;

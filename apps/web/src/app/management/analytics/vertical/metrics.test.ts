@@ -16,7 +16,14 @@ describe('MV9 period reconciliation', () => {
       beauty('e', 'NO_SHOW'),
       beauty('f', 'CANCELLED'),
     ]);
-    expect(result.counts).toEqual({ BOOKED: 1, CONFIRMED: 0, IN_PROGRESS: 0, DONE: 3, NO_SHOW: 1, CANCELLED: 1 });
+    expect(result.counts).toEqual({
+      BOOKED: 1,
+      CONFIRMED: 0,
+      IN_PROGRESS: 0,
+      DONE: 3,
+      NO_SHOW: 1,
+      CANCELLED: 1,
+    });
     expect(result.revenue).toEqual({ KZT: '9007199254741000', USD: '300' });
   });
   it('does not silently double count duplicate records or accept unknown statuses', () => {

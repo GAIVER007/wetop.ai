@@ -17,6 +17,7 @@ import type {
   BeautyEmployeeRow,
 } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
+import { monthHref } from './month-href';
 import { matchesCustomer } from '../../lib/customer-match';
 import { AppointmentCard } from './appointment-card';
 import { AppointmentEditor } from './appointment-editor';
@@ -38,11 +39,6 @@ import { CalendarLegend } from './calendar-legend';
 import { useT } from '../../i18n/locale-provider';
 
 const STEP = 30;
-const shiftDay = (date: string, n: number) => {
-  const at = new Date(`${date}T12:00:00Z`);
-  at.setUTCDate(at.getUTCDate() + n);
-  return at.toISOString().slice(0, 10);
-};
 type Panel =
   | { kind: 'new'; employeeId: string; time: string }
   | { kind: 'card'; row: BeautyAppointmentRow }
@@ -448,20 +444,10 @@ export function JournalBoard({
             today={localInput(new Date().toISOString(), day.location.timezone).slice(0, 10)}
             testId="beauty-day-nav"
             onGo={(next) => router.push(dayHref(next))}
-            presets={[
-              { label: t('Сегодня'), onSelect: () => router.push(dayHref()) },
-              {
-                label: t('Завтра'),
-                date: shiftDay(
-                  localInput(new Date().toISOString(), day.location.timezone).slice(0, 10),
-                  1,
-                ),
-              },
-              {
-                label: t('Эта неделя'),
-                onSelect: () => router.push(`${dayHref(day.date)}&view=week`),
-              },
-            ]}
+            onToday={() => router.push(dayHref())}
+            onWeek={() => router.push(`${dayHref(day.date)}&view=week`)}
+            // «Этот месяц»: реестр записей за месяц (`/appointments?from=&to=`), отдельной сетки месяца у журнала нет
+            onMonth={() => router.push(monthHref(localInput(new Date().toISOString(), day.location.timezone).slice(0, 10)))}
           />
         }
         actions={

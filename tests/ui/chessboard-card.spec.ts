@@ -301,7 +301,7 @@ test('служебный код скрыт на плашке, источник �
   ).toHaveAttribute('href', `/reservations/${number}#booking-actions`);
 });
 
-for (const preset of ['14 дней', '30 дней', 'Текущий месяц'] as const) {
+for (const preset of ['14 дней', '30 дней', 'Этот месяц'] as const) {
   test(`${preset}: подпись плашки не обрезана, длинное имя переходит в «Имя Ф.» или инициалы`, async ({
     page,
   }) => {

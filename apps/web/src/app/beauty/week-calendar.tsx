@@ -17,6 +17,7 @@ import { Help } from '../../components/ui';
 import type { BeautyDay, BeautyEmployeeRow } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
 import { CalendarLegend } from './calendar-legend';
+import { monthHref } from './month-href';
 import { clock } from './time';
 import { calendarColumns, matchesAppointment } from './calendar-columns';
 import { useLocale, useT } from '../../i18n/locale-provider';
@@ -126,10 +127,12 @@ export function WeekCalendar({
               today={today}
               compact
               onDay={(date) => router.push(href(date))}
+              // те же быстрые дни, что у дня журнала (владелец 25.10.2026): день открывает день, неделя и месяц свой вид
               dayPresets={[
-                { label: msg('Эта неделя'), date: today },
-                { label: msg('Следующая неделя'), date: plusDays(today, 7) },
-                { label: msg('День'), onSelect: () => router.push(href(selectedDate, false)) },
+                { label: msg('Сегодня'), onSelect: () => router.push(href(today, false)) },
+                { label: msg('Вчера'), onSelect: () => router.push(href(plusDays(today, -1), false)) },
+                { label: msg('Эта неделя'), onSelect: () => router.push(href(today)) },
+                { label: msg('Этот месяц'), onSelect: () => router.push(monthHref(today)) },
               ]}
               triggerTestId="week-nav-button"
             />

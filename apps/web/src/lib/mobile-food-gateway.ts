@@ -16,6 +16,8 @@ const ACTIONS = {
   categories: '/food-service/menu/categories',
   items: '/food-service/menu/items',
   cash: '/food-service/cash',
+  overview: '/food-service/report',
+  analytics: '/food-service/period-report',
 } as const;
 
 type FoodAction = keyof typeof ACTIONS;
@@ -175,6 +177,103 @@ function cashDto(value: unknown): JsonRecord {
   };
 }
 
+function dateText(value: unknown): string {
+  const date = string(value);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new InvalidUpstreamResponse();
+  const parsed = new Date(date);
+  if (!Number.isFinite(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== date)
+    throw new InvalidUpstreamResponse();
+  return date;
+}
+
+function overviewDto(value: unknown): JsonRecord {
+  const source = record(value);
+  const tiles = record(source.tiles);
+  return {
+    date: dateText(source.date),
+    currency: nonEmptyString(source.currency),
+    tiles: {
+      tablesOccupied: integer(tiles.tablesOccupied),
+      tablesTotal: integer(tiles.tablesTotal),
+      ordersCount: integer(tiles.ordersCount),
+      revenueMinor: minorUnits(tiles.revenueMinor),
+      kitchenQueue: integer(tiles.kitchenQueue),
+      kitchenAvgWaitMinutes:
+        tiles.kitchenAvgWaitMinutes === null ? null : integer(tiles.kitchenAvgWaitMinutes),
+      staffOnShift: integer(tiles.staffOnShift),
+      staffTotal: integer(tiles.staffTotal),
+    },
+  };
+}
+
+function analyticsDto(value: unknown): JsonRecord {
+  const source = record(value);
+  if (
+    !Array.isArray(source.payments) ||
+    !Array.isArray(source.topDishes) ||
+    !Array.isArray(source.revenueByDay) ||
+    !Array.isArray(source.waiters)
+  )
+    throw new InvalidUpstreamResponse();
+  const stationRanks = record(source.topByStation);
+  function stationItems(value: unknown): JsonRecord[] {
+    if (!Array.isArray(value) || value.length > 3) throw new InvalidUpstreamResponse();
+    return value.map((entry) => {
+      const row = record(entry);
+      return {
+        name: nonEmptyString(row.name),
+        qty: integer(row.qty),
+        revenueMinor: minorUnits(row.revenueMinor),
+      };
+    });
+  }
+  return {
+    from: dateText(source.from),
+    to: dateText(source.to),
+    currency: nonEmptyString(source.currency),
+    ordersCount: integer(source.ordersCount),
+    revenueMinor: minorUnits(source.revenueMinor),
+    averageCheckMinor:
+      source.averageCheckMinor === null ? null : minorUnits(source.averageCheckMinor),
+    payments: source.payments.map((value) => {
+      const row = record(value);
+      return {
+        method: nonEmptyString(row.method),
+        amountMinor: minorUnits(row.amountMinor),
+        count: integer(row.count),
+      };
+    }),
+    topDishes: source.topDishes.map((value) => {
+      const row = record(value);
+      return {
+        name: nonEmptyString(row.name),
+        qty: integer(row.qty),
+        revenueMinor: minorUnits(row.revenueMinor),
+      };
+    }),
+    topByStation: {
+      KITCHEN: stationItems(stationRanks.KITCHEN),
+      BAR: stationItems(stationRanks.BAR),
+    },
+    revenueByDay: source.revenueByDay.map((value) => {
+      const row = record(value);
+      return {
+        date: dateText(row.date),
+        revenueMinor: minorUnits(row.revenueMinor),
+        orders: integer(row.orders),
+      };
+    }),
+    waiters: source.waiters.map((value) => {
+      const row = record(value);
+      return {
+        name: nonEmptyString(row.name),
+        orders: integer(row.orders),
+        revenueMinor: minorUnits(row.revenueMinor),
+      };
+    }),
+  };
+}
+
 function nextCursorOf(source: JsonRecord): string | null {
   const nextCursor = source.nextCursor;
   if (nextCursor !== null && (typeof nextCursor !== 'string' || !UUID_RE.test(nextCursor)))
@@ -274,6 +373,24 @@ function upstreamPath(request: Request, action: FoodAction): string | Response {
   if (action === 'tables' || action === 'cash') {
     if ([...params].length) return json({ message: 'Некорректный запрос' }, 400);
     return ACTIONS[action];
+  }
+  if (action === 'overview' || action === 'analytics') {
+    const required = action === 'overview' ? ['date'] : ['from', 'to'];
+    if (
+      [...params.keys()].some((key) => !required.includes(key)) ||
+      required.some((key) => params.getAll(key).length !== 1)
+    )
+      return json({ message: 'Некорректный период' }, 400);
+    try {
+      if (action === 'overview') return `${ACTIONS.overview}?date=${dateText(params.get('date'))}`;
+      const from = dateText(params.get('from'));
+      const to = dateText(params.get('to'));
+      if (from > to || (Date.parse(to) - Date.parse(from)) / 86_400_000 > 92)
+        throw new InvalidUpstreamResponse();
+      return `${ACTIONS.analytics}?from=${from}&to=${to}`;
+    } catch {
+      return json({ message: 'Некорректный период' }, 400);
+    }
   }
   const cursorValues = params.getAll('cursor');
   if ([...params.keys()].some((key) => key !== 'cursor') || cursorValues.length > 1)
@@ -406,6 +523,8 @@ export async function handleMobileFoodGateway(
     if (action === 'orders') return json(ordersDto(parsed), 200);
     if (action === 'categories') return json(categoriesDto(parsed), 200);
     if (action === 'cash') return json(cashDto(parsed), 200);
+    if (action === 'overview') return json(overviewDto(parsed), 200);
+    if (action === 'analytics') return json(analyticsDto(parsed), 200);
     return json(menuItemsDto(parsed), 200);
   } catch {
     return json({ message: 'Некорректный ответ сервера' }, 502);

@@ -155,6 +155,14 @@ export function createAccessApi(base: string, fetcher: typeof fetch = fetch): Ac
     logout: async (token) => {
       await request('logout', 'POST', token);
     },
+    report: (token, scope, action, from, to) =>
+      request(
+        `food/${action}?${action === 'overview' ? `date=${encodeURIComponent(from)}` : `from=${encodeURIComponent(from)}&to=${encodeURIComponent(to ?? '')}`}`,
+        'GET',
+        token,
+        undefined,
+        scope,
+      ),
     food: (token, scope, action, cursor) =>
       request(
         `food/${action}${cursor ? '?cursor=' + encodeURIComponent(cursor) : ''}`,

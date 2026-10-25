@@ -78,6 +78,7 @@ import { StockService } from './stock.service';
 import { branchStaffRevenue } from './staff-revenue';
 import { monthPayrollRows, type MonthPayrollDb } from './month-payroll';
 import { reverseLoyaltyForVoid } from '../beauty/loyalty';
+import { topByStation } from './station-top';
 
 /** Срок ссылки на оценку с телефона гостя (§40) */
 const RATING_LINK_TTL_MS = 72 * 3_600_000;
@@ -1927,6 +1928,7 @@ export class RestaurantService {
           name: true,
           price: true,
           qty: true,
+          station: true,
           menuItem: { select: { category: { select: { name: true } } } },
         },
       }),
@@ -2022,6 +2024,12 @@ export class RestaurantService {
         .map(([name, d]) => ({ name, qty: d.qty, revenueMinor: d.revenue.toString() }))
         .sort((a, b) => b.qty - a.qty || a.name.localeCompare(b.name, 'ru'))
         .slice(0, 10),
+      topByStation: topByStation(items.map((item) => ({
+        station: item.station,
+        name: item.name,
+        qty: item.qty,
+        price: item.price,
+      }))),
       revenueByDay: [...byDay.entries()].map(([date, d]) => ({
         date,
         revenueMinor: d.revenue.toString(),

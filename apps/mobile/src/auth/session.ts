@@ -196,9 +196,8 @@ export class SessionController {
       return;
     await this.run(() => this.resolve(this.epoch, id));
   }
-  async readFood(
-    action: 'tables' | 'orders' | 'categories' | 'items' | 'cash',
-    cursor?: string,
+  private async scopedFood(
+    call: (token: string, scope: string) => Promise<unknown>,
   ): Promise<unknown> {
     const current = this.state;
     const token = this.token;
@@ -206,11 +205,9 @@ export class SessionController {
     if (current.kind !== 'ready' || current.branch.vertical !== 'FOOD_SERVICE' || !token)
       throw new AccessError('forbidden');
     try {
-      const result = await this.api.food(
+      const result = await call(
         token,
         `business=${current.branch.location.businessId};location=${current.branch.locationId}`,
-        action,
-        cursor,
       );
       if (
         epoch !== this.epoch ||
@@ -227,6 +224,15 @@ export class SessionController {
       }
       throw error;
     }
+  }
+  readFood(
+    action: 'tables' | 'orders' | 'categories' | 'items' | 'cash',
+    cursor?: string,
+  ): Promise<unknown> {
+    return this.scopedFood((token, scope) => this.api.food(token, scope, action, cursor));
+  }
+  readReport(action: 'overview' | 'analytics', from: string, to?: string): Promise<unknown> {
+    return this.scopedFood((token, scope) => this.api.report(token, scope, action, from, to));
   }
   async changeBranch() {
     if (this.state.kind !== 'ready') return;

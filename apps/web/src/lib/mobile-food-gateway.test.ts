@@ -500,3 +500,89 @@ describe('mobile cash read boundary', () => {
     expect(fetcher).not.toHaveBeenCalled();
   });
 });
+
+describe('mobile restaurant report boundary', () => {
+  it('rejects absent or malformed reporting dates without upstream calls', async () => {
+    const fetcher = vi.fn();
+    for (const path of [
+      'overview',
+      'overview?date=2026-02-30',
+      'analytics?from=2026-10-24',
+      'analytics?from=2026-10-25&to=2026-10-24',
+    ]) {
+      const action = path.split('?')[0]!;
+      expect(
+        (
+          await handleMobileFoodGateway(
+            request(path, { headers: authorized() }),
+            action,
+            ENABLED,
+            fetcher,
+          )
+        ).status,
+      ).toBe(400);
+    }
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it('filters day report and period amounts without adding payment methods to revenue', async () => {
+    const fetcher = vi.fn(async (url: string) => {
+      if (url.endsWith('/food-service/report?date=2026-10-24'))
+        return upstream({
+          date: '2026-10-24',
+          currency: 'KZT',
+          tiles: {
+            tablesOccupied: 3,
+            tablesTotal: 8,
+            ordersCount: 24,
+            revenueMinor: '900719925474099312',
+            kitchenQueue: 2,
+            kitchenAvgWaitMinutes: 14,
+            staffOnShift: 6,
+            staffTotal: 9,
+            internal: 'drop',
+          },
+          latestOrders: [{ guest: 'drop' }],
+        });
+      expect(url).toBe(
+        'http://127.0.0.1:3001/food-service/period-report?from=2026-10-24&to=2026-10-24',
+      );
+      return upstream({
+        from: '2026-10-24',
+        to: '2026-10-24',
+        currency: 'KZT',
+        ordersCount: 20,
+        revenueMinor: '1200000',
+        averageCheckMinor: '60000',
+        payments: [{ method: 'CASH', amountMinor: '500000', count: 5 }],
+        topDishes: [{ name: 'Кофе', qty: 10, revenueMinor: '120000' }],
+        topByStation: {
+          KITCHEN: [{ name: 'Паста', qty: 6, revenueMinor: '300000' }],
+          BAR: [{ name: 'Кофе', qty: 10, revenueMinor: '120000' }],
+        },
+        revenueByDay: [{ date: '2026-10-24', revenueMinor: '1200000', orders: 20 }],
+        waiters: [{ name: 'Тестовый сотрудник', orders: 5, revenueMinor: '400000' }],
+        internal: 'drop',
+      });
+    });
+    const a = await handleMobileFoodGateway(
+      request('overview?date=2026-10-24', { headers: authorized() }),
+      'overview',
+      ENABLED,
+      fetcher,
+    );
+    const b = await handleMobileFoodGateway(
+      request('analytics?from=2026-10-24&to=2026-10-24', { headers: authorized() }),
+      'analytics',
+      ENABLED,
+      fetcher,
+    );
+    expect(a.status).toBe(200);
+    expect(b.status).toBe(200);
+    expect((await a.json()).tiles.revenueMinor).toBe('900719925474099312');
+    const period = await b.json();
+    expect(period.revenueMinor).toBe('1200000');
+    expect(period.payments[0].amountMinor).toBe('500000');
+    expect(period.topByStation.BAR[0].name).toBe('Кофе');
+    expect(JSON.stringify(period)).not.toContain('drop');
+  });
+});

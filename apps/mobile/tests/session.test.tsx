@@ -37,6 +37,7 @@ function fixture() {
     switchOrganization: jest.fn(),
     logout: jest.fn().mockResolvedValue(undefined),
     food: jest.fn(),
+    report: jest.fn(),
     reset: jest.fn().mockResolvedValue(undefined),
   };
   return { api, store, session: new SessionController(api, store) };
@@ -172,4 +173,22 @@ test('food unauthorized response clears local access', async () => {
   await expect(session.readFood('orders')).rejects.toThrow();
   expect(session.state.kind).toBe('signed-out');
   expect(store.clear).toHaveBeenCalled();
+});
+
+test('report uses verified scope and rejects a late answer after branch change', async () => {
+  const { session, api } = fixture();
+  await session.login('test@example.invalid', 'fixture');
+  let finish!: (v: unknown) => void;
+  api.report.mockReturnValue(new Promise((resolve) => (finish = resolve)));
+  const response = session.readReport('analytics', '2026-10-24', '2026-10-24');
+  expect(api.report).toHaveBeenCalledWith(
+    'fixture-token',
+    'business=biz-01;location=loc-01',
+    'analytics',
+    '2026-10-24',
+    '2026-10-24',
+  );
+  await session.changeBranch();
+  finish({});
+  await expect(response).rejects.toThrow();
 });

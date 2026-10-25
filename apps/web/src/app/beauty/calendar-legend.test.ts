@@ -32,4 +32,12 @@ describe('чипы статусов салона: отбор по статусу
     expect(readFileSync(join(web, 'app/beauty/week-calendar.tsx'), 'utf8')).toContain('<StatusChips');
     expect(journal).toContain('<StatusChips');
   });
+  it('на телефоне значка «Компактный вид» нет: он внутри части только для компьютера (шапка телефона не растёт)', () => {
+    const journal = readFileSync(new URL('./journal.tsx', import.meta.url), 'utf8');
+    const desk = journal.indexOf('<span className="journal-head__desk-only">');
+    const button = journal.indexOf('className="icon-button journal-compact"');
+    expect(desk).toBeGreaterThan(-1);
+    expect(button).toBeGreaterThan(desk);
+    expect(journal.indexOf('</span>', desk)).toBeGreaterThan(button);
+  });
 });

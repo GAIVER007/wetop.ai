@@ -457,18 +457,19 @@ export function JournalBoard({
         }
         actions={
           <>
-            {/* «Компактный вид» значком рядом с «На весь экран» (ТЗ 25.10.2026, п. 11), прежнее поведение */}
-            <button
-              type="button"
-              className="icon-button journal-compact"
-              aria-label={t('Компактный вид')}
-              title={t('Компактный вид')}
-              aria-pressed={compact}
-              onClick={() => setCompact(!compact)}
-            >
-              <Icon name="compact" />
-            </button>
             <span className="journal-head__desk-only">
+              {/* «Компактный вид» значком рядом с «На весь экран» (ТЗ 25.10.2026, п. 11); масштаб только у сетки
+                  компьютера, у ленты телефона его нет, поэтому на телефоне значка нет и шапка не растёт */}
+              <button
+                type="button"
+                className="icon-button journal-compact"
+                aria-label={t('Компактный вид')}
+                title={t('Компактный вид')}
+                aria-pressed={compact}
+                onClick={() => setCompact(!compact)}
+              >
+                <Icon name="compact" />
+              </button>
               <JournalExpandButton />
               {quickReport}
             </span>

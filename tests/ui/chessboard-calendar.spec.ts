@@ -11,7 +11,7 @@ import { expect, test } from './fixtures';
 
 test('календарь: заголовок, сводка дня и быстрые действия', async ({ page }) => {
   await page.goto('/chessboard');
-  await expect(page.getByRole('heading', { name: 'Календарь', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Журнал', exact: true })).toBeVisible();
   // Итоги дня одной строкой (аудит 22.10.2026 P1-2): занято, свободно, заезд, выезд, проживают, внимание.
   const stats = page.getByRole('group', { name: 'Сегодня на объекте' });
   await expect(stats).toBeVisible();

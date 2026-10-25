@@ -1,5 +1,5 @@
 'use client';
-import { useState, useTransition, type ReactNode } from 'react';
+import { useEffect, useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
 import { useConfirm } from '../../components/use-confirm';
@@ -230,6 +230,18 @@ function EmployeeDrawer({
   );
 }
 
+/** «Добавить сотрудника» в шапке страницы, как «Добавить специалиста» салона (эталон владельца 25.10.2026).
+ * Окно живёт в списке: кнопка шлёт событие, список его открывает. */
+const NEW_EMPLOYEE_EVENT = 'wetop-new-food-employee';
+export function NewEmployeeButton() {
+  const t = useT();
+  return (
+    <Button type="button" onClick={() => window.dispatchEvent(new Event(NEW_EMPLOYEE_EVENT))}>
+      {t('Добавить сотрудника')}
+    </Button>
+  );
+}
+
 /**
  * «Сотрудники» ресторана: единый экран персонала (вариант A, решение владельца 20.10.2026,
  * docs/decisions/2026-10-20-unified-staff-screen.md). Смены из графика, «Принёс» из оплат, рейтинг из оценок.
@@ -259,6 +271,12 @@ export function EmployeesBoard({
   const t = useT();
   const locale = useLocale();
   const [draft, setDraft] = useState<FoodEmployee | null | 'new'>(null);
+  useEffect(() => {
+    if (!write) return;
+    const startNew = () => setDraft('new');
+    window.addEventListener(NEW_EMPLOYEE_EVENT, startNew);
+    return () => window.removeEventListener(NEW_EMPLOYEE_EVENT, startNew);
+  }, [write]);
   const earned = revenue ? revenueCells(revenue.items) : null;
   const unattributed = revenue ? unattributedLabel(revenue.items, 'FOOD_SERVICE', t) : null;
   // старые записи без назначения не прячутся и не угадываются: своя вкладка, пока они есть
@@ -341,7 +359,6 @@ export function EmployeesBoard({
     <div className="food-workspace rest-ws" data-testid="employees-board">
       <StaffBoard<FoodEmployee>
         caption={t('Сотрудники ресторана')}
-        actions={write ? <Button onClick={() => setDraft('new')}>{t('+ Добавить сотрудника')}</Button> : null}
         tabs={[
           { id: 'all', label: t('Все'), rows: employees, empty: t('Сотрудников пока нет') },
           ...groups.map((g) => ({

@@ -5,9 +5,8 @@ import { loadErrorProps } from '../../lib/load-error';
 import { restaurantApi } from '../../lib/food-api';
 import { completeFoodList } from '../../lib/food-data';
 import type { FoodEmployee } from '../../lib/food-types';
-import { EmployeesBoard } from './employees-board';
+import { EmployeesBoard, NewEmployeeButton } from './employees-board';
 import { restaurantShell } from './restaurant-load';
-import { StaffTabs } from './staff-tabs';
 import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../lib/staff-revenue-load';
 import type { StaffRevenuePeriod } from '../../lib/staff-revenue';
 import { serverT } from '../../i18n/server';
@@ -28,8 +27,10 @@ export async function FoodEmployeesScreen({ period = 'day' }: { period?: StaffRe
     });
     const revenue = await loadStaffRevenue('branch', period);
     return (
-      <Page title={t('Сотрудники')}>
-        <StaffTabs current="list" />
+      <Page
+        title={t('Сотрудники')}
+        actions={shell.canStaff && !shell.readOnly ? <NewEmployeeButton /> : undefined}
+      >
         <div key={shell.scopeKey}>
           <EmployeesBoard
             scopeKey={shell.scopeKey}

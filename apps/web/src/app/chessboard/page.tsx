@@ -61,7 +61,7 @@ export default async function ChessboardPage({
       (from > to || Date.parse(to) - Date.parse(from) > (MAX_CHESSBOARD_DAYS - 1) * 86400000));
   if (invalidPeriod)
     return (
-      <Page title={t('Календарь')}>
+      <Page title={t('Журнал')}>
         <form method="get" className="board-invalid-period">
           <Toolbar
             label={t('Период календаря')}
@@ -240,7 +240,7 @@ export default async function ChessboardPage({
         title={
           <>
             <Icon name="board" className="calendar-page__icon" />
-            {t('Календарь')}
+            {t('Журнал')}
           </>
         }
         subtitle={t('Размещение и бронирования по дням')}

@@ -27,7 +27,7 @@ test('гости и бронирования: итоги строкой, вид�
 }) => {
   const main = page.getByRole('main');
   await page.goto('/guests');
-  await expect(main.getByRole('heading', { level: 1, name: 'Гости и бронирования' })).toBeVisible();
+  await expect(main.getByRole('heading', { level: 1, name: 'Клиенты' })).toBeVisible();
 
   // итоги одной строкой (аудит 22.10.2026 P1-16): число и подпись целиком, каждая часть ведёт в свой вид
   const kpis = main.getByTestId('guests-kpis');

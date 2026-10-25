@@ -5,7 +5,6 @@ import { loadErrorProps } from '../../lib/load-error';
 import { restaurantApi } from '../../lib/food-api';
 import { PayrollBoard } from '../food/payroll-board';
 import { restaurantShell } from '../food/restaurant-load';
-import { StaffTabs } from '../food/staff-tabs';
 import { requireFeature } from '../../lib/vertical-guard';
 import { HotelPayrollPage } from './hotel-page';
 import { serverT } from '../../i18n/server';
@@ -38,8 +37,6 @@ export default async function PayrollPage({
             : t('Оклады, процент от заказов, премии и штрафы. Выплата уходит расходом из кассы')
         }
       >
-        {/* вкладки сотрудников ресторана ведут на его экраны (график смен): у салона их нет */}
-        {!salon && <StaffTabs current="payroll" />}
         <div key={shell.scopeKey}>
           <PayrollBoard
             scopeKey={shell.scopeKey}

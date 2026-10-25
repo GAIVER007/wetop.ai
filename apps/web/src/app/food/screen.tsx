@@ -25,7 +25,7 @@ export async function FoodScreen({
   listView?: boolean;
 }) {
   const t = await serverT();
-  const title = kind === 'floor' ? t('План зала') : kind === 'list' ? t('Бронирования') : t('Залы и столы');
+  const title = kind === 'floor' ? t('Журнал') : kind === 'list' ? t('Брони столов') : t('Залы и столы');
   try {
     const data = await loadFood(date, time, kind !== 'floor', kind === 'floor');
     // «Напомнить сегодня» (§61): только «Вручную» и «Ошибка»; сбой загрузки не ломает экран, блока просто нет

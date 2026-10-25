@@ -310,8 +310,11 @@ test('главная: плитки, последние заказы и выру�
   });
   expect((await serveAndPay(request, headers, order)).status).toBe('CLOSED');
   await page.goto('/today');
-  // «Главная» по макету ресторана (экран 1): приветствие по времени дня вместо слова «Главная»
-  await expect(page.getByRole('heading', { level: 1, name: /^(Доброе|Добрый|Доброй)/ })).toBeVisible();
+  // шапка по эталону салона (25.10.2026): «Главная» и главное действие «+ Новая бронь» справа
+  await expect(page.getByRole('heading', { level: 1, name: 'Главная' })).toBeVisible();
+  await expect(
+    page.getByRole('navigation', { name: 'Действия страницы' }).getByRole('link', { name: '+ Новая бронь' }),
+  ).toHaveAttribute('href', '/table-reservations?new=1');
   await expect(page.getByTestId('today-orders')).toContainText('1');
   await expect(page.getByTestId('today-revenue')).toContainText('780 ₸');
   // заказ оплачен и закрыт: стол снова свободен, плитка показывает свободные столы
@@ -456,7 +459,7 @@ test('сотрудники: «Принёс» за период, добавлен
   const tabs = page.getByRole('tablist', { name: 'Назначение в персонале' });
   await expect(tabs.getByRole('tab', { name: /^Все/ })).toHaveAttribute('aria-selected', 'true');
   await expect(tabs.getByRole('tab', { name: /^Не назначено/ })).toHaveText('Не назначено1');
-  await page.getByRole('button', { name: '+ Добавить сотрудника' }).click();
+  await page.getByRole('main').getByRole('navigation', { name: 'Действия страницы' }).getByRole('button', { name: 'Добавить сотрудника' }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Имя и фамилия').fill('Петров Максим');
   await expect(dialog.getByLabel('Кто это')).toHaveValue('OTHER_EMPLOYEE');
@@ -726,8 +729,8 @@ test('график смен (Q-REST-11): неделя сотрудника, пр
   });
   expect(bad.status()).toBe(400);
 
-  await page.goto('/employees');
-  await page.getByRole('link', { name: 'График смен' }).click();
+  // вкладок сотрудников над страницей больше нет (эталон салона 25.10.2026): график открывается пунктом меню
+  await page.goto('/employees/shifts');
   await expect(page).toHaveURL(/\/employees\/shifts$/);
   const line = page.locator('tbody tr', { hasText: waiter.name });
   await expect(line).toContainText('Выходной');

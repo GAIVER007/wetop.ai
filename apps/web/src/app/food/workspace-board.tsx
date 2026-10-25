@@ -220,7 +220,7 @@ export function WorkspaceBoard({
   return (
     <div className="food-workspace rest-ws">
       <JournalHead
-        title={floor ? t('План зала') : t('Бронирования')}
+        title={floor ? t('Журнал') : t('Брони столов')}
         subtitle={floor ? t('Бронирования столов и загрузка зала') : t('Расписание столов на день')}
         nav={
           <DayNav

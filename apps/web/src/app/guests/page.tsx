@@ -160,7 +160,7 @@ export default async function GuestsPage({
 
   return (
     <Page
-      title={t('Гости и бронирования')}
+      title={t('Клиенты')}
       subtitle={t('Единая база гостей, бронирований и проживаний')}
       width="full"
       className="guests-bookings"

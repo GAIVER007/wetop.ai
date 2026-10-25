@@ -95,16 +95,6 @@ export async function FoodToday() {
     (_, h) => `${String(h).padStart(2, '0')}:00`,
   );
   const clock = (iso: string) => localInput(iso, branch.timezone).slice(11, 16);
-  const clockNow = clock(new Date().toISOString());
-  const hour = Number(clockNow.slice(0, 2));
-  const greeting =
-    hour < 5
-      ? t('Доброй ночи!')
-      : hour < 12
-        ? t('Доброе утро!')
-        : hour < 18
-          ? t('Добрый день!')
-          : t('Добрый вечер!');
   const expectedGuests = coming.reduce((acc, r) => acc + r.partySize, 0);
   const seatedGuests = coming
     .filter((r) => r.status === 'SEATED')
@@ -112,13 +102,13 @@ export async function FoodToday() {
   const freeTables = tiles.tablesTotal - tiles.tablesOccupied;
   return (
     <Page
-      title={greeting}
-      subtitle={t('{branch}, сегодня {date}', { branch: branch.name, date: fullDay(date, locale) })}
+      // шапка по эталону салона (решение владельца 25.10.2026): «Главная», филиал с датой, главное действие справа
+      title={t('Главная')}
+      subtitle={`${branch.name}, ${fullDay(date, locale)}`}
       actions={
-        <span className="rest-now" data-testid="today-now">
-          <Icon name="clock" />
-          {t('Сейчас в зале')} <strong>{clockNow}</strong>
-        </span>
+        <Link className="btn btn--primary" href="/table-reservations?new=1">
+          {t('+ Новая бронь')}
+        </Link>
       }
     >
       <div className="rest-dash" data-testid="food-today">

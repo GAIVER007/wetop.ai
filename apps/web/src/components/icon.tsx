@@ -1,7 +1,6 @@
 import type { SVGProps } from 'react';
 import {
   Scissors,
-  FoldVertical,
   Layers,
   List,
   LogIn,
@@ -136,7 +135,6 @@ const icons = {
   booking: CalendarCheck,
   down: ChevronDown,
   filter: SlidersHorizontal,
-  compact: FoldVertical,
   more: Ellipsis,
   external: ArrowUpRight,
   system: Monitor,

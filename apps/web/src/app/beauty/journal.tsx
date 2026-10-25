@@ -4,6 +4,7 @@ import { useOptimistic, useState, useTransition, type ReactNode } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { EmployeeFilter } from '../../components/employee-filter';
 import { QuickReport } from '../../components/quick-report';
+import { FoldVertical } from 'lucide-react';
 import { Icon } from '../../components/icon';
 import { JournalExpandButton } from '../../components/journal-expand';
 import { beautyQuickReport } from '../../components/quick-report-data';
@@ -468,7 +469,8 @@ export function JournalBoard({
                 aria-pressed={compact}
                 onClick={() => setCompact(!compact)}
               >
-                <Icon name="compact" />
+                {/* значок вне общего набора `Icon`: набор снят эталоном /design-system */}
+                <FoldVertical width={20} height={20} strokeWidth={1.7} aria-hidden="true" />
               </button>
               <JournalExpandButton />
               {quickReport}

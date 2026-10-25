@@ -36,7 +36,7 @@ export function inLocation(row: BeautyServiceRow): boolean {
 
 /** Цена, которую видит гость: цена филиала, если услуга там продаётся, иначе цена каталога; '0' — не задана */
 export function shownPriceMinor(row: BeautyServiceRow): string {
-  return row.effective?.sellable ? row.effective.priceMinor : row.priceMinor;
+  return row.effective?.sellable ? row.effective.priceMinor : row.priceMinor; // row.effective.priceMinor — цена филиала
 }
 
 export function popularityPercent(row: BeautyServiceRow): number | null {

@@ -270,6 +270,7 @@ export function ServicesBoard({
                 {group.rows.map((row) => {
                   const on = inLocation(row);
                   const key = `id:${row.id}`;
+                  // цена филиала (row.effective.priceMinor), если услуга там продаётся, иначе цена каталога
                   const price = shownPriceMinor(row);
                   const minutes = on && row.effective?.sellable ? row.effective.durationMinutes : row.durationMinutes;
                   const pct = popularityPercent(row);
@@ -312,7 +313,11 @@ export function ServicesBoard({
                       </td>
                       {showPopularity && <td className="beauty-price-table__pop">
                         <span className="beauty-price-pop">
-                          <span className="beauty-price-bar" aria-hidden="true"><i style={{ width: `${pct && maxPopularity ? Math.max(4, Math.round((pct / maxPopularity) * 100)) : 0}%` }} /></span>
+                          <span className="beauty-price-bar" aria-hidden="true">
+                            <i
+                              style={{ width: `${pct && maxPopularity ? Math.max(4, Math.round((pct / maxPopularity) * 100)) : 0}%` }} /* slop-allow: inline-style ширина полосы — доля визитов из данных */
+                            />
+                          </span>
                           <small className="beauty-popularity">
                             {pct === null ? t('нет визитов') : t('{percent}% визитов', { percent: new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(pct) })}
                           </small>

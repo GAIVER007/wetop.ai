@@ -79,6 +79,8 @@ describe('tokens.css генерируется из design/tokens.json', () => {
     const local = new Set([
       '--dot',
       '--chart-tone', // bar.css: local category color declared by .bar-chart-tone-*
+      '--tone', // beauty/services/services.css: цвет категории прайс-листа, объявлен в .beauty-tone-*
+      '--tone-soft',
 
       '--min',
       '--week-unit-width',

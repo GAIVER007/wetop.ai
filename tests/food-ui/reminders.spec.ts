@@ -64,6 +64,12 @@ test('напоминания гостям: настройки с предпро�
   // «Напомнить сегодня» показывает день филиала: в последние полчаса суток по Алматы напоминание уже завтрашнее
   const almatyDay = (d: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(d);
   test.skip(almatyDay(new Date(startsAt.getTime() - 2 * 3_600_000)) !== almatyDay(new Date()), 'около полуночи по Алматы');
+  // период «Весь день» кончается в 23:59: бронь на час с началом после 22:59 по Алматы в него не помещается (400),
+  // так прогон гейта PR #852 в 21:27 по Алматы упал на брони 23:57
+  test.skip(
+    almatyDay(new Date(startsAt.getTime() + 60 * 60_000)) !== almatyDay(startsAt),
+    'бронь заканчивается после полуночи по Алматы',
+  );
   const local = new Date(startsAt.getTime() + 5 * 3_600_000);
   await post(request, headers, '/food-service/service-periods', {
     name: 'Весь день', weekday: local.getUTCDay(), timeFrom: '00:00', timeTo: '23:59', endsNextDay: false, defaultDurationMinutes: 60, active: true,

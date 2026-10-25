@@ -175,12 +175,13 @@
     outline: 2px solid var(--primary);
     outline-offset: -2px;
   }
+  /* тон статуса из реестра (lib/status/beauty.ts), как на телефоне и неделе: «Записан» warning, «Подтверждена» info */
   .beauty-page .beauty-grid-day .beauty-tile--booked {
-    border-left-color: var(--info);
-    background: var(--primary-soft);
+    border-left-color: var(--warning);
+    background: var(--warning-soft);
   }
   .beauty-page .beauty-grid-day .beauty-tile--confirmed {
-    border-left-color: var(--primary);
+    border-left-color: var(--info);
     background: var(--primary-soft);
   }
   .beauty-page .beauty-grid-day .beauty-tile--in_progress {

@@ -4,6 +4,8 @@ import { useOptimistic, useState, useTransition, type ReactNode } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { EmployeeFilter } from '../../components/employee-filter';
 import { QuickReport } from '../../components/quick-report';
+import { Icon } from '../../components/icon';
+import { JournalExpandButton } from '../../components/journal-expand';
 import { beautyQuickReport } from '../../components/quick-report-data';
 import { Overlay } from '../../components/overlay';
 import { Alert, Badge, Button, EmptyState, Help } from '../../components/ui';
@@ -24,7 +26,7 @@ import {
   mobileDefaultMaster,
 } from './calendar-columns';
 import { DayNav } from '../../components/day-nav';
-import { JournalFilter, JournalHead, JournalSearch } from '../../components/journal-head';
+import { JournalFilter, JournalHead, JournalSearch, FiltersTitle } from '../../components/journal-head';
 import { useNarrow, useWide } from '../../lib/use-narrow';
 import { DayPanel } from './day-panel';
 import { masterLoad, shortHour, shortName } from './journal-day';
@@ -465,7 +467,10 @@ export function JournalBoard({
         }
         actions={
           <>
-            <span className="journal-head__desk-only">{quickReport}</span>
+            <span className="journal-head__desk-only">
+              <JournalExpandButton />
+              {quickReport}
+            </span>
             <Button
               disabled={
                 filterPending ||
@@ -478,7 +483,8 @@ export function JournalBoard({
                 setPanel({ kind: 'new', employeeId: selected, time: clock(day.bounds.fromMinutes) })
               }
             >
-              + Новая запись
+              <Icon name="plus" aria-hidden="true" />
+              Новая запись
             </Button>
           </>
         }
@@ -541,7 +547,7 @@ export function JournalBoard({
             {serviceFilter}
             {statusFilter}
             <Help
-              title={`Фильтры${master || service || status ? `\nАктивных: ${[master, service, status].filter(Boolean).length}` : ''}`}
+              title={<FiltersTitle active={[master, service, status].filter(Boolean).length} />}
             >
               {/* на телефоне услуга и статус переезжают сюда средствами CSS (без второй копии и без скачка разметки) */}
               <div className="journal-head__phone-only">{quickReportPhone}</div>

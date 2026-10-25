@@ -1608,6 +1608,8 @@
   /* «Финансы → Сертификаты» (решение 21.10.2026 §3) */
   .beauty-certificates {
     display: grid;
+    /* колонка не шире экрана: иначе поле проверки и пустое состояние уезжают за край на телефоне (24.10.2026) */
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-4);
   }
   .beauty-certificates__bar {
@@ -1619,8 +1621,19 @@
   }
   .beauty-certificates__lookup {
     display: flex;
+    flex: 1 1 280px;
     align-items: flex-end;
     gap: var(--space-2);
+    min-width: 0;
+    max-width: 100%;
+  }
+  .beauty-certificates__lookup > .field {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .beauty-certificates__lookup .inp {
+    width: 100%;
+    min-width: 0;
   }
   .beauty-certificates__table td {
     white-space: nowrap;

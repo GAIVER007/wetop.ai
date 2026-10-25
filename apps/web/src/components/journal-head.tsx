@@ -63,6 +63,16 @@ export function JournalHead({
   );
 }
 
+/** Подпись «Фильтры» строки отборов со значком, как кнопка «Фильтры» календаря гостиницы (владелец 24.10.2026) */
+export function FiltersTitle({ active = 0 }: { active?: number }) {
+  return (
+    <>
+      <Icon name="filter" aria-hidden="true" />
+      {active > 0 ? `Фильтры\nАктивных: ${active}` : 'Фильтры'}
+    </>
+  );
+}
+
 /** Поиск в строке отборов: то же поле, что «Поиск в календаре» гостиницы; Ctrl/Cmd+K ставит курсор сюда (§40) */
 export function JournalSearch({
   value,

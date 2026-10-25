@@ -22,6 +22,9 @@ import { WhatsNewLink } from './shell/whats-new-link';
 import { useT } from '../i18n/locale-provider';
 
 /** UI3.1: одна строка шапки, скрытое меню и отдельная мобильная поверхность. */
+/** Журналы со своим поиском в строке отборов: календарь гостиницы, журнал салона, план зала и расписание ресторана */
+const JOURNAL_PATHS = new Set(['/chessboard', '/calendar', '/floor-plan', '/table-reservations']);
+
 export function TopNav({
   children,
   demo = false,
@@ -216,8 +219,9 @@ export function TopNav({
             {/* дата и время филиала у знака (владелец 24.10.2026, вариант A): второго поля поиска в шапке нет, ищут
                 в строке отборов журнала; поиск по системе открывает Ctrl K или значок лупы на телефоне */}
             <HeaderClock />
-            {/* в календаре гостиницы у экрана свой поиск (ADR шапки), значка там нет, Ctrl K работает */}
-            {path !== '/chessboard' && (
+            {/* в журналах у экрана свой поиск в строке отборов (ADR шапки), значка там нет, Ctrl K ставит курсор в поиск
+                журнала; владелец 24.10.2026: «сделай всё так же, как в гостиницах» */}
+            {!JOURNAL_PATHS.has(path) && (
             <button
               className="workspace-search workspace-search--icon"
               data-tour="search"

@@ -52,7 +52,7 @@ for (const theme of ['light', 'dark'] as const) {
       await page.waitForLoadState('networkidle').catch(() => undefined);
       await page.mouse.move(0, 0);
       await page.screenshot({ path: `${out}/food-day-${width}-${theme}.png` });
-      await page.getByRole('button', { name: '+ Новая бронь', exact: true }).click();
+      await page.getByRole('button', { name: 'Новая бронь', exact: true }).click();
       const dialog = page.getByRole('dialog');
       await dialog.getByRole('radio', { name: 'Новый', exact: true }).check();
       await page.waitForTimeout(400);

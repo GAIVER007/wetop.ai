@@ -143,5 +143,10 @@ describe('журнал в один экран на ПК: общий слой', (
     const desk = css.slice(css.indexOf('@media (min-width: 961px) {\n    div.workspace .page.journal-screen'));
     expect(desk).toMatch(/\.page\.journal-screen \.journal-screen__pass \{[^}]*flex: 1 1 0;[^}]*min-height: 0;/);
     expect(desk).toMatch(/\.journal-screen__pass > \.journal-screen__board \{[^}]*overflow: auto;/);
+    // вложенная обёртка (срез `scopeKey` > колонка экрана) тянется на остаток, а не по содержимому: иначе доска
+    // с основой 0 сжимается в ноль, брони без стола вылезают поверх и клики ловит обёртка (гейт PR #867)
+    const nested = desk.indexOf('.journal-screen__pass > .journal-screen__pass {');
+    expect(nested).toBeGreaterThan(desk.indexOf('.journal-screen__pass > * {'));
+    expect(desk.slice(nested)).toMatch(/^[^}]*flex: 1 1 0;[^}]*min-height: 0;/);
   });
 });

@@ -477,6 +477,12 @@
     div.workspace .page.journal-screen .journal-screen__pass > * {
       flex: none;
     }
+    /* вложенная обёртка (ресторан: срез `scopeKey` > колонка экрана) берёт остаток, а не высоту содержимого:
+       иначе доска с основой 0 сжимается в ноль, а её содержимое ложится под обёртку и та ловит клики */
+    div.workspace .page.journal-screen .journal-screen__pass > .journal-screen__pass {
+      flex: 1 1 0;
+      min-height: 0;
+    }
     div.workspace .page.journal-screen .journal-screen__pass > .journal-screen__board {
       flex: 1 1 0;
       min-height: 0;

@@ -236,7 +236,7 @@ export function WeekCalendar({
           const at = new Date(`${day.date}T12:00:00Z`);
           const weekday = new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' }).format(at);
           return (
-            <section
+            <div
               key={day.date}
               role="listitem"
               className={`beauty-week-day${day.date === today ? ' is-today' : ''}`}
@@ -277,7 +277,7 @@ export function WeekCalendar({
                   })}
                 </ul>
               )}
-            </section>
+            </div>
           );
         })}
       </div>

@@ -49,6 +49,8 @@ describe('Недельный календарь салона', () => {
   it('неделя строкой месячного календаря: семь клеток дня, без карточек «Открыть день» и «Записей нет»', async () => {
     const html = renderToStaticMarkup(await BeautyPage({ searchParams: Promise.resolve({ date: '2026-10-14', view: 'week' }) }));
     expect(html.match(/class="beauty-week-day[ "]/g)).toHaveLength(7);
+    // axe aria-allowed-role: role="listitem" на <section> недопустим, клетка дня обычный div (гейт PR #867)
+    expect(html).not.toMatch(/<section[^>]*role="listitem"/);
     expect(html).not.toContain('Записей нет');
     expect(html).not.toContain('>Открыть день<');
   });

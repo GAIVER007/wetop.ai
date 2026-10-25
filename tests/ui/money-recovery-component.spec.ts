@@ -36,6 +36,7 @@ export function Input(props){return <input {...props}/>}
 export function Select(props){return <select {...props}/>}
 export function Button({tone,size,...props}){return <button {...props}/>}
 export function Alert({children}){return <p role="alert">{children}</p>}
+export function StatusBadge({kind,value,...props}){return <span {...props}>{value}</span>}
 export function useConfirm(){return {ask:async()=>true,dialog:null}}
 export function AppointmentEditor(){return null}
 export function AppointmentHistoryPanel(){return null}

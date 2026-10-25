@@ -16,7 +16,7 @@ import { beautyQuickReport } from '../../components/quick-report-data';
 import { Help } from '../../components/ui';
 import type { BeautyDay, BeautyEmployeeRow } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
-import { CalendarLegend } from './calendar-legend';
+import { StatusChips } from './calendar-legend';
 import { monthHref } from './month-href';
 import { clock } from './time';
 import { calendarColumns, matchesAppointment } from './calendar-columns';
@@ -209,11 +209,16 @@ export function WeekCalendar({
             />
             {serviceFilter}
             {statusFilter}
-            {/* «Фильтры» видны и на компьютере, как в дне и у календаря гостиницы; легенда внутри, как в дне */}
-            <Help title={<FiltersTitle active={[service, status].filter(Boolean).length} />}>
-              <span className="sr-only">{t('Услуга и статус')}</span>
-              <CalendarLegend />
-            </Help>
+            {/* «Фильтры» только на телефоне, как в дне (ТЗ 25.10.2026, п. 11); статусы чипами-отборами */}
+            <span className="journal-head__phone-only">
+              <Help title={<FiltersTitle active={[service, status].filter(Boolean).length} />}>
+                <span className="sr-only">{t('Услуга и статус')}</span>
+                <StatusChips value={status} onChange={(v) => setParam('status', v)} />
+              </Help>
+            </span>
+            <div className="journal-head__desk-only">
+              <StatusChips value={status} onChange={(v) => setParam('status', v)} />
+            </div>
           </>
         }
         views={views}

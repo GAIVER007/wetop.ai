@@ -35,7 +35,7 @@ import { masterLoad, shortHour, shortName, tilePayment } from './journal-day';
 import { clock, clockMinutes, instantOf, localInput } from './time';
 import { beautyPeriodRows, moveAppointment } from './journal-actions';
 import { beautyStatus } from '../../lib/status/beauty';
-import { CalendarLegend } from './calendar-legend';
+import { StatusChips } from './calendar-legend';
 import { useT } from '../../i18n/locale-provider';
 
 const STEP = 30;
@@ -457,6 +457,17 @@ export function JournalBoard({
         }
         actions={
           <>
+            {/* «Компактный вид» значком рядом с «На весь экран» (ТЗ 25.10.2026, п. 11), прежнее поведение */}
+            <button
+              type="button"
+              className="icon-button journal-compact"
+              aria-label={t('Компактный вид')}
+              title={t('Компактный вид')}
+              aria-pressed={compact}
+              onClick={() => setCompact(!compact)}
+            >
+              <Icon name="compact" />
+            </button>
             <span className="journal-head__desk-only">
               <JournalExpandButton />
               {quickReport}
@@ -536,19 +547,19 @@ export function JournalBoard({
             />
             {serviceFilter}
             {statusFilter}
-            <Help
-              title={<FiltersTitle active={[master, service, status].filter(Boolean).length} />}
-            >
-              {/* на телефоне услуга и статус переезжают сюда средствами CSS (без второй копии и без скачка разметки) */}
-              <div className="journal-head__phone-only">{quickReportPhone}</div>
-              <Button tone="secondary" aria-pressed={compact} onClick={() => setCompact(!compact)}>
-                {t('Компактный вид')}
-              </Button>
-              <CalendarLegend />
-              <p className="beauty-note">
-                {t('Свободно: пустая клетка. Вне графика: нет доступной кнопки. Скрытые занятые интервалы обозначены текстом.')}
-              </p>
-            </Help>
+            {/* «Фильтры» только на телефоне (ТЗ 25.10.2026, п. 11): на компьютере все отборы уже в строке */}
+            <span className="journal-head__phone-only">
+              <Help
+                title={<FiltersTitle active={[master, service, status].filter(Boolean).length} />}
+              >
+                {/* на телефоне услуга и статус переезжают сюда средствами CSS (без второй копии и без скачка разметки) */}
+                {quickReportPhone}
+                <StatusChips value={status} onChange={setStatus} />
+              </Help>
+            </span>
+            <div className="journal-head__desk-only">
+              <StatusChips value={status} onChange={setStatus} />
+            </div>
           </>
         }
         views={views}

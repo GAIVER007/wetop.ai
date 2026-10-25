@@ -357,7 +357,8 @@
 /* «На весь экран» журнала (владелец 24.10.2026, как календарь гостиницы): квадратик перед «Быстрым отчётом»,
    журнал раскрывается поверх шапки и меню; Esc или повторное нажатие возвращают обычный вид */
 @layer sections {
-  .journal-head__actions .journal-expand {
+  .journal-head__actions .journal-expand,
+  .journal-head__actions .journal-compact {
     flex: none;
     width: var(--control-h);
     height: var(--control-h);

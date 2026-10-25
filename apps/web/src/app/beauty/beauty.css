@@ -9,8 +9,30 @@
     max-width: 160px;
     accent-color: var(--primary);
   }
-  .beauty-calendar-views,
-  .beauty-calendar-legend {
+  /* чипы статусов салона: отбор по статусу одной строкой под отборами (ТЗ 25.10.2026, п. 11) */
+  .beauty-status-chips {
+    display: flex;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    order: 20;
+  }
+  .beauty-status-chip {
+    display: inline-flex;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: var(--radius-full);
+    background: none;
+    cursor: pointer;
+  }
+  .beauty-status-chip[aria-pressed='true'] {
+    border-color: var(--primary);
+  }
+  .beauty-status-chip:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+  .beauty-calendar-views {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
@@ -1009,13 +1031,6 @@
       align-self: center;
       margin: 0;
     }
-    .beauty-page:has(.beauty-calendar-toolbar) > .beauty-calendar-legend {
-      grid-column: 2;
-      grid-row: 3;
-      align-self: center;
-      justify-content: flex-end;
-      margin: 0;
-    }
   }
 
   /* TZ1.2 catalog polish: existing customer/service tables, no logic changes. */
@@ -1168,9 +1183,6 @@
   .beauty-calendar-toolbar > .context-help > div {
     min-width: 0;
     padding: var(--space-2) 0;
-  }
-  .beauty-calendar-toolbar .beauty-calendar-legend {
-    margin: var(--space-2) 0;
   }
   .beauty-active-filters {
     display: flex;

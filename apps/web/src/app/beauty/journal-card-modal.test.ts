@@ -61,7 +61,8 @@ it('offers an accessible compact calendar toggle', () => {
   const html = renderToStaticMarkup(createElement(JournalBoard, {
     day, customers: [], employees: [], readOnly: false,
   }));
-  expect(html).toMatch(/aria-pressed="false"[^>]*>Компактный вид/);
+  expect(html).toMatch(/aria-label="Компактный вид"[^>]*aria-pressed="false"/);
+  expect(html).not.toContain('Свободно: пустая клетка');
 });
 
 it('аудит 22.10.2026: «Новая запись» из карточки мастера открывает форму к этому мастеру', () => {

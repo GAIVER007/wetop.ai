@@ -221,7 +221,6 @@ export const salonJournal: Record<string, string> = {
   "Статус": 'Status',
   "Статус записи": 'Appointment status',
   "Все статусы": 'All statuses',
-  "Свободно: пустая клетка. Вне графика: нет доступной кнопки. Скрытые занятые интервалы обозначены текстом.": 'Available: empty cell. Outside schedule: no available button. Hidden busy slots are marked with text.',
   "Сбросить фильтры": 'Reset filters',
   "Записей: {n}": 'Appointments: {n}',
   "По выбранным фильтрам записей не найдено": 'No appointments match the selected filters',

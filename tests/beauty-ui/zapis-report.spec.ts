@@ -12,8 +12,8 @@ test('report: centered multi-service appointment, per-master occupancy and exact
   await page.goto(`/calendar?date=${date}`);
   const timeline = page.getByTestId('beauty-grid').locator('.beauty-col-body').first();
   const normalHeight = (await timeline.boundingBox())!.height;
-  // «Компактный вид» в «Фильтрах» единой шапки журнала (24.10.2026)
-  await page.getByText(/^Фильтры/).click();
+  // «Компактный вид» значком рядом с «На весь экран» (ТЗ 25.10.2026, п. 11); «Фильтров» на компьютере нет
+  await expect(page.getByText(/^Фильтры/)).toBeHidden();
   const compact = page.getByRole('button', { name: 'Компактный вид', exact: true });
   await compact.click();
   await expect(compact).toHaveAttribute('aria-pressed', 'true');

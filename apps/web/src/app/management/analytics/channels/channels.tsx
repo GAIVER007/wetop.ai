@@ -96,9 +96,9 @@ function Cells({
     <>
       <td className="num">
         <span className="dash-cell-word">{t('доход')} </span>
-        {wholeTenge(row.revenueMinor, cur)}
+        <span className="pa-channels__value">{wholeTenge(row.revenueMinor, cur)}</span>
         {row.revenueShare !== null && (
-          <span className="pa-channels__share">{formatPercent(row.revenueShare)}</span>
+          <span className="pa-channels__share">{' '}{formatPercent(row.revenueShare)}</span>
         )}
         {prev !== undefined && (
           <Before
@@ -110,9 +110,9 @@ function Cells({
       </td>
       <td className="num">
         <span className="dash-cell-word">{t('ночи')} </span>
-        {formatInt(row.nights)}
+        <span className="pa-channels__value">{formatInt(row.nights)}</span>
         {row.nightsShare !== null && (
-          <span className="pa-channels__share">{formatPercent(row.nightsShare)}</span>
+          <span className="pa-channels__share">{' '}{formatPercent(row.nightsShare)}</span>
         )}
         {prev !== undefined && (
           <Before
@@ -124,7 +124,9 @@ function Cells({
       </td>
       <td className="num">
         <span className="dash-cell-word">{t('за ночь')} </span>
-        {row.adrMinor === null ? '—' : wholeTenge(row.adrMinor, cur)}
+        <span className="pa-channels__value">
+          {row.adrMinor === null ? '—' : wholeTenge(row.adrMinor, cur)}
+        </span>
         {prev !== undefined && (
           <Before
             t={t}
@@ -304,7 +306,7 @@ export async function ChannelsReport({ query }: { query: ChannelsQuery }) {
                   className={row.nights === 0 ? 'pa-channels__row--empty' : undefined}
                 >
                   <td className="dash-table__name">
-                    {t(channelLabel(row))}
+                    {t(channelLabel(row))}{' '}
                     <span className="pa-channels__bookings">
                       {row.bookings > 0
                         ? t('броней: {n}', { n: formatInt(row.bookings) })
@@ -318,7 +320,7 @@ export async function ChannelsReport({ query }: { query: ChannelsQuery }) {
             <tfoot>
               <tr className="pa-channels-total" data-testid="pa-channels-total">
                 <th scope="row">
-                  {t('Итого')}
+                  {t('Итого')}{' '}
                   <span className="pa-channels__bookings">
                     {t('броней: {n}', { n: formatInt(totals.bookings) })}
                   </span>

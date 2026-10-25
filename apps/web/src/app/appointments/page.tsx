@@ -103,7 +103,7 @@ export default async function AppointmentsPage({
         title={t('Записи')}
         subtitle={t('Все записи филиала за выбранный период: поиск, фильтры и оплата.')}
       >
-        <CustomerSectionTabs access={shell.access} current="appointments" t={t} />
+        <CustomerSectionTabs access={shell.access} vertical={shell.vertical} current="/appointments" t={t} />
         <AppointmentsList
           key={scopeKey}
           scopeKey={scopeKey}

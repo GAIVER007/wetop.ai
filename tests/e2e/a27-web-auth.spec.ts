@@ -1135,7 +1135,7 @@ test('owner can open and reload protected routes through the real branch and nav
   for (const [route, heading] of [
     ['/today', 'Главная'],
     ['/chessboard', 'Журнал'],
-    ['/reservations', 'Брони'],
+    ['/reservations', 'Записи'],
   ] as const) {
     await page.goto(`${web}${route}`, { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(new RegExp(`${route.replace('/', '\\/')}(?:[?#]|$)`));
@@ -1193,7 +1193,7 @@ test('owner can open and reload protected routes through the real branch and nav
   expect(await selectedScope(context)).toBe(sameIdentityScope);
   await topMenu.getByRole('link', { name: 'Брони', exact: true }).click();
   await expect(page).toHaveURL(/\/reservations(?:[?#]|$)/);
-  await expect(page.getByRole('heading', { name: 'Брони', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Записи', exact: true })).toBeVisible();
 
   record(testInfo, {
     selectedBranchThroughUi: true,

@@ -1,8 +1,14 @@
 'use client';
-import { startTransition, useActionState, useEffect, useRef, useState, type DragEvent } from 'react';
+import { startTransition, useActionState, useEffect, useRef, useState } from 'react';
 import { currencyOptions, parseBeautyServiceInput, parseLocationServiceInput } from '@pms/domain';
 import { Overlay } from '../../../components/overlay';
-import { Alert, Badge, Button, Field, Input, Select } from '../../../components/ui';
+import { Alert, Button, Field, Input, Select } from '../../../components/ui';
+import { Chip } from '../../../components/chip';
+import { Icon } from '../../../components/icon';
+import { Segmented } from '../../../components/segmented';
+import { SummaryLine } from '../../../lib/summary-line';
+import { formatMoney } from '../../../lib/money';
+import { categoryIcon, categoryTone, inLocation, popularityPercent, servicesSummary, shownPriceMinor, type ServiceScope } from './price-list';
 import { inputToMinor, minorToInput } from '../../../lib/money';
 import type { BeautyServiceRow } from '../../../lib/api';
 import { pendingCreation, useCreationKey } from '../creation-key';
@@ -14,12 +20,14 @@ import { useToast } from '../../../components/toast';
 import './services.css';
 import { groupCatalog } from '../../../components/catalog-table';
 import { msg } from '../../../i18n';
-import { useT } from '../../../i18n/locale-provider';
+import { useLocale, useT } from '../../../i18n/locale-provider';
+import { countLabel } from '../../../i18n';
 
 /**
  * Каталог услуг салона (DATA_MODEL §19.1, срез B3). Каталог принадлежит сети, цену и доступность решает
  * филиал: поэтому в строке две цены, каталога и филиала, и видно, что услуга в этом филиале не продаётся.
- * Новых компонентов нет: `Table`, `Overlay`, `Field` и `Badge` стойки.
+ * Вид прайс-листа (вариант B, выбор владельца 25.10.2026): одна таблица по категориям, цена и доля визитов в строке,
+ * «В филиале» выключателем, перенос пачкой галочками остаётся.
  */
 const NOT_SELLABLE: Record<string, string> = {
   SERVICE_INACTIVE: msg('В архиве'),
@@ -33,23 +41,14 @@ type Editing =
   | null;
 
 /**
- * Подзаголовки категорий в обоих списках (каталог A + подзаголовки B, решение владельца 23.10.2026, п. 6).
- * Списки и перенос галочками остаются (PR 749: цен в списках нет), меняется только порядок: по категориям
- * в алфавитном порядке, «Без категории» последней.
+ * Категории по алфавиту, «Без категории» последней (решение владельца 23.10.2026, п. 6). Цены в списке снова видны:
+ * прайс-лист, вариант B (25.10.2026) заменил «список без цен» PR 749.
  */
 function byCategory<T>(rows: readonly T[], categoryOf: (row: T) => string | null | undefined) {
   const names = [...new Set(rows.map((row) => categoryOf(row)?.trim()).filter((c): c is string => Boolean(c)))].sort(
     (a, b) => a.localeCompare(b, 'ru-RU'),
   );
   return groupCatalog(rows, (row) => categoryOf(row)?.trim() || null, names.map((name) => ({ id: name, name })));
-}
-
-function GroupHeading({ name, count }: { name: string; count: number }) {
-  return (
-    <h3 className="beauty-service-group">
-      {name} <span className="catalog-group__count">{count}</span>
-    </h3>
-  );
 }
 
 export function ServicesBoard({
@@ -70,12 +69,12 @@ export function ServicesBoard({
   scopeKey?: string;
 }) {
   const t = useT();
+  const locale = useLocale();
   const [editing, setEditing] = useState<Editing>(null);
   const [search, setSearch] = useState('');
   const [showArchived, setShowArchived] = useState(false);
-  const [mobileView, setMobileView] = useState<'catalog' | 'salon'>('catalog');
-  const [draggedServiceId, setDraggedServiceId] = useState<string | null>(null);
-  const [draggedPresetName, setDraggedPresetName] = useState<string | null>(null);
+  const [scope, setScope] = useState<ServiceScope>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [materialService, setMaterialService] = useState<BeautyServiceRow | null>(null);
   const [transferState, transferAction, transferPending] = useActionState(saveLocationService, null);
   const [bulkState, bulkAction, bulkPending] = useActionState(moveLocationServices, null);
@@ -101,8 +100,6 @@ export function ServicesBoard({
     ...catalog.filter((row) => row.active && row.location?.enabled !== true).map((row) => `id:${row.id}`),
     ...presetCatalog.map((preset) => `preset:${preset.name}`),
   ];
-  const salonSelected = salonKeys.filter((key) => selected.has(key));
-  const catalogSelected = catalogKeys.filter((key) => selected.has(key));
   const toggle = (key: string, on: boolean) =>
     setSelected((current) => {
       const next = new Set(current);
@@ -146,31 +143,54 @@ export function ServicesBoard({
     const form = locationTransferFormData(row, enabled, scopeKey);
     startTransition(() => transferAction(form));
   };
-  const dropInto = (event: DragEvent<HTMLElement>, enabled: boolean) => {
-    event.preventDefault();
-    const preset = PRESETS.find((item) => item.name === draggedPresetName);
-    const row = items.find((item) => item.id === draggedServiceId);
-    setDraggedServiceId(null);
-    setDraggedPresetName(null);
-    // Тянут отмеченную строку: переносим всю отметку целиком, а не одну услугу
-    const group = enabled ? catalogSelected : salonSelected;
-    const dragKey = preset ? `preset:${preset.name}` : row ? `id:${row.id}` : null;
-    if (dragKey && group.length > 1 && group.includes(dragKey) && (canCreate || canUpdate)) {
-      submitBulk(group, enabled);
-    } else if (preset && enabled && canCreate) {
-      setEditing({ mode: 'new', preset, enableForLocation: true });
-    } else if (row && canUpdate) submitTransfer(row, enabled);
-  };
   useEffect(() => {
     const id = pendingCreation(scopeKey, 'service');
     const row = items.find((item) => item.id === id);
     if (row) setEditing((current) => current === null ? { mode: 'edit', row } : current);
   }, [scopeKey, items]);
+  const summary = servicesSummary(items);
+  const scoped = (row: BeautyServiceRow) =>
+    scope === 'all' ? true : scope === 'location' ? inLocation(row) : !inLocation(row);
+  const rows = catalog.filter(scoped);
+  const presetRows = scope === 'location' ? [] : presetCatalog;
+  const categories = [...new Set(rows.map((r) => r.category?.trim() || t('Без категории')))];
+  const visibleRows = categoryFilter ? rows.filter((r) => (r.category?.trim() || t('Без категории')) === categoryFilter) : rows;
+  const visibleKeys = [
+    ...visibleRows.filter((r) => r.active).map((r) => `id:${r.id}`),
+    ...(categoryFilter ? [] : presetRows.map((p) => `preset:${p.name}`)),
+  ];
+  const chosen = visibleKeys.filter((key) => selected.has(key));
+  const chosenAdd = chosen.filter((key) => catalogKeys.includes(key));
+  const chosenRemove = chosen.filter((key) => salonKeys.includes(key));
+  const maxPopularity = Math.max(0, ...visibleRows.map((r) => popularityPercent(r) ?? 0));
+  // доля визитов — когда в филиале уже были завершённые визиты; до первого визита столбец не показываем
+  const showPopularity = maxPopularity > 0;
+  const canToggle = canUpdate && !transferDisabled;
   return (
     <>
-      {/* поиск, архив и кнопка в одну линию по низу, счётчики живут в значках колонок (аудит 21.10.2026 п.37) */}
+      {/* прайс-лист (вариант B, выбор владельца 25.10.2026): итоги одной строкой, поиск, охват и категории */}
+      <SummaryLine
+        label={t('Услуги салона')}
+        className="beauty-price-summary"
+        parts={[
+          { key: 'here', label: t('В филиале'), value: summary.inLocation, after: t(' из {n}', { n: summary.total }) },
+          ...(summary.averageMinor ? [{ key: 'avg', label: t('средняя цена'), value: formatMoney(summary.averageMinor, locationCurrency ?? 'KZT') }] : []),
+          ...(summary.top ? [{ key: 'top', label: t('чаще всего'), value: summary.top }] : []),
+          ...(summary.missingPrice ? [{ key: 'miss', label: t('без цены'), value: summary.missingPrice }] : []),
+        ]}
+      />
       <div className="beauty-service-dual-toolbar">
         <Input type="search" aria-label={t('Поиск услуг')} placeholder={t('Поиск: название или категория')} value={search} onChange={event => setSearch(event.target.value)} />
+        <Segmented
+          label={t('Какие услуги показать')}
+          value={scope}
+          onChange={(v) => { setScope(v); setCategoryFilter(null); }}
+          options={[
+            { value: 'all', label: t('Все') },
+            { value: 'location', label: t('В филиале ({n})', { n: salon.length }) },
+            { value: 'missing', label: t('Не добавлены') },
+          ]}
+        />
         <label className="beauty-check beauty-service-archive-filter">
           <input type="checkbox" checked={showArchived} onChange={(event) => setShowArchived(event.target.checked)} />
           {t('Показать архив')}{archivedCount > 0 ? ` (${archivedCount})` : ''}
@@ -181,180 +201,214 @@ export function ServicesBoard({
           </Button>
         )}
       </div>
-      {/* телефон: одна колонка за раз, по умолчанию каталог (аудит 21.10.2026 п.47) */}
-      <div className="beauty-service-mobile-view" role="group" aria-label={t('Какие услуги показать')}>
-        <Button type="button" size="sm" tone={mobileView === 'catalog' ? 'primary' : 'secondary'} aria-pressed={mobileView === 'catalog'} onClick={() => setMobileView('catalog')}>
-          {t('Все услуги')}
-        </Button>
-        <Button type="button" size="sm" tone={mobileView === 'salon' ? 'primary' : 'secondary'} aria-pressed={mobileView === 'salon'} onClick={() => setMobileView('salon')}>
-          {t('В филиале ({n})', { n: salon.length })}
-        </Button>
-      </div>
+      {categories.length > 1 && (
+        <div className="chip-group beauty-price-chips" role="group" aria-label={t('Категории')}>
+          {categories.map((name) => (
+            <Chip
+              key={name}
+              size="sm"
+              selected={categoryFilter === name}
+              className={`beauty-tone-${categoryTone(name === t('Без категории') ? null : name)}`}
+              onClick={() => setCategoryFilter(categoryFilter === name ? null : name)}
+            >
+              {name}
+            </Chip>
+          ))}
+        </div>
+      )}
       {!locationCurrency && <Alert>{t('Выберите филиал, чтобы добавлять и убирать его услуги.')}</Alert>}
       {notice?.error && <Alert>{notice.error}</Alert>}
       {!notice?.error && notice?.message && <p role="status">{notice.message}</p>}
-      <div className="beauty-service-transfer-board" data-mobile-view={mobileView}>
-        <section
-          className="beauty-service-list beauty-service-list--salon"
-          data-service-list="salon"
-          onDragOver={(event) => (canCreate || canUpdate) && event.preventDefault()}
-          onDrop={(event) => dropInto(event, true)}
-        >
-          <header>
-            <div>
-              <h2>{t('Услуги филиала')}</h2>
-              <p>{t('Доступны для записи в выбранном филиале')}</p>
-            </div>
-            <Badge>{salon.length}</Badge>
-          </header>
-          {canUpdate && salonKeys.length > 0 && (
-            <SelectionBar
-              label={t('услуги филиала')}
-              keys={salonKeys}
-              selectedCount={salonSelected.length}
-              onToggleAll={(on) => toggleAll(salonKeys, on)}
-              actionLabel={t('Убрать из филиала')}
-              disabled={transferDisabled}
-              onAction={() => submitBulk(salonSelected, false)}
+      {(canUpdate || canCreate) && visibleKeys.length > 0 && (
+        <div className="beauty-service-bulk">
+          <label className="beauty-check">
+            <input
+              type="checkbox"
+              aria-label={t('Выбрать все услуги')}
+              checked={visibleKeys.length > 0 && chosen.length === visibleKeys.length}
+              onChange={(event) => toggleAll(visibleKeys, event.target.checked)}
             />
-          )}
-          <div className="beauty-service-items">
-            {byCategory(salon, (row) => row.category).flatMap((group) => [
-              <GroupHeading key={`g:${group.key}`} name={group.name} count={group.rows.length} />,
-              ...group.rows.map((row) => (
-              <article
-                className="beauty-service-item"
-                draggable={canUpdate && row.active}
-                key={row.id}
-                onDragStart={() => { setDraggedPresetName(null); setDraggedServiceId(row.id); }}
-                onDragEnd={() => setDraggedServiceId(null)}
-              >
-                {canUpdate && (
-                  <input
-                    type="checkbox"
-                    className="beauty-service-check"
-                    aria-label={t('Выбрать: {name}', { name: row.name })}
-                    checked={selected.has(`id:${row.id}`)}
-                    onChange={(event) => toggle(`id:${row.id}`, event.target.checked)}
-                  />
-                )}
-                <ServiceIdentity row={row} location />
-              </article>
-              )),
-            ])}
-            {salon.length === 0 && <p className="beauty-service-empty">{t('Отметьте услуги в каталоге справа и нажмите «Добавить в филиал».')}</p>}
-          </div>
-        </section>
-
-        <section
-          className="beauty-service-list beauty-service-list--catalog"
-          data-service-list="catalog"
-          onDragOver={(event) => canUpdate && event.preventDefault()}
-          onDrop={(event) => dropInto(event, false)}
-        >
-          <header>
-            <div>
-              <h2>{t('Каталог услуг')}</h2>
-              <p>{t('Все услуги сети, доступные для добавления')}</p>
-            </div>
-            <Badge>{catalog.length + presetCatalog.length}</Badge>
-          </header>
-          {(canUpdate || canCreate) && catalogKeys.length > 0 && (
-            <SelectionBar
-              label={t('услуги каталога')}
-              keys={catalogKeys}
-              selectedCount={catalogSelected.length}
-              onToggleAll={(on) => toggleAll(catalogKeys, on)}
-              actionLabel={t('Добавить в филиал')}
-              disabled={transferDisabled}
-              onAction={() => submitBulk(catalogSelected, true)}
-            />
-          )}
-          <div className="beauty-service-items">
-            {byCategory(catalog, (row) => row.category).flatMap((group) => [
-              <GroupHeading key={`g:${group.key}`} name={group.name} count={group.rows.length} />,
-              ...group.rows.map((row) => {
-              const selectedInLocation = row.location?.enabled === true;
-              const movable = row.active && !selectedInLocation;
-              return (
-                <article
-                  className="beauty-service-item"
-                  draggable={canUpdate && row.active}
-                  key={row.id}
-                  onDragStart={() => { setDraggedPresetName(null); setDraggedServiceId(row.id); }}
-                  onDragEnd={() => setDraggedServiceId(null)}
-                >
-                  {canUpdate && (
-                    <input
-                      type="checkbox"
-                      className="beauty-service-check"
-                      aria-label={t('Выбрать: {name}', { name: row.name })}
-                      checked={selected.has(`id:${row.id}`)}
-                      disabled={!movable}
-                      onChange={(event) => toggle(`id:${row.id}`, event.target.checked)}
-                    />
+            {chosen.length > 0 ? t('Выбрано: {n}', { n: chosen.length }) : t('Выбрать все')}
+          </label>
+          <span className="beauty-service-bulk__actions">
+            <Button type="button" size="sm" disabled={transferDisabled || chosenAdd.length === 0} onClick={() => submitBulk(chosenAdd, true)}>
+              {t('Добавить в филиал')}{chosenAdd.length > 0 ? ` (${chosenAdd.length})` : ''}
+            </Button>
+            <Button type="button" size="sm" tone="secondary" disabled={transferDisabled || chosenRemove.length === 0} onClick={() => submitBulk(chosenRemove, false)}>
+              {t('Убрать из филиала')}{chosenRemove.length > 0 ? ` (${chosenRemove.length})` : ''}
+            </Button>
+          </span>
+        </div>
+      )}
+      <div className="beauty-price-card" data-service-list="price">
+        <table className="beauty-price-table" aria-label={t('Прайс-лист услуг')}>
+          <thead>
+            <tr>
+              {(canUpdate || canCreate) && <th className="beauty-price-table__check"><span className="sr-only">{t('Отметка')}</span></th>}
+              <th>{t('Услуга')}</th>
+              <th>{t('Длительность')}</th>
+              <th className="num">{t('Цена')}</th>
+              {showPopularity && <th className="beauty-price-table__pop">{t('Популярность')}</th>}
+              <th>{t('В филиале')}</th>
+              <th className="num"><span className="sr-only">{t('Действия')}</span></th>
+            </tr>
+          </thead>
+          {byCategory(visibleRows, (row) => row.category).map((group) => {
+            const tone = categoryTone(group.key === null ? null : group.name);
+            const here = group.rows.filter(inLocation).length;
+            return (
+              <tbody key={`g:${group.key}`} className={`beauty-tone-${tone}`}>
+                <tr className="beauty-price-group">
+                  <th colSpan={7} scope="rowgroup">
+                    <span className="beauty-price-dot" aria-hidden="true" />
+                    <span className="beauty-service-group">{group.name} </span>
+                    <span className="beauty-price-group__meta">
+                      {countLabel(locale, t, group.rows.length, [msg('услуга'), 'услуги', msg('услуг')])}, {t('в филиале {here}', { here })} {/* kk-allow: форма склонения */}
+                    </span>
+                  </th>
+                </tr>
+                {group.rows.map((row) => {
+                  const on = inLocation(row);
+                  const key = `id:${row.id}`;
+                  const price = shownPriceMinor(row);
+                  const minutes = on && row.effective?.sellable ? row.effective.durationMinutes : row.durationMinutes;
+                  const pct = popularityPercent(row);
+                  const reason = row.effective && !row.effective.sellable && row.effective.reason !== 'NOT_ENABLED' ? row.effective.reason : null;
+                  return (
+                    <tr
+                      key={row.id}
+                      className={`beauty-service-item${on ? ' is-on' : ''}${row.active ? '' : ' is-archived'}`}
+                      data-service-in-location={on ? 'true' : 'false'}
+                    >
+                      {(canUpdate || canCreate) && (
+                        <td className="beauty-price-table__check">
+                          {canUpdate && (
+                            <input
+                              type="checkbox"
+                              className="beauty-service-check"
+                              aria-label={t('Выбрать: {name}', { name: row.name })}
+                              checked={selected.has(key)}
+                              disabled={!row.active}
+                              onChange={(event) => toggle(key, event.target.checked)}
+                            />
+                          )}
+                        </td>
+                      )}
+                      <td className="beauty-price-cell--name">
+                        <span className="beauty-price-name">
+                          <span className="beauty-price-icon" aria-hidden="true"><Icon name={categoryIcon(row.category)} /></span>
+                          <span>
+                            <b>{row.name}</b>
+                            {reason && <small>{NOT_SELLABLE[reason] ? t(NOT_SELLABLE[reason]!) : t('Не продаётся')}</small>}
+                            {!row.active && <small>{t('В архиве')}</small>}
+                          </span>
+                        </span>
+                      </td>
+                      <td className="beauty-price-cell--time"><span className="beauty-price-pill"><Icon name="clock" />{t('{minutes} мин', { minutes })}</span></td>
+                      <td className="num beauty-price-cell--price">
+                        {price === '0'
+                          ? <span className="beauty-service-warn">{t('Укажите цену')}</span>
+                          : <b className="beauty-price-amount">{formatMoney(price, row.effective?.sellable ? row.effective.currency : row.currency)}</b>}
+                      </td>
+                      {showPopularity && <td className="beauty-price-table__pop">
+                        <span className="beauty-price-pop">
+                          <span className="beauty-price-bar" aria-hidden="true"><i style={{ width: `${pct && maxPopularity ? Math.max(4, Math.round((pct / maxPopularity) * 100)) : 0}%` }} /></span>
+                          <small className="beauty-popularity">
+                            {pct === null ? t('нет визитов') : t('{percent}% визитов', { percent: new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(pct) })}
+                          </small>
+                        </span>
+                      </td>}
+                      <td className="beauty-price-cell--switch">
+                        <label className="beauty-price-switch">
+                          <input
+                            type="checkbox"
+                            role="switch"
+                            aria-label={t('В филиале: {name}', { name: row.name })}
+                            checked={on}
+                            disabled={!canToggle || !row.active}
+                            onChange={(event) => submitTransfer(row, event.target.checked)}
+                          />
+                          <span aria-hidden="true" />
+                        </label>
+                      </td>
+                      <td className="num beauty-price-cell--actions">
+                        {canUpdate && (
+                          <span className="beauty-service-item-actions">
+                            <Button type="button" size="sm" tone="secondary" aria-label={t('Техкарта услуги: {name}', { name: row.name })} onClick={() => setMaterialService(row)}>
+                              {t('Материалы')}
+                            </Button>
+                            <Button type="button" size="sm" tone="secondary" onClick={() => setEditing({ mode: 'edit', row })}>
+                              {t('Изменить')}
+                            </Button>
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            );
+          })}
+          {!categoryFilter && presetRows.length > 0 && (
+            <tbody className="beauty-tone-0">
+              <tr className="beauty-price-group">
+                <th colSpan={7} scope="rowgroup">
+                  <span className="beauty-price-dot" aria-hidden="true" />
+                  <span className="beauty-service-group">{t('Типовые услуги')} </span>
+                  <span className="beauty-price-group__meta">{t('цена задаётся при добавлении')}</span>
+                </th>
+              </tr>
+              {presetRows.map((preset) => (
+                <tr className="beauty-service-item beauty-service-item--preset" key={`preset:${preset.name}`}>
+                  {(canUpdate || canCreate) && (
+                    <td className="beauty-price-table__check">
+                      {canCreate && (
+                        <input
+                          type="checkbox"
+                          className="beauty-service-check"
+                          aria-label={t('Выбрать: {name}', { name: preset.name })}
+                          checked={selected.has(`preset:${preset.name}`)}
+                          onChange={(event) => toggle(`preset:${preset.name}`, event.target.checked)}
+                        />
+                      )}
+                    </td>
                   )}
-                  <ServiceIdentity row={row} popularity />
-                  {canUpdate && (
-                    <div className="beauty-service-item-actions">
+                  <td className="beauty-price-cell--name">
+                    <span className="beauty-price-name">
+                      <span className={`beauty-price-icon beauty-tone-${categoryTone(preset.category)}`} aria-hidden="true"><Icon name={categoryIcon(preset.category)} /></span>
+                      <span><b>{preset.name}</b><small>{t(preset.category)}</small></span>
+                    </span>
+                  </td>
+                  <td className="beauty-price-cell--time"><span className="beauty-price-pill"><Icon name="clock" />{t('{minutes} мин', { minutes: preset.minutes })}</span></td>
+                  <td className="num beauty-price-cell--price"><span className="beauty-price-muted">—</span></td>
+                  {showPopularity && <td className="beauty-price-table__pop" />}
+                  <td className="beauty-price-cell--switch" />
+                  <td className="num beauty-price-cell--actions">
+                    {canCreate && (
                       <Button
                         type="button"
                         size="sm"
                         tone="secondary"
-                        aria-label={t('Техкарта услуги: {name}', { name: row.name })}
-                        onClick={() => setMaterialService(row)}
+                        aria-label={t('Настроить и добавить в филиал: {name}', { name: preset.name })}
+                        onClick={() => setEditing({ mode: 'new', preset, enableForLocation: true })}
                       >
-                        {t('Материалы')}
+                        {t('Добавить')}
                       </Button>
-                      <Button type="button" size="sm" tone="secondary" onClick={() => setEditing({ mode: 'edit', row })}>
-                        {t('Изменить')}
-                      </Button>
-                    </div>
-                  )}
-                </article>
-              );
-            }),
-            ])}
-            {presetCatalog.length > 0 && <GroupHeading name={t('Типовые услуги')} count={presetCatalog.length} />}
-            {presetCatalog.map((preset) => (
-              <article
-                className="beauty-service-item beauty-service-item--preset"
-                draggable={canCreate}
-                key={`preset:${preset.name}`}
-                onDragStart={() => { setDraggedServiceId(null); setDraggedPresetName(preset.name); }}
-                onDragEnd={() => setDraggedPresetName(null)}
-              >
-                {canCreate && (
-                  <input
-                    type="checkbox"
-                    className="beauty-service-check"
-                    aria-label={t('Выбрать: {name}', { name: preset.name })}
-                    checked={selected.has(`preset:${preset.name}`)}
-                    onChange={(event) => toggle(`preset:${preset.name}`, event.target.checked)}
-                  />
-                )}
-                <div className="beauty-service-item-body">
-                  <b>{preset.name}</b>
-                  <span>{t('{minutes} мин, {category}', { minutes: preset.minutes, category: preset.category })}</span>
-                </div>
-                {canCreate && <div className="beauty-service-item-actions">
-                  <Button
-                    type="button"
-                    size="sm"
-                    tone="secondary"
-                    aria-label={t('Настроить и добавить в филиал: {name}', { name: preset.name })}
-                    onClick={() => setEditing({ mode: 'new', preset, enableForLocation: true })}
-                  >
-                    {t('Добавить')}
-                  </Button>
-                </div>}
-              </article>
-            ))}
-            {catalog.length === 0 && presetCatalog.length === 0 && <p className="beauty-service-empty">{t('Услуги не найдены. Измените поиск или добавьте новую услугу.')}</p>}
-          </div>
-        </section>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          )}
+        </table>
+        {visibleRows.length === 0 && presetRows.length === 0 && (
+          <p className="beauty-service-empty">
+            {scope === 'location'
+              ? t('В филиале пока нет услуг. Включите их переключателем «В филиале».')
+              : t('Услуги не найдены. Измените поиск или добавьте услугу.')}
+          </p>
+        )}
       </div>
-      {items.length > 0 && filtered.length === 0 && <p role="status">{t('Услуги не найдены. Измените название или категорию.')}</p>}
       <Overlay
         open={editing !== null}
         onClose={() => setEditing(null)}
@@ -401,79 +455,6 @@ function locationTransferFormData(row: BeautyServiceRow, enabled: boolean, scope
   form.set('durationOverrideMinutes', row.location?.durationOverrideMinutes == null ? '' : String(row.location.durationOverrideMinutes));
   if (enabled) form.set('enabled', 'on');
   return form;
-}
-
-function SelectionBar({
-  label,
-  keys,
-  selectedCount,
-  onToggleAll,
-  actionLabel,
-  disabled,
-  onAction,
-}: {
-  label: string;
-  keys: string[];
-  selectedCount: number;
-  onToggleAll: (on: boolean) => void;
-  actionLabel: string;
-  disabled: boolean;
-  onAction: () => void;
-}) {
-  const t = useT();
-  const all = keys.length > 0 && selectedCount === keys.length;
-  return (
-    <div className="beauty-service-bulk">
-      <label className="beauty-check">
-        <input
-          type="checkbox"
-          aria-label={t('Выбрать все {what}', { what: label })}
-          checked={all}
-          onChange={(event) => onToggleAll(event.target.checked)}
-        />
-        {selectedCount > 0 ? t('Выбрано: {n}', { n: selectedCount }) : t('Выбрать все')}
-      </label>
-      <Button type="button" size="sm" disabled={disabled || selectedCount === 0} onClick={onAction}>
-        {actionLabel}
-        {selectedCount > 0 ? ` (${selectedCount})` : ''}
-      </Button>
-    </div>
-  );
-}
-
-function ServiceIdentity({
-  row,
-  location = false,
-  popularity = false,
-}: {
-  row: BeautyServiceRow;
-  location?: boolean;
-  popularity?: boolean;
-}) {
-  // Цены в списках не показываются: их правят вручную в карточке услуги. Только если у услуги филиала цена
-  // ещё не задана (типовая, добавленная пачкой), строка просит её указать, чтобы запись не шла за 0.
-  const t = useT();
-  const minutes = location && row.effective?.sellable ? row.effective.durationMinutes : row.durationMinutes;
-  const priceMissing = location && row.effective?.sellable === true && row.effective.priceMinor === '0';
-  return (
-    <div className="beauty-service-item-body">
-      <b>{row.name}</b>
-      <span>{t('{minutes} мин, {category}', { minutes, category: row.category ?? t('Без категории') })}</span>
-      {priceMissing && <small className="beauty-service-warn">{t('Укажите цену: «Изменить» в каталоге')}</small>}
-      {location && row.effective && !row.effective.sellable && (
-        <small>{NOT_SELLABLE[row.effective.reason] ? t(NOT_SELLABLE[row.effective.reason]!) : t('Не продаётся')}</small>
-      )}
-      {popularity && row.popularity && row.popularity.totalCompletedVisits > 0 && (
-        <small>
-          {t('{percent}% визитов', {
-            percent: new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(
-              (row.popularity.completedVisits * 100) / row.popularity.totalCompletedVisits,
-            ),
-          })}
-        </small>
-      )}
-    </div>
-  );
 }
 
 function ServiceForm({

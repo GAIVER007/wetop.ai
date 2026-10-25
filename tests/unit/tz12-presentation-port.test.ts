@@ -49,12 +49,11 @@ describe('approved TZ12 presentation compatibility port', () => {
     expect(text).toContain("data-label={t('Средний чек')}");
     expect(text).toContain("data-label={t('Последний визит')}");
   });
-  it('puts effective branch service information before subordinate catalog details', () => {
+  it('shows the effective branch price and duration in the price list row (variant B, 25.10.2026)', () => {
     const text = source('beauty/services/board.tsx');
-    expect(text).toContain('data-service-list="salon"');
-    expect(text).toContain('data-service-list="catalog"');
-    expect(text.indexOf('data-service-list="salon"')).toBeLessThan(text.indexOf('data-service-list="catalog"'));
+    expect(text).toContain('data-service-list="price"');
     expect(text).toContain('row.effective.durationMinutes');
+    expect(text).toContain('shownPriceMinor(row)');
   });
 });
 

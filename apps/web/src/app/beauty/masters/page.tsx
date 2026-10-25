@@ -12,6 +12,9 @@ import { SalonSetupLink, salonSetupPending } from './setup-link';
 import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../../lib/staff-revenue-load';
 import { revenuePeriodParam } from '../../../lib/staff-revenue';
 import { serverT } from '../../../i18n/server';
+import { loadTeamBoard } from '../../team/people-load';
+import { InviteButton, TeamProvider } from '../../team/team-board';
+import { TeamNavigation } from '../../../components/team-navigation';
 import '../beauty.css';
 
 /**
@@ -41,6 +44,7 @@ export default async function BeautyMastersPage({
   const shell = await deskShell();
   const canReadServices = mayBeautyAccess(shell.access, 'services', 'view', { legacy: 'rates' });
   const canReadJournal = mayBeautyAccess(shell.access, 'journal', 'view', { legacy: 'desk' });
+  const teamLoad = loadTeamBoard();
   const loaded = await Promise.all([
     beautyApi.employees(),
     canReadServices
@@ -74,14 +78,23 @@ export default async function BeautyMastersPage({
       legacy: section === 'services' ? 'rates' : 'property',
     });
   const canCreate = may('employees', 'create');
-  return (
+  const team = await teamLoad;
+  const page = (
     <Page
       className="beauty-page"
       title={t('Специалисты')}
       subtitle={t('Специалист работает в сети: его можно поставить в несколько филиалов.')}
       // кнопка добавления в шапке, как «Пригласить сотрудника» на /team (аудит 21.10.2026, п. 37)
-      actions={canCreate ? <NewSpecialistButton /> : undefined}
+      actions={
+        canCreate || team ? (
+          <>
+            {canCreate && <NewSpecialistButton />}
+            {team && <InviteButton />}
+          </>
+        ) : undefined
+      }
     >
+      {team && <TeamNavigation current="team" owner={team.actorRole === 'OWNER'} teamHref="/employees" />}
       {setupPending && <SalonSetupLink />}
       <MastersBoard
         headerAction
@@ -114,7 +127,16 @@ export default async function BeautyMastersPage({
           branchName: typeof loadedSchedule?.location?.name === 'string' ? loadedSchedule.location.name : null,
         }}
         unavailable={Boolean(requested) && !employees.items.some((row) => row.id === employeeId)}
+        team={team}
       />
     </Page>
+  );
+  // общий экран «Сотрудники» (U2): приглашение и действия над входом живут в том же провайдере, что и на /team
+  return team ? (
+    <TeamProvider role={team.actorRole} structure={team.structure} expectedOrganizationId={team.organizationId} vertical="BEAUTY">
+      {page}
+    </TeamProvider>
+  ) : (
+    page
   );
 }

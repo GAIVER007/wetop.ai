@@ -33,6 +33,7 @@ import type { AuthAccessStructure, AuthInvite, AuthMember } from '../../lib/api'
 import { displayDate } from '../../lib/display-date';
 import { periodTitle, revenueCells, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
 import { ScopeEditor } from './scope-editor';
+import { resendExtra } from './people-model';
 import {
   fromScopes,
   hasChoice,
@@ -361,6 +362,150 @@ const initialsOf = (name: string) =>
     .map((w) => w[0]!.toUpperCase())
     .join('');
 
+/**
+ * Действия над входом (должность, доступ, контакты, приостановить, отключить): одни и те же на «Сотрудниках» гостиницы
+ * и на общем экране салона и ресторана (plans/unified-team-screen-2026-10-25.md, U2). Отказ API приходит в `error`.
+ */
+export function useMemberActions({
+  structure = null,
+  actorRole = null,
+}: {
+  structure?: AuthAccessStructure | null;
+  actorRole?: MembershipRole | null;
+}) {
+  const t = useT();
+  const team = useContext(TeamContext);
+  const { error, pending, run } = useTeamActions();
+  const { ask, dialog } = useConfirm();
+  const [scoping, setScoping] = useState<AuthMember | null>(null);
+  const withScope = hasChoice(structure);
+  const [editing, setEditing] = useState<AuthMember | null>(null);
+  const roleCell = (m: AuthMember) =>
+    m.roleEditable ? (
+      <Select
+        aria-label={t('Должность: {name}', { name: who(m) })}
+        value={m.role}
+        disabled={pending}
+        onChange={(event) => run(() => setMemberRoleAction(m.userId, event.target.value))}
+      >
+        <option value="MANAGER">{t(capital(MEMBERSHIP_ROLES.MANAGER))}</option>
+        <option value="STAFF">{t(capital(MEMBERSHIP_ROLES.STAFF))}</option>
+        <option value="EMPLOYEE">{t(capital(MEMBERSHIP_ROLES.EMPLOYEE))}</option>
+      </Select>
+    ) : (
+      t(roleLabel(m.role))
+    );
+  const canScope = (m: AuthMember) => withScope && m.scopesEditable;
+  const openScope = (m: AuthMember) => {
+    if (team?.ready) setScoping(m);
+  };
+  const moreItems = (m: AuthMember) => [
+    ...(m.suspendable
+      ? [
+          {
+            label: m.suspended ? t('Возобновить') : t('Приостановить'),
+            disabled: pending,
+            onSelect: async () => {
+              if (m.suspended) return run(() => setMemberSuspendedAction(m.userId, false));
+              const ok = await ask({
+                title: t('Приостановить доступ: {name}?', { name: who(m) }),
+                body: t('Человек останется в команде, но не сможет войти: его сеансы погаснут сразу. Вернуть доступ можно одним действием.'),
+                confirmLabel: t('Приостановить'),
+              });
+              if (ok) run(() => setMemberSuspendedAction(m.userId, true));
+            },
+          },
+        ]
+      : []),
+    ...(m.removable
+      ? [
+          {
+            label: t('Отключить'),
+            tone: 'danger' as const,
+            disabled: pending,
+            onSelect: async () => {
+              const ok = await ask({
+                title: t('Отключить: {name}?', { name: who(m) }),
+                body: t('Человек сразу потеряет доступ к организации: его сеансы погаснут на следующем действии. Позвать снова можно приглашением.'),
+                confirmLabel: t('Отключить'),
+              });
+              if (ok) run(() => removeMemberAction(m.userId));
+            },
+          },
+        ]
+      : []),
+  ];
+  /**
+   * `compact`: на общей доске салона и ресторана у строки уже есть кнопки карточки, поэтому «Изменить» и «Доступ»
+   * уходят в меню «Ещё», иначе таблица на 1440 не помещается (U2); на «Сотрудниках» гостиницы кнопки в ряд, как были.
+   */
+  const actionsCell = (m: AuthMember, compact = false) => {
+    if (compact) {
+      const items = [
+        ...(m.detailsEditable ? [{ label: t('Изменить контакты'), disabled: pending, onSelect: () => setEditing(m) }] : []),
+        ...(canScope(m) ? [{ label: t('Доступ'), disabled: pending || !team?.ready, onSelect: () => openScope(m) }] : []),
+        ...moreItems(m),
+      ];
+      return items.length > 0 ? <ActionMenu size="sm" label={t('Ещё: {name}', { name: who(m) })} items={items} /> : null;
+    }
+    return (
+      <span className="staff-actions team-row-actions__group">
+        {m.detailsEditable && (
+          <Button type="button" tone="secondary" size="sm" disabled={pending} onClick={() => setEditing(m)}>
+            {t('Изменить')}
+          </Button>
+        )}
+        {canScope(m) && (
+          <Button
+            type="button"
+            tone="secondary"
+            size="sm"
+            disabled={pending || !team?.ready}
+            onClick={() => openScope(m)}
+          >
+            {t('Доступ')}
+          </Button>
+        )}
+        {(m.suspendable || m.removable) && (
+          <ActionMenu size="sm" label={t('Ещё: {name}', { name: who(m) })} items={moreItems(m)} />
+        )}
+      </span>
+    );
+  };
+  const overlays = (
+    <>
+      {dialog}
+      <Overlay
+        drawer
+        open={scoping !== null}
+        onClose={() => setScoping(null)}
+        title={scoping ? t('Доступ: {name}', { name: who(scoping) }) : ''}
+      >
+        {scoping && structure && actorRole && (
+          <ScopeForm
+            key={scoping.userId}
+            member={scoping}
+            structure={structure}
+            roles={invitableRoles(actorRole)}
+            onDone={() => setScoping(null)}
+          />
+        )}
+      </Overlay>
+      <Overlay
+        drawer
+        open={editing !== null}
+        onClose={() => setEditing(null)}
+        title={editing ? who(editing) : ''}
+      >
+        {editing && (
+          <DetailsForm key={editing.userId} member={editing} onDone={() => setEditing(null)} />
+        )}
+      </Overlay>
+    </>
+  );
+  return { error, pending, run, withScope, roleCell, actionsCell, overlays };
+}
+
 export function MembersTable({
   members,
   structure = null,
@@ -378,12 +523,7 @@ export function MembersTable({
   const t = useT();
   const earned = revenue ? revenueCells(revenue.items) : null;
   const unattributed = revenue ? unattributedLabel(revenue.items, 'HOSPITALITY', t) : null;
-  const team = useContext(TeamContext);
-  const { error, pending, run } = useTeamActions();
-  const { ask, dialog } = useConfirm();
-  const [scoping, setScoping] = useState<AuthMember | null>(null);
-  const withScope = hasChoice(structure);
-  const [editing, setEditing] = useState<AuthMember | null>(null);
+  const { error, withScope, roleCell, actionsCell, overlays } = useMemberActions({ structure, actorRole });
   const rows = members.map((m) => ({ ...m, id: m.userId }));
   return (
     <section className="settings-catalog" aria-label={t('Люди организации')}>
@@ -441,21 +581,7 @@ export function MembersTable({
             key: 'role',
             label: t('Должность'),
             className: 'settings-col-wide',
-            cell: (m) =>
-              m.roleEditable ? (
-                <Select
-                  aria-label={t('Должность: {name}', { name: who(m) })}
-                  value={m.role}
-                  disabled={pending}
-                  onChange={(event) => run(() => setMemberRoleAction(m.userId, event.target.value))}
-                >
-                  <option value="MANAGER">{t(capital(MEMBERSHIP_ROLES.MANAGER))}</option>
-                  <option value="STAFF">{t(capital(MEMBERSHIP_ROLES.STAFF))}</option>
-                  <option value="EMPLOYEE">{t(capital(MEMBERSHIP_ROLES.EMPLOYEE))}</option>
-                </Select>
-              ) : (
-                t(roleLabel(m.role))
-              ),
+            cell: roleCell,
           },
           {
             key: 'scope',
@@ -490,106 +616,11 @@ export function MembersTable({
             label: <span className="sr-only">{t('Действия')}</span>,
             align: 'end',
             className: 'team-row-actions',
-            cell: (m) => (
-              <span className="staff-actions team-row-actions__group">
-                {m.detailsEditable && (
-                  <Button
-                    type="button"
-                    tone="secondary"
-                    size="sm"
-                    disabled={pending}
-                    onClick={() => setEditing(m)}
-                  >
-                    {t('Изменить')}
-                  </Button>
-                )}
-                {withScope && m.scopesEditable && (
-                  <Button
-                    type="button"
-                    tone="secondary"
-                    size="sm"
-                    disabled={pending || !team?.ready}
-                    onClick={() => {
-                      if (team?.ready) setScoping(m);
-                    }}
-                  >
-                    {t('Доступ')}
-                  </Button>
-                )}
-                {(m.suspendable || m.removable) && (
-                  <ActionMenu
-                    size="sm"
-                    label={t('Ещё: {name}', { name: who(m) })}
-                    items={[
-                      ...(m.suspendable
-                        ? [
-                            {
-                              label: m.suspended ? t('Возобновить') : t('Приостановить'),
-                              disabled: pending,
-                              onSelect: async () => {
-                                if (m.suspended) return run(() => setMemberSuspendedAction(m.userId, false));
-                                const ok = await ask({
-                                  title: t('Приостановить доступ: {name}?', { name: who(m) }),
-                                  body: t('Человек останется в команде, но не сможет войти: его сеансы погаснут сразу. Вернуть доступ можно одним действием.'),
-                                  confirmLabel: t('Приостановить'),
-                                });
-                                if (ok) run(() => setMemberSuspendedAction(m.userId, true));
-                              },
-                            },
-                          ]
-                        : []),
-                      ...(m.removable
-                        ? [
-                            {
-                              label: t('Отключить'),
-                              tone: 'danger' as const,
-                              disabled: pending,
-                              onSelect: async () => {
-                                const ok = await ask({
-                                  title: t('Отключить: {name}?', { name: who(m) }),
-                                  body: t('Человек сразу потеряет доступ к организации: его сеансы погаснут на следующем действии. Позвать снова можно приглашением.'),
-                                  confirmLabel: t('Отключить'),
-                                });
-                                if (ok) run(() => removeMemberAction(m.userId));
-                              },
-                            },
-                          ]
-                        : []),
-                    ]}
-                  />
-                )}
-              </span>
-            ),
+            cell: (m) => actionsCell(m),
           },
         ]}
       />
-      {dialog}
-      <Overlay
-        drawer
-        open={scoping !== null}
-        onClose={() => setScoping(null)}
-        title={scoping ? t('Доступ: {name}', { name: who(scoping) }) : ''}
-      >
-        {scoping && structure && actorRole && (
-          <ScopeForm
-            key={scoping.userId}
-            member={scoping}
-            structure={structure}
-            roles={invitableRoles(actorRole)}
-            onDone={() => setScoping(null)}
-          />
-        )}
-      </Overlay>
-      <Overlay
-        drawer
-        open={editing !== null}
-        onClose={() => setEditing(null)}
-        title={editing ? who(editing) : ''}
-      >
-        {editing && (
-          <DetailsForm key={editing.userId} member={editing} onDone={() => setEditing(null)} />
-        )}
-      </Overlay>
+      {overlays}
     </section>
   );
 }
@@ -723,9 +754,41 @@ function DetailsForm({ member, onDone }: { member: AuthMember; onDone: () => voi
   );
 }
 
-export function PendingInvites({ invites }: { invites: AuthInvite[] }) {
+/** «Отправить заново» и «Отозвать» у ожидающего приглашения: в списке «Ожидают ответа» и строкой общего экрана (U2) */
+export function useInviteActions() {
   const t = useT();
   const { error, pending, run } = useTeamActions();
+  const inviteCell = (i: AuthInvite) =>
+    i.revocable ? (
+      <span className="team-row-actions">
+        <Button
+          type="button"
+          tone="secondary"
+          size="sm"
+          disabled={pending}
+          onClick={() =>
+            run(() => resendInviteAction(i.id, i.email, i.role ?? 'STAFF', resendExtra(i)))
+          }
+        >
+          {t('Отправить заново')}
+        </Button>
+        <Button
+          type="button"
+          tone="secondary"
+          size="sm"
+          disabled={pending}
+          onClick={() => run(() => revokeInviteAction(i.id))}
+        >
+          {t('Отозвать')}
+        </Button>
+      </span>
+    ) : null;
+  return { error, inviteCell };
+}
+
+export function PendingInvites({ invites }: { invites: AuthInvite[] }) {
+  const t = useT();
+  const { error, inviteCell } = useInviteActions();
   return (
     <section className="team-invites" aria-labelledby="team-invites-heading">
       <h2 id="team-invites-heading">{t('Ожидают ответа')}</h2>
@@ -741,37 +804,7 @@ export function PendingInvites({ invites }: { invites: AuthInvite[] }) {
                   <time dateTime={i.expiresAt}>{displayDate(i.expiresAt.slice(0, 10))}</time>
                 </span>
               </span>
-              {i.revocable && (
-                <span className="team-row-actions">
-                  <Button
-                    type="button"
-                    tone="secondary"
-                    size="sm"
-                    disabled={pending}
-                    onClick={() =>
-                      run(() =>
-                        resendInviteAction(i.id, i.email, i.role ?? 'STAFF', {
-                          ...(i.firstName ? { firstName: i.firstName } : {}),
-                          ...(i.lastName ? { lastName: i.lastName } : {}),
-                          ...(i.position ? { position: i.position } : {}),
-                          ...(i.scopes && i.scopes.length > 0 ? { scopes: i.scopes } : {}),
-                        }),
-                      )
-                    }
-                  >
-                    {t('Отправить заново')}
-                  </Button>
-                  <Button
-                    type="button"
-                    tone="secondary"
-                    size="sm"
-                    disabled={pending}
-                    onClick={() => run(() => revokeInviteAction(i.id))}
-                  >
-                    {t('Отозвать')}
-                  </Button>
-                </span>
-              )}
+              {inviteCell(i)}
             </li>
           ))}
         </ul>

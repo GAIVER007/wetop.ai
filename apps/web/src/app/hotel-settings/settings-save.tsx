@@ -1,6 +1,8 @@
 'use client';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { Button, cx } from '../../components/ui';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * Сохранение «Настроек объекта» из шапки экрана (ТЗ «Настройки объекта» v2 §10, ADR-115). Форма вкладки стоит ниже
@@ -54,10 +56,11 @@ export const useLive = () => useContext(SaveContext)?.live ?? null;
 
 /** Строка у кнопки: выключенная кнопка без причины выглядела сломанной (аудит 22.10.2026 P1-9) */
 export function saveStateText({ dirty, saved }: SaveState): string {
-  return dirty ? '• Есть несохранённые изменения' : saved ? '✓ Изменения сохранены' : 'Нет изменений';
+  return dirty ? msg('• Есть несохранённые изменения') : saved ? msg('✓ Изменения сохранены') : msg('Нет изменений');
 }
 
 export function SaveAction() {
+  const t = useT();
   const state = useContext(SaveContext)?.state ?? IDLE;
   const { dirty, pending, saved } = state;
   return (
@@ -67,7 +70,7 @@ export function SaveAction() {
         role="status"
         data-testid="settings-save-state"
       >
-        {saveStateText(state)}
+        {t(saveStateText(state))}
       </span>
       <Button
         type="submit"
@@ -75,7 +78,7 @@ export function SaveAction() {
         disabled={!dirty || pending}
         aria-busy={pending}
       >
-        {pending ? 'Сохраняю…' : 'Сохранить изменения'}
+        {pending ? t('Сохраняю…') : t('Сохранить изменения')}
       </Button>
     </>
   );

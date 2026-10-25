@@ -16,6 +16,7 @@ import { BarTabs } from '../tabs';
 import { loadBarContext } from '../load-context';
 import { barActionAccess } from '../action-access';
 import { MenuSaleForm } from '../menu-sale-form';
+import { serverT } from '../../../i18n/server';
 import '../../food/food.css';
 import '../../food/restaurant.css';
 import '../bar.css';
@@ -26,6 +27,7 @@ import '../bar.css';
  */
 export default async function BarMenuPage() {
   const me = await requireFeature('/bar/menu');
+  const t = await serverT();
   try {
     const vertical = me.context?.vertical === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY';
     const [shell, context, categories, items, stock, modifierGroups, methods, folios, costing] = await Promise.all([
@@ -44,7 +46,7 @@ export default async function BarMenuPage() {
       // §62.4 (K4): себестоимость по складу кухни; отказ (нет права) прячет блок
       restaurantApi.menuCosting().catch(() => null),
     ]);
-    if (!shell.scopeKey) throw new Error('Сначала выберите филиал');
+    if (!shell.scopeKey) throw new Error(t('Сначала выберите филиал'));
     // правка меню: салон по матрице должностей («Склад»), гостиница по роли `property`, как справочник склада кухни
     const write =
       !shell.readOnly &&
@@ -53,13 +55,13 @@ export default async function BarMenuPage() {
         : mayAccess(shell.access, 'property'));
     const canSell = barActionAccess(shell, vertical).sell;
     return (
-      <Page width="wide" className="bar-subpage" title="Меню бара" subtitle="Кофе, напитки и закуски: продажа списывает продукты со склада кухни">
+      <Page width="wide" className="bar-subpage" title={t('Меню бара')} subtitle={t('Кофе, напитки и закуски: продажа списывает продукты со склада кухни')}>
         <BarTabs current="menu" />
         <div key={shell.scopeKey}>
           {canSell && (
             <section className="panel" aria-labelledby="bar-menu-sale-title">
               <h2 id="bar-menu-sale-title" className="bar-panel-title">
-                Продажа
+                {t('Продажа')}
               </h2>
               <MenuSaleForm items={items} context={context} methods={methods} folios={folios} />
             </section>
@@ -78,7 +80,7 @@ export default async function BarMenuPage() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Меню бара">
+      <Page title={t('Меню бара')}>
         <LoadError testId="bar-menu-error" {...loadErrorProps(error)} />
       </Page>
     );

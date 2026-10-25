@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { ApiError, sellerApi, type SellerWhatsAppView } from '../../lib/api';
+import { serverT } from '../../i18n/server';
 
 /**
  * Действия раздела «ИИ-продавец» (ТЗ ред. 1 П6, П8). Всё идёт через API платформы: ни адреса, ни ключа продавца
@@ -27,10 +28,11 @@ export async function llmKeySaveAction(
   form: FormData,
 ): Promise<LlmKeyResult> {
   const attempt = (prev?.attempt ?? 0) + 1;
+  const t = await serverT();
   const key = form.get('clear') === '1' ? '' : String(form.get('key') ?? '').trim();
   if (!key && form.get('clear') !== '1')
     return {
-      error: 'Введите новый ключ. Сохранённый ключ не изменён.',
+      error: t('Введите новый ключ. Сохранённый ключ не изменён.'),
       message: null,
       set: null,
       last4: null,
@@ -42,8 +44,8 @@ export async function llmKeySaveAction(
     return {
       error: null,
       message: saved.set
-        ? `Ключ сохранён, оканчивается на ${saved.last4}`
-        : 'Ключ снят: ходы идут ключом платформы',
+        ? t('Ключ сохранён, оканчивается на {last4}', { last4: saved.last4 ?? '' })
+        : t('Ключ снят: ходы идут ключом платформы'),
       set: saved.set,
       last4: saved.last4,
       attempt,
@@ -62,13 +64,14 @@ export async function llmKeyCheckAction(
   form: FormData,
 ): Promise<LlmKeyResult> {
   const attempt = (prev?.attempt ?? 0) + 1;
+  const t = await serverT();
   const key = String(form.get('key') ?? '').trim();
   try {
     const verdict = await sellerApi.checkLlmKey(key);
     if (!key) refresh();
     return {
-      error: verdict.valid ? null : (verdict.reason ?? 'Роутер не принял ключ'),
-      message: verdict.valid ? 'Ключ работает: модель ответила' : null,
+      error: verdict.valid ? null : (verdict.reason ?? t('Роутер не принял ключ')),
+      message: verdict.valid ? t('Ключ работает: модель ответила') : null,
       set: null,
       last4: null,
       attempt,
@@ -92,6 +95,7 @@ export async function whatsappSaveAction(
 ): Promise<WhatsAppResult> {
   const attempt = (prev?.attempt ?? 0) + 1;
   const off = form.get('disconnect') === '1';
+  const t = await serverT();
   try {
     const view = await sellerApi.saveWhatsApp(
       off
@@ -106,8 +110,8 @@ export async function whatsappSaveAction(
     return {
       error: null,
       message: view.set
-        ? 'WhatsApp подключён: впишите адрес и слово в консоль Meta'
-        : 'WhatsApp отключён',
+        ? t('WhatsApp подключён: впишите адрес и слово в консоль Meta')
+        : t('WhatsApp отключён'),
       view,
       attempt,
     };
@@ -122,15 +126,18 @@ export async function whatsappCheckAction(
   form: FormData,
 ): Promise<WhatsAppResult> {
   const attempt = (prev?.attempt ?? 0) + 1;
+  const t = await serverT();
   try {
     const verdict = await sellerApi.checkWhatsApp({
       phoneNumberId: String(form.get('phoneNumberId') ?? '').trim(),
       token: String(form.get('token') ?? '').trim(),
     });
     return {
-      error: verdict.valid ? null : (verdict.reason ?? 'Meta не приняла номер или токен'),
+      error: verdict.valid ? null : (verdict.reason ?? t('Meta не приняла номер или токен')),
       message: verdict.valid
-        ? `Номер подтверждён${verdict.phone ? `: ${verdict.phone}` : ''}`
+        ? verdict.phone
+          ? t('Номер подтверждён: {phone}', { phone: verdict.phone })
+          : t('Номер подтверждён')
         : null,
       view: null,
       attempt,
@@ -159,6 +166,7 @@ export async function savePromptAction(
 ): Promise<PromptResult> {
   const attempt = (prev?.attempt ?? 0) + 1;
   const text = String(form.get('text') ?? '');
+  const t = await serverT();
   try {
     await sellerApi.savePrompt(text);
   } catch (e) {
@@ -177,7 +185,7 @@ export async function savePromptAction(
     return {
       error: null,
       warning: null,
-      message: 'Применено: продавец получил инструкцию и данные объекта.',
+      message: t('Применено: продавец получил инструкцию и данные объекта.'),
       attempt,
       text: '',
     };
@@ -186,19 +194,19 @@ export async function savePromptAction(
     const status = e instanceof ApiError ? e.status : undefined;
     if (status === 422)
       return {
-        error: `Продавец не принял инструкцию: ${describe(e)}`,
+        error: t('Продавец не принял инструкцию: {reason}', { reason: describe(e) }),
         warning: null,
         message: null,
         attempt,
         text,
       };
-    if (status === 403) return saved(`Инструкция сохранена. ${describe(e)}.`);
-    if (status === 503 && /не подключён/.test(describe(e)))
-      return saved(
-        'Инструкция сохранена. Продавец ещё не подключён — он получит её при подключении.',
-      );
+    if (status === 403) return saved(t('Инструкция сохранена. {reason}.', { reason: describe(e) }));
+    if (status === 503 && /не подключён/.test(describe(e))) // kk-allow: сверка с ответом API
+      return saved(t('Инструкция сохранена. Продавец ещё не подключён — он получит её при подключении.'));
     return saved(
-      `Инструкция сохранена. ${describe(e)}. Отправим продавцу автоматически, как только он ответит.`,
+      t('Инструкция сохранена. {reason}. Отправим продавцу автоматически, как только он ответит.', {
+        reason: describe(e),
+      }),
     );
   }
 }
@@ -216,15 +224,18 @@ export async function uploadKnowledgeAction(
 ): Promise<SimpleResult> {
   const attempt = (prev?.attempt ?? 0) + 1;
   const file = form.get('file');
+  const t = await serverT();
   if (!(file instanceof File) || file.size === 0)
-    return { error: 'Выберите файл: md, txt, pdf, docx или xlsx', message: null, attempt };
+    return { error: t('Выберите файл: md, txt, pdf, docx или xlsx'), message: null, attempt };
   try {
     const r = await sellerApi.uploadKnowledge(file);
     // список документов — во вкладке «Знания»
     refresh();
     return {
       error: null,
-      message: `${r.created ? 'Загружено' : 'Обновлено'}: «${r.source}», частей ${r.chunks}.`,
+      message: r.created
+        ? t('Загружено: «{source}», частей {n}.', { source: r.source, n: r.chunks })
+        : t('Обновлено: «{source}», частей {n}.', { source: r.source, n: r.chunks }),
       attempt,
     };
   } catch (e) {
@@ -237,6 +248,7 @@ export async function dialogModeAction(
   id: string,
   action: 'takeover' | 'release',
 ): Promise<SimpleResult> {
+  const t = await serverT();
   try {
     await sellerApi.switchMode(id, action);
     revalidatePath('/ai-seller/dialogs');
@@ -244,8 +256,8 @@ export async function dialogModeAction(
       error: null,
       message:
         action === 'takeover'
-          ? 'Диалог ваш: продавец молчит, пока вы не вернёте его боту.'
-          : 'Диалог вернули боту.',
+          ? t('Диалог ваш: продавец молчит, пока вы не вернёте его боту.')
+          : t('Диалог вернули боту.'),
       attempt: 0,
     };
   } catch (e) {
@@ -255,10 +267,11 @@ export async function dialogModeAction(
 
 /** «Вернуть» прежнюю версию инструкции: текст становится текущим и новой последней версией */
 export async function restoreVersionAction(id: string): Promise<SimpleResult> {
+  const t = await serverT();
   try {
     await sellerApi.restorePromptVersion(id);
     revalidatePath('/ai-seller');
-    return { error: null, message: 'Версия возвращена. Нажмите «Применить», чтобы продавец её получил.', attempt: 0 };
+    return { error: null, message: t('Версия возвращена. Нажмите «Применить», чтобы продавец её получил.'), attempt: 0 };
   } catch (e) {
     return { error: describe(e), message: null, attempt: 0 };
   }
@@ -266,10 +279,11 @@ export async function restoreVersionAction(id: string): Promise<SimpleResult> {
 
 /** «Взять себе» и «Снять с себя» */
 export async function assigneeAction(id: string, assignee: 'me' | null): Promise<SimpleResult> {
+  const t = await serverT();
   try {
     await sellerApi.setHandling(id, { assignee });
     revalidatePath('/ai-seller/dialogs');
-    return { error: null, message: assignee ? 'Диалог закреплён за вами.' : 'Ответственный снят.', attempt: 0 };
+    return { error: null, message: assignee ? t('Диалог закреплён за вами.') : t('Ответственный снят.'), attempt: 0 };
   } catch (e) {
     return { error: describe(e), message: null, attempt: 0 };
   }
@@ -278,10 +292,11 @@ export async function assigneeAction(id: string, assignee: 'me' | null): Promise
 /** Следующий шаг: пустое поле снимает его */
 export async function nextStepAction(id: string, prev: SimpleResult | null, form: FormData): Promise<SimpleResult> {
   const attempt = (prev?.attempt ?? 0) + 1;
+  const t = await serverT();
   try {
     await sellerApi.setHandling(id, { nextStep: String(form.get('nextStep') ?? '') });
     revalidatePath('/ai-seller/dialogs');
-    return { error: null, message: 'Следующий шаг сохранён.', attempt };
+    return { error: null, message: t('Следующий шаг сохранён.'), attempt };
   } catch (e) {
     return { error: describe(e), message: null, attempt };
   }
@@ -290,10 +305,11 @@ export async function nextStepAction(id: string, prev: SimpleResult | null, form
 /** Внутренняя заметка: гость её не видит */
 export async function noteAction(id: string, prev: SimpleResult | null, form: FormData): Promise<SimpleResult> {
   const attempt = (prev?.attempt ?? 0) + 1;
+  const t = await serverT();
   try {
     await sellerApi.addNote(id, String(form.get('text') ?? ''));
     revalidatePath('/ai-seller/dialogs');
-    return { error: null, message: 'Заметка добавлена.', attempt };
+    return { error: null, message: t('Заметка добавлена.'), attempt };
   } catch (e) {
     return { error: describe(e), message: null, attempt };
   }
@@ -307,10 +323,11 @@ export async function replyAction(
 ): Promise<SimpleResult> {
   const attempt = (prev?.attempt ?? 0) + 1;
   const text = String(form.get('text') ?? '');
+  const t = await serverT();
   try {
     await sellerApi.reply(id, text);
     revalidatePath('/ai-seller/dialogs');
-    return { error: null, message: 'Ответ отправлен.', attempt };
+    return { error: null, message: t('Ответ отправлен.'), attempt };
   } catch (e) {
     return { error: describe(e), message: null, attempt };
   }

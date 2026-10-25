@@ -3,7 +3,24 @@ import type { ReactNode } from 'react';
 import { Page } from '../../components/page';
 import { EmptyState, Panel, Stat, Stats } from '../../components/ui';
 import { Icon, type IconName } from '../../components/icon';
+import { displayDate } from '../../lib/display-date';
+import { intlLocale, translator, type DeskLocale, type Translate } from '../../i18n';
 import './vertical-today.css';
+import { dateFormat } from '../../i18n/dates';
+
+/** Дата дня словами на языке человека: русский как прежде (`displayDate`), казахский с месяцем по-казахски */
+export function fullDay(iso: string, locale: DeskLocale): string {
+  if (locale === 'ru') return displayDate(iso, 'full');
+  const date = new Date(`${iso}T00:00:00Z`);
+  if (!Number.isFinite(date.getTime())) return iso;
+  return dateFormat(intlLocale(locale), {
+    timeZone: 'UTC',
+    day: 'numeric',
+    month: 'long',
+    weekday: 'long',
+    year: 'numeric',
+  }).format(date);
+}
 
 /**
  * Общая раскладка «Сегодня» салона и ресторана (MV8): плитки дня, «Требуют внимания», «Впереди».
@@ -49,7 +66,8 @@ export interface DayQuickAction {
 
 export function VerticalDay({
   testId,
-  title = 'Сегодня',
+  t = translator('ru'),
+  title = t('Сегодня'),
   subtitle,
   action,
   stats,
@@ -66,6 +84,8 @@ export function VerticalDay({
   upcomingSummary?: ReactNode;
   /** вкладки «Обзор / Рабочий день» под заголовком (п. 11) */
   tabs?: ReactNode;
+  /** перевод подписей раскладки: язык человека передаёт серверный экран */
+  t?: Translate;
   testId: string;
   /** заголовок экрана: у салона «Главная», как раздел меню (17.10.2026) */
   title?: string;
@@ -115,7 +135,7 @@ export function VerticalDay({
       {tabs}
       <div className="vertical-today" data-testid={testId}>
         {stats && stats.length > 0 && (
-        <Stats min={aside ? 200 : 150} aria-label="Показатели дня">
+        <Stats min={aside ? 200 : 150} aria-label={t('Показатели дня')}>
           {stats.map((s) => (
             <Stat
               key={s.testId}
@@ -130,7 +150,7 @@ export function VerticalDay({
         </Stats>
         )}
         {attention.length > 0 && (
-          <Panel title="Требуют внимания" aria-label="Требуют внимания">
+          <Panel title={t('Требуют внимания')} aria-label={t('Требуют внимания')}>
             <ul className="vertical-today__attention">
               {attention.map((a) => (
                 <li key={a.testId} data-testid={a.testId}>
@@ -169,7 +189,7 @@ export function VerticalDay({
           upcomingPanel
         )}
         {quickActions && quickActions.length > 0 && (
-          <Panel title="Быстрые действия" aria-label="Быстрые действия">
+          <Panel title={t('Быстрые действия')} aria-label={t('Быстрые действия')}>
             <div className="vertical-today__actions">
               {quickActions.map((a) => (
                 <Link key={a.href} className="btn btn--secondary" href={a.href}>

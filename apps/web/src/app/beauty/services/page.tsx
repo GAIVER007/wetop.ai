@@ -8,6 +8,7 @@ import { beautyApi, sharedOnboardingApi } from '../../../lib/api';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayBeautyAccess } from '../../../lib/navigation';
 import { ServicesBoard } from './board';
+import { serverT } from '../../../i18n/server';
 import '../beauty.css';
 
 /**
@@ -27,6 +28,7 @@ async function setupInProgress(): Promise<boolean> {
 
 export default async function BeautyServicesPage() {
   await requireFeature('/beauty/services');
+  const t = await serverT();
   const [shell, setup] = await Promise.all([deskShell(), setupInProgress()]);
   const loaded = await beautyApi.services().then(
     (value) => ({ ok: true as const, value }),
@@ -38,7 +40,7 @@ export default async function BeautyServicesPage() {
   );
   if (!loaded.ok)
     return (
-      <Page title="Услуги">
+      <Page title={t('Услуги')}>
         <LoadError testId="beauty-services-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
@@ -48,12 +50,12 @@ export default async function BeautyServicesPage() {
   return (
     <Page
       className="beauty-page"
-      title="Услуги"
-      subtitle="Каталог услуг и условия в выбранном филиале."
+      title={t('Услуги')}
+      subtitle={t('Каталог услуг и условия в выбранном филиале.')}
     >
       {setup && (
         <p>
-          <Link href="/register/setup">Вернуться к настройке салона</Link>
+          <Link href="/register/setup">{t('Вернуться к настройке салона')}</Link>
         </p>
       )}
       <ServicesBoard

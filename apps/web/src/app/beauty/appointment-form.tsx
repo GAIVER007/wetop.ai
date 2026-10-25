@@ -9,6 +9,7 @@ import { zoneLabel } from '../../lib/human-period';
 import { formatPhone, formatPhoneInput } from '../../lib/phone';
 import { BookingShell, PickButton, PickGroup } from '../../components/booking-shell';
 import { freeSlots } from './free-slots';
+import { useT } from '../../i18n/locale-provider';
 
 // A5 (паритет с zapis.kz): кого выбирали в прошлый раз на этой вкладке; удобство, не данные
 let lastPickedCustomerId: string | null = null;
@@ -36,11 +37,16 @@ export function AppointmentForm({
   repeatFrom?: BeautyAppointmentRow;
   onStateChange?: (state: { dirty: boolean; pending: boolean }) => void;
 }) {
+  const t = useT();
   const source = editing ?? repeatFrom;
   const durationText = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const rest = minutes % 60;
-    return hours === 0 ? `${rest} мин` : rest === 0 ? `${hours} ч` : `${hours} ч ${rest} мин`;
+    return hours === 0
+      ? t('{n} мин', { n: rest })
+      : rest === 0
+        ? t('{h} ч', { h: hours })
+        : t('{h} ч {m} мин', { h: hours, m: rest });
   };
   const inFlight = useRef(false);
   const [state, action, pending] = useActionState(
@@ -53,7 +59,7 @@ export function AppointmentForm({
       } catch {
         return {
           outcome: 'unknown' as const,
-          error: 'Результат не подтверждён. Проверьте список записей перед повторным созданием.',
+          error: t('Результат не подтверждён. Проверьте список записей перед повторным созданием.'),
         };
       } finally {
         inFlight.current = false;
@@ -254,7 +260,7 @@ export function AppointmentForm({
     .map((line) => day.services.find((service) => service.id === line.serviceId)?.name)
     .filter(Boolean);
   const digest = [
-    chosenServices.join(', ') || 'Услуга не выбрана',
+    chosenServices.join(', ') || t('Услуга не выбрана'),
     slotMaster?.name,
     `${date.split('-').reverse().join('.')} ${hour}`,
   ]
@@ -284,8 +290,8 @@ export function AppointmentForm({
           <>
       {!editing && (
         <fieldset className="appointment-customer-fields">
-          <legend>Клиент</legend>
-          <Field label="Телефон или имя">
+          <legend>{t('Клиент')}</legend>
+          <Field label={t('Телефон или имя')}>
             <Input
               type="search"
               value={customerSearch}
@@ -294,7 +300,7 @@ export function AppointmentForm({
             />
           </Field>
           {search && matchingCustomers.length > 0 && (
-            <div className="appointment-customer-suggest" role="listbox" aria-label="Найденные клиенты">
+            <div className="appointment-customer-suggest" role="listbox" aria-label={t('Найденные клиенты')}>
               {matchingCustomers.slice(0, 5).map((c) => (
                 <Button
                   key={c.id}
@@ -320,10 +326,10 @@ export function AppointmentForm({
               tone="secondary"
               onClick={() => {
                 setCustomerId('');
-                setDraft({ ...draft, firstName: 'Гость', lastName: '', phone: '' });
+                setDraft({ ...draft, firstName: 'Гость', lastName: '', phone: '' }); // kk-allow: имя клиента сохраняется в базу как данные, как и раньше
               }}
             >
-              Гость
+              {t('Гость')}
             </Button>
             <Button
               type="button"
@@ -332,7 +338,7 @@ export function AppointmentForm({
               disabled={!lastPickedCustomerId || !customers.some((c) => c.id === lastPickedCustomerId)}
               onClick={() => lastPickedCustomerId && setCustomerId(lastPickedCustomerId)}
             >
-              Последний клиент
+              {t('Последний клиент')}
             </Button>
             <Button
               type="button"
@@ -341,40 +347,40 @@ export function AppointmentForm({
               aria-pressed={!customerId}
               onClick={() => setCustomerId('')}
             >
-              + Новый клиент
+              {t('+ Новый клиент')}
             </Button>
           </div>
-          <Field label="Клиент">
+          <Field label={t('Клиент')}>
             <Select
               name="customerId"
-              aria-label="Клиент"
+              aria-label={t('Клиент')}
               value={customerId}
               onChange={(e) => {
                 setCustomerId(e.target.value);
                 if (e.target.value) lastPickedCustomerId = e.target.value;
               }}
             >
-              <option value="">Новый клиент</option>
+              <option value="">{t('Новый клиент')}</option>
               {repeatFrom && !matchingCustomers.some((c) => c.id === repeatFrom.customer.id) && (
                 <option value={repeatFrom.customer.id}>{repeatFrom.customer.name}</option>
               )}
               {matchingCustomers.map((c) => (
                 <option key={c.id} value={c.id}>
                   {`${[c.firstName, c.lastName].filter(Boolean).join(' ')}${c.phone ? `, ${formatPhone(c.phone)}` : ''}`}
-                  {c.status === 'ARCHIVED' ? ' (в архиве)' : ''}
+                  {c.status === 'ARCHIVED' ? t(' (в архиве)') : ''}
                 </option>
               ))}
             </Select>
           </Field>
           {!customerId && (
             <div className="appointment-customer-new">
-              <Field label="Имя клиента">
+              <Field label={t('Имя клиента')}>
                 <Input name="firstName" {...field('firstName')} required maxLength={100} />
               </Field>
-              <Field label="Фамилия">
+              <Field label={t('Фамилия')}>
                 <Input name="lastName" {...field('lastName')} maxLength={100} />
               </Field>
-              <Field label="Телефон">
+              <Field label={t('Телефон')}>
                 <Input
                   name="phone"
                   value={draft.phone}
@@ -395,7 +401,7 @@ export function AppointmentForm({
         pick={
           <>
       <fieldset className="appointment-pick">
-        <legend>Услуга и время</legend>
+        <legend>{t('Услуга и время')}</legend>
         {lines.map((line, index) => {
           const effective = effectiveFor(line);
           const duration = Number(line.duration || effective.duration || 0);
@@ -406,35 +412,35 @@ export function AppointmentForm({
           ].sort((a, b) => a - b);
           return (
             <fieldset key={line.key} className="appointment-service-line">
-              <legend className={lines.length === 1 ? 'sr-only' : undefined}>Услуга {index + 1}</legend>
-              <Field label="Услуга">
+              <legend className={lines.length === 1 ? 'sr-only' : undefined}>{t('Услуга {n}', { n: index + 1 })}</legend>
+              <Field label={t('Услуга')}>
                 <Select
-                  aria-label={index === 0 ? 'Услуга' : `Услуга ${index + 1}`}
+                  aria-label={index === 0 ? t('Услуга') : t('Услуга {n}', { n: index + 1 })}
                   required
                   value={line.serviceId}
                   onChange={(event) => selectLine(line, { serviceId: event.target.value })}
                 >
                   <option value="" disabled>
-                    Выберите услугу
+                    {t('Выберите услугу')}
                   </option>
                   {day.services
                     .filter((service) => service.sellable)
                     .map((service) => (
                       <option key={service.id} value={service.id}>
-                        {service.name}, {service.durationMinutes} мин
+                        {service.name}, {t('{n} мин', { n: service.durationMinutes })}
                       </option>
                     ))}
                 </Select>
               </Field>
-              <Field label="Специалист">
+              <Field label={t('Специалист')}>
                 <Select
-                  aria-label={index === 0 ? 'Специалист' : `Специалист услуги ${index + 1}`}
+                  aria-label={index === 0 ? t('Специалист') : t('Специалист услуги {n}', { n: index + 1 })}
                   required
                   value={line.employeeId}
                   onChange={(event) => selectLine(line, { employeeId: event.target.value })}
                 >
                   <option value="" disabled>
-                    Выберите специалиста
+                    {t('Выберите специалиста')}
                   </option>
                   {day.columns
                     .filter(
@@ -449,11 +455,11 @@ export function AppointmentForm({
               </Field>
               <div className="beauty-fields-pair appointment-duration-price">
                 <div>
-                  <span className="field">Длительность</span>
+                  <span className="field">{t('Длительность')}</span>
                   <div className="appointment-duration-controls">
-                    <Field label={<span className="sr-only">Часы</span>}>
+                    <Field label={<span className="sr-only">{t('Часы')}</span>}>
                       <Select
-                        aria-label={`Часы услуги ${index + 1}`}
+                        aria-label={t('Часы услуги {n}', { n: index + 1 })}
                         disabled={!canAdjustPrice}
                         value={durationHours}
                         onChange={(event) => {
@@ -465,14 +471,14 @@ export function AppointmentForm({
                       >
                         {Array.from({ length: 25 }, (_, hours) => (
                           <option key={hours} value={hours}>
-                            {hours} ч
+                            {t('{h} ч', { h: hours })}
                           </option>
                         ))}
                       </Select>
                     </Field>
-                    <Field label={<span className="sr-only">Минуты</span>}>
+                    <Field label={<span className="sr-only">{t('Минуты')}</span>}>
                       <Select
-                        aria-label={`Минуты услуги ${index + 1}`}
+                        aria-label={t('Минуты услуги {n}', { n: index + 1 })}
                         disabled={!canAdjustPrice}
                         value={durationMinutes}
                         onChange={(event) =>
@@ -487,14 +493,14 @@ export function AppointmentForm({
                             value={minutes}
                             disabled={durationHours === 24 && minutes !== 0}
                           >
-                            {String(minutes).padStart(2, '0')} мин
+                            {t('{n} мин', { n: String(minutes).padStart(2, '0') })}
                           </option>
                         ))}
                       </Select>
                     </Field>
                   </div>
                 </div>
-                <Field label={`Цена, ${day.location.currency}`}>
+                <Field label={t('Цена, {currency}', { currency: day.location.currency })}>
                   <Input
                     inputMode="decimal"
                     required
@@ -509,8 +515,8 @@ export function AppointmentForm({
               {line.serviceId && effective.price === null && (
                 <p className="beauty-note">
                   {canAdjustPrice
-                    ? 'Укажите окончательную цену услуги перед сохранением.'
-                    : 'Для этой услуги нужна окончательная цена. Обратитесь к администратору с правом изменения цен.'}
+                    ? t('Укажите окончательную цену услуги перед сохранением.')
+                    : t('Для этой услуги нужна окончательная цена. Обратитесь к администратору с правом изменения цен.')}
                 </p>
               )}
               {canAdjustPrice && (
@@ -524,11 +530,11 @@ export function AppointmentForm({
                     ) || undefined
                   }
                 >
-                  <summary>Скидка и доплата</summary>
+                  <summary>{t('Скидка и доплата')}</summary>
                   <div className="beauty-fields-pair">
-                    <Field label="Тип скидки">
+                    <Field label={t('Тип скидки')}>
                       <Select
-                        aria-label={`Тип скидки услуги ${index + 1}`}
+                        aria-label={t('Тип скидки услуги {n}', { n: index + 1 })}
                         value={line.discountMode}
                         onChange={(event) =>
                           updateLine(line.key, {
@@ -537,25 +543,25 @@ export function AppointmentForm({
                           })
                         }
                       >
-                        <option value="amount">Сумма</option>
-                        <option value="percent">Процент</option>
+                        <option value="amount">{t('Сумма')}</option>
+                        <option value="percent">{t('Процент')}</option>
                       </Select>
                     </Field>
                     <Field
                       label={
                         line.discountMode === 'percent'
-                          ? 'Скидка, %'
-                          : `Скидка, ${day.location.currency}`
+                          ? t('Скидка, %')
+                          : t('Скидка, {currency}', { currency: day.location.currency })
                       }
                     >
                       <Input
-                        aria-label={`Скидка услуги ${index + 1}`}
+                        aria-label={t('Скидка услуги {n}', { n: index + 1 })}
                         inputMode={line.discountMode === 'percent' ? 'numeric' : 'decimal'}
                         value={line.discount}
                         onChange={(event) => updateLine(line.key, { discount: event.target.value })}
                       />
                     </Field>
-                    <Field label={`Доплата, ${day.location.currency}`}>
+                    <Field label={t('Доплата, {currency}', { currency: day.location.currency })}>
                       <Input
                         inputMode="decimal"
                         value={line.surcharge}
@@ -570,9 +576,9 @@ export function AppointmentForm({
               {/* до выбора услуги строки нет (аудит салона 22.10.2026: «Проверьте сумму» на пустой форме) */}
               {line.serviceId && (
                 <p>
-                  Стоимость:{' '}
+                  {t('Стоимость:')}{' '}
                   {lineTotal(line) === null
-                    ? 'Проверьте сумму'
+                    ? t('Проверьте сумму')
                     : formatMoney(String(lineTotal(line)), day.location.currency)}
                 </p>
               )}
@@ -584,7 +590,7 @@ export function AppointmentForm({
                     setLines((current) => current.filter((item) => item.key !== line.key))
                   }
                 >
-                  Удалить услугу {index + 1}
+                  {t('Удалить услугу {n}', { n: index + 1 })}
                 </Button>
               )}
             </fieldset>
@@ -595,13 +601,13 @@ export function AppointmentForm({
           tone="secondary"
           onClick={() => setLines((current) => [...current, blankLine(nextKey.current++)])}
         >
-          Добавить услугу
+          {t('Добавить услугу')}
         </Button>
         <div className="beauty-fields-pair">
-          <Field label="Дата">
+          <Field label={t('Дата')}>
             <Input type="date" required value={date} onChange={(e) => setDate(e.target.value)} />
           </Field>
-          <Field label="Время">
+          <Field label={t('Время')}>
             <Input type="time" required value={hour} onChange={(e) => setHour(e.target.value)} />
           </Field>
         </div>
@@ -612,16 +618,16 @@ export function AppointmentForm({
         />
         {slotMaster ? (
           <PickGroup
-            title={`Свободное время: ${slotMaster.name}`}
+            title={t('Свободное время: {name}', { name: slotMaster.name })}
             facts={slotDuration > 0 ? durationText(slotDuration) : undefined}
             testId="slot-group"
             unavailable={
               date !== day.date
-                ? 'на другой день время проверится при сохранении'
+                ? t('на другой день время проверится при сохранении')
                 : slotMaster.timeOff
-                  ? 'выходной'
+                  ? t('выходной')
                   : slots.length === 0
-                    ? 'свободного времени нет'
+                    ? t('свободного времени нет')
                     : undefined
             }
           >
@@ -629,7 +635,7 @@ export function AppointmentForm({
               <PickButton
                 key={slot}
                 selected={hour === slot}
-                label={`Время ${slot}`}
+                label={t('Время {time}', { time: slot })}
                 disabled={pending}
                 onClick={() => setHour(slot)}
               >
@@ -639,33 +645,33 @@ export function AppointmentForm({
           </PickGroup>
         ) : null}
         <p className="beauty-note">
-          Время филиала: {zoneLabel(day.location.timezone)}. Доступность подтвердится при сохранении.
+          {t('Время филиала: {zone}. Доступность подтвердится при сохранении.', { zone: zoneLabel(day.location.timezone, t) })}
         </p>
         <p className="beauty-note sr-only" aria-live="polite">
-          Выбрано:
-          <span className="beauty-selection-line">Дата: {date}</span>
+          {t('Выбрано:')}
+          <span className="beauty-selection-line">{t('Дата: {date}', { date })}</span>
           <span className="beauty-selection-line">
-            Время: {hour} ({zoneLabel(day.location.timezone)})
+            {t('Время: {time} ({zone})', { time: hour, zone: zoneLabel(day.location.timezone, t) })}
           </span>
         </p>
       </fieldset>
       <fieldset className="appointment-note">
-        <legend>Дополнительно</legend>
-        <Field label="Заметка">
+        <legend>{t('Дополнительно')}</legend>
+        <Field label={t('Заметка')}>
           <Input name="notes" {...field('notes')} maxLength={2000} />
         </Field>
       </fieldset>
           </>
         }
-        pickLabel="Выбор времени записи"
+        pickLabel={t('Выбор времени записи')}
         footer={
           <>
             <p className="appointment-form__total" aria-live="polite">
               <strong>
-                Итого:{' '}
+                {t('Итого:')}{' '}
                 {validMoney
                   ? formatMoney(total.toString(), day.location.currency)
-                  : 'Проверьте суммы услуг'}
+                  : t('Проверьте суммы услуг')}
                 {validDuration && totalMinutes > 0 ? `, ${durationText(totalMinutes)}` : ''}
               </strong>
             </p>
@@ -676,11 +682,11 @@ export function AppointmentForm({
             <Button type="submit" disabled={pending || state?.outcome === 'unknown'}>
               {pending
                 ? editing
-                  ? 'Сохраняем…'
-                  : 'Записываем…'
+                  ? t('Сохраняем…')
+                  : t('Записываем…')
                 : editing
-                  ? 'Сохранить изменения'
-                  : 'Записать'}
+                  ? t('Сохранить изменения')
+                  : t('Записать')}
             </Button>
           </>
         }

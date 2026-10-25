@@ -8,19 +8,21 @@ import { restaurantShell } from '../food/restaurant-load';
 import '../food/food.css';
 import '../food/restaurant.css';
 import '../finance/summary.css';
+import { serverT } from '../../i18n/server';
 
 /** «Касса» филиала ресторана и салона (DATA_MODEL §35.2, §48, ADR-165): остатки по способам, операции и сверка */
 export default async function CashboxPage() {
+  const t = await serverT();
   try {
     const shell = await restaurantShell(undefined, ['FOOD_SERVICE', 'BEAUTY']);
     const cash = await restaurantApi.cash();
     return (
       <Page
-        title="Касса"
+        title={t('Касса')}
         subtitle={
           shell.vertical === 'BEAUTY'
-            ? 'Деньги салона по способам оплаты: приходы, расходы и выплаты'
-            : 'Деньги филиала по способам оплаты: заказы, приходы, расходы и выплаты'
+            ? t('Деньги салона по способам оплаты: приходы, расходы и выплаты')
+            : t('Деньги филиала по способам оплаты: заказы, приходы, расходы и выплаты')
         }
       >
         <div key={shell.scopeKey}>
@@ -38,7 +40,7 @@ export default async function CashboxPage() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Касса">
+      <Page title={t('Касса')}>
         <LoadError testId="cashbox-load-error" {...loadErrorProps(error)} />
       </Page>
     );

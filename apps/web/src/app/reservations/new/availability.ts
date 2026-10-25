@@ -1,5 +1,6 @@
 'use server';
 import { reservationsApi } from '../../../lib/api';
+import { msg } from '../../../i18n';
 
 /** Uses the authenticated selected branch; the create action checks availability again. */
 export async function checkBookingAvailability(arrival: string, departure: string) {
@@ -9,12 +10,12 @@ export async function checkBookingAvailability(arrival: string, departure: strin
     return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
   };
   if (!valid(arrival) || !valid(departure) || departure <= arrival) {
-    return { availability: null, error: 'Проверьте даты заезда и выезда.' };
+    return { availability: null, error: msg('Проверьте даты заезда и выезда.') };
   }
   try {
     return { availability: await reservationsApi.availability(arrival, departure), error: '' };
   } catch {
-    return { availability: null, error: 'Не удалось проверить свободные места.' };
+    return { availability: null, error: msg('Не удалось проверить свободные места.') };
   }
 }
 
@@ -24,7 +25,7 @@ export async function bookingQuote(input: unknown) {
   } catch (error) {
     return {
       quote: null,
-      error: error instanceof Error ? error.message : 'Не удалось рассчитать стоимость.',
+      error: error instanceof Error ? error.message : msg('Не удалось рассчитать стоимость.'),
     };
   }
 }

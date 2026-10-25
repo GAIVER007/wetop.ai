@@ -12,11 +12,13 @@ import { FundEditor, FundEditorDialog } from './fund-editor';
 import { CategoryPreview } from './category-preview';
 import { removeCategory } from './actions';
 import { KIND_WORD, addWord, capacityShort, compositionHref, unitWord } from './category-words';
+import { countLabel, msg } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
 
 const KIND_FILTERS: [InventoryCategory['kind'], string][] = [
-  ['PRIVATE_ROOM', 'Номера'],
-  ['DORM_BED', 'Койко-места'],
-  ['APARTMENT', 'Апартаменты'],
+  ['PRIVATE_ROOM', msg('Номера')],
+  ['DORM_BED', msg('Койко-места')],
+  ['APARTMENT', msg('Апартаменты')],
 ];
 
 /** Щелчок по строке или карточке открывает панель, если он не пришёлся на ссылку, кнопку или меню */
@@ -39,6 +41,8 @@ export function CategoryCatalog({
   units: InventoryUnit[];
   canMutate: boolean;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const search = useSearchParams();
   const view = search.get('view') === 'cards' ? 'cards' : 'list';
   const [q, setQ] = useState('');
@@ -63,15 +67,15 @@ export function CategoryCatalog({
       next === 'cards' ? '/rooms/categories?view=cards' : '/rooms/categories',
     );
   const menu = (c: InventoryCategory): ActionMenuItem[] => [
-    { label: 'Открыть', onSelect: () => setPreview(c) },
+    { label: t('Открыть'), onSelect: () => setPreview(c) },
     ...(canMutate
       ? [
-          { label: 'Редактировать', onSelect: () => setEditing(c) },
-          { label: addWord(c), onSelect: () => setAdding(c) },
+          { label: t('Редактировать'), onSelect: () => setEditing(c) },
+          { label: t(addWord(c)), onSelect: () => setAdding(c) },
         ]
       : []),
-    { label: 'Показать в календаре', href: `/chessboard?category=${encodeURIComponent(c.code)}` },
-    { label: 'Свободные места', href: `/rooms/availability?category=${encodeURIComponent(c.code)}` },
+    { label: t('Показать в календаре'), href: `/chessboard?category=${encodeURIComponent(c.code)}` },
+    { label: t('Свободные места'), href: `/rooms/availability?category=${encodeURIComponent(c.code)}` },
   ];
   /**
    * «Удалить» (решение владельца 06.10.2026): вопрос заранее говорит, что будет — пустая категория исчезнет,
@@ -83,16 +87,19 @@ export function CategoryCatalog({
     if (c.upcomingReservations) {
       setOutcome({
         tone: 'error',
-        text: `«${c.name}» нельзя удалить: впереди ${c.upcomingReservations} ${c.upcomingReservations === 1 ? 'бронь' : 'броней'}. Дождитесь выезда или переселите гостей.`,
+        text: t('«{name}» нельзя удалить: впереди {bookings}. Дождитесь выезда или переселите гостей.', {
+          name: c.name,
+          bookings: countLabel(locale, t, c.upcomingReservations, [msg('бронь'), msg('брони'), msg('броней')]),
+        }),
       });
       return;
     }
     const ok = await ask({
-      title: used ? `Убрать «${c.name}» в архив?` : `Удалить «${c.name}»?`,
+      title: used ? t('Убрать «{name}» в архив?', { name: c.name }) : t('Удалить «{name}»?', { name: c.name }),
       body: used
-        ? 'У категории есть места или история броней, поэтому она уйдёт в архив: перестанет продаваться вместе со своими местами, брони и отчёты сохранятся.'
-        : 'Категорию ничего не использует: она удалится насовсем вместе со своей ценой.',
-      confirmLabel: used ? 'Убрать в архив' : 'Удалить категорию',
+        ? t('У категории есть места или история броней, поэтому она уйдёт в архив: перестанет продаваться вместе со своими местами, брони и отчёты сохранятся.')
+        : t('Категорию ничего не использует: она удалится насовсем вместе со своей ценой.'),
+      confirmLabel: used ? t('Убрать в архив') : t('Удалить категорию'),
       tone: 'danger',
     });
     if (!ok) return;
@@ -107,8 +114,8 @@ export function CategoryCatalog({
         tone: 'done',
         text:
           result.result === 'archived'
-            ? `«${c.name}» в архиве и больше не продаётся.`
-            : `«${c.name}» удалена.`,
+            ? t('«{name}» в архиве и больше не продаётся.', { name: c.name })
+            : t('«{name}» удалена.', { name: c.name }),
       });
       router.refresh();
     });
@@ -117,7 +124,7 @@ export function CategoryCatalog({
     c.priceMinor ? (
       <span className="fund-cat-price">{formatMoney(c.priceMinor, c.currency ?? 'KZT')}</span>
     ) : (
-      <Badge tone="warn">цена не задана</Badge>
+      <Badge tone="warn">{t('цена не задана')}</Badge>
     );
   const operations = (c: InventoryCategory) => (
     <div className="fund-cat-ops">
@@ -128,43 +135,43 @@ export function CategoryCatalog({
             tone="secondary"
             disabled={!c.active}
             onClick={() => setEditing(c)}
-            aria-label={`Изменить категорию ${c.name}`}
+            aria-label={t('Изменить категорию {name}', { name: c.name })}
           >
-            Изменить
+            {t('Изменить')}
           </Button>
           <Button
             size="sm"
             tone="ghost"
             disabled={removing || !c.active}
             onClick={() => void remove(c)}
-            aria-label={`Удалить категорию ${c.name}`}
+            aria-label={t('Удалить категорию {name}', { name: c.name })}
           >
-            Удалить
+            {t('Удалить')}
           </Button>
         </>
       )}
-      <ActionMenu size="sm" label={`Действия с категорией ${c.name}`} items={menu(c)} />
+      <ActionMenu size="sm" label={t('Действия с категорией {name}', { name: c.name })} items={menu(c)} />
     </div>
   );
   const fund = (c: InventoryCategory) => {
     const count = memberCount(c);
     return count ? (
       <Link href={compositionHref(c)} prefetch={false}>
-        {unitWord(c.kind, count)}
+        {unitWord(c.kind, count, locale, t)}
       </Link>
     ) : (
-      <Badge tone="warn">не добавлен</Badge>
+      <Badge tone="warn">{t('не добавлен')}</Badge>
     );
   };
   /** Без мест или без цены категорию не продать — так и говорим.
       Обычное состояние — текстом, бейджи только у исключений (упрощение 02.10, как в фонде) */
   const status = (c: InventoryCategory) =>
     !c.active ? (
-      <Badge tone="neutral">В архиве</Badge>
+      <Badge tone="neutral">{t('В архиве')}</Badge>
     ) : memberCount(c) && c.priceMinor ? (
-      <span className="muted">активна</span>
+      <span className="muted">{t('активна')}</span>
     ) : (
-      <Badge tone="warn">Не готова к продаже</Badge>
+      <Badge tone="warn">{t('Не готова к продаже')}</Badge>
     );
   const open = (c: InventoryCategory) => (
     <button type="button" className="fund-cat-open" onClick={() => setPreview(c)}>
@@ -174,16 +181,15 @@ export function CategoryCatalog({
   const kindCell = (c: InventoryCategory) => (
     <>
       <Icon name={c.kind === 'DORM_BED' ? 'bed' : 'inventory'} width={16} height={16} />
-      {KIND_WORD[c.kind]}
+      {t(KIND_WORD[c.kind])}
     </>
   );
   if (!categories.length)
     return (
       <section className="fund-empty">
-        <h2>Начните с категории размещения</h2>
+        <h2>{t('Начните с категории размещения')}</h2>
         <p>
-          Например, «Двухместный номер» или «Койка в общей комнате». Затем добавьте конкретные
-          номера и койки.
+          {t('Например, «Двухместный номер» или «Койка в общей комнате». Затем добавьте конкретные номера и койки.')}
         </p>
         {canMutate && <FundEditor categories={categories} mode="category" />}
       </section>
@@ -193,14 +199,14 @@ export function CategoryCatalog({
       <div className="fund-toolbar">
         <Input
           type="search"
-          aria-label="Поиск категории"
-          placeholder="Найти категорию"
+          aria-label={t('Поиск категории')}
+          placeholder={t('Найти категорию')}
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
-        <div className="chips" role="group" aria-label="Тип размещения">
+        <div className="chips" role="group" aria-label={t('Тип размещения')}>
           <button type="button" aria-pressed={!kind} onClick={() => setKind('')}>
-            Все <span className="chips__count">{categories.length}</span>
+            {t('Все')} <span className="chips__count">{categories.length}</span>
           </button>
           {KIND_FILTERS.filter(([value]) => categories.some((c) => c.kind === value)).map(
             ([value, label]) => (
@@ -210,7 +216,7 @@ export function CategoryCatalog({
                 aria-pressed={kind === value}
                 onClick={() => setKind(kind === value ? '' : value)}
               >
-                {label}{' '}
+                {t(label)}{' '}
                 <span className="chips__count">
                   {categories.filter((c) => c.kind === value).length}
                 </span>
@@ -220,17 +226,17 @@ export function CategoryCatalog({
         </div>
         {(query || kind) && (
           <span className="muted" role="status">
-            Показано {filtered.length} из {categories.length}
+            {t('Показано {n} из {total}', { n: filtered.length, total: categories.length })}
           </span>
         )}
-        <div className="chips fund-view" role="group" aria-label="Вид списка категорий">
+        <div className="chips fund-view" role="group" aria-label={t('Вид списка категорий')}>
           <button type="button" aria-pressed={view === 'list'} onClick={() => setView('list')}>
             <Icon name="menu" width={16} height={16} />
-            Список
+            {t('Список')}
           </button>
           <button type="button" aria-pressed={view === 'cards'} onClick={() => setView('cards')}>
             <Icon name="today" width={16} height={16} />
-            Карточки
+            {t('Карточки')}
           </button>
         </div>
       </div>
@@ -241,11 +247,11 @@ export function CategoryCatalog({
           <Notice role="status">{outcome.text}</Notice>
         ))}
       {!filtered.length ? (
-        <EmptyState icon={<Icon name="inventory" />} title="Категории не найдены">
-          Измените поиск или сбросьте фильтр типа.
+        <EmptyState icon={<Icon name="inventory" />} title={t('Категории не найдены')}>
+          {t('Измените поиск или сбросьте фильтр типа.')}
         </EmptyState>
       ) : view === 'cards' ? (
-        <ul className="fund-cat-cards" aria-label="Категории размещения">
+        <ul className="fund-cat-cards" aria-label={t('Категории размещения')}>
           {filtered.map((c) => (
             <li
               key={c.code}
@@ -257,7 +263,7 @@ export function CategoryCatalog({
               <span className="fund-cat-kind">{kindCell(c)}</span>
               <div className="fund-cat-card-facts">
                 {fund(c)}
-                <span>{capacityShort(c)}</span>
+                <span>{capacityShort(c, locale, t)}</span>
               </div>
               <div className="fund-cat-card-facts">
                 {price(c)}
@@ -268,16 +274,16 @@ export function CategoryCatalog({
           ))}
         </ul>
       ) : (
-        <Table className="fund-cat-table" aria-label="Категории размещения">
+        <Table className="fund-cat-table" aria-label={t('Категории размещения')}>
           <thead>
             <tr>
               <th className="fund-cat-index">№</th>
-              <th>Название</th>
-              <th>Мест</th>
-              <th>Цена</th>
-              <th>Фонд</th>
-              <th>Статус</th>
-              <th>Операции</th>
+              <th>{t('Название')}</th>
+              <th>{t('Мест')}</th>
+              <th>{t('Цена')}</th>
+              <th>{t('Фонд')}</th>
+              <th>{t('Статус')}</th>
+              <th>{t('Операции')}</th>
             </tr>
           </thead>
           <tbody>
@@ -291,10 +297,10 @@ export function CategoryCatalog({
                 {/* Тип продажи — значком у названия и словом фонда («36 коек»), не отдельной колонкой */}
                 <td className="fund-cat-name">
                   <Icon name={c.kind === 'DORM_BED' ? 'bed' : 'inventory'} width={16} height={16} />
-                  <span className="sr-only">{KIND_WORD[c.kind]}</span>
+                  <span className="sr-only">{t(KIND_WORD[c.kind])}</span>
                   {open(c)}
                 </td>
-                <td className="fund-cat-capacity">{capacityShort(c)}</td>
+                <td className="fund-cat-capacity">{capacityShort(c, locale, t)}</td>
                 <td className="fund-cat-rates">{price(c)}</td>
                 <td className="fund-cat-units">{fund(c)}</td>
                 <td className="fund-cat-status">{status(c)}</td>

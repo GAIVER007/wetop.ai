@@ -5,6 +5,7 @@ import { currentMe } from '../../lib/desk-shell';
 import { hotelApi } from '../../lib/hotel-api';
 import { selectedWorkspaceBranch } from '../../lib/workspace-context';
 import type { BarFormContext } from './context';
+import { msg } from '../../i18n';
 
 /**
  * Объект и валюта денежных форм бара (D-CUR). Бар общий модуль филиала (ADR-178): у гостиницы объект и валюта
@@ -16,7 +17,7 @@ export const loadBarContext = cache(async (): Promise<BarFormContext> => {
   if (me.context?.vertical === 'BEAUTY' || me.context?.vertical === 'FOOD_SERVICE') {
     const branch = await selectedWorkspaceBranch();
     if (!me.context.locationId || branch?.locationId !== me.context.locationId || !branch.currency)
-      throw new ApiError(409, 'Сначала выберите филиал');
+      throw new ApiError(409, msg('Сначала выберите филиал'));
     return { propertyId: me.context.locationId, currency: branch.currency };
   }
   try {

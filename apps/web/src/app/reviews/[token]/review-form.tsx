@@ -3,10 +3,13 @@ import { useState, useTransition } from 'react';
 import { Alert, Button, Field, Textarea } from '../../../components/ui';
 import { submitBeautyReview } from './actions';
 import type { BeautyReviewMaster } from './review-types';
+import { msg } from '../../../i18n';
+import { useT } from '../../../i18n/locale-provider';
 
 type Draft = { selected: boolean; stars: number; comment: string };
 
 export function BeautyReviewForm({ token, masters }: { token: string; masters: BeautyReviewMaster[] }) {
+  const t = useT();
   const [drafts, setDrafts] = useState<Record<string, Draft>>(() =>
     Object.fromEntries(masters.map((master) => [master.key, { selected: false, stars: 0, comment: '' }])),
   );
@@ -17,7 +20,7 @@ export function BeautyReviewForm({ token, masters }: { token: string; masters: B
     setDrafts((current) => ({ ...current, [key]: { ...current[key]!, ...value } }));
 
   if (done)
-    return <Alert tone="success" data-testid="beauty-review-done">Спасибо, отзыв отправлен.</Alert>;
+    return <Alert tone="success" data-testid="beauty-review-done">{t('Спасибо, отзыв отправлен.')}</Alert>;
 
   return (
     <form
@@ -31,7 +34,7 @@ export function BeautyReviewForm({ token, masters }: { token: string; masters: B
             : [];
         });
         if (!reviews.length || reviews.some((review) => review.stars < 1)) {
-          setError('Выберите хотя бы одного мастера и поставьте оценку.');
+          setError(msg('Выберите хотя бы одного мастера и поставьте оценку.'));
           return;
         }
         setError('');
@@ -42,7 +45,7 @@ export function BeautyReviewForm({ token, masters }: { token: string; masters: B
         });
       }}
     >
-      <p className="beauty-review-hint">Выберите мастеров, которым хотите оставить отзыв. Достаточно оценить одного.</p>
+      <p className="beauty-review-hint">{t('Выберите мастеров, которым хотите оставить отзыв. Достаточно оценить одного.')}</p>
       {masters.map((master) => {
         const draft = drafts[master.key]!;
         return (
@@ -53,9 +56,9 @@ export function BeautyReviewForm({ token, masters }: { token: string; masters: B
                 checked={draft.selected}
                 onChange={(event) => patch(master.key, { selected: event.target.checked })}
               />
-              <span>Оценить {master.name}</span>
+              <span>{t('Оценить {name}', { name: master.name })}</span>
             </label>
-            <div className="beauty-review-stars" role="radiogroup" aria-label={`Оценка для ${master.name}`}>
+            <div className="beauty-review-stars" role="radiogroup" aria-label={t('Оценка для {name}', { name: master.name })}>
               {[1, 2, 3, 4, 5].map((stars) => (
                 <label key={stars}>
                   <input
@@ -67,11 +70,11 @@ export function BeautyReviewForm({ token, masters }: { token: string; masters: B
                     onChange={() => patch(master.key, { stars })}
                   />
                   <span aria-hidden="true" data-on={draft.stars >= stars}>★</span>
-                  <span className="sr-only">{stars} из 5</span>
+                  <span className="sr-only">{t('{n} из 5', { n: stars })}</span>
                 </label>
               ))}
             </div>
-            <Field label={`Комментарий для ${master.name}`} required={false}>
+            <Field label={t('Комментарий для {name}', { name: master.name })} required={false}>
               <Textarea
                 rows={3}
                 value={draft.comment}
@@ -82,8 +85,8 @@ export function BeautyReviewForm({ token, masters }: { token: string; masters: B
           </fieldset>
         );
       })}
-      {error && <Alert>{error}</Alert>}
-      <Button type="submit" disabled={pending}>{pending ? 'Отправляем…' : 'Отправить отзыв'}</Button>
+      {error && <Alert>{t(error)}</Alert>}
+      <Button type="submit" disabled={pending}>{pending ? t('Отправляем…') : t('Отправить отзыв')}</Button>
     </form>
   );
 }

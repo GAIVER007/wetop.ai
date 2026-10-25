@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createElement as h, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { DateBar } from './date-bar';
 import { DeskAccessProvider } from './desk-access';
 import { ErrorState } from './error-state';
@@ -12,6 +12,13 @@ import { PeriodPicker } from './period-picker';
 import { RouteDrawer } from './route-drawer';
 import { ShareBar } from './share-bar';
 import { EmptyState, Field, Input, Stat, Table } from './ui';
+
+// Компонент вызывается как функция вне отрисовки: язык человека подставляется без контекста (русский)
+vi.mock('../i18n/locale-provider', async (importOriginal) => {
+  const { translator } = await import('../i18n');
+  return { ...(await importOriginal<object>()), useT: () => translator('ru'), useLocale: () => 'ru' };
+});
+
 
 /*
  * MV8.5 DS1c: договор остальных примитивов (DESIGN.md §8.2). Разметка снимается серверным рендером;

@@ -8,6 +8,7 @@ import { Icon } from '../../components/icon';
 import { Overlay } from '../../components/overlay';
 import { loadPhotoLibraryAction, saveCategoryPhotosAction } from './actions';
 import { MAX_CATEGORY_PHOTOS } from './photo-limits';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * Галерея категории в панели места и выбор фото из библиотеки сайта (DATA_MODEL §30, ADR-153).
@@ -22,6 +23,7 @@ export function PhotoGallery({
   categoryName: string;
   photos: CategoryPhoto[];
 }) {
+  const t = useT();
   const [index, setIndex] = useState(0);
   const [picking, setPicking] = useState(false);
   const shown = photos.filter((p) => p.url);
@@ -33,7 +35,7 @@ export function PhotoGallery({
           <>
             <img
               src={current.url!}
-              alt={current.alt ?? `Фото: ${categoryName}`}
+              alt={current.alt ?? t('Фото: {name}', { name: categoryName })}
               width={current.width}
               height={current.height}
               decoding="async"
@@ -43,7 +45,7 @@ export function PhotoGallery({
                 <button
                   type="button"
                   className="unit-photo__nav unit-photo__nav--prev"
-                  aria-label="Предыдущее фото"
+                  aria-label={t('Предыдущее фото')}
                   onClick={() => setIndex((i) => (i + shown.length - 1) % shown.length)}
                 >
                   <Icon name="back" width={18} height={18} />
@@ -51,7 +53,7 @@ export function PhotoGallery({
                 <button
                   type="button"
                   className="unit-photo__nav unit-photo__nav--next"
-                  aria-label="Следующее фото"
+                  aria-label={t('Следующее фото')}
                   onClick={() => setIndex((i) => (i + 1) % shown.length)}
                 >
                   <Icon name="chevron" width={18} height={18} />
@@ -65,13 +67,13 @@ export function PhotoGallery({
         ) : (
           <span className="unit-photo__empty">
             <Icon name="bed" width={40} height={40} />
-            Фото ещё не добавлены
+            {t('Фото ещё не добавлены')}
           </span>
         )}
       </div>
       <Button tone="secondary" size="sm" onClick={() => setPicking(true)}>
         <Icon name="plus" width={16} height={16} />
-        {photos.length ? 'Изменить фото категории' : 'Добавить фото категории'}
+        {photos.length ? t('Изменить фото категории') : t('Добавить фото категории')}
       </Button>
       {picking && (
         <PhotoPicker
@@ -96,6 +98,7 @@ function PhotoPicker({
   current: string[];
   onClose: () => void;
 }) {
+  const t = useT();
   const router = useRouter();
   const [assets, setAssets] = useState<SiteAssetView[] | null>(null);
   const [selected, setSelected] = useState<string[]>(current);
@@ -131,21 +134,20 @@ function PhotoPicker({
     });
   }
   return (
-    <Overlay open onClose={onClose} title={`Фото категории: ${categoryName}`} size="lg">
+    <Overlay open onClose={onClose} title={t('Фото категории: {name}', { name: categoryName })} size="lg">
       <div className="photo-picker">
         <p className="sub">
-          Выберите до {MAX_CATEGORY_PHOTOS} фото, порядок выбора и есть порядок показа. Новые
-          картинки загружаются в{' '}
-          <Link href="/marketing/site/assets">«Маркетинг → Изображения сайта»</Link>.
+          {t('Выберите до {n} фото, порядок выбора и есть порядок показа. Новые картинки загружаются в', { n: MAX_CATEGORY_PHOTOS })}{' '}
+          <Link href="/marketing/site/assets">{t('«Маркетинг → Изображения сайта»')}</Link>.
         </p>
         {error && <Alert>{error}</Alert>}
         {storageOff && (
-          <Alert>Хранилище изображений не настроено: картинки пока не показать.</Alert>
+          <Alert>{t('Хранилище изображений не настроено: картинки пока не показать.')}</Alert>
         )}
         {assets === null ? (
-          <p className="sub">Загружаем библиотеку...</p>
+          <p className="sub">{t('Загружаем библиотеку...')}</p>
         ) : assets.length === 0 ? (
-          <p className="sub">В библиотеке пока нет изображений.</p>
+          <p className="sub">{t('В библиотеке пока нет изображений.')}</p>
         ) : (
           <ul className="photo-picker__grid">
             {assets.map((a) => {
@@ -155,7 +157,7 @@ function PhotoPicker({
                   <button
                     type="button"
                     aria-pressed={at >= 0}
-                    aria-label={a.defaultAlt?.ru ?? `Изображение ${a.width}×${a.height}`}
+                    aria-label={a.defaultAlt?.ru ?? t('Изображение {w}×{h}', { w: a.width, h: a.height })}
                     className={cx('photo-picker__item', at >= 0 && 'is-on')}
                     onClick={() => toggle(a.id)}
                   >
@@ -173,13 +175,13 @@ function PhotoPicker({
         )}
         <div className="photo-picker__actions">
           <span className="sub">
-            Выбрано {selected.length} из {MAX_CATEGORY_PHOTOS}
+            {t('Выбрано {n} из {max}', { n: selected.length, max: MAX_CATEGORY_PHOTOS })}
           </span>
           <Button tone="secondary" onClick={onClose} disabled={pending}>
-            Отмена
+            {t('Отмена')}
           </Button>
           <Button onClick={save} disabled={pending}>
-            Сохранить
+            {t('Сохранить')}
           </Button>
         </div>
       </div>

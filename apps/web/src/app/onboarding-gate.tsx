@@ -4,6 +4,7 @@ import { hotelApi } from '../lib/hotel-api';
 import { ApiError, sharedOnboardingApi } from '../lib/api';
 import { ONBOARDING_LATER_COOKIE, needsOnboardingRedirect } from '../lib/onboarding-later';
 import { deskShell } from '../lib/desk-shell';
+import { serverT } from '../i18n/server';
 
 /**
  * Гейт онбординга: пока у объекта организации нет номеров, рабочие экраны уводят на /onboarding
@@ -20,21 +21,22 @@ export async function OnboardingGate() {
   const { vertical, access } = await deskShell();
   if (access.unknown) return null;
   if (vertical === 'BEAUTY' && (path === '/today' || path === '/calendar')) {
+    const t = await serverT();
     try {
       const state = await sharedOnboardingApi.status();
       if (state.completedAt && !state.readiness?.ready)
         return (
           <div className="alert" role="status">
-            <p>Настройка салона требует проверки. Рабочее пространство доступно.</p>
-            <a href="/register/setup">Проверить услуги, мастеров и график</a>
+            <p>{t('Настройка салона требует проверки. Рабочее пространство доступно.')}</p>
+            <a href="/register/setup">{t('Проверить услуги, мастеров и график')}</a>
           </div>
         );
     } catch (error) {
       if (!(error instanceof ApiError)) throw error;
       return (
         <div className="alert" role="status">
-          <p>Не удалось проверить готовность салона.</p>
-          <a href="/register/setup">Повторить проверку</a>
+          <p>{t('Не удалось проверить готовность салона.')}</p>
+          <a href="/register/setup">{t('Повторить проверку')}</a>
         </div>
       );
     }

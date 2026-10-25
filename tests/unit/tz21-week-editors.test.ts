@@ -17,7 +17,7 @@ describe('TZ2.1 weekly editor wire contract', () => {
     expect(actions).not.toContain('employeePortalApi.week(target, parsed.value, current.weekRevision)');
   });
   it('Beauty loader returns a string fallback without weakening optional-property types', () => {
-    expect(source('apps/web/src/app/beauty/actions.ts')).toContain(".error ?? 'Не удалось загрузить график'");
+    expect(source('apps/web/src/app/beauty/actions.ts')).toContain(".error ?? t('Не удалось загрузить график')");
     expect(source('apps/web/src/app/beauty/schedule/board.tsx')).not.toContain('error?: string | null | undefined');
   });
   it('Food carries the original read token through form, action and client, and uses its own reread', () => {

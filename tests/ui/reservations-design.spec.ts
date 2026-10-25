@@ -50,7 +50,7 @@ test('мобильный статус и поиск сохраняются в UR
 });
 
 for (const theme of ['light', 'dark'] as const) {
-  test(`Брони: ${theme}, читаемый список на пяти ширинах`, async ({ page }) => {
+  test(`Записи: ${theme}, читаемый список на пяти ширинах`, async ({ page }) => {
     test.setTimeout(120_000);
     const errors: string[] = [];
     page.on('pageerror', (e) => {
@@ -65,7 +65,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA', exact: true }).click();
     await expect(page.getByRole('dialog', { name: 'Бронирование', exact: true })).toBeVisible();
     await page.keyboard.press('Escape');
-    await page.getByRole('heading', { name: 'Брони', level: 1 }).click();
+    await page.getByRole('heading', { name: 'Записи', level: 1 }).click();
     await page.mouse.move(0, 0);
     mkdirSync(report, { recursive: true });
     for (const width of [1440, 1024, 768, 390, 320]) {
@@ -79,9 +79,9 @@ for (const theme of ['light', 'dark'] as const) {
         await table.locator('..').evaluate((el) => el.scrollWidth - el.clientWidth),
       ).toBeLessThanOrEqual(1);
       if (width <= 390) {
-        // 450 был замером до кнопки «Гости» в шапке (09.10.2026, «Гости и бронирования»): на 390 px она
-        // сидит в одной строке с «Новой бронью» (431), на 320 px действия переносятся (465), бюджет 470
-        expect((await table.locator('tbody tr').first().boundingBox())!.y).toBeLessThanOrEqual(470);
+        // 25.10.2026 кнопку «Гости» заменили вкладки раздела «Клиенты | Записи», как у салона: строка вкладок
+        // с целями 44 px, зато действия больше не переносятся на 320. Замер 504 на 390 и на 320, бюджет 510
+        expect((await table.locator('tbody tr').first().boundingBox())!.y).toBeLessThanOrEqual(510);
         const dates = page.getByRole('button', { name: 'Даты', exact: true });
         for (const control of [
           page.getByLabel('Статус брони', { exact: true }),

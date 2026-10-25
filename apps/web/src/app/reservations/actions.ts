@@ -12,6 +12,7 @@ import {
 } from '../../lib/api';
 import type { ActionPreview } from '../../lib/api';
 import { AUTO_UNIT } from '../../lib/booking-link';
+import { msg } from '../../i18n';
 
 export interface ActionResult {
   error: string | null;
@@ -77,7 +78,7 @@ export async function createReservationAction(
       ids.some((id) => !/^\d+$/.test(id)) ||
       new Set(ids).size !== ids.length
     ) {
-      throw new Error('Некорректный список размещений. Обновите форму.');
+      throw new Error(msg('Некорректный список размещений. Обновите форму.'));
     }
     const items = ids.map((id) => {
       const prefix = id === '0' ? '' : `item.${id}.`;
@@ -278,7 +279,7 @@ export async function extendStayAction(
 export async function setBookingCitizenshipAction(number: string, citizenship: string): Promise<ActionResult> {
   try {
     const card = await chessboardApi.reservation(number);
-    if (!card.primaryGuest) return { error: 'У брони нет основного гостя: добавьте гостя в карточке брони' };
+    if (!card.primaryGuest) return { error: msg('У брони нет основного гостя: добавьте гостя в карточке брони') };
     await guestsApi.update(card.primaryGuest.id, { citizenship });
   } catch (e) {
     return { error: describe(e) };

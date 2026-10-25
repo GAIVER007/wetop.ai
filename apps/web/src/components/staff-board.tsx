@@ -1,5 +1,7 @@
 'use client';
 import { useState, type ReactNode } from 'react';
+import { msg } from '../i18n';
+import { useT } from '../i18n/locale-provider';
 import { IconField } from './icon-field';
 import { Tabs } from './tabs';
 import { Field, Input, Table } from './ui';
@@ -44,7 +46,7 @@ export function StaffBoard<T extends { id: string }>({
   period,
   footer,
   actions,
-  searchPlaceholder = 'Поиск по имени или телефону',
+  searchPlaceholder = msg('Поиск по имени или телефону'),
   rowTestId = 'staff-row',
   tableTestId,
   notice,
@@ -68,6 +70,7 @@ export function StaffBoard<T extends { id: string }>({
   /** отказ действия или предупреждение над таблицей */
   notice?: ReactNode;
 }) {
+  const t = useT();
   const [query, setQuery] = useState('');
   const needle = query.trim().toLocaleLowerCase('ru');
   const shown = columns.filter((c) => !c.hidden);
@@ -79,7 +82,7 @@ export function StaffBoard<T extends { id: string }>({
     if (rows.length === 0)
       return (
         <div className="staff-board__empty">
-          <p className="muted">{needle ? 'Никого не нашли' : (tab.empty ?? 'Пока никого нет')}</p>
+          <p className="muted">{needle ? t('Никого не нашли') : (tab.empty ?? t('Пока никого нет'))}</p>
           {!needle && all === 0 && emptyAction}
         </div>
       );
@@ -96,7 +99,7 @@ export function StaffBoard<T extends { id: string }>({
           <tr>
             {shown.map((c) => (
               <th key={c.key} scope="col" className={cellClass(c)}>
-                {c.label}
+                {typeof c.label === 'string' ? t(c.label) : c.label}
               </th>
             ))}
           </tr>
@@ -124,11 +127,11 @@ export function StaffBoard<T extends { id: string }>({
       <section className="staff-board__card">
         <div className="staff-board__tools">
           {search && (
-            <Field label={<span className="sr-only">Поиск</span>}>
+            <Field label={<span className="sr-only">{t('Поиск')}</span>}>
               <IconField icon="search">
                 <Input
                   type="search"
-                  placeholder={searchPlaceholder}
+                  placeholder={t(searchPlaceholder)}
                   data-page-search
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
@@ -147,12 +150,12 @@ export function StaffBoard<T extends { id: string }>({
           </>
         ) : (
         <Tabs
-          key={tabs.map((t) => t.id).join(' ')}
-          label="Назначение в персонале"
+          key={tabs.map((tab) => tab.id).join(' ')}
+          label={t('Назначение в персонале')}
           className="staff-board__tabs"
           panels={tabs.map((tab) => ({
             id: tab.id,
-            label: tab.label,
+            label: t(tab.label),
             count: tab.rows.length,
             content: (
               <>
@@ -166,7 +169,7 @@ export function StaffBoard<T extends { id: string }>({
         <div className="staff-board__foot">
           <span>{footer}</span>
           <span>
-            Показано {visible} из {all}
+            {t('Показано {visible} из {all}', { visible, all })}
           </span>
         </div>
       </section>

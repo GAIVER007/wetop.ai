@@ -8,11 +8,13 @@ import type { AuthOrganizationRow, AuthSessionRow, SignedIn } from '../../../lib
 import { logoutAllAction, signOut } from '../../login/actions';
 import { trialLine } from '../../../lib/desk-person';
 import { displayDate } from '../../../lib/display-date';
+import { intlLocale, msg } from '../../../i18n';
+import { useLocale, useT } from '../../../i18n/locale-provider';
 
 const ROLE_WORD: Record<string, string> = {
-  OWNER: 'Владелец',
-  MANAGER: 'Управляющий',
-  STAFF: 'Администратор',
+  OWNER: msg('Владелец'),
+  MANAGER: msg('Управляющий'),
+  STAFF: msg('Администратор'),
 };
 
 /**
@@ -30,27 +32,29 @@ export function AccessPanel({
   organizations?: AuthOrganizationRow[];
   organizationError?: string | null;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const role = user.role ? parseMembershipRole(user.role) : null;
-  const trial = trialLine(user.organization, new Date());
+  const trial = trialLine(user.organization, new Date(), t);
   return (
     <Page
-      title="Управление доступом"
-      subtitle="Ваш вход, организация и сеансы"
+      title={t('Управление доступом')}
+      subtitle={t('Ваш вход, организация и сеансы')}
       width="narrow"
       actions={
         <Link className="btn" href="/today">
-          Открыть рабочее место
+          {t('Открыть рабочее место')}
           <Icon name="arrow" width={16} />
         </Link>
       }
     >
       <Stack>
-        <Panel title="Вы вошли">
+        <Panel title={t('Вы вошли')}>
           <Grid min={180} gap="sm">
-            <Fact label="Имя" value={user.name ?? 'не указано'} />
-            <Fact label="Почта" value={user.email} />
-            {user.organization && <Fact label="Организация" value={user.organization.name} />}
-            {user.role && <Fact label="Роль" value={ROLE_WORD[user.role] ?? user.role} />}
+            <Fact label={t('Имя')} value={user.name ?? t('не указано')} />
+            <Fact label={t('Почта')} value={user.email} />
+            {user.organization && <Fact label={t('Организация')} value={user.organization.name} />}
+            {user.role && <Fact label={t('Роль')} value={t(ROLE_WORD[user.role] ?? user.role)} />}
           </Grid>
           {trial && (
             <p>
@@ -59,9 +63,9 @@ export function AccessPanel({
           )}
           <form action={signOut}>
             <Row>
-              <span className="muted">Смена закончена?</span>
+              <span className="muted">{t('Смена закончена?')}</span>
               <Button type="submit" tone="secondary">
-                Выйти
+                {t('Выйти')}
               </Button>
             </Row>
           </form>
@@ -72,7 +76,7 @@ export function AccessPanel({
         )}
 
         {/* «Где я вошёл» и «выйти везде» (§13.5): отзыв гасит все ключи человека, включая этот */}
-        <Panel title="Где вы вошли" aria-label="Где вы вошли">
+        <Panel title={t('Где вы вошли')} aria-label={t('Где вы вошли')}>
           {sessions.length > 0 ? (
             <ul className="login-invite-list" data-testid="session-list">
               {sessions.map((s) => (
@@ -80,35 +84,36 @@ export function AccessPanel({
                   <span>
                     <b>{s.device}</b>{' '}
                     <span className="muted">
-                      вход <time dateTime={s.issuedAt}>{displayDate(s.issuedAt.slice(0, 10))}</time>
+                      {t('вход')}{' '}
+                      <time dateTime={s.issuedAt}>{displayDate(s.issuedAt.slice(0, 10), 'short', intlLocale(locale))}</time>
                     </span>
                   </span>
-                  {s.current && <Badge tone="ok">этот сеанс</Badge>}
+                  {s.current && <Badge tone="ok">{t('этот сеанс')}</Badge>}
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="muted">Список сеансов недоступен.</p>
+            <p className="muted">{t('Список сеансов недоступен.')}</p>
           )}
           <form action={logoutAllAction}>
             <Button type="submit" tone="secondary">
-              Завершить все сеансы
+              {t('Завершить все сеансы')}
             </Button>
           </form>
         </Panel>
 
         {/* Команда живёт на своей странице «Сотрудники» (TEAM1): здесь только ссылка */}
-        <Panel title="Сотрудники">
+        <Panel title={t('Сотрудники')}>
           {user.organization && role && canManageStaff(role) ? (
             <Row className="row--between">
-              <span className="muted">Приглашения, роли и отключение.</span>
+              <span className="muted">{t('Приглашения, роли и отключение.')}</span>
               <Link className="btn btn--secondary" href="/team" data-testid="team-link">
-                Открыть «Сотрудников»
+                {t('Открыть «Сотрудников»')}
               </Link>
             </Row>
           ) : (
             <p className="muted" data-testid="invite-not-allowed">
-              Приглашать сотрудников могут владелец и управляющий.
+              {t('Приглашать сотрудников могут владелец и управляющий.')}
             </p>
           )}
         </Panel>
@@ -125,22 +130,24 @@ function OrganizationSwitch({
   organizations: AuthOrganizationRow[];
   error: string | null;
 }) {
+  const t = useT();
   return (
-    <Panel title="Ваши организации">
-      {error && <Alert boxed>{error}</Alert>}
+    <Panel title={t('Ваши организации')}>
+      {error && <Alert boxed>{t(error)}</Alert>}
       <ul className="login-invite-list" data-testid="organization-list">
         {organizations.map((o) => (
           <li key={o.id} className="row row--between">
             <span>
-              <b>{o.name}</b> <span className="muted">{ROLE_WORD[o.role] ?? o.role}</span>
+              <b>{o.name}</b> <span className="muted">{t(ROLE_WORD[o.role] ?? o.role)}</span>
             </span>
             {o.current ? (
-              <Badge tone="ok">вы сейчас здесь</Badge>
+              <Badge tone="ok">{t('вы сейчас здесь')}</Badge>
             ) : (
               <form method="post" action="/auth/organization">
                 <input type="hidden" name="organizationId" value={o.id} />
                 <Button type="submit" tone="secondary" size="sm">
-                  Перейти<span className="sr-only"> в «{o.name}»</span>
+                  {t('Перейти')}
+                  <span className="sr-only">{t(' в «{name}»', { name: o.name })}</span>
                 </Button>
               </form>
             )}

@@ -1,5 +1,6 @@
 import type { InviteRole } from '@pms/domain';
 import type { AuthAccessStructure, AuthScope } from '../../lib/api';
+import { translator, type Translate } from '../../i18n';
 
 /**
  * Область доступа на экране «Сотрудники и доступ» (DATA_MODEL §31.1): модель редактора и подпись в таблице.
@@ -38,16 +39,17 @@ export const hasChoice = (structure: AuthAccessStructure | null | undefined): bo
 export const scopeSummary = (
   scopes: readonly AuthScope[],
   structure: AuthAccessStructure | null | undefined,
+  t: Translate = translator('ru'),
 ): string => {
-  if (scopes.length === 0) return 'Вся организация';
+  if (scopes.length === 0) return t('Вся организация');
   const names = scopes.map((s) => {
     const business = structure?.businesses.find((b) => b.id === s.businessId);
-    if (s.locationId === null) return `${business?.name ?? 'Бизнес'} (весь)`;
-    return business?.locations.find((l) => l.id === s.locationId)?.name ?? 'Филиал';
+    if (s.locationId === null) return t('{name} (весь)', { name: business?.name ?? t('Бизнес') });
+    return business?.locations.find((l) => l.id === s.locationId)?.name ?? t('Филиал');
   });
   return names.length <= 2
     ? names.join(', ')
-    : `${names.slice(0, 2).join(', ')} и ещё ${names.length - 2}`;
+    : t('{names} и ещё {n}', { names: names.slice(0, 2).join(', '), n: names.length - 2 });
 };
 
 /** Проверяем ответ API до разрешения команды: пустая успешная структура допустима, ошибка нет. */

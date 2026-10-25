@@ -1,7 +1,8 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { ApiError, platformApi, type ExtensionChangeBody } from '../../lib/api';
-import { organizationStatusLine } from '../../lib/platform';
+import { statusText } from './words';
+import { serverT } from '../../i18n/server';
 
 /**
  * «Платформа → Организации» (ADR-083): главный администратор включает, продлевает и выключает «ИИ-продавца»
@@ -37,16 +38,18 @@ export async function changeAiSellerAction(
       status: raw as ExtensionChangeBody['status'],
     });
     revalidatePath('/platform');
+    const t = await serverT();
     return {
       error: null,
       // организация уже названа в заголовке карточки — здесь только что стало
-      message: `Сохранено: ИИ-продавец ${
-        saved.aiSeller.access === 'active'
-          ? 'действует'
-          : saved.aiSeller.access === 'expired'
-            ? 'срок вышел'
-            : 'не подключён'
-      }.`,
+      message: t('Сохранено: ИИ-продавец {state}.', {
+        state:
+          saved.aiSeller.access === 'active'
+            ? t('действует')
+            : saved.aiSeller.access === 'expired'
+              ? t('срок вышел')
+              : t('не подключён'),
+      }),
       attempt,
     };
   } catch (e) {
@@ -80,12 +83,13 @@ export async function changeStatusAction(
   try {
     await platformApi.changeStatus(organizationId, { status, note });
     revalidatePath('/platform');
+    const t = await serverT();
     return {
       error: null,
       message:
         status === 'ACTIVE'
-          ? 'Оплата подтверждена: организация снова может вносить изменения.'
-          : 'Организация переведена в «только чтение».',
+          ? t('Оплата подтверждена: организация снова может вносить изменения.')
+          : t('Организация переведена в «только чтение».'),
       attempt,
     };
   } catch (e) {
@@ -124,10 +128,12 @@ export async function changeSiteBuilderAction(
       note: String(form.get('note') ?? '').trim(),
     });
     revalidatePath('/platform');
-    const word = saved.license.access === 'active' ? 'действует' : saved.license.access === 'expired' ? 'срок вышел' : 'выключен';
-    return { error: null, message: `Сохранено: конструктор сайта филиала «${saved.name}» ${word}`, attempt };
+    const t = await serverT();
+    const word = saved.license.access === 'active' ? t('действует') : saved.license.access === 'expired' ? t('срок вышел') : t('выключен');
+    return { error: null, message: t('Сохранено: конструктор сайта филиала «{name}» {state}', { name: saved.name, state: word }), attempt };
   } catch (e) {
-    return { error: e instanceof ApiError || e instanceof Error ? e.message : 'Не удалось сохранить', message: null, attempt };
+    const t = await serverT();
+    return { error: e instanceof ApiError || e instanceof Error ? e.message : t('Не удалось сохранить'), message: null, attempt };
   }
 }
 
@@ -156,7 +162,8 @@ export async function renameOrganizationAction(
   try {
     await platformApi.rename(organizationId, String(form.get('name') ?? ''));
     revalidatePath('/platform');
-    return { error: null, message: 'Название сохранено.', attempt };
+    const t = await serverT();
+    return { error: null, message: t('Название сохранено.'), attempt };
   } catch (e) {
     return failed(e, attempt);
   }
@@ -170,9 +177,10 @@ export async function archiveOrganizationAction(
   try {
     await platformApi.archive(organizationId);
     revalidatePath('/platform');
+    const t = await serverT();
     return {
       error: null,
-      message: 'Организация в архиве: люди не входят, данные сохранены. Вернуть можно в любой момент.',
+      message: t('Организация в архиве: люди не входят, данные сохранены. Вернуть можно в любой момент.'),
       attempt,
     };
   } catch (e) {
@@ -188,9 +196,10 @@ export async function restoreOrganizationAction(
   try {
     const saved = await platformApi.restore(organizationId);
     revalidatePath('/platform');
+    const t = await serverT();
     return {
       error: null,
-      message: `Организация возвращена, состояние: ${organizationStatusLine(saved).label}.`,
+      message: t('Организация возвращена, состояние: {state}.', { state: statusText(saved, t) }),
       attempt,
     };
   } catch (e) {
@@ -220,12 +229,14 @@ export async function createOrganizationAction(
       vertical,
     });
     revalidatePath('/platform');
-    const owner = made.organization.owners[0] ?? 'владельцу';
+    const t = await serverT();
+    const owner = made.organization.owners[0] ?? t('владельцу');
+    const name = made.organization.name;
     return {
       error: null,
       message: made.ownerLinkSent
-        ? `Организация «${made.organization.name}» создана. Ссылка для пароля отправлена на ${owner}.`
-        : `Организация «${made.organization.name}» создана, но письмо не ушло. Откройте её карточку и отправьте ссылку ещё раз.`,
+        ? t('Организация «{name}» создана. Ссылка для пароля отправлена на {owner}.', { name, owner })
+        : t('Организация «{name}» создана, но письмо не ушло. Откройте её карточку и отправьте ссылку ещё раз.', { name }),
       attempt,
       organizationId: made.organization.id,
     };
@@ -242,11 +253,12 @@ export async function sendOwnerLinkAction(
   try {
     const sent = await platformApi.ownerLink(organizationId);
     revalidatePath('/platform');
+    const t = await serverT();
     return {
       error: null,
       message: sent.ownerLinkSent
-        ? `Ссылка отправлена на ${sent.organization.owners[0] ?? 'почту владельца'}.`
-        : 'Письмо не ушло: почтовая служба не отвечает. Попробуйте позже.',
+        ? t('Ссылка отправлена на {to}.', { to: sent.organization.owners[0] ?? t('почту владельца') })
+        : t('Письмо не ушло: почтовая служба не отвечает. Попробуйте позже.'),
       attempt,
     };
   } catch (e) {

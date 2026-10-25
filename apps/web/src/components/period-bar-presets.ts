@@ -1,3 +1,4 @@
+import { msg } from '../i18n';
 import type { PeriodPreset } from './period-picker';
 
 const shift = (date: string, days: number) =>
@@ -11,10 +12,10 @@ export function reportPresets(
   href: (from: string, to: string) => string,
 ): PeriodPreset[] {
   const ranges: Array<[string, string, string]> = [
-    ['Сегодня', today, today],
-    ['Вчера', shift(today, -1), shift(today, -1)],
-    ['7 дней', shift(today, -6), today],
-    ['30 дней', shift(today, -29), today],
+    [msg('Сегодня'), today, today],
+    [msg('Вчера'), shift(today, -1), shift(today, -1)],
+    [msg('7 дней'), shift(today, -6), today],
+    [msg('30 дней'), shift(today, -29), today],
   ];
   return ranges.map(([label, f, t]) => ({
     label,

@@ -1,5 +1,6 @@
 import type { BeautyAppointmentRow, BeautyDayColumn } from '../../lib/api';
 import { clockMinutes } from './time';
+import { msg } from '../../i18n';
 
 /**
  * Журнал салона, вариант B (владелец 24.10.2026, эскиз `sketches/salon-journal-2026-10-24/`): загрузка мастера
@@ -30,8 +31,8 @@ export function upcoming(rows: BeautyAppointmentRow[], nowMinutes: number | null
 
 /** Одна кнопка в строке «Ближайших»: подтверждённая «Пришла» (начать визит), записанная «Подтвердить» */
 export function quickAction(row: BeautyAppointmentRow): { to: 'IN_PROGRESS' | 'CONFIRMED'; label: string } | null {
-  if (row.status === 'CONFIRMED' && row.next.includes('IN_PROGRESS')) return { to: 'IN_PROGRESS', label: 'Пришла' };
-  if (row.status === 'BOOKED' && row.next.includes('CONFIRMED')) return { to: 'CONFIRMED', label: 'Подтвердить' };
+  if (row.status === 'CONFIRMED' && row.next.includes('IN_PROGRESS')) return { to: 'IN_PROGRESS', label: msg('Пришла') };
+  if (row.status === 'BOOKED' && row.next.includes('CONFIRMED')) return { to: 'CONFIRMED', label: msg('Подтвердить') };
   return null;
 }
 

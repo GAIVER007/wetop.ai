@@ -26,7 +26,9 @@ import type {
   StockUnit,
 } from '../../lib/food-types';
 import { loadLots, loadPrepRecipe, mutateStock } from './stock-actions';
-import { dayClock } from '../../lib/human-period';
+import { intlLocale, msg, translator, type Translate } from '../../i18n';
+import { dateFormat } from '../../i18n/dates';
+import { useLocale, useT } from '../../i18n/locale-provider';
 import { useConfirm } from '../../components/use-confirm';
 
 /** Склад кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS) */
@@ -46,16 +48,24 @@ export interface StockCtx {
 const stockNouns = (ctx: StockCtx) =>
   ctx.vertical === 'BEAUTY'
     ? {
-        one: 'расходник',
-        oneTitle: 'Расходник',
-        many: 'расходникам',
-        count: 'Расходников',
+        oneTitle: msg('Расходник'),
+        count: msg('Расходников'),
+        edit: msg('Изменить расходник'),
+        create: msg('Новый расходник'),
+        noLots: msg('Приходов по расходнику ещё не было'),
+        search: msg('Поиск по расходникам'),
+        first: msg('Добавьте первый расходник'),
+        add: msg('+ Расходник'),
       }
     : {
-        one: 'ингредиент',
-        oneTitle: 'Ингредиент',
-        many: 'ингредиентам',
-        count: 'Ингредиентов',
+        oneTitle: msg('Ингредиент'),
+        count: msg('Ингредиентов'),
+        edit: msg('Изменить ингредиент'),
+        create: msg('Новый ингредиент'),
+        noLots: msg('Приходов по ингредиенту ещё не было'),
+        search: msg('Поиск по ингредиентам'),
+        first: msg('Добавьте первый ингредиент'),
+        add: msg('+ Ингредиент'),
       };
 
 const stockMoney = (minor: string | bigint, ctx: StockCtx) =>
@@ -63,34 +73,35 @@ const stockMoney = (minor: string | bigint, ctx: StockCtx) =>
     ? formatMoney(minor, ctx.currency)
     : wholeTenge(minor.toString(), ctx.currency);
 
-const UNITS: StockUnit[] = ['г', 'мл', 'шт'];
-const PRICE_UNIT: Record<StockUnit, string> = { г: 'кг', мл: 'л', шт: 'шт' };
+const UNITS: StockUnit[] = ['г', 'мл', 'шт']; // kk-allow: единицы как значения API; подпись переводится при показе
+const PRICE_UNIT: Record<StockUnit, string> = { г: msg('кг'), мл: msg('л'), шт: msg('шт') }; // kk-allow: ключи это значения единиц
 const KIND_LABEL: Record<StockMovementView['kind'], string> = {
-  RECEIPT: 'Приход',
-  WRITE_OFF: 'Списание',
-  INVENTORY: 'Инвентаризация',
-  REVERSAL: 'Сторно прихода',
+  RECEIPT: msg('Приход'),
+  WRITE_OFF: msg('Списание'),
+  INVENTORY: msg('Инвентаризация'),
+  REVERSAL: msg('Сторно прихода'),
   // §38: движения по заказам
-  CONSUMPTION: 'Расход по заказу',
-  SHORTAGE: 'Недостача по заказу',
-  CONSUMPTION_RETURN: 'Возврат по отмене',
+  CONSUMPTION: msg('Расход по заказу'),
+  SHORTAGE: msg('Недостача по заказу'),
+  CONSUMPTION_RETURN: msg('Возврат по отмене'),
   // §62: заготовки
-  PRODUCTION_OUT: 'Расход на заготовку',
-  PRODUCTION_IN: 'Приготовлено',
+  PRODUCTION_OUT: msg('Расход на заготовку'),
+  PRODUCTION_IN: msg('Приготовлено'),
 };
 
 /** Сумма в выбранной валюте с двумя десятичными знаками, в целых младших единицах. */
-export function stockMoneyInputToMinor(raw: string, field: string, currency: string): number {
+export function stockMoneyInputToMinor(raw: string, field: string, currency: string, t: Translate = translator('ru')): number {
   const m = /^(\d+)(?:[.,](\d{1,2}))?$/.exec(raw.trim());
-  if (!m) throw new Error(`${field}: укажите сумму в ${currency}`);
+  if (!m) throw new Error(t('{field}: укажите сумму в {currency}', { field, currency }));
   const minor = BigInt(m[1]!) * 100n + BigInt((m[2] ?? '').padEnd(2, '0') || '0');
-  if (minor > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error(`${field}: сумма слишком большая`);
+  if (minor > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error(t('{field}: сумма слишком большая', { field }));
   return Number(minor);
 }
 const qtyText = (qty: string, unit: string) => `${qty.replace('.', ',')} ${unit}`;
 const dateText = (iso: string) => iso.split('-').reverse().join('.');
 
 function useSave(close: () => void) {
+  const t = useT();
   const router = useRouter();
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
@@ -109,7 +120,7 @@ function useSave(close: () => void) {
             close();
           }
         } catch (e) {
-          setError(e instanceof Error ? e.message : 'Не удалось сохранить');
+          setError(e instanceof Error ? e.message : t('Не удалось сохранить'));
         }
       });
     },
@@ -117,10 +128,11 @@ function useSave(close: () => void) {
 }
 
 function ProductDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProductView | null; close: () => void }) {
+  const t = useT();
   const save = useSave(close);
   const nouns = stockNouns(ctx);
   return (
-    <Overlay open drawer trapFocus onClose={close} className="food-drawer" title={product ? `Изменить ${nouns.one}` : `Новый ${nouns.one}`}>
+    <Overlay open drawer trapFocus onClose={close} className="food-drawer" title={product ? t(nouns.edit) : t(nouns.create)}>
       <form
         className="food-form"
         onSubmit={(e) => {
@@ -138,35 +150,35 @@ function ProductDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockP
           );
         }}
       >
-        <Field label="Название">
+        <Field label={t('Название')}>
           <Input name="name" required maxLength={200} defaultValue={product?.name ?? ''} />
         </Field>
-        <Field label="Вид" controlId="stock-product-kind" hint="Заготовку готовят у вас из других продуктов: соус, тесто, колбаса, сироп">
+        <Field label={t('Вид')} controlId="stock-product-kind" hint={t('Заготовку готовят у вас из других продуктов: соус, тесто, колбаса, сироп')}>
           <Select name="kind" defaultValue={product?.kind ?? 'RAW'}>
-            <option value="RAW">Покупаем готовым</option>
-            <option value="PREP">Заготовка</option>
+            <option value="RAW">{t('Покупаем готовым')}</option>
+            <option value="PREP">{t('Заготовка')}</option>
           </Select>
         </Field>
         <div className="food-form-row">
-          <Field label="Единица">
-            <Select name="unit" defaultValue={product?.unit ?? 'г'}>
+          <Field label={t('Единица')}>
+            <Select name="unit" defaultValue={product?.unit ?? 'г'}>{/* kk-allow: значение единицы */}
               {UNITS.map((u) => (
                 <option key={u} value={u}>
-                  {u}
+                  {t(u)}
                 </option>
               ))}
             </Select>
           </Field>
-          <Field label="Минимальный остаток">
+          <Field label={t('Минимальный остаток')}>
             <Input name="minQty" inputMode="decimal" defaultValue={product?.minQty ?? '0'} />
           </Field>
         </div>
         <label className="food-check">
           <input name="active" type="checkbox" defaultChecked={product?.active ?? true} />
-          Используется (снимите, чтобы убрать из прихода)
+          {t('Используется (снимите, чтобы убрать из прихода)')}
         </label>
         {save.error && <Alert tone="warning">{save.error}</Alert>}
-        <Button disabled={save.pending}>{save.pending ? 'Сохраняем…' : product ? 'Сохранить' : 'Создать'}</Button>
+        <Button disabled={save.pending}>{save.pending ? t('Сохраняем…') : product ? t('Сохранить') : t('Создать')}</Button>
       </form>
     </Overlay>
   );
@@ -174,17 +186,18 @@ function ProductDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockP
 
 type Line = { productId: string; qty: string; price: string; expiresOn: string };
 function ReceiptDrawer({ ctx, products, close }: { ctx: StockCtx; products: StockProductView[]; close: () => void }) {
+  const t = useT();
   const save = useSave(close);
   const nouns = stockNouns(ctx);
   // заготовку не покупают: она приходит кнопкой «Приготовили» (§62)
   const active = products.filter((p) => p.active && p.kind !== 'PREP');
   const blank = (): Line => ({ productId: active[0]?.id ?? '', qty: '', price: '', expiresOn: '' });
   const [lines, setLines] = useState<Line[]>([blank()]);
-  const unitOf = (id: string) => active.find((p) => p.id === id)?.unit ?? 'г';
+  const unitOf = (id: string) => active.find((p) => p.id === id)?.unit ?? 'г'; // kk-allow: значение единицы
   const patch = (i: number, part: Partial<Line>) =>
     setLines((all) => all.map((l, k) => (k === i ? { ...l, ...part } : l)));
   return (
-    <Overlay open drawer trapFocus onClose={close} className="food-drawer" title="Приход на склад">
+    <Overlay open drawer trapFocus onClose={close} className="food-drawer" title={t('Приход на склад')}>
       <form
         className="food-form"
         onSubmit={(e) => {
@@ -198,7 +211,7 @@ function ReceiptDrawer({ ctx, products, close }: { ctx: StockCtx; products: Stoc
               lines: lines.map((l, i) => ({
                 productId: l.productId,
                 qty: l.qty.replace(',', '.'),
-                unitCost: stockMoneyInputToMinor(l.price, `Строка ${i + 1}, цена`, ctx.currency),
+                unitCost: stockMoneyInputToMinor(l.price, t('Строка {n}, цена', { n: i + 1 }), ctx.currency, t),
                 expiresOn: l.expiresOn || null,
               })),
             };
@@ -207,19 +220,19 @@ function ReceiptDrawer({ ctx, products, close }: { ctx: StockCtx; products: Stoc
         }}
       >
         <div className="food-form-row">
-          <Field label="Поставщик">
+          <Field label={t('Поставщик')}>
             <Input name="supplier" maxLength={200} />
           </Field>
-          <Field label="Номер накладной">
+          <Field label={t('Номер накладной')}>
             <Input name="document" maxLength={100} />
           </Field>
         </div>
-        <Field label="Дата прихода (пусто: сегодня)">
+        <Field label={t('Дата прихода (пусто: сегодня)')}>
           <Input name="receivedOn" type="date" />
         </Field>
         {lines.map((l, i) => (
-          <fieldset key={i} className="food-form" aria-label={`Строка ${i + 1}`}>
-            <Field label={nouns.oneTitle}>
+          <fieldset key={i} className="food-form" aria-label={t('Строка {n}', { n: i + 1 })}>
+            <Field label={t(nouns.oneTitle)}>
               <Select value={l.productId} onChange={(e) => patch(i, { productId: e.target.value })}>
                 {active.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -229,30 +242,35 @@ function ReceiptDrawer({ ctx, products, close }: { ctx: StockCtx; products: Stoc
               </Select>
             </Field>
             <div className="food-form-row">
-              <Field label={`Количество, ${unitOf(l.productId)}`}>
+              <Field label={t('Количество, {unit}', { unit: t(unitOf(l.productId)) })}>
                 <Input required inputMode="decimal" value={l.qty} onChange={(e) => patch(i, { qty: e.target.value })} />
               </Field>
-              <Field label={`Цена за ${PRICE_UNIT[unitOf(l.productId)]}, ${ctx.currency === 'KZT' ? '₸' : ctx.currency}`}>
+              <Field
+                label={t('Цена за {unit}, {currency}', {
+                  unit: t(PRICE_UNIT[unitOf(l.productId)]),
+                  currency: ctx.currency === 'KZT' ? '₸' : ctx.currency,
+                })}
+              >
                 <Input required inputMode="decimal" value={l.price} onChange={(e) => patch(i, { price: e.target.value })} />
               </Field>
             </div>
-            <Field label="Годен до">
+            <Field label={t('Годен до')}>
               <Input type="date" value={l.expiresOn} onChange={(e) => patch(i, { expiresOn: e.target.value })} />
             </Field>
             {lines.length > 1 && (
               <Button type="button" tone="ghost" size="sm" onClick={() => setLines((all) => all.filter((_, k) => k !== i))}>
-                Убрать строку {i + 1}
+                {t('Убрать строку {n}', { n: i + 1 })}
               </Button>
             )}
           </fieldset>
         ))}
         {lines.length < 50 && (
           <Button type="button" tone="secondary" onClick={() => setLines((all) => [...all, blank()])}>
-            + Строка
+            {t('+ Строка')}
           </Button>
         )}
         {save.error && <Alert tone="warning">{save.error}</Alert>}
-        <Button disabled={save.pending}>{save.pending ? 'Проводим…' : 'Провести приход'}</Button>
+        <Button disabled={save.pending}>{save.pending ? t('Проводим…') : t('Провести приход')}</Button>
       </form>
     </Overlay>
   );
@@ -269,6 +287,7 @@ function QtyDrawer({
   mode: 'write-off' | 'inventory';
   close: () => void;
 }) {
+  const t = useT();
   const save = useSave(close);
   const empty = mode === 'inventory' && Number(product.onHand) === 0;
   return (
@@ -278,7 +297,7 @@ function QtyDrawer({
       trapFocus
       onClose={close}
       className="food-drawer"
-      title={`${mode === 'write-off' ? 'Списание' : 'Инвентаризация'}: ${product.name}`}
+      title={mode === 'write-off' ? t('Списание: {name}', { name: product.name }) : t('Инвентаризация: {name}', { name: product.name })}
     >
       <form
         className="food-form"
@@ -290,7 +309,7 @@ function QtyDrawer({
           save.run(() => {
             // пустой склад: излишек принимается по цене, которую называет человек (Q-KITCHEN-9)
             const price = empty
-              ? { unitCost: stockMoneyInputToMinor(String(f.get('price')), 'Цена излишка', ctx.currency) }
+              ? { unitCost: stockMoneyInputToMinor(String(f.get('price')), t('Цена излишка'), ctx.currency, t) }
               : {};
             return mutateStock(
               ctx.scopeKey,
@@ -301,30 +320,40 @@ function QtyDrawer({
           });
         }}
       >
-        <p className="muted">По учёту: {qtyText(product.onHand, product.unit)}</p>
-        <Field label={mode === 'write-off' ? `Списать, ${product.unit}` : `Фактически на складе, ${product.unit}`}>
+        <p className="muted">{t('По учёту: {qty}', { qty: qtyText(product.onHand, t(product.unit)) })}</p>
+        <Field
+          label={
+            mode === 'write-off'
+              ? t('Списать, {unit}', { unit: t(product.unit) })
+              : t('Фактически на складе, {unit}', { unit: t(product.unit) })
+          }
+        >
           <Input name="qty" required inputMode="decimal" />
         </Field>
         {empty && (
           <Field
-            label={`Цена излишка за ${PRICE_UNIT[product.unit as keyof typeof PRICE_UNIT]}, ${ctx.currency === 'KZT' ? '₸' : ctx.currency}`}
-            hint="На складе пусто: найденное примем по этой цене"
+            label={t('Цена излишка за {unit}, {currency}', {
+              unit: t(PRICE_UNIT[product.unit as keyof typeof PRICE_UNIT]),
+              currency: ctx.currency === 'KZT' ? '₸' : ctx.currency,
+            })}
+            hint={t('На складе пусто: найденное примем по этой цене')}
             controlId="stock-surplus-price"
           >
             <Input name="price" required inputMode="decimal" />
           </Field>
         )}
-        <Field label={mode === 'write-off' ? 'Причина' : 'Комментарий'}>
+        <Field label={mode === 'write-off' ? t('Причина') : t('Комментарий')}>
           <Input name="reason" required={mode === 'write-off'} maxLength={500} />
         </Field>
         {save.error && <Alert tone="warning">{save.error}</Alert>}
-        <Button disabled={save.pending}>{save.pending ? 'Сохраняем…' : mode === 'write-off' ? 'Списать' : 'Сверить'}</Button>
+        <Button disabled={save.pending}>{save.pending ? t('Сохраняем…') : mode === 'write-off' ? t('Списать') : t('Сверить')}</Button>
       </form>
     </Overlay>
   );
 }
 
 function LotsDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProductView; close: () => void }) {
+  const t = useT();
   const router = useRouter();
   const { ask, dialog } = useConfirm();
   const [lots, setLots] = useState<StockLotView[] | null>(null);
@@ -340,14 +369,14 @@ function LotsDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProd
     void reload();
   }, [product.id]);
   return (
-    <Overlay open drawer trapFocus onClose={close} className="food-drawer" title={`Партии: ${product.name}`}>
+    <Overlay open drawer trapFocus onClose={close} className="food-drawer" title={t('Партии: {name}', { name: product.name })}>
       <div className="food-form">
         {dialog}
         {error && <Alert tone="warning">{error}</Alert>}
         {lots === null ? (
-          <p role="status">Загружаем партии…</p>
+          <p role="status">{t('Загружаем партии…')}</p>
         ) : lots.length === 0 ? (
-          <EmptyState title={`Приходов по ${nouns.one}у ещё не было`} />
+          <EmptyState title={t(nouns.noLots)} />
         ) : (
           <ul className="food-catalog-list">
             {lots.map((l) => (
@@ -355,26 +384,33 @@ function LotsDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProd
                 <div>
                   <strong>{dateText(l.receivedOn)}</strong>
                   <span>
-                    Остаток {qtyText(l.remainingQty, product.unit)} из {qtyText(l.receivedQty, product.unit)}, цена за{' '}
-                    {PRICE_UNIT[product.unit]} {stockMoney(l.unitCostMinor, ctx)}
+                    {t('Остаток {left} из {received}, цена за {unit} {price}', {
+                      left: qtyText(l.remainingQty, t(product.unit)),
+                      received: qtyText(l.receivedQty, t(product.unit)),
+                      unit: t(PRICE_UNIT[product.unit]),
+                      price: stockMoney(l.unitCostMinor, ctx),
+                    })}
                   </span>
                   {l.supplier && <span>{l.supplier}</span>}
                 </div>
                 {l.reversed ? (
-                  <Badge tone="neutral">Сторнирован</Badge>
+                  <Badge tone="neutral">{t('Сторнирован')}</Badge>
                 ) : l.reversible && (ctx.canDelete ?? ctx.canProperty ?? false) ? (
                   <Button
                     tone="secondary"
                     size="sm"
                     disabled={pending}
-                    aria-label={`Сторнировать приход от ${dateText(l.receivedOn)}`}
+                    aria-label={t('Сторнировать приход от {date}', { date: dateText(l.receivedOn) })}
                     onClick={async () => {
                       // сторно пишет обратное движение в ленту, которая только дописывается (§34)
                       if (
                         !(await ask({
-                          title: `Сторнировать приход от ${dateText(l.receivedOn)}?`,
-                          body: `${product.name}: партия на ${qtyText(l.receivedQty, product.unit)} уйдёт из остатка, в ленте появится «Сторно прихода». Отменить сторно нельзя.`,
-                          confirmLabel: 'Сторнировать',
+                          title: t('Сторнировать приход от {date}?', { date: dateText(l.receivedOn) }),
+                          body: t('{name}: партия на {qty} уйдёт из остатка, в ленте появится «Сторно прихода». Отменить сторно нельзя.', {
+                            name: product.name,
+                            qty: qtyText(l.receivedQty, t(product.unit)),
+                          }),
+                          confirmLabel: t('Сторнировать'),
                           tone: 'danger',
                         }))
                       )
@@ -389,7 +425,7 @@ function LotsDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProd
                       });
                     }}
                   >
-                    Сторно
+                    {t('Сторно')}
                   </Button>
                 ) : null}
               </li>
@@ -416,12 +452,13 @@ function RecipeDrawer({
   canEdit: boolean;
   close: () => void;
 }) {
+  const t = useT();
   const save = useSave(close);
   const [recipe, setRecipe] = useState<PrepRecipeView | null>(null);
   const [yieldQty, setYieldQty] = useState('');
   const [lines, setLines] = useState<RecipeLine[]>([]);
   const choices = products.filter((p) => p.id !== product.id && p.active);
-  const unitOf = (id: string) => products.find((p) => p.id === id)?.unit ?? 'г';
+  const unitOf = (id: string) => products.find((p) => p.id === id)?.unit ?? 'г'; // kk-allow: значение единицы
   useEffect(() => {
     void loadPrepRecipe(ctx.scopeKey, product.id).then((r) => {
       if (r.error) save.setError(r.error);
@@ -437,9 +474,9 @@ function RecipeDrawer({
   const patch = (i: number, part: Partial<RecipeLine>) =>
     setLines((all) => all.map((l, k) => (k === i ? { ...l, ...part } : l)));
   return (
-    <Overlay open drawer trapFocus onClose={close} className="food-drawer" title={`Техкарта: ${product.name}`}>
+    <Overlay open drawer trapFocus onClose={close} className="food-drawer" title={t('Техкарта: {name}', { name: product.name })}>
       {recipe === null && !save.error ? (
-        <p role="status">Загружаем техкарту…</p>
+        <p role="status">{t('Загружаем техкарту…')}</p>
       ) : (
         <form
           className="food-form"
@@ -457,12 +494,16 @@ function RecipeDrawer({
             );
           }}
         >
-          <Field label={`Выход, ${product.unit}`} controlId="stock-prep-yield" hint="Сколько заготовки получается из состава ниже">
+          <Field
+            label={t('Выход, {unit}', { unit: t(product.unit) })}
+            controlId="stock-prep-yield"
+            hint={t('Сколько заготовки получается из состава ниже')}
+          >
             <Input required inputMode="decimal" disabled={!canEdit} value={yieldQty} onChange={(e) => setYieldQty(e.target.value)} />
           </Field>
           {lines.map((l, i) => (
-            <fieldset key={i} className="food-form-row" aria-label={`Продукт ${i + 1}`}>
-              <Field label="Продукт">
+            <fieldset key={i} className="food-form-row" aria-label={t('Продукт {n}', { n: i + 1 })}>
+              <Field label={t('Продукт')}>
                 <Select disabled={!canEdit} value={l.ingredientId} onChange={(e) => patch(i, { ingredientId: e.target.value })}>
                   {choices.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -471,23 +512,23 @@ function RecipeDrawer({
                   ))}
                 </Select>
               </Field>
-              <Field label={`Норма, ${unitOf(l.ingredientId)}`}>
+              <Field label={t('Норма, {unit}', { unit: t(unitOf(l.ingredientId)) })}>
                 <Input required inputMode="decimal" disabled={!canEdit} value={l.normQty} onChange={(e) => patch(i, { normQty: e.target.value })} />
               </Field>
               {canEdit && lines.length > 1 && (
                 <Button type="button" tone="ghost" size="sm" onClick={() => setLines((all) => all.filter((_, k) => k !== i))}>
-                  Убрать {i + 1}
+                  {t('Убрать {n}', { n: i + 1 })}
                 </Button>
               )}
             </fieldset>
           ))}
           {canEdit && lines.length < 50 && choices.length > 0 && (
             <Button type="button" tone="secondary" onClick={() => setLines((all) => [...all, { ingredientId: choices[0]!.id, normQty: '' }])}>
-              + Продукт
+              {t('+ Продукт')}
             </Button>
           )}
           {save.error && <Alert tone="warning">{save.error}</Alert>}
-          {canEdit && <Button disabled={save.pending}>{save.pending ? 'Сохраняем…' : 'Сохранить техкарту'}</Button>}
+          {canEdit && <Button disabled={save.pending}>{save.pending ? t('Сохраняем…') : t('Сохранить техкарту')}</Button>}
         </form>
       )}
     </Overlay>
@@ -496,9 +537,10 @@ function RecipeDrawer({
 
 /** §62: «Приготовили»: продукты по техкарте уходят со склада сейчас, заготовка приходит партией по их себестоимости */
 function ProduceDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockProductView; close: () => void }) {
+  const t = useT();
   const save = useSave(close);
   return (
-    <Overlay open drawer trapFocus onClose={close} className="food-drawer" title={`Приготовили: ${product.name}`}>
+    <Overlay open drawer trapFocus onClose={close} className="food-drawer" title={t('Приготовили: {name}', { name: product.name })}>
       <form
         className="food-form"
         onSubmit={(e) => {
@@ -516,15 +558,17 @@ function ProduceDrawer({ ctx, product, close }: { ctx: StockCtx; product: StockP
           );
         }}
       >
-        <p className="muted">Продукты по техкарте спишутся со склада сейчас. Если чего-то не хватит, спишем остаток и запишем недостачу.</p>
-        <Field label={`Сколько приготовили, ${product.unit}`}>
+        <p className="muted">
+          {t('Продукты по техкарте спишутся со склада сейчас. Если чего-то не хватит, спишем остаток и запишем недостачу.')}
+        </p>
+        <Field label={t('Сколько приготовили, {unit}', { unit: t(product.unit) })}>
           <Input name="qty" required inputMode="decimal" />
         </Field>
-        <Field label="Годен до">
+        <Field label={t('Годен до')}>
           <Input name="expiresOn" type="date" />
         </Field>
         {save.error && <Alert tone="warning">{save.error}</Alert>}
-        <Button disabled={save.pending}>{save.pending ? 'Проводим…' : 'Приготовили'}</Button>
+        <Button disabled={save.pending}>{save.pending ? t('Проводим…') : t('Приготовили')}</Button>
       </form>
     </Overlay>
   );
@@ -544,6 +588,8 @@ export function StockBoard({
   products: StockProductView[];
   movements: StockMovementView[];
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [draft, setDraft] = useState<Draft | null>(null);
   const [query, setQuery] = useState('');
   const close = () => setDraft(null);
@@ -555,6 +601,10 @@ export function StockBoard({
   const total = products.reduce((sum, p) => sum + BigInt(p.valueMinor), 0n);
   const low = products.filter((p) => p.active && p.low).length;
   const q = query.trim().toLocaleLowerCase('ru');
+  // момент движения в поясе филиала: «22 окт., 01:06» на языке человека
+  const timeZone = ctx.timezone ?? 'UTC';
+  const moment = (iso: string) =>
+    `${dateFormat(intlLocale(locale), { day: 'numeric', month: 'short', timeZone }).format(new Date(iso))}, ${dateFormat(intlLocale(locale), { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone }).format(new Date(iso))}`;
   const shown = products.filter((p) => q === '' || p.name.toLocaleLowerCase('ru').includes(q));
 
   // кнопки в строке поиска над таблицей, а не отдельной строкой с пустым местом (аудит 21.10.2026 п.40)
@@ -562,36 +612,36 @@ export function StockBoard({
     <div className="food-inline-actions">
       {canCreateProduct && (
         <Button tone="secondary" onClick={() => setDraft({ kind: 'product', product: null })}>
-          + {nouns.oneTitle}
+          {t(nouns.add)}
         </Button>
       )}
       {canReceive && products.some((p) => p.active && p.kind !== 'PREP') && (
-        <Button onClick={() => setDraft({ kind: 'receipt' })}>+ Приход товара</Button>
+        <Button onClick={() => setDraft({ kind: 'receipt' })}>{t('+ Приход товара')}</Button>
       )}
     </div>
   );
   const stockTable =
     products.length === 0 ? (
-      <EmptyState title={`Добавьте первый ${nouns.one}`} actions={actions || undefined} />
+      <EmptyState title={t(nouns.first)} actions={actions || undefined} />
     ) : (
       <div className="rest-card">
         <div className="rest-card__tools">
           <IconField icon="search">
-            <Input aria-label={`Поиск по ${nouns.many}`} placeholder={`Поиск по ${nouns.many}`} value={query} onChange={(e) => setQuery(e.target.value)} />
+            <Input aria-label={t(nouns.search)} placeholder={t(nouns.search)} value={query} onChange={(e) => setQuery(e.target.value)} />
           </IconField>
           {actions}
         </div>
         {shown.length === 0 ? (
-          <EmptyState title="Ничего не найдено" />
+          <EmptyState title={t('Ничего не найдено')} />
         ) : (
-          <Table density="normal" aria-label="Остатки склада">
+          <Table density="normal" aria-label={t('Остатки склада')}>
             <thead>
               <tr>
-                {[nouns.oneTitle, 'Остаток', 'Минимум', 'Стоимость', 'Годен до', 'Статус'].map((h) => (
-                  <th key={h}>{h}</th>
+                {[nouns.oneTitle, msg('Остаток'), msg('Минимум'), msg('Стоимость'), msg('Годен до'), msg('Статус')].map((h) => (
+                  <th key={h}>{t(h)}</th>
                 ))}
                 <th>
-                  <span className="sr-only">Действия</span>
+                  <span className="sr-only">{t('Действия')}</span>
                 </th>
               </tr>
             </thead>
@@ -604,53 +654,53 @@ export function StockBoard({
                     {p.kind === 'PREP' && (
                       <>
                         {' '}
-                        <Badge tone="info">Заготовка</Badge>
+                        <Badge tone="info">{t('Заготовка')}</Badge>
                       </>
                     )}
                   </td>
-                  <td className="rest-stock-qty">{qtyText(p.onHand, p.unit)}</td>
-                  <td className="rest-stock-qty">{qtyText(p.minQty, p.unit)}</td>
+                  <td className="rest-stock-qty">{qtyText(p.onHand, t(p.unit))}</td>
+                  <td className="rest-stock-qty">{qtyText(p.minQty, t(p.unit))}</td>
                   <td>{stockMoney(p.valueMinor, ctx)}</td>
                   <td>{p.nearestExpiry ? <time dateTime={p.nearestExpiry}>{dateText(p.nearestExpiry)}</time> : '—'}</td>
                   <td>
                     {!p.active ? (
-                      <Badge tone="neutral">Не используется</Badge>
+                      <Badge tone="neutral">{t('Не используется')}</Badge>
                     ) : p.onHand === '0' ? (
-                      <Badge tone="danger">Нет на складе</Badge>
+                      <Badge tone="danger">{t('Нет на складе')}</Badge>
                     ) : p.low ? (
-                      <Badge tone="warn">Мало</Badge>
+                      <Badge tone="warn">{t('Мало')}</Badge>
                     ) : (
-                      <Badge tone="ok">В норме</Badge>
+                      <Badge tone="ok">{t('В норме')}</Badge>
                     )}
                   </td>
                   <td>
                     <div className="food-inline-actions">
                       {p.kind === 'PREP' && canReceive && p.active && (
-                        <Button tone="ghost" size="sm" aria-label={`Приготовили: ${p.name}`} onClick={() => setDraft({ kind: 'produce', product: p })}>
-                          Приготовили
+                        <Button tone="ghost" size="sm" aria-label={t('Приготовили: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'produce', product: p })}>
+                          {t('Приготовили')}
                         </Button>
                       )}
                       {p.kind === 'PREP' && (
-                        <Button tone="ghost" size="sm" aria-label={`Техкарта: ${p.name}`} onClick={() => setDraft({ kind: 'recipe', product: p })}>
-                          Техкарта
+                        <Button tone="ghost" size="sm" aria-label={t('Техкарта: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'recipe', product: p })}>
+                          {t('Техкарта')}
                         </Button>
                       )}
-                      <Button tone="ghost" size="sm" aria-label={`Партии: ${p.name}`} onClick={() => setDraft({ kind: 'lots', product: p })}>
-                        Партии
+                      <Button tone="ghost" size="sm" aria-label={t('Партии: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'lots', product: p })}>
+                        {t('Партии')}
                       </Button>
                       {canUpdateStock && p.onHand !== '0' && (
-                        <Button tone="ghost" size="sm" aria-label={`Списать: ${p.name}`} onClick={() => setDraft({ kind: 'write-off', product: p })}>
-                          Списать
+                        <Button tone="ghost" size="sm" aria-label={t('Списать: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'write-off', product: p })}>
+                          {t('Списать')}
                         </Button>
                       )}
                       {canUpdateStock && (
-                        <Button tone="ghost" size="sm" aria-label={`Инвентаризация: ${p.name}`} onClick={() => setDraft({ kind: 'inventory', product: p })}>
-                          Инвентаризация
+                        <Button tone="ghost" size="sm" aria-label={t('Инвентаризация: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'inventory', product: p })}>
+                          {t('Инвентаризация')}
                         </Button>
                       )}
                       {canUpdateProduct && (
-                        <Button tone="ghost" size="sm" aria-label={`Изменить: ${p.name}`} onClick={() => setDraft({ kind: 'product', product: p })}>
-                          Изменить
+                        <Button tone="ghost" size="sm" aria-label={t('Изменить: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'product', product: p })}>
+                          {t('Изменить')}
                         </Button>
                       )}
                     </div>
@@ -662,8 +712,8 @@ export function StockBoard({
         )}
         {/* итог строкой под таблицей вместо трёх плиток над ней (правило владельца «без плиток», п.8) */}
         <p className="muted" data-testid="stock-totals">
-          {nouns.count}: {products.filter((p) => p.active).length}, стоимость остатка{' '}
-          <b data-testid="stock-value">{stockMoney(total, ctx)}</b>, мало на складе{' '}
+          {t(nouns.count)}: {products.filter((p) => p.active).length}, {t('стоимость остатка')}{' '}
+          <b data-testid="stock-value">{stockMoney(total, ctx)}</b>, {t('мало на складе')}{' '}
           <b data-testid="stock-low">{low}</b>
         </p>
       </div>
@@ -671,13 +721,13 @@ export function StockBoard({
 
   const movementTable =
     movements.length === 0 ? (
-      <EmptyState title="Движений пока нет" />
+      <EmptyState title={t('Движений пока нет')} />
     ) : (
-      <Table density="compact" caption="Последние 200 движений склада" captionHidden>
+      <Table density="compact" caption={t('Последние 200 движений склада')} captionHidden>
         <thead>
           <tr>
-            {['Когда', nouns.oneTitle, 'Операция', 'Количество', 'Сумма', 'Основание'].map((h) => (
-              <th key={h}>{h}</th>
+            {[msg('Когда'), nouns.oneTitle, msg('Операция'), msg('Количество'), msg('Сумма'), msg('Основание')].map((h) => (
+              <th key={h}>{t(h)}</th>
             ))}
           </tr>
         </thead>
@@ -685,11 +735,11 @@ export function StockBoard({
           {movements.map((m) => (
             <tr key={m.id}>
               <td>
-                <time dateTime={m.createdAt}>{dayClock(m.createdAt, ctx.timezone ?? 'UTC')}</time>
+                <time dateTime={m.createdAt}>{moment(m.createdAt)}</time>
               </td>
               <td>{m.productName}</td>
-              <td>{KIND_LABEL[m.kind]}</td>
-              <td>{qtyText(m.qty, m.unit)}</td>
+              <td>{t(KIND_LABEL[m.kind])}</td>
+              <td>{qtyText(m.qty, t(m.unit))}</td>
               <td>{stockMoney(m.costMinor, ctx)}</td>
               <td>{m.reason ?? ''}</td>
             </tr>
@@ -702,10 +752,10 @@ export function StockBoard({
     <div className="food-workspace">
       <Tabs
         className="rest-tabs-line"
-        label="Склад"
+        label={t('Склад')}
         panels={[
-          { id: 'stock', label: 'Остатки', content: stockTable },
-          { id: 'movements', label: 'Движения', content: movementTable },
+          { id: 'stock', label: t('Остатки'), content: stockTable },
+          { id: 'movements', label: t('Движения'), content: movementTable },
         ]}
       />
       {draft?.kind === 'product' && <ProductDrawer ctx={ctx} product={draft.product} close={close} />}

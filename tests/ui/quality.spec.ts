@@ -17,7 +17,7 @@ test('неверные параметры списка броней оставл
 }) => {
   for (const query of ['status=WRONG', 'page=abc', 'page=-1']) {
     await page.goto(`/reservations?${query}`);
-    await expect(page.getByRole('heading', { name: 'Брони', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Записи', exact: true })).toBeVisible();
     await expect(page.getByRole('main').getByRole('alert')).toContainText(/статус|страниц/i);
     await expect(page.getByRole('button', { name: 'Показать', exact: true })).toBeEnabled();
   }
@@ -30,7 +30,7 @@ test('короткий поиск гостей объясняет минимум
 
 test('повторяющиеся параметры поиска не обрушивают гости и журнал', async ({ page }) => {
   await page.goto('/guests?q=Тест&q=Другой');
-  await expect(page.getByRole('heading', { name: 'Гости и бронирования', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Клиенты', exact: true })).toBeVisible();
   await page.goto('/journal?q=TEST&q=OTHER');
   await expect(page.getByRole('heading', { name: 'История действий', exact: true })).toBeVisible();
 });
@@ -88,7 +88,7 @@ test('отказ оплаты сохраняет введённую сумму, 
 test('ошибочные даты шахматки оставляют форму исправления', async ({ page }) => {
   // месяц тарифов снят вместе с разделом «Тарифы и цены» (06.10.2026), осталась шахматка
   await page.goto('/chessboard?from=wrong&to=2026-09-20');
-  await expect(page.getByRole('heading', { name: /Календарь/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Журнал', level: 1 })).toBeVisible();
   await expect(page.getByRole('main').getByRole('alert')).toContainText(/период|месяц/i);
   await expect(page.getByRole('button', { name: /Показать|Применить/ }).first()).toBeEnabled();
 });

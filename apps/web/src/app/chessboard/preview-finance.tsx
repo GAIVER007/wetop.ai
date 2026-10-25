@@ -7,6 +7,7 @@ import { formatMoney } from '../../lib/money';
 import { PaymentForm, RefundForm, methodRu } from '../reservations/[number]/finance-panel';
 import { payAction, type FinanceActionResult } from '../reservations/[number]/finance-actions';
 import { stayFinanceAction, type PreviewFolio } from './actions';
+import { useT } from '../../i18n/locale-provider';
 
 const INIT: FinanceActionResult = { error: null, ok: 0 };
 
@@ -25,6 +26,7 @@ export function PreviewFinance({
   onPendingChange: (pending: boolean) => void;
   onComplete: () => void;
 }) {
+  const t = useT();
   const router = useRouter();
   const desk = useMay('desk') && !readOnly;
   const refunds = useMay('refunds') && !readOnly;
@@ -61,7 +63,7 @@ export function PreviewFinance({
   const [payState, pay, payPending] = useActionState<FinanceActionResult, FormData>(
     async (previous, fd) => {
       if (!folio || folio.status !== 'OPEN' || !desk)
-        return { ...previous, error: 'Оплата недоступна' };
+        return { ...previous, error: t('Оплата недоступна') };
       const next = await payAction(number, folio.id, previous, fd);
       await completed(next);
       return next;
@@ -72,25 +74,25 @@ export function PreviewFinance({
   useEffect(() => {
     onPendingChange(busy);
   }, [busy, onPendingChange]);
-  if (folio === undefined) return <p role="status">Загружаю счёт…</p>;
+  if (folio === undefined) return <p role="status">{t('Загружаю счёт…')}</p>;
   if (!folio)
     return (
       <>
         {result.ok > 0 && !result.error && (
           <p role="status" data-testid="preview-finance-result">
-            {result.message ?? 'Возврат проведён.'}
+            {result.message ? t(result.message) : t('Возврат проведён.')}
           </p>
         )}
         <Alert>
           {result.ok > 0 && !result.error
-            ? 'Операция проведена, но не удалось обновить счёт. Закройте и откройте окно повторно для проверки суммы.'
-            : 'Не удалось загрузить счёт. Закройте и откройте окно повторно.'}
+            ? t('Операция проведена, но не удалось обновить счёт. Закройте и откройте окно повторно для проверки суммы.')
+            : t('Не удалось загрузить счёт. Закройте и откройте окно повторно.')}
         </Alert>
       </>
     );
   const payment = folio.payments.find((p) => p.paymentId === paymentId) ?? folio.payments[0];
   return (
-    <section className="stay-preview-finance" aria-label="Оплата и возврат">
+    <section className="stay-preview-finance" aria-label={t('Оплата и возврат')}>
       <div className="row">
         <Button
           type="button"
@@ -99,7 +101,7 @@ export function PreviewFinance({
           aria-pressed={mode === 'pay'}
           onClick={() => setMode('pay')}
         >
-          Оплата
+          {t('Оплата')}
         </Button>
         {refunds && (
           <Button
@@ -109,18 +111,18 @@ export function PreviewFinance({
             aria-pressed={mode === 'refund'}
             onClick={() => setMode('refund')}
           >
-            Возврат
+            {t('Возврат')}
           </Button>
         )}
       </div>
       {result.error && <Alert>{result.error}</Alert>}
       {result.ok > 0 && !result.error && (
         <p role="status" data-testid="preview-finance-result">
-          {result.message ?? 'Возврат проведён.'}
+          {result.message ? t(result.message) : t('Возврат проведён.')}
         </p>
       )}
       {folio.status !== 'OPEN' ? (
-        <p>Счёт закрыт. Финансовые действия недоступны.</p>
+        <p>{t('Счёт закрыт. Финансовые действия недоступны.')}</p>
       ) : mode === 'pay' ? (
         desk ? (
           <PaymentForm
@@ -133,11 +135,11 @@ export function PreviewFinance({
             onDraftChange={markDirty}
           />
         ) : (
-          <p>Нет права принимать оплату.</p>
+          <p>{t('Нет права принимать оплату.')}</p>
         )
       ) : refunds && payment ? (
         <>
-          <Field label="Платёж для возврата">
+          <Field label={t('Платёж для возврата')}>
             <Select
               value={payment.paymentId}
               disabled={busy || dirty}
@@ -145,13 +147,16 @@ export function PreviewFinance({
             >
               {folio.payments.map((p, index) => (
                 <option key={p.paymentId} value={p.paymentId}>
-                  Платёж {index + 1}, {methodRu(p.method)}, доступно{' '}
-                  {formatMoney(p.remainingMinor, folio.currency)}
+                  {t('Платёж {n}, {method}, доступно {sum}', {
+                    n: index + 1,
+                    method: t(methodRu(p.method)),
+                    sum: formatMoney(p.remainingMinor, folio.currency),
+                  })}
                 </option>
               ))}
             </Select>
           </Field>
-          <p>Доступно к возврату: {formatMoney(payment.remainingMinor, folio.currency)}</p>
+          <p>{t('Доступно к возврату: {sum}', { sum: formatMoney(payment.remainingMinor, folio.currency) })}</p>
           <RefundForm
             key={payment.paymentId}
             number={number}
@@ -164,7 +169,7 @@ export function PreviewFinance({
           />
         </>
       ) : (
-        <p>Нет платежей с доступной суммой возврата.</p>
+        <p>{t('Нет платежей с доступной суммой возврата.')}</p>
       )}
     </section>
   );

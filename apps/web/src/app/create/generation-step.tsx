@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { WizardState } from '../../lib/wizard-types';
 import { ScanChallenge } from './scan-challenge';
 import { S } from './strings';
+import { useT } from '../../i18n/locale-provider';
 
 export function GenerationStep({
   state,
@@ -22,6 +23,7 @@ export function GenerationStep({
   onRefresh: () => void;
   onEdit: () => void;
 }) {
+  const t = useT();
   const [challenge, setChallenge] = useState('');
   const [challengeKey, setChallengeKey] = useState(0);
   const phase = state.generation?.state;
@@ -29,25 +31,27 @@ export function GenerationStep({
   const used = state.generationsUsed ?? 0;
   const result = state.generated;
   return (
-    <section aria-label={S.build.eyebrow}>
+    <section aria-label={t(S.build.eyebrow)}>
       <h1>
-        {result
-          ? S.generation.ready
-          : waiting
-            ? phase === 'running'
-              ? S.generation.running
-              : S.generation.queued
-            : S.generation.title}
+        {t(
+          result
+            ? S.generation.ready
+            : waiting
+              ? phase === 'running'
+                ? S.generation.running
+                : S.generation.queued
+              : S.generation.title,
+        )}
       </h1>
       {result ? (
         <>
-          <p>{S.generation.review}</p>
+          <p>{t(S.generation.review)}</p>
           <details>
-            <summary>{S.generation.instruction}</summary>
+            <summary>{t(S.generation.instruction)}</summary>
             <p className="guest-wizard__generated-text">{result.prompt}</p>
           </details>
           <details>
-            <summary>{S.generation.knowledge}</summary>
+            <summary>{t(S.generation.knowledge)}</summary>
             {result.knowledge.map((section, i) => (
               <section key={i}>
                 <h3>{section.title}</h3>
@@ -58,26 +62,26 @@ export function GenerationStep({
         </>
       ) : waiting ? (
         <div role="status">
-          <p>{phase === 'running' ? S.generation.running : S.generation.queued}</p>
+          <p>{t(phase === 'running' ? S.generation.running : S.generation.queued)}</p>
           {!polling && (
             <button type="button" className="btn" onClick={onRefresh}>
-              {S.generation.refresh}
+              {t(S.generation.refresh)}
             </button>
           )}
         </div>
       ) : (
         <>
           {phase === 'failed' && (
-            <p role="alert">{state.generation?.error ?? S.generation.failed}</p>
+            <p role="alert">{state.generation?.error ?? t(S.generation.failed)}</p>
           )}
-          {phase === 'stale' && <p>{S.generation.stale}</p>}
+          {phase === 'stale' && <p>{t(S.generation.stale)}</p>}
           {!state.generateSiteKey ? (
-            <p>{S.generation.unavailable}</p>
+            <p>{t(S.generation.unavailable)}</p>
           ) : used >= 5 ? (
-            <p>{S.generation.limit}</p>
+            <p>{t(S.generation.limit)}</p>
           ) : (
             <>
-              <p>{S.generation.consent}</p>
+              <p>{t(S.generation.consent)}</p>
               <ScanChallenge
                 key={challengeKey}
                 siteKey={state.generateSiteKey}
@@ -93,16 +97,16 @@ export function GenerationStep({
                   setChallengeKey((key) => key + 1);
                 }}
               >
-                {phase === 'failed' ? S.generation.retry : S.generation.start}
+                {t(phase === 'failed' ? S.generation.retry : S.generation.start)}
               </button>
             </>
           )}
         </>
       )}
-      <p className="guest-wizard__note">{S.generation.count(used)}</p>
+      <p className="guest-wizard__note">{t(S.generation.count, { used })}</p>
       <div className="guest-wizard__actions">
         <button type="button" className="btn btn--secondary" disabled={busy} onClick={onEdit}>
-          {S.generation.edit}
+          {t(S.generation.edit)}
         </button>
       </div>
     </section>

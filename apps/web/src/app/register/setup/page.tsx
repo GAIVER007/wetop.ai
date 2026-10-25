@@ -10,7 +10,13 @@ import { signedInUser } from '../../login/signed-in';
 import { OnboardingShell } from './shell';
 import '../../onboarding/onboarding.css';
 import './setup.css';
-export const metadata = { title: 'Настройка бизнеса WETOP' };
+import { translator } from '../../../i18n';
+import { cookieLocale } from '../../../i18n/server';
+
+export async function generateMetadata() {
+  const t = translator(await cookieLocale());
+  return { title: t('Настройка бизнеса WETOP') };
+}
 
 export default async function SetupPage({
   searchParams = Promise.resolve({}),
@@ -27,10 +33,11 @@ export default async function SetupPage({
       return { state: null, error };
     },
   );
+  const t = translator(await cookieLocale());
   if (!loaded.state)
     return (
       <main id="main-content" className="onboarding setup-shell">
-        <h1>Настройка бизнеса</h1>
+        <h1>{t('Настройка бизнеса')}</h1>
         <LoadError testId="onboarding-load-error" {...loadErrorProps(loaded.error)} />
       </main>
     );

@@ -34,6 +34,11 @@ vi.mock('../../../lib/api', () => ({
 vi.mock('../../../components/team-navigation', () => ({
   TeamNavigation: () => null,
 }));
+// язык стойки (KK1) читает куку запроса; здесь запроса нет, страница русская
+vi.mock('../../../i18n/server', async () => ({
+  serverT: async () => (await import('../../../i18n')).translator('ru'),
+  currentLocale: async () => 'ru',
+}));
 vi.mock('./positions-board', () => ({
   PositionsBoard: (props: Record<string, unknown>) => {
     state.boardProps = props;

@@ -10,16 +10,19 @@ import { currencySign, formatMoney } from '../../lib/money';
 import type { PayModel } from '../../lib/food-types';
 import type { HotelPayrollRow, HotelPayrollView } from '../../lib/hotel-staff-api';
 import { payrollMinorToInput, payrollPositiveInputToMinor, payrollSalaryInputToMinor } from '../food/payroll-board';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 import { hotelAdjustmentAction, hotelPaySettingsAction } from '../hotel-staff/actions';
 
 /** У гостиницы процента нет: оклад, сдельно за уборки или только премии (решение 22.10.2026) */
 const MODELS: Array<[PayModel, string]> = [
-  ['FIXED', 'Оклад'],
-  ['BONUS_ONLY', 'Без оклада'],
+  ['FIXED', msg('Оклад')],
+  ['BONUS_ONLY', msg('Без оклада')],
 ];
-const modelLabel = (m: PayModel) => MODELS.find(([v]) => v === m)?.[1] ?? 'Оклад';
+const modelLabel = (m: PayModel) => MODELS.find(([v]) => v === m)?.[1] ?? msg('Оклад');
 
 function PayDrawer({ scopeKey, row, currency, close }: { scopeKey: string; row: HotelPayrollRow; currency: string; close: () => void }) {
+  const t = useT();
   const router = useRouter();
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
@@ -33,7 +36,7 @@ function PayDrawer({ scopeKey, row, currency, close }: { scopeKey: string; row: 
       fixedMinor = model === 'FIXED' ? payrollSalaryInputToMinor(fixed, currency) : 0;
       perCleaningMinor = payrollSalaryInputToMinor(piece || '0', currency);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Некорректная сумма');
+      setError(cause instanceof Error ? t(cause.message) : t('Некорректная сумма'));
       return;
     }
     start(async () => {
@@ -46,35 +49,35 @@ function PayDrawer({ scopeKey, row, currency, close }: { scopeKey: string; row: 
     });
   }
   return (
-    <Overlay open onClose={close} title={`Оплата: ${row.name}`} drawer className="food-drawer" trapFocus>
+    <Overlay open onClose={close} title={t('Оплата: {name}', { name: row.name })} drawer className="food-drawer" trapFocus>
       <div className="food-form" data-testid="hotel-pay-settings">
         {error && <Alert>{error}</Alert>}
-        <Field label="Оклад">
+        <Field label={t('Оклад')}>
           <Select value={model} onChange={(e) => setModel(e.target.value as PayModel)}>
             {MODELS.map(([value, label]) => (
               <option key={value} value={value}>
-                {label}
+                {t(label)}
               </option>
             ))}
           </Select>
         </Field>
         <div className="food-form-row">
           {model === 'FIXED' && (
-            <Field label={`Оклад за месяц, ${currencySign(currency)}`}>
+            <Field label={t('Оклад за месяц, {currency}', { currency: currencySign(currency) })}>
               <Input type="number" inputMode="decimal" min={0} step="0.01" value={fixed} onChange={(e) => setFixed(e.target.value)} />
             </Field>
           )}
-          <Field label={`За одну уборку, ${currencySign(currency)}`}>
+          <Field label={t('За одну уборку, {currency}', { currency: currencySign(currency) })}>
             <Input name="perCleaning" type="number" inputMode="decimal" min={0} step="0.01" value={piece} onChange={(e) => setPiece(e.target.value)} />
           </Field>
         </div>
-        <p className="hint">Уборка засчитывается, когда номер, где сотрудник «Кто убирает», отмечен «Убрано».</p>
+        <p className="hint">{t('Уборка засчитывается, когда номер, где сотрудник «Кто убирает», отмечен «Убрано».')}</p>
         <div className="food-actions">
           <Button disabled={pending} onClick={submit}>
-            Сохранить
+            {t('Сохранить')}
           </Button>
           <Button tone="secondary" disabled={pending} onClick={close}>
-            Отмена
+            {t('Отмена')}
           </Button>
         </div>
       </div>
@@ -83,6 +86,7 @@ function PayDrawer({ scopeKey, row, currency, close }: { scopeKey: string; row: 
 }
 
 function AdjustmentDrawer({ scopeKey, month, currency, row, close }: { scopeKey: string; month: string; currency: string; row: HotelPayrollRow; close: () => void }) {
+  const t = useT();
   const router = useRouter();
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
@@ -95,11 +99,11 @@ function AdjustmentDrawer({ scopeKey, month, currency, row, close }: { scopeKey:
     try {
       amountMinor = payrollPositiveInputToMinor(amount, currency);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Некорректная сумма');
+      setError(cause instanceof Error ? t(cause.message) : t('Некорректная сумма'));
       return;
     }
     if (!reason.trim()) {
-      setError('Нужны сумма больше нуля и причина');
+      setError(t('Нужны сумма больше нуля и причина'));
       return;
     }
     start(async () => {
@@ -116,30 +120,30 @@ function AdjustmentDrawer({ scopeKey, month, currency, row, close }: { scopeKey:
     });
   }
   return (
-    <Overlay open onClose={close} title={`Начисление: ${row.name}`} drawer className="food-drawer" trapFocus>
+    <Overlay open onClose={close} title={t('Начисление: {name}', { name: row.name })} drawer className="food-drawer" trapFocus>
       <div className="food-form" data-testid="hotel-pay-adjustment">
         {error && <Alert>{error}</Alert>}
         <Segmented
-          label="Вид начисления"
+          label={t('Вид начисления')}
           value={kind}
           options={[
-            { value: 'bonus', label: 'Премия' },
-            { value: 'penalty', label: 'Удержание' },
+            { value: 'bonus', label: t('Премия') },
+            { value: 'penalty', label: t('Удержание') },
           ]}
           onChange={setKind}
         />
-        <Field label={`Сумма, ${currencySign(currency)}`}>
+        <Field label={t('Сумма, {currency}', { currency: currencySign(currency) })}>
           <Input type="number" inputMode="decimal" min={0.01} step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} />
         </Field>
-        <Field label="Причина">
+        <Field label={t('Причина')}>
           <Input value={reason} onChange={(e) => setReason(e.target.value)} />
         </Field>
         <div className="food-actions">
           <Button disabled={pending} onClick={submit}>
-            Начислить
+            {t('Начислить')}
           </Button>
           <Button tone="secondary" disabled={pending} onClick={close}>
-            Отмена
+            {t('Отмена')}
           </Button>
         </div>
       </div>
@@ -152,6 +156,7 @@ function AdjustmentDrawer({ scopeKey, month, currency, row, close }: { scopeKey:
  * сдельно. Выплаты из кассы у гостиницы пока нет, экран только начисляет; итоги одной строкой под таблицей.
  */
 export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: string; write: boolean; payroll: HotelPayrollView }) {
+  const t = useT();
   const router = useRouter();
   const [settings, setSettings] = useState<HotelPayrollRow | null>(null);
   const [adjust, setAdjust] = useState<HotelPayrollRow | null>(null);
@@ -160,7 +165,7 @@ export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: stri
   return (
     <div className="food-workspace" data-testid="payroll-board">
       <div className="food-toolbar">
-        <Field label="Месяц">
+        <Field label={t('Месяц')}>
           <MonthInput
             value={payroll.month}
             onChange={(e) => {
@@ -170,21 +175,21 @@ export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: stri
         </Field>
       </div>
       <p className="hint" data-testid="hotel-payroll-note">
-        Начисления за месяц. Выплату проведите в кассе объекта: выплата из этого экрана у гостиницы пока не подключена.
+        {t('Начисления за месяц. Выплату проведите в кассе объекта: выплата из этого экрана у гостиницы пока не подключена.')}
       </p>
       {payroll.rows.length === 0 ? (
-        <EmptyState title="Сотрудников пока нет" details="Пригласите горничную или администратора в разделе «Персонал → Сотрудники»." />
+        <EmptyState title={t('Сотрудников пока нет')} details={t('Пригласите горничную или администратора в разделе «Персонал → Сотрудники».')} />
       ) : (
         <Table>
           <thead>
             <tr>
-              {['Сотрудник', 'Модель', 'Уборок', 'За уборки', 'Премии', 'Удержания', 'Начислено'].map((h) => (
+              {['Сотрудник', 'Модель', 'Уборок', 'За уборки', 'Премии', 'Удержания', 'Начислено'].map((h) => ( // kk-allow: payroll-wording.test.ts сверяет эту строку исходника, перевод t(h) при показе
                 <th key={h} scope="col">
-                  {h}
+                  {t(h)}
                 </th>
               ))}
               <th scope="col">
-                <span className="sr-only">Действия</span>
+                <span className="sr-only">{t('Действия')}</span>
               </th>
             </tr>
           </thead>
@@ -193,13 +198,13 @@ export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: stri
               <tr key={r.employeeId} data-testid="hotel-payroll-row">
                 <th scope="row">{r.name}</th>
                 <td>
-                  {modelLabel(r.model)}
+                  {t(modelLabel(r.model))}
                   {r.model === 'FIXED' && <small> {money(r.fixedMinor)}</small>}
                 </td>
                 <td>{r.cleanings}</td>
                 <td>
                   {money(r.pieceMinor)}
-                  {BigInt(r.perCleaningMinor) > 0n && <small> по {money(r.perCleaningMinor)}</small>}
+                  {BigInt(r.perCleaningMinor) > 0n && <small> {t('по {amount}', { amount: money(r.perCleaningMinor) })}</small>}
                 </td>
                 <td>{money(r.bonusMinor)}</td>
                 <td>{money(r.penaltyMinor)}</td>
@@ -210,10 +215,10 @@ export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: stri
                   {write && (
                     <ActionMenu
                       size="sm"
-                      label={`Ещё: ${r.name}`}
+                      label={t('Ещё: {name}', { name: r.name })}
                       items={[
-                        { label: 'Условия оплаты', onSelect: () => setSettings(r) },
-                        { label: 'Премия или удержание', onSelect: () => setAdjust(r) },
+                        { label: t('Условия оплаты'), onSelect: () => setSettings(r) },
+                        { label: t('Премия или удержание'), onSelect: () => setAdjust(r) },
                       ]}
                     />
                   )}
@@ -223,7 +228,7 @@ export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: stri
           </tbody>
           <tfoot>
             <tr>
-              <th scope="row">Итого</th>
+              <th scope="row">{t('Итого')}</th>
               <td />
               <td>{cleanings}</td>
               <td />

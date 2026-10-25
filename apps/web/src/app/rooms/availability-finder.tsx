@@ -15,7 +15,12 @@ import { DateInput } from '../../components/date-field';
 import { bookingHref } from '../../lib/booking-link';
 import { displayDate } from '../../lib/display-date';
 import { formatMoney } from '../../lib/money';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, intlLocale, msg, type DeskLocale, type Translate } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
+const guestWord = (locale: DeskLocale, t: Translate, n: number) =>
+  countLabel(locale, t, n, [msg('гость'), msg('гостя'), msg('гостей')]);
+const nightWord = (locale: DeskLocale, t: Translate, n: number) =>
+  countLabel(locale, t, n, [msg('ночь'), msg('ночи'), msg('ночей')]);
 const plusDays = (date: string, n: number) =>
   new Date(Date.parse(`${date}T12:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
 type Availability = Awaited<ReturnType<typeof reservationsApi.availability>>;
@@ -44,6 +49,9 @@ export function AvailabilityFinder({
   summary: InventorySummary;
   units: InventoryUnit[];
 }) {
+  const t = useT();
+  const locale = useLocale();
+  const day = (iso: string) => displayDate(iso, 'short', intlLocale(locale));
   const search = useSearchParams();
   const category = search.get('category') ?? '';
   const [draftArrival, setArrival] = useState(arrival);
@@ -134,7 +142,7 @@ export function AvailabilityFinder({
   return (
     <>
       <form key={historyRevision} className="fund-search" method="get">
-        <Field label="Заезд">
+        <Field label={t('Заезд')}>
           <DateInput
             name="arrival"
             disabled={!ready}
@@ -143,7 +151,7 @@ export function AvailabilityFinder({
             required
           />
         </Field>
-        <Field label="Выезд">
+        <Field label={t('Выезд')}>
           <DateInput
             name="departure"
             disabled={!ready}
@@ -158,7 +166,7 @@ export function AvailabilityFinder({
             required
           />
         </Field>
-        <Field label="Гостей">
+        <Field label={t('Гостей')}>
           <Input
             type="number"
             name="guests"
@@ -170,19 +178,19 @@ export function AvailabilityFinder({
             required
           />
         </Field>
-        <Button type="submit">Найти</Button>
+        <Button type="submit">{t('Найти')}</Button>
         {category && <input type="hidden" name="category" value={category} />}
         <div className="fund-presets">
           {(
             [
-              ['Сегодня', today, plusDays(today, 1)],
-              ['Завтра', plusDays(today, 1), plusDays(today, 2)],
-              ['Выходные', friday, plusDays(friday, 2)],
-              ['7 дней', today, plusDays(today, 7)],
+              [msg('Сегодня'), today, plusDays(today, 1)],
+              [msg('Завтра'), plusDays(today, 1), plusDays(today, 2)],
+              [msg('Выходные'), friday, plusDays(friday, 2)],
+              [msg('7 дней'), today, plusDays(today, 7)],
             ] as const
           ).map(([label, a, d]) => (
             <Link key={label} href={periodHref(a, d)}>
-              {label}
+              {t(label)}
             </Link>
           ))}
         </div>
@@ -196,37 +204,37 @@ export function AvailabilityFinder({
               <div>
                 <h2>
                   {found.length
-                    ? `Найдено ${pluralRu(found.length, ['вариант', 'варианта', 'вариантов'])}`
-                    : 'Ничего не найдено на эти даты'}
+                    ? t('Найдено {variants}', { variants: countLabel(locale, t, found.length, [msg('вариант'), msg('варианта'), msg('вариантов')]) })
+                    : t('Ничего не найдено на эти даты')}
                 </h2>
                 <p className="muted">
-                  {displayDate(arrival)} — {displayDate(departure)} ·{' '}
-                  {pluralRu(result.nights, ['ночь', 'ночи', 'ночей'])} ·{' '}
-                  {pluralRu(guests, ['гость', 'гостя', 'гостей'])}
+                  {day(arrival)} — {day(departure)} ·{' '}
+                  {nightWord(locale, t, result.nights)} ·{' '}
+                  {guestWord(locale, t, guests)}
                 </p>
               </div>
               <div className="fund-counts">
                 <span>
-                  <b>{freeCount(false)}</b> номеров
+                  <b>{freeCount(false)}</b> {t('номеров')}
                 </span>
                 <span>
-                  <b>{freeCount(true)}</b> койко-мест
+                  <b>{freeCount(true)}</b> {t('койко-мест')}
                 </span>
               </div>
             </div>
             {!offers && (
               <p className="fund-row-note muted" role="status">
-                Цены не загрузились — места показаны без цен. Обновите страницу.
+                {t('Цены не загрузились — места показаны без цен. Обновите страницу.')}
               </p>
             )}
             <div className="fund-toolbar">
               <Select
-                aria-label="Категория"
+                aria-label={t('Категория')}
                 disabled={!ready}
                 value={category}
                 onChange={(e) => chooseCategory(e.target.value)}
               >
-                <option value="">Все категории</option>
+                <option value="">{t('Все категории')}</option>
                 {summary.byCategory.map((c) => (
                   <option key={c.code} value={c.code}>
                     {c.name}
@@ -234,19 +242,19 @@ export function AvailabilityFinder({
                 ))}
               </Select>
               <Select
-                aria-label="Тип размещения"
+                aria-label={t('Тип размещения')}
                 value={kind}
                 onChange={(e) => setKind(e.target.value)}
               >
-                <option value="">Номера и койки</option>
-                <option value="ROOM">Номера</option>
-                <option value="BED">Койко-места</option>
+                <option value="">{t('Номера и койки')}</option>
+                <option value="ROOM">{t('Номера')}</option>
+                <option value="BED">{t('Койко-места')}</option>
               </Select>
-              <div className="seg" role="group" aria-label="Показ категорий">
+              <div className="seg" role="group" aria-label={t('Показ категорий')}>
                 {(
                   [
-                    [false, 'Только доступные'],
-                    [true, 'Все категории'],
+                    [false, msg('Только доступные')],
+                    [true, msg('Все категории')],
                   ] as const
                 ).map(([value, label]) => (
                   <button
@@ -256,17 +264,16 @@ export function AvailabilityFinder({
                     className={cx('segment-button', showAll === value && 'is-on')}
                     onClick={() => setShowAll(value)}
                   >
-                    {label}
+                    {t(label)}
                   </button>
                 ))}
               </div>
             </div>
             {!visible.length && !soldOut.length ? (
               <section className="fund-empty" role="status">
-                <h2>Нет подходящих вариантов</h2>
+                <h2>{t('Нет подходящих вариантов')}</h2>
                 <p>
-                  Измените даты, число гостей или фильтры. Место должно быть свободно каждую ночь
-                  выбранного срока.
+                  {t('Измените даты, число гостей или фильтры. Место должно быть свободно каждую ночь выбранного срока.')}
                 </p>
                 <Button
                   tone="secondary"
@@ -276,7 +283,7 @@ export function AvailabilityFinder({
                     setShowAll(true);
                   }}
                 >
-                  Показать все категории
+                  {t('Показать все категории')}
                 </Button>
               </section>
             ) : visible.length > 0 ? (
@@ -291,8 +298,10 @@ export function AvailabilityFinder({
                           {/* тип и вместимость одной строкой — без отдельной метки типа (упрощение 02.10) */}
                           <span className="muted">
                             {c.bed
-                              ? 'Койко-место, 1 гость на койку'
-                              : `Номер целиком, до ${c.capacityAdults} ${c.capacityAdults === 1 ? 'гостя' : 'гостей'}`}
+                              ? t('Койко-место, 1 гость на койку')
+                              : c.capacityAdults === 1
+                                ? t('Номер целиком, до {n} гостя', { n: c.capacityAdults })
+                                : t('Номер целиком, до {n} гостей', { n: c.capacityAdults })}
                           </span>
                         </div>
                         {available > 0 && c.fits && (
@@ -306,22 +315,25 @@ export function AvailabilityFinder({
                         )}
                         <div className="fund-available-count">
                           <b>{available}</b>
-                          <span>свободно из {c.availability?.units ?? c.units}</span>
+                          <span>{t('свободно из {n}', { n: c.availability?.units ?? c.units })}</span>
                         </div>
                       </div>
                       {!available ? (
-                        <p className="fund-row-note muted">Нет мест на весь период</p>
+                        <p className="fund-row-note muted">{t('Нет мест на весь период')}</p>
                       ) : (
                         <>
                           {!c.fits && (
                             <p className="fund-row-note muted">
                               {c.bed
-                                ? `Свободных коек меньше, чем гостей (${guests})`
-                                : `Не вмещает ${pluralRu(guests, ['гостя', 'гостей', 'гостей'])} — до ${c.capacityAdults} на номер`}
+                                ? t('Свободных коек меньше, чем гостей ({n})', { n: guests })
+                                : t('Не вмещает {guests} — до {n} на номер', {
+                                    guests: countLabel(locale, t, guests, [msg('гостя'), msg('гостей'), msg('гостей')]),
+                                    n: c.capacityAdults,
+                                  })}
                             </p>
                           )}
                           <details>
-                            <summary>{c.bed ? 'Показать места' : 'Показать номера'}</summary>
+                            <summary>{c.bed ? t('Показать места') : t('Показать номера')}</summary>
                             <UnitPicker
                               name={c.name}
                               bed={c.bed}
@@ -357,13 +369,13 @@ export function AvailabilityFinder({
             )}
             <div className="fund-footer">
               <span className="muted">
-                Выезд не входит в срок. При сохранении брони доступность проверяется повторно.
+                {t('Выезд не входит в срок. При сохранении брони доступность проверяется повторно.')}
               </span>
               <Link
                 className="btn btn--secondary"
                 href={`/chessboard?${new URLSearchParams({ from: arrival, to: plusDays(departure, -1), ...(category ? { category } : {}) })}`}
               >
-                Открыть в календаре
+                {t('Открыть в календаре')}
               </Link>
             </div>
           </>
@@ -393,9 +405,12 @@ function SoldOutCategories({
   guests: number;
   nearest: NearestStays | null;
 }) {
+  const t = useT();
+  const locale = useLocale();
+  const day = (iso: string) => displayDate(iso, 'short', intlLocale(locale));
   return (
     <section className="fund-soldout" aria-labelledby="fund-soldout-title">
-      <h2 id="fund-soldout-title">Нет мест на эти даты</h2>
+      <h2 id="fund-soldout-title">{t('Нет мест на эти даты')}</h2>
       <div className="fund-availability">
         {rows.map((c) => {
           const available = c.availability?.available ?? 0;
@@ -406,16 +421,16 @@ function SoldOutCategories({
                 <div>
                   <h3>{c.name}</h3>
                   <span className="muted">
-                    {c.bed ? 'Койко-место' : 'Номер целиком'}:{' '}
+                    {c.bed ? t('Койко-место') : t('Номер целиком')}:{' '}
                     {available > 0
-                      ? `свободно ${pluralRu(available, ['койка', 'койки', 'коек'])}, меньше, чем гостей`
-                      : 'нет мест на весь период'}
+                      ? t('свободно {beds}, меньше, чем гостей', { beds: countLabel(locale, t, available, [msg('койка'), msg('койки'), msg('коек')]) })
+                      : t('нет мест на весь период')}
                   </span>
                 </div>
                 {next ? (
                   <div className="fund-price">
-                    <span className="muted">Ближайшая доступность</span>
-                    <b>с {displayDate(next.arrivalDate)}</b>
+                    <span className="muted">{t('Ближайшая доступность')}</span>
+                    <b>{t('с {date}', { date: day(next.arrivalDate) })}</b>
                     <Link
                       href={`/rooms/availability?${new URLSearchParams({
                         arrival: next.arrivalDate,
@@ -423,23 +438,23 @@ function SoldOutCategories({
                         guests: String(guests),
                         category: c.code,
                       })}`}
-                      aria-label={`Посмотреть варианты: ${c.name} с ${displayDate(next.arrivalDate)}`}
+                      aria-label={t('Посмотреть варианты: {name} с {date}', { name: c.name, date: day(next.arrivalDate) })}
                     >
-                      Посмотреть варианты
+                      {t('Посмотреть варианты')}
                     </Link>
                   </div>
                 ) : (
                   next === null && (
                     <div className="fund-price">
                       <span className="muted">
-                        Нет мест в ближайшие {pluralRu(nearest!.days, ['день', 'дня', 'дней'])}
+                        {t('Нет мест в ближайшие {days}', { days: countLabel(locale, t, nearest!.days, [msg('день'), msg('дня'), msg('дней')]) })}
                       </span>
                     </div>
                   )
                 )}
                 <div className="fund-available-count">
                   <b>{available}</b>
-                  <span>свободно из {c.availability?.units ?? c.units}</span>
+                  <span>{t('свободно из {n}', { n: c.availability?.units ?? c.units })}</span>
                 </div>
               </div>
             </article>
@@ -481,27 +496,29 @@ function UnitPicker({
   housekeeping: boolean;
   link: (picked: string[], auto: number) => string;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [picked, setPicked] = useState<string[]>([]);
   const several = bed && guests > 1;
   const freeSet = new Set(free);
   const unitByCode = new Map(units.map((u) => [u.code, u]));
   const codes = [...new Set([...units.map((u) => u.code), ...free])].sort(byUnitNumber);
-  const what = bed ? 'койку' : 'номер';
+  const pick = (code: string) => (bed ? t('Выбрать койку {code}', { code }) : t('Выбрать номер {code}', { code }));
   return (
     <div className="fund-units">
       {fits && (
         <div className="fund-units-action">
           <Link className="btn btn--sm" href={link([], bed ? guests : 1)}>
-            Выбрать автоматически
+            {t('Выбрать автоматически')}
           </Link>
           <span className="muted">
             {several
-              ? `Система назначит ${pluralRu(guests, ['койку', 'койки', 'коек'])} — первые свободные по номеру`
-              : 'Система назначит первое свободное место по номеру'}
+              ? t('Система назначит {beds} — первые свободные по номеру', { beds: countLabel(locale, t, guests, [msg('койку'), msg('койки'), msg('коек')]) })
+              : t('Система назначит первое свободное место по номеру')}
           </span>
         </div>
       )}
-      <ul className="fund-unit-list" aria-label={`Места: ${name}`}>
+      <ul className="fund-unit-list" aria-label={t('Места: {name}', { name })}>
         {codes.map((code) => {
           const isFree = freeSet.has(code);
           const on = picked.includes(code);
@@ -510,7 +527,7 @@ function UnitPicker({
             <li key={code} className={cx(!isFree && 'is-off')}>
               <b>{code}</b>
               <span className={cx(!isFree && 'muted')}>
-                {!isFree ? 'недоступно' : dirty ? 'свободно, нужна уборка' : 'свободно'}
+                {!isFree ? t('недоступно') : dirty ? t('свободно, нужна уборка') : t('свободно')}
               </span>
               {isFree &&
                 fits &&
@@ -519,7 +536,7 @@ function UnitPicker({
                     type="button"
                     className={cx('btn btn--sm', !on && 'btn--secondary')}
                     aria-pressed={on}
-                    aria-label={`Выбрать ${what} ${code}`}
+                    aria-label={pick(code)}
                     disabled={!on && picked.length >= guests}
                     onClick={() =>
                       setPicked((list) =>
@@ -527,15 +544,15 @@ function UnitPicker({
                       )
                     }
                   >
-                    {on ? 'Выбрано' : 'Выбрать'}
+                    {on ? t('Выбрано') : t('Выбрать')}
                   </button>
                 ) : (
                   <Link
                     className="btn btn--secondary btn--sm fund-book-unit"
                     href={link([code], 0)}
-                    aria-label={`Выбрать ${what} ${code}`}
+                    aria-label={pick(code)}
                   >
-                    Выбрать
+                    {t('Выбрать')}
                   </Link>
                 ))}
             </li>
@@ -548,11 +565,11 @@ function UnitPicker({
             className="btn btn--sm"
             href={link([...picked].sort(byUnitNumber), guests - picked.length)}
           >
-            Создать бронь
+            {t('Создать бронь')}
           </Link>
           <span className="muted">
-            Выбрано {picked.length} из {guests}
-            {picked.length < guests ? ' — остальные назначит система' : ''}
+            {t('Выбрано {n} из {max}', { n: picked.length, max: guests })}
+            {picked.length < guests ? t(' — остальные назначит система') : ''}
           </span>
         </div>
       )}
@@ -578,33 +595,34 @@ function OfferPrice({
   guests: number;
   nights: number;
 }) {
+  const t = useT();
+  const locale = useLocale();
   if (offer === undefined) return null;
   if (offer === null)
     return (
       <div className="fund-price">
-        <span className="muted">Нет цены на эти даты</span>
-        <Link href="/rooms/categories">Задать цену</Link>
+        <span className="muted">{t('Нет цены на эти даты')}</span>
+        <Link href="/rooms/categories">{t('Задать цену')}</Link>
       </div>
     );
   const money = (minor: string) => formatMoney(minor, currency);
   const plans =
     offer.plans > 1 ? (
-      <span className="muted">{pluralRu(offer.plans, ['тариф', 'тарифа', 'тарифов'])}</span>
+      <span className="muted">{countLabel(locale, t, offer.plans, [msg('тариф'), msg('тарифа'), msg('тарифов')])}</span>
     ) : null;
   return bed ? (
     <div className="fund-price">
-      <b>Итого от {money(offer.totalMinor)}</b>
-      <span className="muted">от {money(offer.perNightMinor)} / койка / ночь</span>
+      <b>{t('Итого от {price}', { price: money(offer.totalMinor) })}</b>
+      <span className="muted">{t('от {price} / койка / ночь', { price: money(offer.perNightMinor) })}</span>
       <span className="muted">
-        {pluralRu(guests, ['гость', 'гостя', 'гостей'])},{' '}
-        {pluralRu(nights, ['ночь', 'ночи', 'ночей'])}
+        {guestWord(locale, t, guests)}, {nightWord(locale, t, nights)}
       </span>
       {plans}
     </div>
   ) : (
     <div className="fund-price">
-      <b>от {money(offer.totalMinor)} за проживание</b>
-      <span className="muted">от {money(offer.perNightMinor)} / ночь</span>
+      <b>{t('от {price} за проживание', { price: money(offer.totalMinor) })}</b>
+      <span className="muted">{t('от {price} / ночь', { price: money(offer.perNightMinor) })}</span>
       {plans}
     </div>
   );

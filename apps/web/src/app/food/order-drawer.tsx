@@ -3,6 +3,8 @@ import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
 import { Alert, Button, Field, Input, Select, StatusBadge, Textarea } from '../../components/ui';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
 import { currencySign } from '../../lib/money';
 import type {
@@ -44,12 +46,12 @@ export type OrderDraft =
   | { kind: 'view'; order: OrderView };
 
 const STATUS_ACTION: Record<OrderStatus, string> = {
-  NEW: 'Вернуть в новые',
-  COOKING: 'Принять в работу',
-  READY: 'Готово',
-  SERVED: 'Подать',
-  CLOSED: 'Закрыть заказ',
-  CANCELLED: 'Отменить заказ',
+  NEW: msg('Вернуть в новые'),
+  COOKING: msg('Принять в работу'),
+  READY: msg('Готово@@кухня'),
+  SERVED: msg('Подать'),
+  CLOSED: msg('Закрыть заказ'),
+  CANCELLED: msg('Отменить заказ'),
 };
 
 /** Оценка гостя после оплаты (§39): гость сам ставит 1–5 звёзд на устройстве смены, оценка не правится */
@@ -62,6 +64,7 @@ function RatingPanel({
   order: OrderView;
   onSaved: (order: OrderView) => void;
 }) {
+  const t = useT();
   const router = useRouter();
   const [pending, start] = useTransition();
   const [stars, setStars] = useState(0);
@@ -71,8 +74,8 @@ function RatingPanel({
   if (order.status !== 'CLOSED') return null;
   if (order.rating)
     return (
-      <section className="rest-rating" aria-label="Оценка гостя" data-testid="order-rating">
-        <span className="rest-stars" aria-label={`Оценка ${order.rating.stars} из 5`}>
+      <section className="rest-rating" aria-label={t('Оценка гостя')} data-testid="order-rating">
+        <span className="rest-stars" aria-label={t('Оценка {n} из 5', { n: order.rating.stars })}>
           {'★'.repeat(order.rating.stars)}
           {'☆'.repeat(5 - order.rating.stars)}
         </span>
@@ -81,7 +84,7 @@ function RatingPanel({
     );
   if (!ctx.write) return null;
   function send() {
-    if (!stars) return setError('Выберите от 1 до 5 звёзд');
+    if (!stars) return setError(t('Выберите от 1 до 5 звёзд'));
     start(async () => {
       const result = await mutateOrder(ctx.scopeKey, {
         kind: 'rate',
@@ -99,27 +102,27 @@ function RatingPanel({
   function qr() {
     start(async () => {
       const result = await orderRatingLink(ctx.scopeKey, order.id);
-      if (result.error || !result.token) return setError(result.error ?? 'Ссылка не выдана');
+      if (result.error || !result.token) return setError(result.error ?? t('Ссылка не выдана'));
       setError('');
       setLink({ url: `${window.location.origin}/rate/${result.token}`, expiresAt: result.expiresAt ?? '' });
     });
   }
   return (
-    <section className="rest-rating" aria-label="Оцените обслуживание" data-testid="order-rating">
+    <section className="rest-rating" aria-label={t('Оцените обслуживание')} data-testid="order-rating">
       {error && <Alert>{error}</Alert>}
-      <strong>Оцените обслуживание{order.waiter ? `: ${order.waiter.name}` : ''}</strong>
+      <strong>{order.waiter ? t('Оцените обслуживание: {name}', { name: order.waiter.name }) : t('Оцените обслуживание')}</strong>
       <StarsInput value={stars} onChange={setStars} />
-      <Field label="Комментарий гостя">
+      <Field label={t('Комментарий гостя')}>
         <Input value={comment} maxLength={500} onChange={(e) => setComment(e.target.value)} />
       </Field>
       <Button disabled={pending} onClick={send}>
-        Отправить оценку
+        {t('Отправить оценку')}
       </Button>
       {link ? (
         <div className="rest-qr-box" data-testid="order-rating-qr">
-          <QrCode text={link.url} label="QR-код: оценка с телефона гостя" />
+          <QrCode text={link.url} label={t('QR-код: оценка с телефона гостя')} />
           <p className="muted">
-            Гость наводит камеру и ставит оценку сам. Ссылка одна на заказ и действует 72 часа.
+            {t('Гость наводит камеру и ставит оценку сам. Ссылка одна на заказ и действует 72 часа.')}
           </p>
           <a href={link.url} target="_blank" rel="noreferrer" className="rest-qr-link">
             {link.url}
@@ -127,7 +130,7 @@ function RatingPanel({
         </div>
       ) : (
         <Button tone="secondary" disabled={pending} onClick={qr}>
-          QR-код для гостя
+          {t('QR-код для гостя')}
         </Button>
       )}
     </section>
@@ -144,6 +147,7 @@ function PaymentPanel({
   order: OrderView;
   onSaved: (order: OrderView) => void;
 }) {
+  const t = useT();
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState('');
@@ -163,8 +167,8 @@ function PaymentPanel({
   const [refundReason, setRefundReason] = useState('');
   function refund() {
     const tenge = Number(refundAmount);
-    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма: целое число больше нуля');
-    if (!refundReason.trim()) return setError('Укажите причину возврата');
+    if (!Number.isInteger(tenge) || tenge <= 0) return setError(t('Сумма: целое число больше нуля'));
+    if (!refundReason.trim()) return setError(t('Укажите причину возврата'));
     start(async () =>
       done(
         await mutateOrder(ctx.scopeKey, {
@@ -192,7 +196,7 @@ function PaymentPanel({
   };
   function pay() {
     const tenge = Number(amount);
-    if (!Number.isInteger(tenge) || tenge <= 0) return setError('Сумма: целое число больше нуля');
+    if (!Number.isInteger(tenge) || tenge <= 0) return setError(t('Сумма: целое число больше нуля'));
     start(async () =>
       done(
         await mutateOrder(ctx.scopeKey, {
@@ -204,22 +208,22 @@ function PaymentPanel({
     );
   }
   function voidPayment(id: string) {
-    if (!reason.trim()) return setError('Укажите причину аннулирования');
+    if (!reason.trim()) return setError(t('Укажите причину аннулирования'));
     start(async () =>
       done(await mutateOrder(ctx.scopeKey, { kind: 'void-payment', id, reason: reason.trim() })),
     );
   }
   return (
-    <section className="rest-pay" aria-label="Оплата заказа" data-testid="order-payment">
+    <section className="rest-pay" aria-label={t('Оплата заказа')} data-testid="order-payment">
       {error && <Alert>{error}</Alert>}
       <dl className="rest-pay-sum">
-        <dt>Оплачено</dt>
+        <dt>{t('Оплачено')}</dt>
         <dd data-testid="order-paid">{wholeTenge(order.paidMinor, order.currency)}</dd>
-        <dt>Осталось</dt>
+        <dt>{t('Осталось')}</dt>
         <dd data-testid="order-remaining">{wholeTenge(String(remaining), order.currency)}</dd>
         {BigInt(order.refundedMinor) > 0n && (
           <>
-            <dt>Возвращено</dt>
+            <dt>{t('Возвращено')}</dt>
             <dd data-testid="order-refunded">{wholeTenge(order.refundedMinor, order.currency)}</dd>
           </>
         )}
@@ -228,28 +232,28 @@ function PaymentPanel({
         <ul className="rest-pay-list">
           {order.payments.map((p) => (
             <li key={p.id} data-status={p.status}>
-              <span>{METHOD_RU[p.method] ?? p.method}</span>
+              <span>{t(METHOD_RU[p.method] ?? p.method)}</span>
               <strong>{wholeTenge(p.amountMinor, order.currency)}</strong>
               {p.status === 'VOIDED' ? (
-                <small>Аннулирован{p.voidReason ? `: ${p.voidReason}` : ''}</small>
+                <small>{p.voidReason ? t('Аннулирован: {reason}', { reason: p.voidReason }) : t('Аннулирован')}</small>
               ) : (
                 ctx.refunds &&
                 open &&
                 (voiding === p.id ? (
                   <span className="rest-pay-void">
                     <Input
-                      aria-label="Причина аннулирования"
-                      placeholder="Причина"
+                      aria-label={t('Причина аннулирования')}
+                      placeholder={t('Причина')}
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}
                     />
                     <Button tone="danger" disabled={pending} onClick={() => voidPayment(p.id)}>
-                      Аннулировать
+                      {t('Аннулировать')}
                     </Button>
                   </span>
                 ) : (
                   <Button tone="secondary" disabled={pending} onClick={() => setVoiding(p.id)}>
-                    Аннулировать
+                    {t('Аннулировать')}
                   </Button>
                 ))
               )}
@@ -259,16 +263,16 @@ function PaymentPanel({
       )}
       {ctx.write && open && remaining > 0n && (
         <div className="food-form-row">
-          <Field label="Способ">
+          <Field label={t('Способ')}>
             <Select value={method} onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}>
               {branchMethodsShown(FOOD_PAYMENT_METHODS, accepted, method).map((m) => (
                 <option key={m} value={m}>
-                  {METHOD_RU[m] ?? m}
+                  {t(METHOD_RU[m] ?? m)}
                 </option>
               ))}
             </Select>
           </Field>
-          <Field label={`Сумма, ${currencySign(order.currency)}`}>
+          <Field label={t('Сумма, {currency}', { currency: currencySign(order.currency) })}>
             <Input
               inputMode="numeric"
               value={amount}
@@ -276,34 +280,34 @@ function PaymentPanel({
             />
           </Field>
           <Button disabled={pending} onClick={pay}>
-            Принять оплату
+            {t('Принять оплату')}
           </Button>
         </div>
       )}
       {open && remaining === 0n && order.status !== 'SERVED' && (
-        <p className="muted">Оплачено полностью. Когда заказ подадут, нажмите «Закрыть заказ».</p>
+        <p className="muted">{t('Оплачено полностью. Когда заказ подадут, нажмите «Закрыть заказ».')}</p>
       )}
       {refundable && (
-        <section className="food-form" aria-label="Возврат по заказу">
+        <section className="food-form" aria-label={t('Возврат по заказу')}>
           <div className="food-form-row">
-            <Field label="Способ возврата">
+            <Field label={t('Способ возврата')}>
               <Select value={refundMethod} onChange={(e) => setRefundMethod(e.target.value as FoodPaymentMethod)}>
                 {FOOD_PAYMENT_METHODS.map((m) => (
                   <option key={m} value={m}>
-                    {METHOD_RU[m] ?? m}
+                    {t(METHOD_RU[m] ?? m)}
                   </option>
                 ))}
               </Select>
             </Field>
-            <Field label={`Сумма возврата, ${currencySign(order.currency)}`}>
+            <Field label={t('Сумма возврата, {currency}', { currency: currencySign(order.currency) })}>
               <Input inputMode="numeric" value={refundAmount} onChange={(e) => setRefundAmount(e.target.value.replace(/\D/g, ''))} />
             </Field>
           </div>
-          <Field label="Причина возврата">
+          <Field label={t('Причина возврата')}>
             <Input value={refundReason} maxLength={300} onChange={(e) => setRefundReason(e.target.value)} />
           </Field>
           <Button tone="danger" disabled={pending} onClick={refund}>
-            Оформить возврат
+            {t('Оформить возврат')}
           </Button>
         </section>
       )}
@@ -321,6 +325,7 @@ export function OrderDrawer({
   draft: OrderDraft;
   close: () => void;
 }) {
+  const t = useT();
   const router = useRouter();
   const { ask, dialog } = useConfirm();
   const [saved, setSaved] = useState<OrderView | null>(null);
@@ -348,7 +353,7 @@ export function OrderDrawer({
     () => new Map(ctx.areas.map((a) => [a.id, a.name])),
     [ctx.areas],
   );
-  const tableLabel = (t: DiningTable) => `${areaName.get(t.areaId) ?? ''}, ${t.name}`.replace(/^, /, '');
+  const tableLabel = (tb: DiningTable) => `${areaName.get(tb.areaId) ?? ''}, ${tb.name}`.replace(/^, /, '');
   const clock = (iso: string | null) => (iso ? localInput(iso, ctx.timezone).slice(11, 16) : '—');
   function submit() {
     setError('');
@@ -390,9 +395,9 @@ export function OrderDrawer({
     if (
       status === 'CANCELLED' &&
       !(await ask({
-        title: `Отменить заказ №${order.number}?`,
-        body: 'Заказ станет отменённым, вернуть его в работу нельзя. Кухня готовить не будет.',
-        confirmLabel: 'Отменить заказ',
+        title: t('Отменить заказ №{n}?', { n: order.number }),
+        body: t('Заказ станет отменённым, вернуть его в работу нельзя. Кухня готовить не будет.'),
+        confirmLabel: t('Отменить заказ'),
         tone: 'danger',
       }))
     )
@@ -417,7 +422,7 @@ export function OrderDrawer({
       }
     });
   }
-  const title = order ? `Заказ №${order.number}` : 'Новый заказ';
+  const title = order ? t('Заказ №{n}', { n: order.number }) : t('Новый заказ');
   const itemsEditable = !order || order.status === 'NEW' || order.status === 'COOKING';
   return (
     <Overlay
@@ -436,26 +441,26 @@ export function OrderDrawer({
           <>
             <div className="food-section-heading">
               <StatusBadge kind="foodOrder" value={order.status} />
-              {order.delayed && <span className="warn-text">Задерживается</span>}
+              {order.delayed && <span className="warn-text">{t('Задерживается')}</span>}
             </div>
             <dl>
-              <dt>Стол</dt>
-              <dd>{order.table ? `${order.table.areaName}, ${order.table.name}` : 'Без стола'}</dd>
-              <dt>Официант</dt>
+              <dt>{t('Стол')}</dt>
+              <dd>{order.table ? `${order.table.areaName}, ${order.table.name}` : t('Без стола')}</dd>
+              <dt>{t('Официант')}</dt>
               <dd>{order.waiter?.name ?? '—'}</dd>
-              <dt>Гостей</dt>
+              <dt>{t('Гостей')}</dt>
               <dd>{order.guestCount}</dd>
-              <dt>Открыт</dt>
+              <dt>{t('Открыт')}</dt>
               <dd>{clock(order.openedAt)}</dd>
               {order.closedAt && (
                 <>
-                  <dt>Закрыт</dt>
+                  <dt>{t('Закрыт')}</dt>
                   <dd>{clock(order.closedAt)}</dd>
                 </>
               )}
               {order.notes && (
                 <>
-                  <dt>Комментарий</dt>
+                  <dt>{t('Комментарий')}</dt>
                   <dd>{order.notes}</dd>
                 </>
               )}
@@ -474,7 +479,7 @@ export function OrderDrawer({
                 </div>
               ))}
               <div className="rest-order-total">
-                <span>Итого</span>
+                <span>{t('Итого')}</span>
                 <strong data-testid="order-total">
                   {wholeTenge(order.totalMinor, order.currency)}
                 </strong>
@@ -483,7 +488,7 @@ export function OrderDrawer({
             <PaymentPanel ctx={ctx} order={order} onSaved={setSaved} />
             {ctx.write && order.status !== 'CLOSED' && order.status !== 'CANCELLED' && BigInt(order.totalMinor) > BigInt(order.paidMinor) && (
               <Button tone="secondary" data-testid="split-bill-open" onClick={() => setSplitting(true)}>
-                Разделить счёт
+                {t('Разделить счёт')}
               </Button>
             )}
             {splitting && <SplitBill scopeKey={ctx.scopeKey} order={order} onSaved={setSaved} close={() => setSplitting(false)} />}
@@ -495,17 +500,17 @@ export function OrderDrawer({
                   .filter((s) => s !== 'CLOSED' || order.paidMinor === order.totalMinor)
                   .map((s) => (
                     <Button key={s} disabled={pending} onClick={() => transition(s)}>
-                      {STATUS_ACTION[s]}
+                      {t(STATUS_ACTION[s])}
                     </Button>
                   ))}
                 {itemsEditable && (
                   <Button tone="secondary" disabled={pending} onClick={() => setEditing(true)}>
-                    Изменить
+                    {t('Изменить')}
                   </Button>
                 )}
                 {order.nextStatuses.includes('CANCELLED') && (
                   <Button tone="danger" disabled={pending} onClick={() => transition('CANCELLED')}>
-                    {STATUS_ACTION.CANCELLED}
+                    {t(STATUS_ACTION.CANCELLED)}
                   </Button>
                 )}
               </div>
@@ -516,22 +521,22 @@ export function OrderDrawer({
             {itemsEditable && <DishPicker ctx={ctx} items={items} setItems={setItems} />}
             <div className="rest-pos-side">
               <div className="food-form-row">
-                <Field label="Стол">
+                <Field label={t('Стол')}>
                   <Select value={tableId} onChange={(e) => setTableId(e.target.value)}>
-                    <option value="">Без стола</option>
+                    <option value="">{t('Без стола')}</option>
                     {ctx.tables
-                      .filter((t) => t.active)
+                      .filter((tb) => tb.active)
                       .sort(compareTables)
-                      .map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {tableLabel(t)}
+                      .map((tb) => (
+                        <option key={tb.id} value={tb.id}>
+                          {tableLabel(tb)}
                         </option>
                       ))}
                   </Select>
                 </Field>
-                <Field label="Официант">
+                <Field label={t('Официант')}>
                   <Select value={waiterId} onChange={(e) => setWaiterId(e.target.value)}>
-                    <option value="">Не назначен</option>
+                    <option value="">{t('Не назначен')}</option>
                     {ctx.employees
                       .filter((e) => e.status === 'ACTIVE')
                       .map((e) => (
@@ -541,7 +546,7 @@ export function OrderDrawer({
                       ))}
                   </Select>
                 </Field>
-                <Field label="Гостей">
+                <Field label={t('Гостей')}>
                   <Input
                     type="number"
                     min={1}
@@ -554,9 +559,9 @@ export function OrderDrawer({
               {itemsEditable ? (
                 <CurrentOrder ctx={ctx} items={items} setItems={setItems} />
               ) : (
-                <p className="muted">Состав заморожен после готовности.</p>
+                <p className="muted">{t('Состав заморожен после готовности.')}</p>
               )}
-              <Field label="Комментарий к заказу">
+              <Field label={t('Комментарий к заказу')}>
                 <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
               </Field>
               <div className="food-actions">
@@ -565,14 +570,14 @@ export function OrderDrawer({
                   disabled={pending || items.length === 0}
                   onClick={submit}
                 >
-                  {order ? 'Сохранить' : 'Отправить на кухню'}
+                  {order ? t('Сохранить') : t('Отправить на кухню')}
                 </Button>
                 <Button
                   tone="secondary"
                   disabled={pending}
                   onClick={() => (order ? setEditing(false) : close())}
                 >
-                  Отмена
+                  {t('Отмена')}
                 </Button>
               </div>
             </div>

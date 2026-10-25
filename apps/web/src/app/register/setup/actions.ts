@@ -1,5 +1,6 @@
 'use server';
 import { ApiError, sharedOnboardingApi } from '../../../lib/api';
+import { msg } from '../../../i18n';
 export async function saveOnboarding(body: Parameters<typeof sharedOnboardingApi.save>[0]) {
   try {
     return { state: await sharedOnboardingApi.save(body), error: null };
@@ -7,7 +8,7 @@ export async function saveOnboarding(body: Parameters<typeof sharedOnboardingApi
     return {
       state: null,
       error:
-        error instanceof ApiError ? error.message : 'Не удалось сохранить. Попробуйте ещё раз.',
+        error instanceof ApiError ? error.message : msg('Не удалось сохранить. Попробуйте ещё раз.'),
     };
   }
 }
@@ -21,7 +22,7 @@ export async function reloadOnboarding() {
       error:
         error instanceof ApiError
           ? error.message
-          : 'Не удалось проверить настройку. Попробуйте ещё раз.',
+          : msg('Не удалось проверить настройку. Попробуйте ещё раз.'),
     };
   }
 }

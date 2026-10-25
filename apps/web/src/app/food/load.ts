@@ -15,6 +15,8 @@ import type {
 } from '../../lib/food-types';
 import { mayAccess } from '../../lib/navigation';
 import { localInput } from '../beauty/time';
+import { msg } from '../../i18n';
+import { serverT } from '../../i18n/server';
 export async function loadFood(
   dateParam?: string,
   timeParam?: string,
@@ -23,9 +25,9 @@ export async function loadFood(
 ): Promise<FoodWorkspace> {
   const me = await requireVertical(['FOOD_SERVICE']);
   if (me.context?.vertical !== 'FOOD_SERVICE' || !me.context.businessId || !me.context.locationId)
-    throw new Error('Выберите ресторан и филиал');
+    throw new Error((await serverT())(msg('Выберите ресторан и филиал')));
   const [shell, branch] = await Promise.all([deskShell(), selectedWorkspaceBranch()]);
-  if (!branch) throw new Error('Выбранный филиал недоступен');
+  if (!branch) throw new Error((await serverT())(msg('Выбранный филиал недоступен')));
   const timezone = branch.timezone;
   const local = localInput(new Date().toISOString(), timezone);
   const date =

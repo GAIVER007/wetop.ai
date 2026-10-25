@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { ApiError, staffTelegramApi, type StaffTelegramStatus } from '../../lib/api';
+import { serverT } from '../../i18n/server';
 
 /**
  * «Профиль → Уведомления» (STAFF-TG-20261020): действия своего подключения к боту WETOP. Код привязки возвращается
@@ -36,7 +37,8 @@ export async function telegramSiteBookingsAction(on: boolean): Promise<TelegramA
   try {
     const status = await staffTelegramApi.setSiteBookings(on);
     revalidatePath('/profile');
-    return { error: null, message: on ? 'Брони с сайта будут приходить в Telegram' : 'Брони с сайта больше не приходят', status };
+    const t = await serverT();
+    return { error: null, message: on ? t('Брони с сайта будут приходить в Telegram') : t('Брони с сайта больше не приходят'), status };
   } catch (e) {
     return { error: describe(e), message: null };
   }
@@ -46,7 +48,8 @@ export async function telegramDisconnectAction(): Promise<TelegramActionResult> 
   try {
     const status = await staffTelegramApi.disconnect();
     revalidatePath('/profile');
-    return { error: null, message: 'Telegram отключён', status };
+    const t = await serverT();
+    return { error: null, message: t('Telegram отключён'), status };
   } catch (e) {
     return { error: describe(e), message: null };
   }
@@ -55,7 +58,8 @@ export async function telegramDisconnectAction(): Promise<TelegramActionResult> 
 export async function telegramTestAction(): Promise<TelegramActionResult> {
   try {
     await staffTelegramApi.test();
-    return { error: null, message: 'Проверочное сообщение отправлено в Telegram' };
+    const t = await serverT();
+    return { error: null, message: t('Проверочное сообщение отправлено в Telegram') };
   } catch (e) {
     return { error: describe(e), message: null };
   }

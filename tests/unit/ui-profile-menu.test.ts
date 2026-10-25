@@ -54,8 +54,8 @@ describe('меню профиля в спеках UI открывается по
   it('помощник на месте: ждёт оживления и раскрытия меню', () => {
     const fixtures = readFileSync(resolve(UI, 'fixtures.ts'), 'utf8');
     expect(fixtures).toContain('export async function openProfileMenu(');
-    // название кнопки на языке стойки (KK1): русское и казахское
-    expect(fixtures).toContain(`name: /^(${MENU}|Әкімші мәзірі)$/`);
+    // название кнопки на языке стойки: русское, казахское (KK1) и английское (EN1)
+    expect(fixtures).toContain(`name: /^(${MENU}|Әкімші мәзірі|Administrator menu)$/`);
     expect(fixtures).toContain("key.startsWith('__reactProps$')");
     expect(fixtures).toContain("toHaveAttribute('aria-expanded', 'true')");
   });

@@ -14,6 +14,8 @@ import {
 import { ManagedSitesNotice, MarketingCrumb, WebsiteTabs } from '../parts';
 import '../../directory.css';
 import '../website.css';
+import { msg } from '../../../i18n';
+import { serverT } from '../../../i18n/server';
 
 /**
  * «Сайт и онлайн-бронирование → Настройки» (ADR-117): бывшие «Настройки сайта» (`/analytics/setup`) без блока
@@ -23,6 +25,7 @@ import '../website.css';
 export default async function WebsiteSettingsPage() {
   // сайт и онлайн-бронь гостиницы; у салона и ресторана сайт в «Продвижении» (аудит 17.10.2026, Д11)
   await requireFeature('/website/settings');
+  const t = await serverT();
   const sites = await analyticsApi.sites();
   const all = await Promise.all(sites.map((s) => analyticsApi.card(s.id)));
   // MKT7: сайт WETOP здесь не правится, его настраивает публикация
@@ -34,21 +37,21 @@ export default async function WebsiteSettingsPage() {
   return (
     <Page
       crumbs={<MarketingCrumb />}
-      title={WEBSITE_TITLE}
-      subtitle="Домены сайта, счётчик посещений и установка кода."
+      title={t(WEBSITE_TITLE)}
+      subtitle={t('Домены сайта, счётчик посещений и установка кода.')}
     >
       <WebsiteTabs current="settings" />
       <div className="settings-site">
         <Stack>
           {cards.length > 0 && localOnly && (
             <Alert boxed tone="warning" data-testid="setup-local-warning">
-              Укажите постоянный публичный адрес API: текущий код доступен только локально.
+              {t('Укажите постоянный публичный адрес API: текущий код доступен только локально.')}
             </Alert>
           )}
 
           {cards.length > 0 && insecure && (
             <Alert boxed data-testid="setup-insecure-warning">
-              Укажите HTTPS-адрес API, чтобы счётчик работал на сайте.
+              {t('Укажите HTTPS-адрес API, чтобы счётчик работал на сайте.')}
             </Alert>
           )}
 
@@ -58,9 +61,9 @@ export default async function WebsiteSettingsPage() {
           ))}
 
           <Panel size="lg">
-            <SectionTitle first>{cards.length ? 'Ещё один сайт' : 'Подключить сайт'}</SectionTitle>
+            <SectionTitle first>{cards.length ? t('Ещё один сайт') : t('Подключить сайт')}</SectionTitle>
             <p className="hint block--bottom-xs">
-              Существующий сайт объекта: WETOP будет принимать с него посещения и брони.
+              {t('Существующий сайт объекта: WETOP будет принимать с него посещения и брони.')}
             </p>
             <CreateSiteForm />
           </Panel>
@@ -77,32 +80,33 @@ const COUNTER_TEXT: Record<
 > = {
   blocked: {
     tone: 'warn',
-    title: 'Сначала адрес сайта',
-    text: () => 'Без адреса сайта счётчик не принимает посещения — добавьте домен выше.',
+    title: msg('Сначала адрес сайта'),
+    text: () => msg('Без адреса сайта счётчик не принимает посещения — добавьте домен выше.'),
   },
   paused: {
     tone: 'neutral',
-    title: 'Приостановлен',
-    text: () => 'Посещения не записываются. Возобновить — в «Опасной зоне» ниже.',
+    title: msg('Приостановлен'),
+    text: () => msg('Посещения не записываются. Возобновить — в «Опасной зоне» ниже.'),
   },
   waiting: {
     tone: 'warn',
-    title: 'Событий ещё не было',
+    title: msg('Событий ещё не было'),
     text: () =>
-      'Установите код на сайт и откройте любую его страницу — здесь появится время первого посещения.',
+      msg('Установите код на сайт и откройте любую его страницу — здесь появится время первого посещения.'),
   },
-  today: { tone: 'ok', title: 'Работает', text: (note) => note },
-  quiet: { tone: 'warn', title: 'Сегодня событий нет', text: (note) => note },
+  today: { tone: 'ok', title: msg('Работает'), text: (note) => note },
+  quiet: { tone: 'warn', title: msg('Сегодня событий нет'), text: (note) => note },
 };
 
-function SiteCard({ card }: { card: TrackedSiteCard }) {
+async function SiteCard({ card }: { card: TrackedSiteCard }) {
+  const t = await serverT();
   const { site, status, snippet } = card;
   const clock = propertyClock(site.timezone);
-  const state = siteState(card, clock);
+  const state = siteState(card, clock, undefined, t);
   const counter = COUNTER_TEXT[state.counter.state];
   // Одна плашка состояния вместо пары «Счётчик включён» + «Ожидает первых событий» (ADR-117)
   const badge = !state.connected
-    ? { tone: 'warn' as const, text: 'Адрес не указан' }
+    ? { tone: 'warn' as const, text: t('Адрес не указан') }
     : state.counter.state === 'today'
       ? { tone: 'ok' as const, text: state.counter.value }
       : { tone: 'neutral' as const, text: state.counter.value };
@@ -122,36 +126,35 @@ function SiteCard({ card }: { card: TrackedSiteCard }) {
         </Badge>
       </Row>
 
-      <h3 className="site-domains-heading">Домены</h3>
+      <h3 className="site-domains-heading">{t('Домены')}</h3>
       {!state.connected && (
         <Alert tone="warning" data-testid="site-domain-missing">
-          Основной домен не настроен. Добавьте адрес сайта, с которого WETOP будет принимать
-          посещения и запросы бронирования.
+          {t('Основной домен не настроен. Добавьте адрес сайта, с которого WETOP будет принимать посещения и запросы бронирования.')}
         </Alert>
       )}
       <DomainList id={site.id} hosts={site.hosts} />
 
       <div className="divider" data-testid="counter-state" data-state={state.counter.state}>
-        <h3>Счётчик WETOP</h3>
+        <h3>{t('Счётчик WETOP')}</h3>
         <p className="hint--lg">
           <Badge tone={counter.tone} data-testid="counter-title">
-            {counter.title}
+            {t(counter.title)}
           </Badge>{' '}
-          <span data-testid="counter-text">{counter.text(state.counter.note)}</span>
+          <span data-testid="counter-text">{t(counter.text(state.counter.note))}</span>
         </p>
         {status.lastEventAt && (
           <div className="facts">
             <Fact
-              label="Последнее событие"
+              label={t('Последнее событие')}
               value={clock.local(status.lastEventAt)}
               testId="site-card-last"
             />
             <Fact
-              label="Сессий сегодня"
+              label={t('Сессий сегодня')}
               value={String(status.sessionsToday)}
               testId="site-card-today"
             />
-            <Fact label="Просмотров сегодня" value={String(status.pageviewsToday)} />
+            <Fact label={t('Просмотров сегодня')} value={String(status.pageviewsToday)} />
           </div>
         )}
         <Row className="items-start">
@@ -163,17 +166,16 @@ function SiteCard({ card }: { card: TrackedSiteCard }) {
           {state.counter.state !== 'blocked' && (
             <CheckCounterButton
               id={site.id}
-              label={state.counter.state === 'waiting' ? 'Проверить установку' : 'Проверить'}
+              label={state.counter.state === 'waiting' ? msg('Проверить установку') : msg('Проверить')}
             />
           )}
         </Row>
       </div>
 
       <section className="panel panel--danger block--top" data-testid="site-danger">
-        <b className="panel__title">Опасная зона</b>
+        <b className="panel__title">{t('Опасная зона')}</b>
         <p className="hint">
-          Приостановка останавливает и счётчик, и бронирование с сайта. Удаление стирает накопленную
-          статистику — вернуть её нельзя.
+          {t('Приостановка останавливает и счётчик, и бронирование с сайта. Удаление стирает накопленную статистику — вернуть её нельзя.')}
         </p>
         <SiteDangerZone id={site.id} status={site.status} />
       </section>

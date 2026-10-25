@@ -6,6 +6,8 @@ import { Overlay } from '../../components/overlay';
 import { Button } from '../../components/ui';
 import { amenityIcon, amenityLabel } from './card-model';
 import { useLive, type LiveValues } from './settings-save';
+import { msg, type Translate } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 export interface PreviewPhoto {
   id: string;
@@ -35,6 +37,7 @@ export function PreviewCard({
   photos: PreviewPhoto[];
   onOpen?: () => void;
 }) {
+  const t = useT();
   const v = useCard(initial);
   const amenities = code(v['amenities']).slice(0, 4);
   const place = [v['city'], v['address']].filter(Boolean).join(', ');
@@ -45,13 +48,13 @@ export function PreviewCard({
         {first ? (
           <img src={first.url} alt={first.alt} />
         ) : (
-          <span className="obj-preview__empty" role="img" aria-label="Фото ещё не добавлены">
+          <span className="obj-preview__empty" role="img" aria-label={t('Фото ещё не добавлены')}>
             <Icon name="image" width={28} height={28} />
           </span>
         )}
       </div>
       <div className="obj-preview__body">
-        <div className="obj-preview__title">{v['name'] || 'Название объекта'}</div>
+        <div className="obj-preview__title">{v['name'] || t('Название объекта')}</div>
         {place && (
           <div className="obj-preview__line">
             <Icon name="pin" width={14} height={14} />
@@ -61,26 +64,26 @@ export function PreviewCard({
         <div className="obj-preview__times">
           <span>
             <Icon name="clock" width={14} height={14} />
-            Заезд с {v['checkInTime'] || '—'}
+            {t('Заезд с {time}', { time: v['checkInTime'] || '—' })}
           </span>
           <span>
             <Icon name="clock" width={14} height={14} />
-            Выезд до {v['checkOutTime'] || '—'}
+            {t('Выезд до {time}', { time: v['checkOutTime'] || '—' })}
           </span>
         </div>
         {amenities.length > 0 && (
-          <ul className="obj-preview__amenities" aria-label="Удобства">
+          <ul className="obj-preview__amenities" aria-label={t('Удобства')}>
             {amenities.map((c) => (
               <li key={c}>
                 <Icon name={amenityIcon(c)} width={20} height={20} />
-                <span>{amenityLabel(c)}</span>
+                <span>{t(amenityLabel(c))}</span>
               </li>
             ))}
           </ul>
         )}
         {onOpen && (
           <button type="button" className="obj-preview__open" onClick={onOpen}>
-            Открыть пример
+            {t('Открыть пример')}
             <Icon name="external" width={14} height={14} />
           </button>
         )}
@@ -89,26 +92,28 @@ export function PreviewCard({
   );
 }
 
-const yesNo = (v: string | undefined) => (v === 'true' ? 'Да' : 'Нет');
+const yesNo = (v: string | undefined, t: Translate) => (v === 'true' ? t('Да') : t('Нет'));
 
 /** Полный пример: то, что гость прочтёт об объекте целиком (описание, правила, удобства) */
 function PreviewFull({ initial, photos }: { initial: LiveValues; photos: PreviewPhoto[] }) {
+  const t = useT();
   const v = useCard(initial);
   const amenities = code(v['amenities']);
+  const maybe = (on: boolean) => (on ? t('при наличии возможности') : t('нет'));
   const rules: Array<[string, string]> = [
-    ['Заезд и выезд', `с ${v['checkInTime'] || '—'} до ${v['checkOutTime'] || '—'}`],
-    ['Ранний заезд', v['earlyCheckIn'] === 'true' ? 'при наличии возможности' : 'нет'],
-    ['Поздний выезд', v['lateCheckOut'] === 'true' ? 'при наличии возможности' : 'нет'],
-    ['С детьми', yesNo(v['childrenAllowed'])],
-    ['С питомцами', yesNo(v['petsAllowed'])],
-    ['Курение', v['smokingAllowed'] === 'true' ? 'разрешено' : 'запрещено'],
-    ['Минимальный возраст гостя', `${v['minGuestAge'] || '0'} лет`],
+    [msg('Заезд и выезд'), t('с {from} до {to}', { from: v['checkInTime'] || '—', to: v['checkOutTime'] || '—' })],
+    [msg('Ранний заезд'), maybe(v['earlyCheckIn'] === 'true')],
+    [msg('Поздний выезд'), maybe(v['lateCheckOut'] === 'true')],
+    [msg('С детьми'), yesNo(v['childrenAllowed'], t)],
+    [msg('С питомцами'), yesNo(v['petsAllowed'], t)],
+    [msg('Курение'), v['smokingAllowed'] === 'true' ? t('разрешено') : t('запрещено')],
+    [msg('Минимальный возраст гостя'), t('{n} лет', { n: v['minGuestAge'] || '0' })],
     ...(v['quietHoursFrom'] && v['quietHoursTo']
-      ? ([['Тихие часы', `${v['quietHoursFrom']} – ${v['quietHoursTo']}`]] as Array<[string, string]>)
+      ? ([[msg('Тихие часы'), `${v['quietHoursFrom']} – ${v['quietHoursTo']}`]] as Array<[string, string]>)
       : []),
     [
-      'Отмена брони',
-      CANCELLATION_RULE_LABELS[v['cancellationRule'] as CancellationRule] ?? '—',
+      msg('Отмена брони'),
+      t(CANCELLATION_RULE_LABELS[v['cancellationRule'] as CancellationRule] ?? '—'),
     ],
   ];
   return (
@@ -120,26 +125,26 @@ function PreviewFull({ initial, photos }: { initial: LiveValues; photos: Preview
           ))}
         </div>
       )}
-      <h3>{v['name'] || 'Название объекта'}</h3>
+      <h3>{v['name'] || t('Название объекта')}</h3>
       <p className="settings-note">
-        {[v['city'], v['address']].filter(Boolean).join(', ') || 'Адрес не указан'}
+        {[v['city'], v['address']].filter(Boolean).join(', ') || t('Адрес не указан')}
       </p>
-      <p>{v['description'] || 'Краткое описание не заполнено.'}</p>
+      <p>{v['description'] || t('Краткое описание не заполнено.')}</p>
       <dl className="obj-sample__rules">
         {rules.map(([k, val]) => (
           <div key={k}>
-            <dt>{k}</dt>
+            <dt>{t(k)}</dt>
             <dd>{val}</dd>
           </div>
         ))}
       </dl>
       {v['houseRulesNote'] && <p className="obj-sample__note">{v['houseRulesNote']}</p>}
       {amenities.length > 0 && (
-        <ul className="obj-sample__amenities" aria-label="Удобства">
+        <ul className="obj-sample__amenities" aria-label={t('Удобства')}>
           {PROPERTY_AMENITIES.filter((a) => amenities.includes(a.code)).map((a) => (
             <li key={a.code}>
               <Icon name={amenityIcon(a.code)} width={16} height={16} />
-              {a.label}
+              {t(a.label)}
             </li>
           ))}
         </ul>
@@ -156,6 +161,7 @@ export function PreviewButton({
   initial: LiveValues;
   photos: PreviewPhoto[];
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -166,9 +172,9 @@ export function PreviewButton({
         data-testid="preview-open"
       >
         <Icon name="eye" width={18} height={18} />
-        Предпросмотр карточки
+        {t('Предпросмотр карточки')}
       </Button>
-      <Overlay open={open} onClose={() => setOpen(false)} title="Предпросмотр карточки" size="lg">
+      <Overlay open={open} onClose={() => setOpen(false)} title={msg('Предпросмотр карточки')} size="lg">
         <PreviewFull initial={initial} photos={photos} />
       </Overlay>
     </>
@@ -187,7 +193,7 @@ export function PreviewPanel({
   return (
     <>
       <PreviewCard initial={initial} photos={photos} onOpen={() => setOpen(true)} />
-      <Overlay open={open} onClose={() => setOpen(false)} title="Предпросмотр карточки" size="lg">
+      <Overlay open={open} onClose={() => setOpen(false)} title={msg('Предпросмотр карточки')} size="lg">
         <PreviewFull initial={initial} photos={photos} />
       </Overlay>
     </>

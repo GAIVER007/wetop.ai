@@ -7,8 +7,10 @@ import { housekeepingStatus } from '../../lib/status/housekeeping';
 import { formatMoney } from '../../lib/money';
 import { hotelMonthLine, hotelTaskDue, hotelUnitNote } from '../../lib/hotel-cabinet';
 import { cleanUnitAction, taskDoneAction } from '../hotel-staff/actions';
+import { msg } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
 
-const DAYS: Record<number, string> = { 1: 'Пн', 2: 'Вт', 3: 'Ср', 4: 'Чт', 5: 'Пт', 6: 'Сб', 0: 'Вс' };
+const DAYS: Record<number, string> = { 1: msg('Пн'), 2: msg('Вт'), 3: msg('Ср'), 4: msg('Чт'), 5: msg('Пт'), 6: msg('Сб'), 0: msg('Вс') };
 
 /**
  * «Моя работа» горничной и ресепшена гостиницы (решение владельца 22.10.2026): телефон первым, сверху то, что
@@ -17,6 +19,8 @@ const DAYS: Record<number, string> = { 1: 'Пн', 2: 'Вт', 3: 'Ср', 4: 'Чт
  */
 export function HotelCabinet({ data }: { data: HotelStaffCabinetDto }) {
   const router = useRouter();
+  const t = useT();
+  const locale = useLocale();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [, start] = useTransition();
@@ -36,32 +40,32 @@ export function HotelCabinet({ data }: { data: HotelStaffCabinetDto }) {
     <div className="hk-cab" data-testid="hotel-cabinet">
       <header className="panel hk-cab__head">
         <div>
-          <Badge>Мой кабинет</Badge>
+          <Badge>{t('Мой кабинет')}</Badge>
           <h2>{data.me.name}</h2>
           <p className="muted">{data.property.name}</p>
         </div>
         <p className="hk-cab__month" data-testid="hotel-month-line">
-          {hotelMonthLine(data.month, data.today.slice(0, 4))}
+          {hotelMonthLine(data.month, data.today.slice(0, 4), t, locale)}
         </p>
       </header>
-      {error && <Alert>{error}</Alert>}
+      {error && <Alert>{t(error)}</Alert>}
 
       <section className="panel hk-cab__section" aria-labelledby="hk-units-title" data-testid="hotel-my-units">
         <h2 id="hk-units-title">
-          Мои уборки сегодня <span className="muted">{toClean ? `осталось ${toClean}` : 'всё убрано'}</span>
+          {t('Мои уборки сегодня')} <span className="muted">{toClean ? t('осталось {n}', { n: toClean }) : t('всё убрано')}</span>
         </h2>
         {data.units.length === 0 ? (
-          <EmptyState title="Номеров на уборку нет" details="Руководитель назначает, кто убирает номер, в карточке номера." />
+          <EmptyState title={t('Номеров на уборку нет')} details={t('Руководитель назначает, кто убирает номер, в карточке номера.')} />
         ) : (
           <ul className="hk-cab__list">
             {data.units.map((u) => (
               <li key={u.code} className="hk-cab__row" data-testid="hotel-unit" data-status={u.status}>
                 <div className="hk-cab__what">
-                  <strong>Номер {u.roomNumber}</strong>
+                  <strong>{t('Номер {n}', { n: u.roomNumber })}</strong>
                   <span className="muted">{[u.categoryName, u.place].filter(Boolean).join(', ')}</span>
                   <span className="hk-cab__state">
-                    <Badge tone={BADGE_TONE[housekeepingStatus[u.status].tone]}>{housekeepingStatus[u.status].label}</Badge>
-                    <span className="muted">{hotelUnitNote(u.status, u.cleanedToday)}</span>
+                    <Badge tone={BADGE_TONE[housekeepingStatus[u.status].tone]}>{t(housekeepingStatus[u.status].label)}</Badge>
+                    <span className="muted">{t(hotelUnitNote(u.status, u.cleanedToday))}</span>
                   </span>
                 </div>
                 {u.status === 'DIRTY' && (
@@ -69,9 +73,9 @@ export function HotelCabinet({ data }: { data: HotelStaffCabinetDto }) {
                     className="hk-cab__action"
                     disabled={busy !== null}
                     onClick={() => act(`unit:${u.code}`, () => cleanUnitAction(u.code))}
-                    aria-label={`Убрано: номер ${u.roomNumber}`}
+                    aria-label={t('Убрано: номер {n}', { n: u.roomNumber })}
                   >
-                    {busy === `unit:${u.code}` ? 'Сохраняю…' : 'Убрано'}
+                    {busy === `unit:${u.code}` ? t('Сохраняю…') : t('Убрано')}
                   </Button>
                 )}
               </li>
@@ -82,28 +86,28 @@ export function HotelCabinet({ data }: { data: HotelStaffCabinetDto }) {
 
       <section className="panel hk-cab__section" aria-labelledby="hk-tasks-title" data-testid="hotel-my-tasks">
         <h2 id="hk-tasks-title">
-          Мои задачи <span className="muted">{openTasks ? `открыто ${openTasks}` : 'всё сделано'}</span>
+          {t('Мои задачи')} <span className="muted">{openTasks ? t('открыто {n}', { n: openTasks }) : t('всё сделано')}</span>
         </h2>
         {data.tasks.length === 0 ? (
-          <EmptyState title="Задач на сегодня нет" />
+          <EmptyState title={t('Задач на сегодня нет')} />
         ) : (
           <ul className="hk-cab__list">
-            {data.tasks.map((t) => (
-              <li key={t.id} className="hk-cab__row" data-testid="hotel-task" data-done={t.done ? 'true' : 'false'}>
+            {data.tasks.map((task) => (
+              <li key={task.id} className="hk-cab__row" data-testid="hotel-task" data-done={task.done ? 'true' : 'false'}>
                 <div className="hk-cab__what">
-                  <strong>{t.title}</strong>
-                  {t.note && <span className="muted">{t.note}</span>}
-                  <span className={t.overdue ? 'hk-cab__late' : 'muted'}>{hotelTaskDue(t, data.today)}</span>
+                  <strong>{task.title}</strong>
+                  {task.note && <span className="muted">{task.note}</span>}
+                  <span className={task.overdue ? 'hk-cab__late' : 'muted'}>{hotelTaskDue(task, data.today, t, locale)}</span>
                 </div>
-                {!t.done && (
+                {!task.done && (
                   <Button
                     className="hk-cab__action"
                     tone="secondary"
                     disabled={busy !== null}
-                    onClick={() => act(`task:${t.id}`, () => taskDoneAction(t.id))}
-                    aria-label={`Сделано: ${t.title}`}
+                    onClick={() => act(`task:${task.id}`, () => taskDoneAction(task.id))}
+                    aria-label={t('Сделано: {title}', { title: task.title })}
                   >
-                    {busy === `task:${t.id}` ? 'Сохраняю…' : 'Сделано'}
+                    {busy === `task:${task.id}` ? t('Сохраняю…') : t('Сделано')}
                   </Button>
                 )}
               </li>
@@ -113,16 +117,16 @@ export function HotelCabinet({ data }: { data: HotelStaffCabinetDto }) {
       </section>
 
       <section className="panel hk-cab__section" aria-labelledby="hk-week-title" data-testid="hotel-my-week">
-        <h2 id="hk-week-title">Мой график</h2>
+        <h2 id="hk-week-title">{t('Мой график')}</h2>
         {data.week.every((d) => d.intervals.length === 0) ? (
-          <p className="muted">График пока не задан: его ставит руководитель в разделе «График работы».</p>
+          <p className="muted">{t('График пока не задан: его ставит руководитель в разделе «График работы».')}</p>
         ) : (
           <ul className="hk-cab__week">
             {data.week.map((d) => (
               <li key={d.weekday}>
-                <span>{DAYS[d.weekday]}</span>
+                <span>{t(DAYS[d.weekday] ?? '')}</span>
                 <span className={d.intervals.length ? undefined : 'muted'}>
-                  {d.intervals.length ? d.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ') : 'выходной'}
+                  {d.intervals.length ? d.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ') : t('выходной')}
                 </span>
               </li>
             ))}
@@ -131,14 +135,14 @@ export function HotelCabinet({ data }: { data: HotelStaffCabinetDto }) {
       </section>
 
       <section className="panel hk-cab__section" aria-labelledby="hk-pay-title" data-testid="hotel-my-pay">
-        <h2 id="hk-pay-title">Моя зарплата за месяц</h2>
+        <h2 id="hk-pay-title">{t('Моя зарплата за месяц')}</h2>
         <dl className="hk-cab__pay">
           <div>
-            <dt>Оклад</dt>
+            <dt>{t('Оклад')}</dt>
             <dd>{money(data.pay.fixedMinor)}</dd>
           </div>
           <div>
-            <dt>За уборки</dt>
+            <dt>{t('За уборки')}</dt>
             <dd>
               {money(data.pay.pieceMinor)}
               {data.pay.cleanings > 0 && BigInt(data.pay.perCleaningMinor) > 0n && (
@@ -147,15 +151,15 @@ export function HotelCabinet({ data }: { data: HotelStaffCabinetDto }) {
             </dd>
           </div>
           <div>
-            <dt>Премии</dt>
+            <dt>{t('Премии')}</dt>
             <dd>{money(data.pay.bonusMinor)}</dd>
           </div>
           <div>
-            <dt>Удержания</dt>
+            <dt>{t('Удержания')}</dt>
             <dd>{money(data.pay.penaltyMinor)}</dd>
           </div>
           <div className="hk-cab__total">
-            <dt>Начислено</dt>
+            <dt>{t('Начислено')}</dt>
             <dd data-testid="hotel-pay-total">{money(data.pay.totalMinor)}</dd>
           </div>
         </dl>

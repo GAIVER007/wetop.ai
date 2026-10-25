@@ -1,8 +1,11 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { ApiError, contentApi, type ContentDraftView, type ContentVariantView } from '../../../lib/api';
+import { msg } from '../../../i18n';
 
 /**
+ * Ошибки формы размечены `msg` и переводятся при показе (`studio.tsx`), слова сервера показываются как есть.
+ *
  * Действия экрана «Контент» (CONTENT-DRAFTS-20261022). ИИ только предлагает варианты, сохраняет человек. Новый
  * черновик едет с ключом создания (повтор после потерянного ответа не делает второй строки), правка с версией.
  */
@@ -29,7 +32,7 @@ const revisionOf = (fd: FormData) => Number(s(fd, 'expectedRevision'));
 
 export async function proposeContentAction(_prev: ContentActionResult, fd: FormData): Promise<ContentActionResult> {
   const topic = s(fd, 'topic');
-  if (!topic) return { error: 'Напишите, о чём пост', ok: 0 };
+  if (!topic) return { error: msg('Напишите, о чём пост'), ok: 0 };
   try {
     const r = await contentApi.proposal({ topic, channel: s(fd, 'channel'), tone: s(fd, 'tone') });
     return { error: null, ok: Date.now(), variants: r.variants };
@@ -50,7 +53,7 @@ export async function saveDraftAction(_prev: ContentActionResult, fd: FormData):
   try {
     let draft: ContentDraftView;
     if (id) {
-      if (!UUID.test(id)) return { error: 'Черновик не найден: обновите страницу', ok: 0 };
+      if (!UUID.test(id)) return { error: msg('Черновик не найден: обновите страницу'), ok: 0 };
       draft = await contentApi.update(id, {
         expectedRevision: revisionOf(fd),
         ...common,
@@ -59,7 +62,7 @@ export async function saveDraftAction(_prev: ContentActionResult, fd: FormData):
       });
     } else {
       const creationId = s(fd, 'creationId');
-      if (!UUID.test(creationId)) return { error: 'Форма устарела: обновите страницу', ok: 0 };
+      if (!UUID.test(creationId)) return { error: msg('Форма устарела: обновите страницу'), ok: 0 };
       draft = await contentApi.create({
         creationId,
         ...common,
@@ -77,7 +80,7 @@ export async function saveDraftAction(_prev: ContentActionResult, fd: FormData):
 
 async function transition(fd: FormData, call: (id: string, rev: number) => Promise<ContentDraftView>) {
   const id = s(fd, 'id');
-  if (!UUID.test(id)) return { error: 'Черновик не найден: обновите страницу', ok: 0 };
+  if (!UUID.test(id)) return { error: msg('Черновик не найден: обновите страницу'), ok: 0 };
   try {
     const draft = await call(id, revisionOf(fd));
     revalidatePath('/marketing/content');

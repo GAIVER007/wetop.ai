@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { FinanceRuleError, parseMoney } from '@pms/domain';
+import { msg } from '../../../../i18n';
 import { ApiError, marketingAdsApi, type MarketingAdProposal } from '../../../../lib/api';
 
 /**
@@ -42,9 +43,9 @@ function creativeOf(fd: FormData): Creative | string {
     return { kind: 'VIDEO', id: UUID.test(id) ? id : null };
   }
   const file = fd.get('creative');
-  if (!(file instanceof File) || file.size === 0) return 'Загрузите фото или видео креатива';
-  if (!IMAGE_TYPES.includes(file.type)) return 'Креатив: фото JPEG или PNG, видео MP4 или MOV';
-  if (file.size > 8 * 1024 * 1024) return 'Фото больше 8 МБ';
+  if (!(file instanceof File) || file.size === 0) return msg('Загрузите фото или видео креатива');
+  if (!IMAGE_TYPES.includes(file.type)) return msg('Креатив: фото JPEG или PNG, видео MP4 или MOV');
+  if (file.size > 8 * 1024 * 1024) return msg('Фото больше 8 МБ');
   return { kind: 'IMAGE', file };
 }
 
@@ -65,7 +66,7 @@ export async function proposeAdAction(_prev: LaunchActionResult, fd: FormData): 
   if (creative.kind === 'VIDEO') {
     const frames = framesOf(fd);
     if (frames.length < FRAMES_MIN)
-      return { error: 'Кадры видео не сняты: напишите текст объявления руками или выберите другой файл', ok: 0 };
+      return { error: msg('Кадры видео не сняты: напишите текст объявления руками или выберите другой файл'), ok: 0 };
     images = frames.map((dataBase64) => ({ mediaType: 'image/jpeg', dataBase64 }));
   } else {
     images = [{ mediaType: creative.file.type, dataBase64: Buffer.from(await creative.file.arrayBuffer()).toString('base64') }];
@@ -79,7 +80,7 @@ export async function proposeAdAction(_prev: LaunchActionResult, fd: FormData): 
       city: s(fd, 'cityName') || s(fd, 'country'),
       country: s(fd, 'country'),
     });
-    return { error: null, ok: Date.now(), proposal, message: 'ИИ подготовил текст и аудиторию: проверьте и поправьте' };
+    return { error: null, ok: Date.now(), proposal, message: msg('ИИ подготовил текст и аудиторию: проверьте и поправьте') };
   } catch (e) {
     return { error: describe(e), ok: 0 };
   }
@@ -99,14 +100,14 @@ export async function launchAdAction(_prev: LaunchActionResult, fd: FormData): P
   const creativeInput = creativeOf(fd);
   if (typeof creativeInput === 'string') return { error: creativeInput, ok: 0 };
   if (creativeInput.kind === 'VIDEO' && !creativeInput.id)
-    return { error: 'Дождитесь загрузки видео: оно ещё не сохранено', ok: 0 };
+    return { error: msg('Дождитесь загрузки видео: оно ещё не сохранено'), ok: 0 };
   let daily: bigint;
   try {
     daily = parseMoney(s(fd, 'dailyBudget'));
   } catch (e) {
     return { error: e instanceof FinanceRuleError ? e.message : describe(e), ok: 0 };
   }
-  if (daily <= 0n) return { error: 'Бюджет в день: сумма больше нуля', ok: 0 };
+  if (daily <= 0n) return { error: msg('Бюджет в день: сумма больше нуля'), ok: 0 };
   let id: string;
   try {
     const creativeId =
@@ -160,5 +161,5 @@ export async function campaignStatusAction(_prev: LaunchActionResult, fd: FormDa
     return { error: describe(e), ok: 0 };
   }
   revalidatePath('/marketing/ads');
-  return { error: null, ok: Date.now(), message: pause ? 'Кампания остановлена в Meta' : 'Кампания снова идёт в Meta' };
+  return { error: null, ok: Date.now(), message: pause ? msg('Кампания остановлена в Meta') : msg('Кампания снова идёт в Meta') };
 }

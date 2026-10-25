@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../i18n/server', async () => ({ serverT: async () => (await import('../../i18n')).translator('ru'), currentLocale: async () => 'ru' }));
 import { ApiError } from '../../lib/api-error';
 vi.mock('server-only', () => ({}));
 const { me, createCustomer, revalidatePath } = vi.hoisted(() => ({

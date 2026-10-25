@@ -8,6 +8,7 @@ import {
   unitsApi,
   type SiteAssetView,
 } from '../../lib/api';
+import { serverT } from '../../i18n/server';
 
 const FUND_PATHS = [
   '/inventory',
@@ -18,8 +19,10 @@ const FUND_PATHS = [
   '/reservations/new',
   '/finance',
 ];
-const failure = (e: unknown) =>
-  e instanceof ApiError ? e.message : 'Не удалось сохранить. Проверьте результат перед повтором.';
+async function failure(e: unknown) {
+  const t = await serverT();
+  return e instanceof ApiError ? e.message : t('Не удалось сохранить. Проверьте результат перед повтором.');
+}
 
 /** `code` — код созданной категории: форма ведёт к следующему шагу с ней (ADR-119) */
 export async function saveInventory(
@@ -31,7 +34,7 @@ export async function saveInventory(
   try {
     saved = await inventoryEditorApi.save(resource, body, code);
   } catch (e) {
-    return { error: failure(e) };
+    return { error: await failure(e) };
   }
   for (const path of FUND_PATHS) revalidatePath(path);
   return { error: null, ...(saved?.code ? { code: saved.code } : {}) };
@@ -45,7 +48,7 @@ export async function removeCategory(
   try {
     result = (await inventoryEditorApi.remove(code)).result;
   } catch (e) {
-    return { error: failure(e) };
+    return { error: await failure(e) };
   }
   for (const path of FUND_PATHS) revalidatePath(path);
   return { error: null, result };
@@ -56,7 +59,7 @@ export async function linkCategoryRatePlan(code: string, body: Record<string, un
   try {
     await inventoryEditorApi.linkRatePlan(code, body);
   } catch (e) {
-    return { error: failure(e) };
+    return { error: await failure(e) };
   }
   for (const path of FUND_PATHS) revalidatePath(path);
   return { error: null };
@@ -66,7 +69,8 @@ export async function inventoryRates() {
   try {
     return { plans: await reservationsApi.ratePlans(), error: null };
   } catch {
-    return { plans: [], error: 'Не удалось загрузить тарифы. Закройте форму и попробуйте снова.' };
+    const t = await serverT();
+    return { plans: [], error: t('Не удалось загрузить тарифы. Закройте форму и попробуйте снова.') };
   }
 }
 
@@ -80,8 +84,9 @@ export async function bulkHousekeepingAction(
   codes: string[],
   status: string,
 ): Promise<{ done: number; skipped: number; reason: string | null }> {
+  const t = await serverT();
   if (!HK_STATUSES.includes(status) || codes.length === 0 || codes.length > 200)
-    return { done: 0, skipped: codes.length, reason: 'Выберите от 1 до 200 мест и статус уборки' };
+    return { done: 0, skipped: codes.length, reason: t('Выберите от 1 до 200 мест и статус уборки') };
   let done = 0;
   let skipped = 0;
   let reason: string | null = null;
@@ -91,7 +96,7 @@ export async function bulkHousekeepingAction(
       done++;
     } catch (e) {
       skipped++;
-      reason ??= failure(e);
+      reason ??= await failure(e);
     }
   }
   for (const path of FUND_PATHS) revalidatePath(path);
@@ -112,7 +117,7 @@ export async function loadPhotoLibraryAction(): Promise<{
       assets: lib.assets.filter((a) => a.kind === 'IMAGE'),
     };
   } catch (e) {
-    return { error: failure(e), assets: [], storageOff: false };
+    return { error: await failure(e), assets: [], storageOff: false };
   }
 }
 
@@ -123,7 +128,7 @@ export async function saveCategoryPhotosAction(
   try {
     await inventoryEditorApi.setPhotos(code, assetIds);
   } catch (e) {
-    return { error: failure(e) };
+    return { error: await failure(e) };
   }
   for (const path of FUND_PATHS) revalidatePath(path);
   return { error: null };

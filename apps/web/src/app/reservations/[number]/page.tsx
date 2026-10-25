@@ -10,7 +10,9 @@ import { api, chessboardApi, financeApi, messengerLinks, reservationsApi } from 
 import { formatMoney } from '../../../lib/money';
 import { displayDate } from '../../../lib/display-date';
 import { MAX_CHESSBOARD_DAYS, citizenshipLabel } from '@pms/domain';
-import { nightsBetween, pluralRu } from '../../../lib/plural';
+import { nightsBetween } from '../../../lib/plural';
+import { countLabel, intlLocale, msg } from '../../../i18n';
+import { currentLocale, serverT } from '../../../i18n/server';
 import { Page, BackCrumb } from '../../../components/page';
 import { Alert, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { ReservationActions } from './actions-panel';
@@ -44,6 +46,9 @@ export default async function ReservationPage({
 }) {
   // раздел направления по реестру функций (У1): по прямой ссылке чужое направление уходит на свою стартовую
   await requireFeature('/reservations');
+  const t = await serverT();
+  const locale = await currentLocale();
+  const il = intlLocale(locale);
   const { number } = await params;
   const r = await chessboardApi.reservation(decodeURIComponent(number)).catch(notFoundOn404);
   const today = await hotelToday();
@@ -93,19 +98,19 @@ export default async function ReservationPage({
   const unassigned = liveItems.filter((it) => !it.unitCode).length;
   const due = finance ? BigInt(finance.balanceMinor) : null;
   const printLinks: Array<[string, string, string]> = [
-    ['print-ru', '?lang=ru', 'Регистрационная карта RU'],
-    ['print-kz', '?lang=kz', 'Регистрационная карта KZ'],
-    ['print-contract-ru', '/contract?lang=ru', 'Договор RU'],
-    ['print-contract-kz', '/contract?lang=kz', 'Договор KZ'],
-    ['print-invoice-ru', '/invoice?lang=ru', 'Счёт RU'],
-    ['print-invoice-kz', '/invoice?lang=kz', 'Счёт KZ'],
+    ['print-ru', '?lang=ru', msg('Регистрационная карта RU')],
+    ['print-kz', '?lang=kz', msg('Регистрационная карта KZ')],
+    ['print-contract-ru', '/contract?lang=ru', msg('Договор RU')],
+    ['print-contract-kz', '/contract?lang=kz', msg('Договор KZ')],
+    ['print-invoice-ru', '/invoice?lang=ru', msg('Счёт RU')],
+    ['print-invoice-kz', '/invoice?lang=kz', msg('Счёт KZ')],
   ];
   return (
     <Page
       embedded={preview}
       width="medium"
-      crumbs={<BackCrumb href="/reservations">Брони</BackCrumb>}
-      title={`Бронь ${r.confirmationNumber}`}
+      crumbs={<BackCrumb href="/reservations">{t('Брони')}</BackCrumb>}
+      title={t('Бронь {number}', { number: r.confirmationNumber })}
       actions={
         preview ? (
           <OpenFullCard href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`} />
@@ -115,7 +120,7 @@ export default async function ReservationPage({
         <>
           <StatusBadge kind="hospitality" value={r.status} />{' '}
           <span>
-            {statusLabel(sourceStatus, r.source)}
+            {t(statusLabel(sourceStatus, r.source))}
             {r.channel ? `, ${r.channel}` : ''}
           </span>
         </>
@@ -127,14 +132,14 @@ export default async function ReservationPage({
        */}
       <dl className="booking-head" data-testid="booking-head">
         <div className="booking-head__guest">
-          <dt>Гость</dt>
+          <dt>{t('Гость')}</dt>
           <dd>
             {r.primaryGuest ? (
               <Link href={`/guests/${r.primaryGuest.id}`} data-testid="guest-link">
                 {r.primaryGuest.label}
               </Link>
             ) : (
-              'Гость без имени'
+              t('Гость без имени')
             )}
             {r.primaryGuest && !desk.access.restricted && !desk.access.unknown && (
               <BookingGuestEditor key={`${desk.scopeKey}:${r.primaryGuest.id}:${canMutate}`}
@@ -148,8 +153,8 @@ export default async function ReservationPage({
                 }
               >
                 {r.primaryGuest.citizenship
-                  ? `гражданство: ${citizenshipLabel(r.primaryGuest.citizenship)}`
-                  : 'гражданство не указано'}
+                  ? t('гражданство {country}', { country: citizenshipLabel(r.primaryGuest.citizenship) ?? r.primaryGuest.citizenship })
+                  : t('гражданство не указано')}
               </span>
             )}
             {(r.primaryGuest?.phone || guestMessengers) && (
@@ -161,7 +166,7 @@ export default async function ReservationPage({
                       <span className="mono" data-testid="guest-phone">
                         {maskPhone(r.primaryGuest.phone)}
                       </span>
-                      <a href={`tel:${r.primaryGuest.phone}`}>Позвонить</a>
+                      <a href={`tel:${r.primaryGuest.phone}`}>{t('Позвонить')}</a>
                     </>
                   ) : (
                     <a href={`tel:${r.primaryGuest.phone}`}>{formatPhone(r.primaryGuest.phone)}</a>
@@ -181,16 +186,16 @@ export default async function ReservationPage({
           </dd>
         </div>
         <div>
-          <dt>Даты</dt>
+          <dt>{t('Даты')}</dt>
           <dd>
             <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate, 'numeric')}</time>
             {' → '}
             <time dateTime={r.departureDate}>{displayDate(r.departureDate, 'numeric')}</time>
-            {nights > 0 && <small>{pluralRu(nights, ['ночь', 'ночи', 'ночей'])}</small>}
+            {nights > 0 && <small>{countLabel(locale, t, nights, [msg('ночь'), 'ночи', msg('ночей')]) /* kk-allow: форма склонения */}</small>}
           </dd>
         </div>
         <div>
-          <dt>Место</dt>
+          <dt>{t('Место')}</dt>
           <dd className="mono" data-testid="booking-place">
             {unitCodes.length ? (
               unitCodes.join(', ')
@@ -198,30 +203,30 @@ export default async function ReservationPage({
               <span className="muted">—</span>
             ) : liveItems.every((it) => it.status === 'CHECKED_OUT') ? (
               // выезд в день заезда снимает назначение целиком (API удаляет его): номер не хранится, тревоги нет
-              <span className="muted">освобождён при выезде</span>
+              <span className="muted">{t('освобождён при выезде')}</span>
             ) : (
-              <span className="warn-text">номер не назначен</span>
+              <span className="warn-text">{t('номер не назначен')}</span>
             )}
             {/* у группы — числом, как в списке (формулировка владельца 27.09) */}
             {unassigned > 0 && liveItems.length > 1 && (
-              <small className="warn-text">⚠ {unassigned} без размещения</small>
+              <small className="warn-text">{t('⚠ {n} без размещения', { n: unassigned })}</small>
             )}
           </dd>
         </div>
         <div>
-          <dt>Гостей</dt>
+          <dt>{t('Гостей')}</dt>
           <dd>
             {r.adults}
-            {r.children ? ` + ${r.children} дет.` : ''}
+            {r.children ? t(' + {n} дет.', { n: r.children }) : ''}
           </dd>
         </div>
         <div>
-          <dt>Стоимость</dt>
+          <dt>{t('Стоимость')}</dt>
           <dd>{formatMoney(r.totalAmountMinor, r.currency)}</dd>
         </div>
         <div>
           {/* слова колонки «Финансы» списка: у отменённой брони с деньгами к возврату нет «оплачено» */}
-          <dt>Оплата</dt>
+          <dt>{t('Оплата')}</dt>
           <dd data-testid="booking-due">
             {finance ? (
               <FinanceLine
@@ -235,24 +240,23 @@ export default async function ReservationPage({
                 }}
               />
             ) : (
-              <span className="muted">Финансы временно недоступны</span>
+              <span className="muted">{t('Финансы временно недоступны')}</span>
             )}
           </dd>
         </div>
       </dl>
       <Tabs
-        label="Разделы карточки брони"
+        label={t('Разделы карточки брони')}
         panels={[
           {
             id: 'booking-overview',
-            label: 'Обзор',
+            label: t('Обзор'),
             content: (
               <div id="booking-overview">
                 {r.status === 'TENTATIVE' && (
                   // срез 7.3, Д4: «не подтверждена» словом и цветом внимания, не только бейджем
                   <Alert boxed tone="warning" data-testid="tentative-callout">
-                    Бронь не подтверждена: канал прислал предварительный статус, и подтверждение
-                    приходит оттуда же. Место за ней держится и второй раз не продаётся.
+                    {t('Бронь не подтверждена: канал прислал предварительный статус, и подтверждение приходит оттуда же. Место за ней держится и второй раз не продаётся.')}
                   </Alert>
                 )}
                 {/* Следующее действие смены — первым; ссылки на вкладки ловят вкладки (Tabs) (без записи в историю) */}
@@ -262,24 +266,24 @@ export default async function ReservationPage({
                     className={due !== null && due > 0n ? 'btn' : 'btn btn--secondary'}
                   >
                     <Icon name="money" />
-                    Принять оплату
+                    {t('Принять оплату')}
                   </a>
                   <a href="#booking-actions" className="btn btn--secondary">
                     <Icon name="clock" />
-                    Продлить или переселить
+                    {t('Продлить или переселить')}
                   </a>
                 </div>
                 <SectionTitle first id="booking-stays">
-                  Проживания
+                  {t('Проживания')}
                 </SectionTitle>
                 {/* В панели 480 px и на телефоне строка складывается в карточку (CSS .dir-table--stays), разметка та же */}
                 <Table className="dir-table dir-table--stays" data-testid="stays-table">
                   <thead>
                     <tr>
-                      {['Номер', 'Категория', 'Заезд', 'Выезд', 'Статус', 'Цена', 'Гости'].map(
+                      {[msg('Номер'), msg('Категория'), msg('Заезд'), msg('Выезд'), msg('Статус'), msg('Цена'), msg('Гости')].map(
                         (h) => (
-                          <th key={h} className={h === 'Цена' ? 'num' : undefined}>
-                            {h}
+                          <th key={h} className={h === 'Цена' /* kk-allow: сверка с ключом колонки */ ? 'num' : undefined}>
+                            {t(h)}
                           </th>
                         ),
                       )}
@@ -294,10 +298,10 @@ export default async function ReservationPage({
                         <td>{it.accommodationTypeName}</td>
                         {/* §14: сырую дату видят тесты в datetime, человек — «20 сент.» */}
                         <td className="nowrap">
-                          <time dateTime={it.arrivalDate}>{displayDate(it.arrivalDate)}</time>
+                          <time dateTime={it.arrivalDate}>{displayDate(it.arrivalDate, 'short', il)}</time>
                         </td>
                         <td className="nowrap">
-                          <time dateTime={it.departureDate}>{displayDate(it.departureDate)}</time>
+                          <time dateTime={it.departureDate}>{displayDate(it.departureDate, 'short', il)}</time>
                         </td>
                         <td>
                           <StatusBadge kind="hospitality" value={it.status} />
@@ -308,7 +312,7 @@ export default async function ReservationPage({
                           <span className="hint" data-testid="stay-guests-count">
                             {' '}
                             · {it.adults}
-                            {it.children ? ` + ${it.children} дет.` : ''}
+                            {it.children ? t(' + {n} дет.', { n: it.children }) : ''}
                           </span>
                         </td>
                       </tr>
@@ -317,26 +321,26 @@ export default async function ReservationPage({
                 </Table>
                 {r.notes && (
                   <p className="note note--lg" data-testid="reservation-notes">
-                    <b>Заметки:</b> {r.notes}
+                    <b>{t('Заметки:')}</b> {r.notes}
                   </p>
                 )}
                 {preview && (
                   // §19: итог по счетам в первом экране панели; подробности — вкладка «Счета»
                   <>
-                    <SectionTitle id="booking-money">Финансы</SectionTitle>
+                    <SectionTitle id="booking-money">{t('Финансы')}</SectionTitle>
                     <dl className="booking-money" data-testid="preview-finance">
                       {finance ? (
                         <>
                           <div>
-                            <dt>Итого</dt>
+                            <dt>{t('Итого')}</dt>
                             <dd className="num">{formatMoney(finance.chargedMinor, r.currency)}</dd>
                           </div>
                           <div>
-                            <dt>Оплачено</dt>
+                            <dt>{t('Оплачено')}</dt>
                             <dd className="num">{formatMoney(finance.paidMinor, r.currency)}</dd>
                           </div>
                           <div>
-                            <dt>Возвращено</dt>
+                            <dt>{t('Возвращено')}</dt>
                             <dd className="num">
                               {formatMoney(finance.refundedMinor, r.currency)}
                             </dd>
@@ -344,15 +348,15 @@ export default async function ReservationPage({
                         </>
                       ) : (
                         <div>
-                          <dt>Финансы</dt>
-                          <dd className="muted">временно недоступны</dd>
+                          <dt>{t('Финансы')}</dt>
+                          <dd className="muted">{t('временно недоступны')}</dd>
                         </div>
                       )}
                     </dl>
                   </>
                 )}
-                <nav className="booking-print" aria-label="Печатные формы">
-                  <span className="booking-print__label">Печать</span>
+                <nav className="booking-print" aria-label={t('Печатные формы')}>
+                  <span className="booking-print__label">{t('Печать')}</span>
                   {printLinks.map(([id, path, label]) => (
                     <Link
                       key={id}
@@ -360,7 +364,7 @@ export default async function ReservationPage({
                       href={print(path)}
                       data-testid={id}
                     >
-                      {label}
+                      {t(label)}
                     </Link>
                   ))}
                 </nav>
@@ -369,10 +373,10 @@ export default async function ReservationPage({
           },
           {
             id: 'booking-finance',
-            label: 'Счета',
+            label: t('Счета'),
             content: (
               <>
-                <SectionTitle id="booking-finance">Счета</SectionTitle>
+                <SectionTitle id="booking-finance">{t('Счета')}</SectionTitle>
                 {finance && services ? (
                   <>
                     {/* оплата одним шагом первой; запросы оплаты (§24) ниже, свёрнутыми (план 07.10.2026, У8) */}
@@ -394,10 +398,9 @@ export default async function ReservationPage({
                   </>
                 ) : (
                   <Alert boxed>
-                    Не удалось загрузить счета или каталог услуг. Финансовые действия недоступны до
-                    обновления.{' '}
+                    {t('Не удалось загрузить счета или каталог услуг. Финансовые действия недоступны до обновления.')}{' '}
                     <Link href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}>
-                      Повторить загрузку
+                      {t('Повторить загрузку')}
                     </Link>
                   </Alert>
                 )}
@@ -406,32 +409,29 @@ export default async function ReservationPage({
           },
           {
             id: 'booking-actions',
-            label: 'Действия',
+            label: t('Действия'),
             content: (
               <>
-                <SectionTitle id="booking-actions">Действия с бронированием</SectionTitle>
+                <SectionTitle id="booking-actions">{t('Действия с бронированием')}</SectionTitle>
                 {longPeriods > 0 && (
                   <Alert boxed tone="warning" data-testid="stay-too-long">
-                    Проживание длиннее {MAX_CHESSBOARD_DAYS} ночей: список свободных номеров на весь
-                    срок не строится. Назначайте и переселяйте из календаря на нужные даты.
+                    {t('Проживание длиннее {n} ночей: список свободных номеров на весь срок не строится. Назначайте и переселяйте из календаря на нужные даты.', { n: MAX_CHESSBOARD_DAYS })}
                   </Alert>
                 )}
                 {periodResults.filter((v, i) => v === null && !tooLong([...periods.values()][i]!))
                   .length > 0 && (
                   <Alert boxed tone="warning">
-                    Доступность части периодов не загрузилась. Обновите карточку перед назначением
-                    номера.
+                    {t('Доступность части периодов не загрузилась. Обновите карточку перед назначением номера.')}
                   </Alert>
                 )}
                 {ratePlans === null && (
                   <Alert boxed tone="warning" data-testid="rate-plans-missing">
-                    Справочник тарифов не загрузился: смена тарифа, «+1 ночь» и смена дат ждут
-                    обновления страницы.
+                    {t('Справочник тарифов не загрузился: смена тарифа, «+1 ночь» и смена дат ждут обновления страницы.')}
                   </Alert>
                 )}
                 {summary === null && (
                   <Alert boxed tone="warning">
-                    Сводка фонда не загрузилась: категории в переселении показаны кодами.
+                    {t('Сводка фонда не загрузилась: категории в переселении показаны кодами.')}
                   </Alert>
                 )}
                 {canMutate && <ReservationActions
@@ -494,12 +494,12 @@ export default async function ReservationPage({
           },
           {
             id: 'booking-history',
-            label: 'История',
+            label: t('История'),
             content: (
               <section className="panel">
-                <h2 className="section-title">Журнал бронирования</h2>
+                <h2 className="section-title">{t('Журнал бронирования')}</h2>
                 <p className="muted">
-                  Операции и изменения по бронированию {r.confirmationNumber}.
+                  {t('Операции и изменения по бронированию {number}.', { number: r.confirmationNumber })}
                 </p>
                 {mayAccess(desk.access, 'journal') ? (
                   <Link
@@ -507,11 +507,11 @@ export default async function ReservationPage({
                     href={`/journal?q=${encodeURIComponent(r.confirmationNumber)}`}
                   >
                     <Icon name="journal" />
-                    Открыть журнал
+                    {t('Открыть журнал')}
                   </Link>
                 ) : (
                   <p className="muted" data-testid="journal-closed">
-                    Журнал действий открыт владельцу и управляющему.
+                    {t('Журнал действий открыт владельцу и управляющему.')}
                   </p>
                 )}
               </section>

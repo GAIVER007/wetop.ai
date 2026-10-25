@@ -11,6 +11,7 @@ import { MastersBoard, NewSpecialistButton } from './board';
 import { SalonSetupLink, salonSetupPending } from './setup-link';
 import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../../lib/staff-revenue-load';
 import { revenuePeriodParam } from '../../../lib/staff-revenue';
+import { serverT } from '../../../i18n/server';
 import '../beauty.css';
 
 /**
@@ -28,6 +29,7 @@ export default async function BeautyMastersPage({
   }>;
 } = {}) {
   await requireFeature('/beauty/masters');
+  const t = await serverT();
   const params = await searchParams;
   const requested = typeof params?.employee === 'string' ? params.employee : '';
   const employeeId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
@@ -57,7 +59,7 @@ export default async function BeautyMastersPage({
   );
   if (!loaded.ok)
     return (
-      <Page title="Специалисты">
+      <Page title={t('Специалисты')}>
         <LoadError testId="beauty-masters-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
@@ -75,8 +77,8 @@ export default async function BeautyMastersPage({
   return (
     <Page
       className="beauty-page"
-      title="Специалисты"
-      subtitle="Специалист работает в сети: его можно поставить в несколько филиалов."
+      title={t('Специалисты')}
+      subtitle={t('Специалист работает в сети: его можно поставить в несколько филиалов.')}
       // кнопка добавления в шапке, как «Пригласить сотрудника» на /team (аудит 21.10.2026, п. 37)
       actions={canCreate ? <NewSpecialistButton /> : undefined}
     >

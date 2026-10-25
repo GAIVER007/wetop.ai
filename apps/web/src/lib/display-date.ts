@@ -1,28 +1,31 @@
-const shortDate = new Intl.DateTimeFormat('ru-RU', {
-  timeZone: 'UTC',
-  day: 'numeric',
-  month: 'short',
-});
-/** §14: основной формат даты — 20.09.2026; «20 сент.» — только в таблицах и на плашках */
-const numericDate = new Intl.DateTimeFormat('ru-RU', {
-  timeZone: 'UTC',
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-});
-const fullDate = new Intl.DateTimeFormat('ru-RU', {
-  timeZone: 'UTC',
-  day: 'numeric',
-  month: 'long',
-  weekday: 'long',
-  year: 'numeric',
-});
+import { dateFormat, type DateFormat } from '../i18n/dates';
 
-/** Только представление stay DATE; UTC фиксирован, чтобы день не сдвигался в браузере. */
-export function displayDate(value: string, style: 'short' | 'full' | 'numeric' = 'short'): string {
+type IntlLocale = 'ru-RU' | 'kk-KZ' | 'en-GB';
+const STYLES = {
+  short: { timeZone: 'UTC', day: 'numeric', month: 'short' },
+  /** §14: основной формат даты 20.09.2026; «20 сент.» только в таблицах и на плашках */
+  numeric: { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' },
+  full: { timeZone: 'UTC', day: 'numeric', month: 'long', weekday: 'long', year: 'numeric' },
+} as const satisfies Record<string, Intl.DateTimeFormatOptions>;
+const formats = new Map<string, DateFormat>();
+const formatOf = (style: keyof typeof STYLES, locale: IntlLocale) => {
+  const key = `${locale}:${style}`;
+  if (!formats.has(key)) formats.set(key, dateFormat(locale, STYLES[style]));
+  return formats.get(key)!;
+};
+
+/**
+ * Только представление stay DATE; UTC фиксирован, чтобы день не сдвигался в браузере. `locale` даёт месяцы и дни недели
+ * на языке человека (KK2: `intlLocale(locale)` из `i18n`), без него как прежде по-русски.
+ */
+export function displayDate(
+  value: string,
+  style: 'short' | 'full' | 'numeric' = 'short',
+  locale: IntlLocale = 'ru-RU',
+): string {
   const date = new Date(`${value}T00:00:00Z`);
   if (!Number.isFinite(date.getTime())) return value;
-  return (style === 'full' ? fullDate : style === 'numeric' ? numericDate : shortDate).format(date);
+  return formatOf(style, locale).format(date);
 }
 
 const dd = (value: string) => value.slice(8, 10);

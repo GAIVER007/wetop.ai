@@ -3,7 +3,8 @@ import { normalizeSearchParams, type SearchParams } from '../../lib/search-param
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import { channelsApi, chessboardApi, deskApi, guardApi } from '../../lib/api';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, intlLocale, msg } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
 import { UnassignedStays } from './unassigned-drawer';
 import { DayLine } from './day-line';
 import { Page } from '../../components/page';
@@ -38,6 +39,8 @@ export default async function ChessboardPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/chessboard');
+  const t = await serverT();
+  const locale = await currentLocale();
   const query = normalizeSearchParams(await searchParams);
   const clock = await hotelClock();
   const today = clock.today();
@@ -58,32 +61,32 @@ export default async function ChessboardPage({
       (from > to || Date.parse(to) - Date.parse(from) > (MAX_CHESSBOARD_DAYS - 1) * 86400000));
   if (invalidPeriod)
     return (
-      <Page title="Календарь">
+      <Page title={t('Журнал')}>
         <form method="get" className="board-invalid-period">
           <Toolbar
-            label="Период календаря"
+            label={t('Период календаря')}
             period={
               <>
                 <label className="field">
-                  С<DateInput name="from" aria-label="Календарь: с" defaultValue={from} />
+                  {t('С')}<DateInput name="from" aria-label={t('Календарь: с')} defaultValue={from} />
                 </label>
                 <label className="field">
-                  По
+                  {t('По')}
                   <DateInput
                     name="to"
                     rangeFromName="from"
-                    aria-label="Календарь: по"
+                    aria-label={t('Календарь: по')}
                     defaultValue={to}
                   />
                 </label>
               </>
             }
-            actions={<Button>Показать</Button>}
+            actions={<Button>{t('Показать')}</Button>}
           />
         </form>
         <Alert boxed>
-          Выберите корректный период до {MAX_CHESSBOARD_DAYS} дней.{' '}
-          <Link href="/chessboard">Сбросить фильтры</Link>
+          {t('Выберите корректный период до {n} дней.', { n: MAX_CHESSBOARD_DAYS })}{' '}
+          <Link href="/chessboard">{t('Сбросить фильтры')}</Link>
         </Alert>
       </Page>
     );
@@ -118,9 +121,9 @@ export default async function ChessboardPage({
   const shift = (days: number) => {
     const f = new Date(`${board.from}T00:00:00Z`);
     f.setUTCDate(f.getUTCDate() + days);
-    const t = new Date(`${board.to}T00:00:00Z`);
-    t.setUTCDate(t.getUTCDate() + days);
-    return `/chessboard?from=${f.toISOString().slice(0, 10)}&to=${t.toISOString().slice(0, 10)}`;
+    const end = new Date(`${board.to}T00:00:00Z`);
+    end.setUTCDate(end.getUTCDate() + days);
+    return `/chessboard?from=${f.toISOString().slice(0, 10)}&to=${end.toISOString().slice(0, 10)}`;
   };
 
   const current = from <= today && today <= to ? board : todayBoard;
@@ -154,12 +157,11 @@ export default async function ChessboardPage({
 
   const help = (
     <p className="note">
-      <b>Как работать с календарём.</b> В строке категории указано, сколько мест свободно на эту
-      ночь. Ночь выезда номер не занимает. Клик по занятой клетке открывает бронь, клик по пустой
-      открывает форму новой брони на эту дату. Перетащите клетку на другую строку: бронь переселится
-      в тот номер с даты взятой клетки (в другую категорию только на всё проживание). Фильтры
-      статусов считаются на {displayDate(board.from)}. Брони без номера на сетке не видны, они в
-      строке над сеткой: «Разместить» показывает свободные места и назначает.
+      <b>{t('Как работать с календарём.')}</b>{' '}
+      {t(
+        'В строке категории указано, сколько мест свободно на эту ночь. Ночь выезда номер не занимает. Клик по занятой клетке открывает бронь, клик по пустой открывает форму новой брони на эту дату. Перетащите клетку на другую строку: бронь переселится в тот номер с даты взятой клетки (в другую категорию только на всё проживание). Фильтры статусов считаются на {date}. Брони без номера на сетке не видны, они в строке над сеткой: «Разместить» показывает свободные места и назначает.',
+        { date: displayDate(board.from, 'short', intlLocale(locale)) },
+      )}
     </p>
   );
 
@@ -168,7 +170,7 @@ export default async function ChessboardPage({
   // UI4.2, решение владельца 13.10.2026 (Q-DES-1): один контрол периода с пресетами и календарём,
   // стрелки сдвигают тот же отрезок; «День / Неделя / Месяц» и второго выбора длины нет.
   const lead = (
-    <div className="board-nav" role="group" aria-label="Период календаря">
+    <div className="board-nav" role="group" aria-label={t('Период календаря')}>
       <div className="board-period" data-testid="board-period">
         <DateRangePopover
           from={board.from}
@@ -183,7 +185,7 @@ export default async function ChessboardPage({
           href={prevHref}
           className="icon-button"
           aria-label={
-            isMonth ? 'Предыдущий месяц' : isWeek ? 'Предыдущая неделя' : 'Предыдущий период'
+            isMonth ? t('Предыдущий месяц') : isWeek ? t('Предыдущая неделя') : t('Предыдущий период')
           }
         >
           <Icon name="chevron" className="rotate-left" />
@@ -192,7 +194,7 @@ export default async function ChessboardPage({
           href={nextHref}
           className="icon-button"
           aria-label={
-            isMonth ? 'Следующий месяц' : isWeek ? 'Следующая неделя' : 'Следующий период'
+            isMonth ? t('Следующий месяц') : isWeek ? t('Следующая неделя') : t('Следующий период')
           }
         >
           <Icon name="chevron" />
@@ -207,12 +209,12 @@ export default async function ChessboardPage({
         rows={(todayBoard ?? board).rows}
         date={today}
         currency={currency}
-        propertyName="Гостиница"
+        propertyName={t('Гостиница')}
       />
       {canMutate && (
         <Link className="btn board-new" href="/reservations/new">
           <Icon name="plus" />
-          <span className="board-new__label">Новая бронь</span>
+          <span className="board-new__label">{t('Новая бронь')}</span>
         </Link>
       )}
     </>
@@ -227,6 +229,7 @@ export default async function ChessboardPage({
       free={todaySummary?.free ?? null}
       attention={attention}
       availabilityHref={availabilityHref}
+      t={t}
     />
   ) : null;
 
@@ -237,10 +240,10 @@ export default async function ChessboardPage({
         title={
           <>
             <Icon name="board" className="calendar-page__icon" />
-            Календарь
+            {t('Журнал')}
           </>
         }
-        subtitle="Размещение и бронирования по дням"
+        subtitle={t('Размещение и бронирования по дням')}
         actions={
           <>
             {lead}
@@ -251,15 +254,16 @@ export default async function ChessboardPage({
       >
         {overbooked.length > 0 && (
           <Alert boxed data-testid="overbooked-callout">
-            Продано сверх мест: {overbooked.map((i) => i.title).join('; ')}.{' '}
-            <a href="#unassigned-stays">Разрешить</a>
+            {t('Продано сверх мест: {list}.', { list: overbooked.map((i) => i.title).join('; ') })}{' '}
+            <a href="#unassigned-stays">{t('Разрешить')}</a>
           </Alert>
         )}
         {failedEvents > 0 && (
           <Alert boxed tone="warning" data-testid="review-callout">
-            Входящая бронь требует разбора:{' '}
-            {pluralRu(failedEvents, ['ревизия', 'ревизии', 'ревизий'])} из каналов не разобрана
-            автоматически. <Link href="/channels/events?status=FAILED">Разобрать</Link>
+            {t('Входящая бронь требует разбора: {count} из каналов не разобрана автоматически.', {
+              count: countLabel(locale, t, failedEvents, [msg('ревизия'), 'ревизии', msg('ревизий')]), // kk-allow: форма склонения
+            })}{' '}
+            <Link href="/channels/events?status=FAILED">{t('Разобрать')}</Link>
           </Alert>
         )}
         <UnassignedStays
@@ -280,11 +284,11 @@ export default async function ChessboardPage({
           {/* Нижняя строка по образцу владельца (09.10.2026): цвета плашек словами, «Показать легенду»,
             масштаб «− 100% +». Смысл не держится на цвете: у статуса свой значок на плашке. */}
           <span className="board-legend-title" aria-hidden="true">
-            Легенда:
+            {t('Легенда:')}
           </span>
           <ul
             className="board-legend-inline"
-            aria-label="Цвета плашек"
+            aria-label={t('Цвета плашек')}
             data-testid="board-status-legend"
           >
             {[
@@ -292,12 +296,12 @@ export default async function ChessboardPage({
               ['booked', statusText(hospitalityStatus, 'CONFIRMED')],
               ['tentative', statusText(hospitalityStatus, 'TENTATIVE')],
               ['left', statusText(hospitalityStatus, 'CHECKED_OUT')],
-              ['repair', 'ремонт, неисправна'],
-              ['block', 'блок'],
+              ['repair', msg('ремонт, неисправна')],
+              ['block', msg('блок')],
             ].map(([plate, label]) => (
               <li key={label}>
                 <span className="board-legend-dot" data-plate={plate} aria-hidden="true" />
-                {label!.charAt(0).toUpperCase() + label!.slice(1)}
+                {t(label!).charAt(0).toUpperCase() + t(label!).slice(1)}
               </li>
             ))}
           </ul>
@@ -307,7 +311,7 @@ export default async function ChessboardPage({
             summary={
               <>
                 <Icon name="help" />
-                Показать легенду
+                {t('Показать легенду')}
               </>
             }
           >
@@ -317,42 +321,42 @@ export default async function ChessboardPage({
                 items={[
                   {
                     color: 'var(--plate-booked)',
-                    label: statusText(hospitalityStatus, 'CONFIRMED'),
+                    label: t(statusText(hospitalityStatus, 'CONFIRMED')),
                     icon: 'booking',
                   },
                   {
                     color: 'var(--plate-living)',
-                    label: statusText(hospitalityStatus, 'CHECKED_IN'),
+                    label: t(statusText(hospitalityStatus, 'CHECKED_IN')),
                     icon: 'guests',
                   },
                   {
                     color: 'var(--plate-left)',
-                    label: statusText(hospitalityStatus, 'CHECKED_OUT'),
+                    label: t(statusText(hospitalityStatus, 'CHECKED_OUT')),
                     icon: 'departure',
                   },
                   {
                     color: 'var(--plate-tentative)',
-                    label: statusText(hospitalityStatus, 'TENTATIVE'),
+                    label: t(statusText(hospitalityStatus, 'TENTATIVE')),
                     icon: 'help',
                   },
-                  { color: 'var(--plate-repair)', label: 'ремонт, неисправна', icon: 'settings' },
-                  { color: 'var(--plate-block)', label: 'блокировка', icon: 'shield' },
+                  { color: 'var(--plate-repair)', label: t('ремонт, неисправна'), icon: 'settings' },
+                  { color: 'var(--plate-block)', label: t('блокировка'), icon: 'shield' },
                   // уборка (22.09): значок стоит, пока с ячейкой надо что-то делать; проверенная без значка
                   {
                     color: 'var(--warning-bg)',
-                    label: statusText(housekeepingStatus, 'DIRTY'),
+                    label: t(statusText(housekeepingStatus, 'DIRTY')),
                     icon: 'dirty',
                   },
                   {
                     color: 'var(--primary-soft)',
-                    label: `${statusText(housekeepingStatus, 'CLEAN')}, ждёт проверки`,
+                    label: t('{state}, ждёт проверки', { state: t(statusText(housekeepingStatus, 'CLEAN')) }),
                     icon: 'clean',
                   },
-                  { color: 'var(--success)', label: 'зелёная точка у места: проверено, доступно' },
+                  { color: 'var(--success)', label: t('зелёная точка у места: проверено, доступно') },
                 ]}
               />
               <p className="board-gesture-hint">
-                Плашка: переселить. Правый край: продлить. Пустые клетки: протянуть и создать бронь.
+                {t('Плашка: переселить. Правый край: продлить. Пустые клетки: протянуть и создать бронь.')}
               </p>
             </div>
           </BoardMenu>

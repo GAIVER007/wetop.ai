@@ -5,6 +5,7 @@ import { DateInput } from '../../components/date-field';
 import { useConfirm } from '../../components/use-confirm';
 import { Alert, Button, Field, Grid, Input, Notice, Row, Select } from '../../components/ui';
 import type { ExtensionChangeBody } from '../../lib/api';
+import { useT } from '../../i18n/locale-provider';
 import {
   archiveOrganizationAction,
   changeAiSellerAction,
@@ -36,43 +37,44 @@ export function ExtensionForm({
     changeAiSellerAction.bind(null, organizationId),
     null,
   );
+  const t = useT();
   const values = state?.values ?? initial;
   return (
     <form
       key={state?.attempt ?? 0}
       action={action}
       className="stack"
-      aria-label={`ИИ-продавец: ${organizationName}`}
+      aria-label={t('ИИ-продавец: {name}', { name: organizationName })}
       data-testid="platform-extension-form"
     >
       <Grid min={220}>
-        <Field label="Статус">
+        <Field label={t('Статус')}>
           <Select name="status" defaultValue={values.status}>
             {(Object.keys(EXTENSION_STATUSES) as Array<keyof typeof EXTENSION_STATUSES>).map(
               (s) => (
                 <option key={s} value={s}>
-                  {EXTENSION_STATUSES[s]}
+                  {t(EXTENSION_STATUSES[s])}
                 </option>
               ),
             )}
           </Select>
         </Field>
-        <Field label="Действует по (включительно)">
+        <Field label={t('Действует по (включительно)')}>
           <DateInput name="activeUntil" defaultValue={values.activeUntil} />
         </Field>
-        <Field label="Заметка — номер счёта">
+        <Field label={t('Заметка — номер счёта')}>
           <Input
             name="note"
             defaultValue={values.note}
             maxLength={300}
-            placeholder="Счёт № 17 от 25.09.2026"
+            placeholder={t('Счёт № 17 от 25.09.2026')}
           />
         </Field>
       </Grid>
       <p className="settings-note">
-        Пробному доступу нужен срок. У «оплачен» пустой срок означает бессрочно, например у своей
-        организации. «Выключен»: раздел пропадёт из меню, ничего не удаляется. Каждое изменение
-        пишется в журнал.
+        {t(
+          'Пробному доступу нужен срок. У «оплачен» пустой срок означает бессрочно, например у своей организации. «Выключен»: раздел пропадёт из меню, ничего не удаляется. Каждое изменение пишется в журнал.',
+        )}
       </p>
       {state?.error && <Alert data-testid="platform-extension-error">{state.error}</Alert>}
       {state?.message && <Notice data-testid="platform-extension-result">{state.message}</Notice>}
@@ -83,7 +85,7 @@ export function ExtensionForm({
           aria-busy={pending}
           data-testid="platform-extension-save"
         >
-          {pending ? 'Сохраняю…' : 'Сохранить'}
+          {pending ? t('Сохраняю…') : t('Сохранить')}
         </Button>
       </Row>
     </form>
@@ -107,22 +109,22 @@ export function StatusForm({
     changeStatusAction.bind(null, organizationId),
     null,
   );
+  const t = useT();
   return (
     <form
       key={state?.attempt ?? 0}
       action={action}
       className="stack"
-      aria-label={`Подписка: ${organizationName}`}
+      aria-label={t('Подписка: {name}', { name: organizationName })}
       data-testid="platform-status-form"
     >
-      <Field label="Заметка — номер счёта">
-        <Input name="note" maxLength={300} placeholder="Счёт № 17 от 25.09.2026, WETOP Core" />
+      <Field label={t('Заметка — номер счёта')}>
+        <Input name="note" maxLength={300} placeholder={t('Счёт № 17 от 25.09.2026, WETOP Core')} />
       </Field>
       <p className="settings-note">
-        WETOP Core: 49 900 ₸ в месяц за каждый филиал до 100 номеров и коек. Доступ включается
-        вручную после проверки оплаты. Эта кнопка меняет доступ и пишет заметку в журнал, но не
-        создаёт платёж или оплаченный период. Автоматического списания нет. Подключение ИИ-продавца
-        учитывается отдельно.
+        {t(
+          'WETOP Core: 49 900 ₸ в месяц за каждый филиал до 100 номеров и коек. Доступ включается вручную после проверки оплаты. Эта кнопка меняет доступ и пишет заметку в журнал, но не создаёт платёж или оплаченный период. Автоматического списания нет. Подключение ИИ-продавца учитывается отдельно.',
+        )}
       </p>
       {state?.error && <Alert data-testid="platform-status-error">{state.error}</Alert>}
       {state?.message && <Notice data-testid="platform-status-result">{state.message}</Notice>}
@@ -135,7 +137,7 @@ export function StatusForm({
           aria-busy={pending}
           data-testid="platform-status-active"
         >
-          {pending ? 'Сохраняю…' : 'Оплата получена'}
+          {pending ? t('Сохраняю…') : t('Оплата получена')}
         </Button>
         <Button
           type="submit"
@@ -145,7 +147,7 @@ export function StatusForm({
           disabled={pending || status === 'READ_ONLY'}
           data-testid="platform-status-readonly"
         >
-          Только чтение
+          {t('Только чтение')}
         </Button>
       </Row>
     </form>
@@ -164,14 +166,15 @@ export function RenameForm({
     renameOrganizationAction.bind(null, organizationId),
     null,
   );
+  const t = useT();
   return (
     <form
       action={action}
       className="stack"
-      aria-label="Название организации"
+      aria-label={t('Название организации')}
       data-testid="platform-rename-form"
     >
-      <Field label="Название">
+      <Field label={t('Название')}>
         <Input
           key={`${organizationName}-${state?.attempt ?? 0}`}
           name="name"
@@ -184,7 +187,7 @@ export function RenameForm({
       {state?.message && <Notice data-testid="platform-rename-result">{state.message}</Notice>}
       <Row>
         <Button type="submit" disabled={pending} aria-busy={pending}>
-          {pending ? 'Сохраняю…' : 'Сохранить название'}
+          {pending ? t('Сохраняю…') : t('Сохранить название')}
         </Button>
       </Row>
     </form>
@@ -212,28 +215,32 @@ export function ArchiveForm({
   );
   const { ask, dialog } = useConfirm();
   const [, startTransition] = useTransition();
+  const t = useT();
   async function submit() {
     if (!archived) {
       const ok = await ask({
-        title: `Убрать «${organizationName}» в архив?`,
-        body: 'Люди организации перестанут входить в платформу. Данные сохранятся, организация останется в списке архивных. Вернуть её можно в любой момент.',
-        confirmLabel: 'Убрать в архив',
+        title: t('Убрать «{name}» в архив?', { name: organizationName }),
+        body: t(
+          'Люди организации перестанут входить в платформу. Данные сохранятся, организация останется в списке архивных. Вернуть её можно в любой момент.',
+        ),
+        confirmLabel: t('Убрать в архив'),
       });
       if (!ok) return;
     }
     startTransition(() => action(new FormData()));
   }
   return (
-    <div className="stack" role="group" aria-label="Архив" data-testid="platform-archive-form">
+    <div className="stack" role="group" aria-label={t('Архив')} data-testid="platform-archive-form">
       {own && (
         <p className="settings-note">
-          Свою организацию в архив убрать нельзя: вы потеряли бы доступ к платформе.
+          {t('Свою организацию в архив убрать нельзя: вы потеряли бы доступ к платформе.')}
         </p>
       )}
       {archived && (
         <p className="settings-note">
-          Организация в архиве: люди не входят, данные сохранены. Возврат вернёт прежнее состояние, а
-          если его не удалось определить, организация станет «только чтение».
+          {t(
+            'Организация в архиве: люди не входят, данные сохранены. Возврат вернёт прежнее состояние, а если его не удалось определить, организация станет «только чтение».',
+          )}
         </p>
       )}
       {state?.error && <Alert data-testid="platform-archive-error">{state.error}</Alert>}
@@ -247,7 +254,7 @@ export function ArchiveForm({
           data-testid={archived ? 'platform-restore' : 'platform-archive'}
           onClick={submit}
         >
-          {pending ? 'Выполняю…' : archived ? 'Вернуть из архива' : 'Убрать в архив'}
+          {pending ? t('Выполняю…') : archived ? t('Вернуть из архива') : t('Убрать в архив')}
         </Button>
       </Row>
       {dialog}
@@ -264,38 +271,40 @@ export function CreateOrganizationForm() {
     createOrganizationAction,
     null,
   );
+  const t = useT();
   return (
     <form
       key={state?.attempt ?? 0}
       action={action}
       className="stack"
-      aria-label="Новая организация"
+      aria-label={t('Новая организация')}
       data-testid="platform-create-form"
     >
       <Grid min={240}>
-        <Field label="Название организации">
-          <Input name="name" required maxLength={200} placeholder="Например, «Пример»" />
+        <Field label={t('Название организации')}>
+          <Input name="name" required maxLength={200} placeholder={t('Например, «Пример»')} />
         </Field>
-        <Field label="Почта владельца">
+        <Field label={t('Почта владельца')}>
           <Input name="ownerEmail" type="email" required maxLength={320} placeholder="vladelec@example.com" />
         </Field>
-        <Field label="Направление">
+        <Field label={t('Направление')}>
           <Select name="vertical" defaultValue="HOSPITALITY">
-            <option value="HOSPITALITY">Гостиница, хостел или апартаменты</option>
-            <option value="BEAUTY">Салон красоты или студия</option>
-            <option value="FOOD_SERVICE">Кафе или ресторан</option>
+            <option value="HOSPITALITY">{t('Гостиница, хостел или апартаменты')}</option>
+            <option value="BEAUTY">{t('Салон красоты или студия')}</option>
+            <option value="FOOD_SERVICE">{t('Кафе или ресторан')}</option>
           </Select>
         </Field>
       </Grid>
       <p className="settings-note">
-        Организация создаётся с пробным периодом и одним филиалом. Владельцу уйдёт письмо со ссылкой: по ней он сам
-        задаёт пароль и подтверждает почту. Ссылка действует 24 часа, один раз; вам она не показывается.
+        {t(
+          'Организация создаётся с пробным периодом и одним филиалом. Владельцу уйдёт письмо со ссылкой: по ней он сам задаёт пароль и подтверждает почту. Ссылка действует 24 часа, один раз; вам она не показывается.',
+        )}
       </p>
       {state?.error && <Alert data-testid="platform-create-error">{state.error}</Alert>}
       {state?.message && <Notice data-testid="platform-create-result">{state.message}</Notice>}
       <Row>
         <Button type="submit" disabled={pending} aria-busy={pending}>
-          {pending ? 'Создаю…' : 'Создать организацию'}
+          {pending ? t('Создаю…') : t('Создать организацию')}
         </Button>
       </Row>
     </form>
@@ -308,16 +317,19 @@ export function OwnerLinkForm({ organizationId, owner }: { organizationId: strin
     sendOwnerLinkAction.bind(null, organizationId),
     null,
   );
+  const t = useT();
   return (
-    <form action={action} className="stack" aria-label="Ссылка владельцу" data-testid="platform-owner-link-form">
+    <form action={action} className="stack" aria-label={t('Ссылка владельцу')} data-testid="platform-owner-link-form">
       <p className="settings-note">
-        Владелец {owner} ещё не задал пароль. Новая ссылка гасит прежнюю; чаще раза в пять минут письмо не уходит.
+        {t('Владелец {owner} ещё не задал пароль. Новая ссылка гасит прежнюю; чаще раза в пять минут письмо не уходит.', {
+          owner,
+        })}
       </p>
       {state?.error && <Alert data-testid="platform-owner-link-error">{state.error}</Alert>}
       {state?.message && <Notice data-testid="platform-owner-link-result">{state.message}</Notice>}
       <Row>
         <Button type="submit" tone="secondary" disabled={pending} aria-busy={pending}>
-          {pending ? 'Отправляю…' : 'Отправить ссылку ещё раз'}
+          {pending ? t('Отправляю…') : t('Отправить ссылку ещё раз')}
         </Button>
       </Row>
     </form>

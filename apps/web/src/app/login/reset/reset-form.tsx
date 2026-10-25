@@ -5,8 +5,10 @@ import { AuthShell } from '../../../components/auth-shell';
 import { Icon } from '../../../components/icon';
 import { requestReset, type ResetRequestState } from '../actions';
 import { Input } from '../../../components/ui';
+import { useT } from '../../../i18n/locale-provider';
 
 export function ResetRequestForm() {
+  const t = useT();
   const [state, submit, pending] = useActionState<ResetRequestState, FormData>(requestReset, {
     error: null,
     sent: false,
@@ -14,13 +16,13 @@ export function ResetRequestForm() {
   return (
     <AuthShell
       story={{
-        eyebrow: 'Доступ к рабочему месту',
+        eyebrow: t('Доступ к рабочему месту'),
         title: (
           <>
-            Забыли пароль? <br /> Это решаемо.
+            {t('Забыли пароль?')} <br /> {t('Это решаемо.')}
           </>
         ),
-        text: 'Пришлём ссылку на почту. Новый пароль вы придумаете сами.',
+        text: t('Пришлём ссылку на почту. Новый пароль вы придумаете сами.'),
       }}
     >
       <span className="round-icon">
@@ -28,20 +30,21 @@ export function ResetRequestForm() {
       </span>
       {state.sent ? (
         <>
-          <h2>Проверьте почту</h2>
+          <h2>{t('Проверьте почту')}</h2>
           <p>
-            Если такая почта есть в системе, письмо со ссылкой уже отправлено. Ссылка работает 24
-            часа и только один раз.
+            {t(
+              'Если такая почта есть в системе, письмо со ссылкой уже отправлено. Ссылка работает 24 часа и только один раз.',
+            )}
           </p>
           <Link className="btn" href="/login">
-            Вернуться к входу
+            {t('Вернуться к входу')}
             <Icon name="arrow" width={16} />
           </Link>
         </>
       ) : (
         <>
-          <h2>Смена пароля</h2>
-          <p>Укажите рабочую почту</p>
+          <h2>{t('Смена пароля')}</h2>
+          <p>{t('Укажите рабочую почту')}</p>
           <form action={submit}>
             <label className="field">
               Email
@@ -55,17 +58,17 @@ export function ResetRequestForm() {
             </label>
             {state.error && (
               <p className="alert" role="alert">
-                {state.error}
+                {t(state.error)}
               </p>
             )}
             <button className="btn" type="submit" disabled={pending}>
-              {pending ? 'Отправляем…' : 'Прислать ссылку'}
+              {pending ? t('Отправляем…') : t('Прислать ссылку')}
               <Icon name="arrow" width={16} />
             </button>
           </form>
           <div className="login-preview">
-            <span>Вспомнили пароль?</span>
-            <Link href="/login">Войти</Link>
+            <span>{t('Вспомнили пароль?')}</span>
+            <Link href="/login">{t('Войти')}</Link>
           </div>
         </>
       )}

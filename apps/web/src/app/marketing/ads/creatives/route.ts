@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { msg } from '../../../../i18n';
 import { ApiError, marketingAdsApi } from '../../../../lib/api';
 
 /**
@@ -12,17 +13,17 @@ export async function POST(request: Request) {
   try {
     form = await request.formData();
   } catch {
-    return NextResponse.json({ error: 'Файл не получен: повторите загрузку' }, { status: 400 });
+    return NextResponse.json({ error: msg('Файл не получен: повторите загрузку') }, { status: 400 });
   }
   const file = form.get('file');
   if (!(file instanceof File) || file.size === 0) {
-    return NextResponse.json({ error: 'Выберите видео креатива' }, { status: 400 });
+    return NextResponse.json({ error: msg('Выберите видео креатива') }, { status: 400 });
   }
   try {
     const creative = await marketingAdsApi.uploadCreative(file);
     return NextResponse.json({ id: creative.id });
   } catch (e) {
     if (e instanceof ApiError) return NextResponse.json({ error: e.message }, { status: e.status });
-    return NextResponse.json({ error: 'Не удалось сохранить видео, повторите позже' }, { status: 502 });
+    return NextResponse.json({ error: msg('Не удалось сохранить видео, повторите позже') }, { status: 502 });
   }
 }

@@ -1,3 +1,6 @@
+import { intlLocale, translator, type DeskLocale, type Translate } from '../i18n';
+import { dateFormat } from '../i18n/dates';
+
 /** Периоды быстрого отчёта салона: чистые даты в поясе филиала, без часов и без обращения к API. */
 export type PeriodKind = 'day' | 'week' | 'month' | 'prevMonth' | 'custom';
 export const MAX_PERIOD_DAYS = 62;
@@ -34,16 +37,24 @@ export function periodDays(from: string, to: string): string[] | null {
   return Array.from({ length: count }, (_, i) => iso(new Date(start.getTime() + i * DAY)));
 }
 
-const short = (date: Date) =>
-  new Intl.DateTimeFormat('ru-RU', { month: 'short', timeZone: 'UTC' }).format(date);
-
-export function periodTitle(from: string, to: string): string {
+/** Заголовок периода на языке человека: месяцы по `locale`, слова через `t`; без них русский, как раньше */
+export function periodTitle(
+  from: string,
+  to: string,
+  t: Translate = translator('ru'),
+  locale: DeskLocale = 'ru',
+): string {
+  const short = (date: Date) =>
+    dateFormat(intlLocale(locale), { month: 'short', timeZone: 'UTC' }).format(date);
   const start = parse(from);
   const end = parse(to);
-  if (!start || !end) return 'Статистика';
+  if (!start || !end) return t('Статистика');
   const year = end.getUTCFullYear();
-  if (from === to) return `Статистика за ${start.getUTCDate()} ${short(start)} ${year}`;
-  if (start.getUTCMonth() === end.getUTCMonth() && start.getUTCFullYear() === year)
-    return `Статистика за ${start.getUTCDate()}–${end.getUTCDate()} ${short(end)} ${year}`;
-  return `Статистика за ${start.getUTCDate()} ${short(start)} – ${end.getUTCDate()} ${short(end)} ${year}`;
+  const period =
+    from === to
+      ? `${start.getUTCDate()} ${short(start)} ${year}`
+      : start.getUTCMonth() === end.getUTCMonth() && start.getUTCFullYear() === year
+        ? `${start.getUTCDate()}–${end.getUTCDate()} ${short(end)} ${year}`
+        : `${start.getUTCDate()} ${short(start)} – ${end.getUTCDate()} ${short(end)} ${year}`;
+  return t('Статистика за {period}', { period });
 }

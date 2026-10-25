@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import './period-bar.css';
+import { msg } from '../i18n';
+import { T } from '../i18n/locale-provider';
 import { Button } from './ui';
 import { PeriodPicker } from './period-picker';
 import { reportPresets } from './period-bar-presets';
@@ -42,7 +44,9 @@ export function PeriodBar({
         {Object.entries(hidden ?? {}).map(([name, value]) => (
           <input key={name} type="hidden" name={name} value={value} />
         ))}
-        <Button type="submit">Показать</Button>
+        <Button type="submit">
+          <T text={msg('Показать')} />
+        </Button>
       </form>
     </div>
   );

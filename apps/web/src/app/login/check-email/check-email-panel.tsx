@@ -6,12 +6,14 @@ import { AuthShell } from '../../../components/auth-shell';
 import { Icon } from '../../../components/icon';
 import { resendVerification, verifyEmailCodeAction, type ResendState } from '../actions';
 import { Input } from '../../../components/ui';
+import { useT } from '../../../i18n/locale-provider';
 
 /**
  * Что человек видит после «Создать»: письмо ушло, вход откроется по ссылке из него.
  * Кнопка «выслать заново» отвечает одинаково для любой почты — по ответу нельзя проверить чужой адрес.
  */
 export function CheckEmailPanel({ email, sent }: { email: string; sent: boolean }) {
+  const t = useT();
   const [state, submit, pending] = useActionState<ResendState, FormData>(resendVerification, {
     error: null,
     sent: false,
@@ -31,13 +33,13 @@ export function CheckEmailPanel({ email, sent }: { email: string; sent: boolean 
   return (
     <AuthShell
       story={{
-        eyebrow: 'Остался один шаг',
+        eyebrow: t('Остался один шаг'),
         title: (
           <>
-            Подтвердите <br /> вашу почту.
+            {t('Подтвердите')} <br /> {t('вашу почту.')}
           </>
         ),
-        text: 'Так мы знаем, что адрес ваш: по нему же вы будете возвращать пароль.',
+        text: t('Так мы знаем, что адрес ваш: по нему же вы будете возвращать пароль.'),
       }}
     >
       <span className="round-icon">
@@ -45,16 +47,19 @@ export function CheckEmailPanel({ email, sent }: { email: string; sent: boolean 
       </span>
       {sent ? (
         <>
-          <h2>Проверьте почту</h2>
+          <h2>{t('Проверьте почту')}</h2>
           <p>
-            {email ? `Код из 6 цифр отправлен на ${email}.` : 'Код из 6 цифр отправлен на вашу почту.'}{' '}
-            Введите его ниже: вход откроется сразу. Код действует 15 минут. В том же письме есть
-            ссылка: она работает 72 часа, если удобнее подтвердить по ней.
+            {email
+              ? t('Код из 6 цифр отправлен на {email}.', { email })
+              : t('Код из 6 цифр отправлен на вашу почту.')}{' '}
+            {t(
+              'Введите его ниже: вход откроется сразу. Код действует 15 минут. В том же письме есть ссылка: она работает 72 часа, если удобнее подтвердить по ней.',
+            )}
           </p>
           {email ? (
             <form onSubmit={confirmCode}>
               <label className="field">
-                Код из письма
+                {t('Код из письма')}
                 <Input
                   name="code"
                   inputMode="numeric"
@@ -69,11 +74,11 @@ export function CheckEmailPanel({ email, sent }: { email: string; sent: boolean 
               </label>
               {codeError && (
                 <p className="alert" role="alert">
-                  {codeError}
+                  {t(codeError)}
                 </p>
               )}
               <button className="btn" type="submit" disabled={checking || code.replace(/\D/g, '').length !== 6}>
-                {checking ? 'Проверяем…' : 'Подтвердить и войти'}
+                {checking ? t('Проверяем…') : t('Подтвердить и войти')}
                 <Icon name="arrow" width={16} />
               </button>
             </form>
@@ -81,16 +86,17 @@ export function CheckEmailPanel({ email, sent }: { email: string; sent: boolean 
         </>
       ) : (
         <>
-          <h2>Учётная запись заведена</h2>
+          <h2>{t('Учётная запись заведена')}</h2>
           <p>
-            Письмо отправить не удалось: отправка писем на этом объекте не настроена. Обратитесь к
-            владельцу объекта — он откроет вход.
+            {t(
+              'Письмо отправить не удалось: отправка писем на этом объекте не настроена. Обратитесь к владельцу объекта — он откроет вход.',
+            )}
           </p>
         </>
       )}
       {state.sent ? (
         <p className="alert" role="status">
-          Если такая почта есть в системе и ещё не подтверждена, письмо отправлено заново.
+          {t('Если такая почта есть в системе и ещё не подтверждена, письмо отправлено заново.')}
         </p>
       ) : (
         <form action={submit}>
@@ -111,18 +117,18 @@ export function CheckEmailPanel({ email, sent }: { email: string; sent: boolean 
           )}
           {state.error && (
             <p className="alert" role="alert">
-              {state.error}
+              {t(state.error)}
             </p>
           )}
           <button className="btn" type="submit" disabled={pending}>
-            {pending ? 'Отправляем…' : 'Выслать письмо заново'}
+            {pending ? t('Отправляем…') : t('Выслать письмо заново')}
             <Icon name="arrow" width={16} />
           </button>
         </form>
       )}
       <div className="login-preview">
-        <span>Уже подтвердили?</span>
-        <Link href="/login">Войти</Link>
+        <span>{t('Уже подтвердили?')}</span>
+        <Link href="/login">{t('Войти')}</Link>
       </div>
     </AuthShell>
   );

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { msg } from '../../../../../i18n';
 import { ApiError, metaConnectionApi } from '../../../../../lib/api';
 import { META_ACCOUNTS_COOKIE, META_CHOICE_MAX_AGE_S, META_PENDING_COOKIE } from '../../meta-cookies';
 
@@ -41,7 +42,7 @@ export async function GET(request: Request) {
   } catch (e) {
     return back({
       meta: 'failed',
-      reason: e instanceof ApiError ? e.message.slice(0, 300) : 'Не удалось подключить кабинет',
+      reason: e instanceof ApiError ? e.message.slice(0, 300) : msg('Не удалось подключить кабинет'),
     });
   }
 }

@@ -2,6 +2,7 @@ import { unstable_rethrow } from 'next/navigation';
 import { requireFeature } from '../../lib/vertical-guard';
 import { marketingBudgetApi, marketingSiteApi, type SiteBuilderState } from '../../lib/api';
 import { summarize } from './budget/derive';
+import { currentLocale } from '../../i18n/server';
 import { MarketingHub, type HubSpend } from './hub';
 
 /** Хаб читает одно: бюджет филиала за текущий месяц. Нет филиала или ошибка: «Нет данных», хаб не падает. */
@@ -32,6 +33,6 @@ async function loadBuilder(): Promise<SiteBuilderState | null> {
 
 export default async function MarketingPage() {
   const me = await requireFeature('/marketing');
-  const [spend, builder] = await Promise.all([loadSpend(), loadBuilder()]);
-  return <MarketingHub vertical={me.context?.vertical ?? 'HOSPITALITY'} spend={spend} builder={builder} />;
+  const [spend, builder, locale] = await Promise.all([loadSpend(), loadBuilder(), currentLocale()]);
+  return <MarketingHub vertical={me.context?.vertical ?? 'HOSPITALITY'} spend={spend} builder={builder} locale={locale} />;
 }

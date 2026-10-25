@@ -5,6 +5,8 @@ import { parseReminderSettings } from '@pms/domain';
 import { ApiError } from '../../lib/api';
 import { currentMe } from '../../lib/desk-shell';
 import { foodApi, type FoodReminderSettings } from '../../lib/food-api';
+import { msg } from '../../i18n';
+import { serverT } from '../../i18n/server';
 
 type Result<T> = { data?: T; error?: string };
 
@@ -23,7 +25,7 @@ export async function saveFoodReminderSettings(
   form: FormData,
 ): Promise<Result<FoodReminderSettings>> {
   try {
-    if (!(await sameScope(form))) return { error: 'Контекст изменён. Откройте настройки нужного филиала.' };
+    if (!(await sameScope(form))) return { error: (await serverT())(msg('Контекст изменён. Откройте настройки нужного филиала.')) };
     const hours = String(form.get('hoursBefore') ?? '')
       .split(/[,\s]+/)
       .filter(Boolean)
@@ -39,7 +41,7 @@ export async function saveFoodReminderSettings(
     return { data: await foodApi.saveReminderSettings(parsed.value) };
   } catch (error) {
     unstable_rethrow(error);
-    return { error: error instanceof ApiError ? error.message : 'Не удалось сохранить напоминания. Ввод сохранён.' };
+    return { error: error instanceof ApiError ? error.message : (await serverT())(msg('Не удалось сохранить напоминания. Ввод сохранён.')) };
   }
 }
 
@@ -52,6 +54,6 @@ export async function markFoodReminderDone(id: string): Promise<{ ok: true } | {
     return { ok: true };
   } catch (error) {
     unstable_rethrow(error);
-    return { ok: false, error: error instanceof ApiError ? error.message : 'Не удалось отметить. Попробуйте ещё раз.' };
+    return { ok: false, error: error instanceof ApiError ? error.message : (await serverT())(msg('Не удалось отметить. Попробуйте ещё раз.')) };
   }
 }

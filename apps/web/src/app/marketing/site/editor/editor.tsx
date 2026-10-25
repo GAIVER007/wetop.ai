@@ -50,6 +50,8 @@ import { pathString, setAt, type Path } from './paths';
 import { SitePreview, type PreviewMode } from './preview';
 import { useAssistantRun, useGenerationRun } from './run';
 import { Structure, type Selection } from './structure';
+import { msg, type Translate } from '../../../../i18n';
+import { useT } from '../../../../i18n/locale-provider';
 
 /**
  * Редактор управляемого сайта (MKT9, `docs/marketing/site-editor-v0.md`; MKT9.1 раскладка как у конструктора, план
@@ -71,7 +73,7 @@ type Message = { tone: 'ok' | 'error'; text: string };
 type Rec = Record<string, unknown>;
 type AiTarget = { pageId: string; sectionId: string };
 
-const ASSET_PROBLEM = 'Изображения нет в библиотеке филиала или оно другого назначения: выберите другое';
+const ASSET_PROBLEM = msg('Изображения нет в библиотеке филиала или оно другого назначения: выберите другое');
 const DESKTOP = '(min-width: 961px)';
 /** Сколько шагов отмены держит браузер: черновик целиком в каждом шаге, поэтому предел небольшой */
 const HISTORY_LIMIT = 50;
@@ -93,9 +95,9 @@ function valid(spec: Spec, s: Selection): Selection {
 }
 
 /** Подпись блока словами: вид и заголовок («О гостинице: О нас») */
-function sectionLabel(section: Rec | undefined, locale: string): string {
-  if (!section) return 'Блок';
-  const type = SITE_EDITOR_SECTIONS[String(section['type'])]?.label ?? 'Блок';
+function sectionLabel(section: Rec | undefined, locale: string, t: Translate): string {
+  if (!section) return t('Блок');
+  const type = t(SITE_EDITOR_SECTIONS[String(section['type'])]?.label ?? msg('Блок'));
   const heading = localizedText(section['heading'], locale);
   return heading ? `${type}: ${heading}` : type;
 }
@@ -110,21 +112,21 @@ function findSection(spec: Spec, target: AiTarget | null) {
 }
 
 /** Где ошибка, словами: страница и секция по документу, иначе «Настройки сайта» */
-function whereOf(spec: Spec, path: string, locale: string): string {
+function whereOf(spec: Spec, path: string, locale: string, t: Translate): string {
   const at = errorLocation(path);
-  if (at.area === 'site') return path.startsWith('navigation') ? 'Навигация' : 'Настройки сайта';
+  if (at.area === 'site') return path.startsWith('navigation') ? t('Навигация') : t('Настройки сайта');
   const page = pagesOf(spec)[at.pageIndex];
-  const title = localizedText(page?.['title'], locale) || `Страница ${at.pageIndex + 1}`;
-  if (at.sectionIndex === null) return `Страница «${title}»`;
-  const label = SITE_EDITOR_SECTIONS[String(sectionsOf(page)[at.sectionIndex]?.['type'])]?.label ?? 'Секция';
-  return `Страница «${title}», ${label.toLowerCase()}`;
+  const title = localizedText(page?.['title'], locale) || t('Страница {n}', { n: at.pageIndex + 1 });
+  if (at.sectionIndex === null) return t('Страница «{title}»', { title });
+  const label = t(SITE_EDITOR_SECTIONS[String(sectionsOf(page)[at.sectionIndex]?.['type'])]?.label ?? msg('Секция'));
+  return t('Страница «{title}», {section}', { title, section: label.toLowerCase() });
 }
 
 /** MKT9.2: полоса проекта: лицензия словами */
 const LICENSE_TEXT: Record<SiteBuilderState['access'], string> = {
-  active: 'Лицензия активна',
-  expired: 'Срок лицензии вышел',
-  off: 'Конструктор не подключён',
+  active: msg('Лицензия активна'),
+  expired: msg('Срок лицензии вышел'),
+  off: msg('Конструктор не подключён'),
 };
 
 export function SiteEditor({
@@ -153,6 +155,7 @@ export function SiteEditor({
   /** «Опубликовать»: ссылка или причина, почему пока нельзя (Д10, `publishTarget`) */
   publish?: { href: string } | { reason: string };
 }) {
+  const t = useT();
   const [base, setBase] = useState<Base>(initialBase);
   const [spec, setSpec] = useState<Spec>(initialBase.spec);
   /*
@@ -266,7 +269,7 @@ export function SiteEditor({
     pages.findIndex((p) => String(p['id']) === previewPage),
   );
   const target = findSection(spec, aiTarget);
-  const targetLabel = target ? sectionLabel(sectionsOf(pages[target.page])[target.section], defaultLocale) : null;
+  const targetLabel = target ? sectionLabel(sectionsOf(pages[target.page])[target.section], defaultLocale, t) : null;
   const selectedSectionId = current.kind === 'section' ? String(sectionsOf(pages[current.page])[current.section]?.['id'] ?? '') : null;
   const assetUrls = useMemo(
     () => Object.fromEntries(assets.filter((a) => a.previewUrl).map((a) => [a.id, a.previewUrl as string])),
@@ -310,7 +313,7 @@ export function SiteEditor({
     const at = findSection(spec, { pageId, sectionId });
     if (at) select({ kind: 'section', ...at });
   };
-  const confirm = (title: string, body: string) => ask({ title, body, confirmLabel: 'Удалить', tone: 'danger' });
+  const confirm = (title: string, body: string) => ask({ title, body, confirmLabel: t('Удалить'), tone: 'danger' });
 
   const refreshVersions = async () => {
     const r = await versionsAction();
@@ -327,7 +330,7 @@ export function SiteEditor({
   const openPreview = async (versionId: string) => {
     const r = await editorPreviewAction(versionId);
     if (r.url) window.open(r.url, '_blank', 'noopener');
-    else setMessage({ tone: 'error', text: r.error ?? 'Предпросмотр недоступен' });
+    else setMessage({ tone: 'error', text: r.error ?? t('Предпросмотр недоступен') });
   };
   const loadAsBase = async (versionId: string, replaceSpec: boolean): Promise<Base | null> => {
     const r = await versionAction(versionId);
@@ -354,7 +357,7 @@ export function SiteEditor({
       setMessage(null);
       return;
     }
-    if (reply.code === 'ASSET_UNAVAILABLE') setErrors(reply.paths.map((p) => ({ path: p.path, code: p.code, message: ASSET_PROBLEM })));
+    if (reply.code === 'ASSET_UNAVAILABLE') setErrors(reply.paths.map((p) => ({ path: p.path, code: p.code, message: t(ASSET_PROBLEM) })));
     else if (reply.errors.length) setErrors(reply.errors);
     setMessage({ tone: 'error', text: `${what}: ${reply.message}` });
   };
@@ -362,28 +365,28 @@ export function SiteEditor({
   const save = async (): Promise<Base | null> => {
     setMessage(null);
     if (canonicalByteLength(spec) > SITE_SPEC_MAX_BYTES) {
-      setMessage({ tone: 'error', text: 'Черновик слишком большой: уберите часть страниц, секций или текста' });
+      setMessage({ tone: 'error', text: t('Черновик слишком большой: уберите часть страниц, секций или текста') });
       return null;
     }
     // подсказка до отправки тем же валидатором, что у сервера; судья всё равно сервер
     const local = validateSiteSpec(spec);
     if (!local.ok) {
       setErrors(local.errors);
-      setMessage({ tone: 'error', text: 'Черновик не сохранён: исправьте отмеченные поля' });
+      setMessage({ tone: 'error', text: t('Черновик не сохранён: исправьте отмеченные поля') });
       return null;
     }
     setSaving(true);
     const reply = await saveDraftAction(base.revision, spec);
     setSaving(false);
     if (!reply.ok) {
-      failed(reply, 'Черновик не сохранён');
+      failed(reply, t('Черновик не сохранён'));
       return null;
     }
     const next = { id: reply.data.version.id, revision: reply.data.version.revision, spec };
     setBase(next);
     setErrors([]);
     setConflict(false);
-    setMessage({ tone: 'ok', text: `Черновик сохранён: версия ${next.revision}` });
+    setMessage({ tone: 'ok', text: t('Черновик сохранён: версия {n}', { n: next.revision }) });
     void refreshVersions();
     return next;
   };
@@ -447,7 +450,7 @@ export function SiteEditor({
   const approvePlan = async (planId: string, instruction: string) => {
     setAiError(null);
     if (dirty) {
-      setAiError('Сначала сохраните черновик: план составлен по сохранённой версии');
+      setAiError(t('Сначала сохраните черновик: план составлен по сохранённой версии'));
       return;
     }
     const reply = await approvePlanAction(planId, instruction);
@@ -458,7 +461,7 @@ export function SiteEditor({
   /** Оформление без ИИ: тема, первый экран и порядок блоков главной в документ на экране; сохраняет человек */
   const applyDesign = (direction: DesignDirectionView) => {
     edit((prev) => applyDesignDirection(prev, direction) as Spec, null);
-    setMessage({ tone: 'ok', text: `Оформление «${direction.name}» применено к черновику: сохраните, чтобы оставить его` });
+    setMessage({ tone: 'ok', text: t('Оформление «{name}» применено к черновику: сохраните, чтобы оставить его', { name: direction.name }) });
   };
   /** Правка текста прямо на сайте: только разрешённые поля, предел поля; ИИ не зовётся */
   const inlineEdit = (path: string, locale: string, text: string) => {
@@ -481,7 +484,7 @@ export function SiteEditor({
     if (!item.outputVersionId || !item.baseVersionId) return;
     const r = await diffAction(item.outputVersionId, item.baseVersionId);
     const revision = versions.find((v) => v.id === item.outputVersionId)?.revision;
-    if (r.ok) setDiff({ title: `Что изменил ИИ в версии ${revision ?? ''}`, changes: r.data.changes });
+    if (r.ok) setDiff({ title: t('Что изменил ИИ в версии {n}', { n: revision ?? '' }), changes: r.data.changes });
     else setMessage({ tone: 'error', text: r.message });
   };
   /** Восстановление версии новой головой; `conflict`: голова уже ушла вперёд, ввод на месте */
@@ -496,14 +499,19 @@ export function SiteEditor({
       }
       onError(
         r.code === 'ASSET_UNAVAILABLE'
-          ? 'В этой версии есть изображения, которых больше нет в библиотеке: восстановить её нельзя. Загрузите изображения заново или замените их в текущем черновике.'
+          ? t(
+              'В этой версии есть изображения, которых больше нет в библиотеке: восстановить её нельзя. Загрузите изображения заново или замените их в текущем черновике.',
+            )
           : r.message,
       );
       return 'error';
     }
     await loadAsBase(r.data.version.id, true);
     setErrors([]);
-    setMessage({ tone: 'ok', text: `Версия ${revision} восстановлена как черновик: версия ${r.data.version.revision}` });
+    setMessage({
+      tone: 'ok',
+      text: t('Версия {n} восстановлена как черновик: версия {next}', { n: revision, next: r.data.version.revision }),
+    });
     void refreshVersions();
     return 'ok';
   };
@@ -511,11 +519,14 @@ export function SiteEditor({
     if (!item.baseVersionId) return;
     const before = versions.find((v) => v.id === item.baseVersionId)?.revision ?? 1;
     const ok = await ask({
-      title: 'Вернуть сайт как было до этого запроса?',
+      title: t('Вернуть сайт как было до этого запроса?'),
       body: dirty
-        ? `Появится новая версия черновика с содержимым версии ${before}. Ваши несохранённые изменения пропадут. Опубликованный сайт не изменится.`
-        : `Появится новая версия черновика с содержимым версии ${before}. Опубликованный сайт не изменится.`,
-      confirmLabel: 'Вернуть',
+        ? t(
+            'Появится новая версия черновика с содержимым версии {n}. Ваши несохранённые изменения пропадут. Опубликованный сайт не изменится.',
+            { n: before },
+          )
+        : t('Появится новая версия черновика с содержимым версии {n}. Опубликованный сайт не изменится.', { n: before }),
+      confirmLabel: t('Вернуть'),
     });
     if (ok) await restore(item.baseVersionId, before, (text) => setMessage({ tone: 'error', text }));
   };
@@ -535,7 +546,13 @@ export function SiteEditor({
       if (!href || href.startsWith('#')) return;
       e.preventDefault();
       e.stopPropagation();
-      void ask({ title: 'Уйти без сохранения?', body: 'Несохранённые изменения черновика пропадут.', confirmLabel: 'Уйти', cancelLabel: 'Остаться', tone: 'danger' }).then((ok) => {
+      void ask({
+        title: t('Уйти без сохранения?'),
+        body: t('Несохранённые изменения черновика пропадут.'),
+        confirmLabel: t('Уйти'),
+        cancelLabel: t('Остаться'),
+        tone: 'danger',
+      }).then((ok) => {
         if (!ok) return;
         leaving.current = true;
         window.location.assign(href);
@@ -593,20 +610,20 @@ export function SiteEditor({
           setTab('ai');
         }}
       >
-        Изменить этот блок с ИИ
+        {t('Изменить этот блок с ИИ')}
       </Button>
     ) : null;
 
   // вкладки как в макете Marketing 2.0 (экран 1): «Редактор» это разговор с ИИ, «Просмотр» только на узком экране
   const tabs: Array<[Tab, string]> = [
-    ['ai', 'Редактор'],
-    ['blocks', 'Страницы'],
-    ['design', 'Дизайн'],
-    ['site', 'Настройки'],
-    ['preview', 'Просмотр'],
+    ['ai', t('Редактор')],
+    ['blocks', t('Страницы')],
+    ['design', t('Дизайн')],
+    ['site', t('Настройки')],
+    ['preview', t('Просмотр')],
   ];
   const tabList = (
-    <div className="ed-tabs" role="tablist" aria-label="Части редактора">
+    <div className="ed-tabs" role="tablist" aria-label={t('Части редактора')}>
       {tabs.map(([key, label]) => (
         <button
           key={key}
@@ -632,26 +649,26 @@ export function SiteEditor({
           <div className="ed-top__project">
             <p className="ed-top__name" data-testid="ed-project">
               <b>{project.locationName}</b>
-              <span className="muted"> / Сайт филиала</span>
+              <span className="muted">{t(' / Сайт филиала')}</span>
             </p>
             <p className={cx('ed-license', `is-${project.builder.access}`)} data-testid="ed-license">
               <span className="ed-license__dot" aria-hidden="true" />
-              {LICENSE_TEXT[project.builder.access]}
+              {t(LICENSE_TEXT[project.builder.access])}
             </p>
           </div>
           {tabList}
           <dl className="ed-top__facts">
             <div>
-              <dt>Черновик</dt>
-              <dd data-testid="ed-revision">версия {base.revision}</dd>
+              <dt>{t('Черновик')}</dt>
+              <dd data-testid="ed-revision">{t('версия {n}', { n: base.revision })}</dd>
             </div>
             <div>
-              <dt>На сайте</dt>
-              <dd>{published ? `версия ${published.revision}` : 'ещё не опубликован'}</dd>
+              <dt>{t('На сайте')}</dt>
+              <dd>{published ? t('версия {n}', { n: published.revision }) : t('ещё не опубликован')}</dd>
             </div>
           </dl>
           <p className={cx('ed-dirty', dirty && 'is-dirty')} role="status" data-testid="ed-dirty">
-            {dirty ? 'Есть несохранённые изменения' : 'Все изменения сохранены'}
+            {dirty ? t('Есть несохранённые изменения') : t('Все изменения сохранены')}
           </p>
           <div className="ed-top__actions">
             <Button
@@ -664,28 +681,28 @@ export function SiteEditor({
                 void refreshVersions();
               }}
             >
-              История
+              {t('История')}
             </Button>
             <Link className="btn btn--secondary" href="/marketing/site/assets" data-testid="editor-assets-link">
-              Изображения
+              {t('Изображения')}
             </Link>
             <Button type="button" tone="secondary" disabled={readOnly || past.length === 0} onClick={undoEdit} data-testid="ed-undo" title="Ctrl+Z">
-              Отменить
+              {t('Отменить')}
             </Button>
             <Button type="button" tone="secondary" disabled={readOnly || future.length === 0} onClick={redoEdit} data-testid="ed-redo" title="Ctrl+Shift+Z">
-              Повторить
+              {t('Повторить')}
             </Button>
             <Button type="button" tone="secondary" disabled={readOnly || !dirty || saving} onClick={() => void save()} data-testid="ed-save">
-              {saving ? 'Сохраняем…' : 'Сохранить черновик'}
+              {saving ? t('Сохраняем…') : t('Сохранить черновик')}
             </Button>
             {/* публикация на своей странице (MKT7): там тариф бронирования, домен и подтверждение */}
             {'href' in publish ? (
               <Link className="btn" href={publish.href} data-testid="editor-publication-link">
-                Опубликовать
+                {t('Опубликовать')}
               </Link>
             ) : (
               <Button type="button" disabled title={publish.reason} aria-describedby="ed-publish-reason" data-testid="editor-publication-off">
-                Опубликовать
+                {t('Опубликовать')}
               </Button>
             )}
           </div>
@@ -697,9 +714,11 @@ export function SiteEditor({
         )}
         {project.builder.access !== 'active' && (
           <Alert boxed data-testid="ed-license-off">
-            <b>Конструктор сайта не активен для этого филиала.</b>{' '}
-            {project.builder.access === 'expired' ? 'Срок лицензии вышел. ' : ''}Сайт и история видны, но менять сайт, просить ИИ и публиковать
-            нельзя. Опубликованный сайт продолжает работать. Подключить конструктор может главный администратор WETOP.
+            <b>{t('Конструктор сайта не активен для этого филиала.')}</b>{' '}
+            {project.builder.access === 'expired' ? t('Срок лицензии вышел. ') : ''}
+            {t(
+              'Сайт и история видны, но менять сайт, просить ИИ и публиковать нельзя. Опубликованный сайт продолжает работать. Подключить конструктор может главный администратор WETOP.',
+            )}
           </Alert>
         )}
 
@@ -713,7 +732,7 @@ export function SiteEditor({
           ))}
         {conflict && (
           <Alert boxed data-testid="ed-conflict">
-            <p>Сайт уже изменён в другой вкладке или ИИ. Ваши изменения остались на экране.</p>
+            <p>{t('Сайт уже изменён в другой вкладке или ИИ. Ваши изменения остались на экране.')}</p>
             <div className="ed-row">
               <Button
                 type="button"
@@ -724,7 +743,7 @@ export function SiteEditor({
                   setHistoryOpen(true);
                 }}
               >
-                Посмотреть новую версию
+                {t('Посмотреть новую версию')}
               </Button>
               <Button
                 type="button"
@@ -735,10 +754,14 @@ export function SiteEditor({
                   const latest = (await refreshVersions()).find((v) => v.isLatest);
                   if (!latest) return;
                   const r = await versionAction(latest.id);
-                  if (r.ok) setDiff({ title: `Чем ваши правки отличаются от версии ${latest.revision}`, changes: diffSiteSpecs(r.data.version.spec, spec) });
+                  if (r.ok)
+                    setDiff({
+                      title: t('Чем ваши правки отличаются от версии {n}', { n: latest.revision }),
+                      changes: diffSiteSpecs(r.data.version.spec, spec),
+                    });
                 }}
               >
-                Сравнить
+                {t('Сравнить')}
               </Button>
               <Button
                 type="button"
@@ -750,22 +773,22 @@ export function SiteEditor({
                   const next = await loadAsBase(latest.id, false);
                   if (!next) return;
                   setConflict(false);
-                  setMessage({ tone: 'ok', text: `Ваши правки будут сохранены поверх версии ${next.revision}` });
+                  setMessage({ tone: 'ok', text: t('Ваши правки будут сохранены поверх версии {n}', { n: next.revision }) });
                 }}
               >
-                Продолжить с моими изменениями
+                {t('Продолжить с моими изменениями')}
               </Button>
             </div>
           </Alert>
         )}
         {errors.length > 0 && (
           <Alert boxed data-testid="ed-errors">
-            <b>Что исправить</b>
+            <b>{t('Что исправить')}</b>
             <ul className="ed-error-list">
               {errors.slice(0, 20).map((e, i) => (
                 <li key={`${e.path}-${i}`}>
                   <button type="button" className="ed-link" onClick={() => goToError(e.path)}>
-                    {whereOf(spec, e.path, defaultLocale)}: {e.message}
+                    {whereOf(spec, e.path, defaultLocale, t)}: {e.message}
                   </button>
                 </li>
               ))}
@@ -783,7 +806,7 @@ export function SiteEditor({
                   <span className="ed-chat__mark" aria-hidden="true">
                     W
                   </span>
-                  Создайте сайт с помощью ИИ
+                  {t('Создайте сайт с помощью ИИ')}
                 </p>
                 <AiChat
                   canPublish={'href' in publish}
@@ -815,7 +838,7 @@ export function SiteEditor({
                 ) : (
                   <Stack>
                     <Button type="button" tone="ghost" size="sm" className="ed-back" data-testid="ed-back" onClick={() => setSelection({ kind: 'site' })}>
-                      Все страницы и блоки
+                      {t('Все страницы и блоки')}
                     </Button>
                     {current.kind === 'page' && <PageForm pageIndex={current.page} />}
                     {current.kind === 'section' && (
@@ -859,7 +882,7 @@ export function SiteEditor({
               assets={assetUrls}
               selectedSectionId={selectedSectionId}
               onPickSection={pickFromPreview}
-              onOpenSeparately={() => (dirty ? setMessage({ tone: 'error', text: 'Сначала сохраните черновик.' }) : void openPreview(base.id))}
+              onOpenSeparately={() => (dirty ? setMessage({ tone: 'error', text: t('Сначала сохраните черновик.') }) : void openPreview(base.id))}
               mode={previewMode}
               setMode={setPreviewMode}
               onInlineEdit={inlineEdit}
@@ -893,16 +916,18 @@ export function SiteEditor({
           setBusy(true);
           const r = await diffAction(base.id, v.id);
           setBusy(false);
-          if (r.ok) setDiff({ title: `Версия ${v.revision} и черновик ${base.revision}`, changes: r.data.changes });
+          if (r.ok) setDiff({ title: t('Версия {n} и черновик {draft}', { n: v.revision, draft: base.revision }), changes: r.data.changes });
           else setHistoryError(r.message);
         }}
         onRestore={async (v) => {
           const ok = await ask({
-            title: `Восстановить версию ${v.revision} как новый черновик?`,
+            title: t('Восстановить версию {n} как новый черновик?', { n: v.revision }),
             body: dirty
-              ? 'Появится новая версия черновика с содержимым этой версии. Ваши несохранённые изменения пропадут. Опубликованный сайт не изменится.'
-              : 'Появится новая версия черновика с содержимым этой версии. Опубликованный сайт не изменится.',
-            confirmLabel: 'Восстановить',
+              ? t(
+                  'Появится новая версия черновика с содержимым этой версии. Ваши несохранённые изменения пропадут. Опубликованный сайт не изменится.',
+                )
+              : t('Появится новая версия черновика с содержимым этой версии. Опубликованный сайт не изменится.'),
+            confirmLabel: t('Восстановить'),
           });
           if (!ok) return;
           setHistoryError(null);

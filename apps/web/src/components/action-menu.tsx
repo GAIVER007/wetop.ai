@@ -1,5 +1,7 @@
 'use client';
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { msg } from '../i18n';
+import { useT } from '../i18n/locale-provider';
 import { Icon, type IconName } from './icon';
 import { cx } from './ui';
 
@@ -18,7 +20,7 @@ export interface ActionMenuItem {
  */
 export function ActionMenu({
   items,
-  label = 'Действия',
+  label = msg('Действия'),
   icon = 'more',
   text,
   tone,
@@ -39,6 +41,7 @@ export function ActionMenu({
   /** положение на плашке шахматки задаётся данными (ширина отрезка) — единственный инлайн-стиль */
   style?: CSSProperties | undefined;
 }) {
+  const t = useT();
   const id = useId();
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -78,7 +81,7 @@ export function ActionMenu({
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={id}
-        aria-label={text ? undefined : label}
+        aria-label={text ? undefined : t(label)}
         onClick={() => {
           setActive(enabled[0] ?? 0);
           setOpen((v) => !v);
@@ -93,7 +96,7 @@ export function ActionMenu({
       >
         {text ? (
           <>
-            {text}
+            {t(text)}
             <Icon className="action-menu__chevron" name="down" width={16} height={16} />
           </>
         ) : (
@@ -104,7 +107,7 @@ export function ActionMenu({
         ref={list}
         id={id}
         role="menu"
-        aria-label={label}
+        aria-label={t(label)}
         className={cx('action-menu__list', open && 'is-open')}
         hidden={!open}
         onKeyDown={(e) => {

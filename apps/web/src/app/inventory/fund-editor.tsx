@@ -8,6 +8,8 @@ import { currencySign, formatMoney } from '../../lib/money';
 import { saveInventory } from './actions';
 import { KIND_WORD, capacityLong, usageLines } from './category-words';
 import { floorText } from './unit-state';
+import { msg, type Translate } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
 
 type Mode = 'category' | 'room';
 type Created = {
@@ -25,8 +27,8 @@ export function priceField(raw: string): string | null {
   return m[2] ? `${Number(m[1])}.${m[2]}` : String(Number(m[1]));
 }
 /** Подпись поля цены: койка продаётся поштучно, номер — целиком, одна цена при любом числе гостей */
-const priceLabel = (kind: InventoryCategory['kind'], currency: string | null | undefined) =>
-  `${kind === 'DORM_BED' ? 'Цена за койку в ночь' : 'Цена за номер в ночь'}, ${currencySign(currency ?? 'KZT')}`;
+const priceLabel = (kind: InventoryCategory['kind'], currency: string | null | undefined, t: Translate) =>
+  `${kind === 'DORM_BED' ? t('Цена за койку в ночь') : t('Цена за номер в ночь')}, ${currencySign(currency ?? 'KZT')}`;
 /** Текущая цена в поле правки: тиыны → «11000» или «456.5» */
 const priceInputValue = (minor: string | null) => {
   if (!minor) return '';
@@ -59,6 +61,7 @@ export function FundEditorDialog({
   open: boolean;
   onClose: () => void;
 }) {
+  const t = useT();
   const [pending, start] = useTransition(),
     [error, setError] = useState<string | null>(null);
   const preferred =
@@ -108,16 +111,16 @@ export function FundEditorDialog({
   }, [open]);
   const title =
     view === 'created'
-      ? 'Категория создана'
+      ? msg('Категория создана')
       : edit
           ? mode === 'category'
-            ? 'Редактировать категорию'
-            : 'Редактировать комнату'
+            ? msg('Редактировать категорию')
+            : msg('Редактировать комнату')
           : formMode === 'category'
-            ? 'Создать категорию'
+            ? msg('Создать категорию')
             : preferKind === 'DORM_BED'
-              ? 'Добавить комнату с койками'
-              : 'Добавить размещение';
+              ? msg('Добавить комнату с койками')
+              : msg('Добавить размещение');
   /** Название, вместимость и цена проверяются до отправки; ошибка у поля, введённое не стирается */
   function categoryFields(form: HTMLFormElement) {
     const fields = Object.fromEntries(new FormData(form));
@@ -126,12 +129,12 @@ export function FundEditorDialog({
     const rawPrice = String(fields.price ?? '');
     const price = priceField(rawPrice);
     const found = {
-      ...(name ? {} : { name: 'Укажите название категории' }),
+      ...(name ? {} : { name: t('Укажите название категории') }),
       ...(edit || (Number.isInteger(capacity) && capacity >= 1 && capacity <= 100)
         ? {}
-        : { capacity: 'Вместимость — от 1 до 100 гостей' }),
+        : { capacity: t('Вместимость — от 1 до 100 гостей') }),
       // при правке пустая цена — «не менять», при создании цена обязательна
-      ...(price || (edit && !rawPrice.trim()) ? {} : { price: 'Цена — число больше нуля, например 7000' }),
+      ...(price || (edit && !rawPrice.trim()) ? {} : { price: t('Цена — число больше нуля, например 7000') }),
     };
     setErrors(found);
     return Object.keys(found).length ? null : { name, capacity, price };
@@ -148,7 +151,7 @@ export function FundEditorDialog({
         price: valid.price,
       });
       if (result.error || !result.code) {
-        setError(result.error ?? 'Категория не создана. Обновите страницу и проверьте список.');
+        setError(result.error ?? t('Категория не создана. Обновите страницу и проверьте список.'));
         return;
       }
       setCreated({ code: result.code, name: valid.name, kind, price: valid.price! });
@@ -207,25 +210,26 @@ export function FundEditorDialog({
       {open && view === 'created' && created && (
         <div className="fund-form fund-created">
           <p>
-            <b>{created.name}</b> — {KIND_WORD[created.kind].toLowerCase()}. Категория уже в
-            номерном фонде.
+            <b>{created.name}</b>:{' '}
+            {t('{kind}. Категория уже в номерном фонде.', { kind: t(KIND_WORD[created.kind]).toLowerCase() })}
           </p>
           <dl className="fund-preview-facts">
             <div>
-              <dt>{created.kind === 'DORM_BED' ? 'Цена за койку в ночь' : 'Цена за номер в ночь'}</dt>
+              <dt>{created.kind === 'DORM_BED' ? t('Цена за койку в ночь') : t('Цена за номер в ночь')}</dt>
               <dd>{formatMoney(String(Math.round(Number(created.price) * 100)))}</dd>
             </div>
           </dl>
           <p className="muted">
-            Дальше: добавить {created.kind === 'DORM_BED' ? 'комнату с койками' : 'номера'}. Без мест
-            категория не продаётся.
+            {created.kind === 'DORM_BED'
+              ? t('Дальше: добавить комнату с койками. Без мест категория не продаётся.')
+              : t('Дальше: добавить номера. Без мест категория не продаётся.')}
           </p>
           <div className="fund-created-actions">
             <Button onClick={() => setView('room')}>
-              {created.kind === 'DORM_BED' ? 'Добавить комнату с койками' : 'Добавить номер'}
+              {created.kind === 'DORM_BED' ? t('Добавить комнату с койками') : t('Добавить номер')}
             </Button>
             <Button tone="ghost" onClick={onClose}>
-              Готово
+              {t('Готово')}
             </Button>
           </div>
         </div>
@@ -254,13 +258,13 @@ export function FundEditorDialog({
         >
           {formMode === 'category' ? (
             <>
-              <Field label="Название категории">
+              <Field label={t('Название категории')}>
                 <Input
                   name="name"
                   required
                   maxLength={100}
                   defaultValue={category?.name}
-                  placeholder="Например, Двухместный номер"
+                  placeholder={t('Например, Двухместный номер')}
                   aria-invalid={errors.name ? 'true' : undefined}
                   aria-describedby={errors.name ? 'fund-err-name' : undefined}
                 />
@@ -269,11 +273,11 @@ export function FundEditorDialog({
               {!edit ? (
                 <>
                   <fieldset className="fund-choice">
-                    <legend>Тип продажи</legend>
+                    <legend>{t('Тип продажи')}</legend>
                     {(
                       [
-                        ['PRIVATE_ROOM', 'Номер целиком', 'Гость занимает весь номер'],
-                        ['DORM_BED', 'Койко-место', 'Продаётся отдельная койка в общей комнате'],
+                        ['PRIVATE_ROOM', msg('Номер целиком'), msg('Гость занимает весь номер')],
+                        ['DORM_BED', msg('Койко-место'), msg('Продаётся отдельная койка в общей комнате')],
                       ] as const
                     ).map(([value, label, hint]) => (
                       <label key={value} className="fund-choice__option">
@@ -285,17 +289,17 @@ export function FundEditorDialog({
                           onChange={() => setKind(value)}
                         />
                         <span>
-                          {label}
-                          <small>{hint}</small>
+                          {t(label)}
+                          <small>{t(hint)}</small>
                         </span>
                       </label>
                     ))}
                   </fieldset>
                   {kind === 'DORM_BED' ? (
-                    <p className="muted">Вместимость: 1 гость на койко-место.</p>
+                    <p className="muted">{t('Вместимость: 1 гость на койко-место.')}</p>
                   ) : (
                     <>
-                      <Field label="Гостей в номере">
+                      <Field label={t('Гостей в номере')}>
                         <Input
                           name="capacityAdults"
                           type="number"
@@ -327,17 +331,16 @@ export function FundEditorDialog({
             </>
           ) : room && view !== 'room' ? (
             <>
-              <Field label="Обозначение физической комнаты">
+              <Field label={t('Обозначение физической комнаты')}>
                 <Input name="roomNumber" required maxLength={100} defaultValue={room.roomNumber} />
               </Field>
               <p className="muted">
-                Обозначение обновится у всех коек этой комнаты. Код места {room.code} и его
-                бронирования сохранятся.
+                {t('Обозначение обновится у всех коек этой комнаты. Код места {code} и его бронирования сохранятся.', { code: room.code })}
               </p>
             </>
           ) : (
             <>
-              <Field label="Категория">
+              <Field label={t('Категория')}>
                 <Select value={selected} onChange={(e) => setSelected(e.target.value)} required>
                   {roomChoices.map((c) => (
                     <option key={c.code} value={c.code}>
@@ -347,18 +350,18 @@ export function FundEditorDialog({
                 </Select>
               </Field>
               <div className="fund-form-row">
-                <Field label="Корпус">
-                  <Input name="building" required maxLength={100} placeholder="Основной" />
+                <Field label={t('Корпус')}>
+                  <Input name="building" required maxLength={100} placeholder={t('Основной')} />
                 </Field>
-                <Field label="Этаж">
+                <Field label={t('Этаж')}>
                   <Input name="floor" required maxLength={100} placeholder="2" />
                 </Field>
               </div>
-              <Field label="Обозначение комнаты">
+              <Field label={t('Обозначение комнаты')}>
                 <Input name="roomNumber" required maxLength={100} placeholder="201" />
               </Field>
               {dorm ? (
-                <Field label="Обозначения коек — по одному на строку">
+                <Field label={t('Обозначения коек — по одному на строку')}>
                   <Textarea
                     name="codes"
                     required
@@ -367,42 +370,42 @@ export function FundEditorDialog({
                   />
                 </Field>
               ) : (
-                <Field label="Обозначение номера в календаре">
+                <Field label={t('Обозначение номера в календаре')}>
                   <Input name="codes" required maxLength={100} placeholder="201" />
                 </Field>
               )}
-              <div className="fund-room-preview" aria-label="Предпросмотр размещения">
+              <div className="fund-room-preview" aria-label={t('Предпросмотр размещения')}>
                 <strong>
                   {dorm
-                    ? `Комната ${roomPreview.room || '…'}`
-                    : `Номер ${roomPreview.codes[0] || '…'}`}
+                    ? t('Комната {n}', { n: roomPreview.room || '…' })
+                    : t('Номер {code}', { code: roomPreview.codes[0] || '…' })}
                 </strong>
-                {dorm && <span>Койко-мест: {roomPreview.codes.length}</span>}
+                {dorm && <span>{t('Койко-мест: {n}', { n: roomPreview.codes.length })}</span>}
                 <span>
-                  {[roomPreview.building, roomPreview.floor && floorText(roomPreview.floor)]
+                  {[roomPreview.building, roomPreview.floor && floorText(roomPreview.floor, t)]
                     .filter(Boolean)
-                    .join(', ') || 'Укажите корпус и этаж'}
+                    .join(', ') || t('Укажите корпус и этаж')}
                 </span>
                 <span>{choices.find((c) => c.code === selected)?.name}</span>
                 {dorm && roomPreview.codes.length > 0 && (
-                  <span>В календаре: {roomPreview.codes.join(', ')}</span>
+                  <span>{t('В календаре: {codes}', { codes: roomPreview.codes.join(', ') })}</span>
                 )}
               </div>
               <p className="muted">
                 {dorm
-                  ? 'Будет создана одна общая комната с перечисленными койками.'
-                  : 'Будет создан отдельный номер выбранной категории.'}{' '}
-                Новые места требуют проверки уборки.
+                  ? t('Будет создана одна общая комната с перечисленными койками.')
+                  : t('Будет создан отдельный номер выбранной категории.')}{' '}
+                {t('Новые места требуют проверки уборки.')}
               </p>
             </>
           )}
           {error && <Alert>{error}</Alert>}
           <div className="fund-form-actions">
             <Button type="button" tone="secondary" disabled={pending} onClick={onClose}>
-              Отмена
+              {t('Отмена')}
             </Button>
             <Button type="submit" disabled={pending}>
-              {pending ? 'Сохраняем…' : edit ? 'Сохранить' : 'Создать'}
+              {pending ? t('Сохраняем…') : edit ? t('Сохранить') : t('Создать')}
             </Button>
           </div>
         </form>
@@ -424,15 +427,16 @@ function PriceField({
   error?: string | undefined;
   defaultValue?: string;
 }) {
+  const t = useT();
   return (
     <>
-      <Field label={priceLabel(kind, currency)}>
+      <Field label={priceLabel(kind, currency, t)}>
         <Input
           name="price"
           inputMode="decimal"
           autoComplete="off"
           defaultValue={defaultValue}
-          placeholder="Например, 7000"
+          placeholder={t('Например, 7000')}
           aria-invalid={error ? 'true' : undefined}
           aria-describedby={error ? 'fund-err-price' : 'fund-price-hint'}
         />
@@ -441,8 +445,7 @@ function PriceField({
         <Alert id="fund-err-price">{error}</Alert>
       ) : (
         <p className="muted" id="fund-price-hint">
-          Цена на все дни на год вперёд. Новая цена уходит и в каналы продаж; уже принятые брони
-          не меняются.
+          {t('Цена на все дни на год вперёд. Новая цена уходит и в каналы продаж; уже принятые брони не меняются.')}
         </p>
       )}
     </>
@@ -455,25 +458,27 @@ function PriceField({
  * с Channex — что переименование туда не уходит (тип номера там создаётся с названием один раз, при настройке).
  */
 function CategoryUsage({ category: c, units }: { category: InventoryCategory; units: number }) {
-  const lines = usageLines(c, units);
+  const t = useT();
+  const locale = useLocale();
+  const lines = usageLines(c, units, locale, t);
   return (
     <>
       <dl className="fund-preview-facts">
         <div>
-          <dt>Тип продажи</dt>
-          <dd>{KIND_WORD[c.kind]}</dd>
+          <dt>{t('Тип продажи')}</dt>
+          <dd>{t(KIND_WORD[c.kind])}</dd>
         </div>
         <div>
-          <dt>Вместимость</dt>
-          <dd>{capacityLong(c)}</dd>
+          <dt>{t('Вместимость')}</dt>
+          <dd>{capacityLong(c, locale, t)}</dd>
         </div>
       </dl>
       <Notice tone="muted">
-        Тип продажи и вместимость после создания не меняются: на них держатся места, цены и брони.
+        {t('Тип продажи и вместимость после создания не меняются: на них держатся места, цены и брони.')}
       </Notice>
       {lines.length ? (
         <div className="fund-usage">
-          <h3 id={`usage-${c.code}`}>Эту категорию используют</h3>
+          <h3 id={`usage-${c.code}`}>{t('Эту категорию используют')}</h3>
           <ul aria-labelledby={`usage-${c.code}`}>
             {lines.map((line) => (
               <li key={line}>{line}</li>
@@ -481,11 +486,11 @@ function CategoryUsage({ category: c, units }: { category: InventoryCategory; un
           </ul>
         </div>
       ) : (
-        <p className="muted">Категорию пока ничего не использует.</p>
+        <p className="muted">{t('Категорию пока ничего не использует.')}</p>
       )}
       {c.channexMapped && (
         <Notice tone="muted">
-          В менеджере каналов тип номера сохранит прежнее название: там оно меняется отдельно.
+          {t('В менеджере каналов тип номера сохранит прежнее название: там оно меняется отдельно.')}
         </Notice>
       )}
     </>
@@ -504,6 +509,7 @@ export function FundEditor({
   category?: InventoryCategory;
   room?: { code: string; roomNumber: string };
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const edit = Boolean((mode === 'category' && category) || room);
   return (
@@ -513,7 +519,7 @@ export function FundEditor({
         onClick={() => setOpen(true)}
         disabled={mode === 'room' && !room && !categories.length}
       >
-        {edit ? 'Редактировать' : mode === 'category' ? 'Добавить категорию' : '+ Номер / койки'}
+        {edit ? t('Редактировать') : mode === 'category' ? t('Добавить категорию') : t('+ Номер / койки')}
       </Button>
       <FundEditorDialog
         categories={categories}

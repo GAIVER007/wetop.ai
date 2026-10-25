@@ -1,4 +1,5 @@
 import type { BeautyCustomerRow } from '../../lib/api';
+import { msg } from '../../i18n';
 
 export type BeautyCustomerSegmentFilter = 'all' | 'new' | 'regular' | 'vip' | 'archived';
 
@@ -17,10 +18,10 @@ export function customerSegment(row: { status: string; visits: number }): {
   label: string;
   tone: 'info' | 'ok' | 'neutral';
 } {
-  if (row.status !== 'ACTIVE') return { label: 'В архиве', tone: 'neutral' };
+  if (row.status !== 'ACTIVE') return { label: msg('В архиве'), tone: 'neutral' };
   return row.visits >= BEAUTY_REGULAR_CUSTOMER_VISITS
-    ? { label: 'Постоянный', tone: 'ok' }
-    : { label: 'Новый', tone: 'info' };
+    ? { label: msg('Постоянный'), tone: 'ok' }
+    : { label: msg('Новый'), tone: 'info' };
 }
 
 export function filterBeautyCustomers(

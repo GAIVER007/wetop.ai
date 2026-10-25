@@ -1,5 +1,7 @@
 import type { HTMLAttributes } from 'react';
 import { formatMoney } from '../lib/money';
+import { msg } from '../i18n';
+import { T } from '../i18n/locale-provider';
 import { cx } from './ui';
 
 export type AmountTone = 'due' | 'paid' | 'refund' | 'neutral';
@@ -26,13 +28,15 @@ export function AmountChip({
   // status-hint: слово перед суммой (к оплате, оплачено), а не состояние оплаты брони
   const word =
     label ??
-    ({ due: 'к оплате', paid: 'оплачено', refund: 'возврат', neutral: 'сумма' } as const)[tone];
+    ({ due: msg('к оплате'), paid: msg('оплачено'), refund: msg('возврат'), neutral: msg('сумма') } as const)[tone];
   return (
     <span
       className={cx('amount-chip', tone !== 'neutral' && `amount-chip--${tone}`, className)}
       {...rest}
     >
-      <span className="amount-chip__label">{word}</span>
+      <span className="amount-chip__label">
+        <T text={word} />
+      </span>
       <span className="amount-chip__value num">{formatMoney(minor, currency)}</span>
     </span>
   );

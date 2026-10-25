@@ -10,13 +10,17 @@ import { unstable_rethrow } from 'next/navigation';
 import { BranchCreateDialog } from './branch-create-dialog';
 import { ReferenceBoard } from './reference-board';
 import { Page } from '../../components/page';
+import { msg } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
 export async function BranchWorkspace({
   query,
-  createLabel = 'Добавить',
+  createLabel = msg('Добавить'),
 }: {
   query: Record<string, string | string[] | undefined>;
   createLabel?: string;
 }) {
+  const t = await serverT();
+  const locale = await currentLocale();
   try {
     const loaded = await branchesApi.list();
     const { organization, items, canCreate } = loaded;
@@ -47,10 +51,10 @@ export async function BranchWorkspace({
     return (
       <ReferenceBoard
         organization={organization.name}
-        period={<MonthPicker key="month" month={month} />}
+        period={<MonthPicker key="month" month={month} locale={locale} />}
         financial={financial}
         archive={canCreate ? <ArchivedBranches key="archive" items={archived} /> : null}
-        periodLabel={from === date && to === date ? 'за сегодня' : `за ${from} - ${to}`}
+        periodLabel={from === date && to === date ? t('за сегодня') : t('за {from} - {to}', { from, to })}
         items={items}
         businesses={businesses}
         preview={process.env.NODE_ENV === 'development' && process.env.APP_ALLOW_TEST_DATA === '1'}
@@ -72,7 +76,7 @@ export async function BranchWorkspace({
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Организация" width="wide" className="org-page">
+      <Page title={t('Организация')} width="wide" className="org-page">
         <LoadError testId="branches-load-error" {...loadErrorProps(error)} />
       </Page>
     );

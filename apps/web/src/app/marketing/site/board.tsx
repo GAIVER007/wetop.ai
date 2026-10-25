@@ -3,6 +3,8 @@ import { useState, useTransition } from 'react';
 import type { BookingSourceView, MarketingSiteSummary, SitePublicationRow } from '../../../lib/api';
 import { Alert, Badge, Button, EmptyState, Field, Notice, Panel, PanelTitle, Select, Stack, Table } from '../../../components/ui';
 import { useConfirm } from '../../../components/use-confirm';
+import { msg } from '../../../i18n';
+import { useT } from '../../../i18n/locale-provider';
 import {
   bookingSourceAction,
   lifecycleAction,
@@ -13,18 +15,18 @@ import {
 } from './actions';
 
 const STATE: Record<MarketingSiteSummary['state'], { label: string; tone: 'neutral' | 'ok' | 'warn' }> = {
-  DRAFT: { label: 'Черновик', tone: 'neutral' },
-  PUBLISHED: { label: 'Опубликован', tone: 'ok' },
-  PAUSED: { label: 'Приостановлен', tone: 'warn' },
-  ARCHIVED: { label: 'В архиве', tone: 'neutral' },
+  DRAFT: { label: msg('Черновик'), tone: 'neutral' },
+  PUBLISHED: { label: msg('Опубликован'), tone: 'ok' },
+  PAUSED: { label: msg('Приостановлен'), tone: 'warn' },
+  ARCHIVED: { label: msg('В архиве'), tone: 'neutral' },
 };
 
 const ACTION: Record<SitePublicationRow['action'], string> = {
-  PUBLISH: 'Публикация',
-  ROLLBACK: 'Откат',
-  PAUSE: 'Пауза',
-  RESUME: 'Возобновление',
-  ARCHIVE: 'Архив',
+  PUBLISH: msg('Публикация'),
+  ROLLBACK: msg('Откат'),
+  PAUSE: msg('Пауза'),
+  RESUME: msg('Возобновление'),
+  ARCHIVE: msg('Архив'),
 };
 
 const when = (iso: string) =>
@@ -46,6 +48,7 @@ export function PublicationBoard({
   booking: BookingSourceView;
   readOnly: boolean;
 }) {
+  const t = useT();
   const [pending, start] = useTransition();
   const [result, setResult] = useState<PublicationResult | null>(null);
   const [ratePlan, setRatePlan] = useState('');
@@ -76,25 +79,25 @@ export function PublicationBoard({
         </PanelTitle>
         <dl className="publication-facts">
           <div>
-            <dt>Состояние</dt>
+            <dt>{t('Состояние')}</dt>
             <dd>
               <Badge tone={state.tone} data-testid="publication-status">
-                {state.label}
+                {t(state.label)}
               </Badge>
             </dd>
           </div>
           <div>
-            <dt>Последняя версия</dt>
-            <dd data-testid="publication-latest">{latest ? `ревизия ${latest.revision}` : 'версий нет'}</dd>
+            <dt>{t('Последняя версия')}</dt>
+            <dd data-testid="publication-latest">{latest ? t('ревизия {n}', { n: latest.revision }) : t('версий нет')}</dd>
           </div>
           <div>
-            <dt>Опубликована</dt>
+            <dt>{t('Опубликована')}</dt>
             <dd data-testid="publication-published">
-              {site.published ? `ревизия ${site.published.revision}` : 'Не опубликован'}
+              {site.published ? t('ревизия {n}', { n: site.published.revision }) : t('Не опубликован')}
             </dd>
           </div>
           <div>
-            <dt>Адрес сайта</dt>
+            <dt>{t('Адрес сайта')}</dt>
             <dd data-testid="publication-url">
               {site.url ? (
                 <a href={site.url} target="_blank" rel="noreferrer">
@@ -102,10 +105,10 @@ export function PublicationBoard({
                 </a>
               ) : site.proposedUrl ? (
                 <>
-                  {site.proposedUrl.replace(/^https:\/\//, '')} <span className="muted">(не опубликован)</span>
+                  {site.proposedUrl.replace(/^https:\/\//, '')} <span className="muted">{t('(не опубликован)')}</span>
                 </>
               ) : (
-                <span className="muted">Адрес сайтов не настроен</span>
+                <span className="muted">{t('Адрес сайтов не настроен')}</span>
               )}
             </dd>
           </div>
@@ -124,14 +127,14 @@ export function PublicationBoard({
                 })
               }
             >
-              Предпросмотр
+              {t('Предпросмотр')}
             </Button>
           )}
           {latest && dirty && (
             <>
-              <Field label="Тариф брони" controlId="publication-rate">
+              <Field label={t('Тариф брони')} controlId="publication-rate">
                 <Select value={ratePlan} onChange={(e) => setRatePlan(e.target.value)} disabled={disabled}>
-                  <option value="">Как сейчас у сайта</option>
+                  <option value="">{t('Как сейчас у сайта')}</option>
                   {booking.ratePlans.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name}
@@ -146,27 +149,31 @@ export function PublicationBoard({
                   // публикация сразу открывает сайт посетителям: спрашиваем, как у отката и архива (MKT10.2a)
                   const where = (site.url ?? site.proposedUrl)?.replace(/^https:\/\//, '');
                   const ok = await ask({
-                    title: `Опубликовать ревизию ${latest.revision}?`,
+                    title: t('Опубликовать ревизию {n}?', { n: latest.revision }),
                     body: site.published
-                      ? `Посетители сайта увидят её вместо ревизии ${site.published.revision}. Прежнюю можно вернуть откатом.`
-                      : `Сайт откроется посетителям${where ? ` по адресу ${where}` : ''}. Остановить его можно паузой.`,
-                    confirmLabel: 'Опубликовать',
+                      ? t('Посетители сайта увидят её вместо ревизии {n}. Прежнюю можно вернуть откатом.', {
+                          n: site.published.revision,
+                        })
+                      : where
+                        ? t('Сайт откроется посетителям по адресу {where}. Остановить его можно паузой.', { where })
+                        : t('Сайт откроется посетителям. Остановить его можно паузой.'),
+                    confirmLabel: t('Опубликовать'),
                   });
                   if (ok) run(() => publishAction(latest.id, ratePlan));
                 }}
               >
-                Опубликовать ревизию {latest.revision}
+                {t('Опубликовать ревизию {n}', { n: latest.revision })}
               </Button>
             </>
           )}
           {site.state === 'PUBLISHED' && (
             <Button tone="secondary" disabled={disabled} data-testid="publication-pause" onClick={() => run(() => lifecycleAction('pause'))}>
-              Приостановить
+              {t('Приостановить')}
             </Button>
           )}
           {site.state === 'PAUSED' && (
             <Button disabled={disabled} data-testid="publication-resume" onClick={() => run(() => lifecycleAction('resume'))}>
-              Возобновить
+              {t('Возобновить')}
             </Button>
           )}
         </div>
@@ -174,22 +181,23 @@ export function PublicationBoard({
 
       <Panel aria-labelledby="publication-booking-title" data-testid="publication-booking">
         <PanelTitle>
-          <span id="publication-booking-title">Источник бронирования для ИИ-продавца</span>
+          <span id="publication-booking-title">{t('Источник бронирования для ИИ-продавца')}</span>
         </PanelTitle>
         {booking.canonicalTrackedSiteId === null && (
           <Notice tone="muted" data-testid="publication-booking-none">
-            Источник бронирования для ИИ-продавца не выбран
+            {t('Источник бронирования для ИИ-продавца не выбран')}
           </Notice>
         )}
         {eligible.length > 0 ? (
           <div className="publication-actions">
-            <Field label="Сайт брони" controlId="publication-booking-source">
+            <Field label={t('Сайт брони')} controlId="publication-booking-source">
               <Select value={source} onChange={(e) => setSource(e.target.value)} disabled={disabled}>
-                <option value="">Не выбран</option>
+                <option value="">{t('Не выбран')}</option>
                 {eligible.map((o) => (
                   <option key={o.id} value={o.id}>
                     {o.name}
-                    {o.managed ? ' (сайт WETOP)' : ''}, тариф {o.bookingRatePlan!.name}
+                    {o.managed ? t(' (сайт WETOP)') : ''}
+                    {t(', тариф {name}', { name: o.bookingRatePlan!.name })}
                   </option>
                 ))}
               </Select>
@@ -200,29 +208,29 @@ export function PublicationBoard({
               data-testid="publication-booking-save"
               onClick={() => run(() => bookingSourceAction(source))}
             >
-              Сохранить
+              {t('Сохранить')}
             </Button>
           </div>
         ) : (
-          <EmptyState title="Нет сайтов с включённой бронью и тарифом" />
+          <EmptyState title={t('Нет сайтов с включённой бронью и тарифом')} />
         )}
       </Panel>
 
       <Panel className="publication-history" aria-labelledby="publication-history-title" data-testid="publication-history">
         <PanelTitle>
-          <span id="publication-history-title">Журнал публикаций</span>
+          <span id="publication-history-title">{t('Журнал публикаций')}</span>
         </PanelTitle>
         {publications.length === 0 ? (
-          <p className="muted">Сайт ещё не публиковался.</p>
+          <p className="muted">{t('Сайт ещё не публиковался.')}</p>
         ) : (
-          <Table dense aria-label="Журнал публикаций">
+          <Table dense aria-label={t('Журнал публикаций')}>
             <thead>
               <tr>
-                <th scope="col">Когда</th>
-                <th scope="col">Действие</th>
-                <th scope="col">Ревизия</th>
+                <th scope="col">{t('Когда')}</th>
+                <th scope="col">{t('Действие')}</th>
+                <th scope="col">{t('Ревизия')}</th>
                 <th scope="col">
-                  <span className="sr-only">Действия</span>
+                  <span className="sr-only">{t('Действия')}</span>
                 </th>
               </tr>
             </thead>
@@ -236,7 +244,7 @@ export function PublicationBoard({
                 return (
                   <tr key={p.id} data-testid="publication-row">
                     <td>{when(p.createdAt)}</td>
-                    <td>{ACTION[p.action]}</td>
+                    <td>{t(ACTION[p.action])}</td>
                     <td>{p.revision ?? '–'}</td>
                     <td>
                       {canRollback && (
@@ -246,14 +254,14 @@ export function PublicationBoard({
                           disabled={disabled}
                           onClick={async () => {
                             const ok = await ask({
-                              title: `Откатить сайт на ревизию ${p.revision}?`,
-                              body: 'Посетители увидят эту версию. Последний черновик останется как есть.',
-                              confirmLabel: 'Откатить',
+                              title: t('Откатить сайт на ревизию {n}?', { n: p.revision ?? '' }),
+                              body: t('Посетители увидят эту версию. Последний черновик останется как есть.'),
+                              confirmLabel: t('Откатить'),
                             });
                             if (ok) run(() => rollbackAction(p.versionId!));
                           }}
                         >
-                          Откатить
+                          {t('Откатить')}
                         </Button>
                       )}
                     </td>
@@ -272,15 +280,15 @@ export function PublicationBoard({
           data-testid="publication-archive"
           onClick={async () => {
             const ok = await ask({
-              title: `Отправить «${site.name}» в архив?`,
-              body: 'Сайт перестанет открываться, адрес освободится. Версии и журнал сохранятся.',
-              confirmLabel: 'В архив',
+              title: t('Отправить «{name}» в архив?', { name: site.name }),
+              body: t('Сайт перестанет открываться, адрес освободится. Версии и журнал сохранятся.'),
+              confirmLabel: t('В архив'),
               tone: 'danger',
             });
             if (ok) run(() => lifecycleAction('archive'));
           }}
         >
-          В архив
+          {t('В архив')}
         </Button>
       </div>
     </Stack>

@@ -496,7 +496,7 @@ test.describe('UI-FIX-01 genuine web, Nest API and PostgreSQL', () => {
     await expect(page).toHaveURL(/\/today$/);
     await expect(
       page.getByRole('heading', {
-        name: /^(Доброй ночи!|Доброе утро!|Добрый день!|Добрый вечер!)$/,
+        name: 'Главная', level: 1,
       }),
     ).toBeVisible();
     await expect(page.getByTestId('food-today')).toBeVisible();
@@ -564,7 +564,7 @@ test.describe('UI-FIX-01 genuine web, Nest API and PostgreSQL', () => {
     await expect(page).toHaveURL(/\/today$/);
     await expect(
       page.getByRole('heading', {
-        name: /^(Доброй ночи!|Доброе утро!|Добрый день!|Добрый вечер!)$/,
+        name: 'Главная', level: 1,
       }),
     ).toBeVisible();
     await expect(page.getByTestId('food-today')).toBeVisible();

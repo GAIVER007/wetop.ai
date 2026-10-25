@@ -7,6 +7,7 @@ import { WHATS_NEW } from '../lib/whats-new';
 import { verticalCopy } from '../lib/vertical-copy';
 import { deskLocale, translator } from './index';
 import { kk } from './kk';
+import { en } from './en';
 
 const VERTICALS = ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const;
 const EVERYTHING = { aiSeller: true, platform: true, role: 'OWNER' } as const;
@@ -69,15 +70,24 @@ describe('язык стойки (ADR-163, KK1)', () => {
     expect(translator('kk')('Фразы нет в словаре')).toBe('Фразы нет в словаре');
     expect(translator('kk')('Пробный период: ещё {n} дн.', { n: 3 })).toBe('Сынақ мерзімі: тағы 3 күн');
     expect(translator('ru')('Пробный период: ещё {n} дн.', { n: 3 })).toBe('Пробный период: ещё 3 дн.');
+    // контекст многозначной фразы: русский экран показывает фразу без него, словари переводят отдельно
+    expect(translator('ru')('Вернуть@@деньги')).toBe('Вернуть');
+    expect(translator('kk')('Фразы нет@@ни в одном словаре')).toBe('Фразы нет');
+    // значение из справочника по неизвестному ключу (`undefined`) не роняет страницу: перевод отдаёт пустую строку
+    for (const lang of ['ru', 'kk', 'en'] as const) expect(translator(lang)(undefined as unknown as string)).toBe('');
+    // EN1: английский третьим языком тем же словарным способом
+    expect(translator('en')('Помощь')).toBe('Help');
+    expect(translator('en')('Фразы нет в словаре')).toBe('Фразы нет в словаре');
   });
 
-  it('язык из ответа API: только kk переводится, en и мусор показываются русским', () => {
+  it('язык из ответа API: kk и en переводятся, мусор показывается русским', () => {
     expect(deskLocale('kk')).toBe('kk');
-    for (const raw of ['ru', 'en', 'xx', undefined, null, 7]) expect(deskLocale(raw)).toBe('ru');
+    expect(deskLocale('en')).toBe('en');
+    for (const raw of ['ru', 'xx', undefined, null, 7]) expect(deskLocale(raw)).toBe('ru');
   });
 
   it('каждая фраза меню трёх направлений, «Помощи», «Что нового» и ролей переведена', () => {
-    const missing = dataPhrases().filter((phrase) => !kk[phrase]);
+    const missing = dataPhrases().flatMap((phrase) => [...(kk[phrase] ? [] : [`kk: ${phrase}`]), ...(en[phrase] ? [] : [`en: ${phrase}`])]);
     // Новый пункт меню или запись «Что нового»: допишите перевод в apps/web/src/i18n/kk.ts (ключ: русская фраза)
     expect(missing).toEqual([]);
   });
@@ -86,11 +96,12 @@ describe('язык стойки (ADR-163, KK1)', () => {
     const phrases = literalPhrases();
     expect(phrases.length).toBeGreaterThan(80);
     expect(phrases.filter((phrase) => !kk[phrase])).toEqual([]);
+    expect(phrases.filter((phrase) => !en[phrase])).toEqual([]);
   });
 
   it('перевод не пустой, без длинного тире, с теми же подстановками', () => {
     const vars = (text: string) => [...text.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
-    for (const [ru, value] of Object.entries(kk)) {
+    for (const [ru, value] of [...Object.entries(kk), ...Object.entries(en)]) {
       expect(value.trim(), ru).not.toBe('');
       expect(value, ru).not.toContain('\u2014');
       expect(vars(value), ru).toEqual(vars(ru));

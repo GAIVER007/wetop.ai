@@ -1,9 +1,11 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { Alert, Button, Notice, Row } from '../../components/ui';
+import { useT } from '../../i18n/locale-provider';
 import { guardTickAction, incidentAction, type IncidentActionResult } from './actions';
 
 export function IncidentButtons({ id, canAcknowledge }: { id: string; canAcknowledge: boolean }) {
+  const t = useT();
   const [result, setResult] = useState<IncidentActionResult | null>(null);
   const [pending, start] = useTransition();
   return (
@@ -16,9 +18,9 @@ export function IncidentButtons({ id, canAcknowledge }: { id: string; canAcknowl
           data-testid="incident-acknowledge"
           disabled={pending}
           onClick={() => start(async () => setResult(await incidentAction('acknowledge', id)))}
-          title="Я в курсе — сторож перестанет будить по этой неисправности"
+          title={t('Я в курсе — сторож перестанет будить по этой неисправности')}
         >
-          {pending ? 'Сохраняю…' : 'Взять в работу'}
+          {pending ? t('Сохраняю…') : t('Взять в работу')}
         </Button>
       )}
       <Button
@@ -28,9 +30,9 @@ export function IncidentButtons({ id, canAcknowledge }: { id: string; canAcknowl
         data-testid="incident-resolve"
         disabled={pending}
         onClick={() => start(async () => setResult(await incidentAction('resolve', id)))}
-        title="Закрыть вручную. Если проверка снова её увидит, откроется новая запись"
+        title={t('Закрыть вручную. Если проверка снова её увидит, откроется новая запись')}
       >
-        {pending ? 'Сохраняю…' : 'Закрыть'}
+        {pending ? t('Сохраняю…') : t('Закрыть')}
       </Button>
       {result?.error && <Alert>{result.error}</Alert>}
     </Row>
@@ -38,6 +40,7 @@ export function IncidentButtons({ id, canAcknowledge }: { id: string; canAcknowl
 }
 
 export function GuardTickButton() {
+  const t = useT();
   const [result, setResult] = useState<IncidentActionResult | null>(null);
   const [pending, start] = useTransition();
   return (
@@ -49,7 +52,7 @@ export function GuardTickButton() {
         disabled={pending}
         onClick={() => start(async () => setResult(await guardTickAction()))}
       >
-        {pending ? 'Проверяю…' : 'Проверить сейчас'}
+        {pending ? t('Проверяю…') : t('Проверить сейчас')}
       </Button>
       {result?.message && <Notice>{result.message}</Notice>}
       {result?.error && <Alert>{result.error}</Alert>}

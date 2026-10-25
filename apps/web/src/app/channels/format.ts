@@ -1,4 +1,5 @@
 import type { PropertyClock } from '../../lib/property-time';
+import { countLabel, msg, translator, type DeskLocale, type Translate } from '../../i18n';
 
 /** Время события по часам объекта с датой: `14.09 09:10` — DESIGN.md §14; пояс — объекта (С-13) */
 export function eventTime(iso: string | null | undefined, clock: PropertyClock): string {
@@ -13,10 +14,10 @@ export function eventTimeFull(iso: string | null | undefined, clock: PropertyClo
   return clock.full(iso);
 }
 export const EVENT_STATUS_RU: Record<string, string> = {
-  PROCESSED: 'обработано',
-  FAILED: 'ошибка',
-  RECEIVED: 'получено',
-  PROCESSING: 'в работе',
+  PROCESSED: msg('обработано'),
+  FAILED: msg('ошибка'),
+  RECEIVED: msg('получено'),
+  PROCESSING: msg('в работе'),
 };
 export const EVENT_STATUS_TONE: Record<string, 'ok' | 'danger' | 'info'> = {
   PROCESSED: 'ok',
@@ -26,13 +27,13 @@ export const EVENT_STATUS_TONE: Record<string, 'ok' | 'danger' | 'info'> = {
 };
 export const VIA_RU: Record<string, string> = {
   WEBHOOK: 'webhook',
-  PULL: 'опрос ленты',
-  MANUAL: 'вручную',
+  PULL: msg('опрос ленты'),
+  MANUAL: msg('вручную'),
 };
 export const EVENT_TYPE_RU: Record<string, string> = {
-  booking_new: 'новая бронь',
-  booking_modification: 'изменение',
-  booking_cancellation: 'отмена',
+  booking_new: msg('новая бронь'),
+  booking_modification: msg('изменение'),
+  booking_cancellation: msg('отмена'),
 };
 
 /** Сверка давнее суток с запасом: сторож сверяет раз в сутки, после 36 часов это уже повод посмотреть */
@@ -55,56 +56,59 @@ export function reconciliationView(
     | undefined,
   clock: PropertyClock,
   now: number = Date.now(),
+  t: Translate = translator('ru'),
+  locale: DeskLocale = 'ru',
 ): ReconciliationView {
-  if (!r) return { tone: 'muted', value: 'нет данных', sub: 'обновите страницу' };
+  if (!r) return { tone: 'muted', value: t('нет данных'), sub: t('обновите страницу') };
   if (r.mismatch) {
     const nights = r.mismatch.nights;
     return {
       tone: 'danger',
-      value: nights ? `расхождение: ${nights} ${nightsWord(nights)}` : 'есть расхождение',
-      sub: `канал видит больше мест, чем есть, с ${eventTime(r.mismatch.since, clock)}; сторож запустил полную выгрузку`,
+      value: nights
+        ? t('расхождение: {n}', { n: countLabel(locale, t, nights, [msg('ночь'), msg('ночи'), msg('ночей')]) })
+        : t('есть расхождение'),
+      sub: t('канал видит больше мест, чем есть, с {time}; сторож запустил полную выгрузку', {
+        time: eventTime(r.mismatch.since, clock),
+      }),
     };
   }
   if (!r.lastCheckedAt)
-    return { tone: 'muted', value: 'ещё не было', sub: 'сверка идёт раз в сутки' };
+    return { tone: 'muted', value: t('ещё не было'), sub: t('сверка идёт раз в сутки') };
   const stale = now - Date.parse(r.lastCheckedAt) > RECONCILE_STALE_MS;
   return stale
     ? {
         tone: 'warn',
-        value: 'давно не было',
-        sub: `последняя ${eventTime(r.lastCheckedAt, clock)}`,
+        value: t('давно не было'),
+        sub: t('последняя {time}', { time: eventTime(r.lastCheckedAt, clock) }),
       }
     : {
         tone: 'ok',
-        value: 'расхождений нет',
-        sub: `проверено ${eventTime(r.lastCheckedAt, clock)}`,
+        value: t('расхождений нет'),
+        sub: t('проверено {time}', { time: eventTime(r.lastCheckedAt, clock) }),
       };
-}
-
-function nightsWord(n: number): string {
-  const tail = n % 10;
-  const hundred = n % 100;
-  if (tail === 1 && hundred !== 11) return 'ночь';
-  if (tail >= 2 && tail <= 4 && (hundred < 12 || hundred > 14)) return 'ночи';
-  return 'ночей';
 }
 
 /**
  * Подпись под «Обмен с каналами»: слова для владельца, а не код состояния API (аудит 22.10.2026 P1-19:
  * было «Объект не сопоставлен.»). Сообщение API остаётся запасным для состояний, которых здесь нет.
  */
-export function connectionSummary(state: string | undefined, message: string | undefined): string {
+export function connectionSummary(
+  state: string | undefined,
+  message: string | undefined,
+  t: Translate = translator('ru'),
+): string {
   if (state === 'NO_MAPPING')
-    return 'Гостиница ещё не подключена к Booking.com, Ostrovok и другим каналам.';
-  if (state === 'NO_KEY') return 'Менеджер каналов ещё не подключён.';
-  return `${message ?? 'Не удалось проверить соединение с менеджером каналов'}.`;
+    return t('Гостиница ещё не подключена к Booking.com, Ostrovok и другим каналам.');
+  if (state === 'NO_KEY') return t('Менеджер каналов ещё не подключён.');
+  return `${message ?? t('Не удалось проверить соединение с менеджером каналов')}.`;
 }
 
 /** «Приём броней» из каналов одним словом: без «не зарегистрирован» и имени переменной окружения */
 export function webhookWord(
   webhook: { registered: boolean; active: boolean; expectedUrl: string | null } | null,
+  t: Translate = translator('ru'),
 ): string {
-  if (webhook === null) return 'состояние неизвестно';
-  if (webhook.registered) return webhook.active ? 'работает' : 'выключен';
-  return webhook.expectedUrl ? 'не настроен' : 'адрес сервера не задан';
+  if (webhook === null) return t('состояние неизвестно');
+  if (webhook.registered) return webhook.active ? t('работает') : t('выключен');
+  return webhook.expectedUrl ? t('не настроен') : t('адрес сервера не задан');
 }

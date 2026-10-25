@@ -20,6 +20,9 @@ import {
   loadBeautySchedule,
 } from '../actions';
 import { applyWeekPreset, WEEK_PRESETS } from '../../../components/employee-portal/week-presets';
+import { intlLocale, msg } from '../../../i18n';
+import { useLocale, useT } from '../../../i18n/locale-provider';
+import { dateFormat } from '../../../i18n/dates';
 
 /**
  * График мастеров (поручение владельца 17.10.2026): сетка недели, строки мастера, колонки даты.
@@ -35,23 +38,23 @@ import { applyWeekPreset, WEEK_PRESETS } from '../../../components/employee-port
  */
 
 const DAYS: Record<number, string> = {
-  1: 'Понедельник',
-  2: 'Вторник',
-  3: 'Среда',
-  4: 'Четверг',
-  5: 'Пятница',
-  6: 'Суббота',
-  0: 'Воскресенье',
+  1: msg('Понедельник'),
+  2: msg('Вторник'),
+  3: msg('Среда'),
+  4: msg('Четверг'),
+  5: msg('Пятница'),
+  6: msg('Суббота'),
+  0: msg('Воскресенье'),
 };
 /** «изменится каждый понедельник / каждую среду / каждое воскресенье» */
 const EVERY: Record<number, string> = {
-  1: 'каждый понедельник',
-  2: 'каждый вторник',
-  3: 'каждую среду',
-  4: 'каждый четверг',
-  5: 'каждую пятницу',
-  6: 'каждую субботу',
-  0: 'каждое воскресенье',
+  1: msg('каждый понедельник'),
+  2: msg('каждый вторник'),
+  3: msg('каждую среду'),
+  4: msg('каждый четверг'),
+  5: msg('каждую пятницу'),
+  6: msg('каждую субботу'),
+  0: msg('каждое воскресенье'),
 };
 
 type Slot = { timeFrom: string; timeTo: string };
@@ -76,18 +79,16 @@ export interface WeekGridData {
   group?: string | null;
 }
 
-const dayMonth = new Intl.DateTimeFormat('ru-RU', {
-  day: 'numeric',
-  month: 'long',
-  timeZone: 'UTC',
-});
-const shortDay = new Intl.DateTimeFormat('ru-RU', { weekday: 'short', timeZone: 'UTC' });
-const label = (date: string) => dayMonth.format(new Date(`${date}T12:00:00Z`));
-
 export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: boolean }) {
+  const t = useT();
+  const locale = intlLocale(useLocale());
+  const dayMonth = dateFormat(locale, { day: 'numeric', month: 'long', timeZone: 'UTC' });
+  const shortDay = dateFormat(locale, { weekday: 'short', timeZone: 'UTC' });
+  const label = (date: string) => dayMonth.format(new Date(`${date}T12:00:00Z`));
   const [editing, setEditing] = useState<{ master: GridMaster; weekday?: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [noticeWarning, setNoticeWarning] = useState(false);
   const [busy, start] = useTransition();
   // переключатель отзывается сразу; после ответа сервера правду показывает свежий график страницы
   const [optimistic, setOptimistic] = useState<Record<string, boolean>>({});
@@ -100,7 +101,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
     // вне перехода: обновление внутри async-перехода React показывает только после его конца
     setOptimistic((prev) => ({ ...prev, [key]: on }));
     start(async () => {
-      let result: { error?: string; message?: string };
+      let result: { error?: string; message?: string; warning?: boolean };
       if (on && dayOff) result = await removeBeautyTimeOff(master.id, dayOff.id);
       else {
         const form = new FormData();
@@ -110,12 +111,13 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
         result = await addBeautyTimeOff(null, form);
       }
       setError(result.error ? `${master.name}: ${result.error}` : null);
+      setNoticeWarning(!result.error && !on && result.warning === true);
       setNotice(
         result.error
           ? null
           : on
-            ? `${master.name}, ${label(date)}: снова рабочий день`
-            : `${master.name}, ${label(date)}: ${result.message ?? 'день выключен'}`,
+            ? t('{name}, {date}: снова рабочий день', { name: master.name, date: label(date) })
+            : `${master.name}, ${label(date)}: ${result.message ?? t('день выключен')}`,
       );
       setOptimistic((prev) => {
         const next = { ...prev };
@@ -127,23 +129,23 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
 
   return (
     <>
-      <nav className="beauty-week-nav" aria-label="Неделя">
+      <nav className="beauty-week-nav" aria-label={t('Неделя')}>
         <Link className="btn btn--secondary btn--sm" href={shift(-7)}>
-          Прошлая неделя
+          {t('Прошлая неделя')}
         </Link>
         <span data-testid="beauty-week-range">
           {label(days[0]!.date)} – {label(days[6]!.date)}
         </span>
         <Link className="btn btn--secondary btn--sm" href={shift(7)}>
-          Следующая неделя
+          {t('Следующая неделя')}
         </Link>
       </nav>
       {(data.groups?.length ?? 0) > 0 && (
         <form className="beauty-pick" method="get" action="/beauty/schedule">
           <input type="hidden" name="week" value={data.monday} />
-          <Field label="Профессия">
+          <Field label={t('Профессия')}>
             <Select name="group" defaultValue={data.group ?? ''}>
-              <option value="">Все специалисты</option>
+              <option value="">{t('Все специалисты')}</option>
               {data.groups!.map((g) => (
                 <option key={g} value={g}>
                   {g}
@@ -152,18 +154,18 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
             </Select>
           </Field>
           <Button type="submit" tone="secondary">
-            Показать
+            {t('Показать')}
           </Button>
         </form>
       )}
       <p className="beauty-note">
-        Переключатель меняет только эту дату.
-        {canEdit && ' Выходной по графику и часы работы меняются в окне специалиста: нажмите на его имя.'}
+        {t('Переключатель меняет только эту дату.')}
+        {canEdit && ` ${t('Выходной по графику и часы работы меняются в окне специалиста: нажмите на его имя.')}`}
       </p>
       {error && <Alert>{error}</Alert>}
       {/* записи в выключенный день не отменяются: тогда это предупреждение, а не просто отметка */}
       {notice &&
-        (notice.includes('никто не отменил') ? (
+        (noticeWarning ? (
           <Alert tone="warning">{notice}</Alert>
         ) : (
           <p role="status">{notice}</p>
@@ -171,7 +173,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
       <Table className="beauty-week-grid" aria-busy={busy}>
         <thead>
           <tr>
-            <th scope="col">Специалисты</th>
+            <th scope="col">{t('Специалисты')}</th>
             {days.map((d) => (
               <th key={d.date} scope="col">
                 {label(d.date)}, {shortDay.format(new Date(`${d.date}T12:00:00Z`))}
@@ -199,7 +201,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
                     data-testid="beauty-week-unset"
                     onClick={() => setEditing({ master: m })}
                   >
-                    Задать часы<span className="sr-only">: {m.name}</span>
+                    {t('Задать часы')}<span className="sr-only">: {m.name}</span>
                   </Button>
                 )}
               </th>
@@ -211,12 +213,12 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
                 const templateOff = hours.length === 0;
                 const works = optimistic[`${m.id}:${d.date}`] ?? (!templateOff && !absent);
                 const text = templateOff
-                  ? 'Выходной по графику'
+                  ? t('Выходной по графику')
                   : absent && !dayOff
-                    ? 'Отсутствует'
+                    ? t('Отсутствует')
                     : works
-                      ? 'Работает'
-                      : 'Не работает';
+                      ? t('Работает')
+                      : t('Не работает');
                 return (
                   <td
                     key={d.date}
@@ -254,7 +256,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
                         size="sm"
                         onClick={() => setEditing({ master: m, weekday: d.weekday })}
                       >
-                        Изменить график<span className="sr-only">: {m.name}, {label(d.date)}</span>
+                        {t('Изменить график')}<span className="sr-only">: {m.name}, {label(d.date)}</span>
                       </Button>
                     )}
                   </td>
@@ -265,8 +267,8 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
           {data.masters.length === 0 && (
             <tr>
               <td colSpan={8} data-testid="beauty-schedule-empty">
-                {data.group ? 'Специалистов этой профессии в филиале нет.' : 'В этом филиале пока нет специалистов.'}{' '}
-                {canEdit && <Link href="/employees">Добавить специалиста</Link>}
+                {data.group ? t('Специалистов этой профессии в филиале нет.') : t('В этом филиале пока нет специалистов.')}{' '}
+                {canEdit && <Link href="/employees">{t('Добавить специалиста')}</Link>}
               </td>
             </tr>
           )}
@@ -274,22 +276,23 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
       </Table>
       {data.elsewhere > 0 && (
         <p className="beauty-note">
-          Специалистов из других филиалов здесь не видно: {data.elsewhere}. Поставить специалиста в этот
-          филиал можно в его карточке, раздел «Филиалы».
+          {t('Специалистов из других филиалов здесь не видно: {n}. Поставить специалиста в этот филиал можно в его карточке, раздел «Филиалы».', { n: data.elsewhere })}
         </p>
       )}
       <Overlay
         open={canEdit && editing !== null}
         onClose={() => setEditing(null)}
-        title={editing ? `Часы работы: ${editing.master.name}` : ''}
+        title={editing ? t('Часы работы: {name}', { name: editing.master.name }) : ''}
         drawer
       >
         {canEdit && editing && (
           <>
             {editing.weekday !== undefined && (
               <p className="beauty-note" data-testid="beauty-week-hint">
-                Это обычная неделя специалиста: {DAYS[editing.weekday]?.toLowerCase()} изменится{' '}
-                {EVERY[editing.weekday]}, а не одна дата.
+                {t('Это обычная неделя специалиста: {day} изменится {every}, а не одна дата.', {
+                  day: t(DAYS[editing.weekday] ?? '').toLowerCase(),
+                  every: t(EVERY[editing.weekday] ?? ''),
+                })}
               </p>
             )}
             <WeekForm
@@ -333,6 +336,7 @@ export function WeekForm({
     error?: string | null;
   }>;
 }) {
+  const t = useT();
   const [state, action, pending] = useActionState(
     async (prev: Awaited<ReturnType<typeof saveBeautyWorkingHours>> | null, form: FormData) => {
       const result = await save(prev, form);
@@ -389,12 +393,11 @@ export function WeekForm({
         <input type="hidden" name="expectedRevision" value={originalRevision ?? state?.revision} />
       )}
       <p className="beauty-note">
-        Это обычный недельный график: он повторяется каждую неделю. Дни без интервалов: регулярные
-        выходные. Новый рабочий день получает часы первого рабочего дня, их можно поправить.
+        {t('Это обычный недельный график: он повторяется каждую неделю. Дни без интервалов: регулярные выходные. Новый рабочий день получает часы первого рабочего дня, их можно поправить.')}
       </p>
       {/* быстрый шаблон недели (онбординг 21.10.2026): заполняет все дни одним нажатием */}
-      <div className="beauty-week-presets" role="group" aria-label="Быстро заполнить неделю">
-        <span className="beauty-note">Заполнить:</span>
+      <div className="beauty-week-presets" role="group" aria-label={t('Быстро заполнить неделю')}>
+        <span className="beauty-note">{t('Заполнить:')}</span>
         {WEEK_PRESETS.map((preset) => (
           <Button
             key={preset.label}
@@ -412,7 +415,7 @@ export function WeekForm({
               )
             }
           >
-            {preset.label}
+            {t(preset.label)}
           </Button>
         ))}
       </div>
@@ -422,35 +425,35 @@ export function WeekForm({
           <div
             key={day.weekday}
             role="group"
-            aria-label={DAYS[day.weekday]}
+            aria-label={t(DAYS[day.weekday] ?? '')}
             className="beauty-week-row"
           >
-            <span className="beauty-week-name">{DAYS[day.weekday]}</span>
+            <span className="beauty-week-name">{t(DAYS[day.weekday] ?? '')}</span>
             <div className="beauty-week-slots">
-              {rows.length === 0 && <span className="beauty-note">Выходной</span>}
+              {rows.length === 0 && <span className="beauty-note">{t('Выходной')}</span>}
               {rows.map((slot, index) => (
                 <span key={index} className="beauty-week-slot">
-                  <span aria-hidden="true">С</span>
+                  <span aria-hidden="true">{t('С')}</span>
                   <Input
                     className="beauty-time"
                     value={slot.timeFrom}
                     inputMode="numeric"
-                    aria-label={`${DAYS[day.weekday]}: начало`}
+                    aria-label={t('{day}: начало', { day: t(DAYS[day.weekday] ?? '') })}
                     onChange={(e) => change(day.weekday, index, { timeFrom: e.target.value })}
                   />
-                  <span aria-hidden="true">До</span>
+                  <span aria-hidden="true">{t('До')}</span>
                   <Input
                     className="beauty-time"
                     value={slot.timeTo}
                     inputMode="numeric"
-                    aria-label={`${DAYS[day.weekday]}: конец`}
+                    aria-label={t('{day}: конец', { day: t(DAYS[day.weekday] ?? '') })}
                     onChange={(e) => change(day.weekday, index, { timeTo: e.target.value })}
                   />
                   <Button
                     type="button"
                     size="sm"
                     tone="secondary"
-                    aria-label={`${DAYS[day.weekday]}: убрать интервал`}
+                    aria-label={t('{day}: убрать интервал', { day: t(DAYS[day.weekday] ?? '') })}
                     onClick={() =>
                       setSlots((prev) => ({
                         ...prev,
@@ -458,7 +461,7 @@ export function WeekForm({
                       }))
                     }
                   >
-                    Убрать
+                    {t('Убрать')}
                   </Button>
                 </span>
               ))}
@@ -480,7 +483,7 @@ export function WeekForm({
                   }))
                 }
               >
-                {rows.length === 0 ? 'Сделать рабочим' : 'Ещё интервал'}
+                {rows.length === 0 ? t('Сделать рабочим') : t('Ещё интервал')}
               </Button>
             </div>
           </div>
@@ -505,21 +508,21 @@ export function WeekForm({
             })
           }
         >
-          Сравнить с актуальным графиком
+          {t('Сравнить с актуальным графиком')}
         </Button>
       )}
       {comparison && (
         <section className="panel">
-          <h3>Сохранено на сервере</h3>
+          <h3>{t('Сохранено на сервере')}</h3>
           <ul>
             {comparison.week.map((day) => (
               <li key={day.weekday}>
-                {DAYS[day.weekday]}:{' '}
-                {day.intervals.map((i) => `${i.timeFrom} до ${i.timeTo}`).join(', ') || 'Выходной'}
+                {t(DAYS[day.weekday] ?? '')}:{' '}
+                {day.intervals.map((i) => t('{from} до {to}', { from: i.timeFrom, to: i.timeTo })).join(', ') || t('Выходной')}
               </li>
             ))}
           </ul>
-          <p>Ваш ввод остаётся в форме; он не отправлен поверх чужих изменений.</p>
+          <p>{t('Ваш ввод остаётся в форме; он не отправлен поверх чужих изменений.')}</p>
           <Button
             type="button"
             tone="secondary"
@@ -533,13 +536,13 @@ export function WeekForm({
               setComparison(null);
             }}
           >
-            Принять сохранённый график
+            {t('Принять сохранённый график')}
           </Button>
         </section>
       )}
 
       <Button type="submit" disabled={pending}>
-        {pending ? 'Сохраняем…' : 'Сохранить график'}
+        {pending ? t('Сохраняем…') : t('Сохранить график')}
       </Button>
     </form>
   );
@@ -554,6 +557,7 @@ export function LocationsForm({
   onSaved?: () => Promise<void>;
   locations: BeautySchedule['locations'];
 }) {
+  const t = useT();
   const [state, action, pending] = useActionState(
     async (
       prev: Awaited<ReturnType<typeof saveBeautyEmployeeLocations>> | null,
@@ -569,7 +573,7 @@ export function LocationsForm({
     <form action={action} className="beauty-form">
       <input type="hidden" name="id" value={employeeId} />
       <fieldset className="beauty-skills">
-        <legend>Где специалист работает</legend>
+        <legend>{t('Где специалист работает')}</legend>
         {locations.map((location) => (
           <label key={location.id} className="beauty-check">
             <input
@@ -583,13 +587,12 @@ export function LocationsForm({
         ))}
       </fieldset>
       <p className="beauty-note">
-        Снятый филиал забирает и график специалиста в нём. Если там остались будущие записи, филиал не
-        снимется: сначала разберитесь с записями.
+        {t('Снятый филиал забирает и график специалиста в нём. Если там остались будущие записи, филиал не снимется: сначала разберитесь с записями.')}
       </p>
       {state?.error && <Alert>{state.error}</Alert>}
       {state?.message && <p role="status">{state.message}</p>}
       <Button type="submit" disabled={pending}>
-        {pending ? 'Сохраняем…' : 'Сохранить филиалы'}
+        {pending ? t('Сохраняем…') : t('Сохранить филиалы')}
       </Button>
     </form>
   );

@@ -3,6 +3,7 @@ import { useRef, useState, useTransition, useId } from 'react';
 import { useRouter } from 'next/navigation';
 import { archiveBranch, restoreBranch } from './actions';
 import { Button } from '../../components/ui';
+import { useT } from '../../i18n/locale-provider';
 export function BranchArchiveButton({
   id,
   name,
@@ -17,6 +18,7 @@ export function BranchArchiveButton({
   const [error, setError] = useState('');
   const [pending, startTransition] = useTransition();
   const router = useRouter();
+  const t = useT();
   const submit = () => {
     setError('');
     const form = new FormData();
@@ -42,7 +44,7 @@ export function BranchArchiveButton({
           dialog.current?.showModal();
         }}
       >
-        {restore ? 'Восстановить' : 'Удалить филиал'}
+        {restore ? t('Восстановить') : t('Удалить филиал')}
       </Button>
       <dialog
         ref={dialog}
@@ -53,20 +55,20 @@ export function BranchArchiveButton({
           if (pending) e.preventDefault();
         }}
       >
-        <h2 id={title}>{restore ? 'Восстановить объект?' : 'Удалить филиал?'}</h2>
+        <h2 id={title}>{restore ? t('Восстановить объект?') : t('Удалить филиал?')}</h2>
         <strong>{name}</strong>
         <p>
           {restore
-            ? 'Объект вернётся в активный список с прежними настройками и данными.'
-            : 'Филиал переместится в архив и исчезнет из активного списка. Бронирования, платежи и настройки сохранятся. Вы сможете восстановить его в разделе «Архив».'}
+            ? t('Объект вернётся в активный список с прежними настройками и данными.')
+            : t('Филиал переместится в архив и исчезнет из активного списка. Бронирования, платежи и настройки сохранятся. Вы сможете восстановить его в разделе «Архив».')}
         </p>
         {error && <p role="alert">{error}</p>}
         <footer>
           <Button type="button" tone="secondary" disabled={pending} onClick={() => dialog.current?.close()}>
-            Отмена
+            {t('Отмена')}
           </Button>
           <Button type="button" tone={restore ? 'primary' : 'danger'} disabled={pending} onClick={submit}>
-            {pending ? 'Сохраняем…' : restore ? 'Восстановить' : 'Удалить филиал'}
+            {pending ? t('Сохраняем…') : restore ? t('Восстановить') : t('Удалить филиал')}
           </Button>
         </footer>
       </dialog>

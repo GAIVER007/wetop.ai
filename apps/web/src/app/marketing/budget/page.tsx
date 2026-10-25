@@ -28,6 +28,8 @@ import { budgetSummary, type CabinetSum, type Metric, type MoneyMetric } from '.
 import { dataSources, type DataSource, type SourceState } from './sources';
 import { ExpenseButton, ImportCsvButton, type ExpenseDefaults } from './drawers';
 import { ConnectButton } from '../ads/meta';
+import { msg, type Translate } from '../../../i18n';
+import { currentLocale, serverT } from '../../../i18n/server';
 
 /**
  * «Бюджет и аналитика → Сводка» (решение владельца 20.10.2026, `docs/decisions/2026-10-20-budget-analytics-summary.md`):
@@ -44,33 +46,35 @@ const quiet = async <T,>(p: Promise<T>): Promise<T | 'error'> => {
   }
 };
 
-const NO_DATA = 'Нет данных';
 const romiText = (v: number) => `${v > 0 ? '+' : ''}${v} %`;
 const cabinetText = (sums: CabinetSum[]) => sums.map((s) => formatMoney(s.amountMinor, s.currency)).join(', ');
 
 /** Ячейка с пропуском: «нет данных» и причина для программы чтения и подсказкой при наведении */
-function Missing({ reason }: { reason: string | null }) {
+function Missing({ reason, t }: { reason: string | null; t: Translate }) {
   return (
     <span className="budget-cell-missing" title={reason ?? undefined}>
-      {NO_DATA}
+      {t('Нет данных')}
       {reason && <span className="sr-only">: {reason}</span>}
     </span>
   );
 }
 
-const moneyCell = (m: MoneyMetric) => (m.value === null ? <Missing reason={m.reason} /> : formatMoney(m.value, m.currency));
-const romiCell = (m: Metric<number>) => (m.value === null ? <Missing reason={m.reason} /> : romiText(m.value));
+const moneyCell = (m: MoneyMetric, t: Translate) =>
+  m.value === null ? <Missing reason={m.reason} t={t} /> : formatMoney(m.value, m.currency);
+const romiCell = (m: Metric<number>, t: Translate) =>
+  m.value === null ? <Missing reason={m.reason} t={t} /> : romiText(m.value);
 
 export default async function BudgetSummaryPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const me = await requireFeature('/marketing/budget');
+  const [t, locale] = await Promise.all([serverT(), currentLocale()]);
   const copy = verticalCopy(me.context?.vertical);
   const [loaded, shell] = await Promise.all([loadBudget(await searchParams), deskShell()]);
   const role = shell.access.role;
   const editable = !shell.readOnly && (role === null || can(role, 'marketing'));
-  const subtitle = 'Сколько потратили на продвижение, сколько пришло заявок и окупается ли каждый канал.';
+  const subtitle = t('Сколько потратили на продвижение, сколько пришло заявок и окупается ли каждый канал.');
   if (loaded.chooseLocation || loaded.error)
     return (
-      <Page crumbs={<BackToModules />} title={BUDGET_TITLE} subtitle={subtitle}>
+      <Page crumbs={<BackToModules />} title={t(BUDGET_TITLE)} subtitle={subtitle}>
         {loaded.error ? <LoadError testId="budget-error" {...loaded.error} /> : <ChooseLocation />}
       </Page>
     );
@@ -81,7 +85,7 @@ export default async function BudgetSummaryPage({ searchParams }: { searchParams
     quiet<MetaConnectionView>(metaConnectionApi.view()),
   ]);
   const campaigns: MarketingCampaignView[] | 'error' = campaignsView === 'error' ? 'error' : campaignsView.campaigns;
-  const s = budgetSummary({ view, campaigns, results });
+  const s = budgetSummary({ view, campaigns, results, t });
   const rc = view.reportingCurrency;
   const cabinet = s.cabinetSpend;
   const sources = dataSources({
@@ -92,6 +96,8 @@ export default async function BudgetSummaryPage({ searchParams }: { searchParams
     meta,
     results,
     editable,
+    locale,
+    t,
   });
   const defaults: ExpenseDefaults = {
     today: view.today,
@@ -101,7 +107,7 @@ export default async function BudgetSummaryPage({ searchParams }: { searchParams
   };
 
   return (
-    <Page crumbs={<BackToModules />} title={BUDGET_TITLE} subtitle={subtitle}>
+    <Page crumbs={<BackToModules />} title={t(BUDGET_TITLE)} subtitle={subtitle}>
       <div className="budget-screen" data-testid="budget-summary">
         <div className="budget-head">
           <BudgetTabs current="summary" month={view.month} />
@@ -110,83 +116,85 @@ export default async function BudgetSummaryPage({ searchParams }: { searchParams
         {/* итоги месяца одной строкой, без плиток (аудит 21.10.2026 п. 32, как «План» и «Аналитика») */}
         <dl className="money-summary" data-testid="summary-line">
           <div>
-            <dt>Расход вручную</dt>
+            <dt>{t('Расход вручную')}</dt>
             <dd data-testid="summary-manual">{formatMoney(s.manualSpend.value, rc)}</dd>
           </div>
           <div>
-            <dt>Расход кабинета Meta</dt>
+            <dt>{t('Расход кабинета Meta')}</dt>
             <dd data-testid="summary-cabinet">
               {cabinet.value === null ? (
-                <Missing reason={cabinet.reason} />
+                <Missing reason={cabinet.reason} t={t} />
               ) : cabinet.value.length === 0 ? (
-                <span className="muted">не подключён</span>
+                <span className="muted">{t('не подключён')}</span>
               ) : (
                 cabinetText(cabinet.value)
               )}
             </dd>
           </div>
           <div>
-            <dt>{copy.requests}</dt>
+            <dt>{t(copy.requests)}</dt>
             <dd data-testid="summary-requests">
-              {s.requests.value === null ? <Missing reason={s.requests.reason} /> : String(s.requests.value)}
+              {s.requests.value === null ? <Missing reason={s.requests.reason} t={t} /> : String(s.requests.value)}
             </dd>
           </div>
           <div>
-            <dt>{METRIC.cpl}</dt>
+            <dt>{t(METRIC.cpl)}</dt>
             <dd data-testid="summary-cpr">
               {s.costPerRequest.value === null ? (
-                <Missing reason={s.costPerRequest.reason} />
+                <Missing reason={s.costPerRequest.reason} t={t} />
               ) : (
                 formatMoney(s.costPerRequest.value, rc)
               )}
             </dd>
           </div>
           <div>
-            <dt>{METRIC.romi}</dt>
+            <dt>{t(METRIC.romi)}</dt>
             <dd
               data-testid="summary-romi"
               className={s.romi.value !== null && s.romi.value < 0 ? 'budget-td-danger' : undefined}
             >
-              {s.romi.value === null ? <Missing reason={s.romi.reason} /> : romiText(s.romi.value)}
+              {s.romi.value === null ? <Missing reason={s.romi.reason} t={t} /> : romiText(s.romi.value)}
             </dd>
           </div>
         </dl>
-        <Sources sources={sources} month={view.month} defaults={defaults} reportingCurrency={rc} />
+        <Sources sources={sources} month={view.month} defaults={defaults} reportingCurrency={rc} t={t} />
         <p className="settings-note" data-testid="summary-separate-note">
-          Расход вручную и расход кабинета Meta показаны отдельно и не складываются: оплата счёта Meta, записанная в
-          журнал, это те же деньги, что у кабинета.
+          {t(
+            'Расход вручную и расход кабинета Meta показаны отдельно и не складываются: оплата счёта Meta, записанная в журнал, это те же деньги, что у кабинета.',
+          )}
         </p>
 
         <section aria-labelledby="summary-channels-title">
-          <SectionTitle id="summary-channels-title">По каналам</SectionTitle>
+          <SectionTitle id="summary-channels-title">{t('По каналам')}</SectionTitle>
           {s.channels.length === 0 ? (
             <p className="settings-note" data-testid="summary-channels-empty">
-              В этом месяце нет ни расходов, ни заявок из каналов продвижения. Добавьте расход во вкладке «Расходы»,
-              заявки подтянутся сами.
+              {t(
+                'В этом месяце нет ни расходов, ни заявок из каналов продвижения. Добавьте расход во вкладке «Расходы», заявки подтянутся сами.',
+              )}
             </p>
           ) : (
-            <div className="tbl-wrap" role="region" aria-label="Сводка по каналам" tabIndex={0}>
-              <Table density="normal" aria-label="Сводка по каналам" data-testid="summary-channels">
+            <div className="tbl-wrap" role="region" aria-label={t('Сводка по каналам')} tabIndex={0}>
+              <Table density="normal" aria-label={t('Сводка по каналам')} data-testid="summary-channels">
                 <thead>
                   <tr>
-                    <th scope="col">Канал</th>
+                    <th scope="col">{t('Канал')}</th>
                     <th scope="col" className="budget-td-num">
-                      Расход вручную
+                      {t('Расход вручную')}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      Расход кабинета
+                      {t('Расход кабинета')}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      Заявки
+                      {t('Заявки')}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      {METRIC.cpl}
+                      {t(METRIC.cpl)}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      Выручка
+                      {t('Выручка')}
                     </th>
                     <th scope="col" className="budget-td-num">
-                      {METRIC.romi}
+                      {t(METRIC.romi)}
                     </th>
                   </tr>
                 </thead>
@@ -194,10 +202,10 @@ export default async function BudgetSummaryPage({ searchParams }: { searchParams
                   {s.channels.map((c) => (
                     <tr key={c.platform} data-testid={`summary-row-${c.platform}`}>
                       <td>
-                        <span className="budget-cell-main">{platformLabel(c.platform)}</span>
+                        <span className="budget-cell-main">{t(platformLabel(c.platform))}</span>
                         {c.cabinet.length > 0 && (
                           <span className="budget-cell-sub">
-                            <Badge tone="info">Кабинет</Badge>
+                            <Badge tone="info">{t('Кабинет')}</Badge>
                           </span>
                         )}
                       </td>
@@ -205,44 +213,44 @@ export default async function BudgetSummaryPage({ searchParams }: { searchParams
                       <td className="budget-td-num">{c.cabinet.length > 0 ? cabinetText(c.cabinet) : '–'}</td>
                       <td className="budget-td-num">
                         {c.requests.value === null ? (
-                          <Missing reason={c.requests.reason} />
+                          <Missing reason={c.requests.reason} t={t} />
                         ) : (
                           <>
                             {c.requests.value}
-                            {c.requests.platform && <span className="budget-cell-sub">лиды площадки</span>}
+                            {c.requests.platform && <span className="budget-cell-sub">{t('лиды площадки')}</span>}
                           </>
                         )}
                       </td>
-                      <td className="budget-td-num">{moneyCell(c.costPerRequest)}</td>
-                      <td className="budget-td-num">{moneyCell(c.revenue)}</td>
-                      <td className="budget-td-num">{romiCell(c.romi)}</td>
+                      <td className="budget-td-num">{moneyCell(c.costPerRequest, t)}</td>
+                      <td className="budget-td-num">{moneyCell(c.revenue, t)}</td>
+                      <td className="budget-td-num">{romiCell(c.romi, t)}</td>
                     </tr>
                   ))}
                 </tbody>
                 <tfoot>
                   <tr data-testid="summary-total">
                     <td>
-                      <strong>Итого</strong>
+                      <strong>{t('Итого')}</strong>
                     </td>
                     <td className="budget-td-num">{formatMoney(s.manualSpend.value, rc)}</td>
                     <td className="budget-td-num">
                       {cabinet.value && cabinet.value.length > 0 ? cabinetText(cabinet.value) : '–'}
                     </td>
                     <td className="budget-td-num">
-                      {s.requests.value === null ? <Missing reason={s.requests.reason} /> : s.requests.value}
+                      {s.requests.value === null ? <Missing reason={s.requests.reason} t={t} /> : s.requests.value}
                     </td>
-                    <td className="budget-td-num">{moneyCell(s.costPerRequest)}</td>
-                    <td className="budget-td-num">{moneyCell(s.revenue)}</td>
-                    <td className="budget-td-num">{romiCell(s.romi)}</td>
+                    <td className="budget-td-num">{moneyCell(s.costPerRequest, t)}</td>
+                    <td className="budget-td-num">{moneyCell(s.revenue, t)}</td>
+                    <td className="budget-td-num">{romiCell(s.romi, t)}</td>
                   </tr>
                 </tfoot>
               </Table>
             </div>
           )}
           <p className="settings-note" data-testid="summary-channels-note">
-            Заявки и выручка канала: брони и обращения из сайта, WhatsApp, Instagram и телефона, как во вкладке
-            «Аналитика». У рекламы своих броней нет: у кабинета Meta видны лиды площадки и цена лида по кабинету в его
-            валюте, окупаемость рекламы появится, когда брони начнут нести метку кампании. Разные валюты не складываются.
+            {t(
+              'Заявки и выручка канала: брони и обращения из сайта, WhatsApp, Instagram и телефона, как во вкладке «Аналитика». У рекламы своих броней нет: у кабинета Meta видны лиды площадки и цена лида по кабинету в его валюте, окупаемость рекламы появится, когда брони начнут нести метку кампании. Разные валюты не складываются.',
+            )}
           </p>
         </section>
       </div>
@@ -251,11 +259,11 @@ export default async function BudgetSummaryPage({ searchParams }: { searchParams
 }
 
 const STATE: Record<SourceState, { tone: 'ok' | 'warn' | 'danger' | 'neutral' | 'info'; label: string }> = {
-  ok: { tone: 'ok', label: 'Работает' },
-  todo: { tone: 'warn', label: 'Нужно добавить' },
-  error: { tone: 'danger', label: 'Ошибка' },
-  off: { tone: 'neutral', label: 'Недоступно' },
-  manual: { tone: 'info', label: 'Вручную' },
+  ok: { tone: 'ok', label: msg('Работает') },
+  todo: { tone: 'warn', label: msg('Нужно добавить') },
+  error: { tone: 'danger', label: msg('Ошибка') },
+  off: { tone: 'neutral', label: msg('Недоступно') },
+  manual: { tone: 'info', label: msg('Вручную') },
 };
 
 /**
@@ -267,22 +275,24 @@ function Sources({
   month,
   defaults,
   reportingCurrency,
+  t,
 }: {
   sources: DataSource[];
   month: string;
   defaults: ExpenseDefaults;
   reportingCurrency: string;
+  t: Translate;
 }) {
   return (
     <section aria-labelledby="summary-sources-title" data-testid="summary-sources">
-      <SectionTitle id="summary-sources-title">Откуда берутся цифры</SectionTitle>
+      <SectionTitle id="summary-sources-title">{t('Откуда берутся цифры')}</SectionTitle>
       <ul className="budget-sources">
         {sources.map((src) => (
           <li key={src.key} className="panel budget-sources__row" data-testid={`source-${src.key}`}>
             <div className="budget-sources__head">
               <h3 className="budget-sources__title">{src.title}</h3>
               <Badge tone={STATE[src.state].tone} data-testid={`source-${src.key}-state`}>
-                {STATE[src.state].label}
+                {t(STATE[src.state].label)}
               </Badge>
             </div>
             <p className="budget-sources__status" data-testid={`source-${src.key}-status`}>
@@ -310,7 +320,7 @@ function Sources({
                             : `/marketing/analytics?month=${month}`
                       }
                     >
-                      {a === 'journal' ? 'Журнал расходов' : a === 'open-ads' ? 'Открыть «Рекламу»' : 'Открыть аналитику'}
+                      {a === 'journal' ? t('Журнал расходов') : a === 'open-ads' ? t('Открыть «Рекламу»') : t('Открыть аналитику')}
                     </Link>
                   ),
                 )}

@@ -3,6 +3,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Alert, Field, Select } from '../../../components/ui';
 import { assignHousekeeperAction } from '../../hotel-staff/actions';
+import { useT } from '../../../i18n/locale-provider';
 
 /**
  * «Кто убирает» номер (решение владельца 22.10.2026, DATA_MODEL §4.1): стойка выбирает сотрудника гостиницы, и номер
@@ -17,6 +18,7 @@ export function HousekeeperPicker({
   current: { id: string; name: string } | null;
   employees: ReadonlyArray<{ id: string; name: string; active: boolean }>;
 }) {
+  const t = useT();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -24,12 +26,12 @@ export function HousekeeperPicker({
   if (!options.length)
     return (
       <p className="hint" data-testid="hk-assignee-empty">
-        Сотрудников гостиницы пока нет: пригласите горничную в разделе «Персонал → Сотрудники» с доступом «Личный кабинет».
+        {t('Сотрудников гостиницы пока нет: пригласите горничную в разделе «Персонал → Сотрудники» с доступом «Личный кабинет».')}
       </p>
     );
   return (
     <div className="hk-assign" data-testid="hk-assignee">
-      <Field label="Кто убирает">
+      <Field label={t('Кто убирает')}>
         <Select
           name="housekeepingAssignee"
           value={current?.id ?? ''}
@@ -44,7 +46,7 @@ export function HousekeeperPicker({
             });
           }}
         >
-          <option value="">Не назначено</option>
+          <option value="">{t('Не назначено')}</option>
           {options.map((e) => (
             <option key={e.id} value={e.id}>
               {e.name}

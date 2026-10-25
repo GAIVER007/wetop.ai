@@ -21,6 +21,7 @@ import type {
 } from '../../../lib/api';
 import { clearPendingCreation, pendingCreation } from '../creation-key';
 import { beautyMasterDayStatus } from '../../../lib/beauty-master-day-status';
+import { useT } from '../../../i18n/locale-provider';
 
 /**
  * Мастера салона (DATA_MODEL §19, срез B3). Мастер это сотрудник сети, не филиала: филиалы ведёт отдельная
@@ -33,9 +34,10 @@ type Editing = { mode: 'new' } | null;
  * Окно живёт в списке: кнопка шлёт событие, список открывает окно через тот же сторож черновика. */
 const NEW_SPECIALIST_EVENT = 'wetop-new-specialist';
 export function NewSpecialistButton() {
+  const t = useT();
   return (
     <Button type="button" onClick={() => window.dispatchEvent(new Event(NEW_SPECIALIST_EVENT))}>
-      Добавить специалиста
+      {t('Добавить специалиста')}
     </Button>
   );
 }
@@ -50,16 +52,17 @@ type Kind = NonNullable<BeautyEmployeeRow['personnelKind']>;
  * проверяет его ещё раз. Конфликт версии: сообщение и свежий список с сервера.
  */
 function PersonnelKindPicker({ row, canAssign }: { row: BeautyEmployeeRow; canAssign: boolean }) {
+  const t = useT();
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState('');
   const kind = row.personnelKind ?? null;
   if (!canAssign || !row.profileRevision)
-    return <Badge>{kind ? PERSONNEL_KIND_LABELS[kind] : 'Не назначено'}</Badge>;
+    return <Badge>{kind ? t(PERSONNEL_KIND_LABELS[kind]) : t('Не назначено')}</Badge>;
   return (
     <div className="beauty-master-card__kind">
       <Select
-        aria-label={`Назначение: ${row.name}`}
+        aria-label={t('Назначение: {name}', { name: row.name })}
         value={kind ?? ''}
         disabled={pending}
         aria-busy={pending || undefined}
@@ -75,16 +78,16 @@ function PersonnelKindPicker({ row, canAssign }: { row: BeautyEmployeeRow; canAs
       >
         {kind === null && (
           <option value="" disabled>
-            Не назначено
+            {t('Не назначено')}
           </option>
         )}
         {PERSONNEL_KINDS.map((value) => (
           <option key={value} value={value}>
-            {PERSONNEL_KIND_LABELS[value]}
+            {t(PERSONNEL_KIND_LABELS[value])}
           </option>
         ))}
       </Select>
-      {pending && <span className="beauty-note">Сохраняем…</span>}
+      {pending && <span className="beauty-note">{t('Сохраняем…')}</span>}
       {error && <Alert>{error}</Alert>}
     </div>
   );
@@ -145,8 +148,9 @@ export function MastersBoard({
   /** «Доступ в WETOP» в форме нового специалиста (решение 20.10.2026) */
   access?: { levels: AccessLevel[]; canAllBranches: boolean; branchName: string | null };
 }) {
+  const t = useT();
   const earned = revenue ? revenueCells(revenue.items) : null;
-  const unattributed = revenue ? unattributedLabel(revenue.items, 'BEAUTY') : null;
+  const unattributed = revenue ? unattributedLabel(revenue.items, 'BEAUTY', t) : null;
   const router = useRouter();
   const [editing, setEditing] = useState<Editing>(() => (openNew && canCreate ? { mode: 'new' } : null));
   const [epoch, setEpoch] = useState(0);
@@ -175,7 +179,7 @@ export function MastersBoard({
   }, [router, scopeKey]);
   const savedProfile = (row: BeautyEmployeeRow) => {
     setEditing(null);
-    setNotice('Специалист создан, открываем карточку…');
+    setNotice(t('Специалист создан, открываем карточку…'));
     clearPendingCreation(scopeKey, 'employee', row.id);
     router.replace(employeeProfileHref(row.id), { scroll: false });
     // список берёт свежие строки с сервера: без этого новый специалист появлялся только после перезагрузки (п. 1)
@@ -215,7 +219,7 @@ export function MastersBoard({
   const columns: StaffColumn<BeautyEmployeeRow>[] = [
     {
       key: 'name',
-      label: 'Специалист',
+      label: t('Специалист'),
       cell: (row) => (
         <span className="staff-person">
           <span className="staff-person__avatar" aria-hidden="true">
@@ -227,49 +231,49 @@ export function MastersBoard({
               {categoriesOf(row) ||
                 (row.serviceIds.length
                   ? row.serviceIds.map((id) => names.get(id)).filter(Boolean).join(', ')
-                  : 'Специализация не указана')}
+                  : t('Специализация не указана'))}
             </span>
           </span>
-          {!row.active && <Badge>В архиве</Badge>}
+          {!row.active && <Badge>{t('В архиве')}</Badge>}
         </span>
       ),
     },
-    { key: 'kind', label: 'Назначение', cell: (row) => <PersonnelKindPicker row={row} canAssign={canAssignPersonnelKind} /> },
+    { key: 'kind', label: t('Назначение'), cell: (row) => <PersonnelKindPicker row={row} canAssign={canAssignPersonnelKind} /> },
     {
       key: 'shift',
-      label: 'Смена сегодня',
+      label: t('Смена сегодня'),
       cell: (row) => {
         const day = beautyMasterDayStatus(scheduleAvailable ? today : null, row.id);
         if (!row.active || day.state === 'UNAVAILABLE') return null;
-        return day.state === 'ON_SHIFT' ? day.hours : 'Выходной';
+        return day.state === 'ON_SHIFT' ? day.hours : t('Выходной');
       },
     },
     {
       key: 'status',
-      label: 'Статус',
+      label: t('Статус'),
       cell: (row) => {
         const day = beautyMasterDayStatus(scheduleAvailable ? today : null, row.id);
-        if (!row.active) return <Badge>В архиве</Badge>;
-        if (day.state === 'UNAVAILABLE') return <Badge>График недоступен</Badge>;
-        return day.state === 'ON_SHIFT' ? <Badge tone="ok">На смене</Badge> : <Badge>Не на смене</Badge>;
+        if (!row.active) return <Badge>{t('В архиве')}</Badge>;
+        if (day.state === 'UNAVAILABLE') return <Badge>{t('График недоступен')}</Badge>;
+        return day.state === 'ON_SHIFT' ? <Badge tone="ok">{t('На смене')}</Badge> : <Badge>{t('Не на смене')}</Badge>;
       },
     },
     {
       key: 'load',
-      label: 'Записей сегодня',
+      label: t('Записей сегодня'),
       align: 'end',
       cell: (row) => (row.active ? appointmentsOf(row.id) || null : null),
     },
     {
       key: 'earned',
-      label: revenue ? `Принёс ${periodTitle(revenue.period)}` : '',
+      label: revenue ? t('Принёс {period}', { period: t(periodTitle(revenue.period)) }) : '',
       align: 'end',
       hidden: !earned,
       cell: (row) => (earned?.get(row.id) ? <strong data-testid="employee-earned">{earned.get(row.id)}</strong> : null),
     },
     {
       key: 'locations',
-      label: 'Филиалы',
+      label: t('Филиалы'),
       cell: (row) =>
         locations
           .filter((l) => row.locationIds.includes(l.id))
@@ -278,12 +282,12 @@ export function MastersBoard({
     },
     {
       key: 'actions',
-      label: <span className="sr-only">Действия</span>,
+      label: <span className="sr-only">{t('Действия')}</span>,
       align: 'end',
       cell: (row) => (
         <span className="staff-actions">
-          <Link className="btn btn--secondary btn--sm" href={employeeProfileHref(row.id)} aria-label={`Открыть: ${row.name}`}>
-            Открыть
+          <Link className="btn btn--secondary btn--sm" href={employeeProfileHref(row.id)} aria-label={t('Открыть: {name}', { name: row.name })}>
+            {t('Открыть')}
           </Link>
         </span>
       ),
@@ -291,49 +295,49 @@ export function MastersBoard({
   ];
   return (
     <>
-      {unavailable && <Alert>Специалист недоступен в текущем контексте.</Alert>}
+      {unavailable && <Alert>{t('Специалист недоступен в текущем контексте.')}</Alert>}
       {notice && <p role="status">{notice}</p>}
       <StaffBoard<BeautyEmployeeRow>
-        caption="Специалисты салона"
+        caption={t('Специалисты салона')}
         actions={
           canCreate && !headerAction ? (
             <Button type="button" onClick={startNew}>
-              Добавить специалиста
+              {t('Добавить специалиста')}
             </Button>
           ) : null
         }
         emptyAction={
           canCreate ? (
             <Button type="button" tone="secondary" onClick={startNew}>
-              Добавить первого специалиста
+              {t('Добавить первого специалиста')}
             </Button>
           ) : null
         }
         tabs={[
-          { id: 'all', label: 'Все', rows: items, empty: 'Добавьте первого специалиста' },
+          { id: 'all', label: t('Все'), rows: items, empty: t('Добавьте первого специалиста') },
           ...tabs.map((tab) => ({
             id: tab.key,
-            label: tab.key === 'unassigned' ? 'Не назначено' : tab.label,
+            label: tab.key === 'unassigned' ? t('Не назначено') : t(tab.label),
             rows: tab.items as BeautyEmployeeRow[],
             ...(tab.key === 'unassigned'
-              ? { note: 'Укажите, кто это: специалист, другой сотрудник или оба. Назначение не меняет услуги и права.' }
+              ? { note: t('Укажите, кто это: специалист, другой сотрудник или оба. Назначение не меняет услуги и права.') }
               : {}),
             empty:
               tab.key === 'specialists'
-                ? 'Специалистов пока нет. Назначьте их в строке сотрудника.'
-                : 'Других сотрудников пока нет. Назначьте их в строке сотрудника.',
+                ? t('Специалистов пока нет. Назначьте их в строке сотрудника.')
+                : t('Других сотрудников пока нет. Назначьте их в строке сотрудника.'),
           })),
         ]}
         columns={columns}
         search={(row) => `${row.name} ${row.phone ?? ''}`}
-        searchPlaceholder="Поиск специалиста"
+        searchPlaceholder={t('Поиск специалиста')}
         period={revenue ? revenueNav : null}
         footer={unattributed ? <span data-testid="employees-unattributed">{unattributed}</span> : null}
       />
       <Overlay
         open={editing !== null}
         onClose={() => guard.current(close)}
-        title="Новый специалист"
+        title={t('Новый специалист')}
         drawer
         size="md"
         trapFocus
@@ -345,13 +349,15 @@ export function MastersBoard({
           <div key={`${scopeKey}:new:${epoch}`}>
             {editing && (
               <>
-                <section aria-label="Бизнес и филиал" className="employee-workspace-heading">
-                  <p>Бизнес: {businessName ?? 'Название недоступно'}</p>
+                <section aria-label={t('Бизнес и филиал')} className="employee-workspace-heading">
+                  <p>{t('Бизнес: {name}', { name: businessName ?? t('Название недоступно') })}</p>
                   <p>
-                    Филиал:{' '}
-                    {locationName ??
-                      locations.find((item) => item.id === scopeKey)?.name ??
-                      'Название недоступно'}
+                    {t('Филиал: {name}', {
+                      name:
+                        locationName ??
+                        locations.find((item) => item.id === scopeKey)?.name ??
+                        t('Название недоступно'),
+                    })}
                   </p>
                 </section>
                 <EmployeeProfile

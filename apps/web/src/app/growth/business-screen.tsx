@@ -5,10 +5,9 @@ import { Alert, Panel } from '../../components/ui';
 import { MarketingHub } from '../marketing/hub';
 import { BackToModules } from '../marketing/parts';
 import { formatMoney } from '../../lib/money';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, msg, translator, type DeskLocale, type Translate } from '../../i18n';
 import { shortPeriod } from '../../lib/human-period';
 import { PeriodBar } from '../../lib/period-bar';
-import { verticalCopy } from '../../lib/vertical-copy';
 import type { BusinessSalesData, Ranked } from './business-sales';
 import '../sales/sales.css';
 import './growth.css';
@@ -26,14 +25,16 @@ export function BusinessGrowthScreen({
   vertical,
   mode,
   data = null,
+  locale = 'ru',
 }: {
   vertical: BusinessVertical;
   mode: 'sales' | 'marketing';
   data?: BusinessSalesData | null;
+  locale?: DeskLocale;
 }) {
-  if (mode === 'marketing') return <MarketingHub vertical={vertical} />;
+  if (mode === 'marketing') return <MarketingHub vertical={vertical} locale={locale} />;
+  const t = translator(locale);
   const restaurant = vertical === 'FOOD_SERVICE';
-  const copy = verticalCopy(vertical);
   const money = (minor: string | null) => (minor === null || !data ? DASH : formatMoney(minor, data.currency));
   const count = (n: number | null | undefined) => (n === null || n === undefined ? DASH : String(n));
   const seller = data?.seller ?? null;
@@ -56,17 +57,19 @@ export function BusinessGrowthScreen({
   return (
     <Page
       crumbs={<BackToModules />}
-      title="Обзор продаж"
+      title={t('Обзор продаж')}
       subtitle={
         period
-          ? `${restaurant ? 'Заказы и брони столов' : 'Записи и оказанные услуги'} за ${shortPeriod(period.from, period.to)}`
-          : 'Инструменты роста и ИИ-продаж в одном разделе.'
+          ? t(restaurant ? msg('Заказы и брони столов за {period}') : msg('Записи и оказанные услуги за {period}'), {
+              period: shortPeriod(period.from, period.to),
+            })
+          : t('Инструменты роста и ИИ-продаж в одном разделе.')
       }
     >
       <div className="sales-hub growth-hub" data-testid="business-sales">
         {data?.error && (
           <Alert tone="warning" role="alert" data-testid="business-sales-error">
-            {data.error}
+            {t(data.error)}
           </Alert>
         )}
         {period && (
@@ -77,49 +80,49 @@ export function BusinessGrowthScreen({
             to={period.to}
             today={period.to}
             testId="sales-period"
-            note="период до 31 дня"
+            note={t('период до 31 дня')}
             presets={[
-              { label: '7 дней', href: q('days=7'), selected: period.preset === '7' },
-              { label: '30 дней', href: q('days=30'), selected: period.preset === '30' },
+              { label: t('7 дней'), href: q('days=7'), selected: period.preset === '7' },
+              { label: t('30 дней'), href: q('days=30'), selected: period.preset === '30' },
             ]}
           />
         )}
         {/* итоги строкой вместо шести плиток (аудит п. 30) */}
         <dl className="money-summary" data-testid="sales-kpis">
-          {kpi('sales-kpi-revenue', 'Выручка', money(data?.revenueMinor ?? null), restaurant ? 'закрытые заказы' : 'выполненные записи', restaurant ? '/restaurant-finance' : '/finance')}
+          {kpi('sales-kpi-revenue', t('Выручка'), money(data?.revenueMinor ?? null), t(restaurant ? msg('закрытые заказы') : msg('выполненные записи')), restaurant ? '/restaurant-finance' : '/finance')}
           {kpi(
             'sales-kpi-sold',
-            restaurant ? 'Заказов' : 'Оказано услуг',
+            t(restaurant ? msg('Заказов') : msg('Оказано услуг')),
             count(data?.sold),
-            data?.averageCheckMinor ? `средний чек ${money(data.averageCheckMinor)}` : null,
+            data?.averageCheckMinor ? t('средний чек {sum}', { sum: money(data.averageCheckMinor) }) : null,
             restaurant ? '/orders' : '/appointments',
           )}
           {kpi(
             'sales-kpi-bookings',
-            restaurant ? 'Броней столов' : 'Записей',
+            t(restaurant ? msg('Броней столов') : msg('Записей')),
             count(data?.bookings),
             restaurant
               ? data?.guests != null
-                ? `${pluralRu(data.guests, ['гость', 'гостя', 'гостей'])} в заказах`
+                ? t('{guests} в заказах', { guests: countLabel(locale, t, data.guests, [msg('гость'), msg('гостя'), msg('гостей')]) })
                 : null
               : conversion
-                ? `${conversion} дошли до визита`
+                ? t('{pct} дошли до визита', { pct: conversion })
                 : null,
             restaurant ? '/table-reservations' : '/appointments',
           )}
-          {kpi('sales-kpi-lost', 'Неявки и отмены', count(data?.lost), null, restaurant ? '/table-reservations' : '/appointments')}
+          {kpi('sales-kpi-lost', t('Неявки и отмены'), count(data?.lost), null, restaurant ? '/table-reservations' : '/appointments')}
           {kpi(
             'sales-kpi-dialogs',
-            'Диалогов ИИ-продавца',
+            t('Диалогов ИИ-продавца'),
             dialogs ? String(dialogs.dialogs) : DASH,
-            dialogs ? 'за 24 часа' : seller?.extensionOff ? 'расширение не подключено' : 'не подключён',
+            t(dialogs ? msg('за 24 часа') : seller?.extensionOff ? msg('расширение не подключено') : msg('не подключён')),
             '/ai-agents',
           )}
           {kpi(
             'sales-kpi-leads',
-            'Лидов',
+            t('Лидов'),
             dialogs ? String(dialogs.leads) : DASH,
-            dialogs ? 'за 24 часа' : `контакты ${copy.clientsOf}`,
+            dialogs ? t('за 24 часа') : t(restaurant ? msg('контакты гостей') : msg('контакты клиентов')),
             '/ai-agents',
           )}
         </dl>
@@ -128,31 +131,34 @@ export function BusinessGrowthScreen({
           <RankCard
             testId="sales-card-top"
             icon="star"
-            title={restaurant ? 'Лучшие блюда' : 'Лучшие услуги'}
-            text="Что приносит больше всего выручки за период."
+            title={t(restaurant ? msg('Лучшие блюда') : msg('Лучшие услуги'))}
+            text={t('Что приносит больше всего выручки за период.')}
             rows={data?.top ?? []}
-            unit={restaurant ? ['порция', 'порции', 'порций'] : ['раз', 'раза', 'раз']}
+            unit={restaurant ? [msg('порция'), 'порции', msg('порций')] : [msg('раз'), 'раза', msg('раз')]} // kk-allow: форма склонения
             currency={data?.currency ?? 'KZT'}
-            empty={restaurant ? 'Закрытых заказов за период нет.' : 'Выполненных записей за период нет.'}
+            empty={t(restaurant ? msg('Закрытых заказов за период нет.') : msg('Выполненных записей за период нет.'))}
             href={restaurant ? '/menu' : '/services'}
-            cta={restaurant ? 'Меню и цены' : 'Услуги и цены'}
+            cta={t(restaurant ? msg('Меню и цены') : msg('Услуги и цены'))}
+            locale={locale}
           />
           <RankCard
             testId="sales-card-team"
             icon="guests"
-            title={restaurant ? 'Официанты' : 'Мастера'}
-            text={restaurant ? 'Заказы и выручка по официантам.' : 'Услуги и выручка по мастерам.'}
+            title={t(restaurant ? msg('Официанты') : msg('Мастера'))}
+            text={t(restaurant ? msg('Заказы и выручка по официантам.') : msg('Услуги и выручка по мастерам.'))}
             rows={data?.team ?? []}
-            unit={restaurant ? ['заказ', 'заказа', 'заказов'] : ['услуга', 'услуги', 'услуг']}
+            unit={restaurant ? [msg('заказ'), 'заказа', msg('заказов')] : [msg('услуга'), 'услуги', msg('услуг')]} // kk-allow: форма склонения
             currency={data?.currency ?? 'KZT'}
-            empty="Пока нет продаж с исполнителем."
+            empty={t('Пока нет продаж с исполнителем.')}
             href="/employees"
-            cta="Сотрудники"
+            cta={t('Сотрудники')}
+            locale={locale}
           />
           <SellerCard
             connected={seller?.connected ?? false}
             extensionOff={seller?.extensionOff ?? false}
             restaurant={restaurant}
+            t={t}
           />
         </div>
       </div>
@@ -171,6 +177,7 @@ function RankCard({
   empty,
   href,
   cta,
+  locale,
 }: {
   testId: string;
   icon: IconName;
@@ -182,7 +189,9 @@ function RankCard({
   empty: string;
   href: string;
   cta: string;
+  locale: DeskLocale;
 }) {
+  const t = translator(locale);
   const max = rows.reduce((m, r) => (BigInt(r.revenueMinor) > m ? BigInt(r.revenueMinor) : m), 0n);
   return (
     <Panel className="sales-card" aria-labelledby={`${testId}-title`} data-testid={testId}>
@@ -206,7 +215,7 @@ function RankCard({
                 <span className="growth-rank__bar" aria-hidden="true">
                   <span style={{ width: `${Math.max(4, share)}%` }} /* slop-allow: inline-style ширина полосы из доли выручки */ />
                 </span>
-                <span className="growth-rank__count muted">{pluralRu(r.count, unit)}</span>
+                <span className="growth-rank__count muted">{countLabel(locale, t, r.count, unit)}</span>
               </li>
             );
           })}
@@ -227,10 +236,12 @@ function SellerCard({
   connected,
   extensionOff,
   restaurant,
+  t,
 }: {
   connected: boolean;
   extensionOff: boolean;
   restaurant: boolean;
+  t: Translate;
 }) {
   return (
     <Panel className="sales-card" aria-labelledby="sales-seller-title" data-testid="sales-card-seller">
@@ -239,28 +250,28 @@ function SellerCard({
           <Icon name="chat" />
         </span>
         <div>
-          <h2 id="sales-seller-title">ИИ-продавец</h2>
-          <p>Отвечает клиентам в WhatsApp, Telegram и на сайте круглосуточно.</p>
+          <h2 id="sales-seller-title">{t('ИИ-продавец')}</h2>
+          <p>{t('Отвечает клиентам в WhatsApp, Telegram и на сайте круглосуточно.')}</p>
         </div>
       </div>
       <ul className="sales-card__checks">
-        {['Ответы на вопросы о ценах и услугах', restaurant ? 'Бронь столов и заказы' : 'Запись к мастеру', 'Передача сложных диалогов администратору'].map(
-          (t) => (
-            <li key={t}>
+        {[msg('Ответы на вопросы о ценах и услугах'), restaurant ? msg('Бронь столов и заказы') : msg('Запись к мастеру'), msg('Передача сложных диалогов администратору')].map(
+          (item) => (
+            <li key={item}>
               <Icon name="check" width={16} aria-hidden="true" />
-              {t}
+              {t(item)}
             </li>
           ),
         )}
       </ul>
       {extensionOff && (
         <p className="sales-card__note" data-testid="sales-seller-off">
-          Расширение «ИИ-продавец» подключает администратор WETOP после оплаты по счёту.
+          {t('Расширение «ИИ-продавец» подключает администратор WETOP после оплаты по счёту.')}
         </p>
       )}
       <div className="sales-card__foot">
         <Link className="btn" href="/ai-agents">
-          {connected ? 'Открыть ИИ-продавцов' : extensionOff ? 'Подробнее' : 'Настроить ИИ-продавца'}
+          {t(connected ? msg('Открыть ИИ-продавцов') : extensionOff ? msg('Подробнее') : msg('Настроить ИИ-продавца'))}
           <Icon name="arrow" width={16} aria-hidden="true" />
         </Link>
       </div>

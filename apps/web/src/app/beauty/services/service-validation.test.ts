@@ -22,7 +22,9 @@ describe('«Новая услуга»: русские сообщения под 
   });
 
   it('окно новой услуги закрывается, когда услуга создана и включена в филиале', () => {
-    expect(closesAfterSave({ message: 'Услуга добавлена в филиал', resourceId: 's1' }, false)).toBe(true);
+    expect(closesAfterSave({ message: 'Услуга добавлена в филиал', resourceId: 's1', addedToBranch: true }, false)).toBe(true);
+    // KK2: решает признак действия, а не текст: на казахском окно закрывается так же
+    expect(closesAfterSave({ message: 'Қызмет филиалға қосылды', resourceId: 's1', addedToBranch: true }, false)).toBe(true);
     // без филиала следующий шаг в том же окне: «Сохранить для филиала»
     expect(closesAfterSave({ message: 'Услуга создана. Включите её в выбранном филиале ниже.', resourceId: 's1' }, false)).toBe(false);
     expect(closesAfterSave({ error: 'Ошибка', resourceId: 's1' }, false)).toBe(false);

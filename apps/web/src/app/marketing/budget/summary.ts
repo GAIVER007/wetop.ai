@@ -1,5 +1,6 @@
 import { RESULT_CHANNELS, buildMarketingFunnel, type ChannelResult } from '@pms/domain';
 import type { MarketingCampaignView, MarketingResultsView } from '../../../lib/api';
+import { translator, type Translate } from '../../../i18n';
 import type { BudgetExpense } from './derive';
 
 /**
@@ -69,9 +70,6 @@ const divRound = (a: bigint, b: bigint): bigint => (a * 2n + b) / (b * 2n);
 const none = <T>(reason: string): Metric<T> => ({ value: null, reason });
 const noneMoney = (currency: string, reason: string): MoneyMetric => ({ value: null, currency, reason });
 
-const NO_SPEND = 'нет ручного расхода за месяц';
-const NO_CHANNEL_SPEND = 'нет ручного расхода по каналу';
-const NO_REQUESTS = 'нет заявок за месяц';
 
 /** Расход кабинета по валютам (валюты по алфавиту), только кампании кабинета */
 function cabinetSums(campaigns: MarketingCampaignView[]): CabinetSum[] {
@@ -90,14 +88,20 @@ export function budgetSummary(input: {
   view: { reportingCurrency: string; expenses: BudgetExpense[] };
   campaigns: MarketingCampaignView[] | 'error';
   results: MarketingResultsView | 'error';
+  /** Причины словами на языке человека; без него русский */
+  t?: Translate;
 }): BudgetSummary {
+  const t = input.t ?? translator('ru');
+  const NO_SPEND = t('нет ручного расхода за месяц');
+  const NO_CHANNEL_SPEND = t('нет ручного расхода по каналу');
+  const NO_REQUESTS = t('нет заявок за месяц');
   const rc = input.view.reportingCurrency;
   const ok = input.results !== 'error' && input.results.supported;
   const res = ok ? (input.results as MarketingResultsView) : null;
   const resultsReason =
     input.results === 'error'
-      ? 'результаты каналов не загрузились, обновите страницу'
-      : 'нет данных: заявки и выручка по каналам пока считаются по броням гостиницы';
+      ? t('результаты каналов не загрузились, обновите страницу')
+      : t('нет данных: заявки и выручка по каналам пока считаются по броням гостиницы');
 
   const spendByPlatform: Record<string, bigint> = {};
   for (const e of input.view.expenses)
@@ -115,7 +119,7 @@ export function budgetSummary(input: {
     revenueCurrency: res ? res.revenueCurrency : null,
   });
   const revenueCurrency = res?.revenueCurrency ?? rc;
-  const currencyReason = `выручка в ${revenueCurrency}, расход в ${rc}: сравнивать нельзя`;
+  const currencyReason = t('выручка в {revenue}, расход в {spend}: сравнивать нельзя', { revenue: revenueCurrency, spend: rc });
 
   const campaigns = input.campaigns === 'error' ? [] : input.campaigns;
   const cabinetAll = cabinetSums(campaigns);
@@ -169,7 +173,7 @@ export function budgetSummary(input: {
         costPerRequest:
           r.cplMinor !== null
             ? { value: r.cplMinor, currency: rc, reason: null }
-            : noneMoney(rc, spend === 0n ? NO_CHANNEL_SPEND : 'нет заявок по каналу'),
+            : noneMoney(rc, spend === 0n ? NO_CHANNEL_SPEND : t('нет заявок по каналу')),
         revenue: { value: r.revenueMinor, currency: revenueCurrency, reason: null },
         romi: !funnel.romiAvailable
           ? none(currencyReason)
@@ -179,19 +183,19 @@ export function budgetSummary(input: {
       };
     }
     // реклама: своих заявок и выручки у канала нет (Q-MKT-ATTR), у кабинета есть лиды площадки
-    const noRevenue = 'нет данных: выручка канала неизвестна, брони не несут метку кампании';
-    let rowRequests: ChannelSummary['requests'] = none('нет данных: заявки канала не отмечаются');
-    let rowCost: MoneyMetric = noneMoney(rc, 'нет данных: заявки канала не отмечаются');
+    const noRevenue = t('нет данных: выручка канала неизвестна, брони не несут метку кампании');
+    let rowRequests: ChannelSummary['requests'] = none(t('нет данных: заявки канала не отмечаются'));
+    let rowCost: MoneyMetric = noneMoney(rc, t('нет данных: заявки канала не отмечаются'));
     if (cabinet.length > 0) {
       const leads = cabinet.reduce((s, c) => s + c.leads, 0);
       rowRequests = { value: leads, reason: null, platform: true };
-      if (cabinet.length > 1) rowCost = noneMoney(rc, 'кабинеты в разных валютах: не складываем');
+      if (cabinet.length > 1) rowCost = noneMoney(rc, t('кабинеты в разных валютах: не складываем'));
       else {
         const [one] = cabinet as [CabinetSum];
         rowCost =
           one.leads > 0 && one.amountMinor > 0n
             ? { value: divRound(one.amountMinor, BigInt(one.leads)), currency: one.currency, reason: null }
-            : noneMoney(one.currency, one.leads > 0 ? 'нет расхода кабинета' : 'нет лидов площадки');
+            : noneMoney(one.currency, one.leads > 0 ? t('нет расхода кабинета') : t('нет лидов площадки'));
       }
     }
     return {
@@ -216,7 +220,7 @@ export function budgetSummary(input: {
     manualSpend: { value: manual, currency: rc, reason: null },
     cabinetSpend:
       input.campaigns === 'error'
-        ? none('кампании «Рекламы» не загрузились, обновите страницу')
+        ? none(t('кампании «Рекламы» не загрузились, обновите страницу'))
         : { value: cabinetAll, reason: null },
     requests,
     costPerRequest,

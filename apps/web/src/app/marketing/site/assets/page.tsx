@@ -7,6 +7,7 @@ import { siteAssetsApi } from '../../../../lib/api';
 import { deskShell } from '../../../../lib/desk-shell';
 import { MarketingCrumb } from '../../../website/parts';
 import { AssetLibrary } from './board';
+import { serverT } from '../../../../i18n/server';
 import '../../marketing.css';
 
 /**
@@ -26,7 +27,8 @@ export default async function SiteAssetsPage() {
       unstable_rethrow(error);
       return { ok: false as const, error };
     });
-  const title = 'Изображения сайта';
+  const t = await serverT();
+  const title = t('Изображения сайта');
   if (!loaded.ok)
     return (
       <Page crumbs={<MarketingCrumb />} title={title}>
@@ -34,7 +36,7 @@ export default async function SiteAssetsPage() {
       </Page>
     );
   return (
-    <Page crumbs={<MarketingCrumb />} title={title} subtitle="Фото, логотип и значок сайта филиала.">
+    <Page crumbs={<MarketingCrumb />} title={title} subtitle={t('Фото, логотип и значок сайта филиала.')}>
       <AssetLibrary library={loaded.library} readOnly={shell.readOnly} channex={hotel} />
     </Page>
   );

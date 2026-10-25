@@ -42,6 +42,8 @@ import { PreviewPanel, type PreviewPhoto } from './object-preview';
 import { SETTINGS_FORM_ID, useLiveReport, useSaveReport, type LiveValues } from './settings-save';
 import { phoneFieldValue, phoneOnInput } from '../../lib/phone';
 import { zoneLabel } from '../../lib/human-period';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 type Property = HotelSettings['property'];
 type FieldName = keyof Property;
@@ -75,6 +77,7 @@ function SettingsForm({
   editable: boolean;
   children: (value: Value, check: Check, live: LiveValues) => ReactNode;
 }) {
+  const t = useT();
   const [state, action, pending] = useActionState<SettingsActionResult | null, FormData>(
     saveHotelSettings,
     null,
@@ -118,7 +121,7 @@ function SettingsForm({
     errors[name]
       ? {
           props: { 'aria-invalid': true, 'aria-describedby': `${errorPrefix}-${name}` },
-          error: <Alert id={`${errorPrefix}-${name}`}>{errors[name]}</Alert>,
+          error: <Alert id={`${errorPrefix}-${name}`}>{t(errors[name] ?? '')}</Alert>,
         }
       : { props: {}, error: null };
   return (
@@ -164,8 +167,8 @@ function SettingsForm({
         )}
       </fieldset>
       <datalist id="obj-time-options">
-        {TIME_OPTIONS.map((t) => (
-          <option key={t} value={t} />
+        {TIME_OPTIONS.map((time) => (
+          <option key={time} value={time} />
         ))}
       </datalist>
     </form>
@@ -218,34 +221,32 @@ const STAY = [
   'houseRulesNote',
 ] as const satisfies readonly FieldName[];
 const PROPERTY_TYPE_LABELS: Record<(typeof CHANNEX_PROPERTY_TYPES)[number], string> = {
-  apart_hotel: 'Апарт-отель',
-  apartment: 'Апартаменты',
-  boat: 'Размещение на судне',
-  camping: 'Кемпинг',
-  capsule_hotel: 'Капсульный отель',
-  chalet: 'Шале',
-  country_house: 'Загородный дом',
-  farm_stay: 'Проживание на ферме',
-  guest_house: 'Гостевой дом',
-  holiday_home: 'Дом для отдыха',
-  holiday_park: 'Парк отдыха',
-  homestay: 'Проживание в доме',
-  hostel: 'Хостел',
-  hotel: 'Отель',
-  inn: 'Мини-отель',
-  lodge: 'Лодж',
-  motel: 'Мотель',
-  resort: 'Курортный отель',
-  riad: 'Риад',
-  ryokan: 'Рёкан',
+  apart_hotel: msg('Апарт-отель'),
+  apartment: msg('Апартаменты'),
+  boat: msg('Размещение на судне'),
+  camping: msg('Кемпинг'),
+  capsule_hotel: msg('Капсульный отель'),
+  chalet: msg('Шале'),
+  country_house: msg('Загородный дом'),
+  farm_stay: msg('Проживание на ферме'),
+  guest_house: msg('Гостевой дом'),
+  holiday_home: msg('Дом для отдыха'),
+  holiday_park: msg('Парк отдыха'),
+  homestay: msg('Проживание в доме'),
+  hostel: msg('Хостел'),
+  hotel: msg('Отель'),
+  inn: msg('Мини-отель'),
+  lodge: msg('Лодж'),
+  motel: msg('Мотель'),
+  resort: msg('Курортный отель'),
+  riad: msg('Риад'),
+  ryokan: msg('Рёкан'),
 };
 
 /** Время — всегда 24 часа (DESIGN.md §14): не `type="time"`, который рисует «02:00 PM» по языку браузера */
-const TIME_LABEL: Partial<Record<FieldName, string>> = {
-  checkInTime: 'Время заезда',
-  checkOutTime: 'Время выезда',
-  quietHoursFrom: 'Тихие часы, начало',
-  quietHoursTo: 'Тихие часы, конец',
+const TIME_ERROR: Partial<Record<FieldName, string>> = {
+  quietHoursFrom: msg('Тихие часы, начало — в виде 22:00'),
+  quietHoursTo: msg('Тихие часы, конец — в виде 22:00'),
 };
 const validateCard: Validate = (name, raw) => {
   const value = raw.trim();
@@ -253,19 +254,21 @@ const validateCard: Validate = (name, raw) => {
     case 'checkInTime':
     case 'checkOutTime':
       return normalizeClockTime(value) === null
-        ? `Время ${name === 'checkInTime' ? 'заезда' : 'выезда'} — в виде 14:00`
+        ? name === 'checkInTime'
+          ? msg('Время заезда — в виде 14:00')
+          : msg('Время выезда — в виде 14:00')
         : null;
     case 'quietHoursFrom':
     case 'quietHoursTo':
       return value !== '' && normalizeClockTime(value) === null
-        ? `${TIME_LABEL[name]} — в виде 22:00`
+        ? (TIME_ERROR[name] ?? null)
         : null;
     case 'website':
       return value !== '' && normalizeWebsite(value) === null
-        ? 'Адрес сайта в виде https://example.kz'
+        ? msg('Адрес сайта в виде https://example.kz')
         : null;
     case 'minGuestAge':
-      return /^\d{1,2}$/.test(value) ? null : 'Возраст — целое число от 0 до 99';
+      return /^\d{1,2}$/.test(value) ? null : msg('Возраст — целое число от 0 до 99');
     default:
       return null;
   }
@@ -289,6 +292,7 @@ function ObjectCard({
   children: ReactNode;
   'data-testid'?: string;
 }) {
+  const t = useT();
   return (
     <Panel className={cx('settings-block obj-card', className)} aria-labelledby={id} {...rest}>
       <header className="obj-card__head">
@@ -296,8 +300,8 @@ function ObjectCard({
           <Icon name={icon} width={20} height={20} />
         </span>
         <div>
-          <h2 id={id}>{title}</h2>
-          {subtitle && <p className="obj-card__sub">{subtitle}</p>}
+          <h2 id={id}>{t(title)}</h2>
+          {subtitle && <p className="obj-card__sub">{t(subtitle)}</p>}
         </div>
       </header>
       {children}
@@ -307,8 +311,9 @@ function ObjectCard({
 
 /** Только чтение: значение поля, которое меняет поддержка или которое считается по фонду */
 function ReadonlyField({ label, icon, value }: { label: string; icon: IconName; value: string }) {
+  const t = useT();
   return (
-    <Field label={label}>
+    <Field label={t(label)}>
       <IconField icon={icon}>
         <Input readOnly value={value} />
       </IconField>
@@ -329,9 +334,10 @@ function CountedTextarea({
   rows: number;
   label: string;
 }) {
+  const t = useT();
   const [length, setLength] = useState(defaultValue.length);
   return (
-    <Field label={label} className="settings-fields__wide">
+    <Field label={t(label)} className="settings-fields__wide">
       <span className="obj-counted">
         <Textarea
           name={name}
@@ -363,9 +369,10 @@ function TimeField({
   placeholder: string;
   required?: boolean;
 }) {
+  const t = useT();
   const { props, error } = check(name);
   return (
-    <Field label={label}>
+    <Field label={t(label)}>
       <IconField icon="clock">
         <Input
           name={name}
@@ -394,41 +401,42 @@ function MainInfoCard({
   check: Check;
   extra?: ReactNode;
 }) {
+  const t = useT();
   const website = check('website');
   return (
     <ObjectCard
       id="settings-main"
       icon="hotel"
-      title="Основная информация"
-      subtitle="Базовые данные объекта, которые видят гости и каналы продаж."
+      title={msg('Основная информация')}
+      subtitle={msg('Базовые данные объекта, которые видят гости и каналы продаж.')}
     >
       <div className="settings-fields">
-        <Field label="Название объекта" required className="settings-fields__wide">
+        <Field label={t('Название объекта')} required className="settings-fields__wide">
           <Input name="name" maxLength={200} defaultValue={value('name')} />
         </Field>
         <CountedTextarea
-          label="Краткое описание"
+          label={msg('Краткое описание')}
           name="description"
           defaultValue={value('description')}
           max={500}
           rows={3}
         />
-        <Field label="Телефон">
+        <Field label={t('Телефон')}>
           <IconField icon="phone">
             <Input name="phone" type="tel" inputMode="tel" placeholder="+7 701 000 00 00" onInput={phoneOnInput} defaultValue={phoneFieldValue(value('phone'))} />
           </IconField>
         </Field>
-        <Field label="Почта">
+        <Field label={t('Почта')}>
           <IconField icon="mail">
             <Input name="email" type="email" defaultValue={value('email')} />
           </IconField>
         </Field>
-        <Field label="Адрес" className="settings-fields__wide">
+        <Field label={t('Адрес')} className="settings-fields__wide">
           <IconField icon="pin">
             <Input name="address" maxLength={300} defaultValue={value('address')} />
           </IconField>
         </Field>
-        <Field label="Сайт" className="settings-fields__wide">
+        <Field label={t('Сайт')} className="settings-fields__wide">
           <IconField icon="link">
             <Input
               name="website"
@@ -449,6 +457,7 @@ function MainInfoCard({
 }
 
 function AmenitiesCard({ value }: { value: Value }) {
+  const t = useT();
   const chosen = value('amenities').split(',').filter(Boolean);
   const [all, setAll] = useState(false);
   const shown = PROPERTY_AMENITIES.filter(
@@ -459,8 +468,8 @@ function AmenitiesCard({ value }: { value: Value }) {
     <ObjectCard
       id="settings-amenities"
       icon="settings"
-      title="Услуги и удобства"
-      subtitle="Выберите, какие удобства есть в объекте. Они будут отображаться в описании и на каналах продаж."
+      title={msg('Услуги и удобства')}
+      subtitle={msg('Выберите, какие удобства есть в объекте. Они будут отображаться в описании и на каналах продаж.')}
       data-testid="amenities-card"
     >
       <input type="hidden" name="amenities" value="" />
@@ -473,7 +482,7 @@ function AmenitiesCard({ value }: { value: Value }) {
             defaultChecked={chosen.includes(a.code)}
             icon={<Icon name={amenityIcon(a.code)} width={16} height={16} />}
           >
-            {a.label}
+            {t(a.label)}
           </CheckChip>
         ))}
         {hidden > 0 && (
@@ -484,7 +493,7 @@ function AmenitiesCard({ value }: { value: Value }) {
             data-testid="amenities-more"
           >
             <Icon name="plus" width={16} height={16} />
-            Добавить услугу
+            {t('Добавить услугу')}
           </button>
         )}
       </div>
@@ -493,18 +502,19 @@ function AmenitiesCard({ value }: { value: Value }) {
 }
 
 function StayCard({ value, check }: { value: Value; check: Check }) {
+  const t = useT();
   return (
     <ObjectCard
       id="settings-stay"
       icon="clock"
-      title="Заезд и выезд"
-      subtitle="Укажите время заезда и выезда, а также дополнительные опции."
+      title={msg('Заезд и выезд')}
+      subtitle={msg('Укажите время заезда и выезда, а также дополнительные опции.')}
       data-testid="stay-settings"
     >
       <div className="settings-fields">
         <TimeField
           name="checkInTime"
-          label="Заезд с"
+          label={msg('Заезд с')}
           value={value}
           check={check}
           placeholder="14:00"
@@ -512,7 +522,7 @@ function StayCard({ value, check }: { value: Value; check: Check }) {
         />
         <TimeField
           name="checkOutTime"
-          label="Выезд до"
+          label={msg('Выезд до')}
           value={value}
           check={check}
           placeholder="12:00"
@@ -520,25 +530,25 @@ function StayCard({ value, check }: { value: Value; check: Check }) {
         />
         <Switch
           name="earlyCheckIn"
-          label="Ранний заезд"
-          hint="При наличии возможности"
+          label={t('Ранний заезд')}
+          hint={t('При наличии возможности')}
           defaultChecked={value('earlyCheckIn') === 'true'}
         />
         <Switch
           name="lateCheckOut"
-          label="Поздний выезд"
-          hint="При наличии возможности"
+          label={t('Поздний выезд')}
+          hint={t('При наличии возможности')}
           defaultChecked={value('lateCheckOut') === 'true'}
         />
       </div>
       <div className="obj-banner">
         <Icon name="info" width={18} height={18} />
         <p>
-          <b>Настройте автоматические правила и условия</b>
-          <span>Например, доплаты, ограничение по времени и др.</span>
+          <b>{t('Настройте автоматические правила и условия')}</b>
+          <span>{t('Например, доплаты, ограничение по времени и др.')}</span>
         </p>
         <Link className="obj-banner__link" href="/rooms/categories">
-          Настроить
+          {t('Настроить')}
           <Icon name="arrow" width={14} height={14} />
         </Link>
       </div>
@@ -555,11 +565,12 @@ function RuleRow({
   label: string;
   children: ReactNode;
 }) {
+  const t = useT();
   return (
     <div className="obj-rule">
       <span className="obj-rule__label">
         <Icon name={icon} width={18} height={18} />
-        {label}
+        {t(label)}
       </span>
       <div className="obj-rule__control">{children}</div>
     </div>
@@ -567,6 +578,7 @@ function RuleRow({
 }
 
 function RulesCard({ value, check }: { value: Value; check: Check }) {
+  const t = useT();
   const age = check('minGuestAge');
   const from = check('quietHoursFrom');
   const to = check('quietHoursTo');
@@ -574,86 +586,86 @@ function RulesCard({ value, check }: { value: Value; check: Check }) {
     <ObjectCard
       id="settings-rules"
       icon="file"
-      title="Правила проживания"
-      subtitle="Укажите основные правила и условия для гостей."
+      title={msg('Правила проживания')}
+      subtitle={msg('Укажите основные правила и условия для гостей.')}
       data-testid="rules-card"
     >
       <div className="obj-rules">
-        <RuleRow icon="baby" label="Можно с детьми">
+        <RuleRow icon="baby" label={msg('Можно с детьми')}>
           <Switch
             name="childrenAllowed"
-            label={<span className="sr-only">Можно с детьми</span>}
+            label={<span className="sr-only">{t('Можно с детьми')}</span>}
             defaultChecked={value('childrenAllowed') === 'true'}
           />
         </RuleRow>
-        <RuleRow icon="paw" label="Можно с питомцами">
+        <RuleRow icon="paw" label={msg('Можно с питомцами')}>
           <Switch
             name="petsAllowed"
-            label={<span className="sr-only">Можно с питомцами</span>}
+            label={<span className="sr-only">{t('Можно с питомцами')}</span>}
             defaultChecked={value('petsAllowed') === 'true'}
           />
         </RuleRow>
-        <RuleRow icon="card" label="Способ оплаты на месте">
+        <RuleRow icon="card" label={msg('Способ оплаты на месте')}>
           <Select
             key={value('onsitePayment')}
             name="onsitePayment"
-            aria-label="Способ оплаты на месте"
+            aria-label={t('Способ оплаты на месте')}
             defaultValue={value('onsitePayment')}
           >
             {ONSITE_PAYMENTS.map((c) => (
               <option key={c} value={c}>
-                {ONSITE_PAYMENT_LABELS[c]}
+                {t(ONSITE_PAYMENT_LABELS[c])}
               </option>
             ))}
           </Select>
         </RuleRow>
-        <RuleRow icon="calendarOff" label="Отмена брони">
+        <RuleRow icon="calendarOff" label={msg('Отмена брони')}>
           <Select
             key={value('cancellationRule')}
             name="cancellationRule"
-            aria-label="Отмена брони"
+            aria-label={t('Отмена брони')}
             defaultValue={value('cancellationRule')}
           >
             {CANCELLATION_RULES.map((c) => (
               <option key={c} value={c}>
-                {CANCELLATION_RULE_LABELS[c]}
+                {t(CANCELLATION_RULE_LABELS[c])}
               </option>
             ))}
           </Select>
         </RuleRow>
-        <RuleRow icon="deposit" label="Залог">
+        <RuleRow icon="deposit" label={msg('Залог')}>
           <Select
             key={value('depositRule')}
             name="depositRule"
-            aria-label="Залог"
+            aria-label={t('Залог')}
             defaultValue={value('depositRule')}
           >
             {DEPOSIT_RULES.map((c) => (
               <option key={c} value={c}>
-                {DEPOSIT_RULE_LABELS[c]}
+                {t(DEPOSIT_RULE_LABELS[c])}
               </option>
             ))}
           </Select>
         </RuleRow>
-        <RuleRow icon="person" label="Минимальный возраст гостя">
+        <RuleRow icon="person" label={msg('Минимальный возраст гостя')}>
           <span className="obj-age">
             <Input
               name="minGuestAge"
-              aria-label="Минимальный возраст гостя"
+              aria-label={t('Минимальный возраст гостя')}
               inputMode="numeric"
               maxLength={3}
               defaultValue={value('minGuestAge')}
               {...age.props}
             />
-            <span className="obj-age__unit">лет</span>
+            <span className="obj-age__unit">{t('лет')}</span>
           </span>
           {age.error}
         </RuleRow>
-        <RuleRow icon="moon" label="Тихие часы">
+        <RuleRow icon="moon" label={msg('Тихие часы')}>
           <span className="obj-quiet">
             <Input
               name="quietHoursFrom"
-              aria-label="Тихие часы, начало"
+              aria-label={t('Тихие часы, начало')}
               inputMode="numeric"
               autoComplete="off"
               maxLength={5}
@@ -666,7 +678,7 @@ function RulesCard({ value, check }: { value: Value; check: Check }) {
             <span aria-hidden="true">–</span>
             <Input
               name="quietHoursTo"
-              aria-label="Тихие часы, конец"
+              aria-label={t('Тихие часы, конец')}
               inputMode="numeric"
               autoComplete="off"
               maxLength={5}
@@ -680,16 +692,16 @@ function RulesCard({ value, check }: { value: Value; check: Check }) {
           {from.error}
           {to.error}
         </RuleRow>
-        <RuleRow icon="smokeOff" label="Курение запрещено">
+        <RuleRow icon="smokeOff" label={msg('Курение запрещено')}>
           <Switch
             name="smokingAllowed"
             inverted
-            label={<span className="sr-only">Курение запрещено</span>}
+            label={<span className="sr-only">{t('Курение запрещено')}</span>}
             defaultChecked={value('smokingAllowed') !== 'true'}
           />
         </RuleRow>
         <CountedTextarea
-          label="Дополнительные комментарии"
+          label={msg('Дополнительные комментарии')}
           name="houseRulesNote"
           defaultValue={value('houseRulesNote')}
           max={500}
@@ -711,6 +723,7 @@ function LocationCard({
   rooms: number | null;
   beds: number | null;
 }) {
+  const t = useT();
   const country = value('countryCode');
   const countries = COUNTRIES.some(([c]) => c === country) || !country
     ? COUNTRIES
@@ -720,23 +733,23 @@ function LocationCard({
     <ObjectCard
       id="settings-channex-location"
       icon="pin"
-      title="Расположение и классификация"
-      subtitle="Эти данные используются для каналов продаж и фильтров."
+      title={msg('Расположение и классификация')}
+      subtitle={msg('Эти данные используются для каналов продаж и фильтров.')}
     >
       <div className="settings-fields">
-        <Field label="Страна (ISO)">
+        <Field label={t('Страна (ISO)')}>
           <IconField icon="globe">
             <Select name="countryCode" key={country} defaultValue={country}>
-              <option value="">Выберите страну</option>
+              <option value="">{t('Выберите страну')}</option>
               {countries.map(([code, label]) => (
                 <option key={code} value={code}>
-                  {label} ({code})
+                  {t(label)} ({code})
                 </option>
               ))}
             </Select>
           </IconField>
         </Field>
-        <Field label="Город">
+        <Field label={t('Город')}>
           <Input name="city" maxLength={100} list="obj-cities" defaultValue={value('city')} />
           <datalist id="obj-cities">
             {KZ_CITIES.map((c) => (
@@ -744,34 +757,33 @@ function LocationCard({
             ))}
           </datalist>
         </Field>
-        <Field label="Тип размещения" className="settings-fields__wide">
+        <Field label={t('Тип размещения')} className="settings-fields__wide">
           <IconField icon="hotel">
             <Select name="channexPropertyType" key={type} defaultValue={type}>
-              <option value="">Выберите тип</option>
-              {CHANNEX_PROPERTY_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {PROPERTY_TYPE_LABELS[t]}
+              <option value="">{t('Выберите тип')}</option>
+              {CHANNEX_PROPERTY_TYPES.map((kind) => (
+                <option key={kind} value={kind}>
+                  {t(PROPERTY_TYPE_LABELS[kind])}
                 </option>
               ))}
             </Select>
           </IconField>
         </Field>
-        <ReadonlyField label="Часовой пояс" icon="clock" value={zoneLabel(property.timezone)} />
-        <ReadonlyField label="Валюта" icon="cash" value={property.currency} />
+        <ReadonlyField label={msg('Часовой пояс')} icon="clock" value={zoneLabel(property.timezone, t)} />
+        <ReadonlyField label={msg('Валюта')} icon="cash" value={property.currency} />
         <ReadonlyField
-          label="Количество номеров"
+          label={msg('Количество номеров')}
           icon="bed"
           value={rooms === null ? '—' : String(rooms)}
         />
         <ReadonlyField
-          label="Количество мест"
+          label={msg('Количество мест')}
           icon="guests"
           value={beds === null ? '—' : String(beds)}
         />
       </div>
       <p className="obj-card__note">
-        Часовой пояс и валюту меняет поддержка WETOP: от них зависят цены, счета и границы ночей.
-        Номера и места считаются по номерному фонду.
+        {t('Часовой пояс и валюту меняет поддержка WETOP: от них зависят цены, счета и границы ночей. Номера и места считаются по номерному фонду.')}
       </p>
     </ObjectCard>
   );
@@ -786,23 +798,24 @@ function LegalCard({
   owner: boolean;
   extra?: ReactNode;
 }) {
+  const t = useT();
   return (
     <ObjectCard
       id="settings-legal"
       icon="file"
-      title="Юридические данные"
-      subtitle="Используются в договоре и счёте для гостей."
+      title={msg('Юридические данные')}
+      subtitle={msg('Используются в договоре и счёте для гостей.')}
     >
       <div className="settings-fields">
-        <Field label="Юридическое лицо">
+        <Field label={t('Юридическое лицо')}>
           <Input name="legalName" maxLength={300} defaultValue={value('legalName')} />
         </Field>
         {owner && (
-          <Field label="ИИН/БИН">
+          <Field label={t('ИИН/БИН')}>
             <Input name="bin" inputMode="numeric" maxLength={12} defaultValue={value('bin')} />
           </Field>
         )}
-        <Field label="Публичное имя для документов" className="settings-fields__wide">
+        <Field label={t('Публичное имя для документов')} className="settings-fields__wide">
           <Input name="publicName" maxLength={200} defaultValue={value('publicName')} />
         </Field>
       </div>
@@ -816,7 +829,7 @@ function PreviewCardBlock({ live, photos }: { live: LiveValues; photos: PreviewP
     <ObjectCard
       id="settings-preview"
       icon="eye"
-      title="Как объект увидит гость / каналы продаж"
+      title={msg('Как объект увидит гость / каналы продаж')}
       className="obj-card--preview"
     >
       <PreviewPanel initial={live} photos={photos} />
@@ -910,19 +923,20 @@ export function StaySettingsForm({
 
 /** Где видны часы. Ночи от них не зависят — проживание хранится датами (AGENTS.md §13) */
 export function StayNote({ timezone }: { timezone: string }) {
+  const t = useT();
   return (
     <p className="settings-note">
-      По времени объекта ({zoneLabel(timezone)}). Эти часы печатаются в договоре, их видит гость в модуле
-      бронирования на сайте, по ним отвечает ИИ-продавец.
+      {t('По времени объекта ({zone}). Эти часы печатаются в договоре, их видит гость в модуле бронирования на сайте, по ним отвечает ИИ-продавец.', { zone: zoneLabel(timezone, t) })}
     </p>
   );
 }
 
 function CapacityNote({ rooms, beds }: { rooms: number; beds: number }) {
+  const t = useT();
   return (
     <p className="settings-note">
-      В продаже: {rooms} номеров и {beds} мест. Состав меняется в разделе{' '}
-      <Link href="/rooms/categories">«Категории номеров»</Link>.
+      {t('В продаже: {rooms} номеров и {beds} мест. Состав меняется в разделе', { rooms, beds })}{' '}
+      <Link href="/rooms/categories">{t('«Категории номеров»')}</Link>.
     </p>
   );
 }

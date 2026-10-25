@@ -1,12 +1,15 @@
 'use client';
 import { useRef, useState, type ReactNode } from 'react';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 const steps = [
-  ['Инструкция', 'Опишите стиль общения и задачи. Сохраните инструкцию перед проверкой.'],
-  ['Подключения', 'Настройте модель и выберите канал общения с гостями.'],
-  ['Проверка', 'Задайте вопрос от лица гостя и проверьте ответ.'],
-  ['Готовность', 'Проверьте сохранение и подключение выбранного канала.'],
+  [msg('Инструкция'), msg('Опишите стиль общения и задачи. Сохраните инструкцию перед проверкой.')],
+  [msg('Подключения'), msg('Настройте модель и выберите канал общения с гостями.')],
+  [msg('Проверка'), msg('Задайте вопрос от лица гостя и проверьте ответ.')],
+  [msg('Готовность'), msg('Проверьте сохранение и подключение выбранного канала.')],
 ] as const;
 export function SetupWizard({ children }: { children: ReactNode[] }) {
+  const t = useT();
   const [step, setStep] = useState(0);
   const current = steps[step] ?? steps[0];
   const heading = useRef<HTMLHeadingElement>(null);
@@ -16,7 +19,7 @@ export function SetupWizard({ children }: { children: ReactNode[] }) {
   };
   return (
     <div className="seller-wizard">
-      <nav className="seller-wizard__steps" aria-label="Шаги настройки продавца">
+      <nav className="seller-wizard__steps" aria-label={t('Шаги настройки продавца')}>
         {steps.map(([label], i) => (
           <button
             key={label}
@@ -25,18 +28,18 @@ export function SetupWizard({ children }: { children: ReactNode[] }) {
             onClick={() => go(i)}
           >
             <span>{i + 1}</span>
-            {label}
+            {t(label)}
           </button>
         ))}
       </nav>
       <header className="seller-wizard__heading">
         <span className="muted">
-          Шаг {step + 1} из {steps.length}
+          {t('Шаг {n} из {total}', { n: step + 1, total: steps.length })}
         </span>
         <h2 ref={heading} tabIndex={-1}>
-          {current[0]}
+          {t(current[0])}
         </h2>
-        <p>{current[1]}</p>
+        <p>{t(current[1])}</p>
       </header>
       {children.map((child, i) => (
         <div key={i} hidden={i !== step} className="seller-wizard__body">
@@ -50,16 +53,16 @@ export function SetupWizard({ children }: { children: ReactNode[] }) {
           disabled={step === 0}
           onClick={() => go(step - 1)}
         >
-          Назад
+          {t('Назад')}
         </button>
-        <span className="muted">Сохраните изменения перед следующим шагом.</span>
+        <span className="muted">{t('Сохраните изменения перед следующим шагом.')}</span>
         {step < steps.length - 1 ? (
           <button type="button" className="btn" onClick={() => go(step + 1)}>
-            Далее
+            {t('Далее')}
           </button>
         ) : (
           <a className="btn" href="/ai-agents">
-            Все агенты
+            {t('Все агенты')}
           </a>
         )}
       </footer>

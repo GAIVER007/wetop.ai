@@ -25,12 +25,15 @@ import {
   type SiteActionResult,
 } from './actions';
 import { useConfirm } from '../../components/use-confirm';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 export function CreateSiteForm() {
   const [state, action, pending] = useActionState<SiteActionResult | null, FormData>(
     createSiteAction,
     null,
   );
+  const t = useT();
   return (
     <form
       key={state?.attempt ?? 0}
@@ -38,17 +41,17 @@ export function CreateSiteForm() {
       className="stack stack--sm form-narrow"
       data-testid="site-form"
     >
-      <Field label="Название">
+      <Field label={t('Название')}>
         <Input
           name="name"
           defaultValue={state?.values?.name ?? ''}
           required
-          placeholder="Сайт хостела"
+          placeholder={t('Сайт хостела')}
           data-testid="site-name"
         />
       </Field>
       {/* WEB2: один адрес — как его вставляют из браузера; ещё адреса — списком после подключения */}
-      <Field label="Адрес сайта">
+      <Field label={t('Адрес сайта')}>
         <Input
           name="hosts"
           defaultValue={state?.values?.hosts ?? ''}
@@ -61,7 +64,7 @@ export function CreateSiteForm() {
       </Field>
       <div>
         <Button type="submit" disabled={pending} data-testid="site-create">
-          Подключить сайт
+          {t('Подключить сайт')}
         </Button>
       </div>
       {state?.error && <Alert>{state.error}</Alert>}
@@ -73,13 +76,14 @@ export function CreateSiteForm() {
 /** Проверка счётчика: время последнего события и сессии сегодня — тем же запросом, что карточка сайта */
 export function CheckCounterButton({
   id,
-  label = 'Проверить счётчик',
+  label = msg('Проверить счётчик'),
 }: {
   id: string;
   label?: string;
 }) {
   const [result, setResult] = useState<SiteActionResult | null>(null);
   const [pending, start] = useTransition();
+  const t = useT();
   return (
     <Stack gap="sm">
       <Row>
@@ -90,7 +94,7 @@ export function CheckCounterButton({
           disabled={pending}
           data-testid="site-check"
         >
-          {label}
+          {t(label)}
         </Button>
       </Row>
       {result?.error && <Alert>{result.error}</Alert>}
@@ -107,6 +111,7 @@ export function SiteDangerZone({ id, status }: { id: string; status: 'ACTIVE' | 
   const [result, setResult] = useState<SiteActionResult | null>(null);
   const [pending, start] = useTransition();
   const { ask, dialog } = useConfirm();
+  const t = useT();
   const run = (kind: 'pause' | 'resume' | 'delete') =>
     start(async () => setResult(await siteAction(id, kind)));
   return (
@@ -118,16 +123,16 @@ export function SiteDangerZone({ id, status }: { id: string; status: 'ACTIVE' | 
           onClick={async () => {
             if (status !== 'ACTIVE') return run('resume');
             const ok = await ask({
-              title: 'Приостановить сайт?',
-              body: 'Пока сайт приостановлен, счётчик не записывает посещения, а виджет на сайте не принимает брони. Возобновить можно здесь же.',
-              confirmLabel: 'Приостановить',
+              title: t('Приостановить сайт?'),
+              body: t('Пока сайт приостановлен, счётчик не записывает посещения, а виджет на сайте не принимает брони. Возобновить можно здесь же.'),
+              confirmLabel: t('Приостановить'),
             });
             if (ok) run('pause');
           }}
           disabled={pending}
           data-testid="site-toggle"
         >
-          {status === 'ACTIVE' ? 'Приостановить сайт' : 'Возобновить сайт'}
+          {status === 'ACTIVE' ? t('Приостановить сайт') : t('Возобновить сайт')}
         </Button>
         <Button
           type="button"
@@ -135,16 +140,16 @@ export function SiteDangerZone({ id, status }: { id: string; status: 'ACTIVE' | 
           className="is-danger"
           onClick={async () => {
             const ok = await ask({
-              title: 'Удалить подключение сайта?',
-              body: 'Вместе с подключением исчезнет вся накопленная статистика посещений; код счётчика и виджета на странице сайта перестанет работать. Вернуть данные будет нельзя.',
-              confirmLabel: 'Удалить подключение',
+              title: t('Удалить подключение сайта?'),
+              body: t('Вместе с подключением исчезнет вся накопленная статистика посещений; код счётчика и виджета на странице сайта перестанет работать. Вернуть данные будет нельзя.'),
+              confirmLabel: t('Удалить подключение'),
             });
             if (ok) run('delete');
           }}
           disabled={pending}
           data-testid="site-delete"
         >
-          Удалить подключение сайта
+          {t('Удалить подключение сайта')}
         </Button>
       </Row>
       {result?.error && <Alert>{result.error}</Alert>}
@@ -167,6 +172,7 @@ export function BookingSettings({
 }) {
   const [on, setOn] = useState(enabled);
   const [plan, setPlan] = useState(ratePlanCode || plans[0]?.code || '');
+  const t = useT();
   const [result, setResult] = useState<SiteActionResult | null>(null);
   const [pending, start] = useTransition();
   return (
@@ -179,9 +185,9 @@ export function BookingSettings({
             onChange={(e) => setOn(e.target.checked)}
             data-testid="booking-enabled"
           />
-          Принимать брони с сайта
+          {t('Принимать брони с сайта')}
         </label>
-        <Field inline label="Тариф">
+        <Field inline label={t('Тариф')}>
           <Select
             value={plan}
             onChange={(e) => setPlan(e.target.value)}
@@ -204,14 +210,14 @@ export function BookingSettings({
           disabled={pending || (on && !plans.some((p) => p.code === plan))}
           data-testid="booking-save"
         >
-          Сохранить
+          {t('Сохранить')}
         </Button>
       </Row>
       <p className="hint">
-        Виджет показывает категории этого тарифа и его цены; отмена — по правилам тарифа.
+        {t('Виджет показывает категории этого тарифа и его цены; отмена — по правилам тарифа.')}
       </p>
       {result?.error && <Alert>{result.error}</Alert>}
-      {on && !plans.length && <Alert>Нет доступных тарифов для виджета.</Alert>}
+      {on && !plans.length && <Alert>{t('Нет доступных тарифов для виджета.')}</Alert>}
       {result?.message && <Notice data-testid="booking-result">{result.message}</Notice>}
     </Stack>
   );
@@ -228,6 +234,7 @@ export function DomainList({ id, hosts }: { id: string; hosts: string[] }) {
   const [result, setResult] = useState<SiteActionResult | null>(null);
   const [pending, start] = useTransition();
   const { ask, dialog } = useConfirm();
+  const t = useT();
   const add = () =>
     start(async () => {
       const next = await addDomainAction(id, value);
@@ -239,15 +246,15 @@ export function DomainList({ id, hosts }: { id: string; hosts: string[] }) {
     });
   const remove = async (host: string) => {
     const ok = await ask({
-      title: `Убрать ${host}?`,
-      body: `С адреса ${host} и его поддоменов WETOP перестанет принимать посещения и брони: счётчик и виджет на этом сайте замолчат.`,
-      confirmLabel: 'Убрать домен',
+      title: t('Убрать {host}?', { host }),
+      body: t('С адреса {host} и его поддоменов WETOP перестанет принимать посещения и брони: счётчик и виджет на этом сайте замолчат.', { host }),
+      confirmLabel: t('Убрать домен'),
     });
     if (ok) start(async () => setResult(await removeDomainAction(id, host)));
   };
   return (
     <Stack gap="sm" data-testid="domain-list">
-      <Table size="sm" plain aria-label="Домены сайта">
+      <Table size="sm" plain aria-label={t('Домены сайта')}>
         <tbody>
           {hosts.map((host) => (
             <tr key={host} data-testid="domain-row" data-host={host}>
@@ -255,8 +262,8 @@ export function DomainList({ id, hosts }: { id: string; hosts: string[] }) {
               <td>
                 <span className="row">
                   <strong className="break-all">{host}</strong>
-                  {host === primary && <Badge tone="ok">Основной</Badge>}
-                  {isPlaceholderHost(host) && <Badge tone="warn">Пример, не сайт</Badge>}
+                  {host === primary && <Badge tone="ok">{t('Основной')}</Badge>}
+                  {isPlaceholderHost(host) && <Badge tone="warn">{t('Пример, не сайт')}</Badge>}
                 </span>
               </td>
               <td className="num">
@@ -266,10 +273,10 @@ export function DomainList({ id, hosts }: { id: string; hosts: string[] }) {
                     tone="ghost"
                     onClick={() => remove(host)}
                     disabled={pending}
-                    aria-label={`Убрать ${host}`}
+                    aria-label={t('Убрать {host}', { host })}
                     data-testid="domain-remove"
                   >
-                    Убрать
+                    {t('Убрать')}
                   </Button>
                 )}
               </td>
@@ -286,7 +293,7 @@ export function DomainList({ id, hosts }: { id: string; hosts: string[] }) {
           }}
           data-testid="domain-add-form"
         >
-          <Field label="Новый домен">
+          <Field label={t('Новый домен')}>
             <Input
               value={value}
               onChange={(e) => setValue(e.target.value)}
@@ -298,7 +305,7 @@ export function DomainList({ id, hosts }: { id: string; hosts: string[] }) {
             />
           </Field>
           <Button type="submit" disabled={pending} data-testid="domain-save">
-            Добавить
+            {t('Добавить')}
           </Button>
           <Button
             type="button"
@@ -308,7 +315,7 @@ export function DomainList({ id, hosts }: { id: string; hosts: string[] }) {
               setResult(null);
             }}
           >
-            Отмена
+            {t('Отмена')}
           </Button>
         </form>
       ) : (
@@ -320,14 +327,13 @@ export function DomainList({ id, hosts }: { id: string; hosts: string[] }) {
             data-testid="domain-add"
           >
             <Icon name="plus" />
-            Добавить домен
+            {t('Добавить домен')}
           </Button>
         </div>
       )}
       <p className="hint">
-        www и поддомены подходят сами: {primary ?? DOMAIN_EXAMPLE} принимает и www, и адреса вида
-        booking.{primary ?? DOMAIN_EXAMPLE}.
-        {hosts.length === 1 && ' Последний адрес не убирается — сначала добавьте другой.'}
+        {t('www и поддомены подходят сами: {host} принимает и www, и адреса вида booking.{host}.', { host: primary ?? DOMAIN_EXAMPLE })}
+        {hosts.length === 1 && ` ${t('Последний адрес не убирается — сначала добавьте другой.')}`}
       </p>
       {result?.error && <Alert>{result.error}</Alert>}
       {result?.message && <Notice data-testid="domain-result">{result.message}</Notice>}
@@ -351,6 +357,7 @@ export function InstallCounterButton({
 }) {
   const [open, setOpen] = useState(false);
   const demo = isOpenableUrl(demoUrl);
+  const t = useT();
   return (
     <>
       <Button
@@ -359,12 +366,12 @@ export function InstallCounterButton({
         onClick={() => setOpen(true)}
         data-testid="site-install"
       >
-        Инструкция по установке
+        {t('Инструкция по установке')}
       </Button>
-      <Overlay drawer open={open} onClose={() => setOpen(false)} title="Установка счётчика WETOP">
+      <Overlay drawer open={open} onClose={() => setOpen(false)} title={t('Установка счётчика WETOP')}>
         <Stack data-testid="site-install-drawer">
-          <InstallStep title="Код для сайта">
-            <p className="hint--lg">Вставьте в &lt;head&gt; каждой страницы сайта.</p>
+          <InstallStep title={t('Код для сайта')}>
+            <p className="hint--lg">{t('Вставьте в <head> каждой страницы сайта.')}</p>
             <pre data-testid="site-card-snippet" className="code">
               {code}
             </pre>
@@ -376,59 +383,55 @@ export function InstallCounterButton({
                   target="_blank"
                   rel="noreferrer"
                   data-testid="site-card-demo"
-                  title="Страница со счётчиком на адресе API: открыть с телефона и нажать кнопки"
+                  title={t('Страница со счётчиком на адресе API: открыть с телефона и нажать кнопки')}
                 >
-                  Открыть демо-страницу счётчика
+                  {t('Открыть демо-страницу счётчика')}
                 </a>
               ) : (
-                <Badge>Демо счётчика не подключено</Badge>
+                <Badge>{t('Демо счётчика не подключено')}</Badge>
               )}
             </Row>
-            <Fact label="Публичный ключ сайта" value={siteKey} testId="site-card-key" />
+            <Fact label={t('Публичный ключ сайта')} value={siteKey} testId="site-card-key" />
           </InstallStep>
-          <InstallStep title="Через Google Tag Manager">
+          <InstallStep title={t('Через Google Tag Manager')}>
             <ol className="list hint--lg list--gap">
-              <li>Теги → «Создать» → тип тега «Пользовательский HTML».</li>
-              <li>Вставьте код выше целиком.</li>
-              <li>Триггер — «Все страницы» (All Pages).</li>
-              <li>Сохраните тег и опубликуйте контейнер кнопкой «Отправить».</li>
+              <li>{t('Теги → «Создать» → тип тега «Пользовательский HTML».')}</li>
+              <li>{t('Вставьте код выше целиком.')}</li>
+              <li>{t('Триггер — «Все страницы» (All Pages).')}</li>
+              <li>{t('Сохраните тег и опубликуйте контейнер кнопкой «Отправить».')}</li>
             </ol>
           </InstallStep>
-          <InstallStep title="Tilda, WordPress и свой сайт">
+          <InstallStep title={t('Tilda, WordPress и свой сайт')}>
             <ul className="list hint--lg list--gap">
-              <li>Tilda и другие конструкторы: в настройках сайта — поле для HTML-кода в head.</li>
-              <li>WordPress: поле темы или плагина для кода в head.</li>
-              <li>Свой сайт: в общем шаблоне, перед закрывающим &lt;/head&gt;.</li>
+              <li>{t('Tilda и другие конструкторы: в настройках сайта — поле для HTML-кода в head.')}</li>
+              <li>{t('WordPress: поле темы или плагина для кода в head.')}</li>
+              <li>{t('Свой сайт: в общем шаблоне, перед закрывающим </head>.')}</li>
             </ul>
           </InstallStep>
-          <InstallStep title="Проверка">
+          <InstallStep title={t('Проверка')}>
             <p className="hint--lg">
-              Откройте любую страницу сайта и вернитесь сюда: кнопка «Проверить» в карточке покажет
-              время последнего события. Проверить без сайта: откройте демо-страницу с телефона и
-              нажмите кнопки на ней.
+              {t('Откройте любую страницу сайта и вернитесь сюда: кнопка «Проверить» в карточке покажет время последнего события. Проверить без сайта: откройте демо-страницу с телефона и нажмите кнопки на ней.')}
             </p>
           </InstallStep>
           <details className="settings-disclosure">
-            <summary>Дополнительно: поиск дат, звонки и согласие</summary>
+            <summary>{t('Дополнительно: поиск дат, звонки и согласие')}</summary>
             <ol className="list hint--lg list--gap">
               <li>
-                Счётчик шлёт только: адрес и заголовок страницы, реферер, ширину экрана, язык,
-                часовой пояс и случайные ID посетителя и сессии. Без cookies, без IP, без имён и
-                телефонов.
+                {t('Счётчик шлёт только: адрес и заголовок страницы, реферер, ширину экрана, язык, часовой пояс и случайные ID посетителя и сессии. Без cookies, без IP, без имён и телефонов.')}
               </li>
               <li>
-                Форма поиска дат на сайте: при поиске вызовите{' '}
+                {t('Форма поиска дат на сайте: при поиске вызовите')}{' '}
                 <code>
                   pms(&apos;event&apos;, &apos;search&apos;, {'{'}arrival: &apos;2026-10-01&apos;,
                   departure: &apos;2026-10-03&apos;, adults: 2{'}'})
                 </code>{' '}
-                — так заполняется календарь спроса. Клики по телефону и WhatsApp:{' '}
+                {t('— так заполняется календарь спроса. Клики по телефону и WhatsApp:')}{' '}
                 <code>pms(&apos;event&apos;, &apos;phone_click&apos;)</code>,{' '}
                 <code>pms(&apos;event&apos;, &apos;whatsapp_click&apos;)</code>.
               </li>
               <li>
-                Нужен баннер согласия — добавьте атрибут <code>data-consent=&quot;wait&quot;</code>{' '}
-                и вызовите <code>pms(&apos;consent&apos;)</code> после согласия.
+                {t('Нужен баннер согласия — добавьте атрибут')} <code>data-consent=&quot;wait&quot;</code>{' '}
+                {t('и вызовите')} <code>pms(&apos;consent&apos;)</code> {t('после согласия.')}
               </li>
             </ol>
           </details>
@@ -446,6 +449,7 @@ export function InstallCounterButton({
 export function InstallWidgetButton({ code, demoUrl }: { code: string; demoUrl: string }) {
   const [open, setOpen] = useState(false);
   const demo = isOpenableUrl(demoUrl);
+  const t = useT();
   return (
     <>
       <Button
@@ -454,59 +458,54 @@ export function InstallWidgetButton({ code, demoUrl }: { code: string; demoUrl: 
         onClick={() => setOpen(true)}
         data-testid="booking-install"
       >
-        Установка виджета
+        {t('Установка виджета')}
       </Button>
       <Overlay
         drawer
         open={open}
         onClose={() => setOpen(false)}
-        title="Установка виджета бронирования"
+        title={t('Установка виджета бронирования')}
       >
         <Stack data-testid="booking-install-drawer">
-          <InstallStep title="Код для сайта">
+          <InstallStep title={t('Код для сайта')}>
             <p className="hint--lg">
-              Вставьте туда, где на странице должна быть форма бронирования, — обычно на страницу
-              «Номера» или «Бронирование». Счётчик для этого не нужен, но с ним поиск и бронь
-              попадут в аналитику.
+              {t('Вставьте туда, где на странице должна быть форма бронирования, — обычно на страницу «Номера» или «Бронирование». Счётчик для этого не нужен, но с ним поиск и бронь попадут в аналитику.')}
             </p>
             <pre data-testid="site-card-booking-snippet" className="code">
               {code}
             </pre>
             <Row className="items-start">
               <CopyButton text={code} />
-              {!demo && <Badge>Демо виджета не подключено</Badge>}
+              {!demo && <Badge>{t('Демо виджета не подключено')}</Badge>}
             </Row>
           </InstallStep>
-          <InstallStep title="Место и цвет">
+          <InstallStep title={t('Место и цвет')}>
             <ul className="list hint--lg list--gap">
               <li>
-                Форма встаёт в блок <code>&lt;div id=&quot;pms-booking&quot;&gt;</code>. Другое
-                место — атрибут <code>data-target=&quot;#ваш-блок&quot;</code> у тега script.
+                {t('Форма встаёт в блок')} <code>&lt;div id=&quot;pms-booking&quot;&gt;</code>. {t('Другое место — атрибут')}{' '}
+                <code>data-target=&quot;#{t('ваш-блок')}&quot;</code> {t('у тега script.')}
               </li>
               <li>
-                Цвет кнопок и рамки фокуса — в стилях сайта:{' '}
+                {t('Цвет кнопок и рамки фокуса — в стилях сайта:')}{' '}
                 <code>
-                  .pmsw {'{'} --pmsw-accent: &lt;цвет сайта&gt;; {'}'}
+                  .pmsw {'{'} --pmsw-accent: &lt;{t('цвет сайта')}&gt;; {'}'}
                 </code>
                 .
               </li>
               <li>
-                Язык формы: русский, казахский, английский или китайский, гость переключает сам.
-                Язык при открытии задаёт атрибут <code>data-lang=&quot;kk&quot;</code> (
-                <code>ru</code>, <code>kk</code>, <code>en</code>, <code>zh</code>). Если гость
-                оставит почту, ему придёт письмо с подтверждением на его языке.
+                {t('Язык формы: русский, казахский, английский или китайский, гость переключает сам. Язык при открытии задаёт атрибут')}{' '}
+                <code>data-lang=&quot;kk&quot;</code> (<code>ru</code>, <code>kk</code>, <code>en</code>, <code>zh</code>).{' '}
+                {t('Если гость оставит почту, ему придёт письмо с подтверждением на его языке.')}
               </li>
             </ul>
           </InstallStep>
-          <InstallStep title="Проверка">
+          <InstallStep title={t('Проверка')}>
             <p className="hint--lg">
-              Откройте страницу сайта с формой, выберите даты и нажмите «Показать цены»: должны
-              появиться свободные категории с ценой. Без сайта — кнопка «Открыть демо» на вкладке.
+              {t('Откройте страницу сайта с формой, выберите даты и нажмите «Показать цены»: должны появиться свободные категории с ценой. Без сайта — кнопка «Открыть демо» на вкладке.')}
             </p>
             {/* Демо работает на живом API: бронь с него — обычная бронь PMS, а не примерка (§7.3) */}
             <p className="note" data-testid="booking-demo-warning">
-              Бронь с сайта и с демо-страницы настоящая: она попадёт в PMS, займёт место и откроет
-              счёт. После проверки отмените её на карточке брони.
+              {t('Бронь с сайта и с демо-страницы настоящая: она попадёт в PMS, займёт место и откроет счёт. После проверки отмените её на карточке брони.')}
             </p>
           </InstallStep>
         </Stack>
@@ -524,7 +523,8 @@ function InstallStep({ title, children }: { title: string; children: ReactNode }
   );
 }
 
-export function CopyButton({ text, label = 'Скопировать код' }: { text: string; label?: string }) {
+export function CopyButton({ text, label = msg('Скопировать код') }: { text: string; label?: string }) {
+  const t = useT();
   const [done, setDone] = useState(false);
   const [error, setError] = useState(false);
   return (
@@ -543,9 +543,9 @@ export function CopyButton({ text, label = 'Скопировать код' }: { 
           }
         }}
       >
-        {done ? 'Скопировано' : label}
+        {done ? t('Скопировано') : t(label)}
       </Button>
-      {error && <Alert>Не удалось скопировать. Выделите текст вручную.</Alert>}
+      {error && <Alert>{t('Не удалось скопировать. Выделите текст вручную.')}</Alert>}
     </div>
   );
 }

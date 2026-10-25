@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { unstable_rethrow } from 'next/navigation';
 import { ApiError } from '../../lib/api';
+import { serverT } from '../../i18n/server';
 import { currentMe } from '../../lib/desk-shell';
 import { stockApi } from '../../lib/food-api';
 import type { PrepRecipeInput, PrepRecipeView, StockLotView, StockProductInput, StockReceiptInput } from '../../lib/food-types';
@@ -20,6 +21,7 @@ type StockCommand =
   | { kind: 'inventory'; body: { productId: string; actualQty: string; reason?: string | null; unitCost?: number } };
 
 async function scope(key: string) {
+  const t = await serverT();
   const { context } = await currentMe();
   const vertical = context?.vertical;
   if (
@@ -31,7 +33,11 @@ async function scope(key: string) {
   )
     throw new ApiError(
       409,
-      `Выбран другой ${context?.vertical === 'BEAUTY' ? 'салон' : context?.vertical === 'HOSPITALITY' ? 'объект' : 'ресторан'}. Откройте форму заново.`,
+      context?.vertical === 'BEAUTY'
+        ? t('Выбран другой салон. Откройте форму заново.')
+        : context?.vertical === 'HOSPITALITY'
+          ? t('Выбран другой объект. Откройте форму заново.')
+          : t('Выбран другой ресторан. Откройте форму заново.'),
     );
   return vertical;
 }
@@ -70,8 +76,9 @@ export async function mutateStock(
     return { error: null };
   } catch (error) {
     unstable_rethrow(error);
+    const t = await serverT();
     return {
-      error: error instanceof Error ? error.message : 'Не удалось сохранить. Повторите действие.',
+      error: error instanceof Error ? error.message : t('Не удалось сохранить. Повторите действие.'),
     };
   }
 }
@@ -86,7 +93,8 @@ export async function loadLots(
     return { error: null, items: (await stockApi.lots(productId)).items };
   } catch (error) {
     unstable_rethrow(error);
-    return { error: error instanceof Error ? error.message : 'Не удалось загрузить партии', items: [] };
+    const t = await serverT();
+    return { error: error instanceof Error ? error.message : t('Не удалось загрузить партии'), items: [] };
   }
 }
 
@@ -100,6 +108,7 @@ export async function loadPrepRecipe(
     return { error: null, recipe: await stockApi.prepRecipe(productId) };
   } catch (error) {
     unstable_rethrow(error);
-    return { error: error instanceof Error ? error.message : 'Не удалось загрузить техкарту', recipe: null };
+    const t = await serverT();
+    return { error: error instanceof Error ? error.message : t('Не удалось загрузить техкарту'), recipe: null };
   }
 }

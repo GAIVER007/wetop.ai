@@ -26,6 +26,7 @@ import { CreateSite } from './create-site';
 import { SimpleSiteEditor } from './simple-editor';
 import { SimpleSiteSetup } from './simple-setup';
 import { publishTarget } from './vertical-status';
+import { serverT } from '../../../../i18n/server';
 import '../../marketing.css';
 
 /**
@@ -64,7 +65,8 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
   const vertical: WebVertical = me.context?.vertical ?? 'HOSPITALITY';
   const locationId = me.context?.locationId ?? null;
   const shell = await deskShell();
-  const title = 'Редактор сайта';
+  const t = await serverT();
+  const title = t('Редактор сайта');
   const brief = () =>
     siteEditorApi.brief().catch((e: unknown) => {
       unstable_rethrow(e);
@@ -113,14 +115,14 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
   const licensed = current.builder.access === 'active';
   const readOnly = shell.readOnly || (!pending && !licensed);
   const site = current.site;
-  const locationName = current.locationName ?? loaded.brief?.input.identity.displayNameCandidate ?? 'филиала';
+  const locationName = current.locationName ?? loaded.brief?.input.identity.displayNameCandidate ?? t('филиала');
 
   if (current.archived && !site)
     return (
       <Page crumbs={<BackToModules />} title={title}>
         <Alert boxed data-testid="site-archived">
-          Сайт этого филиала в архиве. У филиала один сайт навсегда, нового не будет. История публикаций на странице{' '}
-          <Link href="/marketing/site">«Публикация»</Link>.
+          {t('Сайт этого филиала в архиве. У филиала один сайт навсегда, нового не будет. История публикаций на странице')}{' '}
+          <Link href="/marketing/site">{t('«Публикация»')}</Link>.
         </Alert>
       </Page>
     );
@@ -138,7 +140,7 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
     ]);
     const name = facts.ok ? facts.data.location.name : locationName;
     return (
-      <Page crumbs={<BackToModules />} title="Сайт и SEO" width="full">
+      <Page crumbs={<BackToModules />} title={t('Сайт и SEO')} width="full">
         {!pending && !licensed ? (
           // аудит 21.10.2026 п. 4: при неактивном конструкторе одна карточка с действием вместо формы с неактивными кнопками
           <BuilderOffCard locationName={name} expired={current.builder.access === 'expired'} />
@@ -159,11 +161,11 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
   if (!full && !chat) {
     const facts = await loadSiteFacts(locationId ?? '', vertical, siteFactsSource(locationId));
     return (
-      <Page crumbs={<BackToModules />} title="Сайт и SEO" width="full">
+      <Page crumbs={<BackToModules />} title={t('Сайт и SEO')} width="full">
         {!licensed && (
           <Alert boxed data-testid="ed-license-off">
-            <b>Конструктор сайта не активен для этого филиала.</b> Сайт виден, но менять и публиковать его нельзя. Подключить конструктор может
-            главный администратор WETOP.
+            <b>{t('Конструктор сайта не активен для этого филиала.')}</b>{' '}
+            {t('Сайт виден, но менять и публиковать его нельзя. Подключить конструктор может главный администратор WETOP.')}
           </Alert>
         )}
         <SimpleSiteSetup
@@ -175,18 +177,18 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
           facts={facts.ok ? facts.data : null}
           assets={loaded.assets}
           readOnly={readOnly}
-          publish={publishTarget(vertical)}
+          publish={publishTarget(vertical, t)}
         />
       </Page>
     );
   }
   if (!full)
     return (
-      <Page crumbs={<BackToModules />} title="Сайт и SEO" width="full">
+      <Page crumbs={<BackToModules />} title={t('Сайт и SEO')} width="full">
         {!licensed && (
           <Alert boxed data-testid="ed-license-off">
-            <b>Конструктор сайта не активен для этого филиала.</b> Сайт виден, но менять его и просить ИИ нельзя. Подключить конструктор может
-            главный администратор WETOP.
+            <b>{t('Конструктор сайта не активен для этого филиала.')}</b>{' '}
+            {t('Сайт виден, но менять его и просить ИИ нельзя. Подключить конструктор может главный администратор WETOP.')}
           </Alert>
         )}
         <SimpleSiteEditor
@@ -204,10 +206,12 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
     <Page
       crumbs={<BackToModules />}
       title={title}
-      subtitle="Расширенный режим: страницы, блоки, SEO и история версий. Сохранение создаёт новую версию черновика, на сайт она попадает после публикации."
+      subtitle={t(
+        'Расширенный режим: страницы, блоки, SEO и история версий. Сохранение создаёт новую версию черновика, на сайт она попадает после публикации.',
+      )}
       actions={
         <Link className="btn btn--secondary" href="/marketing/site/editor" data-testid="ed-simple">
-          Простой режим
+          {t('Простой режим')}
         </Link>
       }
     >
@@ -222,7 +226,7 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
         categories={loaded.brief?.input.accommodations.map((a) => ({ code: a.categoryCode, name: a.name })) ?? []}
         assets={loaded.assets}
         readOnly={readOnly}
-        publish={publishTarget(vertical)}
+        publish={publishTarget(vertical, t)}
       />
     </Page>
   );

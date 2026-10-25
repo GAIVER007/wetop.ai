@@ -11,20 +11,22 @@ import { METHOD_RU } from '../../finance/labels';
 import '../../directory.css';
 import '../reports.css';
 import { halfLinks } from './half-nav';
+import { msg } from '../../../i18n';
+import { serverT } from '../../../i18n/server';
 
 const MONTHS = [
-  'Январь',
-  'Февраль',
-  'Март',
-  'Апрель',
-  'Май',
-  'Июнь',
-  'Июль',
-  'Август',
-  'Сентябрь',
-  'Октябрь',
-  'Ноябрь',
-  'Декабрь',
+  msg('Январь'),
+  msg('Февраль'),
+  msg('Март'),
+  msg('Апрель'),
+  msg('Май'),
+  msg('Июнь'),
+  msg('Июль'),
+  msg('Август'),
+  msg('Сентябрь'),
+  msg('Октябрь'),
+  msg('Ноябрь'),
+  msg('Декабрь'),
 ];
 
 /**
@@ -38,6 +40,7 @@ export default async function Form910Page({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/reports/form-910');
+  const t = await serverT();
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const year = /^\d{4}$/.test(sp.year ?? '') ? Number(sp.year) : Number(today.slice(0, 4));
@@ -92,13 +95,15 @@ export default async function Form910Page({
     for (const p of r.income?.byMethod ?? [])
       byMethod.set(p.method, (byMethod.get(p.method) ?? 0n) + p.amountMinor);
   const money = (v: bigint) => formatMoney(v.toString(), currency);
-  const { prev, next } = halfLinks(year, half);
+  const { prev, next } = halfLinks(year, half, t);
   return (
     <Page
-      title="Доход для формы 910"
-      subtitle={`${half === 1 ? 'Первое' : 'Второе'} полугодие ${year}: деньги от гостей минус возвраты, по месяцам`}
+      title={t('Доход для формы 910')}
+      subtitle={half === 1
+        ? t('Первое полугодие {year}: деньги от гостей минус возвраты, по месяцам', { year })
+        : t('Второе полугодие {year}: деньги от гостей минус возвраты, по месяцам', { year })}
     >
-      <nav className="row row--xs" aria-label="Полугодие">
+      <nav className="row row--xs" aria-label={t('Полугодие')}>
         <Link href={prev.href} className="btn btn--secondary btn--sm">
           {prev.label}
         </Link>
@@ -106,18 +111,18 @@ export default async function Form910Page({
           {next.label}
         </Link>
       </nav>
-      {error && <Alert boxed>{error}</Alert>}
+      {error && <Alert boxed>{t(error)}</Alert>}
       {failed && (
-        <Alert boxed>Часть месяцев не загрузилась: итог неполный, обновите страницу.</Alert>
+        <Alert boxed>{t('Часть месяцев не загрузилась: итог неполный, обновите страницу.')}</Alert>
       )}
       {!error && (
         <Table data-testid="form910-months">
           <thead>
             <tr>
-              <th>Месяц</th>
-              <th className="num">Поступило</th>
-              <th className="num">Возвращено</th>
-              <th className="num">Доход</th>
+              <th>{t('Месяц')}</th>
+              <th className="num">{t('Поступило')}</th>
+              <th className="num">{t('Возвращено')}</th>
+              <th className="num">{t('Доход')}</th>
             </tr>
           </thead>
           <tbody>
@@ -125,7 +130,7 @@ export default async function Form910Page({
               <tr key={r.month} data-testid="form910-month">
                 <td>
                   <Link href={`/finance?from=${r.from}&to=${r.to}#operations`}>
-                    {MONTHS[Number(r.month.slice(5)) - 1]}
+                    {t(MONTHS[Number(r.month.slice(5)) - 1]!)}
                   </Link>
                 </td>
                 <td className="num">{r.income ? money(r.income.receivedMinor) : '—'}</td>
@@ -136,7 +141,7 @@ export default async function Form910Page({
           </tbody>
           <tfoot>
             <tr>
-              <th scope="row">За полугодие</th>
+              <th scope="row">{t('За полугодие')}</th>
               <td className="num">{money(total.received)}</td>
               <td className="num">{money(total.refunded)}</td>
               <td className="num" data-testid="form910-total">
@@ -150,14 +155,14 @@ export default async function Form910Page({
         <Table plain data-testid="form910-methods">
           <thead>
             <tr>
-              <th>Способ оплаты</th>
-              <th className="num">Поступило за полугодие</th>
+              <th>{t('Способ оплаты')}</th>
+              <th className="num">{t('Поступило за полугодие')}</th>
             </tr>
           </thead>
           <tbody>
             {[...byMethod].map(([method, amount]) => (
               <tr key={method}>
-                <td>{METHOD_RU[method] ?? method}</td>
+                <td>{t(METHOD_RU[method] ?? method)}</td>
                 <td className="num">{money(amount)}</td>
               </tr>
             ))}
@@ -165,10 +170,7 @@ export default async function Form910Page({
         </Table>
       )}
       <p className="hint--lg">
-        Это помощь бухгалтеру, а не декларация. Считаются деньги, поступившие от гостей (кассовый
-        метод), минус возвраты того же месяца; гарантия картой не считается. Оплаты через каналы
-        продаж и поступления кассы мимо гостей бухгалтер учитывает по своим правилам. Ставку налога
-        WETOP не применяет.
+        {t('Это помощь бухгалтеру, а не декларация. Считаются деньги, поступившие от гостей (кассовый метод), минус возвраты того же месяца; гарантия картой не считается. Оплаты через каналы продаж и поступления кассы мимо гостей бухгалтер учитывает по своим правилам. Ставку налога WETOP не применяет.')}
       </p>
     </Page>
   );

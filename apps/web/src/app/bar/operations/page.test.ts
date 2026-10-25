@@ -8,6 +8,7 @@ import { FALLBACK_TIMEZONE, propertyClock } from '../../../lib/property-time';
 
 vi.mock('../../../lib/vertical-guard', () => ({ requireFeature: vi.fn() }));
 vi.mock('next/navigation', () => ({ unstable_rethrow: vi.fn() }));
+vi.mock('../../../i18n/server', async () => ({ serverT: async () => (await import('../../../i18n')).translator('ru'), currentLocale: async () => 'ru' }));
 vi.mock('../../../lib/desk-shell', () => ({ currentMe: vi.fn(), deskShell: vi.fn() }));
 vi.mock('../../../lib/api', () => ({ barApi: { stock: vi.fn(), sales: vi.fn(), movements: vi.fn() }, branchesApi: { list: vi.fn() } }));
 vi.mock('../../../lib/hotel-api', () => ({ propertyTimezone: vi.fn() }));

@@ -6,7 +6,8 @@ import { deskShell } from '../../../../lib/desk-shell';
 import { formatMoney } from '../../../../lib/money';
 import { marketingCampaignsApi } from '../../../../lib/api';
 import { displayDate } from '../../../../lib/display-date';
-import { pluralRu } from '../../../../lib/plural';
+import { countLabel, msg } from '../../../../i18n';
+import { currentLocale, serverT } from '../../../../i18n/server';
 import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
 import { ShareBar } from '../../../../components/share-bar';
@@ -28,20 +29,21 @@ import { ExpenseButton, LinesButton, PlanButton } from '../drawers';
  */
 export default async function BudgetPlanPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   await requireFeature('/marketing/budget/plan');
+  const [t, locale] = await Promise.all([serverT(), currentLocale()]);
   const [loaded, shell] = await Promise.all([loadBudget(await searchParams), deskShell()]);
   const role = shell.access.role;
   const editable = !shell.readOnly && (role === null || can(role, 'marketing'));
-  const subtitle = 'План месяца, расходы на продвижение и прогноз: все каналы в одном месте.';
+  const subtitle = t('План месяца, расходы на продвижение и прогноз: все каналы в одном месте.');
   if (loaded.chooseLocation || loaded.error)
     return (
-      <Page crumbs={<BackToModules />} title={BUDGET_TITLE} subtitle={subtitle}>
+      <Page crumbs={<BackToModules />} title={t(BUDGET_TITLE)} subtitle={subtitle}>
         {loaded.error ? <LoadError testId="budget-error" {...loaded.error} /> : <ChooseLocation />}
       </Page>
     );
   const view = loaded.view!;
   // кампании для выбора в форме расхода (§53); не загрузились: форма без выбора, обзор от этого не зависит
   const campaigns = await marketingCampaignsApi.list(view.month).then((r) => r.campaigns, () => []);
-  const t = summarize(view);
+  const tot = summarize(view);
   const channels = channelPlan(view);
   const rc = view.reportingCurrency;
   // §52: без общего плана план месяца это сумма каналов
@@ -51,7 +53,7 @@ export default async function BudgetPlanPage({ searchParams }: { searchParams: P
   return (
     <Page
       crumbs={<BackToModules />}
-      title={BUDGET_TITLE}
+      title={t(BUDGET_TITLE)}
       subtitle={subtitle}
       actions={
         editable ? (
@@ -71,57 +73,57 @@ export default async function BudgetPlanPage({ searchParams }: { searchParams: P
         <div className="budget-plan-line">
           <dl className="money-summary">
             <div>
-              <dt>Общий бюджет</dt>
-              <dd data-testid="budget-plan">{planValue === null ? 'Не задан' : formatMoney(planValue, rc)}</dd>
-              {planValue !== null && t.planUsedPct !== null && (
+              <dt>{t('Общий бюджет')}</dt>
+              <dd data-testid="budget-plan">{planValue === null ? t('Не задан') : formatMoney(planValue, rc)}</dd>
+              {planValue !== null && tot.planUsedPct !== null && (
                 <dd className="budget-plan-used">
                   <ShareBar
-                    label="Израсходовано от плана"
-                    value={Math.min(100, t.planUsedPct)}
-                    tone={t.planUsedPct > 100 ? 'danger' : 'info'}
+                    label={t('Израсходовано от плана')}
+                    value={Math.min(100, tot.planUsedPct)}
+                    tone={tot.planUsedPct > 100 ? 'danger' : 'info'}
                   />
-                  {t.planUsedPct} %
+                  {tot.planUsedPct} %
                 </dd>
               )}
             </div>
             <div>
-              <dt>Израсходовано</dt>
-              <dd data-testid="budget-spent">{formatMoney(t.spent, rc)}</dd>
+              <dt>{t('Израсходовано')}</dt>
+              <dd data-testid="budget-spent">{formatMoney(tot.spent, rc)}</dd>
             </div>
             <div>
-              <dt>Остаток</dt>
-              <dd data-testid="budget-remainder" className={t.remainder !== null && t.remainder < 0n ? 'budget-td-danger' : undefined}>
-                {t.remainder === null ? '–' : formatMoney(t.remainder, rc)}
+              <dt>{t('Остаток')}</dt>
+              <dd data-testid="budget-remainder" className={tot.remainder !== null && tot.remainder < 0n ? 'budget-td-danger' : undefined}>
+                {tot.remainder === null ? '–' : formatMoney(tot.remainder, rc)}
               </dd>
             </div>
             <div>
-              <dt>Прогноз конца месяца</dt>
-              <dd data-testid="budget-forecast">{t.forecast === null ? '–' : formatMoney(t.forecast, rc)}</dd>
+              <dt>{t('Прогноз конца месяца')}</dt>
+              <dd data-testid="budget-forecast">{tot.forecast === null ? '–' : formatMoney(tot.forecast, rc)}</dd>
             </div>
           </dl>
           {editable && <PlanButton month={view.month} plan={view.plan} currency={rc} />}
         </div>
         <div className="budget-meta" data-testid="budget-meta">
           <span>
-            {planValue === null
-              ? 'Задайте план, и появятся остаток и рекомендация. '
-              : ''}
-            До конца месяца {pluralRu(t.daysLeft, ['день', 'дня', 'дней'])}
+            {planValue === null ? t('Задайте план, и появятся остаток и рекомендация.') + ' ' : ''}
+            {t('До конца месяца {n}', {
+              n: countLabel(locale, t, tot.daysLeft, [msg('день'), 'дня', msg('дней')]), // kk-allow: форма склонения
+            })}
           </span>
-          {t.onTrack !== null &&
-            (t.onTrack ? (
+          {tot.onTrack !== null &&
+            (tot.onTrack ? (
               <Badge tone="ok" data-testid="budget-ontrack">
-                Остаётесь в плане
+                {t('Остаётесь в плане')}
               </Badge>
             ) : (
               <Badge tone="warn" data-testid="budget-ontrack">
-                Прогноз выше плана
+                {t('Прогноз выше плана')}
               </Badge>
             ))}
         </div>
         <section aria-labelledby="budget-lines-title">
           <div className="budget-recent-head">
-            <SectionTitle id="budget-lines-title">План по каналам</SectionTitle>
+            <SectionTitle id="budget-lines-title">{t('План по каналам')}</SectionTitle>
             {editable && (
               <LinesButton
                 month={view.month}
@@ -134,41 +136,44 @@ export default async function BudgetPlanPage({ searchParams }: { searchParams: P
           </div>
           {view.lines.length === 0 ? (
             <EmptyState data-testid="budget-lines-empty">
-              Распишите план месяца по каналам, и здесь появится план против факта по каждому.
+              {t('Распишите план месяца по каналам, и здесь появится план против факта по каждому.')}
             </EmptyState>
           ) : (
             <>
               <p className="budget-meta" data-testid="budget-lines-summary">
                 <span>
                   {channels.unallocated === null
-                    ? `План месяца это сумма каналов: ${formatMoney(channels.allocated, rc)}`
-                    : `Распределено ${formatMoney(channels.allocated, rc)} из ${formatMoney(view.plan!, rc)}`}
+                    ? t('План месяца это сумма каналов: {sum}', { sum: formatMoney(channels.allocated, rc) })
+                    : t('Распределено {sum} из {plan}', {
+                        sum: formatMoney(channels.allocated, rc),
+                        plan: formatMoney(view.plan!, rc),
+                      })}
                 </span>
                 {channels.overAllocated ? (
                   <Badge tone="warn" data-testid="budget-lines-over">
-                    Каналы больше плана на {formatMoney(-channels.unallocated!, rc)}
+                    {t('Каналы больше плана на {sum}', { sum: formatMoney(-channels.unallocated!, rc) })}
                   </Badge>
                 ) : (
                   channels.unallocated !== null &&
-                  channels.unallocated > 0n && <span>Не распределено {formatMoney(channels.unallocated, rc)}</span>
+                  channels.unallocated > 0n && <span>{t('Не распределено {sum}', { sum: formatMoney(channels.unallocated, rc) })}</span>
                 )}
               </p>
-              <div className="tbl-wrap" role="region" aria-label="План по каналам" tabIndex={0}>
-                <Table density="normal" aria-label="План по каналам" data-testid="budget-lines">
+              <div className="tbl-wrap" role="region" aria-label={t('План по каналам')} tabIndex={0}>
+                <Table density="normal" aria-label={t('План по каналам')} data-testid="budget-lines">
                   <thead>
                     <tr>
-                      <th scope="col">Канал</th>
+                      <th scope="col">{t('Канал')}</th>
                       <th scope="col" className="budget-td-num">
-                        План
+                        {t('План')}
                       </th>
                       <th scope="col" className="budget-td-num">
-                        Факт
+                        {t('Факт')}
                       </th>
                       <th scope="col" className="budget-td-num">
-                        Остаток
+                        {t('Остаток')}
                       </th>
                       <th scope="col" className="budget-td-num">
-                        Прогноз
+                        {t('Прогноз')}
                       </th>
                     </tr>
                   </thead>
@@ -176,11 +181,11 @@ export default async function BudgetPlanPage({ searchParams }: { searchParams: P
                     {channels.rows.map((r) => (
                       <tr key={r.platform}>
                         <td>
-                          <span className="budget-cell-main">{platformLabel(r.platform)}</span>
-                          {r.plan === null && <span className="budget-cell-sub">без плана</span>}
+                          <span className="budget-cell-main">{t(platformLabel(r.platform))}</span>
+                          {r.plan === null && <span className="budget-cell-sub">{t('без плана')}</span>}
                           {r.over && (
                             <span className="budget-cell-sub">
-                              <Badge tone="warn">Прогноз выше плана</Badge>
+                              <Badge tone="warn">{t('Прогноз выше плана')}</Badge>
                             </span>
                           )}
                         </td>
@@ -199,26 +204,26 @@ export default async function BudgetPlanPage({ searchParams }: { searchParams: P
           )}
         </section>
         <section aria-labelledby="budget-shares-title">
-          <SectionTitle id="budget-shares-title">Распределение по каналам</SectionTitle>
+          <SectionTitle id="budget-shares-title">{t('Распределение по каналам')}</SectionTitle>
           <PlatformShares expenses={view.expenses} currency={rc} testId="budget-shares" />
         </section>
         <section aria-labelledby="budget-recent-title">
           <div className="budget-recent-head">
-            <SectionTitle id="budget-recent-title">Последние расходы</SectionTitle>
+            <SectionTitle id="budget-recent-title">{t('Последние расходы')}</SectionTitle>
             <Link href={`/marketing/budget/expenses?month=${view.month}`} className="budget-all-link">
-              Все расходы
+              {t('Все расходы')}
             </Link>
           </div>
           {recent.length === 0 ? (
             <EmptyState data-testid="budget-recent-empty">
-              В этом месяце расходов ещё нет. Добавьте первый, и обзор оживёт.
+              {t('В этом месяце расходов ещё нет. Добавьте первый, и обзор оживёт.')}
             </EmptyState>
           ) : (
             <ul className="budget-recent" data-testid="budget-recent">
               {recent.map((e) => (
                 <li key={e.id} className="panel budget-recent__row">
                   <span className="budget-recent__what">
-                    <span className="budget-recent__platform">{platformLabel(e.platform)}</span>
+                    <span className="budget-recent__platform">{t(platformLabel(e.platform))}</span>
                     <span className="budget-recent__detail">{e.campaign ?? e.category}</span>
                   </span>
                   <span className="budget-recent__when">{displayDate(e.date)}</span>

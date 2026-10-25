@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Overlay } from '../../components/overlay';
 import { ConfirmDialog } from '../../components/confirm-dialog';
 import { AppointmentForm } from './appointment-form';
+import { useT } from '../../i18n/locale-provider';
 
 /** Opt-in only for new Beauty appointments. No PII is written outside this mounted form. */
 export function AppointmentEditor({
@@ -18,6 +19,7 @@ export function AppointmentEditor({
   const status = useRef({ dirty: false, pending: false });
   const [destination, setDestination] = useState<(() => void) | null>(null);
   const bypass = useRef(false);
+  const t = useT();
   const changed = useCallback((next: { dirty: boolean; pending: boolean }) => {
     status.current = next;
   }, []);
@@ -132,16 +134,16 @@ export function AppointmentEditor({
     <Overlay
       open={open}
       onClose={() => request(onClose)}
-      title={form.editing ? 'Изменить запись' : 'Новая запись'}
+      title={form.editing ? t('Изменить запись') : t('Новая запись')}
       size="xl"
       className="appointment-editor"
     >
       <AppointmentForm {...form} onStateChange={changed} onDone={onDone} />
       <ConfirmDialog
         open={destination !== null}
-        title="Закрыть без сохранения?"
-        confirmLabel="Закрыть без сохранения"
-        cancelLabel="Продолжить заполнение"
+        title={t('Закрыть без сохранения?')}
+        confirmLabel={t('Закрыть без сохранения')}
+        cancelLabel={t('Продолжить заполнение')}
         onCancel={() => setDestination(null)}
         onConfirm={() => {
           const action = destination;
@@ -152,7 +154,7 @@ export function AppointmentEditor({
           if (action !== onClose) action?.();
         }}
       >
-        Введённые данные будут потеряны. Запись не сохраняется при закрытии формы.
+        {t('Введённые данные будут потеряны. Запись не сохраняется при закрытии формы.')}
       </ConfirmDialog>
     </Overlay>
   );

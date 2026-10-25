@@ -19,6 +19,8 @@ import {
   setSessionCookie,
 } from '../../lib/session';
 import { publicAuthUrl, safeReturnPath } from '../../lib/auth-entry';
+import { msg } from '../../i18n';
+import { serverT } from '../../i18n/server';
 
 /**
  * Серверные действия экрана входа. Два входа живут рядом, пока владелец не выбрал (Q-146):
@@ -36,7 +38,7 @@ export interface LoginState {
 export async function signIn(_prev: LoginState, form: FormData): Promise<LoginState> {
   const email = String(form.get('email') ?? '').trim();
   const password = String(form.get('password') ?? '');
-  if (!email || !password) return { error: 'Введите почту и пароль' };
+  if (!email || !password) return { error: msg('Введите почту и пароль') };
 
   try {
     const result = await authApi.login({ email, password }, await clientInfo());
@@ -69,7 +71,7 @@ export async function requestReset(
   form: FormData,
 ): Promise<ResetRequestState> {
   const email = String(form.get('email') ?? '').trim();
-  if (!email) return { error: 'Введите почту', sent: false };
+  if (!email) return { error: msg('Введите почту'), sent: false };
   try {
     await authApi.requestReset({ email }, await clientInfo());
   } catch (error) {
@@ -91,8 +93,8 @@ export async function setPassword(
   const token = String(form.get('token') ?? '');
   const password = String(form.get('password') ?? '');
   const again = String(form.get('again') ?? '');
-  if (!token) return { error: 'Ссылка неполная: откройте её из письма целиком' };
-  if (password !== again) return { error: 'Пароли не совпадают' };
+  if (!token) return { error: msg('Ссылка неполная: откройте её из письма целиком') };
+  if (password !== again) return { error: msg('Пароли не совпадают') };
   try {
     await authApi.confirmReset({ token, password }, await clientInfo());
   } catch (error) {
@@ -115,7 +117,7 @@ export interface AuthActionResult {
 /** Текст для человека: своё сообщение API — как есть, сбой связи — одной фразой. */
 function errorText(e: unknown): string {
   if (e instanceof ApiError) return e.message;
-  return 'Нет связи с сервером. Попробуйте ещё раз.';
+  return msg('Нет связи с сервером. Попробуйте ещё раз.');
 }
 
 // Вход по коду на почту снят 20.09.2026 (ADR-053): requestCodeAction и verifyAction ушли вместе с ним.
@@ -207,7 +209,7 @@ export interface ResendState {
 /** «Выслать письмо заново». Ответ не говорит, есть ли такая почта: иначе форма проверяет чужие адреса. */
 export async function resendVerification(_prev: ResendState, form: FormData): Promise<ResendState> {
   const email = String(form.get('email') ?? '').trim();
-  if (!email) return { error: 'Введите почту', sent: false };
+  if (!email) return { error: msg('Введите почту'), sent: false };
   try {
     await authApi.resendVerification({ email }, await clientInfo());
   } catch (e) {
@@ -223,7 +225,7 @@ export interface InviteActionResult {
 }
 
 const ORGANIZATION_CHANGED_MESSAGE =
-  'Рабочая организация изменилась. Обновите страницу и повторите действие.';
+  msg('Рабочая организация изменилась. Обновите страницу и повторите действие.');
 
 async function expectedOrganizationMatches(
   expectedOrganizationId?: string | null,
@@ -244,7 +246,7 @@ export async function inviteAction(
   expectedOrganizationId?: string | null,
 ): Promise<InviteActionResult> {
   const token = await sessionToken();
-  if (!token) return { error: 'Сеанс закончился. Войдите заново.', email: null };
+  if (!token) return { error: msg('Сеанс закончился. Войдите заново.'), email: null };
   const invited = parseInviteRole(role);
   if (!invited) return { error: INVITE_ROLE_MESSAGE, email: null };
   try {
@@ -271,13 +273,13 @@ export async function inviteNewStaffAction(input: {
   allBranches: boolean;
 }): Promise<{ error: string | null; invited: string | null }> {
   if (!(ACCESS_LEVELS as readonly string[]).includes(input.level))
-    return { error: 'Выберите уровень доступа.', invited: null };
+    return { error: msg('Выберите уровень доступа.'), invited: null };
   const role = inviteRoleOfLevel(input.level as AccessLevel);
   if (!role) return { error: null, invited: null };
   if (!input.email.trim())
-    return { error: 'Для входа в WETOP укажите почту: на неё придёт приглашение.', invited: null };
+    return { error: msg('Для входа в WETOP укажите почту: на неё придёт приглашение.'), invited: null };
   const token = await sessionToken();
-  if (!token) return { error: 'Сеанс закончился. Войдите заново.', invited: null };
+  if (!token) return { error: msg('Сеанс закончился. Войдите заново.'), invited: null };
   try {
     const invite = await authApi.invite(token, input.email.trim(), role, await clientInfo(), {
       employeeId: input.employeeId,
@@ -300,7 +302,7 @@ async function teamAction(
   expectedOrganizationId?: string | null,
 ): Promise<TeamActionResult> {
   const token = await sessionToken();
-  if (!token) return { error: 'Сеанс закончился. Войдите заново.' };
+  if (!token) return { error: msg('Сеанс закончился. Войдите заново.') };
   try {
     if (!(await expectedOrganizationMatches(expectedOrganizationId)))
       return { error: ORGANIZATION_CHANGED_MESSAGE };
@@ -333,9 +335,11 @@ export async function resendInviteAction(
   const revoked = await revokeInviteAction(id);
   if (revoked.error) return revoked;
   const sent = await inviteAction(email, invited, extra);
-  return sent.error
-    ? { error: `Старое приглашение отозвано, новое не отправлено: ${sent.error}` }
-    : { error: null };
+  if (!sent.error) return { error: null };
+  const t = await serverT();
+  return {
+    error: t('Старое приглашение отозвано, новое не отправлено: {error}', { error: t(sent.error) }),
+  };
 }
 
 /** Отключить сотрудника: членство удаляется, его сеансы в этой организации гаснут */
@@ -368,7 +372,7 @@ export async function setMemberSuspendedAction(
 /** Сменить роль между управляющим и администратором — только владелец */
 export async function setMemberRoleAction(userId: string, role: string): Promise<TeamActionResult> {
   const next = parseInviteRole(role);
-  if (!next) return { error: 'Роль сотрудника — «управляющий» или «администратор».' };
+  if (!next) return { error: msg('Роль сотрудника — «управляющий» или «администратор».') };
   return teamAction(async (token) =>
     authApi.setMemberRole(token, userId, next, await clientInfo()),
   );

@@ -16,9 +16,9 @@ test.beforeEach(async ({ page, request }) => {
   await page.waitForURL('**/today');
 });
 
-async function chooseLocale(page: Page, code: 'ru' | 'kk') {
+async function chooseLocale(page: Page, code: 'ru' | 'kk' | 'en') {
   await openProfileMenu(page);
-  await page.locator('#profile-dropdown').getByRole('button', { name: code === 'kk' ? 'Қазақша' : 'Русский' }).click();
+  await page.locator('#profile-dropdown').getByRole('button', { name: { ru: 'Русский', kk: 'Қазақша', en: 'English' }[code] }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', code);
   // меню остаётся открытым, чтобы был виден выбор; закрываем его, как человек, клавишей Escape
   await page.keyboard.press('Escape');
@@ -51,6 +51,21 @@ test('казахский из меню профиля: шапка, меню и �
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang', 'kk');
   await expect(page.getByRole('button', { name: 'Қонақты немесе брондауды табу' })).toBeVisible();
+});
+
+test('EN1: английский из меню профиля, шапка и профиль по-английски, назад на русский', async ({ page }) => {
+  await chooseLocale(page, 'en');
+  await expect(page.getByRole('navigation', { name: 'Main menu' })).toBeAttached();
+  await expect(page.getByRole('button', { name: 'Find a guest or booking' })).toBeVisible();
+  await openProfileMenu(page);
+  const dropdown = page.locator('#profile-dropdown');
+  await expect(dropdown.getByRole('link', { name: 'Help' })).toBeVisible();
+  await expect(dropdown.getByRole('button', { name: 'Sign out' })).toBeVisible();
+  await expect(dropdown.getByRole('group', { name: 'Language' }).getByRole('button', { name: 'English' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.profile-caption small')).toHaveText('Owner');
+  await page.keyboard.press('Escape');
+  await chooseLocale(page, 'ru');
+  await expect(page.getByRole('button', { name: 'Найти гостя или бронь' })).toBeVisible();
 });
 
 test('«Помощь» и «Не жаңалық» на казахском, назад на русский одной кнопкой', async ({ page }) => {

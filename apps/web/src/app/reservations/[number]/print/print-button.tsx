@@ -1,5 +1,7 @@
 'use client';
+import { useT } from '../../../../i18n/locale-provider';
 export function PrintButton() {
+  const t = useT();
   return (
     <button
       type="button"
@@ -12,7 +14,7 @@ export function PrintButton() {
         cursor: 'pointer',
       }}
     >
-      Печать
+      {t('Печать')}
     </button>
   );
 }

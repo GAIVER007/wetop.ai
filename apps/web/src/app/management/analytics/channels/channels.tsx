@@ -25,11 +25,13 @@ import { displayDate } from '../../../../lib/display-date';
 import { propertyCurrency } from '../../../../lib/hotel-api';
 import { DeltaMark } from '../tiles';
 import { CHANNELS_PATH, channelLabel, channelsHref, type ChannelsQuery } from './query';
+import { msg, type Translate } from '../../../../i18n';
+import { serverT } from '../../../../i18n/server';
 
 const SORT_LABEL: Record<ChannelEfficiencySort, string> = {
-  revenue: 'доходу',
-  nights: 'ночам',
-  adr: 'средней стоимости',
+  revenue: msg('Сортировать по доходу'),
+  nights: msg('Сортировать по ночам'),
+  adr: msg('Сортировать по средней стоимости'),
 };
 
 /** Заголовок колонки: ссылка сортировки; текущая отмечена `aria-sort` */
@@ -37,10 +39,12 @@ function SortHead({
   query,
   sort,
   children,
+  t,
 }: {
   query: ChannelsQuery;
   sort: ChannelEfficiencySort;
   children: React.ReactNode;
+  t: Translate;
 }) {
   const on = query.sort === sort;
   return (
@@ -49,7 +53,7 @@ function SortHead({
         prefetch={false}
         className="pa-sort"
         href={channelsHref(query, { sort })}
-        aria-label={`Сортировать по ${SORT_LABEL[sort]}`}
+        aria-label={t(SORT_LABEL[sort])}
       >
         {children}
         <span aria-hidden="true">{on ? ' ▼' : ''}</span>
@@ -59,10 +63,10 @@ function SortHead({
 }
 
 /** Прошлый период под числом строки: значение и изменение к нему; без базы: только значение */
-function Before({ value, delta }: { value: string; delta: Delta }) {
+function Before({ value, delta, t }: { value: string; delta: Delta; t: Translate }) {
   return (
     <span className="pa-channels__before">
-      было {value}
+      {t('было {value}', { value })}
       {delta.direction && (
         <>
           {' '}
@@ -77,6 +81,7 @@ function Cells({
   row,
   prev,
   cur,
+  t,
 }: {
   row: Pick<ChannelEfficiencyRow, 'revenueMinor' | 'nights' | 'adrMinor'> & {
     revenueShare: number | null;
@@ -85,40 +90,46 @@ function Cells({
   prev?: Pick<ChannelEfficiencyRow, 'revenueMinor' | 'nights' | 'adrMinor'> | null | undefined;
   /** валюта объекта: доход и ADR в ней, не всегда тенге */
   cur: string;
+  t: Translate;
 }) {
   return (
     <>
       <td className="num">
-        <span className="dash-cell-word">доход </span>
-        {wholeTenge(row.revenueMinor, cur)}
+        <span className="dash-cell-word">{t('доход')} </span>
+        <span className="pa-channels__value">{wholeTenge(row.revenueMinor, cur)}</span>
         {row.revenueShare !== null && (
-          <span className="pa-channels__share">{formatPercent(row.revenueShare)}</span>
+          <span className="pa-channels__share">{' '}{formatPercent(row.revenueShare)}</span>
         )}
         {prev !== undefined && (
           <Before
+            t={t}
             value={prev ? wholeTenge(prev.revenueMinor, cur) : wholeTenge('0', cur)}
             delta={deltaPercent(BigInt(row.revenueMinor), BigInt(prev?.revenueMinor ?? '0'))}
           />
         )}
       </td>
       <td className="num">
-        <span className="dash-cell-word">ночи </span>
-        {formatInt(row.nights)}
+        <span className="dash-cell-word">{t('ночи')} </span>
+        <span className="pa-channels__value">{formatInt(row.nights)}</span>
         {row.nightsShare !== null && (
-          <span className="pa-channels__share">{formatPercent(row.nightsShare)}</span>
+          <span className="pa-channels__share">{' '}{formatPercent(row.nightsShare)}</span>
         )}
         {prev !== undefined && (
           <Before
+            t={t}
             value={formatInt(prev?.nights ?? 0)}
             delta={deltaPercent(row.nights, prev?.nights ?? 0)}
           />
         )}
       </td>
       <td className="num">
-        <span className="dash-cell-word">за ночь </span>
-        {row.adrMinor === null ? '—' : wholeTenge(row.adrMinor, cur)}
+        <span className="dash-cell-word">{t('за ночь')} </span>
+        <span className="pa-channels__value">
+          {row.adrMinor === null ? '—' : wholeTenge(row.adrMinor, cur)}
+        </span>
         {prev !== undefined && (
           <Before
+            t={t}
             value={prev?.adrMinor ? wholeTenge(prev.adrMinor, cur) : '—'}
             delta={deltaPercent(BigInt(row.adrMinor ?? '0'), BigInt(prev?.adrMinor ?? '0'))}
           />
@@ -129,24 +140,32 @@ function Cells({
 }
 
 /** Полоса отбора: период заезда, сравнение, канал, каналы без броней; GET-форма, адрес: источник правды */
-function Filters({ query, report }: { query: ChannelsQuery; report: ChannelEfficiency | null }) {
+function Filters({
+  query,
+  report,
+  t,
+}: {
+  query: ChannelsQuery;
+  report: ChannelEfficiency | null;
+  t: Translate;
+}) {
   const options = report?.channels ?? [];
   const known = options.some((o) => o.label === query.channel);
   return (
     <form method="get" action={CHANNELS_PATH} className="pa-channels__form" data-testid="pa-channels-form">
       <fieldset className="pa-channels__group">
-        <legend>Период заезда</legend>
+        <legend>{t('Период заезда')}</legend>
         <label>
-          С
-          <DateInput name="from" defaultValue={query.from} aria-label="Период заезда: с" />
+          {t('С')}
+          <DateInput name="from" defaultValue={query.from} aria-label={t('Период заезда: с')} />
         </label>
         <label>
-          По
+          {t('По')}
           <DateInput
             name="to"
             rangeFromName="from"
             defaultValue={query.to}
-            aria-label="Период заезда: по"
+            aria-label={t('Период заезда: по')}
           />
         </label>
       </fieldset>
@@ -154,30 +173,30 @@ function Filters({ query, report }: { query: ChannelsQuery; report: ChannelEffic
         <legend>
           <label className="pa-channels__check">
             <input type="checkbox" name="compare" value="1" defaultChecked={query.compare} />
-            Сравнить с периодом
+            {t('Сравнить с периодом')}
           </label>
         </legend>
         <label>
-          С
-          <DateInput name="cfrom" defaultValue={query.compareFrom} aria-label="Сравнить: с" />
+          {t('С')}
+          <DateInput name="cfrom" defaultValue={query.compareFrom} aria-label={t('Сравнить: с')} />
         </label>
         <label>
-          По
+          {t('По')}
           <DateInput
             name="cto"
             rangeFromName="cfrom"
             defaultValue={query.compareTo}
-            aria-label="Сравнить: по"
+            aria-label={t('Сравнить: по')}
           />
         </label>
       </fieldset>
       <label className="pa-channels__channel">
-        Канал
+        {t('Канал')}
         <Select name="channel" defaultValue={query.channel} data-testid="pa-channels-select">
-          <option value="">Все</option>
+          <option value="">{t('Все')}</option>
           {options.map((o) => (
             <option key={o.label} value={o.label}>
-              {channelLabel(o)}
+              {t(channelLabel(o))}
             </option>
           ))}
           {query.channel && !known && <option value={query.channel}>{query.channel}</option>}
@@ -185,10 +204,10 @@ function Filters({ query, report }: { query: ChannelsQuery; report: ChannelEffic
       </label>
       <label className="pa-channels__check">
         <input type="checkbox" name="empty" value="1" defaultChecked={query.empty} />
-        Показать каналы без броней
+        {t('Показать каналы без броней')}
       </label>
       {query.sort !== 'revenue' && <input type="hidden" name="sort" value={query.sort} />}
-      <Button type="submit">Применить</Button>
+      <Button type="submit">{t('Применить')}</Button>
     </form>
   );
 }
@@ -199,7 +218,7 @@ function Filters({ query, report }: { query: ChannelsQuery; report: ChannelEffic
  * отменённых и незаездов, сумма брони по ночам не делится. Имён гостей в отчёте нет.
  */
 export async function ChannelsReport({ query }: { query: ChannelsQuery }) {
-  const cur = await propertyCurrency();
+  const [cur, t] = await Promise.all([propertyCurrency(), serverT()]);
   const data = await dashboardApi
     .channels({
       from: query.from,
@@ -214,25 +233,27 @@ export async function ChannelsReport({ query }: { query: ChannelsQuery }) {
   if (data instanceof ApiError)
     return (
       <>
-        <Filters query={query} report={null} />
+        <Filters query={query} report={null} t={t} />
         <LoadError testId="pa-channels-error" {...loadErrorProps(data)} />
       </>
     );
   const { current, previous } = data;
   const prevOf = (label: string) =>
     previous ? (previous.rows.find((r) => r.label === label) ?? null) : undefined;
-  const t = current.totals;
+  const totals = current.totals;
   return (
     <>
-      <Filters query={query} report={current} />
+      <Filters query={query} report={current} t={t} />
       <p className="directory-meta pa-meta" data-testid="pa-channels-meta">
         <span>
-          Брони с заездом с <time dateTime={current.from}>{displayDate(current.from, 'numeric')}</time>{' '}
-          по <time dateTime={current.to}>{displayDate(current.to, 'numeric')}</time>
+          {t('Брони с заездом с')}{' '}
+          <time dateTime={current.from}>{displayDate(current.from, 'numeric')}</time> {t('по')}{' '}
+          <time dateTime={current.to}>{displayDate(current.to, 'numeric')}</time>
           {previous && (
             <>
-              {', '}сравнение с{' '}
-              <time dateTime={previous.from}>{displayDate(previous.from, 'numeric')}</time> по{' '}
+              {', '}
+              {t('сравнение с')}{' '}
+              <time dateTime={previous.from}>{displayDate(previous.from, 'numeric')}</time> {t('по')}{' '}
               <time dateTime={previous.to}>{displayDate(previous.to, 'numeric')}</time>
             </>
           )}
@@ -243,37 +264,37 @@ export async function ChannelsReport({ query }: { query: ChannelsQuery }) {
           data-testid="pa-channels-export"
           download
         >
-          Скачать CSV
+          {t('Скачать CSV')}
         </a>
       </p>
       {current.rows.length === 0 ? (
         <EmptyState
           data-testid="pa-channels-empty"
-          title="В этом периоде нет броней"
+          title={t('В этом периоде нет броней')}
           actions={
             query.empty ? undefined : (
               <Link className="btn btn--secondary" href={channelsHref(query, { empty: true })}>
-                Показать все каналы
+                {t('Показать все каналы')}
               </Link>
             )
           }
         >
-          Отчёт считает брони с заездом в выбранном периоде, без отменённых и незаездов.
+          {t('Отчёт считает брони с заездом в выбранном периоде, без отменённых и незаездов.')}
         </EmptyState>
       ) : (
-        <Panel title="Эффективность каналов" className="dash-panel dash-panel--table">
+        <Panel title={t('Эффективность каналов')} className="dash-panel dash-panel--table">
           <Table className="dash-table pa-channels-table" nowrap data-testid="pa-channels-table">
             <thead>
               <tr>
-                <th>Канал</th>
-                <SortHead query={query} sort="revenue">
-                  Доход, сумма и доля
+                <th>{t('Канал')}</th>
+                <SortHead query={query} sort="revenue" t={t}>
+                  {t('Доход, сумма и доля')}
                 </SortHead>
-                <SortHead query={query} sort="nights">
-                  Ночи, количество и доля
+                <SortHead query={query} sort="nights" t={t}>
+                  {t('Ночи, количество и доля')}
                 </SortHead>
-                <SortHead query={query} sort="adr">
-                  Средняя стоимость ночи
+                <SortHead query={query} sort="adr" t={t}>
+                  {t('Средняя стоимость ночи')}
                 </SortHead>
               </tr>
             </thead>
@@ -285,40 +306,44 @@ export async function ChannelsReport({ query }: { query: ChannelsQuery }) {
                   className={row.nights === 0 ? 'pa-channels__row--empty' : undefined}
                 >
                   <td className="dash-table__name">
-                    {channelLabel(row)}
+                    {t(channelLabel(row))}{' '}
                     <span className="pa-channels__bookings">
-                      {row.bookings > 0 ? `броней: ${formatInt(row.bookings)}` : 'броней нет'}
+                      {row.bookings > 0
+                        ? t('броней: {n}', { n: formatInt(row.bookings) })
+                        : t('броней нет')}
                     </span>
                   </td>
-                  <Cells row={row} prev={prevOf(row.label)} cur={cur} />
+                  <Cells row={row} prev={prevOf(row.label)} cur={cur} t={t} />
                 </tr>
               ))}
             </tbody>
             <tfoot>
               <tr className="pa-channels-total" data-testid="pa-channels-total">
                 <th scope="row">
-                  Итого
-                  <span className="pa-channels__bookings">броней: {formatInt(t.bookings)}</span>
+                  {t('Итого')}{' '}
+                  <span className="pa-channels__bookings">
+                    {t('броней: {n}', { n: formatInt(totals.bookings) })}
+                  </span>
                 </th>
                 <Cells
                   row={{
-                    ...t,
-                    revenueShare: query.channel ? null : t.revenueMinor === '0' ? 0 : 100,
-                    nightsShare: query.channel ? null : t.nights === 0 ? 0 : 100,
+                    ...totals,
+                    revenueShare: query.channel ? null : totals.revenueMinor === '0' ? 0 : 100,
+                    nightsShare: query.channel ? null : totals.nights === 0 ? 0 : 100,
                   }}
                   prev={previous ? previous.totals : undefined}
                   cur={cur}
+                  t={t}
                 />
               </tr>
             </tfoot>
           </Table>
         </Panel>
       )}
-      <Help title="Как считается">
-        Берутся брони с датой заезда в выбранном периоде, без отменённых и незаездов. Доход брони: её
-        стоимость проживания целиком, по ночам она не делится. Доля: от всех каналов периода. Средняя
-        стоимость ночи = доход канала / его ночи. При сравнении под числом: значение за другой период
-        и изменение к нему.
+      <Help title={msg('Как считается')}>
+        {t(
+          'Берутся брони с датой заезда в выбранном периоде, без отменённых и незаездов. Доход брони: её стоимость проживания целиком, по ночам она не делится. Доля: от всех каналов периода. Средняя стоимость ночи = доход канала / его ночи. При сравнении под числом: значение за другой период и изменение к нему.',
+        )}
       </Help>
     </>
   );
@@ -327,7 +352,7 @@ export async function ChannelsReport({ query }: { query: ChannelsQuery }) {
 /** Ожидание отчёта под вкладками */
 export function ChannelsSkeleton() {
   return (
-    <LoadingState label="Считаем доход по каналам…" data-testid="pa-channels-loading">
+    <LoadingState label={msg('Считаем доход по каналам…')} data-testid="pa-channels-loading">
       <Skeleton variant="row" />
       <Skeleton variant="row" />
       <Skeleton variant="row" />

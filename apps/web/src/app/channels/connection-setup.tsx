@@ -7,6 +7,8 @@ import type { PropertyClock } from '../../lib/property-time';
 import { Alert, Badge, Panel, Grid, Fact } from '../../components/ui';
 import { ChannelButtons } from './buttons';
 import { unstable_rethrow } from 'next/navigation';
+import { serverT } from '../../i18n/server';
+import { msg, type Translate } from '../../i18n';
 import './channels.css';
 const settle = <T,>(p: Promise<T>) =>
   p.then(
@@ -16,10 +18,11 @@ const settle = <T,>(p: Promise<T>) =>
       return { ok: false as const, e };
     },
   );
-const checkedAt = (iso: string | null | undefined, clock: PropertyClock) =>
-  iso ? `, проверено ${clock.clock(iso)} по времени объекта` : '';
+const checkedAt = (iso: string | null | undefined, clock: PropertyClock, t: Translate) =>
+  iso ? t(', проверено {time} по времени объекта', { time: clock.clock(iso) }) : '';
 export async function ChannelConnectionSetup({ canMutate }: { canMutate?: boolean } = {}) {
   const clock = await hotelClock();
+  const t = await serverT();
   const [connection, webhook, me, hotel, shell] = await Promise.all([
     channelsApi.connection().catch(() => null),
     channelsApi.webhookStatus().catch(() => null),
@@ -33,60 +36,66 @@ export async function ChannelConnectionSetup({ canMutate }: { canMutate?: boolea
   const webhookReady = !!webhook?.expectedUrl && !!webhook?.secretConfigured;
   return (
     <div className="stack">
-      {!connection && <Alert boxed>Не удалось проверить подключение менеджера каналов.</Alert>}
-      <Panel title="Менеджер каналов" data-testid="channel-connection">
+      {!connection && <Alert boxed>{t('Не удалось проверить подключение менеджера каналов.')}</Alert>}
+      <Panel title={t('Менеджер каналов')} data-testid="channel-connection">
         <Badge tone={connection?.propertyAccessible ? 'ok' : 'warn'}>
-          {connection?.message ?? 'Не проверено'}
+          {connection?.message ?? t('Не проверено')}
         </Badge>
         {connection && (
           <Grid min={180}>
             <Fact
-              label="Среда"
+              label={t('Контур')}
               value={
                 connection.environment === 'production'
-                  ? 'Рабочая'
+                  ? t('Рабочая')
                   : connection.environment === 'staging'
-                    ? 'Тестовая'
-                    : 'Свой сервер'
+                    ? t('Тестовая')
+                    : t('Свой сервер')
               }
             />
             <Fact
-              label="Объект в менеджере каналов"
+              label={t('Объект в менеджере каналов')}
               value={
                 connection.propertyId ? (
                   <span className="mono break-all">{connection.propertyId}</span>
                 ) : (
-                  'не создан'
+                  t('не создан')
                 )
               }
             />
             <Fact
-              label="Сопоставлено"
-              value={`категорий ${connection.mappedCategories}, тарифных планов ${connection.mappedLocalRatePlans}, сопоставлений ${connection.mappedRatePlans}`}
+              label={t('Сопоставлено')}
+              value={t('категорий {categories}, тарифных планов {plans}, сопоставлений {mappings}', {
+                categories: connection.mappedCategories,
+                plans: connection.mappedLocalRatePlans,
+                mappings: connection.mappedRatePlans,
+              })}
             />
             <Fact
-              label="Последний webhook, время объекта"
+              label={t('Последний webhook, время объекта')}
               value={clock.local(connection.lastWebhookAt)}
             />
-            <Fact label="Последний импорт, время объекта" value={clock.local(connection.lastPullAt)} />
+            <Fact label={t('Последний импорт, время объекта')} value={clock.local(connection.lastPullAt)} />
           </Grid>
         )}
       </Panel>
-      <Panel title="Webhook менеджера каналов" data-testid="channel-webhook">
+      <Panel title={t('Webhook менеджера каналов')} data-testid="channel-webhook">
         {webhook === null ? (
           <Alert>
-            Статус webhook не загрузился. Его состояние неизвестно — обновите страницу перед
-            настройкой.
+            {t('Статус webhook не загрузился. Его состояние неизвестно, обновите страницу перед настройкой.')}
           </Alert>
         ) : (
           <>
             <Badge tone={webhook.registered && webhook.active ? 'ok' : 'warn'}>
               <span data-testid="webhook-state">
                 {webhook.registered
-                  ? `${webhook.active ? 'активен' : 'выключен'}, события ${webhook.eventMask}`
+                  ? t(webhook.active ? msg('активен, события {mask}') : msg('выключен, события {mask}'), {
+                      // как до перевода: шаблон печатал маску как есть, `null` словом
+                      mask: String(webhook.eventMask),
+                    })
                   : webhook.expectedUrl
-                    ? 'не зарегистрирован'
-                    : 'нет PUBLIC_API_URL'}
+                    ? t('не зарегистрирован')
+                    : t('нет PUBLIC_API_URL')}
               </span>
             </Badge>
             {webhook.registered && <p className="note break-all">{webhook.callbackUrl}</p>}
@@ -94,21 +103,23 @@ export async function ChannelConnectionSetup({ canMutate }: { canMutate?: boolea
               webhook.expectedUrl &&
               webhook.callbackUrl !== webhook.expectedUrl && (
                 <p className="note danger-text" data-testid="webhook-url-mismatch">
-                  зарегистрирован не постоянный адрес PMS ({webhook.expectedUrl}) — события уходят
-                  не туда, нажмите «Зарегистрировать webhook»
+                  {t('зарегистрирован не постоянный адрес PMS ({url}): события уходят не туда, нажмите «Зарегистрировать webhook»', {
+                    url: webhook.expectedUrl,
+                  })}
                 </p>
               )}
             {webhook.registered &&
               webhook.callbackReachable === false &&
               (!webhook.expectedUrl || webhook.callbackUrl === webhook.expectedUrl) && (
                 <p className="note danger-text">
-                  адрес не отвечает{checkedAt(webhook.callbackCheckedAt, clock)} — брони подберёт
-                  опрос ленты, но webhook надо поднять
+                  {t('адрес не отвечает{checked}: брони подберёт опрос ленты, но webhook надо поднять', {
+                    checked: checkedAt(webhook.callbackCheckedAt, clock, t),
+                  })}
                 </p>
               )}
             {webhook.registered && webhook.callbackReachable === true && (
               <p className="note ok-text">
-                адрес отвечает{checkedAt(webhook.callbackCheckedAt, clock)}
+                {t('адрес отвечает{checked}', { checked: checkedAt(webhook.callbackCheckedAt, clock, t) })}
               </p>
             )}
           </>
@@ -129,13 +140,13 @@ export async function ChannelConnectionSetup({ canMutate }: { canMutate?: boolea
         />
       ) : (
         <p className="note" data-testid="channel-setup-owner-only">
-          Настройку подключения меняет владелец организации.
+          {t('Настройку подключения меняет владелец организации.')}
         </p>
       )}
       <p className="note" data-testid="channel-content-location">
-        Ключ менеджера каналов хранится только на сервере. Общий экран подключений гостиницы —{' '}
-        <Link href="/connections">«Подключения»</Link>; фото, удобства и описание для каналов
-        настраиваются в кабинете менеджера каналов или самого канала.
+        {t('Ключ менеджера каналов хранится только на сервере. Общий экран подключений гостиницы:')}{' '}
+        <Link href="/connections">«{t('Подключения')}»</Link>
+        {t('; фото, удобства и описание для каналов настраиваются в кабинете менеджера каналов или самого канала.')}
       </p>
     </div>
   );

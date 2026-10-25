@@ -1,5 +1,6 @@
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
+import { serverT } from '../../i18n/server';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { foodApi, restaurantApi } from '../../lib/food-api';
@@ -20,6 +21,7 @@ import '../food/restaurant.css';
 
 /** «Напитки» (бар) ресторана по макету владельца (экран 7): позиции станции «Бар» (§33.6) и витрина напитков меню */
 export default async function DrinksPage() {
+  const t = await serverT();
   try {
     const shell = await restaurantShell();
     const [open, areas, tables, employees, categories, menuItems] = await Promise.all([
@@ -42,7 +44,7 @@ export default async function DrinksPage() {
       menuItems,
     };
     return (
-      <Page title="Напитки">
+      <Page title={t('Напитки')}>
         <div key={shell.scopeKey}>
           <BarBoard ctx={ctx} orders={open} />
         </div>
@@ -51,7 +53,7 @@ export default async function DrinksPage() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Напитки">
+      <Page title={t('Напитки')}>
         <LoadError testId="drinks-load-error" {...loadErrorProps(error)} />
       </Page>
     );

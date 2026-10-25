@@ -7,6 +7,7 @@ import { bookingPrefill } from '../../../lib/booking-link';
 import { hotelToday } from '../../../lib/hotel-api';
 import { Page } from '../../../components/page';
 import { Alert } from '../../../components/ui';
+import { serverT } from '../../../i18n/server';
 import { NewReservationForm } from './form';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess } from '../../../lib/navigation';
@@ -36,6 +37,7 @@ export default async function NewReservationPage({
 }) {
   // гостиничный экран: салон и ресторан по прямому адресу уходят на свою стартовую (DS2 F1, как `/reports`)
   await requireFeature('/reservations/new');
+  const t = await serverT();
   const raw = await searchParams;
   const q = normalizeSearchParams(raw);
   const today = await hotelToday();
@@ -44,16 +46,16 @@ export default async function NewReservationPage({
     shell.access.unknown !== true && mayAccess(shell.access, 'desk') && !shell.readOnly;
   if (!canMutate)
     return (
-      <Page width="medium" className="booking-create" title="Новая бронь">
+      <Page width="medium" className="booking-create" title={t('Новая бронь')}>
         <Alert boxed tone="warning">
           {shell.access.unknown
-            ? 'Не удалось проверить права. Повторите загрузку страницы.'
+            ? t('Не удалось проверить права. Повторите загрузку страницы.')
             : shell.readOnly
-              ? 'Организация работает в режиме только чтения. Бронирования доступны для просмотра.'
-              : 'Нет права создавать бронирования. Бронирования доступны для просмотра.'}
+              ? t('Организация работает в режиме только чтения. Бронирования доступны для просмотра.')
+              : t('Нет права создавать бронирования. Бронирования доступны для просмотра.')}
         </Alert>
         <Link className="btn btn--secondary" href="/reservations">
-          Вернуться к броням
+          {t('Вернуться к броням')}
         </Link>
       </Page>
     );
@@ -100,23 +102,22 @@ export default async function NewReservationPage({
     <Page
       width="wide"
       className={`booking-create ${design.screen}`}
-      title="Новая бронь"
+      title={t('Новая бронь')}
       embedded={embedded}
     >
       {ratePlans === null && (
         <Alert boxed tone="warning">
-          Справочник тарифов не загрузился: без тарифа бронь не создать. Обновите страницу.
+          {t('Справочник тарифов не загрузился: без тарифа бронь не создать. Обновите страницу.')}
         </Alert>
       )}
       {q.guest && !guest && (
         <Alert boxed tone="warning" data-testid="booking-guest-missing">
-          Гость из ссылки не найден. Бронь заведёт нового гостя — или откройте её из карточки гостя
-          ещё раз.
+          {t('Гость из ссылки не найден. Бронь заведёт нового гостя — или откройте её из карточки гостя ещё раз.')}
         </Alert>
       )}
       {summary === null && (
         <Alert boxed tone="warning">
-          Сводка фонда не загрузилась: без категорий бронь не создать. Обновите страницу.
+          {t('Сводка фонда не загрузилась: без категорий бронь не создать. Обновите страницу.')}
         </Alert>
       )}
       {summary !== null && ratePlans !== null && (

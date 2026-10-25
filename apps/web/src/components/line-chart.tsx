@@ -1,4 +1,6 @@
 import { lineGeometry } from '../lib/line-geometry';
+import { msg } from '../i18n';
+import { T } from '../i18n/locale-provider';
 
 const W = 640;
 const H = 200;
@@ -102,10 +104,14 @@ export function LineChart({
           таблица в 800+ px растягивала страницу «Аналитики» ниже экрана (desktop-compact, 09.10.2026) */}
       <div className="sr-only">
         <table>
-          <caption>Значения по точкам графика</caption>
+          <caption>
+            <T text={msg('Значения по точкам графика')} />
+          </caption>
           <thead>
             <tr>
-              <th scope="col">Точка графика</th>
+              <th scope="col">
+                <T text={msg('Точка графика')} />
+              </th>
               {series.map((s) => (
                 <th key={s.name} scope="col">
                   {s.name}
@@ -119,7 +125,7 @@ export function LineChart({
                 <th scope="row">{label}</th>
                 {series.map((s) => (
                   <td key={s.name}>
-                    {s.values[i] == null ? 'нет данных' : format(s.values[i] as number)}
+                    {s.values[i] == null ? <T text={msg('нет данных')} /> : format(s.values[i] as number)}
                   </td>
                 ))}
               </tr>

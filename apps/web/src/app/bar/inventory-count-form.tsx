@@ -5,16 +5,18 @@ import { BarContextFields, type BarFormContext } from './context';
 import type { BarStockRow } from '../../lib/api';
 import { Button, Field, Input, Select } from '../../components/ui';
 import { inventoryBarAction, type BarActionResult } from './actions';
+import { useT } from '../../i18n/locale-provider';
 
 const initial: BarActionResult = { error: null, ok: 0 };
 export function InventoryCountForm({ stock, context }: { stock: BarStockRow[]; context: BarFormContext }) {
+  const t = useT();
   const [productId, setProductId] = useState('');
   const selected = stock.find((item) => item.id === productId);
   const [state, action, pending] = useBarAction(inventoryBarAction, initial);
   return (
     <form onSubmit={action} onReset={() => setProductId('')} className="bar-sale-form">
       <BarContextFields context={context} />
-      <Field label="Товар">
+      <Field label={t('Товар')}>
         <Select
           name="productId"
           required
@@ -22,35 +24,35 @@ export function InventoryCountForm({ stock, context }: { stock: BarStockRow[]; c
           onChange={(event) => setProductId(event.target.value)}
         >
           <option value="" disabled>
-            Выберите товар
+            {t('Выберите товар')}
           </option>
           {stock
             .filter((item) => item.active)
             .map((item) => (
               <option key={item.id} value={item.id}>
-                {item.name}, по системе {item.availableUnits}
+                {t('{name}, по системе {n}', { name: item.name, n: item.availableUnits })}
               </option>
             ))}
         </Select>
       </Field>
-      <Field label="По системе, шт.">
-        <Input value={selected?.availableUnits ?? ''} readOnly aria-label="По системе, шт." />
+      <Field label={t('По системе, шт.')}>
+        <Input value={selected?.availableUnits ?? ''} readOnly aria-label={t('По системе, шт.')} />
       </Field>
-      <Field label="Факт, шт.">
+      <Field label={t('Факт, шт.')}>
         <Input name="actualUnits" inputMode="numeric" pattern="[0-9]+" required />
       </Field>
       <Field
-        label="Цена излишка за шт."
+        label={t('Цена излишка за шт.')}
         controlId="bar-surplus-cost"
-        hint="Нужна, только если на складе пусто. Иначе излишек примем по средней цене остатка"
+        hint={t('Нужна, только если на складе пусто. Иначе излишек примем по средней цене остатка')}
       >
         <Input name="surplusCost" inputMode="decimal" pattern="[0-9]+([.,][0-9]{1,2})?" />
       </Field>
-      <Field label="Причина">
-        <Input name="reason" defaultValue="Пересчет смены" required />
+      <Field label={t('Причина')}>
+        <Input name="reason" defaultValue={t('Пересчет смены')} required />
       </Field>
       <Button type="submit" disabled={pending}>
-        {pending ? 'Сверяем…' : 'Зафиксировать пересчёт'}
+        {pending ? t('Сверяем…') : t('Зафиксировать пересчёт')}
       </Button>
       {state.error && (
         <p role="alert" className="bar-error">

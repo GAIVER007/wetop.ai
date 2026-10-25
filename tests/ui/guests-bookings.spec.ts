@@ -27,7 +27,7 @@ test('гости и бронирования: итоги строкой, вид�
 }) => {
   const main = page.getByRole('main');
   await page.goto('/guests');
-  await expect(main.getByRole('heading', { level: 1, name: 'Гости и бронирования' })).toBeVisible();
+  await expect(main.getByRole('heading', { level: 1, name: 'Клиенты' })).toBeVisible();
 
   // итоги одной строкой (аудит 22.10.2026 P1-16): число и подпись целиком, каждая часть ведёт в свой вид
   const kpis = main.getByTestId('guests-kpis');
@@ -340,7 +340,7 @@ test('гости и бронирования: одна вкладка меню, 
   await expect(menu.getByRole('link', { name: 'Брони', exact: true, includeHidden: true })).toHaveCount(0);
 
   // классический список броней — отдельный текущий пункт той же группы «Клиенты»
-  await page.getByRole('main').getByRole('link', { name: 'Список броней', exact: true }).click();
+  await page.getByRole('main').getByRole('navigation', { name: 'Клиенты и записи' }).getByRole('link', { name: 'Записи', exact: true }).click();
   await expect(page).toHaveURL(new URL('/reservations', page.url()).href);
   const reservations = menu.getByRole('link', {
     name: 'Записи', exact: true, includeHidden: true,

@@ -1,6 +1,7 @@
 import { createElement, type ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
+vi.mock('../../i18n/server', async () => ({ serverT: async () => (await import('../../i18n')).translator('ru'), currentLocale: async () => 'ru' }));
 
 // «Рабочий день» салона, аудит живого сайта 21.10.2026: п. 11 (свой заголовок и путь назад к обзору), п. 12 (без плиток)
 vi.mock('next/navigation', () => ({ unstable_rethrow() {} }));

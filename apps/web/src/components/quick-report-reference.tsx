@@ -1,10 +1,13 @@
 import { CircleCheck, Hourglass, CircleMinus } from 'lucide-react';
+import { msg } from '../i18n';
+import { useT } from '../i18n/locale-provider';
 import { Icon } from './icon';
 import { formatMoney } from '../lib/money';
 import type { QuickReportData } from './quick-report-data';
 
 function Money({ values }: { values: Record<string, string> | undefined }) {
-  if (!values || !Object.keys(values).length) return <>Нет данных</>;
+  const t = useT();
+  if (!values || !Object.keys(values).length) return <>{t('Нет данных')}</>;
   return (
     <>
       {Object.entries(values).map(([currency, amount]) => (
@@ -23,16 +26,17 @@ function ReportRow({
   values: Record<string, string> | undefined;
   hint: string;
 }) {
+  const t = useT();
   return (
     <div className="reference-row">
       <dt>
         <details className="reference-info">
-          <summary aria-label={`О показателе: ${label}`}>
+          <summary aria-label={t('О показателе: {label}', { label: t(label) })}>
             <Icon name="info" />
           </summary>
-          <p>{hint}</p>
+          <p>{t(hint)}</p>
         </details>
-        <span>{label}</span>
+        <span>{t(label)}</span>
       </dt>
       <dd>
         <Money values={values} />
@@ -42,15 +46,22 @@ function ReportRow({
 }
 
 export function ReferenceReport({ data, scope }: { data: QuickReportData; scope: string[] }) {
+  const t = useT();
   const reference = data.reference!;
   const states = reference.statuses.filter((s) => s.key !== 'NO_SHOW' || s.count > 0);
   const metric = (label: string) => data.money.find((m) => m.label === label);
+  const revenue = metric('Сумма завершённых услуг'); // kk-allow: сверка с подписью показателя из quick-report-data (русский ключ данных)
+  const average = metric('Средняя стоимость завершённой записи'); // kk-allow: сверка с подписью показателя из quick-report-data (русский ключ данных)
+  const refunds = metric('Возвращено по записям'); // kk-allow: сверка с подписью показателя из quick-report-data (русский ключ данных)
+  const discounts = metric('Скидки на услуги'); // kk-allow: сверка с подписью показателя из quick-report-data (русский ключ данных)
+  const discountLabel = msg('Скидка (сумма)');
   const finance = [
-    ['Оплата наличными', 'Оплата наличными'],
-    ['Оплата безналом', 'Оплата безналом'],
+    [msg('Оплата наличными'), msg('Оплата наличными')],
+    [msg('Оплата безналом'), msg('Оплата безналом')],
   ] as const;
-  const unsupported =
-    'Источник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.';
+  const unsupported = msg(
+    'Источник этого показателя пока не подключён к записям. Отсутствие данных не означает нулевую сумму.',
+  );
   let offset = 0;
   return (
     <>
@@ -63,15 +74,15 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
         <div>
           <dl className="quick-report-counts">
             <div>
-              <dt>Клиентов</dt>
+              <dt>{t('Клиентов')}</dt>
               <dd>{data.clients}</dd>
             </div>
             <div>
-              <dt>Записей</dt>
+              <dt>{t('Записей')}</dt>
               <dd>{data.total}</dd>
             </div>
           </dl>
-          <h3>Статус записи:</h3>
+          <h3>{t('Статус записи:')}</h3>
           <dl className="quick-report-statuses">
             {states.map((s) => (
               <div key={s.key}>
@@ -88,7 +99,7 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
                       <CircleMinus />
                     )}
                   </span>
-                  {s.label}
+                  {t(s.label)}
                 </dt>
                 <dd>{s.count}</dd>
               </div>
@@ -123,32 +134,32 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
           </svg>
           <div>
             <strong>{data.total}</strong>
-            <span>Записей</span>
+            <span>{t('Записей')}</span>
           </div>
         </div>
       </div>
-      <dl className="reference-kpis" aria-label="Итоги">
+      <dl className="reference-kpis" aria-label={t('Итоги')}>
         <div>
-          <dt>Сумма записей</dt>
+          <dt>{t('Сумма записей')}</dt>
           <dd>
             <Money values={reference.totalPrices} />
           </dd>
         </div>
         <div>
-          <dt>Выручка</dt>
+          <dt>{t('Выручка')}</dt>
           <dd>
-            <Money values={metric('Сумма завершённых услуг')?.values} />
+            <Money values={revenue?.values} />
           </dd>
         </div>
         <div>
-          <dt>Средний чек</dt>
+          <dt>{t('Средний чек')}</dt>
           <dd>
-            <Money values={metric('Средняя стоимость завершённой записи')?.values} />
+            <Money values={average?.values} />
           </dd>
         </div>
       </dl>
-      <section className="reference-section" aria-label="Финансы">
-        <h3>Финансы:</h3>
+      <section className="reference-section" aria-label={t('Финансы')}>
+        <h3>{t('Финансы:')}</h3>
         <dl className="quick-report-counts">
           {finance.map(([label, source]) => (
             <ReportRow
@@ -157,31 +168,33 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
               values={metric(source)?.values}
               hint={
                 metric(source)?.hint ??
-                'Оплаты выбранных записей за всё время. Безнал включает карты и переводы. Возвраты не вычитаются из способа оплаты.'
+                msg(
+                  'Оплаты выбранных записей за всё время. Безнал включает карты и переводы. Возвраты не вычитаются из способа оплаты.',
+                )
               }
             />
           ))}
-          {metric('Возвращено по записям') && (
+          {refunds && (
             <ReportRow
-              label="Возвраты"
-              values={metric('Возвращено по записям')?.values}
-              hint={metric('Возвращено по записям')!.hint}
+              label={msg('Возвраты')}
+              values={refunds.values}
+              hint={refunds.hint}
             />
           )}
         </dl>
       </section>
       <details className="reference-more">
-        <summary>Лояльность и WETOP</summary>
-      <section className="reference-section" aria-label="Лояльность">
-        <h3>Лояльность:</h3>
+        <summary>{t('Лояльность и WETOP')}</summary>
+      <section className="reference-section" aria-label={t('Лояльность')}>
+        <h3>{t('Лояльность:')}</h3>
         <dl className="quick-report-counts">
-          {['Бонусная карта', 'Скидка (сумма)', 'Сертификаты (сумма)', 'Абонементы'].map(
+          {[msg('Бонусная карта'), discountLabel, msg('Сертификаты (сумма)'), msg('Абонементы')].map(
             (label) => (
               <ReportRow
                 key={label}
                 label={label}
-                values={label === 'Скидка (сумма)' ? metric('Скидки на услуги')?.values : undefined}
-                hint={label === 'Скидка (сумма)' ? metric('Скидки на услуги')?.hint ?? unsupported : unsupported}
+                values={label === discountLabel ? discounts?.values : undefined}
+                hint={label === discountLabel ? (discounts?.hint ?? unsupported) : unsupported}
               />
             ),
           )}
@@ -190,7 +203,7 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
       <section className="reference-section" aria-label="WETOP">
         <h3>WETOP:</h3>
         <dl className="quick-report-counts">
-          {['Онлайн оплата', 'Сертификат от WETOP', 'Подарочная карта от WETOP', 'Предоплата'].map(
+          {[msg('Онлайн оплата'), msg('Сертификат от WETOP'), msg('Подарочная карта от WETOP'), msg('Предоплата')].map(
             (label) => (
               <ReportRow key={label} label={label} values={undefined} hint={unsupported} />
             ),
@@ -200,7 +213,7 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
       </details>
       {data.total === 0 && (
         <p role="status" className="sr-only">
-          За выбранный период по этим фильтрам записей нет.
+          {t('За выбранный период по этим фильтрам записей нет.')}
         </p>
       )}
     </>

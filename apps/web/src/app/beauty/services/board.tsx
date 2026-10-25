@@ -13,6 +13,8 @@ import { closesAfterSave, serviceFieldErrors, type ServiceFieldErrors } from './
 import { useToast } from '../../../components/toast';
 import './services.css';
 import { groupCatalog } from '../../../components/catalog-table';
+import { msg } from '../../../i18n';
+import { useT } from '../../../i18n/locale-provider';
 
 /**
  * Каталог услуг салона (DATA_MODEL §19.1, срез B3). Каталог принадлежит сети, цену и доступность решает
@@ -20,9 +22,9 @@ import { groupCatalog } from '../../../components/catalog-table';
  * Новых компонентов нет: `Table`, `Overlay`, `Field` и `Badge` стойки.
  */
 const NOT_SELLABLE: Record<string, string> = {
-  SERVICE_INACTIVE: 'В архиве',
-  NOT_ENABLED: 'Филиал не оказывает',
-  CURRENCY_MISMATCH: 'Нужна цена филиала: валюта каталога другая',
+  SERVICE_INACTIVE: msg('В архиве'),
+  NOT_ENABLED: msg('Филиал не оказывает'),
+  CURRENCY_MISMATCH: msg('Нужна цена филиала: валюта каталога другая'),
 };
 
 type Editing =
@@ -67,6 +69,7 @@ export function ServicesBoard({
   canDelete?: boolean;
   scopeKey?: string;
 }) {
+  const t = useT();
   const [editing, setEditing] = useState<Editing>(null);
   const [search, setSearch] = useState('');
   const [showArchived, setShowArchived] = useState(false);
@@ -167,27 +170,27 @@ export function ServicesBoard({
     <>
       {/* поиск, архив и кнопка в одну линию по низу, счётчики живут в значках колонок (аудит 21.10.2026 п.37) */}
       <div className="beauty-service-dual-toolbar">
-        <Input type="search" aria-label="Поиск услуг" placeholder="Поиск: название или категория" value={search} onChange={event => setSearch(event.target.value)} />
+        <Input type="search" aria-label={t('Поиск услуг')} placeholder={t('Поиск: название или категория')} value={search} onChange={event => setSearch(event.target.value)} />
         <label className="beauty-check beauty-service-archive-filter">
           <input type="checkbox" checked={showArchived} onChange={(event) => setShowArchived(event.target.checked)} />
-          Показать архив{archivedCount > 0 ? ` (${archivedCount})` : ''}
+          {t('Показать архив')}{archivedCount > 0 ? ` (${archivedCount})` : ''}
         </label>
         {canCreate && (
           <Button type="button" onClick={() => setEditing({ mode: 'new', enableForLocation: Boolean(locationCurrency) })}>
-            Добавить услугу
+            {t('Добавить услугу')}
           </Button>
         )}
       </div>
       {/* телефон: одна колонка за раз, по умолчанию каталог (аудит 21.10.2026 п.47) */}
-      <div className="beauty-service-mobile-view" role="group" aria-label="Какие услуги показать">
+      <div className="beauty-service-mobile-view" role="group" aria-label={t('Какие услуги показать')}>
         <Button type="button" size="sm" tone={mobileView === 'catalog' ? 'primary' : 'secondary'} aria-pressed={mobileView === 'catalog'} onClick={() => setMobileView('catalog')}>
-          Все услуги
+          {t('Все услуги')}
         </Button>
         <Button type="button" size="sm" tone={mobileView === 'salon' ? 'primary' : 'secondary'} aria-pressed={mobileView === 'salon'} onClick={() => setMobileView('salon')}>
-          В филиале ({salon.length})
+          {t('В филиале ({n})', { n: salon.length })}
         </Button>
       </div>
-      {!locationCurrency && <Alert>Выберите филиал, чтобы добавлять и убирать его услуги.</Alert>}
+      {!locationCurrency && <Alert>{t('Выберите филиал, чтобы добавлять и убирать его услуги.')}</Alert>}
       {notice?.error && <Alert>{notice.error}</Alert>}
       {!notice?.error && notice?.message && <p role="status">{notice.message}</p>}
       <div className="beauty-service-transfer-board" data-mobile-view={mobileView}>
@@ -199,18 +202,18 @@ export function ServicesBoard({
         >
           <header>
             <div>
-              <h2>Услуги филиала</h2>
-              <p>Доступны для записи в выбранном филиале</p>
+              <h2>{t('Услуги филиала')}</h2>
+              <p>{t('Доступны для записи в выбранном филиале')}</p>
             </div>
             <Badge>{salon.length}</Badge>
           </header>
           {canUpdate && salonKeys.length > 0 && (
             <SelectionBar
-              label="услуги филиала"
+              label={t('услуги филиала')}
               keys={salonKeys}
               selectedCount={salonSelected.length}
               onToggleAll={(on) => toggleAll(salonKeys, on)}
-              actionLabel="Убрать из филиала"
+              actionLabel={t('Убрать из филиала')}
               disabled={transferDisabled}
               onAction={() => submitBulk(salonSelected, false)}
             />
@@ -230,7 +233,7 @@ export function ServicesBoard({
                   <input
                     type="checkbox"
                     className="beauty-service-check"
-                    aria-label={`Выбрать: ${row.name}`}
+                    aria-label={t('Выбрать: {name}', { name: row.name })}
                     checked={selected.has(`id:${row.id}`)}
                     onChange={(event) => toggle(`id:${row.id}`, event.target.checked)}
                   />
@@ -239,7 +242,7 @@ export function ServicesBoard({
               </article>
               )),
             ])}
-            {salon.length === 0 && <p className="beauty-service-empty">Отметьте услуги в каталоге справа и нажмите «Добавить в филиал».</p>}
+            {salon.length === 0 && <p className="beauty-service-empty">{t('Отметьте услуги в каталоге справа и нажмите «Добавить в филиал».')}</p>}
           </div>
         </section>
 
@@ -251,18 +254,18 @@ export function ServicesBoard({
         >
           <header>
             <div>
-              <h2>Каталог услуг</h2>
-              <p>Все услуги сети, доступные для добавления</p>
+              <h2>{t('Каталог услуг')}</h2>
+              <p>{t('Все услуги сети, доступные для добавления')}</p>
             </div>
             <Badge>{catalog.length + presetCatalog.length}</Badge>
           </header>
           {(canUpdate || canCreate) && catalogKeys.length > 0 && (
             <SelectionBar
-              label="услуги каталога"
+              label={t('услуги каталога')}
               keys={catalogKeys}
               selectedCount={catalogSelected.length}
               onToggleAll={(on) => toggleAll(catalogKeys, on)}
-              actionLabel="Добавить в филиал"
+              actionLabel={t('Добавить в филиал')}
               disabled={transferDisabled}
               onAction={() => submitBulk(catalogSelected, true)}
             />
@@ -285,7 +288,7 @@ export function ServicesBoard({
                     <input
                       type="checkbox"
                       className="beauty-service-check"
-                      aria-label={`Выбрать: ${row.name}`}
+                      aria-label={t('Выбрать: {name}', { name: row.name })}
                       checked={selected.has(`id:${row.id}`)}
                       disabled={!movable}
                       onChange={(event) => toggle(`id:${row.id}`, event.target.checked)}
@@ -298,13 +301,13 @@ export function ServicesBoard({
                         type="button"
                         size="sm"
                         tone="secondary"
-                        aria-label={`Техкарта услуги: ${row.name}`}
+                        aria-label={t('Техкарта услуги: {name}', { name: row.name })}
                         onClick={() => setMaterialService(row)}
                       >
-                        Материалы
+                        {t('Материалы')}
                       </Button>
                       <Button type="button" size="sm" tone="secondary" onClick={() => setEditing({ mode: 'edit', row })}>
-                        Изменить
+                        {t('Изменить')}
                       </Button>
                     </div>
                   )}
@@ -312,7 +315,7 @@ export function ServicesBoard({
               );
             }),
             ])}
-            {presetCatalog.length > 0 && <GroupHeading name="Типовые услуги" count={presetCatalog.length} />}
+            {presetCatalog.length > 0 && <GroupHeading name={t('Типовые услуги')} count={presetCatalog.length} />}
             {presetCatalog.map((preset) => (
               <article
                 className="beauty-service-item beauty-service-item--preset"
@@ -325,37 +328,37 @@ export function ServicesBoard({
                   <input
                     type="checkbox"
                     className="beauty-service-check"
-                    aria-label={`Выбрать: ${preset.name}`}
+                    aria-label={t('Выбрать: {name}', { name: preset.name })}
                     checked={selected.has(`preset:${preset.name}`)}
                     onChange={(event) => toggle(`preset:${preset.name}`, event.target.checked)}
                   />
                 )}
                 <div className="beauty-service-item-body">
                   <b>{preset.name}</b>
-                  <span>{preset.minutes} мин, {preset.category}</span>
+                  <span>{t('{minutes} мин, {category}', { minutes: preset.minutes, category: preset.category })}</span>
                 </div>
                 {canCreate && <div className="beauty-service-item-actions">
                   <Button
                     type="button"
                     size="sm"
                     tone="secondary"
-                    aria-label={`Настроить и добавить в филиал: ${preset.name}`}
+                    aria-label={t('Настроить и добавить в филиал: {name}', { name: preset.name })}
                     onClick={() => setEditing({ mode: 'new', preset, enableForLocation: true })}
                   >
-                    Добавить
+                    {t('Добавить')}
                   </Button>
                 </div>}
               </article>
             ))}
-            {catalog.length === 0 && presetCatalog.length === 0 && <p className="beauty-service-empty">Услуги не найдены. Измените поиск или добавьте новую услугу.</p>}
+            {catalog.length === 0 && presetCatalog.length === 0 && <p className="beauty-service-empty">{t('Услуги не найдены. Измените поиск или добавьте новую услугу.')}</p>}
           </div>
         </section>
       </div>
-      {items.length > 0 && filtered.length === 0 && <p role="status">Услуги не найдены. Измените название или категорию.</p>}
+      {items.length > 0 && filtered.length === 0 && <p role="status">{t('Услуги не найдены. Измените название или категорию.')}</p>}
       <Overlay
         open={editing !== null}
         onClose={() => setEditing(null)}
-        title={editing?.mode === 'edit' ? 'Услуга каталога' : editing?.mode === 'new' && editing.preset ? 'Настройка типовой услуги' : 'Новая услуга'}
+        title={editing?.mode === 'edit' ? t('Услуга каталога') : editing?.mode === 'new' && editing.preset ? t('Настройка типовой услуги') : t('Новая услуга')}
         drawer
       >
         {editing && (
@@ -374,7 +377,7 @@ export function ServicesBoard({
       <Overlay
         open={materialService !== null}
         onClose={() => setMaterialService(null)}
-        title={materialService ? `Техкарта: ${materialService.name}` : 'Техкарта услуги'}
+        title={materialService ? t('Техкарта: {name}', { name: materialService.name }) : t('Техкарта услуги')}
         drawer
       >
         {materialService && (
@@ -417,17 +420,18 @@ function SelectionBar({
   disabled: boolean;
   onAction: () => void;
 }) {
+  const t = useT();
   const all = keys.length > 0 && selectedCount === keys.length;
   return (
     <div className="beauty-service-bulk">
       <label className="beauty-check">
         <input
           type="checkbox"
-          aria-label={`Выбрать все ${label}`}
+          aria-label={t('Выбрать все {what}', { what: label })}
           checked={all}
           onChange={(event) => onToggleAll(event.target.checked)}
         />
-        {selectedCount > 0 ? `Выбрано: ${selectedCount}` : 'Выбрать все'}
+        {selectedCount > 0 ? t('Выбрано: {n}', { n: selectedCount }) : t('Выбрать все')}
       </label>
       <Button type="button" size="sm" disabled={disabled || selectedCount === 0} onClick={onAction}>
         {actionLabel}
@@ -448,22 +452,24 @@ function ServiceIdentity({
 }) {
   // Цены в списках не показываются: их правят вручную в карточке услуги. Только если у услуги филиала цена
   // ещё не задана (типовая, добавленная пачкой), строка просит её указать, чтобы запись не шла за 0.
+  const t = useT();
   const minutes = location && row.effective?.sellable ? row.effective.durationMinutes : row.durationMinutes;
   const priceMissing = location && row.effective?.sellable === true && row.effective.priceMinor === '0';
   return (
     <div className="beauty-service-item-body">
       <b>{row.name}</b>
-      <span>{minutes} мин, {row.category ?? 'Без категории'}</span>
-      {priceMissing && <small className="beauty-service-warn">Укажите цену: «Изменить» в каталоге</small>}
+      <span>{t('{minutes} мин, {category}', { minutes, category: row.category ?? t('Без категории') })}</span>
+      {priceMissing && <small className="beauty-service-warn">{t('Укажите цену: «Изменить» в каталоге')}</small>}
       {location && row.effective && !row.effective.sellable && (
-        <small>{NOT_SELLABLE[row.effective.reason] ?? 'Не продаётся'}</small>
+        <small>{NOT_SELLABLE[row.effective.reason] ? t(NOT_SELLABLE[row.effective.reason]!) : t('Не продаётся')}</small>
       )}
       {popularity && row.popularity && row.popularity.totalCompletedVisits > 0 && (
         <small>
-          {new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(
-            (row.popularity.completedVisits * 100) / row.popularity.totalCompletedVisits,
-          )}
-          % визитов
+          {t('{percent}% визитов', {
+            percent: new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(
+              (row.popularity.completedVisits * 100) / row.popularity.totalCompletedVisits,
+            ),
+          })}
         </small>
       )}
     </div>
@@ -488,6 +494,7 @@ function ServiceForm({
   /** новая услуга создана и включена в филиале: окно закрывается (аудит салона 22.10.2026) */
   onCreated?: () => void;
 }) {
+  const t = useT();
   const { toast } = useToast();
   const [fieldErrors, setFieldErrors] = useState<ServiceFieldErrors>({});
   const creation = useCreationKey(scopeKey, 'service', Boolean(row));
@@ -590,15 +597,15 @@ function ServiceForm({
               checked={enableHere}
               onChange={(e) => setEnableHere(e.target.checked)}
             />
-            Сразу в этом филиале
+            {t('Сразу в этом филиале')}
           </label>
         )}
         <input type="hidden" name="priceMinor" value={priceMinor ?? ''} />
         {/* у «Добавить» типовой услуги выбор уже сделан: второй список из 14 услуг не показываем (п.22) */}
         {!row && !preset && (
-          <Field label="Типовая услуга">
+          <Field label={t('Типовая услуга')}>
             <Select
-              aria-label="Типовая услуга"
+              aria-label={t('Типовая услуга')}
               value=""
               onChange={(e) => {
                 const preset = PRESETS.find((p) => p.name === e.target.value);
@@ -611,16 +618,16 @@ function ServiceForm({
                   });
               }}
             >
-              <option value="">Выбрать из списка или ввести своё ниже</option>
+              <option value="">{t('Выбрать из списка или ввести своё ниже')}</option>
               {PRESETS.map((p) => (
                 <option key={p.name} value={p.name}>
-                  {p.name}, {p.minutes} мин
+                  {t('{name}, {minutes} мин', { name: p.name, minutes: p.minutes })}
                 </option>
               ))}
             </Select>
           </Field>
         )}
-        <Field label="Название" controlId="service-name" error={fieldErrors.name}>
+        <Field label={t('Название')} controlId="service-name" error={fieldErrors.name && t(fieldErrors.name)}>
           <Input
             name="name"
             required
@@ -632,7 +639,7 @@ function ServiceForm({
         <Field
           label={
             <span>
-              Категория <small className="beauty-note">необязательно: «Ногти», «Волосы»</small>
+              {t('Категория')} <small className="beauty-note">{t('необязательно: «Ногти», «Волосы»')}</small>
             </span>
           }
         >
@@ -643,7 +650,7 @@ function ServiceForm({
             onChange={(e) => setDraft({ ...draft, category: e.target.value })}
           />
         </Field>
-        <Field label="Длительность, минут" controlId="service-duration" error={fieldErrors.durationMinutes}>
+        <Field label={t('Длительность, минут')} controlId="service-duration" error={fieldErrors.durationMinutes && t(fieldErrors.durationMinutes)}>
           <Input
             name="durationMinutes"
             inputMode="numeric"
@@ -655,12 +662,12 @@ function ServiceForm({
         <Field
           label={
             <span>
-              Цена каталога, {draft.currency}{' '}
-              <small className="beauty-note">например 5000</small>
+              {t('Цена каталога, {currency}', { currency: draft.currency })}{' '}
+              <small className="beauty-note">{t('например 5000')}</small>
             </span>
           }
           controlId="service-price"
-          error={fieldErrors.price}
+          error={fieldErrors.price && t(fieldErrors.price)}
         >
           <Input
             inputMode="decimal"
@@ -669,7 +676,7 @@ function ServiceForm({
             onChange={(e) => setDraft({ ...draft, price: e.target.value })}
           />
         </Field>
-        <Field label="Валюта цены каталога">
+        <Field label={t('Валюта цены каталога')}>
           <Select
             name="currency"
             value={draft.currency}
@@ -691,7 +698,7 @@ function ServiceForm({
             onChange={(e) => setDraft({ ...draft, active: e.target.checked })}
           />
           {row && !canDelete && draft.active && <input type="hidden" name="active" value="on" />}
-          Услуга активна
+          {t('Услуга активна')}
         </label>
         {(creation.error || error || state?.error) && (
           <Alert>{creation.error || error || state?.error}</Alert>
@@ -699,7 +706,7 @@ function ServiceForm({
         {/* один живой status в диалоге: сообщение филиала ниже заменяет сообщение о создании */}
         {!error && state?.message && !locationState?.message && <p role="status">{state.message}</p>}
         <Button type="submit" disabled={pending || (!row && !creation.id)}>
-          {pending ? 'Сохраняем…' : 'Сохранить услугу'}
+          {pending ? t('Сохраняем…') : t('Сохранить услугу')}
         </Button>
       </form>
       {resourceId && (
@@ -710,7 +717,7 @@ function ServiceForm({
             const data = new FormData(event.currentTarget);
             if (overrideMinor === null) {
               event.preventDefault();
-              setLocationError('Своя цена: число, например 5000, или пусто');
+              setLocationError(t('Своя цена: число, например 5000, или пусто'));
               return;
             }
             const parsed = parseLocationServiceInput({
@@ -726,7 +733,7 @@ function ServiceForm({
             setLocationError(null);
           }}
         >
-          <h3>В этом филиале</h3>
+          <h3>{t('В этом филиале')}</h3>
           <input type="hidden" name="id" value={resourceId} />
           <input type="hidden" name="priceOverrideMinor" value={overrideMinor ?? ''} />
           <input type="hidden" name="scopeKey" value={scopeKey} />
@@ -737,13 +744,13 @@ function ServiceForm({
               checked={local.enabled}
               onChange={(e) => setLocal({ ...local, enabled: e.target.checked })}
             />
-            Филиал оказывает эту услугу
+            {t('Филиал оказывает эту услугу')}
           </label>
           <Field
             label={
               <span>
-                Своя цена филиала, {locationCurrency ?? draft.currency}{' '}
-                <small className="beauty-note">пусто: действует цена каталога</small>
+                {t('Своя цена филиала, {currency}', { currency: locationCurrency ?? draft.currency })}{' '}
+                <small className="beauty-note">{t('пусто: действует цена каталога')}</small>
               </span>
             }
           >
@@ -756,8 +763,8 @@ function ServiceForm({
           <Field
             label={
               <span>
-                Своя длительность, минут{' '}
-                <small className="beauty-note">пусто: действует длительность каталога</small>
+                {t('Своя длительность, минут')}{' '}
+                <small className="beauty-note">{t('пусто: действует длительность каталога')}</small>
               </span>
             }
           >
@@ -773,7 +780,7 @@ function ServiceForm({
           )}
           {!locationError && locationState?.message && <p role="status">{locationState.message}</p>}
           <Button type="submit" tone="secondary" disabled={locationPending}>
-            {locationPending ? 'Сохраняем…' : 'Сохранить для филиала'}
+            {locationPending ? t('Сохраняем…') : t('Сохранить для филиала')}
           </Button>
         </form>
       )}

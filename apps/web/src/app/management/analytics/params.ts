@@ -4,6 +4,7 @@ import {
   type DashboardFund,
   type ResolvedPeriod,
 } from '@pms/domain';
+import { msg } from '../../../i18n';
 
 export const ANALYTICS_PATH = '/management/analytics';
 
@@ -26,16 +27,16 @@ const TAB_DEFAULT: Record<AnalyticsTab, ResolvedPeriod['preset']> = {
 
 /** Готовые отрезки «Аналитики» — по ТЗ §4: без «Вчера», его закрывает свой период и стрелки дня */
 export const ANALYTICS_PRESETS = [
-  { id: 'today', label: 'Сегодня' },
-  { id: 'week', label: '7 дней' },
-  { id: 'month', label: 'Этот месяц' },
-  { id: 'last-month', label: 'Прошлый месяц' },
+  { id: 'today', label: msg('Сегодня') },
+  { id: 'week', label: msg('7 дней') },
+  { id: 'month', label: msg('Этот месяц') },
+  { id: 'last-month', label: msg('Прошлый месяц') },
 ] as const;
 
 export const FUND_LABELS: Record<DashboardFund, string> = {
-  all: 'Все',
-  rooms: 'Номера',
-  beds: 'Койки',
+  all: msg('Все'),
+  rooms: msg('Номера'),
+  beds: msg('Койки'),
 };
 
 export interface AnalyticsQuery {
@@ -121,7 +122,7 @@ export function parseAnalyticsQuery(
   if (legacyDate && !isDate(sp.date!))
     return {
       ...base,
-      period: { preset: 'today', from: today, to: today, error: 'Некорректная дата' },
+      period: { preset: 'today', from: today, to: today, error: msg('Некорректная дата') },
     };
   const period = resolvePeriod(
     legacyDate

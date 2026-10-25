@@ -8,7 +8,9 @@ import { hotelToday, sourceNames } from '../../../lib/hotel-api';
 import { deskShell } from '../../../lib/desk-shell';
 import { displayDate } from '../../../lib/display-date';
 import { formatMoney } from '../../../lib/money';
-import { pluralRu } from '../../../lib/plural';
+import { countLabel, intlLocale, msg } from '../../../i18n';
+import { currentLocale, serverT } from '../../../i18n/server';
+import { nightsLabel, type Lang } from '../../chessboard/lang';
 import { Page, BackCrumb } from '../../../components/page';
 import { AmountChip } from '../../../components/amount-chip';
 import { EmptyState, SectionTitle, StatusBadge, Table } from '../../../components/ui';
@@ -28,17 +30,18 @@ const OVERVIEW_STAYS = 3;
 const due = (minor: string | null): minor is string => minor !== null && BigInt(minor) > 0n;
 
 /** «12 авг. → 15 авг. 2026»: год один раз в конце, если совпадает (DESIGN.md §14, стрелка «с… по…») */
-function StayPeriod({ stay }: { stay: Pick<Stay, 'arrivalDate' | 'departureDate'> }) {
+function StayPeriod({ stay, lang }: { stay: Pick<Stay, 'arrivalDate' | 'departureDate'>; lang: Lang }) {
+  const locale = intlLocale(lang.locale);
   const sameYear = stay.arrivalDate.slice(0, 4) === stay.departureDate.slice(0, 4);
   return (
     <span className="stay-period">
       <time dateTime={stay.arrivalDate}>
-        {displayDate(stay.arrivalDate)}
+        {displayDate(stay.arrivalDate, 'short', locale)}
         {sameYear ? '' : ` ${stay.arrivalDate.slice(0, 4)}`}
       </time>
       {' → '}
       <time dateTime={stay.departureDate}>
-        {displayDate(stay.departureDate)} {stay.departureDate.slice(0, 4)}
+        {displayDate(stay.departureDate, 'short', locale)} {stay.departureDate.slice(0, 4)}
       </time>
     </span>
   );
@@ -49,16 +52,17 @@ function StayPeriod({ stay }: { stay: Pick<Stay, 'arrivalDate' | 'departureDate'
  * слово о брони: строка истории и есть одна бронь, здесь это честно (в отличие от строки гостя).
  * Сумма — начислено по счёту проживания (Folio, ТЗ §24); остаток — подписью «к оплате».
  */
-function StaysTable({ stays }: { stays: Stay[] }) {
+function StaysTable({ stays, lang }: { stays: Stay[]; lang: Lang }) {
+  const { t } = lang;
   return (
     <Table className="dir-table dir-table--history" nowrap>
       <thead>
         <tr>
-          <th>Проживание</th>
-          <th>Место</th>
-          <th>Источник</th>
-          <th className="num">Сумма</th>
-          <th>Статус</th>
+          <th>{t('Проживание')}</th>
+          <th>{t('Место')}</th>
+          <th>{t('Источник')}</th>
+          <th className="num">{t('Сумма')}</th>
+          <th>{t('Статус')}</th>
         </tr>
       </thead>
       <tbody>
@@ -69,7 +73,7 @@ function StaysTable({ stays }: { stays: Stay[] }) {
                 className="dir-period"
                 href={`/reservations/${encodeURIComponent(s.confirmationNumber)}`}
               >
-                <StayPeriod stay={s} />
+                <StayPeriod stay={s} lang={lang} />
               </Link>
               <span className="dir-sub mono">{s.confirmationNumber}</span>
             </td>
@@ -84,7 +88,7 @@ function StaysTable({ stays }: { stays: Stay[] }) {
               )}
               <span className="dir-sub">{s.accommodationTypeName}</span>
             </td>
-            <td>{s.channel || sourceNames[s.source] || s.source}</td>
+            <td>{s.channel || t(sourceNames[s.source] || s.source)}</td>
             <td className="num">
               {s.chargedMinor !== null && BigInt(s.chargedMinor) > 0n ? (
                 formatMoney(s.chargedMinor, s.currency)
@@ -92,7 +96,7 @@ function StaysTable({ stays }: { stays: Stay[] }) {
                 <span className="muted">—</span>
               )}
               {due(s.balanceMinor) && (
-                <span className="dir-sub">к оплате {formatMoney(s.balanceMinor, s.currency)}</span>
+                <span className="dir-sub">{t('к оплате {sum}', { sum: formatMoney(s.balanceMinor, s.currency) })}</span>
               )}
             </td>
             <td>
@@ -106,7 +110,7 @@ function StaysTable({ stays }: { stays: Stay[] }) {
 }
 
 /** Слово о деньгах проживания — те же состояния, что колонка «Финансы» на «Бронях» (ADR-106) */
-function StayFinance({ stay }: { stay: Stay }) {
+function StayFinance({ stay, lang: { t } }: { stay: Stay; lang: Lang }) {
   const state = financeState({
     hasFolios: stay.chargedMinor !== null,
     chargedMinor: stay.chargedMinor ?? '0',
@@ -116,17 +120,17 @@ function StayFinance({ stay }: { stay: Stay }) {
   });
   switch (state.kind) {
     case 'unpaid':
-      return <span className="warn-text">не оплачено</span>;
+      return <span className="warn-text">{t('не оплачено')}</span>;
     case 'due':
       return <AmountChip tone="due" minor={state.minor} currency={stay.currency} />;
     case 'refund-due':
       return (
-        <AmountChip tone="refund" label="к возврату" minor={state.minor} currency={stay.currency} />
+        <AmountChip tone="refund" label={t('к возврату')} minor={state.minor} currency={stay.currency} />
       );
     case 'refunded':
-      return <span className="muted">возвращено</span>;
+      return <span className="muted">{t('возвращено')}</span>;
     case 'paid':
-      return <span className="dir-paid">оплачено</span>;
+      return <span className="dir-paid">{t('оплачено')}</span>;
     default:
       return <span className="muted">—</span>;
   }
@@ -137,12 +141,13 @@ function StayFinance({ stay }: { stay: Stay }) {
  * «денег гостя» нет — источник правды Folio каждой брони, сюда приходит только их сумма. Свод
  * считается по валюте: у Luxx она одна, но складывать тенге с долларами было бы неправдой.
  */
-function GuestFinance({ stays }: { stays: Stay[] }) {
+function GuestFinance({ stays, lang }: { stays: Stay[]; lang: Lang }) {
+  const { t } = lang;
   const billed = stays.filter((s) => s.chargedMinor !== null);
   if (billed.length === 0)
     return (
-      <EmptyState icon={<Icon name="booking" />} title="Счетов пока нет">
-        Счёт открывается на проживание: здесь появятся счета по броням гостя.
+      <EmptyState icon={<Icon name="booking" />} title={t('Счетов пока нет')}>
+        {t('Счёт открывается на проживание: здесь появятся счета по броням гостя.')}
       </EmptyState>
     );
   const totals = new Map<
@@ -150,49 +155,49 @@ function GuestFinance({ stays }: { stays: Stay[] }) {
     { charged: bigint; paid: bigint; refunded: bigint; balance: bigint }
   >();
   for (const s of billed) {
-    const t = totals.get(s.currency) ?? { charged: 0n, paid: 0n, refunded: 0n, balance: 0n };
-    t.charged += BigInt(s.chargedMinor!);
-    t.paid += BigInt(s.paidMinor ?? '0');
-    t.refunded += BigInt(s.refundedMinor ?? '0');
-    t.balance += BigInt(s.balanceMinor ?? '0');
-    totals.set(s.currency, t);
+    const sum = totals.get(s.currency) ?? { charged: 0n, paid: 0n, refunded: 0n, balance: 0n };
+    sum.charged += BigInt(s.chargedMinor!);
+    sum.paid += BigInt(s.paidMinor ?? '0');
+    sum.refunded += BigInt(s.refundedMinor ?? '0');
+    sum.balance += BigInt(s.balanceMinor ?? '0');
+    totals.set(s.currency, sum);
   }
   return (
     <>
-      {[...totals].map(([currency, t]) => (
+      {[...totals].map(([currency, sum]) => (
         <dl
           key={currency}
           className="booking-head guest-finance-summary"
           data-testid="guest-finance-summary"
         >
           <div>
-            <dt>Начислено</dt>
-            <dd>{formatMoney(t.charged, currency)}</dd>
+            <dt>{t('Начислено')}</dt>
+            <dd>{formatMoney(sum.charged, currency)}</dd>
           </div>
           <div>
-            <dt>Оплачено</dt>
-            <dd>{formatMoney(t.paid, currency)}</dd>
+            <dt>{t('Оплачено')}</dt>
+            <dd>{formatMoney(sum.paid, currency)}</dd>
           </div>
-          {t.refunded > 0n && (
+          {sum.refunded > 0n && (
             <div>
-              <dt>Возвращено</dt>
-              <dd>{formatMoney(t.refunded, currency)}</dd>
+              <dt>{t('Возвращено')}</dt>
+              <dd>{formatMoney(sum.refunded, currency)}</dd>
             </div>
           )}
           <div>
-            <dt>Остаток</dt>
+            <dt>{t('Остаток')}</dt>
             <dd>
-              {t.balance > 0n ? (
-                <AmountChip tone="due" minor={t.balance} currency={currency} />
-              ) : t.balance < 0n ? (
+              {sum.balance > 0n ? (
+                <AmountChip tone="due" minor={sum.balance} currency={currency} />
+              ) : sum.balance < 0n ? (
                 <AmountChip
                   tone="refund"
-                  label="к возврату"
-                  minor={-t.balance}
+                  label={t('к возврату')}
+                  minor={-sum.balance}
                   currency={currency}
                 />
               ) : (
-                <span className="dir-paid">оплачено</span>
+                <span className="dir-paid">{t('оплачено')}</span>
               )}
             </dd>
           </div>
@@ -200,18 +205,17 @@ function GuestFinance({ stays }: { stays: Stay[] }) {
       ))}
       {/* Q-202: что из остатка — долг, решает владелец; до ответа честно называем состав суммы */}
       <p className="sub guest-finance-note">
-        Сумма по счетам всех проживаний гостя, включая будущие брони. Оплата и возвраты — в счёте
-        брони.
+        {t('Сумма по счетам всех проживаний гостя, включая будущие брони. Оплата и возвраты — в счёте брони.')}
       </p>
-      <SectionTitle>По проживаниям</SectionTitle>
+      <SectionTitle>{t('По проживаниям')}</SectionTitle>
       <Table className="dir-table dir-table--guest-finance" nowrap>
         <thead>
           <tr>
-            <th>Проживание</th>
-            <th>Статус</th>
-            <th className="num">Начислено</th>
-            <th className="num">Оплачено</th>
-            <th>Финансы</th>
+            <th>{t('Проживание')}</th>
+            <th>{t('Статус')}</th>
+            <th className="num">{t('Начислено')}</th>
+            <th className="num">{t('Оплачено')}</th>
+            <th>{t('Финансы')}</th>
           </tr>
         </thead>
         <tbody>
@@ -222,7 +226,7 @@ function GuestFinance({ stays }: { stays: Stay[] }) {
                   className="dir-period"
                   href={`/reservations/${encodeURIComponent(s.confirmationNumber)}#booking-finance`}
                 >
-                  <StayPeriod stay={s} />
+                  <StayPeriod stay={s} lang={lang} />
                 </Link>
                 <span className="dir-sub mono">{s.confirmationNumber}</span>
               </td>
@@ -232,7 +236,7 @@ function GuestFinance({ stays }: { stays: Stay[] }) {
               <td className="num">{formatMoney(s.chargedMinor!, s.currency)}</td>
               <td className="num">{formatMoney(s.paidMinor ?? '0', s.currency)}</td>
               <td>
-                <StayFinance stay={s} />
+                <StayFinance stay={s} lang={lang} />
               </td>
             </tr>
           ))}
@@ -249,6 +253,9 @@ function GuestFinance({ stays }: { stays: Stay[] }) {
  */
 export default async function GuestPage({ params }: { params: Promise<{ id: string }> }) {
   await requireFeature('/guests');
+  const t = await serverT();
+  const locale = await currentLocale();
+  const lang: Lang = { t, locale };
   const { id } = await params;
   const [g, piiStorage, today, { readOnly }] = await Promise.all([
     guestsApi.card(id).catch(notFoundOn404),
@@ -282,10 +289,10 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
     <>
       {current && (
         <>
-          <SectionTitle first>Текущее проживание</SectionTitle>
+          <SectionTitle first>{t('Текущее проживание')}</SectionTitle>
           <div className="panel guest-stay-card" data-testid="guest-stay-current">
             <p className="guest-stay-card__when">
-              <StayPeriod stay={current} />
+              <StayPeriod stay={current} lang={lang} />
             </p>
             <p className="guest-stay-card__where">
               {current.unitCode && (
@@ -301,17 +308,17 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
               <AmountChip tone="due" minor={current.balanceMinor} currency={current.currency} />
             )}
             <Link className="btn btn--secondary btn--sm" href={reservationHref(current)}>
-              Открыть бронь
+              {t('Открыть бронь')}
             </Link>
           </div>
         </>
       )}
       {next && (
         <>
-          <SectionTitle first={!current}>Следующий визит</SectionTitle>
+          <SectionTitle first={!current}>{t('Следующий визит')}</SectionTitle>
           <div className="panel guest-stay-card" data-testid="guest-stay-next">
             <p className="guest-stay-card__when">
-              <StayPeriod stay={next} />
+              <StayPeriod stay={next} lang={lang} />
             </p>
             <p className="guest-stay-card__where">
               {next.unitCode && (
@@ -325,30 +332,30 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
             {/* у будущей брони важно, подтверждена ли она; долг здесь не показывается (Q-202) */}
             <StatusBadge kind="hospitality" value={next.status} />
             <Link className="btn btn--secondary btn--sm" href={reservationHref(next)}>
-              Открыть бронь
+              {t('Открыть бронь')}
             </Link>
           </div>
         </>
       )}
-      <SectionTitle first={!current && !next}>История проживаний</SectionTitle>
+      <SectionTitle first={!current && !next}>{t('История проживаний')}</SectionTitle>
       {stays.length === 0 ? (
-        <EmptyState icon={<Icon name="booking" />} title="Проживаний пока нет">
-          Первое появится, когда гость будет заведён в бронь.
+        <EmptyState icon={<Icon name="booking" />} title={t('Проживаний пока нет')}>
+          {t('Первое появится, когда гость будет заведён в бронь.')}
         </EmptyState>
       ) : (
         <>
-          <StaysTable stays={stays.slice(0, OVERVIEW_STAYS)} />
+          <StaysTable stays={stays.slice(0, OVERVIEW_STAYS)} lang={lang} />
           {stays.length > OVERVIEW_STAYS && (
             <p className="guest-overview-more">
               {/* ссылка на вкладку: вкладки (Tabs) переключают её без перехода */}
-              <a href="#guest-stays">Все проживания ({stays.length})</a>
+              <a href="#guest-stays">{t('Все проживания ({n})', { n: stays.length })}</a>
             </p>
           )}
         </>
       )}
       {g.notes && (
         <>
-          <SectionTitle>Заметки</SectionTitle>
+          <SectionTitle>{t('Заметки')}</SectionTitle>
           <p className="guest-notes" data-testid="guest-notes">
             {g.notes}
           </p>
@@ -360,7 +367,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
   return (
     <Page
       width="medium"
-      crumbs={<BackCrumb href="/guests">Гости и бронирования</BackCrumb>}
+      crumbs={<BackCrumb href="/guests">{t('Гости и бронирования')}</BackCrumb>}
       title={guestDisplayName(g)}
       actions={
         // «Только чтение» (ADR-102): действия, которых нельзя, не рисуются — как «Новая бронь» на «Бронях»
@@ -368,12 +375,12 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
           <>
             {/* обычная ссылка-якорь: смена адреса после # переключает вкладку (Tabs слушает hashchange) */}
             <a className="btn btn--secondary" href="#guest-profile">
-              Редактировать
+              {t('Редактировать')}
             </a>
             {/* G6 (ТЗ §33): форма брони сразу с этим гостем — второго гостя бронь не заведёт */}
             <Link className="btn" href={`/reservations/new?guest=${encodeURIComponent(g.id)}`}>
               <Icon name="plus" />
-              Новая бронь
+              {t('Новая бронь')}
             </Link>
           </>
         )
@@ -382,7 +389,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
       {/* Полоса фактов (ТЗ §19): связь, гражданство и сколько раз гость был у нас */}
       <dl className="booking-head guest-head" data-testid="guest-head">
         <div>
-          <dt>Телефон</dt>
+          <dt>{t('Телефон')}</dt>
           <dd>
             {g.phone ? formatPhone(g.phone) : <span className="muted">—</span>}
             {messengers && (
@@ -402,44 +409,44 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
           <dd>{g.email ?? <span className="muted">—</span>}</dd>
         </div>
         <div>
-          <dt>Гражданство</dt>
+          <dt>{t('Гражданство')}</dt>
           <dd>{citizenshipLabel(g.citizenship) ?? <span className="warn-text">—</span>}</dd>
         </div>
         <div>
-          <dt>Визиты</dt>
+          <dt>{t('Визиты')}</dt>
           <dd data-testid="guest-visits">
-            {pluralRu(summary.staysCount, ['визит', 'визита', 'визитов'])} ·{' '}
-            {pluralRu(nights, ['ночь', 'ночи', 'ночей'])}
+            {countLabel(locale, t, summary.staysCount, [msg('визит'), 'визита', msg('визитов')]) /* kk-allow: форма склонения */} ·{' '}
+            {nightsLabel(lang, nights)}
           </dd>
         </div>
       </dl>
       <Tabs
-        label="Разделы карточки гостя"
+        label={t('Разделы карточки гостя')}
         panels={[
-          { id: 'guest-overview', label: 'Обзор', content: overview },
+          { id: 'guest-overview', label: t('Обзор'), content: overview },
           {
             id: 'guest-stays',
-            label: 'Проживания',
+            label: t('Проживания'),
             content:
               stays.length === 0 ? (
-                <EmptyState icon={<Icon name="booking" />} title="Проживаний пока нет">
-                  Первое появится, когда гость будет заведён в бронь.
+                <EmptyState icon={<Icon name="booking" />} title={t('Проживаний пока нет')}>
+                  {t('Первое появится, когда гость будет заведён в бронь.')}
                 </EmptyState>
               ) : (
-                <StaysTable stays={stays} />
+                <StaysTable stays={stays} lang={lang} />
               ),
           },
           {
             id: 'guest-documents',
-            label: 'Документы',
+            label: t('Документы'),
             content: (
               <GuestDocuments guest={g} piiStorage={piiStorage} readOnly={readOnly} today={today} />
             ),
           },
-          { id: 'guest-finance', label: 'Финансы', content: <GuestFinance stays={stays} /> },
+          { id: 'guest-finance', label: t('Финансы'), content: <GuestFinance stays={stays} lang={lang} /> },
           {
             id: 'guest-profile',
-            label: 'Данные гостя',
+            label: t('Данные гостя'),
             content: <GuestProfileForm guest={g} piiStorage={piiStorage} readOnly={readOnly} />,
           },
         ]}

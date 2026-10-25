@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
+import { msg } from '../i18n';
+import { Labelled } from '../i18n/locale-provider';
 import { cx } from './ui';
 
 /**
@@ -43,9 +45,9 @@ export function Page({
           {subtitle && <div className="page__subtitle">{subtitle}</div>}
         </div>
         {actions && (
-          <nav className="page__actions" aria-label="Действия страницы">
+          <Labelled as="nav" className="page__actions" label={msg('Действия страницы')}>
             {actions}
-          </nav>
+          </Labelled>
         )}
       </header>
       {children}

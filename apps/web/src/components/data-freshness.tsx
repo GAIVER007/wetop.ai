@@ -1,5 +1,6 @@
 'use client';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { useT } from '../i18n/locale-provider';
 import { usePropertyClock } from './property-time';
 import { cx } from './ui';
 
@@ -83,11 +84,12 @@ export function DataFreshness() {
   const { data, failed } = useContext(FreshnessContext);
   // Время последнего события — по часам объекта (С-13), а не по зашитому поясу
   const clock = usePropertyClock();
+  const t = useT();
 
   if (!data)
     return failed ? (
       <span className="freshness freshness--warn" data-testid="data-freshness">
-        Нет связи с API
+        {t('Нет связи с API')}
       </span>
     ) : null;
   // каналы у гостиницы не подключены — строки о Channex нет (план tenant-isolation-2026-09-26 п. 5)
@@ -100,11 +102,13 @@ export function DataFreshness() {
     <span
       className={cx('freshness', (queueStale || failed) && 'freshness--warn')}
       data-testid="data-freshness"
-      title={'Последнее событие из менеджера каналов и очередь изменений остатков и цен'}
+      title={t('Последнее событие из менеджера каналов и очередь изменений остатков и цен')}
     >
-      Каналы {data.channex.lastEventAt ? clock.clock(data.channex.lastEventAt) : '—'} · очередь{' '}
+      {t('Каналы {time} · очередь', {
+        time: data.channex.lastEventAt ? clock.clock(data.channex.lastEventAt) : '—',
+      })}{' '}
       {data.channex.outboxPending}
-      {data.channex.outboxFailed > 0 ? `, ошибок ${data.channex.outboxFailed}` : ''}
+      {data.channex.outboxFailed > 0 ? t(', ошибок {n}', { n: data.channex.outboxFailed }) : ''}
     </span>
   );
 }

@@ -9,6 +9,7 @@ import { marketingSiteApi } from '../../../lib/api';
 import { deskShell } from '../../../lib/desk-shell';
 import { MarketingCrumb } from '../../website/parts';
 import { PublicationBoard } from './board';
+import { serverT } from '../../../i18n/server';
 import '../marketing.css';
 
 /**
@@ -19,6 +20,7 @@ import '../marketing.css';
 export default async function MarketingSitePage() {
   await requireFeature('/marketing/site');
   const shell = await deskShell();
+  const t = await serverT();
   // журнал и источник брони есть только у существующего сайта: без него страница показывает пустое состояние
   const loaded = await marketingSiteApi
     .current()
@@ -31,7 +33,7 @@ export default async function MarketingSitePage() {
       unstable_rethrow(error);
       return { ok: false as const, error };
     });
-  const title = 'Публикация сайта';
+  const title = t('Публикация сайта');
   if (!loaded.ok)
     return (
       <Page crumbs={<MarketingCrumb />} title={title}>
@@ -43,14 +45,14 @@ export default async function MarketingSitePage() {
     <Page
       crumbs={<MarketingCrumb />}
       title={title}
-      subtitle="Предпросмотр, публикация и откат управляемого сайта филиала."
+      subtitle={t('Предпросмотр, публикация и откат управляемого сайта филиала.')}
       actions={
         <>
           <Link className="btn btn--secondary" href="/marketing/site/editor" data-testid="publication-editor-link">
-            Редактор сайта
+            {t('Редактор сайта')}
           </Link>
           <Link className="btn btn--secondary" href="/marketing/site/assets" data-testid="publication-assets-link">
-            Изображения сайта
+            {t('Изображения сайта')}
           </Link>
         </>
       }
@@ -63,8 +65,8 @@ export default async function MarketingSitePage() {
           readOnly={shell.readOnly}
         />
       ) : (
-        <EmptyState title="Сайт филиала ещё не создан" data-testid="marketing-site-empty">
-          Когда у филиала появится сайт и первая версия, здесь можно будет посмотреть её и опубликовать.
+        <EmptyState title={t('Сайт филиала ещё не создан')} data-testid="marketing-site-empty">
+          {t('Когда у филиала появится сайт и первая версия, здесь можно будет посмотреть её и опубликовать.')}
         </EmptyState>
       )}
     </Page>

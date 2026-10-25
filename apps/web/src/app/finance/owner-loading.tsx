@@ -1,3 +1,5 @@
+import { serverT } from '../../i18n/server';
+
 export function OwnerPlaceholder({
   label,
   variant,
@@ -20,10 +22,11 @@ export function OwnerPlaceholder({
   );
 }
 
-export function AttentionPlaceholder() {
+export async function AttentionPlaceholder() {
+  const t = await serverT();
   return (
     <div className="owner-attention owner-attention-pending" role="status">
-      Проверяем события…
+      {t('Проверяем события…')}
     </div>
   );
 }

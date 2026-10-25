@@ -18,6 +18,8 @@ import { displayDate } from '../../lib/display-date';
 import { CalendarLegend } from './calendar-legend';
 import { clock } from './time';
 import { calendarColumns, matchesAppointment } from './calendar-columns';
+import { useLocale, useT } from '../../i18n/locale-provider';
+import { intlLocale, msg } from '../../i18n';
 
 const plusDays = (date: string, n: number) => {
   const at = new Date(`${date}T12:00:00Z`);
@@ -44,13 +46,15 @@ export function WeekCalendar({
   today?: string;
 }) {
   const router = useRouter();
+  const t = useT();
+  const locale = intlLocale(useLocale());
   const params = useSearchParams();
   const employee = params.get('employee') ?? '';
   const service = params.get('service') ?? '';
   const status = params.get('status') ?? '';
   const options = [
     ...new Map(
-      days.flatMap((day) => calendarColumns(day, employees).map((c) => [c.id, c] as const)),
+      days.flatMap((day) => calendarColumns(day, employees, t).map((c) => [c.id, c] as const)),
     ).values(),
   ];
   const href = (date: string, week = true, master = employee) => {
@@ -90,8 +94,8 @@ export function WeekCalendar({
   ];
   const serviceFilter = (
     <JournalFilter
-      label="Услуга"
-      allLabel="Все услуги"
+      label={t('Услуга')}
+      allLabel={t('Все услуги')}
       value={service}
       onChange={(v) => setParam('service', v)}
       options={services.map((sv) => ({ value: sv.id, label: sv.name }))}
@@ -99,8 +103,8 @@ export function WeekCalendar({
   );
   const statusFilter = (
     <JournalFilter
-      label="Статус записи"
-      allLabel="Все статусы"
+      label={t('Статус записи')}
+      allLabel={t('Все статусы')}
       value={status}
       onChange={(v) => setParam('status', v)}
       options={Object.entries(beautyStatus)
@@ -119,10 +123,10 @@ export function WeekCalendar({
   return (
     <div data-testid="beauty-week">
       <JournalHead
-        title="Журнал"
-        subtitle="Неделя специалистов"
+        title={t('Журнал')}
+        subtitle={t('Неделя специалистов')}
         nav={
-          <div className="board-period day-nav" role="group" aria-label="Неделя журнала">
+          <div className="board-period day-nav" role="group" aria-label={t('Неделя журнала')}>
             <DateRangePopover
               from={first.date}
               to={days.at(-1)!.date}
@@ -130,16 +134,16 @@ export function WeekCalendar({
               compact
               onDay={(date) => router.push(href(date))}
               dayPresets={[
-                { label: 'Эта неделя', date: today },
-                { label: 'Следующая неделя', date: plusDays(today, 7) },
-                { label: 'День', onSelect: () => router.push(href(selectedDate, false)) },
+                { label: msg('Эта неделя'), date: today },
+                { label: msg('Следующая неделя'), date: plusDays(today, 7) },
+                { label: msg('День'), onSelect: () => router.push(href(selectedDate, false)) },
               ]}
               triggerTestId="week-nav-button"
             />
-            <Link href={shift(-7)} className="icon-button" aria-label="Предыдущая неделя">
+            <Link href={shift(-7)} className="icon-button" aria-label={t('Предыдущая неделя')}>
               <Icon name="chevron" className="rotate-left" />
             </Link>
-            <Link href={shift(7)} className="icon-button" aria-label="Следующая неделя">
+            <Link href={shift(7)} className="icon-button" aria-label={t('Следующая неделя')}>
               <Icon name="chevron" />
             </Link>
           </div>
@@ -148,15 +152,15 @@ export function WeekCalendar({
           <>
           <JournalExpandButton />
           <QuickReport
-            text="Быстрый отчёт"
+            text={t('Быстрый отчёт')}
             key={`${selected.date}:${employee}`}
             date={selected.date}
             scope={[
               employee
-                ? (options.find((e) => e.id === employee)?.name ?? 'Специалист недоступен')
-                : 'Все специалисты',
-              'Выбранный день',
-              ...(service || status ? ['С учётом фильтров'] : []),
+                ? (options.find((e) => e.id === employee)?.name ?? t('Специалист недоступен'))
+                : t('Все специалисты'),
+              t('Выбранный день'),
+              ...(service || status ? [t('С учётом фильтров')] : []),
             ]}
             build={() => beautyQuickReport(visible(selected))}
           />
@@ -167,26 +171,26 @@ export function WeekCalendar({
               href={`${href(selected.date, false)}&new=1`}
             >
               <Icon name="plus" aria-hidden="true" />
-              Новая запись
+              {t('Новая запись')}
             </Link>
           )}
           </>
         }
         summary={
           <SummaryLine
-            label="Итоги недели"
+            label={t('Итоги недели')}
             testId="beauty-week-summary"
             parts={[
-              { key: 'all', label: 'Записей за неделю', value: weekRows.length },
+              { key: 'all', label: t('Записей за неделю'), value: weekRows.length },
               {
                 key: 'wait',
-                label: 'ждём',
+                label: t('ждём'),
                 value: weekRows.filter((r) => r.status === 'BOOKED' || r.status === 'CONFIRMED')
                   .length,
               },
               {
                 key: 'done',
-                label: 'завершено',
+                label: t('завершено'),
                 value: weekRows.filter((r) => r.status === 'DONE').length,
               },
             ]}
@@ -197,13 +201,13 @@ export function WeekCalendar({
             <JournalSearch
               value={query}
               onChange={setQuery}
-              label="Поиск в журнале"
-              placeholder={narrow ? 'Клиент' : 'Клиент, телефон'}
+              label={t('Поиск в журнале')}
+              placeholder={narrow ? t('Клиент') : t('Клиент, телефон')}
             />
             <EmployeeFilter
               options={options}
               value={employee}
-              allLabel="Все специалисты"
+              allLabel={t('Все специалисты')}
               kind="specialists"
               onChange={(id) => router.replace(href(selectedDate, true, id), { scroll: false })}
             />
@@ -211,7 +215,7 @@ export function WeekCalendar({
             {statusFilter}
             {/* «Фильтры» видны и на компьютере, как в дне и у календаря гостиницы; легенда внутри, как в дне */}
             <Help title={<FiltersTitle active={[service, status].filter(Boolean).length} />}>
-              <span className="sr-only">Услуга и статус</span>
+              <span className="sr-only">{t('Услуга и статус')}</span>
               <CalendarLegend />
             </Help>
           </>
@@ -221,15 +225,15 @@ export function WeekCalendar({
       <div className="beauty-week-calendar">
         {days.map((day) => {
           const masters = new Map(
-            calendarColumns(day, employees).map((master) => [master.id, master.name]),
+            calendarColumns(day, employees, t).map((master) => [master.id, master.name]),
           );
           const rows = visible(day).sort(
             (a, b) => a.startMinutes - b.startMinutes || a.id.localeCompare(b.id),
           );
           return (
-            <Panel key={day.date} title={displayDate(day.date, 'full')}>
+            <Panel key={day.date} title={displayDate(day.date, 'full', locale)}>
               <Link className="btn btn--secondary" href={href(day.date, false)}>
-                Открыть день
+                {t('Открыть день')}
               </Link>
               {rows.length ? (
                 <ul className="beauty-week-appointments">
@@ -249,13 +253,13 @@ export function WeekCalendar({
                               {item.serviceName} ·{' '}
                               {item.employeeName ||
                                 masters.get(item.employeeId) ||
-                                'Специалист недоступен'}
+                                t('Специалист недоступен')}
                             </span>
                           ))
                         ) : (
                           <>
                             <span>{row.serviceName}</span>
-                            <span>{masters.get(row.employeeId) ?? 'Специалист недоступен'}</span>
+                            <span>{masters.get(row.employeeId) ?? t('Специалист недоступен')}</span>
                           </>
                         )}
                         <StatusBadge kind="beauty" value={row.status} />
@@ -264,7 +268,7 @@ export function WeekCalendar({
                   ))}
                 </ul>
               ) : (
-                <p className="beauty-note">Записей нет</p>
+                <p className="beauty-note">{t('Записей нет')}</p>
               )}
             </Panel>
           );

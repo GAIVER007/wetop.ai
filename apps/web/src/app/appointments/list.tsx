@@ -24,6 +24,9 @@ import { beautyStatus } from '../../lib/status/beauty';
 import { AppointmentEditor } from '../beauty/appointment-editor';
 import { formatPhone } from '../../lib/phone';
 import { appointmentSourceLabel } from '../../lib/appointment-source';
+import { intlLocale } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
+import { dateFormat } from '../../i18n/dates';
 function subscribeAddress(changed: () => void) {
   window.addEventListener('popstate', changed);
   window.addEventListener('appointments-address', changed);
@@ -66,6 +69,15 @@ export function AppointmentsList({
   period?: { from: string; to: string };
   creationUnavailableReason?: string;
 }) {
+  const t = useT();
+  const locale = useLocale();
+  // «20 сент.» как прежде; на казахском экране месяц по-казахски
+  const shortDay = (iso: string) =>
+    locale === 'ru'
+      ? displayDate(iso)
+      : dateFormat(intlLocale(locale), { timeZone: 'UTC', day: 'numeric', month: 'short' }).format(
+          new Date(`${iso}T00:00:00Z`),
+        );
   const [creating, setCreating] = useState(openCreate);
   // Non-PII context has one source: the URL (same pattern as MastersBoard).
   // Client search stays only in this scope-keyed component's memory, never in URL/history/storage.
@@ -184,7 +196,7 @@ export function AppointmentsList({
       );
   return (
     <>
-      <section className="panel beauty-list-panel" aria-label="Период и фильтры записей">
+      <section className="panel beauty-list-panel" aria-label={t('Период и фильтры записей')}>
         <div className="beauty-bar beauty-operational-toolbar">
           <form
             className="beauty-period-filter"
@@ -200,7 +212,7 @@ export function AppointmentsList({
               router.push(`${url.pathname}${url.search}`);
             }}
           >
-            <Field label="Период с">
+            <Field label={t('Период с')}>
               <Input
                 name="from"
                 type="date"
@@ -210,50 +222,50 @@ export function AppointmentsList({
                 data-testid="beauty-day-date"
               />
             </Field>
-            <Field label="Период по">
+            <Field label={t('Период по')}>
               <Input name="to" type="date" lang="ru" required defaultValue={period.to} />
             </Field>
             <Button type="submit" tone="secondary">
-              Показать период
+              {t('Показать период')}
             </Button>
             <Button type="button" tone="ghost" onClick={() => changeDate()}>
-              Сегодня
+              {t('Сегодня')}
             </Button>
           </form>
           <Button disabled={!canStart} onClick={() => setCreating(true)}>
             <Icon name="plus" aria-hidden="true" />
-            Новая запись
+            {t('Новая запись')}
           </Button>
         </div>
         {creationUnavailableReason && <Alert>{creationUnavailableReason}</Alert>}
         {/* причина выключенной «Новой записи» видна всегда, со ссылками (аудит 21.10.2026 п.3) */}
         {canCreate && missingSetup && (
           <p className="beauty-note" role="status" data-testid="appointments-setup-hint">
-            Для новой записи нужны услуги и специалисты с рабочим графиком.{' '}
-            {!day.services.length && <Link href="/services">Добавить услугу</Link>}{' '}
-            {!day.columns.length && <Link href="/employees">Добавить специалиста</Link>}
+            {t('Для новой записи нужны услуги и специалисты с рабочим графиком.')}{' '}
+            {!day.services.length && <Link href="/services">{t('Добавить услугу')}</Link>}{' '}
+            {!day.columns.length && <Link href="/employees">{t('Добавить специалиста')}</Link>}
           </p>
         )}
         <div className="beauty-filters beauty-list-filters">
-          <Field label="Статус">
+          <Field label={t('Статус')}>
             <Select
               value={status}
               onChange={(e) => address({ status: e.target.value, appointment: '' })}
             >
-              <option value="">Все статусы</option>
+              <option value="">{t('Все статусы')}</option>
               {Object.entries(beautyStatus).map(([key, { label }]) => (
                 <option key={key} value={key}>
-                  {label}
+                  {t(label)}
                 </option>
               ))}
             </Select>
           </Field>
-          <Field label="Специалист">
+          <Field label={t('Специалист')}>
             <Select
               value={employee}
               onChange={(e) => address({ master: e.target.value, appointment: '' })}
             >
-              <option value="">Все специалисты</option>
+              <option value="">{t('Все специалисты')}</option>
               {day.columns.map((e) => (
                 <option key={e.id} value={e.id}>
                   {e.name}
@@ -261,12 +273,12 @@ export function AppointmentsList({
               ))}
             </Select>
           </Field>
-          <Field label="Услуга">
+          <Field label={t('Услуга')}>
             <Select
               value={service}
               onChange={(e) => address({ service: e.target.value, appointment: '' })}
             >
-              <option value="">Все услуги</option>
+              <option value="">{t('Все услуги')}</option>
               {services.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name}
@@ -275,11 +287,11 @@ export function AppointmentsList({
             </Select>
           </Field>
           <div className="beauty-list-search">
-            <Field label="Поиск клиента">
+            <Field label={t('Поиск клиента')}>
               <Input
                 type="search"
                 data-page-search
-                placeholder="Имя или телефон"
+                placeholder={t('Имя или телефон')}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
@@ -293,53 +305,54 @@ export function AppointmentsList({
               address({ master: '', service: '', status: '', appointment: '' });
             }}
           >
-            Сбросить фильтры
+            {t('Сбросить фильтры')}
           </Button>
         </div>
         {invalid && (
           <Alert>
-            Фильтр или запись недоступны в текущем филиале. Сбросьте отбор или выберите доступные
-            значения.
+            {t(
+              'Фильтр или запись недоступны в текущем филиале. Сбросьте отбор или выберите доступные значения.',
+            )}
           </Alert>
         )}
       </section>
       {rows.length === 0 ? (
-        <EmptyState title="Записей не найдено">
-          Выберите другой период или измените фильтры.
+        <EmptyState title={t('Записей не найдено')}>
+          {t('Выберите другой период или измените фильтры.')}
         </EmptyState>
       ) : (
         <Table className="beauty-appointments-table">
           <thead>
             <tr>
-              <th>Дата</th>
-              <th>Время</th>
-              <th>Клиент</th>
-              <th>Телефон</th>
-              <th>Услуга</th>
-              <th>Специалист</th>
-              <th>Статус</th>
-              <th>Источник</th>
-              <th>Автор</th>
-              <th className="beauty-amount">Стоимость</th>
-              <th>Действия</th>
+              <th>{t('Дата')}</th>
+              <th>{t('Время')}</th>
+              <th>{t('Клиент')}</th>
+              <th>{t('Телефон')}</th>
+              <th>{t('Услуга')}</th>
+              <th>{t('Специалист')}</th>
+              <th>{t('Статус')}</th>
+              <th>{t('Источник')}</th>
+              <th>{t('Автор')}</th>
+              <th className="beauty-amount">{t('Стоимость')}</th>
+              <th>{t('Действия')}</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
-                <td data-label="Дата">
-                  {displayDate(localInput(r.startsAt, day.location.timezone).slice(0, 10))}
+                <td data-label={t('Дата')}>
+                  {shortDay(localInput(r.startsAt, day.location.timezone).slice(0, 10))}
                 </td>
-                <td data-label="Время">
+                <td data-label={t('Время')}>
                   {clock(r.startMinutes)}–{clock(r.endMinutes)}
                 </td>
-                <td data-label="Клиент">
+                <td data-label={t('Клиент')}>
                   <Button size="sm" tone="ghost" onClick={() => address({ appointment: r.id })}>
                     {r.customer.name}
                   </Button>
                 </td>
                 <td
-                  data-label="Телефон"
+                  data-label={t('Телефон')}
                   className={
                     r.customer.phone ? 'beauty-contact' : 'beauty-contact beauty-contact--empty'
                   }
@@ -347,30 +360,30 @@ export function AppointmentsList({
                   {r.customer.phone ? (
                     <a href={`tel:${r.customer.phone}`}>{formatPhone(r.customer.phone)}</a>
                   ) : (
-                    'Не указан'
+                    t('Не указан')
                   )}
                 </td>
-                <td data-label="Услуга">
+                <td data-label={t('Услуга')}>
                   {r.items?.length
                     ? r.items.map((item) => item.serviceName).join(', ')
                     : r.serviceName}
                 </td>
-                <td data-label="Специалист">
+                <td data-label={t('Специалист')}>
                   {r.items?.length
                     ? [...new Set(r.items.map((item) => item.employeeName))].join(', ')
-                    : (day.columns.find((e) => e.id === r.employeeId)?.name ?? 'Специалист в архиве')}
+                    : (day.columns.find((e) => e.id === r.employeeId)?.name ?? t('Специалист в архиве'))}
                 </td>
-                <td data-label="Статус">
+                <td data-label={t('Статус')}>
                   <StatusBadge kind="beauty" value={r.status} />
                 </td>
-                <td data-label="Источник">{appointmentSourceLabel(r.source)}</td>
-                <td data-label="Автор">{r.createdByName ?? '-'}</td>
-                <td data-label="Стоимость" className="beauty-amount">
+                <td data-label={t('Источник')}>{t(appointmentSourceLabel(r.source))}</td>
+                <td data-label={t('Автор')}>{r.createdByName ?? '-'}</td>
+                <td data-label={t('Стоимость')} className="beauty-amount">
                   {formatMoney(r.priceMinor, r.currency)}
                 </td>
-                <td data-label="Действия">
+                <td data-label={t('Действия')}>
                   <Button tone="secondary" onClick={() => address({ appointment: r.id })}>
-                    Открыть запись
+                    {t('Открыть запись')}
                   </Button>
                 </td>
               </tr>
@@ -396,7 +409,7 @@ export function AppointmentsList({
       <Overlay
         open={Boolean(selected)}
         onClose={() => address({ appointment: '' }, false)}
-        title="Запись"
+        title={t('Запись')}
         size="lg"
         className="appointment-card-modal"
       >

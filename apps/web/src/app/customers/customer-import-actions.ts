@@ -6,6 +6,8 @@ import type {
   CustomerImportView,
 } from '@pms/domain';
 import { ApiError, authApi, beautyApi } from '../../lib/api';
+import { serverT } from '../../i18n/server';
+import { msg } from '../../i18n';
 
 export interface CustomerImportActionResult {
   error?: string;
@@ -13,22 +15,24 @@ export interface CustomerImportActionResult {
   items?: CustomerImportView[];
 }
 
-const changedBusiness = (): CustomerImportActionResult => ({
-  error: 'Бизнес изменён. Закройте импорт и откройте его в текущем салоне.',
-});
+const changedBusiness = async (): Promise<CustomerImportActionResult> => {
+  const t = await serverT();
+  return { error: t('Бизнес изменён. Закройте импорт и откройте его в текущем салоне.') };
+};
 
-const failed = (error: unknown, fallback: string): CustomerImportActionResult => ({
+const failed = async (error: unknown, fallback: string): Promise<CustomerImportActionResult> => ({
   error: error instanceof ApiError && error.status >= 400 && error.status < 500
     ? error.message
-    : fallback,
+    : (await serverT())(fallback),
 });
 
 async function currentBusiness(expectedBusinessId: string): Promise<CustomerImportActionResult | null> {
   try {
     const { context } = await authApi.me();
-    return expectedBusinessId && context?.businessId === expectedBusinessId ? null : changedBusiness();
+    return expectedBusinessId && context?.businessId === expectedBusinessId ? null : await changedBusiness();
   } catch {
-    return { error: 'Не удалось проверить текущий бизнес. Закройте импорт и попробуйте снова.' };
+    const t = await serverT();
+    return { error: t('Не удалось проверить текущий бизнес. Закройте импорт и попробуйте снова.') };
   }
 }
 
@@ -38,7 +42,7 @@ export async function listCustomerImports(expectedBusinessId: string): Promise<C
   try {
     return await beautyApi.listCustomerImports();
   } catch (error) {
-    return failed(error, 'Не удалось загрузить историю импортов.');
+    return failed(error, msg('Не удалось загрузить историю импортов.'));
   }
 }
 
@@ -51,7 +55,7 @@ export async function getCustomerImport(
   try {
     return { item: await beautyApi.getCustomerImport(id) };
   } catch (error) {
-    return failed(error, 'Не удалось обновить состояние импорта.');
+    return failed(error, msg('Не удалось обновить состояние импорта.'));
   }
 }
 
@@ -64,7 +68,7 @@ export async function startCustomerImport(
   try {
     return { item: await beautyApi.startCustomerImport(input) };
   } catch (error) {
-    return failed(error, 'Не удалось начать импорт. Обновите состояние перед повтором.');
+    return failed(error, msg('Не удалось начать импорт. Обновите состояние перед повтором.'));
   }
 }
 
@@ -78,7 +82,7 @@ export async function uploadCustomerImportRows(
   try {
     return { item: await beautyApi.uploadCustomerImportRows(id, chunk) };
   } catch (error) {
-    return failed(error, 'Не удалось подтвердить загрузку части файла. Обновите состояние перед повтором.');
+    return failed(error, msg('Не удалось подтвердить загрузку части файла. Обновите состояние перед повтором.'));
   }
 }
 
@@ -91,7 +95,7 @@ export async function submitCustomerImport(
   try {
     return { item: await beautyApi.submitCustomerImport(id) };
   } catch (error) {
-    return failed(error, 'Не удалось подтвердить импорт. Обновите состояние перед повтором.');
+    return failed(error, msg('Не удалось подтвердить импорт. Обновите состояние перед повтором.'));
   }
 }
 
@@ -104,6 +108,6 @@ export async function undoCustomerImport(
   try {
     return { item: await beautyApi.undoCustomerImport(id) };
   } catch (error) {
-    return failed(error, 'Не удалось подтвердить отмену. Обновите состояние перед повтором.');
+    return failed(error, msg('Не удалось подтвердить отмену. Обновите состояние перед повтором.'));
   }
 }

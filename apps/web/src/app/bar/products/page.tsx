@@ -16,12 +16,14 @@ import Link from 'next/link';
 import { deskShell } from '../../../lib/desk-shell';
 import { barActionAccess } from '../action-access';
 import '../bar.css';
+import { serverT } from '../../../i18n/server';
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (error: unknown) => { unstable_rethrow(error); return { ok: false as const, error }; });
 
 /** Товары бара (ADR-157): каталог с остатками, ценой и минимумом; новый товар и категории здесь же. */
 export default async function BarProductsPage() {
   await requireFeature('/bar/products');
+  const t = await serverT();
   const [categories, stock, shell] = await Promise.all([settle(barApi.categories()), settle(barApi.stock()), deskShell()]);
   // UI-FIX-01: каталог правит право settings, в режиме чтения команд нет.
   const rights = barActionAccess(shell, shell.vertical);
@@ -35,10 +37,9 @@ export default async function BarProductsPage() {
   const rows = [...stock.value].sort((a, b) =>
     a.active === b.active ? a.name.localeCompare(b.name, 'ru') : a.active ? -1 : 1);
   // раздел меню «Склад» у всех направлений (решение владельца 19.10.2026)
-  const sectionName = 'Склад';
-  return <Page width="wide" className="bar-subpage" title={`${sectionName}: номенклатура`} subtitle="Карточки товаров с остатками и ценой. Цена правится прямо в строке." actions={rights.createCatalog ? <>
-      <CatalogDialog label="Категории и наценка" tone="secondary">
-        <p className="bar-muted">Наценка категории наследуется товаром, у товара её можно переопределить.</p>
+  return <Page width="wide" className="bar-subpage" title={t('Склад: номенклатура')} subtitle={t('Карточки товаров с остатками и ценой. Цена правится прямо в строке.')} actions={rights.createCatalog ? <>
+      <CatalogDialog label={t('Категории и наценка')} tone="secondary">
+        <p className="bar-muted">{t('Наценка категории наследуется товаром, у товара её можно переопределить.')}</p>
         <CategoryForm context={context} />
         {categories.value.length > 0 && <ul className="bar-catalog-list">{categories.value.map((category) => <li key={category.id}>
           <span>{category.name}, {category.defaultMarkupBasis / 100}%</span>
@@ -46,36 +47,36 @@ export default async function BarProductsPage() {
             <input type="hidden" name="kind" value="category" />
             <input type="hidden" name="id" value={category.id} />
             <input type="hidden" name="active" value={String(!category.active)} />
-            <Button type="submit" tone="ghost" size="xs">{category.active ? 'В архив' : 'Восстановить'}</Button>
+            <Button type="submit" tone="ghost" size="xs">{category.active ? t('В архив') : t('Восстановить')}</Button>
           </BarCommandForm>}
         </li>)}</ul>}
       </CatalogDialog>
-      <CatalogDialog label="Новый товар" hash="new-product">
+      <CatalogDialog label={t('Новый товар')} hash="new-product">
         <ProductForm categories={categories.value.filter((category) => category.active)} context={context} />
       </CatalogDialog>
     </> : undefined}>
     <BarTabs current="products" />
     <section className="bar-products-table">
-      <SectionTitle>Каталог и остатки</SectionTitle>
+      <SectionTitle>{t('Каталог и остатки')}</SectionTitle>
       {rows.length === 0
-        ? <EmptyState icon={<Icon name="inventory" />} title="Товаров пока нет">Добавьте первый товар кнопкой «Новый товар» вверху или загрузите накладную во вкладке «Приходы».</EmptyState>
-        : <Table density="compact" sticky="header" aria-label={`Товары ${shell.vertical === 'BEAUTY' ? 'склада' : 'бара'}`}>
-            <thead><tr><th>Товар</th><th>Остаток</th><th>Цена продажи</th><th>Действия</th></tr></thead>
+        ? <EmptyState icon={<Icon name="inventory" />} title={t('Товаров пока нет')}>{t('Добавьте первый товар кнопкой «Новый товар» вверху или загрузите накладную во вкладке «Приходы».')}</EmptyState>
+        : <Table density="compact" sticky="header" aria-label={shell.vertical === 'BEAUTY' ? t('Товары склада') : t('Товары бара')}>
+            <thead><tr><th>{t('Товар')}</th><th>{t('Остаток')}</th><th>{t('Цена продажи')}</th><th>{t('Действия')}</th></tr></thead>
             <tbody>{rows.map((item) => <tr key={item.id} className={item.active ? undefined : 'is-void'}>
               {/* название и код на разных строках (п.17); закупка и наценка в карточке товара на обзоре (п.16) */}
               <td className="bar-product-name">
                 {item.active && rights.updateCatalog
-                  ? <Link href={`/bar?product=${item.id}`} prefetch={false} title="Закупка, наценка и остатки"><b>{item.name}</b></Link>
+                  ? <Link href={`/bar?product=${item.id}`} prefetch={false} title={t('Закупка, наценка и остатки')}><b>{item.name}</b></Link>
                   : <b>{item.name}</b>}
-                <small>Код {item.code}{item.category ? `, ${item.category.name}` : ''}</small>
+                <small>{t('Код {code}', { code: item.code })}{item.category ? `, ${item.category.name}` : ''}</small>
               </td>
-              <td><Badge tone={!item.active ? 'neutral' : low(item) ? 'warn' : 'ok'}>{item.availableUnits} шт.</Badge><small>Минимум: {item.minimumStockUnits} шт.</small></td>
+              <td><Badge tone={!item.active ? 'neutral' : low(item) ? 'warn' : 'ok'}>{t('{n} шт.', { n: item.availableUnits })}</Badge><small>{t('Минимум: {n} шт.', { n: item.minimumStockUnits })}</small></td>
               <td>{item.active && rights.updateCatalog ? <ProductPriceForm productId={item.id} salePrice={item.salePrice} context={context} /> : formatMoney(item.salePrice, context.currency)}</td>
               <td>{rights.archiveCatalog && <BarCommandForm context={context} action={toggleBarCatalogAction}>
                 <input type="hidden" name="kind" value="product" />
                 <input type="hidden" name="id" value={item.id} />
                 <input type="hidden" name="active" value={String(!item.active)} />
-                <Button type="submit" tone="ghost" size="xs">{item.active ? 'В архив' : 'Восстановить'}</Button>
+                <Button type="submit" tone="ghost" size="xs">{item.active ? t('В архив') : t('Восстановить')}</Button>
               </BarCommandForm>}</td>
             </tr>)}</tbody>
           </Table>}

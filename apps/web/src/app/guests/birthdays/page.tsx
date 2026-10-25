@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { guestsApi } from '../../../lib/api';
 import { hotelToday } from '../../../lib/hotel-api';
 import { displayDate } from '../../../lib/display-date';
-import { pluralRu } from '../../../lib/plural';
+import { countLabel, intlLocale, msg } from '../../../i18n';
+import { currentLocale, serverT } from '../../../i18n/server';
 import { Page } from '../../../components/page';
 import { EmptyState, Table } from '../../../components/ui';
 import { LoadError } from '../../../components/load-error';
@@ -16,6 +17,8 @@ import { guestDisplayName } from '../guest-stay';
  */
 export default async function BirthdaysPage() {
   await requireFeature('/guests/birthdays');
+  const t = await serverT();
+  const locale = await currentLocale();
   const today = await hotelToday();
   let failure: unknown = null;
   const list = await guestsApi.birthdays(today, 7).catch((e: unknown) => {
@@ -28,12 +31,12 @@ export default async function BirthdaysPage() {
       {rows.length === 0 ? (
         <p className="muted">{empty}</p>
       ) : (
-        <Table density="normal" aria-label={`Именинники: ${title.toLowerCase()}`}>
+        <Table density="normal" aria-label={t('Именинники: {title}', { title: title.toLowerCase() })}>
           <thead>
             <tr>
-              <th>Гость</th>
-              <th>Дата</th>
-              <th>Исполняется</th>
+              <th>{t('Гость')}</th>
+              <th>{t('Дата')}</th>
+              <th>{t('Исполняется')}</th>
             </tr>
           </thead>
           <tbody>
@@ -44,8 +47,8 @@ export default async function BirthdaysPage() {
                     {guestDisplayName(g)}
                   </Link>
                 </td>
-                <td>{displayDate(g.date, 'full')}</td>
-                <td>{pluralRu(g.age, ['год', 'года', 'лет'])}</td>
+                <td>{displayDate(g.date, 'full', intlLocale(locale))}</td>
+                <td>{countLabel(locale, t, g.age, [msg('год'), 'года', msg('лет')]) /* kk-allow: форма склонения */}</td>
               </tr>
             ))}
           </tbody>
@@ -54,21 +57,21 @@ export default async function BirthdaysPage() {
     </section>
   );
   return (
-    <Page title="Дни рождения" subtitle="Гости с днём рождения сегодня и в ближайшие 7 дней">
+    <Page title={t('Дни рождения')} subtitle={t('Гости с днём рождения сегодня и в ближайшие 7 дней')}>
       {list === null ? (
         <LoadError
           testId="birthdays-error"
-          title="Не удалось загрузить дни рождения"
+          title={t('Не удалось загрузить дни рождения')}
           {...loadErrorProps(failure)}
         />
       ) : list.length === 0 ? (
-        <EmptyState title="В ближайшую неделю дней рождения нет">
-          Дата рождения берётся из карточки гостя.
+        <EmptyState title={t('В ближайшую неделю дней рождения нет')}>
+          {t('Дата рождения берётся из карточки гостя.')}
         </EmptyState>
       ) : (
         <>
-          {section('Сегодня', list.filter((g) => g.date === today), 'Сегодня именинников нет.')}
-          {section('Ближайшие 7 дней', list.filter((g) => g.date !== today), 'Больше в эту неделю нет.')}
+          {section(t('Сегодня'), list.filter((g) => g.date === today), t('Сегодня именинников нет.'))}
+          {section(t('Ближайшие 7 дней'), list.filter((g) => g.date !== today), t('Больше в эту неделю нет.'))}
         </>
       )}
     </Page>

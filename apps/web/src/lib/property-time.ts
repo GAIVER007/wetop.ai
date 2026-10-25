@@ -1,4 +1,5 @@
 import { PLATFORM_TIMEZONE } from '@pms/domain';
+import type { Translate } from '../i18n';
 
 /**
  * Часы объекта на стойке (С-13, ТЗ аудита 25.09.2026): «сегодня», месяц, штамп печати и моменты событий —
@@ -26,8 +27,11 @@ export interface PropertyClock {
    * время и ошибается на пять часов.
    */
   moment(iso: string | null | undefined): string;
-  /** Момент → «20.09 в 16:50»: время внутри фразы. Без `Date.now()` — строка одна на сервере и в браузере */
-  when(iso: string | null | undefined): string;
+  /**
+   * Момент → «20.09 в 16:50»: время внутри фразы. Без `Date.now()` — строка одна на сервере и в браузере.
+   * `t` даёт связку на языке человека (KK3): «20.09, 16:50», «20.09 at 16:50»; без него по-русски.
+   */
+  when(iso: string | null | undefined, t?: Translate): string;
   /** Момент → «2026-09-17 13:30»: для журналов, где важен и год */
   stamp(iso: string): string;
   /** Момент → «13:30»: день называет подзаголовок группы, а не каждая строка */
@@ -99,9 +103,11 @@ export function propertyClock(timezone: string): PropertyClock {
       const t = at(iso);
       return Number.isNaN(t) ? '—' : moment.format(t).replace(',', '');
     },
-    when: (iso) => {
+    when: (iso, t) => {
       const m = clock.moment(iso);
-      return m === '—' ? m : m.replace(' ', ' в ');
+      if (m === '—') return m;
+      const [date, time] = m.split(' ');
+      return t ? t('{date} в {time}', { date: date!, time: time! }) : `${date} в ${time}`; // kk-allow: русская связка по умолчанию
     },
     stamp: (iso) => {
       const t = at(iso);

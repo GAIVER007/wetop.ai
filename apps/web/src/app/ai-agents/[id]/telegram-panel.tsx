@@ -3,25 +3,32 @@ import { useEffect, useState, useTransition } from 'react';
 import type { TelegramStatusView } from '../../../lib/api';
 import { telegramAction } from './actions';
 import { Input } from '../../../components/ui';
-/** ID тестировщиков: только числа, без повторов, не больше 20 (как обещает подсказка у поля) */
+import { msg, translator, type Translate } from '../../../i18n';
+import { useT } from '../../../i18n/locale-provider';
+/** ID тестировщиков: только числа, без повторов, не больше 20 (как обещает подсказка у поля); `t` даёт язык человека */
 export const MAX_TESTERS = 20;
-export function parseTesterIds(raw: string): { ids: string[]; error: string | null } {
+export function parseTesterIds(raw: string, t: Translate = translator('ru')): { ids: string[]; error: string | null } {
   const parts = raw.split(/[\s,;]+/).filter(Boolean);
   const bad = parts.filter((p) => !/^\d{3,15}$/.test(p));
   if (bad.length)
-    return { ids: [], error: `Это не числовой Telegram ID: ${bad.slice(0, 3).join(', ')}. Узнать ID поможет бот @userinfobot.` };
+    return {
+      ids: [],
+      error: t('Это не числовой Telegram ID: {ids}. Узнать ID поможет бот @userinfobot.', { ids: bad.slice(0, 3).join(', ') }),
+    };
   const ids = [...new Set(parts)];
-  if (ids.length > MAX_TESTERS) return { ids: [], error: `Тестировщиков не больше ${MAX_TESTERS}, указано ${ids.length}.` };
+  if (ids.length > MAX_TESTERS)
+    return { ids: [], error: t('Тестировщиков не больше {max}, указано {n}.', { max: MAX_TESTERS, n: ids.length }) };
   return { ids, error: null };
 }
 const words: Record<TelegramStatusView['state'], string> = {
-  NOT_CONNECTED: 'Не подключён',
-  CONFIGURED: 'Приём остановлен',
-  CONNECTING: 'Подключается',
-  CONNECTED: 'Подключён',
-  ERROR: 'Нужна проверка',
+  NOT_CONNECTED: msg('Не подключён'),
+  CONFIGURED: msg('Приём остановлен'),
+  CONNECTING: msg('Подключается'),
+  CONNECTED: msg('Подключён'),
+  ERROR: msg('Нужна проверка'),
 };
 export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean }) {
+  const t = useT();
   const [status, setStatus] = useState<TelegramStatusView | null>(null);
   const [token, setToken] = useState('');
   const [ids, setIds] = useState('');
@@ -40,7 +47,7 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
         } else if (!result.ok) setMessage(result.error);
       })
       .catch(() => {
-        if (active) setMessage('Не удалось загрузить состояние подключения. Повторите проверку.');
+        if (active) setMessage(t('Не удалось загрузить состояние подключения. Повторите проверку.'));
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -52,7 +59,7 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
   const run = (action: 'status' | 'check' | 'connect' | 'disconnect') =>
     start(async () => {
       setMessage('');
-      const testers = parseTesterIds(ids);
+      const testers = parseTesterIds(ids, t);
       if (action === 'connect' && testers.error) {
         setMessage(testers.error);
         return;
@@ -65,39 +72,39 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
       if ('check' in result && result.check) {
         setMessage(
           !result.check.valid
-            ? 'Токен не прошёл проверку.'
+            ? t('Токен не прошёл проверку.')
             : result.check.conflict
-              ? 'Бот подключён к другому сервису. Сначала отключите его там.'
-              : `Бот @${result.check.username} найден. Теперь подключите его.`,
+              ? t('Бот подключён к другому сервису. Сначала отключите его там.')
+              : t('Бот @{username} найден. Теперь подключите его.', { username: String(result.check.username) }),
         );
       } else if ('value' in result && result.value) {
         setStatus(result.value);
         setIds((result.value.allowedUserIds ?? []).join(', '));
         if (action === 'connect') {
           setToken('');
-          setMessage('Подключение сохранено. Откройте бота и отправьте тестовое сообщение.');
+          setMessage(t('Подключение сохранено. Откройте бота и отправьте тестовое сообщение.'));
         }
         if (action === 'disconnect')
-          setMessage('Ответы остановлены. Webhook остаётся закреплён за WETOP.');
+          setMessage(t('Ответы остановлены. Webhook остаётся закреплён за WETOP.'));
       }
     });
   return (
     <section className="panel agent-telegram" aria-labelledby="telegram-heading">
       <div className="agent-telegram__head">
         <div>
-          <h2 id="telegram-heading">Тест агента в Telegram</h2>
-          <p>Подключите своего бота. Ответы доступны только указанным тестировщикам.</p>
+          <h2 id="telegram-heading">{t('Тест агента в Telegram')}</h2>
+          <p>{t('Подключите своего бота. Ответы доступны только указанным тестировщикам.')}</p>
         </div>
         <button className="btn btn--secondary" disabled={pending} onClick={() => run('status')}>
-          {pending ? 'Подождите…' : 'Проверить состояние'}
+          {pending ? t('Подождите…') : t('Проверить состояние')}
         </button>
       </div>
       <p>
         {status
-          ? words[status.state]
+          ? t(words[status.state])
           : loading
-            ? 'Загружаем сохранённое подключение…'
-            : 'Состояние подключения недоступно'}
+            ? t('Загружаем сохранённое подключение…')
+            : t('Состояние подключения недоступно')}
         {status?.username && (
           <>
             {' '}
@@ -114,7 +121,7 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
       </p>
       <div className="agent-telegram__fields">
         <label>
-          Токен из @BotFather
+          {t('Токен из @BotFather')}
           <Input
             type="password"
             autoComplete="off"
@@ -124,13 +131,13 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
             onChange={(e) => setToken(e.target.value)}
             placeholder={
               status?.username
-                ? 'Токен сохранён, новый нужен только для замены'
-                : 'Вставьте токен бота'
+                ? t('Токен сохранён, новый нужен только для замены')
+                : t('Вставьте токен бота')
             }
           />
         </label>
         <label>
-          Telegram ID тестировщиков
+          {t('Telegram ID тестировщиков')}
           <Input
             value={ids}
             disabled={pending || readOnly}
@@ -139,13 +146,13 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
             inputMode="numeric"
             aria-invalid={ids.trim() !== '' && parseTesterIds(ids).error !== null}
           />
-          <small>Числовые ID, не @имена. До 20 человек.</small>
+          <small>{t('Числовые ID, не @имена. До 20 человек.')}</small>
         </label>
       </div>
       <p className="muted">
-        «Проверить токен» не сохраняет его: нажмите «Подключить бота». Сохранённый токен не
-        возвращается в поле после перезагрузки. Токен хранится на сервере в зашифрованном виде. Для
-        замены настроек введите его снова. Тестовый канал пока не создаёт брони.
+        {t(
+          '«Проверить токен» не сохраняет его: нажмите «Подключить бота». Сохранённый токен не возвращается в поле после перезагрузки. Токен хранится на сервере в зашифрованном виде. Для замены настроек введите его снова. Тестовый канал пока не создаёт брони.',
+        )}
       </p>
       <div className="agent-telegram__actions">
         <button
@@ -153,14 +160,14 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
           disabled={pending || readOnly || !token.trim()}
           onClick={() => run('check')}
         >
-          Проверить токен
+          {t('Проверить токен')}
         </button>
         <button
           className="btn btn--primary"
           disabled={pending || readOnly || !token.trim() || !ids.trim()}
           onClick={() => run('connect')}
         >
-          Подключить бота
+          {t('Подключить бота')}
         </button>
         {status?.state === 'CONNECTED' && (
           <button
@@ -168,21 +175,21 @@ export function TelegramPanel({ id, readOnly }: { id: string; readOnly: boolean 
             disabled={pending || readOnly}
             onClick={() => run('disconnect')}
           >
-            Остановить ответы
+            {t('Остановить ответы')}
           </button>
         )}
       </div>
       {message && <p role="status">{message}</p>}
       {status?.error && (
         <p role="alert">
-          Последний обмен завершился ошибкой. Проверьте диалог перед повторной отправкой сообщения.
+          {t('Последний обмен завершился ошибкой. Проверьте диалог перед повторной отправкой сообщения.')}
         </p>
       )}
       {status?.lastReceivedAt && (
-        <p className="muted">Последнее входящее: {new Date(status.lastReceivedAt).toLocaleString('ru-RU')}</p>
+        <p className="muted">{t('Последнее входящее: {at}', { at: new Date(status.lastReceivedAt).toLocaleString('ru-RU') })}</p>
       )}
       {status?.lastSentAt && (
-        <p className="muted">Последний ответ: {new Date(status.lastSentAt).toLocaleString('ru-RU')}</p>
+        <p className="muted">{t('Последний ответ: {at}', { at: new Date(status.lastSentAt).toLocaleString('ru-RU') })}</p>
       )}
     </section>
   );

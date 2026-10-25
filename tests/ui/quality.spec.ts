@@ -17,7 +17,7 @@ test('неверные параметры списка броней оставл
 }) => {
   for (const query of ['status=WRONG', 'page=abc', 'page=-1']) {
     await page.goto(`/reservations?${query}`);
-    await expect(page.getByRole('heading', { name: 'Брони', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Записи', exact: true })).toBeVisible();
     await expect(page.getByRole('main').getByRole('alert')).toContainText(/статус|страниц/i);
     await expect(page.getByRole('button', { name: 'Показать', exact: true })).toBeEnabled();
   }

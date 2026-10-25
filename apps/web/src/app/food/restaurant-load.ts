@@ -1,7 +1,7 @@
 import { requireVertical } from '../../lib/vertical-guard';
 import { deskShell } from '../../lib/desk-shell';
 import { selectedWorkspaceBranch } from '../../lib/workspace-context';
-import { mayAccess } from '../../lib/navigation';
+import { mayAccess, type NavigationAccess } from '../../lib/navigation';
 import { localInput } from '../beauty/time';
 import { accessLevelsFor, type AccessLevel } from '@pms/domain';
 import { ApiError } from '../../lib/api-error';
@@ -15,6 +15,8 @@ export interface RestaurantShell {
   branchName: string;
   scopeKey: string;
   readOnly: boolean;
+  /** права вошедшего: вкладки раздела «Клиенты» берут пункты меню по ним */
+  access: NavigationAccess;
   canDesk: boolean;
   canProperty: boolean;
   canStaff: boolean;
@@ -53,6 +55,7 @@ export async function restaurantShell(
     branchName: branch.name,
     scopeKey: `${me.context.businessId}:${me.context.locationId}`,
     readOnly: shell.readOnly,
+    access: shell.access,
     canDesk: mayAccess(shell.access, 'desk'),
     canProperty: mayAccess(shell.access, 'property'),
     canStaff: mayAccess(shell.access, 'staff'),

@@ -1,3 +1,4 @@
+import type { OrderPayload } from './pending-order';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Screen } from '../ui/screen';
@@ -85,6 +86,7 @@ export function DishOptions({
   );
 }
 export function DraftReview({
+  onSubmit,
   notice,
   acknowledge,
   lines,
@@ -96,6 +98,7 @@ export function DraftReview({
   setGuests,
   onBack,
 }: {
+  onSubmit?: (payload: OrderPayload) => void;
   notice: string;
   acknowledge: () => void;
   lines: DraftLine[];
@@ -222,9 +225,30 @@ export function DraftReview({
       {tableId === undefined ? (
         <Text style={{ ...label, color: theme.secondary }}>Выберите стол или заказ со стойки.</Text>
       ) : null}
-      <Text style={{ ...label, color: theme.secondary }}>
-        Отправка заказа пока недоступна. Черновик не передан на кухню или в бар.
-      </Text>
+      {onSubmit ? (
+        <ActionButton
+          label="Отправить заказ"
+          disabled={!lines.length || tableId === undefined || Boolean(notice)}
+          onPress={() => {
+            if (!lines.length || tableId === undefined || notice) return;
+            onSubmit({
+              tableId,
+              guestCount: guests,
+              items: lines.map((line) => ({
+                menuItemId: line.item.id,
+                qty: line.qty,
+                notes: line.notes,
+                modifierIds: [...line.modifierIds],
+              })),
+            });
+          }}
+        />
+      ) : (
+        <Text style={{ ...label, color: theme.secondary }}>
+          Надёжная отправка заказа доступна в установленном приложении. Этот черновик ещё не
+          отправлен.
+        </Text>
+      )}
     </Screen>
   );
 }

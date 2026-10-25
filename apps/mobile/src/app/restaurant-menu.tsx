@@ -1,3 +1,5 @@
+import { OrderFlow } from '../restaurant/order-flow';
+import type { OrderPayload } from '../restaurant/pending-order';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,10 +17,12 @@ import type { DraftLine } from '../restaurant/draft';
 export default function MenuRoute() {
   const { state } = useAccess();
   return state.kind === 'ready' && state.branch.vertical === 'FOOD_SERVICE' ? (
-    <RestaurantMenu key={state.identity} />
+    <OrderFlow key={state.identity} onOrders={() => router.replace('/restaurant')}>
+      {(submit) => <RestaurantMenu onSubmit={submit} />}
+    </OrderFlow>
   ) : null;
 }
-function RestaurantMenu() {
+function RestaurantMenu({ onSubmit }: { onSubmit?: (payload: OrderPayload) => void }) {
   const { session, draft } = useAccess();
   const draftState = useSyncExternalStore(draft.subscribe, draft.snapshot, draft.snapshot);
   const { lines, tableId, guests } = draftState;
@@ -126,6 +130,7 @@ function RestaurantMenu() {
   if (review)
     return (
       <DraftReview
+        onSubmit={onSubmit}
         notice={draftState.notice}
         acknowledge={() => draft.update({ notice: '' })}
         lines={lines}

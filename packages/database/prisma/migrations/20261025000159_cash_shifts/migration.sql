@@ -55,4 +55,5 @@ CREATE POLICY rls_tenant ON cash_handovers FOR ALL TO wetop_app
 CREATE POLICY rls_tenant ON cash_commands FOR ALL TO wetop_app
  USING (EXISTS(SELECT 1 FROM cash_registers r WHERE r.id=register_id))
  WITH CHECK (EXISTS(SELECT 1 FROM cash_registers r WHERE r.id=register_id));
+REVOKE ALL ON FUNCTION cash_scope_visible(uuid,uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION cash_scope_visible(uuid,uuid) TO wetop_app,wetop_service;

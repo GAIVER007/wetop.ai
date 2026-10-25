@@ -1,5 +1,12 @@
 /** EN: английский для области «activity-ops» (пути в kk-parts/activity-ops.ts). Ключ русская фраза, значение перевод */
 export const activityOps: Record<string, string> = {
+    'Права кассиров изменены': 'Cashier permissions updated',
+    'Кассовая смена открыта': 'Cash shift opened',
+    'Кассовая смена закрыта': 'Cash shift closed',
+    'Расход кассовой смены': 'Cash shift expense',
+    'Деньги внесены в кассу': 'Money added to the cash register',
+    'Получение денег подтверждено': 'Receipt of cash confirmed',
+
   'Дата неизвестна': 'Date unknown',
   'Сегодня, {date}': 'Today, {date}',
   'Вчера, {date}': 'Yesterday, {date}',

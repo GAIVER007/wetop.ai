@@ -55,6 +55,32 @@ type Shift = {
   opening: { snapshot: Snapshot; counted: string; note: string };
   closing: Record<string, unknown> | null;
 };
+export type CashShiftState = {
+  registerId: string;
+  name: string;
+  currency: string;
+  timezone: string;
+  snapshot: Snapshot;
+  active: Shift | null;
+  history: Shift[];
+  totals: {
+    expenses: Record<string, string>;
+    received: Record<string, string>;
+    refunds: Record<string, string>;
+  } | null;
+  mayOperate: boolean;
+  mayManage: boolean;
+  currentUserId: string;
+  cashierIds: string[];
+  members: Array<{ id: string; name: string }>;
+  handovers: Array<{
+    id: string;
+    recipient_id: string;
+    amount: string;
+    shift_id: string;
+    acknowledged_at: Date | null;
+  }>;
+};
 export type CashCommand = {
   key?: string;
   action?: string;
@@ -149,7 +175,7 @@ export class CashShiftsService {
     }
     return id;
   }
-  private async view(db: DbTx, scope: Scope, register: Register) {
+  private async view(db: DbTx, scope: Scope, register: Register): Promise<CashShiftState> {
     const [snapshot, shifts, handovers] = await Promise.all([
       this.snapshot(db, scope, register),
       db.$queryRaw<
@@ -215,7 +241,7 @@ export class CashShiftsService {
         : null,
       mayOperate: mayCreate && (this.manager() || register.cashier_ids.includes(currentUserId()!)),
       mayManage,
-      currentUserId: currentUserId(),
+      currentUserId: currentUserId()!,
       cashierIds: mayManage ? register.cashier_ids : [],
       members: members
         .filter((m) =>
@@ -263,7 +289,7 @@ export class CashShiftsService {
       handovers: handovers.map((h) => ({ ...h, amount: String(h.amount) })),
     };
   }
-  state() {
+  state(): Promise<CashShiftState> {
     return this.prisma.db.$transaction(async (db) => {
       if (currentVertical() === 'BEAUTY')
         await assertBeautyOperation(db, 'finance', 'view', { legacy: 'desk' });
@@ -272,10 +298,10 @@ export class CashShiftsService {
       return this.view(db, scope, register);
     });
   }
-  async command(body: CashCommand) {
+  async command(body: CashCommand): Promise<CashShiftState> {
     if (
       !body ||
-      !body.key ||
+      typeof body.key !== 'string' ||
       !UUID.test(body.key) ||
       !['open', 'close', 'expense', 'income', 'acknowledge'].includes(body.action ?? '')
     )
@@ -306,8 +332,8 @@ export class CashShiftsService {
                 'Владелец или управляющий должен выдать вам права кассира',
               );
             const prior = await db.$queryRaw<
-              Array<{ fingerprint: string; response: unknown }>
-            >`SELECT fingerprint,response FROM cash_commands WHERE register_id=${register.id}::uuid AND command_key=${body.key}::uuid`;
+              Array<{ fingerprint: string }>
+            >`SELECT fingerprint FROM cash_commands WHERE register_id=${register.id}::uuid AND command_key=${body.key}::uuid`;
             if (prior[0]) {
               if (prior[0].fingerprint !== fingerprint)
                 throw new ConflictException('Этот ключ уже использован для другой команды');
@@ -324,7 +350,7 @@ export class CashShiftsService {
               const reconciliationId = await this.reconcile(db, scope, expected, counted, note);
               await db.$executeRaw`INSERT INTO cash_shifts(id,register_id,responsible_user_id,opening) VALUES (${randomUUID()}::uuid,${register.id}::uuid,${currentUserId()}::uuid,${JSON.stringify({ snapshot: before.snapshot, counted: String(counted), note, reconciliationId })}::jsonb)`;
             } else if (body.action === 'acknowledge') {
-              if (!body.handoverId || !UUID.test(body.handoverId))
+              if (typeof body.handoverId !== 'string' || !UUID.test(body.handoverId))
                 throw new BadRequestException('Выберите передачу');
               const requested = before.handovers.find((h) => h.id === body.handoverId);
               if (
@@ -421,7 +447,7 @@ export class CashShiftsService {
                 await db.$executeRaw`UPDATE cash_shifts SET closed_at=now(),closed_by_id=${currentUserId()}::uuid,closing=${JSON.stringify(snapshot)}::jsonb WHERE id=${active.id}::uuid`;
                 if (BigInt(closing.plannedHandover) > 0n) {
                   if (
-                    !body.recipientId ||
+                    typeof body.recipientId !== 'string' ||
                     !UUID.test(body.recipientId) ||
                     body.recipientId === currentUserId()
                   )
@@ -445,7 +471,12 @@ export class CashShiftsService {
               },
             });
             const response = await this.view(db, scope, register);
-            await db.$executeRaw`INSERT INTO cash_commands(register_id,command_key,fingerprint,response) VALUES (${register.id}::uuid,${body.key}::uuid,${fingerprint},${JSON.stringify(response)}::jsonb)`;
+            const outcome = {
+              action: body.action,
+              shiftId: response.active?.id ?? active?.id ?? null,
+              handoverId: body.handoverId ?? null,
+            };
+            await db.$executeRaw`INSERT INTO cash_commands(register_id,command_key,fingerprint,response) VALUES (${register.id}::uuid,${body.key}::uuid,${fingerprint},${JSON.stringify(outcome)}::jsonb)`;
             return response;
           }),
         { isolationLevel: 'Serializable' },
@@ -460,7 +491,7 @@ export class CashShiftsService {
       throw error;
     }
   }
-  cashiers(body: { userIds?: string[] }) {
+  cashiers(body: { userIds?: string[] }): Promise<CashShiftState> {
     return this.prisma.db.$transaction(async (db) =>
       runWithBeautyWriteAuthorization(db, async () => {
         const scope = await this.scope(db);

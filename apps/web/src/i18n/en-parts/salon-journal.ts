@@ -305,6 +305,8 @@ export const salonJournal: Record<string, string> = {
   "Панель дня": "Day panel",
   "Выбранная запись": "Selected appointment",
   "Ещё": "More",
+  "Действия с записью": "Appointment actions",
+  "{date}, {from}–{to}": "{date}, {from}–{to}",
   "Нажмите на запись в сетке: здесь появятся клиент, сумма и действия.": "Click an appointment in the grid to see the client, amount and actions here.",
   "Ближайшие": "Coming up",
   "с {time}": "from {time}",

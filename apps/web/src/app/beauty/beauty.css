@@ -1258,6 +1258,70 @@
   .appointment-form {
     min-height: 100%;
   }
+  /* ТЗ 25.10.2026 п.8: карточка записи на один экран */
+  .appointment-card {
+    gap: var(--space-2);
+  }
+  .appointment-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .appointment-card-client {
+    font-size: var(--text-lg);
+  }
+  .appointment-card-layout {
+    display: grid;
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .appointment-card-main,
+  .appointment-card-side {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .appointment-card-summary {
+    grid-template-columns: max-content minmax(0, 1fr);
+    column-gap: var(--space-4);
+    row-gap: var(--space-1);
+  }
+  .appointment-card-summary > div {
+    display: contents;
+  }
+  .appointment-card-actions {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .appointment-card-more {
+    position: relative;
+  }
+  .appointment-card-more > summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  .appointment-card-more > summary::-webkit-details-marker {
+    display: none;
+  }
+  .appointment-card-more-body {
+    display: grid;
+    gap: var(--space-2);
+    padding-top: var(--space-2);
+  }
+  @media (min-width: 961px) {
+    .appointment-card-layout {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    }
+    .appointment-card-more[open] > .appointment-card-more-body {
+      position: absolute;
+      min-width: max-content;
+      padding: var(--space-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+    }
+  }
   .appointment-form fieldset {
     min-width: 0;
     margin: 0;

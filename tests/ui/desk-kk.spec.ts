@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { FIXTURE_API, expect, openProfileMenu, test, type Page } from './fixtures';
 
 /**
- * KK1 (ADR-163, plans/desk-kk-2026-10-23.md): язык стойки у человека. Выбор в меню профиля пишет `users.locale`
+ * KK1 (ADR-163, plans/desk-kk-2026-10-23.md): язык стойки у человека. Сохранённый язык `users.locale` приходит
  * через API, каркас (шапка, меню, профиль, «Помощь») переходит на казахский, выбор переживает перезагрузку.
  * Что каждая фраза каркаса переведена, доказывает unit `apps/web/src/i18n/kk.test.ts`.
  */
@@ -17,25 +17,26 @@ test.beforeEach(async ({ page, request }) => {
 });
 
 async function chooseLocale(page: Page, code: 'ru' | 'kk' | 'en') {
-  await openProfileMenu(page);
-  await page.locator('#profile-dropdown').getByRole('button', { name: { ru: 'Русский', kk: 'Қазақша', en: 'English' }[code] }).click();
+  const token = (await page.context().cookies()).find((cookie) => cookie.name === 'wetop_session')?.value;
+  expect(token).toBeTruthy();
+  const response = await page.request.post(`${FIXTURE_API}/auth/locale`, {
+    headers: { 'x-wetop-session': token! }, data: { locale: code },
+  });
+  expect(response.ok()).toBe(true);
+  await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang', code);
-  // меню остаётся открытым, чтобы был виден выбор; закрываем его, как человек, клавишей Escape
-  await page.keyboard.press('Escape');
-  await expect(page.locator('button.profile-trigger')).toHaveAttribute('aria-expanded', 'false');
 }
 
-test('по умолчанию русский: lang="ru", в меню профиля выбран «Русский»', async ({ page }) => {
+test('по умолчанию русский, меню профиля без выбора языка', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
   await openProfileMenu(page);
   const dropdown = page.locator('#profile-dropdown');
-  const switcher = dropdown.getByRole('group', { name: 'Язык' });
-  await expect(switcher.getByRole('button', { name: 'Русский' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(switcher.getByRole('button', { name: 'Қазақша' })).toHaveAttribute('aria-pressed', 'false');
+  await expect(dropdown.locator('.profile-dropdown__locale')).toHaveCount(0);
+  await expect(dropdown.getByRole('button', { name: 'Русский' })).toHaveCount(0);
   await expect(dropdown.getByRole('link', { name: 'Помощь' })).toBeVisible();
 });
 
-test('казахский из меню профиля: шапка, меню и профиль по-казахски, выбор переживает перезагрузку', async ({ page }) => {
+test('сохранённый казахский: шапка, меню и профиль по-казахски, выбор переживает перезагрузку', async ({ page }) => {
   await chooseLocale(page, 'kk');
   await expect(page.getByRole('navigation', { name: 'Басты мәзір' })).toBeAttached();
   await expect(page.getByRole('button', { name: 'Қонақты немесе брондауды табу' })).toBeVisible();
@@ -43,7 +44,7 @@ test('казахский из меню профиля: шапка, меню и �
   const dropdown = page.locator('#profile-dropdown');
   await expect(dropdown.getByRole('link', { name: 'Көмек' })).toBeVisible();
   await expect(dropdown.getByRole('button', { name: 'Шығу' })).toBeVisible();
-  await expect(dropdown.getByRole('group', { name: 'Тіл' }).getByRole('button', { name: 'Қазақша' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(dropdown.locator('.profile-dropdown__locale')).toHaveCount(0);
   await expect(page.locator('.profile-caption small')).toHaveText('Иесі');
   // язык лежит на сервере, а не в браузере: без куки языка вошедший всё равно получает его из /auth/me
   await page.context().clearCookies({ name: 'wetop_locale' });
@@ -53,7 +54,7 @@ test('казахский из меню профиля: шапка, меню и �
   await expect(page.getByRole('button', { name: 'Қонақты немесе брондауды табу' })).toBeVisible();
 });
 
-test('EN1: английский из меню профиля, шапка и профиль по-английски, назад на русский', async ({ page }) => {
+test('EN1: сохранённый английский, шапка и профиль по-английски, назад на русский', async ({ page }) => {
   await chooseLocale(page, 'en');
   await expect(page.getByRole('navigation', { name: 'Main menu' })).toBeAttached();
   await expect(page.getByRole('button', { name: 'Find a guest or booking' })).toBeVisible();
@@ -61,14 +62,14 @@ test('EN1: английский из меню профиля, шапка и пр
   const dropdown = page.locator('#profile-dropdown');
   await expect(dropdown.getByRole('link', { name: 'Help' })).toBeVisible();
   await expect(dropdown.getByRole('button', { name: 'Sign out' })).toBeVisible();
-  await expect(dropdown.getByRole('group', { name: 'Language' }).getByRole('button', { name: 'English' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(dropdown.locator('.profile-dropdown__locale')).toHaveCount(0);
   await expect(page.locator('.profile-caption small')).toHaveText('Owner');
   await page.keyboard.press('Escape');
   await chooseLocale(page, 'ru');
   await expect(page.getByRole('button', { name: 'Найти гостя или бронь' })).toBeVisible();
 });
 
-test('«Помощь» и «Не жаңалық» на казахском, назад на русский одной кнопкой', async ({ page }) => {
+test('«Помощь» и «Не жаңалық» на казахском, с сохранённым русским языком', async ({ page }) => {
   await chooseLocale(page, 'kk');
   await page.goto('/help');
   await expect(page.getByRole('heading', { level: 1, name: 'Көмек' })).toBeVisible();
@@ -101,3 +102,26 @@ for (const scheme of ['light', 'dark'] as const)
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       expect(overflow, 'горизонтальная прокрутка').toBeLessThanOrEqual(0);
     });
+
+for (const role of ['OWNER', 'MANAGER', 'STAFF'] as const) {
+  test(`salon setup menu follows the existing ${role} permission`, async ({ page, request }) => {
+    const business = '55555555-5555-4555-8555-555555555555';
+    const location = '44444444-4444-4444-8444-444444444444';
+    expect((await request.post(`${FIXTURE_API}/branches`, { data: {
+      id: location, name: 'Салон Пример', newBusinessId: business,
+      businessName: 'Салон Пример', vertical: 'BEAUTY',
+    } })).ok()).toBe(true);
+    await page.context().addCookies([{ name: 'wetop_scope',
+      value: encodeURIComponent(`business=${business};location=${location}`),
+      domain: '127.0.0.1', path: '/',
+    }]);
+    await request.post(`${FIXTURE_API}/__test/control`, { data: { role } });
+    await page.goto('/calendar');
+    await openProfileMenu(page);
+    const dropdown = page.locator('#profile-dropdown');
+    const setup = dropdown.getByRole('link', { name: 'Настройка салона', exact: true });
+    if (role === 'STAFF') await expect(setup).toHaveCount(0);
+    else await expect(setup).toHaveAttribute('href', '/register/setup?entry=reopen');
+    await expect(dropdown.locator('.profile-dropdown__locale')).toHaveCount(0);
+  });
+}

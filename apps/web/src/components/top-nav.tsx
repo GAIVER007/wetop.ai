@@ -1,6 +1,6 @@
 'use client';
 import { landingForVertical } from '../lib/vertical-landing';
-import { PENDING_ACCESS, allowedItem, routeRule } from '../lib/navigation';
+import { PENDING_ACCESS, allowedItem, mayAccess, routeRule } from '../lib/navigation';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Suspense, use, useEffect, useRef, useState, type ReactNode, type MouseEvent } from 'react';
@@ -324,6 +324,12 @@ export function TopNav({
                         <Link href="/branches" onClick={() => setProfile(false)}>
                           <Icon name="hotel" />
                           {t('Филиалы')}
+                        </Link>
+                      )}
+                      {beauty && shell?.access.role && !shell.access.unknown && mayAccess(shell.access, 'settings') && (
+                        <Link href="/register/setup?entry=reopen" onClick={() => setProfile(false)}>
+                          <Icon name="settings" />
+                          {t('Настройка салона')}
                         </Link>
                       )}
                       <hr className="profile-dropdown__sep" />

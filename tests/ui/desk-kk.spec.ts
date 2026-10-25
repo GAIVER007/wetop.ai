@@ -6,6 +6,8 @@ import { FIXTURE_API, expect, openProfileMenu, test, type Page } from './fixture
  * через API, каркас (шапка, меню, профиль, «Помощь») переходит на казахский, выбор переживает перезагрузку.
  * Что каждая фраза каркаса переведена, доказывает unit `apps/web/src/i18n/kk.test.ts`.
  */
+test.use({ extraHTTPHeaders: { 'x-wetop-test-client': '1' } });
+
 test.beforeEach(async ({ page, request }) => {
   test.setTimeout(120_000);
   await request.post(`${FIXTURE_API}/__test/reset`);
@@ -13,14 +15,14 @@ test.beforeEach(async ({ page, request }) => {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/today', { waitUntil: 'domcontentloaded' });
 });
 
 async function chooseLocale(page: Page, code: 'ru' | 'kk' | 'en') {
   const token = (await page.context().cookies()).find((cookie) => cookie.name === 'wetop_session')?.value;
   expect(token).toBeTruthy();
   const response = await page.request.post(`${FIXTURE_API}/auth/locale`, {
-    headers: { 'x-wetop-session': token! }, data: { locale: code },
+    headers: { 'x-wetop-test-client': '1', 'x-wetop-session': token! }, data: { locale: code },
   });
   expect(response.ok()).toBe(true);
   await page.reload();

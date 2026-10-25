@@ -65,7 +65,7 @@ function sumUnits(sale: BarSaleRow): string {
 export function movementRows(
   data: { sales: BarSaleRow[]; movements: BarMovementRow[] },
   type: MovementType | '' = '',
-  options: { query?: string; from?: string; to?: string; dayOf?: (iso: string) => string } = {},
+  options: { query?: string; from?: string; to?: string; dayOf?: (row: FeedRow) => string } = {},
 ): FeedRow[] {
   const rows: FeedRow[] = [
     ...data.sales.map((sale): FeedRow => {
@@ -94,14 +94,23 @@ export function movementRows(
         note: movement.note,
       })),
   ];
+  return filterFeed(rows, type, options);
+}
+
+/** Отбор готовых строк ленты: тип, товар, период (дни объекта через `dayOf`), новые сверху */
+export function filterFeed<R extends Pick<FeedRow, 'createdAt' | 'item' | 'type'>>(
+  rows: R[],
+  type: MovementType | '' = '',
+  options: { query?: string; from?: string; to?: string; dayOf?: (row: R) => string } = {},
+): R[] {
   const query = options.query?.trim().toLocaleLowerCase('ru') ?? '';
-  const dayOf = options.dayOf ?? ((iso: string) => iso.slice(0, 10));
+  const dayOf = options.dayOf ?? ((row: R) => row.createdAt.slice(0, 10));
   return rows
     .filter((row) => !type || row.type === type)
     .filter((row) => !query || row.item.toLocaleLowerCase('ru').includes(query))
     .filter((row) => {
       if (!options.from && !options.to) return true;
-      const day = dayOf(row.createdAt);
+      const day = dayOf(row);
       return (!options.from || day >= options.from) && (!options.to || day <= options.to);
     })
     .sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0));

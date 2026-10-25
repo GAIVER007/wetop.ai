@@ -1487,3 +1487,57 @@
     }
   }
 }
+
+/* «Склад: движение товаров» (ТЗ склада 25.10.2026, пункт E): одна лента движений с отборами журналов */
+@layer sections {
+  .bar-movement-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .bar-movement-filters {
+    margin-block: var(--space-2);
+  }
+  .bar-movement-types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+  .bar-movement-empty {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .bar-movement-empty > p {
+    margin: 0;
+  }
+  .bar-movement-feed .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .bar-movement-feed .bar-qty--in {
+    color: var(--success);
+  }
+  .bar-movement-feed .bar-qty--out {
+    color: var(--danger);
+  }
+  /* ПК: страница на один экран, лента прокручивается внутри */
+  @media (min-width: 961px) {
+    .page.bar-movements-page {
+      display: flex;
+      flex-direction: column;
+      height: calc(100dvh - var(--space-16));
+      overflow: hidden;
+    }
+    .bar-movements-page .bar-movement-feed {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
+    }
+  }
+}

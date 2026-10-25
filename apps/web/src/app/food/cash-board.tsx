@@ -22,7 +22,7 @@ import { useLocale, useT } from '../../i18n/locale-provider';
 import { mutateCash } from '../cashbox/actions';
 import { useConfirm } from '../../components/use-confirm';
 import { useBranchPaymentMethods } from '../branch-payment-methods/use-branch-methods';
-import { branchMethodsShown } from '../branch-payment-methods/shown';
+import { branchMethodsAll, branchMethodsShown } from '../branch-payment-methods/shown';
 
 type Kind = 'INCOME' | 'EXPENSE' | 'TRANSFER';
 const KIND_LABEL: Record<Kind, string> = { INCOME: msg('Приход'), EXPENSE: msg('Расход'), TRANSFER: msg('Перевод') };
@@ -140,6 +140,7 @@ export function CashBoard({
     );
   }
   const total = cash.balances.reduce((sum, b) => sum + BigInt(b.balanceMinor), 0n);
+  const nonZero = cash.balances.filter((b) => BigInt(b.balanceMinor) !== 0n).map((b) => b.method);
   const operations =
     cash.operations.length === 0 ? (
       <EmptyState title={t('Операций пока нет')} />
@@ -305,7 +306,11 @@ export function CashBoard({
                 label={kind === 'TRANSFER' ? t('Откуда') : t('Способ')}
                 value={method}
                 onChange={setMethod}
-                methods={kind === 'INCOME' ? accepted : FOOD_PAYMENT_METHODS}
+                methods={
+                  kind === 'INCOME'
+                    ? accepted
+                    : branchMethodsAll(FOOD_PAYMENT_METHODS, accepted, nonZero)
+                }
               />
               {kind === 'TRANSFER' && <MethodSelect label={t('Куда')} value={methodTo} onChange={setMethodTo} methods={accepted} />}
               <Field label={t('Сумма, {currency}', { currency: currencySign(cash.currency) })}>
@@ -325,7 +330,12 @@ export function CashBoard({
             <h2 id="cash-check-title" className="panel__title">{t('Сверка кассы')}</h2>
             <p className="muted">{t('Пересчитайте деньги одного способа: WETOP покажет разницу с остатком.')}</p>
             <div className="food-form-row">
-              <MethodSelect label={t('Способ')} value={checkMethod} onChange={setCheckMethod} />
+              <MethodSelect
+                label={t('Способ')}
+                value={checkMethod}
+                onChange={setCheckMethod}
+                methods={branchMethodsAll(FOOD_PAYMENT_METHODS, accepted, nonZero)}
+              />
               <Field label={t('Пересчитано, {currency}', { currency: currencySign(cash.currency) })}>
                 <Input inputMode="numeric" value={counted} onChange={(e) => setCounted(e.target.value.replace(/\D/g, ''))} />
               </Field>

@@ -25,7 +25,7 @@ import { AppointmentMoneyOperation, type PreparedMoneyRequest } from './appointm
 import type { JournalResult } from './journal-actions';
 import { formatPhone } from '../../lib/phone';
 import { useBranchPaymentMethods } from '../branch-payment-methods/use-branch-methods';
-import { branchMethodsShown } from '../branch-payment-methods/shown';
+import { branchMethodsAll, branchMethodsShown } from '../branch-payment-methods/shown';
 import { useT } from '../../i18n/locale-provider';
 
 type PayMethod = FoodPaymentMethod | 'BONUS' | 'GIFT_CERTIFICATE';
@@ -473,7 +473,7 @@ function AppointmentCardBody({
               value={refundMethod}
               onChange={(e) => setRefundMethod(e.target.value as FoodPaymentMethod)}
             >
-              {FOOD_PAYMENT_METHODS.map((m) => (
+              {branchMethodsAll(FOOD_PAYMENT_METHODS, accepted, [refundMethod]).map((m) => (
                 <option key={m} value={m}>
                   {t(METHOD_RU[m] ?? m)}
                 </option>

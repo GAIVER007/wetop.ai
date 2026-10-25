@@ -189,4 +189,20 @@ describe('shared stock controls', () => {
     }));
     expect(none).not.toContain('Показать неиспользуемые');
   });
+  it('владелец 25.10.2026: склад кухни ресторана в том же виде, что /bar (таблица, кнопки строк, пусто одной строкой)', () => {
+    const idle: StockProductView = { ...product, id: 'synthetic-idle-food', name: 'Старый ингредиент', active: false };
+    const ctx = { scopeKey: 's', currency: 'KZT', canDesk: true, canProperty: true };
+    const html = renderToStaticMarkup(createElement(StockBoard as never, { ctx, products: [product, idle], movements: [] }));
+    expect(html).toContain('class="bar-products-tools"');
+    expect(html).toMatch(/<table[^>]*class="[^"]*bar-products-grid/);
+    expect(html).toMatch(/<th class="bar-products-grid__name">/);
+    expect(html).not.toContain('Старый ингредиент');
+    expect(html).toMatch(/<button[^>]*aria-pressed="false"[^>]*>Показать неиспользуемые/);
+    expect(html).toMatch(/class="btn btn--secondary btn--xs"[^>]*aria-label="Партии: Synthetic consumable"/);
+    // пустая лента движений одной строкой, как на /bar
+    expect(html).toContain('<p class="bar-muted">Движений пока нет</p>');
+    const empty = renderToStaticMarkup(createElement(StockBoard as never, { ctx, products: [], movements: [] }));
+    expect(empty).toContain('<p class="bar-muted">Добавьте первый ингредиент</p>');
+    expect(empty).not.toContain('empty-state');
+  });
 });

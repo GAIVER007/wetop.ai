@@ -628,10 +628,14 @@ export function StockBoard({
   );
   const stockTable =
     products.length === 0 ? (
-      <EmptyState title={t(nouns.first)} actions={actions || undefined} />
+      // пусто одной короткой строкой, как на /bar (владелец 25.10.2026)
+      <>
+        <p className="bar-muted">{t(nouns.first)}</p>
+        {actions}
+      </>
     ) : (
       <div className="rest-card">
-        <div className="rest-card__tools">
+        <div className="bar-products-tools">
           <IconField icon="search">
             <Input aria-label={t(nouns.search)} placeholder={t(nouns.search)} value={query} onChange={(e) => setQuery(e.target.value)} />
           </IconField>
@@ -643,13 +647,13 @@ export function StockBoard({
           {actions}
         </div>
         {shown.length === 0 ? (
-          <EmptyState title={t('Ничего не найдено')} />
+          <p className="bar-muted">{t('Ничего не найдено')}</p>
         ) : (
-          <Table density="normal" aria-label={t('Остатки склада')}>
+          <Table density="compact" sticky="header" className="bar-products-grid" aria-label={t('Остатки склада')}>
             <thead>
               <tr>
-                {[nouns.oneTitle, msg('Остаток'), msg('Минимум'), msg('Стоимость'), msg('Годен до'), msg('Статус')].map((h) => (
-                  <th key={h}>{t(h)}</th>
+                {[nouns.oneTitle, msg('Остаток'), msg('Минимум'), msg('Стоимость'), msg('Годен до'), msg('Статус')].map((h, i) => (
+                  <th key={h} className={i === 0 ? 'bar-products-grid__name' : undefined}>{t(h)}</th>
                 ))}
                 <th>
                   <span className="sr-only">{t('Действия')}</span>
@@ -732,7 +736,7 @@ export function StockBoard({
 
   const movementTable =
     movements.length === 0 ? (
-      <EmptyState title={t('Движений пока нет')} />
+      <p className="bar-muted">{t('Движений пока нет')}</p>
     ) : (
       <Table density="compact" caption={t('Последние 200 движений склада')} captionHidden>
         <thead>

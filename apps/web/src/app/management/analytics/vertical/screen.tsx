@@ -7,7 +7,9 @@ import { branchesApi, type BranchItem } from '../../../../lib/api';
 import { currentMe, deskShell } from '../../../../lib/desk-shell';
 import { localInput } from '../../../beauty/time';
 import { BEAUTY_LABELS, FOOD_LABELS, moneyText, periodDates } from './metrics';
-import { loadBranchPeriod } from './load';
+import { loadBranchPeriod, loadPreviousPeriod } from './load';
+import { beautyPult, previousRange } from './pult';
+import { BeautyPultView } from './beauty-pult';
 import { FoodPeriodPanel } from './food-period';
 import './vertical.css';
 import { Chip, ChipGroup } from '../../../../components/chip';
@@ -43,16 +45,23 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
     const results: Array<{
       branch: BranchItem;
       report: Awaited<ReturnType<typeof loadBranchPeriod>> | null;
+      previous: Awaited<ReturnType<typeof loadPreviousPeriod>>;
       error: string | null;
     }> = [];
+    // Пульт владельца (вариант A, 25.10.2026) сравнивает с таким же отрезком перед периодом; у «Всех филиалов» без него
+    const prevRange = previousRange(from, to);
+    const prevDates = periodDates(prevRange.from, prevRange.to);
     for (const branch of targets) {
       try {
-        results.push({ branch, report: await loadBranchPeriod(branch, dates), error: null });
+        const report = await loadBranchPeriod(branch, dates);
+        const previous = organization ? null : await loadPreviousPeriod(branch, prevDates);
+        results.push({ branch, report, previous, error: null });
       } catch (error) {
         unstable_rethrow(error);
         results.push({
           branch,
           report: null,
+          previous: null,
           error: msg('Данные филиала недоступны. Обновите страницу.'),
         });
       }
@@ -98,35 +107,63 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
             if (!group.length) return null;
             const labels = vertical === 'BEAUTY' ? BEAUTY_LABELS : FOOD_LABELS;
             return (
-              <section key={vertical} aria-label={vertical === 'BEAUTY' ? t('Салоны') : t('Рестораны')}>
+              <section
+                key={vertical}
+                aria-label={vertical === 'BEAUTY' ? t('Салоны') : t('Рестораны')}
+              >
                 {organization && <h2>{vertical === 'BEAUTY' ? t('Салоны') : t('Рестораны')}</h2>}
-                {group.map(({ branch, report, error }) => (
-                  <Panel key={branch.locationId} title={branch.name}>
-                    <div data-testid={`report-${branch.locationId}`}>
-                      {error ? (
-                        <Alert boxed>{t(error)}</Alert>
+                {group.map(({ branch, report, previous, error }) =>
+                  !organization && !error && report ? (
+                    // один филиал: пульт владельца на всю ширину, без рамки панели вокруг
+                    <div key={branch.locationId} data-testid={`report-${branch.locationId}`}>
+                      {vertical === 'BEAUTY' ? (
+                        <BeautyPultView
+                          p={beautyPult(report.days, branch.currency)}
+                          prev={previous ? beautyPult(previous.days, branch.currency) : null}
+                          labels={labels}
+                          today={today}
+                          t={t}
+                        />
                       ) : (
-                        report && (
-                          <BranchReport
+                        report.food && (
+                          <FoodPeriodPanel
+                            report={report.food}
+                            previous={previous?.food ?? null}
+                            counts={report.counts}
                             labels={labels}
                             t={t}
-                            {...(vertical === 'FOOD_SERVICE'
-                              ? {
-                                  statusTitle: msg('Брони по статусам'),
-                                  statusEmpty: msg('Броней за период нет.'),
-                                }
-                              : {})}
-                            counts={report.counts}
-                            revenue={report.revenue}
-                            foodPanel={
-                              report.food ? <FoodPeriodPanel report={report.food} t={t} /> : null
-                            }
                           />
                         )
                       )}
                     </div>
-                  </Panel>
-                ))}
+                  ) : (
+                    <Panel key={branch.locationId} title={branch.name}>
+                      <div data-testid={`report-${branch.locationId}`}>
+                        {error ? (
+                          <Alert boxed>{t(error)}</Alert>
+                        ) : (
+                          report && (
+                            <BranchReport
+                              labels={labels}
+                              t={t}
+                              {...(vertical === 'FOOD_SERVICE'
+                                ? {
+                                    statusTitle: msg('Брони по статусам'),
+                                    statusEmpty: msg('Броней за период нет.'),
+                                  }
+                                : {})}
+                              counts={report.counts}
+                              revenue={report.revenue}
+                              foodPanel={
+                                report.food ? <FoodPeriodPanel report={report.food} t={t} /> : null
+                              }
+                            />
+                          )
+                        )}
+                      </div>
+                    </Panel>
+                  ),
+                )}
               </section>
             );
           })}
@@ -162,7 +199,9 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
     unstable_rethrow(error);
     return (
       <Page title={t('Аналитика')}>
-        <Alert boxed>{error instanceof Error ? t(error.message) : t('Не удалось загрузить отчёт')}</Alert>
+        <Alert boxed>
+          {error instanceof Error ? t(error.message) : t('Не удалось загрузить отчёт')}
+        </Alert>
         <Link href={path}>{t('Обновить отчёт')}</Link>
       </Page>
     );

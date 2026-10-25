@@ -146,7 +146,6 @@
     "apps/web/src/app/food/timeline-board.tsx": 1,
     "apps/web/src/app/food/workspace-board.tsx": 1,
     "apps/web/src/app/guests/guest-panel.tsx": 2,
-    "apps/web/src/app/management/analytics/vertical/food-period.tsx": 2,
     "apps/web/src/app/marketing/site/editor/fields.tsx": 1,
     "apps/web/src/app/marketing/site/editor/overlays.tsx": 1,
     "apps/web/src/app/marketing/site/editor/site-facts-card.tsx": 1,

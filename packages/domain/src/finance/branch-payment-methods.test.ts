@@ -14,15 +14,17 @@ import { FOOD_PAYMENT_METHODS } from '../food/cash';
  * у объекта гостиницы (§21.6), но список шести денежных способов кассы филиала (§35), без депозита и гарантии картой.
  */
 describe('способы оплаты филиала (§21.7)', () => {
-  it('шесть способов кассы филиала, тот же порядок, что FOOD_PAYMENT_METHODS', () => {
+  it('способы кассы филиала (шесть и «Другое»), тот же порядок, что FOOD_PAYMENT_METHODS', () => {
     expect([...BRANCH_PAYMENT_METHODS]).toEqual([...FOOD_PAYMENT_METHODS]);
     expect(BRANCH_PAYMENT_METHODS).not.toContain('DEPOSIT');
     expect(BRANCH_PAYMENT_METHODS).not.toContain('CARD_GUARANTEE');
   });
 
-  it('без строк все шесть включены: после выкладки у филиалов ничего не меняется', () => {
+  it('без строк прежние шесть включены, «Другое» выключено: после выкладки у филиалов ничего не меняется', () => {
     expect(resolveBranchPaymentMethodSettings([])).toEqual(DEFAULT_BRANCH_PAYMENT_METHOD_SETTINGS);
-    expect(enabledPaymentMethods(resolveBranchPaymentMethodSettings([]))).toEqual([...BRANCH_PAYMENT_METHODS]);
+    expect(enabledPaymentMethods(resolveBranchPaymentMethodSettings([]))).toEqual(
+      BRANCH_PAYMENT_METHODS.filter((m) => m !== 'OTHER'),
+    );
   });
 
   it('строки задают порядок и включение; гостиничные DEPOSIT и CARD_GUARANTEE отбрасываются', () => {
@@ -38,6 +40,7 @@ describe('способы оплаты филиала (§21.7)', () => {
       'HALYK',
       'BANK_TRANSFER_PERSON',
       'BANK_TRANSFER_LEGAL',
+      'OTHER',
     ]);
     expect(enabledPaymentMethods(r)).not.toContain('CASH');
   });
@@ -65,5 +68,22 @@ describe('способы оплаты филиала (§21.7)', () => {
     expect(() => assertBranchPaymentMethodEnabled('CASH', ['CASH'])).not.toThrow();
     expect(() => assertBranchPaymentMethodEnabled('BONUS', ['CASH'])).not.toThrow();
     expect(() => assertBranchPaymentMethodEnabled('GIFT_CERTIFICATE', ['CASH'])).not.toThrow();
+  });
+
+  it('«Другое» (PAYMENT-OTHER-20261025): в списке филиала последним, без строк выключено, включается настройкой', () => {
+    expect(BRANCH_PAYMENT_METHODS[BRANCH_PAYMENT_METHODS.length - 1]).toBe('OTHER');
+    expect(resolveBranchPaymentMethodSettings([]).find((s) => s.method === 'OTHER')).toEqual({
+      method: 'OTHER',
+      enabled: false,
+    });
+    expect(enabledPaymentMethods(resolveBranchPaymentMethodSettings([]))).not.toContain('OTHER');
+    // филиал с сохранёнными строками до появления «Другого»: новый способ сам не включается
+    const saved = resolveBranchPaymentMethodSettings([{ method: 'CASH', enabled: true, sortOrder: 0 }]);
+    expect(enabledPaymentMethods(saved)).not.toContain('OTHER');
+    const on = resolveBranchPaymentMethodSettings([{ method: 'OTHER', enabled: true, sortOrder: 0 }]);
+    expect(enabledPaymentMethods(on)[0]).toBe('OTHER');
+    expect(() => assertBranchPaymentMethodEnabled('OTHER', enabledPaymentMethods(saved))).toThrow(
+      'Способ оплаты «Другое» выключен в настройках филиала',
+    );
   });
 });

@@ -338,7 +338,8 @@ export type FoodPaymentMethod =
   | 'KASPI'
   | 'HALYK'
   | 'BANK_TRANSFER_PERSON'
-  | 'BANK_TRANSFER_LEGAL';
+  | 'BANK_TRANSFER_LEGAL'
+  | 'OTHER';
 export const FOOD_PAYMENT_METHODS: FoodPaymentMethod[] = [
   'CASH',
   'CARD_TERMINAL',
@@ -346,6 +347,8 @@ export const FOOD_PAYMENT_METHODS: FoodPaymentMethod[] = [
   'HALYK',
   'BANK_TRANSFER_PERSON',
   'BANK_TRANSFER_LEGAL',
+  // «Другое» (PAYMENT-OTHER-20261025): по умолчанию выключено, формы его не показывают без настройки
+  'OTHER',
 ];
 export interface OrderPaymentView {
   id: string;

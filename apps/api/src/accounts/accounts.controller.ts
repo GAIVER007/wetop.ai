@@ -384,6 +384,7 @@ interface InviteJson {
   lastName: string | null;
   position: string | null;
   scopes: ScopeAssignment[];
+  employeeId: string | null;
 }
 
 interface MemberJson {
@@ -403,6 +404,7 @@ interface MemberJson {
   suspendable: boolean;
   scopes: ScopeAssignment[];
   scopesEditable: boolean;
+  employees: Array<{ employeeId: string; businessId: string }>;
 }
 
 function memberJson(m: MemberView): MemberJson {
@@ -423,6 +425,7 @@ function memberJson(m: MemberView): MemberJson {
     suspendable: m.suspendable,
     scopes: m.scopes,
     scopesEditable: m.scopesEditable,
+    employees: m.employees,
   };
 }
 
@@ -469,6 +472,7 @@ function inviteJson(i: InviteView): InviteJson {
     lastName: i.lastName,
     position: i.position,
     scopes: i.scopes,
+    employeeId: i.employeeId,
   };
 }
 

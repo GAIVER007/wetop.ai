@@ -98,6 +98,8 @@ export interface MemberRecord {
   scopes: ScopeAssignment[];
   /** Приостановлен ли доступ (DATA_MODEL §31.2, Q-289): приостановленный не входит и сессии не пускают */
   suspended: boolean;
+  /** Карточки этого человека по бизнесам организации (`employees.user_id`), один экран «Сотрудники» 25.10.2026 */
+  employees: Array<{ employeeId: string; businessId: string }>;
 }
 
 export interface AccountsRepository {

@@ -1,0 +1,129 @@
+@layer sections {
+  .pult {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .pult-row {
+    display: grid;
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .pult-row--main {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+  .pult-row--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .pult-row--two {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+  .pult-row > .panel {
+    min-width: 0;
+    margin: 0;
+  }
+  .pult .kpi-grid {
+    margin: 0;
+  }
+  .pult .kpi__value {
+    font-size: var(--text-3xl);
+  }
+  .pult-insights ul,
+  .pult-shares {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pult-insight {
+    display: grid;
+    gap: var(--space-1);
+    justify-items: start;
+    padding: var(--space-2) 0 var(--space-2) var(--space-4);
+    border-left: 2px solid var(--success);
+  }
+  .pult-insight--warning {
+    border-left-color: var(--warning);
+  }
+  .pult-insight--danger {
+    border-left-color: var(--danger);
+  }
+  .pult-insight .muted {
+    font-size: var(--text-sm);
+  }
+  .pult-shares li {
+    display: grid;
+    grid-template-columns: minmax(96px, 1fr) minmax(0, 1.4fr) auto;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .pult-shares .share-bar,
+  .pult-shares .share-bar__meter {
+    width: 100%;
+  }
+  .pult-shares b {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .pult-facts {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .pult-facts div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .pult-facts dd {
+    margin: 0;
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .pult-note {
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+  @media (max-width: 1279px) {
+    .pult-row--three {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 960px) {
+    .pult-row--main,
+    .pult-row--three,
+    .pult-row--two {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .pult .kpi-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 600px) {
+    .pult .kpi__value {
+      font-size: var(--text-2xl);
+    }
+    .pult-shares li {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .pult-shares .share-bar {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+  }
+}
+@layer sections {
+  /* гостиничный «Обзор»: ряд «загрузка + подсказки» отделён от следующих графиков так же, как dash-grid */
+  .pa-pult {
+    margin-bottom: var(--space-4);
+  }
+}
+@layer sections {
+  /* пустой блок внутри панели пульта, как branch-report__empty: без заголовка, чтобы не ломать порядок h2/h3 */
+  .pult-empty {
+    margin: 0;
+    color: var(--muted);
+  }
+}

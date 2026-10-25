@@ -12,7 +12,7 @@ import { EmployeeFilter } from '../../components/employee-filter';
 import { QuickReport } from '../../components/quick-report';
 import { JournalExpandButton } from '../../components/journal-expand';
 import { beautyQuickReport } from '../../components/quick-report-data';
-import { Help, Panel, StatusBadge } from '../../components/ui';
+import { Help } from '../../components/ui';
 import type { BeautyDay, BeautyEmployeeRow } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
 import { CalendarLegend } from './calendar-legend';
@@ -222,7 +222,8 @@ export function WeekCalendar({
         }
         views={views}
       />
-      <div className="beauty-week-calendar">
+      {/* неделя как строка месячного календаря (владелец 25.10.2026): семь колонок, день сверху, записи плашками */}
+      <div className="beauty-week-calendar" role="list" aria-label={t('Неделя журнала')}>
         {days.map((day) => {
           const masters = new Map(
             calendarColumns(day, employees, t).map((master) => [master.id, master.name]),
@@ -230,47 +231,52 @@ export function WeekCalendar({
           const rows = visible(day).sort(
             (a, b) => a.startMinutes - b.startMinutes || a.id.localeCompare(b.id),
           );
+          const live = rows.filter((r) => r.status !== 'CANCELLED').length;
+          const at = new Date(`${day.date}T12:00:00Z`);
+          const weekday = new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' }).format(at);
           return (
-            <Panel key={day.date} title={displayDate(day.date, 'full', locale)}>
-              <Link className="btn btn--secondary" href={href(day.date, false)}>
-                {t('Открыть день')}
+            <section
+              key={day.date}
+              role="listitem"
+              className={`beauty-week-day${day.date === today ? ' is-today' : ''}`}
+              aria-label={displayDate(day.date, 'full', locale)}
+            >
+              <Link
+                className="beauty-week-day__head"
+                href={href(day.date, false)}
+                aria-label={t('Открыть день: {date}', { date: displayDate(day.date, 'full', locale) })}
+                aria-current={day.date === today ? 'date' : undefined}
+              >
+                <span className="beauty-week-day__weekday">{weekday}</span>
+                <b className="beauty-week-day__num">{Number(day.date.slice(8, 10))}</b>
+                {live > 0 && <span className="beauty-week-day__count">{live}</span>}
               </Link>
-              {rows.length ? (
+              {rows.length > 0 && (
                 <ul className="beauty-week-appointments">
-                  {rows.map((row) => (
-                    <li key={row.id}>
-                      <Link
-                        href={`${href(day.date, false)}&appointment=${encodeURIComponent(row.id)}`}
-                      >
-                        <time dateTime={row.startsAt}>
-                          {clock(row.startMinutes)}–{clock(row.endMinutes)}
-                        </time>
-                        <b>{row.customer.name}</b>
-                        {row.items?.length ? (
-                          row.items.map((item) => (
-                            <span key={item.id}>
-                              {clock(item.startMinutes)}–{clock(item.endMinutes)} ·{' '}
-                              {item.serviceName} ·{' '}
-                              {item.employeeName ||
-                                masters.get(item.employeeId) ||
-                                t('Специалист недоступен')}
-                            </span>
-                          ))
-                        ) : (
-                          <>
-                            <span>{row.serviceName}</span>
-                            <span>{masters.get(row.employeeId) ?? t('Специалист недоступен')}</span>
-                          </>
-                        )}
-                        <StatusBadge kind="beauty" value={row.status} />
-                      </Link>
-                    </li>
-                  ))}
+                  {rows.map((row) => {
+                    const who = row.items?.length
+                      ? [...new Set(row.items.map((item) => item.employeeName || masters.get(item.employeeId) || t('Специалист недоступен')))].join(', ')
+                      : (masters.get(row.employeeId) ?? t('Специалист недоступен'));
+                    const what = row.items?.length ? row.items.map((item) => item.serviceName).join(', ') : row.serviceName;
+                    return (
+                      <li key={row.id}>
+                        <Link
+                          className={`beauty-week-chip beauty-week-chip--${row.status.toLowerCase()}`}
+                          href={`${href(day.date, false)}&appointment=${encodeURIComponent(row.id)}`}
+                          title={`${clock(row.startMinutes)}–${clock(row.endMinutes)}, ${row.customer.name}, ${what}, ${who}, ${t(beautyStatus[row.status].label)}`}
+                        >
+                          <time dateTime={row.startsAt}>{clock(row.startMinutes)}</time>
+                          <b>{row.customer.name}</b>
+                          <span>{what}</span>
+                          <span>{who}</span>
+                          <span className="sr-only">{t(beautyStatus[row.status].label)}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
-              ) : (
-                <p className="beauty-note">{t('Записей нет')}</p>
               )}
-            </Panel>
+            </section>
           );
         })}
       </div>

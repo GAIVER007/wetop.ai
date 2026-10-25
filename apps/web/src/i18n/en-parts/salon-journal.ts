@@ -266,6 +266,7 @@ export const salonJournal: Record<string, string> = {
   "Выбранный день": 'Selected day',
   "С учётом фильтров": 'With filters applied',
   "Открыть день": 'Open day',
+  'Открыть день: {date}': 'Open day: {date}',
   "Записей нет": 'No appointments',
   "Записан": 'Booked',
   "Подтверждена": 'Confirmed',

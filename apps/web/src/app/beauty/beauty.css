@@ -20,32 +20,138 @@
     border-color: var(--primary);
     color: var(--primary);
   }
+  /* Неделя журнала как строка месячного календаря (владелец 25.10.2026), DESIGN.md §8.4 */
   .beauty-week-calendar {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
-    gap: var(--space-4);
-    align-items: start;
-  }
-  .beauty-week-appointments {
-    list-style: none;
-    padding: 0;
-    margin: var(--space-4) 0 0;
-  }
-  .beauty-week-appointments li + li {
-    margin-top: var(--space-2);
-  }
-  .beauty-week-appointments a {
-    display: grid;
-    gap: var(--space-1);
-    padding: var(--space-2);
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     border: 1px solid var(--border);
-    border-radius: var(--radius-control);
+    border-radius: var(--radius);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .beauty-week-day {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(var(--space-16) * 4);
+    min-width: 0;
+    border-left: 1px solid var(--border);
+  }
+  .beauty-week-day:first-child {
+    border-left: 0;
+  }
+  .beauty-week-day.is-today {
+    background: var(--primary-soft);
+  }
+  .beauty-week-day__head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--border);
     color: var(--text);
-    overflow-wrap: anywhere;
     text-decoration: none;
   }
-  .beauty-week-appointments a:hover {
+  .beauty-week-day__head:hover {
     background: var(--surface-muted);
+  }
+  .beauty-week-day__weekday {
+    color: var(--muted);
+    font-size: var(--text-sm);
+    text-transform: capitalize;
+  }
+  .beauty-week-day__num {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+  }
+  .beauty-week-day.is-today .beauty-week-day__num {
+    color: var(--primary);
+  }
+  .beauty-week-day__count {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .beauty-week-appointments {
+    display: grid;
+    gap: var(--space-1);
+    list-style: none;
+    padding: var(--space-1);
+    margin: 0;
+  }
+  .beauty-week-chip {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface-solid);
+    color: var(--text);
+    font-size: var(--text-xs);
+    line-height: 1.3;
+    text-decoration: none;
+  }
+  .beauty-week-chip > * {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .beauty-week-chip > span {
+    grid-column: 2;
+    color: var(--muted);
+  }
+  .beauty-week-chip time {
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+  .beauty-week-chip:hover {
+    background: var(--surface-muted);
+  }
+  /* статус полосой слева тоном реестра (lib/status/beauty.ts), как плитки дня */
+  .beauty-week-chip--booked {
+    border-left-color: var(--warning);
+  }
+  .beauty-week-chip--confirmed {
+    border-left-color: var(--info);
+  }
+  .beauty-week-chip--in_progress {
+    border-left-color: var(--success);
+  }
+  .beauty-week-chip--done {
+    border-left-style: dashed;
+  }
+  .beauty-week-chip--no_show,
+  .beauty-week-chip--cancelled {
+    border-left-color: var(--danger);
+    opacity: 0.7;
+  }
+  @media (max-width: 960px) {
+    /* узко: день строкой, число слева, записи справа; пустой день одной строкой */
+    .beauty-week-calendar {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .beauty-week-day {
+      display: grid;
+      grid-template-columns: calc(var(--space-16) + var(--space-4)) minmax(0, 1fr);
+      min-height: 0;
+      border-left: 0;
+      border-top: 1px solid var(--border);
+    }
+    .beauty-week-day:first-child {
+      border-top: 0;
+    }
+    .beauty-week-day__head {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+      border-bottom: 0;
+      border-right: 1px solid var(--border);
+    }
+    .beauty-week-day__count {
+      margin-left: 0;
+    }
   }
   .beauty-grid {
     display: grid;

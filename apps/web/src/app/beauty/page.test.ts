@@ -46,6 +46,12 @@ describe('Недельный календарь салона', () => {
     expect(html).toContain('data-testid="beauty-week"');
     expect(html).toContain('/calendar?date=2026-10-12');
   });
+  it('неделя строкой месячного календаря: семь клеток дня, без карточек «Открыть день» и «Записей нет»', async () => {
+    const html = renderToStaticMarkup(await BeautyPage({ searchParams: Promise.resolve({ date: '2026-10-14', view: 'week' }) }));
+    expect(html.match(/class="beauty-week-day[ "]/g)).toHaveLength(7);
+    expect(html).not.toContain('Записей нет');
+    expect(html).not.toContain('>Открыть день<');
+  });
   it('День и Неделя без предзагрузки: на живом сайте она висела и страница не затихала (аудит 21.10.2026, п. 3)', async () => {
     const html = renderToStaticMarkup(await BeautyPage({ searchParams: Promise.resolve({ date: '2026-10-14', view: 'week' }) }));
     const views = html.slice(html.indexOf('aria-label="Вид журнала"'));

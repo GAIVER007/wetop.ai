@@ -153,7 +153,7 @@ export default async function ReservationPage({
                 }
               >
                 {r.primaryGuest.citizenship
-                  ? t('гражданство {country}', { country: citizenshipLabel(r.primaryGuest.citizenship) ?? r.primaryGuest.citizenship })
+                  ? t('гражданство: {country}', { country: citizenshipLabel(r.primaryGuest.citizenship) ?? r.primaryGuest.citizenship })
                   : t('гражданство не указано')}
               </span>
             )}

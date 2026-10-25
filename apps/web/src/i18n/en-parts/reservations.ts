@@ -221,7 +221,7 @@ export const reservations: Record<string, string> = {
   'Счёт KZ': 'Invoice KZ',
   'Бронь {number}': 'Booking {number}',
   'Гость без имени': 'Unnamed guest',
-  'гражданство {country}': 'citizenship {country}',
+  'гражданство: {country}': 'citizenship: {country}',
   'гражданство не указано': 'citizenship not specified',
   'У брони нет основного гостя: добавьте гостя в карточке брони': 'The booking has no main guest: add a guest in the booking card',
   'Позвонить': 'Call',

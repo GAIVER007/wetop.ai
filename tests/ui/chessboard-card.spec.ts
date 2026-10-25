@@ -150,6 +150,37 @@ test('панель брони не висит всегда: нет при заг
   await expect(preview).toHaveCount(0);
 });
 
+test('нет гражданства: окно на шахматке спрашивает страну, сохраняет гостю и заселяет (решение 24.10.2026)', async ({
+  page,
+  request,
+}) => {
+  const headers = { 'x-wetop-test-client': '1' };
+  const cleared = await request.patch(`${fixture}/guests/ui-guest`, { headers, data: { citizenship: null } });
+  expect(cleared.ok()).toBe(true);
+  try {
+    await page.goto('/chessboard');
+    const confirmed = page.locator('td[data-status="CONFIRMED"] [data-testid="stay-cell"]').first();
+    const number = await confirmed.getAttribute('data-number');
+    await confirmed.click();
+    await page.getByTestId('stay-preview').getByRole('button', { name: 'Заселить', exact: true }).click();
+    const first = page.locator('dialog[open]');
+    await first.getByRole('button', { name: /^Заселить/ }).click();
+    const ask = page.getByRole('dialog', { name: 'Укажите гражданство гостя' });
+    await expect(ask).toBeVisible();
+    const save = ask.getByRole('button', { name: 'Сохранить и заселить', exact: true });
+    await expect(save).toBeDisabled();
+    await ask.getByLabel('Гражданство').selectOption('QAT');
+    await save.click();
+    await expect(ask).toHaveCount(0);
+    await expect(page.locator(`td[data-status="CHECKED_IN"] [data-number="${number}"]`).first()).toBeVisible();
+    await expect(page.getByTestId('drag-error')).toHaveCount(0);
+    const stored = await request.get(`${fixture}/guests/ui-guest`, { headers });
+    expect(await stored.json()).toMatchObject({ citizenship: 'QAT' });
+  } finally {
+    await request.patch(`${fixture}/guests/ui-guest`, { headers, data: { citizenship: 'KAZ' } });
+  }
+});
+
 test('«Заселить» из предпросмотра выполняет существующую команду и меняет статус', async ({
   page,
   request,

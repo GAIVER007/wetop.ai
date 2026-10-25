@@ -9,7 +9,7 @@ import { notFoundOn404 } from '../../../lib/page-error';
 import { api, chessboardApi, financeApi, messengerLinks, reservationsApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { displayDate } from '../../../lib/display-date';
-import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
+import { MAX_CHESSBOARD_DAYS, citizenshipLabel } from '@pms/domain';
 import { nightsBetween, pluralRu } from '../../../lib/plural';
 import { Page, BackCrumb } from '../../../components/page';
 import { Alert, SectionTitle, StatusBadge, Table } from '../../../components/ui';
@@ -148,7 +148,7 @@ export default async function ReservationPage({
                 }
               >
                 {r.primaryGuest.citizenship
-                  ? `гражданство ${r.primaryGuest.citizenship}`
+                  ? `гражданство: ${citizenshipLabel(r.primaryGuest.citizenship)}`
                   : 'гражданство не указано'}
               </span>
             )}
@@ -436,6 +436,7 @@ export default async function ReservationPage({
                 )}
                 {canMutate && <ReservationActions
                   number={r.confirmationNumber}
+                  guestName={r.primaryGuest?.label ?? null}
                   status={r.status}
                   source={r.source}
                   notes={r.notes}

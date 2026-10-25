@@ -51,6 +51,7 @@ import {
   cancelReservationAction,
   extendStayAction,
   previewAction,
+  setBookingCitizenshipAction,
   stayAction,
 } from '../reservations/actions';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -72,6 +73,7 @@ import {
 import { Icon, type IconName } from '../../components/icon';
 import { AmountChip } from '../../components/amount-chip';
 import { useConfirm } from '../../components/use-confirm';
+import { isCitizenshipRefusal, useCitizenshipPrompt } from '../../components/citizenship';
 import { useToast } from '../../components/toast';
 import { blockTypeLabel } from '../../lib/block-types';
 import { displayDate } from '../../lib/display-date';
@@ -249,6 +251,10 @@ export function ChessboardGrid({
   const [overUnit, setOverUnit] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const { ask, dialog } = useConfirm();
+  const citizenshipTarget = useRef<string | null>(null);
+  const { ask: askCitizenshipFor, dialog: citizenshipDialog } = useCitizenshipPrompt((code) =>
+    setBookingCitizenshipAction(citizenshipTarget.current ?? '', code),
+  );
   const { toast } = useToast();
   const fitWeek = board.dates.length === 7;
   // Во время dragover браузер не даёт читать данные — держим их и в ref, чтобы подсвечивать строку
@@ -782,7 +788,11 @@ export function ChessboardGrid({
           }))
         )
           return;
-        const r = await stayAction(t.number, t.itemId, 'check-in');
+        let r = await stayAction(t.number, t.itemId, 'check-in');
+        // нет гражданства: спросить страну тут же и заселить, без похода в карточку гостя (решение 24.10.2026)
+        if (isCitizenshipRefusal(r.error) && (citizenshipTarget.current = t.number, await askCitizenshipFor(t.guest))) {
+          r = await stayAction(t.number, t.itemId, 'check-in');
+        }
         setError(r.error);
         if (!r.error) completed('CHECKED_IN');
         return;
@@ -1462,6 +1472,7 @@ export function ChessboardGrid({
         />
       )}
       {dialog}
+      {citizenshipDialog}
     </>
   );
 }

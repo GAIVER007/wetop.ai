@@ -34,6 +34,7 @@ import {
   extendPreviewAction,
   extendStayAction,
   movePreviewAction,
+  setBookingCitizenshipAction,
   stayAction,
   updateReservationAction,
   updateStayGuestsAction,
@@ -41,6 +42,7 @@ import {
 } from '../actions';
 import { CHANNELS, SOURCES, fromChannex } from '../sources';
 import { useConfirm } from '../../../components/use-confirm';
+import { isCitizenshipRefusal, useCitizenshipPrompt } from '../../../components/citizenship';
 import { previewLine } from '../../../lib/action-preview';
 import { useToast } from '../../../components/toast';
 import { useMay } from '../../../components/desk-access';
@@ -136,6 +138,8 @@ export function ReservationActions(props: {
     debtMinor: string | null;
     availableGroups: Array<{ code: string; name: string; units: string[] }>;
   }>;
+  /** Имя основного гостя: окно гражданства на заселении */
+  guestName?: string | null;
 }) {
   // Как в API (changeDates): без явного выбора пересчёт идёт по тарифу первого неотменённого проживания (Б1)
   const current = props.items.find((it) => it.status !== 'CANCELLED' && it.ratePlanCode);
@@ -204,6 +208,7 @@ export function ReservationActions(props: {
               item={it}
               ratePlans={props.ratePlans}
               onCancel={openCancel}
+              guestName={props.guestName ?? null}
             />
             <AssignForm
               number={props.number}
@@ -498,9 +503,14 @@ function StayButtons(props: {
   };
   ratePlans: RatePlanOption[];
   onCancel: (itemId: string) => void;
+  /** Имя основного гостя для окна «Укажите гражданство» */
+  guestName?: string | null;
 }) {
   const { state, run: command, pending } = useCommand<ActionResult>({ error: null });
   const { ask, dialog } = useConfirm();
+  const { ask: askCitizenship, dialog: citizenshipDialog } = useCitizenshipPrompt((code) =>
+    setBookingCitizenshipAction(props.number, code),
+  );
   const { toast } = useToast();
   // Б8: у проживания без тарифа цену новой ночи взять не из чего — тариф надо выбрать. Администратор выбирает только
   // тариф со штрафом (Q-201), и выбранный записывается в бронь; нет таких тарифов — продлевают владелец и управляющий
@@ -624,6 +634,7 @@ function StayButtons(props: {
   return (
     <div className="panel">
       {dialog}
+      {citizenshipDialog}
       <PanelTitle>
         {props.item.accommodationTypeName} — {props.item.unitCode ? `номер ${props.item.unitCode}` : 'номер не назначен'}
       </PanelTitle>
@@ -655,7 +666,10 @@ function StayButtons(props: {
               )
                 return;
               void command(async () => {
-                const r = await stayAction(props.number, props.item.id, 'check-in');
+                let r = await stayAction(props.number, props.item.id, 'check-in');
+                // нет гражданства: страна выбирается тут же, затем то же заселение (решение 24.10.2026)
+                if (isCitizenshipRefusal(r.error) && (await askCitizenship(props.guestName ?? 'Гость')))
+                  r = await stayAction(props.number, props.item.id, 'check-in');
                 if (!r.error)
                   toast({ text: `Гость заселён, ${props.item.unitCode ?? '—'}`, tone: 'success' });
                 return r;

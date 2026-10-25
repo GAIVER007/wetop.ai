@@ -136,7 +136,7 @@ export function GuestProfileForm({
           {personal && (
             <>
               <Field label={t('Телефон')}>
-                <Input name="phone" type="tel" inputMode="tel" placeholder="+7 701 000 00 00" onInput={phoneOnInput} defaultValue={phoneFieldValue(pState.values?.phone ?? guest.phone)} />
+                <Input name="phone" type="tel" inputMode="tel" onInput={phoneOnInput} defaultValue={phoneFieldValue(pState.values?.phone ?? guest.phone)} />
               </Field>
               <Field label="Email">
                 <Input name="email" defaultValue={pState.values?.email ?? guest.email ?? ''} />

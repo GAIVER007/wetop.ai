@@ -387,7 +387,6 @@ export function AppointmentForm({
                   onChange={(e) => setDraft({ ...draft, phone: formatPhoneInput(e.target.value) })}
                   type="tel"
                   inputMode="tel"
-                  placeholder="+7 701 000 00 00"
                   maxLength={32}
                 />
               </Field>

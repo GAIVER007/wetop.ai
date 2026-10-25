@@ -308,7 +308,6 @@ function InviteForm({
           name="invitePhone"
           inputMode="tel"
           autoComplete="off"
-          placeholder="+7 701 000 00 00"
           value={phone}
           onChange={(event) => setPhone(formatPhoneInput(event.target.value))}
         />
@@ -695,7 +694,6 @@ function DetailsForm({ member, onDone }: { member: AuthMember; onDone: () => voi
           name="memberPhone"
           inputMode="tel"
           autoComplete="off"
-          placeholder="+7 701 000 00 00"
           value={phone}
           onChange={(event) => setPhone(formatPhoneInput(event.target.value))}
         />

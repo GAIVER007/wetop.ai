@@ -162,7 +162,7 @@ function EmployeeDrawer({
         </Field>
         <div className="food-form-row">
           <Field label={t('Телефон')}>
-            <Input type="tel" inputMode="tel" placeholder="+7 701 000 00 00" value={phone} onChange={(e) => setPhone(formatPhoneInput(e.target.value))} />
+            <Input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(formatPhoneInput(e.target.value))} />
           </Field>
           <Field label={t('Почта')}>
             <Input

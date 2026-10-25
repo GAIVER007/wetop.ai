@@ -70,7 +70,7 @@ export function BeautyCustomerTools({
               <Input name="lastName" maxLength={100} autoComplete="family-name" />
             </Field>
             <Field label={t('Телефон')} controlId="beauty-customer-phone" required>
-              <Input name="phone" type="tel" maxLength={32} autoComplete="tel" inputMode="tel" placeholder="+7 701 000 00 00" onInput={phoneOnInput} />
+              <Input name="phone" type="tel" maxLength={32} autoComplete="tel" inputMode="tel" onInput={phoneOnInput} />
             </Field>
             {result?.error && <Alert>{result.error}</Alert>}
             {result?.message && <Notice>{result.message}</Notice>}

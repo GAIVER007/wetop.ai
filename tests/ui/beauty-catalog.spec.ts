@@ -72,7 +72,7 @@ test('M4-A: клиент без записи, повтор номера и со�
   // пустая форма не молчит: сообщения под полями (аудит салона 22.10.2026)
   await panel.getByRole('button', { name: 'Сохранить клиента', exact: true }).click();
   await expect(panel.getByText('Укажите имя клиента', { exact: true })).toBeVisible();
-  await expect(panel.getByText('Укажите телефон, например +7 701 000 00 00', { exact: true })).toBeVisible();
+  await expect(panel.getByText('Укажите телефон', { exact: true })).toBeVisible();
   // текст ошибки входит в имя поля, пока его не поправили: поля по name
   await panel.locator('input[name="firstName"]').fill('Тестовый клиент M4');
   await expect(panel.getByText('Укажите имя клиента', { exact: true })).toHaveCount(0);

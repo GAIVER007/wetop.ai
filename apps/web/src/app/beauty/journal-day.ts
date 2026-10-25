@@ -40,7 +40,11 @@ export function quickAction(row: BeautyAppointmentRow): { to: 'IN_PROGRESS' | 'C
  * Деньги дня в кассе: получено = оплачено деньгами минус возвраты (бонусы и сертификат не деньги в кассе, решение
  * 21.10.2026); ждём оплату = остаток по пришедшим и завершённым записям.
  */
-export function dayMoney(rows: BeautyAppointmentRow[]): { received: bigint; waiting: bigint; currency: string } {
+export function dayMoney(
+  rows: BeautyAppointmentRow[],
+  /** валюта филиала: пустой день показывается в ней, а не в тенге */
+  fallbackCurrency = 'KZT',
+): { received: bigint; waiting: bigint; currency: string } {
   let received = 0n;
   let waiting = 0n;
   for (const r of rows) {
@@ -54,7 +58,7 @@ export function dayMoney(rows: BeautyAppointmentRow[]): { received: bigint; wait
       if (rest > 0n) waiting += rest;
     }
   }
-  return { received, waiting, currency: rows[0]?.currency ?? 'KZT' };
+  return { received, waiting, currency: rows[0]?.currency ?? fallbackCurrency };
 }
 
 /** Имя мастера в узкой колонке, когда мастеров 5 и больше: «Айгерим С.» (полное имя в подсказке) */

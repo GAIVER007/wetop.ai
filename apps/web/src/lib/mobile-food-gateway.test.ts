@@ -586,3 +586,73 @@ describe('mobile restaurant report boundary', () => {
     expect(JSON.stringify(period)).not.toContain('drop');
   });
 });
+
+describe('mobile restaurant team boundary', () => {
+  it('returns only branch shift names and intervals, dropping revision metadata', async () => {
+    const fetcher = vi.fn(async (url: string) => {
+      expect(url).toBe('http://127.0.0.1:3001/food-service/shifts');
+      return upstream({
+        employees: [
+          {
+            id: 'employee-1',
+            name: 'Тестовый сотрудник',
+            weekRevision: 'secret',
+            week: [{ weekday: 1, intervals: [{ timeFrom: '09:00', timeTo: '18:00' }] }],
+            phone: 'drop',
+          },
+        ],
+      });
+    });
+    const response = await handleMobileFoodGateway(
+      request('shifts', { headers: authorized() }),
+      'shifts',
+      ENABLED,
+      fetcher,
+    );
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.employees[0]).toEqual({
+      id: 'employee-1',
+      name: 'Тестовый сотрудник',
+      week: [{ weekday: 1, intervals: [{ timeFrom: '09:00', timeTo: '18:00' }] }],
+    });
+    expect(JSON.stringify(body)).not.toContain('secret');
+  });
+  it('keeps signed paid-minus-refunded staff contribution and unattributed money', async () => {
+    const fetcher = vi.fn(async (url: string) => {
+      expect(url).toBe('http://127.0.0.1:3001/food-service/staff-revenue?period=week');
+      return upstream({
+        period: 'week',
+        fromDate: '2026-10-19',
+        toDate: '2026-10-25',
+        items: [
+          {
+            employeeId: 'employee-1',
+            currency: 'KZT',
+            paidMinor: '100',
+            refundedMinor: '150',
+            netMinor: '-50',
+          },
+          {
+            employeeId: null,
+            currency: 'KZT',
+            paidMinor: '25',
+            refundedMinor: '0',
+            netMinor: '25',
+          },
+        ],
+        private: 'drop',
+      });
+    });
+    const response = await handleMobileFoodGateway(
+      request('staff-revenue?period=week', { headers: authorized() }),
+      'staff-revenue',
+      ENABLED,
+      fetcher,
+    );
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.items.map((row: { netMinor: string }) => row.netMinor)).toEqual(['-50', '25']);
+    expect(JSON.stringify(body)).not.toContain('drop');
+  });
+});

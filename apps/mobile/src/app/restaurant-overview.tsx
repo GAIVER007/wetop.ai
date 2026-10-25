@@ -108,6 +108,7 @@ function OverviewScreen({ timezone, branch }: { timezone: string; branch: string
   );
   return (
     <Screen title={mode === 'overview' ? 'Обзор ресторана' : 'Аналитика'} subtitle={branch}>
+      <ActionButton secondary label="Команда" onPress={() => router.push('/restaurant-team')} />
       <ActionButton
         secondary
         label="К столам и заказам"

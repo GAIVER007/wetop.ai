@@ -18,6 +18,8 @@ const ACTIONS = {
   cash: '/food-service/cash',
   overview: '/food-service/report',
   analytics: '/food-service/period-report',
+  shifts: '/food-service/shifts',
+  'staff-revenue': '/food-service/staff-revenue',
 } as const;
 
 type FoodAction = keyof typeof ACTIONS;
@@ -347,6 +349,65 @@ function menuItemsDto(value: unknown): JsonRecord {
   return { items: source.items.map(menuItemDto), nextCursor: nextCursorOf(source) };
 }
 
+function shiftsDto(value: unknown): JsonRecord {
+  const source = record(value);
+  if (!Array.isArray(source.employees)) throw new InvalidUpstreamResponse();
+  return {
+    employees: source.employees.map((entry) => {
+      const employee = record(entry);
+      if (!Array.isArray(employee.week)) throw new InvalidUpstreamResponse();
+      return {
+        id: nonEmptyString(employee.id),
+        name: nonEmptyString(employee.name),
+        week: employee.week.map((dayValue) => {
+          const day = record(dayValue);
+          if (!Array.isArray(day.intervals)) throw new InvalidUpstreamResponse();
+          return {
+            weekday: integer(day.weekday),
+            intervals: day.intervals.map((value) => {
+              const interval = record(value);
+              const timeFrom = nonEmptyString(interval.timeFrom);
+              const timeTo = nonEmptyString(interval.timeTo);
+              if (
+                !/^([01]\d|2[0-3]):[0-5]\d$/.test(timeFrom) ||
+                !/^([01]\d|2[0-3]):[0-5]\d$/.test(timeTo)
+              )
+                throw new InvalidUpstreamResponse();
+              return { timeFrom, timeTo };
+            }),
+          };
+        }),
+      };
+    }),
+  };
+}
+
+function staffRevenueDto(value: unknown): JsonRecord {
+  const source = record(value);
+  if (!['day', 'week', 'month'].includes(string(source.period)) || !Array.isArray(source.items))
+    throw new InvalidUpstreamResponse();
+  return {
+    period: source.period,
+    fromDate: dateText(source.fromDate),
+    toDate: dateText(source.toDate),
+    items: source.items.map((entry) => {
+      const row = record(entry);
+      const paidMinor = minorUnits(row.paidMinor);
+      const refundedMinor = minorUnits(row.refundedMinor);
+      const netMinor = signedMinorUnits(row.netMinor);
+      if (BigInt(paidMinor) - BigInt(refundedMinor) !== BigInt(netMinor))
+        throw new InvalidUpstreamResponse();
+      return {
+        employeeId: row.employeeId === null ? null : nonEmptyString(row.employeeId),
+        currency: nonEmptyString(row.currency),
+        paidMinor,
+        refundedMinor,
+        netMinor,
+      };
+    }),
+  };
+}
+
 function bearerOf(request: Request): string | null {
   const authorization = request.headers.get('authorization') ?? '';
   if (!authorization.startsWith('Bearer ')) return null;
@@ -370,9 +431,17 @@ function hasServiceCredential(request: Request): boolean {
 
 function upstreamPath(request: Request, action: FoodAction): string | Response {
   const params = new URL(request.url).searchParams;
-  if (action === 'tables' || action === 'cash') {
+  if (action === 'tables' || action === 'cash' || action === 'shifts') {
     if ([...params].length) return json({ message: 'Некорректный запрос' }, 400);
     return ACTIONS[action];
+  }
+  if (action === 'staff-revenue') {
+    if (params.getAll('period').length !== 1 || [...params.keys()].some((key) => key !== 'period'))
+      return json({ message: 'Некорректный период' }, 400);
+    const period = params.get('period');
+    if (period !== 'day' && period !== 'week' && period !== 'month')
+      return json({ message: 'Некорректный период' }, 400);
+    return `${ACTIONS['staff-revenue']}?period=${period}`;
   }
   if (action === 'overview' || action === 'analytics') {
     const required = action === 'overview' ? ['date'] : ['from', 'to'];
@@ -525,6 +594,8 @@ export async function handleMobileFoodGateway(
     if (action === 'cash') return json(cashDto(parsed), 200);
     if (action === 'overview') return json(overviewDto(parsed), 200);
     if (action === 'analytics') return json(analyticsDto(parsed), 200);
+    if (action === 'shifts') return json(shiftsDto(parsed), 200);
+    if (action === 'staff-revenue') return json(staffRevenueDto(parsed), 200);
     return json(menuItemsDto(parsed), 200);
   } catch {
     return json({ message: 'Некорректный ответ сервера' }, 502);

@@ -171,6 +171,8 @@ export function createAccessApi(base: string, fetcher: typeof fetch = fetch): Ac
         undefined,
         scope,
       ),
+    staffRevenue: (token, scope, period) =>
+      request(`food/staff-revenue?period=${period}`, 'GET', token, undefined, scope),
     reset: async (email) => {
       await request('password-reset', 'POST', undefined, { email });
     },

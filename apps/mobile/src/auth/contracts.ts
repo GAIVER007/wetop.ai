@@ -39,9 +39,10 @@ export interface AccessApi {
   food(
     token: string,
     scope: string,
-    action: 'tables' | 'orders' | 'categories' | 'items' | 'cash',
+    action: 'tables' | 'orders' | 'categories' | 'items' | 'cash' | 'shifts',
     cursor?: string,
   ): Promise<unknown>;
+  staffRevenue(token: string, scope: string, period: 'day' | 'week' | 'month'): Promise<unknown>;
   reset(email: string): Promise<void>;
 }
 export interface TokenStore {

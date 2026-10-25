@@ -38,6 +38,7 @@ function fixture() {
     logout: jest.fn().mockResolvedValue(undefined),
     food: jest.fn(),
     report: jest.fn(),
+    staffRevenue: jest.fn(),
     reset: jest.fn().mockResolvedValue(undefined),
   };
   return { api, store, session: new SessionController(api, store) };

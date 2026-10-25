@@ -226,13 +226,16 @@ export class SessionController {
     }
   }
   readFood(
-    action: 'tables' | 'orders' | 'categories' | 'items' | 'cash',
+    action: 'tables' | 'orders' | 'categories' | 'items' | 'cash' | 'shifts',
     cursor?: string,
   ): Promise<unknown> {
     return this.scopedFood((token, scope) => this.api.food(token, scope, action, cursor));
   }
   readReport(action: 'overview' | 'analytics', from: string, to?: string): Promise<unknown> {
     return this.scopedFood((token, scope) => this.api.report(token, scope, action, from, to));
+  }
+  readStaffRevenue(period: 'day' | 'week' | 'month'): Promise<unknown> {
+    return this.scopedFood((token, scope) => this.api.staffRevenue(token, scope, period));
   }
   async changeBranch() {
     if (this.state.kind !== 'ready') return;

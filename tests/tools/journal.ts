@@ -39,8 +39,8 @@ export function watchPathspec(watch: readonly string[]): string[] {
   ];
 }
 
-export type SuiteName = 'unit' | 'integration' | 'e2e' | 'typecheck' | 'lint';
-export type Runner = 'vitest' | 'playwright' | 'tsc' | 'eslint';
+export type SuiteName = 'unit' | 'integration' | 'e2e' | 'typecheck' | 'lint' | 'mobile' | 'mobile-types';
+export type Runner = 'vitest' | 'playwright' | 'tsc' | 'eslint' | 'jest';
 export type RunStatus = 'passed' | 'failed' | 'interrupted';
 
 export interface Counts {
@@ -108,6 +108,18 @@ export interface SuiteDef {
 const DEPS = ['package.json', 'package-lock.json', 'tsconfig.json', 'tsconfig.base.json'];
 
 export const SUITES: Record<SuiteName, SuiteDef> = {
+  mobile: {
+    name: 'mobile', title: 'Мобильные компоненты',
+    command: 'npm --prefix apps/mobile run test --', runner: 'jest',
+    watch: ['apps/mobile', 'tests/tools', ...DEPS],
+    maxAgeHours: null, acceptsArgs: true, needs: 'ничего внешнего',
+  },
+  'mobile-types': {
+    name: 'mobile-types', title: 'Типы мобильного приложения',
+    command: 'npm --prefix apps/mobile run typecheck', runner: 'tsc',
+    watch: ['apps/mobile', ...DEPS],
+    maxAgeHours: null, acceptsArgs: false, needs: 'ничего внешнего',
+  },
   unit: {
     name: 'unit',
     title: 'Модульные',

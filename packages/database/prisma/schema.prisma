@@ -84,6 +84,7 @@ model Business {
 /// Business; БЕЗ organization_id (выводится через business_id — §18.3) и БЕЗ vertical (только у Business).
 /// Правило дат AGENTS.md §13 отсчитывается от timezone филиала.
 model Location {
+  cashRegister CashRegister?
   id                   String         @id @default(uuid()) @db.Uuid
   businessId           String         @map("business_id") @db.Uuid
   name                 String         @db.VarChar(200)
@@ -542,6 +543,7 @@ model MarketingBudgetLine {
 }
 
 model Property {
+  cashRegister CashRegister?
   id                  String   @id @default(uuid()) @db.Uuid
   /// Чей это объект (ADR-061). Обязателен с v1.13 (ADR-103): по нему режет Row Level Security (§17).
   organizationId      String   @map("organization_id") @db.Uuid
@@ -1733,6 +1735,8 @@ model CashCategory {
 
 /// Поступление, расход или перевод между способами; прошлое не правится — ошибка аннулируется (status)
 model CashOperation {
+  cashShiftId String? @map("cash_shift_id") @db.Uuid
+  cashShift CashShift? @relation(fields: [cashShiftId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   id          String            @id @default(uuid()) @db.Uuid
   propertyId  String            @map("property_id") @db.Uuid
   kind        CashOperationKind
@@ -2656,6 +2660,7 @@ enum UserStatus {
 /// Арендатор: одна организация — один клиент платформы (DATA_MODEL §13, ADR-046).
 /// Разделения данных объекта по организациям в срезе 13 нет: пробный период пускает в демо-объект.
 model Organization {
+  cashRegisters CashRegister[]
   customerImports   CustomerImport[]
   id                String             @id @default(uuid()) @db.Uuid
   name              String             @db.VarChar(200)
@@ -2707,6 +2712,10 @@ model Organization {
 /// Человек. Почта в нижнем регистре — за этим следит CHECK в миграции, Prisma такого не описывает.
 /// Паролей нет намеренно (ADR-046): вход по одноразовому коду на почту.
 model User {
+  responsibleCashShifts CashShift[] @relation("CashShiftResponsible")
+  closedCashShifts CashShift[] @relation("CashShiftClosed")
+  receivedCashHandovers CashHandover[] @relation("CashHandoverRecipient")
+  requestedCashHandovers CashHandover[] @relation("CashHandoverRequester")
   customerImports CustomerImport[]
   id              String           @id @default(uuid()) @db.Uuid
   email           String           @unique @db.VarChar(320)
@@ -4412,6 +4421,8 @@ model RestaurantPayment {
 
 /// DATA_MODEL §35.2-35.3: приход, расход, перевод кассы филиала; выплата зарплаты = EXPENSE с сотрудником и месяцем
 model RestaurantCashOperation {
+  cashShiftId String? @map("cash_shift_id") @db.Uuid
+  cashShift CashShift? @relation(fields: [cashShiftId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   id             String            @id @default(uuid()) @db.Uuid
   locationId     String            @map("location_id") @db.Uuid
   kind           CashOperationKind
@@ -5063,4 +5074,72 @@ enum StaffNotificationStatus {
   SENT
   FAILED
   SKIPPED
+}
+
+model CashRegister {
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  property       Property?      @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  location       Location?      @relation(fields: [locationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  shifts         CashShift[]
+  handovers      CashHandover[]
+  commands       CashCommand[]
+  id             String         @id @db.Uuid
+  organizationId String         @map("organization_id") @db.Uuid
+  propertyId     String?        @unique @map("property_id") @db.Uuid
+  locationId     String?        @unique @map("location_id") @db.Uuid
+  name           String
+  currency       String         @db.Char(3)
+  cashierIds     String[]       @default([]) @map("cashier_ids") @db.Uuid
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("cash_registers")
+}
+
+model CashShift {
+  register          CashRegister    @relation(fields: [registerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  responsibleUser   User            @relation("CashShiftResponsible", fields: [responsibleUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  closedBy          User?           @relation("CashShiftClosed", fields: [closedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  handover          CashHandover?
+  branchOperations  RestaurantCashOperation[]
+  operations        CashOperation[]
+  id                String          @id @db.Uuid
+  registerId        String          @map("register_id") @db.Uuid
+  responsibleUserId String          @map("responsible_user_id") @db.Uuid
+  openedAt          DateTime        @default(now()) @map("opened_at") @db.Timestamptz(6)
+  closedAt          DateTime?       @map("closed_at") @db.Timestamptz(6)
+  closedById        String?         @map("closed_by_id") @db.Uuid
+  opening           Json
+  closing           Json?
+
+  @@index([registerId, openedAt(sort: Desc)], map: "cash_shifts_history")
+  @@map("cash_shifts")
+}
+
+model CashHandover {
+  register       CashRegister @relation(fields: [registerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  shift          CashShift    @relation(fields: [shiftId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  recipient      User         @relation("CashHandoverRecipient", fields: [recipientId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  requestedBy    User         @relation("CashHandoverRequester", fields: [requestedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id             String       @id @db.Uuid
+  registerId     String       @map("register_id") @db.Uuid
+  shiftId        String       @unique @map("shift_id") @db.Uuid
+  amount         BigInt
+  recipientId    String       @map("recipient_id") @db.Uuid
+  requestedById  String       @map("requested_by_id") @db.Uuid
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  acknowledgedAt DateTime?    @map("acknowledged_at") @db.Timestamptz(6)
+
+  @@map("cash_handovers")
+}
+
+model CashCommand {
+  register    CashRegister @relation(fields: [registerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  registerId  String       @map("register_id") @db.Uuid
+  commandKey  String       @map("command_key") @db.Uuid
+  fingerprint String
+  response    Json
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([registerId, commandKey])
+  @@map("cash_commands")
 }

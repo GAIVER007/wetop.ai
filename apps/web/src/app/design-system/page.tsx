@@ -1,3 +1,4 @@
+import { CashHeaderPreview } from '../../components/shell/cash-header';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { Page } from '../../components/page';
@@ -1376,6 +1377,7 @@ export default function DesignSystemPage() {
       subtitle="Компоненты стойки в восьми состояниях, светлая, тёмная и контрастная темы. Правила: DESIGN.md. Только при разработке."
       width="full"
     >
+      <section aria-label="Кассовые действия шапки"><h2>Кассовая смена</h2><CashHeaderPreview /></section>
       <ThemeSwitcher>
         <div className="kit-theme" data-theme="light" data-testid="kit-light">
           <h2 className="kit-theme__title">Светлая тема</h2>

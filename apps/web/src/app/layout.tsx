@@ -8,6 +8,7 @@ import './premium.css';
 import '../components/shell/sidebar.css';
 import '../components/shell/side-nav.css';
 import '../components/shell/tab-nav.css';
+import '../components/shell/cash-header.css';
 import { headers } from 'next/headers';
 import { unstable_rethrow } from 'next/navigation';
 import { Suspense, type ReactNode } from 'react';

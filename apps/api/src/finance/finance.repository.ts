@@ -1,3 +1,4 @@
+import { acknowledgedCashHandovers } from './cash-shift-sources';
 import 'reflect-metadata';
 import {createHash,randomUUID} from 'node:crypto';
 import { createHotelCash } from './hotel-cash';
@@ -1262,16 +1263,17 @@ export class PrismaFinanceRepository implements FinanceRepository {
       where: { propertyId, status: 'COMPLETED' },
       _sum: { amount: true },
     });
+    const handedOver = await acknowledgedCashHandovers(this.prisma.db, {propertyId});
     return {
       currency: property.currency,
       payments: payments.map((p) => ({ method: p.method, amountMinor: p._sum.amount ?? 0n })),
       refunds: refunds.map((r) => ({ method: r.method, amountMinor: BigInt(r.amount) })),
-      operations: operations.map((o) => ({
+      operations: [...operations.map((o) => ({
         kind: o.kind,
         method: o.method,
         methodTo: o.methodTo,
         amountMinor: o._sum.amount ?? 0n,
-      })),
+      })), ...(handedOver > 0n ? [{kind:'TRANSFER' as const, method:'CASH', methodTo:'EXTERNAL', amountMinor:handedOver}] : [])],
     };
   }
   /** Стартовый набор статей (Q-236): список старой системы без «Расходы Хостел №2» — это другой объект */

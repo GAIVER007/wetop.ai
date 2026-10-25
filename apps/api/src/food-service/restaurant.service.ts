@@ -1,3 +1,4 @@
+import { acknowledgedCashHandovers } from '../finance/cash-shift-sources';
 import { readEmployeeCommon, writeEmployeeCommon, readEmployeeWeekSource, touchEmployeeSourceRevision } from '../employee-portal/employee-common';
 import { createHash, randomUUID } from 'node:crypto';
 import {
@@ -1450,7 +1451,7 @@ export class RestaurantService {
   // ─── Оплата заказа и касса филиала (§35) ───
 
   /** Остатки кассы филиала по способам; внутри транзакции филиал уже заперт `foodTransaction` */
-  private async balances(db: Pick<DbTx, 'restaurantPayment' | 'restaurantCashOperation'>, s: FoodScope) {
+  private async balances(db: Pick<DbTx, 'restaurantPayment' | 'restaurantCashOperation' | '$queryRaw'>, s: FoodScope) {
     const [payments, ops] = await Promise.all([
       db.restaurantPayment.groupBy({
         by: ['method'],
@@ -1463,7 +1464,7 @@ export class RestaurantService {
         _sum: { amount: true },
       }),
     ]);
-    return foodCashBalances(
+    const balances = foodCashBalances(
       payments.map((p) => ({ method: p.method, amount: p._sum.amount ?? 0n, status: 'COMPLETED' })),
       ops.map((o) => ({
         kind: o.kind,
@@ -1473,6 +1474,8 @@ export class RestaurantService {
         status: 'COMPLETED',
       })),
     );
+    balances.CASH -= await acknowledgedCashHandovers(db, {locationId:s.locationId});
+    return balances;
   }
 
   private async spendable(tx: DbTx, s: FoodScope, method: FoodPaymentMethod, amount: bigint) {

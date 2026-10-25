@@ -8,6 +8,12 @@ import { msg, translator, type Translate } from '../../i18n';
 const RU = translator('ru');
 
 export const ACTION_RU: Record<string, string> = {
+  'cash.cashiers.update': msg('Права кассиров изменены'),
+  'cash.shift.open': msg('Кассовая смена открыта'),
+  'cash.shift.close': msg('Кассовая смена закрыта'),
+  'cash.shift.expense': msg('Расход кассовой смены'),
+  'cash.shift.income': msg('Деньги внесены в кассу'),
+  'cash.shift.acknowledge': msg('Получение денег подтверждено'),
   'beauty.position.created': msg('Должность создана'),
   'beauty.position.updated': msg('Права должности изменены'),
   'beauty.position.archived': msg('Должность в архиве'),
@@ -228,6 +234,7 @@ export const ACTION_RU: Record<string, string> = {
 };
 
 export const ENTITY_RU: Record<string, string> = {
+  CashRegister: msg('Касса'),
   beauty_position: msg('Должность'),
   beauty_position_assignment: msg('Назначение должности'),
   Reservation: msg('Бронь'),

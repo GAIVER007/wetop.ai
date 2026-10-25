@@ -1,4 +1,5 @@
 'use client';
+import { CashHeader } from './shell/cash-header';
 import { landingForVertical } from '../lib/vertical-landing';
 import { PENDING_ACCESS, allowedItem, routeRule } from '../lib/navigation';
 import Link from 'next/link';
@@ -219,6 +220,9 @@ export function TopNav({
             {/* дата и время филиала у знака (владелец 24.10.2026, вариант A): второго поля поиска в шапке нет, ищут
                 в строке отборов журнала; поиск по системе открывает Ctrl K или значок лупы на телефоне */}
             <HeaderClock />
+            {!scopeSwitching && shell?.scopeKey && !shell.access.unknown && (
+              <CashHeader key={scopeKey} scopeKey={scopeKey} readOnly={shell.readOnly} />
+            )}
             {/* в журналах у экрана свой поиск в строке отборов (ADR шапки), значка там нет, Ctrl K ставит курсор в поиск
                 журнала; владелец 24.10.2026: «сделай всё так же, как в гостиницах» */}
             {!JOURNAL_PATHS.has(path) && (

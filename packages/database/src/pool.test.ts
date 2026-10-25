@@ -6,6 +6,33 @@ import { DATABASE_POOL_DEFAULTS, databasePoolTimeouts } from './pool';
  * Сроки пула читаются из окружения каждого процесса (ADR-043). Поведение на мёртвом соединении —
  * в `pool-timeouts.test.ts`; здесь — что значат переменные и что будет, если их нет или они с ошибкой.
  */
+/**
+ * Тёплые соединения (24.10.2026): журнал пулера Supabase за сутки показал 12 634 новых подключения и ~250 перезапусков
+ * пула `wetop_app`. Умолчание pg закрывает простаивающее соединение через 10 с, а между нажатиями в стойке проходит
+ * больше: почти каждое нажатие платило за TCP, TLS и SCRAM до Сингапура и за подъём пула у Supavisor.
+ */
+describe('тёплые соединения пула', () => {
+  it('по умолчанию одно соединение держится тёплым, лишние закрываются через 5 минут, процесс выходит сам', () => {
+    const t = databasePoolTimeouts({});
+    expect(t.min).toBe(1);
+    expect(t.idleTimeoutMillis).toBe(300_000);
+    expect(t.allowExitOnIdle).toBe(true);
+  });
+
+  it('значения из переменных; 0 соединений держит пул пустым, как прежде', () => {
+    const t = databasePoolTimeouts({ DATABASE_POOL_MIN: '0', DATABASE_IDLE_TIMEOUT_MS: '10000' });
+    expect(t.min).toBe(0);
+    expect(t.idleTimeoutMillis).toBe(10_000);
+  });
+
+  it('настоящий pg.Pool принимает эти настройки', () => {
+    const pool = new pg.Pool({ ...databasePoolTimeouts({}), max: 5 });
+    expect(pool.options.min).toBe(1);
+    expect(pool.options.idleTimeoutMillis).toBe(300_000);
+    void pool.end();
+  });
+});
+
 describe('databasePoolTimeouts', () => {
   it('без переменных — безопасные значения по умолчанию, все три защиты включены', () => {
     const t = databasePoolTimeouts({});

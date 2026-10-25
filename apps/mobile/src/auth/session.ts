@@ -197,7 +197,7 @@ export class SessionController {
     await this.run(() => this.resolve(this.epoch, id));
   }
   async readFood(
-    action: 'tables' | 'orders' | 'categories' | 'items',
+    action: 'tables' | 'orders' | 'categories' | 'items' | 'cash',
     cursor?: string,
   ): Promise<unknown> {
     const current = this.state;

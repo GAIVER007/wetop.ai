@@ -58,3 +58,15 @@ export type MenuItem = {
   }[];
 };
 export type MenuPage<T> = { items: T[]; nextCursor: string | null };
+export type CashSummary = {
+  currency: string;
+  balances: { method: string; balanceMinor: string }[];
+  payments: {
+    id: string;
+    orderNumber: number;
+    method: string;
+    amountMinor: string;
+    status: string;
+    paidAt: string;
+  }[];
+};

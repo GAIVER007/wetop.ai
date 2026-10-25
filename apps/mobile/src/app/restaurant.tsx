@@ -27,10 +27,19 @@ export default function RestaurantRoute() {
       key={state.identity}
       personal={state.personal || state.user.role === 'EMPLOYEE'}
       name={state.branch.name}
+      canSeeCash={state.user.role !== 'EMPLOYEE'}
     />
   );
 }
-function RestaurantWorkspace({ personal, name }: { personal: boolean; name: string }) {
+function RestaurantWorkspace({
+  personal,
+  name,
+  canSeeCash,
+}: {
+  personal: boolean;
+  name: string;
+  canSeeCash: boolean;
+}) {
   const { session } = useAccess();
   const theme = useTheme();
   const [orders, setOrders] = useState<RestaurantOrder[]>([]);
@@ -142,6 +151,13 @@ function RestaurantWorkspace({ personal, name }: { personal: boolean; name: stri
               label="Меню кухни и бара"
               onPress={() => router.push('/restaurant-menu')}
             />
+            {canSeeCash ? (
+              <ActionButton
+                secondary
+                label="Касса филиала"
+                onPress={() => router.push('/restaurant-cash')}
+              />
+            ) : null}
             <View style={{ gap: 6 }}>
               <Text accessibilityRole="header" style={{ ...title, fontSize: 28 }}>
                 {personal ? 'Мои заказы' : 'Работа ресторана'}

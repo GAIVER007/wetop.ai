@@ -15,6 +15,7 @@ const ACTIONS = {
   orders: '/food-service/orders',
   categories: '/food-service/menu/categories',
   items: '/food-service/menu/items',
+  cash: '/food-service/cash',
 } as const;
 
 type FoodAction = keyof typeof ACTIONS;
@@ -29,7 +30,8 @@ function json(body: unknown, status: number, extra: HeadersInit = {}): Response 
 }
 
 function record(value: unknown): JsonRecord {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new InvalidUpstreamResponse();
+  if (!value || typeof value !== 'object' || Array.isArray(value))
+    throw new InvalidUpstreamResponse();
   return value as JsonRecord;
 }
 
@@ -50,7 +52,8 @@ function boolean(value: unknown): boolean {
 }
 
 function integer(value: unknown, minimum = 0): number {
-  if (!Number.isSafeInteger(value) || (value as number) < minimum) throw new InvalidUpstreamResponse();
+  if (!Number.isSafeInteger(value) || (value as number) < minimum)
+    throw new InvalidUpstreamResponse();
   return value as number;
 }
 
@@ -145,6 +148,33 @@ function ordersDto(value: unknown): JsonRecord {
   return { items: source.items.map(orderDto), nextCursor };
 }
 
+function cashDto(value: unknown): JsonRecord {
+  const source = record(value);
+  if (!Array.isArray(source.balances) || !Array.isArray(source.payments))
+    throw new InvalidUpstreamResponse();
+  return {
+    currency: nonEmptyString(source.currency),
+    balances: source.balances.map((value) => {
+      const balance = record(value);
+      return {
+        method: nonEmptyString(balance.method),
+        balanceMinor: signedMinorUnits(balance.balanceMinor),
+      };
+    }),
+    payments: source.payments.map((value) => {
+      const payment = record(value);
+      return {
+        id: nonEmptyString(payment.id),
+        orderNumber: integer(payment.orderNumber, 1),
+        method: nonEmptyString(payment.method),
+        amountMinor: minorUnits(payment.amountMinor),
+        status: nonEmptyString(payment.status),
+        paidAt: nonEmptyString(payment.paidAt),
+      };
+    }),
+  };
+}
+
 function nextCursorOf(source: JsonRecord): string | null {
   const nextCursor = source.nextCursor;
   if (nextCursor !== null && (typeof nextCursor !== 'string' || !UUID_RE.test(nextCursor)))
@@ -176,7 +206,7 @@ function modifierGroupDto(value: unknown): JsonRecord {
   const minSelect = integer(group.minSelect);
   const maxSelect = integer(group.maxSelect, 1);
   const required = boolean(group.required);
-  if (minSelect > maxSelect || required !== (minSelect >= 1)) throw new InvalidUpstreamResponse();
+  if (minSelect > maxSelect || required !== minSelect >= 1) throw new InvalidUpstreamResponse();
   return {
     id: nonEmptyString(group.id),
     name: nonEmptyString(group.name),
@@ -223,29 +253,37 @@ function bearerOf(request: Request): string | null {
   if (!authorization.startsWith('Bearer ')) return null;
   const token = authorization.slice(7);
   if (!token || token.length > 4096) return null;
-  if ([...token].some((character) => {
-    const code = character.charCodeAt(0);
-    return code <= 32 || code === 127;
-  })) return null;
+  if (
+    [...token].some((character) => {
+      const code = character.charCodeAt(0);
+      return code <= 32 || code === 127;
+    })
+  )
+    return null;
   return token;
 }
 
 function hasServiceCredential(request: Request): boolean {
-  return ['x-wetop-service-key', 'x-service-key', 'x-api-key'].some((name) => request.headers.has(name));
+  return ['x-wetop-service-key', 'x-service-key', 'x-api-key'].some((name) =>
+    request.headers.has(name),
+  );
 }
 
 function upstreamPath(request: Request, action: FoodAction): string | Response {
   const params = new URL(request.url).searchParams;
-  if (action === 'tables') {
+  if (action === 'tables' || action === 'cash') {
     if ([...params].length) return json({ message: 'Некорректный запрос' }, 400);
-    return ACTIONS.tables;
+    return ACTIONS[action];
   }
   const cursorValues = params.getAll('cursor');
   if ([...params.keys()].some((key) => key !== 'cursor') || cursorValues.length > 1)
     return json({ message: 'Некорректный запрос' }, 400);
   const cursor = cursorValues[0];
-  if (cursor !== undefined && !UUID_RE.test(cursor)) return json({ message: 'Некорректный запрос' }, 400);
-  const query = new URLSearchParams(action === 'orders' ? { open: '1', limit: '100' } : { limit: '100' });
+  if (cursor !== undefined && !UUID_RE.test(cursor))
+    return json({ message: 'Некорректный запрос' }, 400);
+  const query = new URLSearchParams(
+    action === 'orders' ? { open: '1', limit: '100' } : { limit: '100' },
+  );
   if (cursor) query.set('cursor', cursor);
   return `${ACTIONS[action]}?${query.toString()}`;
 }
@@ -253,7 +291,13 @@ function upstreamPath(request: Request, action: FoodAction): string | Response {
 function endpoint(env: MobileFoodGatewayEnv, path: string): string | null {
   try {
     const base = new URL(env.APP_API_URL?.trim() || 'http://127.0.0.1:3001');
-    if (!['http:', 'https:'].includes(base.protocol) || base.username || base.password || base.search || base.hash)
+    if (
+      !['http:', 'https:'].includes(base.protocol) ||
+      base.username ||
+      base.password ||
+      base.search ||
+      base.hash
+    )
       return null;
     return `${base.toString().replace(/\/$/, '')}${path}`;
   } catch {
@@ -263,7 +307,8 @@ function endpoint(env: MobileFoodGatewayEnv, path: string): string | null {
 
 async function boundedResponse(response: Response): Promise<string | null> {
   const declared = response.headers.get('content-length');
-  if (declared !== null && (!/^\d+$/.test(declared) || Number(declared) > RESPONSE_LIMIT)) return null;
+  if (declared !== null && (!/^\d+$/.test(declared) || Number(declared) > RESPONSE_LIMIT))
+    return null;
   if (!response.body) return '';
   const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];
@@ -304,7 +349,8 @@ export async function handleMobileFoodGateway(
   if (env.MOBILE_GATEWAY_ENABLED !== '1') return json({ message: 'Не найдено' }, 404);
   if (!Object.hasOwn(ACTIONS, rawAction)) return json({ message: 'Не найдено' }, 404);
   const action = rawAction as FoodAction;
-  if (request.method !== 'GET') return json({ message: 'Метод не поддерживается' }, 405, { allow: 'GET' });
+  if (request.method !== 'GET')
+    return json({ message: 'Метод не поддерживается' }, 405, { allow: 'GET' });
   if (hasServiceCredential(request)) return json({ message: 'Служебные ключи запрещены' }, 403);
 
   const bearer = bearerOf(request);
@@ -359,6 +405,7 @@ export async function handleMobileFoodGateway(
     if (action === 'tables') return json(tablesDto(parsed), 200);
     if (action === 'orders') return json(ordersDto(parsed), 200);
     if (action === 'categories') return json(categoriesDto(parsed), 200);
+    if (action === 'cash') return json(cashDto(parsed), 200);
     return json(menuItemsDto(parsed), 200);
   } catch {
     return json({ message: 'Некорректный ответ сервера' }, 502);

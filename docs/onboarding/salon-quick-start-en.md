@@ -20,7 +20,7 @@ Tell us which methods you accept:
 - **Bank transfer** (to the company or to a personal account)
 - **Other** (payment link, wallet app): please name it
 - Gift certificates: yes or no
-- Deposit or prepayment for a booking: yes or no, how much
+- Deposit or prepayment for a booking: yes or no, how much (the administrator takes it in the booking before the visit)
 - Cash in the till on the start day
 
 ## 3. Administrator (also the cashier)
@@ -42,7 +42,7 @@ Category, service name, duration in minutes, price.
 
 ## 6. Extras
 
-Drinks, snacks, products: free or paid, and the price.
+Drinks, snacks, products: free or paid, and the price. Paid products are sold from stock with remaining quantities.
 
 ## What happens next (about one hour)
 

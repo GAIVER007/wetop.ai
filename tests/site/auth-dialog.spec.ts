@@ -361,7 +361,7 @@ for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
   });
 }
 
-test('registration: three countries, correct dial codes and English preference', async ({
+test('registration: three countries, correct dial codes and Kazakh preference', async ({
   page,
 }) => {
   const calls = await mockDesk(page, {
@@ -381,8 +381,8 @@ test('registration: three countries, correct dial codes and English preference',
     await expect(dialog.locator('.auth-phone__code')).toHaveText(dial!);
   }
   const language = dialog.getByLabel('Язык системы');
-  await expect(language.locator('option')).toHaveText(['Русский', 'English']);
-  await language.selectOption('en');
+  await expect(language.locator('option')).toHaveText(['Русский', 'Қазақша', 'English']);
+  await language.selectOption('kk');
   await dialog.getByLabel('Имя').fill('Тестовый владелец');
   await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
   await dialog.getByLabel('Телефон').fill('5550 1234');
@@ -394,7 +394,7 @@ test('registration: three countries, correct dial codes and English preference',
   expect(calls.find((call) => call.path === 'register')?.body).toMatchObject({
     phoneCountry: 'QA',
     phone: '5550 1234',
-    locale: 'en',
+    locale: 'kk',
   });
 });
 

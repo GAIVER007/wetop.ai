@@ -78,9 +78,13 @@ const VERTICAL_TILES: Record<BusinessVertical, { icon: IconName; label: string }
   FOOD_SERVICE: { icon: 'food', label: 'Ресторан' },
 };
 
-/** Выбор сохраняется в существующем поле locale профиля. */
+/**
+ * Выбор сохраняется в существующем поле locale профиля. Казахский открыт после того, как первое направление (салон,
+ * KK2) переведено целиком: решение владельца по плану `plans/desk-kk-2026-10-23.md`, вопрос 2.
+ */
 const LANGUAGES = [
   { code: 'ru', label: 'Русский' },
+  { code: 'kk', label: 'Қазақша' },
   { code: 'en', label: 'English' },
 ] as const;
 const REGISTRATION_COUNTRIES = PHONE_COUNTRIES.filter((c) => ['KZ', 'AE', 'QA'].includes(c.code));

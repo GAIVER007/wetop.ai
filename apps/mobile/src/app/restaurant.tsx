@@ -1,3 +1,4 @@
+import { GuestBill } from '../restaurant/guest-bill';
 import { CloseControls } from '../restaurant/close-controls';
 import { PaymentPanel } from '../restaurant/payment-panel';
 import { ServeControls } from '../restaurant/serve-controls';
@@ -53,6 +54,7 @@ function RestaurantWorkspace({
   const [error, setError] = useState('');
   const [tab, setTab] = useState<'orders' | 'tables'>('orders');
   const [payment, setPayment] = useState(false);
+  const [bill, setBill] = useState(false);
   const [detail, setDetail] = useState<RestaurantOrder | null>(null);
   const request = useRef(0);
   const locked = useRef(false);
@@ -96,6 +98,18 @@ function RestaurantWorkspace({
   const card = { padding: 18, borderRadius: 16, backgroundColor: theme.surface, gap: 8 } as const;
   const title = { fontSize: 18, fontWeight: '700', color: theme.text } as const;
   const secondary = { fontSize: 14, lineHeight: 21, color: theme.secondary } as const;
+  if (bill && detail)
+    return (
+      <GuestBill
+        order={detail}
+        onBack={() => setBill(false)}
+        onRefresh={() => {
+          setBill(false);
+          setDetail(null);
+          void load();
+        }}
+      />
+    );
   if (payment && detail)
     return (
       <PaymentPanel
@@ -153,6 +167,9 @@ function RestaurantWorkspace({
           <Text style={title}>{money(detail.totalMinor, detail.currency)}</Text>
           <Text style={secondary}>Оплачено: {money(detail.paidMinor, detail.currency)}</Text>
         </View>
+        {detail.status !== 'CANCELLED' && detail.status !== 'CLOSED' ? (
+          <ActionButton secondary label="Показать счёт" onPress={() => setBill(true)} />
+        ) : null}
         {canSeeCash &&
         detail.status !== 'CLOSED' &&
         detail.status !== 'CANCELLED' &&
@@ -339,8 +356,7 @@ function RestaurantWorkspace({
             ) : null}
             <ActionButton secondary disabled={busy} label="Обновить" onPress={() => void load()} />
             <Text style={secondary}>
-              Создание заказа и расчёт подключаются следующим этапом. Сейчас они доступны в
-              веб-версии.
+              Откройте заказ, чтобы проверить состав, показать счёт и выполнить доступные действия.
             </Text>
           </View>
         }

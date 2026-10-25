@@ -65,7 +65,7 @@ function readResults(
   if (existsSync(reportFile)) {
     try {
       const json: unknown = JSON.parse(readFileSync(reportFile, 'utf8'));
-      return runner === 'vitest'
+      return runner === 'vitest' || runner === 'jest'
         ? parseVitestReport(json, ROOT, mask)
         : parsePlaywrightReport(json, ROOT, mask);
     } catch {
@@ -115,6 +115,9 @@ function main(): void {
   const env: NodeJS.ProcessEnv = { ...process.env };
   if (suite.runner === 'vitest') {
     command += ` --reporter=default --reporter=json --outputFile.json=${quote(reportFile)}`;
+  }
+  if (suite.runner === 'jest') {
+    command += ` --json --outputFile=${quote(reportFile)}`;
   }
   if (suite.runner === 'playwright') {
     command += ' --reporter=list,json';

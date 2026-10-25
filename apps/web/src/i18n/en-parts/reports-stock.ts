@@ -500,4 +500,5 @@ export const reportsStock: Record<string, string> = {
   "продуктов": 'products',
   "позиций": 'items',
   "броням": 'bookings',
+  "Показать неиспользуемые": "Show unused",
 };

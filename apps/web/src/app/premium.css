@@ -552,8 +552,12 @@
     .workspace-header__row {
       gap: 12px;
     }
+    /* подсказка клавиш у правого края поля, а не посередине (владелец 24.10.2026) */
     .workspace-search kbd {
-      margin-left: 20px;
+      margin-left: auto;
+    }
+    .workspace-search .workspace-search-full {
+      margin-right: var(--space-2);
     }
     .mobile-navigation {
       width: min(330px, calc(100vw - 24px));

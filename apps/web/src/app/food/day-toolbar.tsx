@@ -1,15 +1,15 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { DateBar } from '../../components/date-bar';
 import { Field, Input, Select } from '../../components/ui';
-import { shiftDate } from '../../lib/food-data';
 import type { FoodWorkspace } from '../../lib/food-types';
-import { localInput } from '../beauty/time';
 
 /** Подпись поля только для программы чтения: панель экрана одной строкой, как на макете */
 export const quiet = (text: string) => <span className="sr-only">{text}</span>;
 
-/** День, период и время плана одной строкой (макет, экраны 2 и 3); адреса `?date=` и `?time=` прежние */
+/**
+ * Период и время плана в строке отборов единой шапки журнала (23.10.2026); день переключает `DayNav` в шапке.
+ * Адреса `?date=` и `?time=` прежние.
+ */
 export function DayToolbar({
   data,
   floor,
@@ -35,22 +35,6 @@ export function DayToolbar({
     .sort((a, b) => a.timeFrom.localeCompare(b.timeFrom));
   return (
     <>
-      {/* день: общий DateBar (MV8.5 DS1c); переход сразу при смене даты */}
-      <DateBar
-        calendar
-        compact
-        className="rest-day-bar"
-        date={data.date}
-        onPrevious={() => go(shiftDate(data.date, -1))}
-        onNext={() => go(shiftDate(data.date, 1))}
-        onDateChange={(next) => go(next)}
-        // «Сегодня» на расписании, как на макете (экран 3); на плане зала её нет, как и раньше
-        onToday={
-          floor
-            ? undefined
-            : () => go(localInput(new Date().toISOString(), data.timezone).slice(0, 10))
-        }
-      />
       {/* план зала: смены карточками с часами, как на эталоне 13.10.2026; на расписании прежний список */}
       {floor && shifts.length > 0 ? (
         <div className="rest-shifts" role="group" aria-label="Период">

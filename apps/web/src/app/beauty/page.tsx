@@ -1,7 +1,7 @@
 import { requireFeature } from '../../lib/vertical-guard';
-import Link from 'next/link';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
+import { Tabs } from '../../components/tabs';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { beautyApi } from '../../lib/api';
@@ -90,33 +90,23 @@ export default async function BeautyPage({
 
   // «День / Неделя»: в дне стоят в строке инструментов рядом с датой (аудит 21.10.2026, п. 34). Без предзагрузки:
   // предзагрузка этих двух адресов на живом сайте висела открытым запросом, и страница не затихала (п. 3)
+  // переключатель тот же, что «План зала / Расписание» ресторана (`Tabs`, без предзагрузки), владелец 24.10.2026:
+  // «в каждой вертикали всё по-разному выглядит»
   const views = (
-    <nav className="beauty-calendar-views" aria-label="Вид журнала">
-      <Link
-        className="btn btn--secondary"
-        prefetch={false}
-        aria-current={view !== 'week' ? 'page' : undefined}
-        href={`/calendar?date=${loaded.value.date}&${filters}`}
-      >
-        День
-      </Link>
-      <Link
-        className="btn btn--secondary"
-        prefetch={false}
-        aria-current={view === 'week' ? 'page' : undefined}
-        href={`/calendar?date=${loaded.value.date}&view=week&${filters}`}
-      >
-        Неделя
-      </Link>
-    </nav>
+    <Tabs
+      label="Вид журнала"
+      items={[
+        { href: `/calendar?date=${loaded.value.date}&${filters}`, label: 'День', current: view !== 'week' },
+        { href: `/calendar?date=${loaded.value.date}&view=week&${filters}`, label: 'Неделя', current: view === 'week' },
+      ]}
+    />
   );
   return (
     <Page
-      className="beauty-page"
+      className="beauty-page journal-page"
       title="Журнал"
       subtitle={`Расписание специалистов и услуг салона${loaded.value.location.name ? `, ${loaded.value.location.name}` : ''}`}
     >
-      {loaded.week && views}
       {manual && manual.items.length > 0 && (
         <RemindersToday
           items={manual.items}
@@ -126,6 +116,8 @@ export default async function BeautyPage({
       )}
       {loaded.week ? (
         <WeekCalendar
+          views={views}
+          canCreate={canCreate && !shell.readOnly}
           days={loaded.week}
           employees={loaded.employees}
           selectedDate={loaded.value.date}

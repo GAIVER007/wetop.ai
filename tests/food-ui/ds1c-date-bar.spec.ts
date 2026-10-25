@@ -23,16 +23,17 @@ test('ресторан: день по прежним адресам, форма 
     },
   ]);
   await page.goto('/floor-plan?date=2026-10-12&time=19:00');
-  const bar = page.locator('.date-bar');
-  await expect(bar.getByRole('button', { name: 'Сегодня', exact: true })).toHaveCount(0);
+  // единая шапка журнала (24.10.2026): день в рамке со стрелками, выбор дня в окне календаря
+  const bar = page.getByTestId('food-day-nav');
   await bar.getByRole('button', { name: 'Следующий день' }).click();
   await expect(page).toHaveURL(/\/floor-plan\?date=2026-10-13$/);
   await bar.getByRole('button', { name: 'Предыдущий день' }).click();
   await expect(page).toHaveURL(/\/floor-plan\?date=2026-10-12$/);
-  await bar.getByLabel('Дата', { exact: true }).fill('2026-10-15');
+  await bar.getByLabel('Выбрать день').click();
+  await page.getByLabel('Календарь периода').getByRole('button', { name: /^15 окт/ }).click();
   await expect(page).toHaveURL(/\/floor-plan\?date=2026-10-15$/);
 
-  await page.getByRole('button', { name: '+ Новая бронь', exact: true }).click();
+  await page.getByRole('button', { name: 'Новая бронь', exact: true }).click();
   const dialog = page.getByRole('dialog');
   const grid = dialog.locator('.form-grid');
   await expect(grid.getByLabel('Дата', { exact: true })).toHaveAttribute('required', '');
